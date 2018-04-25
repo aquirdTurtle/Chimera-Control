@@ -36,7 +36,7 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 }
 
 
-void TektronicsControl::interpretKey(std::vector<std::vector<variableType>>& variables)
+void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequenceNumber;
@@ -209,7 +209,7 @@ void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine(configFile, "TEKTRONICS");
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");

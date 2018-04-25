@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Control.h"
+#include "Version.h"
 #include <Windows.h>
 #include <unordered_map>
 
@@ -16,7 +17,7 @@ class Repetitions
 		void updateNumber(long repNumber);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& openFile, Version ver );
 
 	private:
 		UINT repetitionNumber;

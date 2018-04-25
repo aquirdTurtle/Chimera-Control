@@ -1,5 +1,6 @@
 #pragma once
 #include "myButton.h"
+#include "Version.h"
 #include "ProfileSystem.h"
 #include "ScriptStream.h"
 #include "VisaFlume.h"
@@ -7,10 +8,10 @@
 #include "agilentStructures.h"
 #include "Script.h"
 #include "Expression.h"
+#include "Version.h"
 #include <vector>
 #include <array>
 #include "Windows.h"
-
 
 
 // A class for programming agilent machines.
@@ -38,23 +39,23 @@ class Agilent
 		void prepAgilentSettings(UINT channel );
 		bool connected();
 		bool scriptingModeIsSelected( );
-		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variableType>& vars );
+		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& vars );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();
 		std::string getName();
-		void readConfigurationFile( std::ifstream& file, int versionMajor, int versionMinor );
-		void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<variableType>& variables);
+		void readConfigurationFile( std::ifstream& file, Version ver );
+		void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
 		void convertInputToFinalSettings(UINT chan);
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
-		void setAgilent( UINT variation, std::vector<variableType>& variables);
+		void setAgilent( UINT variation, std::vector<parameterType>& variables);
 		void setAgilent();
 		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
-			std::vector<variableType>& variables);
+			std::vector<parameterType>& variables);
 		void handleNoVariations( scriptedArbInfo& scriptInfo, UINT channel );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.

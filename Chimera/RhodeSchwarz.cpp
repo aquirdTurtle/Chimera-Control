@@ -125,7 +125,7 @@ void RhodeSchwarz::setInfoDisp(UINT variation)
 	}
 }
 
-void RhodeSchwarz::interpretKey( std::vector<std::vector<variableType>>& variables)
+void RhodeSchwarz::interpretKey( std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequencNumber;

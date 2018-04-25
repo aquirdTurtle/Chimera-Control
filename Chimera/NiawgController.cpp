@@ -193,7 +193,7 @@ bool NiawgController::outputVaries( NiawgOutput output )
 
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
 									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngOptions rInfo, std::vector<variableType>& variables )
+									bool& foundRearrangement, rerngOptions rInfo, std::vector<parameterType>& variables )
 {
 	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;
@@ -307,8 +307,8 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 		script << configFile.rdbuf( );
 		rerngOptions rInfoDummy;
 		rInfoDummy.moveSpeed = 0.00006;
-		analyzeNiawgScript( script, output, profile, debug, warnings, rInfoDummy, std::vector<variableType>() );
-		writeStaticNiawg( output, debug, std::vector<variableType>( ) );
+		analyzeNiawgScript( script, output, profile, debug, warnings, rInfoDummy, std::vector<parameterType>() );
+		writeStaticNiawg( output, debug, std::vector<parameterType>( ) );
 		// the script file must end with "end script".
 		output.niawgLanguageScript += "end Script";
 		// Convert script string to ViConstString. +1 for a null character on the end.
@@ -451,7 +451,7 @@ void NiawgController::programVariations( UINT variation, std::vector<long>& vari
 
 void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile, 
 										  debugInfo& options, std::string& warnings, rerngOptions rInfo, 
-										  std::vector<variableType>& variables )
+										  std::vector<parameterType>& variables )
 {
 	writeToFileNumber = 0;
 	/// Preparation
@@ -495,7 +495,7 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 
 
 
-void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& constants,
+void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& constants,
 										bool deleteWaveAfterWrite)
 {
 	for ( auto& waveInc : range(output.waveFormInfo.size()) )
@@ -601,7 +601,7 @@ void NiawgController::simpleFormVaries(simpleWaveForm& wave )
 
 
 void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave, 
-										  std::vector<variableType>& varibles, UINT variation )
+										  std::vector<parameterType>& varibles, UINT variation )
 {
 	try
 	{
@@ -657,7 +657,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 
 void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
 													   ScriptStream& script, debugInfo& options, rerngOptions rInfo,
-													   std::vector<variableType>& variables )
+													   std::vector<parameterType>& variables )
 {
 	if ( cmd == "flash" )
 	{
@@ -698,7 +698,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		% closing bracket
 		}
 		*/
-
+		std::string scope = NO_PARAMETER_SCOPE;
 		// bracket
 		std::string bracket;
 		script >> bracket;
@@ -715,7 +715,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 			script >> waveformsToFlashInput;
 			flashingWave.flash.flashNumber = std::stoi( waveformsToFlashInput );
 			script >> flashingWave.flash.flashCycleFreq;
-			flashingWave.flash.flashCycleFreq.assertValid( variables );
+			flashingWave.flash.flashCycleFreq.assertValid( variables, scope );
 		}
 		catch ( std::invalid_argument& )
 		{
@@ -723,7 +723,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		}
 		script >> flashingWave.core.time;
 		script >> flashingWave.flash.deadTime;
-		flashingWave.flash.deadTime.assertValid( variables );
+		flashingWave.flash.deadTime.assertValid( variables, scope );
 		/// get waveforms to flash.
 		NiawgOutput flashOutInfo = output;
 		for ( auto waveCount : range( flashingWave.flash.flashNumber ) )
@@ -899,7 +899,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 }
 
 
-void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::vector<variableType>>& variables, 
+void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::vector<parameterType>>& variables, 
 										UINT variation, std::vector<long>& mixedWaveSizes, std::string& warnings, 
 										debugInfo& debugOptions, UINT totalVariations)
 {
@@ -1673,7 +1673,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 
 
 void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
-														std::vector<variableType> variables, int axis, 
+														std::vector<parameterType> variables, int axis, 
 														simpleWaveForm& wave )
 {
 	// Don't remember why I have this limitation built in.
@@ -1682,6 +1682,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		thrower( "ERROR: The default niawg waveform files contain sequences of waveforms. Right now, the default "
 				 "waveforms must be a single waveform, not a sequence.\r\n" );
 	}
+	std::string scope = NO_PARAMETER_SCOPE;
 	// Get a number corresponding directly to the given input type.
 	loadStandardInputFormType( cmd, wave.chan[axis] ); 
 	// infer the number of signals from the type assigned.
@@ -1704,12 +1705,12 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 			{
 				// set the initial and final values to be equal, and to not use a ramp, unless variable present.
 				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables );
+				sig.freqInit.assertValid( variables, scope );
 				// set the initial and final values to be equal, and to not use a ramp, unless variable present.
 				script >> sig.initPower;
-				sig.initPower.assertValid( variables );
+				sig.initPower.assertValid( variables, scope );
 				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables );
+				sig.initPhase.assertValid( variables, scope );
 				sig.freqFin = sig.freqInit;
 				sig.finPower = sig.initPower;
 				sig.powerRampType = "nr";
@@ -1720,14 +1721,14 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 			case 1:
 			{
 				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables );
+				sig.freqInit.assertValid( variables, scope );
 				script >> sig.powerRampType;
 				script >> sig.initPower;
-				sig.initPower.assertValid( variables );
+				sig.initPower.assertValid( variables, scope );
 				script >> sig.finPower;
-				sig.finPower.assertValid( variables );
+				sig.finPower.assertValid( variables, scope );
 				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables );
+				sig.initPhase.assertValid( variables, scope );
 				sig.freqFin = sig.freqInit;
 				sig.freqRampType = "nr";
 				break;
@@ -1737,15 +1738,15 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 			{
 				script >> sig.freqRampType;
 				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables );
+				sig.freqInit.assertValid( variables, scope );
 				script >> sig.freqFin;
-				sig.freqFin.assertValid( variables );
+				sig.freqFin.assertValid( variables, scope );
 				script >> sig.initPower;
-				sig.initPower.assertValid( variables );
+				sig.initPower.assertValid( variables, scope );
 				sig.finPower = sig.initPower;
 				sig.powerRampType = "nr";
 				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables );
+				sig.initPhase.assertValid( variables, scope );
 				break;
 			}
 			/// The case for "gen ?, freq & amp ramp"
@@ -1753,16 +1754,16 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 			{
 				script >> sig.freqRampType;
 				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables );
+				sig.freqInit.assertValid( variables, scope );
 				script >> sig.freqFin;
-				sig.freqFin.assertValid( variables );
+				sig.freqFin.assertValid( variables, scope );
 				script >> sig.powerRampType;
 				script >> sig.initPower;
-				sig.initPower.assertValid( variables );
+				sig.initPower.assertValid( variables, scope );
 				script >> sig.finPower;
-				sig.finPower.assertValid( variables );
+				sig.finPower.assertValid( variables, scope );
 				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables );
+				sig.initPhase.assertValid( variables, scope );
 				break;
 			}
 		}
@@ -1807,7 +1808,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 
 
 void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script,
-									std::vector<variableType>& variables, simpleWaveForm& wave )
+									std::vector<parameterType>& variables, simpleWaveForm& wave )
 {
 	int axis;
 	// get axis of first waveform
@@ -1856,7 +1857,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 
 
 void NiawgController::handleStandardWaveformFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script, 
-														std::vector<variableType>& variables )
+														std::vector<parameterType>& variables )
 {
 	/*
 	example syntax:
@@ -1925,7 +1926,7 @@ void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, s
 }
 
 
-void NiawgController::flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<variableType>& variables, 
+void NiawgController::flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<parameterType>& variables, 
 										 UINT variation )
 {
 	wave.core.time = waveForm.core.time.evaluate( variables, variation ) * 1e-3;
@@ -1944,7 +1945,7 @@ void NiawgController::flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 
 
 void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, 
-											 std::vector<variableType>& variables, UINT variation )
+											 std::vector<parameterType>& variables, UINT variation )
 {
 	wave.rearrange.isRearrangement = waveForm.rearrange.isRearrangement;
 	wave.rearrange.freqPerPixel = waveForm.rearrange.freqPerPixel;
@@ -2988,7 +2989,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 
 
 void NiawgController::rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, 
-											   std::vector<variableType>& variables, UINT variation )
+											   std::vector<parameterType>& variables, UINT variation )
 {
 	data.active = form.active;
 	data.deadTime = form.deadTime.evaluate( variables, variation );

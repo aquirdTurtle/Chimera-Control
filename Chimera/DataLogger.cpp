@@ -360,7 +360,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 }
 
 
-void DataLogger::logVariables( const std::vector<variableType>& variables, H5::Group& group, UINT seqInc )
+void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc )
 {
 	H5::Group variableGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Variables" );
 	for ( auto& variable : variables )

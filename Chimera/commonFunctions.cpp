@@ -944,7 +944,7 @@ namespace commonFunctions
 						}
 						else
 						{
-							startMsg += var.name + ": ";
+							startMsg += var.name + " (" + str(var.keyValues.size()) + " Values): ";
 							for ( auto val : var.keyValues ) 
 							{
 								startMsg += str( val ) + ",";
@@ -956,6 +956,28 @@ namespace commonFunctions
 				startMsg += "\r\n" + constantsMsg;
 				startMsg += "\r\n";
 			}
+			startMsg += "FUNCTION VARIABLES:\r\n\t";
+			/*
+			for ( auto& seq : input.masterInput->functionVars )
+			{
+				for ( auto& funcVars : seq )
+				{
+					for ( auto& var : funcVars.second )
+					{
+						if ( !var.constant )
+						{
+							startMsg += "Function: " + funcVars.first + ", " + var.name + " (" 
+								+ str( var.keyValues.size( ) ) + " Values): ";
+							for ( auto val : var.keyValues )
+							{
+								startMsg += str( val ) + ",";
+							}
+							startMsg += "\r\n";
+						}
+					}
+				}
+			}
+			*/
 		}
 		startMsg += "\r\n\r\nBegin Waveform Generation with these Settings?";
 		StartDialog dlg( startMsg, IDD_BEGINNING_SETTINGS );

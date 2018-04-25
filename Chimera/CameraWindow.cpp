@@ -169,12 +169,12 @@ void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void CameraWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void CameraWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
 	// I could and perhaps should further subdivide this up.
-	CameraSettings.handleOpenConfig(configFile, versionMajor, versionMinor );
-	pics.handleOpenConfig(configFile, versionMajor, versionMinor );
-	analysisHandler.handleOpenConfig( configFile, versionMajor, versionMinor );
+	CameraSettings.handleOpenConfig(configFile, ver );
+	pics.handleOpenConfig(configFile, ver );
+	analysisHandler.handleOpenConfig( configFile, ver );
 	if ( CameraSettings.getSettings( ).andor.picsPerRepetition == 1 )
 	{
 		pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
@@ -930,7 +930,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
 	if ( input.masterInput )
 	{
-		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables[0] );
+		input.plotterInput->key = ParameterSystem::getKeyValues( input.masterInput->variables[0] );
 	}
 	else
 	{

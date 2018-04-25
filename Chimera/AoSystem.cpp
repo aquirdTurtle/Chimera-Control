@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AoSystem.h"
 #include "AuxiliaryWindow.h"
+#include "Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
 #include "Thrower.h"
@@ -67,7 +68,7 @@ std::array<double, 24> AoSystem::getDacStatus()
 }
 
 
-void AoSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls)
+void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
 	prepareForce( );
@@ -417,7 +418,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum )
+void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = dacSnapshots[seqNum][variation];
@@ -551,7 +552,7 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::interpretKey( std::vector<std::vector<variableType>>& variables, std::string& warnings )
+void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings )
 {
 	UINT sequenceLength = variables.size( );
 	if ( sequenceLength == 0 )
@@ -979,7 +980,7 @@ void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 
 
 void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-										std::vector<variableType>& vars, DioSystem* ttls, UINT seqNum )
+										std::vector<parameterType>& vars, DioSystem* ttls, UINT seqNum )
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{

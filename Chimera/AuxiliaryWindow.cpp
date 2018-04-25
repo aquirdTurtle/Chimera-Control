@@ -65,15 +65,12 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 					  &AuxiliaryWindow::handleAgilentCombo )
 	ON_REGISTERED_MESSAGE( eLogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
-	ON_CBN_SELENDOK( IDC_FUNC_VARIABLES_COMBO_ID, &AuxiliaryWindow::passFunctionVarsCombo )
-
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
-	ON_NOTIFY( NM_DBLCLK, IDC_FUNCTION_VARS_LISTVIEW, &AuxiliaryWindow::funcVarsDblClick)
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
@@ -87,19 +84,6 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
-
-
-void AuxiliaryWindow::passFunctionVarsCombo( )
-{
-	try
-	{
-		functionVariables.handleFuncCombo( );
-	}
-	catch ( Error& err )
-	{
-		sendErr( err.what( ) );
-	}
-}
 
 
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
@@ -411,36 +395,32 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	eoAxialTek.handleSaveConfig( saveFile );
 }
 
-void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
 	ttlBoard.prepareForce( );
 	aoSys.prepareForce( );
 
-	configVariables.normHandleOpenConfig(configFile, versionMajor, versionMinor );
-	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
-	{
-		//functionVariables.funcHandleOpenConfig( configFile, versionMajor, versionMinor );
-	}
-	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
-	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
+	configVariables.normHandleOpenConfig(configFile, ver );
+	ttlBoard.handleOpenConfig(configFile, ver );
+	aoSys.handleOpenConfig(configFile, ver, &ttlBoard);
 	aoSys.updateEdits( );
-	agilents[whichAg::TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::TopBottom].readConfigurationFile(configFile, ver );
 	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 											   mainWindowFriend->getRunInfo() );
-	agilents[whichAg::Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Axial].readConfigurationFile(configFile, ver );
 	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 										   mainWindowFriend->getRunInfo() );
-	agilents[whichAg::Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Flashing].readConfigurationFile(configFile, ver );
 	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 											  mainWindowFriend->getRunInfo( ) );
-	if ( (versionMajor == 2 && versionMinor > 6) || versionMajor > 2)
+	if ( ver > Version( "2.6" ) )
 	{
-		agilents[whichAg::Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
+		agilents[whichAg::Microwave].readConfigurationFile( configFile, ver );
 		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 												   mainWindowFriend->getRunInfo( ) );
 	}
-	topBottomTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
-	eoAxialTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
+	topBottomTek.handleOpeningConfig(configFile, ver );
+	eoAxialTek.handleOpeningConfig(configFile, ver );
 }
 
 
@@ -475,21 +455,6 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-void AuxiliaryWindow::funcVarsDblClick( NMHDR * pNotifyStruct, LRESULT * result )
-{
-	std::vector<Script*> scriptList;
-	try
-	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
-		functionVariables.updateVariableInfo( scriptList, mainWindowFriend, this, &ttlBoard, &aoSys );
-	}
-	catch ( Error& exception )
-	{
-		sendErr( "Function Variables Double Click Handler : " + exception.whatStr( ) + "\r\n" );
-	}
-	mainWindowFriend->updateConfigurationSavedStatus( false );
-}
-
 
 void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
@@ -497,7 +462,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	try
 	{
 		mainWindowFriend->updateConfigurationSavedStatus( false );
-		configVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
+		configVariables.updateParameterInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -522,10 +487,10 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 }
 
 
-std::vector<variableType> AuxiliaryWindow::getAllVariables()
+std::vector<parameterType> AuxiliaryWindow::getAllVariables()
 {
-	std::vector<variableType> vars = configVariables.getEverything();
-	std::vector<variableType> vars2 = globalVariables.getEverything();
+	std::vector<parameterType> vars = configVariables.getEverything();
+	std::vector<parameterType> vars2 = globalVariables.getEverything();
 	vars.insert(vars.end(), vars2.begin(), vars2.end());
 	return vars;
 }
@@ -537,7 +502,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	try
 	{
 		mainWindowFriend->updateConfigurationSavedStatus( false );
-		globalVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
+		globalVariables.updateParameterInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -583,11 +548,11 @@ void AuxiliaryWindow::clearVariables()
 
 void AuxiliaryWindow::addVariable(std::string name, bool constant, double value, int item)
 {
-	variableType var;
+	parameterType var;
 	var.name = name;
 	var.constant = constant;
 	var.ranges.push_back({ value, 0, 1, false, true });
-	configVariables.addConfigVariable(var, item);
+	configVariables.addConfigParameter(var, item);
 }
 
 
@@ -640,7 +605,7 @@ void AuxiliaryWindow::handleEnter()
 
 void AuxiliaryWindow::setVariablesActiveState(bool activeState)
 {
-	configVariables.setVariableControlActive(activeState);
+	configVariables.setParameterControlActive(activeState);
 }
 
 
@@ -677,7 +642,6 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 
 	configVariables.rearrange( cx, cy, getFonts( ) );
 	globalVariables.rearrange( cx, cy, getFonts( ) );
-	functionVariables.rearrange( cx, cy, getFonts( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
 	SetRedraw();
@@ -859,41 +823,29 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 	input->dacData = dacData;
 	input->ttlData = ttlData;
 	/// variables.
-	std::vector<std::vector<variableType>> experimentVars;
+	std::vector<std::vector<parameterType>> experimentVars;
 	for ( auto seqFile : input->seq.sequence )
 	{
 		// load the variables. This little loop is for letting configuration variables overwrite the globals.
 		// the config variables are loaded directly from the file.
-		std::vector<variableType> configVars = VariableSystem::getConfigVariablesFromFile( seqFile.configFilePath() );
-		std::vector<variableType> globals = globalVariables.getEverything( );
-		experimentVars.push_back( configVars );
-
-		for ( auto& seqVars : experimentVars )
-		{
-			for ( auto& globalVar : globals )
-			{
-				globalVar.overwritten = false;
-				bool nameExists = false;
-
-				for ( auto& configVar : seqVars )
-				{
-					if ( configVar.name == globalVar.name )
-					{
-						globalVar.overwritten = true;
-						configVar.overwritten = true;
-					}
-				}
-				if ( !globalVar.overwritten )
-				{
-					seqVars.push_back( globalVar );
-				}
-			}
-		}
+		std::vector<parameterType> configVars = ParameterSystem::getConfigVariablesFromFile( seqFile.configFilePath() );
+		std::vector<parameterType> globals = globalVariables.getEverything( );
+		experimentVars.push_back( ParameterSystem::combineParametersForExperimentThread( configVars, globals) );
 		globalVariables.setUsages( { globals } );
 	}
 	input->variables = experimentVars;
-
-	
+	input->constants.resize( input->variables.size( ) );
+	// it's important to do this after the key is generated so that the constants have their values.
+	for ( auto seqInc : range( input->variables.size( ) ) )
+	{
+		for ( auto& variable : input->variables[seqInc] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[seqInc].push_back( variable );
+			}
+		}
+	}
 	input->rsg = &RhodeSchwarzGenerator;
 	for ( auto& agilent : agilents )
 	{
@@ -973,7 +925,7 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 	/// Variables
 	for (UINT varInc : range( globalVariables.getCurrentNumberOfVariables() ) )
 	{
-		variableType info = globalVariables.getVariableInfo(varInc);
+		parameterType info = globalVariables.getVariableInfo(varInc);
 		configStream << info.name << " ";
 		configStream << info.constantValue << "\n";
 		// all globals are constants, no need to output anything else.
@@ -1072,7 +1024,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		globalVariables.clearVariables();
 		for (int varInc = 0; varInc < varNum; varInc++)
 		{
-			variableType tempVar;
+			parameterType tempVar;
 			tempVar.constant = true;
 			tempVar.overwritten = false;
 			tempVar.active = false;
@@ -1080,12 +1032,12 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back({ value, value, 0, false, true });
-			globalVariables.addGlobalVariable(tempVar, varInc);
+			globalVariables.addGlobalParameter(tempVar, varInc);
 		}
 	}
-	variableType tempVar;
+	parameterType tempVar;
 	tempVar.name = "";
-	globalVariables.addGlobalVariable(tempVar, -1);
+	globalVariables.addGlobalParameter(tempVar, -1);
 }
 
 
@@ -1304,12 +1256,10 @@ BOOL AuxiliaryWindow::OnInitDialog()
 												 rgbs["Solarized Base03"], rgbs );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
-									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, VariableSysType::global );
+									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
 		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES",
-									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, VariableSysType::config );
-		functionVariables.initialize( controlLocation, toolTips, this, id, "FUNCTION VARIABLES",
-									  mainWindowFriend->getRgbs( ), IDC_FUNCTION_VARS_LISTVIEW, VariableSysType::function );
-		configVariables.setVariableControlActive( false );
+									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
+		configVariables.setParameterControlActive( false );
 
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );

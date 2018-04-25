@@ -2,6 +2,7 @@
 
 #include "Control.h"
 #include "myButton.h"
+#include "Version.h"
 #include "PictureSettingsControl.h"
 #include "CameraImageDimensions.h"
 #include "Andor.h"
@@ -44,7 +45,7 @@ class CameraSettingsControl
 		AndorCameraSettings getSettings();
 		void setImageParameters(imageParameters newSettings, CameraWindow* camWin);
 		void setRunSettings(AndorRunSettings inputSettings);
-		void handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
 

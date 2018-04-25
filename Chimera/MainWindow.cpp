@@ -200,12 +200,17 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
+	ON_COMMAND( IDC_RERNG_EXPERIMENT_BUTTON, &MainWindow::passExperimentRerngButton )
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
 
+void MainWindow::passExperimentRerngButton( )
+{
+	rearrangeControl.handleCheck( );
+}
 
 void MainWindow::OnTimer( UINT_PTR id )
 {
@@ -587,13 +592,13 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void MainWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
-	notes.handleOpenConfig( configFile, versionMajor, versionMinor );
-	settings.handleOpenConfig( configFile, versionMajor, versionMinor );
-	debugger.handleOpenConfig( configFile, versionMajor, versionMinor );
-	repetitionControl.handleOpenConfig(configFile, versionMajor, versionMinor );
-	rearrangeControl.handleOpenConfig( configFile, versionMajor, versionMinor );
+	notes.handleOpenConfig( configFile, ver );
+	settings.handleOpenConfig( configFile, ver );
+	debugger.handleOpenConfig( configFile, ver );
+	repetitionControl.handleOpenConfig(configFile, ver );
+	rearrangeControl.handleOpenConfig( configFile, ver );
 }
 
 
@@ -819,8 +824,8 @@ void MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
 void MainWindow::fillMotInput( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
-	input->constants = std::vector<std::vector<variableType>>( input->variables.size( ) );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for (auto& seqInc : range(input->variables.size()))
 	{
 		for ( auto& variable : input->variables[seqInc] )
@@ -874,19 +879,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->seq = profile.getSeqSettings( );
 	input->niawg = &niawg;
 	input->comm = &comm;
-	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
-	input->constants.resize( input->variables.size( ) );
-	// it's important to do this after the key is generated so that the constants have their values.
-	for ( auto seqInc: range(input->variables.size()))
-	{
-		for ( auto& variable : input->variables[seqInc] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[seqInc].push_back( variable );
-			}
-		}
-	}
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
 	input->rearrangeInfo = rearrangeControl.getParams( );
 }
 
@@ -1031,8 +1024,12 @@ void MainWindow::passMainOptionsPress(UINT id)
 
 void MainWindow::handleDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
-	texter.updatePersonInfo();
-	profile.updateConfigurationSavedStatus(false);
+	// effectively disable this control in the case of safemode.
+	if ( !PYTHON_SAFEMODE )
+	{
+		texter.updatePersonInfo( );
+		profile.updateConfigurationSavedStatus( false );
+	}
 }
 
 

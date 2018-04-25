@@ -2,7 +2,7 @@
 #include "Segment.h"
 #include "Thrower.h"
 
-void Segment::convertInputToFinal( UINT variation, std::vector<variableType>& variables )
+void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& variables )
 {	
 	// first transfer things that can't be varied.
 	finalSettings.continuationType = input.continuationType;

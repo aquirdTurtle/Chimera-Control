@@ -575,12 +575,12 @@ void ScriptingWindow::openIntensityScript(std::string name)
 }
 
 
-void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor)
+void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
 	ProfileSystem::checkDelimiterLine(configFile, "SCRIPTS");
 	configFile.get();
 	std::string niawgName, masterName;
-	if ( versionMajor < 3 )
+	if ( ver.versionMajor < 3 )
 	{
 		std::string extraNiawgName;
 		getline( configFile, extraNiawgName );
@@ -589,7 +589,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, int versionMaj
 	getline(configFile, masterName);
 	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
 
-	intensityAgilent.readConfigurationFile(configFile, versionMajor, versionMinor );
+	intensityAgilent.readConfigurationFile(configFile, ver );
 	intensityAgilent.updateSettingsDisplay(1, mainWindowFriend->getProfileSettings().categoryPath, 
 											mainWindowFriend->getRunInfo());
 	try

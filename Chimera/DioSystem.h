@@ -8,6 +8,7 @@
 #include "ftdiStructures.h"
 #include "ftdiFlume.h"
 #include "WinSerialFlume.h"
+#include "Version.h"
 #include "viewpointFlume.h"
 #include <array>
 #include <sstream>
@@ -40,7 +41,7 @@ class DioSystem
 		/// config handling
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
 		double getTotalTime(UINT variation, UINT seqNum );
 		void checkFinalFormatTimes( UINT variation, UINT seqNum );
@@ -77,11 +78,11 @@ class DioSystem
 		bool getTtlStatus(int row, int number);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-									 std::vector<variableType>& vars, UINT seqNum );
+									 std::vector<parameterType>& vars, UINT seqNum, std::string scope );
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
-									 std::vector<variableType>& vars, UINT seqNum );
-		void interpretKey( std::vector<std::vector<variableType>>& variables );
+									 std::vector<parameterType>& vars, UINT seqNum, std::string scope );
+		void interpretKey( std::vector<std::vector<parameterType>>& variables );
 		void organizeTtlCommands(UINT variation, UINT seqNum );
 		void convertToFinalViewpointFormat(UINT variation, UINT seqNum );
 		void convertToFtdiSnaps( UINT variation, UINT seqNum );
@@ -103,7 +104,7 @@ class DioSystem
 		void updateDefaultTtl(UINT row, UINT column, bool state);
 		UINT countTriggers( UINT row, UINT number, UINT variation, UINT seqNum );
 		bool getDefaultTtl(UINT row, UINT column);
-		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum );
+		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
 		std::vector<std::vector<double>> getFinalTimes( );

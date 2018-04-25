@@ -29,8 +29,9 @@ class MasterManager
 		void abort();
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
 		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								  std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variableType>& vars, 
-								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip );
+								  std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<parameterType>& vars, 
+								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+								  std::string& warnings );
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterThreadInput* input);
@@ -38,21 +39,29 @@ class MasterManager
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
-		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars );
-		bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
-								DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum );
-		bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
-							   AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum );
-
+		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+								 std::string scope );
+		bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+								DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
+								std::string scope );
+		bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+							   AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum,
+							   std::string scope );
+		bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
+								 DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+								 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, UINT seqNum, std::string& warnings,
+								 std::string callingFunction );
+		bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+										std::string scope, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
-		static UINT determineVariationNumber(std::vector<variableType> vars);
+		static UINT determineVariationNumber(std::vector<parameterType> vars);
 		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, AoSystem* aoSys,
 									  bool quiet, EmbeddedPythonHandler* python, 
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
-		static double convertToTime( timeType time, std::vector<variableType> variables, UINT variation );
+		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
 	private:
 		std::vector<timeType> loadSkipTime;
 		std::vector<std::vector<double>> loadSkipTimes;
@@ -62,7 +71,7 @@ class MasterManager
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, AoSystem* aoSys,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-							  RhodeSchwarz* rsg, std::vector<variableType>& vars, UINT seqNum );
+							  RhodeSchwarz* rsg, std::vector<parameterType>& vars, UINT seqNum, std::string& warnings);
 		timeType operationTime;
 		bool experimentIsRunning = false;
 		/// task handles

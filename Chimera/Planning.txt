@@ -2,18 +2,6 @@
 TODO
 ===================
 FEATURES:
-- Implementations of local variables
-	- The idea:
-		- use var to define local variables and give them a default value.
-			- e.g. var rightField = 0
-		- Either modify config or global vars control, or add new vars control which has a function combo to select which
-			function (or parent script) to look at.
-		- cannot modify constant value in this view, must modify value in script. Can only modify variable range values.
-	- What needs to be done:
-		- need to modify reading of script to deal with these variables. 
-			- Function handling needs list of variables being varied and what function the variables belong to. 
-				Only if both match should the handling replace the constant value.
-		- need to add handling for new control
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible.
 - finish implementing randomizing repetitions.
@@ -45,7 +33,7 @@ Refactoring / Other:
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
 - specialize CEdit with "getTextAsDouble" member.
-- make version check function
+- finish renaming variables as parameters where appropriate. 
 
 BUGS:
 - Catch if variable has only 1 variation, not well defined.
@@ -60,6 +48,7 @@ BUGS:
 - trying save if only camera is running...
 - fix variable logging / figure out what the problem is here.
 - turnonmot seems to be running tektronics stuff too
+- figure out "parent script" not loading bug
 
 =================
 Finished
