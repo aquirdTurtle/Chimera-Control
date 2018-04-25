@@ -32,6 +32,9 @@ FEATURES:
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in plots
+- improve experiment status
+	- include which config was run, variable options
+	- fix time to be smart
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
