@@ -121,9 +121,12 @@ class NiawgController
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
-		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
+		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
+							   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT );
 		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
-		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
+		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time,
+						   bool powerCap=false, bool constPower=CONST_POWER_OUTPUT );
+
 		void handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		UINT writeToFileNumber = 0;
@@ -139,7 +142,8 @@ class NiawgController
 		bool isSpecialCommand( std::string command );
 		void handleSpecialFormSingle( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 
 									  profileSettings profile, debugInfo& options, std::string& warnings );
-		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
+		void finalizeStandardWave( simpleWave& wave, debugInfo& options, bool powerCap = false, 
+								   bool constPower = CONST_POWER_OUTPUT );
 		/// member variables
  		// Important. This can change if you change computers.
  		const ViRsrc NI_5451_LOCATION = "Dev6";

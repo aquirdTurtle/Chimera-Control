@@ -222,7 +222,7 @@ pushoutdepth 2.5
 pushoutfreq 1
 fieldtheta 0
 fieldphi 0
-imagingflashingdetuning -0.7
+imagingflashingdetuning -0.8
 intrappgcdetuning -2
 intrappgcpower 0.14
 loadmotsidepower 0.15
@@ -240,4 +240,4 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-199 261 3 190 252 3
+204 278 3 210 230 3

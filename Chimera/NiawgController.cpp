@@ -883,7 +883,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of us.
-		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
+		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit * 0.5
 														 * rearrangeWave.rearrange.timePerMove.evaluate( )
 														 + 2 * rInfo.finalMoveTime) * 1e3 );
 		output.waveFormInfo.push_back( rearrangeWave );
@@ -1044,7 +1044,8 @@ void NiawgController::openWaveformFiles()
 * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
 * it is written to a new file.
 */
-void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime)
+void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
+										bool powerCap, bool constPower)
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
@@ -1107,9 +1108,10 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 	// make sure it opened.
 	if ( !waveformFileWrite.is_open( ) )
 	{
-		// shouldn't ever happen.
-		thrower( "ERROR: Data Storage File could not open. Shouldn't happen. File name is probably too long? File name is "
-				 + waveformFileName + ", which is " + str( waveformFileName.size( ) ) + " characters long." );
+		// shouldn't happen.
+		thrower( "ERROR: NIAWG Waveform Storage File could not open. Shouldn't happen. File name is too long? "
+				 "File name is " + waveformFileName + ", which is " + str( waveformFileName.size( ) ) 
+				 + " characters long." );
 	}
 	else
 	{
@@ -1117,7 +1119,7 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 		std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
-		calcWaveData( chanWave, readData, sampleNum, waveTime );
+		calcWaveData( chanWave, readData, sampleNum, waveTime, powerCap, constPower );
 		// Write the data, with phases, to the write file.
 		waveformFileWrite.write( (const char *)readData.data( ), (sampleNum + chanWave.signals.size( )) * sizeof( ViReal64 ) );
 		waveformFileWrite.close( );
@@ -1270,7 +1272,7 @@ long NiawgController::waveformSizeCalc(double time)
 * these data points.
 */
 void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
-									double waveTime )
+									double waveTime, bool powerCap, bool constPower )
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos( inputData.signals.size( ) );
@@ -1353,7 +1355,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			}
 		}
 	}
-	/// Pre-calculate a bunch of parameters. 
+	/// Pre-calculate a bunch of parameters for the ramps. 
 	// These are not all used, but it's simple one-time calcs so I just od them anyways.
 	auto& t_r = waveTime;
 	auto t_r2 = t_r / 2;
@@ -1454,7 +1456,8 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				phasePos[signal] = (ViReal64)sample * 2 * PI * (f_0 + freqRampPos[signal]) / NIAWG_SAMPLE_RATE
 					+ phi_0;
 			}
-			/// amplitude ramps are much simpler.
+
+			/// handle amplitude ramps, which are much simpler.
 			if ( inputData.signals[signal].powerRampType != "lin" && inputData.signals[signal].powerRampType != "nr"
 				 && inputData.signals[signal].powerRampType
 				 != "tanh" )
@@ -1473,25 +1476,48 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		}
 
 		/// If option is marked, then normalize the power.
-		if ( CONST_POWER_OUTPUT )
+		if ( constPower )
 		{
 			double currentPower = 0;
 			// calculate the total current amplitude.
 			for ( auto signal : range( inputData.signals.size( ) ) )
 			{
 				currentPower += fabs( inputData.signals[signal].initPower + powerPos[signal] );
-				/// modify here for frequency calibrations!
+				/// modify here for frequency-dependent calibrations!
 				/// need current frequency and calibration file.
 			}
 
 			// normalize each signal.
 			for ( auto signal : range( inputData.signals.size( ) ) )
 			{
+				// After this, a "currentPower" calculated the same above will always give TOTAL_POWER. 
 				powerPos[signal] = (inputData.signals[signal].initPower + powerPos[signal])
 					* (TOTAL_POWER / currentPower) - inputData.signals[signal].initPower;
 			}
 		}
-		///  Calculate data point.
+		else if ( powerCap )
+		{
+			double currentPower = 0;
+			// calculate the total current amplitude.
+			for ( auto signal : range( inputData.signals.size( ) ) )
+			{
+				currentPower += fabs( inputData.signals[signal].initPower + powerPos[signal] );
+				/// modify here for frequency-dependent calibrations!
+				/// need current frequency and calibration file.
+			}
+			// normalize each signal only if power is above TOTAL_POWER. hence the word "cap".
+			if ( currentPower > TOTAL_POWER )
+			{
+				for ( auto signal : range( inputData.signals.size( ) ) )
+				{
+					// After this, a "currentPower" calculated the same above will always give TOTAL_POWER. 
+					powerPos[signal] = (inputData.signals[signal].initPower + powerPos[signal])
+						* (TOTAL_POWER / currentPower) - inputData.signals[signal].initPower;
+				}
+			}
+		}
+
+		///  finally, Calculate voltage data point.
 		readData[sample] = 0;
 		for ( auto signal : range( inputData.signals.size( ) ) )
 		{
@@ -1553,7 +1579,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 																	   - inputData.signals[signal].freqInit);
 			phasePos[signal] = (ViReal64)sample * 2 * PI * (inputData.signals[signal].freqInit 
 															 + freqRampPos[signal]) / (NIAWG_SAMPLE_RATE)
-				+inputData.signals[signal].initPhase;
+				+ inputData.signals[signal].initPhase;
 		}
 		// Don't need amplitude info.
 	}
@@ -1996,11 +2022,11 @@ void NiawgController::streamRerng()
 
 
 // calculates the data, mixes it, and cleans up the calculated data.
-void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options )
+void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options, bool powerCap, bool constPower )
 {
 	// prepare each channel
-	generateWaveform( wave.chan[Axes::Horizontal], options, wave.sampleNum, wave.time );
-	generateWaveform( wave.chan[Axes::Vertical], options, wave.sampleNum, wave.time );
+	generateWaveform( wave.chan[Axes::Horizontal], options, wave.sampleNum, wave.time, powerCap, constPower );
+	generateWaveform( wave.chan[Axes::Vertical], options, wave.sampleNum, wave.time, powerCap, constPower );
 	// mix
 	mixWaveforms( wave, options.outputNiawgWavesToText );
 	// clear channel data, no longer needed.
@@ -2691,6 +2717,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 		for ( auto& sig : moveWave.chan[staticAxis].signals )
 		{
 			sig.freqRampType = sig.powerRampType = "nr";
+			sig.freqFin = sig.freqInit;
 			sig.initPhase = 0;
 			//sig.freqInit = (staticAxis == Axes::Horizontal) ?
 			sig.freqInit = (staticAxis == Axes::Vertical) ?
@@ -2702,11 +2729,52 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 			sigCount++;
 		}
 	}
+	/// make ramp into move wave
+	simpleWave initRampWave, finRampWave;
+	if ( true )
+	{
+		initRampWave = moveWave;
+		initRampWave.time = 1e-6;
+		initRampWave.sampleNum = waveformSizeCalc( initRampWave.time );
+		// make every signal not freq ramp and make all amplitude ramps.
+		for ( auto& chan : initRampWave.chan )
+		{
+			// I want to ramp up to the proper TOTAL_POWER so that the transition after the move is correct.
+			double setPower = 0;
+			for ( auto sig : chan.signals )
+			{
+				setPower += sig.initPower;
+			}
+			double powerScale = TOTAL_POWER / setPower;
+			for ( auto& sig : chan.signals )
+			{
+				sig.freqRampType = "nr";
+				sig.powerRampType = "lin";
+				sig.finPower = sig.initPower * powerScale;
+				sig.initPower = 0.1 * sig.initPower * powerScale;
+			}
+		}
+		/// make ramp out of move wave
+		finRampWave = initRampWave;
+		for ( auto& chan : finRampWave.chan )
+		{
+			for ( auto& sig : chan.signals )
+			{
+				auto fin = sig.finPower;
+				sig.finPower = sig.initPower;
+				sig.initPower = fin;
+			}
+		}
+		finalizeStandardWave( initRampWave, debugInfo( ), true, false );
+		finalizeStandardWave( finRampWave, debugInfo( ), true, false );
+	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
-
-	/// Combine with static.
-	auto waveVals = moveWave.waveVals;
-	//waveVals.insert( waveVals.end( ), rerngSettings.staticWave.waveVals.begin( ), rerngSettings.staticWave.waveVals.end( ) );
+	/// Combine waves. 4 parts.
+	// if the amp ramp is turned off above (if (false)) then the ramp vectors are empty and inserting them causes no harm.
+	auto waveVals = initRampWave.waveVals;
+	waveVals.insert( waveVals.end( ), moveWave.waveVals.begin( ), moveWave.waveVals.end( ) );
+	waveVals.insert( waveVals.end( ), finRampWave.waveVals.begin( ), finRampWave.waveVals.end( ) );
+	waveVals.insert( waveVals.end( ), rerngSettings.staticWave.waveVals.begin( ), rerngSettings.staticWave.waveVals.end( ) );
 	return waveVals;
 }
 
@@ -2715,20 +2783,22 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, double staticMovingRatio, 
 													double moveBias, double deadTime, UINT sourceRows, UINT sourceCols, 
 													complexMove moveInfo )
-{	
+{
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
 	bool upOrDown = (moveInfo.moveDir == dir::down || moveInfo.moveDir == dir::up);
 	UINT movingAxis = upOrDown ? Axes::Vertical : Axes::Horizontal;
 	UINT staticAxis = !upOrDown ? Axes::Vertical : Axes::Horizontal;
 	UINT movingSize = upOrDown ? sourceRows : sourceCols;
+	auto targetCols = rerngSettings.target.getCols( );
+	auto targetRows = rerngSettings.target.getRows( );
+	auto& lowFreqs = rerngSettings.lowestFreqs;
 	simpleWave moveWave;
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
 	// needs to match correctly the static waveform.
 	moveWave.time = (moveInfo.needsFlash ? rerngSettings.timePerMove / (staticMovingRatio + 1) : rerngSettings.timePerMove);
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
-
 	double movingFrac = moveBias;
 	// split the remaining bias between all of the other movingSize-2 signals.
 	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
@@ -2764,19 +2834,39 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		sig.freqRampType = sig.powerRampType = "nr";
 		sig.finPower = sig.initPower = nonMovingFrac;
 		sig.initPhase = 0;
-		if ( movingAxis == Axes::Horizontal )
+		if ( movingAxis == Axes::Vertical )
 		{
-			sig.freqInit = ((rerngSettings.target.getCols( ) - gridLoc - 1) * freqPerPixel
-							 + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			sig.freqInit = ((targetCols - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 			sig.freqFin = sig.freqInit;
 		}
 		else
 		{
-			sig.freqInit = (gridLoc * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			sig.freqInit = (gridLoc * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 			sig.freqFin = sig.freqInit;
 		}
 		signalNum++;
 	}
+	/*
+	if ( movingAxis == Axes::Horizontal )
+	{
+		UINT init = loc.column;
+		UINT fin = loc.column + moveInfo.dirInt( );
+		// convert to Hz
+		sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		//sig.freqInit = ((targetCols - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		//sig.freqFin =  ((targetCols - fin  - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+	}
+	else
+	{
+		UINT init = loc.row;
+		UINT fin = loc.row + moveInfo.dirInt( );
+		//sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		//sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		sig.freqInit = ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		sig.freqFin = ((targetRows - fin - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+	}
+	*/
 	bool piFound = false;
 	for ( auto loc : moveInfo.locationsToMove )
 	{
@@ -2794,21 +2884,19 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		sig.initPhase = 0;
 		sig.finPower = sig.initPower = movingFrac;
 		sig.freqRampType = "lin";
-		if ( movingAxis == Axes::Horizontal )
+		if ( movingAxis == Axes::Vertical )
 		{
-			UINT init = loc.column;
-			UINT fin = loc.column + moveInfo.dirInt();
-			sig.freqInit = ((rerngSettings.target.getCols( ) - init - 1)
-								* freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-			sig.freqFin = ((rerngSettings.target.getCols( ) - fin - 1)
-							* freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			UINT init = loc.row;
+			UINT fin = loc.row + moveInfo.dirInt();
+			sig.freqInit = ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			sig.freqFin = ((targetRows - fin - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 		}
 		else
 		{
-			UINT init = loc.row;
-			UINT fin = loc.row + moveInfo.dirInt( );
-			sig.freqInit = (init * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-			sig.freqFin = (fin * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			UINT init = loc.column;
+			UINT fin = loc.column + moveInfo.dirInt( );
+			sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 		}
 		signalNum++;
 	}
@@ -2824,16 +2912,15 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 			sig.finPower = sig.initPower = 1;
 			sig.freqRampType = sig.powerRampType = "nr";
 			sig.initPhase = 0;
-			if ( staticAxis == Axes::Horizontal )
+			if ( staticAxis == Axes::Vertical )
 			{
 				// convert to Hz
-				sig.freqInit = ((rerngSettings.target.getCols( ) - atom.column - 1) * freqPerPixel
-								 + rerngSettings.lowestFreqs[staticAxis]) * 1e6;
+				sig.freqInit = ((targetRows - atom.row - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6;
 			}
 			else
 			{
 				// convert to Hz
-				sig.freqInit = (atom.row * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
+				sig.freqInit = (atom.column * freqPerPixel + lowFreqs[staticAxis])*1e6;
 			}
 			sig.freqFin = sig.freqInit;
 			sigCount++;
@@ -2845,27 +2932,26 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		// no flash, so static axis must span all 
 		if ( staticAxis == Axes::Horizontal )
 		{
-			moveWave.chan[staticAxis].signals.resize( rerngSettings.target.getCols( ) );
+			moveWave.chan[staticAxis].signals.resize( targetCols );
 		}
 		else
 		{
-			moveWave.chan[staticAxis].signals.resize( rerngSettings.target.getRows( ) );
+			moveWave.chan[staticAxis].signals.resize( targetRows );
 		}
 		UINT sigCount = 0;
 		for ( auto& sig : moveWave.chan[staticAxis].signals )
 		{
 			sig.freqRampType = sig.powerRampType = "nr";
 			sig.initPhase = 0;
-			if ( staticAxis == Axes::Horizontal )
+			if ( staticAxis == Axes::Vertical )
 			{
 				// convert to Hz
-				sig.freqInit = ((rerngSettings.target.getCols( ) - sigCount - 1) * freqPerPixel
-								 + rerngSettings.lowestFreqs[staticAxis]) * 1e6;
+				sig.freqInit = ((targetRows - sigCount - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6;
 			}
 			else
 			{
 				// convert to Hz
-				sig.freqInit = (sigCount * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
+				sig.freqInit = (sigCount * freqPerPixel + lowFreqs[staticAxis])*1e6;
 			}
 			sig.freqFin = sig.freqInit;
 			// even intensity
@@ -3175,7 +3261,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 				// put a break statement here to limit the rearranging algorithm to 1 move at a time.
-				// break;
 			}
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			/// Finishing Move to move the atoms to the desired location.
