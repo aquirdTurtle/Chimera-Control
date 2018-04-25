@@ -76,7 +76,7 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	header.fontType = fontTypes::HeadingFont;
 	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
 	experimentIncludesRerng.Create( "Experiment has Rerng?", NORM_CHECK_OPTIONS, 
-									experimentIncludesRerng.sPos, parent, id++ );
+									experimentIncludesRerng.sPos, parent, IDC_RERNG_EXPERIMENT_BUTTON );
 	flashingRateText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	flashingRateText.Create( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
 	flashingRateEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
@@ -133,12 +133,31 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	fastMoveTimeEdit.sPos = { loc.x + 440, loc.y, loc.x + 480, loc.y += 25 };
 	fastMoveTimeEdit.Create( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
 	fastMoveTimeEdit.SetWindowTextA( "2" );
+	handleCheck( );
 }
 
 
-void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor )
+void rerngControl::handleCheck( )
 {
-	if ( (versionMajor == 2 &&  versionMinor < 1) || versionMajor < 2)
+	auto active = experimentIncludesRerng.GetCheck( );
+	flashingRateEdit.EnableWindow(active);
+	moveSpeedEdit.EnableWindow( active );
+	movingBiasEdit.EnableWindow( active );
+	deadTimeEdit.EnableWindow( active );
+	staticMovingRatioEdit.EnableWindow( active );
+	preprogramMoves.EnableWindow( active );
+	useCalibration.EnableWindow( active );
+	outputRearrangeEvents.EnableWindow( active );
+	outputIndividualEvents.EnableWindow( active );
+	finalMoveTimeEdit.EnableWindow( active );
+	fastMoveOption.EnableWindow( active );
+	fastMoveTimeEdit.EnableWindow( active );
+}
+
+
+void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
+{
+	if (ver < Version("2.1" ) )
 	{
 		return;
 	}
@@ -148,14 +167,13 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	openFile >> info.flashingRate;
 	openFile >> info.moveBias;
 	openFile >> info.moveSpeed;
-
-	if ( (versionMajor == 2 && versionMinor < 3) || versionMajor < 2 )
+	if (ver < Version("2.3"))
 	{
 		std::string garbage;
  		openFile >> garbage;
 		openFile >> garbage;
 	}
-	if ( (versionMajor == 2 && versionMinor > 2) || versionMajor > 2 )
+	if (ver > Version("2.2"))
 	{
 		openFile >> info.deadTime;
 		openFile >> info.staticMovingRatio;		
@@ -165,7 +183,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.deadTime = 0;
 		info.staticMovingRatio = 1;
 	}
-	if ( (versionMajor == 2 && versionMinor > 5) || versionMajor > 2 )
+	if (ver > Version("2.5") )
 	{
 		openFile >> info.outputInfo;
 	}
@@ -173,7 +191,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.outputInfo = false;
 	}
-	if ( (versionMajor == 2 && versionMinor > 10) || versionMajor > 2 )
+	if (ver > Version("2.10" ) )
 	{
 		openFile >> info.outputIndv;
 	}
@@ -181,8 +199,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.outputIndv = false;
 	}
-	
-	if ( (versionMajor == 2 && versionMinor > 11) || versionMajor > 2 )
+	if (ver > Version("2.11" ) )
 	{
 		openFile >> info.preprogram;
 		openFile >> info.useCalibration;
@@ -192,9 +209,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.preprogram = false;
 		info.useCalibration = false;
 	}
-
-
-	if ( (versionMajor == 2 && versionMinor > 12) || versionMajor > 2 )
+	if (ver > Version("2.12") )
 	{
 		openFile >> info.finalMoveTime;
 	}
@@ -202,8 +217,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.finalMoveTime = 1e-3;
 	}
-
-	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	if (ver > Version("3.1"))
 	{
 		openFile >> info.useFast;
 	}
@@ -211,8 +225,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.useFast = false;
 	}
-
-	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	if (ver > Version("3.1" ) )
 	{
 		openFile >> info.fastMoveTime;
 	}

@@ -6,7 +6,7 @@
 #include "MasterManager.h" 
 #include "DioSystem.h"
 #include "AoSystem.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "Script.h"
 #include "RunInfo.h"
 #include "RichEditControl.h"
@@ -22,6 +22,7 @@
 #include "AiSystem.h"
 #include "colorbox.h"
 #include "MasterThreadInput.h"
+#include "Version.h"
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
@@ -48,7 +49,7 @@ class AuxiliaryWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
-		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
+		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);
@@ -82,7 +83,6 @@ class AuxiliaryWindow : public CDialog
 		void saveAgilentScript( whichAg::agilentNames name );
 		void saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent );
 		void handleAgilentEditChange( UINT id );
-		void passFunctionVarsCombo( );
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
 		void fillMasterThreadInput(MasterThreadInput* input);
@@ -104,13 +104,12 @@ class AuxiliaryWindow : public CDialog
 		void sendErr(std::string msg);
 		void sendStatus(std::string msg);
 
-		std::vector<variableType> getAllVariables();
+		std::vector<parameterType> getAllVariables();
 
 		void GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void clearVariables();
-		void funcVarsDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void addVariable(std::string name, bool constant, double value, int item);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
@@ -153,7 +152,7 @@ class AuxiliaryWindow : public CDialog
 		TektronicsControl topBottomTek, eoAxialTek;
 
 		ColorBox boxes;
-		VariableSystem configVariables, globalVariables, functionVariables;
+		ParameterSystem configVariables, globalVariables;
 
 		ColorBox statusBox;
 };

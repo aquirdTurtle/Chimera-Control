@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "Script.h"
 #include "DioSystem.h"
 #include "AuxiliaryWindow.h"
@@ -14,14 +14,14 @@
 #include "afxcmn.h"
 
 
-UINT VariableSystem::getTotalVariationNumber()
+UINT ParameterSystem::getTotalVariationNumber()
 {
 	return currentVariations;
 }
 
 
-void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
-								 rgbMap rgbs, UINT listviewId, VariableSysType type )
+void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
+								 rgbMap rgbs, UINT listviewId, ParameterSysType type )
 {
 	varSysType = type;
 	scanDimensions = 1;
@@ -31,16 +31,6 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 	variablesHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, variablesHeader.sPos, parent, id++ );
 	variablesHeader.fontType = fontTypes::HeadingFont;
 	
-	if ( varSysType == VariableSysType::function )
-	{
-		funcCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
-		funcCombo.Create( NORM_COMBO_OPTIONS, funcCombo.sPos, parent, IDC_FUNC_VARIABLES_COMBO_ID );
-		funcCombo.loadFunctions( );
-		// select "parent script".
-		funcCombo.SetCurSel( 0 );
-		pos.y += 25;
-	}
-
 	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
 	variablesListview.Create( NORM_LISTVIEW_OPTIONS, variablesListview.sPos,
 							  parent, listviewId );
@@ -55,7 +45,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 	listViewDefaultCollumn.pszText = "Symbol";
 	RECT r;
 	parent->GetClientRect( &r );
-	if ( varSysType == VariableSysType::global )
+	if ( varSysType == ParameterSysType::global )
 	{
 		listViewDefaultCollumn.cx = 3 * r.right / 5;
 		variablesListview.InsertColumn( 0, &listViewDefaultCollumn );
@@ -85,34 +75,36 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Value";
 		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "Scope";
+		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
 		listViewDefaultCollumn.cx = r.right / 20;
 		listViewDefaultCollumn.pszText = "1:(";
-		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "#";
+		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "#";
+		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+()";
-variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
-listViewDefaultCollumn.pszText = "-()";
-variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
-if ( varSysType == VariableSysType::config )
-{
-	// Make First Blank row.
-	LVITEM listViewDefaultItem;
-	memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-	listViewDefaultItem.mask = LVIF_TEXT;
-	listViewDefaultItem.cchTextMax = 256;
-	listViewDefaultItem.pszText = "___";
-	listViewDefaultItem.iItem = 0;
-	listViewDefaultItem.iSubItem = 0;
-	variablesListview.InsertItem( &listViewDefaultItem );
-	for ( int itemInc = 1; itemInc < 7; itemInc++ )
-	{
-		listViewDefaultItem.iSubItem = itemInc;
-		variablesListview.SetItem( &listViewDefaultItem );
-	}
-}
+		variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "-()";
+		variablesListview.InsertColumn( 9, &listViewDefaultCollumn );
+		if ( varSysType == ParameterSysType::config )
+		{
+			// Make First Blank row.
+			LVITEM listViewDefaultItem;
+			memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
+			listViewDefaultItem.mask = LVIF_TEXT;
+			listViewDefaultItem.cchTextMax = 256;
+			listViewDefaultItem.pszText = "___";
+			listViewDefaultItem.iItem = 0;
+			listViewDefaultItem.iSubItem = 0;
+			variablesListview.InsertItem( &listViewDefaultItem );
+			for ( int itemInc = 1; itemInc < 7; itemInc++ )
+			{
+				listViewDefaultItem.iSubItem = itemInc;
+				variablesListview.SetItem( &listViewDefaultItem );
+			}
+		}
 	}
 	variablesListview.SetBkColor( rgbs["Solarized Base02"] );
 	pos.y += 300;
@@ -122,16 +114,16 @@ if ( varSysType == VariableSysType::config )
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void VariableSystem::normHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor )
+void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	// handle variables
 	clearVariables( );
-	std::vector<variableType> variables = getVariablesFromFile( configFile, versionMajor, versionMinor );
+	std::vector<parameterType> variables = getVariablesFromFile( configFile, ver );
 	UINT varInc = 0;
 	for ( auto var : variables )
 	{
-		addConfigVariable( var, varInc++ );
+		addConfigParameter( var, varInc++ );
 	}
 	if ( currentVariables.size( ) != 0 )
 	{
@@ -148,22 +140,18 @@ void VariableSystem::normHandleOpenConfig( std::ifstream& configFile, int versio
 		setRangeInclusivity( 0, true, false, preRangeColumns );
 		setRangeInclusivity( 0, false, true, preRangeColumns + 1 );
 	}
-	if ( varSysType != VariableSysType::function )
-	{
-		// add a blank line
-		variableType var;
-		var.name = "";
-		var.constant = false;
-		var.ranges.push_back( { 0, 0, 1, false, true } );
-		addConfigVariable( var, currentVariables.size( ) );
-	}
+	// add a blank line
+	parameterType var;
+	var.name = "";
+	var.constant = false;
+	var.ranges.push_back( { 0, 0, 1, false, true } );
+	addConfigParameter( var, currentVariables.size( ) );
 	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
 	updateVariationNumber( );
 }
 
 
-std::vector<variableType> VariableSystem::getVariablesFromFile( std::ifstream& configFile, int versionMajor,
-																int versionMinor )
+std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -177,37 +165,16 @@ std::vector<variableType> VariableSystem::getVariablesFromFile( std::ifstream& c
 			variableNumber = 0;
 		}
 	}
-	std::vector<variableType> tempVariables;
+	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadVariableFromFile( configFile, versionMajor, versionMinor ) );
+		tempVariables.push_back( loadVariableFromFile( configFile, ver ) );
 	}
 	return tempVariables;
 }
 
 
-/* 
- * The version of this for the function variable system.
- */
-void VariableSystem::funcHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor )
-{
-	ProfileSystem::checkDelimiterLine( configFile, "FUNCTION_VARIABLES" );
-	funcVariables.clear( );
-	// the number of functions with variables recorded by this config.
-	UINT functionNumber;
-	configFile >> functionNumber;
-	for ( auto funcInc : range( functionNumber ) )
-	{
-		std::string funcName;
-		configFile >> funcName;
-		funcVariables[funcName] = getVariablesFromFile( configFile, versionMajor, versionMinor );
-	}
-	ProfileSystem::checkDelimiterLine( configFile, "END_FUNCTION_VARIABLES" );
-	updateVariationNumber( );
-}
-
-
-void VariableSystem::updateVariationNumber( )
+void ParameterSystem::updateVariationNumber( )
 {
 	// if no variables, or all are constants, it will stay at 1. else, it will get set to the # of variations
 	// of the first variable that it finds.
@@ -247,29 +214,19 @@ void VariableSystem::updateVariationNumber( )
 }
 
  
-void VariableSystem::handleNewConfig( std::ofstream& newFile )
+void ParameterSystem::handleNewConfig( std::ofstream& newFile )
 {
-	if ( varSysType != VariableSysType::function )
-	{
-		newFile << "VARIABLES\n";
-		// Number of Variables
-		newFile << 0 << "\n";
-		newFile << "END_VARIABLES\n";
-	}
-	else
-	{
-		newFile << "VARIABLES\n";
-		// Number of functions with variables saved
-		newFile << 0 << "\n";
-		newFile << "END_VARIABLES\n";
-	}
+	newFile << "VARIABLES\n";
+	// Number of functions with variables saved
+	newFile << 0 << "\n";
+	newFile << "END_VARIABLES\n";
 }
 
 
-variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT versionMajor, UINT versionMinor )
+parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver )
 {
 
-	variableType tempVar;
+	parameterType tempVar;
 	std::string varName, typeText, valueString;
 	bool constant;
 	openFile >> varName >> typeText;
@@ -290,7 +247,7 @@ variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT
 		thrower( "ERROR: unknown variable type option: \"" + typeText + "\" for variable \"" + varName 
 				 + "\". Check the formatting of the configuration file." );
 	}
-	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+	if (ver > Version("2.7" ) )
 	{
 		openFile >> tempVar.scanDimension;
 	}
@@ -323,7 +280,7 @@ variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT
 		// make sure it has at least one entry.
 		tempVar.ranges.push_back( { 0,0,1, false, true } );
 	}
-	if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
+	if (ver >= Version("2.14") )
 	{
 		openFile >> tempVar.constantValue;
 	}
@@ -331,11 +288,19 @@ variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT
 	{
 		tempVar.constantValue = tempVar.ranges[0].initialValue;
 	}
+	if (ver > Version("3.2"))
+	{
+		openFile >> tempVar.parameterScope;
+	}
+	else
+	{
+		tempVar.parameterScope = GLOBAL_PARAMETER_SCOPE;
+	}
 	return tempVar;
 }
 
 
-void VariableSystem::saveVariable( std::ofstream& saveFile, variableType variable )
+void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType variable )
 {
 	saveFile << variable.name << " " << (variable.constant ? "Constant " : "Variable ") << variable.scanDimension << "\n"
 		<< variable.ranges.size( ) << "\n";
@@ -348,68 +313,29 @@ void VariableSystem::saveVariable( std::ofstream& saveFile, variableType variabl
 }
 
 
-void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
+void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
 {
-	if ( varSysType != VariableSysType::function )
+	saveFile << "VARIABLES\n";
+	saveFile << getCurrentNumberOfVariables( ) << "\n";
+	for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
 	{
-		saveFile << "VARIABLES\n";
-		saveFile << getCurrentNumberOfVariables( ) << "\n";
-		for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
-		{
-			saveVariable(saveFile, getVariableInfo( varInc ));
+		saveVariable(saveFile, getVariableInfo( varInc ));
 
-		}
-		saveFile << "END_VARIABLES\n";
 	}
-	else
-	{
-		// save function variables. This is potentially long.
-		saveFile << "FUNCTION_VARIABLES\n";
-		saveFile << funcVariables.size( );
-		for ( auto funcVars : funcVariables )
-		{
-			saveFile << funcVars.first << "\n";
-			// number of variables.
-			saveFile << funcVars.second.size( ) << "\n";
-			for ( auto variable : funcVars.second )
-			{
-				saveVariable( saveFile, variable );
-			}
-		}
-		saveFile << "END_FUNCTION_VARIABLES";
-	}
+	saveFile << "END_VARIABLES\n";
 }
 
 
-void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
+void ParameterSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	variablesHeader.rearrange( width, height, fonts);
 	variablesListview.rearrange( width, height, fonts);
-	if ( varSysType == VariableSysType::function )
-	{
-		funcCombo.rearrange( width, height, fonts );
-	}
-}
-
-void VariableSystem::handleFuncCombo( )
-{
-	int selection = funcCombo.GetCurSel( );
-	if ( selection != -1 )
-	{
-		// save the func variables.
-		funcVariables[currentFuncName] = currentVariables;
-		CString text;
-		funcCombo.GetLBText( selection, text );
-		std::string textStr( text.GetBuffer( ) );
-		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
-		loadVariablesFromFunc( textStr );
-	}
 }
 
 
-void VariableSystem::loadVariablesFromFunc( std::string funcName )
+void loadVariablesFromFunc( std::string funcName )
 {
-	clearVariables( );
+	//clearVariables( );
 	std::string funcAddress = FUNCTIONS_FOLDER_LOCATION + funcName + "." + FUNCTION_EXTENSION;
 	std::ifstream file;
 	ScriptStream stream;
@@ -439,7 +365,7 @@ void VariableSystem::loadVariablesFromFunc( std::string funcName )
 			// add to variables!
 			std::string name, valStr;
 			stream >> name >> valStr;
-			variableType tmpVariable;
+			parameterType tmpVariable;
 			tmpVariable.constant = true;
 			std::transform( name.begin( ), name.end( ), name.begin( ), ::tolower );
 			tmpVariable.name = name;
@@ -454,37 +380,18 @@ void VariableSystem::loadVariablesFromFunc( std::string funcName )
 				thrower( "ERROR: Bad string for value of local variable " + str( name ) );
 			}
 			tmpVariable.constantValue = val;
-			// check if variable was saved before.
-			for ( auto savedVariable : funcVariables[funcName] )
-			{
-				if ( tmpVariable.name == savedVariable.name )
-				{
-					// load the saved info.
-					tmpVariable.scanDimension = savedVariable.scanDimension;
-					tmpVariable.ranges = savedVariable.ranges;
-					tmpVariable.constant = savedVariable.constant;
-					found = true;
-				}
-			}
-			if ( !found )
-			{
-				// use some default values.
-				tmpVariable.scanDimension = 1;
-				setVariationRangeNumber( 1, 1 );
-				tmpVariable.ranges.push_back( { val, val, 1, true, true } );
-			}
-			addConfigVariable( tmpVariable, 0 );
+			tmpVariable.scanDimension = 1;
+			tmpVariable.ranges.push_back( { val, val, 1, true, true } );
 		}
 		if ( stream.peek( ) == EOF )
 		{
 			break;
 		}
 	}
-	currentFuncName = funcName;
 }
 
 
-void VariableSystem::removeVariableDimension()
+void ParameterSystem::removeVariableDimension()
 {
 	if (scanDimensions == 1)
 	{
@@ -517,7 +424,7 @@ void VariableSystem::removeVariableDimension()
 }
 
 
-void VariableSystem::updateCurrentVariationsNum( )
+void ParameterSystem::updateCurrentVariationsNum( )
 {
 	UINT dum = -1;
 	for ( auto& var : currentVariables )
@@ -545,7 +452,7 @@ void VariableSystem::updateCurrentVariationsNum( )
 }
 
 
-void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
+void ParameterSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 {
 	auto columnCount = variablesListview.GetHeaderCtrl( )->GetItemCount( );
 	// -2 for the two +- columns
@@ -553,7 +460,7 @@ void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 	updateCurrentVariationsNum( );
 	if (variableRanges != currentVariableRangeNumber)
 	{
-		errBox( "ERROR: somehow, the number of ranges the VariableSystem object thinks there are and the actual number "
+		errBox( "ERROR: somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
 				"displayed are off! The numbers are " + str(variableRanges) + " and "
 				+ str(currentVariableRangeNumber) + " respectively. The program will attempt to fix this, but " 
 				"data may be lost." );
@@ -643,7 +550,7 @@ void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 }
 
 
-void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
+void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -687,7 +594,7 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 }
 
 
-void VariableSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column )
+void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column )
 {
 	for ( auto& variable : currentVariables )
 	{
@@ -742,7 +649,7 @@ void VariableSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool i
 }
 
 
-void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
+void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
 	*pResult = CDRF_DODEFAULT;
@@ -759,7 +666,7 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 		{
 			return;
 		}
-		//if (varSysType == VariableSysType::global)
+		//if (varSysType == ParameterSysType::global)
 		//{
 			if (item == currentVariables.size())
 			{
@@ -791,7 +698,7 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 	}
 }
 
-BOOL VariableSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
+BOOL ParameterSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 {
 	for ( auto& dlg : childDlgs )
 	{
@@ -804,8 +711,8 @@ BOOL VariableSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 }
 
 
-void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 DioSystem* ttls, AoSystem* aoSys )
+void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+										   DioSystem* ttls, AoSystem* aoSys )
 {
 	if ( !controlActive )
 	{
@@ -856,7 +763,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		currentVariables.back().constant = true;
 		currentVariables.back().active = false;
 		currentVariables.back().overwritten = false;
-		currentVariables.back( ).scanDimension = 1;
+		currentVariables.back().scanDimension = 1;
 		currentVariables.back().ranges.push_back({0,0,1, false, true});
 		for (auto rangeInc : range(variableRanges))
 		{
@@ -868,7 +775,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		listViewItem.iSubItem = 0;       // Put in first coluom
 		variablesListview.InsertItem(&listViewItem);
 		listViewItem.iSubItem = 1;
-		if ( varSysType == VariableSysType::global )
+		if ( varSysType == ParameterSysType::global )
 		{			
 			listViewItem.pszText = "0";
 			variablesListview.SetItem( &listViewItem );
@@ -882,6 +789,9 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			variablesListview.SetItem( &listViewItem );
 			listViewItem.iSubItem = 3;
 			listViewItem.pszText = "0";
+			variablesListview.SetItem( &listViewItem );
+			listViewItem.iSubItem = 4;
+			listViewItem.pszText = GLOBAL_PARAMETER_SCOPE;
 			variablesListview.SetItem( &listViewItem );
 			for ( int rangeInc = 0; rangeInc < variableRanges; rangeInc++ )
 			{
@@ -900,11 +810,6 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 	{
 		case 0:
 		{
-			if ( varSysType == VariableSysType::function )
-			{
-				// Variable names from functions must be changed in the function itself.
-				break;
-			}
 			/// person name
 			std::string newName;
 			TextPromptDialog dialog(&newName, "Please enter a name for the variable:");
@@ -938,7 +843,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		}
 		case 1:
 		{
-			if ( varSysType == VariableSysType::global )
+			if ( varSysType == ParameterSysType::global )
 			{
 				/// global value
 				std::string newValue;
@@ -1066,7 +971,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		case 3:
 		{
 			/// constant value
-			if ( !currentVariables[varNumber].constant || varSysType==VariableSysType::function )
+			if ( !currentVariables[varNumber].constant )
 			{
 				// In this case the extra boxes are unresponsive.
 				break;
@@ -1091,6 +996,25 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			}
 			// update the listview
 			std::string tempStr( str( currentVariables[varNumber].constantValue, 13 ) );
+			listViewItem.pszText = &tempStr[0];
+			variablesListview.SetItem( &listViewItem );
+			break;
+		}
+		case 4:
+		{
+			/// scope
+			std::string newValue;
+			TextPromptDialog dialog( &newValue, "Please enter a the scope for the variable: \""
+									 + currentVariables[varNumber].name + "\". You may enter a function name, "
+									 "\"parent\", or \"global\"." );
+			dialog.DoModal( );
+			if ( newValue == "" )
+			{
+				// probably canceled.
+				break;
+			}
+			// update the listview
+			std::string tempStr( str( currentVariables[varNumber].parameterScope, 0, false, true ) );
 			listViewItem.pszText = &tempStr[0];
 			variablesListview.SetItem( &listViewItem );
 			break;
@@ -1189,13 +1113,13 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 }
 
 
-void VariableSystem::setVariableControlActive(bool active)
+void ParameterSystem::setParameterControlActive(bool active)
 {
 	controlActive = active;
 }
 
 
-void VariableSystem::deleteVariable()
+void ParameterSystem::deleteVariable()
 {
 	if ( !controlActive )
 	{
@@ -1239,20 +1163,20 @@ void VariableSystem::deleteVariable()
 }
 
 
-variableType VariableSystem::getVariableInfo(int varNumber)
+parameterType ParameterSystem::getVariableInfo(int varNumber)
 {
 	return currentVariables[varNumber];
 }
 
 
-UINT VariableSystem::getCurrentNumberOfVariables()
+UINT ParameterSystem::getCurrentNumberOfVariables()
 {
 	return currentVariables.size();
 }
 
 // takes as input variables, but just looks at the name and usage stats. When it finds matches between the variables,
 // it takes the usage of the input and saves it as the usage of the real inputVar. 
-void VariableSystem::setUsages(std::vector<std::vector<variableType>> vars)
+void ParameterSystem::setUsages(std::vector<std::vector<parameterType>> vars)
 {
 	for ( auto& seqVars : vars )
 	{
@@ -1273,7 +1197,7 @@ void VariableSystem::setUsages(std::vector<std::vector<variableType>> vars)
 }
 
 
-void VariableSystem::clearVariables()
+void ParameterSystem::clearVariables()
 {
 	currentVariables.clear();
 	int itemCount = variablesListview.GetItemCount();
@@ -1284,15 +1208,15 @@ void VariableSystem::clearVariables()
 }
 
 
-std::vector<variableType> VariableSystem::getEverything()
+std::vector<parameterType> ParameterSystem::getEverything()
 {
 	return currentVariables;
 }
 
 
-std::vector<variableType> VariableSystem::getAllConstants()
+std::vector<parameterType> ParameterSystem::getAllConstants()
 {
-	std::vector<variableType> constants;
+	std::vector<parameterType> constants;
 	for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 	{
 		if (currentVariables[varInc].constant)
@@ -1304,9 +1228,9 @@ std::vector<variableType> VariableSystem::getAllConstants()
 }
 
 // this function returns the compliment of the variables that "getAllConstants" returns.
-std::vector<variableType> VariableSystem::getAllVariables()
+std::vector<parameterType> ParameterSystem::getAllVariables()
 {
-	std::vector<variableType> varyingParameters;
+	std::vector<parameterType> varyingParameters;
 	for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 	{
 		// opposite of get constants.
@@ -1319,7 +1243,7 @@ std::vector<variableType> VariableSystem::getAllVariables()
 }
 
 
-void VariableSystem::addGlobalVariable( variableType variable, UINT item )
+void ParameterSystem::addGlobalParameter( parameterType variable, UINT item )
 {
 	// convert name to lower case.
 	std::transform( variable.name.begin(), variable.name.end(), variable.name.begin(), ::tolower );
@@ -1389,7 +1313,7 @@ void VariableSystem::addGlobalVariable( variableType variable, UINT item )
 }
 
 
-void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
+void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 {
 	// make name lower case.
 	std::transform(variableToAdd.name.begin(), variableToAdd.name.end(), variableToAdd.name.begin(), ::tolower);
@@ -1403,7 +1327,7 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
-	if (variableToAdd.name == "" && varSysType != VariableSysType::function )
+	if (variableToAdd.name == "" )
 	{
 		// then add empty variable slot
 		LVITEM listViewDefaultItem;
@@ -1562,7 +1486,7 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 }
 
 
-void VariableSystem::reorderVariableDimensions( )
+void ParameterSystem::reorderVariableDimensions( )
 {
 	/// find the maximum dimension
 	UINT maxDim = 0;
@@ -1592,18 +1516,18 @@ void VariableSystem::reorderVariableDimensions( )
 		}
 	}
 	/// reset variables
-	std::vector<variableType> varCopy = currentVariables;
+	std::vector<parameterType> varCopy = currentVariables;
 	clearVariables( );
 	UINT variableInc=0;
 	for ( auto& variable : varCopy )
 	{
-		addConfigVariable( variable, variableInc++ );
+		addConfigParameter( variable, variableInc++ );
 	}
-	addConfigVariable( {}, -1 );
+	addConfigParameter( {}, -1 );
 }
 
 
-INT_PTR VariableSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
+INT_PTR ParameterSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
 											brushMap brushes)
 {
 	HDC hdcStatic = (HDC)wParam;
@@ -1620,7 +1544,7 @@ INT_PTR VariableSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, L
 }
 
 
-std::vector<double> VariableSystem::getKeyValues( std::vector<variableType> variables )
+std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> variables )
 {
 	for ( auto variable : variables )
 	{
@@ -1634,12 +1558,12 @@ std::vector<double> VariableSystem::getKeyValues( std::vector<variableType> vari
 }
 
 
-std::vector<variableType> VariableSystem::getConfigVariablesFromFile( std::string configFileName )
+std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::string configFileName )
 {
 	std::ifstream f(configFileName);
-	int versionMajor=1, versionMinor=1;
-	ProfileSystem::getVersionFromFile( f, versionMajor, versionMinor );
-	std::vector<variableType> configVariables;
+	Version ver;
+	ProfileSystem::getVersionFromFile( f, ver );
+	std::vector<parameterType> configVariables;
 	while ( f )
 	{
 		try
@@ -1665,7 +1589,7 @@ std::vector<variableType> VariableSystem::getConfigVariablesFromFile( std::strin
 		int rangeNumber = 1;
 		for ( const UINT varInc : range( varNum ) )
 		{
-			variableType tempVar;
+			parameterType tempVar;
 			std::string varName, typeText, valueString;
 			bool constant;
 			f >> varName >> typeText;
@@ -1686,7 +1610,7 @@ std::vector<variableType> VariableSystem::getConfigVariablesFromFile( std::strin
 				thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
 						 " file." );
 			}
-			if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+			if (ver > Version("2.7" ) )
 			{
 				f >> tempVar.scanDimension;
 			}
@@ -1723,7 +1647,7 @@ std::vector<variableType> VariableSystem::getConfigVariablesFromFile( std::strin
 				// make sure it has at least one entry.
 				tempVar.ranges.push_back( { 0,0,1, false, true } );
 			}
-			if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
+			if (ver >= Version("2.14") )
 			{
 				f >> tempVar.constantValue;
 			}
@@ -1755,7 +1679,8 @@ std::vector<variableType> VariableSystem::getConfigVariablesFromFile( std::strin
 }
 
 
-void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variables, bool randomizeVariablesOption )
+void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables,
+								  bool randomizeVariablesOption )
 {
 	// get information from variables.
 	for ( auto& seqVariables : variables )
@@ -1958,7 +1883,7 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 	// now add all constant objects.
 	for ( auto& seqVariables : variables )
 	{
-		for ( variableType& variable : seqVariables )
+		for ( parameterType& variable : seqVariables )
 		{
 			if ( variable.constant )
 			{
@@ -1976,4 +1901,41 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 }
 
 
-
+/*
+ * takes global params, config params, and function params, and reorganizes them to form a "parameters" object and a 
+ * "constants" objects. The "parameters" object includes everything, variables and otherwise. the "constants" object 
+ * includes only parameters that don't vary. 
+ */
+std::vector<parameterType> ParameterSystem::combineParametersForExperimentThread( std::vector<parameterType>& configParams, 
+																				  std::vector<parameterType>& globalParams )
+{
+	std::vector<parameterType> combinedParams;
+	combinedParams = configParams;
+	for ( auto& sub : globalParams )
+	{
+		sub.overwritten = false;
+		bool nameExists = false;
+		for ( auto& var : combinedParams )
+		{
+			if ( var.name == sub.name )
+			{
+				sub.overwritten = true;
+				var.overwritten = true;
+			}
+		}
+		if ( !sub.overwritten )
+		{
+			combinedParams.push_back( sub );
+		}
+	}
+	for ( auto& var : combinedParams )
+	{
+		// set the default scope for the variables set in the normal parameter listviews. There might be a better place
+		// to set this.
+		if ( var.parameterScope == "" )
+		{
+			var.parameterScope = "__GLOBAL__";
+		}
+	}
+	return combinedParams;
+}

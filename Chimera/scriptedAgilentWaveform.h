@@ -14,14 +14,14 @@ class ScriptedAgilentWaveform
 {
 	public:
 		ScriptedAgilentWaveform();
-		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script, std::vector<variableType>& variables );
+		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script, std::vector<parameterType>& variables );
 		void writeData( int SegNum, ULONG sampleRate );
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, UINT chan );
 		void compileSequenceString( int totalSegNum, int sequenceNum, UINT channel );
 		std::string returnSequenceString();
 		bool isVaried();
 		void replaceVarValues();
-		void replaceVarValues( UINT variation, std::vector<variableType>& variables);
+		void replaceVarValues( UINT variation, std::vector<parameterType>& variables);
 		void convertPowersToVoltages( bool useCal );
 		void normalizeVoltages();
 		void calcMinMax();

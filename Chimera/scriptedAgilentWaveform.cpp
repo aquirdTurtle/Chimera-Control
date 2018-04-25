@@ -23,8 +23,9 @@ void ScriptedAgilentWaveform::resetNumberOfTriggers( )
 * script: this is the object to be read from.
 */
 bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script, 
-														   std::vector<variableType>& variables )
+														   std::vector<parameterType>& variables )
 {
+	std::string scope = NO_PARAMETER_SCOPE;
 	segmentInfoInput workingInput;
 	std::string intensityCommand;
 	if (script.peek() == EOF)
@@ -42,7 +43,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		workingInput.mod.modulationIsOn = false;
 
 		script >> workingInput.holdVal;
-		workingInput.holdVal.assertValid( variables );
+		workingInput.holdVal.assertValid( variables, scope );
 	}
 	else if (intensityCommand == "ramp")
 	{
@@ -53,9 +54,9 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		workingInput.mod.modulationIsOn = false;
 		script >> workingInput.ramp.type;
 		script >> workingInput.ramp.start;
-		workingInput.ramp.start.assertValid( variables );
+		workingInput.ramp.start.assertValid( variables, scope );
 		script >> workingInput.ramp.end;
-		workingInput.ramp.end.assertValid( variables );
+		workingInput.ramp.end.assertValid( variables, scope );
 	}
 	else if ( intensityCommand == "pulse" )
 	{
@@ -65,11 +66,11 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		workingInput.mod.modulationIsOn = false;
 		script >> workingInput.pulse.type;
 		script >> workingInput.pulse.offset;
-		workingInput.pulse.offset.assertValid( variables );
+		workingInput.pulse.offset.assertValid( variables, scope );
 		script >> workingInput.pulse.amplitude;
-		workingInput.pulse.amplitude.assertValid( variables );
+		workingInput.pulse.amplitude.assertValid( variables, scope );
 		script >> workingInput.pulse.width;
-		workingInput.pulse.width.assertValid( variables );
+		workingInput.pulse.width.assertValid( variables, scope );
 	}
 	else if ( intensityCommand == "modpulse" )
 	{
@@ -79,16 +80,16 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		workingInput.mod.modulationIsOn = true;
 		script >> workingInput.pulse.type;
 		script >> workingInput.pulse.offset;
-		workingInput.pulse.offset.assertValid( variables );
+		workingInput.pulse.offset.assertValid( variables, scope );
 		script >> workingInput.pulse.amplitude;
-		workingInput.pulse.amplitude.assertValid( variables );
+		workingInput.pulse.amplitude.assertValid( variables, scope );
 		script >> workingInput.pulse.width;
-		workingInput.pulse.width.assertValid( variables );
+		workingInput.pulse.width.assertValid( variables, scope );
 		// mod stuff
 		script >> workingInput.mod.frequency;
-		workingInput.mod.frequency.assertValid( variables );
+		workingInput.mod.frequency.assertValid( variables, scope );
 		script >> workingInput.mod.phase;
-		workingInput.mod.phase.assertValid( variables );
+		workingInput.mod.phase.assertValid( variables, scope );
 	}
 	else
 	{
@@ -99,7 +100,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		thrower( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
 	}
 	script >> workingInput.time;
-	workingInput.time.assertValid( variables );
+	workingInput.time.assertValid( variables, scope );
 
 	std::string tempContinuationType;
 	script >> tempContinuationType;
@@ -107,7 +108,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	{
 		// There is an extra input in this case.
 		script >> workingInput.repeatNum;
-		workingInput.repeatNum.assertValid( variables );
+		workingInput.repeatNum.assertValid( variables, scope );
 	}
 	else
 	{
@@ -345,7 +346,7 @@ void ScriptedAgilentWaveform::replaceVarValues()
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( UINT variation, std::vector<variableType>& variables )
+void ScriptedAgilentWaveform::replaceVarValues( UINT variation, std::vector<parameterType>& variables )
 {
 	for (UINT segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{

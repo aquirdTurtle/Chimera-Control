@@ -5,7 +5,7 @@
 #include "cleanString.h"
 #include "TextPromptDialog.h"
 #include "Richedit.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
 #include "DioSystem.h"
@@ -137,7 +137,7 @@ std::string Script::getScriptText()
 }
 
 
-COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<variableType> variables, 
+COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
 								 rgbMap rgbs, bool& colorLine, 
 								 std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<std::string, 24> dacNames)
@@ -333,7 +333,7 @@ bool Script::coloringIsNeeded()
 }
 
 
-void Script::handleTimerCall(std::vector<variableType> vars,
+void Script::handleTimerCall(std::vector<parameterType> vars,
 							 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
 							 std::array<std::string, 24> dacNames )
 {
@@ -388,14 +388,14 @@ void Script::handleEditChange()
 }
 
 
-void Script::colorEntireScript(std::vector<variableType> vars, rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
+void Script::colorEntireScript(std::vector<parameterType> vars, rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
 							   std::array<std::string, 24> dacNames )
 {
 	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacNames);
 }
 
 
-void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<variableType> vars, 
+void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
 								 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<std::string, 24> dacNames)
 {

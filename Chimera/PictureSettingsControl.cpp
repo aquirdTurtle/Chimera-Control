@@ -202,7 +202,7 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, AndorCamera* andor)
+void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
 	UINT picsPerRep;

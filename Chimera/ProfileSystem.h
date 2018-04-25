@@ -5,6 +5,7 @@
 #include "NiawgStructures.h"
 #include <vector>
 #include <string>
+#include "Version.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -53,7 +54,7 @@ class ProfileSystem
 		void deleteConfiguration();
 		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
 								 CameraWindow* camWin, AuxiliaryWindow* auxWin );
-		static void getVersionFromFile( std::ifstream& f, int& versionMajor, int& versionMinor );
+		static void getVersionFromFile( std::ifstream& f, Version& ver );
 		static void openNiawgFile( std::fstream& scriptFiles, profileSettings profile, seqSettings seq, 
 								   bool programNiawg );
 		static void openNiawgFiles( niawgPair<std::fstream>& scriptFiles, profileSettings profile, seqSettings seq, 
@@ -89,8 +90,9 @@ class ProfileSystem
 		bool sequenceIsSaved;
 
 		// version = str(versionMain) + "." + str(versionSub)
-		const int versionMain = 3;
-		const int versionSub = 2;
+		const Version version = Version( "3.3" );
+		//const int versionMain = 3;
+		//const int versionSub = 3;
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

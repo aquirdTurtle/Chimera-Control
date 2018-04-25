@@ -7,7 +7,7 @@
 #include "Windows.h"
 #include "constants.h"
 #include "ProfileSystem.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "DebugOptionsControl.h"
 
 std::vector<std::string> WAVEFORM_NAME_FILES = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);

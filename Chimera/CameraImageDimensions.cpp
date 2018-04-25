@@ -121,7 +121,7 @@ void ImageDimsControl::handleNew( std::ofstream& newfile )
 }
 
 
-void ImageDimsControl::handleOpen( std::ifstream& openFile, int versionMajor, int versionMinor )
+void ImageDimsControl::handleOpen( std::ifstream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params;

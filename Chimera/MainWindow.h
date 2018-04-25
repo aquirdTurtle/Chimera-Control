@@ -106,7 +106,7 @@ class MainWindow : public CDialog
 		void changeBoxColor(systemInfo<char> colors);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
+		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
@@ -121,6 +121,7 @@ class MainWindow : public CDialog
 		bool experimentIsPaused( );
 		void notifyConfigUpdate( );
 		void passConfigPress( );
+		void passExperimentRerngButton( );
 		void OnTimer( UINT_PTR id );
 		std::vector<Gdiplus::Pen*> getPlotPens( );
 		std::vector<Gdiplus::Pen*> getBrightPlotPens( );

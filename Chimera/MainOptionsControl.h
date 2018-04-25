@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Version.h"
 #include "Control.h"
 #include "commonTypes.h"
 #include "myButton.h"
@@ -19,7 +20,7 @@ class MainOptionsControl
 	public:
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs );
 		mainOptions getOptions();
 		void rearrange(int width, int height, fontMap fonts);

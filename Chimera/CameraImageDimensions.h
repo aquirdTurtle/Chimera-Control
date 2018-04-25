@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "Version.h"
 #include "imageParameters.h"
 
 struct cameraPositions;
@@ -19,7 +20,7 @@ class ImageDimsControl
 		bool checkReady();
 		void handleSave( std::ofstream& saveFile );
 		void handleNew( std::ofstream& newfile );
-		void handleOpen( std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpen( std::ifstream& openFile, Version ver );
 		imageParameters getImageParameters();
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
