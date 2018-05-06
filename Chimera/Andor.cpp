@@ -365,7 +365,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width)
 				+ 1) * runSettings.imageSettings.height - imageVecInc / runSettings.imageSettings.width - 1];
 		}
-		ReleaseMutex(imagesMutex);
+		ReleaseMutex( imagesMutex );
 	}
 	ReleaseMutex( imagesMutex );
 	return imagesOfExperiment;
@@ -524,7 +524,6 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 	accumulation = tempAccumTime;
 	kinetic = tempKineticTime;
 }
-	
 
 /*
  (
@@ -1056,6 +1055,7 @@ void AndorCamera::initialize()
 {
 	char aBuffer[256];
 	// Look in current working directory for driver files
+	//... later... not sure what driver files this was referring to.
 	GetCurrentDirectory(256, aBuffer);
 	if (!safemode)
 	{
