@@ -750,7 +750,7 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 	tmpVariable.name = name;
 	for ( auto var : vars )
 	{
-		if ( var.name == tmpVariable.name && var.parameterScope == "__GLOBAL__" )
+		if ( var.name == tmpVariable.name && var.parameterScope == GLOBAL_PARAMETER_SCOPE )
 		{
 			warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
 				" variable with the same name.";
@@ -1148,7 +1148,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 		}
 		/// deal with function calls.
 		else if ( handleFunctionCall( word, currentMasterScript, vars,ttls, aoSys, ttlShades, dacShades, rsg, seqNum, 
-									  warnings, "__PARENT__" ) )
+									  warnings, PARENT_PARAMETER_SCOPE ) )
 		{ }
 		else if (word == "repeat:")
 		{

@@ -199,8 +199,14 @@ sidemotpower
 piezomirror
 -10 - 10
 0
-35
-loadmottime 200
+40
+loadmotrightfield 0.7
+loadmotleftfield -0.8
+loadmottopfield 0.5
+loadmotbottomfield -0.15
+loadmotfrontfield -1.4
+loadmotbackfield 1.47507
+loadmottime 150
 pgctime 10
 pgcdetuning -0.5
 pgcleftfield -0.3924
@@ -234,5 +240,4 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-defaultmotfreq 0.1
-181 249 3 198 266 3
+1 201 1 1 5 1

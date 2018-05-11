@@ -737,7 +737,7 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 		return;
 	}
 	HPEN markerPen;
-	std::vector<COLORREF> colors = { RGB( 255, 255, 255 ), RGB( 0, 255, 0 ), RGB( 0, 0, 255 ), RGB( 255, 0, 0 ) };
+	std::vector<COLORREF> colors = { RGB( 100, 100, 100 ), RGB( 0, 100, 0 ), RGB( 0, 0, 100), RGB( 100, 0, 0 ) };
 	UINT gridCount = 0;
 	for ( auto atomGrid : gridInfo )
 	{

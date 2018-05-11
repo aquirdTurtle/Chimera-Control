@@ -71,8 +71,8 @@ class ParameterSystem
 		void reorderVariableDimensions( );
 		static std::vector<parameterType> getConfigVariablesFromFile( std::string configFile );
 		void saveVariable( std::ofstream& saveFile, parameterType variable );
-		parameterType loadVariableFromFile( std::ifstream& openFile, Version ver );
-		std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver );
+		static parameterType loadVariableFromFile( std::ifstream& openFile, Version ver );
+		static std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver );
 		void updateCurrentVariationsNum( );
 		static std::vector<parameterType> combineParametersForExperimentThread( std::vector<parameterType>& masterVars,
 														   std::vector<parameterType>& subVars );
