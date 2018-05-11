@@ -56,8 +56,13 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode )
 	moveBias3x6Cal( 2, 3, dir::down ) = moveBias3x6Cal( 1, 3, dir::up ) = 0.48;
 	moveBias3x6Cal( 2, 4, dir::down ) = moveBias3x6Cal( 1, 4, dir::up ) = 0.35;
 	moveBias3x6Cal( 2, 5, dir::down ) = moveBias3x6Cal( 1, 5, dir::up ) = 0.7;
-	
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
+
+	rerngContainer<double> moveBias10x10Cal( 10, 10, 0.1 );
+	moveBias10x10Cal( 5, 3, dir::right ) = 0.1325;
+	moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
+
+	moveBiasCalibrations.push_back( moveBias10x10Cal );
 }
 
 
@@ -771,7 +776,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		hold waveform (e.g. gen 6 const) horizontal
 		hold waveform (e.g. gen 6 const) vertical
 		target pattern
-		target coordinates
+		target coordinates (row col)
 		}
 		*/
 		waveInfoForm rearrangeWave;
@@ -880,10 +885,10 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 			thrower( "ERROR: Expected \"}\" but found \"" + bracket + "\" in niawg File during flashing waveform read." );
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
-		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target );
+		rearrangeWave.rearrange.moveLimit = 10;//getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of us.
-		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit * 0.5
+		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
 														 * rearrangeWave.rearrange.timePerMove.evaluate( )
 														 + 2 * rInfo.finalMoveTime) * 1e3 );
 		output.waveFormInfo.push_back( rearrangeWave );
@@ -1375,7 +1380,8 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		deltaNu.push_back( dNu );
 		auto dOmega = 2 * PI *  dNu;
 		deltaOmega.push_back( dOmega );
-		auto a_w0 = 2 * PI * dNu / t_r;
+		// initial phase acceleration, can modify this to give tweezer an initial velocity. 0 = start from static
+		auto a_w0 = 0;//2 * PI * dNu / t_r;
 		accel_w0.push_back( a_w0 );
 		auto a_w1 = 4 * PI * dNu / t_r - a_w0;
 		accel_w1.push_back( a_w1 );
@@ -1850,6 +1856,11 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 	{
 		axis = Axes::Horizontal;
 	}
+	else
+	{
+		thrower( "ERROR: Expected either \"vertical\" or \"horizontal\" after waveform type declaration. Instead, found"
+				 " \"" + newAxisStr + "\"." );
+	}
 	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
 	// get the common things.
 	loadCommonWaveParams( script, wave );
@@ -2028,11 +2039,10 @@ void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options
 	// prepare each channel
 	generateWaveform( wave.chan[Axes::Horizontal], options, wave.sampleNum, wave.time, powerCap, constPower );
 	generateWaveform( wave.chan[Axes::Vertical], options, wave.sampleNum, wave.time, powerCap, constPower );
-	// mix
 	mixWaveforms( wave, options.outputNiawgWavesToText );
 	// clear channel data, no longer needed.
 	wave.chan[Axes::Vertical].wave.clear( );
-	// not sure if shrink_to_fit is necessary, but might help with data management
+	// not sure if shrink_to_fit is necessary, but might help with mem management
 	wave.chan[Axes::Vertical].wave.shrink_to_fit( );
 	wave.chan[Axes::Horizontal].wave.clear( );
 	wave.chan[Axes::Horizontal].wave.shrink_to_fit( );
@@ -2585,6 +2595,10 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 }
 
 
+
+/*
+Has not been updated with the off-grid dump functionality.
+*/
 std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings, UINT sourceRows, UINT sourceCols,
 														complexMove moveInfo, rerngOptions options, double moveBias )
 {
@@ -2608,7 +2622,6 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 	double movingFrac = moveBias;
 	// split the remaining bias between all of the other movingSize-2 signals.
 	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
-	/// /// /// /// handle moving axis /////////////
 	/// get number of static traps in the moving axis
 	std::vector<UINT> staticTweezers;
 	// for every possible static tweezer
@@ -2641,13 +2654,13 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 		sig.freqRampType = sig.powerRampType = "nr";
 		sig.finPower = sig.initPower = nonMovingFrac;
 		sig.initPhase = 0;
-		//sig.freqInit = (movingAxis == Axes::Horizontal) ? 
 		sig.freqInit = (movingAxis == Axes::Vertical) ?
 			((targetRows - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6 :
 			(gridLoc * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 		sig.freqFin = sig.freqInit;
 		signalNum++;
 	}
+	/// /// /// /// handle moving axis /////////////
 	/// set parameters for the moving tweezers in the moving axis.
 	bool piFound = false;
 	for ( auto loc : moveInfo.locationsToMove )
@@ -2666,6 +2679,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 		sig.powerRampType = "nr";
 		sig.initPhase = 0;
 		sig.finPower = sig.initPower = movingFrac;
+		// I found that linear ramps worked best for the ultra-fast moves
 		sig.freqRampType = "lin";
 		if ( movingAxis == Axes::Horizontal )
 		{
@@ -2674,15 +2688,11 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 			// convert to Hz
 			sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 			sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			//sig.freqInit = ((targetCols - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			//sig.freqFin =  ((targetCols - fin  - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 		}
 		else
 		{
 			UINT init = loc.row;
 			UINT fin = loc.row + moveInfo.dirInt( );
-			//sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			//sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 			sig.freqInit = ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 			sig.freqFin =  ((targetRows - fin  - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
 		}
@@ -2701,7 +2711,6 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 			sig.finPower = sig.initPower = 1;
 			sig.freqRampType = sig.powerRampType = "nr";
 			sig.initPhase = 0;
-			//sig.freqInit = (staticAxis == Axes::Horizontal) ? 
 			sig.freqInit = (staticAxis == Axes::Vertical) ?
 				((targetRows - atom.row - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6 :
 				(atom.row * freqPerPixel + lowFreqs[staticAxis])*1e6;
@@ -2720,7 +2729,6 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 			sig.freqRampType = sig.powerRampType = "nr";
 			sig.freqFin = sig.freqInit;
 			sig.initPhase = 0;
-			//sig.freqInit = (staticAxis == Axes::Horizontal) ?
 			sig.freqInit = (staticAxis == Axes::Vertical) ?
 				((targetRows - sigCount - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6 :
 				(sigCount * freqPerPixel + lowFreqs[staticAxis])*1e6;
@@ -2795,35 +2803,44 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 	auto targetRows = rerngSettings.target.getRows( );
 	auto& lowFreqs = rerngSettings.lowestFreqs;
 	simpleWave moveWave;
+	bool isVert = movingAxis == Axes::Vertical;
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
 	// needs to match correctly the static waveform.
 	moveWave.time = (moveInfo.needsFlash ? rerngSettings.timePerMove / (staticMovingRatio + 1) : rerngSettings.timePerMove);
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 	double movingFrac = moveBias;
-	// split the remaining bias between all of the other movingSize-2 signals.
-	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
+	bool offGridDump = true;
+	double nonMovingFrac = offGridDump ? 1 - movingFrac : (1 - movingFrac) / (movingSize - 2);
 	/// handle moving axis /////////////
 	/// get number of static traps in the moving axis
-	std::vector<UINT> staticTweezers;
-	// for every possible static tweezer
-	for ( auto potentialStaticGridLoc : range( movingSize ) )
+	std::vector<int> staticTweezers;
+	if ( !offGridDump )
 	{
-		bool isUsed = false;
-		for ( auto loc : moveInfo.locationsToMove )
+		// for every possible static tweezer
+		for ( auto potentialStaticGridLoc : range( movingSize ) )
 		{
-			// if location is init or final location of this location's move...
-			if ( potentialStaticGridLoc == (upOrDown ? loc.row : loc.column) ||
-				 potentialStaticGridLoc == (upOrDown ? loc.row + moveInfo.dirInt( ) : loc.column + moveInfo.dirInt( )) )
+			bool isUsed = false;
+			for ( auto loc : moveInfo.locationsToMove )
 			{
-				isUsed = true;
+				// if location is init or final location of this location's move...
+				if ( potentialStaticGridLoc == (upOrDown ? loc.row : loc.column) ||
+					 potentialStaticGridLoc == (upOrDown ? loc.row + moveInfo.dirInt( ) : loc.column + moveInfo.dirInt( )) )
+				{
+					isUsed = true;
+				}
+			}
+			if ( !isUsed )
+			{
+				// then should be a static tweezer
+				staticTweezers.push_back( potentialStaticGridLoc );
 			}
 		}
-		if ( !isUsed )
-		{
-			// then should be a static tweezer
-			staticTweezers.push_back( potentialStaticGridLoc );
-		}
+	}
+	else
+	{
+		// put it off-axis on the low frequency side of things. 
+		staticTweezers.push_back( -1 );
 	}
 
 	UINT signalNum = 0;
@@ -2835,39 +2852,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		sig.freqRampType = sig.powerRampType = "nr";
 		sig.finPower = sig.initPower = nonMovingFrac;
 		sig.initPhase = 0;
-		if ( movingAxis == Axes::Vertical )
-		{
-			sig.freqInit = ((targetCols - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			sig.freqFin = sig.freqInit;
-		}
-		else
-		{
-			sig.freqInit = (gridLoc * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			sig.freqFin = sig.freqInit;
-		}
+		sig.freqInit = (isVert) ? ((targetRows - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) :
+								   (gridLoc * freqPerPixel + lowFreqs[movingAxis]);
+		sig.freqInit *= 1e6;
+		sig.freqFin = sig.freqInit;
 		signalNum++;
 	}
-	/*
-	if ( movingAxis == Axes::Horizontal )
-	{
-		UINT init = loc.column;
-		UINT fin = loc.column + moveInfo.dirInt( );
-		// convert to Hz
-		sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		//sig.freqInit = ((targetCols - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		//sig.freqFin =  ((targetCols - fin  - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-	}
-	else
-	{
-		UINT init = loc.row;
-		UINT fin = loc.row + moveInfo.dirInt( );
-		//sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		//sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		sig.freqInit = ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		sig.freqFin = ((targetRows - fin - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-	}
-	*/
+
 	bool piFound = false;
 	for ( auto loc : moveInfo.locationsToMove )
 	{
@@ -2884,24 +2875,16 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		sig.powerRampType = "nr";
 		sig.initPhase = 0;
 		sig.finPower = sig.initPower = movingFrac;
-		sig.freqRampType = "lin";
-		if ( movingAxis == Axes::Vertical )
-		{
-			UINT init = loc.row;
-			UINT fin = loc.row + moveInfo.dirInt();
-			sig.freqInit = ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			sig.freqFin = ((targetRows - fin - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		}
-		else
-		{
-			UINT init = loc.column;
-			UINT fin = loc.column + moveInfo.dirInt( );
-			sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-			sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
-		}
+		sig.freqRampType = "fast";
+		UINT init = isVert ? loc.row : loc.column;
+		UINT fin = (isVert ? loc.row : loc.column) + moveInfo.dirInt( );
+		sig.freqInit = (isVert ? ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) :
+						 init * freqPerPixel + lowFreqs[movingAxis])* 1e6;
+		sig.freqFin = (isVert ? ((targetRows - fin - 1) * freqPerPixel + lowFreqs[movingAxis]) :
+						fin * freqPerPixel + lowFreqs[movingAxis])* 1e6;
 		signalNum++;
 	}
-	/// handle other axis
+	/// handle static axis /////////////////
 	if ( moveInfo.needsFlash )
 	{
 		moveWave.chan[staticAxis].signals.resize( moveInfo.locationsToMove.size() );
@@ -2913,47 +2896,23 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 			sig.finPower = sig.initPower = 1;
 			sig.freqRampType = sig.powerRampType = "nr";
 			sig.initPhase = 0;
-			if ( staticAxis == Axes::Vertical )
-			{
-				// convert to Hz
-				sig.freqInit = ((targetRows - atom.row - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6;
-			}
-			else
-			{
-				// convert to Hz
-				sig.freqInit = (atom.column * freqPerPixel + lowFreqs[staticAxis])*1e6;
-			}
+			sig.freqInit = (isVert ? atom.column * freqPerPixel + lowFreqs[staticAxis] : 
+							(targetRows - atom.row - 1) * freqPerPixel + lowFreqs[staticAxis] ) * 1e6;
 			sig.freqFin = sig.freqInit;
 			sigCount++;
 		}
-		
 	}
 	else
 	{
 		// no flash, so static axis must span all 
-		if ( staticAxis == Axes::Horizontal )
-		{
-			moveWave.chan[staticAxis].signals.resize( targetCols );
-		}
-		else
-		{
-			moveWave.chan[staticAxis].signals.resize( targetRows );
-		}
+		moveWave.chan[staticAxis].signals.resize( isVert ? targetRows : targetCols );
 		UINT sigCount = 0;
 		for ( auto& sig : moveWave.chan[staticAxis].signals )
 		{
 			sig.freqRampType = sig.powerRampType = "nr";
 			sig.initPhase = 0;
-			if ( staticAxis == Axes::Vertical )
-			{
-				// convert to Hz
-				sig.freqInit = ((targetRows - sigCount - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6;
-			}
-			else
-			{
-				// convert to Hz
-				sig.freqInit = (sigCount * freqPerPixel + lowFreqs[staticAxis])*1e6;
-			}
+			sig.freqInit = (isVert ? sigCount * freqPerPixel + lowFreqs[staticAxis] :
+							(targetRows - sigCount - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6;
 			sig.freqFin = sig.freqInit;
 			// even intensity
 			sig.initPower = sig.finPower = 1;
@@ -2973,8 +2932,8 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		 && (fabs( rerngSettings.staticWave.time + moveWave.time - rerngSettings.timePerMove ) > 1e-9 ))
 	{
 		thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
-				 "Sizes were " + str( rerngSettings.staticWave.waveVals.size( ) ) + " and "
-				 + str( moveWave.waveVals.size( ) ) + " respectively.\r\n" );
+				 "static time was " + str( rerngSettings.staticWave.time ) + ", move time was "
+				 + str( moveWave.time ) + ", and total time was " + str(rerngSettings.timePerMove) + ".\r\n" );
 	}
 	flashMove.flash.flashWaves.push_back( moveWave );
 	if ( moveInfo.needsFlash )
@@ -3214,11 +3173,17 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore. simpleMoveSequence should be empty anyways.
 			}
+			std::string tmpStr = source.print( );
+			std::string dum = tmpStr.c_str( );
 			numberMoves.push_back( complexMoveSequence.size( ) );
 			stopRerngCalc.push_back( chronoClock::now( ) );
 			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
+			UINT moveCount = 0;
+			// always start with 10us of the static waveform
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), info.fillerWave.waveVals.begin( ),
+												info.fillerWave.waveVals.begin( ) + 10e-6 * NIAWG_SAMPLE_RATE );
 			for ( auto move : complexMoveSequence )
 			{
 				// program this move.
@@ -3229,7 +3194,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				{
 					if ( move.needsFlash )
 					{
-						vals = input->flashMoves( row, col, move.moveDir ).waveVals;
+						auto tmpMove = input->flashMoves( row, col, move.moveDir );
+						vals = tmpMove.waveVals;
 					}
 					else
 					{
@@ -3262,6 +3228,10 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 				// put a break statement here to limit the rearranging algorithm to 1 move at a time.
+				if ( moveCount++ > 9 )
+				{
+					break;
+				}
 			}
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			/// Finishing Move to move the atoms to the desired location.
@@ -3278,6 +3248,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 												info.fillerWave.waveVals.begin( ) + info.fillerWave.waveVals.size()
 												- input->niawg->rerngWaveVals.size() );
 			stopAllCalc.push_back(chronoClock::now( ));
+			input->niawg->fgenConduit.resetWritePosition( );
 			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );

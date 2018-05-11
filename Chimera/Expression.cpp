@@ -423,7 +423,8 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 		{
 			for ( auto& variable : variables )
 			{
-				if ( term == variable.name && (variable.parameterScope == expressionScope || variable.parameterScope == "__GLOBAL__" ))
+				if ( term == variable.name && (variable.parameterScope == expressionScope
+												|| variable.parameterScope == GLOBAL_PARAMETER_SCOPE))
 				{
 					if ( variable.keyValues.size( ) == 0 )
 					{
@@ -459,7 +460,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 		{
 			auto& param = variables[varInc];
 			if ( param.name == expressionStr && (param.parameterScope == expressionScope 
-												  || param.parameterScope == "__GLOBAL__" ))
+												  || param.parameterScope == GLOBAL_PARAMETER_SCOPE ))
 			{
 				param.active = true;
 				isVariable = true;
@@ -552,7 +553,8 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 				{
 					auto& param = variables[varInc];
-					if ( param.name == elem && (param.parameterScope == expressionScope || param.parameterScope == "__GLOBAL__") )
+					if ( param.name == elem && (param.parameterScope == expressionScope 
+												 || param.parameterScope == GLOBAL_PARAMETER_SCOPE) )
 					{
 						param.active = true;
 						isVariable = true;

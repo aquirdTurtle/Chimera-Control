@@ -55,21 +55,21 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 		// Make First Blank row.
 		LVITEM listViewDefaultItem;
 		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-		listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
-		listViewDefaultItem.cchTextMax = 256; // Max size of test
+		listViewDefaultItem.mask = LVIF_TEXT; 
+		listViewDefaultItem.cchTextMax = 256; 
 		listViewDefaultItem.pszText = "___";
-		listViewDefaultItem.iItem = 0;          // choose item  
-		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
+		listViewDefaultItem.iItem = 0;     
+		listViewDefaultItem.iSubItem = 0;  
 		variablesListview.InsertItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 1;
 		variablesListview.SetItem( &listViewDefaultItem );
 	}
 	else 
 	{
-		listViewDefaultCollumn.cx = r.right/3;
+		listViewDefaultCollumn.cx = r.right/4;
 		variablesListview.InsertColumn( 0, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Type";
-		listViewDefaultCollumn.cx = r.right / 14;
+		listViewDefaultCollumn.cx = r.right / 10;
 		variablesListview.InsertColumn( 1, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Dim";
 		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
@@ -77,7 +77,7 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Scope";
 		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
-		listViewDefaultCollumn.cx = r.right / 20;
+		listViewDefaultCollumn.cx = r.right / 15;
 		listViewDefaultCollumn.pszText = "1:(";
 		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "]";
@@ -119,7 +119,21 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version v
 	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	// handle variables
 	clearVariables( );
-	std::vector<parameterType> variables = getVariablesFromFile( configFile, ver );
+	std::vector<parameterType> variables;
+	try
+	{
+		variables = getVariablesFromFile( configFile, ver );
+	}
+	catch ( Error& )
+	{}
+	if ( variables.size( ) == 0 )
+	{
+		setVariationRangeNumber( 1, 1 );
+	}
+	else
+	{
+		setVariationRangeNumber( variables.front( ).ranges.size(), 1 );
+	}
 	UINT varInc = 0;
 	for ( auto var : variables )
 	{
@@ -263,7 +277,7 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 		errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
 		rangeNumber = 1;
 	}
-	setVariationRangeNumber( rangeNumber, 1 );
+	//setVariationRangeNumber( rangeNumber, 1 );
 	UINT totalVariations = 0;
 	for ( auto rangeInc : range( rangeNumber ) )
 	{
@@ -309,7 +323,7 @@ void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType varia
 		saveFile << range.initialValue << "\n" << range.finalValue << "\n" << range.variations << "\n"
 			<< range.leftInclusive << "\n" << range.rightInclusive << "\n";
 	}
-	saveFile << variable.constantValue << "\n";
+	saveFile << variable.constantValue << "\n" << variable.parameterScope << "\n";
 }
 
 
@@ -750,8 +764,8 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 	}
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
-	listViewItem.mask = LVIF_TEXT;   // Text Style
-	listViewItem.cchTextMax = 256; // Max size of test
+	listViewItem.mask = LVIF_TEXT; 
+	listViewItem.cchTextMax = 256; 
 	/// check if adding new variable
 	listViewItem.iItem = itemIndicator;
 	CString text = variablesListview.GetItemText(itemIndicator, 0);
@@ -1003,17 +1017,18 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 		case 4:
 		{
 			/// scope
-			std::string newValue;
-			TextPromptDialog dialog( &newValue, "Please enter a the scope for the variable: \""
+			std::string newScope;
+			TextPromptDialog dialog( &newScope, "Please enter a the scope for the variable: \""
 									 + currentVariables[varNumber].name + "\". You may enter a function name, "
 									 "\"parent\", or \"global\"." );
 			dialog.DoModal( );
-			if ( newValue == "" )
+			if ( newScope == "" )
 			{
 				// probably canceled.
 				break;
 			}
 			// update the listview
+			currentVariables[varNumber].parameterScope = newScope;
 			std::string tempStr( str( currentVariables[varNumber].parameterScope, 0, false, true ) );
 			listViewItem.pszText = &tempStr[0];
 			variablesListview.SetItem( &listViewItem );
@@ -1396,6 +1411,10 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 	std::string s( str( char('A' + variableToAdd.scanDimension-1) ) );
 	listViewItem.pszText = &s[0];
 	variablesListview.SetItem( &listViewItem );
+	listViewItem.iSubItem = 4;
+	listViewItem.pszText = (LPSTR)variableToAdd.parameterScope.c_str();
+	variablesListview.SetItem( &listViewItem );
+
 	// make sure there are enough currentRanges.
 	UINT currentRanges = currentVariables.front( ).ranges.size( );
 	//UINT columns = variablesListview.GetHeaderCtrl()->GetItemCount();
@@ -1574,104 +1593,8 @@ std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::str
 		{
 			continue;
 		}
-		UINT varNum;
-		f >> varNum;
-		if ( varNum > 100 )
-		{
-			int answer = promptBox( "ERROR: variable number retrieved from file appears suspicious. The number is "
-									+ str( varNum ) + ". Is this accurate?", MB_YESNO );
-			if ( answer == IDNO )
-			{
-				// don't try to load anything.
-				varNum = 0;
-			}
-		}
-		int rangeNumber = 1;
-		for ( const UINT varInc : range( varNum ) )
-		{
-			parameterType tempVar;
-			std::string varName, typeText, valueString;
-			bool constant;
-			f >> varName >> typeText;
-			std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
-			tempVar.name = varName;
-			if ( typeText == "Constant" )
-			{
-				constant = true;
-				tempVar.constant = true;
-			}
-			else if ( typeText == "Variable" )
-			{
-				constant = false;
-				tempVar.constant = false;
-			}
-			else
-			{
-				thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
-						 " file." );
-			}
-			if (ver > Version("2.7" ) )
-			{
-				f >> tempVar.scanDimension;
-			}
-			else
-			{
-				tempVar.scanDimension = 1;
-			}
-			f >> rangeNumber;
-			// I think it's unlikely to ever need more than 2 or 3 ranges. Reading the file probably just fails in this 
-			// case...
-			if ( rangeNumber < 1 || rangeNumber > 100 )
-			{
-				errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
-				rangeNumber = 1;
-			}
-			for ( auto& variable : configVariables )
-			{
-				variable.ranges.resize( rangeNumber );
-			}
-			// check if the range is actually too small.
-			UINT totalVariations = 0;
-			for ( auto rangeInc : range( rangeNumber ) )
-			{
-				double initValue = 0, finValue = 0;
-				unsigned int variations = 0;
-				bool leftInclusive = 0, rightInclusive = 0;
-				f >> initValue >> finValue >> variations >> leftInclusive >> rightInclusive;
-				totalVariations += variations;
-				tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
-			}
-			// shouldn't be because of 1 forcing earlier.
-			if ( tempVar.ranges.size( ) == 0 )
-			{
-				// make sure it has at least one entry.
-				tempVar.ranges.push_back( { 0,0,1, false, true } );
-			}
-			if (ver >= Version("2.14") )
-			{
-				f >> tempVar.constantValue;
-			}
-			else
-			{
-				tempVar.constantValue = tempVar.ranges[0].initialValue;
-			}
-			configVariables.push_back( tempVar );
-		}
+		configVariables = getVariablesFromFile( f, ver );
 
-		for ( auto rangeInc : range( rangeNumber ) )
-		{
-			bool leftInclusivity = false, rightInclusivity = true;
-			if ( configVariables.size( ) != 0 )
-			{
-				leftInclusivity = configVariables.front( ).ranges[rangeInc].leftInclusive;
-				rightInclusivity = configVariables.front( ).ranges[rangeInc].rightInclusive;
-			}
-			for ( auto& variable : configVariables )
-			{
-				variable.ranges[rangeInc].leftInclusive = leftInclusivity;
-				variable.ranges[rangeInc].leftInclusive = rightInclusivity;
-			}
-		}
 		ProfileSystem::checkDelimiterLine( f, "END_VARIABLES" );
 		break;
 	}
@@ -1934,7 +1857,7 @@ std::vector<parameterType> ParameterSystem::combineParametersForExperimentThread
 		// to set this.
 		if ( var.parameterScope == "" )
 		{
-			var.parameterScope = "__GLOBAL__";
+			var.parameterScope = GLOBAL_PARAMETER_SCOPE;
 		}
 	}
 	return combinedParams;

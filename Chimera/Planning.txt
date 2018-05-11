@@ -23,6 +23,9 @@ FEATURES:
 - improve experiment status
 	- include which config was run, variable options
 	- fix time to be smart
+- check niawg script for multiple repeat forevers or commands outside a repeat forever.
+- make more timing info on programming
+- have code work with temperature monitoring
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -49,6 +52,7 @@ BUGS:
 - fix variable logging / figure out what the problem is here.
 - turnonmot seems to be running tektronics stuff too
 - figure out "parent script" not loading bug
+- in rearranging, add check that source matrix is larger than target.
 
 =================
 Finished
