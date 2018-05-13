@@ -22,66 +22,78 @@ class AoSystem
 {
 	public:
 		AoSystem( bool aoSafemode );
-		std::string getSystemInfo( );
+		// standard functions for gui elements
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
+		void rearrange( UINT width, UINT height, fontMap fonts );
+		HBRUSH handleColorMessage( CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC );
+		// configs
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls);
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
-		std::string getDacSequenceMessage(UINT variation, UINT seqNum );
-		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
+		// macros
+		void forceDacs( DioSystem* ttls );
+		void zeroDacs( DioSystem* ttls );
+		// Setting system settings, mostly non-crucial functionality.
+		
+		void handleRoundToDac( CMenu& menu );
 		void updateEdits( );
+		void shadeDacs( std::vector<unsigned int>& dacShadeLocations );
+		void unshadeDacs( );
+		void setDefaultValue( UINT dacNum, double val );
+		void setName( int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master );
+		bool isValidDACName( std::string name );
+		void setMinMax( int dacNumber, double min, double max );
+		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData,
+						   std::vector<std::vector<double>> finTimes );
+		double roundToDacResolution( double num );
+		void handleEditChange( UINT dacNumber );
+		// processing to determine how dac's get set
+		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
-		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );
-		void handleRoundToDac(CMenu& menu);
+		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void stopDacs();
 		void setDacTriggerEvents( DioSystem* ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
-		void organizeDacCommands(UINT variation, UINT seqNum );
-		void makeFinalDataFormat(UINT variation, UINT seqNum );
-		void writeDacs( UINT variation, UINT seqNum, bool loadSkip );
-		void startDacs();
-		void configureClocks( UINT variation, UINT seqNum, bool loadSkip );
-		void setDefaultValue(UINT dacNum, double val);
-		double getDefaultValue(UINT dacNum);
-
-		unsigned int getNumberSnapshots(UINT variation, UINT seqNum );
-		void checkTimingsWork(UINT variation, UINT seqNum );
-		void setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
-		std::string getName(int dacNumber);
-		std::array<std::string, 24> getAllNames();
-		ULONG getNumberEvents(UINT variation, UINT seqNum );
-		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations, 
+		void organizeDacCommands( UINT variation, UINT seqNum );
+		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
 									 std::vector<parameterType>& vars, DioSystem* ttls, UINT seqNum );
-		
-		int getDacIdentifier(std::string name);
-		double getDacValue(int dacNumber);
-		unsigned int getNumberOfDacs();
-		std::pair<double, double> getDacRange(int dacNumber);
-		void setMinMax(int dacNumber, double min, double max);
-		void shadeDacs(std::vector<unsigned int>& dacShadeLocations);
-		void unshadeDacs();
-		void rearrange(UINT width, UINT height, fontMap fonts);
-		bool isValidDACName(std::string name);
-		HBRUSH handleColorMessage(CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC);
-		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
-						   std::vector<std::vector<double>> finTimes );
-		void resetDacEvents();
-		void initDacObjs( UINT totalSequenceNumber );
-		std::array<double, 24> getDacStatus();
-		std::array<double, 24> getFinalSnapshot();
-		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
-		void prepareForce();
-		double roundToDacResolution(double);
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
-		void handleEditChange( UINT dacNumber );
+		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
+		void makeFinalDataFormat( UINT variation, UINT seqNum );
+		void writeDacs( UINT variation, UINT seqNum, bool loadSkip );
+		void startDacs( );
+		void configureClocks( UINT variation, UINT seqNum, bool loadSkip );
+		void stopDacs();
+		void resetDacEvents( );
+		void initializeDataObjects( UINT sequenceNum, UINT cmdNum );
+		void prepareForce( );
+		void standardNonExperiemntStartDacsSequence( );		
+		void setSingleDac( UINT dacNumber, double val, DioSystem* ttls );
+		// checks
+		void checkTimingsWork( UINT variation, UINT seqNum );
+		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
+		// ask for info
+		std::string getSystemInfo( );
+		std::string getDacSequenceMessage( UINT variation, UINT seqNum );
+		// getters
+		double getDefaultValue( UINT dacNum );
+		unsigned int getNumberSnapshots( UINT variation, UINT seqNum );
+		std::string getName( int dacNumber );
+		std::array<std::string, 24> getAllNames( );
+		ULONG getNumberEvents( UINT variation, UINT seqNum );
+		int getDacIdentifier( std::string name );
+		double getDacValue( int dacNumber );
+		unsigned int getNumberOfDacs( );
+		std::pair<double, double> getDacRange( int dacNumber );
+		std::array<double, 24> getDacStatus( );
+		std::array<double, 24> getFinalSnapshot( );
 		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
-		Control<CleanButton> zeroDacs;
+		Control<CleanButton> zeroDacsButton;
 		std::array<Control<CStatic>, 24> dacLabels;
 		std::array<Control<CEdit>, 24> breakoutBoardEdits;
 		std::array<double, 24> dacValues;

@@ -19,7 +19,7 @@ namespace TestAoSystem
 			{
 				Assert::IsTrue( 0 == dac );
 			}
-			aoSys.initDacObjs( 1 );
+			aoSys.initializeDataObjects( 1, 0 );
 			aoSys.interpretKey( std::vector<std::vector<parameterType>>( 1 ), std::string( ) );
 			Assert::IsTrue( aoSys.getNumberEvents( 0, 0 ) == 0 );
 			Assert::IsTrue( aoSys.getNumberSnapshots( 0, 0 ) == 0 );

@@ -93,8 +93,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	{
 		aoSys->resetDacEvents( );
 		ttls->resetTtlEvents( );
-		aoSys->initDacObjs( input->seq.sequence.size( ) );
-		ttls->initTtlObjs( input->seq.sequence.size( ) );
+		aoSys->initializeDataObjects( input->seq.sequence.size( ), 0 );
+		ttls->initializeDataObjects( input->seq.sequence.size( ), 0 );
 		input->thisObj->loadSkipTimes.clear( );
 		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );

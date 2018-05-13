@@ -204,6 +204,9 @@
     <ClCompile Include="ParameterSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
+    <ClCompile Include="Servo.cpp" />
+    <ClCompile Include="ServoManager.cpp" />
+    <ClCompile Include="DoubleEdit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -497,6 +500,9 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Version.h" />
+    <ClInclude Include="Servo.h" />
+    <ClInclude Include="ServoManager.h" />
+    <ClInclude Include="DoubleEdit.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

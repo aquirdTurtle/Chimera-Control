@@ -69,7 +69,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="Release-32.props" />
+    <Import Project="..\Release-32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -169,6 +169,9 @@
       <AdditionalDependencies>NIDAQmx.lib;dio64_32.lib;niFgen.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python36.lib;libzlib.lib;libszip.lib;libhdf5_cpp.lib;libhdf5.lib</AdditionalDependencies>
       <HeapReserveSize>1000000000</HeapReserveSize>
     </Link>
+    <PostBuildEvent>
+      <Command>lib /MACHINE:X86 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)\$(Configuration)\*.obj"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -219,6 +222,7 @@
     <ClInclude Include="AoStructures.h" />
     <ClInclude Include="debugInfo.h" />
     <ClInclude Include="directions.h" />
+    <ClInclude Include="DoubleEdit.h" />
     <ClInclude Include="Expression.h" />
     <ClInclude Include="ftd2xx.h" />
     <ClInclude Include="ftdiFlume.h" />
@@ -280,6 +284,8 @@
     <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="Segment.h" />
     <ClInclude Include="segmentStructs.h" />
+    <ClInclude Include="Servo.h" />
+    <ClInclude Include="ServoManager.h" />
     <ClInclude Include="SmsTextingControl.h" />
     <ClInclude Include="splashDialog.h" />
     <ClInclude Include="StatusControl.h" />
@@ -319,6 +325,7 @@
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="DaqMxFlume.cpp" />
+    <ClCompile Include="DoubleEdit.cpp" />
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="ftdiFlume.cpp" />
     <ClCompile Include="functionCombo.cpp" />
@@ -363,6 +370,8 @@
     <ClCompile Include="ScriptingWindow.cpp" />
     <ClCompile Include="ScriptStream.cpp" />
     <ClCompile Include="Segment.cpp" />
+    <ClCompile Include="Servo.cpp" />
+    <ClCompile Include="ServoManager.cpp" />
     <ClCompile Include="SmsTextingControl.cpp" />
     <ClCompile Include="splashDialog.cpp" />
     <ClCompile Include="StatusControl.cpp" />

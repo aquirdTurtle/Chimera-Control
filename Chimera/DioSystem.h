@@ -33,12 +33,13 @@ class DioSystem
 		void fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt );
 		DWORD ftdi_write( UINT seqNum, UINT variation, bool loadSkipf );
 		DWORD ftdi_trigger( );
-		
+		void standardNonExperimentStartDioSequence( );
 		// an "alias template". effectively a local "using std::vector;" declaration. makes these declarations much more
 		// readable. I very rarely use things like this.
 		template<class T> using vec = std::vector<T>;
 
 		/// config handling
+		void initializeDataObjects( UINT seqNum, UINT cmdNum );
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver );
@@ -99,7 +100,6 @@ class DioSystem
 		void unshadeTtls();
 		bool isValidTTLName(std::string name);
 		void resetTtlEvents();
-		void initTtlObjs( UINT totalSequenceNumber );
 		void prepareForce();
 		void updateDefaultTtl(UINT row, UINT column, bool state);
 		UINT countTriggers( UINT row, UINT number, UINT variation, UINT seqNum );

@@ -164,6 +164,13 @@ std::vector<float64> AiSystem::getSingleSnap( UINT n_to_avg )
 }
 
 
+double AiSystem::getSingleChannelValue( UINT chan, UINT n_to_avg )
+{
+	auto all = getSingleSnap( n_to_avg );
+	return all[chan];
+}
+
+
 std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( UINT n_to_avg )
 {
 	std::vector<float64> data = getSingleSnap( n_to_avg );

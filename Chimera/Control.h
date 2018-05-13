@@ -26,10 +26,10 @@ const DWORD NORM_RADIO_OPTIONS = NORM_CWND_OPTIONS | BS_AUTORADIOBUTTON | WS_TAB
 const DWORD NORM_CHECK_OPTIONS = NORM_CWND_OPTIONS | BS_AUTOCHECKBOX | WS_TABSTOP | BS_RIGHT;
 const DWORD NORM_LISTVIEW_OPTIONS = NORM_CWND_OPTIONS | LVS_REPORT | LVS_EDITLABELS;
 /*
- * This is a complex class definition. The first line here declares that this is a template class with a class template
- * argument named ControlType.  I.e. my class is based on a class called ControlType.
+ * This is a complex class definition. The first part here (before ":") declares that this is a template class with a 
+ * class template argument named ControlType.  I.e. my class is based on a class called ControlType.
  * 
- * The second line forces ControlType to be inherited from some CWnd class, i.e. ControlType should always be
+ * The second part forces ControlType to be inherited from some CWnd class, i.e. ControlType should always be
  * some typical MFC control, the purpose of which is clear in the next line.
  *
  * the last line names the template class to be "Control" and says that it inherits it's template argument. This allows

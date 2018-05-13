@@ -11,7 +11,7 @@ namespace TestManager
 	{
 		ScriptStream stream( "t += 50 on: A5 t += 1 pulseon: C13 0.1" );
 		std::vector<std::pair<UINT, UINT>>  shades;
-		dio.initTtlObjs( 1 );
+		dio.initializeDataObjects( 1, 0 );
 		std::string scope = NO_PARAMETER_SCOPE;
 		std::string word;
 		auto emptyvars = std::vector<parameterType>( );
@@ -177,8 +177,8 @@ namespace TestManager
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
 			std::string scope = NO_PARAMETER_SCOPE;
-			ao.initDacObjs( 1 );
-			dio.initTtlObjs( 1 );
+			ao.initializeDataObjects( 1, 0 );
+			dio.initializeDataObjects( 1, 0 );
 
 			std::string word;
 			auto emptyvars = std::vector<parameterType>( );
@@ -207,8 +207,8 @@ namespace TestManager
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
 			std::string scope = NO_PARAMETER_SCOPE;
-			ao.initDacObjs( 1 );
-			dio.initTtlObjs( 1 );
+			ao.initializeDataObjects( 1, 0 );
+			dio.initializeDataObjects( 1, 0 );
 
 			std::string word;
 			auto emptyvars = std::vector<parameterType>( );
@@ -258,8 +258,8 @@ namespace TestManager
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 daclinspace: dac2 0 10 0.1 20" );
 			std::string scope = NO_PARAMETER_SCOPE;
-			ao.initDacObjs( 1 );
-			dio.initTtlObjs( 1 );
+			ao.initializeDataObjects( 1, 0 );
+			dio.initializeDataObjects( 1, 0 );
 
 			std::string word;
 			auto emptyvars = std::vector<parameterType>( );
@@ -299,8 +299,8 @@ namespace TestManager
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 dacarange: dac2 0 10 0.1 1" );
 			std::string scope = NO_PARAMETER_SCOPE;
-			ao.initDacObjs( 1 );
-			dio.initTtlObjs( 1 );
+			ao.initializeDataObjects( 1, 0 );
+			dio.initializeDataObjects( 1, 0 );
 			std::string word;
 			auto emptyvars = std::vector<parameterType>( );
 			std::vector<UINT> shades;

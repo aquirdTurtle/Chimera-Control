@@ -24,6 +24,7 @@ class AiSystem
 		void refreshCurrentValues( );
 		std::array<float64, NUMBER_AI_CHANNELS> getSingleSnapArray( UINT n_to_avg );
 		std::vector<float64> getSingleSnap( UINT n_to_avg );
+		double getSingleChannelValue( UINT chan, UINT n_to_avg );
 		void armAquisition( UINT numSnapshots );
 		void getAquisitionData( );
 		std::vector<float64> getCurrentValues( );

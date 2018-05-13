@@ -199,6 +199,7 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 
 void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
+	prepareForce( );
 	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
 	std::vector<std::vector<bool>> ttlStates;
 	ttlStates.resize(getTtlBoardSize().first);
@@ -643,11 +644,22 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 	}
 }
 
-// simple...
+
+void DioSystem::standardNonExperimentStartDioSequence( )
+{
+	organizeTtlCommands( 0, 0 );
+	convertToFinalViewpointFormat( 0, 0 );
+	writeTtlData( 0, false, 0 );
+	startBoard( );
+	waitTillFinished( 0, false, 0 );
+}
+
+
 int DioSystem::getNumberOfTTLRows()
 {
 	return ttlPushControls.size();
 }
+
 
 int DioSystem::getNumberOfTTLsPerRow()
 {
@@ -661,6 +673,7 @@ int DioSystem::getNumberOfTTLsPerRow()
 		return -1;
 	}
 }
+
 
 void DioSystem::handleTTLPress(int id)
 {
@@ -730,48 +743,31 @@ template<class T> using vec = std::vector<T>;
 // prepares some structures for a simple force event. 
 void DioSystem::prepareForce( )
 {
-	ttlCommandFormList.resize( 1 );
-	ttlSnapshots = vec<vec<vec<DioSnapshot>>>(1, vec<vec<DioSnapshot>>(1));
-	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( 1, vec<vec<DioSnapshot>>( 1 ) );
-	ttlCommandList = vec<vec<vec<DioCommand>>>(1, vec<vec<DioCommand>>( 1) );
-	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>(1, vec<vec<std::array<WORD, 6>>>(1) );
-	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( 1, vec<vec<std::array<WORD, 6>>>( 1 ) );
-	finalFormatViewpointData = vec<vec<vec<WORD>>>(1, vec<vec<WORD>>( 1 ) );
-	loadSkipFinalFormatViewpointData = vec<vec<vec<WORD>>>( 1, vec<vec<WORD>>( 1 ) );
+	initializeDataObjects( 1, 1 );
 }
 
 
-void DioSystem::initTtlObjs( UINT totalSequenceNumber )
+void DioSystem::initializeDataObjects( UINT seqNum, UINT cmdNum )
 {
-	ttlCommandFormList.resize( totalSequenceNumber );
-	ttlSnapshots.resize( totalSequenceNumber );
-	ttlCommandList.resize( totalSequenceNumber );
-	formattedTtlSnapshots.resize( totalSequenceNumber );
-	finalFormatViewpointData.resize( totalSequenceNumber );
-	loadSkipTtlSnapshots.resize( totalSequenceNumber );
-	loadSkipFormattedTtlSnapshots.resize( totalSequenceNumber );
-	loadSkipFinalFormatViewpointData.resize( totalSequenceNumber );
-	ftdiSnaps.resize( totalSequenceNumber );
-	ftdiSnaps_loadSkip.resize( totalSequenceNumber );
-	finFtdiBuffers.resize( totalSequenceNumber );
-	finFtdiBuffers_loadSkip.resize( totalSequenceNumber );
+	ttlCommandFormList.resize( seqNum );
+	ttlSnapshots = vec<vec<vec<DioSnapshot>>>( seqNum, vec<vec<DioSnapshot>>( cmdNum ) );
+	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( seqNum, vec<vec<DioSnapshot>>( cmdNum ) );
+	ttlCommandList = vec<vec<vec<DioCommand>>>( seqNum, vec<vec<DioCommand>>( cmdNum ) );
+	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( seqNum, vec<vec<std::array<WORD, 6>>>( cmdNum ) );
+	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( seqNum, vec<vec<std::array<WORD, 6>>>( cmdNum ) );
+	finalFormatViewpointData = vec<vec<vec<WORD>>>( seqNum, vec<vec<WORD>>( cmdNum ) );
+	loadSkipFinalFormatViewpointData = vec<vec<vec<WORD>>>( seqNum, vec<vec<WORD>>( cmdNum ) );
+	// will prob need to change these to match above later.
+	ftdiSnaps.resize( seqNum );
+	ftdiSnaps_loadSkip.resize( seqNum );
+	finFtdiBuffers.resize( seqNum );
+	finFtdiBuffers_loadSkip.resize( seqNum );
 }
 
 
 void DioSystem::resetTtlEvents( )
 {
-	ttlCommandFormList.clear( );	
-	ttlSnapshots.clear( );
-	ttlCommandList.clear( );
-	formattedTtlSnapshots.clear( );
-	finalFormatViewpointData.clear( );
-	loadSkipTtlSnapshots.clear( );
-	loadSkipFormattedTtlSnapshots.clear( );
-	loadSkipFinalFormatViewpointData.clear( );
-	ftdiSnaps.clear( );
-	ftdiSnaps_loadSkip.clear( );
-	finFtdiBuffers.clear( );
-	finFtdiBuffers_loadSkip.clear( );
+	initializeDataObjects( 0, 0 );
 }
 
 
@@ -1386,7 +1382,7 @@ DWORD DioSystem::ftdi_ForceOutput( int row, int number, int state )
 	ttlPushControls[row][number].SetCheck( state );
 	ttlStatus[row][number] = state;
 	resetTtlEvents( );
-	initTtlObjs( 1 );
+	initializeDataObjects( 1, 0 );
 	sizeDataStructures( 1, 1 );
 	ttlSnapshots[0][0].push_back( { 0.1, ttlStatus } );
 	convertToFtdiSnaps( 0, 0 );

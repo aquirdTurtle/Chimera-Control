@@ -51,6 +51,17 @@ AoSystem::AoSystem(bool aoSafemode) : dacResolution(10.0 / pow(2, 16)), daqmx( a
 	//}
 }
 
+void AoSystem::standardNonExperiemntStartDacsSequence( )
+{
+	updateEdits( );
+	organizeDacCommands( 0, 0 );
+	makeFinalDataFormat( 0, 0 );
+	stopDacs( );
+	configureClocks( 0, false, 0 );
+	writeDacs( 0, false, 0 );
+	startDacs( );
+}
+
 
 std::vector<std::vector<std::vector<AoSnapshot>>> AoSystem::getSnapshots( )
 {
@@ -62,11 +73,42 @@ std::vector<std::vector<std::array<std::vector<double>, 3>>> AoSystem::getFinDat
 	return finalFormatDacData;
 }
 
+
+void AoSystem::forceDacs( DioSystem* ttls )
+{
+	ttls->resetTtlEvents( );
+	resetDacEvents( );
+	handleSetDacsButtonPress( ttls );
+	standardNonExperiemntStartDacsSequence( );
+	ttls->standardNonExperimentStartDioSequence( );
+}
+
+
+void AoSystem::zeroDacs( DioSystem* ttls )
+{
+	resetDacEvents( );
+	ttls->resetTtlEvents( );
+	prepareForce( );
+	ttls->prepareForce( );
+	for ( int dacInc : range( 24 ) )
+	{
+		prepareDacForceChange( dacInc, 0, ttls );
+	}
+	standardNonExperiemntStartDacsSequence( );
+	ttls->standardNonExperimentStartDioSequence( );
+}
+
+
 std::array<double, 24> AoSystem::getDacStatus()
 {
 	return dacValues;
 }
 
+
+void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
+{
+
+}
 
 void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
 {
@@ -209,7 +251,7 @@ void AoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	dacTitle.rearrange( width, height, fonts);
 	dacSetButton.rearrange( width, height, fonts);
-	zeroDacs.rearrange( width, height, fonts);
+	zeroDacsButton.rearrange( width, height, fonts);
 	for (auto& control : dacLabels)
 	{
 		control.rearrange( width, height, fonts);
@@ -247,9 +289,9 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 	dacSetButton.setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
 							 " edits below.", toolTips, master);
 	//
-	zeroDacs.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
-	zeroDacs.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacs.sPos, master, IDC_ZERO_DACS );
-	zeroDacs.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
+	zeroDacsButton.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
+	zeroDacsButton.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacsButton.sPos, master, IDC_ZERO_DACS );
+	zeroDacsButton.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
 
 	int collumnInc = 0;
 	
@@ -506,16 +548,6 @@ double AoSystem::roundToDacResolution(double num)
 }
 
 template <typename T> using vec = std::vector<T>;
-
-void AoSystem::prepareForce()
-{
-	dacCommandList = vec<vec<vec<AoCommand>>>( 1, vec<vec<AoCommand>>( 1 ) );
-	dacSnapshots = vec<vec<vec<AoSnapshot>>>( 1, vec<vec<AoSnapshot>>( 1 ) );
-	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( 1, vec<vec<AoSnapshot>>( 1 ) );
-	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( 1, vec<std::array<vec<double>, 3>>( 1 ) );
-	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( 1, vec<std::array<vec<double>, 3>>( 1 ) );
-}
-
 
 void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
 							  std::vector<std::vector<double>> finTimes )
@@ -865,23 +897,26 @@ void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT var
 }
 
 
-void AoSystem::initDacObjs( UINT totalSequenceNumber )
+void AoSystem::prepareForce( )
 {
-	dacCommandFormList.resize( totalSequenceNumber );
-	dacCommandList.resize( totalSequenceNumber );
-	dacSnapshots.resize( totalSequenceNumber );
-	loadSkipDacSnapshots.resize( totalSequenceNumber );
-	loadSkipDacFinalFormat.resize( totalSequenceNumber );
+	initializeDataObjects( 1, 1 );
+}
+
+
+void AoSystem::initializeDataObjects( UINT sequenceNum, UINT cmdNum )
+{
+	dacCommandFormList = vec<vec<AoCommandForm>>( sequenceNum, vec<AoCommandForm>( cmdNum ) );
+	dacCommandList = vec<vec<vec<AoCommand>>>( sequenceNum, vec<vec<AoCommand>>( cmdNum ) );
+	dacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceNum, vec<vec<AoSnapshot>>( cmdNum ) );
+	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceNum, vec<vec<AoSnapshot>>( cmdNum ) );
+	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( sequenceNum, vec<std::array<vec<double>, 3>>( cmdNum ) );
+	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( sequenceNum, vec<std::array<vec<double>, 3>>( cmdNum ) );
 }
 
 
 void AoSystem::resetDacEvents()
 {
-	dacCommandFormList.clear();
-	dacCommandList.clear();
-	dacSnapshots.clear();
-	loadSkipDacSnapshots.clear( );
-	loadSkipDacFinalFormat.clear( );
+	initializeDataObjects( 0, 0 );
 }
 
 

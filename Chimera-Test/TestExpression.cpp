@@ -6,7 +6,7 @@
 #include "../Chimera/miscellaneousCommonFunctions.h"
 #include "../Chimera/Expression.h"
 #include "../Chimera/Thrower.h"
-#include "../Chimera/VariableSystem.h"
+#include "../Chimera/ParameterSystem.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
