@@ -53,7 +53,8 @@ BUGS:
 - turnonmot seems to be running tektronics stuff too
 - figure out "parent script" not loading bug
 - in rearranging, add check that source matrix is larger than target.
-
+- crash when change color scheme???
+- show warning if variable being varied is not used
 =================
 Finished
 =================
