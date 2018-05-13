@@ -17,13 +17,13 @@ void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool 
 	variationProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y, inputLoc.sPos.x + timerWidth, inputLoc.sPos.y + 15 };
 	variationProgress.Create(NORM_CWND_OPTIONS | PBS_SMOOTH, variationProgress.sPos, parent, id++ );
 	variationProgress.SetBkColor(RGB(100, 110, 100));
-	variationProgress.SetBarColor(RGB(0, 200, 0));
+	variationProgress.SetBarColor(RGB(0, 100, 0));
 	variationProgress.SetRange32( 0, 10000 );
 	// series progress bar display
 	overallProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y + 15, inputLoc.sPos.x + timerWidth, inputLoc.sPos.y + 40 };
 	overallProgress.Create( NORM_CWND_OPTIONS | PBS_SMOOTH, overallProgress.sPos, parent, id++ );
 	overallProgress.SetBkColor(RGB(100, 110, 100));
-	overallProgress.SetBarColor(RGB(255, 255, 255));
+	overallProgress.SetBarColor(RGB(55, 55, 55));
 	overallProgress.SetRange32( 0, 10000 );
 }
 
