@@ -2,18 +2,20 @@
 def intrappgc():
 	off: diagMotRf
 	dac: diagMotPower 0
-	daclinspace: MotFreq loadmotmotfreq intrapPgcDetuning 1 10
+	var mot_detuning -2
+	daclinspace: MotFreq 0.1 mot_detuning 1 10
 	dac: SideMotPower inTrapPgcPower %0.28
 	dac: RepumpPower inTrapPgcRepumpPower 
 	t += 1.1
 	% turn the repump on a tiny bit early 
 	% to pump to the F=2 manifold.
+	var cooling_time 10
 	on: RepumpRf
 	on: SideMotRf
-	t += inTrapPgcCoolingTime 
+	t += cooling_time 
 	off: SideMotRf
 	off: RepumpRf
-	daclinspace: MotFreq intrapPgcDetuning loadMotMotFreq 1 10
+	daclinspace: MotFreq mot_detuning 0.1 1 10
 	% dac: MotFreq -0.5 
       t += 1.5
 

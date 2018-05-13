@@ -76,7 +76,7 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	{
 		control.sPos = { pos.x + 162, pos.y, pos.x + 216, pos.y + 25 };
 		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = fontTypes::SmallFont;
+		control.fontType = fontTypes::NormalFont;
 		pos.y += 25;
 	}
 
@@ -201,7 +201,7 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNum
 		maxCounts[imageNumber].SetWindowTextA(cstr(currentMaxCount));
 		minCounts[imageNumber].SetWindowTextA(cstr(currentMinCount));
 		selCounts[imageNumber].SetWindowTextA(cstr(currentSelectedCount));
-		avgCounts[imageNumber].SetWindowTextA(cstr( currentAvgCount, 1));
+		avgCounts[imageNumber].SetWindowTextA(cstr( currentAvgCount, 5));
 	}
 	else if (displayDataType == CAMERA_PHOTONS)
 	{

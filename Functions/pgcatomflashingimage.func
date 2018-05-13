@@ -1,38 +1,38 @@
 % Master-Script See the "?" for info on commands.
 def pgcAtomFlashingImage():
-	% give the shutter some time to open.
-	off: diagMotRf
-	dac: diagMotPower 0
-	dacLinSpace: MotFreq loadMotMotFreq 
-			imagingFlashingDetuning 1 10
-      dac: SideMotPower imagingPower
-	dac: RepumpPower imagingRepumpPower
-	t += 10
-	% turn the repump on a tiny bit early 
-	% to pump to the F=2 manifold.	
-	on: RepumpRf
-%	on: a13
-	t += 0.2
-	% flashing the trap
-	on: andorTrig
-	t += 0.3
-	on: tweezerflashrf
-	on: sidemotflash
-	on: SideMotRf
-	t += andorImageTime
-	off: andorshutter
-	off: SideMotRf
-	off: repumpRf
-	off: tweezerflashrf
-	off: sidemotflash
-	dacLinSpace: MotFreq imagingFlashingDetuning loadMotMotFreq 1 10
-	t += 1
-	off: andorTrig
-%	off: a13
-	t += 0.2
-
-	% note that the camera needs some time before it can take
-	% another image. Typically we need to wait like 5ms. The camera window
-	% will tell you the minimum kinetic cycle time, which depends on the
-	% exposure time and the image size, with some net overhead.
+  % give the shutter some time to open.
+  off: diagMotRf
+  dac: diagMotPower 0
+  var image_detuning -1
+  var motPower 0.25
+  dacLinSpace: MotFreq defaultMotFreq image_detuning 2 10
+  dac: SideMotPower imagingPower
+  dac: RepumpPower imagingRepumpPower
+  t += 10
+  % turn the repump on a tiny bit early 
+  % to pump to the F=2 manifold.	
+  on: RepumpRf
+  %on: a13
+  t += 0.2
+  % flashing the trap
+  on: andorTrig
+  t += 0.3
+  on: tweezerflashrf
+  on: sidemotflash
+  on: SideMotRf
+  t += andorImageTime
+  off: andorshutter
+  off: SideMotRf
+  off: repumpRf
+  off: tweezerflashrf
+  off: sidemotflash
+  dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
+  t += 2
+  off: andorTrig
+  %off: a13
+  t += 0.2
+  % note that the camera needs some time before it can take
+  % another image. Typically we need to wait like 5ms. The camera window
+  % will tell you the minimum kinetic cycle time, which depends on the
+  % exposure time and the image size, with some net overhead.
 	

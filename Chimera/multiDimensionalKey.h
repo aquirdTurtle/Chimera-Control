@@ -42,6 +42,10 @@ template <class TYPE>
 void multiDimensionalKey<TYPE>::resize( std::vector<std::vector<UINT>> dimSizes )
 {
 	UINT seqInc = 0;
+	if ( nDims == 0 )
+	{
+		thrower( "ERROR: tried to resize key to have zero dimensions!" );
+	}
 	values.clear( );
 	values.resize( dimSizes.size( ) );
 	for ( auto& seqSize : dimSizes )

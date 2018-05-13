@@ -206,8 +206,17 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	//double slope = -0.1452827;
 	//double offset = -0.00038705;
 	// Calibrated April 3rd. 2018
-	double slope = -0.23159938;
-	double offset = 0.0131427;
+	//double slope = -0.23159938;
+	//double offset = 0.0131427;
+	// calibrated april 15th, 2018
+	//double slope = -0.07124662;
+	//double offset = 0.00236855;
+	// Calibrated April 27th, 2018, with NE10 filter (instead of NE03) to go to high powers.
+	//double slope = -0.02427634;
+	//double offset = 0.00386076;
+	// calibrated May 4th 2018
+	double slope = -0.0151410484528;
+	double offset = 0.00685897102155;
 
 	if ( conversionOption )
 	{
