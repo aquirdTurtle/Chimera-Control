@@ -200,7 +200,7 @@ piezomirror
 -10 - 10
 0
 35
-loadmottime 200
+loadmottime 160
 pgctime 10
 pgcdetuning -0.5
 pgcleftfield -0.3924

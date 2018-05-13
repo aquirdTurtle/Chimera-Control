@@ -59,7 +59,7 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode )
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
 
 	rerngContainer<double> moveBias10x10Cal( 10, 10, 0.1 );
-	moveBias10x10Cal( 5, 3, dir::right ) = 0.1325;
+	moveBias10x10Cal( 5, 3, dir::right ) = 0.125;
 	moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
 
 	moveBiasCalibrations.push_back( moveBias10x10Cal );
@@ -3173,6 +3173,16 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore. simpleMoveSequence should be empty anyways.
 			}
+			complexMoveSequence.clear( );
+			complexMove forcedMove;
+			forcedMove.isInlineParallel = false;
+			coordinate loc;
+			loc.row = 5;
+			loc.column = 3;
+			forcedMove.locationsToMove.push_back(loc);
+			forcedMove.moveDir = dir::right;
+			forcedMove.needsFlash = true;
+			complexMoveSequence.push_back( forcedMove );
 			std::string tmpStr = source.print( );
 			std::string dum = tmpStr.c_str( );
 			numberMoves.push_back( complexMoveSequence.size( ) );
