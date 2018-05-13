@@ -30,7 +30,7 @@ class Version
 				thrower( "ERROR: Version string failed to convert to double!" );
 			}
 		}
-		std::string str( ) const 
+		std::string str( ) const
 		{
 			return ::str(versionMajor) + "." + ::str(versionMinor);
 		}

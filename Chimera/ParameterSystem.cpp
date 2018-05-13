@@ -21,7 +21,7 @@ UINT ParameterSystem::getTotalVariationNumber()
 
 
 void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
-								 rgbMap rgbs, UINT listviewId, ParameterSysType type )
+								  rgbMap rgbs, UINT listviewId, ParameterSysType type )
 {
 	varSysType = type;
 	scanDimensions = 1;

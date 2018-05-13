@@ -397,22 +397,20 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
-	ttlBoard.prepareForce( );
-	aoSys.prepareForce( );
-
+	
 	configVariables.normHandleOpenConfig(configFile, ver );
 	ttlBoard.handleOpenConfig(configFile, ver );
 	aoSys.handleOpenConfig(configFile, ver, &ttlBoard);
 	aoSys.updateEdits( );
 	agilents[whichAg::TopBottom].readConfigurationFile(configFile, ver );
 	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
-											   mainWindowFriend->getRunInfo() );
+														mainWindowFriend->getRunInfo() );
 	agilents[whichAg::Axial].readConfigurationFile(configFile, ver );
 	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
-										   mainWindowFriend->getRunInfo() );
+													mainWindowFriend->getRunInfo() );
 	agilents[whichAg::Flashing].readConfigurationFile(configFile, ver );
 	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
-											  mainWindowFriend->getRunInfo( ) );
+														mainWindowFriend->getRunInfo( ) );
 	if ( ver > Version( "2.6" ) )
 	{
 		agilents[whichAg::Microwave].readConfigurationFile( configFile, ver );
@@ -642,6 +640,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 
 	configVariables.rearrange( cx, cy, getFonts( ) );
 	globalVariables.rearrange( cx, cy, getFonts( ) );
+	servos.rearrange( cx, cy, getFonts( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
 	SetRedraw();
@@ -726,26 +725,8 @@ void AuxiliaryWindow::zeroDacs( )
 {
 	try
 	{
-		aoSys.resetDacEvents( );
-		ttlBoard.resetTtlEvents( );
-		aoSys.prepareForce( );
-		ttlBoard.prepareForce( );
-		for ( int dacInc : range( 24 ) )
-		{
-			aoSys.prepareDacForceChange( dacInc, 0, &ttlBoard );
-		}
-		aoSys.updateEdits( );
-		aoSys.organizeDacCommands( 0, 0 );
-		aoSys.makeFinalDataFormat( 0, 0 );
-		aoSys.stopDacs( );
-		aoSys.configureClocks( 0, false, 0 );
-		aoSys.writeDacs( 0, false, 0 );
-		aoSys.startDacs( );
-		ttlBoard.organizeTtlCommands( 0, 0 );
-		ttlBoard.convertToFinalViewpointFormat( 0, 0 );
-		ttlBoard.writeTtlData( 0, false, 0 );
-		ttlBoard.startBoard( );
-		ttlBoard.waitTillFinished( 0, false, 0 );
+		aoSys.zeroDacs( &ttlBoard );
+
 		sendStatus( "Zero'd DACs.\r\n" );
 	}
 	catch ( Error& exception )
@@ -939,7 +920,6 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 	ttlBoard.prepareForce();
 	aoSys.resetDacEvents();
 	aoSys.prepareForce();
-	// save info
 	for (UINT ttlRowInc : range( ttlBoard.getTtlBoardSize().first))
 	{
 		for (UINT ttlNumberInc : range( ttlBoard.getTtlBoardSize().second ) )
@@ -950,7 +930,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			configStream >> name >> statusString;
 			try
 			{
-				// should actually be zero or one, but just just convert to bool
+				// In file the booleans are stored as "0" or "1".
 				status = std::stoi(statusString);
 			}
 			catch (std::invalid_argument&)
@@ -1044,28 +1024,10 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 void AuxiliaryWindow::SetDacs()
 {
 	// have the dac values change
+	sendStatus( "----------------------\r\nSetting Dacs... " );
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
-		sendStatus("----------------------\r\n");
-		aoSys.resetDacEvents();
-		ttlBoard.resetTtlEvents();
-		sendStatus( "Setting Dacs...\r\n" );
-		aoSys.handleSetDacsButtonPress( &ttlBoard );
-		aoSys.updateEdits( );
-		aoSys.organizeDacCommands(0, 0);
-		aoSys.makeFinalDataFormat(0, 0 );
-		// start the boards which actually sets the dac values.
-		aoSys.stopDacs();
-		aoSys.configureClocks(0, false, 0 );
-		sendStatus( "Writing New Dac Settings...\r\n" );
-		aoSys.writeDacs(0, false, 0 );
-		aoSys.startDacs();
-		ttlBoard.organizeTtlCommands(0, 0 );
-		ttlBoard.convertToFinalViewpointFormat(0, 0 );
-		ttlBoard.writeTtlData(0, false, 0 );
-		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished(0, false, 0 );
+		aoSys.forceDacs( &ttlBoard );
 		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1245,7 +1207,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK }, rgbs );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
-
+		
 		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
 										rgbs["Solarized Base03"], rgbs );
 		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
@@ -1260,6 +1222,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES",
 									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		configVariables.setParameterControlActive( false );
+
+		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys );
 
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );

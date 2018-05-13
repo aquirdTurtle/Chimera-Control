@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "afxwin.h"
-#include "../Chimera/VariableSystem.h"
+#include "../Chimera/ParameterSystem.h"
 #include "../Chimera/resource.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

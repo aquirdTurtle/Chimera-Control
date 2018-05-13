@@ -23,6 +23,7 @@
 #include "colorbox.h"
 #include "MasterThreadInput.h"
 #include "Version.h"
+#include "ServoManager.h"
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
@@ -150,6 +151,7 @@ class AuxiliaryWindow : public CDialog
 		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronicsControl topBottomTek, eoAxialTek;
+		ServoManager servos;
 
 		ColorBox boxes;
 		ParameterSystem configVariables, globalVariables;
