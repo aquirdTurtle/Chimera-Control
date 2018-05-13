@@ -1,8 +1,7 @@
 % Master-Script See the "?" for info on commands.
 def cleanLoading():
   % insert commands here...
-  dacLinSpace: MotFreq loadMotMotFreq 
-		imagingFlashingDetuning 1 10
+  dacLinSpace: MotFreq 0.1 -1 1 10
   dac: SideMotPower 0.3
   dac: RepumpPower imagingRepumpPower
   t += 1
@@ -13,8 +12,8 @@ def cleanLoading():
   % flashing the trap
   t += 0.3
   on: SideMotRf
-  t += cleanTime  
+  t += 10  
   off: SideMotRf
   off: repumpRf
-  dacLinSpace: MotFreq imagingFlashingDetuning loadMotMotFreq 1 10
+  dacLinSpace: MotFreq -1 0.1 1 10
   t += 1.1

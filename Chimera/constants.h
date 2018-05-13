@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 
 /// File Locations
 
@@ -98,7 +98,7 @@
 	const std::string PLOT_FILES_SAVE_LOCATION = str(CODE_ROOT) + "\\Plotting";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Documents/Chimera-Control/Chimera";
 	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Regal-Lab/Documents/Chimera-Control/Debug-Output/";
-	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-0.1-PowerLevel\\";
+	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-0.083333-PowerLevel\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default Scripts\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = str(CODE_ROOT) + "\\Chimera\\";
@@ -119,7 +119,7 @@
 #endif
 
 // We calibrated this. // NIAWG_GAIN = 1.34.
-#define NIAWG_GAIN 1.5
+#define NIAWG_GAIN 1.64
 // NIAWG_GAIN = 1.34.
 
 #define MAX_NIAWG_SIGNALS 32
@@ -154,7 +154,7 @@ const UINT DIO_WRITESPERDATAPT = 3;
 
 
 /// Agilent Parameters
-#define AGILENT_DEFAULT_POWER 3.5
+#define AGILENT_DEFAULT_POWER 200
 
 #define NUMBER_OF_LIBRARY_FILES MAX_NIAWG_SIGNALS*4
 
@@ -173,8 +173,9 @@ const bool CONST_POWER_OUTPUT = true;
 
 /// September 15th, 2017: Changed value from 0.2 to 0.1 in preparation of doing 10 traps, also attempting to lower
 /// going to aom for debugging purposes on the Rearrangement algorithms.
+/// April 26th, 2018" Changed from 0.1 to 1/12 to do 12 traps. 
 /// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const double TOTAL_POWER = 0.1 - 1e-10;
+const double TOTAL_POWER = (1.0 / 12.0) - 1e-6; //0.1 - 1e-10;
 
 // Currently bugs with the 5451 for sample rates significantly above this sample rate (320 MS/s). <---- very much T.T T.T T.T
 /// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

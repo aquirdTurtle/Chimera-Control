@@ -1066,8 +1066,8 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			}
 		}
 	}
-
-	UINT imageCount = 0;
+	   
+	UINT imageCount = 0;   
 	// loop watching the image queue.
 	while (*input->cruncherThreadActive || input->imageQueue->size() != 0)
 	{
