@@ -1,4 +1,5 @@
-﻿#include "afxwin.h"
+﻿#pragma once
+#include "afxwin.h"
 
 class DoubleEdit : public CEdit
 {

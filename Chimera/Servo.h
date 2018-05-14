@@ -1,25 +1,33 @@
-﻿#include "Control.h"
+﻿#pragma once
+#include "Control.h"
 #include "DoubleEdit.h"
+#include "myButton.h"
 
-
+/*
+This is really just a gui and settings control, the servoManager does the actual work with servoing to avoid 
+proliferation of pointers to the AoSystem, etc.
+*/
 class Servo
 {
 	public:
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string name,
 						 UINT aiNum, UINT aoNum );
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		void calibrate( );
+		void setControlDisp( double val );
 		double getSetPoint( );
 		UINT getAiInputChannel( );
 		UINT getAoControlChannel( );
+		bool servoed = false;
+		bool isActive( );
+		std::string servoName;
 	private:
+		// this variable keeps track of whether this servo was successfully servoed.
 		UINT aiInputChannel;
 		UINT aoControlChannel;
 		Control<CStatic> servoNameDisp;
-		Control<CStatic> servoValueLabel;
 		Control<DoubleEdit> servoValueEdit;
+		Control<CleanCheck> activeCheck;
 		Control<CStatic> aiInputDisp;
 		Control<CStatic> aoOutputDisp;
-		Control<CStatic> controlValueLabel;
 		Control<CStatic> controlValueDisp;
 };

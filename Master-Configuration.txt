@@ -155,7 +155,7 @@ depumppower
 -10 - 10
 0
 diagmotpower
--10 - 10
+0 - 0.4
 0
 depumpfreq
 -10 - 10
@@ -194,12 +194,12 @@ repumpfreq
 -3.5 - 3.5
 0
 sidemotpower
--10 - 10
+0 - 0.44
 0
 piezomirror
 -10 - 10
 0
-35
+36
 loadmottime 160
 pgctime 10
 pgcdetuning -0.5
@@ -235,4 +235,5 @@ field 3
 rotatefieldtime 3
 opticalpumpdepth 0
 defaultmotfreq 0.1
+sidemot__servo_value 0
 181 249 3 198 266 3

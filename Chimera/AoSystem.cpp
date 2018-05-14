@@ -107,7 +107,18 @@ std::array<double, 24> AoSystem::getDacStatus()
 
 void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
 {
-
+	ttls->resetTtlEvents( );
+	resetDacEvents( );
+	/// 
+	dacCommandFormList.clear( );
+	prepareForce( );
+	ttls->prepareForce( );
+	prepareDacForceChange( dacNumber, val, ttls );
+	checkValuesAgainstLimits( 0, 0 );
+	///
+	standardNonExperiemntStartDacsSequence( );
+	ttls->standardNonExperimentStartDioSequence( );
+	updateEdits( );
 }
 
 void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
