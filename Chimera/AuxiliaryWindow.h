@@ -77,6 +77,7 @@ class AuxiliaryWindow : public CDialog
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
+		void calibrateServos( );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );

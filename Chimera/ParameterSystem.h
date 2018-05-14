@@ -45,6 +45,7 @@ class ParameterSystem
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);
 		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
+		void adjustVariableValue( std::string paramName, double value );
 		void deleteVariable();
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, rgbMap rgbs, 
 						 UINT listviewId, ParameterSysType type );
@@ -65,7 +66,7 @@ class ParameterSystem
 		void setUsages(std::vector<std::vector<parameterType>> vars);
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
-		/// used to be in KeyHandler
+		// used to be in KeyHandler
 		static void generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption );
 		static std::vector<double> getKeyValues( std::vector<parameterType> variables );
 		void reorderVariableDimensions( );
@@ -82,17 +83,17 @@ class ParameterSystem
 		// name, constant/variable, dim, constantValue, scope
 		USHORT preRangeColumns = 5;
 		// Only 2 gui elements.
-		Control<CStatic> variablesHeader;
-		Control<CListCtrl> variablesListview;
+		Control<CStatic> parametersHeader;
+		Control<CListCtrl> parametersListview;
 		// most important member, holds the settings for all current variables. Might change to have an outer vector 
 		// for each scan dimension, like so?
-		std::vector<parameterType> currentVariables;
+		std::vector<parameterType> currentParameters;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
 		// holds the number of variable ranges. Not sure why this is necessary, could probablty get this info from 
-		// currentVariables member.
+		// currentParameters member.
 		USHORT variableRanges;
-		ParameterSysType varSysType;
+		ParameterSysType paramSysType;
 		// number of dimensions to the variable scans. Unusual to do more than 2.
 		USHORT scanDimensions;
 };

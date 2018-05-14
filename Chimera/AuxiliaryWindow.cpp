@@ -51,6 +51,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
 	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
+	ON_COMMAND( IDC_SERVO_CAL, &calibrateServos )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
@@ -85,6 +86,18 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
 
+
+void AuxiliaryWindow::calibrateServos( )
+{
+	try
+	{
+		servos.calibrateAll( );
+	}
+	catch ( Error& err )
+	{
+		sendErr( err.what( ) );
+	}
+}
 
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
@@ -1217,13 +1230,13 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
 												 rgbs["Solarized Base03"], rgbs );
 		controlLocation = POINT{ 1440, 0 };
-		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
+		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
 									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
-		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES",
+		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
 									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		configVariables.setParameterControlActive( false );
 
-		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys );
+		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
 
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
