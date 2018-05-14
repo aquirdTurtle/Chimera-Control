@@ -42,6 +42,54 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	globals = globals_in;
 }
 
+void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
+{
+	configStream << toleranceEdit.getWindowTextAsDouble( ) << " " << autoServoButton.GetCheck( ) << "\n";
+	configStream << numServos << "\n";
+	sidemotServo.handleSaveMasterConfig( configStream );
+	diagMotServo.handleSaveMasterConfig( configStream );
+}
+
+void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Version version )
+{
+	if ( version < Version( "2.1" ) )
+	{
+		// this was before the servo manager.
+		return;
+	}
+	double tolerance;
+	configStream >> tolerance;
+	toleranceEdit.SetWindowTextA( cstr( tolerance ) );
+	bool autoServo;
+	configStream >> autoServo;
+	autoServoButton.SetCheck( autoServo );
+	LONG numServosInFile;
+	configStream >> numServosInFile;
+	if ( numServosInFile > 0 )
+	{
+		sidemotServo.handleOpenMasterConfig( configStream, version );
+		numServosInFile--;
+	}
+	if ( numServosInFile > 0 )
+	{
+		diagMotServo.handleOpenMasterConfig( configStream, version );
+		numServosInFile--;
+	}
+	while ( numServosInFile > 0 )
+	{
+		// eat extra info...
+		Servo tmpServo;
+		tmpServo.handleOpenMasterConfig( configStream, version );
+		numServosInFile--;
+	}
+}
+
+/*
+void ServoManager::handleNewMasterConfig( )
+{
+
+}
+*/
 
 void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 {
@@ -65,7 +113,13 @@ void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 }
 
 
-void ServoManager::calibrateAll( )
+bool ServoManager::autoServo( )
+{
+	return autoServoButton.GetCheck( );
+}
+
+
+void ServoManager::runAll( )
 {
 	calibrate( sidemotServo );
 	calibrate( diagMotServo );
@@ -81,7 +135,7 @@ void ServoManager::calibrate( Servo& s )
 	double tolerance = toleranceEdit.getWindowTextAsDouble();
 	double gain = 0.05;
 	double sp = s.getSetPoint();
-	UINT attemptLimit = 1000;
+	UINT attemptLimit = 100;
 	UINT count = 0;
 	UINT aiNum = s.getAiInputChannel( );
 	UINT aoNum = s.getAoControlChannel( );

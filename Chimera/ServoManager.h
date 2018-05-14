@@ -5,7 +5,7 @@
 #include "AoSystem.h"
 #include "DoubleEdit.h"
 #include "ParameterSystem.h"
-
+#include "Version.h"
 
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
@@ -26,8 +26,12 @@ class ServoManager
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
 						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		void calibrateAll( );
+		void runAll( );
 		void calibrate( Servo& s );
+		bool autoServo( );
+		void handleSaveMasterConfig( std::stringstream& configStream );
+		void handleOpenMasterConfig( std::stringstream& configStream, Version version );
+		//void handleNewMasterConfig( std::stringstream& configStream );
 	private:
 		Control<CStatic> servosHeader;
 		Control<CleanButton> servoButton;
@@ -45,6 +49,7 @@ class ServoManager
 		Control<CStatic> aoNumberHeader;
 		Control<CStatic> controlHeader;
 
+		const UINT numServos = 2;
 		Servo sidemotServo;
 		Servo diagMotServo;
 		/*

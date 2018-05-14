@@ -4,7 +4,9 @@
 #include <string>
 #include "afxwin.h"
 
-
+/*
+	A small class that provides easy version checking.
+*/
 class Version
 {
 	public:

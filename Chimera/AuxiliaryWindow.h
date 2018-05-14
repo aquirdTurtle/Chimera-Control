@@ -61,7 +61,7 @@ class AuxiliaryWindow : public CDialog
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
-		void handleMasterConfigOpen( std::stringstream& configStream, double version );
+		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
 		void handleTtlPush(UINT id);
@@ -77,7 +77,8 @@ class AuxiliaryWindow : public CDialog
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
-		void calibrateServos( );
+		void runServos( );
+		void autoServo( );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );
