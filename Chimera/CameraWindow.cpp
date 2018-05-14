@@ -756,7 +756,7 @@ void CameraWindow::handleMasterConfigSave(std::stringstream& configStream)
 }
 
 
-void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, double version)
+void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
 {
 	mainWindowFriend->updateConfigurationSavedStatus( false );
 	imageParameters settings = CameraSettings.getSettings().andor.imageSettings;

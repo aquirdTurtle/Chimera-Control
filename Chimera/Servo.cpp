@@ -14,8 +14,8 @@ void Servo::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, 
 	servoNameDisp.Create( name.c_str(), NORM_HEADER_OPTIONS, servoNameDisp.sPos, parent, id++);
 	activeCheck.sPos = { pos.x + positions[posCount], pos.y, pos.x + positions[++posCount], pos.y + 20 };
 	activeCheck.Create( "", NORM_CHECK_OPTIONS, activeCheck.sPos, parent, id++ );
-	servoValueEdit.sPos = { pos.x + positions[posCount], pos.y, pos.x + positions[++posCount], pos.y + 20 };
-	servoValueEdit.Create( NORM_EDIT_OPTIONS, servoValueEdit.sPos, parent, id++);
+	setPointEdit.sPos = { pos.x + positions[posCount], pos.y, pos.x + positions[++posCount], pos.y + 20 };
+	setPointEdit.Create( NORM_EDIT_OPTIONS, setPointEdit.sPos, parent, id++);
 	aiInputDisp.sPos = { pos.x + positions[posCount], pos.y, pos.x + positions[++posCount], pos.y + 20 };
 	aiInputDisp.Create( cstr(aiInputChannel), NORM_STATIC_OPTIONS, aiInputDisp.sPos, parent, id++ );
 	aoOutputDisp.sPos = { pos.x + positions[posCount], pos.y, pos.x + positions[++posCount], pos.y + 20 };
@@ -30,6 +30,32 @@ bool Servo::isActive( )
 	return activeCheck.GetCheck( );
 }
 
+void Servo::handleSaveMasterConfig( std::stringstream& configStream )
+{
+	configStream << servoName << " " << activeCheck.GetCheck( ) << " " << setPointEdit.getWindowTextAsDouble( ) << "\n";
+}
+
+void Servo::handleOpenMasterConfig( std::stringstream& configStream, Version version )
+{
+	std::string name;
+	configStream >> name;
+	bool active;
+	configStream >> active;
+	double setPoint;
+	configStream >> setPoint;
+	if ( name == servoName )
+	{
+		activeCheck.SetCheck( active );
+		setPointEdit.SetWindowTextA( cstr( setPoint ) );
+	}
+	// else the name doesn't match, so just leave stuff blank.
+}
+
+/*
+void Servo::handleNewMasterConfig( )
+{
+
+}*/
 
 void Servo::setControlDisp( double val )
 {
@@ -42,7 +68,7 @@ void Servo::rearrange( UINT width, UINT height, fontMap fonts )
 {
 	servoNameDisp.rearrange(width, height, fonts);
 	activeCheck.rearrange( width, height, fonts );
- 	servoValueEdit.rearrange( width, height, fonts );
+ 	setPointEdit.rearrange( width, height, fonts );
 	aiInputDisp.rearrange( width, height, fonts );
 	aoOutputDisp.rearrange( width, height, fonts );
 	controlValueDisp.rearrange( width, height, fonts );
@@ -51,7 +77,7 @@ void Servo::rearrange( UINT width, UINT height, fontMap fonts )
 
 double Servo::getSetPoint( )
 {
-	return servoValueEdit.getWindowTextAsDouble( );
+	return setPointEdit.getWindowTextAsDouble( );
 }
 
 

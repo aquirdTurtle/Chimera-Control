@@ -51,7 +51,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
 	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
-	ON_COMMAND( IDC_SERVO_CAL, &calibrateServos )
+	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
@@ -87,11 +87,21 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
-void AuxiliaryWindow::calibrateServos( )
+void AuxiliaryWindow::autoServo( )
+{
+	if ( servos.autoServo( ) )
+	{
+		runServos( );
+	}
+}
+
+
+
+void AuxiliaryWindow::runServos( )
 {
 	try
 	{
-		servos.calibrateAll( );
+		servos.runAll( );
 	}
 	catch ( Error& err )
 	{
@@ -924,10 +934,11 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 		configStream << info.constantValue << "\n";
 		// all globals are constants, no need to output anything else.
 	}
+	servos.handleSaveMasterConfig( configStream );
 }
 
 
-void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, double version)
+void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
 {
 	ttlBoard.resetTtlEvents();
 	ttlBoard.prepareForce();
@@ -962,7 +973,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		std::string name, defaultValueString, minString, maxString;
 		double defaultValue, min, max;
 		configStream >> name;
-		if (version >= 1.2)
+		if (version >= Version("1.2"))
 		{
 			std::string trash;
 			configStream >> minString >> trash;
@@ -976,7 +987,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		try
 		{
 			defaultValue = std::stod(defaultValueString);
-			if (version >= 1.2)
+			if (version >= Version( "1.2"))
 			{
 				min = std::stod(minString);
 				max = std::stod(maxString);
@@ -998,7 +1009,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		aoSys.setDefaultValue(dacInc, defaultValue);
 	}
 	// variables.
-	if (version >= 1.1)
+	if (version >= Version( "1.1" ))
 	{
 		int varNum;
 		configStream >> varNum;
@@ -1031,6 +1042,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 	parameterType tempVar;
 	tempVar.name = "";
 	globalVariables.addGlobalParameter(tempVar, -1);
+	//
+	servos.handleOpenMasterConfig( configStream, version );
 }
 
 

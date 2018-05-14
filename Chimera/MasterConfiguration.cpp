@@ -12,7 +12,7 @@
 
 
 
-MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"2.0"}
+MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version("2.1")
 {}
 
 
@@ -49,7 +49,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, Cam
 	}
 	std::stringstream configStream;
 	// output version
-	configStream << "Version " + version + "\n";
+	configStream << "Version " + version.str() + "\n";
 	auxWin->handleMasterConfigSave(configStream);
 	camWin->handleMasterConfigSave(configStream);
 	configFile << configStream.str();
@@ -81,22 +81,14 @@ void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, Cam
 	configStream << configFile.rdbuf();
 	// output version
 	std::string versionStr;
-	double version;
 	// actually want to do this twice just to eat first word, which is "version".
 	configStream >> versionStr;
 	configStream >> versionStr;
-	try
-	{
-		version = std::stod(versionStr);
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower("Bad Version String from master config file! String was " + versionStr);
-	}
-	// Initialize ttl and dac structures.
-	auxWin->handleMasterConfigOpen( configStream, version );
+	Version ver( versionStr );
+	// Initialize ttl, dac, and servo structures.
+	auxWin->handleMasterConfigOpen( configStream, ver );
 	// initialize camera window
-	camWin->handleMasterConfigOpen( configStream, version );
+	camWin->handleMasterConfigOpen( configStream, ver);
 
 	configFile.close();
 }

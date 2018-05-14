@@ -650,6 +650,8 @@ namespace commonFunctions
 				auxWin->loadMotSettings( input );
 				mainWin->fillMotInput( input );
 				mainWin->startMaster(input, true);
+				Sleep( 500 );
+				auxWin->autoServo( );
 				break;
 			}
 			default:

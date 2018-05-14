@@ -1,4 +1,4 @@
-Version 2.0
+Version 2.1
 diagmotrf
 0
 repumprf
@@ -236,4 +236,8 @@ rotatefieldtime 3
 opticalpumpdepth 0
 defaultmotfreq 0.1
 sidemot__servo_value 0
+0.01 1
+2
+Sidemot 1 0.3
+DiagMot 0 0.2
 181 249 3 198 266 3
