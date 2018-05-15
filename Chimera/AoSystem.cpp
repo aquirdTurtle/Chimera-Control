@@ -1163,7 +1163,8 @@ void AoSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
 	{
 		breakoutBoardEdits[dacShadeLocations[shadeInc]].colorState = -1;
 		breakoutBoardEdits[dacShadeLocations[shadeInc]].SetReadOnly(true);
-		breakoutBoardEdits[dacShadeLocations[shadeInc]].RedrawWindow();
+		breakoutBoardEdits[dacShadeLocations[shadeInc]].InvalidateRect( NULL );
+		//breakoutBoardEdits[dacShadeLocations[shadeInc]].RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE );
 	}
 	for (auto& ctrl : breakoutBoardEdits)
 	{

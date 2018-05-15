@@ -82,7 +82,7 @@ class MainWindow : public CDialog
 		void fillMasterThreadInput( MasterThreadInput* input );
 		void fillMasterThreadSequence( MasterThreadInput* input );
 		void fillMotInput( MasterThreadInput* input);
-		void startMaster( MasterThreadInput* input, bool isTurnOnMot );
+		HANDLE startMaster( MasterThreadInput* input, bool isTurnOnMot );
 		std::string getNotes( );
 		brushMap getBrushes();
 		rgbMap getRgbs();

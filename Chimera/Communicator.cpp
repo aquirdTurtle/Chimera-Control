@@ -30,6 +30,11 @@ void Communicator::sendCameraFin()
 	camWin->PostMessage( eCameraFinishMessageID, 0, 0 );
 }
 
+void Communicator::sendMotFinish( )
+{
+	auxWin->PostMessageA( eAutoServoMessage, 0, 0 );
+}
+
 void Communicator::sendNormalFinish( )
 {
 	mainWin->PostMessageA( eNormalFinishMessageID );

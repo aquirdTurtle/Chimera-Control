@@ -3,7 +3,7 @@ def intrappgc():
 	off: diagMotRf
 	dac: diagMotPower 0
 	var mot_detuning -2
-	daclinspace: MotFreq 0.1 mot_detuning 1 10
+	daclinspace: MotFreq defaultmotfreq mot_detuning 1 10
 	dac: SideMotPower inTrapPgcPower %0.28
 	dac: RepumpPower inTrapPgcRepumpPower 
 	t += 1.1
@@ -15,7 +15,7 @@ def intrappgc():
 	t += cooling_time 
 	off: SideMotRf
 	off: RepumpRf
-	daclinspace: MotFreq mot_detuning 0.1 1 10
+	daclinspace: MotFreq mot_detuning defaultmotfreq 1 10
 	% dac: MotFreq -0.5 
       t += 1.5
 

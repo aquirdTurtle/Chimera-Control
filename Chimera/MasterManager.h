@@ -34,7 +34,7 @@ class MasterManager
 								  std::string& warnings );
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
-		void startExperimentThread(MasterThreadInput* input);
+		HANDLE startExperimentThread(MasterThreadInput* input);
 		void loadMotSettings(MasterThreadInput* input);
 		bool runningStatus();
 		bool isValidWord(std::string word);

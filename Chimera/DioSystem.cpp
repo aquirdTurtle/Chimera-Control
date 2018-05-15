@@ -391,7 +391,9 @@ void DioSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 		ttlShadeStatus[row][col] = true;
 		// a grey color is then used.
 		ttlPushControls[row][col].colorState = 2;
-		ttlPushControls[row][col].RedrawWindow();
+		// don't force immediate redraw.
+		ttlPushControls[row][col].InvalidateRect( NULL );
+		//ttlPushControls[row][col].RedrawWindow( NULL, NULL, RDW_INVALIDATE | RDW_ERASE );
 	}
 	for (auto& row : ttlPushControls)
 	{

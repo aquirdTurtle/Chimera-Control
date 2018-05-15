@@ -815,9 +815,9 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-void MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
+HANDLE MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
 {
-	masterThreadManager.startExperimentThread(input);
+	return masterThreadManager.startExperimentThread(input);
 }
 
 
@@ -846,6 +846,7 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
  	input->skipNext = NULL;
  	input->rearrangeInfo = rearrangeControl.getParams( );
  	input->rearrangeInfo.active = false;
+	input->isLoadMot = true;
 }
 
 

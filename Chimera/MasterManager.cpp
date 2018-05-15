@@ -417,6 +417,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			input->niawg->cleanupNiawg( input->profile, input->runMaster, expSeq, output, input->comm, 
 										input->settings.dontActuallyGenerate);
 		}
+		if ( input->isLoadMot )
+		{
+			input->comm->sendMotFinish( );
+		}
 		input->comm->sendNormalFinish( );
 	}
 	catch (Error& exception)
@@ -462,6 +466,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			input->comm->sendFatalError( "Exited main experiment thread abnormally." );
 		}	
 	}
+	// finish up.
 	std::chrono::time_point<chronoClock> endTime( chronoClock::now( ) );
 	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) ) 
 			   + " seconds.\r\n", input->comm, quiet );
@@ -558,7 +563,7 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 }
 
 
-void MasterManager::startExperimentThread(MasterThreadInput* input)
+HANDLE MasterManager::startExperimentThread(MasterThreadInput* input)
 {
 	if ( !input )
 	{
@@ -573,6 +578,7 @@ void MasterManager::startExperimentThread(MasterThreadInput* input)
 	input->thisObj = this;
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
+	return runningThread;
 }
 
 
@@ -750,12 +756,20 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 	tmpVariable.name = name;
 	for ( auto var : vars )
 	{
-		if ( var.name == tmpVariable.name && var.parameterScope == GLOBAL_PARAMETER_SCOPE )
+		if ( var.name == tmpVariable.name )
 		{
-			warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
-				" variable with the same name.";
-			// this variable is being overwritten, so don't add this variable vector
-			return true;
+			if ( var.parameterScope == GLOBAL_PARAMETER_SCOPE )
+			{
+				warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
+					" variable with the same name.";
+				// this variable is being overwritten, so don't add this variable vector
+				return true;
+			}
+			else if ( str( var.parameterScope, 13, false, true ) == str( scope, 13, false, true ) )
+			{
+				// being overwritten, but the variable was specific, so this must be fine.
+				return true;
+			}
 		}
 	}
 	bool found = false;

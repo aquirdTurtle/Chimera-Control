@@ -3,7 +3,7 @@ def pgcAtomFlashingImage():
   % give the shutter some time to open.
   off: diagMotRf
   dac: diagMotPower 0
-  var image_detuning -1
+  var image_detuning -1.4
   var motPower 0.25
   dacLinSpace: MotFreq defaultMotFreq image_detuning 2 10
   dac: SideMotPower imagingPower

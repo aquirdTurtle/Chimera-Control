@@ -12,21 +12,21 @@ def turnOnMot():
   off: RamanShutter
   %% %%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% % DACS
-  var diag_power 0.35
-  var mot_freq 0.1
+  % var diag_power 0.35
+  var mot_freq 0.05
   var repump_pow 0.2
   var repump_freq -0.6
-  var side_mot_power 0.1667
-  dac: DiagMotPower diag_power 
+  % var side_mot_power 0.1667
+  dac: DiagMotPower diagmot__servo_value
   dac: RepumpPower repump_pow
   dac: MotFreq mot_freq
   dac: RepumpFreq repump_freq
-  dac: SideMotPower side_mot_power
+  dac: SideMotPower sidemot__servo_value
   %% Magnetic Field Control
   var motStrength 7
   var right_field 0.8613
-  var left_field -0.8
-  var top_field 0.3189
+  var left_field -0.65
+  var top_field 0.3
   var bot_field -0.15
   var front_field -0.7
   var back_field 2

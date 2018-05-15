@@ -17,12 +17,12 @@ def PgcCooling():
 	dac: sideMotPower pgcLoadingSideMotPower
 	dac: repumpFreq -0.5
 	
+	var pgc_time 10
+
 	on: repumpRf
 	on: sideMotRf
 	on: diagMotRf
-
-    	t += PGCtime
-    
+    	t += pgc_time 
 	off: repumpRf
 	off: sideMotRf
 	off: diagMotRf
