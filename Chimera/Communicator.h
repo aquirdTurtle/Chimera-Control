@@ -34,6 +34,7 @@ class Communicator
 		void sendRepProgress(ULONG rep);
 		void sendNormalFinish( );
 		void sendNoAtomsAlert( );
+		void sendMotFinish( );
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;

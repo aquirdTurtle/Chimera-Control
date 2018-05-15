@@ -34,13 +34,14 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	controlHeader.Create("Control", NORM_STATIC_OPTIONS, controlHeader.sPos, parent, id++ );
 	pos.y += 20;
 	sidemotServo.initialize( pos, toolTips, parent, id, "Sidemot", 6, 22 );
-	diagMotServo.initialize( pos, toolTips, parent, id, "DiagMot", 1, 15 );
+	diagMotServo.initialize( pos, toolTips, parent, id, "DiagMot", 7, 9 );
 
 	ai = ai_in;
 	ao = ao_in;
 	ttls = ttls_in;
 	globals = globals_in;
 }
+
 
 void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 {
@@ -84,12 +85,6 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 	}
 }
 
-/*
-void ServoManager::handleNewMasterConfig( )
-{
-
-}
-*/
 
 void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 {
@@ -167,6 +162,7 @@ void ServoManager::calibrate( Servo& s )
 			s.setControlDisp( ao->getDacValue( aoNum ) );
 		}
 	}
+	s.setControlDisp( ao->getDacValue( aoNum ) );
 	s.servoed = count != attemptLimit;
 	if ( !s.servoed )
 	{

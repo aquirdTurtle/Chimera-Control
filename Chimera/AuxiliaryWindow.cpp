@@ -52,6 +52,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
+	ON_REGISTERED_MESSAGE( eAutoServoMessage, &autoServo )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
@@ -87,12 +88,13 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
-void AuxiliaryWindow::autoServo( )
+LRESULT AuxiliaryWindow::autoServo(WPARAM w, LPARAM l )
 {
 	if ( servos.autoServo( ) )
 	{
 		runServos( );
 	}
+	return TRUE;
 }
 
 

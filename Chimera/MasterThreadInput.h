@@ -66,6 +66,8 @@ struct MasterThreadInput
 	rerngOptions rearrangeInfo;
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
+
+	bool isLoadMot=false;
 	
 };
 

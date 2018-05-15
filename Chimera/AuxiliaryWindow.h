@@ -78,7 +78,7 @@ class AuxiliaryWindow : public CDialog
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
 		void runServos( );
-		void autoServo( );
+		LRESULT autoServo( WPARAM w, LPARAM l );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );
