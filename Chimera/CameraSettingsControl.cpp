@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CameraSettingsControl.h"
 #include "CameraWindow.h"
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
 #include "Thrower.h"
 
 

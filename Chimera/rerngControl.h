@@ -12,8 +12,8 @@
 class rerngControl
 {
 	public:
-		rerngOptions getParams( );
-		void setParams( rerngOptions params );
+		rerngOptionsForm getParams( );
+		void setParams( rerngOptionsForm params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		void handleOpenConfig( std::ifstream& openFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );

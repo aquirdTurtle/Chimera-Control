@@ -1,5 +1,6 @@
 #include "stdafx.h"
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
+#include "my_str.h"
 #include <Windows.h>
 #include <string>
 
@@ -32,13 +33,6 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	//	edit.LineScroll(INT_MAX);
 }
 
-
-std::string doubleToString( double number, long precision )
-{
-	std::stringstream stream;
-	stream << std::fixed << std::setprecision( precision ) << number;
-	return stream.str();
-}
 
 ULONG getNextFileIndex( std::string fileBase, std::string ext )
 {

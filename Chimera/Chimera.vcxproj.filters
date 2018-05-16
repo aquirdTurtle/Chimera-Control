@@ -13,9 +13,6 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="TextPromptDialog.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="StatusIndicator.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
@@ -27,9 +24,6 @@
     </ClCompile>
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp">
       <Filter>Scripting Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ScriptStream.cpp">
-      <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="ScriptingWindow.cpp">
       <Filter>Scripting Window</Filter>
@@ -43,9 +37,6 @@
     <ClCompile Include="ProfileIndicator.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlottingInfo.cpp">
-      <Filter>Camera Window</Filter>
-    </ClCompile>
     <ClCompile Include="PictureControl.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
@@ -55,23 +46,11 @@
     <ClCompile Include="PictureManager.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
-    <ClCompile Include="PlotDesignerDialog.cpp">
-      <Filter>Camera Window</Filter>
-    </ClCompile>
     <ClCompile Include="PictureSettingsControl.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
     <ClCompile Include="NoteSystem.cpp">
       <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="NiawgWaiter.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="NiawgController.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="miscellaneousCommonFunctions.cpp">
-      <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="MasterConfiguration.cpp">
       <Filter>Main Window</Filter>
@@ -90,12 +69,6 @@
     </ClCompile>
     <ClCompile Include="AuxiliaryWindow.cpp">
       <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="DataAnalysisHandler.cpp">
-      <Filter>Camera Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Control.cpp">
-      <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="Communicator.cpp">
       <Filter>Main Window</Filter>
@@ -121,23 +94,11 @@
     <ClCompile Include="AlertSystem.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
-    <ClCompile Include="Agilent.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="SmsTextingControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
     <ClCompile Include="DataLogger.cpp">
       <Filter>Camera Window</Filter>
-    </ClCompile>
-    <ClCompile Include="beginningSettingsDialogProc.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cleanString.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Fgen.cpp">
-      <Filter>Main Window</Filter>
     </ClCompile>
     <ClCompile Include="VisaFlume.cpp">
       <Filter>Auxiliary Window</Filter>
@@ -145,68 +106,135 @@
     <ClCompile Include="ProfileSystem.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="scriptedAgilentWaveform.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Segment.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="ChimeraApp.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DioSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="DioSettingsDialog.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="splashDialog.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Expression.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="openWithExplorer.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="GpibFlume.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="PlotDataSet.cpp">
-      <Filter>Camera Window</Filter>
-    </ClCompile>
-    <ClCompile Include="saveWithExplorer.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="DebugOptionsControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="rerngControl.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="PlotDialog.cpp" />
-    <ClCompile Include="PlotCtrl.cpp" />
-    <ClCompile Include="OscilloscopeViewer.cpp" />
-    <ClCompile Include="DaqMxFlume.cpp" />
     <ClCompile Include="AoSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="AoSettingsDialog.cpp" />
-    <ClCompile Include="AiSystem.cpp" />
-    <ClCompile Include="functionCombo.cpp" />
-    <ClCompile Include="RC028.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ftdiFlume.cpp" />
-    <ClCompile Include="WinSerialFlume.cpp" />
-    <ClCompile Include="viewpointFlume.cpp" />
-    <ClCompile Include="myButton.cpp" />
     <ClCompile Include="ParameterSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Servo.cpp" />
-    <ClCompile Include="ServoManager.cpp" />
-    <ClCompile Include="DoubleEdit.cpp" />
+    <ClCompile Include="AiSystem.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="ftdiFlume.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="DoubleEdit.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DaqMxFlume.cpp">
+      <Filter>National-Instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="myButton.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="ServoManager.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Servo.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="functionCombo.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DioSettingsDialog.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="DioSystem.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="RC028.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="WinSerialFlume.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="OscilloscopeViewer.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
+    </ClCompile>
+    <ClCompile Include="PlotCtrl.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
+    </ClCompile>
+    <ClCompile Include="PlotDialog.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
+    </ClCompile>
+    <ClCompile Include="beginningSettingsDialogProc.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="splashDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="TextPromptDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="saveWithExplorer.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="openWithExplorer.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Control.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="cleanString.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="miscCommonFunctions.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Expression.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptStream.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="DataAnalysisHandler.cpp">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClCompile>
+    <ClCompile Include="PlotDataSet.cpp">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClCompile>
+    <ClCompile Include="PlotDesignerDialog.cpp">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClCompile>
+    <ClCompile Include="PlottingInfo.cpp">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClCompile>
+    <ClCompile Include="viewpointFlume.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="NiawgController.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClCompile>
+    <ClCompile Include="rerngControl.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClCompile>
+    <ClCompile Include="Fgen.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClCompile>
+    <ClCompile Include="NiawgWaiter.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClCompile>
+    <ClCompile Include="Agilent.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClCompile>
+    <ClCompile Include="scriptedAgilentWaveform.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClCompile>
+    <ClCompile Include="Segment.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClCompile>
+    <ClCompile Include="AoSettingsDialog.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -245,12 +273,6 @@
     <ClInclude Include="Repetitions.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="PlottingInfo.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PlotDesignerDialog.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="PictureStats.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
@@ -266,34 +288,13 @@
     <ClInclude Include="NoteSystem.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="NiawgWaiter.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="NiawgController.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="ProfileIndicator.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptStream.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scriptWriteHelpProc.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptWritingInstructionsDialog.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextPromptDialog.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="StatusControl.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="StatusIndicator.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="miscellaneousCommonFunctions.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="MasterConfiguration.h">
@@ -314,13 +315,7 @@
     <ClInclude Include="EmbeddedPythonHandler.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="Control.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
     <ClInclude Include="CameraSettingsControl.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DataAnalysisHandler.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="Communicator.h">
@@ -338,14 +333,8 @@
     <ClInclude Include="Andor.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
-    <ClInclude Include="beginningSettingsDialogProc.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
     <ClInclude Include="AlertSystem.h">
       <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Agilent.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="SmsTextingControl.h">
       <Filter>Main Window</Filter>
@@ -362,17 +351,11 @@
     <ClInclude Include="longnam.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
-    <ClInclude Include="cleanString.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
     <ClInclude Include="NiawgStructures.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="DataLogger.h">
       <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Fgen.h">
-      <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
@@ -380,28 +363,7 @@
     <ClInclude Include="ProfileSystem.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="agilentStructures.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="scriptedAgilentWaveform.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Segment.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="ChimeraApp.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DioSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DioSettingsDialog.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="splashDialog.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Expression.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="VariableStructures.h">
@@ -409,9 +371,6 @@
     </ClInclude>
     <ClInclude Include="GpibFlume.h">
       <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PlotDataSet.h">
-      <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="AndorRunSettings.h">
       <Filter>Camera Window\Structures</Filter>
@@ -437,26 +396,13 @@
     <ClInclude Include="profileSettings.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="multiDimensionalKey.h" />
-    <ClInclude Include="debugInfo.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="segmentStructs.h">
       <Filter>Camera Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="saveWithExplorer.h">
-      <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugOptionsControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="MasterThreadInput.h" />
-    <ClInclude Include="rerngContainer.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngControl.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="rerngParams.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
@@ -469,40 +415,156 @@
     <ClInclude Include="rerngMove.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="directions.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix.h" />
-    <ClInclude Include="memdc.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PlotDialog.h" />
     <ClInclude Include="AoSystem.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="AiSystem.h" />
-    <ClInclude Include="AoStructures.h" />
-    <ClInclude Include="AoSettingsDialog.h" />
-    <ClInclude Include="functionCombo.h" />
-    <ClInclude Include="Thrower.h" />
-    <ClInclude Include="range.h" />
-    <ClInclude Include="RC028.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ftd2xx.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ftdiFlume.h" />
-    <ClInclude Include="viewpointFlume.h" />
-    <ClInclude Include="viewpointStructures.h" />
-    <ClInclude Include="myButton.h" />
     <ClInclude Include="ParameterSystem.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="Version.h" />
-    <ClInclude Include="Servo.h" />
-    <ClInclude Include="ServoManager.h" />
-    <ClInclude Include="DoubleEdit.h" />
+    <ClInclude Include="AiSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="AoStructures.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="ftdiFlume.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="DoubleEdit.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="myButton.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="ServoManager.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Servo.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="functionCombo.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DioSettingsDialog.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="DioSystem.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="ftd2xx.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="RC028.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="PlotDialog.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </ClInclude>
+    <ClInclude Include="beginningSettingsDialogProc.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptWritingInstructionsDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="scriptWriteHelpProc.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="splashDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="TextPromptDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="saveWithExplorer.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="multiDimensionalKey.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Thrower.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="range.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Control.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="cleanString.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="miscCommonFunctions.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Expression.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptStream.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="DataAnalysisHandler.h">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="PlotDataSet.h">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="PlotDesignerDialog.h">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="PlottingInfo.h">
+      <Filter>Camera Window\Real-Time-Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="viewpointStructures.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="viewpointFlume.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgController.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="directions.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngControl.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngContainer.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="Fgen.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgWaiter.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="memdc.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="debugInfo.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Agilent.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="agilentStructures.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="scriptedAgilentWaveform.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Segment.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="AoSettingsDialog.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -556,6 +618,33 @@
     <Filter Include="Camera Window\Structures">
       <UniqueIdentifier>{c30ebec6-c2b0-499a-8318-6856c626e280}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Custom-Controls">
+      <UniqueIdentifier>{1981ed01-a042-4894-bc0a-eb2480cd2a79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="National-Instruments">
+      <UniqueIdentifier>{661a8a78-fdb9-479c-859f-fba6108b88e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DIO">
+      <UniqueIdentifier>{1823f42f-0842-48c9-99c2-bc7f81ce15e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plotting-And-Viewing">
+      <UniqueIdentifier>{ce5a46ef-0d9d-44a7-8ac4-75beacbcb045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Miscellaneous-Dialogs">
+      <UniqueIdentifier>{ace2929a-b20e-404d-a8e0-8281f725fae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc-Small-Funcs-And-Classes">
+      <UniqueIdentifier>{ce3b71ee-af66-4efc-88fc-d15110fc432d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera Window\Real-Time-Analysis">
+      <UniqueIdentifier>{f1cc8d58-53d9-4ab5-8571-1ef0a1a60399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main Window\NIAWG-And-Rearranging">
+      <UniqueIdentifier>{01a90856-d228-4f5c-a2f5-9936f06b7e36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Auxiliary Window\Agilent">
+      <UniqueIdentifier>{2be437ad-d8ab-418d-9656-a97ff5c57d31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
@@ -566,17 +655,29 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DioStructures.h">
-      <Filter>Auxiliary Window</Filter>
-    </None>
     <None Include="coordinate.h">
       <Filter>Camera Window\Structures</Filter>
     </None>
-    <None Include="PlotCtrl.h" />
-    <None Include="OscilloscopeViewer.h" />
-    <None Include="DaqMxFlume.h" />
-    <None Include="my_str.h" />
-    <None Include="WinSerialFlume.h" />
-    <None Include="ftdiStructures.h" />
+    <None Include="ftdiStructures.h">
+      <Filter>DIO</Filter>
+    </None>
+    <None Include="DaqMxFlume.h">
+      <Filter>National-Instruments</Filter>
+    </None>
+    <None Include="DioStructures.h">
+      <Filter>DIO</Filter>
+    </None>
+    <None Include="WinSerialFlume.h">
+      <Filter>DIO</Filter>
+    </None>
+    <None Include="OscilloscopeViewer.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </None>
+    <None Include="PlotCtrl.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </None>
+    <None Include="my_str.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </None>
   </ItemGroup>
 </Project>
