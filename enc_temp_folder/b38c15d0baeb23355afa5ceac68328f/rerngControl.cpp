@@ -4,9 +4,9 @@
 #include "Thrower.h"
 
 
-rerngGuiOptions rerngControl::getParams( )
+rerngOptions rerngControl::getParams( )
 {
-	rerngGuiOptions tempParams;
+	rerngOptions tempParams;
 	tempParams.active = experimentIncludesRerng.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
@@ -162,7 +162,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 		return;
 	}
 	ProfileSystem::checkDelimiterLine( openFile, "REARRANGEMENT_INFORMATION" );
-	rerngGuiOptions info;
+	rerngOptions info;
 	openFile >> info.active;
 	openFile >> info.flashingRate;
 	openFile >> info.moveBias;
@@ -268,7 +268,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
 	// conversions happen in getParams.
-	rerngGuiOptions info = getParams( );
+	rerngOptions info = getParams( );
  	saveFile << info.active << "\n";
  	saveFile << info.flashingRate << "\n";
  	saveFile << info.moveBias << "\n";
@@ -284,7 +284,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 }
 
 
-void rerngControl::setParams( rerngGuiOptions params )
+void rerngControl::setParams( rerngOptions params )
 {
 	experimentIncludesRerng.SetCheck( params.active );
 	// convert back to MHz from Hz

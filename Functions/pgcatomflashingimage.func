@@ -3,7 +3,7 @@ def pgcAtomFlashingImage():
   % give the shutter some time to open.
   off: diagMotRf
   dac: diagMotPower 0
-  var image_detuning -1.4
+  var image_detuning -1.5
   var motPower 0.25
   dacLinSpace: MotFreq defaultMotFreq image_detuning 2 10
   dac: SideMotPower imagingPower
@@ -12,9 +12,7 @@ def pgcAtomFlashingImage():
   % turn the repump on a tiny bit early 
   % to pump to the F=2 manifold.	
   on: RepumpRf
-  %on: a13
   t += 0.2
-  % flashing the trap
   on: andorTrig
   t += 0.3
   on: tweezerflashrf
@@ -29,7 +27,6 @@ def pgcAtomFlashingImage():
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
   t += 2
   off: andorTrig
-  %off: a13
   t += 0.2
   % note that the camera needs some time before it can take
   % another image. Typically we need to wait like 5ms. The camera window
