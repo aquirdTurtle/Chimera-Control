@@ -13,7 +13,7 @@
 #include <numeric>
 #include "externals.h"
 #include "Thrower.h"
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
 #include "range.h"
 
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode ) : 
@@ -2832,7 +2832,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 	/// handle moving axis /////////////
 	/// figure out where to put static "dump" traps in the moving axis
 	std::vector<int> staticTweezers;
-	if ( !offGridDump || moveInfo.needsFlash )
+	if ( !offGridDump || !moveInfo.needsFlash )
 	{
 		// for every possible static tweezer
 		for ( auto potentialStaticGridLoc : range( movingSize ) )
