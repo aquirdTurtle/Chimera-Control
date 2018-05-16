@@ -137,7 +137,7 @@ struct flashInfo
 };;
 
 // rerng = rearrange
-struct rerngInfoForm
+struct rerngScriptInfoForm
 {
 	bool isRearrangement = false;
 	Expression timePerMove;
@@ -153,12 +153,14 @@ struct rerngInfoForm
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
 	niawgPair<double> lowestFreqs = { 0,0 };
+	niawgPair<std::vector<double>> staticPhases;
+	niawgPair<std::vector<double>> staticBiases;
 	// this is the frequency difference per pixel
 	double freqPerPixel = 0;
 };;
 
 // rerng = rearrange
-struct rerngInfo
+struct rerngScriptInfo
 {
 	bool isRearrangement = false;
 	// the target picture
@@ -174,6 +176,8 @@ struct rerngInfo
 	niawgPair<double> lowestFreqs = { 0,0 };
 	// this is the frequency difference per pixel
 	double freqPerPixel = 0;
+	niawgPair<std::vector<double>> staticPhases;
+	niawgPair<std::vector<double>> staticBiases;
 	// the wave that gets flashed with the moving tweezer
 	simpleWave staticWave;
 	simpleWave fillerWave;
@@ -184,7 +188,7 @@ struct waveInfoForm
 {
 	simpleWaveForm core;
 	flashInfoForm flash;
-	rerngInfoForm rearrange;
+	rerngScriptInfoForm rearrange;
 	bool isStreamed = false;
 };;
 
@@ -194,7 +198,7 @@ struct waveInfo
 {
 	simpleWave core;
 	flashInfo flash;
-	rerngInfo rearrange;
+	rerngScriptInfo rearrange;
 	bool isStreamed = false;
 };;
 

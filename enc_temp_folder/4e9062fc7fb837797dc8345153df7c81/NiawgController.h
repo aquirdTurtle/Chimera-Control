@@ -44,7 +44,7 @@ class NiawgController
 		bool niawgIsRunning();
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expInfo, std::string& warnings, 
-						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngGuiOptions rInfo,
+						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngOptions rInfo,
 						   std::vector<parameterType>& variables );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		
@@ -52,13 +52,11 @@ class NiawgController
 							   std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
 							   UINT totalVariations );
 		void analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile,
-								 debugInfo& options, std::string& warnings, rerngGuiOptions rInfo,
+								 debugInfo& options, std::string& warnings, rerngOptions rInfo,
 								 std::vector<parameterType>& variables );
 		void flashVaries( waveInfoForm& wave );
-		///
-		void rerngScriptInfoFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<parameterType>& varibles,
+		void rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<parameterType>& varibles,
 								UINT variation );
-
 		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& variables,
 							   bool deleteWaveAfterWrite=true );
 		void deleteWaveData( simpleWave& core );
@@ -92,18 +90,16 @@ class NiawgController
 		FgenFlume fgenConduit;
 		static void smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
 										niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
-										rerngGuiOptions options );
+										rerngOptions options );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source,
-								   std::vector<complexMove> &flashMoves, rerngGuiOptions options );
+								   std::vector<complexMove> &flashMoves, rerngOptions options );
 
 	private:
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		static void writeToFile( std::vector<double> waveVals );
-		///
-		void rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rerngGuiOptions& data, std::vector<parameterType>& variables,
-									     UINT variation );
-		///
+		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<parameterType>& variables,
+									  UINT variation );
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
@@ -121,7 +117,7 @@ class NiawgController
 		void deleteRerngWave( );
 		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
+							   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
@@ -140,7 +136,7 @@ class NiawgController
 		void handleLogicSingle( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
-											  ScriptStream& scripts, debugInfo& options, rerngGuiOptions guiInfo,
+											  ScriptStream& scripts, debugInfo& options, rerngOptions rInfo,
 											  std::vector<parameterType>& variables );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
@@ -184,10 +180,10 @@ class NiawgController
 		std::vector<std::vector<bool>> finalState;
 		// could set different thresholds for each location in the camera if expect imbalance.
 		int threshold;
-		std::vector<double> makeRerngWave( rerngScriptInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
+		std::vector<double> makeRerngWave( rerngInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
 										   UINT sourceRows, UINT sourceCols, complexMove move );
-		std::vector<double> makeFastRerngWave( rerngScriptInfo& rerngSettings, UINT sourceRows, UINT sourceCols, 
-											   complexMove moveInfo, rerngGuiOptions options, double moveBias );
+		std::vector<double> makeFastRerngWave( rerngInfo& rerngSettings, UINT sourceRows, UINT sourceCols, 
+											   complexMove moveInfo, rerngOptions options, double moveBias );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 

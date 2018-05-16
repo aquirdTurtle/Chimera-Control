@@ -3,7 +3,7 @@
 #include "Expression.h"
 
 
-struct rerngOptionsForm
+struct rerngGuiOptionsForm
 {
 	bool active = false;
 	Expression moveSpeed;
@@ -56,7 +56,7 @@ enum class parallelMoveOption
 };
 
 
-struct rerngOptions
+struct rerngGuiOptions
 {
 	bool active = false;
 	double moveSpeed = 60e-6;
@@ -77,7 +77,7 @@ struct rerngOptions
 	// in s
 	double fastMoveTime = 2e-6;
 	// hard set right now.
-	nonFlashingOption noFlashOption = nonFlashingOption::none;
+	nonFlashingOption noFlashOption = nonFlashingOption::cautious;
 	parallelMoveOption parallel = parallelMoveOption::none;
 	smartRerngOption smartOption = smartRerngOption::full;
 };
