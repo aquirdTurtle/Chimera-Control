@@ -1,7 +1,7 @@
 #pragma once
 #include "Control.h"
 #include "myButton.h"
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
 #include "DioStructures.h"
 #include "Expression.h"
 #include "PlotCtrl.h"

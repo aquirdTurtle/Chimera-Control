@@ -4,7 +4,7 @@
 #include <mciapi.h>
 #pragma comment(lib, "Winmm.lib")
 #include "CameraWindow.h"
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
 #include "Thrower.h"
 
 void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,

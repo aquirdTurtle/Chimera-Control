@@ -4,9 +4,9 @@
 #include "Thrower.h"
 
 
-rerngGuiOptions rerngControl::getParams( )
+rerngGuiOptionsForm rerngControl::getParams( )
 {
-	rerngGuiOptions tempParams;
+	rerngGuiOptionsForm tempParams;
 	tempParams.active = experimentIncludesRerng.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
@@ -18,21 +18,27 @@ rerngGuiOptions rerngControl::getParams( )
 	{
 		flashingRateEdit.GetWindowTextA( tempTxt );
 		// convert to Hz from MHz
-		tempParams.flashingRate = 1e6 * std::stod( str( tempTxt ) );
+		//tempParams.flashingRate = 1e6 * std::stod( str( tempTxt ) );
+		tempParams.flashingRate = str( tempTxt );
 		moveSpeedEdit.GetWindowTextA( tempTxt );
 		// convert to s from ms
-		tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
+		//tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
+		tempParams.moveSpeed = str( tempTxt );
 		movingBiasEdit.GetWindowTextA( tempTxt );
-		tempParams.moveBias = std::stod( str( tempTxt ) );
+		tempParams.moveBias = str( tempTxt );
 		// convert from ns to s
 		deadTimeEdit.GetWindowTextA( tempTxt );
-		tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
+		//tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
+		tempParams.deadTime = str( tempTxt );
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
-		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		//tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		tempParams.staticMovingRatio = str( tempTxt );
 		finalMoveTimeEdit.GetWindowTextA( tempTxt );
-		tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
+		//tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
+		tempParams.finalMoveTime = str( tempTxt );
 		fastMoveTimeEdit.GetWindowTextA( tempTxt );
-		tempParams.fastMoveTime = 1e-6 * std::stod( str( tempTxt ) );
+		//tempParams.fastMoveTime = 1e-6 * std::stod( str( tempTxt ) );
+		tempParams.fastMoveTime = str( tempTxt );
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -162,11 +168,15 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 		return;
 	}
 	ProfileSystem::checkDelimiterLine( openFile, "REARRANGEMENT_INFORMATION" );
-	rerngGuiOptions info;
+	rerngGuiOptionsForm info;
+	std::string tmpStr;
 	openFile >> info.active;
-	openFile >> info.flashingRate;
-	openFile >> info.moveBias;
-	openFile >> info.moveSpeed;
+	openFile >> tmpStr;
+	info.flashingRate = tmpStr;
+	openFile >> tmpStr;
+	info.moveBias = tmpStr;
+	openFile >> tmpStr;
+	info.moveSpeed = tmpStr;
 	if (ver < Version("2.3"))
 	{
 		std::string garbage;
@@ -175,13 +185,15 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	}
 	if (ver > Version("2.2"))
 	{
-		openFile >> info.deadTime;
-		openFile >> info.staticMovingRatio;		
+		openFile >> tmpStr;
+		info.deadTime = tmpStr;
+		openFile >> tmpStr;
+		info.staticMovingRatio = tmpStr;
 	}
 	else
 	{
-		info.deadTime = 0;
-		info.staticMovingRatio = 1;
+		info.deadTime = str("0");
+		info.staticMovingRatio = str("1");
 	}
 	if (ver > Version("2.5") )
 	{
@@ -211,11 +223,12 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	}
 	if (ver > Version("2.12") )
 	{
-		openFile >> info.finalMoveTime;
+		openFile >> tmpStr;
+		info.finalMoveTime = tmpStr;
 	}
 	else
 	{
-		info.finalMoveTime = 1e-3;
+		info.finalMoveTime = str(1e-3);
 	}
 	if (ver > Version("3.1"))
 	{
@@ -227,11 +240,12 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	}
 	if (ver > Version("3.1" ) )
 	{
-		openFile >> info.fastMoveTime;
+		openFile >> tmpStr;
+		info.fastMoveTime = tmpStr;
 	}
 	else
 	{
-		info.fastMoveTime = 1e-6;
+		info.fastMoveTime = str(1e-6);
 	}
 
 	setParams( info );
@@ -268,34 +282,34 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
 	// conversions happen in getParams.
-	rerngGuiOptions info = getParams( );
+	rerngGuiOptionsForm info = getParams( );
  	saveFile << info.active << "\n";
- 	saveFile << info.flashingRate << "\n";
- 	saveFile << info.moveBias << "\n";
-	saveFile << info.moveSpeed << "\n";
-	saveFile << info.deadTime << "\n";
-	saveFile << info.staticMovingRatio << "\n";
+ 	saveFile << info.flashingRate.expressionStr << "\n";
+ 	saveFile << info.moveBias.expressionStr << "\n";
+	saveFile << info.moveSpeed.expressionStr << "\n";
+	saveFile << info.deadTime.expressionStr << "\n";
+	saveFile << info.staticMovingRatio.expressionStr << "\n";
 	saveFile << info.outputInfo << "\n";
 	saveFile << info.outputIndv << "\n";
 	saveFile << info.preprogram << "\n";
-	saveFile << info.useCalibration << "\n" << info.finalMoveTime << "\n" << info.useFast << "\n";
-	saveFile << info.fastMoveTime << "\n";
+	saveFile << info.useCalibration << "\n" << info.finalMoveTime.expressionStr << "\n" << info.useFast << "\n";
+	saveFile << info.fastMoveTime.expressionStr << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
 
-void rerngControl::setParams( rerngGuiOptions params )
+void rerngControl::setParams( rerngGuiOptionsForm params )
 {
 	experimentIncludesRerng.SetCheck( params.active );
 	// convert back to MHz from Hz
-	flashingRateEdit.SetWindowTextA( cstr(1e-6*params.flashingRate) );
-	movingBiasEdit.SetWindowTextA( cstr( params.moveBias ) );
+	flashingRateEdit.SetWindowTextA( cstr(params.flashingRate.expressionStr) );
+	movingBiasEdit.SetWindowTextA( cstr( params.moveBias.expressionStr ) );
 	// convert back to ms from s
-	moveSpeedEdit.SetWindowTextA( cstr( 1e3*params.moveSpeed ) );
+	moveSpeedEdit.SetWindowTextA( cstr( params.moveSpeed.expressionStr ) );
 	outputRearrangeEvents.SetCheck( params.outputInfo );
 	// convert back to ns
-	deadTimeEdit.SetWindowTextA( cstr( params.deadTime * 1e9) );
-	staticMovingRatioEdit.SetWindowTextA( cstr( params.staticMovingRatio ) );
+	deadTimeEdit.SetWindowTextA( cstr( params.deadTime.expressionStr ) );
+	staticMovingRatioEdit.SetWindowTextA( cstr( params.staticMovingRatio.expressionStr ) );
 	
 	outputRearrangeEvents.SetCheck( params.outputInfo );
 	outputIndividualEvents.SetCheck( params.outputIndv );
@@ -303,9 +317,9 @@ void rerngControl::setParams( rerngGuiOptions params )
 	useCalibration.SetCheck( params.useCalibration );
 	preprogramMoves.SetCheck( params.preprogram );
 	// convert back to ms
-	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime * 1e3 ) );
+	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime.expressionStr ) );
 
 	fastMoveOption.SetCheck( params.useFast );
 	// these are displayed in us.
-	fastMoveTimeEdit.SetWindowTextA( cstr( params.fastMoveTime*1e6 ) );
+	fastMoveTimeEdit.SetWindowTextA( cstr( params.fastMoveTime.expressionStr ) );
 }

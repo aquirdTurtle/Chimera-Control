@@ -250,7 +250,7 @@
     <ClInclude Include="MasterConfiguration.h" />
     <ClInclude Include="AuxiliaryWindow.h" />
     <ClInclude Include="MasterManager.h" />
-    <ClInclude Include="miscellaneousCommonFunctions.h" />
+    <ClInclude Include="miscCommonFunctions.h" />
     <ClInclude Include="ChimeraApp.h" />
     <ClInclude Include="NiawgStructures.h" />
     <ClInclude Include="PictureControl.h" />
@@ -383,7 +383,7 @@
     <ClCompile Include="ChimeraApp.cpp" />
     <ClCompile Include="NiawgWaiter.cpp" />
     <ClCompile Include="saveWithExplorer.cpp" />
-    <ClCompile Include="miscellaneousCommonFunctions.cpp" />
+    <ClCompile Include="miscCommonFunctions.cpp" />
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
     <ClCompile Include="DioSettingsDialog.cpp" />
     <ClCompile Include="DioSystem.cpp" />
