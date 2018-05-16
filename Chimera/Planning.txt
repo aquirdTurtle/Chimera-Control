@@ -49,7 +49,6 @@ BUGS:
 - trying save if only camera is running...
 - fix variable logging / figure out what the problem is here.
 
-- figure out "parent script" not loading bug
 - in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
 - show warning if variable being varied is not used

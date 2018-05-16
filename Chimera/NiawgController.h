@@ -44,7 +44,8 @@ class NiawgController
 		bool niawgIsRunning();
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expInfo, std::string& warnings, 
-						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngOptions rInfo,
+						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngOptions& rInfo,
+						   rerngOptionsForm rInfoForm,
 						   std::vector<parameterType>& variables );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		

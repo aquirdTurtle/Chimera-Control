@@ -650,9 +650,7 @@ namespace commonFunctions
 				MasterThreadInput* input = new MasterThreadInput;
 				auxWin->loadMotSettings( input );
 				mainWin->fillMotInput( input );
-				auto thread = mainWin->startMaster(input, true);
-				//WaitForSingleObject( thread, INFINITE );
-				//auxWin->PostMessage( eAutoServoMessage, 0, 0 );
+				mainWin->startMaster(input, true);
 				break;
 			}
 			default:

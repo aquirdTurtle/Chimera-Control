@@ -13,7 +13,7 @@
 #include <numeric>
 #include "externals.h"
 #include "Thrower.h"
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
 #include "range.h"
 
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode ) : 
@@ -198,8 +198,10 @@ bool NiawgController::outputVaries( NiawgOutput output )
 
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
 									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngOptions rInfo, std::vector<parameterType>& variables )
+									bool& foundRearrangement, rerngOptions& rInfo, rerngOptionsForm rInfoForm,
+									std::vector<parameterType>& variables )
 {
+	rerngOptionsFormToFinal( rInfoForm, rInfo, variables, variation );
 	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;
 	std::vector<std::string> workingUserScripts( input->seq.sequence.size( ) );
@@ -1955,6 +1957,8 @@ void NiawgController::flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 }
 
 
+
+
 void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, 
 											 std::vector<parameterType>& variables, UINT variation )
 {
@@ -2960,6 +2964,25 @@ void NiawgController::rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOpti
 	data.outputInfo = form.outputInfo;
 	data.preprogram = form.preprogram;
 	data.useCalibration = form.useCalibration;
+	/*
+		flashingRateEdit.GetWindowTextA( tempTxt );
+		// convert to Hz from MHz
+		tempParams.flashingRate = 1e6 * std::stod( str( tempTxt ) );
+		moveSpeedEdit.GetWindowTextA( tempTxt );
+		// convert to s from ms
+		tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
+		movingBiasEdit.GetWindowTextA( tempTxt );
+		tempParams.moveBias = std::stod( str( tempTxt ) );
+		// convert from ns to s
+		deadTimeEdit.GetWindowTextA( tempTxt );
+		tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
+		staticMovingRatioEdit.GetWindowTextA( tempTxt );
+		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		finalMoveTimeEdit.GetWindowTextA( tempTxt );
+		tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
+		fastMoveTimeEdit.GetWindowTextA( tempTxt );
+		tempParams.fastMoveTime = 1e-6 * std::stod( str( tempTxt ) );
+	*/
 }
 
 

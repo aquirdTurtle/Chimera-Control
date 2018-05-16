@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ProfileIndicator.h"
+#include "my_str.h"
 
 void ProfileIndicator::initialize(POINT pos, int& id, CWnd* parent, cToolTips& tooltips)
 {

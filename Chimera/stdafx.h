@@ -32,7 +32,7 @@
 // #include "niFgen.h"
 
 // important!
-#include "miscellaneousCommonFunctions.h"
+#include "miscCommonFunctions.h"
 
 #include <stdio.h>
 #include <tchar.h>
