@@ -138,7 +138,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			if ( input->runNiawg )
 			{
 				input->niawg->prepareNiawg( input, output, expSeq, warnings, userScriptSubmit, foundRearrangement,
-											input->rearrangeInfo, seqVariables );
+											input->rerngGuiForm, seqVariables );
 				input->niawg->writeStaticNiawg( output, input->debugOptions, seqConstants );
 			}
 			if ( input->thisObj->isAborting )
@@ -333,9 +333,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			if (input->runNiawg)
 			{
 				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-											userScriptSubmit );
+											userScriptSubmit, input->rerngGuiForm, input->rerngGui );
 				input->niawg->turnOffRerng( );
-				input->conditionVariableForRearrangement->notify_all( );
+				input->conditionVariableForRerng->notify_all( );
 				input->niawg->handleStartingRerng( input, output );
 			}
 			input->comm->sendError( warnings );

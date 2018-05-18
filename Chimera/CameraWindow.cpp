@@ -862,7 +862,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	// options
 	if ( input.masterInput )
 	{
-		input.cruncherInput->rearrangerActive = input.masterInput->rearrangeInfo.active;
+		input.cruncherInput->rearrangerActive = input.masterInput->rerngGuiForm.active;
 	}
 	else
 	{
@@ -1216,7 +1216,7 @@ void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 	input->andorsImageTimes = &imageTimes;
 	input->grabTimes = &imageGrabTimes;
 	input->analysisGrid = analysisHandler.getAtomGrid( 0 );
-	input->conditionVariableForRearrangement = &rearrangerConditionVariable;
+	input->conditionVariableForRerng = &rearrangerConditionVariable;
 }
 
 

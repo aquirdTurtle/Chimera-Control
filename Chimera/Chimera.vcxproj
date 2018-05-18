@@ -158,7 +158,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
-      <ShowIncludes>false</ShowIncludes>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -292,7 +292,6 @@
     <ClInclude Include="StatusIndicator.h" />
     <ClInclude Include="TektronicsControl.h" />
     <ClInclude Include="TextPromptDialog.h" />
-    <ClInclude Include="fonts.h" />
     <ClInclude Include="commonFunctions.h" />
     <ClInclude Include="NiawgController.h" />
     <ClInclude Include="NiawgWaiter.h" />

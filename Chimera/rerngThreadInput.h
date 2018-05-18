@@ -30,7 +30,7 @@ struct rerngThreadInput
 	NiawgController* niawg;
 	Communicator* comm;
 	// stuff from the rearrangement input
-	rerngOptions rerngOptions;
+	rerngGuiOptions guiOptions;
 	rerngContainer<rerngMove> flashMoves;
 	rerngContainer<rerngMove> noFlashMoves;
 };

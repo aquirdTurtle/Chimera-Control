@@ -157,11 +157,12 @@ niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> tar
 
 void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings,
 									UINT variation, UINT totalVariations,  std::vector<long>& variedMixedSize, 
-									std::vector<ViChar>& userScriptSubmit )
+									std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
+									rerngGuiOptions& rerngGui )
 {
 	input->comm->sendColorBox( System::Niawg, 'Y' );
 	input->niawg->handleVariations( output, input->variables, variation, variedMixedSize, warnings, input->debugOptions,
-									totalVariations );
+									totalVariations, rerngGuiForm, rerngGui );
 	if ( input->settings.dontActuallyGenerate ) { return; }
 
 	// Restart Waveform
@@ -198,7 +199,7 @@ bool NiawgController::outputVaries( NiawgOutput output )
 
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
 									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngGuiOptions rerngGuiInfo, std::vector<parameterType>& variables )
+									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, std::vector<parameterType>& variables )
 {
 	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;
@@ -236,8 +237,7 @@ void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& outpu
 
 
 // this function checks if should be rearranging and if so starts the thread.
-void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output,
-										   std::vector<parameterType>& variables, UINT variation)
+void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output )
 {
 	bool foundRearrangement = false;
 	// check if any waveforms are rearrangement instructions.
@@ -252,20 +252,18 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 						 "currently possible per repetition." );
 			}
 			foundRearrangement = true;
-			rerngGuiOptions finOptions;
-			rerngGuiOptionsFormToFinal(input->rearrangeInfo, finOptions, variables, variation );
 			// start rearrangement thread. Give the thread the queue.
 			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
 											input->andorsImageTimes, input->grabTimes, 
-											input->conditionVariableForRearrangement, input->rearrangeInfo, 
+											input->conditionVariableForRerng, input->rerngGui,
 											input->analysisGrid );
 		}
 	}
-	if ( input->rearrangeInfo.active && !foundRearrangement )
+	if ( input->rerngGui.active && !foundRearrangement )
 	{
 		thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 	}
-	else if ( !input->rearrangeInfo.active && foundRearrangement )
+	else if ( !input->rerngGui.active && foundRearrangement )
 	{
 		thrower( "ERROR: System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
 	}
@@ -313,8 +311,8 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 		output.niawgLanguageScript = "script DefaultConfigScript\n";
 		ScriptStream script;
 		script << configFile.rdbuf( );
-		rerngGuiOptions rInfoDummy;
-		rInfoDummy.moveSpeed = 0.00006;
+		rerngGuiOptionsForm rInfoDummy;
+		rInfoDummy.moveSpeed.expressionStr = str(0.00006);
 		analyzeNiawgScript( script, output, profile, debug, warnings, rInfoDummy, std::vector<parameterType>() );
 		writeStaticNiawg( output, debug, std::vector<parameterType>( ) );
 		// the script file must end with "end script".
@@ -458,7 +456,7 @@ void NiawgController::programVariations( UINT variation, std::vector<long>& vari
 
 
 void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile, 
-										  debugInfo& options, std::string& warnings, rerngGuiOptions rerngGuiInfo, 
+										  debugInfo& options, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo, 
 										  std::vector<parameterType>& variables )
 {
 	writeToFileNumber = 0;
@@ -664,7 +662,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 
 
 void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
-													   ScriptStream& script, debugInfo& options, rerngGuiOptions rerngGuiInfo,
+													   ScriptStream& script, debugInfo& options, rerngGuiOptionsForm rerngGuiInfo,
 													   std::vector<parameterType>& variables )
 {
 	if ( cmd == "flash" )
@@ -783,7 +781,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		}
 		*/
 		waveInfoForm rearrangeWave;
-		rearrangeWave.rearrange.timePerMove = str( rerngGuiInfo.moveSpeed );
+		rearrangeWave.rearrange.timePerMove = rerngGuiInfo.moveSpeed.expressionStr;
 		rearrangeWave.rearrange.isRearrangement = true;
 		// the following two options are for simple flashing and simple streaming, not rearrangement, even though
 		// rearrangment technically involves both
@@ -893,20 +891,21 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of us.
 		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
 														 * rearrangeWave.rearrange.timePerMove.evaluate( )
-														 + 2 * rerngGuiInfo.finalMoveTime) * 1e3 );
-		output.waveFormInfo.push_back( rearrangeWave );
-		long samples = long( (output.waveFormInfo.back( ).rearrange.moveLimit
-							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) + 2 * rerngGuiInfo.finalMoveTime)* NIAWG_SAMPLE_RATE );
-		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
-		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
+														 + 2 * rerngGuiInfo.finalMoveTime.evaluate()) * 1e3 );
 		for ( auto ax : AXES )
 		{
 			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].signals )
 			{
-				rearrangeWave.rearrange.staticBiases[ax].push_back( sig.initPower.evaluate() );
+				rearrangeWave.rearrange.staticBiases[ax].push_back( sig.initPower.evaluate( ) );
 				rearrangeWave.rearrange.staticPhases[ax].push_back( sig.initPhase.evaluate( ) );
 			}
-		}		
+		}
+		output.waveFormInfo.push_back( rearrangeWave );
+		long samples = long( (output.waveFormInfo.back( ).rearrange.moveLimit
+							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) 
+							   + 2 * rerngGuiInfo.finalMoveTime.evaluate())* NIAWG_SAMPLE_RATE );
+		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
+		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
 	else
 	{
@@ -917,8 +916,10 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 
 void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::vector<parameterType>>& variables, 
 										UINT variation, std::vector<long>& mixedWaveSizes, std::string& warnings, 
-										debugInfo& debugOptions, UINT totalVariations)
+										debugInfo& debugOptions, UINT totalVariations, rerngGuiOptionsForm& rerngGuiForm,
+										rerngGuiOptions& rerngGui )
 {
+	rerngGuiOptionsFormToFinal( rerngGuiForm, rerngGui, variables[0], variation );
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
@@ -2834,6 +2835,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 	std::vector<int> staticTweezers;
 	if ( !offGridDump || !moveInfo.needsFlash )
 	{
+		// if not flashing then need to put excess power in the other tweezers to hold them during the move.
 		// for every possible static tweezer
 		for ( auto potentialStaticGridLoc : range( movingSize ) )
 		{
@@ -2867,8 +2869,9 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
 		// static
 		sig.freqRampType = sig.powerRampType = "nr";
-		sig.finPower = sig.initPower = nonMovingFrac;
-		sig.initPhase = 0;
+		auto staticPos = upOrDown ? rerngSettings.staticBiases[movingAxis].size( ) - gridLoc - 1: gridLoc;
+		sig.finPower = sig.initPower = nonMovingFrac * (gridLoc==-1 ? 1 : rerngSettings.staticBiases[movingAxis][staticPos]);
+		sig.initPhase = (gridLoc==-1 ? 0 : rerngSettings.staticPhases[movingAxis][staticPos]);
 		sig.freqInit = (upOrDown) ? ((targetRows - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) :
 								     (gridLoc * freqPerPixel + lowFreqs[movingAxis]);
 		sig.freqInit *= 1e6;
@@ -2928,12 +2931,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 		for ( auto& sig : moveWave.chan[staticAxis].signals )
 		{
 			sig.freqRampType = sig.powerRampType = "nr";
-			sig.initPhase = 0;
+			auto staticPos = !upOrDown ? rerngSettings.staticBiases[staticAxis].size( ) - sigCount - 1 : sigCount;
+			sig.initPhase = rerngSettings.staticPhases[staticAxis][staticPos];
 			sig.freqInit = (upOrDown ? sigCount * freqPerPixel + lowFreqs[staticAxis] :
 							(targetRows - sigCount - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6;
 			sig.freqFin = sig.freqInit;
-			// even intensity, could try to calibrate this
-			sig.initPower = sig.finPower = 1;
+			// use the calibrated even biases
+			sig.initPower = sig.finPower = rerngSettings.staticBiases[staticAxis][staticPos];
 			sigCount++;
 		}
 	}
@@ -3006,7 +3010,7 @@ void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueu
 		preWriteRerngWaveforms( input );
 	}
 	UINT rearrangerId;
-	// start the thread with ~100MB of memory (it may get rounded to some page size)
+	// start the thread with ~10MB of memory (it may get rounded to some page size)
 	rerngThreadHandle = (HANDLE)_beginthreadex( 0, 1e7, NiawgController::rerngThreadProcedure, (void*)input,
 												STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
 	if ( !rerngThreadHandle )
@@ -3202,7 +3206,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				loc.column = 3;
 				forcedMove.locationsToMove.push_back(loc);
 				forcedMove.moveDir = dir::right;
-				forcedMove.needsFlash = true;
+				forcedMove.needsFlash = false;
 				complexMoveSequence.push_back( forcedMove );
 			}
 			///

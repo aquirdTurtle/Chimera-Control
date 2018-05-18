@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "beginningSettingsDialogProc.h"
-#include "fonts.h"
 #include <sstream>
 
 

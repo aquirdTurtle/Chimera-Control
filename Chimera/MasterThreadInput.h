@@ -62,8 +62,9 @@ struct MasterThreadInput
 	std::vector<std::vector<bool>>* atomQueueForRearrangement;
 	chronoTimes* andorsImageTimes;
 	chronoTimes* grabTimes;
-	std::condition_variable* conditionVariableForRearrangement;
-	rerngOptionsForm rearrangeInfo;
+	std::condition_variable* conditionVariableForRerng;
+	rerngGuiOptionsForm rerngGuiForm;
+	rerngGuiOptions rerngGui;
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
 
