@@ -844,8 +844,8 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
  	input->skipNext = NULL;
- 	input->rearrangeInfo = rearrangeControl.getParams( );
- 	input->rearrangeInfo.active = false;
+ 	input->rerngGuiForm = rearrangeControl.getParams( );
+ 	input->rerngGuiForm.active = false;
 	input->isLoadMot = true;
 }
 
@@ -881,7 +881,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->niawg = &niawg;
 	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
-	input->rearrangeInfo = rearrangeControl.getParams( );
+	input->rerngGuiForm = rearrangeControl.getParams( );
 }
 
 

@@ -246,9 +246,6 @@
     <ClInclude Include="resource.h">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
-    <ClInclude Include="fonts.h">
-      <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
     <ClInclude Include="constants.h">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>

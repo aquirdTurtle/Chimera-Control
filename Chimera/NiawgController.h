@@ -44,15 +44,15 @@ class NiawgController
 		bool niawgIsRunning();
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expInfo, std::string& warnings, 
-						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngGuiOptions rInfo,
+						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngGuiOptionsForm rInfo,
 						   std::vector<parameterType>& variables );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		
 		void handleVariations( NiawgOutput& output, std::vector<std::vector<parameterType>>& variables, UINT variation, 
 							   std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
-							   UINT totalVariations );
+							   UINT totalVariations, rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui );
 		void analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile,
-								 debugInfo& options, std::string& warnings, rerngGuiOptions rInfo,
+								 debugInfo& options, std::string& warnings, rerngGuiOptionsForm rInfo,
 								 std::vector<parameterType>& variables );
 		void flashVaries( waveInfoForm& wave );
 		///
@@ -79,7 +79,8 @@ class NiawgController
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
 		void programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
 						   UINT totalVariations, std::vector<long>& variedMixedSize, 
-						   std::vector<ViChar>& userScriptSubmit );
+						   std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
+						   rerngGuiOptions& rerngGui );
 		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();
@@ -140,7 +141,7 @@ class NiawgController
 		void handleLogicSingle( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
-											  ScriptStream& scripts, debugInfo& options, rerngGuiOptions guiInfo,
+											  ScriptStream& scripts, debugInfo& options, rerngGuiOptionsForm guiInfo,
 											  std::vector<parameterType>& variables );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
