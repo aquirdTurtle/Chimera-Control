@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 
 /// File Locations
 
@@ -55,6 +55,7 @@
 	const std::string FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\MOT";
+	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\Camera";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
@@ -254,6 +255,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_EM_GAIN_EDIT 23056
 #define IDC_IMAGE_DIMS_START 23056
 #define IDC_IMAGE_DIMS_END 23062
+#define IDC_CAMERA_CALIBRATION_BUTTON 23063
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //

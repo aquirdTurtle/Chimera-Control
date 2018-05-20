@@ -1059,7 +1059,7 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 		/// new line here:
 		prepAgilentSettings( channel );
-		for ( UINT segNumInc : range( totalSegmentNumber ) )
+		for ( UINT segNumInc : boost::irange( size_t( 0 ), totalSegmentNumber ) )
 		{
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
 																			 totalSegmentNumber, channel ) );
@@ -1188,7 +1188,7 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 	{
 		visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
 	}
-	for (auto chan : range( 2 ))
+	for (auto chan : boost::irange( 0, 2 ))
 	{
 		try
 		{
@@ -1241,7 +1241,7 @@ void Agilent::setAgilent()
 		return;
 	}
 	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
-	for (auto chan : range( 2 ))
+	for (auto chan : boost::irange( 0, 2 ))
 	{
 		if (settings.channel[chan].option == 4)
 		{

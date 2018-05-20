@@ -17,6 +17,7 @@ class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
 
+
 class CameraWindow : public CDialog
 {
 	using CDialog::CDialog;
@@ -36,10 +37,13 @@ class CameraWindow : public CDialog
 		void OnTimer( UINT_PTR id );
 		void OnLButtonUp( UINT stuff, CPoint loc );
 		void OnRButtonUp( UINT stuff, CPoint loc );
+		void calibrate( );
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger( );
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
+		LRESULT onCameraCalFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
+		LRESULT onCameraCalProgress( WPARAM wParam, LPARAM lParam );		
 		void handleDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewRClick( NMHDR* info, LRESULT* lResult );
 		void handleSpecialGreaterThanMaxSelection();
@@ -55,6 +59,7 @@ class CameraWindow : public CDialog
 		void catchEnter();
 		void setDataType( std::string dataType );
 		/// auxiliary functions.
+		void checkCameraIdle( );
 		void handleEmGainChange();
 		void fillMasterThreadInput( MasterThreadInput* input );
 		DataLogger* getLogger();
@@ -97,8 +102,11 @@ class CameraWindow : public CDialog
 		void stopPlotter( );
 		void stopSound( );
 		void handleImageDimsEdit(UINT id );
-		
+		void loadCameraCalSettings( ExperimentInput& input );
+		bool wasJustCalibrated( );
+		bool wantsAutoCal( );
 	private:
+		bool justCalibrated=false;
 		DECLARE_MESSAGE_MAP();
 
 		AndorCamera Andor;
@@ -148,5 +156,8 @@ class CameraWindow : public CDialog
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;		
 		std::vector<PlotDialog*> activePlots;
 		UINT mostRecentPicNum = 0;
+		std::vector<long> avgBackground;
 };
+
+
 

@@ -44,7 +44,7 @@ class PictureManager
 
 	private:
 		std::array<PictureControl, 4> pictures;
-		std::array<HPALETTE, 3> palettes;
+		std::array<HPALETTE, 4> palettes;
 
 		CBrush* gridBrush;
 		POINT picturesLocation;

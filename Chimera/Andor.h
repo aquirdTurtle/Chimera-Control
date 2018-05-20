@@ -118,8 +118,10 @@ class AndorCamera
 		static UINT __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
 		void initializeClass( Communicator* comm, chronoTimes* imageTimes );
-
+		void setCalibrating( bool cal );
+		bool isCalibrating( );
 	private:
+		bool calInProgress = false;
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
 		/// settings are stored in smaller classes.
 		// If the experiment is running, these settings hold the options that the experiment is using.y

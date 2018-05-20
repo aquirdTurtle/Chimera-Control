@@ -211,6 +211,7 @@
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
     <ClInclude Include="beginningSettingsDialogProc.h" />
+    <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="cameraPositions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
@@ -278,6 +279,7 @@
     <ClInclude Include="Repetitions.h" />
     <ClInclude Include="RhodeSchwarz.h" />
     <ClInclude Include="NoteSystem.h" />
+    <ClInclude Include="runModes.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="scriptedAgilentWaveform.h" />
     <ClInclude Include="ScriptingWindow.h" />
@@ -317,6 +319,7 @@
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="beginningSettingsDialogProc.cpp" />
+    <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
     <ClCompile Include="CameraWindow.cpp" />

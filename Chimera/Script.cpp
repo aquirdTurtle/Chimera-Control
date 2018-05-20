@@ -231,7 +231,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			colorLine = true;
 			return rgbs["Solarized Blue"];
 		}
-		else if (word == "def")
+		else if (word == "def" || word == "var")
 		{
 			colorLine = true;
 			return rgbs["Solarized Blue"];

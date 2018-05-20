@@ -28,6 +28,12 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
+				if ( camWin->wantsAutoCal( ) && !camWin->wasJustCalibrated( ) )
+				{
+					camWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
+					return;
+				}
+
 				ExperimentInput input;
 				camWin->redrawPictures(false);
 				try
@@ -659,10 +665,28 @@ namespace commonFunctions
 		}
 	}
 
+	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
+									AuxiliaryWindow* auxWin )
+	{
+		try 
+		{
+			ExperimentInput input;
+			input.masterInput = new MasterThreadInput;
+			auxWin->loadCameraCalSettings( input.masterInput );
+			camWin->loadCameraCalSettings( input );
+			camWin->startCamera( );
+			mainWin->loadCameraCalSettings( input.masterInput );
+			mainWin->startMaster( input.masterInput, true );
+		}
+		catch ( Error& err )
+		{
+			errBox( err.what( ) );
+		}
+	}
+
 
 	void prepareCamera( MainWindow* mainWin, CameraWindow* camWin, ExperimentInput& input )
 	{
-		camWin->redrawPictures( false );
 		mainWin->getComm()->sendTimer( "Starting..." );
 		camWin->prepareCamera( input );
 		input.includesCameraRun = true;

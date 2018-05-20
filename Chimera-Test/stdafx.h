@@ -12,7 +12,7 @@
 
 // TODO: reference additional headers your program requires here
 
-#include "../Chimera/miscellaneousCommonFunctions.h"
+#include "../Chimera/miscCommonFunctions.h"
 #include "../Chimera//my_str.h"
 #include "../Chimera//thrower.h"
 

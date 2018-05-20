@@ -20,7 +20,7 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode )
 	triggerRow( trigRow ), triggerNumber( trigNumber ), fgenConduit(safemode)
 {
 	// Contains all of of the names of the files that hold actual data file names.	
-	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
+	for ( auto number : boost::irange( 0, MAX_NIAWG_SIGNALS ) )
 	{
 		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
 		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
@@ -129,9 +129,9 @@ niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> tar
 	Matrix<ULONG> result( atoms.getRows() - target.getRows() + 1, atoms.getCols() - target.getCols() + 1, 0);
 	niawgPair<ULONG> targetCoords;
 	UINT bestMatch = 0;
-	for ( auto startRowInc : range( result.getRows() ) )
+	for ( UINT startRowInc =0; startRowInc < result.getRows(); startRowInc++ )
 	{
-		for ( auto startColInc : range( result.getCols() ) )
+		for ( auto startColInc : boost::irange( size_t( 0 ), result.getCols() ) )
 		{
 			// calcualte product
 			Matrix<bool> subAtoms = atoms.submatrix(startRowInc, target.getRows(), startColInc, target.getCols());
@@ -199,7 +199,8 @@ bool NiawgController::outputVaries( NiawgOutput output )
 
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
 									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, std::vector<parameterType>& variables )
+									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, 
+									std::vector<parameterType>& variables )
 {
 	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;

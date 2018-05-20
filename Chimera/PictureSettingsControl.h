@@ -5,10 +5,17 @@
 #include <array>
 #include <vector>
 #include "cameraPositions.h"
-;
+#include "DoubleEdit.h"
+
 class AndorCamera;
 class CameraSettingsControl;
 
+struct displayTypeOption
+{
+	bool isDiff = false;
+	// zero-indexed.
+	UINT whichPicForDif = 0;
+};
 
 /*
  * This class handles all of the gui objects for assigning camera settings. It works closely with the Andor class
@@ -31,6 +38,7 @@ class PictureSettingsControl
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
 		std::array<int, 4> getThresholds();
+		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
 		CBrush* colorControls(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(UINT pics, AndorCamera* andorObj);
@@ -48,22 +56,19 @@ class PictureSettingsControl
 		// while the main camera control needs to figure out how many pictures per repetition there are.
 		UINT picsPerRepetitionUnofficial;
 		/// Grid of PictureOptions
-		//Control<CButton> setPictureOptionsButton;		
 		Control<CStatic> totalPicNumberLabel;
 		Control<CStatic> pictureLabel;
 		Control<CStatic> exposureLabel;
 		Control<CStatic> thresholdLabel;
 		Control<CStatic> colormapLabel;
+		Control<CStatic> displayTypeLabel;
 		// 
 		std::array<Control<CButton>, 4> totalNumberChoice;
 		std::array<Control<CStatic>, 4> pictureNumbers;
-		std::array<Control<CEdit>, 4> exposureEdits;
-		std::array<Control<CEdit>, 4> thresholdEdits;
+		std::array<Control<DoubleEdit>, 4> exposureEdits;
+		std::array<Control<DoubleEdit>, 4> thresholdEdits;
 		std::array<Control<CComboBox>, 4> colormapCombos;
-
-		//std::array<Control<CButton>, 4> blackWhiteRadios;
-		//std::array<Control<CButton>, 4> veridaRadios;
-		//std::array<Control<CButton>, 4> infernoRadios;
+		std::array<Control<CComboBox>, 4> displayTypeCombos;
 };
 
 
