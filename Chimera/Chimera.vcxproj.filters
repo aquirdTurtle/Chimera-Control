@@ -236,6 +236,7 @@
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="CameraCalibration.cpp" />
+    <ClCompile Include="range.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">

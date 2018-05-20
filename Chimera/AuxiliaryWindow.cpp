@@ -1305,7 +1305,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		}
 		// initialize plot controls.
 		UINT dacPlotSize = 500 / NUM_DAC_PLTS;
-		for ( auto& dacPltCount : range(aoPlots.size()))
+		for ( auto dacPltCount : range(aoPlots.size()))
 		{
 			std::string titleTxt;
 			switch ( dacPltCount )
@@ -1339,7 +1339,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			}
 		}
 		UINT ttlPlotSize = 500 / NUM_TTL_PLTS;
-		for ( auto& ttlPltCount : range( ttlPlots.size( ) ) )
+		for ( auto ttlPltCount : range( ttlPlots.size( ) ) )
 		{
 			// currently assuming 4 ttl plots...
 			std::string titleTxt;

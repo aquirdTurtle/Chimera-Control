@@ -12,7 +12,7 @@ AoSystem::AoSystem(bool aoSafemode) : dacResolution(10.0 / pow(2, 16)), daqmx( a
 	/// set some constants...
 	// Both are 0-INDEXED. D16
 	dacTriggerLine = { 3, 15 };
-	for ( auto& dacInc : range(dacValues.size()))
+	for ( auto dacInc : range(dacValues.size()))
 	{
 		dacValues[dacInc] = 0;
 		dacMinVals[dacInc] = -10;
@@ -719,7 +719,8 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
 					/// many points to be made.
 					// convert initValue and finalValue to doubles to be used 
-					double initValue, finalValue, numSteps;
+					double initValue, finalValue;
+					UINT numSteps;
 					initValue = formList.initVal.evaluate( seqVariables, variationInc );
 					// deal with final value;
 					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );

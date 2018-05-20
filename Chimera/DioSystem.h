@@ -120,10 +120,10 @@ class DioSystem
 		/// stuff for felix's dio
 		ftdiConnectionOption connectType;
 		const UINT NUMPOINTS = 2048;
-		const unsigned char TIMEOFFS = 0x0800;
-		const unsigned char BANKAOFFS = 0x1000;
-		const unsigned char BANKBOFFS = 0x1800;
-		const unsigned char WBWRITE = 161;
+		const unsigned char TIMEOFFS = unsigned char(0x0800);
+		const unsigned char BANKAOFFS = unsigned char(0x1000);
+		const unsigned char BANKBOFFS = unsigned char(0x1800);
+		const unsigned char WBWRITE = unsigned char(161);
 		ftdiFlume ftFlume;
 		// note: it doesn't look like felix's / Adam's programming actually facilitates the serial mode programming
 		// because this handle never gets initialized anywhere int he code. Probably not hard to set up, although I 

@@ -107,7 +107,6 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 		{
 			while ( dwNumberOfBytesSent < buf.bytesToWrite )
 			{
-				unsigned long dwNumberOfBytesWritten;
 				auto bytesWritten = winSerial.writeFile( dwNumberOfBytesSent, buf.pts );
 				if ( bytesWritten > 0 )
 				{
@@ -924,10 +923,8 @@ double DioSystem::getClockStatus()
 			thrower( "!" );
 		}
 	}
-	catch ( Error& err )
+	catch ( Error&)
 	{
-		//std::string msg = err.what( );
-		//errBox( msg );
 		// get current time in ms...
 		// ***NOT SURE*** if this is what I want. The vb6 code used...
 		// return = Now * 24 * 60 * 60 * 1000

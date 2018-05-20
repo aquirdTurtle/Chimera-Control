@@ -1,7 +1,13 @@
 ﻿#pragma once
-
+#include "afxwin.h"
 #include <vector>
 #include <boost\range\irange.hpp>
+
+boost::integer_range<ULONG> range( ULONG stop );
+boost::integer_range<UINT> range( UINT stop );
+boost::integer_range<int> range( int stop );
+
+
 /*
 /// these range functions are designed to mimic the python "range" function. Stolen from some stack overflow question.
 /// Please note that this can be a liitle slow, and takes about 5-10ms to run on my laptop. Use standard for loops with

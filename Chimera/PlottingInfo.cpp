@@ -561,7 +561,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		tempDouble /= 10;
 	}
-	versionMinor = std::round( tempDouble );
+	versionMinor = int(std::round( tempDouble ));
 	loadingFile.get( );
 	getline(loadingFile, title);
 	getline(loadingFile, generalPlotType);
@@ -857,7 +857,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	UINT dsetNum = 0;
 	try
 	{
-		dsetNum = std::stod( tmpStr );
+		dsetNum = std::stoul( tmpStr );
 	}
 	catch ( std::invalid_argument& )
 	{

@@ -1813,7 +1813,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 				tempKey.setValue( indexes, seqInc, value );
 				// increment. This part effectively makes this infinite while an arbitrary-dimensional loop.
 				bool isAtEnd = true;
-				for ( auto& indexInc : range( indexes.size( ) ) )
+				for ( auto indexInc : range( indexes.size( ) ) )
 				{
 					// if at end of cycle for this index in this range
 					if ( indexes[indexInc] == totalVariations[seqInc][indexInc] - 1 )
