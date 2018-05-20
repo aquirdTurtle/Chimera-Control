@@ -866,7 +866,7 @@ void CameraWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 	pics.handleScroll(nSBCode, nPos, scrollbar);
 }
 
-
+// 3836, 1951
 void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
 	SetRedraw( false );
