@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <string>
-#include "../Chimera/miscellaneousCommonFunctions.h"
+#include "../Chimera/miscCommonFunctions.h"
 #include "../Chimera/Expression.h"
 #include "../Chimera/Thrower.h"
 #include "../Chimera/ParameterSystem.h"

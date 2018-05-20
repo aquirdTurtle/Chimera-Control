@@ -1778,6 +1778,10 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					rangeCount++;
 				}
 				auto& currRange = variable.ranges[rangeIndex];
+				if ( variations[seqInc][varDim][rangeIndex] <= 1 )
+				{
+					thrower( "ERROR: You need more than one variation in every range." );
+				}
 				// calculate the parameters for the variation range
 				double valueRange = (currRange.finalValue - currRange.initialValue);
 				int spacings;
@@ -1793,6 +1797,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 				{
 					spacings = variations[seqInc][varDim][rangeIndex];
 				}
+
 				double initVal;
 				if ( currRange.leftInclusive )
 				{

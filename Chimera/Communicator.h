@@ -29,8 +29,10 @@ class Communicator
 		void sendTimer( std::string timerMsg );
 		void sendColorBox( System sys, char code ); 
 		void sendColorBox( systemInfo<char> colors );
+		void sendCameraCalFin( );
 		void sendCameraFin();
 		void sendCameraProgress( long prog );
+		void sendCameraCalProgress( long progress );
 		void sendRepProgress(ULONG rep);
 		void sendNormalFinish( );
 		void sendNoAtomsAlert( );

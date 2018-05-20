@@ -5,6 +5,30 @@
 #include "Thrower.h"
 
 
+std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw( const std::vector<std::vector<long>>& rawData )
+{
+	std::vector<std::vector<long>> imagesToDraw(rawData.size());
+	auto options = picSettingsObj.getDisplayTypeOptions( );
+	for ( auto picNum : boost::irange( size_t( 0 ), rawData.size()) )
+	{
+		if ( !options[picNum].isDiff )
+		{
+			imagesToDraw[picNum] = rawData[picNum];
+		}
+		else
+		{
+			// the whichPic variable is 1-indexed.
+			imagesToDraw[picNum].resize( rawData[picNum].size( ) );
+			for ( auto i : boost::irange( size_t( 0 ), rawData[picNum].size( ) ) )
+			{
+				imagesToDraw[picNum][i] = rawData[picNum][i] - rawData[options[picNum].whichPicForDif - 1][i];
+			}
+		}
+	}
+	return imagesToDraw;
+}
+
+
 CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 {
 	andorFriend = friendInitializer;
@@ -20,7 +44,7 @@ CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : p
 	andorSettings.totalPicsInVariation = 10;
 	// the read mode never gets changed currently. we always want images.
 	andorSettings.readMode = 4;
-	andorSettings.acquisitionMode = 3;
+	andorSettings.acquisitionMode = runModes::Kinetic;
 	andorSettings.emGainModeIsOn = false;
 	andorSettings.showPicsInRealTime = false;
 	andorSettings.triggerMode = "External Trigger";
@@ -181,6 +205,8 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create( NORM_EDIT_OPTIONS, kineticCycleTimeEdit.seriesPos, parent, id++ );
 	kineticCycleTimeEdit.SetWindowTextA( "0.1" );
+	//
+	calControl.initialize( pos, id, parent, tooltips );
 }
 
 
@@ -195,12 +221,6 @@ void CameraSettingsControl::cameraIsOn(bool state)
 	temperatureOffButton.EnableWindow( !state );
 }
 
-/*
-std::array<int, 4> CameraSettingsControl::getThresholds()
-{
-	return picSettingsObj.getThresholds();
-}
-*/
 
 void CameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 {
@@ -225,17 +245,21 @@ void CameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	cameraModeCombo.SelectString(0, cstr(inputSettings.cameraMode));
 	if (inputSettings.cameraMode == "Continuous Single Scans Mode")
 	{
-		inputSettings.acquisitionMode = 5;
+		inputSettings.acquisitionMode = runModes::Video;
 		inputSettings.totalPicsInVariation = INT_MAX;
 	}
 	else if (inputSettings.cameraMode == "Kinetic Series Mode")
 	{
-		inputSettings.acquisitionMode = 3;
+		inputSettings.acquisitionMode = runModes::Kinetic;
 	}
-	else if (inputSettings.cameraMode == "Accumulate Mode")
+	else if ( inputSettings.cameraMode == "Accumulate Mode" )
 	{
-		inputSettings.acquisitionMode = 2;
+		inputSettings.acquisitionMode = runModes::Accumulate;
 		inputSettings.totalPicsInVariation = INT_MAX;
+	}
+	else
+	{
+		thrower( "ERROR: unrecognized camera mode: " + inputSettings.cameraMode );
 	}
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime * 1000.0));
@@ -323,6 +347,42 @@ AndorCameraSettings CameraSettingsControl::getSettings()
 }
 
 
+AndorCameraSettings CameraSettingsControl::getCalibrationSettings( )
+{
+	AndorCameraSettings calSettings;
+	calSettings.andor.acquisitionMode = runModes::Kinetic;
+	calSettings.andor.cameraMode = "Kinetic Series Mode";
+	calSettings.andor.emGainLevel = 0;
+	calSettings.andor.emGainModeIsOn = false;
+	calSettings.andor.exposureTimes = { float(10e-3) };
+	// want to calibrate the image area to be used in the experiment, so...
+	calSettings.andor.imageSettings = imageDimensionsObj.getImageParameters( );
+	calSettings.andor.kineticCycleTime = 10e-3;
+	calSettings.andor.picsPerRepetition = 1;
+	calSettings.andor.readMode = 4;
+	calSettings.andor.repetitionsPerVariation = 100;
+	calSettings.andor.showPicsInRealTime = false;
+	calSettings.andor.temperatureSetting = -60;
+	calSettings.andor.totalPicsInExperiment = 100;
+	calSettings.andor.totalPicsInVariation = 100;
+	calSettings.andor.totalVariations = 1;
+	calSettings.andor.triggerMode = "External Trigger";
+	return calSettings;
+}
+
+
+bool CameraSettingsControl::getAutoCal( )
+{
+	return calControl.autoCal( );
+}
+
+
+bool CameraSettingsControl::getUseCal( )
+{
+	return calControl.use( );
+}
+
+
 void CameraSettingsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts )
 {
 	imageDimensionsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -345,6 +405,7 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	accumulationNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	minKineticCycleTimeDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
+	calControl.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
 
@@ -603,16 +664,16 @@ void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version 
 	std::getline(configFile, tempSettings.cameraMode);
 	if (tempSettings.cameraMode == "Video Mode")
 	{
-		tempSettings.acquisitionMode = 5;
+		tempSettings.acquisitionMode = runModes::Video;
 		tempSettings.totalPicsInVariation = INT_MAX;
 	}
 	else if (tempSettings.cameraMode == "Kinetic Series Mode")
 	{
-		tempSettings.acquisitionMode = 3;
+		tempSettings.acquisitionMode = runModes::Kinetic;
 	}
 	else if (tempSettings.cameraMode == "Accumulate Mode")
 	{
-		tempSettings.acquisitionMode = 2;
+		tempSettings.acquisitionMode = runModes::Accumulate;
 		tempSettings.totalPicsInVariation = INT_MAX;
 	}
 	else
@@ -686,17 +747,17 @@ void CameraSettingsControl::updateCameraMode( )
 
 	if ( settings.andor.cameraMode == "Video Mode" )
 	{
-		settings.andor.acquisitionMode = 5;
+		settings.andor.acquisitionMode = runModes::Video;
 		settings.andor.totalPicsInVariation = INT_MAX;
 		settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
 	else if ( settings.andor.cameraMode == "Kinetic Series Mode" )
 	{
-		settings.andor.acquisitionMode = 3;
+		settings.andor.acquisitionMode = runModes::Kinetic;
 	}
 	else if ( settings.andor.cameraMode == "Accumulate Mode" )
 	{
-		settings.andor.acquisitionMode = 2;
+		settings.andor.acquisitionMode = runModes::Accumulate;
 	}
 }
 
