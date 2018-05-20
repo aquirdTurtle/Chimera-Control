@@ -1,14 +1,16 @@
 % Master-Script See the "?" for info on commands.
 def intrappgc():
 	off: diagMotRf
+	call zeroFieldsPgc()
+	t += 1
 	dac: diagMotPower 0
-	var mot_detuning -2
+	var mot_detuning -2.5
+	var mot_pow 0.15
+	var repump_pow 0.1
 	daclinspace: MotFreq defaultmotfreq mot_detuning 1 10
-	dac: SideMotPower inTrapPgcPower %0.28
-	dac: RepumpPower inTrapPgcRepumpPower 
+	dac: SideMotPower mot_pow 
+	dac: RepumpPower repump_pow
 	t += 1.1
-	% turn the repump on a tiny bit early 
-	% to pump to the F=2 manifold.
 	var cooling_time 10
 	on: RepumpRf
 	on: SideMotRf
@@ -16,7 +18,7 @@ def intrappgc():
 	off: SideMotRf
 	off: RepumpRf
 	daclinspace: MotFreq mot_detuning defaultmotfreq 1 10
-	% dac: MotFreq -0.5 
-      t += 1.5
+	call zeroFields()
+	t += 1.5
 
 	

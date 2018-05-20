@@ -199,25 +199,22 @@ sidemotpower
 piezomirror
 -10 - 10
 0
-18
-loadmottime 200
+15
+loadmottime 150
 andorimagetime 10
 imagingpower 0.25
 pushoutdepth 2.5
 pushoutfreq 1
 fieldtheta 0
 fieldphi 0
-intrappgcdetuning -2
-intrappgcpower 0.14
 imagingrepumppower 0.2
 pushouttime 20
 intrappgccoolingtime 2
-intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 defaultmotfreq 0
-sidemot__servo_value 0.135285
-diagmot__servo_value 0.2342
+sidemot__servo_value 0.139167
+diagmot__servo_value 0.267464
 0.01 1
 2
 Sidemot 1 1.7
