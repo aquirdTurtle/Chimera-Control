@@ -223,7 +223,7 @@ void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
 	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
-	for ( auto& seqInc : range( input->variables.size( ) ) )
+	for ( auto seqInc : range( input->variables.size( ) ) )
 	{
 		for ( auto& variable : input->variables[seqInc] )
 		{
@@ -857,7 +857,7 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
-	for (auto& seqInc : range(input->variables.size()))
+	for (auto seqInc : range(input->variables.size()))
 	{
 		for ( auto& variable : input->variables[seqInc] )
 		{

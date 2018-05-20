@@ -9,7 +9,7 @@ std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw( const std
 {
 	std::vector<std::vector<long>> imagesToDraw(rawData.size());
 	auto options = picSettingsObj.getDisplayTypeOptions( );
-	for ( auto picNum : boost::irange( size_t( 0 ), rawData.size()) )
+	for ( auto picNum : range( rawData.size()) )
 	{
 		if ( !options[picNum].isDiff )
 		{
@@ -19,7 +19,7 @@ std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw( const std
 		{
 			// the whichPic variable is 1-indexed.
 			imagesToDraw[picNum].resize( rawData[picNum].size( ) );
-			for ( auto i : boost::irange( size_t( 0 ), rawData[picNum].size( ) ) )
+			for ( auto i : range( rawData[picNum].size( ) ) )
 			{
 				imagesToDraw[picNum][i] = rawData[picNum][i] - rawData[options[picNum].whichPicForDif - 1][i];
 			}

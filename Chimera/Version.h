@@ -23,9 +23,9 @@ class Version
 				version = std::stod( versionStr );
 				int periodPos = versionStr.find_last_of( '.' );
 				std::string tempStr( versionStr.substr( 0, periodPos ) );
-				versionMajor = std::stod( tempStr );
+				versionMajor = std::stoul( tempStr );
 				tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
-				versionMinor = std::stod( tempStr );
+				versionMinor = std::stoul( tempStr );
 			}
 			catch ( std::invalid_argument& )
 			{

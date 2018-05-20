@@ -158,7 +158,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -363,6 +363,7 @@
     <ClCompile Include="PlotDesignerDialog.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
+    <ClCompile Include="range.cpp" />
     <ClCompile Include="RC028.cpp" />
     <ClCompile Include="rerngControl.cpp" />
     <ClCompile Include="Repetitions.cpp" />

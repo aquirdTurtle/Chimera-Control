@@ -17,6 +17,17 @@ int main( )
 	typedef steady_clock::time_point time;
 	vector<long long> image( 21 * 21, 100 );
 	time begin = steady_clock::now( );
+	for ( auto j : boost::irange( size_t( 0 ), size_t(10) ) )
+	{
+		cout << j << " ";
+	}
+	cout << endl;
+	for ( auto j : boost::irange( 0, 10 ) )
+	{
+		cout << j << " ";
+	}
+
+
 	for ( size_t i = 0; i < numReps; i++ )
 	{
 		for ( auto j : boost::irange(size_t(0), image.size() ))

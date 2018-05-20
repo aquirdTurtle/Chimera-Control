@@ -55,7 +55,7 @@ struct parameterType
 		}
 		else
 		{
-			for ( auto rangeInc : boost::irange(size_t(0), ranges.size()) )
+			for ( auto rangeInc : range( ranges.size()) )
 			{
 				if ( !(ranges[rangeInc] == v.ranges[rangeInc] ))
 				{

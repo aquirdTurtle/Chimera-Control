@@ -29,7 +29,6 @@ FEATURES:
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
 - have code work with temperature monitoring
-- show warning if variable being varied is not used
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
