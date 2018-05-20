@@ -1,11 +1,12 @@
 #pragma once
+#include "atomGrid.h"
+#include "imageParameters.h"
+#include "commonTypes.h"
 #include <atomic>
 #include <vector>
 #include <mutex>
 #include "Windows.h"
 #include <array>
-#include "atomGrid.h"
-#include "imageParameters.h"
 
 
 struct atomCruncherInput
