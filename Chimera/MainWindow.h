@@ -64,6 +64,7 @@ class MainWindow : public CDialog
 		
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
+		void loadCameraCalSettings( MasterThreadInput* input );
 		void stopRearranger( );
 		void waitForRearranger( );
 		void passCommonCommand( UINT id );

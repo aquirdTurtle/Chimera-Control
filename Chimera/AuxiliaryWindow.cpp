@@ -354,6 +354,43 @@ void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 }
 
 
+void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
+{
+	try
+	{
+		sendStatus( "Loading Camera-Cal Config...\r\n" );
+		input->auxWin = this;
+		input->quiet = true;
+		input->ttls = &ttlBoard;
+		input->aoSys = &aoSys;
+		input->aiSys = &aiSys;
+		input->globalControl = &globalVariables;
+		input->comm = mainWindowFriend->getComm( );
+		input->settings = { 0,0,0 };
+		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
+		// don't get configuration variables. This calibration shouldn't depend on config variables.
+		input->variables.clear( );
+		input->variables.push_back( globalVariables.getEverything( ) );
+		// Only do this once of course.
+		input->repetitionNumber = 1;
+		input->intensityAgilentNumber = -1;
+		// Seems like I should just not initialize these or something...
+		input->rsg = &RhodeSchwarzGenerator;
+		input->topBottomTek = &topBottomTek;
+		input->eoAxialTek = &eoAxialTek;
+		input->runMaster = true;
+		input->runNiawg = false;
+		// Seems like I should just not initialize these or something...
+		input->dacData = dacData;
+		input->ttlData = ttlData;
+	}
+	catch ( Error& exception )
+	{
+		sendStatus( ": " + exception.whatStr( ) + " " + exception.whatStr( ) + "\r\n" );
+	}
+}
+
+
 void AuxiliaryWindow::passTopBottomTekProgram()
 {
 	try
@@ -1268,7 +1305,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		}
 		// initialize plot controls.
 		UINT dacPlotSize = 500 / NUM_DAC_PLTS;
-		for ( auto& dacPltCount : range(aoPlots.size()))
+		for ( auto dacPltCount : range(aoPlots.size()))
 		{
 			std::string titleTxt;
 			switch ( dacPltCount )
@@ -1302,7 +1339,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			}
 		}
 		UINT ttlPlotSize = 500 / NUM_TTL_PLTS;
-		for ( auto& ttlPltCount : range( ttlPlots.size( ) ) )
+		for ( auto ttlPltCount : range( ttlPlots.size( ) ) )
 		{
 			// currently assuming 4 ttl plots...
 			std::string titleTxt;

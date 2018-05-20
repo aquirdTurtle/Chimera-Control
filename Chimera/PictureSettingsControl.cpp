@@ -116,15 +116,12 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.amPos.y += 20;
 	pos.videoPos.y += 20;
 
-	/// Yellow --> Blue Color
+	/// colormaps
 	colormapLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	colormapLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
 	colormapLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	colormapLabel.Create( "Virida", NORM_STATIC_OPTIONS, colormapLabel.seriesPos, parent,
+	colormapLabel.Create( "Colormap", NORM_STATIC_OPTIONS, colormapLabel.seriesPos, parent,
 						  PICTURE_SETTINGS_ID_START + count++ );
-
-
-	/// The radio buttons
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
 		colormapCombos[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
@@ -135,10 +132,38 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 100 };
 		colormapCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent, 
 									   PICTURE_SETTINGS_ID_START + count++ );
-		colormapCombos[picInc].AddString( "Dark Verida" );
+		colormapCombos[picInc].AddString( "Dark Viridis" );
 		colormapCombos[picInc].AddString( "Inferno" );
 		colormapCombos[picInc].AddString( "Black & White" );
+		colormapCombos[picInc].AddString( "Red-Black-Blue" );
 		colormapCombos[picInc].SetCurSel( 0 );
+		colors[picInc] = 2;
+	}
+	pos.seriesPos.y += 20;
+	pos.amPos.y += 20;
+	pos.videoPos.y += 20;
+	/// display types
+	displayTypeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
+	displayTypeLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
+	displayTypeLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	displayTypeLabel.Create( "Display-Type:", NORM_STATIC_OPTIONS, displayTypeLabel.seriesPos, parent,
+						     PICTURE_SETTINGS_ID_START + count++ );
+	for ( int picInc = 0; picInc < 4; picInc++ )
+	{
+		displayTypeCombos[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 100 };
+		displayTypeCombos[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 100 };
+		displayTypeCombos[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 100 };
+		displayTypeCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent,
+									   PICTURE_SETTINGS_ID_START + count++ );
+		displayTypeCombos[picInc].AddString( "Normal" );
+		displayTypeCombos[picInc].AddString( "Dif: 1" );
+		displayTypeCombos[picInc].AddString( "Dif: 2" );
+		displayTypeCombos[picInc].AddString( "Dif: 3" );
+		displayTypeCombos[picInc].AddString( "Dif: 4" );
+		displayTypeCombos[picInc].SetCurSel( 0 );
 		colors[picInc] = 2;
 	}
 	pos.seriesPos.y += 20;
@@ -153,6 +178,24 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	picsPerRepetitionUnofficial = 1;
 }
 
+
+std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( )
+{
+	std::array<displayTypeOption, 4> options;
+	UINT counter = 0;
+	for ( auto& combo : displayTypeCombos )
+	{
+		auto sel = combo.GetCurSel( );
+		if ( sel < 0 || sel > 4 )
+		{
+			thrower( "Invalid selection in display type combo???" );
+		}
+		options[counter].isDiff = sel != 0;
+		options[counter].whichPicForDif = sel;
+		counter++;
+	}
+	return options;
+}
 
 
 void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
@@ -590,7 +633,7 @@ void PictureSettingsControl::rearrange(std::string cameraMode, std::string trigg
 	exposureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	thresholdLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	colormapLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-
+	displayTypeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	for (auto& control : pictureNumbers)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -608,6 +651,10 @@ void PictureSettingsControl::rearrange(std::string cameraMode, std::string trigg
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for ( auto& control : colormapCombos )
+	{
+		control.rearrange( cameraMode, triggerMode, width, height, fonts );
+	}
+	for ( auto& control : displayTypeCombos )
 	{
 		control.rearrange( cameraMode, triggerMode, width, height, fonts );
 	}

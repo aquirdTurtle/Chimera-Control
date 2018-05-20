@@ -5,9 +5,11 @@
 #include "Version.h"
 #include "PictureSettingsControl.h"
 #include "CameraImageDimensions.h"
+#include "CameraCalibration.h"
 #include "Andor.h"
 
 struct cameraPositions;
+
 
 /*
  * This large class maintains all of the settings & user interactions for said settings of the Andor camera. It more or
@@ -43,12 +45,15 @@ class CameraSettingsControl
 		void handleModeChange( CameraWindow* cameraWindow );
 		void updateCameraMode( );
 		AndorCameraSettings getSettings();
+		AndorCameraSettings getCalibrationSettings( );
+		bool getAutoCal( );
+		bool getUseCal( );
 		void setImageParameters(imageParameters newSettings, CameraWindow* camWin);
 		void setRunSettings(AndorRunSettings inputSettings);
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
-
+		std::vector<std::vector<long>> getImagesToDraw( const std::vector<std::vector<long>>& rawData  );
 
 	private:
 		double getKineticCycleTime( );
@@ -67,12 +72,9 @@ class CameraSettingsControl
 		Control<CStatic> accumulationNumberLabel;
 		Control<CEdit> accumulationNumberEdit;
 
-		// cameraMode
 		Control<CComboBox> cameraModeCombo;
-		// EM Gain
 		Control<CEdit> emGainEdit;
 		Control<CStatic> emGainDisplay;
-		// Trigger Mode
 		Control<CComboBox> triggerCombo;
 		// Temperature
 		Control<CleanButton> setTemperatureButton;
@@ -89,6 +91,7 @@ class CameraSettingsControl
 		// two subclassed groups.
 		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
+		CameraCalibration calControl;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.
 		AndorCameraSettings settings;

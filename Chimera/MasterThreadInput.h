@@ -68,8 +68,8 @@ struct MasterThreadInput
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
 
-	bool isLoadMot=false;
-	
+	bool isLoadMot = false;
+	bool isCameraCal = false;
 };
 
 

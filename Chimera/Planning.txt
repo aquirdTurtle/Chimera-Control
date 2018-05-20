@@ -13,6 +13,9 @@ FEATURES:
 		- also gets trick if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
+- support variables for niawg and agilent scripts
+	- especially niawg
+- syntax coloring for variables
 - support aborting while paused
 - implement check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
@@ -24,9 +27,8 @@ FEATURES:
 	- include which config was run, variable options
 	- fix time to be smart
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
-- make more timing info on programming
+- output more timing info on the programming process
 - have code work with temperature monitoring
-- callibrate and auto-calibrate image with background image.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -38,7 +40,6 @@ Refactoring / Other:
 - all mutexes should use lock_guard or similar for consistency
 
 BUGS:
-- Catch if variable has only 1 variation, not well defined.
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct. Not being changed by use in agilent and niawg?
 - Turnonmot should really be the minimal stuff
@@ -47,11 +48,9 @@ BUGS:
 - control tektronics not being saved in config?
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
 - trying save if only camera is running...
-- fix variable logging / figure out what the problem is here.
-
 - in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
-- show warning if variable being varied is not used
+
 =================
 Finished
 =================

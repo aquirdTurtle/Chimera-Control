@@ -38,6 +38,9 @@ UINT eRepProgressMessageID = RegisterWindowMessage("ID_REPETITION_PROGRESS_MESSA
 UINT eNoAtomsAlertMessageID = RegisterWindowMessage( "ID_NO_ATOMS_ALERT_MESSAGE" );
 UINT eLogVoltsMessageID = RegisterWindowMessage( "ID_LOG_VOLTS_MESSAGE" );
 UINT eAutoServoMessage = RegisterWindowMessage( "ID_AUTO_SERVO_MESSAGE" );
+UINT eCameraCalProgMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_PROGRESS_MESSAGE" );
+UINT eCameraCalFinMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_FIN_MESSAGE" );
+
 HANDLE eWaitingForNIAWGEvent;
 HANDLE eNIAWGWaitThreadHandle;
 

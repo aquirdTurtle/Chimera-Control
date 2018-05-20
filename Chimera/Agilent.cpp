@@ -1188,7 +1188,7 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 	{
 		visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
 	}
-	for (auto chan : range( 2 ))
+	for (auto chan : range( UINT(2) ))
 	{
 		try
 		{
@@ -1241,7 +1241,7 @@ void Agilent::setAgilent()
 		return;
 	}
 	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
-	for (auto chan : range( 2 ))
+	for (auto chan : range( UINT(2) ))
 	{
 		if (settings.channel[chan].option == 4)
 		{

@@ -218,6 +218,37 @@ void MainWindow::OnTimer( UINT_PTR id )
 }
 
 
+void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
+	for ( auto seqInc : range( input->variables.size( ) ) )
+	{
+		for ( auto& variable : input->variables[seqInc] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[seqInc].push_back( variable );
+			}
+		}
+	}
+	input->seq.name = "CameraCal";
+	input->seq.sequence.resize( 1 );
+	input->seq.sequence[0].configuration = "Camera-Calibration";
+	input->seq.sequence[0].categoryPath = CAMERA_CAL_ROUTINE_ADDRESS;
+	input->seq.sequence[0].parentFolderName = "Camera";
+	// the calibration procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
+	input->skipNext = NULL;
+	input->rerngGuiForm = rearrangeControl.getParams( );
+	input->rerngGuiForm.active = false;
+	input->isLoadMot = false;
+	input->isCameraCal = true;
+
+}
+
+
 BOOL MainWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 {
 	if ( TheAuxiliaryWindow != NULL )
@@ -826,7 +857,7 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
-	for (auto& seqInc : range(input->variables.size()))
+	for (auto seqInc : range(input->variables.size()))
 	{
 		for ( auto& variable : input->variables[seqInc] )
 		{

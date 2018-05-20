@@ -11,6 +11,7 @@
 #include "Thrower.h"
 #include "range.h"
 
+
 MasterManager::MasterManager()
 {
 	functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
@@ -26,7 +27,7 @@ bool MasterManager::getAbortStatus()
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
  * configuration settings to determine how to program and run the experiment.
- * @param voidInput: This is the only input to the procedure. It MUST be a pointer to a ExperimentThreadInput structure.
+ * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
  * @return UINT: The return value is not used, i just return TRUE.
  */
 unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput )
@@ -42,7 +43,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	{
 		for ( auto& config : input->seq.sequence )
 		{
-			auto& seq = expSeq.sequence[seqNum];
+			auto& seq = expSeq.sequence[seqNum]; 
 			if ( input->runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( config );
@@ -51,10 +52,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			if ( input->runNiawg )
 			{
 				ProfileSystem::openNiawgFile( seq.niawgScript, config, input->seq, input->runNiawg );
-			}
-			for ( auto& ag : input->agilents )
-			{
-				// need to figure out how to handle this...
 			}
 			seqNum++;
 		}
@@ -254,10 +251,19 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			handleDebugPlots( input->debugOptions, input->comm, ttls, aoSys, quiet, input->python, 
 							  input->ttlData, input->dacData );
 		}
-		input->comm->sendError( warnings );
 		// update the colors of the global variable control.
 		input->globalControl->setUsages( input->variables );
-
+		for ( auto& seqvars : input->variables )
+		{
+			for ( auto& var : seqvars )
+			{
+				if ( !var.constant && !var.active )
+				{
+					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?";
+				}
+			}
+		}
+		input->comm->sendError( warnings );
 		/// /////////////////////////////
 		/// Begin experiment loop
 		/// //////////
