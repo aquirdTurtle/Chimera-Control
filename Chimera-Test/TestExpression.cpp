@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <string>
-#include "../Chimera/miscellaneousCommonFunctions.h"
+#include "../Chimera/miscCommonFunctions.h"
 #include "../Chimera/Expression.h"
 #include "../Chimera/Thrower.h"
 #include "../Chimera/ParameterSystem.h"
@@ -73,7 +73,7 @@ namespace TestExpressions
 			param.constant = true;
 			param.constantValue = 1;
 			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
-			param.parameterScope = "__GLOBAL__";
+			param.parameterScope = "global";
 			params[0].push_back( param );
 			ParameterSystem::generateKey( params, false );
 
@@ -91,7 +91,7 @@ namespace TestExpressions
 			param.constant = false;
 			param.constantValue = 1;
 			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
-			param.parameterScope = "__GLOBAL__";
+			param.parameterScope = "global";
 			params[0].push_back( param );
 			ParameterSystem::generateKey( params, false );
 			Expression expr( "testVar" );
@@ -146,7 +146,7 @@ namespace TestExpressions
 			param.constant = true;
 			param.constantValue = 1;
 			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
-			param.parameterScope = "__GLOBAL__";
+			param.parameterScope = "global";
 			params[0].push_back( param );
 			ParameterSystem::generateKey( params, false );
 
@@ -164,7 +164,7 @@ namespace TestExpressions
 			param.constant = false;
 			param.constantValue = 1;
 			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
-			param.parameterScope = "__GLOBAL__";
+			param.parameterScope = "global";
 			params[0].push_back( param );
 			ParameterSystem::generateKey( params, false );
 			Expression expr( "testVar" );

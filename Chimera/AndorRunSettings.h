@@ -1,5 +1,6 @@
 #pragma once
 #include "imageParameters.h"
+#include "runModes.h"
 #include <string>
 #include <vector>
 
@@ -12,7 +13,7 @@ struct AndorRunSettings
 	bool emGainModeIsOn;
 	int emGainLevel;
 	int readMode;
-	int acquisitionMode;
+	runModes acquisitionMode;
 	int frameTransferMode;
 	std::string triggerMode;
 	std::string cameraMode;

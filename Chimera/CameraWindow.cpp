@@ -50,12 +50,15 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
 	ON_COMMAND( IDC_SET_GRID_CORNER, &CameraWindow::passSetGridCorner)
 	ON_COMMAND( IDC_DEL_GRID_BUTTON, &CameraWindow::passDelGrid)
+	ON_COMMAND( IDC_CAMERA_CALIBRATION_BUTTON, &CameraWindow::calibrate)
 
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &CameraWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
 
 	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &CameraWindow::onCameraFinish )
+	ON_REGISTERED_MESSAGE( eCameraCalFinMessageID, &CameraWindow::onCameraCalFinish )
 	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &CameraWindow::onCameraProgress )
+	ON_REGISTERED_MESSAGE( eCameraCalProgMessageID, &CameraWindow::onCameraCalProgress )
 	
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
@@ -66,6 +69,25 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &CameraWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
+
+bool CameraWindow::wasJustCalibrated( )
+{
+	return justCalibrated;
+}
+
+
+bool CameraWindow::wantsAutoCal( )
+{
+	return CameraSettings.getAutoCal( );
+}
+
+
+void CameraWindow::calibrate( )
+{
+	commonFunctions::calibrateCameraBackground(scriptingWindowFriend, mainWindowFriend, this, auxWindowFriend );
+}
+
 
 void CameraWindow::passDelGrid( )
 {
@@ -326,10 +348,74 @@ void CameraWindow::handlePictureEditChange( UINT id )
 }
 
 
+LRESULT CameraWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
+{
+	UINT picNum = lParam;
+	if ( lParam == 0 )
+	{
+		// ???
+		return NULL;
+	}
+	AndorRunSettings curSettings = Andor.getAndorSettings( );
+	if ( lParam == -1 )
+	{
+		// last picture.
+		picNum = curSettings.totalPicsInExperiment;
+	}
+	// need to call this before acquireImageData().
+	Andor.updatePictureNumber( picNum );
+
+	std::vector<std::vector<long>> picData;
+	try
+	{
+		picData = Andor.acquireImageData( );
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		return NULL;
+	}
+	avgBackground.resize( picData.back( ).size( ) );
+	for ( unsigned int i = 0; i < avgBackground.size( ); i++ )
+	{
+		avgBackground[i] += picData.back( )[i];
+	}
+	CDC* drawer = GetDC( );
+	try
+	{
+		if ( picNum % curSettings.picsPerRepetition == 0 )
+		{
+			int counter = 0;
+			for ( auto data : picData )
+			{
+				std::pair<int, int> minMax;
+				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width,
+									   curSettings.imageSettings.height, picNum / curSettings.picsPerRepetition,
+									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+				pics.drawPicture( drawer, counter, data, minMax );
+				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
+								  analysisHandler.getGrids( ), picNum );
+				counter++;
+			}
+			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
+						  curSettings.totalVariations, curSettings.picsPerRepetition );
+		}
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
+	ReleaseDC( drawer );
+	mostRecentPicNum = picNum;
+	return 0;
+}
+
+
+
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
-	UINT pictureNumber = lParam;
-	if ( pictureNumber % 2 == 1 )
+	UINT picNum = lParam;
+	if ( picNum % 2 == 1 )
 	{
 		mainThreadStartTimes.push_back( std::chrono::high_resolution_clock::now( ) );
 	}
@@ -338,38 +424,54 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		// ???
 		return NULL;
 	}
-	AndorRunSettings currentSettings = Andor.getAndorSettings( );
+	AndorRunSettings curSettings = Andor.getAndorSettings( );
 	if ( lParam == -1 )
 	{
 		// last picture.
-		pictureNumber = currentSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment;
 	}
 
 	// need to call this before acquireImageData().
-	Andor.updatePictureNumber( pictureNumber );
+	Andor.updatePictureNumber( picNum );
 	
-	std::vector<std::vector<long>> picData;
+	std::vector<std::vector<long>> rawPicData;
 	try
 	{
-		picData = Andor.acquireImageData();
+		rawPicData = Andor.acquireImageData();
 	}
 	catch (Error& err)
 	{
 		mainWindowFriend->getComm()->sendError( err.what() );
 		return NULL;
 	}
-	
-	if ( pictureNumber % 2 == 1 )
+	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
+	if ( CameraSettings.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
+	{
+		for ( UINT picInc = 0; picInc < rawPicData.size(); picInc++ )
+		{
+			for ( UINT pixInc = 0; pixInc < rawPicData[picInc].size( ); pixInc++ )
+			{
+				calPicData[picInc].push_back( rawPicData[picInc][pixInc] - avgBackground[pixInc] );
+			}
+		}
+	}
+	else
+	{
+		calPicData = rawPicData;
+	}
+
+
+	if ( picNum % 2 == 1 )
 	{
 		imageGrabTimes.push_back( std::chrono::high_resolution_clock::now( ) );
 	}
-	//AndorRunSettings currentSettings = Andor.getAndorSettings();
-	//
 	{
 		std::lock_guard<std::mutex> locker( plotLock );
 		// TODO: add check to check if this is needed.
-		imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
+		imageQueue.push_back( calPicData[(picNum - 1) % curSettings.picsPerRepetition] );
 	}
+
+	auto picsToDraw = CameraSettings.getImagesToDraw( calPicData );
 
 	CDC* drawer = GetDC( );
 	try
@@ -378,33 +480,33 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		{
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
-			minMax = stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
-								   currentSettings.imageSettings.width, currentSettings.imageSettings.height,
-								   pictureNumber / currentSettings.picsPerRepetition,
-								   currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
+			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
+								   curSettings.imageSettings.width, curSettings.imageSettings.height,
+								   picNum / curSettings.picsPerRepetition,
+								   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
 
-			pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax );
+			pics.drawPicture( drawer, picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
 
-			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
-						  currentSettings.totalVariations, currentSettings.picsPerRepetition );
+			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
+						  curSettings.totalVariations, curSettings.picsPerRepetition );
 		}
-		else if (pictureNumber % currentSettings.picsPerRepetition == 0)
+		else if (picNum % curSettings.picsPerRepetition == 0)
 		{
 			int counter = 0;
-			for (auto data : picData)
+			for (auto data : picsToDraw )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width,
-									   currentSettings.imageSettings.height, pictureNumber / currentSettings.picsPerRepetition,
-									   currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
+				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width,
+									   curSettings.imageSettings.height, picNum / curSettings.picsPerRepetition,
+									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
 
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
-								  analysisHandler.getGrids(), pictureNumber );
+								  analysisHandler.getGrids(), picNum );
 				counter++;
 			}
-			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
-						  currentSettings.totalVariations, currentSettings.picsPerRepetition );
+			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
+						  curSettings.totalVariations, curSettings.picsPerRepetition );
 		}
 	}
 	catch (Error& err)
@@ -415,19 +517,21 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	ReleaseDC( drawer );
 
 	// write the data to the file.
-	if (currentSettings.cameraMode != "Continuous Single Scans Mode")
+	if (curSettings.cameraMode != "Continuous Single Scans Mode")
 	{
 		try
 		{
-			dataHandler.writePic( pictureNumber, picData[(pictureNumber - 1) % currentSettings.picsPerRepetition],
-								  currentSettings.imageSettings );
+			// important! write the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
+			// pictures, which can have the background subtracted.
+			dataHandler.writePic( picNum, rawPicData[(picNum - 1) % curSettings.picsPerRepetition],
+								  curSettings.imageSettings );
 		}
 		catch (Error& err)
 		{
 			mainWindowFriend->getComm()->sendError( err.what() );
 		}
 	}
-	mostRecentPicNum = pictureNumber;
+	mostRecentPicNum = picNum;
 	return 0;
 }
 
@@ -484,6 +588,29 @@ void CameraWindow::handleAutoscaleSelection()
 		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED);
 	}
 	pics.setAutoScalePicturesOption(autoScalePictureData);
+}
+
+
+LRESULT CameraWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
+{
+	// notify the andor object that it is done.
+	Andor.onFinish( );
+	Andor.pauseThread( );
+	Andor.setCalibrating( false );
+	justCalibrated = true;
+	mainWindowFriend->getComm( )->sendColorBox( System::Camera, 'B' );
+	CameraSettings.cameraIsOn( false );
+	// normalize.
+	for ( auto& p : avgBackground )
+	{
+		p /= 100.0;
+	}
+	// if auto cal is selected, always assume that the user was trying to start with F5.
+	if ( CameraSettings.getAutoCal( ) ) 
+	{
+		PostMessageA( WM_COMMAND, MAKEWPARAM( ID_ACCELERATOR_F5, 0 ) );
+	}
+	return 0;
 }
 
 
@@ -689,6 +816,40 @@ void CameraWindow::handlePictureSettings(UINT id)
 	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
+/*
+Check that the camera is idle, or not aquiring pictures. Also checks that the data analysis handler isn't active.
+*/
+void CameraWindow::checkCameraIdle( )
+{
+	if ( Andor.isRunning( ) )
+	{
+		thrower( "Camera is already running! Please Abort to restart.\r\n" );
+	}
+	if ( analysisHandler.getLocationSettingStatus( ) )
+	{
+		thrower( "Please finish selecting analysis points before starting the camera!\r\n" );
+	}
+	// make sure it's idle.
+	try
+	{
+		Andor.queryStatus( );
+		if ( ANDOR_SAFEMODE )
+		{
+			thrower( "DRV_IDLE" );
+		}
+	}
+	catch ( Error& exception )
+	{
+		if ( exception.whatBare( ) != "DRV_IDLE" )
+		{
+			throw;
+		}
+	}
+}
+
+
+
+
 
 BOOL CameraWindow::PreTranslateMessage(MSG* pMsg)
 {
@@ -705,7 +866,7 @@ void CameraWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 	pics.handleScroll(nSBCode, nPos, scrollbar);
 }
 
-
+// 3836, 1951
 void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
 	SetRedraw( false );
@@ -796,33 +957,41 @@ DataLogger* CameraWindow::getLogger()
 	return &dataHandler;
 }
 
-void CameraWindow::prepareCamera( ExperimentInput& input )
+
+void CameraWindow::loadCameraCalSettings( ExperimentInput& input )
 {
-	if ( Andor.isRunning() )
-	{
-		thrower( "Camera is already running! Please Abort to restart.\r\n" );
-	}
-	if ( analysisHandler.getLocationSettingStatus() )
-	{
-		thrower( "Please finish selecting analysis points before starting the camera!\r\n" );
-	}
-	// make sure it's idle.
+	redrawPictures( false );
 	try
 	{
-		Andor.queryStatus();
-		if ( ANDOR_SAFEMODE )
-		{
-			thrower( "DRV_IDLE" );
-		}
+		checkCameraIdle( );
 	}
-	catch ( Error& exception )
+	catch ( Error& err)
 	{
-		if ( exception.whatBare() != "DRV_IDLE" )
-		{
-			throw;
-		}
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
 	}
 
+	CDC* dc = GetDC( );
+	pics.refreshBackgrounds( dc );
+	ReleaseDC( dc );
+	// I used to mandate use of a button to change image parameters. Now I don't have the button and just always 
+	// update at this point.
+	readImageParameters( );
+	pics.setNumberPicturesActive( 1 );
+	// biggest check here, camera settings includes a lot of things.
+	CameraSettings.checkIfReady( );
+	input.camSettings = CameraSettings.getCalibrationSettings( ).andor;
+	// reset the image which is about to be calibrated.
+	avgBackground.clear( );
+	/// start the camera.
+	Andor.setSettings( input.camSettings );
+	Andor.setCalibrating(true);
+}
+
+
+void CameraWindow::prepareCamera( ExperimentInput& input )
+{
+	redrawPictures( false );
+	checkCameraIdle( );
 	CDC* dc = GetDC();
 	pics.refreshBackgrounds(dc);
 	ReleaseDC(dc);
@@ -1038,11 +1207,11 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 	}
 	std::vector<std::vector<long>> monitoredPixelIndecies(input->grids.size());
 	// TODO: change to loop over all grids...
-	for ( auto gridInc : range( input->grids.size( ) ) )
+	for ( UINT gridInc =0; gridInc < input->grids.size( ); gridInc++)
 	{
-		for ( auto columnInc : range( input->grids[gridInc].width ) )
+		for ( UINT columnInc = 0; columnInc < input->grids[gridInc].width; columnInc++ )
 		{
-			for ( auto rowInc : range( input->grids[gridInc].height ) )
+			for ( UINT rowInc =0; rowInc < input->grids[gridInc].height; rowInc++ )
 			{
 				ULONG pixelRow = (input->grids[gridInc].topLeftCorner.row - 1) 
 					+ rowInc * input->grids[gridInc].pixelSpacing;
@@ -1085,12 +1254,12 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		std::vector<std::vector<long>> tempImagePixels( input->grids.size( ) );
 		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
 		std::vector<std::vector<bool>> tempAtomArray( input->grids.size( ) );											  
-		for (auto gridInc : range(input->grids.size()))
+		for (UINT gridInc = 0; gridInc < input->grids.size(); gridInc++)
 		{
 			tempAtomArray[gridInc] = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
 			tempImagePixels[gridInc] = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
 		}
-		for ( auto gridInc : range( input->grids.size( ) ) )
+		for ( UINT gridInc = 0; gridInc < input->grids.size( ); gridInc++ )
 		{
 			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the load-skip.
 			UINT count = 0;
@@ -1211,6 +1380,8 @@ std::string CameraWindow::getStartMessage()
 
 void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
+	// starting not-calibration, so reset this.
+	justCalibrated = false;
 	input->atomQueueForRearrangement = &rearrangerAtomQueue;
 	input->rearrangerLock = &rearrangerLock;
 	input->andorsImageTimes = &imageTimes;

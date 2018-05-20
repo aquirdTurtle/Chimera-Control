@@ -395,6 +395,13 @@ math functions, and evaluates it to a double.
 */
 double Expression::evaluate( std::vector<parameterType>& variables, UINT variation )
 {
+/*
+	if ( expressionScope == "" )
+	{
+		thrower( "ERROR: trying to evaluate an expression without an expression scope! This probably means that you"
+				 " forgot to call assertValid on the expression, where the scope is set." );
+	}
+	*/
 	// make a constant copy of the original string to use during the evaluation.
 	const std::string originalExpression( expressionStr );
 	double resultOfReduction = 0;

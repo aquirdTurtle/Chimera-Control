@@ -79,6 +79,7 @@ class AuxiliaryWindow : public CDialog
 		std::string getGpibDeviceStatus( );
 		void runServos( );
 		LRESULT autoServo( WPARAM w, LPARAM l );
+		void loadCameraCalSettings( MasterThreadInput* input );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );

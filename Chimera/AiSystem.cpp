@@ -26,7 +26,7 @@ std::string AiSystem::getSystemStatus( )
 
 void AiSystem::refreshDisplays( )
 {
-	for ( auto& dispInc : range(voltDisplays.size()))
+	for ( auto dispInc : range(voltDisplays.size()))
 	{
 		voltDisplays[dispInc].SetWindowTextA( cstr(currentValues[dispInc]) );
 	}

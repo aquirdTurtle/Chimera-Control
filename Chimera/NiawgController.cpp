@@ -129,7 +129,7 @@ niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> tar
 	Matrix<ULONG> result( atoms.getRows() - target.getRows() + 1, atoms.getCols() - target.getCols() + 1, 0);
 	niawgPair<ULONG> targetCoords;
 	UINT bestMatch = 0;
-	for ( auto startRowInc : range( result.getRows() ) )
+	for ( UINT startRowInc =0; startRowInc < result.getRows(); startRowInc++ )
 	{
 		for ( auto startColInc : range( result.getCols() ) )
 		{
@@ -199,7 +199,8 @@ bool NiawgController::outputVaries( NiawgOutput output )
 
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
 									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, std::vector<parameterType>& variables )
+									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, 
+									std::vector<parameterType>& variables )
 {
 	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;
@@ -504,7 +505,7 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& constants,
 										bool deleteWaveAfterWrite)
 {
-	for ( auto& waveInc : range(output.waveFormInfo.size()) )
+	for ( auto waveInc : range( output.waveFormInfo.size()) )
 	{
 		waveInfoForm& waveForm( output.waveFormInfo[ waveInc ] );
 		waveInfo& wave( output.waves[waveInc] );
@@ -568,9 +569,9 @@ void NiawgController::deleteWaveData( simpleWave& core )
 
 void NiawgController::handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave )
 {
-	for ( auto chanInc : range(waveCore.chan.size()) )
+	for ( auto chanInc : range( waveCore.chan.size()) )
 	{
-		for ( auto sigInc : range(waveCore.chan[chanInc].signals.size()) )
+		for ( auto sigInc : range( waveCore.chan[chanInc].signals.size()) )
 		{
 			auto& sig = waveCore.chan[chanInc].signals[sigInc];
 			if (sig.initPhase == -1 )
@@ -615,13 +616,13 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 		wave.time = formWave.time.evaluate( varibles, variation ) * 1e-3;
 		wave.sampleNum = waveformSizeCalc( wave.time );
 		wave.name = formWave.name;
-		for ( auto& chanInc : range(wave.chan.size()) )
+		for ( auto chanInc : range( wave.chan.size()) )
 		{
 			wave.chan[chanInc].delim = formWave.chan[chanInc].delim;
 			wave.chan[chanInc].initType = formWave.chan[chanInc].initType;
 			wave.chan[chanInc].phaseOption = formWave.chan[chanInc].phaseOption;
 			wave.chan[chanInc].signals.resize( formWave.chan[chanInc].signals.size( ) );
-			for ( auto& signalInc : range(wave.chan[chanInc].signals.size()))
+			for ( auto signalInc : range( wave.chan[chanInc].signals.size()))
 			{
 				waveSignal& signal( wave.chan[chanInc].signals[signalInc] );
 				waveSignalForm& signalForm( formWave.chan[chanInc].signals[signalInc] );

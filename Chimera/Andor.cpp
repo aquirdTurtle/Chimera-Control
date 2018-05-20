@@ -67,6 +67,17 @@ void AndorCamera::onFinish()
 }
 
 
+void AndorCamera::setCalibrating( bool cal )
+{
+	calInProgress = cal;
+}
+
+
+bool AndorCamera::isCalibrating( )
+{
+	return calInProgress;
+}
+
 /*
  * this thread watches the camera for pictuers and when it sees a picture lets the main thread know via a message. 
  * it gets initialized at the start of the program and is basically always running.
@@ -101,10 +112,20 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				if (status == DRV_IDLE && armed)
 				{
 					// get the last picture. acquisition is over so getAcquisitionProgress returns 0.
-					input->comm->sendCameraProgress( -1 );
-					// signal the end to the main thread.
-					input->comm->sendCameraFin();
-					armed = false;
+					if ( input->Andor->isCalibrating( ) )
+					{
+						input->comm->sendCameraCalProgress( -1 );
+						// signal the end to the main thread.
+						input->comm->sendCameraFin( );
+						armed = false;
+					}
+					else
+					{
+						input->comm->sendCameraProgress( -1 );
+						// signal the end to the main thread.
+						input->comm->sendCameraFin( );
+						armed = false;
+					}
 				}
 				else
 				{
@@ -122,8 +143,14 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						input->comm->sendError(exception.what());
 					}
-
-					input->comm->sendCameraProgress(pictureNumber);
+					if ( input->Andor->isCalibrating( ) )
+					{
+						input->comm->sendCameraCalProgress( pictureNumber );
+					}
+					else
+					{
+						input->comm->sendCameraProgress( pictureNumber );
+					}
 				}
 			}
 			catch (Error&)
@@ -145,18 +172,39 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					 || input->Andor->runSettings.cameraMode == "Accumulation Mode" )
 				{
 					safeModeCount++;
-					input->comm->sendCameraProgress( safeModeCount );
+					if ( input->Andor->isCalibrating( ) )
+					{
+						input->comm->sendCameraCalProgress( safeModeCount );
+					}
+					else
+					{
+						input->comm->sendCameraProgress( safeModeCount );
+					}
 				}
 				else
 				{
-					input->comm->sendCameraProgress( 1 );
+					if ( input->Andor->isCalibrating( ) )
+					{
+						input->comm->sendCameraCalProgress( 1 );
+					}
+					else
+					{
+						input->comm->sendCameraProgress( 1 );
+					}
 				}
 			}
 			else
 			{
 				input->Andor->cameraIsRunning = false;
 				safeModeCount = 0;
-				input->comm->sendCameraFin();
+				if ( input->Andor->isCalibrating( ) )
+				{
+					input->comm->sendCameraCalFin( );
+				}
+				else
+				{
+					input->comm->sendCameraFin( );
+				}
 				input->spuriousWakeupHandler = false;
 			}
 		}
@@ -180,7 +228,7 @@ void AndorCamera::setSettings(AndorRunSettings settingsToSet)
 
 void AndorCamera::setAcquisitionMode()
 {
-	setAcquisitionMode(runSettings.acquisitionMode);
+	setAcquisitionMode(int(runSettings.acquisitionMode));
 }
 
 /* 
@@ -204,18 +252,18 @@ void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
 	setExposures();
 	setImageParametersToCamera();
 	// Set Mode-Specific Parameters
-	if (runSettings.acquisitionMode == 5)
+	if (runSettings.acquisitionMode == runModes::Video)
 	{
 		setFrameTransferMode();
 	}
-	else if (runSettings.acquisitionMode == 3)
+	else if (runSettings.acquisitionMode == runModes::Kinetic)
 	{
 		setKineticCycleTime();
 		setScanNumber();
 		// set this to 1.
 		setNumberAccumulations(true);
 	}	
-	else if (runSettings.acquisitionMode == 2)
+	else if (runSettings.acquisitionMode == runModes::Accumulate)
 	{
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);

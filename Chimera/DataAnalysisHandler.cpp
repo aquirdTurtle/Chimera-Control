@@ -367,7 +367,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	// countData[gridNumber][pixel Indicator][picture number indicator] = pixelCount;
 	vector<vector<vector<long>>> countData( input->grids.size() );	
 	vector<vector<vector<int>>> atomPresentData( input->grids.size() );
-	for ( auto& gridCount : range(input->grids.size( )) )
+	for ( auto gridCount : range(input->grids.size( )) )
 	{
 		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		countData[gridCount] = vector<vector<long>>( groupNum );

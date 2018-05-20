@@ -13,6 +13,8 @@ namespace commonFunctions
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* comm, ScriptingWindow* scriptWin, 
 							 CameraWindow* camWin, AuxiliaryWindow* auxWin );
 	/// Run Menu
+	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
+									AuxiliaryWindow* auxWin );
 	void prepareCamera( MainWindow* mainWin, CameraWindow* camWin, ExperimentInput& input );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls );

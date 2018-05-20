@@ -2,7 +2,7 @@
 #include "CppUnitTest.h"
 #include "afxwin.h"
 #include "../Chimera/NiawgController.h"
-#include "../Chimera/miscellaneousCommonFunctions.h"
+#include "../Chimera/miscCommonFunctions.h"
 #include "TestMacros.h"
 #include <string>
 
@@ -32,7 +32,7 @@ namespace TestNiawg
 			loadBools( target, standardTarget );
 			std::vector<simpleMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngOptions( ) );
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngGuiOptions( ) );
 			Assert::AreEqual( size_t( 1 ), moves.size( ) );
 			Assert::IsTrue( simpleMove( { 3,2,3,1 } ) == moves.front( ) );
 		}
@@ -54,7 +54,7 @@ namespace TestNiawg
 			loadBools( target, standardTarget );
 			std::vector<simpleMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngOptions( ) );
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngGuiOptions( ) );
 			// the following moves were copied from a trial that I know rearranges correctly. Details of the moves
 			// are hard to actualy predict.
 			Assert::AreEqual( size_t( 5 ), moves.size( ) );
@@ -90,8 +90,8 @@ namespace TestNiawg
 			std::vector<simpleMove> smoves;
 			std::vector<complexMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
+			niawg.optimizeMoves( smoves, source, moves, rerngGuiOptions( ) );
 			Assert::AreEqual( size_t( 1 ), moves.size( ) );
 			Assert::AreEqual( true, moves.front( ).needsFlash );
 			Assert::AreEqual( false, moves.front( ).isInlineParallel );
@@ -117,8 +117,8 @@ namespace TestNiawg
 			std::vector<simpleMove> smoves;
 			std::vector<complexMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
+			niawg.optimizeMoves( smoves, source, moves, rerngGuiOptions( ) );
 			Assert::AreEqual( size_t( 1 ), moves.size( ) );
 			auto move = moves.front( );
 			Assert::AreEqual( false, move.isInlineParallel );
@@ -147,8 +147,8 @@ namespace TestNiawg
 			std::vector<simpleMove> smoves;
 			std::vector<complexMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
+			niawg.optimizeMoves( smoves, source, moves, rerngGuiOptions( ) );
 		}
 		private:
 			std::vector<bool> standardTarget =
@@ -189,7 +189,7 @@ namespace TestNiawg
 			ScriptStream stream(simpleScript);
 			NiawgOutput output;
 			//
-			niawg.analyzeNiawgScript( stream, output, profileSettings(), debugInfo(), std::string(), rerngOptions(), 
+			niawg.analyzeNiawgScript( stream, output, profileSettings(), debugInfo(), std::string(), rerngGuiOptionsForm(), 
 									  std::vector<parameterType>() );
 			// asserts
 			Assert::AreEqual( size_t( 1 ), output.waveFormInfo.size( ));
@@ -231,7 +231,7 @@ namespace TestNiawg
 			ScriptStream stream( simpleScript );
 			NiawgOutput output;
 			//
-			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
+			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngGuiOptionsForm( ),
 									  std::vector<parameterType>( ) );
 			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<parameterType>( ) );
 			// asserts
@@ -272,7 +272,7 @@ namespace TestNiawg
 			ScriptStream stream( simpleScript );
 			NiawgOutput output;
 			//
-			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
+			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngGuiOptionsForm( ),
 									  std::vector<parameterType>( ) );
 			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<parameterType>( ), false );
 			//
@@ -309,7 +309,7 @@ namespace TestNiawg
 			ScriptStream stream( longWaveScript );
 			NiawgOutput output;
 			//
-			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
+			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngGuiOptionsForm( ),
 									  std::vector<parameterType>( ) );
 			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<parameterType>( ) );
 			Assert::AreEqual( long( NIAWG_SAMPLE_RATE * 10e-3 ), output.waves[0].core.sampleNum );

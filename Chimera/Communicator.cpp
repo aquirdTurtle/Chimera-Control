@@ -30,6 +30,12 @@ void Communicator::sendCameraFin()
 	camWin->PostMessage( eCameraFinishMessageID, 0, 0 );
 }
 
+void Communicator::sendCameraCalFin( )
+{
+	camWin->PostMessage( eCameraCalFinMessageID, 0, 0 );
+}
+
+
 void Communicator::sendMotFinish( )
 {
 	auxWin->PostMessageA( eAutoServoMessage, 0, 0 );
@@ -44,6 +50,14 @@ void Communicator::sendCameraProgress(long progress)
 {
 	camWin->PostMessageA( eCameraProgressMessageID, 0, (LPARAM)progress );
 }
+
+void Communicator::sendCameraCalProgress( long progress )
+{
+	camWin->PostMessageA( eCameraCalProgMessageID, 0, (LPARAM)progress );
+}
+
+
+
 
 void Communicator::sendRepProgress(ULONG rep)
 {
