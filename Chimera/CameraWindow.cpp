@@ -785,7 +785,9 @@ void CameraWindow::passAtomGridCombo( )
 	}
 }
 
-
+/*
+	This func doesn't make much sense...
+*/
 void CameraWindow::passPictureSettings( UINT id )
 {
 	handlePictureSettings( id );

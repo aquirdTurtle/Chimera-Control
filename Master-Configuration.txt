@@ -213,10 +213,10 @@ intrappgccoolingtime 2
 field 3
 rotatefieldtime 3
 defaultmotfreq 0
-sidemot__servo_value 0.139167
-diagmot__servo_value 0.267464
+sidemot__servo_value 0.135336
+diagmot__servo_value 0.232268
 0.01 1
 2
 Sidemot 1 1.7
 DiagMot 1 1.4
-1 5 1 1 5 1
+181 249 3 198 266 3

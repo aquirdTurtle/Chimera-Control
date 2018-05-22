@@ -18,10 +18,17 @@ std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw( const std
 		else
 		{
 			// the whichPic variable is 1-indexed.
-			imagesToDraw[picNum].resize( rawData[picNum].size( ) );
-			for ( auto i : range( rawData[picNum].size( ) ) )
+			if ( options[picNum].whichPicForDif >= rawData.size( ) )
 			{
-				imagesToDraw[picNum][i] = rawData[picNum][i] - rawData[options[picNum].whichPicForDif - 1][i];
+				imagesToDraw[picNum] = rawData[picNum];
+			}
+			else
+			{
+				imagesToDraw[picNum].resize( rawData[picNum].size( ) );
+				for ( auto i : range( rawData[picNum].size( ) ) )
+				{
+					imagesToDraw[picNum][i] = rawData[picNum][i] - rawData[options[picNum].whichPicForDif - 1][i];
+				}
 			}
 		}
 	}
