@@ -790,7 +790,7 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 	}
 	tmpVariable.constantValue = val;
 	tmpVariable.scanDimension = 1;
-	tmpVariable.parameterScope = scope;
+	tmpVariable.parameterScope = str(scope, 13, false, true);
 	tmpVariable.ranges.push_back( { val, val, 1, true, true } );
 	// these are always constants, so just go ahead and set the keyvalue for use manually. 
 	if ( vars.size( ) == 0 )

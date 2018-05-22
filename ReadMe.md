@@ -3,7 +3,7 @@
 ========================================================================
 
 # Contact
-Please feel free to contact me at any time with questions, bug reports, feature requests, or general support or advice. I'm happy to help the project be as useful as possible to others who wish to use it. Contact me at 	Mark.O.Brown@colorado.edu with any such ques.tions
+Please feel free to contact me at any time with questions, bug reports, feature requests, or general support or for advice. I'm happy to help the project be as useful as possible to others who wish to use it. Contact me at 	Mark.O.Brown@colorado.edu with any such ques.tions
 
 # Installation
 - Important note: I've created this program as a 32-bit program because I only had the 32-bit version of the DIO64 dlls. in principle this can all be done in 64-bit mode (which might be faster for some things), but I haven't set this up yet. I will probably set this up soon when we move away from the DIO64 system.

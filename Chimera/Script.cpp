@@ -875,7 +875,7 @@ void Script::newScript()
 	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
 	if (deviceType == "NIAWG")
 	{
-		tempName += "DEFAULT_NIAWG_SCRIPT.nScript";
+		tempName += "DEFAULT_SCRIPT.nScript";
 	}
 	else if (deviceType == "Agilent")
 	{

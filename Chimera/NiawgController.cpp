@@ -889,10 +889,10 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = 10;//getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
-		// filler move gets the full time of the move. Need to convert the time per move to ms instead of us.
+		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
 		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
 														 * rearrangeWave.rearrange.timePerMove.evaluate( )
-														 + 2 * rerngGuiInfo.finalMoveTime.evaluate()) * 1e3 );
+														 + 2 * rerngGuiInfo.finalMoveTime.evaluate() / 1e3) * 1e3 );
 		for ( auto ax : AXES )
 		{
 			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].signals )
@@ -904,7 +904,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = long( (output.waveFormInfo.back( ).rearrange.moveLimit
 							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) 
-							   + 2 * rerngGuiInfo.finalMoveTime.evaluate())* NIAWG_SAMPLE_RATE );
+							   + 2 * rerngGuiInfo.finalMoveTime.evaluate() / 1e3) * NIAWG_SAMPLE_RATE );
 		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
@@ -2979,6 +2979,7 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 	data.moveBias = form.moveBias.evaluate( variables, variation );
 	data.moveSpeed = form.moveSpeed.evaluate( variables, variation );
 	data.staticMovingRatio = form.staticMovingRatio.evaluate( variables, variation );
+	data.finalMoveTime = form.finalMoveTime.evaluate( variables, variation ) / 1e3;
 	//
 	data.outputIndv = form.outputIndv;
 	data.outputInfo = form.outputInfo;
@@ -3488,7 +3489,7 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 						{
 							// new record.
 							moveList = potentialMoves;
-							finTargetPos = { startRowInc, startColInc };
+							finTargetPos = { source.getRows( ) - target.getRows( ) - startRowInc, startColInc };
 							leastMoves = potentialMoves.size( );
 							if ( leastMoves == 0 )
 							{

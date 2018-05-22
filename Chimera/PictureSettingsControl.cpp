@@ -18,6 +18,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pictureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100,	pos.videoPos.y + 20 };
 	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.seriesPos, parent,
 						 PICTURE_SETTINGS_ID_START + count++ );
+	pictureLabel.fontType = fontTypes::SmallFont;
 
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
@@ -40,6 +41,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	totalPicNumberLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.seriesPos, parent,
 								PICTURE_SETTINGS_ID_START + count++ );
+	totalPicNumberLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
 		totalNumberChoice[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
@@ -73,6 +75,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent,
 						  PICTURE_SETTINGS_ID_START + count++ );
 	exposureTimesUnofficial.resize( 4 );
+	exposureLabel.fontType = fontTypes::SmallFont;
 
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
@@ -85,8 +88,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		// first of group
 		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].seriesPos, parent,
 									  PICTURE_SETTINGS_ID_START + count++ );
-		exposureEdits[picInc].SetWindowTextA( "26.0" );
-		exposureTimesUnofficial[picInc] = 26 / 1000.0f;
+		exposureEdits[picInc].SetWindowTextA( "10.0" );
+		exposureTimesUnofficial[picInc] = 10 / 1000.0f;
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
@@ -98,6 +101,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	thresholdLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.seriesPos, parent,
 						   PICTURE_SETTINGS_ID_START + count++ );
+	thresholdLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
 		thresholdEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
@@ -122,6 +126,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	colormapLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	colormapLabel.Create( "Colormap", NORM_STATIC_OPTIONS, colormapLabel.seriesPos, parent,
 						  PICTURE_SETTINGS_ID_START + count++ );
+	colormapLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
 		colormapCombos[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
@@ -132,6 +137,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 100 };
 		colormapCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent, 
 									   PICTURE_SETTINGS_ID_START + count++ );
+		colormapCombos[picInc].fontType = fontTypes::SmallFont;
 		colormapCombos[picInc].AddString( "Dark Viridis" );
 		colormapCombos[picInc].AddString( "Inferno" );
 		colormapCombos[picInc].AddString( "Black & White" );
@@ -148,6 +154,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	displayTypeLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	displayTypeLabel.Create( "Display-Type:", NORM_STATIC_OPTIONS, displayTypeLabel.seriesPos, parent,
 						     PICTURE_SETTINGS_ID_START + count++ );
+	displayTypeLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
 		displayTypeCombos[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
@@ -158,6 +165,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 100 };
 		displayTypeCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
+		displayTypeCombos[picInc].fontType = fontTypes::SmallFont;
 		displayTypeCombos[picInc].AddString( "Normal" );
 		displayTypeCombos[picInc].AddString( "Dif: 1" );
 		displayTypeCombos[picInc].AddString( "Dif: 2" );

@@ -235,8 +235,12 @@
     <ClCompile Include="AoSettingsDialog.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="CameraCalibration.cpp" />
-    <ClCompile Include="range.cpp" />
+    <ClCompile Include="range.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraCalibration.cpp">
+      <Filter>Camera Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -563,12 +567,14 @@
     <ClInclude Include="AoSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="runModes.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="MasterThreadInput.h">
       <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraCalibration.h">
+      <Filter>Camera Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

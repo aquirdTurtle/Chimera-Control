@@ -116,7 +116,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						input->comm->sendCameraCalProgress( -1 );
 						// signal the end to the main thread.
-						input->comm->sendCameraFin( );
+						input->comm->sendCameraCalFin( );
 						armed = false;
 					}
 					else
