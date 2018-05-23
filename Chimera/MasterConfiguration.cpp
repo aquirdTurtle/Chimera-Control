@@ -12,7 +12,7 @@
 
 
 
-MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version("2.1")
+MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}
 {}
 
 

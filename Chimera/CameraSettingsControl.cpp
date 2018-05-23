@@ -5,6 +5,54 @@
 #include "Thrower.h"
 
 
+void CameraSettingsControl::handelSaveMasterConfig(std::stringstream& configFile)
+{
+	imageParameters settings = getSettings().andor.imageSettings;
+	configFile << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
+	configFile << settings.bottom << " " << settings.top << " " << settings.verticalBinning << "\n";
+	// introduced in version 2.2
+	configFile << getAutoCal() << " " << getUseCal() << "\n";
+}
+
+void CameraSettingsControl::handleOpenMasterConfig(std::stringstream& configStream, Version ver, CameraWindow* camWin)
+{
+	imageParameters settings = getSettings().andor.imageSettings;
+	std::string tempStr;
+	try
+	{
+		configStream >> tempStr;
+		settings.left = std::stol(tempStr);
+		configStream >> tempStr;
+		settings.right = std::stol(tempStr);
+		configStream >> tempStr;
+		settings.horizontalBinning = std::stol(tempStr);
+		configStream >> tempStr;
+		settings.bottom = std::stol(tempStr);
+		configStream >> tempStr;
+		settings.top = std::stol(tempStr);
+		configStream >> tempStr;
+		settings.verticalBinning = std::stol(tempStr);
+		settings.width = (settings.right - settings.left + 1) / settings.horizontalBinning;
+		settings.height = (settings.top - settings.bottom + 1) / settings.verticalBinning;
+		setImageParameters(settings, camWin);
+	}
+	catch (std::invalid_argument&)
+	{
+		thrower("ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
+			"to load camera dimensions!");
+	}
+
+	bool autoCal, useCal;
+	if (ver > Version("2.1"))
+	{
+		configStream >> autoCal >> useCal;
+		calControl.setAutoCal(autoCal);
+		calControl.setUse(useCal);
+	}
+
+}
+
+
 std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw( const std::vector<std::vector<long>>& rawData )
 {
 	std::vector<std::vector<long>> imagesToDraw(rawData.size());
