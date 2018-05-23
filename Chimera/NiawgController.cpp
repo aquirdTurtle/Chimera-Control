@@ -15,6 +15,8 @@
 #include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"
+#include <algorithm>
+#include <random>
 
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode ) : 
 	triggerRow( trigRow ), triggerNumber( trigNumber ), fgenConduit(safemode)
@@ -298,7 +300,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	// check errors
 	if ( !configFile.is_open( ) )
 	{
-		thrower( "FATAL ERROR: Couldn't open default configuration niawg file!" );
+		thrower( "FATAL ERROR: Couldn't open default niawg file!" );
 	}
 	NiawgOutput output;
 	output.isDefault = true;
@@ -3197,7 +3199,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			niawgPair<ULONG> finPos;
 			try
 			{
-				smartRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, 
+				smartTargettingRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, 
 									input->guiOptions);
 				optimizeMoves( simpleMoveSequence, source, complexMoveSequence, input->guiOptions );
 			}
@@ -3205,7 +3207,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore. simpleMoveSequence should be empty anyways.
 			}
-			/// temporary, force a move here.
+			/// Change this to true to force a specific type of move.
 			if ( false )
 			{
 				complexMoveSequence.clear( );
@@ -3411,9 +3413,9 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 }
 
 
-void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
-										  niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveList, 
-										  rerngGuiOptions options )
+void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
+												    niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveList, 
+												    rerngGuiOptions options )
 {
 	while ( true )
 	{
@@ -3532,6 +3534,9 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 			}
 		}
 	}
+
+
+
 }
 
 
@@ -3721,7 +3726,7 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 
 
 double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
-									   std::vector<simpleMove>& moveSequence )
+									   std::vector<simpleMove>& moveSequence, bool randomize )
 {
 	// I am sure this might be also included directly after evaluating the image, but for safety I also included it 
 	// here.
@@ -3844,8 +3849,15 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 		}
 	}
 	/// now order the operations.
-	// this part was written by Mark Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
-	// this clear should be unnecessary.
+	// can randomize first, otherwise the previous algorith always ends up filling the bottom left of the array first.
+	if (randomize)
+	{
+		std::default_random_engine rng(std::chrono::system_clock::now().time_since_epoch().count());
+		std::shuffle(std::begin(operationsList), std::end(operationsList), rng);
+	}
+
+	// this part was written by Mark O Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
+	// this clear should be unnecessary...?
 	moveSequence.clear( );
 	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can
 	// avoid making atoms overlap.
@@ -3859,8 +3871,9 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 			moveNum = 0;
 		}
 		// make sure that the initial location IS populated and the final location ISN'T.
-		if ( systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) == false
-			 || systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) == true )
+		bool initIsOpen = systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) == false;
+		bool finIsOccupied = systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) == true;
+		if ( initIsOpen || finIsOccupied )
 		{
 			moveNum++;
 			continue;
@@ -3922,7 +3935,7 @@ std::vector<std::string> NiawgController::evolveSource( Matrix<bool> source, std
 
 
 /* 
-	Handles parallelizing moves and determining if flashing is necessary for moves or not.
+	Handles parallelizing moves and determining if flashing is necessary for moves or not. The parallelizing part of this is very tricky.
 */
 void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> origSource, 
 									 std::vector<complexMove> &flashMoves, rerngGuiOptions options )
@@ -4094,7 +4107,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		}
 		// take the better result.
 		auto moveIndexes = (inline_moveList.size( ) > pi_moveList.size( )) ? inline_moveIndexes : pi_moveIndexes ;
-		//auto moveIndexes = pi_moveIndexes;
+		// auto moveIndexes = pi_moveIndexes;
 		if ( moveIndexes.size( ) == 0 )
 		{
 			if ( singleMoves.size( ) == 1 )
@@ -4124,11 +4137,10 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			tmpSource.updateString( );
 			singleMoves.erase( singleMoves.begin( ) + moveIndex );
 		}
-
+		/// Handle Smart-Flashing
 		if ( options.noFlashOption != nonFlashingOption::none )
 		{
 			flashMoves.back( ).needsFlash = false;
-			/// determine if flashing is needed for this move.
 			// loop through all locations in the row / collumn
 			for ( auto location : range( altSize ) )
 			{
@@ -4144,6 +4156,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				{
 					flashMoves.back( ).needsFlash = true;
 				}
+				// also check the final locaiton.
 				if ( options.noFlashOption == nonFlashingOption::cautious )
 				{
 					finRow = initRow + isRow * (baseMove.dirInt( ));
@@ -4158,10 +4171,6 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		else
 		{
 			flashMoves.back( ).needsFlash = true;
-		}
-		if ( !flashMoves.back( ).needsFlash )
-		{
-			flashMoves.back( ).needsFlash = false;
 		}
 		runningSource = tmpSource;
 	}

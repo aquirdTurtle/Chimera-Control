@@ -166,9 +166,6 @@
     <ClCompile Include="PlotDialog.cpp">
       <Filter>Plotting-And-Viewing</Filter>
     </ClCompile>
-    <ClCompile Include="beginningSettingsDialogProc.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
     <ClCompile Include="splashDialog.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
@@ -241,6 +238,10 @@
     <ClCompile Include="CameraCalibration.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
+    <ClCompile Include="StartDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -462,9 +463,6 @@
     <ClInclude Include="PlotDialog.h">
       <Filter>Plotting-And-Viewing</Filter>
     </ClInclude>
-    <ClInclude Include="beginningSettingsDialogProc.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptWritingInstructionsDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
@@ -576,6 +574,10 @@
     <ClInclude Include="CameraCalibration.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
+    <ClInclude Include="StartDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

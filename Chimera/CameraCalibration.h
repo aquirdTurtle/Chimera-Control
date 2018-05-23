@@ -11,6 +11,8 @@ class CameraCalibration
 		bool autoCal( );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		bool use( );
+		void setAutoCal(bool option);
+		void setUse(bool option);
 	private:
 		Control<CStatic> header;
 		Control<CleanButton> calButton;
