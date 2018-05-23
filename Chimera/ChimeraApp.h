@@ -4,12 +4,16 @@
 #include "resource.h"
 #include "MainWindow.h"
 #include "splashDialog.h"
+#include <chrono>
+#include "commonTypes.h"
+
+chronoTime initTime;
 
 // making it derived from CWinAppEx gives extra functionality over CWinApp, like extra tooltip functionality :D
 class ChimeraApp : CWinAppEx
 	{
 	public:
-		ChimeraApp() : CWinAppEx(), splash(new splashDialog), theMainApplicationWindow(IDD_LARGE_TEMPLATE, splash){	}
+		ChimeraApp() : CWinAppEx(), splash(new splashDialog), theMainApplicationWindow(IDD_LARGE_TEMPLATE, splash, &initTime){	}
 		BOOL InitInstance( );
 		BOOL ExitInstance( );
 		BOOL PreTranslateMessage(MSG* pMsg);

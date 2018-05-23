@@ -63,15 +63,15 @@ void StatusControl::addStatusText(std::string text, bool noColor)
 
 void StatusControl::setColor(COLORREF color)
 {
-	CHARFORMAT myCharFormat, t2;
+	CHARFORMAT myCharFormat;//, t2;
 	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
-	//this->edit.GetDefaultCharFormat(myCharFormat);
 	myCharFormat.cbSize = sizeof(CHARFORMAT);
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = color;
-	edit.SetSel(edit.GetTextLength(), edit.GetTextLength());
-	edit.SetSelectionCharFormat(myCharFormat);
-	edit.GetDefaultCharFormat(t2);
+	edit.SetDefaultCharFormat(myCharFormat);
+	//edit.SetSel(edit.GetTextLength(), edit.GetTextLength());
+	//edit.SetSelectionCharFormat(myCharFormat);
+	//edit.GetDefaultCharFormat(t2);
 }
 
 void StatusControl::setColor()

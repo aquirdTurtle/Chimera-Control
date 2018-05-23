@@ -28,7 +28,9 @@ FEATURES:
 	- fix time to be smart
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
-- have code work with temperature monitoring
+- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
+- auto mot calibration runs
+- better timing of programming.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -50,6 +52,7 @@ BUGS:
 - trying save if only camera is running...
 - in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
+- make eating comments more robust against eol conversion issues.
 
 =================
 Finished

@@ -91,7 +91,7 @@ class NiawgController
 		bool isOn( );
 		void streamWaveform( );
 		FgenFlume fgenConduit;
-		static void smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
+		static void smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
 										niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
 										rerngGuiOptions options );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
@@ -197,7 +197,7 @@ class NiawgController
 		static double minCostMatching( Matrix<double> cost, std::vector<int> & Lmate, std::vector<int> & Rmate );
 		// returns a list of single elementary (left,right,up,down) moves. Size is 4 x n_moves: Initialx,Initialy,Finalx,Finaly
 		static double rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
-									 std::vector<simpleMove>& moveSequence );
+									 std::vector<simpleMove>& moveSequence, bool randomize=true );
 		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves );
 		// returns maximal number of moves given a targetmatrix.
 		static UINT getMaxMoves( Matrix<bool> targetMatrix );

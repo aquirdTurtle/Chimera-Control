@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "beginningSettingsDialogProc.h"
+#include "StartDialog.h"
 #include <sstream>
 
 
@@ -103,6 +103,7 @@ BOOL StartDialog::OnInitDialog( )
 			start = end;
 		}
 	}
+	SetFocus();
 	return TRUE;
 }
 

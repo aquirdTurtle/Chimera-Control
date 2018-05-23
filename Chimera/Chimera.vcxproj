@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NIPXIe5451ArbWvFmGen20</RootNamespace>
     <ProjectName>Chimera</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -210,7 +210,8 @@
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
-    <ClInclude Include="beginningSettingsDialogProc.h" />
+    <ClInclude Include="CodeTimer.h" />
+    <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="cameraPositions.h" />
@@ -318,7 +319,8 @@
     <ClCompile Include="Agilent.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
-    <ClCompile Include="beginningSettingsDialogProc.cpp" />
+    <ClCompile Include="CodeTimer.cpp" />
+    <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />

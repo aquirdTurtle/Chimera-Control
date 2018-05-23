@@ -813,7 +813,7 @@ void CameraWindow::handlePictureSettings(UINT id)
 	pics.setPalletes(nums);
 
 	CRect rect;
-	GetWindowRect(&rect);
+	GetClientRect(&rect);
 	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
 	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
@@ -913,44 +913,17 @@ void CameraWindow::setEmGain()
 
 void CameraWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
-	imageParameters settings = CameraSettings.getSettings().andor.imageSettings;
-	configStream << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
-	configStream << settings.bottom << " " << settings.top << " " << settings.verticalBinning << "\n";
+	CameraSettings.handelSaveMasterConfig(configStream);
 }
 
 
 void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
 {
 	mainWindowFriend->updateConfigurationSavedStatus( false );
-	imageParameters settings = CameraSettings.getSettings().andor.imageSettings;
-	selectedPixel = { 0,0 };
-	std::string tempStr;
-	try
-	{
-		configStream >> tempStr;
-		settings.left = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.right = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.horizontalBinning = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.bottom = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.top = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.verticalBinning = std::stol(tempStr);
-		settings.width = (settings.right - settings.left + 1) / settings.horizontalBinning;
-		settings.height = (settings.top - settings.bottom + 1) / settings.verticalBinning;
-
-		CameraSettings.setImageParameters(settings, this);
-		pics.setParameters(settings);
-		redrawPictures(true);
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower("ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
-				 "to load camera dimensions!");
-	}
+	selectedPixel = { 0,0 }; 
+	CameraSettings.handleOpenMasterConfig(configStream, version, this);
+	pics.setParameters(CameraSettings.getSettings().andor.imageSettings);
+	redrawPictures(true);
 }
 
 
