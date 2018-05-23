@@ -210,7 +210,7 @@
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
-    <ClInclude Include="beginningSettingsDialogProc.h" />
+    <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="cameraPositions.h" />
@@ -318,7 +318,7 @@
     <ClCompile Include="Agilent.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
-    <ClCompile Include="beginningSettingsDialogProc.cpp" />
+    <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />

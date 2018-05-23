@@ -31,6 +31,7 @@ FEATURES:
 - have code work with temperature monitoring
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - Include camera calibration settings in the master config file.
+- auto mot calibration runs
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
