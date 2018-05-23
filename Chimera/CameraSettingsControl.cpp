@@ -483,7 +483,15 @@ void CameraSettingsControl::setEmGain()
 	andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
 	andorFriend->setSettings( andorSettings );
 	// and immediately change the EM gain mode.
-	andorFriend->setGainMode();
+	try
+	{
+		andorFriend->setGainMode( );
+	}
+	catch ( Error& err )
+	{
+		// this can happen e.g. if the camera is aquiring.
+		errBox( err.what( ) );
+	}
 	emGainEdit.RedrawWindow();
 }
 

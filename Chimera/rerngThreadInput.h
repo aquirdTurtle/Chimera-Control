@@ -25,8 +25,9 @@ struct rerngThreadInput
 	std::atomic<bool>* threadActive;
 	// an array of images that have been converted to bools for atom in a pixel or not..
 	std::vector<std::vector<bool>>* atomsQueue;
-	// the static wave?
-	waveInfo rerngWave;
+	// contains info from Niawg script about rearrangement, including the static wave. This is a pointer to avoid
+	// making an extra copy of the static waveform, which is in general pretty large.
+	waveInfo* rerngWave;
 	NiawgController* niawg;
 	Communicator* comm;
 	// stuff from the rearrangement input

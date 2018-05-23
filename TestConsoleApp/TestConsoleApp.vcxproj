@@ -87,7 +87,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Users\Mark-Brown\Chimera-Control\Packages\boost_1_64_0;C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\Packages\boost_1_64_0;C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

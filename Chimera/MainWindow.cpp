@@ -1196,7 +1196,7 @@ void MainWindow::stopRearranger( )
 
 void MainWindow::waitForRearranger( )
 {
-	niawg.waitForRerng( );
+	niawg.waitForRerng( true );
 }
 
 

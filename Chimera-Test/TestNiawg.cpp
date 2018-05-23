@@ -165,7 +165,8 @@ namespace TestNiawg
 		CONNECTED_TEST( Connect_To_Niawg )
 		{
 			NiawgController niawg( 0, 0, false );
-			errBox( niawg.fgenConduit.getDeviceInfo( ) );
+			niawg.initialize();
+			niawg.fgenConduit.getDeviceInfo();
 		}
 		TEST_METHOD( Init_Niawg )
 		{
