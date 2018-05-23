@@ -813,7 +813,7 @@ void CameraWindow::handlePictureSettings(UINT id)
 	pics.setPalletes(nums);
 
 	CRect rect;
-	GetWindowRect(&rect);
+	GetClientRect(&rect);
 	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
 	mainWindowFriend->updateConfigurationSavedStatus( false );
 }

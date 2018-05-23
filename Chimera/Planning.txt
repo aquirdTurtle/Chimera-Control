@@ -50,6 +50,8 @@ BUGS:
 - trying save if only camera is running...
 - in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
+- make eating comments more robust against eol conversion issues.
+- Fix camera-window resizing bug.
 
 =================
 Finished

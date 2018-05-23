@@ -299,7 +299,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	// check errors
 	if ( !configFile.is_open( ) )
 	{
-		thrower( "FATAL ERROR: Couldn't open default configuration niawg file!" );
+		thrower( "FATAL ERROR: Couldn't open default niawg file!" );
 	}
 	NiawgOutput output;
 	output.isDefault = true;
