@@ -28,10 +28,10 @@ FEATURES:
 	- fix time to be smart
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
-- have code work with temperature monitoring
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
-- Include camera calibration settings in the master config file.
 - auto mot calibration runs
+- timing of startup
+- better timing of programming.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
