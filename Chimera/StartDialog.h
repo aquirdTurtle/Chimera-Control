@@ -1,7 +1,7 @@
 #pragma once
-#include "Windows.h"
-
-INT_PTR  CALLBACK beginningSettingsDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+#include "afxwin.h"
+#include "Control.h"
+#include <string>
 
 class StartDialog : public CDialog
 {
