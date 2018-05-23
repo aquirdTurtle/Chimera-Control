@@ -241,6 +241,7 @@
     <ClCompile Include="StartDialog.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="CodeTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -576,6 +577,7 @@
     <ClInclude Include="StartDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="CodeTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

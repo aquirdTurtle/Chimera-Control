@@ -30,7 +30,6 @@ FEATURES:
 - output more timing info on the programming process
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
-- timing of startup
 - better timing of programming.
 
 Refactoring / Other:

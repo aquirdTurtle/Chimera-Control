@@ -2,14 +2,15 @@
 #include "MasterManager.h"
 #include "DioSystem.h"
 #include "AoSystem.h"
+#include "CodeTimer.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
-#include "nidaqmx2.h"
-#include <fstream>
 #include "Thrower.h"
 #include "range.h"
+#include "nidaqmx2.h"
+#include <fstream>
 
 
 MasterManager::MasterManager()
@@ -32,9 +33,12 @@ bool MasterManager::getAbortStatus()
  */
 unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput )
 {
+	CodeTimer timer;
+	timer.tick("Procedure-Start");
 	/// initialize various structures
 	// convert the input to the correct structure.
 	MasterThreadInput* input = (MasterThreadInput*)voidInput;
+	chronoTimes programmingTimes;
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
@@ -63,7 +67,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		delete voidInput;
 		return -1;
 	}
-
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower() calls.
@@ -83,7 +86,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	// a couple shortcuts.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
-
+	timer.tick("After-File-Init");
 	/// ////////////////////////////
 	/// start analysis & experiment
 	try
@@ -97,6 +100,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );
 		input->rsg->clearFrequencies( );
 		UINT variations;
+		timer.tick("After-Ao-And-Dio-Init");
 		for ( auto seqNum : range( input->seq.sequence.size() ) )
 		{
 			auto& seqVariables = input->variables[seqNum];
@@ -118,11 +122,13 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			expUpdate( "Done.\r\n", input->comm, quiet );
 			/// Prep agilents
 			expUpdate( "Loading Agilent Info...", input->comm, quiet );
+			timer.tick(str(seqNum) + "-Variation-Number-Handling");
 			for ( auto agilent : input->agilents )
 			{
 				RunInfo dum;
 				agilent->handleInput( input->profile.categoryPath, dum );
 			}
+			timer.tick(str(seqNum) + "-All-Agilent-Handle-Input");
 			/// prep master systems
 			expUpdate( "Analyzing Master Script...", input->comm, quiet );
 			if ( input->runMaster )
@@ -130,14 +136,18 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
 													 seqVariables, expSeq.sequence[seqNum].masterStream, seqNum, 
 													 input->settings.atomThresholdForSkip != UINT_MAX, warnings );
+				timer.tick(str(seqNum) + "-Analyzing-Master-Script");
 			}
+			
 			/// prep NIAWG
 			if ( input->runNiawg )
 			{
 				input->niawg->prepareNiawg( input, output, expSeq, warnings, userScriptSubmit, foundRearrangement,
 											input->rerngGuiForm, seqVariables );
+				timer.tick(str(seqNum) + "-Preparing-Niawg");
 				input->niawg->writeStaticNiawg( output, input->debugOptions, seqConstants );
 			}
+			
 			if ( input->thisObj->isAborting )
 			{
 				thrower( abortString );
@@ -150,6 +160,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			ttls->shadeTTLs( ttlShadeLocs );
 			aoSys->shadeDacs( dacShadeLocs );
 		}
+		timer.tick("After-Shading-Ttls-And-Dacs");
+
 		// go ahead and check if abort was pressed real fast...
 		if ( input->thisObj->isAborting )
 		{
@@ -159,8 +171,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
 		expUpdate( "Programming All Variation Data...\r\n", input->comm, quiet );
-		std::chrono::time_point<chronoClock> varProgramStartTime( chronoClock::now( ) );
-
 		if ( input->runMaster )
 		{
 			ttls->interpretKey( input->variables );
@@ -169,6 +179,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		input->rsg->interpretKey( input->variables );
 		input->topBottomTek->interpretKey( input->variables );
 		input->eoAxialTek->interpretKey( input->variables );
+		timer.tick("Key-Interpretation");
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step, as before that commands don't have hard times attached to 
 		// them.
@@ -177,6 +188,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			auto& seqVariables = input->variables[seqInc];
 			for ( UINT variationInc = 0; variationInc < variations; variationInc++ )
 			{
+				timer.tick("Variation-"+str(variationInc)+"-start");
 				// reading these variables should be safe.
 				if ( input->thisObj->isAborting )
 				{
@@ -195,6 +207,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					ttls->organizeTtlCommands( variationInc, seqInc );
 					ttls->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
 					ttls->convertToFinalViewpointFormat( variationInc, seqInc );
+					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Main");
 					// run a couple checks.
 					ttls->checkNotTooManyTimes( variationInc, seqInc );
 					ttls->checkFinalFormatTimes( variationInc, seqInc );
@@ -216,16 +229,15 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 								" of times a trigger command appears in the NIAWG script.\r\n";
 						}
 					}
+					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Checks");
 				}
 				input->rsg->orderEvents( variationInc );
 			}
 		}
 		
 		/// output some timing information
-		std::chrono::time_point<chronoClock> varProgramEndTime( chronoClock::now( ) );
-		expUpdate( "Programming took " 
-				   + str( std::chrono::duration<double>( (varProgramEndTime - varProgramStartTime) ).count( ) / 1000.0 )
-				   + " seconds.\r\n", input->comm, quiet );
+		timer.tick("After-All-Variation-Calculations");
+		expUpdate(timer.getTimingMessage(), input->comm, input->quiet);
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls->getTotalTime( 0, 0 ) ) + "\r\n", 
@@ -275,6 +287,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		// loop for variations
 		for (const UINT& variationInc : range( variations ))
 		{
+			timer.tick("Variation-"+str(variationInc+1)+"-Start");
 			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, quiet );
 			if ( input->aiSys->wantsQueryBetweenVariations( ) )
 			{
@@ -302,6 +315,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", input->comm, quiet );
 			input->rsg->programRsg( variationInc );
 			input->rsg->setInfoDisp( variationInc );
+			timer.tick(str(variationInc + 1)+"-After-Programming-Rsg");
 			// program devices
 			for (auto& agilent : input->agilents)
 			{
@@ -336,6 +350,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					}
 				}
 			}
+			timer.tick(str(variationInc + 1) + "-After-Programming-Agilents");
 			if (input->runNiawg)
 			{
 				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
@@ -343,10 +358,13 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->niawg->turnOffRerng( );
 				input->conditionVariableForRerng->notify_all( );
 				input->niawg->handleStartingRerng( input, output );
+				timer.tick(str(variationInc + 1) + "-After-Programming-NIAWG");
 			}
 			input->comm->sendError( warnings );
 			input->topBottomTek->programMachine( variationInc );
 			input->eoAxialTek->programMachine( variationInc );
+			timer.tick(str(variationInc + 1) + "-After-Programming-Tektronix");
+			timer.tick(str(variationInc + 1) + "-After-All-Programming");
 			//
 			input->comm->sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", input->comm, quiet );
