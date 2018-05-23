@@ -83,6 +83,7 @@ BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 
 BOOL ChimeraApp::InitInstance()
 {
+	initTime = chronoClock::now();
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
 	/// initialize some stuff
@@ -99,6 +100,8 @@ BOOL ChimeraApp::InitInstance()
 	
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
+	std::chrono::high_resolution_clock::now();
+
 	return int(returnVal);
 }
 
