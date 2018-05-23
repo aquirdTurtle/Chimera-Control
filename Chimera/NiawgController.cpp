@@ -59,8 +59,8 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode )
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
 
 	rerngContainer<double> moveBias10x10Cal( 10, 10, 0.1 );
-	moveBias10x10Cal( 5, 3, dir::right ) = 0.125;
-	moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
+	//moveBias10x10Cal( 5, 3, dir::right ) = 0.125;
+	//moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
 
 	moveBiasCalibrations.push_back( moveBias10x10Cal );
 }
@@ -255,9 +255,8 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 			foundRearrangement = true;
 			// start rearrangement thread. Give the thread the queue.
 			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
-											input->andorsImageTimes, input->grabTimes, 
-											input->conditionVariableForRerng, input->rerngGui,
-											input->analysisGrid );
+											input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
+											input->rerngGui, input->analysisGrid );
 		}
 	}
 	if ( input->rerngGui.active && !foundRearrangement )
@@ -384,20 +383,23 @@ void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunni
 }
 
 
-void NiawgController::waitForRerng( )
+void NiawgController::waitForRerng( bool andClearWvfm )
 {
 	int result = WaitForSingleObject( rerngThreadHandle, 500 );
 	if ( result == WAIT_TIMEOUT )
 	{
 		thrower( "ERROR: waiting for Rearranger thread to finish timed out!?!?!?" );
 	}
-	try
+	if (andClearWvfm)
 	{
-		deleteRerngWave( );
-	}
-	catch ( Error& )
-	{
+		try
+		{
+			deleteRerngWave();
+		}
+		catch (Error&)
+		{
 
+		}
 	}
 }
 
@@ -567,7 +569,7 @@ void NiawgController::deleteWaveData( simpleWave& core )
 }
 
 
-void NiawgController::handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave )
+void NiawgController::handleMinus1Phase( simpleWave& waveCore, simpleWave& prevWave )
 {
 	for ( auto chanInc : range( waveCore.chan.size()) )
 	{
@@ -887,7 +889,7 @@ void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, prof
 			thrower( "ERROR: Expected \"}\" but found \"" + bracket + "\" in niawg File during flashing waveform read." );
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
-		rearrangeWave.rearrange.moveLimit = 10;//getMaxMoves( rearrangeWave.rearrange.target );
+		rearrangeWave.rearrange.moveLimit = 5; // getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
 		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
@@ -932,11 +934,7 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 		{
 			waveInfo& wave = output.waves[waveInc];
 			waveInfoForm& waveForm = output.waveFormInfo[waveInc];
-			waveInfo prevWave;
-			if ( waveInc != 0 )
-			{
-				prevWave = output.waves[waveInc - 1];
-			}
+
 			if ( waveForm.core.varies )
 			{
 				if ( waveForm.flash.isFlashing )
@@ -955,7 +953,11 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 					{
 						fgenConduit.deleteWaveform( cstr( wave.core.name ) );
 					}
-					handleMinus1Phase( wave.core, prevWave.core );
+					if (waveInc != 0)
+					{
+						auto& prevWave = output.waves[waveInc - 1];
+						handleMinus1Phase(wave.core, prevWave.core);
+					}
 					writeStandardWave( wave.core, debugOptions, output.isDefault );
 					deleteWaveData( wave.core );
 				}
@@ -2578,7 +2580,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			// loop through each possible direction.
  			for ( auto inc : range( 4 ) )
 			{
-				noFlashMoveInfo.locationsToMove[0] = flashMoveInfo.locationsToMove[0] = { row, col };
+				noFlashMoveInfo.locationsToMove[0] = flashMoveInfo.locationsToMove[0] = { int(row), int(col) };
 				noFlashMove.waveVals = flashMove.waveVals = std::vector<double>( );
 				noFlashMoveInfo.moveDir = noFlashMove.direction = flashMoveInfo.moveDir = flashMove.direction 
 					= directions[inc];
@@ -2590,19 +2592,19 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					}
 					if ( input->guiOptions.useFast )
 					{
-						noFlashMove.waveVals = makeFastRerngWave( input->rerngWave.rearrange, input->sourceRows,
+						noFlashMove.waveVals = makeFastRerngWave( input->rerngWave->rearrange, input->sourceRows,
 																  input->sourceCols, noFlashMoveInfo, input->guiOptions,
 																  noFlashMove.moveBias );
-						flashMove.waveVals = makeFastRerngWave( input->rerngWave.rearrange, input->sourceRows,
+						flashMove.waveVals = makeFastRerngWave( input->rerngWave->rearrange, input->sourceRows,
 																input->sourceCols, flashMoveInfo, input->guiOptions,
 																flashMove.moveBias );
 					}
 					else
 					{
-						noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
+						noFlashMove.waveVals = makeRerngWave( input->rerngWave->rearrange, noFlashMove.staticMovingRatio,
 															  noFlashMove.moveBias, noFlashMove.deadTime, input->sourceRows,
 															  input->sourceCols, noFlashMoveInfo );
-						flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
+						flashMove.waveVals = makeRerngWave( input->rerngWave->rearrange, flashMove.staticMovingRatio,
 															flashMove.moveBias, flashMove.deadTime, input->sourceRows,
 															input->sourceCols, flashMoveInfo );
 					}
@@ -2909,6 +2911,10 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 	// much simpler than the moving axis, just 1 branch.
 	if ( moveInfo.needsFlash )
 	{
+		if (moveInfo.locationsToMove.size() == 1)
+		{
+			moveInfo.locationsToMove.push_back({ -1,-1 });
+		}
 		moveWave.chan[staticAxis].signals.resize( moveInfo.locationsToMove.size() );
 		UINT sigCount = 0;
 		for ( auto atom : moveInfo.locationsToMove )
@@ -2988,7 +2994,7 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 }
 
 
-void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm, 
+void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo& wave, Communicator* comm, 
 										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
 										rerngGuiOptions guiOptions, atomGrid grid )
@@ -3005,7 +3011,7 @@ void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueu
 	input->comm = comm;
 	input->niawg = this;
 	input->atomsQueue = atomQueue;
-	input->rerngWave = wave;
+	input->rerngWave = &wave;
 	input->rerngConditionWatcher = rearrangerConditionWatcher;
 	if ( guiOptions.preprogram )
 	{
@@ -3101,16 +3107,16 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
-	std::vector<double> streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime, rerngCalcTime, 
+	std::vector<double> streamTime, triggerTime, resetPositionTime, /*picHandlingTime, picGrabTime,*/ rerngCalcTime, 
 		moveCalcTime, finishingCalcTime, finMoveCalcTime;
 	std::vector<UINT> numberMoves;
 	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, finMoveCalc, stopMoveCalc, stopAllCalc;
-	std::ofstream outFile;
+	std::ofstream moveRecordFile;
 	UINT counter = 0;
 	try
 	{
-		UINT rows = input->rerngWave.rearrange.target.getRows( );
-		UINT cols = input->rerngWave.rearrange.target.getCols( );
+		UINT rows = input->rerngWave->rearrange.target.getRows( );
+		UINT cols = input->rerngWave->rearrange.target.getCols( );
 		rerngContainer<double> calBias( input->sourceRows, input->sourceCols );
 		if ( input->guiOptions.useCalibration )
 		{
@@ -3126,52 +3132,54 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		if ( input->guiOptions.outputInfo )
 		{
 			UINT fileNum = getNextFileIndex( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_", ".txt" );
-			outFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_" + str( fileNum ) + ".txt" );
-			if ( !outFile.is_open( ) )
+			moveRecordFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_" + str( fileNum ) + ".txt" );
+			if ( !moveRecordFile.is_open( ) )
 			{
 				thrower( "ERROR: rearranging Info file failed to open!" );
 			}
-			outFile << "Target:\n";
-			outFile << input->rerngWave.rearrange.target.print( ) << "\n";
+			moveRecordFile << "Target:\n";
+			moveRecordFile << input->rerngWave->rearrange.target.print( ) << "\n";
 		}
 		// wait for data
 		while ( *input->threadActive )
 		{
 			std::vector<bool> tempAtoms;
-			if ( input->atomsQueue->size( ) == 0 )
 			{
+				// something went wrong...
 				// wait for the next image using a condition_variable.
-				std::unique_lock<std::mutex> locker( *input->rerngLock );
-				input->rerngConditionWatcher->wait( locker );
-				if ( !*input->threadActive )
+				std::unique_lock<std::mutex> locker(*input->rerngLock);
+				input->rerngConditionWatcher->wait(locker);
+				if (input->atomsQueue->size() == 0)
 				{
-					break;
-				}
-				if ( input->atomsQueue->size( ) == 0)
-				{
-					input->comm->sendStatus( "Rearrangement Thread woke up???" );
-					continue;
-				}
-			}
-			{
-				std::unique_lock<std::mutex> locker( *input->rerngLock );
-				if ( input->atomsQueue->size( ) == 0 )
-				{
-					// spurious wake-up?
-					input->comm->sendStatus( "Rearrangement Thread woke up???" );
-					continue;
+					if (!*input->threadActive)
+					{
+						break;
+					}
+					if (input->atomsQueue->size() == 0)
+					{
+						input->comm->sendStatus("Rearrangement Thread woke up???");
+						continue;
+					}
 				}
 				tempAtoms = (*input->atomsQueue)[0];
+				if (tempAtoms.size() == 0)
+				{
+					// spurious wake-up? This one probably never happens now that I've implemented the 
+					// condition_variable.
+					continue;
+				}
+				if (input->atomsQueue->size() != 0)
+				{
+					input->atomsQueue->erase(input->atomsQueue->begin());
+				}
+				else
+				{
+					// something went wrong...
+					continue;
+				}
 			}
-			if ( tempAtoms.size( ) == 0 )
-			{
-				// spurious wake-up? This one probably never happens now that I've implemented the 
-				// condition_variable.
-				continue;
-			}
-			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			startCalc.push_back(chronoClock::now( ));			
-			rerngScriptInfo& info = input->rerngWave.rearrange;
+			rerngScriptInfo& info = input->rerngWave->rearrange;
 			info.timePerMove = input->guiOptions.moveSpeed;
 			info.flashingFreq = input->guiOptions.flashingRate;
 
@@ -3203,7 +3211,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				complexMoveSequence.clear( );
 				complexMove forcedMove;
 				forcedMove.isInlineParallel = false;
-				coordinate loc;
+				int_coordinate loc;
 				loc.row = 5;
 				loc.column = 3;
 				forcedMove.locationsToMove.push_back(loc);
@@ -3220,13 +3228,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			/// program niawg
 			debugInfo options;
 			UINT moveCount = 0;
-			// always start with 10us of the static waveform. Depending on how the NIAWG script is created that does the
-			// rearranging, if there is not a buffer waveform before the rearranging, then the NIAWG will preload part of 
-			// the yet-to-be-written rearrangement waveform into memory while outputting the previous looping waveform.
-			// So really you should always put a buffer waveform for sanity, but this is an automatic little buffer 
-			// right here which I think does the job as well.
-			//input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), info.fillerWave.waveVals.begin( ),
-			//									info.fillerWave.waveVals.begin( ) + 10e-6 * NIAWG_SAMPLE_RATE );
 			for ( auto move : complexMoveSequence )
 			{
 				// program this move.
@@ -3272,7 +3273,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 				// put a break statement here to limit the rearranging algorithm to 1 move at a time.
 				break;
-				if ( moveCount++ > 8 )
+				if ( moveCount++ > 48 )
 				{
 					break;
 				}
@@ -3280,11 +3281,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			/// Finishing Move to move the atoms to the desired location.
 			std::vector<double> finalMove;
-			finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
-															 info.target, info.lowestFreqs, 
-															 input->guiOptions.finalMoveTime );
-			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.begin( ),
-												finalMove.end( ) );
+			//finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
+			//												 info.target, info.lowestFreqs, 
+			//												 input->guiOptions.finalMoveTime );
+			//input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.begin( ),
+			//									finalMove.end( ) );
 			finMoveCalc.push_back( chronoClock::now( ) );
 			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
 			// size and the existing size to fill out the rest of the vector.
@@ -3313,44 +3314,41 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				if ( input->guiOptions.outputIndv )
 				{
-					input->comm->sendStatus( "Tried Moving, " + str( complexMoveSequence.size() ) 
-											 + " Moves. Move Calc Time:"
-											 + str( std::chrono::duration<double>( stopMoveCalc.back()
-																				   - startCalc.back()).count()) 
-											 +  ", Fin Move Time:"
-											 + str( std::chrono::duration<double>( finMoveCalc.back( )
-																				   - stopMoveCalc.back( ) ).count( ) )
-											 + " Code Time = "
-											 + str( std::chrono::duration<double>( stopReset.back() 
-																				   - startCalc.back()).count())
-											 + "\r\n" );
+					auto moveCalcTime = std::chrono::duration<double>(stopMoveCalc.back() - startCalc.back()).count();
+					auto finMoveTime = std::chrono::duration<double>(finMoveCalc.back() - stopMoveCalc.back()).count();
+					auto totalCodeTime = std::chrono::duration<double>(stopReset.back() - startCalc.back()).count();
+					std::string moveMsg = "Tried Moving, " + str(complexMoveSequence.size()) + " Moves. Move Calc Time:"
+						+ str(moveCalcTime) + ", Fin Move Time:" + str(finMoveTime) + " Code Time = " 
+						+ str(totalCodeTime) + "\r\n";
+					input->comm->sendStatus( moveMsg );
+
 				}
 			}
 			if ( input->guiOptions.outputInfo )
 			{
-				outFile << "Rep # " << counter << "\n";
-				outFile << "Source: ";
+				moveRecordFile << "Rep # " << counter << "\n";
+				moveRecordFile << "Source: ";
 				UINT counter = 0;
 				for ( auto elem : source )
 				{
-					outFile << elem << ", ";
+					moveRecordFile << elem << ", ";
 					if ( ++counter % source.getCols( ) == 0 )
 					{
-						outFile << "; ";
+						moveRecordFile << "; ";
 					}
 				}
-				outFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
-				outFile << "Moves:\n";
+				moveRecordFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
+				moveRecordFile << "Moves:\n";
 				UINT moveCount = 0;
 				for ( auto move : complexMoveSequence )
 				{
-					outFile << moveCount++ << " " << move.needsFlash << " " << int(move.moveDir) << " " <<
+					moveRecordFile << moveCount++ << " " << move.needsFlash << " " << int(move.moveDir) << " " <<
 						move.isInlineParallel << "\n";
 					for ( auto atom : move.locationsToMove )
 					{
-						outFile << atom.row << " " << atom.column << "\n";
+						moveRecordFile << atom.row << " " << atom.column << "\n";
 					}
-					outFile << "\n";
+					moveRecordFile << "\n";
 				}
 			}
 			counter++;
@@ -3364,8 +3362,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			moveCalcTime.push_back( std::chrono::duration<double>( stopMoveCalc[inc] - stopRerngCalc[inc] ).count( ) );
 			finishingCalcTime.push_back( std::chrono::duration<double>( stopAllCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
-			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count( ) );
-			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc] ).count( ) );
+			//picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count( ) );
+			//picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc] ).count( ) );
 		}
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
@@ -3387,8 +3385,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		for ( auto count : range( triedRearranging.size( ) ) )
 		{
 			dataFile
-				<< picHandlingTime[count] << "\t"
-				<< picGrabTime[count] << "\t"
+				//<< picHandlingTime[count] << "\t"
+				//<< picGrabTime[count] << "\t"
 				<< rerngCalcTime[count] << "\t"
 				<< moveCalcTime[count] << "\t"
 				<< finishingCalcTime[count] << "\t"
@@ -3403,9 +3401,9 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	{
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
 	}
-	if ( outFile.is_open( ) )
+	if ( moveRecordFile.is_open( ) )
 	{
-		outFile.close( );
+		moveRecordFile.close( );
 	}
 	input->comm->sendStatus( "Exiting rearranging thread.\r\n" );
 	delete input;
@@ -4117,7 +4115,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			// offset from moveIndexes is the # of moves already erased.
 			UINT moveIndex = moveIndexes[indexNumber] - indexNumber;
 			auto& move = singleMoves[moveIndex];
-			flashMoves.back( ).locationsToMove.push_back( { move.initRow, move.initCol } );
+			flashMoves.back( ).locationsToMove.push_back( { int(move.initRow), int(move.initCol) } );
 			// update source image with new configuration.
 			bool prevtofalse = tmpSource( move.initRow, move.initCol );
 			tmpSource( move.initRow, move.initCol ) = false;
@@ -4141,7 +4139,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				// if atom in location and location not being moved, always need to flash to not move this atom.
 				if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).locationsToMove.begin( ),
 													   				 flashMoves.back( ).locationsToMove.end( ), 
-																	 coordinate({ initRow, initCol }) )
+																	 int_coordinate({ int(initRow), int(initCol) }) )
 					 == flashMoves.back( ).locationsToMove.end( ) )
 				{
 					flashMoves.back( ).needsFlash = true;

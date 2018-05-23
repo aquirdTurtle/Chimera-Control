@@ -10,10 +10,11 @@ namespace TestAiSystem
 	TEST_CLASS( TestAiSys )
 	{
 		public:
-		TEST_METHOD( InitAiSys )
+		TEST_METHOD( InitAiSysConnected )
 		{
 			AiSystem aiSys;
-			Assert::ExpectException<Error>( [this, &aiSys] {aiSys.getSystemStatus( ); } );
+			// make sure this can be done without errors getting thrown.
+			aiSys.getSystemStatus();
 		}
 	};
 }

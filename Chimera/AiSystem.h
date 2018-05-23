@@ -35,7 +35,6 @@ class AiSystem
 		Control<CStatic> title;
 		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;
 		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> dacLabels;
-		//std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;
 		Control<CleanButton> getValuesButton;
 		Control<CleanCheck> continuousQueryCheck;
 		Control<CleanCheck> queryBetweenVariations;

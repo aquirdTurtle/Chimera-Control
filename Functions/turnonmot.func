@@ -15,7 +15,7 @@ def turnOnMot():
   % var diag_power 0.35
   var mot_freq 0.05
   var repump_pow 0.2
-  var repump_freq -0.6
+  var repump_freq -0.1
   % var side_mot_power 0.1667
   dac: DiagMotPower diagmot__servo_value
   dac: RepumpPower repump_pow

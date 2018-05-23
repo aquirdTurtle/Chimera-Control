@@ -342,6 +342,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 											userScriptSubmit, input->rerngGuiForm, input->rerngGui );
 				input->niawg->turnOffRerng( );
 				input->conditionVariableForRerng->notify_all( );
+				input->niawg->waitForRerng( false );
 				input->niawg->handleStartingRerng( input, output );
 			}
 			input->comm->sendError( warnings );
