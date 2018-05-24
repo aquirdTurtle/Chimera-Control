@@ -241,7 +241,9 @@
     <ClCompile Include="StartDialog.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="CodeTimer.cpp" />
+    <ClCompile Include="CodeTimer.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -577,7 +579,9 @@
     <ClInclude Include="StartDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="CodeTimer.h" />
+    <ClInclude Include="CodeTimer.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

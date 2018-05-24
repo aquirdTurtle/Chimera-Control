@@ -13,9 +13,8 @@ FEATURES:
 		- also gets trick if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- support variables for niawg and agilent scripts
-	- especially niawg
-- syntax coloring for variables
+- support variables for agilent scripts
+- proper syntax coloring for variables
 - support aborting while paused
 - implement check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
