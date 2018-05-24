@@ -64,7 +64,7 @@ class NiawgController
 		void handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script,
 											   std::vector<parameterType>& variables );
 		void loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
-											   std::vector<parameterType> variables, int axis, simpleWaveForm& wave );
+											   std::vector<parameterType>& variables, int axis, simpleWaveForm& wave );
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<parameterType>& variables, simpleWaveForm& wave );
 		void setDefaultWaveforms( MainWindow* mainWin );

@@ -73,8 +73,8 @@ namespace commonFunctions
 				std::string status;
 				if ( mainWin->experimentIsPaused( ) )
 				{
-					mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
-					break;
+					//mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
+					//break;
 				}
 				bool niawgAborted = false, andorAborted = false, masterAborted = false;
 
