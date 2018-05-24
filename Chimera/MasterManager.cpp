@@ -473,9 +473,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}	
 	}
 	// finish up.
-	std::chrono::time_point<chronoClock> endTime( chronoClock::now( ) );
-	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) ) 
-			   + " seconds.\r\n", comm, quiet );
+	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>( ( chronoClock::now ( ) - startTime ) ).count ( );
+	expUpdate( "Experiment took " + str( int(exp_t) / 3600 )  + " hours, " + str(int(exp_t) % 3600 / 60) + " minutes, "
+			   +str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
 	input->thisObj->experimentIsRunning = false;
 	delete input;
 	return false;
