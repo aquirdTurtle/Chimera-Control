@@ -1659,7 +1659,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 
 
 void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
-														std::vector<parameterType> variables, int axis, 
+														std::vector<parameterType>& variables, int axis, 
 														simpleWaveForm& wave )
 {
 	// Don't remember why I have this limitation built in.

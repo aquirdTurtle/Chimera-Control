@@ -386,6 +386,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 						{
 							// this could be changed to be a bit smarter using a std::condition_variable
 							Sleep( 100 );
+							if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 						}
 						expUpdate( "Un-Paused!\r\n", comm, quiet );
 					}
