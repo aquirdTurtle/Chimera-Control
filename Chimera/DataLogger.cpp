@@ -5,6 +5,7 @@
 #include "DataAnalysisHandler.h"
 #include "CameraImageDimensions.h"
 #include "Thrower.h"
+#include "MasterManager.h"
 
 
 DataLogger::DataLogger(std::string systemLocation)
@@ -482,11 +483,10 @@ void DataLogger::logNiawgSettings(MasterThreadInput* input)
 		UINT seqInc = 0;
 		for ( auto config : input->seq.sequence )
 		{
-			std::fstream niawgFiles;
-			ProfileSystem::openNiawgFile( niawgFiles, config, input->seq, input->runNiawg );
-			std::stringstream stream;
-			stream << niawgFiles.rdbuf( );
-			writeDataSet( stream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
+			std::string niawgAddr = ProfileSystem::getNiawgScriptAddrFromConfig( config );
+			ScriptStream niawgStream;
+			MasterManager::loadNiawgScript ( niawgAddr, niawgStream );
+			writeDataSet( niawgStream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
 			seqInc++;
 		}
 		writeDataSet( NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup );

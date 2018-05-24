@@ -198,46 +198,10 @@ bool NiawgController::outputVaries( NiawgOutput output )
 	return false;
 }
 
-
-void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
-									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, 
-									std::vector<parameterType>& variables )
+void NiawgController::initForExperiment ( )
 {
-	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;
-	std::vector<std::string> workingUserScripts( input->seq.sequence.size( ) );
-	// analyze each script in sequence.
-	UINT count = 0;
-	for (auto& seq : expSeq.sequence )
-	{
-		ScriptStream script;
-		output.niawgLanguageScript = "";
-		input->comm->sendStatus( "Working with configuraiton # " + str( count + 1 ) + " in Sequence...\r\n" );
-		/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////
-		script << seq.niawgScript.rdbuf( );
-		if ( input->debugOptions.outputNiawgHumanScript )
-		{
-			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n" + script.str( )
-															 + "\n\n", "\n", "\r\n" ) );
-		}
-		input->niawg->analyzeNiawgScript( script, output, input->profile, input->debugOptions, warnings, rerngGuiInfo,
-										  variables );
-		workingUserScripts[count] = output.niawgLanguageScript;
-		if ( input->thisObj->getAbortStatus( ) ) { thrower( "\r\nABORTED!\r\n" ); }
-		count++;
-	}
-	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
-	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit,
-								  !input->niawg->outputVaries( output ) );
-	if ( input->debugOptions.outputNiawgMachineScript )
-	{
-		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
-														 + std::string( userScriptSubmit.begin( ), userScriptSubmit.end( ) )
-														 + "\n\n", "\n", "\r\n" ) );
-	}
 }
-
 
 // this function checks if should be rearranging and if so starts the thread.
 void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output )
@@ -340,14 +304,9 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 
 
 // this is to be run at the end of the experiment procedure.
-void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, seqInfo& expSeq, 
+void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, 
 									NiawgOutput& output, Communicator* comm, bool dontGenerate )
 {
-	// close things
-	for ( auto& seqIndv : expSeq.sequence )
-	{
-		seqIndv.niawgScript.close( );
-	}
 	if ( !masterWasRunning )
 	{
 		// this has got to be overkill...
@@ -462,33 +421,34 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 										  debugInfo& options, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo, 
 										  std::vector<parameterType>& variables )
 {
-	writeToFileNumber = 0;
 	/// Preparation
+	output.niawgLanguageScript = "";
 	currentScript = script.str( );
 	script.clear();
 	script.seekg( 0, std::ios::beg );
 	std::string command;
-	// get the first input
+	// get the first command
 	script >> command;
-
 	/// Analyze!
 	while ( script.peek( ) != EOF )
 	{
-		if ( isLogic( command ) )
+		if ( MasterManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		{}
+		else if ( isLogic( command ) )
 		{
-			handleLogicSingle( script, command, output.niawgLanguageScript );
+			handleLogic( script, command, output.niawgLanguageScript );
 		}
 		else if ( isSpecialCommand( command ) )
 		{
-			handleSpecialFormSingle( script, output, command, profile, options, warnings );
+			handleSpecial( script, output, command, profile, options, warnings );
 		}
 		else if ( isStandardWaveform( command ) )
 		{
-			handleStandardWaveformFormSingle( output, command, script, variables );
+			handleStandardWaveform( output, command, script, variables );
 		}
 		else if ( isSpecialWaveform( command ) )
 		{
-			handleSpecialWaveformFormSingle( output, profile, command, script, options, rerngGuiInfo, variables );
+			handleSpecialWaveform( output, profile, command, script, options, rerngGuiInfo, variables );
 		}
 		else
 		{
@@ -664,7 +624,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 }
 
 
-void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
+void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd,
 													   ScriptStream& script, debugInfo& options, rerngGuiOptionsForm rerngGuiInfo,
 													   std::vector<parameterType>& variables )
 {
@@ -926,7 +886,6 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
-
 	/// Why is the seqinc here a for loop??? I think this should be an input to the function...
 	for ( auto seqInc : range( variables.size( ) ) )
 	{
@@ -1178,7 +1137,7 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 	}
 }
 
-void NiawgController::handleLogicSingle( ScriptStream& script, std::string cmd, std::string &scriptString )
+void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::string &scriptString )
 {
 	if ( cmd == "waittiltrig" )
 	{
@@ -1261,7 +1220,7 @@ void NiawgController::handleLogicSingle( ScriptStream& script, std::string cmd, 
 }
 
 
-void NiawgController::handleSpecialFormSingle( ScriptStream& script, NiawgOutput& output, std::string cmd, 
+void NiawgController::handleSpecial( ScriptStream& script, NiawgOutput& output, std::string cmd, 
 											   profileSettings profile, debugInfo& options, std::string& warnings )
 {
 	// work with marker events
@@ -1709,7 +1668,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		thrower( "ERROR: The default niawg waveform files contain sequences of waveforms. Right now, the default "
 				 "waveforms must be a single waveform, not a sequence.\r\n" );
 	}
-	std::string scope = NO_PARAMETER_SCOPE;
+	std::string scope = "niawg";
 	// Get a number corresponding directly to the given input type.
 	loadStandardInputFormType( cmd, wave.chan[axis] ); 
 	// infer the number of signals from the type assigned.
@@ -1838,7 +1797,6 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 									std::vector<parameterType>& variables, simpleWaveForm& wave )
 {
 	int axis;
-	// get axis of first waveform
 	std::string axisStr;
 	script >> axisStr;
 	if ( axisStr == "vertical" )
@@ -1888,7 +1846,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 }
 
 
-void NiawgController::handleStandardWaveformFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script, 
+void NiawgController::handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 														std::vector<parameterType>& variables )
 {
 	/*
@@ -1906,7 +1864,6 @@ void NiawgController::handleStandardWaveformFormSingle( NiawgOutput& output, std
 	% time, phase option
 	0.1 0
 	*/
-
 	simpleWaveForm wave;
 	loadFullWave( output, cmd, script, variables, wave );
 	output.waveFormInfo.push_back( toWaveInfoForm( wave ) );
@@ -3332,11 +3289,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				outFile << "Rep # " << counter << "\n";
 				outFile << "Source: ";
-				UINT counter = 0;
+				UINT colcounter = 0;
 				for ( auto elem : source )
 				{
 					outFile << elem << ", ";
-					if ( ++counter % source.getCols( ) == 0 )
+					if ( ++colcounter % source.getCols( ) == 0 )
 					{
 						outFile << "; ";
 					}
@@ -3588,7 +3545,7 @@ niawgPair<double> NiawgController::calculateTargetCOM ( Matrix<bool> target, nia
 
 
 /// everything below here is primarily Kai-Niklas Schymik's work, with minor modifications. Some modifications are
-/// minor to improve style consistency with my code, some are renaming variables so that I can make sense of what's 
+/// minor to improve style consistency with my code, some are renaming params so that I can make sense of what's 
 /// going on. I also had to change it to make it compatible with non-square input.
 
 int NiawgController::sign( int x )
@@ -3736,7 +3693,7 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 			}
 		}
 
-		// update dual variables
+		// update dual params
 		for (auto targetInc : range(numTargets))
 		{
 			if (targetInc == closestTarget || !seen[targetInc])
