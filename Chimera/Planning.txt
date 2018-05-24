@@ -27,10 +27,8 @@ FEATURES:
 	- include which config was run, variable options
 	- fix time to be smart
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
-- output more timing info on the programming process
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
-- better timing of programming.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers

@@ -91,9 +91,10 @@ class NiawgController
 		bool isOn( );
 		void streamWaveform( );
 		FgenFlume fgenConduit;
-		static void smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
-										niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
-										rerngGuiOptions options );
+		static void smartTargettingRearrangement ( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
+												   niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
+												   rerngGuiOptions options, bool randomize = true,
+												   bool orderMovesByProximityToTarget = false );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source,
 								   std::vector<complexMove> &flashMoves, rerngGuiOptions options );
@@ -198,6 +199,13 @@ class NiawgController
 		// returns a list of single elementary (left,right,up,down) moves. Size is 4 x n_moves: Initialx,Initialy,Finalx,Finaly
 		static double rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
 									 std::vector<simpleMove>& moveSequence, bool randomize=true );
+		static void randomizeMoves(std::vector<simpleMove>& operationsList);
+		static void orderMoves ( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence,
+								 Matrix<bool> sourceMatrix );
+		static void NiawgController::calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos );
+		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos);
+		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, UINT rows, UINT cols );
+		static void NiawgController::sortByDistanceToTarget ( std::vector<simpleMove> &moveList );
 		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves );
 		// returns maximal number of moves given a targetmatrix.
 		static UINT getMaxMoves( Matrix<bool> targetMatrix );
