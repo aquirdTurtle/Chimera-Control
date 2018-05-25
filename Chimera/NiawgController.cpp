@@ -3114,7 +3114,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	std::vector<UINT> numberMoves;
 	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, finMoveCalc, stopMoveCalc, stopAllCalc;
 	std::ofstream moveRecordFile;
-	UINT counter = 0;
+	UINT counter = -1;
 	try
 	{
 		UINT rows = input->rerngWave->rearrange.target.getRows( );
@@ -3180,6 +3180,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					continue;
 				}
 			}
+			counter++;
 			startCalc.push_back(chronoClock::now( ));			
 			rerngScriptInfo& info = input->rerngWave->rearrange;
 			info.timePerMove = input->guiOptions.moveSpeed;
@@ -3353,7 +3354,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					moveRecordFile << "\n";
 				}
 			}
-			counter++;
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
