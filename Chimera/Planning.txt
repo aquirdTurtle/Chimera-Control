@@ -15,7 +15,7 @@ FEATURES:
 - support functions for niawg and agilent scripts
 - support variables for agilent scripts
 - proper syntax coloring for variables
-- implement check that the picture rate is matching the rep rate
+- implement real-time sanity check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
@@ -25,6 +25,7 @@ FEATURES:
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
+- integrate a basler window.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers

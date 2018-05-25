@@ -119,7 +119,7 @@ class NiawgController
 								std::vector<parameterType>& varibles = std::vector<parameterType>( ),
 								UINT variation = -1 );
 		void deleteRerngWave( );
-		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
+		void startRerngThread( atomQueue* atomQueue, waveInfo wave, Communicator* comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );

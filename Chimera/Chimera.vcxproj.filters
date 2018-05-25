@@ -582,6 +582,7 @@
     <ClInclude Include="CodeTimer.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
+    <ClInclude Include="Queues.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
