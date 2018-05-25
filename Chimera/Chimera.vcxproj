@@ -211,6 +211,7 @@
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
     <ClInclude Include="CodeTimer.h" />
+    <ClInclude Include="Queues.h" />
     <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraImageDimensions.h" />

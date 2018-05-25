@@ -42,6 +42,15 @@ struct simpleMove
 		initCol = icol;
 		finRow = frow;
 		finCol = fcol;
+		distanceToTarget = -1;
+	}
+	simpleMove ( int irow, int icol, int frow, int fcol, double d )
+	{
+		initRow = irow;
+		initCol = icol;
+		finRow = frow;
+		finCol = fcol;
+		distanceToTarget = d;
 	}
 	bool operator == ( const simpleMove & other ) const
 	{
@@ -55,6 +64,7 @@ struct simpleMove
 	ULONG initCol;
 	ULONG finRow;
 	ULONG finCol;
+	double distanceToTarget;
 	dir dir( )
 	{
 		if ( finCol != initCol )

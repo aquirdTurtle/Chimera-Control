@@ -75,7 +75,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Users\Mark-Brown\Chimera-Control\Packages\boost_1_64_0;C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\Packages\boost_1_64_0;C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

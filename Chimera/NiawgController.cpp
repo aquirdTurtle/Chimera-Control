@@ -15,6 +15,7 @@
 #include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"
+#include "Queues.h"
 #include <algorithm>
 #include <random>
 
@@ -61,8 +62,8 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode )
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
 
 	rerngContainer<double> moveBias10x10Cal( 10, 10, 0.1 );
-	//moveBias10x10Cal( 5, 3, dir::right ) = 0.125;
-	//moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
+	moveBias10x10Cal( 5, 3, dir::right ) = 0.125;
+	moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
 
 	moveBiasCalibrations.push_back( moveBias10x10Cal );
 }
@@ -198,46 +199,10 @@ bool NiawgController::outputVaries( NiawgOutput output )
 	return false;
 }
 
-
-void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
-									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
-									bool& foundRearrangement, rerngGuiOptionsForm rerngGuiInfo, 
-									std::vector<parameterType>& variables )
+void NiawgController::initForExperiment ( )
 {
-	input->comm->sendColorBox( System::Niawg, 'Y' );
 	triggersInScript = 0;
-	std::vector<std::string> workingUserScripts( input->seq.sequence.size( ) );
-	// analyze each script in sequence.
-	UINT count = 0;
-	for (auto& seq : expSeq.sequence )
-	{
-		ScriptStream script;
-		output.niawgLanguageScript = "";
-		input->comm->sendStatus( "Working with configuraiton # " + str( count + 1 ) + " in Sequence...\r\n" );
-		/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////
-		script << seq.niawgScript.rdbuf( );
-		if ( input->debugOptions.outputNiawgHumanScript )
-		{
-			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n" + script.str( )
-															 + "\n\n", "\n", "\r\n" ) );
-		}
-		input->niawg->analyzeNiawgScript( script, output, input->profile, input->debugOptions, warnings, rerngGuiInfo,
-										  variables );
-		workingUserScripts[count] = output.niawgLanguageScript;
-		if ( input->thisObj->getAbortStatus( ) ) { thrower( "\r\nABORTED!\r\n" ); }
-		count++;
-	}
-	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
-	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit,
-								  !input->niawg->outputVaries( output ) );
-	if ( input->debugOptions.outputNiawgMachineScript )
-	{
-		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
-														 + std::string( userScriptSubmit.begin( ), userScriptSubmit.end( ) )
-														 + "\n\n", "\n", "\r\n" ) );
-	}
 }
-
 
 // this function checks if should be rearranging and if so starts the thread.
 void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output )
@@ -339,14 +304,9 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 
 
 // this is to be run at the end of the experiment procedure.
-void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, seqInfo& expSeq, 
+void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, 
 									NiawgOutput& output, Communicator* comm, bool dontGenerate )
 {
-	// close things
-	for ( auto& seqIndv : expSeq.sequence )
-	{
-		seqIndv.niawgScript.close( );
-	}
 	if ( !masterWasRunning )
 	{
 		// this has got to be overkill...
@@ -464,33 +424,34 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 										  debugInfo& options, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo, 
 										  std::vector<parameterType>& variables )
 {
-	writeToFileNumber = 0;
 	/// Preparation
+	output.niawgLanguageScript = "";
 	currentScript = script.str( );
 	script.clear();
 	script.seekg( 0, std::ios::beg );
 	std::string command;
-	// get the first input
+	// get the first command
 	script >> command;
-
 	/// Analyze!
 	while ( script.peek( ) != EOF )
 	{
-		if ( isLogic( command ) )
+		if ( MasterManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		{}
+		else if ( isLogic( command ) )
 		{
-			handleLogicSingle( script, command, output.niawgLanguageScript );
+			handleLogic( script, command, output.niawgLanguageScript );
 		}
 		else if ( isSpecialCommand( command ) )
 		{
-			handleSpecialFormSingle( script, output, command, profile, options, warnings );
+			handleSpecial( script, output, command, profile, options, warnings );
 		}
 		else if ( isStandardWaveform( command ) )
 		{
-			handleStandardWaveformFormSingle( output, command, script, variables );
+			handleStandardWaveform( output, command, script, variables );
 		}
 		else if ( isSpecialWaveform( command ) )
 		{
-			handleSpecialWaveformFormSingle( output, profile, command, script, options, rerngGuiInfo, variables );
+			handleSpecialWaveform( output, profile, command, script, options, rerngGuiInfo, variables );
 		}
 		else
 		{
@@ -666,7 +627,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 }
 
 
-void NiawgController::handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
+void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd,
 													   ScriptStream& script, debugInfo& options, rerngGuiOptionsForm rerngGuiInfo,
 													   std::vector<parameterType>& variables )
 {
@@ -1180,7 +1141,7 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 	}
 }
 
-void NiawgController::handleLogicSingle( ScriptStream& script, std::string cmd, std::string &scriptString )
+void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::string &scriptString )
 {
 	if ( cmd == "waittiltrig" )
 	{
@@ -1263,7 +1224,7 @@ void NiawgController::handleLogicSingle( ScriptStream& script, std::string cmd, 
 }
 
 
-void NiawgController::handleSpecialFormSingle( ScriptStream& script, NiawgOutput& output, std::string cmd, 
+void NiawgController::handleSpecial( ScriptStream& script, NiawgOutput& output, std::string cmd, 
 											   profileSettings profile, debugInfo& options, std::string& warnings )
 {
 	// work with marker events
@@ -1702,7 +1663,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 
 
 void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
-														std::vector<parameterType> variables, int axis, 
+														std::vector<parameterType>& variables, int axis, 
 														simpleWaveForm& wave )
 {
 	// Don't remember why I have this limitation built in.
@@ -1711,7 +1672,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		thrower( "ERROR: The default niawg waveform files contain sequences of waveforms. Right now, the default "
 				 "waveforms must be a single waveform, not a sequence.\r\n" );
 	}
-	std::string scope = NO_PARAMETER_SCOPE;
+	std::string scope = "niawg";
 	// Get a number corresponding directly to the given input type.
 	loadStandardInputFormType( cmd, wave.chan[axis] ); 
 	// infer the number of signals from the type assigned.
@@ -1840,7 +1801,6 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 									std::vector<parameterType>& variables, simpleWaveForm& wave )
 {
 	int axis;
-	// get axis of first waveform
 	std::string axisStr;
 	script >> axisStr;
 	if ( axisStr == "vertical" )
@@ -1890,7 +1850,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 }
 
 
-void NiawgController::handleStandardWaveformFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script, 
+void NiawgController::handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 														std::vector<parameterType>& variables )
 {
 	/*
@@ -1908,7 +1868,6 @@ void NiawgController::handleStandardWaveformFormSingle( NiawgOutput& output, std
 	% time, phase option
 	0.1 0
 	*/
-
 	simpleWaveForm wave;
 	loadFullWave( output, cmd, script, variables, wave );
 	output.waveFormInfo.push_back( toWaveInfoForm( wave ) );
@@ -2996,7 +2955,7 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 }
 
 
-void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo& wave, Communicator* comm, 
+void NiawgController::startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator* comm, 
 										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
 										rerngGuiOptions guiOptions, atomGrid grid )
@@ -3181,6 +3140,10 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 			}
 			counter++;
+			if ( input->atomsQueue->size ( ) != 0 )
+			{
+				input->comm->sendStatus ( "WARNING: LOOKS LIKE RERNG CODE IS BEHIND IN THE PICTURE QUEUE???" );
+			}
 			startCalc.push_back(chronoClock::now( ));			
 			rerngScriptInfo& info = input->rerngWave->rearrange;
 			info.timePerMove = input->guiOptions.moveSpeed;
@@ -3412,11 +3375,28 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	return 0;
 }
 
+Matrix<bool> NiawgController::calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, UINT rows, UINT cols )
+{
+	// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+	Matrix<bool> finTarget ( rows, cols, 0 );
+	for ( auto rowInc : range ( target.getRows ( ) ) )
+	{
+		for ( auto colInc : range ( target.getCols ( ) ) )
+		{
+			finTarget ( rowInc + finalPos[ Axes::Vertical ], colInc + finalPos[ Axes::Horizontal ] )
+				= target ( rowInc, colInc );
+		}
+	}
+	return finTarget;
+}
+
 
 void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
-												    niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveList, 
-												    rerngGuiOptions options )
+												    niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveSequence, 
+												    rerngGuiOptions options, bool randomize, bool orderMovesByProximityToTarget )
 {
+	std::vector<simpleMove> moveList;
+	Matrix<bool> finTarget(source.getRows(), source.getCols(), 0);
 	while ( true )
 	{
 		try
@@ -3426,81 +3406,54 @@ void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<
 				// dimensions match, no flexibility.
 				rearrangement( source, target, moveList );
 				finTargetPos = { 0,0 };
+				finTarget = target;
 			}
 			switch ( options.smartOption )
-			{
-			case smartRerngOption::none:
-			{
-				// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
-				Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
-				for ( auto rowInc : range( target.getRows( ) ) )
 				{
-					for ( auto colInc : range( target.getCols( ) ) )
-					{
-						finTarget( rowInc + finalPos[Axes::Vertical], colInc + finalPos[Axes::Horizontal] )
-							= target( rowInc, colInc );
-					}
+				case smartRerngOption::none:
+				{
+					// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+					finTarget = calculateFinalTarget (target, finalPos, source.getRows(), source.getCols() );
+					rearrangement( source, finTarget, moveList );
+					finTargetPos = finalPos;
+					break;
 				}
-				rearrangement( source, finTarget, moveList );
-				finTargetPos = finalPos;
-				return;
-			}
-			case smartRerngOption::convolution:
-			{
-				finTargetPos = convolve( source, target );
-				Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
-				for ( auto rowInc : range( target.getRows( ) ) )
+				case smartRerngOption::convolution:
 				{
-					for ( auto colInc : range( target.getCols( ) ) )
-					{
-						finTarget( rowInc + finTargetPos[Axes::Vertical], colInc + finTargetPos[Axes::Horizontal] )
-							= target( rowInc, colInc );
-					}
+					finTargetPos = convolve( source, target );
+					finTarget = calculateFinalTarget ( target, finTargetPos, source.getRows ( ), source.getCols ( ) );
+					rearrangement( source, finTarget, moveList );
+					break;
 				}
-				rearrangement( source, finTarget, moveList );
-				break;
-			}
-			case smartRerngOption::full:
-			{
-				// calculate every possible final position and use the easiest.
-				UINT leastMoves = UINT_MAX;
-				for ( auto startRowInc : range( source.getRows( ) - target.getRows( ) + 1 ) )
+				case smartRerngOption::full:
 				{
-					if ( leastMoves == 0 )
+					// calculate the full rearrangement sequence for every possible final position and use the easiest.
+					UINT leastMoves = UINT_MAX;
+					for ( auto startRowInc : range( source.getRows( ) - target.getRows( ) + 1 ) )
 					{
-						break;
-					}
-					for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
-					{
-						// create the potential target with the correct offset.
-						// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
-						Matrix<bool> potentialTarget( source.getRows( ), source.getCols( ), 0 );
-						for ( auto rowInc : range( target.getRows( ) ) )
+						for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
 						{
-							for ( auto colInc : range( target.getCols( ) ) )
+							// create the potential target with the correct offset.
+							finTarget = calculateFinalTarget ( target, { startRowInc, startColInc },  
+																		 source.getRows ( ), source.getCols ( ) );
+							std::vector<simpleMove> potentialMoves;
+							rearrangement( source, finTarget, potentialMoves );
+							if ( potentialMoves.size( ) < leastMoves )
 							{
-								potentialTarget( rowInc + startRowInc, colInc + startColInc ) = target( rowInc, colInc );
-							}
-						}
-						std::string targ = potentialTarget.print( );
-						std::vector<simpleMove> potentialMoves;
-						rearrangement( source, potentialTarget, potentialMoves );
-						if ( potentialMoves.size( ) < leastMoves )
-						{
-							// new record.
-							moveList = potentialMoves;
-							finTargetPos = { source.getRows( ) - target.getRows( ) - startRowInc, startColInc };
-							leastMoves = potentialMoves.size( );
-							if ( leastMoves == 0 )
-							{
-								// not possible to move to final location
-								break;
+								// new record.
+								moveList = potentialMoves;
+								finTargetPos = { source.getRows( ) - target.getRows( ) - startRowInc, startColInc };
+								leastMoves = potentialMoves.size( );
+								if ( leastMoves == 0 )
+								{
+									// not possible to move to final location
+									break;
+								}
 							}
 						}
 					}
+					break;
 				}
-				return;
-			}
 			}
 		}
 		catch ( Error& err )
@@ -3534,14 +3487,69 @@ void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<
 			}
 		}
 	}
+	/// now order the operations.
+	// can randomize first, otherwise the previous algorith always ends up filling the bottom left of the array first.
+	if ( randomize )
+	{
+		randomizeMoves ( moveList );
+	}
+
+	if ( orderMovesByProximityToTarget )
+	{
+		auto comPos = calculateTargetCOM ( finTarget, finTargetPos );
+		calculateMoveDistancesToTarget ( moveList, comPos );
+		sortByDistanceToTarget ( moveList );
+	}
+
+	orderMoves ( moveList, moveSequence, source );
+}
+
+
+void NiawgController::calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos )
+{
+	for ( auto& move : moveList )
+	{
+		move.distanceToTarget = std::sqrt ( std::pow ( comPos[ Axes::Horizontal ] - move.initCol, 2 ) 
+											+ std::pow ( comPos[ Axes::Vertical ] - move.initRow, 2 ) );
+	}
+}
+
+
+void NiawgController::sortByDistanceToTarget ( std::vector<simpleMove> &moveList )
+{
+	std::sort ( moveList.begin ( ), moveList.end ( ),
+				[] ( simpleMove const& a, simpleMove const& b ) { return a.distanceToTarget < b.distanceToTarget; } );
+}
 
 
 
+niawgPair<double> NiawgController::calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos )
+{
+	niawgPair<double> avg = { 0,0 };
+	UINT totalAtoms = 0;
+	for ( auto p : target )
+	{
+		for ( auto rowInc : range ( target.getRows ( ) ) )
+		{
+			for ( auto colInc : range ( target.getCols ( ) ) )
+			{
+				auto pix = int(target ( rowInc, colInc ));
+				avg[ Axes::Vertical ] += rowInc * pix;
+				avg[ Axes::Horizontal ] += colInc * pix;
+				totalAtoms += pix;
+			}
+		}
+	}
+	avg[ Axes::Vertical ] /= totalAtoms;
+	avg[ Axes::Horizontal ] /= totalAtoms;
+	avg[ Axes::Vertical ] -= finalPos[ Axes::Vertical ];
+	avg[ Axes::Horizontal ] -= finalPos[ Axes::Horizontal ];
+	return avg;
 }
 
 
 /// everything below here is primarily Kai-Niklas Schymik's work, with minor modifications. Some modifications are
-/// minor to improve style consistency with my code, some are renaming variables so that I can make sense of what's 
+/// minor to improve style consistency with my code, some are renaming params so that I can make sense of what's 
 /// going on. I also had to change it to make it compatible with non-square input.
 
 int NiawgController::sign( int x )
@@ -3689,7 +3697,7 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 			}
 		}
 
-		// update dual variables
+		// update dual params
 		for (auto targetInc : range(numTargets))
 		{
 			if (targetInc == closestTarget || !seen[targetInc])
@@ -3725,8 +3733,60 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 }
 
 
+/*
+	This should be done before orderMoves The default algorithm will make the moves in an order that tends to fill a 
+	certain corner of the pattern first.
+*/
+void NiawgController::randomizeMoves(std::vector<simpleMove>& operationsList)
+{
+	std::default_random_engine rng(std::chrono::system_clock::now().time_since_epoch().count());
+	std::shuffle(std::begin(operationsList), std::end(operationsList), rng);
+}
+
+
+
+
+/*
+	this part was written by Mark O Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
+*/
+void NiawgController::orderMoves( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence, 
+								  Matrix<bool> sourceMatrix )
+{
+
+	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can
+	// avoid making atoms overlap.
+	Matrix<bool> systemState = sourceMatrix;
+	UINT moveNum = 0;
+	while (operationsList.size() != 0)
+	{
+		if (moveNum >= operationsList.size())
+		{
+			// it's reached the end, reset this.
+			moveNum = 0;
+		}
+		// make sure that the initial location IS populated and the final location ISN'T.
+		bool initIsOpen = systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) == false;
+		bool finIsOccupied = systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) == true;
+		if (initIsOpen || finIsOccupied)
+		{
+			moveNum++;
+			continue;
+		}
+		// else it's okay. add this to the list of moves.
+		moveSequence.push_back(operationsList[moveNum]);
+		// update the system state after this move.
+		systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) = false;
+		systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) = true;
+		// remove the move from the list of moves.
+		operationsList.erase(operationsList.begin() + moveNum);
+	}
+	// at this point moveList should be zero size and moveSequence should be full of the moves in a sequence that
+	// works. return the travelled distance.
+}
+
+
 double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
-									   std::vector<simpleMove>& moveSequence, bool randomize )
+									   std::vector<simpleMove>& moveList, bool randomize )
 {
 	// I am sure this might be also included directly after evaluating the image, but for safety I also included it 
 	// here.
@@ -3802,11 +3862,10 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 	// The returned cost is the travelled distance
 	double cost = minCostMatching( costMatrix, left, right );
 
-	/// calculate the moveSequence
+	/// calculate the move list
 
-	//First resize moveSequence, empty in code, but now we now how many entrys: cost!
-	std::vector<simpleMove> operationsList;
-	operationsList.resize( cost, { 0,0,0,0 } );
+	// std::vector<simpleMove> moveList;
+	moveList.resize( cost, { 0,0,0,0 } );
 
 	std::vector<std::vector<int> > matching( numberTargets, std::vector<int>( 4, 0 ) );
 	
@@ -3831,63 +3890,23 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 		init_y = matching[targetInc][1];
 		for (int xStepInc = 0; xStepInc < abs( step_x ); xStepInc++)
 		{
-			operationsList[counter].initRow = init_x;
-			operationsList[counter].initCol = init_y;
-			operationsList[counter].finRow = init_x + sign( step_x );
-			operationsList[counter].finCol = init_y;
+			moveList[counter].initRow = init_x;
+			moveList[counter].initCol = init_y;
+			moveList[counter].finRow = init_x + sign( step_x );
+			moveList[counter].finCol = init_y;
 			init_x = init_x + sign( step_x );
 			counter++;
 		}
 		for (int yStepInc = 0; yStepInc < abs( step_y ); yStepInc++)
 		{
-			operationsList[counter].initRow = init_x;
-			operationsList[counter].initCol = init_y;
-			operationsList[counter].finRow = init_x;
-			operationsList[counter].finCol = init_y + sign( step_y );
+			moveList[counter].initRow = init_x;
+			moveList[counter].initCol = init_y;
+			moveList[counter].finRow = init_x;
+			moveList[counter].finCol = init_y + sign( step_y );
 			init_y = init_y + sign( step_y );
 			counter++;
 		}
 	}
-	/// now order the operations.
-	// can randomize first, otherwise the previous algorith always ends up filling the bottom left of the array first.
-	if (randomize)
-	{
-		std::default_random_engine rng(std::chrono::system_clock::now().time_since_epoch().count());
-		std::shuffle(std::begin(operationsList), std::end(operationsList), rng);
-	}
-
-	// this part was written by Mark O Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
-	// this clear should be unnecessary...?
-	moveSequence.clear( );
-	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can
-	// avoid making atoms overlap.
-	Matrix<bool> systemState = sourceMatrix;
-	UINT moveNum = 0;
-	while ( operationsList.size( ) != 0 )
-	{
-		if ( moveNum >= operationsList.size( ) )
-		{
-			// it's reached the end, reset this.
-			moveNum = 0;
-		}
-		// make sure that the initial location IS populated and the final location ISN'T.
-		bool initIsOpen = systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) == false;
-		bool finIsOccupied = systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) == true;
-		if ( initIsOpen || finIsOccupied )
-		{
-			moveNum++;
-			continue;
-		}
-		// else it's okay. add this to the list of moves.
-		moveSequence.push_back( operationsList[moveNum] );
-		// update the system state after this move.
-		systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) = false;
-		systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) = true;
-		// remove the move from the list of moves.
-		operationsList.erase( operationsList.begin( ) + moveNum );
-	}
-	// at this point operationsList should be zero size and moveSequence should be full of the moves in a sequence that
-	// works. return the travelled distance.
 	return cost;
 } 
 
