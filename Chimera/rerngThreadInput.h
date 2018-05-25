@@ -7,6 +7,7 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
+#include "Queues.h"
 #include "afxwin.h"
 
 class NiawgController;
@@ -24,7 +25,7 @@ struct rerngThreadInput
 	std::condition_variable* rerngConditionWatcher;
 	std::atomic<bool>* threadActive;
 	// an array of images that have been converted to bools for atom in a pixel or not..
-	std::vector<std::vector<bool>>* atomsQueue;
+	atomQueue* atomsQueue;
 	// contains info from Niawg script about rearrangement, including the static wave. This is a pointer to avoid
 	// making an extra copy of the static waveform, which is in general pretty large.
 	waveInfo* rerngWave;

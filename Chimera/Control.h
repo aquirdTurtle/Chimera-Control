@@ -60,7 +60,7 @@ template <class ControlType> class Control : public ControlType
 		void rearrange( int width, int height);
 		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
 		void setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
-						   bool yInc = false, bool xInc=false, bool videoToo=false );
+						   bool yInc = false, bool xInc=false, bool videoToo=false, bool noAccum=false );
 	private:
 		int toolTipID;
 		CToolTipCtrl toolTip;
@@ -79,7 +79,7 @@ Control<ControlType>::Control()
 
 template <class ControlType>
 void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
-										 bool yInc, bool xInc, bool videoToo)
+										 bool yInc, bool xInc, bool videoToo, bool noAccum )
 {
 	/*
 	 * This function, while a little logicy itself, makes setting the positions on the camera window much easier 
@@ -95,7 +95,14 @@ void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG y
 	 */
 	seriesPos = { pos.seriesPos.x + xoff, pos.seriesPos.y + yoff, 
 				  pos.seriesPos.x + xoff + width, pos.seriesPos.y + yoff + height };
-	amPos     = { pos.amPos.x + xoff, pos.amPos.y + yoff, pos.amPos.x + xoff + width, pos.amPos.y + yoff + height };
+	if ( noAccum )
+	{
+		amPos = { -1,-1,-1,-1 };
+	}
+	else
+	{ 
+		amPos = { pos.amPos.x + xoff, pos.amPos.y + yoff, pos.amPos.x + xoff + width, pos.amPos.y + yoff + height };
+	}
 	if ( videoToo )
 	{
 		videoPos = { pos.videoPos.x + xoff, pos.videoPos.y + yoff,

@@ -13,22 +13,15 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	/// Set Picture Options
 	UINT count = 0;
 	/// Picture Numbers
-	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
-	pictureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100,	pos.videoPos.y + 20 };
+	pictureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.seriesPos, parent,
 						 PICTURE_SETTINGS_ID_START + count++ );
 	pictureLabel.fontType = fontTypes::SmallFont;
 
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		pictureNumbers[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		pictureNumbers[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y, pos.amPos.x + 100 + 95 * (picInc + 1),
-			pos.amPos.y + 20 };
-		pictureNumbers[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS,
+		pictureNumbers[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
+		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, 
 									   pictureNumbers[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + count++ );
 	}
 	pos.seriesPos.y += 20;
@@ -36,20 +29,13 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Total picture number
-	totalPicNumberLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	totalPicNumberLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	totalPicNumberLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	totalPicNumberLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.seriesPos, parent,
 								PICTURE_SETTINGS_ID_START + count++ );
 	totalPicNumberLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		totalNumberChoice[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		totalNumberChoice[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y, pos.amPos.x + 100 + 95 * (picInc + 1),
-			pos.amPos.y + 20 };
-		totalNumberChoice[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y, pos.videoPos.x + 100 + 95 * (picInc + 1),
-			pos.videoPos.y + 20 };
+		totalNumberChoice[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
 		if ( picInc == 0 )
 		{
 			// first of group
@@ -69,23 +55,15 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Exposure Times
-	exposureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	exposureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	exposureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent,
+	exposureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
+	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent, 
 						  PICTURE_SETTINGS_ID_START + count++ );
 	exposureTimesUnofficial.resize( 4 );
 	exposureLabel.fontType = fontTypes::SmallFont;
 
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		exposureEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		exposureEdits[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
-			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
-		exposureEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		// first of group
+		exposureEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
 		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].seriesPos, parent,
 									  PICTURE_SETTINGS_ID_START + count++ );
 		exposureEdits[picInc].SetWindowTextA( "10.0" );
@@ -96,21 +74,13 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Thresholds
-	thresholdLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	thresholdLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	thresholdLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	thresholdLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.seriesPos, parent,
 						   PICTURE_SETTINGS_ID_START + count++ );
 	thresholdLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		thresholdEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		thresholdEdits[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
-			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
-		thresholdEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		// first of group
+		thresholdEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
 		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS, thresholdEdits[picInc].seriesPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );

@@ -59,7 +59,7 @@ struct MasterThreadInput
 	std::vector<std::vector<pPlotDataVec>> dacData;
 	// only for rearrangement.
 	std::mutex* rearrangerLock;
-	std::vector<std::vector<bool>>* atomQueueForRearrangement;
+	atomQueue* atomQueueForRearrangement;
 	chronoTimes* andorsImageTimes;
 	chronoTimes* grabTimes;
 	std::condition_variable* conditionVariableForRerng;

@@ -55,10 +55,7 @@ class ProfileSystem
 		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
 								 CameraWindow* camWin, AuxiliaryWindow* auxWin );
 		static void getVersionFromFile( std::ifstream& f, Version& ver );
-		static void openNiawgFile( std::fstream& scriptFiles, profileSettings profile, seqSettings seq, 
-								   bool programNiawg );
-		static void openNiawgFiles( niawgPair<std::fstream>& scriptFiles, profileSettings profile, seqSettings seq, 
-									bool programNiawg );
+		static std::string getNiawgScriptAddrFromConfig(  profileSettings profile );
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 

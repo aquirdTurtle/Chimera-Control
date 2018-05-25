@@ -13,24 +13,19 @@ FEATURES:
 		- also gets trick if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- support variables for niawg and agilent scripts
-	- especially niawg
-- syntax coloring for variables
-- support aborting while paused
-- implement check that the picture rate is matching the rep rate
+- support variables for agilent scripts
+- proper syntax coloring for variables
+- implement real-time sanity check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in plots
-- improve experiment status
-	- include which config was run, variable options
-	- fix time to be smart
+- improve experiment status; include which config was run, variable options
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
-- output more timing info on the programming process
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
-- better timing of programming.
+- integrate a basler window.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -40,6 +35,7 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
+- refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
