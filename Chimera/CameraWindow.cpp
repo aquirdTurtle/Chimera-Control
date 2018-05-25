@@ -468,7 +468,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	{
 		std::lock_guard<std::mutex> locker( plotLock );
 		// TODO: add check to check if this is needed.
-		imageQueue.push_back( calPicData[(picNum - 1) % curSettings.picsPerRepetition] );
+		imQueue.push_back ( { picNum, calPicData[ ( picNum - 1 ) % curSettings.picsPerRepetition ] } );
 	}
 
 	auto picsToDraw = CameraSettings.getImagesToDraw( calPicData );
@@ -1002,7 +1002,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
 	skipNext = false;
 	input.cruncherInput->skipNext = &skipNext;
-	input.cruncherInput->imageQueue = &imageQueue;
+	input.cruncherInput->imQueue = &imQueue;
 	// options
 	if ( input.masterInput )
 	{
@@ -1019,8 +1019,8 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	// what the thread fills.
 	input.cruncherInput->grids = analysisHandler.getGrids( );
 	// reinitialize
-	plotterPictureQueue.clear( );// = std::vector<std::vector<std::vector<long>>>( input.cruncherInput->grids.size());
-	plotterAtomQueue.clear( );// = std::vector<std::vector<std::vector<bool>>>( input.cruncherInput->grids.size( ) );
+	plotterPictureQueue.clear( );
+	plotterAtomQueue.clear( );
 	input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
 	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
 	rearrangerAtomQueue.clear( );
@@ -1056,12 +1056,12 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	/// start the plotting thread.
 	plotThreadActive = true;
 	plotThreadAborting = false;
-	imageQueue.clear();
+	imQueue.clear();
 	plotterAtomQueue.clear();
 	input.plotterInput = new realTimePlotterInput;
 	input.plotterInput->aborting = &plotThreadAborting;
 	input.plotterInput->active = &plotThreadActive;
-	input.plotterInput->imageQueue = &plotterPictureQueue;
+	input.plotterInput->imQueue = &plotterPictureQueue;
 	input.plotterInput->imageShape = CameraSettings.getSettings().andor.imageSettings;
 	input.plotterInput->picsPerVariation = mainWindowFriend->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
 	input.plotterInput->variations = auxWindowFriend->getTotalVariationNumber();
@@ -1213,10 +1213,10 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 	   
 	UINT imageCount = 0;   
 	// loop watching the image queue.
-	while (*input->cruncherThreadActive || input->imageQueue->size() != 0)
+	while (*input->cruncherThreadActive || input->imQueue->size() != 0)
 	{
 		// if no images wait until images. Should probably change to be event based, but want this to be fast...
-		if (input->imageQueue->size() == 0)
+		if (input->imQueue->size() == 0)
 		{
 			continue;
 		}
@@ -1226,31 +1226,33 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		}
 		
 		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
-		std::vector<std::vector<long>> tempImagePixels( input->grids.size( ) );
+		imageQueue tempImagePixels( input->grids.size( ) );
 		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
-		std::vector<std::vector<bool>> tempAtomArray( input->grids.size( ) );											  
+		atomQueue tempAtomArray( input->grids.size( ) );
 		for (UINT gridInc = 0; gridInc < input->grids.size(); gridInc++)
 		{
-			tempAtomArray[gridInc] = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
-			tempImagePixels[gridInc] = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
+			tempAtomArray[gridInc].image = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
+			tempImagePixels[gridInc].image = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
 		}
 		for ( UINT gridInc = 0; gridInc < input->grids.size( ); gridInc++ )
 		{
+			tempImagePixels[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
+			tempAtomArray[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
 			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the load-skip.
 			UINT count = 0;
 			{ // scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
 				std::lock_guard<std::mutex> locker( *input->imageLock );				
 				for ( auto pixelIndex : monitoredPixelIndecies[gridInc] )
 				{
-					tempImagePixels[gridInc][count++] = (*input->imageQueue)[0][pixelIndex];
+					tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
 				}
 			}
 			count = 0;
-			for ( auto& pix : tempImagePixels[gridInc] )
+			for ( auto& pix : tempImagePixels[gridInc].image )
 			{
 				if ( pix >= input->thresholds[imageCount % input->picsPerRep] )
 				{
-					tempAtomArray[gridInc][count] = true;
+					tempAtomArray[gridInc].image[count] = true;
 				}
 				count++;
 			}
@@ -1274,7 +1276,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 				// if last picture of repetition, check for loadskip condition.
 				if ( imageCount % input->picsPerRep == input->picsPerRep - 1 ) ///
 				{
-					UINT numAtoms = std::accumulate( tempAtomArray[0].begin( ), tempAtomArray[0].end( ), 0 );
+					UINT numAtoms = std::accumulate( tempAtomArray[0].image.begin( ), tempAtomArray[0].image.end( ), 0 );
 					*input->skipNext = (numAtoms >= input->atomThresholdForSkip);
 				}
 			}
@@ -1294,7 +1296,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
-		(*input->imageQueue).erase((*input->imageQueue).begin());		
+		(*input->imQueue).erase((*input->imQueue).begin());		
 	}
 	return 0;
 }

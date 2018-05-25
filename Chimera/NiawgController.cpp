@@ -15,6 +15,7 @@
 #include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"
+#include "Queues.h"
 #include <algorithm>
 #include <random>
 
@@ -2947,7 +2948,7 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 }
 
 
-void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm, 
+void NiawgController::startRerngThread( atomQueue* atomQueue, waveInfo wave, Communicator* comm, 
 										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
 										rerngGuiOptions guiOptions, atomGrid grid )
@@ -3120,15 +3121,19 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					input->comm->sendStatus( "Rearrangement Thread woke up???" );
 					continue;
 				}
-				tempAtoms = (*input->atomsQueue)[0];
+				tempAtoms = (*input->atomsQueue)[0].image;
+				if ( tempAtoms.size( ) == 0 )
+				{
+					// spurious wake-up? This one probably never happens now that I've implemented the 
+					// condition_variable.
+					continue;
+				}
+				input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			}
-			if ( tempAtoms.size( ) == 0 )
+			if ( input->atomsQueue->size ( ) != 0 )
 			{
-				// spurious wake-up? This one probably never happens now that I've implemented the 
-				// condition_variable.
-				continue;
+				input->comm->sendStatus ( "WARNING: LOOKS LIKE RERNG CODE IS BEHIND IN THE PICTURE QUEUE???" );
 			}
-			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			startCalc.push_back(chronoClock::now( ));			
 			rerngScriptInfo& info = input->rerngWave.rearrange;
 			info.timePerMove = input->guiOptions.moveSpeed;

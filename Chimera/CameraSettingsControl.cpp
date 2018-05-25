@@ -5,84 +5,6 @@
 #include "Thrower.h"
 
 
-void CameraSettingsControl::handelSaveMasterConfig(std::stringstream& configFile)
-{
-	imageParameters settings = getSettings().andor.imageSettings;
-	configFile << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
-	configFile << settings.bottom << " " << settings.top << " " << settings.verticalBinning << "\n";
-	// introduced in version 2.2
-	configFile << getAutoCal() << " " << getUseCal() << "\n";
-}
-
-void CameraSettingsControl::handleOpenMasterConfig(std::stringstream& configStream, Version ver, CameraWindow* camWin)
-{
-	imageParameters settings = getSettings().andor.imageSettings;
-	std::string tempStr;
-	try
-	{
-		configStream >> tempStr;
-		settings.left = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.right = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.horizontalBinning = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.bottom = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.top = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.verticalBinning = std::stol(tempStr);
-		settings.width = (settings.right - settings.left + 1) / settings.horizontalBinning;
-		settings.height = (settings.top - settings.bottom + 1) / settings.verticalBinning;
-		setImageParameters(settings, camWin);
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower("ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
-			"to load camera dimensions!");
-	}
-
-	bool autoCal, useCal;
-	if (ver > Version("2.1"))
-	{
-		configStream >> autoCal >> useCal;
-		calControl.setAutoCal(autoCal);
-		calControl.setUse(useCal);
-	}
-
-}
-
-
-std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw( const std::vector<std::vector<long>>& rawData )
-{
-	std::vector<std::vector<long>> imagesToDraw(rawData.size());
-	auto options = picSettingsObj.getDisplayTypeOptions( );
-	for ( auto picNum : range( rawData.size()) )
-	{
-		if ( !options[picNum].isDiff )
-		{
-			imagesToDraw[picNum] = rawData[picNum];
-		}
-		else
-		{
-			// the whichPic variable is 1-indexed.
-			if ( options[picNum].whichPicForDif >= rawData.size( ) )
-			{
-				imagesToDraw[picNum] = rawData[picNum];
-			}
-			else
-			{
-				imagesToDraw[picNum].resize( rawData[picNum].size( ) );
-				for ( auto i : range( rawData[picNum].size( ) ) )
-				{
-					imagesToDraw[picNum][i] = rawData[picNum][i] - rawData[options[picNum].whichPicForDif - 1][i];
-				}
-			}
-		}
-	}
-	return imagesToDraw;
-}
-
 
 CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 {
@@ -109,16 +31,12 @@ CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : p
 void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips )
 {
 	/// Header
-	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	header.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	header.setPositions ( pos, 0, 0, 480, 25, true, false, true );
 	header.Create( "CAMERA SETTINGS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 
 	/// camera mode
-	cameraModeCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 100 };
-	cameraModeCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 100 };
-	cameraModeCombo.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 100 };
+	cameraModeCombo.setPositions ( pos, 0, 0, 480, 100, false, false, true );
 	cameraModeCombo.Create( NORM_COMBO_OPTIONS, cameraModeCombo.seriesPos, parent, IDC_CAMERA_MODE_COMBO );
 	cameraModeCombo.AddString( "Kinetic Series Mode" );
 	cameraModeCombo.AddString( "Accumulation Mode" );
@@ -129,32 +47,20 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	pos.videoPos.y += 25;
 	pos.seriesPos.y += 25;
 	/// EM Gain
-	emGainEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 20 };
-	emGainEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 20 };
-	emGainEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 240, pos.videoPos.y + 20 };
+	emGainEdit.setPositions ( pos, 0, 0, 240, 20, false, false, true );
 	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, IDC_EM_GAIN_EDIT );
 	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 						   " mode off. The program will immediately change the state of the camera after changing this"
 						   " edit.", tooltips, parent );
 	//
-	emGainDisplay.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	emGainDisplay.videoPos = { pos.videoPos.x + 240, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
-	emGainDisplay.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
+	emGainDisplay.setPositions ( pos, 240, 0, 240, 20, true, false, true );
 	emGainDisplay.Create( "OFF", NORM_STATIC_OPTIONS, emGainDisplay.seriesPos, parent, id++ );
 	// initialize settings.
 	settings.andor.emGainLevel = 0;
 	settings.andor.emGainModeIsOn = false;
-	//
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
-
 	// trigger combo
-	triggerCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
-	triggerCombo.videoPos = { pos.videoPos.x, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
-	triggerCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 800 };
+	triggerCombo.setPositions ( pos, 0, 0, 480, 800, false, false, true );
 	triggerCombo.Create( NORM_COMBO_OPTIONS, triggerCombo.seriesPos, parent, IDC_TRIGGER_COMBO );
-	// set options for the combo
 	triggerCombo.AddString( "Internal Trigger" );
 	triggerCombo.AddString( "External Trigger" );
 	triggerCombo.AddString( "Start On Trigger" );
@@ -164,40 +70,19 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
 	settings.andor.triggerMode = "External Trigger";
-	// Set temperature Button
-	setTemperatureButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 270, pos.seriesPos.y + 25 };
-	setTemperatureButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 270, pos.videoPos.y + 25 };
-	setTemperatureButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 270, pos.amPos.y + 25 };
+
+	setTemperatureButton.setPositions ( pos, 0, 0, 270, 25, false, false, true );
 	setTemperatureButton.Create( "Set Camera Temperature (C)", NORM_PUSH_OPTIONS, setTemperatureButton.seriesPos,
 								 parent, IDC_SET_TEMPERATURE_BUTTON );
-	// Temperature Edit
-	temperatureEdit.seriesPos = { pos.seriesPos.x + 270, pos.seriesPos.y, pos.seriesPos.x + 350, pos.seriesPos.y + 25 };
-	temperatureEdit.videoPos = { pos.videoPos.x + 270, pos.videoPos.y, pos.videoPos.x + 350, pos.videoPos.y + 25 };
-	temperatureEdit.amPos = { pos.amPos.x + 270, pos.amPos.y, pos.amPos.x + 350, pos.amPos.y + 25 };
+	temperatureEdit.setPositions ( pos, 270, 0, 80, 25, false, false, true );
 	temperatureEdit.Create( NORM_EDIT_OPTIONS, temperatureEdit.seriesPos, parent, id++ );
 	temperatureEdit.SetWindowTextA( "0" );
-	// Temperature Setting Display
-	temperatureDisplay.seriesPos = { pos.seriesPos.x + 350, pos.seriesPos.y, pos.seriesPos.x + 430, pos.seriesPos.y + 25 };
-	temperatureDisplay.videoPos = { pos.videoPos.x + 350, pos.videoPos.y, pos.videoPos.x + 430, pos.videoPos.y + 25 };
-	temperatureDisplay.amPos = { pos.amPos.x + 350, pos.amPos.y, pos.amPos.x + 430, pos.amPos.y + 25 };
+	temperatureDisplay.setPositions ( pos, 350, 0, 80, 25, false, false, true );
 	temperatureDisplay.Create( "", NORM_STATIC_OPTIONS, temperatureDisplay.seriesPos, parent, id++ );
-	// Temperature Control Off Button
-	temperatureOffButton.seriesPos = { pos.seriesPos.x + 430, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	temperatureOffButton.videoPos = { pos.videoPos.x + 430, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
-	temperatureOffButton.amPos = { pos.amPos.x + 430, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
+	temperatureOffButton.setPositions ( pos, 430, 0, 50, 25, true, false, true );
 	temperatureOffButton.Create( "OFF", NORM_PUSH_OPTIONS, temperatureOffButton.seriesPos, parent, id++ );
-	pos.seriesPos.y += 25;
-	pos.amPos.y += 25;
-	pos.videoPos.y += 25;
-	// Temperature Message Display
-	temperatureMsg.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 50 };
-	temperatureMsg.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 50 };
-	temperatureMsg.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 50 };
-	temperatureMsg.Create( "Temperature control is disabled", NORM_STATIC_OPTIONS, temperatureMsg.seriesPos, parent, 
-						   id++ );
-	pos.seriesPos.y += 50;
-	pos.amPos.y += 50;
-	pos.videoPos.y += 50;
+	temperatureMsg.setPositions ( pos, 0, 0, 480, 50, true, false, true );
+	temperatureMsg.Create( "Temperature control is disabled", NORM_STATIC_OPTIONS, temperatureMsg.seriesPos, parent, id++ );
 	//
 	picSettingsObj.initialize( pos, parent, id );
 
@@ -206,57 +91,43 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	/// REPETITIONS PER VARIATION
 
 	// Accumulation Time
-	accumulationCycleTimeLabel.seriesPos = { -1,-1,-1,-1 };
-	accumulationCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeLabel.videoPos = accumulationCycleTimeLabel.seriesPos = { -1,-1,-1,-1 };
 	accumulationCycleTimeLabel.amPos = { pos.amPos.x,pos.amPos.y,pos.amPos.x + 240,pos.amPos.y + 25 };
 	accumulationCycleTimeLabel.Create( "Accumulation Cycle Time", NORM_STATIC_OPTIONS,
 									   accumulationCycleTimeLabel.seriesPos, parent, id++ );
 
-	accumulationCycleTimeEdit.seriesPos = { -1,-1,-1,-1 };
-	accumulationCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeEdit.seriesPos  = accumulationCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
 	accumulationCycleTimeEdit.amPos = { pos.amPos.x + 240,pos.amPos.y,pos.amPos.x + 480, pos.amPos.y += 25 };
 	accumulationCycleTimeEdit.Create( NORM_EDIT_OPTIONS, accumulationCycleTimeEdit.seriesPos, parent, id++ );
 	accumulationCycleTimeEdit.SetWindowTextA( "0.1" );
 
 	// Accumulation Number
-	accumulationNumberLabel.seriesPos = { -1,-1,-1,-1 };
-	accumulationNumberLabel.videoPos = { -1,-1,-1,-1 };
+	accumulationNumberLabel.seriesPos = accumulationNumberLabel.videoPos = { -1,-1,-1,-1 };
 	accumulationNumberLabel.amPos = { pos.amPos.x,pos.amPos.y,pos.amPos.x + 240,pos.amPos.y + 25 };
-	accumulationNumberLabel.Create( "Accumulation #", NORM_STATIC_OPTIONS, accumulationNumberLabel.seriesPos, parent, 
-									id++ );
+	accumulationNumberLabel.Create( "Accumulation #", NORM_STATIC_OPTIONS, accumulationNumberLabel.seriesPos, parent, id++ );
 	//
-	accumulationNumberEdit.seriesPos = { -1,-1,-1,-1 };
-	accumulationNumberEdit.videoPos = { -1,-1,-1,-1 };
+	accumulationNumberEdit.seriesPos = accumulationNumberEdit.videoPos = { -1,-1,-1,-1 };
 	accumulationNumberEdit.amPos = { pos.amPos.x + 240,pos.amPos.y,pos.amPos.x + 480,pos.amPos.y += 25 };
 	accumulationNumberEdit.Create( NORM_EDIT_OPTIONS, accumulationNumberEdit.seriesPos, parent, id++ );
 	accumulationNumberEdit.SetWindowTextA( "1" );
 
 	// minimum kinetic cycle time (determined by camera)
-	minKineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
-	minKineticCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
-	minKineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, false, true );
 	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, 
 									 minKineticCycleTimeLabel.seriesPos, parent, id++ );
-
-	minKineticCycleTimeDisp.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	minKineticCycleTimeDisp.videoPos = { -1,-1,-1,-1 };
-	minKineticCycleTimeDisp.amPos = { -1,-1,-1,-1 };
+	
+	minKineticCycleTimeLabel.setPositions ( pos, 240, 0, 240, 25, true, false, false, true );
 	minKineticCycleTimeDisp.Create( NORM_STATIC_OPTIONS, minKineticCycleTimeDisp.seriesPos, parent, id++ );
 	minKineticCycleTimeDisp.SetWindowTextA( "" );
 
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
-	kineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
-	kineticCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
-	kineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
+	kineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, false, true );
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
-	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.seriesPos, parent, 
-								  id++ );
+	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.seriesPos, parent, id++ );
 
 	// Kinetic Cycle Time Edit
-	kineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	kineticCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
-	kineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
+	kineticCycleTimeEdit.setPositions ( pos, 240, 0, 240, 25, true, false, false, true );
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create( NORM_EDIT_OPTIONS, kineticCycleTimeEdit.seriesPos, parent, id++ );
 	kineticCycleTimeEdit.SetWindowTextA( "0.1" );
@@ -903,3 +774,81 @@ void CameraSettingsControl::checkIfReady()
 		}
 	}
 }
+void CameraSettingsControl::handelSaveMasterConfig ( std::stringstream& configFile )
+{
+	imageParameters settings = getSettings ( ).andor.imageSettings;
+	configFile << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
+	configFile << settings.bottom << " " << settings.top << " " << settings.verticalBinning << "\n";
+	// introduced in version 2.2
+	configFile << getAutoCal ( ) << " " << getUseCal ( ) << "\n";
+}
+
+void CameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configStream, Version ver, CameraWindow* camWin )
+{
+	imageParameters settings = getSettings ( ).andor.imageSettings;
+	std::string tempStr;
+	try
+	{
+		configStream >> tempStr;
+		settings.left = std::stol ( tempStr );
+		configStream >> tempStr;
+		settings.right = std::stol ( tempStr );
+		configStream >> tempStr;
+		settings.horizontalBinning = std::stol ( tempStr );
+		configStream >> tempStr;
+		settings.bottom = std::stol ( tempStr );
+		configStream >> tempStr;
+		settings.top = std::stol ( tempStr );
+		configStream >> tempStr;
+		settings.verticalBinning = std::stol ( tempStr );
+		settings.width = ( settings.right - settings.left + 1 ) / settings.horizontalBinning;
+		settings.height = ( settings.top - settings.bottom + 1 ) / settings.verticalBinning;
+		setImageParameters ( settings, camWin );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower ( "ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
+				  "to load camera dimensions!" );
+	}
+
+	bool autoCal, useCal;
+	if ( ver > Version ( "2.1" ) )
+	{
+		configStream >> autoCal >> useCal;
+		calControl.setAutoCal ( autoCal );
+		calControl.setUse ( useCal );
+	}
+
+}
+
+
+std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw ( const std::vector<std::vector<long>>& rawData )
+{
+	std::vector<std::vector<long>> imagesToDraw ( rawData.size ( ) );
+	auto options = picSettingsObj.getDisplayTypeOptions ( );
+	for ( auto picNum : range ( rawData.size ( ) ) )
+	{
+		if ( !options[ picNum ].isDiff )
+		{
+			imagesToDraw[ picNum ] = rawData[ picNum ];
+		}
+		else
+		{
+			// the whichPic variable is 1-indexed.
+			if ( options[ picNum ].whichPicForDif >= rawData.size ( ) )
+			{
+				imagesToDraw[ picNum ] = rawData[ picNum ];
+			}
+			else
+			{
+				imagesToDraw[ picNum ].resize ( rawData[ picNum ].size ( ) );
+				for ( auto i : range ( rawData[ picNum ].size ( ) ) )
+				{
+					imagesToDraw[ picNum ][ i ] = rawData[ picNum ][ i ] - rawData[ options[ picNum ].whichPicForDif - 1 ][ i ];
+				}
+			}
+		}
+	}
+	return imagesToDraw;
+}
+
