@@ -109,7 +109,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );
 		input->rsg->clearFrequencies( );
-		input->niawg->initForExperiment ( );
+		if ( input->runNiawg )
+		{
+			input->niawg->initForExperiment ( );
+		}
 		UINT variations;
 		timer.tick("After-Init");
 		for ( auto seqNum : range( input->seq.sequence.size() ) )
@@ -247,7 +250,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		
 		/// output some timing information
 		timer.tick("After-All-Variation-Calculations");
-		expUpdate(timer.getTimingMessage(), comm, input->quiet);
+		expUpdate(timer.getTimingMessage(), comm, false);
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls->getTotalTime( 0, 0 ) ) + "\r\n", 

@@ -1471,8 +1471,8 @@ bool AndorCamera::isRunning()
 
 
 /*
-* the input here will store how many whole pictures (not accumulations) have been taken.
-*/
+ * the input here will store how many whole pictures (not accumulations) have been taken.
+ */
 void AndorCamera::getAcquisitionProgress(long& seriesNumber)
 {
 	if (!safemode)

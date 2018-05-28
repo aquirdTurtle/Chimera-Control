@@ -414,7 +414,13 @@ LRESULT CameraWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
-	UINT picNum = lParam;
+	currentPictureNum++;
+	if ( lParam != currentPictureNum && lParam != -1 )
+	{
+		mainWindowFriend->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
+												   "camera window record?!?!?!?!?" );
+	}
+	UINT picNum = currentPictureNum;
 	if ( picNum % 2 == 1 )
 	{
 		mainThreadStartTimes.push_back( std::chrono::high_resolution_clock::now( ) );
@@ -1357,7 +1363,8 @@ std::string CameraWindow::getStartMessage()
 
 void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
-	// starting not-calibration, so reset this.
+	currentPictureNum = 0;
+	// starting a not-calibration, so reset this.
 	justCalibrated = false;
 	input->atomQueueForRearrangement = &rearrangerAtomQueue;
 	input->rearrangerLock = &rearrangerLock;
