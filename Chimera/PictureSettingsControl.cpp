@@ -84,7 +84,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS, thresholdEdits[picInc].seriesPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
-		thresholds[picInc] = 100;
+		thresholds[ picInc ] = { 100 };
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
@@ -200,6 +200,22 @@ void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 }
 
 
+std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
+{
+	std::array<std::string, 4> res;
+	// grab the thresholds
+	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
+	{
+		auto& picThresholds = thresholds[ thresholdInc ];
+		picThresholds.resize ( 1 );
+		CString textEdit;
+		thresholdEdits[ thresholdInc ].GetWindowTextA ( textEdit );
+		res[ thresholdInc ] = textEdit;
+	}
+	return res;
+}
+
+
 void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "PICTURE_SETTINGS\n";
@@ -214,7 +230,7 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 		saveFile << exposure << " ";
 	}
 	saveFile << "\n";
-	for (auto threshold : thresholds)
+	for (auto threshold : getThresholdStrings() )
 	{
 		saveFile << threshold << " ";
 	}
@@ -229,7 +245,7 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version v
 	UINT picsPerRep;
 	openFile >> picsPerRep;
 	setUnofficialPicsPerRep( picsPerRep, andor );
-	std::array<int, 4> fileThresholds;
+	std::array<std::string, 4> fileThresholds;
 	for (auto& color : colors)
 	{
 		openFile >> color;
@@ -320,6 +336,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 	/// Thresholds
 	else if (id >= thresholdEdits.front().GetDlgCtrlID() && id <= thresholdEdits.back().GetDlgCtrlID())
 	{
+		/*
 		int picNum = id - thresholdEdits.front().GetDlgCtrlID();
 		if (!thresholdEdits[picNum].IsWindowEnabled())
 		{
@@ -358,6 +375,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			exposureEdits[picNum].RedrawWindow();
 		}
 		return brushes["Red"];
+		*/
 	}
 	else
 	{
@@ -500,18 +518,18 @@ void PictureSettingsControl::confirmAcquisitionTimings()
 }
 
 /**/
-std::array<int, 4> PictureSettingsControl::getThresholds()
+std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds()
 {
 	updateSettings();
 	return thresholds;
 }
 
-void PictureSettingsControl::setThresholds(std::array<int, 4> newThresholds)
+void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds)
 {
-	thresholds = newThresholds;
-	for (UINT thresholdInc = 0; thresholdInc < thresholds.size(); thresholdInc++)
+	//thresholds = newThresholds;
+	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++)
 	{
-		thresholdEdits[thresholdInc].SetWindowTextA(cstr(thresholds[thresholdInc]));
+		thresholdEdits[thresholdInc].SetWindowTextA(newThresholds[thresholdInc].c_str());
 	}
 }
 
@@ -566,17 +584,36 @@ void PictureSettingsControl::updateSettings( )
 	// grab the thresholds
 	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
 	{
+		auto& picThresholds = thresholds[ thresholdInc ];
+		picThresholds.resize ( 1 );
 		CString textEdit;
 		thresholdEdits[thresholdInc].GetWindowTextA( textEdit );
 		int threshold;
 		try
 		{
 			threshold = std::stoi( str( textEdit ) );
-			thresholds[thresholdInc] = threshold;
+			picThresholds[ 0 ] = threshold;
 		}
 		catch ( std::invalid_argument )
 		{
-			errBox( "ERROR: failed to convert threshold number " + str( thresholdInc + 1 ) + " to an integer." );
+			// assume it's a file location.
+			std::ifstream thresholdFile;
+			thresholdFile.open ( str("C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\Chimera") + str(textEdit) );
+			if ( !thresholdFile.is_open ( ) )
+			{
+				thrower ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
+						 "and it wasn't the address of a threshold-file." );  
+			}
+			while ( true )
+			{
+				double indv_file_threshold;
+				thresholdFile >> indv_file_threshold;
+				if ( thresholdFile.eof ( ) )
+				{
+					break;
+				}
+				picThresholds.push_back ( indv_file_threshold );
+			}
 		}
 		thresholdEdits[thresholdInc].RedrawWindow( );
 	}

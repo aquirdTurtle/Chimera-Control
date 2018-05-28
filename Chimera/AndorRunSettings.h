@@ -43,7 +43,7 @@ struct AndorCameraSettings
 {
 	AndorRunSettings andor;
 	// not directly programmed to camera
-	std::array<int, 4> thresholds;
+	std::array<std::vector<int>, 4> thresholds;
 	std::array<int, 4> palleteNumbers;
 };
 

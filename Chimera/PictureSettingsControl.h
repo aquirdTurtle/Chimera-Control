@@ -37,21 +37,22 @@ class PictureSettingsControl
 		void setExposureTimes(AndorCamera* andorObj);
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
-		std::array<int, 4> getThresholds();
+		std::array<std::vector<int>, 4> getThresholds();
 		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
 		CBrush* colorControls(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(UINT pics, AndorCamera* andorObj);
-		void setThresholds(std::array<int, 4> thresholds);
+		void setThresholds( std::array<std::string, 4> thresholds);
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
 		void updateSettings( );
 		void setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj );
+		std::array<std::string, 4> getThresholdStrings();
 	private:
 		CameraSettingsControl* parentSettingsControl;
 		std::array<int, 4> colors;
 		std::vector<float> exposureTimesUnofficial;
-		std::array<int, 4> thresholds;
+		std::array<std::vector<int>, 4> thresholds;
 		// This variable is used by this control and communicated to the andor object, but is not directly accessed
 		// while the main camera control needs to figure out how many pictures per repetition there are.
 		UINT picsPerRepetitionUnofficial;
