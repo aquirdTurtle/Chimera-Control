@@ -5,7 +5,6 @@
 #include "afxwin.h"
 #include <fstream>
 #include <string>
-#include "../Chimera/rerngStructures.h"
 
 using namespace std;
 using namespace chrono;
@@ -13,19 +12,27 @@ using namespace chrono;
 
 int main( )
 {
-	std::vector<simpleMove> moveList;
-	moveList.push_back ( { 1,1,2,2, 3 } );
-	moveList.push_back ( { 2,2,3,3, 2 } );
-	moveList.push_back ( { 3,3,4,4, 1 } );
-	moveList.push_back ( { 4,4,5,5, 2 } );
-	moveList.push_back ( { 5,5,6,6, 3 } );
-	std::sort ( moveList.begin ( ), moveList.end ( ),
-				[] ( simpleMove const& a, simpleMove const& b ) { return a.distanceToTarget < b.distanceToTarget; } );
-	for ( auto move : moveList )
+	std::ifstream thresholdFile;
+	std::vector<double> thresholds;
+	thresholdFile.open ("Threshold-File.txt");
+	while ( true )
 	{
-		cout << move.distanceToTarget << endl;
+		double threshold;
+		thresholdFile >> threshold;
+		if ( thresholdFile.eof ( ) )
+		{     
+			break;
+		}
+		thresholds.push_back ( threshold );
 	}
-	cin.get( );
+	for ( auto thresh : thresholds )
+	{
+		cout << thresh << ", ";
+	}
+	cout << endl;
+	cout << thresholds.size ( ) << endl;
+	cout << thresholds.back ( );
+	cin.get ( );
 	return 0;
 }
 

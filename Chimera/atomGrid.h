@@ -10,5 +10,9 @@ struct atomGrid
 	// in atoms
 	ULONG width;
 	ULONG height;
+	ULONG numAtoms ( )
+	{
+		return width * height;
+	}
 };
 
