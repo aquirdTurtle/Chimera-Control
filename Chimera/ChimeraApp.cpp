@@ -95,7 +95,7 @@ BOOL ChimeraApp::InitInstance()
 		errBox( "FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the "
 				"experiment!\r\n" );
 		return -10000;
-	}
+	}   
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();

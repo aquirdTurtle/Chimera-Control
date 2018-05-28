@@ -26,6 +26,7 @@ FEATURES:
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
 - integrate a basler window.
+- add reporting on how many atoms loaded via atomcruncher thread.
 - Improve comments on what units everything should be in at every moment.
 
 Refactoring / Other:
@@ -50,6 +51,8 @@ BUGS:
 - in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
 - make eating comments more robust against eol conversion issues.
+- interpret key taking a long time for ttls in camera cal
+- seems like master configuration file can get corrupted if saving fails.
 
 =================
 Finished

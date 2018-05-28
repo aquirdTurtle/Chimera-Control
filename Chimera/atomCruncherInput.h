@@ -12,11 +12,12 @@
 
 struct atomCruncherInput
 {
-	//
+	// timing info is stored in these.
 	chronoTimes* catchPicTime;
 	chronoTimes* finTime;
+	// instructions.
 	std::vector<atomGrid> grids;
-	// what the thread watches...
+	// the thread watches this to know when to quit.
 	std::atomic<bool>* cruncherThreadActive;
 	// imQueue[queuePositions][pixelNum(flattened)]
 	imageQueue* imQueue;
@@ -25,19 +26,18 @@ struct atomCruncherInput
 	bool plotterNeedsImages;
 	bool rearrangerActive;
 	UINT picsPerRep;
+	UINT atomThresholdForSkip = UINT_MAX;
+	// outer vector here is for each location in the first grid.
+	std::array<std::vector<int>, 4> thresholds;
+	imageParameters imageDims;
 	// locks
 	std::mutex* imageLock;
 	std::mutex* plotLock;
 	std::mutex* rearrangerLock;
 	std::condition_variable* rearrangerConditionWatcher;
 	// what the thread fills.
-	// imQueue[gridNum][queuePositions][pixelNum(flattened)]
 	multiGridImageQueue* plotterImageQueue;
 	multiGridAtomQueue* plotterAtomQueue;
 	atomQueue* rearrangerAtomQueue;
-
-	std::array<int, 4> thresholds;
-	imageParameters imageDims;
-	UINT atomThresholdForSkip = UINT_MAX;
 	std::atomic<bool>* skipNext;
 };
