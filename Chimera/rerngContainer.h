@@ -66,7 +66,6 @@ void rerngContainer<type>::setFilledFlag( )
 	filledFlag = true;
 }
 
-
 template<class type> 
 type rerngContainer<type>::operator()( UINT row, UINT col, dir direction ) const
 {

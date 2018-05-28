@@ -26,6 +26,7 @@ FEATURES:
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
 - integrate a basler window.
+- Improve comments on what units everything should be in at every moment.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers

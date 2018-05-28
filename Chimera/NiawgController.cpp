@@ -19,53 +19,272 @@
 #include <algorithm>
 #include <random>
 
-NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode ) : 
-	triggerRow( trigRow ), triggerNumber( trigNumber ), fgenConduit(safemode)
+NiawgController::NiawgController ( UINT trigRow, UINT trigNumber, bool safemode ) :
+	triggerRow ( trigRow ), triggerNumber ( trigNumber ), fgenConduit ( safemode )
 {
 	// Contains all of of the names of the files that hold actual data file names.	
-	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
+	for ( auto number : range ( MAX_NIAWG_SIGNALS ) )
 	{
-		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+		WAVEFORM_NAME_FILES[ number ] = "gen " + str ( number + 1 ) + ", const waveform file names.txt";
+		WAVEFORM_NAME_FILES[ number + MAX_NIAWG_SIGNALS ] = "gen " + str ( number + 1 )
 			+ ", amp ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+		WAVEFORM_NAME_FILES[ number + 2 * MAX_NIAWG_SIGNALS ] = "gen " + str ( number + 1 )
 			+ ", freq ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+		WAVEFORM_NAME_FILES[ number + 3 * MAX_NIAWG_SIGNALS ] = "gen " + str ( number + 1 )
 			+ ", freq & amp ramp waveform file names.txt";
 
-		WAVEFORM_TYPE_FOLDERS[number] = "gen" + str( number + 1 ) + "const\\";
-		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampramp\\";
-		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "freqramp\\";
-		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampfreqramp\\";
+		WAVEFORM_TYPE_FOLDERS[ number ] = "gen" + str ( number + 1 ) + "const\\";
+		WAVEFORM_TYPE_FOLDERS[ number + MAX_NIAWG_SIGNALS ] = "gen" + str ( number + 1 ) + "ampramp\\";
+		WAVEFORM_TYPE_FOLDERS[ number + 2 * MAX_NIAWG_SIGNALS ] = "gen" + str ( number + 1 ) + "freqramp\\";
+		WAVEFORM_TYPE_FOLDERS[ number + 3 * MAX_NIAWG_SIGNALS ] = "gen" + str ( number + 1 ) + "ampfreqramp\\";
 	}
 
 	// initialize rearrangement calibrations.
 	// default value for bias calibrations is currently 0.5.
 	// 3x6 calibration
-	rerngContainer<double> moveBias3x6Cal( 3, 6, 0.45);
-	
-	moveBias3x6Cal( 1, 4, dir::right ) = 0.38;
+	rerngContainer<double> moveBias3x6Cal ( 3, 6, 0.45 );
 
-	moveBias3x6Cal( 0, 0, dir::up ) = moveBias3x6Cal( 1, 0, dir::down ) = 0.7;
-	moveBias3x6Cal( 0, 1, dir::up ) = moveBias3x6Cal( 1, 1, dir::down ) = 0.52;
-	moveBias3x6Cal( 0, 2, dir::up ) = moveBias3x6Cal( 1, 2, dir::down ) = 0.48;
-	moveBias3x6Cal( 0, 3, dir::up ) = moveBias3x6Cal( 1, 3, dir::down ) = 0.45;
-	moveBias3x6Cal( 0, 4, dir::up ) = moveBias3x6Cal( 1, 4, dir::down ) = 0.48;
-	moveBias3x6Cal( 0, 5, dir::up ) = moveBias3x6Cal( 1, 5, dir::down ) = 0.75;
+	moveBias3x6Cal ( 1, 4, dir::right ) = 0.38;
+
+	moveBias3x6Cal ( 0, 0, dir::up ) = moveBias3x6Cal ( 1, 0, dir::down ) = 0.7;
+	moveBias3x6Cal ( 0, 1, dir::up ) = moveBias3x6Cal ( 1, 1, dir::down ) = 0.52;
+	moveBias3x6Cal ( 0, 2, dir::up ) = moveBias3x6Cal ( 1, 2, dir::down ) = 0.48;
+	moveBias3x6Cal ( 0, 3, dir::up ) = moveBias3x6Cal ( 1, 3, dir::down ) = 0.45;
+	moveBias3x6Cal ( 0, 4, dir::up ) = moveBias3x6Cal ( 1, 4, dir::down ) = 0.48;
+	moveBias3x6Cal ( 0, 5, dir::up ) = moveBias3x6Cal ( 1, 5, dir::down ) = 0.75;
 	// 
-	moveBias3x6Cal( 2, 0, dir::down ) = moveBias3x6Cal( 1, 0, dir::up ) = 0.8;
-	moveBias3x6Cal( 2, 1, dir::down ) = moveBias3x6Cal( 1, 1, dir::up ) = 0.5;
-	moveBias3x6Cal( 2, 2, dir::down ) = moveBias3x6Cal( 1, 2, dir::up ) = 0.45;
-	moveBias3x6Cal( 2, 3, dir::down ) = moveBias3x6Cal( 1, 3, dir::up ) = 0.48;
-	moveBias3x6Cal( 2, 4, dir::down ) = moveBias3x6Cal( 1, 4, dir::up ) = 0.35;
-	moveBias3x6Cal( 2, 5, dir::down ) = moveBias3x6Cal( 1, 5, dir::up ) = 0.7;
-	moveBiasCalibrations.push_back( moveBias3x6Cal );
+	moveBias3x6Cal ( 2, 0, dir::down ) = moveBias3x6Cal ( 1, 0, dir::up ) = 0.8;
+	moveBias3x6Cal ( 2, 1, dir::down ) = moveBias3x6Cal ( 1, 1, dir::up ) = 0.5;
+	moveBias3x6Cal ( 2, 2, dir::down ) = moveBias3x6Cal ( 1, 2, dir::up ) = 0.45;
+	moveBias3x6Cal ( 2, 3, dir::down ) = moveBias3x6Cal ( 1, 3, dir::up ) = 0.48;
+	moveBias3x6Cal ( 2, 4, dir::down ) = moveBias3x6Cal ( 1, 4, dir::up ) = 0.35;
+	moveBias3x6Cal ( 2, 5, dir::down ) = moveBias3x6Cal ( 1, 5, dir::up ) = 0.7;
+	moveBiasCalibrations.push_back ( moveBias3x6Cal );
 
-	rerngContainer<double> moveBias10x10Cal( 10, 10, 0.1 );
-	moveBias10x10Cal( 5, 3, dir::right ) = 0.125;
-	moveBias10x10Cal( 5, 5, dir::left ) = 0.0975;
-
-	moveBiasCalibrations.push_back( moveBias10x10Cal );
+	rerngContainer<double> moveBias10x10Cal ( 10, 10, 0.15 );
+	moveBias10x10Cal ( 5, 3, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 7, 5, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 0, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 9, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 8, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 2, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 6, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 4, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 7, dir ( 0 ) ) = 0.1;
+	moveBias10x10Cal ( 7, 3, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 7, dir ( 3 ) ) = 0.1;
+	moveBias10x10Cal ( 3, 0, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 7, 5, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 5, dir ( 3 ) ) = 0.2;
+	moveBias10x10Cal ( 0, 9, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 4, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 2, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 9, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 1, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 5, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 8, dir ( 2 ) ) = 0.25;
+	moveBias10x10Cal ( 4, 3, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 1, 7, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 0, 3, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 0, 1, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 7, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 9, 6, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 0, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 6, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 0, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 2, 1, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 4, 0, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 7, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 4, 9, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 4, dir ( 1 ) ) = 0.1;
+	moveBias10x10Cal ( 3, 9, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 7, 4, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 1, 7, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 5, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 2, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 9, 4, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 2, 4, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 3, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 0, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 4, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 7, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 6, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 2, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 5, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 7, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 7, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 0, 8, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 0, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 3, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 8, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 9, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 1, 6, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 8, 3, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 8, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 1, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 2, dir ( 3 ) ) = 0.1;
+	moveBias10x10Cal ( 2, 6, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 9, 1, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 9, 7, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 4, dir ( 3 ) ) = 0.1;
+	moveBias10x10Cal ( 6, 7, dir ( 3 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 1, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 0, dir ( 3 ) ) = 0.2;
+	moveBias10x10Cal ( 0, 4, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 0, 7, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 5, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 4, 8, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 8, 7, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 5, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 4, 1, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 9, 5, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 8, 7, dir ( 2 ) ) = 0.25;
+	moveBias10x10Cal ( 5, 8, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 7, 6, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 5, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 1, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 7, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 0, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 1, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 7, 8, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 8, 4, dir ( 2 ) ) = 0.25;
+	moveBias10x10Cal ( 8, 9, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 4, 0, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 2, 3, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 1, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 4, 2, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 2, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 5, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 2, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 4, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 2, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 2, 3, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 2, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 4, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 2, dir ( 3 ) ) = 0.2;
+	moveBias10x10Cal ( 0, 5, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 9, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 2, 8, dir ( 0 ) ) = 0.1;
+	moveBias10x10Cal ( 4, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 9, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 4, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 7, 8, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 1, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 9, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 9, 2, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 7, 4, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 0, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 9, 8, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 0, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 5, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 8, 2, dir ( 2 ) ) = 0.25;
+	moveBias10x10Cal ( 9, 3, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 7, 7, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 4, 4, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 1, dir ( 3 ) ) = 0.2;
+	moveBias10x10Cal ( 9, 9, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 8, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 6, dir ( 2 ) ) = 0.25;
+	moveBias10x10Cal ( 4, 7, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 7, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 4, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 2, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 4, dir ( 3 ) ) = 0.2;
+	moveBias10x10Cal ( 2, 9, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 2, 1, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 1, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 3, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 7, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 6, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 4, 5, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 2, 0, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 5, 8, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 9, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 9, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 4, 3, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 3, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 9, 0, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 7, 2, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 0, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 5, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 6, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 1, 5, dir ( 3 ) ) = 0.1;
+	moveBias10x10Cal ( 6, 6, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 5, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 4, 7, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 7, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 8, 8, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 1, 6, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 8, 5, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 0, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 7, 0, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 8, 6, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 7, 3, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 0, 0, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 3, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 6, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 4, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 5, 3, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 8, dir ( 2 ) ) = 0.25;
+	moveBias10x10Cal ( 2, 8, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 4, dir ( 3 ) ) = 0.1;
+	moveBias10x10Cal ( 3, 8, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 7, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 3, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 9, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 4, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 1, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 8, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 3, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 9, dir ( 0 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 6, dir ( 2 ) ) = 0.2;
+	moveBias10x10Cal ( 7, 9, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 0, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 6, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 5, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 5, dir ( 0 ) ) = 0.1;
+	moveBias10x10Cal ( 8, 1, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 7, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 5, 0, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 5, 5, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 6, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 4, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 5, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 3, dir ( 2 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 9, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 8, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 3, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 1, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 8, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 8, 0, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 5, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 6, 3, dir ( 1 ) ) = 0.1;
+	moveBias10x10Cal ( 1, 2, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 5, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 3, 9, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 8, 2, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 3, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 9, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 1, dir ( 3 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 5, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 7, dir ( 1 ) ) = 0.15;
+	moveBias10x10Cal ( 6, 1, dir ( 3 ) ) = 0.25;
+	moveBias10x10Cal ( 3, 0, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 1, 6, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 1, 4, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 2, dir ( 1 ) ) = 0.2;
+	moveBias10x10Cal ( 6, 4, dir ( 1 ) ) = 0.25;
+	moveBias10x10Cal ( 1, 3, dir ( 0 ) ) = 0.15;
+	moveBias10x10Cal ( 8, 4, dir ( 1 ) ) = 0.875;
+	moveBias10x10Cal ( 3, 7, dir ( 0 ) ) = 0.2;
+	moveBias10x10Cal ( 3, 4, dir ( 0 ) ) = 0.15;
+	moveBiasCalibrations.push_back ( moveBias10x10Cal );
 }
 
 
@@ -171,6 +390,7 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& outpu
 	// Restart Waveform
 	input->niawg->turnOff( );
 	input->niawg->programVariations( variation, variedMixedSize, output );
+	//input->niawg->finalizeScript ( );
 	input->niawg->fgenConduit.writeScript( userScriptSubmit );
 	input->niawg->fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
 	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
@@ -275,14 +495,13 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	profileSettings profile;
 	try
 	{
-		output.niawgLanguageScript = "script DefaultConfigScript\n";
 		ScriptStream script;
 		script << configFile.rdbuf( );
 		rerngGuiOptionsForm rInfoDummy;
 		rInfoDummy.moveSpeed.expressionStr = str(0.00006);
 		analyzeNiawgScript( script, output, profile, debug, warnings, rInfoDummy, std::vector<parameterType>() );
 		writeStaticNiawg( output, debug, std::vector<parameterType>( ) );
-		// the script file must end with "end script".
+		output.niawgLanguageScript.insert ( 0, "script DefaultConfigScript\n" );
 		output.niawgLanguageScript += "end Script";
 		// Convert script string to ViConstString. +1 for a null character on the end.
 		defaultScript = std::vector<ViChar>( output.niawgLanguageScript.begin( ), output.niawgLanguageScript.end( ) );
@@ -425,7 +644,7 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 										  std::vector<parameterType>& variables )
 {
 	/// Preparation
-	output.niawgLanguageScript = "";
+	//output.niawgLanguageScript = "";
 	currentScript = script.str( );
 	script.clear();
 	script.seekg( 0, std::ios::beg );
@@ -852,12 +1071,12 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 			thrower( "ERROR: Expected \"}\" but found \"" + bracket + "\" in niawg File during flashing waveform read." );
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
-		rearrangeWave.rearrange.moveLimit = 5; // getMaxMoves( rearrangeWave.rearrange.target );
+		rearrangeWave.rearrange.moveLimit = 50; // getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
 		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
-														 * rearrangeWave.rearrange.timePerMove.evaluate( )
-														 + 2 * rerngGuiInfo.finalMoveTime.evaluate() / 1e3) * 1e3 );
+														 * rearrangeWave.rearrange.timePerMove.evaluate( ) * 1e-3
+														 + 2 * rerngGuiInfo.finalMoveTime.evaluate() * 1e-3) * 1e3 );
 		for ( auto ax : AXES )
 		{
 			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].signals )
@@ -868,8 +1087,8 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = long( (output.waveFormInfo.back( ).rearrange.moveLimit
-							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) 
-							   + 2 * rerngGuiInfo.finalMoveTime.evaluate() / 1e3) * NIAWG_SAMPLE_RATE );
+							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) * 1e-3
+							   + 2 * rerngGuiInfo.finalMoveTime.evaluate() * 1e-3) * NIAWG_SAMPLE_RATE );
 		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
@@ -1914,7 +2133,7 @@ void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, s
 	// the NIAWG requires that the script file must end with "end script".
 	finalUserScriptString += "end Script";
 
-	// Convert script string to ViConstString. +1 for a null character on the end.
+	// Convert script string to ViConstString.
 	userScriptSubmit = std::vector<ViChar>( finalUserScriptString.begin( ), finalUserScriptString.end( ) );
 }
 
@@ -1946,7 +2165,7 @@ void NiawgController::rerngScriptInfoFormToOutput( waveInfoForm& waveForm, waveI
 	wave.rearrange.moveLimit = waveForm.rearrange.moveLimit;
 	wave.rearrange.target = waveForm.rearrange.target;
 	wave.rearrange.finalPosition = waveForm.rearrange.finalPosition;
-	wave.rearrange.timePerMove = waveForm.rearrange.timePerMove.evaluate(variables, variation);
+	wave.rearrange.timePerMove = waveForm.rearrange.timePerMove.evaluate(variables, variation) * 1e-3;
 	wave.rearrange.staticBiases = waveForm.rearrange.staticBiases;
 	wave.rearrange.staticPhases = waveForm.rearrange.staticPhases;
 	simpleFormToOutput( waveForm.rearrange.staticWave, wave.rearrange.staticWave, variables, variation );
@@ -2822,8 +3041,9 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 	}
 	else
 	{
-		// put it off-axis on the low frequency side of things. 
-		staticTweezers.push_back( -1 );
+		// put it off-axis on the low frequency side of things. Note that this will correspond to the high frequency 
+		// side at the aoms because of the mix-up.
+		staticTweezers.push_back( -2 );
 	}
 	/// make the static "dump" tweezers in the moving axis
 	UINT signalNum = 0;
@@ -2834,8 +3054,8 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 		// static
 		sig.freqRampType = sig.powerRampType = "nr";
 		auto staticPos = upOrDown ? rerngSettings.staticBiases[movingAxis].size( ) - gridLoc - 1: gridLoc;
-		sig.finPower = sig.initPower = nonMovingFrac * (gridLoc==-1 ? 1 : rerngSettings.staticBiases[movingAxis][staticPos]);
-		sig.initPhase = (gridLoc==-1 ? 0 : rerngSettings.staticPhases[movingAxis][staticPos]);
+		sig.finPower = sig.initPower = nonMovingFrac * (gridLoc==-2 ? 1 : rerngSettings.staticBiases[movingAxis][staticPos]);
+		sig.initPhase = (gridLoc==-2 ? 0 : rerngSettings.staticPhases[movingAxis][staticPos]);
 		sig.freqInit = (upOrDown) ? ((targetRows - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) :
 								     (gridLoc * freqPerPixel + lowFreqs[movingAxis]);
 		sig.freqInit *= 1e6;
@@ -2874,7 +3094,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 	{
 		if (moveInfo.locationsToMove.size() == 1)
 		{
-			moveInfo.locationsToMove.push_back({ -1,-1 });
+			moveInfo.locationsToMove.push_back({ -2,-2 });
 		}
 		moveWave.chan[staticAxis].signals.resize( moveInfo.locationsToMove.size() );
 		UINT sigCount = 0;
@@ -2941,12 +3161,12 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 											   std::vector<parameterType>& variables, UINT variation )
 {
 	data.active = form.active;
-	data.deadTime = form.deadTime.evaluate( variables, variation );
-	data.flashingRate = form.flashingRate.evaluate( variables, variation );
+	data.deadTime = form.deadTime.evaluate( variables, variation ) * 1e-9;
+	data.flashingRate = form.flashingRate.evaluate( variables, variation ) * 1e6;
 	data.moveBias = form.moveBias.evaluate( variables, variation );
-	data.moveSpeed = form.moveSpeed.evaluate( variables, variation );
+	data.moveSpeed = form.moveSpeed.evaluate( variables, variation ) * 1e-3;
 	data.staticMovingRatio = form.staticMovingRatio.evaluate( variables, variation );
-	data.finalMoveTime = form.finalMoveTime.evaluate( variables, variation ) / 1e3;
+	data.finalMoveTime = form.finalMoveTime.evaluate( variables, variation ) * 1e-3;
 	//
 	data.outputIndv = form.outputIndv;
 	data.outputInfo = form.outputInfo;
@@ -3065,7 +3285,6 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
-	
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
 	std::vector<double> streamTime, triggerTime, resetPositionTime, /*picHandlingTime, picGrabTime,*/ rerngCalcTime, 
@@ -3104,7 +3323,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		// wait for data
 		while ( *input->threadActive )
 		{
-			std::vector<bool> tempAtoms;
+			AtomImage tempAtoms;
 			{
 				// something went wrong...
 				// wait for the next image using a condition_variable.
@@ -3123,7 +3342,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					}
 				}
 				tempAtoms = (*input->atomsQueue)[0];
-				if (tempAtoms.size() == 0)
+				if (tempAtoms.image.size() == 0)
 				{
 					// spurious wake-up? This one probably never happens now that I've implemented the 
 					// condition_variable.
@@ -3155,7 +3374,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				for ( auto rowCount : range( source.getRows() ) )
 				{
-					source(source.getRows() - 1 - rowCount, colCount) = tempAtoms[count++];
+					source(source.getRows() - 1 - rowCount, colCount) = tempAtoms.image[count++];
 				}
 			}
 			std::vector<simpleMove> simpleMoveSequence;
@@ -3164,7 +3383,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			try
 			{
 				smartTargettingRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, 
-									input->guiOptions);
+											  input->guiOptions );
 				optimizeMoves( simpleMoveSequence, source, complexMoveSequence, input->guiOptions );
 			}
 			catch ( Error& )
@@ -3397,104 +3616,106 @@ void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<
 {
 	std::vector<simpleMove> moveList;
 	Matrix<bool> finTarget(source.getRows(), source.getCols(), 0);
-	while ( true )
+
+	try
 	{
-		try
+		if ( source.getRows( ) == target.getRows( ) && source.getCols( ) == target.getCols( ) )
 		{
-			if ( source.getRows( ) == target.getRows( ) && source.getCols( ) == target.getCols( ) )
+			// dimensions match, no flexibility.
+			rearrangement( source, target, moveList );
+			finTargetPos = { 0,0 };
+			finTarget = target;
+		}
+		switch ( options.smartOption )
+		{
+			case smartRerngOption::none:
 			{
-				// dimensions match, no flexibility.
-				rearrangement( source, target, moveList );
-				finTargetPos = { 0,0 };
-				finTarget = target;
+				// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+				finTarget = calculateFinalTarget (target, finalPos, source.getRows(), source.getCols() );
+				rearrangement( source, finTarget, moveList );
+				finTargetPos = finalPos;
+				break;
 			}
-			switch ( options.smartOption )
+			case smartRerngOption::convolution:
+			{
+				finTargetPos = convolve( source, target );
+				finTarget = calculateFinalTarget ( target, finTargetPos, source.getRows ( ), source.getCols ( ) );
+				rearrangement( source, finTarget, moveList );
+				break;
+			}
+			case smartRerngOption::full:
+			{
+				// calculate the full rearrangement sequence for every possible final position and use the easiest.
+				UINT leastMoves = UINT_MAX;
+				for ( auto startRowInc : range( source.getRows( ) - target.getRows( ) + 1 ) )
 				{
-				case smartRerngOption::none:
-				{
-					// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
-					finTarget = calculateFinalTarget (target, finalPos, source.getRows(), source.getCols() );
-					rearrangement( source, finTarget, moveList );
-					finTargetPos = finalPos;
-					break;
-				}
-				case smartRerngOption::convolution:
-				{
-					finTargetPos = convolve( source, target );
-					finTarget = calculateFinalTarget ( target, finTargetPos, source.getRows ( ), source.getCols ( ) );
-					rearrangement( source, finTarget, moveList );
-					break;
-				}
-				case smartRerngOption::full:
-				{
-					// calculate the full rearrangement sequence for every possible final position and use the easiest.
-					UINT leastMoves = UINT_MAX;
-					for ( auto startRowInc : range( source.getRows( ) - target.getRows( ) + 1 ) )
+					if ( leastMoves == 0 )
 					{
-						for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
+						// not possible to move to final location
+						break;
+					}
+					for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
+					{
+						// create the potential target with the correct offset.
+						finTarget = calculateFinalTarget ( target, { startRowInc, startColInc },  
+																		source.getRows ( ), source.getCols ( ) );
+						std::vector<simpleMove> potentialMoves;
+						rearrangement( source, finTarget, potentialMoves );
+						if ( potentialMoves.size( ) < leastMoves )
 						{
-							// create the potential target with the correct offset.
-							finTarget = calculateFinalTarget ( target, { startRowInc, startColInc },  
-																		 source.getRows ( ), source.getCols ( ) );
-							std::vector<simpleMove> potentialMoves;
-							rearrangement( source, finTarget, potentialMoves );
-							if ( potentialMoves.size( ) < leastMoves )
+							// new record.
+							moveList = potentialMoves;
+							finTargetPos = { source.getRows( ) - target.getRows( ) - startRowInc, startColInc };
+							leastMoves = potentialMoves.size(  );
+							if ( leastMoves == 0 )
 							{
-								// new record.
-								moveList = potentialMoves;
-								finTargetPos = { source.getRows( ) - target.getRows( ) - startRowInc, startColInc };
-								leastMoves = potentialMoves.size( );
-								if ( leastMoves == 0 )
-								{
-									// not possible to move to final location
-									break;
-								}
+								// not possible to move to final location
+								break;
 							}
 						}
-					}
-					break;
-				}
-			}
-		}
-		catch ( Error& err )
-		{
-			std::string tmpStr = err.whatBare( ).substr( 0, 10 );
-			if ( tmpStr == "Less atoms" )
-			{
-				if ( moveList.size( ) == 0 )
-				{
-					// flip one atom and try again with less atoms.
-					bool found = false;
-					for ( auto& atom : target )
-					{
-						if ( atom )
-						{
-							atom = false;
-							found = true;
-							break;
-						}
-					}
-					if ( found )
-					{
-						continue;
 					}
 				}
 				break;
 			}
-			else
+		}
+	}
+	catch ( Error& err )
+	{
+		std::string tmpStr = err.whatBare( ).substr( 0, 10 );
+		if ( tmpStr == "Less atoms" )
+		{
+			if ( moveList.size( ) == 0 )
 			{
-				throw;
+				// flip one atom and try again with less atoms.
+				bool found = false;
+				for ( auto& atom : target )
+				{
+					if ( atom )
+					{
+						atom = false;
+						found = true;
+						break;
+					}
+				}
+				if ( found )
+				{
+					return;
+				}
 			}
+		}
+		else
+		{
+			throw;
 		}
 	}
 	/// now order the operations.
 	// can randomize first, otherwise the previous algorith always ends up filling the bottom left of the array first.
-	if ( randomize )
+	if ( true )
 	{
 		randomizeMoves ( moveList );
 	}
 
-	if ( orderMovesByProximityToTarget )
+	if ( false )
 	{
 		auto comPos = calculateTargetCOM ( finTarget, finTargetPos );
 		calculateMoveDistancesToTarget ( moveList, comPos );
