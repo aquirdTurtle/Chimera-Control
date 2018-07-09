@@ -1,38 +1,29 @@
-#include "stdafx.h" 
-#include <iostream>
-#include <chrono>
-#include <vector>
-#include "afxwin.h"
-#include <fstream>
-#include <string>
-
+#include "stdafx.h"  
+#include <iostream> 
+#include <chrono> 
+#include <vector> 
+#include "afxwin.h" 
+#include <fstream> 
+#include <string> 
+/*
+#include "dlpc350_common.h"
+#include "dlpc350_api.h"
+#include "dlpc350_usb.h"
+*/
 using namespace std;
-using namespace chrono;
-
 
 int main( )
 {
-	std::ifstream thresholdFile;
-	std::vector<double> thresholds;
-	thresholdFile.open ("Threshold-File.txt");
-	while ( true )
-	{
-		double threshold;
-		thresholdFile >> threshold;
-		if ( thresholdFile.eof ( ) )
-		{     
-			break;
-		}
-		thresholds.push_back ( threshold );
-	}
-	for ( auto thresh : thresholds )
-	{
-		cout << thresh << ", ";
-	}
-	cout << endl;
-	cout << thresholds.size ( ) << endl;
-	cout << thresholds.back ( );
+	/*
+	cout << DLPC350_USB_Init ( ) << endl;
+	unsigned char HWStatus, SysStatus, MainStatus;
+	cout << DLPC350_USB_Open ( ) << endl;
+	cout << DLPC350_GetStatus ( &HWStatus, &SysStatus, &MainStatus ) << endl;
+	cout << int(HWStatus) << " " << int(SysStatus) << " " << int(MainStatus) << endl;
+	cout << "hello, world!";
 	cin.get ( );
+	*/
 	return 0;
 }
+ 
 

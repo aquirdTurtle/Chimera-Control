@@ -2559,10 +2559,10 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					}
 					else
 					{
-						noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
+						noFlashMove.waveVals = makeFullRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
 															  noFlashMove.moveBias, noFlashMove.deadTime, input->sourceRows,
 															  input->sourceCols, noFlashMoveInfo );
-						flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
+						flashMove.waveVals = makeFullRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
 															flashMove.moveBias, flashMove.deadTime, input->sourceRows,
 															input->sourceCols, flashMoveInfo );
 					}
@@ -2575,10 +2575,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 	input->flashMoves.setFilledFlag( );
 }
 
-
-
 /*
-Has not been updated with the off-grid dump functionality.
+	Has not been updated with the off-grid dump functionality.
 */
 std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSettings, UINT sourceRows, UINT sourceCols,
 														complexMove moveInfo, rerngGuiOptions options, double moveBias )
@@ -2769,11 +2767,150 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 }
 
 
+simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, double staticMovingRatio,
+														     double moveBias, UINT sourceRows, UINT sourceCols,
+														     complexMove moveInfo )
+{ 
+	double freqPerPixel = rerngSettings.freqPerPixel;
 
-std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettings, double staticMovingRatio, 
-													double moveBias, double deadTime, UINT sourceRows, UINT sourceCols, 
-													complexMove moveInfo )
+	auto targetCols = rerngSettings.target.getCols ( );
+	auto targetRows = rerngSettings.target.getRows ( );
+	auto& lowFreqs = rerngSettings.lowestFreqs;
+
+	bool upOrDown = ( moveInfo.moveDir == dir::down || moveInfo.moveDir == dir::up );
+	UINT movingAxis = upOrDown ? Axes::Vertical : Axes::Horizontal;
+	UINT staticAxis = ( !upOrDown ) ? Axes::Vertical : Axes::Horizontal;
+	UINT movingSize = upOrDown ? sourceRows : sourceCols;
+	simpleWave moveWave;
+	moveWave.varies = false;
+	moveWave.name = "NOT-USED";
+	// if flashing, this time + staticWave.time needs to be = rerngSettings.timePerMove
+	moveWave.time = ( moveInfo.needsFlash ? rerngSettings.timePerMove / ( staticMovingRatio + 1 ) : rerngSettings.timePerMove );
+	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+	bool offGridDump = true;
+	double nonMovingFrac = offGridDump ? 1 - moveBias : ( 1 - moveBias ) / ( movingSize - 2 );
+	/// handle moving axis /////////////
+	/// figure out where to put static "dump" traps in the moving axis
+	std::vector<int> staticTweezers;
+	if ( !offGridDump || !moveInfo.needsFlash )
+	{
+		// if not flashing then need to put excess power in the other tweezers to hold them during the move.
+		// for every possible static tweezer
+		for ( auto potentialStaticGridLoc : range ( movingSize ) )
+		{
+			bool isUsed = false;
+			for ( auto loc : moveInfo.locationsToMove )
+			{
+				// if location is init or final location of this location's move...
+				if ( potentialStaticGridLoc == ( upOrDown ? loc.row : loc.column ) ||
+					 potentialStaticGridLoc == ( upOrDown ? loc.row + moveInfo.dirInt ( ) : loc.column + moveInfo.dirInt ( ) ) )
+				{
+					isUsed = true;
+				}
+			}
+			if ( !isUsed )
+			{
+				// then should be a static tweezer
+				staticTweezers.push_back ( potentialStaticGridLoc );
+			}
+		}
+	}
+	else
+	{
+		// put it off-axis on the low frequency side of things. 
+		staticTweezers.push_back ( -1 );
+	}
+	/// make the static "dump" tweezers in the moving axis
+	UINT signalNum = 0;
+	for ( auto gridLoc : staticTweezers )
+	{
+		moveWave.chan[ movingAxis ].signals.push_back ( waveSignal ( ) );
+		waveSignal& sig = moveWave.chan[ movingAxis ].signals[ signalNum ];
+		// static
+		sig.freqRampType = sig.powerRampType = "nr";
+		auto staticPos = upOrDown ? rerngSettings.staticBiases[ movingAxis ].size ( ) - gridLoc - 1 : gridLoc;
+		sig.finPower = sig.initPower = nonMovingFrac * ( gridLoc == -1 ? 1 : rerngSettings.staticBiases[ movingAxis ][ staticPos ] );
+		sig.initPhase = ( gridLoc == -1 ? 0 : rerngSettings.staticPhases[ movingAxis ][ staticPos ] );
+		sig.freqInit = ( upOrDown ) ? ( ( targetRows - gridLoc - 1 ) * freqPerPixel + lowFreqs[ movingAxis ] ) :
+			( gridLoc * freqPerPixel + lowFreqs[ movingAxis ] );
+		sig.freqInit *= 1e6;
+		sig.freqFin = sig.freqInit;
+		signalNum++;
+	}
+	/// make the moving traps in the moving axis.
+	bool piFound = false;
+	for ( auto loc : moveInfo.locationsToMove )
+	{
+		if ( !moveInfo.isInlineParallel && piFound )
+		{
+			break;
+		}
+		else if ( !moveInfo.isInlineParallel )
+		{
+			piFound = true;
+		}
+		moveWave.chan[ movingAxis ].signals.push_back ( waveSignal ( ) );
+		waveSignal& sig = moveWave.chan[ movingAxis ].signals[ signalNum ];
+		sig.powerRampType = "nr";
+		sig.initPhase = 0;
+		sig.finPower = sig.initPower = moveBias;
+		sig.freqRampType = "fast";
+		UINT init = upOrDown ? loc.row : loc.column;
+		UINT fin = ( upOrDown ? loc.row : loc.column ) + moveInfo.dirInt ( );
+		sig.freqInit = ( upOrDown ? ( ( targetRows - init - 1 ) * freqPerPixel + lowFreqs[ movingAxis ] ) :
+						 init * freqPerPixel + lowFreqs[ movingAxis ] )* 1e6;
+		sig.freqFin = ( upOrDown ? ( ( targetRows - fin - 1 ) * freqPerPixel + lowFreqs[ movingAxis ] ) :
+						fin * freqPerPixel + lowFreqs[ movingAxis ] )* 1e6;
+		signalNum++;
+	}
+	/// handle static axis /////////////////
+	// much simpler than the moving axis, just 1 branch.
+	if ( moveInfo.needsFlash )
+	{
+		moveWave.chan[ staticAxis ].signals.resize ( moveInfo.locationsToMove.size ( ) );
+		UINT sigCount = 0;
+		for ( auto atom : moveInfo.locationsToMove )
+		{
+			waveSignal& sig = moveWave.chan[ staticAxis ].signals[ sigCount ];
+			// equal power in all of these.
+			sig.finPower = sig.initPower = 1;
+			sig.freqRampType = sig.powerRampType = "nr";
+			sig.initPhase = 0;
+			sig.freqInit = ( upOrDown ? atom.column * freqPerPixel + lowFreqs[ staticAxis ] :
+				( targetRows - atom.row - 1 ) * freqPerPixel + lowFreqs[ staticAxis ] ) * 1e6;
+			sig.freqFin = sig.freqInit;
+			sigCount++;
+		}
+	}
+	else
+	{
+		// no flash, so static axis must span all tweezers
+		moveWave.chan[ staticAxis ].signals.resize ( upOrDown ? targetRows : targetCols );
+		UINT sigCount = 0;
+		for ( auto& sig : moveWave.chan[ staticAxis ].signals )
+		{
+			sig.freqRampType = sig.powerRampType = "nr";
+			auto staticPos = !upOrDown ? rerngSettings.staticBiases[ staticAxis ].size ( ) - sigCount - 1 : sigCount;
+			sig.initPhase = rerngSettings.staticPhases[ staticAxis ][ staticPos ];
+			sig.freqInit = ( upOrDown ? sigCount * freqPerPixel + lowFreqs[ staticAxis ] :
+				( targetRows - sigCount - 1 ) * freqPerPixel + lowFreqs[ staticAxis ] ) * 1e6;
+			sig.freqFin = sig.freqInit;
+			// use the calibrated even biases
+			sig.initPower = sig.finPower = rerngSettings.staticBiases[ staticAxis ][ staticPos ];
+			sigCount++;
+		}
+	}
+	/// finalize info & calculate things
+	finalizeStandardWave ( moveWave, debugInfo ( ) );
+	return moveWave;
+}
+
+
+std::vector<double> NiawgController::makeFullRerngWave( rerngScriptInfo& rerngSettings, double staticMovingRatio, 
+													    double moveBias, double deadTime, UINT sourceRows, UINT sourceCols, 
+													    complexMove moveInfo )
 {
+	/*
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
 	bool upOrDown = (moveInfo.moveDir == dir::down || moveInfo.moveDir == dir::up);
@@ -2905,6 +3042,8 @@ std::vector<double> NiawgController::makeRerngWave( rerngScriptInfo& rerngSettin
 
 	/// finalize info & calculate things
 	finalizeStandardWave( moveWave, debugInfo( ) );
+	*/
+	auto moveWave = makeRerngWaveMovePart ( rerngSettings, staticMovingRatio, moveBias, sourceRows, sourceCols, moveInfo );
 	// now put together into small temporary flashing wave
 	waveInfo flashMove;
 	flashMove.core.time = rerngSettings.timePerMove;
@@ -3228,7 +3367,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					}
 					else
 					{
-						vals = input->niawg->makeRerngWave( info, input->guiOptions.staticMovingRatio, bias,
+						vals = input->niawg->makeFullRerngWave( info, input->guiOptions.staticMovingRatio, bias,
 															input->guiOptions.deadTime, input->sourceRows,
 															input->sourceCols, move );
 					}
@@ -3398,53 +3537,56 @@ void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<
 {
 	std::vector<simpleMove> moveList;
 	Matrix<bool> finTarget(source.getRows(), source.getCols(), 0);
+	// The while loop only comes into play if you don't have enough atoms to make the target, in which case
+	// an exception is thrown and the catch uses "continue" to redo the contents of the while loop.
 	while ( true )
 	{
 		try
 		{
-			if ( source.getRows( ) == target.getRows( ) && source.getCols( ) == target.getCols( ) )
+			if ( source.getRows ( ) == target.getRows ( ) && source.getCols ( ) == target.getCols ( ) )
 			{
-				// dimensions match, no flexibility.
-				rearrangement( source, target, moveList );
+				// dimensions match, no flexibility for smartness
+				rearrangement ( source, target, moveList );
 				finTargetPos = { 0,0 };
 				finTarget = target;
+				break;
 			}
 			switch ( options.smartOption )
-				{
+			{
 				case smartRerngOption::none:
 				{
 					// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
-					finTarget = calculateFinalTarget (target, finalPos, source.getRows(), source.getCols() );
-					rearrangement( source, finTarget, moveList );
+					finTarget = calculateFinalTarget ( target, finalPos, source.getRows ( ), source.getCols ( ) );
+					rearrangement ( source, finTarget, moveList );
 					finTargetPos = finalPos;
 					break;
 				}
 				case smartRerngOption::convolution:
 				{
-					finTargetPos = convolve( source, target );
+					finTargetPos = convolve ( source, target );
 					finTarget = calculateFinalTarget ( target, finTargetPos, source.getRows ( ), source.getCols ( ) );
-					rearrangement( source, finTarget, moveList );
+					rearrangement ( source, finTarget, moveList );
 					break;
 				}
 				case smartRerngOption::full:
 				{
 					// calculate the full rearrangement sequence for every possible final position and use the easiest.
 					UINT leastMoves = UINT_MAX;
-					for ( auto startRowInc : range( source.getRows( ) - target.getRows( ) + 1 ) )
+					for ( auto startRowInc : range ( source.getRows ( ) - target.getRows ( ) + 1 ) )
 					{
-						for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
+						for ( auto startColInc : range ( source.getCols ( ) - target.getCols ( ) + 1 ) )
 						{
 							// create the potential target with the correct offset.
-							finTarget = calculateFinalTarget ( target, { startRowInc, startColInc },  
-																		 source.getRows ( ), source.getCols ( ) );
+							finTarget = calculateFinalTarget ( target, { startRowInc, startColInc },
+															   source.getRows ( ), source.getCols ( ) );
 							std::vector<simpleMove> potentialMoves;
-							rearrangement( source, finTarget, potentialMoves );
-							if ( potentialMoves.size( ) < leastMoves )
+							rearrangement ( source, finTarget, potentialMoves );
+							if ( potentialMoves.size ( ) < leastMoves )
 							{
 								// new record.
 								moveList = potentialMoves;
-								finTargetPos = { source.getRows( ) - target.getRows( ) - startRowInc, startColInc };
-								leastMoves = potentialMoves.size( );
+								finTargetPos = { source.getRows ( ) - target.getRows ( ) - startRowInc, startColInc };
+								leastMoves = potentialMoves.size ( );
 								if ( leastMoves == 0 )
 								{
 									// not possible to move to final location
@@ -3455,14 +3597,16 @@ void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<
 					}
 					break;
 				}
+				// didn't throw.
+				break;
 			}
 		}
 		catch ( Error& err )
 		{
-			std::string tmpStr = err.whatBare( ).substr( 0, 10 );
+			std::string tmpStr = err.whatBare ( ).substr ( 0, 10 );
 			if ( tmpStr == "Less atoms" )
 			{
-				if ( moveList.size( ) == 0 )
+				if ( moveList.size ( ) == 0 )
 				{
 					// flip one atom and try again with less atoms.
 					bool found = false;
@@ -4042,8 +4186,6 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				}
 			}
 		}
-
-
 
 		// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
 		// atom at the final position

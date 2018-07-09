@@ -114,9 +114,10 @@ class CameraWindow : public CDialog
 
 		AndorCamera Andor;
 		CameraSettingsControl CameraSettings;
+		PictureManager pics;
+
 		ColorBox box;
 		PictureStats stats;
-		PictureManager pics;
 		AlertSystem alerts;
 		ExperimentTimer timer;		
 		// these two could probably be combined in a sensible way.

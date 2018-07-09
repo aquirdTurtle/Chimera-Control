@@ -320,7 +320,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 		edit.colorState = 0;
 		edit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, edit.sPos, master, id++ );
 		edit.SetWindowText( "0" );
-		edit.setToolTip( dacNames[dacInc], toolTips, master );
+		edit.setToolTip( dacNames[dacInc] + "\r\n" + dacNotes[dacInc], toolTips, master );
 		dacInc++;
 	}
 
@@ -339,7 +339,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 		dacLabels[dacInc].sPos = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y += 25 };
 		dacLabels[dacInc].Create( cstr( dacInc ), WS_CHILD | WS_VISIBLE | SS_CENTER,
 								  dacLabels[dacInc].sPos, master, ID_DAC_FIRST_EDIT + dacInc );
-		dacLabels[dacInc].setToolTip( dacNames[dacInc], toolTips, master );
+		dacLabels[dacInc].setToolTip( dacNames[ dacInc ] + "\r\n" + dacNotes[ dacInc ], toolTips, master );
 	}
 }
 
@@ -1098,7 +1098,18 @@ void AoSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, Aux
 	}
 	std::transform( name.begin(), name.end(), name.begin(), ::tolower );
 	dacNames[dacNumber] = name;
-	breakoutBoardEdits[dacNumber].setToolTip(name, toolTips, master);
+	breakoutBoardEdits[dacNumber].setToolTip( dacNames[ dacNumber ] + "\r\n" + dacNotes[ dacNumber ], toolTips, master);
+}
+
+std::string AoSystem::getNote ( int dacNumber )
+{
+	return dacNotes[ dacNumber ];
+}
+
+void AoSystem::setNote( int dacNum, std::string note, cToolTips& toolTips, AuxiliaryWindow* master )
+{
+	dacNotes[ dacNum ] = note;
+	breakoutBoardEdits[ dacNum ].setToolTip ( dacNames[ dacNum ] + "\r\n" + dacNotes[ dacNum ], toolTips, master );
 }
 
 
