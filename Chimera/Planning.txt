@@ -27,6 +27,8 @@ FEATURES:
 - auto mot calibration runs
 - integrate a basler window.
 - add reporting on how many atoms loaded via atomcruncher thread.
+- improve delete file after abort functionality
+- option for rearranging: no flashing and no static array for extra potential rearranging.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -37,10 +39,12 @@ Refactoring / Other:
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
 - refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
+- refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
+- reduce size of niawgcontroller file; maybe try to separate out rearrange functionality?
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
-- global variable colors don't appear to always be correct. Not being changed by use in agilent and niawg?
+- global variable colors don't appear to always be correct; agilent issue probably?
 - Turnonmot should really be the minimal stuff
 	- niawg is doing something during turnonmot... it shouldn't.
 	- turnonmot seems to be running tektronics stuff too.

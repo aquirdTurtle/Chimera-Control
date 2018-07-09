@@ -17,6 +17,7 @@ CameraWindow::CameraWindow() : CDialog(),
 								dataHandler(DATA_SAVE_LOCATION),
 								Andor( ANDOR_SAFEMODE )
 {
+
 };
 
 
