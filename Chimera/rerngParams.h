@@ -20,7 +20,8 @@ struct rerngGuiOptionsForm
 	bool outputIndv = false;
 	bool preprogram = false;
 	bool useCalibration = false;
-	bool useFast;
+	bool useFast = false;
+	bool auxStatic = false;
 };
 
 
@@ -68,6 +69,7 @@ struct rerngGuiOptions
 	double moveBias=1;
 	// 
 	double deadTime=0;
+
 	// the static / moving time ratio, i.e. if 2 this might imply out of a total 60us move, the static part takes up
 	// 40us and the moving part takes up 20us.
 	double staticMovingRatio=1;
@@ -75,6 +77,8 @@ struct rerngGuiOptions
 	bool outputIndv = false;
 	bool preprogram = false;
 	bool useCalibration = false;
+	bool auxStatic = false;
+
 	double finalMoveTime = 1e-3;
 	// fast options
 	bool useFast = false;

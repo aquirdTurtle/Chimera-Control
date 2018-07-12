@@ -2557,6 +2557,15 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 																input->sourceCols, flashMoveInfo, input->guiOptions,
 																flashMove.moveBias );
 					}
+					else if ( input->guiOptions.auxStatic )
+					{
+						noFlashMove.waveVals = makeRerngWaveMovePart ( input->rerngWave.rearrange, 
+																	   noFlashMove.moveBias, input->sourceRows, 
+																	   input->sourceCols, noFlashMoveInfo ).waveVals;
+						flashMove.waveVals = makeRerngWaveMovePart ( input->rerngWave.rearrange, 
+																	 flashMove.moveBias, input->sourceRows, 
+																	 input->sourceCols, flashMoveInfo ).waveVals;
+					}
 					else
 					{
 						noFlashMove.waveVals = makeFullRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
@@ -2767,9 +2776,8 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 }
 
 
-simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, double staticMovingRatio,
-														     double moveBias, UINT sourceRows, UINT sourceCols,
-														     complexMove moveInfo )
+simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, double moveBias, UINT sourceRows,
+													UINT sourceCols, complexMove moveInfo )
 { 
 	double freqPerPixel = rerngSettings.freqPerPixel;
 
@@ -2785,7 +2793,7 @@ simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettin
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
 	// if flashing, this time + staticWave.time needs to be = rerngSettings.timePerMove
-	moveWave.time = ( moveInfo.needsFlash ? rerngSettings.timePerMove / ( staticMovingRatio + 1 ) : rerngSettings.timePerMove );
+	moveWave.time = rerngSettings.timePerMove;
 	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
 	bool offGridDump = true;
 	double nonMovingFrac = offGridDump ? 1 - moveBias : ( 1 - moveBias ) / ( movingSize - 2 );
@@ -3043,7 +3051,7 @@ std::vector<double> NiawgController::makeFullRerngWave( rerngScriptInfo& rerngSe
 	/// finalize info & calculate things
 	finalizeStandardWave( moveWave, debugInfo( ) );
 	*/
-	auto moveWave = makeRerngWaveMovePart ( rerngSettings, staticMovingRatio, moveBias, sourceRows, sourceCols, moveInfo );
+	auto moveWave = makeRerngWaveMovePart ( rerngSettings, moveBias, sourceRows, sourceCols, moveInfo );
 	// now put together into small temporary flashing wave
 	waveInfo flashMove;
 	flashMove.core.time = rerngSettings.timePerMove;
@@ -3070,7 +3078,7 @@ std::vector<double> NiawgController::makeFullRerngWave( rerngScriptInfo& rerngSe
 
 
 void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rerngGuiOptions& data, 
-											   std::vector<parameterType>& variables, UINT variation )
+											      std::vector<parameterType>& variables, UINT variation )
 {
 	data.active = form.active;
 	data.deadTime = form.deadTime.evaluate( variables, variation );
@@ -3084,6 +3092,7 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 	data.outputInfo = form.outputInfo;
 	data.preprogram = form.preprogram;
 	data.useCalibration = form.useCalibration;
+	data.auxStatic = form.auxStatic;
 }
 
 

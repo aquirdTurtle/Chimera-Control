@@ -518,7 +518,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	ReleaseDC( drawer );
 
 	// write the data to the file.
-	if (curSettings.cameraMode != "Continuous Single Scans Mode")
+	if (curSettings.cameraMode != "Video Mode")
 	{
 		try
 		{

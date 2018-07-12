@@ -183,9 +183,8 @@ class NiawgController
 		std::vector<std::vector<bool>> finalState;
 		// could set different thresholds for each location in the camera if expect imbalance.
 		int threshold;
-		simpleWave makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, double staticMovingRatio,
-													double moveBias, UINT sourceRows, UINT sourceCols, 
-													complexMove moveInfo );
+		simpleWave makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, double moveBias, UINT sourceRows, 
+										   UINT sourceCols, complexMove moveInfo );
 		std::vector<double> makeFullRerngWave( rerngScriptInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
 										   UINT sourceRows, UINT sourceCols, complexMove move );
 		std::vector<double> makeFastRerngWave( rerngScriptInfo& rerngSettings, UINT sourceRows, UINT sourceCols, 
