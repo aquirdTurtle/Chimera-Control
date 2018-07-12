@@ -28,7 +28,9 @@ FEATURES:
 	- fix time to be smart
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
-- have code work with temperature monitoring
+- have code check that temperature monitoring is occuring.
+- report oscilloscope data to datalogger
+- report andor background data to datalogger
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
