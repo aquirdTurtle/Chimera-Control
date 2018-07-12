@@ -28,6 +28,7 @@ class MasterManager
 		bool getIsPaused();
 		void abort();
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
+		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& currentMasterScript );
 		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
@@ -51,8 +52,8 @@ class MasterManager
 								 DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, UINT seqNum, std::string& warnings,
 								 std::string callingFunction );
-		bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-										std::string scope, std::string& warnings );
+		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+											   std::string scope, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
@@ -87,7 +88,8 @@ class MasterManager
 struct indvSeqElem
 {
 	std::string config;
-	std::fstream niawgScript;
+	std::string niawgScript;
+	ScriptStream niawgStream;
 	std::string masterScript;
 	ScriptStream masterStream;
 	std::string agilentScript;

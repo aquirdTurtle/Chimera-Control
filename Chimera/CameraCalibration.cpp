@@ -14,6 +14,18 @@ void CameraCalibration::initialize( cameraPositions& pos, int& id, CWnd* parent,
 }
 
 
+void CameraCalibration::setAutoCal(bool option)
+{
+	autoCalButton.SetCheck(option);
+}
+
+
+void CameraCalibration::setUse(bool option)
+{
+	useButton.SetCheck(option);
+}
+
+
 void CameraCalibration::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
 								   fontMap fonts )
 {

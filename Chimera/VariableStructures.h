@@ -3,6 +3,7 @@
 #include "afxwin.h"
 #include <vector>
 #include "range.h"
+#include <unordered_map>
 
 
 #define GLOBAL_PARAMETER_SCOPE "global"

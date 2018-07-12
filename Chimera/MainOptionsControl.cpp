@@ -22,6 +22,7 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 									 parent, id++ );
 	atomThresholdForSkipEdit.sPos = { loc.x + 240, loc.y, loc.x + 480 , loc.y += 25 };
 	atomThresholdForSkipEdit.Create( NORM_EDIT_OPTIONS, atomThresholdForSkipEdit.sPos, parent, id++ );
+	atomThresholdForSkipEdit.SetWindowText("-1");
 
 	currentOptions.randomizeReps = false;
 	currentOptions.randomizeVariations = true;

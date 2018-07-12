@@ -2,7 +2,7 @@
 #include "commonFunctions.h"
 #include "TextPromptDialog.h"
 #include "NiawgController.h"
-#include "beginningSettingsDialogProc.h"
+#include "StartDialog.h"
 #include "openWithExplorer.h"
 #include "saveWithExplorer.h"
 #include "MasterThreadInput.h"
@@ -73,8 +73,8 @@ namespace commonFunctions
 				std::string status;
 				if ( mainWin->experimentIsPaused( ) )
 				{
-					mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
-					break;
+					//mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
+					//break;
 				}
 				bool niawgAborted = false, andorAborted = false, masterAborted = false;
 
@@ -151,11 +151,11 @@ namespace commonFunctions
 			{
 				ExperimentInput input;
 				mainWin->getComm()->sendColorBox( System::Camera, 'Y' );
-				mainWin->getComm()->sendStatus("Starting Camera...\r\n");
 				try
 				{
 					commonFunctions::prepareCamera( mainWin, camWin, input );
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, false, input );
+					mainWin->getComm()->sendStatus("Starting Camera...\r\n");
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					//
@@ -717,7 +717,6 @@ namespace commonFunctions
 		
 		if (runNiawg)
 		{
-			mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...\r\n" );
 			mainWin->getComm()->sendColorBox( System::Niawg, 'Y' );
 		}
 		// Set the thread structure.
@@ -981,28 +980,6 @@ namespace commonFunctions
 				startMsg += "\r\n" + constantsMsg;
 				startMsg += "\r\n";
 			}
-			startMsg += "FUNCTION VARIABLES:\r\n\t";
-			/*
-			for ( auto& seq : input.masterInput->functionVars )
-			{
-				for ( auto& funcVars : seq )
-				{
-					for ( auto& var : funcVars.second )
-					{
-						if ( !var.constant )
-						{
-							startMsg += "Function: " + funcVars.first + ", " + var.name + " (" 
-								+ str( var.keyValues.size( ) ) + " Values): ";
-							for ( auto val : var.keyValues )
-							{
-								startMsg += str( val ) + ",";
-							}
-							startMsg += "\r\n";
-						}
-					}
-				}
-			}
-			*/
 		}
 		startMsg += "\r\n\r\nBegin Waveform Generation with these Settings?";
 		StartDialog dlg( startMsg, IDD_BEGINNING_SETTINGS );

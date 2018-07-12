@@ -13,22 +13,15 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	/// Set Picture Options
 	UINT count = 0;
 	/// Picture Numbers
-	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
-	pictureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100,	pos.videoPos.y + 20 };
+	pictureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.seriesPos, parent,
 						 PICTURE_SETTINGS_ID_START + count++ );
 	pictureLabel.fontType = fontTypes::SmallFont;
 
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		pictureNumbers[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		pictureNumbers[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y, pos.amPos.x + 100 + 95 * (picInc + 1),
-			pos.amPos.y + 20 };
-		pictureNumbers[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS,
+		pictureNumbers[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
+		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, 
 									   pictureNumbers[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + count++ );
 	}
 	pos.seriesPos.y += 20;
@@ -36,20 +29,13 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Total picture number
-	totalPicNumberLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	totalPicNumberLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	totalPicNumberLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	totalPicNumberLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.seriesPos, parent,
 								PICTURE_SETTINGS_ID_START + count++ );
 	totalPicNumberLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		totalNumberChoice[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		totalNumberChoice[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y, pos.amPos.x + 100 + 95 * (picInc + 1),
-			pos.amPos.y + 20 };
-		totalNumberChoice[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y, pos.videoPos.x + 100 + 95 * (picInc + 1),
-			pos.videoPos.y + 20 };
+		totalNumberChoice[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
 		if ( picInc == 0 )
 		{
 			// first of group
@@ -69,23 +55,15 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Exposure Times
-	exposureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	exposureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	exposureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent,
+	exposureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
+	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent, 
 						  PICTURE_SETTINGS_ID_START + count++ );
 	exposureTimesUnofficial.resize( 4 );
 	exposureLabel.fontType = fontTypes::SmallFont;
 
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		exposureEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		exposureEdits[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
-			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
-		exposureEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		// first of group
+		exposureEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
 		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].seriesPos, parent,
 									  PICTURE_SETTINGS_ID_START + count++ );
 		exposureEdits[picInc].SetWindowTextA( "10.0" );
@@ -96,25 +74,17 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Thresholds
-	thresholdLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	thresholdLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	thresholdLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	thresholdLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.seriesPos, parent,
 						   PICTURE_SETTINGS_ID_START + count++ );
 	thresholdLabel.fontType = fontTypes::SmallFont;
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
-		thresholdEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		thresholdEdits[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
-			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
-		thresholdEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		// first of group
+		thresholdEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
 		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS, thresholdEdits[picInc].seriesPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
-		thresholds[picInc] = 100;
+		thresholds[ picInc ] = { 100 };
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
@@ -230,6 +200,22 @@ void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 }
 
 
+std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
+{
+	std::array<std::string, 4> res;
+	// grab the thresholds
+	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
+	{
+		auto& picThresholds = thresholds[ thresholdInc ];
+		picThresholds.resize ( 1 );
+		CString textEdit;
+		thresholdEdits[ thresholdInc ].GetWindowTextA ( textEdit );
+		res[ thresholdInc ] = textEdit;
+	}
+	return res;
+}
+
+
 void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "PICTURE_SETTINGS\n";
@@ -244,7 +230,7 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 		saveFile << exposure << " ";
 	}
 	saveFile << "\n";
-	for (auto threshold : thresholds)
+	for (auto threshold : getThresholdStrings() )
 	{
 		saveFile << threshold << " ";
 	}
@@ -259,7 +245,7 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version v
 	UINT picsPerRep;
 	openFile >> picsPerRep;
 	setUnofficialPicsPerRep( picsPerRep, andor );
-	std::array<int, 4> fileThresholds;
+	std::array<std::string, 4> fileThresholds;
 	for (auto& color : colors)
 	{
 		openFile >> color;
@@ -350,6 +336,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 	/// Thresholds
 	else if (id >= thresholdEdits.front().GetDlgCtrlID() && id <= thresholdEdits.back().GetDlgCtrlID())
 	{
+		/*
 		int picNum = id - thresholdEdits.front().GetDlgCtrlID();
 		if (!thresholdEdits[picNum].IsWindowEnabled())
 		{
@@ -388,6 +375,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			exposureEdits[picNum].RedrawWindow();
 		}
 		return brushes["Red"];
+		*/
 	}
 	else
 	{
@@ -530,18 +518,18 @@ void PictureSettingsControl::confirmAcquisitionTimings()
 }
 
 /**/
-std::array<int, 4> PictureSettingsControl::getThresholds()
+std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds()
 {
 	updateSettings();
 	return thresholds;
 }
 
-void PictureSettingsControl::setThresholds(std::array<int, 4> newThresholds)
+void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds)
 {
-	thresholds = newThresholds;
-	for (UINT thresholdInc = 0; thresholdInc < thresholds.size(); thresholdInc++)
+	//thresholds = newThresholds;
+	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++)
 	{
-		thresholdEdits[thresholdInc].SetWindowTextA(cstr(thresholds[thresholdInc]));
+		thresholdEdits[thresholdInc].SetWindowTextA(newThresholds[thresholdInc].c_str());
 	}
 }
 
@@ -596,17 +584,36 @@ void PictureSettingsControl::updateSettings( )
 	// grab the thresholds
 	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
 	{
+		auto& picThresholds = thresholds[ thresholdInc ];
+		picThresholds.resize ( 1 );
 		CString textEdit;
 		thresholdEdits[thresholdInc].GetWindowTextA( textEdit );
 		int threshold;
 		try
 		{
 			threshold = std::stoi( str( textEdit ) );
-			thresholds[thresholdInc] = threshold;
+			picThresholds[ 0 ] = threshold;
 		}
 		catch ( std::invalid_argument )
 		{
-			errBox( "ERROR: failed to convert threshold number " + str( thresholdInc + 1 ) + " to an integer." );
+			// assume it's a file location.
+			std::ifstream thresholdFile;
+			thresholdFile.open ( str("C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\Chimera") + str(textEdit) );
+			if ( !thresholdFile.is_open ( ) )
+			{
+				thrower ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
+						 "and it wasn't the address of a threshold-file." );  
+			}
+			while ( true )
+			{
+				double indv_file_threshold;
+				thresholdFile >> indv_file_threshold;
+				if ( thresholdFile.eof ( ) )
+				{
+					break;
+				}
+				picThresholds.push_back ( indv_file_threshold );
+			}
 		}
 		thresholdEdits[thresholdInc].RedrawWindow( );
 	}

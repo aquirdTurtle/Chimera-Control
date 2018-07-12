@@ -41,6 +41,7 @@ class AoSystem
 		void unshadeDacs( );
 		void setDefaultValue( UINT dacNum, double val );
 		void setName( int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master );
+		void setNote ( int dacNumber, std::string note, cToolTips& toolTips, AuxiliaryWindow* master );
 		bool isValidDACName( std::string name );
 		void setMinMax( int dacNumber, double min, double max );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData,
@@ -80,6 +81,7 @@ class AoSystem
 		double getDefaultValue( UINT dacNum );
 		unsigned int getNumberSnapshots( UINT variation, UINT seqNum );
 		std::string getName( int dacNumber );
+		std::string getNote( int dacNumber );
 		std::array<std::string, 24> getAllNames( );
 		ULONG getNumberEvents( UINT variation, UINT seqNum );
 		int getDacIdentifier( std::string name );
@@ -101,6 +103,10 @@ class AoSystem
 		std::array<double, 24> dacMinVals;
 		std::array<double, 24> dacMaxVals;
 		std::array<double, 24> defaultVals;
+		// notes are purely cosmetic. Can be used e.g. to store calibration curves for VCOs or detailed reminders about 
+		// using a given dac.
+		std::array<std::string, 24> dacNotes;
+
 		const double dacResolution;
 		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
 		// first = sequence, 2nd = variation

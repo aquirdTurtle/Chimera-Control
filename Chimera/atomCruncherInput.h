@@ -5,38 +5,39 @@
 #include <atomic>
 #include <vector>
 #include <mutex>
-#include "Windows.h"
+#include "Queues.h"
+#include "afxwin.h"
 #include <array>
 
 
 struct atomCruncherInput
 {
-	//
+	// timing info is stored in these.
 	chronoTimes* catchPicTime;
 	chronoTimes* finTime;
+	// instructions.
 	std::vector<atomGrid> grids;
-	// what the thread watches...
+	// the thread watches this to know when to quit.
 	std::atomic<bool>* cruncherThreadActive;
-	// imageQueue[queuePositions][pixelNum(flattened)]
-	std::vector<std::vector<long>>* imageQueue;
+	// imQueue[queuePositions][pixelNum(flattened)]
+	imageQueue* imQueue;
 	// options
 	bool plotterActive;
 	bool plotterNeedsImages;
 	bool rearrangerActive;
 	UINT picsPerRep;
+	UINT atomThresholdForSkip = UINT_MAX;
+	// outer vector here is for each location in the first grid.
+	std::array<std::vector<int>, 4> thresholds;
+	imageParameters imageDims;
 	// locks
 	std::mutex* imageLock;
 	std::mutex* plotLock;
 	std::mutex* rearrangerLock;
 	std::condition_variable* rearrangerConditionWatcher;
 	// what the thread fills.
-	// imageQueue[gridNum][queuePositions][pixelNum(flattened)]
-	std::vector<std::vector<std::vector<long>>>* plotterImageQueue;
-	std::vector<std::vector<std::vector<bool>>>* plotterAtomQueue;
-	//
-	std::vector<std::vector<bool>>* rearrangerAtomQueue;
-	std::array<int, 4> thresholds;
-	imageParameters imageDims;
-	UINT atomThresholdForSkip = UINT_MAX;
+	multiGridImageQueue* plotterImageQueue;
+	multiGridAtomQueue* plotterAtomQueue;
+	atomQueue* rearrangerAtomQueue;
 	std::atomic<bool>* skipNext;
 };

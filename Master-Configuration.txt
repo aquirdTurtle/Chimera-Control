@@ -1,4 +1,4 @@
-Version 2.1
+Version 2.3
 diagmotrf
 0
 repumprf
@@ -130,75 +130,99 @@ d15
 rightcoilcurrent
 -10 - 10
 0
+_
 leftcoilcurrent
 -10 - 10
 0
+_
 frontcoilcurrent
 -10 - 10
 0
+_
 backcoilcurrent
 -10 - 10
 0
+_
 bottomcoilcurrent
 -10 - 10
 0
+_
 topcoilcurrent
 -10 - 10
 0
+_
 motgradientcurrent
 -10 - 10
 0
+_
 dac7
 -10 - 10
 0
+_
 depumppower
 -10 - 10
 0
+_
 diagmotpower
 0 - 0.4
 0
+_
 depumpfreq
 -10 - 10
 0
+_
 repumppower
 -10 - 10
 0
+_
 sigmaopfreq
 -10 - 10
 0
+_
 sigmaoppower
 -10 - 10
 0
+_
 sigmarepumpfreq
 -5 - 1.7
 0
+_
 sigmarepumppower
 0 - 0.38
 0
+_
 lspower
 -10 - 10
 0
+sdfsdf
 freq795
 -10 - 10
 0
+_
 power795
 -10 - 10
 0
+_
 probepower
 -0.1 - 0.9
 0
+_
 motfreq
 -10 - 10
 0
+_
 repumpfreq
 -3.5 - 3.5
 0
+_
 sidemotpower
 0 - 0.44
 0
+_
 piezomirror
 -10 - 10
 0
+_
 15
 loadmottime 150
 andorimagetime 10
@@ -220,3 +244,4 @@ diagmot__servo_value 0.232268
 Sidemot 1 1.7
 DiagMot 1 1.4
 181 249 3 198 266 3
+0 0

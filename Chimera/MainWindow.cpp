@@ -8,13 +8,15 @@
 #include "Thrower.h"
 #include "externals.h"
 
-MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PROFILES_PATH ),
+MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
 	niawg( 1, 14, NIAWG_SAFEMODE ),
 	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4 ),
 	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2 )
 {
+	programStartTime = startTime;
+	startupTimes.push_back(chronoClock::now());
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
 	mainRGBs["Slate Grey"]			= RGB( 101,	115, 126);
@@ -391,7 +393,7 @@ CFont* MainWindow::getPlotFont( )
 
 BOOL MainWindow::OnInitDialog( )
 {
-	
+	startupTimes.push_back(chronoClock::now());
 	eMainWindowHwnd = GetSafeHwnd( );
 	for ( auto elem : GIST_RAINBOW_RGB )
 	{
@@ -449,6 +451,7 @@ BOOL MainWindow::OnInitDialog( )
 	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
 	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
 	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
+	startupTimes.push_back(chronoClock::now());
 	try
 	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
@@ -499,7 +502,7 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
-
+	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
@@ -508,7 +511,16 @@ BOOL MainWindow::OnInitDialog( )
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
-
+	startupTimes.push_back(chronoClock::now());
+	std::string timingMsg;
+	auto t1 = std::chrono::duration_cast<std::chrono::milliseconds>(*programStartTime - startupTimes[0]).count();
+	auto t2 = std::chrono::duration_cast<std::chrono::milliseconds>(startupTimes[1] - *programStartTime).count();
+	auto t3 = std::chrono::duration_cast<std::chrono::milliseconds>(startupTimes[2] - startupTimes[1]).count();
+	auto t4 = std::chrono::duration_cast<std::chrono::milliseconds>(startupTimes[3] - startupTimes[2]).count();
+	auto t5 = std::chrono::duration_cast<std::chrono::milliseconds>(startupTimes[4] - startupTimes[3]).count();
+	timingMsg = "Constructor to init-instance: " + str(t1) + "\nInitInstance to OnInitDialog:" + str(t2) + "\nOnInitDialog To Creating Windows:"
+		+ str(t3) + "\nCreating Windows to showing windows:" + str(t4) + "\nShowing Windows to here:" + str(t5);
+	errBox(timingMsg);
 	/// summarize system status.
 	try
 	{
@@ -879,7 +891,6 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
  	input->rerngGuiForm.active = false;
 	input->isLoadMot = true;
 }
-
 
 
 unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )

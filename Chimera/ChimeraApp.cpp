@@ -83,6 +83,7 @@ BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 
 BOOL ChimeraApp::InitInstance()
 {
+	initTime = chronoClock::now();
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
 	/// initialize some stuff
@@ -94,11 +95,13 @@ BOOL ChimeraApp::InitInstance()
 		errBox( "FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the "
 				"experiment!\r\n" );
 		return -10000;
-	}
+	}   
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
+	std::chrono::high_resolution_clock::now();
+
 	return int(returnVal);
 }
 
