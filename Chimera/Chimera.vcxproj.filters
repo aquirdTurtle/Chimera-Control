@@ -211,9 +211,6 @@
     <ClCompile Include="NiawgController.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
-    <ClCompile Include="rerngControl.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClCompile>
     <ClCompile Include="Fgen.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
@@ -243,6 +240,9 @@
     </ClCompile>
     <ClCompile Include="CodeTimer.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="rerngGuiControl.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -534,9 +534,6 @@
     <ClInclude Include="directions.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="rerngControl.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
     <ClInclude Include="rerngContainer.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
@@ -582,7 +579,12 @@
     <ClInclude Include="CodeTimer.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Queues.h" />
+    <ClInclude Include="Queues.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngGuiControl.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
