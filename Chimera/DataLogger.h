@@ -22,7 +22,7 @@ class DataLogger
 		DataLogger(std::string systemLocation);
 		~DataLogger( );
 		void setUpVoltsMeasurement( );
-		void initializeDataFiles();
+		void initializeDataFiles( );
 		void writePic( UINT currentPictureNumber, std::vector<long> image, imageParameters dims );
 		void logMasterParameters( MasterThreadInput* input);
 		void logMiscellaneous();
