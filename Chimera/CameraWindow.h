@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CameraSettingsControl.h"
 #include "ColorBox.h"
 #include "PictureStats.h"
@@ -11,7 +12,9 @@
 #include "atomCruncherInput.h"
 #include "cameraPositions.h"
 #include "commonTypes.h"
+#include "Queues.h"
 #include <bitset>
+
 
 class MainWindow;
 class ScriptingWindow;
@@ -111,9 +114,10 @@ class CameraWindow : public CDialog
 
 		AndorCamera Andor;
 		CameraSettingsControl CameraSettings;
+		PictureManager pics;
+
 		ColorBox box;
 		PictureStats stats;
-		PictureManager pics;
 		AlertSystem alerts;
 		ExperimentTimer timer;		
 		// these two could probably be combined in a sensible way.
@@ -134,15 +138,16 @@ class CameraWindow : public CDialog
 		bool realTimePic;
 		// plotting stuff;
 		HANDLE plotThreadHandle;
-		std::vector<std::vector<long> > imageQueue;
+		imageQueue imQueue;
 		std::mutex imageLock;
 		std::condition_variable rearrangerConditionVariable;
 		// the following two queues and locks aren't directly used by the camera window, but the camera window
 		// distributes them to the threads that do use them.
-		std::vector<std::vector<std::vector<bool>>> plotterAtomQueue;
-		std::vector<std::vector<std::vector<long>>> plotterPictureQueue;
 
-		std::vector<std::vector<bool>> rearrangerAtomQueue;
+		multiGridAtomQueue plotterAtomQueue;
+		multiGridImageQueue plotterPictureQueue;
+		atomQueue rearrangerAtomQueue;
+
 		// 
 		std::mutex plotLock;
 		std::mutex rearrangerLock;

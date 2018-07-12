@@ -9,7 +9,7 @@ double DoubleEdit::getWindowTextAsDouble( )
 	{
 		return std::stod( str(txt) );
 	}
-	catch ( std::invalid_argument& err )
+	catch ( std::invalid_argument& )
 	{
 		thrower( "Error: Failed to convert edit text to double." );
 	}

@@ -418,22 +418,17 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			continue;
 		}
-		//if ( input->atomQueue->at( 0 )[0].size( ) == 0 )
-		//{
-		//	continue;
-		//}
-
 		if ( input->needsCounts )
 		{
 			// this part of code hasn't been implemented properly in a while, trying to maintain for later fix. Feb 13th 2018
-			std::vector<std::vector<long>> tempImage( input->grids.size( ) );
+			imageQueue tempImage( input->grids.size( ) );
 			std::lock_guard<std::mutex> locker( *input->plotLock );
-			if ( input->imageQueue->size( ) == 0 )
+			if ( input->imQueue->size( ) == 0 )
 			{
 				// strange... spurious wakeups or memory corruption happening here?
 				continue;
 			}
-			tempImage = input->imageQueue->front( );
+			tempImage = input->imQueue->front( );
 			if ( tempImage.size( ) == 0 )
 			{
 				// strange... spurious wakeups or memory corruption happening here?
@@ -447,7 +442,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 				{
 					for ( auto column : range( input->grids[gridCount].height ) )
 					{
-						countData[gridCount][locIndex].push_back( tempImage[gridCount][locIndex] );
+						countData[gridCount][locIndex].push_back( tempImage[gridCount].image[locIndex] );
 						locIndex++;
 					}
 				}
@@ -461,7 +456,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			for ( auto pixelInc : range( groupNum ) )
 			{
 				// look at the most recent image.
-				if ( input->atomQueue->at( 0 )[gridCount][pixelInc] )
+				if ( input->atomQueue->at( 0 )[gridCount].image[pixelInc] )
 				{
 					thereIsAtLeastOneAtom = true;
 					atomPresentData[gridCount][pixelInc].push_back( 1 );
@@ -489,9 +484,9 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			// In this case, not enough data to plot a point yet, but I've just analyzed a pic, so remove that pic.
 			std::lock_guard<std::mutex> locker(*input->plotLock);
-			if ( input->needsCounts && input->imageQueue->size( ) > 0 )
+			if ( input->needsCounts && input->imQueue->size( ) > 0 )
 			{
-				input->imageQueue->erase( input->imageQueue->begin( ) );
+				input->imQueue->erase( input->imQueue->begin( ) );
 			}
 			if ( input->atomQueue->size( ) > 0 )
 			{
@@ -546,9 +541,9 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		if (input->needsCounts)
 		{
 			// delete the first entry of the Queue which has just been handled.
-			if ( input->imageQueue->size( ) != 0 )
+			if ( input->imQueue->size( ) != 0 )
 			{
-				input->imageQueue->erase( input->imageQueue->begin( ) );
+				input->imQueue->erase( input->imQueue->begin( ) );
 			}
 		}
 		input->atomQueue->erase(input->atomQueue->begin());

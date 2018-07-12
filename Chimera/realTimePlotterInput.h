@@ -19,8 +19,8 @@ struct realTimePlotterInput
 	std::atomic<bool>* active;
 	// this tells the plotter to immediately stop.
 	std::atomic<bool>* aborting;
-	std::vector<std::vector<std::vector<long>>>* imageQueue;
-	std::vector<std::vector<std::vector<bool>>>* atomQueue;
+	multiGridImageQueue* imQueue;
+	multiGridAtomQueue* atomQueue;
 	imageParameters imageShape;
 
 	UINT picsPerVariation;

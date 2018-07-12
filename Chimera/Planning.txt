@@ -13,24 +13,22 @@ FEATURES:
 		- also gets trick if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- support variables for niawg and agilent scripts
-	- especially niawg
-- syntax coloring for variables
-- support aborting while paused
-- implement check that the picture rate is matching the rep rate
+- support variables for agilent scripts
+- proper syntax coloring for variables
+- implement real-time sanity check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in plots
-- improve experiment status
-	- include which config was run, variable options
-	- fix time to be smart
+- improve experiment status; include which config was run, variable options
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
-- have code check that temperature monitoring is occuring.
+- have code work with temperature monitoring
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
+- improve delete file after abort functionality
+- integrate a basler window.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -40,10 +38,13 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
+- refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
+- refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
+- reduce size of niawgcontroller file; maybe try to separate out rearrange functionality?
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
-- global variable colors don't appear to always be correct. Not being changed by use in agilent and niawg?
+- global variable colors don't appear to always be correct; agilent issue probably?
 - Turnonmot should really be the minimal stuff
 	- niawg is doing something during turnonmot... it shouldn't.
 	- turnonmot seems to be running tektronics stuff too.
@@ -52,6 +53,9 @@ BUGS:
 - trying save if only camera is running...
 - in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
+- make eating comments more robust against eol conversion issues.
+- interpret key taking a long time for ttls in camera cal
+- seems like master configuration file can get corrupted if saving fails.
 
 =================
 Finished

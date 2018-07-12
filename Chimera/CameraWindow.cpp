@@ -17,6 +17,7 @@ CameraWindow::CameraWindow() : CDialog(),
 								dataHandler(DATA_SAVE_LOCATION),
 								Andor( ANDOR_SAFEMODE )
 {
+
 };
 
 
@@ -468,7 +469,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	{
 		std::lock_guard<std::mutex> locker( plotLock );
 		// TODO: add check to check if this is needed.
-		imageQueue.push_back( calPicData[(picNum - 1) % curSettings.picsPerRepetition] );
+		imQueue.push_back ( { picNum, calPicData[ ( picNum - 1 ) % curSettings.picsPerRepetition ] } );
 	}
 
 	auto picsToDraw = CameraSettings.getImagesToDraw( calPicData );
@@ -517,7 +518,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	ReleaseDC( drawer );
 
 	// write the data to the file.
-	if (curSettings.cameraMode != "Continuous Single Scans Mode")
+	if (curSettings.cameraMode != "Video Mode")
 	{
 		try
 		{
@@ -813,7 +814,7 @@ void CameraWindow::handlePictureSettings(UINT id)
 	pics.setPalletes(nums);
 
 	CRect rect;
-	GetWindowRect(&rect);
+	GetClientRect(&rect);
 	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
 	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
@@ -913,44 +914,17 @@ void CameraWindow::setEmGain()
 
 void CameraWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
-	imageParameters settings = CameraSettings.getSettings().andor.imageSettings;
-	configStream << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
-	configStream << settings.bottom << " " << settings.top << " " << settings.verticalBinning << "\n";
+	CameraSettings.handelSaveMasterConfig(configStream);
 }
 
 
 void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
 {
 	mainWindowFriend->updateConfigurationSavedStatus( false );
-	imageParameters settings = CameraSettings.getSettings().andor.imageSettings;
-	selectedPixel = { 0,0 };
-	std::string tempStr;
-	try
-	{
-		configStream >> tempStr;
-		settings.left = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.right = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.horizontalBinning = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.bottom = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.top = std::stol(tempStr);
-		configStream >> tempStr;
-		settings.verticalBinning = std::stol(tempStr);
-		settings.width = (settings.right - settings.left + 1) / settings.horizontalBinning;
-		settings.height = (settings.top - settings.bottom + 1) / settings.verticalBinning;
-
-		CameraSettings.setImageParameters(settings, this);
-		pics.setParameters(settings);
-		redrawPictures(true);
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower("ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
-				 "to load camera dimensions!");
-	}
+	selectedPixel = { 0,0 }; 
+	CameraSettings.handleOpenMasterConfig(configStream, version, this);
+	pics.setParameters(CameraSettings.getSettings().andor.imageSettings);
+	redrawPictures(true);
 }
 
 
@@ -1029,7 +1003,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
 	skipNext = false;
 	input.cruncherInput->skipNext = &skipNext;
-	input.cruncherInput->imageQueue = &imageQueue;
+	input.cruncherInput->imQueue = &imQueue;
 	// options
 	if ( input.masterInput )
 	{
@@ -1046,17 +1020,14 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	// what the thread fills.
 	input.cruncherInput->grids = analysisHandler.getGrids( );
 	// reinitialize
-	plotterPictureQueue.clear( );// = std::vector<std::vector<std::vector<long>>>( input.cruncherInput->grids.size());
-	plotterAtomQueue.clear( );// = std::vector<std::vector<std::vector<bool>>>( input.cruncherInput->grids.size( ) );
+	plotterPictureQueue.clear( );
+	plotterAtomQueue.clear( );
 	input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
 	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
 	rearrangerAtomQueue.clear( );
 	input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
 	input.cruncherInput->thresholds = CameraSettings.getSettings( ).thresholds;
-	input.cruncherInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
-	// important, always uses the 0th atom grid for rearrangement and load-skip stuff.
-	//input.cruncherInput->gridInfo = analysisHandler.getAtomGrid( 0 );
-	
+	input.cruncherInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;	
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
 	input.cruncherInput->finTime = &crunchFinTimes;
 	input.cruncherInput->atomThresholdForSkip = mainWindowFriend->getMainOptions( ).atomThresholdForSkip;
@@ -1083,12 +1054,12 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	/// start the plotting thread.
 	plotThreadActive = true;
 	plotThreadAborting = false;
-	imageQueue.clear();
+	imQueue.clear();
 	plotterAtomQueue.clear();
 	input.plotterInput = new realTimePlotterInput;
 	input.plotterInput->aborting = &plotThreadAborting;
 	input.plotterInput->active = &plotThreadActive;
-	input.plotterInput->imageQueue = &plotterPictureQueue;
+	input.plotterInput->imQueue = &plotterPictureQueue;
 	input.plotterInput->imageShape = CameraSettings.getSettings().andor.imageSettings;
 	input.plotterInput->picsPerVariation = mainWindowFriend->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
 	input.plotterInput->variations = auxWindowFriend->getTotalVariationNumber();
@@ -1199,26 +1170,26 @@ void CameraWindow::startPlotterThread( ExperimentInput& input )
 // this thread has one purpose: watch the image vector thread for new images, determine where atoms are 
 // (the atom crunching part), and pass them to the threads waiting on atom info.
 // should consider modifying so that it can use an array of locations. At the moment doesn't.
+// "Crunching" here is meant to be reminiscent of number-crunching. It's super-repeatative.
 UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 {
 	atomCruncherInput* input = (atomCruncherInput*)inputPtr; 
-	// monitoredPixelIndecies[grid][pixelNumber]
-	if ( input->grids[0].topLeftCorner == coordinate( 0, 0 ) || input->grids.size( ) == 0 )
+	auto gridSize = input->grids.size ( );
+	if ( input->grids[0].topLeftCorner == coordinate( 0, 0 ) || gridSize == 0 )
 	{
 		return 0;
 	}
-	std::vector<std::vector<long>> monitoredPixelIndecies(input->grids.size());
-	// TODO: change to loop over all grids...
-	for ( UINT gridInc =0; gridInc < input->grids.size( ); gridInc++)
+	std::vector<std::vector<long>> monitoredPixelIndecies( gridSize );
+	// preparing for the crunching
+	for ( UINT gridInc = 0; gridInc < gridSize; gridInc++)
 	{
-		for ( UINT columnInc = 0; columnInc < input->grids[gridInc].width; columnInc++ )
+		auto& grid = input->grids[ gridInc ];
+		for ( UINT columnInc = 0; columnInc < grid.width; columnInc++ )
 		{
-			for ( UINT rowInc =0; rowInc < input->grids[gridInc].height; rowInc++ )
+			for ( UINT rowInc =0; rowInc < grid.height; rowInc++ )
 			{
-				ULONG pixelRow = (input->grids[gridInc].topLeftCorner.row - 1) 
-					+ rowInc * input->grids[gridInc].pixelSpacing;
-				ULONG pixelColumn = (input->grids[gridInc].topLeftCorner.column - 1) 
-					+ columnInc * input->grids[gridInc].pixelSpacing;
+				ULONG pixelRow = ( grid.topLeftCorner.row - 1) + rowInc * grid.pixelSpacing;
+				ULONG pixelColumn = ( grid.topLeftCorner.column - 1)  + columnInc * grid.pixelSpacing;
 				if ( pixelRow >= input->imageDims.height || pixelColumn >= input->imageDims.width )
 				{
 					errBox( "ERROR: atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
@@ -1237,47 +1208,59 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			}
 		}
 	}
-	   
+	for ( auto picThresholds : input->thresholds )
+	{
+		if ( picThresholds.size ( ) != 1 && picThresholds.size ( ) != input->grids[ 0 ].numAtoms ( ) )
+		{
+			errBox ( "ERROR: the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
+					 "first grid!" );
+			return 0;
+		}
+	}
 	UINT imageCount = 0;   
 	// loop watching the image queue.
-	while (*input->cruncherThreadActive || input->imageQueue->size() != 0)
+	while (*input->cruncherThreadActive || input->imQueue->size() != 0)
 	{
 		// if no images wait until images. Should probably change to be event based, but want this to be fast...
-		if (input->imageQueue->size() == 0)
+		if (input->imQueue->size() == 0)
 		{
 			continue;
 		}
 		if ( imageCount % 2 == 0 )
 		{
-			input->catchPicTime->push_back( std::chrono::high_resolution_clock::now( ) );
+			input->catchPicTime->push_back( chronoClock::now( ) );
 		}
 		
 		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
-		std::vector<std::vector<long>> tempImagePixels( input->grids.size( ) );
+		imageQueue tempImagePixels( gridSize );
 		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
-		std::vector<std::vector<bool>> tempAtomArray( input->grids.size( ) );											  
-		for (UINT gridInc = 0; gridInc < input->grids.size(); gridInc++)
+		atomQueue tempAtomArray( gridSize );
+		for (UINT gridInc = 0; gridInc < gridSize; gridInc++)
 		{
-			tempAtomArray[gridInc] = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
-			tempImagePixels[gridInc] = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
+			tempAtomArray[gridInc].image = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
+			tempImagePixels[gridInc].image = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
 		}
-		for ( UINT gridInc = 0; gridInc < input->grids.size( ); gridInc++ )
+		for ( UINT gridInc = 0; gridInc < gridSize; gridInc++ )
 		{
-			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the load-skip.
+			tempImagePixels[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
+			tempAtomArray[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
+			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the 
+			/// load-skip both of which are very time-sensitive.
 			UINT count = 0;
 			{ // scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
 				std::lock_guard<std::mutex> locker( *input->imageLock );				
 				for ( auto pixelIndex : monitoredPixelIndecies[gridInc] )
 				{
-					tempImagePixels[gridInc][count++] = (*input->imageQueue)[0][pixelIndex];
+					tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
 				}
 			}
 			count = 0;
-			for ( auto& pix : tempImagePixels[gridInc] )
+			for ( auto& pix : tempImagePixels[gridInc].image )
 			{
-				if ( pix >= input->thresholds[imageCount % input->picsPerRep] )
+				auto& picThresholds = input->thresholds[ imageCount % input->picsPerRep ];
+				if ( pix >= picThresholds[count % picThresholds.size() ] )
 				{
-					tempAtomArray[gridInc][count] = true;
+					tempAtomArray[gridInc].image[count] = true;
 				}
 				count++;
 			}
@@ -1295,13 +1278,13 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 							(*input->rearrangerAtomQueue).push_back( tempAtomArray[0] );
 							input->rearrangerConditionWatcher->notify_all( );
 						}
-						input->finTime->push_back( std::chrono::high_resolution_clock::now( ) );
+						input->finTime->push_back( chronoClock::now( ) );
 					}
 				}
 				// if last picture of repetition, check for loadskip condition.
 				if ( imageCount % input->picsPerRep == input->picsPerRep - 1 ) ///
 				{
-					UINT numAtoms = std::accumulate( tempAtomArray[0].begin( ), tempAtomArray[0].end( ), 0 );
+					UINT numAtoms = std::accumulate( tempAtomArray[0].image.begin( ), tempAtomArray[0].image.end( ), 0 );
 					*input->skipNext = (numAtoms >= input->atomThresholdForSkip);
 				}
 			}
@@ -1321,7 +1304,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
-		(*input->imageQueue).erase((*input->imageQueue).begin());		
+		(*input->imQueue).erase((*input->imQueue).begin());		
 	}
 	return 0;
 }
@@ -1365,9 +1348,16 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
 	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
-	for (auto& threshold : CameraSettings.getSettings().thresholds)
+	UINT count = 0;
+	for (auto& picThresholds : CameraSettings.getSettings().thresholds)
 	{
-		dialogMsg += str( threshold ) + ", ";
+		dialogMsg += "Pic " + str ( count ) + " thresholds: ";
+		for ( auto thresh : picThresholds )
+		{
+			dialogMsg += str ( thresh ) + ", ";
+		}
+		dialogMsg += "\r\n";
+		count++;
 	}
 
 	dialogMsg += "\r\nReal-Time Plots:\r\n";

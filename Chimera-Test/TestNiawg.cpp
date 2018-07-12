@@ -16,6 +16,7 @@ namespace TestNiawg
 	{
 		TEST_METHOD( Simple_Rerng )
 		{
+			// single move; obvious solution to rearrangement algorithm
 			UINT trigRow( 0 ), trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
@@ -32,12 +33,13 @@ namespace TestNiawg
 			loadBools( target, standardTarget );
 			std::vector<simpleMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngGuiOptions( ) );
+			niawg.smartTargettingRearrangement( source, target, finPos, { 0,0 }, moves, rerngGuiOptions( ) );
 			Assert::AreEqual( size_t( 1 ), moves.size( ) );
 			Assert::IsTrue( simpleMove( { 3,2,3,1 } ) == moves.front( ) );
 		}
 		TEST_METHOD( Complex_Rerng )
 		{
+			// many single moves (no parallelization), result compared to solution that's known to work.
 			UINT trigRow( 0 ), trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
@@ -54,7 +56,8 @@ namespace TestNiawg
 			loadBools( target, standardTarget );
 			std::vector<simpleMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngGuiOptions( ) );
+			niawg.smartTargettingRearrangement ( source, target, finPos, { 0,0 }, moves, rerngGuiOptions( ),false, 
+												 false );
 			// the following moves were copied from a trial that I know rearranges correctly. Details of the moves
 			// are hard to actualy predict.
 			Assert::AreEqual( size_t( 5 ), moves.size( ) );
@@ -74,14 +77,14 @@ namespace TestNiawg
 			Matrix<bool> target( 6, 3 );
 
 			loadBools( source, std::vector<bool>(
-			{ 0,1,0,
+			{   0,1,0,
 				0,0,0,
 				0,1,0,
 				0,1,0,
 				0,1,0,
 				0,1,0 } ) );
 			loadBools( target, std::vector<bool>(
-			{ 0,0,0,
+			{   0,0,0,
 				0,1,0,
 				0,1,0,
 				0,1,0,
@@ -90,10 +93,10 @@ namespace TestNiawg
 			std::vector<simpleMove> smoves;
 			std::vector<complexMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
+			niawg.smartTargettingRearrangement ( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
 			niawg.optimizeMoves( smoves, source, moves, rerngGuiOptions( ) );
 			Assert::AreEqual( size_t( 1 ), moves.size( ) );
-			Assert::AreEqual( true, moves.front( ).needsFlash );
+			Assert::AreEqual( false, moves.front( ).needsFlash );
 			Assert::AreEqual( false, moves.front( ).isInlineParallel );
 			Assert::IsTrue( dir::up == moves.front( ).moveDir );
 			Assert::AreEqual( size_t( 1 ), moves.front( ).locationsToMove.size( ) );
@@ -117,8 +120,10 @@ namespace TestNiawg
 			std::vector<simpleMove> smoves;
 			std::vector<complexMove> moves;
 			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngGuiOptions( ) );
+			auto opt = rerngGuiOptions ( );
+			opt.parallel = parallelMoveOption::full;
+			niawg.smartTargettingRearrangement ( source, target, finPos, { 0,0 }, smoves, opt );
+			niawg.optimizeMoves( smoves, source, moves, opt );
 			Assert::AreEqual( size_t( 1 ), moves.size( ) );
 			auto move = moves.front( );
 			Assert::AreEqual( false, move.isInlineParallel );
@@ -127,28 +132,6 @@ namespace TestNiawg
 			Assert::AreEqual( size_t( 2 ), move.locationsToMove.size( ) );
 			Assert::IsTrue( coordinate( { 1,2 } ) == move.locationsToMove[0] );
 			Assert::IsTrue( coordinate( { 3,2 } ) == move.locationsToMove[1] );
-		}
-		TEST_METHOD( Complex_OptimizeRerng )
-		{
-			UINT trigRow( 0 ), trigNum( 0 );
-			bool safemode( true );
-			NiawgController niawg( trigRow, trigNum, safemode );
-			Matrix<bool> source( 6, 3 );
-			Matrix<bool> target( 6, 3 );
-
-			loadBools( source, std::vector<bool>(
-			  { 0,1,1,
-				0,0,0,
-				0,0,0,
-				1,0,1,
-				1,1,0,
-				0,1,1 } ) );
-			loadBools( target, standardTarget );
-			std::vector<simpleMove> smoves;
-			std::vector<complexMove> moves;
-			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngGuiOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngGuiOptions( ) );
 		}
 		private:
 			std::vector<bool> standardTarget =
@@ -159,6 +142,8 @@ namespace TestNiawg
 				0,1,0,
 				0,1,0 };
 	};
+
+
 	TEST_CLASS( TestNiawg )
 	{
 		public:

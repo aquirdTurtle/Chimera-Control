@@ -53,6 +53,10 @@ class CameraSettingsControl
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
+
+		void handelSaveMasterConfig(std::stringstream& configFile);
+		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, CameraWindow* camWin);
+
 		std::vector<std::vector<long>> getImagesToDraw( const std::vector<std::vector<long>>& rawData  );
 
 	private:
@@ -91,6 +95,7 @@ class CameraSettingsControl
 		// two subclassed groups.
 		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
+
 		CameraCalibration calControl;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.

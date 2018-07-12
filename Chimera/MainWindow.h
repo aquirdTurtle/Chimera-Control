@@ -14,7 +14,7 @@
 #include "DataLogger.h"
 #include "NoteSystem.h"
 #include "profileSettings.h"
-#include "rerngControl.h"
+#include "rerngGuiControl.h"
 #include "PlotDialog.h"
 #include "OscilloscopeViewer.h"
 #include "profileSettings.h"
@@ -43,7 +43,7 @@ class MainWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		void OnPaint( );
-		MainWindow(UINT id, CDialog*);
+		MainWindow(UINT id, CDialog* spash, chronoTime* initTime);
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		BOOL PreTranslateMessage(MSG* pMsg); 
@@ -130,6 +130,10 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::SolidBrush*> getBrightPlotBrushes( );
 	private:		
 		DECLARE_MESSAGE_MAP();
+		
+		chronoTimes startupTimes;
+		chronoTime* programStartTime;
+
 		ScriptingWindow* TheScriptingWindow;
 		CameraWindow* TheCameraWindow;
 		AuxiliaryWindow* TheAuxiliaryWindow;
@@ -145,7 +149,7 @@ class MainWindow : public CDialog
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
-		rerngControl rearrangeControl;
+		rerngGuiControl rearrangeControl;
 		NiawgController niawg;
 		ColorBox boxes;
 		// auxiliary members
