@@ -28,7 +28,15 @@ FEATURES:
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
 - improve delete file after abort functionality
+- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
+- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
+- auto mot calibration runs
 - integrate a basler window.
+- add reporting on how many atoms loaded via atomcruncher thread.
+- improve delete file after abort functionality
+- option for rearranging: no flashing and no static array for extra potential rearranging.
+- add reporting on how many atoms loaded via atomcruncher thread.
+- improve delete file after abort functionality
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -56,8 +64,6 @@ BUGS:
 - make eating comments more robust against eol conversion issues.
 - interpret key taking a long time for ttls in camera cal
 - seems like master configuration file can get corrupted if saving fails.
-- numbers on camera window not updating properly when internal trigger
-- something going wrong after save config as... saving issue
 
 =================
 Finished
