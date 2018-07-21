@@ -56,6 +56,8 @@ BUGS:
 - make eating comments more robust against eol conversion issues.
 - interpret key taking a long time for ttls in camera cal
 - seems like master configuration file can get corrupted if saving fails.
+- numbers on camera window not updating properly when internal trigger
+- something going wrong after save config as... saving issue
 
 =================
 Finished
