@@ -117,7 +117,7 @@ void DataLogger::initializeDataFiles()
 				 + "\r\n" );
 	}
 
-	int resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder + "Temperature_Data.csv" ), &info );
+	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder + "Temperature_Data.csv" ), &info );
 	if ( resultStat != 0 )
 	{
 		errBox("WARNIGNG: Couldn't find temperature data file... did you remember to start the temperature logger?");
