@@ -24,11 +24,10 @@ FEATURES:
 - improve experiment status; include which config was run, variable options
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
-- auto mot calibration runs
 - integrate a basler window.
+- auto mot calibration runs
 - add reporting on how many atoms loaded via atomcruncher thread.
 - improve delete file after abort functionality
-- option for rearranging: no flashing and no static array for extra potential rearranging.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -50,9 +49,8 @@ BUGS:
 	- turnonmot seems to be running tektronics stuff too.
 - control tektronics not being saved in config?
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
-- trying save if only camera is running...
 - in rearranging, add check that source matrix is larger than target.
-- crash when change color scheme during experiment???
+- crash when change color scheme during experiment??? - can't repeat.
 - make eating comments more robust against eol conversion issues.
 - interpret key taking a long time for ttls in camera cal
 - seems like master configuration file can get corrupted if saving fails.
