@@ -40,6 +40,7 @@ UINT eLogVoltsMessageID = RegisterWindowMessage( "ID_LOG_VOLTS_MESSAGE" );
 UINT eAutoServoMessage = RegisterWindowMessage( "ID_AUTO_SERVO_MESSAGE" );
 UINT eCameraCalProgMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_PROGRESS_MESSAGE" );
 UINT eCameraCalFinMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_FIN_MESSAGE" );
+UINT ACE_PIC_READY = RegisterWindowMessageA ( "ACE_PIC_READY" );
 
 HANDLE eWaitingForNIAWGEvent;
 HANDLE eNIAWGWaitThreadHandle;

@@ -27,7 +27,7 @@ extern bool eWaitError;
 extern UINT eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eNormalFinishMessageID, 
 			eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, eCameraProgressMessageID, 
 			eRepProgressMessageID, eNoAtomsAlertMessageID, eLogVoltsMessageID, eAutoServoMessage, 
-			eCameraCalProgMessageID, eCameraCalFinMessageID;
+			eCameraCalProgMessageID, eCameraCalFinMessageID, ACE_PIC_READY;
 
 extern bool eAbortNiawgFlag;
 

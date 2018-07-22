@@ -19,6 +19,7 @@
 class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
+class BaslerWindow;
 
 
 class CameraWindow : public CDialog
@@ -67,7 +68,8 @@ class CameraWindow : public CDialog
 		void fillMasterThreadInput( MasterThreadInput* input );
 		DataLogger* getLogger();
 		std::string getSystemStatusString();
-		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* masterWin);
+		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
+						  BaslerWindow* basWin);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);
@@ -95,7 +97,7 @@ class CameraWindow : public CDialog
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
 														  ScriptingWindow* scriptWin, CameraWindow* camWin, 
-														  AuxiliaryWindow* masterWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		void passAtomGridCombo( );
 		void passDelGrid( );
 		void startAtomCruncher(ExperimentInput& input);
@@ -124,9 +126,11 @@ class CameraWindow : public CDialog
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;
 
-		MainWindow* mainWindowFriend;
-		ScriptingWindow* scriptingWindowFriend;
-		AuxiliaryWindow* auxWindowFriend;
+		MainWindow* mainWin;
+		ScriptingWindow* scriptWin;
+		AuxiliaryWindow* auxWin;
+		BaslerWindow* basWin;
+
 		cToolTips tooltips;
 		coordinate selectedPixel = { 0,0 };
 		CMenu menu;

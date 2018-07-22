@@ -27,6 +27,7 @@
 class ScriptingWindow;
 class CameraWindow;
 class AuxiliaryWindow;
+class BaslerWindow;
 
 struct scopeRefreshInput
 {
@@ -137,6 +138,7 @@ class MainWindow : public CDialog
 		ScriptingWindow* TheScriptingWindow;
 		CameraWindow* TheCameraWindow;
 		AuxiliaryWindow* TheAuxiliaryWindow;
+		BaslerWindow* TheBaslerWindow;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -172,7 +174,7 @@ class MainWindow : public CDialog
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, CameraWindow* camWin,
-														  AuxiliaryWindow* masterWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		CDialog* appSplash;
 };
 

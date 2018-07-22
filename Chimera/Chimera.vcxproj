@@ -210,6 +210,9 @@
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
+    <ClInclude Include="BaslerCamera.h" />
+    <ClInclude Include="BaslerSettingsControl.h" />
+    <ClInclude Include="BaslerWindow.h" />
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="StartDialog.h" />
@@ -320,6 +323,9 @@
     <ClCompile Include="Agilent.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
+    <ClCompile Include="BaslerCamera.cpp" />
+    <ClCompile Include="BaslerSettingsControl.cpp" />
+    <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />

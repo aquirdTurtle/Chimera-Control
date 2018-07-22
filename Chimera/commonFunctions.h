@@ -6,12 +6,13 @@ class MainWindow;
 class CameraWindow;
 class AuxiliaryWindow;
 class ScriptingWindow;
+class BaslerWindow;
 
 namespace commonFunctions
 {
 	/// Call to direct message to appropriate function in this namespace
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* comm, ScriptingWindow* scriptWin, 
-							 CameraWindow* camWin, AuxiliaryWindow* auxWin );
+							 CameraWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
 	/// Run Menu
 	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
 									AuxiliaryWindow* auxWin );
