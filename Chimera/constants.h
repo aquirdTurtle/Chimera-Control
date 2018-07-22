@@ -4,13 +4,16 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <pylon/PylonIncludes.h>
+#include <pylon/usb/BaslerUsbInstantCamera.h>
+#include <pylon/1394/Basler1394InstantCamera.h>
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
 //#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
-#define ANALYSIS_COMPUTER
+#define SPECTRE_LAPTOP
+//#define ANALYSIS_COMPUTER
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -42,13 +45,13 @@
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
-	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Chimera-Control\\";
-	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Chimera-Control/Chimera";
+	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Chimera";
 	// same as debug output location but with forward slashes for ease of use in python
-	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Mark-Brown/Chimera-Control/Debug-Output/";
+	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Debug-Output/";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
-	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default-Scripts\\";
 	const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
 	const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
@@ -170,9 +173,34 @@
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 #endif
 
-// We calibrated this. // NIAWG_GAIN = 1.34.
+#define BASLER_SAFEMODE true
+#define FIREWIRE_CAMERA
+
+// The code compiles fairly differently for Firewire (1384) cameras vs. USB cameras.
+#ifdef FIREWIRE_CAMERA 
+	typedef Pylon::CBasler1394InstantCamera cameraType;
+	typedef Pylon::CBasler1394GrabResultPtr grabPtr;
+	namespace cameraParams = Basler_IIDC1394CameraParams;
+	const std::string mainColor = "Dark Orange";
+#elif defined USB_CAMERA
+	typedef Pylon::CBaslerUsbInstantCamera cameraType;
+	typedef Pylon::CBaslerUsbGrabResultPtr grabPtr;
+	namespace cameraParams = Basler_UsbCameraParams;
+	const std::string mainColor = "Dark Indigo";
+#endif
+
+//const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
+
+#ifdef FIREWIRE_CAMERA
+	const std::string DATA_SAVE_LOCATION2 = "\\Raw Data\\ScoutData";
+#elif defined USB_CAMERA
+	const std::string DATA_SAVE_LOCATION2 = "\\Raw Data\\AceData_";
+#endif
+
+
+// We calibrated this. // NIAWG_GAIN = 1.64.
 #define NIAWG_GAIN 1.64
-// NIAWG_GAIN = 1.34.
+// NIAWG_GAIN = 1.64.
 
 #define MAX_NIAWG_SIGNALS 32
 
@@ -377,7 +405,18 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 //
 #define IDC_SERVO_CAL 14143
 
-
+// BASLER WIN CONSTS
+#define IDC_MIN_BASLER_SLIDER_EDIT 15001
+#define IDC_MAX_BASLER_SLIDER_EDIT 15002
+#define IDC_BASLER_CAMERA_MODE_COMBO 15003
+#define IDC_BASLER_EXPOSURE_MODE_COMBO 15004
+#define IDC_BASLER_REPETITIONS_EDIT 15005
+#define IDC_BASLER_TRIGGER_MODE_COMBO 15006
+#define IDC_BASLER_SET_ANALYSIS_LOCATIONS 15007
+#define ID_BASLER_SOFTWARE_TRIGGER 15008
+#define ID_ARM_BASLER_CAMERA 15009
+#define ID_DISARM_BASLER_CAMERA 15010
+#define ID_SET_BASLER_ANALYSIS_LOCATIONS 15011
 
 #define UWAVE_AGILENT_TRIGGER_ROW 3
 #define UWAVE_AGILENT_TRIGGER_NUM 1

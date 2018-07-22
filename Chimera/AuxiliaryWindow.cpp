@@ -23,12 +23,10 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									aoSys( ANALOG_OUT_SAFEMODE )
 {}
 
-BOOL AuxiliaryWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
+BOOL AuxiliaryWindow::handleAccelerators ( HACCEL m_haccel, LPMSG lpMsg )
 {
-	return globalVariables.handleAccelerators( m_haccel, lpMsg );
+	return globalVariables.handleAccelerators ( m_haccel, lpMsg );
 }
-
-
 
 
 IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
@@ -88,6 +86,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
+
 LRESULT AuxiliaryWindow::autoServo(WPARAM w, LPARAM l )
 {
 	if ( servos.autoServo( ) )
@@ -115,7 +114,7 @@ LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
 	aiSys.refreshCurrentValues( );
 	aiSys.refreshDisplays( );
-	cameraWindowFriend->writeVolts( wp, aiSys.getCurrentValues() );
+	camWin->writeVolts( wp, aiSys.getCurrentValues() );
 
 	return TRUE;
 }
@@ -131,14 +130,14 @@ void AuxiliaryWindow::GetAnalogInSnapshot( )
 void AuxiliaryWindow::OnPaint( )
 {
 	CDialog::OnPaint( );
-	if ( !mainWindowFriend->masterIsRunning( ) )
+	if ( !mainWin->masterIsRunning( ) )
 	{
 		CRect size;
 		GetClientRect( &size );
 		CDC* cdc = GetDC( );
 		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 		// work without this and I don't know what changed. I used to do:
-		cdc->SetBkColor( mainWindowFriend->getRgbs( )["Solarized Base 04"] );
+		cdc->SetBkColor( mainWin->getRgbs( )["Solarized Base 04"] );
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 		// for a single plot.
@@ -146,8 +145,8 @@ void AuxiliaryWindow::OnPaint( )
 		{
 			ttlPlt->setCurrentDims( width, height );
 			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
-			ttlPlt->drawBackground( ttlDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
-									mainWindowFriend->getBrushes( )["Black"] );
+			ttlPlt->drawBackground( ttlDC, mainWin->getBrushes( )["Solarized Base04"],
+									mainWin->getBrushes( )["Black"] );
 			ttlPlt->drawTitle( ttlDC );
 			ttlPlt->drawBorder( ttlDC );
 			ttlPlt->plotPoints( &ttlDC );
@@ -156,8 +155,8 @@ void AuxiliaryWindow::OnPaint( )
 		{
 			dacPlt->setCurrentDims( width, height );
 			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
-			dacPlt->drawBackground( dacDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
-									mainWindowFriend->getBrushes( )["Black"] );
+			dacPlt->drawBackground( dacDC, mainWin->getBrushes( )["Solarized Base04"],
+									mainWin->getBrushes( )["Black"] );
 			dacPlt->drawTitle( dacDC );
 			dacPlt->drawBorder( dacDC );
 			dacPlt->plotPoints( &dacDC );
@@ -169,12 +168,12 @@ void AuxiliaryWindow::OnPaint( )
 
 void AuxiliaryWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	cameraWindowFriend->stopSound( );
+	camWin->stopSound( );
 }
 
 void AuxiliaryWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
-	cameraWindowFriend->stopSound( );
+	camWin->stopSound( );
 }
 
 
@@ -186,11 +185,11 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 		{
 			thrower( "Error: please set current agilent channel to scripting mode before attempting to create a script!" );
 		}
-		mainWindowFriend->updateConfigurationSavedStatus( false );
-		agilents[name].checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+		mainWin->updateConfigurationSavedStatus( false );
+		agilents[name].checkSave( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
-		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
-		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), mainWindowFriend->getRgbs( ),
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
+		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), mainWin->getRgbs( ),
 														  getTtlNames( ), getDacNames( ) );
 	}
 	catch ( Error& err )
@@ -209,14 +208,14 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 		{
 			thrower( "Error: please set current agilent channel to scripting mode before attempting to open a script!" );
 		}
-		mainWindowFriend->updateConfigurationSavedStatus( false );		
-		agilents[name].agilentScript.checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, 
-												mainWindowFriend->getRunInfo( ) );
+		mainWin->updateConfigurationSavedStatus( false );		
+		agilents[name].agilentScript.checkSave( mainWin->getProfileSettings( ).categoryPath, 
+												mainWin->getRunInfo( ) );
 		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		agilents[name].agilentScript.openParentScript( openFileName, 
-													   mainWindowFriend->getProfileSettings( ).categoryPath,
-													   mainWindowFriend->getRunInfo( ) );
-		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
+													   mainWin->getProfileSettings( ).categoryPath,
+													   mainWin->getRunInfo( ) );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
 	{
@@ -229,8 +228,8 @@ void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 {
 	try
 	{
-		agilents[name].handleInput( mainWindowFriend->getProfileSettings( ).categoryPath,
-									mainWindowFriend->getRunInfo( ) );
+		agilents[name].handleInput( mainWin->getProfileSettings( ).categoryPath,
+									mainWin->getRunInfo( ) );
 	}
 	catch ( Error& err )
 	{
@@ -247,10 +246,10 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 		{
 			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
 		}
-		mainWindowFriend->updateConfigurationSavedStatus( false );
-		agilents[name].agilentScript.saveScript( mainWindowFriend->getProfileSettings( ).categoryPath,
-												   mainWindowFriend->getRunInfo( ) );
-		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
+		mainWin->updateConfigurationSavedStatus( false );
+		agilents[name].agilentScript.saveScript( mainWin->getProfileSettings( ).categoryPath,
+												   mainWin->getRunInfo( ) );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
 	{
@@ -267,7 +266,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 		{
 			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
 		}
-		mainWindowFriend->updateConfigurationSavedStatus( false );
+		mainWin->updateConfigurationSavedStatus( false );
 		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension( );
 		if ( extensionNoPeriod.size( ) == 0 )
 		{
@@ -275,9 +274,9 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 		}
 		extensionNoPeriod = extensionNoPeriod.substr( 1, extensionNoPeriod.size( ) );
 		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod,
-														 mainWindowFriend->getProfileSettings( ) );
-		agilents[name].agilentScript.saveScriptAs( newScriptAddress, mainWindowFriend->getRunInfo( ) );
-		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
+														 mainWin->getProfileSettings( ) );
+		agilents[name].agilentScript.saveScriptAs( newScriptAddress, mainWin->getRunInfo( ) );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
 	{
@@ -292,7 +291,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 	{
 		// don't query while experiment is running and getting querying between variations, this may cause a 
 		// race condition.
-		if ( aiSys.wantsContinuousQuery( ) && (!mainWindowFriend->masterIsRunning( ) 
+		if ( aiSys.wantsContinuousQuery( ) && (!mainWin->masterIsRunning( ) 
 												|| !aiSys.wantsQueryBetweenVariations() ) )
 		{
 			GetAnalogInSnapshot( );
@@ -306,7 +305,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 	{
 		for ( auto& agilent : agilents )
 		{
-			agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWindowFriend->getRgbs( ),
+			agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWin->getRgbs( ),
 												   getTtlNames( ), getDacNames( ) );
 		}
 	}
@@ -365,7 +364,7 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 		input->aoSys = &aoSys;
 		input->aiSys = &aiSys;
 		input->globalControl = &globalVariables;
-		input->comm = mainWindowFriend->getComm( );
+		input->comm = mainWin->getComm( );
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
@@ -450,8 +449,8 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
 	{
-		agilent.handleSavingConfig( saveFile, mainWindowFriend->getProfileSettings( ).categoryPath,
-									mainWindowFriend->getRunInfo( ) );
+		agilent.handleSavingConfig( saveFile, mainWin->getProfileSettings( ).categoryPath,
+									mainWin->getRunInfo( ) );
 	}
 	topBottomTek.handleSaveConfig( saveFile );
 	eoAxialTek.handleSaveConfig( saveFile );
@@ -465,19 +464,19 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 	aoSys.handleOpenConfig(configFile, ver, &ttlBoard);
 	aoSys.updateEdits( );
 	agilents[whichAg::TopBottom].readConfigurationFile(configFile, ver );
-	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
-														mainWindowFriend->getRunInfo() );
+	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWin->getProfileSettings().categoryPath,
+														mainWin->getRunInfo() );
 	agilents[whichAg::Axial].readConfigurationFile(configFile, ver );
-	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
-													mainWindowFriend->getRunInfo() );
+	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWin->getProfileSettings().categoryPath,
+													mainWin->getRunInfo() );
 	agilents[whichAg::Flashing].readConfigurationFile(configFile, ver );
-	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
-														mainWindowFriend->getRunInfo( ) );
+	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWin->getProfileSettings( ).categoryPath,
+														mainWin->getRunInfo( ) );
 	if ( ver > Version( "2.6" ) )
 	{
 		agilents[whichAg::Microwave].readConfigurationFile( configFile, ver );
-		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
-												   mainWindowFriend->getRunInfo( ) );
+		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWin->getProfileSettings( ).categoryPath,
+												   mainWin->getRunInfo( ) );
 	}
 	topBottomTek.handleOpeningConfig(configFile, ver );
 	eoAxialTek.handleOpeningConfig(configFile, ver );
@@ -506,11 +505,11 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
 	{
-		globalVariables.handleDraw(pNMHDR, pResult, mainWindowFriend->getRgbs());
+		globalVariables.handleDraw(pNMHDR, pResult, mainWin->getRgbs());
 	}
 	else
 	{
-		configVariables.handleDraw(pNMHDR, pResult, mainWindowFriend->getRgbs());
+		configVariables.handleDraw(pNMHDR, pResult, mainWin->getRgbs());
 	}
 }
 
@@ -521,14 +520,14 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	std::vector<Script*> scriptList;
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
-		configVariables.updateParameterInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
+		mainWin->updateConfigurationSavedStatus( false );
+		configVariables.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
 		sendErr("Variables Double Click Handler : " + exception.whatStr() + "\r\n");
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -536,14 +535,14 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
+		mainWin->updateConfigurationSavedStatus( false );
 		configVariables.deleteVariable();
 	}
 	catch (Error& exception)
 	{
 		sendErr("Variables Right Click Handler : " + exception.whatStr() + "\r\n");
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -561,8 +560,8 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	std::vector<Script*> scriptList;
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
-		globalVariables.updateParameterInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
+		mainWin->updateConfigurationSavedStatus( false );
+		globalVariables.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -575,7 +574,7 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
+		mainWin->updateConfigurationSavedStatus( false );
 		globalVariables.deleteVariable();
 	}
 	catch (Error& exception)
@@ -589,14 +588,14 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
+		mainWin->updateConfigurationSavedStatus( false );
 		configVariables.handleColumnClick(pNotifyStruct, result);
 	}
 	catch (Error& exception)
 	{
 		sendErr("Handling config variable listview click : " + exception.whatStr() + "\r\n");
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -620,7 +619,7 @@ void AuxiliaryWindow::passCommonCommand(UINT id)
 {
 	try
 	{
-		commonFunctions::handleCommonMessage(id, this, mainWindowFriend, scriptingWindowFriend, cameraWindowFriend, this);
+		commonFunctions::handleCommonMessage(id, this, mainWin, scriptWin, camWin, this, basWin);
 	}
 	catch (Error& err)
 	{
@@ -629,11 +628,13 @@ void AuxiliaryWindow::passCommonCommand(UINT id)
 	}
 }
 
-void AuxiliaryWindow::loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin)
+void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, 
+								   BaslerWindow* basWin_)
 {
-	mainWindowFriend = mainWin;
-	scriptingWindowFriend = scriptWin;
-	cameraWindowFriend = camWin;
+	mainWin = mainWin_;
+	scriptWin = scriptWin_;
+	camWin = camWin_;
+	basWin = basWin_;
 }
 
 
@@ -653,7 +654,7 @@ void AuxiliaryWindow::handleTektronicsButtons(UINT id)
 	{
 		eoAxialTek.handleButtons(id - EO_ON_OFF);
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -712,7 +713,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 
 fontMap AuxiliaryWindow::getFonts()
 {
-	return mainWindowFriend->getFonts();
+	return mainWin->getFonts();
 }
 
 
@@ -727,21 +728,21 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 	if (id % 7 == 0)
 	{
 		// channel 1
-		agilent.handleChannelPress( 1, mainWindowFriend->getProfileSettings().categoryPath, 
-									 mainWindowFriend->getRunInfo() );
+		agilent.handleChannelPress( 1, mainWin->getProfileSettings().categoryPath, 
+									 mainWin->getRunInfo() );
 	}
 	else if (id % 7 == 1)
 	{
 		// channel 2
-		agilent.handleChannelPress( 2, mainWindowFriend->getProfileSettings().categoryPath, 
-									 mainWindowFriend->getRunInfo() );
+		agilent.handleChannelPress( 2, mainWin->getProfileSettings().categoryPath, 
+									 mainWin->getRunInfo() );
 	}
 	// sync is just a check, no handling needed.
 	else if (id % 7 == 6)
 	{
 		try
 		{
-			agilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+			agilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
 			agilent.setAgilent();
 			sendStatus( "Programmed Agilent " + agilent.getName() + ".\r\n" );
 		}
@@ -751,7 +752,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -760,9 +761,9 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	Agilent& ag = whichAgilent( id );
 	try
 	{
-		ag.handleInput( mainWindowFriend->getProfileSettings( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+		ag.handleInput( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 		ag.handleCombo( );
-		ag.updateSettingsDisplay( mainWindowFriend->getProfileSettings( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+		ag.updateSettingsDisplay( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 	}
 	catch ( Error& err )
 	{
@@ -773,13 +774,13 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 
 void AuxiliaryWindow::sendErr(std::string msg)
 {
-	mainWindowFriend->getComm()->sendError(msg);
+	mainWin->getComm()->sendError(msg);
 }
 
 
 void AuxiliaryWindow::sendStatus(std::string msg)
 {
-	mainWindowFriend->getComm()->sendStatus(msg);
+	mainWin->getComm()->sendStatus(msg);
 }
 
 
@@ -825,7 +826,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->aoSys = &aoSys;
 		input->aiSys = &aiSys;
 		input->globalControl = &globalVariables;
-		input->comm = mainWindowFriend->getComm();
+		input->comm = mainWin->getComm();
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
@@ -1112,7 +1113,7 @@ void AuxiliaryWindow::SetDacs()
 		sendStatus( ": " + exception.whatStr() + "\r\n" );
 		sendErr( exception.what() );
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -1120,7 +1121,7 @@ void AuxiliaryWindow::DacEditChange(UINT id)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
+		mainWin->updateConfigurationSavedStatus( false );
 		aoSys.handleEditChange(id - ID_DAC_FIRST_EDIT);
 	}
 	catch (Error& err)
@@ -1134,14 +1135,14 @@ void AuxiliaryWindow::handleTtlPush(UINT id)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
+		mainWin->updateConfigurationSavedStatus( false );
 		ttlBoard.handleTTLPress( id );
 	}
 	catch (Error& exception)
 	{
 		sendErr( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n" );
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -1155,13 +1156,13 @@ void AuxiliaryWindow::handlTtlHoldPush()
 	{
 		sendErr( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n" );
 	}
-	mainWindowFriend->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
 void AuxiliaryWindow::ViewOrChangeTTLNames()
 {
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 	ttlInputStruct input;
 	input.ttls = &ttlBoard;
 	input.toolTips = toolTips;
@@ -1172,7 +1173,7 @@ void AuxiliaryWindow::ViewOrChangeTTLNames()
 
 void AuxiliaryWindow::ViewOrChangeDACNames()
 {
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 	aoInputStruct input;
 	input.aoSys = &aoSys;
 	input.toolTips = toolTips;
@@ -1189,8 +1190,8 @@ void AuxiliaryWindow::Exit()
 
 HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWindowFriend->getBrushes();
-	rgbMap rgbs = mainWindowFriend->getRgbs();
+	brushMap brushes = mainWin->getBrushes();
+	rgbMap rgbs = mainWin->getRgbs();
 	HBRUSH result;
 	for ( auto& ag : agilents )
 	{
@@ -1272,10 +1273,10 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	POINT controlLocation{ 0, 0 };
 	try
 	{
-		auto rgbs = mainWindowFriend->getRgbs( );
+		auto rgbs = mainWin->getRgbs( );
 		statusBox.initialize( controlLocation, id, this, 480, toolTips );
 		ttlBoard.initialize( controlLocation, toolTips, this, id, rgbs );
-		aoSys.initialize( controlLocation, toolTips, this, id, mainWindowFriend->getRgbs() );
+		aoSys.initialize( controlLocation, toolTips, this, id, mainWin->getRgbs() );
 		aiSys.initialize( controlLocation, this, id );
 		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
 		{ TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK }, rgbs );
@@ -1294,9 +1295,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 												 rgbs["Solarized Base03"], rgbs );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
-									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
+									mainWin->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
 		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
-									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
+									mainWin->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		configVariables.setParameterControlActive( false );
 
 		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
@@ -1331,9 +1332,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], plotStyle::DacPlot, mainWindowFriend->getBrightPlotPens( ),
-												  mainWindowFriend->getPlotFont( ), 
-												 mainWindowFriend->getBrightPlotBrushes( ), titleTxt );
+			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], plotStyle::DacPlot, mainWin->getBrightPlotPens( ),
+												  mainWin->getPlotFont( ), 
+												 mainWin->getBrightPlotBrushes( ), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
@@ -1369,9 +1370,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWindowFriend->getBrightPlotPens( ),
-												  mainWindowFriend->getPlotFont( ), 
-												  mainWindowFriend->getBrightPlotBrushes( ),
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWin->getBrightPlotPens( ),
+												  mainWin->getPlotFont( ), 
+												  mainWin->getBrightPlotBrushes( ),
 												  titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;

@@ -86,7 +86,7 @@ bool CameraWindow::wantsAutoCal( )
 
 void CameraWindow::calibrate( )
 {
-	commonFunctions::calibrateCameraBackground(scriptingWindowFriend, mainWindowFriend, this, auxWindowFriend );
+	commonFunctions::calibrateCameraBackground(scriptWin, mainWin, this, auxWin );
 }
 
 
@@ -98,7 +98,7 @@ void CameraWindow::passDelGrid( )
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 }
 
@@ -111,7 +111,7 @@ void CameraWindow::writeVolts( UINT currentVoltNumber, std::vector<float64> data
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 }
 
@@ -140,7 +140,7 @@ void CameraWindow::handleImageDimsEdit( UINT id )
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 	ReleaseDC( dc );
 }
@@ -154,7 +154,7 @@ void CameraWindow::handleEmGainChange()
 	}
 	catch ( Error err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 }
 
@@ -217,25 +217,27 @@ void CameraWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 }
 
 
-void CameraWindow::loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* masterWin)
+void CameraWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
+								BaslerWindow* basWin_)
 {
-	mainWindowFriend = mainWin;
-	scriptingWindowFriend = scriptWin;
-	auxWindowFriend = masterWin;
+	mainWin = mainWin_;
+	scriptWin = scriptWin_;
+	auxWin = auxWin_;
+	basWin = basWin_;
 }
 
 
 void CameraWindow::passManualSetAnalysisLocations()
 {
 	analysisHandler.onManualButtonPushed();
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
 void CameraWindow::passSetGridCorner( )
 {
 	analysisHandler.onCornerButtonPushed( );
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -268,7 +270,7 @@ void CameraWindow::passAlwaysShowGrid()
 void CameraWindow::passCameraMode()
 {
 	CameraSettings.handleModeChange(this);
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -301,7 +303,7 @@ void CameraWindow::abortCameraRun()
 		}
 		catch (Error& err)
 		{
-			mainWindowFriend->getComm()->sendError(err.what());
+			mainWin->getComm()->sendError(err.what());
 		}
 		
 
@@ -313,11 +315,11 @@ void CameraWindow::abortCameraRun()
 			{
 				try
 				{
-					dataHandler.deleteFile(mainWindowFriend->getComm());
+					dataHandler.deleteFile(mainWin->getComm());
 				}
 				catch (Error& err)
 				{
-					mainWindowFriend->getComm()->sendError(err.what());
+					mainWin->getComm()->sendError(err.what());
 				}
 			}
 		}
@@ -373,7 +375,7 @@ LRESULT CameraWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 		return NULL;
 	}
 	avgBackground.resize( picData.back( ).size( ) );
@@ -404,7 +406,7 @@ LRESULT CameraWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 	ReleaseDC( drawer );
 	mostRecentPicNum = picNum;
@@ -442,7 +444,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch (Error& err)
 	{
-		mainWindowFriend->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.what() );
 		return NULL;
 	}
 	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
@@ -512,7 +514,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch (Error& err)
 	{
-		mainWindowFriend->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.what() );
 	}
 
 	ReleaseDC( drawer );
@@ -529,7 +531,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		}
 		catch (Error& err)
 		{
-			mainWindowFriend->getComm()->sendError( err.what() );
+			mainWin->getComm()->sendError( err.what() );
 		}
 	}
 	mostRecentPicNum = picNum;
@@ -599,7 +601,7 @@ LRESULT CameraWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 	Andor.pauseThread( );
 	Andor.setCalibrating( false );
 	justCalibrated = true;
-	mainWindowFriend->getComm( )->sendColorBox( System::Camera, 'B' );
+	mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
 	CameraSettings.cameraIsOn( false );
 	// normalize.
 	for ( auto& p : avgBackground )
@@ -625,17 +627,17 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 		alerts.playSound();
 	}
 	dataHandler.closeFile();
-	mainWindowFriend->getComm()->sendColorBox( System::Camera, 'B' );
-	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
+	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
+	mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );
-	mainWindowFriend->handleFinish();
+	mainWin->handleFinish();
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
 	// rearranger thread handles these right now.
 	mainThreadStartTimes.clear();
 	crunchFinTimes.clear( );
 	crunchSeesTimes.clear( );
-	mainWindowFriend->stopRearranger( );
+	mainWin->stopRearranger( );
 	wakeRearranger( );
 	return 0;
 }
@@ -643,7 +645,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 
 void CameraWindow::startCamera()
 {
-	mainWindowFriend->getComm()->sendColorBox( System::Camera, 'Y');
+	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
 	CDC* dc = GetDC();
@@ -655,7 +657,7 @@ void CameraWindow::startCamera()
 	double minKineticTime;
 	Andor.armCamera( this, minKineticTime );
 	CameraSettings.updateMinKineticCycleTime( minKineticTime );
-	mainWindowFriend->getComm()->sendColorBox(System::Camera, 'G');
+	mainWin->getComm()->sendColorBox(System::Camera, 'G');
 }
 
 
@@ -669,20 +671,20 @@ void CameraWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 {
 	try
 	{
-		analysisHandler.handleDoubleClick( &mainWindowFriend->getFonts( ), CameraSettings.getSettings( ).andor.picsPerRepetition );
+		analysisHandler.handleDoubleClick( &mainWin->getFonts( ), CameraSettings.getSettings( ).andor.picsPerRepetition );
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
 void CameraWindow::listViewRClick( NMHDR* info, LRESULT* lResult )
 {
 	analysisHandler.handleRClick();
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -731,7 +733,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 	{
 		if ( err.whatBare( ) != "not found" )
 		{
-			mainWindowFriend->getComm( )->sendError( err.what( ) );
+			mainWin->getComm( )->sendError( err.what( ) );
 		}
 	}
 	ReleaseDC(dc);
@@ -749,9 +751,9 @@ void CameraWindow::passSetTemperaturePress()
 	}
 	catch (Error& err)
 	{
-		mainWindowFriend->getComm()->sendError(err.what());
+		mainWin->getComm()->sendError(err.what());
 	}
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -770,7 +772,7 @@ void CameraWindow::OnTimer(UINT_PTR id)
 void CameraWindow::passTrigger()
 {
 	CameraSettings.handleTriggerChange(this);
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -782,7 +784,7 @@ void CameraWindow::passAtomGridCombo( )
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 }
 
@@ -792,7 +794,7 @@ void CameraWindow::passAtomGridCombo( )
 void CameraWindow::passPictureSettings( UINT id )
 {
 	handlePictureSettings( id );
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -816,7 +818,7 @@ void CameraWindow::handlePictureSettings(UINT id)
 	CRect rect;
 	GetClientRect(&rect);
 	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 /*
@@ -874,12 +876,12 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
 	SetRedraw( false );
 	AndorRunSettings settings = CameraSettings.getSettings( ).andor;
-	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
-	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
-	box.rearrange( cx, cy, mainWindowFriend->getFonts( ) );
-	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
-	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
-	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	box.rearrange( cx, cy, mainWin->getFonts( ) );
+	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
 	pics.setParameters( CameraSettings.getSettings( ).andor.imageSettings );
 	CDC* dc = GetDC( );
 	try
@@ -889,10 +891,10 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	}
 	catch ( Error& err )
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 	ReleaseDC( dc );
-	timer.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	timer.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
 	SetRedraw( );
 	RedrawWindow( );
 }
@@ -908,7 +910,7 @@ void CameraWindow::setEmGain()
 	{
 		errBox( exception.what() );
 	}
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
@@ -920,7 +922,7 @@ void CameraWindow::handleMasterConfigSave(std::stringstream& configStream)
 
 void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
 {
-	mainWindowFriend->updateConfigurationSavedStatus( false );
+	mainWin->updateConfigurationSavedStatus( false );
 	selectedPixel = { 0,0 }; 
 	CameraSettings.handleOpenMasterConfig(configStream, version, this);
 	pics.setParameters(CameraSettings.getSettings().andor.imageSettings);
@@ -943,7 +945,7 @@ void CameraWindow::loadCameraCalSettings( ExperimentInput& input )
 	}
 	catch ( Error& err)
 	{
-		mainWindowFriend->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.what( ) );
 	}
 
 	CDC* dc = GetDC( );
@@ -977,8 +979,8 @@ void CameraWindow::prepareCamera( ExperimentInput& input )
 	pics.setNumberPicturesActive( CameraSettings.getSettings().andor.picsPerRepetition );
 	// this is a bit awkward at the moment.
 	
-	CameraSettings.setRepsPerVariation(mainWindowFriend->getRepNumber());
-	UINT varNumber = auxWindowFriend->getTotalVariationNumber();
+	CameraSettings.setRepsPerVariation(mainWin->getRepNumber());
+	UINT varNumber = auxWin->getTotalVariationNumber();
 	if (varNumber == 0)
 	{
 		// this means that the user isn't varying anything, so effectively this should be 1.
@@ -1030,7 +1032,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;	
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
 	input.cruncherInput->finTime = &crunchFinTimes;
-	input.cruncherInput->atomThresholdForSkip = mainWindowFriend->getMainOptions( ).atomThresholdForSkip;
+	input.cruncherInput->atomThresholdForSkip = mainWin->getMainOptions( ).atomThresholdForSkip;
 	input.cruncherInput->rearrangerConditionWatcher = &rearrangerConditionVariable;
 }
 
@@ -1061,12 +1063,12 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->active = &plotThreadActive;
 	input.plotterInput->imQueue = &plotterPictureQueue;
 	input.plotterInput->imageShape = CameraSettings.getSettings().andor.imageSettings;
-	input.plotterInput->picsPerVariation = mainWindowFriend->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
-	input.plotterInput->variations = auxWindowFriend->getTotalVariationNumber();
+	input.plotterInput->picsPerVariation = mainWin->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
+	input.plotterInput->variations = auxWin->getTotalVariationNumber();
 	input.plotterInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
 	input.plotterInput->alertThreshold = alerts.getAlertThreshold();
 	input.plotterInput->wantAlerts = alerts.alertsAreToBeUsed();
-	input.plotterInput->comm = mainWindowFriend->getComm();
+	input.plotterInput->comm = mainWin->getComm();
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
@@ -1123,8 +1125,8 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 			style = plotStyle::ErrorPlot;
 		}
 		// start a PlotDialog dialog
-		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getPlotPens(), 
-										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ), 
+		PlotDialog* plot = new PlotDialog( data, style, mainWin->getPlotPens(), 
+										   mainWin->getPlotFont( ), mainWin->getPlotBrushes( ), 
 										   analysisHandler.getPlotTime(), plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
@@ -1412,7 +1414,7 @@ BOOL CameraWindow::OnInitDialog()
 {
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
-	Andor.initializeClass( mainWindowFriend->getComm(), &imageTimes );
+	Andor.initializeClass( mainWin->getComm(), &imageTimes );
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
@@ -1421,14 +1423,14 @@ BOOL CameraWindow::OnInitDialog()
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
 	alerts.alertMainThread( 0 );
 	alerts.initialize( positions, this, false, id, tooltips );
-	analysisHandler.initialize( positions, id, this, tooltips, false, mainWindowFriend->getRgbs() );
+	analysisHandler.initialize( positions, id, this, tooltips, false, mainWin->getRgbs() );
 	CameraSettings.initialize( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, tooltips );
 	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
 	position = { 797, 40 };
-	pics.initialize( position, this, id, tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
+	pics.initialize( position, this, id, tooltips, mainWin->getBrushes()["Dark Green"] );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
@@ -1465,7 +1467,7 @@ void CameraWindow::redrawPictures( bool andGrid )
 	catch (Error& err)
 	{
 		ReleaseDC( dc );
-		mainWindowFriend->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.what() );
 	}
 	// currently don't attempt to redraw previous picture data.
 }
@@ -1473,12 +1475,12 @@ void CameraWindow::redrawPictures( bool andGrid )
 
 HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWindowFriend->getBrushes();
-	rgbMap rgbs = mainWindowFriend->getRgbs();
+	brushMap brushes = mainWin->getBrushes();
+	rgbMap rgbs = mainWin->getRgbs();
 	HBRUSH result;
 	int num = pWnd->GetDlgCtrlID();
 
-	result = *CameraSettings.handleColor(num, pDC, mainWindowFriend->getBrushes(), mainWindowFriend->getRgbs());
+	result = *CameraSettings.handleColor(num, pDC, mainWin->getBrushes(), mainWin->getRgbs());
 	if (result) { return result; }
 
 	switch (nCtlColor)
@@ -1533,8 +1535,8 @@ void CameraWindow::passCommonCommand(UINT id)
 {
 	try
 	{
-		commonFunctions::handleCommonMessage( id, this, mainWindowFriend, scriptingWindowFriend, this, 
-											  auxWindowFriend );
+		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, 
+											  auxWin, basWin );
 	}
 	catch (Error& err)
 	{
@@ -1564,7 +1566,7 @@ void CameraWindow::readImageParameters()
 	}
 	catch (Error& exception)
 	{
-		Communicator* comm = mainWindowFriend->getComm();
+		Communicator* comm = mainWin->getComm();
 		comm->sendColorBox( System::Camera, 'R' );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}

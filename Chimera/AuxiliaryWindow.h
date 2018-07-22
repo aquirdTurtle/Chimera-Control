@@ -39,6 +39,9 @@ struct whichAg
 };
 
 
+class BaslerWindow;
+
+
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
 class AuxiliaryWindow : public CDialog
@@ -70,7 +73,8 @@ class AuxiliaryWindow : public CDialog
 		void ViewOrChangeDACNames();
 		void Exit();
 		void passRoundToDac();
-		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin);
+		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, 
+						  BaslerWindow* basWin_);
 		std::string getOtherSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
@@ -132,10 +136,11 @@ class AuxiliaryWindow : public CDialog
 	private:
 		DECLARE_MESSAGE_MAP();		
 
-		MainWindow* mainWindowFriend;
-		ScriptingWindow* scriptingWindowFriend;
-		CameraWindow* cameraWindowFriend;
-		
+		MainWindow* mainWin;
+		ScriptingWindow* scriptWin;
+		CameraWindow* camWin;
+		BaslerWindow* basWin;
+
 		CMenu menu;
 		std::string title;
 		toolTipTextMap toolTipText;

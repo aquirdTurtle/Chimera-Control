@@ -244,6 +244,13 @@
     <ClCompile Include="rerngGuiControl.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
+    <ClCompile Include="BaslerCamera.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="BaslerWindow.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="BaslerSettingsControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -585,6 +592,13 @@
     <ClInclude Include="rerngGuiControl.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
+    <ClInclude Include="BaslerCamera.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="BaslerWindow.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="BaslerSettingsControl.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -664,6 +678,9 @@
     </Filter>
     <Filter Include="Auxiliary Window\Agilent">
       <UniqueIdentifier>{2be437ad-d8ab-418d-9656-a97ff5c57d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Basler Window">
+      <UniqueIdentifier>{f8c33133-04c0-43d8-806d-6e7d703c47d5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

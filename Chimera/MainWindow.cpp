@@ -4,6 +4,7 @@
 #include "CameraWindow.h"
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
+#include "BaslerWindow.h"
 #include <future>
 #include "Thrower.h"
 #include "externals.h"
@@ -442,15 +443,18 @@ BOOL MainWindow::OnInitDialog( )
 		TheCameraWindow = new CameraWindow;
 		which = "Auxiliary";
 		TheAuxiliaryWindow = new AuxiliaryWindow;
+		which = "Basler";
+		TheBaslerWindow = new BaslerWindow;
 	}
 	catch ( Error& err )
 	{
 		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.what( ) );
 		return -1;
 	}
-	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
-	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
-	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
+	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow, TheBaslerWindow );
+	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow );
+	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow, TheBaslerWindow );
+	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
 	startupTimes.push_back(chronoClock::now());
 	try
 	{
@@ -458,6 +462,7 @@ BOOL MainWindow::OnInitDialog( )
 		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
 		TheCameraWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
+		TheBaslerWindow->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
 	}
 	catch ( Error& err )
 	{
@@ -507,6 +512,7 @@ BOOL MainWindow::OnInitDialog( )
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
+	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
 	std::vector<CDialog*> windows = {NULL, this, TheCameraWindow, TheScriptingWindow, TheAuxiliaryWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
@@ -849,7 +855,7 @@ void MainWindow::passCommonCommand(UINT id)
 	try
 	{
 		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, 
-											   TheAuxiliaryWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow );
 	}
 	catch (Error& exception)
 	{

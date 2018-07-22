@@ -29,14 +29,16 @@ FEATURES:
 - report andor background data to datalogger
 - improve delete file after abort functionality
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
-- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
 - auto mot calibration runs
-- integrate a basler window.
 - add reporting on how many atoms loaded via atomcruncher thread.
 - improve delete file after abort functionality
 - option for rearranging: no flashing and no static array for extra potential rearranging.
 - add reporting on how many atoms loaded via atomcruncher thread.
 - improve delete file after abort functionality
+- integrate a basler window.
+	- add window 
+	- add all basler functionality from the basler control
+	- make picture control consistent
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
