@@ -36,9 +36,7 @@ FEATURES:
 - add reporting on how many atoms loaded via atomcruncher thread.
 - improve delete file after abort functionality
 - integrate a basler window.
-	- add window 
-	- add all basler functionality from the basler control
-	- make picture control consistent
+	- involve config info...
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers

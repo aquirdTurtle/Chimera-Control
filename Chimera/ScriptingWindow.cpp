@@ -211,6 +211,7 @@ void ScriptingWindow::OnCancel()
 
 BOOL ScriptingWindow::OnInitDialog()
 {
+	SetWindowText ( "Scripting Window" );
 	EnableToolTips( TRUE );
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
@@ -288,7 +289,6 @@ void ScriptingWindow::loadFriends(MainWindow* mainWin_, CameraWindow* camWin_, A
 	auxWin = auxWin_;
 	basWin = basWin_;
 }
-
 
 /*
 	This function retuns the names (just the names) of currently active scripts.

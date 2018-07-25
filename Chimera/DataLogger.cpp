@@ -281,8 +281,9 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		H5::Group andorGroup( file.createGroup( "/Andor" ) );
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
-		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment ), settings.imageSettings.width, settings.imageSettings.height };
-		hsize_t picDims[] = { 1, settings.imageSettings.width, settings.imageSettings.height };
+		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment ), settings.imageSettings.width(),
+			settings.imageSettings.height() };
+		hsize_t picDims[] = { 1, settings.imageSettings.width(), settings.imageSettings.height() };
 		picureSetDataSpace = H5::DataSpace( 3, setDims );
 		picDataSpace = H5::DataSpace( 3, picDims );
 		pictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, picureSetDataSpace );
@@ -393,7 +394,7 @@ void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, im
 	// MUST initialize status
 	// starting coordinates of write area in the h5 file of the array of picture data points.
 	hsize_t offset[] = { currentPicNumber++, 0, 0 };
-	hsize_t slabdim[3] = { 1, dims.width, dims.height };
+	hsize_t slabdim[3] = { 1, dims.width(), dims.height() };
 	try
 	{
 		picureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );

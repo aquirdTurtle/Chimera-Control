@@ -45,9 +45,11 @@ class ScriptingWindow : public CDialog
 		void loadFriends(MainWindow* mainWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
 		void fillMasterThreadInput(MasterThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
+
 		scriptInfo<std::string> getScriptNames();
 		scriptInfo<bool> getScriptSavedStatuses();
 		scriptInfo<std::string> getScriptAddresses();
+
 		profileSettings getProfileSettings();
 		std::string getSystemStatusString();
 		BOOL PreTranslateMessage(MSG* pMsg);

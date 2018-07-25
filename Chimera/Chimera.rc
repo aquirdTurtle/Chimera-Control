@@ -242,11 +242,13 @@ BEGIN
         MENUITEM "Run &Camera",                 ID_RUNMENU_RUNCAMERA
         MENUITEM "Run &NIAWG",                  ID_RUNMENU_RUNNIAWG
         MENUITEM "Run &Master",                 ID_RUNMENU_RUNMASTER
+        MENUITEM "Run &Basler",                 ID_RUNMENU_RUNBASLER
         MENUITEM "&Write Waveforms Only",       ID_FILE_MY_WRITE_WAVEFORMS
         MENUITEM "&Abort All\tESC",             ID_FILE_ABORT_GENERATION
-        MENUITEM "A&bort Camera",               ID_RUNMENU_ABORTCAMERA
+        MENUITEM "Abort Camera (&X)",           ID_RUNMENU_ABORTCAMERA
         MENUITEM "Ab&ort NIAWG",                ID_RUNMENU_ABORTNIAWG
         MENUITEM "Abort Mas&ter",               ID_RUNMENU_ABORTMASTER
+        MENUITEM "Abort Basler (&Z)",           ID_RUNMENU_ABORTBASLER
         MENUITEM "&Pause\tF2",                  ID_RUNMENU_PAUSE
     END
     POPUP "Profil&e"

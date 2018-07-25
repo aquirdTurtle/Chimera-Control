@@ -13,11 +13,13 @@
 class PictureControl
 {
 	public:
+		PictureControl ( );
 		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds );
 		void handleMouse( CPoint p );
 		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
+		void drawBitmap ( CDC* dc, const Matrix<long>& picData );
 		void setSliderControlLocs(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
@@ -46,6 +48,7 @@ class PictureControl
 		POINT mouseCoordinates;
 		// for replotting.
 		std::vector<long> mostRecentImage;
+		Matrix<long> mostRecentImage_m;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.
 		bool active;

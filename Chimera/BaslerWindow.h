@@ -1,5 +1,6 @@
 #pragma once
 #include <atomic>
+#include "PictureManager.h"
 #include "PictureControl.h"
 #include "Control.h"
 #include "BaslerSettingsControl.h"
@@ -42,7 +43,9 @@ class BaslerWindow : public CDialogEx
 		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ );
 
 	private:
-		PictureControl picture;
+		// for the basler window, this is typically only one picture, but I include this here anyways.
+		PictureManager picManager;
+		//PictureControl picture;
 		BaslerSettingsControl settings;
 		BaslerCameras* cameraController;
 		PictureStats stats;
@@ -62,6 +65,7 @@ class BaslerWindow : public CDialogEx
 		CameraWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		ScriptingWindow* scriptWin;
+		coordinate selectedPixel = { 0,0 };
 	protected:
 		//virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 		HICON m_hIcon;

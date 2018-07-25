@@ -721,6 +721,7 @@ imageParameters CameraSettingsControl::getImageParameters()
 	return imageDimensionsObj.readImageParameters( );
 }
 
+
 CBrush* CameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
 {
 	return picSettingsObj.colorControls( idNumber, colorer, brushes, rgbs );
@@ -801,8 +802,6 @@ void CameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configSt
 		settings.top = std::stol ( tempStr );
 		configStream >> tempStr;
 		settings.verticalBinning = std::stol ( tempStr );
-		settings.width = ( settings.right - settings.left + 1 ) / settings.horizontalBinning;
-		settings.height = ( settings.top - settings.bottom + 1 ) / settings.verticalBinning;
 		setImageParameters ( settings, camWin );
 	}
 	catch ( std::invalid_argument& )

@@ -3,9 +3,10 @@
 #include <string>
 #include "Control.h"
 #include "commonTypes.h"
+#include "imageParameters.h"
 
-
-struct imageDimensions
+/*
+struct baslerImageDimensions
 {
 	// in raw pixels, not binned pixels. These area meant to refer to the spatial extent of the camera being used.
 	int leftBorder;
@@ -25,7 +26,7 @@ struct imageDimensions
 	int vertBinNumber;
 	int vertRawPixelNumber;
 };
-
+*/
 
 struct baslerSettings
 {
@@ -36,7 +37,7 @@ struct baslerSettings
 	unsigned int repCount;
 	std::string triggerMode;
 	double frameRate;
-	imageDimensions dimensions;
+	imageParameters dimensions;
 };
 
 

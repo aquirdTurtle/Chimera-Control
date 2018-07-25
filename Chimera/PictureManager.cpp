@@ -3,6 +3,19 @@
 #include "ProfileSystem.h"
 #include "Thrower.h"
 
+PictureManager::PictureManager ( )
+{
+
+}
+
+void PictureManager::drawBitmap ( CDC* deviceContext, Matrix<long> picData )
+{
+	for ( auto& pic : pictures )
+	{
+		pic.drawBitmap ( deviceContext, picData );
+	}
+}
+
 void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 {
 	for (int picInc = 0; picInc < 4; picInc++)
@@ -208,7 +221,7 @@ coordinate PictureManager::getClickLocation( CPoint clickLocation )
 		catch(Error&){}
 		// checkClickLocation throws if not found. Continue looking.
 	}
-	thrower( "not found" );
+	thrower( "click location not found" );
 }
 
 
@@ -293,8 +306,7 @@ void PictureManager::drawBackgrounds(CDC* easel)
 }
 
 
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips,
-								 CBrush* defaultBrush)
+void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush)
 {
 	picturesLocation = loc;
 	picturesWidth = 550 * 2;

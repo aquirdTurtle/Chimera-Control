@@ -214,46 +214,23 @@ imageParameters ImageDimsControl::readImageParameters()
 		thrower( "Vertical binning argument not an integer!\r\n" );
 	}
 	vertBinningEdit.RedrawWindow();
-	updateWidthHeight( );
 
 	// Check Image parameters
-	if (currentImageParameters.left > currentImageParameters.right || currentImageParameters.bottom > currentImageParameters.top)
+	try
+	{
+		currentImageParameters.checkConsistency ( );
+	}
+	catch ( Error )
 	{
 		isReady = false;
-		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
+		throw;
 	}
-	if (currentImageParameters.left < 1 || currentImageParameters.right > 512)
-	{
-		isReady = false;
-		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
-	}
-	if (currentImageParameters.bottom < 1 || currentImageParameters.top > 512)
-	{
-		isReady = false;
-		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
-	}
-	if ((currentImageParameters.right - currentImageParameters.left + 1) % currentImageParameters.horizontalBinning != 0)
-	{
-		isReady = false;
-		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
-	}
-	if ((currentImageParameters.top - currentImageParameters.bottom + 1) % currentImageParameters.verticalBinning != 0)
-	{
-		isReady = false;
-		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
-	}
+
 	// made it through successfully.
 	isReady = true;
 	return currentImageParameters;
 }
 
-
-// Calculate the number of actual pixels in each dimension.
-void ImageDimsControl::updateWidthHeight( )
-{
-	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
-	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
-}
 
 /*
  * I forget why I needed a second function for this.
@@ -277,34 +254,15 @@ void ImageDimsControl::setImageParametersFromInput( imageParameters param, Camer
 	horBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
 	currentImageParameters.verticalBinning = param.verticalBinning;
 	vertBinningEdit.SetWindowText( cstr( currentImageParameters.verticalBinning ) );
-	// Calculate the number of actual pixels in each dimension.
-	updateWidthHeight( );
-
 	// Check Image parameters
-	if (currentImageParameters.left > currentImageParameters.right || currentImageParameters.bottom > currentImageParameters.top)
+	try
 	{
-		isReady = false;
-		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
+		currentImageParameters.checkConsistency( );
 	}
-	if (currentImageParameters.left < 1 || currentImageParameters.right > 512)
+	catch ( Error )
 	{
 		isReady = false;
-		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
-	}
-	if (currentImageParameters.bottom < 1 || currentImageParameters.top > 512)
-	{
-		isReady = false;
-		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
-	}
-	if ((currentImageParameters.right - currentImageParameters.left + 1) % currentImageParameters.horizontalBinning != 0)
-	{
-		isReady = false;
-		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
-	}
-	if ((currentImageParameters.top - currentImageParameters.bottom + 1) % currentImageParameters.verticalBinning != 0)
-	{
-		isReady = false;
-		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
+		throw;
 	}
 	// made it through successfully.
 	isReady = true;

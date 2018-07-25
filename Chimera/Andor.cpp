@@ -352,12 +352,11 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		ReleaseMutex(imagesMutex);
 	}
-	size = runSettings.imageSettings.width * runSettings.imageSettings.height;
 	std::vector<long> tempImage;
-	tempImage.resize(size);
+	tempImage.resize( runSettings.imageSettings.size());
 	WaitForSingleObject(imagesMutex, INFINITE);
 	
-	imagesOfExperiment[experimentPictureNumber].resize(size);
+	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
  	if (!safemode)
 	{
 		getOldestImage(tempImage);
@@ -365,8 +364,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc 
-				% runSettings.imageSettings.width) + 1) * runSettings.imageSettings.height 
-				- imageVecInc / runSettings.imageSettings.width - 1];
+				% runSettings.imageSettings.width()) + 1) * runSettings.imageSettings.height()
+				- imageVecInc / runSettings.imageSettings.width() - 1];
 		}
 	}
 	else
@@ -397,8 +396,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			tempImage[imageVecInc] = rand() % 30 + 10;
-			if ( ((imageVecInc / runSettings.imageSettings.width) % 2 == 1)
-				 && ((imageVecInc % runSettings.imageSettings.width) % 2 == 1) )
+			if ( ((imageVecInc / runSettings.imageSettings.width()) % 2 == 1)
+				 && ((imageVecInc % runSettings.imageSettings.width()) % 2 == 1) )
 			{
 				// can have an atom here.
 				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
@@ -410,8 +409,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		WaitForSingleObject(imagesMutex, INFINITE);
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width)
-				+ 1) * runSettings.imageSettings.height - imageVecInc / runSettings.imageSettings.width - 1];
+			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width())
+				+ 1) * runSettings.imageSettings.height() - imageVecInc / runSettings.imageSettings.width() - 1];
 		}
 		ReleaseMutex( imagesMutex );
 	}

@@ -578,6 +578,16 @@ namespace commonFunctions
 				camWin->setDataType( RAW_COUNTS );
 				break;
 			}
+			case ID_RUNMENU_RUNBASLER:
+			{
+				basWin->handleArmPress();
+				break;
+			}
+			case ID_RUNMENU_ABORTBASLER:
+			{
+				basWin->handleDisarmPress( );
+				break;
+			}
 			case ID_RUNMENU_ABORTCAMERA:
 			{
 				try
