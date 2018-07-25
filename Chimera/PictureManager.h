@@ -7,11 +7,12 @@
 class PictureManager
 {
 	public:
+		PictureManager ( );
 		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
-		void initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips, CBrush* defaultGridBrush );
+		void initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultGridBrush );
 		void refreshBackgrounds(CDC* easel);
 		void drawGrids(CDC* easel);
 		UINT getNumberActive( );
@@ -23,6 +24,7 @@ class PictureManager
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
+		void drawBitmap ( CDC* deviceContext, Matrix<long> picData );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
 						  std::vector<atomGrid> gridInfo, UINT pictureNumber );
 		void createPalettes( CDC* dc );

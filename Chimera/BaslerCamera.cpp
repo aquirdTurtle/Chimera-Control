@@ -74,14 +74,24 @@ baslerSettings BaslerCameras::getDefaultSettings()
 {
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
-	defaultSettings.dimensions.leftBorder = 0;
-	defaultSettings.dimensions.horBinNumber = dim.x;
-	defaultSettings.dimensions.rightBorder = dim.x-1;
-	defaultSettings.dimensions.horPixelsPerBin = 1;
-	defaultSettings.dimensions.topBorder = 0;
-	defaultSettings.dimensions.vertBinNumber = dim.y;
-	defaultSettings.dimensions.bottomBorder = dim.y;
-	defaultSettings.dimensions.vertPixelsPerBin = 1;
+	defaultSettings.dimensions.left = 0;
+	//defaultSettings.dimensions.horBinNumber = dim.x;
+	defaultSettings.dimensions.right = dim.x; // - 1?
+	defaultSettings.dimensions.horizontalBinning = 1;
+	defaultSettings.dimensions.top = 0;
+	//defaultSettings.dimensions.vertBinNumber = dim.y;
+	defaultSettings.dimensions.bottom = dim.y;
+	defaultSettings.dimensions.verticalBinning = 1;
+	/*
+		defaultSettings.dimensions.leftBorder = 0;
+		defaultSettings.dimensions.horBinNumber = dim.x;
+		defaultSettings.dimensions.rightBorder = dim.x-1;
+		defaultSettings.dimensions.horPixelsPerBin = 1;
+		defaultSettings.dimensions.topBorder = 0;
+		defaultSettings.dimensions.vertBinNumber = dim.y;
+		defaultSettings.dimensions.bottomBorder = dim.y;
+		defaultSettings.dimensions.vertPixelsPerBin = 1;
+	*/
 	defaultSettings.exposureMode = "Auto Exposure Off";
 	defaultSettings.exposureTime = 1000; 
 	defaultSettings.frameRate = 2;
@@ -121,12 +131,12 @@ void BaslerCameras::setParameters( baslerSettings settings )
 	// set width (no chance of pushing right off because of binning because binning is minimal so potential value for rightmost point is 
 	//		maximal.
 	// set binning 
-	camera->setOffsetX(settings.dimensions.leftBorder);
-	camera->setWidth(settings.dimensions.horRawPixelNumber);
-	camera->setHorBin(settings.dimensions.horPixelsPerBin);
-	camera->setOffsetY(settings.dimensions.topBorder);
-	camera->setHeight(settings.dimensions.vertRawPixelNumber);
-	camera->setVertBin(settings.dimensions.vertPixelsPerBin);
+	camera->setOffsetX(settings.dimensions.left);
+	camera->setWidth(settings.dimensions.horRawPixelNum());
+	camera->setHorBin(settings.dimensions.horizontalBinning);
+	camera->setOffsetY(settings.dimensions.top);
+	camera->setHeight(settings.dimensions.vertRawPixelNum());
+	camera->setVertBin(settings.dimensions.verticalBinning);
 	
 	/// set other parameters
 	#ifdef USB_CAMERA
@@ -325,7 +335,6 @@ void BaslerCameras::triggerThread( void* voidInput )
 				}
  				// simulate successful grab
 				// need some way to communicate the width and height of the pic to this function...
-				/*
 				Matrix<long>* imageMatrix = new Matrix<long>(input->height, input->width );
 				UINT count = 0;
 				UINT rowNum = 0;
@@ -340,7 +349,6 @@ void BaslerCameras::triggerThread( void* voidInput )
 					}
 				}
 				PostMessage(*input->parent, ACE_PIC_READY, 672 * 512, (LPARAM)imageMatrix);
-				*/
 			}
 		}
 	}

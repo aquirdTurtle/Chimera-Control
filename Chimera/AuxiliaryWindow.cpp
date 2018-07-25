@@ -1266,6 +1266,7 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 
 BOOL AuxiliaryWindow::OnInitDialog()
 {
+	SetWindowText ( "Auxiliary Window" );
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
 

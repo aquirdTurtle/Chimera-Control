@@ -392,8 +392,8 @@ LRESULT CameraWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 			for ( auto data : picData )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width,
-									   curSettings.imageSettings.height, picNum / curSettings.picsPerRepetition,
+				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
+									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
 									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
@@ -484,7 +484,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
-								   curSettings.imageSettings.width, curSettings.imageSettings.height,
+								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
 								   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
 
@@ -499,8 +499,8 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			for (auto data : picsToDraw )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width,
-									   curSettings.imageSettings.height, picNum / curSettings.picsPerRepetition,
+				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
+									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
 									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
 
 				pics.drawPicture( drawer, counter, data, minMax );
@@ -731,7 +731,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 	}
 	catch (Error& err)
 	{
-		if ( err.whatBare( ) != "not found" )
+		if ( err.whatBare( ) != "click location not found" )
 		{
 			mainWin->getComm( )->sendError( err.what( ) );
 		}
@@ -1192,14 +1192,14 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			{
 				ULONG pixelRow = ( grid.topLeftCorner.row - 1) + rowInc * grid.pixelSpacing;
 				ULONG pixelColumn = ( grid.topLeftCorner.column - 1)  + columnInc * grid.pixelSpacing;
-				if ( pixelRow >= input->imageDims.height || pixelColumn >= input->imageDims.width )
+				if ( pixelRow >= input->imageDims.height() || pixelColumn >= input->imageDims.width() )
 				{
 					errBox( "ERROR: atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
 							"cruncher thread" );
 					return 0;
 				}
-				int index = ((input->imageDims.height - 1 - pixelRow) * input->imageDims.width + pixelColumn);
-				if ( index >= input->imageDims.width * input->imageDims.height )
+				int index = ((input->imageDims.height() - 1 - pixelRow) * input->imageDims.width() + pixelColumn);
+				if ( index >= input->imageDims.width() * input->imageDims.height() )
 				{
 					// shouldn't happen after I finish debugging.
 					errBox( "ERROR: Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
@@ -1412,6 +1412,7 @@ cToolTips CameraWindow::getToolTips()
 
 BOOL CameraWindow::OnInitDialog()
 {
+	SetWindowText ( "Andor Camera Control" );
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
 	Andor.initializeClass( mainWin->getComm(), &imageTimes );
@@ -1430,7 +1431,7 @@ BOOL CameraWindow::OnInitDialog()
 	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
 	position = { 797, 40 };
-	pics.initialize( position, this, id, tooltips, mainWin->getBrushes()["Dark Green"] );
+	pics.initialize( position, this, id, mainWin->getBrushes()["Dark Green"] );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
@@ -1477,11 +1478,12 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	brushMap brushes = mainWin->getBrushes();
 	rgbMap rgbs = mainWin->getRgbs();
-	HBRUSH result;
+	CBrush * result;
 	int num = pWnd->GetDlgCtrlID();
 
-	result = *CameraSettings.handleColor(num, pDC, mainWin->getBrushes(), mainWin->getRgbs());
-	if (result) { return result; }
+	result = CameraSettings.handleColor(num, pDC, mainWin->getBrushes(), mainWin->getRgbs());
+	HBRUSH res = *result;
+	if (res) { return res; }
 
 	switch (nCtlColor)
 	{

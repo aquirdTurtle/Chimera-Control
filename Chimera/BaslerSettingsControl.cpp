@@ -118,7 +118,7 @@ void BaslerSettingsControl::initialize( POINT& pos, int& id, CWnd* parent, int p
 	
 	//
 	rightText.sPos = { pos.x + width/3, pos.y, pos.x + 2* width/3, pos.y + 25 };
-	rightText.Create( std::string("Right (/" + str(cameraDims.x-1) + ")").c_str(), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.sPos,
+	rightText.Create( std::string("Right (/" + str(cameraDims.x) + ")").c_str(), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.sPos,
 					 parent, id++ );
 	
 	//
@@ -129,11 +129,11 @@ void BaslerSettingsControl::initialize( POINT& pos, int& id, CWnd* parent, int p
 	//
 	leftEdit.sPos = { pos.x, pos.y, pos.x + width/3, pos.y + 25 };
 	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.sPos, parent, id++);
-	leftEdit.SetWindowTextA( "0" );
+	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.sPos = { pos.x + width/3, pos.y, pos.x + 2* width/3, pos.y + 25 };
 	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.sPos, parent, id++ );
-	rightEdit.SetWindowTextA(str(cameraDims.x-1).c_str() );
+	rightEdit.SetWindowTextA(str(cameraDims.x).c_str() );
 	//
 	horizontalBinningEdit.sPos = { pos.x + 2* width/3, pos.y, pos.x + width, pos.y += 25 };
 	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.sPos, parent, 
@@ -141,24 +141,25 @@ void BaslerSettingsControl::initialize( POINT& pos, int& id, CWnd* parent, int p
 	horizontalBinningEdit.SetWindowTextA( "1" );
 	//
 	topText.sPos = { pos.x, pos.y, pos.x + width/3, pos.y + 25 };
-	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.sPos, parent, id++ );
+	topText.Create( str("Top (/" + str ( cameraDims.y) + ")").c_str(), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, 
+					topText.sPos, parent, id++ );
 
 	//
 	bottomText.sPos = { pos.x + width/3, pos.y, pos.x +2* width/3, pos.y + 25 };
-	bottomText.Create( std::string("Bottom (/" + str(cameraDims.y-1) + ")").c_str(), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.sPos, 
+	bottomText.Create( std::string("Bottom").c_str(), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.sPos, 
 					  parent, id++ );
 	//
 	verticalBinningText.sPos = { pos.x + 2* width/3, pos.y, pos.x + width, pos.y += 25 };
-	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.sPos, parent,
-								id++ );
+	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.sPos, 
+								parent, id++ );
 	//
 	topEdit.sPos = { pos.x, pos.y, pos.x + width/3, pos.y + 25 };
 	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.sPos, parent, id++ );
-	topEdit.SetWindowTextA( "0" );
+	topEdit.SetWindowTextA( str ( cameraDims.y ).c_str ( ) );
 	//
 	bottomEdit.sPos = { pos.x + width/3, pos.y, pos.x + 2* width/3, pos.y + 25 };
 	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.sPos, parent, id++ );
-	bottomEdit.SetWindowTextA(str(cameraDims.y - 1).c_str() );
+	bottomEdit.SetWindowTextA( "1" );
 	//
 	verticalBinningEdit.sPos = { pos.x + 2* width/3, pos.y, pos.x + width, pos.y += 25 };
 	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.sPos, parent, id++ );
@@ -242,223 +243,195 @@ baslerSettings BaslerSettingsControl::getCurrentSettings()
 	return currentSettings;
 }
 
-baslerSettings BaslerSettingsControl::loadCurrentSettings(POINT cameraDims)
-{	
+baslerSettings BaslerSettingsControl::loadCurrentSettings ( POINT cameraDims )
+{
 	isReady = false;
-	int selection = exposureModeCombo.GetCurSel();
+	int selection = exposureModeCombo.GetCurSel ( );
 	CString text;
-	exposureModeCombo.GetLBText(selection, text );
-	currentSettings.exposureMode = std::string( text );
-	if (currentSettings.exposureMode == "Auto Exposure Off")
+	exposureModeCombo.GetLBText ( selection, text );
+	currentSettings.exposureMode = std::string ( text );
+	if ( currentSettings.exposureMode == "Auto Exposure Off" )
 	{
 		try
 		{
-			exposureEdit.GetWindowTextA( text );
-			currentSettings.exposureTime = std::stod( std::string( text ) );
-			if (currentSettings.exposureTime <= 0)
+			exposureEdit.GetWindowTextA ( text );
+			currentSettings.exposureTime = std::stod ( std::string ( text ) );
+			if ( currentSettings.exposureTime <= 0 )
 			{
-				throw std::invalid_argument( "err!" );
+				throw std::invalid_argument ( "err!" );
 			}
 		}
-		catch (std::invalid_argument& err)
+		catch ( std::invalid_argument& err )
 		{
-			thrower( "Error! Please input a valid double for the exposure time." );
+			thrower ( "Error! Please input a valid double for the exposure time." );
 		}
 	}
 
-	int sel = cameraMode.GetCurSel();
-	cameraMode.GetLBText( sel, text );
-	currentSettings.cameraMode = std::string( text );
-	if (currentSettings.cameraMode == "Finite Acquisition")
+	int sel = cameraMode.GetCurSel ( );
+	cameraMode.GetLBText ( sel, text );
+	currentSettings.cameraMode = std::string ( text );
+	if ( currentSettings.cameraMode == "Finite Acquisition" )
 	{
 		try
 		{
-			repEdit.GetWindowTextA( text );
-			currentSettings.repCount = std::stoi( std::string( text ) );
-			if (currentSettings.repCount == 0)
+			repEdit.GetWindowTextA ( text );
+			currentSettings.repCount = std::stoi ( std::string ( text ) );
+			if ( currentSettings.repCount == 0 )
 			{
-				thrower( "ERROR! Repetition count must be strictly positive." );
+				thrower ( "ERROR! Repetition count must be strictly positive." );
 			}
 		}
-		catch (std::invalid_argument& err)
+		catch ( std::invalid_argument& err )
 		{
-			thrower( "Error! Please input a valid positive integer for the rep count." );
+			thrower ( "Error! Please input a valid positive integer for the rep count." );
 		}
 	}
 
 	// in case called before initialized
-	if (!leftEdit)
+	if ( !leftEdit )
 	{
 		return currentSettings;
 	}
 	// If new dimensions are set, we don't have data for the new dimensions.
 	// set all of the image parameters
 	CString tempStr;
-	leftEdit.GetWindowTextA( tempStr );
+	leftEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		int val = currentSettings.dimensions.leftBorder = std::stoi( std::string( tempStr ) );
+		int val = currentSettings.dimensions.left = std::stoi ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 			// round down to nearest multiple of 16
-			currentSettings.dimensions.leftBorder = int(val / 16) * 16;
-			leftEdit.SetWindowTextA(cstr(currentSettings.dimensions.leftBorder));
+		currentSettings.dimensions.leftBorder = int ( val / 16 ) * 16;
+		leftEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.leftBorder ) );
 		#endif
 	}
-	catch (std::invalid_argument&)
+	catch ( std::invalid_argument& )
 	{
-		
-		thrower( "Left border argument not an integer!\r\n" );
-	}
-	leftEdit.RedrawWindow();
 
-	horizontalBinningEdit.GetWindowTextA(tempStr);
-	try
-	{
-		currentSettings.dimensions.horPixelsPerBin = std::stoi(std::string(tempStr));
+		thrower ( "Left border argument not an integer!\r\n" );
 	}
-	catch (std::invalid_argument&)
-	{
-		thrower("Horizontal binning argument not an integer!\r\n");
-	}
-	horizontalBinningEdit.RedrawWindow();
+	leftEdit.RedrawWindow ( );
 
-	rightEdit.GetWindowTextA( tempStr );
+	horizontalBinningEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.rightBorder = std::stoi( std::string( tempStr ) );
-			#ifdef USB_CAMERA
-			int roundVal = 1;
-			if (currentSettings.dimensions.horPixelsPerBin == 1)
-			{
-				roundVal = 16;
-			}
-			else if (currentSettings.dimensions.horPixelsPerBin == 2)
-			{
-				roundVal = 32;
-			}
-			else if (currentSettings.dimensions.horPixelsPerBin == 4)
-			{
-				roundVal = 64;
-			}
-			// round up to nearest multiple of 16 or 32 or 64 depending on binning.
-			int width = currentSettings.dimensions.rightBorder - currentSettings.dimensions.leftBorder + 1;
-			width = ((width + roundVal - 1) / roundVal) * roundVal;
-			currentSettings.dimensions.rightBorder = currentSettings.dimensions.leftBorder + width - 1;
-			// compensate in case the extra rounding over-shoots, which is possible if roundVal > 16.
-			if (currentSettings.dimensions.rightBorder > cameraDims.x-1)
-			{
-				currentSettings.dimensions.rightBorder -= roundVal;
-			}
-			rightEdit.SetWindowTextA( cstr( currentSettings.dimensions.rightBorder ) );
-		#endif
+		currentSettings.dimensions.horizontalBinning = std::stoi ( std::string ( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( std::invalid_argument& )
 	{
-		thrower( "Right border argument not an integer!\r\n" );
+		thrower ( "Horizontal binning argument not an integer!\r\n" );
 	}
-	rightEdit.RedrawWindow();
-	//
-	topEdit.GetWindowTextA( tempStr );
+	horizontalBinningEdit.RedrawWindow ( );
+
+	rightEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		int val = currentSettings.dimensions.topBorder = std::stoi(std::string(tempStr));
+		currentSettings.dimensions.right = std::stoi ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
-			// round down to nearest multiple of 16
-			currentSettings.dimensions.topBorder = int(val / 16) * 16;
-			topEdit.SetWindowTextA(cstr(currentSettings.dimensions.topBorder));
-		#endif
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower( "Top border argument not an integer!\r\n" );
-	}
-	topEdit.RedrawWindow();
-	//
-	verticalBinningEdit.GetWindowTextA(tempStr);
-	try
-	{
-		currentSettings.dimensions.vertPixelsPerBin = std::stoi(std::string(tempStr));
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower("Vertical binning argument not an integer!\r\n");
-	}
-	verticalBinningEdit.RedrawWindow();
-	//
-	bottomEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentSettings.dimensions.bottomBorder = std::stoi( std::string( tempStr ) );
-
-		#ifdef USB_CAMERA
-			// round up to nearest multiple of 16 or 32 or 64 depending on binning.
-			int roundVal = 1;
-			if (currentSettings.dimensions.vertPixelsPerBin == 1)
-			{
-				roundVal = 16;
-			}
-			else if (currentSettings.dimensions.vertPixelsPerBin == 2)
-			{
-				roundVal = 32;
-			}
-			else if (currentSettings.dimensions.vertPixelsPerBin == 4)
-			{
-				roundVal = 64;
-			}
-			int height = currentSettings.dimensions.bottomBorder - currentSettings.dimensions.topBorder + 1;
-			height = ((height + roundVal - 1) / roundVal) * roundVal;
-			currentSettings.dimensions.bottomBorder = currentSettings.dimensions.topBorder + height - 1;
-			// compensate in case the extra rounding over-shoots, which is possible if roundVal > 16.
-			if (currentSettings.dimensions.bottomBorder > cameraDims.y-1)
-			{
-				currentSettings.dimensions.bottomBorder -= roundVal;
-			}
-			bottomEdit.SetWindowTextA( cstr(currentSettings.dimensions.bottomBorder) );
-		#endif
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower( "Bottom border argument not an integer!\r\n" );
-	}
-	bottomEdit.RedrawWindow();
-
-
-	
-	currentSettings.dimensions.horRawPixelNumber = currentSettings.dimensions.rightBorder - currentSettings.dimensions.leftBorder + 1;
-	currentSettings.dimensions.vertRawPixelNumber = currentSettings.dimensions.bottomBorder - currentSettings.dimensions.topBorder + 1;
-
-	currentSettings.dimensions.horBinNumber = currentSettings.dimensions.horRawPixelNumber / currentSettings.dimensions.horPixelsPerBin;
-	currentSettings.dimensions.vertBinNumber = currentSettings.dimensions.vertRawPixelNumber / currentSettings.dimensions.vertPixelsPerBin;
-	
-	// Check Image parameters
-	if (currentSettings.dimensions.leftBorder > currentSettings.dimensions.rightBorder 
-		 || currentSettings.dimensions.topBorder > currentSettings.dimensions.bottomBorder)
-	{
-		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
-	}
-	if (currentSettings.dimensions.leftBorder < 0)
-	{
-		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
-	}
-	if (currentSettings.dimensions.topBorder < 0)
-	{
-		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
-	}
-	if ((currentSettings.dimensions.rightBorder - currentSettings.dimensions.leftBorder + 1) % currentSettings.dimensions.horPixelsPerBin != 0)
-	{
-		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
-	}
-	if ((currentSettings.dimensions.bottomBorder - currentSettings.dimensions.topBorder + 1) % currentSettings.dimensions.vertPixelsPerBin != 0)
-	{
-		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
-	}
-	#ifdef USB_CAMERA
-		if (currentSettings.dimensions.horRawPixelNumber % 16 != 0 || currentSettings.dimensions.vertRawPixelNumber % 16 != 0)
+		int roundVal = 1;
+		if ( currentSettings.dimensions.horPixelsPerBin == 1 )
 		{
-			thrower( "ERROR: In a basler camera, the number of pixels in each dimension must be a multiple of 16!\r\n" );
+			roundVal = 16;
 		}
+		else if ( currentSettings.dimensions.horPixelsPerBin == 2 )
+		{
+			roundVal = 32;
+		}
+		else if ( currentSettings.dimensions.horPixelsPerBin == 4 )
+		{
+			roundVal = 64;
+		}
+		// round up to nearest multiple of 16 or 32 or 64 depending on binning.
+		int width = currentSettings.dimensions.rightBorder - currentSettings.dimensions.leftBorder + 1;
+		width = ( ( width + roundVal - 1 ) / roundVal ) * roundVal;
+		currentSettings.dimensions.rightBorder = currentSettings.dimensions.leftBorder + width - 1;
+		// compensate in case the extra rounding over-shoots, which is possible if roundVal > 16.
+		if ( currentSettings.dimensions.rightBorder > cameraDims.x - 1 )
+		{
+			currentSettings.dimensions.rightBorder -= roundVal;
+		}
+		rightEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.rightBorder ) );
+		#endif
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower ( "Right border argument not an integer!\r\n" );
+	}
+	rightEdit.RedrawWindow ( );
+	//
+	topEdit.GetWindowTextA ( tempStr );
+	try
+	{
+		int val = currentSettings.dimensions.top = std::stoi ( std::string ( tempStr ) );
+		#ifdef USB_CAMERA
+			// round down to nearest multiple of 16
+		currentSettings.dimensions.topBorder = int ( val / 16 ) * 16;
+		topEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.topBorder ) );
+		#endif
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower ( "Top border argument not an integer!\r\n" );
+	}
+	topEdit.RedrawWindow ( );
+	//
+	verticalBinningEdit.GetWindowTextA ( tempStr );
+	try
+	{
+		currentSettings.dimensions.verticalBinning = std::stoi ( std::string ( tempStr ) );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower ( "Vertical binning argument not an integer!\r\n" );
+	}
+	verticalBinningEdit.RedrawWindow ( );
+	//
+	bottomEdit.GetWindowTextA ( tempStr );
+	try
+	{
+		currentSettings.dimensions.bottom = std::stoi ( std::string ( tempStr ) );
+
+		#ifdef USB_CAMERA
+			// round up to nearest multiple of 16 or 32 or 64 depending on binning.
+		int roundVal = 1;
+		if ( currentSettings.dimensions.vertPixelsPerBin == 1 )
+		{
+			roundVal = 16;
+		}
+		else if ( currentSettings.dimensions.vertPixelsPerBin == 2 )
+		{
+			roundVal = 32;
+		}
+		else if ( currentSettings.dimensions.vertPixelsPerBin == 4 )
+		{
+			roundVal = 64;
+		}
+		int height = currentSettings.dimensions.bottomBorder - currentSettings.dimensions.topBorder + 1;
+		height = ( ( height + roundVal - 1 ) / roundVal ) * roundVal;
+		currentSettings.dimensions.bottomBorder = currentSettings.dimensions.topBorder + height - 1;
+		// compensate in case the extra rounding over-shoots, which is possible if roundVal > 16.
+		if ( currentSettings.dimensions.bottomBorder > cameraDims.y - 1 )
+		{
+			currentSettings.dimensions.bottomBorder -= roundVal;
+		}
+		bottomEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.bottomBorder ) );
+		#endif
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower ( "Bottom border argument not an integer!\r\n" );
+	}
+	bottomEdit.RedrawWindow ( );
+
+
+
+	#ifdef USB_CAMERA
+		currentSettings.dimensions.checkConsistency ( "ace" );
 	#endif
-	if (currentSettings.dimensions.horPixelsPerBin > 4 || currentSettings.dimensions.vertPixelsPerBin > 4)
+	#ifdef FIREWIRE_CAMERA
+		currentSettings.dimensions.checkConsistency ( "scout" );
+	#endif
+	if (currentSettings.dimensions.horizontalBinning > 4 || currentSettings.dimensions.verticalBinning > 4)
 	{
 		thrower( "ERROR: Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
 	}

@@ -394,6 +394,7 @@ CFont* MainWindow::getPlotFont( )
 
 BOOL MainWindow::OnInitDialog( )
 {
+	SetWindowText ( "Main Window" );
 	startupTimes.push_back(chronoClock::now());
 	eMainWindowHwnd = GetSafeHwnd( );
 	for ( auto elem : GIST_RAINBOW_RGB )

@@ -14,7 +14,6 @@ class ImageDimsControl
 	public:
 		ImageDimsControl();
 		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
-		void updateWidthHeight( );
 		imageParameters readImageParameters();
 		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
 		bool checkReady();

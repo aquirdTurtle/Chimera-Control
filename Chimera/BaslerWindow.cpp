@@ -13,7 +13,7 @@
 #include "constants.h"
 
 
-BaslerWindow::BaslerWindow( /*=NULL*/ )
+BaslerWindow::BaslerWindow( /*=NULL*/ ) 
 {
 
 }
@@ -41,8 +41,8 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_WM_MOUSEMOVE()
 
 	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, BaslerWindow::handleSoftwareTrigger )
-	ON_COMMAND( ID_ARM_BASLER_CAMERA, BaslerWindow::handleArmPress)
-	ON_COMMAND( ID_DISARM_BASLER_CAMERA, BaslerWindow::handleDisarmPress)
+	//ON_COMMAND( ID_RUNMENU_RUNBASLER, BaslerWindow::handleArmPress)
+	//ON_COMMAND( ID_RUNMENU_ABORTCAMERA, BaslerWindow::handleDisarmP ress)
 	ON_COMMAND( IDOK, &BaslerWindow::handleEnter )
 	ON_COMMAND( IDC_BASLER_SET_ANALYSIS_LOCATIONS, &BaslerWindow::passSetLocationsButton)
 
@@ -99,6 +99,17 @@ void BaslerWindow::passSetLocationsButton()
 void BaslerWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
 	CDC* cdc = GetDC( );
+	try
+	{
+		coordinate box = picManager.getClickLocation ( clickLocation );
+		selectedPixel = box;
+		//picManager.redrawPictures ( cdc, selectedPixel, analysisHandler.getAnalysisLocs ( ),
+		//					  analysisHandler.getGrids ( ), false, mostRecentPicNum );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
 	//picture.handleRightClick(clickLocation, cdc);
 	ReleaseDC( cdc );
 }
@@ -112,7 +123,7 @@ void BaslerWindow::OnMouseMove( UINT flags, CPoint point )
 {
 	try
 	{
-		picture.handleMouse( point );
+		picManager.handleMouse ( point );
 	}
 	catch (Error& err)
 	{
@@ -136,14 +147,14 @@ void BaslerWindow::handleSoftwareTrigger()
 
 void BaslerWindow::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar )
 {
-	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
+	if (nSBCode == SB_THUMBPOSITION ||  nSBCode == SB_THUMBTRACK)
 	{
-		int id = scrollbar->GetDlgCtrlID();
+		//int id = scrollbar->GetDlgCtrlID();
 		try
 		{
-			picture.handleScroll( id, nPos );
+			picManager.handleScroll ( nSBCode, nPos, scrollbar );
 			CDC* cdc = GetDC( );
-			picture.redrawImage(cdc);
+			//picManager.redrawPictures (cdc, selectedPixel, ,,0 );
 			ReleaseDC( cdc );
 		}
 		catch (Error& err)
@@ -158,7 +169,8 @@ void BaslerWindow::pictureRangeEditChange( UINT id )
 {
 	try
 	{
-		picture.handleEditChange( id );
+		picManager.handleEditChange ( id );
+		//picture.handleEditChange( id );
 	}
 	catch (Error& err)
 	{
@@ -186,18 +198,22 @@ void BaslerWindow::handleDisarmPress()
 
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
-	//Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
-	//std::vector<long>* image = (std::vector<long>*) lParam;
+	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
+	std::vector<long>* image = (std::vector<long>*) lParam;
  	long size = long( wParam );
  	try
 	{
 		currentRepNumber++;
 		CDC* cdc = GetDC();
-		//picture.drawBitmap( cdc, *imageMatrix );
+		//picManager.drawDongles ( cdc, selectedPixel, , , 0);
+		picManager.drawBitmap( cdc, *imageMatrix );
+		//picture.drawCircle ( cdc, selectedLocation );
+		//picture.drawAnalysisMarkers ( dc, analysisLocs, grids );
+		//picture.drawPicNum ( dc, pictureNumber - getNumberActive ( ) + count++ );
 		//picture.updatePlotData( );
 		//picture.drawDongles( cdc, *imageMatrix );
 		ReleaseDC( cdc );
-		picture.setHoverValue();
+		//picture.setHoverValue();
 		if (runExposureMode == "Auto Exposure Continuous")
 		{
 			settings.updateExposure( cameraController->getCurrentExposure() );
@@ -233,7 +249,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 	}
 	OnPaint( );
 	// always delete
-	//delete imageMatrix;
+	delete imageMatrix;
 	return 0;
 }
 
@@ -271,22 +287,24 @@ void BaslerWindow::handleArmPress()
 		currentRepNumber = 0;
 		baslerSettings tempSettings = settings.loadCurrentSettings(cameraController->getCameraDimensions());
 		cameraController->setParameters( tempSettings );
-		//picture.recalculateGrid( tempSettings.dimensions );
+		imageParameters params;
+		picManager.setParameters( tempSettings.dimensions );
+		//( tempSettings.dimensions );
 		auto* dc = GetDC( );
-		picture.drawBackground( dc );
+		picManager.drawBackgrounds ( dc );
 		ReleaseDC( dc );
 		runExposureMode = tempSettings.exposureMode;
-		imageWidth = tempSettings.dimensions.horBinNumber;
+		imageWidth = tempSettings.dimensions.width();
 		triggerThreadFlag = true;
 
 		triggerThreadInput* input = new triggerThreadInput;
-		input->width = tempSettings.dimensions.horBinNumber;
-		input->height = tempSettings.dimensions.vertBinNumber;
+		input->width = tempSettings.dimensions.width();
+		input->height = tempSettings.dimensions.height();
 		input->frameRate = tempSettings.frameRate;
 		input->parent = this;
 		input->runningFlag = &triggerThreadFlag;
 
-		cameraController->armCamera( input);
+		cameraController->armCamera( input );
 		settings.setStatus("Camera Status: Armed...");
 		isRunning = true;
 	}
@@ -300,7 +318,8 @@ void BaslerWindow::handleArmPress()
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 {
 	auto fonts = mainWin->getFonts ( );
-	picture.rearrange("", "", cx, cy, fonts);
+	picManager.rearrange ( "", "", cx, cy, fonts );
+	//picture.rearrange("", "", cx, cy, fonts);
 	settings.rearrange(cx, cy, fonts);
 	stats.rearrange("", "", cx, cy, fonts );
 	//saver.rearrange(cx, cy, mainFonts);
@@ -453,7 +472,9 @@ void BaslerWindow::initializeControls()
 	//					brightPlotPens, plotfont, brightPlotBrushes );
 	//picture.recalculateGrid( cameraController->getDefaultSettings().dimensions );
 	CDC* cdc = GetDC( );
-	picture.drawBackground( cdc );
+	auto brushes = mainWin->getBrushes ( );
+	picManager.initialize ( picPos, this, id, brushes[ "Red" ] );
+	//picture.drawBackground( cdc );
 	ReleaseDC( cdc );
 }
 
