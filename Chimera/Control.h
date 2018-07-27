@@ -2,6 +2,8 @@
 
 #include "commonTypes.h"
 #include "CameraPositions.h"
+#include "runModes.h"
+#include "AndorTriggerModes.h"
 #include "afxwin.h"
 #include "afxcmn.h"
 #include <unordered_map>
@@ -55,8 +57,8 @@ template <class ControlType> class Control : public ControlType
 		//
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
-		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
-		void rearrange( std::string cameraMode, std::string trigMode, int width, int height );
+		void rearrange(AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, fontMap fonts);
+		void rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height );
 		void rearrange( int width, int height);
 		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
 		void setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
@@ -136,17 +138,17 @@ void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG y
 template <class ControlType> 
 void Control<ControlType>::rearrange(int width, int height, fontMap fonts)
 {
-	rearrange("", "", width, height, fonts);
+	rearrange( AndorRunModes::None, AndorTriggerMode::None, width, height, fonts);
 }
 
 template <class ControlType>
 void Control<ControlType>::rearrange( int width, int height )
 {
-	rearrange( "", "", width, height );
+	rearrange( AndorRunModes::None, AndorTriggerMode::None, width, height );
 }
 
 template <class ControlType>
-void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMode, int width, int height )
+void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height )
 {
 	// make sure the control has been initialized
 	if ( !m_hWnd )
@@ -159,8 +161,8 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 	// extra heigh added to certain controls based on random things like the trigger mode.
 	double extraHeight = 0;
 	// The last check here is that the mode is affected by the trigger and that the control in question gets drawn in this mode.
-	if ( trigMode == "External" && triggerModeSensitive && ((cameraMode == "Kinetic Series Mode" && seriesPos.bottom != -1)
-															 || cameraMode == "Accumulation Mode" && amPos.bottom != -1) )
+	if ( trigMode == AndorTriggerMode::External && triggerModeSensitive && ((cameraMode == AndorRunModes::Kinetic && seriesPos.bottom != -1)
+															 || cameraMode == AndorRunModes::Video && amPos.bottom != -1) )
 	{
 		extraHeight += -25;
 	}
@@ -172,9 +174,9 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			long( widthScale * sPos.right ), long( heightScale * sPos.bottom ) };
 		MoveWindow( &position, TRUE );
 	}
-	else if ( cameraMode == "Kinetic Series Mode" )
+	else if ( cameraMode == AndorRunModes::Kinetic )
 	{
-		if ( seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger") )
+		if ( seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::External ) )
 		{
 			ShowWindow( SW_HIDE );
 		}
@@ -186,9 +188,9 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			MoveWindow( &position, TRUE );
 		}
 	}
-	else if ( cameraMode == "Video Mode" )
+	else if ( cameraMode == AndorRunModes::Video )
 	{
-		if ( videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger") )
+		if ( videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::External ) )
 		{
 			ShowWindow( SW_HIDE );
 		}
@@ -200,9 +202,9 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			MoveWindow( &position, TRUE );
 		}
 	}
-	else if ( cameraMode == "Accumulation Mode" )
+	else if ( cameraMode == AndorRunModes::Video )
 	{
-		if ( amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger") )
+		if ( amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::External ) )
 		{
 			ShowWindow( SW_HIDE );
 		}
@@ -218,7 +220,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 
 
 template <class ControlType>
-void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
+void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, fontMap fonts)
 {
 	if ( !m_hWnd )
 	{

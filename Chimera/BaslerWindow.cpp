@@ -41,8 +41,6 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_WM_MOUSEMOVE()
 
 	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, BaslerWindow::handleSoftwareTrigger )
-	//ON_COMMAND( ID_RUNMENU_RUNBASLER, BaslerWindow::handleArmPress)
-	//ON_COMMAND( ID_RUNMENU_ABORTCAMERA, BaslerWindow::handleDisarmP ress)
 	ON_COMMAND( IDOK, &BaslerWindow::handleEnter )
 	ON_COMMAND( IDC_BASLER_SET_ANALYSIS_LOCATIONS, &BaslerWindow::passSetLocationsButton)
 
@@ -285,7 +283,7 @@ void BaslerWindow::handleArmPress()
 	try
 	{
 		currentRepNumber = 0;
-		baslerSettings tempSettings = settings.loadCurrentSettings(cameraController->getCameraDimensions());
+		baslerSettings tempSettings = settings.loadCurrentSettings();
 		cameraController->setParameters( tempSettings );
 		imageParameters params;
 		picManager.setParameters( tempSettings.dimensions );
@@ -318,10 +316,10 @@ void BaslerWindow::handleArmPress()
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 {
 	auto fonts = mainWin->getFonts ( );
-	picManager.rearrange ( "", "", cx, cy, fonts );
+	picManager.rearrange ( cx, cy, fonts );
 	//picture.rearrange("", "", cx, cy, fonts);
 	settings.rearrange(cx, cy, fonts);
-	stats.rearrange("", "", cx, cy, fonts );
+	stats.rearrange(cx, cy, fonts );
 	//saver.rearrange(cx, cy, mainFonts);
 	if ( horGraph )
 	{
@@ -432,6 +430,20 @@ void BaslerWindow::OnPaint()
 HCURSOR BaslerWindow::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
+{
+	picManager.handleOpenConfig ( configFile, ver );
+	settings.handleOpeningConfig ( configFile, ver );
+}
+
+
+void BaslerWindow::handleSavingConfig ( std::ofstream& configFile )
+{
+	picManager.handleSaveConfig ( configFile );
+	settings.handleSavingConfig ( configFile );
 }
 
 

@@ -22,7 +22,7 @@ class AlertSystem
 						 cToolTips& tooltips );
 		void alertMainThread( int level );
 		void soundAlert();
-		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
+		void rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts );
 		UINT getAlertThreshold();
 		UINT getAlertMessageID();
 		void setAlertThreshold();

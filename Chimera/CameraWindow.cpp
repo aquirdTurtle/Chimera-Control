@@ -307,7 +307,7 @@ void CameraWindow::abortCameraRun()
 		}
 		
 
-		if (Andor.getAndorSettings().cameraMode != "Continuous Single Scans Mode")
+		if (Andor.getAndorSettings().acquisitionMode != AndorRunModes::Video)
 		{
 			int answer = promptBox("Acquisition Aborted. Delete Data file (data_" + str(dataHandler.getDataFileNumber())
 									  + ".h5) for this run?",MB_YESNO );
@@ -520,7 +520,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	ReleaseDC( drawer );
 
 	// write the data to the file.
-	if (curSettings.cameraMode != "Video Mode")
+	if (curSettings.acquisitionMode != AndorRunModes::Video)
 	{
 		try
 		{
@@ -876,12 +876,12 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
 	SetRedraw( false );
 	AndorRunSettings settings = CameraSettings.getSettings( ).andor;
-	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
-	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	stats.rearrange( cx, cy, mainWin->getFonts( ) );
+	CameraSettings.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
 	box.rearrange( cx, cy, mainWin->getFonts( ) );
-	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
-	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
-	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	pics.rearrange( cx, cy, mainWin->getFonts( ) );
+	alerts.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	analysisHandler.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
 	pics.setParameters( CameraSettings.getSettings( ).andor.imageSettings );
 	CDC* dc = GetDC( );
 	try
@@ -894,7 +894,7 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 		mainWin->getComm( )->sendError( err.what( ) );
 	}
 	ReleaseDC( dc );
-	timer.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	timer.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
 	SetRedraw( );
 	RedrawWindow( );
 }

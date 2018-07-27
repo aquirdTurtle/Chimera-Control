@@ -243,5 +243,5 @@ diagmot__servo_value 0.232268
 2
 Sidemot 1 1.7
 DiagMot 1 1.4
-1 50 1 1 50 1
+1 5 1 1 5 1
 0 0

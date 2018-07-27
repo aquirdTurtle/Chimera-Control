@@ -288,9 +288,9 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		picDataSpace = H5::DataSpace( 3, picDims );
 		pictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, picureSetDataSpace );
 		currentPicNumber = 0;
-		writeDataSet( settings.cameraMode, "Camera-Mode", andorGroup );
+		writeDataSet( int(settings.acquisitionMode), "Camera-Mode", andorGroup );
 		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
-		writeDataSet( settings.triggerMode, "Trigger-Mode", andorGroup );
+		writeDataSet( int(settings.triggerMode), "Trigger-Mode", andorGroup );
 		writeDataSet( settings.emGainModeIsOn, "EM-Gain-Mode-On", andorGroup );
 		if ( settings.emGainModeIsOn )
 		{

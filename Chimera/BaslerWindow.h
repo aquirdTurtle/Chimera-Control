@@ -14,6 +14,7 @@ class MainWindow;
 class ScriptingWindow;
 class CameraWindow;
 class AuxiliaryWindow;
+class BaslerWindow;
 
 class BaslerWindow : public CDialogEx
 {
@@ -32,20 +33,20 @@ class BaslerWindow : public CDialogEx
 		void initializeControls();
 		void passExposureMode();
 		void passCameraMode();
-		afx_msg LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
+		LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void handleSoftwareTrigger();
+		void handleOpeningConfig ( std::ifstream& configFile, Version ver );
 		void OnMouseMove(UINT flags, CPoint point);
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void passSetLocationsButton();
 		void DoDataExchange( CDataExchange* pDX );
 		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ );
-
+		void handleSavingConfig ( std::ofstream& configFile );
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		PictureManager picManager;
-		//PictureControl picture;
 		BaslerSettingsControl settings;
 		BaslerCameras* cameraController;
 		PictureStats stats;

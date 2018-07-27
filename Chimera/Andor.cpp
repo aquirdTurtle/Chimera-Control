@@ -2,6 +2,8 @@
 #include "ATMCD32D.h"
 #include "Andor.h"
 #include "CameraWindow.h"
+#include "AndorTriggerModes.h"
+#include "runModes.h"
 #include <chrono>
 #include <process.h>
 #include <algorithm>
@@ -168,8 +170,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			}
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
 			{
-				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 
-					 || input->Andor->runSettings.cameraMode == "Accumulation Mode" )
+				if ( input->Andor->runSettings.acquisitionMode == AndorRunModes::Kinetic)
 				{
 					safeModeCount++;
 					if ( input->Andor->isCalibrating( ) )
@@ -252,18 +253,18 @@ void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
 	setExposures();
 	setImageParametersToCamera();
 	// Set Mode-Specific Parameters
-	if (runSettings.acquisitionMode == runModes::Video)
+	if (runSettings.acquisitionMode == AndorRunModes::Video)
 	{
 		setFrameTransferMode();
 	}
-	else if (runSettings.acquisitionMode == runModes::Kinetic)
+	else if (runSettings.acquisitionMode == AndorRunModes::Kinetic)
 	{
 		setKineticCycleTime();
 		setScanNumber();
 		// set this to 1.
 		setNumberAccumulations(true);
 	}	
-	else if (runSettings.acquisitionMode == runModes::Accumulate)
+	else if (runSettings.acquisitionMode == AndorRunModes::Accumulate)
 	{
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
@@ -424,15 +425,15 @@ void AndorCamera::setCameraTriggerMode()
 {
 	std::string errMsg;
 	int trigType;
-	if (runSettings.triggerMode == "Internal Trigger")
+	if (runSettings.triggerMode == AndorTriggerMode::Internal)
 	{
 		trigType = 0;
 	}
-	else if (runSettings.triggerMode == "External Trigger")
+	else if (runSettings.triggerMode == AndorTriggerMode::External)
 	{
 		trigType = 1;
 	}
-	else if (runSettings.triggerMode == "Start On Trigger")
+	else if (runSettings.triggerMode == AndorTriggerMode::StartOnTrigger)
 	{
 		trigType = 6;
 	}

@@ -207,6 +207,7 @@
     <ClInclude Include="AiSystem.h" />
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="AndorRunSettings.h" />
+    <ClInclude Include="AndorTriggerModes.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
@@ -323,10 +324,12 @@
     <ClCompile Include="Agilent.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
+    <ClCompile Include="AndorTriggerModes.cpp" />
     <ClCompile Include="BaslerCamera.cpp" />
     <ClCompile Include="BaslerSettingsControl.cpp" />
     <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />
+    <ClCompile Include="runModes.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />

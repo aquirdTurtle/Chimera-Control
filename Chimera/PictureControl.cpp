@@ -933,20 +933,20 @@ void PictureControl::drawRectangle( CDC* dc, RECT pixelRect )
 /*
  * re-arrange the controls associated with this picture. Neccessary e.g. when the window is resized. 
  */
-void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts)
+void PictureControl::rearrange( int width, int height, fontMap fonts)
 {
 	if (active)
 	{
-		editMax.rearrange(cameraMode, triggerMode, width, height, fonts);
-		editMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		labelMax.rearrange(cameraMode, triggerMode, width, height, fonts);
-		labelMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		sliderMax.rearrange(cameraMode, triggerMode, width, height, fonts);
-		sliderMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		coordinatesText.rearrange( cameraMode, triggerMode, width, height, fonts );
-		coordinatesDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
-		valueText.rearrange( cameraMode, triggerMode, width, height, fonts );
-		valueDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
+		editMax.rearrange(width, height, fonts);
+		editMin.rearrange(width, height, fonts);
+		labelMax.rearrange(width, height, fonts);
+		labelMin.rearrange(width, height, fonts);
+		sliderMax.rearrange(width, height, fonts);
+		sliderMin.rearrange(width, height, fonts);
+		coordinatesText.rearrange( width, height, fonts );
+		coordinatesDisp.rearrange( width, height, fonts );
+		valueText.rearrange( width, height, fonts );
+		valueDisp.rearrange( width, height, fonts );
 		scaledBackgroundArea.bottom = long(unscaledBackgroundArea.bottom * height / 997.0);
 		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
 		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);

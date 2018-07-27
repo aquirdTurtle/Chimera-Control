@@ -815,7 +815,8 @@ std::vector<atomGrid> DataAnalysisControl::getGrids( )
 }
 
 
-void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
+void DataAnalysisControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, 
+									 fontMap fonts)
 {
 	updateFrequencyLabel1.rearrange(cameraMode, trigMode, width, height, fonts);
 	updateFrequencyLabel2.rearrange(cameraMode, trigMode, width, height, fonts);

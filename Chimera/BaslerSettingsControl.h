@@ -1,32 +1,11 @@
 #pragma once
 
 #include <string>
+#include <fstream>
+#include "Version.h"
 #include "Control.h"
 #include "commonTypes.h"
 #include "imageParameters.h"
-
-/*
-struct baslerImageDimensions
-{
-	// in raw pixels, not binned pixels. These area meant to refer to the spatial extent of the camera being used.
-	int leftBorder;
-	int rightBorder;
-	int topBorder;
-	int bottomBorder;
-
-	// extent of hardware binning
-	int horPixelsPerBin;
-	// total number of binned pixels
-	int horBinNumber;
-	// total number of pixels (not considering binning), i.e. rightBorder-leftBorder.
-	int horRawPixelNumber;
-
-	// etc
-	int vertPixelsPerBin;
-	int vertBinNumber;
-	int vertRawPixelNumber;
-};
-*/
 
 struct baslerSettings
 {
@@ -45,18 +24,19 @@ class BaslerSettingsControl
 {
 	public:
 		void initialize(POINT& pos, int& id, CWnd* parent, int picWidth, int picHeight, POINT cameraDims);
+		
 		void handleGain();
 		void setStatus(std::string status);
 		void handleExposureMode();
 		void handleCameraMode();
 		void handleFrameRate();
-		baslerSettings loadCurrentSettings(POINT cameraDims);
+		baslerSettings loadCurrentSettings( );
 		baslerSettings getCurrentSettings();		
-		// change all the settings.
-		void setSettings( baslerSettings settings);
+		void setSettings ( baslerSettings newSettings );
 		void updateExposure( double exposure );
 		void rearrange(int width, int height, fontMap fonts);
-
+		void handleSavingConfig ( std::ofstream& configFile );
+		void handleOpeningConfig ( std::ifstream& configFile, Version ver );
 	private:
 		ULONG lastTime;
 		baslerSettings currentSettings;
@@ -96,6 +76,10 @@ class BaslerSettingsControl
 		Control<CEdit> gainEdit;
 		Control<CStatic> realGainText;
 		Control<CStatic> realGainStatus;
+
+		Control<CButton> linkToMain;
+		Control<CStatic> picsPerRepTxt;
+		Control<CEdit> picsPerRepEdit;
 
 		bool isReady;
 };

@@ -523,8 +523,8 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 }
 
 
-void ImageDimsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
-											  fontMap fonts )
+void ImageDimsControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
+								  fontMap fonts )
 {
 	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );

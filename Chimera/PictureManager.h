@@ -17,7 +17,7 @@ class PictureManager
 		void drawGrids(CDC* easel);
 		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );
-		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
+		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void drawBackgrounds(CDC* easel);
 		void setPalletes(std::array<int, 4> palleteIds);
