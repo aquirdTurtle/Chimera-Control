@@ -380,12 +380,11 @@ void PictureManager::setParameters(imageParameters parameters)
 }
 
 
-void PictureManager::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
-							   fontMap fonts)
+void PictureManager::rearrange(int width, int height, fontMap fonts)
 {
 	for (auto& control : pictures)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 }
 

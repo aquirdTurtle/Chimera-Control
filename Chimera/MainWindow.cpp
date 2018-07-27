@@ -322,7 +322,8 @@ void MainWindow::passConfigPress( )
 {	
 	try
 	{
-		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
+		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow, 
+										  TheBaslerWindow );
 	}
 	catch ( Error& err )
 	{
@@ -955,13 +956,13 @@ seqSettings MainWindow::getSeqSettings( )
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
+	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow, TheBaslerWindow );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
+	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow, TheBaslerWindow );
 }
 
 

@@ -11,7 +11,7 @@ class ExperimentTimer
 						 cToolTips& toolTips );
 		void update( ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, 
 					 UINT picsPerRep );
-		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
+		void rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts );
 		void setTimerDisplay( std::string newText );
 	private:
 		Control<CStatic> timeDisplay;

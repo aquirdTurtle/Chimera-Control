@@ -9,7 +9,7 @@ class CameraCalibration
 	public:
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips );
 		bool autoCal( );
-		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
+		void rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts );
 		bool use( );
 		void setAutoCal(bool option);
 		void setUse(bool option);

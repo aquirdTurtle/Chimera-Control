@@ -277,7 +277,7 @@ namespace commonFunctions
 					auxWin->updateAgilent( whichAg::Axial );
 					auxWin->updateAgilent( whichAg::Flashing );
 					auxWin->updateAgilent( whichAg::Microwave );
-					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
+					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin, basWin );
 					mainWin->masterConfig.save( mainWin, auxWin, camWin );
 					
 				}
@@ -289,7 +289,7 @@ namespace commonFunctions
 			}
 			case ID_PROFILE_SAVE_PROFILE:
 			{
-				mainWin->profile.saveEntireProfile(scriptWin, mainWin, auxWin, camWin);
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin, auxWin, camWin, basWin );
 				break;
 			}
 			case ID_FILE_MY_EXIT:
@@ -515,12 +515,12 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
 			{
-				mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, camWin);
+				mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, camWin, basWin);
 				break;
 			}
 			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
 			{
-				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, camWin);
+				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, camWin, basWin);
 				break;
 			}
 			case ID_NIAWG_SENDSOFTWARETRIGGER:

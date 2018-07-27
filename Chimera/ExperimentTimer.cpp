@@ -97,8 +97,9 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 	}
 }
 
-void ExperimentTimer::rearrange( std::string cameraMode, std::string triggerMode, int width, int height,
-										 fontMap fonts )
+
+void ExperimentTimer::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height,
+								 fontMap fonts )
 {
 	timeDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
 	variationProgress.rearrange( cameraMode, triggerMode, width, height, fonts );

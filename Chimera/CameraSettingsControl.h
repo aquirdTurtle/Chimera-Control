@@ -10,6 +10,21 @@
 
 struct cameraPositions;
 
+/*enum class AndorTriggerMode
+{
+	External,
+	Internal,
+	StartOnTrigger
+};
+
+
+enum class AndorAcquisitionMode
+{
+	KineticSeriesMode,
+	AccumulationMode,
+	VideoMode
+};
+*/
 
 /*
  * This large class maintains all of the settings & user interactions for said settings of the Andor camera. It more or
@@ -33,7 +48,7 @@ class CameraSettingsControl
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain();
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
+		void rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
 		void updateTriggerMode( );
 		void handleTriggerChange(CameraWindow* cameraWindow);

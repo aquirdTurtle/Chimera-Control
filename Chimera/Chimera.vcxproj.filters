@@ -251,6 +251,8 @@
       <Filter>Basler Window</Filter>
     </ClCompile>
     <ClCompile Include="BaslerSettingsControl.cpp" />
+    <ClCompile Include="runModes.cpp" />
+    <ClCompile Include="AndorTriggerModes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -599,6 +601,7 @@
       <Filter>Basler Window</Filter>
     </ClInclude>
     <ClInclude Include="BaslerSettingsControl.h" />
+    <ClInclude Include="AndorTriggerModes.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
