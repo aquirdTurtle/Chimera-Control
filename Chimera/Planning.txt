@@ -10,7 +10,7 @@ FEATURES:
 	- handle random case in plotting.
 	- be able to add more repetitions on the fly if randomizing reps. requires some camera magic.
 	- mix sequences in as well?
-		- also gets trick if diff sequences use instruments differently.
+		- also gets tricky if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
 - support variables for agilent scripts
@@ -28,14 +28,12 @@ FEATURES:
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
 - improve delete file after abort functionality
-- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
+- Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
+	variations.
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
 - improve delete file after abort functionality
-- integrate a basler window.
-	- Integrate into experiment thread
-	- automate Mot Calibrations Measurements
 - Implement "machine learning"
 	- Implement skeleton
 		- Be able to set parameters for input

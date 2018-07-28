@@ -134,6 +134,22 @@ void DataLogger::initializeDataFiles()
 		thrower( "ERROR: Failed to create save location for data! Error: " + str( GetLastError() ) + "\r\n" );
 	}
 	finalSaveFolder += "\\";
+
+	/// check that temperature data is being recorded.
+	FILE *temperatureFile;
+	auto temperatureDataLocation = finalSaveFolder + "Temerature_Data.csv";
+	fopen_s ( &temperatureFile, temperatureDataLocation.c_str(), "r" );
+	if ( !temperatureFile )
+	{
+		thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
+				  + temperatureDataLocation + ". Please make sure that the temperature logger is working correctly "
+				  "before starting an experiment." );
+	}
+	else
+	{
+		fclose ( temperatureFile );
+	}
+
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
 	UINT fileNum = getNextFileIndex( dataFilesBaseLocation + finalSaveFolder + "data_", ".h5" );
@@ -141,7 +157,7 @@ void DataLogger::initializeDataFiles()
 	finalSaveFileName = "data_" + str(fileNum) + ".h5";
 	// update this, which is used later to move the key file.
 	currentDataFileNumber = fileNum;
-	
+
 	try
 	{
 		// create the file. H5F_ACC_TRUNC means it will overwrite files with the same name.
