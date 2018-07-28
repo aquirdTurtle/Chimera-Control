@@ -9,6 +9,7 @@ template <typename type> struct systemInfo
 	type niawg;
 	type camera;
 	type master;
+	type basler;
 };
 
 /*

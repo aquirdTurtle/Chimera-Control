@@ -249,8 +249,8 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 		thrower ( "ERROR: Please select an exposure mode for the basler camera." );
 	}
 	exposureModeCombo.GetLBText ( selection, text );
-	currentSettings.exposureMode = std::string ( text );
-	if ( currentSettings.exposureMode == "Auto Exposure Off" )
+	currentSettings.exposureMode = BaslerAutoExposure::fromStr(std::string(text));
+	if ( currentSettings.exposureMode == BaslerAutoExposure::mode::Off )
 	{
 		try
 		{
@@ -269,8 +269,8 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 
 	int sel = cameraMode.GetCurSel ( );
 	cameraMode.GetLBText ( sel, text );
-	currentSettings.cameraMode = std::string ( text );
-	if ( currentSettings.cameraMode == "Finite Acquisition" )
+	currentSettings.acquisitionMode = BaslerAcquisition::fromStr( std::string(text) );
+	if ( currentSettings.acquisitionMode == BaslerAcquisition::mode::Finite )
 	{
 		try
 		{
@@ -438,7 +438,8 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 
 	selection = triggerCombo.GetCurSel();
 	triggerCombo.GetLBText( selection, text );
-	currentSettings.triggerMode = std::string( text );
+	
+	currentSettings.triggerMode = BaslerTrigger::fromStr( std::string(text) );
 
 	frameRateEdit.GetWindowTextA( text );
 	try
@@ -458,7 +459,10 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 {
 	ProfileSystem::checkDelimiterLine ( configFile, "Basler-Settings" );
 	baslerSettings newSettings;
-	configFile >> newSettings.cameraMode;
+	std::string txt;
+	
+	configFile >> txt;
+	newSettings.acquisitionMode = BaslerAcquisition::fromStr ( txt );
 	std::string test;
 	configFile >> test;
 	newSettings.dimensions.left = std::stoi(test);
@@ -471,12 +475,14 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 
 	configFile >> newSettings.dimensions.horizontalBinning;
 	configFile >> newSettings.dimensions.verticalBinning;
-	configFile >> newSettings.exposureMode;
+	configFile >> txt;
+	newSettings.exposureMode = BaslerAutoExposure::fromStr(txt);
 	configFile >> newSettings.exposureTime;
 	configFile >> newSettings.frameRate;
 	configFile >> newSettings.rawGain;
 	configFile >> newSettings.repCount;
-	configFile >> newSettings.triggerMode;
+	configFile >> txt;
+	newSettings.triggerMode = BaslerTrigger::fromStr ( txt );
 	setSettings ( newSettings );
 }
 
@@ -484,19 +490,19 @@ void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
 { 
 	loadCurrentSettings( );
 	configFile << "Basler-Settings\n";
-	configFile << currentSettings.cameraMode << "\n";
+	configFile << BaslerAcquisition::toStr(currentSettings.acquisitionMode) << "\n";
 	configFile << currentSettings.dimensions.left << "\n";
 	configFile << currentSettings.dimensions.top << "\n";
 	configFile << currentSettings.dimensions.right << "\n";
 	configFile << currentSettings.dimensions.bottom << "\n";
 	configFile << currentSettings.dimensions.horizontalBinning << "\n";
 	configFile << currentSettings.dimensions.verticalBinning << "\n";
-	configFile << currentSettings.exposureMode << "\n";
+	configFile << BaslerAutoExposure::toStr(currentSettings.exposureMode) << "\n";
 	configFile << currentSettings.exposureTime << "\n";
 	configFile << currentSettings.frameRate << "\n";
 	configFile << currentSettings.rawGain << "\n";
 	configFile << currentSettings.repCount << "\n";
-	configFile << currentSettings.triggerMode << "\n";
+	configFile << BaslerTrigger::toStr(currentSettings.triggerMode) << "\n";
 }
 
 
@@ -504,19 +510,19 @@ void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
 void BaslerSettingsControl::setSettings ( baslerSettings newSettings )
 {
 	currentSettings = newSettings;
-	cameraMode.SelectString ( 0, currentSettings.cameraMode.c_str() );
-	leftEdit.SetWindowTextA(cstr(currentSettings.dimensions.left));
-	topEdit.SetWindowTextA(cstr(currentSettings.dimensions.top));
-	rightEdit.SetWindowTextA(cstr(currentSettings.dimensions.right));
-	bottomEdit.SetWindowTextA(cstr(currentSettings.dimensions.bottom));
-	horizontalBinningEdit.SetWindowTextA(cstr(currentSettings.dimensions.horizontalBinning));
-	verticalBinningEdit.SetWindowTextA(cstr(currentSettings.dimensions.verticalBinning));
-	exposureModeCombo.SelectString ( 0, currentSettings.exposureMode.c_str ( ) );
-	exposureEdit.SetWindowTextA(cstr( currentSettings.exposureTime ));
-	frameRateEdit.SetWindowTextA(cstr(currentSettings.frameRate));
-	gainEdit.SetWindowTextA(cstr(currentSettings.rawGain));
-	repEdit.SetWindowText(cstr(currentSettings.repCount));
-	triggerCombo.SelectString(0,currentSettings.triggerMode.c_str());
+	cameraMode.SelectString ( 0, BaslerAcquisition::toStr ( currentSettings.acquisitionMode ).c_str ( ) );
+	leftEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.left ) );
+	topEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.top ) );
+	rightEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.right ) );
+	bottomEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.bottom ) );
+	horizontalBinningEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.horizontalBinning ) );
+	verticalBinningEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.verticalBinning ) );
+	exposureModeCombo.SelectString ( 0, BaslerAutoExposure::toStr ( currentSettings.exposureMode ).c_str ( ) );
+	exposureEdit.SetWindowTextA ( cstr ( currentSettings.exposureTime ) );
+	frameRateEdit.SetWindowTextA ( cstr ( currentSettings.frameRate ) );
+	gainEdit.SetWindowTextA ( cstr ( currentSettings.rawGain ) );
+	repEdit.SetWindowText ( cstr ( currentSettings.repCount ) );
+	triggerCombo.SelectString ( 0, BaslerTrigger::toStr ( currentSettings.triggerMode ).c_str ( ) );
 }
 
 

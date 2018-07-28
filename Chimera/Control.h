@@ -2,7 +2,7 @@
 
 #include "commonTypes.h"
 #include "CameraPositions.h"
-#include "runModes.h"
+#include "AndorRunMode.h"
 #include "AndorTriggerModes.h"
 #include "afxwin.h"
 #include "afxcmn.h"

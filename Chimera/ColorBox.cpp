@@ -2,23 +2,29 @@
 #include "ColorBox.h"
 #include <tuple>
 
+
 void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, cToolTips& tooltips)
 {
 	//
-	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/3.0), pos.y + 20 };
+	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/4.0), pos.y + 20 };
 	boxes.niawg.Create("NIAWG", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 					 boxes.niawg.sPos, parent, id++ );
 	boxes.niawg.fontType = fontTypes::CodeFont;
 	//
-	boxes.camera.sPos = { long(pos.x + length/ 3.0), pos.y, long(pos.x + 2*length/3.0), pos.y + 20 };
+	boxes.camera.sPos = { long(pos.x + length/ 4.0), pos.y, long(pos.x + 2*length/4.0), pos.y + 20 };
 	boxes.camera.Create( "CAMERA", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER, 
 					  boxes.camera.sPos, parent, id++ );
 	boxes.camera.fontType = fontTypes::CodeFont;
 	//
-	boxes.master.sPos = { long(pos.x + 2 * length / 3.0), pos.y, pos.x + length, pos.y + 20 };
+	boxes.master.sPos = { long(pos.x + 2 * length / 4.0), pos.y, pos.x + long(3*length/4.0), pos.y + 20 };
 	boxes.master.Create( "MASTER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 						 boxes.master.sPos, parent, id++ );
 	boxes.master.fontType = fontTypes::CodeFont;
+	//
+	boxes.basler.sPos = { long ( pos.x + 3 * length / 4.0 ), pos.y, pos.x + length , pos.y + 20 };
+	boxes.basler.Create ( "BASLER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
+						  boxes.basler.sPos, parent, id++ );
+	boxes.basler.fontType = fontTypes::CodeFont;
 
 	pos.y += 20;
 }
@@ -29,6 +35,7 @@ void ColorBox::rearrange( int width, int height, fontMap fonts )
 	boxes.niawg.rearrange( width, height, fonts );
 	boxes.camera.rearrange( width, height, fonts );
 	boxes.master.rearrange( width, height, fonts );
+	boxes.basler.rearrange ( width, height, fonts );
 }
 
 CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgbs)
@@ -45,6 +52,10 @@ CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgb
 	else if (id == boxes.master.GetDlgCtrlID())
 	{
 		code = colors.master;
+	}
+	else if ( id == boxes.basler.GetDlgCtrlID ( ) )
+	{
+		code = colors.basler;
 	}
 	else
 	{
@@ -101,5 +112,10 @@ void ColorBox::changeColor( systemInfo<char> newColors )
 	{
 		colors.master = newColors.master;
 		boxes.master.RedrawWindow();
+	}
+	if ( newColors.basler != '-' )
+	{
+		colors.basler = newColors.basler;
+		boxes.basler.RedrawWindow ( );
 	}
 }

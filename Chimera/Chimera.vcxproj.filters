@@ -253,6 +253,7 @@
     <ClCompile Include="BaslerSettingsControl.cpp" />
     <ClCompile Include="runModes.cpp" />
     <ClCompile Include="AndorTriggerModes.cpp" />
+    <ClCompile Include="BaslerSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -573,9 +574,6 @@
     <ClInclude Include="AoSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="runModes.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="MasterThreadInput.h">
       <Filter>General Files</Filter>
     </ClInclude>
@@ -602,6 +600,10 @@
     </ClInclude>
     <ClInclude Include="BaslerSettingsControl.h" />
     <ClInclude Include="AndorTriggerModes.h" />
+    <ClInclude Include="AndorRunMode.h">
+      <Filter>Camera Window</Filter>
+    </ClInclude>
+    <ClInclude Include="BaslerSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

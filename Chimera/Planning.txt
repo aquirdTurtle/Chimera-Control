@@ -29,14 +29,26 @@ FEATURES:
 - report andor background data to datalogger
 - improve delete file after abort functionality
 - Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
-- auto mot calibration runs
 - add reporting on how many atoms loaded via atomcruncher thread.
-- improve delete file after abort functionality
-- option for rearranging: no flashing and no static array for extra potential rearranging.
-- add reporting on how many atoms loaded via atomcruncher thread.
+	- accessible from main window, perhaps
+	- report to h5 file as well
 - improve delete file after abort functionality
 - integrate a basler window.
-	- involve config info...
+	- save camera data
+	- Integrate into experiment thread
+	- automate Mot Calibrations Measurements
+	- report settings to data-logger
+- Implement machine learning
+	- Implement skeleton
+		- Be able to set parameters for input
+		- Get data from data analysis system
+		- Looping 
+	- Implement different algorithms
+		- Hill-climbing
+		- Neural Network
+		- Genetic / evolutionary
+		- Randomized Search
+- Make the code able to check if the mot is there.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -48,7 +60,7 @@ Refactoring / Other:
 - all mutexes should use lock_guard or similar for consistency
 - refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
 - refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
-- reduce size of niawgcontroller file; maybe try to separate out rearrange functionality?
+- reduce size of niawgcontroller file
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status

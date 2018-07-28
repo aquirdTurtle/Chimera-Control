@@ -212,6 +212,7 @@
     <ClInclude Include="atomCruncherInput.h" />
     <ClInclude Include="atomGrid.h" />
     <ClInclude Include="BaslerCamera.h" />
+    <ClInclude Include="BaslerSettings.h" />
     <ClInclude Include="BaslerSettingsControl.h" />
     <ClInclude Include="BaslerWindow.h" />
     <ClInclude Include="CodeTimer.h" />
@@ -285,7 +286,7 @@
     <ClInclude Include="Repetitions.h" />
     <ClInclude Include="RhodeSchwarz.h" />
     <ClInclude Include="NoteSystem.h" />
-    <ClInclude Include="runModes.h" />
+    <ClInclude Include="AndorRunMode.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="scriptedAgilentWaveform.h" />
     <ClInclude Include="ScriptingWindow.h" />
@@ -326,6 +327,7 @@
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="AndorTriggerModes.cpp" />
     <ClCompile Include="BaslerCamera.cpp" />
+    <ClCompile Include="BaslerSettings.cpp" />
     <ClCompile Include="BaslerSettingsControl.cpp" />
     <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />

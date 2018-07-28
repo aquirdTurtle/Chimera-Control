@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "runModes.h"
+#include "AndorRunMode.h"
 
 std::string AndorRunModeText ( AndorRunModes mode )
 {

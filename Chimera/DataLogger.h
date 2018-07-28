@@ -6,6 +6,7 @@
 #include "AndorRunSettings.h"
 #include "MasterThreadInput.h"
 #include "afxwin.h"
+#include "BaslerSettingsControl.h"
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
@@ -32,6 +33,7 @@ class DataLogger
 		void logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
 		void logFunctions( H5::Group& group );
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
+		void logBaslerSettings ( baslerSettings settings, bool on );
 		void logTektronicsSettings();
 		UINT getNextFileNumber();
 		void closeFile();
