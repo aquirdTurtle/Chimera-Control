@@ -4,6 +4,9 @@
 #include "constants.h"
 #include "ProfileSystem.h"
 
+BaslerSettingsControl::BaslerSettingsControl ( )
+{}
+
 
 void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int picWidth, int picHeight, POINT cameraDims )
 {

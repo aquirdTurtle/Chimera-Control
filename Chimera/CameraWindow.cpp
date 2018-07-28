@@ -957,11 +957,11 @@ void CameraWindow::loadCameraCalSettings( ExperimentInput& input )
 	pics.setNumberPicturesActive( 1 );
 	// biggest check here, camera settings includes a lot of things.
 	CameraSettings.checkIfReady( );
-	input.camSettings = CameraSettings.getCalibrationSettings( ).andor;
+	input.AndorSettings = CameraSettings.getCalibrationSettings( ).andor;
 	// reset the image which is about to be calibrated.
 	avgBackground.clear( );
 	/// start the camera.
-	Andor.setSettings( input.camSettings );
+	Andor.setSettings( input.AndorSettings );
 	Andor.setCalibrating(true);
 }
 
@@ -990,9 +990,9 @@ void CameraWindow::prepareCamera( ExperimentInput& input )
 	
 	// biggest check here, camera settings includes a lot of things.
 	CameraSettings.checkIfReady();
-	input.camSettings = CameraSettings.getSettings().andor;
+	input.AndorSettings = CameraSettings.getSettings().andor;
 	/// start the camera.
-	Andor.setSettings( input.camSettings );
+	Andor.setSettings( input.AndorSettings );
 }
 
 void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
@@ -1155,7 +1155,7 @@ void CameraWindow::startPlotterThread( ExperimentInput& input )
 	}
 	else
 	{
-		if ( input.camSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
+		if ( input.AndorSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
 			 / input.plotterInput->plottingFrequency > 1000 )
 		{
 			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"

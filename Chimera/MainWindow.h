@@ -34,6 +34,7 @@ struct scopeRefreshInput
 	ScopeViewer *masterRepumpScope, *motScope;
 };
 
+
 class MainWindow : public CDialog
 {
 	using CDialog::CDialog;
@@ -61,8 +62,10 @@ class MainWindow : public CDialog
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
-		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
-		
+
+		LRESULT onMotNumCalFin ( WPARAM wp, LPARAM lp );
+		LRESULT onMotTempCalFin ( WPARAM wp, LPARAM lp );
+		LRESULT onMachineOptRoundFin ( WPARAM wp, LPARAM lp );
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( MasterThreadInput* input );
@@ -84,7 +87,9 @@ class MainWindow : public CDialog
 		void fillMasterThreadInput( MasterThreadInput* input );
 		void fillMasterThreadSequence( MasterThreadInput* input );
 		void fillMotInput( MasterThreadInput* input);
-		HANDLE startMaster( MasterThreadInput* input, bool isTurnOnMot );
+		void fillMotTempInput ( MasterThreadInput* input );
+		void fillPgcTempInput ( MasterThreadInput* input );
+		HANDLE startExperimentThread( MasterThreadInput* input, bool isTurnOnMot );
 		std::string getNotes( );
 		brushMap getBrushes();
 		rgbMap getRgbs();

@@ -18,10 +18,25 @@
 #include "profileSettings.h"
 #include "atomCruncherInput.h"
 #include "realTimePlotterInput.h"
+#include "baslerSettings.h"
 
 #include <chrono>
 #include <vector>
 #include <atomic>
+
+enum class ExperimentType
+{
+	// normal experiments
+	Normal,
+	// simple load mot, F1
+	LoadMot,
+	// camera background calibration
+	CameraCal,
+	// Calibration for determining Mot # & temperature
+	MotCal,
+	// is part of machine optimization procedure
+	MachineOptimization
+};
 
 class MasterManager;
 
@@ -68,8 +83,7 @@ struct MasterThreadInput
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
 
-	bool isLoadMot = false;
-	bool isCameraCal = false;
+	ExperimentType expType;
 };
 
 
@@ -80,6 +94,7 @@ struct ExperimentInput
 	MasterThreadInput* masterInput;
 	realTimePlotterInput* plotterInput;
 	atomCruncherInput* cruncherInput;
-	AndorRunSettings camSettings;
+	AndorRunSettings AndorSettings;
+	baslerSettings baslerRunSettings;
 	bool includesCameraRun;
 };

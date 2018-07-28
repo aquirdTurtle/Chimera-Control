@@ -97,6 +97,7 @@ class BaslerCameras
 		unsigned int getRepCounts();
 		bool isContinuous();
 		bool isInitialized();
+		HANDLE getCameraThreadObj ( );
 		// Adjust value so it complies with range and increment passed.
 		//
 		// The parameter's minimum and maximum are always considered as valid values.
@@ -107,6 +108,7 @@ class BaslerCameras
 		BaslerWrapper* camera;
 		// official copy.
 		baslerSettings runSettings;
+		HANDLE cameraTrigThread;
 		bool continuousImaging;
 		bool autoTrigger;
 		unsigned int repCounts;

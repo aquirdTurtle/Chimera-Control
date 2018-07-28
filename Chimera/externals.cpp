@@ -26,6 +26,8 @@ bool eAbortNiawgFlag = false;
 
 // thread messages
 // register messages for main window.
+UINT eMachineOptRoundFinMsgID = RegisterWindowMessage ( "ID_MACHINE_OPT_ROUND_FIN_MSG" );
+UINT eMotNumCalFinMsgID = RegisterWindowMessage("ID_MOT_CAL_FIN_MSG" );
 UINT eStatusTextMessageID = RegisterWindowMessage("ID_THREAD_STATUS_MESSAGE");
 UINT eDebugMessageID = RegisterWindowMessage( "ID_THREAD_DEBUG_MESSAGE" );
 UINT eErrorTextMessageID = RegisterWindowMessage( "ID_THREAD_ERROR_MESSAGE" );
@@ -46,4 +48,4 @@ HANDLE eWaitingForNIAWGEvent;
 HANDLE eNIAWGWaitThreadHandle;
 
 /// Beginning Settings Dialog
-HWND eBeginDialogRichEdit;
+//HWND eBeginDialogRichEdit;

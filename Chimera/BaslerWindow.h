@@ -6,7 +6,6 @@
 #include "BaslerSettingsControl.h"
 #include "BaslerCamera.h"
 #include "PictureStats.h"
-//#include "PictureSaver.h"
 #include "commonTypes.h"
 #include "PlotCtrl.h"
 
@@ -24,6 +23,8 @@ class BaslerWindow : public CDialogEx
 		void handleEnter();
 		void OnPaint();
 		void passCommonCommand ( UINT id );
+		void measureMotSize ( );
+		void setCameraForMotTempMeasurement ( );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		HCURSOR OnQueryDragIcon();
 		void OnSize( UINT nType, int cx, int cy );
@@ -48,7 +49,7 @@ class BaslerWindow : public CDialogEx
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		PictureManager picManager;
-		BaslerSettingsControl settings;
+		BaslerSettingsControl settingsCtrl;
 		BaslerCameras* cameraController;
 		PictureStats stats;
 		//PictureSaver saver;

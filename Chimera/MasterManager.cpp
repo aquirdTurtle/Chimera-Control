@@ -14,18 +14,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 
-
-MasterManager::MasterManager()
-{
-	functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
-}
-
-
-bool MasterManager::getAbortStatus()
-{
-	return isAborting;
-}
-
+MasterManager::MasterManager() {}
 
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
@@ -97,6 +86,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;
 	timer.tick("After-File-Init");
+
 	/// ////////////////////////////
 	/// start analysis & experiment
 	try
@@ -268,7 +258,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		/// finish up
 		if ( input->runMaster )
 		{
-			handleDebugPlots( input->debugOptions, comm, ttls, aoSys, quiet, input->python, input->ttlData, input->dacData );
+			handleDebugPlots( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
 		}
 		// update the colors of the global variable control.
 		input->globalControl->setUsages( input->variables );
@@ -431,11 +421,19 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			input->niawg->cleanupNiawg( input->profile, input->runMaster, output, comm, 
 										input->settings.dontActuallyGenerate);
 		}
-		if ( input->isLoadMot )
+		switch ( input->expType )
 		{
-			comm->sendMotFinish( );
+			case ExperimentType::LoadMot:
+				comm->sendMotFinish ( );
+				break;
+			case ExperimentType::CameraCal:
+				comm->sendCameraCalFin ( );
+				break;
+			case ExperimentType::MotCal:
+				comm->sendMotCalFinish ( );
+			default:
+				comm->sendNormalFinish ( );
 		}
-		comm->sendNormalFinish( );
 	}
 	catch (Error& exception)
 	{
@@ -483,6 +481,278 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 }
 
 
+void MasterManager::analyzeMasterScript ( DioSystem* ttls, AoSystem* aoSys,
+										  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
+										  RhodeSchwarz* rsg, std::vector<parameterType>& vars,
+										  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+										  std::string& warnings )
+{
+	std::string currentMasterScriptText = currentMasterScript.str ( );
+	loadSkipTime[ seqNum ].first.clear ( );
+	loadSkipTime[ seqNum ].second = 0;
+	// starts at 0.1 if not initialized by the user.
+	operationTime.second = 0.1;
+	operationTime.first.clear ( );
+	if ( currentMasterScript.str ( ) == "" )
+	{
+		thrower ( "ERROR: Master script is empty! (A low level bug, this shouldn't happen)" );
+	}
+	std::string word;
+	currentMasterScript >> word;
+	std::vector<UINT> totalRepeatNum, currentRepeatNum;
+	std::vector<std::streamoff> repeatPos;
+	// the analysis loop.
+	bool loadSkipFound = false;
+	std::string scope = PARENT_PARAMETER_SCOPE;
+	while ( !( currentMasterScript.peek ( ) == EOF ) || word != "__end__" )
+	{
+		if ( handleTimeCommands ( word, currentMasterScript, vars, scope ) )
+		{
+			// got handled, so break out of the if-else by entering this scope.
+		}
+		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
+		{
+		}
+		else if ( handleDioCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope ) )
+		{
+		}
+		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope ) )
+		{
+		}
+		/// callcppcode function
+		else if ( word == "callcppcode" )
+		{
+			// and that's it... 
+			callCppCodeFunction ( );
+		}
+		/// deal with ttl commands
+		else if ( word == "loadskipentrypoint!" )
+		{
+			loadSkipFound = true;
+			loadSkipTime[ seqNum ] = operationTime;
+		}
+		/// Deal with RSG calls
+		else if ( word == "rsg:" )
+		{
+			rsgEventForm info;
+			currentMasterScript >> info.frequency;
+			info.frequency.assertValid ( vars, scope );
+			currentMasterScript >> info.power;
+			info.power.assertValid ( vars, scope );
+			info.time = operationTime;
+			rsg->addFrequency ( info );
+		}
+		/// deal with function calls.
+		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
+									   warnings, PARENT_PARAMETER_SCOPE ) )
+		{
+		}
+		else if ( word == "repeat:" )
+		{
+			Expression repeatStr;
+			currentMasterScript >> repeatStr;
+			try
+			{
+				totalRepeatNum.push_back ( repeatStr.evaluate ( ) );
+			}
+			catch ( Error& )
+			{
+				thrower ( "ERROR: the repeat number failed to convert to an integer! Note that the repeat number can not"
+						  " currently be a variable." );
+			}
+			repeatPos.push_back ( currentMasterScript.tellg ( ) );
+			currentRepeatNum.push_back ( 1 );
+		}
+		else if ( word == "end" )
+		{
+			// handle end of repeat
+			if ( currentRepeatNum.size ( ) == 0 )
+			{
+				thrower ( "ERROR! Tried to end repeat structure in master script, but you weren't repeating!" );
+			}
+			if ( currentRepeatNum.back ( ) < totalRepeatNum.back ( ) )
+			{
+				currentMasterScript.seekg ( repeatPos.back ( ) );
+				currentRepeatNum.back ( )++;
+			}
+			else
+			{
+				currentRepeatNum.pop_back ( );
+				repeatPos.pop_back ( );
+				totalRepeatNum.pop_back ( );
+			}
+		}
+		else
+		{
+			word = ( word == "" ) ? "[EMPTY-STRING]" : word;
+			thrower ( "ERROR: unrecognized master script command: \"" + word + "\"" );
+		}
+		word = "";
+		currentMasterScript >> word;
+	}
+	if ( expectsLoadSkip && !loadSkipFound )
+	{
+		thrower ( "ERROR: Expected load skip in script, but the load skip command was not found during script analysis!" );
+	}
+}
+
+
+void MasterManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem* ttls,
+									  AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
+									  std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<parameterType>& vars,
+									  UINT seqNum, std::string& warnings )
+{
+	/// load the file
+	std::fstream functionFile;
+	// check if file address is good.
+	FILE *file;
+	fopen_s ( &file, cstr ( FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION ), "r" );
+	if ( !file )
+	{
+		thrower ( "ERROR: Function " + function + " does not exist! The master script tried to open this function, it"
+				  " tried and failed to open the location " + FUNCTIONS_FOLDER_LOCATION + function + "."
+				  + FUNCTION_EXTENSION + "." );
+	}
+	else
+	{
+		fclose ( file );
+	}
+	functionFile.open ( FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION, std::ios::in );
+	// check opened correctly
+	if ( !functionFile.is_open ( ) )
+	{
+		thrower ( "ERROR: Function file " + function + "File passed test making sure the file exists, but it still "
+				  "failed to open! (A low level bug, this shouldn't happen.)" );
+	}
+	// append __END__ to the end of the file for analysis purposes.
+	std::stringstream buf;
+	ScriptStream functionStream;
+	buf << functionFile.rdbuf ( );
+	functionStream << buf.str ( );
+	functionStream << "\r\n\r\n__END__";
+	functionFile.close ( );
+	if ( functionStream.str ( ) == "" )
+	{
+		thrower ( "ERROR: Function File for " + function + " function was empty! (A low level bug, this shouldn't happen" );
+	}
+	std::string word;
+	// the following are used for repeat: functionality
+	std::vector<ULONG> totalRepeatNum, currentRepeatNum;
+	std::vector<std::streamoff> repeatPos;
+	std::string scope = function;
+	/// get the function arguments.
+	std::string defLine, name;
+	defLine = functionStream.getline ( ':' );
+	std::vector<std::string> functionArgs;
+	analyzeFunctionDefinition ( defLine, name, functionArgs );
+	if ( functionArgs.size ( ) != args.size ( ) )
+	{
+		std::string functionArgsString;
+		for ( auto elem : args )
+		{
+			functionArgsString += elem + ",";
+		}
+		thrower ( "ERROR: incorrect number of arguments in the call for function " + function + ". Number in call was: "
+				  + str ( args.size ( ) ) + ", number expected was " + str ( functionArgs.size ( ) ) + ". Function arguments were:"
+				  + functionArgsString + "." );
+	}
+	std::vector<std::pair<std::string, std::string>> replacements;
+	for ( UINT replacementInc = 0; replacementInc < args.size ( ); replacementInc++ )
+	{
+		replacements.push_back ( { functionArgs[ replacementInc ], args[ replacementInc ] } );
+	}
+	functionStream.loadReplacements ( replacements );
+	std::string currentFunctionText = functionStream.str ( );
+	///
+	functionStream >> word;
+	while ( !( functionStream.peek ( ) == EOF ) || word != "__end__" )
+	{
+		if ( handleTimeCommands ( word, functionStream, vars, scope ) )
+		{
+			// got handled
+		}
+		else if ( handleVariableDeclaration ( word, functionStream, vars, scope, warnings ) )
+		{
+		}
+		else if ( handleDioCommands ( word, functionStream, vars, ttls, ttlShades, seqNum, scope ) )
+		{
+		}
+		else if ( handleAoCommands ( word, functionStream, vars, aoSys, dacShades, ttls, seqNum, scope ) )
+		{
+		}
+		/// callcppcode command
+		else if ( word == "callcppcode" )
+		{
+			// and that's it... 
+			callCppCodeFunction ( );
+		}
+		/// Handle RSG calls.
+		else if ( word == "rsg:" )
+		{
+			rsgEventForm info;
+			functionStream >> info.frequency >> info.power;
+			info.frequency.assertValid ( vars, scope );
+			info.power.assertValid ( vars, scope );
+			// test frequency
+			info.time = operationTime;
+			rsg->addFrequency ( info );
+		}
+		/// deal with function calls.
+		else if ( handleFunctionCall ( word, functionStream, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
+									   warnings, function ) )
+		{
+		}
+		else if ( word == "repeat:" )
+		{
+			std::string repeatStr;
+			functionStream >> repeatStr;
+			try
+			{
+				totalRepeatNum.push_back ( std::stoi ( repeatStr ) );
+			}
+			catch ( std::invalid_argument& )
+			{
+				thrower ( "ERROR: the repeat number for a repeat structure inside the master script failed to convert "
+						  "to an integer! Note that the repeat number can not currently be a variable." );
+			}
+			repeatPos.push_back ( functionStream.tellg ( ) );
+			currentRepeatNum.push_back ( 1 );
+		}
+		else if ( word == "end" )
+		{
+			if ( currentRepeatNum.size ( ) == 0 )
+			{
+				thrower ( "ERROR: mismatched \"end\" command for repeat structure in master script! there were more "
+						  "\"end\" commands than \"repeat\" commands." );
+			}
+			if ( currentRepeatNum.back ( ) < totalRepeatNum.back ( ) )
+			{
+				functionStream.seekg ( repeatPos.back ( ) );
+				currentRepeatNum.back ( )++;
+			}
+			else
+			{
+				// remove the entries corresponding to this repeat loop.
+				currentRepeatNum.pop_back ( );
+				repeatPos.pop_back ( );
+				totalRepeatNum.pop_back ( );
+				// and continue (no seekg)
+			}
+		}
+		else
+		{
+			thrower ( "ERROR: unrecognized master script command inside function analysis: " + word );
+		}
+		functionStream >> word;
+	}
+}
+
+
+bool MasterManager::getAbortStatus ( )
+{
+	return isAborting;
+}
+
 double MasterManager::convertToTime( timeType time, std::vector<parameterType> variables, UINT variation )
 {
 	double variableTime = 0;
@@ -501,45 +771,19 @@ double MasterManager::convertToTime( timeType time, std::vector<parameterType> v
 I think I can get rid of this??? or maybe just simplify a lot...
 */
 void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, AoSystem* aoSys,
-									  bool quiet, EmbeddedPythonHandler* python, 
 									  std::vector<std::vector<pPlotDataVec>> ttlData, 
 									  std::vector<std::vector<pPlotDataVec>> dacData )
 {
 	// handle on-screen plots.
 	ttls->fillPlotData( 0, ttlData );
 	aoSys->fillPlotData( 0, dacData, ttls->getFinalTimes() );
-	// handle python plots, which are a nicer option than the ones that i show on the screen.
 	if ( debugOptions.showTtls )
 	{
 		comm->sendDebug( ttls->getTtlSequenceMessage( 0, 0 ) );
-		std::ofstream debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "TTL-Sequence.txt" ) ) );
-		if ( debugFile.is_open( ) )
-		{
-			debugFile << ttls->getTtlSequenceMessage( 0, 0 );
-			debugFile.close( );
-		}
-		else
-		{
-			expUpdate( "ERROR: DIO text file failed to open at location \"" + DEBUG_OUTPUT_LOCATION 
-					   + str( "TTL-Sequence.txt" ) + "\"! Continuing...\r\n", comm, quiet );
-		}
-		python->runPlotTtls( );
 	}
 	if ( debugOptions.showDacs )
 	{
 		comm->sendDebug( aoSys->getDacSequenceMessage( 0, 0 ) );
-		std::ofstream  debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "DAC-Sequence.txt" ) ) );
-		if ( debugFile.is_open( ) )
-		{
-			debugFile << aoSys->getDacSequenceMessage( 0, 0 );
-			debugFile.close( );
-		}
-		else
-		{
-			comm->sendError( "ERROR: DAC-Sequence text file failed to open! Continuing...\r\n" );
-		}
-
-		python->runPlotDacs( );
 	}
 	// no quiet on warnings or debug messages.
 	comm->sendDebug( debugOptions.message );
@@ -550,6 +794,7 @@ bool MasterManager::runningStatus()
 {
 	return experimentIsRunning;
 }
+
 
 /*** 
  * this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
@@ -833,153 +1078,6 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 }
 
 
-void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls,
-									 AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<parameterType>& vars,
-									 UINT seqNum, std::string& warnings )
-{
-	/// load the file
-	std::fstream functionFile;
-	// check if file address is good.
-	FILE *file;
-	fopen_s( &file, cstr(FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION), "r" );
-	if ( !file )
-	{
-		thrower("ERROR: Function " + function + " does not exist! The master script tried to open this function, it"
-				 " tried and failed to open the location " + FUNCTIONS_FOLDER_LOCATION + function + "." 
-				 + FUNCTION_EXTENSION + ".");
-	}
-	else
-	{
-		fclose( file );
-	}
-	functionFile.open(FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION, std::ios::in);
-	// check opened correctly
-	if (!functionFile.is_open())
-	{
-		thrower("ERROR: Function file " + function + "File passed test making sure the file exists, but it still "
-				 "failed to open! (A low level bug, this shouldn't happen.)");
-	}
-	// append __END__ to the end of the file for analysis purposes.
-	std::stringstream buf;
-	ScriptStream functionStream;
-	buf << functionFile.rdbuf();
-	functionStream << buf.str();
-	functionStream << "\r\n\r\n__END__";
-	functionFile.close();
-	if (functionStream.str() == "")
-	{
-		thrower("ERROR: Function File for " + function + " function was empty! (A low level bug, this shouldn't happen");
-	}
-	std::string word;
-	// the following are used for repeat: functionality
-	std::vector<ULONG> totalRepeatNum, currentRepeatNum;
-	std::vector<std::streamoff> repeatPos;
-	std::string scope = function;
-	/// get the function arguments.
-	std::string defLine, name;
-	defLine = functionStream.getline( ':' );
-	std::vector<std::string> functionArgs;
-	analyzeFunctionDefinition( defLine, name, functionArgs );
-	if (functionArgs.size() != args.size())
-	{
-		std::string functionArgsString;
-		for (auto elem : args)
-		{
-			functionArgsString += elem + ",";
-		}
-		thrower("ERROR: incorrect number of arguments in the call for function " + function + ". Number in call was: "
-				 + str(args.size()) + ", number expected was " + str(functionArgs.size()) + ". Function arguments were:" 
-				 + functionArgsString + ".");
-	}
-	std::vector<std::pair<std::string, std::string>> replacements;
-	for (UINT replacementInc =0; replacementInc < args.size(); replacementInc++)
-	{
-		replacements.push_back( { functionArgs[replacementInc], args[replacementInc] } );
-	}
-	functionStream.loadReplacements( replacements );
-	std::string currentFunctionText = functionStream.str();
-	///
-	functionStream >> word;
-	while (!(functionStream.peek() == EOF) || word != "__end__")
-	{
-		if ( handleTimeCommands( word, functionStream, vars, scope ))
-		{
-			// got handled
-		}
-		else if ( handleVariableDeclaration( word, functionStream, vars, scope, warnings ) )
-		{ }
-		else if ( handleDioCommands( word, functionStream, vars, ttls, ttlShades, seqNum, scope ) )
-		{ }
-		else if ( handleAoCommands( word, functionStream, vars, aoSys, dacShades, ttls, seqNum, scope ) )
-		{ }
-		/// callcppcode command
-		else if (word == "callcppcode")
-		{
-			// and that's it... 
-			callCppCodeFunction();
-		}
-		/// Handle RSG calls.
-		else if (word == "rsg:")
-		{
-			rsgEventForm info;
-			functionStream >> info.frequency >> info.power;
-			info.frequency.assertValid( vars, scope );
-			info.power.assertValid( vars, scope );
-			// test frequency
-			info.time = operationTime;
-			rsg->addFrequency( info );
-		}
-		/// deal with function calls.
-		else if (handleFunctionCall( word, functionStream, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum, warnings,
-									 function ))
-		{ }
-		else if ( word == "repeat:" )
-		{
-			std::string repeatStr;
-			functionStream >> repeatStr;
-			try
-			{
-				totalRepeatNum.push_back( std::stoi( repeatStr ) );
-			}
-			catch ( std::invalid_argument& )
-			{
-				thrower( "ERROR: the repeat number for a repeat structure inside the master script failed to convert "
-						 "to an integer! Note that the repeat number can not currently be a variable." );
-			}
-			repeatPos.push_back( functionStream.tellg() );
-			currentRepeatNum.push_back(1);
-		}
-		else if ( word == "end" )
-		{
-			if (currentRepeatNum.size() == 0)
-			{
-				thrower( "ERROR: mismatched \"end\" command for repeat structure in master script! there were more "
-						 "\"end\" commands than \"repeat\" commands." );
-			}
-			if ( currentRepeatNum.back() < totalRepeatNum.back() )
-			{
-				functionStream.seekg( repeatPos.back() );
-				currentRepeatNum.back()++;
-			}
-			else
-			{
-				// remove the entries corresponding to this repeat loop.
-				currentRepeatNum.pop_back();
-				repeatPos.pop_back();
-				totalRepeatNum.pop_back();				
-				// and continue (no seekg)
-			}
-		}
-		else
-		{
-			thrower("ERROR: unrecognized master script command inside function analysis: " + word);
-		}
-		functionStream >> word;
-	}
-}
-
-
 // if it handled it, returns true, else returns false.
 bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
 										std::string scope )
@@ -1049,7 +1147,6 @@ bool MasterManager::handleDioCommands( std::string word, ScriptStream& stream, s
 		std::string name;
 		Expression pulseLength;
 		stream >> name >> pulseLength;
-		// should be good to go.
 		ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum, scope );
 	}
 	else
@@ -1135,124 +1232,15 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 	return true;
 }
 
-void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
-										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-										 RhodeSchwarz* rsg, std::vector<parameterType>& vars,
-										 ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
-										 std::string& warnings )
-{
-	std::string currentMasterScriptText = currentMasterScript.str();
-	loadSkipTime[seqNum].first.clear( );
-	loadSkipTime[seqNum].second = 0;
-	// starts at 0.1 if not initialized by the user.
-	operationTime.second = 0.1;
-	operationTime.first.clear();
-	if (currentMasterScript.str() == "")
-	{
-		thrower("ERROR: Master script is empty! (A low level bug, this shouldn't happen)");
-	}
-	std::string word;
-	currentMasterScript >> word;
-	std::vector<UINT> totalRepeatNum, currentRepeatNum;
-	std::vector<std::streamoff> repeatPos;
-	// the analysis loop.
-	bool loadSkipFound = false;
-	std::string scope = PARENT_PARAMETER_SCOPE;
-	while (!(currentMasterScript.peek() == EOF) || word != "__end__")
-	{
-		if (handleTimeCommands(word, currentMasterScript, vars, scope ) )
-		{
-			// got handled, so break out of the if-else by entering this scope.
-		}
-		else if ( handleVariableDeclaration( word, currentMasterScript, vars, scope, warnings ) )
-		{ }
-		else if ( handleDioCommands( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope ) )
-		{ }
-		else if ( handleAoCommands( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope ) )
-		{ }
-		/// callcppcode function
-		else if (word == "callcppcode")
-		{			
-			// and that's it... 
-			callCppCodeFunction();
-		}
-		/// deal with ttl commands
-		else if ( word == "loadskipentrypoint!" )
-		{
-			loadSkipFound = true;
-			loadSkipTime[seqNum] = operationTime;
-		}
-		/// Deal with RSG calls
-		else if (word == "rsg:")
-		{
-			rsgEventForm info;
-			currentMasterScript >> info.frequency;
-			info.frequency.assertValid( vars, scope );
-			currentMasterScript >> info.power;
-			info.power.assertValid( vars, scope );
-			info.time = operationTime;
-			rsg->addFrequency( info );
-		}
-		/// deal with function calls.
-		else if ( handleFunctionCall( word, currentMasterScript, vars,ttls, aoSys, ttlShades, dacShades, rsg, seqNum, 
-									  warnings, PARENT_PARAMETER_SCOPE ) )
-		{ }
-		else if (word == "repeat:")
-		{
-			Expression repeatStr;
-			currentMasterScript >> repeatStr;
-			try
-			{
-				totalRepeatNum.push_back( repeatStr.evaluate( ) );
-			}
-			catch (Error&)
-			{
-				thrower("ERROR: the repeat number failed to convert to an integer! Note that the repeat number can not"
-						 " currently be a variable.");
-			}
-			repeatPos.push_back( currentMasterScript.tellg() );
-			currentRepeatNum.push_back(1);
-		}
-		else if (word == "end")
-		{
-			// handle end of repeat
-			if (currentRepeatNum.size() == 0)
-			{
-				thrower("ERROR! Tried to end repeat structure in master script, but you weren't repeating!");
-			}
-			if (currentRepeatNum.back() < totalRepeatNum.back())
-			{
-				currentMasterScript.seekg(repeatPos.back());
-				currentRepeatNum.back()++;
-			}
-			else
-			{
-				currentRepeatNum.pop_back();
-				repeatPos.pop_back();
-				totalRepeatNum.pop_back();
-			}
-		}
-		else
-		{
-			word = (word == "") ? "[EMPTY-STRING]" : word;
-			thrower("ERROR: unrecognized master script command: \"" + word + "\"");
-		}
-		word = "";
-		currentMasterScript >> word;
-	}
-	if ( expectsLoadSkip && !loadSkipFound )
-	{
-		thrower( "ERROR: Expected load skip in script, but the load skip command was not found during script analysis!" );
-	}
-}
-
 
 /*
 	this function can be called directly from scripts. Insert things inside the function to make it do something
 	custom that's not possible inside the scripting language.
 */
 void MasterManager::callCppCodeFunction()
-{}
+{
+	// not used at the moment
+}
 
 
 bool MasterManager::isValidWord( std::string word )
@@ -1292,6 +1280,7 @@ UINT MasterManager::determineVariationNumber( std::vector<parameterType> variabl
 	}
 	return variationNumber;
 }
+
 
 bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 										DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
@@ -1338,9 +1327,6 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	}
 	try
 	{
-		// read the variables from the file.
-		// read function file and get vars to add to general vars
-		// combine vars here and general vars.
 		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum, warnings );
 	}
 	catch ( Error& err )
