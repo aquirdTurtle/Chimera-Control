@@ -40,6 +40,7 @@ namespace commonFunctions
 				camWin->redrawPictures(false);
 				try
 				{
+
 					prepareCamera( mainWin, camWin, input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
 					prepareBaslerCamera ( basWin, input);
