@@ -197,7 +197,6 @@ void BaslerWindow::handleDisarmPress()
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
 	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
-	std::vector<long>* image = (std::vector<long>*) lParam;
  	long size = long( wParam );
  	try
 	{
@@ -205,11 +204,8 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		CDC* cdc = GetDC();
 		//picManager.drawDongles ( cdc, selectedPixel, , , 0);
 		picManager.drawBitmap( cdc, *imageMatrix );
-		//picture.drawCircle ( cdc, selectedLocation );
-		//picture.drawAnalysisMarkers ( dc, analysisLocs, grids );
-		//picture.drawPicNum ( dc, pictureNumber - getNumberActive ( ) + count++ );
+		picManager.drawDongles ( cdc, { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		//picture.updatePlotData( );
-		//picture.drawDongles( cdc, *imageMatrix );
 		ReleaseDC( cdc );
 		//picture.setHoverValue();
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)
@@ -224,12 +220,15 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		{
 			settings.handleFrameRate();
 		}
-		if (currentRepNumber == 1 && !cameraController->isContinuous())
-		{
+
+		//if (currentRepNumber == 1 && !cameraController->isContinuous())
+		//{
+		//	camWin->getLogger( )->writeBaslerPic(*imageMatrix, settings.getCurrentSettings().dimensions);
 			//saver.save( *imageMatrix, imageWidth );
-		}
-		else if (!cameraController->isContinuous())
+		//}
+		if (!cameraController->isContinuous())
 		{
+			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, settings.getCurrentSettings ( ).dimensions );
 			//saver.append( *imageMatrix, imageWidth );
 		}
 		if (currentRepNumber == cameraController->getRepCounts())

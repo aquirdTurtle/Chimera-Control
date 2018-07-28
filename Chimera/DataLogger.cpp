@@ -278,6 +278,16 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 		}
 		H5::Group baslerGroup ( file.createGroup ( "/Basler" ) );
 		hsize_t rank1[ ] = { 1 };
+		// pictures. These are permanent members of the class for speed during the writing process.	
+		settings.repCount;
+		hsize_t setDims[ ] = { ULONGLONG ( settings.repCount ), settings.dimensions.width ( ),
+			settings.dimensions.height ( ) };
+		hsize_t picDims[ ] = { 1, settings.dimensions.width ( ), settings.dimensions.height ( ) };
+		BaslerPicureSetDataSpace = H5::DataSpace ( 3, setDims );
+		BaslerPicDataSpace = H5::DataSpace ( 3, picDims );
+		BaslerPictureDataset = baslerGroup.createDataSet ( "Pictures", H5::PredType::NATIVE_LONG, BaslerPicureSetDataSpace );
+		currentBaslerPicNumber = 0;
+
 		writeDataSet ( BaslerAcquisition::toStr ( settings.acquisitionMode ), "Camera-Mode", baslerGroup );
 		writeDataSet ( BaslerAutoExposure::toStr(settings.exposureMode), "Exposure-Mode", baslerGroup );
 		writeDataSet ( settings.exposureTime, "Exposure-Time", baslerGroup );
@@ -296,7 +306,7 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 	}
 	catch ( H5::Exception err )
 	{
-		thrower ( "ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg ( ) );
+		thrower ( "ERROR: Failed to log basler parameters in HDF5 file: " + err.getDetailMsg ( ) );
 	}
 }
 
@@ -318,10 +328,10 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment ), settings.imageSettings.width(),
 			settings.imageSettings.height() };
 		hsize_t picDims[] = { 1, settings.imageSettings.width(), settings.imageSettings.height() };
-		picureSetDataSpace = H5::DataSpace( 3, setDims );
-		picDataSpace = H5::DataSpace( 3, picDims );
-		pictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, picureSetDataSpace );
-		currentPicNumber = 0;
+		AndorPicureSetDataSpace = H5::DataSpace( 3, setDims );
+		AndorPicDataSpace = H5::DataSpace( 3, picDims );
+		AndorPictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace );
+		currentAndorPicNumber = 0;
 		writeDataSet( int(settings.acquisitionMode), "Camera-Mode", andorGroup );
 		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
 		writeDataSet( int(settings.triggerMode), "Trigger-Mode", andorGroup );
@@ -418,21 +428,41 @@ void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::
 	}
 }
 
+void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
+{
+	if ( fileIsOpen == false )
+	{
+		thrower ( "Tried to write to h5 file (for basler pic), but the file is closed!\r\n" );
+	}
+	// starting coordinates of write area in the h5 file of the array of picture data points.
+	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
+	hsize_t slabdim[ 3 ] = { 1, dims.width ( ), dims.height ( ) };
+	try
+	{
+		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
+		BaslerPictureDataset.write ( image.data.data(), H5::PredType::NATIVE_LONG, BaslerPicDataSpace, BaslerPicureSetDataSpace );
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower ( "Failed to write data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
+	}
+}
 
-void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, imageParameters dims)
+
+void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 {
 	if (fileIsOpen == false)
 	{
-		thrower("Tried to write to h5 file, but the file is closed!\r\n");
+		thrower("Tried to write to h5 file (for andor pic), but the file is closed!\r\n");
 	}
 	// MUST initialize status
 	// starting coordinates of write area in the h5 file of the array of picture data points.
-	hsize_t offset[] = { currentPicNumber++, 0, 0 };
+	hsize_t offset[] = { currentAndorPicNumber++, 0, 0 };
 	hsize_t slabdim[3] = { 1, dims.width(), dims.height() };
 	try
 	{
-		picureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
-		pictureDataset.write( image.data(), H5::PredType::NATIVE_LONG, picDataSpace, picureSetDataSpace );
+		AndorPicureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
+		AndorPictureDataset.write( image.data(), H5::PredType::NATIVE_LONG, AndorPicDataSpace, AndorPicureSetDataSpace );
 	}
 	catch (H5::Exception& err)
 	{
@@ -491,8 +521,8 @@ void DataLogger::closeFile()
 		// wasn't open.
 		return;
 	}
-	picureSetDataSpace.close();
-	pictureDataset.close();	
+	AndorPicureSetDataSpace.close();
+	AndorPictureDataset.close();	
 	voltsDataSpace.close( );
 	voltsDataSet.close( );
 	file.close();

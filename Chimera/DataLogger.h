@@ -22,9 +22,9 @@ class DataLogger
 	public:
 		DataLogger(std::string systemLocation);
 		~DataLogger( );
-		void setUpVoltsMeasurement( );
 		void initializeDataFiles( );
-		void writePic( UINT currentPictureNumber, std::vector<long> image, imageParameters dims );
+		void writeAndorPic( std::vector<long> image, imageParameters dims );
+		void writeBaslerPic ( Matrix<long> image, imageParameters dims );
 		void logMasterParameters( MasterThreadInput* input);
 		void logMiscellaneous();
 		void logAndorSettings( AndorRunSettings settings, bool on );
@@ -34,13 +34,14 @@ class DataLogger
 		void logFunctions( H5::Group& group );
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		void logBaslerSettings ( baslerSettings settings, bool on );
-		void logTektronicsSettings();
+		void logTektronicsSettings( );
 		UINT getNextFileNumber();
 		void closeFile();
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
 		void initializeAioLogging( UINT numSnapshots );
 	private:
+		// a bunch of overloaded wrapper functions for making the main "log" functions above much cleaner.
 		H5::DataSet writeDataSet( bool data,				std::string name, H5::Group& group );
 		H5::DataSet writeDataSet( UINT data,				std::string name, H5::Group& group );
 		H5::DataSet writeDataSet( ULONGLONG data,			std::string name, H5::Group& group );
@@ -51,19 +52,21 @@ class DataLogger
 		H5::DataSet writeDataSet( std::string data,			std::string name, H5::Group& group );
 		void writeAttribute( double data,					std::string name, H5::DataSet& dset );
 		void writeAttribute( bool data,						std::string name, H5::DataSet& dset );
+		// the core file.
 	    H5::H5File file;
-		H5::DataSet pictureDataset, voltsDataSet;
+		H5::DataSet AndorPictureDataset, voltsDataSet, BaslerPictureDataset;
 		// for the entire set
-		H5::DataSpace picureSetDataSpace;
+		H5::DataSpace AndorPicureSetDataSpace, BaslerPicureSetDataSpace;
 		// just one pic
-		H5::DataSpace picDataSpace;
+		H5::DataSpace AndorPicDataSpace, BaslerPicDataSpace;
+
 		H5::DataSpace voltsDataSpace, voltsSetDataSpace;
 	    bool fileIsOpen;
 		std::string mostRecentInitializationDate;
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
-		UINT currentPicNumber;
+		UINT currentAndorPicNumber, currentBaslerPicNumber;
 };
 
 
