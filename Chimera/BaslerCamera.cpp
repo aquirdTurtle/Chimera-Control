@@ -1,16 +1,17 @@
 #include "stdafx.h"
 #include "BaslerCamera.h"
 #include "PictureControl.h"
-#include <algorithm>
-#include <functional>
-//#include "BaslerControlApp.h"
 #include "stdint.h"
 #include "constants.h"
 #include <cmath>
+#include <algorithm>
+#include <functional>
+
 
 // important constructor;
-// Create an instant camera object with the camera device found first. At this point this class is really only meant to work with a single
-// camera of one type at a time. Not sure what would happen if you had multiple cameras set up at once.
+// Create an instant camera object with the camera device found first. At this point this class is really only meant to 
+// work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 
+// once.
 BaslerCameras::BaslerCameras(CWnd* parent)
 {
 	Pylon::PylonInitialize();
@@ -270,8 +271,14 @@ void BaslerCameras::armCamera( triggerThreadInput* input )
 	camera->startGrabbing( repCounts, grabStrat );
 	if (autoTrigger)
 	{
-		_beginthread( triggerThread, NULL, input );
+		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
 	}
+}
+
+
+HANDLE BaslerCameras::getCameraThreadObj ( )
+{
+	return cameraTrigThread;
 }
 
 

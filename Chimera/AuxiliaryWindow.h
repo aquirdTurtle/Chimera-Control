@@ -107,6 +107,9 @@ class AuxiliaryWindow : public CDialog
 		void handleAgilentOptions( UINT id );
 
 		void loadMotSettings(MasterThreadInput* input);
+		void loadMotTempSettings ( MasterThreadInput* input );
+		void loadPgcTempSettings ( MasterThreadInput* input );
+
 		void handleTektronicsButtons(UINT id);
 
 		void sendErr(std::string msg);

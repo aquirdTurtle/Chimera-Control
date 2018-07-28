@@ -18,9 +18,21 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 }
 
 
-void Communicator::sendNoAtomsAlert( )
+void Communicator::sendNoAtomsAlert ( )
 {
-	mainWin->PostMessageA( eNoAtomsAlertMessageID, 0, 0 );
+	mainWin->PostMessageA ( eNoAtomsAlertMessageID, 0, 0 );
+}
+
+
+void Communicator::sendMachineOptimizationRoundFinish ( )
+{
+	mainWin->PostMessage ( eMachineOptRoundFinMsgID, 0, 0 );
+}
+
+
+void Communicator::sendMotCalFinish ( )
+{
+	mainWin->PostMessage ( eMotNumCalFinMsgID, 0, 0 );
 }
 
 

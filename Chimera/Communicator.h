@@ -34,8 +34,11 @@ class Communicator
 		void sendCameraProgress( long prog );
 		void sendCameraCalProgress( long progress );
 		void sendRepProgress(ULONG rep);
-		void sendNormalFinish( );
 		void sendNoAtomsAlert( );
+
+		void sendMachineOptimizationRoundFinish ( );
+		void sendMotCalFinish ( );
+		void sendNormalFinish ( );
 		void sendMotFinish( );
 	private:
 		MainWindow* mainWin;

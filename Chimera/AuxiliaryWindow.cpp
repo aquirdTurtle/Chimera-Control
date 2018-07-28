@@ -23,6 +23,7 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									aoSys( ANALOG_OUT_SAFEMODE )
 {}
 
+
 BOOL AuxiliaryWindow::handleAccelerators ( HACCEL m_haccel, LPMSG lpMsg )
 {
 	return globalVariables.handleAccelerators ( m_haccel, lpMsg );
@@ -811,6 +812,76 @@ void AuxiliaryWindow::zeroTtls()
 	{
 		sendStatus( "Failed to Zero TTLs!!!\r\n" );
 		sendErr( exception.what() );
+	}
+}
+
+/// these three at the moment are identical. keeping for the moment in case I find I need to change something.
+void AuxiliaryWindow::loadMotTempSettings ( MasterThreadInput* input )
+{
+	try
+	{
+		sendStatus ( "Loading MOT Temperature Configuration...\r\n" );
+		input->auxWin = this;
+		input->quiet = true;
+		input->ttls = &ttlBoard;
+		input->aoSys = &aoSys;
+		input->aiSys = &aiSys;
+		input->globalControl = &globalVariables;
+		input->comm = mainWin->getComm ( );
+		input->settings = { 0,0,0 };
+		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
+		// don't get configuration variables. The MOT shouldn't depend on config variables.
+		input->variables.clear ( );
+		input->variables.push_back ( globalVariables.getEverything ( ) );
+		// Only set it once, clearly.
+		input->repetitionNumber = 1;
+		input->rsg = &RhodeSchwarzGenerator;
+		input->intensityAgilentNumber = -1;
+		input->topBottomTek = &topBottomTek;
+		input->eoAxialTek = &eoAxialTek;
+		input->runMaster = true;
+		input->runNiawg = false;
+		input->dacData = dacData;
+		input->ttlData = ttlData;
+	}
+	catch ( Error& exception )
+	{
+		sendStatus ( ": " + exception.whatStr ( ) + " " + exception.whatStr ( ) + "\r\n" );
+	}
+}
+
+
+void AuxiliaryWindow::loadPgcTempSettings ( MasterThreadInput* input )
+{
+	try
+	{
+		sendStatus ( "Loading PGC Temperature Configuration...\r\n" );
+		input->auxWin = this;
+		input->quiet = true;
+		input->ttls = &ttlBoard;
+		input->aoSys = &aoSys;
+		input->aiSys = &aiSys;
+		input->globalControl = &globalVariables;
+		input->comm = mainWin->getComm ( );
+		input->settings = { 0,0,0 };
+		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
+		// don't get configuration variables. The MOT shouldn't depend on config variables.
+		input->variables.clear ( );
+		input->variables.push_back ( globalVariables.getEverything ( ) );
+		// Only set it once, clearly.
+		input->repetitionNumber = 1;
+		input->rsg = &RhodeSchwarzGenerator;
+		input->intensityAgilentNumber = -1;
+		input->topBottomTek = &topBottomTek;
+		input->eoAxialTek = &eoAxialTek;
+		input->runMaster = true;
+		input->runNiawg = false;
+		input->dacData = dacData;
+		input->ttlData = ttlData;
+	}
+	catch ( Error& exception )
+	{
+		sendStatus ( ": " + exception.whatStr ( ) + " " + exception.whatStr ( ) + "\r\n" );
 	}
 }
 

@@ -6,7 +6,7 @@
 
 
 
-CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
+AndorCameraSettingsControl::AndorCameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 {
 	andorFriend = friendInitializer;
 	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
@@ -28,7 +28,7 @@ CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : p
 }
 
 
-void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips )
+void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips )
 {
 	/// Header
 	header.setPositions ( pos, 0, 0, 480, 25, true, false, true );
@@ -140,7 +140,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 
 // note that this object doesn't actually store the camera state, it just uses it in passing to figure out whether 
 // buttons should be on or off.
-void CameraSettingsControl::cameraIsOn(bool state)
+void AndorCameraSettingsControl::cameraIsOn(bool state)
 {
 	// Can't change em gain mode or camera settings once started.
 	emGainEdit.EnableWindow( !state );
@@ -149,7 +149,7 @@ void CameraSettingsControl::cameraIsOn(bool state)
 }
 
 
-void CameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
+void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 {
 	if (inputSettings.emGainModeIsOn == false || inputSettings.emGainLevel < 0)
 	{
@@ -213,13 +213,13 @@ void CameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 }
 
 
-void CameraSettingsControl::handleSetTemperatureOffPress()
+void AndorCameraSettingsControl::handleSetTemperatureOffPress()
 {
 	andorFriend->changeTemperatureSetting(true);
 }
 
 
-void CameraSettingsControl::handleSetTemperaturePress()
+void AndorCameraSettingsControl::handleSetTemperaturePress()
 {
 	if (andorFriend->isRunning())
 	{
@@ -244,7 +244,7 @@ void CameraSettingsControl::handleSetTemperaturePress()
 }
 
 
-void CameraSettingsControl::updateTriggerMode( )
+void AndorCameraSettingsControl::updateTriggerMode( )
 {
 	CString triggerMode;
 	int itemIndex = triggerCombo.GetCurSel( );
@@ -257,7 +257,7 @@ void CameraSettingsControl::updateTriggerMode( )
 }
 
 
-void CameraSettingsControl::handleTriggerChange(CameraWindow* cameraWindow)
+void AndorCameraSettingsControl::handleTriggerChange(CameraWindow* cameraWindow)
 {
 	updateTriggerMode( );
 	CRect rect;
@@ -266,7 +266,7 @@ void CameraSettingsControl::handleTriggerChange(CameraWindow* cameraWindow)
 }
 
 
-void CameraSettingsControl::updateSettings()
+void AndorCameraSettingsControl::updateSettings()
 {
 	// update all settings with current values from controls
 	settings.andor.exposureTimes =		picSettingsObj.getUsedExposureTimes( );
@@ -285,14 +285,14 @@ void CameraSettingsControl::updateSettings()
 }
 
 
-AndorCameraSettings CameraSettingsControl::getSettings()
+AndorCameraSettings AndorCameraSettingsControl::getSettings()
 {
 	updateSettings( );
 	return settings;
 }
 
 
-AndorCameraSettings CameraSettingsControl::getCalibrationSettings( )
+AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( )
 {
 	AndorCameraSettings calSettings;
 	calSettings.andor.acquisitionMode = AndorRunModes::Kinetic;
@@ -316,19 +316,19 @@ AndorCameraSettings CameraSettingsControl::getCalibrationSettings( )
 }
 
 
-bool CameraSettingsControl::getAutoCal( )
+bool AndorCameraSettingsControl::getAutoCal( )
 {
 	return calControl.autoCal( );
 }
 
 
-bool CameraSettingsControl::getUseCal( )
+bool AndorCameraSettingsControl::getUseCal( )
 {
 	return calControl.use( );
 }
 
 
-void CameraSettingsControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts )
+void AndorCameraSettingsControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts )
 {
 	imageDimensionsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
 	picSettingsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -354,7 +354,7 @@ void CameraSettingsControl::rearrange( AndorRunModes cameraMode, AndorTriggerMod
 }
 
 
-void CameraSettingsControl::setEmGain()
+void AndorCameraSettingsControl::setEmGain()
 {
 	CString emGainText;
 	emGainEdit.GetWindowTextA(emGainText);
@@ -426,7 +426,7 @@ void CameraSettingsControl::setEmGain()
 }
 
 
-void CameraSettingsControl::setVariationNumber(UINT varNumber)
+void AndorCameraSettingsControl::setVariationNumber(UINT varNumber)
 {
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.totalVariations = varNumber;
@@ -438,7 +438,7 @@ void CameraSettingsControl::setVariationNumber(UINT varNumber)
 }
 
 
-void CameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
+void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 {
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.repetitionsPerVariation = repsPerVar;
@@ -451,7 +451,7 @@ void CameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 }
 
 
-void CameraSettingsControl::handleTimer()
+void AndorCameraSettingsControl::handleTimer()
 {
 	// This case displays the current temperature in the main window. When the temp stabilizes at the desired 
 	// level the appropriate message is displayed.
@@ -520,7 +520,7 @@ void CameraSettingsControl::handleTimer()
 }
 
 
-void CameraSettingsControl::updateRunSettingsFromPicSettings( )
+void AndorCameraSettingsControl::updateRunSettingsFromPicSettings( )
 {
 	settings.andor.exposureTimes = picSettingsObj.getUsedExposureTimes( );
 	settings.andor.picsPerRepetition = picSettingsObj.getPicsPerRepetition( );
@@ -533,14 +533,14 @@ void CameraSettingsControl::updateRunSettingsFromPicSettings( )
 }
 
 
-void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
+void AndorCameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
 {
 	picSettingsObj.handleOptionChange(id, andorObj);
 	updateRunSettingsFromPicSettings( );
 }
 
 
-double CameraSettingsControl::getKineticCycleTime( )
+double AndorCameraSettingsControl::getKineticCycleTime( )
 {
 	CString text;
 	kineticCycleTimeEdit.GetWindowTextA( text );
@@ -559,7 +559,7 @@ double CameraSettingsControl::getKineticCycleTime( )
 }
 
 
-double CameraSettingsControl::getAccumulationCycleTime( )
+double AndorCameraSettingsControl::getAccumulationCycleTime( )
 {
 	CString text;
 	accumulationCycleTimeEdit.GetWindowTextA( text );
@@ -578,7 +578,7 @@ double CameraSettingsControl::getAccumulationCycleTime( )
 }
 
 
-UINT CameraSettingsControl::getAccumulationNumber( )
+UINT AndorCameraSettingsControl::getAccumulationNumber( )
 {
 	CString text;
 	accumulationNumberEdit.GetWindowTextA( text );
@@ -597,7 +597,7 @@ UINT CameraSettingsControl::getAccumulationNumber( )
 }
 
 
-void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
+void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
 	ProfileSystem::checkDelimiterLine(configFile, "CAMERA_SETTINGS");
 	AndorRunSettings tempSettings;
@@ -642,7 +642,7 @@ void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version 
 }
 
 
-void CameraSettingsControl::handleNewConfig( std::ofstream& newFile )
+void AndorCameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "CAMERA_SETTINGS\n";
 	newFile << "External-Trigger" << "\n";
@@ -659,7 +659,7 @@ void CameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 }
 
 
-void CameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
+void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "CAMERA_SETTINGS\n";
 	saveFile << AndorTriggerModeText(settings.andor.triggerMode) << "\n";
@@ -677,7 +677,7 @@ void CameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void CameraSettingsControl::updateCameraMode( )
+void AndorCameraSettingsControl::updateCameraMode( )
 {
 	/* 
 		updates settings.andor.cameraMode based on combo selection, then updates 
@@ -713,7 +713,7 @@ void CameraSettingsControl::updateCameraMode( )
 }
 
 
-void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
+void AndorCameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
 {
 	updateCameraMode( );
 
@@ -723,43 +723,43 @@ void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
 }
 
 
-void CameraSettingsControl::checkTimings(std::vector<float>& exposureTimes)
+void AndorCameraSettingsControl::checkTimings(std::vector<float>& exposureTimes)
 {
 	checkTimings(settings.andor.kineticCycleTime, settings.andor.accumulationTime, exposureTimes);
 }
 
 
-void CameraSettingsControl::checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes)
+void AndorCameraSettingsControl::checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes)
 {
 	andorFriend->checkAcquisitionTimings(kineticCycleTime, accumulationTime, exposureTimes);
 }
 
 
-void CameraSettingsControl::updateMinKineticCycleTime( double time )
+void AndorCameraSettingsControl::updateMinKineticCycleTime( double time )
 {
 	minKineticCycleTimeDisp.SetWindowTextA( cstr( time ) );
 }
 
 
-imageParameters CameraSettingsControl::getImageParameters()
+imageParameters AndorCameraSettingsControl::getImageParameters()
 {
 	return imageDimensionsObj.readImageParameters( );
 }
 
 
-CBrush* CameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
+CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
 {
 	return picSettingsObj.colorControls( idNumber, colorer, brushes, rgbs );
 }
 
 
-void CameraSettingsControl::setImageParameters(imageParameters newSettings, CameraWindow* camWin)
+void AndorCameraSettingsControl::setImageParameters(imageParameters newSettings, CameraWindow* camWin)
 {
 	imageDimensionsObj.setImageParametersFromInput(newSettings, camWin);
 }
 
 
-void CameraSettingsControl::checkIfReady()
+void AndorCameraSettingsControl::checkIfReady()
 {
 	if ( picSettingsObj.getUsedExposureTimes().size() == 0 )
 	{
@@ -802,7 +802,7 @@ void CameraSettingsControl::checkIfReady()
 }
 
 
-void CameraSettingsControl::handelSaveMasterConfig ( std::stringstream& configFile )
+void AndorCameraSettingsControl::handelSaveMasterConfig ( std::stringstream& configFile )
 {
 	imageParameters settings = getSettings ( ).andor.imageSettings;
 	configFile << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
@@ -812,7 +812,7 @@ void CameraSettingsControl::handelSaveMasterConfig ( std::stringstream& configFi
 }
 
 
-void CameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configStream, Version ver, CameraWindow* camWin )
+void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configStream, Version ver, CameraWindow* camWin )
 {
 	imageParameters settings = getSettings ( ).andor.imageSettings;
 	std::string tempStr;
@@ -849,7 +849,7 @@ void CameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configSt
 }
 
 
-std::vector<std::vector<long>> CameraSettingsControl::getImagesToDraw ( const std::vector<std::vector<long>>& rawData )
+std::vector<std::vector<long>> AndorCameraSettingsControl::getImagesToDraw ( const std::vector<std::vector<long>>& rawData )
 {
 	std::vector<std::vector<long>> imagesToDraw ( rawData.size ( ) );
 	auto options = picSettingsObj.getDisplayTypeOptions ( );

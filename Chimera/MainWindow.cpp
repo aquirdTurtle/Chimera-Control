@@ -186,6 +186,9 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
 	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
+	ON_REGISTERED_MESSAGE ( eMotNumCalFinMsgID, &MainWindow::onMotNumCalFin )
+	ON_REGISTERED_MESSAGE ( eMotNumCalFinMsgID, &MainWindow::onMotTempCalFin )
+	ON_REGISTERED_MESSAGE ( eMachineOptRoundFinMsgID, &MainWindow::onMachineOptRoundFin )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
@@ -209,6 +212,26 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
+
+
+LRESULT MainWindow::onMotNumCalFin ( WPARAM wp, LPARAM lp )
+{
+	return true;
+}
+
+
+LRESULT MainWindow::onMotTempCalFin ( WPARAM wp, LPARAM lp )
+{
+	return true;
+}
+
+
+LRESULT MainWindow::onMachineOptRoundFin ( WPARAM wp, LPARAM lp )
+{
+	return true;
+}
+
+
 
 void MainWindow::passExperimentRerngButton( )
 {
@@ -246,9 +269,7 @@ void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams( );
 	input->rerngGuiForm.active = false;
-	input->isLoadMot = false;
-	input->isCameraCal = true;
-
+	input->expType = ExperimentType::CameraCal;
 }
 
 
@@ -866,9 +887,68 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-HANDLE MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
+HANDLE MainWindow::startExperimentThread( MasterThreadInput* input, bool isTurnOnMot )
 {
 	return masterThreadManager.startExperimentThread(input);
+}
+
+
+void MainWindow::fillMotTempInput ( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations );
+	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
+	for ( auto seqInc : range ( input->variables.size ( ) ) )
+	{
+		for ( auto& variable : input->variables[ seqInc ] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[ seqInc ].push_back ( variable );
+			}
+		}
+	}
+	input->seq.name = "motTemp";
+	input->seq.sequence.resize ( 1 );
+	input->seq.sequence[ 0 ].configuration = "Automated-MOT-Temperature-Measurement";
+	input->seq.sequence[ 0 ].categoryPath = MOT_ROUTINES_ADDRESS;
+	input->seq.sequence[ 0 ].parentFolderName = "MOT";
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
+	input->skipNext = NULL;
+	input->rerngGuiForm = rearrangeControl.getParams ( );
+	input->rerngGuiForm.active = false;
+	input->expType = ExperimentType::LoadMot;
+
+}
+
+
+void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations );
+	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
+	for ( auto seqInc : range ( input->variables.size ( ) ) )
+	{
+		for ( auto& variable : input->variables[ seqInc ] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[ seqInc ].push_back ( variable );
+			}
+		}
+	}
+	input->seq.name = "pgcTemp";
+	input->seq.sequence.resize ( 1 );
+	input->seq.sequence[ 0 ].configuration = "Automated-PGC-Temperature-Measurement";
+	input->seq.sequence[ 0 ].categoryPath = PGC_ROUTINES_ADDRESS;
+	input->seq.sequence[ 0 ].parentFolderName = "PGC";
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
+	input->skipNext = NULL;
+	input->rerngGuiForm = rearrangeControl.getParams ( );
+	input->rerngGuiForm.active = false;
+	input->expType = ExperimentType::LoadMot;
 }
 
 
@@ -890,14 +970,14 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	input->seq.name = "loadMot";
 	input->seq.sequence.resize( 1 );
 	input->seq.sequence[0].configuration = "Set MOT Settings";
-	input->seq.sequence[0].categoryPath = MOT_ROUTINE_ADDRESS;
+	input->seq.sequence[0].categoryPath = MOT_ROUTINES_ADDRESS;
 	input->seq.sequence[0].parentFolderName = "MOT";
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
  	input->skipNext = NULL;
  	input->rerngGuiForm = rearrangeControl.getParams( );
  	input->rerngGuiForm.active = false;
-	input->isLoadMot = true;
+	input->expType = ExperimentType::LoadMot;
 }
 
 

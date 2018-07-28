@@ -1,6 +1,6 @@
 #pragma once
-#include "MasterThreadInput.h"
 #include "afxwin.h"
+#include "MasterThreadInput.h"
 
 class MainWindow;
 class CameraWindow;
@@ -17,12 +17,14 @@ namespace commonFunctions
 	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
 									AuxiliaryWindow* auxWin );
 	void prepareCamera( MainWindow* mainWin, CameraWindow* camWin, ExperimentInput& input );
+
+	void prepareBaslerCamera ( BaslerWindow* basWin, ExperimentInput& input );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls );
-	void startMaster(MainWindow* mainWin, ExperimentInput& input);
+	void startExperimentThread(MainWindow* mainWin, ExperimentInput& input);
 
-	void logParameters( ExperimentInput& input, CameraWindow* camWin, bool takeAndorPictures );
-	void setMot(MainWindow* mainWin);
+	void logParameters( ExperimentInput& input, CameraWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, bool takeBaslerPictures );
+	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin = NULL, BaslerWindow* basWin = NULL );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( CameraWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);

@@ -327,7 +327,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 	}
 	// each image processed from the call from a separate windows message
-	int size;
 	// If there is no data the acquisition must have been aborted
 	int experimentPictureNumber;
 	if (runSettings.showPicsInRealTime)

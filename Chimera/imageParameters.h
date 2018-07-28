@@ -3,6 +3,17 @@
 
 struct imageParameters
 {
+	imageParameters ( ) { };
+	imageParameters ( UINT l, UINT  t, UINT  r, UINT  b, UINT  h_bin, UINT  v_bin )
+	{
+		left = l;
+		top = t;
+		right = r;
+		left = l;
+		horizontalBinning = h_bin;
+		verticalBinning = v_bin;
+	}
+	
 	UINT left=1;
 	UINT top = 1; 
 	UINT right=100;
@@ -107,4 +118,5 @@ struct imageParameters
 		}
 	}
 };
+
 

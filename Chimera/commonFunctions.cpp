@@ -15,6 +15,7 @@
 #include "externals.h"
 #include <array>
 
+
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses.
 namespace commonFunctions
 {
@@ -41,15 +42,16 @@ namespace commonFunctions
 				{
 					prepareCamera( mainWin, camWin, input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					prepareBaslerCamera ( basWin, input);
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true, input );
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher(input);
-					logParameters( input, camWin, true );
+					logParameters( input, camWin, basWin, true, true );
 					camWin->startAtomCruncher(input);
 					camWin->startPlotterThread(input);
 					camWin->startCamera();
 					basWin->startCamera ( );
-					startMaster( mainWin, input );
+					startExperimentThread( mainWin, input );
 				}
 				catch (Error& err)
 				{
@@ -161,7 +163,7 @@ namespace commonFunctions
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					//
-					commonFunctions::logParameters( input, camWin, true);
+					commonFunctions::logParameters( input, camWin, basWin, true, false );
 					//
 					camWin->startAtomCruncher( input );
 					camWin->startPlotterThread( input );
@@ -186,7 +188,7 @@ namespace commonFunctions
 				}
 				try
 				{
-					commonFunctions::logParameters( input, camWin, true);
+					commonFunctions::logParameters( input, camWin, basWin, true, false);
 				}
 				catch (Error& err)
 				{
@@ -203,9 +205,9 @@ namespace commonFunctions
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin,
 														  input, true, false );
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, false, input );
-					commonFunctions::logParameters( input, camWin, false );
+					commonFunctions::logParameters( input, camWin, basWin, false, false );
 					//
-					commonFunctions::startMaster( mainWin, input );
+					commonFunctions::startExperimentThread( mainWin, input );
 				}
 				catch (Error& except)
 				{
@@ -232,7 +234,7 @@ namespace commonFunctions
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin, 
 														  input, false, true );
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, true, input );
-					commonFunctions::startMaster( mainWin, input );
+					commonFunctions::startExperimentThread( mainWin, input );
 				}
 				catch (Error& err)
 				{
@@ -246,7 +248,7 @@ namespace commonFunctions
 				}
 				try
 				{
-					commonFunctions::logParameters( input, camWin, false );
+					commonFunctions::logParameters( input, camWin, basWin, false, false );
 				}
 				catch (Error& err)
 				{
@@ -665,10 +667,29 @@ namespace commonFunctions
 			}
 			case ID_ACCELERATOR_F1:
 			{
+				setMot ( mainWin, auxWin );
+				break;
+			}
+			case ID_ACCELERATOR_F12:
+			{
+				// F12 is the set of mot calibrations.
+				/// MOT size
+				setMot ( mainWin, auxWin, camWin );
+				basWin->measureMotSize( );
+				
+				/// MOT Temperature
+				basWin->setCameraForMotTempMeasurement ( );
 				MasterThreadInput* input = new MasterThreadInput;
-				auxWin->loadMotSettings( input );
-				mainWin->fillMotInput( input );
-				mainWin->startMaster(input, true);
+				auxWin->loadMotTempSettings ( input );
+				mainWin->fillMotTempInput ( input );
+				mainWin->startExperimentThread ( input, true );
+				// wait...
+				/// PGC Temperature
+				MasterThreadInput* inputPgc = new MasterThreadInput;
+				auxWin->loadPgcTempSettings ( inputPgc );
+				mainWin->fillPgcTempInput ( inputPgc );
+				mainWin->startExperimentThread ( inputPgc, true );
+
 				break;
 			}
 			default:
@@ -688,12 +709,18 @@ namespace commonFunctions
 			camWin->loadCameraCalSettings( input );
 			camWin->startCamera( );
 			mainWin->loadCameraCalSettings( input.masterInput );
-			mainWin->startMaster( input.masterInput, true );
+			mainWin->startExperimentThread( input.masterInput, true );
 		}
 		catch ( Error& err )
 		{
 			errBox( err.what( ) );
 		}
+	}
+
+
+	void prepareBaslerCamera ( BaslerWindow* basWin, ExperimentInput& input )
+	{
+
 	}
 
 
@@ -762,12 +789,12 @@ namespace commonFunctions
 	}
 
 
-	void startMaster(MainWindow* mainWin, ExperimentInput& input)
+	void startExperimentThread(MainWindow* mainWin, ExperimentInput& input)
 	{
 		mainWin->addTimebar( "main" );
 		mainWin->addTimebar( "error" );
 		mainWin->addTimebar( "debug" );
-		mainWin->startMaster( input.masterInput, false );
+		mainWin->startExperimentThread( input.masterInput, false );
 	}
 
 	void abortCamera( CameraWindow* camWin, MainWindow* mainWin )
@@ -895,23 +922,31 @@ namespace commonFunctions
 	}
 
 
-	void setMot(MainWindow* mainWin)
+	void setMot(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin, BaslerWindow* basWin)
 	{
-		MasterThreadInput* input = new MasterThreadInput;
-		input->quiet = true;
-		
+		ExperimentInput input;
+		input.masterInput = new MasterThreadInput;
+		auxWin->loadMotSettings ( input.masterInput );
+		mainWin->fillMotInput ( input.masterInput );
+		if ( camWin != NULL )
+		{
+			// this is used for basler calibrations.
+			logParameters ( input, camWin, basWin, false, true );
+		}
+		mainWin->startExperimentThread ( input.masterInput, true );
 	}
 
 
-	void logParameters( ExperimentInput& input, CameraWindow* camWin, bool takeAndorPictures )
+	void logParameters( ExperimentInput& input, CameraWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
+						bool takeBaslerPictures )
 	{
 		DataLogger* logger = camWin->getLogger();
 		logger->initializeDataFiles();
-		logger->logAndorSettings( input.camSettings, takeAndorPictures );
+		logger->logAndorSettings( input.AndorSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneous();
+		logger->logBaslerSettings ( input.baslerRunSettings, takeBaslerPictures );
 		UINT numVoltsMeasursments = 0;
-
 		if ( input.masterInput && input.masterInput->aiSys->wantsQueryBetweenVariations( ) )
 		{
 			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->variables.front() );

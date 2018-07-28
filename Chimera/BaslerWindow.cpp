@@ -3,7 +3,6 @@
 //
 
 #include "stdafx.h"
-//#include "BaslerControlApp.h"
 #include "BaslerWindow.h"
 #include "AuxiliaryWindow.h"
 #include "MainWindow.h"
@@ -16,15 +15,6 @@
 BaslerWindow::BaslerWindow( /*=NULL*/ ) 
 {
 
-}
-
-
-void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ )
-{
-	mainWin = mainWin_;
-	scriptWin = scriptWin_;
-	camWin = camWin_;
-	auxWin = auxWin_;
 }
 
 
@@ -58,6 +48,15 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 END_MESSAGE_MAP()
 
 
+void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ )
+{
+	mainWin = mainWin_;
+	scriptWin = scriptWin_;
+	camWin = camWin_;
+	auxWin = auxWin_;
+}
+
+
 void BaslerWindow::passCommonCommand ( UINT id )
 {
 	try
@@ -69,6 +68,52 @@ void BaslerWindow::passCommonCommand ( UINT id )
 		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
 		errBox ( err.what ( ) );
 	}
+}
+
+
+/*
+Load the settings appropriate for the mot size measurement and then start the camera.
+*/
+void BaslerWindow::measureMotSize ( )
+{
+	auto prevSettings = settingsCtrl.getCurrentSettings ( );
+	baslerSettings motSizeSettings;
+	motSizeSettings.acquisitionMode = BaslerAcquisition::mode::Finite;
+	motSizeSettings.dimensions = settingsCtrl.ScoutFullResolution;
+	motSizeSettings.exposureMode = BaslerAutoExposure::mode::Off;
+	motSizeSettings.exposureTime = 1e-3;
+	motSizeSettings.frameRate = 100;
+	motSizeSettings.rawGain = settingsCtrl.unityGainSetting;
+	motSizeSettings.repCount = 100;
+	motSizeSettings.triggerMode = BaslerTrigger::mode::AutomaticSoftware;
+	handleDisarmPress ( );
+	settingsCtrl.setSettings ( motSizeSettings );
+	startCamera ( );
+	// finish...
+	settingsCtrl.setSettings ( prevSettings );
+	// wait for the measurement to finish.
+	auto res = WaitForSingleObject ( cameraController->getCameraThreadObj ( ), 1E5 );
+}
+
+
+/*
+Load the settings appropriate for the mot temperature measurement and then start the camera.
+*/
+void BaslerWindow::setCameraForMotTempMeasurement ( )
+{
+	auto prevSettings = settingsCtrl.getCurrentSettings ( );
+	baslerSettings motTempSettings;
+	motTempSettings.acquisitionMode = BaslerAcquisition::mode::Finite;
+	motTempSettings.dimensions = settingsCtrl.ScoutFullResolution;
+	motTempSettings.exposureMode = BaslerAutoExposure::mode::Off;
+	motTempSettings.exposureTime = 1e-3;
+	motTempSettings.frameRate = 100;
+	motTempSettings.rawGain = settingsCtrl.unityGainSetting;
+	motTempSettings.repCount = 100;
+	motTempSettings.triggerMode = BaslerTrigger::mode::External;
+	handleDisarmPress ( );
+	settingsCtrl.setSettings ( motTempSettings );
+	startCamera ( );
 }
 
 
@@ -184,12 +229,12 @@ void BaslerWindow::handleDisarmPress()
 		cameraController->disarm();
 		triggerThreadFlag = false;
 		isRunning = false;
-		settings.setStatus("Camera Status: Idle");
+		settingsCtrl.setStatus("Camera Status: Idle");
 	}
 	catch (Error& err)
 	{
 		errBox( "Error! " + err.whatStr() );
-		settings.setStatus("Camera Status: ERROR?!?!");
+		settingsCtrl.setStatus("Camera Status: ERROR?!?!");
 	}
 }
 
@@ -210,39 +255,31 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		//picture.setHoverValue();
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)
 		{
-			settings.updateExposure( cameraController->getCurrentExposure() );
+			settingsCtrl.updateExposure( cameraController->getCurrentExposure() );
 		}
 		
 		//stats.update( *imageMatrix, 0, { 0,0 }, settings.getCurrentSettings().dimensions.horBinNumber, currentRepNumber,
 		//			  cameraController->getRepCounts() );
-		settings.setStatus("Camera Status: Acquiring Pictures.");
+		settingsCtrl.setStatus("Camera Status: Acquiring Pictures.");
 		if (currentRepNumber % 10 == 0)
 		{
-			settings.handleFrameRate();
+			settingsCtrl.handleFrameRate();
 		}
-
-		//if (currentRepNumber == 1 && !cameraController->isContinuous())
-		//{
-		//	camWin->getLogger( )->writeBaslerPic(*imageMatrix, settings.getCurrentSettings().dimensions);
-			//saver.save( *imageMatrix, imageWidth );
-		//}
 		if (!cameraController->isContinuous())
 		{
-			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, settings.getCurrentSettings ( ).dimensions );
-			//saver.append( *imageMatrix, imageWidth );
+			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, settingsCtrl.getCurrentSettings ( ).dimensions );
 		}
 		if (currentRepNumber == cameraController->getRepCounts())
 		{
 			cameraController->disarm();
-			//saver.close();
 			isRunning = false;
-			settings.setStatus("Camera Status: Finished finite acquisition.");
+			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
 		}
 	}
 	catch (Error& err)
 	{
 		errBox( err.what() );
-		settings.setStatus("Camera Status: ERROR?!?!?");
+		settingsCtrl.setStatus("Camera Status: ERROR?!?!?");
 	}
 	OnPaint( );
 	// always delete
@@ -254,8 +291,7 @@ void BaslerWindow::passCameraMode()
 {
 	try
 	{
-		settings.handleCameraMode();
-		//saver.handleModeChange(settings.loadCurrentSettings(cameraController->getCameraDimensions()).cameraMode);
+		settingsCtrl.handleCameraMode();
 	}
 	catch (Error& err)
 	{
@@ -268,7 +304,7 @@ void BaslerWindow::passExposureMode()
 {
 	try
 	{
-		settings.handleExposureMode();
+		settingsCtrl.handleExposureMode();
 	}
 	catch (Error& err)
 	{
@@ -282,7 +318,7 @@ void BaslerWindow::handleArmPress()
 	try
 	{
 		currentRepNumber = 0;
-		baslerSettings tempSettings = settings.loadCurrentSettings();
+		baslerSettings tempSettings = settingsCtrl.loadCurrentSettings();
 		cameraController->setParameters( tempSettings );
 		imageParameters params;
 		picManager.setParameters( tempSettings.dimensions );
@@ -301,7 +337,7 @@ void BaslerWindow::handleArmPress()
 		input->runningFlag = &triggerThreadFlag;
 
 		cameraController->armCamera( input );
-		settings.setStatus("Camera Status: Armed...");
+		settingsCtrl.setStatus("Camera Status: Armed...");
 		isRunning = true;
 	}
 	catch (Error& err)
@@ -324,9 +360,8 @@ void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 {
 	auto fonts = mainWin->getFonts ( );
 	picManager.rearrange ( cx, cy, fonts );
-	settings.rearrange(cx, cy, fonts);
+	settingsCtrl.rearrange(cx, cy, fonts);
 	stats.rearrange(cx, cy, fonts );
-	//saver.rearrange(cx, cy, mainFonts);
 	if ( horGraph )
 	{
 		horGraph->rearrange( cx, cy, fonts );
@@ -442,14 +477,14 @@ HCURSOR BaslerWindow::OnQueryDragIcon()
 void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
 	picManager.handleOpenConfig ( configFile, ver );
-	settings.handleOpeningConfig ( configFile, ver );
+	settingsCtrl.handleOpeningConfig ( configFile, ver );
 }
 
 
 void BaslerWindow::handleSavingConfig ( std::ofstream& configFile )
 {
 	picManager.handleSaveConfig ( configFile );
-	settings.handleSavingConfig ( configFile );
+	settingsCtrl.handleSavingConfig ( configFile );
 }
 
 
@@ -462,7 +497,6 @@ void BaslerWindow::initializeControls()
 	#endif
 
 	CMenu menu;
-	//menu.LoadMenu( IDR_MENU1 );
 	SetMenu( &menu );
 	cameraController = new BaslerCameras( this );
 	if (!cameraController->isInitialized())
@@ -472,12 +506,11 @@ void BaslerWindow::initializeControls()
 	int id = 1000;
 	POINT pos = { 0,0 };
 	POINT cameraDims = cameraController->getCameraDimensions();
-	settings.initialize( pos, id, this, cameraDims.x, cameraDims.y, cameraDims);
-	settings.setSettings( cameraController->getDefaultSettings() );
+	settingsCtrl.initialize( pos, id, this, cameraDims.x, cameraDims.y, cameraDims);
+	settingsCtrl.setSettings( cameraController->getDefaultSettings() );
 	std::unordered_map<std::string, CFont*> fontDummy;
 	std::vector<CToolTipCtrl*> toolTipDummy;
 	//stats.initialize( pos, this, id, fontDummy, toolTipDummy );
-	//saver.initialize( pos, id, this );
 
 	POINT picPos = { 300, 0 };
 	POINT dims = cameraController->getCameraDimensions();

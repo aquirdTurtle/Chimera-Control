@@ -216,6 +216,7 @@
     <ClInclude Include="BaslerSettingsControl.h" />
     <ClInclude Include="BaslerWindow.h" />
     <ClInclude Include="CodeTimer.h" />
+    <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
@@ -331,7 +332,7 @@
     <ClCompile Include="BaslerSettingsControl.cpp" />
     <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />
-    <ClCompile Include="runModes.cpp" />
+    <ClCompile Include="AndorRunMode.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />

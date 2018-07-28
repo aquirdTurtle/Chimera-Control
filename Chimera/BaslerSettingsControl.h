@@ -12,6 +12,7 @@
 class BaslerSettingsControl
 {
 	public:
+		BaslerSettingsControl ( );
 		void initialize(POINT& pos, int& id, CWnd* parent, int picWidth, int picHeight, POINT cameraDims);
 		
 		void handleGain();
@@ -26,6 +27,12 @@ class BaslerSettingsControl
 		void rearrange(int width, int height, fontMap fonts);
 		void handleSavingConfig ( std::ofstream& configFile );
 		void handleOpeningConfig ( std::ifstream& configFile, Version ver );
+
+		/// TODO: fill in correct parameters here.
+		const imageParameters ScoutFullResolution = { 1,500,1,500,1,1 };
+		const imageParameters AceFullResolution = { 1,500,1,500,1,1 };
+		const UINT unityGainSetting = 260;
+
 	private:
 		ULONG lastTime;
 		baslerSettings currentSettings;
