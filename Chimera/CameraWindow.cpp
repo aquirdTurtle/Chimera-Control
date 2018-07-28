@@ -526,8 +526,8 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		{
 			// important! write the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
 			// pictures, which can have the background subtracted.
-			dataHandler.writePic( picNum, rawPicData[(picNum - 1) % curSettings.picsPerRepetition],
-								  curSettings.imageSettings );
+			dataHandler.writeAndorPic( rawPicData[(picNum - 1) % curSettings.picsPerRepetition], 
+									   curSettings.imageSettings );
 		}
 		catch (Error& err)
 		{

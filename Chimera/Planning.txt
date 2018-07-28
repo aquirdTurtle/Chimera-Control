@@ -34,11 +34,9 @@ FEATURES:
 	- report to h5 file as well
 - improve delete file after abort functionality
 - integrate a basler window.
-	- save camera data
 	- Integrate into experiment thread
 	- automate Mot Calibrations Measurements
-	- report settings to data-logger
-- Implement machine learning
+- Implement "machine learning"
 	- Implement skeleton
 		- Be able to set parameters for input
 		- Get data from data analysis system
