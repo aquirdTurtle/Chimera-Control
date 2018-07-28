@@ -1,6 +1,6 @@
 #pragma once
 #include "imageParameters.h"
-#include "runModes.h"
+#include "AndorRunMode.h"
 #include "AndorTriggerModes.h"
 #include <string>
 #include <vector>

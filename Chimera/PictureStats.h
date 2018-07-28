@@ -2,7 +2,7 @@
 
 #include "Control.h"
 #include "coordinate.h"
-#include "runModes.h"
+#include "AndorRunMode.h"
 #include "AndorTriggerModes.h"
 #include <vector>
 #include <string>

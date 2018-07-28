@@ -38,6 +38,11 @@ BaslerCameras::BaslerCameras(CWnd* parent)
 	}
 }
 
+bool BaslerCameras::isRunning ( )
+{ 
+	return camera->isGrabbing ( );
+}
+
 bool BaslerCameras::isInitialized()
 {
 	return cameraInitialized;
@@ -75,24 +80,12 @@ baslerSettings BaslerCameras::getDefaultSettings()
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
 	defaultSettings.dimensions.left = 0;
-	//defaultSettings.dimensions.horBinNumber = dim.x;
-	defaultSettings.dimensions.right = dim.x; // - 1?
+	defaultSettings.dimensions.right = dim.x; 
 	defaultSettings.dimensions.horizontalBinning = 1;
 	defaultSettings.dimensions.top = 0;
-	//defaultSettings.dimensions.vertBinNumber = dim.y;
 	defaultSettings.dimensions.bottom = dim.y;
 	defaultSettings.dimensions.verticalBinning = 1;
-	/*
-		defaultSettings.dimensions.leftBorder = 0;
-		defaultSettings.dimensions.horBinNumber = dim.x;
-		defaultSettings.dimensions.rightBorder = dim.x-1;
-		defaultSettings.dimensions.horPixelsPerBin = 1;
-		defaultSettings.dimensions.topBorder = 0;
-		defaultSettings.dimensions.vertBinNumber = dim.y;
-		defaultSettings.dimensions.bottomBorder = dim.y;
-		defaultSettings.dimensions.vertPixelsPerBin = 1;
-	*/
-	defaultSettings.exposureMode = "Auto Exposure Off";
+	defaultSettings.exposureMode = BaslerAutoExposure::mode::Off;
 	defaultSettings.exposureTime = 1000; 
 	defaultSettings.frameRate = 2;
 	defaultSettings.rawGain = camera->getMinGain();
@@ -152,11 +145,11 @@ void BaslerCameras::setParameters( baslerSettings settings )
 	//camera->AcquisitionMode.SetValue(Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous);
 	//camera->AcquisitionFrameRate.SetValue(settings.frameRate);
 	// exposure mode
-	if (settings.exposureMode == "Auto Exposure Continuous")
+	if (settings.exposureMode == BaslerAutoExposure::mode::Continuous)
 	{
 		camera->setExposureAuto( cameraParams::ExposureAuto_Continuous );
 	}
-	else if (settings.exposureMode == "Auto Exposure Off")
+	else if (settings.exposureMode == BaslerAutoExposure::mode::Off)
 	{
 		camera->setExposureAuto( cameraParams::ExposureAuto_Off );
 
@@ -167,12 +160,12 @@ void BaslerCameras::setParameters( baslerSettings settings )
 		}
 		camera->setExposure( settings.exposureTime );
 	}
-	else if (settings.exposureMode == "Auto Exposure Once")
+	else if (settings.exposureMode == BaslerAutoExposure::mode::Once)
 	{
 		camera->setExposureAuto( cameraParams::ExposureAuto_Once );
 	}
 
-	if (settings.cameraMode == "Finite Acquisition")
+	if (settings.acquisitionMode == BaslerAcquisition::mode::Finite)
 	{
 		continuousImaging = false;
 		repCounts = settings.repCount;
@@ -183,7 +176,7 @@ void BaslerCameras::setParameters( baslerSettings settings )
 		repCounts = SIZE_MAX;
 	}
 
-	if (settings.triggerMode == "External Trigger")
+	if (settings.triggerMode == BaslerTrigger::mode::External)
 	{
 		//cameraParams::TriggerSource_Line1
 		#ifdef FIREWIRE_CAMERA
@@ -193,12 +186,12 @@ void BaslerCameras::setParameters( baslerSettings settings )
 		#endif
 		autoTrigger = false;
 	}
-	else if (settings.triggerMode == "Automatic Software Trigger")
+	else if (settings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
 	{
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
 		autoTrigger = true;
 	}
-	else if (settings.triggerMode == "Manual Software Trigger")
+	else if (settings.triggerMode == BaslerTrigger::mode::ManualSoftware )
 	{
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
 		autoTrigger = false;

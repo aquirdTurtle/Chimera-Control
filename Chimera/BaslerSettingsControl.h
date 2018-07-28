@@ -6,18 +6,7 @@
 #include "Control.h"
 #include "commonTypes.h"
 #include "imageParameters.h"
-
-struct baslerSettings
-{
-	unsigned int rawGain;
-	std::string exposureMode;
-	double exposureTime;
-	std::string cameraMode;
-	unsigned int repCount;
-	std::string triggerMode;
-	double frameRate;
-	imageParameters dimensions;
-};
+#include "BaslerSettings.h"
 
 
 class BaslerSettingsControl

@@ -267,13 +267,47 @@ void DataLogger::logFunctions( H5::Group& group )
 }
 
 
+void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
+{
+	try
+	{
+		if ( !on )
+		{
+			H5::Group baslerGroup( file.createGroup ( "/Basler:Off" ) );
+			return;
+		}
+		H5::Group baslerGroup ( file.createGroup ( "/Basler" ) );
+		hsize_t rank1[ ] = { 1 };
+		writeDataSet ( BaslerAcquisition::toStr ( settings.acquisitionMode ), "Camera-Mode", baslerGroup );
+		writeDataSet ( BaslerAutoExposure::toStr(settings.exposureMode), "Exposure-Mode", baslerGroup );
+		writeDataSet ( settings.exposureTime, "Exposure-Time", baslerGroup );
+		writeDataSet ( BaslerTrigger::toStr( settings.triggerMode ), "Trigger-Mode", baslerGroup );
+		// image settings
+		H5::Group imageDims = baslerGroup.createGroup ( "Image-Dimensions" );
+		writeDataSet ( settings.dimensions.top, "Top", imageDims );
+		writeDataSet ( settings.dimensions.bottom, "Bottom", imageDims );
+		writeDataSet ( settings.dimensions.left, "Left", imageDims );
+		writeDataSet ( settings.dimensions.right, "Right", imageDims );
+		writeDataSet ( settings.dimensions.horizontalBinning, "Horizontal-Binning", imageDims );
+		writeDataSet ( settings.dimensions.verticalBinning, "Vertical-Binning", imageDims );
+
+		writeDataSet ( settings.frameRate, "Frame-Rate", baslerGroup );
+		writeDataSet ( settings.rawGain, "Raw-Gain", baslerGroup );
+	}
+	catch ( H5::Exception err )
+	{
+		thrower ( "ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg ( ) );
+	}
+}
+
+
 void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 {
 	try
 	{
 		if ( !on )
 		{
-			H5::Group andorGroup( file.createGroup( "/Andor:NA" ) );
+			H5::Group andorGroup( file.createGroup( "/Andor:Off" ) );
 			return;
 		}
 		// in principle there are some other low level settings or things that aren't used very often which I could include 

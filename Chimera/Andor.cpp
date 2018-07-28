@@ -3,7 +3,7 @@
 #include "Andor.h"
 #include "CameraWindow.h"
 #include "AndorTriggerModes.h"
-#include "runModes.h"
+#include "AndorRunMode.h"
 #include <chrono>
 #include <process.h>
 #include <algorithm>

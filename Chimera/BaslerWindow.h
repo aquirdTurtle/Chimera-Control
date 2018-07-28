@@ -44,6 +44,7 @@ class BaslerWindow : public CDialogEx
 		void DoDataExchange( CDataExchange* pDX );
 		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ );
 		void handleSavingConfig ( std::ofstream& configFile );
+		void startCamera ( );
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		PictureManager picManager;
@@ -52,7 +53,7 @@ class BaslerWindow : public CDialogEx
 		PictureStats stats;
 		//PictureSaver saver;
 		unsigned int currentRepNumber;
-		std::string runExposureMode;
+		BaslerAutoExposure::mode runExposureMode;
 		std::vector<std::vector<long>> images;
 		unsigned int imageWidth;
 		CMenu menu;

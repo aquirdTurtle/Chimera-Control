@@ -82,6 +82,7 @@ class BaslerCameras
 		// important constructor to initialize camera
 		BaslerCameras( CWnd* parent );
 		~BaslerCameras();
+		bool isRunning ( );
 		void setParameters( baslerSettings settings );
 		void setDefaultParameters();
 		void armCamera( triggerThreadInput* input);

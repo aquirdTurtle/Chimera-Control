@@ -212,7 +212,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		//picture.drawDongles( cdc, *imageMatrix );
 		ReleaseDC( cdc );
 		//picture.setHoverValue();
-		if (runExposureMode == "Auto Exposure Continuous")
+		if (runExposureMode == BaslerAutoExposure::mode::Continuous)
 		{
 			settings.updateExposure( cameraController->getCurrentExposure() );
 		}
@@ -287,7 +287,6 @@ void BaslerWindow::handleArmPress()
 		cameraController->setParameters( tempSettings );
 		imageParameters params;
 		picManager.setParameters( tempSettings.dimensions );
-		//( tempSettings.dimensions );
 		auto* dc = GetDC( );
 		picManager.drawBackgrounds ( dc );
 		ReleaseDC( dc );
@@ -313,11 +312,19 @@ void BaslerWindow::handleArmPress()
 }
 
 
+void BaslerWindow::startCamera ( )
+{ 
+	if ( cameraController->isRunning( ) )
+	{
+		cameraController->disarm ( );
+	}
+	handleArmPress ( );
+}
+
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 {
 	auto fonts = mainWin->getFonts ( );
 	picManager.rearrange ( cx, cy, fonts );
-	//picture.rearrange("", "", cx, cy, fonts);
 	settings.rearrange(cx, cy, fonts);
 	stats.rearrange(cx, cy, fonts );
 	//saver.rearrange(cx, cy, mainFonts);
