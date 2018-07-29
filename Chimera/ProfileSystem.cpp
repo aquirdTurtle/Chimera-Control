@@ -787,7 +787,8 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 	std::ifstream configFile(profile.configFilePath());
 	if (!configFile.is_open())
 	{
-		thrower("ERROR: Failed to open configuration file.");
+		thrower("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
+				 + ", the config file failed to open!");
 	}
 	std::string line, word, address;
 	Version ver;

@@ -81,14 +81,12 @@ namespace commonFunctions
 					//mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
 					//break;
 				}
-				bool niawgAborted = false, andorAborted = false, masterAborted = false;
+				bool niawgAborted = false, andorAborted = false, masterAborted = false, baslerAborted = false;
 
 				mainWin->stopRearranger( );
 				camWin->wakeRearranger( );
-
 				try
 				{
-					//
 					if ( mainWin->masterThreadManager.runningStatus( ) )
 					{
 						status = "MASTER";
@@ -118,7 +116,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "Abort camera threw error! Error: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "ERROR: Andor Camera threw error while aborting! Error: " + err.whatStr( ) );
 					mainWin->getComm( )->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -146,7 +144,29 @@ namespace commonFunctions
 					mainWin->getComm( )->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
-				if (!niawgAborted && !andorAborted && !masterAborted)
+				
+				try
+				{
+					if ( basWin->baslerCameraIsRunning() ) 
+					{
+						status = "Basler";
+						basWin->handleDisarmPress ( );
+						baslerAborted = true;
+					}
+					mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
+				}
+				catch ( Error& err )
+				{
+					mainWin->getComm ( )->sendError ( "ERROR: error while aborting basler! Error Message: " + err.whatStr ( ) );
+					if ( status == "Basler" )
+					{
+						mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
+					}
+					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\n" );
+					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+				}
+
+				if (!niawgAborted && !andorAborted && !masterAborted && !baslerAborted)
 				{
 					mainWin->getComm()->sendError("Camera, NIAWG and Master were not running. Can't Abort.\r\n");
 				}
@@ -675,15 +695,24 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations.
 				/// MOT size
-				setMot ( mainWin, auxWin, camWin );
-				basWin->measureMotSize( );
+				// set mot
+				ExperimentInput input;
+				input.masterInput = new MasterThreadInput;
+				auxWin->loadMotSettings ( input.masterInput );
+				mainWin->fillMotInput ( input.masterInput );
+				basWin->fillMotSizeInput ( input.baslerRunSettings );
+				//basWin->fillMotSizeInput ( input.baslerRunSettings );
+				// this is used for basler calibrations.
+				logParameters ( input, camWin, basWin, false, true );
+				mainWin->startExperimentThread ( input.masterInput, true );
+				basWin->measureMotSize( input.baslerRunSettings );
 				
 				/// MOT Temperature
 				basWin->setCameraForMotTempMeasurement ( );
-				MasterThreadInput* input = new MasterThreadInput;
-				auxWin->loadMotTempSettings ( input );
-				mainWin->fillMotTempInput ( input );
-				mainWin->startExperimentThread ( input, true );
+				MasterThreadInput* inputMotTemp = new MasterThreadInput;
+				auxWin->loadMotTempSettings ( inputMotTemp );
+				mainWin->fillMotTempInput ( inputMotTemp );
+				mainWin->startExperimentThread ( inputMotTemp, true );
 				// wait...
 				/// PGC Temperature
 				MasterThreadInput* inputPgc = new MasterThreadInput;

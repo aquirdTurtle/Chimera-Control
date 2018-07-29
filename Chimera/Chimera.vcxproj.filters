@@ -256,9 +256,11 @@
     <ClCompile Include="AndorTriggerModes.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
-    <ClCompile Include="AndorRunMode.cpp" />
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AndorRunMode.cpp">
+      <Filter>Andor Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -637,7 +639,9 @@
     <Image Include="..\JILA.bmp">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="JILA.bmp" />
+    <Image Include="JILA.bmp">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">

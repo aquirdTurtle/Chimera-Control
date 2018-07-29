@@ -71,13 +71,8 @@ void BaslerWindow::passCommonCommand ( UINT id )
 }
 
 
-/*
-Load the settings appropriate for the mot size measurement and then start the camera.
-*/
-void BaslerWindow::measureMotSize ( )
+void BaslerWindow::fillMotSizeInput ( baslerSettings& motSizeSettings )
 {
-	auto prevSettings = settingsCtrl.getCurrentSettings ( );
-	baslerSettings motSizeSettings;
 	motSizeSettings.acquisitionMode = BaslerAcquisition::mode::Finite;
 	motSizeSettings.dimensions = settingsCtrl.ScoutFullResolution;
 	motSizeSettings.exposureMode = BaslerAutoExposure::mode::Off;
@@ -86,6 +81,16 @@ void BaslerWindow::measureMotSize ( )
 	motSizeSettings.rawGain = settingsCtrl.unityGainSetting;
 	motSizeSettings.repCount = 100;
 	motSizeSettings.triggerMode = BaslerTrigger::mode::AutomaticSoftware;
+}
+
+
+
+/*
+Load the settings appropriate for the mot size measurement and then start the camera.
+*/
+void BaslerWindow::measureMotSize ( baslerSettings motSizeSettings )
+{
+	auto prevSettings = settingsCtrl.getCurrentSettings ( );
 	handleDisarmPress ( );
 	settingsCtrl.setSettings ( motSizeSettings );
 	startCamera ( );
@@ -226,6 +231,7 @@ void BaslerWindow::handleDisarmPress()
 {
 	try
 	{
+		mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
 		cameraController->disarm();
 		triggerThreadFlag = false;
 		isRunning = false;
@@ -242,6 +248,7 @@ void BaslerWindow::handleDisarmPress()
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
 	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
+	mainWin->getComm ( )->sendColorBox ( System::Basler, 'G' );
  	long size = long( wParam );
  	try
 	{
@@ -317,6 +324,7 @@ void BaslerWindow::handleArmPress()
 {
 	try
 	{
+		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
 		baslerSettings tempSettings = settingsCtrl.loadCurrentSettings();
 		cameraController->setParameters( tempSettings );
@@ -344,6 +352,14 @@ void BaslerWindow::handleArmPress()
 	{
 		errBox( err.what() );
 	}
+}
+
+
+
+
+bool BaslerWindow::baslerCameraIsRunning ( )
+{
+	return cameraController->isRunning ( );
 }
 
 

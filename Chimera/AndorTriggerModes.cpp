@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "Thrower.h"
 #include "AndorTriggerModes.h"
 
 std::string AndorTriggerModeText ( AndorTriggerMode mode )
@@ -17,7 +18,7 @@ std::string AndorTriggerModeText ( AndorTriggerMode mode )
 	}
 	else
 	{
-		throw;
+		thrower("ERROR: AndorTriggerMode not recognized?!");
 	}
 }
 
@@ -37,6 +38,6 @@ AndorTriggerMode AndorTriggerModeFromText ( std::string txt )
 	}
 	else
 	{
-		throw;
+		thrower("ERROR: andortriggermode not recognized?!?");
 	}
 }

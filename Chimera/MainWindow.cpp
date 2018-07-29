@@ -910,9 +910,10 @@ void MainWindow::fillMotTempInput ( MasterThreadInput* input )
 	}
 	input->seq.name = "motTemp";
 	input->seq.sequence.resize ( 1 );
-	input->seq.sequence[ 0 ].configuration = "Automated-MOT-Temperature-Measurement";
-	input->seq.sequence[ 0 ].categoryPath = MOT_ROUTINES_ADDRESS;
-	input->seq.sequence[ 0 ].parentFolderName = "MOT";
+	input->profile.configuration = "Automated-MOT-Temperature-Measurement";
+	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "MOT";
+	input->seq.sequence[ 0 ] = input->profile;
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
 	input->skipNext = NULL;
@@ -939,10 +940,11 @@ void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
 		}
 	}
 	input->seq.name = "pgcTemp";
+	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
+	input->profile.configuration = "Automated-PGC-Temperature-Measurement";
+	input->profile.parentFolderName = "PGC";
 	input->seq.sequence.resize ( 1 );
-	input->seq.sequence[ 0 ].configuration = "Automated-PGC-Temperature-Measurement";
-	input->seq.sequence[ 0 ].categoryPath = PGC_ROUTINES_ADDRESS;
-	input->seq.sequence[ 0 ].parentFolderName = "PGC";
+	input->seq.sequence[ 0 ] = input->profile;
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
 	input->skipNext = NULL;
@@ -969,9 +971,10 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	}
 	input->seq.name = "loadMot";
 	input->seq.sequence.resize( 1 );
-	input->seq.sequence[0].configuration = "Set MOT Settings";
-	input->seq.sequence[0].categoryPath = MOT_ROUTINES_ADDRESS;
-	input->seq.sequence[0].parentFolderName = "MOT";
+	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
+	input->profile.configuration = "Set MOT Settings";
+	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "MOT";
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
  	input->skipNext = NULL;
