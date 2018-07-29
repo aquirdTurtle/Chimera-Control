@@ -117,12 +117,6 @@ void DataLogger::initializeDataFiles()
 				 + "\r\n" );
 	}
 
-	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder + "Temperature_Data.csv" ), &info );
-	if ( resultStat != 0 )
-	{
-		errBox("WARNIGNG: Couldn't find temperature data file... did you remember to start the temperature logger?");
-	}
-
 	finalSaveFolder += "\\Raw Data";
 	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder ), &info );
 	if (resultStat != 0)
@@ -137,7 +131,7 @@ void DataLogger::initializeDataFiles()
 
 	/// check that temperature data is being recorded.
 	FILE *temperatureFile;
-	auto temperatureDataLocation = finalSaveFolder + "Temerature_Data.csv";
+	auto temperatureDataLocation = dataFilesBaseLocation + finalSaveFolder + "Temperature_Data.csv";
 	fopen_s ( &temperatureFile, temperatureDataLocation.c_str(), "r" );
 	if ( !temperatureFile )
 	{
@@ -396,7 +390,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 			std::ifstream masterScript( ProfileSystem::getMasterAddressFromConfig( input->profile ) );
 			if ( !masterScript.is_open( ) )
 			{
-				thrower( "ERROR: Failed to load master script!" );
+				thrower( "ERROR: Failed to load master script for data logger!" );
 			}
 			std::string scriptBuf( str( masterScript.rdbuf( ) ) );
 			writeDataSet( scriptBuf, "Master-Script", runParametersGroup);

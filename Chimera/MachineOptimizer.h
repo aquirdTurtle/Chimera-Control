@@ -35,6 +35,8 @@ class MachineOptimizer
 		void handleSaveConfig ( );
 		void handleNewConfig ( );
 		void runOptimization ( );
+		void rearrange ( );
+		void updateParams( );
 	private:
 		// controls
 		Control<CStatic> header;
@@ -43,5 +45,5 @@ class MachineOptimizer
 		Control<CStatic> optimizationParametersHeader;
 		Control<CStatic> algorithmsHeader;
 		std::array<Control<CButton>, 4> algorithmRadios;
-
+		std::vector<double> history;
 };

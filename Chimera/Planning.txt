@@ -24,7 +24,6 @@ FEATURES:
 - improve experiment status; include which config was run, variable options
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
-- have code work with temperature monitoring
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
 - improve delete file after abort functionality
@@ -33,8 +32,9 @@ FEATURES:
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
+- Make basler able to simulate finite acquisitions in debug mode.
 - improve delete file after abort functionality
-- Implement "machine learning"
+- Implement auto-optimization
 	- Implement skeleton
 		- Be able to set parameters for input
 		- Get data from data analysis system

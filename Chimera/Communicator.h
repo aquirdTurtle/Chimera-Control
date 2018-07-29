@@ -10,7 +10,8 @@ enum class System
 {
 	Niawg,
 	Master,
-	Camera
+	Camera,
+	Basler
 };
 
 /*

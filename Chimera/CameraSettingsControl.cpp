@@ -630,7 +630,7 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
-	configFile >> tempSettings.temperatureSetting; 
+	configFile >> tempSettings.temperatureSetting;
  	setRunSettings(tempSettings);
  	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
 	picSettingsObj.handleOpenConfig(configFile, ver, andorFriend);

@@ -104,16 +104,19 @@ void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, in
 void Communicator::sendColorBox( System sys, char code )
 {
 	systemInfo<char> colors;
-	switch (sys)
+	switch ( sys )
 	{
 		case System::Niawg:
-			colors = { code, '-', '-' };
+			colors = { code, '-', '-', '-' };
 			break;
 		case System::Camera:
-			colors = { '-', code, '-' };
+			colors = { '-', code, '-', '-' };
 			break;
 		case System::Master:
-			colors = { '-', '-', code };
+			colors = { '-', '-', code, '-' };
+			break;
+		case System::Basler:
+			colors = { '-','-','-',code };
 			break;
 	}
 	sendColorBox( colors );

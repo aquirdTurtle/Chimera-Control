@@ -23,7 +23,7 @@ class BaslerWindow : public CDialogEx
 		void handleEnter();
 		void OnPaint();
 		void passCommonCommand ( UINT id );
-		void measureMotSize ( );
+		void measureMotSize ( baslerSettings motSizeSettings );
 		void setCameraForMotTempMeasurement ( );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		HCURSOR OnQueryDragIcon();
@@ -34,6 +34,8 @@ class BaslerWindow : public CDialogEx
 		void initializeControls();
 		void passExposureMode();
 		void passCameraMode();
+		bool baslerCameraIsRunning ( );
+		void fillMotSizeInput ( baslerSettings& settings);
 		LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
