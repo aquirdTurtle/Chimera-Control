@@ -22,6 +22,14 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 }
 
 
+dataPoint PlotCtrl::getMainAnalysisResult ( )
+{
+	// get the average data. If not only a single data point, as this is currently ment to be used, then I'm not 
+	// positive what value this is grabbing... maybe the last point of the average?
+	return data.back ( )->back();
+}
+
+
 PlotCtrl::~PlotCtrl( )
 {
 	for ( auto& pen : pens )

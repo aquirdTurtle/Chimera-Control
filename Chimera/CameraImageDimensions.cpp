@@ -86,7 +86,7 @@ void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTr
 }
 
 
-void ImageDimsControl::drawBackgrounds( CameraWindow* camWin )
+void ImageDimsControl::drawBackgrounds( AndorWindow* camWin )
 {
 	// recolor the box, clearing last run
 	CDC* dc = camWin->GetDC();
@@ -235,7 +235,7 @@ imageParameters ImageDimsControl::readImageParameters()
 /*
  * I forget why I needed a second function for this.
  */
-void ImageDimsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
+void ImageDimsControl::setImageParametersFromInput( imageParameters param, AndorWindow* camWin )
 {
 	if ( camWin != NULL )
 	{

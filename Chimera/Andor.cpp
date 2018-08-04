@@ -163,7 +163,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			Sleep( 200 );
+			Sleep( 20 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
@@ -235,7 +235,7 @@ void AndorCamera::setAcquisitionMode()
 /* 
 	* Large function which initializes a given camera image run.
 	*/
-void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
+void AndorCamera::armCamera(AndorWindow* camWin, double& minKineticCycleTime)
 {
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases

@@ -77,7 +77,7 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig( profileSettings profile
 
 
 void ProfileSystem::saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWindow,
-									   CameraWindow* camWin, BaslerWindow* basWin )
+									   AndorWindow* camWin, BaslerWindow* basWin )
 {
 	saveConfigurationOnly( scriptWindow, mainWin, auxWindow, camWin, basWin );
 	saveSequence();		
@@ -85,7 +85,7 @@ void ProfileSystem::saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow
 
 
 void ProfileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-											CameraWindow* camWin, BaslerWindow* basWin )
+											AndorWindow* camWin, BaslerWindow* basWin )
 {
 	checkConfigurationSave( "Save Configuration Settings?", scriptWindow, mainWin, auxWin, camWin, basWin );
 	checkSequenceSave( "Save Sequence Settings?" );
@@ -93,7 +93,7 @@ void ProfileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWi
 
 
 void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-										   CameraWindow* camWin, BaslerWindow* basWin )
+										   AndorWindow* camWin, BaslerWindow* basWin )
 {
 	// check all components of this class.
 	configurationSettingsReadyCheck( scriptWindow, mainWin, auxWin, camWin, basWin);
@@ -103,7 +103,7 @@ void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWin
 
 /// CONFIGURATION LEVEL HANDLING
 
-void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin, 
+void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin, 
 									  ScriptingWindow* scriptWin )
 {
 	std::string newConfigPath = openWithExplorer(mainWin, "Config");
@@ -140,7 +140,7 @@ void ProfileSystem::getVersionFromFile( std::ifstream& f, Version& ver )
 
 
 void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-										CameraWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+										AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
 {
 	std::ifstream configFile( pathToConfig );
 	// check if opened correctly.
@@ -225,7 +225,7 @@ bool ProfileSystem::checkDelimiterLine( std::ifstream& openFile, std::string del
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
 void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-										   CameraWindow* camWin, BaslerWindow* basWin )
+										   AndorWindow* camWin, BaslerWindow* basWin )
 {
 	std::string configNameToSave = currentProfile.configuration;
 	// check to make sure that this is a name.
@@ -271,7 +271,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
 void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 CameraWindow* camWin, BaslerWindow* basWin )
+										 AndorWindow* camWin, BaslerWindow* basWin )
 {
 	// check if category has been set yet.
 	std::string configurationPathToSave = saveWithExplorer( mainWin, CONFIG_EXTENSION, currentProfile );
@@ -391,7 +391,7 @@ void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 
 
 bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-													 AuxiliaryWindow* auxWin, CameraWindow* camWin, 
+													 AuxiliaryWindow* auxWin, AndorWindow* camWin, 
 													 BaslerWindow* basWin )
 {
 	// prompt for save.
@@ -406,7 +406,7 @@ bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWind
 
 
 bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-											AuxiliaryWindow* auxWin, CameraWindow* camWin, BaslerWindow* basWin )
+											AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin )
 {
 	if (!configurationIsSaved)
 	{
@@ -431,7 +431,7 @@ std::string ProfileSystem::getCurrentPathIncludingCategory()
 
 
 void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-											  AuxiliaryWindow* auxWin, CameraWindow* camWin, BaslerWindow* basWin )
+											  AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin )
 {	
 	if ( !configurationIsSaved )
 	{

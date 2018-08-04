@@ -257,7 +257,7 @@ void AndorCameraSettingsControl::updateTriggerMode( )
 }
 
 
-void AndorCameraSettingsControl::handleTriggerChange(CameraWindow* cameraWindow)
+void AndorCameraSettingsControl::handleTriggerChange(AndorWindow* cameraWindow)
 {
 	updateTriggerMode( );
 	CRect rect;
@@ -568,7 +568,7 @@ double AndorCameraSettingsControl::getAccumulationCycleTime( )
 		settings.andor.accumulationTime = std::stof( str( text ) );
 		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( std::exception& )
 	{
 		settings.andor.accumulationTime = 0.1f;
 		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
@@ -713,7 +713,7 @@ void AndorCameraSettingsControl::updateCameraMode( )
 }
 
 
-void AndorCameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
+void AndorCameraSettingsControl::handleModeChange( AndorWindow* cameraWindow )
 {
 	updateCameraMode( );
 
@@ -753,7 +753,7 @@ CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer, bru
 }
 
 
-void AndorCameraSettingsControl::setImageParameters(imageParameters newSettings, CameraWindow* camWin)
+void AndorCameraSettingsControl::setImageParameters(imageParameters newSettings, AndorWindow* camWin)
 {
 	imageDimensionsObj.setImageParametersFromInput(newSettings, camWin);
 }
@@ -812,7 +812,7 @@ void AndorCameraSettingsControl::handelSaveMasterConfig ( std::stringstream& con
 }
 
 
-void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configStream, Version ver, CameraWindow* camWin )
+void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configStream, Version ver, AndorWindow* camWin )
 {
 	imageParameters settings = getSettings ( ).andor.imageSettings;
 	std::string tempStr;

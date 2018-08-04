@@ -10,7 +10,7 @@
 #include "MasterThreadInput.h"
 
 class MainWindow;
-class CameraWindow;
+class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
 
@@ -42,7 +42,7 @@ class ScriptingWindow : public CDialog
 		void passCommonCommand(UINT id);
 
 		void checkScriptSaves();
-		void loadFriends(MainWindow* mainWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
+		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
 		void fillMasterThreadInput(MasterThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
 
@@ -108,7 +108,7 @@ class ScriptingWindow : public CDialog
 		DECLARE_MESSAGE_MAP();
 		
 		MainWindow* mainWin;
-		CameraWindow* camWin;
+		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		BaslerWindow* basWin;
 		//

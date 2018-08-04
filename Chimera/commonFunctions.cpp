@@ -22,10 +22,60 @@ namespace commonFunctions
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							  CameraWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+							  AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
 	{
 		switch (msgID)
 		{
+			case ID_MACHINE_OPTIMIZATION:
+			{
+				if ( camWin->wantsAutoCal ( ) && !camWin->wasJustCalibrated ( ) )
+				{
+					camWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
+					return;
+				}
+				ExperimentInput input;
+				camWin->redrawPictures ( false );
+				try
+				{
+					mainWin->getComm ( )->sendStatus( "Starting Automatic Optimization...\r\n" );
+					mainWin->getComm ( )->sendTimer ( "Starting..." );
+					camWin->prepareAndor ( input );
+					prepareMasterThread ( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					input.baslerRunSettings = basWin->getCurrentSettings ( );
+					camWin->preparePlotter ( input );
+					camWin->prepareAtomCruncher ( input );
+					input.masterInput->quiet = true;
+
+					logParameters ( input, camWin, basWin, true, true );
+
+					auxWin->updateOptimization ( input );
+					input.masterInput->expType = ExperimentType::MachineOptimization;
+
+					camWin->startAtomCruncher ( input );
+					camWin->startPlotterThread ( input );
+					camWin->startCamera ( );
+					
+					// basWin->startCamera ( );
+					
+					startExperimentThread ( mainWin, input );
+				}
+				catch ( Error& err )
+				{
+					if ( err.whatBare ( ) == "CANCEL" )
+					{
+						mainWin->getComm ( )->sendStatus ( "Canceled camera initialization.\r\n" );
+						mainWin->getComm ( )->sendColorBox ( System::Niawg, 'B' );
+						break;
+					}
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendColorBox ( System::Camera, 'R' );
+					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+					camWin->assertOff ( );
+					break;
+				}
+				break;
+			}
 			case ID_FILE_RUN_EVERYTHING:
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
@@ -40,8 +90,8 @@ namespace commonFunctions
 				camWin->redrawPictures(false);
 				try
 				{
-
-					prepareCamera( mainWin, camWin, input );
+					mainWin->getComm ( )->sendTimer ( "Starting..." );
+					camWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
 					prepareBaslerCamera ( basWin, input);
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true, input );
@@ -175,16 +225,17 @@ namespace commonFunctions
 			case ID_RUNMENU_RUNCAMERA:
 			{
 				ExperimentInput input;
-				mainWin->getComm()->sendColorBox( System::Camera, 'Y' );
 				try
 				{
-					commonFunctions::prepareCamera( mainWin, camWin, input );
-					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, false, input );
+					mainWin->getComm ( )->sendColorBox ( System::Camera, 'Y' );
+					mainWin->getComm ( )->sendTimer ( "Starting..." );
+					camWin->prepareAndor ( input );
+					getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, false, input );
 					mainWin->getComm()->sendStatus("Starting Camera...\r\n");
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					//
-					commonFunctions::logParameters( input, camWin, basWin, true, false );
+					logParameters( input, camWin, basWin, true, false );
 					//
 					camWin->startAtomCruncher( input );
 					camWin->startPlotterThread( input );
@@ -728,7 +779,7 @@ namespace commonFunctions
 		}
 	}
 
-	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
+	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 									AuxiliaryWindow* auxWin )
 	{
 		try 
@@ -750,19 +801,11 @@ namespace commonFunctions
 
 	void prepareBaslerCamera ( BaslerWindow* basWin, ExperimentInput& input )
 	{
-
+		
 	}
 
 
-	void prepareCamera( MainWindow* mainWin, CameraWindow* camWin, ExperimentInput& input )
-	{
-		mainWin->getComm()->sendTimer( "Starting..." );
-		camWin->prepareCamera( input );
-		input.includesCameraRun = true;
-	}
-
-
-	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
+	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 											   AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
 	{
 		Communicator* comm = mainWin->getComm();
@@ -827,7 +870,7 @@ namespace commonFunctions
 		mainWin->startExperimentThread( input.masterInput, false );
 	}
 
-	void abortCamera( CameraWindow* camWin, MainWindow* mainWin )
+	void abortCamera( AndorWindow* camWin, MainWindow* mainWin )
 	{
 		if (!camWin->cameraIsRunning())
 		{
@@ -881,7 +924,7 @@ namespace commonFunctions
 	}
 
 
-	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* auxWin )
+	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
 	{
 		if (mainWin->niawgIsRunning())
 		{
@@ -952,7 +995,7 @@ namespace commonFunctions
 	}
 
 
-	void setMot(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin, BaslerWindow* basWin)
+	void setMot(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin)
 	{
 		ExperimentInput input;
 		input.masterInput = new MasterThreadInput;
@@ -967,7 +1010,7 @@ namespace commonFunctions
 	}
 
 
-	void logParameters( ExperimentInput& input, CameraWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
+	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
 						bool takeBaslerPictures )
 	{
 		DataLogger* logger = camWin->getLogger();
@@ -985,7 +1028,7 @@ namespace commonFunctions
 	}
 
 
-	bool getPermissionToStart( CameraWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
+	bool getPermissionToStart( AndorWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
 							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster, ExperimentInput& input )
 	{
 		std::string startMsg = "Current Settings:\r\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~``\r\n\r\n";

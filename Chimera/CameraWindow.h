@@ -22,15 +22,15 @@ class AuxiliaryWindow;
 class BaslerWindow;
 
 
-class CameraWindow : public CDialog
+class AndorWindow : public CDialog
 {
 	using CDialog::CDialog;
 	
-	DECLARE_DYNAMIC( CameraWindow )
+	DECLARE_DYNAMIC( AndorWindow )
 
 	public:
 		/// overrides
- 		CameraWindow();
+ 		AndorWindow();
  		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
 		void OnMouseMove( UINT thing, CPoint point );
@@ -41,7 +41,6 @@ class CameraWindow : public CDialog
 		void OnTimer( UINT_PTR id );
 		void OnLButtonUp( UINT stuff, CPoint loc );
 		void OnRButtonUp( UINT stuff, CPoint loc );
-		void calibrate( );
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger( );
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
@@ -63,6 +62,8 @@ class CameraWindow : public CDialog
 		void catchEnter();
 		void setDataType( std::string dataType );
 		/// auxiliary functions.
+		void calibrate ( );
+		dataPoint getMainAnalysisResult ( );
 		void checkCameraIdle( );
 		void handleEmGainChange();
 		void fillMasterThreadInput( MasterThreadInput* input );
@@ -81,7 +82,7 @@ class CameraWindow : public CDialog
 		cToolTips getToolTips();
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
-		void prepareCamera( ExperimentInput& input );
+		void prepareAndor( ExperimentInput& input );
 		void startCamera();
 		std::string getStartMessage();
 		void setEmGain();
@@ -96,7 +97,7 @@ class CameraWindow : public CDialog
 		static UINT __stdcall atomCruncherProcedure(void* input);
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
-														  ScriptingWindow* scriptWin, CameraWindow* camWin, 
+														  ScriptingWindow* scriptWin, AndorWindow* camWin, 
 														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		void passAtomGridCombo( );
 		void passDelGrid( );

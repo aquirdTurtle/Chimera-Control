@@ -24,6 +24,7 @@ class PlotDialog : public CDialog
 		void OnTimer( UINT_PTR id );
 		void OnSize( UINT s, int cx, int cy );
 		bool wantsSustain( );
+		dataPoint getMainAnalysisResult ( );
 	private:
 		DECLARE_MESSAGE_MAP( );
 		PlotCtrl plot;
