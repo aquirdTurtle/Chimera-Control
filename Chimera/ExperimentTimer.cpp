@@ -32,7 +32,7 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 	int totalRepetitions = repsPerVariation * numberOfVariations;
 	int minAverageNumber = 10;
 	int variationPosition = int((currentRepNumber % repsPerVariation) * 10000.0 / repsPerVariation);
-	int overallPosition = int(currentRepNumber / (double)totalRepetitions * 10000.0);
+	int overallPosition = int( currentRepNumber / (double)totalRepetitions * 10000.0 );
 	variationProgress.SetPos ( variationPosition );
 	overallProgress.SetPos( overallPosition );
 	if (currentRepNumber == 1)

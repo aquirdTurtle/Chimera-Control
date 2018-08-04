@@ -166,7 +166,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				input->niawg->writeStaticNiawg ( output, input->debugOptions, seqVariables );
 			}
-			comm->sendStatus ( "Constant NIAWG Waveform Preparation Completed...\r\n" );
+			expUpdate("Constant NIAWG Waveform Preparation Completed...\r\n", comm, input->quiet );
 		}
 		timer.tick("After-Shading-Ttls-And-Dacs");
 		if ( input->thisObj->isAborting ) { thrower( abortString ); }
@@ -419,8 +419,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if (input->runNiawg)
 		{
 			input->niawg->cleanupNiawg( input->profile, input->runMaster, output, comm, 
-										input->settings.dontActuallyGenerate);
+										input->settings.dontActuallyGenerate );
 		}
+		input->thisObj->experimentIsRunning = false;
 		switch ( input->expType )
 		{
 			case ExperimentType::LoadMot:
@@ -431,6 +432,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				break;
 			case ExperimentType::MotCal:
 				comm->sendMotCalFinish ( );
+				break;
+			case ExperimentType::MachineOptimization:
+				comm->sendMachineOptimizationRoundFinish ( );
+				break;
 			default:
 				comm->sendNormalFinish ( );
 		}
@@ -474,7 +479,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	// finish up.
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>( ( chronoClock::now ( ) - startTime ) ).count ( );
 	expUpdate( "Experiment took " + str( int(exp_t) / 3600 )  + " hours, " + str(int(exp_t) % 3600 / 60) + " minutes, "
-			   +str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
+			   + str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
 	input->thisObj->experimentIsRunning = false;
 	delete input;
 	return false;

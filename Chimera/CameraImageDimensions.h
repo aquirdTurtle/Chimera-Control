@@ -5,7 +5,7 @@
 #include "imageParameters.h"
 
 struct cameraPositions;
-class CameraWindow;
+class AndorWindow;
 class MainWindow;
 
 
@@ -15,7 +15,7 @@ class ImageDimsControl
 		ImageDimsControl();
 		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
 		imageParameters readImageParameters();
-		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
+		void setImageParametersFromInput( imageParameters param, AndorWindow* camWin );
 		bool checkReady();
 		void handleSave( std::ofstream& saveFile );
 		void handleNew( std::ofstream& newfile );
@@ -23,7 +23,7 @@ class ImageDimsControl
 		imageParameters getImageParameters();
 		void rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
-		void drawBackgrounds( CameraWindow* camWin );
+		void drawBackgrounds( AndorWindow* camWin );
 	private:
 		Control<CStatic> leftText;
 		Control<CStatic>  rightText;

@@ -4,6 +4,7 @@
 #include "Control.h"
 #include "afxwin.h"
 #include "afxcview.h"
+#include "MyListCtrl.h"
 #include "Version.h"
 #include <vector>
 #include <string>
@@ -84,7 +85,7 @@ class ParameterSystem
 		USHORT preRangeColumns = 5;
 		// Only 2 gui elements.
 		Control<CStatic> parametersHeader;
-		Control<CListCtrl> parametersListview;
+		Control<MyListCtrl> parametersListview;
 		// most important member, holds the settings for all current variables. Might change to have an outer vector 
 		// for each scan dimension, like so?
 		std::vector<parameterType> currentParameters;

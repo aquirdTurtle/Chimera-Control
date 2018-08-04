@@ -14,6 +14,7 @@
 #include "Thrower.h"
 #include "range.h"
 
+
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
@@ -51,6 +52,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
+	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
+
 	ON_REGISTERED_MESSAGE( eAutoServoMessage, &autoServo )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
@@ -72,6 +75,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
+	ON_NOTIFY ( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
@@ -86,6 +91,87 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
 
+
+void AuxiliaryWindow::passCommonCommand ( UINT id )
+{
+	try
+	{
+		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, this, basWin );
+	}
+	catch ( Error& err )
+	{
+		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
+		errBox ( err.what ( ) );
+	}
+}
+
+
+void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	std::vector<Script*> scriptList;
+	try
+	{
+		mainWin->updateConfigurationSavedStatus ( false );
+		optimizer.handleListViewClick( );
+	}
+	catch ( Error& exception )
+	{
+		sendErr ( "Variables Double Click Handler : " + exception.whatStr ( ) + "\r\n" );
+	}
+	mainWin->updateConfigurationSavedStatus ( false );
+}
+
+
+void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	try
+	{
+		mainWin->updateConfigurationSavedStatus ( false );
+		optimizer.deleteParam( );
+	}
+	catch ( Error& exception )
+	{
+		sendErr ( "Variables Right Click Handler : " + exception.whatStr ( ) + "\r\n" );
+	}
+	mainWin->updateConfigurationSavedStatus ( false );
+}
+
+
+void AuxiliaryWindow::autoOptimize ( )
+{
+	try
+	{
+		auto res = promptBox ( "Start Machine optimization using the currently selected configuration parameters?", 
+							   MB_YESNO );
+		if ( res == IDNO )
+		{
+			return;
+		}
+		optimizer.reset ( );
+		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, mainWin, scriptWin, camWin, this, basWin );
+	}
+	catch ( Error& err )
+	{
+		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
+		errBox ( err.what ( ) );
+	}
+}
+
+
+void AuxiliaryWindow::updateOptimization ( ExperimentInput input )
+{
+	optimizer.verifyOptInput ( input );
+	dataPoint resultValue = camWin->getMainAnalysisResult ( );
+	auto params = optimizer.getOptParams ( );
+	optimizer.updateParams ( input, resultValue );
+	std::string msg = "Next Optimization: ";
+	for ( auto& param : params )
+	{
+		msg += param->name + ": " + str ( param->currentValue ) + ";";
+	}
+	msg += "\r\n";
+	sendStatus ( msg );
+}
 
 
 LRESULT AuxiliaryWindow::autoServo(WPARAM w, LPARAM l )
@@ -616,20 +702,7 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 }
 
 
-void AuxiliaryWindow::passCommonCommand(UINT id)
-{
-	try
-	{
-		commonFunctions::handleCommonMessage(id, this, mainWin, scriptWin, camWin, this, basWin);
-	}
-	catch (Error& err)
-	{
-		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox(err.what());
-	}
-}
-
-void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, 
+void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
 								   BaslerWindow* basWin_)
 {
 	mainWin = mainWin_;
@@ -705,6 +778,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	configVariables.rearrange( cx, cy, getFonts( ) );
 	globalVariables.rearrange( cx, cy, getFonts( ) );
 	servos.rearrange( cx, cy, getFonts( ) );
+	optimizer.rearrange ( cx, cy, getFonts ( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
 	SetRedraw();
@@ -1373,11 +1447,12 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		configVariables.setParameterControlActive( false );
 
 		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
-
+		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
 		dacData.resize( NUM_DAC_PLTS );
 		UINT linesPerDacPlot = 24 / dacData.size( );
+		
 		// initialize data structures.
 		for ( auto& dacPlotData : dacData )
 		{

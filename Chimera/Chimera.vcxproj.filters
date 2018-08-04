@@ -262,6 +262,8 @@
     <ClCompile Include="AndorRunMode.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
+    <ClCompile Include="MachineOptimizer.cpp" />
+    <ClCompile Include="MyListCtrl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -619,6 +621,8 @@
     <ClInclude Include="MasterManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
+    <ClInclude Include="MyListCtrl.h" />
+    <ClInclude Include="dataPoint.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

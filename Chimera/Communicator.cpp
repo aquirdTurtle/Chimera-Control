@@ -8,7 +8,7 @@
 #include "externals.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
-void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin, 
+void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin, 
 							  AuxiliaryWindow* auxWindow )
 {
 	mainWin = mainWinParent;

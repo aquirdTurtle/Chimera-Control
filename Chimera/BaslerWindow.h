@@ -11,7 +11,7 @@
 
 class MainWindow;
 class ScriptingWindow;
-class CameraWindow;
+class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
 
@@ -45,9 +45,11 @@ class BaslerWindow : public CDialogEx
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void passSetLocationsButton();
 		void DoDataExchange( CDataExchange* pDX );
-		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ );
+		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ );
 		void handleSavingConfig ( std::ofstream& configFile );
 		void startCamera ( );
+		void prepareBasler ( baslerSettings& settings );
+		baslerSettings getCurrentSettings ( );
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		PictureManager picManager;
@@ -67,12 +69,11 @@ class BaslerWindow : public CDialogEx
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		CFont* plotfont;
 		MainWindow* mainWin;
-		CameraWindow* camWin;
+		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		ScriptingWindow* scriptWin;
 		coordinate selectedPixel = { 0,0 };
 	protected:
-		//virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 		HICON m_hIcon;
 
 	DECLARE_MESSAGE_MAP()

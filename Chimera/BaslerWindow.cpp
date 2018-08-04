@@ -18,6 +18,13 @@ BaslerWindow::BaslerWindow( /*=NULL*/ )
 }
 
 
+/*
+void BaslerWindow::prepareBasler ( baslerSettings& settings )
+{
+	this->get
+}
+*/
+
 // the message map. Allows me to handle various events in the system using functions I write myself.
 BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	
@@ -48,7 +55,13 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 END_MESSAGE_MAP()
 
 
-void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, CameraWindow* camWin_, AuxiliaryWindow* auxWin_ )
+baslerSettings BaslerWindow::getCurrentSettings ( )
+{
+	return settingsCtrl.getCurrentSettings ( );
+}
+
+
+void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ )
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;

@@ -25,7 +25,7 @@
 #include "afxwin.h"
 
 class ScriptingWindow;
-class CameraWindow;
+class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
 
@@ -141,7 +141,7 @@ class MainWindow : public CDialog
 		chronoTime* programStartTime;
 
 		ScriptingWindow* TheScriptingWindow;
-		CameraWindow* TheCameraWindow;
+		AndorWindow* TheAndorWindow;
 		AuxiliaryWindow* TheAuxiliaryWindow;
 		BaslerWindow* TheBaslerWindow;
 		// members that have gui elements
@@ -178,7 +178,7 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
-														  ScriptingWindow* scriptWin, CameraWindow* camWin,
+														  ScriptingWindow* scriptWin, AndorWindow* camWin,
 														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		CDialog* appSplash;
 };
