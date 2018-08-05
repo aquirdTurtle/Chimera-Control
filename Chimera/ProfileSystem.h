@@ -10,12 +10,14 @@
 class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
-class CameraWindow;
+class AndorWindow;
+class BaslerWindow;
 
 /*
-]--- This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
-]- know). It consists of the relevant controls, some saved indicators that can be checked to determine if the user should be prompted to save at a given point,
-]- and all of the functions for saving, renaming, deleting, and creating new levels within the code. 
+    This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the 
+	settings in the code (strange word choice I	know). It consists of the relevant controls, some saved indicators 
+	that can be checked to determine if the user should be prompted to save at a given point, and all of the functions 
+	for saving, renaming, deleting, and creating new levels within the code. 
 */
 class ProfileSystem
 {
@@ -23,11 +25,11 @@ class ProfileSystem
 		ProfileSystem(std::string fileSystemPath);
 
 		void saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-								CameraWindow* camWin );
+								AndorWindow* camWin, BaslerWindow* basWin );
 		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-									 CameraWindow* camWin );
+									 AndorWindow* camWin, BaslerWindow* basWin );
 		void allSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-									CameraWindow* camWin );
+									AndorWindow* camWin, BaslerWindow* basWin );
 
 		void saveSequence();
 		void saveSequenceAs();
@@ -45,23 +47,23 @@ class ProfileSystem
 		void reloadSequence(std::string sequenceToReload);
 
 		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-								    CameraWindow* camWin );
-		void newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin,
+								    AndorWindow* camWin, BaslerWindow* basWin );
+		void newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin,
 							   ScriptingWindow* scriptWin );
 		void saveConfigurationAs( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-								  CameraWindow* camWin );
+								  AndorWindow* camWin, BaslerWindow* basWin );
 		void renameConfiguration();
 		void deleteConfiguration();
 		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-								 CameraWindow* camWin, AuxiliaryWindow* auxWin );
+								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
 		static void getVersionFromFile( std::ifstream& f, Version& ver );
 		static std::string getNiawgScriptAddrFromConfig(  profileSettings profile );
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-											 AuxiliaryWindow* auxWin, CameraWindow* camWin);
+											 AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-									AuxiliaryWindow* auxWin, CameraWindow* camWin);
+									AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
 		std::string getCurrentPathIncludingCategory();
 		profileSettings getProfileSettings();
 		seqSettings getSeqSettings( );
@@ -74,7 +76,7 @@ class ProfileSystem
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange(int width, int height, fontMap fonts);
 		void handleSelectConfigButton( CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-									   AuxiliaryWindow* auxWin, CameraWindow* camWin );
+									   AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
 		static void checkDelimiterLine(std::ifstream& openFile, std::string keyword);
 		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
 	private:
@@ -87,9 +89,7 @@ class ProfileSystem
 		bool sequenceIsSaved;
 
 		// version = str(versionMain) + "." + str(versionSub)
-		const Version version = Version( "3.3" );
-		//const int versionMain = 3;
-		//const int versionSub = 3;
+		const Version version = Version( "3.5" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

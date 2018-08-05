@@ -8,7 +8,7 @@
 #include "DoubleEdit.h"
 
 class AndorCamera;
-class CameraSettingsControl;
+class AndorCameraSettingsControl;
 
 struct displayTypeOption
 {
@@ -25,7 +25,7 @@ class PictureSettingsControl
 {
 	public:
 		// must have parent. Enforced partially because both are singletons.
-		PictureSettingsControl( CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
+		PictureSettingsControl( AndorCameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor);
@@ -43,13 +43,13 @@ class PictureSettingsControl
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(UINT pics, AndorCamera* andorObj);
 		void setThresholds( std::array<std::string, 4> thresholds);
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
+		void rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
 		void updateSettings( );
 		void setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj );
 		std::array<std::string, 4> getThresholdStrings();
 	private:
-		CameraSettingsControl* parentSettingsControl;
+		AndorCameraSettingsControl* parentSettingsControl;
 		std::array<int, 4> colors;
 		std::vector<float> exposureTimesUnofficial;
 		std::array<std::vector<int>, 4> thresholds;

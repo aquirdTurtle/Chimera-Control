@@ -3,14 +3,15 @@
 
 class MainWindow;
 class ScriptingWindow;
-class CameraWindow;
+class AndorWindow;
 class AuxiliaryWindow;
 
 enum class System
 {
 	Niawg,
 	Master,
-	Camera
+	Camera,
+	Basler
 };
 
 /*
@@ -20,7 +21,7 @@ enum class System
 class Communicator
 {
 	public:
-		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin,
+		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin,
 						 AuxiliaryWindow* masterWindow);
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
 		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
@@ -34,13 +35,16 @@ class Communicator
 		void sendCameraProgress( long prog );
 		void sendCameraCalProgress( long progress );
 		void sendRepProgress(ULONG rep);
-		void sendNormalFinish( );
 		void sendNoAtomsAlert( );
+
+		void sendMachineOptimizationRoundFinish ( );
+		void sendMotCalFinish ( );
+		void sendNormalFinish ( );
 		void sendMotFinish( );
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
-		CameraWindow* camWin;
+		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
 };

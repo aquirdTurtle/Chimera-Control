@@ -10,6 +10,21 @@
 
 struct cameraPositions;
 
+/*enum class AndorTriggerMode
+{
+	External,
+	Internal,
+	StartOnTrigger
+};
+
+
+enum class AndorAcquisitionMode
+{
+	KineticSeriesMode,
+	AccumulationMode,
+	VideoMode
+};
+*/
 
 /*
  * This large class maintains all of the settings & user interactions for said settings of the Andor camera. It more or
@@ -18,10 +33,10 @@ struct cameraPositions;
  * the camera and some base settings that the user does not change. Because of the close contact between this and the
  * andor class, this object is initialized with a pointer to the andor object.
  ***********************************************************************************************************************/
-class CameraSettingsControl
+class AndorCameraSettingsControl
 {
 	public:
-		CameraSettingsControl(AndorCamera* friendInitializer);
+		AndorCameraSettingsControl(AndorCamera* friendInitializer);
 		void setVariationNumber(UINT varNumber);
 		void setRepsPerVariation(UINT repsPerVar);
 		void updateRunSettingsFromPicSettings( );
@@ -33,31 +48,33 @@ class CameraSettingsControl
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain();
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
+		void rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
 		void updateTriggerMode( );
-		void handleTriggerChange(CameraWindow* cameraWindow);
+		void handleTriggerChange(AndorWindow* cameraWindow);
 		void handleSetTemperatureOffPress();
 		void handleSetTemperaturePress();
 		void handleTimer();
 		void checkIfReady();
 		void cameraIsOn( bool state );
-		void handleModeChange( CameraWindow* cameraWindow );
+		void handleModeChange( AndorWindow* cameraWindow );
 		void updateCameraMode( );
 		AndorCameraSettings getSettings();
 		AndorCameraSettings getCalibrationSettings( );
 		bool getAutoCal( );
 		bool getUseCal( );
-		void setImageParameters(imageParameters newSettings, CameraWindow* camWin);
+		void setImageParameters(imageParameters newSettings, AndorWindow* camWin);
 		void setRunSettings(AndorRunSettings inputSettings);
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
 
 		void handelSaveMasterConfig(std::stringstream& configFile);
-		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, CameraWindow* camWin);
+		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, AndorWindow* camWin);
 
 		std::vector<std::vector<long>> getImagesToDraw( const std::vector<std::vector<long>>& rawData  );
+
+		const imageParameters fullResolution = { 1,512,1,512,1,1 };
 
 	private:
 		double getKineticCycleTime( );

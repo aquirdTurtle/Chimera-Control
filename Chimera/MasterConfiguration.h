@@ -7,7 +7,7 @@
 
 class MainWindow;
 class AuxiliaryWindow;
-class CameraWindow;
+class AndorWindow;
 
 
 // This configuration system is different in style from the other configuration file system. This is designed to do more auto-saving and 
@@ -16,8 +16,8 @@ class MasterConfiguration
 {
 	public:
 		MasterConfiguration(std::string address);
-		void save(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin);
-		void load(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin);
+		void save(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin);
+		void load(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin);
 	private:
 		const std::string configurationFileAddress;
 		const Version version = Version("2.3");

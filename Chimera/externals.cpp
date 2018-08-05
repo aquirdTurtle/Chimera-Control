@@ -26,6 +26,8 @@ bool eAbortNiawgFlag = false;
 
 // thread messages
 // register messages for main window.
+UINT eMachineOptRoundFinMsgID = RegisterWindowMessage ( "ID_MACHINE_OPT_ROUND_FIN_MSG" );
+UINT eMotNumCalFinMsgID = RegisterWindowMessage("ID_MOT_CAL_FIN_MSG" );
 UINT eStatusTextMessageID = RegisterWindowMessage("ID_THREAD_STATUS_MESSAGE");
 UINT eDebugMessageID = RegisterWindowMessage( "ID_THREAD_DEBUG_MESSAGE" );
 UINT eErrorTextMessageID = RegisterWindowMessage( "ID_THREAD_ERROR_MESSAGE" );
@@ -40,9 +42,10 @@ UINT eLogVoltsMessageID = RegisterWindowMessage( "ID_LOG_VOLTS_MESSAGE" );
 UINT eAutoServoMessage = RegisterWindowMessage( "ID_AUTO_SERVO_MESSAGE" );
 UINT eCameraCalProgMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_PROGRESS_MESSAGE" );
 UINT eCameraCalFinMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_FIN_MESSAGE" );
+UINT ACE_PIC_READY = RegisterWindowMessageA ( "ACE_PIC_READY" );
 
 HANDLE eWaitingForNIAWGEvent;
 HANDLE eNIAWGWaitThreadHandle;
 
 /// Beginning Settings Dialog
-HWND eBeginDialogRichEdit;
+//HWND eBeginDialogRichEdit;

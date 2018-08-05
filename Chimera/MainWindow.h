@@ -25,13 +25,15 @@
 #include "afxwin.h"
 
 class ScriptingWindow;
-class CameraWindow;
+class AndorWindow;
 class AuxiliaryWindow;
+class BaslerWindow;
 
 struct scopeRefreshInput
 {
 	ScopeViewer *masterRepumpScope, *motScope;
 };
+
 
 class MainWindow : public CDialog
 {
@@ -60,8 +62,10 @@ class MainWindow : public CDialog
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
-		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
-		
+
+		LRESULT onMotNumCalFin ( WPARAM wp, LPARAM lp );
+		LRESULT onMotTempCalFin ( WPARAM wp, LPARAM lp );
+		LRESULT onMachineOptRoundFin ( WPARAM wp, LPARAM lp );
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( MasterThreadInput* input );
@@ -83,7 +87,9 @@ class MainWindow : public CDialog
 		void fillMasterThreadInput( MasterThreadInput* input );
 		void fillMasterThreadSequence( MasterThreadInput* input );
 		void fillMotInput( MasterThreadInput* input);
-		HANDLE startMaster( MasterThreadInput* input, bool isTurnOnMot );
+		void fillMotTempInput ( MasterThreadInput* input );
+		void fillPgcTempInput ( MasterThreadInput* input );
+		HANDLE startExperimentThread( MasterThreadInput* input, bool isTurnOnMot );
 		std::string getNotes( );
 		brushMap getBrushes();
 		rgbMap getRgbs();
@@ -135,8 +141,9 @@ class MainWindow : public CDialog
 		chronoTime* programStartTime;
 
 		ScriptingWindow* TheScriptingWindow;
-		CameraWindow* TheCameraWindow;
+		AndorWindow* TheAndorWindow;
 		AuxiliaryWindow* TheAuxiliaryWindow;
+		BaslerWindow* TheBaslerWindow;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -171,8 +178,8 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
-														  ScriptingWindow* scriptWin, CameraWindow* camWin,
-														  AuxiliaryWindow* masterWin );
+														  ScriptingWindow* scriptWin, AndorWindow* camWin,
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		CDialog* appSplash;
 };
 

@@ -58,10 +58,10 @@ void NoteSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 
 void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToolTips& tooltips)
 {
-	/// CONFIGURAITON LEVEL
+	/// CONFIGURATION LEVEL
 	// Configuration Notes Title
 	configNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 25 };
-	configNotesHeader.Create( "CONFIGURAITON NOTES", NORM_HEADER_OPTIONS, configNotesHeader.sPos, parentWindow, id++);
+	configNotesHeader.Create( "CONFIGURATION NOTES", NORM_HEADER_OPTIONS, configNotesHeader.sPos, parentWindow, id++);
 	configNotesHeader.fontType = fontTypes::HeadingFont;
 	topLeftPos.y += 25;
 	//  Configuration Notes edit

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "myButton.h"
+#include "dataPoint.h"
 #include <vector>
 #include <memory>
 #include "memdc.h"
@@ -15,17 +16,11 @@ enum class plotStyle
 	ErrorPlot,
 	// uses bars for histograms
 	HistPlot,
+	VertHist,
 	// 
 	OscilloscopePlot
 };
 
-struct dataPoint
-{
-	double x;
-	double y;
-	// yerr, could add xerr in future.
-	double err;
-};
 
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
@@ -42,7 +37,7 @@ class PlotCtrl
 	public:
 		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pens,
 				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
-				  std::string titleIn = "Title!", bool narrowOpt=false );
+				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );
 		void clear( );
 		void setCurrentDims( int width, int height);
@@ -50,7 +45,7 @@ class PlotCtrl
 		void init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent );
 		void drawBorder( memDC* d );
 		void plotPoints( memDC* d );
-		
+		dataPoint getMainAnalysisResult ( );
 		void circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* brush );
 		void errBars( memDC* d, POINT center, long err, long capSize, Gdiplus::Pen* pen );
 		void drawBackground( memDC*, CBrush* backgroundBrush, CBrush* plotAreaBrush );
@@ -82,6 +77,7 @@ class PlotCtrl
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.
 		std::string title;
+		// average data is last element...
 		std::vector<pPlotDataVec> data;
 		RECT controlDims;
 		RECT plotAreaDims;

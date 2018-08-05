@@ -20,10 +20,12 @@
 #include "StatusControl.h"
 #include "TektronicsControl.h"
 #include "AiSystem.h"
+#include "ServoManager.h"
+#include "MachineOptimizer.h"
 #include "colorbox.h"
 #include "MasterThreadInput.h"
 #include "Version.h"
-#include "ServoManager.h"
+
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
@@ -39,6 +41,9 @@ struct whichAg
 };
 
 
+class BaslerWindow;
+
+
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
 class AuxiliaryWindow : public CDialog
@@ -47,6 +52,7 @@ class AuxiliaryWindow : public CDialog
 	public:
 		AuxiliaryWindow();
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
+		void updateOptimization ( ExperimentInput input );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
@@ -70,7 +76,8 @@ class AuxiliaryWindow : public CDialog
 		void ViewOrChangeDACNames();
 		void Exit();
 		void passRoundToDac();
-		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin);
+		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
+						  BaslerWindow* basWin_);
 		std::string getOtherSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
@@ -103,6 +110,9 @@ class AuxiliaryWindow : public CDialog
 		void handleAgilentOptions( UINT id );
 
 		void loadMotSettings(MasterThreadInput* input);
+		void loadMotTempSettings ( MasterThreadInput* input );
+		void loadPgcTempSettings ( MasterThreadInput* input );
+
 		void handleTektronicsButtons(UINT id);
 
 		void sendErr(std::string msg);
@@ -118,6 +128,9 @@ class AuxiliaryWindow : public CDialog
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
 
+		void OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
+		void OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result );
+
 		UINT getTotalVariationNumber();
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
@@ -128,14 +141,16 @@ class AuxiliaryWindow : public CDialog
 		void passEoAxialTekProgram();
 		Agilent& whichAgilent( UINT id );
 		void handleAgilentCombo( UINT id );
+		void autoOptimize ( );
 
 	private:
 		DECLARE_MESSAGE_MAP();		
 
-		MainWindow* mainWindowFriend;
-		ScriptingWindow* scriptingWindowFriend;
-		CameraWindow* cameraWindowFriend;
-		
+		MainWindow* mainWin;
+		ScriptingWindow* scriptWin;
+		AndorWindow* camWin;
+		BaslerWindow* basWin;
+
 		CMenu menu;
 		std::string title;
 		toolTipTextMap toolTipText;
@@ -155,7 +170,7 @@ class AuxiliaryWindow : public CDialog
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronicsControl topBottomTek, eoAxialTek;
 		ServoManager servos;
-
+		MachineOptimizer optimizer;
 		ColorBox boxes;
 		ParameterSystem configVariables, globalVariables;
 

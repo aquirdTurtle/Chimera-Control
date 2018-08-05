@@ -2,6 +2,8 @@
 #include "ATMCD32D.h"
 #include "Andor.h"
 #include "CameraWindow.h"
+#include "AndorTriggerModes.h"
+#include "AndorRunMode.h"
 #include <chrono>
 #include <process.h>
 #include <algorithm>
@@ -161,15 +163,14 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			Sleep( 200 );
+			Sleep( 20 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
 			}
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
 			{
-				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 
-					 || input->Andor->runSettings.cameraMode == "Accumulation Mode" )
+				if ( input->Andor->runSettings.acquisitionMode == AndorRunModes::Kinetic)
 				{
 					safeModeCount++;
 					if ( input->Andor->isCalibrating( ) )
@@ -234,7 +235,7 @@ void AndorCamera::setAcquisitionMode()
 /* 
 	* Large function which initializes a given camera image run.
 	*/
-void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
+void AndorCamera::armCamera(AndorWindow* camWin, double& minKineticCycleTime)
 {
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
@@ -252,18 +253,18 @@ void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
 	setExposures();
 	setImageParametersToCamera();
 	// Set Mode-Specific Parameters
-	if (runSettings.acquisitionMode == runModes::Video)
+	if (runSettings.acquisitionMode == AndorRunModes::Video)
 	{
 		setFrameTransferMode();
 	}
-	else if (runSettings.acquisitionMode == runModes::Kinetic)
+	else if (runSettings.acquisitionMode == AndorRunModes::Kinetic)
 	{
 		setKineticCycleTime();
 		setScanNumber();
 		// set this to 1.
 		setNumberAccumulations(true);
 	}	
-	else if (runSettings.acquisitionMode == runModes::Accumulate)
+	else if (runSettings.acquisitionMode == AndorRunModes::Accumulate)
 	{
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
@@ -326,7 +327,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 	}
 	// each image processed from the call from a separate windows message
-	int size;
 	// If there is no data the acquisition must have been aborted
 	int experimentPictureNumber;
 	if (runSettings.showPicsInRealTime)
@@ -352,12 +352,11 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		ReleaseMutex(imagesMutex);
 	}
-	size = runSettings.imageSettings.width * runSettings.imageSettings.height;
 	std::vector<long> tempImage;
-	tempImage.resize(size);
+	tempImage.resize( runSettings.imageSettings.size());
 	WaitForSingleObject(imagesMutex, INFINITE);
 	
-	imagesOfExperiment[experimentPictureNumber].resize(size);
+	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
  	if (!safemode)
 	{
 		getOldestImage(tempImage);
@@ -365,8 +364,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc 
-				% runSettings.imageSettings.width) + 1) * runSettings.imageSettings.height 
-				- imageVecInc / runSettings.imageSettings.width - 1];
+				% runSettings.imageSettings.width()) + 1) * runSettings.imageSettings.height()
+				- imageVecInc / runSettings.imageSettings.width() - 1];
 		}
 	}
 	else
@@ -397,8 +396,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			tempImage[imageVecInc] = rand() % 30 + 10;
-			if ( ((imageVecInc / runSettings.imageSettings.width) % 2 == 1)
-				 && ((imageVecInc % runSettings.imageSettings.width) % 2 == 1) )
+			if ( ((imageVecInc / runSettings.imageSettings.width()) % 2 == 1)
+				 && ((imageVecInc % runSettings.imageSettings.width()) % 2 == 1) )
 			{
 				// can have an atom here.
 				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
@@ -410,8 +409,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		WaitForSingleObject(imagesMutex, INFINITE);
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width)
-				+ 1) * runSettings.imageSettings.height - imageVecInc / runSettings.imageSettings.width - 1];
+			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width())
+				+ 1) * runSettings.imageSettings.height() - imageVecInc / runSettings.imageSettings.width() - 1];
 		}
 		ReleaseMutex( imagesMutex );
 	}
@@ -425,15 +424,15 @@ void AndorCamera::setCameraTriggerMode()
 {
 	std::string errMsg;
 	int trigType;
-	if (runSettings.triggerMode == "Internal Trigger")
+	if (runSettings.triggerMode == AndorTriggerMode::Internal)
 	{
 		trigType = 0;
 	}
-	else if (runSettings.triggerMode == "External Trigger")
+	else if (runSettings.triggerMode == AndorTriggerMode::External)
 	{
 		trigType = 1;
 	}
-	else if (runSettings.triggerMode == "Start On Trigger")
+	else if (runSettings.triggerMode == AndorTriggerMode::StartOnTrigger)
 	{
 		trigType = 6;
 	}

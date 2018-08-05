@@ -95,33 +95,33 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	}
 }
 
-void PictureStats::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
+void PictureStats::rearrange(int width, int height, fontMap fonts)
 {
-	pictureStatsHeader.rearrange(cameraMode, trigMode, width, height, fonts);
-	repetitionIndicator.rearrange(cameraMode, trigMode, width, height, fonts);
+	pictureStatsHeader.rearrange(width, height, fonts);
+	repetitionIndicator.rearrange(width, height, fonts);
 	for (auto& control : collumnHeaders)
 	{
-		control.rearrange(cameraMode, trigMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : maxCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : minCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : picNumberIndicators)
 	{
-		control.rearrange(cameraMode, trigMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : selCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : avgCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 }
 

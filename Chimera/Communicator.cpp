@@ -8,7 +8,7 @@
 #include "externals.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
-void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin, 
+void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin, 
 							  AuxiliaryWindow* auxWindow )
 {
 	mainWin = mainWinParent;
@@ -18,9 +18,21 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 }
 
 
-void Communicator::sendNoAtomsAlert( )
+void Communicator::sendNoAtomsAlert ( )
 {
-	mainWin->PostMessageA( eNoAtomsAlertMessageID, 0, 0 );
+	mainWin->PostMessageA ( eNoAtomsAlertMessageID, 0, 0 );
+}
+
+
+void Communicator::sendMachineOptimizationRoundFinish ( )
+{
+	mainWin->PostMessage ( eMachineOptRoundFinMsgID, 0, 0 );
+}
+
+
+void Communicator::sendMotCalFinish ( )
+{
+	mainWin->PostMessage ( eMotNumCalFinMsgID, 0, 0 );
 }
 
 
@@ -92,16 +104,19 @@ void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, in
 void Communicator::sendColorBox( System sys, char code )
 {
 	systemInfo<char> colors;
-	switch (sys)
+	switch ( sys )
 	{
 		case System::Niawg:
-			colors = { code, '-', '-' };
+			colors = { code, '-', '-', '-' };
 			break;
 		case System::Camera:
-			colors = { '-', code, '-' };
+			colors = { '-', code, '-', '-' };
 			break;
 		case System::Master:
-			colors = { '-', '-', code };
+			colors = { '-', '-', code, '-' };
+			break;
+		case System::Basler:
+			colors = { '-','-','-',code };
 			break;
 	}
 	sendColorBox( colors );

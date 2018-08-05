@@ -2,6 +2,7 @@
 #include "Control.h"
 #include "CameraImageDimensions.h"
 #include "atomGrid.h"
+#include "PlotCtrl.h"
 
 
 /*
@@ -13,11 +14,15 @@
 class PictureControl
 {
 	public:
-		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds );
+		PictureControl ( bool histogramOption );
+		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds,
+						 std::vector<Gdiplus::Pen*> graphPens= std::vector<Gdiplus::Pen*>(), CFont* font=NULL,
+						 std::vector<Gdiplus::SolidBrush*> graphBrushes= std::vector<Gdiplus::SolidBrush*>() );
 		void handleMouse( CPoint p );
 		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
+		void drawBitmap ( CDC* dc, const Matrix<long>& picData );
 		void setSliderControlLocs(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
@@ -28,7 +33,7 @@ class PictureControl
 		void drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
 		void setCursorValueLocations( CWnd* parent );
 		void drawRectangle( CDC* dc, RECT pixelRect );
-		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
+		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
 		void updatePalette( HPALETTE pallete );
@@ -39,15 +44,23 @@ class PictureControl
 		coordinate checkClickLocation( CPoint clickLocation );
 		void resetStorage();
 		void setHoverValue( );
+		void updatePlotData ( );
+		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 	private:
+		const bool histOption;
+		std::vector<pPlotDataVec> horData, vertData;
+		PlotCtrl* horGraph;
+		PlotCtrl* vertGraph;
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
 		POINT mouseCoordinates;
 		// for replotting.
 		std::vector<long> mostRecentImage;
+		Matrix<long> mostRecentImage_m;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.
+		UINT maxWidth, maxHeight;
 		bool active;
 
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.

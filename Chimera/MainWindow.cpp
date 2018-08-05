@@ -4,6 +4,7 @@
 #include "CameraWindow.h"
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
+#include "BaslerWindow.h"
 #include <future>
 #include "Thrower.h"
 #include "externals.h"
@@ -185,6 +186,9 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
 	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
+	ON_REGISTERED_MESSAGE ( eMotNumCalFinMsgID, &MainWindow::onMotNumCalFin )
+	ON_REGISTERED_MESSAGE ( eMotNumCalFinMsgID, &MainWindow::onMotTempCalFin )
+	ON_REGISTERED_MESSAGE ( eMachineOptRoundFinMsgID, &MainWindow::onMachineOptRoundFin )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
@@ -209,6 +213,32 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
 
+
+LRESULT MainWindow::onMotNumCalFin ( WPARAM wp, LPARAM lp )
+{
+	return true;
+}
+
+
+LRESULT MainWindow::onMotTempCalFin ( WPARAM wp, LPARAM lp )
+{
+	return true;
+}
+
+
+LRESULT MainWindow::onMachineOptRoundFin ( WPARAM wp, LPARAM lp )
+{
+	// do normal finish
+	onNormalFinishMessage ( wp, lp );
+	Sleep ( 1000 );
+	// then restart.
+	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, this, TheScriptingWindow, TheAndorWindow, 
+										   TheAuxiliaryWindow, TheBaslerWindow );
+ 	return true;
+}
+
+
+
 void MainWindow::passExperimentRerngButton( )
 {
 	rearrangeControl.handleCheck( );
@@ -223,7 +253,7 @@ void MainWindow::OnTimer( UINT_PTR id )
 void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for ( auto seqInc : range( input->variables.size( ) ) )
 	{
@@ -245,9 +275,7 @@ void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams( );
 	input->rerngGuiForm.active = false;
-	input->isLoadMot = false;
-	input->isCameraCal = true;
-
+	input->expType = ExperimentType::CameraCal;
 }
 
 
@@ -307,13 +335,13 @@ std::vector<Gdiplus::SolidBrush*> MainWindow::getBrightPlotBrushes( )
 
 void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	TheCameraWindow->stopSound( );
+	TheAndorWindow->stopSound( );
 }
 
 
 void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
-	TheCameraWindow->stopSound( );
+	TheAndorWindow->stopSound( );
 }
 
 
@@ -321,7 +349,8 @@ void MainWindow::passConfigPress( )
 {	
 	try
 	{
-		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
+		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, 
+										  TheBaslerWindow );
 	}
 	catch ( Error& err )
 	{
@@ -349,7 +378,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 {
 	try
 	{	
-		if ( TheCameraWindow->wantsAutoPause( ) )
+		if ( TheAndorWindow->wantsAutoPause( ) )
 		{
 			masterThreadManager.pause( );
 			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
@@ -393,6 +422,7 @@ CFont* MainWindow::getPlotFont( )
 
 BOOL MainWindow::OnInitDialog( )
 {
+	SetWindowText ( "Main Window" );
 	startupTimes.push_back(chronoClock::now());
 	eMainWindowHwnd = GetSafeHwnd( );
 	for ( auto elem : GIST_RAINBOW_RGB )
@@ -439,32 +469,36 @@ BOOL MainWindow::OnInitDialog( )
 		which = "Scripting";
 		TheScriptingWindow = new ScriptingWindow;
 		which = "Camera";
-		TheCameraWindow = new CameraWindow;
+		TheAndorWindow = new AndorWindow;
 		which = "Auxiliary";
 		TheAuxiliaryWindow = new AuxiliaryWindow;
+		which = "Basler";
+		TheBaslerWindow = new BaslerWindow;
 	}
 	catch ( Error& err )
 	{
 		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.what( ) );
 		return -1;
 	}
-	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
-	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
-	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
+	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
+	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow );
+	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow );
+	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
 	startupTimes.push_back(chronoClock::now());
 	try
 	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
 		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
-		TheCameraWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
+		TheAndorWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
+		TheBaslerWindow->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
 	}
 	catch ( Error& err )
 	{
 		errBox( err.what( ) );
 	}
 	/// initialize main window controls.
-	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
+	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
@@ -493,10 +527,10 @@ BOOL MainWindow::OnInitDialog( )
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
 	// just initializes the rectangles.
-	TheCameraWindow->redrawPictures( true );
+	TheAndorWindow->redrawPictures( true );
 	try
 	{
-		masterConfig.load( this, TheAuxiliaryWindow, TheCameraWindow );
+		masterConfig.load( this, TheAuxiliaryWindow, TheAndorWindow );
 	}
 	catch ( Error& err )
 	{
@@ -504,10 +538,11 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
-	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
+	TheAndorWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
-	std::vector<CDialog*> windows = {NULL, this, TheCameraWindow, TheScriptingWindow, TheAuxiliaryWindow };
+	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
+	std::vector<CDialog*> windows = {NULL, this, TheAndorWindow, TheScriptingWindow, TheAuxiliaryWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
@@ -528,7 +563,7 @@ BOOL MainWindow::OnInitDialog( )
 		std::string initializationString;
 		initializationString += getSystemStatusString( );
 		initializationString += TheAuxiliaryWindow->getOtherSystemStatusMsg( );
-		initializationString += TheCameraWindow->getSystemStatusString( );
+		initializationString += TheAndorWindow->getSystemStatusString( );
 		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus( );
 		initializationString += TheScriptingWindow->getSystemStatusString( );
 		initializationString += TheAuxiliaryWindow->getGpibDeviceStatus( );
@@ -848,8 +883,8 @@ void MainWindow::passCommonCommand(UINT id)
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, 
-											   TheAuxiliaryWindow );
+		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheAndorWindow, 
+											   TheAuxiliaryWindow, TheBaslerWindow );
 	}
 	catch (Error& exception)
 	{
@@ -858,16 +893,77 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-HANDLE MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
+HANDLE MainWindow::startExperimentThread( MasterThreadInput* input, bool isTurnOnMot )
 {
 	return masterThreadManager.startExperimentThread(input);
+}
+
+
+void MainWindow::fillMotTempInput ( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
+	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
+	for ( auto seqInc : range ( input->variables.size ( ) ) )
+	{
+		for ( auto& variable : input->variables[ seqInc ] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[ seqInc ].push_back ( variable );
+			}
+		}
+	}
+	input->seq.name = "motTemp";
+	input->seq.sequence.resize ( 1 );
+	input->profile.configuration = "Automated-MOT-Temperature-Measurement";
+	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "MOT";
+	input->seq.sequence[ 0 ] = input->profile;
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
+	input->skipNext = NULL;
+	input->rerngGuiForm = rearrangeControl.getParams ( );
+	input->rerngGuiForm.active = false;
+	input->expType = ExperimentType::LoadMot;
+
+}
+
+
+void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
+	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
+	for ( auto seqInc : range ( input->variables.size ( ) ) )
+	{
+		for ( auto& variable : input->variables[ seqInc ] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[ seqInc ].push_back ( variable );
+			}
+		}
+	}
+	input->seq.name = "pgcTemp";
+	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
+	input->profile.configuration = "Automated-PGC-Temperature-Measurement";
+	input->profile.parentFolderName = "PGC";
+	input->seq.sequence.resize ( 1 );
+	input->seq.sequence[ 0 ] = input->profile;
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
+	input->skipNext = NULL;
+	input->rerngGuiForm = rearrangeControl.getParams ( );
+	input->rerngGuiForm.active = false;
+	input->expType = ExperimentType::LoadMot;
 }
 
 
 void MainWindow::fillMotInput( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for (auto seqInc : range(input->variables.size()))
 	{
@@ -881,15 +977,16 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	}
 	input->seq.name = "loadMot";
 	input->seq.sequence.resize( 1 );
-	input->seq.sequence[0].configuration = "Set MOT Settings";
-	input->seq.sequence[0].categoryPath = MOT_ROUTINE_ADDRESS;
-	input->seq.sequence[0].parentFolderName = "MOT";
+	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
+	input->profile.configuration = "Set MOT Settings";
+	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "MOT";
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
  	input->skipNext = NULL;
  	input->rerngGuiForm = rearrangeControl.getParams( );
  	input->rerngGuiForm.active = false;
-	input->isLoadMot = true;
+	input->expType = ExperimentType::LoadMot;
 }
 
 
@@ -922,7 +1019,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->seq = profile.getSeqSettings( );
 	input->niawg = &niawg;
 	input->comm = &comm;
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->rerngGuiForm = rearrangeControl.getParams( );
 }
 
@@ -948,13 +1045,13 @@ seqSettings MainWindow::getSeqSettings( )
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
+	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
+	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow );
 }
 
 
@@ -1219,7 +1316,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
 	stopRearranger( );
-	TheCameraWindow->wakeRearranger();
+	TheAndorWindow->wakeRearranger();
 	comm.sendColorBox( System::Niawg, 'B' );
 	try
 	{
