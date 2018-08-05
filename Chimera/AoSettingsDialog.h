@@ -25,18 +25,21 @@ class AoSettingsDialog : public CDialog
 			input = inputPtr;
 		}
 		BOOL OnInitDialog();
+		//void handleEnter ( );
 		void handleOk();
 		void handleCancel();
 	private:
 		DECLARE_MESSAGE_MAP()
 		std::array<Control<CStatic>, 24> numberLabels;
 		std::array<Control<CEdit>, 24> nameEdits;
+		std::array < Control<CEdit>, 24> noteEdits;
 		std::array<Control<CEdit>, 24> minValEdits;
 		std::array<Control<CEdit>, 24> maxValEdits;
 		std::array<Control<CStatic>, 3> dacNumberHeaders;
 		std::array<Control<CStatic>, 3> dacNameHeaders;
 		std::array<Control<CStatic>, 3> dacMinValHeaders;
 		std::array<Control<CStatic>, 3> dacMaxValHeaders;
+		std::array<Control<CStatic>, 3> noteHeaders;
 		int startx = 30, starty = 40;
 		int width = 63;
 		int height = 28;

@@ -9,7 +9,7 @@
 /*
  * A class for a gui end control for setting various rearrangement parameters
  */
-class rerngControl
+class rerngGuiControl
 {
 	public:
 		rerngGuiOptionsForm getParams( );
@@ -48,4 +48,7 @@ class rerngControl
 		Control<CleanCheck> fastMoveOption;
 		Control<CStatic> fastMoveTime;
 		Control<CEdit> fastMoveTimeEdit;
+
+		Control<CleanCheck> auxStaticOption;
+
 };
