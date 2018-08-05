@@ -1,6 +1,7 @@
 #pragma once
 #include "imageParameters.h"
-#include "runModes.h"
+#include "AndorRunMode.h"
+#include "AndorTriggerModes.h"
 #include <string>
 #include <vector>
 
@@ -13,10 +14,10 @@ struct AndorRunSettings
 	bool emGainModeIsOn;
 	int emGainLevel;
 	int readMode;
-	runModes acquisitionMode;
+	AndorRunModes acquisitionMode;
 	int frameTransferMode;
-	std::string triggerMode;
-	std::string cameraMode;
+	AndorTriggerMode triggerMode;
+	//std::string cameraMode;
 	bool showPicsInRealTime;
 	//
 	float kineticCycleTime;

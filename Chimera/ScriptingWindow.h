@@ -10,8 +10,9 @@
 #include "MasterThreadInput.h"
 
 class MainWindow;
-class CameraWindow;
+class AndorWindow;
 class AuxiliaryWindow;
+class BaslerWindow;
 
 
 // a convenient structure for containing one object for each script. For example, the address of each script.
@@ -41,12 +42,14 @@ class ScriptingWindow : public CDialog
 		void passCommonCommand(UINT id);
 
 		void checkScriptSaves();
-		void loadFriends(MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* masterWin);
+		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
 		void fillMasterThreadInput(MasterThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
+
 		scriptInfo<std::string> getScriptNames();
 		scriptInfo<bool> getScriptSavedStatuses();
 		scriptInfo<std::string> getScriptAddresses();
+
 		profileSettings getProfileSettings();
 		std::string getSystemStatusString();
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -104,9 +107,10 @@ class ScriptingWindow : public CDialog
 	private:
 		DECLARE_MESSAGE_MAP();
 		
-		MainWindow* mainWindowFriend;
-		CameraWindow* cameraWindowFriend;
-		AuxiliaryWindow* auxWindowFriend;
+		MainWindow* mainWin;
+		AndorWindow* camWin;
+		AuxiliaryWindow* auxWin;
+		BaslerWindow* basWin;
 		//
 		cToolTips tooltips;
 		Script niawgScript, masterScript;

@@ -7,22 +7,27 @@
 class PictureManager
 {
 	public:
+		PictureManager ( bool histOption );
+		void updatePlotData ( );
 		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
-		void initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips, CBrush* defaultGridBrush );
+		void initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultGridBrush,
+						 std::vector<Gdiplus::Pen*> graphPens = std::vector<Gdiplus::Pen*> ( ), CFont* font = NULL,
+						 std::vector<Gdiplus::SolidBrush*> graphBrushes = std::vector<Gdiplus::SolidBrush*> ( ) );
 		void refreshBackgrounds(CDC* easel);
 		void drawGrids(CDC* easel);
 		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );
-		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
+		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void drawBackgrounds(CDC* easel);
 		void setPalletes(std::array<int, 4> palleteIds);
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
+		void drawBitmap ( CDC* deviceContext, Matrix<long> picData );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
 						  std::vector<atomGrid> gridInfo, UINT pictureNumber );
 		void createPalettes( CDC* dc );
@@ -41,7 +46,7 @@ class PictureManager
 		void setSettings( std::array<int, 4> maxCounts, std::array<int, 4>  minCounts, bool autoscale, 
 						  bool specialGreater, bool specialLess, bool showGrid );
 		void resetPictureStorage();
-
+		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 	private:
 		std::array<PictureControl, 4> pictures;
 		std::array<HPALETTE, 4> palettes;

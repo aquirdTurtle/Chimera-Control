@@ -4127,7 +4127,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 	// convert all single moves into complex moves.
 	// procedure for combining at the moment (not really optimal...):
 	/*
-	  Outer loops are over all possible group move configuraitons. I.e. row=2 -> row3 moves, etc.
+	  Outer loops are over all possible group move configurations. I.e. row=2 -> row3 moves, etc.
 	  Grab all moves that match the group move.
 	  Determine which moves are actually possible to do at this point, based on an atom being in the initial position
 		and no atom being in the final position, removing moves that can't be made.
@@ -4339,7 +4339,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				{
 					flashMoves.back( ).needsFlash = true;
 				}
-				// also check the final locaiton.
+				// also check the final location.
 				if ( options.noFlashOption == nonFlashingOption::cautious )
 				{
 					finRow = initRow + isRow * (baseMove.dirInt( ));

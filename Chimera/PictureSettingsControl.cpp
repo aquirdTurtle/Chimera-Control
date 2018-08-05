@@ -299,7 +299,6 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			return NULL;
 		}
 		colorer->SetTextColor(rgbs["White"]);
-		//TCHAR textEdit[256];
 		CString text;
 		exposureEdits[picNum].GetWindowTextA(text);
 		double exposure;
@@ -309,7 +308,6 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			double dif = std::fabs(exposure/1000.0 - exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
-				// good.
 				colorer->SetBkColor(rgbs["Solarized Green"]);
 				// catch change of color and redraw window.
 				if (exposureEdits[picNum].colorState != 0)
@@ -642,7 +640,7 @@ void PictureSettingsControl::updateSettings( )
 }
 
 
-void PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
+void PictureSettingsControl::rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
 									   fontMap fonts)
 {
 	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);

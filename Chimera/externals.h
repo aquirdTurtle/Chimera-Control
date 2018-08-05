@@ -27,20 +27,12 @@ extern bool eWaitError;
 extern UINT eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eNormalFinishMessageID, 
 			eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, eCameraProgressMessageID, 
 			eRepProgressMessageID, eNoAtomsAlertMessageID, eLogVoltsMessageID, eAutoServoMessage, 
-			eCameraCalProgMessageID, eCameraCalFinMessageID;
+			eCameraCalProgMessageID, eCameraCalFinMessageID, ACE_PIC_READY, eMachineOptRoundFinMsgID,
+			eMotNumCalFinMsgID;
 
 extern bool eAbortNiawgFlag;
 
-/// Colors
-extern HBRUSH eDullRedBrush;
-extern HBRUSH eDarkRedBrush;
-extern HBRUSH eGreyRedBrush;
-
 /// Other Global Handles
 extern HANDLE eWaitingForNIAWGEvent;
-extern HANDLE eExperimentThreadHandle;
 extern HANDLE eNIAWGWaitThreadHandle;
-
-/// Beginning Settings Dialog
-extern HWND eBeginDialogRichEdit;
 

@@ -16,7 +16,7 @@ MasterConfiguration::MasterConfiguration(std::string address) : configurationFil
 {}
 
 
-void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin) 
+void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin) 
 {
 	/*
 		information to save:
@@ -57,7 +57,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, Cam
 }
 
 
-void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin)
+void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin)
 {
 	// make sure that file exists	
 	FILE *file;

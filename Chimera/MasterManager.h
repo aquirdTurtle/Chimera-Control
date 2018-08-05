@@ -59,7 +59,6 @@ class MasterManager
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<parameterType> vars);
 		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, AoSystem* aoSys,
-									  bool quiet, EmbeddedPythonHandler* python, 
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
@@ -68,7 +67,7 @@ class MasterManager
 		std::vector<std::vector<double>> loadSkipTimes;
 		void callCppCodeFunction();
 		// the master script file contents get dumped into this.
-		std::string functionsFolderLocation;
+		const std::string functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, AoSystem* aoSys,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 

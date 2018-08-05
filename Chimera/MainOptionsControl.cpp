@@ -84,7 +84,9 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 		}
 		catch ( std::invalid_argument& )
 		{
-			thrower( "ERROR: atom threshold for load skip failed to convert to an unsigned long!" );
+			errBox( "ERROR: atom threshold for load skip failed to convert to an unsigned long! The code will force "
+					   "the threshold to the maximum threshold." );
+			currentOptions.atomThresholdForSkip = -1;
 		}
 		atomThresholdForSkipEdit.SetWindowTextA( cstr(txt) );
 	}

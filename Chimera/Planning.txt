@@ -10,7 +10,7 @@ FEATURES:
 	- handle random case in plotting.
 	- be able to add more repetitions on the fly if randomizing reps. requires some camera magic.
 	- mix sequences in as well?
-		- also gets trick if diff sequences use instruments differently.
+		- also gets tricky if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
 - support variables for agilent scripts
@@ -24,21 +24,26 @@ FEATURES:
 - improve experiment status; include which config was run, variable options
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - output more timing info on the programming process
-- have code work with temperature monitoring
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
 - improve delete file after abort functionality
-- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
-- Integrate the camera into the experimentThreadProcedure to enable calibrations, etc. between variations.
-- auto mot calibration runs
-- integrate a basler window.
+- Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
+	variations.
 - add reporting on how many atoms loaded via atomcruncher thread.
+	- accessible from main window, perhaps
+	- report to h5 file as well
+- Make basler able to simulate finite acquisitions in debug mode.
 - Improve comments on what units everything should be in at every moment.
 - prompt for load after saving config as
 - improve delete file after abort functionality
-- option for rearranging: no flashing and no static array for extra potential rearranging.
-- add reporting on how many atoms loaded via atomcruncher thread.
-- improve delete file after abort functionality
+- Implement auto-optimization
+	- Implement different algorithms
+		- Randomized Search
+		- Neural Network
+		- Genetic / evolutionary
+- Make the code able to check if the mot is there.
+- make plots for single pic mode andor images
+
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo
@@ -49,7 +54,8 @@ Refactoring / Other:
 - all mutexes should use lock_guard or similar for consistency
 - refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
 - refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
-- reduce size of niawgcontroller file; maybe try to separate out rearrange functionality?
+- reduce size of niawgcontroller file
+- refactor commonfunctions, it's a bit of a mess. 
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status

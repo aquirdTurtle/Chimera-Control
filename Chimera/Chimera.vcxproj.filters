@@ -10,9 +10,6 @@
     <ClCompile Include="Script.cpp">
       <Filter>Scripting Window</Filter>
     </ClCompile>
-    <ClCompile Include="MasterManager.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="StatusIndicator.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
@@ -38,16 +35,16 @@
       <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="PictureControl.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="PictureStats.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="PictureManager.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="PictureSettingsControl.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="NoteSystem.cpp">
       <Filter>Main Window</Filter>
@@ -62,7 +59,7 @@
       <Filter>Main Window</Filter>
     </ClCompile>
     <ClCompile Include="ExperimentTimer.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="EmbeddedPythonHandler.cpp">
       <Filter>General Files</Filter>
@@ -80,25 +77,25 @@
       <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="CameraWindow.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="CameraImageDimensions.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="CameraSettingsControl.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="Andor.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="AlertSystem.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="SmsTextingControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
     <ClCompile Include="DataLogger.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="VisaFlume.cpp">
       <Filter>Auxiliary Window</Filter>
@@ -194,16 +191,16 @@
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
     <ClCompile Include="DataAnalysisHandler.cpp">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
     <ClCompile Include="PlotDataSet.cpp">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
     <ClCompile Include="PlotDesignerDialog.cpp">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
     <ClCompile Include="PlottingInfo.cpp">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
     <ClCompile Include="viewpointFlume.cpp">
       <Filter>DIO</Filter>
@@ -233,7 +230,7 @@
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
     <ClCompile Include="CameraCalibration.cpp">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="StartDialog.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
@@ -244,6 +241,29 @@
     <ClCompile Include="rerngGuiControl.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
+    <ClCompile Include="BaslerCamera.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="BaslerWindow.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="BaslerSettings.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="BaslerSettingsControl.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="AndorTriggerModes.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterManager.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AndorRunMode.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="MachineOptimizer.cpp" />
+    <ClCompile Include="MyListCtrl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -267,9 +287,6 @@
     <ClInclude Include="Script.h">
       <Filter>Scripting Window</Filter>
     </ClInclude>
-    <ClInclude Include="MasterManager.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptingWindow.h">
       <Filter>Scripting Window</Filter>
     </ClInclude>
@@ -280,16 +297,16 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="PictureStats.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="PictureSettingsControl.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="PictureControl.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="PictureManager.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="NoteSystem.h">
       <Filter>Main Window</Filter>
@@ -313,7 +330,7 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="ExperimentTimer.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="AuxiliaryWindow.h">
       <Filter>Auxiliary Window</Filter>
@@ -322,7 +339,7 @@
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="CameraSettingsControl.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="Communicator.h">
       <Filter>Main Window</Filter>
@@ -337,19 +354,19 @@
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="Andor.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="AlertSystem.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="SmsTextingControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="CameraImageDimensions.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="CameraWindow.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="ATMCD32D.H">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
@@ -361,7 +378,7 @@
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="DataLogger.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
@@ -379,22 +396,22 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="AndorRunSettings.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="atomCruncherInput.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="atomGrid.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="cameraPositions.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="imageParameters.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="tinyPlotInfo.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="realTimePlotterInput.h">
       <Filter>Main Window\Structures</Filter>
@@ -403,7 +420,7 @@
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="segmentStructs.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="DebugOptionsControl.h">
       <Filter>Main Window</Filter>
@@ -511,16 +528,16 @@
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
     <ClInclude Include="DataAnalysisHandler.h">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
     <ClInclude Include="PlotDataSet.h">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
     <ClInclude Include="PlotDesignerDialog.h">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
     <ClInclude Include="PlottingInfo.h">
-      <Filter>Camera Window\Real-Time-Analysis</Filter>
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
     <ClInclude Include="viewpointStructures.h">
       <Filter>DIO</Filter>
@@ -564,14 +581,11 @@
     <ClInclude Include="AoSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="runModes.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="MasterThreadInput.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="CameraCalibration.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="StartDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
@@ -585,6 +599,30 @@
     <ClInclude Include="rerngGuiControl.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
+    <ClInclude Include="BaslerCamera.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="BaslerWindow.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="AndorRunMode.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="MachineOptimizer.h" />
+    <ClInclude Include="BaslerSettingsControl.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="BaslerSettings.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="AndorTriggerModes.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterManager.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyListCtrl.h" />
+    <ClInclude Include="dataPoint.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -605,7 +643,9 @@
     <Image Include="..\JILA.bmp">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="JILA.bmp" />
+    <Image Include="JILA.bmp">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -616,9 +656,6 @@
     </Filter>
     <Filter Include="Things I Don%27t Mess With %28Often%29">
       <UniqueIdentifier>{63ce4980-10d4-45df-be5b-aa662831172a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Camera Window">
-      <UniqueIdentifier>{75f23a51-0d91-400b-8202-88fba8cc00e9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Main Window">
       <UniqueIdentifier>{b8497a6b-0fa8-4221-92f6-c3f097a24f7c}</UniqueIdentifier>
@@ -634,9 +671,6 @@
     </Filter>
     <Filter Include="Main Window\Structures">
       <UniqueIdentifier>{289fa881-1755-42ac-a4f6-eb64a7013cab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Camera Window\Structures">
-      <UniqueIdentifier>{c30ebec6-c2b0-499a-8318-6856c626e280}</UniqueIdentifier>
     </Filter>
     <Filter Include="Custom-Controls">
       <UniqueIdentifier>{1981ed01-a042-4894-bc0a-eb2480cd2a79}</UniqueIdentifier>
@@ -656,14 +690,23 @@
     <Filter Include="Misc-Small-Funcs-And-Classes">
       <UniqueIdentifier>{ce3b71ee-af66-4efc-88fc-d15110fc432d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Camera Window\Real-Time-Analysis">
-      <UniqueIdentifier>{f1cc8d58-53d9-4ab5-8571-1ef0a1a60399}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Main Window\NIAWG-And-Rearranging">
       <UniqueIdentifier>{01a90856-d228-4f5c-a2f5-9936f06b7e36}</UniqueIdentifier>
     </Filter>
     <Filter Include="Auxiliary Window\Agilent">
       <UniqueIdentifier>{2be437ad-d8ab-418d-9656-a97ff5c57d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Basler Window">
+      <UniqueIdentifier>{f8c33133-04c0-43d8-806d-6e7d703c47d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andor Window">
+      <UniqueIdentifier>{75f23a51-0d91-400b-8202-88fba8cc00e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andor Window\Structures">
+      <UniqueIdentifier>{c30ebec6-c2b0-499a-8318-6856c626e280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Andor Window\Real-Time-Analysis">
+      <UniqueIdentifier>{f1cc8d58-53d9-4ab5-8571-1ef0a1a60399}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -676,7 +719,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="coordinate.h">
-      <Filter>Camera Window\Structures</Filter>
+      <Filter>Andor Window\Structures</Filter>
     </None>
     <None Include="ftdiStructures.h">
       <Filter>DIO</Filter>

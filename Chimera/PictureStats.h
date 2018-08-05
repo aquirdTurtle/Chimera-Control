@@ -2,6 +2,8 @@
 
 #include "Control.h"
 #include "coordinate.h"
+#include "AndorRunMode.h"
+#include "AndorTriggerModes.h"
 #include <vector>
 #include <string>
 #include <array>
@@ -40,7 +42,7 @@ class PictureStats
 			displayDataType = RAW_COUNTS;
 		}
 		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips );
-		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
+		void rearrange( int width, int height, fontMap fonts );
 		std::pair<int, int> update( std::vector<long> image, UINT imageNumber, coordinate selectedPixel,
 									int pictureWidth, int pictureHeight, int currentRepetitionNumbar,
 									int totalRepetitionCount );

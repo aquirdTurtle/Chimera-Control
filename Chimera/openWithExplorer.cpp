@@ -39,7 +39,7 @@ std::string openWithExplorer(CWnd* parent, std::string extension)
 	}
 	else if ( extension == "Config" )
 	{
-		txt = "Configuraiton\0*.Config\0"s;
+		txt = "Configuration\0*.Config\0"s;
 	}
 	else if ( extension == "catConfig" )
 	{

@@ -24,6 +24,12 @@ BEGIN_MESSAGE_MAP( PlotDialog, CDialog )
 END_MESSAGE_MAP()
 
 
+dataPoint PlotDialog::getMainAnalysisResult ( )
+{
+	return plot.getMainAnalysisResult ( );
+}
+
+
 bool PlotDialog::removeQuery( PlotDialog* plt )
 {
 	if ( plt->m_hWnd == NULL )

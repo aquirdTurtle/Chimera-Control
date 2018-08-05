@@ -1,12 +1,111 @@
 ﻿#include "stdafx.h"
 #include "PictureControl.h"
 #include "Thrower.h"
+#include <algorithm>
+#include <numeric>
+
+PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramOption )
+{
+	active = true;
+	if ( histOption )
+	{
+		horData.resize ( 1 );
+		horData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
+		vertData.resize ( 1 );
+		vertData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
+		updatePlotData ( );
+	}
+}
+
+
+void PictureControl::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
+{
+	if ( !active )
+	{
+		return;
+	}
+	cdc->SetBkColor ( RGB ( 0, 0, 0 ) );
+	long width = size.right - size.left, height = size.bottom - size.top;
+	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
+	// for a single plot.
+	horGraph->setCurrentDims ( width, height );
+	{
+		memDC ttlDC ( cdc, &horGraph->GetPlotRect ( ) );
+		horGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
+		horGraph->drawTitle ( ttlDC );
+		horGraph->drawBorder ( ttlDC );
+		horGraph->plotPoints ( &ttlDC );
+	}
+	vertGraph->setCurrentDims ( width, height );
+	{
+		memDC ttlDC ( cdc, &vertGraph->GetPlotRect ( ) );
+		vertGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
+		vertGraph->drawTitle ( ttlDC );
+		vertGraph->drawBorder ( ttlDC );
+		vertGraph->plotPoints ( &ttlDC );
+	}
+}
+
+
+
+void PictureControl::updatePlotData ( )
+{
+	if ( !histOption )
+	{
+		return;
+	}
+	horData[ 0 ]->resize ( mostRecentImage_m.getCols ( ) );
+	vertData[ 0 ]->resize ( mostRecentImage_m.getRows ( ) );
+	UINT count = 0;
+
+	std::vector<long> dataRow;
+	for ( auto& data : *horData[ 0 ] )
+	{
+		data.x = count;
+		// integrate the column
+		double p = 0.0;
+		for ( auto row : range ( mostRecentImage_m.getRows ( ) ) )
+		{
+			p += mostRecentImage_m ( row, count );
+		}
+		count++;
+		dataRow.push_back ( p );
+	}
+	count = 0;
+	auto avg = std::accumulate ( dataRow.begin ( ), dataRow.end ( ), 0.0 ) / dataRow.size ( );
+	for ( auto& data : *horData[ 0 ] )
+	{
+		data.y = dataRow[ count++ ] - avg;
+	}
+	count = 0;
+	std::vector<long> dataCol;
+	for ( auto& data : *vertData[ 0 ] )
+	{
+		data.x = count;
+		// integrate the row
+		double p = 0.0;
+		for ( auto col : range ( mostRecentImage_m.getCols ( ) ) )
+		{
+			p += mostRecentImage_m ( count, col );
+		}
+		count++;
+		dataCol.push_back ( p );
+	}
+	count = 0;
+	auto avgCol = std::accumulate ( dataCol.begin ( ), dataCol.end ( ), 0.0 ) / dataCol.size ( );
+	for ( auto& data : *vertData[ 0 ] )
+	{
+		data.y = dataCol[ count++ ] - avgCol;
+	}
+}
 
 
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds )
+void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds,
+								 std::vector<Gdiplus::Pen*> graphPens, CFont* font,
+								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
 {
 	if ( width < 100 )
 	{
@@ -18,9 +117,22 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 		throw std::invalid_argument( "Pictures must be greater than 100 in height because this is the minimum height "
 									 "of the max/min controls." );
 	}
+	maxWidth = width;
+	maxHeight = height;
+	if ( histOption )
+	{
+		vertGraph = new PlotCtrl ( vertData, plotStyle::VertHist, graphPens, font, graphBrushes, "", true );
+		vertGraph->init ( { loc.x, loc.y }, 65, height, parent );
+		loc.x += 65;
+	}
+	setPictureArea ( loc, maxWidth, maxHeight );
+	if ( histOption )
+	{
+		horGraph = new PlotCtrl ( horData, plotStyle::HistPlot, graphPens, font, graphBrushes, "", true );
+		horGraph->init ( { loc.x, loc.y + height }, width - 50, 60, parent );
+	}
 
-	setPictureArea( loc, width, height-25 );
-
+	//setPictureArea( loc, width, height-25 );
 	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	// "min" text
 	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
@@ -100,15 +212,15 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 
 	double widthPicScale;
 	double heightPicScale;
-	if (unofficialImageParameters.width > unofficialImageParameters.height)
+	if (unofficialImageParameters.width() > unofficialImageParameters.height())
 	{
 		widthPicScale = 1;
-		heightPicScale = double(unofficialImageParameters.height) / unofficialImageParameters.width;
+		heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
 	}
 	else
 	{
 		heightPicScale = 1;
-		widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
+		widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
 	}
 	ULONG picWidth = ULONG( (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale );
 	ULONG picHeight = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
@@ -198,7 +310,7 @@ coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 		}
 	}
 	// null result. only first number is checked.
-	thrower( "Not Found" );
+	thrower( "click location not found" );
 }
 
 
@@ -293,15 +405,15 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	unofficialImageParameters = newParameters;
 	double widthPicScale;
 	double heightPicScale;
-	if (unofficialImageParameters.width > unofficialImageParameters.height)
+	if (unofficialImageParameters.width ()> unofficialImageParameters.height())
 	{
 		widthPicScale = 1;
-		heightPicScale = double(unofficialImageParameters.height) / unofficialImageParameters.width;
+		heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
 	}
 	else
 	{
 		heightPicScale = 1;
-		widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
+		widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
 	}
 	long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
 	long height = long((scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale);
@@ -313,10 +425,10 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	pictureArea.bottom = mid.y + height / 2;
 	//
 
-	grid.resize(newParameters.width);
+	grid.resize(newParameters.width());
 	for (UINT colInc = 0; colInc < grid.size(); colInc++)
 	{
-		grid[colInc].resize(newParameters.height);
+		grid[colInc].resize(newParameters.height());
 		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++)
 		{
 			// for all 4 pictures...
@@ -391,6 +503,133 @@ void PictureControl::resetStorage()
 {
 	mostRecentImage = std::vector<long>{};
 }
+
+
+/* 
+  Version of this from the Basler camera control Code. I will consolidate these shortly.
+*/
+void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData )
+{
+	mostRecentImage_m = picData;
+	unsigned int minColor = minSliderPosition;
+	unsigned int maxColor = maxSliderPosition;
+	dc->SelectPalette ( CPalette::FromHandle ( imagePalette ), true );
+	dc->RealizePalette ( );
+	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
+	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
+	int dataWidth = grid.size ( );
+	// assumes non-zero size...
+	if ( grid.size ( ) == 0 )
+	{
+		thrower ( "ERROR: tried to draw bitmap without setting grid size!" );
+	}
+	int dataHeight = grid[ 0 ].size ( );
+	int totalGridSize = dataWidth * dataHeight;
+	if ( picData.size ( ) != totalGridSize )
+	{
+		thrower ( "ERROR: picture data didn't match grid size!" );
+	}
+	// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
+	if ( pixelsAreaWidth % 4 )
+	{
+		pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
+	}
+	long modrange = maxColor - minColor;
+	float yscale = ( 256.0f ) / (float) modrange;
+	WORD argbq[ PICTURE_PALETTE_SIZE ];
+	for ( int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++ )
+	{
+		argbq[ paletteIndex ] = (WORD) paletteIndex;
+	}
+	PBITMAPINFO pbmi = (PBITMAPINFO) LocalAlloc ( LPTR, sizeof ( BITMAPINFOHEADER ) + sizeof ( RGBQUAD ) * ( 1 << 8 ) );
+	pbmi->bmiHeader.biSize = sizeof ( BITMAPINFOHEADER );
+	pbmi->bmiHeader.biPlanes = 1;
+	pbmi->bmiHeader.biBitCount = 8;
+	pbmi->bmiHeader.biCompression = BI_RGB;
+	pbmi->bmiHeader.biClrUsed = PICTURE_PALETTE_SIZE;
+	pbmi->bmiHeader.biSizeImage = 0;// ((pbmi->bmiHeader.biWidth * 8 + 31) & ~31) / 8 * pbmi->bmiHeader.biHeight;
+	pbmi->bmiHeader.biHeight = dataHeight;
+	memcpy ( pbmi->bmiColors, argbq, sizeof ( WORD ) * PICTURE_PALETTE_SIZE );
+	std::vector<BYTE> dataArray ( dataWidth * dataHeight, 255 );
+	int iTemp;
+	double dTemp = 1;
+	for ( int heightInc = 0; heightInc < dataHeight; heightInc++ )
+	{
+		for ( int widthInc = 0; widthInc < dataWidth; widthInc++ )
+		{
+			dTemp = ceil ( yscale * ( picData ( heightInc, widthInc ) - minColor ) );
+			if ( dTemp < 0 )
+			{
+				// raise value to zero which is the floor of values this parameter can take.
+				iTemp = 0;
+			}
+			else if ( dTemp > PICTURE_PALETTE_SIZE - 1 )
+			{
+				// round to maximum value.
+				iTemp = PICTURE_PALETTE_SIZE - 1;
+			}
+			else
+			{
+				// no rounding or flooring to min or max needed.
+				iTemp = (int) dTemp;
+			}
+			// store the value.
+			dataArray[ widthInc + heightInc * dataWidth ] = (BYTE) iTemp;
+		}
+	}
+	SetStretchBltMode ( dc->GetSafeHdc ( ), COLORONCOLOR );
+	switch ( dataWidth )
+	{
+		case 0:
+		{
+			pbmi->bmiHeader.biWidth = dataWidth;
+			pbmi->bmiHeader.biSizeImage = 1;
+			StretchDIBits ( dc->GetSafeHdc ( ), pictureArea.left, pictureArea.top,
+							pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
+							dataHeight, dataArray.data ( ), ( BITMAPINFO FAR* )pbmi, DIB_PAL_COLORS, SRCCOPY );
+			break;
+		}
+		case 2:
+		{
+			// make array that is twice as long.
+			std::vector<BYTE> finalDataArray ( dataWidth * dataHeight * 2, 255 );
+			for ( int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++ )
+			{
+				finalDataArray[ 2 * dataInc ] = dataArray[ dataInc ];
+				finalDataArray[ 2 * dataInc + 1 ] = dataArray[ dataInc ];
+			}
+			pbmi->bmiHeader.biWidth = dataWidth * 2;
+			StretchDIBits ( *dc, pictureArea.left, pictureArea.top, pixelsAreaWidth,
+							pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight, finalDataArray.data ( ),
+							( BITMAPINFO FAR* )pbmi, DIB_PAL_COLORS, SRCCOPY );
+			break;
+		}
+		default:
+		{
+			// make array that is 4X as long.
+			std::vector<BYTE> finalDataArray ( dataWidth * dataHeight * 4, 255 );
+			for ( int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++ )
+			{
+				int data = dataArray[ dataInc ];
+				finalDataArray[ 4 * dataInc ] = data;
+				finalDataArray[ 4 * dataInc + 1 ] = data;
+				finalDataArray[ 4 * dataInc + 2 ] = data;
+				finalDataArray[ 4 * dataInc + 3 ] = data;
+			}
+			pbmi->bmiHeader.biWidth = dataWidth * 4;
+			StretchDIBits ( *dc, pictureArea.left, pictureArea.top, pixelsAreaWidth,
+							pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight, finalDataArray.data ( ),
+							( BITMAPINFO FAR* )pbmi, DIB_PAL_COLORS, SRCCOPY );
+			break;
+		}
+	}
+	LocalFree ( pbmi );
+	// update this with the new picture.
+	setHoverValue ( );
+}
+
+
+
 /*
  * draw the picture that the camera took. The camera's data is inputted as a 1D vector of long here. The control needs
  * the camera window context since there's no direct control associated with the picture itself. Could probably change 
@@ -803,36 +1042,43 @@ void PictureControl::drawRectangle( CDC* dc, RECT pixelRect )
 /*
  * re-arrange the controls associated with this picture. Neccessary e.g. when the window is resized. 
  */
-void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts)
+void PictureControl::rearrange( int width, int height, fontMap fonts)
 {
 	if (active)
 	{
-		editMax.rearrange(cameraMode, triggerMode, width, height, fonts);
-		editMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		labelMax.rearrange(cameraMode, triggerMode, width, height, fonts);
-		labelMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		sliderMax.rearrange(cameraMode, triggerMode, width, height, fonts);
-		sliderMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		coordinatesText.rearrange( cameraMode, triggerMode, width, height, fonts );
-		coordinatesDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
-		valueText.rearrange( cameraMode, triggerMode, width, height, fonts );
-		valueDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
+		editMax.rearrange(width, height, fonts);
+		editMin.rearrange(width, height, fonts);
+		labelMax.rearrange(width, height, fonts);
+		labelMin.rearrange(width, height, fonts);
+		sliderMax.rearrange(width, height, fonts);
+		sliderMin.rearrange(width, height, fonts);
+		coordinatesText.rearrange( width, height, fonts );
+		coordinatesDisp.rearrange( width, height, fonts );
+		valueText.rearrange( width, height, fonts );
+		valueDisp.rearrange( width, height, fonts );
 		scaledBackgroundArea.bottom = long(unscaledBackgroundArea.bottom * height / 997.0);
 		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
 		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);
 		scaledBackgroundArea.right = long(unscaledBackgroundArea.right * width / 1920.0);
-
+		if ( vertGraph )
+		{
+			vertGraph->rearrange ( width, height, fonts );
+		}
+		if ( horGraph )
+		{
+			horGraph->rearrange ( width, height, fonts );
+		}
 		double widthPicScale;
 		double heightPicScale;
-		if (unofficialImageParameters.width > unofficialImageParameters.height)
+		if (unofficialImageParameters.width() > unofficialImageParameters.height())
 		{
 			widthPicScale = 1;
-			heightPicScale = double(unofficialImageParameters.height) / unofficialImageParameters.width;
+			heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
 		}
 		else
 		{
 			heightPicScale = 1;
-			widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
+			widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
 		}
 		long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
 		// why isn't this scaled???
