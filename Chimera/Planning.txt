@@ -40,6 +40,7 @@ FEATURES:
 		- Neural Network
 		- Genetic / evolutionary
 - Make the code able to check if the mot is there.
+- make plots for single pic mode andor images
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
