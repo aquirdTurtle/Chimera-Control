@@ -49,9 +49,10 @@ class ServoManager
 		Control<CStatic> aoNumberHeader;
 		Control<CStatic> controlHeader;
 
-		const UINT numServos = 2;
+		const UINT numServos = 3;
 		Servo sidemotServo;
 		Servo diagMotServo;
+		Servo d1Servo;
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
 		to give to the ao system for changes.

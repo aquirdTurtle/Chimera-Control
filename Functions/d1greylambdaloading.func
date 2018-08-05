@@ -1,0 +1,41 @@
+% free space grey molasses
+def D1greyLambdaloading():
+  % settings
+  var grey_detuning -0.0
+  var D1twoToTwopPower 0.25
+  var repump_Power 0.3
+  var repump_Freq -0.55
+  var cooling_time 200
+  % init system 
+  daclinspace: freq795 0.2 grey_detuning 4 20
+  dac: power795 D1twoToTwopPower
+  rsg: (6.834682 + rsfreq*0.001) rspow
+
+  t += 4
+
+  off: diagMotRf
+  off: sideMotRf
+  off: repumpRf
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  dac: RepumpPower 0
+  dac: motGradientCurrent 0
+  call d1greyLoadFields() 
+
+  %pulseon: tweezerIntensityTrig 0.1
+  %t += 0.5
+
+  on: C3
+  pulseon: a15 0.1
+  t += 0.1
+  off: C3
+  
+  on: rf795
+  t += cooling_time 
+  off: rf795
+  
+  t += 0.5
+  daclinspace: freq795 grey_detuning 0.2 4 20
+  t += 1
+
+

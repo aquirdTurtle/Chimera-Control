@@ -35,7 +35,7 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	pos.y += 20;
 	sidemotServo.initialize( pos, toolTips, parent, id, "Sidemot", 6, 22 );
 	diagMotServo.initialize( pos, toolTips, parent, id, "DiagMot", 7, 9 );
-
+	d1Servo.initialize ( pos, toolTips, parent, id, "D1", 6, 18 );
 	ai = ai_in;
 	ao = ao_in;
 	ttls = ttls_in;
@@ -49,6 +49,7 @@ void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 	configStream << numServos << "\n";
 	sidemotServo.handleSaveMasterConfig( configStream );
 	diagMotServo.handleSaveMasterConfig( configStream );
+	d1Servo.handleSaveMasterConfig ( configStream );
 }
 
 void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Version version )
@@ -74,6 +75,11 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 	if ( numServosInFile > 0 )
 	{
 		diagMotServo.handleOpenMasterConfig( configStream, version );
+		numServosInFile--;
+	}
+	if ( numServosInFile > 0 )
+	{
+		d1Servo.handleOpenMasterConfig ( configStream, version );
 		numServosInFile--;
 	}
 	while ( numServosInFile > 0 )
@@ -105,6 +111,7 @@ void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 
 	sidemotServo.rearrange( width, height, fonts );
 	diagMotServo.rearrange( width, height, fonts );
+	d1Servo.rearrange ( width, height, fonts );
 }
 
 
@@ -118,6 +125,7 @@ void ServoManager::runAll( )
 {
 	calibrate( sidemotServo );
 	calibrate( diagMotServo );
+	calibrate ( d1Servo );
 }
 
 

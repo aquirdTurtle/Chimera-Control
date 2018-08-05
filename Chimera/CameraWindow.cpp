@@ -418,7 +418,8 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 
 LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
-	UINT picNum = lParam;
+	currentPictureNum++;
+	UINT picNum = currentPictureNum;
 	if ( picNum % 2 == 1 )
 	{
 		mainThreadStartTimes.push_back( std::chrono::high_resolution_clock::now( ) );
@@ -433,6 +434,14 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	{
 		// last picture.
 		picNum = curSettings.totalPicsInExperiment;
+	}
+	if ( lParam != currentPictureNum && lParam != -1 )
+	{
+		if ( curSettings.cameraMode != "Video Mode" )
+		{
+			mainWindowFriend->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
+													   "camera window record?!?!?!?!?" );
+		}
 	}
 
 	// need to call this before acquireImageData().
@@ -1223,7 +1232,8 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 		if ( picThresholds.size ( ) != 1 && picThresholds.size ( ) != input->grids[ 0 ].numAtoms ( ) )
 		{
 			errBox ( "ERROR: the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
-					 "first grid!" );
+					 "first grid! Size is " + str(picThresholds.size()) + "and grid size is " + 
+					 str(input->grids[ 0 ].numAtoms ( )) );
 			return 0;
 		}
 	}
@@ -1382,7 +1392,8 @@ std::string AndorWindow::getStartMessage()
 
 void AndorWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
-	// starting not-calibration, so reset this.
+	currentPictureNum = 0;
+	// starting a not-calibration, so reset this.
 	justCalibrated = false;
 	input->atomQueueForRearrangement = &rearrangerAtomQueue;
 	input->rearrangerLock = &rearrangerLock;

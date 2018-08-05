@@ -4,7 +4,10 @@ def pump2stretch():
   off: repumpRf
   on: repumpShutter   % on
   % set to 3G field
-  call setQuantAxis()
+% for initial testing - C.K.
+var pumppower 0.2
+var pumptime 1.0
+  %call setQuantAxis()
   t += 10
   % Setting the pumping beam frequencies:
   % Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 
