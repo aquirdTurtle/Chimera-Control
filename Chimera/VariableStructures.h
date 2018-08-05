@@ -10,19 +10,26 @@
 #define PARENT_PARAMETER_SCOPE "parent"
 #define NO_PARAMETER_SCOPE "__NO__"
 
-
-struct variationRangeInfo
+// individual to a given parameter.
+struct indvParamRangeInfo
 {
 	double initialValue;
 	double finalValue;
+	bool operator==( const indvParamRangeInfo& v )
+	{
+		return (initialValue == v.initialValue && finalValue == v.finalValue);
+	}
+};
+
+// shared between all parameters.
+struct variationRangeInfo
+{
 	unsigned int variations;
 	bool leftInclusive;
 	bool rightInclusive;
 	bool operator==( const variationRangeInfo& v )
 	{
-		return (initialValue == v.initialValue && 
-				 finalValue == v.finalValue && 
-				 variations == v.variations &&
+		return ( variations == v.variations &&
 				 leftInclusive == v.leftInclusive &&
 				 rightInclusive == v.rightInclusive);
 	}
@@ -40,7 +47,7 @@ struct parameterType
 
 	// records which scan dimension the variable is in.
 	USHORT scanDimension=1;
-	std::vector<variationRangeInfo> ranges;
+	std::vector<indvParamRangeInfo> ranges;
 	/// this stuff used to be in the keyHandler system.
 	std::vector<double> keyValues;
 	// this might just be redundant with constant above...

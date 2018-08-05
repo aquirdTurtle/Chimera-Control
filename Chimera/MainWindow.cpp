@@ -253,7 +253,7 @@ void MainWindow::OnTimer( UINT_PTR id )
 void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for ( auto seqInc : range( input->variables.size( ) ) )
 	{
@@ -902,7 +902,7 @@ HANDLE MainWindow::startExperimentThread( MasterThreadInput* input, bool isTurnO
 void MainWindow::fillMotTempInput ( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
 	for ( auto seqInc : range ( input->variables.size ( ) ) )
 	{
@@ -933,7 +933,7 @@ void MainWindow::fillMotTempInput ( MasterThreadInput* input )
 void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
 	for ( auto seqInc : range ( input->variables.size ( ) ) )
 	{
@@ -963,7 +963,7 @@ void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
 void MainWindow::fillMotInput( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for (auto seqInc : range(input->variables.size()))
 	{
@@ -1019,7 +1019,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->seq = profile.getSeqSettings( );
 	input->niawg = &niawg;
 	input->comm = &comm;
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->rerngGuiForm = rearrangeControl.getParams( );
 }
 

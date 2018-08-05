@@ -89,7 +89,7 @@ class ProfileSystem
 		bool sequenceIsSaved;
 
 		// version = str(versionMain) + "." + str(versionSub)
-		const Version version = Version( "3.4" );
+		const Version version = Version( "3.5" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

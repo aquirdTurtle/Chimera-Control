@@ -46,7 +46,7 @@ template <class ControlType> class Control : public ControlType
 		Control();
 		// Standard Position: for objects that don't move around and have permanent positions in their windows.
 		RECT sPos;
-		// Kinetic Series Mode Positon: position for camera-mode-sensitive objects in kinetic series mode.
+		// Kinetic Series Mode Position: position for camera-mode-sensitive objects in kinetic series mode.
 		RECT seriesPos;
 		// Accumulate Mode Position
 		RECT amPos;

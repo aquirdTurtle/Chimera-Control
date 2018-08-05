@@ -152,8 +152,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				auto index = param->index;
 				if ( index + 1 >= optParams.size ( ) )
 				{
-					/// finished with round... TODO
-					thrower ( "BREAK!" );
+					thrower ( "Finished Optimization!" );
 				}
 				else
 				{
