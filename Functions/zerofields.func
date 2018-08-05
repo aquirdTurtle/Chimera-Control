@@ -12,4 +12,4 @@ def zeroFields():
   dac: bottomCoilCurrent bot_field 
   dac: frontCoilCurrent front_field 
   dac: backCoilCurrent back_field 
-  t += 3
+  t += 1

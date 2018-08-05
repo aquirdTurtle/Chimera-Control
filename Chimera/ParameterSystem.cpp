@@ -1062,9 +1062,9 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				break;
 			}
 			// update the listview
+			newScope = str ( newScope, 0, false, true );
 			currentParameters[varNumber].parameterScope = newScope;
-			std::string tempStr( str( currentParameters[varNumber].parameterScope, 0, false, true ) );
-			listViewItem.pszText = &tempStr[0];
+			listViewItem.pszText = &newScope[0];
 			parametersListview.SetItem( &listViewItem );
 			break;
 		}

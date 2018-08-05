@@ -1,0 +1,46 @@
+% Master-Script See the "?" for info on commands.
+def D1greyAtomFlashingImage():
+  % give the shutter some time to open.
+  off: diagMotRf
+  off: sideMotRf
+  off: repumpRF
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  dac: RepumpPower 0 
+
+  var image_detuning -0.1   
+  var image_power 0.3
+  var image_repumpdetuning 0.4
+  var image_repumppower 5
+
+  dacLinSpace: freq795 default795freq image_detuning 2 10
+  dac: power795 image_power
+  call d1greyfields()
+  t += 2
+  %rsg: (6.834682 + image_repumpdetuning*0.001) image_repumppower	
+
+  %on: C3
+  %t += 0.1
+  %off: C3
+  on: andorTrig
+  t += 0.3
+  
+  %on: tweezerflashrf
+  
+  %on: sidemotflash
+  on: rf795
+  t += andorImageTime
+  off: rf795
+  
+  %off: tweezerflashrf
+  
+  %off: sidemotflash
+  dacLinSpace: freq795 image_detuning default795freq 2 10
+  t += 2
+  off: andorTrig
+  t += 0.2
+  % note that the camera needs some time before it can take
+  % another image. Typically we need to wait like 5ms. The camera window
+  % will tell you the minimum kinetic cycle time, which depends on the
+  % exposure time and the image size, with some net overhead.
+	

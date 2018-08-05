@@ -1,16 +1,21 @@
 % pushout(), but with the repump on.
 def pushout_all():
+  % this number was set way too high at 0.65... (Mark - June 12th 2018)
   off: sideMotRf
   on: RepumpRF
-  dac: RepumpPower 0
+  dac: RepumpPower 0.1
   daclinspace: motFreq defaultMotFreq pushoutfreq 1 5 
   t += 1.01
-  dac: probePower pushoutPower  
-  on: probeRF
-  t += pushoutTime
-  off: probeRF
-  off: probeShutter
-  on: sideMotShutter
+  var pushout_Power 0.3
+  var sidemot_Power 0
+  var pushout_time 2
+  %dac: probePower pushoutPower
+  dac: probePower pushout_power
+  on: probeRf
+  t += pushout_time
+  off: probeRf
+  %off: probeShutter
+  %on: sideMotShutter
   daclinspace: motFreq pushoutfreq defaultMotFreq 1 5
   t += 1.01
 

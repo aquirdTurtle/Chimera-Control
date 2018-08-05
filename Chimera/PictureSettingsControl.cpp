@@ -376,6 +376,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		}
 		return brushes["Red"];
 		*/
+		return brushes[ "Solarized Green" ];
 	}
 	else
 	{
@@ -596,9 +597,10 @@ void PictureSettingsControl::updateSettings( )
 		}
 		catch ( std::invalid_argument )
 		{
+			picThresholds.clear ( );
 			// assume it's a file location.
 			std::ifstream thresholdFile;
-			thresholdFile.open ( str("C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\Chimera") + str(textEdit) );
+			thresholdFile.open ( str("J:\\Code-Files\\") + str(textEdit) );
 			if ( !thresholdFile.is_open ( ) )
 			{
 				thrower ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "

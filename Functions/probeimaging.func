@@ -1,5 +1,10 @@
 % Master-Script See the "?" for info on commands.
 def probeimaging():
+
+var loadMotMotFreq 0
+var probefreq 0.1
+var probeDAC 0.1
+
     off: diagMotRf
     off: sideMotRf       % turn off side mot shutter
     off: sideMotShutter

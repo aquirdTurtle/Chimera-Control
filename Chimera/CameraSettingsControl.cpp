@@ -169,7 +169,7 @@ void CameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
 	cameraModeCombo.SelectString(0, cstr(inputSettings.cameraMode));
-	if (inputSettings.cameraMode == "Continuous Single Scans Mode")
+	if (inputSettings.cameraMode == "Video Mode")
 	{
 		inputSettings.acquisitionMode = runModes::Video;
 		inputSettings.totalPicsInVariation = INT_MAX;
