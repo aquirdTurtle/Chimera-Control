@@ -35,15 +35,10 @@ FEATURES:
 - Make basler able to simulate finite acquisitions in debug mode.
 - improve delete file after abort functionality
 - Implement auto-optimization
-	- Implement skeleton
-		- Be able to set parameters for input
-		- Get data from data analysis system
-		- Looping 
 	- Implement different algorithms
-		- Hill-climbing
+		- Randomized Search
 		- Neural Network
 		- Genetic / evolutionary
-		- Randomized Search
 - Make the code able to check if the mot is there.
 
 Refactoring / Other:

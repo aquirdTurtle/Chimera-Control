@@ -12,7 +12,7 @@
 #include "constants.h"
 
 
-BaslerWindow::BaslerWindow( /*=NULL*/ ) 
+BaslerWindow::BaslerWindow( ) : picManager(true)
 {
 
 }
@@ -269,6 +269,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		CDC* cdc = GetDC();
 		//picManager.drawDongles ( cdc, selectedPixel, , , 0);
 		picManager.drawBitmap( cdc, *imageMatrix );
+		picManager.updatePlotData ( );
 		picManager.drawDongles ( cdc, { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		//picture.updatePlotData( );
 		ReleaseDC( cdc );
@@ -490,7 +491,7 @@ void BaslerWindow::OnPaint()
 		auto* dc = GetDC( );
 		CRect size;
 		GetClientRect( &size );
-		//picture.paint( dc, size, mainBrushes["Black"] );
+		picManager.paint ( dc, size, mainWin->getBrushes()[ "Black" ] );
 		ReleaseDC( dc );
 	}
 }
@@ -548,12 +549,10 @@ void BaslerWindow::initializeControls()
 	dims.x *= 1.7;
 	dims.y *= 1.7;
 
-	//picture.initialize( picPos, this, id, dims.x + picPos.x + 115, dims.y + picPos.y, mainBrushes["Red"], 
-	//					brightPlotPens, plotfont, brightPlotBrushes );
-	//picture.recalculateGrid( cameraController->getDefaultSettings().dimensions );
 	CDC* cdc = GetDC( );
 	auto brushes = mainWin->getBrushes ( );
-	picManager.initialize ( picPos, this, id, brushes[ "Red" ] );
+	picManager.initialize ( picPos, this, id, brushes[ "Red" ], mainWin->getBrightPlotPens(), mainWin->getPlotFont(),
+							mainWin->getPlotBrushes() );
 	//picture.drawBackground( cdc );
 	ReleaseDC( cdc );
 }

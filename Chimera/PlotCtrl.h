@@ -16,6 +16,7 @@ enum class plotStyle
 	ErrorPlot,
 	// uses bars for histograms
 	HistPlot,
+	VertHist,
 	// 
 	OscilloscopePlot
 };
@@ -36,7 +37,7 @@ class PlotCtrl
 	public:
 		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pens,
 				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
-				  std::string titleIn = "Title!", bool narrowOpt=false );
+				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );
 		void clear( );
 		void setCurrentDims( int width, int height);

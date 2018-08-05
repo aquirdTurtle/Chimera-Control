@@ -80,15 +80,15 @@ baslerSettings BaslerCameras::getDefaultSettings()
 {
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
-	defaultSettings.dimensions.left = 0;
+	defaultSettings.dimensions.left = 1;
 	defaultSettings.dimensions.right = dim.x; 
 	defaultSettings.dimensions.horizontalBinning = 1;
-	defaultSettings.dimensions.top = 0;
-	defaultSettings.dimensions.bottom = dim.y;
+	defaultSettings.dimensions.top = dim.y;
+	defaultSettings.dimensions.bottom = 1;
 	defaultSettings.dimensions.verticalBinning = 1;
 	defaultSettings.exposureMode = BaslerAutoExposure::mode::Off;
-	defaultSettings.exposureTime = 1000; 
-	defaultSettings.frameRate = 2;
+	defaultSettings.exposureTime = 1000;
+	defaultSettings.frameRate = 0.25;
 	defaultSettings.rawGain = camera->getMinGain();
 	return defaultSettings;
 }

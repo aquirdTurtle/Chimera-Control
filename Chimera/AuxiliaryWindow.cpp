@@ -1464,7 +1464,6 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		aoPlots.resize( NUM_DAC_PLTS );
 		dacData.resize( NUM_DAC_PLTS );
 		UINT linesPerDacPlot = 24 / dacData.size( );
-		
 		// initialize data structures.
 		for ( auto& dacPlotData : dacData )
 		{

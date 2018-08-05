@@ -1,17 +1,111 @@
 ﻿#include "stdafx.h"
 #include "PictureControl.h"
 #include "Thrower.h"
+#include <algorithm>
+#include <numeric>
 
-
-PictureControl::PictureControl ( )
+PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramOption )
 {
-
+	active = true;
+	if ( histOption )
+	{
+		horData.resize ( 1 );
+		horData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
+		vertData.resize ( 1 );
+		vertData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
+		updatePlotData ( );
+	}
 }
+
+
+void PictureControl::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
+{
+	if ( !active )
+	{
+		return;
+	}
+	cdc->SetBkColor ( RGB ( 0, 0, 0 ) );
+	long width = size.right - size.left, height = size.bottom - size.top;
+	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
+	// for a single plot.
+	horGraph->setCurrentDims ( width, height );
+	{
+		memDC ttlDC ( cdc, &horGraph->GetPlotRect ( ) );
+		horGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
+		horGraph->drawTitle ( ttlDC );
+		horGraph->drawBorder ( ttlDC );
+		horGraph->plotPoints ( &ttlDC );
+	}
+	vertGraph->setCurrentDims ( width, height );
+	{
+		memDC ttlDC ( cdc, &vertGraph->GetPlotRect ( ) );
+		vertGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
+		vertGraph->drawTitle ( ttlDC );
+		vertGraph->drawBorder ( ttlDC );
+		vertGraph->plotPoints ( &ttlDC );
+	}
+}
+
+
+
+void PictureControl::updatePlotData ( )
+{
+	if ( !histOption )
+	{
+		return;
+	}
+	horData[ 0 ]->resize ( mostRecentImage_m.getCols ( ) );
+	vertData[ 0 ]->resize ( mostRecentImage_m.getRows ( ) );
+	UINT count = 0;
+
+	std::vector<long> dataRow;
+	for ( auto& data : *horData[ 0 ] )
+	{
+		data.x = count;
+		// integrate the column
+		double p = 0.0;
+		for ( auto row : range ( mostRecentImage_m.getRows ( ) ) )
+		{
+			p += mostRecentImage_m ( row, count );
+		}
+		count++;
+		dataRow.push_back ( p );
+	}
+	count = 0;
+	auto avg = std::accumulate ( dataRow.begin ( ), dataRow.end ( ), 0.0 ) / dataRow.size ( );
+	for ( auto& data : *horData[ 0 ] )
+	{
+		data.y = dataRow[ count++ ] - avg;
+	}
+	count = 0;
+	std::vector<long> dataCol;
+	for ( auto& data : *vertData[ 0 ] )
+	{
+		data.x = count;
+		// integrate the row
+		double p = 0.0;
+		for ( auto col : range ( mostRecentImage_m.getCols ( ) ) )
+		{
+			p += mostRecentImage_m ( count, col );
+		}
+		count++;
+		dataCol.push_back ( p );
+	}
+	count = 0;
+	auto avgCol = std::accumulate ( dataCol.begin ( ), dataCol.end ( ), 0.0 ) / dataCol.size ( );
+	for ( auto& data : *vertData[ 0 ] )
+	{
+		data.y = dataCol[ count++ ] - avgCol;
+	}
+}
+
 
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds )
+void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds,
+								 std::vector<Gdiplus::Pen*> graphPens, CFont* font,
+								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
 {
 	if ( width < 100 )
 	{
@@ -23,7 +117,22 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 		throw std::invalid_argument( "Pictures must be greater than 100 in height because this is the minimum height "
 									 "of the max/min controls." );
 	}
-	setPictureArea( loc, width, height-25 );
+	maxWidth = width;
+	maxHeight = height;
+	if ( histOption )
+	{
+		vertGraph = new PlotCtrl ( vertData, plotStyle::VertHist, graphPens, font, graphBrushes, "", true );
+		vertGraph->init ( { loc.x, loc.y }, 65, height, parent );
+		loc.x += 65;
+	}
+	setPictureArea ( loc, maxWidth, maxHeight );
+	if ( histOption )
+	{
+		horGraph = new PlotCtrl ( horData, plotStyle::HistPlot, graphPens, font, graphBrushes, "", true );
+		horGraph->init ( { loc.x, loc.y + height }, width - 50, 60, parent );
+	}
+
+	//setPictureArea( loc, width, height-25 );
 	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	// "min" text
 	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
@@ -951,7 +1060,14 @@ void PictureControl::rearrange( int width, int height, fontMap fonts)
 		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
 		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);
 		scaledBackgroundArea.right = long(unscaledBackgroundArea.right * width / 1920.0);
-
+		if ( vertGraph )
+		{
+			vertGraph->rearrange ( width, height, fonts );
+		}
+		if ( horGraph )
+		{
+			horGraph->rearrange ( width, height, fonts );
+		}
 		double widthPicScale;
 		double heightPicScale;
 		if (unofficialImageParameters.width() > unofficialImageParameters.height())

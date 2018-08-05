@@ -4,7 +4,8 @@
 
 
 PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pensIn,
-					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,	std::string titleIn, bool narrowOpt ) :
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,	std::string titleIn, bool narrowOpt,
+					bool plotHistOption ) :
 	whitePen( PS_SOLID, 0, RGB( 255, 255, 255 ) ),
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
 	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
@@ -19,6 +20,19 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 	whiteBrush = new Gdiplus::SolidBrush( greyColor );
 	greyGdiPen = new Gdiplus::Pen( greyColor );
 	title = titleIn;
+	if ( narrow )
+	{
+		boxWidth = 1;
+	}
+}
+
+
+PlotCtrl::~PlotCtrl ( )
+{
+	for ( auto& pen : pens )
+	{
+		delete pen;
+	}
 }
 
 
@@ -27,15 +41,6 @@ dataPoint PlotCtrl::getMainAnalysisResult ( )
 	// get the average data. If not only a single data point, as this is currently ment to be used, then I'm not 
 	// positive what value this is grabbing... maybe the last point of the average?
 	return data.back ( )->back();
-}
-
-
-PlotCtrl::~PlotCtrl( )
-{
-	for ( auto& pen : pens )
-	{
-		delete pen;
-	}
 }
 
 
@@ -118,14 +123,14 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 {
 	double minx = DBL_MAX, maxx = -DBL_MAX, miny = DBL_MAX, maxy = -DBL_MAX;
-	UINT counter = 0;
+	//UINT counter = 0;
 	for ( auto line : screenData )
 	{
-		if ( style == plotStyle::HistPlot && counter == screenData.size( )-1 )
-		{
+		//if ( style == plotStyle::HistPlot )// && counter == screenData.size( )-1 )
+		//{
 			// no average dataset for histograms.
-			continue;
-		}
+		//	continue;
+		//}
 		for ( auto elem : line )
 		{
 			if ( elem.x < minx )
@@ -137,17 +142,18 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 				maxx = elem.x;
 			}
 		}
-		counter++;
+		//counter++;
 	}
-	counter = 0;
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot )
+	//counter = 0;
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot 
+		 || style == plotStyle::VertHist )
 	{
 		for ( auto line : screenData )
 		{
-			if ( style == plotStyle::HistPlot && counter == screenData.size( )-1 )
-			{
-				continue;
-			}
+			//if ( style == plotStyle::HistPlot )//&& counter == screenData.size( )-1 )
+			//{
+			//	continue;
+			// }
 			for ( auto elem : line )
 			{
 				if ( elem.y < miny )
@@ -159,15 +165,21 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 					maxy = elem.y;
 				}
 			}
-			counter++;
+			//counter++;
 		}
 	}
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
 	double plotHeightPixels = heightScale2 * (plotAreaDims.bottom - plotAreaDims.top);
 	double rangeX = maxx - minx;
+	double rangeY = maxy - miny;
+
 	if ( rangeX == 0 )
 	{
 		rangeX += 1;
+	}
+	if ( rangeY == 0 )
+	{
+		rangeY += 1;
 	}
 	double dataScaleX = ( plotWidthPixels - 20 ) / (rangeX);
 	if ( style == plotStyle::HistPlot )
@@ -205,7 +217,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 		dataHeight = (maxy - miny) * 1.1;
 		dataMin = miny - (maxy - miny)*0.05;
 	}
-	else if ( style == plotStyle::HistPlot )
+	else if ( style == plotStyle::HistPlot || style == plotStyle::VertHist )
 	{
 		dataHeight = maxy - miny;
 		dataMin = 0;
@@ -214,15 +226,36 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	{
 		thrower( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
 	}
-	double dataScaleY = plotHeightPixels / dataHeight;
-	 
-	for ( auto& line : screenData )
+	if ( style == plotStyle::VertHist )
 	{
-		for ( auto& point : line )
+		// flipped
+		double dataScaleX = plotWidthPixels / dataHeight;
+		double dataScaleY = plotHeightPixels / rangeX;
+		boxWidthPixels = ceil ( boxWidth * dataScaleY * 0.99 );
+		for ( auto& line : screenData )
 		{
-			point.x = plotAreaDims.left * widthScale2 + (point.x - minx) * dataScaleX + 10;
-			point.y = plotAreaDims.bottom * heightScale2 - (point.y - dataMin) * dataScaleY;
-			point.err *= dataScaleY;
+			for ( auto& point : line )
+			{
+				auto px = point.x;
+				auto py = point.y;
+				point.x = plotAreaDims.left * widthScale2 + ( py - dataMin ) * dataScaleX + 10;
+				point.y = plotAreaDims.bottom * heightScale2 - ( px - minx ) * dataScaleY;
+				point.err *= dataScaleY;
+			}
+		}
+	}
+	else
+	{
+		double dataScaleY = plotHeightPixels / dataHeight;
+
+		for ( auto& line : screenData )
+		{
+			for ( auto& point : line )
+			{
+				point.x = plotAreaDims.left * widthScale2 + ( point.x - minx ) * dataScaleX + 10;
+				point.y = plotAreaDims.bottom * heightScale2 - ( point.y - dataMin ) * dataScaleY;
+				point.err *= dataScaleY;
+			}
 		}
 	}
 }
@@ -265,7 +298,7 @@ void PlotCtrl::plotPoints( memDC* d )
 		}
 	}
 	std::pair<double, double> minMaxScaled, minMaxRaw;
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot )
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::VertHist )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
 	}
@@ -319,7 +352,7 @@ void PlotCtrl::plotPoints( memDC* d )
 		{
 			makeLinePlot( d, line, pen );
 		}
-		else if ( style == plotStyle::HistPlot )
+		else if ( style == plotStyle::HistPlot || style == plotStyle::VertHist )
 		{
 			makeBarPlot( d, line, brush );
 		}
@@ -346,8 +379,21 @@ void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrus
 {
 	for ( auto& point : scaledLine )
 	{
-		Gdiplus::Rect r( point.x - boxWidthPixels / 2, point.y, boxWidthPixels,
-						 plotAreaDims.bottom * heightScale2 - point.y);
+		Gdiplus::Rect r;
+		if ( style == plotStyle::HistPlot )
+		{
+			r = Gdiplus::Rect ( point.x - boxWidthPixels / 2, point.y, boxWidthPixels,
+								plotAreaDims.bottom * heightScale2 - point.y );
+		}
+		else if ( style == plotStyle::VertHist )
+		{
+			r = Gdiplus::Rect ( plotAreaDims.left * widthScale2, point.y - boxWidthPixels / 2,
+								point.x - plotAreaDims.left * widthScale2, boxWidthPixels + 1 );
+		}
+		else
+		{
+			thrower ( "Bad plot style for making a bar plot?!?!?" );
+		}
 		Gdiplus::Graphics g( d->GetSafeHdc( ) );
 		g.FillRectangle( brush, r );
 		//circleMarker( d, { LONG( point.x), LONG( point.y + 1 ) }, 5, brush );

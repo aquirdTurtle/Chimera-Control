@@ -7,12 +7,15 @@
 class PictureManager
 {
 	public:
-		PictureManager ( );
+		PictureManager ( bool histOption );
+		void updatePlotData ( );
 		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
-		void initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultGridBrush );
+		void initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultGridBrush,
+						 std::vector<Gdiplus::Pen*> graphPens = std::vector<Gdiplus::Pen*> ( ), CFont* font = NULL,
+						 std::vector<Gdiplus::SolidBrush*> graphBrushes = std::vector<Gdiplus::SolidBrush*> ( ) );
 		void refreshBackgrounds(CDC* easel);
 		void drawGrids(CDC* easel);
 		UINT getNumberActive( );
@@ -43,7 +46,7 @@ class PictureManager
 		void setSettings( std::array<int, 4> maxCounts, std::array<int, 4>  minCounts, bool autoscale, 
 						  bool specialGreater, bool specialLess, bool showGrid );
 		void resetPictureStorage();
-
+		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 	private:
 		std::array<PictureControl, 4> pictures;
 		std::array<HPALETTE, 4> palettes;
