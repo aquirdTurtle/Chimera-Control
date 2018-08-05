@@ -19,7 +19,7 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 {
 	paramSysType = type;
 	scanDimensions = 1;
-	variableRanges = 1;
+	rangeInfo.resize ( 1, defaultRangeInfo );
 
 	parametersHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	parametersHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, parametersHeader.sPos, parent, id++ );
@@ -67,10 +67,12 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version v
 {
 	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	clearVariables( );
+	/// 
+	rangeInfo = getRangeInfoFromFile ( configFile, ver );
 	std::vector<parameterType> variables;
 	try
 	{
-		variables = getVariablesFromFile( configFile, ver );
+		variables = getVariablesFromFile( configFile, ver, rangeInfo.size() );
 	}
 	catch ( Error& )
 	{}
@@ -89,12 +91,12 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version v
 	}
 	if ( currentParameters.size( ) != 0 )
 	{
-		for ( auto rangeInc : range( currentParameters.front( ).ranges.size( ) ) )
+		for ( auto rangeInc : range( rangeInfo.size() ) )
 		{
-			bool leftInclusivity = currentParameters.front( ).ranges[rangeInc].leftInclusive;
-			bool rightInclusivity = currentParameters.front( ).ranges[rangeInc].rightInclusive;
-			setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
-			setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
+			//bool leftInclusivity = currentParameters.front( ).ranges[rangeInc].leftInclusive;
+			//bool rightInclusivity = currentParameters.front( ).ranges[rangeInc].rightInclusive;
+			setRangeInclusivity( rangeInc, true, rangeInfo[rangeInc].leftInclusive, preRangeColumns + rangeInc * 3 );
+			setRangeInclusivity( rangeInc, false, rangeInfo[ rangeInc ].rightInclusive, preRangeColumns + 1 + rangeInc * 3 );
 		}
 	}
 	else
@@ -106,14 +108,36 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version v
 	parameterType var;
 	var.name = "";
 	var.constant = false;
-	var.ranges.push_back( { 0, 0, 1, false, true } );
+	var.ranges.push_back ( { 0,0 } );
 	addConfigParameter( var, currentParameters.size( ) );
 	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
 	updateVariationNumber( );
 }
 
+std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile, Version ver )
+{
+	std::vector<variationRangeInfo> rInfo;
+	UINT numRanges;
+	if ( ver > Version ( "3.4" ) )
+	{
+		ProfileSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
+		configFile >> numRanges;
+		rInfo.resize ( numRanges );
+		for ( auto& range : rInfo )
+		{
+			configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
+		}
+	}
+	else
+	{
+		rInfo.clear ( );
+		rInfo.push_back ( { 2, false, true } );
+	}
+	return rInfo;
+}
 
-std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver )
+
+std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver, UINT rangeNum )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -130,7 +154,7 @@ std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream&
 	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadVariableFromFile( configFile, ver ) );
+		tempVariables.push_back( loadVariableFromFile( configFile, ver, rangeNum ) );
 	}
 	return tempVariables;
 }
@@ -161,9 +185,9 @@ void ParameterSystem::updateVariationNumber( )
 				// now it's been seen, don't add it again.
 				dimsSeen[tempVariable.scanDimension - 1] = true;
 			}
-			for ( auto range : tempVariable.ranges )
+			for ( auto range : rangeInfo )
 			{
-				dimVariations[tempVariable.scanDimension - 1] += range.variations;
+				dimVariations[ tempVariable.scanDimension - 1 ] += range.variations;
 			}
 		}
 	}
@@ -218,7 +242,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver )
+parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver, UINT rangeNum )
 {
 	parameterType tempVar;
 	std::string varName, typeText, valueString;
@@ -247,28 +271,35 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 		tempVar.scanDimension = 1;
 	}
 	UINT rangeNumber;
-	openFile >> rangeNumber;
-	// I think it's unlikely to ever need more than 2 or 3 ranges.
-	if ( rangeNumber < 1 || rangeNumber > 100 )
+	if ( ver <= Version ( "3.4" ) )
 	{
-		errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
-		rangeNumber = 1;
+		openFile >> rangeNumber;
+		// I think it's unlikely to ever need more than 2 or 3 ranges.
+		if ( rangeNumber < 1 || rangeNumber > 100 )
+		{
+			errBox ( "ERROR: Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
+			rangeNumber = 1;
+		}
 	}
 	UINT totalVariations = 0;
-	for ( auto rangeInc : range( rangeNumber ) )
+	for ( auto rangeInc : range( rangeNum ) )
 	{
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
 		bool leftInclusive = 0, rightInclusive = 0;
-		openFile >> initValue >> finValue >> variations >> leftInclusive >> rightInclusive;
+		openFile >> initValue >> finValue;
+		if ( ver <= Version ( "3.4" ) )
+		{
+			openFile >> variations >> leftInclusive >> rightInclusive;
+		}		
 		totalVariations += variations;
-		tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
+		tempVar.ranges.push_back ( { initValue, finValue } );
 	}
 	// shouldn't be because of 1 forcing earlier.
 	if ( tempVar.ranges.size( ) == 0 )
 	{
 		// make sure it has at least one entry.
-		tempVar.ranges.push_back( { 0,0,1, false, true } );
+		tempVar.ranges.push_back ( { 0,0 } );
 	}
 	if (ver >= Version("2.14") )
 	{
@@ -292,12 +323,10 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 
 void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType variable )
 {
-	saveFile << variable.name << " " << (variable.constant ? "Constant " : "Variable ") << variable.scanDimension << "\n"
-		<< variable.ranges.size( ) << "\n";
+	saveFile << variable.name << " " << ( variable.constant ? "Constant " : "Variable " ) << variable.scanDimension << "\n";
 	for ( auto& range : variable.ranges )
 	{
-		saveFile << range.initialValue << "\n" << range.finalValue << "\n" << range.variations << "\n"
-			<< range.leftInclusive << "\n" << range.rightInclusive << "\n";
+		saveFile << range.initialValue << "\n" << range.finalValue << "\n";
 	}
 	saveFile << variable.constantValue << "\n" << variable.parameterScope << "\n";
 }
@@ -306,49 +335,54 @@ void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType varia
 void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "VARIABLES\n";
-	saveFile << getCurrentNumberOfVariables( ) << "\n";
+	saveFile << "RANGE-INFO\n";
+	saveFile << rangeInfo.size ( ) << "\n";
+	for ( auto range : rangeInfo )
+	{
+		saveFile << range.leftInclusive << "\n" << range.rightInclusive << "\n" << range.variations << "\n";
+	}
+	saveFile << getCurrentNumberOfVariables ( ) << "\n";
 	for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
 	{
 		saveVariable(saveFile, getVariableInfo( varInc ));
-
 	}
 	saveFile << "END_VARIABLES\n";
 }
 
 
-void ParameterSystem::rearrange(UINT width, UINT height, fontMap fonts)
+void ParameterSystem::rearrange ( UINT width, UINT height, fontMap fonts )
 {
-	parametersHeader.rearrange( width, height, fonts);
-	parametersListview.rearrange( width, height, fonts);
+	parametersHeader.rearrange ( width, height, fonts );
+	parametersListview.rearrange ( width, height, fonts );
 }
 
 
-void ParameterSystem::removeVariableDimension()
+void ParameterSystem::removeVariableDimension ( )
 {
-	if (scanDimensions == 1)
+	if ( scanDimensions == 1 )
 	{
-		thrower("ERROR: Can't delete last variable scan dimension.");
+		thrower ( "ERROR: Can't delete last variable scan dimension." );
 	}
 	// change all variables in the last dimension to be in the second-to-last dimension.
 	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
-	for (auto& variable : currentParameters)
+	for ( auto& variable : currentParameters )
 	{
-		if (variable.scanDimension == scanDimensions)
+		if ( variable.scanDimension == scanDimensions )
 		{
 			variable.scanDimension--;
 		}
 	}
 	// find the last such dimension border item.
-	UINT itemNumber = parametersListview.GetItemCount();
-	for (UINT item = itemNumber; item >= 0; item--)
+	UINT itemNumber = parametersListview.GetItemCount ( );
+	for ( UINT item = itemNumber; item >= 0; item-- )
 	{
 		CString text;
-		text = parametersListview.GetItemText(item, 0);
-		if (text == "Symbol")
+		text = parametersListview.GetItemText ( item, 0 );
+		if ( text == "Symbol" )
 		{
 			// delete "new" for this border range
-			parametersListview.DeleteItem(parametersListview.GetItemCount()-1);
-			parametersListview.DeleteItem(item);
+			parametersListview.DeleteItem ( parametersListview.GetItemCount ( ) - 1 );
+			parametersListview.DeleteItem ( item );
 			break;
 		}
 	}
@@ -356,51 +390,57 @@ void ParameterSystem::removeVariableDimension()
 }
 
 
-void ParameterSystem::updateCurrentVariationsNum( )
+void ParameterSystem::checkVariationRangeConsistency ( )
 {
 	UINT dum = -1;
 	for ( auto& var : currentParameters )
 	{
-		if ( dum == -1 )
+		if ( var.ranges.size ( ) != rangeInfo.size ( ) )
 		{
-			variableRanges = var.ranges.size( );
-			dum++;
-		}
-		else
-		{
-			if ( variableRanges != var.ranges.size( ) )
+			if ( dum == 0 )
 			{
-				if ( dum == 0 )
-				{
-					errBox( "ERROR: While loading variables from file, a variable did not have same number of ranges as "
-							"first variable loaded. The range number will be changed to make the ranges consistent." );
-					dum++;
-					// only dislpay the error message once.
-				}
-				var.ranges.resize( variableRanges );
+				errBox ( "ERROR: The number of variation ranges of a parameter, " + var.name +
+						 ", did not match the official number. The code will force the parameter to match the official"
+						 " number." );
+				dum++;
+				// only dislpay the error message once.
 			}
+			var.ranges.resize ( rangeInfo.size ( ) );
 		}
 	}
 }
 
 
-
-void ParameterSystem::setVariationRangeNumber(int num, USHORT dimNumber)
+void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 {
-	auto columnCount = parametersListview.GetHeaderCtrl( )->GetItemCount( );
+	auto columnCount = parametersListview.GetHeaderCtrl ( )->GetItemCount ( );
 	// -2 for the two +- columns
-	int currentVariableRangeNumber = (columnCount - preRangeColumns - 2 ) / 3;
-	updateCurrentVariationsNum( );
-	if (variableRanges != currentVariableRangeNumber)
+	int currentVariableRangeNumber = ( columnCount - preRangeColumns - 2 ) / 3;
+	checkVariationRangeConsistency ( );
+	if ( rangeInfo.size ( ) != currentVariableRangeNumber )
 	{
-		errBox( "ERROR: somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
-				"displayed are off! The numbers are " + str(variableRanges) + " and "
-				+ str(currentVariableRangeNumber) + " respectively. The program will attempt to fix this, but " 
-				"data may be lost." );
-		variableRanges = currentVariableRangeNumber;
-		for (auto& variable : currentParameters)
+		errBox ( "ERROR: somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
+				 "displayed are off! The numbers are " + str ( rangeInfo.size ( ) ) + " and "
+				 + str ( currentVariableRangeNumber ) + " respectively. The program will attempt to fix this, but "
+				 "data may be lost." );
+		while ( rangeInfo.size ( ) != currentVariableRangeNumber )
 		{
-			variable.ranges.resize(currentVariableRangeNumber);
+			if ( rangeInfo.size ( ) < currentVariableRangeNumber )
+			{
+				rangeInfo.pop_back ( );
+				for ( auto& param : currentParameters )
+				{
+					param.ranges.pop_back( );
+				}
+			}
+			else
+			{
+				rangeInfo.push_back ( defaultRangeInfo );
+				for ( auto& param : currentParameters )
+				{
+					param.ranges.pop_back ( );
+				}
+			}
 		}
 	}
 	if (currentVariableRangeNumber < num)
@@ -408,13 +448,15 @@ void ParameterSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 		while (currentVariableRangeNumber < num)
 		{
 			/// add a range.
-			parametersListview.InsertColumn ( preRangeColumns + 3 * currentVariableRangeNumber, str ( variableRanges + 1 ) + ":(", 0x20 );
-			parametersListview.InsertColumn ( preRangeColumns + 1 + 3 * currentVariableRangeNumber, "]");
+			parametersListview.InsertColumn( preRangeColumns + 3 * currentVariableRangeNumber, 
+											 str ( currentVariableRangeNumber + 1 ) + ":(", 0x20 );
+			parametersListview.InsertColumn( preRangeColumns + 1 + 3 * currentVariableRangeNumber, "]");
 			parametersListview.InsertColumn( preRangeColumns + 2 + 3 * currentVariableRangeNumber, "#");
 			// edit all variables
+			rangeInfo.push_back ( defaultRangeInfo );
 			for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
 			{
-				variationRangeInfo tempInfo{ 0,0,0, false, true };
+				indvParamRangeInfo tempInfo{ 0,0 };
 				currentParameters[varInc].ranges.push_back( tempInfo );
 				std::string txt = currentParameters[ varInc ].constant ? "---" : "0";
 				parametersListview.SetItem ( txt, varInc, preRangeColumns + 3 * currentVariableRangeNumber );
@@ -428,7 +470,6 @@ void ParameterSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 				errBox("Error! Range numbers after new range don't make sense!");
 			}
 			currentVariableRangeNumber = newRangeNum;
-			variableRanges = currentVariableRangeNumber;
 		}
 	}
 	else if (currentVariableRangeNumber > num)
@@ -436,7 +477,7 @@ void ParameterSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 		while (currentVariableRangeNumber > num)
 		{
 			// delete a range.
-			if (variableRanges == 1)
+			if (rangeInfo.size() == 1)
 			{
 				// can't delete last set...
 				return;
@@ -449,10 +490,10 @@ void ParameterSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 			{
 				currentParameters[varInc].ranges.pop_back();
 			}
+			rangeInfo.pop_back ( );
 			// account for the first 2 columns (name, constant) and the last three (currently the extra dimension stuff
 			int newRangeNum = (parametersListview.GetHeaderCtrl()->GetItemCount() - 5) / 3;
 			currentVariableRangeNumber = newRangeNum;
-			variableRanges = currentVariableRangeNumber;
 		}
 	}
 	// if equal, nothing needs to be done.
@@ -468,15 +509,15 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
 	parametersListview.SubItemHitTest(&myItemInfo);
-	if (myItemInfo.iSubItem == preRangeColumns + 3 * variableRanges)
+	if (myItemInfo.iSubItem == preRangeColumns + 3 * rangeInfo.size())
 	{
 		// add a range.
-		setVariationRangeNumber(variableRanges + 1, 1);
+		setVariationRangeNumber( rangeInfo.size ( ) + 1, 1);
 	}
-	else if (myItemInfo.iSubItem == preRangeColumns + 1 + 3 * variableRanges )
+	else if (myItemInfo.iSubItem == preRangeColumns + 1 + 3 * rangeInfo.size ( ) )
 	{
 		// delete a range.
-		setVariationRangeNumber(variableRanges - 1, 1);
+		setVariationRangeNumber( rangeInfo.size ( ) - 1, 1);
 	}
 	else if (myItemInfo.iSubItem >= preRangeColumns && (myItemInfo.iSubItem - preRangeColumns) % 3 == 0)
 	{
@@ -486,8 +527,7 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			return;
 		}
 		UINT rangeNum = (myItemInfo.iSubItem - preRangeColumns) / 3;
-		setRangeInclusivity( rangeNum, true, !currentParameters.front( ).ranges[rangeNum].leftInclusive, 
-							 myItemInfo.iSubItem );
+		setRangeInclusivity( rangeNum, true, !rangeInfo[rangeNum].leftInclusive, myItemInfo.iSubItem );
 	}
 	else if (myItemInfo.iSubItem >= preRangeColumns && (myItemInfo.iSubItem- preRangeColumns) % 3 == 1)
 	{
@@ -497,29 +537,20 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			return;
 		}
 		UINT rangeNum = (myItemInfo.iSubItem - preRangeColumns) / 3;
-		setRangeInclusivity( rangeNum, false, !currentParameters.front( ).ranges[rangeNum].rightInclusive, 
-							 myItemInfo.iSubItem );
+		setRangeInclusivity( rangeNum, false, !rangeInfo[ rangeNum ].rightInclusive, myItemInfo.iSubItem );
 	}
 }
 
 
 void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column )
 {
-	for ( auto& variable : currentParameters )
+	if ( rangeNum >= rangeInfo.size ( ) )
 	{
-		if ( leftBorder )
-		{
-			variable.ranges[rangeNum].leftInclusive = inclusive;
-		}
-		else
-		{
-			// it's the right border then.
-			variable.ranges[rangeNum].rightInclusive = inclusive;
-		}
+		thrower ( "ERROR: tried to set the border inclusivity of a range that does not exist!" );
 	}
-
 	if ( leftBorder )
 	{
+		rangeInfo[ rangeNum ].leftInclusive = inclusive;
 		LVCOLUMNA colInfo = { 0 };
 		colInfo.cchTextMax = 100;
 		colInfo.mask = LVCF_TEXT;
@@ -539,6 +570,7 @@ void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool 
 	else
 	{
 		// it's the right border then.
+		rangeInfo[ rangeNum ].rightInclusive = inclusive;
 		LVCOLUMNA colInfo = { 0 };
 		colInfo.cchTextMax = 100;
 		colInfo.mask = LVCF_TEXT;
@@ -638,10 +670,10 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 		currentParameters.back().active = false;
 		currentParameters.back().overwritten = false;
 		currentParameters.back().scanDimension = 1;
-		currentParameters.back().ranges.push_back({0,0,1, false, true});
-		for (auto rangeInc : range(variableRanges))
+
+		for ( auto rangeVariations : rangeInfo )
 		{
-			currentParameters.back().ranges.push_back({ 0,0,0, false, true });
+			currentParameters.back ( ).ranges.push_back ( { 0, 0 } );
 		}
 		// make a new "new" row.
 		parametersListview.InsertItem ( "___", itemIndicator, 0 );
@@ -655,7 +687,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			parametersListview.SetItem ( "A", itemIndicator, 2 );
 			parametersListview.SetItem ( "0", itemIndicator, 3 );
 			parametersListview.SetItem ( GLOBAL_PARAMETER_SCOPE, itemIndicator, 4 );
-			for ( int rangeInc = 0; rangeInc < variableRanges; rangeInc++ )
+			for ( int rangeInc = 0; rangeInc < rangeInfo.size(); rangeInc++ )
 			{
 				for ( auto inc : range( 3 ) )
 				{
@@ -745,18 +777,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 													 itemIndicator, preRangeColumns + rangeInc * 3 );
 						parametersListview.SetItem ( str ( param.ranges[ rangeInc ].finalValue, 13 ),
 													 itemIndicator, preRangeColumns + 1 + rangeInc * 3 );
-						// TODO: Handle this better. 
-						UINT totalVariations = 0;
-						for (auto range : param.ranges)
-						{
-							totalVariations += range.variations;
-						}
-						if (totalVariations == 0)
-						{
-							errBox("WARNING: variable has zero variations in a certain range! "
-								   "There needs to be at least one.");
-						}
-						parametersListview.SetItem ( str ( param.ranges[ rangeInc ].variations ),
+						parametersListview.SetItem ( str ( rangeInfo[ rangeInc ].variations ),
 													 itemIndicator, preRangeColumns + 2 + rangeInc * 3 );
 					}
 				}
@@ -766,7 +787,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 					parametersListview.SetItem ( "Constant", itemIndicator, subitem );
 					parametersListview.SetItem ( str ( param.constantValue ), itemIndicator, 3 );
 					param.constant = true;
-					for (int rangeInc = 0; rangeInc < variableRanges; rangeInc++)
+					for (int rangeInc = 0; rangeInc < rangeInfo.size(); rangeInc++)
 					{
 						// set the value to be dashes on the screen. no value for "Variable".
 						parametersListview.SetItem ( "---", itemIndicator, preRangeColumns + rangeInc * 3 );
@@ -895,7 +916,6 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			}
 			else if((subitem - preRangeColumns) % 3 == 2)
 			{
-				// else there's something there.
 				try
 				{
 					for (auto& variable : currentParameters)
@@ -907,16 +927,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 							{
 								continue;
 							}
-							variable.ranges[rangeNum].variations = std::stoi(newValue);
-							UINT totalVariations = 0;
-							for (auto range : variable.ranges)
-							{
-								totalVariations += range.variations;
-							}
-							if (totalVariations == 0)
-							{
-								errBox("WARNING: there needs to be at least one variation for a variable.");
-							}
+							rangeInfo[ rangeNum ].variations = std::stoi ( newValue );
 						}
 					}
 				}
@@ -930,7 +941,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 					if (!currentParameters[varInc].constant 
 						 && (currentParameters[varInc].scanDimension == param.scanDimension))
 					{
-						parametersListview.SetItem ( str ( param.ranges[ rangeNum ].variations ), varInc, subitem);
+						parametersListview.SetItem ( str ( rangeInfo[ rangeNum ].variations ), varInc, subitem);
 					}
 				}
 				break;
@@ -1166,22 +1177,21 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 	for (auto rangeAddInc : range(variableToAdd.ranges.size() - currentRanges))
 	{
 		// add a range.
-		parametersListview.InsertColumn ( preRangeColumns + 3 * variableRanges, str ( variableRanges + 1 ) + ":(", 0x20 );
-		parametersListview.InsertColumn ( preRangeColumns + 1 + 3 * variableRanges, "]" );
-		parametersListview.InsertColumn ( preRangeColumns + 2 + 3 * variableRanges, "#" );
+		parametersListview.InsertColumn ( preRangeColumns + 3 * rangeInfo.size(), str ( rangeInfo.size ( ) + 1 ) + ":(", 0x20 );
+		parametersListview.InsertColumn ( preRangeColumns + 1 + 3 * rangeInfo.size ( ), "]" );
+		parametersListview.InsertColumn ( preRangeColumns + 2 + 3 * rangeInfo.size ( ), "#" );
 		// edit all variables
 		for (auto varInc : range(currentParameters.size()))
 		{
-			currentParameters[varInc].ranges.push_back({0,0,0, false, true});
+			currentParameters[ varInc ].ranges.push_back ( { 0,0 } );
 			for ( auto inc : range( 3 ) )
 			{
 				parametersListview.SetItem ( currentParameters[ varInc ].constant ? "---" : "0", varInc, 
-											 preRangeColumns + 3 * variableRanges + inc);
+											 preRangeColumns + 3 * rangeInfo.size ( ) + inc);
 			}
 		}
-		variableRanges++;
+		rangeInfo.push_back ( defaultRangeInfo );
 	}
-
 	for (auto rangeInc : range(variableToAdd.ranges.size()))
 	{
 		if (!variableToAdd.constant)
@@ -1190,7 +1200,7 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 			auto& range = currentParameters[ item ].ranges[ rangeInc ];
 			parametersListview.SetItem ( str ( range.initialValue, 13, true ), item, preRangeColumns + rangeInc * 3 );
 			parametersListview.SetItem ( str ( range.finalValue, 13, true ), item, preRangeColumns + 1 + rangeInc * 3 );
-			parametersListview.SetItem ( str ( range.variations, 13, true ), item, preRangeColumns + 2 + rangeInc * 3 );
+			parametersListview.SetItem ( str ( rangeInfo[rangeInc].variations, 13, true ), item, preRangeColumns + 2 + rangeInc * 3 );
 		}
 		else
 		{
@@ -1202,6 +1212,12 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 	}
 	parametersListview.RedrawWindow();
 	updateVariationNumber( );
+}
+
+
+std::vector<variationRangeInfo> ParameterSystem::getRangeInfo ( )
+{
+	return rangeInfo;
 }
 
 
@@ -1292,7 +1308,8 @@ std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::str
 		{
 			continue;
 		}
-		configVariables = getVariablesFromFile( f, ver );
+		auto rInfo = getRangeInfoFromFile ( f, ver );
+		configVariables = getVariablesFromFile( f, ver, rInfo.size() );
 
 		ProfileSystem::checkDelimiterLine( f, "END_VARIABLES" );
 		break;
@@ -1301,7 +1318,8 @@ std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::str
 }
 
 
-void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption )
+void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
+								   std::vector<variationRangeInfo> inputRangeInfo )
 {
 	// get information from variables.
 	for ( auto& seqVariables : variables )
@@ -1365,15 +1383,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					{
 						continue;
 					}
-					// avoid the case of zero as this just hasn't been set yet.
-					if ( variationNum != 0 )
-					{
-						if ( variable.ranges[rangeInc].variations != variationNum )
-						{
-							thrower( "ERROR: not all ranges of variables have the same number of variations!" );
-						}
-					}
-					variationNum = variable.ranges[rangeInc].variations;
+					//variationNum = variable.ranges[rangeInc].variationssize ( );
 				}
 			}
 		}
@@ -1427,7 +1437,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 				UINT tempShrinkingIndex = relevantIndex;
 				UINT rangeCount = 0, rangeOffset = 0;
 				// calculate which range it is and what the index offset should be as a result.
-				for ( auto range : variable.ranges )
+				for ( auto range : inputRangeInfo )
 				{
 					if ( tempShrinkingIndex >= range.variations )
 					{
@@ -1441,6 +1451,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					}
 					rangeCount++;
 				}
+
 				auto& currRange = variable.ranges[rangeIndex];
 				if ( variations[seqInc][varDim][rangeIndex] <= 1 )
 				{
@@ -1449,11 +1460,12 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 				// calculate the parameters for the variation range
 				double valueRange = (currRange.finalValue - currRange.initialValue);
 				int spacings;
-				if ( currRange.leftInclusive && currRange.rightInclusive )
+				
+				if ( inputRangeInfo[rangeIndex].leftInclusive && inputRangeInfo[ rangeIndex ].rightInclusive )
 				{
 					spacings = variations[seqInc][variables[seqInc][varIndex].scanDimension - 1][rangeIndex] - 1;
 				}
-				else if ( !currRange.leftInclusive && !currRange.rightInclusive )
+				else if ( !inputRangeInfo[ rangeIndex ].leftInclusive && !inputRangeInfo[ rangeIndex ].rightInclusive )
 				{
 					spacings = variations[seqInc][varDim][rangeIndex] + 1;
 				}
@@ -1463,7 +1475,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 				}
 
 				double initVal;
-				if ( currRange.leftInclusive )
+				if ( inputRangeInfo[ rangeIndex ].leftInclusive )
 				{
 					initVal = currRange.initialValue;
 				}

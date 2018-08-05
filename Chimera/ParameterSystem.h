@@ -68,16 +68,19 @@ class ParameterSystem
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
 		// used to be in KeyHandler
-		static void generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption );
+		static void generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
+								 std::vector<variationRangeInfo> inputRangeInfo );
 		static std::vector<double> getKeyValues( std::vector<parameterType> variables );
 		void reorderVariableDimensions( );
 		static std::vector<parameterType> getConfigVariablesFromFile( std::string configFile );
 		void saveVariable( std::ofstream& saveFile, parameterType variable );
-		static parameterType loadVariableFromFile( std::ifstream& openFile, Version ver );
-		static std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver );
-		void updateCurrentVariationsNum( );
+		static parameterType loadVariableFromFile( std::ifstream& openFile, Version ver, UINT rangeNum );
+		static std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver, UINT rangeNum );
+		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::ifstream& configFile, Version ver );
+		void checkVariationRangeConsistency( );
 		static std::vector<parameterType> combineParametersForExperimentThread( std::vector<parameterType>& masterVars,
 														   std::vector<parameterType>& subVars );
+		std::vector<variationRangeInfo> getRangeInfo ( );
 	private:
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
@@ -91,9 +94,10 @@ class ParameterSystem
 		std::vector<parameterType> currentParameters;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
-		// holds the number of variable ranges. Not sure why this is necessary, could probablty get this info from 
-		// currentParameters member.
-		USHORT variableRanges;
+		// A global parameter, the "official" version. The size of this tells you the number of ranges, and a given
+		// element tells you the number of variations of that range.
+		std::vector<variationRangeInfo> rangeInfo;
+		const variationRangeInfo defaultRangeInfo = { 2,false,true };
 		ParameterSysType paramSysType;
 		// number of dimensions to the variable scans. Unusual to do more than 2.
 		USHORT scanDimensions;

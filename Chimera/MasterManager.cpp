@@ -813,7 +813,7 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 		thrower( "Experiment is Running! Please abort the current run before setting the MOT settings." );
 	}
 	input->thisObj = this;
-	ParameterSystem::generateKey( input->variables, false );
+	ParameterSystem::generateKey( input->variables, false, input->variableRangeInfo );
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 }
 
@@ -1068,7 +1068,7 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 	tmpVariable.constantValue = val;
 	tmpVariable.scanDimension = 1;
 	tmpVariable.parameterScope = str(scope, 13, false, true);
-	tmpVariable.ranges.push_back( { val, val, 1, true, true } );
+	tmpVariable.ranges.push_back ( { val, val } );
 	// these are always constants, so just go ahead and set the keyvalue for use manually. 
 	if ( vars.size( ) == 0 )
 	{

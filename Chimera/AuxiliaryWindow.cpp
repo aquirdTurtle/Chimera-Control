@@ -197,6 +197,7 @@ void AuxiliaryWindow::runServos( )
 	}
 }
 
+
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
 	aiSys.refreshCurrentValues( );
@@ -457,6 +458,8 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
 		input->variables.clear( );
 		input->variables.push_back( globalVariables.getEverything( ) );
+		input->variableRangeInfo.clear ( );
+		input->variableRangeInfo = configVariables.getRangeInfo ( );
 		// Only do this once of course.
 		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
@@ -697,7 +700,8 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 	parameterType var;
 	var.name = name;
 	var.constant = constant;
-	var.ranges.push_back({ value, 0, 1, false, true });
+	var.constantValue = value;
+	var.ranges.push_back({ value, value+1 });
 	configVariables.addConfigParameter(var, item);
 }
 
@@ -907,6 +911,8 @@ void AuxiliaryWindow::loadMotTempSettings ( MasterThreadInput* input )
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear ( );
 		input->variables.push_back ( globalVariables.getEverything ( ) );
+		input->variableRangeInfo.clear ( );
+		input->variableRangeInfo = configVariables.getRangeInfo ( );
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->rsg = &RhodeSchwarzGenerator;
@@ -942,6 +948,8 @@ void AuxiliaryWindow::loadPgcTempSettings ( MasterThreadInput* input )
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear ( );
 		input->variables.push_back ( globalVariables.getEverything ( ) );
+		input->variableRangeInfo.clear ( );
+		input->variableRangeInfo = configVariables.getRangeInfo ( );
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->rsg = &RhodeSchwarzGenerator;
@@ -977,6 +985,8 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear( );
 		input->variables.push_back(globalVariables.getEverything());
+		input->variableRangeInfo.clear ( );
+		input->variableRangeInfo = configVariables.getRangeInfo ( );
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->rsg = &RhodeSchwarzGenerator;
@@ -1022,6 +1032,8 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 		experimentVars.push_back( ParameterSystem::combineParametersForExperimentThread( configVars, globals) );
 		globalVariables.setUsages( { globals } );
 	}
+	input->variableRangeInfo.clear ( );
+	input->variableRangeInfo = configVariables.getRangeInfo ( );
 	input->variables = experimentVars;
 	input->constants.resize( input->variables.size( ) );
 	// it's important to do this after the key is generated so that the constants have their values.
@@ -1231,7 +1243,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			double value;
 			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
-			tempVar.ranges.push_back({ value, value, 0, false, true });
+			tempVar.ranges.push_back ( { value, value } );
 			globalVariables.addGlobalParameter(tempVar, varInc);
 		}
 	}
