@@ -1,37 +1,32 @@
 #include "stdafx.h" 
 #include <iostream>
-#include <chrono>
 #include <vector>
-#include "afxwin.h"
 #include <fstream>
 #include <string>
 
 using namespace std;
-using namespace chrono;
 
 
 int main( )
 {
-	std::ifstream thresholdFile;
-	std::vector<double> thresholds;
-	thresholdFile.open ("Threshold-File.txt");
+	std::ifstream biasFile;
+	biasFile.open ("J:/Code-Files/Bias-Cal.txt");
+	std::string name1, name2, name, row, col, val, trash, dir;
 	while ( true )
 	{
-		double threshold;
-		thresholdFile >> threshold;
-		if ( thresholdFile.eof ( ) )
-		{     
+
+		std::getline ( biasFile, trash, '[' );
+		std::getline ( biasFile, row, ',' );
+		std::getline ( biasFile, col, ']' );
+		std::getline ( biasFile, trash, ',' );
+		std::getline ( biasFile, dir, ':' );
+		std::getline ( biasFile, val );
+		if ( biasFile.eof ( ) )
+		{
 			break;
 		}
-		thresholds.push_back ( threshold );
+		cout << row << "," << col << ' ' << dir << " " << val << endl;
 	}
-	for ( auto thresh : thresholds )
-	{
-		cout << thresh << ", ";
-	}
-	cout << endl;
-	cout << thresholds.size ( ) << endl;
-	cout << thresholds.back ( );
 	cin.get ( );
 	return 0;
 }

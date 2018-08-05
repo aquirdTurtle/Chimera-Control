@@ -117,7 +117,7 @@ d9
 0
 acetrig
 0
-d11
+auxtweezerrf
 0
 proberf
 0
@@ -148,11 +148,11 @@ topcoilcurrent
 motgradientcurrent
 -10 - 10
 0
-dac7
+probefreq
 -10 - 10
 0
 depumppower
--10 - 10
+0 - 0.3
 0
 diagmotpower
 0 - 0.4
@@ -161,7 +161,7 @@ depumpfreq
 -10 - 10
 0
 repumppower
--10 - 10
+0 - 0.3
 0
 sigmaopfreq
 -10 - 10
@@ -175,20 +175,20 @@ sigmarepumpfreq
 sigmarepumppower
 0 - 0.38
 0
-lspower
--10 - 10
+auxtweezerpower
+0 - 0.23
 0
 freq795
 -10 - 10
 0
 power795
--10 - 10
+0 - 0.3
 0
 probepower
 -0.1 - 0.9
 0
 motfreq
--10 - 10
+-4 - 1
 0
 repumpfreq
 -3.5 - 3.5
@@ -199,25 +199,25 @@ sidemotpower
 piezomirror
 -10 - 10
 0
-15
+14
 loadmottime 400
-andorimagetime 10
-imagingpower 0.25
-pushoutdepth 2.5
-pushoutfreq 1
+andorimagetime 20
+imagingpower 0.3
 fieldtheta 0
 fieldphi 0
 imagingrepumppower 0.2
-pushouttime 20
 intrappgccoolingtime 2
 field 3
 rotatefieldtime 3
-defaultmotfreq 0
-sidemot__servo_value 0.135283
-diagmot__servo_value 0.242423
+defaultmotfreq 0.01
+sidemot__servo_value 0.17872
+diagmot__servo_value 0.261162
+default795freq 0
+d1__servo_value 0.0976641
 0.01 1
-2
+3
 Sidemot 1 1.7
 DiagMot 1 1.4
-181 249 3 198 266 3
-0 0
+D1 0 1.7
+216 307 4 232 331 4
+0 1

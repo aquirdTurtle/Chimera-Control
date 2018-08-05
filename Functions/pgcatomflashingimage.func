@@ -3,18 +3,20 @@ def pgcAtomFlashingImage():
   % give the shutter some time to open.
   off: diagMotRf
   dac: diagMotPower 0
-  var image_detuning -1.5
+  %var image_detuning -1.5
+  %var motPower 0.25
+  var image_detuning -0.9
   var motPower 0.25
   dacLinSpace: MotFreq defaultMotFreq image_detuning 2 10
-  dac: SideMotPower imagingPower
-  dac: RepumpPower imagingRepumpPower
-  t += 10
+  t += 2
   % turn the repump on a tiny bit early 
   % to pump to the F=2 manifold.	
   on: RepumpRf
   t += 0.2
   on: andorTrig
-  t += 0.3
+  t += 0.1
+  dac: SideMotPower motPower 
+  dac: RepumpPower imagingRepumpPower
   on: tweezerflashrf
   on: sidemotflash
   on: SideMotRf

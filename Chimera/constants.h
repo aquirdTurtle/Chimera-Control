@@ -26,7 +26,7 @@
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
 	#define EO_AXIAL_TEK_SAFEMODE true
 	#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
-	#define TOP_BOTTOM_AGILENT_SAFEMODE true
+	#define TOP_BOTTOM_AGILENT_SAFEMODE false
 	#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
 	#define AXIAL_AGILENT_SAFEMODE true
 	#define AXIAL_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52810615::0::INSTR"
@@ -156,6 +156,7 @@
 	const std::string PROFILES_PATH = str(CODE_ROOT) + "\\Profiles\\";
 	//const std::string DATA_SAVE_LOCATION = str(CODE_ROOT) + "\\Data\\";
 	const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
+	//const std::string DATA_SAVE_LOCATION = "E:\\Temporary-Data-Repo\\";
 	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
 	const std::string MUSIC_LOCATION = str(CODE_ROOT) + "\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 	const std::string FUNCTIONS_FOLDER_LOCATION = str(CODE_ROOT) + "\\Functions\\";

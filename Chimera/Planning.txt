@@ -28,6 +28,7 @@ FEATURES:
 - integrate a basler window.
 - add reporting on how many atoms loaded via atomcruncher thread.
 - Improve comments on what units everything should be in at every moment.
+- prompt for load after saving config as
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -53,6 +54,13 @@ BUGS:
 - make eating comments more robust against eol conversion issues.
 - interpret key taking a long time for ttls in camera cal
 - seems like master configuration file can get corrupted if saving fails.
+- for flash check that sum of indv move times is the total move time.
+- going from config with video to kinetic mode on andor fails because internal reps per var is too high
+- if taking pictures too fast code freezes
+- something funny about going back and forth between video and kinetic modes.
+- if in video before switching configs, switching configs fails.
+- start and stop while starting breaks...
+- "-0.7s" in script not throwing error
 
 =================
 Finished

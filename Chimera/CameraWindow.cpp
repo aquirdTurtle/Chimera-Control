@@ -415,11 +415,6 @@ LRESULT CameraWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
 	currentPictureNum++;
-	if ( lParam != currentPictureNum && lParam != -1 )
-	{
-		mainWindowFriend->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
-												   "camera window record?!?!?!?!?" );
-	}
 	UINT picNum = currentPictureNum;
 	if ( picNum % 2 == 1 )
 	{
@@ -435,6 +430,14 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	{
 		// last picture.
 		picNum = curSettings.totalPicsInExperiment;
+	}
+	if ( lParam != currentPictureNum && lParam != -1 )
+	{
+		if ( curSettings.cameraMode != "Video Mode" )
+		{
+			mainWindowFriend->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
+													   "camera window record?!?!?!?!?" );
+		}
 	}
 
 	// need to call this before acquireImageData().
@@ -523,7 +526,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	ReleaseDC( drawer );
 
 	// write the data to the file.
-	if (curSettings.cameraMode != "Continuous Single Scans Mode")
+	if (curSettings.cameraMode != "Video Mode")
 	{
 		try
 		{
@@ -1218,7 +1221,8 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		if ( picThresholds.size ( ) != 1 && picThresholds.size ( ) != input->grids[ 0 ].numAtoms ( ) )
 		{
 			errBox ( "ERROR: the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
-					 "first grid!" );
+					 "first grid! Size is " + str(picThresholds.size()) + "and grid size is " + 
+					 str(input->grids[ 0 ].numAtoms ( )) );
 			return 0;
 		}
 	}
