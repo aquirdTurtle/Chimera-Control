@@ -14,7 +14,7 @@
 #include "DataLogger.h"
 #include "NoteSystem.h"
 #include "profileSettings.h"
-#include "rerngControl.h"
+#include "rerngGuiControl.h"
 #include "PlotDialog.h"
 #include "OscilloscopeViewer.h"
 #include "profileSettings.h"
@@ -149,7 +149,7 @@ class MainWindow : public CDialog
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
-		rerngControl rearrangeControl;
+		rerngGuiControl rearrangeControl;
 		NiawgController niawg;
 		ColorBox boxes;
 		// auxiliary members

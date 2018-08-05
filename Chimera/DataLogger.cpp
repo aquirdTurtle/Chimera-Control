@@ -99,11 +99,8 @@ void DataLogger::initializeDataFiles()
 		case 12:
 			month = "December";
 			break;
-	}
-	
-	finalSaveFolder += month + "\\";
-	finalSaveFolder += month + " " + str(timeStruct.tm_mday);
-	// right now the save folder IS the date...
+	}	
+	finalSaveFolder += month + "\\" + month + " " + str( timeStruct.tm_mday );
 	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
 	int result = 1;
@@ -119,6 +116,13 @@ void DataLogger::initializeDataFiles()
 				 ". Make sure you have access to the jilafile or change the save location. Error: " + str(GetLastError()) 
 				 + "\r\n" );
 	}
+
+	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder + "Temperature_Data.csv" ), &info );
+	if ( resultStat != 0 )
+	{
+		errBox("WARNIGNG: Couldn't find temperature data file... did you remember to start the temperature logger?");
+	}
+
 	finalSaveFolder += "\\Raw Data";
 	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder ), &info );
 	if (resultStat != 0)

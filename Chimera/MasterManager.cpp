@@ -281,7 +281,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				if ( !var.constant && !var.active )
 				{
-					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?";
+					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?";                 
 				}
 			}
 		}

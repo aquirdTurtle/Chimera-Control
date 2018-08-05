@@ -277,7 +277,7 @@
     <ClInclude Include="rerngStructures.h" />
     <ClInclude Include="rerngThreadInput.h" />
     <ClInclude Include="rerngParams.h" />
-    <ClInclude Include="rerngControl.h" />
+    <ClInclude Include="rerngGuiControl.h" />
     <ClInclude Include="Repetitions.h" />
     <ClInclude Include="RhodeSchwarz.h" />
     <ClInclude Include="NoteSystem.h" />
@@ -368,7 +368,7 @@
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="range.cpp" />
     <ClCompile Include="RC028.cpp" />
-    <ClCompile Include="rerngControl.cpp" />
+    <ClCompile Include="rerngGuiControl.cpp" />
     <ClCompile Include="Repetitions.cpp" />
     <ClCompile Include="RhodeSchwarz.cpp" />
     <ClCompile Include="Script.cpp" />

@@ -961,6 +961,7 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 		configStream << name << "\n";
 		configStream << minMax.first << " - " << minMax.second << "\n";
 		configStream << aoSys.getDefaultValue(dacInc) << "\n";
+		configStream << aoSys.getNote ( dacInc ) << "\n";
 	}
 
 	// Number of Variables
@@ -988,13 +989,13 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		for (UINT ttlNumberInc : range( ttlBoard.getTtlBoardSize().second ) )
 		{
 			std::string name;
-			std::string statusString;
-			bool status;
-			configStream >> name >> statusString;
+			std::string defaultStatusString;
+			bool defaultStatus;
+			configStream >> name >> defaultStatusString;
 			try
 			{
 				// In file the booleans are stored as "0" or "1".
-				status = std::stoi(statusString);
+				defaultStatus = std::stoi(defaultStatusString);
 			}
 			catch (std::invalid_argument&)
 			{
@@ -1002,8 +1003,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			}
 
 			ttlBoard.setName(ttlRowInc, ttlNumberInc, name, toolTips, this);
-			ttlBoard.forceTtl(ttlRowInc, ttlNumberInc, status);
-			ttlBoard.updateDefaultTtl(ttlRowInc, ttlNumberInc, status);
+			ttlBoard.forceTtl(ttlRowInc, ttlNumberInc, defaultStatus);
+			ttlBoard.updateDefaultTtl(ttlRowInc, ttlNumberInc, defaultStatus);
 		}
 	}
 	// getting aoSys.
@@ -1041,7 +1042,17 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		{
 			thrower("ERROR: Failed to load one of the default DAC values!");
 		}
+
+		std::string noteString = "";
+
+		if ( version >= Version ( "2.3" ) )
+		{
+			std::string trash;
+			configStream >> noteString;
+		}
+
 		aoSys.setName(dacInc, name, toolTips, this);
+		aoSys.setNote ( dacInc, noteString, toolTips, this );
 		aoSys.setMinMax(dacInc, min, max);
 		aoSys.prepareDacForceChange(dacInc, defaultValue, &ttlBoard);
 		aoSys.updateEdits( );
@@ -1381,7 +1392,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 
 std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 {
-	// controls are done. Report the initialization status...
+	// controls are done. Report the initialization defaultStatus...
 	std::string msg;
 	msg += "DIO System:\n";
 	if ( !DIO_SAFEMODE )

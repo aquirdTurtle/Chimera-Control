@@ -95,6 +95,7 @@ class CameraSettingsControl
 		// two subclassed groups.
 		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
+
 		CameraCalibration calControl;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.

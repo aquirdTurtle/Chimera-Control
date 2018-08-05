@@ -75,7 +75,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)..\Packages\boost_1_64_0;C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\Packages\boost_1_64_0;C:\Program Files (x86)\HDF_Group\HDF5\HDF5-1.10.1-win32\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Users\Regal-Lab\Code\Chimera-Control\TestConsoleApp\hidapi-master\hidapi;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,7 +109,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>niFgen.lib</AdditionalDependencies>
+      <AdditionalDependencies>niFgen.lib; hidapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -168,10 +168,17 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dlpc350_api.h" />
+    <ClInclude Include="dlpc350_common.h" />
+    <ClInclude Include="dlpc350_error.h" />
+    <ClInclude Include="dlpc350_usb.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dlpc350_api.cpp" />
+    <ClCompile Include="dlpc350_common.cpp" />
+    <ClCompile Include="dlpc350_usb.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
