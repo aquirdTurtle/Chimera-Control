@@ -166,6 +166,7 @@ class AndorWindow : public CDialog
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;		
 		std::vector<PlotDialog*> activePlots;
 		UINT mostRecentPicNum = 0;
+		UINT currentPictureNum = 0;
 		std::vector<long> avgBackground;
 };
 

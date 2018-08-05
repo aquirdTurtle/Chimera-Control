@@ -73,7 +73,7 @@ class NiawgController
 		// programming the device
 		void restartDefault();
 		void turnOffRerng( );
-		void waitForRerng( );
+		void waitForRerng( bool andClearWvfm );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
 		void programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
 						   UINT totalVariations, std::vector<long>& variedMixedSize, 
@@ -119,7 +119,7 @@ class NiawgController
 								std::vector<parameterType>& varibles = std::vector<parameterType>( ),
 								UINT variation = -1 );
 		void deleteRerngWave( );
-		void startRerngThread( atomQueue* atomQueue, waveInfo wave, Communicator* comm,
+		void startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator* comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
@@ -131,7 +131,7 @@ class NiawgController
 		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time,
 						   bool powerCap=false, bool constPower=CONST_POWER_OUTPUT );
 
-		void handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave );
+		void handleMinus1Phase( simpleWave& waveCore, simpleWave& prevWave );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void openWaveformFiles( );

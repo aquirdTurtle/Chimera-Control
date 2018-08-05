@@ -17,7 +17,7 @@ struct complexMove
 	}
 	bool isInlineParallel = false;
 	dir moveDir;
-	std::vector<coordinate> locationsToMove;
+	std::vector<int_coordinate> locationsToMove;
 	bool needsFlash;
 	int dirInt( )
 	{

@@ -8,28 +8,25 @@ def turnOnMot():
   on: RepumpShutter
   on: DiagMotShutter
   on: SideMotShutter
-  % Make sure raman shutter is closed initially
   off: RamanShutter
   %% %%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% % DACS
-  % var diag_power 0.35
-  var mot_freq 0.05
-  var repump_pow 0.2
-  var repump_freq -0.6
-  % var side_mot_power 0.1667
+  % var mot_freq 0.05
+  var repump_pow 0.26
+  var repump_freq -0.46
   dac: DiagMotPower diagmot__servo_value
   dac: RepumpPower repump_pow
-  dac: MotFreq mot_freq
+  dac: MotFreq defaultMotFreq
   dac: RepumpFreq repump_freq
   dac: SideMotPower sidemot__servo_value
   %% Magnetic Field Control
-  var motStrength 7
-  var right_field 0.8613
-  var left_field -0.65
-  var top_field 0.3
-  var bot_field -0.15
-  var front_field -0.7
-  var back_field 2
+  var motStrength 7.1
+  var right_field 0.742 %
+  var left_field -0.54
+  var top_field 0.56 %
+  var bot_field -0.258
+  var front_field 0.43 %
+  var back_field 1.635
   dac: MotGradientCurrent motStrength
   dac: RightCoilCurrent right_field
   dac: LeftCoilCurrent left_field
@@ -37,3 +34,11 @@ def turnOnMot():
   dac: BackCoilCurrent back_field
   dac: BottomCoilCurrent bot_field
   dac: TopCoilCurrent top_field
+
+%  var motStrength 7
+%  var right_field 0.947
+%  var left_field -0.55
+%  var top_field 1
+%  var bot_field -0.195
+%  var front_field 0.5
+%  var back_field 1.737

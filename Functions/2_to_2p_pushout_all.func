@@ -1,0 +1,17 @@
+% pushout(), but with the repump on.
+def 2_to_2p_pushout_all():
+  var pushout_power 0.01
+  var pushout_freq 0
+  var pushout_time 15
+  off: sideMotRf
+  on: RepumpRF
+  dac: RepumpPower 0.05
+  daclinspace: motFreq defaultMotFreq pushout_freq 1 5 
+  t += 5.01
+  dac: depumpPower pushout_power  
+  on: depumpingRf
+  t += pushout_time
+  off: depumpingRf
+  daclinspace: motFreq pushout_freq defaultMotFreq 1 5
+  t += 5.01
+
