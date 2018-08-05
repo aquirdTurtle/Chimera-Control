@@ -12,10 +12,11 @@
 #include <numeric>
 #include "Thrower.h"
 
-AndorWindow::AndorWindow() : CDialog(), 
-								CameraSettings(&Andor), 
-								dataHandler(DATA_SAVE_LOCATION),
-								Andor( ANDOR_SAFEMODE )
+AndorWindow::AndorWindow ( ) : CDialog ( ),
+							CameraSettings ( &Andor ),
+							dataHandler ( DATA_SAVE_LOCATION ),
+							Andor ( ANDOR_SAFEMODE ),
+							pics ( false )
 {
 
 };

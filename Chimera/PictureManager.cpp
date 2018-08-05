@@ -3,10 +3,20 @@
 #include "ProfileSystem.h"
 #include "Thrower.h"
 
-PictureManager::PictureManager ( )
+PictureManager::PictureManager ( bool histOption ) : pictures{ { histOption, histOption, histOption, histOption } }
 {
 
 }
+
+
+void PictureManager::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
+{
+	for ( auto& pic : pictures )
+	{
+		pic.paint ( cdc, size, bgdBrush );
+	}
+}
+
 
 void PictureManager::drawBitmap ( CDC* deviceContext, Matrix<long> picData )
 {
@@ -306,21 +316,27 @@ void PictureManager::drawBackgrounds(CDC* easel)
 }
 
 
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush)
+void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush, 
+								 std::vector<Gdiplus::Pen*> graphPens, CFont* font,
+								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
 {
 	picturesLocation = loc;
 	picturesWidth = 550 * 2;
 	picturesHeight = 460 * 2 + 5;
 	gridBrush = defaultBrush;
 	//
-	pictures[0].initialize( loc, parent, id, 550, 440, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT } );
+	pictures[0].initialize( loc, parent, id, 550, 440, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT }, graphPens,
+							font, graphBrushes);
 	loc.x += 550;
-	pictures[1].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT } );
+	pictures[1].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT }, graphPens,
+							font, graphBrushes );
 	loc.x -= 550;
 	loc.y += 445;
-	pictures[2].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT } );
+	pictures[2].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT }, graphPens,
+							font, graphBrushes );
 	loc.x += 550;
-	pictures[3].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
+	pictures[3].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT }, graphPens,
+							font, graphBrushes );
 	loc.y += 440;
 	loc.x -= 550;
 	createPalettes( parent->GetDC() );
@@ -330,6 +346,15 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 	}
 	// initialize to one. This matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
+}
+
+
+void PictureManager::updatePlotData ( )
+{
+	for ( auto& pic : pictures )
+	{
+		pic.updatePlotData ( );
+	}
 }
 
 

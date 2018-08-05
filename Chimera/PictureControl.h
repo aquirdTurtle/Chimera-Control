@@ -2,6 +2,7 @@
 #include "Control.h"
 #include "CameraImageDimensions.h"
 #include "atomGrid.h"
+#include "PlotCtrl.h"
 
 
 /*
@@ -13,8 +14,10 @@
 class PictureControl
 {
 	public:
-		PictureControl ( );
-		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds );
+		PictureControl ( bool histogramOption );
+		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds,
+						 std::vector<Gdiplus::Pen*> graphPens= std::vector<Gdiplus::Pen*>(), CFont* font=NULL,
+						 std::vector<Gdiplus::SolidBrush*> graphBrushes= std::vector<Gdiplus::SolidBrush*>() );
 		void handleMouse( CPoint p );
 		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
@@ -41,7 +44,13 @@ class PictureControl
 		coordinate checkClickLocation( CPoint clickLocation );
 		void resetStorage();
 		void setHoverValue( );
+		void updatePlotData ( );
+		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 	private:
+		const bool histOption;
+		std::vector<pPlotDataVec> horData, vertData;
+		PlotCtrl* horGraph;
+		PlotCtrl* vertGraph;
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
@@ -51,6 +60,7 @@ class PictureControl
 		Matrix<long> mostRecentImage_m;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.
+		UINT maxWidth, maxHeight;
 		bool active;
 
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.
