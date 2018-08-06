@@ -32,7 +32,6 @@ FEATURES:
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
-- Make basler able to simulate finite acquisitions in debug mode.
 - Improve comments on what units everything should be in at every moment.
 - prompt for load after saving config as
 - improve delete file after abort functionality
@@ -80,10 +79,6 @@ BUGS:
 - start and stop while starting breaks...
 - "-0.7s" in script not throwing error
 
-- saving basler pics occasionally fails
-- frame rate should not be used if external trigger.
-
-=================
-Finished
-=================
+- main win hist not always showing?
+- fix plot issue.
 
