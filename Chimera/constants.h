@@ -11,9 +11,9 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
+//#define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP
-//#define ANALYSIS_COMPUTER
+#define ANALYSIS_COMPUTER
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -67,6 +67,7 @@
 
 
 #ifdef ANALYSIS_COMPUTER
+	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
@@ -108,6 +109,7 @@
 	const std::string FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
 	const std::string MOT_ROUTINES_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\MOT";
+	const std::string PGC_ROUTINES_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\PGC";
 	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\Camera";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";

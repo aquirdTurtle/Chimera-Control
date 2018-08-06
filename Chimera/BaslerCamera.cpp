@@ -27,7 +27,7 @@ BaslerCameras::BaslerCameras(CWnd* parent)
 			camera->init( parent );
 			cameraInitialized = true;
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			cameraInitialized = false;
 		}
@@ -320,7 +320,7 @@ void BaslerCameras::triggerThread( void* voidInput )
 				input->camera->executeSoftwareTrigger();			
 				count++;
 			}
-			catch (Error& err)
+			catch (Error&)
 			{
 				// continue... should be stopping grabbing.
 				break;
@@ -356,7 +356,7 @@ void BaslerCameras::triggerThread( void* voidInput )
 	{
 		errBox( "Trigger Thread Timeout Error!" + std::string(timeoutErr.what()) );
 	}
-	catch (Pylon::RuntimeException& err)
+	catch (Pylon::RuntimeException&)
 	{
 		// aborted, that's fine. return.
 	}

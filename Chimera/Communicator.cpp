@@ -18,6 +18,12 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 }
 
 
+void Communicator::sendBaslerFin ( )
+{
+	camWin->PostMessageA ( eBaslerFinMessageId, 0, 0 );
+}
+
+
 void Communicator::sendNoAtomsAlert ( )
 {
 	mainWin->PostMessageA ( eNoAtomsAlertMessageID, 0, 0 );

@@ -239,9 +239,14 @@ void BaslerSettingsControl::handleCameraMode()
 
 baslerSettings BaslerSettingsControl::getCurrentSettings()
 {
+	loadCurrentSettings ( );
 	return currentSettings;
 }
 
+
+/*
+Updates the internal object with gui settings
+*/
 baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 {
 	isReady = false;
@@ -264,7 +269,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 				throw std::invalid_argument ( "err!" );
 			}
 		}
-		catch ( std::invalid_argument& err )
+		catch ( std::invalid_argument& )
 		{
 			thrower ( "Error! Please input a valid double for the exposure time." );
 		}
@@ -284,7 +289,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 				thrower ( "ERROR! Repetition count must be strictly positive." );
 			}
 		}
-		catch ( std::invalid_argument& err )
+		catch ( std::invalid_argument& )
 		{
 			thrower ( "Error! Please input a valid positive integer for the rep count." );
 		}

@@ -35,6 +35,7 @@ class BaslerWindow : public CDialogEx
 		void passExposureMode();
 		void passCameraMode();
 		bool baslerCameraIsRunning ( );
+		bool baslerCameraIsContinuous ( );
 		void fillMotSizeInput ( baslerSettings& settings);
 		LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
 		void pictureRangeEditChange( UINT id );

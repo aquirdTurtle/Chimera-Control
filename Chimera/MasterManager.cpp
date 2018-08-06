@@ -29,7 +29,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// initialize various structures
 	// convert the input to the correct structure.
 	MasterThreadInput* input = (MasterThreadInput*)voidInput;
-	chronoTimes programmingTimes;
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
