@@ -97,6 +97,7 @@ namespace commonFunctions
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true, input );
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher(input);
+					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					logParameters( input, camWin, basWin, true, true );
 					camWin->startAtomCruncher(input);
 					camWin->startPlotterThread(input);

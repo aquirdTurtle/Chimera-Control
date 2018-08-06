@@ -158,7 +158,6 @@
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = str(CODE_ROOT) + "\\Chimera\\";
 	const std::string PROFILES_PATH = str(CODE_ROOT) + "\\Profiles\\";
-	//const std::string DATA_SAVE_LOCATION = str(CODE_ROOT) + "\\Data\\";
 	const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
 	//const std::string DATA_SAVE_LOCATION = "E:\\Temporary-Data-Repo\\";
 	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
