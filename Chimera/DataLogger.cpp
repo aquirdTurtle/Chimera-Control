@@ -428,7 +428,7 @@ void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::
 		H5::DataSet varSet;
 		if ( variable.constant )
 		{
-			varSet = writeDataSet( variable.ranges.front( ).initialValue, variable.name, variableGroup );
+			varSet = writeDataSet( variable.constantValue, variable.name, variableGroup );
 		}
 		else
 		{
