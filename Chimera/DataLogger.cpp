@@ -435,8 +435,9 @@ void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::
 			varSet = writeDataSet( variable.keyValues, variable.name, variableGroup );
 		}
 		writeAttribute( variable.constant, "Constant", varSet );
-	}
+	} 
 }
+
 
 void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 {
@@ -458,7 +459,7 @@ void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 		thrower ( "Failed to write data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
 	}
 }
-
+ 
 
 void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 {
@@ -481,7 +482,7 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 	}
 }
 
-
+ 
 void DataLogger::initializeAioLogging( UINT numSnapshots )
 {
 	// initial settings
@@ -500,8 +501,8 @@ void DataLogger::initializeAioLogging( UINT numSnapshots )
 		H5::Group aioGroup ( file.createGroup ( "/AI:NA" ) );
 	}
 }
-
-
+ 
+ 
 void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 {
 	if ( fileIsOpen == false )
@@ -521,13 +522,13 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 		thrower( "Failed to write data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
 	}
 }
-
+ 
 
 void DataLogger::logMiscellaneous()
 {
 	// times, ...
 }
-
+ 
 
 void DataLogger::closeFile()
 {
@@ -544,17 +545,17 @@ void DataLogger::closeFile()
 	fileIsOpen = false;
 }
 
-
+ 
 UINT DataLogger::getNextFileNumber()
 {
 	return currentDataFileNumber+1;
 }
-
+ 
 
 int DataLogger::getDataFileNumber()
 {
 	return currentDataFileNumber;
-}
+} 
 
 
 void DataLogger::logNiawgSettings(MasterThreadInput* input)

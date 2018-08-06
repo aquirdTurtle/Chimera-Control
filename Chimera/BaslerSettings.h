@@ -38,6 +38,7 @@ struct BaslerAcquisition
 	static mode fromStr( std::string m );
 };
 
+
 struct baslerSettings
 {
 	unsigned int rawGain;

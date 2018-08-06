@@ -22,17 +22,18 @@ std::string AndorTriggerModeText ( AndorTriggerMode mode )
 	}
 }
 
+
 AndorTriggerMode AndorTriggerModeFromText ( std::string txt )
 {
-	if ( txt == "External-Trigger" )
+	if ( txt == "External-Trigger"		|| txt == "External Trigger" )
 	{
 		return AndorTriggerMode::External;
 	}
-	else if ( txt == "Internal-Trigger" )
+	else if ( txt == "Internal-Trigger" || txt == "Internal Trigger" )
 	{
 		return AndorTriggerMode::Internal;
 	}
-	else if ( txt == "Start-On-Trigger" )
+	else if ( txt == "Start-On-Trigger" || txt == "Start On Trigger" )
 	{
 		return AndorTriggerMode::StartOnTrigger;
 	}
@@ -41,3 +42,4 @@ AndorTriggerMode AndorTriggerModeFromText ( std::string txt )
 		thrower("ERROR: andortriggermode not recognized?!?");
 	}
 }
+

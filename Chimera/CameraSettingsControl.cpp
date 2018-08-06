@@ -616,17 +616,19 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
 	configFile.get();
-	configFile >> txt;
-	if (txt == AndorRunModeText(AndorRunModes::Video))
+	std::getline ( configFile, txt );
+	//configFile.getline ( txt, 0 );
+	//configFile >> txt;
+	if (txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Video;
 		tempSettings.totalPicsInVariation = INT_MAX;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) )
+	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Kinetic;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) )
+	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Accumulate;
 		tempSettings.totalPicsInVariation = INT_MAX;
@@ -700,17 +702,17 @@ void AndorCameraSettingsControl::updateCameraMode( )
 	cameraModeCombo.GetLBText( sel, mode );
 	std::string txt ( mode );
 	//settings.andor.cameraMode = mode;
-	if ( txt == AndorRunModeText(AndorRunModes::Video) )
+	if ( txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Video;
 		settings.andor.totalPicsInVariation = INT_MAX;
 		settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) )
+	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Kinetic;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) )
+	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Accumulate;
 	}

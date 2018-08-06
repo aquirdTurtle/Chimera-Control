@@ -59,7 +59,6 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 }
 
 
-
 /*
  * The "normal" function, used for config and global variable systems.
  */
@@ -1343,8 +1342,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 	}
 	// each element of the vector refers to the number of variations within a given variation range.
 	// variations[seqNumber][dimNumber][rangeNumber]
-	std::vector<std::vector<std::vector<int>>> variations( variables.size( ), 
-														   std::vector<std::vector<int>>(maxDim));
+	std::vector<std::vector<std::vector<int>>> variations( variables.size( ), std::vector<std::vector<int>>(maxDim));
 	std::vector<std::vector<int>> variableIndexes(variables.size());
 	for (auto seqInc : range(variables.size()) )
 	{
@@ -1383,7 +1381,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					{
 						continue;
 					}
-					//variationNum = variable.ranges[rangeInc].variationssize ( );
+					variationNum = inputRangeInfo[ rangeInc ].variations;
 				}
 			}
 		}
