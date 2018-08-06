@@ -87,19 +87,27 @@ CRect PlotCtrl::GetPlotRect( )
 }
 
 
-void PlotCtrl::init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent )
+void PlotCtrl::setControlLocation ( POINT topLeftLoc, LONG width, LONG height )
 {
+	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
 	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
 	RECT d = controlDims;
 	long w = d.right - d.left, h = d.bottom - d.top;
 	if ( !narrow )
 	{
-		plotAreaDims = { long( d.left + w*0.1 ), long( d.top + h*0.08 ), long( d.right*0.98 ), long( d.bottom - h*0.1 ) };
+		plotAreaDims = { long ( d.left + w*0.1 ), long ( d.top + h*0.08 ), long ( d.right*0.98 ), long ( d.bottom - h*0.1 ) };
 	}
 	else
 	{
 		plotAreaDims = controlDims;
 	}
+}
+
+
+void PlotCtrl::init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent )
+{
+	setControlLocation ( topLeftLoc, width, height );
+
 	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
 	legButton.Create( "", NORM_CHECK_OPTIONS, legButton.sPos, parent, 0 );
 	sustainButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
@@ -123,14 +131,8 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 {
 	double minx = DBL_MAX, maxx = -DBL_MAX, miny = DBL_MAX, maxy = -DBL_MAX;
-	//UINT counter = 0;
 	for ( auto line : screenData )
 	{
-		//if ( style == plotStyle::HistPlot )// && counter == screenData.size( )-1 )
-		//{
-			// no average dataset for histograms.
-		//	continue;
-		//}
 		for ( auto elem : line )
 		{
 			if ( elem.x < minx )
@@ -142,18 +144,12 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 				maxx = elem.x;
 			}
 		}
-		//counter++;
 	}
-	//counter = 0;
 	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot 
 		 || style == plotStyle::VertHist )
 	{
 		for ( auto line : screenData )
 		{
-			//if ( style == plotStyle::HistPlot )//&& counter == screenData.size( )-1 )
-			//{
-			//	continue;
-			// }
 			for ( auto elem : line )
 			{
 				if ( elem.y < miny )
@@ -165,7 +161,6 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 					maxy = elem.y;
 				}
 			}
-			//counter++;
 		}
 	}
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);

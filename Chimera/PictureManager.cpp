@@ -3,7 +3,7 @@
 #include "ProfileSystem.h"
 #include "Thrower.h"
 
-PictureManager::PictureManager ( bool histOption ) : pictures{ { histOption, histOption, histOption, histOption } }
+PictureManager::PictureManager ( bool histOption ) : pictures{ { histOption, false, false, false } }
 {
 
 }
@@ -248,8 +248,8 @@ void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams
 			pictures[picNum].setActive(false);
 		}
 	}
-	pictures.front().setPictureArea( picturesLocation, picturesWidth, picturesHeight);
-	pictures.front().setSliderControlLocs(parent);
+	pictures.front( ).setPictureArea( picturesLocation, picturesWidth, picturesHeight);
+	pictures.front( ).setSliderControlLocs( parent );
 	pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );	
 }
@@ -316,13 +316,13 @@ void PictureManager::drawBackgrounds(CDC* easel)
 }
 
 
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush, 
+void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush, int manWidth, int manHeight,
 								 std::vector<Gdiplus::Pen*> graphPens, CFont* font,
 								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
 {
 	picturesLocation = loc;
-	picturesWidth = 550 * 2;
-	picturesHeight = 460 * 2 + 5;
+	picturesWidth = manWidth;
+	picturesHeight = manHeight;
 	gridBrush = defaultBrush;
 	//
 	pictures[0].initialize( loc, parent, id, 550, 440, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT }, graphPens,
@@ -346,6 +346,7 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 	}
 	// initialize to one. This matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
+	
 }
 
 

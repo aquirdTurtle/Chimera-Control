@@ -1170,6 +1170,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	{
 		std::string name, defaultValueString, minString, maxString;
 		double defaultValue, min, max;
+
 		configStream >> name;
 		if (version >= Version("1.2"))
 		{
@@ -1177,7 +1178,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			configStream >> minString >> trash;
 			if (trash != "-")
 			{
-				thrower("ERROR: Expected \"-\" in config file between min and max values!");
+				thrower ( str("ERROR: Expected \"-\" in config file between min and max values for variable ") 
+							   + name + ", dac"  + str(dacInc) + ".");
 			}
 			configStream >> maxString;
 		}
@@ -1221,6 +1223,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	{
 		int varNum;
 		configStream >> varNum;
+
 		if (varNum < 0 || varNum > 1000)
 		{
 			int answer = promptBox("ERROR: variable number retrieved from file appears suspicious. The number is "

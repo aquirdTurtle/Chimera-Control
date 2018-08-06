@@ -122,14 +122,14 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 	if ( histOption )
 	{
 		vertGraph = new PlotCtrl ( vertData, plotStyle::VertHist, graphPens, font, graphBrushes, "", true );
-		vertGraph->init ( { loc.x, loc.y }, 65, height, parent );
+		vertGraph->init ( { 300, 0 }, 65, 860, parent );
 		loc.x += 65;
 	}
 	setPictureArea ( loc, maxWidth, maxHeight );
 	if ( histOption )
 	{
 		horGraph = new PlotCtrl ( horData, plotStyle::HistPlot, graphPens, font, graphBrushes, "", true );
-		horGraph->init ( { loc.x, loc.y + height }, width - 50, 60, parent );
+		horGraph->init ( { 365, LONG(860) }, 1565 - 50, 65, parent );
 	}
 
 	//setPictureArea( loc, width, height-25 );
@@ -209,7 +209,16 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	scaledBackgroundArea.right *= width;
 	scaledBackgroundArea.top *= height;
 	scaledBackgroundArea.bottom *= height;
-
+	if ( horGraph )
+	{
+		//horGraph->setControlLocation ( { scaledBackgroundArea.left, scaledBackgroundArea.bottom }, 
+		//							   scaledBackgroundArea.right - scaledBackgroundArea.left, 65 );
+	}
+	if ( vertGraph )
+	{
+		//vertGraph->setControlLocation ( { scaledBackgroundArea.left - 65, scaledBackgroundArea.bottom },
+		//							      65, scaledBackgroundArea.bottom - scaledBackgroundArea.top );
+	}
 	double widthPicScale;
 	double heightPicScale;
 	if (unofficialImageParameters.width() > unofficialImageParameters.height())
@@ -230,6 +239,7 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	pictureArea.right = mid.x + picWidth / 2;
 	pictureArea.top = mid.y - picHeight / 2;
 	pictureArea.bottom = mid.y + picHeight / 2;
+	horGraph;
 }
 
 

@@ -975,12 +975,13 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 			}
 		}
 	}
-	input->seq.name = "loadMot";
-	input->seq.sequence.resize( 1 );
-	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
+	input->seq.name = "loadMot";
+	input->seq.sequence.resize( 1 );
+	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
+
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
  	input->skipNext = NULL;

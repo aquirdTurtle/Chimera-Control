@@ -24,7 +24,7 @@ void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int 
 
 	cameraMode.sPos = { pos.x, pos.y, pos.x + 300, pos.y + 100 };
 	cameraMode.Create ( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_SORT, cameraMode.sPos, parent,
-						IDC_CAMERA_MODE_COMBO );
+						IDC_BASLER_CAMERA_MODE_COMBO );
 	pos.y += 25;
 	cameraMode.AddString ( "Finite-Acquisition" );
 	cameraMode.AddString ( "Continuous-Acquisition" );
@@ -61,8 +61,8 @@ void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int 
 
 	//
 	rightText.sPos = { pos.x + width / 3, pos.y, pos.x + 2 * width / 3, pos.y + 25 };
-	rightText.Create ( std::string ( "Right (/" + str ( cameraDims.x ) + ")" ).c_str ( ), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.sPos,
-					   parent, id++ );
+	rightText.Create ( std::string ( "Right (/" + str ( cameraDims.x ) + ")" ).c_str ( ), 
+					   WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.sPos, parent, id++ );
 
 	//
 	horizontalBinningText.sPos = { pos.x + 2 * width / 3, pos.y, pos.x + width, pos.y += 25 };
@@ -194,7 +194,6 @@ void BaslerSettingsControl::rearrange(int width, int height, fontMap fonts)
 	realGainStatus.rearrange( width, height, fonts);
 }
 
-
 // assumes called on every 10 pics.
 void BaslerSettingsControl::handleFrameRate()
 {
@@ -220,6 +219,7 @@ void BaslerSettingsControl::updateExposure( double exposure )
 {
 	exposureEdit.SetWindowTextA( cstr( exposure ) );
 }
+
 
 void BaslerSettingsControl::handleCameraMode()
 {

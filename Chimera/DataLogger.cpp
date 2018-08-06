@@ -450,7 +450,8 @@ void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 	try
 	{
 		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
-		BaslerPictureDataset.write ( image.data.data(), H5::PredType::NATIVE_LONG, BaslerPicDataSpace, BaslerPicureSetDataSpace );
+		BaslerPictureDataset.write ( image.data.data(), H5::PredType::NATIVE_LONG, BaslerPicDataSpace, 
+									 BaslerPicureSetDataSpace );
 	}
 	catch ( H5::Exception& err )
 	{
@@ -483,16 +484,20 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 
 void DataLogger::initializeAioLogging( UINT numSnapshots )
 {
-	H5::Group aioGroup( file.createGroup( "/DACs" ) );
 	// initial settings
 	// list of commands?
 	if ( numSnapshots != 0 )
 	{
+		H5::Group aioGroup ( file.createGroup ( "/AI" ) );
 		hsize_t setDims[] = { numSnapshots, NUMBER_AI_CHANNELS };
 		hsize_t singleMeasurementDims[] = { 1, NUMBER_AI_CHANNELS };
 		voltsSetDataSpace = H5::DataSpace( 2, setDims );
 		voltsDataSpace = H5::DataSpace( 2, singleMeasurementDims );
 		voltsDataSet = aioGroup.createDataSet( "Voltage-Measurements", H5::PredType::NATIVE_DOUBLE, voltsSetDataSpace );
+	}
+	else
+	{
+		H5::Group aioGroup ( file.createGroup ( "/AI:NA" ) );
 	}
 }
 

@@ -154,6 +154,7 @@ _
 motgradientcurrent
 -10 - 10
 0
+_
 probefreq
 -10 - 10
 0
@@ -189,6 +190,7 @@ _
 sigmarepumppower
 0 - 0.38
 0
+_
 auxtweezerpower
 0 - 0.23
 0
@@ -220,7 +222,8 @@ _
 piezomirror
 -10 - 10
 0
-14
+_
+15
 loadmottime 400
 andorimagetime 20
 imagingpower 0.3

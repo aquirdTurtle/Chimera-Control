@@ -655,6 +655,9 @@ namespace commonFunctions
 			}
 			case ID_RUNMENU_RUNBASLER:
 			{
+				ExperimentInput input;
+				input.baslerRunSettings = basWin->getCurrentSettings ( );
+				logParameters ( input, camWin, basWin, false, true );
 				basWin->handleArmPress();
 				break;
 			}

@@ -70,7 +70,7 @@ struct imageParameters
 	If not consistent, the function throws.
 	cam can be one of "andor", "ace", and "scout".
 	*/
-	bool checkConsistency ( std::string cam="andor" )
+	void checkConsistency ( std::string cam="andor" )
 	{
 		std::string errstr = "ERROR: inside " + cam + " camera settings, ";
 		if ( left > right )
