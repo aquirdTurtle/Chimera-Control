@@ -18,13 +18,6 @@ BaslerWindow::BaslerWindow( ) : picManager(true)
 }
 
 
-/*
-void BaslerWindow::prepareBasler ( baslerSettings& settings )
-{
-	this->get
-}
-*/
-
 // the message map. Allows me to handle various events in the system using functions I write myself.
 BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	
@@ -61,7 +54,8 @@ baslerSettings BaslerWindow::getCurrentSettings ( )
 }
 
 
-void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ )
+void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
+								 AuxiliaryWindow* auxWin_ )
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
@@ -261,42 +255,37 @@ void BaslerWindow::handleDisarmPress()
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
 	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
-	mainWin->getComm ( )->sendColorBox ( System::Basler, 'G' );
+	imageMatrix->updateString ( );
+ 	mainWin->getComm ( )->sendColorBox ( System::Basler, 'G' );
  	long size = long( wParam );
- 	try
-	{
-		currentRepNumber++;
-		CDC* cdc = GetDC();
-		//picManager.drawDongles ( cdc, selectedPixel, , , 0);
+  	try
+ 	{
+ 		currentRepNumber++;
+ 		CDC* cdc = GetDC();
 		picManager.drawBitmap( cdc, *imageMatrix );
-		picManager.updatePlotData ( );
-		picManager.drawDongles ( cdc, { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
-		//picture.updatePlotData( );
+ 		picManager.updatePlotData ( );
+ 		picManager.drawDongles ( cdc, { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		ReleaseDC( cdc );
-		//picture.setHoverValue();
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)
-		{
+		{ 
 			settingsCtrl.updateExposure( cameraController->getCurrentExposure() );
 		}
-		
-		//stats.update( *imageMatrix, 0, { 0,0 }, settings.getCurrentSettings().dimensions.horBinNumber, currentRepNumber,
-		//			  cameraController->getRepCounts() );
-		settingsCtrl.setStatus("Camera Status: Acquiring Pictures.");
-		if (currentRepNumber % 10 == 0)
-		{
-			settingsCtrl.handleFrameRate();
-		}
-		if (!cameraController->isContinuous())
-		{
-			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, settingsCtrl.getCurrentSettings ( ).dimensions );
-		}
-		if (currentRepNumber == cameraController->getRepCounts())
-		{
-			cameraController->disarm();
-			isRunning = false;
-			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
-		}
-	}
+ 		settingsCtrl.setStatus("Camera Status: Acquiring Pictures.");
+ 		if (currentRepNumber % 10 == 0)
+ 		{
+ 			settingsCtrl.handleFrameRate();
+ 		}
+ 		if (!cameraController->isContinuous())
+ 		{
+ 			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, settingsCtrl.getCurrentSettings ( ).dimensions );
+ 		}
+ 		if (currentRepNumber == cameraController->getRepCounts())
+ 		{
+ 			cameraController->disarm();
+ 			isRunning = false;
+ 			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
+ 		}
+ 	}
 	catch (Error& err)
 	{
 		errBox( err.what() );
@@ -542,7 +531,7 @@ void BaslerWindow::initializeControls()
 	std::vector<CToolTipCtrl*> toolTipDummy;
 	//stats.initialize( pos, this, id, fontDummy, toolTipDummy );
 
-	POINT picPos = { 300, 0 };
+	POINT picPos = { 365, 0 };
 	POINT dims = cameraController->getCameraDimensions();
 
 	// scale to fill the window (approximately).
@@ -551,8 +540,12 @@ void BaslerWindow::initializeControls()
 
 	CDC* cdc = GetDC( );
 	auto brushes = mainWin->getBrushes ( );
-	picManager.initialize ( picPos, this, id, brushes[ "Red" ], mainWin->getBrightPlotPens(), mainWin->getPlotFont(),
-							mainWin->getPlotBrushes() );
+	
+	picManager.initialize ( picPos, this, id, brushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
+							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
+	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dimensions );
+	picManager.setPalletes ( { 1,1,1,1 } );
+	this->RedrawWindow ( );
 	//picture.drawBackground( cdc );
 	ReleaseDC( cdc );
 }

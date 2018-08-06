@@ -65,6 +65,7 @@ class PlotCtrl
 		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p , Gdiplus::Brush* b );
 
 		bool wantsSustain( );
+		void setControlLocation ( POINT topLeftLoc, LONG width, LONG height );
 
 		std::vector<std::mutex> dataMutexes;
 	private:

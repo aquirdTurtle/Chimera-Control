@@ -11,7 +11,7 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
+#define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
@@ -115,8 +115,8 @@
 #endif
 
 
-
 #ifdef MASTER_COMPUTER
+	#define BASLER_SAFEMODE false
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
 	#ifdef _DEBUG
@@ -168,6 +168,7 @@
 	const std::string LOGGING_FILE_ADDRESS = str(CODE_ROOT) + "\\Master-Log.txt";
 	const std::string KEY_ADDRESS = "\\\\Callisto\\Shared\\key.txt";
 	const std::string MOT_ROUTINES_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT";
+	const std::string PGC_ROUTINES_ADDRESS = str(CODE_ROOT) + "Profiles\\Hotkey Experiments\\PGC";
 	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\Camera";
 	const std::string DEBUG_OUTPUT_LOCATION = str(CODE_ROOT) + "\\Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
@@ -175,7 +176,6 @@
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 #endif
 
-#define BASLER_SAFEMODE true
 #define FIREWIRE_CAMERA
 
 // The code compiles fairly differently for Firewire (1384) cameras vs. USB cameras.

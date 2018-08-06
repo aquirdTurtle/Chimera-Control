@@ -57,6 +57,7 @@ Refactoring / Other:
 - reduce size of niawgcontroller file
 - refactor commonfunctions, it's a bit of a mess. 
 
+
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent issue probably?
@@ -78,6 +79,7 @@ BUGS:
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
 - "-0.7s" in script not throwing error
+- I think the array expansion in the picture drawing is slow.
 
 =================
 Finished

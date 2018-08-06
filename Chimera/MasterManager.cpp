@@ -805,7 +805,7 @@ bool MasterManager::runningStatus()
 }
 
 
-/*** 
+/***
  * this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
  * knows exactly where to look for the MOT profile. This is currently hard-coded.
  */

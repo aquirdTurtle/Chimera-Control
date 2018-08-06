@@ -437,9 +437,9 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	if ( lParam != currentPictureNum && lParam != -1 )
 	{
-		if ( curSettings.cameraMode != "Video Mode" )
+		if ( curSettings.acquisitionMode != AndorRunModes::Video )
 		{
-			mainWindowFriend->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
+			mainWin->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
 													   "camera window record?!?!?!?!?" );
 		}
 	}
@@ -1450,7 +1450,7 @@ BOOL AndorWindow::OnInitDialog()
 	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
 	position = { 797, 40 };
-	pics.initialize( position, this, id, mainWin->getBrushes()["Dark Green"] );
+	pics.initialize( position, this, id, mainWin->getBrushes()["Dark Green"], 550 * 2, 460 * 2 + 5 );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.

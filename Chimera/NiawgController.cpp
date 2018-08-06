@@ -2583,12 +2583,21 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 																input->sourceCols, flashMoveInfo, input->guiOptions,
 																flashMove.moveBias );
 					}
+					else if ( input->guiOptions.auxStatic )
+					{
+						noFlashMove.waveVals = makeRerngWaveMovePart ( input->rerngWave->rearrange, 
+																	   noFlashMove.moveBias, input->sourceRows,
+																	   input->sourceCols, noFlashMoveInfo ).waveVals;
+						flashMove.waveVals = makeRerngWaveMovePart ( input->rerngWave->rearrange, flashMove.moveBias, 
+																	 input->sourceRows, input->sourceCols, 
+																	 flashMoveInfo ).waveVals;
+					}
 					else
 					{
-						noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
+						noFlashMove.waveVals = makeFullRerngWave ( input->rerngWave->rearrange, noFlashMove.staticMovingRatio,
 															  noFlashMove.moveBias, noFlashMove.deadTime, input->sourceRows,
 															  input->sourceCols, noFlashMoveInfo );
-						flashMove.waveVals = makeFullRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
+						flashMove.waveVals = makeFullRerngWave( input->rerngWave->rearrange, flashMove.staticMovingRatio,
 															flashMove.moveBias, flashMove.deadTime, input->sourceRows,
 															input->sourceCols, flashMoveInfo );
 					}

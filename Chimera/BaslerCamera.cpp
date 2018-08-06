@@ -82,10 +82,10 @@ baslerSettings BaslerCameras::getDefaultSettings()
 	POINT dim = getCameraDimensions();
 	defaultSettings.dimensions.left = 1;
 	defaultSettings.dimensions.right = dim.x; 
-	defaultSettings.dimensions.horizontalBinning = 1;
+	defaultSettings.dimensions.horizontalBinning = 4;
 	defaultSettings.dimensions.top = dim.y;
 	defaultSettings.dimensions.bottom = 1;
-	defaultSettings.dimensions.verticalBinning = 1;
+	defaultSettings.dimensions.verticalBinning = 4;
 	defaultSettings.exposureMode = BaslerAutoExposure::mode::Off;
 	defaultSettings.exposureTime = 1000;
 	defaultSettings.frameRate = 0.25;
@@ -128,7 +128,7 @@ void BaslerCameras::setParameters( baslerSettings settings )
 	camera->setOffsetX(settings.dimensions.left);
 	camera->setWidth(settings.dimensions.horRawPixelNum());
 	camera->setHorBin(settings.dimensions.horizontalBinning);
-	camera->setOffsetY(settings.dimensions.top);
+	camera->setOffsetY(settings.dimensions.bottom);
 	camera->setHeight(settings.dimensions.vertRawPixelNum());
 	camera->setVertBin(settings.dimensions.verticalBinning);
 	
@@ -241,8 +241,8 @@ POINT BaslerCameras::getCameraDimensions()
 	camera->OffsetX.SetValue( camera->OffsetX.GetMin() );
 	camera->OffsetY.SetValue( camera->OffsetY.GetMin() );
 
-	dim.x = camera->Width.GetMax();
-	dim.y = camera->Height.GetMax();
+	dim.x = camera->Width.GetMax() - 1;
+	dim.y = camera->Height.GetMax() - 1;
 
 	camera->OffsetX.SetValue( offsets.x );
 	camera->OffsetY.SetValue( offsets.y );
@@ -828,7 +828,6 @@ void BaslerWrapper::executeSoftwareTrigger()
 	{
 		try
 		{
-			
 			ExecuteSoftwareTrigger();
 		}
 		catch (Pylon::GenericException& err)
@@ -837,6 +836,7 @@ void BaslerWrapper::executeSoftwareTrigger()
 		}
 	}
 }
+
 
 void BaslerWrapper::setTriggerSource(cameraParams::TriggerSourceEnums mode)
 {
