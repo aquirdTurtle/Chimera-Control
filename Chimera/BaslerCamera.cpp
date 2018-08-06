@@ -311,6 +311,7 @@ void BaslerCameras::triggerThread( void* voidInput )
 		while (input->camera->isGrabbing())
 		{
 			// adjust for frame rate
+			
 			Sleep(int(1000.0 / input->frameRate));
 			try
 			{

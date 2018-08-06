@@ -80,6 +80,7 @@ LRESULT AndorWindow::onBaslerFinish ( WPARAM wParam, LPARAM lParam )
 	{
 		dataHandler.closeFile ( );
 	}
+	return 0;
 }
 
 
