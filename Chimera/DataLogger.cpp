@@ -173,6 +173,7 @@ void DataLogger::initializeDataFiles()
 	}
 	catch (H5::Exception err)
 	{
+		logError ( err );
 		thrower( "ERROR: Failed to initialize HDF5 data file: " + err.getDetailMsg() );
 	}
 }
@@ -316,7 +317,44 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 	}
 	catch ( H5::Exception err )
 	{
+		logError ( err );
 		thrower ( "ERROR: Failed to log basler parameters in HDF5 file: " + err.getDetailMsg ( ) );
+	}
+}
+
+
+
+void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
+{
+	if ( fileIsOpen == false )
+	{
+		thrower ( "Tried to write to h5 file (for basler pic), but the file is closed!\r\n" );
+	}
+	// starting coordinates of write area in the h5 file of the array of picture data points.
+	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
+	hsize_t slabdim[ 3 ] = { 1, dims.width ( ), dims.height ( ) };
+	try
+	{
+		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
+		BaslerPictureDataset.write ( image.data.data ( ), H5::PredType::NATIVE_LONG, BaslerPicDataSpace,
+									 BaslerPicureSetDataSpace );
+	}
+	catch ( H5::Exception& err )
+	{
+		logError ( err );
+		thrower ( "Failed to write data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
+	}
+}
+
+
+void DataLogger::logError ( H5::Exception& err )
+{
+	FILE * pFile;
+	fopen_s ( &pFile, "H5ErrLog.txt", "a" );
+	if ( pFile != NULL )
+	{
+		err.printErrorStack ( pFile );
+		fclose ( pFile );
 	}
 }
 
@@ -369,6 +407,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 	}
 	catch ( H5::Exception err )
 	{
+		logError ( err );
 		thrower( "ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg( ) );
 	}
 }
@@ -415,6 +454,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: Failed to log master parameters in HDF5 file: detail:" + err.getDetailMsg( ) );
 	}
 }
@@ -439,27 +479,6 @@ void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::
 }
 
 
-void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
-{
-	if ( fileIsOpen == false )
-	{
-		thrower ( "Tried to write to h5 file (for basler pic), but the file is closed!\r\n" );
-	}
-	// starting coordinates of write area in the h5 file of the array of picture data points.
-	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
-	hsize_t slabdim[ 3 ] = { 1, dims.width ( ), dims.height ( ) };
-	try
-	{
-		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
-		BaslerPictureDataset.write ( image.data.data(), H5::PredType::NATIVE_LONG, BaslerPicDataSpace, 
-									 BaslerPicureSetDataSpace );
-	}
-	catch ( H5::Exception& err )
-	{
-		thrower ( "Failed to write data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
-	}
-}
- 
 
 void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 {
@@ -478,6 +497,7 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 	}
 	catch (H5::Exception& err)
 	{
+		logError ( err );
 		thrower("Failed to write data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
 	}
 }
@@ -519,6 +539,7 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "Failed to write data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
 	}
 }
@@ -600,6 +621,7 @@ H5::DataSet DataLogger::writeDataSet( bool data, std::string name, H5::Group& gr
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing bool data set to H5 File. bool was " + str( data ) 
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -617,6 +639,7 @@ H5::DataSet DataLogger::writeDataSet( ULONGLONG data, std::string name, H5::Grou
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing uint data set to H5 File. uint was " + str( data )
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -634,6 +657,7 @@ H5::DataSet DataLogger::writeDataSet( UINT data, std::string name, H5::Group& gr
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing uint data set to H5 File. uint was " + str( data ) 
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -651,6 +675,7 @@ H5::DataSet DataLogger::writeDataSet( int data, std::string name, H5::Group& gro
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing int data set to H5 File. int was " + str( data ) 
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -668,6 +693,7 @@ H5::DataSet DataLogger::writeDataSet( double data, std::string name, H5::Group& 
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing double data set to H5 File. double was " + str(data) 
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -687,6 +713,7 @@ H5::DataSet DataLogger::writeDataSet( std::vector<float> dataVec, std::string na
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing double float data set to H5 File. Dataset name was " + name
 				 + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -706,6 +733,7 @@ H5::DataSet DataLogger::writeDataSet( std::vector<double> dataVec, std::string n
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing double vector data set to H5 File. Dataset name was " + name
 				 + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -723,6 +751,7 @@ H5::DataSet DataLogger::writeDataSet( std::string data, std::string name, H5::Gr
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing string data set to H5 File. String was " + data 
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -738,6 +767,7 @@ void DataLogger::writeAttribute( double data, std::string name, H5::DataSet& dse
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing bool attribute to H5 File. bool was " + str( data )
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
@@ -753,8 +783,11 @@ void DataLogger::writeAttribute( bool data, std::string name, H5::DataSet& dset 
 	}
 	catch ( H5::Exception& err )
 	{
+		logError ( err );
 		thrower( "ERROR: error while writing bool attribute to H5 File. bool was " + str(data)
 				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
 	}
 }
+
+
 

@@ -79,7 +79,9 @@ BUGS:
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
 - "-0.7s" in script not throwing error
-- I think the array expansion in the picture drawing is slow.
+
+- saving basler pics occasionally fails
+- frame rate should not be used if external trigger.
 
 =================
 Finished
