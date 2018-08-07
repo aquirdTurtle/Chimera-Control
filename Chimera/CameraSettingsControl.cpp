@@ -3,7 +3,7 @@
 #include "CameraWindow.h"
 #include "miscCommonFunctions.h"
 #include "Thrower.h"
-
+#include <boost/lexical_cast.hpp>
 
 
 AndorCameraSettingsControl::AndorCameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
@@ -231,9 +231,9 @@ void AndorCameraSettingsControl::handleSetTemperaturePress()
 	int temp;
 	try
 	{
-		temp = std::stoi(str(text));
+		temp = boost::lexical_cast<int>(str(text));
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
@@ -366,9 +366,9 @@ void AndorCameraSettingsControl::setEmGain()
 	int emGain;
 	try
 	{
-		emGain = std::stoi(str(emGainText));
+		emGain = boost::lexical_cast<int>(str(emGainText));
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Couldn't convert EM Gain text to integer! Aborting!");
 	}
@@ -554,10 +554,10 @@ double AndorCameraSettingsControl::getKineticCycleTime( )
 	kineticCycleTimeEdit.GetWindowTextA( text );
 	try
 	{
-		settings.andor.kineticCycleTime = std::stof( str( text ) );
+		settings.andor.kineticCycleTime = boost::lexical_cast<float>( str( text ) );
 		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		settings.andor.kineticCycleTime = 0.1f;
 		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
@@ -573,10 +573,10 @@ double AndorCameraSettingsControl::getAccumulationCycleTime( )
 	accumulationCycleTimeEdit.GetWindowTextA( text );
 	try
 	{
-		settings.andor.accumulationTime = std::stof( str( text ) );
+		settings.andor.accumulationTime = boost::lexical_cast<float>( str( text ) );
 		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
 	}
-	catch ( std::exception& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		settings.andor.accumulationTime = 0.1f;
 		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
@@ -592,10 +592,10 @@ UINT AndorCameraSettingsControl::getAccumulationNumber( )
 	accumulationNumberEdit.GetWindowTextA( text );
 	try
 	{
-		settings.andor.accumulationNumber = std::stol( str( text ) );
+		settings.andor.accumulationNumber = boost::lexical_cast<long>( str( text ) );
 		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		settings.andor.accumulationNumber = 1;
 		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
@@ -829,20 +829,20 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& con
 	try
 	{
 		configStream >> tempStr;
-		settings.left = std::stol ( tempStr );
+		settings.left = boost::lexical_cast<long> ( tempStr );
 		configStream >> tempStr;
-		settings.right = std::stol ( tempStr );
+		settings.right = boost::lexical_cast<long> ( tempStr );
 		configStream >> tempStr;
-		settings.horizontalBinning = std::stol ( tempStr );
+		settings.horizontalBinning = boost::lexical_cast<long> ( tempStr );
 		configStream >> tempStr;
-		settings.bottom = std::stol ( tempStr );
+		settings.bottom = boost::lexical_cast<long> ( tempStr );
 		configStream >> tempStr;
-		settings.top = std::stol ( tempStr );
+		settings.top = boost::lexical_cast<long> ( tempStr );
 		configStream >> tempStr;
-		settings.verticalBinning = std::stol ( tempStr );
+		settings.verticalBinning = boost::lexical_cast<long> ( tempStr );
 		setImageParameters ( settings, camWin );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
 				  "to load camera dimensions!" );

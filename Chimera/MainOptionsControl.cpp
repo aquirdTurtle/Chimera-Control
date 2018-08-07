@@ -3,6 +3,7 @@
 #include "MainOptionsControl.h"
 #include "ProfileSystem.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
 
 void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs )
 {
@@ -80,9 +81,9 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 		openFile >> txt;
 		try
 		{
-			currentOptions.atomThresholdForSkip = std::stoul( txt );
+			currentOptions.atomThresholdForSkip = boost::lexical_cast<unsigned long>( txt );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			errBox( "ERROR: atom threshold for load skip failed to convert to an unsigned long! The code will force "
 					   "the threshold to the maximum threshold." );
@@ -106,9 +107,9 @@ mainOptions MainOptionsControl::getOptions()
 	atomThresholdForSkipEdit.GetWindowTextA( txt );
 	try
 	{
-		currentOptions.atomThresholdForSkip = std::stoul( str( txt ) );
+		currentOptions.atomThresholdForSkip = boost::lexical_cast<unsigned long>( str( txt ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: failed to convert atom threshold for load-skip to an unsigned long!" );
 	}

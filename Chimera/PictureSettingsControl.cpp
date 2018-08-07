@@ -6,6 +6,7 @@
 #include "CameraWindow.h"
 #include "Commctrl.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
 
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {
@@ -304,7 +305,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		double exposure;
 		try
 		{
-			exposure = std::stof(str(text));// / 1000.0f;
+			exposure = boost::lexical_cast<float>(str(text));// / 1000.0f;
 			double dif = std::fabs(exposure/1000.0 - exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
@@ -318,7 +319,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 				return brushes["Solarized Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast& )
 		{
 			// don't do anything with it.
 		}
@@ -346,7 +347,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		int threshold;
 		try
 		{
-			threshold = std::stoi(str(text));
+			threshold = boost::lexical_cast<int>(str(text));
 			double dif = std::fabs(threshold - thresholds[picNum]);
 			if (dif < 0.000000001)
 			{
@@ -361,7 +362,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 				return brushes["Solarized Green"];
 			}
 		}
-		catch (std::exception&)
+		catch (boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}
@@ -590,10 +591,10 @@ void PictureSettingsControl::updateSettings( )
 		int threshold;
 		try
 		{
-			threshold = std::stoi( str( textEdit ) );
+			threshold = boost::lexical_cast<int>( str( textEdit ) );
 			picThresholds[ 0 ] = threshold;
 		}
-		catch ( std::invalid_argument )
+		catch ( boost::bad_lexical_cast& )
 		{
 			picThresholds.clear ( );
 			// assume it's a file location.
@@ -625,10 +626,10 @@ void PictureSettingsControl::updateSettings( )
 		float exposure;
 		try
 		{
-			exposure = std::stof( str( textEdit ) );
+			exposure = boost::lexical_cast<float>( str( textEdit ) );
 			exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
 		}
-		catch ( std::invalid_argument )
+		catch ( boost::bad_lexical_cast& )
 		{
 			errBox( "ERROR: failed to convert exposure number " + str( exposureInc + 1 ) + " to an integer." );
 		}

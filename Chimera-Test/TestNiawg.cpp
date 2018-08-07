@@ -100,7 +100,7 @@ namespace TestNiawg
 			Assert::AreEqual( false, moves.front( ).isInlineParallel );
 			Assert::IsTrue( dir::up == moves.front( ).moveDir );
 			Assert::AreEqual( size_t( 1 ), moves.front( ).locationsToMove.size( ) );
-			Assert::IsTrue( coordinate( { 0,1 } ) == moves.front( ).locationsToMove.front( ) );
+			Assert::IsTrue( int_coordinate( { 0,1 } ) == moves.front( ).locationsToMove.front( ) );
 		}
 		TEST_METHOD( Pi_Parallel_Rerng )
 		{
@@ -130,8 +130,8 @@ namespace TestNiawg
 			Assert::AreEqual( true, move.needsFlash );
 			Assert::IsTrue( dir::left == move.moveDir );
 			Assert::AreEqual( size_t( 2 ), move.locationsToMove.size( ) );
-			Assert::IsTrue( coordinate( { 1,2 } ) == move.locationsToMove[0] );
-			Assert::IsTrue( coordinate( { 3,2 } ) == move.locationsToMove[1] );
+			Assert::IsTrue( int_coordinate( { 1,2 } ) == move.locationsToMove[0] );
+			Assert::IsTrue( int_coordinate( { 3,2 } ) == move.locationsToMove[1] );
 		}
 		private:
 			std::vector<bool> standardTarget =

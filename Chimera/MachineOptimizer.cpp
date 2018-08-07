@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <memory>
 #include "afxwin.h"
-
+#include <boost/lexical_cast.hpp>
 
 void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id )
 {
@@ -300,9 +300,9 @@ void MachineOptimizer::handleListViewClick ( )
 			dialog.DoModal ( );
 			try
 			{
-				param->lowerLim = std::stod ( lowerLim );
+				param->lowerLim = boost::lexical_cast<double> ( lowerLim );
 			}
-			catch ( std::invalid_argument )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
 			}
@@ -318,9 +318,9 @@ void MachineOptimizer::handleListViewClick ( )
 			dialog.DoModal ( );
 			try
 			{
-				param->upperLim = std::stod ( upperLim );
+				param->upperLim = boost::lexical_cast<double> ( upperLim );
 			}
-			catch ( std::invalid_argument )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
 			}

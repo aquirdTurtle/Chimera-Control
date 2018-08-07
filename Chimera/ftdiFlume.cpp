@@ -4,12 +4,14 @@
 ftdiFlume::ftdiFlume( bool safemode_option ) : safemode(safemode_option )
 {}
 
+
 UINT ftdiFlume::getNumDevices( )
 {
 	FT_STATUS ftStatus;
 	DWORD numDevs=1;
 	if ( !safemode )
 	{
+		numDevs = 0;
 #ifdef _WIN64
 		ftStatus = FT_ListDevices( &numDevs, NULL, FT_LIST_NUMBER_ONLY );
 		if ( ftStatus != FT_OK )

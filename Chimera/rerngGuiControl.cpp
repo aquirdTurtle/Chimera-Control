@@ -2,7 +2,7 @@
 #include "rerngGuiControl.h"
 #include "ProfileSystem.h"
 #include "Thrower.h"
-
+#include <boost/lexical_cast.hpp>
 
 void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
@@ -91,29 +91,29 @@ rerngGuiOptionsForm rerngGuiControl::getParams( )
 	{
 		flashingRateEdit.GetWindowTextA( tempTxt );
 		// convert to Hz from MHz
-		//tempParams.flashingRate = 1e6 * std::stod( str( tempTxt ) );
+		//tempParams.flashingRate = 1e6 * boost::lexical_cast<double>( str( tempTxt ) );
 		tempParams.flashingRate = str( tempTxt );
 		moveSpeedEdit.GetWindowTextA( tempTxt );
 		// convert to s from ms
-		//tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
+		//tempParams.moveSpeed = 1e-3 * boost::lexical_cast<double>( str( tempTxt ) );
 		tempParams.moveSpeed = str( tempTxt );
 		movingBiasEdit.GetWindowTextA( tempTxt );
 		tempParams.moveBias = str( tempTxt );
 		// convert from ns to s
 		deadTimeEdit.GetWindowTextA( tempTxt );
-		//tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
+		//tempParams.deadTime = boost::lexical_cast<double>( str(tempTxt) ) * 1e-9;
 		tempParams.deadTime = str( tempTxt );
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
-		//tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		//tempParams.staticMovingRatio = boost::lexical_cast<double>( str( tempTxt ) );
 		tempParams.staticMovingRatio = str( tempTxt );
 		finalMoveTimeEdit.GetWindowTextA( tempTxt );
-		//tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
+		//tempParams.finalMoveTime = 1e-3 * boost::lexical_cast<double>( str(tempTxt) );
 		tempParams.finalMoveTime = str( tempTxt );
 		fastMoveTimeEdit.GetWindowTextA( tempTxt );
-		//tempParams.fastMoveTime = 1e-6 * std::stod( str( tempTxt ) );
+		//tempParams.fastMoveTime = 1e-6 * boost::lexical_cast<double>( str( tempTxt ) );
 		tempParams.fastMoveTime = str( tempTxt );
 	}
-	catch ( std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower( "ERROR: Failed to convert rearrangement parameters to correct format! check that the inputs are the "
 				 "correct types please." );
@@ -257,7 +257,15 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	if ( ver >= Version ( "3.4" ) )
 	{
 		openFile >> tmpStr;
-		info.auxStatic = std::stoi(tmpStr);
+		try
+		{
+			info.auxStatic = boost::lexical_cast<bool>( tmpStr );
+		}
+		catch ( boost::bad_lexical_cast& )
+		{
+			thrower ( "ERROR: failed to convert auxiliary tweezers are the static tweezers option to int while loading "
+					  "config!" );
+		}
 	}
 	else
 	{

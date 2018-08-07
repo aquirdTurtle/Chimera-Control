@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "TestMacros.h"
 #include "CppUnitTest.h"
 #include "../Chimera/AiSystem.h"
 #include "../Chimera/Thrower.h"
@@ -10,7 +11,7 @@ namespace TestAiSystem
 	TEST_CLASS( TestAiSys )
 	{
 		public:
-		TEST_METHOD( InitAiSysConnected )
+		CONNECTED_TEST ( InitAiSysConnected )
 		{
 			AiSystem aiSys;
 			// make sure this can be done without errors getting thrown.
