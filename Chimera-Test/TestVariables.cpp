@@ -23,11 +23,12 @@ namespace TestVariables
 		}
 		TEST_METHOD( AddConstant )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 10,false,false } );
 			parameterType var;
 			var.name = "testvariable";
 			var.constant = true;
 			var.constantValue = 0.0;
-			var.ranges.push_back( { 1,10,10,0,0 } );
+			var.ranges.push_back( { 1,10 } );
 			ParameterSystem testSys;
 			testSys.addConfigParameter( var, 0 );
 			Assert::AreEqual( UINT( 1 ), testSys.getCurrentNumberOfVariables( ) );
@@ -39,18 +40,21 @@ namespace TestVariables
 		}
 		TEST_METHOD( GenerateKey )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 10,false,false } );
 			parameterType var;
 			var.name = "testvariable";
 			var.constant = false;
 			var.constantValue = 0.0;
 			variationRangeInfo info;
 			std::vector<double> expectedresult = { 1,2,3,4,5,6,7,8,9,10 };
-			var.ranges.push_back( { 0,11,10,0,0 } );
+			var.ranges.push_back ( { 0,11 } );
 			ParameterSystem testSys;
 			testSys.addConfigParameter( var, 0 );
 			std::vector<std::vector<parameterType>> vars;
 			vars.push_back(testSys.getAllVariables( ));
-			testSys.generateKey( vars, false );
+			testSys.generateKey( vars, false, rangeInfo );
+			Assert::IsTrue ( vars.size ( ) == 1 );
+			Assert::IsTrue ( vars[0].size ( ) == 1 );
 			Assert::IsTrue( vars[0][0].keyValues.size( ) == 10 );
 			auto vals = vars[0][0].keyValues;
 			for ( auto count : range( expectedresult.size( ) ))
@@ -59,10 +63,13 @@ namespace TestVariables
 			}
 
 			testSys.clearVariables( );
-			var.ranges[0] = { 11,21,10,true,false };
+			rangeInfo[ 0 ] = { 10,true,false };
+			var.ranges[0] = { 11,21 };
 			testSys.addConfigParameter( var, 0 );
 			vars[0] = testSys.getAllVariables( );
-			testSys.generateKey( vars, false );
+			testSys.generateKey( vars, false, rangeInfo );
+			Assert::IsTrue ( vars.size ( ) == 1 );
+			Assert::IsTrue ( vars[ 0 ].size ( ) == 1 );
 			Assert::IsTrue( vars[0][0].keyValues.size( ) == 10 );
 			vals = vars[0][0].keyValues;
 			for ( auto count : range( expectedresult.size( ) ) )
@@ -71,10 +78,13 @@ namespace TestVariables
 			}
 
 			testSys.clearVariables( );
-			var.ranges[0] = { 31, 40, 10, true, true };
+			var.ranges[0] = { 31, 40 };
+			rangeInfo[ 0 ] = { 10,true,true };
 			testSys.addConfigParameter( var, 0 );
 			vars[0] = testSys.getAllVariables( );
-			testSys.generateKey( vars, false );
+			testSys.generateKey( vars, false, rangeInfo );
+			Assert::IsTrue ( vars.size ( ) == 1 );
+			Assert::IsTrue ( vars[ 0 ].size ( ) == 1 );
 			Assert::IsTrue( vars[0][0].keyValues.size( ) == 10 );
 			vals = vars[0][0].keyValues;
 			for ( auto count : range( expectedresult.size( ) ) )

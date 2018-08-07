@@ -3,6 +3,7 @@
 #include "my_str.h"
 #include <string>
 #include "afxwin.h"
+#include <boost/lexical_cast.hpp>
 
 /*
 	A small class that provides easy version checking.
@@ -20,14 +21,14 @@ class Version
 			double version;
 			try
 			{
-				version = std::stod( versionStr );
+				version = boost::lexical_cast<double>( versionStr );
 				int periodPos = versionStr.find_last_of( '.' );
 				std::string tempStr( versionStr.substr( 0, periodPos ) );
-				versionMajor = std::stoul( tempStr );
+				versionMajor = boost::lexical_cast<ULONG>( tempStr );
 				tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
-				versionMinor = std::stoul( tempStr );
+				versionMinor = boost::lexical_cast<ULONG>( tempStr );
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower( "ERROR: Version string failed to convert to double!" );
 			}

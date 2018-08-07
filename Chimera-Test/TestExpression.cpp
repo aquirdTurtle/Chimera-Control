@@ -25,7 +25,7 @@ namespace TestExpressions
 		TEST_METHOD( Evaluation_Failures )
 		{
 			for ( auto tmpStr : { "", "3^2", "3**2", "sin 4", "sin{4}", "sin[4]", "4sin(2)", "4 * var", "((1+2)", 
-				  "(2", "1+-1", "*4-1" } )
+				  "(2", "1+-1", "*4-1", "SSS", "1s", "s1" } )
 			{
 				Expression expr1( tmpStr );
 				std::wstring errString = L"Expected the following expression to cause an exception upon evaluation: " 
@@ -67,15 +67,16 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Global_Constant )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = true;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "global";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 
 			Expression expr( "testVar" );
 			// make sure it fails without constant
@@ -85,15 +86,16 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Global_Variable )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = false;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "global";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 			Expression expr( "testVar" );
 			// make sure it fails without constant
 			Assert::ExpectException<Error>( [this, &expr] {expr.assertValid( std::vector<parameterType>( ), NO_PARAMETER_SCOPE ); } );
@@ -102,15 +104,16 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Local_Constant )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = true;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "TestScope";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 
 			Expression expr( "testVar" );
 			// make sure it fails without constant
@@ -122,14 +125,15 @@ namespace TestExpressions
 		TEST_METHOD( Assert_Valid_With_Local_Variable )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = false;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "TestScope";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 			Expression expr( "testVar" );
 
 			// make sure it fails without constant
@@ -140,15 +144,16 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Evaluate_With_Global_Constant )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = true;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "global";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 
 			Expression expr( "testVar" );
 			// make sure it fails without constant
@@ -158,15 +163,16 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Evaluate_With_Global_Variable )
 		{
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = false;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "global";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 			Expression expr( "testVar" );
 			// make sure it fails without variable
 			Assert::ExpectException<Error>( [this, &expr] {expr.evaluate( ); } );
@@ -176,14 +182,15 @@ namespace TestExpressions
 		TEST_METHOD( Evaluate_With_Local_Constant )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = true;
 			param.constantValue = 4;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "TestScope";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 
 			Expression expr( "testVar" );
 			expr.assertValid( params[0], "TestScope" );
@@ -198,14 +205,15 @@ namespace TestExpressions
 		TEST_METHOD( Evaluate_With_Local_Variable )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = false;
 			param.constantValue = 1;
-			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.ranges = std::vector<indvParamRangeInfo>( 1, { 1,2 } );
 			param.parameterScope = "TestScope";
 			params[0].push_back( param );
-			ParameterSystem::generateKey( params, false );
+			ParameterSystem::generateKey( params, false, rangeInfo );
 			Expression expr( "testVar" );
 			expr.assertValid( params[0], "TestScope" );
 			// make sure it fails without Variable

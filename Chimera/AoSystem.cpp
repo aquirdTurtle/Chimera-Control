@@ -6,6 +6,7 @@
 #include "nidaqmx2.h"
 #include "Thrower.h"
 #include "range.h"
+#include <boost/lexical_cast.hpp>
 
 AoSystem::AoSystem(bool aoSafemode) : dacResolution(10.0 / pow(2, 16)), daqmx( aoSafemode )
 {
@@ -133,10 +134,10 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem*
 		openFile >> dacString;
 		try
 		{
-			double dacValue = std::stod(dacString);
+			double dacValue = boost::lexical_cast<double>(dacString);
 			prepareDacForceChange(dacInc, dacValue, ttls);
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower("ERROR: failed to convert dac value to voltage. string was " + dacString);
 		}
@@ -214,20 +215,20 @@ void AoSystem::handleEditChange(UINT dacNumber)
 		if (roundToDacPrecision)
 		{
 			double roundNum = roundToDacResolution(dacValues[dacNumber]);
-			if (fabs(roundToDacResolution(dacValues[dacNumber]) - std::stod(textStr)) < 1e-8)
+			if (fabs(roundToDacResolution(dacValues[dacNumber]) - boost::lexical_cast<double>(textStr)) < 1e-8)
 			{
 				matches = true;
 			}
 		}
 		else
 		{
-			if (fabs(dacValues[dacNumber] - std::stod(str(text))) < 1e-8)
+			if (fabs(dacValues[dacNumber] - boost::lexical_cast<double>(str(text))) < 1e-8)
 			{
 				matches = true;
 			}
 		}
 	}
-	catch (std::invalid_argument&){ /* failed to convert to double. Effectively, doesn't match. */ }
+	catch ( boost::bad_lexical_cast&){ /* failed to convert to double. Effectively, doesn't match. */ }
 	if ( matches )
 	{
 		// mark this to change color.
@@ -375,9 +376,9 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 		breakoutBoardEdits[dacInc].GetWindowTextA( text );
 		try
 		{
-			vals[dacInc] = std::stod( str( text ) );
+			vals[dacInc] = boost::lexical_cast<double>( str( text ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			if ( useDefault )
 			{

@@ -3,7 +3,7 @@
 #include "ProfileSystem.h"
 #include <sstream>
 #include "Thrower.h"
-
+#include <boost/lexical_cast.hpp>
 
 PlottingInfo::PlottingInfo(UINT picNumber)
 {
@@ -543,9 +543,9 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	double version;
 	try
 	{
-		version = std::stod( versionStr );
+		version = boost::lexical_cast<double>( versionStr );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
 	}
@@ -574,10 +574,10 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	getline(loadingFile, testString);
 	try
 	{
-		int tempDataSetNumber = std::stoi(testString);
+		int tempDataSetNumber = boost::lexical_cast<int>(testString);
 		resetDataSetNumber(tempDataSetNumber);
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Couldn't read data set number from file. The data set string was " + testString);
 	}
@@ -585,10 +585,10 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	getline(loadingFile, testString);
 	try
 	{
-		currentConditionNumber = std::stoi(testString);
+		currentConditionNumber = boost::lexical_cast<int>(testString);
 		resetConditionNumber(currentConditionNumber);
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Couldn't read post-selection number from file. The post-selection string was " + testString);
 	}
@@ -599,19 +599,19 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	getline(loadingFile, testString2);
 	try
 	{
-		numberOfPictures = std::stoi(testString2);
+		numberOfPictures = boost::lexical_cast<int>(testString2);
 		resetPictureNumber(numberOfPictures);
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Couldn't read Picture number from file. The picture string was " + testString);
 	}
 	try
 	{
-		currentPixelNumber = std::stoi(testString);
+		currentPixelNumber = boost::lexical_cast<int>(testString);
 		resetPixelNumber(currentPixelNumber);
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
 	}
@@ -637,9 +637,9 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 				int tempTruthCondition;
 				try
 				{
-					tempTruthCondition = std::stoi(testString);
+					tempTruthCondition = boost::lexical_cast<int>(testString);
 				}
-				catch (std::invalid_argument&)
+				catch ( boost::bad_lexical_cast&)
 				{
 					thrower("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" 
 							+ testString);
@@ -699,9 +699,9 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 
 					try
 					{
-						tempPostSelectionCondition = std::stoi(testString);
+						tempPostSelectionCondition = boost::lexical_cast<int>(testString);
 					}
-					catch (std::invalid_argument&)
+					catch ( boost::bad_lexical_cast&)
 					{
 						thrower("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString);
 					}
@@ -774,17 +774,17 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		loadingFile >> pictureStr;
 		try
 		{
-			pixel = std::stoi(pixelStr);
+			pixel = boost::lexical_cast<int>(pixelStr);
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower("ERROR: pixel listed in file did not convert to integer correctly. pixel string was" + pixelStr);
 		}
 		try
 		{
-			picture = std::stoi(pictureStr);
+			picture = boost::lexical_cast<int>(pictureStr);
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr);
 		}
@@ -825,18 +825,18 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		tempStream >> fitOptionStr;
 		try
 		{
-			fitOption = std::stoi(fitOptionStr);
+			fitOption = boost::lexical_cast<int>(fitOptionStr);
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower("ERROR: fit option listed in file did not convert to integer correctly. fit option string was" + fitOptionStr);
 		}
 		tempStream >> whenToFitStr;
 		try
 		{
-			whenToFit = std::stoi(whenToFitStr);
+			whenToFit = boost::lexical_cast<int>(whenToFitStr);
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower("ERROR: When to Fit option listed in file did not convert to integer correctly. when to fit string "
 				   "was" + whenToFitStr);
@@ -857,9 +857,9 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	UINT dsetNum = 0;
 	try
 	{
-		dsetNum = std::stoul( tmpStr );
+		dsetNum = boost::lexical_cast<unsigned long>( tmpStr );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: expected number of data sets in plot file while loading hist options, instead found: " + tmpStr );
 	}
@@ -873,9 +873,9 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		UINT width;
 		try
 		{
-			width = std::stoul( tmpStr );
+			width = boost::lexical_cast<unsigned long>( tmpStr );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: failed to convert histogram bin width to an unsigned int! string was: " + tmpStr );
 		}

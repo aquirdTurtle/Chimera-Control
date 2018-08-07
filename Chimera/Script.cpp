@@ -302,7 +302,6 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	// see if it's a double.
 	try
 	{
-		// not sure why not just using std::stod.
 		boost::lexical_cast<double>(word);
 		return rgbs["White"];
 	}

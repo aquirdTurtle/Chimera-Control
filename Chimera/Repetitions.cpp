@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
 
 void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 {
@@ -94,9 +95,9 @@ UINT Repetitions::getRepetitionNumber()
 	repetitionEdit.GetWindowText(text);
 	try
 	{
-		repetitionNumber = std::stoi(str(text));
+		repetitionNumber = boost::lexical_cast<int>(str(text));
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Failed to convert repetition number text to an integer!");
 	}
