@@ -9,6 +9,7 @@
 #include "realTimePlotterInput.h"
 #include <numeric>
 #include <boost/tuple/tuple.hpp>
+#include <boost/lexical_cast.hpp>
 #include <map>
 #include "TextPromptDialog.h"
 #include "Thrower.h"
@@ -124,9 +125,9 @@ UINT DataAnalysisControl::getPlotTime( )
 	std::string tmpStr( txt );
 	try
 	{
-		return std::stoul( tmpStr );
+		return boost::lexical_cast<unsigned long>( tmpStr );
 	}
-	catch ( std::invalid_argument )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: plot time failed to convert to an unsigned integer!" );
 	}
@@ -160,9 +161,9 @@ ULONG DataAnalysisControl::getPlotFreq( )
 	updateFrequencyEdit.GetWindowText(txt);
 	try
 	{
-		updateFrequency = std::stol( str( txt ) );
+		updateFrequency = boost::lexical_cast<long>( str( txt ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: Failed to convert plotting update frequency to an integer! text was: " + str( txt ) );
 	}
@@ -767,13 +768,13 @@ atomGrid DataAnalysisControl::getAtomGrid( UINT which )
 	{
 		CString txt;
 		gridSpacing.GetWindowTextA( txt );
-		grids[which].pixelSpacing = std::stol( str( txt ) );
+		grids[which].pixelSpacing = boost::lexical_cast<long>( str( txt ) );
 		gridWidth.GetWindowTextA( txt );
-		grids[which].width = std::stol( str( txt ) );
+		grids[which].width = boost::lexical_cast<long>( str( txt ) );
 		gridHeight.GetWindowTextA( txt );
-		grids[which].height = std::stol( str( txt ) );
+		grids[which].height = boost::lexical_cast<long>( str( txt ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: Grid parameters failed to convert to longs!" );
 	}
@@ -895,13 +896,13 @@ void DataAnalysisControl::saveGridParams( )
 	try
 	{
 		gridSpacing.GetWindowText( txt );
-		grids[selectedGrid].pixelSpacing = std::stol( str(txt) );
+		grids[selectedGrid].pixelSpacing = boost::lexical_cast<long>( str(txt) );
 		gridHeight.GetWindowText( txt );
-		grids[selectedGrid].height = std::stol( str( txt ) );
+		grids[selectedGrid].height = boost::lexical_cast<long>( str( txt ) );
 		gridWidth.GetWindowText( txt );
-		grids[selectedGrid].width = std::stol( str( txt ) );
+		grids[selectedGrid].width = boost::lexical_cast<long>( str( txt ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower( "ERROR: failed to convert grid parameters to longs while saving grid data!" );
 	}
@@ -1115,9 +1116,9 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			UINT gridNum;
 			try
 			{
-				gridNum = std::stoul( gridStr );
+				gridNum = boost::lexical_cast<unsigned long>( gridStr );
 			}
-			catch ( std::invalid_argument&)
+			catch ( boost::bad_lexical_cast&)
 			{
 				thrower( "ERROR: bad value for grid #! Expecting a positive integer." );
 			}

@@ -11,6 +11,7 @@
 #include <fstream>
 #include "Thrower.h"
 #include "range.h"
+#include <boost/lexical_cast.hpp>
 
 // NI's visa file. Also gets indirectly included via #include "nifgen.h".
 
@@ -752,9 +753,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 	file.get();
 	try
 	{
-		settings.channel[0].option = std::stoi( input );
+		settings.channel[0].option = boost::lexical_cast<int>( input );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower( "ERROR: Bad channel 1 option!" );
 	}
@@ -766,9 +767,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -782,9 +783,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -799,9 +800,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -814,9 +815,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -829,9 +830,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -842,9 +843,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 	file.get( );
 	try
 	{
-		settings.channel[1].option = std::stoi(input);
+		settings.channel[1].option = boost::lexical_cast<int>(input);
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		thrower("ERROR: Bad channel 1 option!");
 	}
@@ -855,9 +856,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -871,9 +872,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -888,9 +889,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -903,9 +904,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}
@@ -918,9 +919,9 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		bool calOption;
 		try
 		{
-			calOption = bool( std::stoi( calibratedOption ) );
+			calOption = bool( boost::lexical_cast<int>( calibratedOption ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			calOption = false;
 		}

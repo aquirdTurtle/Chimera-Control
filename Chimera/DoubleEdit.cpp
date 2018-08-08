@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "DoubleEdit.h"
+#include <boost/lexical_cast.hpp>
 
 double DoubleEdit::getWindowTextAsDouble( )
 {
@@ -7,9 +8,9 @@ double DoubleEdit::getWindowTextAsDouble( )
 	GetWindowText( txt );
 	try
 	{
-		return std::stod( str(txt) );
+		return boost::lexical_cast<double>( str(txt) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "Error: Failed to convert edit text to double." );
 	}

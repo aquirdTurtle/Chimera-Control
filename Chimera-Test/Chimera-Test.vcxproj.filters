@@ -75,6 +75,8 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestMacros.h" />
+    <None Include="TestMacros.h">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

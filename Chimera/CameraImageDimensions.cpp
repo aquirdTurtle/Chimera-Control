@@ -6,6 +6,7 @@
 #include "MainWindow.h"
 #include "CameraSettingsControl.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
 
 ImageDimsControl::ImageDimsControl()
 {
@@ -149,9 +150,9 @@ imageParameters ImageDimsControl::readImageParameters()
 	leftEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.left = std::stoi( str( tempStr ) );
+		currentImageParameters.left = boost::lexical_cast<int>( str( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
 		thrower( "Left border argument not an integer!\r\n" );
@@ -160,9 +161,9 @@ imageParameters ImageDimsControl::readImageParameters()
 	rightEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.right = std::stoi( str( tempStr ) );
+		currentImageParameters.right = boost::lexical_cast<int>( str( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
 		thrower( "Right border argument not an integer!\r\n" );
@@ -172,9 +173,9 @@ imageParameters ImageDimsControl::readImageParameters()
 	bottomEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.bottom = std::stoi( str( tempStr ) );
+		currentImageParameters.bottom = boost::lexical_cast<int>( str( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
 		thrower( "Top border argument not an integer!\r\n" );
@@ -184,9 +185,9 @@ imageParameters ImageDimsControl::readImageParameters()
 	topEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.top = std::stoi( str( tempStr ) );
+		currentImageParameters.top = boost::lexical_cast<int>( str( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
 		thrower( "Bottom border argument not an integer!\r\n" );
@@ -195,9 +196,9 @@ imageParameters ImageDimsControl::readImageParameters()
 	horBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.horizontalBinning = std::stoi( str( tempStr ) );
+		currentImageParameters.horizontalBinning = boost::lexical_cast<int>( str( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
 		thrower( "Horizontal binning argument not an integer!\r\n" );
@@ -206,9 +207,9 @@ imageParameters ImageDimsControl::readImageParameters()
 	vertBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.verticalBinning = std::stoi( str( tempStr ) );
+		currentImageParameters.verticalBinning = boost::lexical_cast<int>( str( tempStr ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
 		thrower( "Vertical binning argument not an integer!\r\n" );
@@ -305,7 +306,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 		int bottom;
 		try
 		{
-			bottom = std::stoi( str( textEdit ) );
+			bottom = boost::lexical_cast<int>( str( textEdit ) );
 			if (bottom == currentImageParameters.top)
 			{
 				// good.
@@ -320,7 +321,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				return *brushes["Grey Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}
@@ -342,7 +343,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 		int top;
 		try
 		{
-			top = std::stoi( str( textEdit ) );
+			top = boost::lexical_cast<int>( str( textEdit ) );
 			if (top == currentImageParameters.bottom)
 			{
 				// good.
@@ -357,7 +358,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				return *brushes["Grey Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}
@@ -379,7 +380,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 		int verticalBin;
 		try
 		{
-			verticalBin = std::stoi( str( textEdit ) );
+			verticalBin = boost::lexical_cast<int>( str( textEdit ) );
 			if (verticalBin == currentImageParameters.verticalBinning)
 			{
 				// good.
@@ -394,7 +395,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				return *brushes["Grey Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}
@@ -416,7 +417,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 		int leftSide;
 		try
 		{
-			leftSide = std::stoi( str( textEdit ) );
+			leftSide = boost::lexical_cast<int>( str( textEdit ) );
 			if (leftSide == currentImageParameters.left)
 			{
 				// good.
@@ -431,7 +432,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				return *brushes["Grey Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}
@@ -453,7 +454,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 		int rightSide;
 		try
 		{
-			rightSide = std::stoi( str( textEdit ) );
+			rightSide = boost::lexical_cast<int>( str( textEdit ) );
 			if (rightSide == currentImageParameters.right)
 			{
 				// good.
@@ -468,7 +469,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				return *brushes["Grey Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}
@@ -490,7 +491,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 		int horizontalBin;
 		try
 		{
-			horizontalBin = std::stoi( str( textEdit ) );
+			horizontalBin = boost::lexical_cast<int>( str( textEdit ) );
 			if (horizontalBin == currentImageParameters.horizontalBinning)
 			{
 				// good.
@@ -505,7 +506,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				return *brushes["Grey Green"];
 			}
 		}
-		catch (std::exception&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			// don't do anything with it.
 		}

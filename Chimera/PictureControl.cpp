@@ -3,6 +3,7 @@
 #include "Thrower.h"
 #include <algorithm>
 #include <numeric>
+#include <boost/lexical_cast.hpp>
 
 PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramOption )
 {
@@ -109,12 +110,12 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 {
 	if ( width < 100 )
 	{
-		throw std::invalid_argument( "Pictures must be greater than 100 in width because this is the size of the max/min"
+		thrower( "Pictures must be greater than 100 in width because this is the size of the max/min"
 									 "controls." );
 	}
 	if ( height < 100 )
 	{
-		throw std::invalid_argument( "Pictures must be greater than 100 in height because this is the minimum height "
+		thrower( "Pictures must be greater than 100 in height because this is the minimum height "
 									 "of the max/min controls." );
 	}
 	maxWidth = width;
@@ -349,9 +350,9 @@ void PictureControl::handleEditChange( int id )
 		editMax.GetWindowTextA(tempStr);
 		try
 		{
-			max = std::stoi( str(tempStr) );
+			max = boost::lexical_cast<int>( str(tempStr) );
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower( "Please enter an integer." ); 
 		}
@@ -365,9 +366,9 @@ void PictureControl::handleEditChange( int id )
 		editMin.GetWindowTextA(tempStr);
 		try
 		{
-			min = std::stoi( str(tempStr) );
+			min = boost::lexical_cast<int>( str(tempStr) );
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower( "Please enter an integer." );
 		}

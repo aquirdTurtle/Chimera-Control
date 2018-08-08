@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <bitset>
 #include "nidaqmx2.h"
+#include <boost/lexical_cast.hpp>
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
@@ -213,11 +214,11 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 			openFile >> ttlString;
 			try
 			{
-				ttl = std::stoi(ttlString);
+				ttl = boost::lexical_cast<int>(ttlString);
 				forceTtl(rowInc, colInc, ttl);
 				updatePush( rowInc, colInc );
 			}
-			catch (std::invalid_argument&)
+			catch ( boost::bad_lexical_cast&)
 			{
 				thrower("ERROR: the ttl status of \"" + ttlString + "\"failed to convert to a bool!");
 			}

@@ -32,7 +32,6 @@ FEATURES:
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
-- Make basler able to simulate finite acquisitions in debug mode.
 - Improve comments on what units everything should be in at every moment.
 - prompt for load after saving config as
 - improve delete file after abort functionality
@@ -42,7 +41,7 @@ FEATURES:
 		- Neural Network
 		- Genetic / evolutionary
 - Make the code able to check if the mot is there.
-- make plots for single pic mode andor images
+- make (option for?) plots for single pic mode andor images
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -50,7 +49,7 @@ Refactoring / Other:
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
-- Andor system should use Matrix class for pictures
+- Andor system should use Matrix class for pictures, like basler.
 - all mutexes should use lock_guard or similar for consistency
 - refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
 - refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
@@ -78,10 +77,7 @@ BUGS:
 - something funny about going back and forth between video and kinetic modes.
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
-- "-0.7s" in script not throwing error
-- I think the array expansion in the picture drawing is slow.
 
-=================
-Finished
-=================
+- main win hist not always showing?
+- fix plot issue.
 

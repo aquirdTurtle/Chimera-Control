@@ -283,7 +283,9 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		{
  			cameraController->disarm();
  			isRunning = false;
+			triggerThreadFlag = false;
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
+			mainWin->getComm ( )->sendBaslerFin ( );
  		}
  	}
 	catch (Error& err)
@@ -338,6 +340,7 @@ void BaslerWindow::handleArmPress()
 		ReleaseDC( dc );
 		runExposureMode = tempSettings.exposureMode;
 		imageWidth = tempSettings.dimensions.width();
+		// only important in safemode
 		triggerThreadFlag = true;
 
 		triggerThreadInput* input = new triggerThreadInput;
@@ -363,6 +366,10 @@ void BaslerWindow::handleArmPress()
 bool BaslerWindow::baslerCameraIsRunning ( )
 {
 	return cameraController->isRunning ( );
+}
+bool BaslerWindow::baslerCameraIsContinuous ( )
+{
+	return cameraController->isContinuous ( );
 }
 
 

@@ -90,7 +90,7 @@ namespace TestDioSystem
 		}
 		CONNECTED_TEST( Connect_To_Ftdi )
 		{
-			DioSystem dio( false, true );
+			DioSystem dio( false, false );
 			try
 			{
 				dio.ftdi_connectasync( "FT2E722BB" );

@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "PlotDesignerDialog.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
 
 IMPLEMENT_DYNAMIC( PlotDesignerDialog, CDialog )
 
@@ -177,9 +178,9 @@ void PlotDesignerDialog::handlePixelEditChange()
 	pixelsPerAnalysisGroupEdit.GetWindowText( txt );
 	try
 	{
-		pixelNum = std::stol( str( txt ) );
+		pixelNum = boost::lexical_cast<long>( str( txt ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		errBox( "ERROR: pixels per analysis group text failed to convert to an integer!" );
 	}
@@ -632,9 +633,9 @@ void PlotDesignerDialog::saveDataSet( bool clear )
 		UINT width;
 		try
 		{
-			 width = std::stod( str( txt ) );
+			 width = boost::lexical_cast<double>( str( txt ) );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: Failed to convert histogram bin width to an unsigned integer! width text was: " + str( txt ) );
 		}

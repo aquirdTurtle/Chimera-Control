@@ -11,6 +11,7 @@
 #include "ATMCD32D.H"
 #include <numeric>
 #include "Thrower.h"
+#include "BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),
 							CameraSettings ( &Andor ),
@@ -61,7 +62,7 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_REGISTERED_MESSAGE( eCameraCalFinMessageID, &AndorWindow::onCameraCalFinish )
 	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &AndorWindow::onCameraProgress )
 	ON_REGISTERED_MESSAGE( eCameraCalProgMessageID, &AndorWindow::onCameraCalProgress )
-	
+	ON_REGISTERED_MESSAGE( eBaslerFinMessageId, &AndorWindow::onBaslerFinish )
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
 
@@ -71,6 +72,16 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
+
+LRESULT AndorWindow::onBaslerFinish ( WPARAM wParam, LPARAM lParam )
+{
+	if ( !cameraIsRunning ( ) )
+	{
+		dataHandler.closeFile ( );
+	}
+	return 0;
+}
 
 
 bool AndorWindow::wasJustCalibrated( )
@@ -642,7 +653,11 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-	dataHandler.closeFile();
+	if ( !basWin->baslerCameraIsRunning ( ) || basWin->baslerCameraIsContinuous() )
+	{
+		// else it will close when the basler camera finishes.
+		dataHandler.closeFile ( );
+	}
 	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
 	mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );

@@ -6,6 +6,7 @@
 #include "CameraWindow.h"
 #include "miscCommonFunctions.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
 
 void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,
 							  cToolTips& tooltips )
@@ -67,9 +68,9 @@ UINT AlertSystem::getAlertThreshold()
 	alertThresholdEdit.GetWindowTextA( txt );
 	try
 	{
-		alertThreshold = std::stoul( str(txt) );
+		alertThreshold = boost::lexical_cast<unsigned long>( str(txt) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: alert threshold failed to reduce to unsigned long!" );
 	}
@@ -83,9 +84,9 @@ void AlertSystem::setAlertThreshold()
 	alertThresholdEdit.GetWindowTextA( text );
 	try
 	{
-		alertThreshold = std::stoi( str( text ) );
+		alertThreshold = boost::lexical_cast<int>( str( text ) );
 	}
-	catch (std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: Alert threshold must be an integer!" );
 	}
