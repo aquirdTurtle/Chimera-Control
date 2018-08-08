@@ -3,6 +3,7 @@
 #include "Version.h"
 #include "constants.h"
 #include "ProfileSystem.h"
+#include <boost/lexical_cast.hpp>
 
 BaslerSettingsControl::BaslerSettingsControl ( )
 {}
@@ -239,9 +240,14 @@ void BaslerSettingsControl::handleCameraMode()
 
 baslerSettings BaslerSettingsControl::getCurrentSettings()
 {
+	loadCurrentSettings ( );
 	return currentSettings;
 }
 
+
+/*
+Updates the internal object with gui settings
+*/
 baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 {
 	isReady = false;
@@ -258,13 +264,13 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 		try
 		{
 			exposureEdit.GetWindowTextA ( text );
-			currentSettings.exposureTime = std::stod ( std::string ( text ) );
+			currentSettings.exposureTime = boost::lexical_cast<double> ( std::string ( text ) );
 			if ( currentSettings.exposureTime <= 0 )
 			{
-				throw std::invalid_argument ( "err!" );
+				thrower ( "err!" );
 			}
 		}
-		catch ( std::invalid_argument& err )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower ( "Error! Please input a valid double for the exposure time." );
 		}
@@ -278,13 +284,13 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 		try
 		{
 			repEdit.GetWindowTextA ( text );
-			currentSettings.repCount = std::stoi ( std::string ( text ) );
+			currentSettings.repCount = boost::lexical_cast<int> ( std::string ( text ) );
 			if ( currentSettings.repCount == 0 )
 			{
 				thrower ( "ERROR! Repetition count must be strictly positive." );
 			}
 		}
-		catch ( std::invalid_argument& err )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower ( "Error! Please input a valid positive integer for the rep count." );
 		}
@@ -301,14 +307,14 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	leftEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		int val = currentSettings.dimensions.left = std::stoi ( std::string ( tempStr ) );
+		int val = currentSettings.dimensions.left = boost::lexical_cast<int> ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 			// round down to nearest multiple of 16
 		currentSettings.dimensions.leftBorder = int ( val / 16 ) * 16;
 		leftEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.leftBorder ) );
 		#endif
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 
 		thrower ( "Left border argument not an integer!\r\n" );
@@ -318,9 +324,9 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	horizontalBinningEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.horizontalBinning = std::stoi ( std::string ( tempStr ) );
+		currentSettings.dimensions.horizontalBinning = boost::lexical_cast<int> ( std::string ( tempStr ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "Horizontal binning argument not an integer!\r\n" );
 	}
@@ -329,7 +335,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	rightEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.right = std::stoi ( std::string ( tempStr ) );
+		currentSettings.dimensions.right = boost::lexical_cast<int> ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 		int roundVal = 1;
 		if ( currentSettings.dimensions.horPixelsPerBin == 1 )
@@ -356,7 +362,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 		rightEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.rightBorder ) );
 		#endif
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "Right border argument not an integer!\r\n" );
 	}
@@ -365,14 +371,14 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	topEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		int val = currentSettings.dimensions.top = std::stoi ( std::string ( tempStr ) );
+		int val = currentSettings.dimensions.top = boost::lexical_cast<int> ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 			// round down to nearest multiple of 16
 		currentSettings.dimensions.topBorder = int ( val / 16 ) * 16;
 		topEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.topBorder ) );
 		#endif
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "Top border argument not an integer!\r\n" );
 	}
@@ -381,9 +387,9 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	verticalBinningEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.verticalBinning = std::stoi ( std::string ( tempStr ) );
+		currentSettings.dimensions.verticalBinning = boost::lexical_cast<int> ( std::string ( tempStr ) );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "Vertical binning argument not an integer!\r\n" );
 	}
@@ -392,7 +398,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	bottomEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.bottom = std::stoi ( std::string ( tempStr ) );
+		currentSettings.dimensions.bottom = boost::lexical_cast<int> ( std::string ( tempStr ) );
 
 		#ifdef USB_CAMERA
 			// round up to nearest multiple of 16 or 32 or 64 depending on binning.
@@ -420,7 +426,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 		bottomEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.bottomBorder ) );
 		#endif
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "Bottom border argument not an integer!\r\n" );
 	}
@@ -447,9 +453,9 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	frameRateEdit.GetWindowTextA( text );
 	try
 	{
-		currentSettings.frameRate = std::stod( std::string( text ) );
+		currentSettings.frameRate = boost::lexical_cast<double>( std::string( text ) );
 	}
-	catch (std::invalid_argument& err)
+	catch ( boost::bad_lexical_cast& err)
 	{
 		thrower( std::string("ERROR! Please enter a valid float for the frame rate. ") + err.what() );
 	}
@@ -467,15 +473,22 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 	configFile >> txt;
 	newSettings.acquisitionMode = BaslerAcquisition::fromStr ( txt );
 	std::string test;
-	configFile >> test;
-	newSettings.dimensions.left = std::stoi(test);
-	configFile >> test;
-	newSettings.dimensions.top = std::stoi(test);
-	configFile >> test;
-	newSettings.dimensions.right = std::stoi(test);
-	configFile >> test;
-	newSettings.dimensions.bottom = std::stoi(test);
-
+	try
+	{
+		configFile >> test;
+		newSettings.dimensions.left = boost::lexical_cast<int>( test );
+		configFile >> test;
+		newSettings.dimensions.top = boost::lexical_cast<int>( test );
+		configFile >> test;
+		newSettings.dimensions.right = boost::lexical_cast<int>( test );
+		configFile >> test;
+		newSettings.dimensions.bottom = boost::lexical_cast<int>( test );
+	}
+	catch ( boost::bad_lexical_cast& )
+	{
+		thrower ( "ERROR: Basler control failed to convert dimensions recorded in the config file "
+				  "to integers" );
+	}
 	configFile >> newSettings.dimensions.horizontalBinning;
 	configFile >> newSettings.dimensions.verticalBinning;
 	configFile >> txt;

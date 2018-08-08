@@ -12,7 +12,7 @@
 #include "nidaqmx2.h"
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
-
+#include <boost/lexical_cast.hpp>
 
 MasterManager::MasterManager() {}
 
@@ -29,7 +29,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// initialize various structures
 	// convert the input to the correct structure.
 	MasterThreadInput* input = (MasterThreadInput*)voidInput;
-	chronoTimes programmingTimes;
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
@@ -717,9 +716,9 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 			functionStream >> repeatStr;
 			try
 			{
-				totalRepeatNum.push_back ( std::stoi ( repeatStr ) );
+				totalRepeatNum.push_back ( boost::lexical_cast<int> ( repeatStr ) );
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower ( "ERROR: the repeat number for a repeat structure inside the master script failed to convert "
 						  "to an integer! Note that the repeat number can not currently be a variable." );
@@ -1063,9 +1062,9 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 	double val;
 	try
 	{
-		val = std::stod( valStr );
+		val = boost::lexical_cast<double>( valStr );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: Bad string for value of local variable " + str( name ) );
 	}
@@ -1124,7 +1123,7 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 		{
 			operationTime.second = time.evaluate( );
 		}
-		catch ( std::invalid_argument & )
+		catch ( Error & )
 		{
 			time.assertValid( vars, scope );
 			operationTime.first.push_back( time );

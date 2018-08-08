@@ -9,6 +9,7 @@
 #include "Matrix.h"
 #include "Thrower.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <numeric>
 #include "externals.h"
@@ -83,9 +84,9 @@ NiawgController::NiawgController ( UINT trigRow, UINT trigNumber, bool safemode 
 		{
 			break;
 		}
-		rowI = ( std::stoi ( row ) - 2 ) / 2;
-		colI = ( std::stoi ( col ) - 2 ) / 2;
-		moveBias10x10Cal ( rowI, colI, dir ( std::stoi(direction) ) ) = std::stod(val);
+		rowI = ( boost::lexical_cast<int> ( row ) - 2 ) / 2;
+		colI = ( boost::lexical_cast<int> ( col ) - 2 ) / 2;
+		moveBias10x10Cal ( rowI, colI, dir ( boost::lexical_cast<int>(direction) ) ) = boost::lexical_cast<double>(val);
 	}
 	moveBiasCalibrations.push_back ( moveBias10x10Cal );
 	*/
@@ -708,11 +709,11 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		{
 			std::string waveformsToFlashInput;
 			script >> waveformsToFlashInput;
-			flashingWave.flash.flashNumber = std::stoi( waveformsToFlashInput );
+			flashingWave.flash.flashNumber = boost::lexical_cast<int>( waveformsToFlashInput );
 			script >> flashingWave.flash.flashCycleFreq;
 			flashingWave.flash.flashCycleFreq.assertValid( variables, scope );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: flashing number failed to convert to an integer! This parameter cannot be varied." );
 		}
@@ -791,11 +792,11 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		try
 		{
 			script >> temp;
-			rows = std::stoi( temp );
+			rows = boost::lexical_cast<int>( temp );
 			script >> temp;
-			cols = std::stoi( temp );
+			cols = boost::lexical_cast<int>( temp );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: failed to convert target row and collumn numbers to integers during niawg script "
 					 "analysis for rearrange command!" );
@@ -803,13 +804,20 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		/// get calibration parameters.
 		// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 		// the picture.
-		std::string tempStr;
-		script >> tempStr;
-		rearrangeWave.rearrange.lowestFreqs[Axes::Horizontal] = std::stod( tempStr );
-		script >> tempStr;
-		rearrangeWave.rearrange.lowestFreqs[Axes::Vertical] = std::stod( tempStr );
-		script >> tempStr;
-		rearrangeWave.rearrange.freqPerPixel = std::stod( tempStr );
+		try
+		{
+			std::string tempStr;
+			script >> tempStr;
+			rearrangeWave.rearrange.lowestFreqs[ Axes::Horizontal ] = boost::lexical_cast<double>( tempStr );
+			script >> tempStr;
+			rearrangeWave.rearrange.lowestFreqs[ Axes::Vertical ] = boost::lexical_cast<double>( tempStr );
+			script >> tempStr;
+			rearrangeWave.rearrange.freqPerPixel = boost::lexical_cast<double>( tempStr );
+		}
+		catch ( boost::bad_lexical_cast& )
+		{
+			thrower ( "ERROR: Code could not cast rearrange freq boundaries or spacing to a double!" );
+		}
 		/// get static pattern
 		// this is the pattern that holds non-moving atoms in place. The algorithm calculates the moves, and then mixes
 		// those moves with this waveform, but this waveform is always static.
@@ -845,9 +853,9 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 				lineScript >> singlePixelStatus;
 				try
 				{
-					targetTemp( rowInc, colInc ) = bool( std::stoi( singlePixelStatus ) );
+					targetTemp( rowInc, colInc ) = bool( boost::lexical_cast<int>( singlePixelStatus ) );
 				}
-				catch ( std::invalid_argument& )
+				catch ( boost::bad_lexical_cast& )
 				{
 					thrower( "ERROR: Failed to load the user's input for a rearrangement target picture! Loading failed"
 								" on this line: " + line + "\r\n" );
@@ -861,10 +869,10 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		script >> tempStrCol;
 		try
 		{
-			finLocRow = std::stoul( tempStrRow );
-			finLocCol = std::stoul( tempStrCol );
+			finLocRow = boost::lexical_cast<unsigned long>( tempStrRow );
+			finLocCol = boost::lexical_cast<unsigned long>( tempStrCol );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: final rearranging location row or column failed to convert to unsigned long in niawg script!" );
 		}
@@ -1184,9 +1192,9 @@ void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::s
 		try
 		{
 			script >> temp;
-			sampleNum = std::stoi( temp );
+			sampleNum = boost::lexical_cast<int>( temp );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: Sample number inside NIAWAG wait command wasn't an integer! Value was " + temp );
 		}
@@ -1201,9 +1209,9 @@ void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::s
 		try
 		{
 			script >> temp;
-			repeatNum = std::stoi( temp );
+			repeatNum = boost::lexical_cast<int>( temp );
 		}
-		catch ( std::invalid_argument& )
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower( "ERROR: NIAWG repeat number was not an integer! value was " + temp );
 		}
@@ -1675,10 +1683,10 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 	int phaseOption;
 	try
 	{
-		phaseOption = std::stoi( option );
+		phaseOption = boost::lexical_cast<int>( option );
 		wave.chan[Axes::Horizontal].phaseOption = wave.chan[Axes::Vertical].phaseOption = phaseOption;
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "Error: niawg phase management option failed to convert to an integer." );
 	}
@@ -3662,7 +3670,7 @@ void NiawgController::smartTargettingRearrangement( Matrix<bool> source, Matrix<
 	}
 	/// now order the operations.
 	// can randomize first, otherwise the previous algorith always ends up filling the bottom left of the array first.
-	if ( true )
+	if ( false )
 	{
 		randomizeMoves ( moveList );
 	}

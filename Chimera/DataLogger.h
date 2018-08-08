@@ -22,6 +22,7 @@ class DataLogger
 	public:
 		DataLogger(std::string systemLocation);
 		~DataLogger( );
+		void logError ( H5::Exception& err );
 		void initializeDataFiles( );
 		void writeAndorPic( std::vector<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image, imageParameters dims );

@@ -183,7 +183,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 		maxx += boxWidth;
 		minx -= boxWidth;
 		rangeX = maxx - minx;
-		boxWidthPixels = boxWidth * dataScaleX * 0.99;
+		boxWidthPixels = ceil(boxWidth * dataScaleX * 0.99);
 	}
 	double dataHeight = 1;
 	double dataMin = 0;
@@ -377,13 +377,13 @@ void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrus
 		Gdiplus::Rect r;
 		if ( style == plotStyle::HistPlot )
 		{
-			r = Gdiplus::Rect ( point.x - boxWidthPixels / 2, point.y, boxWidthPixels,
+			r = Gdiplus::Rect ( floor(point.x - boxWidthPixels / 2), point.y, boxWidthPixels,
 								plotAreaDims.bottom * heightScale2 - point.y );
 		}
 		else if ( style == plotStyle::VertHist )
 		{
-			r = Gdiplus::Rect ( plotAreaDims.left * widthScale2, point.y - boxWidthPixels / 2,
-								point.x - plotAreaDims.left * widthScale2, boxWidthPixels + 1 );
+			r = Gdiplus::Rect ( plotAreaDims.left * widthScale2, floor(point.y - boxWidthPixels / 2),
+								point.x - plotAreaDims.left * widthScale2, ceil(boxWidthPixels) );
 		}
 		else
 		{

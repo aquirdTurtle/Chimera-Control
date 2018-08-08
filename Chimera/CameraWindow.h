@@ -46,7 +46,8 @@ class AndorWindow : public CDialog
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraCalFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
-		LRESULT onCameraCalProgress( WPARAM wParam, LPARAM lParam );		
+		LRESULT onCameraCalProgress( WPARAM wParam, LPARAM lParam );
+		LRESULT onBaslerFinish( WPARAM wParam, LPARAM lParam );
 		void handleDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewRClick( NMHDR* info, LRESULT* lResult );
 		void handleSpecialGreaterThanMaxSelection();
@@ -111,6 +112,7 @@ class AndorWindow : public CDialog
 		void loadCameraCalSettings( ExperimentInput& input );
 		bool wasJustCalibrated( );
 		bool wantsAutoCal( );
+
 	private:
 		bool justCalibrated=false;
 		DECLARE_MESSAGE_MAP();

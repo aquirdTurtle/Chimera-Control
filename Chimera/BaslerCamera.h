@@ -155,7 +155,6 @@ class ImageEventHandler : public Pylon::CImageEventHandler
 			{
 				thrower("Error! " + std::string(err.what()));
 			}
-
 		}
 	private:
 		CWnd* parent;

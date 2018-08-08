@@ -2,6 +2,7 @@
 #include "Expression.h"
 #include <vector>
 #include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 #include "Thrower.h"
 #include <iomanip>
 #include <iostream>
@@ -68,18 +69,18 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 				{
 					thrower( "ERROR: Operator " + terms[count] + " has no value on its left!" );
 				}
-				leftTerm = std::stod( terms[count - 1] );
+				leftTerm = boost::lexical_cast<double>( terms[count - 1] );
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower( "ERROR: Tried and failed to evaluate string " + terms[count - 1]
 						 + " to a double (error in for multiplication / division section)!" );
 			}
 			try
 			{
-				rightTerm = std::stod( terms[count + 1] );
+				rightTerm = boost::lexical_cast<double>( terms[count + 1] );
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower( "ERROR: Tried and failed to convert string " + terms[count + 1] + " to a double (error in for"
 						 " multiplication / division section)!" );
@@ -129,19 +130,19 @@ void Expression::doAddAndSub( std::vector<std::string>& terms )
 						thrower( "ERROR: Operator " + terms[count] + " has no value on its"
 								 " left!" );
 					}
-					leftTerm = std::stod( terms[count - 1] );
+					leftTerm = boost::lexical_cast<double>( terms[count - 1] );
 				}
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower( "ERROR: Tried and failed to evaluate string " + terms[count - 1]
 						 + " to a double (error in for addition/subtraction section)!" );
 			}
 			try
 			{
-				rightTerm = std::stod( terms[count + 1] );
+				rightTerm = boost::lexical_cast<double>( terms[count + 1] );
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower( "ERROR: Tried and failed to evaluate string " + terms[count + 1]
 						 + " to a double (error in for addition/subtraction section)!" );
@@ -262,9 +263,9 @@ double Expression::reduce( std::vector<std::string> terms )
 	double finalResult;
 	try
 	{
-		finalResult = std::stod( terms[0] );
+		finalResult = boost::lexical_cast<double>( terms[0] );
 	}
-	catch ( std::invalid_argument& )
+	catch ( boost::bad_lexical_cast& )
 	{
 		thrower( "ERROR: \"reduce\" failed convert its reduction to a double! Result of reduction was " + terms[0] );
 	}
@@ -408,16 +409,10 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 	try
 	{
 		// try the simple thing.
-		size_t num;
-		resultOfReduction = std::stod( originalExpression, &num );
-		if ( num != originalExpression.size( ) )
-		{
-			// ???
-			thrower( "started with number" );
-		}
+		resultOfReduction = boost::lexical_cast<double>( originalExpression );
 		return resultOfReduction;
 	}
-	catch ( std::invalid_argument& ) {	/* that's fine, just means it needs actual reducing.*/ }
+	catch ( boost::bad_lexical_cast& ) {	/* that's fine, just means it needs actual reducing.*/ }
 	catch ( Error& ) { /* Same. */ }
 
 	std::vector<std::string> terms = splitString( "(" + originalExpression + ")" );
@@ -549,13 +544,13 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 					}
 					if ( !contains_alpha )
 					{
-						value = std::stod( elem );
+						value = boost::lexical_cast<double>( elem );
 						nextCanBeFunction = false;
 						nextCanBeOperator = true;
 						continue;
 					}
 				}
-				catch ( std::invalid_argument& ) {/* term is not a double.*/ }
+				catch ( boost::bad_lexical_cast& ) {/* term is not a double.*/ }
 				isVariable = false;
 				for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 				{

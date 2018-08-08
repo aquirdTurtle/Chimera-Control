@@ -13,7 +13,7 @@
 #include "agilentStructures.h"
 #include "Thrower.h"
 #include "range.h"
-
+#include <boost/lexical_cast.hpp>
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
@@ -1153,9 +1153,9 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			try
 			{
 				// In file the booleans are stored as "0" or "1".
-				defaultStatus = std::stoi(defaultStatusString);
+				defaultStatus = boost::lexical_cast<int>(defaultStatusString);
 			}
-			catch (std::invalid_argument&)
+			catch ( boost::bad_lexical_cast&)
 			{
 				thrower("ERROR: Failed to load one of the default ttl values!");
 			}
@@ -1186,11 +1186,11 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		configStream >> defaultValueString;
 		try
 		{
-			defaultValue = std::stod(defaultValueString);
+			defaultValue = boost::lexical_cast<double>(defaultValueString);
 			if (version >= Version( "1.2"))
 			{
-				min = std::stod(minString);
-				max = std::stod(maxString);
+				min = boost::lexical_cast<double>(minString);
+				max = boost::lexical_cast<double>(maxString);
 			}
 			else
 			{
@@ -1198,7 +1198,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 				max = 10;
 			}
 		}
-		catch (std::invalid_argument&)
+		catch ( boost::bad_lexical_cast&)
 		{
 			thrower("ERROR: Failed to load one of the default DAC values!");
 		}

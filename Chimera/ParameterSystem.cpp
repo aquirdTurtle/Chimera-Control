@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <random>
 #include "afxcmn.h"
+#include <boost/lexical_cast.hpp>
 
 
 void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
@@ -749,9 +750,9 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				}
 				try
 				{
-					param.constantValue = std::stod( newValue );
+					param.constantValue = boost::lexical_cast<double>( newValue );
 				}
-				catch (std::invalid_argument&)
+				catch ( boost::bad_lexical_cast&)
 				{
 					thrower( "ERROR: the value entered, " + newValue + ", failed to convert to a double! "
 							"Check for invalid characters." );
@@ -844,9 +845,9 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			}
 			try
 			{
-				param.constantValue = std::stod( newValue );
+				param.constantValue = boost::lexical_cast<double>( newValue );
 			}
-			catch ( std::invalid_argument& )
+			catch ( boost::bad_lexical_cast& )
 			{
 				thrower( "ERROR: the value entered, " + newValue + ", failed to convert to a double! "
 						 "Check for invalid characters." );
@@ -895,9 +896,9 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				double val;
 				try 
 				{
-					val = std::stod(newValue);
+					val = boost::lexical_cast<double>(newValue);
 				}
-				catch (std::invalid_argument&)
+				catch ( boost::bad_lexical_cast&)
 				{
 					thrower("ERROR: the value entered, " + newValue + ", failed to convert to a double! "
 							 "Check for invalid characters.");
@@ -926,11 +927,11 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 							{
 								continue;
 							}
-							rangeInfo[ rangeNum ].variations = std::stoi ( newValue );
+							rangeInfo[ rangeNum ].variations = boost::lexical_cast<int> ( newValue );
 						}
 					}
 				}
-				catch (std::invalid_argument&)
+				catch ( boost::bad_lexical_cast&)
 				{
 					thrower("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check "
 									"for invalid characters.");
@@ -1152,6 +1153,11 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 	}
 	// add it to the internal structure that keeps track of variables
 	currentParameters.push_back(variableToAdd);
+	if ( parametersListview.m_hWnd == NULL )
+	{
+		return;
+	}
+
 	parametersListview.InsertItem ( variableToAdd.name, item, 0 );
 	if (variableToAdd.constant)
 	{
@@ -1191,6 +1197,7 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 		}
 		rangeInfo.push_back ( defaultRangeInfo );
 	}
+	// update ranges
 	for (auto rangeInc : range(variableToAdd.ranges.size()))
 	{
 		if (!variableToAdd.constant)

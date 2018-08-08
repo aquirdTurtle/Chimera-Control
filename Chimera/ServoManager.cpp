@@ -159,7 +159,7 @@ void ServoManager::calibrate( Servo& s )
 			{
 				ao->setSingleDac( aoNum, currVal + gain * percentDif, ttls );
 			}
-			catch ( Error& err )
+			catch ( Error& )
 			{
 				// happens if servo value gives result out of range of dacs.
 				count = attemptLimit;

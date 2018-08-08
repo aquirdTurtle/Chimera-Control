@@ -4,6 +4,8 @@
 #include "commctrl.h"
 #include "TextPromptDialog.h"
 #include "Thrower.h"
+#include <boost/lexical_cast.hpp>
+
 
 void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips, rgbMap rgbs )
 {
@@ -212,15 +214,11 @@ void SmsTextingControl::updatePersonInfo()
 			// test to see if it is a number like it should be (note: not sure if this catches a single decimal or not...)
 			try
 			{
-				long long test = std::stoll(phoneNumber);
+				long long test = boost::lexical_cast<long long>(phoneNumber);
 			}
-			catch (std::invalid_argument&)
+			catch ( boost::bad_lexical_cast&)
 			{
 				thrower("Numbers only, please!");
-			}
-			catch (std::out_of_range&)
-			{
-				thrower("number was too long...");
 			}
 			peopleToText[itemIndicator].number = phoneNumber;
 			listViewItem.iItem = itemIndicator;

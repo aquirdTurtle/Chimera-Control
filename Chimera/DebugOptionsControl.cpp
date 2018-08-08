@@ -3,6 +3,7 @@
 #include "Communicator.h"
 #include "ProfileSystem.h"
 #include "MainWindow.h"
+#include <boost/lexical_cast.hpp>
 
 void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
@@ -144,9 +145,9 @@ void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver 
 	openFile >> sleep;
 	try
 	{
-		currentOptions.sleepTime = std::stol(sleep);
+		currentOptions.sleepTime = boost::lexical_cast<long>(sleep);
 	}
-	catch (std::invalid_argument&)
+	catch ( boost::bad_lexical_cast&)
 	{
 		currentOptions.sleepTime = 0;
 	}
@@ -316,7 +317,14 @@ debugInfo DebugOptionsControl::getOptions()
 	currentOptions.outputNiawgWavesToText = outputNiawgWavesToText.GetCheck( );
 	CString text;
 	pauseEdit.GetWindowTextA(text);
-	currentOptions.sleepTime = std::stol(str(text));
+	try
+	{
+		currentOptions.sleepTime = boost::lexical_cast<long>( str ( text ) );
+	}
+	catch ( boost::bad_lexical_cast& )
+	{
+		thrower ( "ERROR: could not convert sleep time to long!" );
+	}
 	return currentOptions;
 }
 

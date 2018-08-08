@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "AoSystem.h"
 #include "AoSettingsDialog.h"
+#include <boost/lexical_cast.hpp>
+
 
 IMPLEMENT_DYNAMIC(AoSettingsDialog, CDialog)
 
@@ -35,12 +37,12 @@ void AoSettingsDialog::handleOk()
 		try
 		{
 			minValEdits[dacInc].GetWindowTextA(text);
-			min = std::stod(str(text));
+			min = boost::lexical_cast<double>(str(text));
 			maxValEdits[dacInc].GetWindowTextA(text);
-			max = std::stod(str(text));
+			max = boost::lexical_cast<double>(str(text));
 			input->aoSys->setMinMax(dacInc, min, max);
 		}
-		catch (std::invalid_argument& err)
+		catch ( boost::bad_lexical_cast& err)
 		{
 			errBox(err.what());
 			return;
