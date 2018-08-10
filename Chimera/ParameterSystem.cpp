@@ -1424,6 +1424,11 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 	int totalSize = 1;
 	for ( auto seqInc : range( variableIndexes.size( ) ) )
 	{
+		if ( variableIndexes[ seqInc ].size ( ) == 0 && inputRangeInfo[seqInc].variations != 1 )
+		{
+			thrower ( "ERROR: Key generator thinks that there are variations but no variables vary?!?! Low level bug"
+					  ", this shouldn't happen." );
+		}
 		for ( auto variableInc : range( variableIndexes[seqInc].size( ) ) )
 		{
 			int varIndex = variableIndexes[seqInc][variableInc];
