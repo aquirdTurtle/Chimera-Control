@@ -1,7 +1,8 @@
 % pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
 def pushout():
   
-  var pushoutPower 0.25
+  var pushoutPower 0.3
+
   off: sideMotRf
   % on = open
   on: probeShutter
@@ -16,6 +17,7 @@ def pushout():
   
   on: probeRF
   t += pushoutTime
+  t += 0
   off: probeRF
   off: probeShutter
   on: sideMotShutter

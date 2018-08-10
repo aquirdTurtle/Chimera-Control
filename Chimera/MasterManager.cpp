@@ -1331,7 +1331,7 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	{
 		thrower( "ERROR: Recursive function call detected! " + callingFunction + " called itself! This is not allowed."
 				 " There is no way to end a function call conditionally so this will necessarily result in an"
-				 " infinite recursion" );
+				 " infinite recursion\r\n" );
 	}
 	try
 	{
@@ -1339,7 +1339,7 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	}
 	catch ( Error& err )
 	{
-		thrower( err.whatStr( ) + "... In Function call to function " + functionName );
+		thrower( err.whatStr( ) + "... In Function call to function " + functionName + "\r\n" );
 	}
 	return true;
 }

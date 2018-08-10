@@ -23,7 +23,7 @@
     <ProjectGuid>{78584BD4-8508-4761-9ED3-704E33657086}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ChimeraTest</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
     <ProjectSubType>NativeUnitTestProject</ProjectSubType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

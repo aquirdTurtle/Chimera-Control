@@ -560,6 +560,9 @@ void DataLogger::closeFile()
 	}
 	AndorPicureSetDataSpace.close();
 	AndorPictureDataset.close();	
+	//BaslerPicDataSpace.close ( );
+	BaslerPictureDataset.close ( );
+	BaslerPicureSetDataSpace.close ( );
 	voltsDataSpace.close( );
 	voltsDataSet.close( );
 	file.close();
