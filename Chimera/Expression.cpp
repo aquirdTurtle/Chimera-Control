@@ -513,6 +513,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 					nextCanBeFunction = true;
 					nextCanBeOperator = false;
 					elemnum = 0;
+					needParenthesis = false;
 					continue;
 				}
 				if ( elem == ")" )

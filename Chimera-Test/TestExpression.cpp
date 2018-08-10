@@ -67,7 +67,7 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Global_Constant )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -104,7 +104,7 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Local_Constant )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -144,7 +144,7 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Evaluate_With_Global_Constant )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -182,7 +182,7 @@ namespace TestExpressions
 		TEST_METHOD( Evaluate_With_Local_Constant )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
 			parameterType param;
 			param.name = "testVar";
 			param.constant = true;
@@ -225,7 +225,40 @@ namespace TestExpressions
 			// make sure fails if variable out of scope.
 			params[0].front( ).parameterScope = "OtherScope";
 			Assert::ExpectException<Error>( [this, &expr, &params] {expr.evaluate( params[0], 0 ); } );
-
 		}
+		TEST_METHOD ( Evaluate_ComplicatedExpressionWithVariables )
+		{
+			std::vector<std::vector<parameterType>> params ( 1 );
+			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			parameterType param;
+			param.name = "field";
+			param.constant = false;
+
+			param.constantValue = 2;
+			param.parameterScope = "TestScope";
+			param.ranges = std::vector<indvParamRangeInfo> ( 1, { 1,2 } );
+			params[ 0 ].push_back ( param );
+			param.name = "fieldtheta";
+			param.constant = true;
+			param.constantValue = 1;
+			param.parameterScope = "TestScope";
+			params[ 0 ].push_back ( param );
+			ParameterSystem::generateKey ( params, false, rangeInfo );
+			Expression expr ( "(2.049+2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2)" );
+			expr.assertValid ( params[ 0 ], "TestScope" );
+			// make sure it fails without Variable
+			Assert::ExpectException<Error> ( [ this, &expr ] { expr.evaluate ( ); } );
+			// make sure succeeds with variable.
+			Assert::AreEqual ( 2.049 + 2.1*1.25 / ( -0.716623 )* cos ( 1. / 2. + 3.1415926 / 4. ) / 2.,
+							   expr.evaluate ( params[ 0 ], 0 ), 1e-8 );
+			Assert::AreEqual ( ( 2.049 + 2.1*1.5 / ( -0.716623 )*cos ( 1. / 2. + 3.1415926 / 4. ) / 2. ), 
+							   expr.evaluate ( params[ 0 ], 1 ), 1e-8 );
+			Assert::AreEqual ( ( 2.049 + 2.1*1.75 / ( -0.716623 )*cos ( 1. / 2. + 3.1415926 / 4. ) / 2. ),
+							   expr.evaluate ( params[ 0 ], 2 ), 1e-8 );
+			// make sure fails if variable out of scope.
+			params[ 0 ].front ( ).parameterScope = "OtherScope";
+			Assert::ExpectException<Error> ( [ this, &expr, &params ] { expr.evaluate ( params[ 0 ], 0 ); } );
+		}
+
 	};
 }
