@@ -2,6 +2,7 @@
 def setQuantAxis():
  % turning on magnetic field to 3G pointing to getter 
  %for the quantization axis 
+        var rotateFieldTime 3
         dac: frontcoilcurrent -0.66
         dac: backcoilcurrent 0.2914
         dac: rightcoilcurrent -2.7361

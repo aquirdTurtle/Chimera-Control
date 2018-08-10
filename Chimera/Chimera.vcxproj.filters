@@ -253,17 +253,17 @@
     <ClCompile Include="BaslerSettingsControl.cpp">
       <Filter>Basler Window</Filter>
     </ClCompile>
-    <ClCompile Include="AndorTriggerModes.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="AndorRunMode.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
     <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
+    <ClCompile Include="AndorRunMode.cpp">
+      <Filter>Andor Window\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="AndorTriggerModes.cpp">
+      <Filter>Andor Window\Structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -605,9 +605,6 @@
     <ClInclude Include="BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
-    <ClInclude Include="AndorRunMode.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
     <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="BaslerSettingsControl.h">
       <Filter>Basler Window</Filter>
@@ -615,14 +612,17 @@
     <ClInclude Include="BaslerSettings.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
-    <ClInclude Include="AndorTriggerModes.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
     <ClInclude Include="MasterManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="MyListCtrl.h" />
     <ClInclude Include="dataPoint.h" />
+    <ClInclude Include="AndorTriggerModes.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="AndorRunMode.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

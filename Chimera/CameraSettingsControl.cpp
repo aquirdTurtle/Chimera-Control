@@ -617,8 +617,6 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	configFile >> tempSettings.emGainLevel;
 	configFile.get();
 	std::getline ( configFile, txt );
-	//configFile.getline ( txt, 0 );
-	//configFile >> txt;
 	if (txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Video;
