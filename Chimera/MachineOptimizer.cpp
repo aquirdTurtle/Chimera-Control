@@ -200,6 +200,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 	auto& param = optStatus.currParam;
 	if ( param == NULL )
 	{
+		updateCurrRoundDisplay ( str ( roundCount ) );
 		// initial 
 		param = optParams.front ( ); 
 		param->index = 0;
