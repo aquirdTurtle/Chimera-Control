@@ -55,6 +55,7 @@ Refactoring / Other:
 - refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
 - reduce size of niawgcontroller file
 - refactor commonfunctions, it's a bit of a mess. 
+- Make config parameter system aware of whether it is a constant or variable run so that the range stuff can be accurate.
 
 
 BUGS:

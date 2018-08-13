@@ -215,10 +215,12 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	// Calibrated April 27th, 2018, with NE10 filter (instead of NE03) to go to high powers.
 	//double slope = -0.02427634;
 	//double offset = 0.00386076;
-	// calibrated May 4th 2018
-	double slope = -0.0151410484528;
-	double offset = 0.00685897102155;
-
+	// calibrated May 4th 2018, with NE10
+	//double slope = -0.0151410484528;
+	//double offset = 0.00685897102155;
+	// calibrated August 10th, 2018, with no filter for single tweezer loading
+	double slope = -0.1201254;
+	double offset = -0.0003526;
 	if ( conversionOption )
 	{
 		double setPointInVolts = slope * powerInMilliWatts + offset;
