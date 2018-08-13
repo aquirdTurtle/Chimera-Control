@@ -163,7 +163,7 @@ void AuxiliaryWindow::updateOptimization ( ExperimentInput input )
 	optimizer.verifyOptInput ( input );
 	dataPoint resultValue = camWin->getMainAnalysisResult ( );
 	auto params = optimizer.getOptParams ( );
-	optimizer.updateParams ( input, resultValue );
+	optimizer.updateParams ( input, resultValue, camWin->getLogger() );
 	std::string msg = "Next Optimization: ";
 	for ( auto& param : params )
 	{
@@ -1070,6 +1070,13 @@ void AuxiliaryWindow::handleAbort()
 {
 	ttlBoard.unshadeTtls();
 	aoSys.unshadeDacs();
+	if ( optimizer.isInMiddleOfOptimizing ( ) )
+	{
+		if ( promptBox ( "Save Optimization Data?", MB_YESNO ) == IDYES )
+		{
+			optimizer.onFinOpt ( );
+		}		
+	}
 }
 
 

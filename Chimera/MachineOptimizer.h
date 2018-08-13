@@ -6,6 +6,7 @@
 #include "DoubleEdit.h"
 #include <array>
 #include <memory>
+#include "DataLogger.h"
 
 struct optimizationAlgorithm
 {
@@ -79,8 +80,8 @@ class MachineOptimizer
 		void reset ( );
 		void verifyOptInput ( ExperimentInput input );
 		void rearrange ( UINT width, UINT height, fontMap fonts );
-		void updateParams( ExperimentInput input, dataPoint resultValue );
-		void hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue);
+		void updateParams( ExperimentInput input, dataPoint resultValue, DataLogger* logger );
+		void hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue, DataLogger* logger);
 		void updateCurrentValueDisplays ( );
 		void handleListViewClick ( );
 		void deleteParam ( );
@@ -90,6 +91,8 @@ class MachineOptimizer
 		void MachineOptimizer::updateBestValueDisplays ( );
 		std::vector<std::shared_ptr<optParamSettings>> getOptParams ( );
 		UINT getMaxRoundNum ( );
+		bool isInMiddleOfOptimizing ( );
+		void updateCurrRoundDisplay ( std::string roundtxt );
 	private:
 		// controls
 		Control<CStatic> header;
@@ -103,6 +106,10 @@ class MachineOptimizer
 
 		Control<CStatic> maxRoundsTxt;
 		Control<CEdit> maxRoundsEdit;
+		Control<CStatic> currRoundTxt;
+		Control<CStatic> currRoundDisp;
+
+
 		Control<MyListCtrl> optParamsListview;
 		std::array<Control<CButton>, 4> algorithmRadios;
 		bool isOptimizing = false;
