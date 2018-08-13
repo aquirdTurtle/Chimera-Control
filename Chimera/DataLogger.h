@@ -42,7 +42,14 @@ class DataLogger
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
 		void initializeAioLogging( UINT numSnapshots );
+
+		void initOptimizationFile ( );
+		void updateOptimizationFile ( std::string appendTxt );
+		void finOptimizationFile ( );
+
 	private:
+		std::ofstream optFile;
+
 		// a bunch of overloaded wrapper functions for making the main "log" functions above much cleaner.
 		H5::DataSet writeDataSet( bool data,				std::string name, H5::Group& group );
 		H5::DataSet writeDataSet( UINT data,				std::string name, H5::Group& group );

@@ -70,6 +70,13 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 		me.textIfLoadingStops = false;
 		me.textWhenComplete = false;
 		addPerson( me );
+		personInfo tobias;
+		tobias.name = "Tobias Thiele";
+		tobias.number = "7207252841";
+		tobias.provider = "googlefi";
+		tobias.textIfLoadingStops = false;
+		tobias.textWhenComplete = false;
+		addPerson ( tobias );
 	}
 }
 

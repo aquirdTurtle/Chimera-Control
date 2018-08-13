@@ -10,22 +10,27 @@
 
 void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id )
 {
-	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	header.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25 };
 	header.Create ( "AUTO-OPTIMIZATION-CONTROL", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-
-	optimizeButton.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
+	optimizeButton.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
 	optimizeButton.Create ( "Optimize", NORM_PUSH_OPTIONS, optimizeButton.sPos, parent, IDC_MACHINE_OPTIMIZE );
 
-	maxRoundsTxt.sPos = { pos.x + 180, pos.y, pos.x + 380, pos.y + 25 };
+	maxRoundsTxt.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
 	maxRoundsTxt.Create ( "Max Rounds:", NORM_STATIC_OPTIONS, maxRoundsTxt.sPos, parent, id++ );
 	
-	maxRoundsEdit.sPos = { pos.x + 380, pos.y, pos.x + 480, pos.y += 25 };
+	maxRoundsEdit.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 25 };
 	maxRoundsEdit.Create ( NORM_EDIT_OPTIONS, maxRoundsEdit.sPos, parent, id++ );
+
+	currRoundTxt.sPos = { pos.x + 240, pos.y, pos.x + 360, pos.y + 25 };
+	currRoundTxt.Create ( "Curr-Round:", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
+
+	currRoundDisp.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y += 25 };
+	currRoundDisp.Create ( "", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
 
 	//algorithmsHeader.sPos = { pos.x, pos.y, pos.x + 80, pos.y + 25 };
 	//algorithmsHeader.Create ( "Algorithm:", NORM_STATIC_OPTIONS, algorithmsHeader.sPos, parent, id++ );
-	
 	//algorithmRadios;
+
 	bestResultTxt.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
 	bestResultTxt.Create ( "Best Result:", NORM_STATIC_OPTIONS, bestResultTxt.sPos, parent, id++);
 	bestResultVal.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 25 };
@@ -51,6 +56,12 @@ void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* paren
 	optParamsListview.InsertColumn ( 4, "Incr.", 100 );
 	optParamsListview.InsertColumn ( 4, "Best-Val.", 100 );
 	optParamsListview.insertBlankRow ( );
+}
+
+
+void MachineOptimizer::updateCurrRoundDisplay ( std::string round )
+{
+	currRoundDisp.SetWindowText ( round.c_str ( ) );
 }
 
 
@@ -84,7 +95,7 @@ std::vector<std::shared_ptr<optParamSettings>> MachineOptimizer::getOptParams ( 
 /*
 	resultValue: the value of the metric that was measured in the last round.
  */
-void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultValue )
+void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultValue, DataLogger* logger )
 {
 	if ( optCount == 0 )
 	{
@@ -102,6 +113,14 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 				}
 			}
 		}
+		logger->initOptimizationFile ( );
+		std::string initString = "Parameters: ";
+		for ( auto& param : optParams )
+		{
+			initString += param->name + " ";
+		}
+		initString += "\n";
+		logger->updateOptimizationFile ( initString );
 	}
 	else
 	{
@@ -122,13 +141,21 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 				bestErr = point.yerr;
 			}
 		}
+		std::string pointString = "Point_Number " + str(optCount) + " ";
+		for ( auto& param : optParams )
+		{
+			pointString += str(param->currentValue) + " ";
+		}
+		pointString += str ( resultValue.y ) + " " + str ( resultValue.err );
+		pointString += "\n";
+		logger->updateOptimizationFile ( pointString );
 		updateBestResult ( str ( bestVal ), str ( bestErr ) );
 	}
 	switch ( currentSettings.alg )
 	{
 		case optimizationAlgorithm::which::HillClimbing:
 		{
-			hillClimbingUpdate ( input, resultValue );
+			hillClimbingUpdate ( input, resultValue, logger );
 		}
 	}
 	// update variable values...
@@ -159,7 +186,14 @@ void MachineOptimizer::updateBestValueDisplays ( )
 	}
 }
 
-void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue )
+
+bool MachineOptimizer::isInMiddleOfOptimizing ( )
+{
+	return isOptimizing;
+}
+
+
+void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue, DataLogger* logger )
 {
 	// handle first value case, should only happen once in entire experiment.
 	double newVal;
@@ -170,6 +204,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 		param = optParams.front ( ); 
 		param->index = 0;
 		param->resultHist.clear ( ); 
+		logger->updateOptimizationFile ( "First_Variable: " + param->name + "\n" );
 	}
 	resultValue.x = param->currentValue;
 	if ( param->resultHist.size ( ) == 0 )
@@ -221,7 +256,9 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					}
 					else
 					{
+						logger->updateOptimizationFile ( "Finished round " + str ( roundCount ) + "\n" );
 						roundCount++;
+						updateCurrRoundDisplay ( str ( roundCount ) );
 						/// go back to first variable.
 						// order is important here.
 						param->currentValue = param->bestResult.x;
@@ -235,6 +272,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 						param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 						optStatus.scanDir = 1;
 						param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
+						logger->updateOptimizationFile ( "Switched_to_variable " + param->name + "\n" );
 					}
 				}
 				else
@@ -251,6 +289,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 					optStatus.scanDir = 1;
 					param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
+					logger->updateOptimizationFile ( "Switched_to_variable " + param->name + "\n" );
 				}
 			}
 			else
@@ -258,6 +297,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				// first data point was in wrong direction. Go back to beginning and change direction.
 				optStatus.scanDir = -1;
 				param->currentValue = param->resultHist.front ( ).x + double ( optStatus.scanDir ) * param->increment;
+				logger->updateOptimizationFile ( "Switched_Direction\n");
 			}
 		}
 	}
@@ -278,28 +318,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 
 void MachineOptimizer::onFinOpt ( )
 {
-	std::string todayFolder, finalFolder;
-	DataLogger::getDataLocation ( DATA_SAVE_LOCATION, todayFolder, finalFolder );
-	UINT fileNum = getNextFileIndex ( DATA_SAVE_LOCATION + finalFolder + "Optimization_Results_", ".txt" );
-	std::ofstream optHistoryFile ( DATA_SAVE_LOCATION + finalFolder + "Optimization_Results_" + str(fileNum) + ".txt" );
-	if ( !optHistoryFile.is_open ( ) )
-	{
-		thrower ( "ERROR: on finishing auto-optimization, failed to open file to report optimization results!" );
-	}
-	optHistoryFile << "Parameters: ";
-	for ( auto& param : optParams )
-	{
-		optHistoryFile << param->name << " ";
-	}
-	optHistoryFile << "\n";
-	for ( auto dataPoint : optStatus.optimizationHistory )
-	{
-		for ( auto val : dataPoint.paramValues )
-		{
-			optHistoryFile << val << " ";
-		}
-		optHistoryFile << dataPoint.value << " " << dataPoint.yerr << "\n";
-	}
+	isOptimizing = false;
 }
 
 
@@ -468,6 +487,7 @@ void MachineOptimizer::reset ( )
 	optStatus.currParam = NULL;
 	optCount = 0;
 	roundCount = 1;
+	updateCurrRoundDisplay ( "---" );
 }
 
 

@@ -1255,12 +1255,6 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	{
 		errorStatus.addStatusText( statusMessage );
 		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
-		// New, auto pause on error.
-		/*
-			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
-			comm.sendColorBox( Master, 'Y' );
-			masterThreadManager.pause( );
-		*/
 	}
 	return 0;
 }
@@ -1273,7 +1267,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
 	errorStatus.addStatusText(statusMessage);
-	// resseting things.
+	// resetting things.
 	TheScriptingWindow->setIntensityDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
@@ -1292,16 +1286,18 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
-	Beep( 850, 50 );
-	Sleep( 50 );
-	Beep( 830, 50 );
+	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
+	Sleep( 100 );
+	asyncbeep = std::async ( std::launch::async, [] { Beep ( 900, 100 ); } );
 	return 0;
 }
+
 
 void MainWindow::stopRearranger( )
 {
 	niawg.turnOffRerng( );
 }
+
 
 void MainWindow::waitForRearranger( )
 {

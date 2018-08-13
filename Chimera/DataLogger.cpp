@@ -283,6 +283,34 @@ void DataLogger::logFunctions( H5::Group& group )
 	}
 }
 
+void DataLogger::initOptimizationFile ( )
+{
+	if ( optFile.is_open ( ) )
+	{
+		finOptimizationFile ( );
+	}
+	std::string todayFolder, finalFolder;
+	DataLogger::getDataLocation ( DATA_SAVE_LOCATION, todayFolder, finalFolder );
+	UINT fileNum = getNextFileIndex ( DATA_SAVE_LOCATION + finalFolder + "Optimization_Results_", ".txt" );
+	optFile.open( DATA_SAVE_LOCATION + finalFolder + "Optimization_Results_" + str ( fileNum ) + ".txt" );
+}
+
+
+void DataLogger::updateOptimizationFile ( std::string appendTxt )
+{
+	if ( !optFile.is_open ( ) )
+	{
+		thrower ( "Tried to update optimization record file, but file was closed!" );
+	}
+	optFile << appendTxt;
+}
+
+
+void DataLogger::finOptimizationFile ( )
+{
+	optFile.close ( );
+}
+
 
 void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 {
