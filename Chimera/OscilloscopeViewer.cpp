@@ -41,7 +41,10 @@ void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroun
 
 void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 {
-	viewPlot->rearrange( width, height, fonts );
+	if ( viewPlot )
+	{
+		viewPlot->rearrange ( width, height, fonts );
+	}
 }
 
 
