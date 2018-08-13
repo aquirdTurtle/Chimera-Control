@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "DataLogger.h"
 #include "MachineOptimizer.h"
 #include "MasterThreadInput.h"
 #include "TextPromptDialog.h"
@@ -12,13 +13,25 @@ void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* paren
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	header.Create ( "AUTO-OPTIMIZATION-CONTROL", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 
-	optimizeButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	optimizeButton.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
 	optimizeButton.Create ( "Optimize", NORM_PUSH_OPTIONS, optimizeButton.sPos, parent, IDC_MACHINE_OPTIMIZE );
 
-	algorithmsHeader.sPos = { pos.x, pos.y, pos.x + 80, pos.y + 25 };
-	algorithmsHeader.Create ( "Algorithm:", NORM_STATIC_OPTIONS, algorithmsHeader.sPos, parent, id++ );
+	maxRoundsTxt.sPos = { pos.x + 180, pos.y, pos.x + 380, pos.y + 25 };
+	maxRoundsTxt.Create ( "Max Rounds:", NORM_STATIC_OPTIONS, maxRoundsTxt.sPos, parent, id++ );
+	
+	maxRoundsEdit.sPos = { pos.x + 380, pos.y, pos.x + 480, pos.y += 25 };
+	maxRoundsEdit.Create ( NORM_EDIT_OPTIONS, maxRoundsEdit.sPos, parent, id++ );
+
+	//algorithmsHeader.sPos = { pos.x, pos.y, pos.x + 80, pos.y + 25 };
+	//algorithmsHeader.Create ( "Algorithm:", NORM_STATIC_OPTIONS, algorithmsHeader.sPos, parent, id++ );
 	
 	//algorithmRadios;
+	bestResultTxt.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
+	bestResultTxt.Create ( "Best Result:", NORM_STATIC_OPTIONS, bestResultTxt.sPos, parent, id++);
+	bestResultVal.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 25 };
+	bestResultVal.Create ( "---", NORM_STATIC_OPTIONS, bestResultVal.sPos, parent, id++ );
+	bestResultErr.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 25 };
+	bestResultErr.Create ( "---", NORM_STATIC_OPTIONS, bestResultErr.sPos, parent, id++ );
 
 	pos.y += 25;
 
@@ -31,20 +44,32 @@ void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* paren
 	optParamsListview.SetBkColor ( RGB ( 15, 15, 15 ) );
 	optParamsListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
 	optParamsListview.SetTextColor ( RGB ( 150, 150, 150 ) );
-	optParamsListview.InsertColumn ( 0, "Name", 200 );
-	optParamsListview.InsertColumn ( 1, "Current-Value", 200 );
-	optParamsListview.InsertColumn ( 2, "[", 100 );
-	optParamsListview.InsertColumn ( 3, "]", 100 );
-	optParamsListview.InsertColumn ( 4, "Increment", 200 );
+	optParamsListview.InsertColumn ( 0, "Name", 100 );
+	optParamsListview.InsertColumn ( 1, "Current-Val.", 100 );
+	optParamsListview.InsertColumn ( 2, "[", 50 );
+	optParamsListview.InsertColumn ( 3, "]", 50 );
+	optParamsListview.InsertColumn ( 4, "Incr.", 100 );
+	optParamsListview.InsertColumn ( 4, "Best-Val.", 100 );
 	optParamsListview.insertBlankRow ( );
 }
 
+
+void MachineOptimizer::updateBestResult ( std::string val, std::string err )
+{
+	bestResultVal.SetWindowText ( val.c_str ( ) );
+	bestResultErr.SetWindowText ( err.c_str ( ) );
+}
 
 void MachineOptimizer::rearrange ( UINT width, UINT height, fontMap fonts )
 {
 	header.rearrange ( width, height, fonts );
 	optimizeButton.rearrange ( width, height, fonts );
-	algorithmsHeader.rearrange ( width, height, fonts );
+	//algorithmsHeader.rearrange ( width, height, fonts );
+	maxRoundsTxt.rearrange ( width, height, fonts );
+	maxRoundsEdit.rearrange ( width, height, fonts );
+	bestResultTxt.rearrange ( width, height, fonts );
+	bestResultVal.rearrange ( width, height, fonts );
+	bestResultErr.rearrange ( width, height, fonts );
 	optParamsListview.rearrange ( width, height, fonts );
 	optParamsHeader.rearrange ( width, height, fonts );
 }
@@ -78,14 +103,27 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 			}
 		}
 	}
-	// update the history with the new values.
-	optStatus.optimizationHistory.resize ( optStatus.optimizationHistory.size ( ) + 1 );
-	for ( auto param : optParams )
+	else
 	{
-		optStatus.optimizationHistory.back ( ).paramValues.push_back ( param->currentValue );
+		// update the history with the new values.
+		optStatus.optimizationHistory.resize ( optStatus.optimizationHistory.size ( ) + 1 );
+		for ( auto param : optParams )
+		{
+			optStatus.optimizationHistory.back ( ).paramValues.push_back ( param->currentValue );
+		}
+		optStatus.optimizationHistory.back ( ).value = resultValue.y;
+		optStatus.optimizationHistory.back ( ).yerr = resultValue.err;
+		double bestVal = -DBL_MAX, bestErr;
+		for ( auto& point : optStatus.optimizationHistory )
+		{
+			if ( point.value > bestVal )
+			{
+				bestVal = point.value;
+				bestErr = point.yerr;
+			}
+		}
+		updateBestResult ( str ( bestVal ), str ( bestErr ) );
 	}
-	optStatus.optimizationHistory.back ( ).value = resultValue.y;
-	optStatus.optimizationHistory.back ( ).yerr = resultValue.err;
 	switch ( currentSettings.alg )
 	{
 		case optimizationAlgorithm::which::HillClimbing:
@@ -96,6 +134,7 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 	// update variable values...
 	optCount++;  
 	updateCurrentValueDisplays ( );
+	updateBestValueDisplays ( );
 }
 
 
@@ -110,6 +149,16 @@ void MachineOptimizer::updateCurrentValueDisplays ( )
 }
 
 
+void MachineOptimizer::updateBestValueDisplays ( )
+{
+	UINT count = 0;
+	for ( auto& param : optParams )
+	{
+		optParamsListview.SetItem ( str ( param->bestResult.x), count, 4 );
+		count++;
+	}
+}
+
 void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue )
 {
 	// handle first value case, should only happen once in entire experiment.
@@ -122,6 +171,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 		param->index = 0;
 		param->resultHist.clear ( ); 
 	}
+	resultValue.x = param->currentValue;
 	if ( param->resultHist.size ( ) == 0 )
 	{
 		optStatus.scanDir = 1;
@@ -133,7 +183,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 		{
 			param->bestResult = resultValue;
 		}
-		else
+		else 
 		{
 			UINT bestLoc = 0, resultCount = 0;
 			param->bestResult = param->resultHist.front ( );
@@ -147,12 +197,12 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				resultCount = 0;
 			}
 		}
-		param->currentValue = param->currentValue + optStatus.scanDir * param->increment;
+		param->currentValue = param->currentValue + double(optStatus.scanDir) * param->increment;
 		/// determine way to update
-		if ( (resultValue.y - resultValue.err > param->bestResult.y + param->bestResult.err 
-			   || param->resultHist.size ( ) <= 1) && ! param->currentValue > param->upperLim )
+		if ( (resultValue.y + 2 * resultValue.err > param->bestResult.y - 2 * param->bestResult.err 
+			   || param->resultHist.size ( ) <= 1) && ! (param->currentValue > param->upperLim || param->currentValue < param->lowerLim ) )
 		{
-			// the most recent result was the best number OR not enough values to determine trend, and still within 
+			// the most recent result was the best (or close to best) number OR not enough values to determine trend, and still within 
 			// range. Keep moving in this direction.
 		}
 		else
@@ -163,7 +213,29 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				auto index = param->index;
 				if ( index + 1 >= optParams.size ( ) )
 				{
-					thrower ( "Finished Optimization!" );
+					// finished round!
+					if ( roundCount >= getMaxRoundNum ( ) )
+					{
+						onFinOpt ( );
+						thrower ( "Finished Optimization!" );
+					}
+					else
+					{
+						roundCount++;
+						/// go back to first variable.
+						// order is important here.
+						param->currentValue = param->bestResult.x;
+						auto tempResult = param->bestResult;
+						param.reset ( );
+						param = optParams[ 0 ];
+						index = 0;
+						param->index = index + 1;
+						param->resultHist.clear ( );
+						// give it the first data point as the end point from the previous round.
+						param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
+						optStatus.scanDir = 1;
+						param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
+					}
 				}
 				else
 				{
@@ -178,13 +250,14 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					// give it the first data point as the end point from the previous round.
 					param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 					optStatus.scanDir = 1;
+					param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
 				}
 			}
 			else
 			{
 				// first data point was in wrong direction. Go back to beginning and change direction.
 				optStatus.scanDir = -1;
-				param->currentValue = param->resultHist.front ( ).x;
+				param->currentValue = param->resultHist.front ( ).x + double ( optStatus.scanDir ) * param->increment;
 			}
 		}
 	}
@@ -199,6 +272,33 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				expParam.constantValue = param->currentValue;
 			}
 		}
+	}
+}
+
+
+void MachineOptimizer::onFinOpt ( )
+{
+	std::string todayFolder, finalFolder;
+	DataLogger::getDataLocation ( DATA_SAVE_LOCATION, todayFolder, finalFolder );
+	UINT fileNum = getNextFileIndex ( DATA_SAVE_LOCATION + finalFolder + "Optimization_Results_", ".txt" );
+	std::ofstream optHistoryFile ( DATA_SAVE_LOCATION + finalFolder + "Optimization_Results_" + str(fileNum) + ".txt" );
+	if ( !optHistoryFile.is_open ( ) )
+	{
+		thrower ( "ERROR: on finishing auto-optimization, failed to open file to report optimization results!" );
+	}
+	optHistoryFile << "Parameters: ";
+	for ( auto& param : optParams )
+	{
+		optHistoryFile << param->name << " ";
+	}
+	optHistoryFile << "\n";
+	for ( auto dataPoint : optStatus.optimizationHistory )
+	{
+		for ( auto val : dataPoint.paramValues )
+		{
+			optHistoryFile << val << " ";
+		}
+		optHistoryFile << dataPoint.value << " " << dataPoint.yerr << "\n";
 	}
 }
 
@@ -337,6 +437,11 @@ void MachineOptimizer::handleListViewClick ( )
 		}
 		case 4:
 		{
+			// clicked best value.
+			break;
+		}
+		case 5:
+		{
 			// clicked Increment.
 			std::string inc_str;
 			TextPromptDialog dialog ( &inc_str, "Please enter a value for the increment for this "
@@ -362,6 +467,7 @@ void MachineOptimizer::reset ( )
 	optStatus.currParam.reset ( );
 	optStatus.currParam = NULL;
 	optCount = 0;
+	roundCount = 1;
 }
 
 
@@ -402,6 +508,21 @@ void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 					  "experiment!" );
 		}
 	}
+	updateBestResult ( "---", "---" );
 }
 
-
+UINT MachineOptimizer::getMaxRoundNum ( )
+{
+	UINT res;
+	CString txt;
+	maxRoundsEdit.GetWindowText ( txt);
+	try
+	{
+		res = boost::lexical_cast<UINT>(str ( txt ));
+	}
+	catch (boost::bad_lexical_cast& )
+	{
+		thrower ( "ERROR: failed to convert max optimization count to an unsigned integer!" );
+	}
+	return res;		
+}
