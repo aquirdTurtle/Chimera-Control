@@ -35,6 +35,7 @@ void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* paren
 	optParamsListview.InsertColumn ( 1, "Current-Value", 200 );
 	optParamsListview.InsertColumn ( 2, "[", 100 );
 	optParamsListview.InsertColumn ( 3, "]", 100 );
+	optParamsListview.InsertColumn ( 4, "Increment", 200 );
 	optParamsListview.insertBlankRow ( );
 }
 
@@ -62,8 +63,7 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 {
 	if ( optCount == 0 )
 	{
-		paramHistory.clear ( );
-		measuredResultHistory.clear ( );
+		optStatus.optimizationHistory.clear ( );
 		// it's the first one.
 		isOptimizing = true;
 		// initialize the current values with the constant values from the main parameter controls
@@ -78,6 +78,14 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 			}
 		}
 	}
+	// update the history with the new values.
+	optStatus.optimizationHistory.resize ( optStatus.optimizationHistory.size ( ) + 1 );
+	for ( auto param : optParams )
+	{
+		optStatus.optimizationHistory.back ( ).paramValues.push_back ( param->currentValue );
+	}
+	optStatus.optimizationHistory.back ( ).value = resultValue.y;
+	optStatus.optimizationHistory.back ( ).yerr = resultValue.err;
 	switch ( currentSettings.alg )
 	{
 		case optimizationAlgorithm::which::HillClimbing:
@@ -85,14 +93,20 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 			hillClimbingUpdate ( input, resultValue );
 		}
 	}
-	// update the history with the new values.
-	paramHistory.resize ( paramHistory.size ( ) +1 );
-	for ( auto param : optParams )
-	{
-		paramHistory.back ( ).push_back ( param->currentValue );
-	}
 	// update variable values...
 	optCount++;  
+	updateCurrentValueDisplays ( );
+}
+
+
+void MachineOptimizer::updateCurrentValueDisplays ( )
+{
+	UINT count = 0;
+	for ( auto& param : optParams )
+	{
+		optParamsListview.SetItem (str(param->currentValue), count, 1 );
+		count++;
+	}	
 }
 
 
@@ -106,47 +120,44 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 		// initial 
 		param = optParams.front ( ); 
 		param->index = 0;
-		param->valueHist.clear ( ); 
 		param->resultHist.clear ( ); 
 	}
-	if ( param->valueHist.size ( ) == 0 )
+	if ( param->resultHist.size ( ) == 0 )
 	{
 		optStatus.scanDir = 1;
 	}
 	else
 	{
 		/// get the best value so far
-		dataPoint bestResult;
-		double bestSetting;
 		if ( param->resultHist.size ( ) == 0 )
 		{
-			bestResult = resultValue;
-			bestSetting = param->currentValue;
+			param->bestResult = resultValue;
 		}
 		else
 		{
 			UINT bestLoc = 0, resultCount = 0;
-			bestResult = param->resultHist.front ( );
+			param->bestResult = param->resultHist.front ( );
 			for ( auto res : param->resultHist )
 			{
-				if ( res.y > bestResult.y )
+				if ( res.y > param->bestResult.y )
 				{
 					bestLoc = resultCount;
-					bestResult = res;
+					param->bestResult = res;
 				}
 				resultCount = 0;
 			}
-			bestSetting = param->valueHist[ bestLoc ];
 		}
+		param->currentValue = param->currentValue + optStatus.scanDir * param->increment;
 		/// determine way to update
-		if ( resultValue.y - resultValue.err > bestResult.y + bestResult.err || param->valueHist.size ( ) <= 1 )
+		if ( (resultValue.y - resultValue.err > param->bestResult.y + param->bestResult.err 
+			   || param->resultHist.size ( ) <= 1) && ! param->currentValue > param->upperLim )
 		{
-			// the most recent result was the best number OR not enough values to determine trend. 
-			// keep moving in this direction.
+			// the most recent result was the best number OR not enough values to determine trend, and still within 
+			// range. Keep moving in this direction.
 		}
 		else
 		{
-			if ( optStatus.scanDir == -1 || param->valueHist.size ( ) > 2 )
+			if ( optStatus.scanDir == -1 || param->resultHist.size ( ) > 2 || param->currentValue < param->lowerLim )
 			{
 				// finished with this variable for now!
 				auto index = param->index;
@@ -158,28 +169,25 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				{
 					/// next variable
 					// order is important here.
-					param->currentValue = bestSetting;
+					param->currentValue = param->bestResult.x;
+					auto tempResult = param->bestResult;
 					param.reset ( );
 					param = optParams[ index + 1 ];
 					param->index = index + 1;
-					param->valueHist.clear ( );
 					param->resultHist.clear ( );
 					// give it the first data point as the end point from the previous round.
-					param->resultHist.push_back ( bestResult );
-					param->valueHist.push_back ( param->currentValue );
+					param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 					optStatus.scanDir = 1;
 				}
 			}
 			else
 			{
-				// first data point was in wrong direction.
+				// first data point was in wrong direction. Go back to beginning and change direction.
 				optStatus.scanDir = -1;
-				param->currentValue = param->valueHist.front ( );
+				param->currentValue = param->resultHist.front ( ).x;
 			}
 		}
-		param->currentValue = param->currentValue + optStatus.scanDir * currentSettings.gain * param->limitSizeRange ( );
 	}
-	optStatus.currParam->valueHist.push_back ( param->currentValue);
 	optStatus.currParam->resultHist.push_back ( resultValue );
 	for ( auto& param : optParams )
 	{
@@ -325,6 +333,24 @@ void MachineOptimizer::handleListViewClick ( )
 				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->upperLim ), itemIndicator, subitem );
+			break;
+		}
+		case 4:
+		{
+			// clicked Increment.
+			std::string inc_str;
+			TextPromptDialog dialog ( &inc_str, "Please enter a value for the increment for this "
+									  "optimization parameter." );
+			dialog.DoModal ( );
+			try
+			{
+				param->increment = boost::lexical_cast<double> ( inc_str );
+			}
+			catch ( boost::bad_lexical_cast& )
+			{
+				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+			}
+			optParamsListview.SetItem ( str ( param->increment ), itemIndicator, subitem );
 			break;
 		}
 	}
