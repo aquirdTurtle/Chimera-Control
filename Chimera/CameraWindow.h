@@ -154,7 +154,7 @@ class AndorWindow : public CDialog
 		multiGridAtomQueue plotterAtomQueue;
 		multiGridImageQueue plotterPictureQueue;
 		atomQueue rearrangerAtomQueue;
-
+		dataPoint mostRecentAnalysisResult;
 		// 
 		std::mutex plotLock;
 		std::mutex rearrangerLock;

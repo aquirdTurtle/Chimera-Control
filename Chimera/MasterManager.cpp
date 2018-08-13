@@ -239,7 +239,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		
 		/// output some timing information
 		timer.tick("After-All-Variation-Calculations");
-		expUpdate(timer.getTimingMessage(), comm, false);
+		expUpdate(timer.getTimingMessage(), comm, input->quiet);
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls->getTotalTime( 0, 0 ) ) + "\r\n", 
@@ -1047,7 +1047,7 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 			if ( var.parameterScope == GLOBAL_PARAMETER_SCOPE )
 			{
 				warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
-					" variable with the same name.";
+					" variable with the same name.\r\n";
 				// this variable is being overwritten, so don't add this variable vector
 				return true;
 			}

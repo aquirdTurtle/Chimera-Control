@@ -234,8 +234,8 @@ pushouttime 20
 intrappgccoolingtime 2
 field 3
 defaultmotfreq 0.01
-sidemot__servo_value 0.17877
-diagmot__servo_value 0.256768
+sidemot__servo_value 0.179503
+diagmot__servo_value 0.266067
 default795freq 0
 d1__servo_value 0.0976641
 0.01 1

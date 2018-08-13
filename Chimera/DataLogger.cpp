@@ -31,7 +31,7 @@ void DataLogger::deleteFile(Communicator* comm)
 		// I'm not actually sure if this should be a prob with h5.
 		thrower("ERROR: Can't delete current h5 file, the h5 file is open!");
 	}
-	std::string fileAddress = dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\data_"
+	std::string fileAddress = dataFilesBaseLocation + todayFolder + "\\Raw Data\\data_"
 		+ str( currentDataFileNumber ) + ".h5";
 	int success = DeleteFile(cstr(fileAddress));
 	if (success == false)
@@ -45,23 +45,17 @@ void DataLogger::deleteFile(Communicator* comm)
 }
 
 
-void DataLogger::initializeDataFiles()
+void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath )
 {
-	// if the function fails, the h5 file will not be open. If it succeeds, this will get set to true.
-	fileIsOpen = false;
-	/// First, create the folder for today's h5 data.
-	// Get the date and use it to set the folder where this data run will be saved.
-	// get time now
-	
-	time_t timeInt = time(0);
+	time_t timeInt = time ( 0 );
 	struct tm timeStruct;
-	localtime_s(&timeStruct, &timeInt);
-	std::string tempStr = str(timeStruct.tm_year + 1900);
+	localtime_s ( &timeStruct, &timeInt );
+	std::string tempStr = str ( timeStruct.tm_year + 1900 );
 	// Create the string of the date.
 	std::string finalSaveFolder;
 	finalSaveFolder += tempStr + "\\";
 	std::string month;
-	switch (timeStruct.tm_mon + 1)
+	switch ( timeStruct.tm_mon + 1 )
 	{
 		case 1:
 			month = "January";
@@ -99,35 +93,47 @@ void DataLogger::initializeDataFiles()
 		case 12:
 			month = "December";
 			break;
-	}	
-	finalSaveFolder += month + "\\" + month + " " + str( timeStruct.tm_mday );
-	currentSaveFolder = finalSaveFolder;
+	}
+	finalSaveFolder += month + "\\" + month + " " + str ( timeStruct.tm_mday );
+	todayFolder = finalSaveFolder;
 	// create date's folder.
 	int result = 1;
 	struct stat info;
-	int resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder ), &info );
-	if (resultStat != 0)
+	int resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
+	if ( resultStat != 0 )
 	{
-		result = CreateDirectory( cstr( dataFilesBaseLocation + finalSaveFolder ), 0 );
+		result = CreateDirectory ( cstr ( base + finalSaveFolder ), 0 );
 	}
-	if (!result)
+	if ( !result )
 	{
-		thrower( "ERROR: Failed to create save location for data at location " + dataFilesBaseLocation + finalSaveFolder +
-				 ". Make sure you have access to the jilafile or change the save location. Error: " + str(GetLastError()) 
-				 + "\r\n" );
+		thrower ( "ERROR: Failed to create save location for data at location " + base + finalSaveFolder +
+				  ". Make sure you have access to the jilafile or change the save location. Error: " + str ( GetLastError ( ) )
+				  + "\r\n" );
 	}
 
 	finalSaveFolder += "\\Raw Data";
-	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder ), &info );
-	if (resultStat != 0)
+	resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
+	if ( resultStat != 0 )
 	{
-		result = CreateDirectory( cstr( dataFilesBaseLocation + finalSaveFolder ), 0 );
+		result = CreateDirectory ( cstr ( base + finalSaveFolder ), 0 );
 	}
-	if (!result)
+	if ( !result )
 	{
-		thrower( "ERROR: Failed to create save location for data! Error: " + str( GetLastError() ) + "\r\n" );
+		thrower ( "ERROR: Failed to create save location for data! Error: " + str ( GetLastError ( ) ) + "\r\n" );
 	}
 	finalSaveFolder += "\\";
+	fullPath = finalSaveFolder;
+}
+
+
+void DataLogger::initializeDataFiles()
+{
+	// if the function fails, the h5 file will not be open. If it succeeds, this will get set to true.
+	fileIsOpen = false;
+	/// First, create the folder for today's h5 data.
+	// Get the date and use it to set the folder where this data run will be saved.
+	std::string finalSaveFolder;
+	getDataLocation ( dataFilesBaseLocation, todayFolder, finalSaveFolder );
 
 	/// check that temperature data is being recorded.
 	FILE *temperatureFile;
