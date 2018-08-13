@@ -191,7 +191,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 	optStatus.currParam->resultHist.push_back ( resultValue );
 	for ( auto& param : optParams )
 	{
-		for ( auto& expParam : input.masterInput->variables[0] )
+		for ( auto& expParam : input.masterInput->variables[0] )	
 		{
 			if ( expParam.name == param->name )
 			{
