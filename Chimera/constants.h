@@ -11,12 +11,13 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
+	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
@@ -29,7 +30,7 @@
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
 	#define EO_AXIAL_TEK_SAFEMODE true
 	#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
-	#define TOP_BOTTOM_AGILENT_SAFEMODE false
+	#define TOP_BOTTOM_AGILENT_SAFEMODE true
 	#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
 	#define AXIAL_AGILENT_SAFEMODE true
 	#define AXIAL_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52810615::0::INSTR"
