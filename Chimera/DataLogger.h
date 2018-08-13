@@ -37,6 +37,7 @@ class DataLogger
 		void logBaslerSettings ( baslerSettings settings, bool on );
 		void logTektronicsSettings( );
 		UINT getNextFileNumber();
+		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void closeFile();
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
@@ -65,7 +66,7 @@ class DataLogger
 	    bool fileIsOpen;
 		std::string mostRecentInitializationDate;
 		std::string dataFilesBaseLocation;
-		std::string currentSaveFolder;
+		std::string todayFolder;
 		int currentDataFileNumber;
 		UINT currentAndorPicNumber, currentBaslerPicNumber;
 };

@@ -3,6 +3,7 @@
 #include "MasterThreadInput.h"
 #include "MyListCtrl.h"
 #include "dataPoint.h"
+#include "DoubleEdit.h"
 #include <array>
 #include <memory>
 
@@ -83,7 +84,12 @@ class MachineOptimizer
 		void updateCurrentValueDisplays ( );
 		void handleListViewClick ( );
 		void deleteParam ( );
+		void onFinOpt ( );
+		void updateBestResult ( std::string val, std::string err );
+		//void updateBestValueListview ( UINT item, double bestVal );
+		void MachineOptimizer::updateBestValueDisplays ( );
 		std::vector<std::shared_ptr<optParamSettings>> getOptParams ( );
+		UINT getMaxRoundNum ( );
 	private:
 		// controls
 		Control<CStatic> header;
@@ -91,10 +97,18 @@ class MachineOptimizer
 		// optimization settings
 		Control<CStatic> algorithmsHeader;
 		Control<CStatic> optParamsHeader;
+		Control<CStatic> bestResultTxt;
+		Control<CStatic> bestResultVal;
+		Control<CStatic> bestResultErr;
+
+		Control<CStatic> maxRoundsTxt;
+		Control<CEdit> maxRoundsEdit;
 		Control<MyListCtrl> optParamsListview;
 		std::array<Control<CButton>, 4> algorithmRadios;
 		bool isOptimizing = false;
 		UINT optCount = 0;
+		UINT roundCount = 0;
+
 		optimizationSettings currentSettings;
 		std::vector<std::shared_ptr<optParamSettings>> optParams;
 		HillClimbingInfo optStatus;

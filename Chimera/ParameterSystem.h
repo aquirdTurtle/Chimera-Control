@@ -81,6 +81,7 @@ class ParameterSystem
 		static std::vector<parameterType> combineParametersForExperimentThread( std::vector<parameterType>& masterVars,
 														   std::vector<parameterType>& subVars );
 		std::vector<variationRangeInfo> getRangeInfo ( );
+		const variationRangeInfo defaultRangeInfo = { 2,false,true };
 	private:
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
@@ -97,7 +98,6 @@ class ParameterSystem
 		// A global parameter, the "official" version. The size of this tells you the number of ranges, and a given
 		// element tells you the number of variations of that range.
 		std::vector<variationRangeInfo> rangeInfo;
-		const variationRangeInfo defaultRangeInfo = { 2,false,true };
 		ParameterSysType paramSysType;
 		// number of dimensions to the variable scans. Unusual to do more than 2.
 		USHORT scanDimensions;

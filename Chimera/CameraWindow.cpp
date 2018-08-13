@@ -640,7 +640,7 @@ LRESULT AndorWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 
 dataPoint AndorWindow::getMainAnalysisResult ( )
 {
-	return activePlots.back ( )->getMainAnalysisResult ( );
+	return mostRecentAnalysisResult;
 }
 
 
@@ -670,6 +670,10 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	crunchSeesTimes.clear( );
 	mainWin->stopRearranger( );
 	wakeRearranger( );
+	if ( activePlots.size ( ) != 0 )
+	{
+		mostRecentAnalysisResult = activePlots.back ( )->getMainAnalysisResult ( );
+	}
 	return 0;
 }
 

@@ -985,8 +985,9 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear( );
 		input->variables.push_back(globalVariables.getEverything());
-		input->variableRangeInfo.clear ( );
-		input->variableRangeInfo = configVariables.getRangeInfo ( );
+		input->variableRangeInfo.clear ( ); 
+		input->variableRangeInfo.push_back ( configVariables.defaultRangeInfo );
+		input->variableRangeInfo[ 0 ].variations = 1;
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->rsg = &RhodeSchwarzGenerator;
