@@ -11,8 +11,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
 
@@ -238,7 +238,7 @@ const UINT DIO_WRITESPERDATAPT = 3;
 
 
 /// Agilent Parameters
-#define AGILENT_DEFAULT_POWER 200
+#define AGILENT_DEFAULT_POWER 3
 
 #define NUMBER_OF_LIBRARY_FILES MAX_NIAWG_SIGNALS*4
 
