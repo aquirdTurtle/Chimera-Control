@@ -35,13 +35,21 @@ FEATURES:
 - Improve comments on what units everything should be in at every moment.
 - prompt for load after saving config as
 - improve delete file after abort functionality
-- Implement auto-optimization
+- Improve auto-optimization
 	- Implement different algorithms
-		- Randomized Search
-		- Neural Network
+		- basin-hopping
+ 		- Randomized Search
+ 		- Neural Network
 		- Genetic / evolutionary
+	- End when converged
+	- make finishing of optimization smoother
+	- option to text when optimization finished. 
+- Implement smarter thresholding
+	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
+	  Especially useful for auto-optimization to keep this good over time.
 - Make the code able to check if the mot is there.
-- make (option for?) plots for single pic mode andor images
+- Make (option for?) plots for single pic mode andor images
+- Make in-code servos listview-style.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -55,7 +63,8 @@ Refactoring / Other:
 - refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
 - reduce size of niawgcontroller file
 - refactor commonfunctions, it's a bit of a mess. 
-- Make config parameter system aware of whether it is a constant or variable run so that the range stuff can be accurate.
+- Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
+- make smstextingcontrol use MyListview control.
 
 
 BUGS:

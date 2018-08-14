@@ -8,11 +8,12 @@
 #include "afxwin.h"
 #include <boost/lexical_cast.hpp>
 
+
 void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id )
 {
-	header.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25 };
+	header.sPos = { pos.x, pos.y, pos.x + 300, pos.y + 25 };
 	header.Create ( "AUTO-OPTIMIZATION-CONTROL", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	optimizeButton.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
+	optimizeButton.sPos = { pos.x + 300, pos.y, pos.x + 480, pos.y += 25 };
 	optimizeButton.Create ( "Optimize", NORM_PUSH_OPTIONS, optimizeButton.sPos, parent, IDC_MACHINE_OPTIMIZE );
 
 	maxRoundsTxt.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
@@ -21,10 +22,10 @@ void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* paren
 	maxRoundsEdit.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 25 };
 	maxRoundsEdit.Create ( NORM_EDIT_OPTIONS, maxRoundsEdit.sPos, parent, id++ );
 
-	currRoundTxt.sPos = { pos.x + 240, pos.y, pos.x + 360, pos.y + 25 };
-	currRoundTxt.Create ( "Curr-Round:", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
+	currRoundTxt.sPos = { pos.x + 240, pos.y, pos.x + 400, pos.y + 25 };
+	currRoundTxt.Create ( "Current Round:", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
 
-	currRoundDisp.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y += 25 };
+	currRoundDisp.sPos = { pos.x + 400, pos.y, pos.x + 480, pos.y += 25 };
 	currRoundDisp.Create ( "", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
 
 	//algorithmsHeader.sPos = { pos.x, pos.y, pos.x + 80, pos.y + 25 };
@@ -78,11 +79,15 @@ void MachineOptimizer::rearrange ( UINT width, UINT height, fontMap fonts )
 	//algorithmsHeader.rearrange ( width, height, fonts );
 	maxRoundsTxt.rearrange ( width, height, fonts );
 	maxRoundsEdit.rearrange ( width, height, fonts );
+	currRoundTxt.rearrange ( width, height, fonts );
+	currRoundDisp.rearrange ( width, height, fonts );
+	
 	bestResultTxt.rearrange ( width, height, fonts );
 	bestResultVal.rearrange ( width, height, fonts );
 	bestResultErr.rearrange ( width, height, fonts );
 	optParamsListview.rearrange ( width, height, fonts );
 	optParamsHeader.rearrange ( width, height, fonts );
+
 }
 
 
@@ -205,7 +210,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 		param = optParams.front ( ); 
 		param->index = 0;
 		param->resultHist.clear ( ); 
-		logger->updateOptimizationFile ( "First_Variable: " + param->name + "\n" );
+		logger->updateOptimizationFile ( "Variable: " + param->name + "\n" );
 	}
 	resultValue.x = param->currentValue;
 	if ( param->resultHist.size ( ) == 0 )
@@ -252,6 +257,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					// finished round!
 					if ( roundCount >= getMaxRoundNum ( ) )
 					{
+						logger->finOptimizationFile ( );
 						onFinOpt ( );
 						thrower ( "Finished Optimization!" );
 					}
@@ -265,15 +271,15 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 						param->currentValue = param->bestResult.x;
 						auto tempResult = param->bestResult;
 						param.reset ( );
-						param = optParams[ 0 ];
-						index = 0;
-						param->index = index + 1;
+						index = 0; 
+						param = optParams[ index ];
+						param->index = index;
 						param->resultHist.clear ( );
 						// give it the first data point as the end point from the previous round.
 						param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 						optStatus.scanDir = 1;
 						param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
-						logger->updateOptimizationFile ( "Switched_to_variable " + param->name + "\n" );
+						logger->updateOptimizationFile ( "Variable: " + param->name + "\n" );
 					}
 				}
 				else
@@ -290,7 +296,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 					optStatus.scanDir = 1;
 					param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
-					logger->updateOptimizationFile ( "Switched_to_variable " + param->name + "\n" );
+					logger->updateOptimizationFile ( "Variable: " + param->name + "\n" );
 				}
 			}
 			else
