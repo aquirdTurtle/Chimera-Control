@@ -6,6 +6,7 @@
 #include "DoubleEdit.h"
 #include "ParameterSystem.h"
 #include "Version.h"
+#include "MyListCtrl.h"
 
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
@@ -27,11 +28,14 @@ class ServoManager
 						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll( );
-		void calibrate( Servo& s );
+		void calibrate( servoInfo& s, UINT which );
 		bool autoServo( );
+		
 		void handleSaveMasterConfig( std::stringstream& configStream );
 		void handleOpenMasterConfig( std::stringstream& configStream, Version version );
-		//void handleNewMasterConfig( std::stringstream& configStream );
+		void setControlDisplay ( UINT which, double value );
+		void handleListViewClick ( );
+		void deleteServo ( );
 	private:
 		Control<CStatic> servosHeader;
 		Control<CleanButton> servoButton;
@@ -42,17 +46,12 @@ class ServoManager
 		Control<CStatic> attemptLimitLabel;
 		Control<DoubleEdit> attemptLimitEdit;
 
-		Control<CStatic> nameHeader;
-		Control<CStatic> activeHeader;
-		Control<CStatic> valueHeader;
-		Control<CStatic> aiNumberHeader;
-		Control<CStatic> aoNumberHeader;
-		Control<CStatic> controlHeader;
-
-		const UINT numServos = 3;
-		Servo sidemotServo;
-		Servo diagMotServo;
-		Servo d1Servo;
+		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
+		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
+		Control<MyListCtrl> servoList;
+		std::vector<servoInfo> servos;
+		void refreshAllServos ( );
+		void updateServoInfo ( servoInfo& s, UINT which );
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
 		to give to the ao system for changes.

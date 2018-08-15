@@ -264,6 +264,7 @@
     <ClCompile Include="AndorTriggerModes.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
+    <ClCompile Include="DioRows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -623,6 +624,7 @@
     <ClInclude Include="AndorRunMode.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
+    <ClInclude Include="DioRows.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

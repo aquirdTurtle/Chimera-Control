@@ -49,7 +49,6 @@ FEATURES:
 	  Especially useful for auto-optimization to keep this good over time.
 - Make the code able to check if the mot is there.
 - Make (option for?) plots for single pic mode andor images
-- Make in-code servos listview-style.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers

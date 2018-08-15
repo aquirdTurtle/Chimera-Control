@@ -13,6 +13,7 @@
 #include "nidaqmx2.h"
 #include <boost/lexical_cast.hpp>
 
+
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
 DioSystem::DioSystem( bool ftSafemode, bool serialSafemode ) : 	ftFlume( ftSafemode ), 	winSerial( serialSafemode )
@@ -38,7 +39,6 @@ void DioSystem::ftdi_connectasync( const char devSerial[] )
 	ftFlume.setUsbParams( );
 	connectType = ftdiConnectionOption::Async;
 }
-
 
 /*
 * is this a software trigger? is it the "start" command?
@@ -942,7 +942,7 @@ std::array< std::array<bool, 16>, 4 > DioSystem::getCurrentStatus( )
 }
 
 // forceTtl forces the actual ttl to a given value and changes the checkbox status to reflect that.
-void DioSystem::forceTtl(int row, int number, int state)
+void DioSystem::forceTtl(int row, int number, bool state)
 {
 	// change the ttl checkbox.
 	ttlPushControls[row][number].SetCheck( state );
