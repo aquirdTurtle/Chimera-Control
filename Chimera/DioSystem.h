@@ -18,6 +18,7 @@
 /**/
 class AuxiliaryWindow;
 
+
 /*
  * The DioSystem class is based on the DIO64.bas module in the original VB6 code. It does use the dio64_32.dll system, 
  * but we always refer to these controls as the TTLs, so I call it that.
@@ -67,7 +68,7 @@ class DioSystem
 		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
 		void ttlOff(UINT row, UINT column, timeType time, UINT seqNum );
 		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
-		void forceTtl(int row, int number, int state);
+		void forceTtl(int row, int number, bool state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
 

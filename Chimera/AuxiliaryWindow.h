@@ -127,6 +127,8 @@ class AuxiliaryWindow : public CDialog
 		void addVariable(std::string name, bool constant, double value, int item);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result );
+		void ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
 
 		void OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result );

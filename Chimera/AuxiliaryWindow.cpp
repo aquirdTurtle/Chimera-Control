@@ -77,6 +77,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
+	ON_NOTIFY ( NM_DBLCLK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoRClick )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
@@ -119,6 +121,18 @@ void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result
 		sendErr ( "Variables Double Click Handler : " + exception.whatStr ( ) + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus ( false );
+}
+
+
+void AuxiliaryWindow::ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	servos.deleteServo ( );
+}
+
+
+void AuxiliaryWindow::ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	servos.handleListViewClick ( );
 }
 
 
