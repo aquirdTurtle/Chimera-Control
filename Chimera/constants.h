@@ -11,8 +11,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
 
@@ -411,6 +411,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_MACHINE_OPTIMIZE 14144
 #define ID_MACHINE_OPTIMIZATION 14145
 #define IDC_MACHINE_OPTIMIZE_LISTVIEW 14146
+#define IDC_SERVO_LISTVIEW 14147
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001
 #define IDC_MAX_BASLER_SLIDER_EDIT 15002
