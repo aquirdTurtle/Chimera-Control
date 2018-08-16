@@ -27,6 +27,7 @@ FEATURES:
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
 - improve delete file after abort functionality
+	- decorate name, delete after a while.
 - Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
 	variations.
 - add reporting on how many atoms loaded via atomcruncher thread.
@@ -49,6 +50,7 @@ FEATURES:
 	  Especially useful for auto-optimization to keep this good over time.
 - Make the code able to check if the mot is there.
 - Make (option for?) plots for single pic mode andor images
+- display threshold on histogram.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -86,7 +88,4 @@ BUGS:
 - something funny about going back and forth between video and kinetic modes.
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
-
-- main win hist not always showing?
-- fix plot issue.
-
+- plot histogram overlaps

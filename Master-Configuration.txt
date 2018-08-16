@@ -239,8 +239,8 @@ diagmot__servo_value 1.742
 default795freq 0
 d1__servo_value 0.0976641
 0.01 1
-3Sidemot 0 0 1 1.70 
-DiagMot 0 0 1 1.40 
-D1 0 0 0 1.70 
+3Sidemot 0 0 1 1.7 0 
+DiagMot 0 0 1 1.4 0 
+D1 0 0 0 1.7 0 
 216 307 4 232 331 4
 0 0

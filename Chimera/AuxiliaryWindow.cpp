@@ -855,7 +855,7 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	try
 	{
 		ag.handleInput( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
-		ag.handleCombo( );
+		ag.handleModeCombo( );
 		ag.updateSettingsDisplay( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 	}
 	catch ( Error& err )
