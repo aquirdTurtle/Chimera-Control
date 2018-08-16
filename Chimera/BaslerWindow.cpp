@@ -252,6 +252,57 @@ void BaslerWindow::handleDisarmPress()
 }
 
 
+void BaslerWindow::startDefaultAcquisition ( )
+{ 
+	try
+	{
+		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
+		currentRepNumber = 0;
+		baslerSettings tempSettings;
+		tempSettings.acquisitionMode = BaslerAcquisition::mode::Continuous;
+		tempSettings.dimensions.left = 200;
+		tempSettings.dimensions.right = 350;
+		tempSettings.dimensions.top = 390;
+		tempSettings.dimensions.bottom = 200;
+		tempSettings.dimensions.horizontalBinning = 1;
+		tempSettings.dimensions.verticalBinning = 1;
+		tempSettings.exposureMode = BaslerAutoExposure::mode::Off;
+		tempSettings.triggerMode = BaslerTrigger::mode::AutomaticSoftware;
+		tempSettings.exposureTime = 100;
+		#ifdef _DEBUG
+		tempSettings.frameRate = 1;
+		#else
+		tempSettings.frameRate = 20;
+		#endif
+		tempSettings.rawGain = 260;
+
+		cameraController->setParameters ( tempSettings );
+		picManager.setParameters ( tempSettings.dimensions );
+		auto* dc = GetDC ( );
+		picManager.drawBackgrounds ( dc );
+		ReleaseDC ( dc );
+		runExposureMode = tempSettings.exposureMode;
+		imageWidth = tempSettings.dimensions.width ( );
+		// only important in safemode
+		triggerThreadFlag = true;
+
+		triggerThreadInput* input = new triggerThreadInput;
+		input->width = tempSettings.dimensions.width ( );
+		input->height = tempSettings.dimensions.height ( );
+		input->frameRate = tempSettings.frameRate;
+		input->parent = this;
+		input->runningFlag = &triggerThreadFlag;
+
+		cameraController->armCamera ( input );
+		settingsCtrl.setStatus ( "Camera Status: Armed..." );
+		isRunning = true;
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
+}
+
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
 	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;

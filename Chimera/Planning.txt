@@ -44,7 +44,7 @@ FEATURES:
 	- End when converged
 	- make finishing of optimization smoother
 	- option to text when optimization finished. 
-- Implement smarter thresholding
+- Implement smarter thresholding?
 	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
 	  Especially useful for auto-optimization to keep this good over time.
 - Make the code able to check if the mot is there.

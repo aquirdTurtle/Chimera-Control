@@ -24,6 +24,7 @@ class BaslerWindow : public CDialogEx
 		void OnPaint();
 		void passCommonCommand ( UINT id );
 		void measureMotSize ( baslerSettings motSizeSettings );
+		void startDefaultAcquisition ( );
 		void setCameraForMotTempMeasurement ( );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		HCURSOR OnQueryDragIcon();
