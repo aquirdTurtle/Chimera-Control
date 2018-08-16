@@ -15,23 +15,6 @@
 #include "stdafx.h"
 
 #include "Script.h"
-/*
-#include "cleanString.h"
-#include "TextPromptDialog.h"
-#include "Richedit.h"
-#include "ParameterSystem.h"
-#include "ProfileSystem.h"
-#include "AuxiliaryWindow.h"
-#include "DioSystem.h"
-#include "RunInfo.h"
-#include "Thrower.h"
-
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <unordered_map>
-#include "boost/lexical_cast.hpp"
-*/
 
 class Script
 {
@@ -87,6 +70,8 @@ class Script
 
 		void saveAsFunction();
 		void loadFunctions();
+
+		void setEnabled (bool enabled );
 
 	private:
 		CWnd syntaxTimer;

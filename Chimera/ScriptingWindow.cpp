@@ -76,7 +76,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 void ScriptingWindow::handleIntensityCombo()
 {
 	intensityAgilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
-	intensityAgilent.handleCombo();
+	intensityAgilent.handleModeCombo();
 	intensityAgilent.updateSettingsDisplay(mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo());
 }
 

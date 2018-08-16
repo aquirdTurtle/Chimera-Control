@@ -331,7 +331,7 @@ void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
 void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo )
 {
 	configStream << servo.servoName << " " << servo.aiInputChannel << " " << servo.aoControlChannel << " "
-		<< servo.active << " " << servo.setPoint << servo.ttlConfig.size ( ) << " ";
+		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " ";
 	for ( auto& ttl : servo.ttlConfig )
 	{
 		configStream << DioRows::toStr(ttl.first) << " " << ttl.second << " ";
