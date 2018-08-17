@@ -21,44 +21,15 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
 	peopleListView.Create( NORM_LISTVIEW_OPTIONS, peopleListView.sPos, parent, IDC_SMS_TEXTING_LISTVIEW );
 	peopleListView.fontType = fontTypes::SmallFont;
-	LV_COLUMN listViewDefaultCollumn;
-	// Zero Members
-	memset( &listViewDefaultCollumn, 0, sizeof( listViewDefaultCollumn ) );
-	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	listViewDefaultCollumn.cx = 0x42;
-	listViewDefaultCollumn.pszText = "Person";
-	peopleListView.InsertColumn( 0, &listViewDefaultCollumn );
-	listViewDefaultCollumn.pszText = "Phone #";
-	peopleListView.InsertColumn( 1, &listViewDefaultCollumn );
-	listViewDefaultCollumn.pszText = "Carrier";
-	peopleListView.InsertColumn( 2, &listViewDefaultCollumn );
-	listViewDefaultCollumn.cx = 0x62;
-	listViewDefaultCollumn.pszText = "At Finish?";
-	peopleListView.InsertColumn( 3, &listViewDefaultCollumn );
-	listViewDefaultCollumn.pszText = "If No Loading?";
-	peopleListView.InsertColumn( 4, &listViewDefaultCollumn );
-	// Make First Blank row.
-	LVITEM listViewDefaultItem;
-	memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-	listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
-	listViewDefaultItem.cchTextMax = 256; // Max size of test
-	listViewDefaultItem.pszText = "___";
-	listViewDefaultItem.iItem = 0;          // choose item  
-	listViewDefaultItem.iSubItem = 0;       // Put in first coluom
-	peopleListView.InsertItem( &listViewDefaultItem );
-	for ( int itemInc = 1; itemInc < 3; itemInc++ ) // Add SubItems in a loop
-	{
-		listViewDefaultItem.iSubItem = itemInc;
-		peopleListView.SetItem( &listViewDefaultItem );
-	}
-	listViewDefaultItem.iSubItem = 3;
-	listViewDefaultItem.pszText = "No";
-	peopleListView.SetItem( &listViewDefaultItem );
-	listViewDefaultItem.iSubItem = 4;
-	peopleListView.SetItem( &listViewDefaultItem );
+	peopleListView.InsertColumn( 0, "Person", 0x42);
+	peopleListView.InsertColumn( 1, "Phone #" );
+	peopleListView.InsertColumn( 2, "Carrier");
+	peopleListView.InsertColumn( 3, "At Finish?", 0x62 );
+	peopleListView.InsertColumn( 4, "If No Loading?" );
 	peopleListView.SetBkColor( rgbs["Solarized Base02"] );
 	peopleListView.SetTextBkColor( rgbs["Solarized Base02"] );
 	peopleListView.SetTextColor( rgbs["Solarized Base2"] );
+	peopleListView.insertBlankRow ( );
 	pos.y += 120;
 	if ( !PYTHON_SAFEMODE )
 	{
@@ -92,50 +63,12 @@ void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 
 void SmsTextingControl::addPerson( personInfo person )
 {
-
-	LVITEM listViewItem;
-	memset( &listViewItem, 0, sizeof( listViewItem ) );
-	// Text Style
-	listViewItem.mask = LVIF_TEXT;   
-	// Max size of test
-	listViewItem.cchTextMax = 256; 
-	// choose item  
-	listViewItem.iItem = peopleToText.size( );
-	// // add an item to the control
-	// Put in first column
-	listViewItem.iSubItem = 0;
-	listViewItem.pszText = (LPSTR)person.name.c_str( );
-	peopleListView.InsertItem( &listViewItem );
-	listViewItem.iSubItem = 1;
-	listViewItem.pszText = (LPSTR)person.number.c_str( );
-	peopleListView.SetItem( &listViewItem );
-	listViewItem.iSubItem = 2;
-	listViewItem.pszText = (LPSTR)person.provider.c_str( );
-	peopleListView.SetItem( &listViewItem );
-	listViewItem.iSubItem = 3;
-	if ( person.textWhenComplete )
-	{
-		listViewItem.pszText = "Yes";
-	}
-	else
-	{
-		listViewItem.pszText = "No";
-	}
-	peopleListView.SetItem( &listViewItem );
-	// default texting options is no!
-	listViewItem.iSubItem = 4;
-	if ( person.textIfLoadingStops )
-	{
-		listViewItem.pszText = "Yes";
-	}
-	else
-	{
-		listViewItem.pszText = "No";
-	}
-	peopleListView.SetItem( &listViewItem );
-
+	peopleListView.InsertItem( person.name, peopleToText.size ( ), 0 );
+	peopleListView.SetItem ( person.number, peopleToText.size ( ), 1 );
+	peopleListView.SetItem( person.provider, peopleToText.size ( ), 2 );
+	peopleListView.SetItem ( person.textWhenComplete ? "Yes" : "No" , peopleToText.size ( ), 3 );
+	peopleListView.SetItem ( person.textIfLoadingStops ? "Yes" : "No", peopleToText.size ( ), 4 );
 	peopleToText.push_back( person );
-
 }
 
 
@@ -158,38 +91,14 @@ void SmsTextingControl::updatePersonInfo()
 	{
 		// user didn't click in an item.
 		return;
-	}
-	LVITEM listViewItem;
-	memset(&listViewItem, 0, sizeof(listViewItem));
-	listViewItem.mask = LVIF_TEXT;   // Text Style
-	listViewItem.cchTextMax = 256; // Max size of test
-	
-	listViewItem.iItem = itemIndicator;          // choose item  
+	}	
 	/// check if adding new person
 	if (itemIndicator == peopleToText.size())
 	{
 		// add a person
 		peopleToText.resize(peopleToText.size() + 1);
 		peopleToText.back().textWhenComplete = false;
-		// add an item to the control
-		listViewItem.pszText = "___";
-		// choose item  
-		listViewItem.iItem = itemIndicator; 
-		// Put in first coluom
-		listViewItem.iSubItem = 0; 
-		peopleListView.InsertItem(&listViewItem);
-		for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
-		{
-			listViewItem.iSubItem = itemInc;
-			// Enter text to SubItems
-			peopleListView.SetItem(&listViewItem);
-		}
-		// default texting options is no!
-		listViewItem.iSubItem = 3;
-		listViewItem.pszText = "No";
-		peopleListView.SetItem(&listViewItem);
-		listViewItem.iSubItem = 4;
-		peopleListView.SetItem(&listViewItem);
+		peopleListView.insertBlankRow ( );
 	}
 	/// Handle different subitem clicks
 	switch (subitemIndicator)
@@ -201,13 +110,13 @@ void SmsTextingControl::updatePersonInfo()
 			std::string newName;
 			TextPromptDialog dialog(&newName, "Please enter a name:");
 			dialog.DoModal();
-
+			if ( newName == "" )
+			{
+				newName = "noname";
+			}
 			// update the info inside
 			peopleToText[itemIndicator].name = newName;
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)newName.c_str();
-			peopleListView.SetItem(&listViewItem);
+			peopleListView.SetItem(newName, itemIndicator, subitemIndicator );
 			break;
 		}
 		case 1:
@@ -217,7 +126,6 @@ void SmsTextingControl::updatePersonInfo()
 			std::string phoneNumber;
 			TextPromptDialog dialog(&phoneNumber, "Please enter a phone number (numbers only!):");
 			dialog.DoModal();
-
 			// test to see if it is a number like it should be (note: not sure if this catches a single decimal or not...)
 			try
 			{
@@ -228,10 +136,7 @@ void SmsTextingControl::updatePersonInfo()
 				thrower("Numbers only, please!");
 			}
 			peopleToText[itemIndicator].number = phoneNumber;
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)phoneNumber.c_str();
-			peopleListView.SetItem(&listViewItem);
+			peopleListView.SetItem( phoneNumber, itemIndicator, subitemIndicator );
 			break;
 		}
 		case 2:
@@ -250,48 +155,25 @@ void SmsTextingControl::updatePersonInfo()
 				break;
 			}
 			peopleToText[itemIndicator].provider = newProvider;
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)newProvider.c_str();
-			peopleListView.SetItem(&listViewItem);
+			peopleListView.SetItem(newProvider, itemIndicator, subitemIndicator);
 			break;
 		}
 		case 3:
 		{
 			/// at finish?
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitemIndicator;
 			// this is just a binary switch.
-			if (peopleToText[itemIndicator].textWhenComplete)
-			{
-				peopleToText[itemIndicator].textWhenComplete = false;
-				listViewItem.pszText = "No";
-			}
-			else
-			{
-				peopleToText[itemIndicator].textWhenComplete = true;
-				listViewItem.pszText = "Yes";
-			}
-			peopleListView.SetItem(&listViewItem);
+			auto& twc = peopleToText[ itemIndicator ].textWhenComplete;
+			twc = !twc;
+			peopleListView.SetItem ( twc ? "Yes" : "No", itemIndicator, subitemIndicator );
 			break;
 		}	
 		case 4:
 		{
 			/// at finish?
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitemIndicator;
 			// this is just a binary switch.
-			if (peopleToText[itemIndicator].textIfLoadingStops)
-			{
-				peopleToText[itemIndicator].textIfLoadingStops = false;
-				listViewItem.pszText = "No";
-			}
-			else
-			{
-				peopleToText[itemIndicator].textIfLoadingStops = true;
-				listViewItem.pszText = "Yes";
-			}
-			peopleListView.SetItem(&listViewItem);
+			auto& tils = peopleToText[ itemIndicator ].textIfLoadingStops;
+			tils = !tils;
+			peopleListView.SetItem ( tils ? "Yes" : "No", itemIndicator, subitemIndicator );
 			break;
 		}
 	}
