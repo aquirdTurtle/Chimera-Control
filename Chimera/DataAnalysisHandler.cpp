@@ -94,21 +94,14 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	/// Initialize the listview
 	plotListview.setPositions( pos, 0, 0, 480, 150, true, false, true );
 	plotListview.Create( NORM_LISTVIEW_OPTIONS, plotListview.seriesPos, parent, IDC_PLOTTING_LISTVIEW );
-	LV_COLUMN listViewDefaultColumn;
-	memset(&listViewDefaultColumn, 0, sizeof(listViewDefaultColumn));
-	listViewDefaultColumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	listViewDefaultColumn.pszText = "Name";
 	RECT r;
 	parent->GetClientRect( &r );
 	// spacing is funny because initial window size is not full screen and the columns aren't autoscaled. This spacing
 	// just works out.
-	listViewDefaultColumn.cx = r.right / 3;
-	plotListview.InsertColumn( 0, &listViewDefaultColumn);
-	listViewDefaultColumn.cx = r.right / 9;
+	plotListview.InsertColumn ( 0, "Name", r.right / 3 );
 	for ( auto txt : { "Active", "Details", "Edit", "Grid#" } )
 	{
-		listViewDefaultColumn.pszText = LPSTR(txt);
-		plotListview.InsertColumn( 1, &listViewDefaultColumn );
+		plotListview.InsertColumn( 1, txt, r.right / 9 );
 	}
 	plotListview.SetBkColor( rgbs["Solarized Base02"]);
 	plotListview.SetTextBkColor( rgbs["Solarized Base02"] );
@@ -226,11 +219,6 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 		UINT counter = 0;
 		for ( auto& pltInfo : allTinyPlots )
 		{
-			LVITEM listViewItem;
-			memset( &listViewItem, 0, sizeof( listViewItem ) );
-			listViewItem.mask = LVIF_TEXT;
-			listViewItem.cchTextMax = 256;
-			listViewItem.iItem = counter;
 			bool found = false;
 			UINT activeCounter = -1;
 			for ( auto activePlt : activePlotNames )
@@ -240,13 +228,8 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 				{
 					pltInfo.isActive = true;
 					pltInfo.whichGrid = whichGrids[activeCounter];
-					listViewItem.iSubItem = 4;
-					listViewItem.pszText = "YES";
-					plotListview.SetItem( &listViewItem );
-					listViewItem.iSubItem = 1;
-					std::string txt( str( pltInfo.whichGrid ) );
-					listViewItem.pszText = LPSTR(txt.c_str());
-					plotListview.SetItem( &listViewItem );
+					plotListview.SetItem( "YES", counter, 4 );
+					plotListview.SetItem( str(pltInfo.whichGrid), counter, 1);
 					found = true;
 					break;
 				}
@@ -254,9 +237,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 			if ( !found )
 			{
 				pltInfo.isActive = false;
-				listViewItem.pszText = "NO";
-				listViewItem.iSubItem = 4;
-				plotListview.SetItem( &listViewItem );
+				plotListview.SetItem( "NO", counter, 4 );
 			}
 			counter++;
 		}
@@ -1073,13 +1054,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 		// user didn't click in an item.
 		return;
 	}
-	LVITEM listViewItem;
-	memset(&listViewItem, 0, sizeof(listViewItem));
-	listViewItem.mask = LVIF_TEXT;
-	listViewItem.cchTextMax = 256;
-	listViewItem.iItem = itemIndicator;
-	listViewItem.iSubItem = subitemIndicator;
-	if ( listViewItem.iItem == allTinyPlots.size())
+	if ( itemIndicator == allTinyPlots.size())
 	{
 		// new plot, open plot creator.
 		PlotDesignerDialog dlg(fonts, currentPicsPerRepetition);
@@ -1092,7 +1067,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 	{
 		case 0:
 		{
-			//... clearly I haven't actually implemented anything here.
+			//... clearly I haven't actually implemented anything here....
 			// prompt for a name
 			std::string newName;
 			if (newName == "")
@@ -1103,8 +1078,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			// rename the file 
 			// ...???
 			// update the screen
-			listViewItem.pszText = (LPSTR)cstr(newName);
-			plotListview.SetItem(&listViewItem);
+			plotListview.SetItem(newName, itemIndicator, subitemIndicator);
 			break;
 		}
 		case 1:
@@ -1126,11 +1100,8 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			{
 				thrower( "ERROR: Grid number picked is larger than the number of grids available!" );
 			}
-
 			allTinyPlots[itemIndicator].whichGrid = gridNum;
-			std::string txt( str( gridNum ) );
-			listViewItem.pszText = (LPSTR)txt.c_str();
-			plotListview.SetItem( &listViewItem );
+			plotListview.SetItem( str ( gridNum ), itemIndicator, subitemIndicator );
 			break;
 		}
 		case 2:
@@ -1167,8 +1138,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 		{
 			/// toggle active
 			allTinyPlots[itemIndicator].isActive = !allTinyPlots[itemIndicator].isActive;
-			listViewItem.pszText = allTinyPlots[itemIndicator].isActive ? "YES" : "NO";
-			plotListview.SetItem( &listViewItem );
+			plotListview.SetItem( allTinyPlots[ itemIndicator ].isActive ? "YES" : "NO", itemIndicator, subitemIndicator );
 			break;
 		}
 	}
@@ -1182,43 +1152,19 @@ void DataAnalysisControl::reloadListView()
 	allTinyPlots.clear();
 	for (auto item : range(names.size()))
 	{
-		LVITEM listViewItem;
-		memset(&listViewItem, 0, sizeof(listViewItem));
-		listViewItem.mask = LVIF_TEXT; 
-		listViewItem.cchTextMax = 256; 
-		listViewItem.iItem = item;
-		listViewItem.pszText = (LPSTR)names[item].c_str();
-		plotListview.InsertItem(&listViewItem);
-		listViewItem.iSubItem = 1;
-		listViewItem.pszText = "0";
-		plotListview.SetItem( &listViewItem );
-		listViewItem.iSubItem = 4;
-		listViewItem.pszText = "NO";
-		plotListview.SetItem(&listViewItem);
+		plotListview.InsertItem(names[item], item, 0);
+		plotListview.SetItem( "0", item, 1 );
+		plotListview.SetItem("NO", item, 4);
 		tinyPlotInfo tempInfo;
 		PlottingInfo info( PLOT_FILES_SAVE_LOCATION + "\\" + names[item] + "." + PLOTTING_EXTENSION );
 		tempInfo.isHist = (info.getPlotType( ) == "Pixel Count Histograms");
 		tempInfo.name = names[item];
 		tempInfo.isActive = false;
-		tempInfo.whichGrid = 0;
-		
+		tempInfo.whichGrid = 0;		
 		allTinyPlots.push_back(tempInfo);
 	}
-	// Make First Blank row.
-	LVITEM listViewDefaultItem;
-	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
-	listViewDefaultItem.mask = LVIF_TEXT;
-	listViewDefaultItem.cchTextMax = 256;
-	listViewDefaultItem.pszText = "___";
-	listViewDefaultItem.iItem = names.size();
-	// Put in first column
-	listViewDefaultItem.iSubItem = 0;
-	plotListview.InsertItem(&listViewDefaultItem);
-	for (int itemInc = 1; itemInc <= 3; itemInc++)
-	{
-		listViewDefaultItem.iSubItem = itemInc;
-		plotListview.SetItem(&listViewDefaultItem);
-	}
+	plotListview.insertBlankRow ( );
+
 }
 
 
