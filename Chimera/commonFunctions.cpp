@@ -744,6 +744,7 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F1:
 			{
 				setMot ( mainWin, auxWin );
+				basWin->startDefaultAcquisition ( );
 				break;
 			}
 			case ID_ACCELERATOR_F12:

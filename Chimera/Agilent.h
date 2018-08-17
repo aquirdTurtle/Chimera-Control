@@ -27,7 +27,7 @@ class Agilent
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
-		void handleCombo();
+		void handleModeCombo();
 		void setDC( int channel, dcInfo info );
 		void setExistingWaveform( int channel, preloadedArbInfo info );
 		void setSquare( int channel, squareInfo info );

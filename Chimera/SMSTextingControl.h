@@ -4,6 +4,7 @@
 #include "Control.h"
 #include "EmbeddedPythonHandler.h"
 #include "commonTypes.h"
+#include "MyListCtrl.h"
 
 
 struct personInfo
@@ -28,7 +29,7 @@ class SmsTextingControl
 	private:
 		const std::string emailAddress = "quantumGasAssemblyControl@gmail.com";
 		const std::string password = "theLaughingGoatHasBetterCoffee";
-		Control<CListCtrl> peopleListView;
+		Control<MyListCtrl> peopleListView;
 		Control<CStatic> title;
 		std::vector<personInfo> peopleToText;
 };

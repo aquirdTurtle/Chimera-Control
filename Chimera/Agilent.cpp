@@ -13,8 +13,8 @@
 #include "range.h"
 #include <boost/lexical_cast.hpp>
 
-// NI's visa file. Also gets indirectly included via #include "nifgen.h".
 
+// NI's visa file. Also gets indirectly included via #include "nifgen.h".
 Agilent::Agilent( const agilentSettings& settings ) : visaFlume( settings.safemode, settings.address ),
 													  sampleRate( settings.sampleRate ),
 													  load( settings.outputImpedance ),
@@ -23,7 +23,6 @@ Agilent::Agilent( const agilentSettings& settings ) : visaFlume( settings.safemo
 													  triggerRow(settings.triggerRow ), 
 													  triggerNumber( settings.triggerNumber ),
 													  memoryLocation(settings.memoryLocation )
-
 {
 	visaFlume.open(); 
 }
@@ -33,7 +32,6 @@ Agilent::~Agilent()
 {
 	visaFlume.close();
 }
-
 
 
 void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
@@ -110,6 +108,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	settings.channel[0].option = -2;
 	settings.channel[1].option = -2;
 	currentChannel = 1;
+	agilentScript.setEnabled ( false );
 }
 
 
@@ -429,17 +428,19 @@ void Agilent::updateButtonDisplay( int chan )
 
 void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, RunInfo currentRunInfo)
 {
-	updateButtonDisplay( chan );
+	updateButtonDisplay( chan ); 
 	// convert to zero-indexed.
 	chan -= 1;
 	switch ( settings.channel[chan].option )
 	{
 		case -2:
 			agilentScript.setScriptText("");
+			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 0 );
 			break;
 		case -1:
 			agilentScript.setScriptText("");
+			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 1 );
 			break;
 		case 0:
@@ -447,6 +448,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput.expressionStr);
 			settingCombo.SetCurSel( 2 );
 			calibratedButton.SetCheck( settings.channel[chan].dc.useCalibration );
+			agilentScript.setEnabled ( true );
 			break;
 		case 1:
 			// sine
@@ -454,6 +456,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 										 + settings.channel[chan].sine.amplitudeInput.expressionStr);
 			settingCombo.SetCurSel( 3 );
 			calibratedButton.SetCheck( settings.channel[chan].sine.useCalibration );
+			agilentScript.setEnabled ( true );
 			break;
 		case 2:
 			// square
@@ -462,12 +465,14 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 										 + settings.channel[chan].square.offsetInput.expressionStr );
 			settingCombo.SetCurSel( 4 );
 			calibratedButton.SetCheck( settings.channel[chan].square.useCalibration );
+			agilentScript.setEnabled ( true );
 			break;
 		case 3:
 			// preprogrammed
 			agilentScript.setScriptText(settings.channel[chan].preloadedArb.address);
 			settingCombo.SetCurSel( 5 );
 			calibratedButton.SetCheck( settings.channel[chan].preloadedArb.useCalibration );
+			agilentScript.setEnabled ( true );
 			break;
 		case 4:
 			// scripted
@@ -477,6 +482,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			agilentScript.openParentScript( settings.channel[chan].scriptedArb.fileAddress, currentCategoryPath, 
 											currentRunInfo );
 			calibratedButton.SetCheck( settings.channel[chan].scriptedArb.useCalibration );
+			agilentScript.setEnabled ( true );
 			break;
 		default:
 			thrower( "ERROR: unrecognized agilent setting: " + settings.channel[chan].option);
@@ -511,7 +517,7 @@ void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, Run
 }
 
 
-void Agilent::handleCombo()
+void Agilent::handleModeCombo()
 {
 	int selection = settingCombo.GetCurSel();
 	int selectedChannel = int( !channel1Button.GetCheck() );
@@ -521,31 +527,38 @@ void Agilent::handleCombo()
 			// do nothing
 			optionsFormat.SetWindowTextA( "---" );
 			settings.channel[selectedChannel].option = -2;
+			agilentScript.setEnabled ( false );
 			break;
 		case 1:
-			// do nothing
+			// output off
 			optionsFormat.SetWindowTextA( "---" );
 			settings.channel[selectedChannel].option = -1;
+			agilentScript.setEnabled ( false );
 			break;
 		case 2:
 			optionsFormat.SetWindowTextA( "[DC Level]" );
 			settings.channel[selectedChannel].option = 0;
+			agilentScript.setEnabled ( true );
 			break;
 		case 3:
 			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)]" );
 			settings.channel[selectedChannel].option = 1;
+			agilentScript.setEnabled ( true );
 			break;
 		case 4:
 			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)] [Offset(V)]" );
 			settings.channel[selectedChannel].option = 2;
+			agilentScript.setEnabled ( true );
 			break;
 		case 5:
 			optionsFormat.SetWindowTextA( "[File Address]" );
 			settings.channel[selectedChannel].option = 3;
+			agilentScript.setEnabled ( true );
 			break;
 		case 6:
 			optionsFormat.SetWindowTextA( "Hover over \"?\"" );
 			settings.channel[selectedChannel].option = 4;
+			agilentScript.setEnabled ( true );
 			break;
 	}
 }
