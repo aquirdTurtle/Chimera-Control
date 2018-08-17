@@ -19,9 +19,9 @@
 #include "boost/lexical_cast.hpp"
 
 
-void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips, CWnd* parent, 
-						 int& id, std::string deviceTypeInput, std::string scriptHeader,
-						 std::array<UINT, 2> ids, COLORREF backgroundColor)
+void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips, CWnd* parent, int& id,
+						 std::string deviceTypeInput, std::string scriptHeader, std::array<UINT, 2> ids, 
+						 COLORREF backgroundColor)
 {
 	AfxInitRichEdit();
 	InitCommonControls();
@@ -44,8 +44,7 @@ void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips,
 		thrower( "ERROR: Device input type not recognized during construction of script control.  (A low level bug, "
 				 "this shouldn't happen)" );
 	}
-	CHARFORMAT myCharFormat;
-	memset( &myCharFormat, 0, sizeof( CHARFORMAT ) );
+	CHARFORMAT myCharFormat = { 0 };
 	myCharFormat.cbSize = sizeof( CHARFORMAT );
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = RGB( 255, 255, 255 );
@@ -87,7 +86,6 @@ void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips,
 	edit.SetEventMask( ENM_CHANGE );
 	edit.SetDefaultCharFormat( myCharFormat );
 
-	// timer
 	syntaxTimer.Create( 0, NULL, 0, { 0,0,0,0 }, parent, 0 );
 }
 
@@ -138,8 +136,7 @@ std::string Script::getScriptText()
 
 
 COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
-								 rgbMap rgbs, bool& colorLine, 
-								 std::array<std::array<std::string, 16>, 4> ttlNames, 
+								 rgbMap rgbs, bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<std::string, 24> dacNames)
 {
 	// convert word to lower case.
@@ -332,9 +329,8 @@ bool Script::coloringIsNeeded()
 }
 
 
-void Script::handleTimerCall(std::vector<parameterType> vars,
-							 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
-							 std::array<std::string, 24> dacNames )
+void Script::handleTimerCall(std::vector<parameterType> vars, rgbMap rgbs, 
+							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames )
 {
 	if (!edit)
 	{
@@ -418,12 +414,9 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 	COLORREF coloring;
 	std::string word;
 	std::stringstream fileTextStream(script);
-	std::string line;
-	std::string currentTextToAdd;
-	std::string tempColor;
+	std::string line, currentTextToAdd, tempColor;
 	COLORREF syntaxColor;
-	CHARFORMAT syntaxFormat;
-	memset(&syntaxFormat, 0, sizeof(CHARFORMAT));
+	CHARFORMAT syntaxFormat = { 0 };
 	syntaxFormat.cbSize = sizeof(CHARFORMAT);
 	syntaxFormat.dwMask = CFM_COLOR;
 	//int relevantID = GetDlgCtrlID(edit.hwnd);
@@ -548,8 +541,6 @@ void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
 		{
 			pTTT->lpszText = "No Help available";
 		}
-		//pTTT->lpszText = ;
-		//_tcsncpy_s( , _T(  ), _TRUNCATE );
 		*pResult = 0;
 		thrower( "Worked." );
 	}
@@ -809,8 +800,7 @@ void Script::renameScript(std::string categoryPath)
 		// canceled
 		return;
 	}
-	int result = MoveFile(cstr(categoryPath + scriptName + extension),
-						  cstr(categoryPath + newName + extension));
+	int result = MoveFile(cstr(categoryPath + scriptName + extension), cstr(categoryPath + newName + extension));
 
 	if (result == 0)
 	{
@@ -1026,7 +1016,6 @@ void Script::considerCurrentLocation(std::string categoryPath, RunInfo info)
 				saveScriptAs(scriptFullAddress, info);
 			}
 		}
-		// else nothing
 	}
 }
 
@@ -1067,6 +1056,7 @@ void Script::setScriptText(std::string text)
 {
 	edit.SetWindowText( cstr( text ) );
 }
+
 
 INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
 {
@@ -1148,7 +1138,15 @@ void Script::saveAsFunction()
 }
 
 
+void Script::setEnabled ( bool enabled )
+{
+	edit.EnableWindow ( enabled );
+	availableFunctionsCombo.EnableWindow ( enabled );
+}
+
+
 void Script::loadFunctions()
 {
 	availableFunctionsCombo.loadFunctions( );
 }
+

@@ -230,8 +230,9 @@ void Segment::calcData( ULONG sampleRate )
 	if (fabs( numDataPointsf - round( numDataPointsf ) ) > 1e-6)
 	{
 		// Bad Time Warning
-		thrower( "ERROR: Bad time entered for the time of an intensity sequence segment. This resulted in a non-integer number of samples. Time cannot be"
-				 "defined with precision below the microsecond level for normal sample rates." );
+		thrower( "ERROR: Bad time entered for the time of an intensity sequence segment. The time was "
+				 + str(finalSettings.time) + ", and the sample rate is " + str( sampleRate ) + ". The product of these"
+				 " is the number of samples in the segment, and this must be an integer." );
 	}
 	// Convert to integer
 	int numDataPoints = (int)round( numDataPointsf );
