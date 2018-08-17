@@ -256,15 +256,21 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="MachineOptimizer.cpp" />
-    <ClCompile Include="MyListCtrl.cpp" />
     <ClCompile Include="AndorRunMode.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
     <ClCompile Include="AndorTriggerModes.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
-    <ClCompile Include="DioRows.cpp" />
+    <ClCompile Include="MachineOptimizer.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="DioRows.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="MyListCtrl.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -606,7 +612,6 @@
     <ClInclude Include="BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
-    <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="BaslerSettingsControl.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
@@ -616,15 +621,24 @@
     <ClInclude Include="MasterManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyListCtrl.h" />
-    <ClInclude Include="dataPoint.h" />
     <ClInclude Include="AndorTriggerModes.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="AndorRunMode.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="DioRows.h" />
+    <ClInclude Include="MachineOptimizer.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="DioRows.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="MyListCtrl.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="dataPoint.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
