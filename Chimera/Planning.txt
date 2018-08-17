@@ -86,6 +86,7 @@ BUGS:
 - something funny about going back and forth between video and kinetic modes.
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
+- start up dialog not working...
 
 - main win hist not always showing?
 - fix plot issue.

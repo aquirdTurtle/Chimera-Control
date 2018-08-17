@@ -56,7 +56,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			seqNum++;
 		}
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		errBox( "ERROR: failed to load experiment sequence files!  (A low level bug, this shouldn't happen)" );
 		input->thisObj->experimentIsRunning = false;
