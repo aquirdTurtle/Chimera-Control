@@ -201,7 +201,6 @@ bool MachineOptimizer::isInMiddleOfOptimizing ( )
 void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue, DataLogger* logger )
 {
 	// handle first value case, should only happen once in entire experiment.
-	double newVal;
 	auto& param = optStatus.currParam;
 	if ( param == NULL )
 	{

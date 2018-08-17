@@ -1,4 +1,4 @@
-Version 2.3
+Version 2.4
 diagmotrf
 0
 repumprf
@@ -234,14 +234,13 @@ pushouttime 20
 intrappgccoolingtime 2
 field 3
 defaultmotfreq 0.01
-sidemot__servo_value 0.180349
-diagmot__servo_value 0.272745
+sidemot__servo_value 0.182485
+diagmot__servo_value 0.269451
 default795freq 0
-d1__servo_value 0.0976641
-0.01 1
-3
-Sidemot 1 1.7
-DiagMot 1 1.4
-D1 0 1.7
+d1__servo_value 0.214678
+0.01 0
+3Sidemot 6 22 1 1.7 1 A 5 
+DiagMot 7 9 1 1.4 1 A 0 
+D1 6 18 1 1 1 C 10 
 245 264 4 281 300 4
 0 0
