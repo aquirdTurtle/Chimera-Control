@@ -10,8 +10,10 @@
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
 #include "Expression.h"
+#include "MyListCtrl.h"
 #include <deque>
 #include <map>
+
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -82,7 +84,7 @@ class DataAnalysisControl
 		Control<CStatic> updateFrequencyLabel2;
 		Control<CEdit> updateFrequencyEdit;
 		Control<CStatic> header;
-		Control<CListCtrl> plotListview;
+		Control<MyListCtrl> plotListview;
 		std::vector<tinyPlotInfo> allTinyPlots;
 		// other data analysis
 		bool currentlySettingGridCorner;
