@@ -1298,7 +1298,7 @@ std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> va
 }
 
 
-std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::string configFileName )
+std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string configFileName )
 {
 	std::ifstream f(configFileName);
 	Version ver;
@@ -1322,6 +1322,32 @@ std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::str
 	}
 	return configVariables;
 }
+
+
+std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFreshFile ( std::string configFileName )
+{
+	std::ifstream f ( configFileName );
+	Version ver;
+	ProfileSystem::getVersionFromFile ( f, ver );
+	std::vector<variationRangeInfo> rInfo;
+	while ( f )
+	{
+		try
+		{
+			ProfileSystem::checkDelimiterLine ( f, "VARIABLES" );
+		}
+		catch ( Error& )
+		{
+			continue;
+		}
+		rInfo = getRangeInfoFromFile ( f, ver );
+		auto configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
+		ProfileSystem::checkDelimiterLine ( f, "END_VARIABLES" );
+		break;
+	}
+	return rInfo;
+}
+
 
 
 void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,

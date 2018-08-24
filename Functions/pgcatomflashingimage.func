@@ -5,8 +5,8 @@ def pgcAtomFlashingImage():
   dac: diagMotPower 0
   %var image_detuning -1.5
   %var motPower 0.25
-  var image_detuning -0.6
-  var motPower 0.25
+  var image_detuning -0.85 %-0.8
+  var motPower 0.2 %0.2
   dacLinSpace: MotFreq defaultMotFreq image_detuning 2 10
   t += 2
   % turn the repump on a tiny bit early 

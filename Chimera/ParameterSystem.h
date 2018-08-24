@@ -40,6 +40,7 @@ class ParameterSystem
 	public:		
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		UINT getTotalVariationNumber();
+		static std::vector<variationRangeInfo> getRangeInfoFromFreshFile ( std::string configFileName );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void normHandleOpenConfig(std::ifstream& openFile, Version ver );
@@ -72,7 +73,7 @@ class ParameterSystem
 								 std::vector<variationRangeInfo> inputRangeInfo );
 		static std::vector<double> getKeyValues( std::vector<parameterType> variables );
 		void reorderVariableDimensions( );
-		static std::vector<parameterType> getConfigVariablesFromFile( std::string configFile );
+		static std::vector<parameterType> getConfigParamsFromFile( std::string configFile );
 		void saveVariable( std::ofstream& saveFile, parameterType variable );
 		static parameterType loadVariableFromFile( std::ifstream& openFile, Version ver, UINT rangeNum );
 		static std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver, UINT rangeNum );

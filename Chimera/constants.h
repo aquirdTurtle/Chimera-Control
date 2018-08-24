@@ -9,7 +9,7 @@
 #include <pylon/1394/Basler1394InstantCamera.h>
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
-// build and debug other aspects of the program. 
+// build and debug other aspects of the program.
 
 #define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP
@@ -170,7 +170,7 @@
 	const std::string LOGGING_FILE_ADDRESS = str(CODE_ROOT) + "\\Master-Log.txt";
 	const std::string KEY_ADDRESS = "\\\\Callisto\\Shared\\key.txt";
 	const std::string MOT_ROUTINES_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT";
-	const std::string PGC_ROUTINES_ADDRESS = str(CODE_ROOT) + "Profiles\\Hotkey Experiments\\PGC";
+	const std::string PGC_ROUTINES_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\PGC";
 	const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\Camera";
 	const std::string DEBUG_OUTPUT_LOCATION = str(CODE_ROOT) + "\\Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
@@ -238,7 +238,7 @@ const UINT DIO_WRITESPERDATAPT = 3;
 
 
 /// Agilent Parameters
-#define AGILENT_DEFAULT_POWER 3
+#define AGILENT_DEFAULT_POWER 240
 
 #define NUMBER_OF_LIBRARY_FILES MAX_NIAWG_SIGNALS*4
 
@@ -412,6 +412,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define ID_MACHINE_OPTIMIZATION 14145
 #define IDC_MACHINE_OPTIMIZE_LISTVIEW 14146
 #define IDC_SERVO_LISTVIEW 14147
+
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001
 #define IDC_MAX_BASLER_SLIDER_EDIT 15002
@@ -424,6 +425,9 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define ID_ARM_BASLER_CAMERA 15009
 #define ID_DISARM_BASLER_CAMERA 15010
 #define ID_SET_BASLER_ANALYSIS_LOCATIONS 15011
+#define ID_MOT_TEMP_CAL 15012
+#define ID_PGC_TEMP_CAL 15013
+#define ID_GREY_TEMP_CAL 15014
 
 #define UWAVE_AGILENT_TRIGGER_ROW 3
 #define UWAVE_AGILENT_TRIGGER_NUM 1

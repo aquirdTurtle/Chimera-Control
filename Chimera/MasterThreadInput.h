@@ -33,7 +33,11 @@ enum class ExperimentType
 	// camera background calibration
 	CameraCal,
 	// Calibration for determining Mot # & temperature
-	MotCal,
+	MotSize,
+	MotTemperature,
+	PgcTemperature,
+	GreyTemperature,
+
 	// is part of machine optimization procedure
 	MachineOptimization
 };

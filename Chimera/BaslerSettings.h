@@ -48,7 +48,7 @@ struct baslerSettings
 	unsigned int repCount;
 	BaslerTrigger::mode triggerMode;
 	double frameRate;
-	imageParameters dimensions;
+	imageParameters dims;
 };
 
 

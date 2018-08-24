@@ -80,12 +80,12 @@ baslerSettings BaslerCameras::getDefaultSettings()
 {
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
-	defaultSettings.dimensions.left = 1;
-	defaultSettings.dimensions.right = dim.x; 
-	defaultSettings.dimensions.horizontalBinning = 4;
-	defaultSettings.dimensions.top = dim.y;
-	defaultSettings.dimensions.bottom = 1;
-	defaultSettings.dimensions.verticalBinning = 4;
+	defaultSettings.dims.left = 1;
+	defaultSettings.dims.right = dim.x; 
+	defaultSettings.dims.horizontalBinning = 4;
+	defaultSettings.dims.top = dim.y;
+	defaultSettings.dims.bottom = 1;
+	defaultSettings.dims.verticalBinning = 4;
 	defaultSettings.exposureMode = BaslerAutoExposure::mode::Off;
 	defaultSettings.exposureTime = 1000;
 	defaultSettings.frameRate = 0.25;
@@ -125,12 +125,12 @@ void BaslerCameras::setParameters( baslerSettings settings )
 	// set width (no chance of pushing right off because of binning because binning is minimal so potential value for rightmost point is 
 	//		maximal.
 	// set binning 
-	camera->setOffsetX(settings.dimensions.left);
-	camera->setWidth(settings.dimensions.horRawPixelNum());
-	camera->setHorBin(settings.dimensions.horizontalBinning);
-	camera->setOffsetY(settings.dimensions.bottom);
-	camera->setHeight(settings.dimensions.vertRawPixelNum());
-	camera->setVertBin(settings.dimensions.verticalBinning);
+	camera->setOffsetX(settings.dims.left);
+	camera->setWidth(settings.dims.horRawPixelNum());
+	camera->setHorBin(settings.dims.horizontalBinning);
+	camera->setOffsetY(settings.dims.bottom);
+	camera->setHeight(settings.dims.vertRawPixelNum());
+	camera->setVertBin(settings.dims.verticalBinning);
 	
 	/// set other parameters
 	#ifdef USB_CAMERA
@@ -166,36 +166,26 @@ void BaslerCameras::setParameters( baslerSettings settings )
 		camera->setExposureAuto( cameraParams::ExposureAuto_Once );
 	}
 
-	if (settings.acquisitionMode == BaslerAcquisition::mode::Finite)
+	if (settings.acquisitionMode != BaslerAcquisition::mode::Finite)
 	{
-		continuousImaging = false;
-		repCounts = settings.repCount;
-	}
-	else
-	{
-		continuousImaging = true;
-		repCounts = SIZE_MAX;
+		settings.repCount = SIZE_MAX;
 	}
 
 	if (settings.triggerMode == BaslerTrigger::mode::External)
 	{
-		//cameraParams::TriggerSource_Line1
 		#ifdef FIREWIRE_CAMERA
 			camera->setTriggerSource(cameraParams::TriggerSource_Line1);
 		#elif defined USB_CAMERA
 			camera->setTriggerSource(cameraParams::TriggerSource_Line3);
 		#endif
-		autoTrigger = false;
 	}
 	else if (settings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
 	{
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
-		autoTrigger = true;
 	}
 	else if (settings.triggerMode == BaslerTrigger::mode::ManualSoftware )
 	{
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
-		autoTrigger = false;
 	}
 	runSettings = settings;
 }
@@ -258,7 +248,7 @@ POINT BaslerCameras::getCameraDimensions()
 void BaslerCameras::armCamera( triggerThreadInput* input )
 {
 	Pylon::EGrabStrategy grabStrat;
-	if (continuousImaging)
+	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous )
 	{
 		grabStrat = Pylon::GrabStrategy_LatestImageOnly;
 	}
@@ -267,9 +257,8 @@ void BaslerCameras::armCamera( triggerThreadInput* input )
 		grabStrat = Pylon::GrabStrategy_OneByOne;
 	}
 	input->camera = camera;
-	// grab stuff.
-	camera->startGrabbing( repCounts, grabStrat );
-	if (autoTrigger)
+	camera->startGrabbing( runSettings.repCount, grabStrat );
+	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
 	{
 		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
 	}
@@ -291,13 +280,13 @@ double BaslerCameras::getCurrentExposure()
 //
 unsigned int BaslerCameras::getRepCounts()
 {
-	return repCounts;
+	return runSettings.repCount;
 }
 
 //
 bool BaslerCameras::isContinuous()
 {
-	return continuousImaging;
+	return runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous;
 }
 
 

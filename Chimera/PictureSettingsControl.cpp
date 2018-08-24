@@ -259,7 +259,14 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version v
 	{
 		openFile >> threshold;
 	}
-	setExposureTimes(andor);
+	try
+	{
+		setExposureTimes ( andor );
+	}
+	catch ( Error& )
+	{
+		errBox ( "ERROR: After grabbing data from config file for andor camera, failed to set exposure times!" );
+	}
 	setThresholds( fileThresholds );
 	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }
