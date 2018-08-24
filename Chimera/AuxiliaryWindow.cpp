@@ -132,7 +132,14 @@ void AuxiliaryWindow::ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 
 void AuxiliaryWindow::ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
-	servos.handleListViewClick ( );
+	try
+	{
+		servos.handleListViewClick ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( err.whatStr() + "... In handling servo double click." );
+	}
 }
 
 
