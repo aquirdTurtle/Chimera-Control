@@ -85,5 +85,6 @@ BUGS:
 - something funny about going back and forth between video and kinetic modes.
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
-- plot histogram overlaps
+- start up dialog not working...
+- plot histogram columns overlap
 

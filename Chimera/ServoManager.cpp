@@ -252,10 +252,17 @@ void ServoManager::handleListViewClick ( )
 			servo.ttlConfig.clear ( );
 			while ( tmpStream >> rowTxt )
 			{
-				std::pair<DioRows::which, UINT> ttl;
-				ttl.first = DioRows::fromStr ( rowTxt );
-				tmpStream >> ttl.second;
-				servo.ttlConfig.push_back ( ttl );
+				try
+				{
+					std::pair<DioRows::which, UINT> ttl;
+					ttl.first = DioRows::fromStr ( rowTxt );
+					tmpStream >> ttl.second;
+					servo.ttlConfig.push_back ( ttl );
+				}
+				catch ( Error& err )
+				{
+					thrower ( err.whatStr() + "...In trying to set the servo ttl config!" );
+				}
 			}
 			std::string diostring;
 			for ( auto ttl : servo.ttlConfig )
@@ -384,7 +391,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	{
 		ttls->forceTtl ( int(ttl.first), ttl.second, 1 );
 	}
-	UINT attemptLimit = 10;
+	UINT attemptLimit = 100;
 	UINT count = 0;
 	UINT aiNum = s.aiInputChannel;
 	UINT aoNum = s.aoControlChannel;
@@ -416,15 +423,16 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 		}
 	}
-	setControlDisplay ( which, ao->getDacValue( aoNum ) );
+	auto dacVal = ao->getDacValue ( aoNum );
+	setControlDisplay ( which, dacVal );
 	s.servoed = count != attemptLimit;
 	if ( !s.servoed )
 	{
-		errBox( "ERROR: servo failed to servo!" );
+		errBox( "ERROR: " + s.servoName + " servo failed to servo!" );
 	}
 	else
 	{
-		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), ao->getDacValue( aoNum ) );
+		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), dacVal );
 	}
 }
 
