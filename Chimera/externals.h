@@ -28,7 +28,7 @@ extern UINT eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eNo
 			eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, eCameraProgressMessageID, 
 			eRepProgressMessageID, eNoAtomsAlertMessageID, eLogVoltsMessageID, eAutoServoMessage, 
 			eCameraCalProgMessageID, eCameraCalFinMessageID, ACE_PIC_READY, eMachineOptRoundFinMsgID,
-			eMotNumCalFinMsgID, eBaslerFinMessageId;
+			eMotNumCalFinMsgID, eBaslerFinMessageId, eNoMotAlertMessageID;
 
 extern bool eAbortNiawgFlag;
 

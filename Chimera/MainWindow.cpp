@@ -194,6 +194,7 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
 	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
 	ON_REGISTERED_MESSAGE( eNoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
+	ON_REGISTERED_MESSAGE ( eNoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
@@ -371,6 +372,46 @@ void MainWindow::passNiawgIsOnPress( )
 		niawg.turnOn( );
 		menu.CheckMenuItem( ID_NIAWG_NIAWGISON, MF_CHECKED );
 	}
+}
+
+
+LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
+{
+	try
+	{
+		if ( TheAndorWindow->wantsAutoPause ( ) )
+		{
+			masterThreadManager.pause ( );
+			menu.CheckMenuItem ( ID_RUNMENU_PAUSE, MF_CHECKED );
+			comm.sendColorBox ( System::Master, 'Y' );
+		}
+		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
+		time_t t = time ( 0 );
+		struct tm now;
+		localtime_s ( &now, &t );
+		std::string message = "Experiment Stopped loading the MOT at ";
+		if ( now.tm_hour < 10 )
+		{
+			message += "0";
+		}
+		message += str ( now.tm_hour ) + ":";
+		if ( now.tm_min < 10 )
+		{
+			message += "0";
+		}
+		message += str ( now.tm_min ) + ":";
+		if ( now.tm_sec < 10 )
+		{
+			message += "0";
+		}
+		message += str ( now.tm_sec );
+		texter.sendMessage ( message, &python, "Mot" );
+	}
+	catch ( Error& err )
+	{
+		comm.sendError ( err.what ( ) );
+	}
+	return 0;
 }
 
 

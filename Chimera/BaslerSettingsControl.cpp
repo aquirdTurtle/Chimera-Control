@@ -152,7 +152,17 @@ void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int 
 
 	realGainStatus.sPos = { pos.x + 150, pos.y, pos.x + 300, pos.y += 25 };
 	realGainStatus.Create ( "", WS_CHILD | WS_VISIBLE, realGainStatus.sPos, parent, id++ );
+
+	motThreshold.sPos = {pos.x, pos.y, pos.x + 150, pos.y + 25 };
+	motThreshold.Create ( "Mot-Threshold", NORM_STATIC_OPTIONS, motThreshold.sPos, parent, id++ );
+
+	motThresholdEdit.sPos = { pos.x + 150, pos.y, pos.x + 275, pos.y + 25 };
+	motThresholdEdit.Create ( NORM_EDIT_OPTIONS, motThresholdEdit.sPos, parent, id++ );
+
+	motLoadedColorbox.sPos = { pos.x + 275, pos.y, pos.x + 300, pos.y += 25 };
+	motLoadedColorbox.Create ( "", NORM_STATIC_OPTIONS, motLoadedColorbox.sPos, parent, IDC_MOT_LOADED_INDICATOR );
 }
+
 
 void BaslerSettingsControl::rearrange(int width, int height, fontMap fonts)
 {
@@ -193,7 +203,12 @@ void BaslerSettingsControl::rearrange(int width, int height, fontMap fonts)
 	gainEdit.rearrange( width, height, fonts);
 	realGainText.rearrange( width, height, fonts);
 	realGainStatus.rearrange( width, height, fonts);
+	
+	motThreshold.rearrange ( width, height, fonts );
+	motThresholdEdit.rearrange ( width, height, fonts );
+	motLoadedColorbox.rearrange ( width, height, fonts );
 }
+
 
 // assumes called on every 10 pics.
 void BaslerSettingsControl::handleFrameRate()
@@ -207,6 +222,12 @@ void BaslerSettingsControl::handleFrameRate()
 	}
 	realFrameRate.SetWindowTextA(cstr(1000.0 / timePerPic));
 	lastTime = currentTime;
+}
+
+
+double BaslerSettingsControl::getMotThreshold ( )
+{
+	return motThresholdEdit.getWindowTextAsDouble ( );
 }
 
 

@@ -62,6 +62,7 @@ class MainWindow : public CDialog
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
+		LRESULT onNoMotAlertMessage ( WPARAM wp, LPARAM lp );
 
 		LRESULT onMotNumCalFin ( WPARAM wp, LPARAM lp );
 		LRESULT onMotTempCalFin ( WPARAM wp, LPARAM lp );
@@ -137,6 +138,7 @@ class MainWindow : public CDialog
 	private:		
 		DECLARE_MESSAGE_MAP();
 		
+
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;
 

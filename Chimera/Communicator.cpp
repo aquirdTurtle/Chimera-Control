@@ -24,6 +24,13 @@ void Communicator::sendBaslerFin ( )
 }
 
 
+void Communicator::sendNoMotAlert ( )
+{
+	mainWin->PostMessageA ( eNoMotAlertMessageID, 0, 0 );
+}
+
+
+
 void Communicator::sendNoAtomsAlert ( )
 {
 	mainWin->PostMessageA ( eNoAtomsAlertMessageID, 0, 0 );

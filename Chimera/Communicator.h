@@ -23,25 +23,30 @@ class Communicator
 	public:
 		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin,
 						 AuxiliaryWindow* masterWindow);
+
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
 		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
+
 		void sendStatus( std::string statusMsg );
 		void sendDebug( std::string statusMsg );
 		void sendTimer( std::string timerMsg );
 		void sendColorBox( System sys, char code ); 
 		void sendColorBox( systemInfo<char> colors );
+
+		void sendCameraProgress ( long prog );
+		void sendCameraCalProgress ( long progress );
+		void sendRepProgress ( ULONG rep );
+
 		void sendCameraCalFin( );
 		void sendCameraFin();
-		void sendCameraProgress( long prog );
-		void sendCameraCalProgress( long progress );
 		void sendBaslerFin ( );
-		void sendRepProgress(ULONG rep);
-		void sendNoAtomsAlert( );
-
 		void sendMachineOptimizationRoundFinish ( );
 		void sendMotCalFinish ( );
 		void sendNormalFinish ( );
 		void sendMotFinish( );
+
+		void sendNoAtomsAlert ( );
+		void sendNoMotAlert ( );
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
