@@ -44,6 +44,7 @@ UINT eCameraCalProgMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_PROGRESS_ME
 UINT eCameraCalFinMessageID = RegisterWindowMessage( "ID_CAMERA_CAL_FIN_MESSAGE" );
 UINT ACE_PIC_READY = RegisterWindowMessage ( "ACE_PIC_READY" );
 UINT eBaslerFinMessageId = RegisterWindowMessage ( "ID_BASLER_FINISH_MESSAGE" );
+UINT eNoMotAlertMessageID = RegisterWindowMessage ( "ID_NO_MOT_ALERT" );
 
 HANDLE eWaitingForNIAWGEvent;
 HANDLE eNIAWGWaitThreadHandle;

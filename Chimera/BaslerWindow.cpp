@@ -204,12 +204,10 @@ void BaslerWindow::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar )
 {
 	if (nSBCode == SB_THUMBPOSITION ||  nSBCode == SB_THUMBTRACK)
 	{
-		//int id = scrollbar->GetDlgCtrlID();
 		try
 		{
 			picManager.handleScroll ( nSBCode, nPos, scrollbar );
 			CDC* cdc = GetDC( );
-			//picManager.redrawPictures (cdc, selectedPixel, ,,0 );
 			ReleaseDC( cdc );
 		}
 		catch (Error& err)
@@ -303,10 +301,10 @@ void BaslerWindow::startDefaultAcquisition ( )
 	}
 }
 
+
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
 	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
-	imageMatrix->updateString ( );
  	mainWin->getComm ( )->sendColorBox ( System::Basler, 'G' );
  	long size = long( wParam );
   	try
@@ -338,6 +336,24 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
 			mainWin->getComm ( )->sendBaslerFin ( );
  		}
+		stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );
+		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
+		{
+			motLoaded = false;
+			loadMotConsecutiveFailures++;
+			if ( camWin->wantsNoMotAlert ( ) )
+			{
+				if ( loadMotConsecutiveFailures > camWin->getNoMotThreshold ( ) )
+				{
+					mainWin->getComm ( )->sendNoMotAlert ( );
+				}
+			}
+		}
+		else
+		{
+			motLoaded = true;
+			loadMotConsecutiveFailures = 0;
+		}
  	}
 	catch (Error& err)
 	{
@@ -349,6 +365,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 	delete imageMatrix;
 	return 0;
 }
+
 
 void BaslerWindow::passCameraMode()
 {
@@ -458,9 +475,23 @@ HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			pDC->SetTextColor(rgbs["White"]);
-			pDC->SetBkColor( rgbs["Medium Grey"]);
-			return *brushes["Medium Grey"];
+			int num = pWnd->GetDlgCtrlID ( );
+			if ( num == IDC_MOT_LOADED_INDICATOR )
+			{
+				if ( !motLoaded )
+				{
+					pDC->SetBkColor ( rgbs[ "Red" ] );
+					return *brushes[ "Red" ];
+				}
+				else
+				{
+					pDC->SetBkColor ( rgbs[ "Green" ] );
+					return *brushes[ "Green" ];
+				}
+			}
+			pDC->SetTextColor ( rgbs[ "White" ] );
+			pDC->SetBkColor ( rgbs[ "Medium Grey" ] );
+			return *brushes[ "Medium Grey" ];
 		}
 		case CTLCOLOR_EDIT:
 		{
@@ -587,7 +618,7 @@ void BaslerWindow::initializeControls()
 	settingsCtrl.setSettings( cameraController->getDefaultSettings() );
 	std::unordered_map<std::string, CFont*> fontDummy;
 	std::vector<CToolTipCtrl*> toolTipDummy;
-	//stats.initialize( pos, this, id, fontDummy, toolTipDummy );
+	stats.initialize( pos, this, id, toolTipDummy );
 
 	POINT picPos = { 365, 0 };
 	POINT dims = cameraController->getCameraDimensions();
@@ -604,7 +635,8 @@ void BaslerWindow::initializeControls()
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dimensions );
 	picManager.setPalletes ( { 1,1,1,1 } );
 	this->RedrawWindow ( );
-	//picture.drawBackground( cdc );
+	picManager.drawBackgrounds( cdc );
+	
 	ReleaseDC( cdc );
 }
 

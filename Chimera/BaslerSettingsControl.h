@@ -7,7 +7,7 @@
 #include "commonTypes.h"
 #include "imageParameters.h"
 #include "BaslerSettings.h"
-
+#include "DoubleEdit.h"
 
 class BaslerSettingsControl
 {
@@ -32,6 +32,9 @@ class BaslerSettingsControl
 		const imageParameters ScoutFullResolution = { 1,500,1,500,1,1 };
 		const imageParameters AceFullResolution = { 1,500,1,500,1,1 };
 		const UINT unityGainSetting = 260;
+		
+		double getMotThreshold ( );
+
 
 	private:
 		ULONG lastTime;
@@ -76,6 +79,12 @@ class BaslerSettingsControl
 		Control<CButton> linkToMain;
 		Control<CStatic> picsPerRepTxt;
 		Control<CEdit> picsPerRepEdit;
+
+		Control<CStatic> motThreshold;
+		Control<DoubleEdit> motThresholdEdit;
+		Control<CStatic> motLoadedColorbox;
+
+		bool motLoaded;
 
 		bool isReady;
 };

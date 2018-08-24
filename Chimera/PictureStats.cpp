@@ -1,8 +1,6 @@
 #include "stdafx.h"
-
 #include <algorithm>
 #include <numeric>
-
 #include "PictureStats.h"
 
 
@@ -12,14 +10,10 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	pictureStatsHeader.Create( "Raw Counts", NORM_STATIC_OPTIONS, pictureStatsHeader.sPos, parent, id++ );
 	pos.y += 25;
-	/// CURRENT IMAGE DATA
-	// Current Accumulation Number Display
 	repetitionIndicator.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	repetitionIndicator.Create( "Repetition ?/?", NORM_STATIC_OPTIONS, repetitionIndicator.sPos, parent, id++ );
 	pos.y += 25;
 	/// Picture labels ////////////////////////////////////////////////////////////
-
-	//ePictureText
 	collumnHeaders[0].sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
 	collumnHeaders[0].Create( "Pic:", NORM_STATIC_OPTIONS, collumnHeaders[0].sPos, parent, id++ );
 	collumnHeaders[0].fontType = fontTypes::SmallFont;
@@ -250,4 +244,98 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNum
 		avgCounts[imageNumber].SetWindowTextA(cstr(avgPhotons, 1));
 	}
 	return { currentMinCount, currentMaxCount };
+}
+
+statPoint PictureStats::getMostRecentStats ( )
+{
+	return mostRecentStat;
+}
+
+
+std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel, 
+										   int currentRepetitionNumber, int totalRepetitionCount )
+{
+	repetitionIndicator.SetWindowTextA ( cstr ( "Repetition " + str ( currentRepetitionNumber ) + "/"
+												+ str ( totalRepetitionCount ) ) );
+	if ( image.size ( ) == 0 )
+	{
+		// hopefully this helps with stupid imaging bug...
+		return { 0,0 };
+	}
+	statPoint currentStatPoint;
+	currentStatPoint.selv = image ( selectedPixel.row, selectedPixel.column );
+	currentStatPoint.minv = 65536;
+	currentStatPoint.maxv = 1;
+	// for all pixels... find the max and min of the picture.
+	for (auto pixel : image)
+	{
+		try
+		{
+			if ( pixel > currentStatPoint.maxv )
+			{
+				currentStatPoint.maxv = pixel;
+			}
+			if ( pixel < currentStatPoint.minv )
+			{
+				currentStatPoint.minv = pixel;
+			}
+		}
+		catch ( std::out_of_range& )
+		{
+			// I haven't seen this error in a while, but it was a mystery when we did.
+			errBox ( "ERROR: caught std::out_of_range while updating picture statistics! experimentImagesInc = "
+					 + str ( imageNumber ) + ", pixelInc = " + str ( "NA" ) + ", image.size() = " + str ( image.size ( ) )
+					 + ". Attempting to continue..." );
+			return { 0,0 };
+		}
+	}
+	currentStatPoint.avgv = std::accumulate ( image.data.begin ( ), image.data.end ( ), 0.0 ) / image.size ( );
+
+	if ( displayDataType == RAW_COUNTS )
+	{
+		maxCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.maxv ) );
+		minCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.minv ) );
+		selCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.selv ) );
+		avgCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.avgv, 5 ) );
+		mostRecentStat = currentStatPoint;
+	}
+	else if ( displayDataType == CAMERA_PHOTONS )
+	{
+		statPoint camPoint;
+		//double selPhotons, maxPhotons, minPhotons, avgPhotons;
+		//if (eEMGainMode)
+		if ( false )
+		{
+			camPoint = (currentStatPoint - convs.EMGain200BackgroundCount ) * convs.countToCameraPhotonEM200;
+		}
+		else
+		{
+			camPoint = ( currentStatPoint - convs.conventionalBackgroundCount ) * convs.countToCameraPhoton;
+		}
+		maxCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.maxv, 1 ) );
+		minCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.minv, 1 ) );
+		selCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.selv, 1 ) );
+		avgCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.avgv, 1 ) );
+		mostRecentStat = camPoint;
+	}
+	else if ( displayDataType == ATOM_PHOTONS )
+	{
+		statPoint atomPoint;
+		//if (eEMGainMode)
+		if ( false )
+		{
+			atomPoint = ( currentStatPoint - convs.EMGain200BackgroundCount ) * convs.countToScatteredPhotonEM200;
+		}
+		else
+		{
+			atomPoint = ( currentStatPoint - convs.conventionalBackgroundCount ) * convs.countToScatteredPhoton;
+		}
+		maxCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.maxv, 1 ) );
+		minCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.minv, 1 ) );
+		selCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.selv, 1 ) );
+		avgCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.avgv, 1 ) );
+		mostRecentStat = atomPoint;
+	}
+	
+	return { currentStatPoint.minv, currentStatPoint.maxv };
 }

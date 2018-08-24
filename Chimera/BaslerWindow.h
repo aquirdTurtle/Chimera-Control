@@ -8,6 +8,7 @@
 #include "PictureStats.h"
 #include "commonTypes.h"
 #include "PlotCtrl.h"
+#include "PictureStats.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -50,15 +51,15 @@ class BaslerWindow : public CDialogEx
 		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ );
 		void handleSavingConfig ( std::ofstream& configFile );
 		void startCamera ( );
-		void prepareBasler ( baslerSettings& settings );
 		baslerSettings getCurrentSettings ( );
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
+		UINT loadMotConsecutiveFailures = 0;
+		bool motLoaded=false;
+
 		PictureManager picManager;
 		BaslerSettingsControl settingsCtrl;
 		BaslerCameras* cameraController;
-		PictureStats stats;
-		//PictureSaver saver;
 		unsigned int currentRepNumber;
 		BaslerAutoExposure::mode runExposureMode;
 		std::vector<std::vector<long>> images;
@@ -74,6 +75,7 @@ class BaslerWindow : public CDialogEx
 		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		ScriptingWindow* scriptWin;
+		PictureStats stats;
 		coordinate selectedPixel = { 0,0 };
 	protected:
 		HICON m_hIcon;
