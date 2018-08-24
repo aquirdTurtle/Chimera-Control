@@ -62,6 +62,7 @@ class MainWindow : public CDialog
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
+		LRESULT onNoMotAlertMessage ( WPARAM wp, LPARAM lp );
 		LRESULT onFinish ( WPARAM wp, LPARAM lp );
 		void onNormalFinishMessage ( );
 		void onMotNumCalFin ( );
@@ -69,6 +70,7 @@ class MainWindow : public CDialog
 		void onPgcTempCalFin ( );
 		void onGreyTempCalFin ( );
 		void onMachineOptRoundFin ( );
+
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( MasterThreadInput* input );
@@ -144,6 +146,7 @@ class MainWindow : public CDialog
 	private:		
 		DECLARE_MESSAGE_MAP();
 		
+
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;
 

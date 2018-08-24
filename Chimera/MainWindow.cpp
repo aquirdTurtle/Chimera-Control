@@ -416,6 +416,46 @@ void MainWindow::passNiawgIsOnPress( )
 }
 
 
+LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
+{
+	try
+	{
+		if ( TheAndorWindow->wantsAutoPause ( ) )
+		{
+			masterThreadManager.pause ( );
+			menu.CheckMenuItem ( ID_RUNMENU_PAUSE, MF_CHECKED );
+			comm.sendColorBox ( System::Master, 'Y' );
+		}
+		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
+		time_t t = time ( 0 );
+		struct tm now;
+		localtime_s ( &now, &t );
+		std::string message = "Experiment Stopped loading the MOT at ";
+		if ( now.tm_hour < 10 )
+		{
+			message += "0";
+		}
+		message += str ( now.tm_hour ) + ":";
+		if ( now.tm_min < 10 )
+		{
+			message += "0";
+		}
+		message += str ( now.tm_min ) + ":";
+		if ( now.tm_sec < 10 )
+		{
+			message += "0";
+		}
+		message += str ( now.tm_sec );
+		texter.sendMessage ( message, &python, "Mot" );
+	}
+	catch ( Error& err )
+	{
+		comm.sendError ( err.what ( ) );
+	}
+	return 0;
+}
+
+
 LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 {
 	try

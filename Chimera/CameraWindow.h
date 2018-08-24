@@ -112,6 +112,8 @@ class AndorWindow : public CDialog
 		void loadCameraCalSettings( ExperimentInput& input );
 		bool wasJustCalibrated( );
 		bool wantsAutoCal( );
+		bool wantsNoMotAlert ( );
+		UINT getNoMotThreshold ( );
 
 	private:
 		bool justCalibrated=false;

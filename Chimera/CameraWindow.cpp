@@ -1101,7 +1101,7 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->variations = auxWin->getTotalVariationNumber();
 	input.plotterInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
 	input.plotterInput->alertThreshold = alerts.getAlertThreshold();
-	input.plotterInput->wantAlerts = alerts.alertsAreToBeUsed();
+	input.plotterInput->wantAtomAlerts = alerts.wantsAtomAlerts();
 	input.plotterInput->comm = mainWin->getComm();
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
@@ -1169,6 +1169,18 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 		activePlots.push_back( plot );
 		input.plotterInput->dataArrays.push_back( data );
 	}
+}
+
+
+bool AndorWindow::wantsNoMotAlert ( )
+{
+	return alerts.wantsAtomAlerts ( );
+}
+
+
+UINT AndorWindow::getNoMotThreshold ( )
+{
+	return alerts.getAlertThreshold ( );
 }
 
 
