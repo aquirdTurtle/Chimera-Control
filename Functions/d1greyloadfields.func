@@ -1,10 +1,13 @@
 def D1GreyLoadFields():
   % total time = 0. This function is for doing pgc.
-  var left_field -0.56
-  var right_field 0.20
-  var top_field 2.32
+%  var left_field -0.56
+  var left_field -0.689851
+%  var right_field 0.20
+  var right_field 0.1359
+%  var top_field 2.32
+  var top_field 2.3346
   var bot_field -1.71
-  var front_field -0.57
+  var front_field -0.56
   var back_field 0.51
   dac: leftCoilCurrent left_field 
   dac: rightCoilCurrent right_field 

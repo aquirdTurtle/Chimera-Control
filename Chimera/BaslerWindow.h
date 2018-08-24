@@ -15,15 +15,16 @@ class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
 
+
 class BaslerWindow : public CDialogEx
 {
-	public:
+ 	public:
 		BaslerWindow( );
 		BOOL OnInitDialog();
 		void handleEnter();
 		void OnPaint();
 		void passCommonCommand ( UINT id );
-		void measureMotSize ( baslerSettings motSizeSettings );
+		void startTemporaryAcquisition ( baslerSettings motSizeSettings );
 		void startDefaultAcquisition ( );
 		void setCameraForMotTempMeasurement ( );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -38,6 +39,8 @@ class BaslerWindow : public CDialogEx
 		bool baslerCameraIsRunning ( );
 		bool baslerCameraIsContinuous ( );
 		void fillMotSizeInput ( baslerSettings& settings);
+		void fillTemperatureMeasurementInput ( baslerSettings& settings );
+
 		LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
@@ -58,6 +61,8 @@ class BaslerWindow : public CDialogEx
 		BaslerSettingsControl settingsCtrl;
 		BaslerCameras* cameraController;
 		PictureStats stats;
+		baslerSettings tempAcqSettings;
+		bool runningAutoAcq;
 		//PictureSaver saver;
 		unsigned int currentRepNumber;
 		BaslerAutoExposure::mode runExposureMode;

@@ -16,12 +16,12 @@ namespace commonFunctions
 	/// Run Menu
 	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 									AuxiliaryWindow* auxWin );
-	void prepareBaslerCamera ( BaslerWindow* basWin, ExperimentInput& input );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls );
 	void startExperimentThread(MainWindow* mainWin, ExperimentInput& input);
 
-	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, bool takeBaslerPictures );
+	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
+						bool takeBaslerPictures, std::string specialName="", bool isCal=false );
 	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin = NULL, BaslerWindow* basWin = NULL );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );

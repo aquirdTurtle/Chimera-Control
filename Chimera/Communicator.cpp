@@ -5,6 +5,7 @@
 #include "AuxiliaryWindow.h"
 #include "MainWindow.h"
 #include "ScriptingWindow.h"
+#include "MasterThreadInput.h"
 #include "externals.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
@@ -29,16 +30,24 @@ void Communicator::sendNoAtomsAlert ( )
 	mainWin->PostMessageA ( eNoAtomsAlertMessageID, 0, 0 );
 }
 
-
+/*
 void Communicator::sendMachineOptimizationRoundFinish ( )
 {
 	mainWin->PostMessage ( eMachineOptRoundFinMsgID, 0, 0 );
 }
+*/
 
 
+/*
 void Communicator::sendMotCalFinish ( )
 {
 	mainWin->PostMessage ( eMotNumCalFinMsgID, 0, 0 );
+}
+*/
+
+void Communicator::sendFinish ( ExperimentType type )
+{
+	mainWin->PostMessage ( eGeneralFinMsgID, int ( type ), 0 );
 }
 
 
@@ -54,15 +63,17 @@ void Communicator::sendCameraCalFin( )
 }
 
 
-void Communicator::sendMotFinish( )
+void Communicator::sendAutoServo( )
 {
 	auxWin->PostMessageA( eAutoServoMessage, 0, 0 );
 }
 
+/*
 void Communicator::sendNormalFinish( )
 {
 	mainWin->PostMessageA( eNormalFinishMessageID );
 }
+*/
 
 void Communicator::sendCameraProgress(long progress)
 {

@@ -1,40 +1,23 @@
 def rotateFieldsBack():
   % back to the quant axis
   % devide by 2 to even out both directions
-  daclinspace: topCoilCurrent (2.00104 + 2.1*field/(-0.716623)*cos(fieldtheta)/2 ) (  2.00104 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2 ) (rotateFieldTime/2) 10
-  daclinspace: bottomCoilCurrent ( -2.00104 + 2.1*field/0.759638*cos(fieldtheta)/2 ) ( -2.00104 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2 )  (rotateFieldTime/2) 10
-  daclinspace: leftCoilCurrent ( -0.449362 + 2.1*field/0.885082*sin(fieldtheta)*cos(fieldphi)/2) (-0.449362 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) (rotateFieldTime/2) 10
-  daclinspace: rightCoilCurrent  ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 ) ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) (rotateFieldTime/2) 10	 %pgcRightField
-  daclinspace: frontCoilCurrent (-0.587889 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2) (-0.577072 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (rotateFieldTime/2) 10
-  daclinspace: backCoilCurrent 
-  ( 0.587889 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2) 
-  ( 0.577072 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
-  (rotateFieldTime/2)  
-  10
+
+var rotateFieldTime 3
+
+  daclinspace: topCoilCurrent (2.049 + 2.1*field/(-0.716623)*cos(fieldtheta)/2 ) (  2.049 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2 ) (rotateFieldTime/2) 10
+  daclinspace: bottomCoilCurrent ( -1.994 + 2.1*field/0.759638*cos(fieldtheta)/2 ) ( -1.994 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2 )  (rotateFieldTime/2) 10
+  daclinspace: leftCoilCurrent ( -0.34799 + 2.1*field/0.885082*sin(fieldtheta)*cos(fieldphi)/2) ( -0.34799 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) (rotateFieldTime/2) 10
+  daclinspace: rightCoilCurrent  ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 ) ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) (rotateFieldTime/2) 10	 %pgcRightField
+  daclinspace: frontCoilCurrent (-0.5318 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2) (-0.5318 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (rotateFieldTime/2) 10
+  daclinspace: backCoilCurrent ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2)  ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (rotateFieldTime/2) 10
 
   t += (rotateFieldTime/2)
 
-  daclinspace: topCoilCurrent 
-  ( 2.00104 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2 ) 
-  (2.06+0.06) 
-  (rotateFieldTime/2) 10
-  daclinspace: bottomCoilCurrent 
-  ( -2.00104 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2 ) 
-  (-1.67 - 0.03) 
-  (rotateFieldTime/2) 10
-  daclinspace: leftCoilCurrent 
-  ( -0.449362 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) (3.6461) 
-  (rotateFieldTime/2) 10
-  daclinspace: rightCoilCurrent  
-  ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) (-2.7361) 
-  (rotateFieldTime/2) 10	
-  daclinspace: frontCoilCurrent 
-  (-0.577072 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
-  (-0.76 + 0.1)  
-  (rotateFieldTime/2) 10
-  daclinspace: backCoilCurrent 
-  ( 0.577072 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
-  (0.2914) 
-  (rotateFieldTime/2)  10
+  daclinspace: topCoilCurrent ( 2.049 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2 ) (2.12) (rotateFieldTime/2) 10
+  daclinspace: bottomCoilCurrent ( -1.994 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2 ) (-1.7) (rotateFieldTime/2) 10
+  daclinspace: leftCoilCurrent ( -0.34799 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) (3.6461) (rotateFieldTime/2) 10
+  daclinspace: rightCoilCurrent ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) (-2.7361) (rotateFieldTime/2) 10	
+  daclinspace: frontCoilCurrent (-0.5318 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (-0.66) (rotateFieldTime/2) 10
+  daclinspace: backCoilCurrent (0.551 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (0.2914) (rotateFieldTime/2)  10
 
   t += (rotateFieldTime/2)

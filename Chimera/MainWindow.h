@@ -58,14 +58,17 @@ class MainWindow : public CDialog
 		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onErrorMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onFatalErrorMessage(WPARAM wParam, LPARAM lParam);
-		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
+
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
-
-		LRESULT onMotNumCalFin ( WPARAM wp, LPARAM lp );
-		LRESULT onMotTempCalFin ( WPARAM wp, LPARAM lp );
-		LRESULT onMachineOptRoundFin ( WPARAM wp, LPARAM lp );
+		LRESULT onFinish ( WPARAM wp, LPARAM lp );
+		void onNormalFinishMessage ( );
+		void onMotNumCalFin ( );
+		void onMotTempCalFin ( );
+		void onPgcTempCalFin ( );
+		void onGreyTempCalFin ( );
+		void onMachineOptRoundFin ( );
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( MasterThreadInput* input );
@@ -87,9 +90,13 @@ class MainWindow : public CDialog
 		void fillMasterThreadInput( MasterThreadInput* input );
 		void fillMasterThreadSequence( MasterThreadInput* input );
 		void fillMotInput( MasterThreadInput* input);
-		void fillMotTempInput ( MasterThreadInput* input );
-		void fillPgcTempInput ( MasterThreadInput* input );
+		void fillTempInput ( MasterThreadInput* input );
+		void fillMotTempProfile ( MasterThreadInput* input );
+		void fillRedPgcTempProfile ( MasterThreadInput* input );
+		void fillGreyPgcTempProfile ( MasterThreadInput* input );
+
 		HANDLE startExperimentThread( MasterThreadInput* input, bool isTurnOnMot );
+		
 		std::string getNotes( );
 		brushMap getBrushes();
 		rgbMap getRgbs();
@@ -117,7 +124,7 @@ class MainWindow : public CDialog
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
-
+		void fillMotSizeInput ( MasterThreadInput* input );
 		bool niawgIsRunning();
 		bool masterIsRunning();
 		void setNiawgRunningState( bool newRunningState );

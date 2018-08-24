@@ -14,6 +14,7 @@ enum class System
 	Basler
 };
 
+enum class ExperimentType;
 /*
 	* This class was desiged to hold a pointer to the main window that can only be used for communicating messages to said 
 	* window. It prevents the need to pass the raw pointer to the main window which a small function shouldn't need.
@@ -21,6 +22,7 @@ enum class System
 class Communicator
 {
 	public:
+		void sendFinish ( ExperimentType type );
 		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin,
 						 AuxiliaryWindow* masterWindow);
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
@@ -38,10 +40,7 @@ class Communicator
 		void sendRepProgress(ULONG rep);
 		void sendNoAtomsAlert( );
 
-		void sendMachineOptimizationRoundFinish ( );
-		void sendMotCalFinish ( );
-		void sendNormalFinish ( );
-		void sendMotFinish( );
+		void sendAutoServo( );
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;

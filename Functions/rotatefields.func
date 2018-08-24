@@ -10,9 +10,9 @@ def rotateFields():
 
 % from quant axis
 
-var field 3
-var fieldtheta 1.5708
-var fieldphi 0
+%var field 3
+%var fieldtheta 1.5708
+%var fieldphi 0
 var rotateFieldTime 3
 
 daclinspace: topCoilCurrent (2.12) (2.049+2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2) (rotateFieldTime/2) 10

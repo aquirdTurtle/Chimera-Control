@@ -8,26 +8,29 @@ def PgcCooling():
     
   %Set beam powers for PGC and turn on beams 
   % (should already be on, but just in case):
-  daclinspace: MotFreq 0.05 -2 1 10
+  var cooling_freq -2
+  var sidemot_power 0.1
+  var diag_mot_power 0.22
+  daclinspace: MotFreq 0.05 cooling_freq 1 10
   % to let the ramp finish
   % to let the ramp finish
-  dac: repumpPower 0.1   
-  dac: diagMotPower 0.25
-  dac: sideMotPower 0.1
+  dac: repumpPower 0.3   
+  dac: diagMotPower diag_mot_power
+  dac: sideMotPower 0
   dac: repumpFreq -0.5
   t += 1 
-	
-  var pgc_time 10
+  
+  var pgc_time 3
 
   on: repumpRf
-  on: sideMotRf
+  off: sideMotRf
   on: diagMotRf
   t += pgc_time 
   off: repumpRf
   off: sideMotRf
   off: diagMotRf
     
-  daclinspace: MotFreq -2 0.05 1 20
+  daclinspace: MotFreq cooling_freq 0.05 1 20
 
   dac: repumpPower 0
   dac: diagMotPower 0

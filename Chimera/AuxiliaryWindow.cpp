@@ -915,11 +915,10 @@ void AuxiliaryWindow::zeroTtls()
 }
 
 /// these three at the moment are identical. keeping for the moment in case I find I need to change something.
-void AuxiliaryWindow::loadMotTempSettings ( MasterThreadInput* input )
+void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 {
 	try
 	{
-		sendStatus ( "Loading MOT Temperature Configuration...\r\n" );
 		input->auxWin = this;
 		input->quiet = true;
 		input->ttls = &ttlBoard;
@@ -929,11 +928,17 @@ void AuxiliaryWindow::loadMotTempSettings ( MasterThreadInput* input )
 		input->comm = mainWin->getComm ( );
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->variables.clear ( );
-		input->variables.push_back ( globalVariables.getEverything ( ) );
-		input->variableRangeInfo.clear ( );
-		input->variableRangeInfo = configVariables.getRangeInfo ( );
+		/// variables.
+		std::vector<std::vector<parameterType>> experimentVars;
+		// load the variables. This little loop is for letting configuration variables overwrite the globals.
+		// the config variables are loaded directly from the file.
+		std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( input->seq.sequence[0].configFilePath ( ) );
+		std::vector<parameterType> globals = globalVariables.getEverything ( );
+		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
+		globalVariables.setUsages ( { globals } );
+		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFreshFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
+		input->variables = experimentVars;
+		///
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->rsg = &RhodeSchwarzGenerator;
@@ -1049,7 +1054,7 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 	{
 		// load the variables. This little loop is for letting configuration variables overwrite the globals.
 		// the config variables are loaded directly from the file.
-		std::vector<parameterType> configVars = ParameterSystem::getConfigVariablesFromFile( seqFile.configFilePath() );
+		std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile( seqFile.configFilePath() );
 		std::vector<parameterType> globals = globalVariables.getEverything( );
 		experimentVars.push_back( ParameterSystem::combineParametersForExperimentThread( configVars, globals) );
 		globalVariables.setUsages( { globals } );

@@ -185,15 +185,12 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
 	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
-	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
-	ON_REGISTERED_MESSAGE ( eMotNumCalFinMsgID, &MainWindow::onMotNumCalFin )
-	ON_REGISTERED_MESSAGE ( eMotNumCalFinMsgID, &MainWindow::onMotTempCalFin )
-	ON_REGISTERED_MESSAGE ( eMachineOptRoundFinMsgID, &MainWindow::onMachineOptRoundFin )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
 	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
 	ON_REGISTERED_MESSAGE( eNoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
+	ON_REGISTERED_MESSAGE ( eGeneralFinMsgID, &MainWindow::onFinish )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
@@ -214,27 +211,72 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 END_MESSAGE_MAP()
 
 
-LRESULT MainWindow::onMotNumCalFin ( WPARAM wp, LPARAM lp )
+LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
 {
-	return true;
+	ExperimentType type = static_cast<ExperimentType>( wp );
+	switch ( type )
+	{
+		case ExperimentType::Normal:
+		{
+			onNormalFinishMessage ( );
+			break;
+		}
+		case ExperimentType::LoadMot:
+			break;
+		case ExperimentType::MotSize:
+			onMotNumCalFin ( );
+			break;
+		case ExperimentType::MotTemperature:
+			onMotTempCalFin ( );
+			break;
+		case ExperimentType::PgcTemperature:
+			onPgcTempCalFin ( );
+			break;
+		case ExperimentType::GreyTemperature:
+			onGreyTempCalFin ( );
+			break;
+		case ExperimentType::MachineOptimization:
+			onMachineOptRoundFin ( );
+			break;
+	}
+	return 0;
 }
 
 
-LRESULT MainWindow::onMotTempCalFin ( WPARAM wp, LPARAM lp )
+void MainWindow::onMotNumCalFin ( )
 {
-	return true;
+	commonFunctions::handleCommonMessage ( ID_MOT_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
+										   TheAuxiliaryWindow, TheBaslerWindow );
 }
 
 
-LRESULT MainWindow::onMachineOptRoundFin ( WPARAM wp, LPARAM lp )
+void MainWindow::onMotTempCalFin ( )
+{
+	commonFunctions::handleCommonMessage ( ID_PGC_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
+										   TheAuxiliaryWindow, TheBaslerWindow );
+}
+
+
+void MainWindow::onPgcTempCalFin ( )
+{
+	commonFunctions::handleCommonMessage ( ID_GREY_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
+										   TheAuxiliaryWindow, TheBaslerWindow );
+}
+
+
+void MainWindow::onGreyTempCalFin ( )
+{
+	infoBox ( "Congratulations!" );
+}
+
+void MainWindow::onMachineOptRoundFin (  )
 {
 	// do normal finish
-	onNormalFinishMessage ( wp, lp );
+	onNormalFinishMessage ( );
 	Sleep ( 1000 );
 	// then restart.
 	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, this, TheScriptingWindow, TheAndorWindow, 
 										   TheAuxiliaryWindow, TheBaslerWindow );
- 	return true;
 }
 
 
@@ -783,10 +825,17 @@ std::string MainWindow::getSystemStatusString()
 {
 	std::string status;
 	status = "NIAWG:\n";
-	if (!NIAWG_SAFEMODE)
+	if ( !NIAWG_SAFEMODE )
 	{
 		status += "\tCode System is Active!\n";
-		status += "\t" + niawg.fgenConduit.getDeviceInfo();
+		try
+		{
+			status += "\t" + niawg.fgenConduit.getDeviceInfo ( );
+		}
+		catch ( Error& err )
+		{
+			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+		}
 	}
 	else
 	{
@@ -796,7 +845,14 @@ std::string MainWindow::getSystemStatusString()
 	if ( !MOT_SCOPE_SAFEMODE )
 	{
 		status += "\tCode System is Active!\n";
-		status += "\t" + motScope.getScopeInfo( );
+		try
+		{
+			status += "\t" + motScope.getScopeInfo( );
+		}
+		catch ( Error& err )
+		{
+			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+		}
 	}
 	else
 	{
@@ -806,7 +862,14 @@ std::string MainWindow::getSystemStatusString()
 	if ( !MASTER_REPUMP_SCOPE_SAFEMODE )
 	{
 		status += "\tCode System is Active!\n";
-		status += "\t" + masterRepumpScope.getScopeInfo( );
+		try
+		{
+			status += "\t" + masterRepumpScope.getScopeInfo( );
+		}
+		catch ( Error& err )
+		{
+			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+		}
 	}
 	else
 	{
@@ -899,38 +962,43 @@ HANDLE MainWindow::startExperimentThread( MasterThreadInput* input, bool isTurnO
 }
 
 
-void MainWindow::fillMotTempInput ( MasterThreadInput* input )
+void MainWindow::fillRedPgcTempProfile ( MasterThreadInput* input )
 {
-	input->comm = &comm;
-	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
-	for ( auto seqInc : range ( input->variables.size ( ) ) )
-	{
-		for ( auto& variable : input->variables[ seqInc ] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[ seqInc ].push_back ( variable );
-			}
-		}
-	}
+	// this function needs to be called before aux fills.
+	input->seq.name = "pgcTemp";
+	input->seq.sequence.resize ( 1 );
+	input->profile.configuration = "Automated-PGC-Temperature-Measurement";
+	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "PGC";
+	input->seq.sequence[ 0 ] = input->profile;
+}
+
+
+void MainWindow::fillGreyPgcTempProfile ( MasterThreadInput* input )
+{
+	// this function needs to be called before aux fills.
+	input->seq.name = "greyPgcTemp";
+	input->seq.sequence.resize ( 1 );
+	input->profile.configuration = "Automated-Grey-PGC-Temperature-Measurement";
+	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "PGC";
+	input->seq.sequence[ 0 ] = input->profile;
+}
+
+
+void MainWindow::fillMotTempProfile ( MasterThreadInput* input )
+{
+	// this function needs to be called before aux fills.
 	input->seq.name = "motTemp";
 	input->seq.sequence.resize ( 1 );
 	input->profile.configuration = "Automated-MOT-Temperature-Measurement";
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	input->seq.sequence[ 0 ] = input->profile;
-	// the mot procedure doesn't need the NIAWG at all.
-	input->runNiawg = false;
-	input->skipNext = NULL;
-	input->rerngGuiForm = rearrangeControl.getParams ( );
-	input->rerngGuiForm.active = false;
-	input->expType = ExperimentType::LoadMot;
-
 }
 
 
-void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
+void MainWindow::fillTempInput ( MasterThreadInput* input )
 {
 	input->comm = &comm;
 	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
@@ -942,21 +1010,18 @@ void MainWindow::fillPgcTempInput ( MasterThreadInput* input )
 			if ( variable.constant )
 			{
 				input->constants[ seqInc ].push_back ( variable );
+
 			}
 		}
 	}
-	input->seq.name = "pgcTemp";
-	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
-	input->profile.configuration = "Automated-PGC-Temperature-Measurement";
-	input->profile.parentFolderName = "PGC";
-	input->seq.sequence.resize ( 1 );
-	input->seq.sequence[ 0 ] = input->profile;
+	input->repetitionNumber = 5;
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams ( );
 	input->rerngGuiForm.active = false;
 	input->expType = ExperimentType::LoadMot;
+
 }
 
 
@@ -985,10 +1050,41 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
  	input->skipNext = NULL;
- 	input->rerngGuiForm = rearrangeControl.getParams( );
- 	input->rerngGuiForm.active = false;
-	input->expType = ExperimentType::LoadMot;
+ 	input->rerngGuiForm = rearrangeControl.getParams( ); 
+ 	input->rerngGuiForm.active = false; 
 }
+
+
+void MainWindow::fillMotSizeInput ( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
+	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
+	for ( auto seqInc : range ( input->variables.size ( ) ) )
+	{
+		for ( auto& variable : input->variables[ seqInc ] )
+		{
+			if ( variable.constant )
+			{
+				input->constants[ seqInc ].push_back ( variable );
+			}
+		}
+	}
+	input->profile.configuration = "Mot_Size_Measurement";
+	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.parentFolderName = "MOT";
+	input->seq.name = "loadMot";
+	input->seq.sequence.resize ( 1 );
+	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
+
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
+	input->skipNext = NULL;
+	input->rerngGuiForm = rearrangeControl.getParams ( );
+	input->rerngGuiForm.active = false;
+}
+
+
 
 
 unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
@@ -1306,7 +1402,7 @@ void MainWindow::waitForRearranger( )
 
 
 // I think I can delete this...
-LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
+void MainWindow::onNormalFinishMessage()
 {
 	TheScriptingWindow->setIntensityDefault();
 	std::string msgText = "Passively Outputting Default Waveform";
@@ -1325,7 +1421,6 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 						"following error: " + except.whatStr( ) );
 		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );
-		return 0;
 	}
 	setNiawgRunningState( false );
 	try
@@ -1336,7 +1431,6 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		comm.sendError( err.what( ) );
 	}
-	return 0;
 }
 
 

@@ -10,18 +10,17 @@ def pushout():
   off: RepumpRF
 
   dac: RepumpPower 0
-  daclinspace: motFreq defaultMotFreq pushoutfreq 1 5 
-  t += 1.01
+  daclinspace: motFreq defaultMotFreq pushoutfreq 2 10 
+  t += 2.01
   dac: probePower pushoutPower  
   % side mot shutter closed, probe open
   
   on: probeRF
   t += pushoutTime
-  t += 0
   off: probeRF
   off: probeShutter
   on: sideMotShutter
-  daclinspace: motFreq pushoutfreq defaultMotFreq 1 5
+  daclinspace: motFreq pushoutfreq defaultMotFreq 1 10
   t += 1.01
 
 
