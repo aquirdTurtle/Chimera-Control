@@ -34,6 +34,24 @@ struct conversions
 	const double EMGain200BackgroundCount = 105;
 };
 
+
+struct statPoint
+{
+	double minv;
+	double maxv;
+	double avgv;
+	double selv;
+	statPoint operator* ( double x )
+	{
+		return { this->minv*x, this->maxv*x, this->avgv*x, this->selv*x };
+	}
+	statPoint operator- ( double x )
+	{
+		return { this->minv-x, this->maxv-x, this->avgv-x, this->selv-x };
+	}
+};
+
+
 class PictureStats
 {
 	public:
@@ -43,13 +61,16 @@ class PictureStats
 		}
 		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange( int width, int height, fontMap fonts );
+		std::pair<int, int> update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel,
+									 int currentRepetitionNumber, int totalRepetitionCount );
 		std::pair<int, int> update( std::vector<long> image, UINT imageNumber, coordinate selectedPixel,
 									int pictureWidth, int pictureHeight, int currentRepetitionNumbar,
 									int totalRepetitionCount );
 		void reset();
 		void updateType( std::string typeText );
-
+		statPoint getMostRecentStats ( );
 	private:
+		statPoint mostRecentStat;
 		std::string displayDataType;
 		conversions convs;
 		Control<CStatic> pictureStatsHeader;

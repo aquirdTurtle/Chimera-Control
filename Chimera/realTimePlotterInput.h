@@ -28,7 +28,7 @@ struct realTimePlotterInput
 	UINT variations;
 
 	UINT alertThreshold;
-	bool wantAlerts;
+	bool wantAtomAlerts;
 	Communicator* comm;
 	std::mutex* plotLock;
 

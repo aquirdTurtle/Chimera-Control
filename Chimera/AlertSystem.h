@@ -26,14 +26,16 @@ class AlertSystem
 		UINT getAlertThreshold();
 		UINT getAlertMessageID();
 		void setAlertThreshold();
-		bool alertsAreToBeUsed();
+		bool wantsAtomAlerts();
+		bool wantsMotAlerts ( );
 		bool soundIsToBePlayed();
 		void playSound();
 		void stopSound();
 		bool wantsAutoPause( );
 	private:
 		Control<CStatic> title;
-		Control<CleanCheck> alertsActiveCheckBox;
+		Control<CleanCheck> atomsAlertActiveCheckBox;
+		Control<CleanCheck> motAlertActiveCheckBox;
 		Control<CStatic> alertThresholdText;
 		Control<CEdit> alertThresholdEdit;
 		Control<CleanCheck> soundAtFinshCheck;

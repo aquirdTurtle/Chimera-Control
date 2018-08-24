@@ -457,7 +457,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			noAtomsCounter++;
 		}
-		if (noAtomsCounter >= input->alertThreshold && input->wantAlerts )
+		if (noAtomsCounter >= input->alertThreshold && input->wantAtomAlerts )
 		{
 			input->comm->sendNoAtomsAlert( );
 		}

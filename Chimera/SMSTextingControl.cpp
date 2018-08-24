@@ -220,6 +220,17 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 			}
 		}
 	}
+	if ( msgType == "MOT" )
+	{
+		for ( personInfo& person : peopleToText )
+		{
+			if ( person.textIfLoadingStops )
+			{
+				// send text gives an appropriate error message.
+				pyHandler->sendText ( person, message, "Not Loading MOT", emailAddress, password );
+			}
+		}
+	}
 	else if (msgType == "Finished")
 	{
 		for (personInfo& person : peopleToText)
