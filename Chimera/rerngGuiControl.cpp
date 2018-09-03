@@ -60,11 +60,13 @@ void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips&
 	finalMoveTimeEdit.Create ( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
 	finalMoveTimeEdit.SetWindowTextA ( "1" );
 
-	auxStaticOption.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	auxStaticOption.Create ( "Auxiliarty-Tweezers-Are-The-Static", NORM_CHECK_OPTIONS, auxStaticOption.sPos, parent, id++ );
-
-	fastMoveOption.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	fastMoveOption.Create ( "FAST-MOVE", NORM_CHECK_OPTIONS, fastMoveOption.sPos, parent, id++ );
+	rerngModeCombo.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 500 };
+	rerngModeCombo.Create ( NORM_COMBO_OPTIONS, rerngModeCombo.sPos, parent, id++ );
+	for ( auto m : rerngMode::allModes )
+	{
+		rerngModeCombo.AddString ( rerngMode::toStr ( m ).c_str() );
+	}
+	rerngModeCombo.SelectString ( 0, rerngMode::toStr ( rerngMode::mode::Lazy ).c_str ( ) );
 
 	fastMoveTime.sPos = { loc.x + 240, loc.y, loc.x + 440, loc.y + 25 };
 	fastMoveTime.Create ( "Fast-Move (us):", NORM_STATIC_OPTIONS, fastMoveTime.sPos, parent, id++ );
@@ -84,8 +86,6 @@ rerngGuiOptionsForm rerngGuiControl::getParams( )
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	tempParams.preprogram = preprogramMoves.GetCheck( );
 	tempParams.useCalibration = useCalibration.GetCheck( );
-	tempParams.useFast = fastMoveOption.GetCheck ( );
-	tempParams.auxStatic = auxStaticOption.GetCheck ( );
 	CString tempTxt;
 	try
 	{
@@ -142,10 +142,9 @@ void rerngGuiControl::rearrange( int width, int height, fontMap fonts )
 	outputIndividualEvents.rearrange( width, height, fonts );
 	finalMoveTimeText.rearrange( width, height, fonts );
 	finalMoveTimeEdit.rearrange( width, height, fonts );
-	fastMoveOption.rearrange( width, height, fonts );
 	fastMoveTime.rearrange( width, height, fonts );
 	fastMoveTimeEdit.rearrange( width, height, fonts );
-	auxStaticOption.rearrange ( width, height, fonts );
+	rerngModeCombo.rearrange ( width, height, fonts );
 }
 
 
@@ -162,9 +161,8 @@ void rerngGuiControl::handleCheck( )
 	outputRearrangeEvents.EnableWindow( active );
 	outputIndividualEvents.EnableWindow( active );
 	finalMoveTimeEdit.EnableWindow( active );
-	fastMoveOption.EnableWindow( active );
 	fastMoveTimeEdit.EnableWindow( active );
-	auxStaticOption.EnableWindow ( active );
+	rerngModeCombo.EnableWindow ( active );
 }
 
 
@@ -237,14 +235,16 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		info.finalMoveTime = str(1e-3);
 	}
-	if (ver > Version("3.1"))
+	if (ver > Version("3.1") && ver < Version("3.6"))
 	{
-		openFile >> info.useFast;
+		openFile >> tmpStr;
 	}
-	else
+	if ( ver > Version ( "3.6" ) )
 	{
-		info.useFast = false;
+		openFile >> tmpStr;
+		info.rMode = rerngMode::fromStr ( tmpStr );
 	}
+
 	if (ver > Version("3.1" ) )
 	{
 		openFile >> tmpStr;
@@ -254,23 +254,13 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		info.fastMoveTime = str(1e-6);
 	}
-	if ( ver >= Version ( "3.4" ) )
+
+
+	if ( ver < Version ( "3.6" ) && ver >= Version("3.4"))
 	{
 		openFile >> tmpStr;
-		try
-		{
-			info.auxStatic = boost::lexical_cast<bool>( tmpStr );
-		}
-		catch ( boost::bad_lexical_cast& )
-		{
-			thrower ( "ERROR: failed to convert auxiliary tweezers are the static tweezers option to int while loading "
-					  "config!" );
-		}
 	}
-	else
-	{
-		info.auxStatic = false;
-	}
+
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -294,10 +284,10 @@ void rerngGuiControl::handleNewConfig( std::ofstream& newFile )
 	newFile << "0\n";
 	// use calibration
 	newFile << "0\n";
-	newFile << "0.001\n";
-	// usefast, fastmovetime, timebetweenfastmoves
-	newFile << "0\n0\n";
-	// aux static
+	// final move time.
+	newFile << "0.001\n"; 
+	newFile << rerngMode::toStr ( rerngMode::mode::Lazy ) << "\n";
+	// fastmovetime
 	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
@@ -317,9 +307,8 @@ void rerngGuiControl::handleSaveConfig( std::ofstream& saveFile )
 	saveFile << info.outputInfo << "\n";
 	saveFile << info.outputIndv << "\n";
 	saveFile << info.preprogram << "\n";
-	saveFile << info.useCalibration << "\n" << info.finalMoveTime.expressionStr << "\n" << info.useFast << "\n";
-	saveFile << info.fastMoveTime.expressionStr << "\n";
-	saveFile << info.auxStatic << "\n";
+	saveFile << info.useCalibration << "\n" << info.finalMoveTime.expressionStr << "\n";
+	saveFile << rerngMode::toStr ( info.rMode ) << "\n" << info.fastMoveTime.expressionStr << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -344,11 +333,9 @@ void rerngGuiControl::setParams( rerngGuiOptionsForm params )
 	preprogramMoves.SetCheck( params.preprogram );
 	// convert back to ms
 	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime.expressionStr ) );
-
-	fastMoveOption.SetCheck( params.useFast );
-
-	auxStaticOption.SetCheck ( params.auxStatic );
-
+	rerngModeCombo.SelectString ( 0, rerngMode::toStr ( params.rMode ).c_str ( ) );
 	// these are displayed in us.
 	fastMoveTimeEdit.SetWindowTextA( cstr( params.fastMoveTime.expressionStr ) );
 }
+
+

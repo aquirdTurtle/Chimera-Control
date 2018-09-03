@@ -269,6 +269,9 @@
     <ClCompile Include="MyListCtrl.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
+    <ClCompile Include="rerngOptionStructures.cpp">
+      <Filter>Main Window\Structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -427,16 +430,7 @@
     <ClInclude Include="DebugOptionsControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="rerngParams.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="rerngThreadInput.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngMove.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="AoSystem.h">
@@ -553,9 +547,6 @@
     <ClInclude Include="directions.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="rerngContainer.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
     <ClInclude Include="Fgen.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
@@ -624,14 +615,23 @@
     <ClInclude Include="AndorRunMode.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="NiawgStructures.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
     <ClInclude Include="DioRows.h">
       <Filter>DIO</Filter>
     </ClInclude>
     <ClInclude Include="MyListCtrl.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngContainer.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngOptionStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngMoveStructures.h">
+      <Filter>Main Window\Structures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

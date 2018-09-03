@@ -220,7 +220,6 @@ namespace commonFunctions
 					mainWin->getComm( )->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
-				
 				try
 				{
 					if ( basWin->baslerCameraIsRunning() ) 

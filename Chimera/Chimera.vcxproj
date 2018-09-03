@@ -281,11 +281,10 @@
     <ClInclude Include="range.h" />
     <ClInclude Include="RC028.h" />
     <ClInclude Include="realTimePlotterInput.h" />
-    <ClInclude Include="rerngMove.h" />
     <ClInclude Include="rerngContainer.h" />
-    <ClInclude Include="rerngStructures.h" />
+    <ClInclude Include="rerngMoveStructures.h" />
     <ClInclude Include="rerngThreadInput.h" />
-    <ClInclude Include="rerngParams.h" />
+    <ClInclude Include="rerngOptionStructures.h" />
     <ClInclude Include="rerngGuiControl.h" />
     <ClInclude Include="Repetitions.h" />
     <ClInclude Include="RhodeSchwarz.h" />
@@ -339,6 +338,7 @@
     <ClCompile Include="DioRows.cpp" />
     <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
+    <ClCompile Include="rerngOptionStructures.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
