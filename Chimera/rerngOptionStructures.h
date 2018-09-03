@@ -1,6 +1,22 @@
 ﻿#pragma once
 
 #include "Expression.h"
+#include <array>
+
+
+struct rerngMode
+{
+	enum class mode
+	{
+		StandardFlashing,
+		Ultrafast,
+		Antoine,
+		Lazy
+	};
+	static const std::array<mode, 4> allModes;// = { mode::StandardFlashing, mode::Ultrafast, mode::Antoine, mode::Lazy };
+	static std::string toStr ( mode m );
+	static mode fromStr ( std::string txt );
+};
 
 
 struct rerngGuiOptionsForm
@@ -20,8 +36,8 @@ struct rerngGuiOptionsForm
 	bool outputIndv = false;
 	bool preprogram = false;
 	bool useCalibration = false;
-	bool useFast = false;
-	bool auxStatic = false;
+
+	rerngMode::mode rMode;
 };
 
 
@@ -77,15 +93,14 @@ struct rerngGuiOptions
 	bool outputIndv = false;
 	bool preprogram = false;
 	bool useCalibration = false;
-	bool auxStatic = false;
 
 	double finalMoveTime = 1e-3;
-	// fast options
-	bool useFast = false;
 	// in s
 	double fastMoveTime = 2e-6;
 	// hard set right now.
 	nonFlashingOption noFlashOption = nonFlashingOption::cautious;
 	parallelMoveOption parallel = parallelMoveOption::none;
 	smartRerngOption smartOption = smartRerngOption::full;
+
+	rerngMode::mode rMode;
 };

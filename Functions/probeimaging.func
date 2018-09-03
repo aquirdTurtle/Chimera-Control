@@ -1,9 +1,8 @@
 % Master-Script See the "?" for info on commands.
 def probeimaging():
 
-var loadMotMotFreq 0
-var probefreq 0.1
-var probeDAC 0.1
+var probefreq 1
+var probeDAC 0.6
 
     off: diagMotRf
     off: sideMotRf       % turn off side mot shutter
@@ -11,11 +10,11 @@ var probeDAC 0.1
     off: probeShutter        % turn on probe shutter
     off: andorShutter
     off: RepumpRF
-    daclinspace: motFreq loadMotMotFreq probefreq 2 10   
+    daclinspace: motFreq defaultmotfreq probefreq 2 10   
     dac: probePower probeDAC
     t += 0.2
     on: andorTrig
-    off: c5 % flashing TweezerLight
+    on: c5 % flashing TweezerLight
     on: probeRF %d12
     on: b5 % flashing probe
     t += 3 % probeimagetime
@@ -28,5 +27,5 @@ var probeDAC 0.1
     off: b5
     on: sideMotShutter       % turn back on side mot shutter
     off: probeShutter        % turn off probe shutter
-    daclinspace: motFreq probefreq loadMotMotFreq 2 10
+    daclinspace: motFreq probefreq defaultmotfreq 2 10
     t += 1

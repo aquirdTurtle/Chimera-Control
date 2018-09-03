@@ -14,7 +14,7 @@ class BaslerSettingsControl
 	public:
 		BaslerSettingsControl ( );
 		void initialize(POINT& pos, int& id, CWnd* parent, int picWidth, int picHeight, POINT cameraDims);
-		
+		void redrawMotIndicator ( );
 		void handleGain();
 		void setStatus(std::string status);
 		void handleExposureMode();
