@@ -76,10 +76,36 @@ namespace commonFunctions
 				}
 				break;
 			}
+			case ID_RUNMENU_RUNBASLERANDMASTER:
+			{
+				ExperimentInput input;
+				try
+				{
+					mainWin->getComm ( )->sendTimer ( "Starting..." );
+					prepareMasterThread ( msgID, scriptWin, mainWin, camWin, auxWin, input, false, true );
+					commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, false, true, input );
+					input.baslerRunSettings = basWin->getCurrentSettings ( );
+					logParameters ( input, camWin, basWin, false, true);
+					basWin->startCamera ( );
+					startExperimentThread ( mainWin, input );
+				}
+				catch ( Error& err )
+				{
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
+					mainWin->getComm ( )->sendColorBox ( System::Master, 'R' );
+					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+					camWin->assertOff ( );
+					break;
+				}
+				break;
+			}
 			case ID_FILE_RUN_EVERYTHING:
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
+				;
 				if ( camWin->wantsAutoCal( ) && !camWin->wasJustCalibrated( ) )
 				{
 					camWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
@@ -93,10 +119,9 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					camWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
-					prepareBaslerCamera ( basWin, input);
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true, input );
 					camWin->preparePlotter( input );
-					camWin->prepareAtomCruncher(input);
+					camWin->prepareAtomCruncher( input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					logParameters( input, camWin, basWin, true, true );
 					camWin->startAtomCruncher(input);
@@ -219,7 +244,7 @@ namespace commonFunctions
 
 				if (!niawgAborted && !andorAborted && !masterAborted && !baslerAborted)
 				{
-					mainWin->getComm()->sendError("Camera, NIAWG and Master were not running. Can't Abort.\r\n");
+					mainWin->getComm()->sendError("Andor camera, NIAWG, Master, and Basler camera were not running. Can't Abort.\r\n");
 				}
 				break;
 			}
@@ -743,44 +768,78 @@ namespace commonFunctions
 			}
 			case ID_ACCELERATOR_F1:
 			{
+				auxWin->autoServo ( 0, 0 );
 				setMot ( mainWin, auxWin );
 				basWin->startDefaultAcquisition ( );
 				break;
 			}
 			case ID_ACCELERATOR_F12:
 			{
-				// F12 is the set of mot calibrations.
-				/// MOT size
-				// set mot
+				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
+				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...r\n" );
 				auxWin->loadMotSettings ( input.masterInput );
-				mainWin->fillMotInput ( input.masterInput );
+				mainWin->fillMotSizeInput ( input.masterInput );
+				input.masterInput->expType = ExperimentType::MotSize;
 				basWin->fillMotSizeInput ( input.baslerRunSettings );
-				//basWin->fillMotSizeInput ( input.baslerRunSettings );
 				// this is used for basler calibrations.
-				logParameters ( input, camWin, basWin, false, true );
+				logParameters ( input, camWin, basWin, false, true, "MOT_NUMBER", true );
+				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
-				basWin->measureMotSize( input.baslerRunSettings );
-				
-				/// MOT Temperature
-				basWin->setCameraForMotTempMeasurement ( );
-				MasterThreadInput* inputMotTemp = new MasterThreadInput;
-				auxWin->loadMotTempSettings ( inputMotTemp );
-				mainWin->fillMotTempInput ( inputMotTemp );
-				mainWin->startExperimentThread ( inputMotTemp, true );
-				// wait...
-				/// PGC Temperature
-				MasterThreadInput* inputPgc = new MasterThreadInput;
-				auxWin->loadPgcTempSettings ( inputPgc );
-				mainWin->fillPgcTempInput ( inputPgc );
-				mainWin->startExperimentThread ( inputPgc, true );
-
+				break;
+			}
+			case ID_MOT_TEMP_CAL:
+			{
+				// F12 is the set of mot calibrations. Start with the mot size.
+				ExperimentInput input;
+				input.masterInput = new MasterThreadInput;
+				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...r\n" );
+				mainWin->fillMotTempProfile ( input.masterInput );
+				auxWin->loadTempSettings ( input.masterInput );
+				mainWin->fillTempInput ( input.masterInput );
+				input.masterInput->expType = ExperimentType::MotTemperature;
+				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+				logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", true );
+				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
+				mainWin->startExperimentThread ( input.masterInput, true );
+				break;
+			}
+			case ID_PGC_TEMP_CAL:
+			{
+				// F12 is the set of mot calibrations. Start with the mot size.
+				ExperimentInput input;
+				input.masterInput = new MasterThreadInput;
+				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...r\n" );
+				mainWin->fillRedPgcTempProfile ( input.masterInput );
+				auxWin->loadTempSettings ( input.masterInput );
+				mainWin->fillTempInput ( input.masterInput );
+				input.masterInput->expType = ExperimentType::PgcTemperature;
+				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+				logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", true );
+				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
+				mainWin->startExperimentThread ( input.masterInput, true );
+				break;
+			}
+			case ID_GREY_TEMP_CAL:
+			{
+				// F12 is the set of mot calibrations. Start with the mot size.
+				ExperimentInput input;
+				input.masterInput = new MasterThreadInput;
+				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...r\n" );
+				mainWin->fillGreyPgcTempProfile ( input.masterInput );
+				auxWin->loadTempSettings ( input.masterInput );
+				mainWin->fillTempInput ( input.masterInput );
+				input.masterInput->expType = ExperimentType::GreyTemperature;
+				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+				logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", true );
+				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
+				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
 			}
 			default:
-				errBox("ERROR: Common message passed but not handled! This feature likely needs re-implementation "
-						"/ new handling");
+				errBox("ERROR: Common message passed but not handled! The feature you're trying to use"\
+						" feature likely needs re-implementation / new handling.");
 		}
 	}
 
@@ -801,12 +860,6 @@ namespace commonFunctions
 		{
 			errBox( err.what( ) );
 		}
-	}
-
-
-	void prepareBaslerCamera ( BaslerWindow* basWin, ExperimentInput& input )
-	{
-		
 	}
 
 
@@ -858,7 +911,7 @@ namespace commonFunctions
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
 			mainWin->setNiawgRunningState( true );
 		}
-		// Start the programming thread.
+		// Start the programming thread. order is important.
 		mainWin->fillMasterThreadSequence( input.masterInput );
 		auxWin->fillMasterThreadInput( input.masterInput );
 		mainWin->fillMasterThreadInput( input.masterInput );
@@ -887,7 +940,6 @@ namespace commonFunctions
 		// abort acquisition if in progress
 		camWin->abortCameraRun();
 		mainWin->getComm()->sendStatus( "Aborted Camera Operation.\r\n" );
-		// todo: here handle data closing as well....? 
 	}
 
 
@@ -1016,10 +1068,10 @@ namespace commonFunctions
 
 
 	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
-						bool takeBaslerPictures )
+						bool takeBaslerPictures, std::string specialName, bool isCal )
 	{
 		DataLogger* logger = camWin->getLogger();
-		logger->initializeDataFiles();
+		logger->initializeDataFiles( specialName, isCal );
 		logger->logAndorSettings( input.AndorSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneous();

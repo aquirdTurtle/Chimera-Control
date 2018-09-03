@@ -24,6 +24,7 @@ struct triggerThreadInput
 	ULONG width;
 	// only used in debug mode.
 	std::atomic<bool>* runningFlag;
+	//UINT reps;
 };
 
 // wrapper class for modifying for safemode and to standardize error handling.
@@ -109,9 +110,9 @@ class BaslerCameras
 		// official copy.
 		baslerSettings runSettings;
 		HANDLE cameraTrigThread;
-		bool continuousImaging;
-		bool autoTrigger;
-		unsigned int repCounts;
+		//bool continuousImaging;
+		//bool autoTrigger;
+		//unsigned int repCounts;
 		bool cameraInitialized;
 };
 

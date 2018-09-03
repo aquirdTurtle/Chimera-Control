@@ -1,4 +1,4 @@
-Version 2.3
+Version 2.4
 diagmotrf
 0
 repumprf
@@ -208,7 +208,7 @@ probepower
 0
 _
 motfreq
--4 - 1
+-10 - 1
 0
 _
 repumpfreq
@@ -216,7 +216,7 @@ repumpfreq
 0
 _
 sidemotpower
-0 - 0.44
+-0.1 - 0.44
 0
 _
 piezomirror
@@ -227,20 +227,20 @@ _
 loadmottime 150
 andorimagetime 20
 imagingpower 0.3
-fieldtheta 0
-fieldphi 0
+fieldtheta 1.5708
+fieldphi 1.5708
 imagingrepumppower 0.2
-pushouttime 20
-intrappgccoolingtime 2
+pushouttime 10
+intrappgccoolingtime 10
 field 3
 defaultmotfreq 0.01
-sidemot__servo_value 0.182485
-diagmot__servo_value 0.269451
+sidemot__servo_value 0.180743
+diagmot__servo_value 0.280659
 default795freq 0
-d1__servo_value 0.214678
+d1__servo_value 0.297118
 0.01 0
 3Sidemot 6 22 1 1.7 1 A 5 
 DiagMot 7 9 1 1.4 1 A 0 
 D1 6 18 1 1 1 C 10 
-245 264 4 281 300 4
+216 307 4 232 331 4
 0 0

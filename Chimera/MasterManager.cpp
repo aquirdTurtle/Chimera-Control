@@ -427,20 +427,19 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		input->thisObj->experimentIsRunning = false;
 		switch ( input->expType )
 		{
-			case ExperimentType::LoadMot:
-				comm->sendMotFinish ( );
-				break;
 			case ExperimentType::CameraCal:
 				comm->sendCameraCalFin ( );
 				break;
-			case ExperimentType::MotCal:
-				comm->sendMotCalFinish ( );
-				break;
+			case ExperimentType::LoadMot:
 			case ExperimentType::MachineOptimization:
-				comm->sendMachineOptimizationRoundFinish ( );
+			case ExperimentType::MotSize:
+			case ExperimentType::MotTemperature:
+			case ExperimentType::PgcTemperature:
+			case ExperimentType::GreyTemperature:
+				comm->sendFinish ( input->expType );
 				break;
 			default:
-				comm->sendNormalFinish ( );
+				comm->sendFinish ( ExperimentType::Normal );
 		}
 	}
 	catch (Error& exception)
@@ -511,10 +510,10 @@ void MasterManager::analyzeMasterScript ( DioSystem* ttls, AoSystem* aoSys,
 	std::vector<std::streamoff> repeatPos;
 	// the analysis loop.
 	bool loadSkipFound = false;
-	std::string scope = PARENT_PARAMETER_SCOPE;
+	std::string scope = PARENT_PARAMETER_SCOPE;                                                                                              
 	while ( !( currentMasterScript.peek ( ) == EOF ) || word != "__end__" )
 	{
-		if ( handleTimeCommands ( word, currentMasterScript, vars, scope ) )
+ 		if ( handleTimeCommands ( word, currentMasterScript, vars, scope ) )
 		{
 			// got handled, so break out of the if-else by entering this scope.
 		}

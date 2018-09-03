@@ -110,7 +110,6 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 				  ". Make sure you have access to the jilafile or change the save location. Error: " + str ( GetLastError ( ) )
 				  + "\r\n" );
 	}
-
 	finalSaveFolder += "\\Raw Data";
 	resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
 	if ( resultStat != 0 )
@@ -126,7 +125,12 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 }
 
 
-void DataLogger::initializeDataFiles()
+/*
+specialName: optional, the name of the data file. This is a unique name, it will not be incremented. This is used
+	for things like the mot size measurement or temperature measurements which are automated. The default is to use
+	data_ as the name and add an incrementing number at the end of it.
+*/
+void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 {
 	// if the function fails, the h5 file will not be open. If it succeeds, this will get set to true.
 	fileIsOpen = false;
@@ -141,27 +145,59 @@ void DataLogger::initializeDataFiles()
 	fopen_s ( &temperatureFile, temperatureDataLocation.c_str(), "r" );
 	if ( !temperatureFile )
 	{
-		thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
-				  + temperatureDataLocation + ". Please make sure that the temperature logger is working correctly "
-				  "before starting an experiment." );
+		thrower ( "ERROR: The Data logger doesn't see the calibration data for today in the data folder, location:"
+				  + temperatureDataLocation + ". Please Run the calibrations (F12) before starting." );
 	}
 	else
 	{
 		fclose ( temperatureFile );
 	}
+	/// check that the mot calibration files have been recorded.
+	if ( !isCal )
+	{
+		for ( std::string fName : {"MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
+			  "GREY_MOLASSES_TEMPERATURE.h5"} )
+		{
+			FILE *calFile;
+			auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + fName;
+			fopen_s ( &calFile, calDataLoc.c_str ( ), "r" );
+			if ( !calFile )
+			{
+				thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
+						  + calDataLoc + ". Please make sure that the temperature logger is working correctly "
+						  "before starting an experiment." );
+			}
+			else
+			{
+				// all good.
+				fclose ( calFile );
+			}
+		}
+	}
+
 
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
-	UINT fileNum = getNextFileIndex( dataFilesBaseLocation + finalSaveFolder + "data_", ".h5" );
-	// at this point a valid filename has been found.
-	finalSaveFileName = "data_" + str(fileNum) + ".h5";
-	// update this, which is used later to move the key file.
-	currentDataFileNumber = fileNum;
-
-	try
+	if ( specialName == "" )
 	{
-		// create the file. H5F_ACC_TRUNC means it will overwrite files with the same name.
+		// the default option.
+		UINT fileNum = getNextFileIndex ( dataFilesBaseLocation + finalSaveFolder + "data_", ".h5" );
+		// at this point a valid filename has been found.
+		finalSaveFileName = "data_" + str ( fileNum ) + ".h5";
+		// update this, which is used later to move the key file.
+		currentDataFileNumber = fileNum;
+	}
+	else
+	{
+		finalSaveFileName = specialName + ".h5";
+	}
+
+ 	try
+ 	{
+		closeFile ( );
+ 		// create the file. H5F_ACC_TRUNC means it will overwrite files with the same name.
 		file = H5::H5File( cstr( dataFilesBaseLocation + finalSaveFolder + finalSaveFileName ), H5F_ACC_TRUNC );
+		fileIsOpen = true;
 		H5::Group ttlsGroup( file.createGroup( "/TTLs" ) );
 		// initial settings
 		// list of commands
@@ -175,7 +211,6 @@ void DataLogger::initializeDataFiles()
 		writeDataSet( dateString, "Run-Date", miscellaneousGroup );
 		std::string timeString = str( now.tm_hour) + ":" + str( now.tm_min) + ":" + str( now.tm_sec) + ":";
 		writeDataSet( timeString, "Time-Of-Logging", miscellaneousGroup );
-		fileIsOpen = true;
 	}
 	catch (H5::Exception err)
 	{
@@ -325,9 +360,9 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 		hsize_t rank1[ ] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
 		settings.repCount;
-		hsize_t setDims[ ] = { ULONGLONG ( settings.repCount ), settings.dimensions.width ( ),
-			settings.dimensions.height ( ) };
-		hsize_t picDims[ ] = { 1, settings.dimensions.width ( ), settings.dimensions.height ( ) };
+		hsize_t setDims[ ] = { ULONGLONG ( settings.repCount ), settings.dims.width ( ),
+			settings.dims.height ( ) };
+		hsize_t picDims[ ] = { 1, settings.dims.width ( ), settings.dims.height ( ) };
 		BaslerPicureSetDataSpace = H5::DataSpace ( 3, setDims );
 		BaslerPicDataSpace = H5::DataSpace ( 3, picDims );
 		BaslerPictureDataset = baslerGroup.createDataSet ( "Pictures", H5::PredType::NATIVE_LONG, BaslerPicureSetDataSpace );
@@ -339,12 +374,12 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 		writeDataSet ( BaslerTrigger::toStr( settings.triggerMode ), "Trigger-Mode", baslerGroup );
 		// image settings
 		H5::Group imageDims = baslerGroup.createGroup ( "Image-Dimensions" );
-		writeDataSet ( settings.dimensions.top, "Top", imageDims );
-		writeDataSet ( settings.dimensions.bottom, "Bottom", imageDims );
-		writeDataSet ( settings.dimensions.left, "Left", imageDims );
-		writeDataSet ( settings.dimensions.right, "Right", imageDims );
-		writeDataSet ( settings.dimensions.horizontalBinning, "Horizontal-Binning", imageDims );
-		writeDataSet ( settings.dimensions.verticalBinning, "Vertical-Binning", imageDims );
+		writeDataSet ( settings.dims.top, "Top", imageDims );
+		writeDataSet ( settings.dims.bottom, "Bottom", imageDims );
+		writeDataSet ( settings.dims.left, "Left", imageDims );
+		writeDataSet ( settings.dims.right, "Right", imageDims );
+		writeDataSet ( settings.dims.horizontalBinning, "Horizontal-Binning", imageDims );
+		writeDataSet ( settings.dims.verticalBinning, "Vertical-Binning", imageDims );
 
 		writeDataSet ( settings.frameRate, "Frame-Rate", baslerGroup );
 		writeDataSet ( settings.rawGain, "Raw-Gain", baslerGroup );
@@ -367,8 +402,8 @@ void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 	// starting coordinates of write area in the h5 file of the array of picture data points.
 	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
 	hsize_t slabdim[ 3 ] = { 1, dims.width ( ), dims.height ( ) };
-	try
-	{
+	try 
+	{    
 		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
 		BaslerPictureDataset.write ( image.data.data ( ), H5::PredType::NATIVE_LONG, BaslerPicDataSpace,
 									 BaslerPicureSetDataSpace );
