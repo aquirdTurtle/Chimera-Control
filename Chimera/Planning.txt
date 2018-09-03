@@ -52,6 +52,7 @@ FEATURES:
 - Make (option for?) plots for single pic mode andor images
 - display threshold on histogram.
 - more tests
+- use custom (bigger) dialog for err, info boxes.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -67,6 +68,7 @@ Refactoring / Other:
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
+- make messages not global variables...
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
@@ -87,4 +89,4 @@ BUGS:
 - start and stop while starting breaks...
 - start up dialog not working...
 - plot histogram columns overlap
-
+- closing the wrong plot will close all...

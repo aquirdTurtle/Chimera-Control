@@ -243,6 +243,7 @@ BEGIN
         MENUITEM "Run &NIAWG",                  ID_RUNMENU_RUNNIAWG
         MENUITEM "Run &Master",                 ID_RUNMENU_RUNMASTER
         MENUITEM "Run &Basler",                 ID_RUNMENU_RUNBASLER
+        MENUITEM "Run Basler And Master",       ID_RUNMENU_RUNBASLERANDMASTER
         MENUITEM "&Write Waveforms Only",       ID_FILE_MY_WRITE_WAVEFORMS
         MENUITEM "&Abort All\tESC",             ID_FILE_ABORT_GENERATION
         MENUITEM "Abort Camera (&X)",           ID_RUNMENU_ABORTCAMERA

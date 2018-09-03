@@ -13,9 +13,7 @@
 
 
 BaslerWindow::BaslerWindow( ) : picManager(true)
-{
-
-}
+{}
 
 
 // the message map. Allows me to handle various events in the system using functions I write myself.
@@ -80,31 +78,62 @@ void BaslerWindow::passCommonCommand ( UINT id )
 
 void BaslerWindow::fillMotSizeInput ( baslerSettings& motSizeSettings )
 {
-	motSizeSettings.acquisitionMode = BaslerAcquisition::mode::Finite;
-	motSizeSettings.dimensions = settingsCtrl.ScoutFullResolution;
-	motSizeSettings.exposureMode = BaslerAutoExposure::mode::Off;
-	motSizeSettings.exposureTime = 1e-3;
+	motSizeSettings.acquisitionMode = BaslerAcquisition::mode::Finite; 
+
+	motSizeSettings.dims.left = 200;
+	motSizeSettings.dims.right = 350;
+	motSizeSettings.dims.top = 390;
+	motSizeSettings.dims.bottom = 200;
+	motSizeSettings.dims.horizontalBinning = 1;
+	motSizeSettings.dims.verticalBinning = 1;
+	
+	motSizeSettings.exposureMode = BaslerAutoExposure::mode::Off; 
+	motSizeSettings.exposureTime = 100;
 	motSizeSettings.frameRate = 100;
-	motSizeSettings.rawGain = settingsCtrl.unityGainSetting;
-	motSizeSettings.repCount = 100;
-	motSizeSettings.triggerMode = BaslerTrigger::mode::AutomaticSoftware;
+	motSizeSettings.rawGain = settingsCtrl.unityGainSetting; 
+	motSizeSettings.repCount = 50;
+	motSizeSettings.triggerMode = BaslerTrigger::mode::External; 
 }
 
+
+void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
+{
+	settings.acquisitionMode = BaslerAcquisition::mode::Finite;
+
+	settings.dims.left = 150;
+	settings.dims.right = 400;
+	settings.dims.top = 440;
+	settings.dims.bottom = 150;
+	settings.dims.horizontalBinning = 1;
+	settings.dims.verticalBinning = 1;
+
+	settings.exposureMode = BaslerAutoExposure::mode::Off;
+	settings.exposureTime = 50;
+	settings.frameRate = 100;
+	settings.rawGain = settingsCtrl.unityGainSetting;
+	settings.repCount = 50;
+	settings.triggerMode = BaslerTrigger::mode::External;
+}
 
 
 /*
 Load the settings appropriate for the mot size measurement and then start the camera.
 */
-void BaslerWindow::measureMotSize ( baslerSettings motSizeSettings )
+void BaslerWindow::startTemporaryAcquisition ( baslerSettings motSizeSettings )
 {
-	auto prevSettings = settingsCtrl.getCurrentSettings ( );
 	handleDisarmPress ( );
-	settingsCtrl.setSettings ( motSizeSettings );
-	startCamera ( );
-	// finish...
-	settingsCtrl.setSettings ( prevSettings );
-	// wait for the measurement to finish.
-	auto res = WaitForSingleObject ( cameraController->getCameraThreadObj ( ), 1E5 );
+	currentRepNumber = 0;
+	runningAutoAcq = true;
+	tempAcqSettings = motSizeSettings;
+	cameraController->setParameters ( motSizeSettings );
+	picManager.setParameters ( motSizeSettings.dims );
+	triggerThreadInput* input = new triggerThreadInput;
+	input->width = motSizeSettings.dims.width ( );
+	input->height = motSizeSettings.dims.height ( );
+	input->frameRate = motSizeSettings.frameRate;
+	input->parent = this;
+	input->runningFlag = &triggerThreadFlag;
+	cameraController->armCamera ( input );
 }
 
 
@@ -116,9 +145,9 @@ void BaslerWindow::setCameraForMotTempMeasurement ( )
 	auto prevSettings = settingsCtrl.getCurrentSettings ( );
 	baslerSettings motTempSettings;
 	motTempSettings.acquisitionMode = BaslerAcquisition::mode::Finite;
-	motTempSettings.dimensions = settingsCtrl.ScoutFullResolution;
+	motTempSettings.dims = settingsCtrl.ScoutFullResolution;
 	motTempSettings.exposureMode = BaslerAutoExposure::mode::Off;
-	motTempSettings.exposureTime = 1e-3;
+	motTempSettings.exposureTime = 100;
 	motTempSettings.frameRate = 100;
 	motTempSettings.rawGain = settingsCtrl.unityGainSetting;
 	motTempSettings.repCount = 100;
@@ -170,7 +199,7 @@ void BaslerWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 }
 
 
-void BaslerWindow::handleEnter( ) { errBox( "hi!" ); }
+void BaslerWindow::handleEnter( ) { errBox( "\-.-/" ); }
 
 
 // this is suppose see where the mouse is at a given time so that if it is hovering over a pixel I can display the pixel count.
@@ -254,16 +283,21 @@ void BaslerWindow::startDefaultAcquisition ( )
 { 
 	try
 	{
+		if ( cameraController->isRunning ( ) )
+		{
+			handleDisarmPress ( );
+		}
 		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
 		baslerSettings tempSettings;
 		tempSettings.acquisitionMode = BaslerAcquisition::mode::Continuous;
-		tempSettings.dimensions.left = 200;
-		tempSettings.dimensions.right = 350;
-		tempSettings.dimensions.top = 390;
-		tempSettings.dimensions.bottom = 200;
-		tempSettings.dimensions.horizontalBinning = 1;
-		tempSettings.dimensions.verticalBinning = 1;
+		tempSettings.dims.left = 200;
+		tempSettings.dims.right = 350;
+		tempSettings.dims.top = 390;
+		tempSettings.dims.bottom = 200;
+		tempSettings.dims.horizontalBinning = 1;
+		tempSettings.dims.verticalBinning = 1;
+
 		tempSettings.exposureMode = BaslerAutoExposure::mode::Off;
 		tempSettings.triggerMode = BaslerTrigger::mode::AutomaticSoftware;
 		tempSettings.exposureTime = 100;
@@ -275,22 +309,22 @@ void BaslerWindow::startDefaultAcquisition ( )
 		tempSettings.rawGain = 260;
 
 		cameraController->setParameters ( tempSettings );
-		picManager.setParameters ( tempSettings.dimensions );
+		picManager.setParameters ( tempSettings.dims );
 		auto* dc = GetDC ( );
 		picManager.drawBackgrounds ( dc );
 		ReleaseDC ( dc );
 		runExposureMode = tempSettings.exposureMode;
-		imageWidth = tempSettings.dimensions.width ( );
+		imageWidth = tempSettings.dims.width ( );
 		// only important in safemode
 		triggerThreadFlag = true;
 
 		triggerThreadInput* input = new triggerThreadInput;
-		input->width = tempSettings.dimensions.width ( );
-		input->height = tempSettings.dimensions.height ( );
+		input->width = tempSettings.dims.width ( );
+		input->height = tempSettings.dims.height ( );
 		input->frameRate = tempSettings.frameRate;
 		input->parent = this;
 		input->runningFlag = &triggerThreadFlag;
-
+		tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? tempSettings.repCount : SIZE_MAX;
 		cameraController->armCamera ( input );
 		settingsCtrl.setStatus ( "Camera Status: Armed..." );
 		isRunning = true;
@@ -326,15 +360,18 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		}
  		if (!cameraController->isContinuous())
  		{
- 			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, settingsCtrl.getCurrentSettings ( ).dimensions );
+			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, 
+									runningAutoAcq ? tempAcqSettings.dims : settingsCtrl.getCurrentSettings ( ).dims );
  		}
  		if (currentRepNumber == cameraController->getRepCounts())
  		{
  			cameraController->disarm();
  			isRunning = false;
+			runningAutoAcq = false;
 			triggerThreadFlag = false;
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
 			mainWin->getComm ( )->sendBaslerFin ( );
+			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
  		}
 		stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );
 		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
@@ -397,23 +434,27 @@ void BaslerWindow::handleArmPress()
 {
 	try
 	{
+		if ( cameraController->isRunning ( ) )
+		{
+			handleDisarmPress ( );
+		}
 		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
 		baslerSettings tempSettings = settingsCtrl.loadCurrentSettings();
 		cameraController->setParameters( tempSettings );
 		imageParameters params;
-		picManager.setParameters( tempSettings.dimensions );
+		picManager.setParameters( tempSettings.dims );
 		auto* dc = GetDC( );
 		picManager.drawBackgrounds ( dc );
 		ReleaseDC( dc );
 		runExposureMode = tempSettings.exposureMode;
-		imageWidth = tempSettings.dimensions.width();
+		imageWidth = tempSettings.dims.width();
 		// only important in safemode
 		triggerThreadFlag = true;
 
 		triggerThreadInput* input = new triggerThreadInput;
-		input->width = tempSettings.dimensions.width();
-		input->height = tempSettings.dimensions.height();
+		input->width = tempSettings.dims.width();
+		input->height = tempSettings.dims.height();
 		input->frameRate = tempSettings.frameRate;
 		input->parent = this;
 		input->runningFlag = &triggerThreadFlag;
@@ -632,7 +673,7 @@ void BaslerWindow::initializeControls()
 	
 	picManager.initialize ( picPos, this, id, brushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
-	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dimensions );
+	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );
 	picManager.setPalletes ( { 1,1,1,1 } );
 	this->RedrawWindow ( );
 	picManager.drawBackgrounds( cdc );

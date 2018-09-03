@@ -347,7 +347,6 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 }
 
 
-
 void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 {
 	servosHeader.rearrange( width, height, fonts );
@@ -375,7 +374,7 @@ void ServoManager::runAll( )
 		calibrate ( servo, count++ );
 	}
 }
-
+ 
 
 void ServoManager::calibrate( servoInfo& s, UINT which )
 {
@@ -384,8 +383,9 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		return;
 	}
 	double tolerance = toleranceEdit.getWindowTextAsDouble();
-	double gain = 0.05;
 	double sp = s.setPoint;
+	// helps auto calibrate the servo for lower servo powers
+	double gain = 0.1 * sp;
 	ttls->zeroBoard ( );
 	for ( auto ttl : s.ttlConfig )
 	{
@@ -408,15 +408,32 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		{
 			// modify dac value.
 			double currVal = ao->getDacValue( aoNum );
+			double diff = gain * percentDif > 0.05 ? 0.05 : gain * percentDif;
 			try
 			{
-				ao->setSingleDac( aoNum, currVal + gain * percentDif, ttls );
+				ao->setSingleDac( aoNum, currVal + diff, ttls );
 			}
 			catch ( Error& )
 			{
 				// happens if servo value gives result out of range of dacs.
-				count = attemptLimit;
-				break;
+				auto r = ao->getDacRange ( aoNum );
+				try
+				{
+					if ( currVal + diff < r.first )
+					{
+						ao->setSingleDac ( aoNum, r.first, ttls );
+					}
+					else if ( currVal + diff > r.second )
+					{
+						ao->setSingleDac ( aoNum, r.second, ttls );
+					}
+				}
+				catch ( Error& )
+				{
+					// something went wrong...
+					count = attemptLimit;
+					break;
+				}
 			}
 			// there's a break built in here in order to let the laser settle.
 			Sleep( 100 );

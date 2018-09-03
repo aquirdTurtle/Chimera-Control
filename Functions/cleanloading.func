@@ -8,9 +8,9 @@ def cleanLoading():
   % turn the repump on a tiny bit early 
   % to pump to the F=2 manifold.
   on: RepumpRf
-  t += 0.5
+  t += 1
   on: SideMotRf
-  t += 10
+  t += 20
   off: SideMotRf
   off: repumpRf
   dacLinSpace: MotFreq -1 defaultMotFreq 1 10

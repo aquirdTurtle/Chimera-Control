@@ -6,36 +6,23 @@ def pump2stretch():
   % set to 3G field
 % for initial testing - C.K.
 var pumppower 0.3
-var pumptime 2.5 
+var pumptime 1.5 
   %1.0
   %call setQuantAxis()
   t += 1
-  % Setting the pumping beam frequencies:
-  % Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 
-  % mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
-  daclinspace: repumpFreq 0 -0.4852 2 10  %-0.4852 
-  % ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK,
-  % -0.12 for 7.15mW two traps, YL 10262016
+  daclinspace: repumpFreq 0 -0.4852 1 10  %-0.4852 
+  t += 1
   dac: sigmarepumpfreq  -0.12 
-  % (0.735-0.5)  %for 6 mW, 9 atoms 
-  % F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK     
-  % dac: motfreq -0.3 
-  % Setting OP frequency based on trap depth:
-  % for 6 mW, 9 atoms %frequency for 1.1mK trap depth 
-  % (may need recalibration); calibrated at 11032016
   dac: sigmaopfreq 0.5 % 0.5 
   off: diagmotshutter
-  % to let shutters actuate
-  % t += 50
-  % Setting the pumping beam powers:
   dac: sigmaoppower pumppower 
   dac: sigmarepumppower 0.3
-  % Performing OP pulse:
   dac: repumpPower 0.3 %0.2 %0.05
+ 
   on: repumpRf
   on: sigmaoprf 
   on: sigmarepumprf 
-  t += pumptime  % 6.0 % adding extra 1 ms for better pumping 20161011
+  t += pumptime 
   off: sigmaoprf
   off: sigmarepumprf
 

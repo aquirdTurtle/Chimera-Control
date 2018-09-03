@@ -328,11 +328,11 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	leftEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		int val = currentSettings.dimensions.left = boost::lexical_cast<int> ( std::string ( tempStr ) );
+		int val = currentSettings.dims.left = boost::lexical_cast<int> ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 			// round down to nearest multiple of 16
-		currentSettings.dimensions.leftBorder = int ( val / 16 ) * 16;
-		leftEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.leftBorder ) );
+		currentSettings.dims.leftBorder = int ( val / 16 ) * 16;
+		leftEdit.SetWindowTextA ( cstr ( currentSettings.dims.leftBorder ) );
 		#endif
 	}
 	catch ( boost::bad_lexical_cast& )
@@ -345,7 +345,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	horizontalBinningEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.horizontalBinning = boost::lexical_cast<int> ( std::string ( tempStr ) );
+		currentSettings.dims.horizontalBinning = boost::lexical_cast<int> ( std::string ( tempStr ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -356,31 +356,31 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	rightEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.right = boost::lexical_cast<int> ( std::string ( tempStr ) );
+		currentSettings.dims.right = boost::lexical_cast<int> ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 		int roundVal = 1;
-		if ( currentSettings.dimensions.horPixelsPerBin == 1 )
+		if ( currentSettings.dims.horPixelsPerBin == 1 )
 		{
 			roundVal = 16;
 		}
-		else if ( currentSettings.dimensions.horPixelsPerBin == 2 )
+		else if ( currentSettings.dims.horPixelsPerBin == 2 )
 		{
 			roundVal = 32;
 		}
-		else if ( currentSettings.dimensions.horPixelsPerBin == 4 )
+		else if ( currentSettings.dims.horPixelsPerBin == 4 )
 		{
 			roundVal = 64;
 		}
 		// round up to nearest multiple of 16 or 32 or 64 depending on binning.
-		int width = currentSettings.dimensions.rightBorder - currentSettings.dimensions.leftBorder + 1;
+		int width = currentSettings.dims.rightBorder - currentSettings.dims.leftBorder + 1;
 		width = ( ( width + roundVal - 1 ) / roundVal ) * roundVal;
-		currentSettings.dimensions.rightBorder = currentSettings.dimensions.leftBorder + width - 1;
+		currentSettings.dims.rightBorder = currentSettings.dims.leftBorder + width - 1;
 		// compensate in case the extra rounding over-shoots, which is possible if roundVal > 16.
-		if ( currentSettings.dimensions.rightBorder > cameraDims.x - 1 )
+		if ( currentSettings.dims.rightBorder > cameraDims.x - 1 )
 		{
-			currentSettings.dimensions.rightBorder -= roundVal;
+			currentSettings.dims.rightBorder -= roundVal;
 		}
-		rightEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.rightBorder ) );
+		rightEdit.SetWindowTextA ( cstr ( currentSettings.dims.rightBorder ) );
 		#endif
 	}
 	catch ( boost::bad_lexical_cast& )
@@ -392,11 +392,11 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	topEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		int val = currentSettings.dimensions.top = boost::lexical_cast<int> ( std::string ( tempStr ) );
+		int val = currentSettings.dims.top = boost::lexical_cast<int> ( std::string ( tempStr ) );
 		#ifdef USB_CAMERA
 			// round down to nearest multiple of 16
-		currentSettings.dimensions.topBorder = int ( val / 16 ) * 16;
-		topEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.topBorder ) );
+		currentSettings.dims.topBorder = int ( val / 16 ) * 16;
+		topEdit.SetWindowTextA ( cstr ( currentSettings.dims.topBorder ) );
 		#endif
 	}
 	catch ( boost::bad_lexical_cast& )
@@ -408,7 +408,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	verticalBinningEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.verticalBinning = boost::lexical_cast<int> ( std::string ( tempStr ) );
+		currentSettings.dims.verticalBinning = boost::lexical_cast<int> ( std::string ( tempStr ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -419,32 +419,32 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	bottomEdit.GetWindowTextA ( tempStr );
 	try
 	{
-		currentSettings.dimensions.bottom = boost::lexical_cast<int> ( std::string ( tempStr ) );
+		currentSettings.dims.bottom = boost::lexical_cast<int> ( std::string ( tempStr ) );
 
 		#ifdef USB_CAMERA
 			// round up to nearest multiple of 16 or 32 or 64 depending on binning.
 		int roundVal = 1;
-		if ( currentSettings.dimensions.vertPixelsPerBin == 1 )
+		if ( currentSettings.dims.vertPixelsPerBin == 1 )
 		{
 			roundVal = 16;
 		}
-		else if ( currentSettings.dimensions.vertPixelsPerBin == 2 )
+		else if ( currentSettings.dims.vertPixelsPerBin == 2 )
 		{
 			roundVal = 32;
 		}
-		else if ( currentSettings.dimensions.vertPixelsPerBin == 4 )
+		else if ( currentSettings.dims.vertPixelsPerBin == 4 )
 		{
 			roundVal = 64;
 		}
-		int height = currentSettings.dimensions.bottomBorder - currentSettings.dimensions.topBorder + 1;
+		int height = currentSettings.dims.bottomBorder - currentSettings.dims.topBorder + 1;
 		height = ( ( height + roundVal - 1 ) / roundVal ) * roundVal;
-		currentSettings.dimensions.bottomBorder = currentSettings.dimensions.topBorder + height - 1;
+		currentSettings.dims.bottomBorder = currentSettings.dims.topBorder + height - 1;
 		// compensate in case the extra rounding over-shoots, which is possible if roundVal > 16.
-		if ( currentSettings.dimensions.bottomBorder > cameraDims.y - 1 )
+		if ( currentSettings.dims.bottomBorder > cameraDims.y - 1 )
 		{
-			currentSettings.dimensions.bottomBorder -= roundVal;
+			currentSettings.dims.bottomBorder -= roundVal;
 		}
-		bottomEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.bottomBorder ) );
+		bottomEdit.SetWindowTextA ( cstr ( currentSettings.dims.bottomBorder ) );
 		#endif
 	}
 	catch ( boost::bad_lexical_cast& )
@@ -456,12 +456,12 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 
 
 	#ifdef USB_CAMERA
-		currentSettings.dimensions.checkConsistency ( "ace" );
+		currentSettings.dims.checkConsistency ( "ace" );
 	#endif
 	#ifdef FIREWIRE_CAMERA
-		currentSettings.dimensions.checkConsistency ( "scout" );
+		currentSettings.dims.checkConsistency ( "scout" );
 	#endif
-	if (currentSettings.dimensions.horizontalBinning > 4 || currentSettings.dimensions.verticalBinning > 4)
+	if (currentSettings.dims.horizontalBinning > 4 || currentSettings.dims.verticalBinning > 4)
 	{
 		thrower( "ERROR: Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
 	}
@@ -497,21 +497,21 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 	try
 	{
 		configFile >> test;
-		newSettings.dimensions.left = boost::lexical_cast<int>( test );
+		newSettings.dims.left = boost::lexical_cast<int>( test );
 		configFile >> test;
-		newSettings.dimensions.top = boost::lexical_cast<int>( test );
+		newSettings.dims.top = boost::lexical_cast<int>( test );
 		configFile >> test;
-		newSettings.dimensions.right = boost::lexical_cast<int>( test );
+		newSettings.dims.right = boost::lexical_cast<int>( test );
 		configFile >> test;
-		newSettings.dimensions.bottom = boost::lexical_cast<int>( test );
+		newSettings.dims.bottom = boost::lexical_cast<int>( test );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
 		thrower ( "ERROR: Basler control failed to convert dimensions recorded in the config file "
 				  "to integers" );
 	}
-	configFile >> newSettings.dimensions.horizontalBinning;
-	configFile >> newSettings.dimensions.verticalBinning;
+	configFile >> newSettings.dims.horizontalBinning;
+	configFile >> newSettings.dims.verticalBinning;
 	configFile >> txt;
 	newSettings.exposureMode = BaslerAutoExposure::fromStr(txt);
 	configFile >> newSettings.exposureTime;
@@ -528,12 +528,12 @@ void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
 	loadCurrentSettings( );
 	configFile << "Basler-Settings\n";
 	configFile << BaslerAcquisition::toStr(currentSettings.acquisitionMode) << "\n";
-	configFile << currentSettings.dimensions.left << "\n";
-	configFile << currentSettings.dimensions.top << "\n";
-	configFile << currentSettings.dimensions.right << "\n";
-	configFile << currentSettings.dimensions.bottom << "\n";
-	configFile << currentSettings.dimensions.horizontalBinning << "\n";
-	configFile << currentSettings.dimensions.verticalBinning << "\n";
+	configFile << currentSettings.dims.left << "\n";
+	configFile << currentSettings.dims.top << "\n";
+	configFile << currentSettings.dims.right << "\n";
+	configFile << currentSettings.dims.bottom << "\n";
+	configFile << currentSettings.dims.horizontalBinning << "\n";
+	configFile << currentSettings.dims.verticalBinning << "\n";
 	configFile << BaslerAutoExposure::toStr(currentSettings.exposureMode) << "\n";
 	configFile << currentSettings.exposureTime << "\n";
 	configFile << currentSettings.frameRate << "\n";
@@ -548,12 +548,12 @@ void BaslerSettingsControl::setSettings ( baslerSettings newSettings )
 {
 	currentSettings = newSettings;
 	cameraMode.SelectString ( 0, BaslerAcquisition::toStr ( currentSettings.acquisitionMode ).c_str ( ) );
-	leftEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.left ) );
-	topEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.top ) );
-	rightEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.right ) );
-	bottomEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.bottom ) );
-	horizontalBinningEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.horizontalBinning ) );
-	verticalBinningEdit.SetWindowTextA ( cstr ( currentSettings.dimensions.verticalBinning ) );
+	leftEdit.SetWindowTextA ( cstr ( currentSettings.dims.left ) );
+	topEdit.SetWindowTextA ( cstr ( currentSettings.dims.top ) );
+	rightEdit.SetWindowTextA ( cstr ( currentSettings.dims.right ) );
+	bottomEdit.SetWindowTextA ( cstr ( currentSettings.dims.bottom ) );
+	horizontalBinningEdit.SetWindowTextA ( cstr ( currentSettings.dims.horizontalBinning ) );
+	verticalBinningEdit.SetWindowTextA ( cstr ( currentSettings.dims.verticalBinning ) );
 	exposureModeCombo.SelectString ( 0, BaslerAutoExposure::toStr ( currentSettings.exposureMode ).c_str ( ) );
 	exposureEdit.SetWindowTextA ( cstr ( currentSettings.exposureTime ) );
 	frameRateEdit.SetWindowTextA ( cstr ( currentSettings.frameRate ) );
