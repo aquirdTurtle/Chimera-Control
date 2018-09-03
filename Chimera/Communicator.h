@@ -42,8 +42,8 @@ class Communicator
 		void sendCameraCalFin( );
 		void sendCameraFin();
 		void sendBaslerFin ( );
-		void sendRepProgress(ULONG rep);
 		void sendNoAtomsAlert( );
+		void sendNoMotAlert ( );
 
 		void sendAutoServo( );
 	private:

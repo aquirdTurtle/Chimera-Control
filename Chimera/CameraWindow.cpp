@@ -1174,7 +1174,14 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 
 bool AndorWindow::wantsNoMotAlert ( )
 {
-	return alerts.wantsAtomAlerts ( );
+	if ( cameraIsRunning() )
+	{
+		return alerts.wantsMotAlerts ( );
+	}
+	else
+	{
+		return false;
+	}
 }
 
 

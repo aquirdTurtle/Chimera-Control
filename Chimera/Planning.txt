@@ -69,6 +69,7 @@ Refactoring / Other:
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
 - make messages not global variables...
+- refactor rerngmove complexmove and simplemove which are confusing...
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status

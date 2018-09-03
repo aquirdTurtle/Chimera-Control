@@ -256,20 +256,21 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
+    <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="AndorRunMode.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
     <ClCompile Include="AndorTriggerModes.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
-    <ClCompile Include="MachineOptimizer.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="DioRows.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="MyListCtrl.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="rerngOptionStructures.cpp">
+      <Filter>Main Window\Structures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -381,9 +382,6 @@
     <ClInclude Include="longnam.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
-    <ClInclude Include="NiawgStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="DataLogger.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
@@ -432,16 +430,7 @@
     <ClInclude Include="DebugOptionsControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="rerngParams.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="rerngThreadInput.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngMove.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="AoSystem.h">
@@ -558,9 +547,6 @@
     <ClInclude Include="directions.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="rerngContainer.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
     <ClInclude Include="Fgen.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
@@ -612,6 +598,7 @@
     <ClInclude Include="BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
+    <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="BaslerSettingsControl.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
@@ -621,14 +608,12 @@
     <ClInclude Include="MasterManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
+    <ClInclude Include="dataPoint.h" />
     <ClInclude Include="AndorTriggerModes.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="AndorRunMode.h">
       <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="MachineOptimizer.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="DioRows.h">
       <Filter>DIO</Filter>
@@ -636,8 +621,17 @@
     <ClInclude Include="MyListCtrl.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="dataPoint.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    <ClInclude Include="NiawgStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngContainer.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngOptionStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngMoveStructures.h">
+      <Filter>Main Window\Structures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

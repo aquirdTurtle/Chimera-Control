@@ -220,7 +220,7 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 			}
 		}
 	}
-	if ( msgType == "MOT" )
+	if ( msgType == "Mot" )
 	{
 		for ( personInfo& person : peopleToText )
 		{
