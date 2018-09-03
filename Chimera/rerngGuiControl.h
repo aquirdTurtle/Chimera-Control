@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "myButton.h"
-#include "rerngParams.h"
+#include "rerngOptionStructures.h"
 #include "Version.h"
 #include "Control.h"
 #include "Windows.h"
@@ -45,10 +45,8 @@ class rerngGuiControl
 		Control<CStatic> finalMoveTimeText;
 		Control<CEdit> finalMoveTimeEdit;
 
-		Control<CleanCheck> fastMoveOption;
 		Control<CStatic> fastMoveTime;
 		Control<CEdit> fastMoveTimeEdit;
 
-		Control<CleanCheck> auxStaticOption;
-
+		Control<CComboBox> rerngModeCombo;
 };

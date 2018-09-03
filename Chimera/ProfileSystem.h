@@ -89,7 +89,8 @@ class ProfileSystem
 		bool sequenceIsSaved;
 
 		// version = str(versionMain) + "." + str(versionSub)
-		const Version version = Version( "3.5" );
+		// version 3.6: rerngMode added instead of various bools
+		const Version version = Version( "3.6" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

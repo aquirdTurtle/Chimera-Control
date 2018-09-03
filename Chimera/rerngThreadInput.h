@@ -1,7 +1,7 @@
 #pragma once
-#include "rerngStructures.h"
+#include "rerngOptionStructures.h"
 #include "rerngContainer.h"
-#include "rerngMove.h"
+#include "rerngMoveStructures.h"
 #include <chrono>
 #include <atomic>
 #include <vector>

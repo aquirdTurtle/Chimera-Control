@@ -1166,7 +1166,7 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 	UINT variations = variables.front( ).size() == 0 ? 1 : variables.front().front( ).keyValues.size( );
 	if (variations == 0)
 	{
-		variations = 1; 
+		variations = 1;
 	}
 	sizeDataStructures( sequenceLength, variations );
 	// and interpret the command list for each variation.

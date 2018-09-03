@@ -2593,7 +2593,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					{
 						noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
 					}
-					if ( input->guiOptions.useFast )
+					if ( input->guiOptions.rMode == rerngMode::mode::Ultrafast )
 					{
 						noFlashMove.waveVals = makeFastRerngWave( input->rerngWave->rearrange, input->sourceRows,
 																  input->sourceCols, noFlashMoveInfo, input->guiOptions,
@@ -2602,7 +2602,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 																input->sourceCols, flashMoveInfo, input->guiOptions,
 																flashMove.moveBias );
 					}
-					else if ( input->guiOptions.auxStatic )
+					else if ( input->guiOptions.rMode == rerngMode::mode::Antoine )
 					{
 						noFlashMove.waveVals = makeRerngWaveMovePart ( input->rerngWave->rearrange, 
 																	   noFlashMove.moveBias, input->sourceRows,
@@ -3142,7 +3142,7 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 	data.outputInfo = form.outputInfo;
 	data.preprogram = form.preprogram;
 	data.useCalibration = form.useCalibration;
-	data.auxStatic = form.auxStatic;
+	data.rMode = form.rMode;
 }
 
 
@@ -3414,7 +3414,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					{
 						bias = 1;
 					}
-					if ( input->guiOptions.useFast )
+					if ( input->guiOptions.rMode == rerngMode::mode::Ultrafast )
 					{
 						vals = input->niawg->makeFastRerngWave( info, input->sourceRows, input->sourceCols, move,
 																input->guiOptions, bias );
