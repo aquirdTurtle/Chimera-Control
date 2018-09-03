@@ -70,7 +70,7 @@ int main ( )
 	std::uniform_real_distribution<double> atomDist ( 0, 1 );
 	
 	UINT atomArraySize = 10;
-	UINT targetDim = 8;
+	UINT targetDim = 2;
 	std::ofstream resultsFile ( "Rearrange_Results_" + str(targetDim) + "x" + str(targetDim) + ".csv" );
 	std::vector<std::vector<UINT>> results;
 	Matrix<bool> atomArray ( atomArraySize, atomArraySize );
