@@ -167,7 +167,7 @@ struct rerngScriptInfo
 	Matrix<bool> target = Matrix<bool>( 0, 0 );
 	niawgPair<ULONG> finalPosition = { 0,0 };
 	// hard-coded currently. Should probably add some control for this.
-	double timePerMove = 12e-6;
+	double timePerMove = 60e-6;
 	double flashingFreq = 1e6;
 	// the maixmum number of moves the rearrangement should take.
 	UINT moveLimit = 0;

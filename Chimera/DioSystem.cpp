@@ -1174,7 +1174,8 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 	{
 		for (UINT variationNum = 0; variationNum < variations; variationNum++)
 		{
-			for (auto& formList : ttlCommandFormList[seqInc])
+			for (auto& formList : ttlCommandFormList[seqInc
+			])
 			{
 				DioCommand tempCommand;
 				tempCommand.line = formList.line;

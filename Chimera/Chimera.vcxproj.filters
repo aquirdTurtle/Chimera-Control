@@ -256,14 +256,12 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
+    <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="AndorRunMode.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
     <ClCompile Include="AndorTriggerModes.cpp">
       <Filter>Andor Window\Structures</Filter>
-    </ClCompile>
-    <ClCompile Include="MachineOptimizer.cpp">
-      <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="DioRows.cpp">
       <Filter>DIO</Filter>
@@ -380,9 +378,6 @@
     </ClInclude>
     <ClInclude Include="longnam.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ClInclude>
-    <ClInclude Include="NiawgStructures.h">
-      <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="DataLogger.h">
       <Filter>Andor Window</Filter>
@@ -612,6 +607,7 @@
     <ClInclude Include="BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
+    <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="BaslerSettingsControl.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
@@ -621,22 +617,20 @@
     <ClInclude Include="MasterManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
+    <ClInclude Include="dataPoint.h" />
     <ClInclude Include="AndorTriggerModes.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="AndorRunMode.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="MachineOptimizer.h">
-      <Filter>Auxiliary Window</Filter>
+    <ClInclude Include="NiawgStructures.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
     <ClInclude Include="DioRows.h">
       <Filter>DIO</Filter>
     </ClInclude>
     <ClInclude Include="MyListCtrl.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
   </ItemGroup>

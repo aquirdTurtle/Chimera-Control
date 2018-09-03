@@ -509,7 +509,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			flashVaries( waveForm );
 			if ( !waveForm.core.varies )
 			{
-				flashFormToOutput( waveForm, wave );
+				flashFormToOutput( waveForm, wave, constants, 0 );
 				writeFlashing( wave, options, 0 );
 			}
 		}
@@ -657,8 +657,9 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 {
 	if ( cmd == "flash" )
 	{
-		/*
-		Format is:
+		/* 
+		(THIS NEEDS TO BE MODIFIED FOR THE COMBINED SCRIPT FORMAT, this was written when the horizontal and vertical)
+		scripts were programmed seperately. Format is:
 		% Command
 		flash
 		% bracket
@@ -887,20 +888,20 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
 		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
-														 * rearrangeWave.rearrange.timePerMove.evaluate( ) * 1e-3
-														 + 2 * rerngGuiInfo.finalMoveTime.evaluate() * 1e-3) * 1e3 );
+														 * rearrangeWave.rearrange.timePerMove.evaluate( variables, 0 ) * 1e-3
+														 + 2 * rerngGuiInfo.finalMoveTime.evaluate( variables, 0 ) * 1e-3) * 1e3 );
 		for ( auto ax : AXES )
 		{
 			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].signals )
 			{
-				rearrangeWave.rearrange.staticBiases[ax].push_back( sig.initPower.evaluate( ) );
-				rearrangeWave.rearrange.staticPhases[ax].push_back( sig.initPhase.evaluate( ) );
+				rearrangeWave.rearrange.staticBiases[ax].push_back( sig.initPower.evaluate( variables, 0 ) );
+				rearrangeWave.rearrange.staticPhases[ax].push_back( sig.initPhase.evaluate( variables, 0 ) );
 			}
 		}
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = long( (output.waveFormInfo.back( ).rearrange.moveLimit
-							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) * 1e-3
-							   + 2 * rerngGuiInfo.finalMoveTime.evaluate() * 1e-3) * NIAWG_SAMPLE_RATE );
+							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( variables, 0 ) * 1e-3
+							   + 2 * rerngGuiInfo.finalMoveTime.evaluate( variables, 0 ) * 1e-3) * NIAWG_SAMPLE_RATE );
 		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
@@ -1056,14 +1057,14 @@ void NiawgController::openWaveformFiles()
 
 
 /**
-* This important function takes in the input parameters and from those creates the waveform data array. It is inside
-* this function that the waveform "library" functionality is realized. The function checks a list of strings to see if
-* the waveform has previously been generated, and if it has, it reads the waveform data from a binary file. If it
-* hasn't been created before, it writes a file containing all of the waveform data. Appended to the end of the
-* waveform data files is the final phase of each of the signals involved in the file. This must be stripped off of the
-* voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
-* it is written to a new file.
-*/
+ * This important function takes in the input parameters and from those creates the waveform data array. It is inside
+ * this function that the waveform "library" functionality is realized. The function checks a list of strings to see if
+ * the waveform has previously been generated, and if it has, it reads the waveform data from a binary file. If it
+ * hasn't been created before, it writes a file containing all of the waveform data. Appended to the end of the
+ * waveform data files is the final phase of each of the signals involved in the file. This must be stripped off of the
+ * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
+ * it is written to a new file.
+ */
 void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
 										bool powerCap, bool constPower)
 {
@@ -1807,7 +1808,17 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 	{
 		// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the 
 		// previous waveform. Check to make sure this is valid at this point, will be evaluated later.
-		if ( signal.initPhase.evaluate( ) == -1 )
+		bool copyPhase = false; 
+		try
+		{
+			copyPhase = ( signal.initPhase.evaluate ( ) == -1);
+		}
+		catch ( Error& err )
+		{
+			// is a variable, hopefully variable value isn't -1...
+		}
+
+		if ( copyPhase )
 		{
 			if ( output.waveFormInfo.size( ) == 0 )
 			{
@@ -2812,7 +2823,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 
 simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, double moveBias, UINT sourceRows,
 													UINT sourceCols, complexMove moveInfo )
-{ 
+{
 	double freqPerPixel = rerngSettings.freqPerPixel;
 
 	auto targetCols = rerngSettings.target.getCols ( );
@@ -2827,7 +2838,7 @@ simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettin
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
 	// if flashing, this time + staticWave.time needs to be = rerngSettings.timePerMove
-	moveWave.time = rerngSettings.timePerMove;
+	moveWave.time = 0.02e-3;// rerngSettings.timePerMove;
 	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
 	bool offGridDump = true;
 	double nonMovingFrac = offGridDump ? 1 - moveBias : ( 1 - moveBias ) / ( movingSize - 2 );
@@ -3466,7 +3477,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 						+ str(moveCalcTime) + ", Fin Move Time:" + str(finMoveTime) + " Code Time = " 
 						+ str(totalCodeTime) + "\r\n";
 					input->comm->sendStatus( moveMsg );
-
 				}
 			}
 			if ( input->guiOptions.outputInfo )
