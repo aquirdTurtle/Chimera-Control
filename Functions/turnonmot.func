@@ -21,12 +21,13 @@ def turnOnMot():
   dac: SideMotPower sidemot__servo_value
   %% Magnetic Field Control
   var motStrength 7.1
-  var right_field 0.742 %
-  var left_field -0.54
-  var top_field 0.56 %
-  var bot_field -0.258
-  var front_field 0.43 %
-  var back_field 1.635
+  var right_field 0.584 %0.742
+  var left_field -0.664 %-0.54
+  var front_field 0.392 %0.43
+  var back_field 1.640 %1.635
+  var bot_field -0.227 %-0.258
+  var top_field 0.538 %0.56
+
   dac: MotGradientCurrent motStrength
   dac: RightCoilCurrent right_field
   dac: LeftCoilCurrent left_field
@@ -35,10 +36,3 @@ def turnOnMot():
   dac: BottomCoilCurrent bot_field
   dac: TopCoilCurrent top_field
 
-%  var motStrength 7
-%  var right_field 0.947
-%  var left_field -0.55
-%  var top_field 1
-%  var bot_field -0.195
-%  var front_field 0.5
-%  var back_field 1.737

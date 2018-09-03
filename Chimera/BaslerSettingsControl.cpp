@@ -158,6 +158,7 @@ void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int 
 
 	motThresholdEdit.sPos = { pos.x + 150, pos.y, pos.x + 275, pos.y + 25 };
 	motThresholdEdit.Create ( NORM_EDIT_OPTIONS, motThresholdEdit.sPos, parent, id++ );
+	motThresholdEdit.SetWindowTextA ( "0" );
 
 	motLoadedColorbox.sPos = { pos.x + 275, pos.y, pos.x + 300, pos.y += 25 };
 	motLoadedColorbox.Create ( "", NORM_STATIC_OPTIONS, motLoadedColorbox.sPos, parent, IDC_MOT_LOADED_INDICATOR );
@@ -210,6 +211,12 @@ void BaslerSettingsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
+void BaslerSettingsControl::redrawMotIndicator ( )
+{ 
+	motLoadedColorbox.RedrawWindow ( );
+}
+
+
 // assumes called on every 10 pics.
 void BaslerSettingsControl::handleFrameRate()
 {
@@ -227,7 +234,14 @@ void BaslerSettingsControl::handleFrameRate()
 
 double BaslerSettingsControl::getMotThreshold ( )
 {
-	return motThresholdEdit.getWindowTextAsDouble ( );
+	try
+	{
+		return motThresholdEdit.getWindowTextAsDouble ( );
+	}
+	catch ( Error& )
+	{
+		return 0;
+	}
 }
 
 

@@ -1,9 +1,8 @@
 % free space grey molasses
-def D1greyLambdaloading():
+def inTrapGreyMolasses():
   % settings
-  var grey_detuning 0.25
-  var D1twoToTwopPower 0.178
-  var repump_Power 0.3
+  var grey_detuning 0.46
+  var D1twoToTwopPower 0.23
   var repump_Freq -0.55
   var cooling_time 100
   var rsfreq 0.158
@@ -22,11 +21,11 @@ def D1greyLambdaloading():
   dac: sideMotPower 0
   dac: RepumpPower 0
   
-  on: tweezerRf
-  call d1greyLoadFields() 
+  call D1GreyInTrapPgcFields() 
 
   off: eoswitch
   off: eoswitch2
+
   on: rf795
   t += cooling_time 
   off: rf795

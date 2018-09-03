@@ -391,6 +391,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 			motLoaded = true;
 			loadMotConsecutiveFailures = 0;
 		}
+		settingsCtrl.redrawMotIndicator ( );
  	}
 	catch (Error& err)
 	{
