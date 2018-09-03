@@ -10,62 +10,135 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <random>
+#include <cmath>
+#include "Matrix.h"
+#include <fstream>
 
-int main()
+
+int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal )
 {
-	CodeTimer timer;
-	std::vector<BYTE> dataArray;
-	for ( auto i : range ( 512 * 512 ) )
+	// if level below
+	int res = 0;
+	if ( currentLevel != 0 )
 	{
-		dataArray.push_back(i);
-	}
-	timer.tick ( "Init" );
-	for ( auto i : range ( 100 ) )
-	{
-		std::vector<BYTE> finalDataArray ( 512 * 512 * 4, 255 );
-		for ( int dataInc = 0; dataInc < 512 * 512; dataInc++ )
+		// try iterate below.
+		res = increment ( ind, currentLevel - 1, maxVal );
+		if ( res != -1 )
 		{
-			int data = dataArray[ dataInc ];
-			finalDataArray[ 4 * dataInc ] = data;
-			finalDataArray[ 4 * dataInc + 1 ] = data;
-			finalDataArray[ 4 * dataInc + 2 ] = data;
-			finalDataArray[ 4 * dataInc + 3 ] = data;
+			// lower level succeeded. success.
+			return res;
 		}
 	}
-	timer.tick ( "End-1" );
-	for ( auto i : range ( 100 ) )
+	// if reach this point, either lower levels failed or no levels below.
+	auto isFin = currentLevel == ind.size ( ) - 1;
+	if ( ( isFin && ind[ currentLevel ] != maxVal ) || (!isFin && ind[ currentLevel ] != ind[ currentLevel + 1 ] - 1 ))
 	{
-		std::vector<BYTE> arr2;
-		for ( int dataInc = 0; dataInc < 512 * 512; dataInc++ )
-		{
-			int data = dataArray[ dataInc ];
-			arr2.push_back ( data );
-			arr2.push_back ( data );
-			arr2.push_back ( data );
-			arr2.push_back ( data );
-		}
+		// possible to increment.
+		ind[ currentLevel ]++;
+		return currentLevel;
 	}
-	timer.tick ( "End-2" );
-	for ( auto i : range ( 100 ) )
-	{
-		std::vector<BYTE> arr3;
-		for ( int dataInc = 0; dataInc < 512 * 512; dataInc++ )
-		{
-			std::vector<BYTE> data = { dataArray[ dataInc ],dataArray[ dataInc ],dataArray[ dataInc ],dataArray[ dataInc ] };
-			arr3.insert ( arr3.end ( ), data.begin ( ), data.end ( ) );
-		}
-	}
-	timer.tick ( "End-3" );
-	for ( auto i : range ( 100 ) )
+
+	// reset.
+	ind[ currentLevel ] = currentLevel;
+	return -1;
+}
+
+
+ULONGLONG calcExpected ( UINT m, UINT n )
 {
-		std::vector<BYTE> finalDataArray ( 512 * 512 * 4, 255 );
-		for ( auto d : range(finalDataArray.size() ))
+	/*m larger*/
+	ULONGLONG tterm = 1;
+	for ( auto i : range ( n ) )
+	{
+		tterm *= m - i;
+	}
+	std::cout << tterm << "\n";
+	for ( auto i : range ( n ) )
+	{
+		tterm /= (i+1);
+	}
+	std::cout << tterm << "\n";
+	return tterm;
+}
+
+
+int main ( )
+{
+	std::random_device rd;
+	std::mt19937 mt ( rd ( ) );
+	std::uniform_real_distribution<double> atomDist ( 0, 1 );
+	
+	UINT atomArraySize = 10;
+	UINT targetDim = 8;
+	std::ofstream resultsFile ( "Rearrange_Results_" + str(targetDim) + "x" + str(targetDim) + ".csv" );
+	std::vector<std::vector<UINT>> results;
+	Matrix<bool> atomArray ( atomArraySize, atomArraySize );
+
+	for ( auto loadInc : range ( 101 ) )
+	{
+		double loadRate = double(loadInc)/100;
+		std::cout << "\b\b\b\b\b     \b\b\b\b\b" << loadRate;
+		results.push_back ( std::vector<UINT> ( ) );
+		for ( auto repInc : range ( 5000 ) )
 		{
-			finalDataArray[d] = dataArray[ int( d / 4) ];
+			for ( auto& atom : atomArray )
+			{
+				atom = ( atomDist ( mt ) < loadRate );
+			}
+			// initialize indexes to 0,1,2,3,...
+			std::vector<UINT> xindexes ( targetDim );
+			std::vector<UINT> yindexes ( targetDim );
+			auto inc = 0;
+			for ( auto inc : range ( xindexes.size ( ) ) )
+			{
+				xindexes[ inc ] = yindexes[ inc ] = inc;
+			}
+			UINT res;
+			UINT count = 0;
+			UINT matchCount = 0;
+			while ( true )
+			{
+				// fill test;
+				Matrix<bool> testArray ( atomArraySize, atomArraySize, 0 );
+				for ( auto xi : xindexes )
+				{
+					for ( auto yi : yindexes )
+					{
+						testArray ( xi, yi ) = true;
+					}
+				}
+				UINT match = 0;
+				for ( auto i : range ( testArray.size ( ) ) )
+				{
+					match += testArray.data[ i ] * atomArray.data[ i ];
+				}
+				if ( match == targetDim*targetDim )
+				{
+					matchCount++;
+				}
+				// get next
+				res = increment ( xindexes, targetDim - 1, atomArraySize - 1 );
+				count++;
+				if ( res == -1 )
+				{
+					res = increment ( yindexes, targetDim - 1, atomArraySize - 1 );
+					if ( res == -1 )
+					{
+						break;
+					}
+				}
+			}
+			results[loadInc].push_back ( matchCount );
+		}
+		resultsFile << "\n" << loadRate << ", ";
+		for ( auto res : results[loadInc] )
+		{
+			resultsFile << res << ", ";
 		}
 	}
-	timer.tick ( "End-4" );
-	std::cout << timer.getTimingMessage ( ); 
+	std::cout << "\nfin.\n";
 	std::cin.get ( );
 }
+
 

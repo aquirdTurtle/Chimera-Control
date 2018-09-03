@@ -152,10 +152,12 @@
   <ItemGroup>
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="commonTypes.h" />
+    <ClInclude Include="Matrix.h" />
     <ClInclude Include="my_str.h" />
     <ClInclude Include="range.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Thrower.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeTimer.cpp" />
