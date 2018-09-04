@@ -205,7 +205,7 @@ class NiawgController
 		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos);
 		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, UINT rows, UINT cols );
 		static void sortByDistanceToTarget ( std::vector<simpleMove> &moveList );
-		static niawgPair<std::vector<UINT>> findLazyPosition( Matrix<bool> source, UINT targetDim );
+		static niawgPair<std::vector<UINT>> findLazyPosition( Matrix<bool> source, UINT targetDim, Communicator* comm );
 		static int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal );
 		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves );
 		// returns maximal number of moves given a targetmatrix.

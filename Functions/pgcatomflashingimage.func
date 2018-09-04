@@ -11,7 +11,7 @@ def pgcAtomFlashingImage():
   call zeroFields()
   t += 2
   % turn the repump on a tiny bit early 
-  % to pump to the F=2 manifold.	
+  % to pump to the F=2 manifold.
   on: RepumpRf
   t += 0.2
   on: andorTrig
