@@ -143,6 +143,7 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::Pen*> getBrightPlotPens( );
 		std::vector<Gdiplus::SolidBrush*> getPlotBrushes( );
 		std::vector<Gdiplus::SolidBrush*> getBrightPlotBrushes( );
+		void passRerngModeComboChange ( );
 	private:		
 		DECLARE_MESSAGE_MAP();
 		

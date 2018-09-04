@@ -758,18 +758,18 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 	else if ( cmd == "rearrange" )
 	{
 		/*				Format:
-		rearrange
-		{
-		rows in target
-		cols in target
-		lowest hor freq
-		lowest vert freq
-		freq spacing (usually 9MHz)
-		hold waveform (e.g. gen 6 const) horizontal
-		hold waveform (e.g. gen 6 const) vertical
-		target pattern
-		target coordinates (row col)
-		}
+		rearrange 
+		{ 
+			rows in target
+			cols in target
+			lowest hor freq
+			lowest vert freq
+			freq spacing (usually 9MHz)
+			hold waveform (e.g. gen 6 const) horizontal
+			hold waveform (e.g. gen 6 const) vertical
+			target pattern
+			target coordinates (row col)
+		} 
 		*/
 		waveInfoForm rearrangeWave;
 		rearrangeWave.rearrange.timePerMove = rerngGuiInfo.moveSpeed.expressionStr;
@@ -783,8 +783,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		script >> bracket;
 		if ( bracket != "{" )
 		{
-			thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in niawg File during "
-					 " flashing waveform read" );
+			thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in niawg File during flashing waveform read" );
 		}
 		/// get pic dims
 		// get the dimensions of the target picture.
@@ -887,9 +886,18 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		rearrangeWave.rearrange.moveLimit = 50; // getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
-		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
-														 * rearrangeWave.rearrange.timePerMove.evaluate( variables, 0 ) * 1e-3
-														 + 2 * rerngGuiInfo.finalMoveTime.evaluate( variables, 0 ) * 1e-3) * 1e3 );
+		double lazyModeTime = 1e-3;
+		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
+		{
+			// 1ms
+			rearrangeWave.rearrange.fillerWave.time = str( lazyModeTime*1e3 );
+		}
+		else
+		{
+			rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
+															 * rearrangeWave.rearrange.timePerMove.evaluate( variables, 0 ) * 1e-3
+															 + 2 * rerngGuiInfo.finalMoveTime.evaluate( variables, 0 ) * 1e-3) * 1e3 );
+		}
 		for ( auto ax : AXES )
 		{
 			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].signals )
@@ -899,9 +907,17 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 			}
 		}
 		output.waveFormInfo.push_back( rearrangeWave );
-		long samples = long( (output.waveFormInfo.back( ).rearrange.moveLimit
-							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( variables, 0 ) * 1e-3
-							   + 2 * rerngGuiInfo.finalMoveTime.evaluate( variables, 0 ) * 1e-3) * NIAWG_SAMPLE_RATE );
+		long samples = 0;
+		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
+		{
+			samples = lazyModeTime * NIAWG_SAMPLE_RATE;
+		}
+		else
+		{
+			samples = long ( ( output.waveFormInfo.back ( ).rearrange.moveLimit 
+							   * output.waveFormInfo.back ( ).rearrange.timePerMove.evaluate ( variables, 0 ) * 1e-3 
+							   + 2 * rerngGuiInfo.finalMoveTime.evaluate ( variables, 0 ) * 1e-3 ) * NIAWG_SAMPLE_RATE );
+		}
 		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
@@ -2035,7 +2051,6 @@ void NiawgController::writeFlashing( waveInfo& wave, debugInfo& options, UINT va
 	fgenConduit.writeNamedWaveform( cstr( wave.core.name ), long( wave.core.waveVals.size( ) ),
 									wave.core.waveVals.data( ) );
 	//writeToFile( wave.core.waveVals );
-
 }
 
 
@@ -3145,7 +3160,7 @@ int NiawgController::increment ( std::vector<UINT>& ind, UINT currentLevel, UINT
 
 
 
-niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> source, UINT targetDim )
+niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator* comm )
 {
 	if ( source.getRows ( ) != source.getCols ( ) )
 	{
@@ -3170,7 +3185,7 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		{
 			for ( auto yi : indexes[ Axes::Vertical ] )
 			{
-				testArray ( xi, yi ) = true;
+				testArray ( yi, xi ) = true;
 			}
 		}
 		UINT match = 0;
@@ -3180,6 +3195,8 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		}
 		if ( match == targetDim*targetDim )
 		{
+			comm->sendDebug ( "Source:\r\n" + source.print ( ) + "\r\n" );
+			comm->sendDebug ( "Test:\r\n" +  testArray.print ( ) + "\r\n" );
 			// found a match, horray.
 			break;
 		}
@@ -3199,6 +3216,7 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 }
 
 
+
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
@@ -3208,10 +3226,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	std::vector<UINT> numberMoves;
 	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, finMoveCalc, stopMoveCalc, stopAllCalc;
 	std::ofstream moveRecordFile;
-	std::vector<double> phases = { 0,0,0,0,0,0,0,0,0,0 };
-	niawgPair<std::vector<double>> amps;
-	amps[ Axes::Horizontal ] = std::vector<double> ( { 1,1,1,1,1, 1,1,1,1,1 } );
-	amps[ Axes::Vertical   ] = std::vector<double> ( { 1,1,1,1,1, 1,1,1,1,1 } );
 	UINT counter = -1;
 	try
 	{
@@ -3309,7 +3323,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					{
 						thrower ( "ERROR: Target dimensions must be the same for lazy mode!" );
 					}
-					lazyPositions = findLazyPosition ( source, info.target.getCols ( ) );
+					lazyPositions = findLazyPosition ( source, info.target.getCols ( ), input->comm );
 				}
 				else
 				{
@@ -3341,7 +3355,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			/// program niawg
 			if ( input->guiOptions.rMode == rerngMode::mode::Lazy )
 			{
-				// need static hold and final move
+				// need static hold and final move;
 				simpleWave holdWave;
 				holdWave.varies = false;
 				holdWave.name = "NA";
@@ -3354,19 +3368,21 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					UINT count = 0;
 					for ( auto sigInc : range ( holdWave.chan[ axis ].signals.size ( ) ) )
 					{
-						auto pos = lazyPositions[ axis ][sigInc];
+						auto lp = lazyPositions[ axis ][ sigInc ];
+						auto pos = axis == Axes::Horizontal ? lp : source.getRows() - lp - 1;
 						auto& sig = holdWave.chan[ axis ].signals[ sigInc ];
 						sig.freqInit = ( pos * info.freqPerPixel + info.lowestFreqs[axis] ) * 1e6;
 						sig.freqFin = sig.freqInit;
 						sig.freqRampType = "nr";
-						sig.initPower = sig.finPower = amps[axis][pos];
+						sig.initPower = sig.finPower = info.staticBiases[axis][pos];
 						sig.powerRampType = "nr";
-						sig.initPhase = phases[ pos ];
+						sig.initPhase = info.staticPhases[axis][ pos ];
 						count++;
 					}
 				}
 				input->niawg->finalizeStandardWave ( holdWave, debugInfo ( ) );
 				std::vector<double> vals ( holdWave.waveVals );
+				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals.begin ( ), vals.end ( ) );
 			}
 			else
 			{
@@ -3380,7 +3396,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					std::vector<double> vals;
 					UINT row = move.locationsToMove[ 0 ].row;
 					UINT col = move.locationsToMove[ 0 ].column;
-					if ( input->guiOptions.preprogram )
+					if ( input->guiOptions.preprogram && (input->guiOptions.rMode != rerngMode::mode::Lazy ))
 					{
 						if ( move.needsFlash )
 						{
@@ -3434,13 +3450,13 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				//input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.begin( ),
 				//									finalMove.end( ) );
 				finMoveCalc.push_back ( chronoClock::now ( ) );
-				// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
-				// size and the existing size to fill out the rest of the vector.
-				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), info.fillerWave.waveVals.begin ( ),
-													 info.fillerWave.waveVals.begin ( ) + info.fillerWave.waveVals.size ( )
-													 - input->niawg->rerngWaveVals.size ( ) );
-				stopAllCalc.push_back ( chronoClock::now ( ) );
 			}
+			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
+			// size and the existing size to fill out the rest of the vector.
+			input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), info.fillerWave.waveVals.begin ( ),
+												 info.fillerWave.waveVals.begin ( ) + info.fillerWave.waveVals.size ( )
+												 - input->niawg->rerngWaveVals.size ( ) );
+			stopAllCalc.push_back ( chronoClock::now ( ) );
 			input->niawg->fgenConduit.resetWritePosition( );
 			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );
@@ -3501,6 +3517,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
+			/*
 			finMoveCalcTime.push_back( std::chrono::duration<double>( finMoveCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopAllCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
@@ -3508,38 +3525,44 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			moveCalcTime.push_back( std::chrono::duration<double>( stopMoveCalc[inc] - stopRerngCalc[inc] ).count( ) );
 			finishingCalcTime.push_back( std::chrono::duration<double>( stopAllCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
+			*/
 		}
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
-
+		
 		std::ofstream dataFile( DEBUG_OUTPUT_LOCATION + "Rearrangement-Time-Log.txt" );
-		dataFile
-			<< "PicHandlingTime\t"
-			<< "PicGrabTime\t"
-			<< "Rearrangement-Calc-Time\t"
-			<< "Movement-Calc-Time\t"
-			<< "Finishing-Calc-Time\t"
-			<< "ResetPositionTime\t"
-			<< "StreamTime\t"
-			<< "TriggerTime\n";
-		if ( !dataFile.is_open( ) )
+		if ( !dataFile.is_open ( ) )
 		{
-			errBox( "ERROR: file failed to open for rearrangement time log!" );
+			errBox ( "ERROR: file failed to open for rearrangement time log!" );
 		}
-		for ( auto count : range( triedRearranging.size( ) ) )
+		else
 		{
 			dataFile
-				//<< picHandlingTime[count] << "\t"
-				//<< picGrabTime[count] << "\t"
-				<< rerngCalcTime[count] << "\t"
-				<< moveCalcTime[count] << "\t"
-				<< finishingCalcTime[count] << "\t"
-				<< resetPositionTime[count] << "\t"
-				<< streamTime[count] << "\t"
-				<< triggerTime[count] << "\t"
-				<< numberMoves[count] << "\n";
+				<< "PicHandlingTime\t"
+				<< "PicGrabTime\t"
+				<< "Rearrangement-Calc-Time\t"
+				<< "Movement-Calc-Time\t"
+				<< "Finishing-Calc-Time\t"
+				<< "ResetPositionTime\t"
+				<< "StreamTime\t"
+				<< "TriggerTime\n";
+			for ( auto count : range ( triedRearranging.size ( ) ) )
+			{
+				/*
+				dataFile
+					//<< picHandlingTime[count] << "\t"
+					//<< picGrabTime[count] << "\t"
+					<< rerngCalcTime[ count ] << "\t"
+					<< moveCalcTime[ count ] << "\t"
+					<< finishingCalcTime[ count ] << "\t"
+					<< resetPositionTime[ count ] << "\t"
+					<< streamTime[ count ] << "\t"
+					<< triggerTime[ count ] << "\t"
+					<< numberMoves[ count ] << "\n";
+				*/
+			}
+			dataFile.close ( );
 		}
-		dataFile.close( );
 	}
 	catch ( Error& err )
 	{

@@ -91,14 +91,24 @@ std::string Matrix<type>::print( )
 {
 	std::string printStr;
 	UINT counter = 0;
+	for ( auto rowInc : range(getRows ( )) )
+	{
+		for ( auto colInc : range(getCols ( )) )
+		{
+			printStr += str ( (*this)(getRows() - rowInc - 1, colInc) ) + ", ";
+		}
+		printStr += ";\n";
+	}
+	/*
 	for ( auto elem : *this )
 	{
 		printStr += str( elem ) + ", ";
 		if ( ++counter % cols == 0 )
 		{
-			printStr += ";\n";
+			printStr += ";\n"; 
 		}
 	}
+	*/
 	return printStr;
 }
 

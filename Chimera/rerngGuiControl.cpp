@@ -17,6 +17,7 @@ void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips&
 	flashingRateEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
 	flashingRateEdit.Create ( NORM_EDIT_OPTIONS, flashingRateEdit.sPos, parent, id++ );
 	flashingRateEdit.SetWindowTextA ( "1" );
+
 	moveSpeedText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	moveSpeedText.Create ( "Move Speed (ms)", NORM_STATIC_OPTIONS, moveSpeedText.sPos, parent, id++ );
 	moveSpeedEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
@@ -60,21 +61,21 @@ void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips&
 	finalMoveTimeEdit.Create ( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
 	finalMoveTimeEdit.SetWindowTextA ( "1" );
 
-	rerngModeCombo.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 500 };
-	rerngModeCombo.Create ( NORM_COMBO_OPTIONS, rerngModeCombo.sPos, parent, id++ );
+	rerngModeCombo.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 500 };
+	rerngModeCombo.Create ( NORM_COMBO_OPTIONS, rerngModeCombo.sPos, parent, IDC_RERNG_MODE_COMBO );
 	for ( auto m : rerngMode::allModes )
 	{
 		rerngModeCombo.AddString ( rerngMode::toStr ( m ).c_str() );
 	}
 	rerngModeCombo.SelectString ( 0, rerngMode::toStr ( rerngMode::mode::Lazy ).c_str ( ) );
 
-	fastMoveTime.sPos = { loc.x + 240, loc.y, loc.x + 440, loc.y + 25 };
-	fastMoveTime.Create ( "Fast-Move (us):", NORM_STATIC_OPTIONS, fastMoveTime.sPos, parent, id++ );
-	fastMoveTimeEdit.sPos = { loc.x + 440, loc.y, loc.x + 480, loc.y += 25 };
-	fastMoveTimeEdit.Create ( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
+ 	fastMoveTime.sPos = { loc.x + 240, loc.y, loc.x + 440, loc.y + 25 };
+ 	fastMoveTime.Create ( "Fast-Move (us):", NORM_STATIC_OPTIONS, fastMoveTime.sPos, parent, id++ );
+ 	fastMoveTimeEdit.sPos = { loc.x + 440, loc.y, loc.x + 480, loc.y += 25 };
+ 	fastMoveTimeEdit.Create ( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
 	fastMoveTimeEdit.SetWindowTextA ( "2" );
 
-	handleCheck ( );
+	updateActive ( );
 }
 
 
@@ -89,29 +90,22 @@ rerngGuiOptionsForm rerngGuiControl::getParams( )
 	CString tempTxt;
 	try
 	{
-		flashingRateEdit.GetWindowTextA( tempTxt );
-		// convert to Hz from MHz
-		//tempParams.flashingRate = 1e6 * boost::lexical_cast<double>( str( tempTxt ) );
-		tempParams.flashingRate = str( tempTxt );
-		moveSpeedEdit.GetWindowTextA( tempTxt );
-		// convert to s from ms
-		//tempParams.moveSpeed = 1e-3 * boost::lexical_cast<double>( str( tempTxt ) );
-		tempParams.moveSpeed = str( tempTxt );
-		movingBiasEdit.GetWindowTextA( tempTxt );
-		tempParams.moveBias = str( tempTxt );
-		// convert from ns to s
-		deadTimeEdit.GetWindowTextA( tempTxt );
-		//tempParams.deadTime = boost::lexical_cast<double>( str(tempTxt) ) * 1e-9;
-		tempParams.deadTime = str( tempTxt );
-		staticMovingRatioEdit.GetWindowTextA( tempTxt );
-		//tempParams.staticMovingRatio = boost::lexical_cast<double>( str( tempTxt ) );
-		tempParams.staticMovingRatio = str( tempTxt );
-		finalMoveTimeEdit.GetWindowTextA( tempTxt );
-		//tempParams.finalMoveTime = 1e-3 * boost::lexical_cast<double>( str(tempTxt) );
-		tempParams.finalMoveTime = str( tempTxt );
-		fastMoveTimeEdit.GetWindowTextA( tempTxt );
-		//tempParams.fastMoveTime = 1e-6 * boost::lexical_cast<double>( str( tempTxt ) );
-		tempParams.fastMoveTime = str( tempTxt );
+		flashingRateEdit.GetWindowTextA ( tempTxt );
+		tempParams.flashingRate = str ( tempTxt );
+		moveSpeedEdit.GetWindowTextA ( tempTxt );
+		tempParams.moveSpeed = str ( tempTxt );
+		movingBiasEdit.GetWindowTextA ( tempTxt );
+		tempParams.moveBias = str ( tempTxt );
+		deadTimeEdit.GetWindowTextA ( tempTxt );
+		tempParams.deadTime = str ( tempTxt );
+		staticMovingRatioEdit.GetWindowTextA ( tempTxt );
+		tempParams.staticMovingRatio = str ( tempTxt );
+		finalMoveTimeEdit.GetWindowTextA ( tempTxt );
+		tempParams.finalMoveTime = str ( tempTxt );
+		fastMoveTimeEdit.GetWindowTextA ( tempTxt );
+		tempParams.fastMoveTime = str ( tempTxt );
+		rerngModeCombo.GetLBText ( rerngModeCombo.GetCurSel ( ), tempTxt );
+		tempParams.rMode = rerngMode::fromStr ( str ( tempTxt ) );
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
@@ -148,23 +142,60 @@ void rerngGuiControl::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void rerngGuiControl::handleCheck( )
+void rerngGuiControl::updateActive ( )
 {
-	auto active = experimentIncludesRerng.GetCheck( );
-	flashingRateEdit.EnableWindow(active);
-	moveSpeedEdit.EnableWindow( active );
-	movingBiasEdit.EnableWindow( active );
-	deadTimeEdit.EnableWindow( active );
-	staticMovingRatioEdit.EnableWindow( active );
-	preprogramMoves.EnableWindow( active );
-	useCalibration.EnableWindow( active );
-	outputRearrangeEvents.EnableWindow( active );
-	outputIndividualEvents.EnableWindow( active );
-	finalMoveTimeEdit.EnableWindow( active );
-	fastMoveTimeEdit.EnableWindow( active );
-	rerngModeCombo.EnableWindow ( active );
+	auto params = getParams ( );
+	flashingRateEdit.EnableWindow ( 0 );
+	moveSpeedEdit.EnableWindow ( 0 );
+	movingBiasEdit.EnableWindow ( 0 );
+	deadTimeEdit.EnableWindow ( 0 );
+	staticMovingRatioEdit.EnableWindow ( 0 );
+	preprogramMoves.EnableWindow ( 0 );
+	useCalibration.EnableWindow ( 0 );
+	outputRearrangeEvents.EnableWindow ( 0 );
+	outputIndividualEvents.EnableWindow ( 0 );
+	finalMoveTimeEdit.EnableWindow ( 0 );
+	fastMoveTimeEdit.EnableWindow ( 0 );
+	rerngModeCombo.EnableWindow ( 0 );
+	if ( params.active )
+	{
+		outputRearrangeEvents.EnableWindow ( 1 );
+		outputIndividualEvents.EnableWindow ( 1 );
+		rerngModeCombo.EnableWindow ( 1 );
+		switch ( params.rMode )
+		{
+			case rerngMode::mode::Lazy:
+			{
+				break;
+			}
+			case rerngMode::mode::Antoine:
+			{
+				break;
+			}
+			case rerngMode::mode::StandardFlashing:
+			{
+				flashingRateEdit.EnableWindow ( 1 );
+				moveSpeedEdit.EnableWindow ( 1 );
+				movingBiasEdit.EnableWindow ( 1 );
+				deadTimeEdit.EnableWindow ( 1 );
+				staticMovingRatioEdit.EnableWindow ( 1 );
+				preprogramMoves.EnableWindow ( 1 );
+				useCalibration.EnableWindow ( 1 );
+				finalMoveTimeEdit.EnableWindow ( 1 );
+				break;
+			}
+			case rerngMode::mode::Ultrafast:
+			{
+				movingBiasEdit.EnableWindow ( 1 );
+				deadTimeEdit.EnableWindow ( 1 );
+				preprogramMoves.EnableWindow ( 1 );
+				useCalibration.EnableWindow ( 1 );
+				fastMoveTimeEdit.EnableWindow ( 1 );
+				break;
+			}
+		}
+	}
 }
-
 
 void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 {
@@ -239,7 +270,7 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		openFile >> tmpStr;
 	}
-	if ( ver > Version ( "3.6" ) )
+	if ( ver >= Version ( "3.6" ) )
 	{
 		openFile >> tmpStr;
 		info.rMode = rerngMode::fromStr ( tmpStr );

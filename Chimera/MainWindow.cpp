@@ -205,11 +205,18 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
 	ON_COMMAND( IDC_RERNG_EXPERIMENT_BUTTON, &MainWindow::passExperimentRerngButton )
+	ON_CBN_SELENDOK ( IDC_RERNG_MODE_COMBO, &MainWindow::passRerngModeComboChange )
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
+
+
+void MainWindow::passRerngModeComboChange ( )
+{
+	rearrangeControl.updateActive ( );
+}
 
 
 LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
@@ -284,7 +291,7 @@ void MainWindow::onMachineOptRoundFin (  )
 
 void MainWindow::passExperimentRerngButton( )
 {
-	rearrangeControl.handleCheck( );
+	rearrangeControl.updateActive ( );
 }
 
 void MainWindow::OnTimer( UINT_PTR id )

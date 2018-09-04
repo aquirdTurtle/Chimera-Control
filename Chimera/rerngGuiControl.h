@@ -19,7 +19,7 @@ class rerngGuiControl
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig( std::ofstream& newFile );
 		void rearrange( int width, int height, fontMap fonts );
-		void handleCheck( );
+		void updateActive ( );
 	private:
 		Control<CStatic> header;
 		Control<CleanCheck> experimentIncludesRerng;
