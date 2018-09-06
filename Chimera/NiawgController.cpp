@@ -886,7 +886,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		rearrangeWave.rearrange.moveLimit = 50; // getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
-		double lazyModeTime = 1e-3;
+		double lazyModeTime = 2.04e-3;
 		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
 		{
 			// 1ms
@@ -3245,8 +3245,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		}
 		if ( input->guiOptions.outputInfo )
 		{
-			UINT fileNum = getNextFileIndex( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_", ".txt" );
-			moveRecordFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_" + str( fileNum ) + ".txt" );
+			UINT fileNum = getNextFileIndex( DEBUG_OUTPUT_LOCATION + "Rearranging_Move_Record_", ".txt" );
+			moveRecordFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging_Move_Record_" + str( fileNum ) + ".txt" );
 			if ( !moveRecordFile.is_open( ) )
 			{
 				thrower( "ERROR: rearranging Info file failed to open!" );
@@ -3352,16 +3352,59 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			}
 			///
 			input->niawg->rerngWaveVals.clear ( );
+			stopRerngCalc.push_back ( chronoClock::now ( ) );
+			numberMoves.push_back ( complexMoveSequence.size ( ) );
 			/// program niawg
 			if ( input->guiOptions.rMode == rerngMode::mode::Lazy )
 			{
-				// need static hold and final move;
+				// need ramps, static hold and final move; 
+				/// Ramp down unused traps
+				simpleWave rampUpWave;
+				rampUpWave.varies = false;
+				rampUpWave.name = "NA";
+				rampUpWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
+				rampUpWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
+				rampUpWave.time = 2e-5;
+				rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
+				for ( auto axis : AXES )
+				{
+					UINT count = 0;
+					for ( auto sigInc : range ( rampUpWave.chan[ axis ].signals.size ( ) ) )
+					{
+						auto& sig = rampUpWave.chan[ axis ].signals[ sigInc ];
+						sig.freqInit = ( sigInc * info.freqPerPixel + info.lowestFreqs[ axis ] ) * 1e6;
+						sig.freqFin = sig.freqInit;
+						sig.freqRampType = "nr";
+						sig.initPower = info.staticBiases[ axis ][ sigInc ];
+						sig.finPower = 0;
+						sig.powerRampType = "lin";
+						for ( auto lp : lazyPositions[ axis ] )
+						{
+							auto lazyPos = axis == Axes::Horizontal ? lp : source.getRows ( ) - lp - 1;
+							if ( sigInc == lazyPos )
+							{
+								// then don't turn this one off.
+								sig.finPower = info.staticBiases[ axis ][ sigInc ];
+								sig.powerRampType = "nr";
+								break;
+							}
+						}
+						sig.initPhase = info.staticPhases[ axis ][ sigInc ];
+						count++;
+					}
+				}
+				input->niawg->finalizeStandardWave ( rampUpWave, debugInfo ( ) );
+				std::vector<double> vals_ru ( rampUpWave.waveVals );
+				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_ru.begin ( ), vals_ru.end ( ) );
+				
+				/// hold
 				simpleWave holdWave;
 				holdWave.varies = false;
 				holdWave.name = "NA";
 				holdWave.chan[ Axes::Vertical ].signals.resize ( info.target.getRows ( ) );
 				holdWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
-				holdWave.time = 1e-3;
+				// important! Assuming everything is 0.5MHz or 1MHz defined...
+				holdWave.time = 2e-6;
 				holdWave.sampleNum = waveformSizeCalc ( holdWave.time );
 				for ( auto axis : AXES )
 				{
@@ -3381,15 +3424,109 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					}
 				}
 				input->niawg->finalizeStandardWave ( holdWave, debugInfo ( ) );
-				std::vector<double> vals ( holdWave.waveVals );
-				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals.begin ( ), vals.end ( ) );
+				std::vector<double> vals_hold ( holdWave.waveVals );
+				for ( auto i : range ( 500 ) )
+				{
+					input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_hold.begin ( ),
+														 vals_hold.end ( ) );
+				}
+				/// ramp to center
+				// similar to final position move. This is a frequency and amplitude ramp, ramping linearly from init
+				// frequency and bias to final from the static tweezers data.
+				// calculate final positions based on the order. I don't want any crossing. Then the final positions
+				// can be used (including with the flip in the vertical direction) the same way as the initial pos.
+				///
+				/*
+				niawgPair<std::vector<UINT>> finalLazyPositions;
+				for ( auto ax : AXES )
+				{
+					auto& flp = finalLazyPositions[ ax ];
+					auto& lp = lazyPositions[ ax ];
+					flp.resize ( lp.size() );
+					for ( auto posInc : range ( lp.size ( ) ) )
+					{
+						flp[ posInc ] = posInc + info.finalPosition[ ax ];
+					}
+				}
+
+				simpleWave moveWave;
+				moveWave.varies = false;
+				moveWave.name = "NA";
+				moveWave.chan[ Axes::Vertical ].signals.resize ( info.target.getRows ( ) );
+				moveWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
+				moveWave.time = 1e-3;
+				moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+				for ( auto axis : AXES )
+				{
+					UINT count = 0;
+					for ( auto sigInc : range ( moveWave.chan[ axis ].signals.size ( ) ) )
+					{
+						auto lp = lazyPositions[ axis ][ sigInc ];
+						auto pos = axis == Axes::Horizontal ? lp : source.getRows ( ) - lp - 1;
+						auto flp = finalLazyPositions[ axis ][ sigInc ];
+						auto finPos = axis == Axes::Horizontal ? flp : source.getRows ( ) - flp - 1;
+						auto& sig = moveWave.chan[ axis ].signals[ sigInc ];
+						sig.freqInit = ( pos * info.freqPerPixel + info.lowestFreqs[ axis ] ) * 1e6;
+						sig.freqFin = ( finPos * info.freqPerPixel + info.lowestFreqs[ axis ] ) * 1e6;
+						sig.freqRampType = "lin";
+						sig.initPower = info.staticBiases[ axis ][ pos ];
+						sig.finPower = info.staticBiases[ axis ][ finPos ];
+						sig.powerRampType = "lin";
+						sig.initPhase = info.staticPhases[ axis ][ pos ];
+						count++;
+					}
+				}
+				input->niawg->finalizeStandardWave ( moveWave, debugInfo ( ) );
+				std::vector<double> vals_move ( moveWave.waveVals );
+				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end ( ), vals_move.begin ( ),
+													vals_move.end ( ) ); 
+				*/
+				/// ramp up unused traps
+				// use the final positions not the initial.
+				simpleWave rampDownWave;
+				rampDownWave.varies = false;
+				rampDownWave.name = "NA";
+				rampDownWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
+				rampDownWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
+				rampDownWave.time = 2e-5;
+				rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
+				for ( auto axis : AXES )
+				{
+					UINT count = 0;
+					for ( auto sigInc : range ( rampDownWave.chan[ axis ].signals.size ( ) ) )
+					{
+						auto& sig = rampDownWave.chan[ axis ].signals[ sigInc ];
+						sig.freqInit = ( sigInc * info.freqPerPixel + info.lowestFreqs[ axis ] ) * 1e6;
+						sig.freqFin = sig.freqInit;
+						sig.freqRampType = "nr";
+						sig.initPower = 0;
+						sig.finPower = info.staticBiases[ axis ][ sigInc ];
+						sig.powerRampType = "lin";
+						for ( auto lp : lazyPositions[ axis ] )
+						{
+							auto lazyPos = axis == Axes::Horizontal ? lp : source.getRows ( ) - lp - 1;
+							if ( sigInc == lazyPos )
+							{
+								// then this was always on
+								sig.initPower = info.staticBiases[ axis ][ sigInc ];
+								sig.powerRampType = "nr";
+								break;
+							}
+						}
+						sig.initPhase = info.staticPhases[ axis ][ sigInc ];
+						count++;
+					}
+				}
+				input->niawg->finalizeStandardWave ( rampDownWave, debugInfo ( ) );
+				std::vector<double> vals_rd ( rampDownWave.waveVals );
+				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_rd.begin ( ), vals_rd.end ( ) );
+				stopMoveCalc.push_back ( chronoClock::now ( ) );
+				finMoveCalc.push_back ( chronoClock::now ( ) );
 			}
 			else
 			{
 				debugInfo options;
 				UINT moveCount = 0;
-				numberMoves.push_back ( complexMoveSequence.size ( ) );
-				stopRerngCalc.push_back ( chronoClock::now ( ) );
 				for ( auto move : complexMoveSequence )
 				{
 					// program this move.
@@ -3452,7 +3589,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				finMoveCalc.push_back ( chronoClock::now ( ) );
 			}
 			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
-			// size and the existing size to fill out the rest of the vector.
+			// size and the existing size to fill out the rest of the vector.  
 			input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), info.fillerWave.waveVals.begin ( ),
 												 info.fillerWave.waveVals.begin ( ) + info.fillerWave.waveVals.size ( )
 												 - input->niawg->rerngWaveVals.size ( ) );
@@ -3474,7 +3611,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			}
 			//input->niawg->writeToFile( input->niawg->rerngWaveVals );
 			input->niawg->rerngWaveVals.clear( );
-			if ( complexMoveSequence.size( ) != 0 )
+			//if ( complexMoveSequence.size( ) != 0 )
 			{
 				if ( input->guiOptions.outputIndv )
 				{
@@ -3500,6 +3637,16 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 						moveRecordFile << "; ";
 					}
 				}
+				moveRecordFile << "\n";
+				for ( auto ax : AXES )
+				{
+					for ( auto pos : lazyPositions[ ax ] )
+					{
+						moveRecordFile << pos << ", ";
+					}
+					moveRecordFile << "\n";
+				}
+				/*
 				moveRecordFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
 				moveRecordFile << "Moves:\n";
 				UINT moveCount = 0;
@@ -3513,11 +3660,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					}
 					moveRecordFile << "\n";
 				}
+				*/
 			}
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
-			/*
 			finMoveCalcTime.push_back( std::chrono::duration<double>( finMoveCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopAllCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
@@ -3525,7 +3672,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			moveCalcTime.push_back( std::chrono::duration<double>( stopMoveCalc[inc] - stopRerngCalc[inc] ).count( ) );
 			finishingCalcTime.push_back( std::chrono::duration<double>( stopAllCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
-			*/
 		}
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
@@ -3548,7 +3694,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				<< "TriggerTime\n";
 			for ( auto count : range ( triedRearranging.size ( ) ) )
 			{
-				/*
 				dataFile
 					//<< picHandlingTime[count] << "\t"
 					//<< picGrabTime[count] << "\t"
@@ -3559,7 +3704,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					<< streamTime[ count ] << "\t"
 					<< triggerTime[ count ] << "\t"
 					<< numberMoves[ count ] << "\n";
-				*/
 			}
 			dataFile.close ( );
 		}

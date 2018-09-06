@@ -6,18 +6,18 @@ def pump2stretch():
   % set to 3G field
 % for initial testing - C.K.
 var pumppower 0.3
-var pumptime 1.5 
+var pumptime 1.5 %1.5
   %1.0
   %call setQuantAxis()
   t += 1
   daclinspace: repumpFreq 0 -0.4852 1 10  %-0.4852 
   t += 1
-  dac: sigmarepumpfreq  -0.12 
+  dac: sigmarepumpfreq  -0.12 % -0.12
   dac: sigmaopfreq 0.5 % 0.5 
   off: diagmotshutter
   dac: sigmaoppower pumppower 
   dac: sigmarepumppower 0.3
-  dac: repumpPower 0.3 %0.2 %0.05
+  dac: repumpPower 0.0 %0.2 %0.05
  
   on: repumpRf
   on: sigmaoprf 

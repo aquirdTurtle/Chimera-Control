@@ -323,12 +323,12 @@ void BaslerCameras::triggerThread( void* voidInput )
 					// aborting.
 					return;
 				}
- 				// simulate successful grab
-				// need some way to communicate the width and height of the pic to this function...
-				Matrix<long>* imageMatrix = new Matrix<long>(input->height, input->width );
-				UINT count = 0;
-				UINT rowNum = 0;
-				UINT colNum = 0;
+ 				// simulate successful grab 
+				// need some way to communicate the width and height of the pic to this function... 
+				Matrix<long>* imageMatrix = new Matrix<long>(input->height, input->width ); 
+				UINT count = 0; 
+				UINT rowNum = 0; 
+				UINT colNum = 0; 
 				for ( auto row : range( imageMatrix->getRows( ) ) )
 				{
 					for ( auto col : range( imageMatrix->getCols( ) ) )
