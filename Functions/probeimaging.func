@@ -1,7 +1,7 @@
 % Master-Script See the "?" for info on commands.
 def probeimaging():
 
-var probefreq 1
+var probefreq 0.6
 var probeDAC 0.6
 
     off: diagMotRf
@@ -17,7 +17,7 @@ var probeDAC 0.6
     on: c5 % flashing TweezerLight
     on: probeRF %d12
     on: b5 % flashing probe
-    t += 3 % probeimagetime
+    t += 2 % probeimagetime
 
     off: andorTrig
     off: andorShutter
