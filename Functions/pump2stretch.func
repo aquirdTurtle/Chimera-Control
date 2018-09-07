@@ -17,7 +17,7 @@ var pumptime 1.5 %1.5
   off: diagmotshutter
   dac: sigmaoppower pumppower 
   dac: sigmarepumppower 0.3
-  dac: repumpPower 0.0 %0.2 %0.05
+  dac: repumpPower 0.3 %0.2 %0.05
  
   on: repumpRf
   on: sigmaoprf 

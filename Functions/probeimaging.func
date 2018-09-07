@@ -1,7 +1,7 @@
 % Master-Script See the "?" for info on commands.
 def probeimaging():
 
-var probefreq 0.6
+var probefreq 0.55
 var probeDAC 0.6
 
     off: diagMotRf
@@ -21,11 +21,11 @@ var probeDAC 0.6
 
     off: andorTrig
     off: andorShutter
-    off: probeRF
+    on: probeRF
     off: d2
     off: c5
     off: b5
     on: sideMotShutter       % turn back on side mot shutter
     off: probeShutter        % turn off probe shutter
     daclinspace: motFreq probefreq defaultmotfreq 2 10
-    t += 1
+    t += 10
