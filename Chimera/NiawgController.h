@@ -20,6 +20,8 @@
 #include <cmath>
 #include <mutex>
 #include <chrono>
+#include <vector>
+#include <array>
 
 #include <boost/container/vector.hpp>
 
@@ -98,6 +100,17 @@ class NiawgController
 								   std::vector<complexMove> &flashMoves, rerngGuiOptions options );
 		void finalizeScript ( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
+
+		static void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
+									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary,
+									   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT, bool useLibrary = true );
+		static std::vector<double> combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions,
+													  std::vector<double> initBias, std::vector<double> finBias,
+													  Matrix<std::vector<double>> preCalcMoves );
+		static Matrix<std::vector<double>> precalcSingleDimMoves ( std::vector<double> freqs, std::vector<double> phases );
+		static std::vector<double> calcSingleDimMove ( double time, double f1, double f2, double phase );
+		static niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator* comm );
+		static int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal, bool reversed=false );
 	private:
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		static void writeToFile( std::vector<double> waveVals );
@@ -125,11 +138,11 @@ class NiawgController
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
-		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
-							   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT );
+		void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
+									   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT );
 		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
-		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time,
-						   bool powerCap=false, bool constPower=CONST_POWER_OUTPUT );
+		static void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
+								  double time, bool powerCap=false, bool constPower=CONST_POWER_OUTPUT );
 
 		void handleMinus1Phase( simpleWave& waveCore, simpleWave& prevWave );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
@@ -205,11 +218,12 @@ class NiawgController
 		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos);
 		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, UINT rows, UINT cols );
 		static void sortByDistanceToTarget ( std::vector<simpleMove> &moveList );
-		static niawgPair<std::vector<UINT>> findLazyPosition( Matrix<bool> source, UINT targetDim, Communicator* comm );
-		static int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal );
+
+
 		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves );
 		// returns maximal number of moves given a targetmatrix.
 		static UINT getMaxMoves( Matrix<bool> targetMatrix );
+
 };
 
 

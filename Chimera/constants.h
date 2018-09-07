@@ -1,6 +1,7 @@
 #pragma once
 
 #include "agilentStructures.h"
+#include "my_str.h"
 #include <string>
 #include <vector>
 #include <array>

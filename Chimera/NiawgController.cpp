@@ -17,6 +17,7 @@
 #include "miscCommonFunctions.h"
 #include "range.h"
 #include "Queues.h"
+#include "externals.h"
 #include <algorithm>
 #include <random>
 
@@ -1081,69 +1082,83 @@ void NiawgController::openWaveformFiles()
  * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
  * it is written to a new file.
  */
-void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
-										bool powerCap, bool constPower)
+void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
+										 bool powerCap, bool constPower )
+{
+	generateWaveform ( chanWave, options, sampleNum, waveTime, this->waveLibrary, powerCap, constPower );
+};
+
+
+void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
+										 std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary,
+										 bool powerCap, bool constPower, bool useLibrary)
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
 	std::string waveformFileSpecs, waveformFileName;
 	std::ifstream waveformFileRead;
 	std::ofstream waveformFileWrite;
-	// Construct the name of the raw data file from the parameters for the waveform. This can be a pretty long name, but that's okay 
-	// because it's just text in a file at the end. This might become a problem if the name gets toooo long...
-	for ( auto signal : range( chanWave.signals.size( ) ) )
+	if ( useLibrary )
 	{
-		waveformFileSpecs += (str( chanWave.signals[signal].freqInit ) + " " + str( chanWave.signals[signal].freqFin ) + " "
-							   + chanWave.signals[signal].freqRampType + " " + str( chanWave.signals[signal].initPower ) + " "
-							   + str( chanWave.signals[signal].finPower ) + " " + chanWave.signals[signal].powerRampType + " "
-							   + str( chanWave.signals[signal].initPhase ) + ", ");
-	}
-	waveformFileSpecs += str( waveTime * 1000.0 ) + "; ";
-	// Start timer
-	std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
-	/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
-	for ( UINT fileInc = 0; fileInc < waveLibrary[chanWave.initType].size( ); fileInc++ )
-	{
-		// if you find this waveform to have already been written...
-		if ( waveLibrary[chanWave.initType][fileInc] == waveformFileSpecs )
+		// Construct the name of the raw data file from the parameters for the waveform. This can be a pretty long name, but that's okay 
+		// because it's just text in a file at the end. This might become a problem if the name gets toooo long...
+		for ( auto signal : range ( chanWave.signals.size ( ) ) )
 		{
-			// Construct the file address
-			std::string waveFileReadName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[chanWave.initType]
-										   + str( chanWave.initType ) + "_" + str( fileInc ) + ".txt";
-			waveformFileRead.open( waveFileReadName, std::ios::binary | std::ios::in );
-			std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
-			waveformFileRead.read( (char *)readData.data( ),
-								   (sampleNum + chanWave.signals.size( )) * sizeof( ViReal64 ) );
-			// grab the phase data off of the end.
-			for ( auto signal : range( chanWave.signals.size( ) ) )
+			waveformFileSpecs += ( str ( chanWave.signals[ signal ].freqInit ) + " " + str ( chanWave.signals[ signal ].freqFin ) + " "
+								   + chanWave.signals[ signal ].freqRampType + " " + str ( chanWave.signals[ signal ].initPower ) + " "
+								   + str ( chanWave.signals[ signal ].finPower ) + " " + chanWave.signals[ signal ].powerRampType + " "
+								   + str ( chanWave.signals[ signal ].initPhase ) + ", " );
+		}
+		waveformFileSpecs += str ( waveTime * 1000.0 ) + "; ";
+		// Start timer
+		std::chrono::time_point<chronoClock> time1 ( chronoClock::now ( ) );
+		/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
+		for ( UINT fileInc = 0; fileInc < waveLibrary[ chanWave.initType ].size ( ); fileInc++ )
+		{
+			// if you find this waveform to have already been written...
+			if ( waveLibrary[ chanWave.initType ][ fileInc ] == waveformFileSpecs )
 			{
-				chanWave.signals[signal].finPhase = readData[sampleNum + signal];
+				// Construct the file address
+				std::string waveFileReadName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType ]
+					+ str ( chanWave.initType ) + "_" + str ( fileInc ) + ".txt";
+				waveformFileRead.open ( waveFileReadName, std::ios::binary | std::ios::in );
+				std::vector<ViReal64> readData ( sampleNum + chanWave.signals.size ( ) );
+				waveformFileRead.read ( (char *) readData.data ( ),
+					( sampleNum + chanWave.signals.size ( ) ) * sizeof ( ViReal64 ) );
+				// grab the phase data off of the end.
+				for ( auto signal : range ( chanWave.signals.size ( ) ) )
+				{
+					chanWave.signals[ signal ].finPhase = readData[ sampleNum + signal ];
+				}
+				// put the relevant voltage data into a the new array.
+				chanWave.wave = std::vector<ViReal64> ( readData.begin ( ), readData.begin ( ) + sampleNum );
+				readData.clear ( );
+				// make sure the large amount of memory is deallocated.
+				readData.shrink_to_fit ( );
+				waveformFileRead.close ( );
+				if ( options.showReadProgress )
+				{
+					std::chrono::time_point<chronoClock> time2 ( chronoClock::now ( ) );
+					double ellapsedTime ( std::chrono::duration<double> ( ( time2 - time1 ) ).count ( ) );
+					options.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
+				}
+				// if the file got read, I don't need to do any writing, so go ahead and return.
+				return;
 			}
-			// put the relevant voltage data into a the new array.
-			chanWave.wave = std::vector<ViReal64>( readData.begin( ), readData.begin( ) + sampleNum );
-			readData.clear( );
-			// make sure the large amount of memory is deallocated.
-			readData.shrink_to_fit( );
-			waveformFileRead.close( );
-			if ( options.showReadProgress )
-			{
-				std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
-				double ellapsedTime( std::chrono::duration<double>( (time2 - time1) ).count( ) );
-				options.message += "Finished Reading Waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
-			}
-			// if the file got read, I don't need to do any writing, so go ahead and return.
-			return;
+		}
+		// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
+		// and write it. 
+		if ( useLibrary )
+		{
+			waveformFileName = ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType ] + str ( chanWave.initType ) + "_"
+								 + str ( waveLibrary[ chanWave.initType ].size ( ) ) + ".txt" );
+			// open file for writing.
+			waveformFileWrite.open ( waveformFileName, std::ios::binary | std::ios::out );
 		}
 	}
 
-	// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
-	// and write it. 
-	waveformFileName = (LIB_PATH + WAVEFORM_TYPE_FOLDERS[chanWave.initType] + str( chanWave.initType ) + "_"
-						 + str( waveLibrary[chanWave.initType].size( ) ) + ".txt");
-	// open file for writing.
-	waveformFileWrite.open( waveformFileName, std::ios::binary | std::ios::out );
 	// make sure it opened.
-	if ( !waveformFileWrite.is_open( ) )
+	if ( !waveformFileWrite.is_open( ) && useLibrary )
 	{
 		// shouldn't happen.
 		thrower( "ERROR: NIAWG Waveform Storage File could not open. Shouldn't happen. File name is too long? "
@@ -1158,8 +1173,11 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 		std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
 		calcWaveData( chanWave, readData, sampleNum, waveTime, powerCap, constPower );
 		// Write the data, with phases, to the write file.
-		waveformFileWrite.write( (const char *)readData.data( ), (sampleNum + chanWave.signals.size( )) * sizeof( ViReal64 ) );
-		waveformFileWrite.close( );
+		if ( useLibrary )
+		{
+			waveformFileWrite.write ( (const char *) readData.data ( ), ( sampleNum + chanWave.signals.size ( ) ) * sizeof ( ViReal64 ) );
+			waveformFileWrite.close ( );
+		}
 		// put the relevant data into another string.
 		chanWave.wave = std::vector<ViReal64>( readData.begin( ), readData.begin( ) + sampleNum );
 		readData.clear( );
@@ -1167,19 +1185,25 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 		readData.shrink_to_fit( );
 		// write the newly written waveform's name to the library file.
 		std::fstream libNameFile;
-		libNameFile.open( LIB_PATH + WAVEFORM_TYPE_FOLDERS[chanWave.initType] + WAVEFORM_NAME_FILES[chanWave.initType],
-						  std::ios::binary | std::ios::out | std::ios::app );
-		if ( !libNameFile.is_open( ) )
+		if ( useLibrary )
+		{
+			libNameFile.open ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType ] + WAVEFORM_NAME_FILES[ chanWave.initType ],
+							   std::ios::binary | std::ios::out | std::ios::app );
+		}
+		if ( !libNameFile.is_open( ) && useLibrary )
 		{
 			thrower( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
 					 + WAVEFORM_TYPE_FOLDERS[chanWave.initType] + WAVEFORM_NAME_FILES[chanWave.initType] + ".\n" );
 		}
-		// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
-		waveLibrary[chanWave.initType].push_back( cstr( waveformFileSpecs ) );
-		// put a newline in front of the name so that all of the names don't get put on the same line.
-		waveformFileSpecs = "\n" + waveformFileSpecs;
-		libNameFile.write( cstr( waveformFileSpecs ), waveformFileSpecs.size( ) );
-		libNameFile.close( );
+		if ( useLibrary )
+		{
+			// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
+			waveLibrary[ chanWave.initType ].push_back ( cstr ( waveformFileSpecs ) );
+			// put a newline in front of the name so that all of the names don't get put on the same line.
+			waveformFileSpecs = "\n" + waveformFileSpecs;
+			libNameFile.write ( cstr ( waveformFileSpecs ), waveformFileSpecs.size ( ) );
+			libNameFile.close ( );
+		}
 		if ( options.showWriteProgress )
 		{
 			std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
@@ -1188,6 +1212,7 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 		}
 	}
 }
+
 
 void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::string &scriptString )
 {
@@ -1392,7 +1417,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			}
 		}
 	}
-	/// Pre-calculate a bunch of parameters for the ramps. 
+	/// Pre-calculate a bunch of parameters for the frequency ramps.
 	// These are not all used, but it's simple one-time calcs so I just od them anyways.
 	auto& t_r = waveTime;
 	auto t_r2 = t_r / 2;
@@ -3123,38 +3148,48 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 		}
 	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
-	finalizeStandardWave( waitWave, debugInfo( ) );
-	std::vector<double> vals( waitWave.waveVals );
-	vals.insert( vals.end(), moveWave.waveVals.begin( ), moveWave.waveVals.end( ) );
+	finalizeStandardWave ( waitWave, debugInfo ( ) );
+	std::vector<double> vals ( waitWave.waveVals );
+	vals.insert ( vals.end ( ), moveWave.waveVals.begin ( ), moveWave.waveVals.end ( ) );
 	return vals;
 }
 
 
-int NiawgController::increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal )
+int NiawgController::increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal, bool reversed )
 {
 	// if level below
 	int res = 0;
 	if ( currentLevel != 0 )
 	{
 		// try iterate below.
-		res = increment ( ind, currentLevel - 1, maxVal );
+		res = increment ( ind, currentLevel - 1, maxVal, reversed );
 		if ( res != -1 )
 		{
 			// lower level succeeded. success.
 			return res;
 		}
 	}
+
 	// if reach this point, either lower levels failed or no levels below.
+	bool condition;
 	auto isFin = currentLevel == ind.size ( ) - 1;
-	if ( ( isFin && ind[ currentLevel ] != maxVal ) || ( !isFin && ind[ currentLevel ] != ind[ currentLevel + 1 ] - 1 ) )
+	if ( reversed )
+	{
+		condition = ( isFin && ind[ currentLevel ] != 0 ) || ( !isFin && ind[ currentLevel ] != ind[ currentLevel + 1 ] + 1 );
+	}
+	else
+	{
+		condition = ( isFin && ind[ currentLevel ] != maxVal ) || ( !isFin && ind[ currentLevel ] != ind[ currentLevel + 1 ] - 1 );
+	}
+	if ( condition  )
 	{
 		// possible to increment.
-		ind[ currentLevel ]++;
+		ind[ currentLevel ] += reversed ? -1 : 1;
 		return currentLevel;
 	}
 
 	// reset.
-	ind[ currentLevel ] = currentLevel;
+	ind[ currentLevel ] = reversed ?  maxVal - currentLevel : currentLevel;
 	return -1;
 }
 
@@ -3196,7 +3231,7 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		if ( match == targetDim*targetDim )
 		{
 			comm->sendDebug ( "Source:\r\n" + source.print ( ) + "\r\n" );
-			comm->sendDebug ( "Test:\r\n" +  testArray.print ( ) + "\r\n" );
+			comm->sendDebug ( "Test:\r\n" + testArray.print ( ) + "\r\n" );
 			// found a match, horray.
 			break;
 		}
@@ -3215,6 +3250,104 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 	return indexes;
 }
 
+
+Matrix<std::vector<double>> NiawgController::precalcSingleDimMoves ( std::vector<double> freqs, 
+																	 std::vector<double> phases )
+{
+	Matrix<std::vector<double>> moves ( freqs.size ( ), freqs.size ( ) );
+	// first index is initial row/colum, second index is final
+	for ( auto initInc : range ( freqs.size ( ) ) )
+	{
+		for ( auto finInc : range ( freqs.size ( ) ) )
+		{
+			auto res = calcSingleDimMove ( 1e-3, freqs[ initInc ], freqs[ finInc ], phases[ initInc ] );
+			moves ( initInc, finInc ) = res;
+		}
+	}
+	return moves;
+}
+
+// basically making the relevant sin tables. no amplitudes, these are multiplied later because they need to be normalized
+// in the context of the other ramps being combined with a single one.
+std::vector<double> NiawgController::calcSingleDimMove ( double time, double f1, double f2, double phase )
+{
+	simpleWave moveWave;
+	moveWave.varies = false;
+	moveWave.name = "NA";
+	moveWave.chan[ Axes::Vertical ].signals.resize ( 1 );
+	moveWave.chan[ Axes::Horizontal ].signals.resize ( 1 );
+	moveWave.time = time;
+	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+	for ( auto axis : AXES )
+	{
+		auto& sig = moveWave.chan[ axis ].signals[ 0 ];
+		sig.freqInit = f1 * 1e6;
+		sig.freqFin = f2 * 1e6;
+		sig.freqRampType = "lin";
+		sig.initPower = sig.finPower = 1;
+		sig.powerRampType = "nr";
+		sig.initPhase = phase;
+	}
+	// going to renormalize these later.
+	generateWaveform ( moveWave.chan[ Axes::Horizontal ], debugInfo(), moveWave.sampleNum, moveWave.time,
+					   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>(), false, false, false );
+	return moveWave.chan[Axes::Horizontal].wave;
+}
+
+
+std::vector<double> NiawgController::combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions, 
+														std::vector<double> initBias, std::vector<double> finBias, 
+														Matrix<std::vector<double>> preCalcMoves )
+{
+	if ( initPositions.size ( ) == 0 || finalPositions.size ( ) == 0 || initPositions.size ( ) != finalPositions.size ( ) )
+	{
+		thrower ( "ERROR: init and fin Positions vectors for combine indv moves must match and be non-zero in size!" );
+	}
+	auto numTones = initPositions.size ( );
+	auto sampleNum = preCalcMoves ( initPositions[ 0 ], finalPositions[ 0 ] ).size();
+	// need to normalize properly...
+	std::vector<double> totalWave(preCalcMoves(initPositions[0],finalPositions[0]).size());
+	std::vector<double> powerPos(numTones);
+	/// /// /// 
+	for ( auto sample : range(sampleNum) )
+	{
+		// calculate the time that this sample number refers to
+		//double t = (double) sample / NIAWG_SAMPLE_RATE;
+		/// Calculate Phase and Power Positions. For Every signal...
+		/*
+		for ( auto signal : range ( numTones ) )
+		{
+			// use the ramp calc function to find the current power.
+			powerPos[ signal ] = NiawgController::rampCalc ( sample, sample, initBias[signal], finBias[signal], "lin" );
+		}
+		double currentPower = 0;
+		// calculate the total current amplitude.
+		for ( auto signal : range ( numTones ) )
+		{
+			currentPower += fabs ( initBias[signal] + powerPos[ signal ] );
+			/// modify here for frequency-dependent calibrations!
+			/// need current frequency and calibration file.
+		}
+		*/
+		// normalize each signal.
+		/*
+		for ( auto signal : range ( numTones ) )
+		{
+			// After this, a "currentPower" calculated the same above will always give TOTAL_POWER. 
+			powerPos[ signal ] = ( initBias[ signal ] + powerPos[ signal ] ) * ( TOTAL_POWER / 1 ) 
+				- initBias[ signal ];
+		}
+		*/
+		///  finally, Calculate voltage data point.
+		for ( auto signal : range ( numTones ) )
+		{
+			// get data point. V = Sqrt(Power) * Sin(Phase)
+			totalWave[ sample ] += /*sqrt ( initBias[signal] + powerPos[ signal ] ) **/ preCalcMoves( initPositions[signal],
+																								  finalPositions[signal])[sample];
+		}
+	}
+	return totalWave;
+}
 
 
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
