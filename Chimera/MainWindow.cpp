@@ -1147,7 +1147,7 @@ unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 		{
 			input->refreshData ( );
 		}
-		catch ( Error& err )
+		catch ( Error&  )
 		{
 			// ???
 		}
