@@ -35,5 +35,6 @@ struct rerngThreadInput
 	rerngGuiOptions guiOptions;
 	rerngContainer<rerngMove> flashMoves;
 	rerngContainer<rerngMove> noFlashMoves;
+	Matrix < std::vector<double> > indvDimMoves;
 };
 

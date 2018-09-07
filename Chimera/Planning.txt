@@ -53,6 +53,7 @@ FEATURES:
 - display threshold on histogram.
 - more tests
 - use custom (bigger) dialog for err, info boxes.
+- consider using sine lookup tables for niawg calculations.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -70,6 +71,7 @@ Refactoring / Other:
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
 - make messages not global variables...
 - refactor rerngmove complexmove and simplemove which are confusing...
+- refactor niawg sampleNum member to be a function call, basically return getSampleNum(this->time);
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
@@ -93,3 +95,4 @@ BUGS:
 - closing the wrong plot will close all...
 - in debug mode aborting doesn't seem to work...
 	- make the waitonsingleobject calls smarter in the aborting process.
+- in niawg generateWaveform seems like it's writing to library twice???

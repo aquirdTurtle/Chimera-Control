@@ -8,9 +8,9 @@ class StartDialog : public CDialog
 	public:
 		using CDialog::CDialog;
 		StartDialog( std::string msg, UINT id );
-		BOOL OnInitDialog( );
-		void OnOK( );
-		void OnCancel( );
+		BOOL OnInitDialog ( ) override;
+		void OnOK( ) override;
+		void OnCancel( ) override;
 		void OnSize( UINT s, int width, int height );
 	private:
 		DECLARE_DYNAMIC( StartDialog );

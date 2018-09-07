@@ -15,39 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dlpc350_api.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dlpc350_common.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dlpc350_error.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dlpc350_usb.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestConsoleApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dlpc350_api.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dlpc350_common.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dlpc350_usb.cpp">
+    <ClCompile Include="TestConsoleApp3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
