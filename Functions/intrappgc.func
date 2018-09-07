@@ -5,9 +5,9 @@ def intrappgc():
 	t += 1
 	dac: diagMotPower 0
 	var mot_detuning -2.5
-	var mot_pow 0.167
+	var mot_pow 0.167 %0.167
 	var repump_pow 0.1
-      var diag_pow 0.05
+      var diag_pow 0.05 %0.05
 	daclinspace: MotFreq defaultmotfreq mot_detuning 1 10
 	dac: SideMotPower mot_pow 
 	dac: RepumpPower repump_pow
