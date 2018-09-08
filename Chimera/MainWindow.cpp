@@ -1133,8 +1133,6 @@ void MainWindow::fillMotSizeInput ( MasterThreadInput* input )
 }
 
 
-
-
 unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 {
 	// this thread just continuously requests new info from the scopes. The input is just a pointer to the scope 
