@@ -63,7 +63,6 @@ int main ( )
 			// initialize indexes to 0,1,2,3,...
 			std::vector<UINT> xindexes ( targetDim );
 			std::vector<UINT> yindexes ( targetDim );
-			auto inc = 0;
 			for ( auto inc : range ( xindexes.size ( ) ) )
 			{
 				auto num = atomArraySize - inc - 1;

@@ -777,7 +777,7 @@ namespace commonFunctions
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
-				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...r\n" );
+				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...\r\n" );
 				auxWin->loadMotSettings ( input.masterInput );
 				mainWin->fillMotSizeInput ( input.masterInput );
 				input.masterInput->expType = ExperimentType::MotSize;
@@ -793,7 +793,7 @@ namespace commonFunctions
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
-				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...r\n" );
+				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
 				mainWin->fillMotTempProfile ( input.masterInput );
 				auxWin->loadTempSettings ( input.masterInput );
 				mainWin->fillTempInput ( input.masterInput );
@@ -809,7 +809,7 @@ namespace commonFunctions
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
-				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...r\n" );
+				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
 				mainWin->fillRedPgcTempProfile ( input.masterInput );
 				auxWin->loadTempSettings ( input.masterInput );
 				mainWin->fillTempInput ( input.masterInput );
@@ -825,7 +825,7 @@ namespace commonFunctions
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
-				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...r\n" );
+				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
 				mainWin->fillGreyPgcTempProfile ( input.masterInput );
 				auxWin->loadTempSettings ( input.masterInput );
 				mainWin->fillTempInput ( input.masterInput );

@@ -887,7 +887,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		rearrangeWave.rearrange.moveLimit = 50; // getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
-		double lazyModeTime = 2.04e-3;
+		double lazyModeTime = 2.2e-3;
 		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
 		{
 			// 1ms
@@ -1098,6 +1098,11 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 	std::string waveformFileSpecs, waveformFileName;
 	std::ifstream waveformFileRead;
 	std::ofstream waveformFileWrite;
+	if ( chanWave.initType < 1 )
+	{
+		// uninitialized, don't 
+		useLibrary = false;
+	}
 	if ( useLibrary )
 	{
 		// Construct the name of the raw data file from the parameters for the waveform. This can be a pretty long name, but that's okay 
@@ -1113,15 +1118,19 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		// Start timer
 		std::chrono::time_point<chronoClock> time1 ( chronoClock::now ( ) );
 		/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
-		for ( UINT fileInc = 0; fileInc < waveLibrary[ chanWave.initType ].size ( ); fileInc++ )
+		for ( UINT fileInc = 0; fileInc < waveLibrary[ chanWave.initType - 1 ].size ( ); fileInc++ )
 		{
 			// if you find this waveform to have already been written...
-			if ( waveLibrary[ chanWave.initType ][ fileInc ] == waveformFileSpecs )
+			if ( waveLibrary[ chanWave.initType - 1 ][ fileInc ] == waveformFileSpecs )
 			{
 				// Construct the file address
-				std::string waveFileReadName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType ]
+				std::string waveFileReadName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ]
 					+ str ( chanWave.initType ) + "_" + str ( fileInc ) + ".txt";
 				waveformFileRead.open ( waveFileReadName, std::ios::binary | std::ios::in );
+				if ( !waveformFileRead.is_open ( ) )
+				{
+					thrower ( "ERROR: Failed to open niawg waveform file from library?!?!?! (Low level bug...)" );
+				}
 				std::vector<ViReal64> readData ( sampleNum + chanWave.signals.size ( ) );
 				waveformFileRead.read ( (char *) readData.data ( ),
 					( sampleNum + chanWave.signals.size ( ) ) * sizeof ( ViReal64 ) );
@@ -1148,13 +1157,10 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		}
 		// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
 		// and write it. 
-		if ( useLibrary )
-		{
-			waveformFileName = ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType ] + str ( chanWave.initType ) + "_"
-								 + str ( waveLibrary[ chanWave.initType ].size ( ) ) + ".txt" );
-			// open file for writing.
-			waveformFileWrite.open ( waveformFileName, std::ios::binary | std::ios::out );
-		}
+		waveformFileName = ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] + str ( chanWave.initType ) + "_"
+								+ str ( waveLibrary[ chanWave.initType - 1 ].size ( ) ) + ".txt" );
+		// open file for writing.
+		waveformFileWrite.open ( waveformFileName, std::ios::binary | std::ios::out );
 	}
 
 	// make sure it opened.
@@ -1187,18 +1193,16 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		std::fstream libNameFile;
 		if ( useLibrary )
 		{
-			libNameFile.open ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType ] + WAVEFORM_NAME_FILES[ chanWave.initType ],
+			libNameFile.open ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] 
+							   + WAVEFORM_NAME_FILES[ chanWave.initType-1 ],
 							   std::ios::binary | std::ios::out | std::ios::app );
-		}
-		if ( !libNameFile.is_open( ) && useLibrary )
-		{
-			thrower( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
-					 + WAVEFORM_TYPE_FOLDERS[chanWave.initType] + WAVEFORM_NAME_FILES[chanWave.initType] + ".\n" );
-		}
-		if ( useLibrary )
-		{
+			if ( !libNameFile.is_open( ) )
+			{
+				thrower( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
+						 + WAVEFORM_TYPE_FOLDERS[chanWave.initType-1] + WAVEFORM_NAME_FILES[chanWave.initType-1] + ".\n" );
+			}
 			// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
-			waveLibrary[ chanWave.initType ].push_back ( cstr ( waveformFileSpecs ) );
+			waveLibrary[ chanWave.initType - 1  ].push_back ( cstr ( waveformFileSpecs ) );
 			// put a newline in front of the name so that all of the names don't get put on the same line.
 			waveformFileSpecs = "\n" + waveformFileSpecs;
 			libNameFile.write ( cstr ( waveformFileSpecs ), waveformFileSpecs.size ( ) );
@@ -3209,9 +3213,12 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 	auto inc = 0;
 	for ( auto inc : range ( indexes[ Axes::Horizontal ].size ( ) ) )
 	{
-		indexes[ Axes::Horizontal ][ inc ] = indexes[ Axes::Vertical ][ inc ] = inc;
+		auto num = sourceDim - inc - 1;
+		indexes[ Axes::Horizontal ][ inc ] = indexes[ Axes::Vertical ][ inc ] = num;
+		//indexes[ Axes::Horizontal ][ inc ] = indexes[ Axes::Vertical ][ inc ] = inc;
 	}
 	UINT res, count = 0, matchCount = 0;
+	comm->sendDebug ( "Source:\r\n" + source.print ( ) + "\r\n" );
 	while ( true )
 	{
 		// fill test;
@@ -3230,17 +3237,16 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		}
 		if ( match == targetDim*targetDim )
 		{
-			comm->sendDebug ( "Source:\r\n" + source.print ( ) + "\r\n" );
 			comm->sendDebug ( "Test:\r\n" + testArray.print ( ) + "\r\n" );
 			// found a match, horray.
 			break;
 		}
 		// get next
-		res = increment ( indexes[ Axes::Horizontal ], targetDim - 1, sourceDim - 1 );
+		res = increment ( indexes[ Axes::Horizontal ], targetDim - 1, sourceDim - 1, true );
 		count++;
 		if ( res == -1 )
 		{
-			res = increment ( indexes[ Axes::Vertical ], targetDim - 1, sourceDim - 1 );
+			res = increment ( indexes[ Axes::Vertical ], targetDim - 1, sourceDim - 1, true );
 			if ( res == -1 )
 			{
 				break;
@@ -3497,7 +3503,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampUpWave.name = "NA";
 				rampUpWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampUpWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
-				rampUpWave.time = 2e-5;
+				rampUpWave.time = 10e-5;
 				rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
 				for ( auto axis : AXES )
 				{
@@ -3621,7 +3627,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampDownWave.name = "NA";
 				rampDownWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampDownWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
-				rampDownWave.time = 2e-5;
+				rampDownWave.time = 10e-5;
 				rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
 				for ( auto axis : AXES )
 				{
