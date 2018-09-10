@@ -491,9 +491,8 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 }
 
 
-
 void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& constants,
-										bool deleteWaveAfterWrite)
+										bool deleteWaveAfterWrite, niawgLibOption::mode libOption )
 {
 	for ( auto waveInc : range( output.waveFormInfo.size()) )
 	{
@@ -539,7 +538,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			{
 				simpleFormToOutput( waveForm.core, wave.core, constants, 0 );
 				handleMinus1Phase( wave.core, prevWave.core );
-				writeStandardWave( wave.core, options, output.isDefault );
+				writeStandardWave( wave.core, options, output.isDefault, libOption );
 				if ( deleteWaveAfterWrite )
 				{
 					deleteWaveData( wave.core );
@@ -635,10 +634,12 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 }
 
 
-void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, bool isDefault )
+void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, bool isDefault, niawgLibOption::mode libOption )
 {
 	// prepare the waveforms
-	finalizeStandardWave( wave, options );
+	niawgWaveCalcOptions opts;
+	opts.libOpt = libOption;
+	finalizeStandardWave( wave, options, opts );
 	// allocate waveform into the device memory
 	fgenConduit.allocateNamedWaveform( cstr( wave.name ), wave.waveVals.size( ) / 2 );
 	// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
@@ -1083,15 +1084,15 @@ void NiawgController::openWaveformFiles()
  * it is written to a new file.
  */
 void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
-										 bool powerCap, bool constPower )
+										 niawgWaveCalcOptions calcOpts )
 {
-	generateWaveform ( chanWave, options, sampleNum, waveTime, this->waveLibrary, powerCap, constPower );
+	generateWaveform ( chanWave, options, sampleNum, waveTime, this->waveLibrary, calcOpts );
 };
 
 
-void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
-										 std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary,
-										 bool powerCap, bool constPower, bool useLibrary)
+void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& debugOptions, long int sampleNum, double waveTime,
+										 std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+										 niawgWaveCalcOptions calcOpts )
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
@@ -1100,10 +1101,15 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 	std::ofstream waveformFileWrite;
 	if ( chanWave.initType < 1 )
 	{
-		// uninitialized, don't 
-		useLibrary = false;
+		// uninitialized, so don't use library.
+		if ( calcOpts.libOpt == niawgLibOption::mode::forced )
+		{
+			thrower ( "ERROR: was trying to generate a waveform, library option was set to \"forced\", but the wave "
+					  "initType member was uninitialized, so this isn't possible!" );
+		}
+		calcOpts.libOpt = niawgLibOption::mode::banned;
 	}
-	if ( useLibrary )
+	if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 	{
 		// Construct the name of the raw data file from the parameters for the waveform. This can be a pretty long name, but that's okay 
 		// because it's just text in a file at the end. This might become a problem if the name gets toooo long...
@@ -1145,16 +1151,21 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 				// make sure the large amount of memory is deallocated.
 				readData.shrink_to_fit ( );
 				waveformFileRead.close ( );
-				if ( options.showReadProgress )
+				if ( debugOptions.showReadProgress )
 				{
 					std::chrono::time_point<chronoClock> time2 ( chronoClock::now ( ) );
 					double ellapsedTime ( std::chrono::duration<double> ( ( time2 - time1 ) ).count ( ) );
-					options.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
+					debugOptions.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
 				}
 				// if the file got read, I don't need to do any writing, so go ahead and return.
 				return;
 			}
 		}
+		if ( calcOpts.libOpt == niawgLibOption::mode::forced )
+		{
+			thrower ( "ERROR: Generating waveform using the \"forced\" mode on the library, but couldn't find library file!" );
+		}
+
 		// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
 		// and write it. 
 		waveformFileName = ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] + str ( chanWave.initType ) + "_"
@@ -1164,7 +1175,7 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 	}
 
 	// make sure it opened.
-	if ( !waveformFileWrite.is_open( ) && useLibrary )
+	if ( !waveformFileWrite.is_open( ) && calcOpts.libOpt != niawgLibOption::mode::banned )
 	{
 		// shouldn't happen.
 		thrower( "ERROR: NIAWG Waveform Storage File could not open. Shouldn't happen. File name is too long? "
@@ -1177,9 +1188,9 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
-		calcWaveData( chanWave, readData, sampleNum, waveTime, powerCap, constPower );
+		calcWaveData( chanWave, readData, sampleNum, waveTime, calcOpts.powerOpt );
 		// Write the data, with phases, to the write file.
-		if ( useLibrary )
+		if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 		{
 			waveformFileWrite.write ( (const char *) readData.data ( ), ( sampleNum + chanWave.signals.size ( ) ) * sizeof ( ViReal64 ) );
 			waveformFileWrite.close ( );
@@ -1191,8 +1202,9 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		readData.shrink_to_fit( );
 		// write the newly written waveform's name to the library file.
 		std::fstream libNameFile;
-		if ( useLibrary )
+		if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 		{
+			// write the name of the wave into the list of names for indexing.
 			libNameFile.open ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] 
 							   + WAVEFORM_NAME_FILES[ chanWave.initType-1 ],
 							   std::ios::binary | std::ios::out | std::ios::app );
@@ -1208,11 +1220,11 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 			libNameFile.write ( cstr ( waveformFileSpecs ), waveformFileSpecs.size ( ) );
 			libNameFile.close ( );
 		}
-		if ( options.showWriteProgress )
+		if ( debugOptions.showWriteProgress )
 		{
 			std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
 			double ellapsedTime = std::chrono::duration<double>( time2 - time1 ).count( );
-			options.message += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
+			debugOptions.message += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
 		}
 	}
 }
@@ -1338,7 +1350,7 @@ long NiawgController::waveformSizeCalc(double time)
 * these data points.
 */
 void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
-									double waveTime, bool powerCap, bool constPower )
+									double waveTime, niawgWavePower::mode powerMode )
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos( inputData.signals.size( ) );
@@ -1543,7 +1555,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		}
 
 		/// If option is marked, then normalize the power.
-		if ( constPower )
+		if ( powerMode == niawgWavePower::mode::constant )
 		{
 			double currentPower = 0;
 			// calculate the total current amplitude.
@@ -1562,7 +1574,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 					* (TOTAL_POWER / currentPower) - inputData.signals[signal].initPower;
 			}
 		}
-		else if ( powerCap )
+		else if ( powerMode == niawgWavePower::mode::capped )
 		{
 			double currentPower = 0;
 			// calculate the total current amplitude.
@@ -1583,6 +1595,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				}
 			}
 		}
+		// nothing if in unrestricted mode.
 
 		///  finally, Calculate voltage data point.
 		readData[sample] = 0;
@@ -2104,15 +2117,15 @@ void NiawgController::streamRerng()
 
 
 // calculates the data, mixes it, and cleans up the calculated data.
-void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options, bool powerCap, bool constPower )
+void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts )
 {
 	// prepare each channel
-	generateWaveform( wave.chan[Axes::Horizontal], options, wave.sampleNum, wave.time, powerCap, constPower );
-	generateWaveform( wave.chan[Axes::Vertical], options, wave.sampleNum, wave.time, powerCap, constPower );
+	generateWaveform ( wave.chan[ Axes::Horizontal ], options, wave.sampleNum, wave.time, calcOpts );
+	generateWaveform ( wave.chan[ Axes::Vertical ], options, wave.sampleNum, wave.time, calcOpts );
 	mixWaveforms( wave, options.outputNiawgWavesToText );
 	// clear channel data, no longer needed.
 	wave.chan[Axes::Vertical].wave.clear( );
-	// not sure if shrink_to_fit is necessary, but might help with mem management
+	// not sure if shrink_to_fit is necessary, but might help with mem management.
 	wave.chan[Axes::Vertical].wave.shrink_to_fit( );
 	wave.chan[Axes::Horizontal].wave.clear( );
 	wave.chan[Axes::Horizontal].wave.shrink_to_fit( );
@@ -2850,8 +2863,8 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 				sig.initPower = fin;
 			}
 		}
-		finalizeStandardWave( initRampWave, debugInfo( ), true, false );
-		finalizeStandardWave( finRampWave, debugInfo( ), true, false );
+		finalizeStandardWave( initRampWave, debugInfo( ));
+		finalizeStandardWave( finRampWave, debugInfo( ));
 	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
 	/// Combine waves. 4 parts.
@@ -3254,105 +3267,6 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		}
 	}
 	return indexes;
-}
-
-
-Matrix<std::vector<double>> NiawgController::precalcSingleDimMoves ( std::vector<double> freqs, 
-																	 std::vector<double> phases )
-{
-	Matrix<std::vector<double>> moves ( freqs.size ( ), freqs.size ( ) );
-	// first index is initial row/colum, second index is final
-	for ( auto initInc : range ( freqs.size ( ) ) )
-	{
-		for ( auto finInc : range ( freqs.size ( ) ) )
-		{
-			auto res = calcSingleDimMove ( 1e-3, freqs[ initInc ], freqs[ finInc ], phases[ initInc ] );
-			moves ( initInc, finInc ) = res;
-		}
-	}
-	return moves;
-}
-
-// basically making the relevant sin tables. no amplitudes, these are multiplied later because they need to be normalized
-// in the context of the other ramps being combined with a single one.
-std::vector<double> NiawgController::calcSingleDimMove ( double time, double f1, double f2, double phase )
-{
-	simpleWave moveWave;
-	moveWave.varies = false;
-	moveWave.name = "NA";
-	moveWave.chan[ Axes::Vertical ].signals.resize ( 1 );
-	moveWave.chan[ Axes::Horizontal ].signals.resize ( 1 );
-	moveWave.time = time;
-	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
-	for ( auto axis : AXES )
-	{
-		auto& sig = moveWave.chan[ axis ].signals[ 0 ];
-		sig.freqInit = f1 * 1e6;
-		sig.freqFin = f2 * 1e6;
-		sig.freqRampType = "lin";
-		sig.initPower = sig.finPower = 1;
-		sig.powerRampType = "nr";
-		sig.initPhase = phase;
-	}
-	// going to renormalize these later.
-	generateWaveform ( moveWave.chan[ Axes::Horizontal ], debugInfo(), moveWave.sampleNum, moveWave.time,
-					   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>(), false, false, false );
-	return moveWave.chan[Axes::Horizontal].wave;
-}
-
-
-std::vector<double> NiawgController::combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions, 
-														std::vector<double> initBias, std::vector<double> finBias, 
-														Matrix<std::vector<double>> preCalcMoves )
-{
-	if ( initPositions.size ( ) == 0 || finalPositions.size ( ) == 0 || initPositions.size ( ) != finalPositions.size ( ) )
-	{
-		thrower ( "ERROR: init and fin Positions vectors for combine indv moves must match and be non-zero in size!" );
-	}
-	auto numTones = initPositions.size ( );
-	auto sampleNum = preCalcMoves ( initPositions[ 0 ], finalPositions[ 0 ] ).size();
-	// need to normalize properly...
-	std::vector<double> totalWave(preCalcMoves(initPositions[0],finalPositions[0]).size());
-	std::vector<double> powerPos(numTones);
-	/// /// /// 
-	for ( auto sample : range(sampleNum) )
-	{
-		// calculate the time that this sample number refers to
-		//double t = (double) sample / NIAWG_SAMPLE_RATE;
-		/// Calculate Phase and Power Positions. For Every signal...
-		/*
-		for ( auto signal : range ( numTones ) )
-		{
-			// use the ramp calc function to find the current power.
-			powerPos[ signal ] = NiawgController::rampCalc ( sample, sample, initBias[signal], finBias[signal], "lin" );
-		}
-		double currentPower = 0;
-		// calculate the total current amplitude.
-		for ( auto signal : range ( numTones ) )
-		{
-			currentPower += fabs ( initBias[signal] + powerPos[ signal ] );
-			/// modify here for frequency-dependent calibrations!
-			/// need current frequency and calibration file.
-		}
-		*/
-		// normalize each signal.
-		/*
-		for ( auto signal : range ( numTones ) )
-		{
-			// After this, a "currentPower" calculated the same above will always give TOTAL_POWER. 
-			powerPos[ signal ] = ( initBias[ signal ] + powerPos[ signal ] ) * ( TOTAL_POWER / 1 ) 
-				- initBias[ signal ];
-		}
-		*/
-		///  finally, Calculate voltage data point.
-		for ( auto signal : range ( numTones ) )
-		{
-			// get data point. V = Sqrt(Power) * Sin(Phase)
-			totalWave[ sample ] += /*sqrt ( initBias[signal] + powerPos[ signal ] ) **/ preCalcMoves( initPositions[signal],
-																								  finalPositions[signal])[sample];
-		}
-	}
-	return totalWave;
 }
 
 

@@ -19,3 +19,5 @@ class ftdiFlume
 		const bool safemode;
 		FT_HANDLE ftAsyncHandle;
 };
+
+

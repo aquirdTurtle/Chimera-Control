@@ -27,7 +27,7 @@ class AuxiliaryWindow;
 class DioSystem
 {
 	public:
-	    DioSystem( bool ftSafemode, bool serialSafemode );
+		DioSystem ( bool ftSafemode, bool serialSafemode, bool viewpointSafemode );
 		/// Felixes Dio handling. Much originally in a class called "RC028".
 		void ftdi_disconnect( );
 		void ftdi_connectasync( const char devSerial[] );
@@ -116,6 +116,7 @@ class DioSystem
 		vec<vec<vec<WORD>>> getFinalViewpointData( );
 		vec<vec<finBufInfo>> getFinalFtdiData( );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
+		bool getViewpointSafemode ( );
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio

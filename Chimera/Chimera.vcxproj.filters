@@ -272,6 +272,7 @@
     <ClCompile Include="rerngOptionStructures.cpp">
       <Filter>Main Window\Structures</Filter>
     </ClCompile>
+    <ClCompile Include="NiawgStructures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">

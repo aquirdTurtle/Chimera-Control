@@ -60,7 +60,7 @@ class NiawgController
 								UINT variation );
 
 		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& variables,
-							   bool deleteWaveAfterWrite=true );
+							   bool deleteWaveAfterWrite=true, niawgLibOption::mode libOption = niawgLibOption::defaultMode );
 		void deleteWaveData( simpleWave& core );
 		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave );
 		void handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script,
@@ -102,8 +102,8 @@ class NiawgController
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
 		static void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
-									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary,
-									   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT, bool useLibrary = true );
+									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+									   niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		static std::vector<double> combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions,
 													  std::vector<double> initBias, std::vector<double> finBias,
 													  Matrix<std::vector<double>> preCalcMoves );
@@ -136,13 +136,14 @@ class NiawgController
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
-		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
+		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault, 
+								niawgLibOption::mode libOption = niawgLibOption::defaultMode);
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
 		void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
-									   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT );
+								niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions() );
 		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
 		static void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
-								  double time, bool powerCap=false, bool constPower=CONST_POWER_OUTPUT );
+								  double time, niawgWavePower::mode powerMode = niawgWavePower::defaultMode );
 
 		void handleMinus1Phase( simpleWave& waveCore, simpleWave& prevWave );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
@@ -158,8 +159,7 @@ class NiawgController
 		bool isSpecialCommand( std::string command );
 		void handleSpecial( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 
 									  profileSettings profile, debugInfo& options, std::string& warnings );
-		void finalizeStandardWave( simpleWave& wave, debugInfo& options, bool powerCap = false, 
-								   bool constPower = CONST_POWER_OUTPUT );
+		void finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		/// member variables
  		// Important. This can change if you change computers.
  		const ViRsrc NI_5451_LOCATION = "Dev6";
