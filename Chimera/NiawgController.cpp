@@ -603,7 +603,7 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 	{
 		wave.varies = formWave.varies;
 		wave.time = formWave.time.evaluate( varibles, variation ) * 1e-3;
-		wave.sampleNum = waveformSizeCalc( wave.time );
+		//wave.sampleNum = waveformSizeCalc( wave.time );
 		wave.name = formWave.name;
 		for ( auto chanInc : range( wave.chan.size()) )
 		{
@@ -974,7 +974,7 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 					writeStandardWave( wave.core, debugOptions, output.isDefault );
 					deleteWaveData( wave.core );
 				}
-				mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
+				mixedWaveSizes.push_back( 2 * wave.core.sampleNum() );
 				mixedCount++;
 			}
 			waveInc++;
@@ -1337,13 +1337,14 @@ void NiawgController::handleSpecial( ScriptStream& script, NiawgOutput& output, 
 /**
 * This namespace includes all of the relevant functions for generating waveforms.
 */
+/*
 long NiawgController::waveformSizeCalc(double time)
 {
 	double waveSize = time * NIAWG_SAMPLE_RATE;
 	// round to an integer.
 	return (long)(waveSize + 0.5);
 }
-
+*/
 
 /**
 * This function takes in the data for a single waveform and calculates all if the waveform's data points, and returns a pointer to an array containing
@@ -1688,8 +1689,8 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
   */
 void NiawgController::mixWaveforms( simpleWave& waveCore, bool writeThisToFile )
 {
-	waveCore.waveVals.resize( 2 * waveCore.sampleNum );
-	for ( auto sample : range( waveCore.sampleNum ) )
+	waveCore.waveVals.resize( 2 * waveCore.sampleNum() );
+	for ( auto sample : range( waveCore.sampleNum() ) )
 	{
 		// the order (Vertical -> Horizontal) here is important. Vertical is first because it's port zero on the Niawg. I believe that
 		// switching the order here and changing nothing else would flip the output of the niawg..			
@@ -2120,8 +2121,8 @@ void NiawgController::streamRerng()
 void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts )
 {
 	// prepare each channel
-	generateWaveform ( wave.chan[ Axes::Horizontal ], options, wave.sampleNum, wave.time, calcOpts );
-	generateWaveform ( wave.chan[ Axes::Vertical ], options, wave.sampleNum, wave.time, calcOpts );
+	generateWaveform ( wave.chan[ Axes::Horizontal ], options, wave.sampleNum(), wave.time, calcOpts );
+	generateWaveform ( wave.chan[ Axes::Vertical ], options, wave.sampleNum(), wave.time, calcOpts );
 	mixWaveforms( wave, options.outputNiawgWavesToText );
 	// clear channel data, no longer needed.
 	wave.chan[Axes::Vertical].wave.clear( );
@@ -2207,7 +2208,7 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double 
 	std::vector<ULONG> sampleNum( wave.flash.flashNumber, 0 );
 	ULONG mixedSample( 0 );
 	/// mix the waves together
-	wave.core.waveVals.resize( 2 * waveformSizeCalc( wave.core.time ) );
+	wave.core.waveVals.resize ( 2 * wave.core.sampleNum ( ) ); //waveformSizeCalc( wave.core.time ) );
 	for ( auto cycleInc : range( cycles ) )
 	{
 		for ( auto waveInc : range( wave.flash.flashNumber ) )
@@ -2706,7 +2707,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 	moveWave.name = "NOT-USED";
 	// needs to match correctly the static waveform.
 	moveWave.time = options.fastMoveTime;
-	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+	//moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 
 	double movingFrac = moveBias;
 	// split the remaining bias between all of the other movingSize-2 signals.
@@ -2833,7 +2834,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 	{
 		initRampWave = moveWave;
 		initRampWave.time = 1e-6;
-		initRampWave.sampleNum = waveformSizeCalc( initRampWave.time );
+		//initRampWave.sampleNum = waveformSizeCalc( initRampWave.time );
 		// make every signal not freq ramp and make all amplitude ramps.
 		for ( auto& chan : initRampWave.chan )
 		{
@@ -2895,7 +2896,7 @@ simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettin
 	moveWave.name = "NOT-USED";
 	// if flashing, this time + staticWave.time needs to be = rerngSettings.timePerMove
 	moveWave.time = 0.02e-3;// rerngSettings.timePerMove;
-	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+	//moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
 	bool offGridDump = true;
 	double nonMovingFrac = offGridDump ? 1 - moveBias : ( 1 - moveBias ) / ( movingSize - 2 );
 	/// handle moving axis /////////////
@@ -3133,7 +3134,7 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 	moveWave.chan[Axes::Horizontal].signals.resize( target.getCols() );
 	// this is pretty arbitrary right now. In principle can prob be very fast.
 	moveWave.time = moveTime;
-	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+	//moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 	simpleWave waitWave = moveWave;
 	// fill wave info
 	for ( auto axis : AXES )
@@ -3418,7 +3419,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampUpWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampUpWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
 				rampUpWave.time = 10e-5;
-				rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
+				//rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
@@ -3458,7 +3459,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				holdWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
 				// important! Assuming everything is 0.5MHz or 1MHz defined...
 				holdWave.time = 2e-6;
-				holdWave.sampleNum = waveformSizeCalc ( holdWave.time );
+				//holdWave.sampleNum = waveformSizeCalc ( holdWave.time );
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
@@ -3542,7 +3543,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampDownWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampDownWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
 				rampDownWave.time = 10e-5;
-				rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
+				//rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
