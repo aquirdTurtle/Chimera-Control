@@ -8,28 +8,7 @@
 #include <future>
 #include "Thrower.h"
 #include "externals.h"
-/*
-const UINT MainWindow::StatusUpdateMessageID = RegisterWindowMessage ( "ID_THREAD_STATUS_MESSAGE" ),
-	MainWindow::ErrorMessageID = RegisterWindowMessage ( "ID_THREAD_ERROR_MESSAGE" ),
-	MainWindow::FatalErrorMessageID = RegisterWindowMessage ( "ID_THREAD_FATAL_ERROR_MESSAGE" ),
-	MainWindow::NormalFinishMessageID = RegisterWindowMessage ( "ID_THREAD_NORMAL_FINISH_MESSAGE" ),
-	MainWindow::eColoredEditMessageID = RegisterWindowMessage ( "ID_VARIABLE_VALUES_MESSAGE" ),
-	MainWindow::DebugUpdateMessageID = RegisterWindowMessage ( "ID_THREAD_DEBUG_MESSAGE" ), 
-	MainWindow::AndorFinishMessageID = RegisterWindowMessage ( "ID_CAMERA_FINISH_MESSAGE" ),
-	MainWindow::AndorProgressMessageID = RegisterWindowMessage ( "ID_CAMERA_PROGRESS_MESSAGE" ),
-	MainWindow::RepProgressMessageID = RegisterWindowMessage ( "ID_REPETITION_PROGRESS_MESSAGE" ),
-	MainWindow::NoAtomsAlertMessageID = RegisterWindowMessage ( "ID_NO_ATOMS_ALERT_MESSAGE" ),
-	MainWindow::LogVoltsMessageID = RegisterWindowMessage ( "ID_LOG_VOLTS_MESSAGE" ),
-	MainWindow::AutoServoMessage = RegisterWindowMessage ( "ID_AUTO_SERVO_MESSAGE" ),
-	MainWindow::AndorCalProgMessageID = RegisterWindowMessage ( "ID_CAMERA_CAL_PROGRESS_MESSAGE" ),
-	MainWindow::AndorCalFinMessageID = RegisterWindowMessage ( "ID_CAMERA_CAL_FIN_MESSAGE" ), 
-	MainWindow::BaslerProgressMessageID = RegisterWindowMessage ( "BaslerProgressMessageID" ),
-	MainWindow::eMachineOptRoundFinMsgID = RegisterWindowMessage ( "ID_MACHINE_OPT_ROUND_FIN_MSG" ),
-	MainWindow::eMotNumCalFinMsgID = RegisterWindowMessage ( "ID_MOT_CAL_FIN_MSG" ), 
-	MainWindow::BaslerFinMessageID = RegisterWindowMessage ( "ID_BASLER_FINISH_MESSAGE" ), 
-	MainWindow::GeneralFinMsgID = RegisterWindowMessage ( "ID_GENERAL_FINISH_MESSAGE" ),
-	MainWindow::NoMotAlertMessageID = RegisterWindowMessage ( "ID_NO_MOT_ALERT" );
-	*/
+
 
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
@@ -1457,8 +1436,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	}
 	setNiawgRunningState( false );
 	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
-	Sleep( 100 );
-	asyncbeep = std::async ( std::launch::async, [] { Beep ( 900, 100 ); } );
+	errBox ( statusMessage );
 	return 0;
 }
 
@@ -1567,3 +1545,4 @@ rgbMap MainWindow::getRgbs()
 {
 	return mainRGBs;
 }
+

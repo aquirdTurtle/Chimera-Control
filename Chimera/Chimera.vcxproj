@@ -218,6 +218,7 @@
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="dataPoint.h" />
     <ClInclude Include="DioRows.h" />
+    <ClInclude Include="ErrDialog.h" />
     <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="MyListCtrl.h" />
     <ClInclude Include="Queues.h" />
@@ -336,6 +337,7 @@
     <ClCompile Include="CodeTimer.cpp" />
     <ClCompile Include="AndorRunMode.cpp" />
     <ClCompile Include="DioRows.cpp" />
+    <ClCompile Include="ErrDialog.cpp" />
     <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
     <ClCompile Include="NiawgStructures.cpp" />
