@@ -21,75 +21,61 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 
 void Communicator::sendBaslerFin ( )
 {
-	camWin->PostMessageA ( eBaslerFinMessageId, 0, 0 );
+	camWin->PostMessageA ( MainWindow::BaslerFinMessageID, 0, 0 );
 }
 
 
 void Communicator::sendNoMotAlert ( )
 {
-	mainWin->PostMessageA ( eNoMotAlertMessageID, 0, 0 );
+	mainWin->PostMessageA ( MainWindow::NoMotAlertMessageID, 0, 0 );
 }
 
 
 
 void Communicator::sendNoAtomsAlert ( )
 {
-	mainWin->PostMessageA ( eNoAtomsAlertMessageID, 0, 0 );
+	mainWin->PostMessageA ( MainWindow::NoAtomsAlertMessageID, 0, 0 );
 }
 
-/*
-void Communicator::sendMachineOptimizationRoundFinish ( )
-{
-	mainWin->PostMessage ( eMachineOptRoundFinMsgID, 0, 0 );
-}
-*/
-
-
-/*
-void Communicator::sendMotCalFinish ( )
-{
-	mainWin->PostMessage ( eMotNumCalFinMsgID, 0, 0 );
-}
-*/
 
 void Communicator::sendFinish ( ExperimentType type )
 {
-	mainWin->PostMessage ( eGeneralFinMsgID, int ( type ), 0 );
+	mainWin->PostMessage ( MainWindow::GeneralFinMsgID, int ( type ), 0 );
 }
 
 
 // the two camera messages go straight to the camera window.
 void Communicator::sendCameraFin()
 {
-	camWin->PostMessage( eCameraFinishMessageID, 0, 0 );
+	camWin->PostMessage( MainWindow::AndorFinishMessageID, 0, 0 );
 }
 
 void Communicator::sendCameraCalFin( )
 {
-	camWin->PostMessage( eCameraCalFinMessageID, 0, 0 );
+	camWin->PostMessage( MainWindow::AndorCalFinMessageID, 0, 0 );
 }
 
 
 void Communicator::sendAutoServo( )
 {
-	auxWin->PostMessageA( eAutoServoMessage, 0, 0 );
+	auxWin->PostMessageA( MainWindow::AutoServoMessage, 0, 0 );
 }
 
 /*
 void Communicator::sendNormalFinish( )
 {
-	mainWin->PostMessageA( eNormalFinishMessageID );
+	mainWin->PostMessageA( NormalFinishMessageID );
 }
 */
 
 void Communicator::sendCameraProgress(long progress)
 {
-	camWin->PostMessageA( eCameraProgressMessageID, 0, (LPARAM)progress );
+	camWin->PostMessageA( MainWindow::AndorProgressMessageID, 0, (LPARAM)progress );
 }
 
 void Communicator::sendCameraCalProgress( long progress )
 {
-	camWin->PostMessageA( eCameraCalProgMessageID, 0, (LPARAM)progress );
+	camWin->PostMessageA( MainWindow::AndorCalProgMessageID, 0, (LPARAM)progress );
 }
 
 
@@ -97,7 +83,7 @@ void Communicator::sendCameraCalProgress( long progress )
 
 void Communicator::sendRepProgress(ULONG rep)
 {
-	mainWin->PostMessageA(eRepProgressMessageID, 0, LPARAM(rep));
+	mainWin->PostMessageA(MainWindow::RepProgressMessageID, 0, LPARAM(rep));
 }
 
 void Communicator::sendTimer( std::string timerMsg )
@@ -113,7 +99,7 @@ void Communicator::sendTimer( std::string timerMsg )
  */
 void Communicator::sendErrorEx( std::string statusMsg, const char *file, int line)
 {
-	postMyString( mainWin, eErrorTextMessageID, statusMsg );
+	postMyString( mainWin, MainWindow::ErrorUpdateMessageID, statusMsg );
 }
 
 /*
@@ -121,7 +107,7 @@ void Communicator::sendErrorEx( std::string statusMsg, const char *file, int lin
 */
 void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, int line)
 {
-	postMyString( mainWin, eFatalErrorMessageID, statusMsg );
+	postMyString( mainWin, MainWindow::FatalErrorMessageID, statusMsg );
 }
 
 
@@ -157,7 +143,7 @@ void Communicator::sendColorBox( systemInfo<char> colors )
 
 void Communicator::sendStatus(std::string statusMsg)
 {
-	postMyString(mainWin, eStatusTextMessageID, statusMsg);
+	postMyString(mainWin, MainWindow::StatusUpdateMessageID, statusMsg);
 	mainWin->setShortStatus( statusMsg );
 }
 
@@ -165,7 +151,7 @@ void Communicator::sendDebug(std::string statusMsg)
 {
 	if (statusMsg != "")
 	{
-		postMyString(mainWin, eDebugMessageID, statusMsg);
+		postMyString(mainWin, MainWindow::DebugUpdateMessageID, statusMsg);
 	}
 }
 

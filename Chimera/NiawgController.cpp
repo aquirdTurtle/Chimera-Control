@@ -12,7 +12,6 @@
 #include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <numeric>
-#include "externals.h"
 #include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"

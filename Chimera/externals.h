@@ -24,11 +24,6 @@ extern bool eWaitError;
 // stuff for syntax coloring
 
 /// Global Options Variables
-extern UINT eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eNormalFinishMessageID, 
-			eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, eCameraProgressMessageID, 
-			eRepProgressMessageID, eNoAtomsAlertMessageID, eLogVoltsMessageID, eAutoServoMessage, 
-			eCameraCalProgMessageID, eCameraCalFinMessageID, ACE_PIC_READY, eMachineOptRoundFinMsgID,
-			eMotNumCalFinMsgID, eBaslerFinMessageId,eGeneralFinMsgID,eNoMotAlertMessageID;
 
 extern bool eAbortNiawgFlag;
 
