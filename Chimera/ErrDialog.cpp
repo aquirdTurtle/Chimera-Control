@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "ErrDialog.h"
+#include <regex>
 #include <future>
 
 
@@ -15,18 +16,22 @@ END_MESSAGE_MAP ( )
 
 BOOL ErrDialog::OnInitDialog ( )
 {
-	SetWindowText ( "ERROR!" );
+	SetWindowText ( dlgType == type::error ? "ERROR!" : "Notice:" );
 	static HFONT font = CreateFont( 42, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 									CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT ( "Old Sans Black" ) );
 	RECT winRect;
-	GetWindowRect ( &winRect );
-	
-	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 500, 500 ); } );
+	GetWindowRect ( &winRect );	
+	if ( dlgType == type::error )
+	{
+		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 500, 500 ); } );
+	}
+	// replace instances of \n alone with \r\n.
+	descriptionText = std::regex_replace (descriptionText.c_str(), std::regex("[^\r]\n"), "\r\n" );
 	description.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL, { 0,100,
-						 winRect.right-winRect.left,winRect.bottom-winRect.top-25 }, this, 0 );
+						 winRect.right-winRect.left,winRect.bottom-winRect.top-50 }, this, 0 );
 	description.SetWindowTextA ( descriptionText.c_str ( ) );
 	header.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, { 0,0, winRect.right - winRect.left, 100 }, this, 1 );
-	header.SetWindowText ( "ERROR!" );
+	header.SetWindowText ( dlgType == type::error ? "ERROR!" : "Notice:" );
 	header.SetFont ( CFont::FromHandle(font) );
 	return TRUE;
 }
@@ -35,11 +40,11 @@ BOOL ErrDialog::OnInitDialog ( )
 HBRUSH ErrDialog::OnCtlColor ( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
 {
 	static CBrush redBrush ( RGB ( 100, 0, 0 ) );
-	CBrush * result ;
+	static CBrush solarizedBrush ( RGB ( 253, 246, 227 ) );
 	int num = pWnd->GetDlgCtrlID ( );
-	pDC->SetTextColor ( RGB ( 255, 255, 255 ) );
-	pDC->SetBkColor ( RGB ( 100, 0, 0 ) );
-	return redBrush;
+	pDC->SetTextColor ( dlgType == type::error ? RGB ( 255, 255, 255 ) : RGB( 101, 123, 131 ) );
+	pDC->SetBkColor ( dlgType == type::error ? RGB(100,0,0) : RGB(253, 246, 227) );
+	return dlgType == type::error ? redBrush : solarizedBrush;
 }
 
 void ErrDialog::catchOk ( )

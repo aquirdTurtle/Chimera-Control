@@ -273,7 +273,9 @@
       <Filter>Main Window\Structures</Filter>
     </ClCompile>
     <ClCompile Include="NiawgStructures.cpp" />
-    <ClCompile Include="ErrDialog.cpp" />
+    <ClCompile Include="ErrDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -635,7 +637,9 @@
     <ClInclude Include="rerngMoveStructures.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="ErrDialog.h" />
+    <ClInclude Include="ErrDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

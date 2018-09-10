@@ -32,7 +32,7 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit);
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void errBox( T msg )
 {
-	ErrDialog dlg( cstr ( msg ) );
+	ErrDialog dlg( cstr ( msg ), ErrDialog::type::error );
 	dlg.DoModal ( );
 	// MessageBox( eMainWindowHwnd, cstr( msg ), "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
 }
@@ -40,7 +40,10 @@ template <typename T> void errBox( T msg )
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void infoBox( T msg )
 {
-	MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
+	ErrDialog dlg ( cstr ( msg ), ErrDialog::type::info );
+	dlg.DoModal ( );
+
+	//MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
 }
 
 template <typename T> int promptBox( T msg, UINT promptStyle )
