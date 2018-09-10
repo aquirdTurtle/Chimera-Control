@@ -70,7 +70,7 @@ class NiawgController
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<parameterType>& variables, simpleWaveForm& wave );
 		void setDefaultWaveforms( MainWindow* mainWin );
-		static long waveformSizeCalc( double time );
+		//static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		// programming the device
 		void restartDefault();
