@@ -1496,7 +1496,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									mainWin->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		configVariables.setParameterControlActive( false );
 
-		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
+		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables, 
+						   mainWin->getRgbs() );
 		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );

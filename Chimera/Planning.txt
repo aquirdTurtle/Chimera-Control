@@ -95,5 +95,3 @@ BUGS:
 - in debug mode aborting doesn't seem to work...
 	- make the waitonsingleobject calls smarter in the aborting process.
 - andor picture control should update with changes to the control bar, like the basler camera does.
-- display of servo listctrl is off
-
