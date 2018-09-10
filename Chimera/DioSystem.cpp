@@ -16,7 +16,9 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DioSystem::DioSystem( bool ftSafemode, bool serialSafemode ) : 	ftFlume( ftSafemode ), 	winSerial( serialSafemode )
+DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	ftFlume( ftSafemode ), 	
+winSerial( serialSafemode ),
+vp_flume(viewpointSafemode)
 {
 	connectType = ftdiConnectionOption::None;
 	for ( auto& row : ttlStatus )
@@ -909,6 +911,12 @@ void DioSystem::stopBoard()
 	vp_flume.dioOutStop( 0 );
 }
 
+bool DioSystem::getViewpointSafemode ( )
+{
+	return vp_flume.getSafemodeSetting ( );
+}
+
+
 double DioSystem::getClockStatus()
 {
 	// initialize to zero so that in safemode goes directly to getting tick line.
@@ -919,7 +927,7 @@ double DioSystem::getClockStatus()
 	{
 		vp_flume.dioOutStatus( 0, availableScans, stat );
 
-		if ( DIO_SAFEMODE )
+		if ( vp_flume.getSafemodeSetting ( ) )
 		{
 			thrower( "!" );
 		}
@@ -1290,7 +1298,6 @@ std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
 	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 	// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
 	lowordTime = ULONGLONG( time * 10000 ) % 65535;
-	USHORT temp = time * 10000;
 	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
 	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 )
 	{
@@ -1533,11 +1540,11 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 {
 	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
 	// of a bug when code first created.
-	for ( int dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
+	for ( UINT dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
 	{
 		auto& snapOuter0 = formattedTtlSnapshots[seqNum][variation][dioEventInc][0];
 		auto& snapOuter1 = formattedTtlSnapshots[seqNum][variation][dioEventInc][1];
-		for ( int dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
+		for ( UINT dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
 		{
 			auto& snapInner0 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][0];
 			auto& snapInner1 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][1];
@@ -1600,7 +1607,7 @@ void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 	{
 		auto& data = ttlData[line / linesPerPlot][line % linesPerPlot];
 		data->clear( );
-		UINT runningSeqTime = 0;
+		double runningSeqTime = 0;
 		for ( auto& ttlSeqData : ttlSnapshots )
 		{
 			for ( auto& snap : ttlSeqData[variation] )

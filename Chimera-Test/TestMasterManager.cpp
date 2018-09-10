@@ -38,7 +38,7 @@ namespace TestManager
 		{
 			// script reading and checking snapshots
 			MasterManager testMan;
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFtdiSnaps( 0, 0 );
 			// assert that the important structures are filled correctly.
@@ -67,7 +67,7 @@ namespace TestManager
 		TEST_METHOD( FTDI_DioFinalFormatting )
 		{
 			MasterManager testMan;
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFtdiSnaps( 0, 0 );
 			dio.convertToFinalFtdiFormat( 0, 0 );
@@ -103,7 +103,7 @@ namespace TestManager
 		{
 			// script reading and checking snapshots
 			MasterManager testMan;
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFinalViewpointFormat( 0, 0 );
 			// run a couple checks.
@@ -129,7 +129,7 @@ namespace TestManager
 		TEST_METHOD( DioFinalFormatting )
 		{
 			MasterManager testMan;
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFinalViewpointFormat( 0, 0 );
 			// run a couple checks.
@@ -174,7 +174,7 @@ namespace TestManager
 		{
 			MasterManager testMan;
 			AoSystem ao( true );
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
 			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initializeDataObjects( 1, 0 );
@@ -204,7 +204,7 @@ namespace TestManager
 		{
 			MasterManager testMan;
 			AoSystem ao( true );
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
 			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initializeDataObjects( 1, 0 );
@@ -255,7 +255,7 @@ namespace TestManager
 		{
 			MasterManager testMan;
 			AoSystem ao( true );
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 daclinspace: dac2 0 10 0.1 20" );
 			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initializeDataObjects( 1, 0 );
@@ -296,7 +296,7 @@ namespace TestManager
 		{
 			MasterManager testMan;
 			AoSystem ao( true );
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 dacarange: dac2 0 10 0.1 1" );
 			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initializeDataObjects( 1, 0 );
@@ -385,7 +385,7 @@ namespace TestManager
 		TEST_METHOD( Run_DIO_Core )
 		{
 			MasterManager testMan;
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 		}
 	};

@@ -88,7 +88,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(ProjectDir)..\Release;C:\Program Files\Andor SOLIS\Drivers;$(ProjectDir)..\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)..\Packages\32-Bit-Libs\Release\HDF5-1.10.1-win32-Release\lib;$(ProjectDir)..\Packages\32-Bit-Libs\DIO64;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Python;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Andor;$(ProjectDir)..\Chimera;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(ProjectDir)..\Release;C:\Program Files\Andor SOLIS\Drivers;$(ProjectDir)..\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)..\Packages\32-Bit-Libs\Release\HDF5-1.10.1-win32-Release\lib;$(ProjectDir)..\Packages\32-Bit-Libs\DIO64;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Python;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Andor;$(ProjectDir)..\Chimera;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files\Basler\pylon 5\Development\lib\Win32;</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)..\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\Anaconda3\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files\Basler\pylon 5\Development\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>

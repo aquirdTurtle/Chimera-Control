@@ -17,8 +17,10 @@ class ViewpointFlume
 	* ***********************************************************************************************************
 	*/
 	public:
-		ViewpointFlume( );
+		ViewpointFlume( bool safemode_ );
 		std::string getErrorMessage( int errorCode );
+		// 
+		bool getSafemodeSetting ( );
 		/// The following section holds the dio functions that I actually use!
 		void dioOpenResource( char* resourceName, WORD board, WORD baseio );
 		void dioOpen( WORD board, WORD baseio );
@@ -44,6 +46,7 @@ class ViewpointFlume
 		void dioSetAttr( WORD board, DWORD attrID, DWORD value );
 		void dioGetAttr( WORD board, DWORD attrID, DWORD& value );
 	private:
+		const bool safemode;
 		/// The following functions (all of the ones that start with "raw") ARE NOT MEANT TO BE DIRECTLY USED (at least
 		/// in my code. They are the raw functions I'm importing from viewpoints libraries without any bells or whistles.)
 		/// In this code, please use my wrapped functions (above) which wraps the functions into slightly shorter calls 

@@ -11,7 +11,7 @@ namespace TestDioSystem
 		public:
 		TEST_METHOD( InitDio )
 		{
-			DioSystem dio(true, true);
+			DioSystem dio(true, true, true);
 			auto status = dio.getCurrentStatus( );
 			for ( auto row : status )
 			{
@@ -23,7 +23,7 @@ namespace TestDioSystem
 		}
 		TEST_METHOD( InitStructures )
 		{
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			dio.initializeDataObjects( 1, 0 );
 			dio.interpretKey( std::vector<std::vector<parameterType>>( 1 ) );
 			Assert::IsTrue( dio.countDacTriggers( 0, 0 ) == 0 );
@@ -33,7 +33,7 @@ namespace TestDioSystem
 		}
 		TEST_METHOD( DioTimeCalc )
 		{
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			std::vector<double> times = { 1e-4,10.5,100 };
 			std::vector<std::pair<UINT, UINT>> diotimes = { {1,0},{39465,1},{16975,15} };
 			for ( auto count : range( times.size( ) ))
@@ -45,13 +45,13 @@ namespace TestDioSystem
 		}
 		TEST_METHOD( ForceOut )
 		{
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			dio.forceTtl( 0, 0, 1 );
 			Assert::AreEqual( true, dio.getTtlStatus( 0, 0 ) );
 		}
 		TEST_METHOD( Ftdl_Force_Out_Disconnected )
 		{
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			auto res = dio.ftdi_ForceOutput( 0, 0, 1 );
 			Assert::AreEqual( true, dio.getTtlStatus( 0, 0 ) );
 			// this number doesn't mean much in debug mode; it's the size of the buffer which is always 
@@ -60,7 +60,7 @@ namespace TestDioSystem
 		}
 		CONNECTED_TEST( Ftdl_Force_Out_Connected )
 		{
-			DioSystem dio( false, true );
+			DioSystem dio( false, true, true );
 			auto res = dio.ftdi_ForceOutput( 0, 0, 1 );
 			Assert::AreEqual( true, dio.getTtlStatus( 0, 0 ) );
 			Assert::AreEqual( DWORD( 1 ), res );
@@ -71,7 +71,7 @@ namespace TestDioSystem
 
 		TEST_METHOD( ZeroDio )
 		{
-			DioSystem dio( true, true );
+			DioSystem dio( true, true, true );
 			dio.forceTtl( 0, 1, 1 );
 			dio.forceTtl( 1, 0, 1 );
 			dio.forceTtl( 0, 0, 1 );
@@ -90,7 +90,7 @@ namespace TestDioSystem
 		}
 		CONNECTED_TEST( Connect_To_Ftdi )
 		{
-			DioSystem dio( false, false );
+			DioSystem dio( false, false, true );
 			try
 			{
 				dio.ftdi_connectasync( "FT2E722BB" );

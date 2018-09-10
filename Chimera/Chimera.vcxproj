@@ -120,7 +120,7 @@
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>lib /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)\$(Configuration)\*.obj"</Command>
+      <Command>lib /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)$(Configuration)\*.obj"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -338,6 +338,7 @@
     <ClCompile Include="DioRows.cpp" />
     <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
+    <ClCompile Include="NiawgStructures.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />

@@ -20,7 +20,7 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-									ttlBoard( true, true ),
+									ttlBoard( true, true, DIO_SAFEMODE ),
 									aoSys( ANALOG_OUT_SAFEMODE )
 {}
 
@@ -1591,7 +1591,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	// controls are done. Report the initialization defaultStatus...
 	std::string msg;
 	msg += "DIO System:\n";
-	if ( !DIO_SAFEMODE )
+	if ( !ttlBoard.getViewpointSafemode() )
 	{
 		msg += "\tCode System is active!\n";
 		msg += "\t" + ttlBoard.getSystemInfo( ) + "\n";
