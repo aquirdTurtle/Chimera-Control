@@ -29,10 +29,6 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
 	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos,
 							  parent, listviewId );
-	parametersListview.fontType = fontTypes::SmallFont;
-	parametersListview.SetBkColor( RGB( 15, 15, 15 ) );
-	parametersListview.SetTextBkColor( RGB( 15, 15, 15 ) );
-	parametersListview.SetTextColor( RGB( 150, 150, 150 ) );
 
 	RECT r;
 	parent->GetClientRect( &r );
@@ -55,6 +51,9 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 		parametersListview.InsertColumn( 9, "-()" );
 	}
 	parametersListview.insertBlankRow ( );
+	parametersListview.fontType = fontTypes::SmallFont;
+	parametersListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
+	parametersListview.SetTextColor ( RGB ( 150, 150, 150 ) );
 	parametersListview.SetBkColor( rgbs["Solarized Base02"] );
 	pos.y += 300;
 }
