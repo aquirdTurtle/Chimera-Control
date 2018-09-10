@@ -887,7 +887,7 @@ std::string MainWindow::getSystemStatusString()
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	status += "MOT Scope:\n";
 	if ( !MOT_SCOPE_SAFEMODE )
@@ -904,7 +904,7 @@ std::string MainWindow::getSystemStatusString()
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	status += "Master/Repump Scope:\n";
 	if ( !MASTER_REPUMP_SCOPE_SAFEMODE )
@@ -921,7 +921,7 @@ std::string MainWindow::getSystemStatusString()
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	return status;
 }

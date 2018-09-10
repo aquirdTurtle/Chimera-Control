@@ -51,9 +51,10 @@ FEATURES:
 - Make the code able to check if the mot is there.
 - Make (option for?) plots for single pic mode andor images
 - display threshold on histogram.
-- more tests
+- more unit tests
 - use custom (bigger) dialog for info boxes.
 - consider using sine lookup tables for niawg calculations.
+- imrove feedback of servo display / control during servoing.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -89,7 +90,7 @@ BUGS:
 - something funny about going back and forth between video and kinetic modes.
 - if in video before switching configs, switching configs fails.
 - start and stop while starting breaks...
-- plot histogram columns overlap
-- closing the wrong plot will close all...
+- plot histogram columns overlap...
+- closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - in debug mode aborting doesn't seem to work...
 	- make the waitonsingleobject calls smarter in the aborting process.
