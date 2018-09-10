@@ -20,12 +20,12 @@ void TextPromptDialog::catchf5( )
 
 BOOL TextPromptDialog::OnInitDialog()
 {
-	DWORD options = WS_CHILD | WS_VISIBLE | WS_BORDER;
+	DWORD options = WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY;
 	if (passwordOption)
 	{
 		options |= ES_PASSWORD;
 	}
-	description.Create(cstr(descriptionText), WS_CHILD | WS_VISIBLE | ES_READONLY | WS_BORDER, { 0,0,1000,75 }, this, 0);
+	description.Create(cstr(descriptionText), options, { 0,0,1000,75 }, this, 0);
 	prompt.Create( options, { 0,75,1000,150 }, this, 0 );
 	return TRUE;
 }

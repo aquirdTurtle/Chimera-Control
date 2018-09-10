@@ -8,6 +8,7 @@
 #include "MainWindow.h"
 #include "realTimePlotterInput.h"
 #include "MasterThreadInput.h"
+#include "ErrDialog.h"
 #include "ATMCD32D.H"
 #include <numeric>
 #include "Thrower.h"

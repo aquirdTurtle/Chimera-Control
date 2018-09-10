@@ -52,7 +52,7 @@ FEATURES:
 - Make (option for?) plots for single pic mode andor images
 - display threshold on histogram.
 - more tests
-- use custom (bigger) dialog for err, info boxes.
+- use custom (bigger) dialog for info boxes.
 - consider using sine lookup tables for niawg calculations.
 
 Refactoring / Other:
