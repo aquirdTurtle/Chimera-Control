@@ -49,12 +49,12 @@ FEATURES:
 	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
 	  Especially useful for auto-optimization to keep this good over time.
 - Make the code able to check if the mot is there.
-- Make (option for?) plots for single pic mode andor images
+- Make (option for) plots for single pic mode andor images
 - display threshold on histogram.
 - more unit tests
-- use custom (bigger) dialog for info boxes.
-- consider using sine lookup tables for niawg calculations.
-- imrove feedback of servo display / control during servoing.
+- consider / test using sine lookup tables for niawg calculations.
+- improve feedback of servo display / control during servoing.
+- be able to query current connection status like what
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -87,10 +87,13 @@ BUGS:
 - for flash check that sum of indv move times is the total move time.
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
 - if taking pictures too fast code freezes
-- something funny about going back and forth between video and kinetic modes.
+- something funny about going back and forth between video and kinetic modes and the size of controls?
 - if in video before switching configs, switching configs fails.
-- start and stop while starting breaks...
+- start and abort while starting breaks...
 - plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - in debug mode aborting doesn't seem to work...
 	- make the waitonsingleobject calls smarter in the aborting process.
+- andor picture control should update with changes to the control bar, like the basler camera does.
+- display of servo listctrl is off
+

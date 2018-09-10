@@ -42,7 +42,6 @@ template <typename T> void infoBox( T msg )
 {
 	ErrDialog dlg ( cstr ( msg ), ErrDialog::type::info );
 	dlg.DoModal ( );
-
 	//MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
 }
 

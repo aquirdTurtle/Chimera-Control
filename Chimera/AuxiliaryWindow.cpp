@@ -54,8 +54,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
 
-	ON_REGISTERED_MESSAGE( MainWindow::AutoServoMessage, &autoServo )
-	ON_REGISTERED_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
+	ON_MESSAGE ( MainWindow::AutoServoMessage, &autoServo )
+	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )

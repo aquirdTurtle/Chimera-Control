@@ -35,7 +35,7 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 
-	ON_REGISTERED_MESSAGE( MainWindow::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
+	ON_MESSAGE( MainWindow::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
 	
 	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
 	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
@@ -235,8 +235,8 @@ void BaslerWindow::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar )
 	{
 		try
 		{
-			picManager.handleScroll ( nSBCode, nPos, scrollbar );
-			CDC* cdc = GetDC( );
+			CDC* cdc = GetDC ( );
+			picManager.handleScroll ( nSBCode, nPos, scrollbar, cdc );
 			ReleaseDC( cdc );
 		}
 		catch (Error& err)
