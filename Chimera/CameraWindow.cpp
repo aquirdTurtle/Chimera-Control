@@ -59,11 +59,11 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &AndorWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
 
-	ON_REGISTERED_MESSAGE( MainWindow::AndorFinishMessageID, &AndorWindow::onCameraFinish )
-	ON_REGISTERED_MESSAGE( MainWindow::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
-	ON_REGISTERED_MESSAGE( MainWindow::AndorProgressMessageID, &AndorWindow::onCameraProgress )
-	ON_REGISTERED_MESSAGE( MainWindow::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
-	ON_REGISTERED_MESSAGE( MainWindow::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
+	ON_MESSAGE ( MainWindow::AndorFinishMessageID, &AndorWindow::onCameraFinish )
+	ON_MESSAGE ( MainWindow::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
+	ON_MESSAGE ( MainWindow::AndorProgressMessageID, &AndorWindow::onCameraProgress )
+	ON_MESSAGE ( MainWindow::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
+	ON_MESSAGE ( MainWindow::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
 
@@ -904,7 +904,16 @@ BOOL AndorWindow::PreTranslateMessage(MSG* pMsg)
 
 void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {
-	pics.handleScroll(nSBCode, nPos, scrollbar);
+	try
+	{
+		CDC* cdc = GetDC ( );
+		pics.handleScroll ( nSBCode, nPos, scrollbar, cdc );
+		ReleaseDC ( cdc );
+	}
+	catch ( Error& err )
+	{
+		mainWin->getComm ( )->sendError ( err.what ( ) );
+	}
 }
 
 // 3836, 1951

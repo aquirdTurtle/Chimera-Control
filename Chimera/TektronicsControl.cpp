@@ -196,12 +196,12 @@ void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "TEKTRONICS\n";
 	saveFile << "CHANNEL_1\n";
 	tektronicsInfo tekInfo = getTekSettings();
-	saveFile << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
+	saveFile << tekInfo.channels.first.control << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
 		<< tekInfo.channels.first.power.expressionStr << "\n"
 		<< tekInfo.channels.first.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.first.fskFreq.expressionStr << "\n";
 	saveFile << "CHANNEL_2\n";
-	saveFile << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
+	saveFile << tekInfo.channels.second.control << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
 		<< tekInfo.channels.second.power.expressionStr << "\n"
 		<< tekInfo.channels.second.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.second.fskFreq.expressionStr << "\n";
