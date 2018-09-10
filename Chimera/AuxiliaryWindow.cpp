@@ -54,7 +54,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
 
-	ON_REGISTERED_MESSAGE( eAutoServoMessage, &autoServo )
+	ON_REGISTERED_MESSAGE( MainWindow::AutoServoMessage, &autoServo )
+	ON_REGISTERED_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
@@ -67,7 +68,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 					  &AuxiliaryWindow::handleAgilentCombo )
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, 
 					  &AuxiliaryWindow::handleAgilentCombo )
-	ON_REGISTERED_MESSAGE( eLogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
+	
 
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )

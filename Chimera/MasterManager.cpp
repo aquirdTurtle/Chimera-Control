@@ -9,10 +9,12 @@
 #include "Expression.h"
 #include "Thrower.h"
 #include "range.h"
+#include "MainWindow.h"
 #include "nidaqmx2.h"
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
+
 
 MasterManager::MasterManager() {}
 
@@ -290,7 +292,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			if ( input->aiSys->wantsQueryBetweenVariations( ) )
 			{
 				expUpdate( "Querying Voltages...\r\n", comm, quiet );
-				input->auxWin->PostMessage( eLogVoltsMessageID, variationInc );
+				input->auxWin->PostMessage( MainWindow::LogVoltsMessageID, variationInc );
 			}
 			Sleep( input->debugOptions.sleepTime );
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )

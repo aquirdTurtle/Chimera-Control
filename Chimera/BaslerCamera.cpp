@@ -6,7 +6,7 @@
 #include <cmath>
 #include <algorithm>
 #include <functional>
-
+#include "MainWindow.h"
 
 // important constructor;
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
@@ -338,7 +338,7 @@ void BaslerCameras::triggerThread( void* voidInput )
 							+ 300 * exp( -std::pow( (double( row ) - 200) / 10.0, 2 ) - std::pow( (double( col ) - 100) / 10.0, 2 ) );
 					}
 				}
-				PostMessage(*input->parent, ACE_PIC_READY, 672 * 512, (LPARAM)imageMatrix);
+				PostMessage(*input->parent, MainWindow::BaslerProgressMessageID, 672 * 512, (LPARAM)imageMatrix);
 			}
 		}
 	}

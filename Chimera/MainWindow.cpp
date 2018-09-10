@@ -8,6 +8,28 @@
 #include <future>
 #include "Thrower.h"
 #include "externals.h"
+/*
+const UINT MainWindow::StatusUpdateMessageID = RegisterWindowMessage ( "ID_THREAD_STATUS_MESSAGE" ),
+	MainWindow::ErrorMessageID = RegisterWindowMessage ( "ID_THREAD_ERROR_MESSAGE" ),
+	MainWindow::FatalErrorMessageID = RegisterWindowMessage ( "ID_THREAD_FATAL_ERROR_MESSAGE" ),
+	MainWindow::NormalFinishMessageID = RegisterWindowMessage ( "ID_THREAD_NORMAL_FINISH_MESSAGE" ),
+	MainWindow::eColoredEditMessageID = RegisterWindowMessage ( "ID_VARIABLE_VALUES_MESSAGE" ),
+	MainWindow::DebugUpdateMessageID = RegisterWindowMessage ( "ID_THREAD_DEBUG_MESSAGE" ), 
+	MainWindow::AndorFinishMessageID = RegisterWindowMessage ( "ID_CAMERA_FINISH_MESSAGE" ),
+	MainWindow::AndorProgressMessageID = RegisterWindowMessage ( "ID_CAMERA_PROGRESS_MESSAGE" ),
+	MainWindow::RepProgressMessageID = RegisterWindowMessage ( "ID_REPETITION_PROGRESS_MESSAGE" ),
+	MainWindow::NoAtomsAlertMessageID = RegisterWindowMessage ( "ID_NO_ATOMS_ALERT_MESSAGE" ),
+	MainWindow::LogVoltsMessageID = RegisterWindowMessage ( "ID_LOG_VOLTS_MESSAGE" ),
+	MainWindow::AutoServoMessage = RegisterWindowMessage ( "ID_AUTO_SERVO_MESSAGE" ),
+	MainWindow::AndorCalProgMessageID = RegisterWindowMessage ( "ID_CAMERA_CAL_PROGRESS_MESSAGE" ),
+	MainWindow::AndorCalFinMessageID = RegisterWindowMessage ( "ID_CAMERA_CAL_FIN_MESSAGE" ), 
+	MainWindow::BaslerProgressMessageID = RegisterWindowMessage ( "BaslerProgressMessageID" ),
+	MainWindow::eMachineOptRoundFinMsgID = RegisterWindowMessage ( "ID_MACHINE_OPT_ROUND_FIN_MSG" ),
+	MainWindow::eMotNumCalFinMsgID = RegisterWindowMessage ( "ID_MOT_CAL_FIN_MSG" ), 
+	MainWindow::BaslerFinMessageID = RegisterWindowMessage ( "ID_BASLER_FINISH_MESSAGE" ), 
+	MainWindow::GeneralFinMsgID = RegisterWindowMessage ( "ID_GENERAL_FINISH_MESSAGE" ),
+	MainWindow::NoMotAlertMessageID = RegisterWindowMessage ( "ID_NO_MOT_ALERT" );
+	*/
 
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
@@ -183,15 +205,14 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
 	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
 	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
-	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
-	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
-	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
-	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
-	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
-	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
-	ON_REGISTERED_MESSAGE( eNoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
-	ON_REGISTERED_MESSAGE ( eNoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
-	ON_REGISTERED_MESSAGE ( eGeneralFinMsgID, &MainWindow::onFinish )
+	ON_REGISTERED_MESSAGE( RepProgressMessageID, &MainWindow::onRepProgress )
+	ON_REGISTERED_MESSAGE( StatusUpdateMessageID, &MainWindow::onStatusTextMessage )
+	ON_REGISTERED_MESSAGE( ErrorUpdateMessageID, &MainWindow::onErrorMessage )
+	ON_REGISTERED_MESSAGE( FatalErrorMessageID, &MainWindow::onFatalErrorMessage )
+	ON_REGISTERED_MESSAGE( DebugUpdateMessageID, &MainWindow::onDebugMessage )
+	ON_REGISTERED_MESSAGE( NoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
+	ON_REGISTERED_MESSAGE ( NoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
+	ON_REGISTERED_MESSAGE ( GeneralFinMsgID, &MainWindow::onFinish )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
@@ -1523,16 +1544,6 @@ void MainWindow::handleFinish()
 Communicator* MainWindow::getComm()
 {
 	return &comm;
-}
-
-
-LRESULT MainWindow::onColoredEditMessage(WPARAM wParam, LPARAM lParam)
-{
-	char* pointerToMessage = (char*)lParam;
-	std::string statusMessage(pointerToMessage);
-	delete[] pointerToMessage;
-	setShortStatus(statusMessage);
-	return 0;
 }
 
 
