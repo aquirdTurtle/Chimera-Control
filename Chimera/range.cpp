@@ -1,6 +1,10 @@
 ﻿#include "stdafx.h"
 #include "range.h"
 
+boost::integer_range<ULONGLONG> range ( ULONGLONG stop )
+{
+	return boost::irange<ULONGLONG> ( ULONGLONG ( 0 ), stop );
+}
 boost::integer_range<ULONG> range( ULONG stop )
 {
 	return boost::irange<ULONG>( ULONG( 0 ), stop );

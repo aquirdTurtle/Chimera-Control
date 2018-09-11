@@ -234,7 +234,7 @@ namespace TestNiawg
 			Assert::AreEqual ( 0.01e-3, core.time );
 			Assert::AreEqual ( false, core.varies );
 			Assert::AreEqual ( size_t ( 0 ), core.waveVals.size ( ) );
-			Assert::AreEqual ( long ( NIAWG_SAMPLE_RATE * 0.01e-3 ), core.sampleNum );
+			Assert::AreEqual ( long ( NIAWG_SAMPLE_RATE * 0.01e-3 ), core.sampleNum() );
 			UINT count = 0;
 			std::vector<double> freqs = { 70.0e6, 80.0e6 };
 			for ( auto& axis : core.chan )
@@ -364,7 +364,7 @@ namespace TestNiawg
 			niawg.analyzeNiawgScript ( stream, output, profileSettings ( ), debugInfo ( ), std::string ( ),
 									   rerngGuiOptionsForm ( ), std::vector<parameterType> ( ) );
 			niawg.writeStaticNiawg ( output, debugInfo ( ), std::vector<parameterType> ( ) );
-			Assert::AreEqual ( long ( NIAWG_SAMPLE_RATE * 10e-3 ), output.waves[ 0 ].core.sampleNum );
+			Assert::AreEqual ( long ( NIAWG_SAMPLE_RATE * 10e-3 ), output.waves[ 0 ].core.sampleNum() );
 		}
 		private:
 		const std::string simpleScript = "gen1const HORIZONTAL 80 1 0 # gen1const VERTICAL 70 1 0 # 0.01 0";
