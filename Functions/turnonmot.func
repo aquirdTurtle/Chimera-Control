@@ -2,13 +2,13 @@
 
 def turnOnMot():
   %% % TTLs
-  on: DiagMotRf
-  on: RepumpRf
-  on: SideMotRf
-  on: RepumpShutter
-  on: DiagMotShutter
-  on: SideMotShutter
-  off: RamanShutter
+  on: DiagMotRf %on
+  on: RepumpRf %on
+  on: SideMotRf %on
+  on: RepumpShutter %on
+  on: DiagMotShutter %on
+  on: SideMotShutter %on
+  off: RamanShutter %off
   %% %%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% % DACS
   % var mot_freq 0.05
