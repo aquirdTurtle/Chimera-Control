@@ -1,0 +1,45 @@
+def lazyRerngSequence():
+  t += 1
+  %call inTrapPgc()
+  t += 5
+  %% START COOLING
+  off: diagMotRf
+  call zeroFieldsPgc()
+  t += 1
+  dac: diagMotPower 0
+  var mot_pow 0.05
+  var repump_pow 0.1 
+  var diag_pow 0.05 
+  daclinspace: MotFreq defaultmotfreq rerng_mot_detuning 1 10
+  dac: SideMotPower mot_pow 
+  dac: RepumpPower repump_pow 
+  dac: DiagmotPower diag_pow 
+  t += 1.1
+  off: RepumpRf
+  off: diagmotRf
+  off: SideMotRf
+  %%% MOVING ON...
+  pulseon: tweezerIntensityTrig 0.1 
+  pulseon: a15 0.1 
+  t += 6
+  t += 0.01 
+  pulseon: a15 0.1 
+  % rampdown
+  pulseon: niawgtrig 0.1 
+  t += 1
+  pulseon: aceTrig 0.01 
+  t += 5
+  % drop 
+  pulseon: niawgtrig 0.1 
+  t += 3
+  pulseon: tweezerIntensityTrig 0.1 
+  %t += 10
+  %pulseon: tweezerIntensityTrig 0.1 
+  t += 6
+  %% STOP COOLING
+  off: SideMotRf
+  off: RepumpRf
+  off: diagmotrf
+  daclinspace: MotFreq rerng_mot_detuning defaultmotfreq 1 10
+  t += 3
+

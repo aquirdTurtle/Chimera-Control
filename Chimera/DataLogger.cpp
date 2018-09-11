@@ -163,9 +163,9 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 			fopen_s ( &calFile, calDataLoc.c_str ( ), "r" );
 			if ( !calFile )
 			{
-				thrower ( "ERROR: The Data logger doesn't see the temperature data for today in the data folder, location:"
-						  + calDataLoc + ". Please make sure that the temperature logger is working correctly "
-						  "before starting an experiment." );
+				thrower ( "ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
+						  "location:" + calDataLoc + ". Please make sure that the mot is running okay and then "
+						  "run F12 before starting an experiment." );
 			}
 			else
 			{

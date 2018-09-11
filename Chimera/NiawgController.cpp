@@ -2323,7 +2323,9 @@ void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, Niaw
 					warnings += "Warning: Frequency jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis]
 						+ " component detected!\r\n";
 				}
-				if ( currSig.initPhase - prevSig.finPhase > CORRECTION_WAVEFORM_ERROR_THRESHOLD )
+				// extra check because of the case where init = 2pi and fin = 0, or vice versa, would trip otherwise.
+				if ( fabs(currSig.initPhase - prevSig.finPhase) > 1e-3 
+					 && fabs(fmod(currSig.initPhase + PI, 2 * PI) - fmod(prevSig.finPhase + PI, 2 * PI)) > 1e-3 )
 				{
 					warnings += "Warning: Phase jump (greater than what's wanted for correction waveforms) at "
 						"waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis] + " component detected!\r\n";
