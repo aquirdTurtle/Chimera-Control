@@ -48,10 +48,8 @@ FEATURES:
 - Implement smarter thresholding?
 	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
 	  Especially useful for auto-optimization to keep this good over time.
-- Make the code able to check if the mot is there.
 - Make (option for) plots for single pic mode andor images
 - display threshold on histogram.
-- more unit tests
 - consider / test using sine lookup tables for niawg calculations.
 - improve feedback of servo display / control during servoing.
 - be able to query current connection status like what
@@ -72,6 +70,9 @@ Refactoring / Other:
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
 - refactor rerngmove complexmove and simplemove which are confusing...
 
+Tests
+- test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
+
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
@@ -79,7 +80,6 @@ BUGS:
 - turnonmot seems to be running tektronics stuff too.
 - control tektronics not being saved in config?
 - trying save if only camera is running...
-- in rearranging, add check that source matrix is larger than target.
 - crash when change color scheme during experiment???
 - make eating comments more robust against eol conversion issues.
 - interpret key taking a long time for ttls in camera cal
@@ -95,3 +95,6 @@ BUGS:
 - in debug mode aborting doesn't seem to work...
 	- make the waitonsingleobject calls smarter in the aborting process.
 - andor picture control should update with changes to the control bar, like the basler camera does.
+- scale dacval plot correctly.
+- scale oscilloscope plot correctly.
+
