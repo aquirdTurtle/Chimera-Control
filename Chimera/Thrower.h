@@ -52,15 +52,22 @@ class Error : public std::runtime_error
 		{
 			stackMsg += getErrorStackTrace ( e, level + 1 );
 		}
+		catch(...)
+		{ }
 		return stackMsg;
 	}
 	private:
-	std::string msg;
-	std::string bareMsg;
-	std::string loc;
+		std::string msg;
+		std::string bareMsg;
+		std::string loc;
 };
 
 
 // the following gives any throw call file and line information.
 // throw_with_nested makes it possible to chain thrower calls and get a full error stack traceback
-#define thrower(arg) std::throw_with_nested( Error(arg, __FILE__, __LINE__) )
+
+// use this if not throwing from inside a catch().
+#define thrower(arg) throw Error(arg, __FILE__, __LINE__) 
+
+// use this if throwing inside a catch.
+#define throwNested(arg) std::throw_with_nested( Error(arg, __FILE__, __LINE__))

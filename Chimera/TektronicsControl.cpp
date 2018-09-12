@@ -42,7 +42,7 @@ void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& va
 	UINT sequenceNumber;
 	if ( variables.size( ) == 0 )
 	{
-		thrower( "ERROR: variables empty, no sequence fill!" );
+		thrower ( "ERROR: variables empty, no sequence fill!" );
 	}
 	else if ( variables.front( ).size( ) == 0 )
 	{

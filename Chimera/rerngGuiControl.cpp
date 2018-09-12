@@ -109,7 +109,7 @@ rerngGuiOptionsForm rerngGuiControl::getParams( )
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower( "ERROR: Failed to convert rearrangement parameters to correct format! check that the inputs are the "
+		throwNested ( "ERROR: Failed to convert rearrangement parameters to correct format! check that the inputs are the "
 				 "correct types please." );
 	}
 	return tempParams;

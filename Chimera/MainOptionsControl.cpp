@@ -111,7 +111,7 @@ mainOptions MainOptionsControl::getOptions()
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: failed to convert atom threshold for load-skip to an unsigned long!" );
+		throwNested ( "ERROR: failed to convert atom threshold for load-skip to an unsigned long!" );
 	}
 	return currentOptions;
 }

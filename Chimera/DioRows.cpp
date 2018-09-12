@@ -10,7 +10,7 @@ DioRows::which DioRows::fromStr ( std::string rowStr )
 			return w;
 		}
 	}
-	thrower ( "Failed to convert string to diorow!" );
+	thrower  ( "Failed to convert string to diorow!" );
 	return which::A;
 }
 
@@ -28,6 +28,6 @@ std::string DioRows::toStr ( which m )
 		case which::D:
 			return "D";
 	}
-	thrower ( "Faied to convert dio row to string!" );
+	thrower  ( "Faied to convert dio row to string!" );
 	return "";
 }

@@ -115,7 +115,7 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 	std::ofstream newConfigFile(cstr(newConfigPath));
 	if (!newConfigFile.is_open())
 	{
-		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
+		thrower ( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
 	}
 	newConfigFile << "Version: " + version.str() +  "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
@@ -146,7 +146,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	// check if opened correctly.
 	if ( !configFile.is_open( ) )
 	{
-		thrower( "Opening of Configuration File Failed!" );
+		thrower ( "Opening of Configuration File Failed!" );
 	}
 	int slashPos = pathToConfig.find_last_of( '\\' );
 	int extensionPos = pathToConfig.find_last_of( '.' );
@@ -196,7 +196,7 @@ void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string deli
 	openFile >> checkStr;
 	if (checkStr != delimiter)
 	{
-		thrower("ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"");
+		thrower ("ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"");
 	}
 }
 
@@ -213,7 +213,7 @@ bool ProfileSystem::checkDelimiterLine( std::ifstream& openFile, std::string del
 		{
 			return true;
 		}
-		thrower( "ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"" );
+		thrower ( "ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"" );
 	}
 	return false;
 }
@@ -232,7 +232,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	// check to make sure that this is a name.
 	if (configNameToSave == "")
 	{
-		thrower( "ERROR: Please select a configuration before saving!" );
+		thrower ( "ERROR: Please select a configuration before saving!" );
 	}
 	// check if file already exists
 	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + "." + CONFIG_EXTENSION))  
@@ -249,7 +249,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	std::ofstream configSaveFile(currentProfile.categoryPath + configNameToSave + "." + CONFIG_EXTENSION);
 	if (!configSaveFile.is_open())
 	{
-		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
 			"everything seems right..." );
 	}
 	// That's the last prompt the user gets, so the save is final now.
@@ -285,7 +285,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	std::ofstream configSaveFile( configurationPathToSave);
 	if (!configSaveFile.is_open())
 	{
-		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
 				 "everything seems right..." );
 	}
 	int slashPos = configurationPathToSave.find_last_of( '\\' );
@@ -319,7 +319,7 @@ void ProfileSystem::renameConfiguration()
 	// check if configuration has been set yet.
 	if (currentProfile.configuration == "")
 	{
-		thrower( "The Configuration has not yet been selected! Please select a category or create a new one before "
+		thrower ( "The Configuration has not yet been selected! Please select a category or create a new one before "
 					"trying to rename it." );
 	}
 
@@ -338,7 +338,7 @@ void ProfileSystem::renameConfiguration()
 	int result = MoveFile(cstr(currentConfigurationLocation), cstr(newConfigurationLocation));
 	if (result == 0)
 	{
-		thrower( "Renaming of the configuration file Failed! Ask Mark about bugs" );
+		thrower ( "Renaming of the configuration file Failed! Ask Mark about bugs" );
 	}
 	currentProfile.configuration = newConfigurationName;
 }
@@ -352,7 +352,7 @@ void ProfileSystem::deleteConfiguration()
 	// check if configuration has been set yet.
 	if (currentProfile.configuration == "")
 	{
-		thrower( "The Configuration has not yet been selected! Please select a category or create a new one before "
+		thrower ( "The Configuration has not yet been selected! Please select a category or create a new one before "
 				 "trying to rename it." );
 	}
 	int answer = promptBox("Are you sure you want to delete the current configuration: " 
@@ -365,7 +365,7 @@ void ProfileSystem::deleteConfiguration()
 	int result = DeleteFile(cstr(currentConfigurationLocation));
 	if (result == 0)
 	{
-		thrower( "ERROR: Deleteing the configuration file failed!" );
+		thrower ( "ERROR: Deleteing the configuration file failed!" );
 	}
 	// since the configuration this (may have been) was saved to is gone, no saved version of current code.
 	this->updateConfigurationSavedStatus(false);
@@ -546,7 +546,7 @@ void ProfileSystem::saveSequence()
 								   + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
-		thrower( "ERROR: Couldn't open sequence file for saving!" );
+		thrower ( "ERROR: Couldn't open sequence file for saving!" );
 	}
 	sequenceSaveFile << "Version: 1.0\n";
 	for (auto& seq : currentSequence.sequence)
@@ -583,7 +583,7 @@ void ProfileSystem::saveSequenceAs()
 								   std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
-		thrower( "ERROR: Couldn't open sequence file for saving!" );
+		thrower ( "ERROR: Couldn't open sequence file for saving!" );
 	}
 	currentSequence.name = str(result);
 	sequenceSaveFile << "Version: 1.0\n";
@@ -601,7 +601,7 @@ void ProfileSystem::renameSequence()
 	// check if configuration has been set yet.
 	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
 	{
-		thrower( "Please select a sequence for renaming." );
+		thrower ( "Please select a sequence for renaming." );
 	}
 	std::string newSequenceName;
 	TextPromptDialog dialog(&newSequenceName, "Please enter a new name for this sequence.");
@@ -615,7 +615,7 @@ void ProfileSystem::renameSequence()
 						   cstr(currentProfile.categoryPath + newSequenceName + "." + SEQUENCE_EXTENSION) );
 	if (result == 0)
 	{
-		thrower( "Renaming of the sequence file Failed! Ask Mark about bugs" );
+		thrower ( "Renaming of the sequence file Failed! Ask Mark about bugs" );
 	}
 	currentSequence.name = newSequenceName;
 	reloadSequence( currentSequence.name );
@@ -628,7 +628,7 @@ void ProfileSystem::deleteSequence()
 	// check if configuration has been set yet.
 	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
 	{
-		thrower("Please select a sequence for deleting.");
+		thrower ("Please select a sequence for deleting.");
 	}
 	int answer = promptBox("Are you sure you want to delete the current sequence: " + currentSequence.name,
 							 MB_YESNO);
@@ -641,7 +641,7 @@ void ProfileSystem::deleteSequence()
 	int result = DeleteFile(cstr(currentSequenceLocation));
 	if (result == 0)
 	{
-		thrower( "ERROR: Deleteing the configuration file failed!" );
+		thrower ( "ERROR: Deleteing the configuration file failed!" );
 	}
 	// since the sequence this (may have been) was saved to is gone, no saved version of current code.
 	updateSequenceSavedStatus(false);
@@ -669,7 +669,7 @@ void ProfileSystem::newSequence(CWnd* parent)
 							   std::fstream::out);
 	if (!sequenceFile.is_open())
 	{
-		thrower( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your "
+		thrower ( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your "
 				 "name." );
 	}
 	std::string newSequenceName = str(result);
@@ -690,7 +690,7 @@ void ProfileSystem::openSequence(std::string sequenceName)
 	std::fstream sequenceFile(currentProfile.categoryPath + sequenceName + "." + SEQUENCE_EXTENSION);
 	if (!sequenceFile.is_open())
 	{
-		thrower( "ERROR: sequence file failed to open! Make sure the sequence with address ..." 
+		thrower ( "ERROR: sequence file failed to open! Make sure the sequence with address ..." 
 				 + currentProfile.categoryPath + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
 	}
 	currentSequence.name = str(sequenceName);
@@ -788,7 +788,7 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 	std::ifstream configFile(profile.configFilePath());
 	if (!configFile.is_open())
 	{
-		thrower("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
+		thrower ("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
 				 + ", the config file failed to open!");
 	}
 	std::string line, word, address;
@@ -926,7 +926,7 @@ void ProfileSystem::fullyDeleteFolder(std::string folderToDelete)
 	uintmax_t filesRemoved = boost::filesystem::remove_all(cstr(folderToDelete));
 	if (filesRemoved == 0)
 	{
-		thrower("Delete Failed! Ask mark about bugs.");
+		thrower ("Delete Failed! Ask mark about bugs.");
 	}
 }
 

@@ -153,7 +153,7 @@ class ImageEventHandler : public Pylon::CImageEventHandler
 			}
 			catch (Pylon::RuntimeException& err)
 			{
-				thrower("Error! Failed to handle image grabbing: ");
+				throwNested("Error! Failed to handle image grabbing: ");
 			}
 		}
 	private:

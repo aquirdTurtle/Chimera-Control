@@ -97,7 +97,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		{
 			return true;
 		}
-		thrower( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
+		thrower ( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
 	}
 	script >> workingInput.time;
 	workingInput.time.assertValid( variables, scope );
@@ -119,7 +119,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	if (delimiter != "#")
 	{
 		// input number mismatch.
-		thrower( "ERROR: The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
+		thrower ( "ERROR: The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
 				 + ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'. "
 				 "This indicates that either the code is not interpreting the user input incorrectly or that the user "
 				 "has inputted too many parameters for this type of Segment. Use of \"Repeat\" without the number of "
@@ -151,7 +151,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	else
 	{
 		// string not recognized
-		thrower( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string "
+		thrower ( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string "
 				 "entered was " + tempContinuationType + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", "
 				 "\"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve." );
 	}
@@ -211,7 +211,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	tempSegmentInfoString = "sequence" + str( sequenceNum ) + ",";
 	if (totalSegNum == 0)
 	{
-		thrower("ERROR: No segments in agilent waveform???\r\n");
+		thrower ("ERROR: No segments in agilent waveform???\r\n");
 	}
 	for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
 	{
@@ -238,7 +238,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 				break;
 			default:
 				// ERROR!
-				thrower( "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code." );
+				thrower ( "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code." );
 		}
 		tempSegmentInfoString += "highAtStart,4,";
 	}
@@ -264,7 +264,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 			break;
 		default:
 			// ERROR!
-			thrower( "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code." );
+			thrower ( "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code." );
 	}
 	tempSegmentInfoString += "highAtStart,4";
 	//

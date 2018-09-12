@@ -16,7 +16,7 @@ UINT ftdiFlume::getNumDevices( )
 		ftStatus = FT_ListDevices( &numDevs, NULL, FT_LIST_NUMBER_ONLY );
 		if ( ftStatus != FT_OK )
 		{
-			thrower( "ERROR: Error listing devices ftdi using FT_ListDevices! Status was \"" + getErrorText( ftStatus ) 
+			thrower ( "ERROR: Error listing devices ftdi using FT_ListDevices! Status was \"" + getErrorText( ftStatus ) 
 					 + "\"" );
 		}
 #endif
@@ -63,7 +63,7 @@ void ftdiFlume::open( const char devSerial[] )
 		FT_STATUS ftStatus = FT_OpenEx( (PVOID)devSerial, FT_OPEN_BY_SERIAL_NUMBER, &ftAsyncHandle );
 		if ( ftStatus != FT_OK )
 		{
-			thrower( "Error opening device! Status was \"" + getErrorText(ftStatus) + "\"" );
+			thrower ( "Error opening device! Status was \"" + getErrorText(ftStatus) + "\"" );
 		}
 #endif
 	}
@@ -78,7 +78,7 @@ void ftdiFlume::setUsbParams( )
 		FT_STATUS ftStatus = FT_SetUSBParameters( ftAsyncHandle, 65536, 65536 );
 		if ( ftStatus != FT_OK )
 		{
-			thrower( "Error Setting usb parameters. Status was \"" + getErrorText( ftStatus ) + "\"" );
+			thrower ( "Error Setting usb parameters. Status was \"" + getErrorText( ftStatus ) + "\"" );
 		}
 #endif
 	}
@@ -99,7 +99,7 @@ DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWri
 		ftStatus = FT_Write( ftAsyncHandle, dataBuffer.data(), amountToWrite, &BytesWritten );
 		if ( ftStatus != FT_OK )
 		{
-			thrower( "error writing; FT_Write failed! Status was \"" + getErrorText( ftStatus ) + "\"" );
+			thrower ( "error writing; FT_Write failed! Status was \"" + getErrorText( ftStatus ) + "\"" );
 		}
 #endif
 	}
@@ -115,7 +115,7 @@ void ftdiFlume::close( )
 		FT_STATUS ftStatus = FT_Close( ftAsyncHandle );
 		if ( ftStatus != FT_OK )
 		{
-			thrower( "Error closing async connection; FT_Write failed?  Status was \"" + getErrorText( ftStatus ) + "\"" );
+			thrower ( "Error closing async connection; FT_Write failed?  Status was \"" + getErrorText( ftStatus ) + "\"" );
 		}
 #endif
 	}

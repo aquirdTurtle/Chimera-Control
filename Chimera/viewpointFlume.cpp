@@ -74,7 +74,7 @@ void ViewpointFlume::dioOpen( WORD board, WORD baseio )
 		int result = raw_DIO64_Open( board, baseio );
 		if ( result )
 		{
-			thrower( "dioOpen failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOpen failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -87,7 +87,7 @@ void ViewpointFlume::dioMode( WORD board, WORD mode )
 		int result = raw_DIO64_Mode( board, mode );
 		if ( result )
 		{
-			thrower( "dioMode failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioMode failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -100,7 +100,7 @@ void ViewpointFlume::dioLoad( WORD board, char *rbfFile, int inputHint, int outp
 		int result = raw_DIO64_Load( board, rbfFile, inputHint, outputHint );
 		if ( result )
 		{
-			thrower( "dioLoad failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioLoad failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -113,7 +113,7 @@ void ViewpointFlume::dioClose( WORD board )
 		int result = raw_DIO64_Close( board );
 		if ( result )
 		{
-			thrower( "dioClose failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioClose failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -129,7 +129,7 @@ void ViewpointFlume::dioInStart( WORD board, DWORD ticks, WORD& mask, WORD maskL
 										 stopType, stopSource, AIControl, &scanRate );
 		if ( result )
 		{
-			thrower( "dioInStart failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioInStart failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -142,7 +142,7 @@ void ViewpointFlume::dioInStatus( WORD board, DWORD& scansAvail, DIO64STAT& stat
 		int result = raw_DIO64_In_Status( board, &scansAvail, &status );
 		if ( result )
 		{
-			thrower( "dioInStatus failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioInStatus failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -155,7 +155,7 @@ void ViewpointFlume::dioInRead( WORD board, WORD& buffer, DWORD scansToRead, DIO
 		int result = raw_DIO64_In_Read( board, &buffer, scansToRead, &status );
 		if ( result )
 		{
-			thrower( "dioInRead failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioInRead failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -168,7 +168,7 @@ void ViewpointFlume::dioInStop( WORD board )
 		int result = raw_DIO64_In_Stop( board );
 		if ( result )
 		{
-			thrower( "dioInStop failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioInStop failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -181,7 +181,7 @@ void ViewpointFlume::dioForceOutput( WORD board, WORD* buffer, DWORD mask )
 		int result = raw_DIO64_Out_ForceOutput( board, buffer, mask );
 		if ( result )
 		{
-			thrower( "dioForceOutput failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioForceOutput failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -194,7 +194,7 @@ void ViewpointFlume::dioOutGetInput( WORD board, WORD& buffer )
 		int result = raw_DIO64_Out_GetInput( board, &buffer );
 		if ( result )
 		{
-			thrower( "dioOutGetInput failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOutGetInput failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -211,7 +211,7 @@ void ViewpointFlume::dioOutConfig( WORD board, DWORD ticks, WORD* mask, WORD mas
 										   reps, ntrans, &scanRate );
 		if ( result )
 		{
-			thrower( "dioOutConfig failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOutConfig failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -224,7 +224,7 @@ void ViewpointFlume::dioOutStart( WORD board )
 		int result = raw_DIO64_Out_Start( board );
 		if ( result )
 		{
-			thrower( "dioOutStart failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOutStart failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -237,7 +237,7 @@ void ViewpointFlume::dioOutStatus( WORD board, DWORD& scansAvail, DIO64STAT& sta
 		int result = raw_DIO64_Out_Status( board, &scansAvail, &status );
 		if ( result )
 		{
-			thrower( "dioOutStatus failed! : (" + str( result ) + "): " + getErrorMessage( result ) + "\r\n" );
+			thrower ( "dioOutStatus failed! : (" + str( result ) + "): " + getErrorMessage( result ) + "\r\n" );
 		}
 	}
 }
@@ -254,7 +254,7 @@ void ViewpointFlume::dioOutWrite( WORD board, WORD* buffer, DWORD bufsize, DIO64
 		int result = raw_DIO64_Out_Write( board, buffer, bufsize, &status );
 		if ( result )
 		{
-			thrower( "dioOutWrite failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOutWrite failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -267,7 +267,7 @@ void ViewpointFlume::dioOutStop( WORD board )
 		int result = raw_DIO64_Out_Stop( board );
 		if ( result )
 		{
-			thrower( "dioOutStop failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOutStop failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -280,7 +280,7 @@ void ViewpointFlume::dioSetAttr( WORD board, DWORD attrID, DWORD value )
 		int result = raw_DIO64_SetAttr( board, attrID, value );
 		if ( result )
 		{
-			thrower( "dioSetAttr failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioSetAttr failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -293,7 +293,7 @@ void ViewpointFlume::dioGetAttr( WORD board, DWORD attrID, DWORD& value )
 		int result = raw_DIO64_GetAttr( board, attrID, &value );
 		if ( result )
 		{
-			thrower( "dioGetAttr failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioGetAttr failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }
@@ -306,7 +306,7 @@ void ViewpointFlume::dioOpenResource( char* resourceName, WORD board, WORD basei
 		int result = raw_DIO64_OpenResource( resourceName, board, baseio );
 		if ( result )
 		{
-			thrower( "dioOpenResource failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
+			thrower ( "dioOpenResource failed! : (" + str( result ) + "): " + getErrorMessage( result ) );
 		}
 	}
 }

@@ -67,13 +67,13 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 			{
 				if ( count <= 0 )
 				{
-					thrower( "ERROR: Operator " + terms[count] + " has no value on its left!" );
+					thrower ( "ERROR: Operator " + terms[count] + " has no value on its left!" );
 				}
 				leftTerm = boost::lexical_cast<double>( terms[count - 1] );
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower( "ERROR: Tried and failed to evaluate string " + terms[count - 1]
+				throwNested ( "ERROR: Tried and failed to evaluate string " + terms[count - 1]
 						 + " to a double (error in for multiplication / division section)!" );
 			}
 			try
@@ -82,7 +82,7 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower( "ERROR: Tried and failed to convert string " + terms[count + 1] + " to a double (error in for"
+				throwNested ( "ERROR: Tried and failed to convert string " + terms[count + 1] + " to a double (error in for"
 						 " multiplication / division section)!" );
 			}
 			// calculate the result
@@ -127,7 +127,7 @@ void Expression::doAddAndSub( std::vector<std::string>& terms )
 				{
 					if ( count <= 0 )
 					{
-						thrower( "ERROR: Operator " + terms[count] + " has no value on its"
+						thrower ( "ERROR: Operator " + terms[count] + " has no value on its"
 								 " left!" );
 					}
 					leftTerm = boost::lexical_cast<double>( terms[count - 1] );
@@ -135,7 +135,7 @@ void Expression::doAddAndSub( std::vector<std::string>& terms )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower( "ERROR: Tried and failed to evaluate string " + terms[count - 1]
+				throwNested ( "ERROR: Tried and failed to evaluate string " + terms[count - 1]
 						 + " to a double (error in for addition/subtraction section)!" );
 			}
 			try
@@ -144,7 +144,7 @@ void Expression::doAddAndSub( std::vector<std::string>& terms )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower( "ERROR: Tried and failed to evaluate string " + terms[count + 1]
+				throwNested ( "ERROR: Tried and failed to evaluate string " + terms[count + 1]
 						 + " to a double (error in for addition/subtraction section)!" );
 			}
 			// caliculate the result
@@ -214,7 +214,7 @@ double Expression::reduce( std::vector<std::string> terms )
 			}
 			if ( !rightExists )
 			{
-				thrower( "ERROR: Unmatched \"(\" in math expression!\r\n" );
+				thrower ( "ERROR: Unmatched \"(\" in math expression!\r\n" );
 			}
 			rightmostParenthesisTerms = std::vector<std::string>( &terms[leftPos + 1], &terms[rightPos + 1] );
 			// now I have a term which I can analyze.
@@ -230,7 +230,7 @@ double Expression::reduce( std::vector<std::string> terms )
 		{
 			if ( elem == "(" || elem == ")" )
 			{
-				thrower( "ERROR: Math evaluation failed, there are parenthesis in an innermost term which should not"
+				thrower ( "ERROR: Math evaluation failed, there are parenthesis in an innermost term which should not"
 						 " have parenthesis in it! This is a bug." );
 			}
 		}
@@ -249,7 +249,7 @@ double Expression::reduce( std::vector<std::string> terms )
 			{
 				termString += term + "\n";
 			}
-			thrower( msg + termString );
+			thrower ( msg + termString );
 		}
 		// and replace parenthesis term in the main set of terms.
 		std::string result = rightmostParenthesisTerms[0];
@@ -258,7 +258,7 @@ double Expression::reduce( std::vector<std::string> terms )
 	} // end parenthesis loop
 	if ( terms.size( ) != 1 )
 	{
-		thrower( "ERROR: \"reduce\" function failed to reduce its arguments to a single term!" );
+		thrower ( "ERROR: \"reduce\" function failed to reduce its arguments to a single term!" );
 	}
 	double finalResult;
 	try
@@ -267,7 +267,7 @@ double Expression::reduce( std::vector<std::string> terms )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: \"reduce\" failed convert its reduction to a double! Result of reduction was " + terms[0] 
+		throwNested ( "ERROR: \"reduce\" failed convert its reduction to a double! Result of reduction was " + terms[0]
 				 + "\r\n" );
 	}
 	return finalResult;
@@ -312,11 +312,11 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 		{
 			// the function position needs to have at least 3 terms after it (2 for parenthesis, 1 for the arg). 
 			// the last value is at position terms.size() - 1.
-			thrower( "ERROR: function " + funcName + " detected with no arguments!" );
+			thrower ( "ERROR: function " + funcName + " detected with no arguments!" );
 		}
 		if ( terms[funcPos + 1] != "(" )
 		{
-			thrower( "ERROR: function " + funcName + " detected with enclosing parenthesis () to hold its arguments! "
+			thrower ( "ERROR: function " + funcName + " detected with enclosing parenthesis () to hold its arguments! "
 					 "all function arguments must be enclosed in parenthesis." );
 		}
 
@@ -350,7 +350,7 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 		}
 		if ( !closingParenthesisExists )
 		{
-			thrower( "Function argument's enclosing () were unclosed! The initial ( didn't have a matching )!" );
+			thrower ( "Function argument's enclosing () were unclosed! The initial ( didn't have a matching )!" );
 		}
 		// now I have a term which I can analyze.
 		functionArgUnevaluated = std::vector<std::string>( &terms[funcArgPosLeft], &terms[funcArgPosRight + 2] );
@@ -400,7 +400,7 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 /*
 	if ( expressionScope == "" )
 	{
-		thrower( "ERROR: trying to evaluate an expression without an expression scope! This probably means that you"
+		thrower ( "ERROR: trying to evaluate an expression without an expression scope! This probably means that you"
 				 " forgot to call assertValid on the expression, where the scope is set." );
 	}
 	*/
@@ -431,7 +431,7 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 				{
 					if ( variable.keyValues.size( ) == 0 )
 					{
-						thrower( "ERROR: Attmepting to use key that hasn't been generated yet!" );
+						thrower ( "ERROR: Attmepting to use key that hasn't been generated yet!" );
 					}
 					term = str( variable.keyValues[variation], 12 );
 					// find the variable 
@@ -596,7 +596,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 			}
 			if ( failed )
 			{
-				thrower( "ERROR: " + expressionStr + " is not a valid expression. It's not a double, a variable, "
+				thrower ( "ERROR: " + expressionStr + " is not a valid expression. It's not a double, a variable, "
 						 "and it wont evaluate as a mathematical expression." );
 			}
 		}

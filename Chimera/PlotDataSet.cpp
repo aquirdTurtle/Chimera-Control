@@ -16,11 +16,11 @@ int & PlotDataSet::prc( UINT pixel, UINT picture )
 {
 	if ( pixel > resultConditions.size( ) )
 	{
-		thrower( "pixel out of range for positive result condition access!" );
+		thrower ( "pixel out of range for positive result condition access!" );
 	}
 	if ( picture > resultConditions[pixel].size( ) )
 	{
-		thrower( "picture out of range for positive result condition access!" );
+		thrower ( "picture out of range for positive result condition access!" );
 	}
 	return resultConditions[pixel][picture];
 }
@@ -28,11 +28,11 @@ int PlotDataSet::prc( UINT pixel, UINT picture ) const
 {
 	if ( pixel > resultConditions.size( ) )
 	{
-		thrower( "pixel out of range for positive result condition access!" );
+		thrower ( "pixel out of range for positive result condition access!" );
 	}
 	if ( picture > resultConditions[pixel].size( ) )
 	{
-		thrower( "picture out of range for positive result condition access!" );
+		thrower ( "picture out of range for positive result condition access!" );
 	}
 	return resultConditions[pixel][picture];
 }
@@ -42,15 +42,15 @@ int PlotDataSet::psc( UINT condition, UINT pixel, UINT picture ) const
 {
 	if ( condition > postSelectionConditions.size() )
 	{
-		thrower( "condition out of range for post-selection condition access!" );
+		thrower ( "condition out of range for post-selection condition access!" );
 	}
 	if ( pixel > postSelectionConditions[condition].size( ) )
 	{
-		thrower( "pixel out of range for post-selection condition access!" );
+		thrower ( "pixel out of range for post-selection condition access!" );
 	}
 	if ( picture > postSelectionConditions[condition][pixel].size( ) )
 	{
-		thrower( "picture out of range for post-selection condition access!" );
+		thrower ( "picture out of range for post-selection condition access!" );
 	}
 	return postSelectionConditions[condition][pixel][picture];
 }
@@ -58,15 +58,15 @@ int & PlotDataSet::psc( UINT condition, UINT pixel, UINT picture )
 {
 	if ( condition > postSelectionConditions.size( ) )
 	{
-		thrower( "condition out of range for post-selection condition access!" );
+		thrower ( "condition out of range for post-selection condition access!" );
 	}
 	if ( pixel > postSelectionConditions[condition].size( ) )
 	{
-		thrower( "pixel out of range for post-selection condition access!" );
+		thrower ( "pixel out of range for post-selection condition access!" );
 	}
 	if ( picture > postSelectionConditions[condition][pixel].size( ) )
 	{
-		thrower( "picture out of range for post-selection condition access!" );
+		thrower ( "picture out of range for post-selection condition access!" );
 	}
 	return postSelectionConditions[condition][pixel][picture];
 }
@@ -81,7 +81,7 @@ UINT PlotDataSet::getPictureNumber( )
 {
 	if ( resultConditions.size( ) == 0 )
 	{
-		thrower( "ERROR: result conditions is empty in get picture number!" );
+		thrower ( "ERROR: result conditions is empty in get picture number!" );
 	}
 	return resultConditions[0].size( );
 }
@@ -117,7 +117,7 @@ void PlotDataSet::setHistBinWidth( UINT width )
 {
 	if ( width < 1 || width > 1e6 )
 	{
-		thrower( "ERROR: Bad value (" + str( width ) + ") for plotting data set histogram bin width!" );
+		thrower ( "ERROR: Bad value (" + str( width ) + ") for plotting data set histogram bin width!" );
 	}
 	histBinWidth = width;
 }
@@ -174,7 +174,7 @@ void PlotDataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondit
 {
 	if (resultCondition != -1 && resultCondition != 0 && resultCondition != 1)
 	{
-		thrower("ERROR: something attempted to set a result condition to bad value: " + str(resultCondition+1));
+		thrower ("ERROR: something attempted to set a result condition to bad value: " + str(resultCondition+1));
 	}
 	prc( pixel, picture ) = resultCondition;
 }
@@ -192,7 +192,7 @@ void PlotDataSet::removePixel()
 	UINT currentPixelNum = getPixelNumber( );
 	if (currentPixelNum < 2)
 	{
-		thrower("ERROR: Something tried to remove the last pixel!");
+		thrower ("ERROR: Something tried to remove the last pixel!");
 	}
 	resultConditions.resize(currentPixelNum - 1);
 	for ( auto& condition : postSelectionConditions )
@@ -212,7 +212,7 @@ void PlotDataSet::removePicture()
 	UINT currentPictureNum = getPictureNumber( );
 	if (currentPictureNum < 2)
 	{
-		thrower("ERROR: Something tried to remove the last picture!");
+		thrower ("ERROR: Something tried to remove the last picture!");
 	}
 	for (UINT pixelInc : range(currentPixelNum))
 	{
@@ -254,7 +254,7 @@ void PlotDataSet::removePostSelectionCondition()
 {
 	if ( getConditionNumber( ) == 0)
 	{
-		thrower("ERROR: something tried to remove a post-selection condition when there weren't any!");
+		thrower ("ERROR: something tried to remove a post-selection condition when there weren't any!");
 	}
 	postSelectionConditions.resize(getConditionNumber() - 1);
 }

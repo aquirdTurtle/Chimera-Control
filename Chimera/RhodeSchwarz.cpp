@@ -131,7 +131,7 @@ void RhodeSchwarz::interpretKey( std::vector<std::vector<parameterType>>& variab
 	UINT sequencNumber;
 	if ( variables.size() == 0)
 	{
-		thrower( "ERROR: empty variables! no sequence size!" );
+		thrower ( "ERROR: empty variables! no sequence size!" );
 	}
 	else if ( variables[0].size( ) == 0 )
 	{

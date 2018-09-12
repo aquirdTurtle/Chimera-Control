@@ -41,7 +41,7 @@ void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips,
 	}
 	else
 	{
-		thrower( "ERROR: Device input type not recognized during construction of script control.  (A low level bug, "
+		thrower ( "ERROR: Device input type not recognized during construction of script control.  (A low level bug, "
 				 "this shouldn't happen)" );
 	}
 	CHARFORMAT myCharFormat = { 0 };
@@ -542,7 +542,7 @@ void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
 			pTTT->lpszText = "No Help available";
 		}
 		*pResult = 0;
-		thrower( "Worked." );
+		thrower ( "Worked." );
 	}
 	// else it's another window, just return and let them try.
 }
@@ -611,7 +611,7 @@ void Script::saveScript(std::string configPath, RunInfo info)
 {
 	if (configPath == "")
 	{
-		thrower("ERROR: Please select a configuration before trying to save a script!\r\n");
+		thrower ("ERROR: Please select a configuration before trying to save a script!\r\n");
 	}
 	if (isSaved && scriptName != "")
 	{
@@ -653,7 +653,7 @@ void Script::saveScript(std::string configPath, RunInfo info)
 		{
 			if (scriptName == info.currentlyRunningScripts[scriptInc])
 			{
-				thrower("ERROR: System is currently running. You can't save over any files in use by the system while"
+				thrower ("ERROR: System is currently running. You can't save over any files in use by the system while"
 						 " it runs, which includes the NIAWG scripts and the intensity script.");
 			}
 		}
@@ -662,7 +662,7 @@ void Script::saveScript(std::string configPath, RunInfo info)
 	std::fstream saveFile(configPath + scriptName + extension, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		thrower("ERROR: Failed to open script file: " + configPath + scriptName + extension);
+		thrower ("ERROR: Failed to open script file: " + configPath + scriptName + extension);
 	}
 	saveFile << text;
 	saveFile.close();
@@ -685,7 +685,7 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 		{
 			if (scriptName == info.currentlyRunningScripts[scriptInc])
 			{
-				thrower("ERROR: System is currently running. You can't save over any files in use by the system while "
+				thrower ("ERROR: System is currently running. You can't save over any files in use by the system while "
 						 "it runs, which includes the horizontal and vertical AOM scripts and the intensity script.");
 			}
 		}
@@ -695,7 +695,7 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 	std::fstream saveFile(location, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		thrower("ERROR: Failed to open script file: " + location);
+		thrower ("ERROR: Failed to open script file: " + location);
 	}
 	saveFile << text;
 	char fileChars[_MAX_FNAME];
@@ -731,7 +731,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 		int answer = promptBox("Current " + deviceType + " function file is unsaved. Save it?", MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
-			thrower("Cancel!");
+			thrower ("Cancel!");
 		}
 		else if (answer == IDNO)
 		{
@@ -749,7 +749,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 		int answer = promptBox("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?", MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
-			thrower("Cancel!");
+			thrower ("Cancel!");
 		}
 		else if (answer == IDNO)
 		{
@@ -771,7 +771,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 								+ extension + "?", MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
-			thrower("Cancel!");
+			thrower ("Cancel!");
 		}
 		else if (answer == IDNO)
 		{
@@ -804,7 +804,7 @@ void Script::renameScript(std::string categoryPath)
 
 	if (result == 0)
 	{
-		thrower("ERROR: Failed to rename file. (A low level bug? this shouldn't happen)");
+		thrower ("ERROR: Failed to rename file. (A low level bug? this shouldn't happen)");
 	}
 	scriptFullAddress = categoryPath + scriptName + extension;
 	scriptPath = categoryPath;
@@ -827,7 +827,7 @@ void Script::deleteScript(std::string categoryPath)
 	int result = DeleteFile(cstr(categoryPath + scriptName + extension));
 	if (result == 0)
 	{
-		thrower("ERROR: Deleting script file failed!  (A low level bug, this shouldn't happen)");
+		thrower ("ERROR: Deleting script file failed!  (A low level bug, this shouldn't happen)");
 	}
 	else
 	{
@@ -850,7 +850,7 @@ void Script::newFunction()
 	}
 	else
 	{
-		thrower("ERROR: tried to load new function with non-master script? Only the master script supports functions"
+		thrower ("ERROR: tried to load new function with non-master script? Only the master script supports functions"
 				 " currently.");
 	}
 	loadFile(tempName);
@@ -896,26 +896,26 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	{
 		if (extStr != str(".") + NIAWG_SCRIPT_EXTENSION)
 		{
-			thrower("ERROR: Attempted to open non-NIAWG script inside NIAWG script control.");
+			thrower ("ERROR: Attempted to open non-NIAWG script inside NIAWG script control.");
 		}
 	}
 	else if (deviceType == "Agilent")
 	{
 		if (extStr != str( "." ) + AGILENT_SCRIPT_EXTENSION)
 		{
-			thrower("ERROR: Attempted to open non-agilent script from agilent script control.");
+			thrower ("ERROR: Attempted to open non-agilent script from agilent script control.");
 		}
 	}
 	else if (deviceType == "Master")
 	{
 		if (extStr != str( "." ) + MASTER_SCRIPT_EXTENSION)
 		{
-			thrower("ERROR: Attempted to open non-master script from master script control!");
+			thrower ("ERROR: Attempted to open non-master script from master script control!");
 		}
 	}
 	else
 	{
-		thrower("ERROR: Unrecognized device type inside script control!  (A low level bug, this shouldn't happen).");
+		thrower ("ERROR: Unrecognized device type inside script control!  (A low level bug, this shouldn't happen).");
 	}
 	loadFile( parentScriptFileAndPath );
 	scriptName = str(fileChars);
@@ -953,7 +953,7 @@ void Script::loadFile(std::string pathToFile)
 	if (!openFile.is_open())
 	{
 		reset();
-		thrower("ERROR: Failed to open script file: " + pathToFile + ".");
+		thrower ("ERROR: Failed to open script file: " + pathToFile + ".");
 	}
 	std::string tempLine;
 	std::string fileText;
@@ -1093,20 +1093,20 @@ void Script::saveAsFunction()
 	stream >> word;
 	if (word != "def")
 	{
-		thrower("ERROR: Function declarations must begin with \"def\".");
+		thrower ("ERROR: Function declarations must begin with \"def\".");
 	}
 	std::string line;
 	line = stream.getline( '\r' );
 	int pos = line.find_first_of("(");
 	if (pos == std::string::npos)
 	{
-		thrower("No \"(\" found in function name. If there are no arguments, use empty parenthesis \"()\"");
+		thrower ("No \"(\" found in function name. If there are no arguments, use empty parenthesis \"()\"");
 	}
 	int initNamePos = line.find_first_not_of(" \t");
 	std::string functionName = line.substr(initNamePos, line.find_first_of("("));
 	if (functionName.find_first_of(" ") != std::string::npos)
 	{
-		thrower("ERROR: Function name included a space! Name was" + functionName);
+		thrower ("ERROR: Function name included a space! Name was" + functionName);
 	}
 	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + "." + FUNCTION_EXTENSION;
 	FILE *file;
@@ -1127,7 +1127,7 @@ void Script::saveAsFunction()
 	std::fstream functionFile(path, std::ios::out);
 	if (!functionFile.is_open())
 	{
-		thrower("ERROR: the function file failed to open!");
+		thrower ("ERROR: the function file failed to open!");
 	}
 	functionFile << text.GetBuffer();
 	functionFile.close();

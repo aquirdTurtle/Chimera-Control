@@ -232,7 +232,7 @@ coordinate PictureManager::getClickLocation( CPoint clickLocation )
 		catch(Error&){}
 		// checkClickLocation throws if not found. Continue looking.
 	}
-	thrower( "click location not found" );
+	thrower ( "click location not found" );
 }
 
 

@@ -180,7 +180,7 @@ void VisaFlume::errCheck( long status, std::string msg )
 			throwerMsg += "Error seen while writing the following message: " + msg + "\r\n";
 		}
 		// Error detected.
-		thrower( throwerMsg );
+		thrower ( throwerMsg );
 	}
 	// Query the agilent for errors.
 	std::string errMessage;
@@ -194,7 +194,7 @@ void VisaFlume::errCheck( long status, std::string msg )
 			throwerMsg += "Error seen while writing the following message: " + msg + "\r\n";
 		}
 		// Agilent error
-		thrower( throwerMsg );
+		thrower ( throwerMsg );
 	}
 }
 

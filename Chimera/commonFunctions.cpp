@@ -243,7 +243,8 @@ namespace commonFunctions
 
 				if (!niawgAborted && !andorAborted && !masterAborted && !baslerAborted)
 				{
-					mainWin->getComm()->sendError("Andor camera, NIAWG, Master, and Basler camera were not running. Can't Abort.\r\n");
+					mainWin->getComm ( )->sendError ( "Andor camera, NIAWG, Master, and Basler camera were not running. "
+													  "Can't Abort.\r\n" );
 				}
 				break;
 			}
@@ -871,13 +872,13 @@ namespace commonFunctions
 		if (mainWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
-			thrower( "ERROR: NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
+			thrower ( "ERROR: NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
 
 		if (seq.sequence.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
-			thrower( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
+			thrower ( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
 					 "sequence or set the null sequence.\r\n" );
 		}
 		// check config settings
@@ -984,17 +985,17 @@ namespace commonFunctions
 	{
 		if (mainWin->niawgIsRunning())
 		{
-			thrower( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
+			thrower ( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
 					 "can stop normally." );
 		}
 		if (camWin->cameraIsRunning())
 		{
-			thrower( "The Camera is Currently Running. Please stop the system before exiting so that devices devices "
+			thrower ( "The Camera is Currently Running. Please stop the system before exiting so that devices devices "
 					 "can stop normally." );
 		}
 		if (mainWin->masterIsRunning())
 		{
-			thrower( "The Master system (ttls & aoSys) is currently running. Please stop the system before exiting so "
+			thrower ( "The Master system (ttls & aoSys) is currently running. Please stop the system before exiting so "
 					 "that devices can stop normally." );
 		}
 		scriptWindow->checkScriptSaves( );
@@ -1027,7 +1028,7 @@ namespace commonFunctions
 		profileSettings profile = mainWin->getProfileSettings();
 		if (mainWin->niawgIsRunning())
 		{
-			thrower( "The system is currently running. You cannot reload the default waveforms while the system is "
+			thrower ( "The system is currently running. You cannot reload the default waveforms while the system is "
 					 "running. Please restart the system before attempting to reload default waveforms." );
 		}
 		int choice = promptBox("Reload the default waveforms from (presumably) updated files? Please make sure that "
@@ -1045,7 +1046,7 @@ namespace commonFunctions
 		catch (Error& exception)
 		{
 			mainWin->restartNiawgDefaults();
-			thrower( "ERROR: failed to reload the niawg default waveforms!" );
+			throwNested( "ERROR: failed to reload the niawg default waveforms!" );
 		}
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
@@ -1162,7 +1163,7 @@ namespace commonFunctions
 		bool areYouSure = dlg.DoModal( );
 		if ( !areYouSure )
 		{
-			thrower( "CANCEL!" );
+			thrower ( "CANCEL!" );
 		}
 		return areYouSure;
 	}

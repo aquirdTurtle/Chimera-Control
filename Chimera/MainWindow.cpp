@@ -1258,7 +1258,7 @@ void MainWindow::updateStatusText(std::string whichStatus, std::string text)
 	}
 	else
 	{
-		thrower( "Main Window's updateStatusText function recieved a bad argument for which status"
+		thrower ( "Main Window's updateStatusText function recieved a bad argument for which status"
 				 " control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus);
 	}
 }
@@ -1281,7 +1281,7 @@ void MainWindow::addTimebar(std::string whichStatus)
 	}
 	else
 	{
-		thrower("Main Window's addTimebar function recieved a bad argument for which status"
+		thrower ("Main Window's addTimebar function recieved a bad argument for which status"
 			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus + ". This"
 			"exception can be safely ignored.");
 	}
@@ -1373,7 +1373,7 @@ void MainWindow::abortMasterThread()
 	}
 	else
 	{
-		thrower("Can't abort, experiment was not running.\r\n");
+		thrower ("Can't abort, experiment was not running.\r\n");
 	}
 }
 

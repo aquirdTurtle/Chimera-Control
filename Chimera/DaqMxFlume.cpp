@@ -25,7 +25,7 @@ long DaqMxFlume::getProductCategory( std::string deviceLocation )
 	if ( errCode != 0 )
 	{
 		std::string err = getErrorMessage( errCode );
-		thrower("DAC System: Error! " + err);
+		thrower ("DAC System: Error! " + err);
 	}
 	return answer;
 }
@@ -50,7 +50,7 @@ void DaqMxFlume::createTask( const char* taskName, TaskHandle& handle )
 		int result = DAQmxCreateTask( taskName, &handle );
 		if ( result )
 		{
-			thrower( "daqCreateTask Failed! (" + str( result ) + "): "
+			thrower ( "daqCreateTask Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -68,7 +68,7 @@ void DaqMxFlume::readAnalogF64( TaskHandle taskHandle, std::vector<float64> &rea
 										 readData.size(), &sampsPerChanRead, NULL);
 		if ( result )
 		{
-			thrower( "daqCreateAiVoltageChan Failed! (" + str( result ) + "): "
+			thrower ( "daqCreateAiVoltageChan Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -85,7 +85,7 @@ void DaqMxFlume::createAiVoltageChan( TaskHandle taskHandle, const char physical
 											   minVal, maxVal, units, customScaleName );
 		if ( result )
 		{
-			thrower( "daqCreateAiVoltageChan Failed! (" + str( result ) + "): "
+			thrower ( "daqCreateAiVoltageChan Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -102,7 +102,7 @@ void DaqMxFlume::createAoVoltageChan( TaskHandle taskHandle, const char physical
 											   units, customScaleName );
 		if ( result )
 		{
-			thrower( "daqCreateAOVoltageChan Failed! (" + str( result ) + "): "
+			thrower ( "daqCreateAOVoltageChan Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -117,7 +117,7 @@ void DaqMxFlume::createDiChan( TaskHandle taskHandle, const char lines[], const 
 		int result = DAQmxCreateDIChan( taskHandle, lines, nameToAssignToLines, lineGrouping );
 		if ( result )
 		{
-			thrower( "daqCreateDIChan Failed! (" + str( result ) + "): "
+			thrower ( "daqCreateDIChan Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -132,7 +132,7 @@ void DaqMxFlume::stopTask( TaskHandle handle )
 		// this function is currently meant to be silent.
 		if ( result )
 		{
-			//thrower( "stopTask Failed! (" + str( result ) + "): "
+			//thrower ( "stopTask Failed! (" + str( result ) + "): "
 			//		 + getErrorMessage( result ) );
 
 		}
@@ -148,7 +148,7 @@ void DaqMxFlume::configSampleClkTiming( TaskHandle taskHandle, const char source
 		int result = DAQmxCfgSampClkTiming( taskHandle, source, rate, activeEdge, sampleMode, sampsPerChan );
 		if ( result )
 		{
-			thrower( "configSampleClkTiming Failed! (" + str( result ) + "): "
+			thrower ( "configSampleClkTiming Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -165,7 +165,7 @@ void DaqMxFlume::writeAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool3
 										  sampsPerChanWritten, NULL );
 		if ( result )
 		{
-			thrower( "writeAnalogF64 Failed! (" + str( result ) + "): "
+			thrower ( "writeAnalogF64 Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -179,7 +179,7 @@ void DaqMxFlume::startTask( TaskHandle handle )
 		int result = DAQmxStartTask( handle );
 		if ( result )
 		{
-			thrower( "startTask Failed! (" + str( result ) + "): "
+			thrower ( "startTask Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}

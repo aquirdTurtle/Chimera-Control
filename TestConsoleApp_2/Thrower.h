@@ -48,6 +48,8 @@ class Error : public std::runtime_error
 		{
 			stackMsg += getErrorStack ( e, level + 1 );
 		}
+		catch(...)
+		{ }
 		return stackMsg;
 	}
 	private:

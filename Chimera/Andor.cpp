@@ -471,7 +471,7 @@ void AndorCamera::setExposures()
 	}
 	else
 	{
-		thrower("ERROR: Invalid size for vector of exposure times, value of " + str(runSettings.exposureTimes.size()) + ".");
+		thrower ("ERROR: Invalid size for vector of exposure times, value of " + str(runSettings.exposureTimes.size()) + ".");
 	}
 }
 
@@ -498,7 +498,7 @@ void AndorCamera::setScanNumber()
 	}
 	else if (runSettings.totalPicsInVariation == 0)
 	{
-		thrower("ERROR: Scan Number Was Zero.\r\n");
+		thrower ("ERROR: Scan Number Was Zero.\r\n");
 	}
 	else
 	{
@@ -643,7 +643,7 @@ void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 	getTemperatureRange(minimumAllowedTemp, maximumAllowedTemp);
 	if (runSettings.temperatureSetting < minimumAllowedTemp || runSettings.temperatureSetting > maximumAllowedTemp)
 	{
-		thrower("ERROR: Temperature is out of range\r\n");
+		thrower ("ERROR: Temperature is out of range\r\n");
 	}
 	else
 	{
@@ -669,7 +669,7 @@ void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 	}
 	else
 	{
-		thrower("Temperature Control has been turned off.\r\n");
+		thrower ("Temperature Control has been turned off.\r\n");
 	}
 }
 
@@ -1090,7 +1090,7 @@ void AndorCamera::andorErrorChecker(int errorCode)
 	/// So no throw is considered success.
 	if (errorMessage != "DRV_SUCCESS")
 	{
-		thrower( errorMessage );
+		thrower ( errorMessage );
 	}
 }
 
@@ -1353,7 +1353,7 @@ void AndorCamera::queryStatus()
 	}
 	if (status != DRV_IDLE)
 	{
-		thrower("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
+		thrower ("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
 				+ str(status) + "\r\n");
 	}
 }
