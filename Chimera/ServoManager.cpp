@@ -267,7 +267,7 @@ void ServoManager::handleListViewClick ( )
 				}
 				catch ( Error& err )
 				{
-					thrower ( err.whatStr() + "...In trying to set the servo ttl config!" );
+					thrower ( "Error In trying to set the servo ttl config!" );
 				}
 			}
 			std::string diostring;

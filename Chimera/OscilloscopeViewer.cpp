@@ -17,7 +17,7 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 	}
 	catch ( Error& err )
 	{
-		errBox( "Error detected while initializing scope viewer! " + err.whatStr( ) );
+		errBox( "Error detected while initializing scope viewer! " + err.trace( ) );
 	}
 }
 

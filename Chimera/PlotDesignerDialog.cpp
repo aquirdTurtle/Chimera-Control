@@ -242,7 +242,7 @@ void PlotDesignerDialog::handleSave()
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 		return;
 	}
 	int result = promptBox( currentPlotInfo.getAllSettingsString() , MB_OKCANCEL );
@@ -254,7 +254,7 @@ void PlotDesignerDialog::handleSave()
 		}
 		catch ( Error& err )
 		{
-			errBox( "ERROR while saving plot info: " + err.whatStr( ) );
+			errBox( "ERROR while saving plot info: " + err.trace( ) );
 		}
 		result = promptBox( "Close plot creator?", MB_YESNO );
 		if (result == IDYES)
@@ -330,7 +330,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 		return;
 	}
 	CString txt;
@@ -371,7 +371,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 		}
 		catch ( Error& err )
 		{
-			errBox( err.what( ) );
+			errBox( err.trace( ) );
 			return;
 		}
 		if (currentPlotInfo.getPlotType() == "Atoms")
@@ -430,7 +430,7 @@ void PlotDesignerDialog::handlePrcPictureNumberChange()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 	enableAndDisable();
 }
@@ -450,7 +450,7 @@ void PlotDesignerDialog::handlePrcPixelNumberChange()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 	enableAndDisable();
 }
@@ -509,7 +509,7 @@ void PlotDesignerDialog::handlePscConditionNumberChange()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 	enableAndDisable();
 }
@@ -529,7 +529,7 @@ void PlotDesignerDialog::handlePscPictureNumberChange()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 	enableAndDisable();
 }
@@ -549,7 +549,7 @@ void PlotDesignerDialog::handlePscPixelNumberChange()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 	enableAndDisable();
 }

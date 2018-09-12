@@ -119,7 +119,7 @@ void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Variables Double Click Handler : " + exception.whatStr ( ) + "\r\n" );
+		sendErr ( "Variables Double Click Handler : " + exception.trace ( ) + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus ( false );
 }
@@ -139,7 +139,7 @@ void AuxiliaryWindow::ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.whatStr() + "... In handling servo double click." );
+		sendErr ( err.trace() + "... In handling servo double click." );
 	}
 }
 
@@ -153,7 +153,7 @@ void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Variables Right Click Handler : " + exception.whatStr ( ) + "\r\n" );
+		sendErr ( "Variables Right Click Handler : " + exception.trace ( ) + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus ( false );
 }
@@ -215,7 +215,7 @@ void AuxiliaryWindow::runServos( )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -304,7 +304,7 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 
 }
@@ -329,7 +329,7 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -343,7 +343,7 @@ void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -363,7 +363,7 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -390,7 +390,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -458,7 +458,7 @@ void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -497,7 +497,7 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 	}
 	catch ( Error& exception )
 	{
-		sendStatus( ": " + exception.whatStr( ) + " " + exception.whatStr( ) + "\r\n" );
+		sendStatus( ": " + exception.trace( ) + " " + "\r\n" );
 	}
 }
 
@@ -511,7 +511,7 @@ void AuxiliaryWindow::passTopBottomTekProgram()
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing top/Bottom Tektronics generator: " + exception.whatStr() + "\r\n" );
+		sendErr( "Error while programing top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -525,7 +525,7 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.whatStr() + "\r\n" );
+		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -637,7 +637,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	}
 	catch (Error& exception)
 	{
-		sendErr("Variables Double Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Variables Double Click Handler : " + exception.trace() + "\r\n");
 	}
 	mainWin->updateConfigurationSavedStatus(false);
 }
@@ -652,7 +652,7 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Variables Right Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Variables Right Click Handler : " + exception.trace() + "\r\n");
 	}
 	mainWin->updateConfigurationSavedStatus(false);
 }
@@ -677,7 +677,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Global Variables Double Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Global Variables Double Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
@@ -691,7 +691,7 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Global Variables Right Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Global Variables Right Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
@@ -705,7 +705,7 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 	}
 	catch (Error& exception)
 	{
-		sendErr("Handling config variable listview click : " + exception.whatStr() + "\r\n");
+		sendErr("Handling config variable listview click : " + exception.trace() + "\r\n");
 	}
 	mainWin->updateConfigurationSavedStatus(false);
 }
@@ -849,7 +849,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		}
 		catch (Error& err)
 		{
-			sendErr( "Error while programming agilent " + agilent.getName() + ": " + err.what() + "\r\n" );
+			sendErr( "Error while programming agilent " + agilent.getName() + ": " + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -868,7 +868,7 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	}
 	catch ( Error& err )
 	{
-		sendErr( "ERROR: error while handling agilent combo change: " + err.whatStr( ) );
+		sendErr( "ERROR: error while handling agilent combo change: " + err.trace( ) );
 	}
 }
 
@@ -896,7 +896,7 @@ void AuxiliaryWindow::zeroDacs( )
 	catch ( Error& exception )
 	{
 		sendStatus( "Failed to Zero DACs!!!\r\n" );
-		sendErr( exception.what( ) );
+		sendErr( exception.trace( ) );
 	}
 }
 
@@ -911,7 +911,7 @@ void AuxiliaryWindow::zeroTtls()
 	catch (Error& exception)
 	{
 		sendStatus( "Failed to Zero TTLs!!!\r\n" );
-		sendErr( exception.what() );
+		sendErr( exception.trace() );
 	}
 }
 
@@ -953,7 +953,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 	}
 	catch ( Error& exception )
 	{
-		sendStatus ( ": " + exception.whatStr ( ) + " " + exception.whatStr ( ) + "\r\n" );
+		sendStatus ( ": " + exception.trace ( ) + "\r\n" );
 	}
 }
 
@@ -990,7 +990,7 @@ void AuxiliaryWindow::loadPgcTempSettings ( MasterThreadInput* input )
 	}
 	catch ( Error& exception )
 	{
-		sendStatus ( ": " + exception.whatStr ( ) + " " + exception.whatStr ( ) + "\r\n" );
+		sendStatus ( ": " + exception.trace ( ) + "\r\n" );
 	}
 }
 
@@ -1028,7 +1028,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 	}
 	catch (Error& exception)
 	{
-		sendStatus(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n" );
+		sendStatus(": " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -1304,9 +1304,9 @@ void AuxiliaryWindow::SetDacs()
 	}
 	catch (Error& exception)
 	{
-		errBox( exception.what() );
-		sendStatus( ": " + exception.whatStr() + "\r\n" );
-		sendErr( exception.what() );
+		errBox( exception.trace() );
+		sendStatus( ": " + exception.trace() + "\r\n" );
+		sendErr( exception.trace() );
 	}
 	mainWin->updateConfigurationSavedStatus(false);
 }
@@ -1321,7 +1321,7 @@ void AuxiliaryWindow::DacEditChange(UINT id)
 	}
 	catch (Error& err)
 	{
-		sendErr(err.what());
+		sendErr(err.trace());
 	}
 }
 
@@ -1335,7 +1335,7 @@ void AuxiliaryWindow::handleTtlPush(UINT id)
 	}
 	catch (Error& exception)
 	{
-		sendErr( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n" );
+		sendErr( "TTL Press Handler Failed: " + exception.trace() + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus(false);
 }
@@ -1349,7 +1349,7 @@ void AuxiliaryWindow::handlTtlHoldPush()
 	}
 	catch (Error& exception)
 	{
-		sendErr( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n" );
+		sendErr( "TTL Hold Handler Failed: " + exception.trace() + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus(false);
 }
@@ -1577,7 +1577,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	}
 	catch (Error& exeption)
 	{
-		errBox( exeption.what() );
+		errBox( exeption.trace() );
 	}
 	SetTimer( 1, 10000, NULL );
 	SetTimer( 2, 1000, NULL );

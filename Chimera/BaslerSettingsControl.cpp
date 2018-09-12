@@ -490,9 +490,9 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	{
 		currentSettings.frameRate = boost::lexical_cast<double>( std::string( text ) );
 	}
-	catch ( boost::bad_lexical_cast& err)
+	catch ( boost::bad_lexical_cast&)
 	{
-		thrower( std::string("ERROR! Please enter a valid float for the frame rate. ") + err.what() );
+		thrower( std::string("ERROR! Please enter a valid float for the frame rate. ") );
 	}
 	isReady = true;
 	return currentSettings;

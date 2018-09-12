@@ -143,7 +143,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					}
 					catch (Error& exception)
 					{
-						input->comm->sendError(exception.what());
+						input->comm->sendError(exception.trace());
 					}
 					if ( input->Andor->isCalibrating( ) )
 					{

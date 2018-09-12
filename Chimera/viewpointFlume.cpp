@@ -55,7 +55,7 @@ ViewpointFlume::ViewpointFlume( bool safemode_ ) : safemode( safemode_ )
 	}
 	catch ( Error& exception )
 	{
-		errBox( exception.what( ) );
+		errBox( exception.trace( ) );
 	}
 
 }

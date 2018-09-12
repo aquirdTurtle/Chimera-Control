@@ -68,7 +68,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 }
 
@@ -112,8 +112,7 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 		}
 		catch (Error& err)
 		{
-			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName()
-													+ ": " + err.what() + "\r\n" );
+			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -129,7 +128,7 @@ void ScriptingWindow::masterEditChange()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError(err.what());
+		comm()->sendError(err.trace());
 	}
 }
 
@@ -243,7 +242,7 @@ BOOL ScriptingWindow::OnInitDialog()
 	}
 	catch (Error& err)
 	{
-		errBox( "ERROR: Failed to initialize intensity agilent: " + err.whatStr() );
+		errBox( "ERROR: Failed to initialize intensity agilent: " + err.trace() );
 	}
 	SetRedraw( true );
 	return TRUE;
@@ -372,7 +371,7 @@ void ScriptingWindow::setIntensityDefault()
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( err.what( ) );
+		comm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -409,7 +408,7 @@ void ScriptingWindow::newIntensityScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -430,7 +429,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -447,7 +446,7 @@ void ScriptingWindow::saveIntensityScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -469,7 +468,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 
 }
@@ -497,7 +496,7 @@ void ScriptingWindow::newNiawgScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -516,7 +515,7 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 
 }
@@ -531,7 +530,7 @@ void ScriptingWindow::saveNiawgScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -601,7 +600,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 	catch ( Error& err )
 	{
 		int answer = promptBox( "ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
-								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+								+ err.trace( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
 		if ( answer == IDYES )
 		{
 			openNiawgScript( openWithExplorer( NULL, "nScript" ) );
@@ -614,7 +613,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 	catch ( Error& err )
 	{
 		int answer = promptBox( "ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
-								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+								+ err.trace( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
 		if ( answer == IDYES )
 		{
 			openMasterScript( openWithExplorer( NULL, "mScript" ) );
@@ -649,7 +648,7 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( "New Master function Failed: " + err.whatStr( ) + "\r\n" );
+		comm( )->sendError( "New Master function Failed: " + err.trace( ) + "\r\n" );
 	}
 }
 
@@ -684,7 +683,7 @@ void ScriptingWindow::newMasterFunction()
 	}
 	catch (Error& exception)
 	{
-		comm()->sendError("New Master function Failed: " + exception.whatStr() + "\r\n");
+		comm()->sendError("New Master function Failed: " + exception.trace() + "\r\n");
 	}
 }
 
@@ -697,7 +696,7 @@ void ScriptingWindow::saveMasterFunction()
 	}
 	catch (Error& exception)
 	{
-		comm()->sendError("Save Master Script Function Failed: " + exception.whatStr() + "\r\n");
+		comm()->sendError("Save Master Script Function Failed: " + exception.trace() + "\r\n");
 	}
 }
 

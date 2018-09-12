@@ -111,7 +111,7 @@ void AndorWindow::passDelGrid( )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -124,7 +124,7 @@ void AndorWindow::writeVolts( UINT currentVoltNumber, std::vector<float64> data 
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -137,7 +137,7 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 	}
 	catch ( Error& err )
 	{
-		errBox( "Error! " + err.whatStr( ) );
+		errBox( "Error! " + err.trace( ) );
 	}
 }
 
@@ -153,7 +153,7 @@ void AndorWindow::handleImageDimsEdit( UINT id )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( dc );
 }
@@ -167,7 +167,7 @@ void AndorWindow::handleEmGainChange()
 	}
 	catch ( Error err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -316,7 +316,7 @@ void AndorWindow::abortCameraRun()
 		}
 		catch (Error& err)
 		{
-			mainWin->getComm()->sendError(err.what());
+			mainWin->getComm()->sendError(err.trace());
 		}
 		
 
@@ -332,7 +332,7 @@ void AndorWindow::abortCameraRun()
 				}
 				catch (Error& err)
 				{
-					mainWin->getComm()->sendError(err.what());
+					mainWin->getComm()->sendError(err.trace());
 				}
 			}
 		}
@@ -359,7 +359,7 @@ void AndorWindow::handlePictureEditChange( UINT id )
 	catch (Error& err)
 	{
 		// these errors seem more deserving of an error box.
-		errBox(err.what());
+		errBox(err.trace());
 	}
 }
 
@@ -388,7 +388,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 		return NULL;
 	}
 	avgBackground.resize( picData.back( ).size( ) );
@@ -419,7 +419,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( drawer );
 	mostRecentPicNum = picNum;
@@ -466,7 +466,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch (Error& err)
 	{
-		mainWin->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.trace() );
 		return NULL;
 	}
 	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
@@ -536,7 +536,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch (Error& err)
 	{
-		mainWin->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.trace() );
 	}
 
 	ReleaseDC( drawer );
@@ -553,7 +553,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		}
 		catch (Error& err)
 		{
-			mainWin->getComm()->sendError( err.what() );
+			mainWin->getComm()->sendError( err.trace() );
 		}
 	}
 	mostRecentPicNum = picNum;
@@ -711,7 +711,7 @@ void AndorWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	mainWin->updateConfigurationSavedStatus( false );
 }
@@ -769,7 +769,7 @@ void AndorWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 	{
 		if ( err.whatBare( ) != "click location not found" )
 		{
-			mainWin->getComm( )->sendError( err.what( ) );
+			mainWin->getComm( )->sendError( err.trace( ) );
 		}
 	}
 	ReleaseDC(dc);
@@ -787,7 +787,7 @@ void AndorWindow::passSetTemperaturePress()
 	}
 	catch (Error& err)
 	{
-		mainWin->getComm()->sendError(err.what());
+		mainWin->getComm()->sendError(err.trace());
 	}
 	mainWin->updateConfigurationSavedStatus( false );
 }
@@ -820,7 +820,7 @@ void AndorWindow::passAtomGridCombo( )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -936,7 +936,7 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( dc );
 	timer.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
@@ -953,7 +953,7 @@ void AndorWindow::setEmGain()
 	}
 	catch (Error& exception)
 	{
-		errBox( exception.what() );
+		errBox( exception.trace() );
 	}
 	mainWin->updateConfigurationSavedStatus( false );
 }
@@ -990,7 +990,7 @@ void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
 	}
 	catch ( Error& err)
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 
 	CDC* dc = GetDC( );
@@ -1466,7 +1466,7 @@ void AndorWindow::OnCancel()
 	}
 	catch (Error& exception)
 	{
-		errBox( exception.what() );
+		errBox( exception.trace() );
 	}
 }
 
@@ -1535,7 +1535,7 @@ void AndorWindow::redrawPictures( bool andGrid )
 	catch (Error& err)
 	{
 		ReleaseDC( dc );
-		mainWin->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.trace() );
 	}
 	// currently don't attempt to redraw previous picture data.
 }
@@ -1610,7 +1610,7 @@ void AndorWindow::passCommonCommand(UINT id)
 	catch (Error& err)
 	{
 		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 }
 
@@ -1637,7 +1637,7 @@ void AndorWindow::readImageParameters()
 	{
 		Communicator* comm = mainWin->getComm();
 		comm->sendColorBox( System::Camera, 'R' );
-		comm->sendError( exception.whatStr() + "\r\n" );
+		comm->sendError( exception.trace() + "\r\n" );
 	}
 	CDC* dc = GetDC();
 	pics.drawGrids(dc);

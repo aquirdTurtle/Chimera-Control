@@ -404,7 +404,7 @@ void MainWindow::passConfigPress( )
 	}
 	catch ( Error& err )
 	{
-		comm.sendError( err.what( ) );
+		comm.sendError( err.trace( ) );
 	}
 }
 
@@ -498,7 +498,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 	}
 	catch ( Error& err )
 	{
-		comm.sendError( err.what( ) );
+		comm.sendError( err.trace( ) );
 	}
 	return 0;
 }
@@ -538,7 +538,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& except )
 	{
-		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.whatStr( ) );
+		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.trace( ) );
 	}
 	try
 	{
@@ -549,7 +549,7 @@ BOOL MainWindow::OnInitDialog( )
 	catch ( Error& exception )
 	{
 		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " 
-				+ exception.whatStr( ) );
+				+ exception.trace( ) );
 	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
@@ -567,7 +567,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.what( ) );
+		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace( ) );
 		return -1;
 	}
 	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
@@ -585,7 +585,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 	/// initialize main window controls.
 	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
@@ -624,7 +624,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
@@ -661,7 +661,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 	SetTimer( 1, 10000, NULL );
 	// set up the threads that update the scope data.
@@ -882,7 +882,7 @@ std::string MainWindow::getSystemStatusString()
 		}
 		catch ( Error& err )
 		{
-			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+			status += "\tFailed to get device info! Error: " + err.trace ( );
 		}
 	}
 	else
@@ -899,7 +899,7 @@ std::string MainWindow::getSystemStatusString()
 		}
 		catch ( Error& err )
 		{
-			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+			status += "\tFailed to get device info! Error: " + err.trace ( );
 		}
 	}
 	else
@@ -916,7 +916,7 @@ std::string MainWindow::getSystemStatusString()
 		}
 		catch ( Error& err )
 		{
-			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+			status += "\tFailed to get device info! Error: " + err.trace ( );
 		}
 	}
 	else
@@ -1338,7 +1338,7 @@ void MainWindow::handleSequenceCombo()
 	}
 	catch (Error& err)
 	{
-		getComm()->sendError(err.what());
+		getComm()->sendError(err.trace());
 	}
 }
 
@@ -1430,7 +1430,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	}
 	catch (Error& except)
 	{
-		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
+		comm.sendError("EXITED WITH ERROR! " + except.trace());
 		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
@@ -1470,7 +1470,7 @@ void MainWindow::onNormalFinishMessage()
 	catch ( Error& except )
 	{
 		comm.sendError( "ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
-						"following error: " + except.whatStr( ) );
+						"following error: " + except.trace( ) );
 		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );
 	}
@@ -1481,7 +1481,7 @@ void MainWindow::onNormalFinishMessage()
 	}
 	catch ( Error& err )
 	{
-		comm.sendError( err.what( ) );
+		comm.sendError( err.trace( ) );
 	}
 }
 
@@ -1514,7 +1514,7 @@ void MainWindow::handleFinish()
 	}
 	catch (Error& err)
 	{
-		comm.sendError(err.what());
+		comm.sendError(err.trace());
 	}
 }
 

@@ -388,7 +388,7 @@ std::string TektronicsControl::queryIdentity()
 	}
 	catch (Error& err)
 	{
-		return err.what();
+		return err.trace();
 	}
 }
 
