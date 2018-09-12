@@ -282,7 +282,7 @@ std::string Agilent::getDeviceIdentity()
 	}
 	catch (Error& err)
 	{
-		msg == err.what();
+		msg == err.trace();
 	}
 	if ( msg == "" )
 	{
@@ -1059,10 +1059,10 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 			{
 				scriptInfo.wave.writeData( segNumInc, sampleRate );
 			}
-			catch ( Error& err )
+			catch ( Error& )
 			{
 				thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
-						 + str( totalSegmentNumber ) + ": " + err.what( ) );
+						 + str( totalSegmentNumber ) );
 			}
 		}
 		// loop through again and calc/normalize/write values.
@@ -1114,10 +1114,10 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		{
 			scriptInfo.wave.writeData( segNumInc, sampleRate );
 		}
-		catch (Error& err)
+		catch (Error&)
 		{
 			thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
-					 + str( totalSegmentNumber ) + "." + err.what() );
+					 + str( totalSegmentNumber ) + "." );
 		}
 	}
 	// no reassignment nessesary, no variables

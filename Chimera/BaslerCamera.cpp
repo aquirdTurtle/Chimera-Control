@@ -424,7 +424,7 @@ void BaslerWrapper::init( CWnd* parent )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to register event handler and set trigger mode." );
 		}
 	}
 }
@@ -462,7 +462,7 @@ int BaslerWrapper::getMinOffsetX()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get min x offset." );
 	}
 }
 
@@ -476,9 +476,9 @@ int BaslerWrapper::getMinOffsetY()
 	{
 		return OffsetY.GetMin();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get y min offset" );
 	}
 }
 
@@ -494,7 +494,7 @@ int BaslerWrapper::getMaxWidth()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "failed to Get maximum width" );
 	}
 }
 
@@ -510,7 +510,7 @@ int BaslerWrapper::getMaxHeight()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get maximum height" );
 	}
 }
 
@@ -530,7 +530,7 @@ int BaslerWrapper::getMinGain()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get Minimum gain" );
 	}
 }
 
@@ -545,7 +545,7 @@ void BaslerWrapper::setOffsetX( int offset )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set x offset" );
 		}
 
 	}
@@ -561,7 +561,7 @@ void BaslerWrapper::setOffsetY( int offset )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower(err.what());
+			thrower("Failed to Set Y Offset");
 		}
 	}
 }
@@ -576,7 +576,7 @@ void BaslerWrapper::setWidth( int width )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set width" );
 		}
 	}
 }
@@ -592,7 +592,7 @@ void BaslerWrapper::setHeight( int height )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set height" );
 		}
 	}
 }
@@ -608,7 +608,7 @@ void BaslerWrapper::setHorBin( int binning )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set horizontal binning " );
 		}
 	}
 }
@@ -624,7 +624,7 @@ void BaslerWrapper::setVertBin( int binning )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set vertical binning." );
 		}
 	}
 }
@@ -639,7 +639,7 @@ void BaslerWrapper::stopGrabbing()
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to stop grabbing." );
 		}
 	}
 }
@@ -656,7 +656,7 @@ bool BaslerWrapper::isGrabbing()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to query if grabbing." );
 	}
 }
 
@@ -689,7 +689,7 @@ int BaslerWrapper::getCurrentHeight()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get current height" );
 	}
 }
 
@@ -706,7 +706,7 @@ int BaslerWrapper::getCurrentWidth()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get current width" );
 	}
 }
 
@@ -723,7 +723,7 @@ int BaslerWrapper::getCurrentOffsetX()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get current x offset" );
 	}
 }
 
@@ -740,7 +740,7 @@ int BaslerWrapper::getCurrentOffsetY()
 	}
 	catch (Pylon::GenericException& err)
 	{
-		thrower( err.what() );
+		thrower( "Failed to get current y offset." );
 	}
 }
 
@@ -755,7 +755,7 @@ void BaslerWrapper::setPixelFormat( cameraParams::PixelFormatEnums pixelFormat)
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set pixel format." );
 		}
 	}
 }
@@ -770,7 +770,7 @@ void BaslerWrapper::setGainMode( std::string mode )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set gain mode." );
 		}
 	}
 }
@@ -789,7 +789,7 @@ void BaslerWrapper::setGain( int gainValue )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set gain." );
 		}
 	}
 }
@@ -805,7 +805,7 @@ void BaslerWrapper::waitForFrameTriggerReady( unsigned int timeout )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to wait for frame trigger to be ready." );
 		}
 	}
 }
@@ -822,7 +822,7 @@ void BaslerWrapper::executeSoftwareTrigger()
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to execute software trigger." );
 		}
 	}
 }
@@ -838,7 +838,7 @@ void BaslerWrapper::setTriggerSource(cameraParams::TriggerSourceEnums mode)
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower(err.what());
+			thrower("Failed to set trigger source.");
 		}
 	}
 }
@@ -853,7 +853,7 @@ void BaslerWrapper::startGrabbing( unsigned int picturesToGrab, Pylon::EGrabStra
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to start grabbing." );
 		}
 	}
 }
@@ -873,7 +873,7 @@ double BaslerWrapper::getExposureMax()
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to get max exposure." );
 		}
 	}
 	return 1000000;
@@ -893,7 +893,7 @@ double BaslerWrapper::getExposureMin()
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to get min exposure." );
 		}
 	}
 	return 0;
@@ -913,7 +913,7 @@ double BaslerWrapper::getCurrentExposure()
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to get current exposure." );
 		}
 	}
 	return 10000;
@@ -933,7 +933,7 @@ void BaslerWrapper::setExposure( double exposureTime )
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower( err.what() );
+			thrower( "Failed to set exposure." );
 		}
 	}
 }
@@ -949,7 +949,7 @@ void BaslerWrapper::setExposureAuto(cameraParams::ExposureAutoEnums mode)
 		}
 		catch (Pylon::GenericException& err)
 		{
-			thrower(err.what());
+			thrower("Failed to set auto exposure mode.");
 		}
 	}
 }

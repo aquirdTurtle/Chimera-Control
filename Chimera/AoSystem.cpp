@@ -48,7 +48,7 @@ AoSystem::AoSystem(bool aoSafemode) : dacResolution(10.0 / pow(2, 16)), daqmx( a
 	// I catch here because it's the constructor, and catching elsewhere is weird.
 	//catch (Error& exception)
 	//{
-	//	errBox(exception.what());
+	//	errBox(exception.trace());
 	//}
 }
 

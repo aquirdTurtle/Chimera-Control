@@ -24,7 +24,7 @@ GpibFlume::GpibFlume(short device, bool safemode) : deviceSafemode(safemode), de
 	}
 	catch (Error& err)
 	{
-		errBox("GPIB Initialization failed!: " + err.whatStr());
+		errBox("GPIB Initialization failed!: " + err.trace());
 	}
 }
 
@@ -131,16 +131,6 @@ std::string GpibFlume::queryIdentity()
 	{
 		return "Disconnected...";
 	}
-	/*
-	try
-	{
-
-	}
-	catch ( Error& exception )
-	{
-		return exception.what();
-	}
-	*/
 }
 
 

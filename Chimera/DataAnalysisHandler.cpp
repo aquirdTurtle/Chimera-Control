@@ -1115,7 +1115,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			}
 			catch (Error& err)
 			{
-				errBox(err.what());
+				errBox(err.trace());
 			}
 			reloadListView();
 			break;
@@ -1130,7 +1130,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			}
 			catch (Error& err)
 			{
-				errBox(err.what());
+				errBox(err.trace());
 			}
 			break;
 		}

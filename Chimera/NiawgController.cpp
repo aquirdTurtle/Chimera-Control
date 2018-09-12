@@ -313,7 +313,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	}
 	catch (Error& except)
 	{
-		thrower( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed: " + except.whatStr() );
+		thrower( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed.");
 	}
 	// check for warnings.
 	if (warnings != "")
@@ -415,7 +415,7 @@ void NiawgController::restartDefault()
 	catch (Error& except)
 	{
 		thrower( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
-				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.whatStr() );
+				 "consider restarting the code." );
 	}
 }
 
@@ -628,7 +628,7 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 	catch ( Error& err )
 	{
 		thrower( "Failed to convert simple niawg wave form to simple wave data! This might mean a low-level bug where"
-				 " the code thought that a wave didn't vary, but it did.\r\nError was: " + err.whatStr( ) );
+				 " the code thought that a wave didn't vary, but it did.\r\n" );
 	}
 }
 
@@ -1734,8 +1734,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 	}
 	catch ( Error& err )
 	{
-		thrower( "ERROR: niawg waveform time cannot be varied! Evaluation of time expression failed with error:\n"
-				 + err.whatStr( ) );
+		thrower( "ERROR: niawg waveform time cannot be varied! Evaluation of time expression failed!" );
 	}
 	std::string option;
 	script >> option;
@@ -3772,7 +3771,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	}
 	catch ( Error& err )
 	{
-		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
+		errBox( "ERROR in rearrangement thread! " + err.trace( ) );
 	}
 	if ( moveRecordFile.is_open( ) )
 	{

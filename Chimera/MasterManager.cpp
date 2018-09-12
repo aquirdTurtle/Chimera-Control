@@ -58,9 +58,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			seqNum++;
 		}
 	}
-	catch ( Error& )
+	catch ( Error& err)
 	{
-		errBox( "ERROR: failed to load experiment sequence files!  (A low level bug, this shouldn't happen)" );
+		errBox( "ERROR: failed to load experiment sequence files!  (A low level bug, this shouldn't happen). Error: " 
+				+ err.trace() );
 		input->thisObj->experimentIsRunning = false;
 		delete voidInput;
 		return -1;
@@ -475,8 +476,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			// No quiet option for a bad exit.
 			comm->sendColorBox( System::Master, 'R' );
 			comm->sendStatus( "Bad Exit!\r\n" );
-			std::string exceptionTxt = exception.what( );
-			comm->sendError( exception.what( ) );
+			comm->sendError( exception.trace() );
 			comm->sendFatalError( "Exited main experiment thread abnormally." );
 		}	
 	}
@@ -1186,7 +1186,7 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		}
 		catch ( Error& err )
 		{
-			thrower( err.whatStr( ) + "... in \"dac:\" command inside... " );
+			thrower( "Error handling \"dac:\" command." );
 		}
 	}
 	else if ( word == "daclinspace:" )
@@ -1209,7 +1209,7 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		}
 		catch ( Error& err )
 		{
-			thrower( err.whatStr( ) + "... in \"dacLinSpace:\" command inside..." );
+			thrower(  "Error handling \"dacLinSpace:\" command." );
 		}
 	}
 	else if ( word == "dacarange:" )
@@ -1231,7 +1231,7 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		}
 		catch ( Error& err )
 		{
-			thrower( err.whatStr( ) + "... in \"dacArange:\" command inside..." );
+			thrower("Error handling \"dacArange:\" command." );
 		}
 	}
 	else
@@ -1340,7 +1340,7 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	}
 	catch ( Error& err )
 	{
-		thrower( err.whatStr( ) + "... In Function call to function " + functionName + "\r\n" );
+		thrower( "Error handling Function call to function " + functionName + "." );
 	}
 	return true;
 }

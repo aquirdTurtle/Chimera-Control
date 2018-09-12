@@ -211,7 +211,7 @@ void BaslerWindow::OnMouseMove( UINT flags, CPoint point )
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -241,7 +241,7 @@ void BaslerWindow::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar )
 		}
 		catch (Error& err)
 		{
-			errBox( "Error! " + err.whatStr() );
+			errBox( "Error! " + err.trace() );
 		}
 	}
 }
@@ -256,7 +256,7 @@ void BaslerWindow::pictureRangeEditChange( UINT id )
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -273,7 +273,7 @@ void BaslerWindow::handleDisarmPress()
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 		settingsCtrl.setStatus("Camera Status: ERROR?!?!");
 	}
 }
@@ -395,7 +395,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 		settingsCtrl.setStatus("Camera Status: ERROR?!?!?");
 	}
 	OnPaint( );
@@ -413,7 +413,7 @@ void BaslerWindow::passCameraMode()
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -426,7 +426,7 @@ void BaslerWindow::passExposureMode()
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -466,7 +466,7 @@ void BaslerWindow::handleArmPress()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 }
 
@@ -570,7 +570,7 @@ BOOL BaslerWindow::OnInitDialog()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 		EndDialog(-1);
 		return FALSE;
 	}

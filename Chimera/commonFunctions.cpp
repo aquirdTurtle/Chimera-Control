@@ -67,7 +67,7 @@ namespace commonFunctions
 						mainWin->getComm ( )->sendColorBox ( System::Niawg, 'B' );
 						break;
 					}
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.trace ( ) );
 					mainWin->getComm ( )->sendColorBox ( System::Camera, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
@@ -91,7 +91,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n " + err.trace ( ) );
 					mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
 					mainWin->getComm ( )->sendColorBox ( System::Master, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
@@ -138,7 +138,7 @@ namespace commonFunctions
 						mainWin->getComm()->sendColorBox( System::Niawg, 'B' );
 						break;
 					}
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.trace());
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -174,7 +174,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " + err.trace( ) );
 					mainWin->getComm( )->sendColorBox( System::Master, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -192,7 +192,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "ERROR: Andor Camera threw error while aborting! Error: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "ERROR: Andor Camera threw error while aborting! Error: " + err.trace( ) );
 					mainWin->getComm( )->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -212,7 +212,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.trace( ) );
 					if ( status == "NIAWG" )
 					{
 						mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
@@ -232,7 +232,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm ( )->sendError ( "ERROR: error while aborting basler! Error Message: " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendError ( "ERROR: error while aborting basler! Error Message: " + err.trace ( ) );
 					if ( status == "Basler" )
 					{
 						mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
@@ -277,7 +277,7 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 					camWin->assertOff();
@@ -289,8 +289,8 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					errBox( "Data Logging failed to start up correctly! " + err.whatStr() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					errBox( "Data Logging failed to start up correctly! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 				}
 				break;
 			}
@@ -309,7 +309,7 @@ namespace commonFunctions
 				catch (Error& except)
 				{
 					mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 				}
 				try
@@ -318,8 +318,8 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					errBox( "Data Logging failed to start up correctly! " + err.whatStr() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					errBox( "Data Logging failed to start up correctly! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 				}
 				break;
 			}
@@ -340,7 +340,7 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm()->sendColorBox( System::Master, 'R' );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
 				}
 				try
@@ -349,8 +349,8 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					errBox( "Data Logging failed to start up correctly! " + err.whatStr() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					errBox( "Data Logging failed to start up correctly! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 				}
 				break;
 			}
@@ -383,7 +383,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( err.what( ) );
+					mainWin->getComm( )->sendError( err.trace( ) );
 				}
 				break;
 			}
@@ -400,7 +400,7 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					mainWin->getComm()->sendError("ERROR! " + err.whatStr());
+					mainWin->getComm()->sendError("ERROR! " + err.trace());
 				}
 				break;
 			}
@@ -708,7 +708,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -731,7 +731,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -857,7 +857,7 @@ namespace commonFunctions
 		}
 		catch ( Error& err )
 		{
-			errBox( err.what( ) );
+			errBox( err.trace( ) );
 		}
 	}
 
@@ -871,7 +871,7 @@ namespace commonFunctions
 		if (mainWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
-			thrower( "ERROR: nIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
+			thrower( "ERROR: NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
 
 		if (seq.sequence.size() == 0)
@@ -1011,7 +1011,7 @@ namespace commonFunctions
 			}
 			catch ( Error& except )
 			{
-				errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.whatStr( ) );
+				errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.trace( ) );
 			}			
 			auxWin->EndDialog( 0 );
 			camWin->EndDialog( 0 );
@@ -1045,7 +1045,7 @@ namespace commonFunctions
 		catch (Error& exception)
 		{
 			mainWin->restartNiawgDefaults();
-			thrower( "ERROR: failed to reload the niawg default waveforms! Error message: " + exception.whatStr() );
+			thrower( "ERROR: failed to reload the niawg default waveforms!" );
 		}
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
