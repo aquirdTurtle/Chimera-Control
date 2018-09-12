@@ -239,7 +239,7 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 	std::ifstream scriptFile( infoObj.fileAddress );
 	if (!scriptFile.is_open())
 	{
-		thrower ( "ERROR: Scripted Agilent File \"" + infoObj.fileAddress + "\" failed to open!" );
+		thrower ( "Scripted Agilent File \"" + infoObj.fileAddress + "\" failed to open!" );
 	}
 	ScriptStream stream;
 	stream << scriptFile.rdbuf();
@@ -254,7 +254,7 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 
 		if (leaveTest < 0)
 		{
-			thrower ( "ERROR: IntensityWaveform.analyzeAgilentScriptCommand threw an error! Error occurred in segment #"
+			thrower ( "IntensityWaveform.analyzeAgilentScriptCommand threw an error! Error occurred in segment #"
 					 + str( currentSegmentNumber ) + "." );
 		}
 		if (leaveTest == 1)
@@ -313,7 +313,7 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info)
 {
 	if (chan != 1 && chan != 2)
 	{
-		thrower ( "ERROR: Bad argument for agilent channel in Agilent::handleInput(...)!" );
+		thrower ( "Bad argument for agilent channel in Agilent::handleInput(...)!" );
 	}
 	// convert to zero-indexed
 	chan -= 1;
@@ -358,7 +358,7 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info)
 			settings.channel[chan].scriptedArb.useCalibration = calibratedButton.GetCheck( );
 			break;
 		default:
-			thrower ( "ERROR: unknown agilent option" );
+			thrower ( "unknown agilent option" );
 	}
 }
 
@@ -485,7 +485,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			agilentScript.setEnabled ( true );
 			break;
 		default:
-			thrower ( "ERROR: unrecognized agilent setting: " + settings.channel[chan].option);
+			thrower ( "unrecognized agilent setting: " + settings.channel[chan].option);
 	}
 	if ( chan == 0 )
 	{
@@ -616,7 +616,7 @@ void Agilent::convertInputToFinalSettings( UINT chan, UINT variation, std::vecto
 	}
 	catch (std::out_of_range&)
 	{
-		throwNested( "ERROR: unrecognized variable!" );
+		throwNested( "unrecognized variable!" );
 	}
 }
 
@@ -662,7 +662,7 @@ void Agilent::convertInputToFinalSettings(UINT chan)
 	}
 	catch (std::out_of_range&)
 	{
-		throwNested( "ERROR: unrecognized variable!" );
+		throwNested( "unrecognized variable!" );
 	}
 }
 
@@ -772,7 +772,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		throwNested( "ERROR: Bad channel 1 option!" );
+		throwNested( "Bad channel 1 option!" );
 	}
 	std::string calibratedOption;
 	std::getline( file, settings.channel[0].dc.dcLevelInput.expressionStr );
@@ -862,7 +862,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		throwNested("ERROR: Bad channel 1 option!");
+		throwNested("Bad channel 1 option!");
 	}
 	std::getline( file, settings.channel[1].dc.dcLevelInput.expressionStr );
 	if ( ver > Version( "2.3" ) )
@@ -953,7 +953,7 @@ void Agilent::outputOff( int channel )
 {
 	if (channel != 1 && channel != 2)
 	{
-		thrower ( "ERROR: bad value for channel inside outputOff!" );
+		thrower ( "bad value for channel inside outputOff!" );
 	}
 	channel++;
 	visaFlume.write( "OUTPUT" + str( channel ) + " OFF" );
@@ -970,7 +970,7 @@ void Agilent::setDC( int channel, dcInfo info )
 {
 	if (channel != 1 && channel != 2)
 	{
-		thrower ( "ERROR: Bad value for channel inside setDC!" );
+		thrower ( "Bad value for channel inside setDC!" );
 	}
 	visaFlume.write( "SOURce" + str( channel ) + ":APPLy:DC DEF, DEF, " + str( convertPowerToSetPoint(info.dcLevel, info.useCalibration) ) + " V" );
 }
@@ -980,7 +980,7 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 {
 	if (channel != 1 && channel != 2)
 	{
-		thrower ( "ERROR: Bad value for channel in setExistingWaveform!" );
+		thrower ( "Bad value for channel in setExistingWaveform!" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":DATA:VOL:CLEAR" );
 	// Load sequence that was previously loaded.
@@ -1005,7 +1005,7 @@ void Agilent::setSquare( int channel, squareInfo info )
 {
 	if (channel != 1 && channel != 2)
 	{
-		thrower ( "ERROR: Bad Value for Channel in setSquare!" );
+		thrower ( "Bad Value for Channel in setSquare!" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SQUARE " + str( info.frequency ) + " KHZ, "
 					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration ) ) + " VPP, "
@@ -1017,7 +1017,7 @@ void Agilent::setSine( int channel, sineInfo info )
 {
 	if (channel != 1 && channel != 2)
 	{
-		thrower ( "ERROR: Bad value for channel in setSine" );
+		thrower ( "Bad value for channel in setSine" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SINUSOID " + str( info.frequency ) + " KHZ, "
 					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration ) ) + " VPP" );
@@ -1028,7 +1028,7 @@ void Agilent::prepAgilentSettings(UINT channel)
 {
 	if (channel != 1 && channel != 2)
 	{
-		thrower ( "ERROR: Bad value for channel in prepAgilentSettings!" );
+		thrower ( "Bad value for channel in prepAgilentSettings!" );
 	}
 	// Set timout, sample rate, filter parameters, trigger settings.
 	visaFlume.setAttribute( VI_ATTR_TMO_VALUE, 40000 );	
@@ -1061,7 +1061,7 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 			}
 			catch ( Error& )
 			{
-				throwNested( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
+				throwNested( "IntensityWaveform.writeData threw an error! Error occurred in segment #"
 						 + str( totalSegmentNumber ) );
 			}
 		}
@@ -1116,7 +1116,7 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		}
 		catch (Error&)
 		{
-			throwNested( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
+			throwNested( "IntensityWaveform.writeData threw an error! Error occurred in segment #"
 					 + str( totalSegmentNumber ) + "." );
 		}
 	}
@@ -1238,7 +1238,7 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 					setScriptOutput( variation, settings.channel[chan].scriptedArb, chan + 1 );
 					break;
 				default:
-					thrower ( "ERROR: unrecognized channel 1 setting: " + str( settings.channel[chan].option ) );
+					thrower ( "unrecognized channel 1 setting: " + str( settings.channel[chan].option ) );
 			}
 		}
 		catch ( Error& err )
@@ -1288,7 +1288,7 @@ void Agilent::setAgilent()
 				setScriptOutput( 0, settings.channel[chan].scriptedArb, chan+1 );
 				break;
 			default:
-				thrower ( "ERROR: unrecognized channel " + str(chan+1) + " setting: " + str(settings.channel[chan].option ) );
+				thrower ( "unrecognized channel " + str(chan+1) + " setting: " + str(settings.channel[chan].option ) );
 		}
 	}
 }

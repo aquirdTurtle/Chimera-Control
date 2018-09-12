@@ -147,7 +147,7 @@ class ImageEventHandler : public Pylon::CImageEventHandler
 				}
 				else
 				{
-					thrower("Error: " + str(grabResult->GetErrorCode()) + " " 
+					thrower("" + str(grabResult->GetErrorCode()) + " " 
 							 + std::string(grabResult->GetErrorDescription().c_str()));
 				}
 			}

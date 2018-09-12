@@ -12,6 +12,6 @@ double DoubleEdit::getWindowTextAsDouble( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		throwNested ( "Error: Failed to convert edit text to double." );
+		throwNested ( "Failed to convert edit text to double." );
 	}
 }

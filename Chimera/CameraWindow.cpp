@@ -137,7 +137,7 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 	}
 	catch ( Error& err )
 	{
-		errBox( "Error! " + err.trace( ) );
+		mainWin->getComm ( )->sendError ( err.trace ( ) );
 	}
 }
 
@@ -883,7 +883,7 @@ void AndorWindow::checkCameraIdle( )
 	{
 		if ( exception.whatBare( ) != "DRV_IDLE" )
 		{
-			throwNested ( "Error while querying andor status to check if idle." );
+			throwNested ( " while querying andor status to check if idle." );
 		}
 	}
 }
@@ -1259,7 +1259,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 				ULONG pixelColumn = ( grid.topLeftCorner.column - 1)  + columnInc * grid.pixelSpacing;
 				if ( pixelRow >= input->imageDims.height() || pixelColumn >= input->imageDims.width() )
 				{
-					errBox( "ERROR: atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
+					errBox( "atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
 							"cruncher thread" );
 					return 0;
 				}
@@ -1267,7 +1267,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 				if ( index >= input->imageDims.width() * input->imageDims.height() )
 				{
 					// shouldn't happen after I finish debugging.
-					errBox( "ERROR: Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
+					errBox( "Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
 							" is larger than the image is!  (A low level bug, this shouldn't happen)" );
 					return 0;
 				}
@@ -1279,7 +1279,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 	{
 		if ( picThresholds.size ( ) != 1 && picThresholds.size ( ) != input->grids[ 0 ].numAtoms ( ) )
 		{
-			errBox ( "ERROR: the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
+			errBox ( "the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
 					 "first grid! Size is " + str(picThresholds.size()) + "and grid size is " + 
 					 str(input->grids[ 0 ].numAtoms ( )) );
 			return 0;
@@ -1389,7 +1389,7 @@ std::string AndorWindow::getStartMessage()
 		PlottingInfo tempInfoCheck(PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
 		if (tempInfoCheck.getPicNumber() != CameraSettings.getSettings().andor.picsPerRepetition)
 		{
-			thrower ( "ERROR: one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
+			thrower ( ": one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
 					 " file." );
 		}

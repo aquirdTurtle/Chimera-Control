@@ -290,7 +290,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	CString text;
 	if ( selection == -1 )
 	{
-		thrower  ( "ERROR: Please select an exposure mode for the basler camera." );
+		thrower  ( "Please select an exposure mode for the basler camera." );
 	}
 	exposureModeCombo.GetLBText ( selection, text );
 	currentSettings.exposureMode = BaslerAutoExposure::fromStr(std::string(text));
@@ -477,7 +477,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	#endif
 	if (currentSettings.dims.horizontalBinning > 4 || currentSettings.dims.verticalBinning > 4)
 	{
-		thrower ( "ERROR: Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
+		thrower ( "Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
 	}
 
 	selection = triggerCombo.GetCurSel();
@@ -521,7 +521,7 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		throwNested ( "ERROR: Basler control failed to convert dimensions recorded in the config file "
+		throwNested ( "Basler control failed to convert dimensions recorded in the config file "
 				  "to integers" );
 	}
 	configFile >> newSettings.dims.horizontalBinning;

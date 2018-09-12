@@ -244,7 +244,7 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 	}
 	else
 	{
-		thrower ("ERROR: unrecognized text message type: " + msgType);
+		thrower ("unrecognized text message type: " + msgType);
 	}
 }
 

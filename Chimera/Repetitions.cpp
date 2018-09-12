@@ -99,7 +99,7 @@ UINT Repetitions::getRepetitionNumber()
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		throwNested ("ERROR: Failed to convert repetition number text to an integer!");
+		throwNested ("Failed to convert repetition number text to an integer!");
 	}
 	return repetitionNumber;
 }
