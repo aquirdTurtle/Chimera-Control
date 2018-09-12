@@ -139,7 +139,7 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem*
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			throwNested("ERROR: failed to convert dac value to voltage. string was " + dacString);
+			throwNested("failed to convert dac value to voltage. string was " + dacString);
 		}
 		dacInc++;
 	}
@@ -204,7 +204,7 @@ void AoSystem::handleEditChange(UINT dacNumber)
 {
 	if (dacNumber >= breakoutBoardEdits.size())
 	{
-		thrower ("ERROR: attempted to handle dac edit change, but the dac number reported doesn't exist!");
+		thrower ("attempted to handle dac edit change, but the dac number reported doesn't exist!");
 	}
 	CString text;
 	breakoutBoardEdits[dacNumber].GetWindowTextA(text);
@@ -386,7 +386,7 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 			}
 			else
 			{
-				throwNested( "ERROR: value entered in DAC #" + str( dacInc ) + " (" + text.GetString( )
+				throwNested( "value entered in DAC #" + str( dacInc ) + " (" + text.GetString( )
 						 + ") failed to convert to a double!" );
 			}
 		}
@@ -578,7 +578,7 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 		{
 			if ( dacSeqInfo.size( ) <= variation )
 			{
-				thrower ( "ERROR: Attempted to use dac data from variation " + str( variation ) + ", which does not "
+				thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
 						 "exist!" );
 			}
 			for ( auto& snap : dacSeqInfo[variation] )
@@ -758,7 +758,7 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 				}
 				else
 				{
-					thrower ( "ERROR: Unrecognized dac command name: " + formList.commandName );
+					thrower ( "Unrecognized dac command name: " + formList.commandName );
 				}
 			}
 		}
@@ -796,7 +796,7 @@ void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 			// can't trigger faster than the trigger time.
 			if (fabs(time - secondTime) < dacTriggerTime)
 			{
-				thrower ("ERROR: timings are such that the dac system would have to get triggered too fast to follow the"
+				thrower ("timings are such that the dac system would have to get triggered too fast to follow the"
 						" programming! ");
 			}
 			countInner++;
@@ -876,7 +876,7 @@ void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 		{
 			if (snapshot.dacValues[line] > dacMaxVals[line] || snapshot.dacValues[line] < dacMinVals[line])
 			{
-				thrower ("ERROR: Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
+				thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 						"value was " + str(snapshot.dacValues[line]) + ", while the minimum accepted value is " +
 						str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
 						"Change the min/max if you actually need to set this value.\r\n");
@@ -890,7 +890,7 @@ void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT var
 {
 	if (val > dacMaxVals[line] || val < dacMinVals[line])
 	{
-		thrower ("ERROR: Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
+		thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 				"value was " + str(val) + ", while the minimum accepted value is " +
 				str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
 				"Change the min/max if you actually need to set this value.\r\n");
@@ -1032,17 +1032,17 @@ void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, 
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{
-		thrower ( "ERROR: dac commandName not recognized!" );
+		thrower ( "dac commandName not recognized!" );
 	}
 	if (!isValidDACName( name))
 	{
-		thrower ("ERROR: the name " + name + " is not the name of a dac!");
+		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	// convert name to corresponding dac line.
 	command.line = getDacIdentifier(name);
 	if ( command.line == -1)
 	{
-		thrower ("ERROR: the name " + name + " is not the name of a dac!");
+		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	dacShadeLocations.push_back( command.line );
 	setDacCommandForm( command, seqNum );
@@ -1073,11 +1073,11 @@ void AoSystem::setMinMax(int dacNumber, double min, double max)
 {
 	if (!(min <= max))
 	{
-		thrower ("ERROR: Min dac value must be less than max dac value.");
+		thrower ("Min dac value must be less than max dac value.");
 	}
 	if (min < -10 || min > 10 || max < -10 || max > 10)
 	{
-		thrower ("ERROR: Min and max dac values must be withing [-10,10].");
+		thrower ("Min and max dac values must be withing [-10,10].");
 	}
 	dacMinVals[dacNumber] = min;
 	dacMaxVals[dacNumber] = max;

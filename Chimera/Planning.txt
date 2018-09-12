@@ -52,7 +52,7 @@ FEATURES:
 - display threshold on histogram.
 - consider / test using sine lookup tables for niawg calculations.
 - improve feedback of servo display / control during servoing.
-- be able to query current connection status like what
+- be able to query current connection status like what shows up in the beginning
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -72,7 +72,6 @@ Refactoring / Other:
 
 Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
-
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
@@ -97,4 +96,5 @@ BUGS:
 - andor picture control should update with changes to the control bar, like the basler camera does.
 - scale dacval plot correctly.
 - scale oscilloscope plot correctly.
-
+- calc times not getting outputted
+- format debug output properly...

@@ -293,7 +293,8 @@ void PlotCtrl::plotPoints( memDC* d )
 		}
 	}
 	std::pair<double, double> minMaxScaled, minMaxRaw;
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::VertHist )
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::VertHist
+		 || style == plotStyle::DacPlot )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
 	}

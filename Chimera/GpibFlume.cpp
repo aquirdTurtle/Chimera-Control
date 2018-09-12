@@ -56,7 +56,7 @@ void GpibFlume::send( std::string message, bool checkError )
 			}
 			catch ( Error& err )
 			{
-				throwNested( "ERROR: Error during sending GPIB string \"" + message + "\":" + err.whatBare( ) );
+				throwNested( "Error during sending GPIB string \"" + message + "\":" + err.whatBare( ) );
 			}
 		}
 	}

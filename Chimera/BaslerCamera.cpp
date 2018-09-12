@@ -156,7 +156,7 @@ void BaslerCameras::setParameters( baslerSettings settings )
 
 		if (!(settings.exposureTime >= camera->getExposureMin() && settings.exposureTime <= camera->getExposureMax()))
 		{
-			thrower ( "ERROR: exposure time must be between " + str( camera->getExposureMin() ) + " and " 
+			thrower ( "exposure time must be between " + str( camera->getExposureMin() ) + " and " 
 					 + str( camera->getExposureMax()) );
 		}
 		camera->setExposure( settings.exposureTime );
@@ -667,7 +667,7 @@ std::vector<long> BaslerWrapper::retrieveResult( unsigned int timeout )
 	RetrieveResult( timeout, resultPtr, Pylon::TimeoutHandling_ThrowException );
 	if (!resultPtr->GrabSucceeded())
 	{
-		thrower ( "Error: " + str( resultPtr->GetErrorCode() ) + " " + std::string( resultPtr->GetErrorDescription().c_str() ) );
+		thrower ( "" + str( resultPtr->GetErrorCode() ) + " " + std::string( resultPtr->GetErrorDescription().c_str() ) );
 	}
 	const uint16_t *pImageBuffer = (uint16_t *)resultPtr->GetBuffer();
 	int width = resultPtr->GetWidth();

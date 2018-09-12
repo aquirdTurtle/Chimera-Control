@@ -175,7 +175,7 @@ void ServoManager::handleListViewClick ( )
 			{
 				if ( s.servoName == newName )
 				{
-					thrower ( "ERROR: An servo with name " + newName + " already exists!" );
+					thrower ( "An servo with name " + newName + " already exists!" );
 				}
 			}
 			servo.servoName = newName;
@@ -200,7 +200,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				throwNested ( "ERROR: Failed to convert text to a double!" );
+				throwNested ( "Failed to convert text to a double!" );
 			}
 			servoList.SetItem ( str(servo.setPoint), itemIndicator, subitem );
 			// set point
@@ -223,7 +223,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				throwNested ( "ERROR: Failed to convert text to an unsigned int!" );
+				throwNested ( "Failed to convert text to an unsigned int!" );
 			}
 			servoList.SetItem ( str ( servo.aiInputChannel ), itemIndicator, subitem );
 			break;
@@ -240,7 +240,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				throwNested ( "ERROR: Failed to convert text to an unsigned int!" );
+				throwNested ( "Failed to convert text to an unsigned int!" );
 			}
 			servoList.SetItem ( str ( servo.aoControlChannel ), itemIndicator, subitem );
 			break;
@@ -451,7 +451,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	s.servoed = count != attemptLimit;
 	if ( !s.servoed )
 	{
-		errBox( "ERROR: " + s.servoName + " servo failed to servo!" );
+		errBox( "" + s.servoName + " servo failed to servo!" );
 	}
 	else
 	{

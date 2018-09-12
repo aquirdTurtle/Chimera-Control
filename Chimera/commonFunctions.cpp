@@ -192,7 +192,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "ERROR: Andor Camera threw error while aborting! Error: " + err.trace( ) );
+					mainWin->getComm( )->sendError( "Andor Camera threw error while aborting! Error: " + err.trace( ) );
 					mainWin->getComm( )->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -232,7 +232,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm ( )->sendError ( "ERROR: error while aborting basler! Error Message: " + err.trace ( ) );
+					mainWin->getComm ( )->sendError ( "error while aborting basler! Error Message: " + err.trace ( ) );
 					if ( status == "Basler" )
 					{
 						mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
@@ -838,7 +838,7 @@ namespace commonFunctions
 				break;
 			}
 			default:
-				errBox("ERROR: Common message passed but not handled! The feature you're trying to use"\
+				errBox("Common message passed but not handled! The feature you're trying to use"\
 						" feature likely needs re-implementation / new handling.");
 		}
 	}
@@ -872,13 +872,13 @@ namespace commonFunctions
 		if (mainWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
-			thrower ( "ERROR: NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
+			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
 
 		if (seq.sequence.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
-			thrower ( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
+			thrower ( "No configurations in current sequence! Please set some configurations to run in this "
 					 "sequence or set the null sequence.\r\n" );
 		}
 		// check config settings
@@ -1012,7 +1012,7 @@ namespace commonFunctions
 			}
 			catch ( Error& except )
 			{
-				errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.trace( ) );
+				errBox( "The NIAWG did not exit smoothly. : " + except.trace( ) );
 			}			
 			auxWin->EndDialog( 0 );
 			camWin->EndDialog( 0 );
@@ -1046,7 +1046,7 @@ namespace commonFunctions
 		catch (Error& exception)
 		{
 			mainWin->restartNiawgDefaults();
-			throwNested( "ERROR: failed to reload the niawg default waveforms!" );
+			throwNested( "failed to reload the niawg default waveforms!" );
 		}
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}

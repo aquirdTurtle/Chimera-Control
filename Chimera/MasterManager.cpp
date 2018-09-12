@@ -60,7 +60,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	}
 	catch ( Error& err)
 	{
-		errBox( "ERROR: failed to load experiment sequence files!  (A low level bug, this shouldn't happen). Error: " 
+		errBox( "Failed to load experiment sequence files!  (A low level bug, this shouldn't happen). \n" 
 				+ err.trace() );
 		input->thisObj->experimentIsRunning = false;
 		delete voidInput;
@@ -120,7 +120,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				if ( variations != determineVariationNumber( seqVariables ) )
 				{
-					thrower ( "ERROR: variation number changes between sequences! the number of variations must match"
+					thrower ( "Variation number changes between sequences! the number of variations must match"
 							 " between sequences.  (A low level bug, this shouldn't happen)" );
 				}
 			}
@@ -218,7 +218,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					ttls->checkFinalFormatTimes( variationInc, seqInc );
 					if ( ttls->countDacTriggers( variationInc, seqInc ) != aoSys->getNumberSnapshots( variationInc, seqInc ) )
 					{
-						thrower ( "ERROR: the number of dac triggers that the ttl system sends to the dac line does not "
+						thrower ( "the number of dac triggers that the ttl system sends to the dac line does not "
 								 "match the number of dac snapshots! Number of dac triggers was " 
 								 + str( ttls->countDacTriggers( variationInc, seqInc ) ) + " while number of dac "
 								 "snapshots was " + str( aoSys->getNumberSnapshots( variationInc, seqInc ) ) );
@@ -305,7 +305,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					{
 						if (tempVariable.keyValues.size() == 0)
 						{
-							thrower ( "ERROR: Variable " + tempVariable.name + " varies, but has no values assigned to "
+							thrower ( "Variable " + tempVariable.name + " varies, but has no values assigned to "
 									 "it! (This shouldn't happen, it's a low-level bug...)" );
 						}
 						expUpdate( tempVariable.name + ": " + str( tempVariable.keyValues[variationInc], 12) + "\r\n", 
@@ -504,7 +504,7 @@ void MasterManager::analyzeMasterScript ( DioSystem* ttls, AoSystem* aoSys,
 	operationTime.first.clear ( );
 	if ( currentMasterScript.str ( ) == "" )
 	{
-		thrower ( "ERROR: Master script is empty! (A low level bug, this shouldn't happen)" );
+		thrower ( "Master script is empty! (A low level bug, this shouldn't happen)" );
 	}
 	std::string word;
 	currentMasterScript >> word;
@@ -566,7 +566,7 @@ void MasterManager::analyzeMasterScript ( DioSystem* ttls, AoSystem* aoSys,
 			}
 			catch ( Error& )
 			{
-				throwNested ( "ERROR: the repeat number failed to convert to an integer! Note that the repeat number can not"
+				throwNested ( "the repeat number failed to convert to an integer! Note that the repeat number can not"
 						  " currently be a variable." );
 			}
 			repeatPos.push_back ( currentMasterScript.tellg ( ) );
@@ -594,14 +594,14 @@ void MasterManager::analyzeMasterScript ( DioSystem* ttls, AoSystem* aoSys,
 		else
 		{
 			word = ( word == "" ) ? "[EMPTY-STRING]" : word;
-			thrower ( "ERROR: unrecognized master script command: \"" + word + "\"" );
+			thrower ( "unrecognized master script command: \"" + word + "\"" );
 		}
 		word = "";
 		currentMasterScript >> word;
 	}
 	if ( expectsLoadSkip && !loadSkipFound )
 	{
-		thrower ( "ERROR: Expected load skip in script, but the load skip command was not found during script analysis!" );
+		thrower ( "Expected load skip in script, but the load skip command was not found during script analysis!" );
 	}
 }
 
@@ -618,7 +618,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 	fopen_s ( &file, cstr ( FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION ), "r" );
 	if ( !file )
 	{
-		thrower ( "ERROR: Function " + function + " does not exist! The master script tried to open this function, it"
+		thrower ( "Function " + function + " does not exist! The master script tried to open this function, it"
 				  " tried and failed to open the location " + FUNCTIONS_FOLDER_LOCATION + function + "."
 				  + FUNCTION_EXTENSION + "." );
 	}
@@ -630,7 +630,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 	// check opened correctly
 	if ( !functionFile.is_open ( ) )
 	{
-		thrower ( "ERROR: Function file " + function + "File passed test making sure the file exists, but it still "
+		thrower ( "Function file " + function + "File passed test making sure the file exists, but it still "
 				  "failed to open! (A low level bug, this shouldn't happen.)" );
 	}
 	// append __END__ to the end of the file for analysis purposes.
@@ -642,7 +642,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 	functionFile.close ( );
 	if ( functionStream.str ( ) == "" )
 	{
-		thrower ( "ERROR: Function File for " + function + " function was empty! (A low level bug, this shouldn't happen" );
+		thrower ( "Function File for " + function + " function was empty! (A low level bug, this shouldn't happen" );
 	}
 	std::string word;
 	// the following are used for repeat: functionality
@@ -661,7 +661,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 		{
 			functionArgsString += elem + ",";
 		}
-		thrower ( "ERROR: incorrect number of arguments in the call for function " + function + ". Number in call was: "
+		thrower ( "incorrect number of arguments in the call for function " + function + ". Number in call was: "
 				  + str ( args.size ( ) ) + ", number expected was " + str ( functionArgs.size ( ) ) + ". Function arguments were:"
 				  + functionArgsString + "." );
 	}
@@ -721,7 +721,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				throwNested ( "ERROR: the repeat number for a repeat structure inside the master script failed to convert "
+				throwNested ( "the repeat number for a repeat structure inside the master script failed to convert "
 						  "to an integer! Note that the repeat number can not currently be a variable." );
 			}
 			repeatPos.push_back ( functionStream.tellg ( ) );
@@ -731,7 +731,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 		{
 			if ( currentRepeatNum.size ( ) == 0 )
 			{
-				thrower ( "ERROR: mismatched \"end\" command for repeat structure in master script! there were more "
+				thrower ( "mismatched \"end\" command for repeat structure in master script! there were more "
 						  "\"end\" commands than \"repeat\" commands." );
 			}
 			if ( currentRepeatNum.back ( ) < totalRepeatNum.back ( ) )
@@ -750,7 +750,7 @@ void MasterManager::analyzeFunction ( std::string function, std::vector<std::str
 		}
 		else
 		{
-			thrower ( "ERROR: unrecognized master script command inside function analysis: " + word );
+			thrower ( "unrecognized master script command inside function analysis: " + word );
 		}
 		functionStream >> word;
 	}
@@ -826,7 +826,7 @@ HANDLE MasterManager::startExperimentThread(MasterThreadInput* input)
 {
 	if ( !input )
 	{
-		thrower ( "ERROR: Input to start experiment thread was null?!?!? (a Low level bug, this shouldn't happen)." );
+		thrower ( "Input to start experiment thread was null?!?!? (a Low level bug, this shouldn't happen)." );
 	}
 	if ( experimentIsRunning )
 	{
@@ -851,7 +851,7 @@ void MasterManager::pause()
 {
 	if ( !experimentIsRunning )
 	{
-		thrower ( "ERROR: Can't pause the experiment if the experiment isn't running!" );
+		thrower ( "Can't pause the experiment if the experiment isn't running!" );
 	}
 	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
 	std::lock_guard<std::mutex> locker( pauseLock );
@@ -863,7 +863,7 @@ void MasterManager::unPause()
 {
 	if ( !experimentIsRunning )
 	{
-		thrower ( "ERROR: Can't unpause the experiment if the experiment isn't running!" );
+		thrower ( "Can't unpause the experiment if the experiment isn't running!" );
 	}
 	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
 	std::lock_guard<std::mutex> locker( pauseLock );
@@ -875,7 +875,7 @@ void MasterManager::abort()
 {
 	if ( !experimentIsRunning )
 	{
-		thrower ( "ERROR: Can't abort the experiment if the experiment isn't running!" );
+		thrower ( "Can't abort the experiment if the experiment isn't running!" );
 	}
 	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
@@ -890,7 +890,7 @@ void MasterManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& n
 	fopen_s ( &file, cstr ( scriptAddress ), "r" );
 	if ( !file )
 	{
-		thrower ( "ERROR: The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
+		thrower ( "The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
 				  "open this file before starting the script analysis." );
 	}
 	else
@@ -901,7 +901,7 @@ void MasterManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& n
 	// check opened correctly
 	if ( !scriptFile.is_open ( ) )
 	{
-		thrower ( "ERROR: File passed test making sure the file exists, but it still failed to open?!?! "
+		thrower ( "File passed test making sure the file exists, but it still failed to open?!?! "
 				  "(A low level-bug, this shouldn't happen.)" );
 	}
 	// dump the file into the stringstream.
@@ -918,7 +918,7 @@ void MasterManager::loadMasterScript(std::string scriptAddress, ScriptStream& cu
 	fopen_s( &file, cstr(scriptAddress), "r" );
 	if ( !file )
 	{
-		thrower ("ERROR: The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
+		thrower ("The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
 				 "open this file before starting the script analysis.");
 	}
 	else
@@ -929,7 +929,7 @@ void MasterManager::loadMasterScript(std::string scriptAddress, ScriptStream& cu
 	// check opened correctly
 	if (!scriptFile.is_open())
 	{
-		thrower ("ERROR: File passed test making sure the file exists, but it still failed to open?!?! "
+		thrower ("File passed test making sure the file exists, but it still failed to open?!?! "
 				 "(A low level-bug, this shouldn't happen.)");
 	}
 	// dump the file into the stringstream.
@@ -963,7 +963,7 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 	}
 	if (word != "def")
 	{
-		thrower ("ERROR: Function file (extenion \".func\") in functions folder was not a function because it did not"
+		thrower ("Function file (extenion \".func\") in functions folder was not a function because it did not"
 				 " start with \"def\"! Functions must start with this. Instead it started with \"" + word + "\".");
 	}
 	std::string functionDeclaration, functionArgumentList;
@@ -973,18 +973,18 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 
 	if (functionName.find_first_of(" ") != std::string::npos)
 	{
-		thrower ("ERROR: Function name included a space!");
+		thrower ("Function name included a space!");
 	}
 	int initPos = functionDeclaration.find_first_of("(");
 	if (initPos == std::string::npos)
 	{
-		thrower ("ERROR: No starting parenthesis \"(\" in function definition. Use \"()\" if no arguments.");
+		thrower ("No starting parenthesis \"(\" in function definition. Use \"()\" if no arguments.");
 	}
 	initPos++;
 	int endPos = functionDeclaration.find_last_of(")");
 	if (endPos == std::string::npos)
 	{
-		thrower ("ERROR: No ending parenthesis \")\" in function definition. Use \"()\" if no arguments.");
+		thrower ("No ending parenthesis \")\" in function definition. Use \"()\" if no arguments.");
 	}
 	functionArgumentList = functionDeclaration.substr(initPos, endPos - initPos);
 	endPos = functionArgumentList.find_first_of(",");
@@ -1013,12 +1013,12 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 		// now it should be clean. Check if there are spaces in the middle.
 		if (tempArg.find_first_of(" \t") != std::string::npos)
 		{
-			thrower ( "ERROR: bad argument list in function. It looks like there might have been a space or tab inside "
+			thrower ( "bad argument list in function. It looks like there might have been a space or tab inside "
 					 "the function argument? (A low level bug, this shouldn't happen.)" );
 		}
 		if (tempArg == "")
 		{
-			thrower ("ERROR: bad argument list in function. It looks like there might have been a stray \",\"?");
+			thrower ("bad argument list in function. It looks like there might have been a stray \",\"?");
 		}
 		args.push_back(tempArg);
 		endPos = functionArgumentList.find_first_of(",");
@@ -1067,7 +1067,7 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		throwNested ( "ERROR: Bad string for value of local variable " + str( name ) );
+		throwNested ( "Bad string for value of local variable " + str( name ) );
 	}
 	tmpVariable.constantValue = val;
 	tmpVariable.scanDimension = 1;
@@ -1330,7 +1330,7 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	}
 	if ( functionName == callingFunction )
 	{
-		thrower ( "ERROR: Recursive function call detected! " + callingFunction + " called itself! This is not allowed."
+		thrower ( "Recursive function call detected! " + callingFunction + " called itself! This is not allowed."
 				 " There is no way to end a function call conditionally so this will necessarily result in an"
 				 " infinite recursion\r\n" );
 	}
