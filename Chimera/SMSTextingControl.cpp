@@ -133,7 +133,7 @@ void SmsTextingControl::updatePersonInfo()
 			}
 			catch ( boost::bad_lexical_cast&)
 			{
-				thrower("Numbers only, please!");
+				throwNested ("Numbers only, please!");
 			}
 			peopleToText[itemIndicator].number = phoneNumber;
 			peopleListView.SetItem( phoneNumber, itemIndicator, subitemIndicator );
@@ -244,7 +244,7 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 	}
 	else
 	{
-		thrower("ERROR: unrecognized text message type: " + msgType);
+		thrower ("ERROR: unrecognized text message type: " + msgType);
 	}
 }
 

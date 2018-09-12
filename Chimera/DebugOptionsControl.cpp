@@ -323,7 +323,7 @@ debugInfo DebugOptionsControl::getOptions()
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "ERROR: could not convert sleep time to long!" );
+		throwNested ( "ERROR: could not convert sleep time to long!" );
 	}
 	return currentOptions;
 }

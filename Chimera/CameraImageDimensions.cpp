@@ -155,7 +155,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
-		thrower( "Left border argument not an integer!\r\n" );
+		throwNested ( "Left border argument not an integer!\r\n" );
 	}
 	leftEdit.RedrawWindow();
 	rightEdit.GetWindowTextA( tempStr );
@@ -166,7 +166,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
-		thrower( "Right border argument not an integer!\r\n" );
+		throwNested ( "Right border argument not an integer!\r\n" );
 	}
 	rightEdit.RedrawWindow();
 	//
@@ -178,7 +178,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
-		thrower( "Top border argument not an integer!\r\n" );
+		throwNested ( "Top border argument not an integer!\r\n" );
 	}
 	bottomEdit.RedrawWindow();
 	//
@@ -190,7 +190,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
-		thrower( "Bottom border argument not an integer!\r\n" );
+		throwNested ( "Bottom border argument not an integer!\r\n" );
 	}
 	topEdit.RedrawWindow();
 	horBinningEdit.GetWindowTextA( tempStr );
@@ -201,7 +201,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
-		thrower( "Horizontal binning argument not an integer!\r\n" );
+		throwNested ( "Horizontal binning argument not an integer!\r\n" );
 	}
 	horBinningEdit.RedrawWindow();
 	vertBinningEdit.GetWindowTextA( tempStr );
@@ -212,7 +212,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	catch ( boost::bad_lexical_cast&)
 	{
 		isReady = false;
-		thrower( "Vertical binning argument not an integer!\r\n" );
+		throwNested ( "Vertical binning argument not an integer!\r\n" );
 	}
 	vertBinningEdit.RedrawWindow();
 

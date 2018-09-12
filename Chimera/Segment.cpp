@@ -46,7 +46,7 @@ void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& v
 	finalSettings.time = input.time.evaluate( variables, variation) / 1000.0;
 	if ( finalSettings.time < 1e-9 )
 	{
-		thrower( "ERROR: agilent segment set to have zero time! Agilent can't handle zero-length segments." );
+		thrower ( "ERROR: agilent segment set to have zero time! Agilent can't handle zero-length segments." );
 	}
 	// repeat number
 	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
@@ -157,7 +157,7 @@ double Segment::rampCalc( int size, int iteration, double initPos, double finPos
 	else
 	{
 		// error message. I've already checked (outside this function) whether the ramp-type is a filename.
-		thrower( "ERROR: ramp type " + rampType + " is unrecognized.\r\n" );
+		thrower ( "ERROR: ramp type " + rampType + " is unrecognized.\r\n" );
 		return 0;
 	}
 }
@@ -212,7 +212,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 	}
 	else
 	{
-		thrower( "ERROR: pulse type " + pulse.type + " is unrecognized.\r\n" );
+		thrower ( "ERROR: pulse type " + pulse.type + " is unrecognized.\r\n" );
 		return 0;
 	}
 }
@@ -230,7 +230,7 @@ void Segment::calcData( ULONG sampleRate )
 	if (fabs( numDataPointsf - round( numDataPointsf ) ) > 1e-6)
 	{
 		// Bad Time Warning
-		thrower( "ERROR: Bad time entered for the time of an intensity sequence segment. The time was "
+		thrower ( "ERROR: Bad time entered for the time of an intensity sequence segment. The time was "
 				 + str(finalSettings.time) + ", and the sample rate is " + str( sampleRate ) + ". The product of these"
 				 " is the number of samples in the segment, and this must be an integer." );
 	}

@@ -471,12 +471,16 @@ void BaslerWindow::handleArmPress()
 }
 
 
-
-
 bool BaslerWindow::baslerCameraIsRunning ( )
 {
+	if ( BASLER_SAFEMODE )
+	{
+		return isRunning;
+	}
 	return cameraController->isRunning ( );
 }
+
+
 bool BaslerWindow::baslerCameraIsContinuous ( )
 {
 	return cameraController->isContinuous ( );
@@ -651,7 +655,7 @@ void BaslerWindow::initializeControls()
 	cameraController = new BaslerCameras( this );
 	if (!cameraController->isInitialized())
 	{
-		thrower("ERROR: Camera not connected! Exiting program..." );
+		thrower ("ERROR: Camera not connected! Exiting program..." );
 	}
 	int id = 1000;
 	POINT pos = { 0,0 };

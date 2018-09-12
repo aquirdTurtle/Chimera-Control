@@ -293,7 +293,7 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to create a script!" );
+			thrower ( "Error: please set current agilent channel to scripting mode before attempting to create a script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );
 		agilents[name].checkSave( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
@@ -316,7 +316,7 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to open a script!" );
+			thrower ( "Error: please set current agilent channel to scripting mode before attempting to open a script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );		
 		agilents[name].agilentScript.checkSave( mainWin->getProfileSettings( ).categoryPath, 
@@ -354,7 +354,7 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
+			thrower ( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.saveScript( mainWin->getProfileSettings( ).categoryPath,
@@ -374,7 +374,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
+			thrower ( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );
 		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension( );
@@ -444,7 +444,7 @@ Agilent& AuxiliaryWindow::whichAgilent( UINT id )
 	{
 		return agilents[whichAg::Microwave];
 	}
-	thrower( "ERROR: id seen in \"whichAgilent\" handler does not belong to any agilent!" );
+	thrower ( "ERROR: id seen in \"whichAgilent\" handler does not belong to any agilent!" );
 }
 
 
@@ -1192,7 +1192,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			}
 			catch ( boost::bad_lexical_cast&)
 			{
-				thrower("ERROR: Failed to load one of the default ttl values!");
+				throwNested("ERROR: Failed to load one of the default ttl values!");
 			}
 
 			ttlBoard.setName(ttlRowInc, ttlNumberInc, name, toolTips, this);
@@ -1235,7 +1235,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower("ERROR: Failed to load one of the default DAC values!");
+			throwNested("ERROR: Failed to load one of the default DAC values!");
 		}
 
 		std::string noteString = "";

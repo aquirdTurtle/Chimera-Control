@@ -44,7 +44,7 @@ void multiDimensionalKey<TYPE>::resize( std::vector<std::vector<UINT>> dimSizes 
 	UINT seqInc = 0;
 	if ( nDims == 0 )
 	{
-		thrower( "ERROR: tried to resize key to have zero dimensions!" );
+		thrower ( "ERROR: tried to resize key to have zero dimensions!" );
 	}
 	values.clear( );
 	values.resize( dimSizes.size( ) );
@@ -52,7 +52,7 @@ void multiDimensionalKey<TYPE>::resize( std::vector<std::vector<UINT>> dimSizes 
 	{
 		if ( seqSize.size( ) != nDims )
 		{
-			thrower( "ERROR: tried to resize with size vector of the wrong size!" );
+			thrower ( "ERROR: tried to resize with size vector of the wrong size!" );
 		}
 		dimensions = seqSize;
 		UINT totalSize = dimensions[0];
@@ -71,14 +71,14 @@ double multiDimensionalKey<TYPE>::getValue( std::vector<UINT> indecies )
 {
 	if ( indecies.size( ) != nDims )
 	{
-		thrower( "tried to get value from multidimensional key with size vector of the wrong size" );
+		thrower ( "tried to get value from multidimensional key with size vector of the wrong size" );
 	}
 	UINT overallIndex;
 	for ( auto inc : range( indecies.size( ) ) )
 	{
 		if ( indecies[inc] >= dimensions[inc] )
 		{
-			thrower( "ERROR: multidimensional key vector access index out of range." );
+			thrower ( "ERROR: multidimensional key vector access index out of range." );
 		}
 	}
 	overallIndex = indecies[0];
@@ -90,7 +90,7 @@ double multiDimensionalKey<TYPE>::getValue( std::vector<UINT> indecies )
 
 	if ( overallIndex >= values.size( ) )
 	{
-		thrower( "ERROR: overall multidimensional key vector access index out of range!!! This shouldn't happen. The"
+		thrower ( "ERROR: overall multidimensional key vector access index out of range!!! This shouldn't happen. The"
 				 " code should catch this earlier as one of the individual indecies must have been out of range or "
 				 "something got set incorrectly." );
 	}
@@ -102,14 +102,14 @@ void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, UINT seqNu
 {
 	if ( indecies.size( ) != nDims )
 	{
-		thrower( "tried to get value from multidimensional key with size vector of the wrong size" );
+		thrower ( "tried to get value from multidimensional key with size vector of the wrong size" );
 	}
 	UINT overallIndex;
 	for ( auto inc : range( indecies.size( ) ) )
 	{
 		if ( indecies[inc] >= dimensions[inc] )
 		{
-			thrower( "ERROR: multidimensional key vector access index out of range." );
+			thrower ( "ERROR: multidimensional key vector access index out of range." );
 		}
 	}
 	overallIndex = indecies[0];
@@ -121,7 +121,7 @@ void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, UINT seqNu
 
 	if ( overallIndex >= values[seqNum].size( ) )
 	{
-		thrower( "ERROR: overall multidimensional key vector access index out of range!!! This shouldn't happen. The"
+		thrower ( "ERROR: overall multidimensional key vector access index out of range!!! This shouldn't happen. The"
 				 " code should catch this earlier as one of the individual indecies must have been out of range or "
 				 "something got set incorrectly." );
 	}

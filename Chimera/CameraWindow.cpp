@@ -864,11 +864,11 @@ void AndorWindow::checkCameraIdle( )
 {
 	if ( Andor.isRunning( ) )
 	{
-		thrower( "Camera is already running! Please Abort to restart.\r\n" );
+		thrower ( "Camera is already running! Please Abort to restart.\r\n" );
 	}
 	if ( analysisHandler.getLocationSettingStatus( ) )
 	{
-		thrower( "Please finish selecting analysis points before starting the camera!\r\n" );
+		thrower ( "Please finish selecting analysis points before starting the camera!\r\n" );
 	}
 	// make sure it's idle.
 	try
@@ -876,14 +876,14 @@ void AndorWindow::checkCameraIdle( )
 		Andor.queryStatus( );
 		if ( ANDOR_SAFEMODE )
 		{
-			thrower( "DRV_IDLE" );
+			thrower ( "DRV_IDLE" );
 		}
 	}
 	catch ( Error& exception )
 	{
 		if ( exception.whatBare( ) != "DRV_IDLE" )
 		{
-			throw;
+			throwNested ( "Error while querying andor status to check if idle." );
 		}
 	}
 }
@@ -1389,7 +1389,7 @@ std::string AndorWindow::getStartMessage()
 		PlottingInfo tempInfoCheck(PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
 		if (tempInfoCheck.getPicNumber() != CameraSettings.getSettings().andor.picsPerRepetition)
 		{
-			thrower( "ERROR: one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
+			thrower ( "ERROR: one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
 					 " file." );
 		}

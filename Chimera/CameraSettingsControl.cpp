@@ -203,7 +203,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	}
 	else
 	{
-		thrower( "ERROR: unrecognized camera mode: " + inputSettings.cameraMode );
+		thrower ( "ERROR: unrecognized camera mode: " + inputSettings.cameraMode );
 	}
 	*/
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
@@ -223,7 +223,7 @@ void AndorCameraSettingsControl::handleSetTemperaturePress()
 {
 	if (andorFriend->isRunning())
 	{
-		thrower( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
+		thrower ( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
 				 "operation." );
 	}
 	CString text;
@@ -235,7 +235,7 @@ void AndorCameraSettingsControl::handleSetTemperaturePress()
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
+		throwNested("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
 	settings.andor.temperatureSetting = temp;
 	andorFriend->setSettings(settings.andor );
@@ -370,7 +370,7 @@ void AndorCameraSettingsControl::setEmGain()
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower("ERROR: Couldn't convert EM Gain text to integer! Aborting!");
+		throwNested("ERROR: Couldn't convert EM Gain text to integer! Aborting!");
 	}
 	// < 0 corresponds to NOT USING EM GAIN (using conventional gain).
 	if (emGain < 0)
@@ -414,7 +414,7 @@ void AndorCameraSettingsControl::setEmGain()
 		int result = promptBox( promptMsg, MB_YESNO );
 		if ( result == IDNO )
 		{
-			thrower( "Aborting camera settings update at EM Gain update!" );
+			thrower ( "Aborting camera settings update at EM Gain update!" );
 		}
 	}
 	andorSettings.emGainLevel = settings.andor.emGainLevel;
@@ -440,7 +440,7 @@ void AndorCameraSettingsControl::setVariationNumber(UINT varNumber)
 	andorSettings.totalVariations = varNumber;
 	if ( andorSettings.totalVariations * andorSettings.totalPicsInVariation > INT_MAX)
 	{
-		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
 	andorSettings.totalPicsInExperiment = int( andorSettings.totalVariations * andorSettings.totalPicsInVariation);
 }
@@ -453,7 +453,7 @@ void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 	andorSettings.totalPicsInVariation = andorSettings.repetitionsPerVariation * andorSettings.picsPerRepetition;
 	if ( andorSettings.totalVariations * andorSettings.totalPicsInVariation > INT_MAX)
 	{
-		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
 	andorSettings.totalPicsInExperiment = int( andorSettings.totalVariations * andorSettings.totalPicsInVariation);
 }
@@ -471,7 +471,7 @@ void AndorCameraSettingsControl::handleTimer()
 		// in this case you expect it to throw.
 		setTemperature = andorFriend->getAndorSettings().temperatureSetting;
 		andorFriend->getTemperature(currentTemperature);
-		if ( ANDOR_SAFEMODE ) { thrower( "SAFEMODE" ); }
+		if ( ANDOR_SAFEMODE ) { thrower ( "SAFEMODE" ); }
 	}
 	catch (Error& exception)
 	{
@@ -535,7 +535,7 @@ void AndorCameraSettingsControl::updateRunSettingsFromPicSettings( )
 	settings.andor.totalPicsInVariation = settings.andor.picsPerRepetition * settings.andor.repetitionsPerVariation;
 	if ( settings.andor.totalVariations * settings.andor.totalPicsInVariation > INT_MAX )
 	{
-		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
 	settings.andor.totalPicsInExperiment = settings.andor.totalVariations * settings.andor.totalPicsInVariation;
 }
@@ -561,7 +561,7 @@ double AndorCameraSettingsControl::getKineticCycleTime( )
 	{
 		settings.andor.kineticCycleTime = 0.1f;
 		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
-		thrower( "Please enter a valid float for the kinetic cycle time." );
+		throwNested( "Please enter a valid float for the kinetic cycle time." );
 	}
 	return settings.andor.kineticCycleTime;
 }
@@ -580,7 +580,7 @@ double AndorCameraSettingsControl::getAccumulationCycleTime( )
 	{
 		settings.andor.accumulationTime = 0.1f;
 		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
-		thrower( "Please enter a valid float for the accumulation cycle time." );
+		throwNested( "Please enter a valid float for the accumulation cycle time." );
 	}
 	return settings.andor.accumulationTime;
 }
@@ -599,7 +599,7 @@ UINT AndorCameraSettingsControl::getAccumulationNumber( )
 	{
 		settings.andor.accumulationNumber = 1;
 		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
-		thrower( "Please enter a valid float for the Accumulation number." );
+		throwNested( "Please enter a valid float for the Accumulation number." );
 	}
 	return settings.andor.accumulationNumber;
 }
@@ -633,7 +633,7 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	}
 	else
 	{
-		thrower("ERROR: Unrecognized camera mode!");
+		thrower ("ERROR: Unrecognized camera mode!");
 	}
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
@@ -716,7 +716,7 @@ void AndorCameraSettingsControl::updateCameraMode( )
 	}
 	else
 	{
-		thrower ( "ERROR: unrecognized combo for andor run mode text???" );
+		thrower  ( "ERROR: unrecognized combo for andor run mode text???" );
 	}
 }
 
@@ -771,40 +771,40 @@ void AndorCameraSettingsControl::checkIfReady()
 {
 	if ( picSettingsObj.getUsedExposureTimes().size() == 0 )
 	{
-		thrower("Please Set at least one exposure time.");
+		thrower ("Please Set at least one exposure time.");
 	}
 	if ( !imageDimensionsObj.checkReady() )
 	{
-		thrower("Please set the image parameters.");
+		thrower ("Please set the image parameters.");
 	}
 	if ( settings.andor.picsPerRepetition <= 0 )
 	{
-		thrower("ERROR: Please set the number of pictures per repetition to a positive non-zero value.");
+		thrower ("ERROR: Please set the number of pictures per repetition to a positive non-zero value.");
 	}
 	if ( settings.andor.acquisitionMode == AndorRunModes::Kinetic )
 	{
 		if ( settings.andor.kineticCycleTime == 0 && settings.andor.triggerMode == AndorTriggerMode::Internal )
 		{
-			thrower("ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.");
+			thrower ("ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.");
 		}
 		if ( settings.andor.repetitionsPerVariation <= 0 )
 		{
-			thrower("ERROR: Please set the \"Repetitions Per Variation\" variable to a positive non-zero value.");
+			thrower ("ERROR: Please set the \"Repetitions Per Variation\" variable to a positive non-zero value.");
 		}
 		if ( settings.andor.totalVariations <= 0 )
 		{
-			thrower("ERROR: Please set the number of variations to a positive non-zero value.");
+			thrower ("ERROR: Please set the number of variations to a positive non-zero value.");
 		}
 	}
 	if ( settings.andor.acquisitionMode == AndorRunModes::Accumulate )
 	{
 		if ( settings.andor.accumulationNumber <= 0 )
 		{
-			thrower("ERROR: Please set the current Accumulation Number to a positive non-zero value.");
+			thrower ("ERROR: Please set the current Accumulation Number to a positive non-zero value.");
 		}
 		if ( settings.andor.accumulationTime <= 0 )
 		{
-			thrower("ERROR: Please set the current Accumulation Time to a positive non-zero value.");
+			thrower ("ERROR: Please set the current Accumulation Time to a positive non-zero value.");
 		}
 	}
 }
@@ -842,7 +842,7 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& con
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
+		throwNested ( "ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
 				  "to load camera dimensions!" );
 	}
 

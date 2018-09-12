@@ -33,11 +33,11 @@ analysisGroupLocation& PlottingInfo::groupInfo( UINT pixelNumber, UINT pixelSet 
 {
 	if ( pixelNumber > analysisGroups.size( ) )
 	{
-		thrower( "ERROR: pixel number out of range in analysis group access!" );
+		thrower ( "ERROR: pixel number out of range in analysis group access!" );
 	}
 	if ( pixelSet > analysisGroups[pixelNumber].size( ) )
 	{
-		thrower( "ERROR: pixel set out of range in analysis group access!" );
+		thrower ( "ERROR: pixel set out of range in analysis group access!" );
 	}
 	return analysisGroups[pixelNumber][pixelSet];
 }
@@ -46,11 +46,11 @@ analysisGroupLocation  PlottingInfo::groupInfo( UINT pixelNumber, UINT pixelSet 
 {
 	if ( pixelNumber > analysisGroups.size( ) )
 	{
-		thrower( "ERROR: pixel number out of range in analysis group access!" );
+		thrower ( "ERROR: pixel number out of range in analysis group access!" );
 	}
 	if ( pixelSet > analysisGroups[pixelNumber].size( ) )
 	{
-		thrower( "ERROR: pixel set out of range in analysis group access!" );
+		thrower ( "ERROR: pixel set out of range in analysis group access!" );
 	}
 	return analysisGroups[pixelNumber][pixelSet];
 }
@@ -189,7 +189,7 @@ void PlottingInfo::removePixel()
 	// make sure there is a pixel to remove.
 	if (currentPixelNumber < 2)
 	{
-		thrower("ERROR: Something tried to remove the last pixel!");
+		thrower ("ERROR: Something tried to remove the last pixel!");
 	}
 	// change all the data set structures.
 	currentPixelNumber--;
@@ -215,7 +215,7 @@ void PlottingInfo::removeDataSet()
 	// make sure there is a data set to remove.
 	if (dataSets.size() < 2)
 	{
-		thrower("ERROR: Something tried to remove the last data set");
+		thrower ("ERROR: Something tried to remove the last data set");
 	}	
 	dataSets.resize(dataSets.size() - 1);
 }
@@ -235,7 +235,7 @@ void PlottingInfo::removePicture()
 {
 	if (numberOfPictures < 2)
 	{
-		thrower("ERROR: Something tried to remove the last picture!");
+		thrower ("ERROR: Something tried to remove the last picture!");
 	}
 	numberOfPictures--;
 	for (auto& dset : dataSets)
@@ -272,7 +272,7 @@ void PlottingInfo::removeAnalysisSet()
 	{
 		if (analysisGroups[pixelInc].size() < 2)
 		{
-			thrower("ERROR: Something tried to remove the last analysis group!");
+			thrower ("ERROR: Something tried to remove the last analysis group!");
 		}
 		analysisGroups[pixelInc].resize(analysisGroups[pixelInc].size() - 1);
 	}
@@ -335,7 +335,7 @@ void PlottingInfo::setDataCountsLocation( UINT dataSet, UINT pixel, UINT picture
 	}
 	else
 	{
-		thrower("ERROR: tried to set data counts location for data set that hasn't been assigned yet. dataSet = " 
+		thrower ("ERROR: tried to set data counts location for data set that hasn't been assigned yet. dataSet = " 
 				+ str(dataSet));
 	}
 }
@@ -345,7 +345,7 @@ void PlottingInfo::setPlotData( UINT dataSet, bool plotData)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		thrower( "ERROR: tried to set \"Plot this data\" value for data set that hasn't been assigned. dataSet = "
+		thrower ( "ERROR: tried to set \"Plot this data\" value for data set that hasn't been assigned. dataSet = "
 			     + str(dataSet));
 	}
 	dataSets[dataSet].setPlotThisData(plotData);
@@ -356,7 +356,7 @@ void PlottingInfo::setDataSetHistBinWidth( UINT dataSet, UINT width )
 {
 	if ( dataSet >= dataSets.size( ) || dataSet < 0 )
 	{
-		thrower( "ERROR: tried to set Histogram Bin Width value for data set that hasn't been assigned. dataSet = "
+		thrower ( "ERROR: tried to set Histogram Bin Width value for data set that hasn't been assigned. dataSet = "
 				 + str( dataSet ) );
 	}
 	dataSets[dataSet].setHistBinWidth( width );
@@ -367,7 +367,7 @@ UINT PlottingInfo::getDataSetHistBinWidth( UINT dataSet )
 {
 	if ( dataSet >= dataSets.size( ) || dataSet < 0 )
 	{
-		thrower( "ERROR: tried to get histogram bin width value for data set that hasn't been assigned. dataSet = "
+		thrower ( "ERROR: tried to get histogram bin width value for data set that hasn't been assigned. dataSet = "
 				 + str( dataSet ) );
 	}
 	return dataSets[dataSet].getHistBinWidth( );
@@ -377,7 +377,7 @@ bool PlottingInfo::getPlotThisDataValue( UINT dataSet)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		thrower("ERROR: tried to get \"Plot this data\" value for data set that hasn't been assigned. dataSet = "
+		thrower ("ERROR: tried to get \"Plot this data\" value for data set that hasn't been assigned. dataSet = "
 				+ str(dataSet));
 	}
 	return dataSets[dataSet].getPlotThisDataValue();
@@ -394,7 +394,7 @@ void PlottingInfo::changeLegendText( UINT dataSet, std::string newLegend)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		thrower( "ERROR: attempted to set dataset legend for data set that hadn't been allocated. dataset = " 
+		thrower ( "ERROR: attempted to set dataset legend for data set that hadn't been allocated. dataset = " 
 			     + str(dataSet));
 	}
 	dataSets[dataSet].changeLegendText(newLegend);
@@ -405,7 +405,7 @@ std::string PlottingInfo::getLegendText( UINT dataSet)
 {
 	if (dataSet >= dataSets.size())
 	{
-		thrower( "ERROR: attempted to get dataset legend for data set that hadn't been allocated. dataset = " 
+		thrower ( "ERROR: attempted to get dataset legend for data set that hadn't been allocated. dataset = " 
 			     + str(dataSet));
 	}
 	return dataSets[dataSet].getLegendText();
@@ -437,7 +437,7 @@ void PlottingInfo::savePlotInfo()
 	std::fstream saveFile(completeAddress, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		thrower("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + "\\" + fileName + ".plot!");
+		thrower ("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + "\\" + fileName + ".plot!");
 	}
 	std::string message;
 	message += "Version: " + str( versionMajor ) + "." + str( versionMinor ) + "\n";
@@ -535,7 +535,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	std::ifstream loadingFile(fileLocation);
 	if (!loadingFile.is_open())
 	{
-		thrower("ERROR: Couldn't open plot file!");
+		thrower ("ERROR: Couldn't open plot file!");
 	}
 	// this string will hold headers in this file temporarily and check to make sure they are correct.
 	std::string versionStr;
@@ -547,7 +547,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
+		throwNested ( "ERROR: Version string failed to convert to double while opening configuration!" );
 	}
 	int versionMajor = int( version );
 	int versionMinor;
@@ -579,7 +579,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower("ERROR: Couldn't read data set number from file. The data set string was " + testString);
+		throwNested ("ERROR: Couldn't read data set number from file. The data set string was " + testString);
 	}
 	// Condition Number
 	getline(loadingFile, testString);
@@ -590,7 +590,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower("ERROR: Couldn't read post-selection number from file. The post-selection string was " + testString);
+		throwNested ("ERROR: Couldn't read post-selection number from file. The post-selection string was " + testString);
 	}
 	// Pixel Number
 	getline(loadingFile, testString);
@@ -604,7 +604,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower("ERROR: Couldn't read Picture number from file. The picture string was " + testString);
+		throwNested ("ERROR: Couldn't read Picture number from file. The picture string was " + testString);
 	}
 	try
 	{
@@ -613,7 +613,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
+		throwNested ("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
 	}
 	/// Analys pixels
 	ProfileSystem::checkDelimiterLine( loadingFile, "POSITIVE_RESULT_BEGIN" );
@@ -641,12 +641,12 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 				}
 				catch ( boost::bad_lexical_cast&)
 				{
-					thrower("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" 
+					throwNested ("ERROR: truth condition failed to evaluate to an integer. The truth condition string was"
 							+ testString);
 				}
 				if (tempTruthCondition != -1 && tempTruthCondition != 0 && tempTruthCondition != 1)
 				{
-					thrower("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was" 
+					thrower ("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was" 
 									+ str(tempTruthCondition));
 				}
 				setResultCondition(dataSetCount, pixelCount, pictureCount, tempTruthCondition);
@@ -655,21 +655,21 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			}
 			if (pixelCount != currentPixelNumber)
 			{
-				thrower("ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
+				thrower ("ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
 						" reported earlier in the file.");
 			}
 			pictureCount++;
 		}
 		if (pictureCount != numberOfPictures)
 		{
-			thrower("ERROR: number of pictures the truth condition was set for doesn't match the number of"
+			thrower ("ERROR: number of pictures the truth condition was set for doesn't match the number of"
 					   " pictures reported earlier in the file.");
 		}
 		dataSetCount++;
 	}
 	if (dataSetCount != dataSets.size())
 	{
-		thrower( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
+		thrower ( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
 			     "reported earlier in the file.");
 	}
 
@@ -703,11 +703,11 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 					}
 					catch ( boost::bad_lexical_cast&)
 					{
-						thrower("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString);
+						throwNested ("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString);
 					}
 					if (tempPostSelectionCondition != -1 && tempPostSelectionCondition != 0 && tempPostSelectionCondition != 1)
 					{
-						thrower("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
+						thrower ("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
 								+ str(tempPostSelectionCondition));
 					}
 					setPostSelCondition(dataSetCount, conditionCount, pixelCount, pictureCount, tempPostSelectionCondition);
@@ -715,28 +715,28 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 				}
 				if (pixelCount != currentPixelNumber)
 				{
-					thrower( "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
+					thrower ( "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
 						     " reported earlier in the file.");
 				}
 				pictureCount++;
 			}
 			if (pictureCount != numberOfPictures)
 			{
-				thrower( "ERROR: number of pictures the truth condition was set for doesn't match the number of pictures"
+				thrower ( "ERROR: number of pictures the truth condition was set for doesn't match the number of pictures"
 					     " reported earlier in the file.");
 			}
 			dataSetCount++;
 		}
 		if (dataSetCount != dataSets.size())
 		{
-			thrower( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
+			thrower ( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
 				     "reported earlier in the file.");
 		}
 		conditionCount++;
 	}
 	if (conditionCount != currentConditionNumber)
 	{
-		thrower( "ERROR: number of post selection conditions that were set doesn't match the number of conditions "
+		thrower ( "ERROR: number of post selection conditions that were set doesn't match the number of conditions "
 			     "reported earlier in the file.");
 	}
 	
@@ -756,7 +756,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	if (dataSetCount != dataSets.size())
 	{
-		thrower("ERROR: the number of data sets that legends were read for doesn't match the number of data sets "
+		thrower ("ERROR: the number of data sets that legends were read for doesn't match the number of data sets "
 			   "reported earlier in the file.");
 	}
 	// get counts locations
@@ -778,7 +778,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower("ERROR: pixel listed in file did not convert to integer correctly. pixel string was" + pixelStr);
+			throwNested ("ERROR: pixel listed in file did not convert to integer correctly. pixel string was" + pixelStr);
 		}
 		try
 		{
@@ -786,7 +786,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr);
+			throwNested ("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr);
 		}
 		setDataCountsLocation(dataSetCount, pixel, picture);
 		dataSetCount++;
@@ -796,7 +796,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	{
 		if (dataSetCount != dataSets.size())
 		{
-			thrower("ERROR: the number of data sets that counts locations were read for doesn't match the number of "
+			thrower ("ERROR: the number of data sets that counts locations were read for doesn't match the number of "
 				   "data sets reported earlier in the file.");
 		}
 	}
@@ -804,7 +804,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	{
 		if (dataSetCount > 0)
 		{
-			thrower("ERROR: There were counts plotting locations listed in the file despite the plot type not being"
+			thrower ("ERROR: There were counts plotting locations listed in the file despite the plot type not being"
 					" pixel count histograms or pixel counts.");
 		}
 	}
@@ -829,7 +829,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower("ERROR: fit option listed in file did not convert to integer correctly. fit option string was" + fitOptionStr);
+			throwNested ("ERROR: fit option listed in file did not convert to integer correctly. fit option string was" + fitOptionStr);
 		}
 		tempStream >> whenToFitStr;
 		try
@@ -838,7 +838,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower("ERROR: When to Fit option listed in file did not convert to integer correctly. when to fit string "
+			throwNested ("ERROR: When to Fit option listed in file did not convert to integer correctly. when to fit string "
 				   "was" + whenToFitStr);
 		}
 		dataSets[dataSetCount].setFitType(fitOption);
@@ -847,7 +847,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	if (dataSetCount > dataSets.size())
 	{
-		thrower("ERROR: more fit options than data sets!");
+		thrower ("ERROR: more fit options than data sets!");
 	}
 
 	ProfileSystem::checkDelimiterLine( loadingFile, "HIST_OPTIONS_BEGIN" );
@@ -861,11 +861,11 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: expected number of data sets in plot file while loading hist options, instead found: " + tmpStr );
+		throwNested ( "ERROR: expected number of data sets in plot file while loading hist options, instead found: " + tmpStr );
 	}
 	if ( dsetNum != dataSets.size( ) )
 	{
-		thrower( "ERROR: data set number in file while opening hist settings doesn't match number from earlier in file." );
+		thrower ( "ERROR: data set number in file while opening hist settings doesn't match number from earlier in file." );
 	}
 	for ( auto& dset : dataSets )
 	{
@@ -877,7 +877,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: failed to convert histogram bin width to an unsigned int! string was: " + tmpStr );
+			throwNested ( "ERROR: failed to convert histogram bin width to an unsigned int! string was: " + tmpStr );
 		}
 		dset.setHistBinWidth( width );
 	}
@@ -982,7 +982,7 @@ UINT PlottingInfo::getPixelGroupNumber()
 {
 	if (analysisGroups.size() == 0)
 	{
-		thrower( "ERROR: tried to get group number when no data sets!" );
+		thrower ( "ERROR: tried to get group number when no data sets!" );
 	}
 	return analysisGroups[0].size();
 }
@@ -1063,7 +1063,7 @@ void PlottingInfo::setGroups(std::vector<coordinate> locations)
 {
 	if (locations.size() % currentPixelNumber != 0)
 	{
-		thrower( "ERROR: One of your real-time plots was expecting a multiple of " + str(currentPixelNumber) + " pixels to analyze, but you "
+		thrower ( "ERROR: One of your real-time plots was expecting a multiple of " + str(currentPixelNumber) + " pixels to analyze, but you "
 			     "selected " + str(locations.size()) + " pixels.");
 	}
 	UINT locationInc = 0;

@@ -122,7 +122,7 @@ UINT DataAnalysisControl::getPlotTime( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: plot time failed to convert to an unsigned integer!" );
+		throwNested ( "ERROR: plot time failed to convert to an unsigned integer!" );
 	}
 }
 
@@ -131,7 +131,7 @@ void DataAnalysisControl::handleDeleteGrid( )
 {
 	if ( grids.size() == 1 )
 	{
-		thrower( "ERROR: You are not allowed to delete the last grid for data analysis!" );
+		thrower ( "ERROR: You are not allowed to delete the last grid for data analysis!" );
 	}
 	grids.erase( grids.begin( ) + selectedGrid );
 	gridSelector.ResetContent( );
@@ -158,7 +158,7 @@ ULONG DataAnalysisControl::getPlotFreq( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: Failed to convert plotting update frequency to an integer! text was: " + str( txt ) );
+		throwNested ( "ERROR: Failed to convert plotting update frequency to an integer! text was: " + str( txt ) );
 	}
 	return updateFrequency;
 }
@@ -757,7 +757,7 @@ atomGrid DataAnalysisControl::getAtomGrid( UINT which )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: Grid parameters failed to convert to longs!" );
+		throwNested ( "ERROR: Grid parameters failed to convert to longs!" );
 	}
 	return grids[which];
 }
@@ -837,7 +837,7 @@ void DataAnalysisControl::handleAtomGridCombo( )
 	}
 	else if (sel > grids.size())
 	{
-		thrower( "ERROR: Bad value for atom grid combobox selection???  (A low level bug, this shouldn't happen)" );
+		thrower ( "ERROR: Bad value for atom grid combobox selection???  (A low level bug, this shouldn't happen)" );
 	}
 	gridSelector.SetCurSel( sel );
 	// load the grid parameters for that selection.
@@ -885,7 +885,7 @@ void DataAnalysisControl::saveGridParams( )
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower( "ERROR: failed to convert grid parameters to longs while saving grid data!" );
+		throwNested ( "ERROR: failed to convert grid parameters to longs while saving grid data!" );
 	}
 }
 
@@ -1094,11 +1094,11 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			}
 			catch ( boost::bad_lexical_cast&)
 			{
-				thrower( "ERROR: bad value for grid #! Expecting a positive integer." );
+				throwNested ( "ERROR: bad value for grid #! Expecting a positive integer." );
 			}
 			if ( gridNum >= grids.size( ) )
 			{
-				thrower( "ERROR: Grid number picked is larger than the number of grids available!" );
+				thrower ( "ERROR: Grid number picked is larger than the number of grids available!" );
 			}
 			allTinyPlots[itemIndicator].whichGrid = gridNum;
 			plotListview.SetItem( str ( gridNum ), itemIndicator, subitemIndicator );

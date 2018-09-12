@@ -437,7 +437,7 @@ void MachineOptimizer::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+				throwNested ( "ERROR: Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->lowerLim ), itemIndicator, subitem );
 			break;
@@ -455,7 +455,7 @@ void MachineOptimizer::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+				throwNested ( "ERROR: Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->upperLim ), itemIndicator, subitem );
 			break;
@@ -478,7 +478,7 @@ void MachineOptimizer::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+				throwNested ( "ERROR: Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->increment ), itemIndicator, subitem );
 			break;
@@ -548,7 +548,7 @@ UINT MachineOptimizer::getMaxRoundNum ( )
 	}
 	catch (boost::bad_lexical_cast& )
 	{
-		thrower ( "ERROR: failed to convert max optimization count to an unsigned integer!" );
+		throwNested ( "ERROR: failed to convert max optimization count to an unsigned integer!" );
 	}
 	return res;		
 }

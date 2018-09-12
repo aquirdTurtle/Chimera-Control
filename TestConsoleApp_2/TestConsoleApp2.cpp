@@ -12,7 +12,8 @@ int main ( )
 		try	{
 			std::string s = "Hello, world!";
 			try {
-				int i = std::stoi ( s );
+				thrower ( "Test?" );
+				//int i = std::stoi ( s );
 			}
 			catch ( ... ) {
 				thrower ( "Failed to convert string \"" + s + "\" to an integer!" );

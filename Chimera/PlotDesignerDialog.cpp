@@ -637,7 +637,7 @@ void PlotDesignerDialog::saveDataSet( bool clear )
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: Failed to convert histogram bin width to an unsigned integer! width text was: " + str( txt ) );
+			throwNested( "ERROR: Failed to convert histogram bin width to an unsigned integer! width text was: " + str( txt ) );
 		}
 		currentPlotInfo.setDataSetHistBinWidth( currentDataSet, width );
 		// fit options
