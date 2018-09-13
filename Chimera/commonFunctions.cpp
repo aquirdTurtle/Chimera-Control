@@ -1043,7 +1043,7 @@ namespace commonFunctions
 			mainWin->setNiawgDefaults();
 			mainWin->restartNiawgDefaults();
 		}
-		catch (Error& exception)
+		catch (Error&)
 		{
 			mainWin->restartNiawgDefaults();
 			throwNested( "failed to reload the niawg default waveforms!" );

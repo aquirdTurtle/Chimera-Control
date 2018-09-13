@@ -141,6 +141,12 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem*
 		{
 			throwNested("failed to convert dac value to voltage. string was " + dacString);
 		}
+		catch ( Error& err )
+		{
+			errBox ( "ERROR: Failed to set dac value to value in config file! Will attempt to set to zero instead. \n\n"
+					 + err.trace ( ) );
+			prepareDacForceChange ( dacInc, 0, ttls );
+		}
 		dacInc++;
 	}
 	ProfileSystem::checkDelimiterLine(openFile, "END_DACS");
@@ -864,7 +870,8 @@ void AoSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
 	dacValues[line] = voltage;
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the aoSys for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
-	setForceDacEvent( line, voltage, ttls, 0, 0 );
+
+	setForceDacEvent ( line, voltage, ttls, 0, 0 );
 }
 
 

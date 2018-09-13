@@ -508,7 +508,7 @@ int BaslerWrapper::getMaxHeight()
 	{
 		return OffsetY.GetMin();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException& )
 	{
 		throwNested( "Failed to get maximum height" );
 	}
@@ -528,7 +528,7 @@ int BaslerWrapper::getMinGain()
 			return GainRaw.GetMin();
 		#endif
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException& )
 	{
 		throwNested( "Failed to get Minimum gain" );
 	}
@@ -543,7 +543,7 @@ void BaslerWrapper::setOffsetX( int offset )
 		{
 			OffsetX.SetValue( offset );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException& )
 		{
 			throwNested( "Failed to set x offset" );
 		}
@@ -559,7 +559,7 @@ void BaslerWrapper::setOffsetY( int offset )
 		{
 			OffsetY.SetValue(offset);
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested("Failed to Set Y Offset");
 		}

@@ -110,7 +110,7 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 			intensityAgilent.setAgilent();
 			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getName() + ".\r\n" );
 		}
-		catch (Error& err)
+		catch (Error&)
 		{
 			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName() + "\r\n" );
 		}
@@ -578,49 +578,56 @@ void ScriptingWindow::openIntensityScript(std::string name)
 
 void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
-	ProfileSystem::checkDelimiterLine(configFile, "SCRIPTS");
-	configFile.get();
-	std::string niawgName, masterName;
-	if ( ver.versionMajor < 3 )
+	try
 	{
-		std::string extraNiawgName;
-		getline( configFile, extraNiawgName );
-	}
-	getline(configFile, niawgName );
-	getline(configFile, masterName);
-	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
+		ProfileSystem::checkDelimiterLine ( configFile, "SCRIPTS" );
+		configFile.get ( );
+		std::string niawgName, masterName;
+		if ( ver.versionMajor < 3 )
+		{
+			std::string extraNiawgName;
+			getline ( configFile, extraNiawgName );
+		}
+		getline ( configFile, niawgName );
+		getline ( configFile, masterName );
+		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
 
-	intensityAgilent.readConfigurationFile(configFile, ver );
-	intensityAgilent.updateSettingsDisplay(1, mainWin->getProfileSettings().categoryPath, 
-											mainWin->getRunInfo());
-	try
-	{
-		openNiawgScript(niawgName);
-	}
-	catch ( Error& err )
-	{
-		int answer = promptBox( "ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
-								+ err.trace( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
-		if ( answer == IDYES )
+		intensityAgilent.readConfigurationFile ( configFile, ver );
+		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+												 mainWin->getRunInfo ( ) );
+		try
 		{
-			openNiawgScript( openWithExplorer( NULL, "nScript" ) );
+			openNiawgScript ( niawgName );
 		}
-	}
-	try
-	{
-		openMasterScript(masterName);
-	}
-	catch ( Error& err )
-	{
-		int answer = promptBox( "ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
-								+ err.trace( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
-		if ( answer == IDYES )
+		catch ( Error& err )
 		{
-			openMasterScript( openWithExplorer( NULL, "mScript" ) );
+			int answer = promptBox ( "ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
+									 + err.trace ( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+			if ( answer == IDYES )
+			{
+				openNiawgScript ( openWithExplorer ( NULL, "nScript" ) );
+			}
 		}
+		try
+		{
+			openMasterScript ( masterName );
+		}
+		catch ( Error& err )
+		{
+			int answer = promptBox ( "ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
+									 + err.trace ( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+			if ( answer == IDYES )
+			{
+				openMasterScript ( openWithExplorer ( NULL, "mScript" ) );
+			}
+		}
+		considerScriptLocations ( );
+		recolorScripts ( );
 	}
-	considerScriptLocations();
-	recolorScripts();
+	catch ( Error& )
+	{
+		throwNested ( "Scripting Window failed to read parameters from the configuration file." );
+	}
 }
 
 
