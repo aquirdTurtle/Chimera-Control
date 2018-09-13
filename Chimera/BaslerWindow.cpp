@@ -39,9 +39,9 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	
 	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
 	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
-
+	 
 	ON_COMMAND( IDCANCEL, &BaslerWindow::handleClose )
-
+	 
 	ON_WM_RBUTTONUP()	
 END_MESSAGE_MAP()
 
@@ -158,6 +158,7 @@ void BaslerWindow::setCameraForMotTempMeasurement ( )
 }
 
 
+// I think I can get rid of this...
 void BaslerWindow::DoDataExchange( CDataExchange* pDX )
 {
 	CDialog::DoDataExchange( pDX );
@@ -166,17 +167,14 @@ void BaslerWindow::DoDataExchange( CDataExchange* pDX )
 
 void BaslerWindow::handleClose( )
 {
-	auto res = promptBox("Close the Camera Application?", MB_OKCANCEL );
-	if ( res == IDOK )
+	try
 	{
-		CDialog::OnCancel( );
+		passCommonCommand ( ID_FILE_MY_EXIT );
 	}
-}
-
-
-void BaslerWindow::passSetLocationsButton()
-{
-	//picture.handleButtonClick();
+	catch ( Error& err )
+	{
+		errBox ( "Failed to close?!?!?\n" + err.trace() );
+	}
 }
 
 

@@ -53,6 +53,7 @@ FEATURES:
 - improve feedback of servo display / control during servoing.
 - be able to query current connection status like what shows up in the beginning
 - scale oscilloscope plot correctly, getting actual values from scope...
+- alternate light color scheme.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -63,12 +64,12 @@ Refactoring / Other:
 - Andor system should use Matrix class for pictures, like basler.
 - all mutexes should use lock_guard or similar for consistency
 - refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
-- refactor dacs to have all info about a dac organized into a dac object (name, minmax, default val, notes, etc.)
 - refactor diosystem to use dioRows for row names (A, B, C, D)
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
 - refactor rerngmove complexmove and simplemove which are confusing...
+- refactor the config saving issues.  
 
 Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
@@ -88,7 +89,6 @@ BUGS:
 - if taking pictures too fast code freezes
 - something funny about going back and forth between video and kinetic modes and the size of controls?
 - if in video before switching configs, switching configs fails.
-- start and abort while starting breaks...
 - plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - calc times not getting outputted
