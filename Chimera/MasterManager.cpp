@@ -1186,7 +1186,7 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		{
 			aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
 		}
-		catch ( Error& err )
+		catch ( Error&  )
 		{
 			throwNested( "Error handling \"dac:\" command." );
 		}
@@ -1209,7 +1209,7 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		{
 			aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
 		}
-		catch ( Error& err )
+		catch ( Error& )
 		{
 			throwNested(  "Error handling \"dacLinSpace:\" command." );
 		}
@@ -1231,7 +1231,7 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		{
 			aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
 		}
-		catch ( Error& err )
+		catch ( Error& )
 		{
 			throwNested("Error handling \"dacArange:\" command." );
 		}
@@ -1340,7 +1340,7 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	{
 		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum, warnings );
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested( "Error handling Function call to function " + functionName + "." );
 	}
