@@ -4,6 +4,7 @@
 #include "myButton.h"
 #include "RunInfo.h"
 #include "VariableStructures.h"
+#include "AoStructures.h"
 #include "Combo.h"
 #include "functionCombo.h"
 #include <string>
@@ -29,19 +30,19 @@ class Script
 		void functionChangeHandler( std::string categoryPath );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void colorEntireScript( std::vector<parameterType> vars, rgbMap rgbs,
-								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
+								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
 		void colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, rgbMap rgbs,
 								 std::array<std::array<std::string, 16>, 4> ttlNames,
-								 std::array<std::string, 24> dacNames);
+								 std::array<AoInfo, 24> dacNames);
 		COLORREF getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables,
 								 rgbMap rgbs, bool& colorLine,
 								 std::array<std::array<std::string, 16>, 4> ttlNames,
-								 std::array<std::string, 24> dacNames );
+								 std::array<AoInfo, 24> dacInfo );
 
 		INT_PTR colorControl( LPARAM lParam, WPARAM wParam );
 		void handleEditChange();
 		void handleTimerCall( std::vector<parameterType> vars, rgbMap rgbs,
-							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
+							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
 		void changeView( std::string viewName, bool isFunction, std::string categoryPath );
 		void saveScript( std::string location, RunInfo info );
 		void saveScriptAs( std::string location, RunInfo info );

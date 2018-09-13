@@ -137,7 +137,7 @@ std::string Script::getScriptText()
 
 COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
 								 rgbMap rgbs, bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<std::string, 24> dacNames)
+								 std::array<AoInfo, 24> dacInfo )
 {
 	// convert word to lower case.
 	std::transform( word.begin(), word.end(), word.begin(), ::tolower );
@@ -264,9 +264,9 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				}
 			}
 		}
-		for (UINT dacInc = 0; dacInc < dacNames.size(); dacInc++)
+		for (UINT dacInc = 0; dacInc < dacInfo.size(); dacInc++)
 		{
-			if (word == dacNames[dacInc])
+			if (word == dacInfo[dacInc].name)
 			{
 				return rgbs["Solarized Orange"];
 			}
@@ -330,7 +330,7 @@ bool Script::coloringIsNeeded()
 
 
 void Script::handleTimerCall(std::vector<parameterType> vars, rgbMap rgbs, 
-							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames )
+							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
 	{
@@ -350,7 +350,7 @@ void Script::handleTimerCall(std::vector<parameterType> vars, rgbMap rgbs,
 		edit.GetSel(charRange);
 		initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
-		colorScriptSection(editChangeBegin, editChangeEnd, vars, rgbs, ttlNames, dacNames);
+		colorScriptSection(editChangeBegin, editChangeEnd, vars, rgbs, ttlNames, dacInfo );
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
@@ -384,15 +384,15 @@ void Script::handleEditChange()
 
 
 void Script::colorEntireScript(std::vector<parameterType> vars, rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
-							   std::array<std::string, 24> dacNames )
+							   std::array<AoInfo, 24> dacInfo )
 {
-	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacNames);
+	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacInfo);
 }
 
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
 								 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<std::string, 24> dacNames)
+								 std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
 	{
@@ -457,7 +457,7 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			{
 				// get all the variables
 				// get 
-				syntaxColor = getSyntaxColor(word, deviceType, vars, rgbs, colorLine, ttlNames, dacNames);
+				syntaxColor = getSyntaxColor(word, deviceType, vars, rgbs, colorLine, ttlNames, dacInfo );
 				if (syntaxColor != coloring)
 				{
 					coloring = syntaxColor;
@@ -485,7 +485,7 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			word = line.substr(prev, std::string::npos);
 			end = lineStartCoordingate + line.length();
 			// get all the variables together
-			syntaxColor = getSyntaxColor( word, deviceType, vars, rgbs, colorLine, ttlNames, dacNames);
+			syntaxColor = getSyntaxColor( word, deviceType, vars, rgbs, colorLine, ttlNames, dacInfo );
 			if (!colorLine)
 			{
 				coloring = syntaxColor;

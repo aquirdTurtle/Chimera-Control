@@ -300,7 +300,7 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 		agilents[name].agilentScript.newScript( );
 		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
 		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), mainWin->getRgbs( ),
-														  getTtlNames( ), getDacNames( ) );
+														  getTtlNames( ), getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{
@@ -416,7 +416,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		for ( auto& agilent : agilents )
 		{
 			agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWin->getRgbs( ),
-												   getTtlNames( ), getDacNames( ) );
+												   getTtlNames( ), getDacInfo ( ) );
 		}
 	}
 }
@@ -613,9 +613,9 @@ std::array<std::array<std::string, 16>, 4> AuxiliaryWindow::getTtlNames()
 }
 
 
-std::array<std::string, 24> AuxiliaryWindow::getDacNames()
+std::array<AoInfo, 24> AuxiliaryWindow::getDacInfo()
 {
-	return aoSys.getAllNames();
+	return aoSys.getDacInfo();
 }
 
 

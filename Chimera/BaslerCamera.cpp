@@ -574,7 +574,7 @@ void BaslerWrapper::setWidth( int width )
 		{
 			Width.SetValue( width );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set width" );
 		}
@@ -622,7 +622,7 @@ void BaslerWrapper::setVertBin( int binning )
 		{			
 			BinningVertical.SetValue( binning );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set vertical binning." );
 		}
@@ -654,7 +654,7 @@ bool BaslerWrapper::isGrabbing()
 	{
 		return IsGrabbing();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to query if grabbing." );
 	}

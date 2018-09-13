@@ -63,7 +63,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 	{
 		masterScript.functionChangeHandler(mainWin->getProfileSettings().categoryPath);
 		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacNames( ) );
+										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 		masterScript.updateSavedStatus( true );
 	}
 	catch ( Error& err )
@@ -152,12 +152,7 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	masterScript.rearrange(cx, cy, mainWin->getFonts());
 	statusBox.rearrange( cx, cy, mainWin->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWin->getFonts());
-	niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-								   auxWin->getTtlNames(), auxWin->getDacNames() );	
-	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-											 auxWin->getTtlNames(), auxWin->getDacNames());
-	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+	recolorScripts ( );
 	SetRedraw( true );
 	RedrawWindow();
 }
@@ -259,11 +254,11 @@ void ScriptingWindow::fillMasterThreadInput( MasterThreadInput* input )
 void ScriptingWindow::OnTimer(UINT_PTR eventID)
 {
 	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-													auxWin->getTtlNames(), auxWin->getDacNames());
+													auxWin->getTtlNames(), auxWin->getDacInfo ());
 	niawgScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacNames());
+								 auxWin->getTtlNames(), auxWin->getDacInfo());
 	masterScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacNames());
+								 auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -404,7 +399,7 @@ void ScriptingWindow::newIntensityScript()
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( mainWin->getProfileSettings().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(),
-														  auxWin->getTtlNames(), auxWin->getDacNames() );
+														  auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
@@ -425,7 +420,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), 
 														  mainWin->getRgbs(), auxWin->getTtlNames(), 
-														  auxWin->getDacNames());
+														  auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
@@ -492,7 +487,7 @@ void ScriptingWindow::newNiawgScript()
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
 		niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-									   auxWin->getTtlNames(), auxWin->getDacNames() );
+									   auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
@@ -511,7 +506,7 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
 		niawgScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-			auxWin->getTtlNames(), auxWin->getDacNames());
+			auxWin->getTtlNames(), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
@@ -562,11 +557,11 @@ void ScriptingWindow::updateScriptNamesOnScreen()
 void ScriptingWindow::recolorScripts()
 {
 	niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+								   auxWin->getTtlNames(), auxWin->getDacInfo ());
 	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-													  auxWin->getTtlNames(), auxWin->getDacNames());
+													  auxWin->getTtlNames(), auxWin->getDacInfo ());
 	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+								   auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -638,7 +633,7 @@ void ScriptingWindow::newMasterScript()
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
 	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+								   auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 void ScriptingWindow::openMasterScript(CWnd* parent)
@@ -651,7 +646,7 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 		updateConfigurationSavedStatus( false );
 		masterScript.updateScriptNameText( getProfile( ).categoryPath );
 		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacNames( ) );
+										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{

@@ -163,7 +163,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			Sleep( 20 );
+			Sleep( 200 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
