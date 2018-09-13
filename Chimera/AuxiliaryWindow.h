@@ -111,7 +111,6 @@ class AuxiliaryWindow : public CDialog
 
 		void loadMotSettings(MasterThreadInput* input);
 		void loadTempSettings ( MasterThreadInput* input );
-		void loadPgcTempSettings ( MasterThreadInput* input );
 
 		void handleTektronicsButtons(UINT id);
 
