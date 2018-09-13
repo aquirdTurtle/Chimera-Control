@@ -340,7 +340,24 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	if (experimentPictureNumber == 0)
 	{
-		WaitForSingleObject(imagesMutex, INFINITE);
+		while ( true )
+		{
+			auto res = WaitForSingleObject ( imagesMutex, 10e3 );
+			if ( res == WAIT_TIMEOUT )
+			{
+				auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
+									   MB_YESNO );
+				if ( ans == IDNO )
+				{
+					// This might indicate something about the code is gonna crash...
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 		imagesOfExperiment.clear();
 		if (runSettings.showPicsInRealTime)
 		{
@@ -354,7 +371,24 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	std::vector<long> tempImage;
 	tempImage.resize( runSettings.imageSettings.size());
-	WaitForSingleObject(imagesMutex, INFINITE);
+	while ( true )
+	{
+		auto res = WaitForSingleObject ( imagesMutex, 10e3 );
+		if ( res == WAIT_TIMEOUT )
+		{
+			auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
+								   MB_YESNO );
+			if ( ans == IDNO )
+			{
+				// This might indicate something about the code is gonna crash...
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
 	
 	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
  	if (!safemode)
@@ -406,7 +440,24 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				}
 			}
 		}
-		WaitForSingleObject(imagesMutex, INFINITE);
+		while ( true )
+		{
+			auto res = WaitForSingleObject ( imagesMutex, 10e3 );
+			if ( res == WAIT_TIMEOUT )
+			{
+				auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
+									   MB_YESNO );
+				if ( ans == IDNO )
+				{
+					// This might indicate something about the code is gonna crash...
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width())
