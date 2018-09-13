@@ -314,7 +314,24 @@ void AndorWindow::abortCameraRun()
 		plotThreadActive = false;
 		atomCrunchThreadActive = false;
 		// Wait until plotting thread is complete.
-		WaitForSingleObject( plotThreadHandle, INFINITE );
+		while ( true )
+		{
+			auto res = WaitForSingleObject ( plotThreadHandle, 2e3 );
+			if ( res == WAIT_TIMEOUT )
+			{
+				auto ans = promptBox ( "The real time plotting thread is taking a while to close. Continue waiting?",
+									   MB_YESNO );
+				if ( ans == IDNO )
+				{
+					// This might indicate something about the code is gonna crash...
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 		plotThreadAborting = false;
 		// camera is no longer running.
 		try
