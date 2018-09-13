@@ -762,11 +762,18 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 
 void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
-	notes.handleOpenConfig( configFile, ver );
-	settings.handleOpenConfig( configFile, ver );
-	debugger.handleOpenConfig( configFile, ver );
-	repetitionControl.handleOpenConfig(configFile, ver );
-	rearrangeControl.handleOpenConfig( configFile, ver );
+	try
+	{
+		notes.handleOpenConfig ( configFile, ver );
+		settings.handleOpenConfig ( configFile, ver );
+		debugger.handleOpenConfig ( configFile, ver );
+		repetitionControl.handleOpenConfig ( configFile, ver );
+		rearrangeControl.handleOpenConfig ( configFile, ver );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Main Window failed to read parameters from the configuration file." );
+	}
 }
 
 

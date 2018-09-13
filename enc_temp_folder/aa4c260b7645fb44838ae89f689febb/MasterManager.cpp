@@ -478,7 +478,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			comm->sendColorBox( System::Master, 'R' );
 			comm->sendStatus( "Bad Exit!\r\n" );
 			auto txt = "Exited main experiment thread abnormally." + exception.trace ( );
-			//comm->sendError( txt );
+			comm->sendError( txt );
 			comm->sendFatalError( txt );
 		}	
 	}

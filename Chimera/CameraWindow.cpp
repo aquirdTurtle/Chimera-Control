@@ -205,28 +205,35 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void AndorWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
+void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
+	try
+	{
 	// I could and perhaps should further subdivide this up.
-	CameraSettings.handleOpenConfig(configFile, ver );
-	pics.handleOpenConfig(configFile, ver );
-	analysisHandler.handleOpenConfig( configFile, ver );
-	if ( CameraSettings.getSettings( ).andor.picsPerRepetition == 1 )
-	{
-		pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
-	}
-	else
-	{
-		pics.setMultiplePictures( this, CameraSettings.getSettings().andor.imageSettings, 
-								  CameraSettings.getSettings( ).andor.picsPerRepetition );
-	}
-	pics.resetPictureStorage( );
-	std::array<int, 4> nums = CameraSettings.getSettings( ).palleteNumbers;
-	pics.setPalletes( nums );
+		CameraSettings.handleOpenConfig ( configFile, ver );
+		pics.handleOpenConfig ( configFile, ver );
+		analysisHandler.handleOpenConfig ( configFile, ver );
+		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
+		{
+			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
+		}
+		else
+		{
+			pics.setMultiplePictures ( this, CameraSettings.getSettings ( ).andor.imageSettings,
+									   CameraSettings.getSettings ( ).andor.picsPerRepetition );
+		}
+		pics.resetPictureStorage ( );
+		std::array<int, 4> nums = CameraSettings.getSettings ( ).palleteNumbers;
+		pics.setPalletes ( nums );
 
-	CRect rect;
-	GetWindowRect( &rect );
-	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
+		CRect rect;
+		GetWindowRect ( &rect );
+		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Andor Camera Window failed to read parameters from the configuration file." );
+	}
 }
 
 
