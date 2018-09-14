@@ -106,13 +106,6 @@ std::array<AoInfo, 24> AoSystem::getDacInfo( )
 }
 
 
-/*
-std::array<double, 24> AoSystem::getDacStatus()
-{
-	return dacValues;
-}
-*/
-
 void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
 {
 	ttls->resetTtlEvents( );
@@ -132,29 +125,14 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
 void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
-	prepareForce( );
-	std::vector<double> values(getNumberOfDacs());
 	UINT dacInc = 0;
-	for (auto& dac : values)
+	if ( ver < Version ( "3.7" ) )
 	{
-		std::string dacString;
-		openFile >> dacString;
-		try
+		for ( auto i : range ( 24 ) )
 		{
-			double dacValue = boost::lexical_cast<double>(dacString);
-			prepareDacForceChange(dacInc, dacValue, ttls);
+			std::string trash;
+			openFile >> trash;
 		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			throwNested("failed to convert dac value to voltage. string was " + dacString);
-		}
-		catch ( Error& err )
-		{
-			errBox ( "ERROR: Failed to set dac value to value in config file! Will attempt to set to zero instead. \n\n"
-					 + err.trace ( ) );
-			prepareDacForceChange ( dacInc, 0, ttls );
-		}
-		dacInc++;
 	}
 	ProfileSystem::checkDelimiterLine(openFile, "END_DACS");
 }
@@ -163,10 +141,7 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem*
 void AoSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "DACS\n";
-	for ( UINT dacInc = 0; dacInc < getNumberOfDacs( ); dacInc++ )
-	{
-		newFile << 0 << " ";
-	}
+	// nothing at the moment.
 	newFile << "\nEND_DACS\n";
 }
 
@@ -174,10 +149,7 @@ void AoSystem::handleNewConfig( std::ofstream& newFile )
 void AoSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "DACS\n";
-	for (UINT dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
-	{
-		saveFile << getDacValue(dacInc) << " ";
-	}
+	// nothing at the moment.
 	saveFile << "\nEND_DACS\n";
 }
 

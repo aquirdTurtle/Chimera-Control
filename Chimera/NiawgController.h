@@ -136,7 +136,7 @@ class NiawgController
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
-		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault, 
+		void writeStandardWave( simpleWave& wave, debugInfo& options, bool isDefault, 
 								niawgLibOption::mode libOption = niawgLibOption::defaultMode);
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
 		void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
@@ -146,7 +146,7 @@ class NiawgController
 								  double time, niawgWavePower::mode powerMode = niawgWavePower::defaultMode );
 
 		void handleMinus1Phase( simpleWave& waveCore, simpleWave& prevWave );
-		void createFlashingWave( waveInfo& wave, debugInfo options );
+		void createFlashingWave( waveInfo& wave, debugInfo& options );
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void openWaveformFiles( );
 		bool isLogic( std::string command );

@@ -63,6 +63,7 @@ class MainWindow : public CDialog
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
 		LRESULT onNoMotAlertMessage ( WPARAM wp, LPARAM lp );
 		LRESULT onFinish ( WPARAM wp, LPARAM lp );
+
 		void onNormalFinishMessage ( );
 		void onMotNumCalFin ( );
 		void onMotTempCalFin ( );
@@ -161,9 +162,9 @@ class MainWindow : public CDialog
 			BaslerFinMessageID			= ( WM_APP + 18 ),
 			GeneralFinMsgID				= ( WM_APP + 19 ),
 			NoMotAlertMessageID			= ( WM_APP + 20 );
+		bool autoF5_AfterFinish=true;
 	private:
 		DECLARE_MESSAGE_MAP();
-		
 
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;

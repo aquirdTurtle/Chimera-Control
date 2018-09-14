@@ -22,7 +22,6 @@ FEATURES:
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in plots
 - improve experiment status; include which config was run, variable options
-- check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - report oscilloscope data to datalogger
 - report andor background data to datalogger
 - improve delete file after abort functionality
@@ -32,7 +31,6 @@ FEATURES:
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
-- Improve comments on what units everything should be in at every moment.
 - prompt for load after saving config as
 - improve delete file after abort functionality
 - Improve auto-optimization
@@ -52,8 +50,8 @@ FEATURES:
 - consider / test using sine lookup tables for niawg calculations.
 - improve feedback of servo display / control during servoing.
 - be able to query current connection status like what shows up in the beginning
-- scale oscilloscope plot correctly, getting actual values from scope...
 - alternate light color scheme.
+- some way of making niawg scripts more compact. something with arrays.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -79,16 +77,15 @@ BUGS:
 - global variable colors don't appear to always be correct; agilent issue probably?
 - turnonmot seems to be running tektronics stuff too.
 - control tektronics not being saved in config?
-- trying save if only camera is running...
-- crash when change color scheme during experiment???
 - make eating comments more robust against eol conversion issues.
-- interpret key taking a long time for ttls in camera cal
+- interpret key taking a long time for ttls in camera cal for some reason.
 - seems like master configuration file can get corrupted if saving fails.
 - for flash check that sum of indv move times is the total move time.
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
-- if taking pictures too fast code freezes
-- something funny about going back and forth between video and kinetic modes and the size of controls?
+- if taking pictures too fast code freezes.
+- something funny about going back and forth between video and kinetic modes (and the size of controls?)
 - if in video before switching configs, switching configs fails.
 - plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
-- calc times not getting outputted
+- check niawg script for multiple repeat forevers or commands outside a repeat forever.
+

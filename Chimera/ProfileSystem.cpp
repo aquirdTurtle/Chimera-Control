@@ -30,7 +30,7 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	configDisplay.sPos = { pos.x, pos.y, pos.x + 860, pos.y + 25 };
 	configDisplay.Create( "No Configuration Selected!", NORM_STATIC_OPTIONS, configDisplay.sPos, parent, id++ );
 	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y += 25 };
-	configurationSavedIndicator.Create( "Saved?", NORM_CHECK_OPTIONS | BS_LEFTTEXT,
+	configurationSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
 										configurationSavedIndicator.sPos, parent, id++ );
 	configurationSavedIndicator.SetCheck( BST_CHECKED );
 	updateConfigurationSavedStatus( true );
@@ -179,12 +179,11 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}
 	/// finish up
-	updateConfigurationSavedStatus( true );
 	auxWin->setVariablesActiveState( true );
 	// actually set this now
 	scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
 	configFile.close( );
-
+	updateConfigurationSavedStatus ( true );
 	reloadSequence( NULL_SEQUENCE );
 }
 
@@ -267,6 +266,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
+
 
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
