@@ -8,7 +8,7 @@ FEATURES:
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
-	- be able to add more repetitions on the fly if randomizing reps. requires some camera magic.
+	- be able to add more repetitions on the fly if randomizing reps. Requires some camera magic.
 	- mix sequences in as well?
 		- also gets tricky if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
@@ -61,7 +61,6 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures, like basler.
 - all mutexes should use lock_guard or similar for consistency
-- refactor the way agilents get programmed; pull analyze agilent script earlier to sequence 
 - refactor diosystem to use dioRows for row names (A, B, C, D)
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 

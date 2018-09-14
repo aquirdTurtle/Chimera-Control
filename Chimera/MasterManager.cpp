@@ -133,6 +133,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				RunInfo dum;
 				agilent->handleInput( input->profile.categoryPath, dum );
+				for ( auto channelInc : range ( 2 ) )
+				{
+					agilent->analyzeAgilentScript ( channelInc, seqVariables );
+				}
 			}
 			timer.tick(str(seqNum) + "-All-Agilent-Handle-Input");
 			/// prep master systems
@@ -227,8 +231,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					aoSys->checkTimingsWork( variationInc, seqInc );
 					if ( input->runNiawg )
 					{
-						auto line = input->niawg->getTrigLines( );
-						if ( ttls->countTriggers( line.first, line.second, variationInc, seqInc )  
+						if ( ttls->countTriggers ( input->niawg->getTrigLines ( ), variationInc, seqInc )
 							 != input->niawg->getNumberTrigsInScript( ) )
 						{
 							warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
@@ -332,16 +335,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					{
 						continue;
 					}
-					UINT ttlTrigs;
-					if ( input->runMaster )
-					{
-						auto line = agilent->getTriggerLine( );
-						ttlTrigs = ttls->countTriggers( line.first, line.second, variationInc, 0 );
-					}
-					else
-					{
-						ttlTrigs = 0;
-					}					 
+					UINT ttlTrigs = input->runMaster? ttls->countTriggers ( agilent->getTriggerLine ( ), variationInc, 0 ) : 0;
 					UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumTrigs( );
 					if ( ttlTrigs != agilentExpectedTrigs )
 					{

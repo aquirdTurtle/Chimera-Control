@@ -15,6 +15,7 @@ std::string niawgWavePower::toStr ( niawgWavePower::mode m )
 		case mode::unrestricted:
 			return "unrestricted";
 	}
+	thrower ( "Failed to convert niawg wave power mode to a string!" );
 }
 
 niawgWavePower::mode niawgWavePower::fromStr ( std::string txt )
@@ -26,6 +27,7 @@ niawgWavePower::mode niawgWavePower::fromStr ( std::string txt )
 			return m;
 		}
 	}
+	thrower ( "Failed to convert text to niawg wave power mode!" );
 }
 
 
@@ -44,6 +46,7 @@ std::string niawgLibOption::toStr ( niawgLibOption::mode m )
 		case mode::forced:
 			return "forced";
 	}
+	thrower ( "Failed to convert niawg library mode option to a string!" );
 }
 
 niawgLibOption::mode niawgLibOption::fromStr ( std::string txt )
@@ -55,4 +58,5 @@ niawgLibOption::mode niawgLibOption::fromStr ( std::string txt )
 			return m;
 		}
 	}
+	thrower ( "Failed to convert string to niawg lib option!" );
 }

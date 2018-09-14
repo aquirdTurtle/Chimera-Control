@@ -40,6 +40,7 @@ class Agilent
 		bool connected();
 		bool scriptingModeIsSelected( );
 		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& vars );
+		void analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
