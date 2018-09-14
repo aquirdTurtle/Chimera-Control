@@ -220,6 +220,17 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 		return powerInMilliWatts;
 	}
 }
+
+
+void Agilent::analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars )
+{
+	if ( settings.channel[ chan ].option == 4 )
+	{
+		analyzeAgilentScript ( settings.channel[ chan ].scriptedArb, vars );
+	}
+}
+
+
 void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
 {
 	std::ifstream scriptFile( infoObj.fileAddress );
@@ -287,7 +298,8 @@ HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, 
 		return NULL;
 	}
 }
-void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info)
+
+void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
 {
 	if (chan != 1 && chan != 2)
 	{
@@ -352,14 +364,7 @@ void Agilent::updateSettingsDisplay( std::string currentCategoryPath, RunInfo cu
 void Agilent::updateButtonDisplay( int chan )
 {
 	std::string channelText;
-	if ( chan == 1 )
-	{
-		channelText = "Channel 1 - ";
-	}
-	else
-	{
-		channelText = "Channel 2 - ";
-	}
+	channelText = chan == 1 ? "Channel 1 - " : "Channel 2 - ";
 	switch ( settings.channel[chan-1].option )
 	{
 		case -2:
@@ -403,11 +408,13 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 	switch ( settings.channel[chan].option )
 	{
 		case -2:
+			// no control
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 0 );
 			break;
 		case -1:
+			// off
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 1 );
@@ -473,14 +480,7 @@ void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, Run
 	// convert from channel 1/2 to 0/1 to access the right array entr
 	handleInput( currentChannel, currentCategoryPath, currentRunInfo );
 	updateSettingsDisplay( chan, currentCategoryPath, currentRunInfo );
-	if (channel1Button.GetCheck())
-	{
-		currentChannel = 1;
-	}
-	else
-	{
-		currentChannel = 2;
-	}
+	currentChannel = channel1Button.GetCheck ( ) ? 1 : 2;
 }
 void Agilent::handleModeCombo()
 {
@@ -579,46 +579,12 @@ void Agilent::convertInputToFinalSettings( UINT chan, std::vector<parameterType>
 
 void Agilent::handleNewConfig( std::ofstream& newFile )
 {
-	// make sure data is up to date.
-	//handleInput();
-	// start outputting.
 	newFile << "AGILENT\n";
 	newFile << "0\n";
 	newFile << "CHANNEL_1\n";
-	newFile << "-2\n";
-	newFile << "0\n";
-	newFile << "0\n";
-	
-	newFile << "0\n";
-	newFile << "1\n";
-	newFile << "0\n";
-
-	newFile << "0\n";
-	newFile << "1\n";
-	newFile << "0\n";
-	newFile << "0\n";
-	newFile << "NONE\n";
-	newFile << "0\n";
-	newFile << "NONE\n";
-	newFile << "0\n";
+	newFile << "-2\n0\n0\n0\n1\n0\n0\n1\n0\n0\nNONE\n0\nNONE\n0\n";
 	newFile << "CHANNEL_2\n";
-	newFile << "-2\n";
-	newFile << "0\n";
-	newFile << "0\n";
-
-	newFile << "0\n";
-	newFile << "1\n";
-	newFile << "0\n";
-
-	newFile << "0\n";
-	newFile << "1\n";
-	newFile << "0\n";
-	newFile << "0\n";
-
-	newFile << "NONE\n";
-	newFile << "0\n";
-	newFile << "NONE\n";
-	newFile << "0\n";	
+	newFile << "-2\n0\n0\n0\n1\n0\n0\n1\n0\n0\nNONE\n0\nNONE\n0\n";
 	newFile << "END_AGILENT\n";
 }
 /*
@@ -779,10 +745,14 @@ void Agilent::outputOff( int channel )
 	channel++;
 	visaFlume.write( "OUTPUT" + str( channel ) + " OFF" );
 }
+
+
 bool Agilent::connected()
 {
 	return isConnected;
 }
+
+
 void Agilent::setDC( int channel, dcInfo info )
 {
 	if (channel != 1 && channel != 2)
@@ -791,26 +761,28 @@ void Agilent::setDC( int channel, dcInfo info )
 	}
 	visaFlume.write( "SOURce" + str( channel ) + ":APPLy:DC DEF, DEF, " + str( convertPowerToSetPoint(info.dcLevel, info.useCalibration) ) + " V" );
 }
+
 void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 {
 	if (channel != 1 && channel != 2)
 	{
 		thrower ( "Bad value for channel in setExistingWaveform!" );
 	}
-	visaFlume.write( "SOURCE" + str(channel) + ":DATA:VOL:CLEAR" );
+	auto sStr = "SOURCE" + str ( channel );
+	visaFlume.write( sStr + ":DATA:VOL:CLEAR" );
 	// Load sequence that was previously loaded.
 	visaFlume.write( "MMEM:LOAD:DATA \"" + info.address + "\"" );
 	// tell it that it's outputting something arbitrary (not sure if necessary)
-	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC ARB" );
+	visaFlume.write( sStr + ":FUNC ARB" );
 	// tell it what arb it's outputting.
-	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"" + memoryLoc + ":\\" + info.address + "\"" );
+	visaFlume.write( sStr + ":FUNC:ARB \"" + memoryLoc + ":\\" + info.address + "\"" );
 	// Set output impedance...
 	visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + load );
 	// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
-	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::MODE TRIGGERED" );
-	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::NCYCLES 1" );
-	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::PHASE 0" );
-	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::STATE ON" );
+	visaFlume.write( sStr + ":BURST::MODE TRIGGERED" );
+	visaFlume.write( sStr + ":BURST::NCYCLES 1" );
+	visaFlume.write( sStr + ":BURST::PHASE 0" );
+	visaFlume.write( sStr + ":BURST::STATE ON" );
 	visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 }
 // set the agilent to output a square wave.
@@ -975,10 +947,14 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 		}
 	}
 }
+
+
 bool Agilent::scriptingModeIsSelected( ) 
 {
 	return settings.channel[currentChannel].option == 4;
 }
+
+
 void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 {
 	if ( !connected( ) )
@@ -998,11 +974,13 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		auto& channel = settings.channel[chan];
 		try
 		{
+			/*
 			if ( channel.option == 4 )
 			{
 				// need to do this before converting to final settings
 				analyzeAgilentScript( channel.scriptedArb, variables );
 			}
+			*/
 			convertInputToFinalSettings( chan, variables, variation );
 			switch ( channel.option )
 				{
@@ -1055,7 +1033,7 @@ void Agilent::setAgilent()
 		switch (settings.channel[chan].option)
 		{
 			case -2:
-				// don't do anything.
+				// no control.
 				break;
 			case -1:
 				outputOff( chan+1 );

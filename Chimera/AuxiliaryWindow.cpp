@@ -358,7 +358,7 @@ void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 		agilents[name].handleInput( mainWin->getProfileSettings( ).categoryPath,
 									mainWin->getRunInfo( ) );
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested( "Failed to update agilent." );
 	}
@@ -749,7 +749,7 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 		mainWin->updateConfigurationSavedStatus ( false );
 		configVariables.addConfigParameter ( var, item );
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested ( "Failed to Add a variable." );
 	}

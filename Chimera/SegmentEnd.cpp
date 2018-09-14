@@ -37,5 +37,6 @@ SegmentEnd::type SegmentEnd::fromStr ( std::string txt )
 			return t;
 		}
 	}
+	thrower ( "Failed to convert string to SegmentEnd for agilent!" );
 }
 

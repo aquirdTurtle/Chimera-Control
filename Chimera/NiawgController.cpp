@@ -938,7 +938,6 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
-
 	/// Why is the seqinc here a for loop??? I think this should be an input to the function...
 	for ( auto seqInc : range( variables.size( ) ) )
 	{
