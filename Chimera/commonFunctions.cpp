@@ -113,13 +113,28 @@ namespace commonFunctions
 				}
 
 				ExperimentInput input;
-				camWin->redrawPictures(false);
 				try
 				{
+					if ( mainWin->masterIsRunning() )
+					{
+						auto response = promptBox ( "The Master system is already running. Would you like to run the "
+													"current configuration when master finishes? This effectively "
+													"auto-presses F5 when complete and skips confirmation.", MB_YESNO );
+						if ( response == IDYES )
+						{
+							mainWin->autoF5_AfterFinish = true;
+						}
+						break;
+					}
+					camWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					camWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
-					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true, input );
+					if ( !mainWin->autoF5_AfterFinish )
+					{
+						commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, true, true, input );
+					}
+					mainWin->autoF5_AfterFinish = false;
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
@@ -864,7 +879,7 @@ namespace commonFunctions
 
 
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-											   AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
+							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
 	{
 		Communicator* comm = mainWin->getComm();
 		profileSettings profile = mainWin->getProfileSettings();
@@ -1167,5 +1182,7 @@ namespace commonFunctions
 		}
 		return areYouSure;
 	}
+
 };
+
 

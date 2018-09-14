@@ -633,7 +633,7 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 }
 
 
-void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, bool isDefault, niawgLibOption::mode libOption )
+void NiawgController::writeStandardWave(simpleWave& wave, debugInfo& options, bool isDefault, niawgLibOption::mode libOption )
 {
 	// prepare the waveforms
 	niawgWaveCalcOptions opts;
@@ -2138,7 +2138,7 @@ void NiawgController::setDefaultWaveformScript( )
 }
 
 
-void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
+void NiawgController::createFlashingWave( waveInfo& wave, debugInfo& options )
 {
 	/// quick check
 	if ( !wave.flash.isFlashing )

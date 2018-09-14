@@ -171,14 +171,7 @@ void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT
 void DioSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "TTLS\n";
-	for ( int ttlRowInc = 0; ttlRowInc < getNumberOfTTLRows( ); ttlRowInc++ )
-	{
-		for ( int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow( ); ttlNumberInc++ )
-		{
-			newFile << 0 << " ";
-		}
-		newFile << "\n";
-	}
+	// nothing at the moment.
 	newFile << "END_TTLS\n";
 }
 
@@ -187,46 +180,23 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	/// ttl settings
 	saveFile << "TTLS\n";
-	for (int ttlRowInc = 0; ttlRowInc < getNumberOfTTLRows(); ttlRowInc++)
-	{
-		for (int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow(); ttlNumberInc++)
-		{
-			saveFile << getTtlStatus(ttlRowInc, ttlNumberInc) << " ";
-		}
-		saveFile << "\n";
-	}
+	// nothing at the moment.
 	saveFile << "END_TTLS\n";
 }
 
 
 void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
-	prepareForce( );
+	//prepareForce( );
 	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
-	std::vector<std::vector<bool>> ttlStates;
-	ttlStates.resize(getTtlBoardSize().first);
-	UINT rowInc = 0;
-	for (auto& row : ttlStates)
+	if ( ver < Version ( "3.7" ) )
 	{
-		UINT colInc = 0;
-		row.resize(getTtlBoardSize().second);
-		for (auto& ttl : row)
+		for ( auto i : range ( 64 ) )
 		{
-			std::string ttlString;
-			openFile >> ttlString;
-			try
-			{
-				ttl = boost::lexical_cast<int>(ttlString);
-				forceTtl(rowInc, colInc, ttl);
-				updatePush( rowInc, colInc );
-			}
-			catch ( boost::bad_lexical_cast&)
-			{
-				throwNested ("the ttl status of \"" + ttlString + "\"failed to convert to a bool!");
-			}
-			colInc++;
+			// used to store an initial ttl config in the config file.
+			std::string trash;
+			openFile >> trash;
 		}
-		rowInc++;
 	}
 	ProfileSystem::checkDelimiterLine(openFile, "END_TTLS");
 }

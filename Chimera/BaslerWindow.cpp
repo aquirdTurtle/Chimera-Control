@@ -30,7 +30,6 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 
 	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, BaslerWindow::handleSoftwareTrigger )
 	ON_COMMAND( IDOK, &BaslerWindow::handleEnter )
-	ON_COMMAND( IDC_BASLER_SET_ANALYSIS_LOCATIONS, &BaslerWindow::passSetLocationsButton)
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
@@ -249,6 +248,7 @@ void BaslerWindow::pictureRangeEditChange( UINT id )
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		picManager.handleEditChange ( id );
 		//picture.handleEditChange( id );
 	}

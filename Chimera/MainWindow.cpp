@@ -1377,6 +1377,7 @@ void MainWindow::abortMasterThread()
 	if (masterThreadManager.runningStatus())
 	{
 		masterThreadManager.abort();
+		autoF5_AfterFinish = false;
 	}
 	else
 	{
@@ -1418,6 +1419,7 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 
 LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 {
+	autoF5_AfterFinish = false;
 	// normal msg stuff
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
@@ -1489,6 +1491,11 @@ void MainWindow::onNormalFinishMessage()
 	catch ( Error& err )
 	{
 		comm.sendError( err.trace( ) );
+	}
+	if ( autoF5_AfterFinish )
+	{
+		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
+											   TheAuxiliaryWindow, TheBaslerWindow );
 	}
 }
 

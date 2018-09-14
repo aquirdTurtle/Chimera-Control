@@ -285,8 +285,6 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		info.fastMoveTime = str(1e-6);
 	}
-
-
 	if ( ver < Version ( "3.6" ) && ver >= Version("3.4"))
 	{
 		openFile >> tmpStr;

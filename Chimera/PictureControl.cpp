@@ -538,7 +538,6 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData )
 	int totalGridSize = dataWidth * dataHeight;
 	if ( picData.size ( ) != totalGridSize )
 	{
-
 		thrower  ( "Picture data didn't match grid size!" );
 	}
 	// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
