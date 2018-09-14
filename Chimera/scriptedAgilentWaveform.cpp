@@ -126,45 +126,16 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 				 "repeats following will also trigger this error." );
 		return false;
 	}
-	if (tempContinuationType == "repeat")
-	{
-		workingInput.continuationType = 0;
-	}
-	else if (tempContinuationType == "repeatuntiltrig")
-	{
-		numberOfTriggers++;
-		workingInput.continuationType = 1;
-	}
-	else if (tempContinuationType == "once")
-	{
-		workingInput.continuationType = 2;
-	}
-	else if (tempContinuationType == "repeatforever")
-	{
-		workingInput.continuationType = 3;
-	}
-	else if (tempContinuationType == "oncewaittrig")
-	{
-		numberOfTriggers++;
-		workingInput.continuationType = 4;
-	}
-	else
-	{
-		// string not recognized
-		thrower ( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string "
-				 "entered was " + tempContinuationType + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", "
-				 "\"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve." );
-	}
-
-	// Make Everything Permanent
+	workingInput.continuationType = SegmentEnd::fromStr ( tempContinuationType );
+	numberOfTriggers += SegmentEnd::invovlesTrig ( workingInput.continuationType );
 	waveformSegments[segNum].storeInput( workingInput );
 	return false;
 }
 
 
 /*
- * This function takes the data points (that have already been converted and normalized) and puts them into a string for the agilent to read.
- * segNum: this is the segment number that this data is for
+ * This function takes the data points (that have already been converted and normalized) and puts them into a string
+ * for the agilent to read. segNum: this is the segment number that this data is for
  * varNum: This is the variation number for this segment (matters for naming the segments)
  * totalSegNum: This is the number of segments in the waveform (also matters for naming)
  */
@@ -198,6 +169,7 @@ ULONG ScriptedAgilentWaveform::getSegmentNumber()
 	return waveformSegments.size();
 }
 
+
 /*
 * This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 * as a part of the class.
@@ -213,69 +185,24 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	{
 		thrower ("ERROR: No segments in agilent waveform???\r\n");
 	}
-	for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
+	for (int segNumInc = 0; segNumInc < totalSegNum; segNumInc++)
 	{
-		// Format is 
-		tempSegmentInfoString += "segment" + str( segNumInc + totalSegNum * sequenceNum ) + ",";
-		//tempSegmentInfoString += "segment" + str( segNumInc ) + ",";
-		tempSegmentInfoString += str( waveformSegments[segNumInc].getFinalSettings().repeatNum ) + ",";
-		switch (waveformSegments[segNumInc].getFinalSettings().continuationType)
-		{
-			case 0:
-				tempSegmentInfoString += "repeat,";
-				break;
-			case 1:
-				tempSegmentInfoString += "repeatTilTrig,";
-				break;
-			case 2:
-				tempSegmentInfoString += "once,";
-				break;
-			case 3:
-				tempSegmentInfoString += "repeatInf,";
-				break;
-			case 4:
-				tempSegmentInfoString += "onceWaitTrig,";
-				break;
-			default:
-				// ERROR!
-				thrower ( "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code." );
-		}
+		tempSegmentInfoString += "segment" + str ( segNumInc + totalSegNum * sequenceNum ) + ",";
+		tempSegmentInfoString += str ( waveformSegments[ segNumInc ].getFinalSettings ( ).repeatNum ) + ",";
+		tempSegmentInfoString += SegmentEnd::toStr ( waveformSegments[ segNumInc ].getFinalSettings ( ).continuationType ) + ",";
 		tempSegmentInfoString += "highAtStart,4,";
 	}
-
-	tempSegmentInfoString += "segment" + str( (totalSegNum - 1) + totalSegNum * sequenceNum ) + ",";
-	tempSegmentInfoString += str( waveformSegments[totalSegNum - 1].getFinalSettings( ).repeatNum ) + ",";
-	switch ( waveformSegments[totalSegNum - 1].getFinalSettings( ).continuationType )
-	{
-		case 0:
-			tempSegmentInfoString += "repeat,";
-			break;
-		case 1:
-			tempSegmentInfoString += "repeatTilTrig,";
-			break;
-		case 2:
-			tempSegmentInfoString += "once,";
-			break;
-		case 3:
-			tempSegmentInfoString += "repeatInf,";
-			break;
-		case 4:
-			tempSegmentInfoString += "onceWaitTrig,";
-			break;
-		default:
-			// ERROR!
-			thrower ( "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code." );
-	}
-	tempSegmentInfoString += "highAtStart,4";
-	//
-	totalSequence = tempSequenceString + str( (str( tempSegmentInfoString.size( ) )).size( ) )
+	// remove final comma.
+	tempSegmentInfoString.pop_back ( );
+	totalSequence = tempSequenceString + str( (str( tempSegmentInfoString.size( ) )).size( ) ) 
 		+ str( tempSegmentInfoString.size( ) ) + tempSegmentInfoString;
 }
 
 
 /*
-* This function just returns the sequence string. It should already have been compiled using compileSequenceString when this is called.
-*/
+ * This function just returns the sequence string. It should already have been compiled using compileSequenceString 
+ * when this is called.
+ */
 std::string ScriptedAgilentWaveform::returnSequenceString( )
 {
 	return totalSequence;
@@ -283,8 +210,9 @@ std::string ScriptedAgilentWaveform::returnSequenceString( )
 
 
 /*
-* This function returns the truth of whether this sequence is being varied or not. This gets determined during the reading process.
-*/
+ * This function returns the truth of whether this sequence is being varied or not. This gets determined during the 
+ * reading process.
+ */
 bool ScriptedAgilentWaveform::isVaried( )
 {
 	for ( auto& seg : waveformSegments )
@@ -326,9 +254,6 @@ bool ScriptedAgilentWaveform::isVaried( )
 				return true;
 			}
 		}
-
-
-
 	}
 	return false;
 }
@@ -354,16 +279,17 @@ void ScriptedAgilentWaveform::replaceVarValues( UINT variation, std::vector<para
 	}
 }
 
+
 ULONG ScriptedAgilentWaveform::getNumTrigs( )
 {
 	return numberOfTriggers;
 }
 
 /*
-* This function takes the powers inputted by the user and converts them (based on calibrations that we have done) to the corresponding voltage values
-* that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the
-* data string.
-*/
+ * This function takes the powers inputted by the user and converts them (based on calibrations that we have done) to the corresponding voltage values
+ * that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the
+ * data string.
+ */
 void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal)
 {
 
