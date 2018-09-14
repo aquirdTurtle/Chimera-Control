@@ -276,6 +276,7 @@
     <ClCompile Include="ErrDialog.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="SegmentEnd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -640,6 +641,7 @@
     <ClInclude Include="ErrDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="SegmentEnd.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

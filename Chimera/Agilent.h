@@ -46,8 +46,9 @@ class Agilent
 		std::string getDeviceIdentity();
 		std::string getName();
 		void readConfigurationFile( std::ifstream& file, Version ver );
-		void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
-		void convertInputToFinalSettings(UINT chan);
+		//void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
+		void convertInputToFinalSettings( UINT chan, std::vector<parameterType>& variables = std::vector<parameterType> ( ),
+										  UINT variation = -1 );
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
@@ -73,7 +74,7 @@ class Agilent
 		const double sampleRate;
 		const std::string load;
 		const std::string filterState;
-		const std::string memoryLocation;
+		const std::string memoryLoc;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
 		bool isConnected;
@@ -92,3 +93,5 @@ class Agilent
 		Control<CStatic> optionsFormat;
 		Control<CleanButton> programNow;
 };
+
+

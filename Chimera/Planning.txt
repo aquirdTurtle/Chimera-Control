@@ -61,13 +61,14 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures, like basler.
 - all mutexes should use lock_guard or similar for consistency
-- refactor the way agilents get programmed; pull analyze agilent script earlier to sequence
+- refactor the way agilents get programmed; pull analyze agilent script earlier to sequence 
 - refactor diosystem to use dioRows for row names (A, B, C, D)
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
-- Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be accurate.
-- refactor rerngmove complexmove and simplemove which are confusing...
-- refactor the config saving issues.  
+- Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
+	accurate. 
+- refactor rerngmove complexmove and simplemove which are confusing... 
+- refactor the config saving issues.
 
 Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.

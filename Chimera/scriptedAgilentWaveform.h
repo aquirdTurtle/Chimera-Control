@@ -3,6 +3,7 @@
 //#include "ScriptStream.h"
 
 #include "Segment.h"
+#include "SegmentEnd.h"
 #include <string>
 #include <vector>
 class ScriptStream;
@@ -10,6 +11,7 @@ class ScriptStream;
 * The class ScriptedAgilentWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
 * This includes a vector of segments which contain segment-specific information. The functions and variabels relevant for this class are:
 */
+
 class ScriptedAgilentWaveform
 {
 	public:

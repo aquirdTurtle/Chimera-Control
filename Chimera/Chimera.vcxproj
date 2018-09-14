@@ -222,6 +222,7 @@
     <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="MyListCtrl.h" />
     <ClInclude Include="Queues.h" />
+    <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraImageDimensions.h" />
@@ -342,6 +343,7 @@
     <ClCompile Include="MyListCtrl.cpp" />
     <ClCompile Include="NiawgStructures.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
+    <ClCompile Include="SegmentEnd.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
