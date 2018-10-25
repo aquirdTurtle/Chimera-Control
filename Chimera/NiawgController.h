@@ -29,7 +29,6 @@ struct MasterThreadInput;
 struct seqInfo;
 class NiawgWaiter;
 
-
 /** 
   * One of the biggest & most complicated classes in the code.
   * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
@@ -104,11 +103,6 @@ class NiawgController
 		static void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
 									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
 									   niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
-		static std::vector<double> combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions,
-													  std::vector<double> initBias, std::vector<double> finBias,
-													  Matrix<std::vector<double>> preCalcMoves );
-		static Matrix<std::vector<double>> precalcSingleDimMoves ( std::vector<double> freqs, std::vector<double> phases );
-		static std::vector<double> calcSingleDimMove ( double time, double f1, double f2, double phase );
 		static niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator* comm );
 		static int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal, bool reversed=false );
 	private:
@@ -152,9 +146,9 @@ class NiawgController
 		bool isLogic( std::string command );
 		void handleLogic( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
-		void handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd,
-											  ScriptStream& scripts, debugInfo& options, rerngGuiOptionsForm guiInfo,
-											  std::vector<parameterType>& variables );
+		void handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd, 
+									ScriptStream& scripts, debugInfo& options, rerngGuiOptionsForm guiInfo,
+									std::vector<parameterType>& variables );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
 		void handleSpecial( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 

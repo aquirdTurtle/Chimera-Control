@@ -1,4 +1,4 @@
-// TestConsoleApp2.cpp : Defines the entry point for the console application.
+// TestConsoleApp3.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -12,78 +12,147 @@
 #include <fstream>
 #include "../Chimera/CodeTimer.h"
 #include "../Chimera/range.h"
+#include "../Chimera/Thrower.h"
+#include "../Chimera/NiawgStructures.h"
 
-
-class sineLookupTable
+int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal, bool reversed )
 {
-	public:
-		sineLookupTable ( ULONGLONG len_ )
+	// if level below
+	int res = 0;
+	if ( currentLevel != 0 )
+	{
+		// try iterate below.
+		res = increment ( ind, currentLevel - 1, maxVal, reversed );
+		if ( res != -1 )
 		{
-			len = len_;
+			// lower level succeeded. success.
+			return res;
 		}
-		void init ( )
+	}
+
+	// if reach this point, either lower levels failed or no levels below.
+	bool condition;
+	auto isFin = currentLevel == ind.size ( ) - 1;
+	if ( reversed )
+	{
+		condition = ( isFin && ind[ currentLevel ] != 0 ) || ( !isFin && ind[ currentLevel ] != ind[ currentLevel + 1 ] + 1 );
+	}
+	else
+	{
+		condition = ( isFin && ind[ currentLevel ] != maxVal ) || ( !isFin && ind[ currentLevel ] != ind[ currentLevel + 1 ] - 1 );
+	}
+	if ( condition )
+	{
+		// possible to increment.
+		ind[ currentLevel ] += reversed ? -1 : 1;
+		return currentLevel;
+	}
+
+	// reset.
+	ind[ currentLevel ] = reversed ? maxVal - currentLevel : currentLevel;
+	return -1;
+}
+
+
+niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT targetDim )
+{
+	if ( source.getRows ( ) != source.getCols ( ) )
+	{
+		thrower ( "ERROR! Can't do oddly sized matrixes" );
+	}
+	UINT sourceDim = source.getRows ( );
+	// initialize indexes to 0,1,2,3,...
+	niawgPair<std::vector<UINT>> indexes;
+	indexes[ Axes::Horizontal ].resize ( targetDim );
+	indexes[ Axes::Vertical ].resize ( targetDim );
+	auto inc = 0;
+	for ( auto inc : range ( indexes[ Axes::Horizontal ].size ( ) ) )
+	{
+		auto num = sourceDim - inc - 1;
+		indexes[ Axes::Horizontal ][ inc ] = indexes[ Axes::Vertical ][ inc ] = num;
+		//indexes[ Axes::Horizontal ][ inc ] = indexes[ Axes::Vertical ][ inc ] = inc;
+	}
+	UINT res, count = 0, matchCount = 0;
+	while ( true )
+	{
+		// fill test;
+		Matrix<bool> testArray ( sourceDim, sourceDim, 0 );
+		for ( auto xi : indexes[ Axes::Horizontal ] )
 		{
-			// calculate from 0 to 2pi
-			for ( auto i : range ( len ) )
+			for ( auto yi : indexes[ Axes::Vertical ] )
 			{
-				double phase = double ( i ) / len * 2 * std::_Pi;
-				table.push_back ( std::sin ( phase ) );
+				testArray ( yi, xi ) = true;
 			}
 		}
-		double get ( double phase )
+		UINT match = 0;
+		for ( auto i : range ( testArray.size ( ) ) )
 		{
-			// wrap
-			phase = std::fmod(phase, 2 * std::_Pi );
-			// convert to index;
-			UINT index = std::round(phase * len / (2 * std::_Pi));
-			return table[ index ];
+			match += testArray.data[ i ] * source.data[ i ];
 		}
-	private:
-		ULONGLONG len;
-		std::vector<double> table;
-};
+		if ( match == targetDim*targetDim )
+		{
+			// found a match, horray.
+			break;
+		}
+		// get next
+		res = increment ( indexes[ Axes::Horizontal ], targetDim - 1, sourceDim - 1, true );
+		count++;
+		if ( res == -1 )
+		{
+			res = increment ( indexes[ Axes::Vertical ], targetDim - 1, sourceDim - 1, true );
+			if ( res == -1 )
+			{
+				thrower("No-Match");
+			}
+		}
+	}
+	return indexes;
+}
 
 
 int main ( )
 {
+	std::random_device rd;
+	std::mt19937 e2 ( rd ( ) );
+	std::uniform_real_distribution<double> dist ( 0, 1 );
+	UINT statNum = 100;
+	UINT n = 10;
 	CodeTimer timer;
-	UINT len=1000000;
-	sineLookupTable table( 1000000 );
-	table.init ( );
-	UINT testLen = 1000;
-
-	std::uniform_real_distribution<double> unif( 0, 1e6 );
-	std::default_random_engine re;
-	std::vector<double> resLookup( testLen );
-	std::vector<double> resStd( testLen );
-	
-	std::vector<double> testVals;
-	for ( auto r : range ( testLen ) )
+	timer.tick ( "Begin" );
+	std::ofstream outFile ( "Fast_Lazy_Rerng_Sim.csv" );
+	std::vector<UINT> sizes = { 3,4,5,6,7 };
+	for ( auto n : sizes )
 	{
-		testVals.push_back ( unif ( re ) );
-	}
-	timer.tick ( "Before table" );
-	for ( auto r : range ( testLen ) )
-	{		
-		resLookup[ r ] = table.get ( testVals[r] );
-	}
-	timer.tick ( "Mid" );
-	for ( auto r : range ( testLen ) )
-	{
-		resStd[r] =  std::sin ( testVals[ r ] );
-	}
-	timer.tick ( "After std" );
-	double rms = 0, sum = 0;
-	for ( auto i : range ( testLen ) )
-	{
-		auto t = resLookup[ i ] - resStd[ i ];
-		sum += t;
-		rms += t*t;
-	}
-	rms = std::sqrt ( rms );
+		outFile << n << ",";
+		std::cout << "Size: " << n << "\n";
+		for ( auto lr_ : range ( 100 ) )
+		{
+			double resNum = 0;
+			std::cout << "\b\b" << lr_;
+			double lr = double ( lr_ ) / 100.0;
+			for ( auto i : range ( statNum ) )
+			{
+				Matrix<bool> init ( 10, 10, 0 );
+				for ( auto& p : init )
+				{
+					p = dist ( e2 ) > 1 - lr;
+				}
+				try
+				{
+					auto res = findLazyPosition ( init, n );
+					resNum += 1;
+				}
+				catch ( Error& )
+				{ // failed
+				}
+			}
+			outFile << resNum / statNum << ",";
+		}
+		outFile << "\n";
+		std::cout << "\n";
+	}	
+	timer.tick ( "Fin" );
 	std::cout << timer.getTimingMessage ( );
-	std::cout << "sum of errors:" << sum << "\n";
-	std::cout << "rms of errors:" << rms << "\n";
 	std::cin.get ( );
 }
 
