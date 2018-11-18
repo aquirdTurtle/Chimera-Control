@@ -265,7 +265,7 @@ void ServoManager::handleListViewClick ( )
 					tmpStream >> ttl.second;
 					servo.ttlConfig.push_back ( ttl );
 				}
-				catch ( Error& err )
+				catch ( Error& )
 				{
 					throwNested ( "Error In trying to set the servo ttl config!" );
 				}
@@ -375,12 +375,13 @@ bool ServoManager::autoServo( )
 void ServoManager::runAll( )
 {
 	UINT count = 0;
+	// made this asynchronous to facilitate updating gui while 
 	for ( auto& servo : servos )
 	{
-		calibrate ( servo, count++ );
+		ServoManager::calibrate ( servo, count++ );
 	}
 }
- 
+
 
 void ServoManager::calibrate( servoInfo& s, UINT which )
 {
@@ -442,7 +443,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 				}
 			}
 			// there's a break built in here in order to let the laser settle.
-			Sleep( 100 );
+			Sleep( 20 );
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 		}
 	}
@@ -463,6 +464,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 void ServoManager::setControlDisplay (UINT which, double value )
 {
 	servoList.SetItem ( str ( value ), which, 3 );
+	servoList.RedrawWindow ( );
 }
 
 
