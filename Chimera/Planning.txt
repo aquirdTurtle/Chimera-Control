@@ -47,7 +47,7 @@ FEATURES:
 	  Especially useful for auto-optimization to keep this good over time.
 - Make (option for) plots for single pic mode andor images
 - display threshold on histogram.
-- set servo gain for indv servos in servo listview
+- set servo gain and tolerance for indv servos in servo listview
 - be able to query current connection status like what shows up in the beginning
 - alternate light color scheme.
 - some way of making niawg scripts more compact. something with arrays.
