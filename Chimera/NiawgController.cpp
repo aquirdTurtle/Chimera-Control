@@ -887,10 +887,10 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		rearrangeWave.rearrange.moveLimit = 50; // getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
-		double lazyModeTime = 2.2e-3;
+		double lazyModeTime = 0.4e-3;
 		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
 		{
-			// 1ms
+			// convert to ms
 			rearrangeWave.rearrange.fillerWave.time = str( lazyModeTime*1e3 );
 		}
 		else
@@ -911,7 +911,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		long samples = 0;
 		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
 		{
-			samples = lazyModeTime * NIAWG_SAMPLE_RATE;
+			samples =long( std::round(lazyModeTime * NIAWG_SAMPLE_RATE));
 		}
 		else
 		{
@@ -2334,21 +2334,21 @@ void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, Niaw
 				// It's not actually ramping.
 				if ( currSig.powerRampType != "nr" && (currSig.initPower == currSig.finPower) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to amplitude"
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to amplitude"
 						" ramp, but the initial and final amplitudes are the same. This is not a ramp.\r\n";
 				}
 				// if there signal is ramping but the beginning and end frequencies are the same, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.freqRampType != "nr" && (currSig.freqInit == currSig.freqFin) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to frequency"
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to frequency"
 						" ramp, but the initial and final frequencies are the same. This is not a ramp.\r\n";
 				}
 				// if there signal is not ramping but the beginning and end amplitudes are different, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.powerRampType == "nr" && (currSig.initPower != currSig.finPower) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to no "
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to no "
 						"amplitude ramp, but the initial and final amplitudes are the different. This is not a ramp, "
 						"the initial value will be used.\r\n";
 				}
@@ -2356,7 +2356,7 @@ void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, Niaw
 				// It's not actually ramping.
 				if ( currSig.freqRampType == "nr" && (currSig.freqInit != currSig.freqInit) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to no "
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to no "
 						"frequency ramp, but the initial and final frequencies are different. This is not a ramp, the"
 						" initial value will be used throughout.\r\n";
 				}
@@ -3505,7 +3505,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampUpWave.name = "NA";
 				rampUpWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampUpWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
-				rampUpWave.time = 10e-5;
+				rampUpWave.time = 0.1e-3;
 				rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
 				for ( auto axis : AXES )
 				{
@@ -3545,7 +3545,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				holdWave.chan[ Axes::Vertical ].signals.resize ( info.target.getRows ( ) );
 				holdWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
 				// important! Assuming everything is 0.5MHz or 1MHz defined...
-				holdWave.time = 2e-6;
+				holdWave.time = 0.002e-3;
 				holdWave.sampleNum = waveformSizeCalc ( holdWave.time );
 				for ( auto axis : AXES )
 				{
@@ -3566,10 +3566,10 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				input->niawg->finalizeStandardWave ( holdWave, debugInfo ( ) );
 				std::vector<double> vals_hold ( holdWave.waveVals );
-				for ( auto i : range ( 500 ) )
+				for ( auto i : range ( 50 ) )
 				{
-					input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_hold.begin ( ),
-														 vals_hold.end ( ) );
+					input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ),
+														 vals_hold.begin ( ), vals_hold.end ( ) );
 				}
 				/// ramp to center
 				// similar to final position move. This is a frequency and amplitude ramp, ramping linearly from init
@@ -3577,7 +3577,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				// calculate final positions based on the order. I don't want any crossing. Then the final positions
 				// can be used (including with the flip in the vertical direction) the same way as the initial pos.
 				///
-				/*
 				niawgPair<std::vector<UINT>> finalLazyPositions;
 				for ( auto ax : AXES )
 				{
@@ -3586,7 +3585,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					flp.resize ( lp.size() );
 					for ( auto posInc : range ( lp.size ( ) ) )
 					{
-						flp[ posInc ] = posInc + info.finalPosition[ ax ];
+						flp[ flp.size() - posInc - 1 ] = posInc + info.finalPosition[ ax ];
 					}
 				}
 
@@ -3595,8 +3594,15 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				moveWave.name = "NA";
 				moveWave.chan[ Axes::Vertical ].signals.resize ( info.target.getRows ( ) );
 				moveWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
-				moveWave.time = 1e-3;
+				moveWave.time = 0.2e-3;
 				moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+				niawgPair<std::vector<double>> finBiases;
+				finBiases[ Axes::Vertical ] = { 0.13605637851383134, 0.08802408172039368, 0.08773263291047297,
+					0.07863546037570875 + 0.02, 0.08000523681678881, 0.08376969752900515, 0.0650583321788129 + 0.035,
+					0.06646226907922695, 0.08150383299591347, 0.23275207787984606 };
+				finBiases[ Axes::Horizontal ] = { 0.12963300292295718, 0.0742082735526821, 0.06452232420354994,
+					0.08418962365512414, 0.061614540718750034, 0.08211462269426241, 0.052974803330588585 + 0.025,
+					0.052075585246253435, 0.08655332703068899, 0.3671138966451433 };
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
@@ -3611,17 +3617,41 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 						sig.freqFin = ( finPos * info.freqPerPixel + info.lowestFreqs[ axis ] ) * 1e6;
 						sig.freqRampType = "lin";
 						sig.initPower = info.staticBiases[ axis ][ pos ];
-						sig.finPower = info.staticBiases[ axis ][ finPos ];
+						sig.finPower = finBiases[ axis ][ finPos ];
 						sig.powerRampType = "lin";
 						sig.initPhase = info.staticPhases[ axis ][ pos ];
 						count++;
 					}
 				}
+
+				/*
+				var ha1  0.12963300292295718
+				var ha2  0.0742082735526821
+				var ha3  0.06452232420354994
+				var ha4  0.08418962365512414
+				var ha5  0.061614540718750034
+				var ha6  0.08211462269426241
+				var ha7  0.052974803330588585 + 0.025
+				var ha8  0.052075585246253435
+				var ha9  0.08655332703068899
+				var ha10 0.3671138966451433
+
+				var va1  0.13605637851383134
+				var va2  0.08802408172039368
+				var va3  0.08773263291047297
+				var va4  0.07863546037570875
+				var va5  0.08000523681678881
+				var va6  0.08376969752900515
+				var va7  0.0650583321788129 + 0.035
+				var va8  0.06646226907922695
+				var va9  0.08150383299591347
+				var va10 0.23275207787984606
+				*/
 				input->niawg->finalizeStandardWave ( moveWave, debugInfo ( ) );
 				std::vector<double> vals_move ( moveWave.waveVals );
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end ( ), vals_move.begin ( ),
 													vals_move.end ( ) ); 
-				*/
+				/*
 				/// ramp up unused traps
 				// use the final positions not the initial.
 				simpleWave rampDownWave;
@@ -3629,7 +3659,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampDownWave.name = "NA";
 				rampDownWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampDownWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
-				rampDownWave.time = 10e-5;
+				rampDownWave.time = 0.1e-3;
 				rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
 				for ( auto axis : AXES )
 				{
@@ -3661,8 +3691,10 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				input->niawg->finalizeStandardWave ( rampDownWave, debugInfo ( ) );
 				std::vector<double> vals_rd ( rampDownWave.waveVals );
 				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_rd.begin ( ), vals_rd.end ( ) );
+				*/
 				stopMoveCalc.push_back ( chronoClock::now ( ) );
 				finMoveCalc.push_back ( chronoClock::now ( ) );
+				
 			}
 			else
 			{
