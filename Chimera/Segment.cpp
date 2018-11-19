@@ -10,19 +10,12 @@ void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& v
 	finalSettings.ramp.isRamp = input.ramp.isRamp;
 	finalSettings.pulse.isPulse = input.pulse.isPulse;
 	finalSettings.mod.modulationIsOn = input.mod.modulationIsOn;
-
 	if ( input.ramp.isRamp )
 	{
 		finalSettings.ramp.type = input.ramp.type;
 		finalSettings.ramp.start = input.ramp.start.evaluate( variables, variation );
-		if ( finalSettings.ramp.type == "nr" )
-		{
-			finalSettings.ramp.end = finalSettings.ramp.start;
-		}
-		else
-		{
-			finalSettings.ramp.end = input.ramp.end.evaluate( variables, variation );
-		}
+		finalSettings.ramp.end = finalSettings.ramp.type == "nr" ? finalSettings.ramp.start
+			: input.ramp.end.evaluate ( variables, variation );
 	}
 	else if ( input.pulse.isPulse )
 	{
@@ -41,68 +34,15 @@ void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& v
 		finalSettings.mod.frequency = input.mod.frequency.evaluate( variables, variation );
 		finalSettings.mod.phase = input.mod.phase.evaluate( variables, variation );
 	}
-
-	// time
 	finalSettings.time = input.time.evaluate( variables, variation) / 1000.0;
 	if ( finalSettings.time < 1e-9 )
 	{
-		thrower( "ERROR: agilent segment set to have zero time! Agilent can't handle zero-length segments." );
+		thrower ( "ERROR: agilent segment set to have zero time! Agilent can't handle zero-length segments." );
 	}
-	// repeat number
-	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
-	if (finalSettings.continuationType == 0)
+	if (finalSettings.continuationType == SegmentEnd::type::repeat)
 	{
+		// in which case you need a number of times to repeat.);
 		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( variables, variation ));
-	}
-}
-
-
-void Segment::convertInputToFinal()
-{	// first transfer things that can't be varied.
-	finalSettings.continuationType = input.continuationType;
-	// handle more complicated things.
-	finalSettings.ramp.isRamp = input.ramp.isRamp;
-	finalSettings.pulse.type = input.pulse.type;
-	finalSettings.pulse.isPulse = input.pulse.isPulse;
-	finalSettings.mod.modulationIsOn = input.mod.modulationIsOn;
-
-	if ( input.ramp.isRamp )
-	{
-		finalSettings.ramp.type = input.ramp.type;
-		finalSettings.ramp.start = input.ramp.start.evaluate( );
-		if ( finalSettings.ramp.type == "nr" )
-		{
-			finalSettings.ramp.end = finalSettings.ramp.start;
-		}
-		else
-		{
-			finalSettings.ramp.end = input.ramp.end.evaluate( );
-		}
-	}
-	else if ( input.pulse.isPulse )
-	{
-		finalSettings.pulse.offset = input.pulse.offset.evaluate( );
-		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( );
-		finalSettings.pulse.width = input.pulse.width.evaluate( ) / 1000.0;
-	}
-	else
-	{
-		finalSettings.holdVal = input.holdVal.evaluate( );
-	}
-
-	if ( input.mod.modulationIsOn )
-	{
-		finalSettings.mod.frequency = input.mod.frequency.evaluate( );
-		finalSettings.mod.phase = input.mod.phase.evaluate( );
-	}
-
-	// time
-	finalSettings.time = input.time.evaluate( ) / 1000.0;
-	// repeat number
-	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
-	if ( finalSettings.continuationType == 0 )
-	{
-		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( ) );
 	}
 }
 
@@ -139,7 +79,6 @@ segmentInfoFinal Segment::getFinalSettings()
 */
 double Segment::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
 {
-	// for linear ramps
 	if (rampType == "lin")
 	{
 		return iteration * (finPos - initPos) / size;
@@ -149,7 +88,6 @@ double Segment::rampCalc( int size, int iteration, double initPos, double finPos
 	{
 		return 0;
 	}
-	// for hyperbolic tangent ramps
 	else if (rampType == "tanh")
 	{
 		return (finPos - initPos) * (tanh( -4 + 8 * (double)iteration / size ) + 1) / 2;
@@ -157,7 +95,7 @@ double Segment::rampCalc( int size, int iteration, double initPos, double finPos
 	else
 	{
 		// error message. I've already checked (outside this function) whether the ramp-type is a filename.
-		thrower( "ERROR: ramp type " + rampType + " is unrecognized.\r\n" );
+		thrower ( "ERROR: ramp type " + rampType + " is unrecognized.\r\n" );
 		return 0;
 	}
 }
@@ -183,7 +121,6 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 	{
 		return 0;
 	}
-	// for no ramp
 	else if ( pulse.type == "gaussian" )
 	{
 		// in this case, the width is the sigma of the gaussian.
@@ -212,16 +149,16 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 	}
 	else
 	{
-		thrower( "ERROR: pulse type " + pulse.type + " is unrecognized.\r\n" );
+		thrower ( "ERROR: pulse type " + pulse.type + " is unrecognized.\r\n" );
 		return 0;
 	}
 }
 
 
 /*
-* This function uses the initial and final points along with the ramp and time of the segment to calculate all of the data points. This should be used so
-* as to, after this function, you have all of the powers that you want (not voltages), and then call the voltage converter afterwards.
-*/
+ * This function uses the initial and final points along with the ramp and time of the segment to calculate all of the data points. This should be used so
+ * as to, after this function, you have all of the powers that you want (not voltages), and then call the voltage converter afterwards.
+ */
 void Segment::calcData( ULONG sampleRate )
 {
 	// calculate the size of the waveform.
@@ -229,12 +166,10 @@ void Segment::calcData( ULONG sampleRate )
 	// test if good time.
 	if (fabs( numDataPointsf - round( numDataPointsf ) ) > 1e-6)
 	{
-		// Bad Time Warning
-		thrower( "ERROR: Bad time entered for the time of an intensity sequence segment. The time was "
+		thrower ( "ERROR: Bad time entered for the time of an intensity sequence segment. The time was "
 				 + str(finalSettings.time) + ", and the sample rate is " + str( sampleRate ) + ". The product of these"
 				 " is the number of samples in the segment, and this must be an integer." );
 	}
-	// Convert to integer
 	int numDataPoints = (int)round( numDataPointsf );
 	// resize to zero. This is a complete reset of the data points in the class.
 	dataArray.resize( 0 );
@@ -250,7 +185,7 @@ void Segment::calcData( ULONG sampleRate )
 		else if ( finalSettings.pulse.isPulse )
 		{
 			point = finalSettings.pulse.offset + pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
-												* modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
+											   * modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
 		}
 		else
 		{
@@ -267,18 +202,12 @@ UINT Segment::returnDataSize()
 }
 
 
-/*
-* return dataArray[dataNum];
-*/
 double Segment::returnDataVal( long dataNum )
 {
 	return dataArray[dataNum];
 }
 
 
-/*
-* dataArray[dataNum] = val;
-*/
 void Segment::assignDataVal( int dataNum, double val )
 {
 	dataArray[dataNum] = val;

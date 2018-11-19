@@ -16,7 +16,9 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DioSystem::DioSystem( bool ftSafemode, bool serialSafemode ) : 	ftFlume( ftSafemode ), 	winSerial( serialSafemode )
+DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	ftFlume( ftSafemode ), 	
+winSerial( serialSafemode ),
+vp_flume(viewpointSafemode)
 {
 	connectType = ftdiConnectionOption::None;
 	for ( auto& row : ttlStatus )
@@ -33,7 +35,7 @@ void DioSystem::ftdi_connectasync( const char devSerial[] )
 {
 	if ( ftFlume.getNumDevices( ) <= 0 )
 	{
-		thrower( "No devices found." );
+		thrower ( "No devices found." );
 	}
 	ftFlume.open( devSerial );
 	ftFlume.setUsbParams( );
@@ -58,7 +60,7 @@ DWORD DioSystem::ftdi_trigger( )
 			}
 			else
 			{
-				thrower( "ERROR: bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
+				thrower ( "bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
 			}
 		}
 		return totalBytesSent;
@@ -83,7 +85,7 @@ void DioSystem::ftdi_disconnect( )
 	}
 	else
 	{
-		thrower( "No connection to close..." );
+		thrower ( "No connection to close..." );
 	}
 	connectType = ftdiConnectionOption::None;
 }
@@ -115,7 +117,7 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 				}
 				else
 				{
-					thrower( "ERROR: bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
+					thrower ( "bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
 				}
 			}
 			totalBytes += dwNumberOfBytesSent;
@@ -128,7 +130,7 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 	}
 	else
 	{
-		thrower( "No ftdi connection exists! Can't write without a connection." );
+		thrower ( "No ftdi connection exists! Can't write without a connection." );
 	}
 	return 0;
 }
@@ -138,7 +140,7 @@ void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT
 {
 	if ( offset + 20 >= dataBuffer.size( ) )
 	{
-		thrower( "ERROR: tried to write data buffer out of bounds!" );
+		thrower ( "tried to write data buffer out of bounds!" );
 	}
 	dataBuffer[offset] = WBWRITE;
 	dataBuffer[offset + 1] = ((TIMEOFFS + count) >> 8) & 0xFF;
@@ -169,14 +171,7 @@ void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT
 void DioSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "TTLS\n";
-	for ( int ttlRowInc = 0; ttlRowInc < getNumberOfTTLRows( ); ttlRowInc++ )
-	{
-		for ( int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow( ); ttlNumberInc++ )
-		{
-			newFile << 0 << " ";
-		}
-		newFile << "\n";
-	}
+	// nothing at the moment.
 	newFile << "END_TTLS\n";
 }
 
@@ -185,46 +180,23 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	/// ttl settings
 	saveFile << "TTLS\n";
-	for (int ttlRowInc = 0; ttlRowInc < getNumberOfTTLRows(); ttlRowInc++)
-	{
-		for (int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow(); ttlNumberInc++)
-		{
-			saveFile << getTtlStatus(ttlRowInc, ttlNumberInc) << " ";
-		}
-		saveFile << "\n";
-	}
+	// nothing at the moment.
 	saveFile << "END_TTLS\n";
 }
 
 
 void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
-	prepareForce( );
+	//prepareForce( );
 	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
-	std::vector<std::vector<bool>> ttlStates;
-	ttlStates.resize(getTtlBoardSize().first);
-	UINT rowInc = 0;
-	for (auto& row : ttlStates)
+	if ( ver < Version ( "3.7" ) )
 	{
-		UINT colInc = 0;
-		row.resize(getTtlBoardSize().second);
-		for (auto& ttl : row)
+		for ( auto i : range ( 64 ) )
 		{
-			std::string ttlString;
-			openFile >> ttlString;
-			try
-			{
-				ttl = boost::lexical_cast<int>(ttlString);
-				forceTtl(rowInc, colInc, ttl);
-				updatePush( rowInc, colInc );
-			}
-			catch ( boost::bad_lexical_cast&)
-			{
-				thrower("ERROR: the ttl status of \"" + ttlString + "\"failed to convert to a bool!");
-			}
-			colInc++;
+			// used to store an initial ttl config in the config file.
+			std::string trash;
+			openFile >> trash;
 		}
-		rowInc++;
 	}
 	ProfileSystem::checkDelimiterLine(openFile, "END_TTLS");
 }
@@ -498,7 +470,7 @@ std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
 {
 	if (ttlPushControls.size() == 0)
 	{
-		thrower("ttl push control is not 2D...");
+		thrower ("ttl push control is not 2D...");
 	}
 	return { ttlPushControls.size(), ttlPushControls.front().size() };
 }
@@ -608,7 +580,7 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 {
 	if (!isValidTTLName(name))
 	{
-		thrower("ERROR: the name " + name + " is not the name of a ttl!");
+		thrower ("the name " + name + " is not the name of a ttl!");
 	}
 	timeType pulseEndTime = time;
 	UINT row, collumn;
@@ -909,6 +881,12 @@ void DioSystem::stopBoard()
 	vp_flume.dioOutStop( 0 );
 }
 
+bool DioSystem::getViewpointSafemode ( )
+{
+	return vp_flume.getSafemodeSetting ( );
+}
+
+
 double DioSystem::getClockStatus()
 {
 	// initialize to zero so that in safemode goes directly to getting tick line.
@@ -919,9 +897,9 @@ double DioSystem::getClockStatus()
 	{
 		vp_flume.dioOutStatus( 0, availableScans, stat );
 
-		if ( DIO_SAFEMODE )
+		if ( vp_flume.getSafemodeSetting ( ) )
 		{
-			thrower( "!" );
+			thrower ( "!" );
 		}
 	}
 	catch ( Error&)
@@ -1121,7 +1099,7 @@ double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 		}
 		time = snap.time;
 	}
-	thrower( "ERROR: failed to find final time for dio system?!?!" );
+	thrower ( "failed to find final time for dio system?!?!" );
 }
 
 
@@ -1230,7 +1208,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	/// now figure out the state of the system at each time.
 	if (timeOrganizer.size() == 0)
 	{
-		thrower("ERROR: No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
+		thrower ("No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
 				 "must contain something.\r\n");
 	}
 	auto& snaps = ttlSnapshots[seqNum][variation];
@@ -1277,7 +1255,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	{
 		if (snapshot.time < 0)
 		{
-			thrower("ERROR: The code tried to set a ttl event at a negative time value! This is clearly not allowed."
+			thrower ("The code tried to set a ttl event at a negative time value! This is clearly not allowed."
 					" Aborting.");
 		}
 	}
@@ -1290,11 +1268,10 @@ std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
 	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 	// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
 	lowordTime = ULONGLONG( time * 10000 ) % 65535;
-	USHORT temp = time * 10000;
 	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
 	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 )
 	{
-		thrower( "ERROR: DIO system was asked to calculate at ime that was too long! this is limited by the card." );
+		thrower ( "DIO system was asked to calculate at ime that was too long! this is limited by the card." );
 	}
 	return { lowordTime, hiwordTime };
 }
@@ -1366,7 +1343,7 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 			}
 			if ( count == NUMPOINTS )
 			{
-				thrower( "RC028.cpp: Non-Terminated table, data was filled all the way to end of data array... "
+				thrower ( "RC028.cpp: Non-Terminated table, data was filled all the way to end of data array... "
 						 "Unit will not work right..., last element of data should be all zeros." );
 			}
 			number++;
@@ -1499,17 +1476,19 @@ void DioSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& 
 
 
 // counts the number of triggers on a given line.
-UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation, UINT seqNum )
+// which.first = row, which.second = number.
+UINT DioSystem::countTriggers( std::pair<UINT, UINT> which, UINT variation, UINT seqNum )
 {
 	auto& snaps = ttlSnapshots[seqNum][variation];
 	UINT count = 0;
 	if ( snaps.size( ) == 0 )
 	{
-		thrower( "ERROR: no ttl events in countTriggers?" );
+		thrower ( "no ttl events in countTriggers?" );
 	}
 	for ( auto eventInc : range(ttlSnapshots[seqNum][variation].size()-1) )
 	{
-		if ( snaps[eventInc].ttlStatus[row][number] == false && snaps[eventInc+1].ttlStatus[row][number] == true )
+		if (	snaps[eventInc].ttlStatus[which.first][which.second] == false 
+			 && snaps[eventInc+1].ttlStatus[which.first][which.second] == true )
 		{
 			count++;
 		}
@@ -1522,7 +1501,7 @@ void DioSystem::checkNotTooManyTimes( UINT variation, UINT seqNum )
 {
 	if ( formattedTtlSnapshots[seqNum][variation].size( ) > 512 )
 	{
-		thrower( "ERROR: DIO Data has more than 512 individual timestamps, which is larger than the DIO64 FIFO Buffer"
+		thrower ( "DIO Data has more than 512 individual timestamps, which is larger than the DIO64 FIFO Buffer"
 				 ". The DIO64 card can only support 512 individual time-stamps. If you need more, you need to configure"
 				 " this code to create a thread to continuously write to the DIO64 card as it outputs." );
 	}
@@ -1533,17 +1512,17 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 {
 	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
 	// of a bug when code first created.
-	for ( int dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
+	for ( UINT dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
 	{
 		auto& snapOuter0 = formattedTtlSnapshots[seqNum][variation][dioEventInc][0];
 		auto& snapOuter1 = formattedTtlSnapshots[seqNum][variation][dioEventInc][1];
-		for ( int dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
+		for ( UINT dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
 		{
 			auto& snapInner0 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][0];
 			auto& snapInner1 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][1];
 			if ( snapOuter0 == snapInner0 && snapOuter1 == snapInner1 )
 			{
-				thrower( "ERROR: Dio system somehow created two events with the same time stamp! This might be caused by"
+				thrower ( "Dio system somehow created two events with the same time stamp! This might be caused by"
 						 " ttl events being spaced to close to each other." );
 			}
 		}
@@ -1590,7 +1569,7 @@ void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 	{
 		if ( seqInfo.size( ) <= variation )
 		{
-			thrower( "ERROR: Attempted to retrieve ttl data from variation " + str( variation ) + ", which does not "
+			thrower ( "Attempted to retrieve ttl data from variation " + str( variation ) + ", which does not "
 					 "exist in the dio code object!" );
 		}
 	}
@@ -1600,7 +1579,7 @@ void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 	{
 		auto& data = ttlData[line / linesPerPlot][line % linesPerPlot];
 		data->clear( );
-		UINT runningSeqTime = 0;
+		double runningSeqTime = 0;
 		for ( auto& ttlSeqData : ttlSnapshots )
 		{
 			for ( auto& snap : ttlSeqData[variation] )
@@ -1619,7 +1598,7 @@ std::string DioSystem::getTtlSequenceMessage(UINT variation, UINT seqNum )
 	std::string message;
 	if ( ttlSnapshots[seqNum].size( ) <= variation )
 	{
-		thrower( "ERROR: Attempted to retrieve ttl sequence message from snapshot " + str( variation ) + ", which does not "
+		thrower ( "Attempted to retrieve ttl sequence message from snapshot " + str( variation ) + ", which does not "
 				 "exist!" );
 	}
 	for (auto snap : ttlSnapshots[seqNum][variation])

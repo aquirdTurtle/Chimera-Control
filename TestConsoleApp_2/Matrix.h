@@ -11,60 +11,40 @@ template <class type>
 class Matrix
 {
 	public:
-	Matrix ( UINT rowsInGrid = 0, UINT colsInGrid = 0 );
-	Matrix ( UINT rowsInGrid, UINT colsInGrid, type initValue );
-	Matrix ( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D );
-	//type operator()( UINT row, UINT col ) const;
-	//type & operator()( UINT row, UINT col );
-	type operator()( UINT row, UINT col ) const;
-	type & operator()( UINT row, UINT col );
-	type operator()( POINT p ) const;
-	type & operator()( POINT p );
-	bool operator==( Matrix<type>& other );
-	UINT getRows ( );
-	UINT getCols ( );
-	UINT size ( ) const;
-	Matrix<type> submatrix ( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
-	std::string print ( );
-	void updateString ( );
-	// typename tells the compiler that std::vector<type>::iterator will be a type.
-	typename boost::container::vector<type>::iterator begin ( ) { return data.begin ( ); }
-	typename boost::container::vector<type>::iterator end ( ) { return data.end ( ); }
-	// need to use the boost version because the std version doesn't do std::vector<bool> properly. vector<bool>
-	// was specialized in the standard library, a decision most consider to be a mistake.
-	boost::container::vector<type> data;
+		Matrix( UINT rowsInGrid=0, UINT colsInGrid=0 );
+		Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue );
+		Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D );
+		//type operator()( UINT row, UINT col ) const;
+		//type & operator()( UINT row, UINT col );
+		type operator()( UINT row, UINT col ) const;
+		type & operator()( UINT row, UINT col );
+		type operator()( POINT p ) const;
+		type & operator()( POINT p );
+		UINT getRows( );
+		UINT getCols( );
+		UINT size ( ) const;
+		Matrix<type> submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
+		std::string print( );
+		void updateString( );
+		// typename tells the compiler that std::vector<type>::iterator will be a type.
+		typename boost::container::vector<type>::iterator begin( ) { return data.begin( ); }
+		typename boost::container::vector<type>::iterator end( ) { return data.end( ); }
+		// need to use the boost version because the std version doesn't do std::vector<bool> properly. vector<bool>
+		// was specialized in the standard library, a decision most consider to be a mistake.
+		boost::container::vector<type> data;
 	private:
-	UINT rows, cols;
-	// the following string is only updated if in debug mode.
-	std::string currMatrix;
+		UINT rows, cols;
+		// the following string is only updated if in debug mode.
+		std::string currMatrix;
 }
 ;
-
-
-template <class type>
-bool Matrix<type>::operator==( Matrix<type>& other )
-{
-	if ( other.getRows ( ) != getRows ( ) || other.getCols ( ) != getCols ( ) )
-	{
-		return false;
-	}
-	for ( auto i : range ( data.size ( ) ) )
-	{
-		if ( data[ i ] != other.data[ i ] )
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
 
 template <class type>
 void loadBools( Matrix<type>& matrix, std::vector<bool> init )
 {
 	if ( matrix.data.size( ) != init.size( ) )
 	{
-		thrower( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
+		thrower ( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
 	}
 	UINT count = 0;
 	for ( auto val : init )
@@ -90,7 +70,7 @@ Matrix<type> Matrix<type>::submatrix( UINT rowOffset, UINT rowSubSpan, UINT colO
 {
 	if ( rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols )
 	{
-		thrower( "ERROR: submatrix extends beyond matrix bounds!" );
+		thrower ( "ERROR: submatrix extends beyond matrix bounds!" );
 	}
 	Matrix<type> subM( 0, 0 );
 	// might be faster to use insert.
@@ -111,14 +91,24 @@ std::string Matrix<type>::print( )
 {
 	std::string printStr;
 	UINT counter = 0;
+	for ( auto rowInc : range(getRows ( )) )
+	{
+		for ( auto colInc : range(getCols ( )) )
+		{
+			printStr += str ( (*this)(getRows() - rowInc - 1, colInc) ) + ", ";
+		}
+		printStr += ";\n";
+	}
+	/*
 	for ( auto elem : *this )
 	{
 		printStr += str( elem ) + ", ";
 		if ( ++counter % cols == 0 )
 		{
-			printStr += ";\n";
+			printStr += ";\n"; 
 		}
 	}
+	*/
 	return printStr;
 }
 
@@ -148,7 +138,7 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D
 {
 	if ( data.size( ) != rows * cols )
 	{
-		thrower( "ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
+		thrower ( "ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
 				 "Lengths were: " + str( data.size( ) ) + ", " + str( rows ) + ", and " + str( cols )
 				 + " respectively." );
 	}
@@ -160,11 +150,11 @@ type Matrix<type>::operator()( UINT row, UINT col ) const
 {
 	if ( row > rows )
 	{
-		thrower( "ERROR: row index out of range during Matrix access!" );
+		thrower ( "ERROR: row index out of range during Matrix access!" );
 	}
 	if ( col > cols )
 	{
-		thrower( "ERROR: col index out of range during Matrix access!" );
+		thrower ( "ERROR: col index out of range during Matrix access!" );
 	}
 	UINT rowOffset( row * cols );
 	UINT index = rowOffset + col;
@@ -177,11 +167,11 @@ type & Matrix<type>::operator()( UINT row, UINT col )
 {
 	if ( row >= rows )
 	{
-		thrower( "ERROR: row index out of range during Matrix access!" );
+		thrower ( "ERROR: row index out of range during Matrix access!" );
 	}
 	if ( col >= cols )
 	{
-		thrower( "ERROR: col index out of range during Matrix access!" );
+		thrower ( "ERROR: col index out of range during Matrix access!" );
 	}
 	UINT rowOffset( row * cols );
 	UINT index = rowOffset + col;

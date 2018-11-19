@@ -24,7 +24,7 @@ GpibFlume::GpibFlume(short device, bool safemode) : deviceSafemode(safemode), de
 	}
 	catch (Error& err)
 	{
-		errBox("GPIB Initialization failed!: " + err.whatStr());
+		errBox("GPIB Initialization failed!: " + err.trace());
 	}
 }
 
@@ -45,7 +45,7 @@ void GpibFlume::send( std::string message, bool checkError )
 
 		if ( ibsta == ERR )
 		{
-			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
+			thrower ( "GPIB ERROR: " + getErrMessage( iberr ) );
 		}
 
 		if ( checkError )
@@ -56,7 +56,7 @@ void GpibFlume::send( std::string message, bool checkError )
 			}
 			catch ( Error& err )
 			{
-				thrower( "ERROR: Error during sending GPIB string \"" + message + "\":" + err.whatBare( ) );
+				throwNested( "Error during sending GPIB string \"" + message + "\":" + err.whatBare( ) );
 			}
 		}
 	}
@@ -72,7 +72,7 @@ std::string GpibFlume::receive()
 		// this error handling doesn't seem to work with send / receive... prob this only works with 488, not 488.2
 		if (ibcntl == 0)
 		{
-			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
+			thrower ( "GPIB ERROR: " + getErrMessage( iberr ) );
 		}
 	}
 	std::string msgStr( msg );
@@ -87,7 +87,7 @@ void GpibFlume::queryError( )
 		std::string errMsg = query( "SYSTem:ERRor:NEXT?" );
 		if ( errMsg != "0,\"No error\"\n" )
 		{
-			thrower( errMsg );
+			thrower ( errMsg );
 		}
 	}
 }
@@ -108,7 +108,7 @@ int GpibFlume::ibdev(int pad)
 		int id = ::ibdev(bdindx, pad, sad, tmo, eot, eos);
 		if (id == -1)
 		{
-			thrower("ibdev failed!");
+			thrower ("ibdev failed!");
 		}
 		return id;
 	}
@@ -131,16 +131,6 @@ std::string GpibFlume::queryIdentity()
 	{
 		return "Disconnected...";
 	}
-	/*
-	try
-	{
-
-	}
-	catch ( Error& exception )
-	{
-		return exception.what();
-	}
-	*/
 }
 
 

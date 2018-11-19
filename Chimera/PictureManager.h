@@ -21,7 +21,7 @@ class PictureManager
 		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );
 		void rearrange( int width, int height, fontMap fonts );
-		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
+		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc );
 		void drawBackgrounds(CDC* easel);
 		void setPalletes(std::array<int, 4> palleteIds);
 		// draw pictures...

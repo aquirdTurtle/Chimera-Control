@@ -39,11 +39,11 @@
 // My stuff
 #include "constants.h"
 #include "resource.h"
+#include "Thrower.h"
 
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <fstream>
+#include <cmath>
 #include <vector>
 #include <array>
-

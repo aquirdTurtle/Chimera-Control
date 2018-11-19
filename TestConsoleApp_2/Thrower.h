@@ -7,38 +7,59 @@
 
 #include <sstream>
 #include <stdexcept>
-
+#include <regex>
 
 class Error : public std::runtime_error
 {
 	public:
-	Error( const std::string &arg, const char *file, int line ) : std::runtime_error( arg )
+	Error ( const std::string &arg, const char *file, int line ) : std::runtime_error( arg )
 	{
+		loc = std::string ( file ) + "; line " + std::to_string ( line );
 		std::ostringstream out;
-		out << file << ":" << line << ": " << arg;
+		out << arg << "\n@ Location:" << loc;
 		msg = out.str( );
-		bareMsg = arg;
+		bareMsg = arg;		
 	}
+	~Error ( ) throw() {}
 
-	~Error( ) throw() {}
-
-	const char *what( ) const throw()
+	const char * what( ) const throw()
 	{
 		return msg.c_str( );
-	}
-	std::string whatStr( ) const throw()
-	{
-		return msg;
 	}
 	std::string whatBare( ) const throw()
 	{
 		return bareMsg;
 	}
+	std::string whatLoc ( ) const throw( )
+	{
+		return loc;
+	}
+	static std::string getErrorStack ( const std::exception& e, unsigned int level = 0)
+	{
+		std::string msg = "ERROR: " + std::string(e.what ( ));
+		std::regex r ( "\n" );
+		msg = std::regex_replace ( msg, r, "\n"+std::string ( level, ' ' ) );
+		std::string stackMsg = std::string ( level, ' ' ) + msg + "\n";
+		try
+		{
+			std::rethrow_if_nested ( e );
+		}
+		catch ( const std::exception& e )
+		{
+			stackMsg += getErrorStack ( e, level + 1 );
+		}
+		catch(...)
+		{ }
+		return stackMsg;
+	}
 	private:
-	std::string msg;
-	std::string bareMsg;
+		std::string msg;
+		std::string bareMsg;
+		std::string loc;
 };
 
 
 // the following gives any throw call file and line information.
-#define thrower(arg) throw Error(arg, __FILE__, __LINE__)
+// throw_with_nested makes it possible to chain thrower calls and get a full error stack traceback
+#define thrower(arg) std::throw_with_nested( Error(arg, __FILE__, __LINE__) )
+

@@ -219,7 +219,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else
 	{
-		thrower( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
+		thrower ( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
 	}
 	if ( style == plotStyle::VertHist )
 	{
@@ -293,7 +293,8 @@ void PlotCtrl::plotPoints( memDC* d )
 		}
 	}
 	std::pair<double, double> minMaxScaled, minMaxRaw;
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::VertHist )
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::VertHist
+		 || style == plotStyle::DacPlot )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
 	}

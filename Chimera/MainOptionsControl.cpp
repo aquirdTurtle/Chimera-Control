@@ -85,7 +85,7 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			errBox( "ERROR: atom threshold for load skip failed to convert to an unsigned long! The code will force "
+			errBox( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
 					   "the threshold to the maximum threshold." );
 			currentOptions.atomThresholdForSkip = -1;
 		}
@@ -111,7 +111,7 @@ mainOptions MainOptionsControl::getOptions()
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: failed to convert atom threshold for load-skip to an unsigned long!" );
+		throwNested ( "failed to convert atom threshold for load-skip to an unsigned long!" );
 	}
 	return currentOptions;
 }

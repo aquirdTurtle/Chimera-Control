@@ -290,7 +290,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	CString text;
 	if ( selection == -1 )
 	{
-		thrower ( "ERROR: Please select an exposure mode for the basler camera." );
+		thrower  ( "Please select an exposure mode for the basler camera." );
 	}
 	exposureModeCombo.GetLBText ( selection, text );
 	currentSettings.exposureMode = BaslerAutoExposure::fromStr(std::string(text));
@@ -302,12 +302,12 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 			currentSettings.exposureTime = boost::lexical_cast<double> ( std::string ( text ) );
 			if ( currentSettings.exposureTime <= 0 )
 			{
-				thrower ( "err!" );
+				thrower  ( "err!" );
 			}
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower ( "Error! Please input a valid double for the exposure time." );
+			throwNested ( "Error! Please input a valid double for the exposure time." );
 		}
 	}
 
@@ -322,12 +322,12 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 			currentSettings.repCount = boost::lexical_cast<int> ( std::string ( text ) );
 			if ( currentSettings.repCount == 0 )
 			{
-				thrower ( "ERROR! Repetition count must be strictly positive." );
+				thrower  ( "ERROR! Repetition count must be strictly positive." );
 			}
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower ( "Error! Please input a valid positive integer for the rep count." );
+			throwNested ( "Error! Please input a valid positive integer for the rep count." );
 		}
 	}
 
@@ -352,7 +352,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	catch ( boost::bad_lexical_cast& )
 	{
 
-		thrower ( "Left border argument not an integer!\r\n" );
+		throwNested ( "Left border argument not an integer!\r\n" );
 	}
 	leftEdit.RedrawWindow ( );
 
@@ -363,7 +363,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "Horizontal binning argument not an integer!\r\n" );
+		throwNested ( "Horizontal binning argument not an integer!\r\n" );
 	}
 	horizontalBinningEdit.RedrawWindow ( );
 
@@ -399,7 +399,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "Right border argument not an integer!\r\n" );
+		throwNested ( "Right border argument not an integer!\r\n" );
 	}
 	rightEdit.RedrawWindow ( );
 	//
@@ -415,7 +415,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "Top border argument not an integer!\r\n" );
+		throwNested ( "Top border argument not an integer!\r\n" );
 	}
 	topEdit.RedrawWindow ( );
 	//
@@ -426,7 +426,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "Vertical binning argument not an integer!\r\n" );
+		throwNested ( "Vertical binning argument not an integer!\r\n" );
 	}
 	verticalBinningEdit.RedrawWindow ( );
 	//
@@ -463,7 +463,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "Bottom border argument not an integer!\r\n" );
+		throwNested ( "Bottom border argument not an integer!\r\n" );
 	}
 	bottomEdit.RedrawWindow ( );
 
@@ -477,7 +477,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	#endif
 	if (currentSettings.dims.horizontalBinning > 4 || currentSettings.dims.verticalBinning > 4)
 	{
-		thrower( "ERROR: Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
+		thrower ( "Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
 	}
 
 	selection = triggerCombo.GetCurSel();
@@ -490,9 +490,9 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	{
 		currentSettings.frameRate = boost::lexical_cast<double>( std::string( text ) );
 	}
-	catch ( boost::bad_lexical_cast& err)
+	catch ( boost::bad_lexical_cast&)
 	{
-		thrower( std::string("ERROR! Please enter a valid float for the frame rate. ") + err.what() );
+		throwNested( std::string("ERROR! Please enter a valid float for the frame rate. ") );
 	}
 	isReady = true;
 	return currentSettings;
@@ -521,7 +521,7 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower ( "ERROR: Basler control failed to convert dimensions recorded in the config file "
+		throwNested ( "Basler control failed to convert dimensions recorded in the config file "
 				  "to integers" );
 	}
 	configFile >> newSettings.dims.horizontalBinning;

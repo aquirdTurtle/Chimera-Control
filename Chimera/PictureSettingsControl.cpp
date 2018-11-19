@@ -167,7 +167,7 @@ std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( 
 		auto sel = combo.GetCurSel( );
 		if ( sel < 0 || sel > 4 )
 		{
-			thrower( "Invalid selection in display type combo???" );
+			thrower ( "Invalid selection in display type combo???" );
 		}
 		options[counter].isDiff = sel != 0;
 		options[counter].whichPicForDif = sel;
@@ -406,7 +406,7 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* 
 	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 	if ( settings.totalVariations * settings.totalPicsInVariation > INT_MAX )
 	{
-		thrower( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
+		thrower ( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
 	}
 	settings.totalPicsInExperiment = int( settings.totalVariations * settings.totalPicsInVariation );
 	andorObj->setSettings( settings );
@@ -481,7 +481,7 @@ void PictureSettingsControl::setExposureTimes(std::vector<float>& times, AndorCa
 	if (exposureTimesUnofficial.size() <= 0)
 	{
 		// this shouldn't happend
-		thrower("ERROR: reached bad location where exposure times was of zero size, but this should have been detected earlier in the "
+		thrower ("ERROR: reached bad location where exposure times was of zero size, but this should have been detected earlier in the "
 				 "code.");
 	}
 	// now output things.
@@ -552,7 +552,7 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 	if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
 	{
-		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
 	settings.totalPicsInExperiment = int(settings.totalVariations * settings.totalPicsInVariation);
 	for (UINT picInc = 0; picInc < 4; picInc++)
@@ -609,7 +609,7 @@ void PictureSettingsControl::updateSettings( )
 			thresholdFile.open ( str("J:\\Code-Files\\") + str(textEdit) );
 			if ( !thresholdFile.is_open ( ) )
 			{
-				thrower ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
+				thrower  ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
 						 "and it wasn't the address of a threshold-file." );  
 			}
 			while ( true )

@@ -80,7 +80,7 @@ class AuxiliaryWindow : public CDialog
 						  BaslerWindow* basWin_);
 		std::string getOtherSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
-		std::array<std::string, 24> getDacNames();
+		std::array<AoInfo, 24> getDacInfo ( );
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
@@ -111,7 +111,6 @@ class AuxiliaryWindow : public CDialog
 
 		void loadMotSettings(MasterThreadInput* input);
 		void loadTempSettings ( MasterThreadInput* input );
-		void loadPgcTempSettings ( MasterThreadInput* input );
 
 		void handleTektronicsButtons(UINT id);
 

@@ -110,12 +110,12 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 {
 	if ( width < 100 )
 	{
-		thrower( "Pictures must be greater than 100 in width because this is the size of the max/min"
+		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
 									 "controls." );
 	}
 	if ( height < 100 )
 	{
-		thrower( "Pictures must be greater than 100 in height because this is the minimum height "
+		thrower ( "Pictures must be greater than 100 in height because this is the minimum height "
 									 "of the max/min controls." );
 	}
 	maxWidth = width;
@@ -321,7 +321,7 @@ coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 		}
 	}
 	// null result. only first number is checked.
-	thrower( "click location not found" );
+	thrower ( "click location not found" );
 }
 
 
@@ -354,7 +354,7 @@ void PictureControl::handleEditChange( int id )
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower( "Please enter an integer." ); 
+			throwNested ( "Please enter an integer." );
 		}
 		sliderMax.SetPos( max );
 		maxSliderPosition = max;
@@ -370,7 +370,7 @@ void PictureControl::handleEditChange( int id )
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower( "Please enter an integer." );
+			throwNested ( "Please enter an integer." );
 		}
 		sliderMin.SetPos( min );
 		minSliderPosition = min;
@@ -532,13 +532,13 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData )
 	// assumes non-zero size...
 	if ( grid.size ( ) == 0 )
 	{
-		thrower ( "ERROR: tried to draw bitmap without setting grid size!" );
+		thrower  ( "Tried to draw bitmap without setting grid size!" );
 	}
 	int dataHeight = grid[ 0 ].size ( );
 	int totalGridSize = dataWidth * dataHeight;
 	if ( picData.size ( ) != totalGridSize )
 	{
-		thrower ( "ERROR: picture data didn't match grid size!" );
+		thrower  ( "Picture data didn't match grid size!" );
 	}
 	// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
 	if ( pixelsAreaWidth % 4 )
@@ -944,7 +944,7 @@ void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 	// get appropriate brush and pen
 	if (dc == NULL)
 	{
-		thrower("dc was null!");
+		thrower ("dc was null!");
 	}
 	dc->SelectObject( GetStockObject( HOLLOW_BRUSH ) );
 	dc->SelectObject( GetStockObject( DC_PEN ) );

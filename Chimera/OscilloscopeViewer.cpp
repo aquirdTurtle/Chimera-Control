@@ -17,7 +17,7 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 	}
 	catch ( Error& err )
 	{
-		errBox( "Error detected while initializing scope viewer! " + err.whatStr( ) );
+		errBox( "Error detected while initializing scope viewer! " + err.trace( ) );
 	}
 }
 
@@ -78,7 +78,7 @@ void ScopeViewer::refreshData( )
 		{
 			visa.write( "DATa:SOUrce CH" + str( line + 1 ) );
 		}
-		catch ( Error& err)
+		catch ( Error&)
 		{
 			//errBox( err.what( ) );
 		}
@@ -86,7 +86,7 @@ void ScopeViewer::refreshData( )
 		{
 			visa.query( "Curve?\n", data );
 		}
-		catch ( Error& err )
+		catch ( Error& )
 		{
 			continue;
 		}

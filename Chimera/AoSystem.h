@@ -81,14 +81,14 @@ class AoSystem
 		double getDefaultValue( UINT dacNum );
 		unsigned int getNumberSnapshots( UINT variation, UINT seqNum );
 		std::string getName( int dacNumber );
-		std::string getNote( int dacNumber );
-		std::array<std::string, 24> getAllNames( );
+		std::string getNote ( int dacNumber );
 		ULONG getNumberEvents( UINT variation, UINT seqNum );
 		int getDacIdentifier( std::string name );
 		double getDacValue( int dacNumber );
 		unsigned int getNumberOfDacs( );
 		std::pair<double, double> getDacRange( int dacNumber );
-		std::array<double, 24> getDacStatus( );
+		std::array<AoInfo, 24> getDacInfo ( );
+		//std::array<double, 24> getDacStatus( );
 		std::array<double, 24> getFinalSnapshot( );
 		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
@@ -96,16 +96,11 @@ class AoSystem
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
 		Control<CleanButton> zeroDacsButton;
+
 		std::array<Control<CStatic>, 24> dacLabels;
 		std::array<Control<CEdit>, 24> breakoutBoardEdits;
-		std::array<double, 24> dacValues;
-		std::array<std::string, 24> dacNames;
-		std::array<double, 24> dacMinVals;
-		std::array<double, 24> dacMaxVals;
-		std::array<double, 24> defaultVals;
-		// notes are purely cosmetic. Can be used e.g. to store calibration curves for VCOs or detailed reminders about 
-		// using a given dac.
-		std::array<std::string, 24> dacNotes;
+
+		std::array<AoInfo, 24> dacInfo;
 
 		const double dacResolution;
 		std::vector<std::vector<AoCommandForm>> dacCommandFormList;

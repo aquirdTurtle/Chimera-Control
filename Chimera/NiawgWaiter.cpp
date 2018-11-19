@@ -115,7 +115,7 @@ void NiawgWaiter::wait( Communicator* comm )
 	if (eWaitError)
 	{
 		eWaitError = false;
-		thrower( "ERROR: Error in the wait function!\r\n" );
+		thrower ( "ERROR: Error in the wait function!\r\n" );
 	}
 }
 
@@ -129,6 +129,6 @@ void NiawgWaiter::systemAbortCheck( Communicator* comm )
 	if ( eAbortNiawgFlag )
 	{
 		comm->sendStatus( "Aborted!\r\n" );
-		thrower( "Aborted!\r\n" );
+		thrower ( "Aborted!\r\n" );
 	}
 }

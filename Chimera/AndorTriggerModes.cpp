@@ -18,7 +18,7 @@ std::string AndorTriggerModeText ( AndorTriggerMode mode )
 	}
 	else
 	{
-		thrower("ERROR: AndorTriggerMode not recognized?!");
+		thrower ("ERROR: AndorTriggerMode not recognized?!");
 	}
 }
 
@@ -39,7 +39,7 @@ AndorTriggerMode AndorTriggerModeFromText ( std::string txt )
 	}
 	else
 	{
-		thrower("ERROR: andortriggermode not recognized?!?");
+		thrower ("ERROR: andortriggermode not recognized?!?");
 	}
 }
 

@@ -27,8 +27,9 @@ namespace TestAoSystem
 		}
 		TEST_METHOD( ForceOut )
 		{
+			// initialize in safemode
 			AoSystem aoSys( true );
-			DioSystem dio(true, true);
+			DioSystem dio(true, true, true);
 			aoSys.resetDacEvents( );
 			dio.resetTtlEvents( );
 			aoSys.handleSetDacsButtonPress( &dio, true );
@@ -45,6 +46,7 @@ namespace TestAoSystem
 			dio.startBoard( );
 			dio.waitTillFinished( 0, false, 0 );
 			auto vals = dio.getCurrentStatus( );
+			// should test vals?
 		}
 		CONNECTED_TEST( Init_Connected_AoSystem)
 		{

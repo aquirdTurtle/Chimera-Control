@@ -71,11 +71,11 @@ type rerngContainer<type>::operator()( UINT row, UINT col, dir direction ) const
 {
 	if ( row > rows )
 	{
-		thrower( "ERROR: row index out of range during rearrangementMoveContainer access!" );
+		thrower ( "ERROR: row index out of range during rearrangementMoveContainer access!" );
 	}
 	if ( col > cols )
 	{
-		thrower( "ERROR: col index out of range during rearrangementMoveContainer access!" );
+		thrower ( "ERROR: col index out of range during rearrangementMoveContainer access!" );
 	}
 	UINT rowOffset( row * cols * 4 );
 	UINT colOffset( col * 4 );
@@ -88,11 +88,11 @@ type & rerngContainer<type>::operator()( UINT row, UINT col, dir direction )
 {
 	if ( row >= rows )
 	{
-		thrower( "ERROR: row index out of range during rearrangementMoveContainer access!" );
+		thrower ( "ERROR: row index out of range during rearrangementMoveContainer access!" );
 	}
 	if ( col >= cols )
 	{
-		thrower( "ERROR: col index out of range during rearrangementMoveContainer access!" );
+		thrower ( "ERROR: col index out of range during rearrangementMoveContainer access!" );
 	}
 	UINT rowOffset( row * cols * 4 );
 	UINT colOffset( col * 4 );

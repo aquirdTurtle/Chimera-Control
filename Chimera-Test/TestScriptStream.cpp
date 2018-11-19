@@ -32,18 +32,27 @@ namespace TestMatrix
 			testStream.seekg( 0 );			
 			Assert::AreEqual( testStream.getline( ).c_str(), "0 1\t2" );
 		}
-		TEST_METHOD( ScriptStreamCommentEating )
+		TEST_METHOD( ScriptStreamCommentEating_WhiteSpaceHandling )
 		{
 			ScriptStream testStream;
-			std::string testString( "%hello, @#$() base 45 \n0\n1 %comment \tfollowing real\n\n2" );
+			std::string testString( "%hello, @#$() base 45 \n"
+									"0\n"
+									"1 %comment \tfollowing real"
+									"\n"
+									"\n2"
+									"\r\n"
+									"5"
+									"\r6");
 			testStream.str( testString );
 			Assert::AreEqual( testStream.str( ), testString );
-			for ( auto i : { 0,1,2 } )
+			std::string test;
+			for ( auto i : { 0,1,2,5 } )
 			{
-				std::string test;
 				testStream >> test;
 				Assert::AreEqual( test, std::to_string( i ) );
 			}
+			testStream >> test;
+			Assert::IsTrue ( "\r6" == test );
 			testStream.str( testString );
 			testStream.clear( );
 			testStream.seekg( 0 );

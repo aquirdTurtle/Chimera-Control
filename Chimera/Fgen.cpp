@@ -416,6 +416,6 @@ void FgenFlume::errChecker( int err )
 {
 	if (err < 0)
 	{
-		thrower( "NIAWG Error: " + getErrorMsg() + "\r\n");
+		thrower ( "NIAWG Error: " + getErrorMsg() + "\r\n");
 	}
 }

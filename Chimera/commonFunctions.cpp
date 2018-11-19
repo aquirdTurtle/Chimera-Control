@@ -67,7 +67,7 @@ namespace commonFunctions
 						mainWin->getComm ( )->sendColorBox ( System::Niawg, 'B' );
 						break;
 					}
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.trace ( ) );
 					mainWin->getComm ( )->sendColorBox ( System::Camera, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
@@ -91,7 +91,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n " + err.trace ( ) );
 					mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
 					mainWin->getComm ( )->sendColorBox ( System::Master, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
@@ -113,13 +113,28 @@ namespace commonFunctions
 				}
 
 				ExperimentInput input;
-				camWin->redrawPictures(false);
 				try
 				{
+					if ( mainWin->masterIsRunning() )
+					{
+						auto response = promptBox ( "The Master system is already running. Would you like to run the "
+													"current configuration when master finishes? This effectively "
+													"auto-presses F5 when complete and skips confirmation.", MB_YESNO );
+						if ( response == IDYES )
+						{
+							mainWin->autoF5_AfterFinish = true;
+						}
+						break;
+					}
+					camWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					camWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
-					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true, input );
+					if ( !mainWin->autoF5_AfterFinish )
+					{
+						commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, true, true, input );
+					}
+					mainWin->autoF5_AfterFinish = false;
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
@@ -138,7 +153,7 @@ namespace commonFunctions
 						mainWin->getComm()->sendColorBox( System::Niawg, 'B' );
 						break;
 					}
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.trace());
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -174,7 +189,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " + err.trace( ) );
 					mainWin->getComm( )->sendColorBox( System::Master, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -192,7 +207,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "ERROR: Andor Camera threw error while aborting! Error: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "Andor Camera threw error while aborting! Error: " + err.trace( ) );
 					mainWin->getComm( )->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -212,7 +227,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.whatStr( ) );
+					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.trace( ) );
 					if ( status == "NIAWG" )
 					{
 						mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
@@ -232,7 +247,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm ( )->sendError ( "ERROR: error while aborting basler! Error Message: " + err.whatStr ( ) );
+					mainWin->getComm ( )->sendError ( "error while aborting basler! Error Message: " + err.trace ( ) );
 					if ( status == "Basler" )
 					{
 						mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
@@ -243,7 +258,8 @@ namespace commonFunctions
 
 				if (!niawgAborted && !andorAborted && !masterAborted && !baslerAborted)
 				{
-					mainWin->getComm()->sendError("Andor camera, NIAWG, Master, and Basler camera were not running. Can't Abort.\r\n");
+					mainWin->getComm ( )->sendError ( "Andor camera, NIAWG, Master, and Basler camera were not running. "
+													  "Can't Abort.\r\n" );
 				}
 				break;
 			}
@@ -277,7 +293,7 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 					camWin->assertOff();
@@ -289,8 +305,8 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					errBox( "Data Logging failed to start up correctly! " + err.whatStr() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					errBox( "Data Logging failed to start up correctly! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 				}
 				break;
 			}
@@ -309,7 +325,7 @@ namespace commonFunctions
 				catch (Error& except)
 				{
 					mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 				}
 				try
@@ -318,8 +334,8 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					errBox( "Data Logging failed to start up correctly! " + err.whatStr() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					errBox( "Data Logging failed to start up correctly! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 				}
 				break;
 			}
@@ -340,7 +356,7 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm()->sendColorBox( System::Master, 'R' );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
 				}
 				try
@@ -349,8 +365,8 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					errBox( "Data Logging failed to start up correctly! " + err.whatStr() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					errBox( "Data Logging failed to start up correctly! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 				}
 				break;
 			}
@@ -383,7 +399,7 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( err.what( ) );
+					mainWin->getComm( )->sendError( err.trace( ) );
 				}
 				break;
 			}
@@ -400,7 +416,7 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
-					mainWin->getComm()->sendError("ERROR! " + err.whatStr());
+					mainWin->getComm()->sendError("ERROR! " + err.trace());
 				}
 				break;
 			}
@@ -708,7 +724,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -731,7 +747,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -837,7 +853,7 @@ namespace commonFunctions
 				break;
 			}
 			default:
-				errBox("ERROR: Common message passed but not handled! The feature you're trying to use"\
+				errBox("Common message passed but not handled! The feature you're trying to use"\
 						" feature likely needs re-implementation / new handling.");
 		}
 	}
@@ -857,13 +873,13 @@ namespace commonFunctions
 		}
 		catch ( Error& err )
 		{
-			errBox( err.what( ) );
+			errBox( err.trace( ) );
 		}
 	}
 
 
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-											   AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
+							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
 	{
 		Communicator* comm = mainWin->getComm();
 		profileSettings profile = mainWin->getProfileSettings();
@@ -871,13 +887,13 @@ namespace commonFunctions
 		if (mainWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
-			thrower( "ERROR: nIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
+			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
 
 		if (seq.sequence.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
-			thrower( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
+			thrower ( "No configurations in current sequence! Please set some configurations to run in this "
 					 "sequence or set the null sequence.\r\n" );
 		}
 		// check config settings
@@ -984,17 +1000,17 @@ namespace commonFunctions
 	{
 		if (mainWin->niawgIsRunning())
 		{
-			thrower( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
+			thrower ( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
 					 "can stop normally." );
 		}
 		if (camWin->cameraIsRunning())
 		{
-			thrower( "The Camera is Currently Running. Please stop the system before exiting so that devices devices "
+			thrower ( "The Camera is Currently Running. Please stop the system before exiting so that devices devices "
 					 "can stop normally." );
 		}
 		if (mainWin->masterIsRunning())
 		{
-			thrower( "The Master system (ttls & aoSys) is currently running. Please stop the system before exiting so "
+			thrower ( "The Master system (ttls & aoSys) is currently running. Please stop the system before exiting so "
 					 "that devices can stop normally." );
 		}
 		scriptWindow->checkScriptSaves( );
@@ -1011,7 +1027,7 @@ namespace commonFunctions
 			}
 			catch ( Error& except )
 			{
-				errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.whatStr( ) );
+				errBox( "The NIAWG did not exit smoothly. : " + except.trace( ) );
 			}			
 			auxWin->EndDialog( 0 );
 			camWin->EndDialog( 0 );
@@ -1027,7 +1043,7 @@ namespace commonFunctions
 		profileSettings profile = mainWin->getProfileSettings();
 		if (mainWin->niawgIsRunning())
 		{
-			thrower( "The system is currently running. You cannot reload the default waveforms while the system is "
+			thrower ( "The system is currently running. You cannot reload the default waveforms while the system is "
 					 "running. Please restart the system before attempting to reload default waveforms." );
 		}
 		int choice = promptBox("Reload the default waveforms from (presumably) updated files? Please make sure that "
@@ -1042,10 +1058,10 @@ namespace commonFunctions
 			mainWin->setNiawgDefaults();
 			mainWin->restartNiawgDefaults();
 		}
-		catch (Error& exception)
+		catch (Error&)
 		{
 			mainWin->restartNiawgDefaults();
-			thrower( "ERROR: failed to reload the niawg default waveforms! Error message: " + exception.whatStr() );
+			throwNested( "failed to reload the niawg default waveforms!" );
 		}
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
@@ -1162,9 +1178,11 @@ namespace commonFunctions
 		bool areYouSure = dlg.DoModal( );
 		if ( !areYouSure )
 		{
-			thrower( "CANCEL!" );
+			thrower ( "CANCEL!" );
 		}
 		return areYouSure;
 	}
+
 };
+
 

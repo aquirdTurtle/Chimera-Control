@@ -13,11 +13,11 @@ AoSystem::AoSystem(bool aoSafemode) : dacResolution(10.0 / pow(2, 16)), daqmx( a
 	/// set some constants...
 	// Both are 0-INDEXED. D16
 	dacTriggerLine = { 3, 15 };
-	for ( auto dacInc : range(dacValues.size()))
+	for ( auto& dac : dacInfo )
 	{
-		dacValues[dacInc] = 0;
-		dacMinVals[dacInc] = -10;
-		dacMaxVals[dacInc] = 10;
+		dac.currVal = 0;
+		dac.minVal = -10;
+		dac.maxVal = 10;
 	}
 	// paraphrasing adam...
 	// Dacs sample at 1 MHz, so 0.5 us is appropriate.
@@ -48,7 +48,7 @@ AoSystem::AoSystem(bool aoSafemode) : dacResolution(10.0 / pow(2, 16)), daqmx( a
 	// I catch here because it's the constructor, and catching elsewhere is weird.
 	//catch (Error& exception)
 	//{
-	//	errBox(exception.what());
+	//	errBox(exception.trace());
 	//}
 }
 
@@ -100,9 +100,9 @@ void AoSystem::zeroDacs( DioSystem* ttls )
 }
 
 
-std::array<double, 24> AoSystem::getDacStatus()
+std::array<AoInfo, 24> AoSystem::getDacInfo( )
 {
-	return dacValues;
+	return dacInfo;
 }
 
 
@@ -125,23 +125,14 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
 void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
-	prepareForce( );
-	std::vector<double> values(getNumberOfDacs());
 	UINT dacInc = 0;
-	for (auto& dac : values)
+	if ( ver < Version ( "3.7" ) )
 	{
-		std::string dacString;
-		openFile >> dacString;
-		try
+		for ( auto i : range ( 24 ) )
 		{
-			double dacValue = boost::lexical_cast<double>(dacString);
-			prepareDacForceChange(dacInc, dacValue, ttls);
+			std::string trash;
+			openFile >> trash;
 		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			thrower("ERROR: failed to convert dac value to voltage. string was " + dacString);
-		}
-		dacInc++;
 	}
 	ProfileSystem::checkDelimiterLine(openFile, "END_DACS");
 }
@@ -150,10 +141,7 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem*
 void AoSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "DACS\n";
-	for ( UINT dacInc = 0; dacInc < getNumberOfDacs( ); dacInc++ )
-	{
-		newFile << 0 << " ";
-	}
+	// nothing at the moment.
 	newFile << "\nEND_DACS\n";
 }
 
@@ -161,10 +149,7 @@ void AoSystem::handleNewConfig( std::ofstream& newFile )
 void AoSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "DACS\n";
-	for (UINT dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
-	{
-		saveFile << getDacValue(dacInc) << " ";
-	}
+	// nothing at the moment.
 	saveFile << "\nEND_DACS\n";
 }
 
@@ -204,7 +189,7 @@ void AoSystem::handleEditChange(UINT dacNumber)
 {
 	if (dacNumber >= breakoutBoardEdits.size())
 	{
-		thrower("ERROR: attempted to handle dac edit change, but the dac number reported doesn't exist!");
+		thrower ("attempted to handle dac edit change, but the dac number reported doesn't exist!");
 	}
 	CString text;
 	breakoutBoardEdits[dacNumber].GetWindowTextA(text);
@@ -214,15 +199,15 @@ void AoSystem::handleEditChange(UINT dacNumber)
 	{
 		if (roundToDacPrecision)
 		{
-			double roundNum = roundToDacResolution(dacValues[dacNumber]);
-			if (fabs(roundToDacResolution(dacValues[dacNumber]) - boost::lexical_cast<double>(textStr)) < 1e-8)
+			double roundNum = roundToDacResolution(dacInfo[dacNumber].currVal);
+			if (fabs(roundToDacResolution(dacInfo[dacNumber].currVal) - boost::lexical_cast<double>(textStr)) < 1e-8)
 			{
 				matches = true;
 			}
 		}
 		else
 		{
-			if (fabs(dacValues[dacNumber] - boost::lexical_cast<double>(str(text))) < 1e-8)
+			if (fabs( dacInfo[ dacNumber ].currVal - boost::lexical_cast<double>(str(text))) < 1e-8)
 			{
 				matches = true;
 			}
@@ -277,13 +262,13 @@ void AoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 
 void AoSystem::setDefaultValue(UINT dacNum, double val)
 {
-	defaultVals[dacNum] = val;
+	dacInfo[ dacNum ].defaultVal = val;
 }
 
 
 double AoSystem::getDefaultValue(UINT dacNum)
 {
-	return defaultVals[dacNum];
+	return dacInfo[dacNum].defaultVal;
 }
 
 
@@ -321,7 +306,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 		edit.colorState = 0;
 		edit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, edit.sPos, master, id++ );
 		edit.SetWindowText( "0" );
-		edit.setToolTip( dacNames[dacInc] + "\r\n" + dacNotes[dacInc], toolTips, master );
+		edit.setToolTip( dacInfo[dacInc].name + "\r\n" + dacInfo[ dacInc ].note, toolTips, master );
 		dacInc++;
 	}
 
@@ -340,7 +325,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 		dacLabels[dacInc].sPos = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y += 25 };
 		dacLabels[dacInc].Create( cstr( dacInc ), WS_CHILD | WS_VISIBLE | SS_CENTER,
 								  dacLabels[dacInc].sPos, master, ID_DAC_FIRST_EDIT + dacInc );
-		dacLabels[dacInc].setToolTip( dacNames[ dacInc ] + "\r\n" + dacNotes[ dacInc ], toolTips, master );
+		dacLabels[dacInc].setToolTip( dacInfo[ dacInc ].name + "\r\n" + dacInfo[ dacInc ].note, toolTips, master );
 	}
 }
 
@@ -386,14 +371,18 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 			}
 			else
 			{
-				thrower( "ERROR: value entered in DAC #" + str( dacInc ) + " (" + text.GetString( )
+				throwNested( "value entered in DAC #" + str( dacInc ) + " (" + text.GetString( )
 						 + ") failed to convert to a double!" );
 			}
 		}
 		prepareDacForceChange( dacInc, vals[dacInc], ttls );
 	}
 	// wait until after all this to actually do this to make sure things get through okay.
-	dacValues = vals;
+
+	for ( auto i : range ( dacInfo.size() ) )
+	{
+		dacInfo[ i ].currVal = vals[ i ];
+	}
 	for ( UINT dacInc = 0; dacInc < dacLabels.size( ); dacInc++ )
 	{
 		breakoutBoardEdits[dacInc].colorState = 0;
@@ -404,17 +393,10 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 
 void AoSystem::updateEdits( )
 {
-	for ( auto dacInc : range( dacValues.size( ) ) )
+	for ( auto dacInc : range( dacInfo.size( ) ) )
 	{
-		std::string valStr;
-		if ( roundToDacPrecision )
-		{
-			valStr = str( roundToDacResolution( dacValues[dacInc] ), 13, true );
-		}
-		else
-		{
-			valStr = str( dacValues[dacInc] );
-		}
+		std::string valStr = roundToDacPrecision ? str ( roundToDacResolution ( dacInfo[ dacInc ].currVal ), 13, true )
+			: str ( dacInfo[ dacInc ].currVal );
 		breakoutBoardEdits[dacInc].SetWindowTextA( cstr( valStr ) );
 	}
 }
@@ -456,6 +438,11 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 	auto& snap = dacSnapshots[seqNum][variation];
 	snap.clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
+	std::array<double, 24> dacValues;
+	for ( auto i : range ( dacInfo.size ( ) ) )
+	{
+		dacValues[ i ] = dacInfo[ i ].currVal;
+	}
 	snap.push_back({ 0, dacValues });
 	for (auto& command : timeOrganizer)
 	{
@@ -504,26 +491,26 @@ std::array<double, 24> AoSystem::getFinalSnapshot()
 			}
 			else
 			{
-				thrower( "No DAC Events" );
+				thrower ( "No DAC Events" );
 			}
 		}
 		else
 		{
-			thrower( "No DAC Events" );
+			thrower ( "No DAC Events" );
 		}
 	}
 	else
 	{
-		thrower("No DAC Events");
+		thrower ("No DAC Events");
 	}
 }
 
-
+/*
 std::array<std::string, 24> AoSystem::getAllNames()
 {
 	return dacNames;
 }
-
+*/
 
 /*
  * IMPORTANT: this does not actually change any of the outputs of the board. It is meant to be called when things have
@@ -534,19 +521,22 @@ std::array<std::string, 24> AoSystem::getAllNames()
 void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 {
 	// set the internal values
-	dacValues = status;
+	for ( auto dacInc : range ( dacInfo.size ( ) ) )
+	{
+		dacInfo[ dacInc ].currVal = status[ dacInc ];
+	}
 	// change the edits
 	for (UINT dacInc = 0; dacInc < dacLabels.size(); dacInc++)
 	{
 		std::string valStr;
 		if (roundToDacPrecision)
 		{
-			double val = roundToDacResolution(dacValues[dacInc]);
+			double val = roundToDacResolution( dacInfo[ dacInc ].currVal );
 			valStr = str(val, 13, true);
 		}
 		else
 		{
-			valStr = str(dacValues[dacInc], 13, true);
+			valStr = str( dacInfo[ dacInc ].currVal, 13, true);
 		}
 		breakoutBoardEdits[dacInc].SetWindowText(cstr(valStr));
 		breakoutBoardEdits[dacInc].colorState = 0;
@@ -559,7 +549,9 @@ double AoSystem::roundToDacResolution(double num)
 	return long((num + dacResolution / 2) / dacResolution) * dacResolution;
 }
 
+
 template <typename T> using vec = std::vector<T>;
+
 
 void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
 							  std::vector<std::vector<double>> finTimes )
@@ -578,7 +570,7 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 		{
 			if ( dacSeqInfo.size( ) <= variation )
 			{
-				thrower( "ERROR: Attempted to use dac data from variation " + str( variation ) + ", which does not "
+				thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
 						 "exist!" );
 			}
 			for ( auto& snap : dacSeqInfo[variation] )
@@ -758,7 +750,7 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 				}
 				else
 				{
-					thrower( "ERROR: Unrecognized dac command name: " + formList.commandName );
+					thrower ( "Unrecognized dac command name: " + formList.commandName );
 				}
 			}
 		}
@@ -796,7 +788,7 @@ void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 			// can't trigger faster than the trigger time.
 			if (fabs(time - secondTime) < dacTriggerTime)
 			{
-				thrower("ERROR: timings are such that the dac system would have to get triggered too fast to follow the"
+				thrower ("timings are such that the dac system would have to get triggered too fast to follow the"
 						" programming! ");
 			}
 			countInner++;
@@ -861,24 +853,25 @@ void AoSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
 		valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
 	}
 	//breakoutBoardEdits[line].SetWindowText(cstr(valStr));
-	dacValues[line] = voltage;
+	dacInfo[ line ].currVal = voltage;
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the aoSys for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
-	setForceDacEvent( line, voltage, ttls, 0, 0 );
+
+	setForceDacEvent ( line, voltage, ttls, 0, 0 );
 }
 
 
 void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 {
-	for (UINT line = 0; line < dacNames.size(); line++)
+	for (UINT line = 0; line < dacInfo.size(); line++)
 	{
 		for (auto snapshot : dacSnapshots[seqNum][variation])
 		{
-			if (snapshot.dacValues[line] > dacMaxVals[line] || snapshot.dacValues[line] < dacMinVals[line])
+			if (snapshot.dacValues[line] > dacInfo[line].maxVal || snapshot.dacValues[line] < dacInfo[line].minVal )
 			{
-				thrower("ERROR: Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
+				thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 						"value was " + str(snapshot.dacValues[line]) + ", while the minimum accepted value is " +
-						str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
+						str(dacInfo[line].minVal) + " and the maximum value is " + str( dacInfo[line].maxVal ) + ". "
 						"Change the min/max if you actually need to set this value.\r\n");
 			}
 		}
@@ -888,11 +881,11 @@ void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 
 void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum )
 {
-	if (val > dacMaxVals[line] || val < dacMinVals[line])
+	if (val > dacInfo[line].maxVal || val < dacInfo[line].minVal )
 	{
-		thrower("ERROR: Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
+		thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 				"value was " + str(val) + ", while the minimum accepted value is " +
-				str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
+				str( dacInfo[ line ].minVal ) + " and the maximum value is " + str( dacInfo[ line ].maxVal ) + ". "
 				"Change the min/max if you actually need to set this value.\r\n");
 	}
 	AoCommand eventInfo;
@@ -973,17 +966,17 @@ void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
 		 || finalData[1].size() != 8 * snapshots.size()
 		 || finalData[2].size() != 8 * snapshots.size())
 	{
-		thrower( "Data array size doesn't match the number of time slices in the experiment!" );
+		thrower ( "Data array size doesn't match the number of time slices in the experiment!" );
 	}
 	// Should probably run a check on samples written.
 	int32 samplesWritten;
 	//
 	daqmx.writeAnalogF64( analogOutTask0, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[0].front(),
-					   &samplesWritten );
+					      &samplesWritten );
 	daqmx.writeAnalogF64( analogOutTask1, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[1].front(),
-					   &samplesWritten );
+					      &samplesWritten );
 	daqmx.writeAnalogF64( analogOutTask2, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[2].front(),
-					   &samplesWritten );
+					      &samplesWritten );
 }
 
 
@@ -1032,17 +1025,17 @@ void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, 
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{
-		thrower( "ERROR: dac commandName not recognized!" );
+		thrower ( "dac commandName not recognized!" );
 	}
 	if (!isValidDACName( name))
 	{
-		thrower("ERROR: the name " + name + " is not the name of a dac!");
+		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	// convert name to corresponding dac line.
 	command.line = getDacIdentifier(name);
 	if ( command.line == -1)
 	{
-		thrower("ERROR: the name " + name + " is not the name of a dac!");
+		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	dacShadeLocations.push_back( command.line );
 	setDacCommandForm( command, seqNum );
@@ -1051,11 +1044,11 @@ void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, 
 
 int AoSystem::getDacIdentifier(std::string name)
 {
-	for (UINT dacInc = 0; dacInc < dacValues.size(); dacInc++)
+	for (UINT dacInc = 0; dacInc < dacInfo.size(); dacInc++)
 	{
 		// check names set by user.
-		std::transform( dacNames[dacInc].begin(), dacNames[dacInc].end(), dacNames[dacInc].begin(), ::tolower );
-		if (name == dacNames[dacInc])
+		std::transform( dacInfo[dacInc].name.begin(), dacInfo[ dacInc ].name.end(), dacInfo[ dacInc ].name.begin(), ::tolower );
+		if (name == dacInfo[ dacInc ].name )
 		{
 			return dacInc;
 		}
@@ -1069,24 +1062,24 @@ int AoSystem::getDacIdentifier(std::string name)
 	return -1;
 }
 
-void AoSystem::setMinMax(int dacNumber, double min, double max)
+void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
 {
-	if (!(min <= max))
+	if (!(minv <= maxv))
 	{
-		thrower("ERROR: Min dac value must be less than max dac value.");
+		thrower ("Min dac value must be less than max dac value.");
 	}
-	if (min < -10 || min > 10 || max < -10 || max > 10)
+	if (minv < -10 || minv > 10 || maxv < -10 || maxv > 10)
 	{
-		thrower("ERROR: Min and max dac values must be withing [-10,10].");
+		thrower ("Min and max dac values must be withing [-10,10].");
 	}
-	dacMinVals[dacNumber] = min;
-	dacMaxVals[dacNumber] = max;
+	dacInfo[ dacNumber ].minVal = minv;
+	dacInfo[ dacNumber ].maxVal = maxv;
 }
 
 
 std::pair<double, double> AoSystem::getDacRange(int dacNumber)
 {
-	return { dacMinVals[dacNumber], dacMaxVals[dacNumber] };
+	return { dacInfo[dacNumber].minVal, dacInfo[ dacNumber ].maxVal };
 }
 
 
@@ -1098,25 +1091,25 @@ void AoSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, Aux
 		return; 
 	}
 	std::transform( name.begin(), name.end(), name.begin(), ::tolower );
-	dacNames[dacNumber] = name;
-	breakoutBoardEdits[dacNumber].setToolTip( dacNames[ dacNumber ] + "\r\n" + dacNotes[ dacNumber ], toolTips, master);
+	dacInfo[ dacNumber ].name = name;
+	breakoutBoardEdits[dacNumber].setToolTip( dacInfo[ dacNumber ].name + "\r\n" + dacInfo[ dacNumber ].note, toolTips, master);
 }
 
 std::string AoSystem::getNote ( int dacNumber )
 {
-	return dacNotes[ dacNumber ];
+	return dacInfo[ dacNumber ].note;
 }
 
 void AoSystem::setNote( int dacNum, std::string note, cToolTips& toolTips, AuxiliaryWindow* master )
 {
-	dacNotes[ dacNum ] = note;
-	breakoutBoardEdits[ dacNum ].setToolTip ( dacNames[ dacNum ] + "\r\n" + dacNotes[ dacNum ], toolTips, master );
+	dacInfo[ dacNum ].note = note;
+	breakoutBoardEdits[ dacNum ].setToolTip ( dacInfo[ dacNum ].name + "\r\n" + dacInfo[ dacNum ].note, toolTips, master );
 }
 
 
 std::string AoSystem::getName(int dacNumber)
 {
-	return dacNames[dacNumber];
+	return dacInfo[dacNumber].name;
 }
 
 
@@ -1160,13 +1153,13 @@ HBRUSH AoSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgbs
 
 UINT AoSystem::getNumberOfDacs()
 {
-	return dacValues.size();
+	return dacInfo.size ( );
 }
 
 
 double AoSystem::getDacValue(int dacNumber)
 {
-	return dacValues[dacNumber];
+	return dacInfo[dacNumber].currVal;
 }
 
 

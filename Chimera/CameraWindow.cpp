@@ -8,6 +8,7 @@
 #include "MainWindow.h"
 #include "realTimePlotterInput.h"
 #include "MasterThreadInput.h"
+#include "ErrDialog.h"
 #include "ATMCD32D.H"
 #include <numeric>
 #include "Thrower.h"
@@ -58,11 +59,11 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &AndorWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
 
-	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &AndorWindow::onCameraFinish )
-	ON_REGISTERED_MESSAGE( eCameraCalFinMessageID, &AndorWindow::onCameraCalFinish )
-	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &AndorWindow::onCameraProgress )
-	ON_REGISTERED_MESSAGE( eCameraCalProgMessageID, &AndorWindow::onCameraCalProgress )
-	ON_REGISTERED_MESSAGE( eBaslerFinMessageId, &AndorWindow::onBaslerFinish )
+	ON_MESSAGE ( MainWindow::AndorFinishMessageID, &AndorWindow::onCameraFinish )
+	ON_MESSAGE ( MainWindow::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
+	ON_MESSAGE ( MainWindow::AndorProgressMessageID, &AndorWindow::onCameraProgress )
+	ON_MESSAGE ( MainWindow::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
+	ON_MESSAGE ( MainWindow::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
 
@@ -110,7 +111,7 @@ void AndorWindow::passDelGrid( )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -123,7 +124,7 @@ void AndorWindow::writeVolts( UINT currentVoltNumber, std::vector<float64> data 
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -136,7 +137,7 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 	}
 	catch ( Error& err )
 	{
-		errBox( "Error! " + err.whatStr( ) );
+		mainWin->getComm ( )->sendError ( err.trace ( ) );
 	}
 }
 
@@ -152,7 +153,7 @@ void AndorWindow::handleImageDimsEdit( UINT id )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( dc );
 }
@@ -166,7 +167,7 @@ void AndorWindow::handleEmGainChange()
 	}
 	catch ( Error err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -204,28 +205,35 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void AndorWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
+void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
+	try
+	{
 	// I could and perhaps should further subdivide this up.
-	CameraSettings.handleOpenConfig(configFile, ver );
-	pics.handleOpenConfig(configFile, ver );
-	analysisHandler.handleOpenConfig( configFile, ver );
-	if ( CameraSettings.getSettings( ).andor.picsPerRepetition == 1 )
-	{
-		pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
-	}
-	else
-	{
-		pics.setMultiplePictures( this, CameraSettings.getSettings().andor.imageSettings, 
-								  CameraSettings.getSettings( ).andor.picsPerRepetition );
-	}
-	pics.resetPictureStorage( );
-	std::array<int, 4> nums = CameraSettings.getSettings( ).palleteNumbers;
-	pics.setPalletes( nums );
+		CameraSettings.handleOpenConfig ( configFile, ver );
+		pics.handleOpenConfig ( configFile, ver );
+		analysisHandler.handleOpenConfig ( configFile, ver );
+		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
+		{
+			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
+		}
+		else
+		{
+			pics.setMultiplePictures ( this, CameraSettings.getSettings ( ).andor.imageSettings,
+									   CameraSettings.getSettings ( ).andor.picsPerRepetition );
+		}
+		pics.resetPictureStorage ( );
+		std::array<int, 4> nums = CameraSettings.getSettings ( ).palleteNumbers;
+		pics.setPalletes ( nums );
 
-	CRect rect;
-	GetWindowRect( &rect );
-	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
+		CRect rect;
+		GetWindowRect ( &rect );
+		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Andor Camera Window failed to read parameters from the configuration file." );
+	}
 }
 
 
@@ -306,7 +314,24 @@ void AndorWindow::abortCameraRun()
 		plotThreadActive = false;
 		atomCrunchThreadActive = false;
 		// Wait until plotting thread is complete.
-		WaitForSingleObject( plotThreadHandle, INFINITE );
+		while ( true )
+		{
+			auto res = WaitForSingleObject ( plotThreadHandle, 2e3 );
+			if ( res == WAIT_TIMEOUT )
+			{
+				auto ans = promptBox ( "The real time plotting thread is taking a while to close. Continue waiting?",
+									   MB_YESNO );
+				if ( ans == IDNO )
+				{
+					// This might indicate something about the code is gonna crash...
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 		plotThreadAborting = false;
 		// camera is no longer running.
 		try
@@ -315,7 +340,7 @@ void AndorWindow::abortCameraRun()
 		}
 		catch (Error& err)
 		{
-			mainWin->getComm()->sendError(err.what());
+			mainWin->getComm()->sendError(err.trace());
 		}
 		
 
@@ -331,7 +356,7 @@ void AndorWindow::abortCameraRun()
 				}
 				catch (Error& err)
 				{
-					mainWin->getComm()->sendError(err.what());
+					mainWin->getComm()->sendError(err.trace());
 				}
 			}
 		}
@@ -358,7 +383,7 @@ void AndorWindow::handlePictureEditChange( UINT id )
 	catch (Error& err)
 	{
 		// these errors seem more deserving of an error box.
-		errBox(err.what());
+		errBox(err.trace());
 	}
 }
 
@@ -387,7 +412,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 		return NULL;
 	}
 	avgBackground.resize( picData.back( ).size( ) );
@@ -418,7 +443,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( drawer );
 	mostRecentPicNum = picNum;
@@ -465,7 +490,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch (Error& err)
 	{
-		mainWin->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.trace() );
 		return NULL;
 	}
 	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
@@ -535,7 +560,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	catch (Error& err)
 	{
-		mainWin->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.trace() );
 	}
 
 	ReleaseDC( drawer );
@@ -552,7 +577,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		}
 		catch (Error& err)
 		{
-			mainWin->getComm()->sendError( err.what() );
+			mainWin->getComm()->sendError( err.trace() );
 		}
 	}
 	mostRecentPicNum = picNum;
@@ -710,7 +735,7 @@ void AndorWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	mainWin->updateConfigurationSavedStatus( false );
 }
@@ -768,7 +793,7 @@ void AndorWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 	{
 		if ( err.whatBare( ) != "click location not found" )
 		{
-			mainWin->getComm( )->sendError( err.what( ) );
+			mainWin->getComm( )->sendError( err.trace( ) );
 		}
 	}
 	ReleaseDC(dc);
@@ -786,7 +811,7 @@ void AndorWindow::passSetTemperaturePress()
 	}
 	catch (Error& err)
 	{
-		mainWin->getComm()->sendError(err.what());
+		mainWin->getComm()->sendError(err.trace());
 	}
 	mainWin->updateConfigurationSavedStatus( false );
 }
@@ -819,7 +844,7 @@ void AndorWindow::passAtomGridCombo( )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -863,11 +888,11 @@ void AndorWindow::checkCameraIdle( )
 {
 	if ( Andor.isRunning( ) )
 	{
-		thrower( "Camera is already running! Please Abort to restart.\r\n" );
+		thrower ( "Camera is already running! Please Abort to restart.\r\n" );
 	}
 	if ( analysisHandler.getLocationSettingStatus( ) )
 	{
-		thrower( "Please finish selecting analysis points before starting the camera!\r\n" );
+		thrower ( "Please finish selecting analysis points before starting the camera!\r\n" );
 	}
 	// make sure it's idle.
 	try
@@ -875,14 +900,14 @@ void AndorWindow::checkCameraIdle( )
 		Andor.queryStatus( );
 		if ( ANDOR_SAFEMODE )
 		{
-			thrower( "DRV_IDLE" );
+			thrower ( "DRV_IDLE" );
 		}
 	}
 	catch ( Error& exception )
 	{
 		if ( exception.whatBare( ) != "DRV_IDLE" )
 		{
-			throw;
+			throwNested ( " while querying andor status to check if idle." );
 		}
 	}
 }
@@ -903,7 +928,16 @@ BOOL AndorWindow::PreTranslateMessage(MSG* pMsg)
 
 void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {
-	pics.handleScroll(nSBCode, nPos, scrollbar);
+	try
+	{
+		CDC* cdc = GetDC ( );
+		pics.handleScroll ( nSBCode, nPos, scrollbar, cdc );
+		ReleaseDC ( cdc );
+	}
+	catch ( Error& err )
+	{
+		mainWin->getComm ( )->sendError ( err.what ( ) );
+	}
 }
 
 // 3836, 1951
@@ -926,7 +960,7 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	}
 	catch ( Error& err )
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( dc );
 	timer.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
@@ -943,7 +977,7 @@ void AndorWindow::setEmGain()
 	}
 	catch (Error& exception)
 	{
-		errBox( exception.what() );
+		errBox( exception.trace() );
 	}
 	mainWin->updateConfigurationSavedStatus( false );
 }
@@ -980,7 +1014,7 @@ void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
 	}
 	catch ( Error& err)
 	{
-		mainWin->getComm( )->sendError( err.what( ) );
+		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 
 	CDC* dc = GetDC( );
@@ -1249,7 +1283,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 				ULONG pixelColumn = ( grid.topLeftCorner.column - 1)  + columnInc * grid.pixelSpacing;
 				if ( pixelRow >= input->imageDims.height() || pixelColumn >= input->imageDims.width() )
 				{
-					errBox( "ERROR: atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
+					errBox( "atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
 							"cruncher thread" );
 					return 0;
 				}
@@ -1257,7 +1291,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 				if ( index >= input->imageDims.width() * input->imageDims.height() )
 				{
 					// shouldn't happen after I finish debugging.
-					errBox( "ERROR: Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
+					errBox( "Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
 							" is larger than the image is!  (A low level bug, this shouldn't happen)" );
 					return 0;
 				}
@@ -1269,7 +1303,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 	{
 		if ( picThresholds.size ( ) != 1 && picThresholds.size ( ) != input->grids[ 0 ].numAtoms ( ) )
 		{
-			errBox ( "ERROR: the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
+			errBox ( "the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
 					 "first grid! Size is " + str(picThresholds.size()) + "and grid size is " + 
 					 str(input->grids[ 0 ].numAtoms ( )) );
 			return 0;
@@ -1379,7 +1413,7 @@ std::string AndorWindow::getStartMessage()
 		PlottingInfo tempInfoCheck(PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
 		if (tempInfoCheck.getPicNumber() != CameraSettings.getSettings().andor.picsPerRepetition)
 		{
-			thrower( "ERROR: one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
+			thrower ( ": one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
 					 " file." );
 		}
@@ -1456,7 +1490,7 @@ void AndorWindow::OnCancel()
 	}
 	catch (Error& exception)
 	{
-		errBox( exception.what() );
+		errBox( exception.trace() );
 	}
 }
 
@@ -1525,7 +1559,7 @@ void AndorWindow::redrawPictures( bool andGrid )
 	catch (Error& err)
 	{
 		ReleaseDC( dc );
-		mainWin->getComm()->sendError( err.what() );
+		mainWin->getComm()->sendError( err.trace() );
 	}
 	// currently don't attempt to redraw previous picture data.
 }
@@ -1600,7 +1634,7 @@ void AndorWindow::passCommonCommand(UINT id)
 	catch (Error& err)
 	{
 		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 }
 
@@ -1627,7 +1661,7 @@ void AndorWindow::readImageParameters()
 	{
 		Communicator* comm = mainWin->getComm();
 		comm->sendColorBox( System::Camera, 'R' );
-		comm->sendError( exception.whatStr() + "\r\n" );
+		comm->sendError( exception.trace() + "\r\n" );
 	}
 	CDC* dc = GetDC();
 	pics.drawGrids(dc);

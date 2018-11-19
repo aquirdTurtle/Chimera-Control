@@ -206,14 +206,15 @@ void PictureManager::drawPicture( CDC* deviceContext, int pictureNumber, std::ve
 	}
 }
 
-void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
+void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc)
 {
 	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
 	{
 		int id = scrollbar->GetDlgCtrlID();
 		for (auto& control : pictures)
 		{
-			control.handleScroll(id, nPos);
+			control.handleScroll ( id, nPos );
+			control.redrawImage ( cdc );
 		}
 	}
 }
@@ -231,7 +232,7 @@ coordinate PictureManager::getClickLocation( CPoint clickLocation )
 		catch(Error&){}
 		// checkClickLocation throws if not found. Continue looking.
 	}
-	thrower( "click location not found" );
+	thrower ( "click location not found" );
 }
 
 

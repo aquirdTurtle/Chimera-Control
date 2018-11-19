@@ -29,10 +29,6 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
 	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos,
 							  parent, listviewId );
-	parametersListview.fontType = fontTypes::SmallFont;
-	parametersListview.SetBkColor( RGB( 15, 15, 15 ) );
-	parametersListview.SetTextBkColor( RGB( 15, 15, 15 ) );
-	parametersListview.SetTextColor( RGB( 150, 150, 150 ) );
 
 	RECT r;
 	parent->GetClientRect( &r );
@@ -55,6 +51,9 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 		parametersListview.InsertColumn( 9, "-()" );
 	}
 	parametersListview.insertBlankRow ( );
+	parametersListview.fontType = fontTypes::SmallFont;
+	parametersListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
+	parametersListview.SetTextColor ( RGB ( 150, 150, 150 ) );
 	parametersListview.SetBkColor( rgbs["Solarized Base02"] );
 	pos.y += 300;
 }
@@ -143,7 +142,7 @@ std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream&
 	configFile >> variableNumber;
 	if ( variableNumber > 100 )
 	{
-		int answer = promptBox( "ERROR: variable number retrieved from file appears suspicious. The number is "
+		int answer = promptBox( "variable number retrieved from file appears suspicious. The number is "
 								+ str( variableNumber ) + ". Is this accurate?", MB_YESNO );
 		if ( answer == IDNO )
 		{
@@ -212,7 +211,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 {
 	if ( paramSysType != ParameterSysType::global )
 	{
-		thrower( "ERROR: adjusting variable values in the code like this is only meant to be used with global variables!" );
+		thrower ( "adjusting variable values in the code like this is only meant to be used with global variables!" );
 	}
 	bool found = false;
 	for ( auto& param : currentParameters )
@@ -226,7 +225,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 	}
 	if ( !found )
 	{
-		thrower( "ERROR: variable \"" + paramName + "\" not found in global varable control!" );
+		thrower ( "variable \"" + paramName + "\" not found in global varable control!" );
 	}
 	// adjust text.
 	LVFINDINFO param = { 0 };
@@ -235,7 +234,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 	auto item = parametersListview.FindItem( &param );
 	if ( item == -1 )
 	{
-		thrower( "ERROR: parameter named \"" + paramName
+		thrower ( "parameter named \"" + paramName
 				 + "\" was found in list of parameters, but on in parameter control???" );
 	}
 	parametersListview.SetItem ( str ( value ), item, 1 );
@@ -259,7 +258,7 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 	}
 	else
 	{
-		thrower( "ERROR: unknown variable type option: \"" + typeText + "\" for variable \"" + varName 
+		thrower ( "unknown variable type option: \"" + typeText + "\" for variable \"" + varName 
 				 + "\". Check the formatting of the configuration file." );
 	}
 	if (ver > Version("2.7" ) )
@@ -277,7 +276,7 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 		// I think it's unlikely to ever need more than 2 or 3 ranges.
 		if ( rangeNumber < 1 || rangeNumber > 100 )
 		{
-			errBox ( "ERROR: Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
+			errBox ( "Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
 			rangeNumber = 1;
 		}
 	}
@@ -361,7 +360,7 @@ void ParameterSystem::removeVariableDimension ( )
 {
 	if ( scanDimensions == 1 )
 	{
-		thrower ( "ERROR: Can't delete last variable scan dimension." );
+		thrower  ( "Can't delete last variable scan dimension." );
 	}
 	// change all variables in the last dimension to be in the second-to-last dimension.
 	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
@@ -399,7 +398,7 @@ void ParameterSystem::checkVariationRangeConsistency ( )
 		{
 			if ( dum == 0 )
 			{
-				errBox ( "ERROR: The number of variation ranges of a parameter, " + var.name +
+				errBox ( "The number of variation ranges of a parameter, " + var.name +
 						 ", did not match the official number. The code will force the parameter to match the official"
 						 " number." );
 				dum++;
@@ -419,7 +418,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 	checkVariationRangeConsistency ( );
 	if ( rangeInfo.size ( ) != currentVariableRangeNumber )
 	{
-		errBox ( "ERROR: somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
+		errBox ( "somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
 				 "displayed are off! The numbers are " + str ( rangeInfo.size ( ) ) + " and "
 				 + str ( currentVariableRangeNumber ) + " respectively. The program will attempt to fix this, but "
 				 "data may be lost." );
@@ -546,7 +545,7 @@ void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool 
 {
 	if ( rangeNum >= rangeInfo.size ( ) )
 	{
-		thrower ( "ERROR: tried to set the border inclusivity of a range that does not exist!" );
+		thrower  ( "tried to set the border inclusivity of a range that does not exist!" );
 	}
 	if ( leftBorder )
 	{
@@ -717,16 +716,16 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			{
 				if (variable.name == newName)
 				{
-					thrower( "ERROR: A varaible with name " + newName + " already exists!" );
+					thrower ( "A varaible with name " + newName + " already exists!" );
 				}
 			}
 			if ( ttls->isValidTTLName( newName ) )
 			{
-				thrower( "ERROR: the name " + newName + " is already a ttl Name!" );
+				thrower ( "the name " + newName + " is already a ttl Name!" );
 			}
 			if ( aoSys->isValidDACName( newName ) )
 			{
-				thrower( "ERROR: the name " + newName + " is already a dac name!" );
+				thrower ( "the name " + newName + " is already a dac name!" );
 			}
 			param.name = newName;
 			parametersListview.SetItem ( newName, itemIndicator, subitem );
@@ -754,7 +753,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				}
 				catch ( boost::bad_lexical_cast&)
 				{
-					thrower( "ERROR: the value entered, " + newValue + ", failed to convert to a double! "
+					throwNested ( "the value entered, " + newValue + ", failed to convert to a double! "
 							"Check for invalid characters." );
 				}
 				std::string temp(str( param.constantValue));
@@ -849,7 +848,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower( "ERROR: the value entered, " + newValue + ", failed to convert to a double! "
+				throwNested ( "the value entered, " + newValue + ", failed to convert to a double! "
 						 "Check for invalid characters." );
 			}
 			// update the listview
@@ -900,7 +899,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				}
 				catch ( boost::bad_lexical_cast&)
 				{
-					thrower("ERROR: the value entered, " + newValue + ", failed to convert to a double! "
+					throwNested ("the value entered, " + newValue + ", failed to convert to a double! "
 							 "Check for invalid characters.");
 				}
 				if ( (subitem - preRangeColumns) % 3 == 0 )
@@ -933,7 +932,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				}
 				catch ( boost::bad_lexical_cast&)
 				{
-					thrower("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check "
+					throwNested ("the value entered, " + newValue + ", failed to convert to a double! Check "
 									"for invalid characters.");
 				}
 				for (auto varInc : range(currentParameters.size()))
@@ -1089,11 +1088,11 @@ void ParameterSystem::addGlobalParameter( parameterType variable, UINT item )
 	std::transform( variable.name.begin(), variable.name.end(), variable.name.begin(), ::tolower );
 	if (isdigit(variable.name[0]))
 	{
-		thrower("ERROR: " + variable.name + " is an invalid name; names cannot start with numbers.");
+		thrower ("" + variable.name + " is an invalid name; names cannot start with numbers.");
 	}
 	if (variable.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
 	{
-		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
+		thrower ("Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
 	if (variable.name == "")
@@ -1105,13 +1104,13 @@ void ParameterSystem::addGlobalParameter( parameterType variable, UINT item )
 	/// else...
 	if (variable.constant == false)
 	{
-		thrower( "ERROR: attempted to add a non-constant to the global variable control!" );
+		thrower ( "attempted to add a non-constant to the global variable control!" );
 	}
 	for (auto currentVar : currentParameters)
 	{
 		if (currentVar.name == variable.name)
 		{
-			thrower( "ERROR: A variable with the name " + variable.name + " already exists!" );
+			thrower ( "A variable with the name " + variable.name + " already exists!" );
 		}
 	}
 	// add it to the internal structure that keeps track of variables
@@ -1128,12 +1127,12 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 	std::transform(variableToAdd.name.begin(), variableToAdd.name.end(), variableToAdd.name.begin(), ::tolower);
 	if (isdigit(variableToAdd.name[0]))
 	{
-		thrower("ERROR: " + variableToAdd.name + " is an invalid name; names cannot start with numbers.");
+		thrower ("" + variableToAdd.name + " is an invalid name; names cannot start with numbers.");
 	}
 	// check for forbidden (math) characters
 	if (variableToAdd.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
 	{
-		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
+		thrower ("Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
 	if (variableToAdd.name == "" )
@@ -1148,7 +1147,7 @@ void ParameterSystem::addConfigParameter(parameterType variableToAdd, UINT item)
 	{
 		if (currentVar.name == variableToAdd.name)
 		{
-			thrower("ERROR: A variable with the name " + variableToAdd.name + " already exists!");
+			thrower ("A variable with the name " + variableToAdd.name + " already exists!");
 		}
 	}
 	// add it to the internal structure that keeps track of variables
@@ -1402,7 +1401,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					// if its zero its just the initial size on the initial variable.
 					if ( variations[seqInc].size( ) != 0 )
 					{
-						thrower( "ERROR: Not all variables seem to have the same number of ranges for their parameters!" );
+						thrower ( "Not all variables seem to have the same number of ranges for their parameters!" );
 					}
 					variations[seqInc][dimInc].resize( variable.ranges.size( ) );
 				}
@@ -1452,7 +1451,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 	{
 		if ( variableIndexes[ seqInc ].size ( ) == 0 && inputRangeInfo[seqInc].variations != 1 )
 		{
-			//thrower ( "ERROR: Key generator thinks that there are variations but no variables vary?!?! Low level bug"
+			//thrower  ( "Key generator thinks that there are variations but no variables vary?!?! Low level bug"
 			//		  ", this shouldn't happen." );
 		}
 		for ( auto variableInc : range( variableIndexes[seqInc].size( ) ) )
@@ -1491,7 +1490,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 				auto& currRange = variable.ranges[rangeIndex];
 				if ( variations[seqInc][varDim][rangeIndex] <= 1 )
 				{
-					thrower( "ERROR: You need more than one variation in every range." );
+					thrower ( "You need more than one variation in every range." );
 				}
 				// calculate the parameters for the variation range
 				double valueRange = (currRange.finalValue - currRange.initialValue);

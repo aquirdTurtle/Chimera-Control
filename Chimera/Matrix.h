@@ -44,7 +44,7 @@ void loadBools( Matrix<type>& matrix, std::vector<bool> init )
 {
 	if ( matrix.data.size( ) != init.size( ) )
 	{
-		thrower( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
+		thrower ( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
 	}
 	UINT count = 0;
 	for ( auto val : init )
@@ -70,7 +70,7 @@ Matrix<type> Matrix<type>::submatrix( UINT rowOffset, UINT rowSubSpan, UINT colO
 {
 	if ( rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols )
 	{
-		thrower( "ERROR: submatrix extends beyond matrix bounds!" );
+		thrower ( "ERROR: submatrix extends beyond matrix bounds!" );
 	}
 	Matrix<type> subM( 0, 0 );
 	// might be faster to use insert.
@@ -138,7 +138,7 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D
 {
 	if ( data.size( ) != rows * cols )
 	{
-		thrower( "ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
+		thrower ( "ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
 				 "Lengths were: " + str( data.size( ) ) + ", " + str( rows ) + ", and " + str( cols )
 				 + " respectively." );
 	}
@@ -150,11 +150,11 @@ type Matrix<type>::operator()( UINT row, UINT col ) const
 {
 	if ( row > rows )
 	{
-		thrower( "ERROR: row index out of range during Matrix access!" );
+		thrower ( "ERROR: row index out of range during Matrix access!" );
 	}
 	if ( col > cols )
 	{
-		thrower( "ERROR: col index out of range during Matrix access!" );
+		thrower ( "ERROR: col index out of range during Matrix access!" );
 	}
 	UINT rowOffset( row * cols );
 	UINT index = rowOffset + col;
@@ -167,11 +167,11 @@ type & Matrix<type>::operator()( UINT row, UINT col )
 {
 	if ( row >= rows )
 	{
-		thrower( "ERROR: row index out of range during Matrix access!" );
+		thrower ( "ERROR: row index out of range during Matrix access!" );
 	}
 	if ( col >= cols )
 	{
-		thrower( "ERROR: col index out of range during Matrix access!" );
+		thrower ( "ERROR: col index out of range during Matrix access!" );
 	}
 	UINT rowOffset( row * cols );
 	UINT index = rowOffset + col;

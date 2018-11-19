@@ -29,7 +29,6 @@ struct MasterThreadInput;
 struct seqInfo;
 class NiawgWaiter;
 
-
 /** 
   * One of the biggest & most complicated classes in the code.
   * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
@@ -60,7 +59,7 @@ class NiawgController
 								UINT variation );
 
 		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& variables,
-							   bool deleteWaveAfterWrite=true );
+							   bool deleteWaveAfterWrite=true, niawgLibOption::mode libOption = niawgLibOption::defaultMode );
 		void deleteWaveData( simpleWave& core );
 		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave );
 		void handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script,
@@ -70,7 +69,7 @@ class NiawgController
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<parameterType>& variables, simpleWaveForm& wave );
 		void setDefaultWaveforms( MainWindow* mainWin );
-		static long waveformSizeCalc( double time );
+		//static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		// programming the device
 		void restartDefault();
@@ -102,13 +101,8 @@ class NiawgController
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
 		static void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
-									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary,
-									   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT, bool useLibrary = true );
-		static std::vector<double> combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions,
-													  std::vector<double> initBias, std::vector<double> finBias,
-													  Matrix<std::vector<double>> preCalcMoves );
-		static Matrix<std::vector<double>> precalcSingleDimMoves ( std::vector<double> freqs, std::vector<double> phases );
-		static std::vector<double> calcSingleDimMove ( double time, double f1, double f2, double phase );
+									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+									   niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		static niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator* comm );
 		static int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal, bool reversed=false );
 	private:
@@ -136,30 +130,30 @@ class NiawgController
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
-		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
+		void writeStandardWave( simpleWave& wave, debugInfo& options, bool isDefault, 
+								niawgLibOption::mode libOption = niawgLibOption::defaultMode);
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
 		void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
-									   bool powerCap = false, bool constPower = CONST_POWER_OUTPUT );
+								niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions() );
 		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
 		static void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
-								  double time, bool powerCap=false, bool constPower=CONST_POWER_OUTPUT );
+								  double time, niawgWavePower::mode powerMode = niawgWavePower::defaultMode );
 
 		void handleMinus1Phase( simpleWave& waveCore, simpleWave& prevWave );
-		void createFlashingWave( waveInfo& wave, debugInfo options );
+		void createFlashingWave( waveInfo& wave, debugInfo& options );
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void openWaveformFiles( );
 		bool isLogic( std::string command );
 		void handleLogic( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
-		void handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd,
-											  ScriptStream& scripts, debugInfo& options, rerngGuiOptionsForm guiInfo,
-											  std::vector<parameterType>& variables );
+		void handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd, 
+									ScriptStream& scripts, debugInfo& options, rerngGuiOptionsForm guiInfo,
+									std::vector<parameterType>& variables );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
 		void handleSpecial( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 
 									  profileSettings profile, debugInfo& options, std::string& warnings );
-		void finalizeStandardWave( simpleWave& wave, debugInfo& options, bool powerCap = false, 
-								   bool constPower = CONST_POWER_OUTPUT );
+		void finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		/// member variables
  		// Important. This can change if you change computers.
  		const ViRsrc NI_5451_LOCATION = "Dev6";

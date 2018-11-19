@@ -25,7 +25,7 @@ class ServoManager
 {
 	public:
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
-						 DioSystem* ttls_in, ParameterSystem* globals_in );
+						 DioSystem* ttls_in, ParameterSystem* globals_in, rgbMap rgbs );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll( );
 		void calibrate( servoInfo& s, UINT which );

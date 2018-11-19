@@ -63,12 +63,12 @@ void ScriptingWindow::handleMasterFunctionChange( )
 	{
 		masterScript.functionChangeHandler(mainWin->getProfileSettings().categoryPath);
 		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacNames( ) );
+										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 		masterScript.updateSavedStatus( true );
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 }
 
@@ -110,10 +110,9 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 			intensityAgilent.setAgilent();
 			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getName() + ".\r\n" );
 		}
-		catch (Error& err)
+		catch (Error&)
 		{
-			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName()
-													+ ": " + err.what() + "\r\n" );
+			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -129,7 +128,7 @@ void ScriptingWindow::masterEditChange()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError(err.what());
+		comm()->sendError(err.trace());
 	}
 }
 
@@ -153,12 +152,7 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	masterScript.rearrange(cx, cy, mainWin->getFonts());
 	statusBox.rearrange( cx, cy, mainWin->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWin->getFonts());
-	niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-								   auxWin->getTtlNames(), auxWin->getDacNames() );	
-	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-											 auxWin->getTtlNames(), auxWin->getDacNames());
-	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+	recolorScripts ( );
 	SetRedraw( true );
 	RedrawWindow();
 }
@@ -243,7 +237,7 @@ BOOL ScriptingWindow::OnInitDialog()
 	}
 	catch (Error& err)
 	{
-		errBox( "ERROR: Failed to initialize intensity agilent: " + err.whatStr() );
+		errBox( "ERROR: Failed to initialize intensity agilent: " + err.trace() );
 	}
 	SetRedraw( true );
 	return TRUE;
@@ -260,11 +254,11 @@ void ScriptingWindow::fillMasterThreadInput( MasterThreadInput* input )
 void ScriptingWindow::OnTimer(UINT_PTR eventID)
 {
 	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-													auxWin->getTtlNames(), auxWin->getDacNames());
+													auxWin->getTtlNames(), auxWin->getDacInfo ());
 	niawgScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacNames());
+								 auxWin->getTtlNames(), auxWin->getDacInfo());
 	masterScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacNames());
+								 auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -372,7 +366,7 @@ void ScriptingWindow::setIntensityDefault()
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( err.what( ) );
+		comm( )->sendError( err.trace( ) );
 	}
 }
 
@@ -405,11 +399,11 @@ void ScriptingWindow::newIntensityScript()
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( mainWin->getProfileSettings().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(),
-														  auxWin->getTtlNames(), auxWin->getDacNames() );
+														  auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -426,11 +420,11 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), 
 														  mainWin->getRgbs(), auxWin->getTtlNames(), 
-														  auxWin->getDacNames());
+														  auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -447,7 +441,7 @@ void ScriptingWindow::saveIntensityScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -469,7 +463,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 
 }
@@ -493,11 +487,11 @@ void ScriptingWindow::newNiawgScript()
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
 		niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-									   auxWin->getTtlNames(), auxWin->getDacNames() );
+									   auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -512,11 +506,11 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
 		niawgScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-			auxWin->getTtlNames(), auxWin->getDacNames());
+			auxWin->getTtlNames(), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 
 }
@@ -531,7 +525,7 @@ void ScriptingWindow::saveNiawgScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.what() );
+		comm()->sendError( err.trace() );
 	}
 }
 
@@ -563,11 +557,11 @@ void ScriptingWindow::updateScriptNamesOnScreen()
 void ScriptingWindow::recolorScripts()
 {
 	niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+								   auxWin->getTtlNames(), auxWin->getDacInfo ());
 	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-													  auxWin->getTtlNames(), auxWin->getDacNames());
+													  auxWin->getTtlNames(), auxWin->getDacInfo ());
 	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+								   auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -579,49 +573,56 @@ void ScriptingWindow::openIntensityScript(std::string name)
 
 void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
-	ProfileSystem::checkDelimiterLine(configFile, "SCRIPTS");
-	configFile.get();
-	std::string niawgName, masterName;
-	if ( ver.versionMajor < 3 )
+	try
 	{
-		std::string extraNiawgName;
-		getline( configFile, extraNiawgName );
-	}
-	getline(configFile, niawgName );
-	getline(configFile, masterName);
-	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
+		ProfileSystem::checkDelimiterLine ( configFile, "SCRIPTS" );
+		configFile.get ( );
+		std::string niawgName, masterName;
+		if ( ver.versionMajor < 3 )
+		{
+			std::string extraNiawgName;
+			getline ( configFile, extraNiawgName );
+		}
+		getline ( configFile, niawgName );
+		getline ( configFile, masterName );
+		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
 
-	intensityAgilent.readConfigurationFile(configFile, ver );
-	intensityAgilent.updateSettingsDisplay(1, mainWin->getProfileSettings().categoryPath, 
-											mainWin->getRunInfo());
-	try
-	{
-		openNiawgScript(niawgName);
-	}
-	catch ( Error& err )
-	{
-		int answer = promptBox( "ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
-								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
-		if ( answer == IDYES )
+		intensityAgilent.readConfigurationFile ( configFile, ver );
+		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+												 mainWin->getRunInfo ( ) );
+		try
 		{
-			openNiawgScript( openWithExplorer( NULL, "nScript" ) );
+			openNiawgScript ( niawgName );
 		}
-	}
-	try
-	{
-		openMasterScript(masterName);
-	}
-	catch ( Error& err )
-	{
-		int answer = promptBox( "ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
-								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
-		if ( answer == IDYES )
+		catch ( Error& err )
 		{
-			openMasterScript( openWithExplorer( NULL, "mScript" ) );
+			int answer = promptBox ( "ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
+									 + err.trace ( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+			if ( answer == IDYES )
+			{
+				openNiawgScript ( openWithExplorer ( NULL, "nScript" ) );
+			}
 		}
+		try
+		{
+			openMasterScript ( masterName );
+		}
+		catch ( Error& err )
+		{
+			int answer = promptBox ( "ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
+									 + err.trace ( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+			if ( answer == IDYES )
+			{
+				openMasterScript ( openWithExplorer ( NULL, "mScript" ) );
+			}
+		}
+		considerScriptLocations ( );
+		recolorScripts ( );
 	}
-	considerScriptLocations();
-	recolorScripts();
+	catch ( Error& )
+	{
+		throwNested ( "Scripting Window failed to read parameters from the configuration file." );
+	}
 }
 
 
@@ -632,7 +633,7 @@ void ScriptingWindow::newMasterScript()
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
 	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacNames());
+								   auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 void ScriptingWindow::openMasterScript(CWnd* parent)
@@ -645,11 +646,11 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 		updateConfigurationSavedStatus( false );
 		masterScript.updateScriptNameText( getProfile( ).categoryPath );
 		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacNames( ) );
+										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( "New Master function Failed: " + err.whatStr( ) + "\r\n" );
+		comm( )->sendError( "New Master function Failed: " + err.trace( ) + "\r\n" );
 	}
 }
 
@@ -684,7 +685,7 @@ void ScriptingWindow::newMasterFunction()
 	}
 	catch (Error& exception)
 	{
-		comm()->sendError("New Master function Failed: " + exception.whatStr() + "\r\n");
+		comm()->sendError("New Master function Failed: " + exception.trace() + "\r\n");
 	}
 }
 
@@ -697,7 +698,7 @@ void ScriptingWindow::saveMasterFunction()
 	}
 	catch (Error& exception)
 	{
-		comm()->sendError("Save Master Script Function Failed: " + exception.whatStr() + "\r\n");
+		comm()->sendError("Save Master Script Function Failed: " + exception.trace() + "\r\n");
 	}
 }
 
