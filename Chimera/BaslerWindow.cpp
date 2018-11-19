@@ -30,18 +30,17 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 
 	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, BaslerWindow::handleSoftwareTrigger )
 	ON_COMMAND( IDOK, &BaslerWindow::handleEnter )
-	ON_COMMAND( IDC_BASLER_SET_ANALYSIS_LOCATIONS, &BaslerWindow::passSetLocationsButton)
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 
-	ON_REGISTERED_MESSAGE( ACE_PIC_READY, &BaslerWindow::handleNewPics )
+	ON_MESSAGE( MainWindow::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
 	
 	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
 	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
-
+	 
 	ON_COMMAND( IDCANCEL, &BaslerWindow::handleClose )
-
+	 
 	ON_WM_RBUTTONUP()	
 END_MESSAGE_MAP()
 
@@ -158,6 +157,7 @@ void BaslerWindow::setCameraForMotTempMeasurement ( )
 }
 
 
+// I think I can get rid of this...
 void BaslerWindow::DoDataExchange( CDataExchange* pDX )
 {
 	CDialog::DoDataExchange( pDX );
@@ -166,17 +166,14 @@ void BaslerWindow::DoDataExchange( CDataExchange* pDX )
 
 void BaslerWindow::handleClose( )
 {
-	auto res = promptBox("Close the Camera Application?", MB_OKCANCEL );
-	if ( res == IDOK )
+	try
 	{
-		CDialog::OnCancel( );
+		passCommonCommand ( ID_FILE_MY_EXIT );
 	}
-}
-
-
-void BaslerWindow::passSetLocationsButton()
-{
-	//picture.handleButtonClick();
+	catch ( Error& err )
+	{
+		errBox ( "Failed to close?!?!?\n" + err.trace() );
+	}
 }
 
 
@@ -211,7 +208,7 @@ void BaslerWindow::OnMouseMove( UINT flags, CPoint point )
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -235,13 +232,13 @@ void BaslerWindow::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar )
 	{
 		try
 		{
-			picManager.handleScroll ( nSBCode, nPos, scrollbar );
-			CDC* cdc = GetDC( );
+			CDC* cdc = GetDC ( );
+			picManager.handleScroll ( nSBCode, nPos, scrollbar, cdc );
 			ReleaseDC( cdc );
 		}
 		catch (Error& err)
 		{
-			errBox( "Error! " + err.whatStr() );
+			errBox( "Error! " + err.trace() );
 		}
 	}
 }
@@ -251,12 +248,13 @@ void BaslerWindow::pictureRangeEditChange( UINT id )
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		picManager.handleEditChange ( id );
 		//picture.handleEditChange( id );
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -273,7 +271,7 @@ void BaslerWindow::handleDisarmPress()
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 		settingsCtrl.setStatus("Camera Status: ERROR?!?!");
 	}
 }
@@ -395,7 +393,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 		settingsCtrl.setStatus("Camera Status: ERROR?!?!?");
 	}
 	OnPaint( );
@@ -413,7 +411,7 @@ void BaslerWindow::passCameraMode()
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -426,7 +424,7 @@ void BaslerWindow::passExposureMode()
 	}
 	catch (Error& err)
 	{
-		errBox( "Error! " + err.whatStr() );
+		errBox( "Error! " + err.trace() );
 	}
 }
 
@@ -466,17 +464,21 @@ void BaslerWindow::handleArmPress()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 	}
 }
 
 
-
-
 bool BaslerWindow::baslerCameraIsRunning ( )
 {
+	if ( BASLER_SAFEMODE )
+	{
+		return isRunning;
+	}
 	return cameraController->isRunning ( );
 }
+
+
 bool BaslerWindow::baslerCameraIsContinuous ( )
 {
 	return cameraController->isContinuous ( );
@@ -570,7 +572,7 @@ BOOL BaslerWindow::OnInitDialog()
 	}
 	catch (Error& err)
 	{
-		errBox( err.what() );
+		errBox( err.trace() );
 		EndDialog(-1);
 		return FALSE;
 	}
@@ -651,7 +653,7 @@ void BaslerWindow::initializeControls()
 	cameraController = new BaslerCameras( this );
 	if (!cameraController->isInitialized())
 	{
-		thrower("ERROR: Camera not connected! Exiting program..." );
+		thrower ("ERROR: Camera not connected! Exiting program..." );
 	}
 	int id = 1000;
 	POINT pos = { 0,0 };

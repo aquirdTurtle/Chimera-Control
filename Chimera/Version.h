@@ -30,7 +30,7 @@ class Version
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower( "ERROR: Version string failed to convert to double!" );
+				throwNested ( "ERROR: Version string failed to convert to double!" );
 			}
 		}
 		std::string str( ) const

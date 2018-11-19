@@ -150,8 +150,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CodeTimer.h" />
-    <ClInclude Include="commonTypes.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="my_str.h" />
     <ClInclude Include="range.h" />
@@ -160,7 +158,6 @@
     <ClInclude Include="Thrower.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CodeTimer.cpp" />
     <ClCompile Include="range.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

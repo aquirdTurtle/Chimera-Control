@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Expression.h"
+#include "SegmentEnd.h"
 #include <string>
 #include "windows.h"
 
@@ -78,7 +79,7 @@ struct segmentInfoInput
 	// in ms
 	Expression time;
 	// values such as repeat, repeat until trigger, no repeat, etc.
-	int continuationType;
+	SegmentEnd::type continuationType;
 };
 
 
@@ -94,5 +95,5 @@ struct segmentInfoFinal
 	// in ms
 	double time = 0;
 	// values such as repeat, repeat until trigger, no repeat, etc.
-	int continuationType = 0;
+	SegmentEnd::type continuationType = SegmentEnd::type::once;
 };

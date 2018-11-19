@@ -6,8 +6,8 @@
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
 #include "constants.h"
-//#include "BaslerControlApp.h"
 #include "BaslerSettingsControl.h"
+#include "MainWindow.h"
 #include "constants.h"
 #include <atomic>
 
@@ -24,7 +24,6 @@ struct triggerThreadInput
 	ULONG width;
 	// only used in debug mode.
 	std::atomic<bool>* runningFlag;
-	//UINT reps;
 };
 
 // wrapper class for modifying for safemode and to standardize error handling.
@@ -142,19 +141,19 @@ class ImageEventHandler : public Pylon::CImageEventHandler
 					{
 						elem *= 256.0 / 1024.0;
 					}
-					parent->PostMessageA( ACE_PIC_READY, grabResult->GetWidth( ) * grabResult->GetHeight( ),
+					parent->PostMessageA( MainWindow::BaslerProgressMessageID, grabResult->GetWidth( ) * grabResult->GetHeight( ),
 										  (LPARAM)imageMatrix );
 					
 				}
 				else
 				{
-					thrower("Error: " + str(grabResult->GetErrorCode()) + " " 
+					thrower("" + str(grabResult->GetErrorCode()) + " " 
 							 + std::string(grabResult->GetErrorDescription().c_str()));
 				}
 			}
-			catch (Pylon::RuntimeException& err)
+			catch (Pylon::RuntimeException& )
 			{
-				thrower("Error! " + std::string(err.what()));
+				throwNested("Error! Failed to handle image grabbing");
 			}
 		}
 	private:

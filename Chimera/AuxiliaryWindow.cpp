@@ -20,7 +20,7 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-									ttlBoard( true, true ),
+									ttlBoard( true, true, DIO_SAFEMODE ),
 									aoSys( ANALOG_OUT_SAFEMODE )
 {}
 
@@ -54,7 +54,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
 
-	ON_REGISTERED_MESSAGE( eAutoServoMessage, &autoServo )
+	ON_MESSAGE ( MainWindow::AutoServoMessage, &autoServo )
+	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
@@ -67,7 +68,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 					  &AuxiliaryWindow::handleAgilentCombo )
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, 
 					  &AuxiliaryWindow::handleAgilentCombo )
-	ON_REGISTERED_MESSAGE( eLogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
+	
 
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
@@ -107,10 +108,9 @@ void AuxiliaryWindow::passCommonCommand ( UINT id )
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
-	std::vector<Script*> scriptList;
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
@@ -118,31 +118,39 @@ void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Variables Double Click Handler : " + exception.whatStr ( ) + "\r\n" );
+		sendErr ( "Variables Double Click Handler : \n" + exception.trace ( ) + "\n" );
 	}
-	mainWin->updateConfigurationSavedStatus ( false );
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
-	servos.deleteServo ( );
+	try
+	{
+		mainWin->updateConfigurationSavedStatus ( false );
+		servos.deleteServo ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( "Servo Right-Click Handler Failed.\n" + err.trace ( ) );
+	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		servos.handleListViewClick ( );
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.whatStr() + "... In handling servo double click." );
+		sendErr ( "Servo Double-Click handler failed." + err.trace ( ) );
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
 	try
@@ -152,12 +160,12 @@ void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Variables Right Click Handler : " + exception.whatStr ( ) + "\r\n" );
+		sendErr ( "Variables Right Click Handler : " + exception.trace ( ) + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus ( false );
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::autoOptimize ( )
 {
 	try
@@ -194,31 +202,41 @@ void AuxiliaryWindow::updateOptimization ( ExperimentInput input )
 	sendStatus ( msg );
 }
 
-
+// MESSAGE MAP FUNCTION
 LRESULT AuxiliaryWindow::autoServo(WPARAM w, LPARAM l )
 {
-	if ( servos.autoServo( ) )
+	try
 	{
-		runServos( );
+		mainWin->updateConfigurationSavedStatus ( false );
+		if ( servos.autoServo ( ) )
+		{
+			runServos ( );
+		}
+	}
+	catch ( Error& err )
+	{
+		sendErr ( "Auto-Servo Failed.\n" + err.trace ( ) );
 	}
 	return TRUE;
 }
 
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::runServos( )
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
+		sendStatus ( "Running Servos..." );
 		servos.runAll( );
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( "Running Servos failed.\n" + err.trace( ) );
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
 	aiSys.refreshCurrentValues( );
@@ -228,7 +246,7 @@ LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 	return TRUE;
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GetAnalogInSnapshot( )
 {
 	aiSys.refreshCurrentValues( );
@@ -292,18 +310,18 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to create a script!" );
+			thrower ( "please set current agilent channel to scripting mode before attempting to create a script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );
 		agilents[name].checkSave( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
 		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
 		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), mainWin->getRgbs( ),
-														  getTtlNames( ), getDacNames( ) );
+														  getTtlNames( ), getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 
 }
@@ -315,7 +333,7 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to open a script!" );
+			thrower ( "please set current agilent channel to scripting mode before attempting to open a script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );		
 		agilents[name].agilentScript.checkSave( mainWin->getProfileSettings( ).categoryPath, 
@@ -328,7 +346,7 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -337,12 +355,13 @@ void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		agilents[name].handleInput( mainWin->getProfileSettings( ).categoryPath,
 									mainWin->getRunInfo( ) );
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
-		sendErr( err.what( ) );
+		throwNested( "Failed to update agilent." );
 	}
 }
 
@@ -353,7 +372,7 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
+			thrower ( "please set current agilent channel to scripting mode before attempting to save script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.saveScript( mainWin->getProfileSettings( ).categoryPath,
@@ -362,7 +381,7 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -373,7 +392,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 	{
 		if ( !agilents[name].scriptingModeIsSelected( ) )
 		{
-			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
+			thrower ( "please set current agilent channel to scripting mode before attempting to save script!" );
 		}
 		mainWin->updateConfigurationSavedStatus( false );
 		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension( );
@@ -389,7 +408,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -415,7 +434,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		for ( auto& agilent : agilents )
 		{
 			agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWin->getRgbs( ),
-												   getTtlNames( ), getDacNames( ) );
+												   getTtlNames( ), getDacInfo ( ) );
 		}
 	}
 }
@@ -443,21 +462,22 @@ Agilent& AuxiliaryWindow::whichAgilent( UINT id )
 	{
 		return agilents[whichAg::Microwave];
 	}
-	thrower( "ERROR: id seen in \"whichAgilent\" handler does not belong to any agilent!" );
+	thrower ( "id seen in \"whichAgilent\" handler does not belong to any agilent!" );
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 {
 	Agilent& agilent = whichAgilent( id );
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		agilent.agilentScript.handleEditChange( );
 		SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.what( ) );
+		sendErr( err.trace( ) );
 	}
 }
 
@@ -496,11 +516,11 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 	}
 	catch ( Error& exception )
 	{
-		sendStatus( ": " + exception.whatStr( ) + " " + exception.whatStr( ) + "\r\n" );
+		sendStatus( ": " + exception.trace( ) + " " + "\r\n" );
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::passTopBottomTekProgram()
 {
 	try
@@ -510,11 +530,11 @@ void AuxiliaryWindow::passTopBottomTekProgram()
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing top/Bottom Tektronics generator: " + exception.whatStr() + "\r\n" );
+		sendErr( "Error while programing top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::passEoAxialTekProgram()
 {
 	try
@@ -524,7 +544,7 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.whatStr() + "\r\n" );
+		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -539,7 +559,6 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 {
 	// order matters.
 	configVariables.handleNewConfig( newFile );
-	//functionVariables.handleNewConfig( newFile );
 	ttlBoard.handleNewConfig( newFile );
 	aoSys.handleNewConfig( newFile );
 	for ( auto& agilent : agilents )
@@ -555,7 +574,6 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 {
 	// order matters.
 	configVariables.handleSaveConfig( saveFile );
-	//functionVariables.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
@@ -569,28 +587,34 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
-	
-	configVariables.normHandleOpenConfig(configFile, ver );
-	ttlBoard.handleOpenConfig(configFile, ver );
-	aoSys.handleOpenConfig(configFile, ver, &ttlBoard);
-	aoSys.updateEdits( );
-	agilents[whichAg::TopBottom].readConfigurationFile(configFile, ver );
-	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWin->getProfileSettings().categoryPath,
-														mainWin->getRunInfo() );
-	agilents[whichAg::Axial].readConfigurationFile(configFile, ver );
-	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWin->getProfileSettings().categoryPath,
-													mainWin->getRunInfo() );
-	agilents[whichAg::Flashing].readConfigurationFile(configFile, ver );
-	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWin->getProfileSettings( ).categoryPath,
-														mainWin->getRunInfo( ) );
-	if ( ver > Version( "2.6" ) )
+	try
 	{
-		agilents[whichAg::Microwave].readConfigurationFile( configFile, ver );
-		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWin->getProfileSettings( ).categoryPath,
-												   mainWin->getRunInfo( ) );
+		configVariables.normHandleOpenConfig ( configFile, ver );
+		ttlBoard.handleOpenConfig ( configFile, ver );
+		aoSys.handleOpenConfig ( configFile, ver, &ttlBoard );
+		aoSys.updateEdits ( );
+		agilents[ whichAg::TopBottom ].readConfigurationFile ( configFile, ver );
+		agilents[ whichAg::TopBottom ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+															   mainWin->getRunInfo ( ) );
+		agilents[ whichAg::Axial ].readConfigurationFile ( configFile, ver );
+		agilents[ whichAg::Axial ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+														   mainWin->getRunInfo ( ) );
+		agilents[ whichAg::Flashing ].readConfigurationFile ( configFile, ver );
+		agilents[ whichAg::Flashing ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+															  mainWin->getRunInfo ( ) );
+		if ( ver > Version ( "2.6" ) )
+		{
+			agilents[ whichAg::Microwave ].readConfigurationFile ( configFile, ver );
+			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+																   mainWin->getRunInfo ( ) );
+		}
+		topBottomTek.handleOpeningConfig ( configFile, ver );
+		eoAxialTek.handleOpeningConfig ( configFile, ver );
 	}
-	topBottomTek.handleOpeningConfig(configFile, ver );
-	eoAxialTek.handleOpeningConfig(configFile, ver );
+	catch ( Error& )
+	{
+		throwNested ( "Auxiliary Window failed to read parameters from the configuration file." );
+	}
 }
 
 
@@ -606,12 +630,12 @@ std::array<std::array<std::string, 16>, 4> AuxiliaryWindow::getTtlNames()
 }
 
 
-std::array<std::string, 24> AuxiliaryWindow::getDacNames()
+std::array<AoInfo, 24> AuxiliaryWindow::getDacInfo()
 {
-	return aoSys.getAllNames();
+	return aoSys.getDacInfo();
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
@@ -625,7 +649,7 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
@@ -636,12 +660,11 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	}
 	catch (Error& exception)
 	{
-		sendErr("Variables Double Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Variables Double Click Handler : " + exception.trace() + "\r\n");
 	}
-	mainWin->updateConfigurationSavedStatus(false);
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -651,9 +674,8 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Variables Right Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Variables Right Click Handler : " + exception.trace() + "\r\n");
 	}
-	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -665,7 +687,7 @@ std::vector<parameterType> AuxiliaryWindow::getAllVariables()
 	return vars;
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
@@ -676,11 +698,11 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Global Variables Double Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Global Variables Double Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -690,11 +712,11 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Global Variables Right Click Handler : " + exception.whatStr() + "\r\n");
+		sendErr("Global Variables Right Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -704,14 +726,14 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 	}
 	catch (Error& exception)
 	{
-		sendErr("Handling config variable listview click : " + exception.whatStr() + "\r\n");
+		sendErr("Handling config variable listview click.\n" + exception.trace() + "\r\n");
 	}
-	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
 void AuxiliaryWindow::clearVariables()
 {
+	mainWin->updateConfigurationSavedStatus ( false );
 	configVariables.clearVariables();
 }
 
@@ -723,7 +745,15 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 	var.constant = constant;
 	var.constantValue = value;
 	var.ranges.push_back({ value, value+1 });
-	configVariables.addConfigParameter(var, item);
+	try
+	{
+		mainWin->updateConfigurationSavedStatus ( false );
+		configVariables.addConfigParameter ( var, item );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to Add a variable." );
+	}
 }
 
 
@@ -739,10 +769,11 @@ void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptW
 
 void AuxiliaryWindow::passRoundToDac()
 {
+	mainWin->updateConfigurationSavedStatus ( false );
 	aoSys.handleRoundToDac(menu);
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleTektronicsButtons(UINT id)
 {
 	if (id >= TOP_ON_OFF && id <= BOTTOM_FSK)
@@ -765,6 +796,7 @@ void AuxiliaryWindow::handleEnter()
 
 void AuxiliaryWindow::setVariablesActiveState(bool activeState)
 {
+	mainWin->updateConfigurationSavedStatus ( false );
 	configVariables.setParameterControlActive(activeState);
 }
 
@@ -816,7 +848,7 @@ fontMap AuxiliaryWindow::getFonts()
 	return mainWin->getFonts();
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleAgilentOptions( UINT id )
 {
 	Agilent& agilent = whichAgilent( id );
@@ -848,14 +880,14 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		}
 		catch (Error& err)
 		{
-			sendErr( "Error while programming agilent " + agilent.getName() + ": " + err.what() + "\r\n" );
+			sendErr( "Error while programming agilent " + agilent.getName() + ": " + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
 	mainWin->updateConfigurationSavedStatus( false );
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleAgilentCombo(UINT id)
 {
 	Agilent& ag = whichAgilent( id );
@@ -867,7 +899,7 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	}
 	catch ( Error& err )
 	{
-		sendErr( "ERROR: error while handling agilent combo change: " + err.whatStr( ) );
+		sendErr( "ERROR: error while handling agilent combo change: " + err.trace( ) );
 	}
 }
 
@@ -883,34 +915,35 @@ void AuxiliaryWindow::sendStatus(std::string msg)
 	mainWin->getComm()->sendStatus(msg);
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::zeroDacs( )
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		aoSys.zeroDacs( &ttlBoard );
-
 		sendStatus( "Zero'd DACs.\r\n" );
 	}
 	catch ( Error& exception )
 	{
 		sendStatus( "Failed to Zero DACs!!!\r\n" );
-		sendErr( exception.what( ) );
+		sendErr( exception.trace( ) );
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::zeroTtls()
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		ttlBoard.zeroBoard();
 		sendStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)
 	{
 		sendStatus( "Failed to Zero TTLs!!!\r\n" );
-		sendErr( exception.what() );
+		sendErr( exception.trace() );
 	}
 }
 
@@ -952,44 +985,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 	}
 	catch ( Error& exception )
 	{
-		sendStatus ( ": " + exception.whatStr ( ) + " " + exception.whatStr ( ) + "\r\n" );
-	}
-}
-
-
-void AuxiliaryWindow::loadPgcTempSettings ( MasterThreadInput* input )
-{
-	try
-	{
-		sendStatus ( "Loading PGC Temperature Configuration...\r\n" );
-		input->auxWin = this;
-		input->quiet = true;
-		input->ttls = &ttlBoard;
-		input->aoSys = &aoSys;
-		input->aiSys = &aiSys;
-		input->globalControl = &globalVariables;
-		input->comm = mainWin->getComm ( );
-		input->settings = { 0,0,0 };
-		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->variables.clear ( );
-		input->variables.push_back ( globalVariables.getEverything ( ) );
-		input->variableRangeInfo.clear ( );
-		input->variableRangeInfo = configVariables.getRangeInfo ( );
-		// Only set it once, clearly.
-		input->repetitionNumber = 1;
-		input->rsg = &RhodeSchwarzGenerator;
-		input->intensityAgilentNumber = -1;
-		input->topBottomTek = &topBottomTek;
-		input->eoAxialTek = &eoAxialTek;
-		input->runMaster = true;
-		input->runNiawg = false;
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch ( Error& exception )
-	{
-		sendStatus ( ": " + exception.whatStr ( ) + " " + exception.whatStr ( ) + "\r\n" );
+		sendStatus ( "Failed to load temp settings." + exception.trace ( ) + "\r\n" );
 	}
 }
 
@@ -1027,11 +1023,11 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 	}
 	catch (Error& exception)
 	{
-		sendStatus(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n" );
+		sendStatus("Failed to load mot settings.\n" + exception.trace() + "\r\n" );
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 // Gets called after alt-f4 or X button is pressed.
 void AuxiliaryWindow::OnCancel()
 {
@@ -1041,48 +1037,55 @@ void AuxiliaryWindow::OnCancel()
 
 void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
-	input->auxWin = this;
-	input->ttls = &ttlBoard;
-	input->aoSys = &aoSys;
-	input->aiSys = &aiSys;
-	input->globalControl = &globalVariables;
-	input->dacData = dacData;
-	input->ttlData = ttlData;
-	/// variables.
-	std::vector<std::vector<parameterType>> experimentVars;
-	for ( auto seqFile : input->seq.sequence )
+	try
 	{
-		// load the variables. This little loop is for letting configuration variables overwrite the globals.
-		// the config variables are loaded directly from the file.
-		std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile( seqFile.configFilePath() );
-		std::vector<parameterType> globals = globalVariables.getEverything( );
-		experimentVars.push_back( ParameterSystem::combineParametersForExperimentThread( configVars, globals) );
-		globalVariables.setUsages( { globals } );
-	}
-	input->variableRangeInfo.clear ( );
-	input->variableRangeInfo = configVariables.getRangeInfo ( );
-	input->variables = experimentVars;
-	input->constants.resize( input->variables.size( ) );
-	// it's important to do this after the key is generated so that the constants have their values.
-	for ( auto seqInc : range( input->variables.size( ) ) )
-	{
-		for ( auto& variable : input->variables[seqInc] )
+		input->auxWin = this;
+		input->ttls = &ttlBoard;
+		input->aoSys = &aoSys;
+		input->aiSys = &aiSys;
+		input->globalControl = &globalVariables;
+		input->dacData = dacData;
+		input->ttlData = ttlData;
+		/// variables.
+		std::vector<std::vector<parameterType>> experimentVars;
+		for ( auto seqFile : input->seq.sequence )
 		{
-			if ( variable.constant )
+			// load the variables. This little loop is for letting configuration variables overwrite the globals.
+			// the config variables are loaded directly from the file.
+			std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( seqFile.configFilePath ( ) );
+			std::vector<parameterType> globals = globalVariables.getEverything ( );
+			experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
+			globalVariables.setUsages ( { globals } );
+		}
+		input->variableRangeInfo.clear ( );
+		input->variableRangeInfo = configVariables.getRangeInfo ( );
+		input->variables = experimentVars;
+		input->constants.resize ( input->variables.size ( ) );
+		// it's important to do this after the key is generated so that the constants have their values.
+		for ( auto seqInc : range ( input->variables.size ( ) ) )
+		{
+			for ( auto& variable : input->variables[ seqInc ] )
 			{
-				input->constants[seqInc].push_back( variable );
+				if ( variable.constant )
+				{
+					input->constants[ seqInc ].push_back ( variable );
+				}
 			}
 		}
+		input->rsg = &RhodeSchwarzGenerator;
+		for ( auto& agilent : agilents )
+		{
+			input->agilents.push_back ( &agilent );
+		}
+		topBottomTek.getTekSettings ( );
+		eoAxialTek.getTekSettings ( );
+		input->topBottomTek = &topBottomTek;
+		input->eoAxialTek = &eoAxialTek;
 	}
-	input->rsg = &RhodeSchwarzGenerator;
-	for ( auto& agilent : agilents )
+	catch ( Error& )
 	{
-		input->agilents.push_back( &agilent );
+		throwNested ( "Auxiliary window failed to fill master thread input." );
 	}
-	topBottomTek.getTekSettings();
-	eoAxialTek.getTekSettings();
-	input->topBottomTek = &topBottomTek;
-	input->eoAxialTek = &eoAxialTek;
 }
 
 
@@ -1191,7 +1194,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			}
 			catch ( boost::bad_lexical_cast&)
 			{
-				thrower("ERROR: Failed to load one of the default ttl values!");
+				throwNested("Failed to load one of the default ttl values!");
 			}
 
 			ttlBoard.setName(ttlRowInc, ttlNumberInc, name, toolTips, this);
@@ -1212,7 +1215,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			configStream >> minString >> trash;
 			if (trash != "-")
 			{
-				thrower ( str("ERROR: Expected \"-\" in config file between min and max values for variable ") 
+				thrower ( str("Expected \"-\" in config file between min and max values for variable ") 
 							   + name + ", dac"  + str(dacInc) + ".");
 			}
 			configStream >> maxString;
@@ -1234,7 +1237,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		}
 		catch ( boost::bad_lexical_cast&)
 		{
-			thrower("ERROR: Failed to load one of the default DAC values!");
+			throwNested("Failed to load one of the default DAC values!");
 		}
 
 		std::string noteString = "";
@@ -1291,26 +1294,26 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	servos.handleOpenMasterConfig( configStream, version );
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::SetDacs()
 {
 	// have the dac values change
 	sendStatus( "----------------------\r\nSetting Dacs... " );
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		aoSys.forceDacs( &ttlBoard );
 		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		errBox( exception.what() );
-		sendStatus( ": " + exception.whatStr() + "\r\n" );
-		sendErr( exception.what() );
+		errBox( exception.trace() );
+		sendStatus( ": " + exception.trace() + "\r\n" );
+		sendErr( exception.trace() );
 	}
-	mainWin->updateConfigurationSavedStatus(false);
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::DacEditChange(UINT id)
 {
 	try
@@ -1320,11 +1323,11 @@ void AuxiliaryWindow::DacEditChange(UINT id)
 	}
 	catch (Error& err)
 	{
-		sendErr(err.what());
+		sendErr(err.trace());
 	}
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleTtlPush(UINT id)
 {
 	try
@@ -1334,23 +1337,22 @@ void AuxiliaryWindow::handleTtlPush(UINT id)
 	}
 	catch (Error& exception)
 	{
-		sendErr( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n" );
+		sendErr( "TTL Press Handler Failed.\n" + exception.trace() + "\r\n" );
 	}
-	mainWin->updateConfigurationSavedStatus(false);
 }
 
-
+// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handlTtlHoldPush()
 {
 	try
 	{
+		mainWin->updateConfigurationSavedStatus ( false );
 		ttlBoard.handleHoldPress();
 	}
 	catch (Error& exception)
 	{
-		sendErr( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n" );
+		sendErr( "TTL Hold Handler Failed: " + exception.trace() + "\r\n" );
 	}
-	mainWin->updateConfigurationSavedStatus(false);
 }
 
 
@@ -1481,7 +1483,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		controlLocation = POINT{ 480, 0 };
 		
 		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
-										rgbs["Solarized Base03"], rgbs );
+												 rgbs["Solarized Base03"], rgbs );
 		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
 											 rgbs["Solarized Base03"], rgbs );
 		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id, "Flashing-Agilent", 100, 
@@ -1495,7 +1497,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									mainWin->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		configVariables.setParameterControlActive( false );
 
-		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
+		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables, 
+						   mainWin->getRgbs() );
 		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
@@ -1575,7 +1578,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	}
 	catch (Error& exeption)
 	{
-		errBox( exeption.what() );
+		errBox( exeption.trace() );
 	}
 	SetTimer( 1, 10000, NULL );
 	SetTimer( 2, 1000, NULL );
@@ -1591,7 +1594,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	// controls are done. Report the initialization defaultStatus...
 	std::string msg;
 	msg += "DIO System:\n";
-	if ( !DIO_SAFEMODE )
+	if ( !ttlBoard.getViewpointSafemode() )
 	{
 		msg += "\tCode System is active!\n";
 		msg += "\t" + ttlBoard.getSystemInfo( ) + "\n";

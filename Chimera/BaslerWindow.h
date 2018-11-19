@@ -46,9 +46,8 @@ class BaslerWindow : public CDialogEx
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void handleSoftwareTrigger();
 		void handleOpeningConfig ( std::ifstream& configFile, Version ver );
-		void OnMouseMove(UINT flags, CPoint point);
+		void OnMouseMove(UINT flags, CPoint point );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
-		void passSetLocationsButton();
 		void DoDataExchange( CDataExchange* pDX );
 		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ );
 		void handleSavingConfig ( std::ofstream& configFile );

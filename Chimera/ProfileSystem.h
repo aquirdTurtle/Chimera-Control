@@ -87,10 +87,10 @@ class ProfileSystem
 		bool categoryIsSaved;
 		bool experimentIsSaved;
 		bool sequenceIsSaved;
-
 		// version = str(versionMain) + "." + str(versionSub)
 		// version 3.6: rerngMode added instead of various bools
-		const Version version = Version( "3.6" );
+		// Version 3.7: stop reporting initial ttl and dac values in configs.
+		const Version version = Version( "3.7" );  
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

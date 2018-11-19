@@ -38,7 +38,7 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 			{
 				if ( unclosedParentheses == 0 )
 				{
-					thrower( "ERROR: excessive right parenthesis in input! \")\" was seen when there were no \"(\" to "
+					thrower ( "ERROR: excessive right parenthesis in input! \")\" was seen when there were no \"(\" to "
 							 "close." );
 				}
 				unclosedParentheses--;
@@ -171,7 +171,7 @@ void ScriptStream::eatComments()
 			seekg( -1, SEEK_CUR );
 			if (eof())
 			{
-				thrower( "!" );
+				thrower ( "!" );
 			}
 		}
 		return;

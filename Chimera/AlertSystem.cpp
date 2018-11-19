@@ -79,7 +79,7 @@ UINT AlertSystem::getAlertThreshold()
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: alert threshold failed to reduce to unsigned long!" );
+		throwNested ( "ERROR: alert threshold failed to reduce to unsigned long!" );
 	}
 	return alertThreshold;
 }
@@ -95,7 +95,7 @@ void AlertSystem::setAlertThreshold()
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "ERROR: Alert threshold must be an integer!" );
+		throwNested ( "ERROR: Alert threshold must be an integer!" );
 	}
 }
 

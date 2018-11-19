@@ -3,10 +3,55 @@
 #include "Matrix.h"
 #include "visa.h"
 #include "nifgen.h"
+#include "constants.h"
 #include "afxwin.h"
 #include <string>
 #include <vector>
 #include <array>
+
+
+struct niawgWavePower
+{
+	enum class mode
+	{
+		// power is held constant.
+		constant,
+		// power can float beneath cap.
+		capped,
+		// no restrictions or modifications.
+		unrestricted
+	};
+	static const std::array<mode, 4> allModes;
+	static std::string toStr ( mode m );
+	static mode fromStr ( std::string txt );
+	static const mode defaultMode;
+};
+
+
+struct niawgLibOption
+{
+	enum class mode
+	{
+		// i.e. used if available
+		allowed,
+		// always calculate the wave
+		banned,
+		// forces use of library wave, throws if can't. Mostly used for testing.
+		forced		
+	};
+	static const std::array<mode, 4> allModes;
+	static std::string toStr ( mode m );
+	static mode fromStr ( std::string txt );
+	static const mode defaultMode;
+};
+
+
+
+struct niawgWaveCalcOptions
+{
+	niawgWavePower::mode powerOpt = niawgWavePower::defaultMode;
+	niawgLibOption::mode libOpt = niawgLibOption::defaultMode;
+};
 
 
 // order here matches the literal channel number on the 5451. Vertical is actually channel0 and Horizontal is actually 
@@ -104,7 +149,14 @@ struct simpleWave
 {
 	niawgPair<channelWave> chan;
 	double time = 0;
-	long int sampleNum = 0;
+	long int sampleNum ( )
+	{
+		double waveSize = time * NIAWG_SAMPLE_RATE;
+		// round to an integer.
+		return (long) ( waveSize + 0.5 );
+		// return waveformSizeCalc ( time );
+	}
+	//long int sampleNum = 0;
 	bool varies = false;
 	std::string name;
 	std::vector<ViReal64> waveVals;

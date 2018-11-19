@@ -45,7 +45,6 @@ namespace TestVariables
 			var.name = "testvariable";
 			var.constant = false;
 			var.constantValue = 0.0;
-			variationRangeInfo info;
 			std::vector<double> expectedresult = { 1,2,3,4,5,6,7,8,9,10 };
 			var.ranges.push_back ( { 0,11 } );
 			ParameterSystem testSys;

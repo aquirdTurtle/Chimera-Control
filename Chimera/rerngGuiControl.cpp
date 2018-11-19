@@ -109,7 +109,7 @@ rerngGuiOptionsForm rerngGuiControl::getParams( )
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
-		thrower( "ERROR: Failed to convert rearrangement parameters to correct format! check that the inputs are the "
+		throwNested ( "Failed to convert rearrangement parameters to correct format! check that the inputs are the "
 				 "correct types please." );
 	}
 	return tempParams;
@@ -285,8 +285,6 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		info.fastMoveTime = str(1e-6);
 	}
-
-
 	if ( ver < Version ( "3.6" ) && ver >= Version("3.4"))
 	{
 		openFile >> tmpStr;

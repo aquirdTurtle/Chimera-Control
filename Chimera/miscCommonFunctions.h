@@ -1,5 +1,7 @@
 #pragma once
 #include "Control.h"
+#include "externals.h"
+#include "ErrDialog.h"
 #include "afxwin.h"
 #include <iostream>
 #include <sstream>
@@ -10,7 +12,7 @@
 #include "Richedit.h"
 #include "afxcmn.h"
 #include "CommCtrl.h"
-#include "externals.h"
+
 
 // used currently with the python API
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
@@ -30,13 +32,17 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit);
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void errBox( T msg )
 {
-	MessageBox( eMainWindowHwnd, cstr( msg ), "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
+	ErrDialog dlg( cstr ( msg ), ErrDialog::type::error );
+	dlg.DoModal ( );
 }
+
 
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void infoBox( T msg )
 {
-	MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
+	ErrDialog dlg ( cstr ( msg ), ErrDialog::type::info );
+	dlg.DoModal ( );
+	//MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
 }
 
 template <typename T> int promptBox( T msg, UINT promptStyle )

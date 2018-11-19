@@ -412,7 +412,7 @@ void MachineOptimizer::handleListViewClick ( )
 			{
 				if ( variable->name == newName )
 				{
-					thrower ( "ERROR: An optimization parameter with name " + newName + " already exists!" );
+					thrower ( "An optimization parameter with name " + newName + " already exists!" );
 				}
 			}
 			param->name = newName;
@@ -437,7 +437,7 @@ void MachineOptimizer::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+				throwNested ( "Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->lowerLim ), itemIndicator, subitem );
 			break;
@@ -455,7 +455,7 @@ void MachineOptimizer::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+				throwNested ( "Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->upperLim ), itemIndicator, subitem );
 			break;
@@ -478,7 +478,7 @@ void MachineOptimizer::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert lower limit text to a double!" );
+				throwNested ( "Failed to convert lower limit text to a double!" );
 			}
 			optParamsListview.SetItem ( str ( param->increment ), itemIndicator, subitem );
 			break;
@@ -501,7 +501,7 @@ void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 {
 	if ( !input.includesCameraRun )
 	{
-		thrower ( "ERROR: Cannot optimize parameters if not taking camera data!" );
+		thrower ( "Cannot optimize parameters if not taking camera data!" );
 	}
 	UINT count = 0;
 	for ( auto& info : input.plotterInput->plotInfo )
@@ -510,7 +510,7 @@ void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 	}
 	if ( count != 1 )
 	{
-		thrower ( "ERROR: for machine optimization, you need one and only one active data analyzer "
+		thrower ( "for machine optimization, you need one and only one active data analyzer "
 				  "(e.g. loading, survival)" );
 	}
 	for ( auto param : optParams )
@@ -522,7 +522,7 @@ void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 			{
 				if ( !expParam.constant )
 				{
-					thrower ( "ERROR: optimization parameter matched an experiment parameter, but the experiment "
+					thrower ( "optimization parameter matched an experiment parameter, but the experiment "
 							  "parameter is varying! Optimization parameters must be constants in the main experiment." );
 				}
 				found = true;
@@ -530,7 +530,7 @@ void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 		}
 		if ( !found )
 		{
-			thrower ( "ERROR: A Parameter in the optimization control didn't match any constants in the actual "
+			thrower ( "A Parameter in the optimization control didn't match any constants in the actual "
 					  "experiment!" );
 		}
 	}
@@ -548,7 +548,7 @@ UINT MachineOptimizer::getMaxRoundNum ( )
 	}
 	catch (boost::bad_lexical_cast& )
 	{
-		thrower ( "ERROR: failed to convert max optimization count to an unsigned integer!" );
+		throwNested ( "failed to convert max optimization count to an unsigned integer!" );
 	}
 	return res;		
 }

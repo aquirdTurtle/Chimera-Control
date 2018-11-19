@@ -12,7 +12,6 @@
 #include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <numeric>
-#include "externals.h"
 #include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"
@@ -69,7 +68,7 @@ NiawgController::NiawgController ( UINT trigRow, UINT trigNumber, bool safemode 
 	biasFile.open ( "J:/Code-Files/Bias-Cal.txt" );
 	if ( !biasFile.is_open ( ) )
 	{
-		thrower ( "ERROR: NIAWG Bias calibration file failed to open!" );
+		thrower ( "NIAWG Bias calibration file failed to open!" );
 	}
 	std::string row, col, val, trash, direction;
 	int rowI, colI;
@@ -242,7 +241,7 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 			// if already found one...
 			if ( foundRearrangement )
 			{
-				thrower( "ERROR: Multiple rearrangement waveforms found, but not allowed! Only one rearrangement is "
+				thrower ( "Multiple rearrangement waveforms found, but not allowed! Only one rearrangement is "
 						 "currently possible per repetition." );
 			}
 			foundRearrangement = true;
@@ -254,11 +253,11 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 	}
 	if ( input->rerngGui.active && !foundRearrangement )
 	{
-		thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
+		thrower ( "system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 	}
 	else if ( !input->rerngGui.active && foundRearrangement )
 	{
-		thrower( "ERROR: System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
+		thrower ( "System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
 	}
 }
 
@@ -291,7 +290,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	// check errors
 	if ( !configFile.is_open( ) )
 	{
-		thrower( "FATAL ERROR: Couldn't open default niawg file!" );
+		thrower ( "FATAL ERROR: Couldn't open default niawg file!" );
 	}
 	NiawgOutput output;
 	output.isDefault = true;
@@ -314,7 +313,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	}
 	catch (Error& except)
 	{
-		thrower( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed: " + except.whatStr() );
+		throwNested( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed.");
 	}
 	// check for warnings.
 	if (warnings != "")
@@ -375,7 +374,7 @@ void NiawgController::waitForRerng( bool andClearWvfm )
 	int result = WaitForSingleObject( rerngThreadHandle, 500 );
 	if ( result == WAIT_TIMEOUT )
 	{
-		thrower( "ERROR: waiting for Rearranger thread to finish timed out!?!?!?" );
+		thrower ( "waiting for Rearranger thread to finish timed out!?!?!?" );
 	}
 	if (andClearWvfm)
 	{
@@ -415,7 +414,7 @@ void NiawgController::restartDefault()
 	}
 	catch (Error& except)
 	{
-		thrower( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
+		throwNested( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
 				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.whatStr() );
 	}
 }
@@ -480,7 +479,7 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 		}
 		else
 		{
-			thrower( "ERROR: Input niawg command is unrecognized!\nMust be logic commands, generate commands, or "
+			thrower ( "Input niawg command is unrecognized!\nMust be logic commands, generate commands, or "
 					 "special commands. See documentation on the correct format for these commands.\n\n"
 					 "The inputted command is: \"" + command + "\" for waveform #" 
 					 + str( output.waveFormInfo.size( ) - 1 ) + "!" );
@@ -491,9 +490,8 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 }
 
 
-
 void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& constants,
-										bool deleteWaveAfterWrite)
+										bool deleteWaveAfterWrite, niawgLibOption::mode libOption )
 {
 	for ( auto waveInc : range( output.waveFormInfo.size()) )
 	{
@@ -528,7 +526,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			}
 			else
 			{
-				thrower( "ERROR: varying rearrangement static waves not supported!" );
+				thrower ( "varying rearrangement static waves not supported!" );
 			}
 		}
 		else
@@ -539,7 +537,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			{
 				simpleFormToOutput( waveForm.core, wave.core, constants, 0 );
 				handleMinus1Phase( wave.core, prevWave.core );
-				writeStandardWave( wave.core, options, output.isDefault );
+				writeStandardWave( wave.core, options, output.isDefault, libOption );
 				if ( deleteWaveAfterWrite )
 				{
 					deleteWaveData( wave.core );
@@ -604,7 +602,7 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 	{
 		wave.varies = formWave.varies;
 		wave.time = formWave.time.evaluate( varibles, variation ) * 1e-3;
-		wave.sampleNum = waveformSizeCalc( wave.time );
+		//wave.sampleNum = waveformSizeCalc( wave.time );
 		wave.name = formWave.name;
 		for ( auto chanInc : range( wave.chan.size()) )
 		{
@@ -629,16 +627,18 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 	}
 	catch ( Error& err )
 	{
-		thrower( "Failed to convert simple niawg wave form to simple wave data! This might mean a low-level bug where"
-				 " the code thought that a wave didn't vary, but it did.\r\nError was: " + err.whatStr( ) );
+		throwNested( "Failed to convert simple niawg wave form to simple wave data! This might mean a low-level bug where"
+				 " the code thought that a wave didn't vary, but it did.\r\n" );
 	}
 }
 
 
-void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, bool isDefault )
+void NiawgController::writeStandardWave(simpleWave& wave, debugInfo& options, bool isDefault, niawgLibOption::mode libOption )
 {
 	// prepare the waveforms
-	finalizeStandardWave( wave, options );
+	niawgWaveCalcOptions opts;
+	opts.libOpt = libOption;
+	finalizeStandardWave( wave, options, opts );
 	// allocate waveform into the device memory
 	fgenConduit.allocateNamedWaveform( cstr( wave.name ), wave.waveVals.size( ) / 2 );
 	// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
@@ -702,7 +702,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		script >> bracket;
 		if ( bracket != "{" )
 		{
-			thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in Niawg File during flashing waveform read" );
+			thrower ( "Expected \"{\" but found \"" + bracket + "\" in Niawg File during flashing waveform read" );
 		}
 		waveInfoForm flashingWave;
 		flashingWave.flash.isFlashing = true;
@@ -717,7 +717,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: flashing number failed to convert to an integer! This parameter cannot be varied." );
+			throwNested( "flashing number failed to convert to an integer! This parameter cannot be varied." );
 		}
 		script >> flashingWave.core.time;
 		script >> flashingWave.flash.deadTime;
@@ -732,7 +732,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 			script >> flashWaveCmd;
 			if ( flashWaveCmd == "}" )
 			{
-				thrower( "ERROR: Expected " + str( flashingWave.flash.flashNumber ) + " waveforms for flashing but "
+				thrower ( "Expected " + str( flashingWave.flash.flashNumber ) + " waveforms for flashing but "
 							"only found" + str( waveCount ) );
 			}
 			loadFullWave( flashOutInfo, flashWaveCmd, script, variables, wave );
@@ -744,7 +744,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		script >> bracket;
 		if ( bracket != "}" )
 		{
-			thrower( "ERROR: Expected \"}\" but found " + bracket + " in niawg File during flashing waveform read" );
+			thrower ( "Expected \"}\" but found " + bracket + " in niawg File during flashing waveform read" );
 		}
 		flashingWave.core.name = "Waveform" + str( output.waveFormInfo.size( ) + 1 );
 		output.waveFormInfo.push_back( flashingWave );
@@ -784,7 +784,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		script >> bracket;
 		if ( bracket != "{" )
 		{
-			thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in niawg File during flashing waveform read" );
+			thrower ( "Expected \"{\" but found \"" + bracket + "\" in niawg File during flashing waveform read" );
 		}
 		/// get pic dims
 		// get the dimensions of the target picture.
@@ -799,7 +799,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: failed to convert target row and collumn numbers to integers during niawg script "
+			throwNested( "failed to convert target row and collumn numbers to integers during niawg script "
 					 "analysis for rearrange command!" );
 		}
 		/// get calibration parameters.
@@ -817,7 +817,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower ( "ERROR: Code could not cast rearrange freq boundaries or spacing to a double!" );
+			throwNested ( "Code could not cast rearrange freq boundaries or spacing to a double!" );
 		}
 		/// get static pattern
 		// this is the pattern that holds non-moving atoms in place. The algorithm calculates the moves, and then mixes
@@ -835,7 +835,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		if ( !isStandardWaveform( holdingCommands ) )
 		{
-			thrower( "ERROR: detected command in flashing section that does not denote a standard waveform (e.g. a "
+			thrower ( "detected command in flashing section that does not denote a standard waveform (e.g. a "
 					 "logic command or something special). This is not allowed!" );
 		}
 		// don't want to add to the real output variable directly, this is a little hacky.
@@ -858,7 +858,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 				}
 				catch ( boost::bad_lexical_cast& )
 				{
-					thrower( "ERROR: Failed to load the user's input for a rearrangement target picture! Loading failed"
+					throwNested( "Failed to load the user's input for a rearrangement target picture! Loading failed"
 								" on this line: " + line + "\r\n" );
 				}
 			}
@@ -875,13 +875,13 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: final rearranging location row or column failed to convert to unsigned long in niawg script!" );
+			throwNested( "final rearranging location row or column failed to convert to unsigned long in niawg script!" );
 		}
 		rearrangeWave.rearrange.finalPosition = { finLocRow, finLocCol };
 		script >> bracket;
 		if ( bracket != "}" )
 		{
-			thrower( "ERROR: Expected \"}\" but found \"" + bracket + "\" in niawg File during flashing waveform read." );
+			thrower ( "Expected \"}\" but found \"" + bracket + "\" in niawg File during flashing waveform read." );
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = 50; // getMaxMoves( rearrangeWave.rearrange.target );
@@ -924,7 +924,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 	}
 	else
 	{
-		thrower( "ERROR: Bad special waveform command! command was \"" + cmd + "\"." );
+		thrower ( "Bad special waveform command! command was \"" + cmd + "\"." );
 	}
 }
 
@@ -938,7 +938,6 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
-
 	/// Why is the seqinc here a for loop??? I think this should be an input to the function...
 	for ( auto seqInc : range( variables.size( ) ) )
 	{
@@ -973,7 +972,7 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 					writeStandardWave( wave.core, debugOptions, output.isDefault );
 					deleteWaveData( wave.core );
 				}
-				mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
+				mixedWaveSizes.push_back( 2 * wave.core.sampleNum() );
 				mixedCount++;
 			}
 			waveInc++;
@@ -1009,7 +1008,7 @@ void NiawgController::loadStandardInputFormType( std::string inputType, channelW
 	}
 	if ( wvInfo.initType == -1 )
 	{
-		thrower( "ERROR: waveform input type not found while loading standard input type?!?!? "
+		thrower ( "waveform input type not found while loading standard input type?!?!? "
 				 " (A low level bug, this shouldn't happen)\r\n" );
 	}
 }
@@ -1033,7 +1032,7 @@ void NiawgController::openWaveformFiles()
 			// create directory
 			if (!CreateDirectory( cstr(folderPath), NULL ))
 			{
-				thrower( "ERROR: Error Creating directory for waveform library system. Error was windows error " 
+				thrower ( "Error Creating directory for waveform library system. Error was windows error " 
 						 + str( GetLastError()) + ", Path was " + folderPath);
 			}
 		}
@@ -1047,7 +1046,7 @@ void NiawgController::openWaveformFiles()
 			libNameFile.open( libNameFilePath, std::ios::binary | std::ios::out );
 			if (!libNameFile.is_open())
 			{
-				thrower( "ERROR: waveform library file did not open correctly. Name was " + libNameFilePath
+				thrower ( "waveform library file did not open correctly. Name was " + libNameFilePath
 						 + " (A low level bug, this shouldn't happen)" );
 			}
 			libNameFile.close();
@@ -1083,15 +1082,15 @@ void NiawgController::openWaveformFiles()
  * it is written to a new file.
  */
 void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
-										 bool powerCap, bool constPower )
+										 niawgWaveCalcOptions calcOpts )
 {
-	generateWaveform ( chanWave, options, sampleNum, waveTime, this->waveLibrary, powerCap, constPower );
+	generateWaveform ( chanWave, options, sampleNum, waveTime, this->waveLibrary, calcOpts );
 };
 
 
-void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
-										 std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary,
-										 bool powerCap, bool constPower, bool useLibrary)
+void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& debugOptions, long int sampleNum, double waveTime,
+										 std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+										 niawgWaveCalcOptions calcOpts )
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
@@ -1100,10 +1099,15 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 	std::ofstream waveformFileWrite;
 	if ( chanWave.initType < 1 )
 	{
-		// uninitialized, don't 
-		useLibrary = false;
+		// uninitialized, so don't use library.
+		if ( calcOpts.libOpt == niawgLibOption::mode::forced )
+		{
+			thrower ( "was trying to generate a waveform, library option was set to \"forced\", but the wave "
+					  "initType member was uninitialized, so this isn't possible!" );
+		}
+		calcOpts.libOpt = niawgLibOption::mode::banned;
 	}
-	if ( useLibrary )
+	if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 	{
 		// Construct the name of the raw data file from the parameters for the waveform. This can be a pretty long name, but that's okay 
 		// because it's just text in a file at the end. This might become a problem if the name gets toooo long...
@@ -1129,7 +1133,7 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 				waveformFileRead.open ( waveFileReadName, std::ios::binary | std::ios::in );
 				if ( !waveformFileRead.is_open ( ) )
 				{
-					thrower ( "ERROR: Failed to open niawg waveform file from library?!?!?! (Low level bug...)" );
+					thrower ( "Failed to open niawg waveform file from library?!?!?! (Low level bug...)" );
 				}
 				std::vector<ViReal64> readData ( sampleNum + chanWave.signals.size ( ) );
 				waveformFileRead.read ( (char *) readData.data ( ),
@@ -1145,16 +1149,21 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 				// make sure the large amount of memory is deallocated.
 				readData.shrink_to_fit ( );
 				waveformFileRead.close ( );
-				if ( options.showReadProgress )
+				if ( debugOptions.showReadProgress )
 				{
 					std::chrono::time_point<chronoClock> time2 ( chronoClock::now ( ) );
 					double ellapsedTime ( std::chrono::duration<double> ( ( time2 - time1 ) ).count ( ) );
-					options.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
+					debugOptions.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
 				}
 				// if the file got read, I don't need to do any writing, so go ahead and return.
 				return;
 			}
 		}
+		if ( calcOpts.libOpt == niawgLibOption::mode::forced )
+		{
+			thrower ( "Generating waveform using the \"forced\" mode on the library, but couldn't find library file!" );
+		}
+
 		// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
 		// and write it. 
 		waveformFileName = ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] + str ( chanWave.initType ) + "_"
@@ -1164,10 +1173,10 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 	}
 
 	// make sure it opened.
-	if ( !waveformFileWrite.is_open( ) && useLibrary )
+	if ( !waveformFileWrite.is_open( ) && calcOpts.libOpt != niawgLibOption::mode::banned )
 	{
 		// shouldn't happen.
-		thrower( "ERROR: NIAWG Waveform Storage File could not open. Shouldn't happen. File name is too long? "
+		thrower ( "NIAWG Waveform Storage File could not open. Shouldn't happen. File name is too long? "
 				 "File name is " + waveformFileName + ", which is " + str( waveformFileName.size( ) ) 
 				 + " characters long." );
 	}
@@ -1177,9 +1186,9 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
-		calcWaveData( chanWave, readData, sampleNum, waveTime, powerCap, constPower );
+		calcWaveData( chanWave, readData, sampleNum, waveTime, calcOpts.powerOpt );
 		// Write the data, with phases, to the write file.
-		if ( useLibrary )
+		if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 		{
 			waveformFileWrite.write ( (const char *) readData.data ( ), ( sampleNum + chanWave.signals.size ( ) ) * sizeof ( ViReal64 ) );
 			waveformFileWrite.close ( );
@@ -1191,14 +1200,15 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 		readData.shrink_to_fit( );
 		// write the newly written waveform's name to the library file.
 		std::fstream libNameFile;
-		if ( useLibrary )
+		if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 		{
+			// write the name of the wave into the list of names for indexing.
 			libNameFile.open ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] 
 							   + WAVEFORM_NAME_FILES[ chanWave.initType-1 ],
 							   std::ios::binary | std::ios::out | std::ios::app );
 			if ( !libNameFile.is_open( ) )
 			{
-				thrower( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
+				thrower ( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
 						 + WAVEFORM_TYPE_FOLDERS[chanWave.initType-1] + WAVEFORM_NAME_FILES[chanWave.initType-1] + ".\n" );
 			}
 			// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
@@ -1208,11 +1218,11 @@ void NiawgController::generateWaveform ( channelWave & chanWave, debugInfo& opti
 			libNameFile.write ( cstr ( waveformFileSpecs ), waveformFileSpecs.size ( ) );
 			libNameFile.close ( );
 		}
-		if ( options.showWriteProgress )
+		if ( debugOptions.showWriteProgress )
 		{
 			std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
 			double ellapsedTime = std::chrono::duration<double>( time2 - time1 ).count( );
-			options.message += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
+			debugOptions.message += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
 		}
 	}
 }
@@ -1242,7 +1252,7 @@ void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::s
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: Sample number inside NIAWAG wait command wasn't an integer! Value was " + temp );
+			throwNested( "Sample number inside NIAWAG wait command wasn't an integer! Value was " + temp );
 		}
 		scriptString += "wait " + str( (long long)sampleNum ) + "\n";
 	}
@@ -1259,7 +1269,7 @@ void NiawgController::handleLogic( ScriptStream& script, std::string cmd, std::s
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			thrower( "ERROR: NIAWG repeat number was not an integer! value was " + temp );
+			throwNested( "NIAWG repeat number was not an integer! value was " + temp );
 		}
 		scriptString += "repeat " + str( (long long)repeatNum ) + "\n";
 	}
@@ -1317,7 +1327,7 @@ void NiawgController::handleSpecial( ScriptStream& script, NiawgOutput& output, 
 	}
 	else
 	{
-		thrower( "ERROR: special command not recognized! Command was \"" + cmd + "\"." );
+		thrower ( "special command not recognized! Command was \"" + cmd + "\"." );
 	}
 }
 
@@ -1325,20 +1335,21 @@ void NiawgController::handleSpecial( ScriptStream& script, NiawgOutput& output, 
 /**
 * This namespace includes all of the relevant functions for generating waveforms.
 */
+/*
 long NiawgController::waveformSizeCalc(double time)
 {
 	double waveSize = time * NIAWG_SAMPLE_RATE;
 	// round to an integer.
 	return (long)(waveSize + 0.5);
 }
-
+*/
 
 /**
 * This function takes in the data for a single waveform and calculates all if the waveform's data points, and returns a pointer to an array containing
 * these data points.
 */
 void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
-									double waveTime, bool powerCap, bool constPower )
+									double waveTime, niawgWavePower::mode powerMode )
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos( inputData.signals.size( ) );
@@ -1351,7 +1362,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 	{
 		if ( inputData.signals[signal].initPhase < 0 )
 		{
-			thrower( "ERROR: initial phase of waveform was negative! This shouldn't happen. At this point, if using -1,"
+			thrower ( "initial phase of waveform was negative! This shouldn't happen. At this point, if using -1,"
 					 "phase from prev waveform should have been grabbed already." );
 		}
 		// create spots for the ramp positions.
@@ -1377,7 +1388,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				// error message for bad size (powerRampFile.eof() reached too early or too late).
 				if ( powerValNumber != sampleNum + 1 )
 				{
-					thrower( "ERROR: niawg ramp file not the correct size?\nSize of upload is " + str( powerValNumber )
+					thrower ( "niawg ramp file not the correct size?\nSize of upload is " + str( powerValNumber )
 							 + "; size of file is " + str( sampleNum ) );
 				}
 				// close the file.
@@ -1385,7 +1396,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			}
 			else
 			{
-				thrower( "ERROR: niawg ramp type " + str( inputData.signals[signal].powerRampType ) + " is unrecognized. If "
+				thrower ( "niawg ramp type " + str( inputData.signals[signal].powerRampType ) + " is unrecognized. If "
 						 "this is a file name, make sure the file exists and is in the project folder. " );
 			}
 		}
@@ -1408,7 +1419,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				// error message for bad size (powerRampFile.eof() reached too early or too late).
 				if ( freqRampValNum != sampleNum + 1 )
 				{
-					thrower( "ERROR: niawg freq ramp file not the correct size?\nSize of upload is " + str( freqRampValNum )
+					thrower ( "niawg freq ramp file not the correct size?\nSize of upload is " + str( freqRampValNum )
 							 + "; size of file is " + str( sampleNum ) );
 				}
 				// close file
@@ -1416,7 +1427,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			}
 			else
 			{
-				thrower( "ERROR: niawg freq ramp type " + inputData.signals[signal].freqRampType + " is unrecognized. "
+				thrower ( "niawg freq ramp type " + inputData.signals[signal].freqRampType + " is unrecognized. "
 						 "If this is a file name, make sure the file exists and is in the project folder." );
 			}
 		}
@@ -1543,7 +1554,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		}
 
 		/// If option is marked, then normalize the power.
-		if ( constPower )
+		if ( powerMode == niawgWavePower::mode::constant )
 		{
 			double currentPower = 0;
 			// calculate the total current amplitude.
@@ -1562,7 +1573,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 					* (TOTAL_POWER / currentPower) - inputData.signals[signal].initPower;
 			}
 		}
-		else if ( powerCap )
+		else if ( powerMode == niawgWavePower::mode::capped )
 		{
 			double currentPower = 0;
 			// calculate the total current amplitude.
@@ -1583,6 +1594,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				}
 			}
 		}
+		// nothing if in unrestricted mode.
 
 		///  finally, Calculate voltage data point.
 		readData[sample] = 0;
@@ -1675,8 +1687,8 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
   */
 void NiawgController::mixWaveforms( simpleWave& waveCore, bool writeThisToFile )
 {
-	waveCore.waveVals.resize( 2 * waveCore.sampleNum );
-	for ( auto sample : range( waveCore.sampleNum ) )
+	waveCore.waveVals.resize( 2 * waveCore.sampleNum() );
+	for ( auto sample : range( waveCore.sampleNum() ) )
 	{
 		// the order (Vertical -> Horizontal) here is important. Vertical is first because it's port zero on the Niawg. I believe that
 		// switching the order here and changing nothing else would flip the output of the niawg..			
@@ -1721,8 +1733,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 	}
 	catch ( Error& err )
 	{
-		thrower( "ERROR: niawg waveform time cannot be varied! Evaluation of time expression failed with error:\n"
-				 + err.whatStr( ) );
+		throwNested( "niawg waveform time cannot be varied! Evaluation of time expression failed!" );
 	}
 	std::string option;
 	script >> option;
@@ -1734,7 +1745,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		thrower( "Error: niawg phase management option failed to convert to an integer." );
+		throwNested( "niawg phase management option failed to convert to an integer." );
 	}
 }
 
@@ -1746,7 +1757,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 	// Don't remember why I have this limitation built in.
 	if ( output.isDefault && output.waveFormInfo.size( ) == 1 )
 	{
-		thrower( "ERROR: The default niawg waveform files contain sequences of waveforms. Right now, the default "
+		thrower ( "The default niawg waveform files contain sequences of waveforms. Right now, the default "
 				 "waveforms must be a single waveform, not a sequence.\r\n" );
 	}
 	std::string scope = "niawg";
@@ -1840,7 +1851,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 	// check delimiter
 	if ( wave.chan[axis].delim != "#" )
 	{
-		thrower( "ERROR: The delimeter is missing in the " + AXES_NAMES[axis] + " waveform command for waveform #"
+		thrower ( "The delimeter is missing in the " + AXES_NAMES[axis] + " waveform command for waveform #"
 				 + str( output.waveFormInfo.size( ) - 1 ) + "The value placed in the delimeter location was "
 				 + wave.chan[axis].delim + " while it should have been '#'. This indicates that either the code is "
 				 "not interpreting the user input correctly or that the user has inputted too many parameters for this"
@@ -1867,14 +1878,14 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		{
 			if ( output.waveFormInfo.size( ) == 0 )
 			{
-				thrower( "ERROR: You are trying to copy the phase of the previous niawg waveform... in the /first/ "
+				thrower ( "You are trying to copy the phase of the previous niawg waveform... in the /first/ "
 						 "niawg waveform! Not possible!" );
 			}
 			UINT prevNum = output.waveFormInfo.size( ) - 1;
 			UINT signalNum = output.waveFormInfo[prevNum].core.chan[axis].signals.size( );
 			if ( count + 1 > signalNum )
 			{
-				thrower( "ERROR: In niawg command, You are trying to copy the phase of signal " + str( count + 1 ) + "  of " 
+				thrower ( "In niawg command, You are trying to copy the phase of signal " + str( count + 1 ) + "  of " 
 						 + AXES_NAMES[axis] + " waveform #" + str( prevNum ) + ", but the previous waveform only had " 
 						 + str( signalNum ) + " signals!\n" );
 			}
@@ -1900,7 +1911,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 	}
 	else
 	{
-		thrower( "ERROR: unrecognized niawg axis string: " + axisStr + " inside NIAWG script file! axis string must be one of"
+		thrower ( "unrecognized niawg axis string: " + axisStr + " inside NIAWG script file! axis string must be one of"
 				 "\"horizontal\" or \"vertical\"" );
 	}
 	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
@@ -1908,14 +1919,14 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 	script >> cmd;
 	if ( !isStandardWaveform( cmd ) )
 	{
-		thrower( "ERROR: standard niawg waveform must be followed by another standard waveform, for each of the horizontal and"
+		thrower ( "standard niawg waveform must be followed by another standard waveform, for each of the horizontal and"
 				 " vertical axes" );
 	}
 	std::string newAxisStr;
 	script >> newAxisStr;
 	if ( newAxisStr == axisStr )
 	{
-		thrower( "ERROR: horizontal niawg waveform must be followed by vertical or vertical must be followed by horizontal." );
+		thrower ( "horizontal niawg waveform must be followed by vertical or vertical must be followed by horizontal." );
 	}
 
 	if ( newAxisStr == "vertical" )
@@ -1928,7 +1939,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 	}
 	else
 	{
-		thrower( "ERROR: Expected either \"vertical\" or \"horizontal\" after waveform type declaration. Instead, found"
+		thrower ( "Expected either \"vertical\" or \"horizontal\" after waveform type declaration. Instead, found"
 				 " \"" + newAxisStr + "\"." );
 	}
 	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
@@ -2104,15 +2115,15 @@ void NiawgController::streamRerng()
 
 
 // calculates the data, mixes it, and cleans up the calculated data.
-void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options, bool powerCap, bool constPower )
+void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts )
 {
 	// prepare each channel
-	generateWaveform( wave.chan[Axes::Horizontal], options, wave.sampleNum, wave.time, powerCap, constPower );
-	generateWaveform( wave.chan[Axes::Vertical], options, wave.sampleNum, wave.time, powerCap, constPower );
+	generateWaveform ( wave.chan[ Axes::Horizontal ], options, wave.sampleNum(), wave.time, calcOpts );
+	generateWaveform ( wave.chan[ Axes::Vertical ], options, wave.sampleNum(), wave.time, calcOpts );
 	mixWaveforms( wave, options.outputNiawgWavesToText );
 	// clear channel data, no longer needed.
 	wave.chan[Axes::Vertical].wave.clear( );
-	// not sure if shrink_to_fit is necessary, but might help with mem management
+	// not sure if shrink_to_fit is necessary, but might help with mem management.
 	wave.chan[Axes::Vertical].wave.shrink_to_fit( );
 	wave.chan[Axes::Horizontal].wave.clear( );
 	wave.chan[Axes::Horizontal].wave.shrink_to_fit( );
@@ -2126,12 +2137,12 @@ void NiawgController::setDefaultWaveformScript( )
 }
 
 
-void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
+void NiawgController::createFlashingWave( waveInfo& wave, debugInfo& options )
 {
 	/// quick check
 	if ( !wave.flash.isFlashing )
 	{
-		thrower( "ERROR: tried to create niawg flashing wave data for a waveform that wasn't flashing!  "
+		thrower ( "tried to create niawg flashing wave data for a waveform that wasn't flashing!  "
 				 "(A low level bug, this shouldn't happen)" );
 	}
 	/// create the data for each wave that's gonna be flashed between.
@@ -2187,14 +2198,14 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double 
 	}
 	if ( !(fabs( std::floor( wave.core.time / period ) - wave.core.time / period ) < 1e-9) )
 	{
-		thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
+		thrower ( "flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
 				 " This is not allowed currently." );
 	}
 	long cycles = long( std::floor( wave.core.time / period ) );
 	std::vector<ULONG> sampleNum( wave.flash.flashNumber, 0 );
 	ULONG mixedSample( 0 );
 	/// mix the waves together
-	wave.core.waveVals.resize( 2 * waveformSizeCalc( wave.core.time ) );
+	wave.core.waveVals.resize ( 2 * wave.core.sampleNum ( ) ); //waveformSizeCalc( wave.core.time ) );
 	for ( auto cycleInc : range( cycles ) )
 	{
 		for ( auto waveInc : range( wave.flash.flashNumber ) )
@@ -2309,56 +2320,57 @@ void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, Niaw
 			}
 			for ( auto signalNum : range(output.waves[waveInc].core.chan[axis].signals.size( )) )
 			{
-				/// shorthands
+				/// shorthands 
 				waveSignal& currSig = output.waves[waveInc].core.chan[axis].signals[signalNum];
 				waveSignal& prevSig = output.waves[waveInc - 1].core.chan[axis].signals[signalNum];
 				///
 				if ( currSig.initPower != prevSig.finPower )
 				{
-					warnings += "Warning: Amplitude jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis]
-						+ " component detected!\r\n";
+					warnings += "Warning: Amplitude jump at waveform #" + str( waveInc ) + "signal # " + str(signalNum) 
+						+ " in " + AXES_NAMES[axis] + " component detected!\r\n";
 				}
 				if ( currSig.freqInit != prevSig.freqFin )
 				{
-					warnings += "Warning: Frequency jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis]
-						+ " component detected!\r\n";
+					warnings += "Warning: Frequency jump at waveform #" + str( waveInc ) + "signal # " + str ( signalNum ) 
+						+ " in " + AXES_NAMES[axis] + " component detected!\r\n";
 				}
-				// extra check because of the case where init = 2pi and fin = 0, or vice versa, would trip otherwise.
-				if ( fabs(currSig.initPhase - prevSig.finPhase) > 1e-3 
-					 && fabs(fmod(currSig.initPhase + PI, 2 * PI) - fmod(prevSig.finPhase + PI, 2 * PI)) > 1e-3 )
+				if ( currSig.initPhase - prevSig.finPhase > CORRECTION_WAVEFORM_ERROR_THRESHOLD )
 				{
 					warnings += "Warning: Phase jump (greater than what's wanted for correction waveforms) at "
-						"waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis] + " component detected!\r\n";
+						"waveform #" + str( waveInc ) + "signal # " + str ( signalNum ) + " in " + AXES_NAMES[axis] 
+						+ " component detected!\r\n";
 				}
 				// if there signal is ramping but the beginning and end amplitudes are the same, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.powerRampType != "nr" && (currSig.initPower == currSig.finPower) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to amplitude"
-						" ramp, but the initial and final amplitudes are the same. This is not a ramp.\r\n";
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " + str ( signalNum ) 
+						+ "is set to amplitude ramp, but the initial and final amplitudes are the same. This is not a"
+						" ramp.\r\n";
 				}
 				// if there signal is ramping but the beginning and end frequencies are the same, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.freqRampType != "nr" && (currSig.freqInit == currSig.freqFin) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to frequency"
-						" ramp, but the initial and final frequencies are the same. This is not a ramp.\r\n";
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " 
+						+ str ( signalNum ) + "is set to frequency ramp, but the initial and final frequencies are"
+						" the same. This is not a ramp.\r\n";
 				}
 				// if there signal is not ramping but the beginning and end amplitudes are different, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.powerRampType == "nr" && (currSig.initPower != currSig.finPower) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to no "
-						"amplitude ramp, but the initial and final amplitudes are the different. This is not a ramp, "
-						"the initial value will be used.\r\n";
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " 
+						+ str ( signalNum ) + "is set to no amplitude ramp, but the initial and final amplitudes are "
+						"the different. This is not a ramp, the initial value will be used.\r\n";
 				}
 				// if there signal is not ramping but the beginning and end frequencies are different, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.freqRampType == "nr" && (currSig.freqInit != currSig.freqInit) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " is set to no "
-						"frequency ramp, but the initial and final frequencies are different. This is not a ramp, the"
-						" initial value will be used throughout.\r\n";
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " 
+						+ str ( signalNum ) + "is set to no frequency ramp, but the initial and final frequencies are "
+						"different. This is not a ramp, the initial value will be used throughout.\r\n";
 				}
 				if ( output.waves[waveInc].core.chan[axis].phaseOption != 0 )
 				{
@@ -2451,7 +2463,7 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 				if (phase > 2 * PI)
 				{
 					// ERROR
-					thrower( "ERROR! Bad location in calculateCorrectionTime." );
+					thrower ( "Bad location in calculateCorrectionTime." );
 				}
 				phaseDif = 2 * PI - phase;
 			}
@@ -2569,7 +2581,7 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 	// error message. I've already checked (outside this function) whether the ramp-type is a filename.
 	else
 	{
-		std::string errMsg = "ERROR: ramp type " + rampType + " is unrecognized. If this is a file name, make sure the file exists and is in the project folder.\r\n";
+		std::string errMsg = "ramp type " + rampType + " is unrecognized. If this is a file name, make sure the file exists and is in the project folder.\r\n";
 		errBox( errMsg );
 		return 0;
 	}
@@ -2695,7 +2707,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 	moveWave.name = "NOT-USED";
 	// needs to match correctly the static waveform.
 	moveWave.time = options.fastMoveTime;
-	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+	//moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 
 	double movingFrac = moveBias;
 	// split the remaining bias between all of the other movingSize-2 signals.
@@ -2822,7 +2834,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 	{
 		initRampWave = moveWave;
 		initRampWave.time = 1e-6;
-		initRampWave.sampleNum = waveformSizeCalc( initRampWave.time );
+		//initRampWave.sampleNum = waveformSizeCalc( initRampWave.time );
 		// make every signal not freq ramp and make all amplitude ramps.
 		for ( auto& chan : initRampWave.chan )
 		{
@@ -2852,8 +2864,8 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 				sig.initPower = fin;
 			}
 		}
-		finalizeStandardWave( initRampWave, debugInfo( ), true, false );
-		finalizeStandardWave( finRampWave, debugInfo( ), true, false );
+		finalizeStandardWave( initRampWave, debugInfo( ));
+		finalizeStandardWave( finRampWave, debugInfo( ));
 	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
 	/// Combine waves. 4 parts.
@@ -2884,7 +2896,7 @@ simpleWave NiawgController::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettin
 	moveWave.name = "NOT-USED";
 	// if flashing, this time + staticWave.time needs to be = rerngSettings.timePerMove
 	moveWave.time = 0.02e-3;// rerngSettings.timePerMove;
-	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+	//moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
 	bool offGridDump = true;
 	double nonMovingFrac = offGridDump ? 1 - moveBias : ( 1 - moveBias ) / ( movingSize - 2 );
 	/// handle moving axis /////////////
@@ -3259,105 +3271,6 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 }
 
 
-Matrix<std::vector<double>> NiawgController::precalcSingleDimMoves ( std::vector<double> freqs, 
-																	 std::vector<double> phases )
-{
-	Matrix<std::vector<double>> moves ( freqs.size ( ), freqs.size ( ) );
-	// first index is initial row/colum, second index is final
-	for ( auto initInc : range ( freqs.size ( ) ) )
-	{
-		for ( auto finInc : range ( freqs.size ( ) ) )
-		{
-			auto res = calcSingleDimMove ( 1e-3, freqs[ initInc ], freqs[ finInc ], phases[ initInc ] );
-			moves ( initInc, finInc ) = res;
-		}
-	}
-	return moves;
-}
-
-// basically making the relevant sin tables. no amplitudes, these are multiplied later because they need to be normalized
-// in the context of the other ramps being combined with a single one.
-std::vector<double> NiawgController::calcSingleDimMove ( double time, double f1, double f2, double phase )
-{
-	simpleWave moveWave;
-	moveWave.varies = false;
-	moveWave.name = "NA";
-	moveWave.chan[ Axes::Vertical ].signals.resize ( 1 );
-	moveWave.chan[ Axes::Horizontal ].signals.resize ( 1 );
-	moveWave.time = time;
-	moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
-	for ( auto axis : AXES )
-	{
-		auto& sig = moveWave.chan[ axis ].signals[ 0 ];
-		sig.freqInit = f1 * 1e6;
-		sig.freqFin = f2 * 1e6;
-		sig.freqRampType = "lin";
-		sig.initPower = sig.finPower = 1;
-		sig.powerRampType = "nr";
-		sig.initPhase = phase;
-	}
-	// going to renormalize these later.
-	generateWaveform ( moveWave.chan[ Axes::Horizontal ], debugInfo(), moveWave.sampleNum, moveWave.time,
-					   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>(), false, false, false );
-	return moveWave.chan[Axes::Horizontal].wave;
-}
-
-
-std::vector<double> NiawgController::combineIndvMoves ( std::vector<UINT> initPositions, std::vector<UINT> finalPositions, 
-														std::vector<double> initBias, std::vector<double> finBias, 
-														Matrix<std::vector<double>> preCalcMoves )
-{
-	if ( initPositions.size ( ) == 0 || finalPositions.size ( ) == 0 || initPositions.size ( ) != finalPositions.size ( ) )
-	{
-		thrower ( "ERROR: init and fin Positions vectors for combine indv moves must match and be non-zero in size!" );
-	}
-	auto numTones = initPositions.size ( );
-	auto sampleNum = preCalcMoves ( initPositions[ 0 ], finalPositions[ 0 ] ).size();
-	// need to normalize properly...
-	std::vector<double> totalWave(preCalcMoves(initPositions[0],finalPositions[0]).size());
-	std::vector<double> powerPos(numTones);
-	/// /// /// 
-	for ( auto sample : range(sampleNum) )
-	{
-		// calculate the time that this sample number refers to
-		//double t = (double) sample / NIAWG_SAMPLE_RATE;
-		/// Calculate Phase and Power Positions. For Every signal...
-		/*
-		for ( auto signal : range ( numTones ) )
-		{
-			// use the ramp calc function to find the current power.
-			powerPos[ signal ] = NiawgController::rampCalc ( sample, sample, initBias[signal], finBias[signal], "lin" );
-		}
-		double currentPower = 0;
-		// calculate the total current amplitude.
-		for ( auto signal : range ( numTones ) )
-		{
-			currentPower += fabs ( initBias[signal] + powerPos[ signal ] );
-			/// modify here for frequency-dependent calibrations!
-			/// need current frequency and calibration file.
-		}
-		*/
-		// normalize each signal.
-		/*
-		for ( auto signal : range ( numTones ) )
-		{
-			// After this, a "currentPower" calculated the same above will always give TOTAL_POWER. 
-			powerPos[ signal ] = ( initBias[ signal ] + powerPos[ signal ] ) * ( TOTAL_POWER / 1 ) 
-				- initBias[ signal ];
-		}
-		*/
-		///  finally, Calculate voltage data point.
-		for ( auto signal : range ( numTones ) )
-		{
-			// get data point. V = Sqrt(Power) * Sin(Phase)
-			totalWave[ sample ] += /*sqrt ( initBias[signal] + powerPos[ signal ] ) **/ preCalcMoves( initPositions[signal],
-																								  finalPositions[signal])[sample];
-		}
-	}
-	return totalWave;
-}
-
-
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
@@ -3372,6 +3285,12 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	{
 		UINT rows = input->rerngWave->rearrange.target.getRows( );
 		UINT cols = input->rerngWave->rearrange.target.getCols( );
+		if ( rows > input->sourceRows || cols > input->sourceCols )
+		{
+			thrower ( "In rearrangement thread, at least one target dimension was larger than it's corresponding "
+					  "source dimension!" );
+			
+		}
 		rerngContainer<double> calBias( input->sourceRows, input->sourceCols );
 		if ( input->guiOptions.useCalibration )
 		{
@@ -3390,7 +3309,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			moveRecordFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging_Move_Record_" + str( fileNum ) + ".txt" );
 			if ( !moveRecordFile.is_open( ) )
 			{
-				thrower( "ERROR: rearranging Info file failed to open!" );
+				thrower ( "rearranging Info file failed to open!" );
 			}
 			moveRecordFile << "Target:\n";
 			moveRecordFile << input->rerngWave->rearrange.target.print( ) << "\n";
@@ -3462,7 +3381,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				{
 					if ( info.target.getCols ( ) != info.target.getRows ( ) )
 					{
-						thrower ( "ERROR: Target dimensions must be the same for lazy mode!" );
+						thrower ( "Target dimensions must be the same for lazy mode!" );
 					}
 					lazyPositions = findLazyPosition ( source, info.target.getCols ( ), input->comm );
 				}
@@ -3506,7 +3425,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampUpWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampUpWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
 				rampUpWave.time = 0.1e-3;
-				rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
+				//rampUpWave.sampleNum = waveformSizeCalc ( rampUpWave.time );
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
@@ -3546,7 +3465,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				holdWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
 				// important! Assuming everything is 0.5MHz or 1MHz defined...
 				holdWave.time = 0.002e-3;
-				holdWave.sampleNum = waveformSizeCalc ( holdWave.time );
+				//holdWave.sampleNum = waveformSizeCalc ( holdWave.time );
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
@@ -3660,7 +3579,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				rampDownWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
 				rampDownWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
 				rampDownWave.time = 0.1e-3;
-				rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
+				//rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
 				for ( auto axis : AXES )
 				{
 					UINT count = 0;
@@ -3852,7 +3771,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		std::ofstream dataFile( DEBUG_OUTPUT_LOCATION + "Rearrangement-Time-Log.txt" );
 		if ( !dataFile.is_open ( ) )
 		{
-			errBox ( "ERROR: file failed to open for rearrangement time log!" );
+			errBox ( "file failed to open for rearrangement time log!" );
 		}
 		else
 		{
@@ -3883,7 +3802,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	}
 	catch ( Error& err )
 	{
-		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
+		errBox( "ERROR in rearrangement thread! " + err.trace( ) );
 	}
 	if ( moveRecordFile.is_open( ) )
 	{
@@ -4161,7 +4080,7 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 			currentUnmatchedSource++;
 			if ( currentUnmatchedSource >= sourceMates.size( ) )
 			{
-				thrower( "ERROR: rearrangement Error! all mateColumn are matched but numberMated < rows!  "
+				thrower ( "rearrangement Error! all mateColumn are matched but numberMated < rows!  "
 						 "(A low level bug, this shouldn't happen)" );
 			}
 		}
@@ -4332,7 +4251,7 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 	// Throw, if  less atoms than targets!
 	if (numberSources < numberTargets)
 	{
-		thrower( "Less atoms than targets!\nN source: " + str( numberSources ) + ", N target: " + str( numberTargets ) );
+		thrower ( "Less atoms than targets!\nN source: " + str( numberSources ) + ", N target: " + str( numberTargets ) );
 	}
 
 	/// calculate cost matrix from Source and Targetmatrix
@@ -4438,7 +4357,7 @@ void NiawgController::writeToFile( std::vector<double> waveVals )
 	std::ofstream file( DEBUG_OUTPUT_LOCATION + "Wave_" + str( writeToStaticNumber++ ) + ".txt" );
 	if ( !file.is_open( ) )
 	{
-		thrower( "ERROR: Niawg wave file failed to open!" );
+		thrower ( "Niawg wave file failed to open!" );
 	}
 	for ( auto val : waveVals )
 	{
@@ -4652,7 +4571,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		{
 			if ( singleMoves.size( ) == 1 )
 			{
-				thrower( "ERROR: somehow the last single move can't be made..." );
+				thrower ( "somehow the last single move can't be made..." );
 			}
 			// couldn't move any atoms. try a different starting point.
 			initMoveNum++;

@@ -9,6 +9,7 @@
 #include "Thrower.h"
 #include "externals.h"
 
+
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
@@ -183,15 +184,14 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
 	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
 	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
-	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
-	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
-	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
-	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
-	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
-	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
-	ON_REGISTERED_MESSAGE( eNoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
-	ON_REGISTERED_MESSAGE ( eNoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
-	ON_REGISTERED_MESSAGE ( eGeneralFinMsgID, &MainWindow::onFinish )
+	ON_MESSAGE ( RepProgressMessageID, &MainWindow::onRepProgress )
+	ON_MESSAGE ( StatusUpdateMessageID, &MainWindow::onStatusTextMessage )
+	ON_MESSAGE ( ErrorUpdateMessageID, &MainWindow::onErrorMessage )
+	ON_MESSAGE ( FatalErrorMessageID, &MainWindow::onFatalErrorMessage )
+	ON_MESSAGE ( DebugUpdateMessageID, &MainWindow::onDebugMessage )
+	ON_MESSAGE ( NoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
+	ON_MESSAGE ( NoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
+	ON_MESSAGE ( GeneralFinMsgID, &MainWindow::onFinish )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
@@ -404,7 +404,7 @@ void MainWindow::passConfigPress( )
 	}
 	catch ( Error& err )
 	{
-		comm.sendError( err.what( ) );
+		comm.sendError( err.trace( ) );
 	}
 }
 
@@ -498,7 +498,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 	}
 	catch ( Error& err )
 	{
-		comm.sendError( err.what( ) );
+		comm.sendError( err.trace( ) );
 	}
 	return 0;
 }
@@ -538,7 +538,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& except )
 	{
-		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.whatStr( ) );
+		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.trace( ) );
 	}
 	try
 	{
@@ -549,7 +549,7 @@ BOOL MainWindow::OnInitDialog( )
 	catch ( Error& exception )
 	{
 		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " 
-				+ exception.whatStr( ) );
+				+ exception.trace( ) );
 	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
@@ -567,7 +567,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.what( ) );
+		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace( ) );
 		return -1;
 	}
 	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
@@ -585,7 +585,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 	/// initialize main window controls.
 	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
@@ -624,7 +624,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
@@ -661,7 +661,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.what( ) );
+		errBox( err.trace( ) );
 	}
 	SetTimer( 1, 10000, NULL );
 	// set up the threads that update the scope data.
@@ -762,11 +762,18 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 
 void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
-	notes.handleOpenConfig( configFile, ver );
-	settings.handleOpenConfig( configFile, ver );
-	debugger.handleOpenConfig( configFile, ver );
-	repetitionControl.handleOpenConfig(configFile, ver );
-	rearrangeControl.handleOpenConfig( configFile, ver );
+	try
+	{
+		notes.handleOpenConfig ( configFile, ver );
+		settings.handleOpenConfig ( configFile, ver );
+		debugger.handleOpenConfig ( configFile, ver );
+		repetitionControl.handleOpenConfig ( configFile, ver );
+		rearrangeControl.handleOpenConfig ( configFile, ver );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Main Window failed to read parameters from the configuration file." );
+	}
 }
 
 
@@ -882,12 +889,12 @@ std::string MainWindow::getSystemStatusString()
 		}
 		catch ( Error& err )
 		{
-			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+			status += "\tFailed to get device info! Error: " + err.trace ( );
 		}
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	status += "MOT Scope:\n";
 	if ( !MOT_SCOPE_SAFEMODE )
@@ -899,12 +906,12 @@ std::string MainWindow::getSystemStatusString()
 		}
 		catch ( Error& err )
 		{
-			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+			status += "\tFailed to get device info! Error: " + err.trace ( );
 		}
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	status += "Master/Repump Scope:\n";
 	if ( !MASTER_REPUMP_SCOPE_SAFEMODE )
@@ -916,12 +923,12 @@ std::string MainWindow::getSystemStatusString()
 		}
 		catch ( Error& err )
 		{
-			status += "\tFailed to get device info! Error: " + err.whatStr ( );
+			status += "\tFailed to get device info! Error: " + err.trace ( );
 		}
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	return status;
 }
@@ -1258,7 +1265,7 @@ void MainWindow::updateStatusText(std::string whichStatus, std::string text)
 	}
 	else
 	{
-		thrower( "Main Window's updateStatusText function recieved a bad argument for which status"
+		thrower ( "Main Window's updateStatusText function recieved a bad argument for which status"
 				 " control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus);
 	}
 }
@@ -1281,7 +1288,7 @@ void MainWindow::addTimebar(std::string whichStatus)
 	}
 	else
 	{
-		thrower("Main Window's addTimebar function recieved a bad argument for which status"
+		thrower ("Main Window's addTimebar function recieved a bad argument for which status"
 			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus + ". This"
 			"exception can be safely ignored.");
 	}
@@ -1338,7 +1345,7 @@ void MainWindow::handleSequenceCombo()
 	}
 	catch (Error& err)
 	{
-		getComm()->sendError(err.what());
+		getComm()->sendError(err.trace());
 	}
 }
 
@@ -1370,10 +1377,11 @@ void MainWindow::abortMasterThread()
 	if (masterThreadManager.runningStatus())
 	{
 		masterThreadManager.abort();
+		autoF5_AfterFinish = false;
 	}
 	else
 	{
-		thrower("Can't abort, experiment was not running.\r\n");
+		thrower ("Can't abort, experiment was not running.\r\n");
 	}
 }
 
@@ -1411,6 +1419,7 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 
 LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 {
+	autoF5_AfterFinish = false;
 	// normal msg stuff
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
@@ -1430,14 +1439,13 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	}
 	catch (Error& except)
 	{
-		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
+		comm.sendError("EXITED WITH ERROR! " + except.trace());
 		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
 	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
-	Sleep( 100 );
-	asyncbeep = std::async ( std::launch::async, [] { Beep ( 900, 100 ); } );
+	errBox ( statusMessage );
 	return 0;
 }
 
@@ -1471,7 +1479,7 @@ void MainWindow::onNormalFinishMessage()
 	catch ( Error& except )
 	{
 		comm.sendError( "ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
-						"following error: " + except.whatStr( ) );
+						"following error: " + except.trace( ) );
 		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );
 	}
@@ -1482,7 +1490,12 @@ void MainWindow::onNormalFinishMessage()
 	}
 	catch ( Error& err )
 	{
-		comm.sendError( err.what( ) );
+		comm.sendError( err.trace( ) );
+	}
+	if ( autoF5_AfterFinish )
+	{
+		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
+											   TheAuxiliaryWindow, TheBaslerWindow );
 	}
 }
 
@@ -1515,7 +1528,7 @@ void MainWindow::handleFinish()
 	}
 	catch (Error& err)
 	{
-		comm.sendError(err.what());
+		comm.sendError(err.trace());
 	}
 }
 
@@ -1523,16 +1536,6 @@ void MainWindow::handleFinish()
 Communicator* MainWindow::getComm()
 {
 	return &comm;
-}
-
-
-LRESULT MainWindow::onColoredEditMessage(WPARAM wParam, LPARAM lParam)
-{
-	char* pointerToMessage = (char*)lParam;
-	std::string statusMessage(pointerToMessage);
-	delete[] pointerToMessage;
-	setShortStatus(statusMessage);
-	return 0;
 }
 
 
@@ -1556,3 +1559,4 @@ rgbMap MainWindow::getRgbs()
 {
 	return mainRGBs;
 }
+

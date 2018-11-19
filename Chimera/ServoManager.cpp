@@ -4,7 +4,8 @@
 #include "boost/lexical_cast.hpp"
 
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
-							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in )
+							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in,
+							   rgbMap rgbs )
 {
 	servosHeader.sPos = {pos.x, pos.y, pos.x + 480, pos.y += 20};
 	servosHeader.Create( "SERVOS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
@@ -31,8 +32,8 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
 	servoList.InsertColumn ( 0, "Name",100 );
 	servoList.InsertColumn ( 1, "Active?" );
-	servoList.InsertColumn ( 2, "Set-Point" );
-	servoList.InsertColumn ( 3, "Control-Value" );
+	servoList.InsertColumn ( 2, "Set" );
+	servoList.InsertColumn ( 3, "Ctrl" );
 	servoList.InsertColumn ( 4, "Ai", 50 );
 	servoList.InsertColumn ( 5, "Ao" );
 	servoList.InsertColumn ( 6, "DO-Config", 100 );
@@ -45,6 +46,11 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 						   "Ao: The analog output the servo will use to try to change the value of the analog input\n"
 						   "DO-Config: The digital output configuration the sevo will set before servoing. If a ttl is "
 						   "not listed here, it will be zero\'d.\n", toolTips, parent );
+	servoList.fontType = fontTypes::SmallFont;
+	servoList.SetTextBkColor ( RGB ( 15, 15, 15 ) );
+	servoList.SetTextColor ( RGB ( 150, 150, 150 ) );
+	servoList.SetBkColor ( rgbs[ "Solarized Base02" ] );
+
 	ai = ai_in;
 	ao = ao_in;
 	ttls = ttls_in;
@@ -169,7 +175,7 @@ void ServoManager::handleListViewClick ( )
 			{
 				if ( s.servoName == newName )
 				{
-					thrower ( "ERROR: An servo with name " + newName + " already exists!" );
+					thrower ( "An servo with name " + newName + " already exists!" );
 				}
 			}
 			servo.servoName = newName;
@@ -194,7 +200,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert text to a double!" );
+				throwNested ( "Failed to convert text to a double!" );
 			}
 			servoList.SetItem ( str(servo.setPoint), itemIndicator, subitem );
 			// set point
@@ -217,7 +223,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert text to an unsigned int!" );
+				throwNested ( "Failed to convert text to an unsigned int!" );
 			}
 			servoList.SetItem ( str ( servo.aiInputChannel ), itemIndicator, subitem );
 			break;
@@ -234,7 +240,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
-				thrower ( "ERROR: Failed to convert text to an unsigned int!" );
+				throwNested ( "Failed to convert text to an unsigned int!" );
 			}
 			servoList.SetItem ( str ( servo.aoControlChannel ), itemIndicator, subitem );
 			break;
@@ -259,9 +265,9 @@ void ServoManager::handleListViewClick ( )
 					tmpStream >> ttl.second;
 					servo.ttlConfig.push_back ( ttl );
 				}
-				catch ( Error& err )
+				catch ( Error& )
 				{
-					thrower ( err.whatStr() + "...In trying to set the servo ttl config!" );
+					throwNested ( "Error In trying to set the servo ttl config!" );
 				}
 			}
 			std::string diostring;
@@ -369,13 +375,14 @@ bool ServoManager::autoServo( )
 void ServoManager::runAll( )
 {
 	UINT count = 0;
+	// made this asynchronous to facilitate updating gui while 
 	for ( auto& servo : servos )
 	{
-		calibrate ( servo, count++ );
+		ServoManager::calibrate ( servo, count++ );
 	}
 	ttls->zeroBoard ( );
 }
- 
+
 
 void ServoManager::calibrate( servoInfo& s, UINT which )
 {
@@ -437,7 +444,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 				}
 			}
 			// there's a break built in here in order to let the laser settle.
-			Sleep( 100 );
+			Sleep( 20 );
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 		}
 	}
@@ -446,7 +453,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	s.servoed = count != attemptLimit;
 	if ( !s.servoed )
 	{
-		errBox( "ERROR: " + s.servoName + " servo failed to servo!" );
+		errBox( "" + s.servoName + " servo failed to servo!" );
 	}
 	else
 	{
@@ -458,6 +465,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 void ServoManager::setControlDisplay (UINT which, double value )
 {
 	servoList.SetItem ( str ( value ), which, 3 );
+	servoList.RedrawWindow ( );
 }
 
 

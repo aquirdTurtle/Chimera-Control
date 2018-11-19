@@ -143,7 +143,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					}
 					catch (Error& exception)
 					{
-						input->comm->sendError(exception.what());
+						input->comm->sendError(exception.trace());
 					}
 					if ( input->Andor->isCalibrating( ) )
 					{
@@ -163,7 +163,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			Sleep( 20 );
+			Sleep( 200 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
@@ -340,7 +340,24 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	if (experimentPictureNumber == 0)
 	{
-		WaitForSingleObject(imagesMutex, INFINITE);
+		while ( true )
+		{
+			auto res = WaitForSingleObject ( imagesMutex, 10e3 );
+			if ( res == WAIT_TIMEOUT )
+			{
+				auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
+									   MB_YESNO );
+				if ( ans == IDNO )
+				{
+					// This might indicate something about the code is gonna crash...
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 		imagesOfExperiment.clear();
 		if (runSettings.showPicsInRealTime)
 		{
@@ -354,7 +371,24 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	std::vector<long> tempImage;
 	tempImage.resize( runSettings.imageSettings.size());
-	WaitForSingleObject(imagesMutex, INFINITE);
+	while ( true )
+	{
+		auto res = WaitForSingleObject ( imagesMutex, 10e3 );
+		if ( res == WAIT_TIMEOUT )
+		{
+			auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
+								   MB_YESNO );
+			if ( ans == IDNO )
+			{
+				// This might indicate something about the code is gonna crash...
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
 	
 	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
  	if (!safemode)
@@ -406,7 +440,24 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				}
 			}
 		}
-		WaitForSingleObject(imagesMutex, INFINITE);
+		while ( true )
+		{
+			auto res = WaitForSingleObject ( imagesMutex, 10e3 );
+			if ( res == WAIT_TIMEOUT )
+			{
+				auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
+									   MB_YESNO );
+				if ( ans == IDNO )
+				{
+					// This might indicate something about the code is gonna crash...
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width())
@@ -471,7 +522,7 @@ void AndorCamera::setExposures()
 	}
 	else
 	{
-		thrower("ERROR: Invalid size for vector of exposure times, value of " + str(runSettings.exposureTimes.size()) + ".");
+		thrower ("ERROR: Invalid size for vector of exposure times, value of " + str(runSettings.exposureTimes.size()) + ".");
 	}
 }
 
@@ -498,7 +549,7 @@ void AndorCamera::setScanNumber()
 	}
 	else if (runSettings.totalPicsInVariation == 0)
 	{
-		thrower("ERROR: Scan Number Was Zero.\r\n");
+		thrower ("ERROR: Scan Number Was Zero.\r\n");
 	}
 	else
 	{
@@ -643,7 +694,7 @@ void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 	getTemperatureRange(minimumAllowedTemp, maximumAllowedTemp);
 	if (runSettings.temperatureSetting < minimumAllowedTemp || runSettings.temperatureSetting > maximumAllowedTemp)
 	{
-		thrower("ERROR: Temperature is out of range\r\n");
+		thrower ("ERROR: Temperature is out of range\r\n");
 	}
 	else
 	{
@@ -669,7 +720,7 @@ void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 	}
 	else
 	{
-		thrower("Temperature Control has been turned off.\r\n");
+		thrower ("Temperature Control has been turned off.\r\n");
 	}
 }
 
@@ -1090,7 +1141,7 @@ void AndorCamera::andorErrorChecker(int errorCode)
 	/// So no throw is considered success.
 	if (errorMessage != "DRV_SUCCESS")
 	{
-		thrower( errorMessage );
+		thrower ( errorMessage );
 	}
 }
 
@@ -1353,7 +1404,7 @@ void AndorCamera::queryStatus()
 	}
 	if (status != DRV_IDLE)
 	{
-		thrower("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
+		thrower ("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
 				+ str(status) + "\r\n");
 	}
 }

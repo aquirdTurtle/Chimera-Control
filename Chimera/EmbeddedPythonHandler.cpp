@@ -86,12 +86,12 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	// interpret the text here to get the actual function name.
 	if (atomAnalysisFunction == NULL)
 	{
-		thrower( "ERROR: Atom analysis function is null! The program can no longer call this function for some"
+		thrower ( "ERROR: Atom analysis function is null! The program can no longer call this function for some"
 				 "reason. Auto-Analysis will not occur." );
 	}
 	if (!PyCallable_Check(this->atomAnalysisFunction))
 	{
-		thrower( "ERROR: Python is telling me that it cannot call the Atom analysis function. I don't know why"
+		thrower ( "ERROR: Python is telling me that it cannot call the Atom analysis function. I don't know why"
 				 ", since the function pointer is not null. Auto-Analysis will not occur." );
 	}
 		
@@ -102,7 +102,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	PyObject* pythonFunctionArguments = PyTuple_New(5);
 	if (pythonFunctionArguments == NULL)
 	{
-		thrower("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
+		thrower ("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
 	}
 	// pythonFunctionArguments, pythonDate
 	PyObject* pythonDate = Py_BuildValue("s", cstr(date));
@@ -110,7 +110,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	if (pythonDate == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		thrower("ERROR: Cannot Convert date! Auto-Analysis will terminate.");
+		thrower ("ERROR: Cannot Convert date! Auto-Analysis will terminate.");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 0, pythonDate);
@@ -119,7 +119,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	if (pythonRunNumber == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		thrower("Cannot Convert run number?!?!?!?!?! Auto-Analysis terminating...\r\n");
+		thrower ("Cannot Convert run number?!?!?!?!?! Auto-Analysis terminating...\r\n");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 1, pythonRunNumber);
@@ -147,7 +147,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	if (pythonPicturesPerExperiment == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		thrower("Cannot Convert Pictures per experiment?!?!?!?!? Auto-Analysis terminating...");
+		thrower ("Cannot Convert Pictures per experiment?!?!?!?!? Auto-Analysis terminating...");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 3, pythonPicturesPerExperiment);
@@ -156,7 +156,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	if (pythonAccumulations == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		thrower("Cannot Convert Accumulations?!?!?!?!?!?!?!?!?!? Auto-Analysis terminating...");
+		thrower ("Cannot Convert Accumulations?!?!?!?!?!?!?!?!?!? Auto-Analysis terminating...");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
@@ -166,7 +166,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 		PyErr_Print();
 		PyObject *output = PyObject_GetAttrString( errorCatcher, "value" );
 		errBox( PyBytes_AS_STRING( PyUnicode_AsEncodedString( output, "ASCII", "strict" ) ) );
-		thrower("Python function call returned NULL!");
+		thrower ("Python function call returned NULL!");
 	}
 	Py_DECREF(pythonReturnValue);
 	// finished successfully.
@@ -180,7 +180,7 @@ void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 	flush();
 	if (baseEmail == "" || password == "")
 	{
-		thrower("ERROR: Please set an email and password for sending texts with!");
+		thrower ("ERROR: Please set an email and password for sending texts with!");
 	}
 	ERR_POP_RETURN(run("email = MIMEText('" + msg + "', 'plain')"));
 	ERR_POP_RETURN(run("email['Subject'] = '" + subject + "'"));
