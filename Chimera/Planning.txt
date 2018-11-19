@@ -54,6 +54,7 @@ FEATURES:
 - more tests
 - use custom (bigger) dialog for err, info boxes.
 - consider using sine lookup tables for niawg calculations.
+- log niawg waves.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -96,3 +97,4 @@ BUGS:
 - in debug mode aborting doesn't seem to work...
 	- make the waitonsingleobject calls smarter in the aborting process.
 - in niawg generateWaveform seems like it's writing to library twice???
+- unclosed parenthesis = crash in niawg script?

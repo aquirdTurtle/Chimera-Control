@@ -373,6 +373,7 @@ void ServoManager::runAll( )
 	{
 		calibrate ( servo, count++ );
 	}
+	ttls->zeroBoard ( );
 }
  
 

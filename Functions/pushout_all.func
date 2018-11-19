@@ -8,12 +8,14 @@ def pushout_all():
   t += 1.01
   var pushout_Power 0.3 
   var sidemot_Power 0
-  var pushouttime  10
+  var pushouttime 2 %10
   
   %dac: probePower pushoutPower
   dac: probePower pushout_power
   on: probeRf
+
   t += pushouttime
+
   off: probeRf
   %off: probeShutter
   %on: sideMotShutter
