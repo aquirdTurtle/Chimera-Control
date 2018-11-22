@@ -162,7 +162,7 @@ class MainWindow : public CDialog
 			BaslerFinMessageID			= ( WM_APP + 18 ),
 			GeneralFinMsgID				= ( WM_APP + 19 ),
 			NoMotAlertMessageID			= ( WM_APP + 20 );
-		bool autoF5_AfterFinish=true;
+		bool autoF5_AfterFinish = false;
 	private:
 		DECLARE_MESSAGE_MAP();
 

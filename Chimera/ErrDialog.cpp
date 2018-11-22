@@ -27,10 +27,10 @@ BOOL ErrDialog::OnInitDialog ( )
 	}
 	// replace instances of \n alone with \r\n.
 	descriptionText = std::regex_replace (descriptionText.c_str(), std::regex("[^\r]\n"), "\r\n" );
-	description.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL, { 0,100,
-						 winRect.right-winRect.left,winRect.bottom-winRect.top-50 }, this, 0 );
+	description.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL, { 0,50,
+						 winRect.right-winRect.left-10,winRect.bottom-winRect.top-100 }, this, 0 );
 	description.SetWindowTextA ( descriptionText.c_str ( ) );
-	header.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, { 0,0, winRect.right - winRect.left, 100 }, this, 1 );
+	header.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, { 0,0, winRect.right - winRect.left, 50 }, this, 1 );
 	header.SetWindowText ( dlgType == type::error ? "ERROR!" : "Notice:" );
 	header.SetFont ( CFont::FromHandle(font) );
 	return TRUE;
