@@ -3,7 +3,7 @@
 
 #include "DataAnalysisHandler.h"
 #include "Control.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "ProfileSystem.h"
 #include "PlotDesignerDialog.h"
 #include "realTimePlotterInput.h"

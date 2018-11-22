@@ -3,7 +3,7 @@
 #include "PictureSettingsControl.h"
 #include "Andor.h"
 #include "CameraSettingsControl.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "Commctrl.h"
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>

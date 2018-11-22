@@ -1,5 +1,5 @@
 ===================
-TODO
+CODE PLANNING
 ===================
 FEATURES:
 - Full experiments following each other, alternative use of sequences.
@@ -89,4 +89,3 @@ BUGS:
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - servo ctrl val goes to zero after servo...
-- background getting redrawn when image updates when controling min max sliders.

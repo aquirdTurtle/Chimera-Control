@@ -7,7 +7,7 @@
 #include "commonFunctions.h"
 #include "textPromptDialog.h"
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "BaslerWindow.h"
 #include "MainWindow.h"
 #include "Agilent.h"
