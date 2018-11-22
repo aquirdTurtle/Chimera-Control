@@ -1550,6 +1550,7 @@ std::vector<std::vector<double>> DioSystem::getFinalTimes( )
 	for ( auto& seqSnaps : ttlSnapshots )
 	{
 		UINT variationInc = 0;
+
 		finTimes[seqInc].resize( seqSnaps.size( ) );
 		for ( auto& variationSnaps : seqSnaps )
 		{

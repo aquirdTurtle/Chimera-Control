@@ -227,7 +227,7 @@ void AuxiliaryWindow::runServos( )
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		sendStatus ( "Running Servos...\r\n" );
+		sendStatus ( "Running Servos..." );
 		servos.runAll( );
 	}
 	catch ( Error& err )

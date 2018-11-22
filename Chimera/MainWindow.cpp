@@ -538,7 +538,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& except )
 	{
-		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.trace( ) );
+		errBox( "NIAWG failed to Initialize! Error: " + except.trace( ) );
 	}
 	try
 	{
@@ -548,7 +548,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& exception )
 	{
-		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " 
+		errBox( "Failed to start niawg default waveforms! Niawg gave the following error message: " 
 				+ exception.trace( ) );
 	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
@@ -1496,6 +1496,7 @@ void MainWindow::onNormalFinishMessage()
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
 											   TheAuxiliaryWindow, TheBaslerWindow );
+		autoF5_AfterFinish = false;
 	}
 }
 

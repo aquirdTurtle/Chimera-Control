@@ -415,7 +415,7 @@ void NiawgController::restartDefault()
 	catch (Error& except)
 	{
 		throwNested( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
-				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.whatStr() );
+				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.trace() );
 	}
 }
 
@@ -3030,7 +3030,7 @@ std::vector<double> NiawgController::makeFullRerngWave( rerngScriptInfo& rerngSe
 	if ( moveInfo.needsFlash 
 		 && (fabs( rerngSettings.staticWave.time + moveWave.time - rerngSettings.timePerMove ) > 1e-9 ))
 	{
-		thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
+		thrower( "static wave and moving wave don't add up to the total time of the flashing wave! "
 				 "static time was " + str( rerngSettings.staticWave.time ) + ", move time was "
 				 + str( moveWave.time ) + ", and total time was " + str(rerngSettings.timePerMove) + ".\r\n" );
 	}
@@ -3116,7 +3116,7 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 {
 	if ( target.getRows() == 0 || target.getCols() == 0 )
 	{
-		thrower( "ERROR: invalid target size in calcFinalPositionMove function. target must be a non-empty 2D Vector." );
+		thrower( "Invalid target size in calcFinalPositionMove function. target must be a non-empty 2D Vector." );
 	}
 	simpleWave moveWave;
 	moveWave.varies = false;
@@ -3134,7 +3134,7 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 	moveWave.chan[Axes::Horizontal].signals.resize( target.getCols() );
 	// this is pretty arbitrary right now. In principle can prob be very fast.
 	moveWave.time = moveTime;
-	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+	//moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 	simpleWave waitWave = moveWave;
 	// fill wave info
 	for ( auto axis : AXES )
@@ -3514,7 +3514,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				moveWave.chan[ Axes::Vertical ].signals.resize ( info.target.getRows ( ) );
 				moveWave.chan[ Axes::Horizontal ].signals.resize ( info.target.getCols ( ) );
 				moveWave.time = 0.2e-3;
-				moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
+				//moveWave.sampleNum = waveformSizeCalc ( moveWave.time );
 				niawgPair<std::vector<double>> finBiases;
 				finBiases[ Axes::Vertical ] = { 0.13605637851383134, 0.08802408172039368, 0.08773263291047297,
 					0.07863546037570875 + 0.02, 0.08000523681678881, 0.08376969752900515, 0.0650583321788129 + 0.035,
