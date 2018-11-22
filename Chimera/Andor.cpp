@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ATMCD32D.h"
 #include "Andor.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "AndorTriggerModes.h"
 #include "AndorRunMode.h"
 #include <chrono>

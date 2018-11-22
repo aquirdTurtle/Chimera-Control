@@ -4,7 +4,7 @@
 #include "PlotCtrl.h"
 #include "PlottingInfo.h"
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "MainWindow.h"
 #include "realTimePlotterInput.h"
 #include "MasterThreadInput.h"
