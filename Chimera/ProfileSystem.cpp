@@ -7,7 +7,7 @@
 #include "NiawgController.h"
 #include "Andor.h"
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "ScriptingWindow.h"
 #include "MainWindow.h"
 #include "openWithExplorer.h"

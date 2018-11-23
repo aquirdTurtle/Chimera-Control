@@ -1,57 +1,57 @@
-Version 2.4
-diagmotrf
+Version 2.5
+a0
 0
-repumprf
+a1
 0
-botramanrf
+a2
 0
-sigmarepumprf
+a3
 0
-sigmaoprf
+a4
 0
-sidemotrf
+a5
 0
-tweezerrf
+a6
 0
-repumpflash
+a7
 0
-eoramanrf
+a8
 0
 a9
 0
-topramanrf
+a10
 0
-axialramanrf
+a11
 0
 a12
 0
-radialgaussianpulsetrig
+a13
 0
-oscilloscopetrig
+a14
 0
 a15
 0
-scouttrig
+b0
 0
-repumpshutter
+b1
 0
-motshutter
+b2
 0
-lsshutter
+b3
 0
 b4
 0
-probeflashing
+b5
 0
-tweezerintensitytrig
+b6
 0
 b7
 0
 b8
 0
-ropshutter
+b9
 0
-shutter795
+b10
 0
 b11
 0
@@ -59,55 +59,55 @@ b12
 0
 b13
 0
-niawgtrig
+b14
 0
-afgsweeptrig
+b15
 0
-eoswitch
+c0
 0
-eoswitch2
+c1
 0
-andortrig
+c2
 0
-rstrig
+c3
 0
-ramanshutter
+c4
 0
-tweezerflashrf
+c5
 0
-lsrf
+c6
 0
-sidemotflash
+c7
 0
 c8
 0
-depumpingrf
+c9
 0
-rf795
+c10
 0
-oscilloscopetrig
+c11
 0
-probeshutter
+c12
 0
-sidemotshutter
+c13
 0
 c14
 0
-acetrig
+c15
 0
-diagmotshutter
+d0
 0
 d1
 0
-andorshutter
+d2
 0
-axialmicropulsetrig
+d3
 0
-topfsktrig
+d4
 0
-botfsktrig
+d5
 0
-axialfsktrig
+d6
 0
 d7
 0
@@ -115,132 +115,116 @@ d8
 0
 d9
 0
-acetrig
+d10
 0
-auxtweezerrf
+d11
 0
-proberf
+d12
 0
 d13
 0
-dacboardtrig
+d14
 0
 d15
 0
-rightcoilcurrent
+dac0
 -10 - 10
 0
-_
-leftcoilcurrent
+Dac1
+Dac1
 -10 - 10
 0
-_
-frontcoilcurrent
+
+Dac2
 -10 - 10
 0
-_
-backcoilcurrent
+
+Dac3
 -10 - 10
 0
-_
-bottomcoilcurrent
+
+Dac4
 -10 - 10
 0
-_
-topcoilcurrent
+
+Dac5
 -10 - 10
 0
-_
-motgradientcurrent
+
+Dac6
 -10 - 10
 0
-_
-probefreq
+
+Dac7
 -10 - 10
 0
-_
-depumppower
-0 - 0.3
-0
-_
-diagmotpower
-0 - 0.4
-0
-_
-depumpfreq
+
+Dac8
 -10 - 10
 0
-_
-repumppower
-0 - 0.3
-0
-_
-sigmaopfreq
+
+Dac9
 -10 - 10
 0
-_
-sigmaoppower
+
+Dac10
 -10 - 10
 0
-_
-sigmarepumpfreq
--5 - 1.7
-0
-_
-sigmarepumppower
-0 - 0.38
-0
-_
-auxtweezerpower
-0 - 0.23
-0
-sdfsdf
-freq795
+
+Dac11
 -10 - 10
 0
-_
-power795
-0 - 0.3
-0
-_
-probepower
--0.1 - 0.9
-0
-_
-motfreq
--10 - 1
-0
-_
-repumpfreq
--3.5 - 3.5
-0
-_
-sidemotpower
--0.1 - 0.44
-0
-_
-piezomirror
+
+Dac12
 -10 - 10
 0
-_
-14
-loadmottime 150
-andorimagetime 20
-imagingpower 0.3
-fieldtheta 1.5708
-fieldphi 1.5708
-imagingrepumppower 0.2
-pushouttime 10
-intrappgccoolingtime 10
-field 3
-defaultmotfreq -0.1
-sidemot__servo_value 0.126214
-diagmot__servo_value 0.345677
-default795freq 0
-d1__servo_value 0.3
-0.02 1
-3Sidemot 6 22 1 0.87 1 A 5 
-DiagMot 5 9 0 0.8 1 A 0 
-D1 6 18 0 1 1 C 10 
-1 512 2 1 512 2
+
+Dac13
+-10 - 10
+0
+
+Dac14
+-10 - 10
+0
+
+Dac15
+-10 - 10
+0
+
+Dac16
+-10 - 10
+0
+
+Dac17
+-10 - 10
+0
+
+Dac18
+-10 - 10
+0
+
+Dac19
+-10 - 10
+0
+
+Dac20
+-10 - 10
+0
+
+Dac21
+-10 - 10
+0
+
+Dac22
+-10 - 10
+0
+
+Dac23
+-10 - 10
+0
+
+0
+0.05 0
+1sdf 0 0 0 0 1 A 0 0.02 0.02
+1 50 1 1 50 1
 0 0

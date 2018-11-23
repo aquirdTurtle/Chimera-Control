@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "CameraImageDimensions.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "MainWindow.h"
 #include "CameraSettingsControl.h"
 #include "Thrower.h"

@@ -6,7 +6,7 @@
 #include "BaslerWindow.h"
 #include "AuxiliaryWindow.h"
 #include "MainWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "ScriptingWindow.h"
 #include "afxdialogex.h"
 #include "constants.h"

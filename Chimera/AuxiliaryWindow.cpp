@@ -4,7 +4,7 @@
 #include "AoSettingsDialog.h"
 #include "TextPromptDialog.h"
 #include "DioSystem.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "MainWindow.h"
 #include "Control.h"
 #include "commonFunctions.h"

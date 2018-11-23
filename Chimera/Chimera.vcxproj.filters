@@ -76,9 +76,6 @@
     <ClCompile Include="ColorBox.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraWindow.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
     <ClCompile Include="CameraImageDimensions.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
@@ -277,6 +274,9 @@
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="SegmentEnd.cpp" />
+    <ClCompile Include="AndorWindow.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -376,9 +376,6 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="CameraImageDimensions.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraWindow.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="ATMCD32D.H">
@@ -642,6 +639,9 @@
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="SegmentEnd.h" />
+    <ClInclude Include="AndorWindow.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

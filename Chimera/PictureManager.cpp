@@ -214,7 +214,7 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 		for (auto& control : pictures)
 		{
 			control.handleScroll ( id, nPos );
-			control.redrawImage ( cdc );
+			control.redrawImage ( cdc, false );
 		}
 	}
 }

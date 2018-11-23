@@ -3,7 +3,7 @@
 #include "Uxtheme.h"
 #include "ExperimentTimer.h"
 #include <vector>
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 
 
 void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
