@@ -4,7 +4,7 @@
 #include "AoSystem.h"
 #include <sys/stat.h>
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "MainWindow.h"
 #include "Thrower.h"
 #include <string>

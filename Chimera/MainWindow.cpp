@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "MainWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"

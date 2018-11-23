@@ -497,17 +497,17 @@ void PictureControl::setActive( bool activeState )
 /*
  * redraws the background and image. 
  */
-void PictureControl::redrawImage( CDC* easel)
+void PictureControl::redrawImage( CDC* easel, bool bkgd)
 {
-	drawBackground(easel);
+	if ( bkgd )
+	{
+		drawBackground ( easel );
+	}
 	if (active && mostRecentImage.size() != 0)
 	{
 		drawPicture(easel, mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 					mostRecentSpecialMaxSetting );
 	}
-
-	// TODO?
-	// drawGrid(parent, brush);
 }
 
 void PictureControl::resetStorage()

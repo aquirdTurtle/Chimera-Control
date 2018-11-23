@@ -228,7 +228,7 @@
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="cameraPositions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
-    <ClInclude Include="CameraWindow.h" />
+    <ClInclude Include="AndorWindow.h" />
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="commonTypes.h" />
@@ -348,7 +348,7 @@
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
-    <ClCompile Include="CameraWindow.cpp" />
+    <ClCompile Include="AndorWindow.cpp" />
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />

@@ -41,11 +41,6 @@ class ServoManager
 		Control<CleanButton> servoButton;
 		Control<CleanCheck> autoServoButton;
 
-		Control<CStatic> toleranceLabel;
-		Control<DoubleEdit> toleranceEdit;
-		Control<CStatic> attemptLimitLabel;
-		Control<DoubleEdit> attemptLimitEdit;
-
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
 		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
 		Control<MyListCtrl> servoList;
