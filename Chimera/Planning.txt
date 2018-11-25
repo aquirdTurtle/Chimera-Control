@@ -54,8 +54,9 @@ FEATURES:
 - some way of making niawg scripts more compact. something with arrays.
 
 Refactoring / Other:
+- refactor colors to be theme based.
 - change threads waiting on bools to waiting on signalers
-- refactor groups in plotinfo
+- refactor groups in plotinfo in real time plotting
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
@@ -65,7 +66,7 @@ Refactoring / Other:
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
-	accurate. 
+	accurate.
 - refactor rerngmove complexmove and simplemove which are confusing... 
 - refactor the config saving issues. // ???
 
@@ -77,7 +78,6 @@ BUGS:
 - global variable colors don't appear to always be correct; agilent issue probably?
 - turnonmot seems to be running tektronics stuff too.
 - control tektronics not being saved in config?
-- make eating comments more robust against eol conversion issues.
 - interpret key taking a long time for ttls in camera cal for some reason.
 - seems like master configuration file can get corrupted if saving fails.
 - for flash check that sum of indv move times is the total move time.
@@ -88,3 +88,4 @@ BUGS:
 - plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
+
