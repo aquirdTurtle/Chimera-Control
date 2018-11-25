@@ -444,11 +444,12 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		else
 		{
 			// modify dac value.
-			double currVal = ao->getDacValue( aoNum );
+			s.controlValue = ao->getDacValue( aoNum );
 			double diff = s.gain * percentDif > 0.05 ? 0.05 : s.gain * percentDif;
+			s.controlValue += diff;
 			try
 			{
-				ao->setSingleDac( aoNum, currVal + diff, ttls );
+				ao->setSingleDac( aoNum, s.controlValue, ttls );
 			}
 			catch ( Error& )
 			{
@@ -456,11 +457,11 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 				auto r = ao->getDacRange ( aoNum );
 				try
 				{
-					if ( currVal + diff < r.first )
+					if ( s.controlValue < r.first )
 					{
 						ao->setSingleDac ( aoNum, r.first, ttls );
 					}
-					else if ( currVal + diff > r.second )
+					else if ( s.controlValue > r.second )
 					{
 						ao->setSingleDac ( aoNum, r.second, ttls );
 					}
