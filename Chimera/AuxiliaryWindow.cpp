@@ -264,7 +264,7 @@ void AuxiliaryWindow::OnPaint( )
 		CDC* cdc = GetDC( );
 		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 		// work without this and I don't know what changed. I used to do:
-		cdc->SetBkColor( mainWin->getRgbs( )["Solarized Base 04"] );
+		cdc->SetBkColor( mainWin->getRgbs( )["Main-Bkgd"] );
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 		// for a single plot.
@@ -272,7 +272,7 @@ void AuxiliaryWindow::OnPaint( )
 		{
 			ttlPlt->setCurrentDims( width, height );
 			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
-			ttlPlt->drawBackground( ttlDC, mainWin->getBrushes( )["Solarized Base04"],
+			ttlPlt->drawBackground( ttlDC, mainWin->getBrushes( )["Main-Bkgd"],
 									mainWin->getBrushes( )["Black"] );
 			ttlPlt->drawTitle( ttlDC );
 			ttlPlt->drawBorder( ttlDC );
@@ -282,7 +282,7 @@ void AuxiliaryWindow::OnPaint( )
 		{
 			dacPlt->setCurrentDims( width, height );
 			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
-			dacPlt->drawBackground( dacDC, mainWin->getBrushes( )["Solarized Base04"],
+			dacPlt->drawBackground( dacDC, mainWin->getBrushes( )["Main-Bkgd"],
 									mainWin->getBrushes( )["Black"] );
 			dacPlt->drawTitle( dacDC );
 			dacPlt->drawBorder( dacDC );
@@ -1428,24 +1428,24 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			pDC->SetTextColor(rgbs["Solarized Base0"]);
-			pDC->SetBkColor(rgbs["Medium Grey"]);
-			return *brushes["Medium Grey"];
+			pDC->SetTextColor(rgbs["Static-Text"]);
+			pDC->SetBkColor(rgbs["Static-Bkgd"]);
+			return *brushes["Static-Bkgd"];
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["Solarized Yellow"]);
-			pDC->SetBkColor(rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			pDC->SetTextColor(rgbs["AuxWin-Text"]);
+			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["Solarized Base0"]);
-			pDC->SetBkColor(rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			pDC->SetTextColor(rgbs["AuxWin-Text"]);
+			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		default:
-			return *brushes["Solarized Base04"];
+			return *brushes["Main-Bkgd"];
 	}
 }
 
@@ -1483,13 +1483,13 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		controlLocation = POINT{ 480, 0 };
 		
 		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
-												 rgbs["Solarized Base03"], rgbs );
+												 rgbs["Interactable-Bkgd"], rgbs );
 		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
-											 rgbs["Solarized Base03"], rgbs );
+											 rgbs["Interactable-Bkgd"], rgbs );
 		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id, "Flashing-Agilent", 100, 
-												rgbs["Solarized Base03"], rgbs );
+												rgbs["Interactable-Bkgd"], rgbs );
 		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
-												 rgbs["Solarized Base03"], rgbs );
+												 rgbs["Interactable-Bkgd"], rgbs );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
 									mainWin->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );

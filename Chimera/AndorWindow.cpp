@@ -1037,6 +1037,7 @@ void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
 
 void AndorWindow::prepareAndor( ExperimentInput& input )
 {
+	currentPictureNum = 0;
 	input.includesCameraRun = true;
 	redrawPictures( false );
 	checkCameraIdle( );
@@ -1587,26 +1588,26 @@ HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor( rgbs["Solarized Base0"] );
-				pDC->SetBkColor( rgbs["Medium Grey"] );
-				return *brushes["Medium Grey"];
+				pDC->SetTextColor( rgbs["Static-Text"] );
+				pDC->SetBkColor( rgbs["Static-Bkgd"] );
+				return *brushes["Static-Bkgd"];
 			}
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["Solarized Green"]);
-			pDC->SetBkColor(rgbs["Solarized Base02"]);
-			return *brushes["Solarized Base02"];
+			pDC->SetTextColor(rgbs["AndorWin-Text"]);
+			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["Solarized Base0"]);
-			pDC->SetBkColor(rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			pDC->SetTextColor(rgbs["AndorWin-Text"]);
+			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["Solarized Base04"];
+			return *brushes["Main-Bkgd"];
 		}
 	}
 }

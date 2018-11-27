@@ -69,6 +69,7 @@ Refactoring / Other:
 	accurate.
 - refactor rerngmove complexmove and simplemove which are confusing... 
 - refactor the config saving issues. // ???
+- for flash add check that sum of indv move times is the total move time.
 
 Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
@@ -80,12 +81,12 @@ BUGS:
 - control tektronics not being saved in config?
 - interpret key taking a long time for ttls in camera cal for some reason.
 - seems like master configuration file can get corrupted if saving fails.
-- for flash check that sum of indv move times is the total move time.
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
-- if taking pictures too fast code freezes.
+- if taking pictures too fast code can freeze while pics getting handled. 
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
 - if in video before switching configs, switching configs fails.
 - plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
-
+- sometimes get "congrats" the run after a calibration, issues cancelilng f12 calibrations and then f1, prob related.
+- Should only require calibration files if F5

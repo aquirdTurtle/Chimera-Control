@@ -289,9 +289,9 @@ HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, 
 		 || id == channel2Button.GetDlgCtrlID() || id == syncedButton.GetDlgCtrlID() 
 		 || id == settingCombo.GetDlgCtrlID() || id == optionsFormat.GetDlgCtrlID() )
 	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetTextColor(rGBs["Static-Text"]);
+		cDC->SetBkColor ( rGBs[ "Static-Bkgd" ] );
+		return *brushes["Static-Bkgd"];
 	}
 	else
 	{

@@ -533,21 +533,21 @@ HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 					return *brushes[ "Green" ];
 				}
 			}
-			pDC->SetTextColor ( rgbs[ "White" ] );
-			pDC->SetBkColor ( rgbs[ "Medium Grey" ] );
-			return *brushes[ "Medium Grey" ];
+			pDC->SetTextColor ( rgbs[ "Static-Text" ] );
+			pDC->SetBkColor ( rgbs[ "Static-Bkgd" ] );
+			return *brushes[ "Static-Bkgd" ];
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor( rgbs["White"]);
-			pDC->SetBkColor( rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			pDC->SetTextColor( rgbs["BasWin-Text"]);
+			pDC->SetBkColor( rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor( rgbs["White"]);
-			pDC->SetBkColor( rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			pDC->SetTextColor( rgbs["BasWin-Text"]);
+			pDC->SetBkColor( rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		default:
 		{

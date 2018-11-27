@@ -89,6 +89,47 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainBrushes["Solarized Base02"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base02"] );
 	(mainBrushes["Solarized Base01"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base01"] );
 	(mainBrushes["Solarized Base04"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base04"] );
+
+	// can put themes here...
+	if ( false )
+	{
+		std::string staticBkgd = "Medium Grey", interactableBkgd = "Solarized Base02";
+		mainRGBs[ "Static-Text" ] = mainRGBs[ "Solarized Base0" ];
+		mainBrushes[ "Main-Bkgd" ] = mainBrushes[ "Solarized Base04" ];
+		mainRGBs[ "MainWin-Text" ] = mainRGBs[ "Solarized Blue" ];
+		mainRGBs[ "ScriptWin-Text" ] = mainRGBs[ "Solarized Red" ];
+		mainRGBs[ "AndorWin-Text" ] = mainRGBs[ "Solarized Green" ];
+		mainRGBs[ "AuxWin-Text" ] = mainRGBs[ "Solarized Yellow" ];
+		mainRGBs[ "BasWin-Text" ] = mainRGBs[ "Solarized Orange" ];
+
+		mainRGBs[ "Static-Bkgd" ] = mainRGBs[ staticBkgd ];
+		mainRGBs[ "Interactable-Bkgd" ] = mainRGBs[ interactableBkgd ];
+		mainBrushes[ "Static-Bkgd" ] = mainBrushes[ staticBkgd ];
+		mainBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
+	}
+	else if ( true )
+	{
+		// light theme (work in progress...)
+		std::string staticBkgd = "Light Grey", interactableBkgd = "Solarized Base2";
+		mainRGBs[ "Static-Text" ] = mainRGBs[ "Solarized Base0" ];
+		mainBrushes[ "Main-Bkgd" ] = mainBrushes[ "Solarized Base3" ];
+		mainRGBs[ "MainWin-Text" ] = mainRGBs[ "Solarized Blue" ];
+		mainRGBs[ "ScriptWin-Text" ] = mainRGBs[ "Solarized Red" ];
+		mainRGBs[ "AndorWin-Text" ] = mainRGBs[ "Solarized Green" ];
+		mainRGBs[ "AuxWin-Text" ] = mainRGBs[ "Solarized Yellow" ];
+		mainRGBs[ "BasWin-Text" ] = mainRGBs[ "Solarized Orange" ];
+
+		mainRGBs[ "Static-Bkgd" ] = mainRGBs[ staticBkgd ];
+		mainRGBs[ "Interactable-Bkgd" ] = mainRGBs[ interactableBkgd ];
+		mainBrushes[ "Static-Bkgd" ] = mainBrushes[ staticBkgd ];
+		mainBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
+	}
+	else
+	{
+		errBox ( "ERROR: Didn't set color theme???" );
+	}
+	
+
 	/// the following are all equivalent to:
 	// mainFonts["Font name"] = new CFont;
 	// mainFonts["Font name"].CreateFontA(...);
@@ -350,10 +391,10 @@ void MainWindow::OnPaint( )
 		CRect size;
 		GetClientRect( &size );
 		CDC* cdc = GetDC( );
-		cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
+		cdc->SetBkColor( getRgbs( )["Main-Bkgd"] );
 		UINT width = size.right - size.left, height = size.bottom - size.top;
-		masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"], getBrushes( )["Black"] );
-		motScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"], getBrushes( )["Black"] );
+		masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Main-Bkgd"], getBrushes( )["Black"] );
+		motScope.refreshPlot( cdc, width, height, getBrushes( )["Main-Bkgd"], getBrushes( )["Black"] );
 		ReleaseDC( cdc );
 	}
 }
@@ -970,26 +1011,26 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor(mainRGBs["Solarized Base0"]);
-				pDC->SetBkColor(mainRGBs["Medium Grey"]);
-				return *mainBrushes["Medium Grey"];
+				pDC->SetTextColor(mainRGBs["Static-Text"]);
+				pDC->SetBkColor(mainRGBs["Static-Bkgd"]);
+				return *mainBrushes["Static-Bkgd"];
 			}
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(mainRGBs["Solarized Blue"]);
-			pDC->SetBkColor(mainRGBs["Solarized Base03"]);
-			return *mainBrushes["Solarized Base03"];
+			pDC->SetTextColor(mainRGBs[ "MainWin-Text" ]);
+			pDC->SetBkColor(mainRGBs["Interactable-Bkgd"]);
+			return *mainBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(mainRGBs["Solarized Base0"]);
-			pDC->SetBkColor(mainRGBs["Solarized Base02"]);
-			return *mainBrushes["Solarized Base02"];
+			pDC->SetTextColor(mainRGBs["Static-Text"]);
+			pDC->SetBkColor(mainRGBs["Interactable-Bkgd"]);
+			return *mainBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *mainBrushes["Solarized Base04"];
+			return *mainBrushes["Main-Bkgd"];
 		}
 	}
 	return NULL;
