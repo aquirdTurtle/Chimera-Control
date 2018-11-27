@@ -52,9 +52,9 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	}
 	parametersListview.insertBlankRow ( );
 	parametersListview.fontType = fontTypes::SmallFont;
-	parametersListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
-	parametersListview.SetTextColor ( RGB ( 150, 150, 150 ) );
-	parametersListview.SetBkColor( rgbs["Solarized Base02"] );
+	parametersListview.SetTextBkColor ( rgbs["Interactable-Bkgd"] );
+	parametersListview.SetTextColor ( rgbs["AuxWin-Text"] );
+	parametersListview.SetBkColor( rgbs["Interactable-Bkgd"] );
 	pos.y += 300;
 }
 

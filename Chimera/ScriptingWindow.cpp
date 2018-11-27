@@ -213,16 +213,17 @@ BOOL ScriptingWindow::OnInitDialog()
 	int id = 2000;
 
 	POINT startLocation = { 0, 28 };
-	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG", 
+	auto rgbs = mainWin->getRgbs ( ); 
+	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG",
 							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
-							IDC_NIAWG_EDIT }, mainWin->getRgbs()["Solarized Base03"]);
+							IDC_NIAWG_EDIT }, rgbs["Interactable-Bkgd"]);
 	startLocation = { 640, 28 };
-	auto rgbs = mainWin->getRgbs( );
+	
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
-								 rgbs["Solarized Base03"], rgbs, 640 );
+								 rgbs["Interactable-Bkgd"], rgbs, 640 );
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
-	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, mainWin->getRgbs()["Solarized Base04"] );
+	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, rgbs["Interactable-Bkgd"] );
 	startLocation = { 1700, 3 };
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
@@ -339,20 +340,20 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor(rgbs["Solarized Base0"]);
-				pDC->SetBkColor( rgbs["Dark Grey"] );
-				return *brushes["Dark Grey"];
+				pDC->SetTextColor(rgbs["Static-Text"]);
+				pDC->SetBkColor( rgbs["Static-Bkgd"] );
+				return *brushes["Static-Bkgd"];
 			}
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["Solarized Base0"]);
-			pDC->SetBkColor(rgbs["Solarized Base02"]);
-			return *brushes["Solarized Base02"];
+			pDC->SetTextColor(rgbs["ScriptWin-Text"]);
+			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
+			return *brushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["LigSolarized Base02"];
+			return *brushes["Main-Bkgd"];
 		}
 	}
 }
