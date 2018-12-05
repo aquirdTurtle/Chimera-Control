@@ -291,9 +291,6 @@ imageParameters ImageDimsControl::getImageParameters()
 
 HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
 {
-	brushMap brushes = mainWin->getBrushes();
-
-	rgbMap rgbs = mainWin->getRgbs();
 	DWORD controlID = GetDlgCtrlID( (HWND)lParam );
 	HDC hdcStatic = (HDC)wParam;
 	imageParameters currentImageParameters = { 0,0,0,0,0,0 };
@@ -318,7 +315,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 					topEdit.colorState = 0;
 					topEdit.RedrawWindow();
 				}
-				return *brushes["Grey Green"];
+				return *_myBrushes["Grey Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast&)
@@ -333,7 +330,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			topEdit.colorState = 1;
 			topEdit.RedrawWindow();
 		}
-		return *brushes["Grey Red"];
+		return *_myBrushes["Grey Red"];
 	}
 	else if (controlID == bottomEdit.GetDlgCtrlID())
 	{
@@ -355,7 +352,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 					bottomEdit.colorState = 0;
 					bottomEdit.RedrawWindow();
 				}
-				return *brushes["Grey Green"];
+				return *_myBrushes["Grey Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast&)
@@ -370,7 +367,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			bottomEdit.colorState = 1;
 			bottomEdit.RedrawWindow();
 		}
-		return *brushes["Grey Red"];
+		return *_myBrushes["Grey Red"];
 	}
 	else if (controlID == vertBinningEdit.GetDlgCtrlID())
 	{
@@ -392,7 +389,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 					vertBinningEdit.colorState = 0;
 					vertBinningEdit.RedrawWindow();
 				}
-				return *brushes["Grey Green"];
+				return *_myBrushes["Grey Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast&)
@@ -407,7 +404,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			vertBinningEdit.colorState = 1;
 			vertBinningEdit.RedrawWindow();
 		}
-		return *brushes["Grey Red"];
+		return *_myBrushes["Grey Red"];
 	}
 	else if (controlID == leftEdit.GetDlgCtrlID())
 	{
@@ -429,7 +426,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 					leftEdit.colorState = 0;
 					leftEdit.RedrawWindow();
 				}
-				return *brushes["Grey Green"];
+				return *_myBrushes["Grey Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast&)
@@ -444,7 +441,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			leftEdit.colorState = 1;
 			leftEdit.RedrawWindow();
 		}
-		return *brushes["Grey Red"];
+		return *_myBrushes["Grey Red"];
 	}
 	else if (controlID == rightEdit.GetDlgCtrlID())
 	{
@@ -466,7 +463,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 					rightEdit.colorState = 0;
 					rightEdit.RedrawWindow();
 				}
-				return *brushes["Grey Green"];
+				return *_myBrushes["Grey Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast&)
@@ -481,7 +478,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			rightEdit.colorState = 1;
 			rightEdit.RedrawWindow();
 		}
-		return *brushes["Grey Red"];
+		return *_myBrushes["Grey Red"];
 	}
 	else if (controlID == horBinningEdit.GetDlgCtrlID())
 	{
@@ -503,7 +500,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 					horBinningEdit.colorState = 0;
 					horBinningEdit.RedrawWindow();
 				}
-				return *brushes["Grey Green"];
+				return *_myBrushes["Grey Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast&)
@@ -518,7 +515,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			horBinningEdit.colorState = 1;
 			horBinningEdit.RedrawWindow();
 		}
-		return *brushes["Grey Red"];
+		return *_myBrushes["Grey Red"];
 	}
 	return FALSE;
 }

@@ -21,7 +21,7 @@ class MainOptionsControl
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver );
-		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs );
+		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		mainOptions getOptions();
 		void rearrange(int width, int height, fontMap fonts);
 	private:

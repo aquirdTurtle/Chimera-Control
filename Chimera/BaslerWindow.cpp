@@ -513,8 +513,6 @@ void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 
 HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWin->getBrushes ( );
-	rgbMap rgbs = mainWin->getRgbs ( );
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
@@ -524,34 +522,34 @@ HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			{
 				if ( !motLoaded )
 				{
-					pDC->SetBkColor ( rgbs[ "Red" ] );
-					return *brushes[ "Red" ];
+					pDC->SetBkColor ( _myRGBs[ "Red" ] );
+					return *_myBrushes[ "Red" ];
 				}
 				else
 				{
-					pDC->SetBkColor ( rgbs[ "Green" ] );
-					return *brushes[ "Green" ];
+					pDC->SetBkColor ( _myRGBs[ "Green" ] );
+					return *_myBrushes[ "Green" ];
 				}
 			}
-			pDC->SetTextColor ( rgbs[ "Static-Text" ] );
-			pDC->SetBkColor ( rgbs[ "Static-Bkgd" ] );
-			return *brushes[ "Static-Bkgd" ];
+			pDC->SetTextColor ( _myRGBs[ "Text" ] );
+			pDC->SetBkColor ( _myRGBs[ "Static-Bkgd" ] );
+			return *_myBrushes[ "Static-Bkgd" ];
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor( rgbs["BasWin-Text"]);
-			pDC->SetBkColor( rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["BasWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor( rgbs["BasWin-Text"]);
-			pDC->SetBkColor( rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["BasWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["Solarized Base04"];
+			return *_myBrushes["Main-Bkgd"];
 		}
 	}
 }
@@ -613,7 +611,7 @@ void BaslerWindow::OnPaint()
 		auto* dc = GetDC( );
 		CRect size;
 		GetClientRect( &size );
-		picManager.paint ( dc, size, mainWin->getBrushes()[ "Black" ] );
+		picManager.paint ( dc, size, _myBrushes[ "Interactable-Bkgd" ] );
 		ReleaseDC( dc );
 	}
 }
@@ -672,9 +670,8 @@ void BaslerWindow::initializeControls()
 	dims.y *= 1.7;
 
 	CDC* cdc = GetDC( );
-	auto brushes = mainWin->getBrushes ( );
 	
-	picManager.initialize ( picPos, this, id, brushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
+	picManager.initialize ( picPos, this, id, _myBrushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );
 	picManager.setPalletes ( { 1,1,1,1 } );

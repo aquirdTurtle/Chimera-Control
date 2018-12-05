@@ -28,7 +28,7 @@ class DataAnalysisControl
 	public:
 		DataAnalysisControl( );
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
-						 int isTriggerModeSensitive, rgbMap rgbs );
+						 int isTriggerModeSensitive );
 		ULONG getPlotFreq( );
 		void handleOpenConfig( std::ifstream& file, Version ver );
 		void handleNewConfig( std::ofstream& file );

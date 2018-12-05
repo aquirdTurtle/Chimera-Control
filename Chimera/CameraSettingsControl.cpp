@@ -755,9 +755,9 @@ imageParameters AndorCameraSettingsControl::getImageParameters()
 }
 
 
-CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
+CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer )
 {
-	return picSettingsObj.colorControls( idNumber, colorer, brushes, rgbs );
+	return picSettingsObj.colorControls( idNumber, colorer );
 }
 
 

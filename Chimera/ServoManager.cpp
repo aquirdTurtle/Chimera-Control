@@ -4,14 +4,13 @@
 #include "boost/lexical_cast.hpp"
 
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
-							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in,
-							   rgbMap rgbs )
+							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in )
 {
 	servosHeader.sPos = {pos.x, pos.y, pos.x + 480, pos.y += 20};
 	servosHeader.Create( "SERVOS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
  	servoButton.sPos = { pos.x, pos.y, pos.x + 300, pos.y + 20 };
 	servoButton.Create( "Servo-Once", NORM_PUSH_OPTIONS, servoButton.sPos, parent, IDC_SERVO_CAL );
-	servoButton.setToolTip ( "For the servo to calibrate.", toolTips, parent );
+	servoButton.setToolTip ( "Force the servo to calibrate.", toolTips, parent );
 
 	autoServoButton.sPos = { pos.x + 300, pos.y, pos.x + 480, pos.y += 20 };
 	autoServoButton.Create( "Auto-Servo", NORM_CHECK_OPTIONS, autoServoButton.sPos, parent, id++ );
@@ -39,9 +38,9 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 						   "DO-Config: The digital output configuration the sevo will set before servoing. If a ttl is "
 						   "not listed here, it will be zero\'d.\n", toolTips, parent );
 	servoList.fontType = fontTypes::SmallFont;
-	servoList.SetTextBkColor ( RGB ( 15, 15, 15 ) );
-	servoList.SetTextColor ( RGB ( 150, 150, 150 ) );
-	servoList.SetBkColor ( rgbs[ "Solarized Base02" ] );
+	servoList.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
+	servoList.SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
+	servoList.SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
 
 	ai = ai_in;
 	ao = ao_in;

@@ -1516,14 +1516,14 @@ BOOL AndorWindow::OnInitDialog()
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
 	alerts.alertMainThread( 0 );
 	alerts.initialize( positions, this, false, id, tooltips );
-	analysisHandler.initialize( positions, id, this, tooltips, false, mainWin->getRgbs() );
+	analysisHandler.initialize( positions, id, this, tooltips, false );
 	CameraSettings.initialize( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, tooltips );
 	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
 	position = { 797, 40 };
-	pics.initialize( position, this, id, mainWin->getBrushes()["Dark Green"], 550 * 2, 460 * 2 + 5 );
+	pics.initialize( position, this, id, _myBrushes["Dark Green"], 550 * 2, 460 * 2 + 5 );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
@@ -1568,12 +1568,10 @@ void AndorWindow::redrawPictures( bool andGrid )
 
 HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWin->getBrushes();
-	rgbMap rgbs = mainWin->getRgbs();
 	CBrush * result;
 	int num = pWnd->GetDlgCtrlID();
 
-	result = CameraSettings.handleColor(num, pDC, mainWin->getBrushes(), mainWin->getRgbs());
+	result = CameraSettings.handleColor(num, pDC );
 	HBRUSH res = *result;
 	if (res) { return res; }
 
@@ -1581,33 +1579,33 @@ HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{			
-			CBrush* result = box.handleColoring(num, pDC, brushes, rgbs);
+			CBrush* result = box.handleColoring(num, pDC);
 			if (result)
 			{
 				return *result;
 			}
 			else
 			{
-				pDC->SetTextColor( rgbs["Static-Text"] );
-				pDC->SetBkColor( rgbs["Static-Bkgd"] );
-				return *brushes["Static-Bkgd"];
+				pDC->SetTextColor( _myRGBs["Text"] );
+				pDC->SetBkColor( _myRGBs["Static-Bkgd"] );
+				return *_myBrushes["Static-Bkgd"];
 			}
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["AndorWin-Text"]);
-			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["AndorWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["AndorWin-Text"]);
-			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["AndorWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["Main-Bkgd"];
+			return *_myBrushes["Main-Bkgd"];
 		}
 	}
 }

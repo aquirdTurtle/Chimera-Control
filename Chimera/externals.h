@@ -1,6 +1,7 @@
 #pragma once
 // This header file includes all of the extern declarations of all of my external (global) variables.
 #include "NiawgStructures.h"
+//#include "commonTypes.h"
 #include "Control.h"
 #include "afxWin.h"
 #include <string>
@@ -12,6 +13,9 @@ extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;
 
 extern HWND eMainWindowHwnd;
 
+extern std::unordered_map<std::string, COLORREF> _myRGBs;
+extern std::unordered_map<std::string, CBrush*> _myBrushes;
+void initMyColors ( );
 /// some globals for niawg stuff, only for niawg stuff so I keep it here...?
 extern const std::array<int, 2> AXES;
 // the following is used to receive the index of whatever axis is not your current axis.

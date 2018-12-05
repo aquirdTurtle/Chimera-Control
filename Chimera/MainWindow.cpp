@@ -19,116 +19,6 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 {
 	programStartTime = startTime;
 	startupTimes.push_back(chronoClock::now());
-	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
-	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
-	mainRGBs["Slate Grey"]			= RGB( 101,	115, 126);
-	mainRGBs["Pale Pink"]			= RGB( 180,	142, 173);
-	mainRGBs["Musky Red"]			= RGB( 191,	97,	 106);
-	// this "base04", while not listed on the solarized web site, is used by the visual studio solarized for edit area.
-	// it's a nice darker color that matches the solarized pallete.
-	mainRGBs["Solarized Base04"]	= RGB( 0,	30,  38 );
-	mainRGBs["Solarized Base03"]	= RGB( 0,	43,  54 );
-	mainRGBs["Solarized Base02"]	= RGB( 7,	54,  66 );
-	mainRGBs["Solarized Base01"]	= RGB( 88,	110, 117 );
-	mainRGBs["Solarized Base00"]	= RGB( 101, 123, 131 );
-	mainRGBs["Solarized Base0"]		= RGB( 131, 148, 150 );
-	mainRGBs["Solarized Base1"]		= RGB( 101, 123, 131 );
-	mainRGBs["Solarized Base2"]		= RGB( 238, 232, 213 );
-	mainRGBs["Solarized Base3"]		= RGB( 253, 246, 227 );
-	mainRGBs["Solarized Red"]		= RGB( 220, 50,  47);
-	mainRGBs["Solarized Violet"]	= RGB( 108, 113, 196);
-	mainRGBs["Solarized Cyan"]		= RGB( 42,	161, 152);
-	mainRGBs["Solarized Green"]		= RGB( 133, 153, 0);
-	mainRGBs["Solarized Blue"]		= RGB( 38,	139, 210);
-	mainRGBs["Solarized Magenta"]	= RGB( 211, 54,  130);
-	mainRGBs["Solarized Orange"]	= RGB( 203, 75,  22);
-	mainRGBs["Solarized Yellow"]	= RGB( 181, 137, 0);
-	mainRGBs["Slate Green"]			= RGB( 23,	84,  81);
-	mainRGBs["Dark Grey"]			= RGB( 15,	15,  15);
-	mainRGBs["Dark Grey Red"]		= RGB( 20,	12,  12);
-	mainRGBs["Medium Grey"]			= RGB( 30,	30,  30);
-	mainRGBs["Light Grey"]			= RGB( 60,	60,  60);
-	mainRGBs["Green"]				= RGB( 50,	200, 50);
-	mainRGBs["Red"]					= RGB( 200,	50,  50);
-	mainRGBs["Blue"]				= RGB( 50,	50,  200);
-	mainRGBs["Gold"]				= RGB( 218,	165, 32);
-	mainRGBs["White"]				= RGB( 255, 255, 255);
-	mainRGBs["Light Red"]			= RGB( 255, 100, 100);
-	mainRGBs["Dark Red"]			= RGB( 150, 0,   0);
-	mainRGBs["Light Blue"]			= RGB( 100, 100, 255);
-	mainRGBs["Forest Green"]		= RGB( 34,	139, 34);
-	mainRGBs["Dark Green"]			= RGB( 0,	50,  0);
-	mainRGBs["Dull Red"]			= RGB( 107, 35,  35);
-	mainRGBs["Dark Lavender"]		= RGB( 100, 100, 205);
-	mainRGBs["Teal"]				= RGB( 0,	255, 255);
-	mainRGBs["Tan"]					= RGB( 210, 180, 140);
-	mainRGBs["Purple"]				= RGB( 147, 112, 219);
-	mainRGBs["Orange"]				= RGB( 255, 165, 0);
-	mainRGBs["Brown"]				= RGB( 139, 69,  19);
-	mainRGBs["Black"]				= RGB( 0,	0,   0);
-	mainRGBs["Dark Blue"]			= RGB( 0,	0,   75);
-	// there are less brushes because these are only used for backgrounds.
-	// the following single-line statements are all equivalent to these two statements:
-	// mainBrushes["Name"] = new CBrush;
-	// mainBrushes["Name"]->CreateSolidBrush(...);
-	(mainBrushes["Black"]				= new CBrush)->CreateSolidBrush( mainRGBs["Black"] );
-	(mainBrushes["Dark Red"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Red"]);
-	(mainBrushes["Gold"]				= new CBrush)->CreateSolidBrush( mainRGBs["Gold"]);
-	(mainBrushes["Dark Grey"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Grey"]);
-	(mainBrushes["Dark Grey Red"]		= new CBrush)->CreateSolidBrush( mainRGBs["Dark Grey Red"]);
-	(mainBrushes["Medium Grey"]			= new CBrush)->CreateSolidBrush( mainRGBs["Medium Grey"]);
-	(mainBrushes["Light Grey"]			= new CBrush)->CreateSolidBrush( mainRGBs["Light Grey"]);
-	(mainBrushes["Green"]				= new CBrush)->CreateSolidBrush( mainRGBs["Green"]);
-	(mainBrushes["Red"]					= new CBrush)->CreateSolidBrush( mainRGBs["Red"]);
-	(mainBrushes["White"]				= new CBrush)->CreateSolidBrush( mainRGBs["White"]);
-	(mainBrushes["Dull Red"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dull Red"]);
-	(mainBrushes["Dark Blue"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Blue"]);
-	(mainBrushes["Dark Green"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Green"]);
-	(mainBrushes["Solarized Blue"]		= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Blue"] );
-	(mainBrushes["Solarized Base03"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base03"] );
-	(mainBrushes["Solarized Base02"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base02"] );
-	(mainBrushes["Solarized Base01"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base01"] );
-	(mainBrushes["Solarized Base04"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base04"] );
-
-	// can put themes here...
-	if ( false )
-	{
-		std::string staticBkgd = "Medium Grey", interactableBkgd = "Solarized Base02";
-		mainRGBs[ "Static-Text" ] = mainRGBs[ "Solarized Base0" ];
-		mainBrushes[ "Main-Bkgd" ] = mainBrushes[ "Solarized Base04" ];
-		mainRGBs[ "MainWin-Text" ] = mainRGBs[ "Solarized Blue" ];
-		mainRGBs[ "ScriptWin-Text" ] = mainRGBs[ "Solarized Red" ];
-		mainRGBs[ "AndorWin-Text" ] = mainRGBs[ "Solarized Green" ];
-		mainRGBs[ "AuxWin-Text" ] = mainRGBs[ "Solarized Yellow" ];
-		mainRGBs[ "BasWin-Text" ] = mainRGBs[ "Solarized Orange" ];
-
-		mainRGBs[ "Static-Bkgd" ] = mainRGBs[ staticBkgd ];
-		mainRGBs[ "Interactable-Bkgd" ] = mainRGBs[ interactableBkgd ];
-		mainBrushes[ "Static-Bkgd" ] = mainBrushes[ staticBkgd ];
-		mainBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
-	}
-	else if ( true )
-	{
-		// light theme (work in progress...)
-		std::string staticBkgd = "Light Grey", interactableBkgd = "Solarized Base2";
-		mainRGBs[ "Static-Text" ] = mainRGBs[ "Solarized Base0" ];
-		mainBrushes[ "Main-Bkgd" ] = mainBrushes[ "Solarized Base3" ];
-		mainRGBs[ "MainWin-Text" ] = mainRGBs[ "Solarized Blue" ];
-		mainRGBs[ "ScriptWin-Text" ] = mainRGBs[ "Solarized Red" ];
-		mainRGBs[ "AndorWin-Text" ] = mainRGBs[ "Solarized Green" ];
-		mainRGBs[ "AuxWin-Text" ] = mainRGBs[ "Solarized Yellow" ];
-		mainRGBs[ "BasWin-Text" ] = mainRGBs[ "Solarized Orange" ];
-
-		mainRGBs[ "Static-Bkgd" ] = mainRGBs[ staticBkgd ];
-		mainRGBs[ "Interactable-Bkgd" ] = mainRGBs[ interactableBkgd ];
-		mainBrushes[ "Static-Bkgd" ] = mainBrushes[ staticBkgd ];
-		mainBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
-	}
-	else
-	{
-		errBox ( "ERROR: Didn't set color theme???" );
-	}
-	
 
 	/// the following are all equivalent to:
 	// mainFonts["Font name"] = new CFont;
@@ -391,10 +281,10 @@ void MainWindow::OnPaint( )
 		CRect size;
 		GetClientRect( &size );
 		CDC* cdc = GetDC( );
-		cdc->SetBkColor( getRgbs( )["Main-Bkgd"] );
+		cdc->SetBkColor( _myRGBs["Main-Bkgd"] );
 		UINT width = size.right - size.left, height = size.bottom - size.top;
-		masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Main-Bkgd"], getBrushes( )["Black"] );
-		motScope.refreshPlot( cdc, width, height, getBrushes( )["Main-Bkgd"], getBrushes( )["Black"] );
+		masterRepumpScope.refreshPlot( cdc, width, height, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
+		motScope.refreshPlot( cdc, width, height, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
 		ReleaseDC( cdc );
 	}
 }
@@ -647,10 +537,10 @@ BOOL MainWindow::OnInitDialog( )
 	motScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
-	settings.initialize( id, controlLocation, this, tooltips, getRgbs() );
+	settings.initialize( id, controlLocation, this, tooltips );
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
-	texter.initialize( controlLocation, this, id, tooltips, mainRGBs );
+	texter.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 910 };
 
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
@@ -999,38 +889,38 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		case CTLCOLOR_STATIC:
 		{
 			int num = pWnd->GetDlgCtrlID();
-			CBrush* ret = shortStatus.handleColor(pWnd, pDC, mainRGBs, mainBrushes);
+			CBrush* ret = shortStatus.handleColor(pWnd, pDC);
 			if (ret)
 			{
 				return *ret;
 			}
-			ret = boxes.handleColoring( num, pDC, mainBrushes, mainRGBs );
+			ret = boxes.handleColoring( num, pDC );
 			if ( ret )
 			{
 				return *ret;
 			}
 			else
 			{
-				pDC->SetTextColor(mainRGBs["Static-Text"]);
-				pDC->SetBkColor(mainRGBs["Static-Bkgd"]);
-				return *mainBrushes["Static-Bkgd"];
+				pDC->SetTextColor(_myRGBs["Text"]);
+				pDC->SetBkColor(_myRGBs["Static-Bkgd"]);
+				return *_myBrushes["Static-Bkgd"];
 			}
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(mainRGBs[ "MainWin-Text" ]);
-			pDC->SetBkColor(mainRGBs["Interactable-Bkgd"]);
-			return *mainBrushes["Interactable-Bkgd"];
+			pDC->SetTextColor(_myRGBs[ "MainWin-Text" ]);
+			pDC->SetBkColor(_myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(mainRGBs["Static-Text"]);
-			pDC->SetBkColor(mainRGBs["Interactable-Bkgd"]);
-			return *mainBrushes["Interactable-Bkgd"];
+			pDC->SetTextColor(_myRGBs["Text"]);
+			pDC->SetBkColor(_myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *mainBrushes["Main-Bkgd"];
+			return *_myBrushes["Main-Bkgd"];
 		}
 	}
 	return NULL;
@@ -1589,16 +1479,3 @@ LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)
 	debugStatus.addStatusText(statusMessage);
 	return 0;
 }
-
-
-brushMap MainWindow::getBrushes()
-{
-	return mainBrushes;
-}
-
-
-rgbMap MainWindow::getRgbs()
-{
-	return mainRGBs;
-}
-
