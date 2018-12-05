@@ -8,6 +8,7 @@ class PictureManager
 {
 	public:
 		PictureManager ( bool histOption );
+		RECT getPicArea ( );
 		void updatePlotData ( );
 		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );

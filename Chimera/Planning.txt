@@ -84,7 +84,6 @@ BUGS:
 - if taking pictures too fast code can freeze while pics getting handled. 
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
 - if in video before switching configs, switching configs fails.
-- plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - sometimes get "congrats" the run after a calibration, issues cancelilng f12 calibrations and then f1, prob related.

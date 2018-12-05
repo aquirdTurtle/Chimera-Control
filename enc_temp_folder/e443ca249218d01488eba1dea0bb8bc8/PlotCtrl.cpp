@@ -390,8 +390,8 @@ void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrus
 		}
 		else if ( style == plotStyle::VertHist )
 		{
-			r = Gdiplus::Rect ( ceil( plotAreaDims.left * widthScale2 ), ceil(np.y),
-								ceil( ceil(np.x) - plotAreaDims.left * widthScale2 ), ceil(p.y)-ceil(np.y) );
+			r = Gdiplus::Rect ( ceil( plotAreaDims.left * widthScale2 ), ceil(p.y),
+								ceil( ceil(p.x) - plotAreaDims.left * widthScale2 ), ceil(p.y)-ceil(np.y) );
 		}
 		else
 		{

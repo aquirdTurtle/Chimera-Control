@@ -22,6 +22,7 @@ std::unordered_map<std::string, COLORREF> _myRGBs = {
 	{ "Dark Grey", RGB ( 15, 15, 15 ) },
 	{ "Medium Grey", RGB ( 30, 30, 30 ) },
 	{ "Light Grey", RGB ( 60, 60, 60 ) },
+	{ "Near-White", RGB ( 200, 200, 200 ) },
 	{ "White", RGB ( 255, 255, 255 ) },
 	{ "Light Green", RGB ( 163, 190, 140 ) },
 	{ "Pale Pink", RGB ( 180, 142, 173 ) },
@@ -107,7 +108,7 @@ void initMyColors( )
 	*/
 	/// Dark Theme
 	
-	_myRGBs[ "Text" ] = _myRGBs[ "White" ];
+	_myRGBs[ "Text" ] = _myRGBs[ "Near-White" ];
 	_myRGBs[ "Text-Emph" ] = _myRGBs[ "Teal" ];
 	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Black" ];
 	_myRGBs[ "MainWin-Text" ] = _myRGBs[ "Teal" ];

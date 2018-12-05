@@ -497,6 +497,8 @@ void BaslerWindow::startCamera ( )
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 {
 	auto fonts = mainWin->getFonts ( );
+	auto r = picManager.getPicArea ( );
+	InvalidateRect ( &r );
 	picManager.rearrange ( cx, cy, fonts );
 	settingsCtrl.rearrange(cx, cy, fonts);
 	stats.rearrange(cx, cy, fonts );
