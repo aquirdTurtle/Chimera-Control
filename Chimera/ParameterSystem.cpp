@@ -16,7 +16,7 @@
 
 
 void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
-								  rgbMap rgbs, UINT listviewId, ParameterSysType type )
+								  UINT listviewId, ParameterSysType type )
 {
 	paramSysType = type;
 	scanDimensions = 1;
@@ -52,9 +52,9 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	}
 	parametersListview.insertBlankRow ( );
 	parametersListview.fontType = fontTypes::SmallFont;
-	parametersListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
-	parametersListview.SetTextColor ( RGB ( 150, 150, 150 ) );
-	parametersListview.SetBkColor( rgbs["Solarized Base02"] );
+	parametersListview.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
+	parametersListview.SetTextColor ( _myRGBs["AuxWin-Text"] );
+	parametersListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
 	pos.y += 300;
 }
 
@@ -580,7 +580,7 @@ void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool 
 }
 
 
-void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
+void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult )
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
 	*pResult = CDRF_DODEFAULT;
@@ -599,26 +599,26 @@ void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 		}
 		if (item >= currentParameters.size())
 		{
-			pLVCD->clrText = rgbs["Solarized Base1"];
-			pLVCD->clrTextBk = rgbs["Solarized Base02"];
+			pLVCD->clrText = _myRGBs["AuxWin-Text"];
+			pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
 		}
 		else
 		{
 			if (currentParameters[item].active)
 			{
-				pLVCD->clrTextBk = rgbs["Solarized Blue"];
+				pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
 			}
 			else
 			{
-				pLVCD->clrTextBk = rgbs["Solarized Base04"];
+				pLVCD->clrTextBk = _myRGBs["Interactive-Bkgd"];
 			}
 			if (currentParameters[item].overwritten)
 			{
-				pLVCD->clrText = rgbs["Solarized Red"];
+				pLVCD->clrText = _myRGBs["Solarized Red"];
 			}
 			else
 			{
-				pLVCD->clrText = rgbs["Solarized Base1"];
+				pLVCD->clrText = _myRGBs["Text"];
 			}
 		}
 		// Tell Windows to paint the control itself.
@@ -1272,9 +1272,9 @@ INT_PTR ParameterSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, 
 	HDC hdcStatic = (HDC)wParam;
 	if ( GetDlgCtrlID( (HWND)lParam ) == parametersHeader.GetDlgCtrlID())
 	{
-		SetTextColor(hdcStatic, RGB(218, 165, 32));
-		SetBkColor(hdcStatic, RGB(30, 30, 30));
-		return (LRESULT)brushes["Medium Grey"];
+		SetTextColor(hdcStatic, _myRGBs["AuxWin-Text"]);
+		SetBkColor(hdcStatic, _myRGBs[ "Interactable-Text" ] );
+		return (LRESULT)_myBrushes["Interactable-Text"];
 	}
 	else
 	{

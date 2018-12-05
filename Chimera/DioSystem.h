@@ -44,7 +44,7 @@ class DioSystem
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver );
-		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
+		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		double getTotalTime(UINT variation, UINT seqNum );
 		void checkFinalFormatTimes( UINT variation, UINT seqNum );
 		int getNumberOfTTLRows();
@@ -54,7 +54,7 @@ class DioSystem
 		void handleTTLPress(int id);
 		void checkNotTooManyTimes( UINT variation, UINT seqNum );
 		void handleHoldPress();
-		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		std::string getSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);

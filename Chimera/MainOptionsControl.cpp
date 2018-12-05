@@ -5,7 +5,7 @@
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
-void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs )
+void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create( "MAIN OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );

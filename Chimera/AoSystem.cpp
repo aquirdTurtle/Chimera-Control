@@ -273,7 +273,7 @@ double AoSystem::getDefaultValue(UINT dacNum)
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs)
+void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
 	// title
 	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
@@ -1113,14 +1113,14 @@ std::string AoSystem::getName(int dacNumber)
 }
 
 
-HBRUSH AoSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgbs, CDC* cDC)
+HBRUSH AoSystem::handleColorMessage( CWnd* window, CDC* cDC)
 {
 	int controlID = GetDlgCtrlID(*window);
 	if (controlID >= dacLabels[0].GetDlgCtrlID() && controlID <= dacLabels.back().GetDlgCtrlID() )
 	{
-		cDC->SetBkColor(rgbs["Medium Grey"]);
-		cDC->SetTextColor(rgbs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetBkColor( _myRGBs["Static-Bkgd"]);
+		cDC->SetTextColor( _myRGBs["Text"]);
+		return *_myBrushes[ "Static-Bkgd" ];
 	}
 	else if (controlID >= breakoutBoardEdits[0].GetDlgCtrlID() && controlID <= breakoutBoardEdits.back().GetDlgCtrlID())
 	{
@@ -1128,23 +1128,23 @@ HBRUSH AoSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgbs
 		if (breakoutBoardEdits[editNum].colorState == 0)
 		{
 			// default.
-			cDC->SetTextColor(rgbs["Solarized Base2"]);
-			cDC->SetBkColor(rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			cDC->SetTextColor( _myRGBs["AuxWin-Text"]);
+			cDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		else if (breakoutBoardEdits[editNum].colorState == 1)
 		{
 			// in this case, the actuall setting hasn't been changed despite the edit being updated.
-			cDC->SetTextColor(rgbs["White"]);
-			cDC->SetBkColor(rgbs["Red"]);
-			return *brushes["Red"];
+			cDC->SetTextColor( _myRGBs["White"]);
+			cDC->SetBkColor( _myRGBs["Red"]);
+			return *_myBrushes["Red"];
 		}
 		else if (breakoutBoardEdits[editNum].colorState == -1)
 		{
 			// in use during experiment.
-			cDC->SetTextColor(rgbs["Black"]);
-			cDC->SetBkColor(rgbs["White"]);
-			return *brushes["White"];
+			cDC->SetTextColor( _myRGBs["Black"]);
+			cDC->SetBkColor( _myRGBs["White"]);
+			return *_myBrushes["White"];
 		}
 	}
 	return NULL;

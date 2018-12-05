@@ -19,6 +19,7 @@
 
 // Contains information the API uses for dialogues.
 #include "resource.h"
+#include "externals.h"
 
 // Used to get a precise (milisecond-level) time from the computer. Also for windows API functions & declarations
 #include <Windows.h>
@@ -87,6 +88,7 @@ BOOL ChimeraApp::InitInstance()
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
 	/// initialize some stuff
+	initMyColors ( );
 	Gdiplus::GdiplusStartupInput input;
 	Gdiplus::GdiplusStartup( &gdip_token, &input, NULL );
 	// Check to make sure that the gain hasn't been defined to be too high.
