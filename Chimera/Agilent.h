@@ -23,7 +23,7 @@ class Agilent
 		Agilent( const agilentSettings & settings );
 		~Agilent( );
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
-						 std::string header, UINT editHeight, COLORREF color, rgbMap rgbs, UINT width = 480);
+						 std::string header, UINT editHeight, COLORREF color, UINT width = 480);
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
@@ -41,7 +41,7 @@ class Agilent
 		bool scriptingModeIsSelected( );
 		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& vars );
 		void analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars );
-		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();

@@ -38,7 +38,7 @@ void ColorBox::rearrange( int width, int height, fontMap fonts )
 	boxes.basler.rearrange ( width, height, fonts );
 }
 
-CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgbs)
+CBrush* ColorBox::handleColoring( int id, CDC* pDC )
 {
 	char code;
 	if (id == boxes.niawg.GetDlgCtrlID())
@@ -65,30 +65,30 @@ CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgb
 	if (code == 'G')
 	{
 		// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-		pDC->SetTextColor(rgbs["White"]);
-		pDC->SetBkColor(rgbs["Green"]);
-		return brushes["Green"];
+		pDC->SetTextColor(_myRGBs["White"]);
+		pDC->SetBkColor( _myRGBs["Green"]);
+		return _myBrushes["Green"];
 	}
 	else if (code == 'Y')
 	{
 		// Color Yellow. This is the "Working" Color.
-		pDC->SetTextColor(rgbs["White"]);
-		pDC->SetBkColor(rgbs["Gold"]);
-		return brushes["Gold"];
+		pDC->SetTextColor( _myRGBs["White"]);
+		pDC->SetBkColor( _myRGBs["Gold"]);
+		return _myBrushes["Gold"];
 	}
 	else if (code == 'R')
 	{
 		// Color Red. This is a big visual signifier for when the program exited with error.
-		pDC->SetTextColor(rgbs["White"]);
-		pDC->SetBkColor(rgbs["Red"]);
-		return brushes["Red"];
+		pDC->SetTextColor( _myRGBs["White"]);
+		pDC->SetBkColor( _myRGBs["Red"]);
+		return _myBrushes["Red"];
 	}
 	else
 	{
 		// color Blue. This is the default, ready for user input color.
-		pDC->SetTextColor( rgbs["White"] );
-		pDC->SetBkColor( rgbs["Dark Grey"] );
-		return brushes["Dark Grey"];
+		pDC->SetTextColor( _myRGBs["White"] );
+		pDC->SetBkColor( _myRGBs["Dark Grey"] );
+		return _myBrushes["Dark Grey"];
 	}
 }
 

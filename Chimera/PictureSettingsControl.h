@@ -39,7 +39,7 @@ class PictureSettingsControl
 		std::vector<float> getUsedExposureTimes();
 		std::array<std::vector<int>, 4> getThresholds();
 		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
-		CBrush* colorControls(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
+		CBrush* colorControls(int idNumber, CDC* colorer );
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(UINT pics, AndorCamera* andorObj);
 		void setThresholds( std::array<std::string, 4> thresholds);

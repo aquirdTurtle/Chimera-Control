@@ -90,16 +90,16 @@ void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& va
 }
 
 
-HBRUSH TektronicsControl::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+HBRUSH TektronicsControl::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
 	if (controlID == onOffLabel.GetDlgCtrlID() || controlID == fskLabel.GetDlgCtrlID() 
 		|| controlID == mainPowerLabel.GetDlgCtrlID() || controlID == mainFreqLabel.GetDlgCtrlID() 
 		|| controlID == fskFreqLabel.GetDlgCtrlID())
 	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetBkColor(_myRGBs["Static-Bkgd"]);
+		cDC->SetTextColor( _myRGBs["Text"]);
+		return *_myBrushes["Static-Bkgd"];
 	}
 	else
 	{
@@ -335,7 +335,7 @@ void TektronicsControl::handleProgram()
 
 
 void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs )
+								    std::string channel2Text, LONG width, std::array<UINT, 5> ids )
 {
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );

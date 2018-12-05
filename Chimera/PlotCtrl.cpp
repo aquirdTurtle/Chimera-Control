@@ -70,7 +70,7 @@ void PlotCtrl::drawTitle( memDC* d )
 	RECT r = { scaledArea.left, scaledArea.top - 30, scaledArea.right, scaledArea.top};
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
-	d->SetTextColor( RGB( 255, 255, 255 ) );
+	d->SetTextColor( _myRGBs[ "Text" ] );
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
@@ -538,7 +538,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
-	d->SetTextColor( RGB( 255, 255, 255 ) );
+	d->SetTextColor( _myRGBs["Text"] );
 	UINT count = 0;
 	bool labelEachPoint = (scaledX.size( ) < 15);
 	for ( auto x : scaledX )

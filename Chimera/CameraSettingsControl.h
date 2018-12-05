@@ -40,7 +40,7 @@ class AndorCameraSettingsControl
 		void setVariationNumber(UINT varNumber);
 		void setRepsPerVariation(UINT repsPerVar);
 		void updateRunSettingsFromPicSettings( );
-		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
+		CBrush* handleColor(int idNumber, CDC* colorer );
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		void checkTimings(std::vector<float>& exposureTimes);
 		void checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes);

@@ -70,13 +70,13 @@ class TektronicsControl
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-						 std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs );
+						 std::string channel2Text, LONG width, std::array<UINT, 5> ids );
 		std::string queryIdentity();
 		tektronicsInfo getTekSettings();
 		void setSettings(tektronicsInfo info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
-		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void interpretKey(std::vector<std::vector<parameterType>>& variables);
 		void programMachine(UINT variation );
 		void handleProgram();

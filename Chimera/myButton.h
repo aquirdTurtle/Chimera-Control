@@ -9,6 +9,7 @@ the dark color scheme.
 class CleanButton : public CMFCButton
 {
 	virtual void DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct );
+	public:
 };
 
 class CleanCheck : public CMFCButton
