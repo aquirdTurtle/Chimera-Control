@@ -476,7 +476,7 @@ std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
 }
 
 
-void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs )
+void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
@@ -745,7 +745,7 @@ void DioSystem::resetTtlEvents( )
 }
 
 
-HBRUSH DioSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+HBRUSH DioSystem::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	int controlID = window->GetDlgCtrlID();
 	if (controlID >= ttlPushControls.front().front().GetDlgCtrlID() && controlID <= ttlPushControls.back().back().GetDlgCtrlID())
@@ -756,36 +756,36 @@ HBRUSH DioSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs
 		int number = (controlID - ttlPushControls.front().front().GetDlgCtrlID()) % ttlPushControls[0].size();
 		if (ttlPushControls[row][number].colorState == -1)
 		{
-			cDC->SetBkColor(rGBs["Red"]);
-			return *brushes["Red"];
+			cDC->SetBkColor(_myRGBs["Red"]);
+			return *_myBrushes["Red"];
 		}
 		else if (ttlPushControls[row][number].colorState == 1)
 		{
-			cDC->SetBkColor(rGBs["Green"]);
-			return *brushes["Green"];
+			cDC->SetBkColor( _myRGBs["Green"]);
+			return *_myBrushes["Green"];
 		}
 		else if (ttlPushControls[row][number].colorState == 2)
 		{
-			cDC->SetBkColor(rGBs["White"]);
-			return *brushes["White"];
+			cDC->SetBkColor( _myRGBs["White"]);
+			return *_myBrushes["White"];
 		}
 		else
 		{
-			cDC->SetBkColor(rGBs["Medium Grey"]);
-			return *brushes["Medium Grey"];
+			cDC->SetBkColor( _myRGBs["Medium Grey"]);
+			return *_myBrushes["Medium Grey"];
 		}
 	}
 	else if (controlID >= ttlRowLabels.front().GetDlgCtrlID() && controlID <= ttlRowLabels.back().GetDlgCtrlID())
 	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetBkColor( _myRGBs["Static-Bkgd"]);
+		cDC->SetTextColor( _myRGBs["Text"]);
+		return *_myBrushes["Static-Bkgd"];
 	}
 	else if (controlID >= ttlNumberLabels.front().GetDlgCtrlID() && controlID <= ttlNumberLabels.back().GetDlgCtrlID())
 	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetBkColor( _myRGBs["Static-Bkgd"]);
+		cDC->SetTextColor( _myRGBs["Text"]);
+		return *_myBrushes["Static-Bkgd"];
 	}
 	else
 	{

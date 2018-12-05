@@ -264,7 +264,7 @@ void AuxiliaryWindow::OnPaint( )
 		CDC* cdc = GetDC( );
 		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 		// work without this and I don't know what changed. I used to do:
-		cdc->SetBkColor( mainWin->getRgbs( )["Main-Bkgd"] );
+		cdc->SetBkColor( _myRGBs["Main-Bkgd"] );
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 		// for a single plot.
@@ -272,8 +272,8 @@ void AuxiliaryWindow::OnPaint( )
 		{
 			ttlPlt->setCurrentDims( width, height );
 			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
-			ttlPlt->drawBackground( ttlDC, mainWin->getBrushes( )["Main-Bkgd"],
-									mainWin->getBrushes( )["Black"] );
+			ttlPlt->drawBackground( ttlDC, _myBrushes["Main-Bkgd"],
+									_myBrushes["Interactable-Bkgd"] );
 			ttlPlt->drawTitle( ttlDC );
 			ttlPlt->drawBorder( ttlDC );
 			ttlPlt->plotPoints( &ttlDC );
@@ -282,8 +282,7 @@ void AuxiliaryWindow::OnPaint( )
 		{
 			dacPlt->setCurrentDims( width, height );
 			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
-			dacPlt->drawBackground( dacDC, mainWin->getBrushes( )["Main-Bkgd"],
-									mainWin->getBrushes( )["Black"] );
+			dacPlt->drawBackground( dacDC, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
 			dacPlt->drawTitle( dacDC );
 			dacPlt->drawBorder( dacDC );
 			dacPlt->plotPoints( &dacDC );
@@ -316,8 +315,7 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 		agilents[name].checkSave( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
 		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
-		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), mainWin->getRgbs( ),
-														  getTtlNames( ), getDacInfo ( ) );
+		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), getTtlNames( ), getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{
@@ -433,8 +431,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 	{
 		for ( auto& agilent : agilents )
 		{
-			agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWin->getRgbs( ),
-												   getTtlNames( ), getDacInfo ( ) );
+			agilent.agilentScript.handleTimerCall( getAllVariables( ), getTtlNames( ), getDacInfo ( ) );
 		}
 	}
 }
@@ -640,11 +637,11 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
 	{
-		globalVariables.handleDraw(pNMHDR, pResult, mainWin->getRgbs());
+		globalVariables.handleDraw(pNMHDR, pResult );
 	}
 	else
 	{
-		configVariables.handleDraw(pNMHDR, pResult, mainWin->getRgbs());
+		configVariables.handleDraw(pNMHDR, pResult );
 	}
 }
 
@@ -1386,38 +1383,36 @@ void AuxiliaryWindow::Exit()
 
 HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWin->getBrushes();
-	rgbMap rgbs = mainWin->getRgbs();
 	HBRUSH result;
 	for ( auto& ag : agilents )
 	{
-		result = ag.handleColorMessage( pWnd, brushes, rgbs, pDC );
+		result = ag.handleColorMessage( pWnd, pDC );
 		if ( result != NULL )
 		{
 			return result;
 		}
 	}
-	result = ttlBoard.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = ttlBoard.handleColorMessage(pWnd, pDC);
 	if (result != NULL)
 	{
 		return result;
 	}
-	result = aoSys.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = aoSys.handleColorMessage(pWnd, pDC);
 	if (result != NULL)
 	{
 		return result;
 	}
-	result = topBottomTek.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = topBottomTek.handleColorMessage(pWnd, pDC);
 	if (result != NULL)
 	{
 		return result;
 	}
-	result = eoAxialTek.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = eoAxialTek.handleColorMessage(pWnd, pDC);
 	if (result != NULL)
 	{
 		return result;
 	}
-	result = *statusBox.handleColoring(pWnd->GetDlgCtrlID(), pDC, brushes, rgbs);
+	result = *statusBox.handleColoring(pWnd->GetDlgCtrlID(), pDC );
 	if (result != NULL)
 	{
 		return result;
@@ -1428,24 +1423,24 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			pDC->SetTextColor(rgbs["Static-Text"]);
-			pDC->SetBkColor(rgbs["Static-Bkgd"]);
-			return *brushes["Static-Bkgd"];
+			pDC->SetTextColor(_myRGBs["Text"]);
+			pDC->SetBkColor( _myRGBs["Static-Bkgd"]);
+			return *_myBrushes["Static-Bkgd"];
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["AuxWin-Text"]);
-			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["AuxWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["AuxWin-Text"]);
-			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["AuxWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
-			return *brushes["Main-Bkgd"];
+			return *_myBrushes["Main-Bkgd"];
 	}
 }
 
@@ -1470,35 +1465,33 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	POINT controlLocation{ 0, 0 };
 	try
 	{
-		auto rgbs = mainWin->getRgbs( );
 		statusBox.initialize( controlLocation, id, this, 480, toolTips );
-		ttlBoard.initialize( controlLocation, toolTips, this, id, rgbs );
-		aoSys.initialize( controlLocation, toolTips, this, id, mainWin->getRgbs() );
+		ttlBoard.initialize( controlLocation, toolTips, this, id );
+		aoSys.initialize( controlLocation, toolTips, this, id );
 		aiSys.initialize( controlLocation, this, id );
 		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
-		{ TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK }, rgbs );
+								 { TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK } );
 		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
-							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK }, rgbs );
+							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		
 		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
-												 rgbs["Interactable-Bkgd"], rgbs );
+												 _myRGBs["Interactable-Bkgd"] );
 		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
-											 rgbs["Interactable-Bkgd"], rgbs );
+											 _myRGBs["Interactable-Bkgd"] );
 		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id, "Flashing-Agilent", 100, 
-												rgbs["Interactable-Bkgd"], rgbs );
+												_myRGBs["Interactable-Bkgd"] );
 		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
-												 rgbs["Interactable-Bkgd"], rgbs );
+												 _myRGBs["Interactable-Bkgd"] );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
-									mainWin->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
+									IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
 		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
-									mainWin->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
+									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		configVariables.setParameterControlActive( false );
 
-		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables, 
-						   mainWin->getRgbs() );
+		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
 		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
@@ -1531,8 +1524,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], plotStyle::DacPlot, mainWin->getBrightPlotPens( ),
-												  mainWin->getPlotFont( ), 
-												 mainWin->getBrightPlotBrushes( ), titleTxt );
+												  mainWin->getPlotFont( ), mainWin->getBrightPlotBrushes( ), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}

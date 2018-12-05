@@ -62,8 +62,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 	try
 	{
 		masterScript.functionChangeHandler(mainWin->getProfileSettings().categoryPath);
-		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
+		masterScript.colorEntireScript( auxWin->getAllVariables( ), auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 		masterScript.updateSavedStatus( true );
 	}
 	catch ( Error& err )
@@ -213,17 +212,16 @@ BOOL ScriptingWindow::OnInitDialog()
 	int id = 2000;
 
 	POINT startLocation = { 0, 28 };
-	auto rgbs = mainWin->getRgbs ( ); 
 	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG",
 							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
-							IDC_NIAWG_EDIT }, rgbs["Interactable-Bkgd"]);
+							IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
 	startLocation = { 640, 28 };
 	
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
-								 rgbs["Interactable-Bkgd"], rgbs, 640 );
+								 _myRGBs["Interactable-Bkgd"], 640 );
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
-	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, rgbs["Interactable-Bkgd"] );
+	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
 	startLocation = { 1700, 3 };
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
@@ -254,12 +252,9 @@ void ScriptingWindow::fillMasterThreadInput( MasterThreadInput* input )
 
 void ScriptingWindow::OnTimer(UINT_PTR eventID)
 {
-	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-													auxWin->getTtlNames(), auxWin->getDacInfo ());
-	niawgScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacInfo());
-	masterScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacInfo ());
+	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	niawgScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo());
+	masterScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -326,34 +321,46 @@ scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 */
 HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWin->getBrushes();
-	rgbMap rgbs = mainWin->getRgbs();
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			int num = (pWnd->GetDlgCtrlID());
-			CBrush* result = statusBox.handleColoring(num, pDC, brushes, rgbs);
-			if (result)
+			int num = ( pWnd->GetDlgCtrlID ( ) );
+			HBRUSH result = intensityAgilent.handleColorMessage ( pWnd, pDC );
+			if ( result != NULL )
 			{
-				return *result;
+				return result;
 			}
-			else
+			CBrush* resultc = statusBox.handleColoring(num, pDC );
+			if ( resultc )
 			{
-				pDC->SetTextColor(rgbs["Static-Text"]);
-				pDC->SetBkColor( rgbs["Static-Bkgd"] );
-				return *brushes["Static-Bkgd"];
+				return *resultc;
 			}
+			pDC->SetTextColor( _myRGBs["Text"]);
+			pDC->SetBkColor( _myRGBs["Static-Bkgd"] );
+			return *_myBrushes["Static-Bkgd"];
 		}
+		case CTLCOLOR_EDIT:
+		{
+			HBRUSH result = intensityAgilent.handleColorMessage ( pWnd, pDC );
+			if ( result != NULL )
+			{
+				return result;
+			}
+			pDC->SetTextColor ( _myRGBs[ "ScriptWin-Text" ] );
+			pDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
+			return *_myBrushes[ "Interactable-Bkgd" ];
+		}
+
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["ScriptWin-Text"]);
-			pDC->SetBkColor(rgbs["Interactable-Bkgd"]);
-			return *brushes["Interactable-Bkgd"];
+			pDC->SetTextColor( _myRGBs["ScriptWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["Main-Bkgd"];
+			return *_myBrushes["Main-Bkgd"];
 		}
 	}
 }
@@ -399,7 +406,7 @@ void ScriptingWindow::newIntensityScript()
 		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( mainWin->getProfileSettings().categoryPath );
-		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(),
+		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), 
 														  auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
@@ -420,7 +427,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), 
-														  mainWin->getRgbs(), auxWin->getTtlNames(), 
+														  auxWin->getTtlNames(), 
 														  auxWin->getDacInfo ());
 	}
 	catch (Error& err)
@@ -466,10 +473,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 	{
 		comm()->sendError( err.trace() );
 	}
-
 }
-
-
 
 
 // just a quick shortcut.
@@ -487,8 +491,7 @@ void ScriptingWindow::newNiawgScript()
 		niawgScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
-		niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-									   auxWin->getTtlNames(), auxWin->getDacInfo () );
+		niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
@@ -506,8 +509,7 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 		niawgScript.openParentScript( horizontalOpenName, getProfile().categoryPath, mainWin->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
-		niawgScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-			auxWin->getTtlNames(), auxWin->getDacInfo ());
+		niawgScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
@@ -557,12 +559,9 @@ void ScriptingWindow::updateScriptNamesOnScreen()
 
 void ScriptingWindow::recolorScripts()
 {
-	niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-								   auxWin->getTtlNames(), auxWin->getDacInfo ());
-	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-													  auxWin->getTtlNames(), auxWin->getDacInfo ());
-	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacInfo ());
+	niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -633,8 +632,7 @@ void ScriptingWindow::newMasterScript()
 	masterScript.newScript( );
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
-	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacInfo ());
+	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 void ScriptingWindow::openMasterScript(CWnd* parent)
@@ -646,8 +644,7 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 		masterScript.openParentScript( openName, getProfile( ).categoryPath, mainWin->getRunInfo( ) );
 		updateConfigurationSavedStatus( false );
 		masterScript.updateScriptNameText( getProfile( ).categoryPath );
-		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
+		masterScript.colorEntireScript( auxWin->getAllVariables( ), auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{

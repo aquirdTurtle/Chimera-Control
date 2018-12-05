@@ -44,12 +44,12 @@ class ParameterSystem
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void normHandleOpenConfig(std::ifstream& openFile, Version ver );
-		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);
+		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
 		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
 		void adjustVariableValue( std::string paramName, double value );
 		void deleteVariable();
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, rgbMap rgbs, 
+		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, 
 						 UINT listviewId, ParameterSysType type );
 		void addConfigParameter( parameterType var, UINT item );
 		void addGlobalParameter( parameterType var, UINT item );

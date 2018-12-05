@@ -100,8 +100,6 @@ class MainWindow : public CDialog
 		HANDLE startExperimentThread( MasterThreadInput* input, bool isTurnOnMot );
 		
 		std::string getNotes( );
-		brushMap getBrushes();
-		rgbMap getRgbs();
 		fontMap getFonts();
 		profileSettings getProfileSettings();
 		seqSettings getSeqSettings( );
@@ -190,8 +188,6 @@ class MainWindow : public CDialog
 		ColorBox boxes;
 		// auxiliary members
 		Communicator comm;
-		brushMap mainBrushes;
-		rgbMap mainRGBs;
 		fontMap mainFonts;
 		MasterManager masterThreadManager;
 		CMenu menu;

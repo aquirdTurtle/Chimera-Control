@@ -28,27 +28,27 @@ void StatusIndicator::setColor(std::string color)
 }
 
 
-CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC, rgbMap rgbs, brushMap brushes)
+CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC )
 {
 	DWORD controlID = GetDlgCtrlID(window->GetSafeHwnd());
 	if (controlID == status.GetDlgCtrlID())
 	{
-		pDC->SetTextColor(rgbs["White"]);
+		pDC->SetTextColor(_myRGBs["White"]);
 		if (this->currentColor == "G")
 		{
-			pDC->SetBkColor(rgbs["Green"]);
-			return brushes["Green"];
+			pDC->SetBkColor( _myRGBs["Green"]);
+			return _myBrushes["Green"];
 		}
 		else if (currentColor == "Y")
 		{
-			pDC->SetTextColor(rgbs["Black"]);
-			pDC->SetBkColor(rgbs["Gold"]);
-			return brushes["Gold"];
+			pDC->SetTextColor( _myRGBs["Black"]);
+			pDC->SetBkColor(_myRGBs["Gold"]);
+			return _myBrushes["Gold"];
 		}
 		else if (currentColor == "R")
 		{
-			pDC->SetBkColor(rgbs["Dark Red"]);
-			return brushes["Dark Red"];
+			pDC->SetBkColor( _myRGBs["Dark Red"]);
+			return _myBrushes["Dark Red"];
 		}
 		else
 		{

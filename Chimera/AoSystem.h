@@ -23,9 +23,9 @@ class AoSystem
 	public:
 		AoSystem( bool aoSafemode );
 		// standard functions for gui elements
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		HBRUSH handleColorMessage( CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC );
+		HBRUSH handleColorMessage( CWnd* hwnd, CDC* cDC );
 		// configs
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);

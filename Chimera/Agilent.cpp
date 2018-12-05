@@ -35,7 +35,7 @@ Agilent::~Agilent()
 
 
 void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
-						  UINT editHeight, COLORREF color, rgbMap rgbs, UINT width )
+						  UINT editHeight, COLORREF color, UINT width )
 {
 	LONG w = LONG( width );
 	name = headerText;
@@ -56,8 +56,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	header.fontType = fontTypes::HeadingFont;
 
 	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + w, loc.y += 20 };
-	deviceInfoDisplay.Create( cstr( deviceInfo ), NORM_STATIC_OPTIONS, deviceInfoDisplay.sPos,
-							  parent, id++ );
+	deviceInfoDisplay.Create( cstr( deviceInfo ), NORM_STATIC_OPTIONS, deviceInfoDisplay.sPos, parent, id++ );
 	deviceInfoDisplay.fontType = fontTypes::SmallFont;
 
 	channel1Button.sPos = { loc.x, loc.y, loc.x += w/2, loc.y + 20 };
@@ -82,13 +81,12 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	programNow.sPos = { loc.x, loc.y, loc.x += w/3, loc.y += 20 };
 	programNow.Create( "Program", NORM_PUSH_OPTIONS, programNow.sPos, parent, 
 					   initSettings.programButtonId );
-	programNow.SetFaceColor( rgbs["Dark Grey"], true );
-	programNow.SetTextColor( rgbs["Solarized Base1"] );
+	programNow.SetFaceColor( _myRGBs["Dark Grey"], true );
+	programNow.SetTextColor( _myRGBs["Solarized Base1"] );
 	loc.x -= w;
 
 	settingCombo.sPos = { loc.x, loc.y, loc.x += w/4, loc.y + 200 };
-	settingCombo.Create( NORM_COMBO_OPTIONS, settingCombo.sPos,
-						 parent, initSettings.agilentComboId );
+	settingCombo.Create( NORM_COMBO_OPTIONS, settingCombo.sPos, parent, initSettings.agilentComboId );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
 	settingCombo.AddString( "DC" );
@@ -282,16 +280,24 @@ std::string Agilent::getDeviceIdentity()
 	}
 	return msg;
 }
-HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+
+
+HBRUSH Agilent::handleColorMessage(CWnd* window, CDC* cDC)
 {
+
 	DWORD id = window->GetDlgCtrlID();
 	if ( id == deviceInfoDisplay.GetDlgCtrlID() || id == channel1Button.GetDlgCtrlID()  
 		 || id == channel2Button.GetDlgCtrlID() || id == syncedButton.GetDlgCtrlID() 
 		 || id == settingCombo.GetDlgCtrlID() || id == optionsFormat.GetDlgCtrlID() )
 	{
-		cDC->SetTextColor(rGBs["Static-Text"]);
-		cDC->SetBkColor ( rGBs[ "Static-Bkgd" ] );
-		return *brushes["Static-Bkgd"];
+		cDC->SetTextColor( _myRGBs["Text"]);
+		cDC->SetBkColor	( _myRGBs[ "Static-Bkgd" ] );
+		return *_myBrushes["Static-Bkgd"];
+	}
+	auto res = agilentScript.handleColorMessage ( window, cDC );
+	if ( res )
+	{
+		return res;
 	}
 	else
 	{

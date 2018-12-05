@@ -50,7 +50,6 @@ FEATURES:
 - set servo gain and tolerance for indv servos in servo listview
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
-- alternate light color scheme.
 - some way of making niawg scripts more compact. something with arrays.
 
 Refactoring / Other:
