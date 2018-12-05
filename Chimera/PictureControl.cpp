@@ -508,6 +508,10 @@ void PictureControl::redrawImage( CDC* easel, bool bkgd)
 		drawPicture(easel, mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 					mostRecentSpecialMaxSetting );
 	}
+	if ( active && mostRecentImage_m.size ( ) != 0 )
+	{
+		drawBitmap( easel, mostRecentImage_m );
+	}
 }
 
 void PictureControl::resetStorage()
@@ -973,7 +977,7 @@ void PictureControl::drawPicNum( CDC* dc, UINT picNum )
 	dc->SelectObject( textPen );
 	RECT rect = grid[0][0];
 	rect.right += 50;
-	dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
+			dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
 					DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	DeleteObject( textPen );
 }

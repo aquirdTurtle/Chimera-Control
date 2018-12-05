@@ -710,7 +710,7 @@ void AndorCameraSettingsControl::updateCameraMode( )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Kinetic;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" )
+	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" || txt == "Accumulation Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Accumulate;
 	}
