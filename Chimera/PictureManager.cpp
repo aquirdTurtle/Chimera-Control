@@ -407,6 +407,17 @@ void PictureManager::setParameters(imageParameters parameters)
 }
 
 
+RECT PictureManager::getPicArea ( )
+{
+	RECT r;
+	r.left = picturesLocation.x;
+	r.top = picturesLocation.y;
+	r.right = r.left + picturesWidth;
+	r.bottom = r.top + picturesHeight;
+	return r;
+}
+
+
 void PictureManager::rearrange(int width, int height, fontMap fonts)
 {
 	for (auto& control : pictures)
