@@ -8,30 +8,31 @@
 TektronicsControl::TektronicsControl(bool safemode, std::string address) : visaFlume(safemode, address) {}
 
 void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
-										   std::array<UINT, 2> ids)
+										   UINT control_id )
 {
+	auto& cid = control_id;
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	channelLabel.Create( cstr(channelText), NORM_STATIC_OPTIONS, channelLabel.sPos, parent, id++ );
 
 	controlButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	controlButton.Create( "", NORM_CHECK_OPTIONS, controlButton.sPos, parent, id++ );
+	controlButton.Create( "", NORM_CHECK_OPTIONS, controlButton.sPos, parent, cid++ );
 
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	onOffButton.Create( "", NORM_CHECK_OPTIONS, onOffButton.sPos, parent, ids[0] );
+	onOffButton.Create( "", NORM_CHECK_OPTIONS, onOffButton.sPos, parent, cid++ );
 	
 	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskButton.Create("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, ids[1]);
+	fskButton.Create("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, cid++ );
 	
 	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	power.Create(NORM_EDIT_OPTIONS, power.sPos, parent, id++);
+	power.Create(NORM_EDIT_OPTIONS, power.sPos, parent, cid++);
 	power.EnableWindow(0);
 
 	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	mainFreq.Create(NORM_EDIT_OPTIONS, mainFreq.sPos, parent, id++);
+	mainFreq.Create(NORM_EDIT_OPTIONS, mainFreq.sPos, parent, cid++ );
 	mainFreq.EnableWindow(0);
 	
 	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskFreq.Create(NORM_EDIT_OPTIONS, fskFreq.sPos, parent, id++);
+	fskFreq.Create(NORM_EDIT_OPTIONS, fskFreq.sPos, parent, cid++ );
 	fskFreq.EnableWindow(0);
 }
 
@@ -104,6 +105,19 @@ HBRUSH TektronicsControl::handleColorMessage(CWnd* window, CDC* cDC)
 	else
 	{
 		return NULL;
+	}
+}
+
+
+void TektronicsChannelControl::handleButton ( UINT indicator )
+{
+	if ( indicator == onOffButton.GetDlgCtrlID ( ) )
+	{
+		handleOnPress ( );
+	}
+	else if ( indicator == fskButton.GetDlgCtrlID ( ) )
+	{
+		handleFskPress ( );
 	}
 }
 
@@ -335,17 +349,18 @@ void TektronicsControl::handleProgram()
 
 
 void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width, std::array<UINT, 5> ids )
+								    std::string channel2Text, LONG width, UINT control_id )
 {
+
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 	
 	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
-	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, ids[0] );
+	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, control_id );
 
-	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, { ids[1], ids[2] } );
-	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, { ids[3], ids[4] } );
+	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, control_id+1 );
+	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, control_id+50 );
 
 	loc.y += 20;
 	controlLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
@@ -431,19 +446,6 @@ void TektronicsControl::setSettings(tektronicsInfo info)
 
 void TektronicsControl::handleButtons(UINT indicator)
 {
-	switch (indicator)
-	{
-		case 0:
-			channel1.handleOnPress();
-			break;
-		case 1:
-			channel1.handleFskPress();
-			break;
-		case 2:
-			channel2.handleOnPress();
-			break;
-		case 3:
-			channel2.handleFskPress();
-			break;
-	}
+	channel1.handleButton ( indicator );
+	channel2.handleButton ( indicator );
 }

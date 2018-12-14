@@ -48,8 +48,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_ZERO_TTLS, &zeroTtls )
 	ON_COMMAND( IDC_ZERO_DACS, &zeroDacs )
 	ON_COMMAND( IDOK, &handleEnter )
-	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
-	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
+	ON_COMMAND( TOP_BOTTOM_TEK_START, &passTopBottomTekProgram )
+	ON_COMMAND(	EO_AXIAL_TEK_START, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
@@ -58,7 +58,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
-	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
+	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &AuxiliaryWindow::handleTektronicsButtons )
 	
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_TOP_BOTTOM_AGILENT_COMBO, IDC_TOP_BOTTOM_AGILENT_COMBO, 
 					  &AuxiliaryWindow::handleAgilentCombo )
@@ -83,7 +83,9 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
-	
+	// catches all the edits in the tektronics controls
+	ON_CONTROL_RANGE( EN_CHANGE, TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START + 99, &AuxiliaryWindow::invalidateSaved )
+
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_TOP_BOTTOM_EDIT, IDC_TOP_BOTTOM_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_FLASHING_EDIT, IDC_FLASHING_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_AXIAL_EDIT, IDC_AXIAL_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
@@ -94,6 +96,10 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
 
+void AuxiliaryWindow::invalidateSaved ( UINT id )
+{
+	mainWin->updateConfigurationSavedStatus ( false );
+}
 
 void AuxiliaryWindow::passCommonCommand ( UINT id )
 {
@@ -773,14 +779,8 @@ void AuxiliaryWindow::passRoundToDac()
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleTektronicsButtons(UINT id)
 {
-	if (id >= TOP_ON_OFF && id <= BOTTOM_FSK)
-	{
-		topBottomTek.handleButtons(id - TOP_ON_OFF);
-	}
-	if (id >= EO_ON_OFF && id <= AXIAL_FSK)
-	{
-		eoAxialTek.handleButtons(id - EO_ON_OFF);
-	}
+	topBottomTek.handleButtons ( id );
+	eoAxialTek.handleButtons ( id );
 	mainWin->updateConfigurationSavedStatus(false);
 }
 
@@ -1469,10 +1469,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
 		aoSys.initialize( controlLocation, toolTips, this, id );
 		aiSys.initialize( controlLocation, this, id );
-		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
-								 { TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK } );
-		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
-							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
+		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480, TOP_BOTTOM_TEK_START);
+		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, EO_AXIAL_TEK_START );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		

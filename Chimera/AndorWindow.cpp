@@ -19,9 +19,7 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
 							pics ( false )
-{
-
-};
+{};
 
 
 IMPLEMENT_DYNAMIC(AndorWindow, CDialog)
@@ -400,7 +398,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment();
 	}
 	// need to call this before acquireImageData().
 	Andor.updatePictureNumber( picNum );
@@ -431,7 +429,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 				std::pair<int, int> minMax;
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
 								  analysisHandler.getGrids( ), picNum );
@@ -469,7 +467,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment();
 	}
 	if ( lParam != currentPictureNum && lParam != -1 )
 	{
@@ -532,7 +530,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
 								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
-								   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 
 			pics.drawPicture( drawer, picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
 
@@ -547,7 +545,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 				std::pair<int, int> minMax;
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
@@ -1245,7 +1243,7 @@ void AndorWindow::startPlotterThread( ExperimentInput& input )
 	}
 	else
 	{
-		if ( input.AndorSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
+		if ( input.AndorSettings.totalPicsInExperiment() * input.plotterInput->analysisLocations.size()
 			 / input.plotterInput->plottingFrequency > 1000 )
 		{
 			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
@@ -1436,9 +1434,9 @@ std::string AndorWindow::getStartMessage()
 	dialogMsg += "\r\n";
 	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( CameraSettings.getSettings().andor.kineticCycleTime ) + "\r\n";
 	dialogMsg += "Pictures per Repetition:\r\n\t" + str( CameraSettings.getSettings().andor.picsPerRepetition ) + "\r\n";
-	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
+	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation() ) + "\r\n";
 	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
-	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment() ) + "\r\n";
 	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 	UINT count = 0;

@@ -443,7 +443,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		H5::Group andorGroup( file.createGroup( "/Andor" ) );
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
-		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment ), settings.imageSettings.width(),
+		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment() ), settings.imageSettings.width(),
 			settings.imageSettings.height() };
 		hsize_t picDims[] = { 1, settings.imageSettings.width(), settings.imageSettings.height() };
 		AndorPicureSetDataSpace = H5::DataSpace( 3, setDims );

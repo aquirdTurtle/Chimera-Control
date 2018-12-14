@@ -105,13 +105,11 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
-				;
 				if ( camWin->wantsAutoCal( ) && !camWin->wasJustCalibrated( ) )
 				{
 					camWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
-
 				ExperimentInput input;
 				try
 				{
@@ -126,6 +124,7 @@ namespace commonFunctions
 						}
 						break;
 					}
+					input.masterInput->expType = ExperimentType::Normal;
 					camWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					camWin->prepareAndor ( input );

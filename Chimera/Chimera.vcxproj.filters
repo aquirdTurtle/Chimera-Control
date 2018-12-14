@@ -277,6 +277,7 @@
     <ClCompile Include="AndorWindow.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
+    <ClCompile Include="AndorRunSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
