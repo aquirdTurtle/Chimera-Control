@@ -44,12 +44,13 @@ struct tektronicsNums
 class TektronicsChannelControl
 {
 	public:
-		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, std::array<UINT, 2> ids );
+		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, UINT control_id );
 		tektronicsChannelOutputForm getTekChannelSettings();
 		void setSettings(tektronicsChannelOutputForm info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleOnPress();
 		void handleFskPress();
+		void handleButton ( UINT indicator );
 	private:
 		Control<CStatic> channelLabel;
 		Control<CleanCheck> controlButton;
@@ -70,7 +71,7 @@ class TektronicsControl
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-						 std::string channel2Text, LONG width, std::array<UINT, 5> ids );
+						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();
 		tektronicsInfo getTekSettings();
 		void setSettings(tektronicsInfo info);

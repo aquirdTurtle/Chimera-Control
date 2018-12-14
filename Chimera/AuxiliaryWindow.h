@@ -113,7 +113,7 @@ class AuxiliaryWindow : public CDialog
 		void loadTempSettings ( MasterThreadInput* input );
 
 		void handleTektronicsButtons(UINT id);
-
+		void invalidateSaved ( UINT id );
 		void sendErr(std::string msg);
 		void sendStatus(std::string msg);
 

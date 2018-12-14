@@ -205,7 +205,7 @@ void MainWindow::onPgcTempCalFin ( )
 
 void MainWindow::onGreyTempCalFin ( )
 {
-	infoBox ( "Congratulations!" );
+	infoBox ( "Finished MOT Calibrations." );
 }
 
 void MainWindow::onMachineOptRoundFin (  )
