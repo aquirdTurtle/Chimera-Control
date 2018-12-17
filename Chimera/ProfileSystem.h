@@ -77,8 +77,24 @@ class ProfileSystem
 		void rearrange(int width, int height, fontMap fonts);
 		void handleSelectConfigButton( CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
 									   AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
-		static void checkDelimiterLine(std::ifstream& openFile, std::string keyword);
+		
+		template <class sysType>
+		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, std::string endDelim, 
+										 sysType* this_in, Version minVer = Version("0.0"));
+		// an overload with the default end delimiter: "END_" + delim. Basically everything /should/ use the default,
+		// just still dealing with some edge cases.
+		template <class sysType>
+		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, 
+										 Version minVer = Version ( "0.0" ) );
+
+		//static void standardOpenConfig ( std::ifstream& openFile, std::string beginDelim, std::string endDelim,
+		//								 std::string systemName, void* thisPass,
+		//								 void ( *openFunction )( std::ifstream& f, Version ver, void* callThis ),
+		//								 Version minVer=Version("0.0") );
+		static void checkDelimiterLine ( std::ifstream& openFile, std::string keyword );
 		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
+		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
+		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, Version minVer=Version("0.0") );
 	private:
 		profileSettings currentProfile;
 		seqSettings currentSequence;
@@ -90,7 +106,10 @@ class ProfileSystem
 		// version = str(versionMain) + "." + str(versionSub)
 		// version 3.6: rerngMode added instead of various bools
 		// Version 3.7: stop reporting initial ttl and dac values in configs.
-		const Version version = Version( "3.7" );  
+		// Version 4.0 changed the way I read in data for different controls. Each control re-opens the file and scans 
+		// untill it finds the appropriate section for it to read. Makes it so that if one thing fails, everything 
+		// afterwards doesn't also fail.
+		const Version version = Version( "4.0" );  
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
@@ -99,3 +118,45 @@ class ProfileSystem
 		Control<CButton> selectConfigButton;
 		Control<CStatic> configDisplay;
 };
+
+template <class sysType>
+static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, Version minVer )
+{
+	ProfileSystem::standardOpenConfig ( openFile, delim, "END_" + delim, this_in, minVer );
+}
+
+template <class sysType>
+static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::string delim, std::string endDelim, sysType* this_in,
+												Version minVer)
+{
+	// sysType must have a member function of the form
+	// void ( *sysType::openFunction )( std::ifstream& f, Version ver )
+	Version ver;
+	try
+	{
+		ProfileSystem::initializeAtDelim ( openFile, delim, ver, minVer );
+	}
+	catch ( Error& e )
+	{
+		errBox ( "Failed to initialize config file for " + delim + "!\n\n" + e.trace ( ) );
+		return;
+	}
+	try
+	{
+		this_in->handleOpenConfig( openFile, ver );
+	}
+	catch ( Error& e )
+	{
+		errBox ( "Failed to gather information from config file for " + delim + "!\n\n" + e.trace ( ) );
+		return;
+	}
+	try
+	{
+		ProfileSystem::checkDelimiterLine ( openFile, endDelim );
+	}
+	catch ( Error& e )
+	{
+		errBox ( "ERROR: End delimiter for the " + delim + " control was not found. This might indicate that the "
+				 "control did not initialize properly." );
+	}
+}

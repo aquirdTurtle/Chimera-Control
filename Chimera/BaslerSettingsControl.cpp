@@ -499,9 +499,12 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 }
 
 
-void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Version ver )
+void BaslerSettingsControl::handleOpenConfig ( std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine ( configFile, "Basler-Settings" );
+	if ( ver < Version ( "4.0" ) )
+	{
+		thrower ( "Basler settings requires version 4.0+ Configuration files" );
+	}
 	baslerSettings newSettings;
 	std::string txt;
 	
@@ -540,7 +543,7 @@ void BaslerSettingsControl::handleOpeningConfig ( std::ifstream& configFile, Ver
 void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
 { 
 	loadCurrentSettings( );
-	configFile << "Basler-Settings\n";
+	configFile << "BASLER_CAMERA_SETTINGS\n";
 	configFile << BaslerAcquisition::toStr(currentSettings.acquisitionMode) << "\n";
 	configFile << currentSettings.dims.left << "\n";
 	configFile << currentSettings.dims.top << "\n";
@@ -554,6 +557,7 @@ void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
 	configFile << currentSettings.rawGain << "\n";
 	configFile << currentSettings.repCount << "\n";
 	configFile << BaslerTrigger::toStr(currentSettings.triggerMode) << "\n";
+	configFile << "END_BASLER_CAMERA_SETTINGS\n";
 }
 
 

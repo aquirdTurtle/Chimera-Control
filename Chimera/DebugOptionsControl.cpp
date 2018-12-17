@@ -131,7 +131,6 @@ void DebugOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 
 void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(openFile, "DEBUGGING_OPTIONS");
 	openFile >> currentOptions.outputAgilentScript;
 	openFile >> currentOptions.outputExcessInfo;
 	openFile >> currentOptions.outputNiawgHumanScript;
@@ -155,7 +154,6 @@ void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver 
 	{
 		openFile >> currentOptions.outputNiawgWavesToText;
 	}
-	ProfileSystem::checkDelimiterLine(openFile, "END_DEBUGGING_OPTIONS");
 	setOptions( currentOptions );
 }
 

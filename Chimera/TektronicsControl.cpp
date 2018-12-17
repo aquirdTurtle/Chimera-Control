@@ -5,7 +5,9 @@
 #include "ProfileSystem.h"
 #include "range.h"
 
-TektronicsControl::TektronicsControl(bool safemode, std::string address) : visaFlume(safemode, address) {}
+TektronicsAfgControl::TektronicsAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
+	: visaFlume(safemode, address), configDelim(configurationFileDelimiter)
+{}
 
 void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
 										   UINT control_id )
@@ -37,7 +39,7 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 }
 
 
-void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
+void TektronicsAfgControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequenceNumber;
@@ -91,7 +93,7 @@ void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& va
 }
 
 
-HBRUSH TektronicsControl::handleColorMessage(CWnd* window, CDC* cDC)
+HBRUSH TektronicsAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
 	if (controlID == onOffLabel.GetDlgCtrlID() || controlID == fskLabel.GetDlgCtrlID() 
@@ -194,38 +196,35 @@ void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
 }
 
 
-void TektronicsControl::handleNewConfig( std::ofstream& newFile )
+void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "TEKTRONICS\n";
+	newFile << configDelim + "\n";
 	newFile << "CHANNEL_1\n";
 	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "CHANNEL_2\n";
 	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "END_TEKTRONICS" << "\n";
+	newFile << "END_" + configDelim + "\n";
 }
 
 
-void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
+void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
 {
-	saveFile << "TEKTRONICS\n";
+	saveFile << configDelim + "\n";
 	saveFile << "CHANNEL_1\n";
 	tektronicsInfo tekInfo = getTekSettings();
 	saveFile << tekInfo.channels.first.control << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
-		<< tekInfo.channels.first.power.expressionStr << "\n"
-		<< tekInfo.channels.first.mainFreq.expressionStr << "\n"
+		<< tekInfo.channels.first.power.expressionStr << "\n" << tekInfo.channels.first.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.first.fskFreq.expressionStr << "\n";
 	saveFile << "CHANNEL_2\n";
 	saveFile << tekInfo.channels.second.control << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
-		<< tekInfo.channels.second.power.expressionStr << "\n"
-		<< tekInfo.channels.second.mainFreq.expressionStr << "\n"
+		<< tekInfo.channels.second.power.expressionStr << "\n" << tekInfo.channels.second.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.second.fskFreq.expressionStr << "\n";
-	saveFile << "END_TEKTRONICS" << "\n";
+	saveFile << "END_" + configDelim + "\n";
 }
 
 
-void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, Version ver )
+void TektronicsAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(configFile, "TEKTRONICS");
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");
 	tektronicsInfo tekInfo;
 	configFile >> tekInfo.channels.first.on;
@@ -243,13 +242,12 @@ void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, Version v
 	std::getline(configFile, tekInfo.channels.second.power.expressionStr );
 	std::getline(configFile, tekInfo.channels.second.mainFreq.expressionStr );
 	std::getline(configFile, tekInfo.channels.second.fskFreq.expressionStr );
-	ProfileSystem::checkDelimiterLine(configFile, "END_TEKTRONICS");
 	setSettings(tekInfo);
 }
 
 
 
-void TektronicsControl::programMachine(UINT variation)
+void TektronicsAfgControl::programMachine(UINT variation)
 {
 	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
@@ -313,7 +311,7 @@ void TektronicsControl::programMachine(UINT variation)
 	}
 }
 
-void TektronicsControl::handleProgram()
+void TektronicsAfgControl::handleProgram()
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
@@ -348,7 +346,7 @@ void TektronicsControl::handleProgram()
 }
 
 
-void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
+void TektronicsAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 								    std::string channel2Text, LONG width, UINT control_id )
 {
 
@@ -395,7 +393,7 @@ void TektronicsChannelControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-std::string TektronicsControl::queryIdentity()
+std::string TektronicsAfgControl::queryIdentity()
 {
 	try
 	{
@@ -408,7 +406,7 @@ std::string TektronicsControl::queryIdentity()
 }
 
 
-void TektronicsControl::rearrange(int width, int height, fontMap fonts)
+void TektronicsAfgControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
 	controlLabel.rearrange( width, height, fonts );
@@ -423,7 +421,7 @@ void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-tektronicsInfo TektronicsControl::getTekSettings()
+tektronicsInfo TektronicsAfgControl::getTekSettings()
 {
 	currentInfo.channels.first = channel1.getTekChannelSettings();
 	currentInfo.channels.second = channel2.getTekChannelSettings();
@@ -431,7 +429,7 @@ tektronicsInfo TektronicsControl::getTekSettings()
 }
 
 // does not set the address, that's permanent.
-void TektronicsControl::setSettings(tektronicsInfo info)
+void TektronicsAfgControl::setSettings(tektronicsInfo info)
 {
 	currentInfo.channels = info.channels;
 	channel1.setSettings(currentInfo.channels.first);
@@ -444,7 +442,7 @@ void TektronicsControl::setSettings(tektronicsInfo info)
 }
 
 
-void TektronicsControl::handleButtons(UINT indicator)
+void TektronicsAfgControl::handleButtons(UINT indicator)
 {
 	channel1.handleButton ( indicator );
 	channel2.handleButton ( indicator );

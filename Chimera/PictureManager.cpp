@@ -3,7 +3,8 @@
 #include "ProfileSystem.h"
 #include "Thrower.h"
 
-PictureManager::PictureManager ( bool histOption ) : pictures{ { histOption, false, false, false } }
+PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter ) : pictures{ { histOption, false, false, false } },
+																				 configDelim ( configurationFileDelimiter )
 {
 
 }
@@ -128,7 +129,7 @@ void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
 
 void PictureManager::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "PICTURE_MANAGER\n";
+	newFile << configDelim + "\n";
 
 	for ( auto& pic : pictures )
 	{
@@ -139,14 +140,13 @@ void PictureManager::handleNewConfig( std::ofstream& newFile )
 	newFile << 0 << " ";
 	newFile << 0 << " ";
 	newFile << 0 << " ";
-	newFile << "END_PICTURE_MANAGER\n";
+	newFile << "END_" + configDelim + "\n";
 }
 
 
 void PictureManager::handleSaveConfig(std::ofstream& saveFile)
 {
-	saveFile << "PICTURE_MANAGER\n";
-
+	saveFile << configDelim + "\n";
 	for (auto& pic : pictures)
 	{
 		std::pair<UINT, UINT> sliderLoc = pic.getSliderLocations();
@@ -156,14 +156,16 @@ void PictureManager::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << specialGreaterThanMax << " ";
 	saveFile << specialLessThanMin << " ";
 	saveFile << alwaysShowGrid << " ";
-
-	saveFile << "END_PICTURE_MANAGER\n";
+	saveFile << "END_" + configDelim + "\n";
 }
 
 
 void PictureManager::handleOpenConfig(std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(configFile, "PICTURE_MANAGER");
+	if ( ver < Version ( "4.0" ) )
+	{
+		thrower ( "Picture Manager requires configuration file version 4.0+." );
+	}
 	std::array<int, 4> maxes, mins;
 	for (int sliderInc = 0; sliderInc < 4; sliderInc++)
 	{
@@ -178,7 +180,6 @@ void PictureManager::handleOpenConfig(std::ifstream& configFile, Version ver )
 		count++;
 	}
 	configFile.get();
-	ProfileSystem::checkDelimiterLine(configFile, "END_PICTURE_MANAGER");
 }
 
 

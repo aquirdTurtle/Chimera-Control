@@ -16,12 +16,13 @@
 #include <boost/lexical_cast.hpp>
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
-									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
-									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
+									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"), 
+									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
 									ttlBoard( true, true, DIO_SAFEMODE ),
-									aoSys( ANALOG_OUT_SAFEMODE )
+									aoSys( ANALOG_OUT_SAFEMODE ), configVariables( "CONFIG_PARAMETERS" ), 
+									globalVariables("GLOBAL_PARAMETERS" )
 {}
 
 
@@ -96,10 +97,12 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
 
+
 void AuxiliaryWindow::invalidateSaved ( UINT id )
 {
 	mainWin->updateConfigurationSavedStatus ( false );
 }
+
 
 void AuxiliaryWindow::passCommonCommand ( UINT id )
 {
@@ -592,27 +595,31 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 {
 	try
 	{
-		configVariables.normHandleOpenConfig ( configFile, ver );
-		ttlBoard.handleOpenConfig ( configFile, ver );
-		aoSys.handleOpenConfig ( configFile, ver, &ttlBoard );
+		ProfileSystem::standardOpenConfig ( configFile, configVariables.configDelim, &configVariables, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, "TTLS", &ttlBoard );
+		ProfileSystem::standardOpenConfig ( configFile, "DACS", &aoSys );
 		aoSys.updateEdits ( );
-		agilents[ whichAg::TopBottom ].readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::TopBottom ].configDelim, &agilents[ whichAg::TopBottom ],
+											Version ( "4.0" ) );
 		agilents[ whichAg::TopBottom ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 															   mainWin->getRunInfo ( ) );
-		agilents[ whichAg::Axial ].readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Axial ].configDelim, &agilents[ whichAg::Axial ],
+											Version ( "4.0" ) );
 		agilents[ whichAg::Axial ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 														   mainWin->getRunInfo ( ) );
-		agilents[ whichAg::Flashing ].readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Flashing ].configDelim, &agilents[ whichAg::Flashing ],
+											Version ( "4.0" ) );
 		agilents[ whichAg::Flashing ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 															  mainWin->getRunInfo ( ) );
 		if ( ver > Version ( "2.6" ) )
 		{
-			agilents[ whichAg::Microwave ].readConfigurationFile ( configFile, ver );
+			ProfileSystem::standardOpenConfig ( configFile, agilents[whichAg::Microwave].configDelim, &agilents[ whichAg::Microwave ],
+												Version ( "4.0" ) );
 			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 																   mainWin->getRunInfo ( ) );
 		}
-		topBottomTek.handleOpeningConfig ( configFile, ver );
-		eoAxialTek.handleOpeningConfig ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.configDelim, &topBottomTek, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.configDelim, &eoAxialTek, Version ( "4.0" ) );
 	}
 	catch ( Error& )
 	{
@@ -873,11 +880,11 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		{
 			agilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
 			agilent.setAgilent();
-			sendStatus( "Programmed Agilent " + agilent.getName() + ".\r\n" );
+			sendStatus( "Programmed Agilent " + agilent.configDelim + ".\r\n" );
 		}
 		catch (Error& err)
 		{
-			sendErr( "Error while programming agilent " + agilent.getName() + ": " + err.trace() + "\r\n" );
+			sendErr( "Error while programming agilent " + agilent.configDelim + ": " + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -1625,7 +1632,7 @@ std::string AuxiliaryWindow::getVisaDeviceStatus( )
 	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
-		msg += agilent.getName( ) + ":\n\t" + agilent.getDeviceIdentity( );
+		msg += agilent.configDelim + ":\n\t" + agilent.getDeviceIdentity( );
 	}
 	return msg;
 }

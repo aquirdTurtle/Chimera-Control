@@ -166,7 +166,6 @@ ULONG DataAnalysisControl::getPlotFreq( )
 
 void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 {
-	ProfileSystem::checkDelimiterLine( file, "BEGIN_DATA_ANALYSIS" );
 	UINT numGrids;
 	if ( ver > Version( "3.0" ) )
 	{
@@ -243,13 +242,12 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 		}
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
 	}
-	ProfileSystem::checkDelimiterLine( file, "END_DATA_ANALYSIS" );
 }
 
 
 void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 {
-	file << "BEGIN_DATA_ANALYSIS\n";
+	file << "DATA_ANALYSIS\n";
 	file << 1 << "\n";
 	file << 0 << " " << 0 << "\n";
 	file << 0 << " " << 0 << " " << 0 << "\n";
@@ -262,7 +260,7 @@ void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 
 void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 {
-	file << "BEGIN_DATA_ANALYSIS\n";
+	file << "DATA_ANALYSIS\n";
 	file << grids.size( ) << "\n";
 	for ( auto grid : grids )
 	{
