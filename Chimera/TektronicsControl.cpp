@@ -200,9 +200,9 @@ void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << configDelim + "\n";
 	newFile << "CHANNEL_1\n";
-	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "CHANNEL_2\n";
-	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "END_" + configDelim + "\n";
 }
 
@@ -212,11 +212,11 @@ void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << configDelim + "\n";
 	saveFile << "CHANNEL_1\n";
 	tektronicsInfo tekInfo = getTekSettings();
-	saveFile << tekInfo.channels.first.control << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
+	saveFile << tekInfo.channels.first.control << "\n" << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
 		<< tekInfo.channels.first.power.expressionStr << "\n" << tekInfo.channels.first.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.first.fskFreq.expressionStr << "\n";
 	saveFile << "CHANNEL_2\n";
-	saveFile << tekInfo.channels.second.control << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
+	saveFile << tekInfo.channels.second.control << "\n" << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
 		<< tekInfo.channels.second.power.expressionStr << "\n" << tekInfo.channels.second.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.second.fskFreq.expressionStr << "\n";
 	saveFile << "END_" + configDelim + "\n";
@@ -225,17 +225,18 @@ void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
 
 void TektronicsAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");
+	std::string tempStr;
 	tektronicsInfo tekInfo;
+	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");	
+	configFile >> tekInfo.channels.first.control;
 	configFile >> tekInfo.channels.first.on;
 	configFile >> tekInfo.channels.first.fsk;
 	configFile.get();
-	std::string tempStr;
-
 	std::getline(configFile, tekInfo.channels.first.power.expressionStr );
 	std::getline(configFile, tekInfo.channels.first.mainFreq.expressionStr );
 	std::getline(configFile, tekInfo.channels.first.fskFreq.expressionStr );
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_2");
+	configFile >> tekInfo.channels.second.control;
 	configFile >> tekInfo.channels.second.on;
 	configFile >> tekInfo.channels.second.fsk;
 	configFile.get();

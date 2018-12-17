@@ -70,7 +70,6 @@ Refactoring / Other:
 - refactor rerngmove complexmove and simplemove which are confusing... 
 - refactor the config saving issues. // ???
 - for flash add check that sum of indv move times is the total move time.
-- refactor profile system to not be so sequencial
 
 Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
@@ -92,3 +91,4 @@ BUGS:
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - Should only require calibration files if F5, not if only camera starts e.g.
 - should have kinetic cycle time if video mode
+

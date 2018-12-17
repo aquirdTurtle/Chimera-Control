@@ -204,13 +204,12 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 
 void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
+	// I could and perhaps should further subdivide the cameraSettings one up.
+	ProfileSystem::standardOpenConfig ( configFile, "CAMERA_SETTINGS", "END_CAMERA_IMAGE_DIMENSIONS", &CameraSettings );
+	ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
+	ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
 	try
 	{
-		// I could and perhaps should further subdivide the cameraSettings one up.
-		ProfileSystem::standardOpenConfig ( configFile, "CAMERA_SETTINGS", "END_CAMERA_IMAGE_DIMENSIONS", &CameraSettings );
-		ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
-		ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
-
 		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
 		{
 			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
@@ -227,9 +226,9 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 		GetWindowRect ( &rect );
 		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
 	}
-	catch ( Error& )
+	catch ( Error& e )
 	{
-		throwNested ( "Andor Camera Window failed to read parameters from the configuration file." );
+		errBox ( "Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace() );
 	}
 }
 

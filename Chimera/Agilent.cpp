@@ -653,7 +653,7 @@ void Agilent::handleOpenConfig( std::ifstream& file, Version ver )
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			throwNested ( "Bad channel " + str(chanInc+1) + " option!" );
+			throwNested ( "Bad channel " + str(chanInc + 1) + " option!" );
 		}
 		std::string calibratedOption;
 		std::getline ( file, channel.dc.dcLevelInput.expressionStr );

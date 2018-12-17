@@ -115,6 +115,7 @@ void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
 	updateVariationNumber( );
 }
 
+
 std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile, Version ver )
 {
 	std::vector<variationRangeInfo> rInfo;
