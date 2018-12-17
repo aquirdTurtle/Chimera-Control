@@ -79,8 +79,6 @@ BUGS:
 - fix save function to not need alt-sau
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent issue probably?
-- turnonmot seems to be running tektronics stuff too.
-- control tektronics not being saved in config?
 - interpret key taking a long time for ttls in camera cal for some reason.
 - seems like master configuration file can get corrupted if saving fails.
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high

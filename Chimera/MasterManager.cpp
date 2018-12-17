@@ -93,6 +93,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// start analysis & experiment
 	try
 	{
+		bool useAuxDevices = ( input->expType != ExperimentType::MachineOptimization || input->expType != ExperimentType::Normal );
+		if ( !useAuxDevices )
+		{
+			 expUpdate ( "Non-standard experiment type, so Tektronics & RSG will not be run.", comm, quiet );
+		}
 		aoSys->resetDacEvents( );
 		ttls->resetTtlEvents( );
 		aoSys->initializeDataObjects( input->seq.sequence.size( ), 0 );
@@ -124,8 +129,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 							 " between sequences.  (A low level bug, this shouldn't happen)" );
 				}
 			}
-			// finishing sentence from before start...
-			expUpdate( "Done.\r\n", comm, quiet );
 			/// Prep agilents
 			expUpdate( "Loading Agilent Info...", comm, quiet );
 			timer.tick(str(seqNum) + "-Variation-Number-Handling");
@@ -191,9 +194,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			ttls->interpretKey( input->variables );
 			aoSys->interpretKey( input->variables, warnings );
 		}
-		input->rsg->interpretKey( input->variables );
-		input->topBottomTek->interpretKey( input->variables );
-		input->eoAxialTek->interpretKey( input->variables );
+		if ( useAuxDevices )
+		{
+			input->rsg->interpretKey ( input->variables );
+			input->topBottomTek->interpretKey ( input->variables );
+			input->eoAxialTek->interpretKey ( input->variables );
+		}
 		timer.tick("Key-Interpretation");
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
@@ -240,13 +246,15 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					}
 					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Checks");
 				}
-				input->rsg->orderEvents( variationInc );
+				if ( useAuxDevices )
+				{
+					input->rsg->orderEvents ( variationInc );
+				}
 			}
 		}
-		
 		/// output some timing information
 		timer.tick("After-All-Variation-Calculations");
-		expUpdate(timer.getTimingMessage(), comm, input->quiet);
+		//expUpdate(timer.getTimingMessage(), comm, input->quiet);
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls->getTotalTime( 0, 0 ) ) + "\r\n", 
@@ -318,8 +326,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				}
 			}
 			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", comm, quiet );
-			input->rsg->programRsg( variationInc );
-			input->rsg->setInfoDisp( variationInc );
+			if ( useAuxDevices )
+			{
+				input->rsg->programRsg ( variationInc );
+				input->rsg->setInfoDisp ( variationInc );
+			}
 			timer.tick(str(variationInc + 1)+"-After-Programming-Rsg");
 			// program devices
 			for (auto& agilent : input->agilents)
@@ -358,8 +369,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				timer.tick(str(variationInc + 1) + "-After-Programming-NIAWG");
 			}
 			comm->sendError( warnings );
-			input->topBottomTek->programMachine( variationInc );
-			input->eoAxialTek->programMachine( variationInc );
+			if ( useAuxDevices )
+			{
+				input->topBottomTek->programMachine ( variationInc );
+				input->eoAxialTek->programMachine ( variationInc );
+			}
 			timer.tick(str(variationInc + 1) + "-After-Programming-Tektronix");
 			timer.tick(str(variationInc + 1) + "-After-All-Programming");
 			//
