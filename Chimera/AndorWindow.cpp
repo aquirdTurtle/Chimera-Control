@@ -18,7 +18,7 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 							CameraSettings ( &Andor ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
-							pics ( false )
+							pics ( false, "ANDOR_PICTURE_MANAGER" )
 {};
 
 
@@ -202,15 +202,15 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 	analysisHandler.handleSaveConfig( saveFile );
 }
 
-
 void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
 	try
 	{
-	// I could and perhaps should further subdivide this up.
-		CameraSettings.handleOpenConfig ( configFile, ver );
-		pics.handleOpenConfig ( configFile, ver );
-		analysisHandler.handleOpenConfig ( configFile, ver );
+		// I could and perhaps should further subdivide the cameraSettings one up.
+		ProfileSystem::standardOpenConfig ( configFile, "CAMERA_SETTINGS", "END_CAMERA_IMAGE_DIMENSIONS", &CameraSettings );
+		ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
+
 		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
 		{
 			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
@@ -223,7 +223,6 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 		pics.resetPictureStorage ( );
 		std::array<int, 4> nums = CameraSettings.getSettings ( ).palleteNumbers;
 		pics.setPalletes ( nums );
-
 		CRect rect;
 		GetWindowRect ( &rect );
 		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );

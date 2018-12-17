@@ -64,7 +64,6 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 
 void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
- 	ProfileSystem::checkDelimiterLine(openFile, "MAIN_OPTIONS");
 	if (ver < Version("2.1") )
 	{
 		// rearrange option used to be stored here.
@@ -95,7 +94,6 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 	{
 		currentOptions.atomThresholdForSkip = UINT_MAX;
 	}
- 	ProfileSystem::checkDelimiterLine(openFile, "END_MAIN_OPTIONS");
 }
 
 

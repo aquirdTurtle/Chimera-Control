@@ -226,7 +226,7 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
 	for ( auto& agilent : agilents )
 	{
-		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->getName( ) ) );
+		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->configDelim ) );
 		// mode
 		deviceOutputInfo info = agilent->getOutputInfo( );
 		UINT channelCount = 1;

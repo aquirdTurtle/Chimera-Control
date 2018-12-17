@@ -107,11 +107,11 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 		{
 			intensityAgilent.handleInput(mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo());
 			intensityAgilent.setAgilent();
-			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getName() + ".\r\n" );
+			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.configDelim + ".\r\n" );
 		}
 		catch (Error&)
 		{
-			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName() + "\r\n" );
+			comm()->sendError( "Error while programming agilent " + intensityAgilent.configDelim + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -575,7 +575,15 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
 	try
 	{
-		ProfileSystem::checkDelimiterLine ( configFile, "SCRIPTS" );
+		ProfileSystem::initializeAtDelim ( configFile, "SCRIPTS", ver );
+	}
+	catch ( Error& err)
+	{
+		errBox ( "Failed to initialize configuration file at scripting window entry point \"SCRIPTS\"." );
+		return;
+	}		
+	try
+	{
 		configFile.get ( );
 		std::string niawgName, masterName;
 		if ( ver.versionMajor < 3 )
@@ -586,8 +594,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		getline ( configFile, niawgName );
 		getline ( configFile, masterName );
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
-
-		intensityAgilent.readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, intensityAgilent.configDelim, &intensityAgilent, Version("4.0") );
 		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 												 mainWin->getRunInfo ( ) );
 		try
@@ -619,9 +626,9 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		considerScriptLocations ( );
 		recolorScripts ( );
 	}
-	catch ( Error& )
+	catch ( Error& e )
 	{
-		throwNested ( "Scripting Window failed to read parameters from the configuration file." );
+		errBox ( "Scripting Window failed to read parameters from the configuration file.\n\n" + e.trace() );
 	}
 }
 

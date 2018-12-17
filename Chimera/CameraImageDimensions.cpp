@@ -133,8 +133,6 @@ void ImageDimsControl::handleOpen( std::ifstream& openFile, Version ver )
 	openFile >> params.top;
 	openFile >> params.verticalBinning;
 	setImageParametersFromInput( params, NULL );
-	ProfileSystem::checkDelimiterLine( openFile, "END_CAMERA_IMAGE_DIMENSIONS" );
-	
 }
 
 

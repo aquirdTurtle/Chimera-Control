@@ -169,7 +169,7 @@ class AuxiliaryWindow : public CDialog
  		AoSystem aoSys;
 		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-		TektronicsControl topBottomTek, eoAxialTek;
+		TektronicsAfgControl topBottomTek, eoAxialTek;
 		ServoManager servos;
 		MachineOptimizer optimizer;
 		ColorBox boxes;

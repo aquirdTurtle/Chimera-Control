@@ -32,7 +32,7 @@ std::unordered_map<std::string, COLORREF> _myRGBs = {
 	{ "Solarized Base04", RGB ( 0, 30, 38 ) },
 	{ "Solarized Base03", RGB ( 0, 43, 54 ) },
 	{ "Solarized Base02", RGB ( 7, 54, 66 ) },
-	{ "Solarized Base01", RGB ( 88, 110, 11,7 ) },
+	{ "Solarized Base01", RGB ( 88, 110, 11 ) },
 	{ "Solarized Base00", RGB ( 101, 123, 131 ) },
 	{ "Solarized Base0", RGB ( 131, 148, 150 ) },
 	{ "Solarized Base1", RGB ( 101, 123, 131 ) },

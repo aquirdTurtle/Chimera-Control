@@ -15,6 +15,10 @@
 #include <boost/lexical_cast.hpp>
 
 
+ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter )
+{ }
+
+
 void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
 								  UINT listviewId, ParameterSysType type )
 {
@@ -62,9 +66,8 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version ver )
+void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	clearVariables( );
 	/// 
 	rangeInfo = getRangeInfoFromFile ( configFile, ver );
@@ -109,7 +112,6 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version v
 	var.constant = false;
 	var.ranges.push_back ( { 0,0 } );
 	addConfigParameter( var, currentParameters.size( ) );
-	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
 	updateVariationNumber( );
 }
 
@@ -200,10 +202,10 @@ void ParameterSystem::updateVariationNumber( )
  
 void ParameterSystem::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "VARIABLES\n";
+	newFile << configDelim + "\n";
 	// Number of functions with variables saved
 	newFile << 0 << "\n";
-	newFile << "END_VARIABLES\n";
+	newFile << "END_" + configDelim + "\n";
 }
 
 
@@ -333,7 +335,7 @@ void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType varia
 
 void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
 {
-	saveFile << "VARIABLES\n";
+	saveFile << configDelim + "\n";
 	saveFile << "RANGE-INFO\n";
 	saveFile << rangeInfo.size ( ) << "\n";
 	for ( auto range : rangeInfo )
@@ -345,7 +347,7 @@ void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
 	{
 		saveVariable(saveFile, getVariableInfo( varInc ));
 	}
-	saveFile << "END_VARIABLES\n";
+	saveFile << "END_" + configDelim + "\n";
 }
 
 

@@ -45,8 +45,7 @@ class Agilent
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();
-		std::string getName();
-		void readConfigurationFile( std::ifstream& file, Version ver );
+		void handleOpenConfig( std::ifstream& file, Version ver );
 		//void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
 		void convertInputToFinalSettings( UINT chan, std::vector<parameterType>& variables = std::vector<parameterType> ( ),
 										  UINT variation = -1 );
@@ -64,12 +63,14 @@ class Agilent
 		Script agilentScript;
 		static double convertPowerToSetPoint(double power, bool conversionOption );
 		std::pair<UINT, UINT> getTriggerLine( );
+		
+		const std::string configDelim;
+
 	private:
 		// not that important, just used to check that number of triggers in script matches number in agilent.
 		const UINT triggerRow;
 		const UINT triggerNumber;
 		const agilentSettings initSettings;
-		std::string name;
 		minMaxDoublet chan2Range;
 		VisaFlume visaFlume;
 		const double sampleRate;

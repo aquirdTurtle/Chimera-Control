@@ -600,7 +600,6 @@ UINT AndorCameraSettingsControl::getAccumulationNumber( )
 
 void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
-	ProfileSystem::checkDelimiterLine(configFile, "CAMERA_SETTINGS");
 	AndorRunSettings tempSettings;
 	configFile.get( );
 	std::string txt;

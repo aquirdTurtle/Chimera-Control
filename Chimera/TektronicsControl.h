@@ -63,13 +63,13 @@ class TektronicsChannelControl
 };
 
 
-class TektronicsControl
+class TektronicsAfgControl
 {
 	public:
-		TektronicsControl(bool safemode, std::string address);
+		TektronicsAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpeningConfig(std::ifstream& configFile, Version ver );
+		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();
@@ -81,6 +81,7 @@ class TektronicsControl
 		void interpretKey(std::vector<std::vector<parameterType>>& variables);
 		void programMachine(UINT variation );
 		void handleProgram();
+		const std::string configDelim;
 	private:
 		Control<CStatic> header;
 		Control<CleanButton> programNow;

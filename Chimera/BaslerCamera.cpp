@@ -422,7 +422,7 @@ void BaslerWrapper::init( CWnd* parent )
 									   Pylon::Cleanup_Delete );
 			TriggerMode.SetValue( cameraParams::TriggerMode_On );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to register event handler and set trigger mode." );
 		}
@@ -460,7 +460,7 @@ int BaslerWrapper::getMinOffsetX()
 	{
 		return OffsetX.GetMin();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get min x offset." );
 	}
@@ -637,7 +637,7 @@ void BaslerWrapper::stopGrabbing()
 		{
 			StopGrabbing();
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException& )
 		{
 			throwNested( "Failed to stop grabbing." );
 		}
@@ -687,7 +687,7 @@ int BaslerWrapper::getCurrentHeight()
 	{
 		return Height.GetValue();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get current height" );
 	}

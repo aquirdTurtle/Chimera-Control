@@ -187,8 +187,6 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 
 void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
-	//prepareForce( );
-	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
 	if ( ver < Version ( "3.7" ) )
 	{
 		for ( auto i : range ( 64 ) )
@@ -198,7 +196,6 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 			openFile >> trash;
 		}
 	}
-	ProfileSystem::checkDelimiterLine(openFile, "END_TTLS");
 }
 
 
