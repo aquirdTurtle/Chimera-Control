@@ -75,7 +75,6 @@ Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 
 BUGS:
-- auto reseting values on camera is screwing up 
 - fix save function to not need alt-sau
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent issue probably?

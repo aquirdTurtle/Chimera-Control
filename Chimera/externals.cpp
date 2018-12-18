@@ -107,15 +107,15 @@ void initMyColors( )
 	_myBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
 	*/
 	/// Dark Theme
-	
+	std::string coloredText = "Light Blue";
 	_myRGBs[ "Text" ] = _myRGBs[ "Near-White" ];
-	_myRGBs[ "Text-Emph" ] = _myRGBs[ "Teal" ];
+	_myRGBs[ "Text-Emph" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Black" ];
-	_myRGBs[ "MainWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "ScriptWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "AndorWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "AuxWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "BasWin-Text" ] = _myRGBs[ "Teal" ];
+	_myRGBs[ "MainWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "ScriptWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "AndorWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "AuxWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "BasWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Disabled-Bkgd" ] = _myRGBs[ "Dark Grey Red" ];
 	_myRGBs[ "Static-Bkgd" ] = _myRGBs[ "Dark Grey" ];
 	_myRGBs[ "Interactable-Bkgd" ] = _myRGBs[ "Medium Grey" ];

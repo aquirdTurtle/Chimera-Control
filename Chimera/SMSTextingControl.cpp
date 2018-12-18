@@ -26,9 +26,9 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 	peopleListView.InsertColumn( 2, "Carrier");
 	peopleListView.InsertColumn( 3, "At Finish?", 0x62 );
 	peopleListView.InsertColumn( 4, "If No Loading?" );
-	peopleListView.SetBkColor( _myRGBs["Solarized Base02"] );
-	peopleListView.SetTextBkColor( _myRGBs["Solarized Base02"] );
-	peopleListView.SetTextColor( _myRGBs["Solarized Base2"] );
+	peopleListView.SetBkColor( _myRGBs["Interactable-Bkgd"] );
+	peopleListView.SetTextBkColor( _myRGBs["Interactable-Bkgd"] );
+	peopleListView.SetTextColor( _myRGBs["MainWin-Text"] );
 	peopleListView.insertBlankRow ( );
 	pos.y += 120;
 	if ( !PYTHON_SAFEMODE )
