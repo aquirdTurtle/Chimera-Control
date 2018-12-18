@@ -279,7 +279,7 @@ void AndorCameraSettingsControl::updateSettings()
 	settings.andor.accumulationTime = getAccumulationCycleTime( );
 	settings.andor.accumulationNumber = getAccumulationNumber( );
 
-	setEmGain( );
+	//setEmGain( );
 	updateCameraMode( );
 	updateTriggerMode( );
 }

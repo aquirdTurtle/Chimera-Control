@@ -13,8 +13,9 @@ void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	//Get state of the button
 	UINT state = lpDrawItemStruct->itemState;  
 	dc.FillSolidRect( rt, _myRGBs[ "Button-Color" ] );
-	CPen pen( PS_SOLID, 0, _myRGBs["Text-Emph"]);
+	CPen pen( PS_SOLID, 0, _myRGBs["Button-Color"]);
 	dc.SelectObject( pen);
+	dc.SetBkColor ( _myRGBs[ "Button-Color" ] );
 	dc.MoveTo( rt.TopLeft() );
 	dc.LineTo( { rt.right, rt.top } );
 	dc.LineTo( rt.BottomRight( ) );
@@ -108,7 +109,7 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	CString strTemp;
 	GetWindowText( strTemp );
 	dc.SelectObject( GetFont( ) );
-	dc.SetBkColor( _myRGBs[ "Interactable-Bkgd" ] );
+	dc.SetBkColor( _myRGBs[ "Button-Color" ] );
 	dc.DrawText( strTemp, rt, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
 	// Draw out the caption
 	// If the button is focused
