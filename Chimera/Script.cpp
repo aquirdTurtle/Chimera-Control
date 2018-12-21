@@ -560,8 +560,8 @@ HBRUSH Script::handleColorMessage ( CWnd* window, CDC* cDC )
 		}
 		else
 		{
-			cDC->SetBkColor ( _myRGBs[ "Static-Bkgd" ] );
-			return *_myBrushes[ "Static-Bkgd" ];
+			cDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
+			return *_myBrushes[ "Interactable-Bkgd" ];
 		}
 	}
 	else
@@ -1129,10 +1129,7 @@ void Script::saveAsFunction()
 void Script::setEnabled ( bool enabled )
 {
 	edit.SetReadOnly( !enabled );
-	if ( !enabled )
-	{
-		edit.SetBackgroundColor ( false, _myRGBs[ "Disabled-Bkgd" ] );
-	}
+	edit.SetBackgroundColor ( false, enabled ? _myRGBs["Interactable-Bkgd"] : _myRGBs[ "Disabled-Bkgd" ] );
 	availableFunctionsCombo.EnableWindow ( enabled );
 }
 
