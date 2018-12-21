@@ -1152,6 +1152,8 @@ void DataAnalysisControl::reloadListView()
 	{
 		plotListview.InsertItem(names[item], item, 0);
 		plotListview.SetItem( "0", item, 1 );
+		plotListview.SetItem ( "[ ]", item, 2 );
+		plotListview.SetItem ( "[ ]", item, 3 );
 		plotListview.SetItem("NO", item, 4);
 		tinyPlotInfo tempInfo;
 		PlottingInfo info( PLOT_FILES_SAVE_LOCATION + "\\" + names[item] + "." + PLOTTING_EXTENSION );

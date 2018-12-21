@@ -113,22 +113,22 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	accumulationNumberEdit.SetWindowTextA( "1" );
 
 	// minimum kinetic cycle time (determined by camera)
-	minKineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, false, true );
+	minKineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, true, true );
 	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, 
 									 minKineticCycleTimeLabel.seriesPos, parent, id++ );
 	
-	minKineticCycleTimeLabel.setPositions ( pos, 240, 0, 240, 25, true, false, false, true );
+	minKineticCycleTimeDisp.setPositions ( pos, 240, 0, 240, 25, true, false, true, true );
 	minKineticCycleTimeDisp.Create( NORM_STATIC_OPTIONS, minKineticCycleTimeDisp.seriesPos, parent, id++ );
 	minKineticCycleTimeDisp.SetWindowTextA( "" );
 
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
-	kineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, false, true );
+	kineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, true, true );
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
 	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.seriesPos, parent, id++ );
 
 	// Kinetic Cycle Time Edit
-	kineticCycleTimeEdit.setPositions ( pos, 240, 0, 240, 25, true, false, false, true );
+	kineticCycleTimeEdit.setPositions ( pos, 240, 0, 240, 25, true, false, true, true );
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create( NORM_EDIT_OPTIONS, kineticCycleTimeEdit.seriesPos, parent, id++ );
 	kineticCycleTimeEdit.SetWindowTextA( "0.1" );

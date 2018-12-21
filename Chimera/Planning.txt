@@ -35,7 +35,7 @@ FEATURES:
 - improve delete file after abort functionality
 	- decorate name and (maybe) delete after a while, or just decorate...
 - Improve auto-optimization
-	- Implement different algorithms
+	- Implement different algorithms...
 		- basin-hopping
  		- Randomized Search
  		- Neural Network
@@ -68,14 +68,17 @@ Refactoring / Other:
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.
 - refactor rerngmove complexmove and simplemove which are confusing... 
-- refactor the config saving issues. // ???
-- for flash add check that sum of indv move times is the total move time.
+- refactor master configuration to be more similar to normal configuration reading
+- Label all values in config file, making it human-readable.
 
-Tests
+Checks and Tests
+- add check for flash that sum of indv move times is the total move time.
+- check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 
 BUGS:
-- fix save function to not need alt-sau
+- fix save function to not need alt-sau but automatically working.
+- Fix always prompt for overwrite function,
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent issue probably?
 - interpret key taking a long time for ttls in camera cal for some reason.
@@ -83,9 +86,7 @@ BUGS:
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
 - if taking pictures too fast code can freeze while pics getting handled. 
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
-- if in video before switching configs, switching configs fails.
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
-- check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - Should only require calibration files if F5, not if only camera starts e.g.
-- should have kinetic cycle time if video mode
-
+- color of scripts should change when not read-only.
+- err boxes don't grab focus of entire program
