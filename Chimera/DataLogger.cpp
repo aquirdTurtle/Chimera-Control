@@ -2,7 +2,7 @@
 #include "DataLogger.h"
 #include "externals.h"
 #include "longnam.h"
-#include "DataAnalysisHandler.h"
+#include "DataAnalysisControl.h"
 #include "CameraImageDimensions.h"
 #include "Thrower.h"
 #include "MasterManager.h"

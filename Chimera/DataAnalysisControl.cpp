@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 
-#include "DataAnalysisHandler.h"
+#include "DataAnalysisControl.h"
 #include "Control.h"
 #include "AndorWindow.h"
 #include "ProfileSystem.h"

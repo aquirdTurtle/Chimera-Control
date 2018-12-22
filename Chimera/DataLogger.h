@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "DataAnalysisHandler.h"					  
+#include "DataAnalysisControl.h"					  
 #include "CameraImageDimensions.h"
 #include "AndorRunSettings.h"
 #include "MasterThreadInput.h"

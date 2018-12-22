@@ -48,11 +48,9 @@ FEATURES:
 	  Especially useful for auto-optimization to keep this good over time.
 - Make (option for) hist plots for single pic mode andor images
 - display threshold on histogram.
-- set servo gain and tolerance for indv servos in servo listview
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
-
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -80,11 +78,11 @@ BUGS:
 - fix save function to not need alt-sau but automatically working.
 - Fix always prompt for overwrite function,
 - scripts becoming unsaved after move, should preserve saved status
-- global variable colors don't appear to always be correct; agilent issue probably?
+- global variable colors don't appear to always be correct; agilent variable issue probably?
 - interpret key taking a long time for ttls in camera cal for some reason.
 - seems like master configuration file can get corrupted if saving fails.
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
-- if taking pictures too fast code can freeze while pics getting handled. 
+- if taking pictures too fast code can freeze while pics getting handled.
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - Should only require calibration files if F5, not if only camera starts e.g.
