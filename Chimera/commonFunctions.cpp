@@ -1088,7 +1088,7 @@ namespace commonFunctions
 		logger->initializeDataFiles( specialName, isCal );
 		logger->logAndorSettings( input.AndorSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
-		logger->logMiscellaneous();
+		logger->logMiscellaneousStart();
 		logger->logBaslerSettings ( input.baslerRunSettings, takeBaslerPictures );
 		UINT numVoltsMeasursments = 0;
 		if ( input.masterInput && input.masterInput->aiSys->wantsQueryBetweenVariations( ) )
