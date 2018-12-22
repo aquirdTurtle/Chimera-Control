@@ -271,7 +271,7 @@
     <ClInclude Include="PictureManager.h" />
     <ClInclude Include="PictureSettingsControl.h" />
     <ClInclude Include="PictureStats.h" />
-    <ClInclude Include="DataAnalysisHandler.h" />
+    <ClInclude Include="DataAnalysisControl.h" />
     <ClInclude Include="PlotDesignerDialog.h" />
     <ClInclude Include="PlottingInfo.h" />
     <ClInclude Include="ProfileIndicator.h" />
@@ -386,7 +386,7 @@
     <ClCompile Include="PictureManager.cpp" />
     <ClCompile Include="PictureSettingsControl.cpp" />
     <ClCompile Include="PictureStats.cpp" />
-    <ClCompile Include="DataAnalysisHandler.cpp" />
+    <ClCompile Include="DataAnalysisControl.cpp" />
     <ClCompile Include="PlotDesignerDialog.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />

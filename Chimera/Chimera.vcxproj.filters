@@ -187,9 +187,6 @@
     <ClCompile Include="ScriptStream.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
-    <ClCompile Include="DataAnalysisHandler.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
     <ClCompile Include="PlotDataSet.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
@@ -278,6 +275,9 @@
       <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="AndorRunSettings.cpp" />
+    <ClCompile Include="DataAnalysisControl.cpp">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -526,9 +526,6 @@
     <ClInclude Include="ScriptStream.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="DataAnalysisHandler.h">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
     <ClInclude Include="PlotDataSet.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
@@ -642,6 +639,9 @@
     <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="AndorWindow.h">
       <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="DataAnalysisControl.h">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
