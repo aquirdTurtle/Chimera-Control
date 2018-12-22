@@ -53,6 +53,11 @@ void PlotCtrl::drawPlot ( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBru
 	plotPoints ( &dc );
 }
 
+std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
+{
+	return data;
+}
+
 
 void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {

@@ -27,7 +27,7 @@ class DataLogger
 		void writeAndorPic( std::vector<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image, imageParameters dims );
 		void logMasterParameters( MasterThreadInput* input);
-		void logMiscellaneous();
+		void logMiscellaneousStart();
 		void logAndorSettings( AndorRunSettings settings, bool on );
 		void logNiawgSettings( MasterThreadInput* input );
 		void logAgilentSettings( const std::vector<Agilent*>& input );
@@ -35,7 +35,8 @@ class DataLogger
 		void logFunctions( H5::Group& group );
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		void logBaslerSettings ( baslerSettings settings, bool on );
-		void logTektronicsSettings( );
+		void logTektronicsSettings( TektronicsAfgControl* tek );
+		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
 		UINT getNextFileNumber();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void closeFile();

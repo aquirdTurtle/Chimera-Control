@@ -46,6 +46,7 @@ class PlotCtrl
 		void drawBorder( memDC* d );
 		void plotPoints( memDC* d );
 		dataPoint getMainAnalysisResult ( );
+		std::vector<pPlotDataVec> getCurrentData ( );
 		void circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* brush );
 		void errBars( memDC* d, POINT center, long err, long capSize, Gdiplus::Pen* pen );
 		void drawBackground( memDC*, CBrush* backgroundBrush, CBrush* plotAreaBrush );
