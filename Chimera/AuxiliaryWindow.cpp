@@ -280,21 +280,12 @@ void AuxiliaryWindow::OnPaint( )
 		for ( auto& ttlPlt : ttlPlots )
 		{
 			ttlPlt->setCurrentDims( width, height );
-			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
-			ttlPlt->drawBackground( ttlDC, _myBrushes["Main-Bkgd"],
-									_myBrushes["Interactable-Bkgd"] );
-			ttlPlt->drawTitle( ttlDC );
-			ttlPlt->drawBorder( ttlDC );
-			ttlPlt->plotPoints( &ttlDC );
+			ttlPlt->drawPlot ( cdc, _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
 		}
 		for ( auto& dacPlt : aoPlots )
 		{
 			dacPlt->setCurrentDims( width, height );
-			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
-			dacPlt->drawBackground( dacDC, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
-			dacPlt->drawTitle( dacDC );
-			dacPlt->drawBorder( dacDC );
-			dacPlt->plotPoints( &dacDC );
+			dacPlt->drawPlot ( cdc, _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
 		}
 		ReleaseDC( cdc );
 	}

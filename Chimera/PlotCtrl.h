@@ -49,6 +49,7 @@ class PlotCtrl
 		void circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* brush );
 		void errBars( memDC* d, POINT center, long err, long capSize, Gdiplus::Pen* pen );
 		void drawBackground( memDC*, CBrush* backgroundBrush, CBrush* plotAreaBrush );
+		void drawPlot( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush );
 		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
 							  std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY );

@@ -44,6 +44,16 @@ dataPoint PlotCtrl::getMainAnalysisResult ( )
 }
 
 
+void PlotCtrl::drawPlot ( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBrush )
+{
+	memDC dc ( cdc, &GetPlotRect() );
+	drawBackground ( dc, backgroundBrush, plotAreaBrush );
+	drawTitle ( dc );
+	drawBorder ( dc );
+	plotPoints ( &dc );
+}
+
+
 void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
