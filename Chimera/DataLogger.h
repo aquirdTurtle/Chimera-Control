@@ -7,6 +7,7 @@
 #include "MasterThreadInput.h"
 #include "afxwin.h"
 #include "BaslerSettingsControl.h"
+#include "ServoManager.h"
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
@@ -36,7 +37,8 @@ class DataLogger
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		void logBaslerSettings ( baslerSettings settings, bool on );
 		void logTektronicsSettings( TektronicsAfgControl* tek );
-		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
+		//void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
+		void logServoInfo ( std::vector<servoInfo> servos );
 		UINT getNextFileNumber();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void closeFile();
@@ -52,16 +54,17 @@ class DataLogger
 		std::ofstream optFile;
 
 		// a bunch of overloaded wrapper functions for making the main "log" functions above much cleaner.
-		H5::DataSet writeDataSet( bool data,				std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( UINT data,				std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( ULONGLONG data,			std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( int data,					std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( double data,				std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( std::vector<double> data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( std::vector<float> data,	std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( std::string data,			std::string name, H5::Group& group );
-		void writeAttribute( double data,					std::string name, H5::DataSet& dset );
-		void writeAttribute( bool data,						std::string name, H5::DataSet& dset );
+		H5::DataSet writeDataSet( bool data,							std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( UINT data,							std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( ULONGLONG data,						std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( int data,								std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( double data,							std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( std::vector<double> data,				std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( std::vector<float> data,				std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( std::string data,						std::string name, H5::Group& group );
+		H5::DataSet writeDataSet ( std::vector<std::string> dataVec,	std::string name, H5::Group& group );
+		void writeAttribute( double data,								std::string name, H5::DataSet& dset );
+		void writeAttribute( bool data,									std::string name, H5::DataSet& dset );
 		// the core file.
 	    H5::H5File file;
 		H5::DataSet AndorPictureDataset, voltsDataSet, BaslerPictureDataset;

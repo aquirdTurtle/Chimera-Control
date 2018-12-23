@@ -211,6 +211,35 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 }
 
 
+void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
+{
+	H5::Group servoGroup( file.createGroup ( "/Servos" ) );
+	for ( auto servo : servos )
+	{
+		H5::Group thisServo ( servoGroup.createGroup ( "/" + servo.servoName ) );
+		writeDataSet ( servo.active, "Servo_Active", thisServo );
+		writeDataSet ( servo.aiInputChannel, "AI_Input_Channel", thisServo );
+		writeDataSet ( servo.aoControlChannel, "AO_Control_Channel", thisServo );
+		writeDataSet ( servo.controlValue, "Control_Value", thisServo );
+		writeDataSet ( servo.gain, "Servo_Gain", thisServo );
+		writeDataSet ( servo.servoed, "Servo_Is_Servoing_Correctly", thisServo );
+		writeDataSet ( servo.setPoint, "Set_Point", thisServo );
+		writeDataSet ( servo.tolerance, "Servo_Tolerance", thisServo );
+		std::string ttlConfigStr;
+		for ( auto ttl : servo.ttlConfig )
+		{
+			ttlConfigStr += str(ttl.first) + str(ttl.second) + ", ";
+		}
+		if ( ttlConfigStr.size ( ) > 2 )
+		{
+			// kill last comma and space.
+			ttlConfigStr.substr ( 0, ttlConfigStr.size ( ) - 2 );
+		}
+		writeDataSet ( ttlConfigStr, "TTL_Configuration_During_Servo", thisServo );
+	}
+}
+
+
 void DataLogger::logTektronicsSettings ( TektronicsAfgControl* tek )
 {
 	auto info = tek->getTekSettings ( );
