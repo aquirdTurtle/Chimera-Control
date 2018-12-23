@@ -292,6 +292,12 @@ void AuxiliaryWindow::OnPaint( )
 }
 
 
+std::vector<servoInfo> AuxiliaryWindow::getServoinfo ( )
+{
+	return servos.getServoInfo ( );
+}
+
+
 void AuxiliaryWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
 	camWin->stopSound( );

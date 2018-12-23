@@ -1115,6 +1115,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 void MainWindow::logParams(DataLogger* logger, MasterThreadInput* input)
 {
 	logger->logMasterParameters(input);
+	logger->logServoInfo ( TheAuxiliaryWindow->getServoinfo ( ) );
 }
 
 
