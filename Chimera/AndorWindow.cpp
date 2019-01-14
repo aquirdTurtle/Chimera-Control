@@ -18,10 +18,8 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 							CameraSettings ( &Andor ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
-							pics ( false )
-{
-
-};
+							pics ( false, "ANDOR_PICTURE_MANAGER" )
+{};
 
 
 IMPLEMENT_DYNAMIC(AndorWindow, CDialog)
@@ -204,15 +202,14 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 	analysisHandler.handleSaveConfig( saveFile );
 }
 
-
 void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
+	// I could and perhaps should further subdivide the cameraSettings one up.
+	ProfileSystem::standardOpenConfig ( configFile, "CAMERA_SETTINGS", "END_CAMERA_IMAGE_DIMENSIONS", &CameraSettings );
+	ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
+	ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
 	try
 	{
-	// I could and perhaps should further subdivide this up.
-		CameraSettings.handleOpenConfig ( configFile, ver );
-		pics.handleOpenConfig ( configFile, ver );
-		analysisHandler.handleOpenConfig ( configFile, ver );
 		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
 		{
 			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
@@ -225,14 +222,13 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 		pics.resetPictureStorage ( );
 		std::array<int, 4> nums = CameraSettings.getSettings ( ).palleteNumbers;
 		pics.setPalletes ( nums );
-
 		CRect rect;
 		GetWindowRect ( &rect );
 		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
 	}
-	catch ( Error& )
+	catch ( Error& e )
 	{
-		throwNested ( "Andor Camera Window failed to read parameters from the configuration file." );
+		errBox ( "Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace() );
 	}
 }
 
@@ -400,7 +396,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment();
 	}
 	// need to call this before acquireImageData().
 	Andor.updatePictureNumber( picNum );
@@ -431,7 +427,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 				std::pair<int, int> minMax;
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
 								  analysisHandler.getGrids( ), picNum );
@@ -469,7 +465,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment();
 	}
 	if ( lParam != currentPictureNum && lParam != -1 )
 	{
@@ -532,7 +528,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
 								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
-								   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 
 			pics.drawPicture( drawer, picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
 
@@ -547,7 +543,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 				std::pair<int, int> minMax;
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
@@ -1245,7 +1241,7 @@ void AndorWindow::startPlotterThread( ExperimentInput& input )
 	}
 	else
 	{
-		if ( input.AndorSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
+		if ( input.AndorSettings.totalPicsInExperiment() * input.plotterInput->analysisLocations.size()
 			 / input.plotterInput->plottingFrequency > 1000 )
 		{
 			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
@@ -1436,9 +1432,9 @@ std::string AndorWindow::getStartMessage()
 	dialogMsg += "\r\n";
 	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( CameraSettings.getSettings().andor.kineticCycleTime ) + "\r\n";
 	dialogMsg += "Pictures per Repetition:\r\n\t" + str( CameraSettings.getSettings().andor.picsPerRepetition ) + "\r\n";
-	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
+	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation() ) + "\r\n";
 	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
-	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment() ) + "\r\n";
 	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 	UINT count = 0;

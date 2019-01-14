@@ -5,7 +5,7 @@
 #include "PictureStats.h"
 #include "PictureManager.h"
 #include "AlertSystem.h"
-#include "DataAnalysisHandler.h"
+#include "DataAnalysisControl.h"
 #include "ExperimentTimer.h"
 #include "DataLogger.h"
 #include "commonFunctions.h"

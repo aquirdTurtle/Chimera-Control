@@ -30,6 +30,7 @@ struct agilentSettings
 
 	ULONG triggerRow;
 	ULONG triggerNumber;
+	std::string configurationFileDelimiter;
 };
 
 struct minMaxDoublet

@@ -31,11 +31,7 @@ std::string ScopeViewer::getScopeInfo( )
 void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	viewPlot->setCurrentDims( width, height );
-	memDC dc( d, &viewPlot->GetPlotRect( ) );
-	viewPlot->drawBackground( dc, backgroundBrush, plotAreaBrush );
-	viewPlot->drawTitle( dc );
-	viewPlot->drawBorder( dc );
-	viewPlot->plotPoints( &dc );
+	viewPlot->drawPlot ( d, backgroundBrush, plotAreaBrush );
 }
 
 

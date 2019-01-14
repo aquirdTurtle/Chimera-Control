@@ -30,21 +30,9 @@ void PictureControl::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
 	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 	// for a single plot.
 	horGraph->setCurrentDims ( width, height );
-	{
-		memDC ttlDC ( cdc, &horGraph->GetPlotRect ( ) );
-		horGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
-		horGraph->drawTitle ( ttlDC );
-		horGraph->drawBorder ( ttlDC );
-		horGraph->plotPoints ( &ttlDC );
-	}
+	horGraph->drawPlot ( cdc, bgdBrush, bgdBrush );
 	vertGraph->setCurrentDims ( width, height );
-	{
-		memDC ttlDC ( cdc, &vertGraph->GetPlotRect ( ) );
-		vertGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
-		vertGraph->drawTitle ( ttlDC );
-		vertGraph->drawBorder ( ttlDC );
-		vertGraph->plotPoints ( &ttlDC );
-	}
+	vertGraph->drawPlot ( cdc, bgdBrush, bgdBrush );
 }
 
 

@@ -23,7 +23,7 @@ FEATURES:
 - restore ability to look multi-pixel conditions / events in plots
 - improve experiment status; include which config was run, variable options
 - report oscilloscope data to datalogger
-- report andor background data to datalogger
+- report andor background data to datalogger if calibrating background out
 - improve delete file after abort functionality
 	- decorate name, delete after a while.
 - Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
@@ -33,8 +33,9 @@ FEATURES:
 	- report to h5 file as well
 - prompt for load after saving config as
 - improve delete file after abort functionality
+	- decorate name and (maybe) delete after a while, or just decorate...
 - Improve auto-optimization
-	- Implement different algorithms
+	- Implement different algorithms...
 		- basin-hopping
  		- Randomized Search
  		- Neural Network
@@ -45,16 +46,15 @@ FEATURES:
 - Implement smarter thresholding?
 	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
 	  Especially useful for auto-optimization to keep this good over time.
-- Make (option for) plots for single pic mode andor images
+- Make (option for) hist plots for single pic mode andor images
 - display threshold on histogram.
-- set servo gain and tolerance for indv servos in servo listview
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
 - camera "running" status should display most recent temp.
 
+
 Refactoring / Other:
-- refactor colors to be theme based.
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting
 - change pointers to smart-ptrs where possible
@@ -68,25 +68,24 @@ Refactoring / Other:
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.
 - refactor rerngmove complexmove and simplemove which are confusing... 
-- refactor the config saving issues. // ???
-- for flash add check that sum of indv move times is the total move time.
+- refactor master configuration to be more similar to normal configuration reading
+- Label all values in config file, making it human-readable.
 
-Tests
+Checks and Tests
+- add check for flash that sum of indv move times is the total move time.
+- check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 
 BUGS:
+- fix save function to not need alt-sau but automatically working.
+- Fix always prompt for overwrite function,
 - scripts becoming unsaved after move, should preserve saved status
-- global variable colors don't appear to always be correct; agilent issue probably?
-- turnonmot seems to be running tektronics stuff too.
-- control tektronics not being saved in config?
+- global variable colors don't appear to always be correct; agilent variable issue probably?
 - interpret key taking a long time for ttls in camera cal for some reason.
 - seems like master configuration file can get corrupted if saving fails.
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
-- if taking pictures too fast code can freeze while pics getting handled. 
+- if taking pictures too fast code can freeze while pics getting handled.
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
-- if in video before switching configs, switching configs fails.
-- plot histogram columns overlap...
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
-- check niawg script for multiple repeat forevers or commands outside a repeat forever.
-- sometimes get "congrats" the run after a calibration, issues cancelilng f12 calibrations and then f1, prob related.
-- Should only require calibration files if F5
+- Should only require calibration files if F5, not if only camera starts e.g.
+- err boxes don't grab focus of entire program

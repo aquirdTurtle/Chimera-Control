@@ -100,10 +100,7 @@ void PlotDialog::OnPaint( )
 		GetClientRect( &size );
 		memDC dc( cdc );
 		plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
-		plot.drawBackground( dc, &backgroundBrush, &plotAreaBrush );
-		plot.drawTitle( dc );
-		plot.drawBorder( dc );
-		plot.plotPoints( &dc );
+		plot.drawPlot ( dc, &backgroundBrush, &plotAreaBrush );
 		CDialog::OnPaint( );
 	}
 	ReleaseDC( cdc );

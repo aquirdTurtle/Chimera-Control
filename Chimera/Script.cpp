@@ -553,56 +553,21 @@ HBRUSH Script::handleColorMessage ( CWnd* window, CDC* cDC )
 	if ( id == edit.GetDlgCtrlID ( ) )
 	{
 		//cDC->SetTextColor ( _myRGBs[ "Text" ] );
-		if ( edit.GetStyle ( ) & ES_READONLY )
+		if ( !edit.IsWindowEnabled ( ) )
 		{
 			cDC->SetBkColor ( _myRGBs[ "Disabled-Bkgd" ] );
 			return *_myBrushes[ "Disabled-Bkgd" ];
 		}
 		else
 		{
-			cDC->SetBkColor ( _myRGBs[ "Static-Bkgd" ] );
-			return *_myBrushes[ "Static-Bkgd" ];
+			cDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
+			return *_myBrushes[ "Interactable-Bkgd" ];
 		}
 	}
 	else
 	{
 		return NULL;
 	}
-}
-
-
-INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
-{
-	int controlID = GetDlgCtrlID((HWND)lParam);
-	HDC hdcStatic = (HDC)wParam;
-	if (controlID == edit.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(50, 45, 45));
-	}
-	else if (controlID == title.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkMode(hdcStatic, TRANSPARENT);
-		SetBkColor(hdcStatic, RGB(75, 0, 0));
-	}
-	else if (controlID == savedIndicator.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkMode(hdcStatic, TRANSPARENT);
-		SetBkColor(hdcStatic, RGB(50, 45, 45));
-	}
-	else if (controlID == fileNameText.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkMode(hdcStatic, TRANSPARENT);
-		SetBkColor(hdcStatic, RGB(25, 0, 0));
-	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 
@@ -1164,10 +1129,7 @@ void Script::saveAsFunction()
 void Script::setEnabled ( bool enabled )
 {
 	edit.SetReadOnly( !enabled );
-	if ( !enabled )
-	{
-		edit.SetBackgroundColor ( false, _myRGBs[ "Disabled-Bkgd" ] );
-	}
+	edit.SetBackgroundColor ( false, enabled ? _myRGBs["Interactable-Bkgd"] : _myRGBs[ "Disabled-Bkgd" ] );
 	availableFunctionsCombo.EnableWindow ( enabled );
 }
 

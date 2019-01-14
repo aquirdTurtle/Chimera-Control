@@ -29,7 +29,7 @@ class AoSystem
 		// configs
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls);
+		void handleOpenConfig(std::ifstream& openFile, Version ver);
 		// macros
 		void forceDacs( DioSystem* ttls );
 		void zeroDacs( DioSystem* ttls );

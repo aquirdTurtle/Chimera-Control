@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 
-#include "DataAnalysisHandler.h"
+#include "DataAnalysisControl.h"
 #include "Control.h"
 #include "AndorWindow.h"
 #include "ProfileSystem.h"
@@ -166,7 +166,6 @@ ULONG DataAnalysisControl::getPlotFreq( )
 
 void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 {
-	ProfileSystem::checkDelimiterLine( file, "BEGIN_DATA_ANALYSIS" );
 	UINT numGrids;
 	if ( ver > Version( "3.0" ) )
 	{
@@ -243,13 +242,12 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 		}
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
 	}
-	ProfileSystem::checkDelimiterLine( file, "END_DATA_ANALYSIS" );
 }
 
 
 void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 {
-	file << "BEGIN_DATA_ANALYSIS\n";
+	file << "DATA_ANALYSIS\n";
 	file << 1 << "\n";
 	file << 0 << " " << 0 << "\n";
 	file << 0 << " " << 0 << " " << 0 << "\n";
@@ -262,7 +260,7 @@ void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 
 void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 {
-	file << "BEGIN_DATA_ANALYSIS\n";
+	file << "DATA_ANALYSIS\n";
 	file << grids.size( ) << "\n";
 	for ( auto grid : grids )
 	{
@@ -1154,6 +1152,8 @@ void DataAnalysisControl::reloadListView()
 	{
 		plotListview.InsertItem(names[item], item, 0);
 		plotListview.SetItem( "0", item, 1 );
+		plotListview.SetItem ( "[ ]", item, 2 );
+		plotListview.SetItem ( "[ ]", item, 3 );
 		plotListview.SetItem("NO", item, 4);
 		tinyPlotInfo tempInfo;
 		PlottingInfo info( PLOT_FILES_SAVE_LOCATION + "\\" + names[item] + "." + PLOTTING_EXTENSION );

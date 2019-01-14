@@ -122,9 +122,8 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
 	updateEdits( );
 }
 
-void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
+void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver)
 {
-	ProfileSystem::checkDelimiterLine(openFile, "DACS");
 	UINT dacInc = 0;
 	if ( ver < Version ( "3.7" ) )
 	{
@@ -134,7 +133,6 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem*
 			openFile >> trash;
 		}
 	}
-	ProfileSystem::checkDelimiterLine(openFile, "END_DACS");
 }
 
 

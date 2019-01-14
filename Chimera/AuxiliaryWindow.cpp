@@ -16,12 +16,13 @@
 #include <boost/lexical_cast.hpp>
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
-									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
-									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
+									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"), 
+									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
 									ttlBoard( true, true, DIO_SAFEMODE ),
-									aoSys( ANALOG_OUT_SAFEMODE )
+									aoSys( ANALOG_OUT_SAFEMODE ), configVariables( "CONFIG_PARAMETERS" ), 
+									globalVariables("GLOBAL_PARAMETERS" )
 {}
 
 
@@ -48,8 +49,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_ZERO_TTLS, &zeroTtls )
 	ON_COMMAND( IDC_ZERO_DACS, &zeroDacs )
 	ON_COMMAND( IDOK, &handleEnter )
-	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
-	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
+	ON_COMMAND( TOP_BOTTOM_TEK_START, &passTopBottomTekProgram )
+	ON_COMMAND(	EO_AXIAL_TEK_START, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
@@ -58,7 +59,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
-	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
+	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &AuxiliaryWindow::handleTektronicsButtons )
 	
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_TOP_BOTTOM_AGILENT_COMBO, IDC_TOP_BOTTOM_AGILENT_COMBO, 
 					  &AuxiliaryWindow::handleAgilentCombo )
@@ -83,7 +84,9 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
-	
+	// catches all the edits in the tektronics controls
+	ON_CONTROL_RANGE( EN_CHANGE, TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START + 99, &AuxiliaryWindow::invalidateSaved )
+
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_TOP_BOTTOM_EDIT, IDC_TOP_BOTTOM_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_FLASHING_EDIT, IDC_FLASHING_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_AXIAL_EDIT, IDC_AXIAL_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
@@ -93,6 +96,12 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::invalidateSaved ( UINT id )
+{
+	mainWin->updateConfigurationSavedStatus ( false );
+}
 
 
 void AuxiliaryWindow::passCommonCommand ( UINT id )
@@ -271,24 +280,21 @@ void AuxiliaryWindow::OnPaint( )
 		for ( auto& ttlPlt : ttlPlots )
 		{
 			ttlPlt->setCurrentDims( width, height );
-			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
-			ttlPlt->drawBackground( ttlDC, _myBrushes["Main-Bkgd"],
-									_myBrushes["Interactable-Bkgd"] );
-			ttlPlt->drawTitle( ttlDC );
-			ttlPlt->drawBorder( ttlDC );
-			ttlPlt->plotPoints( &ttlDC );
+			ttlPlt->drawPlot ( cdc, _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
 		}
 		for ( auto& dacPlt : aoPlots )
 		{
 			dacPlt->setCurrentDims( width, height );
-			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
-			dacPlt->drawBackground( dacDC, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
-			dacPlt->drawTitle( dacDC );
-			dacPlt->drawBorder( dacDC );
-			dacPlt->plotPoints( &dacDC );
+			dacPlt->drawPlot ( cdc, _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
 		}
 		ReleaseDC( cdc );
 	}
+}
+
+
+std::vector<servoInfo> AuxiliaryWindow::getServoinfo ( )
+{
+	return servos.getServoInfo ( );
 }
 
 
@@ -586,27 +592,31 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 {
 	try
 	{
-		configVariables.normHandleOpenConfig ( configFile, ver );
-		ttlBoard.handleOpenConfig ( configFile, ver );
-		aoSys.handleOpenConfig ( configFile, ver, &ttlBoard );
+		ProfileSystem::standardOpenConfig ( configFile, configVariables.configDelim, &configVariables, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, "TTLS", &ttlBoard );
+		ProfileSystem::standardOpenConfig ( configFile, "DACS", &aoSys );
 		aoSys.updateEdits ( );
-		agilents[ whichAg::TopBottom ].readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::TopBottom ].configDelim, &agilents[ whichAg::TopBottom ],
+											Version ( "4.0" ) );
 		agilents[ whichAg::TopBottom ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 															   mainWin->getRunInfo ( ) );
-		agilents[ whichAg::Axial ].readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Axial ].configDelim, &agilents[ whichAg::Axial ],
+											Version ( "4.0" ) );
 		agilents[ whichAg::Axial ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 														   mainWin->getRunInfo ( ) );
-		agilents[ whichAg::Flashing ].readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Flashing ].configDelim, &agilents[ whichAg::Flashing ],
+											Version ( "4.0" ) );
 		agilents[ whichAg::Flashing ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 															  mainWin->getRunInfo ( ) );
 		if ( ver > Version ( "2.6" ) )
 		{
-			agilents[ whichAg::Microwave ].readConfigurationFile ( configFile, ver );
+			ProfileSystem::standardOpenConfig ( configFile, agilents[whichAg::Microwave].configDelim, &agilents[ whichAg::Microwave ],
+												Version ( "4.0" ) );
 			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 																   mainWin->getRunInfo ( ) );
 		}
-		topBottomTek.handleOpeningConfig ( configFile, ver );
-		eoAxialTek.handleOpeningConfig ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.configDelim, &topBottomTek, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.configDelim, &eoAxialTek, Version ( "4.0" ) );
 	}
 	catch ( Error& )
 	{
@@ -773,14 +783,8 @@ void AuxiliaryWindow::passRoundToDac()
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::handleTektronicsButtons(UINT id)
 {
-	if (id >= TOP_ON_OFF && id <= BOTTOM_FSK)
-	{
-		topBottomTek.handleButtons(id - TOP_ON_OFF);
-	}
-	if (id >= EO_ON_OFF && id <= AXIAL_FSK)
-	{
-		eoAxialTek.handleButtons(id - EO_ON_OFF);
-	}
+	topBottomTek.handleButtons ( id );
+	eoAxialTek.handleButtons ( id );
 	mainWin->updateConfigurationSavedStatus(false);
 }
 
@@ -873,11 +877,11 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		{
 			agilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
 			agilent.setAgilent();
-			sendStatus( "Programmed Agilent " + agilent.getName() + ".\r\n" );
+			sendStatus( "Programmed Agilent " + agilent.configDelim + ".\r\n" );
 		}
 		catch (Error& err)
 		{
-			sendErr( "Error while programming agilent " + agilent.getName() + ": " + err.trace() + "\r\n" );
+			sendErr( "Error while programming agilent " + agilent.configDelim + ": " + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -1469,10 +1473,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
 		aoSys.initialize( controlLocation, toolTips, this, id );
 		aiSys.initialize( controlLocation, this, id );
-		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
-								 { TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK } );
-		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
-							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
+		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480, TOP_BOTTOM_TEK_START);
+		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, EO_AXIAL_TEK_START );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		
@@ -1627,7 +1629,7 @@ std::string AuxiliaryWindow::getVisaDeviceStatus( )
 	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
-		msg += agilent.getName( ) + ":\n\t" + agilent.getDeviceIdentity( );
+		msg += agilent.configDelim + ":\n\t" + agilent.getDeviceIdentity( );
 	}
 	return msg;
 }

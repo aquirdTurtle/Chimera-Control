@@ -205,7 +205,7 @@ void MainWindow::onPgcTempCalFin ( )
 
 void MainWindow::onGreyTempCalFin ( )
 {
-	infoBox ( "Congratulations!" );
+	infoBox ( "Finished MOT Calibrations." );
 }
 
 void MainWindow::onMachineOptRoundFin (  )
@@ -695,11 +695,11 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
 	try
 	{
-		notes.handleOpenConfig ( configFile, ver );
-		settings.handleOpenConfig ( configFile, ver );
-		debugger.handleOpenConfig ( configFile, ver );
-		repetitionControl.handleOpenConfig ( configFile, ver );
-		rearrangeControl.handleOpenConfig ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, "CONFIGURATION_NOTES", &notes);
+		ProfileSystem::standardOpenConfig ( configFile, "MAIN_OPTIONS", &settings);
+		ProfileSystem::standardOpenConfig ( configFile, "DEBUGGING_OPTIONS", &debugger );
+		ProfileSystem::standardOpenConfig ( configFile, "REPETITIONS", &repetitionControl );
+		ProfileSystem::standardOpenConfig ( configFile, "REARRANGEMENT_INFORMATION", &rearrangeControl );
 	}
 	catch ( Error& )
 	{
@@ -1115,6 +1115,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 void MainWindow::logParams(DataLogger* logger, MasterThreadInput* input)
 {
 	logger->logMasterParameters(input);
+	logger->logServoInfo ( TheAuxiliaryWindow->getServoinfo ( ) );
 }
 
 

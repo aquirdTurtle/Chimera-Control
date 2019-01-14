@@ -12,7 +12,7 @@
 #include "constants.h"
 
 
-BaslerWindow::BaslerWindow( ) : picManager(true)
+BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER")
 {}
 
 
@@ -497,6 +497,8 @@ void BaslerWindow::startCamera ( )
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 {
 	auto fonts = mainWin->getFonts ( );
+	auto r = picManager.getPicArea ( );
+	InvalidateRect ( &r );
 	picManager.rearrange ( cx, cy, fonts );
 	settingsCtrl.rearrange(cx, cy, fonts);
 	stats.rearrange(cx, cy, fonts );
@@ -626,8 +628,8 @@ HCURSOR BaslerWindow::OnQueryDragIcon()
 
 void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
-	picManager.handleOpenConfig ( configFile, ver );
-	settingsCtrl.handleOpeningConfig ( configFile, ver );
+	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
+	ProfileSystem::standardOpenConfig ( configFile, "BASLER_CAMERA_SETTINGS", &settingsCtrl, Version ( "4.0" ) );
 }
 
 
