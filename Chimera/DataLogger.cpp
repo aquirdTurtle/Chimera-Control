@@ -211,6 +211,12 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 }
 
 
+void DataLogger::logPlotData ( std::string name, std::vector<pPlotDataVec> data )
+{
+
+}
+
+
 void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 {
 	H5::Group servoGroup( file.createGroup ( "/Servos" ) );

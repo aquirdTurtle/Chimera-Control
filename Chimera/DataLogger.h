@@ -37,7 +37,7 @@ class DataLogger
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		void logBaslerSettings ( baslerSettings settings, bool on );
 		void logTektronicsSettings( TektronicsAfgControl* tek );
-		//void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
+		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
 		void logServoInfo ( std::vector<servoInfo> servos );
 		UINT getNextFileNumber();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
