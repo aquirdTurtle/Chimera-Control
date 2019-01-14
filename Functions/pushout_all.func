@@ -6,20 +6,19 @@ def pushout_all():
   dac: RepumpPower 0.1
   daclinspace: motFreq defaultMotFreq pushoutfreq 1 5 
   t += 1.01
-  var pushout_Power 0.3 
-  var sidemot_Power 0
-  var pushouttime 2 %10
-  
+  var pushout_Power 0.03
+  var pushouttime 0.3
   %dac: probePower pushoutPower
-  dac: probePower pushout_power
-  on: probeRf
+  dac: sidemotPower pushout_power
+  %on: probeRf
+  on: a5
 
-  t += pushouttime
-
-  off: probeRf
+  t += pushouttime 
+  %off: probeRf
+  off: a5
   %off: probeShutter
   %on: sideMotShutter
 
   daclinspace: motFreq pushoutfreq defaultMotFreq 1 5
-  t += 1.01
+  t += 2
 
