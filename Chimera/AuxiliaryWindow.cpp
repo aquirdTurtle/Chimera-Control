@@ -1216,7 +1216,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			configStream >> minString >> trash;
 			if (trash != "-")
 			{
-				thrower ( str("Expected \"-\" in config file between min and max values for variable ") 
+				thrower ( str("Expected \"-\" in master config file between min and max values for variable ") 
 							   + name + ", dac"  + str(dacInc) + ".");
 			}
 			configStream >> maxString;

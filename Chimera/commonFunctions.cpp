@@ -1072,6 +1072,7 @@ namespace commonFunctions
 		input.masterInput = new MasterThreadInput;
 		auxWin->loadMotSettings ( input.masterInput );
 		mainWin->fillMotInput ( input.masterInput );
+		input.masterInput->expType = ExperimentType::LoadMot;
 		if ( camWin != NULL )
 		{
 			// this is used for basler calibrations.

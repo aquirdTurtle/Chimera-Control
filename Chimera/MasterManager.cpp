@@ -93,7 +93,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// start analysis & experiment
 	try
 	{
-		bool useAuxDevices = ( input->expType != ExperimentType::MachineOptimization || input->expType != ExperimentType::Normal );
+		bool useAuxDevices = ( input->expType == ExperimentType::MachineOptimization || input->expType == ExperimentType::Normal );
 		if ( !useAuxDevices )
 		{
 			 expUpdate ( "Non-standard experiment type, so Tektronics & RSG will not be run.", comm, quiet );
