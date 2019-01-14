@@ -2,7 +2,7 @@
 def PgcLoading():
   %Shutting off gradient from MOT loading:    
   dac: motGradientCurrent 0
-  var loading_detuning -1.3 % was -0.8 C.K. 6/21/18
+  var loading_detuning 0 % was -0.8 C.K. 6/21/18
   dacLinSpace: MotFreq defaultmotFreq loading_detuning 1 10
   call zeroFields()
   % Set beam powers for PGC and turn on beams 

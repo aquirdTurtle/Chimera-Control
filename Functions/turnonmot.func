@@ -19,7 +19,7 @@ def turnOnMot():
   dac: MotFreq mot_freq 
   dac: RepumpFreq repump_freq
   %var tmpMotVal 0
-  dac: SideMotPower 0.25 %sidemot__servo_value
+  dac: SideMotPower sidemot__servo_value
   %% Magnetic Field Control
   var motStrength 7.1
 %  var right_field 0.57

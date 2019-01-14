@@ -51,6 +51,7 @@ FEATURES:
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
+- camera "running" status should display most recent temp.
 
 Refactoring / Other:
 - refactor colors to be theme based.

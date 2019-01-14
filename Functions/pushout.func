@@ -2,7 +2,7 @@
 def pushout():
   
   var pushoutPower 0.3
-
+  var pushoutFreq 0.5
   off: sideMotRf
   % on = open
   on: probeShutter
