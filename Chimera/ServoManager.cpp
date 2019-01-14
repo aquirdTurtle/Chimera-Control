@@ -387,7 +387,7 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " ";
 	for ( auto& ttl : servo.ttlConfig )
 	{
-		configStream << DioRows::toStr(ttl.first) << " " << ttl.second << " ";
+		configStream << DioRows::toStr(ttl.first) << " " << str(ttl.second) << " ";
 	}
 	configStream << servo.tolerance << " " << servo.gain << "\n";
 }

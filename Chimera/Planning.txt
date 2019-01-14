@@ -89,3 +89,5 @@ BUGS:
 - closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - Should only require calibration files if F5, not if only camera starts e.g.
 - err boxes don't grab focus of entire program
+- "if no mot?" check is not positioned correctly
+- something in the thrower system is eating the last character of the error message.
