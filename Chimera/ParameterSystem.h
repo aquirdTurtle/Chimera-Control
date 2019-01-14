@@ -38,12 +38,13 @@ enum class ParameterSysType
 class ParameterSystem
 {
 	public:		
+		ParameterSystem ( std::string configurationFileDelimiter );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		UINT getTotalVariationNumber();
 		static std::vector<variationRangeInfo> getRangeInfoFromFreshFile ( std::string configFileName );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void normHandleOpenConfig(std::ifstream& openFile, Version ver );
+		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
 		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
@@ -83,6 +84,8 @@ class ParameterSystem
 														   std::vector<parameterType>& subVars );
 		std::vector<variationRangeInfo> getRangeInfo ( );
 		const variationRangeInfo defaultRangeInfo = { 2,false,true };
+		const std::string configDelim;
+
 	private:
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;

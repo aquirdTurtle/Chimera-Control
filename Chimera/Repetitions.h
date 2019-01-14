@@ -17,8 +17,7 @@ class Repetitions
 		void updateNumber(long repNumber);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
-
+		void handleOpenConfig ( std::ifstream& openFile, Version ver );
 	private:
 		UINT repetitionNumber;
 		Control<CEdit> repetitionEdit;

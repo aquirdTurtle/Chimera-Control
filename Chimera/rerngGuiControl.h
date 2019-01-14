@@ -5,7 +5,7 @@
 #include "Control.h"
 #include "Windows.h"
 #include "afxwin.h"
-
+;
 /*
  * A class for a gui end control for setting various rearrangement parameters
  */

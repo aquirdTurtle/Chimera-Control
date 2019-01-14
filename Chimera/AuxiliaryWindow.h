@@ -63,6 +63,7 @@ class AuxiliaryWindow : public CDialog
 		void OnPaint( );
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
+		std::vector<servoInfo> getServoinfo ( );
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		cToolTips toolTips;
@@ -113,7 +114,7 @@ class AuxiliaryWindow : public CDialog
 		void loadTempSettings ( MasterThreadInput* input );
 
 		void handleTektronicsButtons(UINT id);
-
+		void invalidateSaved ( UINT id );
 		void sendErr(std::string msg);
 		void sendStatus(std::string msg);
 
@@ -169,7 +170,7 @@ class AuxiliaryWindow : public CDialog
  		AoSystem aoSys;
 		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-		TektronicsControl topBottomTek, eoAxialTek;
+		TektronicsAfgControl topBottomTek, eoAxialTek;
 		ServoManager servos;
 		MachineOptimizer optimizer;
 		ColorBox boxes;

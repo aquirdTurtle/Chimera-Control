@@ -49,6 +49,12 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 }
 
 
+std::vector<servoInfo> ServoManager::getServoInfo ( )
+{
+	return servos;
+}
+
+
 void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 {
 	configStream << autoServoButton.GetCheck ( ) << "\n" << servos.size ( );

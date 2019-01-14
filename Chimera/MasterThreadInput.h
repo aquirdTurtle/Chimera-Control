@@ -65,8 +65,8 @@ struct MasterThreadInput
 	RhodeSchwarz* rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
-	TektronicsControl* topBottomTek;
-	TektronicsControl* eoAxialTek;
+	TektronicsAfgControl* topBottomTek;
+	TektronicsAfgControl* eoAxialTek;
 	ParameterSystem* globalControl;
 	NiawgController* niawg;
 	UINT intensityAgilentNumber;

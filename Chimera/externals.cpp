@@ -22,6 +22,7 @@ std::unordered_map<std::string, COLORREF> _myRGBs = {
 	{ "Dark Grey", RGB ( 15, 15, 15 ) },
 	{ "Medium Grey", RGB ( 30, 30, 30 ) },
 	{ "Light Grey", RGB ( 60, 60, 60 ) },
+	{ "Near-White", RGB ( 200, 200, 200 ) },
 	{ "White", RGB ( 255, 255, 255 ) },
 	{ "Light Green", RGB ( 163, 190, 140 ) },
 	{ "Pale Pink", RGB ( 180, 142, 173 ) },
@@ -31,7 +32,7 @@ std::unordered_map<std::string, COLORREF> _myRGBs = {
 	{ "Solarized Base04", RGB ( 0, 30, 38 ) },
 	{ "Solarized Base03", RGB ( 0, 43, 54 ) },
 	{ "Solarized Base02", RGB ( 7, 54, 66 ) },
-	{ "Solarized Base01", RGB ( 88, 110, 11,7 ) },
+	{ "Solarized Base01", RGB ( 88, 110, 11 ) },
 	{ "Solarized Base00", RGB ( 101, 123, 131 ) },
 	{ "Solarized Base0", RGB ( 131, 148, 150 ) },
 	{ "Solarized Base1", RGB ( 101, 123, 131 ) },
@@ -106,15 +107,15 @@ void initMyColors( )
 	_myBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
 	*/
 	/// Dark Theme
-	
-	_myRGBs[ "Text" ] = _myRGBs[ "White" ];
-	_myRGBs[ "Text-Emph" ] = _myRGBs[ "Teal" ];
+	std::string coloredText = "Light Blue";
+	_myRGBs[ "Text" ] = _myRGBs[ "Near-White" ];
+	_myRGBs[ "Text-Emph" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Black" ];
-	_myRGBs[ "MainWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "ScriptWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "AndorWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "AuxWin-Text" ] = _myRGBs[ "Teal" ];
-	_myRGBs[ "BasWin-Text" ] = _myRGBs[ "Teal" ];
+	_myRGBs[ "MainWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "ScriptWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "AndorWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "AuxWin-Text" ] = _myRGBs[ coloredText ];
+	_myRGBs[ "BasWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Disabled-Bkgd" ] = _myRGBs[ "Dark Grey Red" ];
 	_myRGBs[ "Static-Bkgd" ] = _myRGBs[ "Dark Grey" ];
 	_myRGBs[ "Interactable-Bkgd" ] = _myRGBs[ "Medium Grey" ];

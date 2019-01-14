@@ -403,12 +403,10 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* 
 	// not all settings are changed here, and some are used to recalculate totals.
 	AndorRunSettings settings = andorObj->getAndorSettings( );
 	settings.picsPerRepetition = picsPerRepetitionUnofficial;
-	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-	if ( settings.totalVariations * settings.totalPicsInVariation > INT_MAX )
+	if ( settings.totalVariations * settings.totalPicsInVariation() > INT_MAX )
 	{
 		thrower ( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
 	}
-	settings.totalPicsInExperiment = int( settings.totalVariations * settings.totalPicsInVariation );
 	andorObj->setSettings( settings );
 	for ( UINT picInc = 0; picInc < 4; picInc++ )
 	{
@@ -549,12 +547,10 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 	picsPerRepetitionUnofficial = pics;
 	AndorRunSettings settings = andorObj->getAndorSettings();
 	settings.picsPerRepetition = picsPerRepetitionUnofficial;
-	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-	if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
+	if (settings.totalPicsInExperiment() > INT_MAX)
 	{
 		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	settings.totalPicsInExperiment = int(settings.totalVariations * settings.totalPicsInVariation);
 	for (UINT picInc = 0; picInc < 4; picInc++)
 	{
 		if (picInc == pics - 1)

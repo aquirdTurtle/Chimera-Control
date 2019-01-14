@@ -36,6 +36,7 @@ class ServoManager
 		void setControlDisplay ( UINT which, double value );
 		void handleListViewClick ( );
 		void deleteServo ( );
+		std::vector<servoInfo> getServoInfo ( );
 	private:
 		Control<CStatic> servosHeader;
 		Control<CleanButton> servoButton;
