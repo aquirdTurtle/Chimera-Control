@@ -3,22 +3,36 @@ def pgcAtomImage():
   % give the shutter some time to open.
   off: diagMotRf
   dac: diagMotPower 0
-  var imaging_detuning 0.5
-  dac: MotFreq imaging_detuning
-  dac: SideMotPower 0.3
-  dac: RepumpPower 0.3
-  t += 0.1
+  % var image_detuning -1.5
+  % var motPower 0.25
+  var image_detuning -0.6 %-1.5
+  var motPower 0.27 %0.2
+  dacLinSpace: MotFreq defaultMotFreq image_detuning 2 10
+  call zeroFields()
+  t += 2
   % turn the repump on a tiny bit early 
   % to pump to the F=2 manifold.
   on: RepumpRf
-  %t += 1
-  on: SideMotRf
+  t += 0.2
   on: andorTrig
+  t += 0.1
+  dac: SideMotPower motPower 
+  dac: RepumpPower imagingRepumpPower
+  off: tweezerflashrf
+  off: sidemotflash
+  on: SideMotRf
   t += andorImageTime
-  off: andorTrig
+  off: andorshutter
   off: SideMotRf
   off: repumpRf
-  dac: MotFreq defaultMotFreq
+  off: tweezerflashrf
+  off: sidemotflash
+  dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
+  t += 2
+  off: andorTrig
+  t += 0.2
   % note that the camera needs some time before it can take
-  % another image. Typically we need to wait like 5ms. 
+  % another image. Typically we need to wait like 5ms. The camera window
+  % will tell you the minimum kinetic cycle time, which depends on the
+  % exposure time and the image size, with some net overhead.
 	

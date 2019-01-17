@@ -267,8 +267,8 @@ double Expression::reduce( std::vector<std::string> terms )
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		throwNested ( "\"reduce\" failed convert its reduction to a double! Result of reduction was " + terms[0]
-				 + "\r\n" );
+		throwNested ( "The \"reduce\" function in the expression system failed to convert its reduction to a double! "
+					  "Result of reduction was " + terms[0] + "\r\n" );
 	}
 	return finalResult;
 }
