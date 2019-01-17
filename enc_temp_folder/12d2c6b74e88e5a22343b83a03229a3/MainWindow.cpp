@@ -576,7 +576,7 @@ BOOL MainWindow::OnInitDialog( )
 	auto t5 = std::chrono::duration_cast<std::chrono::milliseconds>(startupTimes[4] - startupTimes[3]).count();
 	timingMsg = "Constructor to init-instance: " + str(t1) + "\nInitInstance to OnInitDialog:" + str(t2) + "\nOnInitDialog To Creating Windows:"
 		+ str(t3) + "\nCreating Windows to showing windows:" + str(t4) + "\nShowing Windows to here:" + str(t5);
-	// errBox(timingMsg); // can be used to debug some of the startup times if these end up being long
+	errBox(timingMsg);
 	/// summarize system status.
 	try
 	{

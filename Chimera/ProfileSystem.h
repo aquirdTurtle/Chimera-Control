@@ -157,6 +157,6 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 	catch ( Error& e )
 	{
 		errBox ( "ERROR: End delimiter for the " + delim + " control was not found. This might indicate that the "
-				 "control did not initialize properly." );
+				 "control did not initialize properly.\n\n" + e.trace() );
 	}
 }

@@ -234,7 +234,7 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 		std::string ttlConfigStr;
 		for ( auto ttl : servo.ttlConfig )
 		{
-			ttlConfigStr += str(ttl.first) + str(ttl.second) + ", ";
+			ttlConfigStr += DioRows::toStr(ttl.first) + str(ttl.second) + ", ";
 		}
 		if ( ttlConfigStr.size ( ) > 2 )
 		{

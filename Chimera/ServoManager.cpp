@@ -19,15 +19,15 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	std::vector<LONG> positions = { 0, 110, 170, 270, 320, 370, 480 };
 	servoList.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
-	servoList.InsertColumn ( 0, "Name",100 );
+	servoList.InsertColumn ( 0, "Name", 50 );
 	servoList.InsertColumn ( 1, "Active?" );
 	servoList.InsertColumn ( 2, "Set" );
 	servoList.InsertColumn ( 3, "Ctrl" );
-	servoList.InsertColumn ( 4, "Ai", 50 );
+	servoList.InsertColumn ( 4, "Ai", 30 );
 	servoList.InsertColumn ( 5, "Ao" );
-	servoList.InsertColumn ( 6, "DO-Config", 100 );
-	servoList.InsertColumn ( 7, "Tol.", 75 );
-	servoList.InsertColumn ( 8, "Gain", 75 );
+	servoList.InsertColumn ( 6, "DO-Config", 70 );
+	servoList.InsertColumn ( 7, "Tol.", 40 );
+	servoList.InsertColumn ( 8, "Gain" );
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
@@ -387,7 +387,7 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " ";
 	for ( auto& ttl : servo.ttlConfig )
 	{
-		configStream << DioRows::toStr(ttl.first) << " " << ttl.second << " ";
+		configStream << DioRows::toStr(ttl.first) << " " << str(ttl.second) << " ";
 	}
 	configStream << servo.tolerance << " " << servo.gain << "\n";
 }
