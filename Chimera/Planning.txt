@@ -91,3 +91,11 @@ BUGS:
 - err boxes don't grab focus of entire program
 - "if no mot?" check is not positioned correctly
 - something in the thrower system is eating the last character of the error message.
+- should not be able to load agilent script if not in scripting mode.
+- recolor agilent script after changing to scripting mode.
+- servos failing quietly...
+- seems that some python dll is failing to load on the master computer
+- should be able to change basler image dimensions while running
+- basler fails silently sometimes if issues with binning or dims
+- constant beeping if no mot and continuous freezes things basler
+- niawg goes yellow before confirmation.
