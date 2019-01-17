@@ -201,7 +201,6 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 		H5::Group ttlsGroup( file.createGroup( "/TTLs" ) );
 		// initial settings
 		// list of commands
-		logMiscellaneousStart ( );
 	}
 	catch (H5::Exception err)
 	{
@@ -251,13 +250,22 @@ void DataLogger::logTektronicsSettings ( TektronicsAfgControl* tek )
 	auto info = tek->getTekSettings ( );
 	try
 	{
-		H5::Group tektronicsGroup ( file.createGroup ( "/Tektronics" ) );
+		H5::Group tektronicsGroup;
+		try
+		{
+			tektronicsGroup = H5::Group( file.createGroup ( "/Tektronics" ) );
+		}
+		catch ( H5::Exception err )
+		{
+			// probably has just already been created.
+			tektronicsGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
+		}
 		H5::Group thisTek ( tektronicsGroup.createGroup ( tek->configDelim ) );
 		writeDataSet ( info.machineAddress, "Machine-Address", thisTek );
 		UINT channelCount = 1;
 		for ( auto c : { info.channels.first, info.channels.second } )
 		{
-			H5::Group thisChannel ( thisTek.createGroup ( "/Channel_" + str ( channelCount++ ) ) );
+			H5::Group thisChannel ( thisTek.createGroup ( "Channel_" + str ( channelCount++ ) ) );
 			writeDataSet ( c.control, "Controlled_Option", thisChannel );
 			writeDataSet ( c.on, "Output_On", thisChannel ); 
 			writeDataSet ( c.power.expressionStr, "Power", thisChannel ); 
@@ -465,7 +473,7 @@ void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 	catch ( H5::Exception& err )
 	{
 		logError ( err );
-		throwNested ( "Failed to write data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
+		throwNested ( "Failed to write basler pic data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
 	}
 }
 
@@ -623,7 +631,7 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 	catch (H5::Exception& err)
 	{
 		logError ( err );
-		throwNested ("Failed to write data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
+		throwNested ("Failed to write andor pic data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
 	}
 }
 
@@ -665,21 +673,29 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 	catch ( H5::Exception& err )
 	{
 		logError ( err );
-		throwNested ( "Failed to write data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
+		throwNested ( "Failed to write Analog voltage data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
 	}
 }
  
 
 void DataLogger::logMiscellaneousStart()
 {
-	H5::Group miscellaneousGroup ( file.createGroup ( "/Miscellaneous" ) );
-	time_t t = time ( 0 );   // get time now
-	struct tm now;
-	localtime_s ( &now, &t );
-	writeDataSet ( str ( now.tm_year + 1900 ) + "-" + str ( now.tm_mon + 1 ) + "-" + str ( now.tm_mday ),
-				   "Start-Date", miscellaneousGroup );
-	writeDataSet ( str ( now.tm_hour ) + ":" + str ( now.tm_min ) + ":" + str ( now.tm_sec ) + ":",
-				   "Start-Time", miscellaneousGroup );
+	try
+	{
+		H5::Group miscellaneousGroup ( file.createGroup ( "/Miscellaneous" ) );
+		time_t t = time ( 0 );   // get time now
+		struct tm now;
+		localtime_s ( &now, &t );
+		writeDataSet ( str ( now.tm_year + 1900 ) + "-" + str ( now.tm_mon + 1 ) + "-" + str ( now.tm_mday ),
+					   "Start-Date", miscellaneousGroup );
+		writeDataSet ( str ( now.tm_hour ) + ":" + str ( now.tm_min ) + ":" + str ( now.tm_sec ) + ":",
+					   "Start-Time", miscellaneousGroup );
+	}
+	catch ( H5::Exception& err )
+	{
+		logError ( err );
+		throwNested ( "Failed to write miscellaneous start data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
+	}
 }
  
 

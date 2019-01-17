@@ -1304,48 +1304,38 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 {
 	std::ifstream f(configFileName);
 	Version ver;
-	ProfileSystem::getVersionFromFile( f, ver );
+	//ProfileSystem::getVersionFromFile( f, ver );
 	std::vector<parameterType> configVariables;
-	while ( f )
+	try
 	{
-		try
-		{
-			ProfileSystem::checkDelimiterLine( f, "VARIABLES" );
-		}
-		catch ( Error& )
-		{
-			continue;
-		}
+		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile ( f, ver );
-		configVariables = getVariablesFromFile( f, ver, rInfo.size() );
-
-		ProfileSystem::checkDelimiterLine( f, "END_VARIABLES" );
-		break;
+		configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
+		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to get configuration parameters from the configuration file!" );
 	}
 	return configVariables;
 }
 
 
-std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFreshFile ( std::string configFileName )
+std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
 	std::ifstream f ( configFileName );
 	Version ver;
-	ProfileSystem::getVersionFromFile ( f, ver );
 	std::vector<variationRangeInfo> rInfo;
-	while ( f )
+	try
 	{
-		try
-		{
-			ProfileSystem::checkDelimiterLine ( f, "VARIABLES" );
-		}
-		catch ( Error& )
-		{
-			continue;
-		}
+		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile ( f, ver );
 		auto configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
-		ProfileSystem::checkDelimiterLine ( f, "END_VARIABLES" );
-		break;
+		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to get configuration parameter range info from file!" );
 	}
 	return rInfo;
 }
@@ -1416,6 +1406,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					{
 						continue;
 					}
+					// can break here...?
 					variationNum = inputRangeInfo[ rangeInc ].variations;
 				}
 			}

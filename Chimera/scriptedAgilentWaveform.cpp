@@ -34,70 +34,77 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	}
 	// Grab the command type (e.g. ramp, const). Looks for newline by default.
 	script >> intensityCommand;
-	if (intensityCommand == "hold")
+	try
 	{
-		waveformSegments.resize( segNum + 1 );
-
-		workingInput.ramp.isRamp = false;
-		workingInput.pulse.isPulse = false;
-		workingInput.mod.modulationIsOn = false;
-
-		script >> workingInput.holdVal;
-		workingInput.holdVal.assertValid( variables, scope );
-	}
-	else if (intensityCommand == "ramp")
-	{
-		waveformSegments.resize( segNum + 1 );
-		// this segment type means ramping.
-		workingInput.ramp.isRamp = true;
-		workingInput.pulse.isPulse = false;
-		workingInput.mod.modulationIsOn = false;
-		script >> workingInput.ramp.type;
-		script >> workingInput.ramp.start;
-		workingInput.ramp.start.assertValid( variables, scope );
-		script >> workingInput.ramp.end;
-		workingInput.ramp.end.assertValid( variables, scope );
-	}
-	else if ( intensityCommand == "pulse" )
-	{
-		waveformSegments.resize( segNum + 1 );
-		workingInput.ramp.isRamp = false;
-		workingInput.pulse.isPulse = true;
-		workingInput.mod.modulationIsOn = false;
-		script >> workingInput.pulse.type;
-		script >> workingInput.pulse.offset;
-		workingInput.pulse.offset.assertValid( variables, scope );
-		script >> workingInput.pulse.amplitude;
-		workingInput.pulse.amplitude.assertValid( variables, scope );
-		script >> workingInput.pulse.width;
-		workingInput.pulse.width.assertValid( variables, scope );
-	}
-	else if ( intensityCommand == "modpulse" )
-	{
-		waveformSegments.resize( segNum + 1 );
-		workingInput.ramp.isRamp = false;
-		workingInput.pulse.isPulse = true;
-		workingInput.mod.modulationIsOn = true;
-		script >> workingInput.pulse.type;
-		script >> workingInput.pulse.offset;
-		workingInput.pulse.offset.assertValid( variables, scope );
-		script >> workingInput.pulse.amplitude;
-		workingInput.pulse.amplitude.assertValid( variables, scope );
-		script >> workingInput.pulse.width;
-		workingInput.pulse.width.assertValid( variables, scope );
-		// mod stuff
-		script >> workingInput.mod.frequency;
-		workingInput.mod.frequency.assertValid( variables, scope );
-		script >> workingInput.mod.phase;
-		workingInput.mod.phase.assertValid( variables, scope );
-	}
-	else
-	{
-		if (script.peek() == EOF)
+		if ( intensityCommand == "hold" )
 		{
-			return true;
+			waveformSegments.resize ( segNum + 1 );
+
+			workingInput.ramp.isRamp = false;
+			workingInput.pulse.isPulse = false;
+			workingInput.mod.modulationIsOn = false;
+
+			script >> workingInput.holdVal;
+			workingInput.holdVal.assertValid ( variables, scope );
 		}
-		thrower ( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
+		else if ( intensityCommand == "ramp" )
+		{
+			waveformSegments.resize ( segNum + 1 );
+			// this segment type means ramping.
+			workingInput.ramp.isRamp = true;
+			workingInput.pulse.isPulse = false;
+			workingInput.mod.modulationIsOn = false;
+			script >> workingInput.ramp.type;
+			script >> workingInput.ramp.start;
+			workingInput.ramp.start.assertValid ( variables, scope );
+			script >> workingInput.ramp.end;
+			workingInput.ramp.end.assertValid ( variables, scope );
+		}
+		else if ( intensityCommand == "pulse" )
+		{
+			waveformSegments.resize ( segNum + 1 );
+			workingInput.ramp.isRamp = false;
+			workingInput.pulse.isPulse = true;
+			workingInput.mod.modulationIsOn = false;
+			script >> workingInput.pulse.type;
+			script >> workingInput.pulse.offset;
+			workingInput.pulse.offset.assertValid ( variables, scope );
+			script >> workingInput.pulse.amplitude;
+			workingInput.pulse.amplitude.assertValid ( variables, scope );
+			script >> workingInput.pulse.width;
+			workingInput.pulse.width.assertValid ( variables, scope );
+		}
+		else if ( intensityCommand == "modpulse" )
+		{
+			waveformSegments.resize ( segNum + 1 );
+			workingInput.ramp.isRamp = false;
+			workingInput.pulse.isPulse = true;
+			workingInput.mod.modulationIsOn = true;
+			script >> workingInput.pulse.type;
+			script >> workingInput.pulse.offset;
+			workingInput.pulse.offset.assertValid ( variables, scope );
+			script >> workingInput.pulse.amplitude;
+			workingInput.pulse.amplitude.assertValid ( variables, scope );
+			script >> workingInput.pulse.width;
+			workingInput.pulse.width.assertValid ( variables, scope );
+			// mod stuff
+			script >> workingInput.mod.frequency;
+			workingInput.mod.frequency.assertValid ( variables, scope );
+			script >> workingInput.mod.phase;
+			workingInput.mod.phase.assertValid ( variables, scope );
+		}
+		else
+		{
+			if ( script.peek ( ) == EOF )
+			{
+				return true;
+			}
+			thrower ( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
+		}
+	}
+	catch ( Error& )
+	{
+		throwNested ("Error seen while analyzing scripted agilent waveform." );
 	}
 	script >> workingInput.time;
 	workingInput.time.assertValid( variables, scope );

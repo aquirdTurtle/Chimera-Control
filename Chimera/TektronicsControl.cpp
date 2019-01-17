@@ -188,6 +188,7 @@ tektronicsChannelOutputForm TektronicsChannelControl::getTekChannelSettings()
 void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
 {
 	currentInfo = info;
+	controlButton.SetCheck ( currentInfo.control );
 	onOffButton.SetCheck(currentInfo.on);
 	fskButton.SetCheck(currentInfo.fsk);
 	power.SetWindowTextA(cstr(currentInfo.power.expressionStr));

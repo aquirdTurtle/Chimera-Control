@@ -124,11 +124,11 @@ namespace commonFunctions
 						}
 						break;
 					}
-					input.masterInput->expType = ExperimentType::Normal;
 					camWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					camWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )
 					{
 						commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, true, true, input );
@@ -809,12 +809,19 @@ namespace commonFunctions
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
 				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
-				mainWin->fillMotTempProfile ( input.masterInput );
-				auxWin->loadTempSettings ( input.masterInput );
-				mainWin->fillTempInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::MotTemperature;
-				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-				logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", true );
+				try
+				{
+					mainWin->fillMotTempProfile ( input.masterInput );
+					auxWin->loadTempSettings ( input.masterInput );
+					mainWin->fillTempInput ( input.masterInput );
+					input.masterInput->expType = ExperimentType::MotTemperature;
+					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+					logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to load MOT temperature calibration experiment settings!\n\n"+err.trace() );
+				}
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -825,12 +832,20 @@ namespace commonFunctions
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
 				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
-				mainWin->fillRedPgcTempProfile ( input.masterInput );
-				auxWin->loadTempSettings ( input.masterInput );
-				mainWin->fillTempInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::PgcTemperature;
-				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-				logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", true );
+				try
+				{
+					mainWin->fillRedPgcTempProfile ( input.masterInput );
+					auxWin->loadTempSettings ( input.masterInput );
+					mainWin->fillTempInput ( input.masterInput );
+					input.masterInput->expType = ExperimentType::PgcTemperature;
+					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+					logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to load PGC temperature calibration experiment settings!\n\n" + err.trace ( ) );
+				}
+
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -841,12 +856,20 @@ namespace commonFunctions
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
 				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
-				mainWin->fillGreyPgcTempProfile ( input.masterInput );
-				auxWin->loadTempSettings ( input.masterInput );
-				mainWin->fillTempInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::GreyTemperature;
-				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-				logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", true );
+				try
+				{
+					mainWin->fillGreyPgcTempProfile ( input.masterInput );
+					auxWin->loadTempSettings ( input.masterInput );
+					mainWin->fillTempInput ( input.masterInput );
+					input.masterInput->expType = ExperimentType::GreyTemperature;
+					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+					logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to load grey molasses temperature calibration experiment settings!\n\n" + err.trace ( ) );
+				}
+
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
