@@ -966,11 +966,19 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 		std::vector<std::vector<parameterType>> experimentVars;
 		// load the variables. This little loop is for letting configuration variables overwrite the globals.
 		// the config variables are loaded directly from the file.
-		std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( input->seq.sequence[0].configFilePath ( ) );
+		std::vector<parameterType> configVars;
+		try
+		{
+			configVars = ParameterSystem::getConfigParamsFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
+		}
+		catch ( Error& err )
+		{
+			throwNested ( "Error seen while loading mot temperature settings" );
+		}
 		std::vector<parameterType> globals = globalVariables.getEverything ( );
 		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 		globalVariables.setUsages ( { globals } );
-		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFreshFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
+		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
 		input->variables = experimentVars;
 		///
 		// Only set it once, clearly.

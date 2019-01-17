@@ -41,7 +41,7 @@ class ParameterSystem
 		ParameterSystem ( std::string configurationFileDelimiter );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		UINT getTotalVariationNumber();
-		static std::vector<variationRangeInfo> getRangeInfoFromFreshFile ( std::string configFileName );
+		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::string configFileName );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver );
