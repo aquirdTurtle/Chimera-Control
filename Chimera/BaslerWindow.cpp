@@ -322,7 +322,8 @@ void BaslerWindow::startDefaultAcquisition ( )
 		input->frameRate = tempSettings.frameRate;
 		input->parent = this;
 		input->runningFlag = &triggerThreadFlag;
-		tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? tempSettings.repCount : SIZE_MAX;
+		tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? 
+								tempSettings.repCount : SIZE_MAX;
 		cameraController->armCamera ( input );
 		settingsCtrl.setStatus ( "Camera Status: Armed..." );
 		isRunning = true;

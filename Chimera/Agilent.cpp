@@ -244,7 +244,15 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 	// Procedurally read lines into segment informations.
 	while (!stream.eof())
 	{
-		int leaveTest = infoObj.wave.analyzeAgilentScriptCommand( currentSegmentNumber, stream, variables );
+		int leaveTest;
+		try
+		{
+			leaveTest = infoObj.wave.analyzeAgilentScriptCommand ( currentSegmentNumber, stream, variables );
+		}
+		catch ( Error& )
+		{
+			throwNested ( "Error seen while analyzing agilent script command for agilent " + this->configDelim );
+		}
 		if (leaveTest < 0)
 		{
 			thrower ( "IntensityWaveform.analyzeAgilentScriptCommand threw an error! Error occurred in segment #"
