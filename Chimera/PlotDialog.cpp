@@ -9,8 +9,8 @@ PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn,
 						std::string title ) :
 	plot( dataHolder, styleIn, inPens, font, plotBrushes, title ), timerLength( timerTime )
 {
-	backgroundBrush.CreateSolidBrush( RGB( 0, 30, 38 ) );
-	plotAreaBrush.CreateSolidBrush( RGB( 0, 0, 0 ) );
+	backgroundBrush.CreateSolidBrush ( _myRGBs[ "Main-Bkgd" ] );
+	plotAreaBrush.CreateSolidBrush( _myRGBs[ "Interactable-Bkgd" ] );
 }
 
 
