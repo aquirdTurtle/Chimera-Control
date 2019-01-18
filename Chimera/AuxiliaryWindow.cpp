@@ -1533,8 +1533,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], plotStyle::DacPlot, mainWin->getBrightPlotPens( ),
-												  mainWin->getPlotFont( ), mainWin->getBrightPlotBrushes( ), titleTxt );
+			aoPlots[ dacPltCount ] = new PlotCtrl ( dacData[ dacPltCount ], plotStyle::DacPlot, mainWin->getBrightPlotPens ( ),
+													mainWin->getPlotFont ( ), mainWin->getBrightPlotBrushes ( ), 
+													std::vector<int>(), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
@@ -1571,9 +1572,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWin->getBrightPlotPens( ),
-												  mainWin->getPlotFont( ), 
-												  mainWin->getBrightPlotBrushes( ),
-												  titleTxt );
+												  mainWin->getPlotFont( ), mainWin->getBrightPlotBrushes( ), 
+												  std::vector<int>(), titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
 		}

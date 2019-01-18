@@ -110,14 +110,14 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 	maxHeight = height;
 	if ( histOption )
 	{
-		vertGraph = new PlotCtrl ( vertData, plotStyle::VertHist, graphPens, font, graphBrushes, "", true );
+		vertGraph = new PlotCtrl ( vertData, plotStyle::VertHist, graphPens, font, graphBrushes, std::vector<int>(), "", true );
 		vertGraph->init ( { 300, 0 }, 65, 860, parent );
 		loc.x += 65;
 	}
 	setPictureArea ( loc, maxWidth, maxHeight );
 	if ( histOption )
 	{
-		horGraph = new PlotCtrl ( horData, plotStyle::HistPlot, graphPens, font, graphBrushes, "", true );
+		horGraph = new PlotCtrl ( horData, plotStyle::HistPlot, graphPens, font, graphBrushes, std::vector<int> ( ), "", true );
 		horGraph->init ( { 365, LONG(860) }, 1565 - 50, 65, parent );
 	}
 
