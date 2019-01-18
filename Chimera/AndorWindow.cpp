@@ -1234,7 +1234,7 @@ void AndorWindow::startPlotterThread( ExperimentInput& input )
 		}
 	}
 	UINT plottingThreadID;
-	if ((!gridHasBeenSet	&& input.plotterInput->analysisLocations.size() == 0) 
+	if ((!gridHasBeenSet && input.plotterInput->analysisLocations.size() == 0) 
 		 || input.plotterInput->plotInfo.size() == 0)
 	{
 		plotThreadActive = false;

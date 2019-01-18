@@ -14,7 +14,6 @@
 #include <deque>
 #include <map>
 
-
 struct realTimePlotterInput;
 struct cameraPositions;
 
@@ -22,6 +21,7 @@ struct cameraPositions;
 // variationData[datasetNumber][groupNumber][variationNumber];
 typedef std::vector<std::vector<std::vector<double>>> variationData;
 typedef std::vector<std::vector<double>> avgData;
+
 
 class DataAnalysisControl
 {

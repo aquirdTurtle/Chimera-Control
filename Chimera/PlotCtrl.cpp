@@ -178,6 +178,10 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
+	if ( style == plotStyle::VertHist || style==plotStyle::HistPlot )
+	{
+		miny = 0;
+	}
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
 	double plotHeightPixels = heightScale2 * (plotAreaDims.bottom - plotAreaDims.top);
 	double rangeX = maxx - minx;
@@ -195,8 +199,8 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	if ( style == plotStyle::HistPlot )
 	{
 		// resize things to take into acount the widths.
-		maxx += boxWidth;
-		minx -= boxWidth;
+		maxx -= boxWidth;
+		minx += boxWidth;
 		rangeX = maxx - minx;
 		boxWidthPixels = ceil(boxWidth * dataScaleX * 0.99);
 	}
@@ -312,6 +316,11 @@ void PlotCtrl::plotPoints( memDC* d )
 		 || style == plotStyle::DacPlot )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
+	}
+	if ( style == plotStyle::HistPlot )
+	{
+		minMaxRaw.first = 0;
+		minMaxScaled.first = 0;
 	}
 	drawGridAndAxes( d, xRaw, xScaled, minMaxRaw, minMaxScaled );
 	UINT penNum = 0;

@@ -686,7 +686,7 @@ void DataAnalysisControl::handlePlotHist( PlottingInfo plotInfo, vector<vector<l
 										  std::vector<std::shared_ptr<vector<dataPoint>>> dataArrays, UINT groupNum )
 {
 	/// options are fundamentally different for histograms.
-	// load pixel counts into data array pixelData
+	// load pixel counts
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) )
 	{
 		for ( auto groupI : range( groupNum ) )
@@ -706,6 +706,17 @@ void DataAnalysisControl::handlePlotHist( PlottingInfo plotInfo, vector<vector<l
 					{
 						int binNum = std::round( double( countData[groupI].end( )[-int(plotInfo.getPicNumber( )) 
 														 + int(picI)] ) / binWidth );
+						/*
+						if ( binNum >= histData[ dataSetI ][ groupI ].size ( ) )
+						{
+
+						}
+						else
+						{
+
+						}
+						*/
+
 						if ( histData[dataSetI][groupI].find( binNum ) == histData[dataSetI][groupI].end( ) )
 						{
 							// if bin doesn't exist
@@ -717,7 +728,31 @@ void DataAnalysisControl::handlePlotHist( PlottingInfo plotInfo, vector<vector<l
 						}
 					}
 				}
-			}			
+			}	
+			// find the range of bins
+			int min_bin = INT_MAX, max_bin = -INT_MAX;
+			for ( auto p : histData[ dataSetI ][ groupI ] )
+			{
+				if ( p.first < min_bin )
+				{
+					min_bin = p.first;
+				}
+				if ( p.first > max_bin )
+				{
+					max_bin = p.first;
+				}
+			}
+			/// check for empty data points and fill them with zeros.
+			for ( auto bin_i : range ( max_bin-min_bin ) )
+			{
+				auto binNum = bin_i + min_bin;
+				if ( histData[ dataSetI ][ groupI ].find ( binNum ) == histData[ dataSetI ][ groupI ].end ( ) )
+				{
+					// if bin doesn't exist
+					histData[ dataSetI ][ groupI ][ binNum ] = { binNum * binWidth, 0 };
+				}
+			}
+
 			// Will be function fo groupI and dataSetI; TBD			
 			UINT dataId = (dataSetI + 1) * groupI;
 			// calculate new data points
