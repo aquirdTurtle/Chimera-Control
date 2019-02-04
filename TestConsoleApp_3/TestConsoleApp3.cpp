@@ -115,11 +115,17 @@ int main ( )
 	std::random_device rd;
 	std::mt19937 e2 ( rd ( ) );
 	std::uniform_real_distribution<double> dist ( 0, 1 );
-	UINT statNum = 100;
+	UINT statNum = 50000;
 	UINT n = 10;
 	CodeTimer timer;
 	timer.tick ( "Begin" );
 	std::ofstream outFile ( "Fast_Lazy_Rerng_Sim.csv" );
+	if ( !outFile.is_open ( ) )
+	{
+		std::cout << "Failed to open file!";
+		std::cin.get ( );
+		return -1;
+	}
 	std::vector<UINT> sizes = { 3,4,5,6,7 };
 	for ( auto n : sizes )
 	{
