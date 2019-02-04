@@ -13,7 +13,7 @@ class PlotDialog : public CDialog
 	public:
 		DECLARE_DYNAMIC( PlotDialog );
 		PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime, std::vector<int> thresholds,
 					std::string title="Plot Dialog Plot" );
 		static bool removeQuery( PlotDialog* plt );
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );

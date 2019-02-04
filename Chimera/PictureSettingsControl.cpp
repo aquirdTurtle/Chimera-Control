@@ -602,7 +602,9 @@ void PictureSettingsControl::updateSettings( )
 			picThresholds.clear ( );
 			// assume it's a file location.
 			std::ifstream thresholdFile;
-			thresholdFile.open ( str("J:\\Code-Files\\") + str(textEdit) );
+			//std::string fileAddr = str ( "J:\\\\" ) + str ( textEdit );
+			//thresholdFile.open ( fileAddr.c_str() );
+			thresholdFile.open ( "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\TFile.txt" );
 			if ( !thresholdFile.is_open ( ) )
 			{
 				thrower  ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "

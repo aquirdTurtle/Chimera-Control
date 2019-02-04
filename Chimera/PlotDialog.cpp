@@ -5,12 +5,12 @@
 #include "memdc.h"
 
 PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
-						std::string title ) :
-	plot( dataHolder, styleIn, inPens, font, plotBrushes, title ), timerLength( timerTime )
+						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime, 
+						std::vector<int> thresholds, std::string title ) :
+	plot( dataHolder, styleIn, inPens, font, plotBrushes, thresholds, title ), timerLength( timerTime )
 {
-	backgroundBrush.CreateSolidBrush( RGB( 0, 30, 38 ) );
-	plotAreaBrush.CreateSolidBrush( RGB( 0, 0, 0 ) );
+	backgroundBrush.CreateSolidBrush ( _myRGBs[ "Main-Bkgd" ] );
+	plotAreaBrush.CreateSolidBrush( _myRGBs[ "Interactable-Bkgd" ] );
 }
 
 
