@@ -311,7 +311,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 		// Convert script string to ViConstString. +1 for a null character on the end.
 		defaultScript = std::vector<ViChar>( output.niawgLanguageScript.begin( ), output.niawgLanguageScript.end( ) );
 	}
-	catch (Error& except)
+	catch (Error&)
 	{
 		throwNested( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed.");
 	}

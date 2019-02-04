@@ -25,10 +25,8 @@ class EmbeddedPythonHandler
 		void sendText( personInfo person, std::string msg, std::string subject, std::string baseEmail,
 					   std::string password );
 		// for a single python command.
-		std::string run(std::string cmd, bool flush = true);
+		void run(std::string cmd, bool quiet = false, bool flush = true);
 		void flush();
-		void runPlotDacs( );
-		void runPlotTtls( );
 	private:
 		PyObject* autoAnalysisModule;
 		PyObject* atomAnalysisFunction;
