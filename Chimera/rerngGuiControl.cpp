@@ -197,13 +197,9 @@ void rerngGuiControl::updateActive ( )
 	}
 }
 
+
 void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 {
-	if (ver < Version("2.1" ) )
-	{
-		return;
-	}
-	ProfileSystem::checkDelimiterLine( openFile, "REARRANGEMENT_INFORMATION" );
 	rerngGuiOptionsForm info;
 	std::string tmpStr;
 	openFile >> info.active;
@@ -213,13 +209,13 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	info.moveBias = tmpStr;
 	openFile >> tmpStr;
 	info.moveSpeed = tmpStr;
-	if (ver < Version("2.3"))
+	if ( ver < Version ( "2.3" ) )
 	{
 		std::string garbage;
- 		openFile >> garbage;
+		openFile >> garbage;
 		openFile >> garbage;
 	}
-	if (ver > Version("2.2"))
+	if ( ver > Version ( "2.2" ) )
 	{
 		openFile >> tmpStr;
 		info.deadTime = tmpStr;
@@ -228,10 +224,10 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	}
 	else
 	{
-		info.deadTime = str("0");
-		info.staticMovingRatio = str("1");
+		info.deadTime = str ( "0" );
+		info.staticMovingRatio = str ( "1" );
 	}
-	if (ver > Version("2.5") )
+	if ( ver > Version ( "2.5" ) )
 	{
 		openFile >> info.outputInfo;
 	}
@@ -239,7 +235,7 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		info.outputInfo = false;
 	}
-	if (ver > Version("2.10" ) )
+	if ( ver > Version ( "2.10" ) )
 	{
 		openFile >> info.outputIndv;
 	}
@@ -247,7 +243,7 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 	{
 		info.outputIndv = false;
 	}
-	if (ver > Version("2.11" ) )
+	if ( ver > Version ( "2.11" ) )
 	{
 		openFile >> info.preprogram;
 		openFile >> info.useCalibration;
@@ -257,16 +253,16 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 		info.preprogram = false;
 		info.useCalibration = false;
 	}
-	if (ver > Version("2.12") )
+	if ( ver > Version ( "2.12" ) )
 	{
 		openFile >> tmpStr;
 		info.finalMoveTime = tmpStr;
 	}
 	else
 	{
-		info.finalMoveTime = str(1e-3);
+		info.finalMoveTime = str ( 1e-3 );
 	}
-	if (ver > Version("3.1") && ver < Version("3.6"))
+	if ( ver > Version ( "3.1" ) && ver < Version ( "3.6" ) )
 	{
 		openFile >> tmpStr;
 	}
@@ -276,22 +272,20 @@ void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 		info.rMode = rerngMode::fromStr ( tmpStr );
 	}
 
-	if (ver > Version("3.1" ) )
+	if ( ver > Version ( "3.1" ) )
 	{
 		openFile >> tmpStr;
 		info.fastMoveTime = tmpStr;
 	}
 	else
 	{
-		info.fastMoveTime = str(1e-6);
+		info.fastMoveTime = str ( 1e-6 );
 	}
-	if ( ver < Version ( "3.6" ) && ver >= Version("3.4"))
+	if ( ver < Version ( "3.6" ) && ver >= Version ( "3.4" ) )
 	{
 		openFile >> tmpStr;
 	}
-
-	setParams( info );
-	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
+	setParams ( info );
 }
 
 

@@ -7,7 +7,8 @@
 class PictureManager
 {
 	public:
-		PictureManager ( bool histOption );
+		PictureManager ( bool histOption, std::string configurationFileDelim );
+		RECT getPicArea ( );
 		void updatePlotData ( );
 		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );
@@ -47,10 +48,10 @@ class PictureManager
 						  bool specialGreater, bool specialLess, bool showGrid );
 		void resetPictureStorage();
 		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
+		const std::string configDelim;
 	private:
 		std::array<PictureControl, 4> pictures;
 		std::array<HPALETTE, 4> palettes;
-
 		CBrush* gridBrush;
 		POINT picturesLocation;
 		int picturesWidth;

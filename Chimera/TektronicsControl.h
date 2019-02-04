@@ -44,12 +44,13 @@ struct tektronicsNums
 class TektronicsChannelControl
 {
 	public:
-		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, std::array<UINT, 2> ids );
+		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, UINT control_id );
 		tektronicsChannelOutputForm getTekChannelSettings();
 		void setSettings(tektronicsChannelOutputForm info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleOnPress();
 		void handleFskPress();
+		void handleButton ( UINT indicator );
 	private:
 		Control<CStatic> channelLabel;
 		Control<CleanCheck> controlButton;
@@ -62,24 +63,25 @@ class TektronicsChannelControl
 };
 
 
-class TektronicsControl
+class TektronicsAfgControl
 {
 	public:
-		TektronicsControl(bool safemode, std::string address);
+		TektronicsAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpeningConfig(std::ifstream& configFile, Version ver );
+		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-						 std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs );
+						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();
 		tektronicsInfo getTekSettings();
 		void setSettings(tektronicsInfo info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
-		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void interpretKey(std::vector<std::vector<parameterType>>& variables);
 		void programMachine(UINT variation );
 		void handleProgram();
+		const std::string configDelim;
 	private:
 		Control<CStatic> header;
 		Control<CleanButton> programNow;

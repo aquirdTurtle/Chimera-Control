@@ -4,39 +4,30 @@
 #include "boost/lexical_cast.hpp"
 
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
-							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in,
-							   rgbMap rgbs )
+							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in )
 {
 	servosHeader.sPos = {pos.x, pos.y, pos.x + 480, pos.y += 20};
 	servosHeader.Create( "SERVOS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
  	servoButton.sPos = { pos.x, pos.y, pos.x + 300, pos.y + 20 };
 	servoButton.Create( "Servo-Once", NORM_PUSH_OPTIONS, servoButton.sPos, parent, IDC_SERVO_CAL );
-	servoButton.setToolTip ( "For the servo to calibrate.", toolTips, parent );
+	servoButton.setToolTip ( "Force the servo to calibrate.", toolTips, parent );
 
 	autoServoButton.sPos = { pos.x + 300, pos.y, pos.x + 480, pos.y += 20 };
 	autoServoButton.Create( "Auto-Servo", NORM_CHECK_OPTIONS, autoServoButton.sPos, parent, id++ );
 	autoServoButton.setToolTip ( "Automatically calibrate all servos after F1.", toolTips, parent );
 
-	toleranceLabel.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 20 };
-	toleranceLabel.Create("Tolerance (V):", NORM_STATIC_OPTIONS, toleranceLabel.sPos, parent, id++ );
-	toleranceLabel.setToolTip ( "The servo will judge that it's finished when it's within the tolerance of the set "
-								"point.", toolTips, parent );
-	toleranceEdit.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 20 };
-	toleranceEdit.Create( NORM_EDIT_OPTIONS, toleranceEdit.sPos, parent, id++ );
-	toleranceEdit.SetWindowTextA( "0.05" );
-	toleranceEdit.setToolTip ( "The servo will judge that it's finished when it's within the tolerance of the set "
-							   "point.", toolTips, parent );
-
 	std::vector<LONG> positions = { 0, 110, 170, 270, 320, 370, 480 };
 	servoList.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
-	servoList.InsertColumn ( 0, "Name",100 );
+	servoList.InsertColumn ( 0, "Name", 50 );
 	servoList.InsertColumn ( 1, "Active?" );
 	servoList.InsertColumn ( 2, "Set" );
 	servoList.InsertColumn ( 3, "Ctrl" );
-	servoList.InsertColumn ( 4, "Ai", 50 );
+	servoList.InsertColumn ( 4, "Ai", 30 );
 	servoList.InsertColumn ( 5, "Ao" );
-	servoList.InsertColumn ( 6, "DO-Config", 100 );
+	servoList.InsertColumn ( 6, "DO-Config", 70 );
+	servoList.InsertColumn ( 7, "Tol.", 40 );
+	servoList.InsertColumn ( 8, "Gain" );
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
@@ -47,9 +38,9 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 						   "DO-Config: The digital output configuration the sevo will set before servoing. If a ttl is "
 						   "not listed here, it will be zero\'d.\n", toolTips, parent );
 	servoList.fontType = fontTypes::SmallFont;
-	servoList.SetTextBkColor ( RGB ( 15, 15, 15 ) );
-	servoList.SetTextColor ( RGB ( 150, 150, 150 ) );
-	servoList.SetBkColor ( rgbs[ "Solarized Base02" ] );
+	servoList.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
+	servoList.SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
+	servoList.SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
 
 	ai = ai_in;
 	ao = ao_in;
@@ -58,9 +49,15 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 }
 
 
+std::vector<servoInfo> ServoManager::getServoInfo ( )
+{
+	return servos;
+}
+
+
 void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 {
-	configStream << toleranceEdit.getWindowTextAsDouble ( ) << " " << autoServoButton.GetCheck ( ) << "\n" << servos.size ( );
+	configStream << autoServoButton.GetCheck ( ) << "\n" << servos.size ( );
 	for ( auto& servo : servos )
 	{
 		handleSaveMasterConfigIndvServo ( configStream, servo );
@@ -74,9 +71,11 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 		// this was before the servo manager.
 		return;
 	}
-	double tolerance;
-	configStream >> tolerance;
-	toleranceEdit.SetWindowTextA( cstr( tolerance ) );
+	if ( version < Version ( "2.5" ) )
+	{
+		double tolerance;
+		configStream >> tolerance;
+	}
 	bool autoServo;
 	configStream >> autoServo;
 	autoServoButton.SetCheck( autoServo );
@@ -265,7 +264,7 @@ void ServoManager::handleListViewClick ( )
 					tmpStream >> ttl.second;
 					servo.ttlConfig.push_back ( ttl );
 				}
-				catch ( Error& err )
+				catch ( Error& )
 				{
 					throwNested ( "Error In trying to set the servo ttl config!" );
 				}
@@ -278,6 +277,41 @@ void ServoManager::handleListViewClick ( )
 			servoList.SetItem ( diostring, itemIndicator, subitem );
 			break;
  		}
+		case 7:
+		{
+			// tolerance
+			std::string tolTxt;
+			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo." );
+			dialog.DoModal ( );
+			try
+			{
+				servo.tolerance = boost::lexical_cast<double>( tolTxt );
+			}
+			catch ( boost::bad_lexical_cast& )
+			{
+				throwNested ( "Failed to convert text to a double!" );
+			}
+			servoList.SetItem ( str ( servo.tolerance ), itemIndicator, subitem );
+			break;
+		}
+		case 8:
+		{
+			// gain 
+			std::string gainTxt;
+			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo." );
+			dialog.DoModal ( );
+			try
+			{
+				servo.gain = boost::lexical_cast<double>( gainTxt );
+			}
+			catch ( boost::bad_lexical_cast& )
+			{
+				throwNested ( "Failed to convert text to a double!" );
+			}
+			servoList.SetItem ( str ( servo.gain ), itemIndicator, subitem );
+			break;
+		}
+		
  	}
  	refreshAllServos ( );
 }
@@ -307,6 +341,10 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 			configStream >> rowStr >> ttl.second;
 			ttl.first = DioRows::fromStr ( rowStr );
 		}
+	}
+	if ( version > Version ( "2.4" ) )
+	{
+		configStream >> tmpInfo.tolerance >> tmpInfo.gain;
 	}
 	return tmpInfo;
 }
@@ -338,6 +376,8 @@ void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
 		digitalOutConfigString += DioRows::toStr( val.first ) + " " + str ( val.second ) + " ";
 	}
 	servoList.SetItem ( str ( digitalOutConfigString ), which, 6 );
+	servoList.SetItem ( str ( s.tolerance ), which, 7 );
+	servoList.SetItem ( str ( s.gain ), which, 8 );
 }
 
 
@@ -347,9 +387,9 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " ";
 	for ( auto& ttl : servo.ttlConfig )
 	{
-		configStream << DioRows::toStr(ttl.first) << " " << ttl.second << " ";
+		configStream << DioRows::toStr(ttl.first) << " " << str(ttl.second) << " ";
 	}
-	configStream << "\n";
+	configStream << servo.tolerance << " " << servo.gain << "\n";
 }
 
 
@@ -358,10 +398,6 @@ void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 	servosHeader.rearrange( width, height, fonts );
 	servoButton.rearrange( width, height, fonts );
 	autoServoButton.rearrange( width, height, fonts );
-	toleranceLabel.rearrange( width, height, fonts );
-	toleranceEdit.rearrange( width, height, fonts );
-	attemptLimitLabel.rearrange( width, height, fonts );
-	attemptLimitEdit.rearrange( width, height, fonts );
 	servoList.rearrange ( width, height, fonts );
 }
 
@@ -375,12 +411,14 @@ bool ServoManager::autoServo( )
 void ServoManager::runAll( )
 {
 	UINT count = 0;
+	// made this asynchronous to facilitate updating gui while 
 	for ( auto& servo : servos )
 	{
-		calibrate ( servo, count++ );
+		ServoManager::calibrate ( servo, count++ );
 	}
+	ttls->zeroBoard ( );
 }
- 
+
 
 void ServoManager::calibrate( servoInfo& s, UINT which )
 {
@@ -388,10 +426,8 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	{
 		return;
 	}
-	double tolerance = toleranceEdit.getWindowTextAsDouble();
 	double sp = s.setPoint;
 	// helps auto calibrate the servo for lower servo powers
-	double gain = 0.1 * sp;
 	ttls->zeroBoard ( );
 	for ( auto ttl : s.ttlConfig )
 	{
@@ -405,7 +441,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	{
 		double avgVal = ai->getSingleChannelValue(aiNum, 10);
 		double percentDif = (sp - avgVal) / sp;
-		if ( fabs(percentDif)  < tolerance )
+		if ( fabs(percentDif)  < s.tolerance )
 		{
 			// found a good value.
 			break;
@@ -413,11 +449,12 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		else
 		{
 			// modify dac value.
-			double currVal = ao->getDacValue( aoNum );
-			double diff = gain * percentDif > 0.05 ? 0.05 : gain * percentDif;
+			s.controlValue = ao->getDacValue( aoNum );
+			double diff = s.gain * percentDif > 0.05 ? 0.05 : s.gain * percentDif;
+			s.controlValue += diff;
 			try
 			{
-				ao->setSingleDac( aoNum, currVal + diff, ttls );
+				ao->setSingleDac( aoNum, s.controlValue, ttls );
 			}
 			catch ( Error& )
 			{
@@ -425,11 +462,11 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 				auto r = ao->getDacRange ( aoNum );
 				try
 				{
-					if ( currVal + diff < r.first )
+					if ( s.controlValue < r.first )
 					{
 						ao->setSingleDac ( aoNum, r.first, ttls );
 					}
-					else if ( currVal + diff > r.second )
+					else if ( s.controlValue > r.second )
 					{
 						ao->setSingleDac ( aoNum, r.second, ttls );
 					}
@@ -442,7 +479,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 				}
 			}
 			// there's a break built in here in order to let the laser settle.
-			Sleep( 100 );
+			Sleep( 20 );
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 		}
 	}
@@ -463,6 +500,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 void ServoManager::setControlDisplay (UINT which, double value )
 {
 	servoList.SetItem ( str ( value ), which, 3 );
+	servoList.RedrawWindow ( );
 }
 
 

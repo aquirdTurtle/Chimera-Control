@@ -20,6 +20,6 @@ class MasterConfiguration
 		void load(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin);
 	private:
 		const std::string configurationFileAddress;
-		const Version version = Version("2.4");
+		const Version version = Version("2.5");
 };
 

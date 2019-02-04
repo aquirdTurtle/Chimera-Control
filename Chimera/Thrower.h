@@ -42,8 +42,8 @@ class Error : public std::runtime_error
 	{
 		std::string msg = "ERROR: " + std::string ( e.what ( ) );
 		std::regex r ( "\n" );
-		msg = std::regex_replace ( msg, r, "\n" + std::string ( level, ' ' ) );
-		std::string stackMsg = std::string ( level, ' ' ) + msg + "\n";
+		msg = std::regex_replace ( msg, r, "\n" + std::string ( 2*level, ' ' ) );
+		std::string stackMsg = std::string ( 2*level, ' ' ) + msg + "\n";
 		try
 		{
 			std::rethrow_if_nested ( e );

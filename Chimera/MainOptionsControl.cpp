@@ -5,7 +5,7 @@
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
-void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs )
+void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create( "MAIN OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
@@ -64,7 +64,6 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 
 void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
- 	ProfileSystem::checkDelimiterLine(openFile, "MAIN_OPTIONS");
 	if (ver < Version("2.1") )
 	{
 		// rearrange option used to be stored here.
@@ -95,7 +94,6 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 	{
 		currentOptions.atomThresholdForSkip = UINT_MAX;
 	}
- 	ProfileSystem::checkDelimiterLine(openFile, "END_MAIN_OPTIONS");
 }
 
 

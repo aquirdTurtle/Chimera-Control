@@ -1,0 +1,246 @@
+Version 2.5
+diagmotrf
+0
+repumprf
+0
+botramanrf
+0
+sigmarepumprf
+0
+sigmaoprf
+0
+sidemotrf
+0
+tweezerrf
+0
+repumpflash
+0
+eoramanrf
+0
+a9
+0
+topramanrf
+0
+axialramanrf
+0
+a12
+0
+radialgaussianpulsetrig
+0
+oscilloscopetrig
+0
+a15
+0
+scouttrig
+0
+repumpshutter
+0
+motshutter
+0
+lsshutter
+0
+b4
+0
+probeflashing
+0
+tweezerintensitytrig
+0
+b7
+0
+b8
+0
+ropshutter
+0
+shutter795
+0
+b11
+0
+b12
+0
+b13
+0
+niawgtrig
+0
+afgsweeptrig
+0
+eoswitch
+0
+eoswitch2
+0
+andortrig
+0
+rstrig
+0
+ramanshutter
+0
+tweezerflashrf
+0
+lsrf
+0
+sidemotflash
+0
+c8
+0
+depumpingrf
+0
+rf795
+0
+oscilloscopetrig
+0
+probeshutter
+0
+sidemotshutter
+0
+c14
+0
+acetrig
+0
+diagmotshutter
+0
+d1
+0
+andorshutter
+0
+axialmicropulsetrig
+0
+topfsktrig
+0
+botfsktrig
+0
+axialfsktrig
+0
+d7
+0
+d8
+0
+d9
+0
+acetrig
+0
+auxtweezerrf
+0
+proberf
+0
+d13
+0
+dacboardtrig
+0
+d15
+0
+rightcoilcurrent
+-10 - 10
+0
+_
+leftcoilcurrent
+-10 - 10
+0
+_
+frontcoilcurrent
+-10 - 10
+0
+_
+backcoilcurrent
+-10 - 10
+0
+_
+bottomcoilcurrent
+-10 - 10
+0
+_
+topcoilcurrent
+-10 - 10
+0
+_
+motgradientcurrent
+-10 - 10
+0
+_
+probefreq
+-10 - 10
+0
+_
+depumppower
+0 - 0.3
+0
+_
+diagmotpower
+0 - 0.4
+0
+_
+depumpfreq
+-10 - 10
+0
+_
+repumppower
+0 - 0.3
+0
+_
+sigmaopfreq
+-10 - 10
+0
+_
+sigmaoppower
+-10 - 10
+0
+_
+sigmarepumpfreq
+-5 - 1.7
+0
+_
+sigmarepumppower
+0 - 0.38
+0
+_
+auxtweezerpower
+0 - 0.23
+0
+sdfsdf
+freq795
+-10 - 10
+0
+_
+power795
+0 - 0.3
+0
+_
+probepower
+-0.1 - 0.9
+0
+_
+motfreq
+-10 - 1
+0
+_
+repumpfreq
+-3.5 - 3.5
+0
+_
+sidemotpower
+-0.1 - 0.44
+0
+_
+piezomirror
+-10 - 10
+0
+_
+14
+loadmottime 150
+andorimagetime 20
+imagingpower 0.3
+fieldtheta 1.5708
+fieldphi 1.5708
+imagingrepumppower 0.2
+pushouttime 10
+intrappgccoolingtime 10
+field 3
+defaultmotfreq -0.1
+sidemot__servo_value 0.145652
+diagmot__servo_value 0.345677
+default795freq 0
+d1__servo_value 0.3
+1
+3Sidemot 6 22 1 0.87 1 A 5 0.02 0.02
+DiagMot 5 9 0 0.8 1 A 0 0.02 0.02
+D1 6 18 0 1 1 C 10 0.02 0.02
+100 412 1 100 412 1
+0 0

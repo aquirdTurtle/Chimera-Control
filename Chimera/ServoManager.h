@@ -25,7 +25,7 @@ class ServoManager
 {
 	public:
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
-						 DioSystem* ttls_in, ParameterSystem* globals_in, rgbMap rgbs );
+						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll( );
 		void calibrate( servoInfo& s, UINT which );
@@ -36,15 +36,11 @@ class ServoManager
 		void setControlDisplay ( UINT which, double value );
 		void handleListViewClick ( );
 		void deleteServo ( );
+		std::vector<servoInfo> getServoInfo ( );
 	private:
 		Control<CStatic> servosHeader;
 		Control<CleanButton> servoButton;
 		Control<CleanCheck> autoServoButton;
-
-		Control<CStatic> toleranceLabel;
-		Control<DoubleEdit> toleranceEdit;
-		Control<CStatic> attemptLimitLabel;
-		Control<DoubleEdit> attemptLimitEdit;
 
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
 		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );

@@ -59,9 +59,9 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 	getValuesButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
 	getValuesButton.Create( "Get Values", NORM_PUSH_OPTIONS, getValuesButton.sPos, parent, ID_GET_ANALOG_IN_VALUES );
 	continuousQueryCheck.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
-	continuousQueryCheck.Create( "Query Continuously", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
+	continuousQueryCheck.Create( "Query Cont.", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
 	queryBetweenVariations.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 25 };
-	queryBetweenVariations.Create( "Query Between Variations?", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
+	queryBetweenVariations.Create( "Query Btwn Vars?", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
 								   parent, id++ );
 	loc.x -= 480;
 	// there's a single label first, hence the +1.

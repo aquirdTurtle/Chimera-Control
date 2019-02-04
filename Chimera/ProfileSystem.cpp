@@ -7,7 +7,7 @@
 #include "NiawgController.h"
 #include "Andor.h"
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "ScriptingWindow.h"
 #include "MainWindow.h"
 #include "openWithExplorer.h"
@@ -130,6 +130,8 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 
 void ProfileSystem::getVersionFromFile( std::ifstream& f, Version& ver )
 {
+	f.clear ( );
+	f.seekg ( 0, std::ios::beg );
 	std::string versionStr;
 	// Version is saved in format "Version: x.x"
 	// eat the "version" word"
@@ -185,6 +187,46 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	configFile.close( );
 	updateConfigurationSavedStatus ( true );
 	reloadSequence( NULL_SEQUENCE );
+}
+
+
+void ProfileSystem::initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, Version minVer )
+{
+	openFile.clear ( );
+	openFile.seekg ( 0, std::ios::beg );
+	ProfileSystem::getVersionFromFile ( openFile, ver );
+	if ( ver < minVer )
+	{
+		thrower ( "Configuration version (" + ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
+	}
+	try
+	{
+		ProfileSystem::jumpToDelimiter ( openFile, delimiter );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to initialize at a delimiter!" );
+	}
+}
+
+
+void ProfileSystem::jumpToDelimiter ( std::ifstream& openFile, std::string delimiter )
+{
+	while ( !openFile.eof() )
+	{
+		try
+		{
+			checkDelimiterLine ( openFile, delimiter );
+			// if reaches this point it was successful. The file should now be pointing to just beyond the delimiter.
+			return;
+		}
+		catch ( Error& )
+		{
+			// didn't find delimiter, try next input.
+		}
+	}
+	// reached end of file.
+	thrower ( "Failed to jump to a delimiter! Delimiter was: " + delimiter + "." );
 }
 
 

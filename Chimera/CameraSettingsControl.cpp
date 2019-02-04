@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CameraSettingsControl.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "miscCommonFunctions.h"
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>
@@ -17,8 +17,8 @@ AndorCameraSettingsControl::AndorCameraSettingsControl(AndorCamera* friendInitia
 	andorSettings.kineticCycleTime = 0.1f;
 	andorSettings.repetitionsPerVariation = 10;
 	andorSettings.totalVariations = 3;
-	andorSettings.totalPicsInExperiment = 30;
-	andorSettings.totalPicsInVariation = 10;
+	//andorSettings.totalPicsInExperiment = 30;
+	//andorSettings.totalPicsInVariation = 10;
 	// the read mode never gets changed currently. we always want images.
 	andorSettings.readMode = 4;
 	andorSettings.acquisitionMode = AndorRunModes::Kinetic;
@@ -113,22 +113,22 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	accumulationNumberEdit.SetWindowTextA( "1" );
 
 	// minimum kinetic cycle time (determined by camera)
-	minKineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, false, true );
+	minKineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, true, true );
 	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, 
 									 minKineticCycleTimeLabel.seriesPos, parent, id++ );
 	
-	minKineticCycleTimeLabel.setPositions ( pos, 240, 0, 240, 25, true, false, false, true );
+	minKineticCycleTimeDisp.setPositions ( pos, 240, 0, 240, 25, true, false, true, true );
 	minKineticCycleTimeDisp.Create( NORM_STATIC_OPTIONS, minKineticCycleTimeDisp.seriesPos, parent, id++ );
 	minKineticCycleTimeDisp.SetWindowTextA( "" );
 
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
-	kineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, false, true );
+	kineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, true, true );
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
 	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.seriesPos, parent, id++ );
 
 	// Kinetic Cycle Time Edit
-	kineticCycleTimeEdit.setPositions ( pos, 240, 0, 240, 25, true, false, false, true );
+	kineticCycleTimeEdit.setPositions ( pos, 240, 0, 240, 25, true, false, true, true );
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create( NORM_EDIT_OPTIONS, kineticCycleTimeEdit.seriesPos, parent, id++ );
 	kineticCycleTimeEdit.SetWindowTextA( "0.1" );
@@ -172,7 +172,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	cameraModeCombo.SelectString ( 0, AndorRunModeText ( inputSettings.acquisitionMode ).c_str() );// cstr ( inputSettings.cameraMode ));
 	if ( inputSettings.acquisitionMode == AndorRunModes::Video )
 	{
-		inputSettings.totalPicsInVariation = INT_MAX;
+		inputSettings.repetitionsPerVariation = INT_MAX;
 	}
 	else if ( inputSettings.acquisitionMode == AndorRunModes::Kinetic )
 	{
@@ -180,7 +180,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	}
 	else if ( inputSettings.acquisitionMode == AndorRunModes::Accumulate )
 	{
-		inputSettings.totalPicsInVariation = INT_MAX;
+		inputSettings.repetitionsPerVariation = INT_MAX;
 	}
 	else
 	{
@@ -279,7 +279,7 @@ void AndorCameraSettingsControl::updateSettings()
 	settings.andor.accumulationTime = getAccumulationCycleTime( );
 	settings.andor.accumulationNumber = getAccumulationNumber( );
 
-	setEmGain( );
+	//setEmGain( );
 	updateCameraMode( );
 	updateTriggerMode( );
 }
@@ -308,8 +308,6 @@ AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( )
 	calSettings.andor.repetitionsPerVariation = 100;
 	calSettings.andor.showPicsInRealTime = false;
 	calSettings.andor.temperatureSetting = -60;
-	calSettings.andor.totalPicsInExperiment = 100;
-	calSettings.andor.totalPicsInVariation = 100;
 	calSettings.andor.totalVariations = 1;
 	calSettings.andor.triggerMode = AndorTriggerMode::External;
 	return calSettings;
@@ -438,11 +436,10 @@ void AndorCameraSettingsControl::setVariationNumber(UINT varNumber)
 {
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.totalVariations = varNumber;
-	if ( andorSettings.totalVariations * andorSettings.totalPicsInVariation > INT_MAX)
+	if ( andorSettings.totalPicsInExperiment() > INT_MAX)
 	{
 		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	andorSettings.totalPicsInExperiment = int( andorSettings.totalVariations * andorSettings.totalPicsInVariation);
 }
 
 
@@ -450,12 +447,10 @@ void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 {
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.repetitionsPerVariation = repsPerVar;
-	andorSettings.totalPicsInVariation = andorSettings.repetitionsPerVariation * andorSettings.picsPerRepetition;
-	if ( andorSettings.totalVariations * andorSettings.totalPicsInVariation > INT_MAX)
+	if ( andorSettings.totalPicsInExperiment() > INT_MAX)
 	{
 		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	andorSettings.totalPicsInExperiment = int( andorSettings.totalVariations * andorSettings.totalPicsInVariation);
 }
 
 
@@ -532,12 +527,10 @@ void AndorCameraSettingsControl::updateRunSettingsFromPicSettings( )
 {
 	settings.andor.exposureTimes = picSettingsObj.getUsedExposureTimes( );
 	settings.andor.picsPerRepetition = picSettingsObj.getPicsPerRepetition( );
-	settings.andor.totalPicsInVariation = settings.andor.picsPerRepetition * settings.andor.repetitionsPerVariation;
-	if ( settings.andor.totalVariations * settings.andor.totalPicsInVariation > INT_MAX )
+	if ( settings.andor.totalPicsInExperiment ( ) > INT_MAX )
 	{
 		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	settings.andor.totalPicsInExperiment = settings.andor.totalVariations * settings.andor.totalPicsInVariation;
 }
 
 
@@ -607,7 +600,6 @@ UINT AndorCameraSettingsControl::getAccumulationNumber( )
 
 void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
-	ProfileSystem::checkDelimiterLine(configFile, "CAMERA_SETTINGS");
 	AndorRunSettings tempSettings;
 	configFile.get( );
 	std::string txt;
@@ -620,28 +612,32 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	if (txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Video;
-		tempSettings.totalPicsInVariation = INT_MAX;
+		tempSettings.repetitionsPerVariation = INT_MAX;
 	}
 	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Kinetic;
+		//settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
 	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::Accumulate;
-		tempSettings.totalPicsInVariation = INT_MAX;
+		//tempSettings.totalPicsInVariation = INT_MAX;
 	}
 	else
 	{
 		thrower ("ERROR: Unrecognized camera mode!");
 	}
+	updateCameraMode ( );
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
  	setRunSettings(tempSettings);
  	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
+	
 	picSettingsObj.handleOpenConfig(configFile, ver, andorFriend);
+	
 	updateRunSettingsFromPicSettings( );
 	if (ver > Version("2.4" ) )
 	{
@@ -703,14 +699,13 @@ void AndorCameraSettingsControl::updateCameraMode( )
 	if ( txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Video;
-		settings.andor.totalPicsInVariation = INT_MAX;
-		settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
+		settings.andor.repetitionsPerVariation = INT_MAX;
 	}
 	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Kinetic;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" )
+	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" || txt == "Accumulation Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Accumulate;
 	}
@@ -755,9 +750,9 @@ imageParameters AndorCameraSettingsControl::getImageParameters()
 }
 
 
-CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
+CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer )
 {
-	return picSettingsObj.colorControls( idNumber, colorer, brushes, rgbs );
+	return picSettingsObj.colorControls( idNumber, colorer );
 }
 
 

@@ -37,7 +37,7 @@ class PictureControl
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
 		void updatePalette( HPALETTE pallete );
-		void redrawImage(CDC* easel);
+		void redrawImage(CDC* easel, bool bkgd=true );
 		void setActive( bool activeState );
 		bool isActive();
 		std::pair<UINT, UINT> getSliderLocations();

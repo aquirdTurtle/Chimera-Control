@@ -48,7 +48,6 @@ ViewpointFlume::ViewpointFlume( bool safemode_ ) : safemode( safemode_ )
 		WORD temp[4] = { -1, -1, -1, -1 };
 		double tempd = 10000000;
 		dioOpenResource( resourceName, 0, 0 );
-		//dioOpen( 0, 0 );
 		dioLoad( 0, filename, 0, 4 );
 		dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
 		// done initializing.
@@ -57,7 +56,6 @@ ViewpointFlume::ViewpointFlume( bool safemode_ ) : safemode( safemode_ )
 	{
 		errBox( exception.trace( ) );
 	}
-
 }
 
 

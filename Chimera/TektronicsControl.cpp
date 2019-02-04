@@ -5,38 +5,41 @@
 #include "ProfileSystem.h"
 #include "range.h"
 
-TektronicsControl::TektronicsControl(bool safemode, std::string address) : visaFlume(safemode, address) {}
+TektronicsAfgControl::TektronicsAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
+	: visaFlume(safemode, address), configDelim(configurationFileDelimiter)
+{}
 
 void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
-										   std::array<UINT, 2> ids)
+										   UINT control_id )
 {
+	auto& cid = control_id;
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	channelLabel.Create( cstr(channelText), NORM_STATIC_OPTIONS, channelLabel.sPos, parent, id++ );
 
 	controlButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	controlButton.Create( "", NORM_CHECK_OPTIONS, controlButton.sPos, parent, id++ );
+	controlButton.Create( "", NORM_CHECK_OPTIONS, controlButton.sPos, parent, cid++ );
 
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	onOffButton.Create( "", NORM_CHECK_OPTIONS, onOffButton.sPos, parent, ids[0] );
+	onOffButton.Create( "", NORM_CHECK_OPTIONS, onOffButton.sPos, parent, cid++ );
 	
 	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskButton.Create("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, ids[1]);
+	fskButton.Create("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, cid++ );
 	
 	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	power.Create(NORM_EDIT_OPTIONS, power.sPos, parent, id++);
+	power.Create(NORM_EDIT_OPTIONS, power.sPos, parent, cid++);
 	power.EnableWindow(0);
 
 	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	mainFreq.Create(NORM_EDIT_OPTIONS, mainFreq.sPos, parent, id++);
+	mainFreq.Create(NORM_EDIT_OPTIONS, mainFreq.sPos, parent, cid++ );
 	mainFreq.EnableWindow(0);
 	
 	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskFreq.Create(NORM_EDIT_OPTIONS, fskFreq.sPos, parent, id++);
+	fskFreq.Create(NORM_EDIT_OPTIONS, fskFreq.sPos, parent, cid++ );
 	fskFreq.EnableWindow(0);
 }
 
 
-void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
+void TektronicsAfgControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequenceNumber;
@@ -90,20 +93,33 @@ void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& va
 }
 
 
-HBRUSH TektronicsControl::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+HBRUSH TektronicsAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
 	if (controlID == onOffLabel.GetDlgCtrlID() || controlID == fskLabel.GetDlgCtrlID() 
 		|| controlID == mainPowerLabel.GetDlgCtrlID() || controlID == mainFreqLabel.GetDlgCtrlID() 
 		|| controlID == fskFreqLabel.GetDlgCtrlID())
 	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetBkColor(_myRGBs["Static-Bkgd"]);
+		cDC->SetTextColor( _myRGBs["Text"]);
+		return *_myBrushes["Static-Bkgd"];
 	}
 	else
 	{
 		return NULL;
+	}
+}
+
+
+void TektronicsChannelControl::handleButton ( UINT indicator )
+{
+	if ( indicator == onOffButton.GetDlgCtrlID ( ) )
+	{
+		handleOnPress ( );
+	}
+	else if ( indicator == fskButton.GetDlgCtrlID ( ) )
+	{
+		handleFskPress ( );
 	}
 }
 
@@ -172,6 +188,7 @@ tektronicsChannelOutputForm TektronicsChannelControl::getTekChannelSettings()
 void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
 {
 	currentInfo = info;
+	controlButton.SetCheck ( currentInfo.control );
 	onOffButton.SetCheck(currentInfo.on);
 	fskButton.SetCheck(currentInfo.fsk);
 	power.SetWindowTextA(cstr(currentInfo.power.expressionStr));
@@ -180,62 +197,59 @@ void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
 }
 
 
-void TektronicsControl::handleNewConfig( std::ofstream& newFile )
+void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "TEKTRONICS\n";
+	newFile << configDelim + "\n";
 	newFile << "CHANNEL_1\n";
-	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "CHANNEL_2\n";
-	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "END_TEKTRONICS" << "\n";
+	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	newFile << "END_" + configDelim + "\n";
 }
 
 
-void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
+void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
 {
-	saveFile << "TEKTRONICS\n";
+	saveFile << configDelim + "\n";
 	saveFile << "CHANNEL_1\n";
 	tektronicsInfo tekInfo = getTekSettings();
-	saveFile << tekInfo.channels.first.control << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
-		<< tekInfo.channels.first.power.expressionStr << "\n"
-		<< tekInfo.channels.first.mainFreq.expressionStr << "\n"
+	saveFile << tekInfo.channels.first.control << "\n" << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
+		<< tekInfo.channels.first.power.expressionStr << "\n" << tekInfo.channels.first.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.first.fskFreq.expressionStr << "\n";
 	saveFile << "CHANNEL_2\n";
-	saveFile << tekInfo.channels.second.control << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
-		<< tekInfo.channels.second.power.expressionStr << "\n"
-		<< tekInfo.channels.second.mainFreq.expressionStr << "\n"
+	saveFile << tekInfo.channels.second.control << "\n" << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
+		<< tekInfo.channels.second.power.expressionStr << "\n" << tekInfo.channels.second.mainFreq.expressionStr << "\n"
 		<< tekInfo.channels.second.fskFreq.expressionStr << "\n";
-	saveFile << "END_TEKTRONICS" << "\n";
+	saveFile << "END_" + configDelim + "\n";
 }
 
 
-void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, Version ver )
+void TektronicsAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(configFile, "TEKTRONICS");
-	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");
+	std::string tempStr;
 	tektronicsInfo tekInfo;
+	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");	
+	configFile >> tekInfo.channels.first.control;
 	configFile >> tekInfo.channels.first.on;
 	configFile >> tekInfo.channels.first.fsk;
 	configFile.get();
-	std::string tempStr;
-
 	std::getline(configFile, tekInfo.channels.first.power.expressionStr );
 	std::getline(configFile, tekInfo.channels.first.mainFreq.expressionStr );
 	std::getline(configFile, tekInfo.channels.first.fskFreq.expressionStr );
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_2");
+	configFile >> tekInfo.channels.second.control;
 	configFile >> tekInfo.channels.second.on;
 	configFile >> tekInfo.channels.second.fsk;
 	configFile.get();
 	std::getline(configFile, tekInfo.channels.second.power.expressionStr );
 	std::getline(configFile, tekInfo.channels.second.mainFreq.expressionStr );
 	std::getline(configFile, tekInfo.channels.second.fskFreq.expressionStr );
-	ProfileSystem::checkDelimiterLine(configFile, "END_TEKTRONICS");
 	setSettings(tekInfo);
 }
 
 
 
-void TektronicsControl::programMachine(UINT variation)
+void TektronicsAfgControl::programMachine(UINT variation)
 {
 	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
@@ -299,7 +313,7 @@ void TektronicsControl::programMachine(UINT variation)
 	}
 }
 
-void TektronicsControl::handleProgram()
+void TektronicsAfgControl::handleProgram()
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
@@ -334,18 +348,19 @@ void TektronicsControl::handleProgram()
 }
 
 
-void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs )
+void TektronicsAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
+								    std::string channel2Text, LONG width, UINT control_id )
 {
+
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 	
 	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
-	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, ids[0] );
+	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, control_id );
 
-	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, { ids[1], ids[2] } );
-	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, { ids[3], ids[4] } );
+	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, control_id+1 );
+	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, control_id+50 );
 
 	loc.y += 20;
 	controlLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
@@ -380,7 +395,7 @@ void TektronicsChannelControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-std::string TektronicsControl::queryIdentity()
+std::string TektronicsAfgControl::queryIdentity()
 {
 	try
 	{
@@ -393,7 +408,7 @@ std::string TektronicsControl::queryIdentity()
 }
 
 
-void TektronicsControl::rearrange(int width, int height, fontMap fonts)
+void TektronicsAfgControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
 	controlLabel.rearrange( width, height, fonts );
@@ -408,7 +423,7 @@ void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-tektronicsInfo TektronicsControl::getTekSettings()
+tektronicsInfo TektronicsAfgControl::getTekSettings()
 {
 	currentInfo.channels.first = channel1.getTekChannelSettings();
 	currentInfo.channels.second = channel2.getTekChannelSettings();
@@ -416,7 +431,7 @@ tektronicsInfo TektronicsControl::getTekSettings()
 }
 
 // does not set the address, that's permanent.
-void TektronicsControl::setSettings(tektronicsInfo info)
+void TektronicsAfgControl::setSettings(tektronicsInfo info)
 {
 	currentInfo.channels = info.channels;
 	channel1.setSettings(currentInfo.channels.first);
@@ -429,21 +444,8 @@ void TektronicsControl::setSettings(tektronicsInfo info)
 }
 
 
-void TektronicsControl::handleButtons(UINT indicator)
+void TektronicsAfgControl::handleButtons(UINT indicator)
 {
-	switch (indicator)
-	{
-		case 0:
-			channel1.handleOnPress();
-			break;
-		case 1:
-			channel1.handleFskPress();
-			break;
-		case 2:
-			channel2.handleOnPress();
-			break;
-		case 3:
-			channel2.handleFskPress();
-			break;
-	}
+	channel1.handleButton ( indicator );
+	channel2.handleButton ( indicator );
 }

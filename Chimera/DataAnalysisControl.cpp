@@ -1,9 +1,9 @@
 
 #include "stdafx.h"
 
-#include "DataAnalysisHandler.h"
+#include "DataAnalysisControl.h"
 #include "Control.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "ProfileSystem.h"
 #include "PlotDesignerDialog.h"
 #include "realTimePlotterInput.h"
@@ -26,7 +26,7 @@ DataAnalysisControl::DataAnalysisControl( )
 
 
 void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, 
-									  int isTriggerModeSensitive, rgbMap rgbs )
+									  int isTriggerModeSensitive )
 {
 	header.setPositions( pos, 0, 0, 480, 25, true, false, true );
 	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++);
@@ -70,7 +70,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	// 
 	manualSetAnalysisLocsButton.setPositions( pos, 0, 0, 480, 25, true );
 	manualSetAnalysisLocsButton.Create("Manually Set AutoAnalysis Points", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
-									  manualSetAnalysisLocsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
+										manualSetAnalysisLocsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
 
 	manualSetAnalysisLocsButton.EnableWindow( false );
 	/// PLOTTING FREQUENCY CONTROLS
@@ -103,9 +103,9 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	{
 		plotListview.InsertColumn( 1, txt, r.right / 9 );
 	}
-	plotListview.SetBkColor( rgbs["Solarized Base02"]);
-	plotListview.SetTextBkColor( rgbs["Solarized Base02"] );
-	plotListview.SetTextColor( rgbs["Solarized Green"] );
+	plotListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
+	plotListview.SetTextBkColor( _myRGBs["Interactable-Bkgd"] );
+	plotListview.SetTextColor( _myRGBs["AndorWin-Text"] );
 	//
 	reloadListView();
 }
@@ -166,7 +166,6 @@ ULONG DataAnalysisControl::getPlotFreq( )
 
 void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 {
-	ProfileSystem::checkDelimiterLine( file, "BEGIN_DATA_ANALYSIS" );
 	UINT numGrids;
 	if ( ver > Version( "3.0" ) )
 	{
@@ -243,13 +242,12 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 		}
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
 	}
-	ProfileSystem::checkDelimiterLine( file, "END_DATA_ANALYSIS" );
 }
 
 
 void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 {
-	file << "BEGIN_DATA_ANALYSIS\n";
+	file << "DATA_ANALYSIS\n";
 	file << 1 << "\n";
 	file << 0 << " " << 0 << "\n";
 	file << 0 << " " << 0 << " " << 0 << "\n";
@@ -262,7 +260,7 @@ void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 
 void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 {
-	file << "BEGIN_DATA_ANALYSIS\n";
+	file << "DATA_ANALYSIS\n";
 	file << grids.size( ) << "\n";
 	for ( auto grid : grids )
 	{
@@ -1154,6 +1152,8 @@ void DataAnalysisControl::reloadListView()
 	{
 		plotListview.InsertItem(names[item], item, 0);
 		plotListview.SetItem( "0", item, 1 );
+		plotListview.SetItem ( "[ ]", item, 2 );
+		plotListview.SetItem ( "[ ]", item, 3 );
 		plotListview.SetItem("NO", item, 4);
 		tinyPlotInfo tempInfo;
 		PlottingInfo info( PLOT_FILES_SAVE_LOCATION + "\\" + names[item] + "." + PLOTTING_EXTENSION );

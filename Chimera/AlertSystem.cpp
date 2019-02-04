@@ -3,7 +3,7 @@
 #include <Mmsystem.h>
 #include <mciapi.h>
 #pragma comment(lib, "Winmm.lib")
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "miscCommonFunctions.h"
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>

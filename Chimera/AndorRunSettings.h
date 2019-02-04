@@ -28,9 +28,9 @@ struct AndorRunSettings
 	UINT picsPerRepetition;
 	ULONGLONG repetitionsPerVariation;
 	ULONGLONG totalVariations;
-	ULONGLONG totalPicsInVariation;
+	ULONGLONG totalPicsInVariation();
 	// this is an int to reflect that the final number that's programmed to the camera is an int
-	int totalPicsInExperiment;
+	int totalPicsInExperiment();
 	int temperatureSetting;
 };
 

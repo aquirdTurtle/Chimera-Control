@@ -26,7 +26,7 @@ class BaslerSettingsControl
 		void updateExposure( double exposure );
 		void rearrange(int width, int height, fontMap fonts);
 		void handleSavingConfig ( std::ofstream& configFile );
-		void handleOpeningConfig ( std::ifstream& configFile, Version ver );
+		void handleOpenConfig ( std::ifstream& configFile, Version ver );
 
 		/// TODO: fill in correct parameters here.
 		const imageParameters ScoutFullResolution = { 1,500,1,500,1,1 };
