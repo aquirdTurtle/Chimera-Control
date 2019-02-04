@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "myButton.h"
+#include "externals.h"
 
 void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 {
@@ -11,9 +12,10 @@ void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	rt = lpDrawItemStruct->rcItem;
 	//Get state of the button
 	UINT state = lpDrawItemStruct->itemState;  
-	dc.FillSolidRect( rt, RGB( 15, 15, 45 ) );
-	CPen pen( PS_SOLID, 0, RGB( 50, 50, 50) );
+	dc.FillSolidRect( rt, _myRGBs[ "Button-Color" ] );
+	CPen pen( PS_SOLID, 0, _myRGBs["Button-Color"]);
 	dc.SelectObject( pen);
+	dc.SetBkColor ( _myRGBs[ "Button-Color" ] );
 	dc.MoveTo( rt.TopLeft() );
 	dc.LineTo( { rt.right, rt.top } );
 	dc.LineTo( rt.BottomRight( ) );
@@ -28,7 +30,7 @@ void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	}
 	else
 	{
-		dc.SetTextColor( RGB( 101, 123, 131 ) );
+		dc.SetTextColor( _myRGBs["Text-Emph"] );
 		// Draw a raised face
 		//dc.DrawEdge( rt, EDGE_RAISED, BF_RECT );
 	}
@@ -67,16 +69,16 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	//Get state of the button
 	
 	UINT state = lpDrawItemStruct->itemState;
-	dc.FillSolidRect( rt, RGB( 30, 30, 30) );
+	//dc.FillSolidRect( rt, _myRGBs["Static-Bkgd"] );
 	if ( IsWindowEnabled( ) )
 	{
-		dc.FillSolidRect( subr, RGB( 15, 15, 55 ) );
+		dc.FillSolidRect( subr, _myRGBs[ "Interactable-Bkgd" ] );
 	}
 	else
 	{
-		dc.FillSolidRect( subr, RGB( 5, 5, 5 ) );
+		dc.FillSolidRect( subr, _myRGBs[ "Static-Bkgd" ] );
 	}
-	CPen pen( PS_SOLID, 0, RGB( 50, 50, 50 ) );
+	CPen pen( PS_SOLID, 0, _myRGBs["Text-Emph"] );
 	dc.SelectObject( pen );
 	dc.MoveTo( rt.TopLeft( ) );
 	dc.LineTo( { rt.right, rt.top } );
@@ -89,8 +91,8 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	{
 		// Draw a sunken face
 		//dc.DrawEdge( rt, EDGE_SUNKEN, BF_RECT );	
-		dc.SetTextColor( RGB( 200, 200, 200 ) );
-		CPen pen( PS_SOLID, 0, RGB( 200, 200, 200 ) );
+		dc.SetTextColor( _myRGBs[ "Text-Emph" ] );
+		CPen pen( PS_SOLID, 0, _myRGBs[ "Text-Emph" ] );
 		dc.SelectObject( pen );
 		dc.MoveTo( subr.TopLeft( ) );
 		dc.LineTo( subr.BottomRight( ) );
@@ -99,7 +101,7 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	}
 	else
 	{
-		dc.SetTextColor( RGB( 101, 123, 131 ) );
+		dc.SetTextColor( _myRGBs[ "Text-Emph" ] );
 		// Draw a raised face
 		//dc.DrawEdge( rt, EDGE_RAISED, BF_RECT );
 	}
@@ -107,7 +109,7 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	CString strTemp;
 	GetWindowText( strTemp );
 	dc.SelectObject( GetFont( ) );
-	dc.SetBkColor( RGB( 30, 30, 30 ) );
+	dc.SetBkColor( _myRGBs[ "Button-Color" ] );
 	dc.DrawText( strTemp, rt, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
 	// Draw out the caption
 	// If the button is focused

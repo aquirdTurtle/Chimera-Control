@@ -15,14 +15,16 @@
 
 
 // NI's visa file. Also gets indirectly included via #include "nifgen.h".
-Agilent::Agilent( const agilentSettings& settings ) : visaFlume( settings.safemode, settings.address ),
-													  sampleRate( settings.sampleRate ),
-													  load( settings.outputImpedance ),
-													  filterState( settings.filterState ),
-													  initSettings( settings ),
-													  triggerRow(settings.triggerRow ), 
-													  triggerNumber( settings.triggerNumber ),
-													  memoryLoc(settings.memoryLocation )
+Agilent::Agilent( const agilentSettings& settings ) : 
+	visaFlume( settings.safemode, settings.address ),
+	sampleRate( settings.sampleRate ),
+	load( settings.outputImpedance ),
+	filterState( settings.filterState ),
+	initSettings( settings ),
+	triggerRow(settings.triggerRow ), 
+	triggerNumber( settings.triggerNumber ),
+	memoryLoc(settings.memoryLocation ),
+	configDelim(settings.configurationFileDelimiter)
 {
 	visaFlume.open(); 
 }
@@ -35,10 +37,9 @@ Agilent::~Agilent()
 
 
 void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
-						  UINT editHeight, COLORREF color, rgbMap rgbs, UINT width )
+						  UINT editHeight, COLORREF color, UINT width )
 {
 	LONG w = LONG( width );
-	name = headerText;
 	try
 	{
 		int errCode = 0;
@@ -56,8 +57,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	header.fontType = fontTypes::HeadingFont;
 
 	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + w, loc.y += 20 };
-	deviceInfoDisplay.Create( cstr( deviceInfo ), NORM_STATIC_OPTIONS, deviceInfoDisplay.sPos,
-							  parent, id++ );
+	deviceInfoDisplay.Create( cstr( deviceInfo ), NORM_STATIC_OPTIONS, deviceInfoDisplay.sPos, parent, id++ );
 	deviceInfoDisplay.fontType = fontTypes::SmallFont;
 
 	channel1Button.sPos = { loc.x, loc.y, loc.x += w/2, loc.y + 20 };
@@ -82,13 +82,12 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	programNow.sPos = { loc.x, loc.y, loc.x += w/3, loc.y += 20 };
 	programNow.Create( "Program", NORM_PUSH_OPTIONS, programNow.sPos, parent, 
 					   initSettings.programButtonId );
-	programNow.SetFaceColor( rgbs["Dark Grey"], true );
-	programNow.SetTextColor( rgbs["Solarized Base1"] );
+	programNow.SetFaceColor( _myRGBs["Dark Grey"], true );
+	programNow.SetTextColor( _myRGBs["Solarized Base1"] );
 	loc.x -= w;
 
 	settingCombo.sPos = { loc.x, loc.y, loc.x += w/4, loc.y + 200 };
-	settingCombo.Create( NORM_COMBO_OPTIONS, settingCombo.sPos,
-						 parent, initSettings.agilentComboId );
+	settingCombo.Create( NORM_COMBO_OPTIONS, settingCombo.sPos, parent, initSettings.agilentComboId );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
 	settingCombo.AddString( "DC" );
@@ -130,10 +129,7 @@ void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 	programNow.rearrange( width, height, fonts );
 	calibratedButton.rearrange( width, height, fonts );
 }
-std::string Agilent::getName()
-{
-	return name;
-}
+
 /**
  * This function tells the agilent to put out the DC default waveform.
  */
@@ -204,11 +200,13 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	//double slope = -0.02427634;
 	//double offset = 0.00386076;
 	// calibrated May 4th 2018, with NE10
-	double slope = -0.0151410484528;
-	double offset = 0.00685897102155;
+	//double slope = -0.0151410484528;
+	//double offset = 0.00685897102155;
 	// calibrated August 10th, 2018, with no filter for single tweezer loading
 	//double slope = -0.1201254;
 	//double offset = -0.0003526;
+	double slope = -0.0108632090621;
+	double offset = 0.000505870656651;
 	if ( conversionOption )
 	{
 		double setPointInVolts = slope * powerInMilliWatts + offset;
@@ -246,7 +244,15 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 	// Procedurally read lines into segment informations.
 	while (!stream.eof())
 	{
-		int leaveTest = infoObj.wave.analyzeAgilentScriptCommand( currentSegmentNumber, stream, variables );
+		int leaveTest;
+		try
+		{
+			leaveTest = infoObj.wave.analyzeAgilentScriptCommand ( currentSegmentNumber, stream, variables );
+		}
+		catch ( Error& )
+		{
+			throwNested ( "Error seen while analyzing agilent script command for agilent " + this->configDelim );
+		}
 		if (leaveTest < 0)
 		{
 			thrower ( "IntensityWaveform.analyzeAgilentScriptCommand threw an error! Error occurred in segment #"
@@ -282,16 +288,24 @@ std::string Agilent::getDeviceIdentity()
 	}
 	return msg;
 }
-HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+
+
+HBRUSH Agilent::handleColorMessage(CWnd* window, CDC* cDC)
 {
+
 	DWORD id = window->GetDlgCtrlID();
 	if ( id == deviceInfoDisplay.GetDlgCtrlID() || id == channel1Button.GetDlgCtrlID()  
 		 || id == channel2Button.GetDlgCtrlID() || id == syncedButton.GetDlgCtrlID() 
 		 || id == settingCombo.GetDlgCtrlID() || id == optionsFormat.GetDlgCtrlID() )
 	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base1"]);
-		return *brushes["Medium Grey"];
+		cDC->SetTextColor( _myRGBs["Text"]);
+		cDC->SetBkColor	( _myRGBs[ "Static-Bkgd" ] );
+		return *_myBrushes["Static-Bkgd"];
+	}
+	auto res = agilentScript.handleColorMessage ( window, cDC );
+	if ( res )
+	{
+		return res;
 	}
 	else
 	{
@@ -579,14 +593,15 @@ void Agilent::convertInputToFinalSettings( UINT chan, std::vector<parameterType>
 
 void Agilent::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "AGILENT\n";
+	newFile << configDelim+"\n";
 	newFile << "0\n";
 	newFile << "CHANNEL_1\n";
 	newFile << "-2\n0\n0\n0\n1\n0\n0\n1\n0\n0\nNONE\n0\nNONE\n0\n";
 	newFile << "CHANNEL_2\n";
 	newFile << "-2\n0\n0\n0\n1\n0\n0\n1\n0\n0\nNONE\n0\nNONE\n0\n";
-	newFile << "END_AGILENT\n";
+	newFile << "END_" + configDelim + "\n";
 }
+
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
 */
@@ -595,7 +610,7 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	// make sure data is up to date.
 	handleInput( currentChannel, categoryPath, info);
 	// start outputting.
-	saveFile << "AGILENT\n";
+	saveFile << configDelim+"\n";
 	saveFile << str(settings.synced) << "\n";
 	saveFile << "CHANNEL_1\n";
 	saveFile << str(settings.channel[0].option) + "\n";
@@ -627,11 +642,11 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	saveFile << int(settings.channel[1].preloadedArb.useCalibration) << "\n";
 	saveFile << settings.channel[1].scriptedArb.fileAddress + "\n";
 	saveFile << int(settings.channel[1].scriptedArb.useCalibration) << "\n";
-	saveFile << "END_AGILENT\n";
+	saveFile << "END_" + configDelim + "\n";
 }
-void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
+
+void Agilent::handleOpenConfig( std::ifstream& file, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(file, "AGILENT");
 	file >> settings.synced;
 	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
 	UINT chanInc = 0;
@@ -648,7 +663,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
-			throwNested ( "Bad channel " + str(chanInc+1) + " option!" );
+			throwNested ( "Bad channel " + str(chanInc + 1) + " option!" );
 		}
 		std::string calibratedOption;
 		std::getline ( file, channel.dc.dcLevelInput.expressionStr );
@@ -731,7 +746,6 @@ void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 		}
 		chanInc++;
 	}
-	ProfileSystem::checkDelimiterLine(file, "END_AGILENT");
 	updateButtonDisplay( 1 );
 	updateButtonDisplay( 2 );
 }
@@ -1011,7 +1025,7 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		}
 		catch ( Error& err )
 		{
-			throwNested( "Error seen while programming agilent output for " + name + " agilent channel " 
+			throwNested( "Error seen while programming agilent output for " + configDelim + " agilent channel " 
 						  + str( chan+1) + ": " + err.whatBare( ) );
 		}
 	}

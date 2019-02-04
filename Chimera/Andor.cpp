@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ATMCD32D.h"
 #include "Andor.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "AndorTriggerModes.h"
 #include "AndorRunMode.h"
 #include <chrono>
@@ -168,7 +168,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
 			}
-			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
+			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment())
 			{
 				if ( input->Andor->runSettings.acquisitionMode == AndorRunModes::Kinetic)
 				{
@@ -335,7 +335,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	else
 	{
-		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) 
+		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation()) 
 								   % runSettings.picsPerRepetition);
 	}
 	if (experimentPictureNumber == 0)
@@ -543,17 +543,17 @@ void AndorCamera::setKineticCycleTime()
 
 void AndorCamera::setScanNumber()
 {
-	if (runSettings.totalPicsInExperiment == 0 && runSettings.totalPicsInVariation != 0)
+	if (runSettings.totalPicsInExperiment() == 0 && runSettings.totalPicsInVariation() != 0)
 	{
 		// all is good. The first variable has not been set yet.
 	}
-	else if (runSettings.totalPicsInVariation == 0)
+	else if (runSettings.totalPicsInVariation() == 0)
 	{
 		thrower ("ERROR: Scan Number Was Zero.\r\n");
 	}
 	else
 	{
-		setNumberKinetics(int(runSettings.totalPicsInExperiment));
+		setNumberKinetics(int(runSettings.totalPicsInExperiment()));
 	}
 }
 

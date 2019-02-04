@@ -422,7 +422,7 @@ void BaslerWrapper::init( CWnd* parent )
 									   Pylon::Cleanup_Delete );
 			TriggerMode.SetValue( cameraParams::TriggerMode_On );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to register event handler and set trigger mode." );
 		}
@@ -460,7 +460,7 @@ int BaslerWrapper::getMinOffsetX()
 	{
 		return OffsetX.GetMin();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get min x offset." );
 	}
@@ -637,7 +637,7 @@ void BaslerWrapper::stopGrabbing()
 		{
 			StopGrabbing();
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException& )
 		{
 			throwNested( "Failed to stop grabbing." );
 		}
@@ -687,7 +687,7 @@ int BaslerWrapper::getCurrentHeight()
 	{
 		return Height.GetValue();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get current height" );
 	}
@@ -851,7 +851,7 @@ void BaslerWrapper::startGrabbing( unsigned int picturesToGrab, Pylon::EGrabStra
 		{
 			StartGrabbing( picturesToGrab, grabStrat, Pylon::GrabLoop_ProvidedByInstantCamera );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to start grabbing." );
 		}
@@ -871,7 +871,7 @@ double BaslerWrapper::getExposureMax()
 				return ExposureTimeRaw.GetMax();
 			#endif
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to get max exposure." );
 		}
@@ -891,7 +891,7 @@ double BaslerWrapper::getExposureMin()
 				return ExposureTimeRaw.GetMin();
 			#endif
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to get min exposure." );
 		}
@@ -911,7 +911,7 @@ double BaslerWrapper::getCurrentExposure()
 				return ExposureTimeRaw.GetValue();
 			#endif
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to get current exposure." );
 		}
@@ -931,7 +931,7 @@ void BaslerWrapper::setExposure( double exposureTime )
 				ExposureTimeRaw.SetValue( exposureTime );
 			#endif
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set exposure." );
 		}
@@ -947,7 +947,7 @@ void BaslerWrapper::setExposureAuto(cameraParams::ExposureAutoEnums mode)
 		{
 			ExposureAuto.SetValue(mode);
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested("Failed to set auto exposure mode.");
 		}

@@ -44,6 +44,21 @@ dataPoint PlotCtrl::getMainAnalysisResult ( )
 }
 
 
+void PlotCtrl::drawPlot ( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBrush )
+{
+	memDC dc ( cdc, &GetPlotRect() );
+	drawBackground ( dc, backgroundBrush, plotAreaBrush );
+	drawTitle ( dc );
+	drawBorder ( dc );
+	plotPoints ( &dc );
+}
+
+std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
+{
+	return data;
+}
+
+
 void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
@@ -70,7 +85,7 @@ void PlotCtrl::drawTitle( memDC* d )
 	RECT r = { scaledArea.left, scaledArea.top - 30, scaledArea.right, scaledArea.top};
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
-	d->SetTextColor( RGB( 255, 255, 255 ) );
+	d->SetTextColor( _myRGBs[ "Text" ] );
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
@@ -373,18 +388,25 @@ void PlotCtrl::plotPoints( memDC* d )
 
 void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush )
 {
-	for ( auto& point : scaledLine )
+	if ( scaledLine.size ( ) == 0 )
 	{
+		return;
+	}
+	for ( auto ptNum : range(scaledLine.size()-1) )
+	{
+		auto& p = scaledLine[ ptNum ];
+		auto& np = scaledLine[ ptNum + 1 ];
 		Gdiplus::Rect r;
 		if ( style == plotStyle::HistPlot )
 		{
-			r = Gdiplus::Rect ( floor(point.x - boxWidthPixels / 2), point.y, boxWidthPixels,
-								plotAreaDims.bottom * heightScale2 - point.y );
+			auto w = ceil(np.x) - ceil(p.x);
+			r = Gdiplus::Rect ( ceil(p.x), ceil(p.y), w,
+								ceil(plotAreaDims.bottom * heightScale2 - ceil(p.y)) );
 		}
 		else if ( style == plotStyle::VertHist )
 		{
-			r = Gdiplus::Rect ( plotAreaDims.left * widthScale2, floor(point.y - boxWidthPixels / 2),
-								point.x - plotAreaDims.left * widthScale2, ceil(boxWidthPixels) );
+			r = Gdiplus::Rect ( ceil( plotAreaDims.left * widthScale2 ), ceil(np.y),
+								ceil( ceil(np.x) - plotAreaDims.left * widthScale2 ), ceil(p.y)-ceil(np.y) );
 		}
 		else
 		{
@@ -538,7 +560,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
-	d->SetTextColor( RGB( 255, 255, 255 ) );
+	d->SetTextColor( _myRGBs["Text"] );
 	UINT count = 0;
 	bool labelEachPoint = (scaledX.size( ) < 15);
 	for ( auto x : scaledX )

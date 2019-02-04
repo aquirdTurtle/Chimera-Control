@@ -3,7 +3,7 @@
 #include "PictureSettingsControl.h"
 #include "Andor.h"
 #include "CameraSettingsControl.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "Commctrl.h"
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>
@@ -296,7 +296,7 @@ void PictureSettingsControl::enablePictureControls( int pic )
 }
 
 
-CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap brushes, rgbMap rgbs)
+CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
 {
 	/// Exposures
 	if (id >= exposureEdits.front().GetDlgCtrlID() && id <= exposureEdits.back().GetDlgCtrlID())
@@ -306,7 +306,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		{
 			return NULL;
 		}
-		colorer->SetTextColor(rgbs["White"]);
+		colorer->SetTextColor( _myRGBs["White"]);
 		CString text;
 		exposureEdits[picNum].GetWindowTextA(text);
 		double exposure;
@@ -316,28 +316,28 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			double dif = std::fabs(exposure/1000.0 - exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
-				colorer->SetBkColor(rgbs["Solarized Green"]);
+				colorer->SetBkColor( _myRGBs["Solarized Green"]);
 				// catch change of color and redraw window.
 				if (exposureEdits[picNum].colorState != 0)
 				{
 					exposureEdits[picNum].colorState = 0;
 					exposureEdits[picNum].RedrawWindow();
 				}
-				return brushes["Solarized Green"];
+				return _myBrushes["Solarized Green"];
 			}
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
 			// don't do anything with it.
 		}
-		colorer->SetBkColor(rgbs["Red"]);
+		colorer->SetBkColor( _myRGBs["Red"]);
 		// catch change of color and redraw window.
 		if (exposureEdits[picNum].colorState != 1)
 		{
 			exposureEdits[picNum].colorState = 1;
 			exposureEdits[picNum].RedrawWindow();
 		}
-		return brushes["Red"];
+		return _myBrushes["Red"];
 	}
 	/// Thresholds
 	else if (id >= thresholdEdits.front().GetDlgCtrlID() && id <= thresholdEdits.back().GetDlgCtrlID())
@@ -382,7 +382,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		}
 		return brushes["Red"];
 		*/
-		return brushes[ "Solarized Green" ];
+		return _myBrushes[ "Solarized Green" ];
 	}
 	else
 	{
@@ -403,12 +403,10 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* 
 	// not all settings are changed here, and some are used to recalculate totals.
 	AndorRunSettings settings = andorObj->getAndorSettings( );
 	settings.picsPerRepetition = picsPerRepetitionUnofficial;
-	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-	if ( settings.totalVariations * settings.totalPicsInVariation > INT_MAX )
+	if ( settings.totalVariations * settings.totalPicsInVariation() > INT_MAX )
 	{
 		thrower ( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
 	}
-	settings.totalPicsInExperiment = int( settings.totalVariations * settings.totalPicsInVariation );
 	andorObj->setSettings( settings );
 	for ( UINT picInc = 0; picInc < 4; picInc++ )
 	{
@@ -549,12 +547,10 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 	picsPerRepetitionUnofficial = pics;
 	AndorRunSettings settings = andorObj->getAndorSettings();
 	settings.picsPerRepetition = picsPerRepetitionUnofficial;
-	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-	if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
+	if (settings.totalPicsInExperiment() > INT_MAX)
 	{
 		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	settings.totalPicsInExperiment = int(settings.totalVariations * settings.totalPicsInVariation);
 	for (UINT picInc = 0; picInc < 4; picInc++)
 	{
 		if (picInc == pics - 1)

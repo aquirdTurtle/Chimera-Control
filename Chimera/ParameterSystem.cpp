@@ -15,8 +15,12 @@
 #include <boost/lexical_cast.hpp>
 
 
+ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter )
+{ }
+
+
 void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
-								  rgbMap rgbs, UINT listviewId, ParameterSysType type )
+								  UINT listviewId, ParameterSysType type )
 {
 	paramSysType = type;
 	scanDimensions = 1;
@@ -52,9 +56,9 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	}
 	parametersListview.insertBlankRow ( );
 	parametersListview.fontType = fontTypes::SmallFont;
-	parametersListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
-	parametersListview.SetTextColor ( RGB ( 150, 150, 150 ) );
-	parametersListview.SetBkColor( rgbs["Solarized Base02"] );
+	parametersListview.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
+	parametersListview.SetTextColor ( _myRGBs["AuxWin-Text"] );
+	parametersListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
 	pos.y += 300;
 }
 
@@ -62,9 +66,8 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version ver )
+void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	clearVariables( );
 	/// 
 	rangeInfo = getRangeInfoFromFile ( configFile, ver );
@@ -109,9 +112,9 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version v
 	var.constant = false;
 	var.ranges.push_back ( { 0,0 } );
 	addConfigParameter( var, currentParameters.size( ) );
-	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
 	updateVariationNumber( );
 }
+
 
 std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile, Version ver )
 {
@@ -200,10 +203,10 @@ void ParameterSystem::updateVariationNumber( )
  
 void ParameterSystem::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "VARIABLES\n";
+	newFile << configDelim + "\n";
 	// Number of functions with variables saved
 	newFile << 0 << "\n";
-	newFile << "END_VARIABLES\n";
+	newFile << "END_" + configDelim + "\n";
 }
 
 
@@ -333,7 +336,7 @@ void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType varia
 
 void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
 {
-	saveFile << "VARIABLES\n";
+	saveFile << configDelim + "\n";
 	saveFile << "RANGE-INFO\n";
 	saveFile << rangeInfo.size ( ) << "\n";
 	for ( auto range : rangeInfo )
@@ -345,7 +348,7 @@ void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
 	{
 		saveVariable(saveFile, getVariableInfo( varInc ));
 	}
-	saveFile << "END_VARIABLES\n";
+	saveFile << "END_" + configDelim + "\n";
 }
 
 
@@ -580,7 +583,7 @@ void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool 
 }
 
 
-void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
+void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult )
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
 	*pResult = CDRF_DODEFAULT;
@@ -599,26 +602,26 @@ void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 		}
 		if (item >= currentParameters.size())
 		{
-			pLVCD->clrText = rgbs["Solarized Base1"];
-			pLVCD->clrTextBk = rgbs["Solarized Base02"];
+			pLVCD->clrText = _myRGBs["AuxWin-Text"];
+			pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
 		}
 		else
 		{
 			if (currentParameters[item].active)
 			{
-				pLVCD->clrTextBk = rgbs["Solarized Blue"];
+				pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
 			}
 			else
 			{
-				pLVCD->clrTextBk = rgbs["Solarized Base04"];
+				pLVCD->clrTextBk = _myRGBs["Interactive-Bkgd"];
 			}
 			if (currentParameters[item].overwritten)
 			{
-				pLVCD->clrText = rgbs["Solarized Red"];
+				pLVCD->clrText = _myRGBs["Solarized Red"];
 			}
 			else
 			{
-				pLVCD->clrText = rgbs["Solarized Base1"];
+				pLVCD->clrText = _myRGBs["Text"];
 			}
 		}
 		// Tell Windows to paint the control itself.
@@ -1272,9 +1275,9 @@ INT_PTR ParameterSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, 
 	HDC hdcStatic = (HDC)wParam;
 	if ( GetDlgCtrlID( (HWND)lParam ) == parametersHeader.GetDlgCtrlID())
 	{
-		SetTextColor(hdcStatic, RGB(218, 165, 32));
-		SetBkColor(hdcStatic, RGB(30, 30, 30));
-		return (LRESULT)brushes["Medium Grey"];
+		SetTextColor(hdcStatic, _myRGBs["AuxWin-Text"]);
+		SetBkColor(hdcStatic, _myRGBs[ "Interactable-Text" ] );
+		return (LRESULT)_myBrushes["Interactable-Text"];
 	}
 	else
 	{
@@ -1301,48 +1304,38 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 {
 	std::ifstream f(configFileName);
 	Version ver;
-	ProfileSystem::getVersionFromFile( f, ver );
+	//ProfileSystem::getVersionFromFile( f, ver );
 	std::vector<parameterType> configVariables;
-	while ( f )
+	try
 	{
-		try
-		{
-			ProfileSystem::checkDelimiterLine( f, "VARIABLES" );
-		}
-		catch ( Error& )
-		{
-			continue;
-		}
+		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile ( f, ver );
-		configVariables = getVariablesFromFile( f, ver, rInfo.size() );
-
-		ProfileSystem::checkDelimiterLine( f, "END_VARIABLES" );
-		break;
+		configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
+		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to get configuration parameters from the configuration file!" );
 	}
 	return configVariables;
 }
 
 
-std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFreshFile ( std::string configFileName )
+std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
 	std::ifstream f ( configFileName );
 	Version ver;
-	ProfileSystem::getVersionFromFile ( f, ver );
 	std::vector<variationRangeInfo> rInfo;
-	while ( f )
+	try
 	{
-		try
-		{
-			ProfileSystem::checkDelimiterLine ( f, "VARIABLES" );
-		}
-		catch ( Error& )
-		{
-			continue;
-		}
+		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile ( f, ver );
 		auto configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
-		ProfileSystem::checkDelimiterLine ( f, "END_VARIABLES" );
-		break;
+		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to get configuration parameter range info from file!" );
 	}
 	return rInfo;
 }
@@ -1413,6 +1406,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					{
 						continue;
 					}
+					// can break here...?
 					variationNum = inputRangeInfo[ rangeInc ].variations;
 				}
 			}

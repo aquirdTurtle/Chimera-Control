@@ -228,7 +228,7 @@
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="cameraPositions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
-    <ClInclude Include="CameraWindow.h" />
+    <ClInclude Include="AndorWindow.h" />
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="commonTypes.h" />
@@ -271,7 +271,7 @@
     <ClInclude Include="PictureManager.h" />
     <ClInclude Include="PictureSettingsControl.h" />
     <ClInclude Include="PictureStats.h" />
-    <ClInclude Include="DataAnalysisHandler.h" />
+    <ClInclude Include="DataAnalysisControl.h" />
     <ClInclude Include="PlotDesignerDialog.h" />
     <ClInclude Include="PlottingInfo.h" />
     <ClInclude Include="ProfileIndicator.h" />
@@ -330,6 +330,7 @@
     <ClCompile Include="Agilent.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
+    <ClCompile Include="AndorRunSettings.cpp" />
     <ClCompile Include="AndorTriggerModes.cpp" />
     <ClCompile Include="BaslerCamera.cpp" />
     <ClCompile Include="BaslerSettings.cpp" />
@@ -348,7 +349,7 @@
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
-    <ClCompile Include="CameraWindow.cpp" />
+    <ClCompile Include="AndorWindow.cpp" />
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
@@ -385,7 +386,7 @@
     <ClCompile Include="PictureManager.cpp" />
     <ClCompile Include="PictureSettingsControl.cpp" />
     <ClCompile Include="PictureStats.cpp" />
-    <ClCompile Include="DataAnalysisHandler.cpp" />
+    <ClCompile Include="DataAnalysisControl.cpp" />
     <ClCompile Include="PlotDesignerDialog.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />

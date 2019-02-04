@@ -136,7 +136,7 @@ std::string Script::getScriptText()
 
 
 COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
-								 rgbMap rgbs, bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, 
+								 bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<AoInfo, 24> dacInfo )
 {
 	// convert word to lower case.
@@ -145,7 +145,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	if (word.size() == 0)
 	{
 		// nothing??
-		return rgbs["Solarized Red"];
+		return _myRGBs["Solarized Red"];
 	}
 	else if (word[0] == '%')
 	{
@@ -155,10 +155,10 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			if (word[1] == '%')
 			{
-				return rgbs["Slate Green"];
+				return _myRGBs["Slate Green"];
 			}
 		}
-		return rgbs["Slate Grey"];
+		return _myRGBs["Slate Grey"];
 	}
 	// Check NIAWG-specific commands
 	if ( editType == "NIAWG")
@@ -168,34 +168,34 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			if ( word == "gen" + str( num + 1 ) + "const" || word == "gen" + str( num + 1 ) + "ampramp"
 				|| word == "gen" + str( num + 1 ) + "freqramp" || word == "gen" + str( num + 1 ) + "freq&ampramp")
 			{
-				return rgbs["Solarized Violet"];
+				return _myRGBs["Solarized Violet"];
 			}
 		}
 		if ( word == "flash" || word == "rearrange" || word == "horizontal" || word == "vertical" )
 		{
-			return rgbs["Solarized Violet"];
+			return _myRGBs["Solarized Violet"];
 		}
 		// check logic
 		if ( word == "repeattiltrig" || word == "repeatSet#" || word == "repeattilsoftwaretrig" || word == "endrepeat" 
 			 || word == "repeatforever" )
 		{
-			return rgbs["Solarized Blue"];
+			return _myRGBs["Solarized Blue"];
 		}
 		// check options
 		if (word == "lin" || word == "nr" || word == "tanh")
 		{
-			return rgbs["Solarized Green"];
+			return _myRGBs["Solarized Green"];
 		}
 		// check variable
 		else if (word == "{" || word == "}")
 		{
-			return rgbs["Solarized Cyan"];
+			return _myRGBs["Solarized Cyan"];
 		}
 		if (word.size() > 8)
 		{
 			if (word.substr(word.size() - 8, 8) == ".nScript")
 			{
-				return rgbs["Solarized Yellow"];
+				return _myRGBs["Solarized Yellow"];
 			}
 		}
 	}
@@ -205,42 +205,42 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		std::transform(word.begin(), word.end(), word.begin(), ::tolower);
 		if (word == "ramp" || word == "hold" || word == "pulse" )
 		{
-			return rgbs["Solarized Violet"];
+			return _myRGBs["Solarized Violet"];
 		}
 		else if ( word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" 
 				  || word == "repeatuntiltrig" || word == "sech" || word == "gaussian" || word == "lorentzian" )
 		{
-			return rgbs["Solarized Yellow"];
+			return _myRGBs["Solarized Yellow"];
 		}
 	}
 	else if (editType == "Master")
 	{
 		if (word == "on:" || word == "off:" || word == "pulseon:" || word == "pulseoff:")
 		{
-			return rgbs["Solarized Violet"];
+			return _myRGBs["Solarized Violet"];
 		}
 		if (word == "dac:" || word == "dacarange:" || word == "daclinspace:")
 		{
-			return rgbs["Solarized Yellow"];
+			return _myRGBs["Solarized Yellow"];
 		}
 		else if (word == "call")
 		{
 			colorLine = true;
-			return rgbs["Solarized Blue"];
+			return _myRGBs["Solarized Blue"];
 		}
 		else if (word == "def" || word == "var")
 		{
 			colorLine = true;
-			return rgbs["Solarized Blue"];
+			return _myRGBs["Solarized Blue"];
 		}
 		else if ( word == "rsg:" || word == "repeat:" || word == "end" || word == "callcppcode" 
 				  || word == "loadskipentrypoint!")
 		{
-			return rgbs["Solarized Yellow"];
+			return _myRGBs["Solarized Yellow"];
 		}
 		else if (word == "t")
 		{
-			return rgbs["White"];
+			return _myRGBs["White"];
 		}
 		for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
 		{
@@ -256,11 +256,11 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			{				
 				if (word == ttlNames[rowInc][numberInc])
 				{
-					return rgbs["Solarized Cyan"];
+					return _myRGBs["Solarized Cyan"];
 				}
 				if (word == row + str(numberInc))
 				{
-					return rgbs["Solarized Cyan"];
+					return _myRGBs["Solarized Cyan"];
 				}
 			}
 		}
@@ -268,11 +268,11 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			if (word == dacInfo[dacInc].name)
 			{
-				return rgbs["Solarized Orange"];
+				return _myRGBs["Solarized Orange"];
 			}
 			if (word == "dac" + str(dacInc))
 			{
-				return rgbs["Solarized Orange"];
+				return _myRGBs["Solarized Orange"];
 			}
 		}
 	}
@@ -281,30 +281,30 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		 word == "sin" || word == "cos" || word == "tan" || word == "exp" || word == "ln")
 	{
 		// all scripts now support math expressions.
-		return rgbs["Solarized Cyan"];
+		return _myRGBs["Solarized Cyan"];
 	}
 
 	for (UINT varInc = 0; varInc < variables.size(); varInc++)
 	{
 		if (word == variables[varInc].name)
 		{
-			return rgbs["Solarized Green"];
+			return _myRGBs["Solarized Green"];
 		}
 	}
 	// check delimiter
 	if (word == "#")
 	{
-		return rgbs["Light Grey"];
+		return _myRGBs["Light Grey"];
 	}
 	// see if it's a double.
 	try
 	{
 		boost::lexical_cast<double>(word);
-		return rgbs["White"];
+		return _myRGBs["White"];
 	}
 	catch (boost::bad_lexical_cast &)
 	{
-		return rgbs["Solarized Red"];
+		return _myRGBs["Solarized Red"];
 	}
 }
 
@@ -329,7 +329,7 @@ bool Script::coloringIsNeeded()
 }
 
 
-void Script::handleTimerCall(std::vector<parameterType> vars, rgbMap rgbs, 
+void Script::handleTimerCall(std::vector<parameterType> vars,  
 							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
@@ -350,7 +350,7 @@ void Script::handleTimerCall(std::vector<parameterType> vars, rgbMap rgbs,
 		edit.GetSel(charRange);
 		initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
-		colorScriptSection(editChangeBegin, editChangeEnd, vars, rgbs, ttlNames, dacInfo );
+		colorScriptSection(editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo );
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
@@ -383,15 +383,15 @@ void Script::handleEditChange()
 }
 
 
-void Script::colorEntireScript(std::vector<parameterType> vars, rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
+void Script::colorEntireScript(std::vector<parameterType> vars, std::array<std::array<std::string, 16>, 4> ttlNames,
 							   std::array<AoInfo, 24> dacInfo )
 {
-	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacInfo);
+	colorScriptSection(0, ULONG_MAX, vars, ttlNames, dacInfo);
 }
 
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
-								 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames, 
+								 std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
@@ -457,7 +457,7 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			{
 				// get all the variables
 				// get 
-				syntaxColor = getSyntaxColor(word, deviceType, vars, rgbs, colorLine, ttlNames, dacInfo );
+				syntaxColor = getSyntaxColor(word, deviceType, vars, colorLine, ttlNames, dacInfo );
 				if (syntaxColor != coloring)
 				{
 					coloring = syntaxColor;
@@ -485,7 +485,7 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			word = line.substr(prev, std::string::npos);
 			end = lineStartCoordingate + line.length();
 			// get all the variables together
-			syntaxColor = getSyntaxColor( word, deviceType, vars, rgbs, colorLine, ttlNames, dacInfo );
+			syntaxColor = getSyntaxColor( word, deviceType, vars, colorLine, ttlNames, dacInfo );
 			if (!colorLine)
 			{
 				coloring = syntaxColor;
@@ -547,39 +547,27 @@ void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
 	// else it's another window, just return and let them try.
 }
 
-
-INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
+HBRUSH Script::handleColorMessage ( CWnd* window, CDC* cDC )
 {
-	int controlID = GetDlgCtrlID((HWND)lParam);
-	HDC hdcStatic = (HDC)wParam;
-	if (controlID == edit.GetDlgCtrlID())
+	DWORD id = window->GetDlgCtrlID ( );
+	if ( id == edit.GetDlgCtrlID ( ) )
 	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(50, 45, 45));
-	}
-	else if (controlID == title.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkMode(hdcStatic, TRANSPARENT);
-		SetBkColor(hdcStatic, RGB(75, 0, 0));
-	}
-	else if (controlID == savedIndicator.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkMode(hdcStatic, TRANSPARENT);
-		SetBkColor(hdcStatic, RGB(50, 45, 45));
-	}
-	else if (controlID == fileNameText.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkMode(hdcStatic, TRANSPARENT);
-		SetBkColor(hdcStatic, RGB(25, 0, 0));
+		//cDC->SetTextColor ( _myRGBs[ "Text" ] );
+		if ( !edit.IsWindowEnabled ( ) )
+		{
+			cDC->SetBkColor ( _myRGBs[ "Disabled-Bkgd" ] );
+			return *_myBrushes[ "Disabled-Bkgd" ];
+		}
+		else
+		{
+			cDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
+			return *_myBrushes[ "Interactable-Bkgd" ];
+		}
 	}
 	else
 	{
-		return false;
+		return NULL;
 	}
-	return true;
 }
 
 
@@ -1140,7 +1128,8 @@ void Script::saveAsFunction()
 
 void Script::setEnabled ( bool enabled )
 {
-	edit.EnableWindow ( enabled );
+	edit.SetReadOnly( !enabled );
+	edit.SetBackgroundColor ( false, enabled ? _myRGBs["Interactable-Bkgd"] : _myRGBs[ "Disabled-Bkgd" ] );
 	availableFunctionsCombo.EnableWindow ( enabled );
 }
 

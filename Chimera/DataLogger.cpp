@@ -2,7 +2,7 @@
 #include "DataLogger.h"
 #include "externals.h"
 #include "longnam.h"
-#include "DataAnalysisHandler.h"
+#include "DataAnalysisControl.h"
 #include "CameraImageDimensions.h"
 #include "Thrower.h"
 #include "MasterManager.h"
@@ -164,8 +164,9 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 			fopen_s ( &calFile, calDataLoc.c_str ( ), "r" );
 			if ( !calFile )
 			{
-				thrower ( "ERROR: The Data logger doesn't see the calibration data for today in the data folder, location:"
-						  + calDataLoc + ". Please Run the calibrations (F12) before starting." );
+				thrower ( "ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
+						  "location:" + calDataLoc + ". Please make sure that the mot is running okay and then "
+						  "run F12 before starting an experiment." );
 			}
 			else
 			{
@@ -174,7 +175,6 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 			}
 		}
 	}
-
 
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
@@ -201,16 +201,6 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 		H5::Group ttlsGroup( file.createGroup( "/TTLs" ) );
 		// initial settings
 		// list of commands
-		H5::Group tektronicsGroup( file.createGroup( "/Tektronics" ) );
-		// mode, freq, power
-		H5::Group miscellaneousGroup( file.createGroup( "/Miscellaneous" ) );
-		time_t t = time( 0 );   // get time now
-		struct tm now;
-		localtime_s( &now, &t );
-		std::string dateString = str( now.tm_year + 1900 ) + "-" + str( now.tm_mon + 1 ) + "-" + str( now.tm_mday );
-		writeDataSet( dateString, "Run-Date", miscellaneousGroup );
-		std::string timeString = str( now.tm_hour) + ":" + str( now.tm_min) + ":" + str( now.tm_sec) + ":";
-		writeDataSet( timeString, "Time-Of-Logging", miscellaneousGroup );
 	}
 	catch (H5::Exception err)
 	{
@@ -220,12 +210,84 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 }
 
 
+void DataLogger::logPlotData ( std::string name, std::vector<pPlotDataVec> data )
+{
+
+}
+
+
+void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
+{
+	H5::Group servoGroup( file.createGroup ( "/Servos" ) );
+	for ( auto servo : servos )
+	{
+		H5::Group thisServo ( servoGroup.createGroup ( "/" + servo.servoName ) );
+		writeDataSet ( servo.active, "Servo_Active", thisServo );
+		writeDataSet ( servo.aiInputChannel, "AI_Input_Channel", thisServo );
+		writeDataSet ( servo.aoControlChannel, "AO_Control_Channel", thisServo );
+		writeDataSet ( servo.controlValue, "Control_Value", thisServo );
+		writeDataSet ( servo.gain, "Servo_Gain", thisServo );
+		writeDataSet ( servo.servoed, "Servo_Is_Servoing_Correctly", thisServo );
+		writeDataSet ( servo.setPoint, "Set_Point", thisServo );
+		writeDataSet ( servo.tolerance, "Servo_Tolerance", thisServo );
+		std::string ttlConfigStr;
+		for ( auto ttl : servo.ttlConfig )
+		{
+			ttlConfigStr += DioRows::toStr(ttl.first) + str(ttl.second) + ", ";
+		}
+		if ( ttlConfigStr.size ( ) > 2 )
+		{
+			// kill last comma and space.
+			ttlConfigStr.substr ( 0, ttlConfigStr.size ( ) - 2 );
+		}
+		writeDataSet ( ttlConfigStr, "TTL_Configuration_During_Servo", thisServo );
+	}
+}
+
+
+void DataLogger::logTektronicsSettings ( TektronicsAfgControl* tek )
+{
+	auto info = tek->getTekSettings ( );
+	try
+	{
+		H5::Group tektronicsGroup;
+		try
+		{
+			tektronicsGroup = H5::Group( file.createGroup ( "/Tektronics" ) );
+		}
+		catch ( H5::Exception err )
+		{
+			// probably has just already been created.
+			tektronicsGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
+		}
+		H5::Group thisTek ( tektronicsGroup.createGroup ( tek->configDelim ) );
+		writeDataSet ( info.machineAddress, "Machine-Address", thisTek );
+		UINT channelCount = 1;
+		for ( auto c : { info.channels.first, info.channels.second } )
+		{
+			H5::Group thisChannel ( thisTek.createGroup ( "Channel_" + str ( channelCount++ ) ) );
+			writeDataSet ( c.control, "Controlled_Option", thisChannel );
+			writeDataSet ( c.on, "Output_On", thisChannel ); 
+			writeDataSet ( c.power.expressionStr, "Power", thisChannel ); 
+			writeDataSet ( c.mainFreq.expressionStr, "Main_Frequency", thisChannel );
+			writeDataSet ( c.fsk, "FSK_Option", thisChannel );
+			writeDataSet ( c.fskFreq.expressionStr, "FSK_Frequency", thisChannel );
+		}
+	}
+	catch ( H5::Exception err)
+	{
+		logError ( err );
+		throwNested ( "Failed to write tektronics settings to the HDF5 data file!" );
+	}
+}
+
+
 void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 {
 	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
 	for ( auto& agilent : agilents )
 	{
-		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->getName( ) ) );
+		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->configDelim ) );
 		// mode
 		deviceOutputInfo info = agilent->getOutputInfo( );
 		UINT channelCount = 1;
@@ -411,7 +473,7 @@ void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 	catch ( H5::Exception& err )
 	{
 		logError ( err );
-		throwNested ( "Failed to write data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
+		throwNested ( "Failed to write basler pic data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
 	}
 }
 
@@ -442,7 +504,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		H5::Group andorGroup( file.createGroup( "/Andor" ) );
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
-		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment ), settings.imageSettings.width(),
+		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment() ), settings.imageSettings.width(),
 			settings.imageSettings.height() };
 		hsize_t picDims[] = { 1, settings.imageSettings.width(), settings.imageSettings.height() };
 		AndorPicureSetDataSpace = H5::DataSpace( 3, setDims );
@@ -520,6 +582,8 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		}
 		logNiawgSettings( input );
 		logAgilentSettings( input->agilents );
+		logTektronicsSettings ( input->topBottomTek );
+		logTektronicsSettings ( input->eoAxialTek );
 	}
 	catch ( H5::Exception& err )
 	{
@@ -567,7 +631,7 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 	catch (H5::Exception& err)
 	{
 		logError ( err );
-		throwNested ("Failed to write data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
+		throwNested ("Failed to write andor pic data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
 	}
 }
 
@@ -609,14 +673,29 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 	catch ( H5::Exception& err )
 	{
 		logError ( err );
-		throwNested ( "Failed to write data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
+		throwNested ( "Failed to write Analog voltage data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
 	}
 }
  
 
-void DataLogger::logMiscellaneous()
+void DataLogger::logMiscellaneousStart()
 {
-	// times, ...
+	try
+	{
+		H5::Group miscellaneousGroup ( file.createGroup ( "/Miscellaneous" ) );
+		time_t t = time ( 0 );   // get time now
+		struct tm now;
+		localtime_s ( &now, &t );
+		writeDataSet ( str ( now.tm_year + 1900 ) + "-" + str ( now.tm_mon + 1 ) + "-" + str ( now.tm_mday ),
+					   "Start-Date", miscellaneousGroup );
+		writeDataSet ( str ( now.tm_hour ) + ":" + str ( now.tm_min ) + ":" + str ( now.tm_sec ) + ":",
+					   "Start-Time", miscellaneousGroup );
+	}
+	catch ( H5::Exception& err )
+	{
+		logError ( err );
+		throwNested ( "Failed to write miscellaneous start data to HDF5 file! Error: " + str ( err.getDetailMsg ( ) ) + "\n" );
+	}
 }
  
 
@@ -626,6 +705,23 @@ void DataLogger::closeFile()
 	{
 		// wasn't open.
 		return;
+	}
+	try
+	{
+		// log the close time.
+		H5::Group miscellaneousGroup ( file.openGroup ( "/Miscellaneous" ) );
+		time_t t = time ( 0 );   // get time now
+		struct tm now;
+		localtime_s ( &now, &t );
+		writeDataSet ( str ( now.tm_year + 1900 ) + "-" + str ( now.tm_mon + 1 ) + "-" + str ( now.tm_mday ),
+					   "Stop-Date", miscellaneousGroup );
+		writeDataSet ( str ( now.tm_hour ) + ":" + str ( now.tm_min ) + ":" + str ( now.tm_sec ) + ":",
+					   "Stop-Time", miscellaneousGroup );
+	}
+	catch ( H5::Exception& err )
+	{
+		logError ( err );
+		errBox ( "Failed to write closing information (e.g. time of stop) to H5 File! Error was:\n\n" + str( err.getDetailMsg( ) ) + "\n" );
 	}
 	AndorPicureSetDataSpace.close();
 	AndorPictureDataset.close();	

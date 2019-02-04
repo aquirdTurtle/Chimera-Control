@@ -28,7 +28,7 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
 	edit.Create( NORM_EDIT_OPTIONS | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, edit.sPos, parent, id++ );
 	edit.fontType = fontTypes::CodeFont;
-	edit.SetBackgroundColor(0, RGB(0, 15, 20));
+	edit.SetBackgroundColor(0, _myRGBs["Static-Bkgd"]);
 
 	setDefaultColor(textColor);
 	loc.y += size;

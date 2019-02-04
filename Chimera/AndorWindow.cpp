@@ -4,7 +4,7 @@
 #include "PlotCtrl.h"
 #include "PlottingInfo.h"
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "MainWindow.h"
 #include "realTimePlotterInput.h"
 #include "MasterThreadInput.h"
@@ -18,10 +18,8 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 							CameraSettings ( &Andor ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
-							pics ( false )
-{
-
-};
+							pics ( false, "ANDOR_PICTURE_MANAGER" )
+{};
 
 
 IMPLEMENT_DYNAMIC(AndorWindow, CDialog)
@@ -204,15 +202,14 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 	analysisHandler.handleSaveConfig( saveFile );
 }
 
-
 void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
+	// I could and perhaps should further subdivide the cameraSettings one up.
+	ProfileSystem::standardOpenConfig ( configFile, "CAMERA_SETTINGS", "END_CAMERA_IMAGE_DIMENSIONS", &CameraSettings );
+	ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
+	ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
 	try
 	{
-	// I could and perhaps should further subdivide this up.
-		CameraSettings.handleOpenConfig ( configFile, ver );
-		pics.handleOpenConfig ( configFile, ver );
-		analysisHandler.handleOpenConfig ( configFile, ver );
 		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
 		{
 			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
@@ -225,14 +222,13 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 		pics.resetPictureStorage ( );
 		std::array<int, 4> nums = CameraSettings.getSettings ( ).palleteNumbers;
 		pics.setPalletes ( nums );
-
 		CRect rect;
 		GetWindowRect ( &rect );
 		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
 	}
-	catch ( Error& )
+	catch ( Error& e )
 	{
-		throwNested ( "Andor Camera Window failed to read parameters from the configuration file." );
+		errBox ( "Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace() );
 	}
 }
 
@@ -400,7 +396,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment();
 	}
 	// need to call this before acquireImageData().
 	Andor.updatePictureNumber( picNum );
@@ -431,7 +427,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 				std::pair<int, int> minMax;
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
 								  analysisHandler.getGrids( ), picNum );
@@ -469,7 +465,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment;
+		picNum = curSettings.totalPicsInExperiment();
 	}
 	if ( lParam != currentPictureNum && lParam != -1 )
 	{
@@ -532,7 +528,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
 								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
-								   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 
 			pics.drawPicture( drawer, picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
 
@@ -547,7 +543,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 				std::pair<int, int> minMax;
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment / curSettings.picsPerRepetition );
+									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
@@ -1037,6 +1033,7 @@ void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
 
 void AndorWindow::prepareAndor( ExperimentInput& input )
 {
+	currentPictureNum = 0;
 	input.includesCameraRun = true;
 	redrawPictures( false );
 	checkCameraIdle( );
@@ -1244,7 +1241,7 @@ void AndorWindow::startPlotterThread( ExperimentInput& input )
 	}
 	else
 	{
-		if ( input.AndorSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
+		if ( input.AndorSettings.totalPicsInExperiment() * input.plotterInput->analysisLocations.size()
 			 / input.plotterInput->plottingFrequency > 1000 )
 		{
 			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
@@ -1435,9 +1432,9 @@ std::string AndorWindow::getStartMessage()
 	dialogMsg += "\r\n";
 	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( CameraSettings.getSettings().andor.kineticCycleTime ) + "\r\n";
 	dialogMsg += "Pictures per Repetition:\r\n\t" + str( CameraSettings.getSettings().andor.picsPerRepetition ) + "\r\n";
-	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
+	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation() ) + "\r\n";
 	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
-	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment() ) + "\r\n";
 	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 	UINT count = 0;
@@ -1515,14 +1512,14 @@ BOOL AndorWindow::OnInitDialog()
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
 	alerts.alertMainThread( 0 );
 	alerts.initialize( positions, this, false, id, tooltips );
-	analysisHandler.initialize( positions, id, this, tooltips, false, mainWin->getRgbs() );
+	analysisHandler.initialize( positions, id, this, tooltips, false );
 	CameraSettings.initialize( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, tooltips );
 	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
 	position = { 797, 40 };
-	pics.initialize( position, this, id, mainWin->getBrushes()["Dark Green"], 550 * 2, 460 * 2 + 5 );
+	pics.initialize( position, this, id, _myBrushes["Dark Green"], 550 * 2, 460 * 2 + 5 );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
@@ -1567,12 +1564,10 @@ void AndorWindow::redrawPictures( bool andGrid )
 
 HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWin->getBrushes();
-	rgbMap rgbs = mainWin->getRgbs();
 	CBrush * result;
 	int num = pWnd->GetDlgCtrlID();
 
-	result = CameraSettings.handleColor(num, pDC, mainWin->getBrushes(), mainWin->getRgbs());
+	result = CameraSettings.handleColor(num, pDC );
 	HBRUSH res = *result;
 	if (res) { return res; }
 
@@ -1580,33 +1575,33 @@ HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{			
-			CBrush* result = box.handleColoring(num, pDC, brushes, rgbs);
+			CBrush* result = box.handleColoring(num, pDC);
 			if (result)
 			{
 				return *result;
 			}
 			else
 			{
-				pDC->SetTextColor( rgbs["Solarized Base0"] );
-				pDC->SetBkColor( rgbs["Medium Grey"] );
-				return *brushes["Medium Grey"];
+				pDC->SetTextColor( _myRGBs["Text"] );
+				pDC->SetBkColor( _myRGBs["Static-Bkgd"] );
+				return *_myBrushes["Static-Bkgd"];
 			}
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["Solarized Green"]);
-			pDC->SetBkColor(rgbs["Solarized Base02"]);
-			return *brushes["Solarized Base02"];
+			pDC->SetTextColor( _myRGBs["AndorWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["Solarized Base0"]);
-			pDC->SetBkColor(rgbs["Dark Grey"]);
-			return *brushes["Dark Grey"];
+			pDC->SetTextColor( _myRGBs["AndorWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["Solarized Base04"];
+			return *_myBrushes["Main-Bkgd"];
 		}
 	}
 }

@@ -76,9 +76,6 @@
     <ClCompile Include="ColorBox.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraWindow.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
     <ClCompile Include="CameraImageDimensions.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
@@ -190,9 +187,6 @@
     <ClCompile Include="ScriptStream.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
-    <ClCompile Include="DataAnalysisHandler.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
     <ClCompile Include="PlotDataSet.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
@@ -277,6 +271,13 @@
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="SegmentEnd.cpp" />
+    <ClCompile Include="AndorWindow.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="AndorRunSettings.cpp" />
+    <ClCompile Include="DataAnalysisControl.cpp">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -376,9 +377,6 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="CameraImageDimensions.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraWindow.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="ATMCD32D.H">
@@ -528,9 +526,6 @@
     <ClInclude Include="ScriptStream.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="DataAnalysisHandler.h">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
     <ClInclude Include="PlotDataSet.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
@@ -642,6 +637,12 @@
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="SegmentEnd.h" />
+    <ClInclude Include="AndorWindow.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="DataAnalysisControl.h">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

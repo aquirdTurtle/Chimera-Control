@@ -7,7 +7,7 @@
 #include "saveWithExplorer.h"
 #include "MasterThreadInput.h"
 #include "MainWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
@@ -105,13 +105,11 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
-				;
 				if ( camWin->wantsAutoCal( ) && !camWin->wasJustCalibrated( ) )
 				{
 					camWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
-
 				ExperimentInput input;
 				try
 				{
@@ -130,6 +128,7 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					camWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )
 					{
 						commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, true, true, input );
@@ -810,12 +809,19 @@ namespace commonFunctions
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
 				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
-				mainWin->fillMotTempProfile ( input.masterInput );
-				auxWin->loadTempSettings ( input.masterInput );
-				mainWin->fillTempInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::MotTemperature;
-				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-				logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", true );
+				try
+				{
+					mainWin->fillMotTempProfile ( input.masterInput );
+					auxWin->loadTempSettings ( input.masterInput );
+					mainWin->fillTempInput ( input.masterInput );
+					input.masterInput->expType = ExperimentType::MotTemperature;
+					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+					logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to load MOT temperature calibration experiment settings!\n\n"+err.trace() );
+				}
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -826,12 +832,20 @@ namespace commonFunctions
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
 				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
-				mainWin->fillRedPgcTempProfile ( input.masterInput );
-				auxWin->loadTempSettings ( input.masterInput );
-				mainWin->fillTempInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::PgcTemperature;
-				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-				logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", true );
+				try
+				{
+					mainWin->fillRedPgcTempProfile ( input.masterInput );
+					auxWin->loadTempSettings ( input.masterInput );
+					mainWin->fillTempInput ( input.masterInput );
+					input.masterInput->expType = ExperimentType::PgcTemperature;
+					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+					logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to load PGC temperature calibration experiment settings!\n\n" + err.trace ( ) );
+				}
+
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -842,12 +856,20 @@ namespace commonFunctions
 				ExperimentInput input;
 				input.masterInput = new MasterThreadInput;
 				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
-				mainWin->fillGreyPgcTempProfile ( input.masterInput );
-				auxWin->loadTempSettings ( input.masterInput );
-				mainWin->fillTempInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::GreyTemperature;
-				basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-				logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", true );
+				try
+				{
+					mainWin->fillGreyPgcTempProfile ( input.masterInput );
+					auxWin->loadTempSettings ( input.masterInput );
+					mainWin->fillTempInput ( input.masterInput );
+					input.masterInput->expType = ExperimentType::GreyTemperature;
+					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
+					logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to load grey molasses temperature calibration experiment settings!\n\n" + err.trace ( ) );
+				}
+
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -1073,6 +1095,7 @@ namespace commonFunctions
 		input.masterInput = new MasterThreadInput;
 		auxWin->loadMotSettings ( input.masterInput );
 		mainWin->fillMotInput ( input.masterInput );
+		input.masterInput->expType = ExperimentType::LoadMot;
 		if ( camWin != NULL )
 		{
 			// this is used for basler calibrations.
@@ -1089,7 +1112,7 @@ namespace commonFunctions
 		logger->initializeDataFiles( specialName, isCal );
 		logger->logAndorSettings( input.AndorSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
-		logger->logMiscellaneous();
+		logger->logMiscellaneousStart();
 		logger->logBaslerSettings ( input.baslerRunSettings, takeBaslerPictures );
 		UINT numVoltsMeasursments = 0;
 		if ( input.masterInput && input.masterInput->aiSys->wantsQueryBetweenVariations( ) )

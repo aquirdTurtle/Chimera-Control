@@ -2,31 +2,39 @@
 
 def turnOnMot():
   %% % TTLs
-  on: DiagMotRf
-  on: RepumpRf
-  on: SideMotRf
-  on: RepumpShutter
-  on: DiagMotShutter
-  on: SideMotShutter
-  off: RamanShutter
+  on: DiagMotRf %on
+  on: RepumpRf %on
+  on: SideMotRf %on
+  on: RepumpShutter %on
+  on: DiagMotShutter %on
+  on: SideMotShutter %on
+  off: RamanShutter %off
   %% %%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% % DACS
-  % var mot_freq 0.05
   var repump_pow 0.26
   var repump_freq -0.46
+  var mot_freq 0
   dac: DiagMotPower diagmot__servo_value
   dac: RepumpPower repump_pow
-  dac: MotFreq defaultMotFreq
+  dac: MotFreq mot_freq 
   dac: RepumpFreq repump_freq
+  %var tmpMotVal 0
   dac: SideMotPower sidemot__servo_value
   %% Magnetic Field Control
   var motStrength 7.1
-  var right_field 0.584 %0.742
-  var left_field -0.664 %-0.54
-  var front_field 0.392 %0.43
-  var back_field 1.640 %1.635
-  var bot_field -0.227 %-0.258
-  var top_field 0.538 %0.56
+%  var right_field 0.57
+%  var left_field -0.664 
+%  var front_field 0.389
+%  var back_field 1.640 
+%  var bot_field -0.227 
+%  var top_field 0.653 
+
+  var right_field 0.62
+  var left_field -0.9
+  var front_field 1.2
+  var back_field 2
+  var bot_field 0.25
+  var top_field 0.444
 
   dac: MotGradientCurrent motStrength
   dac: RightCoilCurrent right_field

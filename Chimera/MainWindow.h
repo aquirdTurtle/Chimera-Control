@@ -100,8 +100,6 @@ class MainWindow : public CDialog
 		HANDLE startExperimentThread( MasterThreadInput* input, bool isTurnOnMot );
 		
 		std::string getNotes( );
-		brushMap getBrushes();
-		rgbMap getRgbs();
 		fontMap getFonts();
 		profileSettings getProfileSettings();
 		seqSettings getSeqSettings( );
@@ -162,7 +160,7 @@ class MainWindow : public CDialog
 			BaslerFinMessageID			= ( WM_APP + 18 ),
 			GeneralFinMsgID				= ( WM_APP + 19 ),
 			NoMotAlertMessageID			= ( WM_APP + 20 );
-		bool autoF5_AfterFinish=true;
+		bool autoF5_AfterFinish = false;
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -190,8 +188,6 @@ class MainWindow : public CDialog
 		ColorBox boxes;
 		// auxiliary members
 		Communicator comm;
-		brushMap mainBrushes;
-		rgbMap mainRGBs;
 		fontMap mainFonts;
 		MasterManager masterThreadManager;
 		CMenu menu;

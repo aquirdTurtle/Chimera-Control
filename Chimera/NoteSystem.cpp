@@ -29,18 +29,19 @@ void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
 
 void NoteSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(openFile, "CONFIGURATION_NOTES");
 	/// handle notes
 	std::string notes;
 	std::string tempNote;
 	// no need to get a newline since this should be he first thing in the file.
 	openFile.get();
+	auto pos = openFile.tellg ( );
 	std::getline(openFile, tempNote);
 	if (tempNote != "END_CONFIGURATION_NOTES")
 	{
 		while (openFile && tempNote != "END_CONFIGURATION_NOTES")
 		{
 			notes += tempNote + "\r\n";
+			pos = openFile.tellg ( );
 			std::getline(openFile, tempNote);
 		}
 		if (notes.size() > 2)
@@ -53,6 +54,9 @@ void NoteSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 	{
 		setConfigurationNotes("");
 	}
+	// for consistency with other open functions, the end delimiter will be read outside this function, so go back one 
+	// line
+	openFile.seekg ( pos );
 }
 
 

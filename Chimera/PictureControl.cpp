@@ -30,21 +30,9 @@ void PictureControl::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
 	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 	// for a single plot.
 	horGraph->setCurrentDims ( width, height );
-	{
-		memDC ttlDC ( cdc, &horGraph->GetPlotRect ( ) );
-		horGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
-		horGraph->drawTitle ( ttlDC );
-		horGraph->drawBorder ( ttlDC );
-		horGraph->plotPoints ( &ttlDC );
-	}
+	horGraph->drawPlot ( cdc, bgdBrush, bgdBrush );
 	vertGraph->setCurrentDims ( width, height );
-	{
-		memDC ttlDC ( cdc, &vertGraph->GetPlotRect ( ) );
-		vertGraph->drawBackground ( ttlDC, bgdBrush, bgdBrush );
-		vertGraph->drawTitle ( ttlDC );
-		vertGraph->drawBorder ( ttlDC );
-		vertGraph->plotPoints ( &ttlDC );
-	}
+	vertGraph->drawPlot ( cdc, bgdBrush, bgdBrush );
 }
 
 
@@ -497,17 +485,21 @@ void PictureControl::setActive( bool activeState )
 /*
  * redraws the background and image. 
  */
-void PictureControl::redrawImage( CDC* easel)
+void PictureControl::redrawImage( CDC* easel, bool bkgd)
 {
-	drawBackground(easel);
+	if ( bkgd )
+	{
+		drawBackground ( easel );
+	}
 	if (active && mostRecentImage.size() != 0)
 	{
 		drawPicture(easel, mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 					mostRecentSpecialMaxSetting );
 	}
-
-	// TODO?
-	// drawGrid(parent, brush);
+	if ( active && mostRecentImage_m.size ( ) != 0 )
+	{
+		drawBitmap( easel, mostRecentImage_m );
+	}
 }
 
 void PictureControl::resetStorage()
@@ -973,7 +965,7 @@ void PictureControl::drawPicNum( CDC* dc, UINT picNum )
 	dc->SelectObject( textPen );
 	RECT rect = grid[0][0];
 	rect.right += 50;
-	dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
+			dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
 					DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	DeleteObject( textPen );
 }

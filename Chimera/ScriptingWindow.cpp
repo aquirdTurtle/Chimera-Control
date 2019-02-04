@@ -7,7 +7,7 @@
 #include "commonFunctions.h"
 #include "textPromptDialog.h"
 #include "AuxiliaryWindow.h"
-#include "CameraWindow.h"
+#include "AndorWindow.h"
 #include "BaslerWindow.h"
 #include "MainWindow.h"
 #include "Agilent.h"
@@ -62,8 +62,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 	try
 	{
 		masterScript.functionChangeHandler(mainWin->getProfileSettings().categoryPath);
-		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
+		masterScript.colorEntireScript( auxWin->getAllVariables( ), auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 		masterScript.updateSavedStatus( true );
 	}
 	catch ( Error& err )
@@ -108,11 +107,11 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 		{
 			intensityAgilent.handleInput(mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo());
 			intensityAgilent.setAgilent();
-			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getName() + ".\r\n" );
+			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.configDelim + ".\r\n" );
 		}
 		catch (Error&)
 		{
-			comm()->sendError( "Error while programming agilent " + intensityAgilent.getName() + "\r\n" );
+			comm()->sendError( "Error while programming agilent " + intensityAgilent.configDelim + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -213,16 +212,16 @@ BOOL ScriptingWindow::OnInitDialog()
 	int id = 2000;
 
 	POINT startLocation = { 0, 28 };
-	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG", 
+	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG",
 							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
-							IDC_NIAWG_EDIT }, mainWin->getRgbs()["Solarized Base03"]);
+							IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
 	startLocation = { 640, 28 };
-	auto rgbs = mainWin->getRgbs( );
+	
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
-								 rgbs["Solarized Base03"], rgbs, 640 );
+								 _myRGBs["Interactable-Bkgd"], 640 );
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
-	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, mainWin->getRgbs()["Solarized Base04"] );
+	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
 	startLocation = { 1700, 3 };
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
@@ -253,12 +252,9 @@ void ScriptingWindow::fillMasterThreadInput( MasterThreadInput* input )
 
 void ScriptingWindow::OnTimer(UINT_PTR eventID)
 {
-	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-													auxWin->getTtlNames(), auxWin->getDacInfo ());
-	niawgScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacInfo());
-	masterScript.handleTimerCall(auxWin->getAllVariables(), mainWin->getRgbs(),
-								 auxWin->getTtlNames(), auxWin->getDacInfo ());
+	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	niawgScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo());
+	masterScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -325,34 +321,46 @@ scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 */
 HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	brushMap brushes = mainWin->getBrushes();
-	rgbMap rgbs = mainWin->getRgbs();
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			int num = (pWnd->GetDlgCtrlID());
-			CBrush* result = statusBox.handleColoring(num, pDC, brushes, rgbs);
-			if (result)
+			int num = ( pWnd->GetDlgCtrlID ( ) );
+			HBRUSH result = intensityAgilent.handleColorMessage ( pWnd, pDC );
+			if ( result != NULL )
 			{
-				return *result;
+				return result;
 			}
-			else
+			CBrush* resultc = statusBox.handleColoring(num, pDC );
+			if ( resultc )
 			{
-				pDC->SetTextColor(rgbs["Solarized Base0"]);
-				pDC->SetBkColor( rgbs["Dark Grey"] );
-				return *brushes["Dark Grey"];
+				return *resultc;
 			}
+			pDC->SetTextColor( _myRGBs["Text"]);
+			pDC->SetBkColor( _myRGBs["Static-Bkgd"] );
+			return *_myBrushes["Static-Bkgd"];
 		}
+		case CTLCOLOR_EDIT:
+		{
+			HBRUSH result = intensityAgilent.handleColorMessage ( pWnd, pDC );
+			if ( result != NULL )
+			{
+				return result;
+			}
+			pDC->SetTextColor ( _myRGBs[ "ScriptWin-Text" ] );
+			pDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
+			return *_myBrushes[ "Interactable-Bkgd" ];
+		}
+
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["Solarized Base0"]);
-			pDC->SetBkColor(rgbs["Solarized Base02"]);
-			return *brushes["Solarized Base02"];
+			pDC->SetTextColor( _myRGBs["ScriptWin-Text"]);
+			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
+			return *_myBrushes["Interactable-Bkgd"];
 		}
 		default:
 		{
-			return *brushes["LigSolarized Base02"];
+			return *_myBrushes["Main-Bkgd"];
 		}
 	}
 }
@@ -398,7 +406,7 @@ void ScriptingWindow::newIntensityScript()
 		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( mainWin->getProfileSettings().categoryPath );
-		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(),
+		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), 
 														  auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
@@ -419,7 +427,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), 
-														  mainWin->getRgbs(), auxWin->getTtlNames(), 
+														  auxWin->getTtlNames(), 
 														  auxWin->getDacInfo ());
 	}
 	catch (Error& err)
@@ -465,10 +473,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 	{
 		comm()->sendError( err.trace() );
 	}
-
 }
-
-
 
 
 // just a quick shortcut.
@@ -486,8 +491,7 @@ void ScriptingWindow::newNiawgScript()
 		niawgScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
-		niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-									   auxWin->getTtlNames(), auxWin->getDacInfo () );
+		niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
@@ -505,8 +509,7 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 		niawgScript.openParentScript( horizontalOpenName, getProfile().categoryPath, mainWin->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		niawgScript.updateScriptNameText( getProfile().categoryPath );
-		niawgScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-			auxWin->getTtlNames(), auxWin->getDacInfo ());
+		niawgScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
@@ -556,12 +559,9 @@ void ScriptingWindow::updateScriptNamesOnScreen()
 
 void ScriptingWindow::recolorScripts()
 {
-	niawgScript.colorEntireScript( auxWin->getAllVariables(), mainWin->getRgbs(), 
-								   auxWin->getTtlNames(), auxWin->getDacInfo ());
-	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-													  auxWin->getTtlNames(), auxWin->getDacInfo ());
-	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacInfo ());
+	niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 
@@ -575,7 +575,15 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
 	try
 	{
-		ProfileSystem::checkDelimiterLine ( configFile, "SCRIPTS" );
+		ProfileSystem::initializeAtDelim ( configFile, "SCRIPTS", ver );
+	}
+	catch ( Error& err)
+	{
+		errBox ( "Failed to initialize configuration file at scripting window entry point \"SCRIPTS\"." );
+		return;
+	}		
+	try
+	{
 		configFile.get ( );
 		std::string niawgName, masterName;
 		if ( ver.versionMajor < 3 )
@@ -586,8 +594,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		getline ( configFile, niawgName );
 		getline ( configFile, masterName );
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
-
-		intensityAgilent.readConfigurationFile ( configFile, ver );
+		ProfileSystem::standardOpenConfig ( configFile, intensityAgilent.configDelim, &intensityAgilent, Version("4.0") );
 		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 												 mainWin->getRunInfo ( ) );
 		try
@@ -619,9 +626,9 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		considerScriptLocations ( );
 		recolorScripts ( );
 	}
-	catch ( Error& )
+	catch ( Error& e )
 	{
-		throwNested ( "Scripting Window failed to read parameters from the configuration file." );
+		errBox ( "Scripting Window failed to read parameters from the configuration file.\n\n" + e.trace() );
 	}
 }
 
@@ -632,8 +639,7 @@ void ScriptingWindow::newMasterScript()
 	masterScript.newScript( );
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
-	masterScript.colorEntireScript(auxWin->getAllVariables(), mainWin->getRgbs(),
-								   auxWin->getTtlNames(), auxWin->getDacInfo ());
+	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
 void ScriptingWindow::openMasterScript(CWnd* parent)
@@ -645,8 +651,7 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 		masterScript.openParentScript( openName, getProfile( ).categoryPath, mainWin->getRunInfo( ) );
 		updateConfigurationSavedStatus( false );
 		masterScript.updateScriptNameText( getProfile( ).categoryPath );
-		masterScript.colorEntireScript( auxWin->getAllVariables( ), mainWin->getRgbs( ),
-										auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
+		masterScript.colorEntireScript( auxWin->getAllVariables( ), auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 	}
 	catch ( Error& err )
 	{

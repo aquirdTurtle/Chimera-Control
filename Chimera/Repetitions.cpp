@@ -14,14 +14,13 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void Repetitions::handleOpenConfig(std::ifstream& openFile, Version ver )
+void Repetitions::handleOpenConfig ( std::ifstream& openFile, Version ver )
 {
-	ProfileSystem::checkDelimiterLine(openFile, "REPETITIONS");
 	UINT repNum;
 	openFile >> repNum;
-	ProfileSystem::checkDelimiterLine(openFile, "END_REPETITIONS");
-	setRepetitions(repNum);
+	setRepetitions ( repNum );
 }
+
 
 void Repetitions::handleNewConfig( std::ofstream& newFile )
 {

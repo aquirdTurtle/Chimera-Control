@@ -14,10 +14,11 @@ namespace TestAoSystem
 		TEST_METHOD( InitAoSys )
 		{
 			AoSystem aoSys(true);
-			auto stat = aoSys.getDacStatus( );
+			//auto stat = aoSys.getDacStatus( );
+			auto stat = aoSys.getDacInfo ( );
 			for ( auto dac : stat )
 			{
-				Assert::IsTrue( 0 == dac );
+				Assert::IsTrue( 0 == dac.currVal );
 			}
 			aoSys.initializeDataObjects( 1, 0 );
 			aoSys.interpretKey( std::vector<std::vector<parameterType>>( 1 ), std::string( ) );
