@@ -13,8 +13,8 @@
 // build and debug other aspects of the program.
 
 //#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
-//#define ANALYSIS_COMPUTER
+//#define SPECTRE_LAPTOP
+#define ANALYSIS_COMPUTER
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -73,7 +73,7 @@
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
-	#define PYTHON_SAFEMODE true
+	#define PYTHON_SAFEMODE false
 	#define DIO_SAFEMODE true
 	#define ANALOG_OUT_SAFEMODE true
 	#define ANALOG_IN_SAFEMODE true
@@ -97,9 +97,9 @@
 	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Chimera-Control/Chimera";
 	const std::string PROJECT_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\";
-	const std::string PYTHON_CODE_LOCATION = PROJECT_LOCATION + "\\Chimera";
+	//const std::string PYTHON_CODE_LOCATION = PROJECT_LOCATION + "\\Chimera";
 	// same as debug output location but with forward slashes for ease of use in python
 	const std::string PYTHON_INPUT_LOCATION = PROJECT_LOCATION + "\\Debug-Output\\";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
