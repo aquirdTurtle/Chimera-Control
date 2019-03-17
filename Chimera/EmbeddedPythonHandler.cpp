@@ -21,12 +21,13 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	}
 	Py_SetPythonHome( PYTHON_HOME );
 	Py_Initialize( );
-	std::string stdOutErr = "import sys\n"
+	std::string stdOutErr = 
+		"import sys\n"
 		"class CatchOutErr:\n"
-		"\tdef __init__(self):\n"
-		"\t\tself.value = ''\n"
-		"\tdef write(self, txt):\n"
-		"\t\tself.value += txt\n"
+			"\tdef __init__(self):\n"
+			"\t\tself.value = ''\n"
+			"\tdef write(self, txt):\n"
+			"\t\tself.value += txt\n"
 		"catchOutErr = CatchOutErr()\n"
 		"sys.stderr = catchOutErr\n";
 	//create main module
@@ -38,7 +39,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	// start using the run function.
 	try
 	{
-		run ( "import smtplib" );
+		//run ( "import smtplib" );
 	}
 	catch ( Error& err )
 	{

@@ -36,7 +36,6 @@ class FgenFlume
 		void deleteWaveform( ViConstString waveformName );
 		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
 
-
 		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
 		void resetWritePosition( );
 		void writeScript( std::vector<ViChar> script );
@@ -58,7 +57,6 @@ class FgenFlume
 		ViSession getViSessionAttribute( ViAttr attribute );
 		const bool safemode;
 	private:
-
 		const ViConstString EXTERNAL_TRIGGER_NAME = "ScriptTrigger0";
 		const ViConstString SOFTWARE_TRIGGER_NAME = "ScriptTrigger1";
 		std::string currentScriptName;

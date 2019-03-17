@@ -13,8 +13,8 @@
 // build and debug other aspects of the program.
 
 //#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
-#define ANALYSIS_COMPUTER
+#define SPECTRE_LAPTOP
+//#define ANALYSIS_COMPUTER
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
