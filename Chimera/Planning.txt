@@ -99,3 +99,4 @@ BUGS:
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
 - niawg goes yellow before confirmation.
+- fix dio timestamp issue
