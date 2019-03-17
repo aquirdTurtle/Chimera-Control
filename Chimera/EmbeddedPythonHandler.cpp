@@ -21,12 +21,13 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	}
 	Py_SetPythonHome( PYTHON_HOME );
 	Py_Initialize( );
-	std::string stdOutErr = "import sys\n"
+	std::string stdOutErr = 
+		"import sys\n"
 		"class CatchOutErr:\n"
-		"\tdef __init__(self):\n"
-		"\t\tself.value = ''\n"
-		"\tdef write(self, txt):\n"
-		"\t\tself.value += txt\n"
+			"\tdef __init__(self):\n"
+			"\t\tself.value = ''\n"
+			"\tdef write(self, txt):\n"
+			"\t\tself.value += txt\n"
 		"catchOutErr = CatchOutErr()\n"
 		"sys.stderr = catchOutErr\n";
 	//create main module
@@ -36,13 +37,38 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	//get our catchOutErr object (of type CatchOutErr) created above
 	errorCatcher = PyObject_GetAttrString( mainModule, "catchOutErr" );
 	// start using the run function.
-	ERR_POP( run( "import smtplib" ) );
-	// for some reason the default qt based backed doesn't work
-	ERR_POP( run( "from email.mime.text import MIMEText" ) );
-	ERR_POP( run( "import sys" ) );
-	ERR_POP( run( "sys.path.append('" + PYTHON_CODE_LOCATION + "')" ) )
-	ERR_POP( run( "import plotDacs" ) );
-	ERR_POP( run( "import plotTtls" ) );
+	try
+	{
+		//run ( "import smtplib" );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
+	try
+	{
+		run ( "from email.mime.text import MIMEText" );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
+	try
+	{
+		run ( "sys.path.append('" + PYTHON_CODE_LOCATION + "')" );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
+	try
+	{
+		run ( "import test" );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
 }
 
 
@@ -54,22 +80,7 @@ void EmbeddedPythonHandler::flush()
 	}
 	// this resets the value of the class object, meaning that it resets the error text inside it.
 	std::string flushMsg = "catchOutErr.__init__()";
-	run(flushMsg, false);
-}
-
-
-void EmbeddedPythonHandler::runPlotDacs( )
-{
-	ERR_POP( run( 
-		"plotDacs.plotDacs( '" + PYTHON_INPUT_LOCATION + "DAC-Sequence.txt', time = True )"
-	) );	
-}
-
-void EmbeddedPythonHandler::runPlotTtls( )
-{
-	ERR_POP(run(
-		"plotTtls.plotTtls('" + PYTHON_INPUT_LOCATION + "TTL-Sequence.txt', time = True )"
-		));
+	run(flushMsg, true, false);
 }
 
 
@@ -177,44 +188,52 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail, 
 									 std::string password)
 {
-	flush();
-	if (baseEmail == "" || password == "")
+	try
 	{
-		thrower ("ERROR: Please set an email and password for sending texts with!");
-	}
-	ERR_POP_RETURN(run("email = MIMEText('" + msg + "', 'plain')"));
-	ERR_POP_RETURN(run("email['Subject'] = '" + subject + "'"));
-	ERR_POP_RETURN(run("email['From'] = '" + baseEmail + "'"));
-	std::string recipient = person.number;
-	if (person.provider == "verizon")
-	{
-		// for verizon: [number]@vzwpix.com
-		recipient += "@vzwpix.com";
-	}
-	else if (person.provider == "tmobile")
-	{
-		// for tmobile: [number]@tmomail.net
-		recipient += "@tmomail.net";
-	}
-	else if (person.provider == "at&t")
-	{
-		recipient += "@txt.att.net";
-	}
-	else if (person.provider == "googlefi")
-	{
-		recipient += "@msg.fi.google.com";
-	}
+		flush ( );
+		if ( baseEmail == "" || password == "" )
+		{
+			thrower ( "ERROR: Please set an email and password for sending texts with!" );
+		}
+		run ( "email = MIMEText('" + msg + "', 'plain')" );
+		run ( "email['Subject'] = '" + subject + "'" );
+		run ( "email['From'] = '" + baseEmail + "'" );
+		std::string recipient = person.number;
+		if ( person.provider == "verizon" )
+		{
+			// for verizon: [number]@vzwpix.com
+			recipient += "@vzwpix.com";
+		}
+		else if ( person.provider == "tmobile" )
+		{
+			// for tmobile: [number]@tmomail.net
+			recipient += "@tmomail.net";
+		}
+		else if ( person.provider == "at&t" )
+		{
+			recipient += "@txt.att.net";
+		}
+		else if ( person.provider == "googlefi" )
+		{
+			recipient += "@msg.fi.google.com";
+		}
 
-	ERR_POP_RETURN(run("email['To'] = '" + recipient + "'"));
-	ERR_POP_RETURN(run("mail = smtplib.SMTP('smtp.gmail.com', 587)"));
-	ERR_POP_RETURN(run("mail.ehlo()"));
-	ERR_POP_RETURN(run("mail.starttls()"));
-	ERR_POP_RETURN(run("mail.login('" + baseEmail + "', '" + password + "')"));
-	ERR_POP_RETURN(run("mail.sendmail(email['From'], email['To'], email.as_string())"));
+		run ( "email['To'] = '" + recipient + "'" );
+		run ( "mail = smtplib.SMTP('smtp.gmail.com', 587)" );
+		run ( "mail.ehlo()" );
+		run ( "mail.starttls()" );
+		run ( "mail.login('" + baseEmail + "', '" + password + "')" );
+		run ( "mail.sendmail(email['From'], email['To'], email.as_string())" );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.what ( ) );
+	}
 }
 
+
 // for a single python command. Returns python's output of said command.
-std::string EmbeddedPythonHandler::run(std::string cmd, bool flush /*=true*/)
+void EmbeddedPythonHandler::run(std::string cmd, bool quiet /*=false*/, bool flush /*=true*/)
 {
 	if (flush)
 	{
@@ -222,11 +241,16 @@ std::string EmbeddedPythonHandler::run(std::string cmd, bool flush /*=true*/)
 	}
 	if (PYTHON_SAFEMODE)
 	{
-		return "";
+		return;
 	}
 	PyRun_SimpleString(cmd.c_str());
 	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
 	std::string txt = PyBytes_AS_STRING( PyUnicode_AsEncodedString( output, "ASCII", "strict" ) );
-	return txt;
+	if ( !quiet && txt != "" )
+	{
+		std::string runMsg = "Error seen while running python command \"" + cmd + "\"\n\n";
+		thrower(runMsg + txt);
+	}
 }
+

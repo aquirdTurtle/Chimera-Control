@@ -577,7 +577,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 	{
 		ProfileSystem::initializeAtDelim ( configFile, "SCRIPTS", ver );
 	}
-	catch ( Error& err)
+	catch ( Error&)
 	{
 		errBox ( "Failed to initialize configuration file at scripting window entry point \"SCRIPTS\"." );
 		return;

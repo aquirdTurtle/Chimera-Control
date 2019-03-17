@@ -52,7 +52,7 @@ void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* 
 	{
 		data = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	}
-	viewPlot = new PlotCtrl( scopeData, plotStyle::OscilloscopePlot, plotPens, font, plotBrushes, title );
+	viewPlot = new PlotCtrl( scopeData, plotStyle::OscilloscopePlot, plotPens, font, plotBrushes, std::vector<int>(), title );
 	viewPlot->init( topLeftLoc, width, height, parent );
 	topLeftLoc.y += height;
 	//refreshData( );
