@@ -1,11 +1,11 @@
 def zeroFields():
   % total time = 0. This function is for doing pgc.
-  var left_field -0.286
-  var right_field 0.4856
-  var top_field 1.943
-  var bot_field -1.994
-  var front_field -0.45
-  var back_field 0.551
+  var left_field -0.6
+  var right_field 0.6
+  var top_field 1.6
+  var bot_field -1.9
+  var front_field -0.2
+  var back_field 0.6
   dac: leftCoilCurrent left_field 
   dac: rightCoilCurrent right_field 
   dac: topCoilCurrent top_field 

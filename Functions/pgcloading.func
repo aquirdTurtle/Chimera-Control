@@ -2,13 +2,13 @@
 def PgcLoading():
   %Shutting off gradient from MOT loading:    
   dac: motGradientCurrent 0
-  var loading_detuning 0 % was -0.8 C.K. 6/21/18
+  var loading_detuning -2 % was -0.8 C.K. 6/21/18
   dacLinSpace: MotFreq defaultmotFreq loading_detuning 1 10
   call zeroFields()
   % Set beam powers for PGC and turn on beams 
   % to let the ramp finish
   var diag_power 0.1268
-  var sidemot_power 0.1
+  var sidemot_power 0.25
   dac: repumpPower 0.1
   dac: diagMotPower diag_power
   dac: sideMotPower sidemot_power 
@@ -21,7 +21,7 @@ def PgcLoading():
   t += pgc_time
   off: repumpRf
   off: sideMotRf
-  off: diagMotRf 
+  off: diagMotRf
   dacLinSpace: MotFreq loading_detuning defaultmotFreq 1 10
   dac: repumpPower 0
   dac: diagMotPower 0

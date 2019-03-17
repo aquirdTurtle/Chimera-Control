@@ -1190,8 +1190,11 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	for (USHORT commandInc = 0; commandInc < ttlCommandList[seqNum][variation].size(); commandInc++)
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
-		// just need to check the back value's time.
-		if (commandInc == 0 || fabs(orderedList[commandInc].time - timeOrganizer.back().first) > 2 * DBL_EPSILON)
+		// just need to check the back value's time. DIO64 uses a 10MHz clock, can do 100ns spacing, check diff 
+		// threshold to extra room. If dt<1ns, probably just some floating point issue. 
+		// If 1ns<dt<100ns I want to actually complain to the user since it seems likely that  this was intentional and 
+		// not a floating error.
+		if (commandInc == 0 || fabs(orderedList[commandInc].time - timeOrganizer.back().first) > 1e-6)
 		{
 			// new time
 			timeOrganizer.push_back({ orderedList[commandInc].time, std::vector<USHORT>({ commandInc }) });
