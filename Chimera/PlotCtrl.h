@@ -36,7 +36,7 @@ class PlotCtrl
 {
 	public:
 		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pens,
-				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
+				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::vector<int> thresholds,
 				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );
 		void clear( );
@@ -52,11 +52,12 @@ class PlotCtrl
 		void drawBackground( memDC*, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void drawPlot( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush );
+		void drawThresholds ( memDC* d, long  thresholds, Gdiplus::Pen* pen );
 		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
 							  std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY );
 		void drawLine( CDC* d, double begX, double begY, double endX, double endY, Gdiplus::Pen* p );
 		void drawLine( CDC* d, POINT beg, POINT end, Gdiplus::Pen* p );
-		void convertDataToScreenCoords( std::vector<plotDataVec>& dat );
+		void convertDataToScreenCoords( std::vector<plotDataVec>& dat, std::vector<long>& thresholds );
 		void shiftTtlData( std::vector<plotDataVec>& rawData );
 		void drawLegend( memDC* d, std::vector<plotDataVec> screenData );
 		void getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlotDataVec> rawData,
@@ -68,14 +69,15 @@ class PlotCtrl
 
 		bool wantsSustain( );
 		void setControlLocation ( POINT topLeftLoc, LONG width, LONG height );
-
 		std::vector<std::mutex> dataMutexes;
+
 	private:
 		const bool narrow;
 		// in units of the data
 		double boxWidth=10;
 		double boxWidthPixels;
 		double widthScale2, heightScale2;
+		std::vector<int> thresholds;
 		const plotStyle style;
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.

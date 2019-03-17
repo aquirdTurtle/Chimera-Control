@@ -349,6 +349,7 @@ void AndorCameraSettingsControl::rearrange( AndorRunModes cameraMode, AndorTrigg
 	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	minKineticCycleTimeDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
 	calControl.rearrange( cameraMode, triggerMode, width, height, fonts );
+
 }
 
 

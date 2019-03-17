@@ -47,7 +47,6 @@ FEATURES:
 	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
 	  Especially useful for auto-optimization to keep this good over time.
 - Make (option for) hist plots for single pic mode andor images
-- display threshold on histogram.
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
@@ -92,11 +91,9 @@ BUGS:
 - "if no mot?" check is not positioned correctly
 - something in the thrower system is eating the last character of the error message.
 - should not be able to load agilent script if not in scripting mode.
-- recolor agilent script after changing to scripting mode.
 - servos failing quietly...
 - seems that some python dll is failing to load on the master computer
-- should be able to change basler image dimensions while running
+- should be able to change basler image dimensions edits while running
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
 - niawg goes yellow before confirmation.
-- fix dio timestamp issue

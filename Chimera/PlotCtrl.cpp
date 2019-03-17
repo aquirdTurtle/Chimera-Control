@@ -1,11 +1,11 @@
 ﻿#include "stdafx.h"
 #include "PlotCtrl.h"
 #include "Thrower.h"
-
+#include <numeric>
 
 PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pensIn,
-					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,	std::string titleIn, bool narrowOpt,
-					bool plotHistOption ) :
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::vector<int> thresholds_in,
+					std::string titleIn, bool narrowOpt, bool plotHistOption ) :
 	whitePen( PS_SOLID, 0, RGB( 255, 255, 255 ) ),
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
 	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
@@ -13,6 +13,7 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 	data( dataHolder ), style( inStyle ), dataMutexes( dataHolder.size( ) ), textFont( font ),
 	brushes( plotBrushes ), pens( pensIn ), narrow(narrowOpt )
 {
+	thresholds = thresholds_in;
 	Gdiplus::Color whiteColor( 255, 255, 255, 255 );
 	whiteBrush = new Gdiplus::SolidBrush( whiteColor );
 	whiteGdiPen = new Gdiplus::Pen( whiteBrush );
@@ -143,7 +144,7 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
+void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData, std::vector<long>& scaledThresholds )
 {
 	double minx = DBL_MAX, maxx = -DBL_MAX, miny = DBL_MAX, maxy = -DBL_MAX;
 	for ( auto line : screenData )
@@ -157,6 +158,20 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			if ( elem.x > maxx )
 			{
 				maxx = elem.x;
+			}
+		}
+	}
+	if ( style == plotStyle::HistPlot )
+	{
+		for ( auto t : thresholds )
+		{
+			if ( t < minx )
+			{
+				minx = t;
+			}
+			if ( t > maxx )
+			{
+				maxx = t;
 			}
 		}
 	}
@@ -178,6 +193,10 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
+	if ( style == plotStyle::VertHist || style == plotStyle::HistPlot )
+	{
+		miny = 0;
+	}
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
 	double plotHeightPixels = heightScale2 * (plotAreaDims.bottom - plotAreaDims.top);
 	double rangeX = maxx - minx;
@@ -195,8 +214,8 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	if ( style == plotStyle::HistPlot )
 	{
 		// resize things to take into acount the widths.
-		maxx += boxWidth;
-		minx -= boxWidth;
+		maxx -= boxWidth;
+		minx += boxWidth;
 		rangeX = maxx - minx;
 		boxWidthPixels = ceil(boxWidth * dataScaleX * 0.99);
 	}
@@ -210,9 +229,9 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else if ( style == plotStyle::TtlPlot )
 	{
-		dataHeight = 2;
-		// because of offset in plot
-		dataMin = -0.5;
+dataHeight = 2;
+// because of offset in plot
+dataMin = -0.5;
 	}
 	else if ( style == plotStyle::DacPlot )
 	{
@@ -224,8 +243,8 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else if ( style == plotStyle::OscilloscopePlot )
 	{
-		dataHeight = (maxy - miny) * 1.1;
-		dataMin = miny - (maxy - miny)*0.05;
+		dataHeight = ( maxy - miny ) * 1.1;
+		dataMin = miny - ( maxy - miny )*0.05;
 	}
 	else if ( style == plotStyle::HistPlot || style == plotStyle::VertHist )
 	{
@@ -268,36 +287,57 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
+	if ( style == plotStyle::HistPlot )
+	{
+		scaledThresholds.clear ( );
+		for ( auto t : thresholds )
+		{
+			scaledThresholds.push_back ( plotAreaDims.left * widthScale2 + ( t - minx ) * dataScaleX + 10 );
+		}
+	}
 }
 
-void PlotCtrl::clear( )
+void PlotCtrl::clear ( )
 {
-	pens.clear( );
-	brushes.clear( );
+	pens.clear ( );
+	brushes.clear ( );
 }
 
 
-void PlotCtrl::plotPoints( memDC* d )
+void PlotCtrl::plotPoints ( memDC* d )
 {
-	if ( data.size( ) == 0 )
+	if ( data.size ( ) == 0 )
 	{
 		return;
 	}
 	std::vector<plotDataVec> screenData;
 	std::vector<plotDataVec> shiftedData;
+	std::vector<long> scaledThresholds;
 	{
-		for ( auto lineCount : range( data.size( ) ) )
+		for ( auto lineCount : range ( data.size ( ) ) )
 		{
-			std::lock_guard<std::mutex> lock( dataMutexes[lineCount] );
-			screenData.push_back( *data[lineCount] );
+			std::lock_guard<std::mutex> lock ( dataMutexes[ lineCount ] );
+			screenData.push_back ( *data[ lineCount ] );
 		}
 	}
 	shiftedData = screenData;
 	if ( style == plotStyle::TtlPlot )
 	{
-		shiftTtlData( shiftedData );
+		shiftTtlData ( shiftedData );
 	}
-	convertDataToScreenCoords( shiftedData );
+	convertDataToScreenCoords ( shiftedData, scaledThresholds );
+	if ( style == plotStyle::HistPlot && shiftedData.size ( ) != thresholds.size ( )+1 )
+	{
+		if ( scaledThresholds.size ( ) == 1)
+		{
+			scaledThresholds = std::vector<long> ( shiftedData.size ( ), scaledThresholds[0] );
+		}
+		else
+		{
+			scaledThresholds = std::vector<long> ( shiftedData.size ( ), 0 );
+			//thrower ( "ERROR: Threshold number not compatible with data set number!" );
+		}
+	}
 	std::vector<double> xRaw, xScaled;
 	{
 		std::lock_guard<std::mutex> lock( dataMutexes[0] );
@@ -313,11 +353,31 @@ void PlotCtrl::plotPoints( memDC* d )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
 	}
+	if ( style == plotStyle::HistPlot )
+	{
+		minMaxRaw.first = 0;
+		minMaxScaled.first = 0;
+	}
 	drawGridAndAxes( d, xRaw, xScaled, minMaxRaw, minMaxScaled );
 	UINT penNum = 0;
 	UINT lineNum = 0;
-	for ( auto& line : shiftedData )
+	for ( auto lineNum : range(shiftedData.size()) )
+	//for ( auto& line : shiftedData )
 	{
+		auto& line = shiftedData[ lineNum ];
+
+		long t;
+		if ( style == plotStyle::HistPlot )
+		{
+			if ( lineNum == shiftedData.size ( ) - 1 )
+			{
+				t = std::accumulate ( scaledThresholds.begin ( ), scaledThresholds.end ( ), 0.0 ) / scaledThresholds.size ( );
+			}
+			else
+			{
+				t = scaledThresholds[ lineNum ];
+			}
+		}
 		Gdiplus::SolidBrush* brush;
 		Gdiplus::Pen* pen;
 		if ( lineNum == shiftedData.size( ) - 1 && style == plotStyle::ErrorPlot )
@@ -363,9 +423,14 @@ void PlotCtrl::plotPoints( memDC* d )
 		{
 			makeLinePlot( d, line, pen );
 		}
-		else if ( style == plotStyle::HistPlot || style == plotStyle::VertHist )
+		else if ( style == plotStyle::HistPlot )
 		{
 			makeBarPlot( d, line, brush );
+			drawThresholds ( d, t, pen );
+		}
+		else if ( style == plotStyle::VertHist )
+		{
+			makeBarPlot ( d, line, brush );
 		}
 		lineNum++;
 	}
@@ -743,6 +808,12 @@ void PlotCtrl::circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* b
 	g.FillEllipse( brush, r );
 }
 
+
+void PlotCtrl::drawThresholds ( memDC* d, long threshold, Gdiplus::Pen* pen ) 
+{
+	long top = plotAreaDims.top * heightScale2, bottom = plotAreaDims.bottom * heightScale2;
+	drawLine ( d, { threshold, top }, { threshold, bottom}, pen );
+}
 
 void PlotCtrl::errBars( memDC* d, POINT center, long err, long capSize, Gdiplus::Pen* pen )
 {
