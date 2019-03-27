@@ -222,7 +222,7 @@ BOOL ScriptingWindow::OnInitDialog()
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
-	startLocation = { 1700, 3 };
+	startLocation = { 1600, 3 };
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
 	

@@ -445,7 +445,7 @@ BOOL MainWindow::OnInitDialog( )
 {
 	SetWindowText ( "Main Window" );
 	startupTimes.push_back(chronoClock::now());
-	eMainWindowHwnd = GetSafeHwnd( );
+	eMainWindowHwnd = this;
 	for ( auto elem : GIST_RAINBOW_RGB )
 	{
 		Gdiplus::Color c( 50, BYTE( elem[0] ), BYTE( elem[1] ), BYTE( elem[2] ) );
@@ -616,7 +616,7 @@ void MainWindow::notifyConfigUpdate( )
 void MainWindow::catchEnter( )
 {
 	// the default handling is to close the window, so I need to catch it.
-
+	errBox ( ":D" );
 }
 
 

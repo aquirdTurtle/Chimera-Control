@@ -11,7 +11,7 @@
 extern std::vector<std::string> WAVEFORM_NAME_FILES;
 extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;
 
-extern HWND eMainWindowHwnd;
+extern CWnd* eMainWindowHwnd;
 
 extern std::unordered_map<std::string, COLORREF> _myRGBs;
 extern std::unordered_map<std::string, CBrush*> _myBrushes;
