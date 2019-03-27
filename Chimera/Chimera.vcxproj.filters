@@ -278,6 +278,7 @@
     <ClCompile Include="DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
+    <ClCompile Include="AnalogOutput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -643,6 +644,7 @@
     <ClInclude Include="DataAnalysisControl.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
+    <ClInclude Include="AnalogOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

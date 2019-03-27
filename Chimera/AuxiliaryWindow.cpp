@@ -1463,6 +1463,27 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 	{
 		toolTips[toolTipInc]->RelayEvent(pMsg);
 	}
+	if ( pMsg->message == WM_KEYDOWN )
+	{
+		if ( pMsg->wParam == VK_UP || pMsg->wParam == VK_DOWN)
+		{
+			auto win = GetFocus ( );
+			bool up = pMsg->wParam == VK_UP;
+			if ( aoSys.handleArrow ( win, up ) )
+			{
+				mainWin->updateConfigurationSavedStatus ( false );
+				try
+				{
+					aoSys.forceDacs ( &ttlBoard );
+				}
+				catch ( Error& err )
+				{
+					sendErr ( "Failed to change dacs - caught during quick change handling. " + err.trace ( ) + "\r\n" );
+				}
+				return TRUE;
+			}			
+		}
+	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
