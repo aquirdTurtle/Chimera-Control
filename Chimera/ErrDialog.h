@@ -16,7 +16,7 @@ class ErrDialog : public CDialog
 			info
 		};
 
-		ErrDialog ( std::string description, type dlgType_ ) : CDialog ( IDD_ERROR_DIALOG )
+		ErrDialog ( std::string description, type dlgType_ ) : CDialog ( IDD_ERROR_DIALOG, eMainWindowHwnd )
 		{
 			dlgType = dlgType_;
 			descriptionText = description;

@@ -13,7 +13,7 @@
 std::vector<std::string> WAVEFORM_NAME_FILES = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 std::vector<std::string> WAVEFORM_TYPE_FOLDERS = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 
-HWND eMainWindowHwnd;
+CWnd* eMainWindowHwnd;
 /// light theme (work in progress...)
 std::string staticBkgd = "Light Grey", interactableBkgd = "Solarized Base2";
 std::unordered_map<std::string, COLORREF> _myRGBs = {

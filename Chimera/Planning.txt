@@ -70,6 +70,7 @@ Refactoring / Other:
 - Label all values in config file, making it very human-readable.
 - Use new slider controls
 - reorganize .h and .cpp files in visual studio
+- remove the complicated rearrangement that happens on the camera window, all functions available at all times.
 
 Checks and Tests
 - add check for flash that sum of indv move times is the total move time.
@@ -95,3 +96,4 @@ BUGS:
 - should be able to change basler image dimensions edits while running
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
+- something wrong about position of threshold on histograms

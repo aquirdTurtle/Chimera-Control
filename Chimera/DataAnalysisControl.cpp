@@ -853,6 +853,7 @@ void DataAnalysisControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode 
 	deleteGrid.rearrange( cameraMode, trigMode, width, height, fonts );
 	plotTimerTxt.rearrange( cameraMode, trigMode, width, height, fonts );
 	plotTimerEdit.rearrange( cameraMode, trigMode, width, height, fonts );
+	
 }
 
 
