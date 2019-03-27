@@ -50,7 +50,6 @@ FEATURES:
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
-- camera "running" status should display most recent temp.
 
 
 Refactoring / Other:
@@ -66,9 +65,11 @@ Refactoring / Other:
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.
-- refactor rerngmove complexmove and simplemove which are confusing... 
+- refactor rerngmove complexmove and simplemove names which are confusing... 
 - refactor master configuration to be more similar to normal configuration reading
-- Label all values in config file, making it human-readable.
+- Label all values in config file, making it very human-readable.
+- Use new slider controls
+- reorganize .h and .cpp files in visual studio
 
 Checks and Tests
 - add check for flash that sum of indv move times is the total move time.

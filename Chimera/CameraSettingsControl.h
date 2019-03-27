@@ -117,5 +117,6 @@ class AndorCameraSettingsControl
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.
 		AndorCameraSettings settings;
+		double mostRecentTemperature;
 };
 
