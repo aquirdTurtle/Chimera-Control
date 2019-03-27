@@ -421,6 +421,10 @@ void ProfileSystem::deleteConfiguration()
 */
 void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 {
+	if ( configurationSavedIndicator.m_hWnd == NULL )
+	{
+		return;
+	}
 	configurationIsSaved = isSaved;
 	if (isSaved)
 	{

@@ -9,6 +9,8 @@
 #include "DioSystem.h"
 #include "DaqMxFlume.h"
 #include "AoStructures.h"
+#include "AnalogOutput.h"
+
 #include "Version.h"
 
 /**
@@ -46,7 +48,6 @@ class AoSystem
 		void setMinMax( int dacNumber, double min, double max );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData,
 						   std::vector<std::vector<double>> finTimes );
-		double roundToDacResolution( double num );
 		void handleEditChange( UINT dacNumber );
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
@@ -88,21 +89,21 @@ class AoSystem
 		unsigned int getNumberOfDacs( );
 		std::pair<double, double> getDacRange( int dacNumber );
 		std::array<AoInfo, 24> getDacInfo ( );
-		//std::array<double, 24> getDacStatus( );
 		std::array<double, 24> getFinalSnapshot( );
 		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
+		bool handleArrow ( CWnd* focus, bool up );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
 		Control<CleanButton> zeroDacsButton;
+		Control<CleanCheck> quickChange;
+		std::array<AnalogOutput, 24> outputs;
 
-		std::array<Control<CStatic>, 24> dacLabels;
-		std::array<Control<CEdit>, 24> breakoutBoardEdits;
+		//std::array<Control<CStatic>, 24> dacLabels;
+		//std::array<Control<CEdit>, 24> breakoutBoardEdits;
+		//std::array<AoInfo, 24> dacInfo;
 
-		std::array<AoInfo, 24> dacInfo;
-
-		const double dacResolution;
 		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
 		// first = sequence, 2nd = variation
 		std::vector<std::vector<std::vector<AoCommand>>> dacCommandList;
