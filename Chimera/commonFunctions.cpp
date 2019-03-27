@@ -911,7 +911,6 @@ namespace commonFunctions
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
-
 		if (seq.sequence.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
@@ -921,24 +920,12 @@ namespace commonFunctions
 		// check config settings
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
-		
-		if (runNiawg)
-		{
-			mainWin->getComm()->sendColorBox( System::Niawg, 'Y' );
-		}
 		// Set the thread structure.
 		input.masterInput = new MasterThreadInput();
 		input.masterInput->runMaster = runTtls;
 		input.masterInput->skipNext = camWin->getSkipNextAtomic( );
 		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-		if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
-		{
-			input.masterInput->settings.dontActuallyGenerate = true;
-		}
-		else
-		{
-			input.masterInput->settings.dontActuallyGenerate = false;
-		}
+		input.masterInput->settings.dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
 		input.masterInput->comm = mainWin->getComm();
 		input.masterInput->profile = profile;
