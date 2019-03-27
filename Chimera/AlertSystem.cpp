@@ -125,7 +125,7 @@ void AlertSystem::soundAlert()
 }
 
 
-void AlertSystem::rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
+void AlertSystem::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
 							 fontMap fonts)
 {
 	autoPauseAtAlert.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -134,6 +134,7 @@ void AlertSystem::rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMo
 	alertThresholdText.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertThresholdEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	soundAtFinshCheck.rearrange(cameraMode, triggerMode, width, height, fonts);
+	motAlertActiveCheckBox.rearrange ( cameraMode, triggerMode, width, height, fonts );
 }
 
 
