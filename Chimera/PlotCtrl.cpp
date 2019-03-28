@@ -281,6 +281,11 @@ void PlotCtrl::getXLims ()
 		maxx = max_d_x + boxWidth;
 		minx = min_d_x - boxWidth;
 	}
+	else
+	{
+		minx = min_d_x;
+		maxx = max_d_x;
+	}
 	// maximum points on the plot are slightly outside data
 	minx -= ( max_d_x - min_d_x ) * 0.05;
 	maxx += ( max_d_x - min_d_x ) * 0.05;
@@ -309,8 +314,8 @@ void PlotCtrl::getYLims ( )
 	else if ( style == plotStyle::DacPlot )
 	{
 		// currently doing autoscaling here.
-		maxy = maxy - miny;
-		miny = miny;
+		maxy = max_d_y;
+		miny = min_d_y;
 	}
 	else if ( style == plotStyle::OscilloscopePlot )
 	{
@@ -407,7 +412,6 @@ void PlotCtrl::plotPoints ( memDC* d )
 	UINT penNum = 0;
 	UINT lineNum = 0;
 	for ( auto lineNum : range(shiftedData.size()) )
-	//for ( auto& line : shiftedData )
 	{
 		auto& line = shiftedData[ lineNum ];
 		long t;
