@@ -279,31 +279,27 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		// update the colors of the global variable control.
 		input->globalControl->setUsages( input->variables );
-		bool variedNotUsed = false;
-		std::string variedNotUsedStr = "";
 		for ( auto& seqvars : input->variables )
 		{
 			for ( auto& var : seqvars )
 			{
 				if ( !var.constant && !var.active )
 				{
-					variedNotUsedStr += "WARNING: Variable " + var.name + " is varied, but not being used?!?";
-					variedNotUsed = true;
+					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?";
 				}
 			}
 		}
-		if ( variedNotUsed )
+		if ( warnings != "" )
 		{
-			auto res = promptBox ( "WARNING: One or more variables are being varied but not used. \r\n" + variedNotUsedStr
-								   + "\r\nIs this intentional? (press no to abort)", MB_YESNO );
+			comm->sendError ( warnings );
+			auto res = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
+								   + warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO );
 			if ( res == IDNO )
 			{
 				thrower ( abortString );
 			}
-			warnings += variedNotUsedStr;
 		}
-		comm->sendError( warnings );
-		// then reset so as to not mindlessly repeat warnings.
+		// then reset so as to not mindlessly repeat warnings from the experiment loop.
 		warnings = ""; 
 		/// /////////////////////////////
 		/// Begin experiment loop
@@ -1073,7 +1069,8 @@ bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& s
 			if ( var.parameterScope == GLOBAL_PARAMETER_SCOPE )
 			{
 				warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
-					" variable with the same name.\r\n";
+					" variable with the same name. It is generally recommended to use the appropriate local scope when "
+					"possible.\r\n";
 				// this variable is being overwritten, so don't add this variable vector
 				return true;
 			}
