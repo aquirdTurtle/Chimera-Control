@@ -1196,7 +1196,7 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 										   mainWin->getPlotFont( ), mainWin->getPlotBrushes( ), 
 										   analysisHandler.getPlotTime(), CameraSettings.getSettings( ).thresholds[0], 
 										   plotParams.name );
-		plot->Create( IDD_PLOT_DIALOG, 0 );
+		plot->Create( IDD_PLOT_DIALOG, this );
 		plot->ShowWindow( SW_SHOW );
 		activePlots.push_back( plot );
 		input.plotterInput->dataArrays.push_back( data );
