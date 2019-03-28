@@ -96,3 +96,5 @@ BUGS:
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
 - still issues with capitalization in the scope name???
+
+

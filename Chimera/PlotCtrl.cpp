@@ -629,7 +629,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	{
 		double scaledWidth = scaledArea.right - scaledArea.left;
 		double dataRange = view_minmax.max_x - view_minmax.min_x;
-		int numLines = 41;
+		int numLines = 11;
 		for ( auto count : range( numLines ) )
 		{
 			// a box for the x tick text.
