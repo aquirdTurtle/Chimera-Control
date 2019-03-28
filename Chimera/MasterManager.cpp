@@ -290,6 +290,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 		}
 		comm->sendError( warnings );
+		// then reset so as to not mindlessly repeat warnings.
+		warnings = ""; 
 		/// /////////////////////////////
 		/// Begin experiment loop
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.

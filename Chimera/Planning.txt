@@ -51,7 +51,6 @@ FEATURES:
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
 
-
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting
@@ -79,7 +78,7 @@ Checks and Tests
 
 BUGS:
 - fix save function to not need alt-sau but automatically working.
-- Fix always prompt for overwrite function,
+- Fix always prompt for overwrite function
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
 - interpret key taking a long time for ttls in camera cal for some reason.
