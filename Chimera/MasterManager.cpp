@@ -279,15 +279,28 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		// update the colors of the global variable control.
 		input->globalControl->setUsages( input->variables );
+		bool variedNotUsed = false;
+		std::string variedNotUsedStr = "";
 		for ( auto& seqvars : input->variables )
 		{
 			for ( auto& var : seqvars )
 			{
 				if ( !var.constant && !var.active )
 				{
-					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?";                 
+					variedNotUsedStr += "WARNING: Variable " + var.name + " is varied, but not being used?!?";
+					variedNotUsed = true;
 				}
 			}
+		}
+		if ( variedNotUsed )
+		{
+			auto res = promptBox ( "WARNING: One or more variables are being varied but not used. \r\n" + variedNotUsedStr
+								   + "\r\nIs this intentional? (press no to abort)", MB_YESNO );
+			if ( res == IDNO )
+			{
+				thrower ( abortString );
+			}
+			warnings += variedNotUsedStr;
 		}
 		comm->sendError( warnings );
 		// then reset so as to not mindlessly repeat warnings.
