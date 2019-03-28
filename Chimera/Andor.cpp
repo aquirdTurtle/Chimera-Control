@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <numeric>
 #include "Thrower.h"
+#include <random>
 
 std::string AndorCamera::getSystemInfo()
 {
@@ -429,14 +430,18 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			tempImage[imageVecInc] = rand() % 30 + 10;
+			std::random_device rd;
+			std::mt19937 e2 ( rd ( ) );
+			std::normal_distribution<> dist ( 180, 20 );
+			std::normal_distribution<> dist2 ( 350, 100 );
+			tempImage[imageVecInc] = dist(e2) + 10;
 			if ( ((imageVecInc / runSettings.imageSettings.width()) % 2 == 1)
 				 && ((imageVecInc % runSettings.imageSettings.width()) % 2 == 1) )
 			{
 				// can have an atom here.
 				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
 				{
-					tempImage[imageVecInc] += 100;
+					tempImage[imageVecInc] += dist2(e2);
 				}
 			}
 		}
