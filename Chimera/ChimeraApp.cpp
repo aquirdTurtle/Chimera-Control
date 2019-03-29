@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 /****************************************
 *										*
 * Chimera-Control.cpp					*

@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 // This file includes the decalarations of all of my external (global) variables. Declaring them here is a nice way of including all of the extenals in a file
 // without making it look like a normal variable.
 #include "stdafx.h"

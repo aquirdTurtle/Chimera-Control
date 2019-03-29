@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "AuxiliaryWindow.h"
 #include "DioSettingsDialog.h"

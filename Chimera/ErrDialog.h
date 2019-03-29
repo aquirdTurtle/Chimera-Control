@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "Windows.h"
 #include "Control.h"
 #include "resource.h"

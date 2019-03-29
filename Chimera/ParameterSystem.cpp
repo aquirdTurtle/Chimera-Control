@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "ParameterSystem.h"
 #include "Script.h"

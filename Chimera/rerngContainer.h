@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 
 #include "rerngMoveStructures.h"
 #include "Thrower.h"

@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "AndorRunMode.h"
 
 std::string AndorRunModeText ( AndorRunModes mode )

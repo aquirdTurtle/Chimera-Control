@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "CameraSettingsControl.h"

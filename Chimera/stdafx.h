@@ -1,3 +1,4 @@
+// Initially created by visual studio, but I modify this sometimes. 
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
