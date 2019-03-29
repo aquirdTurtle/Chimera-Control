@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #ifdef _DEBUG

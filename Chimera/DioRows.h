@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include <string>
 // as of now not yet used extensively in the actual dio system
 

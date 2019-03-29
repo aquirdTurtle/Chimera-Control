@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "Control.h"
 #include "myButton.h"
 #include "constants.h"

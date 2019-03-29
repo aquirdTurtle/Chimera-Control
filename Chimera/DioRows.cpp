@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "DioRows.h"
 
 DioRows::which DioRows::fromStr ( std::string rowStr )

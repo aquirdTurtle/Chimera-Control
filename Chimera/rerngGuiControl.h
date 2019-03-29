@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "myButton.h"
 #include "rerngOptionStructures.h"
 #include "Version.h"

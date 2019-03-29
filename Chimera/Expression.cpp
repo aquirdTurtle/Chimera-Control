@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "Expression.h"
 #include <vector>
 #include <boost/tokenizer.hpp>

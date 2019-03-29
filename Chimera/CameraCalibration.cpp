@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "CameraCalibration.h"
 
 void CameraCalibration::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips )

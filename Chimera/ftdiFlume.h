@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "ftd2xx.h"
 /*
  * An interface for using the ft api for programming ftdi chips. ftdi stands for future technology devices 

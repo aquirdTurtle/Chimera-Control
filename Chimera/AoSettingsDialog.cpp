@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "AoSystem.h"
 #include "AoSettingsDialog.h"
@@ -8,15 +9,7 @@ IMPLEMENT_DYNAMIC(AoSettingsDialog, CDialog)
 
 BEGIN_MESSAGE_MAP(AoSettingsDialog, CDialog)
 	ON_COMMAND(10001, &AoSettingsDialog::handleOk)
-	//ON_COMMAND(IDOK, &AoSettingsDialog::handleEnter )
 END_MESSAGE_MAP()
-
-/*
-void AoSettingsDialog::handleEnter ( )
-{
-
-}
-*/
 
 void AoSettingsDialog::handleOk()
 {

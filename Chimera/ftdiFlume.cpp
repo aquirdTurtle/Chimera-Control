@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "ftdiFlume.h"
 
 ftdiFlume::ftdiFlume( bool safemode_option ) : safemode(safemode_option )
