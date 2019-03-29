@@ -108,7 +108,7 @@ class DataAnalysisControl
 
 		Control<CStatic> plotTimerTxt;
 		Control<CEdit> plotTimerEdit;
-		std::atomic<UINT> plotTime;
+		std::atomic<UINT> plotTime=5000;
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
