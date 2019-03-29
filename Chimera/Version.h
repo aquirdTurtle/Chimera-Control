@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "thrower.h"
 #include "my_str.h"
 #include <string>

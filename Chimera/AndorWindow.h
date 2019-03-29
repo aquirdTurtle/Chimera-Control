@@ -107,6 +107,7 @@ class AndorWindow : public CDialog
 		void startPlotterThread( ExperimentInput& input );
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();
+		void handlePlotTimerEdit ( );
 		void stopPlotter( );
 		void stopSound( );
 		void handleImageDimsEdit(UINT id );

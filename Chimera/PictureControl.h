@@ -4,7 +4,7 @@
 #include "CameraImageDimensions.h"
 #include "atomGrid.h"
 #include "PlotCtrl.h"
-
+#include "LongCSlider.h"
 
 /*
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
@@ -73,19 +73,14 @@ class PictureControl
 		// scaled for the dimensions of the picture
 		RECT pictureArea;
 
-		int maxSliderPosition;
-		int minSliderPosition;
 		int colorIndicator;
 		HPALETTE imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<RECT>> grid;
 
-		Control<CSliderCtrl> sliderMax;
-		Control<CSliderCtrl> sliderMin;
-		Control<CStatic> labelMax;
-		Control<CStatic> labelMin;
-		Control<CEdit> editMax;
-		Control<CEdit> editMin;
+		LongCSlider sliderMax;
+		LongCSlider sliderMin;
+
 		Control<CStatic> coordinatesText;
 		Control<CStatic> coordinatesDisp;
 		Control<CStatic> valueText;

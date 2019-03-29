@@ -220,6 +220,7 @@
     <ClInclude Include="dataPoint.h" />
     <ClInclude Include="DioRows.h" />
     <ClInclude Include="ErrDialog.h" />
+    <ClInclude Include="LongCSlider.h" />
     <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="MyListCtrl.h" />
     <ClInclude Include="Queues.h" />
@@ -282,7 +283,6 @@
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="range.h" />
-    <ClInclude Include="RC028.h" />
     <ClInclude Include="realTimePlotterInput.h" />
     <ClInclude Include="rerngContainer.h" />
     <ClInclude Include="rerngMoveStructures.h" />
@@ -312,7 +312,6 @@
     <ClInclude Include="NiawgWaiter.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="saveWithExplorer.h" />
-    <ClInclude Include="scriptWriteHelpProc.h" />
     <ClInclude Include="ScriptWritingInstructionsDialog.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -342,6 +341,7 @@
     <ClCompile Include="AndorRunMode.cpp" />
     <ClCompile Include="DioRows.cpp" />
     <ClCompile Include="ErrDialog.cpp" />
+    <ClCompile Include="LongCSlider.cpp" />
     <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
     <ClCompile Include="NiawgStructures.cpp" />
@@ -366,7 +366,6 @@
     <ClCompile Include="PlotCtrl.cpp" />
     <ClCompile Include="PlotDialog.cpp" />
     <ClCompile Include="ProfileSystem.cpp" />
-    <ClCompile Include="Control.cpp" />
     <ClCompile Include="AoSettingsDialog.cpp" />
     <ClCompile Include="AoSystem.cpp" />
     <ClCompile Include="DataLogger.cpp" />
@@ -393,7 +392,6 @@
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="range.cpp" />
-    <ClCompile Include="RC028.cpp" />
     <ClCompile Include="rerngGuiControl.cpp" />
     <ClCompile Include="Repetitions.cpp" />
     <ClCompile Include="RhodeSchwarz.cpp" />
@@ -402,7 +400,6 @@
     <ClCompile Include="ScriptingWindow.cpp" />
     <ClCompile Include="ScriptStream.cpp" />
     <ClCompile Include="Segment.cpp" />
-    <ClCompile Include="Servo.cpp" />
     <ClCompile Include="ServoManager.cpp" />
     <ClCompile Include="SmsTextingControl.cpp" />
     <ClCompile Include="splashDialog.cpp" />
@@ -416,7 +413,6 @@
     <ClCompile Include="NiawgWaiter.cpp" />
     <ClCompile Include="saveWithExplorer.cpp" />
     <ClCompile Include="miscCommonFunctions.cpp" />
-    <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
     <ClCompile Include="DioSettingsDialog.cpp" />
     <ClCompile Include="DioSystem.cpp" />
     <ClCompile Include="stdafx.cpp">

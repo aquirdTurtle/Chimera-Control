@@ -1,5 +1,4 @@
 // created by Mark O. Brown
-// created by Mark O. Brown
 
 ===================
 CODE PLANNING
@@ -72,7 +71,6 @@ Refactoring / Other:
 - refactor rerngmove complexmove and simplemove names which are confusing... 
 - refactor master configuration to be more similar to normal configuration reading
 - Label all values in config file, making it very human-readable.
-- Use new slider controls
 - reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times.
 - reconsider how to handle initial dac and ttl values
@@ -100,3 +98,5 @@ BUGS:
 - should be able to change basler image dimensions edits while running
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
+- can't do non-square multi-dim scans
+
