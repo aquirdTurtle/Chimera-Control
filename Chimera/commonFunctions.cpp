@@ -658,6 +658,11 @@ namespace commonFunctions
 				camWin->handleAutoscaleSelection();
 				break;
 			}
+			case ID_BASLER_AUTOSCALE:
+			{
+				basWin->handleBaslerAutoscaleSelection ( );
+				break;
+			}
 			case ID_PICTURES_GREATER_THAN_MAX_SPECIAL:
 			{
 				camWin->handleSpecialGreaterThanMaxSelection();

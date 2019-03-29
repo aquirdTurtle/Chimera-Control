@@ -22,7 +22,7 @@ class PictureControl
 		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
-		void drawBitmap ( CDC* dc, const Matrix<long>& picData );
+		void drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo);
 		void setSliderControlLocs(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);

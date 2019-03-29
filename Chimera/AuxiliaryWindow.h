@@ -51,6 +51,7 @@ class AuxiliaryWindow : public CDialog
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 	public:
 		AuxiliaryWindow();
+		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void updateOptimization ( ExperimentInput input );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );

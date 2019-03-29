@@ -226,7 +226,7 @@ BOOL ScriptingWindow::OnInitDialog()
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
 	
-	CMenu menu;
+	
 	menu.LoadMenu(IDR_MAIN_MENU);
 	SetMenu(&menu);
 	try
@@ -240,6 +240,11 @@ BOOL ScriptingWindow::OnInitDialog()
 	}
 	SetRedraw( true );
 	return TRUE;
+}
+
+void ScriptingWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
 }
 
 

@@ -45,6 +45,27 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 END_MESSAGE_MAP()
 
 
+void BaslerWindow::handleBaslerAutoscaleSelection ( )
+{
+	if ( autoScaleBaslerPictureData )
+	{
+		autoScaleBaslerPictureData = false;
+		mainWin->checkAllMenus ( ID_BASLER_AUTOSCALE, MF_UNCHECKED );
+	}
+	else
+	{
+		autoScaleBaslerPictureData = true;
+		mainWin->checkAllMenus ( ID_BASLER_AUTOSCALE, MF_CHECKED );
+	}
+	picManager.setAutoScalePicturesOption ( autoScaleBaslerPictureData );
+}
+
+void BaslerWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
+}
+
+
 baslerSettings BaslerWindow::getCurrentSettings ( )
 {
 	return settingsCtrl.getCurrentSettings ( );
@@ -344,7 +365,9 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  	{
  		currentRepNumber++;
  		CDC* cdc = GetDC();
-		picManager.drawBitmap( cdc, *imageMatrix );
+		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );
+		
+		picManager.drawBitmap( cdc, *imageMatrix, minMax );
  		picManager.updatePlotData ( );
  		picManager.drawDongles ( cdc, { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		ReleaseDC( cdc );
@@ -372,7 +395,6 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 			mainWin->getComm ( )->sendBaslerFin ( );
 			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
  		}
-		stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );
 		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
 		{
 			motLoaded = false;
@@ -649,8 +671,6 @@ void BaslerWindow::initializeControls()
 		SetWindowText("USB Basler Camera Control");
 	#endif
 
-	CMenu menu;
-	SetMenu( &menu );
 	cameraController = new BaslerCameras( this );
 	if (!cameraController->isInitialized())
 	{

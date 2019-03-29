@@ -12,6 +12,7 @@
 #include "AnalogOutput.h"
 
 #include "Version.h"
+class MainWindow;
 
 /**
  * AIO in the name stands for Analog In and Out, or measuring analog signals and producing analog signals.
@@ -37,7 +38,7 @@ class AoSystem
 		void zeroDacs( DioSystem* ttls );
 		// Setting system settings, mostly non-crucial functionality.
 		
-		void handleRoundToDac( CMenu& menu );
+		void handleRoundToDac( MainWindow* menu );
 		void updateEdits( );
 		void shadeDacs( std::vector<unsigned int>& dacShadeLocations );
 		void unshadeDacs( );

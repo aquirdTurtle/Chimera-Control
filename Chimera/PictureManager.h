@@ -28,7 +28,7 @@ class PictureManager
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
-		void drawBitmap ( CDC* deviceContext, Matrix<long> picData );
+		void drawBitmap ( CDC* deviceContext, Matrix<long> picData, std::pair<int, int> minMax );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
 						  std::vector<atomGrid> gridInfo, UINT pictureNumber );
 		void createPalettes( CDC* dc );

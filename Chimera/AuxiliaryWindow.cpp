@@ -104,6 +104,13 @@ void AuxiliaryWindow::invalidateSaved ( UINT id )
 }
 
 
+void AuxiliaryWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
+}
+
+
+
 void AuxiliaryWindow::passCommonCommand ( UINT id )
 {
 	try
@@ -777,7 +784,7 @@ void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptW
 void AuxiliaryWindow::passRoundToDac()
 {
 	mainWin->updateConfigurationSavedStatus ( false );
-	aoSys.handleRoundToDac(menu);
+	aoSys.handleRoundToDac(mainWin);
 }
 
 // MESSAGE MAP FUNCTION

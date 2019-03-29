@@ -345,12 +345,12 @@ void MainWindow::passNiawgIsOnPress( )
 	if ( niawg.isOn() )
 	{
 		niawg.turnOff( );
-		menu.CheckMenuItem( ID_NIAWG_NIAWGISON, MF_UNCHECKED );
+		checkAllMenus ( ID_NIAWG_NIAWGISON, MF_UNCHECKED );
 	}
 	else
 	{
 		niawg.turnOn( );
-		menu.CheckMenuItem( ID_NIAWG_NIAWGISON, MF_CHECKED );
+		checkAllMenus ( ID_NIAWG_NIAWGISON, MF_CHECKED );
 	}
 }
 
@@ -362,7 +362,7 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 		if ( TheAndorWindow->wantsAutoPause ( ) )
 		{
 			masterThreadManager.pause ( );
-			menu.CheckMenuItem ( ID_RUNMENU_PAUSE, MF_CHECKED );
+			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox ( System::Master, 'Y' );
 		}
 		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
@@ -402,7 +402,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 		if ( TheAndorWindow->wantsAutoPause( ) )
 		{
 			masterThreadManager.pause( );
-			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
+			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox( System::Master, 'Y' );
 		}
 		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
@@ -639,6 +639,23 @@ BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC 
 	return TRUE;
 }
 
+
+void MainWindow::checkAllMenus ( UINT menuItem, UINT itemState )
+{
+	setMenuCheck ( menuItem, itemState );
+	TheAuxiliaryWindow->setMenuCheck ( menuItem, itemState );
+	TheAndorWindow->setMenuCheck ( menuItem, itemState );
+	TheBaslerWindow->setMenuCheck ( menuItem, itemState );
+	TheScriptingWindow->setMenuCheck ( menuItem, itemState );
+}
+
+
+void MainWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
+}
+
+
 void MainWindow::handlePause()
 {
 	if (masterThreadManager.runningStatus())
@@ -646,14 +663,14 @@ void MainWindow::handlePause()
 		if (masterThreadManager.getIsPaused())
 		{
 			// then it's currently paused, so unpause it.
-			menu.CheckMenuItem(ID_RUNMENU_PAUSE, MF_UNCHECKED);
+			checkAllMenus ( ID_RUNMENU_PAUSE, MF_UNCHECKED );
 			masterThreadManager.unPause();
 			comm.sendColorBox( System::Master, 'G' );
 		}
 		else
 		{
 			// then not paused so pause it.
-			menu.CheckMenuItem(ID_RUNMENU_PAUSE, MF_CHECKED);
+			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox( System::Master, 'Y' );
 			masterThreadManager.pause();
 		}
