@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "Control.h"
@@ -59,7 +60,8 @@ class DataAnalysisControl
 		static unsigned __stdcall plotterProcedure( void* voidInput );
 		void saveGridParams( );
 		void handleDeleteGrid( );
-		UINT getPlotTime( );
+		void updatePlotTime ( );
+		std::atomic<UINT>& getPlotTime( );
 		// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
 		// readable. I very rarely use things like this.
 		template<class T> using vector = std::vector<T>;
@@ -83,6 +85,7 @@ class DataAnalysisControl
 		Control<CStatic> updateFrequencyLabel1;
 		Control<CStatic> updateFrequencyLabel2;
 		Control<CEdit> updateFrequencyEdit;
+
 		Control<CStatic> header;
 		Control<MyListCtrl> plotListview;
 		std::vector<tinyPlotInfo> allTinyPlots;
@@ -105,6 +108,7 @@ class DataAnalysisControl
 
 		Control<CStatic> plotTimerTxt;
 		Control<CEdit> plotTimerEdit;
+		std::atomic<UINT> plotTime;
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;

@@ -1,8 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-
-//#include "ScriptStream.h"
-
 #include "Segment.h"
 #include "SegmentEnd.h"
 #include <string>

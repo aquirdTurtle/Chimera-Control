@@ -48,6 +48,7 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &AndorWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &AndorWindow::handlePictureEditChange )
 	// 
+	ON_EN_CHANGE( IDC_PLOT_TIMER_EDIT, &AndorWindow::handlePlotTimerEdit )
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &AndorWindow::passSetTemperaturePress)
 	ON_COMMAND( IDOK, &AndorWindow::catchEnter)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &AndorWindow::passManualSetAnalysisLocations)
@@ -73,6 +74,10 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 
 END_MESSAGE_MAP()
 
+void AndorWindow::handlePlotTimerEdit ( )
+{
+	analysisHandler.updatePlotTime ( );
+}
 
 LRESULT AndorWindow::onBaslerFinish ( WPARAM wParam, LPARAM lParam )
 {

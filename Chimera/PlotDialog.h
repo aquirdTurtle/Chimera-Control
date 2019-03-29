@@ -1,9 +1,9 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "windows.h"
-#include <vector>
 #include "PlotCtrl.h"
-
+#include <vector>
+#include <atomic>
 
 class PlotDialog : public CDialog
 {
@@ -13,9 +13,13 @@ class PlotDialog : public CDialog
 	 */
 	public:
 		DECLARE_DYNAMIC( PlotDialog );
+		// the overload options here are for having a dynamic timer (first option) or a static timer (second option).
 		PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime, std::vector<int> thresholds,
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<UINT>& timerTime, std::vector<int> thresholds,
 					std::string title="Plot Dialog Plot" );
+		PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
+					 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
+					 std::vector<int> thresholds, std::string title );
 		static bool removeQuery( PlotDialog* plt );
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog( ) override;
@@ -31,6 +35,8 @@ class PlotDialog : public CDialog
 		PlotCtrl plot;
 		CBrush backgroundBrush, plotAreaBrush;
 		// in ms
-		const UINT timerLength;
+		std::atomic<UINT>& dynamicTimerLength;
+		const bool dynamicTimer;
+		const UINT staticTimer;
 };
 

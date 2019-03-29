@@ -45,8 +45,6 @@ class PictureManager
 		void setAutoScalePicturesOption(bool autoScaleOption);
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);
-		void setSettings( std::array<int, 4> maxCounts, std::array<int, 4>  minCounts, bool autoscale, 
-						  bool specialGreater, bool specialLess, bool showGrid );
 		void resetPictureStorage();
 		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 		const std::string configDelim;
@@ -57,7 +55,7 @@ class PictureManager
 		POINT picturesLocation;
 		int picturesWidth;
 		int picturesHeight;
-		bool autoScalePictures;
+		bool autoScalePictures = false;
 		bool specialGreaterThanMax;
 		bool specialLessThanMin;
 		bool alwaysShowGrid;

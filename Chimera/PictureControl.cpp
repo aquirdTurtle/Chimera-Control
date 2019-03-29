@@ -124,33 +124,15 @@ void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, in
 
 	//setPictureArea( loc, width, height-25 );
 	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	// "min" text
-	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
-	labelMin.Create( "MIN", NORM_STATIC_OPTIONS, labelMin.sPos, parent, id++ );
-	// minimum number text
-	editMin.sPos = { loc.x, loc.y + 30, loc.x + 50, loc.y + 60 };
-	editMin.Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, editMin.sPos, parent, minMaxIds[0] );
-	// minimum slider
-	sliderMin.sPos = { loc.x, loc.y + 60, loc.x + 50, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top };
-	sliderMin.Create( NORM_CWND_OPTIONS | TBS_AUTOTICKS | TBS_VERT, sliderMin.sPos, parent, id++ );
-	sliderMin.SetRange( 0, 2000 );
-	sliderMin.SetPageSize( UINT( (minSliderPosition - minSliderPosition) / 10.0 ) );
-	// "max" text
-	labelMax.sPos = { loc.x + 50, loc.y, loc.x + 100, loc.y + 30 };
-	labelMax.Create( "MAX", NORM_STATIC_OPTIONS, labelMax.sPos, parent, id++ );
-	// maximum number text
-	editMax.sPos = { loc.x + 50, loc.y + 30, loc.x + 100, loc.y + 60 };
-	editMax.Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, editMax.sPos, parent, minMaxIds[1] );
-	// maximum slider
-	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top };
-	sliderMax.Create( NORM_CWND_OPTIONS | TBS_AUTOTICKS | TBS_VERT, sliderMax.sPos, parent, id++ );
-	sliderMax.SetRange( 0, 2000 );
-	sliderMax.SetPageSize( int( (minSliderPosition - minSliderPosition) / 10.0 ) );
+	sliderMin.initialize(loc, parent, id, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, minMaxIds[0],
+						  "MIN" );
+	sliderMin.setValue ( 0 );
+	loc.x += 50;
+	sliderMax.initialize ( loc, parent, id, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, minMaxIds[1],
+						   "MAX" );
+	sliderMax.setValue ( 300 );
 	// reset this.
 	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	// manually scroll the objects to initial positions.
-	handleScroll( sliderMin.GetDlgCtrlID( ), 95 );
-	handleScroll( sliderMax.GetDlgCtrlID( ), 395 );
 	
 	loc.y += height - 25;
 	coordinatesText.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
@@ -174,13 +156,8 @@ bool PictureControl::isActive()
 
 void PictureControl::setSliderPositions(UINT min, UINT max)
 {
-	sliderMax.SetPos(max);
-	maxSliderPosition = max;
-	editMax.SetWindowText( cstr( max ) );
-	sliderMin.SetPos(min);
-	minSliderPosition = min;
-	editMin.SetWindowText( cstr( min ) );
-
+	sliderMin.setValue ( min );
+	sliderMax.setValue ( max );
 }
 
 
@@ -249,20 +226,11 @@ void PictureControl::setSliderControlLocs(CWnd* parent)
 	POINT loc = { long(unscaledBackgroundArea.right * widthScale), long(unscaledBackgroundArea.top * heightScale) };
 	long collumnWidth = long(50 * widthScale);
 	long blockHeight = long(30 * heightScale);
-	labelMin.sPos = { loc.x, loc.y, loc.x + collumnWidth , loc.y + blockHeight };
-	// minimum number text
-	editMin.sPos = { loc.x, loc.y + blockHeight, loc.x + collumnWidth , loc.y + 2* blockHeight };
-	// minimum slider
-	sliderMin.sPos = { loc.x, loc.y + 2* blockHeight, loc.x + collumnWidth ,
-					   long(loc.y + (unscaledBackgroundArea.bottom - unscaledBackgroundArea.top) * heightScale) };
-	// "max" text
+	sliderMin.reposition ( loc, collumnWidth, blockHeight, 
+		( unscaledBackgroundArea.bottom - unscaledBackgroundArea.top ) * heightScale);
 	loc.x += collumnWidth;
-	labelMax.sPos = { loc.x, loc.y, loc.x + collumnWidth , loc.y + blockHeight };
-	// maximum number text
-	editMax.sPos = { loc.x, loc.y + blockHeight, loc.x + collumnWidth , loc.y + 2* blockHeight };
-	// maximum slider
-	sliderMax.sPos = { loc.x, loc.y + 2* blockHeight, loc.x + collumnWidth ,
-					   long(loc.y + (unscaledBackgroundArea.bottom - unscaledBackgroundArea.top)*heightScale) };
+	sliderMax.reposition ( loc, collumnWidth, blockHeight,
+		( unscaledBackgroundArea.bottom - unscaledBackgroundArea.top ) * heightScale );
 }
 
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make
@@ -328,48 +296,21 @@ void PictureControl::updatePalette( HPALETTE palette )
  */
 void PictureControl::handleEditChange( int id )
 {
-	if (!editMax)
+	if ( id == sliderMax.getEditId() )
 	{
-		return;
+		sliderMax.handleEdit ( );
 	}
-	if (id == editMax.GetDlgCtrlID())
+	if ( id == sliderMin.getEditId() )
 	{
-		int max;
-		CString tempStr;
-		editMax.GetWindowTextA(tempStr);
-		try
-		{
-			max = boost::lexical_cast<int>( str(tempStr) );
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			throwNested ( "Please enter an integer." );
-		}
-		sliderMax.SetPos( max );
-		maxSliderPosition = max;
-	}
-	if (id == editMin.GetDlgCtrlID())
-	{
-		int min;
-		CString tempStr;
-		editMin.GetWindowTextA(tempStr);
-		try
-		{
-			min = boost::lexical_cast<int>( str(tempStr) );
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			throwNested ( "Please enter an integer." );
-		}
-		sliderMin.SetPos( min );
-		minSliderPosition = min;
+		sliderMin.handleEdit ( );
 	}
 }
 
 
 std::pair<UINT, UINT> PictureControl::getSliderLocations()
 {
-	return { sliderMin.GetPos(), sliderMax.GetPos() };
+	
+	return { sliderMin.getValue (), sliderMax.getValue() };
 }
 
 
@@ -378,17 +319,13 @@ std::pair<UINT, UINT> PictureControl::getSliderLocations()
  */
 void PictureControl::handleScroll(int id, UINT nPos)
 {
-	if (id == sliderMax.GetDlgCtrlID())
+	if ( id == sliderMax.getSliderId ( ) )
 	{
-		sliderMax.SetPos(nPos);
-		editMax.SetWindowTextA(cstr(nPos));
-		maxSliderPosition = nPos;
+		sliderMax.handleSlider ( nPos );
 	}
-	else if (id == sliderMin.GetDlgCtrlID())
+	if ( id == sliderMin.getSliderId ( ) )
 	{
-		sliderMin.SetPos(nPos);
-		editMin.SetWindowTextA(cstr(nPos));
-		minSliderPosition = nPos;
+		sliderMin.handleSlider ( nPos );
 	}
 }
 
@@ -453,14 +390,9 @@ void PictureControl::setActive( bool activeState )
 	active = activeState;
 	if (!active)
 	{
-		sliderMax.ShowWindow(SW_HIDE);
-		sliderMin.ShowWindow(SW_HIDE);
+		sliderMax.hide ( SW_HIDE );
+		sliderMin.hide ( SW_HIDE );
 		//
-		labelMax.ShowWindow(SW_HIDE);
-		labelMin.ShowWindow(SW_HIDE);
-		//
-		editMax.ShowWindow(SW_HIDE);
-		editMin.ShowWindow(SW_HIDE);
 		coordinatesText.ShowWindow( SW_HIDE );
 		coordinatesDisp.ShowWindow( SW_HIDE );
 		valueText.ShowWindow( SW_HIDE );
@@ -468,14 +400,8 @@ void PictureControl::setActive( bool activeState )
 	}
 	else
 	{
-		sliderMax.ShowWindow(SW_SHOW);
-		sliderMin.ShowWindow(SW_SHOW);
-		//
-		labelMax.ShowWindow(SW_SHOW);
-		labelMin.ShowWindow(SW_SHOW);
-		//
-		editMax.ShowWindow(SW_SHOW);
-		editMin.ShowWindow(SW_SHOW);
+		sliderMax.hide ( SW_SHOW );
+		sliderMin.hide ( SW_SHOW );
 		coordinatesText.ShowWindow( SW_SHOW );
 		coordinatesDisp.ShowWindow( SW_SHOW );
 		valueText.ShowWindow( SW_SHOW );
@@ -515,8 +441,8 @@ void PictureControl::resetStorage()
 void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo )
 {
 	mostRecentImage_m = picData;
-	unsigned int minColor = minSliderPosition;
-	unsigned int maxColor = maxSliderPosition;
+	unsigned int minColor = sliderMin.getValue ( );
+	unsigned int maxColor = sliderMax.getValue ( );
 	mostRecentAutoscaleInfo = autoScaleInfo;
 	dc->SelectPalette ( CPalette::FromHandle ( imagePalette ), true );
 	dc->RealizePalette ( );
@@ -533,8 +459,8 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tup
 	}
 	else
 	{
-		colorRange = maxSliderPosition - minSliderPosition;
-		minColor = minSliderPosition;
+		colorRange = sliderMax.getValue ( ); - sliderMin.getValue ( );
+		minColor = sliderMin.getValue ( );
 	}
 	// assumes non-zero size...
 	if ( grid.size ( ) == 0 )
@@ -670,8 +596,8 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	}
 	else
 	{
-		colorRange = maxSliderPosition - minSliderPosition;
-		minColor = minSliderPosition;
+		colorRange = sliderMax.getValue ( ); - sliderMin.getValue ( );
+		minColor = sliderMin.getValue ( );
 	}
 
 	mostRecentAutoscaleInfo = autoScaleInfo;
@@ -1063,10 +989,6 @@ void PictureControl::rearrange( int width, int height, fontMap fonts)
 {
 	if (active)
 	{
-		editMax.rearrange(width, height, fonts);
-		editMin.rearrange(width, height, fonts);
-		labelMax.rearrange(width, height, fonts);
-		labelMin.rearrange(width, height, fonts);
 		sliderMax.rearrange(width, height, fonts);
 		sliderMin.rearrange(width, height, fonts);
 		coordinatesText.rearrange( width, height, fonts );
