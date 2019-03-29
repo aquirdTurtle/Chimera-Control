@@ -498,7 +498,7 @@ void PictureControl::redrawImage( CDC* easel, bool bkgd)
 	}
 	if ( active && mostRecentImage_m.size ( ) != 0 )
 	{
-		drawBitmap( easel, mostRecentImage_m );
+		drawBitmap( easel, mostRecentImage_m, mostRecentAutoscaleInfo );
 	}
 }
 
@@ -511,16 +511,30 @@ void PictureControl::resetStorage()
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
-void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData )
+void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo )
 {
 	mostRecentImage_m = picData;
 	unsigned int minColor = minSliderPosition;
 	unsigned int maxColor = maxSliderPosition;
+	mostRecentAutoscaleInfo = autoScaleInfo;
 	dc->SelectPalette ( CPalette::FromHandle ( imagePalette ), true );
 	dc->RealizePalette ( );
 	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
 	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
 	int dataWidth = grid.size ( );
+	// first element containst whether autoscaling or not.
+	long colorRange;
+	if ( std::get<0> ( autoScaleInfo ) )
+	{
+		// third element contains max, second contains min.
+		colorRange = std::get<2> ( autoScaleInfo ) - std::get<1> ( autoScaleInfo );
+		minColor = std::get<1> ( autoScaleInfo );
+	}
+	else
+	{
+		colorRange = maxSliderPosition - minSliderPosition;
+		minColor = minSliderPosition;
+	}
 	// assumes non-zero size...
 	if ( grid.size ( ) == 0 )
 	{
@@ -537,8 +551,7 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData )
 	{
 		pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
 	}
-	long modrange = maxColor - minColor;
-	float yscale = ( 256.0f ) / (float) modrange;
+	float yscale = ( 256.0f ) / (float) colorRange;
 	WORD argbq[ PICTURE_PALETTE_SIZE ];
 	for ( int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++ )
 	{
@@ -561,15 +574,15 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData )
 		for ( int widthInc = 0; widthInc < dataWidth; widthInc++ )
 		{
 			dTemp = ceil ( yscale * ( picData ( heightInc, widthInc ) - minColor ) );
-			if ( dTemp < 0 )
+			if ( dTemp <= 0 )
 			{
 				// raise value to zero which is the floor of values this parameter can take.
-				iTemp = 0;
+				iTemp = 1;
 			}
-			else if ( dTemp > PICTURE_PALETTE_SIZE - 1 )
+			else if ( dTemp >= PICTURE_PALETTE_SIZE - 1 )
 			{
 				// round to maximum value.
-				iTemp = PICTURE_PALETTE_SIZE - 1;
+				iTemp = PICTURE_PALETTE_SIZE - 2;
 			}
 			else
 			{

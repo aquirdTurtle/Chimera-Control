@@ -269,12 +269,12 @@ void AndorWindow::passAlwaysShowGrid()
 	if (alwaysShowGrid)
 	{
 		alwaysShowGrid = false;
-		menu.CheckMenuItem(ID_PICTURES_ALWAYSSHOWGRID, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_ALWAYSSHOWGRID, MF_UNCHECKED );
 	}
 	else
 	{
 		alwaysShowGrid = true;
-		menu.CheckMenuItem(ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED );
 	}
 	CDC* dc = GetDC();
 	pics.setAlwaysShowGrid(alwaysShowGrid, dc);	
@@ -588,17 +588,23 @@ void AndorWindow::wakeRearranger( )
 }
 
 
+void AndorWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
+}
+
+
 void AndorWindow::handleSpecialLessThanMinSelection()
 {
 	if (specialLessThanMin)
 	{
 		specialLessThanMin = false;
-		menu.CheckMenuItem(ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED );
 	}
 	else
 	{
 		specialLessThanMin = true;
-		menu.CheckMenuItem(ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED );
 	}
 	pics.setSpecialLessThanMin(specialLessThanMin);
 }
@@ -609,12 +615,12 @@ void AndorWindow::handleSpecialGreaterThanMaxSelection()
 	if (specialGreaterThanMax)
 	{
 		specialGreaterThanMax = false;
-		menu.CheckMenuItem(ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_UNCHECKED );
 	}
 	else
 	{
 		specialGreaterThanMax = true;
-		menu.CheckMenuItem(ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_CHECKED );
 	}
 	pics.setSpecialGreaterThanMax(specialGreaterThanMax);
 }
@@ -625,12 +631,12 @@ void AndorWindow::handleAutoscaleSelection()
 	if (autoScalePictureData)
 	{
 		autoScalePictureData = false;
-		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED );
 	}
 	else
 	{
 		autoScalePictureData = true;
-		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED );
 	}
 	pics.setAutoScalePicturesOption(autoScalePictureData);
 }

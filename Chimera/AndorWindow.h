@@ -114,7 +114,7 @@ class AndorWindow : public CDialog
 		bool wantsAutoCal( );
 		bool wantsNoMotAlert ( );
 		UINT getNoMotThreshold ( );
-
+		void setMenuCheck ( UINT menuItem, UINT itemState );
 	private:
 		bool justCalibrated=false;
 		DECLARE_MESSAGE_MAP();

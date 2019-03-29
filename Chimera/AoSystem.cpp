@@ -6,6 +6,7 @@
 #include "nidaqmx2.h"
 #include "Thrower.h"
 #include "range.h"
+#include "MainWindow.h"
 #include <boost/lexical_cast.hpp>
 
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
@@ -293,17 +294,17 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 }
 
 
-void AoSystem::handleRoundToDac( CMenu& menu )
+void AoSystem::handleRoundToDac( MainWindow* mainWin )
 {
 	if ( roundToDacPrecision )
 	{
 		roundToDacPrecision = false;
-		menu.CheckMenuItem( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
+		mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
 	}
 	else
 	{
 		roundToDacPrecision = true;
-		menu.CheckMenuItem( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
+		mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
 	}
 }
 
