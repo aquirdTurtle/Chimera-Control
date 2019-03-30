@@ -10,7 +10,7 @@ def lazyRerngSequence():
   var mot_pow 0.05 
   var repump_pow 0.1 
   var diag_pow 0.05 
-  %daclinspace: MotFreq defaultmotfreq rerng_mot_detuning 1 10
+  %daclinspace: MotFreq defaultmotfreq rerng_mot_detuning 1 10 test
   %dac: SideMotPower mot_pow 
   %dac: RepumpPower repump_pow 
   %dac: DiagmotPower diag_pow 

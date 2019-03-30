@@ -266,9 +266,9 @@ void ScriptingWindow::OnTimer(UINT_PTR eventID)
 
 void ScriptingWindow::checkScriptSaves()
 {
-	niawgScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo());
-	intensityAgilent.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
-	masterScript.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
+	niawgScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo() );
+	intensityAgilent.checkSave ( getProfile ( ).categoryPath, mainWin->getRunInfo ( ) );
+	masterScript.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ), comm ( ) );
 }
 
 
@@ -661,13 +661,18 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( "New Master function Failed: " + err.trace( ) + "\r\n" );
+		comm( )->sendError( "Open Master Script Failed: " + err.trace( ) + "\r\n" );
 	}
 }
 
 
 void ScriptingWindow::saveMasterScript()
 {
+	if ( masterScript.isFunction ( ) )
+	{
+		masterScript.saveAsFunction ( comm () );
+		return;
+	}
 	masterScript.saveScript(getProfile().categoryPath, mainWin->getRunInfo());
 	masterScript.updateScriptNameText(getProfile().categoryPath);
 }
@@ -705,7 +710,7 @@ void ScriptingWindow::saveMasterFunction()
 {
 	try
 	{
-		masterScript.saveAsFunction();
+		masterScript.saveAsFunction(comm());
 	}
 	catch (Error& exception)
 	{

@@ -281,7 +281,6 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" ||
 		 word == "sin" || word == "cos" || word == "tan" || word == "exp" || word == "ln")
 	{
-		// all scripts now support math expressions.
 		return _myRGBs["Solarized Cyan"];
 	}
 
@@ -313,14 +312,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 void Script::updateSavedStatus(bool scriptIsSaved)
 {
 	isSaved = scriptIsSaved;
-	if (scriptIsSaved)
-	{
-		savedIndicator.SetCheck( true );
-	}
-	else
-	{
-		savedIndicator.SetCheck( false );
-	}
+	savedIndicator.SetCheck ( scriptIsSaved );
 }
 
 
@@ -399,24 +391,15 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 	{
 		return;
 	}
-	//parent->SetRedraw( false );
 	edit.SetRedraw( false );
-	bool tempSaveStatus = false;
-	if ( isSaved )
-	{
-		tempSaveStatus = true;
-	}
-	long long beginingSigned = beginingOfChange;
-	long long endSigned = endOfChange;
+	bool tempSaveStatus = isSaved;
+	long long beginingSigned = beginingOfChange, endSigned = endOfChange;
 	CString text;
 	edit.GetWindowTextA(text);
-	std::string script(text);
 	std::vector<std::string> predefinedScripts;
-	COLORREF coloring;
-	std::string word;
-	std::stringstream fileTextStream(script);
-	std::string line, currentTextToAdd, tempColor;
-	COLORREF syntaxColor;
+	std::string word, line, currentTextToAdd, tempColor, script ( text );
+	std::stringstream fileTextStream ( script );
+	COLORREF syntaxColor, coloring;
 	CHARFORMAT syntaxFormat = { 0 };
 	syntaxFormat.cbSize = sizeof(CHARFORMAT);
 	syntaxFormat.dwMask = CFM_COLOR;
@@ -457,7 +440,6 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			if (!colorLine)
 			{
 				// get all the variables
-				// get 
 				syntaxColor = getSyntaxColor(word, deviceType, vars, colorLine, ttlNames, dacInfo );
 				if (syntaxColor != coloring)
 				{
@@ -595,6 +577,22 @@ void Script::changeView(std::string viewName, bool isFunction, std::string categ
 	updateSavedStatus(true);
 }
 
+
+bool Script::isFunction ( )
+{
+	int sel = availableFunctionsCombo.GetCurSel ( );
+	CString text;
+	if ( sel != -1 )
+	{
+		availableFunctionsCombo.GetLBText ( sel, text );
+	}
+	else
+	{
+		text = "";
+	}
+	return text != "Parent Script" && text != "";
+}
+
 //
 void Script::saveScript(std::string configPath, RunInfo info)
 {
@@ -607,17 +605,7 @@ void Script::saveScript(std::string configPath, RunInfo info)
 		// shoudln't need to do anything
 		return;
 	}
-	int sel = availableFunctionsCombo.GetCurSel();
-	CString text;
-	if (sel != -1)
-	{
-		availableFunctionsCombo.GetLBText( sel, text );
-	}
-	else
-	{
-		text = "";
-	}
-	if ( text != "Parent Script" )
+	if ( isFunction() )
 	{
 		errBox( "The current view is not the parent view. Please switch to the parent view before saving to "
 				"save the script, or use the save-function option to save the current function." );
@@ -647,6 +635,7 @@ void Script::saveScript(std::string configPath, RunInfo info)
 			}
 		}
 	}
+	CString text;
 	edit.GetWindowTextA(text);
 	std::fstream saveFile(configPath + scriptName + extension, std::fstream::out);
 	if (!saveFile.is_open())
@@ -701,7 +690,7 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 
 
 //
-void Script::checkSave(std::string categoryPath, RunInfo info)
+void Script::checkSave(std::string categoryPath, RunInfo info, Communicator* comm)
 {
 	if (isSaved)
 	{
@@ -728,7 +717,11 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 		}
 		else if (answer == IDYES)
 		{
-			saveAsFunction();
+			if ( comm == NULL )
+			{
+				thrower ( "ERROR: tried to save as function, but no communicator was passed to the checkSave function???" );
+			}
+			saveAsFunction(comm);
 			return;
 		}
 	}
@@ -845,7 +838,6 @@ void Script::newFunction()
 	loadFile(tempName);
 }
 
-
 //
 void Script::newScript()
 {
@@ -929,7 +921,6 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	updateScriptNameText( categoryPath );
 	availableFunctionsCombo.SelectString(0, "Parent Script");
 }
-
 
 /*
 ]---	This function only puts the given file on the edit for this class, it doesn't change current settings parameters. It's used bare when just changing the
@@ -1040,7 +1031,6 @@ void Script::updateScriptNameText(std::string categoryPath)
 }
 
 
-
 void Script::setScriptText(std::string text)
 {
 	edit.SetWindowText( cstr( text ) );
@@ -1071,7 +1061,7 @@ INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 }
 
 
-void Script::saveAsFunction()
+void Script::saveAsFunction(Communicator* comm)
 {
 	// check to make sure that the current script is defined like a function
 	CString text;
@@ -1106,12 +1096,8 @@ void Script::saveAsFunction()
 	}
 	else
 	{
-		fclose( file );
-		int answer = promptBox("The function \"" + functionName + "\" already exists! Overwrite it?", MB_YESNO );
-		if ( answer == IDNO )
-		{
-			return;
-		}
+		comm->sendStatus ( "Overwriting function definition for function at " + path + "...\r\n" );
+		fclose ( file );
 	}
 	std::fstream functionFile(path, std::ios::out);
 	if (!functionFile.is_open())
