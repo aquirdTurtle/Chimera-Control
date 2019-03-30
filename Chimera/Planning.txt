@@ -81,8 +81,6 @@ Checks and Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 
 BUGS:
-- fix save function to not need alt-sau but automatically working.
-- Fix always prompt for overwrite function
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
 - interpret key taking a long time for ttls in camera cal for some reason.
