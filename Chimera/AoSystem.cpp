@@ -362,7 +362,8 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 		if (commandInc == 0 || fabs( command.time - timeOrganizer.back().first) > 1e-9)
 		{
 			// new time
-			timeOrganizer.push_back({ command.time, std::vector<AoCommand>({ command }) });
+			std::vector<AoCommand> quickVec = { command };
+			timeOrganizer.push_back ( { command.time, quickVec } );
 		}
 		else
 		{
@@ -371,7 +372,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 		}
 	}
 	/// make the snapshots
-	if (timeOrganizer.size() == 0)
+	if ( timeOrganizer.size ( ) == 0 )
 	{
 		// no commands, that's fine.
 		return;
@@ -951,9 +952,9 @@ int AoSystem::getDacIdentifier(std::string name)
 {
 	for (auto dacInc : range(outputs.size()))
 	{
-		auto& info = str(outputs[ dacInc ].info.name,13,false,true);
+		auto& dacName = str(outputs[ dacInc ].info.name,13,false,true);
 		// check names set by user and check standard names which are always acceptable
-		if (name == name || name == "dac" + str ( dacInc ) )
+		if (name == dacName || name == "dac" + str ( dacInc ) )
 		{
 			return dacInc;
 		}

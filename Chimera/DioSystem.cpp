@@ -455,20 +455,19 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 		ttlRowLabels[ int(row) ].Create ( cstr ( DioRows::toStr(row) ), WS_CHILD | WS_VISIBLE | SS_CENTER,
 									 ttlRowLabels[ int(row) ].sPos, master, id++ );
 	}
-	for (long row = 0; row < long(outputs.numRows); row++)
-	{
-		
-	}
 	// all push buttons
 	UINT runningCount = 0;
+	auto startX = loc.x + 32;
 	for (auto row : DioRows::allRows )
 	{
+		loc.x = startX;
 		for (UINT number = 0; number < outputs.numColumns; number++)
 		{
-			outputs ( number, row ).initialize ( loc, number, row, master, TTL_ID_BEGIN + runningCount++, toolTips );
+			outputs ( number, row ).initialize ( loc, master, TTL_ID_BEGIN + runningCount++, toolTips );
+			loc.x += 28;
 		}
+		loc.y += 28;
 	}
-	loc.y += 28 * 4;
 }
 
 
@@ -766,7 +765,7 @@ std::array< std::array<bool, 16>, 4 > DioSystem::getCurrentStatus( )
 	std::array< std::array<bool, 16>, 4 > currentStatus;
 	for ( auto& out : outputs )
 	{
-		currentStatus[ int ( out.getPosition ( ).first ) ][ out.getPosition ( ).second ];
+		currentStatus[ int ( out.getPosition ( ).first ) ][ out.getPosition ( ).second ] = out.getStatus();
 	}
 	return currentStatus;
 }
@@ -975,8 +974,7 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 	{
 		for (auto variationNum : range(variations))
 		{
-			for (auto& formList : ttlCommandFormList[seqInc
-			])
+			for (auto& formList : ttlCommandFormList[seqInc])
 			{
 				DioCommand tempCommand;
 				tempCommand.line = formList.line;
@@ -1009,18 +1007,20 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	std::vector<DioCommand> orderedList(ttlCommandList[seqNum][variation]);
+	std::vector<DioCommand> orderedCommandList(ttlCommandList[seqNum][variation]);
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
-	std::sort(orderedList.begin(), orderedList.end(), [](DioCommand a, DioCommand b) {return a.time < b.time; });
+	std::sort(orderedCommandList.begin(), orderedCommandList.end(), 
+			   [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
 	for (auto commandInc : range( ttlCommandList[ seqNum ][ variation ].size ( ) ) )
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time.
-		if (commandInc == 0 || fabs(orderedList[commandInc].time - timeOrganizer.back().first) > 2 * DBL_EPSILON)
+		if (commandInc == 0 || fabs(orderedCommandList[commandInc].time - timeOrganizer.back().first) > 2 * DBL_EPSILON)
 		{
 			// new time
-			timeOrganizer.push_back({ orderedList[commandInc].time, std::vector<USHORT>({ commandInc }) });
+			std::vector<USHORT> testVec =  { USHORT(commandInc) };
+			timeOrganizer.push_back({ orderedCommandList[commandInc].time, testVec });
 		}
 		else
 		{
@@ -1028,12 +1028,12 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 			timeOrganizer.back().second.push_back(commandInc);
 		}
 	}
-	/// now figure out the state of the system at each time.
 	if (timeOrganizer.size() == 0)
 	{
 		thrower ("No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
 				 "must contain something.\r\n");
 	}
+	/// now figure out the state of the system at each time.
 	auto& snaps = ttlSnapshots[seqNum][variation];
 	snaps.clear();
 	// start with the initial status.
@@ -1053,9 +1053,9 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
 		UINT cmdNum = timeOrganizer[0].second[zeroInc];
-		UINT row = orderedList[cmdNum].line.first;
-		UINT column = orderedList[cmdNum].line.second;
-		snaps.back().ttlStatus[row][column]	= orderedList[cmdNum].value;
+		UINT row = orderedCommandList[cmdNum].line.first;
+		UINT column = orderedCommandList[cmdNum].line.second;
+		snaps.back().ttlStatus[row][column]	= orderedCommandList[cmdNum].value;
 	}
 
 	// already handled the first case.
@@ -1063,14 +1063,13 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
 		snaps.push_back( snaps.back());
-		//
 		snaps.back().time = timeOrganizer[commandInc].first;
 		for (auto cmdNum : timeOrganizer[commandInc].second)
 		{
 			// see description of this command above... update everything that changed at this time.
-			UINT row = orderedList[cmdNum].line.first;
-			UINT column = orderedList[cmdNum].line.second;
-			snaps.back().ttlStatus[row][column] = orderedList[cmdNum].value;
+			UINT row = orderedCommandList[cmdNum].line.first;
+			UINT column = orderedCommandList[cmdNum].line.second;
+			snaps.back().ttlStatus[row][column] = orderedCommandList[cmdNum].value;
 		}
 	}
 	// phew. Check for good input by user:

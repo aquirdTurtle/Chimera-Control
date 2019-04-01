@@ -15,6 +15,7 @@ namespace TestManager
 		std::string scope = NO_PARAMETER_SCOPE;
 		std::string word;
 		auto emptyvars = std::vector<parameterType>( );
+		// hard-wiring this sequence based on the stream text above.
 		stream >> word;
 		testMan.handleTimeCommands( word, stream, emptyvars, scope );
 		stream >> word;
