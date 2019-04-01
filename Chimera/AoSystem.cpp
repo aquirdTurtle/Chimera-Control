@@ -963,6 +963,7 @@ int AoSystem::getDacIdentifier(std::string name)
 	return -1;
 }
 
+
 void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
 {
 	if (!(minv <= maxv))

@@ -52,8 +52,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
 				if ( input->debugOptions.outputNiawgHumanScript )
 				{
-					input->comm->sendDebug ( std::regex_replace ( 
-						"Human Script: " + seq.niawgStream.str ( ) + "\n\n", std::regex ( "[^\r]\n" ), "\r\n" ) );
+					// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n with \r\n.
+					std::string debugStr = "Human Script: " + seq.niawgStream.str ( ) + "\n\n";
+					debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
+					boost::replace_all ( debugStr, "\n", "\r\n" );
+					input->comm->sendDebug ( debugStr );
 				}
 			}
 			seqNum++;
@@ -172,9 +175,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 										   !input->niawg->outputVaries ( output ) );
 			if ( input->debugOptions.outputNiawgMachineScript )
 			{
-				comm->sendDebug ( std::regex_replace ( 
-					"NIAWG Machine Script:\n" + std::string ( niawgMachineScript.begin ( ), niawgMachineScript.end ( ) ) 
-					+ "\n\n", std::regex ( "[^\r]\n" ), "\r\n" ) );
+				// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n with \r\n.
+				std::string debugStr = "NIAWG Machine Script:\n"
+					+ std::string ( niawgMachineScript.begin ( ), niawgMachineScript.end ( ) ) + "\n\n";
+				debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
+				boost::replace_all ( debugStr, "\n", "\r\n" );
+				comm->sendDebug ( debugStr );
 			}
 			for ( auto& seqVariables : input->variables )
 			{
