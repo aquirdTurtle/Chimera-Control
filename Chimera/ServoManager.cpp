@@ -432,7 +432,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	ttls->zeroBoard ( );
 	for ( auto ttl : s.ttlConfig )
 	{
-		ttls->forceTtl ( int(ttl.first), ttl.second, 1 );
+		ttls->forceTtl ( ttl.first, ttl.second, 1 );
 	}
 	UINT attemptLimit = 100;
 	UINT count = 0;

@@ -218,6 +218,7 @@
     <ClInclude Include="BaslerWindow.h" />
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="dataPoint.h" />
+    <ClInclude Include="DigitalOutput.h" />
     <ClInclude Include="DioRows.h" />
     <ClInclude Include="ErrDialog.h" />
     <ClInclude Include="LongCSlider.h" />
@@ -339,6 +340,7 @@
     <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />
     <ClCompile Include="AndorRunMode.cpp" />
+    <ClCompile Include="DigitalOutput.cpp" />
     <ClCompile Include="DioRows.cpp" />
     <ClCompile Include="ErrDialog.cpp" />
     <ClCompile Include="LongCSlider.cpp" />
