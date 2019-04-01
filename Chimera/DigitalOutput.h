@@ -6,7 +6,8 @@
 class DigitalOutput
 {
 	public:
-		void initialize ( POINT& pos, UINT num, DioRows::which row, CWnd* parent, UINT id, cToolTips& toolTips );
+		void initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips );
+		void initLoc ( UINT num, DioRows::which row);
 		void shade ( bool shadeStat );
 		bool getShadeStatus ( );
 		void enable ( bool enabledStatus );
@@ -36,6 +37,7 @@ class DigitalOutput
 class allDigitalOutputs
 {
 	public:
+		allDigitalOutputs ( );
 		DigitalOutput & operator()( UINT num, DioRows::which row );
 		static const UINT numRows = 4;
 		static const UINT numColumns = 16;

@@ -238,7 +238,6 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="AndorRunMode.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
@@ -275,9 +274,14 @@
     <ClCompile Include="SegmentEnd.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
-    <ClCompile Include="DigitalOutput.cpp" />
     <ClCompile Include="LongCSlider.cpp">
       <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DigitalOutput.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="MachineOptimizer.cpp">
+      <Filter>Auxiliary Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -593,7 +597,6 @@
     <ClInclude Include="BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
-    <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="BaslerSettingsControl.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
@@ -645,9 +648,14 @@
     <ClInclude Include="dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="DigitalOutput.h" />
     <ClInclude Include="LongCSlider.h">
       <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DigitalOutput.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="MachineOptimizer.h">
+      <Filter>Auxiliary Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

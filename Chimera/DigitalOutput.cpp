@@ -14,6 +14,13 @@ void DigitalOutput::updateStatus ( )
 }
 
 
+void DigitalOutput::initLoc ( UINT numIn, DioRows::which rowIn )
+{
+	row = rowIn;
+	num = numIn;
+}
+
+
 void DigitalOutput::set ( bool stat )
 {
 	status = stat;
@@ -99,13 +106,11 @@ bool DigitalOutput::getShadeStatus ( )
 }
 
 
-void DigitalOutput::initialize ( POINT& pos, UINT numIn, DioRows::which rowIn, CWnd* parent, UINT id, cToolTips& toolTips )
+void DigitalOutput::initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips )
 {
 	check.sPos = { long ( pos.x ), long ( pos.y  ), long ( pos.x + 28 ), long ( pos.y + 28 ) };
 	check.Create ( "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_RIGHT | BS_3STATE, check.sPos, parent, id );
 	check.setToolTip ( name, toolTips, parent );
-	row = rowIn;
-	num = numIn;
 }
 
 
@@ -144,4 +149,15 @@ void DigitalOutput::enable ( bool enabledStatus )
 DigitalOutput& allDigitalOutputs::operator()( UINT num, DioRows::which row )
 {
 	return core[ UINT ( row ) * 16 + num ];
+}
+
+allDigitalOutputs::allDigitalOutputs ( )
+{
+	for ( auto row : DioRows::allRows )
+	{
+		for ( auto num : range ( numColumns ) )
+		{
+			(*this)( num, row ).initLoc ( num, row );
+		}
+	}
 }
