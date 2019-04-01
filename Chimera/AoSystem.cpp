@@ -212,7 +212,7 @@ void AoSystem::handleEditChange ( UINT dacNumber )
 
 bool AoSystem::isValidDACName(std::string name)
 {
-	for (UINT dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
+	for (auto dacInc : range(getNumberOfDacs()) )
 	{
 		if (name == "dac" + str(dacInc))
 		{
@@ -320,7 +320,7 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 	prepareForce( );
 	ttls->prepareForce( );
 	std::array<double, 24> vals;
-	for ( UINT dacInc = 0; dacInc < outputs.size( ); dacInc++ )
+	for (auto dacInc : range(outputs.size()) )
 	{
 		vals[ dacInc ] = outputs[ dacInc ].getVal ( useDefault );
 		prepareDacForceChange( dacInc, vals[dacInc], ttls );
@@ -353,7 +353,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](AoCommand a, AoCommand b){return a.time < b.time; });
-	for (UINT commandInc = 0; commandInc < tempEvents.size(); commandInc++)
+	for (UINT commandInc : range(tempEvents.size()))
 	{
 		auto& command = tempEvents[commandInc];
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
@@ -446,12 +446,6 @@ std::array<double, 24> AoSystem::getFinalSnapshot()
 	}
 }
 
-/*
-std::array<std::string, 24> AoSystem::getAllNames()
-{
-	return dacNames;
-}
-*/
 
 /*
  * IMPORTANT: this does not actually change any of the outputs of the board. It is meant to be called when things have
@@ -504,7 +498,7 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 }
 
 
-// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
+// an "alias template". effectively a local "using std::vector;" declaration. makes these declarations much more
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
@@ -527,15 +521,15 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceLength, vec<vec<AoSnapshot>>( variations ) );
 	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( sequenceLength, 
 															   vec<std::array<vec<double>, 3>>( variations ));
-	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( sequenceLength,
-															   vec<std::array<vec<double>, 3>>( variations ) );
+	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( sequenceLength, 
+																   vec<std::array<vec<double>, 3>>( variations ) );
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
 	for ( auto seqInc : range( sequenceLength ) )
 	{
-		for ( UINT variationInc = 0; variationInc < variations; variationInc++ )
+		for (auto variationInc : range(variations) )
 		{
-			for ( UINT eventInc = 0; eventInc < dacCommandFormList[seqInc].size( ); eventInc++ )
+			for (auto eventInc : range( dacCommandFormList[ seqInc ].size ( ) ) )
 			{
 				AoCommand tempEvent;
 				auto& formList = dacCommandFormList[seqInc][eventInc];
@@ -957,15 +951,9 @@ int AoSystem::getDacIdentifier(std::string name)
 {
 	for (auto dacInc : range(outputs.size()))
 	{
-		auto& info = outputs[ dacInc ].info;
-		// check names set by user.
-		std::transform( info.name.begin(), info.name.end(), info.name.begin(), ::tolower );
-		if (name == info.name )
-		{
-			return dacInc;
-		}
-		// check standard names which are always acceptable.
-		if (name == "dac" + str(dacInc))
+		auto& info = str(outputs[ dacInc ].info.name,13,false,true);
+		// check names set by user and check standard names which are always acceptable
+		if (name == name || name == "dac" + str ( dacInc ) )
 		{
 			return dacInc;
 		}
