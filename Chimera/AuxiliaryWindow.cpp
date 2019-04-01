@@ -1130,34 +1130,17 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
 	// save info
 	/// ttls
-	for (UINT ttlRowInc = 0; ttlRowInc < ttlBoard.getTtlBoardSize().first; ttlRowInc++)
+	for (auto row : DioRows::allRows )
 	{
 		for (UINT ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
 		{
-			std::string name = ttlBoard.getName(ttlRowInc, ttlNumberInc);
+			std::string name = ttlBoard.getName( row, ttlNumberInc);
 			if (name == "")
 			{
-				// then no name has been set, so create the default name.
-				switch (ttlRowInc)
-				{
-					case 0:
-						name = "A";
-						break;
-					case 1:
-						name = "B";
-						break;
-					case 2:
-						name = "C";
-						break;
-					case 3:
-						name = "D";
-						break;
-				}
-				name += str(ttlNumberInc);
+				name = DioRows::toStr(row) + str(ttlNumberInc);
 			}
 			configStream << name << "\n";
-
-			configStream << ttlBoard.getDefaultTtl(ttlRowInc, ttlNumberInc) << "\n";
+			configStream << ttlBoard.getDefaultTtl(row, ttlNumberInc) << "\n";
 		}
 	}
 	// DAC Names
@@ -1196,7 +1179,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	ttlBoard.prepareForce();
 	aoSys.resetDacEvents();
 	aoSys.prepareForce();
-	for (UINT ttlRowInc : range( ttlBoard.getTtlBoardSize().first))
+	for (auto row : DioRows::allRows )
 	{
 		for (UINT ttlNumberInc : range( ttlBoard.getTtlBoardSize().second ) )
 		{
@@ -1213,10 +1196,9 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			{
 				throwNested("Failed to load one of the default ttl values!");
 			}
-
-			ttlBoard.setName(ttlRowInc, ttlNumberInc, name, toolTips, this);
-			ttlBoard.forceTtl(ttlRowInc, ttlNumberInc, defaultStatus);
-			ttlBoard.updateDefaultTtl(ttlRowInc, ttlNumberInc, defaultStatus);
+			ttlBoard.setName(row, ttlNumberInc, name, toolTips, this);
+			ttlBoard.forceTtl(row, ttlNumberInc, defaultStatus);
+			ttlBoard.updateDefaultTtl(row, ttlNumberInc, defaultStatus);
 		}
 	}
 	// getting aoSys.

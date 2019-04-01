@@ -54,7 +54,6 @@ FEATURES:
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts with many tones more compact. something with arrays.
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
-
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting
@@ -63,7 +62,9 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures, like basler.
 - all mutexes should use lock_guard or similar for consistency
-- refactor diosystem to use dioRows for row names (A, B, C, D)
+- refactor main experiment thread / master procedure handling to make more use of DioRows. Right now I believe there's 
+	a lot of conversion back and forth between DioRows and ints. maybe not worthwhile though considering the impending
+	ftdi change?
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
@@ -74,12 +75,10 @@ Refactoring / Other:
 - reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times.
 - reconsider how to handle initial dac and ttl values
-
 Checks and Tests
 - add check for flash that sum of indv move times is the total move time.
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
-
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
