@@ -809,7 +809,7 @@ int DioSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& nu
 {
 	for ( auto rowInc : DioRows::allRows )
 	{
-		for (UINT numberInc = 0; numberInc < outputs.numColumns; numberInc++)
+		for (auto numberInc : range( outputs.numColumns ) )
 		{
 			std::string DioName = str(outputs ( numberInc, rowInc ).getName ( ), 13, false, true);
 			// second of the || is standard name which is always acceptable.
@@ -973,7 +973,7 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 	// and interpret the command list for each variation.
 	for (auto seqInc : range( sequenceLength ) )
 	{
-		for (UINT variationNum = 0; variationNum < variations; variationNum++)
+		for (auto variationNum : range(variations))
 		{
 			for (auto& formList : ttlCommandFormList[seqInc
 			])
@@ -1013,7 +1013,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedList.begin(), orderedList.end(), [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (USHORT commandInc = 0; commandInc < ttlCommandList[seqNum][variation].size(); commandInc++)
+	for (auto commandInc : range( ttlCommandList[ seqNum ][ variation ].size ( ) ) )
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time.
@@ -1048,7 +1048,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 
 	// handle the zero case specially. This may or may not be the literal first snapshot.
 	snaps.back().time = timeOrganizer[0].first;
-	for (UINT zeroInc = 0; zeroInc < timeOrganizer[0].second.size(); zeroInc++)
+	for (auto zeroInc : range( timeOrganizer[ 0 ].second.size ( ) ) )
 	{
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
@@ -1119,13 +1119,13 @@ void DioSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
 				// currently this is split an awkward because the viewpoint organization was organized in sets of 16, not 8.
 				// convert first 8 of snap shot to int
 				val1 = 0;
-				for ( int i = 0; i < 8; i++ )
+				for (auto i : range(8) )
 				{
 					val1 = val1 + pow( 2, i )*bank[i];
 				}
 				// convert next 8 of snap shot to int
 				val2 = 0;
-				for ( int j = 0; j < 8; j++ )
+				for (auto j : range(8))
 				{
 					val2 = val2 + pow( 2, j )*bank[j + 8];
 				}
@@ -1333,11 +1333,11 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 {
 	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
 	// of a bug when code first created.
-	for ( UINT dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
+	for (UINT dioEventInc : range( formattedTtlSnapshots[ seqNum ][ variation ].size ( ) ) )
 	{
 		auto& snapOuter0 = formattedTtlSnapshots[seqNum][variation][dioEventInc][0];
 		auto& snapOuter1 = formattedTtlSnapshots[seqNum][variation][dioEventInc][1];
-		for ( UINT dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
+		for (UINT dioEventInc2 : range( dioEventInc ) )
 		{
 			auto& snapInner0 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][0];
 			auto& snapInner1 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][1];
