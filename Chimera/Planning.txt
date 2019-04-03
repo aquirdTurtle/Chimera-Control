@@ -1,3 +1,5 @@
+// created by Mark O. Brown
+
 ===================
 CODE PLANNING
 ===================
@@ -8,7 +10,7 @@ FEATURES:
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
-	- be able to add more repetitions on the fly if randomizing reps. Requires some camera magic.
+	- be able to add more repetitions on the fly if randomizing reps. Requires some camera magic probably.
 	- mix sequences in as well?
 		- also gets tricky if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
@@ -23,6 +25,7 @@ FEATURES:
 - restore ability to look multi-pixel conditions / events in plots
 - improve experiment status; include which config was run, variable options
 - report oscilloscope data to datalogger
+- report initial values of dacs and ttls to datalogger
 - report andor background data to datalogger if calibrating background out
 - improve delete file after abort functionality
 	- decorate name, delete after a while.
@@ -49,11 +52,9 @@ FEATURES:
 - Make (option for) hist plots for single pic mode andor images
 - include calibration data in dac and servos
 - be able to query current connection status like what shows up in the beginning
-- some way of making niawg scripts more compact. something with arrays.
-- camera "running" status should display most recent temp.
+- some way of making niawg scripts with many tones more compact. something with arrays.
+- make plot update rate be changeable in real-time to help deal with slowness in long runs.
 - check number of basler triggers against basler total picture number
-
-
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting
@@ -62,23 +63,24 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures, like basler.
 - all mutexes should use lock_guard or similar for consistency
-- refactor diosystem to use dioRows for row names (A, B, C, D)
+- refactor main experiment thread / master procedure handling to make more use of DioRows. Right now I believe there's 
+	a lot of conversion back and forth between DioRows and ints. maybe not worthwhile though considering the impending
+	ftdi change?
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.
-- refactor rerngmove complexmove and simplemove which are confusing... 
+- refactor rerngmove complexmove and simplemove names which are confusing... 
 - refactor master configuration to be more similar to normal configuration reading
-- Label all values in config file, making it human-readable.
-
+- Label all values in config file, making it very human-readable.
+- reorganize .h and .cpp files in visual studio
+- remove the complicated rearrangement that happens on the camera window, all functions available at all times.
+- reconsider how to handle initial dac and ttl values
 Checks and Tests
 - add check for flash that sum of indv move times is the total move time.
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
-
 BUGS:
-- fix save function to not need alt-sau but automatically working.
-- Fix always prompt for overwrite function,
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
 - interpret key taking a long time for ttls in camera cal for some reason.
@@ -86,18 +88,11 @@ BUGS:
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
 - if taking pictures too fast code can freeze while pics getting handled.
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
-- closing the wrong plot will close all... seems like soemthing to do with the ordering...
 - Should only require calibration files if F5, not if only camera starts e.g.
 - err boxes don't grab focus of entire program
-- "if no mot?" check is not positioned correctly
-- something in the thrower system is eating the last character of the error message.
 - should not be able to load agilent script if not in scripting mode.
 - servos failing quietly...
-- seems that some python dll is failing to load on the master computer
 - should be able to change basler image dimensions edits while running
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
-- niawg goes yellow before confirmation.
-- position of vertical threshold line not exactly correct wrt x tick labels
-- value in pic settings colormap combo not always consistent with actual display.
-- should not run agilent triggering tests if not running agilents (e.g. only master and basler)
+- can't do non-square multi-dim scans

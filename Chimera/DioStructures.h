@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include <array>
 #include "windows.h"
 #include "commonTypes.h"

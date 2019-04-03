@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "Control.h"
 #include "externals.h"
@@ -37,12 +38,11 @@ template <typename T> void infoBox( T msg )
 {
 	ErrDialog dlg ( cstr ( msg ), ErrDialog::type::info );
 	dlg.DoModal ( );
-	//MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
 }
 
 template <typename T> int promptBox( T msg, UINT promptStyle )
 {
-	return MessageBox( eMainWindowHwnd, cstr( msg ), "Prompt", promptStyle | MB_SYSTEMMODAL );
+	return MessageBox( eMainWindowHwnd->GetSafeHwnd(), cstr( msg ), "Prompt", promptStyle | MB_SYSTEMMODAL );
 }
 
 ULONG getNextFileIndex( std::string fileBase, std::string ext );

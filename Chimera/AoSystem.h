@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include <array>
 #include <string>
@@ -9,7 +10,10 @@
 #include "DioSystem.h"
 #include "DaqMxFlume.h"
 #include "AoStructures.h"
+#include "AnalogOutput.h"
+
 #include "Version.h"
+class MainWindow;
 
 /**
  * AIO in the name stands for Analog In and Out, or measuring analog signals and producing analog signals.
@@ -35,7 +39,7 @@ class AoSystem
 		void zeroDacs( DioSystem* ttls );
 		// Setting system settings, mostly non-crucial functionality.
 		
-		void handleRoundToDac( CMenu& menu );
+		void handleRoundToDac( MainWindow* menu );
 		void updateEdits( );
 		void shadeDacs( std::vector<unsigned int>& dacShadeLocations );
 		void unshadeDacs( );
@@ -46,7 +50,6 @@ class AoSystem
 		void setMinMax( int dacNumber, double min, double max );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData,
 						   std::vector<std::vector<double>> finTimes );
-		double roundToDacResolution( double num );
 		void handleEditChange( UINT dacNumber );
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
@@ -54,11 +57,11 @@ class AoSystem
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void setDacTriggerEvents( DioSystem* ttls, UINT variation, UINT seqNum );
+		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-									 std::vector<parameterType>& vars, DioSystem* ttls, UINT seqNum );
+									 std::vector<parameterType>& vars, DioSystem& ttls, UINT seqNum );
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
 		void makeFinalDataFormat( UINT variation, UINT seqNum );
@@ -88,21 +91,21 @@ class AoSystem
 		unsigned int getNumberOfDacs( );
 		std::pair<double, double> getDacRange( int dacNumber );
 		std::array<AoInfo, 24> getDacInfo ( );
-		//std::array<double, 24> getDacStatus( );
 		std::array<double, 24> getFinalSnapshot( );
 		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
+		bool handleArrow ( CWnd* focus, bool up );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
 		Control<CleanButton> zeroDacsButton;
+		Control<CleanCheck> quickChange;
+		std::array<AnalogOutput, 24> outputs;
 
-		std::array<Control<CStatic>, 24> dacLabels;
-		std::array<Control<CEdit>, 24> breakoutBoardEdits;
+		//std::array<Control<CStatic>, 24> dacLabels;
+		//std::array<Control<CEdit>, 24> breakoutBoardEdits;
+		//std::array<AoInfo, 24> dacInfo;
 
-		std::array<AoInfo, 24> dacInfo;
-
-		const double dacResolution;
 		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
 		// first = sequence, 2nd = variation
 		std::vector<std::vector<std::vector<AoCommand>>> dacCommandList;

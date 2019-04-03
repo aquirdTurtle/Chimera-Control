@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "PictureControl.h"
 #include "atomGrid.h"
@@ -28,7 +29,7 @@ class PictureManager
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
-		void drawBitmap ( CDC* deviceContext, Matrix<long> picData );
+		void drawBitmap ( CDC* deviceContext, Matrix<long> picData, std::pair<int, int> minMax );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
 						  std::vector<atomGrid> gridInfo, UINT pictureNumber );
 		void createPalettes( CDC* dc );
@@ -44,8 +45,6 @@ class PictureManager
 		void setAutoScalePicturesOption(bool autoScaleOption);
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);
-		void setSettings( std::array<int, 4> maxCounts, std::array<int, 4>  minCounts, bool autoscale, 
-						  bool specialGreater, bool specialLess, bool showGrid );
 		void resetPictureStorage();
 		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 		const std::string configDelim;
@@ -56,7 +55,7 @@ class PictureManager
 		POINT picturesLocation;
 		int picturesWidth;
 		int picturesHeight;
-		bool autoScalePictures;
+		bool autoScalePictures = false;
 		bool specialGreaterThanMax;
 		bool specialLessThanMin;
 		bool alwaysShowGrid;

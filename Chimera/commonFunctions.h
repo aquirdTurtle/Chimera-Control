@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "afxwin.h"
 #include "MasterThreadInput.h"
@@ -19,8 +20,6 @@ namespace commonFunctions
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls );
 	void startExperimentThread(MainWindow* mainWin, ExperimentInput& input);
-	bool somethingIsRunning ( MainWindow* mainWin, ScriptingWindow* scriptWin,
-							  AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
 	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
 						bool takeBaslerPictures, std::string specialName="", bool isCal=false );
 	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin = NULL, BaslerWindow* basWin = NULL );

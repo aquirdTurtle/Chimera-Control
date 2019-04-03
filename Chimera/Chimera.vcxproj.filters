@@ -19,9 +19,6 @@
     <ClCompile Include="TektronicsControl.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptWritingInstructionsDialog.cpp">
-      <Filter>Scripting Window</Filter>
-    </ClCompile>
     <ClCompile Include="ScriptingWindow.cpp">
       <Filter>Scripting Window</Filter>
     </ClCompile>
@@ -133,9 +130,6 @@
     <ClCompile Include="ServoManager.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Servo.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="functionCombo.cpp">
       <Filter>Custom-Controls</Filter>
     </ClCompile>
@@ -143,9 +137,6 @@
       <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="DioSystem.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="RC028.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="WinSerialFlume.cpp">
@@ -171,9 +162,6 @@
     </ClCompile>
     <ClCompile Include="openWithExplorer.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Control.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
     <ClCompile Include="cleanString.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
@@ -250,7 +238,6 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="MachineOptimizer.cpp" />
     <ClCompile Include="AndorRunMode.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
@@ -266,18 +253,37 @@
     <ClCompile Include="rerngOptionStructures.cpp">
       <Filter>Main Window\Structures</Filter>
     </ClCompile>
-    <ClCompile Include="NiawgStructures.cpp" />
     <ClCompile Include="ErrDialog.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="SegmentEnd.cpp" />
     <ClCompile Include="AndorWindow.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
-    <ClCompile Include="AndorRunSettings.cpp" />
     <ClCompile Include="DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
+    <ClCompile Include="AnalogOutput.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="AndorRunSettings.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="NiawgStructures.cpp">
+      <Filter>National-Instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="SegmentEnd.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClCompile>
+    <ClCompile Include="LongCSlider.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DigitalOutput.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="MachineOptimizer.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterThreadInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -475,16 +481,10 @@
     <ClInclude Include="ftd2xx.h">
       <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="RC028.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
     <ClInclude Include="PlotDialog.h">
       <Filter>Plotting-And-Viewing</Filter>
     </ClInclude>
     <ClInclude Include="ScriptWritingInstructionsDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="scriptWriteHelpProc.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="splashDialog.h">
@@ -598,7 +598,6 @@
     <ClInclude Include="BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
-    <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="BaslerSettingsControl.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
@@ -608,7 +607,6 @@
     <ClInclude Include="MasterManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataPoint.h" />
     <ClInclude Include="AndorTriggerModes.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
@@ -636,13 +634,31 @@
     <ClInclude Include="ErrDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="AndorWindow.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="DataAnalysisControl.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
+    <ClInclude Include="AnalogOutput.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="SegmentEnd.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="dataPoint.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="LongCSlider.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DigitalOutput.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="MachineOptimizer.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="AgilentArray.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

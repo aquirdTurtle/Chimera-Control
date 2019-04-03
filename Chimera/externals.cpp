@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 // This file includes the decalarations of all of my external (global) variables. Declaring them here is a nice way of including all of the extenals in a file
 // without making it look like a normal variable.
 #include "stdafx.h"
@@ -13,7 +14,7 @@
 std::vector<std::string> WAVEFORM_NAME_FILES = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 std::vector<std::string> WAVEFORM_TYPE_FOLDERS = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 
-HWND eMainWindowHwnd;
+CWnd* eMainWindowHwnd;
 /// light theme (work in progress...)
 std::string staticBkgd = "Light Grey", interactableBkgd = "Solarized Base2";
 std::unordered_map<std::string, COLORREF> _myRGBs = {

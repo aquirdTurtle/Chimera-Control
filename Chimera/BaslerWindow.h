@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include <atomic>
 #include "PictureManager.h"
@@ -23,6 +24,7 @@ class BaslerWindow : public CDialogEx
 		BaslerWindow( );
 		BOOL OnInitDialog();
 		void handleEnter();
+		void handleBaslerAutoscaleSelection ( );
 		void OnPaint();
 		void passCommonCommand ( UINT id );
 		void startTemporaryAcquisition ( baslerSettings motSizeSettings );
@@ -53,11 +55,12 @@ class BaslerWindow : public CDialogEx
 		void handleSavingConfig ( std::ofstream& configFile );
 		void startCamera ( );
 		baslerSettings getCurrentSettings ( );
+		void setMenuCheck ( UINT menuItem, UINT itemState );
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		UINT loadMotConsecutiveFailures = 0;
 		bool motLoaded=false;
-
+		bool autoScaleBaslerPictureData = true;
 		PictureManager picManager;
 		BaslerSettingsControl settingsCtrl;
 		BaslerCameras* cameraController;

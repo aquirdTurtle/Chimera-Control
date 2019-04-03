@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "Windows.h"
 #include "Control.h"
 #include "resource.h"
@@ -16,7 +17,7 @@ class ErrDialog : public CDialog
 			info
 		};
 
-		ErrDialog ( std::string description, type dlgType_ ) : CDialog ( IDD_ERROR_DIALOG )
+		ErrDialog ( std::string description, type dlgType_ ) : CDialog ( IDD_ERROR_DIALOG, eMainWindowHwnd )
 		{
 			dlgType = dlgType_;
 			descriptionText = description;

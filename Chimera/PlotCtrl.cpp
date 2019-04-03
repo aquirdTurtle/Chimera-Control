@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "PlotCtrl.h"
 #include "Thrower.h"
 #include <numeric>
@@ -143,42 +144,46 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 	sustainButton.rearrange( width, height, fonts );
 }
 
-
-void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData, std::vector<long>& scaledThresholds )
+/*
+Gives the limits of the x points of the raw data.
+*/
+void PlotCtrl::getDataXLims (std::vector<plotDataVec>& data )
 {
-	double minx = DBL_MAX, maxx = -DBL_MAX, miny = DBL_MAX, maxy = -DBL_MAX;
-	for ( auto line : screenData )
+	auto& minx = data_minmax.min_x;
+	auto& maxx = data_minmax.max_x;
+	minx = DBL_MAX;
+	maxx = -DBL_MAX;
+	for ( auto lineInc : range ( data.size ( ) - 1 ) )
 	{
+		auto line = data[ lineInc ];
 		for ( auto elem : line )
 		{
-			if ( elem.x < minx )
-			{
-				minx = elem.x;
-			}
-			if ( elem.x > maxx )
-			{
-				maxx = elem.x;
-			}
+			minx = elem.x < minx ? elem.x : minx;
+			maxx = elem.x > maxx ? elem.x : maxx;
 		}
 	}
 	if ( style == plotStyle::HistPlot )
 	{
+		// then check thresholds as well.
 		for ( auto t : thresholds )
 		{
-			if ( t < minx )
-			{
-				minx = t;
-			}
-			if ( t > maxx )
-			{
-				maxx = t;
-			}
+			minx = t < minx ? t : minx;
+			maxx = t > maxx ? t : maxx;
 		}
 	}
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot 
+}
+
+/*
+	these are the limits of the data itself. 
+*/
+void PlotCtrl::getDataYLims ( std::vector<plotDataVec>& data )
+{
+	auto& miny = data_minmax.min_y;
+	auto& maxy = data_minmax.max_y;
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot
 		 || style == plotStyle::VertHist )
 	{
-		for ( auto line : screenData )
+		for ( auto line : data )
 		{
 			for ( auto elem : line )
 			{
@@ -197,68 +202,33 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData, 
 	{
 		miny = 0;
 	}
+}
+
+
+void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData, std::vector<long>& scaledThresholds )
+{
+	if ( screenData.size ( ) == 0 )
+	{
+		return;
+	}
+	getDataXLims ( screenData );
+	getDataYLims ( screenData );
+	getXLims ( );
+	getYLims ( );
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
 	double plotHeightPixels = heightScale2 * (plotAreaDims.bottom - plotAreaDims.top);
-	double rangeX = maxx - minx;
-	double rangeY = maxy - miny;
 
-	if ( rangeX == 0 )
-	{
-		rangeX += 1;
-	}
-	if ( rangeY == 0 )
-	{
-		rangeY += 1;
-	}
-	double dataScaleX = ( plotWidthPixels - 20 ) / (rangeX);
-	if ( style == plotStyle::HistPlot )
-	{
-		// resize things to take into acount the widths.
-		maxx -= boxWidth;
-		minx += boxWidth;
-		rangeX = maxx - minx;
-		boxWidthPixels = ceil(boxWidth * dataScaleX * 0.99);
-	}
-	double dataHeight = 1;
-	double dataMin = 0;
-	if ( style == plotStyle::ErrorPlot )
-	{
-		// currently assuming 0-1 instead of auto-sizing.
-		dataHeight = 1;
-		dataMin = 0;
-	}
-	else if ( style == plotStyle::TtlPlot )
-	{
-dataHeight = 2;
-// because of offset in plot
-dataMin = -0.5;
-	}
-	else if ( style == plotStyle::DacPlot )
-	{
-		// currently doing autoscaling here.
-		dataHeight = maxy - miny;
-		dataMin = miny;
-		//dataHeight = 21;
-		//dataMin = -10;
-	}
-	else if ( style == plotStyle::OscilloscopePlot )
-	{
-		dataHeight = ( maxy - miny ) * 1.1;
-		dataMin = miny - ( maxy - miny )*0.05;
-	}
-	else if ( style == plotStyle::HistPlot || style == plotStyle::VertHist )
-	{
-		dataHeight = maxy - miny;
-		dataMin = 0;
-	}
-	else
-	{
-		thrower ( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
-	}
+	// extra term is to make sure this is never zero, adding 1 if would be too close.
+	double rangeX = view_minmax.max_x - view_minmax.min_x + ( fabs( view_minmax.max_x - view_minmax.min_x ) < 1e-12 ? 1 : 0 );
+	// pixels per unit of the xpts
+	double dataScaleX = plotWidthPixels / rangeX;
+	// not positive why the 0.99 is necessary here
+	boxWidthPixels = ceil ( boxWidth * dataScaleX * 0.99 );	
+	/// handle flipped data
 	if ( style == plotStyle::VertHist )
-	{
+	{ 
 		// flipped
-		double dataScaleX = plotWidthPixels / dataHeight;
+		double dataScaleX = plotWidthPixels / ( view_minmax.max_y - view_minmax.min_y);
 		double dataScaleY = plotHeightPixels / rangeX;
 		boxWidthPixels = ceil ( boxWidth * dataScaleY * 0.99 );
 		for ( auto& line : screenData )
@@ -267,35 +237,110 @@ dataMin = -0.5;
 			{
 				auto px = point.x;
 				auto py = point.y;
-				point.x = plotAreaDims.left * widthScale2 + ( py - dataMin ) * dataScaleX + 10;
-				point.y = plotAreaDims.bottom * heightScale2 - ( px - minx ) * dataScaleY;
+				point.x = plotAreaDims.left * widthScale2 + ( py - view_minmax.min_y ) * dataScaleX + 10;
+				point.y = plotAreaDims.bottom * heightScale2 - ( px - view_minmax.min_x ) * dataScaleY;
 				point.err *= dataScaleY;
 			}
 		}
 	}
 	else
-	{
-		double dataScaleY = plotHeightPixels / dataHeight;
+	{ /// scale normal data
+		double dataScaleY = plotHeightPixels / ( view_minmax.max_y - view_minmax.min_y );
 
 		for ( auto& line : screenData )
 		{
 			for ( auto& point : line )
 			{
-				point.x = plotAreaDims.left * widthScale2 + ( point.x - minx ) * dataScaleX + 10;
-				point.y = plotAreaDims.bottom * heightScale2 - ( point.y - dataMin ) * dataScaleY;
+				point.x = plotAreaDims.left * widthScale2 + ( point.x - view_minmax.min_x ) * dataScaleX;
+				point.y = plotAreaDims.bottom * heightScale2 - ( point.y - view_minmax.min_y ) * dataScaleY;
 				point.err *= dataScaleY;
 			}
 		}
 	}
+	/// handle thresholds
 	if ( style == plotStyle::HistPlot )
 	{
 		scaledThresholds.clear ( );
 		for ( auto t : thresholds )
 		{
-			scaledThresholds.push_back ( plotAreaDims.left * widthScale2 + ( t - minx ) * dataScaleX + 10 );
+			scaledThresholds.push_back ( plotAreaDims.left * widthScale2 + ( t - view_minmax.min_x ) * dataScaleX );
 		}
 	}
 }
+
+/*
+the modified minx and maxx refer to the minimum and maximum data points which *could* appear on the plot.
+*/
+void PlotCtrl::getXLims ()
+{
+	auto& minx = view_minmax.min_x, &maxx = view_minmax.max_x;
+	auto& min_d_x = data_minmax.min_x, &max_d_x = data_minmax.max_x;
+	// in data's coordinates, not screen coordinates
+	if ( style == plotStyle::HistPlot )
+	{
+		// resize things to take into acount the widths.
+		maxx = max_d_x + boxWidth;
+		minx = min_d_x - boxWidth;
+	}
+	else
+	{
+		minx = min_d_x;
+		maxx = max_d_x;
+	}
+	// maximum points on the plot are slightly outside data
+	minx -= ( max_d_x - min_d_x ) * 0.05;
+	maxx += ( max_d_x - min_d_x ) * 0.05;
+}
+
+/*
+the modified minx and maxx refer to the minimum and maximum data points which *could* appear on the plot.
+*/
+void PlotCtrl::getYLims ( )
+{
+	auto& miny = view_minmax.min_y, &maxy = view_minmax.max_y;
+	auto& min_d_y = data_minmax.min_y, &max_d_y = data_minmax.max_y;
+	// in data's coordinates, not screen coordinates
+	if ( style == plotStyle::ErrorPlot )
+	{
+		// currently assuming 0-1 instead of auto-sizing.
+		maxy = 1;
+		miny = 0;
+	}
+	else if ( style == plotStyle::TtlPlot )
+	{
+		maxy = 1.5;
+		// because of offset in plot
+		miny = -0.5;
+	}
+	else if ( style == plotStyle::DacPlot )
+	{
+		// currently doing autoscaling here.
+		maxy = max_d_y;
+		miny = min_d_y;
+	}
+	else if ( style == plotStyle::OscilloscopePlot )
+	{
+		auto r = max_d_y - min_d_y;
+		maxy = min_d_y + r * 1.1;
+		miny = min_d_y - r*0.05;
+	}
+	else if ( style == plotStyle::HistPlot || style == plotStyle::VertHist )
+	{
+		maxy = max_d_y;
+		miny = 0;
+	}
+	else
+	{
+		thrower ( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
+	}
+}
+
+
+double PlotCtrl::getRelativeScreenLoc ( double dataVal, double limMin, double limMax )
+{
+	return ( dataVal - limMin ) / ( limMax - limMin );
+}
+
 
 void PlotCtrl::clear ( )
 {
@@ -340,43 +385,42 @@ void PlotCtrl::plotPoints ( memDC* d )
 	}
 	std::vector<double> xRaw, xScaled;
 	{
-		std::lock_guard<std::mutex> lock( dataMutexes[0] );
-		for ( auto pointCount : range( shiftedData[0].size( ) ) )
+		std::lock_guard<std::mutex> lock ( dataMutexes[ 0 ] );
+		if ( style == plotStyle::HistPlot )
 		{
-			xRaw.push_back( data[0]->at( pointCount ).x );
-			xScaled.push_back( shiftedData[0][pointCount].x );
+			for ( auto lineInc : range ( shiftedData.size ( )-1 ))
+			{
+				for ( auto pointCount : range ( shiftedData[ lineInc ].size ( ) ) )
+				{
+					if ( std::find ( xScaled.begin ( ), xScaled.end ( ), shiftedData[ lineInc ][ pointCount ].x ) == xScaled.end ( ) )
+					{
+						xRaw.push_back ( data[ lineInc ]->at ( pointCount ).x );
+						xScaled.push_back ( shiftedData[ lineInc ][ pointCount ].x );
+					}
+				}
+			}
+		}
+		else
+		{
+			for ( auto pointCount : range ( shiftedData[ 0 ].size ( ) ) )
+			{
+				xRaw.push_back ( data[ 0 ]->at ( pointCount ).x );
+				xScaled.push_back ( shiftedData[ 0 ][ pointCount ].x );
+			}
 		}
 	}
-	std::pair<double, double> minMaxScaled, minMaxRaw;
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::VertHist
-		 || style == plotStyle::DacPlot )
-	{
-		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
-	}
-	if ( style == plotStyle::HistPlot )
-	{
-		minMaxRaw.first = 0;
-		minMaxScaled.first = 0;
-	}
-	drawGridAndAxes( d, xRaw, xScaled, minMaxRaw, minMaxScaled );
+	drawGridAndAxes( d, xRaw, xScaled);
 	UINT penNum = 0;
 	UINT lineNum = 0;
 	for ( auto lineNum : range(shiftedData.size()) )
-	//for ( auto& line : shiftedData )
 	{
 		auto& line = shiftedData[ lineNum ];
-
 		long t;
 		if ( style == plotStyle::HistPlot )
 		{
-			if ( lineNum == shiftedData.size ( ) - 1 )
-			{
-				t = std::accumulate ( scaledThresholds.begin ( ), scaledThresholds.end ( ), 0.0 ) / scaledThresholds.size ( );
-			}
-			else
-			{
-				t = scaledThresholds[ lineNum ];
-			}
+			t = ( lineNum == shiftedData.size ( ) - 1) ? 
+				std::accumulate ( scaledThresholds.begin ( ), scaledThresholds.end ( ), 0.0 ) / scaledThresholds.size ( )
+				: scaledThresholds[ lineNum ];
 		}
 		Gdiplus::SolidBrush* brush;
 		Gdiplus::Pen* pen;
@@ -473,7 +517,7 @@ void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrus
 			r = Gdiplus::Rect ( ceil( plotAreaDims.left * widthScale2 ), ceil(np.y),
 								ceil( ceil(np.x) - plotAreaDims.left * widthScale2 ), ceil(p.y)-ceil(np.y) );
 		}
-		else
+		else 
 		{
 			thrower ( "Bad plot style for making a bar plot?!?!?" );
 		}
@@ -488,47 +532,6 @@ void PlotCtrl::setCurrentDims( int width, int height )
 {
 	widthScale2 = width / 1920.0;
 	heightScale2 = height / 997.0;
-}
-
-
-void PlotCtrl::getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlotDataVec> rawData,
-						   std::pair<double, double>& minMaxRaw, std::pair<double, double>& minMaxScaled )
-{
-	minMaxRaw.first = DBL_MAX;
-	minMaxRaw.second = -DBL_MAX;
-	minMaxScaled.first = DBL_MAX;
-	minMaxScaled.second = -DBL_MAX;
-	for ( auto line : screenData )
-	{
-		for ( auto p : line )
-		{
-			if ( p.y < minMaxScaled.first )
-			{
-				minMaxScaled.first = p.y;
-			}
-			if ( p.y > minMaxScaled.second )
-			{
-				minMaxScaled.second = p.y;
-			}
-		}
-	}
-	UINT lineCount = 0;
-	for ( auto line : rawData )
-	{
-		std::lock_guard<std::mutex> lock( dataMutexes[lineCount] );
-		for ( auto p : *line )
-		{
-			if ( p.y < minMaxRaw.first )
-			{
-				minMaxRaw.first = p.y;
-			}
-			if ( p.y > minMaxRaw.second )
-			{
-				minMaxRaw.second = p.y;
-			}
-		}
-		lineCount++;
-	}
 }
 
 
@@ -599,27 +602,8 @@ void PlotCtrl::makeStepPlot( memDC* d, plotDataVec scaledLine, Gdiplus::Pen* p, 
 }
 
 
-void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
-								std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY )
+void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX)
 {
-	double xMin = DBL_MAX, xMax = -DBL_MAX;
-	for ( auto x : xAxisPts )
-	{
-		if ( x > xMax )
-		{
-			xMax = x;
-		}
-		if ( x < xMin )
-		{
-			xMin = x;
-		}
-	}
-	if ( style == plotStyle::HistPlot )
-	{
-		// resize things to take into acount the widths.
-		xMax += boxWidth;
-		xMin -= boxWidth;
-	}
 	// assumes that data has been converted to screen coords.
 	RECT scaledArea = { plotAreaDims.left * widthScale2, plotAreaDims.top * heightScale2,
 		plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
@@ -627,41 +611,42 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( _myRGBs["Text"] );
 	UINT count = 0;
-	bool labelEachPoint = (scaledX.size( ) < 15);
-	for ( auto x : scaledX )
+	if ( scaledX.size ( ) < 15 )
 	{
-		// draw vertical lines for x points
-		RECT r = { long( x - 40 ), long( scaledArea.bottom ),
-			long( x + 60 ), long( controlDims.bottom * heightScale2 ) };
-		std::string txt = str( xAxisPts[count], 3 );
-		if ( labelEachPoint )
+		// then label each point
+		for ( auto x : scaledX )
 		{
+			// draw vertical lines for x points
+			RECT r = { long ( x - 40 ), long ( scaledArea.bottom ), long ( x + 60 ),
+				long ( controlDims.bottom * heightScale2 ) };
+			std::string txt = str ( xAxisPts[ count ], 3 );
 			drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top, greyGdiPen );
 			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 		count++;
 	}
-	if ( !labelEachPoint )
+	else
 	{
 		double scaledWidth = scaledArea.right - scaledArea.left;
-		double dataRange = xMax - xMin;
-		
-		for ( auto count : range( 11 ) )
+		double dataRange = view_minmax.max_x - view_minmax.min_x;
+		int numLines = 11;
+		for ( auto count : range( numLines ) )
 		{
-			RECT r = { long( scaledArea.left + count * (scaledWidth - 20) / 10.0 - 40), long( scaledArea.bottom ),
-					   long( scaledArea.left + count * (scaledWidth - 20) / 10.0 + 60 ),
-					   long( controlDims.bottom * heightScale2 ) };
-			std::string txt = str( xMin + count * dataRange / 10.0 );
-			drawLine( d, scaledArea.left + count * (scaledWidth-20) / 10.0 + 10, scaledArea.bottom + 5,
-					  scaledArea.left + count * (scaledWidth - 20) / 10.0 + 10, scaledArea.top, greyGdiPen );
+			// a box for the x tick text.
+			RECT r = { long ( scaledArea.left + count * ( scaledWidth - 20 ) / ( numLines - 1 ) - 40 ), long ( scaledArea.bottom ),
+					   long ( scaledArea.left + count * ( scaledWidth - 20 ) / ( numLines - 1 ) + 60 ),
+					   long ( controlDims.bottom * heightScale2 ) };
+			std::string txt = str ( view_minmax.min_x + count * dataRange / ( numLines - 1 ) );
+			drawLine ( d, scaledArea.left + count * ( scaledWidth) / ( numLines - 1 ), scaledArea.bottom + 5,
+					   scaledArea.left + count * ( scaledWidth) / ( numLines - 1 ), scaledArea.top, greyGdiPen );
 			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 	}
 	UINT numLines = 6;
 	double vStep = (scaledArea.bottom - scaledArea.top) / (numLines - 1);
-	double vRawStep = (minMaxRawY.second - minMaxRawY.first) / (numLines - 1);
+	double vRawStep = ( view_minmax.max_y - view_minmax.min_y ) / (numLines - 1);
 	// min to max version
 	if ( style == plotStyle::TtlPlot )
 	{
@@ -669,22 +654,6 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	}
 	else 
 	{
-		double minY, maxY;
-		if ( style == plotStyle::DacPlot )
-		{
-			minY = minMaxRawY.first;
-			maxY = minMaxRawY.second;
-		}
-		else if ( style == plotStyle::ErrorPlot )
-		{
-			minY = 0;
-			maxY = 1;
-		}
-		else
-		{
-			minY = minMaxRawY.first;
-			maxY = minMaxRawY.second;
-		}
 		// Forces y-axis to be between 0 and 1.
 		for ( auto gridline : range( numLines ) )
 		{
@@ -692,26 +661,11 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 					  scaledArea.top + gridline * vStep, greyGdiPen );
 			RECT r = { long( controlDims.left * widthScale2 ), long( scaledArea.top + 10 + gridline * vStep ),
 					   long( scaledArea.left ), long( scaledArea.top - 10 + gridline * vStep ) };
-			std::string txt = str( maxY - (maxY - minY) * double( gridline ) / (numLines - 1), 5 );
+			std::string txt = str( view_minmax.max_y - ( view_minmax.max_y - view_minmax.min_y ) 
+								   * double(gridline) / (numLines - 1), 5 );
 			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
-
-		if ( false )
-		{
-			double vStep = 0;// (minMaxScaled.top - minMaxScaled.bottom) / (numLines - 1);
-			for ( auto gridline : range( numLines ) )
-			{
-				drawLine( d, scaledArea.left - 5, minMaxScaledY.second - gridline * vStep, scaledArea.right,
-						  minMaxScaledY.second - gridline * vStep, greyGdiPen );
-				RECT r = { long( controlDims.left * widthScale2 ), long( minMaxScaledY.second + 10 - gridline * vStep ),
-					long( scaledArea.left), long( minMaxScaledY.second - 10 - gridline * vStep ) };
-				std::string txt = str( minMaxRawY.first + gridline * vRawStep, 5 );
-				d->SelectObject( textFont );
-				d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-			}
-		}
-
 	}
 
 	// axis labels
@@ -811,6 +765,7 @@ void PlotCtrl::circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* b
 
 void PlotCtrl::drawThresholds ( memDC* d, long threshold, Gdiplus::Pen* pen ) 
 {
+	// expects that the threshold has already been converted to plot coordinates
 	long top = plotAreaDims.top * heightScale2, bottom = plotAreaDims.bottom * heightScale2;
 	drawLine ( d, { threshold, top }, { threshold, bottom}, pen );
 }

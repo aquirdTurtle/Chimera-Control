@@ -1,4 +1,4 @@
-
+// created by Mark O. Brown
 #include "stdafx.h"
 
 #include "DataAnalysisControl.h"
@@ -88,7 +88,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	plotTimerTxt.setPositions( pos, 0, 0, 360, 25 );
 	plotTimerTxt.Create( "Plot Update Timer Length (ms):", NORM_STATIC_OPTIONS, plotTimerTxt.seriesPos, parent, id++ );
 	plotTimerEdit.setPositions( pos, 360, 0, 120, 25, true );
-	plotTimerEdit.Create( NORM_EDIT_OPTIONS, plotTimerEdit.seriesPos, parent, id++ );
+	plotTimerEdit.Create( NORM_EDIT_OPTIONS, plotTimerEdit.seriesPos, parent, IDC_PLOT_TIMER_EDIT );
 	plotTimerEdit.SetWindowText( "5000" );
 
 	/// Initialize the listview
@@ -111,19 +111,25 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 }
 
 
-UINT DataAnalysisControl::getPlotTime( )
+void DataAnalysisControl::updatePlotTime ( )
 {
 	CString txt;
-	plotTimerEdit.GetWindowText( txt );
-	std::string tmpStr( txt );
+	plotTimerEdit.GetWindowText ( txt );
+	std::string tmpStr ( txt );
 	try
 	{
-		return boost::lexical_cast<unsigned long>( tmpStr );
+		plotTime = boost::lexical_cast<unsigned long>( tmpStr );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		throwNested ( "ERROR: plot time failed to convert to an unsigned integer!" );
+		//throwNested ( "ERROR: plot time failed to convert to an unsigned integer!" );
 	}
+}
+
+
+std::atomic<UINT>& DataAnalysisControl::getPlotTime( )
+{
+	return plotTime;
 }
 
 
@@ -853,6 +859,7 @@ void DataAnalysisControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode 
 	deleteGrid.rearrange( cameraMode, trigMode, width, height, fonts );
 	plotTimerTxt.rearrange( cameraMode, trigMode, width, height, fonts );
 	plotTimerEdit.rearrange( cameraMode, trigMode, width, height, fonts );
+	
 }
 
 

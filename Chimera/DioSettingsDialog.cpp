@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "stdafx.h"
@@ -59,27 +60,19 @@ BOOL TtlSettingsDialog::OnInitDialog()
 		numberlabels[numberInc].Create( cstr(numberInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_CENTER |
 									   ES_AUTOHSCROLL | WS_TABSTOP, numberlabels[numberInc].sPos, this, id++);
 	}
-	
-	for (UINT rowInc = 0; rowInc < edits.size(); rowInc++)
+	for (auto row : DioRows::allRows )
 	{
 		pos.y += rowSize;
 		pos.x = 0;
-		rowLabels[rowInc].sPos = { pos.x, pos.y, pos.x += labelSize, pos.y + rowSize };
-		std::string text;
-		switch (rowInc)
+		rowLabels[int(row)].sPos = { pos.x, pos.y, pos.x += labelSize, pos.y + rowSize };
+		rowLabels[int(row)].Create(cstr(DioRows::toStr(row)), WS_CHILD | ES_CENTER | WS_VISIBLE , 
+									rowLabels[ int ( row ) ].sPos, this, id++);
+		for (UINT numberInc = 0; numberInc < edits[ int ( row ) ].size(); numberInc++)
 		{
-			case 0: text = "A"; break;
-			case 1: text = "B"; break;
-			case 2: text = "C"; break;
-			case 3: text = "D"; break;
-		}
-		rowLabels[rowInc].Create(cstr(text), WS_CHILD | ES_CENTER | WS_VISIBLE , rowLabels[rowInc].sPos, this, id++);
-		for (UINT numberInc = 0; numberInc < edits[rowInc].size(); numberInc++)
-		{
-			edits[rowInc][numberInc].sPos = { pos.x, pos.y, pos.x += columnWidth, pos.y + rowSize };
-			edits[rowInc][numberInc].Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP,
-											 edits[rowInc][numberInc].sPos, this, id++);
-			edits[rowInc][numberInc].SetWindowTextA(cstr(input->ttls->getName(rowInc, numberInc)));
+			edits[ int ( row ) ][numberInc].sPos = { pos.x, pos.y, pos.x += columnWidth, pos.y + rowSize };
+			edits[ int ( row ) ][numberInc].Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP,
+											 edits[ int ( row ) ][numberInc].sPos, this, id++);
+			edits[ int ( row ) ][numberInc].SetWindowTextA(cstr(input->ttls->getName(row, numberInc)));
 		}
 	}
 	return FALSE;
@@ -88,18 +81,18 @@ BOOL TtlSettingsDialog::OnInitDialog()
 
 void TtlSettingsDialog::handleOk()
 {
-	for (UINT rowInc = 0; rowInc < edits.size(); rowInc++)
+	for (auto row : DioRows::allRows )
 	{
-		for (UINT numberInc = 0; numberInc < edits[rowInc].size(); numberInc++)
+		for (UINT numberInc = 0; numberInc < edits[int(row)].size(); numberInc++)
 		{
 			CString name;
-			edits[rowInc][numberInc].GetWindowText(name);
+			edits[ int ( row ) ][numberInc].GetWindowText(name);
 			if (isdigit(name[0]))
 			{
 				errBox("ERROR: " + str(name) + " is an invalid name; names cannot start with numbers.");
 				return;
 			}
-			input->ttls->setName(rowInc, numberInc, str(name), input->toolTips, input->master);
+			input->ttls->setName(row, numberInc, str(name), input->toolTips, input->master);
 		}
 	}
 	EndDialog((WPARAM)&input);

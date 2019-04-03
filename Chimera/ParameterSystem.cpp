@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "ParameterSystem.h"
 #include "Script.h"
@@ -709,7 +710,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			TextPromptDialog dialog(&newName, "Please enter a name for the variable:");
 			dialog.DoModal();
 			// make name lower case
-			std::transform( newName.begin(), newName.end(), newName.begin(), ::tolower );
+			newName = str ( newName, 13, false, true );
 			if (newName == "")
 			{
 				// probably canceled.
@@ -871,9 +872,10 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				// probably canceled.
 				break;
 			}
+			newScope = str ( newScope, 13, false, true );
 			// update the listview
 			param.parameterScope = newScope;
-			parametersListview.SetItem ( str ( param.parameterScope, 0, false, true ), itemIndicator, subitem );
+			parametersListview.SetItem ( param.parameterScope, itemIndicator, subitem );
 			break;
 		}
 		default:

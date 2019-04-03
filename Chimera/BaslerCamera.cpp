@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "BaslerCamera.h"
 #include "PictureControl.h"
@@ -738,7 +739,7 @@ int BaslerWrapper::getCurrentOffsetY()
 	{
 		return OffsetY.GetValue();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get current y offset." );
 	}
@@ -787,7 +788,7 @@ void BaslerWrapper::setGain( int gainValue )
 				GainRaw.SetValue( gainValue );
 			#endif
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set gain." );
 		}
@@ -803,7 +804,7 @@ void BaslerWrapper::waitForFrameTriggerReady( unsigned int timeout )
 		{
 			WaitForFrameTriggerReady( timeout, Pylon::TimeoutHandling_ThrowException );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to wait for frame trigger to be ready." );
 		}
@@ -820,7 +821,7 @@ void BaslerWrapper::executeSoftwareTrigger()
 		{
 			ExecuteSoftwareTrigger();
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to execute software trigger." );
 		}
@@ -836,7 +837,7 @@ void BaslerWrapper::setTriggerSource(cameraParams::TriggerSourceEnums mode)
 		{
 			TriggerSource.SetValue(mode);
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested("Failed to set trigger source.");
 		}

@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 
 #include "Expression.h"
 #include "commonTypes.h"
@@ -11,6 +12,8 @@ struct AoInfo
 	std::string name="";
 	double minVal=-10;
 	double maxVal=10;
+	// This is the value taken upon opening the master configuration. I don't think there's actually a way to set this 
+	// currently. 
 	double defaultVal=0;
 	// notes are purely cosmetic. Can be used e.g. to store calibration curves for VCOs or detailed reminders about 
 	// using a given dac.

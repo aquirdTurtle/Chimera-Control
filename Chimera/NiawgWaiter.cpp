@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "stdafx.h"
 #include "NiawgWaiter.h"
@@ -105,7 +106,7 @@ void NiawgWaiter::initialize()
 // waits for waiting thread to finish it's execution. If the niawg finished before the programming, this will return 
 // immediately. I think that I can get rid of the abort checks in here, this only ever gets called at the very end
 // of the experiment and there's no reason for the checks to be this far inside the niawg handling.
-void NiawgWaiter::wait( Communicator* comm )
+void NiawgWaiter::wait( Communicator& comm )
 {
 	systemAbortCheck( comm );
 	SetEvent( eWaitingForNIAWGEvent );
@@ -123,12 +124,12 @@ void NiawgWaiter::wait( Communicator* comm )
 /*
 * This function checks whether the system abort flag has been set, and if so, sends some messages and returns true. If not aborting, it returns false.
 */
-void NiawgWaiter::systemAbortCheck( Communicator* comm )
+void NiawgWaiter::systemAbortCheck( Communicator& comm )
 {
 	// check if aborting
 	if ( eAbortNiawgFlag )
 	{
-		comm->sendStatus( "Aborted!\r\n" );
+		comm.sendStatus( "Aborted!\r\n" );
 		thrower ( "Aborted!\r\n" );
 	}
 }

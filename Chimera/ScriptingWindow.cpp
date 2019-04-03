@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "ScriptingWindow.h"
 #include "afxwin.h"
@@ -222,11 +223,11 @@ BOOL ScriptingWindow::OnInitDialog()
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
-	startLocation = { 1700, 3 };
+	startLocation = { 1600, 3 };
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
 	
-	CMenu menu;
+	
 	menu.LoadMenu(IDR_MAIN_MENU);
 	SetMenu(&menu);
 	try
@@ -240,6 +241,11 @@ BOOL ScriptingWindow::OnInitDialog()
 	}
 	SetRedraw( true );
 	return TRUE;
+}
+
+void ScriptingWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
 }
 
 
@@ -260,9 +266,9 @@ void ScriptingWindow::OnTimer(UINT_PTR eventID)
 
 void ScriptingWindow::checkScriptSaves()
 {
-	niawgScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo());
-	intensityAgilent.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
-	masterScript.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
+	niawgScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo() );
+	intensityAgilent.checkSave ( getProfile ( ).categoryPath, mainWin->getRunInfo ( ) );
+	masterScript.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ), comm ( ) );
 }
 
 
@@ -655,13 +661,18 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( "New Master function Failed: " + err.trace( ) + "\r\n" );
+		comm( )->sendError( "Open Master Script Failed: " + err.trace( ) + "\r\n" );
 	}
 }
 
 
 void ScriptingWindow::saveMasterScript()
 {
+	if ( masterScript.isFunction ( ) )
+	{
+		masterScript.saveAsFunction ( comm () );
+		return;
+	}
 	masterScript.saveScript(getProfile().categoryPath, mainWin->getRunInfo());
 	masterScript.updateScriptNameText(getProfile().categoryPath);
 }
@@ -699,7 +710,7 @@ void ScriptingWindow::saveMasterFunction()
 {
 	try
 	{
-		masterScript.saveAsFunction();
+		masterScript.saveAsFunction(comm());
 	}
 	catch (Error& exception)
 	{

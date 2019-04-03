@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "afxwin.h"
 class splashDialog : public CDialog

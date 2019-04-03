@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "ProfileIndicator.h"
 #include "my_str.h"
@@ -8,7 +9,7 @@ void ProfileIndicator::initialize(POINT pos, int& id, CWnd* parent, cToolTips& t
 	header.Create("CONFIGURATION:", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);
 	header.fontType = fontTypes::HeadingFont;
 	pos.x += 200;
-	indicator.sPos = { pos.x, pos.y, pos.x + 1500, pos.y + 20 };
+	indicator.sPos = { pos.x, pos.y, pos.x + 1400, pos.y + 20 };
 	indicator.Create("", WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, indicator.sPos, parent, id++);
 	pos.y += 20;
 }

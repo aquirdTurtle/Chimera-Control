@@ -1,5 +1,4 @@
-/// This file contains all functiosn for the CameraImageParametersControlParameters singleton class.
-
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "CameraImageDimensions.h"
 #include "AndorWindow.h"

@@ -15,7 +15,7 @@ namespace TestVariables
 		
 		TEST_METHOD( InitVariableSystem )
 		{
-			ParameterSystem testSys;
+			ParameterSystem testSys( "CONFIG_PARAMETERS" );
 			Assert::AreEqual(testSys.getAllConstants( ).size( ), size_t(0));
 			Assert::AreEqual( testSys.getAllVariables( ).size( ), size_t( 0 ) );
 			Assert::AreEqual( testSys.getEverything( ).size( ), size_t( 0 ) );
@@ -29,7 +29,7 @@ namespace TestVariables
 			var.constant = true;
 			var.constantValue = 0.0;
 			var.ranges.push_back( { 1,10 } );
-			ParameterSystem testSys;
+			ParameterSystem testSys( "CONFIG_PARAMETERS" );
 			testSys.addConfigParameter( var, 0 );
 			Assert::AreEqual( UINT( 1 ), testSys.getCurrentNumberOfVariables( ) );
 			Assert::AreEqual( size_t( 1 ), testSys.getAllConstants( ).size() );
@@ -47,7 +47,7 @@ namespace TestVariables
 			var.constantValue = 0.0;
 			std::vector<double> expectedresult = { 1,2,3,4,5,6,7,8,9,10 };
 			var.ranges.push_back ( { 0,11 } );
-			ParameterSystem testSys;
+			ParameterSystem testSys( "CONFIG_PARAMETERS" );
 			testSys.addConfigParameter( var, 0 );
 			std::vector<std::vector<parameterType>> vars;
 			vars.push_back(testSys.getAllVariables( ));

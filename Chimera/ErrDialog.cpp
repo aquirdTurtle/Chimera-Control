@@ -1,7 +1,8 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "ErrDialog.h"
-#include <regex>
 #include <future>
+#include <boost/algorithm/string/replace.hpp>
 
 
 IMPLEMENT_DYNAMIC ( ErrDialog, CDialog )
@@ -26,7 +27,8 @@ BOOL ErrDialog::OnInitDialog ( )
 		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 500, 500 ); } );
 	}
 	// replace instances of \n alone with \r\n.
-	descriptionText = std::regex_replace (descriptionText.c_str(), std::regex("[^\r]\n"), "\r\n" );
+	descriptionText.erase ( std::remove ( descriptionText.begin ( ), descriptionText.end ( ), '\r' ), descriptionText.end ( ) );
+	boost::replace_all ( descriptionText, "\n", "\r\n" );
 	description.Create ( WS_CHILD | WS_VISIBLE | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL, { 0,50,
 						 winRect.right-winRect.left-10,winRect.bottom-winRect.top-100 }, this, 0 );
 	description.SetWindowTextA ( descriptionText.c_str ( ) );

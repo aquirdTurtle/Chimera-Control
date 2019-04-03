@@ -258,9 +258,9 @@ BEGIN
         MENUITEM "Run &NIAWG",                  ID_RUNMENU_RUNNIAWG
         MENUITEM "Run &Master",                 ID_RUNMENU_RUNMASTER
         MENUITEM "Run &Basler",                 ID_RUNMENU_RUNBASLER
-        MENUITEM "Run Basler And Master",       ID_RUNMENU_RUNBASLERANDMASTER
+        MENUITEM "Run Basler &And Master",      ID_RUNMENU_RUNBASLERANDMASTER
         MENUITEM "&Write Waveforms Only",       ID_FILE_MY_WRITE_WAVEFORMS
-        MENUITEM "&Abort All\tESC",             ID_FILE_ABORT_GENERATION
+        MENUITEM "Abort A&ll\tESC",             ID_FILE_ABORT_GENERATION
         MENUITEM "Abort Camera (&X)",           ID_RUNMENU_ABORTCAMERA
         MENUITEM "Ab&ort NIAWG",                ID_RUNMENU_ABORTNIAWG
         MENUITEM "Abort Mas&ter",               ID_RUNMENU_ABORTMASTER
@@ -362,7 +362,7 @@ BEGIN
         MENUITEM "Get NI&AWG Error",            ID_NIAWG_GETNIAWGERROR
         MENUITEM "NIAWG is On",                 ID_NIAWG_NIAWGISON, CHECKED
     END
-    POPUP "Andor"
+    POPUP "&Andor"
     BEGIN
         MENUITEM "Show Pictures in Real Time",  ID_PICTURES_SHOWPICTURESINREALTIME
         MENUITEM "Autoscale Pictures",          ID_PICTURES_AUTOSCALEPICTURES
@@ -390,6 +390,10 @@ BEGIN
     BEGIN
         MENUITEM "&General Information",        ID_HELP_GENERALINFORMATION
         MENUITEM "About",                       ID_HELP_ABOUT
+    END
+    POPUP "&Basler"
+    BEGIN
+        MENUITEM "Autoscale Pictures",          ID_BASLER_AUTOSCALE
     END
 END
 
