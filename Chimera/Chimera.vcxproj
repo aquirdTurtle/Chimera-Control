@@ -203,6 +203,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
+    <ClInclude Include="AgilentArray.h" />
     <ClInclude Include="agilentStructures.h" />
     <ClInclude Include="AiSystem.h" />
     <ClInclude Include="AlertSystem.h" />
@@ -345,6 +346,7 @@
     <ClCompile Include="ErrDialog.cpp" />
     <ClCompile Include="LongCSlider.cpp" />
     <ClCompile Include="MachineOptimizer.cpp" />
+    <ClCompile Include="MasterThreadInput.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
     <ClCompile Include="NiawgStructures.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />

@@ -10,7 +10,7 @@ FEATURES:
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
-	- be able to add more repetitions on the fly if randomizing reps. Requires some camera magic.
+	- be able to add more repetitions on the fly if randomizing reps. Requires some camera magic probably.
 	- mix sequences in as well?
 		- also gets tricky if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
@@ -89,7 +89,6 @@ BUGS:
 - something funny about going back and forth between video and kinetic modes (and the size of controls?)
 - Should only require calibration files if F5, not if only camera starts e.g.
 - err boxes don't grab focus of entire program
-- something in the thrower system is eating the last character of the error message.
 - should not be able to load agilent script if not in scripting mode.
 - servos failing quietly...
 - should be able to change basler image dimensions edits while running

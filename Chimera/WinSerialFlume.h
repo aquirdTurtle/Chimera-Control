@@ -1,7 +1,7 @@
 ﻿// created by Mark O. Brown
 #pragma once
 
-
+// don't think I've every really used this.
 class WinSerialFlume
 {
 	public:

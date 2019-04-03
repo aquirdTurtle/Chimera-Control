@@ -188,27 +188,27 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& outpu
 									std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
 									rerngGuiOptions& rerngGui )
 {
-	input->comm->sendColorBox( System::Niawg, 'Y' );
-	input->niawg->handleVariations( output, input->variables, variation, variedMixedSize, warnings, input->debugOptions,
+	input->comm.sendColorBox( System::Niawg, 'Y' );
+	input->niawg.handleVariations( output, input->variables, variation, variedMixedSize, warnings, input->debugOptions,
 									totalVariations, rerngGuiForm, rerngGui );
 	if ( input->settings.dontActuallyGenerate ) { return; }
 
 	// Restart Waveform
-	input->niawg->turnOff( );
-	input->niawg->programVariations( variation, variedMixedSize, output );
+	input->niawg.turnOff( );
+	input->niawg.programVariations( variation, variedMixedSize, output );
 	//input->niawg->finalizeScript ( );
-	input->niawg->fgenConduit.writeScript( userScriptSubmit );
-	input->niawg->fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
+	input->niawg.fgenConduit.writeScript( userScriptSubmit );
+	input->niawg.fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
 	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
 	// initial waveform until the master sends it a trigger.
-	input->niawg->turnOn( );
+	input->niawg.turnOn( );
 	for ( UINT waveInc = 2; waveInc < output.waves.size( ); waveInc++ )
 	{
 		output.waves[waveInc].core.waveVals.clear( );
 		output.waves[waveInc].core.waveVals.shrink_to_fit( );
 	}
 	variedMixedSize.clear( );
-	input->comm->sendColorBox( System::Niawg, 'G' );
+	input->comm.sendColorBox( System::Niawg, 'G' );
 }
 
 
@@ -247,7 +247,7 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 			}
 			foundRearrangement = true;
 			// start rearrangement thread. Give the thread the queue.
-			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
+			input->niawg.startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
 											input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
 											input->rerngGui, input->analysisGrid );
 		}
@@ -330,7 +330,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 
 // this is to be run at the end of the experiment procedure.
 void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, 
-									NiawgOutput& output, Communicator* comm, bool dontGenerate )
+									NiawgOutput& output, Communicator& comm, bool dontGenerate )
 {
 	if ( !masterWasRunning )
 	{
@@ -3066,13 +3066,13 @@ void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rer
 }
 
 
-void NiawgController::startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator* comm, 
+void NiawgController::startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator& comm, 
 										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
 										rerngGuiOptions guiOptions, atomGrid grid )
 {
 	threadStateSignal = true;
-	rerngThreadInput* input = new rerngThreadInput( grid.height, grid.width);
+	rerngThreadInput* input = new rerngThreadInput( grid.height, grid.width, comm);
 	input->sourceRows = grid.height;
 	input->sourceCols = grid.width;
 	input->guiOptions = guiOptions;
@@ -3080,7 +3080,6 @@ void NiawgController::startRerngThread( atomQueue* atomQueue, waveInfo& wave, Co
 	input->grabTimes = grabTimes;
 	input->rerngLock = rearrangerLock;
 	input->threadActive = &threadStateSignal;
-	input->comm = comm;
 	input->niawg = this;
 	input->atomsQueue = atomQueue;
 	input->rerngWave = &wave;
@@ -3214,7 +3213,7 @@ int NiawgController::increment ( std::vector<UINT>& ind, UINT currentLevel, UINT
 
 
 
-niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator* comm )
+niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator& comm )
 {
 	if ( source.getRows ( ) != source.getCols ( ) )
 	{
@@ -3233,7 +3232,7 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		//indexes[ Axes::Horizontal ][ inc ] = indexes[ Axes::Vertical ][ inc ] = inc;
 	}
 	UINT res, count = 0, matchCount = 0;
-	comm->sendDebug ( "Source:\r\n" + source.print ( ) + "\r\n" );
+	comm.sendDebug ( "Source:\r\n" + source.print ( ) + "\r\n" );
 	while ( true )
 	{
 		// fill test;
@@ -3252,7 +3251,7 @@ niawgPair<std::vector<UINT>> NiawgController::findLazyPosition ( Matrix<bool> so
 		}
 		if ( match == targetDim*targetDim )
 		{
-			comm->sendDebug ( "Test:\r\n" + testArray.print ( ) + "\r\n" );
+			comm.sendDebug ( "Test:\r\n" + testArray.print ( ) + "\r\n" );
 			// found a match, horray.
 			break;
 		}
@@ -3332,7 +3331,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					}
 					if ( input->atomsQueue->size ( ) == 0 )
 					{
-						input->comm->sendStatus ( "Rearrangement Thread woke up???" );
+						input->comm.sendStatus ( "Rearrangement Thread woke up???" );
 						continue;
 					}
 				}
@@ -3356,7 +3355,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			counter++;
 			if ( input->atomsQueue->size ( ) != 0 )
 			{
-				input->comm->sendStatus ( "WARNING: LOOKS LIKE RERNG CODE IS BEHIND IN THE PICTURE QUEUE???" );
+				input->comm.sendStatus ( "WARNING: LOOKS LIKE RERNG CODE IS BEHIND IN THE PICTURE QUEUE???" );
 			}
 			startCalc.push_back ( chronoClock::now ( ) );
 			rerngScriptInfo& info = input->rerngWave->rearrange;
@@ -3714,7 +3713,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					std::string moveMsg = "Tried Moving, " + str(complexMoveSequence.size()) + " Moves. Move Calc Time:"
 						+ str(moveCalcTime) + ", Fin Move Time:" + str(finMoveTime) + " Code Time = " 
 						+ str(totalCodeTime) + "\r\n";
-					input->comm->sendStatus( moveMsg );
+					input->comm.sendStatus( moveMsg );
 				}
 			}
 			if ( input->guiOptions.outputInfo )
@@ -3809,10 +3808,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	{
 		moveRecordFile.close( );
 	}
-	input->comm->sendStatus( "Exiting rearranging thread.\r\n" );
+	input->comm.sendStatus( "Exiting rearranging thread.\r\n" );
 	delete input;
 	return 0;
 }
+
 
 Matrix<bool> NiawgController::calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, UINT rows, UINT cols )
 {

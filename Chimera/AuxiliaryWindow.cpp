@@ -22,14 +22,14 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
 									ttlBoard( true, true, DIO_SAFEMODE ),
-									aoSys( ANALOG_OUT_SAFEMODE ), configVariables( "CONFIG_PARAMETERS" ), 
-									globalVariables("GLOBAL_PARAMETERS" )
+									aoSys( ANALOG_OUT_SAFEMODE ), configParameters( "CONFIG_PARAMETERS" ), 
+									globalParameters("GLOBAL_PARAMETERS" )
 {}
 
 
 BOOL AuxiliaryWindow::handleAccelerators ( HACCEL m_haccel, LPMSG lpMsg )
 {
-	return globalVariables.handleAccelerators ( m_haccel, lpMsg );
+	return globalParameters.handleAccelerators ( m_haccel, lpMsg );
 }
 
 
@@ -500,25 +500,16 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 		sendStatus( "Loading Camera-Cal Config...\r\n" );
 		input->auxWin = this;
 		input->quiet = true;
-		input->ttls = &ttlBoard;
-		input->aoSys = &aoSys;
-		input->aiSys = &aiSys;
-		input->globalControl = &globalVariables;
-		input->comm = mainWin->getComm( );
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
 		input->variables.clear( );
-		input->variables.push_back( globalVariables.getEverything( ) );
+		input->variables.push_back( globalParameters.getEverything( ) );
 		input->variableRangeInfo.clear ( );
-		input->variableRangeInfo = configVariables.getRangeInfo ( );
+		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		// Only do this once of course.
 		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
-		// Seems like I should just not initialize these or something...
-		input->rsg = &RhodeSchwarzGenerator;
-		input->topBottomTek = &topBottomTek;
-		input->eoAxialTek = &eoAxialTek;
 		input->runMaster = true;
 		input->runNiawg = false;
 		// Seems like I should just not initialize these or something...
@@ -529,6 +520,30 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 	{
 		sendStatus( ": " + exception.trace( ) + " " + "\r\n" );
 	}
+}
+
+
+ParameterSystem& AuxiliaryWindow::getGlobals ( )
+{
+	return globalParameters;
+}
+
+
+TektronicsAfgControl& AuxiliaryWindow::getTopBottomTek ( )
+{
+	return topBottomTek;
+}
+
+
+TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
+{
+	return eoAxialTek;
+}
+
+
+RhodeSchwarz& AuxiliaryWindow::getRsg ( )
+{
+	return RhodeSchwarzGenerator;
 }
 
 // MESSAGE MAP FUNCTION
@@ -569,7 +584,7 @@ std::pair<UINT, UINT> AuxiliaryWindow::getTtlBoardSize()
 void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 {
 	// order matters.
-	configVariables.handleNewConfig( newFile );
+	configParameters.handleNewConfig( newFile );
 	ttlBoard.handleNewConfig( newFile );
 	aoSys.handleNewConfig( newFile );
 	for ( auto& agilent : agilents )
@@ -584,7 +599,7 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 {
 	// order matters.
-	configVariables.handleSaveConfig( saveFile );
+	configParameters.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
@@ -600,7 +615,7 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 {
 	try
 	{
-		ProfileSystem::standardOpenConfig ( configFile, configVariables.configDelim, &configVariables, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, configParameters.configDelim, &configParameters, Version ( "4.0" ) );
 		ProfileSystem::standardOpenConfig ( configFile, "TTLS", &ttlBoard );
 		ProfileSystem::standardOpenConfig ( configFile, "DACS", &aoSys );
 		aoSys.updateEdits ( );
@@ -655,11 +670,11 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
 	{
-		globalVariables.handleDraw(pNMHDR, pResult );
+		globalParameters.handleDraw(pNMHDR, pResult );
 	}
 	else
 	{
-		configVariables.handleDraw(pNMHDR, pResult );
+		configParameters.handleDraw(pNMHDR, pResult );
 	}
 }
 
@@ -671,7 +686,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		configVariables.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
+		configParameters.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -685,7 +700,7 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		configVariables.deleteVariable();
+		configParameters.deleteVariable();
 	}
 	catch (Error& exception)
 	{
@@ -696,8 +711,8 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 
 std::vector<parameterType> AuxiliaryWindow::getAllVariables()
 {
-	std::vector<parameterType> vars = configVariables.getEverything();
-	std::vector<parameterType> vars2 = globalVariables.getEverything();
+	std::vector<parameterType> vars = configParameters.getEverything();
+	std::vector<parameterType> vars2 = globalParameters.getEverything();
 	vars.insert(vars.end(), vars2.begin(), vars2.end());
 	return vars;
 }
@@ -709,7 +724,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		globalVariables.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
+		globalParameters.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -723,7 +738,7 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		globalVariables.deleteVariable();
+		globalParameters.deleteVariable();
 	}
 	catch (Error& exception)
 	{
@@ -737,7 +752,7 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		configVariables.handleColumnClick(pNotifyStruct, result);
+		configParameters.handleColumnClick(pNotifyStruct, result);
 	}
 	catch (Error& exception)
 	{
@@ -749,7 +764,7 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 void AuxiliaryWindow::clearVariables()
 {
 	mainWin->updateConfigurationSavedStatus ( false );
-	configVariables.clearVariables();
+	configParameters.clearVariables();
 }
 
 
@@ -763,7 +778,7 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		configVariables.addConfigParameter ( var, item );
+		configParameters.addConfigParameter ( var, item );
 	}
 	catch ( Error& )
 	{
@@ -806,13 +821,13 @@ void AuxiliaryWindow::handleEnter()
 void AuxiliaryWindow::setVariablesActiveState(bool activeState)
 {
 	mainWin->updateConfigurationSavedStatus ( false );
-	configVariables.setParameterControlActive(activeState);
+	configParameters.setParameterControlActive(activeState);
 }
 
 
 UINT AuxiliaryWindow::getTotalVariationNumber()
 {
-	return configVariables.getTotalVariationNumber();
+	return configParameters.getTotalVariationNumber();
 }
 
 
@@ -841,8 +856,8 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	aoSys.rearrange(cx, cy, getFonts());
 	aiSys.rearrange( cx, cy, getFonts( ) );
 
-	configVariables.rearrange( cx, cy, getFonts( ) );
-	globalVariables.rearrange( cx, cy, getFonts( ) );
+	configParameters.rearrange( cx, cy, getFonts( ) );
+	globalParameters.rearrange( cx, cy, getFonts( ) );
 	servos.rearrange( cx, cy, getFonts( ) );
 	optimizer.rearrange ( cx, cy, getFonts ( ) );
 
@@ -956,6 +971,11 @@ void AuxiliaryWindow::zeroTtls()
 	}
 }
 
+DioSystem& AuxiliaryWindow::getTtlBoard ( )
+{
+	return ttlBoard;
+}
+
 /// these three at the moment are identical. keeping for the moment in case I find I need to change something.
 void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 {
@@ -963,11 +983,6 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 	{
 		input->auxWin = this;
 		input->quiet = true;
-		input->ttls = &ttlBoard;
-		input->aoSys = &aoSys;
-		input->aiSys = &aiSys;
-		input->globalControl = &globalVariables;
-		input->comm = mainWin->getComm ( );
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		/// variables.
@@ -983,18 +998,15 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 		{
 			throwNested ( "Error seen while loading mot temperature settings" );
 		}
-		std::vector<parameterType> globals = globalVariables.getEverything ( );
+		std::vector<parameterType> globals = globalParameters.getEverything ( );
 		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
-		globalVariables.setUsages ( { globals } );
+		globalParameters.setUsages ( { globals } );
 		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
 		input->variables = experimentVars;
 		///
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
-		input->rsg = &RhodeSchwarzGenerator;
 		input->intensityAgilentNumber = -1;
-		input->topBottomTek = &topBottomTek;
-		input->eoAxialTek = &eoAxialTek;
 		input->runMaster = true;
 		input->runNiawg = false;
 		input->dacData = dacData;
@@ -1014,25 +1026,17 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		sendStatus("Loading MOT Configuration...\r\n" );
 		input->auxWin = this;
 		input->quiet = true;
-		input->ttls = &ttlBoard;
-		input->aoSys = &aoSys;
-		input->aiSys = &aiSys;
-		input->globalControl = &globalVariables;
-		input->comm = mainWin->getComm();
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear( );
-		input->variables.push_back(globalVariables.getEverything());
+		input->variables.push_back(globalParameters.getEverything());
 		input->variableRangeInfo.clear ( ); 
-		input->variableRangeInfo.push_back ( configVariables.defaultRangeInfo );
+		input->variableRangeInfo.push_back ( configParameters.defaultRangeInfo );
 		input->variableRangeInfo[ 0 ].variations = 1;
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
-		input->rsg = &RhodeSchwarzGenerator;
 		input->intensityAgilentNumber = -1;
-		input->topBottomTek = &topBottomTek;
-		input->eoAxialTek = &eoAxialTek;
 		input->runMaster = true;
 		input->runNiawg = false;
 		input->dacData = dacData;
@@ -1052,15 +1056,22 @@ void AuxiliaryWindow::OnCancel()
 }
 
 
+AoSystem& AuxiliaryWindow::getAoSys ( )
+{
+	return aoSys;
+}
+
+AiSystem& AuxiliaryWindow::getAiSys ( )
+{
+	return aiSys;
+}
+
+
 void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
 	try
 	{
 		input->auxWin = this;
-		input->ttls = &ttlBoard;
-		input->aoSys = &aoSys;
-		input->aiSys = &aiSys;
-		input->globalControl = &globalVariables;
 		input->dacData = dacData;
 		input->ttlData = ttlData;
 		/// variables.
@@ -1070,12 +1081,12 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 			// load the variables. This little loop is for letting configuration variables overwrite the globals.
 			// the config variables are loaded directly from the file.
 			std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( seqFile.configFilePath ( ) );
-			std::vector<parameterType> globals = globalVariables.getEverything ( );
+			std::vector<parameterType> globals = globalParameters.getEverything ( );
 			experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
-			globalVariables.setUsages ( { globals } );
+			globalParameters.setUsages ( { globals } );
 		}
 		input->variableRangeInfo.clear ( );
-		input->variableRangeInfo = configVariables.getRangeInfo ( );
+		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		input->variables = experimentVars;
 		input->constants.resize ( input->variables.size ( ) );
 		// it's important to do this after the key is generated so that the constants have their values.
@@ -1089,21 +1100,19 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 				}
 			}
 		}
-		input->rsg = &RhodeSchwarzGenerator;
-		for ( auto& agilent : agilents )
+		for ( auto& ag : agilents )
 		{
-			input->agilents.push_back ( &agilent );
+			input->agilents.push_back ( &ag );
 		}
 		topBottomTek.getTekSettings ( );
 		eoAxialTek.getTekSettings ( );
-		input->topBottomTek = &topBottomTek;
-		input->eoAxialTek = &eoAxialTek;
 	}
 	catch ( Error& )
 	{
 		throwNested ( "Auxiliary window failed to fill master thread input." );
 	}
 }
+
 
 
 void AuxiliaryWindow::changeBoxColor(systemInfo<char> colors)
@@ -1160,11 +1169,11 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 	}
 
 	// Number of Variables
-	configStream << globalVariables.getCurrentNumberOfVariables() << "\n";
+	configStream << globalParameters.getCurrentNumberOfVariables() << "\n";
 	/// Variables
-	for (UINT varInc : range( globalVariables.getCurrentNumberOfVariables() ) )
+	for (UINT varInc : range( globalParameters.getCurrentNumberOfVariables() ) )
 	{
-		parameterType info = globalVariables.getVariableInfo(varInc);
+		parameterType info = globalParameters.getVariableInfo(varInc);
 		configStream << info.name << " ";
 		configStream << info.constantValue << "\n";
 		// all globals are constants, no need to output anything else.
@@ -1272,7 +1281,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			}
 		}
 		// Number of Variables
-		globalVariables.clearVariables();
+		globalParameters.clearVariables();
 		for (int varInc = 0; varInc < varNum; varInc++)
 		{
 			parameterType tempVar;
@@ -1283,12 +1292,12 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back ( { value, value } );
-			globalVariables.addGlobalParameter(tempVar, varInc);
+			globalParameters.addGlobalParameter(tempVar, varInc);
 		}
 	}
 	parameterType tempVar;
 	tempVar.name = "";
-	globalVariables.addGlobalParameter(tempVar, -1);
+	globalParameters.addGlobalParameter(tempVar, -1);
 	//
 	servos.handleOpenMasterConfig( configStream, version );
 }
@@ -1506,13 +1515,13 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
 												 _myRGBs["Interactable-Bkgd"] );
 		controlLocation = POINT{ 1440, 0 };
-		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
+		globalParameters.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
 									IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
-		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
+		configParameters.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
 									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
-		configVariables.setParameterControlActive( false );
+		configParameters.setParameterControlActive( false );
 
-		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalVariables );
+		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalParameters );
 		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );

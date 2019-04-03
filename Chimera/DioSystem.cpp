@@ -1002,6 +1002,12 @@ vec<vec<vec<WORD>>> DioSystem::getFinalViewpointData( )
 }
 
 
+allDigitalOutputs& DioSystem::getDigitalOutputs ( )
+{
+	return outputs;
+}
+
+
 void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 

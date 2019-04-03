@@ -146,7 +146,13 @@ class AuxiliaryWindow : public CDialog
 		Agilent& whichAgilent( UINT id );
 		void handleAgilentCombo( UINT id );
 		void autoOptimize ( );
-
+		DioSystem& getTtlBoard ( );
+		AoSystem& getAoSys ( );
+		AiSystem& getAiSys ( );
+		RhodeSchwarz& getRsg ( );
+		TektronicsAfgControl& getTopBottomTek ( );
+		TektronicsAfgControl& getEoAxialTek( );
+		ParameterSystem& getGlobals ( );
 	private:
 		DECLARE_MESSAGE_MAP();		
 
@@ -176,7 +182,7 @@ class AuxiliaryWindow : public CDialog
 		ServoManager servos;
 		MachineOptimizer optimizer;
 		ColorBox boxes;
-		ParameterSystem configVariables, globalVariables;
+		ParameterSystem configParameters, globalParameters;
 
 		ColorBox statusBox;
 };
