@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "agilentStructures.h"
@@ -339,6 +340,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_IMAGE_DIMS_START 23056
 #define IDC_IMAGE_DIMS_END 23062
 #define IDC_CAMERA_CALIBRATION_BUTTON 23063
+#define IDC_PLOT_TIMER_EDIT 23064
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //

@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "imageParameters.h"
 #include "AndorRunMode.h"
@@ -46,5 +47,6 @@ struct AndorCameraSettings
 	// not directly programmed to camera
 	std::array<std::vector<int>, 4> thresholds;
 	std::array<int, 4> palleteNumbers;
+	double mostRecentTemp;
 };
 

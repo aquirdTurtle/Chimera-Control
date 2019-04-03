@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "myButton.h"
 #include "dataPoint.h"
 #include <vector>
@@ -25,7 +26,10 @@ enum class plotStyle
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 
-
+struct plotMinMax
+{
+	double min_x, min_y, max_x, max_y;
+};
 /*
 * This is a custom object that I use for plotting. All of the drawing is done manually by standard win32 / MFC
 * functionality. Plotting used to be done by gnuplot, an external program which my program would send data to in
@@ -53,20 +57,21 @@ class PlotCtrl
 		void drawPlot( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush );
 		void drawThresholds ( memDC* d, long  thresholds, Gdiplus::Pen* pen );
-		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
-							  std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY );
+		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX );
 		void drawLine( CDC* d, double begX, double begY, double endX, double endY, Gdiplus::Pen* p );
 		void drawLine( CDC* d, POINT beg, POINT end, Gdiplus::Pen* p );
-		void convertDataToScreenCoords( std::vector<plotDataVec>& dat, std::vector<long>& thresholds );
+		void convertDataToScreenCoords( std::vector<plotDataVec>& dat, std::vector<long>& thresholds);
 		void shiftTtlData( std::vector<plotDataVec>& rawData );
 		void drawLegend( memDC* d, std::vector<plotDataVec> screenData );
-		void getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlotDataVec> rawData,
-						 std::pair<double, double>& minMaxRaw, std::pair<double, double>& minMaxScaled );
 		void drawTitle( memDC* d );
 		CRect GetPlotRect(  );
 		void makeLinePlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
 		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p , Gdiplus::Brush* b );
-
+		double getRelativeScreenLoc ( double dataVal, double limMin, double limMax );
+		void getXLims ();
+		void getDataXLims ( std::vector<plotDataVec>& screenData );
+		void getYLims ( );
+		void getDataYLims ( std::vector<plotDataVec>& data );
 		bool wantsSustain( );
 		void setControlLocation ( POINT topLeftLoc, LONG width, LONG height );
 		std::vector<std::mutex> dataMutexes;
@@ -96,8 +101,10 @@ class PlotCtrl
 		Gdiplus::Pen* whiteGdiPen;
 		Gdiplus::Pen* greyGdiPen;
 		CFont* textFont;
-		// options for...
-		// legend on off
-		// yscale dynamic or 0->1
+ 		// options for...
+ 		// legend on off
+ 		// yscale dynamic or 0->1
 		// ...?
+		plotMinMax data_minmax, view_minmax, screen_coords_minmax;
 };
+

@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include "atomGrid.h"
 #include "imageParameters.h"
 #include "Communicator.h"

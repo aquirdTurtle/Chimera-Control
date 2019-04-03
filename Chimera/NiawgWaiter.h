@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include <chrono>
 #include <thread>
@@ -27,6 +28,6 @@ class NiawgWaiter
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
 		void startWaitThread( NiawgController* niawgPtr, profileSettings profile );
-		void wait( Communicator* comm );
-		void systemAbortCheck( Communicator* comm );
+		void wait( Communicator& comm );
+		void systemAbortCheck( Communicator& comm );
 };

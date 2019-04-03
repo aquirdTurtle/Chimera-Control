@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "Version.h"
 
@@ -21,12 +22,9 @@ winSerial( serialSafemode ),
 vp_flume(viewpointSafemode)
 {
 	connectType = ftdiConnectionOption::None;
-	for ( auto& row : ttlStatus )
+	for ( auto& out : outputs )
 	{
-		for ( auto& elem : row )
-		{
-			elem = 0;
-		}
+		out.set ( 0 );
 	}
 }
 
@@ -224,21 +222,11 @@ std::array< std::array<bool, 16>, 4 > DioSystem::getFinalSnapshot()
 
 void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
 {
-	ttlStatus = status;
-	for (UINT rowInc = 0; rowInc < ttlStatus.size(); rowInc++)
+	for ( auto rowInc : range(status.size()) )
 	{
-		for (UINT numberInc = 0; numberInc < ttlStatus[0].size(); numberInc++)
+		for ( auto numInc : range(status[rowInc].size()) )
 		{
-			if (ttlStatus[rowInc][numberInc])
-			{
-				ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);
-			}
-			else
-			{
-				ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
-			}
-			ttlPushControls[rowInc][numberInc].colorState = 0;
-			ttlPushControls[rowInc][numberInc].RedrawWindow();
+			outputs ( numInc, DioRows::which ( rowInc ) ).set ( status[ rowInc ][ numInc ] );
 		}
 	}
 }
@@ -335,6 +323,11 @@ std::string DioSystem::getSystemInfo()
 
 std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames()
 {
+	std::array<std::array<std::string, 16>, 4> ttlNames;
+	for ( auto& out : outputs )
+	{
+		ttlNames[ int ( out.getPosition ( ).first ) ][ out.getPosition ( ).second ] = out.getName ( );
+	}
 	return ttlNames;
 }
 
@@ -355,48 +348,20 @@ void DioSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 	{
 		auto& row = shadeList[shadeInc].first;
 		auto& col = shadeList[shadeInc].second;
-		// shade it.
-		ttlPushControls[row][col].SetCheck(BST_INDETERMINATE);
-		ttlShadeStatus[row][col] = true;
-		// a grey color is then used.
-		ttlPushControls[row][col].colorState = 2;
-		// don't force immediate redraw.
-		ttlPushControls[row][col].InvalidateRect( NULL );
-		//ttlPushControls[row][col].RedrawWindow( NULL, NULL, RDW_INVALIDATE | RDW_ERASE );
+		outputs ( col, DioRows::which ( row ) ).shade ( true );
 	}
-	for (auto& row : ttlPushControls)
+	for (auto& out : outputs)
 	{
-		for (auto& ctrl : row)
-		{
-			ctrl.EnableWindow(0);
-		}
+		out.enable ( 0 );
 	}
 }
 
 
 void DioSystem::unshadeTtls()
 {
-	for (int rowInc = 0; rowInc < getNumberOfTTLRows(); rowInc++)
+	for ( auto& out : outputs )
 	{
-		for (int numberInc = 0; numberInc < getNumberOfTTLsPerRow(); numberInc++)
-		{
-			auto& control = ttlPushControls[rowInc][numberInc];
-			ttlShadeStatus[rowInc][numberInc] = false;
-			if (control.colorState == 2)
-			{
-				control.colorState = 0;
-				control.RedrawWindow();
-			}
-			if (ttlStatus[rowInc][numberInc])
-			{
-				control.SetCheck(BST_CHECKED);
-			}
-			else
-			{
-				control.SetCheck(BST_UNCHECKED);
-			}
-			control.EnableWindow();
-		}
+		out.shade ( false );
 	}
 }
 
@@ -405,12 +370,9 @@ void DioSystem::rearrange(UINT width, UINT height, fontMap fonts)
 	ttlTitle.rearrange( width, height, fonts);
 	ttlHold.rearrange( width, height, fonts);
 	zeroTtls.rearrange( width, height, fonts);
-	for (auto& row : ttlPushControls)
+	for ( auto& out : outputs )
 	{
-		for (auto& control : row)
-		{
-			control.rearrange( width, height, fonts);
-		}
+		out.rearrange ( width, height, fonts );
 	}
 	for (auto& control : ttlNumberLabels)
 	{
@@ -423,53 +385,37 @@ void DioSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void DioSystem::updatePush( UINT row, UINT number )
+void DioSystem::updatePush( DioRows::which row, UINT number )
 {
-	ttlPushControls[row][number].SetCheck( ttlStatus[row][number] );
+	outputs ( number, row ).updateStatus ( );
 }
 
 
 void DioSystem::handleInvert()
 {
-	for (UINT row = 0; row < ttlStatus.size(); row++)
+	for ( auto& out : outputs )
 	{
-		for (UINT number = 0; number < ttlStatus[row].size(); number++)
-		{
-			if (ttlStatus[row][number])
-			{
-				forceTtl(row, number, 0);
-				updatePush( row, number );
-			}
-			else
-			{
-				forceTtl(row, number, 1);
-				updatePush( row, number );
-			}
-		}
+		forceTtl ( out.getPosition ( ).first, out.getPosition ( ).second, !out.getStatus ( ) );
+		out.updateStatus ( );
 	}
-
 }
 
 
-void DioSystem::updateDefaultTtl(UINT row, UINT column, bool state)
+void DioSystem::updateDefaultTtl( DioRows::which row, UINT column, bool state)
 {
-	defaultTtlState[row][column] = state;
+	outputs ( column, row ).defaultStatus = state;
 }
 
 
-bool DioSystem::getDefaultTtl(UINT row, UINT column)
+bool DioSystem::getDefaultTtl( DioRows::which row, UINT column)
 {
-	return defaultTtlState[row][column];
+	return outputs ( column, row ).defaultStatus;
 }
 
 
 std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
 {
-	if (ttlPushControls.size() == 0)
-	{
-		thrower ("ttl push control is not 2D...");
-	}
-	return { ttlPushControls.size(), ttlPushControls.front().size() };
+	return { outputs.numRows, outputs.numColumns };
 }
 
 
@@ -503,62 +449,25 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	}
 	loc.y += 20;
 	// all row numberLabels
-	for (long row = 0; row < long(ttlPushControls.size()); row++)
+	for ( auto row : DioRows::allRows )
 	{
-		ttlRowLabels[row].sPos = { loc.x, loc.y + row * 28, loc.x + 32, loc.y + (row + 1) * 28 };
-
-		std::string rowName;
-		switch (row)
-		{
-			case 0:
-				rowName = "A";
-				break;
-			case 1:
-				rowName = "B";
-				break;
-			case 2:
-				rowName = "C";
-				break;
-			case 3:
-				rowName = "D";
-				break;
-		}
-		ttlRowLabels[row].Create( cstr(rowName), WS_CHILD | WS_VISIBLE | SS_CENTER,
-								  ttlRowLabels[row].sPos, master, id++ );
+		ttlRowLabels[ int(row) ].sPos = { loc.x, loc.y + int(row) * 28, loc.x + 32, loc.y + ( int(row) + 1 ) * 28 };
+		ttlRowLabels[ int(row) ].Create ( cstr ( DioRows::toStr(row) ), WS_CHILD | WS_VISIBLE | SS_CENTER,
+									 ttlRowLabels[ int(row) ].sPos, master, id++ );
 	}
 	// all push buttons
 	UINT runningCount = 0;
-	for (UINT row = 0; row < ttlPushControls.size(); row++)
+	auto startX = loc.x + 32;
+	for (auto row : DioRows::allRows )
 	{
-		for (UINT number = 0; number < ttlPushControls[row].size(); number++)
+		loc.x = startX;
+		for (UINT number = 0; number < outputs.numColumns; number++)
 		{
-			std::string name;
-			switch (row)
-			{
-				case 0:
-					name = "A";
-					break;
-				case 1:
-					name = "B";
-					break;
-				case 2:
-					name = "C";
-					break;
-				case 3:
-					name = "D";
-					break;
-			}
-			name += str( number );
-
-			ttlPushControls[row][number].sPos = { long( loc.x + 32 + number * 28 ), long( loc.y + row * 28 ),
-											long( loc.x + 32 + (number + 1) * 28 ), long( loc.y + (row + 1) * 28 ) };
-			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_RIGHT | BS_3STATE,
-												 ttlPushControls[row][number].sPos, master, 
-												 TTL_ID_BEGIN + runningCount++ );
-			ttlPushControls[row][number].setToolTip(ttlNames[row][number], toolTips, master);
+			outputs ( number, row ).initialize ( loc, master, TTL_ID_BEGIN + runningCount++, toolTips );
+			loc.x += 28;
 		}
+		loc.y += 28;
 	}
-	loc.y += 28 * 4;
 }
 
 
@@ -580,16 +489,17 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 		thrower ("the name " + name + " is not the name of a ttl!");
 	}
 	timeType pulseEndTime = time;
-	UINT row, collumn;
-	int ttlLine = getNameIdentifier(name, row, collumn);
-	ttlShadeLocations.push_back({ row, collumn });
+	UINT collumn;
+	DioRows::which row;
+	getNameIdentifier(name, row, collumn);
+	ttlShadeLocations.push_back({ int(row), collumn });
 	if (command == "on:")
 	{
-		ttlOn(row, collumn, time, seqNum );
+		ttlOn(int(row), collumn, time, seqNum );
 	}
 	else if (command == "off:")
 	{
-		ttlOff(row, collumn, time, seqNum );
+		ttlOff(int(row), collumn, time, seqNum );
 	}
 	else if (command == "pulseon:" || command == "pulseoff:")
 	{
@@ -604,13 +514,13 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 		}
 		if (command == "pulseon:")
 		{
-			ttlOn( row, collumn, time, seqNum );
-			ttlOff( row, collumn, pulseEndTime, seqNum );
+			ttlOn( int(row), collumn, time, seqNum );
+			ttlOff( int(row), collumn, pulseEndTime, seqNum );
 		}
 		if (command == "pulseoff:")
 		{
-			ttlOff( row, collumn, time, seqNum );
-			ttlOn( row, collumn, pulseEndTime, seqNum );
+			ttlOff( int(row), collumn, time, seqNum );
+			ttlOn( int(row), collumn, pulseEndTime, seqNum );
 		}
 	}
 }
@@ -628,84 +538,64 @@ void DioSystem::standardNonExperimentStartDioSequence( )
 
 int DioSystem::getNumberOfTTLRows()
 {
-	return ttlPushControls.size();
+	return outputs.numRows;
 }
 
 
 int DioSystem::getNumberOfTTLsPerRow()
 {
-	if (ttlPushControls.size() > 0)
-	{
-		return ttlPushControls[0].size();
-	}
-	else
-	{
-		// shouldn't happen. always have ttls. 
-		return -1;
-	}
+	return outputs.numColumns;
 }
 
 
 void DioSystem::handleTTLPress(int id)
 {
-	if (id >= ttlPushControls.front().front().GetDlgCtrlID() && id <= ttlPushControls.back().back().GetDlgCtrlID())
+	for ( auto& out : outputs )
 	{
-		// figure out row #
-		int row = (id - ttlPushControls.front().front().GetDlgCtrlID()) / ttlPushControls[0].size();
-		// figure out collumn #
-		int number = (id - ttlPushControls.front().front().GetDlgCtrlID()) % ttlPushControls[0].size();
-		// if indeterminante, you can't change it, but that's fine, return true.
-		if (ttlShadeStatus[row][number])
+		if ( out.getCheckID ( ) == id )
 		{
-			return;
-		}
-		if (holdStatus == false)
-		{
-			forceTtl( row, number, !ttlStatus[row][number] );
-			updatePush( row, number );
-		}
-		else
-		{
-			if (ttlHoldStatus[row][number])
+			if ( out.getShadeStatus() )
 			{
-				ttlHoldStatus[row][number] = false;
-				ttlPushControls[row][number].colorState = -1;
-				ttlPushControls[row][number].RedrawWindow();
+				// if indeterminante (i.e. shaded), you can't change it, but that's fine, just return.
+				return;
+			}
+			if ( holdStatus == false )
+			{
+				forceTtl ( out.getPosition().first, out.getPosition ( ).second, !out.getStatus() );
+				out.updateStatus ( );
 			}
 			else
 			{
-				ttlHoldStatus[row][number] = true;
-				ttlPushControls[row][number].colorState = 1;
-				ttlPushControls[row][number].RedrawWindow();
+				out.setHoldStatus ( !out.holdStatus );
 			}
+			break;
 		}
 	}
 }
+
 
 // this function handles when the hold button is pressed.
 void DioSystem::handleHoldPress()
 {
 	if (holdStatus == true)
 	{
+		// set all the holds.
 		holdStatus = false;
 		// make changes
-		for (UINT rowInc = 0; rowInc < ttlHoldStatus.size(); rowInc++)
+		for ( auto& out : outputs )
 		{
-			for (UINT numberInc = 0; numberInc < ttlHoldStatus[0].size(); numberInc++)
-			{
-				ttlStatus[rowInc][numberInc] = ttlHoldStatus[rowInc][numberInc];
-				// actually change the ttl.
-				forceTtl( rowInc, numberInc, ttlHoldStatus[rowInc][numberInc] );
-				updatePush( rowInc, numberInc );
-				ttlPushControls[rowInc][numberInc].colorState = 0;
-				ttlPushControls[rowInc][numberInc].RedrawWindow();
-			}
+			out.set ( out.holdStatus );
+			forceTtl ( out.getPosition ( ).first, out.getPosition ( ).second, out.getStatus ( ) );
+			out.updateStatus ( );
 		}
 	}
 	else
 	{
 		holdStatus = true;
-		ttlHoldStatus = ttlStatus;
+		for ( auto& out : outputs )
+		{
+			out.setHoldStatus ( out.getStatus ( ) );
+		}
 	}
 }
 
@@ -745,34 +635,15 @@ void DioSystem::resetTtlEvents( )
 HBRUSH DioSystem::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	int controlID = window->GetDlgCtrlID();
-	if (controlID >= ttlPushControls.front().front().GetDlgCtrlID() && controlID <= ttlPushControls.back().back().GetDlgCtrlID())
+	for ( auto& out : outputs )
 	{
-		// figure out row #
-		int row = (controlID - ttlPushControls.front().front().GetDlgCtrlID()) / ttlPushControls[0].size();
-		// figure out collumn #
-		int number = (controlID - ttlPushControls.front().front().GetDlgCtrlID()) % ttlPushControls[0].size();
-		if (ttlPushControls[row][number].colorState == -1)
+		auto res = out.handleColorMessage ( controlID, window, cDC );
+		if ( res != NULL )
 		{
-			cDC->SetBkColor(_myRGBs["Red"]);
-			return *_myBrushes["Red"];
-		}
-		else if (ttlPushControls[row][number].colorState == 1)
-		{
-			cDC->SetBkColor( _myRGBs["Green"]);
-			return *_myBrushes["Green"];
-		}
-		else if (ttlPushControls[row][number].colorState == 2)
-		{
-			cDC->SetBkColor( _myRGBs["White"]);
-			return *_myBrushes["White"];
-		}
-		else
-		{
-			cDC->SetBkColor( _myRGBs["Medium Grey"]);
-			return *_myBrushes["Medium Grey"];
+			return res;
 		}
 	}
-	else if (controlID >= ttlRowLabels.front().GetDlgCtrlID() && controlID <= ttlRowLabels.back().GetDlgCtrlID())
+	if (controlID >= ttlRowLabels.front().GetDlgCtrlID() && controlID <= ttlRowLabels.back().GetDlgCtrlID())
 	{
 		cDC->SetBkColor( _myRGBs["Static-Bkgd"]);
 		cDC->SetTextColor( _myRGBs["Text"]);
@@ -793,31 +664,9 @@ HBRUSH DioSystem::handleColorMessage(CWnd* window, CDC* cDC)
 
 bool DioSystem::isValidTTLName( std::string name )
 {
-	for (int rowInc = 0; rowInc < getNumberOfTTLRows(); rowInc++)
-	{
-		std::string rowStr;
-		switch (rowInc)
-		{
-			case 0: rowStr = "a"; break;
-			case 1: rowStr = "b"; break;
-			case 2: rowStr = "c"; break;
-			case 3: rowStr = "d"; break;
-		}
-		for (int numberInc = 0; numberInc < getNumberOfTTLsPerRow(); numberInc++)
-		{
-			// check default names
-			UINT row, number;
-			if (name == rowStr + str( numberInc))
-			{
-				return true;
-			}
-			else if (getNameIdentifier( name, row, number ) != -1)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+	DioRows::which row;
+	UINT number;
+	return getNameIdentifier ( name, row, number ) != -1;
 }
 
 
@@ -913,33 +762,24 @@ double DioSystem::getClockStatus()
 
 std::array< std::array<bool, 16>, 4 > DioSystem::getCurrentStatus( )
 {
-	return ttlStatus;
+	std::array< std::array<bool, 16>, 4 > currentStatus;
+	for ( auto& out : outputs )
+	{
+		currentStatus[ int ( out.getPosition ( ).first ) ][ out.getPosition ( ).second ] = out.getStatus();
+	}
+	return currentStatus;
 }
 
 // forceTtl forces the actual ttl to a given value and changes the checkbox status to reflect that.
-void DioSystem::forceTtl(int row, int number, bool state)
+void DioSystem::forceTtl( DioRows::which row, int number, bool state)
 {
-	// change the ttl checkbox.
-	ttlPushControls[row][number].SetCheck( state );
-	ttlStatus[row][number] = state;
+	outputs ( number, row ).set ( state );
 	// change the output.
 	int result = 0;
 	std::array<std::bitset<16>, 4> ttlBits;
-	for (int rowInc = 0; rowInc < 4; rowInc++)
+	for ( auto& out : outputs )
 	{
-		for (int numberInc = 0; numberInc < 16; numberInc++)
-		{
-			if (ttlStatus[rowInc][numberInc])
-			{
-				// flip bit to 1.
-				ttlBits[rowInc].set( numberInc, true );
-			}
-			else
-			{
-				// flip bit to 0.
-				ttlBits[rowInc].set( numberInc, false );
-			}
-		}
+		ttlBits[int(out.getPosition().first)].set(out.getPosition().second, out.getStatus ( ));
 	}
 	std::array<unsigned short, 4> tempCommand;
 	tempCommand[0] = static_cast <unsigned short>(ttlBits[0].to_ulong());
@@ -950,48 +790,33 @@ void DioSystem::forceTtl(int row, int number, bool state)
 }
 
 
-void DioSystem::setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void DioSystem::setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
 {
 	if (name == "")
 	{
 		// no empty names allowed.
 		return;
 	}
-	ttlNames[row][number] = str(name, 12, false, true);
-	ttlPushControls[row][number].setToolTip(name, toolTips, master);
+	outputs ( number, row ).setName ( name, toolTips, master );
 }
 
 
-int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
+/*
+Returns a single number which corresponds to the dio control with the name 
+*/
+int DioSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& number)
 {
-	
-	for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
+	for ( auto rowInc : DioRows::allRows )
 	{
-		std::string rowName;
-		switch (rowInc)
+		for (auto numberInc : range( outputs.numColumns ) )
 		{
-			case 0: rowName = "a"; break;
-			case 1: rowName = "b"; break;
-			case 2: rowName = "c"; break;
-			case 3: rowName = "d"; break;
-		}
-		for (UINT numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
-		{
-			// check the names array.
-			std::transform( ttlNames[rowInc][numberInc].begin(), ttlNames[rowInc][numberInc].end(),
-							ttlNames[rowInc][numberInc].begin(), ::tolower );
-			if (ttlNames[rowInc][numberInc] == name)
+			std::string DioName = str(outputs ( numberInc, rowInc ).getName ( ), 13, false, true);
+			// second of the || is standard name which is always acceptable.
+			if ( DioName == name || name == DioRows::toStr ( rowInc ) + str ( numberInc ) )
 			{
 				row = rowInc;
 				number = numberInc;
-				return rowInc * ttlNames[rowInc].size() + numberInc;
-			}
-			// check standard names which are always acceptable.
-			if (name == rowName + str(numberInc))
-			{
-				row = rowInc;
-				number = numberInc;
-				return rowInc * ttlNames[rowInc].size() + numberInc;
+				return int( rowInc ) * outputs.numColumns + numberInc;
 			}
 		}
 	}
@@ -1028,9 +853,9 @@ void DioSystem::writeTtlData(UINT variation, UINT seqNum, bool loadSkip)
 }
 
 
-std::string DioSystem::getName(UINT row, UINT number)
+std::string DioSystem::getName( DioRows::which row, UINT number)
 {
-	return ttlNames[row][number];
+	return outputs(number, row).getName();
 }
 
 
@@ -1040,9 +865,9 @@ ULONG DioSystem::getNumberEvents(UINT variation, UINT seqNum )
 }
 
 
-bool DioSystem::getTtlStatus(int row, int number)
+bool DioSystem::getTtlStatus(DioRows::which row, int number)
 {
-	return ttlStatus[row][number];
+	return outputs ( number, row ).getStatus ( );
 }
 
 
@@ -1147,10 +972,9 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 	// and interpret the command list for each variation.
 	for (auto seqInc : range( sequenceLength ) )
 	{
-		for (UINT variationNum = 0; variationNum < variations; variationNum++)
+		for (auto variationNum : range(variations))
 		{
-			for (auto& formList : ttlCommandFormList[seqInc
-			])
+			for (auto& formList : ttlCommandFormList[seqInc])
 			{
 				DioCommand tempCommand;
 				tempCommand.line = formList.line;
@@ -1178,26 +1002,34 @@ vec<vec<vec<WORD>>> DioSystem::getFinalViewpointData( )
 }
 
 
+allDigitalOutputs& DioSystem::getDigitalOutputs ( )
+{
+	return outputs;
+}
+
+
 void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	std::vector<DioCommand> orderedList(ttlCommandList[seqNum][variation]);
+	std::vector<DioCommand> orderedCommandList(ttlCommandList[seqNum][variation]);
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
-	std::sort(orderedList.begin(), orderedList.end(), [](DioCommand a, DioCommand b) {return a.time < b.time; });
+	std::sort(orderedCommandList.begin(), orderedCommandList.end(), 
+			   [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (USHORT commandInc = 0; commandInc < ttlCommandList[seqNum][variation].size(); commandInc++)
+	for (auto commandInc : range( ttlCommandList[ seqNum ][ variation ].size ( ) ) )
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time. DIO64 uses a 10MHz clock, can do 100ns spacing, check diff 
 		// threshold to extra room. If dt<1ns, probably just some floating point issue. 
 		// If 1ns<dt<100ns I want to actually complain to the user since it seems likely that  this was intentional and 
 		// not a floating error.
-		if (commandInc == 0 || fabs(orderedList[commandInc].time - timeOrganizer.back().first) > 1e-6)
+		if (commandInc == 0 || fabs(orderedCommandList[commandInc].time - timeOrganizer.back().first) > 1e-6)
 		{
 			// new time
-			timeOrganizer.push_back({ orderedList[commandInc].time, std::vector<USHORT>({ commandInc }) });
+			std::vector<USHORT> testVec =  { USHORT(commandInc) };
+			timeOrganizer.push_back({ orderedCommandList[commandInc].time, testVec });
 		}
 		else
 		{
@@ -1205,34 +1037,34 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 			timeOrganizer.back().second.push_back(commandInc);
 		}
 	}
-	/// now figure out the state of the system at each time.
 	if (timeOrganizer.size() == 0)
 	{
 		thrower ("No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
 				 "must contain something.\r\n");
 	}
+	/// now figure out the state of the system at each time.
 	auto& snaps = ttlSnapshots[seqNum][variation];
 	snaps.clear();
 	// start with the initial status.
-	snaps.push_back({ 0, ttlStatus });
+	snaps.push_back({ 0, getCurrentStatus() });
 	if (timeOrganizer[0].first != 0)
 	{
 		// then there were no commands at time 0, so just set the initial state to be exactly the original state before
 		// the experiment started. I don't need to modify the first snapshot in this case, it's already set. Add a snapshot
 		// here so that the thing modified is the second snapshot.
-		snaps.push_back({ 0, ttlStatus });
+		snaps.push_back({ 0, getCurrentStatus ( ) });
 	}
 
 	// handle the zero case specially. This may or may not be the literal first snapshot.
 	snaps.back().time = timeOrganizer[0].first;
-	for (UINT zeroInc = 0; zeroInc < timeOrganizer[0].second.size(); zeroInc++)
+	for (auto zeroInc : range( timeOrganizer[ 0 ].second.size ( ) ) )
 	{
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
 		UINT cmdNum = timeOrganizer[0].second[zeroInc];
-		UINT row = orderedList[cmdNum].line.first;
-		UINT column = orderedList[cmdNum].line.second;
-		snaps.back().ttlStatus[row][column]	= orderedList[cmdNum].value;
+		UINT row = orderedCommandList[cmdNum].line.first;
+		UINT column = orderedCommandList[cmdNum].line.second;
+		snaps.back().ttlStatus[row][column]	= orderedCommandList[cmdNum].value;
 	}
 
 	// already handled the first case.
@@ -1240,14 +1072,13 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
 		snaps.push_back( snaps.back());
-		//
 		snaps.back().time = timeOrganizer[commandInc].first;
 		for (auto cmdNum : timeOrganizer[commandInc].second)
 		{
 			// see description of this command above... update everything that changed at this time.
-			UINT row = orderedList[cmdNum].line.first;
-			UINT column = orderedList[cmdNum].line.second;
-			snaps.back().ttlStatus[row][column] = orderedList[cmdNum].value;
+			UINT row = orderedCommandList[cmdNum].line.first;
+			UINT column = orderedCommandList[cmdNum].line.second;
+			snaps.back().ttlStatus[row][column] = orderedCommandList[cmdNum].value;
 		}
 	}
 	// phew. Check for good input by user:
@@ -1296,13 +1127,13 @@ void DioSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
 				// currently this is split an awkward because the viewpoint organization was organized in sets of 16, not 8.
 				// convert first 8 of snap shot to int
 				val1 = 0;
-				for ( int i = 0; i < 8; i++ )
+				for (auto i : range(8) )
 				{
 					val1 = val1 + pow( 2, i )*bank[i];
 				}
 				// convert next 8 of snap shot to int
 				val2 = 0;
-				for ( int j = 0; j < 8; j++ )
+				for (auto j : range(8))
 				{
 					val2 = val2 + pow( 2, j )*bank[j + 8];
 				}
@@ -1354,15 +1185,13 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 }
 
 
-DWORD DioSystem::ftdi_ForceOutput( int row, int number, int state )
+DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 {
-	// change the ttl checkbox.
-	ttlPushControls[row][number].SetCheck( state );
-	ttlStatus[row][number] = state;
+	outputs ( number, row ).set ( state );
 	resetTtlEvents( );
 	initializeDataObjects( 1, 0 );
 	sizeDataStructures( 1, 1 );
-	ttlSnapshots[0][0].push_back( { 0.1, ttlStatus } );
+	ttlSnapshots[0][0].push_back( { 0.1, getCurrentStatus ( ) } );
 	convertToFtdiSnaps( 0, 0 );
 	convertToFinalFtdiFormat( 0, 0 );	
 	ftdi_connectasync( "FT1VAHJPB" );
@@ -1512,11 +1341,11 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 {
 	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
 	// of a bug when code first created.
-	for ( UINT dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
+	for (UINT dioEventInc : range( formattedTtlSnapshots[ seqNum ][ variation ].size ( ) ) )
 	{
 		auto& snapOuter0 = formattedTtlSnapshots[seqNum][variation][dioEventInc][0];
 		auto& snapOuter1 = formattedTtlSnapshots[seqNum][variation][dioEventInc][1];
-		for ( UINT dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
+		for (UINT dioEventInc2 : range( dioEventInc ) )
 		{
 			auto& snapInner0 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][0];
 			auto& snapInner1 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][1];
@@ -1532,13 +1361,10 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 
 void DioSystem::zeroBoard( )
 {
-	for ( UINT row = 0; row < ttlStatus.size( ); row++ )
+	for ( auto& out : outputs )
 	{
-		for ( UINT number = 0; number < ttlStatus[row].size( ); number++ )
-		{
-			forceTtl( row, number, 0 );
-			updatePush( row, number );
-		}
+		forceTtl ( out.getPosition ( ).first, out.getPosition ( ).second, 0 );
+		out.updateStatus ( );
 	}
 }
 

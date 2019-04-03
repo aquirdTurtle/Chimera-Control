@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -421,6 +422,10 @@ void ProfileSystem::deleteConfiguration()
 */
 void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 {
+	if ( configurationSavedIndicator.m_hWnd == NULL )
+	{
+		return;
+	}
 	configurationIsSaved = isSaved;
 	if (isSaved)
 	{

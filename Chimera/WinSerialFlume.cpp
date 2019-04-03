@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "WinSerialFlume.h"
 
 WinSerialFlume::WinSerialFlume( bool safemode_option ) : safemode(safemode_option )

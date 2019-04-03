@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "DioSystem.h"
@@ -29,8 +30,8 @@ class MasterManager
 		void abort();
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
 		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& currentMasterScript );
-		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								  std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<parameterType>& vars, 
+		void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+								  std::vector<UINT>& dacShades, RhodeSchwarz& rsg, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
 								  std::string& warnings );
 
@@ -43,22 +44,22 @@ class MasterManager
 		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 								 std::string scope );
 		bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-								DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
+								DioSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
 								std::string scope );
 		bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-							   AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum,
+							   AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum,
 							   std::string scope );
 		bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
-								 DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, UINT seqNum, std::string& warnings,
+								 DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+								 std::vector<UINT>& dacShades, RhodeSchwarz& rsg, UINT seqNum, std::string& warnings,
 								 std::string callingFunction );
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											   std::string scope, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
-		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
+		static void expUpdate(std::string text, Communicator& comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<parameterType> vars);
-		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, AoSystem* aoSys,
+		static void handleDebugPlots( debugInfo debugOptions, Communicator& comm, DioSystem& ttls, AoSystem& aoSys,
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
@@ -69,9 +70,9 @@ class MasterManager
 		// the master script file contents get dumped into this.
 		const std::string functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 		// called by analyzeMasterScript functions only.
-		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, AoSystem* aoSys,
+		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem& ttls, AoSystem& aoSys,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-							  RhodeSchwarz* rsg, std::vector<parameterType>& vars, UINT seqNum, std::string& warnings);
+							  RhodeSchwarz& rsg, std::vector<parameterType>& vars, UINT seqNum, std::string& warnings);
 		timeType operationTime;
 		bool experimentIsRunning = false;
 		/// task handles

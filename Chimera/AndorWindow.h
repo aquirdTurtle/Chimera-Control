@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "CameraSettingsControl.h"
@@ -106,6 +107,7 @@ class AndorWindow : public CDialog
 		void startPlotterThread( ExperimentInput& input );
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();
+		void handlePlotTimerEdit ( );
 		void stopPlotter( );
 		void stopSound( );
 		void handleImageDimsEdit(UINT id );
@@ -114,7 +116,7 @@ class AndorWindow : public CDialog
 		bool wantsAutoCal( );
 		bool wantsNoMotAlert ( );
 		UINT getNoMotThreshold ( );
-
+		void setMenuCheck ( UINT menuItem, UINT itemState );
 	private:
 		bool justCalibrated=false;
 		DECLARE_MESSAGE_MAP();

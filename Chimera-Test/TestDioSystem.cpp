@@ -46,14 +46,14 @@ namespace TestDioSystem
 		TEST_METHOD( ForceOut )
 		{
 			DioSystem dio( true, true, true );
-			dio.forceTtl( 0, 0, 1 );
-			Assert::AreEqual( true, dio.getTtlStatus( 0, 0 ) );
+			dio.forceTtl( DioRows::which::A, 0, 1 );
+			Assert::AreEqual( true, dio.getTtlStatus( DioRows::which::A, 0 ) );
 		}
 		TEST_METHOD( Ftdl_Force_Out_Disconnected )
 		{
 			DioSystem dio( true, true, true );
-			auto res = dio.ftdi_ForceOutput( 0, 0, 1 );
-			Assert::AreEqual( true, dio.getTtlStatus( 0, 0 ) );
+			auto res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 1 );
+			Assert::AreEqual( true, dio.getTtlStatus( DioRows::which::A, 0 ) );
 			// this number doesn't mean much in debug mode; it's the size of the buffer which is always 
 			// the same no matter how much the buffer is filled.
 			Assert::AreEqual( DWORD(43008), res );
@@ -61,23 +61,24 @@ namespace TestDioSystem
 		CONNECTED_TEST( Ftdl_Force_Out_Connected )
 		{
 			DioSystem dio( false, true, true );
-			auto res = dio.ftdi_ForceOutput( 0, 0, 1 );
-			Assert::AreEqual( true, dio.getTtlStatus( 0, 0 ) );
+			auto res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 1 );
+			Assert::AreEqual( true, dio.getTtlStatus( DioRows::which::A, 0 ) );
 			Assert::AreEqual( DWORD( 1 ), res );
-			res = dio.ftdi_ForceOutput( 0, 0, 0 );
-			Assert::AreEqual( false, dio.getTtlStatus( 0, 0 ) );
+			res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 0 );
+			Assert::AreEqual( false, dio.getTtlStatus( DioRows::which::A, 0 ) );
 			Assert::AreEqual( DWORD( 1 ), res );
 		}
 
 		TEST_METHOD( ZeroDio )
 		{
 			DioSystem dio( true, true, true );
-			dio.forceTtl( 0, 1, 1 );
-			dio.forceTtl( 1, 0, 1 );
-			dio.forceTtl( 0, 0, 1 );
-			dio.forceTtl( 2, 11, 1 );
-			dio.forceTtl( 3, 15, 1 );
-			dio.forceTtl( 2, 8, 1 );
+			dio.forceTtl( DioRows::which::A, 1, 1 );
+			dio.forceTtl( DioRows::which::B, 0, 1 );
+			dio.forceTtl( DioRows::which::A, 0, 1 );
+			dio.forceTtl( DioRows::which::B, 11, 1 );
+			dio.forceTtl( DioRows::which::C, 15, 1 );
+			dio.forceTtl( DioRows::which::B, 8, 1 );
+			dio.forceTtl ( DioRows::which::D, 8, 1 );
 			dio.zeroBoard( );
 			auto status = dio.getCurrentStatus( );
 			for ( auto row : status )

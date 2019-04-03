@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "NiawgStructures.h"
 
 const std::array<niawgWavePower::mode, 4> niawgWavePower::allModes = { mode::constant, mode::capped, mode::unrestricted};

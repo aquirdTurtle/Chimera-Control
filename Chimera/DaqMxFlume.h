@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include <string>
 #include "nidaqmx2.h"
 #include <vector>

@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "AiSystem.h"
 
 AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE ) 

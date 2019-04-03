@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 // This header file includes all of the extern declarations of all of my external (global) variables.
 #include "NiawgStructures.h"
@@ -11,7 +12,7 @@
 extern std::vector<std::string> WAVEFORM_NAME_FILES;
 extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;
 
-extern HWND eMainWindowHwnd;
+extern CWnd* eMainWindowHwnd;
 
 extern std::unordered_map<std::string, COLORREF> _myRGBs;
 extern std::unordered_map<std::string, CBrush*> _myBrushes;

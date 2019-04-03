@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "Control.h"
@@ -7,6 +8,7 @@
 #include "AoStructures.h"
 #include "Combo.h"
 #include "functionCombo.h"
+#include "Communicator.h"
 #include <string>
 #include <unordered_map>
 #include <string>
@@ -24,6 +26,7 @@ class Script
 		void initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, CWnd* scriptWin, int& id,
 						 std::string deviceTypeInput, std::string scriptHeader, std::array<UINT, 2> ids, 
 						 COLORREF backgroundColor );
+		bool isFunction ( );
 		void handleToolTip( NMHDR * pNMHDR, LRESULT * pResult );
 		std::string getScriptText();
 		void setScriptText( std::string text );
@@ -38,8 +41,6 @@ class Script
 								 bool& colorLine,
 								 std::array<std::array<std::string, 16>, 4> ttlNames,
 								 std::array<AoInfo, 24> dacInfo );
-
-		INT_PTR colorControl( LPARAM lParam, WPARAM wParam );
 		void handleEditChange();
 		void handleTimerCall( std::vector<parameterType> vars, 
 							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
@@ -59,7 +60,7 @@ class Script
 		void loadFile( std::string pathToFile );
 		void openParentScript( std::string parentScriptFileAndPath, std::string categoryPath, RunInfo info );
 		void considerCurrentLocation( std::string categoryPath, RunInfo info );
-		void checkSave( std::string categoryPath, RunInfo info );
+		void checkSave( std::string categoryPath, RunInfo info, Communicator* comm=NULL );
 		void updateSavedStatus( bool isSaved );
 		bool coloringIsNeeded();
 		void updateScriptNameText( std::string path );
@@ -69,7 +70,7 @@ class Script
 
 		INT_PTR handleColorMessage( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes );
 
-		void saveAsFunction();
+		void saveAsFunction( Communicator* comm );
 		void loadFunctions();
 
 		void setEnabled (bool enabled );

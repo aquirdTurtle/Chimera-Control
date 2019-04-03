@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "PictureManager.h"
 #include "ProfileSystem.h"
@@ -19,11 +20,12 @@ void PictureManager::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
 }
 
 
-void PictureManager::drawBitmap ( CDC* deviceContext, Matrix<long> picData )
+void PictureManager::drawBitmap ( CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax )
 {
+	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
 	for ( auto& pic : pictures )
 	{
-		pic.drawBitmap ( deviceContext, picData );
+		pic.drawBitmap ( deviceContext, picData, autoScaleInfo );
 	}
 }
 

@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 // main header.
 #ifdef _DEBUG

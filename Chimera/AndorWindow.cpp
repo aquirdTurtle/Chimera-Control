@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "CameraSettingsControl.h"
@@ -47,6 +48,7 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &AndorWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &AndorWindow::handlePictureEditChange )
 	// 
+	ON_EN_CHANGE( IDC_PLOT_TIMER_EDIT, &AndorWindow::handlePlotTimerEdit )
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &AndorWindow::passSetTemperaturePress)
 	ON_COMMAND( IDOK, &AndorWindow::catchEnter)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &AndorWindow::passManualSetAnalysisLocations)
@@ -72,6 +74,10 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 
 END_MESSAGE_MAP()
 
+void AndorWindow::handlePlotTimerEdit ( )
+{
+	analysisHandler.updatePlotTime ( );
+}
 
 LRESULT AndorWindow::onBaslerFinish ( WPARAM wParam, LPARAM lParam )
 {
@@ -269,12 +275,12 @@ void AndorWindow::passAlwaysShowGrid()
 	if (alwaysShowGrid)
 	{
 		alwaysShowGrid = false;
-		menu.CheckMenuItem(ID_PICTURES_ALWAYSSHOWGRID, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_ALWAYSSHOWGRID, MF_UNCHECKED );
 	}
 	else
 	{
 		alwaysShowGrid = true;
-		menu.CheckMenuItem(ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED );
 	}
 	CDC* dc = GetDC();
 	pics.setAlwaysShowGrid(alwaysShowGrid, dc);	
@@ -588,17 +594,23 @@ void AndorWindow::wakeRearranger( )
 }
 
 
+void AndorWindow::setMenuCheck ( UINT menuItem, UINT itemState )
+{
+	menu.CheckMenuItem ( menuItem, itemState );
+}
+
+
 void AndorWindow::handleSpecialLessThanMinSelection()
 {
 	if (specialLessThanMin)
 	{
 		specialLessThanMin = false;
-		menu.CheckMenuItem(ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED );
 	}
 	else
 	{
 		specialLessThanMin = true;
-		menu.CheckMenuItem(ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED );
 	}
 	pics.setSpecialLessThanMin(specialLessThanMin);
 }
@@ -609,12 +621,12 @@ void AndorWindow::handleSpecialGreaterThanMaxSelection()
 	if (specialGreaterThanMax)
 	{
 		specialGreaterThanMax = false;
-		menu.CheckMenuItem(ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_UNCHECKED );
 	}
 	else
 	{
 		specialGreaterThanMax = true;
-		menu.CheckMenuItem(ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_CHECKED );
 	}
 	pics.setSpecialGreaterThanMax(specialGreaterThanMax);
 }
@@ -625,12 +637,12 @@ void AndorWindow::handleAutoscaleSelection()
 	if (autoScalePictureData)
 	{
 		autoScalePictureData = false;
-		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED );
 	}
 	else
 	{
 		autoScalePictureData = true;
-		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED);
+		mainWin->checkAllMenus ( ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED );
 	}
 	pics.setAutoScalePicturesOption(autoScalePictureData);
 }
@@ -1196,7 +1208,7 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 										   mainWin->getPlotFont( ), mainWin->getPlotBrushes( ), 
 										   analysisHandler.getPlotTime(), CameraSettings.getSettings( ).thresholds[0], 
 										   plotParams.name );
-		plot->Create( IDD_PLOT_DIALOG, 0 );
+		plot->Create( IDD_PLOT_DIALOG, this );
 		plot->ShowWindow( SW_SHOW );
 		activePlots.push_back( plot );
 		input.plotterInput->dataArrays.push_back( data );

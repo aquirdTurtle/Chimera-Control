@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+﻿// created by Mark O. Brown
+#include "stdafx.h"
 #include "SegmentEnd.h"
 
 const std::array<SegmentEnd::type, 5> SegmentEnd::allTypes = { type::repeat, type::repeatTilTrig, type::once, 

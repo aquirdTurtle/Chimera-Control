@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "CameraSettingsControl.h"
 #include "AndorWindow.h"
@@ -466,6 +467,7 @@ void AndorCameraSettingsControl::handleTimer()
 	{
 		// in this case you expect it to throw.
 		setTemperature = andorFriend->getAndorSettings().temperatureSetting;
+		temperatureDisplay.SetWindowTextA ( cstr ( setTemperature ) );
 		andorFriend->getTemperature(currentTemperature);
 		if ( ANDOR_SAFEMODE ) { thrower ( "SAFEMODE" ); }
 	}
@@ -474,31 +476,26 @@ void AndorCameraSettingsControl::handleTimer()
 		// if not stable this won't get changed.
 		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")
 		{
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature has stabilized at " + str(currentTemperature) 
 											  + " (C)\r\n"));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_REACHED")
 		{
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Set temperature not yet reached. Current temperature is " 
 											  + str(currentTemperature) + " (C)\r\n"));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_STABILIZED")
 		{
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature of " + str(currentTemperature) 
 											  + " (C) reached but not stable."));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_DRIFT")
 		{
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature had stabilized but has since drifted. Temperature: " 
 											  + str(currentTemperature)));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_OFF")
 		{
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature control is off. Temperature: " + str(currentTemperature)));
 		}
 		else if (exception.whatBare() == "DRV_ACQUIRING")
@@ -506,17 +503,15 @@ void AndorCameraSettingsControl::handleTimer()
 			// doesn't change color of temperature control. This way the color of the control represents the state of
 			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
 			// completely stabilize or not.
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
-			temperatureMsg.SetWindowTextA("Camera is Acquiring data. No Temperature updates are available.");
+			temperatureMsg.SetWindowTextA((str("Camera is Acquiring data. No updates are available. ") +
+										   "Most recent temperature: " + str(currentTemperature)).c_str());
 		}
 		else if (exception.whatBare() == "SAFEMODE")
 		{
-			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA("Application is running in Safemode... No Real Temperature Data is available.");
 		}
 		else
 		{
-			temperatureDisplay.SetWindowTextA(cstr(currentTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Unexpected Temperature Code: " + exception.whatBare() + ". Temperature: " 
 												+ str(currentTemperature)));
 		}

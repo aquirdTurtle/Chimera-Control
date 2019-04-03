@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "Communicator.h"
@@ -38,7 +39,7 @@ class NiawgController
 	public:
 		NiawgController( UINT trigRow, UINT trigNumber, bool safemode );
 		void initialize();
-		void cleanupNiawg( profileSettings profile, bool masterWasRunning, NiawgOutput& output, Communicator* comm, 
+		void cleanupNiawg( profileSettings profile, bool masterWasRunning, NiawgOutput& output, Communicator& comm, 
 						   bool dontGenerate );
 		void initForExperiment ( );
 		bool rerngThreadIsActive();
@@ -103,7 +104,7 @@ class NiawgController
 		static void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,
 									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
 									   niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
-		static niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator* comm );
+		static niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT targetDim, Communicator& comm );
 		static int increment ( std::vector<UINT>& ind, UINT currentLevel, UINT maxVal, bool reversed=false );
 	private:
 		void preWriteRerngWaveforms( rerngThreadInput* input );
@@ -126,7 +127,7 @@ class NiawgController
 								std::vector<parameterType>& varibles = std::vector<parameterType>( ),
 								UINT variation = -1 );
 		void deleteRerngWave( );
-		void startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator* comm,
+		void startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator& comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );

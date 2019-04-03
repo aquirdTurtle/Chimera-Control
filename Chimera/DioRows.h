@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include <string>
 // as of now not yet used extensively in the actual dio system
 
@@ -8,6 +9,7 @@ struct DioRows
 	{
 		A, B, C, D
 	};
+	static const std::array<which, 4> allRows;
 	static std::string toStr ( which m );
 	static which fromStr ( std::string txt );
 };

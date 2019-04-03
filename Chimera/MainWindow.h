@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "NiawgController.h"
 #include "ProfileSystem.h"
@@ -53,6 +54,8 @@ class MainWindow : public CDialog
 		void OnClose();
 		void catchEnter( );
 		void OnCancel() override;
+		void setMenuCheck ( UINT menuItem, UINT itemState );
+
 		// stuff directly called (or 1 simple step removed) by message map.
 		LRESULT onRepProgress(WPARAM wParam, LPARAM lParam);
 		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);
@@ -142,6 +145,7 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::SolidBrush*> getPlotBrushes( );
 		std::vector<Gdiplus::SolidBrush*> getBrightPlotBrushes( );
 		void passRerngModeComboChange ( );
+		void checkAllMenus ( UINT menuItem, UINT itemState );
 		const static UINT 
 			StatusUpdateMessageID		= ( WM_APP + 1 ),
 			ErrorUpdateMessageID		= ( WM_APP + 2 ),
@@ -161,6 +165,9 @@ class MainWindow : public CDialog
 			GeneralFinMsgID				= ( WM_APP + 19 ),
 			NoMotAlertMessageID			= ( WM_APP + 20 );
 		bool autoF5_AfterFinish = false;
+		EmbeddedPythonHandler& getPython ( );
+		NiawgController& getNiawg ( );
+		Communicator& getCommRef ( );
 	private:
 		DECLARE_MESSAGE_MAP();
 

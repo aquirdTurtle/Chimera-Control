@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// created by Mark O. Brown
+#pragma once
 #include <boost/container/vector.hpp>
 #include <vector>
 #include "afxwin.h"
@@ -143,42 +144,6 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D
 				 + " respectively." );
 	}
 }
-
-/*
-template<typename type>
-type Matrix<type>::operator()( UINT row, UINT col ) const
-{
-	if ( row > rows )
-	{
-		thrower ( "ERROR: row index out of range during Matrix access!" );
-	}
-	if ( col > cols )
-	{
-		thrower ( "ERROR: col index out of range during Matrix access!" );
-	}
-	UINT rowOffset( row * cols );
-	UINT index = rowOffset + col;
-	updateString( );
-	return data[index];
-}
-
-template<class type>
-type & Matrix<type>::operator()( UINT row, UINT col )
-{
-	if ( row >= rows )
-	{
-		thrower ( "ERROR: row index out of range during Matrix access!" );
-	}
-	if ( col >= cols )
-	{
-		thrower ( "ERROR: col index out of range during Matrix access!" );
-	}
-	UINT rowOffset( row * cols );
-	UINT index = rowOffset + col;
-	updateString( );
-	return data[index];
-}
-*/
 
 template <class type>
 UINT Matrix<type>::getCols( )

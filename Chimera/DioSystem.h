@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include "Control.h"
 #include "myButton.h"
@@ -10,6 +11,7 @@
 #include "WinSerialFlume.h"
 #include "Version.h"
 #include "viewpointFlume.h"
+#include "DigitalOutput.h"
 #include <array>
 #include <sstream>
 #include <unordered_map>
@@ -68,16 +70,16 @@ class DioSystem
 		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
 		void ttlOff(UINT row, UINT column, timeType time, UINT seqNum );
 		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
-		void forceTtl(int row, int number, bool state);
+		void forceTtl( DioRows::which row, int number, bool state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
 
-		void setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
-		std::string getName(UINT row, UINT number);
+		void setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
+		std::string getName ( DioRows::which row, UINT number );
 		std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames();
 		// returns -1 if not a name.
-		int getNameIdentifier(std::string name, UINT& row, UINT& number);
-		bool getTtlStatus(int row, int number);
+		int getNameIdentifier(std::string name, DioRows::which& row, UINT& number);
+		bool getTtlStatus ( DioRows::which row, int number );
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
 									 std::vector<parameterType>& vars, UINT seqNum, std::string scope );
@@ -89,7 +91,7 @@ class DioSystem
 		void convertToFinalViewpointFormat(UINT variation, UINT seqNum );
 		void convertToFtdiSnaps( UINT variation, UINT seqNum );
 		void convertToFinalFtdiFormat( UINT variation, UINT seqNum );
-		DWORD ftdi_ForceOutput( int row, int number, int state );
+		DWORD ftdi_ForceOutput( DioRows::which row, int number, int state );
 		void sizeDataStructures( UINT sequenceLength, UINT variations );
 		void writeTtlData( UINT variation, UINT seqNum, bool loadSkip );
 		void startBoard();
@@ -102,21 +104,22 @@ class DioSystem
 		bool isValidTTLName(std::string name);
 		void resetTtlEvents();
 		void prepareForce();
-		void updateDefaultTtl(UINT row, UINT column, bool state);
+		void updateDefaultTtl( DioRows::which row, UINT column, bool state);
 		UINT countTriggers( std::pair<UINT, UINT> which, UINT variation, UINT seqNum );
-		bool getDefaultTtl(UINT row, UINT column);
+		bool getDefaultTtl( DioRows::which row, UINT column);
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
 		std::vector<std::vector<double>> getFinalTimes( );
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
-		void updatePush( UINT row, UINT col );
+		void updatePush( DioRows::which row, UINT col );
 		vec<vec<vec<DioSnapshot>>> getSnapshots( );
 		vec<vec<std::array<ftdiPt, 2048>>> getFtdiSnaps( );
 		vec<vec<vec<WORD>>> getFinalViewpointData( );
 		vec<vec<finBufInfo>> getFinalFtdiData( );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getViewpointSafemode ( );
+		allDigitalOutputs& getDigitalOutputs();
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
@@ -138,13 +141,19 @@ class DioSystem
 		Control<CStatic> ttlTitle;
 		Control<CleanButton> ttlHold;
 		Control<CleanButton> zeroTtls;
-		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
+		allDigitalOutputs outputs;
+		/// being replaced by digitaloutput...
+		/*
+		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
 		std::array< std::array<bool, 16>, 4 > ttlStatus;
 		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
 		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
 		std::array< std::array<std::string, 16 >, 4> ttlNames;
+		std::array<std::array<bool, 16>, 4> defaultTtlState;
+		*/
+		/// 
 		// tells whether the hold button is down or not.
 		bool holdStatus;
 		// Each element of first vector is for each variation.
@@ -159,7 +168,5 @@ class DioSystem
 		vec<vec<finBufInfo>> finFtdiBuffers;
 		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps_loadSkip;
 		vec<vec<finBufInfo>> finFtdiBuffers_loadSkip;
-
-		std::array<std::array<bool, 16>, 4> defaultTtlState;
 };
 

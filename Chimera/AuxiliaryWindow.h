@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 #include <unordered_map>
 #include <string>
@@ -51,6 +52,7 @@ class AuxiliaryWindow : public CDialog
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 	public:
 		AuxiliaryWindow();
+		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void updateOptimization ( ExperimentInput input );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
@@ -144,7 +146,13 @@ class AuxiliaryWindow : public CDialog
 		Agilent& whichAgilent( UINT id );
 		void handleAgilentCombo( UINT id );
 		void autoOptimize ( );
-
+		DioSystem& getTtlBoard ( );
+		AoSystem& getAoSys ( );
+		AiSystem& getAiSys ( );
+		RhodeSchwarz& getRsg ( );
+		TektronicsAfgControl& getTopBottomTek ( );
+		TektronicsAfgControl& getEoAxialTek( );
+		ParameterSystem& getGlobals ( );
 	private:
 		DECLARE_MESSAGE_MAP();		
 
@@ -174,7 +182,7 @@ class AuxiliaryWindow : public CDialog
 		ServoManager servos;
 		MachineOptimizer optimizer;
 		ColorBox boxes;
-		ParameterSystem configVariables, globalVariables;
+		ParameterSystem configParameters, globalParameters;
 
 		ColorBox statusBox;
 };

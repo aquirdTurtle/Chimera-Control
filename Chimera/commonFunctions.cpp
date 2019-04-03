@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "TextPromptDialog.h"
@@ -45,7 +46,6 @@ namespace commonFunctions
 					camWin->preparePlotter ( input );
 					camWin->prepareAtomCruncher ( input );
 					input.masterInput->quiet = true;
-
 					logParameters ( input, camWin, basWin, true, true );
 
 					auxWin->updateOptimization ( input );
@@ -658,6 +658,11 @@ namespace commonFunctions
 				camWin->handleAutoscaleSelection();
 				break;
 			}
+			case ID_BASLER_AUTOSCALE:
+			{
+				basWin->handleBaslerAutoscaleSelection ( );
+				break;
+			}
 			case ID_PICTURES_GREATER_THAN_MAX_SPECIAL:
 			{
 				camWin->handleSpecialGreaterThanMaxSelection();
@@ -791,7 +796,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput;
+				input.masterInput = new MasterThreadInput(auxWin, mainWin);
 				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...\r\n" );
 				auxWin->loadMotSettings ( input.masterInput );
 				mainWin->fillMotSizeInput ( input.masterInput );
@@ -807,7 +812,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput;
+				input.masterInput = new MasterThreadInput ( auxWin, mainWin );
 				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
 				try
 				{
@@ -830,7 +835,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput;
+				input.masterInput = new MasterThreadInput ( auxWin, mainWin );
 				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
 				try
 				{
@@ -854,7 +859,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput;
+				input.masterInput = new MasterThreadInput ( auxWin, mainWin );
 				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
 				try
 				{
@@ -886,7 +891,7 @@ namespace commonFunctions
 		try 
 		{
 			ExperimentInput input;
-			input.masterInput = new MasterThreadInput;
+			input.masterInput = new MasterThreadInput ( auxWin, mainWin );
 			auxWin->loadCameraCalSettings( input.masterInput );
 			camWin->loadCameraCalSettings( input );
 			camWin->startCamera( );
@@ -911,7 +916,6 @@ namespace commonFunctions
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
-
 		if (seq.sequence.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
@@ -921,26 +925,13 @@ namespace commonFunctions
 		// check config settings
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
-		
-		if (runNiawg)
-		{
-			mainWin->getComm()->sendColorBox( System::Niawg, 'Y' );
-		}
 		// Set the thread structure.
-		input.masterInput = new MasterThreadInput();
+		input.masterInput = new MasterThreadInput ( auxWin, mainWin );
 		input.masterInput->runMaster = runTtls;
 		input.masterInput->skipNext = camWin->getSkipNextAtomic( );
 		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-		if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
-		{
-			input.masterInput->settings.dontActuallyGenerate = true;
-		}
-		else
-		{
-			input.masterInput->settings.dontActuallyGenerate = false;
-		}
+		input.masterInput->settings.dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
-		input.masterInput->comm = mainWin->getComm();
 		input.masterInput->profile = profile;
 		input.masterInput->runNiawg = runNiawg;
 		if (runNiawg)
@@ -1092,7 +1083,7 @@ namespace commonFunctions
 	void setMot(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin)
 	{
 		ExperimentInput input;
-		input.masterInput = new MasterThreadInput;
+		input.masterInput = new MasterThreadInput ( auxWin, mainWin );
 		auxWin->loadMotSettings ( input.masterInput );
 		mainWin->fillMotInput ( input.masterInput );
 		input.masterInput->expType = ExperimentType::LoadMot;
@@ -1115,11 +1106,11 @@ namespace commonFunctions
 		logger->logMiscellaneousStart();
 		logger->logBaslerSettings ( input.baslerRunSettings, takeBaslerPictures );
 		UINT numVoltsMeasursments = 0;
-		if ( input.masterInput && input.masterInput->aiSys->wantsQueryBetweenVariations( ) )
+		if ( input.masterInput && input.masterInput->aiSys.wantsQueryBetweenVariations( ) )
 		{
 			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->variables.front() );
 		}
-		logger->initializeAioLogging( numVoltsMeasursments );		
+		logger->initializeAiLogging( numVoltsMeasursments );		
 	}
 
 

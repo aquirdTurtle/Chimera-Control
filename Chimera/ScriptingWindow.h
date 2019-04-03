@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #pragma once
 
 #include "stdafx.h"
@@ -104,6 +105,7 @@ class ScriptingWindow : public CDialog
 		void catchEnter();
 		profileSettings getProfile();
 		void setIntensityDefault();
+		void setMenuCheck ( UINT menuItem, UINT itemState );
 	private:
 		DECLARE_MESSAGE_MAP();
 		
@@ -116,6 +118,6 @@ class ScriptingWindow : public CDialog
 		Script niawgScript, masterScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
-
+		CMenu menu;
 		Agilent intensityAgilent;
 };

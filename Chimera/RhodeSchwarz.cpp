@@ -1,3 +1,4 @@
+// created by Mark O. Brown
 #include "stdafx.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
