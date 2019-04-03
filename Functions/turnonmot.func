@@ -29,12 +29,12 @@ def turnOnMot():
 %  var bot_field -0.227 
 %  var top_field 0.653 
 
-  var right_field 0.467
+  var right_field 0.62
   var left_field -0.9
-  var front_field 1.16
+  var front_field 0.44
   var back_field 2
   var bot_field 0.1
-  var top_field 0.7
+  var top_field 0.75
 
   dac: MotGradientCurrent motStrength
   dac: RightCoilCurrent right_field
