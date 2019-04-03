@@ -468,6 +468,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 		}
 		loc.y += 28;
 	}
+	loc.x = startX - 32;
 }
 
 
