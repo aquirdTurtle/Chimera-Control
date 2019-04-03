@@ -165,6 +165,9 @@ class MainWindow : public CDialog
 			GeneralFinMsgID				= ( WM_APP + 19 ),
 			NoMotAlertMessageID			= ( WM_APP + 20 );
 		bool autoF5_AfterFinish = false;
+		EmbeddedPythonHandler& getPython ( );
+		NiawgController& getNiawg ( );
+		Communicator& getCommRef ( );
 	private:
 		DECLARE_MESSAGE_MAP();
 

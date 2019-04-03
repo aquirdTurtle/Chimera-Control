@@ -246,9 +246,45 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 }
 
 
-void DataLogger::logTektronicsSettings ( TektronicsAfgControl* tek )
+void DataLogger::logAoSystemSettings ( AoSystem& aoSys )
 {
-	auto info = tek->getTekSettings ( );
+	auto info = aoSys.getDacInfo ( );
+	H5::Group AoSystemGroup ( file.createGroup ( "/Ao_System" ) );
+	UINT count = 0;
+	for ( auto& output : info )
+	{
+		H5::Group indvOutput( AoSystemGroup.createGroup ( "/Output_" + str(count++) ) );
+		writeDataSet ( output.name, "Output_Name", indvOutput );
+		writeDataSet ( output.note, "Note", indvOutput );
+		writeDataSet ( output.currVal, "Value_At_Start", indvOutput );
+		writeDataSet ( output.defaultVal, "Default_Value", indvOutput );
+		writeDataSet ( output.minVal, "Minimum_Value", indvOutput );
+		writeDataSet ( output.maxVal, "Maximum_Value", indvOutput );
+	}
+}
+
+void DataLogger::logDoSystemSettings ( DioSystem& doSys )
+{
+	auto& doSysOutputs = doSys.getDigitalOutputs ( );
+	H5::Group DoSystemGroup ( file.createGroup ( "/Do_System" ) );
+	UINT count = 0;
+	for ( auto& out : doSysOutputs )
+	{
+		auto pos = out.getPosition ( );
+		H5::Group indvOutput ( DoSystemGroup.createGroup ( "/" + DioRows::toStr( pos.first) + str(pos.second) ) );
+		writeDataSet ( out.getName(), "Name", indvOutput );
+		writeDataSet ( out.defaultStatus, "Default_Status", indvOutput );
+		writeDataSet ( out.getStatus(), "Value_at_start", indvOutput );
+		// not sure it makes sense to report this but why not.
+		writeDataSet ( out.getShadeStatus(), "Shade_Status", indvOutput );
+	}
+}
+
+
+
+void DataLogger::logTektronicsSettings ( TektronicsAfgControl& tek )
+{
+	auto info = tek.getTekSettings ( );
 	try
 	{
 		H5::Group tektronicsGroup;
@@ -261,7 +297,7 @@ void DataLogger::logTektronicsSettings ( TektronicsAfgControl* tek )
 			// probably has just already been created.
 			tektronicsGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
 		}
-		H5::Group thisTek ( tektronicsGroup.createGroup ( tek->configDelim ) );
+		H5::Group thisTek ( tektronicsGroup.createGroup ( tek.configDelim ) );
 		writeDataSet ( info.machineAddress, "Machine-Address", thisTek );
 		UINT channelCount = 1;
 		for ( auto c : { info.channels.first, info.channels.second } )
@@ -585,6 +621,8 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		logAgilentSettings( input->agilents );
 		logTektronicsSettings ( input->topBottomTek );
 		logTektronicsSettings ( input->eoAxialTek );
+		logAoSystemSettings ( input->aoSys );
+		logDoSystemSettings ( input->ttls );
 	}
 	catch ( H5::Exception& err )
 	{
@@ -637,7 +675,7 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 }
 
  
-void DataLogger::initializeAioLogging( UINT numSnapshots )
+void DataLogger::initializeAiLogging( UINT numSnapshots )
 {
 	// initial settings
 	// list of commands?

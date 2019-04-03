@@ -119,6 +119,7 @@ class DioSystem
 		vec<vec<finBufInfo>> getFinalFtdiData( );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getViewpointSafemode ( );
+		allDigitalOutputs& getDigitalOutputs();
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio

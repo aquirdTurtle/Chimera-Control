@@ -9,16 +9,20 @@ class DigitalOutput
 		void initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips );
 		void initLoc ( UINT num, DioRows::which row);
 		void shade ( bool shadeStat );
-		bool getShadeStatus ( );
+		
 		void enable ( bool enabledStatus );
 		void rearrange ( int width, int height, fontMap fonts );
 		void updateStatus (  );
+
 		bool defaultStatus;
+		bool getShadeStatus ( );
 		bool getStatus ( );
-		void set ( bool status );
-		std::pair<DioRows::which, UINT> getPosition();
-		void setName ( std::string nameStr, cToolTips& toolTips, CWnd* parent );
 		std::string getName ( );
+		std::pair<DioRows::which, UINT> getPosition ( );
+
+		void set ( bool status );
+		void setName ( std::string nameStr, cToolTips& toolTips, CWnd* parent );
+		
 		HBRUSH handleColorMessage ( UINT controlID, CWnd* window, CDC* cDC );
 		int getCheckID ( );
 		bool holdStatus;
@@ -28,8 +32,7 @@ class DigitalOutput
 		DioRows::which row;
 		UINT num;
 		bool status;
-		bool shadeStatus;
-		
+		bool shadeStatus;		
 		std::string name;
 };
 

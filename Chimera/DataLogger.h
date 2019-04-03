@@ -28,6 +28,8 @@ class DataLogger
 		void initializeDataFiles( std::string specialName="", bool isCal=false);
 		void writeAndorPic( std::vector<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image, imageParameters dims );
+		void writeVolts ( UINT currentVoltNumber, std::vector<float64> data );
+
 		void logMasterParameters( MasterThreadInput* input);
 		void logMiscellaneousStart();
 		void logAndorSettings( AndorRunSettings settings, bool on );
@@ -35,21 +37,25 @@ class DataLogger
 		void logAgilentSettings( const std::vector<Agilent*>& input );
 		void logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
 		void logFunctions( H5::Group& group );
-		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
+		void logAoSystemSettings ( AoSystem& aoSys);
+		void logDoSystemSettings ( DioSystem& doSys );
 		void logBaslerSettings ( baslerSettings settings, bool on );
-		void logTektronicsSettings( TektronicsAfgControl* tek );
+		void logTektronicsSettings( TektronicsAfgControl& tek );
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
 		void logServoInfo ( std::vector<servoInfo> servos );
-		UINT getNextFileNumber();
+		void initializeAiLogging ( UINT numSnapshots );
+
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void closeFile();
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
-		void initializeAioLogging( UINT numSnapshots );
+		
 
 		void initOptimizationFile ( );
 		void updateOptimizationFile ( std::string appendTxt );
 		void finOptimizationFile ( );
+
+		UINT getNextFileNumber ( );
 
 	private:
 		std::ofstream optFile;

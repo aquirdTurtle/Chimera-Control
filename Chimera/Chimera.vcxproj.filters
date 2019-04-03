@@ -283,6 +283,7 @@
     <ClCompile Include="MachineOptimizer.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
+    <ClCompile Include="MasterThreadInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -657,6 +658,7 @@
     <ClInclude Include="MachineOptimizer.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
+    <ClInclude Include="AgilentArray.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

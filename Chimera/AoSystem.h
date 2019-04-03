@@ -57,11 +57,11 @@ class AoSystem
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void setDacTriggerEvents( DioSystem* ttls, UINT variation, UINT seqNum );
+		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-									 std::vector<parameterType>& vars, DioSystem* ttls, UINT seqNum );
+									 std::vector<parameterType>& vars, DioSystem& ttls, UINT seqNum );
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
 		void makeFinalDataFormat( UINT variation, UINT seqNum );

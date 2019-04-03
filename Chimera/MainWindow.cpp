@@ -234,7 +234,6 @@ void MainWindow::OnTimer( UINT_PTR id )
 
 void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
 {
-	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for ( auto seqInc : range( input->variables.size( ) ) )
@@ -1005,7 +1004,6 @@ void MainWindow::fillMotTempProfile ( MasterThreadInput* input )
 
 void MainWindow::fillTempInput ( MasterThreadInput* input )
 {
-	input->comm = &comm;
 	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
 	for ( auto seqInc : range ( input->variables.size ( ) ) )
@@ -1030,7 +1028,6 @@ void MainWindow::fillTempInput ( MasterThreadInput* input )
 
 void MainWindow::fillMotInput( MasterThreadInput* input )
 {
-	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for (auto seqInc : range(input->variables.size()))
@@ -1060,7 +1057,6 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 
 void MainWindow::fillMotSizeInput ( MasterThreadInput* input )
 {
-	input->comm = &comm;
 	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
 	for ( auto seqInc : range ( input->variables.size ( ) ) )
@@ -1114,18 +1110,33 @@ void MainWindow::fillMasterThreadSequence( MasterThreadInput* input )
 }
 
 
+NiawgController& MainWindow::getNiawg ( )
+{
+	return niawg;
+}
+
+
+Communicator& MainWindow::getCommRef ( )
+{
+	return comm;
+}
+
+
 void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
-	input->python = &this->python;
 	input->settings = settings.getOptions();
 	input->repetitionNumber = getRepNumber();
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();
 	input->seq = profile.getSeqSettings( );
-	input->niawg = &niawg;
-	input->comm = &comm;
 	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->rerngGuiForm = rearrangeControl.getParams( );
+}
+
+
+EmbeddedPythonHandler& MainWindow::getPython ( )
+{
+	return python;
 }
 
 

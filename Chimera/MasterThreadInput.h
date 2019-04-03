@@ -25,6 +25,9 @@
 #include <vector>
 #include <atomic>
 
+class AuxiliaryWindow;
+class MainWindow;
+
 enum class ExperimentType
 {
 	// normal experiments
@@ -47,14 +50,15 @@ class MasterManager;
 
 struct MasterThreadInput
 {
-	EmbeddedPythonHandler* python;
+	MasterThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin );
+	EmbeddedPythonHandler& python;
 	// for posting messages only!
 	AuxiliaryWindow* auxWin;
 	profileSettings profile;
 	seqSettings seq;
-	DioSystem* ttls;
-	AoSystem* aoSys;
-	AiSystem* aiSys;
+	DioSystem& ttls;
+	AoSystem& aoSys;
+	AiSystem& aiSys;
 	UINT repetitionNumber;
 	// believe outer layer here is for sequence increment
 	std::vector<variationRangeInfo> variableRangeInfo;
@@ -62,14 +66,14 @@ struct MasterThreadInput
 	std::vector<std::vector<parameterType>> constants;
 	//std::vector<funcVarMap> functionVars;
 	MasterManager* thisObj;
-	Communicator* comm;
-	RhodeSchwarz* rsg;
+	Communicator& comm;
+	RhodeSchwarz& rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
-	TektronicsAfgControl* topBottomTek;
-	TektronicsAfgControl* eoAxialTek;
-	ParameterSystem* globalControl;
-	NiawgController* niawg;
+	TektronicsAfgControl& topBottomTek;
+	TektronicsAfgControl& eoAxialTek;
+	ParameterSystem& globalControl;
+	NiawgController& niawg;
 	UINT intensityAgilentNumber;
 	bool quiet;
 	mainOptions settings;
