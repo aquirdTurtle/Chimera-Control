@@ -639,6 +639,7 @@ BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC 
 	return TRUE;
 }
 
+
 void MainWindow::handlePause()
 {
 	if (masterThreadManager.runningStatus())
@@ -997,7 +998,6 @@ void MainWindow::fillTempInput ( MasterThreadInput* input )
 			if ( variable.constant )
 			{
 				input->constants[ seqInc ].push_back ( variable );
-
 			}
 		}
 	}

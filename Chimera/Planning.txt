@@ -51,6 +51,7 @@ FEATURES:
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts more compact. something with arrays.
 - camera "running" status should display most recent temp.
+- check number of basler triggers against basler total picture number
 
 
 Refactoring / Other:
@@ -97,3 +98,6 @@ BUGS:
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
 - niawg goes yellow before confirmation.
+- position of vertical threshold line not exactly correct wrt x tick labels
+- value in pic settings colormap combo not always consistent with actual display.
+- should not run agilent triggering tests if not running agilents (e.g. only master and basler)

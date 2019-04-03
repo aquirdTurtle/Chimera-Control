@@ -1,20 +1,16 @@
 % this function takes 3 + PGCtime ms (typically around 7)
 def FreeSpaceGrey():
   dac: motGradientCurrent 0
-  var grey_detuning 0.3 %might need to sweep this value again 
-  var D1twoToTwopPower 0.22
-  var repump_Power 0.3
-  var repump_Freq -1.5
-  dac: depumpPower 0.2
+  var grey_detuning 0.3 
   dac: repumpPower 0.1
   dac: repumpFreq -0.3
-  dacLinSpace: MotFreq -2 grey_detuning 0.4 10
-  call zeroFields()
+  dacLinSpace: freq795 0 grey_detuning 0.4 10
+  call d1greymolassesfreespacefields()
   off: repumpRf
   off: sideMotRf
   off: diagMotRf
   t += 0.4
-  var pgc_time 0.7
+  var pgc_time 1
   on: repumpRf
   on: depumpingRf
   t += pgc_time 
@@ -22,9 +18,5 @@ def FreeSpaceGrey():
   off: depumpingRf
   dacLinSpace: MotFreq grey_detuning -2 0.4 10
   t += 0.4
-  %dac: depumpPower 0
-  %dac: repumpPower 0
-  %t += 1.1
-
 
 

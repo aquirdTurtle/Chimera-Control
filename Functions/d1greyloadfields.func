@@ -4,9 +4,9 @@ def D1GreyLoadFields():
 
   var left_field -0.718
   var right_field 0.0903
-  var top_field 2.323
+  var top_field 2.1
   var bot_field -1.711 % 
-  var front_field -0.574
+  var front_field -0.667
   var back_field 0.512
 
   dac: leftCoilCurrent left_field 
