@@ -325,7 +325,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				expUpdate( "Querying Voltages...\r\n", comm, quiet );
 				input->auxWin->PostMessage( MainWindow::LogVoltsMessageID, variationInc );
 			}
-			Sleep( input->debugOptions.sleepTime );
+			if ( input->debugOptions.sleepTime != 0 )
+			{
+				expUpdate ( "PAUSED!\r\n", comm, quiet );
+				Sleep ( input->debugOptions.sleepTime );
+				expUpdate ( "UNPAUSED!\r\n", comm, quiet );
+			}
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )
 			{
 				for (auto tempVariable : input->variables[seqInc])

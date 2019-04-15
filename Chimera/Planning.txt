@@ -54,6 +54,7 @@ FEATURES:
 - be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts with many tones more compact. something with arrays.
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
+- check number of basler triggers against basler total picture number
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting

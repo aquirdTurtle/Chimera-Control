@@ -2,7 +2,7 @@
 def D1greyLambdaCooling():
   var grey_detuning -0.7
   var D1twoToTwopPower 0.3
-  var cooling_time 1
+  var cooling_time 200
   var rsfreq -0.35
   var rspow 5
   % init system
@@ -21,7 +21,8 @@ def D1greyLambdaCooling():
   dac: RepumpPower 0
   dac: motGradientCurrent 0
 
-  call d1greyCoolingFields()
+  %call d1greyCoolingFields()
+  call d1greymolassesfreespacefields()
 
   off: eoswitch
   off: eoswitch2

@@ -1,30 +1,1 @@
-% free space grey molasses
-def D1freespacegrey():
-  dac: motGradientCurrent 0
-  var grey_detuning 0.4
-  var grey_detuning2 0.6
-  var D1twoToTwopPower 0.3
-  var repump_Power 0.3
-  var repump_Freq -0.6
-  
-  %dac: freq795 grey_detuning test
-  dac: power795 D1twoToTwopPower
-  dac: repumpPower repump_Power 
-  dac: repumpFreq repump_Freq
-  daclinspace: freq795 grey_detuning grey_detuning2 1 10
-  pulseon: a15 0.1
-  t += 0.1
-  %call zeroFields()
-  call d1greyFields()
-  off: repumpRf
-  off: sideMotRf
-  off: diagMotRf
-  var cooling_time 1
-  on: repumpRf
-  on: rf795
-  t += cooling_time 
-  off: repumpRf
-  off: rf795
-  dac: repumpFreq -0.55
-  t += 0.4
-  daclinspace: freq795 grey_detuning2 grey_detuning 1 10
+% free space grey molassesdef D1freespacegrey():%  var grey_detuning 0.4  var rsfreq 0.158  var rspow 5  dac: side795Pow 0.4  dac: diag795Pow 0.3  dac: power795 grey_power  daclinspace: freq795 0 grey_detuning 1 10  rsg: (6.834682 + rsfreq*0.001) rspow  pulseon: a15 0.1  t += 1  off: repumpRf  off: sideMotRf  off: diagMotRf  off: eoswitch  off: eoswitch2  dac: motGradientCurrent 0  call d1greyMolassesFreeSpaceFields()  var cooling_time 1.1  on: rf795  t += cooling_time   off: rf795  %t += 0.4  daclinspace: freq795 grey_detuning 0 1 10

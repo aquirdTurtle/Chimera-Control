@@ -40,7 +40,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	// start using the run function.
 	try
 	{
-		//run ( "import smtplib" );
+		run ( "import smtplib" );
 	}
 	catch ( Error& err )
 	{

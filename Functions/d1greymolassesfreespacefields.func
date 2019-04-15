@@ -1,10 +1,10 @@
-def zeroFields():
+def d1GreyMolassesFreeSpaceFields():
   % total time = 0. This function is for doing pgc.
-  var left_field -0.6
+  var left_field 0.1
   var right_field 0.6
-  var top_field 1.6
+  var top_field 1.25
   var bot_field -1.9
-  var front_field -0.2
+  var front_field -0.4
   var back_field 0.6
   dac: leftCoilCurrent left_field 
   dac: rightCoilCurrent right_field 
@@ -13,3 +13,5 @@ def zeroFields():
   dac: frontCoilCurrent front_field 
   dac: backCoilCurrent back_field 
   t += 1
+
+
