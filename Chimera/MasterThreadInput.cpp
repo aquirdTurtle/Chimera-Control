@@ -9,3 +9,5 @@ MasterThreadInput::MasterThreadInput ( AuxiliaryWindow* auxWin, MainWindow* main
 	rsg ( auxWin->getRsg ( ) ), eoAxialTek ( auxWin->getEoAxialTek ( ) ), topBottomTek ( auxWin->getTopBottomTek ( ) ),
 	globalControl( auxWin->getGlobals() )
 { };
+
+

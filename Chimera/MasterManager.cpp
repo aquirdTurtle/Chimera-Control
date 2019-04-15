@@ -261,7 +261,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		/// output some timing information 
 		timer.tick("After-All-Variation-Calculations");
-		//expUpdate(timer.getTimingMessage(), comm, input->quiet);
+		expUpdate(timer.getTimingMessage(), comm, input->quiet);
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", 
