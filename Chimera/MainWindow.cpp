@@ -1,4 +1,3 @@
-// created by Mark O. Brown
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "MainWindow.h"
@@ -102,7 +101,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 	//
 	(plotfont = new CFont)
-		->CreateFontA( 20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		->CreateFontA( 12/*20*/, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 }
 
@@ -616,7 +615,7 @@ void MainWindow::notifyConfigUpdate( )
 void MainWindow::catchEnter( )
 {
 	// the default handling is to close the window, so I need to catch it.
-	errBox ( ":D" );
+
 }
 
 
