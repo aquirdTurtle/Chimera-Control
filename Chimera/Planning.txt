@@ -96,3 +96,4 @@ BUGS:
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
 - can't do non-square multi-dim scans
+- figure out why figure update seems to cause main thread window thread to freak out

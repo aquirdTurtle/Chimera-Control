@@ -75,7 +75,7 @@ struct MasterThreadInput
 	ParameterSystem& globalControl;
 	NiawgController& niawg;
 	UINT intensityAgilentNumber;
-	bool quiet;
+	bool quiet=false;
 	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
