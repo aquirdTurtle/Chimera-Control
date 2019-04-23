@@ -903,7 +903,7 @@ namespace commonFunctions
 			errBox( err.trace( ) );
 		}
 	}
-
+	 
 
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
