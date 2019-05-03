@@ -135,7 +135,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			/// Prep agilents
 			expUpdate( "Loading Agilent Info...", comm, quiet );
-			timer.tick(str(seqNum) + "-Variation-Number-Handling");
+			timer.tick(str(seqNum) + "-Var-Number-Handling");
 			for ( auto& agilent : input->agilents )
 			{
 				RunInfo dum;
@@ -188,26 +188,35 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			expUpdate("Constant NIAWG Waveform Preparation Completed...\r\n", comm, input->quiet );
 		}
-		timer.tick("After-Shading-Ttls-And-Dacs");
+		timer.tick("After-Shading-Ttls-&-Dacs");
 		if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 		/// The Key Interpretation step.
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
 		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
+		CodeTimer subTimer;
+		subTimer.tick ( "Start" );
 		if ( input->runMaster )
 		{
 			ttls.shadeTTLs ( ttlShadeLocs );
+			subTimer.tick ( "After-Shade-TTLs" );
 			aoSys.shadeDacs ( dacShadeLocs );
+			subTimer.tick ( "After-Shade-Dacs" );
 			ttls.interpretKey( input->variables );
+			subTimer.tick ( "After-ttl-Interpret" );
 			aoSys.interpretKey( input->variables, warnings );
+			subTimer.tick ( "After-aoSys-Interpret" );
 		}
 		if ( useAuxDevices )
 		{
 			input->rsg.interpretKey ( input->variables );
+			subTimer.tick ( "After-rsg-Interpret" );
 			input->topBottomTek.interpretKey ( input->variables );
+			subTimer.tick ( "After-topBottomTek-Interpret" );
 			input->eoAxialTek.interpretKey ( input->variables );
+			subTimer.tick ( "After-eoAxialTek-Interpret" );
 		}
-		timer.tick("Key-Interpretation");
+		timer.tick("After-Key-Interpretation");
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
 		for ( auto seqInc : range( input->seq.sequence.size( ) ) )
@@ -215,7 +224,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			auto& seqVariables = input->variables[seqInc];
 			for ( UINT variationInc = 0; variationInc < variations; variationInc++ )
 			{
-				timer.tick("Variation-"+str(variationInc)+"-start");
+				timer.tick("Var-"+str(variationInc)+"-start");
 				if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 				if ( input->runMaster )
 				{
@@ -260,8 +269,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 		}
 		/// output some timing information 
-		timer.tick("After-All-Variation-Calculations");
+		timer.tick("After-All-Var-Calcs");
 		//expUpdate(timer.getTimingMessage(), comm, input->quiet);
+		expUpdate ( subTimer.getTimingMessage ( ), comm, input->quiet );
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", 
@@ -1296,7 +1306,7 @@ bool MasterManager::isValidWord( std::string word )
 	}
 	return false;
 }
-
+ 
 // just a simple wrapper so that I don't have if (!quiet){ everywhere in the main thread.
 void MasterManager::expUpdate(std::string text, Communicator& comm, bool quiet)
 {

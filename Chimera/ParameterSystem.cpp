@@ -210,6 +210,27 @@ void ParameterSystem::handleNewConfig( std::ofstream& newFile )
 	newFile << "END_" + configDelim + "\n";
 }
 
+double ParameterSystem::getVariableValue ( std::string paramName )
+{
+	if ( paramSysType != ParameterSysType::global )
+	{
+		thrower ( "adjusting variable values in the code like this is only meant to be used with global variables!" );
+	}
+
+	bool found = false;
+	for ( auto& param : currentParameters )
+	{
+		if ( param.name == paramName )
+		{
+			return param.constantValue;
+		}
+	}
+	if ( !found )
+	{
+		thrower ( "variable \"" + paramName + "\" not found in global varable control!" );
+	}
+}
+
 
 void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 {

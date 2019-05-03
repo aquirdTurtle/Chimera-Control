@@ -471,7 +471,7 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 	{
 		fullTerms.push_back ( t );
 	}
-	fullTerms.push_back ( ")" );
+	terms.push_back ( ")" );
 	evaluateFunctions( fullTerms );
 	/// do math.
 	return reduce( fullTerms );
