@@ -1668,7 +1668,7 @@ std::string AuxiliaryWindow::getGpibDeviceStatus( )
 	std::string msg;
 	msg += "----------------------------------------------------------------------------------- GPIB Devices:\n";
 	msg += "RSG:\n";
-	if ( RSG_SAFEMODE )
+	if ( !RSG_SAFEMODE )
 	{
 		msg += "\tCode System is Active!\n";
 		msg += "\t" + RhodeSchwarzGenerator.getIdentity( );

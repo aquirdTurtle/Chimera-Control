@@ -1,12 +1,20 @@
 % Master-Script See the "?" for info on commands.
 def setQuantAxis():
- % turning on magnetic field to 3G pointing to getter 
- %for the quantization axis 
-        var rotateFieldTime 3
-        dac: frontcoilcurrent -0.66
-        dac: backcoilcurrent 0.2914
-        dac: rightcoilcurrent -2.7361
-        dac: leftcoilcurrent 3.6461
-        dac: bottomcoilcurrent -1.7
-        dac: topcoilcurrent 2.12
-        t += rotateFieldTime
+  % turning on magnetic field to 3G pointing to getter 
+  % for the quantization axis 
+  var rotateFieldTime 3
+
+  % total time = 0. This function is for doing pgc.
+  var left_field 3.6461
+  var right_field -2.7361
+  var top_field 1.8758
+  var bot_field -1.915
+  var front_field -0.4055
+  var back_field 0.6063
+  dac: leftCoilCurrent left_field 
+  dac: rightCoilCurrent right_field 
+  dac: topCoilCurrent top_field 
+  dac: bottomCoilCurrent bot_field 
+  dac: frontCoilCurrent front_field 
+  dac: backCoilCurrent back_field 
+  t += rotateFieldTime

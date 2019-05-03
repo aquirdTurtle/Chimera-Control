@@ -96,3 +96,6 @@ BUGS:
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
 - can't do non-square multi-dim scans
+- reported # ttl events in experiment looks wrong
+- new function then save doesn't save as function
+- ttl display not accurate at end of exp
