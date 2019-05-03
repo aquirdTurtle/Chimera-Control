@@ -434,10 +434,15 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	{
 		ttls->forceTtl ( ttl.first, ttl.second, 1 );
 	}
+	
 	UINT attemptLimit = 100;
 	UINT count = 0;
 	UINT aiNum = s.aiInputChannel;
 	UINT aoNum = s.aoControlChannel;
+	s.controlValue = globals->getVariableValue( str ( s.servoName + "__servo_value", 13, false, true ) );
+	// start the dac where it was last.
+	ao->setSingleDac ( aoNum, s.controlValue, ttls );
+	
 	while ( count++ < attemptLimit )
 	{
 		double avgVal = ai->getSingleChannelValue(aiNum, 10);
@@ -479,17 +484,18 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 					break;
 				}
 			}
-			// there's a break built in here in order to let the laser settle.
+			// there's a break built in here in order to let the laser settle a little. Not sure how necessary this is.
 			Sleep( 20 );
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
 	setControlDisplay ( which, dacVal );
-	s.servoed = count != attemptLimit;
+	s.servoed = (count != attemptLimit);
 	if ( !s.servoed )
 	{
 		errBox( "" + s.servoName + " servo failed to servo!" );
+		// and don't adjust the variable value with what is probably a bad value. 
 	}
 	else
 	{
