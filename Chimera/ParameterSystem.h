@@ -50,6 +50,7 @@ class ParameterSystem
 		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
 		void adjustVariableValue( std::string paramName, double value );
+		double getVariableValue( std::string paramName );
 		void deleteVariable();
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, 
 						 UINT listviewId, ParameterSysType type );
