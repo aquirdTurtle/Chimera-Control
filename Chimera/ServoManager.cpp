@@ -491,7 +491,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
 	setControlDisplay ( which, dacVal );
-	s.servoed = (count != attemptLimit);
+	s.servoed = (count < attemptLimit);
 	if ( !s.servoed )
 	{
 		errBox( "" + s.servoName + " servo failed to servo!" );

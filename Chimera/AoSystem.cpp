@@ -700,7 +700,7 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 			}
 		}
 	}
-	errBox ( sTimer.getTimingMessage ( ) );
+	//errBox ( sTimer.getTimingMessage ( ) );
 }
 
 
