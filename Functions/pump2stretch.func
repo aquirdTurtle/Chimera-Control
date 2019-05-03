@@ -1,41 +1,26 @@
 % Master-Script See the "?" for info on commands.
 def pump2stretch():
-  off: ropshutter
-  off: repumpRf
-  on: repumpShutter   % on
   % set to 3G field
-% for initial testing - C.K.
-var pumppower 0.3
-var pumptime 1.5 %1.5
-  %1.0
-  %call setQuantAxis()
+  var pumppower 0.05
+  var pumptime 5
+  var opFreq -0.5
+  call setQuantAxis()
+  t += 0.1
+  %daclinspace: repumpFreq 0 -0.4852 1 10  %-0.4852 
   t += 1
-  daclinspace: repumpFreq 0 -0.4852 1 10  %-0.4852 
-  t += 1
-  dac: sigmarepumpfreq  -0.12 % -0.12
-  dac: sigmaopfreq 0.5 % 0.5 
-  off: diagmotshutter
+  dac: sigmaopfreq 0 % 0.5 
+  daclinspace: motFreq defaultMotFreq opFreq 1 10  %-0.4852 
   dac: sigmaoppower pumppower 
-  dac: sigmarepumppower 0.3
-  dac: repumpPower 0.3 %0.2 %0.05
+  dac: sigmarepumpPower 0.3
+  %dac: repumpPower 0.3 %0.2 %0.05
  
-  on: repumpRf
   on: sigmaoprf 
-  on: sigmarepumprf 
+  on: sigmaRepumpRf
   t += pumptime 
   off: sigmaoprf
-  off: sigmarepumprf
-
-  dac: repumpPower 0
+  off: sigmaRepumpRf
+  dac: sigmarepumpPower 0
   dac: sigmaoppower 0
-  dac: sigmarepumppower 0
-  t += 0.01
-  % double check wait time, 
-  % assuming at least 10ms wait time 
-  % before next repump pulse
-  daclinspace: repumpFreq -0.4852 0 2 10 %-1.65
-  t += 2
-  off: repumpRf
-  off: diagmotshutter  % Was on 2/1/2018 Caused ~%4 loss - C. Kiehl
-  off: ropshutter 
-  t += 0.1
+  daclinspace: motFreq opFreq defaultMotFreq 1 10  %-0.4852
+  daclinspace: repumpFreq -0.4852 0 1 10 %-1.65
+  t += 1.01

@@ -1,12 +1,18 @@
 def rotateFields():
-
-	% ramping fields assuming from pump2stretch values as of 9/11/2017. if seeing funny things would need to check pump2stretch values
-	% input is theta and phi, where theta=0, phi=0 represents the normal 3G field direction along left and right. here we try to keep the field constant during rotation
-	% define left at theta=pi/2,phi=0; top at theta=0; front at theta=pi/2, phi=pi/2
-	% according to calibrations in 2017/9/9-2017/9/11, we have individual calibrations of each coil field DAC values/22-11 resonance in V/MHz
-	% left/right 0.873132/-0.85932; top/bottom -0.717172/0.780168; front/back 1.13866/-1.11831
-	% null point at setting right/left +-0.4856; top/bottom +-1.994; front/back -+0.551
-	% according to D Steck we have 22-11 transition of 2.1 MHz/Gauss, thus for 3G we have 6.3 MHz shift from resonance
+  % %%%%%%%%%%%%%%%%%%%%%%% These are old comments from Yiheng.
+  % ramping fields assuming from pump2stretch values as of 9/11/2017. 
+  % if seeing funny things would need to check pump2stretch values
+  % input is theta and phi, where theta=0, phi=0 represents the normal 
+  % 3G field direction along left and right. here we try to keep the 
+  % field constant during rotation. define left at theta=pi/2,phi=0; 
+  % top at theta=0; front at theta=pi/2, phi=pi/2/. According to 
+  % calibrations in 2017/9/9-2017/9/11, we have individual calibrations 
+  % of each coil field DAC values/22-11 resonance in V/MHz left/right 
+  % 0.873132/-0.85932; top/bottom -0.717172/0.780168; front/back 
+  % 1.13866/-1.11831 null point at setting right/left +-0.4856; 
+  % top/bottom +-1.994; front/back -+0.551 according to D Steck we 
+  % have 22-11 transition of 2.1 MHz/Gauss, thus for 3G we have 6.3 MHz 
+  % shift from resonance
 
 % from quant axis
 
@@ -14,22 +20,76 @@ def rotateFields():
 %var fieldtheta 1.5708
 %var fieldphi 0
 var rotateFieldTime 3
+  var left_field 3.6461
+  var right_field -2.7361
+  var top_field 1.6
+  var bot_field -1.9
+  var front_field -0.2
+  var back_field 0.6
+daclinspace: topCoilCurrent 
+  2.12
+  (2.049+2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2) 
+  (rotateFieldTime/2) 10
 
-daclinspace: topCoilCurrent (2.12) (2.049+2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2) (rotateFieldTime/2) 10
-daclinspace: bottomCoilCurrent -1.7 ( -1.994 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2) (rotateFieldTime/2) 10
-daclinspace: leftCoilCurrent 3.6461 ( -0.34799 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) (rotateFieldTime/2) 10
-daclinspace: rightCoilCurrent  -2.7361 ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) (rotateFieldTime/2) 10	 %pgcRightField
-daclinspace: frontCoilCurrent -0.66 (-0.5318 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (rotateFieldTime/2) 10
-daclinspace: backCoilCurrent 0.2914 ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (rotateFieldTime/2) 10
+daclinspace: bottomCoilCurrent 
+  -1.7 
+  ( -1.994 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2) 
+  (rotateFieldTime/2) 10
+
+daclinspace: leftCoilCurrent 
+  3.6461 
+  ( -0.34799 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) 
+  (rotateFieldTime/2) 10
+
+daclinspace: rightCoilCurrent 
+  -2.7361 
+  ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) 
+  (rotateFieldTime/2) 10
+
+daclinspace: frontCoilCurrent 
+  -0.66 
+  (-0.5318 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
+  (rotateFieldTime/2) 10
+
+daclinspace: backCoilCurrent 
+  0.2914 
+  ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
+  (rotateFieldTime/2) 10
 
 t += (rotateFieldTime/2)
+%divide by 2 to even out both directions
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- %divide by 2 to even out both directions
-daclinspace: topCoilCurrent (2.049 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2 ) (2.049 + 2.1*field/(-0.716623)*cos(fieldtheta)/2 ) (rotateFieldTime/2) 10
-daclinspace: bottomCoilCurrent ( -1.994 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2 ) ( -1.994 + 2.1*field/0.759638*cos(fieldtheta)/2 ) (rotateFieldTime/2) 10
-daclinspace: leftCoilCurrent (-0.34799 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) (-0.34799 + 2.1*field/0.885082*sin(fieldtheta)*cos(fieldphi)/2) (rotateFieldTime/2) 10
-daclinspace: rightCoilCurrent  ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 ) (rotateFieldTime/2) 10
-daclinspace: frontCoilCurrent (-0.5318 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) (-0.5318 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2) (rotateFieldTime/2) 10
-daclinspace: backCoilCurrent ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2) (rotateFieldTime/2) 10
+daclinspace: topCoilCurrent 
+  (2.049 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2 ) 
+  (2.049 + 2.1*field/(-0.716623)*cos(fieldtheta)/2 )
+  (rotateFieldTime/2) 10
+
+daclinspace: bottomCoilCurrent 
+  ( -1.994 + 2.1*field/0.759638*cos(fieldtheta/2+3.1415926/4)/2 ) 
+  ( -1.994 + 2.1*field/0.759638*cos(fieldtheta)/2 ) 
+  (rotateFieldTime/2) 10
+
+daclinspace: leftCoilCurrent 
+  (-0.34799 + 2.1*field/0.885082*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2) 
+  (-0.34799 + 2.1*field/0.885082*sin(fieldtheta)*cos(fieldphi)/2) 
+  (rotateFieldTime/2) 10
+
+daclinspace: rightCoilCurrent 
+  ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) 
+  ( 0.4856 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 ) 
+  (rotateFieldTime/2) 10
+
+daclinspace: frontCoilCurrent 
+  (-0.5318 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
+  (-0.5318 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2) 
+  (rotateFieldTime/2) 10
+
+daclinspace: backCoilCurrent 
+  ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
+  ( 0.551 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2)
+  (rotateFieldTime/2) 10
 
 t += (rotateFieldTime/2+1)
