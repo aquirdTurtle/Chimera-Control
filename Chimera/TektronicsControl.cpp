@@ -8,7 +8,9 @@
 
 TektronicsAfgControl::TektronicsAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
 	: visaFlume(safemode, address), configDelim(configurationFileDelimiter)
-{}
+{
+	
+}
 
 void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
 										   UINT control_id )

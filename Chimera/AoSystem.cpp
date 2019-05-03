@@ -8,6 +8,7 @@
 #include "Thrower.h"
 #include "range.h"
 #include "MainWindow.h"
+#include "CodeTimer.h"
 #include <boost/lexical_cast.hpp>
 
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
@@ -505,6 +506,8 @@ template<class T> using vec = std::vector<T>;
 
 void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings )
 {
+	CodeTimer sTimer;
+	sTimer.tick ( "Ao-Sys-Interpret-Start" );
 	UINT sequenceLength = variables.size( );
 	if ( sequenceLength == 0 )
 	{
@@ -526,16 +529,21 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 																   vec<std::array<vec<double>, 3>>( variations ) );
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
+	sTimer.tick ( "After-init" );
 	for ( auto seqInc : range( sequenceLength ) )
 	{
 		for (auto variationInc : range(variations) )
 		{
+			if ( variationInc == 0 )
+			{
+				sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
+			}
+			auto& seqVariables = variables[ seqInc ];
+			auto& cmdList = dacCommandList[ seqInc ][ variationInc ];
 			for (auto eventInc : range( dacCommandFormList[ seqInc ].size ( ) ) )
 			{
 				AoCommand tempEvent;
 				auto& formList = dacCommandFormList[seqInc][eventInc];
-				auto& seqVariables = variables[seqInc];
-				auto& cmdList = dacCommandList[seqInc][variationInc];
 				tempEvent.line = formList.line;
 				// Deal with time.
 				if ( formList.time.first.size( ) == 0 )
@@ -552,13 +560,27 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					}
 					tempEvent.time = varTime + formList.time.second;
 				}
+				if ( variationInc == 0 )
+				{
+					sTimer.tick ( "Time-Handled" );
+				}
+				/// deal with command
 				if ( formList.commandName == "dac:" )
 				{
 					/// single point.
 					////////////////
 					// deal with value
+
 					tempEvent.value = formList.finalVal.evaluate( seqVariables, variationInc );
+					if ( variationInc == 0 )
+					{
+						sTimer.tick ( "val-evaluated" );
+					}
 					cmdList.push_back( tempEvent );
+					if ( variationInc == 0 )
+					{
+						sTimer.tick ( "Dac:-Handled" );
+					}
 				}
 				else if ( formList.commandName == "dacarange:" )
 				{
@@ -620,6 +642,10 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					tempEvent.value = finalValue;
 					tempEvent.time = initTime + rampTime;
 					cmdList.push_back( tempEvent );
+					if ( variationInc == 0 )
+					{
+						sTimer.tick ( "dacarange:-Handled" );
+					}
 				}
 				else if ( formList.commandName == "daclinspace:" )
 				{
@@ -662,6 +688,10 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					tempEvent.value = finalValue;
 					tempEvent.time = initTime + rampTime;
 					cmdList.push_back( tempEvent );
+					if ( variationInc == 0 )
+					{
+						sTimer.tick ( "daclinspace:-Handled" );
+					}
 				}
 				else
 				{
@@ -670,6 +700,7 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 			}
 		}
 	}
+	errBox ( sTimer.getTimingMessage ( ) );
 }
 
 

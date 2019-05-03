@@ -198,7 +198,7 @@
       </HeapReserveSize>
     </Link>
     <PostBuildEvent>
-      <Command>lib /MACHINE:X64 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)x64\$(Configuration)\*.obj"</Command>
+      <Command>lib /MACHINE:X64 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)x64$(Configuration)\*.obj"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
