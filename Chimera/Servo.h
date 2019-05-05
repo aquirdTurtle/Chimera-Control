@@ -5,6 +5,10 @@
 
 struct servoInfo
 {
+	// in this case the system doesn't try to feed back, it just checks the value. generally should coincide with a 
+	// larger tolerance. 
+	bool monitorOnly = false;
+
 	std::string servoName="";
 	bool active = false;
 	UINT aiInputChannel=0;

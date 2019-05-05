@@ -29,6 +29,7 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 6, "DO-Config", 70 );
 	servoList.InsertColumn ( 7, "Tol.", 40 );
 	servoList.InsertColumn ( 8, "Gain" );
+	servoList.InsertColumn ( 9, "Montor" );
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
@@ -186,7 +187,7 @@ void ServoManager::handleListViewClick ( )
 		{
 			// active, toggles.
 			servo.active = !servo.active;
-			servoList.SetItem ( servo.active ? "Yes" : "No", itemIndicator, 1 );			
+			servoList.SetItem ( servo.active ? "Yes" : "No", itemIndicator, subitem );
 			break;
 		}
 		case 2:
@@ -312,7 +313,12 @@ void ServoManager::handleListViewClick ( )
 			servoList.SetItem ( str ( servo.gain ), itemIndicator, subitem );
 			break;
 		}
-		
+		case 9:
+		{
+			// monitor only toggle
+			servo.monitorOnly = !servo.monitorOnly;
+			servoList.SetItem ( servo.monitorOnly ? "Yes" : "No", itemIndicator, subitem );
+		}
  	}
  	refreshAllServos ( );
 }
@@ -379,6 +385,7 @@ void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
 	servoList.SetItem ( str ( digitalOutConfigString ), which, 6 );
 	servoList.SetItem ( str ( s.tolerance ), which, 7 );
 	servoList.SetItem ( str ( s.gain ), which, 8 );
+	servoList.SetItem ( s.monitorOnly ? "Yes" : "No", which, 9 );
 }
 
 
@@ -442,7 +449,24 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	s.controlValue = globals->getVariableValue( str ( s.servoName + "__servo_value", 13, false, true ) );
 	// start the dac where it was last.
 	ao->setSingleDac ( aoNum, s.controlValue, ttls );
-	
+
+	if ( s.monitorOnly )
+	{
+		double avgVal = ai->getSingleChannelValue ( aiNum, 10 );
+		double percentDif = ( sp - avgVal ) / sp;
+		if ( fabs ( percentDif )  < s.tolerance )
+		{
+			// Value looks good, nothing to report.
+		}
+		else
+		{
+			errBox ( s.servoName + " Monitor: Value has drifted out of tolerance!" );
+		}
+		// And the rest of the function is handling the servo part. 
+		return;
+	}
+
+
 	while ( count++ < attemptLimit )
 	{
 		double avgVal = ai->getSingleChannelValue(aiNum, 10);
@@ -502,6 +526,8 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), dacVal );
 	}
 }
+
+
 
 
 void ServoManager::setControlDisplay (UINT which, double value )
