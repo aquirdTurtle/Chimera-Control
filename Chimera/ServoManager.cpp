@@ -353,6 +353,10 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 	{
 		configStream >> tmpInfo.tolerance >> tmpInfo.gain;
 	}
+	if ( version > Version ( "2.5" ) )
+	{
+		configStream >> tmpInfo.monitorOnly;
+	}
 	return tmpInfo;
 }
 
@@ -397,7 +401,7 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 	{
 		configStream << DioRows::toStr(ttl.first) << " " << str(ttl.second) << " ";
 	}
-	configStream << servo.tolerance << " " << servo.gain << "\n";
+	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << "\n";
 }
 
 

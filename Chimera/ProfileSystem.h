@@ -107,7 +107,7 @@ class ProfileSystem
 		// version = str(versionMain) + "." + str(versionSub)
 		// version 3.6: rerngMode added instead of various bools
 		// Version 3.7: stop reporting initial ttl and dac values in configs.
-		// Version 4.0 changed the way I read in data for different controls. Each control re-opens the file and scans 
+		// Version 4.0: changed the way I read in data for different controls. Each control re-opens the file and scans 
 		// untill it finds the appropriate section for it to read. Makes it so that if one thing fails, everything 
 		// afterwards doesn't also fail.
 		const Version version = Version( "4.0" );  
