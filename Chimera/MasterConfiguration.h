@@ -21,6 +21,7 @@ class MasterConfiguration
 		void load(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin);
 	private:
 		const std::string configurationFileAddress;
-		const Version version = Version("2.5");
+		// version 2.6: Added servo monitor-only option
+		const Version version = Version("2.6");
 };
 
