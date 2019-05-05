@@ -233,8 +233,8 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -0.1
-sidemot__servo_value 0.1
-diagmot__servo_value 0.279068
+sidemot__servo_value 0.0983909
+diagmot__servo_value 0.278612
 default795freq 0
 d1__servo_value 0.3
 1

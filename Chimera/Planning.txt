@@ -91,7 +91,6 @@ BUGS:
 - Should only require calibration files if F5, not if only camera starts e.g.
 - err boxes don't grab focus of entire program
 - should not be able to load agilent script if not in scripting mode.
-- servos failing quietly...
 - should be able to change basler image dimensions edits while running
 - basler fails silently sometimes if issues with binning or dims
 - constant beeping if no mot and continuous freezes things basler
