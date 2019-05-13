@@ -49,7 +49,7 @@ class Agilent
 		void handleOpenConfig( std::ifstream& file, Version ver );
 		//void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
 		void convertInputToFinalSettings( UINT chan, std::vector<parameterType>& variables = std::vector<parameterType> ( ),
-										  UINT variation = -1 );
+										  UINT variation = 0 );
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
@@ -58,7 +58,6 @@ class Agilent
 		void setAgilent();
 		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
 			std::vector<parameterType>& variables);
-		void handleNoVariations( scriptedArbInfo& scriptInfo, UINT channel );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
@@ -74,10 +73,14 @@ class Agilent
 		const agilentSettings initSettings;
 		minMaxDoublet chan2Range;
 		VisaFlume visaFlume;
+		
 		const double sampleRate;
+		/*
 		const std::string load;
 		const std::string filterState;
+		*/
 		const std::string memoryLoc;
+		
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
 		bool isConnected;

@@ -1031,7 +1031,6 @@ namespace commonFunctions
 		scriptWindow->EndDialog ( 0 );
 		mainWin->EndDialog ( 0 );
 		PostQuitMessage ( 1 );
-
 	}
 
 

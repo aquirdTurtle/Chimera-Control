@@ -998,6 +998,7 @@ void DataLogger::writeAttribute( bool data, std::string name, H5::DataSet& dset 
 	}
 }
 
+
 /* As of right now just append all the strings and insert a newline between. There should be a nice way of doing this.*/
 H5::DataSet DataLogger::writeDataSet ( std::vector<std::string> dataVec, std::string name, H5::Group& group )
 {
@@ -1008,3 +1009,4 @@ H5::DataSet DataLogger::writeDataSet ( std::vector<std::string> dataVec, std::st
 	}
 	return writeDataSet ( superString, name, group );
 }
+
