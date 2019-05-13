@@ -687,12 +687,13 @@ void BaslerWindow::initializeControls()
 	POINT dims = cameraController->getCameraDimensions();
 
 	// scale to fill the window (approximately).
-	dims.x *= 1.7;
-	dims.y *= 1.7;
+	dims.x *= 1.65;
+	dims.y *= 1.65;
 
 	CDC* cdc = GetDC( );
 	
 	picManager.initialize ( picPos, this, id, _myBrushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
+						   { IDC_MIN_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, NULL,NULL,NULL,NULL,NULL,NULL},
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );
 	picManager.setPalletes ( { 1,1,1,1 } );
