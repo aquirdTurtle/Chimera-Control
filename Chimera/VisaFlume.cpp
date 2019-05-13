@@ -168,13 +168,65 @@ void VisaFlume::errCheck( long status )
 	errCheck( status, "" );
 }
 
+
+std::string VisaFlume::openErrMsg ( long status )
+{
+	switch ( status )
+	{
+		case VI_SUCCESS:
+			return "VI_SUCCESS: Session opened successfully.";
+		case VI_SUCCESS_DEV_NPRESENT:
+			return "VI_SUCCESS_DEV_NPRESENT: Session opened successfully, but the device at the specified address is "
+				"not responding.";
+		case VI_WARN_CONFIG_NLOADED:
+			return "VI_WARN_CONFIG_NLOADED: The specified configuration either does not exist or could not be loaded; "
+				"using VISA-specified defaults.";
+		case VI_ERROR_INV_OBJECT:
+			return "VI_ERROR_INV_OBJECT: The given session reference is invalid.";
+		case VI_ERROR_NSUP_OPER:
+			return "VI_ERROR_NSUP_OPER: The given sesn does not support this operation. This operation is supported "
+				"only by a Resource Manager session.";
+		case VI_ERROR_INV_RSRC_NAME:
+			return "VI_ERROR_INV_RSRC_NAME: Invalid resource reference specified. Parsing error.";
+		case VI_ERROR_INV_ACC_MODE:
+			return "VI_ERROR_INV_ACC_MODE: Invalid access mode.";
+		case VI_ERROR_RSRC_NFOUND:
+			return "VI_ERROR_RSRC_NFOUND: Insufficient location information or resource not present in the system.";
+		case VI_ERROR_ALLOC:
+			return "VI_ERROR_ALLOC: Insufficient system resources to open a session.";
+		case VI_ERROR_RSRC_BUSY:
+			return "VI_ERROR_RSRC_BUSY: The resource is valid, but VISA cannot currently access it.";
+		case VI_ERROR_RSRC_LOCKED:
+			return "VI_ERROR_RSRC_LOCKED: Specified type of lock cannot be obtained because the resource is already "
+				"locked with a lock type incompatible with the lock requested.";
+		case VI_ERROR_TMO:
+			return "VI_ERROR_TMO: A session to the resource could not be obtained within the specified openTimeout period.";
+		case VI_ERROR_LIBRARY_NFOUND:
+			return "VI_ERROR_LIBRARY_NFOUND: A code library required by VISA could not be located or loaded.";
+		case VI_ERROR_INTF_NUM_NCONFIG:
+			return "VI_ERROR_INTF_NUM_NCONFIG: The interface type is valid, but the specified interface number is not"
+				" configured.";
+//		case VI_ERROR_MACHINE_NAVAIL:
+//			return "VI_ERROR_MACHINE_NAVAIL: The remote machine does not exist or is not accepting any connections. "
+//				"If the NI-VISA server is installed and running on the remote machine, it may have an incompatible "
+//				"version or may be listening on a different port.";
+		case VI_ERROR_NPERMISSION:
+			return "VI_ERROR_NPERMISSION: Access to the remote machine is denied.";
+		default:
+			return "Error Code Not found???";
+	}
+}
+
+
 void VisaFlume::errCheck( long status, std::string msg )
 {
+
 	long errorCode = 0;
 	// Check comm status
 	if (status < 0)
 	{
-		std::string throwerMsg = "ERROR: VisaFlume Communication error! Error Code: " + str( status ) + "\r\n";
+		std::string throwerMsg = "VisaFlume Communication error! (Is the device connected?) Error Code: " 
+			+ str( status ) + ": " + openErrMsg(status) + "\r\n";
 		if ( msg != "" )
 		{
 			// Error detected.
@@ -188,7 +240,7 @@ void VisaFlume::errCheck( long status, std::string msg )
 	errQuery( errMessage, errorCode );
 	if (errorCode != 0)
 	{
-		std::string throwerMsg = "ERROR: visa returned error message: " + str( errorCode ) + ":" + errMessage;
+		std::string throwerMsg = "Visa returned error message: " + str( errorCode ) + ":" + errMessage;
 		if ( msg != "" )
 		{
 			// Error detected.

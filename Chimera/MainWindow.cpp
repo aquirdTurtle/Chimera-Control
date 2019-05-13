@@ -498,6 +498,7 @@ BOOL MainWindow::OnInitDialog( )
 	catch ( Error& err )
 	{
 		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace( ) );
+		forceExit ( );
 		return -1;
 	}
 	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
@@ -515,7 +516,9 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& err )
 	{
-		errBox( err.trace( ) );
+		errBox( "FATAL ERROR: Failed to create window! " + err.trace( ) );
+		forceExit ( );
+		return -1;
 	}
 	/// initialize main window controls.
 	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
@@ -799,8 +802,18 @@ void MainWindow::passClear(UINT id)
 }
 
 
+void MainWindow::forceExit ( )
+{
+	// this closes the program without prompting the user for saving things. Most used for a failed program 
+	// initialization.
+	passCommonCommand ( ID_FORCE_EXIT );
+}
+
+
 void MainWindow::OnCancel()
 {
+	// the standard exit when e.g. the user hit's the X button. Prompts the user to save things and leave things in a 
+	// good state.
 	passCommonCommand(ID_FILE_MY_EXIT);
 }
 
@@ -1437,7 +1450,7 @@ void MainWindow::onNormalFinishMessage()
 	}
 	catch ( Error& except )
 	{
-		comm.sendError( "ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
+		comm.sendError( "The niawg finished normally, but upon restarting the default waveform, threw the "
 						"following error: " + except.trace( ) );
 		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );

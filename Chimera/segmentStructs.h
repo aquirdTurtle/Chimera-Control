@@ -5,13 +5,14 @@
 #include <string>
 #include "windows.h"
 
+
 struct rampFormat
 {
 	bool isRamp = false;
 	std::string type;
 	Expression start;
 	Expression end;
-};;
+};
 
 
 struct rampData
@@ -20,7 +21,7 @@ struct rampData
 	std::string type;
 	double start = 0;
 	double end = 0;
-};;
+};
 
 
 // short for modulation
@@ -31,7 +32,7 @@ struct modFormat
 	Expression frequency;
 	// in radians
 	Expression phase;
-};;
+};
 
 
 struct modData
@@ -41,7 +42,7 @@ struct modData
 	double frequency = 0;
 	// in radians
 	double phase = 0;
-};;
+};
 
 
 struct pulseFormat

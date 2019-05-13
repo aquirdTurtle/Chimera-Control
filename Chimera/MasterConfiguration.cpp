@@ -45,7 +45,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 	configFile.open(cstr(configurationFileAddress), std::ios::out);
 	if (!configFile.is_open())
 	{
-		thrower ( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
+		thrower ( "Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
 				" location " + configurationFileAddress );
 	}
 	std::stringstream configStream;
@@ -76,7 +76,7 @@ void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 	configFile.open(cstr(configurationFileAddress), std::ios::in);
 	if (!configFile.is_open())
 	{
-		thrower ("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
+		thrower ("Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
 	}
 	std::stringstream configStream;
 	configStream << configFile.rdbuf();

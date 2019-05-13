@@ -22,7 +22,7 @@ class ScriptedAgilentWaveform
 		bool isVaried();
 		void replaceVarValues();
 		void replaceVarValues( UINT variation, std::vector<parameterType>& variables);
-		void convertPowersToVoltages( bool useCal );
+		void convertPowersToVoltages( bool useCal, std::vector<double> calibCoeff );
 		void normalizeVoltages();
 		void calcMinMax();
 		double getMaxVolt();
