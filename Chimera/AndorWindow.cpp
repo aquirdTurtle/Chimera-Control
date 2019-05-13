@@ -1511,28 +1511,32 @@ cToolTips AndorWindow::getToolTips()
 }
 
 
-BOOL AndorWindow::OnInitDialog()
+BOOL AndorWindow::OnInitDialog ( )
 {
 	SetWindowText ( "Andor Camera Control" );
 	// don't redraw until the first OnSize.
-	SetRedraw( false );
-	Andor.initializeClass( mainWin->getComm(), &imageTimes );
+	SetRedraw ( false );
+	Andor.initializeClass ( mainWin->getComm ( ), &imageTimes );
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
 	positions.sPos = { 0, 0 };
-	box.initialize( positions.sPos, id, this, 480, tooltips );
+	box.initialize ( positions.sPos, id, this, 480, tooltips );
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
-	alerts.alertMainThread( 0 );
-	alerts.initialize( positions, this, false, id, tooltips );
-	analysisHandler.initialize( positions, id, this, tooltips, false );
-	CameraSettings.initialize( positions, id, this, tooltips );
+	alerts.alertMainThread ( 0 );
+	alerts.initialize ( positions, this, false, id, tooltips );
+	analysisHandler.initialize ( positions, id, this, tooltips, false );
+	CameraSettings.initialize ( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
-	stats.initialize( position, this, id, tooltips );
+	stats.initialize ( position, this, id, tooltips );
 	positions.sPos = { 797, 0 };
-	timer.initialize( positions, this, false, id, tooltips );
+	timer.initialize ( positions, this, false, id, tooltips );
 	position = { 797, 40 };
-	pics.initialize( position, this, id, _myBrushes["Dark Green"], 550 * 2, 460 * 2 + 5 );
+	pics.initialize ( position, this, id, _myBrushes[ "Dark Green" ], 550 * 2, 460 * 2 + 5, 
+					 { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT,
+					   IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT,
+					   IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT, 
+					   IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
