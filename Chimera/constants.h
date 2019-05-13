@@ -40,9 +40,10 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE true
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define UWAVE_SAFEMODE true
-	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define UWAVE_SAFEMODE false
+	//#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define UWAVE_AGILENT_USB_ADDRESS "USB0::2391::11271::MY52801397::0::INSTR"
+
 	#define MASTER_REPUMP_SCOPE_SAFEMODE true
 	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE true
@@ -91,7 +92,6 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE true
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define UWAVE_SAFEMODE true
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MASTER_REPUMP_SCOPE_SAFEMODE true
@@ -297,6 +297,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_REPETITION_EDIT 10023
 #define IDC_ENTER_EMAIL_INFO 10024
 #define IDC_RERNG_EXPERIMENT_BUTTON 10025
+#define ID_FORCE_EXIT 10026
 // Scripting Window
 #define IDC_NIAWG_FUNCTION_COMBO 12003
 #define IDC_NIAWG_EDIT 12004
@@ -468,6 +469,9 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 												// the internal 64MB Memory buffer or to an external USB drive, which
 												// can (obviously) have much more space.f
 												"INT",
+												// device name (just a convenience, so that the class instance knows 
+												// which device it is
+												"UWave",
 												// various control IDs (no need to change)
 												 IDC_UWAVE_CHANNEL1_BUTTON, IDC_UWAVE_CHANNEL2_BUTTON, 
 												 IDC_UWAVE_SYNC_BUTTON, IDC_UWAVE_AGILENT_COMBO,
@@ -476,10 +480,13 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 												 UWAVE_AGILENT_TRIGGER_ROW, UWAVE_AGILENT_TRIGGER_NUM,
 												 // Configuration file delimiter, used for saving settings for this 
 												 // agilent.
-												"MICROWAVE_AGILENT_AWG"};
+												"MICROWAVE_AGILENT_AWG",
+												// Calibration coefficients
+												std::vector<double>( { } )
+};
 
 const agilentSettings TOP_BOTTOM_AGILENT_SETTINGS = { TOP_BOTTOM_AGILENT_SAFEMODE, TOP_BOTTOM_AGILENT_USB_ADDRESS,
-													  1e6, "INF", "NORMal", "INT",
+													  1e6, "INF", "NORMal", "INT", "Top_Bottom",
 													  IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_TOP_BOTTOM_CHANNEL2_BUTTON,
 													  IDC_TOP_BOTTOM_SYNC_BUTTON, IDC_TOP_BOTTOM_AGILENT_COMBO,
 													  IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT, 
@@ -488,31 +495,34 @@ const agilentSettings TOP_BOTTOM_AGILENT_SETTINGS = { TOP_BOTTOM_AGILENT_SAFEMOD
 													  "TOP_BOTTOM_AGILENT_AWG" };
 
 const agilentSettings AXIAL_AGILENT_SETTINGS = { AXIAL_AGILENT_SAFEMODE, AXIAL_AGILENT_USB_ADDRESS,
-												 1e6, "INF", "NORMal", "INT",
+												 1e6, "INF", "NORMal", "INT", "Axial",
 												 IDC_AXIAL_CHANNEL1_BUTTON, IDC_AXIAL_CHANNEL2_BUTTON,
 												 IDC_AXIAL_SYNC_BUTTON, IDC_AXIAL_AGILENT_COMBO,
 												 IDC_AXIAL_FUNCTION_COMBO, IDC_AXIAL_EDIT, IDC_AXIAL_PROGRAM,
 												 IDC_AXIAL_CALIBRATION_BUTTON,
 												 AXIAL_AGILENT_TRIGGER_ROW, AXIAL_AGILENT_TRIGGER_NUM,
-												 "AXIAL_AGILENT_AWG" };
+												 "AXIAL_AGILENT_AWG", std::vector<double> ( { } ) 
+};
 
 const agilentSettings FLASHING_AGILENT_SETTINGS = { FLASHING_SAFEMODE, FLASHING_AGILENT_USB_ADDRESS,
-													1e6, "INF", "NORMal", "INT",
+													1e6, "INF", "NORMal", "INT", "Flashing",
 													IDC_FLASHING_CHANNEL1_BUTTON, IDC_FLASHING_CHANNEL2_BUTTON,
 													IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_AGILENT_COMBO,
 													IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT, 
 													IDC_FLASHING_PROGRAM, IDC_FLASHING_CALIBRATION_BUTTON,
 													FLASHING_AGILENT_TRIGGER_ROW, FLASHING_AGILENT_TRIGGER_NUM,
-													"FLASHING_AGILENT_AWG" };
+													"FLASHING_AGILENT_AWG", std::vector<double> ( { } ) 
+};
 
 const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
-													 1e6, "INF", "NORMal", "USB",
+													 1e6, "INF", "NORMal", "USB", "Intensity",
 													 IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
 													 IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
 													 IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
 													 IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
 													 INTENSITY_AGILENT_TRIGGER_ROW, INTENSITY_AGILENT_TRIGGER_NUM,
-													 "INTENSITY_AGILENT_AWG" };
+													 "INTENSITY_AGILENT_AWG", std::vector<double> ( { } ) 
+};
 
 // plot designer
 #define IDC_GENERAL_PLOT_TYPE 15008

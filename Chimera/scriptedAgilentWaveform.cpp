@@ -100,7 +100,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			{
 				return true;
 			}
-			thrower ( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
+			thrower ( "Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
 		}
 	}
 	catch ( Error& )
@@ -127,7 +127,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	if (delimiter != "#")
 	{
 		// input number mismatch.
-		thrower ( "ERROR: The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
+		thrower ( "The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
 				 + ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'. "
 				 "This indicates that either the code is not interpreting the user input incorrectly or that the user "
 				 "has inputted too many parameters for this type of Segment. Use of \"Repeat\" without the number of "
@@ -191,7 +191,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	tempSegmentInfoString = "sequence" + str( sequenceNum ) + ",";
 	if (totalSegNum == 0)
 	{
-		thrower ("ERROR: No segments in agilent waveform???\r\n");
+		thrower ("No segments in agilent waveform???\r\n");
 	}
 	for (int segNumInc = 0; segNumInc < totalSegNum; segNumInc++)
 	{
@@ -298,7 +298,7 @@ ULONG ScriptedAgilentWaveform::getNumTrigs( )
  * that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the
  * data string.
  */
-void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal)
+void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<double> calibCoeff)
 {
 
 	// for each part of the waveform returnDataSize
@@ -312,7 +312,7 @@ void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal)
 			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
 			// setPoint = a * power + b
 			//double newValue = -a * log(y * b);
-			double setPointinVolts = Agilent::convertPowerToSetPoint(power, useCal);
+			double setPointinVolts = Agilent::convertPowerToSetPoint(power, useCal, calibCoeff );
 			waveformSegments[segmentInc].assignDataVal( dataConvertInc, setPointinVolts);
 		}
 	}

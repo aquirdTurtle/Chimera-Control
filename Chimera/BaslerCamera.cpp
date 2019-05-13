@@ -722,7 +722,7 @@ int BaslerWrapper::getCurrentOffsetX()
 	{
 		return OffsetX.GetValue();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get current x offset" );
 	}
@@ -754,7 +754,7 @@ void BaslerWrapper::setPixelFormat( cameraParams::PixelFormatEnums pixelFormat)
 		{
 			PixelFormat.SetValue( pixelFormat );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set pixel format." );
 		}
@@ -769,7 +769,7 @@ void BaslerWrapper::setGainMode( std::string mode )
 		{
 			GainAuto.FromString( mode.c_str() );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set gain mode." );
 		}

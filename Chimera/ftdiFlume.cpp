@@ -52,7 +52,7 @@ std::string ftdiFlume::getErrorText( int errCode )
 	case 18: return "FT_OTHER_ERROR";
 	case 19: return "FT_DEVICE_LIST_NOT_READY";
 	}
-	return "ERROR: ERROR CODE NOT RECOGNIZED!";
+	return "ERROR CODE NOT RECOGNIZED!";
 }
 
 
