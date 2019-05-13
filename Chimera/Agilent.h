@@ -49,7 +49,7 @@ class Agilent
 		void handleOpenConfig( std::ifstream& file, Version ver );
 		//void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
 		void convertInputToFinalSettings( UINT chan, std::vector<parameterType>& variables = std::vector<parameterType> ( ),
-										  UINT variation = -1 );
+										  UINT variation = 0 );
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
@@ -58,15 +58,14 @@ class Agilent
 		void setAgilent();
 		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
 			std::vector<parameterType>& variables);
-		void handleNoVariations( scriptedArbInfo& scriptInfo, UINT channel );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
-		static double convertPowerToSetPoint(double power, bool conversionOption );
+		static double convertPowerToSetPoint(double power, bool conversionOption, std::vector<double> calibCoeff );
 		std::pair<UINT, UINT> getTriggerLine( );
-		
+		void programSetupCommands ( );
 		const std::string configDelim;
-
+		std::vector<std::string> getStartupCommands ( );
 	private:
 		// not that important, just used to check that number of triggers in script matches number in agilent.
 		const UINT triggerRow;
@@ -74,16 +73,20 @@ class Agilent
 		const agilentSettings initSettings;
 		minMaxDoublet chan2Range;
 		VisaFlume visaFlume;
+		
 		const double sampleRate;
+		/*
 		const std::string load;
 		const std::string filterState;
+		*/
 		const std::string memoryLoc;
+		
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
 		bool isConnected;
 		int currentChannel;
 		std::string deviceInfo;
-		std::vector<minMaxDoublet> ranges;		
+		std::vector<minMaxDoublet> ranges;
 		deviceOutputInfo settings;
 		// GUI ELEMENTS
 		Control<CStatic> header;
@@ -95,6 +98,15 @@ class Agilent
 		Control<CComboBox> settingCombo;
 		Control<CStatic> optionsFormat;
 		Control<CleanButton> programNow;
+		const std::string agilentName;
+		// includes burst commands, trigger commands, etc. This is a place for any commands which don't have a 
+		// GUI control option. You could also use this to put commands that should be the same for all configurations.
+		const std::vector<std::string> setupCommands;
+		/* a list of polynomial coefficients for the calibration.
+		auto& cc = calibrationCoefficients
+		Volt = cc[0] + c[1]*sp + c[2]*sp^2 + ...
+		*/
+		const std::vector<double> calibrationCoefficients;
 };
 
 

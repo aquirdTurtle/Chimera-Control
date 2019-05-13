@@ -53,6 +53,7 @@ class MainWindow : public CDialog
 		void OnSize(UINT nType, int cx, int cy);
 		void OnClose();
 		void catchEnter( );
+		void forceExit ( );
 		void OnCancel() override;
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 

@@ -101,6 +101,11 @@ namespace commonFunctions
 				}
 				break;
 			}
+			case ID_FORCE_EXIT:
+			{
+				forceExit ( scriptWin, mainWin, camWin, auxWin );
+				break;
+			}
 			case ID_FILE_RUN_EVERYTHING:
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
@@ -1009,6 +1014,26 @@ namespace commonFunctions
 	}
 
 
+	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
+	{
+		/// Exiting
+		// Close the NIAWG normally.
+		try
+		{
+			mainWin->stopNiawg ( );
+		}
+		catch ( Error& except )
+		{
+			errBox ( "The NIAWG did not exit smoothly. : " + except.trace ( ) );
+		}
+		auxWin->EndDialog ( 0 );
+		camWin->EndDialog ( 0 );
+		scriptWindow->EndDialog ( 0 );
+		mainWin->EndDialog ( 0 );
+		PostQuitMessage ( 1 );
+	}
+
+
 	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
 	{
 		if (mainWin->niawgIsRunning())
@@ -1032,21 +1057,7 @@ namespace commonFunctions
 		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
 		if (areYouSure == IDOK)
 		{
-			/// Exiting
-			// Close the NIAWG normally.
-			try
-			{
-				mainWin->stopNiawg( );
-			}
-			catch ( Error& except )
-			{
-				errBox( "The NIAWG did not exit smoothly. : " + except.trace( ) );
-			}			
-			auxWin->EndDialog( 0 );
-			camWin->EndDialog( 0 );
-			scriptWindow->EndDialog( 0 );
-			mainWin->EndDialog( 0 );
-			PostQuitMessage( 1 );
+			forceExit ( scriptWindow, mainWin, camWin, auxWin );
 		}
 	}
 

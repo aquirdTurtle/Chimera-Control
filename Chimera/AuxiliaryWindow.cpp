@@ -15,6 +15,7 @@
 #include "Thrower.h"
 #include "range.h"
 #include <boost/lexical_cast.hpp>
+#include "AgilentSettings.h"
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"), 
@@ -896,6 +897,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 	// sync is just a check, no handling needed.
 	else if (id % 7 == 6)
 	{
+		// program now
 		try
 		{
 			agilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
@@ -923,7 +925,7 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	}
 	catch ( Error& err )
 	{
-		sendErr( "ERROR: error while handling agilent combo change: " + err.trace( ) );
+		sendErr( "Error while handling agilent combo change: " + err.trace( ) );
 	}
 }
 
@@ -994,7 +996,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 		{
 			configVars = ParameterSystem::getConfigParamsFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
 		}
-		catch ( Error& err )
+		catch ( Error& )
 		{
 			throwNested ( "Error seen while loading mot temperature settings" );
 		}
@@ -1271,7 +1273,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 
 		if (varNum < 0 || varNum > 1000)
 		{
-			int answer = promptBox("ERROR: variable number retrieved from file appears suspicious. The number is "
+			int answer = promptBox("Variable number retrieved from file appears suspicious. The number is "
 									+ str(varNum) + ". Is this accurate?", MB_YESNO);
 			if (answer == IDNO)
 			{
@@ -1598,9 +1600,10 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			controlLocation.y += ttlPlotSize;
 		}
 	}
-	catch (Error& exeption)
+	catch (Error& )
 	{
-		errBox( exeption.trace() );
+		throwNested( "FATAL ERROR: Failed to initialize Auxiliary window properly!" );
+		
 	}
 	SetTimer( 1, 10000, NULL );
 	SetTimer( 2, 1000, NULL );

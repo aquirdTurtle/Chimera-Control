@@ -13,7 +13,7 @@
 #include "MainWindow.h"
 #include "Agilent.h"
 #include "Thrower.h"
-
+#include "AgilentSettings.h"
 
 ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent( INTENSITY_AGILENT_SETTINGS )
 {}

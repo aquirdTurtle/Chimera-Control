@@ -493,7 +493,7 @@ int BaslerWrapper::getMaxWidth()
 	{
 		return OffsetX.GetMax();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException& )
 	{
 		throwNested( "failed to Get maximum width" );
 	}
@@ -591,7 +591,7 @@ void BaslerWrapper::setHeight( int height )
 		{	
 			Height.SetValue( height );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException& )
 		{
 			throwNested( "Failed to set height" );
 		}
@@ -607,7 +607,7 @@ void BaslerWrapper::setHorBin( int binning )
 		{
 			BinningHorizontal.SetValue( binning );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException& )
 		{
 			throwNested( "Failed to set horizontal binning " );
 		}
@@ -705,7 +705,7 @@ int BaslerWrapper::getCurrentWidth()
 	{
 		return Width.GetValue();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException& )
 	{
 		throwNested( "Failed to get current width" );
 	}
@@ -722,7 +722,7 @@ int BaslerWrapper::getCurrentOffsetX()
 	{
 		return OffsetX.GetValue();
 	}
-	catch (Pylon::GenericException& err)
+	catch (Pylon::GenericException&)
 	{
 		throwNested( "Failed to get current x offset" );
 	}
@@ -754,7 +754,7 @@ void BaslerWrapper::setPixelFormat( cameraParams::PixelFormatEnums pixelFormat)
 		{
 			PixelFormat.SetValue( pixelFormat );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set pixel format." );
 		}
@@ -769,7 +769,7 @@ void BaslerWrapper::setGainMode( std::string mode )
 		{
 			GainAuto.FromString( mode.c_str() );
 		}
-		catch (Pylon::GenericException& err)
+		catch (Pylon::GenericException&)
 		{
 			throwNested( "Failed to set gain mode." );
 		}

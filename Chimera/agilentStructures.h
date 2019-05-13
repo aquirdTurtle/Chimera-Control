@@ -14,11 +14,11 @@ struct agilentSettings
 {
 	bool safemode;
 	std::string address;
-	ULONG sampleRate;
-	std::string outputImpedance;
-	std::string filterState;
+	UINT sampleRate;
 	// "INT" or "USB"
 	std::string memoryLocation;
+	std::string deviceName;
+
 	// button ids.
 	ULONG chan1ButtonId;
 	ULONG chan2ButtonId;
@@ -28,10 +28,13 @@ struct agilentSettings
 	ULONG editId;
 	ULONG programButtonId;
 	ULONG calibrationButtonId;
-
+	
 	ULONG triggerRow;
 	ULONG triggerNumber;
 	std::string configurationFileDelimiter;
+
+	std::vector<double> calibrationCoeff;
+	std::vector<std::string> setupCommands;
 };
 
 struct minMaxDoublet

@@ -40,9 +40,10 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE true
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define UWAVE_SAFEMODE true
-	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define UWAVE_SAFEMODE false
+	//#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define UWAVE_AGILENT_USB_ADDRESS "USB0::2391::11271::MY52801397::0::INSTR"
+
 	#define MASTER_REPUMP_SCOPE_SAFEMODE true
 	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE true
@@ -91,7 +92,6 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE true
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define UWAVE_SAFEMODE true
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MASTER_REPUMP_SCOPE_SAFEMODE true
@@ -297,6 +297,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_REPETITION_EDIT 10023
 #define IDC_ENTER_EMAIL_INFO 10024
 #define IDC_RERNG_EXPERIMENT_BUTTON 10025
+#define ID_FORCE_EXIT 10026
 // Scripting Window
 #define IDC_NIAWG_FUNCTION_COMBO 12003
 #define IDC_NIAWG_EDIT 12004
@@ -451,69 +452,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define INTENSITY_AGILENT_TRIGGER_ROW 1
 #define INTENSITY_AGILENT_TRIGGER_NUM 6
 
-
-const agilentSettings UWAVE_AGILENT_SETTINGS = { 
-												// safemode option											
-												UWAVE_SAFEMODE, 
-												// usb address
-												UWAVE_AGILENT_USB_ADDRESS,
-												// sample rate (Hz)
-												10e6, 
-												// impedance (ohms, or inf)
-												"50", 
-												// the output filter state (controls rounding & overshoot issues 
-												// between samples)
-												"NORMal",
-												// Memory location, whether the device will save waveforms to 
-												// the internal 64MB Memory buffer or to an external USB drive, which
-												// can (obviously) have much more space.f
-												"INT",
-												// various control IDs (no need to change)
-												 IDC_UWAVE_CHANNEL1_BUTTON, IDC_UWAVE_CHANNEL2_BUTTON, 
-												 IDC_UWAVE_SYNC_BUTTON, IDC_UWAVE_AGILENT_COMBO,
-												 IDC_UWAVE_FUNCTION_COMBO, IDC_UWAVE_EDIT, IDC_UWAVE_PROGRAM, 
-												 IDC_UWAVE_CALIBRATION_BUTTON,
-												 UWAVE_AGILENT_TRIGGER_ROW, UWAVE_AGILENT_TRIGGER_NUM,
-												 // Configuration file delimiter, used for saving settings for this 
-												 // agilent.
-												"MICROWAVE_AGILENT_AWG"};
-
-const agilentSettings TOP_BOTTOM_AGILENT_SETTINGS = { TOP_BOTTOM_AGILENT_SAFEMODE, TOP_BOTTOM_AGILENT_USB_ADDRESS,
-													  1e6, "INF", "NORMal", "INT",
-													  IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_TOP_BOTTOM_CHANNEL2_BUTTON,
-													  IDC_TOP_BOTTOM_SYNC_BUTTON, IDC_TOP_BOTTOM_AGILENT_COMBO,
-													  IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT, 
-													  IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_CALIBRATION_BUTTON,
-													  TOP_BOTTOM_AGILENT_TRIGGER_ROW, TOP_BOTTOM_AGILENT_TRIGGER_NUM,
-													  "TOP_BOTTOM_AGILENT_AWG" };
-
-const agilentSettings AXIAL_AGILENT_SETTINGS = { AXIAL_AGILENT_SAFEMODE, AXIAL_AGILENT_USB_ADDRESS,
-												 1e6, "INF", "NORMal", "INT",
-												 IDC_AXIAL_CHANNEL1_BUTTON, IDC_AXIAL_CHANNEL2_BUTTON,
-												 IDC_AXIAL_SYNC_BUTTON, IDC_AXIAL_AGILENT_COMBO,
-												 IDC_AXIAL_FUNCTION_COMBO, IDC_AXIAL_EDIT, IDC_AXIAL_PROGRAM,
-												 IDC_AXIAL_CALIBRATION_BUTTON,
-												 AXIAL_AGILENT_TRIGGER_ROW, AXIAL_AGILENT_TRIGGER_NUM,
-												 "AXIAL_AGILENT_AWG" };
-
-const agilentSettings FLASHING_AGILENT_SETTINGS = { FLASHING_SAFEMODE, FLASHING_AGILENT_USB_ADDRESS,
-													1e6, "INF", "NORMal", "INT",
-													IDC_FLASHING_CHANNEL1_BUTTON, IDC_FLASHING_CHANNEL2_BUTTON,
-													IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_AGILENT_COMBO,
-													IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT, 
-													IDC_FLASHING_PROGRAM, IDC_FLASHING_CALIBRATION_BUTTON,
-													FLASHING_AGILENT_TRIGGER_ROW, FLASHING_AGILENT_TRIGGER_NUM,
-													"FLASHING_AGILENT_AWG" };
-
-const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
-													 1e6, "INF", "NORMal", "USB",
-													 IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
-													 IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
-													 IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
-													 IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
-													 INTENSITY_AGILENT_TRIGGER_ROW, INTENSITY_AGILENT_TRIGGER_NUM,
-													 "INTENSITY_AGILENT_AWG" };
-
 // plot designer
 #define IDC_GENERAL_PLOT_TYPE 15008
 #define IDC_PLOT_CREATOR_DATASET_COMBO 15010
@@ -559,7 +497,6 @@ const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSI
 // and large-aperture AOMs. Current Value: 5
 const float MAX_GAIN = 5.0; // Current Value: 5
 							// Current Value: 5
-
 
 // help text
 const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
