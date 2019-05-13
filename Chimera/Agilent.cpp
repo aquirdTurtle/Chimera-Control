@@ -19,8 +19,6 @@
 Agilent::Agilent( const agilentSettings& settings ) : 
 	visaFlume( settings.safemode, settings.address ),
 	sampleRate( settings.sampleRate ),
-	load( settings.outputImpedance ),
-	filterState( settings.filterState ),
 	initSettings( settings ),
 	triggerRow(settings.triggerRow ), 
 	triggerNumber( settings.triggerNumber ),
@@ -856,8 +854,6 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 	visaFlume.write( sStr + ":FUNC ARB" );
 	// tell it what arb it's outputting.
 	visaFlume.write( sStr + ":FUNC:ARB \"" + memoryLoc + ":\\" + info.address + "\"" );
-	// Set output impedance...
-	visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + load );
 	// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
 	visaFlume.write( sStr + ":BURST::MODE TRIGGERED" );
 	visaFlume.write( sStr + ":BURST::NCYCLES 1" );
@@ -899,11 +895,8 @@ void Agilent::prepAgilentSettings(UINT channel)
 	}
 	// Set timout, sample rate, filter parameters, trigger settings.
 	visaFlume.setAttribute( VI_ATTR_TMO_VALUE, 40000 );	
-	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB:FILTER " + filterState );
-	visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB:SRATE " + str( sampleRate ) );
-	visaFlume.write( "TRIGGER" + str( channel ) + ":SOURCE EXTERNAL" );
-	visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
-	visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + load );
+	visaFlume.write ( "SOURCE1:FUNC:ARB:SRATE " + str ( sampleRate ) );
+	visaFlume.write ( "SOURCE2:FUNC:ARB:SRATE " + str ( sampleRate ) );
 }
 
 
@@ -959,48 +952,8 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	}	
 }
-void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
-{
-	prepAgilentSettings(channel);
-	UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber();
-	scriptInfo.wave.replaceVarValues();
-	for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
-	{
-		try
-		{
-			scriptInfo.wave.writeData( segNumInc, sampleRate );
-		}
-		catch (Error&)
-		{
-			throwNested( "IntensityWaveform.writeData threw an error! Error occurred in segment #" 
-						 + str( totalSegmentNumber ) + "." );
-		}
-	}
-	// no reassignment nessesary, no variables
-	scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration, calibrationCoefficients );
-	scriptInfo.wave.calcMinMax();
-	scriptInfo.wave.minsAndMaxes.resize( 1 );
-	scriptInfo.wave.minsAndMaxes[0].second = scriptInfo.wave.getMaxVolt();
-	scriptInfo.wave.minsAndMaxes[0].first = scriptInfo.wave.getMinVolt();
-	scriptInfo.wave.normalizeVoltages();
-	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
-	/// new line here
-	prepAgilentSettings( channel );
-	for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
-	{
-		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber, channel ) );
-		visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLoc + ":\\chan" + str(channel) 
-						 + "arb" + str( segNumInc ) + ".arb\"" );
-	}
-	scriptInfo.wave.compileSequenceString( totalSegmentNumber, 0, channel );
-	// submit the sequence
-	visaFlume.write( scriptInfo.wave.returnSequenceString() );
-	// Save the sequence
-	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB sequence0");
-	visaFlume.write( "MMEM:STORE:DATA" + str(channel) + " \"" + memoryLoc + ":\\sequence0.seq\"" );
-	// clear temporary memory.
-	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
-}
+
+
 /*
  * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
  */
@@ -1108,6 +1061,8 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		}
 	}
 }
+
+
 void Agilent::setAgilent()
 {
 	if (!connected())

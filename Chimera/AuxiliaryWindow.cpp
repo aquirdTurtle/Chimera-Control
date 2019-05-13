@@ -897,6 +897,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 	// sync is just a check, no handling needed.
 	else if (id % 7 == 6)
 	{
+		// program now
 		try
 		{
 			agilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
