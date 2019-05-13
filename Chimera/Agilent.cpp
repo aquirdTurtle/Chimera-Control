@@ -27,7 +27,8 @@ Agilent::Agilent( const agilentSettings& settings ) :
 	memoryLoc(settings.memoryLocation ),
 	configDelim(settings.configurationFileDelimiter),
 	calibrationCoefficients(settings.calibrationCoeff ),
-	agilentName( settings.deviceName )
+	agilentName( settings.deviceName ),
+	setupCommands( settings.setupCommands )
 {
 	try
 	{
@@ -119,25 +120,26 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	currentChannel = 1;
 	agilentScript.setEnabled ( false );
 
+	programSetupCommands ( );
+}
+
+std::vector<std::string> Agilent::getStartupCommands ( )
+{
+	return setupCommands;
+}
+
+void Agilent::programSetupCommands()
+{
 	try
 	{
-		// set burst mode
-		for ( auto channel : range ( 2 ) )
+		for ( auto cmd : setupCommands )
 		{
-			// turn off while change settings
-			std::string chStr = "SOURce" + str ( channel + 1 );
-			visaFlume.write ( chStr + ":BURSt:STATe Off" );
-			visaFlume.write ( chStr + ":BURSt:MODE TRIGgered" ); // as opposed to gated
-			visaFlume.write ( chStr + ":BURSt:NCYCles INFinity" );
-			visaFlume.write ( chStr + ":BURSt:PHASe 200" ); // in degrees
-			visaFlume.write ( chStr + ":TRIGger:Source IMMediate" ); // 
-			visaFlume.write ( chStr + ":TRIGger:SLOPe POSitive" ); // 
-			//visaFlume.write ( chStr + ":BURSt:STATe:On" );
+			visaFlume.write ( cmd );
 		}
 	}
 	catch ( Error& )
 	{
-		throwNested ( "Failed to initialize burst settings for " + agilentName + " Agilent!" );
+		throwNested ( "Failed to program setup commands for " + agilentName + " Agilent!" );
 	}
 }
 
@@ -149,6 +151,8 @@ void Agilent::checkSave( std::string categoryPath, RunInfo info )
 		agilentScript.checkSave( categoryPath, info );
 	}
 }
+
+
 void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	header.rearrange(width, height, fonts);
@@ -242,11 +246,18 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	double offset = 0.000505870656651;
 	if ( conversionOption )
 	{
+		double setPointInVolts = 0;
 		if ( calibCoeff.size ( ) == 0 )
 		{
 			thrower("Wanted agilent calibration but no calibration given to conversion function!" );
 		}
-		double setPointInVolts = slope * powerInMilliWatts + offset;
+		// build the polynomial calibration.
+		UINT polyPower = 0;
+		for ( auto coeff : calibCoeff )
+		{
+			setPointInVolts += coeff * std::pow ( powerInMilliWatts, polyPower++ );
+		}
+		//double setPointInVolts = slope * powerInMilliWatts + offset;
 		return setPointInVolts;
 	}
 	else
@@ -304,10 +315,13 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 	}
 }
 
+
 std::pair<UINT, UINT> Agilent::getTriggerLine( )
 {
 	return { triggerRow, triggerNumber };
 }
+
+
 std::string Agilent::getDeviceIdentity()
 {
 	std::string msg;
@@ -408,10 +422,14 @@ void Agilent::handleInput( std::string categoryPath, RunInfo info )
 	// false -> 1 + 1 = 2
 	handleInput( (!channel1Button.GetCheck()) + 1, categoryPath, info );
 }
+
+
 void Agilent::updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo )
 {
 	updateSettingsDisplay( (!channel1Button.GetCheck()) + 1, currentCategoryPath, currentRunInfo );
 }
+
+
 void Agilent::updateButtonDisplay( int chan )
 {
 	std::string channelText;
@@ -451,6 +469,7 @@ void Agilent::updateButtonDisplay( int chan )
 		channel2Button.SetWindowTextA( cstr( channelText ) );
 	}
 }
+
 void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, RunInfo currentRunInfo)
 {
 	updateButtonDisplay( chan ); 
@@ -523,9 +542,10 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 	{
 		channel1Button.SetCheck( false );
 		channel2Button.SetCheck( true );
-	}
-	
+	}	
 }
+
+
 void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo )
 {
 	// convert from channel 1/2 to 0/1 to access the right array entr
@@ -533,6 +553,8 @@ void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, Run
 	updateSettingsDisplay( chan, currentCategoryPath, currentRunInfo );
 	currentChannel = channel1Button.GetCheck ( ) ? 1 : 2;
 }
+
+
 void Agilent::handleModeCombo()
 {
 	int selection = settingCombo.GetCurSel();
@@ -578,10 +600,14 @@ void Agilent::handleModeCombo()
 			break;
 	}
 }
+
+
 deviceOutputInfo Agilent::getOutputInfo()
 {
 	return settings;
 }
+
+
 void Agilent::convertInputToFinalSettings( UINT chan, std::vector<parameterType>& variables, UINT variation )
 {
 	// iterate between 0 and 1...
@@ -787,6 +813,7 @@ void Agilent::handleOpenConfig( std::ifstream& file, Version ver )
 	updateButtonDisplay( 2 );
 }
 
+
 void Agilent::outputOff( int channel )
 {
 	if (channel != 1 && channel != 2)
@@ -814,6 +841,7 @@ void Agilent::setDC( int channel, dcInfo info )
 					 + str( convertPowerToSetPoint(info.dcLevel, info.useCalibration, calibrationCoefficients) ) + " V" );
 }
 
+
 void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 {
 	if (channel != 1 && channel != 2)
@@ -837,6 +865,8 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 	visaFlume.write( sStr + ":BURST::STATE ON" );
 	visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 }
+
+
 // set the agilent to output a square wave.
 void Agilent::setSquare( int channel, squareInfo info )
 {
@@ -848,6 +878,8 @@ void Agilent::setSquare( int channel, squareInfo info )
 					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration, calibrationCoefficients ) ) + " VPP, "
 					 + str( convertPowerToSetPoint(info.offset, info.useCalibration, calibrationCoefficients )) + " V" );
 }
+
+
 void Agilent::setSine( int channel, sineInfo info )
 {
 	if (channel != 1 && channel != 2)
@@ -857,6 +889,7 @@ void Agilent::setSine( int channel, sineInfo info )
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SINUSOID " + str( info.frequency ) + " KHZ, "
 					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration, calibrationCoefficients ) ) + " VPP" );
 }
+
 // stuff that only has to be done once.
 void Agilent::prepAgilentSettings(UINT channel)
 {
@@ -872,6 +905,8 @@ void Agilent::prepAgilentSettings(UINT channel)
 	visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
 	visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + load );
 }
+
+
 void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel,  
 									 std::vector<parameterType>& variables)
 {
@@ -975,6 +1010,10 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 	{
 		prepAgilentSettings( chan );
 		// check if effectively dc
+		if ( scriptInfo.wave.minsAndMaxes.size ( ) == 0 )
+		{
+			thrower ( "script wave min max size is zero???" );
+		}
 		auto & minMaxs = scriptInfo.wave.minsAndMaxes[varNum];
 		if ( fabs( minMaxs.first - minMaxs.second ) < 1e-6 )
 		{
@@ -1003,7 +1042,8 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 
 bool Agilent::scriptingModeIsSelected( ) 
 {
-	return settings.channel[currentChannel].option == 4;
+	
+	return settings.channel[currentChannel-1].option == 4;
 }
 
 

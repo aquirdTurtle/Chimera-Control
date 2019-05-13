@@ -36,6 +36,7 @@ struct agilentSettings
 	std::string configurationFileDelimiter;
 
 	std::vector<double> calibrationCoeff;
+	std::vector<std::string> setupCommands;
 };
 
 struct minMaxDoublet

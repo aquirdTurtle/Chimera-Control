@@ -64,9 +64,9 @@ class Agilent
 		Script agilentScript;
 		static double convertPowerToSetPoint(double power, bool conversionOption, std::vector<double> calibCoeff );
 		std::pair<UINT, UINT> getTriggerLine( );
-		
+		void programSetupCommands ( );
 		const std::string configDelim;
-
+		std::vector<std::string> getStartupCommands ( );
 	private:
 		// not that important, just used to check that number of triggers in script matches number in agilent.
 		const UINT triggerRow;
@@ -96,7 +96,10 @@ class Agilent
 		Control<CStatic> optionsFormat;
 		Control<CleanButton> programNow;
 		const std::string agilentName;
-		/* a list of polynomial coefficients for the calibration.  
+		// includes burst commands, trigger commands, etc. This is a place for any commands which don't have a 
+		// GUI control option. You could also use this to put commands that should be the same for all configurations.
+		const std::vector<std::string> setupCommands;
+		/* a list of polynomial coefficients for the calibration.
 		auto& cc = calibrationCoefficients
 		Volt = cc[0] + c[1]*sp + c[2]*sp^2 + ...
 		*/

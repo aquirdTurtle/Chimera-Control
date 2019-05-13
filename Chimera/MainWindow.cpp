@@ -494,7 +494,6 @@ BOOL MainWindow::OnInitDialog( )
 		TheAuxiliaryWindow = new AuxiliaryWindow;
 		which = "Basler";
 		TheBaslerWindow = new BaslerWindow;
-		thrower ( "test" );
 	}
 	catch ( Error& err )
 	{

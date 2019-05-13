@@ -204,6 +204,7 @@
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
     <ClInclude Include="AgilentArray.h" />
+    <ClInclude Include="AgilentSettings.h" />
     <ClInclude Include="agilentStructures.h" />
     <ClInclude Include="AiSystem.h" />
     <ClInclude Include="AlertSystem.h" />

@@ -319,6 +319,7 @@ void DataLogger::logTektronicsSettings ( TektronicsAfgControl& tek )
 }
 
 
+
 void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 {
 	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
@@ -328,6 +329,7 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 		// mode
 		deviceOutputInfo info = agilent->getOutputInfo( );
 		UINT channelCount = 1;
+		writeDataSet ( agilent->getStartupCommands(), "Startup-Commands", singleAgilent );
 		for ( auto& channel : info.channel )
 		{
 			H5::Group channelGroup( singleAgilent.createGroup( "Channel-" + str( channelCount ) ) );
@@ -369,7 +371,7 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 			H5::Group preloadedArbGroup( channelGroup.createGroup( "Preloaded-Arb-Settings" ) );
 			writeDataSet( channel.preloadedArb.address, "Address", preloadedArbGroup );
 			H5::Group scriptedArbSettings( channelGroup.createGroup( "Scripted-Arb-Settings" ) );
-			writeDataSet( channel.scriptedArb.fileAddress, "Script-File-Address", preloadedArbGroup );
+			writeDataSet( channel.scriptedArb.fileAddress, "Script-File-Address", scriptedArbSettings );
 			// TODO: load script file itself
 			channelCount++;
 		}
@@ -996,5 +998,13 @@ void DataLogger::writeAttribute( bool data, std::string name, H5::DataSet& dset 
 	}
 }
 
-
-
+/* As of right now just append all the strings and insert a newline between. There should be a nice way of doing this.*/
+H5::DataSet DataLogger::writeDataSet ( std::vector<std::string> dataVec, std::string name, H5::Group& group )
+{
+	std::string superString = "";
+	for ( auto string : dataVec )
+	{
+		superString += string + "\n";
+	}
+	return writeDataSet ( superString, name, group );
+}
