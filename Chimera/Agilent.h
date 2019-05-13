@@ -62,7 +62,7 @@ class Agilent
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
-		static double convertPowerToSetPoint(double power, bool conversionOption );
+		static double convertPowerToSetPoint(double power, bool conversionOption, std::vector<double> calibCoeff );
 		std::pair<UINT, UINT> getTriggerLine( );
 		
 		const std::string configDelim;
@@ -83,7 +83,7 @@ class Agilent
 		bool isConnected;
 		int currentChannel;
 		std::string deviceInfo;
-		std::vector<minMaxDoublet> ranges;		
+		std::vector<minMaxDoublet> ranges;
 		deviceOutputInfo settings;
 		// GUI ELEMENTS
 		Control<CStatic> header;
@@ -95,6 +95,12 @@ class Agilent
 		Control<CComboBox> settingCombo;
 		Control<CStatic> optionsFormat;
 		Control<CleanButton> programNow;
+		const std::string agilentName;
+		/* a list of polynomial coefficients for the calibration.  
+		auto& cc = calibrationCoefficients
+		Volt = cc[0] + c[1]*sp + c[2]*sp^2 + ...
+		*/
+		const std::vector<double> calibrationCoefficients;
 };
 
 

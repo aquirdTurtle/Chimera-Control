@@ -331,7 +331,7 @@ void PlotCtrl::getYLims ( )
 	}
 	else
 	{
-		thrower ( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
+		thrower ( "Bad value for plot style???  (A low level bug, this shouldn't happen)" );
 	}
 }
 
@@ -380,7 +380,7 @@ void PlotCtrl::plotPoints ( memDC* d )
 		else
 		{
 			scaledThresholds = std::vector<long> ( shiftedData.size ( ), 0 );
-			//thrower ( "ERROR: Threshold number not compatible with data set number!" );
+			//thrower ( "Threshold number not compatible with data set number!" );
 		}
 	}
 	std::vector<double> xRaw, xScaled;

@@ -25,9 +25,18 @@ Agilent::Agilent( const agilentSettings& settings ) :
 	triggerRow(settings.triggerRow ), 
 	triggerNumber( settings.triggerNumber ),
 	memoryLoc(settings.memoryLocation ),
-	configDelim(settings.configurationFileDelimiter)
+	configDelim(settings.configurationFileDelimiter),
+	calibrationCoefficients(settings.calibrationCoeff ),
+	agilentName( settings.deviceName )
 {
-	visaFlume.open(); 
+	try
+	{
+		visaFlume.open ( );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Error seen while initializing "+ agilentName + " Agilent" );
+	}
 }
 
 
@@ -109,7 +118,30 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	settings.channel[1].option = -2;
 	currentChannel = 1;
 	agilentScript.setEnabled ( false );
+
+	try
+	{
+		// set burst mode
+		for ( auto channel : range ( 2 ) )
+		{
+			// turn off while change settings
+			std::string chStr = "SOURce" + str ( channel + 1 );
+			visaFlume.write ( chStr + ":BURSt:STATe Off" );
+			visaFlume.write ( chStr + ":BURSt:MODE TRIGgered" ); // as opposed to gated
+			visaFlume.write ( chStr + ":BURSt:NCYCles INFinity" );
+			visaFlume.write ( chStr + ":BURSt:PHASe 200" ); // in degrees
+			visaFlume.write ( chStr + ":TRIGger:Source IMMediate" ); // 
+			visaFlume.write ( chStr + ":TRIGger:SLOPe POSitive" ); // 
+			//visaFlume.write ( chStr + ":BURSt:STATe:On" );
+		}
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to initialize burst settings for " + agilentName + " Agilent!" );
+	}
 }
+
+
 void Agilent::checkSave( std::string categoryPath, RunInfo info )
 {
 	if ( settings.channel[currentChannel-1].option == 4 )
@@ -137,14 +169,14 @@ void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 void Agilent::setDefault( int channel )
 {
 	// turn it to the default voltage...
-	std::string setPointString = str(convertPowerToSetPoint(AGILENT_DEFAULT_POWER, true));
+	std::string setPointString = str(convertPowerToSetPoint(AGILENT_DEFAULT_POWER, true, calibrationCoefficients));
 	visaFlume.write( "SOURce" + str(channel) + ":APPLy:DC DEF, DEF, " + setPointString + " V" );
 }
 /**
  * expects the inputted power to be in -MILI-WATTS! 
  * returns set point in VOLTS
  */
-double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversionOption)
+double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversionOption, std::vector<double> calibCoeff)
 {
 	/// IMPORTANT CONVENTION NOTE:
 	// the log-PD calibrations were all done with the power in microwatts. This goes against all other conventions in 
@@ -210,6 +242,10 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	double offset = 0.000505870656651;
 	if ( conversionOption )
 	{
+		if ( calibCoeff.size ( ) == 0 )
+		{
+			thrower("Wanted agilent calibration but no calibration given to conversion function!" );
+		}
 		double setPointInVolts = slope * powerInMilliWatts + offset;
 		return setPointInVolts;
 	}
@@ -774,7 +810,8 @@ void Agilent::setDC( int channel, dcInfo info )
 	{
 		thrower ( "Bad value for channel inside setDC!" );
 	}
-	visaFlume.write( "SOURce" + str( channel ) + ":APPLy:DC DEF, DEF, " + str( convertPowerToSetPoint(info.dcLevel, info.useCalibration) ) + " V" );
+	visaFlume.write( "SOURce" + str( channel ) + ":APPLy:DC DEF, DEF, " 
+					 + str( convertPowerToSetPoint(info.dcLevel, info.useCalibration, calibrationCoefficients) ) + " V" );
 }
 
 void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
@@ -808,8 +845,8 @@ void Agilent::setSquare( int channel, squareInfo info )
 		thrower ( "Bad Value for Channel in setSquare!" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SQUARE " + str( info.frequency ) + " KHZ, "
-					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration ) ) + " VPP, "
-					 + str( convertPowerToSetPoint(info.offset, info.useCalibration )) + " V" );
+					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration, calibrationCoefficients ) ) + " VPP, "
+					 + str( convertPowerToSetPoint(info.offset, info.useCalibration, calibrationCoefficients )) + " V" );
 }
 void Agilent::setSine( int channel, sineInfo info )
 {
@@ -818,7 +855,7 @@ void Agilent::setSine( int channel, sineInfo info )
 		thrower ( "Bad value for channel in setSine" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SINUSOID " + str( info.frequency ) + " KHZ, "
-					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration ) ) + " VPP" );
+					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration, calibrationCoefficients ) ) + " VPP" );
 }
 // stuff that only has to be done once.
 void Agilent::prepAgilentSettings(UINT channel)
@@ -859,7 +896,7 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 		}
 		// order matters.
 		// loop through again and calc/normalize/write values.
-		scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration );
+		scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration, calibrationCoefficients );
 		scriptInfo.wave.calcMinMax( );
 		scriptInfo.wave.minsAndMaxes.resize( variation + 1 );
 		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt( );
@@ -905,7 +942,7 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		}
 	}
 	// no reassignment nessesary, no variables
-	scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration );
+	scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration, calibrationCoefficients );
 	scriptInfo.wave.calcMinMax();
 	scriptInfo.wave.minsAndMaxes.resize( 1 );
 	scriptInfo.wave.minsAndMaxes[0].second = scriptInfo.wave.getMaxVolt();

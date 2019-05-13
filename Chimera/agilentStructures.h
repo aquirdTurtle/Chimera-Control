@@ -19,6 +19,8 @@ struct agilentSettings
 	std::string filterState;
 	// "INT" or "USB"
 	std::string memoryLocation;
+	std::string deviceName;
+
 	// button ids.
 	ULONG chan1ButtonId;
 	ULONG chan2ButtonId;
@@ -28,10 +30,12 @@ struct agilentSettings
 	ULONG editId;
 	ULONG programButtonId;
 	ULONG calibrationButtonId;
-
+	
 	ULONG triggerRow;
 	ULONG triggerNumber;
 	std::string configurationFileDelimiter;
+
+	std::vector<double> calibrationCoeff;
 };
 
 struct minMaxDoublet
