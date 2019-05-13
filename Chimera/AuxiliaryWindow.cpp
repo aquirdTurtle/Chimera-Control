@@ -15,6 +15,7 @@
 #include "Thrower.h"
 #include "range.h"
 #include <boost/lexical_cast.hpp>
+#include "AgilentSettings.h"
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"), 
