@@ -15,14 +15,12 @@ std::vector<std::string> WAVEFORM_NAME_FILES = std::vector<std::string>(4 * MAX_
 std::vector<std::string> WAVEFORM_TYPE_FOLDERS = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 
 CWnd* eMainWindowHwnd;
-/// light theme (work in progress...)
-std::string staticBkgd = "Light Grey", interactableBkgd = "Solarized Base2";
 std::unordered_map<std::string, COLORREF> _myRGBs = {
 	{ "Slate Grey", RGB ( 101, 115, 126 ) },
 	{ "Black", RGB ( 0, 0, 0 ) },
-	{ "Dark Grey", RGB ( 15, 15, 15 ) },
-	{ "Medium Grey", RGB ( 30, 30, 30 ) },
-	{ "Light Grey", RGB ( 60, 60, 60 ) },
+	{ "Dark Grey", RGB ( 18, 18, 18 ) },
+	{ "Medium Grey", RGB ( 25, 25, 25 ) },
+	{ "Light Grey", RGB ( 40, 40, 40 ) },
 	{ "Near-White", RGB ( 200, 200, 200 ) },
 	{ "White", RGB ( 255, 255, 255 ) },
 	{ "Light Green", RGB ( 163, 190, 140 ) },
@@ -79,6 +77,7 @@ void initMyColors( )
 	}
 	/// Light Solarized Theme
 	/*
+	std::string staticBkgd = "Light Grey", interactableBkgd = "Solarized Base2";
 	_myRGBs[ "Text" ] = _myRGBs[ "Solarized Base0" ];
 	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Solarized Base3" ];
 	_myRGBs[ "MainWin-Text" ] = _myRGBs[ "Solarized Blue" ];
@@ -111,20 +110,19 @@ void initMyColors( )
 	std::string coloredText = "Light Blue";
 	_myRGBs[ "Text" ] = _myRGBs[ "Near-White" ];
 	_myRGBs[ "Text-Emph" ] = _myRGBs[ coloredText ];
-	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Black" ];
+	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Dark Grey" ];
 	_myRGBs[ "MainWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "ScriptWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "AndorWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "AuxWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "BasWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Disabled-Bkgd" ] = _myRGBs[ "Dark Grey Red" ];
-	_myRGBs[ "Static-Bkgd" ] = _myRGBs[ "Dark Grey" ];
-	_myRGBs[ "Interactable-Bkgd" ] = _myRGBs[ "Medium Grey" ];
-
+	_myRGBs[ "Static-Bkgd" ] = _myRGBs[ "Medium Grey" ];
+	_myRGBs[ "Interactable-Bkgd" ] = _myRGBs[ "Light Grey" ];
+	// create corresponding brushes
 	for ( auto& rgb : _myRGBs )
 	{
 		(_myBrushes[rgb.first] = new CBrush)->CreateSolidBrush ( rgb.second );
-		//brush.second
 	}
 	__initBrushesFlag = true;
 };
