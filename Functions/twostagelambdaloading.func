@@ -1,6 +1,6 @@
 % Master-Script See the "?" for info on commands.
 def twoStageLambdaLoading():
-  var initDetuning 0.75
+  var initDetuning 0.6
   var finDetuning 0.5
   var init795Power -0.15
   var fin795Power -0.2
