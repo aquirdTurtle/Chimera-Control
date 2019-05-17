@@ -449,7 +449,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 				 "data may be lost." );
 		while ( rangeInfo.size ( ) != currentVariableRangeNumber )
 		{
-			if ( rangeInfo.size ( ) < currentVariableRangeNumber )
+			if ( rangeInfo.size ( ) > currentVariableRangeNumber )
 			{
 				rangeInfo.pop_back ( );
 				for ( auto& param : currentParameters )
