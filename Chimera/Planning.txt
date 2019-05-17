@@ -99,3 +99,5 @@ BUGS:
 - new function then save doesn't save as function
 - ttl display not accurate at end of exp
 - figure out why figure update seems to cause main thread window thread to freak out
+- plot figures are covering up data set #
+- data set # doesn't increment if run basler and master despite file created
