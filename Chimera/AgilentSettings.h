@@ -32,6 +32,7 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 	"output1:load INF", "output2:load INF", 
 	"SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
 };
+
 //"SOURCE" + str(channel) + ":APPLY:SQUARE " + str( info.frequency ) + " KHZ, "
 // + str ( convertPowerToSetPoint ( info.amplitude, info.useCalibration, calibrationCoefficients ) ) + " VPP, "
 // + str ( convertPowerToSetPoint ( info.offset, info.useCalibration, calibrationCoefficients ) ) + " V"
@@ -82,16 +83,18 @@ FLASHING_AGILENT_TRIGGER_ROW, FLASHING_AGILENT_TRIGGER_NUM,
 "Source1:burst:state on", "Source2:burst:state on",
 "output1 on", "output2 on", "*TRG", "output1:load INF", "output2:load INF", 
 "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
-};
+}; 
+
 
 const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
-1e6, "USB", "Intensity",
-IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
-IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
-IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
-IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
-INTENSITY_AGILENT_TRIGGER_ROW, INTENSITY_AGILENT_TRIGGER_NUM,
-"INTENSITY_AGILENT_AWG",{ 0.000505870656651, -0.0108632090621 },
-{ "Trigger:Source external", "Trigger:Slope Positive", "output1:load INF", "output2:load INF",
-"SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
+													1e6, "USB", "Intensity",
+													IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
+													IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
+													IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
+													IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
+													INTENSITY_AGILENT_TRIGGER_ROW, INTENSITY_AGILENT_TRIGGER_NUM, 
+													"INTENSITY_AGILENT_AWG",{ 0.000505870656651, -0.0108632090621 },
+													{ "Trigger:Source external", "Trigger:Slope Positive", 
+													  "output1:load INF", "output2:load INF",
+													  "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
 };

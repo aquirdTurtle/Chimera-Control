@@ -489,6 +489,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	}
 	catch (Error& exception)
 	{
+
 		if (input->runNiawg)
 		{
 			// clear out some niawg stuff
