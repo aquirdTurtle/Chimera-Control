@@ -240,8 +240,8 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	// calibrated August 10th, 2018, with no filter for single tweezer loading
 	//double slope = -0.1201254;
 	//double offset = -0.0003526;
-	double slope = -0.0108632090621;
-	double offset = 0.000505870656651;
+	//double slope = -0.0108632090621;
+	//double offset = 0.000505870656651;
 	if ( conversionOption )
 	{
 		double setPointInVolts = 0;

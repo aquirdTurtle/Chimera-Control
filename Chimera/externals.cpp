@@ -21,6 +21,7 @@ std::unordered_map<std::string, COLORREF> _myRGBs = {
 	{ "Dark Grey", RGB ( 18, 18, 18 ) },
 	{ "Medium Grey", RGB ( 25, 25, 25 ) },
 	{ "Light Grey", RGB ( 40, 40, 40 ) },
+	{ "Light Grey 2", RGB ( 60, 60, 60 ) },
 	{ "Near-White", RGB ( 200, 200, 200 ) },
 	{ "White", RGB ( 255, 255, 255 ) },
 	{ "Light Green", RGB ( 163, 190, 140 ) },
