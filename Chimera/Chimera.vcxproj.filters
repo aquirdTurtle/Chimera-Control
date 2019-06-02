@@ -658,7 +658,6 @@
     <ClInclude Include="MachineOptimizer.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="AgilentArray.h" />
     <ClInclude Include="AgilentSettings.h" />
   </ItemGroup>
   <ItemGroup>

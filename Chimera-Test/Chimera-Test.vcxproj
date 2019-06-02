@@ -84,7 +84,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Mark-Brown\Chimera-Control\x64\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Mark-Brown\Code\Chimera-Control\x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Mark-Brown\Code\Chimera-Control\Chimera-Test\..\Packages\boost_1_64_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>

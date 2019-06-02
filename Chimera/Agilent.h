@@ -66,6 +66,7 @@ class Agilent
 		void programSetupCommands ( );
 		const std::string configDelim;
 		std::vector<std::string> getStartupCommands ( );
+		void verifyScriptable ( );
 	private:
 		// not that important, just used to check that number of triggers in script matches number in agilent.
 		const UINT triggerRow;

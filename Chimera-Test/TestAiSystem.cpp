@@ -11,7 +11,7 @@ namespace TestAiSystem
 	TEST_CLASS( TestAiSys )
 	{
 		public:
-		CONNECTED_TEST ( InitAiSysConnected )
+		CONNECTED_TEST ( c_InitAiSysConnected )
 		{
 			AiSystem aiSys;
 			// make sure this can be done without errors getting thrown.

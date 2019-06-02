@@ -85,7 +85,7 @@ namespace commonFunctions
 					prepareMasterThread ( msgID, scriptWin, mainWin, camWin, auxWin, input, false, true );
 					commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, false, true, input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
-					logParameters ( input, camWin, basWin, false, true);
+					logParameters ( input, camWin, basWin, false, true, "", false );
 					basWin->startCamera ( );
 					startExperimentThread ( mainWin, input );
 				}
@@ -193,7 +193,8 @@ namespace commonFunctions
 				}
 				catch ( Error& err )
 				{
-					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " + err.trace( ) );
+					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " 
+													+ err.trace( ) );
 					mainWin->getComm( )->sendColorBox( System::Master, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -280,7 +281,7 @@ namespace commonFunctions
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					//
-					logParameters( input, camWin, basWin, true, false );
+					logParameters( input, camWin, basWin, true, false, "", false );
 					//
 					camWin->startAtomCruncher( input );
 					camWin->startPlotterThread( input );
@@ -303,15 +304,6 @@ namespace commonFunctions
 					camWin->assertOff();
 					break;
 				}
-				try
-				{
-					commonFunctions::logParameters( input, camWin, basWin, true, false);
-				}
-				catch (Error& err)
-				{
-					errBox( "Data Logging failed to start up correctly! " + err.trace() );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
-				}
 				break;
 			}
 			case ID_RUNMENU_RUNNIAWG:
@@ -322,7 +314,7 @@ namespace commonFunctions
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin,
 														  input, true, false );
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, false, input );
-					commonFunctions::logParameters( input, camWin, basWin, false, false );
+					commonFunctions::logParameters( input, camWin, basWin, false, false, "", false );
 					//
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
@@ -365,7 +357,7 @@ namespace commonFunctions
 				}
 				try
 				{
-					commonFunctions::logParameters( input, camWin, basWin, false, false );
+					commonFunctions::logParameters( input, camWin, basWin, false, false, "", false );
 				}
 				catch (Error& err)
 				{
@@ -707,7 +699,7 @@ namespace commonFunctions
 			{
 				ExperimentInput input;
 				input.baslerRunSettings = basWin->getCurrentSettings ( );
-				logParameters ( input, camWin, basWin, false, true );
+				logParameters ( input, camWin, basWin, false, true, "", false );
 				basWin->handleArmPress();
 				break;
 			}
@@ -808,7 +800,7 @@ namespace commonFunctions
 				input.masterInput->expType = ExperimentType::MotSize;
 				basWin->fillMotSizeInput ( input.baslerRunSettings );
 				// this is used for basler calibrations.
-				logParameters ( input, camWin, basWin, false, true, "MOT_NUMBER", true );
+				logParameters ( input, camWin, basWin, false, true, "MOT_NUMBER", false );
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -826,7 +818,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::MotTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", true );
+					logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -849,7 +841,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::PgcTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", true );
+					logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -873,7 +865,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::GreyTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", true );
+					logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -1108,10 +1100,10 @@ namespace commonFunctions
 
 
 	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
-						bool takeBaslerPictures, std::string specialName, bool isCal )
+						bool takeBaslerPictures, std::string specialName, bool needsCal )
 	{
 		DataLogger* logger = camWin->getLogger();
-		logger->initializeDataFiles( specialName, isCal );
+		logger->initializeDataFiles( specialName, needsCal );
 		logger->logAndorSettings( input.AndorSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneousStart();
