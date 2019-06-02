@@ -30,6 +30,7 @@ class DataAnalysisControl
 		DataAnalysisControl( );
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive );
+		void handleNormalFinish ( );
 		ULONG getPlotFreq( );
 		void handleOpenConfig( std::ifstream& file, Version ver );
 		void handleNewConfig( std::ofstream& file );
@@ -105,6 +106,9 @@ class DataAnalysisControl
 		Control<CEdit> gridWidth;
 		Control<CStatic> gridHeightText;
 		Control<CEdit> gridHeight;
+
+		Control<CleanCheck> autoThresholdAnalysisButton;
+
 
 		Control<CStatic> plotTimerTxt;
 		Control<CEdit> plotTimerEdit;

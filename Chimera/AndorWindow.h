@@ -44,6 +44,7 @@ class AndorWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint loc );
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger( );
+		void handleNormalFinish ( );
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraCalFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );

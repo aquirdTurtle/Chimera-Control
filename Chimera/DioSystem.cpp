@@ -1359,6 +1359,15 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 	}
 }
 
+void DioSystem::ftdiZeroBoard ( )
+{
+	for ( auto& out : outputs )
+	{
+		ftdi_ForceOutput ( out.getPosition ( ).first, out.getPosition ( ).second, 0 );
+		out.updateStatus ( );
+	}
+}
+
 
 void DioSystem::zeroBoard( )
 {

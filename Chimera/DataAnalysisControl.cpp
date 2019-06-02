@@ -31,6 +31,9 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	header.setPositions( pos, 0, 0, 480, 25, true, false, true );
 	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++);
 	header.fontType = fontTypes::HeadingFont;
+	autoThresholdAnalysisButton.setPositions ( pos, 0, 0, 480, 25, true );
+	autoThresholdAnalysisButton.Create ( "Automatic Threshold Analysis", NORM_CHECK_OPTIONS, 
+										 autoThresholdAnalysisButton.seriesPos, parent, id++ );
 	currentDataSetNumberText.setPositions( pos, 0, 0, 350, 50 );
 	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, parent, 
 									 id++);
@@ -836,11 +839,21 @@ std::vector<atomGrid> DataAnalysisControl::getGrids( )
 }
 
 
+void DataAnalysisControl::handleNormalFinish ( )
+{
+	if ( autoThresholdAnalysisButton.GetCheck ( ) )
+	{
+		system ( "python C:\\Users\\Mark-Brown\\Documents\\Analysis-Code\ThresholdAnalysis.py" );
+	}
+}
+
+
 void DataAnalysisControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, 
 									 fontMap fonts)
 {
 	updateFrequencyLabel1.rearrange(cameraMode, trigMode, width, height, fonts);
 	updateFrequencyLabel2.rearrange(cameraMode, trigMode, width, height, fonts);
+	autoThresholdAnalysisButton.rearrange ( cameraMode, trigMode, width, height, fonts );
 	updateFrequencyEdit.rearrange(cameraMode, trigMode, width, height, fonts);
 	header.rearrange(cameraMode, trigMode, width, height, fonts);
 	plotListview.rearrange(cameraMode, trigMode, width, height, fonts);

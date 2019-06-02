@@ -247,11 +247,18 @@ void EmbeddedPythonHandler::run(std::string cmd, bool quiet /*=false*/, bool flu
 	PyRun_SimpleString(cmd.c_str());
 	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
-	std::string txt = PyBytes_AS_STRING( PyUnicode_AsEncodedString( output, "ASCII", "strict" ) );
-	if ( !quiet && txt != "" )
+	if ( PyUnicode_Check ( output ) )
 	{
-		std::string runMsg = "Error seen while running python command \"" + cmd + "\"\n\n";
-		thrower(runMsg + txt);
+		//auto res1 = PyUnicode_FromString ( output );
+		auto res = PyUnicode_AsEncodedString ( output, "ASCII", "ignore" );
+		std::string txt = PyBytes_AS_STRING ( res );
+		if ( !quiet && txt != "" )
+		{
+			std::string runMsg = "Error seen while running python command \"" + cmd + "\"\n\n";
+			thrower ( runMsg + txt );
+		}
 	}
 }
+
+
 

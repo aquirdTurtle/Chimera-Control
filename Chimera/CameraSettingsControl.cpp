@@ -715,10 +715,11 @@ void AndorCameraSettingsControl::updateCameraMode( )
 void AndorCameraSettingsControl::handleModeChange( AndorWindow* cameraWindow )
 {
 	updateCameraMode( );
-
+	/*
 	CRect rect;
 	cameraWindow->GetWindowRect( &rect );
 	cameraWindow->OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
+	*/
 }
 
 

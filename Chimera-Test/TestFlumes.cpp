@@ -42,7 +42,7 @@ namespace TestFlumes
 			DaqMxFlume testFlume( safemode );
 			Assert::AreEqual( testFlume.safemode, safemode );
 		}
-		CONNECTED_TEST( Connect_To_Rhode_Schwarz )
+		CONNECTED_TEST( c_Connect_To_Rhode_Schwarz )
 		{
 			GpibFlume flume( RSG_ADDRESS, false );
 			Assert::AreNotEqual( std::string(""), flume.queryIdentity( ) );

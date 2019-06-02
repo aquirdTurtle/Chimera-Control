@@ -131,7 +131,7 @@ specialName: optional, the name of the data file. This is a unique name, it will
 	for things like the mot size measurement or temperature measurements which are automated. The default is to use
 	data_ as the name and add an incrementing number at the end of it.
 */
-void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
+void DataLogger::initializeDataFiles( std::string specialName, bool needsCal )
 {
 	// if the function fails, the h5 file will not be open. If it succeeds, this will get set to true.
 	fileIsOpen = false;
@@ -155,7 +155,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool isCal )
 		fclose ( temperatureFile );
 	}
 	/// check that the mot calibration files have been recorded.
-	if ( !isCal )
+	if ( needsCal )
 	{
 		for ( std::string fName : {"MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
 			  "GREY_MOLASSES_TEMPERATURE.h5"} )
