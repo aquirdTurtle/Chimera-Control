@@ -452,6 +452,7 @@
     <None Include="DioStructures.h" />
     <None Include="ftdiStructures.h" />
     <None Include="my_str.h" />
+    <None Include="Old_Intensity_Calibrations.txt" />
     <None Include="OscilloscopeViewer.h" />
     <None Include="PlotCtrl.h" />
     <None Include="WinSerialFlume.h" />

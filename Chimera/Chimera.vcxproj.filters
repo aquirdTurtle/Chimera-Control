@@ -779,5 +779,8 @@
     <None Include="my_str.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </None>
+    <None Include="Old_Intensity_Calibrations.txt">
+      <Filter>National-Instruments</Filter>
+    </None>
   </ItemGroup>
 </Project>

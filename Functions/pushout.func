@@ -8,7 +8,7 @@ def pushout():
   daclinspace: motFreq defaultMotFreq pushoutfreq 1 10
   t += 1.01
   var pushout_Power 0.3
-  var pushouttime 1
+  var pushouttime 0.005
   dac: probePower pushout_power 
   on: proberf
   t += pushouttime 

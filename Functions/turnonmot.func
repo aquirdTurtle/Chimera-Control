@@ -30,7 +30,7 @@ def turnOnMot():
 %  var top_field 0.653 
 
   var right_field 0.84
-  var left_field -0.9
+  var left_field -1.38
   var front_field 0.44
   var back_field 2
   var bot_field 0.1

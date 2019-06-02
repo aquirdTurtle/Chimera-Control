@@ -1,0 +1,62 @@
+﻿	/// IMPORTANT CONVENTION NOTE:
+	// the log-PD calibrations were all done with the power in microwatts. This goes against all other conventions in 
+	// the code however, so as I calibrate the linPD, I'm changin to MILLI-watts.
+
+	/// OLD LOG-PD CALIBRATIONS
+	// this calibration is 
+	// TODO:make a structure and a front panel option. 
+	// need to implement using calibrations, which haven't been done yet.
+	// HARD CODED right now.
+	// Expecting a calibration in terms of /MICROWATTS/!
+	/// double newValue = -a * log(y * b);
+	// (February 1st, 2016 calibrations)
+	// double a = 0.245453772102427, b = 1910.3567515711145;
+	// (February 2st, 2016 calibrations)
+	// double a = 0.2454742248, b = 1684.849955;
+	// (April 14th, 2016 calibrations);
+	// double a = 0.24182, b = 1943.25;
+	// (June 16th, 2016 calibrations (NE10 filter in front of log pd)
+	//double a = 0.247895, b = 218.559;
+	// June 18th, 2016 calibrations (NE20 filter in front of log pd)
+	// double a = 0.262771, b = 11.2122;
+	// June 22nd AM, 2016 calibrations (No filter in front of log pd)
+	//double a = 0.246853, b = 1330.08;
+	// June 22nd PM, 2016 calibrations (NE10 filter in front of log pd, after tweaking servo parameters)
+	//double a = 0.246862, b = 227.363;
+
+	/// CALIBRATIONS WITH DIGITAL LOCK BOX
+	/// newValue = a +  b * log(y - info); // here info is treated as a background light level, and the voltage output 
+	/// should be positive
+	// July 14 2016, NE10 filter in front of log pd
+	// double a = 0.479262, b = 0.215003, c = 0.018189;
+
+	/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/// TERRY'S LINEAR PHOTODIODE CALIBRATIONS
+	// August 30th, 2017
+	//double slope = -0.040063228;
+	//double offset = 0.000153625;
+	// September 12th, 2017
+	//double slope = -0.04090619;
+	//double offset = 0.00641603;
+	// I think this date is wrong, seems to be being used as of April 2018...
+	// January 10th, 2017:
+	//double slope = -0.1452827;
+	//double offset = -0.00038705;
+	// Calibrated April 3rd. 2018
+	//double slope = -0.23159938;
+	//double offset = 0.0131427;
+	// calibrated april 15th, 2018
+	//double slope = -0.07124662;
+	//double offset = 0.00236855;
+	// Calibrated April 27th, 2018, with NE10 filter (instead of NE03) to go to high powers.
+	//double slope = -0.02427634;
+	//double offset = 0.00386076;
+	// calibrated May 4th 2018, with NE10
+	//double slope = -0.0151410484528;
+	//double offset = 0.00685897102155;
+	// calibrated August 10th, 2018, with no filter for single tweezer loading
+	//double slope = -0.1201254;
+	//double offset = -0.0003526;
+	//double slope = -0.0108632090621;
+	//double offset = 0.000505870656651;
