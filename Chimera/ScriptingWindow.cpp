@@ -408,6 +408,7 @@ void ScriptingWindow::newIntensityScript()
 {
 	try
 	{
+		intensityAgilent.verifyScriptable ( );
 		intensityAgilent.checkSave( getProfile().categoryPath, mainWin->getRunInfo() );
 		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );
@@ -426,6 +427,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 {
 	try
 	{
+		intensityAgilent.verifyScriptable ( );
 		intensityAgilent.checkSave( getProfile().categoryPath, mainWin->getRunInfo() );
 		std::string intensityOpenName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		intensityAgilent.agilentScript.openParentScript( intensityOpenName, getProfile().categoryPath,
@@ -464,6 +466,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 {
 	try
 	{
+		intensityAgilent.verifyScriptable ( );
 		std::string extensionNoPeriod = intensityAgilent.agilentScript.getExtension();
 		if (extensionNoPeriod.size() == 0)
 		{
@@ -479,8 +482,8 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 	{
 		comm()->sendError( err.trace() );
 	}
-}
-
+} 
+ 
 
 // just a quick shortcut.
 profileSettings ScriptingWindow::getProfile()

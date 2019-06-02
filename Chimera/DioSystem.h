@@ -53,6 +53,7 @@ class DioSystem
 		int getNumberOfTTLsPerRow();
 		std::string getTtlSequenceMessage(UINT variation, UINT seqNum );
 		void zeroBoard();
+		void ftdiZeroBoard ( );
 		void handleTTLPress(int id);
 		void checkNotTooManyTimes( UINT variation, UINT seqNum );
 		void handleHoldPress();

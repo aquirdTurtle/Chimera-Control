@@ -147,7 +147,7 @@ namespace TestNiawg
 	TEST_CLASS ( TestNiawg )
 	{
 		public:
-		CONNECTED_TEST ( Connect_To_Niawg )
+		CONNECTED_TEST ( c_Connect_To_Niawg )
 		{
 			NiawgController niawg ( 0, 0, false );
 			niawg.initialize ( );

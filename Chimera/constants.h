@@ -10,8 +10,10 @@
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
 
-// running in safemode means that the program doesn't actually try to connect to physical devices. It can be used to
-// build and debug other aspects of the program.
+// running in safemode means that the program doesn't actually try to connect to physical devices. Generally, it will 
+// follow the exact coding logic, but at the exact point where it would normally communicate with a device, it will 
+// instead simply skip this step. It might generate example data where useful / necessary.
+// It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc. 
 
 //#define MASTER_COMPUTER
 #define SPECTRE_LAPTOP

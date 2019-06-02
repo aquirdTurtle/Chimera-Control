@@ -151,6 +151,15 @@ void Agilent::checkSave( std::string categoryPath, RunInfo info )
 }
 
 
+void Agilent::verifyScriptable ( )
+{
+	if ( settings.channel[ 0 ].option != 4 )
+	{
+		thrower ( "Agilent is not in scripting mode!" );
+	}
+}
+
+
 void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	header.rearrange(width, height, fonts);

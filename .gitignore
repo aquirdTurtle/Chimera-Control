@@ -75,7 +75,7 @@ Experiment Scripts/Old Scripts (Format No Longer Supported)/
 *.idb
 *.sdf
 *.db
-
+Chimera/Python_Install_32/*
 Chimera/Packages/32-Bit-Libs/Debug/Andor/*
 Chimera/Packages/64-Bit-Libs/Debug/Andor/*
 Chimera/Packages/32-Bit-Libs/Release/Andor/*

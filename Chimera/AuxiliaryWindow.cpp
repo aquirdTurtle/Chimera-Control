@@ -322,10 +322,7 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 {
 	try
 	{
-		if ( !agilents[name].scriptingModeIsSelected( ) )
-		{
-			thrower ( "please set current agilent channel to scripting mode before attempting to create a script!" );
-		}
+		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );
 		agilents[name].checkSave( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
@@ -344,10 +341,7 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 {
 	try
 	{
-		if ( !agilents[name].scriptingModeIsSelected( ) )
-		{
-			thrower ( "please set current agilent channel to scripting mode before attempting to open a script!" );
-		}
+		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );		
 		agilents[name].agilentScript.checkSave( mainWin->getProfileSettings( ).categoryPath, 
 												mainWin->getRunInfo( ) );
@@ -383,10 +377,7 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 {
 	try
 	{
-		if ( !agilents[name].scriptingModeIsSelected( ) )
-		{
-			thrower ( "please set current agilent channel to scripting mode before attempting to save script!" );
-		}
+		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.saveScript( mainWin->getProfileSettings( ).categoryPath,
 												   mainWin->getRunInfo( ) );
@@ -403,10 +394,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 {
 	try
 	{
-		if ( !agilents[name].scriptingModeIsSelected( ) )
-		{
-			thrower ( "please set current agilent channel to scripting mode before attempting to save script!" );
-		}
+		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );
 		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension( );
 		if ( extensionNoPeriod.size( ) == 0 )

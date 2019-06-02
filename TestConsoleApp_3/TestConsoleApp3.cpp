@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+/*
 #include "afxwin.h"
 #include <iostream>
 #include <memory>
@@ -109,9 +110,10 @@ niawgPair<std::vector<UINT>> findLazyPosition ( Matrix<bool> source, UINT target
 	return indexes;
 }
 
-
+*/
 int main ( )
 {
+	/*
 	std::random_device rd;
 	std::mt19937 e2 ( rd ( ) );
 	std::uniform_real_distribution<double> dist ( 0, 1 );
@@ -160,6 +162,7 @@ int main ( )
 	timer.tick ( "Fin" );
 	std::cout << timer.getTimingMessage ( );
 	std::cin.get ( );
+	*/
 }
 
 

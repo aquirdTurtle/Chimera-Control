@@ -49,7 +49,7 @@ namespace TestAoSystem
 			auto vals = dio.getCurrentStatus( );
 			// should test vals?
 		}
-		CONNECTED_TEST( Init_Connected_AoSystem)
+		CONNECTED_TEST( c_Init_Connected_AoSystem)
 		{
 			AoSystem aoSys(false);
 		}

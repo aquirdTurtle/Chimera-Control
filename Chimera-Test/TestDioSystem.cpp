@@ -9,7 +9,7 @@ namespace TestDioSystem
 	TEST_CLASS( TestDioSystem )
 	{
 		public:
-		TEST_METHOD( InitDio )
+		TEST_METHOD( InitDioTest )
 		{
 			DioSystem dio(true, true, true);
 			auto status = dio.getCurrentStatus( );
@@ -43,13 +43,14 @@ namespace TestDioSystem
 				Assert::IsTrue( dioTime.second == diotimes[count].second );
 			}
 		}
+
 		TEST_METHOD( ForceOut )
 		{
 			DioSystem dio( true, true, true );
 			dio.forceTtl( DioRows::which::A, 0, 1 );
 			Assert::AreEqual( true, dio.getTtlStatus( DioRows::which::A, 0 ) );
 		}
-		TEST_METHOD( Ftdl_Force_Out_Disconnected )
+		TEST_METHOD( Ftdi_Force_Out_Disconnected )
 		{
 			DioSystem dio( true, true, true );
 			auto res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 1 );
@@ -58,7 +59,7 @@ namespace TestDioSystem
 			// the same no matter how much the buffer is filled.
 			Assert::AreEqual( DWORD(43008), res );
 		}
-		CONNECTED_TEST( Ftdl_Force_Out_Connected )
+		CONNECTED_TEST( c_Ftdi_Force_Out_Connected )
 		{
 			DioSystem dio( false, true, true );
 			auto res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 1 );
@@ -72,6 +73,7 @@ namespace TestDioSystem
 		TEST_METHOD( ZeroDio )
 		{
 			DioSystem dio( true, true, true );
+			// set a bunch to non-zero to make sure it can flip them.
 			dio.forceTtl( DioRows::which::A, 1, 1 );
 			dio.forceTtl( DioRows::which::B, 0, 1 );
 			dio.forceTtl( DioRows::which::A, 0, 1 );
@@ -89,7 +91,28 @@ namespace TestDioSystem
 				}
 			}
 		}
-		CONNECTED_TEST( Connect_To_Ftdi )
+		TEST_METHOD ( FtdiZeroDio )
+		{
+			DioSystem dio ( true, true, true );
+			// set a bunch to non-zero to make sure it can flip them.
+			dio.ftdi_ForceOutput ( DioRows::which::A, 1, 1 );
+			dio.ftdi_ForceOutput ( DioRows::which::B, 0, 1 );
+			dio.ftdi_ForceOutput ( DioRows::which::A, 0, 1 );
+			dio.ftdi_ForceOutput ( DioRows::which::B, 11, 1 );
+			dio.ftdi_ForceOutput ( DioRows::which::C, 15, 1 );
+			dio.ftdi_ForceOutput ( DioRows::which::B, 8, 1 );
+			dio.ftdi_ForceOutput ( DioRows::which::D, 8, 1 );
+			dio.ftdiZeroBoard ( );
+			auto status = dio.getCurrentStatus ( );
+			for ( auto row : status )
+			{
+				for ( auto elem : row )
+				{
+					Assert::AreEqual ( false, elem );
+				}
+			}
+		}
+		CONNECTED_TEST( c_Connect_To_Ftdi )
 		{
 			DioSystem dio( false, false, true );
 			try
