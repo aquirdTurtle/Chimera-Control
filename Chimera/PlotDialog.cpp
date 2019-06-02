@@ -14,6 +14,8 @@ PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn,
 	backgroundBrush.CreateSolidBrush ( _myRGBs[ "Main-Bkgd" ] );
 	plotAreaBrush.CreateSolidBrush( _myRGBs[ "Interactable-Bkgd" ] );
 }
+
+
 PlotDialog::PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
 						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
 						 std::vector<int> thresholds, std::string title ) :

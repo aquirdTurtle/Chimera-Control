@@ -3,7 +3,7 @@
 #include "afxwin.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-// connected tests must be run with devices connected in order to succeed.
+// This my own macro. connected tests must be run with devices connected in order to succeed.
 #define CONNECTED_TEST( testMethod ) \
 		BEGIN_TEST_METHOD_ATTRIBUTE( testMethod )\
 		TEST_METHOD_ATTRIBUTE( L"Connected", "T" )\

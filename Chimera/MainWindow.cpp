@@ -1464,6 +1464,8 @@ void MainWindow::onNormalFinishMessage()
 	{
 		comm.sendError( err.trace( ) );
 	}
+	TheAndorWindow->handleNormalFinish ( );
+
 	if ( autoF5_AfterFinish )
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,

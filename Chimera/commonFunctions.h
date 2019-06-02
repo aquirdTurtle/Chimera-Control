@@ -21,7 +21,7 @@ namespace commonFunctions
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls );
 	void startExperimentThread(MainWindow* mainWin, ExperimentInput& input);
 	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
-						bool takeBaslerPictures, std::string specialName="", bool isCal=false );
+						bool takeBaslerPictures, std::string specialName="", bool needsCal=true );
 	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin = NULL, BaslerWindow* basWin = NULL );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );

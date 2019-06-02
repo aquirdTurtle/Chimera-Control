@@ -14,7 +14,7 @@ namespace TestAndor
 		{
 			AndorCamera andor(true);
 		}
-		CONNECTED_TEST( Connect_To_Andor )
+		CONNECTED_TEST( c_Connect_To_Andor )
 		{
 			AndorCamera andor(false);
 		}

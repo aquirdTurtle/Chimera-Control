@@ -292,6 +292,9 @@ void AndorWindow::passAlwaysShowGrid()
 void AndorWindow::passCameraMode()
 {
 	CameraSettings.handleModeChange(this);
+	CRect rect;
+	GetClientRect ( &rect );
+	OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
 	mainWin->updateConfigurationSavedStatus( false );
 }
 
@@ -1489,6 +1492,12 @@ void AndorWindow::fillMasterThreadInput( MasterThreadInput* input )
 void AndorWindow::setTimerText( std::string timerText )
 {
 	timer.setTimerDisplay( timerText );
+}
+
+
+void AndorWindow::handleNormalFinish ( )
+{
+	analysisHandler.handleNormalFinish ( );
 }
 
 
