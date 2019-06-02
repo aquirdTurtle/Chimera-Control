@@ -256,62 +256,70 @@ void TektronicsAfgControl::programMachine(UINT variation)
 {
 	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
-		visaFlume.open( );
-	}
-	if ( currentInfo.channels.first.control )
-	{
-		if ( currentInfo.channels.first.on )
+		for ( auto i : range ( 5 ) )
 		{
-			visaFlume.write( "SOURCE1:FREQ " + str( currentNums[variation].channels.first.mainFreqVal ) );
-			visaFlume.write( "SOURCE1:VOLT:UNIT DBM" );
-			visaFlume.write( "SOURCE1:VOLT " + str( currentNums[variation].channels.first.powerVal ) );
-			visaFlume.write( "SOURCE1:VOLT:OFFS 0" );
+			try
+			{
+				visaFlume.open ( );
+				break;
+			}
+			catch ( Error& err )
+			{
+				// seems to fail occasionally
+			}
+		}
+		if ( currentInfo.channels.first.control )
+		{
+			if ( currentInfo.channels.first.on )
+			{
+				visaFlume.write( "SOURCE1:FREQ " + str( currentNums[variation].channels.first.mainFreqVal ) );
+				visaFlume.write( "SOURCE1:VOLT:UNIT DBM" );
+				visaFlume.write( "SOURCE1:VOLT " + str( currentNums[variation].channels.first.powerVal ) );
+				visaFlume.write( "SOURCE1:VOLT:OFFS 0" );
 
-			if ( currentInfo.channels.first.fsk )
-			{
-				visaFlume.write( "SOURCE1:FSKey:STATe On" );
-				visaFlume.write( "SOURCE1:FSKey:FREQ " + str( currentNums[variation].channels.first.fskFreqVal ) );
-				visaFlume.write( "SOURCE1:FSKey:SOURce External" );
+				if ( currentInfo.channels.first.fsk )
+				{
+					visaFlume.write( "SOURCE1:FSKey:STATe On" );
+					visaFlume.write( "SOURCE1:FSKey:FREQ " + str( currentNums[variation].channels.first.fskFreqVal ) );
+					visaFlume.write( "SOURCE1:FSKey:SOURce External" );
+				}
+				else
+				{
+					visaFlume.write( "SOURCE1:FSKey:STATe Off" );
+				}
+				visaFlume.write( "OUTput1:STATe ON" );
 			}
 			else
 			{
-				visaFlume.write( "SOURCE1:FSKey:STATe Off" );
+				visaFlume.write( "OUTput1:STATe OFF" );
 			}
-			visaFlume.write( "OUTput1:STATe ON" );
 		}
-		else
+		/// second channel
+		if ( currentInfo.channels.second.control )
 		{
-			visaFlume.write( "OUTput1:STATe OFF" );
-		}
-	}
-	/// second channel
-	if ( currentInfo.channels.second.control )
-	{
-		if ( currentInfo.channels.second.on )
-		{
-			visaFlume.write( "SOURCE2:FREQ " + str( currentNums[variation].channels.second.mainFreqVal ) );
-			visaFlume.write( "SOURCE2:VOLT:UNIT DBM" );
-			visaFlume.write( "SOURCE2:VOLT " + str( currentNums[variation].channels.second.powerVal ) );
-			visaFlume.write( "SOURCE2:VOLT:OFFS 0" );
-			if ( currentInfo.channels.second.fsk )
+			if ( currentInfo.channels.second.on )
 			{
-				visaFlume.write( "SOURCE2:FSKey:STATe On" );
-				visaFlume.write( "SOURCE2:FSKey:FREQ " + str( currentNums[variation].channels.second.fskFreqVal ) );
-				visaFlume.write( "SOURCE2:FSKey:SOURce External" );
+				visaFlume.write( "SOURCE2:FREQ " + str( currentNums[variation].channels.second.mainFreqVal ) );
+				visaFlume.write( "SOURCE2:VOLT:UNIT DBM" );
+				visaFlume.write( "SOURCE2:VOLT " + str( currentNums[variation].channels.second.powerVal ) );
+				visaFlume.write( "SOURCE2:VOLT:OFFS 0" );
+				if ( currentInfo.channels.second.fsk )
+				{
+					visaFlume.write( "SOURCE2:FSKey:STATe On" );
+					visaFlume.write( "SOURCE2:FSKey:FREQ " + str( currentNums[variation].channels.second.fskFreqVal ) );
+					visaFlume.write( "SOURCE2:FSKey:SOURce External" );
+				}
+				else
+				{
+					visaFlume.write( "SOURCE2:FSKey:STATe Off" );
+				}
+				visaFlume.write( "OUTput2:STATe ON" );
 			}
 			else
 			{
-				visaFlume.write( "SOURCE2:FSKey:STATe Off" );
+				visaFlume.write( "OUTput2:STATe OFF" );
 			}
-			visaFlume.write( "OUTput2:STATe ON" );
 		}
-		else
-		{
-			visaFlume.write( "OUTput2:STATe OFF" );
-		}
-	}
-	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
-	{
 		visaFlume.close( );
 	}
 }
@@ -402,7 +410,10 @@ std::string TektronicsAfgControl::queryIdentity()
 {
 	try
 	{
-		return visaFlume.identityQuery();
+		visaFlume.open ( );
+		auto res = visaFlume.identityQuery ( );
+		visaFlume.close ( );
+		return res;
 	}
 	catch (Error& err)
 	{

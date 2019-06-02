@@ -3050,13 +3050,20 @@ std::vector<double> NiawgController::makeFullRerngWave( rerngScriptInfo& rerngSe
 void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rerngGuiOptions& data, 
 											      std::vector<parameterType>& variables, UINT variation )
 {
-	data.active = form.active;
-	data.deadTime = form.deadTime.evaluate( variables, variation ) * 1e-9;
-	data.flashingRate = form.flashingRate.evaluate( variables, variation ) * 1e6;
-	data.moveBias = form.moveBias.evaluate( variables, variation );
-	data.moveSpeed = form.moveSpeed.evaluate( variables, variation ) * 1e-3;
-	data.staticMovingRatio = form.staticMovingRatio.evaluate( variables, variation );
-	data.finalMoveTime = form.finalMoveTime.evaluate( variables, variation ) * 1e-3;
+	try
+	{
+		data.active = form.active;
+		data.deadTime = form.deadTime.evaluate ( variables, variation ) * 1e-9;
+		data.flashingRate = form.flashingRate.evaluate ( variables, variation ) * 1e6;
+		data.moveBias = form.moveBias.evaluate ( variables, variation );
+		data.moveSpeed = form.moveSpeed.evaluate ( variables, variation ) * 1e-3;
+		data.staticMovingRatio = form.staticMovingRatio.evaluate ( variables, variation );
+		data.finalMoveTime = form.finalMoveTime.evaluate ( variables, variation ) * 1e-3;
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Error seen while trying to evaluate the rearrangement gui option forms" );
+	}
 	//
 	data.outputIndv = form.outputIndv;
 	data.outputInfo = form.outputInfo;

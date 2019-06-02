@@ -1,0 +1,15 @@
+% Master-Script See the "?" for info on commands.
+def TopRamanPulse():
+  var pulseTime 0.05
+  on: topRamanrf
+  on: eoramanrf
+  %on: topPulseTrig
+  on: eoswitch
+  on: eoswitch2
+  t += pulseTime
+  off: topRamanRf
+  off: eoramanRF
+  off: eoswitch
+  off: eoswitch2
+  %off: topPulseTrig
+  

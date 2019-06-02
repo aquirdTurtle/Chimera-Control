@@ -39,7 +39,7 @@ motshutter
 0
 lsshutter
 0
-b4
+topPulseTrig
 0
 probeflashing
 0
@@ -87,7 +87,7 @@ rf795
 0
 oscilloscopetrig
 0
-probeshutter
+axialRamanShutterTrig
 0
 sidemotshutter
 0
@@ -216,16 +216,16 @@ repumpfreq
 0
 _
 sidemotpower
--0.1 - 0.44
+-0.1 - 0.35
 0
 _
 piezomirror
 -10 - 10
 0
 _
-13
-loadmottime 300
-andorimagetime 20
+14
+loadmottime 150
+andorimagetime 10
 imagingpower 0.3
 fieldtheta 1.5708
 fieldphi 1.5708
@@ -233,13 +233,14 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -0.1
-sidemot__servo_value 0.119933
-diagmot__servo_value 0.321222
+sidemot__servo_value 0.0615317
+diagmot__servo_value 0.263767
 default795freq 0
 d1__servo_value 0.3
+sidemot_intrappgc__servo_value 0.123234
 1
-3Sidemot 6 22 1 1.2 1 a 5 0.01 0.02 0
-DiagMot 5 9 1 0.0173 1 a 0 0.01 0.03 0
-D1 6 18 0 1 1 c 10 0.02 0.02 0
-1 50 1 1 50 1
+3Sidemot 6 22 1 0.48 1 a 5 0.01 0.02 0
+DiagMot 5 9 1 0.016 1 a 0 0.01 0.03 0
+sidemot_intrappgc 6 22 1 1.5 1 a 5 0.01 0.02 0
+201 251 3 231 281 3
 0 0

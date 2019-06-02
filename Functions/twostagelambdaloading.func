@@ -1,13 +1,13 @@
 % Master-Script See the "?" for info on commands.
 def twoStageLambdaLoading():
-  %var initDetuning 1
+  var initDetuning 0.6
   var finDetuning 0.5
-  var init795Power -0.3
-  var fin795Power -0.3
-  var initTime 200
+  var init795Power -0.15
+  var fin795Power -0.2
+  var initTime 100
   var finTime 5
   % in MHz
-  var rsfreq -0.2 
+  var rsfreq -0.2
   var rspow 2
   % the 795 is still off at this point.
   daclinspace: freq795 0 initDetuning 2 10 
@@ -36,10 +36,10 @@ def twoStageLambdaLoading():
   t += finTime
   off: rf795
   off: repumpRf
-  on: C3
+  %on: C3
   pulseon: a15 0.1
   t += 0.1
-  off: C3
+  %off: C3
   t += 0.5
   %dac: freq795 0
   daclinspace: freq795 findetuning 0 2 10

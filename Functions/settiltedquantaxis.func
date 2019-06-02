@@ -1,0 +1,20 @@
+% Master-Script See the "?" for info on commands.
+def setTiltedQuantAxis():
+  % Please note that this hasn't been properly calibrated in any sense.
+  % It's just roughly 45 degrees from the normal quant axis.
+  var rotateFieldTime 3
+
+  % total time = 0. This function is for doing pgc.
+  var left_field 3.6461
+  var right_field -2.7361
+  var top_field 1.6
+  var bot_field -1.9
+  var front_field -2.7361
+  var back_field 2.7361
+  dac: leftCoilCurrent (1.41 * left_field / 2)
+  dac: rightCoilCurrent (1.41 * right_field / 2)
+  dac: topCoilCurrent top_field 
+  dac: bottomCoilCurrent bot_field 
+  dac: frontCoilCurrent (1.41 * front_field / 2)
+  dac: backCoilCurrent (1.41 * back_field / 2)
+  t += rotateFieldTime

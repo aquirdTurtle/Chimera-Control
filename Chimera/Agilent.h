@@ -47,7 +47,6 @@ class Agilent
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();
 		void handleOpenConfig( std::ifstream& file, Version ver );
-		//void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
 		void convertInputToFinalSettings( UINT chan, std::vector<parameterType>& variables = std::vector<parameterType> ( ),
 										  UINT variation = 0 );
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
@@ -57,7 +56,7 @@ class Agilent
 		void setAgilent( UINT variation, std::vector<parameterType>& variables);
 		void setAgilent();
 		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
-			std::vector<parameterType>& variables);
+									std::vector<parameterType>& variables );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
