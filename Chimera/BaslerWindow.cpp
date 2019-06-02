@@ -98,8 +98,8 @@ void BaslerWindow::fillMotSizeInput ( baslerSettings& motSizeSettings )
 {
 	motSizeSettings.acquisitionMode = BaslerAcquisition::mode::Finite; 
 
-	motSizeSettings.dims.left = 200;
-	motSizeSettings.dims.right = 350;
+	motSizeSettings.dims.left = 250;
+	motSizeSettings.dims.right = 450;
 	motSizeSettings.dims.top = 390;
 	motSizeSettings.dims.bottom = 200;
 	motSizeSettings.dims.horizontalBinning = 1;
@@ -118,8 +118,8 @@ void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
 {
 	settings.acquisitionMode = BaslerAcquisition::mode::Finite;
 
-	settings.dims.left = 150;
-	settings.dims.right = 400;
+	settings.dims.left = 250;
+	settings.dims.right = 450;
 	settings.dims.top = 440;
 	settings.dims.bottom = 150;
 	settings.dims.horizontalBinning = 1;
@@ -308,8 +308,8 @@ void BaslerWindow::startDefaultAcquisition ( )
 		currentRepNumber = 0;
 		baslerSettings tempSettings;
 		tempSettings.acquisitionMode = BaslerAcquisition::mode::Continuous;
-		tempSettings.dims.left = 200;
-		tempSettings.dims.right = 350;
+		tempSettings.dims.left = 260;
+		tempSettings.dims.right = 450;
 		tempSettings.dims.top = 390;
 		tempSettings.dims.bottom = 200;
 		tempSettings.dims.horizontalBinning = 1;
@@ -687,12 +687,13 @@ void BaslerWindow::initializeControls()
 	POINT dims = cameraController->getCameraDimensions();
 
 	// scale to fill the window (approximately).
-	dims.x *= 1.7;
-	dims.y *= 1.7;
+	dims.x *= 1.65;
+	dims.y *= 1.65;
 
 	CDC* cdc = GetDC( );
 	
 	picManager.initialize ( picPos, this, id, _myBrushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
+						   { IDC_MIN_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, NULL,NULL,NULL,NULL,NULL,NULL},
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );
 	picManager.setPalletes ( { 1,1,1,1 } );

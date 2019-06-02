@@ -321,7 +321,7 @@ void PictureManager::drawBackgrounds(CDC* easel)
 
 
 void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush, int manWidth, int manHeight,
-								 std::vector<Gdiplus::Pen*> graphPens, CFont* font,
+								 std::array<UINT, 8> minMaxEdits, std::vector<Gdiplus::Pen*> graphPens, CFont* font,
 								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
 {
 	picturesLocation = loc;
@@ -329,17 +329,17 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 	picturesHeight = manHeight;
 	gridBrush = defaultBrush;
 	//
-	pictures[0].initialize( loc, parent, id, 550, 440, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT }, graphPens,
+	pictures[0].initialize( loc, parent, id, 550, 440, { minMaxEdits[0], minMaxEdits[1] }, graphPens,
 							font, graphBrushes);
 	loc.x += 550;
-	pictures[1].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT }, graphPens,
+	pictures[1].initialize(loc, parent, id, 550, 440, { minMaxEdits[2], minMaxEdits[3] }, graphPens,
 							font, graphBrushes );
 	loc.x -= 550;
 	loc.y += 445;
-	pictures[2].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT }, graphPens,
+	pictures[2].initialize(loc, parent, id, 550, 440, { minMaxEdits[4], minMaxEdits[5] }, graphPens,
 							font, graphBrushes );
 	loc.x += 550;
-	pictures[3].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT }, graphPens,
+	pictures[3].initialize(loc, parent, id, 550, 440, { minMaxEdits[6], minMaxEdits[7] }, graphPens,
 							font, graphBrushes );
 	loc.y += 440;
 	loc.x -= 550;

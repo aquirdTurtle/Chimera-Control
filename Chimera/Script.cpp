@@ -294,7 +294,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	// check delimiter
 	if (word == "#")
 	{
-		return _myRGBs["Light Grey"];
+		return _myRGBs["Light Grey 2"];
 	}
 	// see if it's a double.
 	try

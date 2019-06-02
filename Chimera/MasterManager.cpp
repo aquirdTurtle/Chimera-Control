@@ -358,7 +358,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					}
 				}
 			}
-			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", comm, quiet );
+			expUpdate( "Programming RSG, Agilents, NIAWG, & Tektronics...\r\n", comm, quiet );
 			if ( useAuxDevices )
 			{
 				input->rsg.programRsg ( variationInc );
@@ -489,6 +489,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	}
 	catch (Error& exception)
 	{
+
 		if (input->runNiawg)
 		{
 			// clear out some niawg stuff

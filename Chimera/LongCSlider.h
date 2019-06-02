@@ -26,5 +26,5 @@ class LongCSlider
 		Control<CStatic> header;
 		double currentValue;
 		const double maxVal = 65535;
-		const double minVal = 0;
+		const double minVal = -65535;
 };

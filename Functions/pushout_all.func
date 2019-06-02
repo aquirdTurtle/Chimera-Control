@@ -1,24 +1,18 @@
 % pushout(), but with the repump on.
 def pushout_all():
-  % this number was set way too high at 0.65... (Mark - June 12th 2018)
   off: sideMotRf
+  % repump on allows the pushout of the F=1 state atoms as well.
   on: RepumpRF
+  var pushoutfreq 0
   dac: RepumpPower 0.1
   daclinspace: motFreq defaultMotFreq pushoutfreq 2 10
   t += 1.01
-  var pushout_Power 0.0
-  var pushouttime 0.0005
-  %dac: probePower pushoutPower
-  dac: sidemotPower pushout_power
-  %on: probeRf
-  t += 5
-  on: a5
+  var pushout_Power 0.3
+  var pushouttime 5
+  dac: probePower pushout_power
+  on: probeRf
   t += pushouttime 
-  %off: probeRf
-  off: a5
-  %off: probeShutter
-  %on: sideMotShutter
-
-  daclinspace: motFreq pushoutfreq defaultMotFreq 2 10
-  t += 5
+  off: probeRf
+  daclinspace: motFreq pushoutfreq -1 2 10
+  t += 2
 

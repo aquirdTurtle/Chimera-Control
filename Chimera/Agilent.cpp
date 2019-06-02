@@ -249,8 +249,8 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	// calibrated August 10th, 2018, with no filter for single tweezer loading
 	//double slope = -0.1201254;
 	//double offset = -0.0003526;
-	double slope = -0.0108632090621;
-	double offset = 0.000505870656651;
+	//double slope = -0.0108632090621;
+	//double offset = 0.000505870656651;
 	if ( conversionOption )
 	{
 		double setPointInVolts = 0;
@@ -422,6 +422,8 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
 			thrower ( "unknown agilent option" );
 	}
 }
+
+
 // overload for handling whichever channel is currently selected.
 void Agilent::handleInput( std::string categoryPath, RunInfo info )
 {
@@ -476,6 +478,7 @@ void Agilent::updateButtonDisplay( int chan )
 		channel2Button.SetWindowTextA( cstr( channelText ) );
 	}
 }
+
 
 void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, RunInfo currentRunInfo)
 {
@@ -913,6 +916,8 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 									 std::vector<parameterType>& variables)
 {
 	prepAgilentSettings( channel );
+	programSetupCommands ( );
+
 	if ( scriptInfo.wave.isVaried( ) || variation == 0 )
 	{
 		UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber( );

@@ -1,26 +1,22 @@
-% pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
+% pushout(), but with the repump on.
 def pushout():
-  
-  var pushoutPower 0.3
-  var pushoutFreq 0.5
   off: sideMotRf
-  % on = open
-  on: probeShutter
-  off: sideMotShutter
+  % not pushing out F=1
   off: RepumpRF
-
+  var pushoutfreq 0.55
   dac: RepumpPower 0
-  daclinspace: motFreq defaultMotFreq pushoutfreq 2 10 
-  t += 2.01
-  dac: probePower pushoutPower  
-  % side mot shutter closed, probe open
-  
-  on: probeRF
-  t += pushoutTime
-  off: probeRF
-  off: probeShutter
-  on: sideMotShutter
-  daclinspace: motFreq pushoutfreq defaultMotFreq 1 10
+  daclinspace: motFreq defaultMotFreq pushoutfreq 1 10
   t += 1.01
+  var pushout_Power 0.3
+  var pushouttime 1
+  dac: probePower pushout_power 
+  on: proberf
+  t += pushouttime 
+  off: proberf
+  t += 1
+  dac: probepower 0
+  daclinspace: motFreq pushoutfreq -1 2 10
+  t += 2
+
 
 
