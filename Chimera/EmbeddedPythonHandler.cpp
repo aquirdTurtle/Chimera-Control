@@ -62,8 +62,32 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	{
 		errBox ( err.what ( ) );
 	}
-	//auto res = system ( "python C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Control\\ThresholdAnalysis.py" );
-	//errBox ( res );
+
+}
+
+
+void EmbeddedPythonHandler::thresholdAnalysis (std::string dateString, int fid, std::string analysisLocsString, int picsPerRep )
+{
+	// this is a bit round-about at the moment. I had trouble getting the embedded python handler to properly import 
+	// numpy and H5Py (seems related to precompiled libraries that numpy and H5Py use). So instead I'm brute-forcing 
+	// it at the momnet. This probably isn't the fastest way to accomplish this, hopefully it's fast enough for this 
+	// purpose. The analyis function reads a file to figure out what the settings of the current experiment 
+	// are instead of taking inputs. So the code needs to write the file and then let the python analysis use it
+	// to figure out how to analyze the recent data.
+
+	std::ofstream thresholdInfoFile ( "ThresholdAnalysisInfo.txt", std::ios::out | std::ios::trunc );
+	if ( !thresholdInfoFile.is_open ( ) )
+	{
+		thrower ( "Failed to open Threshold Analysis File!" );
+	}
+	thresholdInfoFile << "Date tuple (day, month, year)\nfileNumber\nAtom Locations\nPicsPerRep\n\n";
+	thresholdInfoFile << dateString << "\n";
+	thresholdInfoFile << fid << "\n";
+	thresholdInfoFile << analysisLocsString << "\n";
+	thresholdInfoFile << picsPerRep << "\n";
+
+	auto res = system ( "python C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Control\\ThresholdAnalysis.py" );
+	errBox ( "threshold analysis result: " + str(res) );
 }
 
 

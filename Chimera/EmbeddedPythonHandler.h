@@ -27,6 +27,7 @@ class EmbeddedPythonHandler
 					   std::string password );
 		// for a single python command.
 		void run(std::string cmd, bool quiet = false, bool flush = true);
+		void thresholdAnalysis ( std::string dateString, int fid, std::string analysisLocsString, int picsPerRep );
 		void flush();
 	private:
 		PyObject* autoAnalysisModule;

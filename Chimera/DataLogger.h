@@ -56,6 +56,7 @@ class DataLogger
 		void finOptimizationFile ( );
 
 		UINT getNextFileNumber ( );
+		std::string getMostRecentDateString ( );
 
 	private:
 		std::ofstream optFile;
@@ -86,6 +87,7 @@ class DataLogger
 		std::string dataFilesBaseLocation;
 		std::string todayFolder;
 		int currentDataFileNumber;
+		std::string mostRecentDateString;
 		UINT currentAndorPicNumber, currentBaslerPicNumber;
 };
 
