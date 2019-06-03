@@ -4,11 +4,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)..\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\Anaconda3\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;$(ProjectDir)..\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)..\Packages\32-Bit-Libs\Release\HDF5-1.10.1-win32-Release\lib;$(ProjectDir)..\Packages\32-Bit-Libs\DIO64;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Python;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Andor;$(ProjectDir)..\Chimera;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files\Basler\pylon 5\Development\lib\Win32;</LibraryPath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;$(ProjectDir)..\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)..\Packages\32-Bit-Libs\Release\HDF5-1.10.1-win32-Release\lib;$(ProjectDir)..\Packages\32-Bit-Libs\DIO64;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Python;$(ProjectDir)..\Packages\32-Bit-Libs\Release\Andor;$(ProjectDir)..\Chimera;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files\Basler\pylon 5\Development\lib\Win32</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>atmcd32m.lib;legacy_stdio_definitions.lib;niFgen.lib;%(AdditionalDependencies);python36.lib;NIDAQmx.lib;dio64_32.lib;visa32.lib;gpib-32.obj;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>atmcd32m.lib;legacy_stdio_definitions.lib;niFgen.lib;%(AdditionalDependencies);python37.lib;NIDAQmx.lib;dio64_32.lib;visa32.lib;gpib-32.obj;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

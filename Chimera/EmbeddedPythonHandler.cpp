@@ -62,14 +62,8 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	{
 		errBox ( err.what ( ) );
 	}
-	try
-	{
-		run ( "import test" );
-	}
-	catch ( Error& err )
-	{
-		errBox ( err.what ( ) );
-	}
+	//auto res = system ( "python C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Control\\ThresholdAnalysis.py" );
+	//errBox ( res );
 }
 
 

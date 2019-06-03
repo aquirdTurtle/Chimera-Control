@@ -154,12 +154,12 @@
 	#define MOT_SCOPE_ADDRESS			 "USB0::0x0699::0x0363::C100939::0::INSTR"
 	#define ANALOG_OUT_SAFEMODE false
 	#define ANALOG_IN_SAFEMODE false
-	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
+	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 
-	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Documents\\Chimera-Control"
+	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Code\\Chimera-Control"
 	const std::string PLOT_FILES_SAVE_LOCATION = str(CODE_ROOT) + "\\Plotting";
-	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Documents/Chimera-Control/Chimera";
-	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Regal-Lab/Documents/Chimera-Control/Debug-Output/";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Data_Analysis_Control";
+	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Regal-Lab/Code/Chimera-Control/Debug-Output/";
 	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-0.083333-PowerLevel\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default-Scripts\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";

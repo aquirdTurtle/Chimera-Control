@@ -7,7 +7,7 @@
 
 int main( )
 {
-	auto res = system ( "C:\\ProgramData\\Anaconda3\\python C:\\Users\\Mark-Brown\\Documents\\Analysis-Code\\ThresholdAnalysis.py" );
+	auto res = system ( "python C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Control\\ThresholdAnalysis.py" );
 	std::cout << res;
 	std::cin.get ( );
 
