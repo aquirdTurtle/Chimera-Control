@@ -719,6 +719,12 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 }
  
 
+std::string DataLogger::getMostRecentDateString ( )
+{
+	return mostRecentDateString;
+}
+
+
 void DataLogger::logMiscellaneousStart()
 {
 	try
@@ -727,6 +733,23 @@ void DataLogger::logMiscellaneousStart()
 		time_t t = time ( 0 );   // get time now
 		struct tm now;
 		localtime_s ( &now, &t );
+		std::string monStr;
+		switch ( now.tm_mon )
+		{
+			case 0: monStr = "January"; break;
+			case 1: monStr = "February"; break;
+			case 2: monStr = "March"; break;
+			case 3: monStr = "April"; break;
+			case 4: monStr = "May"; break;
+			case 5: monStr = "June"; break;
+			case 6: monStr = "July"; break;
+			case 7: monStr = "August"; break;
+			case 8: monStr = "September"; break;
+			case 9: monStr = "October"; break;
+			case 10: monStr = "November"; break;
+			case 11: monStr = "December"; break;
+		}
+		mostRecentDateString = str ( now.tm_mday ) + "," + monStr + "," + str ( now.tm_year + 1900 );
 		writeDataSet ( str ( now.tm_year + 1900 ) + "-" + str ( now.tm_mon + 1 ) + "-" + str ( now.tm_mday ),
 					   "Start-Date", miscellaneousGroup );
 		writeDataSet ( str ( now.tm_hour ) + ":" + str ( now.tm_min ) + ":" + str ( now.tm_sec ) + ":",

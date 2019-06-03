@@ -114,6 +114,12 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 }
 
 
+bool DataAnalysisControl::wantsThresholdAnalysis ( )
+{
+	return autoThresholdAnalysisButton.GetCheck ( );
+}
+
+
 void DataAnalysisControl::updatePlotTime ( )
 {
 	CString txt;
@@ -836,15 +842,6 @@ void DataAnalysisControl::fillPlotThreadInput(realTimePlotterInput* input)
 std::vector<atomGrid> DataAnalysisControl::getGrids( )
 {
 	return grids;
-}
-
-
-void DataAnalysisControl::handleNormalFinish ( )
-{
-	if ( autoThresholdAnalysisButton.GetCheck ( ) )
-	{
-		system ( "python C:\\Users\\Mark-Brown\\Documents\\Analysis-Code\ThresholdAnalysis.py" );
-	}
 }
 
 

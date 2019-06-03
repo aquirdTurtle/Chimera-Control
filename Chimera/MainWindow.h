@@ -169,6 +169,7 @@ class MainWindow : public CDialog
 		EmbeddedPythonHandler& getPython ( );
 		NiawgController& getNiawg ( );
 		Communicator& getCommRef ( );
+		void handleThresholdAnalysis ( );
 	private:
 		DECLARE_MESSAGE_MAP();
 

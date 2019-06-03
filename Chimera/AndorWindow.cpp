@@ -714,6 +714,34 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 }
 
 
+int AndorWindow::getMostRecentFid ( )
+{
+	return dataHandler.getDataFileNumber ( );
+	
+}
+
+int AndorWindow::getPicsPerRep ( )
+{
+	return CameraSettings.getSettings ( ).andor.picsPerRepetition;
+}
+
+std::string AndorWindow::getMostRecentDateString ( )
+{
+	return dataHandler.getMostRecentDateString ( );
+}
+
+
+bool AndorWindow::wantsThresholdAnalysis ( )
+{
+	return analysisHandler.wantsThresholdAnalysis ( );
+}
+
+atomGrid AndorWindow::getMainAtomGrid ( )
+{
+	return analysisHandler.getAtomGrid ( 0 );
+}
+
+
 void AndorWindow::startCamera()
 {
 	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
@@ -1492,12 +1520,6 @@ void AndorWindow::fillMasterThreadInput( MasterThreadInput* input )
 void AndorWindow::setTimerText( std::string timerText )
 {
 	timer.setTimerDisplay( timerText );
-}
-
-
-void AndorWindow::handleNormalFinish ( )
-{
-	analysisHandler.handleNormalFinish ( );
 }
 
 
