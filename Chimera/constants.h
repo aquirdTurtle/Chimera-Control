@@ -15,8 +15,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
 
@@ -53,6 +53,7 @@
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Chimera";
+	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Data_Analysis_Code\\";
 	// same as debug output location but with forward slashes for ease of use in python
 	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Debug-Output/";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
