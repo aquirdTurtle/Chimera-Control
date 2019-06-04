@@ -75,7 +75,7 @@ void EmbeddedPythonHandler::thresholdAnalysis (std::string dateString, int fid, 
 	// are instead of taking inputs. So the code needs to write the file and then let the python analysis use it
 	// to figure out how to analyze the recent data.
 
-	std::ofstream thresholdInfoFile ( "ThresholdAnalysisInfo.txt", std::ios::out | std::ios::trunc );
+	std::ofstream thresholdInfoFile ( DATA_ANALYSIS_CODE_LOCATION + "ThresholdAnalysisInfo.txt", std::ios::out | std::ios::trunc );
 	if ( !thresholdInfoFile.is_open ( ) )
 	{
 		thrower ( "Failed to open Threshold Analysis File!" );
@@ -86,7 +86,7 @@ void EmbeddedPythonHandler::thresholdAnalysis (std::string dateString, int fid, 
 	thresholdInfoFile << analysisLocsString << "\n";
 	thresholdInfoFile << picsPerRep << "\n";
 
-	auto res = system ( "python C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Control\\ThresholdAnalysis.py" );
+	auto res = system ( (str("python ") + DATA_ANALYSIS_CODE_LOCATION + "ThresholdAnalysis.py").c_str() );
 	errBox ( "threshold analysis result: " + str(res) );
 }
 

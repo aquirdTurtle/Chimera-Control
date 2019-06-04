@@ -1,0 +1,9 @@
+Date tuple (day, month, year)
+fileNumber
+Atom Locations
+PicsPerRep
+
+3,June,2019
+2
+[2,2,1,3,3]
+1
