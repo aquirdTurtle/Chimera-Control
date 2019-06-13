@@ -1,7 +1,8 @@
 def zeroFields():
   % total time = 0. This function is for doing pgc.
   var left_field -0.6
-  var right_field 0.6
+  %var right_field 0.6
+  var right_field 0
   var top_field 1.6
   var bot_field -1.9
   var front_field -0.2

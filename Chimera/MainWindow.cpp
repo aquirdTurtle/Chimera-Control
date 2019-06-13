@@ -1476,7 +1476,7 @@ void MainWindow::onNormalFinishMessage()
 	{
 		comm.sendError( err.trace( ) );
 	}
-	if ( TheAndorWindow->wantsThresholdAnalysis ( ) )
+	if ( TheAndorWindow->wantsThresholdAnalysis ( ) ) 
 	{
 		handleThresholdAnalysis ( );
 	}
