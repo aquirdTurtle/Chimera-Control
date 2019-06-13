@@ -56,6 +56,7 @@ FEATURES:
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
 - check number of basler triggers against basler total picture number
 - can't do non-square multi-dim scans
+- make data analysis plotting listview smart about # of pictures
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting
@@ -100,3 +101,4 @@ BUGS:
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 - figure out why plot figure update seems to cause main thread window thread to freak out
 - empty script not causing error???
+- deal with zero crossing in quick change dacs
