@@ -98,7 +98,11 @@ BUGS:
 - reported # ttl events in experiment looks wrong
 - new function then save doesn't save as function
 - ttl display not accurate at end of exp
+
 - image grid popping errors issue, seems related to different binning between f1 and config setting
+	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
 - empty script not causing error???
 - deal with zero crossing in quick change dacs
+- plot dialog x axis incorrect when a grid line is created for each data point (i.e. few variations)
+- 

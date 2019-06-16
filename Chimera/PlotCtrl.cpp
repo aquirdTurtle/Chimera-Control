@@ -414,13 +414,19 @@ void PlotCtrl::plotPoints ( memDC* d )
 	UINT lineNum = 0;
 	for ( auto lineNum : range(shiftedData.size()) )
 	{
+		if ( shiftedData.size ( ) > 1 )
+		{
+			//lineNum = shiftedData.size ( ) - 2;
+		}
 		auto& line = shiftedData[ lineNum ];
+		if ( style == plotStyle::HistPlot && lineNum == shiftedData.size ( ) - 1 )
+		{
+			break;
+		}
 		long t;
 		if ( style == plotStyle::HistPlot )
 		{
-			t = ( lineNum == shiftedData.size ( ) - 1) ? 
-				std::accumulate ( scaledThresholds.begin ( ), scaledThresholds.end ( ), 0.0 ) / scaledThresholds.size ( )
-				: scaledThresholds[ lineNum ];
+			t = scaledThresholds[ lineNum ];
 		}
 		Gdiplus::SolidBrush* brush;
 		Gdiplus::Pen* pen;
@@ -470,7 +476,9 @@ void PlotCtrl::plotPoints ( memDC* d )
 		else if ( style == plotStyle::HistPlot )
 		{
 			makeBarPlot( d, line, brush );
+			pen->SetWidth ( 3 );
 			drawThresholds ( d, t, pen );
+			pen->SetWidth ( 1 );
 		}
 		else if ( style == plotStyle::VertHist )
 		{
