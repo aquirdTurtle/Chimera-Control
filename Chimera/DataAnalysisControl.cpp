@@ -182,6 +182,16 @@ ULONG DataAnalysisControl::getPlotFreq( )
 void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 {
 	UINT numGrids;
+	if ( ver > Version ( "4.0" ) )
+	{
+		bool autoThresholdAnalysisOption;
+		file >> autoThresholdAnalysisOption;
+		autoThresholdAnalysisButton.SetCheck ( autoThresholdAnalysisOption );
+	}
+	else
+	{
+		autoThresholdAnalysisButton.SetCheck ( 0 );
+	}
 	if ( ver > Version( "3.0" ) )
 	{
 		file >> numGrids;
@@ -263,6 +273,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 {
 	file << "DATA_ANALYSIS\n";
+	file << 0 << "\n";
 	file << 1 << "\n";
 	file << 0 << " " << 0 << "\n";
 	file << 0 << " " << 0 << " " << 0 << "\n";
@@ -276,6 +287,7 @@ void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 {
 	file << "DATA_ANALYSIS\n";
+	file << autoThresholdAnalysisButton.GetCheck ( ); << "\n";
 	file << grids.size( ) << "\n";
 	for ( auto grid : grids )
 	{

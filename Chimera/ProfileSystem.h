@@ -110,7 +110,7 @@ class ProfileSystem
 		// Version 4.0: changed the way I read in data for different controls. Each control re-opens the file and scans 
 		// untill it finds the appropriate section for it to read. Makes it so that if one thing fails, everything 
 		// afterwards doesn't also fail.
-		const Version version = Version( "4.0" );  
+		const Version version = Version( "4.1" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
