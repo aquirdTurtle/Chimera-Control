@@ -156,7 +156,7 @@ void MainWindow::handleThresholdAnalysis ( )
 	auto dateStr = TheAndorWindow->getMostRecentDateString ( );
 	auto fid = TheAndorWindow->getMostRecentFid ( );
 	auto ppr = TheAndorWindow->getPicsPerRep ( );
-	std::string gridString = "[" + str ( grid.topLeftCorner.row ) + "," + str(grid.topLeftCorner.column) + ","
+	std::string gridString = "[" + str ( grid.topLeftCorner.row-1 ) + "," + str(grid.topLeftCorner.column-1 ) + ","
 		+ str(grid.pixelSpacing) + "," + str(grid.width) + "," + str(grid.height) + "]";
 	python.thresholdAnalysis (dateStr, fid, gridString, ppr);
 }
@@ -1476,7 +1476,7 @@ void MainWindow::onNormalFinishMessage()
 	{
 		comm.sendError( err.trace( ) );
 	}
-	if ( TheAndorWindow->wantsThresholdAnalysis ( ) )
+	if ( TheAndorWindow->wantsThresholdAnalysis ( ) ) 
 	{
 		handleThresholdAnalysis ( );
 	}

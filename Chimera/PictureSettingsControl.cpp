@@ -83,7 +83,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	for ( int picInc = 0; picInc < 4; picInc++ )
 	{
 		thresholdEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
-		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS, thresholdEdits[picInc].seriesPos, parent,
+		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, thresholdEdits[picInc].seriesPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
 		thresholds[ picInc ] = { 100 };
@@ -91,7 +91,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	pos.videoPos.y += 20;
-
+	//C:\Users\Regal-Lab\Code\Data_Analysis_Control
 	/// colormaps
 	colormapLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	colormapLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
@@ -604,8 +604,8 @@ void PictureSettingsControl::updateSettings( )
 			// assume it's a file location.
 			std::ifstream thresholdFile;
 			//std::string fileAddr = str ( "J:\\\\" ) + str ( textEdit );
-			//thresholdFile.open ( fileAddr.c_str() );
-			thresholdFile.open ( "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\TFile.txt" );
+			thresholdFile.open ( str(textEdit).c_str() );
+			//thresholdFile.open ( "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\TFile.txt" );
 			if ( !thresholdFile.is_open ( ) )
 			{
 				thrower  ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
