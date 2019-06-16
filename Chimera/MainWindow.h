@@ -74,6 +74,7 @@ class MainWindow : public CDialog
 		void onPgcTempCalFin ( );
 		void onGreyTempCalFin ( );
 		void onMachineOptRoundFin ( );
+		void handleThresholdAnalysis ( );
 
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
@@ -169,7 +170,6 @@ class MainWindow : public CDialog
 		EmbeddedPythonHandler& getPython ( );
 		NiawgController& getNiawg ( );
 		Communicator& getCommRef ( );
-		void handleThresholdAnalysis ( );
 	private:
 		DECLARE_MESSAGE_MAP();
 

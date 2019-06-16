@@ -12,6 +12,8 @@
 // for personInfo structure.
 #include "SMSTextingControl.h"
 #include "Thrower.h"
+#include "SystemWithStdout.h"
+
 
 // constructor is important.
 EmbeddedPythonHandler::EmbeddedPythonHandler( )
@@ -85,9 +87,12 @@ void EmbeddedPythonHandler::thresholdAnalysis (std::string dateString, int fid, 
 	thresholdInfoFile << fid << "\n";
 	thresholdInfoFile << analysisLocsString << "\n";
 	thresholdInfoFile << picsPerRep << "\n";
-
+	thresholdInfoFile.close ( );
 	auto res = system ( (str("python ") + DATA_ANALYSIS_CODE_LOCATION + "ThresholdAnalysis.py").c_str() );
-	errBox ( "threshold analysis result: " + str(res) );
+	if ( res != 0 )
+	{
+		errBox ( "threshold analysis appears to have failed. system call result: " + str ( res ) );
+	}
 }
 
 

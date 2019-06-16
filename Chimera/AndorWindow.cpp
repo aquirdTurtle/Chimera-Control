@@ -963,7 +963,7 @@ BOOL AndorWindow::PreTranslateMessage(MSG* pMsg)
 	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
-
+// C:\Users\Regal-Lab\Code\Data_Analysis_Control
 
 void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {

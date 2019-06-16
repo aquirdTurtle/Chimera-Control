@@ -34,10 +34,6 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	autoThresholdAnalysisButton.setPositions ( pos, 0, 0, 480, 25, true );
 	autoThresholdAnalysisButton.Create ( "Automatic Threshold Analysis", NORM_CHECK_OPTIONS, 
 										 autoThresholdAnalysisButton.seriesPos, parent, id++ );
-	autoThresholdAnalysisButton.setToolTip ( "At the end of an experiment, run some python code which will fit the "
-											 "data and determine good thresholds which can be outputted to a file to "
-											 "keep the thresholds used by the real-time analysis up-to-date.", 
-											 tooltips, parent );
 	currentDataSetNumberText.setPositions( pos, 0, 0, 350, 50 );
 	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, parent, 
 									 id++);
@@ -186,16 +182,6 @@ ULONG DataAnalysisControl::getPlotFreq( )
 void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 {
 	UINT numGrids;
-	if ( ver > Version ( "4.0" ) )
-	{
-		bool autoThresholdAnalysisOption;
-		file >> autoThresholdAnalysisOption;
-		autoThresholdAnalysisButton.SetCheck ( autoThresholdAnalysisOption );
-	}
-	else
-	{
-		autoThresholdAnalysisButton.SetCheck ( 0 );
-	}
 	if ( ver > Version( "3.0" ) )
 	{
 		file >> numGrids;
@@ -277,7 +263,6 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 {
 	file << "DATA_ANALYSIS\n";
-	file << 0 << "\n";
 	file << 1 << "\n";
 	file << 0 << " " << 0 << "\n";
 	file << 0 << " " << 0 << " " << 0 << "\n";
@@ -291,7 +276,6 @@ void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 {
 	file << "DATA_ANALYSIS\n";
-	file << autoThresholdAnalysisButton.GetCheck ( ); << "\n";
 	file << grids.size( ) << "\n";
 	for ( auto grid : grids )
 	{
