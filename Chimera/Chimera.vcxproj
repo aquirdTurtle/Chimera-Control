@@ -307,6 +307,7 @@
     <ClInclude Include="splashDialog.h" />
     <ClInclude Include="StatusControl.h" />
     <ClInclude Include="StatusIndicator.h" />
+    <ClInclude Include="SystemWithStdout.h" />
     <ClInclude Include="TektronicsControl.h" />
     <ClInclude Include="TextPromptDialog.h" />
     <ClInclude Include="commonFunctions.h" />
@@ -409,6 +410,7 @@
     <ClCompile Include="splashDialog.cpp" />
     <ClCompile Include="StatusControl.cpp" />
     <ClCompile Include="StatusIndicator.cpp" />
+    <ClCompile Include="SystemWithStdout.cpp" />
     <ClCompile Include="TektronicsControl.cpp" />
     <ClCompile Include="TextPromptDialog.cpp" />
     <ClCompile Include="commonFunctions.cpp" />

@@ -34,10 +34,6 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	autoThresholdAnalysisButton.setPositions ( pos, 0, 0, 480, 25, true );
 	autoThresholdAnalysisButton.Create ( "Automatic Threshold Analysis", NORM_CHECK_OPTIONS, 
 										 autoThresholdAnalysisButton.seriesPos, parent, id++ );
-	autoThresholdAnalysisButton.setToolTip ( "At the end of an experiment, run some python code which will fit the "
-											 "data and determine good thresholds which can be outputted to a file to "
-											 "keep the thresholds used by the real-time analysis up-to-date.", 
-											 tooltips, parent );
 	currentDataSetNumberText.setPositions( pos, 0, 0, 350, 50 );
 	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, parent, 
 									 id++);
