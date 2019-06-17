@@ -12,10 +12,9 @@
 // for personInfo structure.
 #include "SMSTextingControl.h"
 #include "Thrower.h"
-#include "SystemWithStdout.h"
 
 
-// constructor is important.
+// python constructor is important.
 EmbeddedPythonHandler::EmbeddedPythonHandler( )
 {
 	if ( PYTHON_SAFEMODE )
