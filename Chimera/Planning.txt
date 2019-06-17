@@ -106,4 +106,4 @@ BUGS:
 - empty script not causing error???
 - deal with zero crossing in quick change dacs
 - plot dialog x axis incorrect when a grid line is created for each data point (i.e. few variations)
-- 
+- different channels of agilents might be trying to save over each other - referencing the same file name for check save
