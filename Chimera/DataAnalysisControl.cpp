@@ -15,9 +15,7 @@
 #include "Thrower.h"
 #include "range.h"
 
-
 using std::vector;
-
 
 DataAnalysisControl::DataAnalysisControl( )
 {
@@ -291,7 +289,7 @@ void DataAnalysisControl::handleNewConfig( std::ofstream& file )
 void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 {
 	file << "DATA_ANALYSIS\n";
-	file << autoThresholdAnalysisButton.GetCheck ( ); << "\n";
+	file << autoThresholdAnalysisButton.GetCheck ( ) << "\n";
 	file << grids.size( ) << "\n";
 	for ( auto grid : grids )
 	{
