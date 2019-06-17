@@ -10,10 +10,10 @@ def turnOnMot():
   on: SideMotShutter %on
   off: RamanShutter %off
   %% %%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %% % DACS
-  var repump_pow 0.26
-  var repump_freq -0.46
-  var mot_freq -0.4
+  %% % DACS 
+  var repump_pow 0.26 
+  var repump_freq -0.46 
+  var mot_freq -0.625 
   dac: DiagMotPower diagmot__servo_value
   dac: RepumpPower repump_pow
   dac: MotFreq mot_freq 
@@ -24,13 +24,14 @@ def turnOnMot():
   var motStrength 7.1
 
   var dField 0
-  var right_field 0.78
-  var left_field -0.78
+  var right_field 0.821
+  var left_field -0.821
 
-  var front_field -0.93
-  var back_field 0.93
-  var bot_field -0.35
-  var top_field 0.35
+  var front_field -0.845
+  var back_field 0.845
+
+  var bot_field -0.4
+  var top_field 0.4
 
   %var front_field 0.44
   %var back_field 2
@@ -38,11 +39,11 @@ def turnOnMot():
   %var top_field 0.798
 
   dac: MotGradientCurrent motStrength
-  dac: RightCoilCurrent (right_field + dField)
-  dac: LeftCoilCurrent (left_field - dField)
-  dac: FrontCoilCurrent front_field
-  dac: BackCoilCurrent back_field
-  dac: BottomCoilCurrent bot_field 
-  dac: TopCoilCurrent top_field 
+  dac: RightCoilCurrent right_field 
+  dac: LeftCoilCurrent left_field 
+  dac: FrontCoilCurrent front_field 
+  dac: BackCoilCurrent back_field 
+  dac: BottomCoilCurrent (bot_field - dField)
+  dac: TopCoilCurrent (top_field + dField)
 
 
