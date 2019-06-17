@@ -1,0 +1,18 @@
+% this script is a silly one because the design is to  
+% never be triggered. If you only program one intensity, 
+% the agilent runs into problems because of setting low 
+% vs high, but this is the only place where the  
+% calibration is right now. 
+ 
+hold 150 0.1 onceWaitTrig # 
+ramp lin 150 loadingDepth 1 onceWaitTrig # 
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #  
+ramp lin imagingDepth 150  1 once #
+
+ 
+
+
+
+
+
+

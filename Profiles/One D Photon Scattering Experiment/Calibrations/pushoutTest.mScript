@@ -1,0 +1,42 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+% set uwave freq and power,
+
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+loadSkipEntryPoint!
+
+daclinspace: dac23 0 piezoval 10 20 
+t += 0.1
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+call pgcAtomFlashingImage()
+t += 0.1
+call inTrapPgc()
+t += 0.1
+call pump2Stretch()
+t += 0.1 
+pulseon: tweezerIntensityTrig 0.1
+t += 10
+call pushout()
+pulseon: tweezerIntensityTrig 0.1
+t += waitTime 
+call zeroFields()
+
+t += 1
+
+call pgcAtomFlashingImage()
+daclinspace: dac23 piezoval 0 10 20
+
+pulseon: tweezerIntensityTrig 0.1
+
+t += 0.1
+
+

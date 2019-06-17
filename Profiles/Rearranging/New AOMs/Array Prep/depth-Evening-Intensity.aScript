@@ -1,0 +1,7 @@
+hold loadingDepth 0.5 onceWaitTrig # 
+ramp lin loadingDepth imagingDepth 0.5 onceWaitTrig #
+ramp lin imagingDepth testDepth 0.5 onceWaitTrig # 
+ramp lin testDepth 10 1 once #
+hold 10 5 once #
+ramp lin 10 imagingDepth 0.5 onceWaitTrig # 
+

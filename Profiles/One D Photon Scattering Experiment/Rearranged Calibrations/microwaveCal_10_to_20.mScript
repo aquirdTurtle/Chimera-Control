@@ -1,0 +1,68 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+% |1,0> -> |2,0>
+% 6.840 - 5311/1000000 GHz
+rsg: (6.840 + uwFreq / 1000000) -1  
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+t += 0.1
+loadSkipEntryPoint!
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+t += 0.1
+call inTrapPgc()
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+off: RepumpRf
+off: DiagMotRf
+off: SideMotRf
+% time for rearranging calc to happen
+t += 60
+pulseon: niawgTrig 0.1
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2
+call intrappgc()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+off: SideMotRf
+off: repumpRf
+off: DiagMotRf
+t += 0.1
+% turn off diagmot shutter for entire experiment 
+% until load mot
+call pgcAtomFlashingImage()
+t += 0.1
+call intrappgc()
+t += 0.1
+call pump2F1()
+t += 0.1
+call setQuantAxis()
+t += 1
+% uw20 to 10
+on: eoswitch
+on: eoswitch2
+t += uwLength
+off: eoswitch
+off: eoswitch2
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call pushout()
+t += 0.1
+call zeroFields()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2
+call pgcAtomFlashingImage()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 10
+

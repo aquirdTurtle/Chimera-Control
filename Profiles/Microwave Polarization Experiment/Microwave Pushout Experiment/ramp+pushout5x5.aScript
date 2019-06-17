@@ -1,0 +1,31 @@
+%hold 3.5 0.1 onceWaitTrig #
+%ramp lin 3.5 3.4 5 onceWaitTrig #
+
+
+%hold 3.5 0.1 onceWaitTrig #
+%ramp lin 3.5 3.5 5 onceWaitTrig #
+%ramp lin 3.5 0.5 5 onceWaitTrig #
+%ramp lin 0.5 0.15 5 onceWaitTrig #
+%ramp lin 0.15 3.5 5 onceWaitTrig #
+
+%hold 100 0.1 onceWaitTrig #
+%ramp lin 100 80 5 onceWaitTrig #
+%ramp lin 80 14 5 onceWaitTrig #
+%ramp lin 14 90 5 onceWaitTrig #
+%ramp lin 90 10 5 onceWaitTrig #
+%ramp lin 10  80 5 onceWaitTrig #
+
+hold 120 0.1 onceWaitTrig #
+ramp lin 120 15 5 onceWaitTrig #
+ramp lin 15 14 5 onceWaitTrig #
+ramp lin 14 pushoutdepth 5 onceWaitTrig #
+ramp lin pushoutdepth 119 5 onceWaitTrig #
+
+%hold 40 0.1 onceWaitTrig #
+%ramp lin 40 28  5 onceWaitTrig #
+%ramp lin 28 5.06 5 onceWaitTrig #
+%ramp lin 5.06 1 5 onceWaitTrig #
+%ramp lin 1 28 5 onceWaitTrig # %23
+
+%ramp lin 28 1.519 5 onceWaitTrig #
+%ramp lin 1.519 28 5 onceWaitTrig #

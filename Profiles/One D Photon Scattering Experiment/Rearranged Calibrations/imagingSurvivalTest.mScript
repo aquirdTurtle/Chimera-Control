@@ -1,0 +1,43 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t += 0.1
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+t += 0.1
+loadSkipEntryPoint!
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call pgcAtomFlashingImage()
+t += 0.1
+call inTrapPgc()
+t += 0.1
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+% time for rearranging calc to happen
+t += 40
+pulseon: niawgTrig 0.1
+t += 2
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call intrappgc()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+pulseon: a15 0.1
+t += 0.5
+% turn off diagmot shutter for entire experiment 
+% until load mot
+call pgcAtomFlashingImage()
+%call intrappgc()
+t += 15
+
+call pgcAtomFlashingImage()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+
+call turnonmot()

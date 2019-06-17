@@ -1,0 +1,74 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t += 0.1 
+off: sigmaRepumpRf
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+t += 1
+loadSkipEntryPoint!
+t += 1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2
+call pgcAtomFlashingImage()
+t += 0.1
+call inTrapPgc()
+t += 0.1
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+off: RepumpRf
+off: DiagMotRf
+off: SideMotRf
+% time for rearranging calc to happen
+t += 80
+pulseon: niawgTrig 0.1
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call intrappgc()
+t += 1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+% turn off diagmot shutter for entire experiment 
+% until load mot
+call pgcAtomFlashingImage()
+t += 0.1
+call intrappgc()
+t += 0.1
+call pump2F1()
+t += 0.1
+call rotateFieldsFromZero()
+%% apply 1->0' light %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% set repump freq (side-lock freq)
+daclinspace: RepumpFreq loadmotrepumpfreq freq_1_to_0 0.5 10
+% wait to make sure shutter is open...
+t += 0.51
+% ramp down for pushout-like pulse
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+dac: sigmarepumppower scatterPower
+dac: repumpPower 0
+on: sigmaRepumpRf
+on: repumpFlash
+on: tweezerFlashRF
+t += scatterTime
+off: sigmaRepumpRf
+off: repumpFlash
+off: tweezerFlashRF
+daclinspace: RepumpFreq freq_1_to_0 loadmotrepumpfreq 0.5 10
+t += 0.51
+call rotateFieldsBackScatter()
+%call intrappgc()
+t += 0.2
+call zeroFields()
+% ramp for image
+pulseon: tweezerIntensityTrig 0.1
+t += 2.5
+call pgcAtomFlashingImage()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 10
+% call turnonmot()

@@ -1,0 +1,141 @@
+% Master-Script See the "?" for info on commands.
+% time starts at 0.1ms
+t = 0.1 
+rsg: (6.84+uwfreq2211offset/1000000) -1 % set uwave freq and power, do not set above 20 dBm!
+
+call turnonmot()
+
+t += loadMotTime
+
+% diag mot shutter turned off after pgc loading
+call pgcLoading()
+
+t += 1
+
+loadSkipEntryPoint!
+
+t += 1
+
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+
+pulseon: niawgTrig 0.1
+
+call pgcAtomFlashingImage()
+t += 0.1
+call inTrapPgc()
+
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+
+off: RepumpRf
+off: DiagMotRf
+off: SideMotRf
+
+% long time for initial tests in debug mode
+t += 100
+
+%pulseon: niawgTrig 0.1
+%t += 5
+
+% ramp for 6x1 imaging
+pulseon: tweezerIntensityTrig 0.1
+off: SideMotRf
+off: repumpRf
+off: DiagMotRf
+t += 1.1
+
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pgcAtomFlashingImageScatterV()
+
+% ramp for pgc
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+%call intrappgcscatterV()
+
+% use the same depth as the scattering
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+%dac: RepumpPower 0.3
+%on: RepumpRf
+%t += 30
+%off: RepumpRF
+call pump2stretch()
+
+t += 5
+
+on: eoswitch 
+on: eoswitch2
+t += uwlen2211
+off: eoswitch 
+off: eoswitch2
+
+on: c3
+t += 0.1
+off: c3
+
+rsg: (6.84+uwfreq1122offset/1000000) -1 
+% set uwave freq and power, do not set above -1 dBm!
+
+call rotatefields()
+t += 5
+
+
+pulseon: niawgTrig 0.1
+t += 5
+dac: dac21 ropfrqsidelock 
+off: ropshutter 
+%    to block the normal rop beam 
+t += 2 
+dac: sigmarepumpfreq repumpfreq10 
+dac: sigmarepumppower repump10pow  
+%%%%%  on: C5 % flash the trap
+%%%%%  on: A7 % flash the repump 
+% on: A3 % for temporary modulation for freq meas  %
+on: sigmarepumprf 
+t += pump10time 
+off: sigmarepumprf
+t += 1
+
+pulseon: niawgTrig 0.1
+t += 1
+
+call rotatefieldsback()
+t += 5
+% turn on miccrowave pulse
+on: eoswitch
+on: eoswitch2
+
+t += uwlen1122
+
+off: eoswitch
+off: eoswitch2
+
+on: c3
+t += 0.1
+off: c3
+
+%call pushout()
+
+%call pushout1Dscatterbeamoff()
+call pushout1Dscatter()
+
+
+% prepare for imging
+dac: dac21 0
+call zerofields()
+t += 2
+
+%call intrappgc()
+call pgcAtomFlashingImagescatterV()
+
+pulseon: tweezerIntensityTrig 0.1
+pulseon: niawgTrig 0.1
+t += 1
+
+call turnOnMot()
+t += 20

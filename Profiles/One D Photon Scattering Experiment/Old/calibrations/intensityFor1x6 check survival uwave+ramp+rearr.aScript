@@ -1,0 +1,26 @@
+% Simple Example for Testing.
+%
+% Ramp
+%%%%%%%	RTKW	Init	Fin	Time	CT	Rep#?	delim
+% 	_	_	_	_	_	_	#
+% Hold
+%%%%%%%	 IntVal		Time 	CT	Rep#?		       delim
+%		     _		    _	    RepeatUntilTrigger #
+%
+
+% loading Depth
+hold 74.1 1 onceWaitTrig #  %loadingDepth 
+% ramp for imaging
+ramp lin 74.1 74 1 onceWaitTrig # %imagingdepth3x6 
+% ramp to rearranging depth    
+ramp lin 74 12 1 onceWaitTrig # %flashDepth 12 
+% ramp to imaging depth
+ramp lin 12 90 1 onceWaitTrig # %imagingdepth 
+ramp lin 90 40 0.06 onceWaitTrig # % pgc depth
+ramp lin 40 pumpdepth  0.06 onceWaitTrig # %18
+ramp lin pumpdepth 1.2 1 onceWaitTrig # %pushout10depth  1.2
+%%ramp lin 2 2.1 2 onceWaitTrig # %pushout10depth was 1 for 3x3
+%%ramp lin pushout10depth 16 2 onceWaitTrig # %uwdepth 
+
+%%ramp lin 2.1  pushout10depth  2 onceWaitTrig # %uwdepth 
+ramp lin 1.2 90 1 onceWaitTrig #

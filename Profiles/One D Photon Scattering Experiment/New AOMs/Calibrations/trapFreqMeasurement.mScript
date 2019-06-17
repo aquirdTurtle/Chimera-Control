@@ -1,0 +1,26 @@
+
+t += 0.1
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+call cleanLoading()
+loadSkipEntryPoint!
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2
+call pgcAtomFlashingImage()
+call inTrapPgc()
+% trigger the modulation, this trigger is connected to the sample and hold
+% as well as the modulation switch at the moment.
+on: a13
+t += 5
+off: a13
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+% ramp to down to release hot atoms
+t += 5
+call pgcAtomFlashingImage()
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+t += 1

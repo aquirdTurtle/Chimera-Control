@@ -1,0 +1,85 @@
+% Master-Script See the "?" for info on commands.
+t = 0.1 
+rsg: (6.84+uwfreq1122offset/1000000) -1 % set uwave freq and power, do not set above 20 dBm!
+
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+call pgcAtomFlashingImagescatter()
+
+%pulseon: NIAWGTrig 0.1 % ramp to scatter spacing
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call intrappgcScatter()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call populateF1() % pump atom to F=1 manifold
+
+call rotatefields() % to prepare to get to F=1 state
+
+dac: dac21 0
+t += 1
+dac: RepumpPower 0.04
+on: RepumpRf
+t += 2
+off: RepumpRF
+
+dac: dac21 ropfrqsidelock
+off: ropshutter % to block the normal rop beam
+t += 2
+dac: sigmarepumpfreq repumpfreq10 %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
+dac: sigmarepumppower repump10pow
+
+%%%%%  on: C5 % flash the trap
+%%%%%  on: A7 % flash the repump
+% on: A3 % for temporary modulation for freq meas
+
+%on: sigmarepumprf
+t += pump10time
+% t += waittime
+off: sigmarepumprf
+%t += waittime
+
+%%%%%  off: C5 % flash the trap
+%%%%%  off: A7 % flash the repump
+% off: A3 % for temporary modulation for freq meas
+
+
+% turn on miccrowave pulse 22-11 transition 
+%on: eoswitch 
+%on: eoswitch2
+t += uwavetime
+off: eoswitch 
+off: eoswitch2
+
+% prepare for imging
+dac: dac21 0
+call zerofields()
+
+%call pushout()
+%call pushout1Dscatter() 
+%call pushout1Dscatterbeamoff()
+
+%pulseon: NIAWGTrig 0.1 % ramp back to normal spacing
+%call intrappgc()
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call pgcAtomFlashingImagescatter()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+%pulseon: NIAWGTrig 0.1 % ramp to initial waveform
+call turnOnMot()
+t += 20
+

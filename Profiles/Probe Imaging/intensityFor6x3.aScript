@@ -1,0 +1,24 @@
+% Simple Example for Testing.
+%
+% Ramp
+%%%%%%%	RTKW	Init	Fin	Time	CT	Rep#?	delim
+% 	_	_	_	_	_	_	#
+% Hold
+%%%%%%%	 IntVal		Time 	CT	Rep#?		       delim
+%		     _		    _	    RepeatUntilTrigger #
+%
+
+
+
+
+hold loadingDepth 0.1 onceWaitTrig # 
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #
+ramp lin imagingDepth opticalpumpDepth 1 onceWaitTrig #
+%ramp lin opticalpumpDepth pushoutDepth 1 onceWaitTrig #
+%ramp lin pushoutDepth imagingDepth 1 onceWaitTrig #\
+ramp lin opticalpumpdepth probeDepth 1 onceWaitTrig #
+ramp lin probeDepth heatDepth 1 onceWaitTrig #
+ramp lin heatDepth imagingDepth 1 onceWaitTrig #
+%ramp lin probeDepth imagingDepth 1 onceWaitTrig #
+%ramp lin opticalpumpDepth imagingDepth 1 onceWaitTrig #
+

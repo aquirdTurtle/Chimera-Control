@@ -1,0 +1,43 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+call cleanloading()
+
+
+pulseon: tweezerIntensityTrig 0.1
+
+t += 1
+call pgcAtomFlashingImage()
+
+call inTrapPgc()
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call pump2stretch()
+pulseon: tweezerIntensityTrig 0.1
+t += 1.2
+%call pushout()
+call probeimaging()
+%t += 5
+
+pulseon: tweezerIntensityTrig 0.1
+t += 10.0
+
+call zerofields()
+
+t += 10 % enough spacing between two pictures
+pulseon: tweezerIntensityTrig 0.1
+
+t += 1
+call pgcAtomFlashingImage()
+%pulseon: tweezerIntensityTrig 0.1
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call turnOnMot()

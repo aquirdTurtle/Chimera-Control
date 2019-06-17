@@ -1,0 +1,3 @@
+hold 10.5 1 onceWaitTrig #
+ramp lin 10.5 7.5 5 onceWaitTrig #
+ramp lin 7.5 10.5 5 onceWaitTrig #

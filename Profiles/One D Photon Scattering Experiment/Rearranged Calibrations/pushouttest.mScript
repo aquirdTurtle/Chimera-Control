@@ -1,0 +1,55 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+off: sigmarepumprf
+t += 0.1
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+t += 0.1
+loadSkipEntryPoint!
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+call pgcAtomFlashingImage()
+call inTrapPgc()
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+% time for rearrnging calc to happen
+t += 60
+% rearrange!
+pulseon: niawgTrig 0.1
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call intrappgc()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+% turn off diagmot shutter for entire experiment 
+% until load mot
+call pgcAtomFlashingImage()
+t += 0.1
+call intrappgc()
+t += 0.1
+%call pump2F1()
+call pump2stretch()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call pushout()
+t += 0.1
+call zeroFields()
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call intrappgc()
+%t += 0.5
+call pgcAtomFlashingImage()
+t += 0.1
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 15
+
+%call turnonmot()

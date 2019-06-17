@@ -1,0 +1,48 @@
+t = 0.1
+
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+%loadSkipEntryPoint!`
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+pulseon: niawgTrig 0.1 % ramping to new spacing
+t += 1
+
+%%%%%  on: C5 % flash the trap
+%on: A7 % flash the repump
+%on: A3 % for temporary modulation for freq meas
+
+off: ropshutter % to block the normal rop beam
+off: sigmarepumprf
+
+%%%%%  on: sigmarepumprf
+t += pump10time
+%t += waittime
+%t += waittime
+
+pulseon: niawgTrig 0.1 % ramping to original spacing
+t += 1
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+%call intrappgc()
+t += 40
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+pulseon: niawgTrig 0.1 % ramping to beginning
+t += 1
+
+call turnOnMot()
+t += 20

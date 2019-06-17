@@ -1,0 +1,44 @@
+%hold 3.5 0.1 onceWaitTrig #
+%ramp lin 3.5 3.4 5 onceWaitTrig #
+
+
+%hold 3.5 0.1 onceWaitTrig #
+%ramp lin 3.5 3.5 5 onceWaitTrig #
+%ramp lin 3.5 0.5 5 onceWaitTrig #
+%ramp lin 0.5 0.15 5 onceWaitTrig #
+%ramp lin 0.15 3.5 5 onceWaitTrig #
+
+%hold 100 0.1 onceWaitTrig #
+%ramp lin 100 80 5 onceWaitTrig #
+%ramp lin 80 14 5 onceWaitTrig #
+%ramp lin 14 90 5 onceWaitTrig #
+%ramp lin 90 10 5 onceWaitTrig #
+%ramp lin 10  80 5 onceWaitTrig #
+
+%hold 120 0.1 onceWaitTrig #
+%ramp lin 120 15 5 onceWaitTrig #
+%ramp lin 15 14 5 onceWaitTrig #
+%ramp lin 14 5 5 onceWaitTrig #
+%ramp lin 5 119 5 onceWaitTrig #
+
+%hold Loadingdepth 1 onceWaitTrig # %65
+%ramp lin Loadingdepth ImagingDepth 1 onceWaitTrig # %23  
+%ramp lin ImagingDepth 36  2 onceWaitTrig # %18
+%ramp lin 36 30 2 onceWaitTrig # %pushout10depth was 1 for 3x3
+%%ramp lin pushout10depth 16 2 onceWaitTrig # %uwdepth 
+
+%ramp lin 30 pushout10depth  2 onceWaitTrig # %uwdepth 
+%ramp lin pushout10depth ImagingDepth 1 onceWaitTrig #
+%ramp lin ImagingDepth Loadingdepth 1 once #
+
+
+%ramp lin 28 1.519 5 onceWaitTrig #
+%ramp lin 1.519 28 5 onceWaitTrig #
+
+
+
+hold LoadingDepth 1 onceWaitTrig # 
+ramp lin LoadingDepth ImagingDepth 1 onceWaitTrig # 
+ramp lin ImagingDepth LoadingDepth 1 once #
+
+

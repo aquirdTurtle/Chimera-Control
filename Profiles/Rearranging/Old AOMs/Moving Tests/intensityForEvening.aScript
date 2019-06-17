@@ -1,0 +1,8 @@
+hold loadingDepth 0.1 onceWaitTrig # 
+ramp lin loadingDepth imagingDepth 0.1 onceWaitTrig #
+ramp lin imagingDepth scatterDepth 0.5 onceWaitTrig # 
+ramp lin scatterDepth dropDepth 0.5 once # 
+hold dropDepth 1 once #
+ramp lin dropDepth imagingDepth 0.5 onceWaitTrig # 
+
+ 

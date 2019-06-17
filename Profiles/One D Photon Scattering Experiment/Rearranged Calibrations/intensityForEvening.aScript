@@ -1,0 +1,10 @@
+hold loadingDepth 0.1 onceWaitTrig # 
+ramp lin loadingDepth imagingDepth 0.1 onceWaitTrig #
+ramp lin imagingDepth rearrangeDepth 0.1 onceWaitTrig #
+ramp lin rearrangeDepth imagingDepth 0.5 onceWaitTrig #
+% drop atoms
+ramp lin imagingDepth imagingDepth2 0.5 onceWaitTrig #
+ramp lin imagingDepth2 pushoutDepth 0.5 onceWaitTrig #
+ramp lin pushoutDepth imagingDepth2 0.5 onceWaitTrig #
+
+ 

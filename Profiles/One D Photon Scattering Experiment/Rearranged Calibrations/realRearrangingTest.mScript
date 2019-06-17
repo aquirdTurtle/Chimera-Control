@@ -1,0 +1,36 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t += 0.1
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+call cleanLoading()
+loadSkipEntryPoint!
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2
+call pgcAtomFlashingImage()
+t += 0.1
+call inTrapPgc()
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+% long time for initial tests in debug mode
+t += 40
+pulseon: d10 0.1
+on: a13
+t += 0.01
+pulseon: niawgTrig 0.1
+t += 1.3
+off: a13
+t += 0.2
+
+pulseon: tweezerIntensityTrig 0.1
+t += 0.6
+% turn off diagmot shutter for entire experiment 
+% until load mot
+call pgcAtomFlashingImage()
+t += 10
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+

@@ -1,0 +1,7 @@
+hold loadDepth 0.01 onceWaitTrig # 
+ramp lin loadDepth imgDepth 1 onceWaitTrig # 
+ramp lin imgDepth lowDepth 1 once # 
+hold lowDepth 10 once #
+ramp lin lowDepth imgDepth 1 onceWaitTrig #
+
+ 

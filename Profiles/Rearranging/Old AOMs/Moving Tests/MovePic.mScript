@@ -1,0 +1,11 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+%
+pulseon: niawgTrig 0.1
+
+t += waitTime 
+
+pulseon: acetrig 0.1
+t += 100
+dac: dac0 0

@@ -1,0 +1,19 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+%
+
+call turnonmot()
+t += 1
+t += loadMotTime
+t += 1
+call pgcLoading()
+call cleanLoading()
+loadSkipEntryPoint!
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+t += 10
+

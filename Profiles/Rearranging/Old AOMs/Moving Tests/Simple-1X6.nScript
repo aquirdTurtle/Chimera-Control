@@ -1,0 +1,51 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+gen6Const
+HORIZONTAL
+%%%%%		freq		amp		phase
+		49		0.2863	0.39215781
+		58		0.09698	0.58232846
+		67		0.1039 	2.32492721
+		76		0.1024	4.28354534
+		85		0.1258	6.16733993
+		94		0.2848	3.84334802
+	#
+gen1Const
+VERTICAL
+%%%%%	 freq			amp		phase
+	73.5 1 0
+	#
+%%%%%	 time	p.m
+	     0.1	0	
+endRepeat
+

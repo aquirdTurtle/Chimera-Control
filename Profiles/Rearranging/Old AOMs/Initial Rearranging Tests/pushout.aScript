@@ -1,0 +1,3 @@
+hold 3.5 1 onceWaitTrig #
+ramp lin 3.5 pushoutDepth 5 onceWaitTrig #
+ramp lin pushoutDepth 3.5 5 onceWaitTrig #

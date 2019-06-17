@@ -21,17 +21,7 @@ MFCApplication3/
 .vs/
 *.fits
 *.script
-*.nScript
-*.cConfig
-*.hConfig
-*.vConfig
-*.mScript
-*.catConfig
-*.eConfig
 *.fits
-*.aConfig
-*.aScript
-*.sConfig
 !Profiles/Program Tests/*.script
 !Profiles/Program Tests/*.nScript
 !Profiles/Program Tests/*.Config

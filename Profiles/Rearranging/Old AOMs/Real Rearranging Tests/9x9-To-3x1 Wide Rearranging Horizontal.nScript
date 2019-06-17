@@ -1,0 +1,94 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+repeatTilTrig
+
+gen3Const
+%%%%%		freq		amp		phase
+		58		1.13 		1.90891 
+		70		0.98		0.31753 
+		82		1.33		1.85934
+
+%%%%%	time	p.m.	delim
+	0.1	0	#
+
+endRepeat
+
+repeatTilSoftwareTrig
+
+gen3Const
+%%%%%		freq		amp		phase
+		58		1.13 		1.90891 
+		70		0.98		0.31753 
+		82		1.33		1.85934 
+%%%%%	time	p.m.	delim
+	0.1	0	#
+
+endRepeat
+
+rearrange 
+{ 
+
+% Picture Dimensions, rows x columns 
+3 3
+% lowest horizontal freq in picture 
+58 
+% lowest vertical freq in picture 
+68 
+% frequency spacing of pixels (MHz) 
+12 
+% holding pattern  
+
+gen3Const
+%%%%%		freq		amp		phase
+		58		1.13 		1.90891 
+		70		0.98		0.31753 
+		82		1.33		1.85934
+%%%%%	 time	p.m.	delim
+	     0.06	0	    #
+% Target picture, dims must match above 
+0 0 0
+1 1 1
+0 0 0
+
+}
+
+repeatTilTrig  
+
+gen3Const
+%%%%%		freq		amp		phase
+		58		1.13 		1.90891 
+		70		0.98		0.31753 
+		82		1.33		1.85934 
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+endRepeat 
+
+%%--------------------------------------------------------------%%

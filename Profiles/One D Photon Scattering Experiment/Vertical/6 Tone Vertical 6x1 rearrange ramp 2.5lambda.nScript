@@ -1,0 +1,187 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+repeatTilTrig
+
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+repeatTilSoftwareTrig
+
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+
+rearrange  
+{   
+	% Target Dimensions, rows x columns  
+	6 3
+	% lowest horizontal freq in picture  
+	61  
+	% lowest vertical freq in picture  
+	51  
+	% frequency spacing of pixels (MHz)  
+	9 
+% holding pattern
+gen6Const 
+%%	freq	amp	phase 		
+	51	0.22900398 	1.989426
+	60	0.18104185 	0.177340
+	69	0.1150779 	0.696955
+	78	0.12399155 	1.287015
+	87	0.12881944 	1.829113
+	96	0.22206518 	4.199323
+%%%%%	time	p.m.	delim
+	0.04	0	# 
+	
+% Target picture, dims must match above  
+	0 1 0
+	0 1 0
+	0 1 0
+	0 1 0
+	0 1 0
+	0 1 0   
+
+
+0 0  
+}
+
+repeatTilTrig
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.11	 	0.696955
+		78		0.11	 	1.287015
+		87		0.113	 	1.829113
+		96		0.165	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+gen6freq&ampramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+lin	51	56.675	lin	0.22900398	2.1	1.989426
+lin	60	66.005	lin	0.18104185	1.11392	0.17734
+lin	69	75.335	lin	0.11	1.51419	0.696955
+lin	78	84.665	lin	0.11	1.40073	1.287015
+lin	87	93.995	lin	0.113	1.77782	1.829113
+lin	96	103.325	lin	0.165	2.001	4.199323
+%%%%%	 time	p.m.	delim
+	     5	0	    #
+
+
+repeatTilTrig
+gen6Const										
+%%%%	freq	amp	phase							
+	56.675	2.1	0.32376			
+	66.005	1.11392	2.51131			
+	75.335	1.51419	0.09928			
+	84.665	1.40073	3.16487			
+	93.995	1.77782	0.321			
+	103.325	2.001	0.14792							 
+%%%%	time	p.m.	delim							
+0.1	0   #			
+endRepeat
+
+gen6freq&ampramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+lin	56.675	51	lin	2.1	0.22900398	0.32376
+lin	66.005	60	lin	1.11392	0.18104185	2.51131
+lin	75.335	69	lin	1.51419	0.11	0.09928
+lin	84.665	78	lin	1.40073	0.11	3.16487
+lin	93.995	87	lin	1.77782	0.113	0.321
+lin	103.325	96	lin	2.001	0.165	0.14792	
+%%%%%	time	p.m.	delim
+	5	0	#
+
+repeatTilTrig
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.11	 	0.696955
+		78		0.11 	1.287015
+		87		0.113 	1.829113
+		96		0.165	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+%repeatForever
+%gen6Const
+%%%%%	 freq			amp		phase
+%		57.5		1.6	 	0.2259
+%		66.5		1 	3.3385
+%
+%		84.5		0.9	0.6531
+%		93.5		1.4 	0.1646
+%		102.5		2.1	 	5.0137
+%%%%%	 time	p.m.	delim
+%	     0.1	0	    #
+
+%endRepeat
+%%--------------------------------------------------------------%%
+
+%repeatForever
+%gen6Const
+%%%%%	 freq			amp		phase
+%		61.35		1.361	 	0.36
+%		68.81		1.078 	5.197
+%		76.27		1.022	      5.719
+%		83.73		1.027       0.086
+%		91.19		1.179 	0.591
+%		98.65		1.571	 	3.370
+%%%%%	 time	p.m.	delim
+%	     0.1	0	    #
+
+%endRepeat

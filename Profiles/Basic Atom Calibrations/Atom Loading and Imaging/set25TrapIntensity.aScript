@@ -1,0 +1,13 @@
+% Simple Example for Testing.
+%
+% Ramp
+%%%%%%%	RTKW	Init	Fin	Time	CT	Rep#?	delim
+% 	_	_	_	_	_	_	#
+% Hold
+%%%%%%%	 IntVal		Time 	CT	Rep#?		       delim
+%		     _		    _	    RepeatUntilTrigger #
+%
+% 80
+Hold loadingPower 1 onceWaitTrig # 
+ramp lin loadingPower imgPower 1 onceWaitTrig # 
+ 
