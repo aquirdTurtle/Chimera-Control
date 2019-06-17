@@ -1,0 +1,72 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+rsg: uwfreq1122 20 % set uwave freq and power, do not set above -1 dBm!
+%
+t += 1 
+
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+t += 5
+%
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+call pgcAtomFlashingImage()
+
+%call intrappgc()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+%pulseon: niawgTrig 0.1
+%t += 10
+
+call pump2stretch()
+
+
+call rotatefields()
+
+
+% ramp tweezer to shallow trap for uwave
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+
+% turn on miccrowave pulse
+%on: eoswitch
+%on: eoswitch2
+
+t += uwlen1122
+
+off: eoswitch
+off: eoswitch2
+
+% ramp tweezer back
+
+%pulseon: tweezerIntensityTrig 0.1
+%t += 5
+
+
+
+%pulseon: niawgTrig 0.1
+%t += 10
+
+call pushout()
+t += 5
+
+call zerofields()
+t += 10
+
+call pgcAtomFlashingImage()
+
+call turnOnMot()
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+%pulseon: niawgTrig 0.1
+%t += 10
+

@@ -1,0 +1,68 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+
+
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+t += 5
+%
+call pgcAtomImage()
+
+call intrappgc()
+
+rsg: uwavefreq -1 % 6.84106 set uwave freq and power, do not set above -1 dBm!
+%
+t += 1 
+
+call pump2stretch()
+%on: repumpRf %putin some repumping, helps on atom kick out
+%t += 10
+% off: repumpRF
+t += 1 
+dacramp: leftCoilCurrent 3.6461 -1.8061 30 0.15 %-1.8061
+%dacramp: rightCoilCurrent -2.7361 3.4251 30 0.2	
+%dacramp: topCoilCurrent 2.0223 pgcTopField 10 0.04
+%dacramp: bottomCoilCurrent -1.7 pgcBottomField 10 0.04	
+%dacramp: frontCoilCurrent -0.75 pgcFrontField 10 0.04	
+%dacramp: backCoilCurrent 0.2614 pgcBackField 10	0.04	
+t += 30
+%dac: leftCoilCurrent -0.275
+%dac: rightCoilCurrent 0.275
+%t += 5
+
+% ramp tweezer to shallow trap for uwave
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+% turn on miccrowave pulse
+on: eoswitch
+on: eoswitch2
+
+%t += uwavelength
+
+%off: eoswitch
+%off: eoswitch2
+
+t += 1
+% ramp tweezer back
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+%dacramp: leftCoilCurrent -1.8061 3.6461 30 0.08
+%dacramp: rightCoilCurrent 3.4251 -2.7361 30 0.2	
+t += 30
+call pushout()
+%call pushoutprobe()
+
+
+call zerofields()
+t += 20 % to let field settle
+call pgcAtomImage()
+
+call turnOnMot()
+

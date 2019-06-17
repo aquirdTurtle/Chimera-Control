@@ -1,0 +1,118 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+gen2const
+Horizontal
+%%		freq		amp		phase
+56.2 	1 	0.37847833
+%75 	0.85 	0.55307273
+93.8 	0.95 	3.86934244 
+#
+gen3const
+Vertical
+56.2 	1.2 	0.37847833
+75 	0.75 	0.55307273
+93.8 	1.05 	3.86934244
+		#
+%%%%	time	p.m.	delim
+	0.01	0
+
+endRepeat
+
+repeatTilTrig
+gen3const
+Horizontal
+%%		freq		amp		phase
+56.2 	1 	0.37847833
+75 	0.85 	0.55307273
+93.8 	0.95 	3.86934244 
+#
+gen3const
+Vertical
+56.2 	1.2 	0.37847833
+75 	0.75 	0.55307273
+93.8 	1.05 	3.86934244
+		#
+%%%%	time	p.m.	delim
+	0.01	0
+endRepeat
+
+%% 1 %%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+gen3const
+Horizontal
+%%		freq		amp		phase
+56.2 	1 	0.37847833
+75 	0.85 	0.55307273
+93.8 	0.95 	3.86934244 
+#
+gen3const
+Vertical
+56.2 	1.2 	0.37847833
+75 	0.75 	0.55307273
+93.8 	1.05 	3.86934244
+		#
+%%%%	time	p.m.	delim
+	0.01	0
+
+gen1FreqRamp
+Horizontal
+lin 56.2 75 1 0
+#
+gen1Const
+Vertical
+75 1 0
+#
+0.004 0
+
+repeatTilTrig
+gen3const
+Horizontal
+%%		freq		amp		phase
+56.2 	1 	0.37847833
+75 	0.85 	0.55307273
+93.8 	0.95 	3.86934244 
+#
+gen3const
+Vertical
+56.2 	1.2 	0.37847833
+75 	0.75 	0.55307273
+93.8 	1.05 	3.86934244
+		#
+%%%%	time	p.m.	delim
+	0.01	0
+
+
+
+endRepeat
+
+%%--------------------------------------------------------------%%

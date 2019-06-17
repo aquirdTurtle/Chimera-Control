@@ -1,0 +1,187 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+repeatTilTrig
+
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+repeatTilSoftwareTrig
+
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+
+rearrange  
+{   
+	% Target Dimensions, rows x columns  
+	6 3
+	% lowest horizontal freq in picture  
+	61  
+	% lowest vertical freq in picture  
+	51  
+	% frequency spacing of pixels (MHz)  
+	9 
+% holding pattern
+gen6Const 
+%%	freq	amp	phase 		
+	51	0.22900398 	1.989426
+	60	0.18104185 	0.177340
+	69	0.1150779 	0.696955
+	78	0.12399155 	1.287015
+	87	0.12881944 	1.829113
+	96	0.22206518 	4.199323
+%%%%%	time	p.m.	delim
+	0.04	0	# 
+	
+% Target picture, dims must match above  
+	0 1 0
+	0 1 0
+	0 1 0
+	0 1 0
+	0 1 0
+	0 1 0   
+
+
+0 0  
+}
+
+repeatTilTrig
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+gen6freq&ampramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+lin	51	61.35	lin	0.22900398	1.7	0.27671				
+lin	60	68.81	lin	0.18104185	1	0.17734				
+lin	69	76.27	lin	0.1150779	1.15	0.696955				
+lin	78	83.73	lin	0.12399155	0.95	1.287015				
+lin	87	91.19	lin	0.12881944	1.23	1.829113				
+lin	96	98.65	lin	0.22206518	1.75	4.199323	
+%%%%%	 time	p.m.	delim
+	     5	0	    #
+
+
+repeatTilTrig
+gen6Const										
+%%%%	freq	amp	phase							
+	61.35	1.7	0.27671							 
+	68.81	1	3.57682							
+	76.27	1.15	0.17478							
+	83.73	0.95	5.14838							
+	91.19	1.23	0.21218							
+	98.65	1.75	0.9892							 
+%%%%	time	p.m.	delim							
+0.1	0   #			
+endRepeat
+
+gen6freq&ampramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+lin	61.35	51	lin	1.7	0.22900398	0.27671				
+lin	68.81	60	lin	1	0.18104185	3.57682				
+lin	76.27	69	lin	1.15	0.1150779	0.17478				
+lin	83.73	78	lin	0.95	0.12399155	5.14838				
+lin	91.19	87	lin	1.23	0.12881944	0.21218				
+lin	98.65	96	lin	1.75	0.22206518	0.9892	
+%%%%%	time	p.m.	delim
+	5	0	#
+
+repeatTilTrig
+gen6Const
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+endRepeat
+
+%repeatForever
+%gen6Const
+%%%%%	 freq			amp		phase
+%		57.5		1.6	 	0.2259
+%		66.5		1 	3.3385
+%
+%		84.5		0.9	0.6531
+%		93.5		1.4 	0.1646
+%		102.5		2.1	 	5.0137
+%%%%%	 time	p.m.	delim
+%	     0.1	0	    #
+
+%endRepeat
+%%--------------------------------------------------------------%%
+
+%repeatForever
+%gen6Const
+%%%%%	 freq			amp		phase
+%		61.35		1.361	 	0.36
+%		68.81		1.078 	5.197
+%		76.27		1.022	      5.719
+%		83.73		1.027       0.086
+%		91.19		1.179 	0.591
+%		98.65		1.571	 	3.370
+%%%%%	 time	p.m.	delim
+%	     0.1	0	    #
+
+%endRepeat

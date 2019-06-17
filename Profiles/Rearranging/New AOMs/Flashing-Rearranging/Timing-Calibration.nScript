@@ -1,0 +1,80 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+flash
+{
+% number of waveforms to flash (e.g. 3 means flashing between wvfm1, 2, 3, 1, 2, 3, ...
+3
+% flashing frequency (MHz)
+0.5
+% move time (ms)
+0.1
+% dead time (ns)
+50
+% all flashing waveforms, written with normal syntax. Watch out, the times must be chosen to match the overall
+% move time.
+gen1Const
+Horizontal
+%%%%%	freq		amp		phase
+65 1 0 #
+gen1Const
+Vertical
+%%%%%	freq		amp		phase
+65 1 0 #
+%%%%%	time	p.m.	delim
+0.1	0
+
+gen1Const
+Horizontal
+%%%%%	freq		amp		phase
+65 1 0 #
+gen1Const
+Vertical
+%%%%%	freq		amp		phase
+75 1 0 #
+%%%%%	time	p.m.	delim
+0.1	0
+%% 
+gen1Const
+Horizontal
+%%%%%	freq		amp		phase
+95 1 0 #
+gen1Const
+Vertical
+%%%%%	freq		amp		phase
+95 1 0 #
+%%%%%	time	p.m.	delim
+0.1	0
+
+}
+endRepeat
+
+%%--------------------------------------------------------------%%

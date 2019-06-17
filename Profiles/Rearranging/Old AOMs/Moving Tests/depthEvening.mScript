@@ -1,0 +1,22 @@
+t += 0.1
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+call cleanLoading()
+loadSkipEntryPoint!
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+call inTrapPgc()
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call pushout_all()
+% ramp down to release hot atoms.
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+call pgcAtomFlashingImage()
+t += 10
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1

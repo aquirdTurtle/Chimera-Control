@@ -1,0 +1,44 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+on: A6 %tweezers on
+t += 1
+call turnonmot()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
+call twostagelambdaloading()
+%call pgcLoading()
+t += 20
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+t += 0.1
+call intrapgreymolasses()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pump2stretch()
+t += 0.1
+call setTiltedQuantAxis()
+t += 0.1
+dac: sigmaoppower 0.05 
+on: sigmaoprf
+t += waitTime
+off: sigmaoprf
+dac: sigmaoppower 0
+
+pulseon: tweezerIntensityTrig 0.1
+%t += 0.1
+%call pump2stretch()
+%pulseon: tweezerIntensityT++rig 0.1
+%call setQuantAxis()
+call pushout()
+%call pushout_all()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+call pgcAtomFlashingImage()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1

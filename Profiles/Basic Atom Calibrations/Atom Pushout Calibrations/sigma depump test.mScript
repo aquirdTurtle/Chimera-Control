@@ -1,0 +1,42 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+t += 5
+%
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+call pgcAtomFlashingImage()
+
+call intrappgc()
+
+off: diagmotshutter % just in case leakage of main mot beam
+off: sidemotshutter
+t += 10
+
+call pump2stretch()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+call sigmadepumptest()
+on: sidemotshutter
+t += 15
+call pushout()
+
+call zeroFields()
+t += 5
+
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+call turnOnMot()

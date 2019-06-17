@@ -1,0 +1,40 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+
+on: A6 %tweezers on
+t += 1
+
+call turnonmot()
+
+t += 1
+t += loadmottime
+t += 0.1
+pulseon: scoutTrig 0.1
+t += 0.1
+%off: tweezerRf
+t += 2
+on: tweezerRf
+call D1greyLambdaloading()
+t += 20
+call cleanloading()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+%call pushout_all()
+t += 1
+on: a11
+t += modTime
+off: a11
+pulseon: tweezerIntensityTrig 0.1
+t += 20
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+
+t += 1
+

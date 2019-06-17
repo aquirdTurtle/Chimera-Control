@@ -1,0 +1,22 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+off: A6
+t += 1
+call turnonmot()
+t += 400
+
+call zerofields()
+t += 0.1
+var pushout_Power 0.3
+% 0.3
+var pushouttime 0.2
+dac: probePower pushout_power 
+on: proberf 
+t += pushouttime 
+off: proberf 
+pulseon: scoutTrig 0.1
+t += 10
+on: proberf 
+t += 100
+off: proberf

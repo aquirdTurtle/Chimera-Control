@@ -1,0 +1,34 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+
+call pgcAtomFlashingImage()
+
+call intrappgc()
+
+call rotatefields() % to prepare to get to F=1 state
+
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+
+call populateF1() % pump atom to F=1 manifold
+
+call pushout()
+
+call zerofields()
+
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+
+call turnOnMot()

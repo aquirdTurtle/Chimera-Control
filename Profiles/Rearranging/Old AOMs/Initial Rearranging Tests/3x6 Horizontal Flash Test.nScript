@@ -1,0 +1,95 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+
+gen6Const
+
+%%%%%		freq		amp		phase
+		49		2.5	 	5.13919
+		58		1	 	0.384594
+		67		1.05	 	0.308571
+		76		1.1	 	0.050804
+		85		1.4	 	6.154510
+		94		2.25	 	3.858584
+
+%%%%%	time	p.m.	delim
+	0.1	0	#
+
+endRepeat
+
+repeatTilTrig
+
+flash
+{
+2
+1
+0.06
+% dead time
+75
+	gen6Const
+	%%%%%	freq		amp		phase
+		49		2.5	 	5.13919
+		58		1	 	0.384594
+		67		1.05	 	0.308571
+		76		1.1	 	0.050804
+		85		1.4	 	6.154510
+		94		2.25	 	3.858584
+	%%%%%	time	p.m.	delim
+		0.04	0	#
+
+	gen5freqRamp
+	%% 	freq			amp		phase
+		lin 49 58	0.7		5.13919
+		nr 67	67	((1-0.7)/4) 0.384594
+		nr 76 76	((1-0.7)/4)	0 
+		nr 85	85	((1-0.7)/4)	6.154510
+		nr 94	94	((1-0.7)/4)	3.858584
+	%%	time	p.m.	delim
+		0.02	0	#
+}
+
+endRepeat
+
+repeatTilTrig  
+gen6Const
+%%%%%		freq		amp		phase
+		49		2.5	 	5.13919
+		58		1	 	0.384594
+		67		1.05	 	0.308571
+		76		1.1	 	0.050804
+		85		1.4	 	6.154510
+		94		2.25	 	3.858584
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+endRepeat 
+
+%%--------------------------------------------------------------%%

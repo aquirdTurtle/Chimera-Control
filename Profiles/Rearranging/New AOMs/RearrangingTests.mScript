@@ -1,0 +1,35 @@
+
+t += 0.1
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+call cleanLoading()
+loadSkipEntryPoint!
+t += 50
+pulseon: niawgTrig 0.1
+t += 0.1
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+call inTrapPgc()
+t += 90
+%pulseon: niawgTrig 0.1
+t += 10
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+pulseon: aceTrig 0.1
+t += 0.015
+pulseon: niawgTrig 0.1
+t += 0.001
+pulseon: a15 0.1
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+%pulseon: niawgTrig 0.1
+t += 5
+call pgcAtomFlashingImage()
+t += 15
+pulseon: tweezerIntensityTrig 0.1
+pulseon: niawgTrig 0.1
+t += 1

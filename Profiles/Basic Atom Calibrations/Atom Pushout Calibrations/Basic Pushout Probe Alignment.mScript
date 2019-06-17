@@ -1,0 +1,46 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+call pgcAtomImage()
+
+call pgcCooling()
+
+on: probeshutter
+t += 50
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5 % for ramp to finish
+
+dac: sideMotPower 0.3
+on: sidemotrf
+
+t += 5
+
+dac: sideMotPower 0
+off: sidemotrf
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5 % for ramp to finish
+
+
+%call pushout()
+t += 10
+
+off: probeshutter
+t += 50
+
+call pgcAtomImage()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5 % for ramp to finish
+
+
+call turnOnMot()
+ 

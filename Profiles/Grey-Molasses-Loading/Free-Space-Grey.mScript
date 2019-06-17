@@ -1,0 +1,24 @@
+% simple load experiment
+t = 1
+
+call turnonmot()
+t += loadMotTime
+call D1freespacegrey()
+
+off: diagMotRf
+off: sideMotRf
+off: repumpRf
+
+t += (flyTime + 0.1)
+dac: MotFreq 0.05
+on: diagMotRf
+on: sideMotRf
+on: repumpRf
+dac: diagMotPower 0.35
+dac: repumpPower 0.1
+dac: sidemotPower 0.3
+call triggerScout()
+t += 2
+t += 50
+call turnonMot()
+t += 1

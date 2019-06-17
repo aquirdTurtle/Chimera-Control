@@ -1,0 +1,133 @@
+% Default X Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+gen3Const 
+%% 	freq	amp	phase 
+	71	1.08	1.842845 
+	80	0.93	0.130614 
+	89	1.2	1.559829 
+%%	time	p.m.	delim 
+      0.1	0	    #
+endRepeat
+
+repeatTilSoftwareTrig
+
+gen3Const
+%%%%%	freq	amp	phase
+	71	1.08	1.842845
+	80	0.93	0.130614
+	89	1.2	1.559829
+%%%%%	time	p.m.	delim
+     	0.1	0	    #
+
+endRepeat
+
+rearrange 
+{ 
+
+% Picture Dimensions, rows x columns 
+3 6
+% lowest horizontal freq in picture 
+49
+% lowest vertical freq in picture 
+71 
+% frequency spacing of pixels (MHz) 
+9 
+% holding pattern
+
+  gen3Const
+  %%%%%	 freq			amp		phase
+  		71		1.08	 	1.842845
+  		80		0.93		0.130614
+  		89		1.2		1.559829
+  %%%%%	 time	p.m.	delim
+  	     0.04	0	    #
+  
+% Target picture, dims must match above 
+0 0 0 0 0 0
+1 1 1 1 1 1
+0 0 0 0 0 0
+
+0 0
+
+}
+
+repeatTilTrig
+  gen1Const
+  %%%%%	 freq			amp		phase
+  		%71		1.08	 	1.842845
+  		80		1		0
+  		%89		1.2		1.559829
+  %%%%%	 time	p.m.	delim
+  	     0.1	0	    #
+endRepeat
+
+%gen1Const
+  %%%%%	 freq			amp		phase
+  		%71		1.08	 	1.842845
+ % 		80		1		0
+  		%89		1.2		1.559829
+  %%%%%	 time	p.m.	delim
+  %	     0.06	0	    #
+
+%repeatTilTrig
+ % gen1Const
+  %%%%%	 freq			amp		phase
+  		%71		1.08	 	1.842845
+  %		80		1		0
+  		%89		1.2		1.559829
+  %%%%%	 time	p.m.	delim
+  %	     0.1	0	    #
+%endRepeat
+
+%gen1Const
+  %%%%%	 freq			amp		phase
+  		%71		1.08	 	1.842845
+ % 		80		1		0
+  		%89		1.2		1.559829
+  %%%%%	 time	p.m.	delim
+  %	    0.06	0	    #
+
+%repeatTilTrig
+ % gen1Const
+  %%%%%	 freq			amp		phase
+  		%71		1.08	 	1.842845
+  %		80		1		0
+  		%89		1.2		1.559829
+  %%%%%	 time	p.m.	delim
+  %	     0.1	0	    #
+%endRepeat
+
+
+%%--------------------------------------------------------------%%
+
+

@@ -1,0 +1,49 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+on: A6 %tweezers on
+t += 1
+call turnonmot()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
+call pgcLoading()
+%call twostagelambdaloading()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+t += 0.1
+call intrappgc()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+%call pump2F1()
+%pulseon: tweezerIntensityTrig 0.1
+%t += 0.1
+call pump2stretch() 
+% |2,-1> -> |1,-1>
+%rsg: (6.8295 + uw_mod/1000000) -1
+% |2,0> -> |1,0>
+%rsg: (6.8337 + uw_mod/1000000) -1
+% |2,1> -> |1,1>
+rsg: (6.8379 + uw_mod/1000000) -1
+% |2,2> -> |1,1>
+%rsg: (6.84 + uw_mod/1000000) -1
+% uw pulse!
+var uwTime 0.1
+on: eoswitch
+on: eoswitch2
+t += uwTime
+off: eoswitch
+off: eoswitch2
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pushout()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+call pgcAtomFlashingImage()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1

@@ -1,0 +1,78 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+
+
+repeatTilTrig
+gen2Const
+%%%%%		freq			amp		phase
+		64			0.52		0
+		76			0.48		0
+
+%%%%%	time	p.m.	delim
+	0.1	0	#
+
+endRepeat
+
+
+flash
+%% waves to flash
+2
+%% flashing freq (MHz)
+1
+%% total time
+0.06
+{
+	gen2Const
+	%%%%%%	freq			amp		phase
+			64			0.5		0
+			76			0.5		0
+	%%%%%	time	p.m.	delim
+		0.03	0	#
+	
+	gen1Const
+	%%%%%		freq		1	amp		phase
+			76			1		0
+	%%%%%	time	p.m.	delim
+		0.03	0	#
+}
+
+
+repeatTilTrig
+gen2Const
+%%%%%		freq			amp		phase
+		64			0.52		0
+		76			0.48		0
+
+%%%%%	time	p.m.	delim
+	0.1	0	#
+endRepeat
+

@@ -1,0 +1,73 @@
+
+t = 0.1 
+rsg: (6.84+uwfreq1122offset/1000000) -1 % set uwave freq and power, do not set above 20 dBm!
+
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+%loadSkipEntryPoint!`
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call pgcAtomFlashingImage()
+
+call intrappgc()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call rotatefields() % to prepare to get to F=1 state
+
+%dac: RepumpPower 0.3
+%on: RepumpRf
+%t += 30
+off: RepumpRF
+call populateF1() % pump atom to F=1 manifold
+
+dac: dac21 ropfrqsidelock
+off: ropshutter % to block the normal rop beam
+t += 2
+dac: sigmarepumpfreq repumpfreq10 %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
+dac: sigmarepumppower repump10pow
+
+%%%%%  on: C5 % flash the trap
+%%%%%  on: A7 % flash the repump
+% on: A3 % for temporary modulation for freq meas
+
+on: sigmarepumprf
+t += pump10time
+% t += waittime
+off: sigmarepumprf
+%t += waittime
+
+%%%%%  off: C5 % flash the trap
+%%%%%  off: A7 % flash the repump
+% off: A3 % for temporary modulation for freq meas
+
+
+% turn on miccrowave pulse 22-11 transition 
+%on: eoswitch 
+%on: eoswitch2
+t += uwavetime
+off: eoswitch 
+off: eoswitch2
+
+call pushout1Dscatter()
+
+% prepare for imging
+dac: dac21 0
+call zerofields()
+t += 2
+
+%call intrappgc()
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call turnOnMot()
+t += 20

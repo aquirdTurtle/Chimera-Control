@@ -1,0 +1,22 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+dac: dac6 0
+off: tweezerRf %tweezers off
+t += 50
+call turnonmot()
+t += 1000
+call d1FreeSpaceGrey()
+%dac: dac6 0
+t += expansionTime
+on: diagMotRf  
+on: sideMotRf 
+on: repumpRf
+%call triggerScout()
+t += 500
+off: diagMotRf  
+off: sideMotRf 
+off: repumpRf
+t += 2
+
+

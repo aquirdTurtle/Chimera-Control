@@ -1,0 +1,102 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% load mot
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+t = 0.1
+on: tweezerRf
+t += 1
+call turnonmot()
+t += loadmottime
+call triggerscout()
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% clean tweezers and load
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+off: tweezerRf
+t += 1
+
+pulseon: tweezerIntensityTrig 0.1
+  t += 0.1
+on: tweezerRf
+
+ % off: diagMotRf
+ % off: sideMotRf
+ % off: repumpRf
+
+call D1greyLambdaloading()
+
+t += 20
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% cleanloading and image
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+call zerofieldspgc()
+call cleanLoading()
+t += 1
+call pgcAtomFlashingImage()
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% cooling and pump2stretch
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+call intrappgc()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call setquantAxis()
+call pump2stretch()
+
+
+off: diagMotRf
+off: RepumpRF
+off: sigmarepumprf
+off: sigmaOPRF
+off: sidemotrf
+off: depumpingrf
+off: proberf
+
+call rotatefields()
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% microwave
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+rsg: (6.84+uwfreq2211offset/1000000) -1 
+
+on: eoswitch
+on: eoswitch2
+t += uwlen2211
+off: eoswitch
+off: eoswitch2
+
+on: c3
+t += 0.1
+off: c3
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% pushout
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+call zeroFieldsPgc()
+
+call pushout() 
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% image 2 and init tweezer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+call zerofieldspgc()
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+

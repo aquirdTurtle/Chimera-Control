@@ -1,0 +1,127 @@
+% Master-Script See the "?" for info on commands.
+t = 0.1 
+rsg: (6.84+uwfreq1122offset/1000000) -1 % set uwave freq and power, do not set above 20 dBm!
+
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+
+pulseon: niawgTrig 0.1
+
+call pgcAtomFlashingImage()
+
+call inTrapPgc()
+
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+
+%dac: MotFreq flashingCoolingFreq
+%dac: diagMotPower 0
+%dac: SideMotPower  flashingCoolingPower
+%dac: RepumpPower 0.03
+off: RepumpRf
+off: DiagMotRf
+off: SideMotRf
+
+% long time for initial tests in debug mode
+t += 105
+
+pulseon: tweezerIntensityTrig 0.1
+off: SideMotRf
+off: repumpRf
+off: DiagMotRf
+t += 1.1
+
+% turn off diagmot shutter for entire experiment until load mot
+off: diagmotshutter
+
+%call inTrapPgc()
+call pgcAtomFlashingImagescatter()
+
+% ramp to scatter spacing
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call intrappgcScatter()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+call populateF1() % pump atom to F=1 manifold
+
+call rotatefieldsfromzero() % to prepare to get to F=1 state
+%call rotatefields() 
+%dac: dac21 0
+%t += 1
+%dac: RepumpPower 0.04
+%on: RepumpRf
+%t += 2
+%off: RepumpRF
+
+dac: dac21 ropfrqsidelock
+off: ropshutter % to block the normal rop beam
+t += 2
+dac: sigmarepumpfreq 0 %repumpfreq10  ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
+dac: sigmarepumppower repump10pow
+t += 0.1
+
+%%%%%  on: C5 % flash the trap
+%%%%%  on: A7 % flash the repump
+% on: A3 % for temporary modulation for freq meas
+
+pulseon: NIAWGTrig 0.1 
+t += 1
+
+%on: sigmarepumprf
+t += pump10time
+% t += waittime
+off: sigmarepumprf
+%t += waittime
+
+%%%%%  off: C5 % flash the trap
+%%%%%  off: A7 % flash the repump
+% off: A3 % for temporary modulation for freq meas
+
+pulseon: NIAWGTrig 0.1 % ramp back to normal spacing
+t += 1
+
+% turn on miccrowave pulse 22-11 transition 
+%on: eoswitch 
+%on: eoswitch2
+t += uwavetime %0.016 % microwave pi pulse time
+off: eoswitch 
+off: eoswitch2
+
+% prepare for imging
+dac: dac21 0
+call zerofields()
+t += 3 % to let zerofield settle
+
+%call pushout1Dscatter() 
+call pushout1Dscatterbeamoff()
+
+t += 0.1
+%% calibrate depths
+%pulseon: NIAWGTrig 0.1 % ramp back to normal spacing
+%t += 10
+
+%call intrappgc()
+call pgcAtomFlashingImagescatter()
+
+
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+
+% turn on diagmot shutter for load mot
+on: diagmotshutter
+
+pulseon: NIAWGTrig 0.1 % ramp to initial waveform
+call turnOnMot()
+t += 20

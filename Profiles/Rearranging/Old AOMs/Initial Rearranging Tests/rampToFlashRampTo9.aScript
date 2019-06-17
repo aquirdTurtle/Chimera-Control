@@ -1,0 +1,7 @@
+hold loadDepth 1 onceWaitTrig #
+ramp lin loadDepth imgDepth 1 onceWaitTrig #     
+ramp lin imgDepth flashDepth 1 onceWaitTrig #     
+ramp lin flashDepth 25 1 onceWaitTrig #    
+
+
+

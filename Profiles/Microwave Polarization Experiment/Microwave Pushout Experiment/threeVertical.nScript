@@ -1,0 +1,60 @@
+% Default X Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+%89 -> 1 98 -> 1.7
+
+gen3const
+%%%%%	 freq			amp		phase
+		71		1.03	 	0
+		80		1.14		0
+		89		1.11		0
+%%%%%	 time	p.m.	delim
+	     0.1	0	    #
+
+%gen5Const
+%%%%%	 freq			amp		phase
+%		62.21	1.4	0.03
+%		71.5	1.1	1.307
+%		80	1.2	4.430
+%	      89.51	1.3	1.284
+%		98.2	2.0	0.139
+%%%%%	 time	p.m.	delim
+%	     0.1	0	    #
+
+
+%gen5Const
+%%%%%	 freq			amp		phase
+%		62	1.35	0.03
+%		71	0.9	1.307
+%		80	1	4.430
+%		89	1	1.284
+%		98	1.8	0.139
+%%%%	 time	p.m.	delim
+%	     0.01	0	    #

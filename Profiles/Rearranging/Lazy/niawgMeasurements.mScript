@@ -1,0 +1,8 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+dac: dac7 0
+repeat: 10
+	t += 500
+	pulseon: aceTrig 0.1
+end

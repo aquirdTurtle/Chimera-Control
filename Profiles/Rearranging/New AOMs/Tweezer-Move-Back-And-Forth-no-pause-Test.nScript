@@ -1,0 +1,204 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+gen1const
+Horizontal
+%%		freq		amp		phase
+75 1 0
+ #
+gen1const
+Vertical
+75 1 0
+		#
+%gen9const
+%Vertical
+%%%%%		freq		amp		phase
+%	37.4  1.75 	1.19391913
+%	46.8  1.05 	0.25938623
+%	56.2	1.15 	2.84837646
+%	65.6 	1.5   3.06176251
+%	75 	0.75   5.18407053
+% 	84.4 	0.80  6.26930967
+%	93.8	0.95  4.17898309
+%	103.2 0.7 	5.57225299
+%	112.6 0.9	3.68679041
+%	#
+%%%%	time	p.m.	delim
+	0.01	0
+endRepeat
+
+%% 1 %%%%%%%%%%%%%%
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 74 66.6 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 66.6 74 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+%% 2 %%%%%%%%%%%%%%
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 74 66.6 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 66.6 74 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+%%
+%% 3 %%%%%%%%%%%%%%
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 74 66.6 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 66.6 74 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+%% 4 %%%%%%%%%%%%%%
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 74 66.6 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 66.6 74 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+%% 5 %%%%%%%%%%%%%%
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 74 66.6 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+gen1freqRamp
+Horizontal
+%%		freq		amp		phase
+	lin 66.6 74 1.35421 -1
+		#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.002	0
+
+
+repeatTilTrig
+gen1const
+Horizontal
+%%		freq		amp		phase
+75 1 -1
+	#
+gen1const
+Vertical
+75 1 0
+	#
+%%%%	time	p.m.	delim
+	0.01	0
+endRepeat
+
+%%--------------------------------------------------------------%%

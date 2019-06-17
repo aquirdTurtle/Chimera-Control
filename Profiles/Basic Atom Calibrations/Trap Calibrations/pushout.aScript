@@ -1,0 +1,7 @@
+hold loadingDepth 1 onceWaitTrig #
+hold loadingDepth 1 onceWaitTrig #
+ramp lin loadingDepth pushoutDepth 1 onceWaitTrig #
+ramp lin pushoutDepth dropDepth 1 once # 
+hold dropDepth 2 once # 
+ramp lin dropDepth loadingDepth 1 onceWaitTrig  # 
+ 

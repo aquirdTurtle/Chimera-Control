@@ -1,0 +1,139 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+repeatTilTrig
+
+gen3Const
+HORIZONTAL
+%%%%%		freq		amp		phase
+		61		0.42442964		1.17832
+		70		0.2068553		5.46079
+		79		0.36871507		0.31724
+	#
+gen6Const
+VERTICAL
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+	#
+%%%%%	 time	p.m.	delim
+	     0.1	0	
+
+endRepeat
+
+gen3freq&ampramp
+HORIZONTAL
+%%%%%		freq		amp		phase
+		lin 61	52	lin 0.42442964 0.3319 	1.17832
+		nr  70	70	lin 0.2068553 0.2463	  	5.46079
+		lin 79	88	lin 0.36871507 0.4218	0.31724
+	#
+gen6Const
+VERTICAL
+%%%%%	 freq			amp		phase
+		51		0.2247	 	1.989426
+		60		0.1819	 	0.177340
+		69		0.1227	 	0.696955
+		78		0.1264	 	1.287015
+		87		0.1266	 	1.829113
+		96		0.2177	 	4.199323
+	#
+%%%%%	 time	p.m.	delim
+	     0.1	0	
+
+repeatTilTrig
+gen3Const
+HORIZONTAL
+%%%%%		freq		amp		phase
+		52		0.3319 	1.17832
+		70		0.2463	5.46079
+		88		0.4218	0.31724
+	#
+gen6Const
+VERTICAL
+%%%%%	 freq			amp		phase
+		51		0.2247	 	1.989426
+		60		0.1819	 	0.177340
+		69		0.1227	 	0.696955
+		78		0.1264	 	1.287015
+		87		0.1266	 	1.829113
+		96		0.2177	 	4.199323
+	#
+%%%%%	 time	p.m.	delim
+	     0.1	0	
+endRepeat
+
+gen3freq&ampramp
+HORIZONTAL
+%%%%%		freq		amp		phase
+		lin 52 61	lin 0.3319   0.42442964 	1.17832
+		nr  70 70	lin 0.2463   0.2068553	 	5.46079
+		lin 88 79 	lin 0.4218   0.36871507 	0.31724
+	#
+gen6Const
+VERTICAL
+%%%%%	 freq			amp		phase
+		51		0.2247	 	1.989426
+		60		0.1819	 	0.177340
+		69		0.1227	 	0.696955
+		78		0.1264	 	1.287015
+		87		0.1266	 	1.829113
+		96		0.2177	 	4.199323
+	#
+%%%%%	 time	p.m.	delim
+	     0.1	0	
+
+repeatTilTrig
+gen3Const
+HORIZONTAL
+%%%%%		freq		amp		phase
+		61		0.42442964		1.17832
+		70		0.2068553		5.46079
+		79		0.36871507		0.31724
+	#
+gen6Const
+VERTICAL
+%%%%%	 freq			amp		phase
+		51		0.22900398	 	1.989426
+		60		0.18104185	 	0.177340
+		69		0.1150779	 	0.696955
+		78		0.12399155	 	1.287015
+		87		0.12881944	 	1.829113
+		96		0.22206518	 	4.199323
+	#
+%%%%%	 time	p.m.	delim
+	     0.1	0	
+endRepeat
+

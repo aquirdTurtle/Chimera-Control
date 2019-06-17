@@ -1,0 +1,96 @@
+% Default Y Script
+% 
+%%%%% RECOMMENDED FORMAT %%%%%
+
+% gen 1, const
+% %%%%%		freq			amp		phase
+%		_			_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, amp ramp
+% %%%%%		freq		a.RTKW	amp_i	amp_f	phase
+%		_		_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq ramp
+% %%%%%	f.RTKW	freq_i	freq_f		amp		phase
+%	_	_	_		_		_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+% gen 1, freq & amp ramp
+% %%%%%	f.RTKW	freq_i	freq_f	a.RTKW	a_i	a_f	phase
+%	_	_	_	_	_	_	_
+% %%%%%	time	p.m.	delim
+%	_	_	#
+
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+repeatTilTrig
+gen6Const
+%%%%%		freq		amp		phase
+      49	2.9  3.458003
+	58	1.06	1.908453
+	67	1.07 	1.935013
+	76	1.02 	2.146014
+	85	1.3 	2.314418
+	94	2.85 	4.569392
+ 
+%%%%%	time	p.m.	delim
+	0.1	0	#
+endRepeat
+
+gen6freq&AmpRamp
+% %%%% f.RTKW freq_i  freq_f  a.RTKW  a_i	a_f	phase
+lin   49	46 lin 2.9  2.9    3.458003
+lin   58	56 lin 1.06	0.8	1.908453
+lin	67	66 lin 1.07 0.9 	1.935013
+lin	76	76 lin 1.02 1.02 	2.146014
+lin	85	86 lin 1.3 	1.3 	2.314418
+lin	94	96 lin 2.85 2.85 	4.569392
+ 
+%%%%%	time	p.m.	delim
+	0.5	0	#
+
+repeatTilTrig
+
+gen6Const
+%%%%%		freq		amp		phase
+      46	2.9   3.458003
+	56	0.8	1.908453
+	66	0.9 	1.935013
+	76	1.02 	2.146014
+	86	1.3 	2.314418
+	96	2.85 	4.569392
+ 
+%%%%%	time	p.m.	delim
+	0.1	0	#
+endRepeat
+
+gen6freq&AmpRamp
+% %%%% f.RTKW freq_i  freq_f  a.RTKW  a_i	a_f	phase
+lin  	46 49 lin 2.9   2.9   3.458003
+lin   56 58	lin 0.8  1.06  1.908453
+lin	66 67	lin 0.9  1.07  1.935013
+lin	76 76	lin 1.02 1.02  2.146014
+lin	86 85	lin 1.3  1.3   2.314418
+lin	96 94	lin 2.85 2.85  4.569392
+%%%%%	time	p.m.	delim
+	0.5	0	#
+
+repeatTilTrig
+gen6Const
+%%%%%		freq		amp		phase
+      49	2.9  3.458003
+	58	1.06	1.908453
+	67	1.07 	1.935013
+	76	1.02 	2.146014
+	85	1.3 	2.314418
+	94	2.85 	4.569392
+ 
+%%%%%	time	p.m.	delim
+	0.1	0	#
+endRepeat
+%%--------------------------------------------------------------%%

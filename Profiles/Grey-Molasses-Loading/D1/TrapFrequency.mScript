@@ -1,0 +1,51 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+
+on: C13 %Do we need that? where does it go?
+on: A6 %tweezers on
+t += 1
+
+call turnonmot()
+
+t += 1
+t += loadmottime
+t += 1
+
+call triggerscout()
+
+off: tweezerRf
+%t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+on: tweezerRf
+call D1greyLambdaloading()
+
+t += 20
+
+call cleanloading()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+call pgcAtomFlashingImage()
+
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+on: a11
+t += 200
+off: a11
+
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+
+t += 10
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+
+call pgcAtomFlashingImage()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1

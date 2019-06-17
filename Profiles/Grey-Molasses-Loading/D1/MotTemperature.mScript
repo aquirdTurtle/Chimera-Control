@@ -1,0 +1,32 @@
+% simple load experiment
+t = 1
+
+call turnonmot()
+
+t += loadMotTime
+
+%dac: motGradientCurrent 0
+off: diagMotRf
+off: sideMotRf
+off: repumpRf
+
+% wait for the drop
+t += flyTime
+dac: MotFreq 0.05
+
+% image
+on: diagMotRf
+on: sideMotRf
+on: repumpRf
+dac: DiagMotPower 0.35
+dac: RepumpPower 0.1
+%dac: SideMotPower 0.3
+call triggerScout()
+t += 2
+
+% make sure that the mot drops all the way for 
+% consistency between experiments.
+t += 50
+
+call turnOnMot()
+ t += 1

@@ -1,0 +1,56 @@
+t += 0.1 
+rsg: (6.840 + uwFreq / 1000000) -1
+off: sigmaRepumpRf
+call turnonmot()
+t += loadMotTime
+call pgcLoading()
+
+loadSkipEntryPoint!
+t += 0.1
+call cleanLoading()
+% ramp for imaging
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+call inTrapPgc()
+% ramp down for rearranging
+pulseon: tweezerIntensityTrig 0.1
+% time for rearranging calc to happen
+t += 50
+pulseon: niawgTrig 0.1
+t += 2
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call intrappgc()
+pulseon: niawgTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call pgcAtomFlashingImage()
+call intrappgc()
+t += 0.1
+call pump2F1()
+%% apply 1->0' light! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+call rotateFieldsFromZero()
+pulseon: tweezerIntensityTrig 0.1
+daclinspace: RepumpFreq loadmotrepumpfreq freq_1_to_0 1 5
+t += 1
+pulseon: niawgTrig 0.1
+t += 3
+call scatter_1_to_0p()
+pulseon: niawgTrig 0.1
+t += 3
+pulseon: tweezerIntensityTrig 0.1
+t += 0.5
+call rotateFieldsBackScatter()
+t += 2
+%call uwPulse()
+t += 0.01
+call pushout()
+call zeroFields()
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pgcAtomFlashingImage()
+pulseon: niawgTrig 0.1
+t += 10
+pulseon: tweezerIntensityTrig 0.1
+
