@@ -16,7 +16,7 @@ FEATURES:
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
 - support variables for agilent scripts
-- proper syntax coloring for variables
+- proper syntax coloring for local variables
 - implement real-time sanity check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
@@ -28,7 +28,7 @@ FEATURES:
 - report initial values of dacs and ttls to datalogger
 - report andor background data to datalogger if calibrating background out
 - improve delete file after abort functionality
-	- decorate name, delete after a while.
+	- decorate name, delete after a while, or something similar.
 - Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
 	variations.
 - add reporting on how many atoms loaded via atomcruncher thread.
@@ -57,6 +57,7 @@ FEATURES:
 - check number of basler triggers against basler total picture number
 - can't do non-square multi-dim scans
 - make data analysis plotting listview smart about # of pictures
+- some sort of more real-time adjustment of parameters, need some sort of looping around starting configs... or some other solution
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo in real time plotting
