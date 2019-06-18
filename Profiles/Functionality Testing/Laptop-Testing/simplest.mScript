@@ -1,0 +1,9 @@
+t = 1
+on: a0
+call turnonmot()
+t += 1
+call pgcLoading()
+t += 1
+call pgcatomFlashingImage()
+off: a0
+t += 1
