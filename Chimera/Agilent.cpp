@@ -153,7 +153,7 @@ void Agilent::checkSave( std::string categoryPath, RunInfo info )
 
 void Agilent::verifyScriptable ( )
 {
-	if ( settings.channel[ currentChannel ].option != 4 )
+	if ( settings.channel[ currentChannel-1 ].option != 4 )
 	{
 		thrower ( "Agilent is not in scripting mode!" );
 	}
