@@ -1,0 +1,13 @@
+% comments
+gen1const
+horizontal
+% comments
+%% more comments!
+75 1 0
+#
+gen1const
+vertical
+75 1 0
+#
+0.1 0
+% comments

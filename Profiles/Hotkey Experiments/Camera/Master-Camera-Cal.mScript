@@ -1,0 +1,12 @@
+t = 1
+dac: motGradientCurrent 0
+t += 300
+
+repeat: 100
+pulseon: andorTrig 0.1
+t += 50
+end
+
+t += 100
+dac: motGradientCurrent 7
+t += 1
