@@ -6,7 +6,7 @@ def TopRamanGaussianPulse():
   on: topPulseTrig 
   on: eoswitch
   on: eoswitch2
-  t += pulseTime
+  t += pulse_length 
   off: topRamanRf
   off: eoramanRF
   off: eoswitch
