@@ -1,1 +1,1 @@
-pulse gaussian 0 0.3 pulsewidth pulse_length oncewaittrig #
+pulse gaussian 0 0.3 0.0178 1 onceWaitTrig #
