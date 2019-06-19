@@ -27,7 +27,7 @@ pulseon: rsTrig 0.1
 t += 1
 rsg: (6.831 + uw_mod/1000000) 5
 % spectroscopic pulse
-call topRamanPulse()
+call topRamanGaussianPulse()
 
 pulseon: a15 0.1
 pulseon: tweezerIntensityTrig 0.1
