@@ -105,4 +105,3 @@ BUGS:
 - figure out why plot figure update seems to cause main thread window thread to freak out
 - empty script not causing error???
 - deal with zero crossing in quick change dacs
-- plot dialog x axis incorrect when a grid line is created for each data point (i.e. few variations)
