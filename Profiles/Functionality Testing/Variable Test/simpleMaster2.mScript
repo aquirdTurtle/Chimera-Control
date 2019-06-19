@@ -1,0 +1,101 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+%
+
+dac: dac0 -10
+t += 2
+
+dac: dac1 -8
+t += 2
+
+dac: dac2 -6
+t += 2
+
+dac: dac3 -4
+t += 2
+
+dac: dac4 -2
+t += 2
+
+dac: dac5 0
+t += 2
+
+dac: dac6 2
+t += 2
+
+dac: dac7 4
+t += 2
+
+dac: dac8 6
+t += 2
+
+dac: dac9 8
+t += 2
+
+dac: dac10 10
+t += 2
+
+dac: dac11 -10
+t += 2
+
+dac: dac12 -8
+t += 2
+
+dac: dac13 -6
+t += 2
+
+dac: dac14 -4
+t += 2
+
+dac: dac15 -2
+t += 2
+
+dac: dac16 0
+t += 2
+
+dac: dac17 2
+t += 2
+
+dac: dac18 4
+t += 2
+
+dac: dac19 6
+t += 2
+
+dac: dac20 8
+t += 2
+
+dac: dac21 10
+t += 2
+
+dac: dac22 -10
+t += 2
+
+dac: dac23 -8
+t += 2
+
+dac: dac0 0
+dac: dac1 0
+dac: dac2 0
+dac: dac3 0
+dac: dac4 0
+dac: dac5 0
+dac: dac6 0
+dac: dac7 0
+dac: dac8 0
+dac: dac9 0
+dac: dac10 0
+dac: dac11 0
+dac: dac12 0
+dac: dac13 0
+dac: dac14 0
+dac: dac15 0
+dac: dac16 0
+dac: dac17 0
+dac: dac18 0
+dac: dac19 0
+dac: dac20 0
+dac: dac21 0
+dac: dac22 0
+dac: dac23 0

@@ -427,18 +427,21 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 	{
 		case -2:
 			// no control
+			agilentScript.reset ( );
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 0 );
 			break;
 		case -1:
 			// off
+			agilentScript.reset ( );
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 1 );
 			break;
 		case 0:
 			// dc
+			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput.expressionStr);
 			settingCombo.SetCurSel( 2 );
 			calibratedButton.SetCheck( settings.channel[chan].dc.useCalibration );
@@ -446,6 +449,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			break;
 		case 1:
 			// sine
+			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].sine.frequencyInput.expressionStr + " " 
 										 + settings.channel[chan].sine.amplitudeInput.expressionStr);
 			settingCombo.SetCurSel( 3 );
@@ -454,6 +458,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			break;
 		case 2:
 			// square
+			agilentScript.reset ( );
 			agilentScript.setScriptText( settings.channel[chan].square.frequencyInput.expressionStr + " " 
 										 + settings.channel[chan].square.amplitudeInput.expressionStr + " " 
 										 + settings.channel[chan].square.offsetInput.expressionStr );
@@ -463,6 +468,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			break;
 		case 3:
 			// preprogrammed
+			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].preloadedArb.address);
 			settingCombo.SetCurSel( 5 );
 			calibratedButton.SetCheck( settings.channel[chan].preloadedArb.useCalibration );
@@ -971,13 +977,6 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		auto& channel = settings.channel[chan];
 		try
 		{
-			/*
-			if ( channel.option == 4 )
-			{
-				// need to do this before converting to final settings
-				analyzeAgilentScript( channel.scriptedArb, variables );
-			}
-			*/
 			convertInputToFinalSettings( chan, variables, variation );
 			switch ( channel.option )
 				{

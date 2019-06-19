@@ -65,8 +65,8 @@ void AnalogOutput::rearrange ( UINT width, UINT height, fontMap fonts )
 
 void AnalogOutput::updateEdit ( bool roundToDacPrecision )
 {
-	std::string valStr = roundToDacPrecision ? str ( roundToDacResolution ( info.currVal ), 13, true )
-		: str ( info.currVal );
+	std::string valStr = roundToDacPrecision ? str ( roundToDacResolution ( info.currVal ), 13, true, false, true )
+		: str ( info.currVal, 5, false, false, true );
 	int sel, sel_end;
 	// preserve the selection location, especially important for quick changes.
 	edit.GetSel ( sel, sel_end );
@@ -86,6 +86,8 @@ void AnalogOutput::setName ( std::string name, cToolTips& toolTips, CWnd* master
 	info.name = name;
 	edit.setToolTip ( info.name + "\r\n" + info.note, toolTips, master );
 }
+
+
 void AnalogOutput::handleEdit ( bool roundToDacPrecision )
 {
 	CString text;
@@ -238,6 +240,25 @@ bool AnalogOutput::handleArrow ( CWnd* focus, bool up )
 		double inc = size / pow ( 10, editPlace);
 		info.currVal += up? inc : -inc;
 		updateEdit ( false );
+		
+		edit.GetWindowTextA ( ctxt );
+		std::string txt2 = str ( ctxt );
+
+		if ( txt.find ( "-" ) == std::string::npos && txt2.find("-") != std::string::npos)
+		{
+			// then need to shift cursor to account for the negative.
+			edit.GetSel ( cursorPos, end );
+			edit.SetSel ( cursorPos + 1, cursorPos + 1 );
+		}
+		else if ( txt.find ( "-" ) != std::string::npos && txt2.find ( "-" ) == std::string::npos )
+		{
+			// then need to shift cursor to account for the negative.
+			edit.GetSel ( cursorPos, end );
+			edit.SetSel ( cursorPos - 1, cursorPos - 1 );
+		}
+
+
+
 		return true;
 	}
 	return false;

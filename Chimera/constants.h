@@ -15,8 +15,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
 
@@ -507,8 +507,8 @@ const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
 "Accepted Commands (syntax for command is encased in <>)\n"
 "- hold <val> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
 "- ramp <type> <initVal> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
-"- pulse <pulse type> <offset> <amp> <pulse-width> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
-"- modPulse <pulse-type> <offset> <amp> <pulse-width> <mod-Freq(MHz)> <mod-Phase(Rad)> <time(ms)> <Continuation Type> <Repeat #>\n"
+"- pulse <pulse type> <vOffset> <amp> <pulse-width> <time-offset (ms)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- modPulse <pulse-type> <vOffset> <amp> <pulse-width> <t-offset (ms)> <mod-Freq(MHz)> <mod-Phase(Rad)> <time(ms)> <Continuation Type> <Repeat #>\n"
 "The continuation type determines what the agilent does when it reaches the end of the <time> \n"
 "argument. Accepted Values for the continuation type are:\n"
 "- repeat <requires repeat #>\n"

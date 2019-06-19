@@ -242,5 +242,5 @@ sidemot_intrappgc__servo_value 0.132199
 3Sidemot 6 22 1 0.48 1 a 5 0.01 0.02 0
 DiagMot 5 9 1 0.016 1 a 0 0.01 0.03 0
 sidemot_intrappgc 6 22 1 1.5 1 a 5 0.01 0.02 0
-201 251 3 231 281 3
+1 50 1 1 50 1
 0 0

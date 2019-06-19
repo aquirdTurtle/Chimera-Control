@@ -209,7 +209,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			return _myRGBs["Solarized Violet"];
 		}
 		else if ( word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" 
-				  || word == "repeatuntiltrig" || word == "sech" || word == "gaussian" || word == "lorentzian" )
+				  || word == "repeatuntiltrig" || "repeat" || word == "sech" || word == "gaussian" || word == "lorentzian" )
 		{
 			return _myRGBs["Solarized Yellow"];
 		}
