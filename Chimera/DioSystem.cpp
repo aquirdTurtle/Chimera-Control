@@ -862,7 +862,7 @@ std::string DioSystem::getName( DioRows::which row, UINT number)
 
 ULONG DioSystem::getNumberEvents(UINT variation, UINT seqNum )
 {
-	return ttlSnapshots[variation].size();
+	return ttlSnapshots[seqNum][variation].size();
 }
 
 
