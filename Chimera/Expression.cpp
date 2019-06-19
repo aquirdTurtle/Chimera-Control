@@ -410,8 +410,8 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 	// make a constant copy of the original string to use during the evaluation.
 	const std::string originalExpression( expressionStr );
 	double resultOfReduction = 0;
-
-	if ( std::string::npos == originalExpression.find_first_not_of ( "-.0123456789" ) )
+	// include "e" here because of scientific notation for floats
+	if ( std::string::npos == originalExpression.find_first_not_of ( "-.0123456789e" ) )
 	{
 		// then only digits, so should probably evaluate straight. 
 		try

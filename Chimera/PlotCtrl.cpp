@@ -631,8 +631,8 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top, greyGdiPen );
 			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+			count++;
 		}
-		count++;
 	}
 	else
 	{

@@ -52,9 +52,10 @@ struct pulseFormat
 	std::string type;
 	Expression amplitude;
 	Expression width;
-	// if pulseLength !>> pulseWidth, there will be a cutoff in the shape of the pulse. The peak of the pulse is always
-	// centered.
-	Expression offset;
+	// if pulseLength !>> pulseWidth, there will be a cutoff in the shape of the pulse.
+	Expression vOffset;
+	Expression tOffset;
+
 };
 
 struct pulseData
@@ -64,9 +65,9 @@ struct pulseData
 	std::string type;
 	double amplitude;
 	double width;
-	// if time !>> pulseWidth, there will be a cutoff in the shape of the pulse. The peak of the pulse is always
-	// centered.
-	double offset;
+	// if time !>> pulseWidth, there will be a cutoff in the shape of the pulse.
+	double vOffset;
+	double tOffset;
 };
 
 

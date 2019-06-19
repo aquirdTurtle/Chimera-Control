@@ -7,11 +7,36 @@
 
 // this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
-template <typename T> std::string str(T input, const int precision = 13, bool eatZeros = false, bool toLower = false)
+template <typename T> std::string str(T input, const int precision = 13, bool eatZeros = false, bool toLower = false,
+									   bool zeroPad = false)
 {
 	std::ostringstream out;
 	out << std::setprecision(precision) << input;
 	std::string outStr = out.str();
+	if ( zeroPad )
+	{
+		if ( outStr.find_first_not_of( "-0." ) != std::string::npos || outStr == "0" )
+		{
+			auto fpos = int ( outStr.find_first_not_of ( "-0." ) );
+			if ( int(outStr.size ( )) - fpos - precision < 0 )
+			{
+				if ( outStr.find_first_of ( "." ) == std::string::npos )
+				{
+					// was int with no decimal, make float so that can add zeros. 
+					outStr += ".";
+					if ( fpos == -1 )
+					{
+						fpos = outStr.size();
+					}
+				}
+				// then needs zeros
+				for ( auto zero : range ( -(int(outStr.size ( )) - fpos - precision) ) )
+				{
+					outStr += "0";
+				}
+			}
+		}
+	}
 	if (eatZeros)
 	{
 		if (outStr.find(".") != std::string::npos)
@@ -25,6 +50,7 @@ template <typename T> std::string str(T input, const int precision = 13, bool ea
 	}
 	return outStr;
 }
+
 
 template <typename T> std::wstring w_str( T input, const int precision = 13, bool eatZeros = false, bool toLower = false )
 {
