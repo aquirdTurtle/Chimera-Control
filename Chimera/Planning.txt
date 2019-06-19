@@ -79,6 +79,9 @@ Refactoring / Other:
 - reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times.
 - reconsider how to handle initial dac and ttl values
+- can't do non-square multi-dim scans
+- gui level accumulation images
+- seems that there's still auto fitting stuff in the data analysis but I don't think this is supported?
 Checks and Tests
 - add check for flash that sum of indv move times is the total move time.
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
@@ -92,14 +95,12 @@ BUGS:
 - if taking pictures too fast code can freeze while pics getting handled.
 - err boxes don't grab focus of entire program
 - should be able to change basler image dimensions edits while running
-- basler fails silently sometimes if issues with binning or dims // haven't seen in a while...
 - constant beeping if no mot and continuous freezes things basler
-- can't do non-square multi-dim scans
 - figure out why figure update seems to cause main thread window thread to freak out
-- reported # ttl events in experiment looks wrong
 - new function then save doesn't save as function
 - ttl display not accurate at end of exp
 
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
+

@@ -18,7 +18,7 @@ class Segment
 		double returnDataVal( long dataNum );
 		void calcData( ULONG sampleRate );
 		double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
-		double pulseCalc( pulseData pulse, int iteration, long size, double pulseLength );
+		double pulseCalc( pulseData pulse, int iteration, long size, double pulseLength, double center );
 		double modCalc( modData mod, int iteration, long size, double pulseLength );
 	private:
 		segmentInfoInput input;

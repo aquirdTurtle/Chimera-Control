@@ -21,8 +21,9 @@ void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& v
 	else if ( input.pulse.isPulse )
 	{
 		finalSettings.pulse.type = input.pulse.type;
-		finalSettings.pulse.offset = input.pulse.offset.evaluate( variables, variation );
+		finalSettings.pulse.vOffset = input.pulse.vOffset.evaluate( variables, variation );
 		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( variables, variation );
+		finalSettings.pulse.tOffset = input.pulse.tOffset.evaluate ( variables, variation );
 		finalSettings.pulse.width = input.pulse.width.evaluate( variables, variation ) / 1000.0;
 	}
 	else
@@ -116,7 +117,7 @@ double Segment::modCalc( modData mod, int iteration, long size, double pulseLeng
 }
 
 
-double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pulseLength )
+double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pulseLength, double center )
 {
 	if ( pulse.type == "__NONE__" )
 	{
@@ -125,7 +126,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 	else if ( pulse.type == "gaussian" )
 	{
 		// in this case, the width is the sigma of the gaussian.
-		double center = pulseLength / 2.0;
+		//double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		double result = pulse.amplitude * exp( -(center - x) * (center - x) / (pulse.width * pulse.width) );
 		return result;
@@ -134,7 +135,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 	{
 		// in this case, the width is the standard lorentzian full width half max. 
 		double FWHM = pulse.width;
-		double center = pulseLength / 2.0;
+		//double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		// see definition: http://mathworld.wolfram.com/LorentzianFunction.html
 		return pulse.amplitude * (FWHM / (2.0 * PI)) / ((x - center)*(x - center) + (FWHM / 2) * (FWHM / 2));
@@ -143,7 +144,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 	else if ( pulse.type == "sech" )
 	{
 		// in this case, the width is just the scaling factor for the length
-		double center = pulseLength / 2.0;
+		//double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		// see definition: http://mathworld.wolfram.com/HyperbolicSecant.html
 		return pulse.amplitude * 1.0 / cosh( (x - center) / pulse.width );
@@ -185,7 +186,8 @@ void Segment::calcData( ULONG sampleRate )
 		}
 		else if ( finalSettings.pulse.isPulse )
 		{
-			point = finalSettings.pulse.offset + pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
+			point = finalSettings.pulse.vOffset + pulseCalc( finalSettings.pulse, dataInc, numDataPoints, 
+															 finalSettings.time, finalSettings.pulse.tOffset )
 											   * modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
 		}
 		else
