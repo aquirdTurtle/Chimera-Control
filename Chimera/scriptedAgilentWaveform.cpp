@@ -68,12 +68,14 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			workingInput.pulse.isPulse = true;
 			workingInput.mod.modulationIsOn = false;
 			script >> workingInput.pulse.type;
-			script >> workingInput.pulse.offset;
-			workingInput.pulse.offset.assertValid ( variables, scope );
+			script >> workingInput.pulse.vOffset;
+			workingInput.pulse.vOffset.assertValid ( variables, scope );
 			script >> workingInput.pulse.amplitude;
 			workingInput.pulse.amplitude.assertValid ( variables, scope );
 			script >> workingInput.pulse.width;
 			workingInput.pulse.width.assertValid ( variables, scope );
+			script >> workingInput.pulse.tOffset;
+			workingInput.pulse.tOffset.assertValid ( variables, scope );
 		}
 		else if ( intensityCommand == "modpulse" )
 		{
@@ -82,12 +84,14 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			workingInput.pulse.isPulse = true;
 			workingInput.mod.modulationIsOn = true;
 			script >> workingInput.pulse.type;
-			script >> workingInput.pulse.offset;
-			workingInput.pulse.offset.assertValid ( variables, scope );
+			script >> workingInput.pulse.vOffset;
+			workingInput.pulse.vOffset.assertValid ( variables, scope );
 			script >> workingInput.pulse.amplitude;
 			workingInput.pulse.amplitude.assertValid ( variables, scope );
 			script >> workingInput.pulse.width;
 			workingInput.pulse.width.assertValid ( variables, scope );
+			script >> workingInput.pulse.tOffset;
+			workingInput.pulse.tOffset.assertValid ( variables, scope );
 			// mod stuff
 			script >> workingInput.mod.frequency;
 			workingInput.mod.frequency.assertValid ( variables, scope );
@@ -243,7 +247,7 @@ bool ScriptedAgilentWaveform::isVaried( )
 		}
 		else if ( input.pulse.isPulse )
 		{
-			if ( input.pulse.amplitude.varies( ) || input.pulse.offset.varies( ) || input.pulse.width.varies( ) )
+			if ( input.pulse.amplitude.varies( ) || input.pulse.vOffset.varies( ) || input.pulse.width.varies( ) )
 			{
 				return true;
 			}
