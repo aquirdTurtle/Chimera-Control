@@ -13,9 +13,9 @@ def pump2stretch():
   dac: sigmaoppower pumppower 
   dac: sigmarepumpPower 0.3
   %dac: repumpPower 0.3 %0.2 %0.05
- 
+  
   on: sigmaoprf 
-  on: sigmaRepumpRf
+  on: sigmaRepumpRf 
   t += pumptime 
   off: sigmaoprf
   off: sigmaRepumpRf
