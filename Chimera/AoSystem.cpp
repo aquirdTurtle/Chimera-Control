@@ -11,6 +11,7 @@
 #include "CodeTimer.h"
 #include <boost/lexical_cast.hpp>
 
+
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 {
 	/// set some constants...
