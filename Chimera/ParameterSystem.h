@@ -41,29 +41,39 @@ class ParameterSystem
 	public:		
 		ParameterSystem ( std::string configurationFileDelimiter );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
-		UINT getTotalVariationNumber();
-		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::string configFileName );
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
-		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-								 DioSystem* ttls, AoSystem* aoSys );
-		void adjustVariableValue( std::string paramName, double value );
-		double getVariableValue( std::string paramName );
-		void deleteVariable();
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, 
-						 UINT listviewId, ParameterSysType type );
-		void addConfigParameter( parameterType var, UINT item );
-		void addGlobalParameter( parameterType var, UINT item );
-		void handleColumnClick( NMHDR * pNotifyStruct, LRESULT* result );
+		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, UINT listviewId, 
+						 ParameterSysType type );
+		void updateParameterInfo ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+								   DioSystem* ttls, AoSystem* aoSys );
+		void adjustVariableValue ( std::string paramName, double value );
+		void deleteVariable ( );
+		void addParameter( parameterType var, UINT item );
+		void addParamToListview ( parameterType param, UINT item );
+		void reorderVariableDimensions ( );
 		void removeVariableDimension();
+		void clearVariables ( );
+		void checkVariationRangeConsistency ( );
+		void saveVariable ( std::ofstream& saveFile, parameterType variable );
+		static void generateKey ( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
+								  std::vector<variationRangeInfo> inputRangeInfo );
+		static std::vector<parameterType> combineParametersForExperimentThread ( std::vector<parameterType>& masterVars,
+																				 std::vector<parameterType>& subVars );
+
+		void handleColumnClick ( NMHDR * pNotifyStruct, LRESULT* result );
+		void redrawListview ( );
+		// getters
 		parameterType getVariableInfo(int varNumber);
 		std::vector<parameterType> getAllConstants();
 		std::vector<parameterType> getAllVariables();
 		std::vector<parameterType> getEverything();
 		unsigned int getCurrentNumberOfVariables();
-		void clearVariables();
+		UINT getTotalVariationNumber ( );
+		double getVariableValue ( std::string paramName );
+		static std::vector<double> getKeyValues ( std::vector<parameterType> variables );
+		std::vector<variationRangeInfo> getRangeInfo ( );
+
+		// setters
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
@@ -71,20 +81,18 @@ class ParameterSystem
 		void setUsages(std::vector<std::vector<parameterType>> vars);
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
-		// used to be in KeyHandler
-		static void generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
-								 std::vector<variationRangeInfo> inputRangeInfo );
-		static std::vector<double> getKeyValues( std::vector<parameterType> variables );
-		void reorderVariableDimensions( );
-		static std::vector<parameterType> getConfigParamsFromFile( std::string configFile );
-		void saveVariable( std::ofstream& saveFile, parameterType variable );
-		static parameterType loadVariableFromFile( std::ifstream& openFile, Version ver, UINT rangeNum );
-		static std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver, UINT rangeNum );
+		// file handling
+		static parameterType loadVariableFromFile ( std::ifstream& openFile, Version ver, UINT rangeNum );
+		static std::vector<parameterType> getVariablesFromFile ( std::ifstream& configFile, Version ver, UINT rangeNum );
 		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::ifstream& configFile, Version ver );
-		void checkVariationRangeConsistency( );
-		static std::vector<parameterType> combineParametersForExperimentThread( std::vector<parameterType>& masterVars,
-														   std::vector<parameterType>& subVars );
-		std::vector<variationRangeInfo> getRangeInfo ( );
+		static std::vector<parameterType> getConfigParamsFromFile ( std::string configFile );
+		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::string configFileName );
+		// profile stuff
+		void handleNewConfig ( std::ofstream& newFile );
+		void handleSaveConfig ( std::ofstream& saveFile );
+		void handleOpenConfig ( std::ifstream& openFile, Version ver );		
+		void setVariationRangeColumns ( int num=-1, int width=-1 );
+		// public variables
 		const variationRangeInfo defaultRangeInfo = { 2,false,true };
 		const std::string configDelim;
 
