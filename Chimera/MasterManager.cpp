@@ -375,7 +375,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				for ( auto chan : range( 2 ) )
 				{
-					if ( agilent->getOutputInfo( ).channel[chan].option != 4 )
+					if ( agilent->getOutputInfo( ).channel[chan].option != AgilentChannelMode::which::Script )
 					{
 						continue;
 					}

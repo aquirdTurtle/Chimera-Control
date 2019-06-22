@@ -2,6 +2,7 @@
 #pragma once
 
 #include "scriptedAgilentWaveform.h"
+#include "AgilentChannelMode.h"
 #include "Expression.h"
 
 #include <string>
@@ -99,7 +100,7 @@ struct preloadedArbInfo : public generalAgilentOutputInfo
 
 struct channelInfo
 {
-	int option = -2;
+	AgilentChannelMode::which option = AgilentChannelMode::which::No_Control;
 	dcInfo dc;
 	sineInfo sine;
 	squareInfo square;

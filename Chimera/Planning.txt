@@ -1,5 +1,4 @@
 // created by Mark O. Brown
-
 ===================
 CODE PLANNING
 ===================
@@ -87,6 +86,7 @@ Checks and Tests
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 - change agilent mode option to enum class
+- change existing andor enum class to struct {enum class}
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
@@ -99,8 +99,7 @@ BUGS:
 - figure out why figure update seems to cause main thread window thread to freak out
 - new function then save doesn't save as function
 - ttl display not accurate at end of exp
-
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
-
+- not starting as autoscaling basler pictures, or something wrong with initial setting.

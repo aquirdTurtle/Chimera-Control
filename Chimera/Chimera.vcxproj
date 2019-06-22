@@ -203,6 +203,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
+    <ClInclude Include="AgilentChannelMode.h" />
     <ClInclude Include="AgilentSettings.h" />
     <ClInclude Include="agilentStructures.h" />
     <ClInclude Include="AiSystem.h" />
@@ -330,6 +331,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agilent.cpp" />
+    <ClCompile Include="AgilentChannelMode.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="AnalogOutput.cpp" />

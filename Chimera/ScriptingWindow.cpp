@@ -449,7 +449,7 @@ void ScriptingWindow::saveIntensityScript()
 	try
 	{
 		// channel 0 is the intensity channel, the 4th option is the scripting option.
-		if ( intensityAgilent.getOutputInfo( ).channel[0].option == 4 )
+		if ( intensityAgilent.getOutputInfo( ).channel[0].option == AgilentChannelMode::which::Script )
 		{
 			intensityAgilent.agilentScript.saveScript( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
 			intensityAgilent.agilentScript.updateScriptNameText( getProfile( ).categoryPath );
