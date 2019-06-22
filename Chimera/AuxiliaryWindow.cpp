@@ -654,7 +654,6 @@ std::array<AoInfo, 24> AuxiliaryWindow::getDacInfo()
 	return aoSys.getDacInfo();
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
@@ -668,7 +667,6 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
@@ -683,7 +681,6 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	}
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -706,7 +703,6 @@ std::vector<parameterType> AuxiliaryWindow::getAllVariables()
 	return vars;
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
@@ -721,7 +717,6 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -735,7 +730,6 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -767,7 +761,7 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		configParameters.addConfigParameter ( var, item );
+		configParameters.addParameter ( var, item );
 	}
 	catch ( Error& )
 	{
@@ -1282,12 +1276,12 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back ( { value, value } );
-			globalParameters.addGlobalParameter(tempVar, varInc);
+			globalParameters.addParameter(tempVar, varInc);
 		}
 	}
 	parameterType tempVar;
 	tempVar.name = "";
-	globalParameters.addGlobalParameter(tempVar, -1);
+	globalParameters.addParameter(tempVar, -1);
 	//
 	servos.handleOpenMasterConfig( configStream, version );
 }

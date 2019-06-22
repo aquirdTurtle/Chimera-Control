@@ -329,7 +329,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		for (const UINT& variationInc : range( variations ))
 		{
 			timer.tick("Variation-"+str(variationInc+1)+"-Start");
-			expUpdate( "Variation #" + str( variationInc + 1 ) + ": ", comm, quiet );
+			expUpdate( "Variation #" + str( variationInc + 1 ) + "/" + str(variations) + ": ", comm, quiet );
 			if ( input->aiSys.wantsQueryBetweenVariations( ) )
 			{
 				expUpdate( "Querying Voltages...\r\n", comm, quiet );
