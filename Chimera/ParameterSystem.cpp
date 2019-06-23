@@ -425,7 +425,7 @@ void ParameterSystem::removeVariableDimension ( )
 
 void ParameterSystem::checkVariationRangeConsistency ( )
 {
-	UINT dum = -1;
+	UINT dum = 0;
 	for ( auto& var : currentParameters )
 	{
 		if ( var.ranges.size ( ) != rangeInfo.size ( ) )
@@ -433,10 +433,9 @@ void ParameterSystem::checkVariationRangeConsistency ( )
 			if ( dum == 0 )
 			{
 				errBox ( "The number of variation ranges of a parameter, " + var.name +
-						 ", did not match the official number. The code will force the parameter to match the official"
-						 " number." );
-				dum++;
-				// only dislpay the error message once.
+						 ", (and perhaps others) did not match the official number. The code will force the parameter "
+						 "to match the official number." );
+				dum++; // only dislpay the error message once.
 			}
 			var.ranges.resize ( rangeInfo.size ( ) );
 		}
@@ -521,8 +520,7 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	parametersListview.ScreenToClient(&cursorPos);
-	LVHITTESTINFO myItemInfo;
-	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
+	LVHITTESTINFO myItemInfo = { 0 };
 	myItemInfo.pt = cursorPos;
 	parametersListview.SubItemHitTest(&myItemInfo);
 	if (myItemInfo.iSubItem == preRangeColumns + 3 * rangeInfo.size())
@@ -648,7 +646,7 @@ BOOL ParameterSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 }
 
 
-void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										   DioSystem* ttls, AoSystem* aoSys )
 {
 	if ( !controlActive )
@@ -660,13 +658,11 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 	GetCursorPos(&myItemInfo.pt);
 	parametersListview.ScreenToClient(&myItemInfo.pt);
 	parametersListview.SubItemHitTest(&myItemInfo);
-	int subitem, itemIndicator;
-	itemIndicator = myItemInfo.iItem;
+	int subitem = myItemInfo.iSubItem, itemIndicator = myItemInfo.iItem;
 	if (itemIndicator == -1)
 	{
 		return;
 	}
-	subitem = myItemInfo.iSubItem;
 	/// check if adding new variable
 	CString text = parametersListview.GetItemText(itemIndicator, 0);
 	if (text == "___")
@@ -678,7 +674,6 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 		currentParameters.back().active = false;
 		currentParameters.back().overwritten = false;
 		currentParameters.back().scanDimension = 1;
-
 		for ( auto rangeVariations : rangeInfo )
 		{
 			currentParameters.back ( ).ranges.push_back ( { 0, 0 } );
@@ -695,12 +690,10 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			std::string newName;
 			TextPromptDialog dialog(&newName, "Please enter a name for the variable:");
 			dialog.DoModal();
-			// make name lower case
 			newName = str ( newName, 13, false, true );
 			if (newName == "")
 			{
-				// probably canceled.
-				break;
+				break; // probably canceled.
 			}
 			for (auto variable : currentParameters)
 			{
@@ -744,7 +737,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				catch ( boost::bad_lexical_cast&)
 				{
 					throwNested ( "the value entered, " + newValue + ", failed to convert to a double! "
-							"Check for invalid characters." );
+							      "Check for invalid characters." );
 				}
 				redrawListview ( );
 				break;
@@ -752,19 +745,8 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			else
 			{
 				/// constant or variable?
-				// this is just a binary switch.
-				if ( param.constant)
-				{
-					// switch to variable.
-					param.constant = false;
-					redrawListview ( );
-				}
-				else
-				{
-					/// switch to constant.
-					param.constant = true;
-					redrawListview ( );
-				}
+				param.constant = !param.constant;
+				redrawListview ( );
 			}
 			break;
 		}
@@ -822,7 +804,6 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				throwNested ( "the value entered, " + newValue + ", failed to convert to a double! "
 						 "Check for invalid characters." );
 			}
-			// update the listview
 			redrawListview ( );
 			break;
 		}
@@ -840,7 +821,6 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 				break;
 			}
 			newScope = str ( newScope, 13, false, true );
-			// update the listview
 			param.parameterScope = newScope;
 			redrawListview ( );
 			break;
@@ -874,14 +854,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 					throwNested ("the value entered, " + newValue + ", failed to convert to a double! "
 							 "Check for invalid characters.");
 				}
-				if ( (subitem - preRangeColumns) % 3 == 0 )
-				{
-					param.ranges[rangeNum].initialValue = val;
-				}
-				else
-				{
-					param.ranges[rangeNum].finalValue = val;
-				}
+				( ( subitem - preRangeColumns ) % 3 ) ? param.ranges[ rangeNum ].initialValue : param.ranges[ rangeNum ].finalValue = val;
 				redrawListview ( );
 				break;
 			}
@@ -933,8 +906,7 @@ void ParameterSystem::deleteVariable()
 	GetCursorPos(&cursorPos);
 	parametersListview.ScreenToClient(&cursorPos);
 	int subitemIndicator = parametersListview.HitTest(cursorPos);
-	LVHITTESTINFO myItemInfo;
-	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
+	LVHITTESTINFO myItemInfo = { 0 };
 	myItemInfo.pt = cursorPos;
 	int itemIndicator = parametersListview.SubItemHitTest(&myItemInfo);
 	if (itemIndicator == -1 || itemIndicator == currentParameters.size())
@@ -1007,7 +979,7 @@ void ParameterSystem::clearVariables()
 }
 
 
-std::vector<parameterType> ParameterSystem::getEverything()
+std::vector<parameterType> ParameterSystem::getAllParams()
 {
 	return currentParameters;
 }
@@ -1029,10 +1001,10 @@ std::vector<parameterType> ParameterSystem::getAllConstants()
 // this function returns the compliment of the variables that "getAllConstants" returns.
 std::vector<parameterType> ParameterSystem::getAllVariables()
 {
+	// opposite of get constants.
 	std::vector<parameterType> varyingParameters;
 	for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
 	{
-		// opposite of get constants.
 		if (!currentParameters[varInc].constant)
 		{
 			varyingParameters.push_back(currentParameters[varInc]);
@@ -1044,6 +1016,7 @@ std::vector<parameterType> ParameterSystem::getAllVariables()
 
 void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 {
+	// only to be called by redrawListview
 	if ( param.name == "" )
 	{
 		parametersListview.insertBlankRow ( );
@@ -1051,7 +1024,6 @@ void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 		return;
 	}
 	/// else...
-	// add it to the internal structure that keeps track of variables
 	if ( parametersListview.m_hWnd == NULL )
 	{
 		return;
@@ -1083,48 +1055,14 @@ void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 	{
 		param.ranges.resize ( currentRanges );
 	}
-	else
-	{
-		/*
-		// for all extra ranges this parameter has greater than the current range number:
-		for ( auto rangeAddInc : range ( param.ranges.size ( ) - currentRanges ) )
-		{
-		// add a range.
-		/*
-		parametersListview.InsertColumn ( preRangeColumns + 3 * rangeInfo.size ( ), str ( rangeInfo.size ( ) + 1 ) + ":(", 0x20 );
-		parametersListview.InsertColumn ( preRangeColumns + 1 + 3 * rangeInfo.size ( ), "]" );
-		parametersListview.InsertColumn ( preRangeColumns + 2 + 3 * rangeInfo.size ( ), "#" );
-
-		// edit all variables
-		for ( auto varInc : range ( currentParameters.size ( ) ) )
-		{
-		currentParameters[ varInc ].ranges.push_back ( { 0,0 } );
-		for ( auto inc : range ( 3 ) )
-		{
-		parametersListview.SetItem ( currentParameters[ varInc ].constant ? "---" : "0", varInc,
-		preRangeColumns + 3 * rangeInfo.size ( ) + inc );
-		}
-		}
-		rangeInfo.push_back ( defaultRangeInfo );
-		}
-		*/
-	}
 	// update ranges
 	for ( auto rangeInc : range ( param.ranges.size ( ) ) )
 	{
-		if ( !param.constant )
-		{
-			auto& range = currentParameters[ item ].ranges[ rangeInc ];
-			parametersListview.SetItem ( str ( range.initialValue, 13, true ), item, preRangeColumns + rangeInc * 3 );
-			parametersListview.SetItem ( str ( range.finalValue, 13, true ), item, preRangeColumns + 1 + rangeInc * 3 );
-			parametersListview.SetItem ( str ( rangeInfo[ rangeInc ].variations, 13, true ), item, preRangeColumns + 2 + rangeInc * 3 );
-		}
-		else
-		{
-			parametersListview.SetItem ( "---", item, preRangeColumns + rangeInc * 3 );
-			parametersListview.SetItem ( "---", item, preRangeColumns + 1 + rangeInc * 3 );
-			parametersListview.SetItem ( "---", item, preRangeColumns + 2 + rangeInc * 3 );
-		}
+		auto col = preRangeColumns + rangeInc * 3;
+		auto& range = currentParameters[ item ].ranges[ rangeInc ];
+		parametersListview.SetItem ( param.constant ? "---" : str ( range.initialValue, 13, true ), item, col++ );
+		parametersListview.SetItem ( param.constant ? "---" : str ( range.finalValue, 13, true ), item, col++ );
+		parametersListview.SetItem ( param.constant ? "---" : str ( rangeInfo[ rangeInc ].variations, 13, true ), item, col );
 	}
 	parametersListview.RedrawWindow ( );
 	updateVariationNumber ( );
@@ -1157,7 +1095,6 @@ void ParameterSystem::addParameter(parameterType variableToAdd, UINT item)
 			thrower ("A variable with the name " + variableToAdd.name + " already exists!");
 		}
 	}
-	// add it to the internal structure that keeps track of variables
 	currentParameters.push_back(variableToAdd);
 	redrawListview ( );
 }
@@ -1244,7 +1181,6 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 {
 	std::ifstream f(configFileName);
 	Version ver;
-	//ProfileSystem::getVersionFromFile( f, ver );
 	std::vector<parameterType> configVariables;
 	try
 	{

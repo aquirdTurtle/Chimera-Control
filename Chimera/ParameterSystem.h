@@ -44,12 +44,11 @@ class ParameterSystem
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, UINT listviewId, 
 						 ParameterSysType type );
-		void updateParameterInfo ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+		void handleDblClick ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								   DioSystem* ttls, AoSystem* aoSys );
 		void adjustVariableValue ( std::string paramName, double value );
 		void deleteVariable ( );
 		void addParameter( parameterType var, UINT item );
-		void addParamToListview ( parameterType param, UINT item );
 		void reorderVariableDimensions ( );
 		void removeVariableDimension();
 		void clearVariables ( );
@@ -66,7 +65,7 @@ class ParameterSystem
 		parameterType getVariableInfo(int varNumber);
 		std::vector<parameterType> getAllConstants();
 		std::vector<parameterType> getAllVariables();
-		std::vector<parameterType> getEverything();
+		std::vector<parameterType> getAllParams();
 		unsigned int getCurrentNumberOfVariables();
 		UINT getTotalVariationNumber ( );
 		double getVariableValue ( std::string paramName );
@@ -91,12 +90,13 @@ class ParameterSystem
 		void handleNewConfig ( std::ofstream& newFile );
 		void handleSaveConfig ( std::ofstream& saveFile );
 		void handleOpenConfig ( std::ifstream& openFile, Version ver );		
-		void setVariationRangeColumns ( int num=-1, int width=-1 );
 		// public variables
 		const variationRangeInfo defaultRangeInfo = { 2,false,true };
 		const std::string configDelim;
 
 	private:
+		void addParamToListview ( parameterType param, UINT item );
+		void setVariationRangeColumns ( int num = -1, int width = -1 );
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
 		// name, constant/variable, dim, constantValue, scope
