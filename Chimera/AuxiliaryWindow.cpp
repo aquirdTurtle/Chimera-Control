@@ -493,7 +493,7 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
 		input->variables.clear( );
-		input->variables.push_back( globalParameters.getEverything( ) );
+		input->variables.push_back( globalParameters.getAllParams( ) );
 		input->variableRangeInfo.clear ( );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		// Only do this once of course.
@@ -673,7 +673,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		configParameters.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
+		configParameters.handleDblClick(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -697,8 +697,8 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 
 std::vector<parameterType> AuxiliaryWindow::getAllVariables()
 {
-	std::vector<parameterType> vars = configParameters.getEverything();
-	std::vector<parameterType> vars2 = globalParameters.getEverything();
+	std::vector<parameterType> vars = configParameters.getAllParams();
+	std::vector<parameterType> vars2 = globalParameters.getAllParams();
 	vars.insert(vars.end(), vars2.begin(), vars2.end());
 	return vars;
 }
@@ -709,7 +709,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		globalParameters.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
+		globalParameters.handleDblClick(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -982,7 +982,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 		{
 			throwNested ( "Error seen while loading mot temperature settings" );
 		}
-		std::vector<parameterType> globals = globalParameters.getEverything ( );
+		std::vector<parameterType> globals = globalParameters.getAllParams ( );
 		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 		globalParameters.setUsages ( { globals } );
 		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
@@ -1014,7 +1014,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear( );
-		input->variables.push_back(globalParameters.getEverything());
+		input->variables.push_back(globalParameters.getAllParams());
 		input->variableRangeInfo.clear ( ); 
 		input->variableRangeInfo.push_back ( configParameters.defaultRangeInfo );
 		input->variableRangeInfo[ 0 ].variations = 1;
@@ -1065,7 +1065,7 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 			// load the variables. This little loop is for letting configuration variables overwrite the globals.
 			// the config variables are loaded directly from the file.
 			std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( seqFile.configFilePath ( ) );
-			std::vector<parameterType> globals = globalParameters.getEverything ( );
+			std::vector<parameterType> globals = globalParameters.getAllParams ( );
 			experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 			globalParameters.setUsages ( { globals } );
 		}
