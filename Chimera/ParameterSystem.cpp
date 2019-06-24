@@ -25,7 +25,9 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 {
 	paramSysType = type;
 	scanDimensions = 1;
-	rangeInfo.resize ( 1, defaultRangeInfo );
+	rangeInfo.defaultInit ( );
+	rangeInfo.setNumScanDimensions ( 1 );
+	rangeInfo.setNumRanges ( 0, 1 );
 
 	parametersHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	parametersHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, parametersHeader.sPos, parent, id++ );
@@ -78,12 +80,12 @@ void ParameterSystem::setVariationRangeColumns ( int num, int width )
 	auto cInc = 5;
 	for ( auto rInc : range ( (num==-1) ? currentParameters.front ( ).ranges.size ( ) : num) )
 	{
-		parametersListview.InsertColumn ( cInc++, str(rInc+1) + ". (", width );
-		parametersListview.InsertColumn ( cInc++, "]", width );
+		parametersListview.InsertColumn ( cInc++, str(rInc+1) + ". {", width );
+		parametersListview.InsertColumn ( cInc++, "}", width );
 		parametersListview.InsertColumn ( cInc++, "#", width );
 	}
-	parametersListview.InsertColumn ( cInc++, "+()", width );
-	parametersListview.InsertColumn ( cInc++, "-()", width );
+	parametersListview.InsertColumn ( cInc++, "+{}", width );
+	parametersListview.InsertColumn ( cInc++, "-{}", width );
 }
 
 
@@ -98,11 +100,13 @@ void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
 	std::vector<parameterType> variables;
 	try
 	{
-		variables = getVariablesFromFile( configFile, ver, rangeInfo.size() );
+		variables = getVariablesFromFile( configFile, ver );
 	}
 	catch ( Error& )
 	{/*??? Shouldn't I handle something here?*/}
 	currentParameters = variables;
+	flattenScanDimensions ( );
+	
 	redrawListview ( );
 }
 
@@ -124,16 +128,23 @@ void ParameterSystem::redrawListview ( )
 			{
 				addParamToListview ( param, varInc++ );
 			}
-			for ( auto rangeInc : range ( rangeInfo.size ( ) ) )
+			/*
+			for ( auto dimInc : range ( rangeInfo.numScanDimensions ( ) ) )
 			{
-				setRangeInclusivity ( rangeInc, true, rangeInfo[ rangeInc ].leftInclusive, preRangeColumns + rangeInc * 3 );
-				setRangeInclusivity ( rangeInc, false, rangeInfo[ rangeInc ].rightInclusive, preRangeColumns + 1 + rangeInc * 3 );
+				for ( auto rangeInc : range ( rangeInfo.numRanges ( 0 ) ) )
+				{
+					setRangeInclusivity ( rangeInc, dimInc, true, rangeInfo ( dimInc, rangeInc ).leftInclusive );
+					setRangeInclusivity ( rangeInc, dimInc, false, rangeInfo ( dimInc, rangeInc ).rightInclusive );
+				}
 			}
+			*/
 		}
 		else
 		{
-			setRangeInclusivity ( 0, true, false, preRangeColumns );
-			setRangeInclusivity ( 0, false, true, preRangeColumns + 1 );
+			/*
+			setRangeInclusivity ( 0, 0, true, false );
+			setRangeInclusivity ( 0, 0, false, true );
+			*/
 		}
 	}
 	else
@@ -149,30 +160,43 @@ void ParameterSystem::redrawListview ( )
 }
 
 
-std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile, Version ver )
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile, Version ver )
 {
-	std::vector<variationRangeInfo> rInfo;
+	ScanRangeInfo rInfo;
 	UINT numRanges;
 	if ( ver > Version ( "3.4" ) )
 	{
 		ProfileSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
-		configFile >> numRanges;
-		rInfo.resize ( numRanges );
-		for ( auto& range : rInfo )
+		UINT numDimensions;
+		if ( ver > Version ( "4.2" ) )
 		{
-			configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
+			configFile >> numDimensions;
+		}
+		else
+		{
+			numDimensions = 1;
+		}
+		rInfo.setNumScanDimensions ( numDimensions );
+		for ( auto dim : range( numDimensions ))
+		{
+			configFile >> numRanges;
+			rInfo.setNumRanges ( dim, numRanges );
+			for ( auto& range : rInfo.dimensionInfo(dim) )
+			{
+				configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
+			}
 		}
 	}
 	else
 	{
-		rInfo.clear ( );
-		rInfo.push_back ( { 2, false, true } );
+		rInfo.reset ( );
+		rInfo.defaultInit ( );
 	}
 	return rInfo;
 }
 
 
-std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver, UINT rangeNum )
+std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -189,7 +213,7 @@ std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream&
 	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadVariableFromFile( configFile, ver, rangeNum ) );
+		tempVariables.push_back( loadVariableFromFile( configFile, ver ) );
 	}
 	return tempVariables;
 }
@@ -201,16 +225,16 @@ void ParameterSystem::updateVariationNumber( )
 	// of the first variable that it finds.
 	std::vector<ULONG> dimVariations;
 	std::vector<bool> dimsSeen;
-	for ( auto tempVariable : currentParameters )
+	for ( auto tempParam : currentParameters )
 	{
-		if ( !tempVariable.constant )
+		if ( !tempParam.constant )
 		{
-			if ( dimsSeen.size( ) < tempVariable.scanDimension )
+			if ( dimsSeen.size( ) <= tempParam.scanDimension )
 			{
-				dimVariations.resize( tempVariable.scanDimension, 0 );
-				dimsSeen.resize( tempVariable.scanDimension, false );
+				dimVariations.resize( tempParam.scanDimension+1, 0 );
+				dimsSeen.resize( tempParam.scanDimension+1, false );
 			}
-			if ( dimsSeen[tempVariable.scanDimension-1] )
+			if ( dimsSeen[tempParam.scanDimension] )
 			{
 				// already seen.
 				continue;
@@ -218,11 +242,11 @@ void ParameterSystem::updateVariationNumber( )
 			else
 			{
 				// now it's been seen, don't add it again.
-				dimsSeen[tempVariable.scanDimension - 1] = true;
+				dimsSeen[tempParam.scanDimension] = true;
 			}
-			for ( auto range : rangeInfo )
+			for ( auto range : rangeInfo.dimensionInfo(tempParam.scanDimension) )
 			{
-				dimVariations[ tempVariable.scanDimension - 1 ] += range.variations;
+				dimVariations[ tempParam.scanDimension ] += range.variations;
 			}
 		}
 	}
@@ -288,7 +312,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver, UINT rangeNum )
+parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver)
 {
 	parameterType tempVar;
 	std::string varName, typeText, valueString;
@@ -314,9 +338,9 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 	}
 	else
 	{
-		tempVar.scanDimension = 1;
+		tempVar.scanDimension = 0;
 	}
-	UINT rangeNumber;
+	UINT rangeNumber = 1 ;
 	if ( ver <= Version ( "3.4" ) )
 	{
 		openFile >> rangeNumber;
@@ -328,7 +352,7 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 		}
 	}
 	UINT totalVariations = 0;
-	for ( auto rangeInc : range( rangeNum ) )
+	for ( auto rangeInc : range( rangeNumber ) )
 	{
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
@@ -378,14 +402,21 @@ void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType varia
 }
 
 
-void ParameterSystem::handleSaveConfig(std::ofstream& saveFile)
+void ParameterSystem::handleSaveConfig ( std::ofstream& saveFile )
 {
+	checkScanDimensionConsistency ( ); 
+	checkVariationRangeConsistency ( );
+	
 	saveFile << configDelim + "\n";
 	saveFile << "RANGE-INFO\n";
-	saveFile << rangeInfo.size ( ) << "\n";
-	for ( auto range : rangeInfo )
+	saveFile << rangeInfo.numScanDimensions ( ) << "\n";
+	for ( auto dimNum : range(rangeInfo.numScanDimensions ( )) )
 	{
-		saveFile << range.leftInclusive << "\n" << range.rightInclusive << "\n" << range.variations << "\n";
+		saveFile << rangeInfo.numRanges ( dimNum ) << "\n";
+		for ( auto range : rangeInfo.dimensionInfo (dimNum) )
+		{
+			saveFile << range.leftInclusive << "\n" << range.rightInclusive << "\n" << range.variations << "\n";
+		}
 	}
 	saveFile << getCurrentNumberOfVariables ( ) << "\n";
 	for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
@@ -413,7 +444,7 @@ void ParameterSystem::removeVariableDimension ( )
 	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
 	for ( auto& variable : currentParameters )
 	{
-		if ( variable.scanDimension == scanDimensions )
+		if ( variable.scanDimension == scanDimensions-2 )
 		{
 			variable.scanDimension--;
 		}
@@ -423,12 +454,61 @@ void ParameterSystem::removeVariableDimension ( )
 }
 
 
+void ParameterSystem::flattenScanDimensions ( )
+{
+	while ( true )
+	{
+		UINT maxDim = 0;
+		for ( auto& var : currentParameters )
+		{
+			maxDim = var.scanDimension > maxDim ? var.scanDimension : maxDim;
+		}
+		for ( auto dim : range ( maxDim ) )
+		{
+			bool found = false;
+			for ( auto param : currentParameters )
+			{
+				if ( param.scanDimension == dim )
+				{
+					found = true;
+				}
+			}
+			if ( !found )
+			{
+				for ( auto& param : currentParameters )
+				{
+					if ( param.scanDimension > dim )
+					{
+						param.scanDimension--;
+					}
+				}
+				// and do the same thing again.
+				continue;
+			}
+		}
+		break;
+	}
+}
+
+void ParameterSystem::checkScanDimensionConsistency( )
+{
+	rangeInfo.numScanDimensions ( );
+	for ( auto& param : currentParameters )
+	{
+		if ( param.scanDimension >= rangeInfo.numScanDimensions ( ) )
+		{
+			param.scanDimension = 0;
+		}
+	}
+}
+
+
 void ParameterSystem::checkVariationRangeConsistency ( )
 {
 	UINT dum = 0;
 	for ( auto& var : currentParameters )
 	{
-		if ( var.ranges.size ( ) != rangeInfo.size ( ) )
+		if ( var.ranges.size ( ) != rangeInfo.numRanges(var.scanDimension) )
 		{
 			if ( dum == 0 )
 			{
@@ -437,7 +517,7 @@ void ParameterSystem::checkVariationRangeConsistency ( )
 						 "to match the official number." );
 				dum++; // only dislpay the error message once.
 			}
-			var.ranges.resize ( rangeInfo.size ( ) );
+			var.ranges.resize ( rangeInfo.numRanges ( var.scanDimension ) );
 		}
 	}
 }
@@ -448,18 +528,19 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 	auto columnCount = parametersListview.GetHeaderCtrl ( )->GetItemCount ( );
 	// -2 for the two +- columns
 	int currentVariableRangeNumber = ( columnCount - preRangeColumns - 2 ) / 3;
+	checkScanDimensionConsistency ( );
 	checkVariationRangeConsistency ( );
-	if ( rangeInfo.size ( ) != currentVariableRangeNumber )
+	if ( rangeInfo.numRanges(dimNumber) != currentVariableRangeNumber )
 	{
 		errBox ( "somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
-				 "displayed are off! The numbers are " + str ( rangeInfo.size ( ) ) + " and "
+				 "displayed are off! The numbers are " + str ( rangeInfo.numRanges ( dimNumber ) ) + " and "
 				 + str ( currentVariableRangeNumber ) + " respectively. The program will attempt to fix this, but "
 				 "data may be lost." );
-		while ( rangeInfo.size ( ) != currentVariableRangeNumber )
+		while ( rangeInfo.numRanges ( dimNumber ) != currentVariableRangeNumber )
 		{
-			if ( rangeInfo.size ( ) > currentVariableRangeNumber )
+			if ( rangeInfo.numRanges ( dimNumber ) > currentVariableRangeNumber )
 			{
-				rangeInfo.pop_back ( );
+				rangeInfo.dimensionInfo ( dimNumber ).pop_back ( );
 				for ( auto& param : currentParameters )
 				{
 					param.ranges.pop_back( );
@@ -467,7 +548,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 			}
 			else
 			{
-				rangeInfo.push_back ( defaultRangeInfo );
+				rangeInfo.dimensionInfo ( dimNumber ).push_back ( defaultRangeInfo );
 				for ( auto& param : currentParameters )
 				{
 					param.ranges.pop_back ( );
@@ -481,7 +562,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 		{
 			/// add a range.
 			// edit all variables
-			rangeInfo.push_back ( defaultRangeInfo );
+			rangeInfo.dimensionInfo ( dimNumber ).push_back ( defaultRangeInfo );
 			for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
 			{
 				indvParamRangeInfo tempInfo{ 0,0 };
@@ -495,43 +576,47 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 		while (currentVariableRangeNumber > num)
 		{
 			// delete a range.
-			if (rangeInfo.size() == 1)
+			if ( rangeInfo.dimensionInfo ( dimNumber ).size() == 1)
 			{
-				// can't delete last set...
+				// can't delete last range
 				return;
 			}
 			// edit all variables
-			for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
+			for (auto& param : currentParameters )
 			{
-				currentParameters[varInc].ranges.pop_back();
+				param.ranges.pop_back();
 			}
-			rangeInfo.pop_back ( );
+			rangeInfo.dimensionInfo ( dimNumber ).pop_back ( );
 			currentVariableRangeNumber--;
 		}
 	}
 	redrawListview ( );
-
-	// if equal, nothing needs to be done.
 }
 
 
 void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
+	if ( mostRecentlySelectedParam == -1 || currentParameters.size() <= mostRecentlySelectedParam )
+	{
+		// must have selected an item in order to determine which scan dimension to change.
+		return;
+	}
+	auto dimNum = currentParameters[ mostRecentlySelectedParam ].scanDimension;
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	parametersListview.ScreenToClient(&cursorPos);
 	LVHITTESTINFO myItemInfo = { 0 };
 	myItemInfo.pt = cursorPos;
 	parametersListview.SubItemHitTest(&myItemInfo);
-	if (myItemInfo.iSubItem == preRangeColumns + 3 * rangeInfo.size())
+	if (myItemInfo.iSubItem == preRangeColumns + 3 * rangeInfo.numRanges(0))
 	{
 		// add a range.
-		setVariationRangeNumber( rangeInfo.size ( ) + 1, 1);
+		setVariationRangeNumber( rangeInfo.numRanges ( 0 ) + 1, 0);
 	}
-	else if (myItemInfo.iSubItem == preRangeColumns + 1 + 3 * rangeInfo.size ( ) )
+	else if (myItemInfo.iSubItem == preRangeColumns + 1 + 3 * rangeInfo.numRanges ( 0 ) )
 	{
 		// delete a range.
-		setVariationRangeNumber( rangeInfo.size ( ) - 1, 1);
+		setVariationRangeNumber( rangeInfo.numRanges ( 0 ) - 1, 0);
 	}
 	else if (myItemInfo.iSubItem >= preRangeColumns && (myItemInfo.iSubItem - preRangeColumns) % 3 == 0)
 	{
@@ -541,7 +626,7 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			return;
 		}
 		UINT rangeNum = (myItemInfo.iSubItem - preRangeColumns) / 3;
-		setRangeInclusivity( rangeNum, true, !rangeInfo[rangeNum].leftInclusive, myItemInfo.iSubItem );
+		setRangeInclusivity( rangeNum, dimNum, true, !rangeInfo(0,rangeNum).leftInclusive);
 	}
 	else if (myItemInfo.iSubItem >= preRangeColumns && (myItemInfo.iSubItem- preRangeColumns) % 3 == 1)
 	{
@@ -551,39 +636,19 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			return;
 		}
 		UINT rangeNum = (myItemInfo.iSubItem - preRangeColumns) / 3;
-		setRangeInclusivity( rangeNum, false, !rangeInfo[ rangeNum ].rightInclusive, myItemInfo.iSubItem );
+		setRangeInclusivity( rangeNum, dimNum,  false, !rangeInfo ( 0, rangeNum ).rightInclusive);
 	}
+	redrawListview ( );
 }
 
 
-void ParameterSystem::setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column )
+void ParameterSystem::setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive )
 {
-	if ( rangeNum >= rangeInfo.size ( ) )
+	if ( rangeNum >= rangeInfo.numRanges(0) )
 	{
 		thrower  ( "tried to set the border inclusivity of a range that does not exist!" );
 	}
-	if ( leftBorder )
-	{
-		rangeInfo[ rangeNum ].leftInclusive = inclusive;
-		LVCOLUMNA colInfo = { 0 };
-		colInfo.cchTextMax = 100;
-		colInfo.mask = LVCF_TEXT;
-		parametersListview.GetColumn( column, &colInfo );
-		std::string text = str(rangeNum + 1) + (inclusive? ". [" : ". (");
-		colInfo.pszText = &text[0];
-		parametersListview.SetColumn( column, &colInfo );
-	}
-	else
-	{
-		// it's the right border then.
-		rangeInfo[ rangeNum ].rightInclusive = inclusive;
-		LVCOLUMNA colInfo = { 0 };
-		colInfo.cchTextMax = 100;
-		colInfo.mask = LVCF_TEXT;
-		parametersListview.GetColumn( column, &colInfo );
-		colInfo.pszText = inclusive ? "]" : ")";
-		parametersListview.SetColumn( column, &colInfo );
-	}
+	( isLeft ? rangeInfo ( dimNum, rangeNum ).leftInclusive : rangeInfo ( dimNum, rangeNum ).rightInclusive ) = inclusive;
 }
 
 
@@ -646,6 +711,21 @@ BOOL ParameterSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 }
 
 
+void ParameterSystem::handleSingleClick ()
+{
+	if ( !controlActive )
+	{
+		return;
+	}
+	/// get the item and subitem
+	LVHITTESTINFO myItemInfo = { 0 };
+	GetCursorPos ( &myItemInfo.pt );
+	parametersListview.ScreenToClient ( &myItemInfo.pt );
+	parametersListview.SubItemHitTest ( &myItemInfo );
+	mostRecentlySelectedParam = myItemInfo.iItem;
+
+}
+
 void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										   DioSystem* ttls, AoSystem* aoSys )
 {
@@ -658,7 +738,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 	GetCursorPos(&myItemInfo.pt);
 	parametersListview.ScreenToClient(&myItemInfo.pt);
 	parametersListview.SubItemHitTest(&myItemInfo);
-	int subitem = myItemInfo.iSubItem, itemIndicator = myItemInfo.iItem;
+	int subitem = myItemInfo.iSubItem, itemIndicator = mostRecentlySelectedParam = myItemInfo.iItem;
 	if (itemIndicator == -1)
 	{
 		return;
@@ -673,8 +753,8 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 		currentParameters.back().constant = true;
 		currentParameters.back().active = false;
 		currentParameters.back().overwritten = false;
-		currentParameters.back().scanDimension = 1;
-		for ( auto rangeVariations : rangeInfo )
+		currentParameters.back().scanDimension = 0;
+		for ( auto rangeVariations : rangeInfo.dimensionInfo( 0 ))
 		{
 			currentParameters.back ( ).ranges.push_back ( { 0, 0 } );
 		}
@@ -772,11 +852,13 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			}
 			param.scanDimension++;
 			// handle "wrapping" of the dimension.
-			if ( param.scanDimension > maxDim + 1 )
+			if ( param.scanDimension > maxDim+1 )
 			{
-				param.scanDimension = 1;
+				param.scanDimension = 0;
 			}
 			reorderVariableDimensions( );
+			redrawListview ( );
+			break;
 		}
 		case 3:
 		{
@@ -854,7 +936,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 					throwNested ("the value entered, " + newValue + ", failed to convert to a double! "
 							 "Check for invalid characters.");
 				}
-				( ( subitem - preRangeColumns ) % 3 ) ? param.ranges[ rangeNum ].initialValue : param.ranges[ rangeNum ].finalValue = val;
+				(( ( subitem - preRangeColumns ) % 3 == 0) ? param.ranges[ rangeNum ].initialValue : param.ranges[ rangeNum ].finalValue) = val;
 				redrawListview ( );
 				break;
 			}
@@ -871,7 +953,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 							{
 								continue;
 							}
-							rangeInfo[ rangeNum ].variations = boost::lexical_cast<int> ( newValue );
+							rangeInfo(variable.scanDimension,rangeNum).variations = boost::lexical_cast<int> ( newValue );
 						}
 					}
 				}
@@ -1047,7 +1129,7 @@ void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 		parametersListview.SetItem ( "Variable", item, 1 );
 		parametersListview.SetItem ( "---", item, 3 );
 	}
-	parametersListview.SetItem ( str ( char ( 'A' + param.scanDimension - 1 ) ), item, 2 );
+	parametersListview.SetItem ( str ( char ( 'A' + param.scanDimension ) ), item, 2 );
 	parametersListview.SetItem ( param.parameterScope, item, 4 );
 	// make sure there are enough ranges.
 	UINT currentRanges = currentParameters.front ( ).ranges.size ( );
@@ -1056,20 +1138,23 @@ void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 		param.ranges.resize ( currentRanges );
 	}
 	// update ranges
+	auto info = rangeInfo.dimensionInfo ( param.scanDimension );
 	for ( auto rangeInc : range ( param.ranges.size ( ) ) )
 	{
 		auto col = preRangeColumns + rangeInc * 3;
 		auto& range = currentParameters[ item ].ranges[ rangeInc ];
-		parametersListview.SetItem ( param.constant ? "---" : str ( range.initialValue, 13, true ), item, col++ );
-		parametersListview.SetItem ( param.constant ? "---" : str ( range.finalValue, 13, true ), item, col++ );
-		parametersListview.SetItem ( param.constant ? "---" : str ( rangeInfo[ rangeInc ].variations, 13, true ), item, col );
+		parametersListview.SetItem ( param.constant ? "---" : ( info[ rangeInc ].leftInclusive ? "[ " : "( " )
+									 + str ( range.initialValue, 13, true ), item, col++ );
+		parametersListview.SetItem ( param.constant ? "---" : str ( range.finalValue, 13, true ) 
+									 + ( info[ rangeInc ].rightInclusive ? " ]" : " )" ), item, col++ );
+		parametersListview.SetItem ( param.constant ? "---" : str ( info[rangeInc].variations, 13, true ), item, col );
 	}
 	parametersListview.RedrawWindow ( );
 	updateVariationNumber ( );
 }
 
 
-void ParameterSystem::addParameter(parameterType variableToAdd, UINT item)
+void ParameterSystem::addParameter(parameterType variableToAdd)
 {
 	// make name lower case.
 	std::transform(variableToAdd.name.begin(), variableToAdd.name.end(), variableToAdd.name.begin(), ::tolower);
@@ -1100,7 +1185,7 @@ void ParameterSystem::addParameter(parameterType variableToAdd, UINT item)
 }
 
 
-std::vector<variationRangeInfo> ParameterSystem::getRangeInfo ( )
+ScanRangeInfo ParameterSystem::getRangeInfo ( )
 {
 	return rangeInfo;
 }
@@ -1117,33 +1202,37 @@ void ParameterSystem::reorderVariableDimensions( )
 			maxDim = variable.scanDimension;
 		}
 	}
+	if ( rangeInfo.numScanDimensions ( ) != maxDim+1 )
+	{
+		rangeInfo.setNumScanDimensions ( maxDim+1 );
+	}
 	/// flatten the dimension numbers.
 	UINT flattenNumber = 0;
-	for ( auto dimInc : range( maxDim ) )
+	for ( auto dimInc : range( maxDim+1 ) )
 	{
 		bool found = false;
 		for ( auto& variable : currentParameters )
 		{
-			if ( variable.scanDimension == dimInc+1 )
+			if ( variable.scanDimension == dimInc )
 			{
-				variable.scanDimension = dimInc + 1 - flattenNumber;
+				variable.scanDimension = dimInc - flattenNumber;
 				found = true;
 			}
 		}
 		if ( !found )
 		{
+			rangeInfo.removeDim ( dimInc );
 			flattenNumber++;
 		}
 	}
-	/// reset variables
-	std::vector<parameterType> varCopy = currentParameters;
+	/// reset variables ??? why?
+	std::vector<parameterType> varCopy = currentParameters; 
 	clearVariables( );
-	UINT variableInc=0;
 	for ( auto& variable : varCopy )
 	{
-		addParameter( variable, variableInc++ );
+		addParameter( variable);
 	}
-	addParameter( {}, -1 );
+	addParameter( {} );
 }
 
 
@@ -1186,7 +1275,7 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 	{
 		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile ( f, ver );
-		configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
+		configVariables = getVariablesFromFile ( f, ver );
 		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
@@ -1197,16 +1286,16 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 }
 
 
-std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
 	std::ifstream f ( configFileName );
 	Version ver;
-	std::vector<variationRangeInfo> rInfo;
+	ScanRangeInfo rInfo;
 	try
 	{
 		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile ( f, ver );
-		auto configVariables = getVariablesFromFile ( f, ver, rInfo.size ( ) );
+		auto configVariables = getVariablesFromFile ( f, ver );
 		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
@@ -1217,10 +1306,9 @@ std::vector<variationRangeInfo> ParameterSystem::getRangeInfoFromFile ( std::str
 }
 
 
-void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
-								   std::vector<variationRangeInfo> inputRangeInfo )
+void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariationsOption,
+								   ScanRangeInfo inputRangeInfo )
 {
-	// get information from variables.
 	for ( auto& seqVariables : variables )
 	{
 		for ( auto& variable : seqVariables )
@@ -1228,182 +1316,134 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 			variable.keyValues.clear( );
 		}
 	}
-	// get maximum dimension.
+	// find the maximum scan dimension.
 	UINT maxDim = 0;
 	for ( auto seqVariables : variables )
 	{
 		for ( auto variable : seqVariables )
 		{
-			if ( variable.scanDimension > maxDim )
-			{
-				maxDim = variable.scanDimension;
-			}
+			maxDim = ( variable.scanDimension > maxDim ? variable.scanDimension : maxDim );
 		}
 	}
-	// each element of the vector refers to the number of variations within a given variation range.
-	// variations[seqNumber][dimNumber][rangeNumber]
-	std::vector<std::vector<std::vector<int>>> variations( variables.size( ), std::vector<std::vector<int>>(maxDim));
+	// each element of the vector refers to the number of variations of a given range of a given scan dimension of a 
+	// given sequence element. i.e.: variations[seqNumber][dimNumber][rangeNumber]
+	std::vector<std::vector<std::vector<int>>> variationNums( variables.size( ), std::vector<std::vector<int>>(maxDim+1));
+	std::vector<std::vector<UINT>> totalSeqDimVariationsList ( variationNums.size ( ), std::vector<UINT> ( maxDim+1 ) );
+	// for randomizing...
 	std::vector<std::vector<int>> variableIndexes(variables.size());
 	for (auto seqInc : range(variables.size()) )
 	{
-		for ( UINT dimInc : range( maxDim ) )
+		for ( auto dimInc : range( maxDim+1 ) )
 		{
-			variations[seqInc][dimInc].resize( variables[seqInc].front( ).ranges.size( ) );
-			for ( UINT varInc = 0; varInc < variables[seqInc].size( ); varInc++ )
+			variationNums[seqInc][dimInc].resize( variables[seqInc].front( ).ranges.size( ) );
+			for ( auto paramInc : range(variables[seqInc].size() ) )
 			{
-				auto& variable = variables[seqInc][varInc];
-				if ( variable.scanDimension != dimInc + 1 )
+				auto& parameter = variables[seqInc][paramInc];
+				// find a varying parameter in this scan dimension
+				if ( parameter.scanDimension != dimInc || parameter.constant )
 				{
-					continue;
+					continue; 
 				}
-				// find a varying parameter.
-				if ( variable.constant )
+				variableIndexes[seqInc].push_back( paramInc );
+				if ( variationNums[seqInc][dimInc].size( ) != parameter.ranges.size( ) )
 				{
-					continue;
-				}
-				// then this variable varies in this dimension. 
-				variableIndexes[seqInc].push_back( varInc );
-				// variations.size is the number of ranges currently.
-				if ( variations[seqInc][dimInc].size( ) != variable.ranges.size( ) )
-				{
-					// if its zero its just the initial size on the initial variable.
-					if ( variations[seqInc].size( ) != 0 )
+					// if its zero its just the initial size on the initial variable. Else something has gone wrong.
+					if ( variationNums[seqInc].size( ) != 0 )
 					{
 						thrower ( "Not all variables seem to have the same number of ranges for their parameters!" );
 					}
-					variations[seqInc][dimInc].resize( variable.ranges.size( ) );
+					variationNums[seqInc][dimInc].resize( parameter.ranges.size( ) );
 				}
-				// make sure the variations number is consistent between
-				for ( auto rangeInc : range( variations[seqInc][dimInc].size( ) ) )
+				totalSeqDimVariationsList[ seqInc ][ dimInc ] = 0;
+				for ( auto rangeInc : range( variationNums[seqInc][dimInc].size( ) ) )
 				{
-					auto& variationNum = variations[seqInc][dimInc][rangeInc];
-					if ( variable.scanDimension != dimInc + 1 )
+					variationNums[ seqInc ][ dimInc ][ rangeInc ] = inputRangeInfo(dimInc, rangeInc).variations;
+					if ( variationNums[ seqInc ][ dimInc ][ rangeInc ] == 1 )
 					{
-						continue;
+						thrower ( "You need more than one variation in every range." );
 					}
-					// can break here...?
-					variationNum = inputRangeInfo[ rangeInc ].variations;
+					totalSeqDimVariationsList[ seqInc ][ dimInc ] += inputRangeInfo ( dimInc, rangeInc ).variations;
 				}
-			}
-		}
-	}
-	std::vector<std::vector<UINT>> totalVariations( variations.size(), std::vector<UINT>(maxDim) );
-	for ( auto seqInc : range( variations.size( ) ) )
-	{
-		for ( auto dimInc : range( variations[seqInc].size( ) ) )
-		{
-			totalVariations[seqInc][dimInc] = 0;
-			for ( auto variationsInRange : variations[seqInc][dimInc] )
-			{
-				totalVariations[seqInc][dimInc] += variationsInRange;
 			}
 		}
 	}
 	// create a key which will be randomized and then used to randomize other things the same way.
-	multiDimensionalKey<int> randomizerMultiKey( maxDim );
-	randomizerMultiKey.resize( totalVariations );
+	multiDimensionalKey<int> randomizerMultiKey( maxDim+1 );
+	randomizerMultiKey.resize( totalSeqDimVariationsList );
 	UINT count = 0;
 	for ( auto& keyElem : randomizerMultiKey.values[0] )
 	{
 		keyElem = count++;
 	}
-	if ( randomizeVariablesOption )
+	if ( randomizeVariationsOption )
 	{
 		std::random_device rng;
 		std::mt19937 twister( rng( ) );
 		std::shuffle( randomizerMultiKey.values[0].begin( ), randomizerMultiKey.values[0].end( ), twister );
-		// we now have a random key for the shuffling which every variable will follow
-		// initialize this to one so that constants always get at least one value.
 	}
+	// initialize this to one so that constants always get at least one value.
 	int totalSize = 1;
 	for ( auto seqInc : range( variableIndexes.size( ) ) )
 	{
-		if ( variableIndexes[ seqInc ].size ( ) == 0 && inputRangeInfo[seqInc].variations != 1 )
-		{
-			//thrower  ( "Key generator thinks that there are variations but no variables vary?!?! Low level bug"
-			//		  ", this shouldn't happen." );
-		}
 		for ( auto variableInc : range( variableIndexes[seqInc].size( ) ) )
 		{
-			int varIndex = variableIndexes[seqInc][variableInc];
-			auto& variable = variables[seqInc][varIndex];
+			auto& variable = variables[seqInc][ variableIndexes[ seqInc ][ variableInc ] ];
 			// calculate all values for a given variable
-			multiDimensionalKey<double> tempKey( maxDim ), tempKeyRandomized( maxDim );
-			tempKey.resize( totalVariations );
-			tempKeyRandomized.resize( totalVariations );
-			std::vector<UINT> rangeOffset( totalVariations.size( ), 0 );
-			std::vector<UINT> indexes( maxDim );
+			multiDimensionalKey<double> tempKey( maxDim+1 ), tempKeyRandomized( maxDim+1 );
+			tempKey.resize( totalSeqDimVariationsList );
+			tempKeyRandomized.resize( totalSeqDimVariationsList );
+			/* Suppose you have a three dimensional scan with variation numbers 3, 2, and 3 in each dimension. Then, 
+			keyValueIndexes will take on the following sequence of values:
+			{0,0,0} -> {1,0,0} -> {2,0,0} ->
+			{0,1,0} -> {1,1,0} -> {2,1,0} ->
+			{0,0,1} -> {1,0,1} -> {2,0,1} ->
+			{0,1,1} -> {1,1,1} -> {2,1,1} ->
+			{0,0,2} -> {1,0,2} -> {2,0,2} ->
+			{0,1,2} -> {1,1,2} -> {2,1,2}.
+			at which point the while loop will notice that all values turn over at the same time and leave the loop.
+			*/
+			std::vector<UINT> keyValueIndexes( maxDim+1 );
 			while ( true )
 			{
-				UINT rangeIndex = 0, variationInc = 0;
-				UINT varDim = variable.scanDimension - 1;
-				UINT relevantIndex = indexes[varDim];
-				UINT tempShrinkingIndex = relevantIndex;
-				UINT rangeCount = 0, rangeOffset = 0;
-				// calculate which range it is and what the index offset should be as a result.
-				for ( auto range : inputRangeInfo )
+				UINT rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[ varDim ],
+					 rangeCount = 0, rangeOffset = 0;
+				// calculate which range it is and how many values have already been calculated for the variable 
+				// (i.e. the rangeOffset).
+				for ( auto range : inputRangeInfo.dimensionInfo( varDim ) )
 				{
 					if ( tempShrinkingIndex >= range.variations )
 					{
+						// then should have already gone through all that range's variations
 						tempShrinkingIndex -= range.variations;
 						rangeOffset += range.variations;
+						rangeCount++;
 					}
 					else
 					{
 						rangeIndex = rangeCount;
 						break;
 					}
-					rangeCount++;
 				}
-
 				auto& currRange = variable.ranges[rangeIndex];
-				if ( variations[seqInc][varDim][rangeIndex] <= 1 )
-				{
-					thrower ( "You need more than one variation in every range." );
-				}
 				// calculate the parameters for the variation range
-				double valueRange = (currRange.finalValue - currRange.initialValue);
-				int spacings;
-				
-				if ( inputRangeInfo[rangeIndex].leftInclusive && inputRangeInfo[ rangeIndex ].rightInclusive )
-				{
-					spacings = variations[seqInc][variables[seqInc][varIndex].scanDimension - 1][rangeIndex] - 1;
-				}
-				else if ( !inputRangeInfo[ rangeIndex ].leftInclusive && !inputRangeInfo[ rangeIndex ].rightInclusive )
-				{
-					spacings = variations[seqInc][varDim][rangeIndex] + 1;
-				}
-				else
-				{
-					spacings = variations[seqInc][varDim][rangeIndex];
-				}
-
-				double initVal;
-				if ( inputRangeInfo[ rangeIndex ].leftInclusive )
-				{
-					initVal = currRange.initialValue;
-				}
-				else
-				{
-					initVal = currRange.initialValue + valueRange / spacings;
-				}
-				// calculate values.
-				variationInc = indexes[varDim];
-				double value = valueRange * (variationInc - rangeOffset) / spacings + initVal;
-				tempKey.setValue( indexes, seqInc, value );
-				// increment. This part effectively makes this infinite while an arbitrary-dimensional loop.
+				bool lIncl = inputRangeInfo(varDim, rangeIndex).leftInclusive, 
+					rIncl = inputRangeInfo(varDim, rangeIndex).rightInclusive;
+				int spacings = variationNums[ seqInc ][ varDim ][ rangeIndex ] + ( !lIncl && !rIncl ) - ( lIncl && rIncl );
+				double valueRange = ( currRange.finalValue - currRange.initialValue );
+				double initVal = ( lIncl ? currRange.initialValue : currRange.initialValue + valueRange / spacings);
+				double value = valueRange * ( keyValueIndexes[ varDim ] - rangeOffset) / spacings + initVal;
+				tempKey.setValue( keyValueIndexes, seqInc, value );
 				bool isAtEnd = true;
-				for ( auto indexInc : range( indexes.size( ) ) )
+				for ( auto indexInc : range( keyValueIndexes.size( ) ) )
 				{
-					// if at end of cycle for this index in this range
-					if ( indexes[indexInc] == totalVariations[seqInc][indexInc] - 1 )
-					{
-						indexes[indexInc] = 0;
-						continue;
-					}
+					// if at end of cycle for this index
+					if ( keyValueIndexes[indexInc] == totalSeqDimVariationsList[seqInc][indexInc] - 1 )
+ 					{
+						keyValueIndexes[indexInc] = 0;
+ 					}
 					else
 					{
-						indexes[indexInc]++;
+						keyValueIndexes[indexInc]++;
 						isAtEnd = false;
 						break;
 					}
@@ -1413,6 +1453,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 					break;
 				}
 			}
+
 			for ( auto keyInc : range( randomizerMultiKey.values[seqInc].size( ) ) )
 			{
 				tempKeyRandomized.values[seqInc][keyInc] = tempKey.values[seqInc][randomizerMultiKey.values[seqInc][keyInc]];
@@ -1423,20 +1464,15 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 		}
 	}
 	// now add all constant objects.
-	for ( auto& seqVariables : variables )
+	for ( auto& seqParams: variables )
 	{
-		for ( parameterType& variable : seqVariables )
+		for ( parameterType& param : seqParams)
 		{
-			if ( variable.constant )
+			if ( param.constant )
 			{
-				variable.keyValues.clear( );
-				variable.keyValues.resize( totalSize );
-				for ( auto& val : variable.keyValues )
-				{
-					// the only constant value is stored as the initial value here.
-					val = variable.constantValue;
-				}
-				variable.valuesVary = false;
+				param.keyValues.clear ( );
+				param.keyValues.resize( totalSize, param.constantValue );
+				param.valuesVary = false;
 			}
 		}
 	}

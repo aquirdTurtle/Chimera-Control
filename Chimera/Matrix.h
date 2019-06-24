@@ -15,8 +15,6 @@ class Matrix
 		Matrix( UINT rowsInGrid=0, UINT colsInGrid=0 );
 		Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue );
 		Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D );
-		//type operator()( UINT row, UINT col ) const;
-		//type & operator()( UINT row, UINT col );
 		type operator()( UINT row, UINT col ) const;
 		type & operator()( UINT row, UINT col );
 		type operator()( POINT p ) const;

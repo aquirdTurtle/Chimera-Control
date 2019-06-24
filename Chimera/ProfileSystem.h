@@ -97,7 +97,7 @@ class ProfileSystem
 		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
 		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, Version minVer=Version("0.0") );
 	private:
-		profileSettings currentProfile;
+		profileSettings currentProfile; 
 		seqSettings currentSequence;
 		std::string FILE_SYSTEM_PATH;
 		bool configurationIsSaved;
@@ -114,7 +114,8 @@ class ProfileSystem
 		// afterwards doesn't also fail.
 		// Version 4.1: Added auto threshold analysis option
 		// Version 4.2: Agilent channel mode added and saving this as text instead of index
-		const Version version = Version( "4.2" );
+		// Version 4.3: Refactored parameter system range structure to include range info separate for each dimension.
+		const Version version = Version( "4.3" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
