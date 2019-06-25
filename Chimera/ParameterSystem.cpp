@@ -335,6 +335,13 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 	if (ver > Version("2.7" ) )
 	{
 		openFile >> tempVar.scanDimension;
+		if ( ver < Version ( "4.2" ) )
+		{
+			if ( tempVar.scanDimension > 0 )
+			{
+				tempVar.scanDimension--;
+			}
+		}
 	}
 	else
 	{

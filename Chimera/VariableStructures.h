@@ -69,7 +69,7 @@ class ScanRangeInfo
 		{
 			if ( dimIndex >= data.size ( ) )
 			{
-				thrower ( "Attempted to access scan-range-info dimension which does not exist!" );
+				thrower ( "IndvRangeInfo: Attempted to access scan-range-info dimension which does not exist!" );
 			}
 			return data[ dimIndex ];
 		}
@@ -78,7 +78,7 @@ class ScanRangeInfo
 		{
 			if ( scanDimIndex >= data.size ( ) )
 			{
-				thrower ( "Tried to access scan dimension that does not exist." );
+				thrower ( "IndvRangeInfo: Tried to access scan dimension that does not exist." );
 			}
 			if ( rangeIndex >= data[ scanDimIndex ].size ( ) )
 			{
@@ -91,11 +91,11 @@ class ScanRangeInfo
 		{
 			if ( scanDimIndex >= data.size ( ) )
 			{
-				thrower ( "Tried to access scan dimension that does not exist." );
+				thrower ( "IndvRangeInfo: Tried to access scan dimension that does not exist." );
 			}
 			if ( rangeIndex >= data[ scanDimIndex ].size ( ) )
 			{
-				thrower ( "Tried to access range number that does not exist" );
+				thrower ( "IndvRangeInfo: Tried to access range number that does not exist" );
 			}
 			return data[ scanDimIndex ][ rangeIndex ];
 		}
@@ -107,7 +107,7 @@ class ScanRangeInfo
 		{
 			if ( scanDimIndex >= data.size ( ) )
 			{
-				thrower ( "Tried to access scan dimension that does not exist." );
+				thrower ( "IndvRangeInfo: Tried to access scan dimension that does not exist." );
 			}
 			return data[ scanDimIndex ].size ( );
 		}
