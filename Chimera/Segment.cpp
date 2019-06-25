@@ -23,7 +23,7 @@ void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& v
 		finalSettings.pulse.type = input.pulse.type;
 		finalSettings.pulse.vOffset = input.pulse.vOffset.evaluate( variables, variation );
 		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( variables, variation );
-		finalSettings.pulse.tOffset = input.pulse.tOffset.evaluate ( variables, variation );
+		finalSettings.pulse.tOffset = input.pulse.tOffset.evaluate ( variables, variation ) / 1000.0;
 		finalSettings.pulse.width = input.pulse.width.evaluate( variables, variation ) / 1000.0;
 	}
 	else

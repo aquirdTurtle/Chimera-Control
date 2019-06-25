@@ -1,0 +1,5 @@
+hold 0 1 onceWaitTrig #
+pulse gaussian 0 0.3 pulseWidth (pulse_length/2) 
+(pulse_length + opPulseLength) repeat 101 #
+hold 0 1 onceWaitTrig #
+pulse gaussian 0 0.3 specPulseWidth 0.05 0.1 once #
