@@ -139,19 +139,26 @@ Load the settings appropriate for the mot size measurement and then start the ca
 */
 void BaslerWindow::startTemporaryAcquisition ( baslerSettings motSizeSettings )
 {
-	handleDisarmPress ( );
-	currentRepNumber = 0;
-	runningAutoAcq = true;
-	tempAcqSettings = motSizeSettings;
-	cameraController->setParameters ( motSizeSettings );
-	picManager.setParameters ( motSizeSettings.dims );
-	triggerThreadInput* input = new triggerThreadInput;
-	input->width = motSizeSettings.dims.width ( );
-	input->height = motSizeSettings.dims.height ( );
-	input->frameRate = motSizeSettings.frameRate;
-	input->parent = this;
-	input->runningFlag = &triggerThreadFlag;
-	cameraController->armCamera ( input );
+	try
+	{
+		handleDisarmPress ( );
+		currentRepNumber = 0;
+		runningAutoAcq = true;
+		tempAcqSettings = motSizeSettings;
+		cameraController->setParameters ( motSizeSettings );
+		picManager.setParameters ( motSizeSettings.dims );
+		triggerThreadInput* input = new triggerThreadInput;
+		input->width = motSizeSettings.dims.width ( );
+		input->height = motSizeSettings.dims.height ( );
+		input->frameRate = motSizeSettings.frameRate;
+		input->parent = this;
+		input->runningFlag = &triggerThreadFlag;
+		cameraController->armCamera ( input );
+	}
+	catch ( Error& )
+	{
+		throwNested ( "Failed to start temporary acquisition."  );
+	}
 }
 
 

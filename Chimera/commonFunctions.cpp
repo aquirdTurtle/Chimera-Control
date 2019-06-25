@@ -824,8 +824,15 @@ namespace commonFunctions
 				{
 					errBox ( "Failed to load MOT temperature calibration experiment settings!\n\n"+err.trace() );
 				}
-				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
-				mainWin->startExperimentThread ( input.masterInput, true );
+				try
+				{
+					basWin->startTemporaryAcquisition ( input.baslerRunSettings );
+					mainWin->startExperimentThread ( input.masterInput, true );
+				}
+				catch ( Error& err )
+				{
+					errBox ( "Failed to start Mot Temperature calibration experiment:\n\n" + err.trace ( ) );
+				}
 				break;
 			}
 			case ID_PGC_TEMP_CAL:
