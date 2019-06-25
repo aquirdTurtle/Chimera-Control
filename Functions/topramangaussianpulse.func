@@ -1,9 +1,8 @@
 % Master-Script See the "?" for info on commands.
 def TopRamanGaussianPulse():
-  var pulseTime 0.12
   on: topRamanrf
   on: eoramanrf
-  on: topPulseTrig 
+  %on: topPulseTrig 
   on: eoswitch
   on: eoswitch2
   t += pulse_length 
@@ -11,5 +10,5 @@ def TopRamanGaussianPulse():
   off: eoramanRF
   off: eoswitch
   off: eoswitch2
-  off: topPulseTrig 
+  %off: topPulseTrig 
   

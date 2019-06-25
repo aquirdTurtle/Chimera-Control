@@ -321,7 +321,7 @@ void BaslerWindow::startDefaultAcquisition ( )
 		#ifdef _DEBUG
 		tempSettings.frameRate = 1;
 		#else
-		tempSettings.frameRate = 20;
+		tempSettings.frameRate = 10;
 		#endif
 		tempSettings.rawGain = 260;
 
