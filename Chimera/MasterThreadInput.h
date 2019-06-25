@@ -61,7 +61,7 @@ struct MasterThreadInput
 	AiSystem& aiSys;
 	UINT repetitionNumber;
 	// believe outer layer here is for sequence increment
-	std::vector<variationRangeInfo> variableRangeInfo;
+	ScanRangeInfo variableRangeInfo;
 	std::vector<std::vector<parameterType>> variables;
 	std::vector<std::vector<parameterType>> constants;
 	//std::vector<funcVarMap> functionVars;

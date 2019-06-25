@@ -3,13 +3,13 @@
 #include <string>
 // as of now not yet used extensively in the actual dio system
 
-struct DioRows
+struct AgilentChannelMode
 {
 	enum class which
 	{
-		A, B, C, D
+		No_Control, Output_Off, DC, Sine, Square, Preloaded, Script
 	};
-	static const std::array<which, 4> allRows;
+	static const std::array<which, 7> allModes;
 	static std::string toStr ( which m );
 	static which fromStr ( std::string txt );
 };

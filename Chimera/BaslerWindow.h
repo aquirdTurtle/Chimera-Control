@@ -86,6 +86,5 @@ class BaslerWindow : public CDialogEx
 		coordinate selectedPixel = { 0,0 };
 	protected:
 		HICON m_hIcon;
-
 	DECLARE_MESSAGE_MAP()
 };

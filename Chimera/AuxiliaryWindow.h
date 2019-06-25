@@ -126,8 +126,9 @@ class AuxiliaryWindow : public CDialog
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void clearVariables();
-		void addVariable(std::string name, bool constant, double value, int item);
+		void addVariable(std::string name, bool constant, double value);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void ConfigVarsSingleClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result );

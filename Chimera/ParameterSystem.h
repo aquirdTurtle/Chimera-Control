@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-
+#include "Version.h"
 class MainWindow;
 class AuxiliaryWindow;
 class Script;
@@ -41,56 +41,68 @@ class ParameterSystem
 	public:		
 		ParameterSystem ( std::string configurationFileDelimiter );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
-		UINT getTotalVariationNumber();
-		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::string configFileName );
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
-		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-								 DioSystem* ttls, AoSystem* aoSys );
-		void adjustVariableValue( std::string paramName, double value );
-		double getVariableValue( std::string paramName );
-		void deleteVariable();
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, 
-						 UINT listviewId, ParameterSysType type );
-		void addConfigParameter( parameterType var, UINT item );
-		void addGlobalParameter( parameterType var, UINT item );
-		void handleColumnClick( NMHDR * pNotifyStruct, LRESULT* result );
+		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, UINT listviewId, 
+						 ParameterSysType type );
+		void handleSingleClick (  );
+		void handleDblClick ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+								   DioSystem* ttls, AoSystem* aoSys );
+		void adjustVariableValue ( std::string paramName, double value );
+		void deleteVariable ( );
+		void addParameter( parameterType var );
+		void reorderVariableDimensions ( );
 		void removeVariableDimension();
+		void clearVariables ( );
+		void flattenScanDimensions ( );
+		void checkScanDimensionConsistency ( );
+		void checkVariationRangeConsistency ( );
+		void saveVariable ( std::ofstream& saveFile, parameterType variable );
+		static void generateKey ( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
+								  ScanRangeInfo inputRangeInfo );
+		static std::vector<parameterType> combineParametersForExperimentThread ( std::vector<parameterType>& masterVars,
+																				 std::vector<parameterType>& subVars );
+
+		void handleColumnClick ( NMHDR * pNotifyStruct, LRESULT* result );
+		void redrawListview ( );
+		// getters
 		parameterType getVariableInfo(int varNumber);
 		std::vector<parameterType> getAllConstants();
 		std::vector<parameterType> getAllVariables();
-		std::vector<parameterType> getEverything();
+		std::vector<parameterType> getAllParams();
 		unsigned int getCurrentNumberOfVariables();
-		void clearVariables();
+		UINT getTotalVariationNumber ( );
+		double getVariableValue ( std::string paramName );
+		static std::vector<double> getKeyValues ( std::vector<parameterType> variables );
+		ScanRangeInfo getRangeInfo ( );
+		// setters
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setParameterControlActive(bool active);
 		void setUsages(std::vector<std::vector<parameterType>> vars);
 		void updateVariationNumber( );
-		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
-		// used to be in KeyHandler
-		static void generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
-								 std::vector<variationRangeInfo> inputRangeInfo );
-		static std::vector<double> getKeyValues( std::vector<parameterType> variables );
-		void reorderVariableDimensions( );
-		static std::vector<parameterType> getConfigParamsFromFile( std::string configFile );
-		void saveVariable( std::ofstream& saveFile, parameterType variable );
-		static parameterType loadVariableFromFile( std::ifstream& openFile, Version ver, UINT rangeNum );
-		static std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver, UINT rangeNum );
-		static std::vector<variationRangeInfo> getRangeInfoFromFile ( std::ifstream& configFile, Version ver );
-		void checkVariationRangeConsistency( );
-		static std::vector<parameterType> combineParametersForExperimentThread( std::vector<parameterType>& masterVars,
-														   std::vector<parameterType>& subVars );
-		std::vector<variationRangeInfo> getRangeInfo ( );
-		const variationRangeInfo defaultRangeInfo = { 2,false,true };
+		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
+		// file handling
+		static parameterType loadVariableFromFile ( std::ifstream& openFile, Version ver );
+		static std::vector<parameterType> getVariablesFromFile ( std::ifstream& configFile, Version ver );
+		static ScanRangeInfo getRangeInfoFromFile ( std::ifstream& configFile, Version ver );
+		static std::vector<parameterType> getConfigParamsFromFile ( std::string configFile );
+		static ScanRangeInfo getRangeInfoFromFile ( std::string configFileName );
+		// profile stuff
+		void handleNewConfig ( std::ofstream& newFile );
+		void handleSaveConfig ( std::ofstream& saveFile );
+		void handleOpenConfig ( std::ifstream& openFile, Version ver );		
+		
+		// public variables
+		const IndvRangeInfo defaultRangeInfo = { 2,false,true };
 		const std::string configDelim;
 
 	private:
+		void addParamToListview ( parameterType param, UINT item );
+		void setVariationRangeColumns ( int num = -1, int width = -1 );
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
+		int mostRecentlySelectedParam = -1;
 		// name, constant/variable, dim, constantValue, scope
 		USHORT preRangeColumns = 5;
 		// Only 2 gui elements.
@@ -101,9 +113,8 @@ class ParameterSystem
 		std::vector<parameterType> currentParameters;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
-		// A global parameter, the "official" version. The size of this tells you the number of ranges, and a given
-		// element tells you the number of variations of that range.
-		std::vector<variationRangeInfo> rangeInfo;
+		// A global parameter, the "official" version. 
+		ScanRangeInfo rangeInfo;
 		ParameterSysType paramSysType;
 		// number of dimensions to the variable scans. Unusual to do more than 2.
 		USHORT scanDimensions;
