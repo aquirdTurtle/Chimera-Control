@@ -1,5 +1,4 @@
 // created by Mark O. Brown
-
 ===================
 CODE PLANNING
 ===================
@@ -55,7 +54,6 @@ FEATURES:
 - some way of making niawg scripts with many tones more compact. something with arrays.
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
 - check number of basler triggers against basler total picture number
-- can't do non-square multi-dim scans
 - make data analysis plotting listview smart about # of pictures
 - some sort of more real-time adjustment of parameters, need some sort of looping around starting configs... or some other solution
 Refactoring / Other:
@@ -79,14 +77,14 @@ Refactoring / Other:
 - reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times.
 - reconsider how to handle initial dac and ttl values
-- can't do non-square multi-dim scans
 - gui level accumulation images
-- seems that there's still auto fitting stuff in the data analysis but I don't think this is supported?
+- seems that there's still auto fitting stuff in the data analysis but I don't think this is supported anymore?
 Checks and Tests
 - add check for flash that sum of indv move times is the total move time.
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 - change agilent mode option to enum class
+- change existing andor enum class to struct {enum class}
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
@@ -99,8 +97,7 @@ BUGS:
 - figure out why figure update seems to cause main thread window thread to freak out
 - new function then save doesn't save as function
 - ttl display not accurate at end of exp
-
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
-
+- not starting as autoscaling basler pictures, or something wrong with initial setting.

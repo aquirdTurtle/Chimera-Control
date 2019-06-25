@@ -284,6 +284,7 @@
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="MasterThreadInput.cpp" />
+    <ClCompile Include="AgilentChannelMode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -659,6 +660,7 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="AgilentSettings.h" />
+    <ClInclude Include="AgilentChannelMode.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

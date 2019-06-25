@@ -76,10 +76,11 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
+	ON_NOTIFY( NM_CLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsSingleClick)
 	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
-	ON_NOTIFY ( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamDblClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoRClick )
@@ -493,8 +494,7 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
 		input->variables.clear( );
-		input->variables.push_back( globalParameters.getEverything( ) );
-		input->variableRangeInfo.clear ( );
+		input->variables.push_back( globalParameters.getAllParams( ) );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		// Only do this once of course.
 		input->repetitionNumber = 1;
@@ -654,7 +654,6 @@ std::array<AoInfo, 24> AuxiliaryWindow::getDacInfo()
 	return aoSys.getDacInfo();
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
@@ -668,22 +667,32 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-// MESSAGE MAP FUNCTION
+void AuxiliaryWindow::ConfigVarsSingleClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	try
+	{
+		configParameters.handleSingleClick ( );
+	}
+	catch ( Error& exception )
+	{
+		sendErr ( "Config Parameters Single Click Handler : " + exception.trace ( ) + "\r\n" );
+	}
+}
+
 void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		configParameters.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
+		configParameters.handleDblClick(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
-		sendErr("Variables Double Click Handler : " + exception.trace() + "\r\n");
+		sendErr("Config Parameters Double Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -693,27 +702,26 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Variables Right Click Handler : " + exception.trace() + "\r\n");
+		sendErr("Config Parameters Right Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
 
 std::vector<parameterType> AuxiliaryWindow::getAllVariables()
 {
-	std::vector<parameterType> vars = configParameters.getEverything();
-	std::vector<parameterType> vars2 = globalParameters.getEverything();
+	std::vector<parameterType> vars = configParameters.getAllParams();
+	std::vector<parameterType> vars2 = globalParameters.getAllParams();
 	vars.insert(vars.end(), vars2.begin(), vars2.end());
 	return vars;
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
 	try
 	{
 		mainWin->updateConfigurationSavedStatus( false );
-		globalParameters.updateParameterInfo(scriptList, mainWin, this, &ttlBoard, &aoSys);
+		globalParameters.handleDblClick(scriptList, mainWin, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -721,7 +729,6 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -735,7 +742,6 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 }
 
-// MESSAGE MAP FUNCTION
 void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -757,7 +763,7 @@ void AuxiliaryWindow::clearVariables()
 }
 
 
-void AuxiliaryWindow::addVariable(std::string name, bool constant, double value, int item)
+void AuxiliaryWindow::addVariable(std::string name, bool constant, double value)
 {
 	parameterType var;
 	var.name = name;
@@ -767,7 +773,7 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value,
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		configParameters.addConfigParameter ( var, item );
+		configParameters.addParameter ( var );
 	}
 	catch ( Error& )
 	{
@@ -988,7 +994,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 		{
 			throwNested ( "Error seen while loading mot temperature settings" );
 		}
-		std::vector<parameterType> globals = globalParameters.getEverything ( );
+		std::vector<parameterType> globals = globalParameters.getAllParams ( );
 		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 		globalParameters.setUsages ( { globals } );
 		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
@@ -1020,10 +1026,9 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables.clear( );
-		input->variables.push_back(globalParameters.getEverything());
-		input->variableRangeInfo.clear ( ); 
-		input->variableRangeInfo.push_back ( configParameters.defaultRangeInfo );
-		input->variableRangeInfo[ 0 ].variations = 1;
+		input->variables.push_back(globalParameters.getAllParams());
+		input->variableRangeInfo.defaultInit ( );
+		input->variableRangeInfo(0,0).variations = 1;
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
@@ -1071,11 +1076,11 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 			// load the variables. This little loop is for letting configuration variables overwrite the globals.
 			// the config variables are loaded directly from the file.
 			std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( seqFile.configFilePath ( ) );
-			std::vector<parameterType> globals = globalParameters.getEverything ( );
+			std::vector<parameterType> globals = globalParameters.getAllParams ( );
 			experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 			globalParameters.setUsages ( { globals } );
 		}
-		input->variableRangeInfo.clear ( );
+		input->variableRangeInfo.reset ( );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		input->variables = experimentVars;
 		input->constants.resize ( input->variables.size ( ) );
@@ -1282,12 +1287,12 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back ( { value, value } );
-			globalParameters.addGlobalParameter(tempVar, varInc);
+			globalParameters.addParameter(tempVar);
 		}
 	}
 	parameterType tempVar;
 	tempVar.name = "";
-	globalParameters.addGlobalParameter(tempVar, -1);
+	globalParameters.addParameter(tempVar);
 	//
 	servos.handleOpenMasterConfig( configStream, version );
 }

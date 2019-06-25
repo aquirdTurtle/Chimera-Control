@@ -11,22 +11,6 @@
 
 struct cameraPositions;
 
-/*enum class AndorTriggerMode
-{
-	External,
-	Internal,
-	StartOnTrigger
-};
-
-
-enum class AndorAcquisitionMode
-{
-	KineticSeriesMode,
-	AccumulationMode,
-	VideoMode
-};
-*/
-
 /*
  * This large class maintains all of the settings & user interactions for said settings of the Andor camera. It more or
  * less contains the PictureSettingsControl Class, as this is meant to be the parent of such an object. It is distinct

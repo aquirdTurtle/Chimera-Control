@@ -67,7 +67,9 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Global_Constant )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 1, false, false };
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -86,7 +88,9 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Global_Variable )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 3, false, false };
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -104,7 +108,9 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Assert_Valid_With_Local_Constant )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 1, false, false };
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -125,7 +131,9 @@ namespace TestExpressions
 		TEST_METHOD( Assert_Valid_With_Local_Variable )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 3, false, false };
 			parameterType param;
 			param.name = "testVar";
 			param.constant = false;
@@ -144,7 +152,9 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Evaluate_With_Global_Constant )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 1, false, false };
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -163,7 +173,9 @@ namespace TestExpressions
 		}
 		TEST_METHOD( Evaluate_With_Global_Variable )
 		{
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 3, false, false };
 			std::vector<std::vector<parameterType>> params( 1 );
 			parameterType param;
 			param.name = "testVar";
@@ -182,7 +194,9 @@ namespace TestExpressions
 		TEST_METHOD( Evaluate_With_Local_Constant )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 1,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 1, false, false };
 			parameterType param;
 			param.name = "testVar";
 			param.constant = true;
@@ -205,7 +219,9 @@ namespace TestExpressions
 		TEST_METHOD( Evaluate_With_Local_Variable )
 		{
 			std::vector<std::vector<parameterType>> params( 1 );
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 3, false, false };
 			parameterType param;
 			param.name = "testVar";
 			param.constant = false;
@@ -229,7 +245,9 @@ namespace TestExpressions
 		TEST_METHOD ( Evaluate_ComplicatedExpressionWithVariables )
 		{
 			std::vector<std::vector<parameterType>> params ( 1 );
-			std::vector<variationRangeInfo> rangeInfo ( 1, { 3,false,false } );
+			ScanRangeInfo rangeInfo;
+			rangeInfo.defaultInit ( );
+			rangeInfo ( 0, 0 ) = { 3, false, false };
 			parameterType param;
 			param.name = "field";
 			param.constant = false;

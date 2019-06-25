@@ -113,8 +113,8 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	agilentScript.initialize( width, editHeight, loc, toolTips, parent, id, "Agilent", "",
 							  { initSettings.functionComboId, initSettings.editId }, color );
 
-	settings.channel[0].option = -2;
-	settings.channel[1].option = -2;
+	settings.channel[0].option = AgilentChannelMode::which::No_Control;
+	settings.channel[1].option = AgilentChannelMode::which::No_Control;
 	currentChannel = 1;
 	agilentScript.setEnabled ( false );
 
@@ -144,7 +144,7 @@ void Agilent::programSetupCommands()
 
 void Agilent::checkSave( std::string categoryPath, RunInfo info )
 {
-	if ( settings.channel[currentChannel-1].option == 4 )
+	if ( settings.channel[currentChannel-1].option == AgilentChannelMode::which::Script )
 	{
 		agilentScript.checkSave( categoryPath, info );
 	}
@@ -153,7 +153,7 @@ void Agilent::checkSave( std::string categoryPath, RunInfo info )
 
 void Agilent::verifyScriptable ( )
 {
-	if ( settings.channel[ currentChannel-1 ].option != 4 )
+	if ( settings.channel[ currentChannel-1 ].option != AgilentChannelMode::which::Script )
 	{
 		thrower ( "Agilent is not in scripting mode!" );
 	}
@@ -215,7 +215,7 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 
 void Agilent::analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars )
 {
-	if ( settings.channel[ chan ].option == 4 )
+	if ( settings.channel[ chan ].option == AgilentChannelMode::which::Script )
 	{
 		analyzeAgilentScript ( settings.channel[ chan ].scriptedArb, vars );
 	}
@@ -309,6 +309,7 @@ HBRUSH Agilent::handleColorMessage(CWnd* window, CDC* cDC)
 	}
 }
 
+
 void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
 {
 	if (chan != 1 && chan != 2)
@@ -319,39 +320,34 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
 	chan -= 1;
 	settings.synced = syncedButton.GetCheck( );
 	std::string textStr( agilentScript.getScriptText() );
-	ScriptStream stream;
-	stream << textStr;
-	stream.seekg( 0 );	
+	ScriptStream stream; 
+	stream << textStr; 
+	stream.seekg( 0 );
 	switch (settings.channel[chan].option)
 	{
-		case -2:
-			// no control.
+		case AgilentChannelMode::which::No_Control:
+		case AgilentChannelMode::which::Output_Off:
 			break;
-		case -1:
-			// output off.
-			break;
-		case 0:
-			// DC.
+		case AgilentChannelMode::which::DC:
 			stream >> settings.channel[chan].dc.dcLevelInput;
 			settings.channel[chan].dc.useCalibration = calibratedButton.GetCheck( );
 			break;
-		case 1:
-			// sine wave
+		case AgilentChannelMode::which::Sine:
 			stream >> settings.channel[chan].sine.frequencyInput;
 			stream >> settings.channel[chan].sine.amplitudeInput;
 			settings.channel[chan].sine.useCalibration = calibratedButton.GetCheck( );
 			break;
-		case 2:
+		case AgilentChannelMode::which::Square:
 			stream >> settings.channel[chan].square.frequencyInput;
 			stream >> settings.channel[chan].square.amplitudeInput;
 			stream >> settings.channel[chan].square.offsetInput;
 			settings.channel[chan].square.useCalibration = calibratedButton.GetCheck( );
 			break;
-		case 3:
+		case AgilentChannelMode::which::Preloaded:
 			stream >> settings.channel[chan].preloadedArb.address;
 			settings.channel[chan].preloadedArb.useCalibration = calibratedButton.GetCheck( );
 			break;
-		case 4:
+		case AgilentChannelMode::which::Script:
 			agilentScript.checkSave( categoryPath, info );
 			settings.channel[chan].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
 			settings.channel[chan].scriptedArb.useCalibration = calibratedButton.GetCheck( );
@@ -381,32 +377,7 @@ void Agilent::updateButtonDisplay( int chan )
 {
 	std::string channelText;
 	channelText = chan == 1 ? "Channel 1 - " : "Channel 2 - ";
-	switch ( settings.channel[chan-1].option )
-	{
-		case -2:
-			channelText += "No Control";
-			break;
-		case -1:
-			channelText += "Output Off";
-			break;
-		case 0:
-			channelText += "DC";
-			break;
-		case 1:
-			channelText += "Sine";
-			break;
-		case 2:
-			channelText += "Square";
-			break;
-		case 3:
-			channelText += "Pre-programmed";
-			break;
-		case 4:
-			channelText += "Scripted";
-			break;
-		default:
-			channelText += "Unrecognized Option???";
-	}
+	channelText += AgilentChannelMode::toStr ( settings.channel[ chan - 1 ].option );
 	if ( chan == 1 )
 	{
 		channel1Button.SetWindowTextA( cstr(channelText) );
@@ -425,30 +396,26 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 	chan -= 1;
 	switch ( settings.channel[chan].option )
 	{
-		case -2:
-			// no control
+		case AgilentChannelMode::which::No_Control:
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 0 );
 			break;
-		case -1:
-			// off
+		case AgilentChannelMode::which::Output_Off:
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false );
 			settingCombo.SetCurSel( 1 );
 			break;
-		case 0:
-			// dc
+		case AgilentChannelMode::which::DC:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput.expressionStr);
 			settingCombo.SetCurSel( 2 );
 			calibratedButton.SetCheck( settings.channel[chan].dc.useCalibration );
 			agilentScript.setEnabled ( true );
 			break;
-		case 1:
-			// sine
+		case AgilentChannelMode::which::Sine:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].sine.frequencyInput.expressionStr + " " 
 										 + settings.channel[chan].sine.amplitudeInput.expressionStr);
@@ -456,8 +423,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			calibratedButton.SetCheck( settings.channel[chan].sine.useCalibration );
 			agilentScript.setEnabled ( true );
 			break;
-		case 2:
-			// square
+		case AgilentChannelMode::which::Square:
 			agilentScript.reset ( );
 			agilentScript.setScriptText( settings.channel[chan].square.frequencyInput.expressionStr + " " 
 										 + settings.channel[chan].square.amplitudeInput.expressionStr + " " 
@@ -466,16 +432,14 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			calibratedButton.SetCheck( settings.channel[chan].square.useCalibration );
 			agilentScript.setEnabled ( true );
 			break;
-		case 3:
-			// preprogrammed
+		case AgilentChannelMode::which::Preloaded:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].preloadedArb.address);
 			settingCombo.SetCurSel( 5 );
 			calibratedButton.SetCheck( settings.channel[chan].preloadedArb.useCalibration );
 			agilentScript.setEnabled ( true );
 			break;
-		case 4:
-			// scripted
+		case AgilentChannelMode::which::Script:
 			settingCombo.SetCurSel( 6 );
 			// clear it in case the file fails to open.
 			agilentScript.setScriptText( "" );
@@ -485,7 +449,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			agilentScript.setEnabled ( true );
 			break;
 		default:
-			thrower ( "unrecognized agilent setting: " + settings.channel[chan].option);
+			thrower ( "unrecognized agilent setting: " + AgilentChannelMode::toStr(settings.channel[chan].option));
 	}
 	if ( chan == 0 )
 	{
@@ -516,40 +480,38 @@ void Agilent::handleModeCombo()
 	switch (selection)
 	{
 		case 0:
-			// do nothing
 			optionsFormat.SetWindowTextA( "---" );
-			settings.channel[selectedChannel].option = -2;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::No_Control;
 			agilentScript.setEnabled ( false );
 			break;
 		case 1:
-			// output off
 			optionsFormat.SetWindowTextA( "---" );
-			settings.channel[selectedChannel].option = -1;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::Output_Off;
 			agilentScript.setEnabled ( false );
 			break;
 		case 2:
 			optionsFormat.SetWindowTextA( "[DC Level]" );
-			settings.channel[selectedChannel].option = 0;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::DC;
 			agilentScript.setEnabled ( true );
 			break;
 		case 3:
 			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)]" );
-			settings.channel[selectedChannel].option = 1;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::Sine;
 			agilentScript.setEnabled ( true );
 			break;
 		case 4:
 			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)] [Offset(V)]" );
-			settings.channel[selectedChannel].option = 2;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::Square;
 			agilentScript.setEnabled ( true );
 			break;
 		case 5:
 			optionsFormat.SetWindowTextA( "[File Address]" );
-			settings.channel[selectedChannel].option = 3;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::Preloaded;
 			agilentScript.setEnabled ( true );
 			break;
 		case 6:
 			optionsFormat.SetWindowTextA( "Hover over \"?\"" );
-			settings.channel[selectedChannel].option = 4;
+			settings.channel[selectedChannel].option = AgilentChannelMode::which::Script;
 			agilentScript.setEnabled ( true );
 			break;
 	}
@@ -570,36 +532,28 @@ void Agilent::convertInputToFinalSettings( UINT chan, std::vector<parameterType>
 	{
 		switch (channel.option)
 		{
-			case -2:
-				// no control
+			case AgilentChannelMode::which::No_Control:
+			case AgilentChannelMode::which::Output_Off:
 				break;
-			case -1:
-				// no ouput
-				break;
-			case 0:
-				// DC output
+			case AgilentChannelMode::which::DC:
 				channel.dc.dcLevel = channel.dc.dcLevelInput.evaluate( variables, variation );
 				break;
-			case 1:
-				// single frequency output
+			case AgilentChannelMode::which::Sine:
 				channel.sine.frequency = channel.sine.frequencyInput.evaluate( variables, variation );
 				channel.sine.amplitude = channel.sine.amplitudeInput.evaluate( variables, variation );
 				break;
-			case 2:
-				// Square Output
+			case AgilentChannelMode::which::Square:
 				channel.square.frequency = channel.square.frequencyInput.evaluate( variables, variation );
 				channel.square.amplitude = channel.square.amplitudeInput.evaluate( variables, variation );
 				channel.square.offset = channel.square.offsetInput.evaluate( variables, variation );
 				break;
-			case 3:
-				// Preloaded Arb Output... no variations possible...
+			case AgilentChannelMode::which::Preloaded:
 				break;
-			case 4:
-				// Scripted Arb Output... 
+			case AgilentChannelMode::which::Script:
 				handleScriptVariation( variation, channel.scriptedArb, chan+1, variables );
 				break;
 			default:
-				thrower ( "Unrecognized Agilent Setting: " + str( channel.option ) );
+				thrower ( "Unrecognized Agilent Setting: " + AgilentChannelMode::toStr( channel.option ) );
 		}
 	}
 	catch (std::out_of_range&)
@@ -607,6 +561,7 @@ void Agilent::convertInputToFinalSettings( UINT chan, std::vector<parameterType>
 		throwNested( "unrecognized variable!" );
 	}
 }
+
 
 void Agilent::handleNewConfig( std::ofstream& newFile )
 {
@@ -630,7 +585,7 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	saveFile << configDelim+"\n";
 	saveFile << str(settings.synced) << "\n";
 	saveFile << "CHANNEL_1\n";
-	saveFile << str(settings.channel[0].option) + "\n";
+	saveFile << AgilentChannelMode::toStr (settings.channel[0].option) + "\n";
 	saveFile << settings.channel[0].dc.dcLevelInput.expressionStr + "\n";
 	saveFile << int(settings.channel[0].dc.useCalibration) << "\n";
 	saveFile << settings.channel[0].sine.amplitudeInput.expressionStr + "\n";
@@ -645,7 +600,7 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	saveFile << settings.channel[0].scriptedArb.fileAddress + "\n";
 	saveFile << int(settings.channel[0].scriptedArb.useCalibration) << "\n";
 	saveFile << "CHANNEL_2\n";
-	saveFile << str( settings.channel[1].option ) + "\n";
+	saveFile << AgilentChannelMode::toStr( settings.channel[1].option ) + "\n";
 	saveFile << settings.channel[1].dc.dcLevelInput.expressionStr + "\n";
 	saveFile << int(settings.channel[1].dc.useCalibration) << "\n";
 	saveFile << settings.channel[1].sine.amplitudeInput.expressionStr + "\n";
@@ -676,7 +631,14 @@ void Agilent::handleOpenConfig( std::ifstream& file, Version ver )
 		file.get ( );
 		try
 		{
-			channel.option = boost::lexical_cast<int>( input );
+			if ( ver < Version ( "4.2" ) )
+			{
+				channel.option = AgilentChannelMode::which ( boost::lexical_cast<int>( input ) + 2 );
+			}
+			else
+			{
+				channel.option = AgilentChannelMode::fromStr ( input );
+			}
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
@@ -953,8 +915,7 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 
 bool Agilent::scriptingModeIsSelected( ) 
 {
-	
-	return settings.channel[currentChannel-1].option == 4;
+	return settings.channel[currentChannel-1].option == AgilentChannelMode::which::Script;
 }
 
 
@@ -979,30 +940,30 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		{
 			convertInputToFinalSettings( chan, variables, variation );
 			switch ( channel.option )
-				{
-				case -2:
-					// don't do anything.
+			{
+				case AgilentChannelMode::which::No_Control:
 					break;
-				case -1:
+				case AgilentChannelMode::which::Output_Off:
 					outputOff( chan + 1 );
 					break;
-				case 0:
+				case AgilentChannelMode::which::DC:
 					setDC( chan + 1, channel.dc );
 					break;
-				case 1:
+				case AgilentChannelMode::which::Sine:
 					setSine( chan + 1, channel.sine );
 					break;
-				case 2:
+				case AgilentChannelMode::which::Square:
 					setSquare( chan + 1, channel.square );
 					break;
-				case 3:
+				case AgilentChannelMode::which::Preloaded:
 					setExistingWaveform( chan + 1, channel.preloadedArb );
 					break;
-				case 4:
+				case AgilentChannelMode::which::Script:
 					setScriptOutput( variation, channel.scriptedArb, chan + 1 );
 					break;
 				default:
-					thrower ( "unrecognized channel " + str(chan) + " setting: " + str( channel.option ) );
+					thrower ( "unrecognized channel " + str(chan) + " setting: " 
+							  + AgilentChannelMode::toStr( channel.option ) );
 			}
 		}
 		catch ( Error& err )
@@ -1023,36 +984,35 @@ void Agilent::setAgilent()
 	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
 	for (auto chan : range( UINT(2) ))
 	{
-		if (settings.channel[chan].option == 4)
+		if (settings.channel[chan].option == AgilentChannelMode::which::Script )
 		{
 			analyzeAgilentScript(settings.channel[chan].scriptedArb, std::vector<parameterType>());
 		}
 		convertInputToFinalSettings(chan);
 		switch (settings.channel[chan].option)
 		{
-			case -2:
-				// no control.
+			case AgilentChannelMode::which::No_Control:
 				break;
-			case -1:
+			case AgilentChannelMode::which::Output_Off:
 				outputOff( chan+1 );
 				break;
-			case 0:
+			case AgilentChannelMode::which::DC:
 				setDC( chan+1, settings.channel[chan].dc );
 				break;
-			case 1:
+			case AgilentChannelMode::which::Sine:
 				setSine( chan+1, settings.channel[chan].sine );
 				break;
-			case 2:
+			case AgilentChannelMode::which::Square:
 				setSquare( chan+1, settings.channel[chan].square );
 				break;
-			case 3:
+			case AgilentChannelMode::which::Preloaded:
 				setExistingWaveform( chan+1, settings.channel[chan].preloadedArb );
 				break;
-			case 4:
+			case AgilentChannelMode::which::Script:
 				setScriptOutput( 0, settings.channel[chan].scriptedArb, chan+1 );
 				break;
 			default:
-				thrower ( "unrecognized channel " + str(chan+1) + " setting: " + str(settings.channel[chan].option ) );
+				thrower ( "unrecognized channel " + str(chan+1) + " setting: " + AgilentChannelMode::toStr(settings.channel[chan].option ) );
 		}
 	}
 }

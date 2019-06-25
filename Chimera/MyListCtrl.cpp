@@ -11,6 +11,10 @@ void MyListCtrl::InsertColumn ( int col, std::string txt )
 
 void MyListCtrl::InsertColumn ( int col, std::string txt, int width )
 {
+	if ( width == -1 )
+	{
+		width = lastWidth;
+	}
 	lastWidth = width;
 	LV_COLUMN c = { 0 };
 	c.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;

@@ -17,7 +17,7 @@ Note that this function is not case-sensitive - it will always convert the input
 */
 DioRows::which DioRows::fromStr ( std::string rowStr )
 {
-	for ( auto w : { which::A, which::B, which::C, which::D } )
+	for ( auto w : allRows )
 	{
 		if ( str(rowStr,13,false,true) == toStr ( w ) )
 		{
