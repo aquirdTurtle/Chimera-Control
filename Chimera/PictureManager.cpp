@@ -4,8 +4,9 @@
 #include "ProfileSystem.h"
 #include "Thrower.h"
 
-PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter ) : pictures{ { histOption, false, false, false } },
-																				 configDelim ( configurationFileDelimiter )
+PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 
+	: pictures{ { histOption, false, false, false } }, configDelim ( configurationFileDelimiter ), 
+	autoScalePictures (autoscaleDefault )
 {
 
 }

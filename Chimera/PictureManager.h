@@ -8,7 +8,7 @@
 class PictureManager
 {
 	public:
-		PictureManager ( bool histOption, std::string configurationFileDelim );
+		PictureManager ( bool histOption, std::string configurationFileDelim, bool autoscaleDefault );
 		RECT getPicArea ( );
 		void updatePlotData ( );
 		void handleMouse( CPoint point );
@@ -56,7 +56,7 @@ class PictureManager
 		POINT picturesLocation;
 		int picturesWidth;
 		int picturesHeight;
-		bool autoScalePictures = false;
+		bool autoScalePictures;
 		bool specialGreaterThanMax;
 		bool specialLessThanMin;
 		bool alwaysShowGrid;
