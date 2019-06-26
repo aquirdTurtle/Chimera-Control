@@ -504,7 +504,7 @@ void AndorCameraSettingsControl::handleTimer()
 			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
 			// completely stabilize or not.
 			temperatureMsg.SetWindowTextA((str("Camera is Acquiring data. No updates are available. ") +
-										   "\r\nMost recent temperature: " + str(currentTemperature)).c_str());
+										   "Most recent temperature: " + str(currentTemperature)).c_str());
 		}
 		else if (exception.whatBare() == "SAFEMODE")
 		{

@@ -20,12 +20,18 @@ pulseon: tweezerIntensityTrig 0.1
 t += 1
 
 %on: c12
-
 call pump2stretch()
 rsg: (6.831 + uw_mod/1000000) 5
+%on: axialRamanShutterTrig 
+t += 5
 % spectroscopic pulse
-%call topRamanPulse()
+% call topRamanPulse()
+
+
+%call axialRamanPulse()
+pulseon: topPulseTrig 0.1 
 call topRamanGaussianPulse()
+%off: axialRamanShutterTrig 
 
 pulseon: a15 0.1
 pulseon: tweezerIntensityTrig 0.1

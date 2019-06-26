@@ -3,7 +3,7 @@
 t = 0.1
 off: c12
 on: A6 %tweezers on
-dac: piezomirror piezoval
+%dac: piezomirror piezoval
 t += 1
 call turnonmot()
 t += loadmottime
@@ -21,7 +21,7 @@ call intrappgc()
 t += 0.1
 pulseon: tweezerIntensityTrig 0.1
 t += 0.1
-call pump2F1()
+%call pump2F1()
 t += 0.1
 call pump2stretch()
 
