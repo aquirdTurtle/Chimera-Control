@@ -647,7 +647,7 @@ void PictureSettingsControl::updateSettings( )
 }
 
 
-void PictureSettingsControl::rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
+void PictureSettingsControl::rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
 									   fontMap fonts)
 {
 	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);

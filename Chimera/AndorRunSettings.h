@@ -15,9 +15,9 @@ struct AndorRunSettings
 	bool emGainModeIsOn;
 	int emGainLevel;
 	int readMode;
-	AndorRunModes acquisitionMode;
+	AndorRunModes::mode acquisitionMode;
 	int frameTransferMode = 0;
-	AndorTriggerMode triggerMode;
+	AndorTriggerMode::mode triggerMode;
 	//std::string cameraMode;
 	bool showPicsInRealTime;
 	//

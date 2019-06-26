@@ -58,8 +58,8 @@ template <class ControlType> class Control : public ControlType
 		//
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
-		void rearrange(AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, fontMap fonts);
-		void rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height );
+		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height, fontMap fonts);
+		void rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height );
 		void rearrange( int width, int height);
 		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
 		void setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
@@ -139,17 +139,17 @@ void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG y
 template <class ControlType> 
 void Control<ControlType>::rearrange(int width, int height, fontMap fonts)
 {
-	rearrange( AndorRunModes::None, AndorTriggerMode::None, width, height, fonts);
+	rearrange( AndorRunModes::mode::Kinetic, AndorTriggerMode::mode::External, width, height, fonts);
 }
 
 template <class ControlType>
 void Control<ControlType>::rearrange( int width, int height )
 {
-	rearrange( AndorRunModes::None, AndorTriggerMode::None, width, height );
+	rearrange( AndorRunModes::mode::Kinetic, AndorTriggerMode::mode::External, width, height );
 }
 
 template <class ControlType>
-void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height )
+void Control<ControlType>::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height )
 {
 	// make sure the control has been initialized
 	if ( !m_hWnd )
@@ -162,7 +162,7 @@ void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode
 	// extra heigh added to certain controls based on random things like the trigger mode.
 	double extraHeight = 0;
 	// The last check here is that the mode is affected by the trigger and that the control in question gets drawn in this mode.
-	if ( trigMode == AndorTriggerMode::External && triggerModeSensitive && ((cameraMode == AndorRunModes::Kinetic && seriesPos.bottom != -1)
+	if ( trigMode == AndorTriggerMode::mode::External && triggerModeSensitive && ((cameraMode == AndorRunModes::mode::Kinetic && seriesPos.bottom != -1)
 															 || cameraMode == AndorRunModes::Video && amPos.bottom != -1) )
 	{
 		extraHeight += -25;
@@ -175,9 +175,9 @@ void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode
 			long( widthScale * sPos.right ), long( heightScale * sPos.bottom ) };
 		MoveWindow( &position, TRUE );
 	}
-	else if ( cameraMode == AndorRunModes::Kinetic )
+	else if ( cameraMode == AndorRunModes::mode::Kinetic )
 	{
-		if ( seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::External ) )
+		if ( seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::mode::External ) )
 		{
 			ShowWindow( SW_HIDE );
 		}
@@ -189,9 +189,9 @@ void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode
 			MoveWindow( &position, TRUE );
 		}
 	}
-	else if ( cameraMode == AndorRunModes::Video )
+	else if ( cameraMode == AndorRunModes::mode::Video )
 	{
-		if ( videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::External ) )
+		if ( videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::mode::External ) )
 		{
 			ShowWindow( SW_HIDE );
 		}
@@ -203,9 +203,9 @@ void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode
 			MoveWindow( &position, TRUE );
 		}
 	}
-	else if ( cameraMode == AndorRunModes::Video )
+	else if ( cameraMode == AndorRunModes::mode::Video )
 	{
-		if ( amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::External ) )
+		if ( amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == AndorTriggerMode::mode::External ) )
 		{
 			ShowWindow( SW_HIDE );
 		}
@@ -221,7 +221,7 @@ void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode
 
 
 template <class ControlType>
-void Control<ControlType>::rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, fontMap fonts)
+void Control<ControlType>::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height, fontMap fonts)
 {
 	if ( !m_hWnd )
 	{
