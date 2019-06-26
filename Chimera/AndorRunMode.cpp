@@ -2,17 +2,20 @@
 #include "stdafx.h"
 #include "AndorRunMode.h"
 
-std::string AndorRunModeText ( AndorRunModes mode )
+const std::array<AndorRunModes::mode, 3> AndorRunModes::allModes = { mode::Video,	
+mode::Kinetic,	mode::Accumulate};
+
+std::string AndorRunModes::toStr ( AndorRunModes::mode mode )
 {
-	if ( mode == AndorRunModes::Kinetic )
+	if ( mode == AndorRunModes::mode::Kinetic )
 	{
 		return "Kinetic-Series-Mode";
 	}
-	else if ( mode == AndorRunModes::Video )
+	else if ( mode == AndorRunModes::mode::Video )
 	{
 		return "Video-Mode";
 	}
-	else if ( mode == AndorRunModes::Accumulate )
+	else if ( mode == AndorRunModes::mode::Accumulate )
 	{
 		return "Accumulate-Mode";
 	}
@@ -21,3 +24,15 @@ std::string AndorRunModeText ( AndorRunModes mode )
 		throw;
 	}
 }
+
+AndorRunModes::mode AndorRunModes::fromStr ( std::string txt )
+{
+	for ( auto m : AndorRunModes::allModes )
+	{
+		if ( txt == toStr ( m ) )
+		{
+			return m;
+		}
+	}
+}
+

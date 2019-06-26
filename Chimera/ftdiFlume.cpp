@@ -88,11 +88,11 @@ void ftdiFlume::setUsbParams( )
 
 DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite )
 {
-	FT_STATUS ftStatus;
 	DWORD BytesWritten=dataBuffer.size();
 	if ( !safemode )
 	{
 #ifdef _WIN64
+		FT_STATUS ftStatus;
 		if ( amountToWrite == NULL )
 		{
 			amountToWrite = sizeof( dataBuffer );

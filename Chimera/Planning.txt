@@ -83,8 +83,6 @@ Checks and Tests
 - add check for flash that sum of indv move times is the total move time.
 - check niawg script for multiple repeat forevers or commands outside a repeat forever.
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
-- change agilent mode option to enum class
-- change existing andor enum class to struct {enum class}
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
