@@ -1,7 +1,7 @@
 % Master-Script See the "?" for info on commands.
 def AxialRamanPulse():
   %on: axialPulseTrig
-  var pulseTime 0.02
+  var pulseTime 0.05
   on: axialRamanRf
   on: eoramanrf
   on: eoswitch
