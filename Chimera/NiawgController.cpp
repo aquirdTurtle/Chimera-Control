@@ -677,7 +677,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		% all flashing waveforms, written with normal syntax. Watch out, the times must be chosen to match the overall
 		% move time.
 		gen6Const
-		%%%%%	freq		amp		phase
+		%%%%%	resetFreq		amp		phase
 		49		2.5	 	5.13919
 		58		1	 	0.384594
 		67		1.05	 	0.308571
@@ -764,9 +764,9 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		{ 
 			rows in target
 			cols in target
-			lowest hor freq
-			lowest vert freq
-			freq spacing (usually 9MHz)
+			lowest hor resetFreq
+			lowest vert resetFreq
+			resetFreq spacing (usually 9MHz)
 			hold waveform (e.g. gen 6 const) horizontal
 			hold waveform (e.g. gen 6 const) vertical
 			target pattern
@@ -1812,7 +1812,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 				sig.freqRampType = "nr";
 				break;
 			}
-			/// The case for "gen ?, freq ramp"
+			/// The case for "gen ?, resetFreq ramp"
 			case 2:
 			{
 				script >> sig.freqRampType;
@@ -1828,7 +1828,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 				sig.initPhase.assertValid( variables, scope );
 				break;
 			}
-			/// The case for "gen ?, freq & amp ramp"
+			/// The case for "gen ?, resetFreq & amp ramp"
 			case 3:
 			{
 				script >> sig.freqRampType;
@@ -2303,7 +2303,7 @@ void NiawgController::turnOn()
 	* - Phase Continuity between waveforms (not checking repeating waveforms (yet))
 	* - Amplitude Continuity between waveforms
 	* - Frequency Continuity between waveforms
-	* - Sensible Ramping Options (initial and final freq/amp values reflect choice of ramp or no ramp).
+	* - Sensible Ramping Options (initial and final resetFreq/amp values reflect choice of ramp or no ramp).
 	* - Sensible Phase Correction Options
 	***/
 void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output )
@@ -2836,7 +2836,7 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngScriptInfo& rerngSe
 		initRampWave = moveWave;
 		initRampWave.time = 1e-6;
 		//initRampWave.sampleNum = waveformSizeCalc( initRampWave.time );
-		// make every signal not freq ramp and make all amplitude ramps.
+		// make every signal not resetFreq ramp and make all amplitude ramps.
 		for ( auto& chan : initRampWave.chan )
 		{
 			// I want to ramp up to the proper TOTAL_POWER so that the transition after the move is correct.

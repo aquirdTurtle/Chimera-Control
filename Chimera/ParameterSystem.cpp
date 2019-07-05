@@ -15,7 +15,6 @@
 #include "afxcmn.h"
 #include <boost/lexical_cast.hpp>
 
-
 ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter )
 { }
 
@@ -33,7 +32,7 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	parametersHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, parametersHeader.sPos, parent, id++ );
 	parametersHeader.fontType = fontTypes::HeadingFont;
 	
-	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
+	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 200 };
 	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos,
 							  parent, listviewId );
 
@@ -58,7 +57,7 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	parametersListview.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
 	parametersListview.SetTextColor ( _myRGBs["AuxWin-Text"] );
 	parametersListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
-	pos.y += 300;
+	pos.y += 200;
 }
 
 
@@ -100,13 +99,12 @@ void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
 	std::vector<parameterType> variables;
 	try
 	{
-		variables = getVariablesFromFile( configFile, ver );
+		variables = getVariablesFromFile( configFile, ver, rangeInfo );
 	}
 	catch ( Error& )
 	{/*??? Shouldn't I handle something here?*/}
 	currentParameters = variables;
-	flattenScanDimensions ( );
-	
+	flattenScanDimensions ( );	
 	redrawListview ( );
 }
 
@@ -128,23 +126,6 @@ void ParameterSystem::redrawListview ( )
 			{
 				addParamToListview ( param, varInc++ );
 			}
-			/*
-			for ( auto dimInc : range ( rangeInfo.numScanDimensions ( ) ) )
-			{
-				for ( auto rangeInc : range ( rangeInfo.numRanges ( 0 ) ) )
-				{
-					setRangeInclusivity ( rangeInc, dimInc, true, rangeInfo ( dimInc, rangeInc ).leftInclusive );
-					setRangeInclusivity ( rangeInc, dimInc, false, rangeInfo ( dimInc, rangeInc ).rightInclusive );
-				}
-			}
-			*/
-		}
-		else
-		{
-			/*
-			setRangeInclusivity ( 0, 0, true, false );
-			setRangeInclusivity ( 0, 0, false, true );
-			*/
 		}
 	}
 	else
@@ -182,7 +163,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile,
 			configFile >> numRanges;
 			rInfo.setNumRanges ( dim, numRanges );
 			for ( auto& range : rInfo.dimensionInfo(dim) )
-			{
+			{	
 				configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
 			}
 		}
@@ -196,7 +177,8 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile,
 }
 
 
-std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver )
+std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver, 
+																  ScanRangeInfo rangeInfo )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -213,7 +195,7 @@ std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream&
 	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadVariableFromFile( configFile, ver ) );
+		tempVariables.push_back( loadVariableFromFile( configFile, ver, rangeInfo ) );
 	}
 	return tempVariables;
 }
@@ -312,7 +294,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver)
+parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver, ScanRangeInfo rangeInfo )
 {
 	parameterType tempVar;
 	std::string varName, typeText, valueString;
@@ -347,9 +329,10 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 	{
 		tempVar.scanDimension = 0;
 	}
-	UINT rangeNumber = 1 ;
+	
 	if ( ver <= Version ( "3.4" ) )
 	{
+		UINT rangeNumber = 1;
 		openFile >> rangeNumber;
 		// I think it's unlikely to ever need more than 2 or 3 ranges.
 		if ( rangeNumber < 1 || rangeNumber > 100 )
@@ -357,9 +340,10 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 			errBox ( "Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
 			rangeNumber = 1;
 		}
+		rangeInfo.setNumRanges ( tempVar.scanDimension, rangeNumber );
 	}
 	UINT totalVariations = 0;
-	for ( auto rangeInc : range( rangeNumber ) )
+	for ( auto rangeInc : range( rangeInfo.numRanges(tempVar.scanDimension ) ))
 	{
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
@@ -1277,19 +1261,19 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 {
 	std::ifstream f(configFileName);
 	Version ver;
-	std::vector<parameterType> configVariables;
+	std::vector<parameterType> configParams;
 	try
 	{
 		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile ( f, ver );
-		configVariables = getVariablesFromFile ( f, ver );
+		configParams = getVariablesFromFile ( f, ver, rInfo );
 		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
 	{
 		throwNested ( "Failed to get configuration parameters from the configuration file!" );
 	}
-	return configVariables;
+	return configParams;
 }
 
 
@@ -1302,7 +1286,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 	{
 		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile ( f, ver );
-		auto configVariables = getVariablesFromFile ( f, ver );
+		auto configVariables = getVariablesFromFile ( f, ver, rInfo );
 		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
