@@ -223,9 +223,9 @@ piezomirror
 -10 - 10
 0
 _
-14
+15
 loadmottime 200
-andorimagetime 10
+andorimagetime 20
 imagingpower 0.3
 fieldtheta 1.5708
 fieldphi 1.5708
@@ -233,14 +233,16 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -0.1
-sidemot__servo_value 0.0552781
-diagmot__servo_value 0.255771
+sidemot__servo_value 0.0533361
+diagmot__servo_value 0.258081
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__servo_value 0.110691
+sidemot_intrappgc__servo_value 0.10799
+sidemot_imaging__servo_value 0.174703
 1
-3Sidemot 6 22 1 0.48 1 a 5 0.01 0.02 0
+4Sidemot 6 22 1 0.48 1 a 5 0.01 0.02 0
 DiagMot 5 9 1 0.016 1 a 0 0.01 0.03 0
 sidemot_intrappgc 6 22 1 1.5 1 a 5 0.01 0.02 0
-201 251 3 231 281 3
+sidemot_imaging 6 22 1 3.48 1 a 5 0.02 0.02 0
+268 318 3 211 261 3
 0 0

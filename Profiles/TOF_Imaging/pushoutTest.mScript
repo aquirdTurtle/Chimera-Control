@@ -1,0 +1,39 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+off: c12
+on: A6 %tweezers on
+%dac: piezomirror piezoval
+t += 1
+call turnonmot()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
+%call twostagelambdaloading()
+call pgcLoading()
+t += 20
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+t += 0.1
+%call intrapgreymolasses()
+call intrappgc()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+%call pump2F1()
+t += 0.1
+call pump2stretch()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pushout()
+%call pushout_all()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+%call zeroFields()
+t += 1
+call pgcAtomFlashingImage()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
