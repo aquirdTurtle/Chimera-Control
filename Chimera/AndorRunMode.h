@@ -2,14 +2,18 @@
 #pragma once
 
 #include <string>
+#include <array>
 
-enum class AndorRunModes
+struct AndorRunModes
 {
-	Video = 5,
-	Kinetic = 3,
-	Accumulate = 2,
-	None=-1
+	enum mode
+	{
+		Video = 5,
+		Kinetic = 3,
+		Accumulate = 2
+	};
+	static const std::array<mode, 3> allModes;
+	static std::string toStr ( mode m );
+	static mode fromStr ( std::string txt );
 };
-
-std::string AndorRunModeText ( AndorRunModes mode );
 

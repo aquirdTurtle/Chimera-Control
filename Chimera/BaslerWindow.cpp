@@ -10,7 +10,7 @@
 #include "constants.h"
 
 
-BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER")
+BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
 {}
 
 

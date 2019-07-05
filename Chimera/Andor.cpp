@@ -481,15 +481,15 @@ void AndorCamera::setCameraTriggerMode()
 {
 	std::string errMsg;
 	int trigType;
-	if (runSettings.triggerMode == AndorTriggerMode::Internal)
+	if (runSettings.triggerMode == AndorTriggerMode::mode::Internal)
 	{
 		trigType = 0;
 	}
-	else if (runSettings.triggerMode == AndorTriggerMode::External)
+	else if (runSettings.triggerMode == AndorTriggerMode::mode::External)
 	{
 		trigType = 1;
 	}
-	else if (runSettings.triggerMode == AndorTriggerMode::StartOnTrigger)
+	else if (runSettings.triggerMode == AndorTriggerMode::mode::StartOnTrigger)
 	{
 		trigType = 6;
 	}

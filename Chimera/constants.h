@@ -15,8 +15,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 /// File Locations
 
@@ -427,6 +427,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define ID_MACHINE_OPTIMIZATION 14149
 #define IDC_MACHINE_OPTIMIZE_LISTVIEW 14150
 #define IDC_SERVO_LISTVIEW 14151
+
+#define IDC_DDS_LISTVIEW 14152
 
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001

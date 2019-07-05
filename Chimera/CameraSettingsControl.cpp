@@ -22,10 +22,10 @@ AndorCameraSettingsControl::AndorCameraSettingsControl(AndorCamera* friendInitia
 	//andorSettings.totalPicsInVariation = 10;
 	// the read mode never gets changed currently. we always want images.
 	andorSettings.readMode = 4;
-	andorSettings.acquisitionMode = AndorRunModes::Kinetic;
+	andorSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
 	andorSettings.emGainModeIsOn = false;
 	andorSettings.showPicsInRealTime = false;
-	andorSettings.triggerMode = AndorTriggerMode::External;
+	andorSettings.triggerMode = AndorTriggerMode::mode::External;
 }
 
 
@@ -73,7 +73,7 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
-	settings.andor.triggerMode = AndorTriggerMode::External;
+	settings.andor.triggerMode = AndorTriggerMode::mode::External;
 
 	setTemperatureButton.setPositions ( pos, 0, 0, 270, 25, false, false, true );
 	setTemperatureButton.Create( "Set Camera Temperature (C)", NORM_PUSH_OPTIONS, setTemperatureButton.seriesPos,
@@ -172,7 +172,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	///
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
-	cameraModeCombo.SelectString ( 0, AndorRunModeText ( inputSettings.acquisitionMode ).c_str() );// cstr ( inputSettings.cameraMode ));
+	cameraModeCombo.SelectString ( 0, AndorRunModes::toStr ( inputSettings.acquisitionMode ).c_str() );// cstr ( inputSettings.cameraMode ));
 	if ( inputSettings.acquisitionMode == AndorRunModes::Video )
 	{
 		inputSettings.repetitionsPerVariation = INT_MAX;
@@ -187,7 +187,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	}
 	else
 	{
-		thrower ( "ERROR: unrecognized camera mode: " + AndorRunModeText(inputSettings.acquisitionMode) );
+		thrower ( "ERROR: unrecognized camera mode: " + AndorRunModes::toStr(inputSettings.acquisitionMode) );
 	}
 	/*
 	if (inputSettings.cameraMode == "Video-Mode")
@@ -256,7 +256,7 @@ void AndorCameraSettingsControl::updateTriggerMode( )
 		return;
 	}
 	triggerCombo.GetLBText( itemIndex, triggerMode );
-	settings.andor.triggerMode = AndorTriggerModeFromText(std::string(triggerMode));
+	settings.andor.triggerMode = AndorTriggerMode::fromStr(std::string(triggerMode));
 }
 
 
@@ -312,7 +312,7 @@ AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( )
 	calSettings.andor.showPicsInRealTime = false;
 	calSettings.andor.temperatureSetting = -60;
 	calSettings.andor.totalVariations = 1;
-	calSettings.andor.triggerMode = AndorTriggerMode::External;
+	calSettings.andor.triggerMode = AndorTriggerMode::mode::External;
 	return calSettings;
 }
 
@@ -329,7 +329,7 @@ bool AndorCameraSettingsControl::getUseCal( )
 }
 
 
-void AndorCameraSettingsControl::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts )
+void AndorCameraSettingsControl::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts )
 {
 	imageDimensionsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
 	picSettingsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -602,24 +602,24 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	configFile.get( );
 	std::string txt;
 	std::getline(configFile, txt);
-	tempSettings.triggerMode = AndorTriggerModeFromText(txt);
+	tempSettings.triggerMode = AndorTriggerMode::fromStr(txt);
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
 	configFile.get();
 	std::getline ( configFile, txt );
-	if (txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
+	if (txt == AndorRunModes::toStr(AndorRunModes::mode::Video) || txt == "Video Mode" )
 	{
-		tempSettings.acquisitionMode = AndorRunModes::Video;
+		tempSettings.acquisitionMode = AndorRunModes::mode::Video;
 		tempSettings.repetitionsPerVariation = INT_MAX;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
+	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
-		tempSettings.acquisitionMode = AndorRunModes::Kinetic;
+		tempSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
 		//settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" )
+	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Accumulate ) || txt == "Accumulate Mode" )
 	{
-		tempSettings.acquisitionMode = AndorRunModes::Accumulate;
+		tempSettings.acquisitionMode = AndorRunModes::mode::Accumulate;
 		//tempSettings.totalPicsInVariation = INT_MAX;
 	}
 	else
@@ -664,10 +664,10 @@ void AndorCameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "CAMERA_SETTINGS\n";
-	saveFile << AndorTriggerModeText(settings.andor.triggerMode) << "\n";
+	saveFile << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
 	saveFile << settings.andor.emGainModeIsOn << "\n";
 	saveFile << settings.andor.emGainLevel << "\n";
-	saveFile << AndorRunModeText(settings.andor.acquisitionMode) << "\n";
+	saveFile << AndorRunModes::toStr (settings.andor.acquisitionMode) << "\n";
 	saveFile << settings.andor.kineticCycleTime << "\n";
 	saveFile << settings.andor.accumulationTime << "\n";
 	saveFile << settings.andor.accumulationNumber << "\n";
@@ -694,16 +694,16 @@ void AndorCameraSettingsControl::updateCameraMode( )
 	cameraModeCombo.GetLBText( sel, mode );
 	std::string txt ( mode );
 	//settings.andor.cameraMode = mode;
-	if ( txt == AndorRunModeText(AndorRunModes::Video) || txt == "Video Mode" )
+	if ( txt == AndorRunModes::toStr (AndorRunModes::Video) || txt == "Video Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Video;
 		settings.andor.repetitionsPerVariation = INT_MAX;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
+	else if ( txt == AndorRunModes::toStr ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Kinetic;
 	}
-	else if ( txt == AndorRunModeText ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" || txt == "Accumulation Mode" )
+	else if ( txt == AndorRunModes::toStr ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" || txt == "Accumulation Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::Accumulate;
 	}
@@ -777,7 +777,7 @@ void AndorCameraSettingsControl::checkIfReady()
 	}
 	if ( settings.andor.acquisitionMode == AndorRunModes::Kinetic )
 	{
-		if ( settings.andor.kineticCycleTime == 0 && settings.andor.triggerMode == AndorTriggerMode::Internal )
+		if ( settings.andor.kineticCycleTime == 0 && settings.andor.triggerMode == AndorTriggerMode::mode::Internal )
 		{
 			thrower ("ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.");
 		}

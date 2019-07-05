@@ -37,7 +37,7 @@ class DataAnalysisControl
 		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
-		void rearrange( AndorRunModes cameraMode, AndorTriggerMode trigMode, int width, int height, fontMap fonts );
+		void rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height, fontMap fonts );
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );

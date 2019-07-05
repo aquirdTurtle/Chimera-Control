@@ -220,6 +220,8 @@
     <ClInclude Include="BaslerWindow.h" />
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="dataPoint.h" />
+    <ClInclude Include="DdsSystem.h" />
+    <ClInclude Include="DdsSystemStructures.h" />
     <ClInclude Include="DigitalOutput.h" />
     <ClInclude Include="DioRows.h" />
     <ClInclude Include="ErrDialog.h" />
@@ -343,6 +345,8 @@
     <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />
     <ClCompile Include="AndorRunMode.cpp" />
+    <ClCompile Include="DdsSystem.cpp" />
+    <ClCompile Include="DdsSystemStructures.cpp" />
     <ClCompile Include="DigitalOutput.cpp" />
     <ClCompile Include="DioRows.cpp" />
     <ClCompile Include="ErrDialog.cpp" />
@@ -450,6 +454,7 @@
   <ItemGroup>
     <None Include="coordinate.h" />
     <None Include="DaqMxFlume.h" />
+    <None Include="DdsSystemStructures" />
     <None Include="DioStructures.h" />
     <None Include="ftdiStructures.h" />
     <None Include="my_str.h" />

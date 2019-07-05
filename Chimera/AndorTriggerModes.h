@@ -2,15 +2,24 @@
 #pragma once
 
 #include <string>
+#include <array>
 
-enum class AndorTriggerMode
+struct AndorTriggerMode
 {
-	External,
-	Internal,
-	StartOnTrigger,
-	None=-1
+	
+	enum class mode
+	{
+		External,
+		Internal,
+		StartOnTrigger
+	};
+	static const std::array<mode,3> allModes;
+	static std::string toStr ( mode m );
+	static mode fromStr ( std::string txt );
+	//std::string AndorTriggerModeText ( AndorTriggerMode mode );
+	//AndorTriggerMode AndorTriggerModeFromText ( std::string txt );
 };
 
-std::string AndorTriggerModeText ( AndorTriggerMode mode );
-AndorTriggerMode AndorTriggerModeFromText ( std::string txt );
+
+
 

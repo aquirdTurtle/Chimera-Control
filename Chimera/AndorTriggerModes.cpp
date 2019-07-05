@@ -2,18 +2,21 @@
 #include "stdafx.h"
 #include "Thrower.h"
 #include "AndorTriggerModes.h"
+const std::array<AndorTriggerMode::mode, 3> AndorTriggerMode::allModes = { AndorTriggerMode::mode::External,
+AndorTriggerMode::mode::Internal,
+AndorTriggerMode::mode::StartOnTrigger };
 
-std::string AndorTriggerModeText ( AndorTriggerMode mode )
+std::string AndorTriggerMode::toStr( AndorTriggerMode::mode m )
 {
-	if ( mode == AndorTriggerMode::External )
+	if ( m == AndorTriggerMode::mode::External )
 	{
 		return "External-Trigger";
 	}
-	else if ( mode == AndorTriggerMode::Internal )
+	else if ( m == AndorTriggerMode::mode::Internal )
 	{
 		return "Internal-Trigger";
 	}
-	else if ( mode == AndorTriggerMode::StartOnTrigger )
+	else if ( m == AndorTriggerMode::mode::StartOnTrigger )
 	{
 		return "Start-On-Trigger";
 	}
@@ -24,23 +27,14 @@ std::string AndorTriggerModeText ( AndorTriggerMode mode )
 }
 
 
-AndorTriggerMode AndorTriggerModeFromText ( std::string txt )
+AndorTriggerMode::mode AndorTriggerMode::fromStr ( std::string txt )
 {
-	if ( txt == "External-Trigger"		|| txt == "External Trigger" )
+	for ( auto m : allModes )
 	{
-		return AndorTriggerMode::External;
-	}
-	else if ( txt == "Internal-Trigger" || txt == "Internal Trigger" )
-	{
-		return AndorTriggerMode::Internal;
-	}
-	else if ( txt == "Start-On-Trigger" || txt == "Start On Trigger" )
-	{
-		return AndorTriggerMode::StartOnTrigger;
-	}
-	else
-	{
-		thrower ("ERROR: andortriggermode not recognized?!?");
+		if ( txt == toStr ( m ) )
+		{
+			return m;
+		}
 	}
 }
 

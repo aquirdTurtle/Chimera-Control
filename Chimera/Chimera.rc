@@ -393,7 +393,7 @@ BEGIN
     END
     POPUP "&Basler"
     BEGIN
-        MENUITEM "Autoscale Pictures",          ID_BASLER_AUTOSCALE
+        MENUITEM "Autoscale Pictures",          ID_BASLER_AUTOSCALE, CHECKED
     END
 END
 
