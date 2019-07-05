@@ -27,7 +27,7 @@ void CameraCalibration::setUse(bool option)
 }
 
 
-void CameraCalibration::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
+void CameraCalibration::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
 								   fontMap fonts )
 {
 	header.rearrange(cameraMode, triggerMode, width, height, fonts );

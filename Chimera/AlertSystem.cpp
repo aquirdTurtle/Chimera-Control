@@ -126,7 +126,7 @@ void AlertSystem::soundAlert()
 }
 
 
-void AlertSystem::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, 
+void AlertSystem::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
 							 fontMap fonts)
 {
 	autoPauseAtAlert.rearrange( cameraMode, triggerMode, width, height, fonts );

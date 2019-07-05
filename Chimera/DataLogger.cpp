@@ -552,7 +552,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		currentAndorPicNumber = 0;
 		writeDataSet( int(settings.acquisitionMode), "Camera-Mode", andorGroup );
 		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
-		writeDataSet( int(settings.triggerMode), "Trigger-Mode", andorGroup );
+		writeDataSet( AndorTriggerMode::toStr(settings.triggerMode), "Trigger-Mode", andorGroup );
 		writeDataSet( settings.emGainModeIsOn, "EM-Gain-Mode-On", andorGroup );
 		if ( settings.emGainModeIsOn )
 		{

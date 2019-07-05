@@ -17,14 +17,14 @@
 #include <boost/lexical_cast.hpp>
 #include "AgilentSettings.h"
 
-AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
-									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"), 
-									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
-									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
-												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-									ttlBoard( true, true, DIO_SAFEMODE ),
-									aoSys( ANALOG_OUT_SAFEMODE ), configParameters( "CONFIG_PARAMETERS" ), 
-									globalParameters("GLOBAL_PARAMETERS" )
+AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
+	topBottomTek ( TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG" ),
+	eoAxialTek ( EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
+	agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
+			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
+		ttlBoard ( true, true, DIO_SAFEMODE ),
+		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
+		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( true )
 {}
 
 
@@ -84,6 +84,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoRClick )
+	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsRClick )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
@@ -99,6 +101,30 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+void AuxiliaryWindow::DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	try
+	{
+		dds.deleteRampVariable ( );
+	}
+	catch (Error& err )
+	{
+		;
+	}
+}
+
+void AuxiliaryWindow::DdsDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	try
+	{
+		dds.handleRampClick ( );
+	}
+	catch ( Error& err )
+	{
+		;
+	}
+}
 
 
 void AuxiliaryWindow::invalidateSaved ( UINT id )
@@ -839,7 +865,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	}
 	topBottomTek.rearrange(cx, cy, getFonts());
 	eoAxialTek.rearrange(cx, cy, getFonts());
-
+	dds.rearrange ( cx, cy, getFonts ( ) );
 	for ( auto& ag : agilents )
 	{
 		ag.rearrange( cx, cy, getFonts( ) );
@@ -1514,6 +1540,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
 		configParameters.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
 									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
+		dds.initialize ( controlLocation, toolTips, this, id, "DDS System" );
+
 		configParameters.setParameterControlActive( false );
 
 		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalParameters );

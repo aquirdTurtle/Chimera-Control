@@ -44,7 +44,7 @@ class PictureSettingsControl
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(UINT pics, AndorCamera* andorObj);
 		void setThresholds( std::array<std::string, 4> thresholds);
-		void rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts);
+		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
 		void updateSettings( );
 		void setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj );

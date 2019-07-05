@@ -22,6 +22,7 @@
 #include "TektronicsControl.h"
 #include "AiSystem.h"
 #include "ServoManager.h"
+#include "DdsSystem.h"
 #include "MachineOptimizer.h"
 #include "colorbox.h"
 #include "MasterThreadInput.h"
@@ -132,6 +133,9 @@ class AuxiliaryWindow : public CDialog
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
+		void DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result );
+		void DdsDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
+
 
 		void OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result );
@@ -184,6 +188,7 @@ class AuxiliaryWindow : public CDialog
 		MachineOptimizer optimizer;
 		ColorBox boxes;
 		ParameterSystem configParameters, globalParameters;
+		DdsSystem dds;
 
 		ColorBox statusBox;
 };

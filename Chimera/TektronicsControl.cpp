@@ -263,7 +263,7 @@ void TektronicsAfgControl::programMachine(UINT variation)
 				visaFlume.open ( );
 				break;
 			}
-			catch ( Error& err )
+			catch ( Error& )
 			{
 				// seems to fail occasionally
 			}

@@ -631,14 +631,8 @@ void Agilent::handleOpenConfig( std::ifstream& file, Version ver )
 		file.get ( );
 		try
 		{
-			if ( ver < Version ( "4.2" ) )
-			{
-				channel.option = AgilentChannelMode::which ( boost::lexical_cast<int>( input ) + 2 );
-			}
-			else
-			{
-				channel.option = AgilentChannelMode::fromStr ( input );
-			}
+			channel.option = ver < Version ( "4.2" ) ? 
+				AgilentChannelMode::which(boost::lexical_cast<int>(input) + 2) : AgilentChannelMode::fromStr(input);
 		}
 		catch ( boost::bad_lexical_cast& )
 		{

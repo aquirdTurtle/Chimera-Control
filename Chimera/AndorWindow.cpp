@@ -19,7 +19,7 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 							CameraSettings ( &Andor ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
-							pics ( false, "ANDOR_PICTURE_MANAGER" )
+							pics ( false, "ANDOR_PICTURE_MANAGER", false )
 {};
 
 

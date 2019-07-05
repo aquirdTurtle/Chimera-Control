@@ -99,7 +99,7 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 }
 
 
-void ExperimentTimer::rearrange( AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height,
+void ExperimentTimer::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
 								 fontMap fonts )
 {
 	timeDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );

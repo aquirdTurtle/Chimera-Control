@@ -80,7 +80,12 @@ Refactoring / Other:
 - gui level accumulation images
 - seems that there's still auto fitting stuff in the data analysis but I don't think this is supported anymore?
 - either only put the "overwriting function definition" when actually uses the save or remove this
-- change existing andor enum class to struct {enum class}
+- consider refactoring expression to include the evaluated value in the object itself. This probably includes 
+	making Expression a template class with the eventual type as a template argument, although since evaluate currently 
+	just evaluates to a double, could also just set the internal member to a double. Need to examine how this would
+	work with vectors of these values? Not sure would actually require changes there. This should be able to work well
+	to simplify the form / eventual value structures which feel confusing and redundant, and potentiall provide checks 
+	within the evaluate class itself, but is a very major refactor.
 
 Checks and Tests
 	- add check for flash that sum of indv move times is the total move time.
@@ -102,5 +107,4 @@ BUGS:
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
-- not starting as autoscaling basler pictures, or something wrong with initial setting.
 

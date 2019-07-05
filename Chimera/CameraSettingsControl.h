@@ -33,7 +33,7 @@ class AndorCameraSettingsControl
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain();
-		void rearrange(AndorRunModes cameraMode, AndorTriggerMode triggerMode, int width, int height, fontMap fonts);
+		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
 		void updateTriggerMode( );
 		void handleTriggerChange(AndorWindow* cameraWindow);
