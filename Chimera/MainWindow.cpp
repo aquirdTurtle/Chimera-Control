@@ -376,7 +376,8 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox ( System::Master, 'Y' );
 		}
-		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
+		auto async
+			= std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
 		time_t t = time ( 0 );
 		struct tm now;
 		localtime_s ( &now, &t );
@@ -1392,10 +1393,14 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	if ( statusMessage != "" )
+	if ( statusMessage == "Andor camera, NIAWG, Master, and Basler camera were not running. Can't Abort.\r\n" )
+	{
+		errorStatus.addStatusText ( statusMessage );
+	}
+	else if ( statusMessage != "" )
 	{
 		errorStatus.addStatusText( statusMessage );
-		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
+		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
 	}
 	return 0;
 }
