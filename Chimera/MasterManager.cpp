@@ -500,10 +500,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 		}
 		input->thisObj->experimentIsRunning = false;
-		{
-			std::lock_guard<std::mutex> locker( input->thisObj->abortLock );
-			input->thisObj->isAborting = false;
-		}
 		if (input->runMaster)
 		{
 			input->ttls.unshadeTtls();
@@ -523,6 +519,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			//comm.sendError( txt );
 			comm.sendFatalError( txt );
 		}	
+		{
+			std::lock_guard<std::mutex> locker ( input->thisObj->abortLock );
+			input->thisObj->isAborting = false;
+		}
 	}
 	// finish up.
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>( ( chronoClock::now ( ) - startTime ) ).count ( );
