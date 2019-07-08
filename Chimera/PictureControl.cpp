@@ -435,6 +435,14 @@ void PictureControl::resetStorage()
 }
 
 
+void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption opt )
+{
+	saOption = opt;
+	accumPicData.clear ( );
+	accumNum = 0;
+}
+
+
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
@@ -587,6 +595,33 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	float yscale;
 	long colorRange;
 	long minColor;
+	std::vector<long> drawData;
+	if ( saOption.accumAll )
+	{
+		if ( accumPicData.size ( ) == 0 )
+		{
+			accumPicData.resize ( picData.size ( ) );
+			accumNum = 0;
+		}
+		accumNum++;
+		if ( accumPicData.size ( ) != picData.size ( ) )
+		{
+			thrower ( "Size mismatch between software accumulated picture and picture input!" );
+		}
+		std::vector<long> accumPicLongData ( picData.size ( ) );
+		for ( auto pixelInc : range(accumPicData.size()) )
+		{
+			// suppose 16th image. accumNum = 16. new data = 15/16 * old data + new data / 16.
+			accumPicData[ pixelInc ] = ( ( accumNum - 1 )*accumPicData[ pixelInc ] + picData[ pixelInc ] ) / accumNum;
+			accumPicLongData[ pixelInc ] = long ( accumPicData[ pixelInc ] );
+		}
+		drawData = accumPicLongData;
+	}
+	else
+	{
+		// TODO: should handle "normal" accumulation (i.e. not accumulate all but accumulate, say, 5) here
+		drawData = picData;
+	}
 	// first element containst whether autoscaling or not.
 	if (std::get<0>(autoScaleInfo))
 	{
@@ -650,11 +685,11 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 		for (int widthInc = 0; widthInc < dataWidth; widthInc++)
 		{
 			// get temporary value for color of the pixel.
-			if ( widthInc + heightInc * dataWidth >= picData.size())
+			if ( widthInc + heightInc * dataWidth >= drawData.size())
 			{
 				return;
 			}
-			tempDouble = ceil(yscale * (picData[widthInc + heightInc * dataWidth] - minColor));
+			tempDouble = ceil(yscale * (drawData[widthInc + heightInc * dataWidth] - minColor));
 
 			// interpret the value depending on the range of values it can take.
 			if (tempDouble < 1)

@@ -5,6 +5,7 @@
 #include "atomGrid.h"
 #include "PlotCtrl.h"
 #include "LongCSlider.h"
+#include "softwareAccumulationOption.h"
 
 /*
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
@@ -31,6 +32,7 @@ class PictureControl
 		void drawBackground(CDC* easel);
 		void drawGrid(CDC* easel, CBrush* brush);
 		void drawCircle(CDC* dc, coordinate selectedLocation );
+		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
 		void drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
 		void setCursorValueLocations( CWnd* parent );
 		void drawRectangle( CDC* dc, RECT pixelRect );
@@ -48,6 +50,11 @@ class PictureControl
 		void updatePlotData ( );
 		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
 	private:
+		softwareAccumulationOption saOption;
+		std::vector<double> accumPicData;
+		UINT accumNum;
+
+
 		const bool histOption;
 		std::vector<pPlotDataVec> horData, vertData;
 		PlotCtrl* horGraph;

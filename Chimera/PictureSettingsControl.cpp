@@ -16,45 +16,30 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	UINT count = 0;
 	/// Picture Numbers
 	pictureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.seriesPos, parent,
+	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.seriesPos, parent, 
 						 PICTURE_SETTINGS_ID_START + count++ );
 	pictureLabel.fontType = fontTypes::SmallFont;
 
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( auto picInc : range(4) )
 	{
-		pictureNumbers[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
-		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, 
-									   pictureNumbers[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + count++ );
+		pictureNumbers[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
+		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, pictureNumbers[picInc].seriesPos, 
+									   parent, PICTURE_SETTINGS_ID_START + count++ );
 	}
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
 
 	/// Total picture number
 	totalPicNumberLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.seriesPos, parent,
 								PICTURE_SETTINGS_ID_START + count++ );
 	totalPicNumberLabel.fontType = fontTypes::SmallFont;
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( auto picInc : range ( 4 ) )
 	{
-		totalNumberChoice[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
-		if ( picInc == 0 )
-		{
-			// first of group
-			totalNumberChoice[picInc].Create( "", NORM_RADIO_OPTIONS | WS_GROUP, totalNumberChoice[picInc].seriesPos, 
-											  parent, PICTURE_SETTINGS_ID_START + count++ );
-			totalNumberChoice[picInc].SetCheck( 1 );
-		}
-		else
-		{
-			// members of group.
-			totalNumberChoice[picInc].Create( "", NORM_RADIO_OPTIONS, totalNumberChoice[picInc].seriesPos, parent,
-											  PICTURE_SETTINGS_ID_START + count++ );
-		}
+		totalNumberChoice[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
+		totalNumberChoice[ picInc ].Create ( "", ( picInc == 0 ) ? ( NORM_RADIO_OPTIONS | WS_GROUP ) : NORM_RADIO_OPTIONS,
+											 totalNumberChoice[ picInc ].seriesPos, parent, PICTURE_SETTINGS_ID_START + count++ );
+		totalNumberChoice[ picInc ].SetCheck ( picInc == 0 );
 	}
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
+	picsPerRepetitionUnofficial = 1;
 
 	/// Exposure Times
 	exposureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
@@ -63,50 +48,36 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	exposureTimesUnofficial.resize( 4 );
 	exposureLabel.fontType = fontTypes::SmallFont;
 
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( auto picInc : range(4) )
 	{
-		exposureEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
+		exposureEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
 		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].seriesPos, parent,
 									  PICTURE_SETTINGS_ID_START + count++ );
 		exposureEdits[picInc].SetWindowTextA( "10.0" );
 		exposureTimesUnofficial[picInc] = 10 / 1000.0f;
 	}
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
 
 	/// Thresholds
 	thresholdLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.seriesPos, parent,
 						   PICTURE_SETTINGS_ID_START + count++ );
 	thresholdLabel.fontType = fontTypes::SmallFont;
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( auto picInc : range(4) )
 	{
-		thresholdEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, false, false, true );
+		thresholdEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
 		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, thresholdEdits[picInc].seriesPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
 		thresholds[ picInc ] = { 100 };
 	}
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
-	//C:\Users\Regal-Lab\Code\Data_Analysis_Control
 	/// colormaps
-	colormapLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	colormapLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	colormapLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	colormapLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	colormapLabel.Create( "Colormap", NORM_STATIC_OPTIONS, colormapLabel.seriesPos, parent,
 						  PICTURE_SETTINGS_ID_START + count++ );
 	colormapLabel.fontType = fontTypes::SmallFont;
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( auto picInc : range(4) )
 	{
-		colormapCombos[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 100 };
-		colormapCombos[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
-			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 100 };
-		colormapCombos[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 100 };
+		colormapCombos[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 100, false, false, true, false );
 		colormapCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent, 
 									   PICTURE_SETTINGS_ID_START + count++ );
 		colormapCombos[picInc].fontType = fontTypes::SmallFont;
@@ -121,41 +92,52 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.amPos.y += 20;
 	pos.videoPos.y += 20;
 	/// display types
-	displayTypeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
-	displayTypeLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
-	displayTypeLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
+	displayTypeLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true);
 	displayTypeLabel.Create( "Display-Type:", NORM_STATIC_OPTIONS, displayTypeLabel.seriesPos, parent,
 						     PICTURE_SETTINGS_ID_START + count++ );
 	displayTypeLabel.fontType = fontTypes::SmallFont;
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( auto picInc : range ( 4 ) )
 	{
-		displayTypeCombos[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
-			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 100 };
-		displayTypeCombos[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
-			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 100 };
-		displayTypeCombos[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
-			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 100 };
-		displayTypeCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent,
-									   PICTURE_SETTINGS_ID_START + count++ );
-		displayTypeCombos[picInc].fontType = fontTypes::SmallFont;
-		displayTypeCombos[picInc].AddString( "Normal" );
-		displayTypeCombos[picInc].AddString( "Dif: 1" );
-		displayTypeCombos[picInc].AddString( "Dif: 2" );
-		displayTypeCombos[picInc].AddString( "Dif: 3" );
-		displayTypeCombos[picInc].AddString( "Dif: 4" );
-		displayTypeCombos[picInc].SetCurSel( 0 );
-		colors[picInc] = 2;
+		displayTypeCombos[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 100, false, false, true, false );
+		displayTypeCombos[ picInc ].Create ( NORM_COMBO_OPTIONS, colormapCombos[ picInc ].seriesPos, parent,
+											 PICTURE_SETTINGS_ID_START + count++ );
+		displayTypeCombos[ picInc ].fontType = fontTypes::SmallFont;
+		displayTypeCombos[ picInc ].AddString ( "Normal" );
+		displayTypeCombos[ picInc ].AddString ( "Dif: 1" );
+		displayTypeCombos[ picInc ].AddString ( "Dif: 2" );
+		displayTypeCombos[ picInc ].AddString ( "Dif: 3" );
+		displayTypeCombos[ picInc ].AddString ( "Dif: 4" );
+		displayTypeCombos[ picInc ].SetCurSel ( 0 );
+		colors[ picInc ] = 2;
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	pos.videoPos.y += 20;
-	// above, the total number was set to 1.
+
+	/// software accumulation mode	
+	softwareAccumulationLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
+	softwareAccumulationLabel.Create ( "Software Accum:", NORM_STATIC_OPTIONS, softwareAccumulationLabel.seriesPos,
+									   parent, PICTURE_SETTINGS_ID_START + count++ );
+	softwareAccumulationLabel.fontType = fontTypes::SmallFont;
+	for ( auto picInc : range ( 4 ) )
+	{
+		softwareAccumulateAll[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 65, 20, false, false, true );
+		softwareAccumulateAll[ picInc ].Create ( "All?", NORM_CHECK_OPTIONS, softwareAccumulateAll[ picInc ].seriesPos, parent,
+												 PICTURE_SETTINGS_ID_START + count++ );
+		softwareAccumulateAll[ picInc ].SetCheck ( 0 );
+		softwareAccumulateAll[ picInc ].fontType = fontTypes::SmallFont;
+
+		softwareAccumulateNum[ picInc ].setPositions ( pos, 165 + 95 * picInc, 0, 30, 20, picInc==3, false, true );
+		softwareAccumulateNum[ picInc ].Create ( NORM_EDIT_OPTIONS, softwareAccumulateNum[ picInc ].seriesPos, parent,
+												 PICTURE_SETTINGS_ID_START + count++ );
+		softwareAccumulateNum[ picInc ].SetWindowTextA ( "1" );
+		softwareAccumulateNum[ picInc ].fontType = fontTypes::SmallFont;
+	}
+	//
 	enablePictureControls( 0 );
 	disablePictureControls( 1 );
 	disablePictureControls( 2 );
 	disablePictureControls( 3 );
-	// should move up
-	picsPerRepetitionUnofficial = 1;
 }
 
 
@@ -237,6 +219,12 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 		saveFile << threshold << " ";
 	}
 	saveFile << "\n";
+	for ( auto saOpt : getSoftwareAccumulationOptions ( ) )
+	{
+		saveFile << saOpt.accumAll << " " << saOpt.accumNum << " ";
+	}
+	saveFile << "\n";
+
 	saveFile << "END_PICTURE_SETTINGS\n";
 }
 
@@ -260,6 +248,15 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version v
 	{
 		openFile >> threshold;
 	}
+	if ( ver > Version ( "4.3" ) )
+	{
+		std::array<softwareAccumulationOption, 4> saOpts;
+		for ( auto& opt : saOpts )
+		{
+			openFile >> opt.accumAll >> opt.accumNum;
+		}
+		setSoftwareAccumulationOptions ( saOpts );
+	}
 	try
 	{
 		setExposureTimes ( andor );
@@ -272,28 +269,64 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version v
 	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }
 
-
-void PictureSettingsControl::disablePictureControls(int pic)
+void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts )
 {
-	if (pic > 3)
+	for ( auto picInc : range ( 4 ) )
 	{
-		return;
+		softwareAccumulateAll[ picInc ].SetCheck ( opts[ picInc ].accumAll );
+		softwareAccumulateNum[ picInc ].SetWindowTextA ( cstr ( opts[ picInc ].accumNum ) );
 	}
-	exposureEdits[pic].EnableWindow(0);
-	thresholdEdits[pic].EnableWindow(0);
-	colormapCombos[pic].EnableWindow( 0 );
 }
 
 
-void PictureSettingsControl::enablePictureControls( int pic )
+void PictureSettingsControl::disablePictureControls ( int pic )
 {
 	if ( pic > 3 )
 	{
 		return;
 	}
-	exposureEdits[pic].EnableWindow( );
-	thresholdEdits[pic].EnableWindow( );
-	colormapCombos[pic].EnableWindow( );
+	exposureEdits[ pic ].EnableWindow ( 0 );
+	thresholdEdits[ pic ].EnableWindow ( 0 );
+	colormapCombos[ pic ].EnableWindow ( 0 );
+	displayTypeCombos[ pic ].EnableWindow ( 0 );
+	softwareAccumulateAll[ pic ].EnableWindow ( 0 );
+	softwareAccumulateNum[ pic ].EnableWindow ( 0 );
+}
+
+
+std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( )
+{
+	std::array<softwareAccumulationOption, 4> opts;
+	for ( auto picInc : range(4))
+	{
+		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ].GetCheck ( );
+		CString numTxt;
+		softwareAccumulateNum[ picInc ].GetWindowTextA ( numTxt );
+		try
+		{
+			opts[ picInc ].accumNum  = boost::lexical_cast<UINT>( numTxt );
+		}
+		catch ( boost::bad_lexical_cast& )
+		{
+			thrower ( "Failed to convert software accumulation number to an unsigned integer!" );
+		}
+	}
+	return opts;
+}
+
+
+void PictureSettingsControl::enablePictureControls ( int pic )
+{
+	if ( pic > 3 )
+	{
+		return;
+	}
+	exposureEdits[ pic ].EnableWindow ( );
+	thresholdEdits[ pic ].EnableWindow ( );
+	colormapCombos[ pic ].EnableWindow ( );
+	displayTypeCombos[ pic ].EnableWindow ( );
+	softwareAccumulateAll[ pic ].EnableWindow ( );
+	softwareAccumulateNum[ pic ].EnableWindow ( );
 }
 
 
@@ -642,8 +675,6 @@ void PictureSettingsControl::updateSettings( )
 		// refresh for new color
 		exposureEdits[exposureInc].RedrawWindow( );
 	}
-	/// set the exposure times via andor
-	//setExposureTimes( andorObj );
 }
 
 
@@ -656,6 +687,7 @@ void PictureSettingsControl::rearrange(AndorRunModes::mode cameraMode, AndorTrig
 	thresholdLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	colormapLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	displayTypeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
+	softwareAccumulationLabel.rearrange ( cameraMode, triggerMode, width, height, fonts );
 	for (auto& control : pictureNumbers)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -679,5 +711,13 @@ void PictureSettingsControl::rearrange(AndorRunModes::mode cameraMode, AndorTrig
 	for ( auto& control : displayTypeCombos )
 	{
 		control.rearrange( cameraMode, triggerMode, width, height, fonts );
+	}
+	for ( auto& control : softwareAccumulateAll )
+	{
+		control.rearrange ( cameraMode, triggerMode, width, height, fonts );
+	}
+	for ( auto& control : softwareAccumulateNum )
+	{
+		control.rearrange ( cameraMode, triggerMode, width, height, fonts );
 	}
 }

@@ -95,16 +95,18 @@ void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG y
 	 * @param xInc: whether to increment pos.x or not.
 	 * @param yInc: whether to increment pos.y or not.
 	 * @param videotoo: whether to define videoPos or not.
+	 * @param noAccum: whether to define accumPos or not.
 	 */
 	seriesPos = { pos.seriesPos.x + xoff, pos.seriesPos.y + yoff, 
 				  pos.seriesPos.x + xoff + width, pos.seriesPos.y + yoff + height };
 	if ( noAccum )
 	{
-		amPos = { -1,-1,-1,-1 };
+		amPos = { -1, -1, -1, -1 };
 	}
 	else
-	{ 
-		amPos = { pos.amPos.x + xoff, pos.amPos.y + yoff, pos.amPos.x + xoff + width, pos.amPos.y + yoff + height };
+	{
+		amPos = { pos.amPos.x + xoff, pos.amPos.y + yoff, pos.amPos.x + xoff + width,
+			pos.amPos.y + yoff + height };
 	}
 	if ( videoToo )
 	{
