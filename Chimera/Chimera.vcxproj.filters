@@ -669,6 +669,7 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="DdsSystemStructures.h" />
+    <ClInclude Include="softwareAccumulationOption.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

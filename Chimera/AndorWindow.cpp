@@ -26,27 +26,27 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 IMPLEMENT_DYNAMIC(AndorWindow, CDialog)
 
 
-BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
-	ON_WM_CTLCOLOR( )
-	ON_WM_SIZE( )
-	ON_WM_TIMER( )
-	ON_WM_VSCROLL( )
-	ON_WM_MOUSEMOVE( )
+BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
+	ON_WM_CTLCOLOR ( )
+	ON_WM_SIZE ( )
+	ON_WM_TIMER ( )
+	ON_WM_VSCROLL ( )
+	ON_WM_MOUSEMOVE ( )
 
-	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AndorWindow::passCommonCommand )
-	ON_COMMAND_RANGE( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &AndorWindow::passPictureSettings )
-	ON_CONTROL_RANGE( CBN_SELENDOK, PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, 
-					  &AndorWindow::passPictureSettings )
-	ON_CBN_SELENDOK( IDC_ATOM_GRID_COMBO, &AndorWindow::passAtomGridCombo )
+	ON_COMMAND_RANGE ( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AndorWindow::passCommonCommand )
+	ON_COMMAND_RANGE ( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &AndorWindow::passPictureSettings )
+	ON_CONTROL_RANGE ( CBN_SELENDOK, PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END,
+					   &AndorWindow::passPictureSettings )
+	ON_CBN_SELENDOK ( IDC_ATOM_GRID_COMBO, &AndorWindow::passAtomGridCombo )
 	// these ids all go to the same function.
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_3_MAX_EDIT, IDC_PICTURE_3_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MIN_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_3_MAX_EDIT, IDC_PICTURE_3_MAX_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &AndorWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &AndorWindow::handlePictureEditChange )
 	// 
 	ON_EN_CHANGE( IDC_PLOT_TIMER_EDIT, &AndorWindow::handlePlotTimerEdit )
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &AndorWindow::passSetTemperaturePress)
@@ -73,6 +73,7 @@ BEGIN_MESSAGE_MAP(AndorWindow, CDialog)
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
 
 void AndorWindow::handlePlotTimerEdit ( )
 {
@@ -744,6 +745,7 @@ atomGrid AndorWindow::getMainAtomGrid ( )
 
 void AndorWindow::startCamera()
 {
+	// expecting that settings have already been set...
 	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
@@ -1098,6 +1100,7 @@ void AndorWindow::prepareAndor( ExperimentInput& input )
 	CameraSettings.setVariationNumber(varNumber);
 	// biggest check here, camera settings includes a lot of things.
 	CameraSettings.checkIfReady();
+	pics.setSoftwareAccumulationOptions ( CameraSettings.getSoftwareAccumulationOptions() );
 	input.AndorSettings = CameraSettings.getSettings().andor;
 	/// start the camera.
 	Andor.setSettings( input.AndorSettings );

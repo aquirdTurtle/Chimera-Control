@@ -3,12 +3,21 @@
 #include "PictureManager.h"
 #include "ProfileSystem.h"
 #include "Thrower.h"
+#include "pictureSettingsControl.h"
 
 PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 
 	: pictures{ { histOption, false, false, false } }, configDelim ( configurationFileDelimiter ), 
 	autoScalePictures (autoscaleDefault )
 {
 
+}
+
+void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts )
+{
+	for ( auto picInc : range ( 4 ) )
+	{
+		pictures[ picInc ].setSoftwareAccumulationOption ( opts[ picInc ] );
+	}
 }
 
 

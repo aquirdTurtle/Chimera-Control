@@ -8,6 +8,7 @@
 #include "CameraImageDimensions.h"
 #include "CameraCalibration.h"
 #include "Andor.h"
+#include "softwareAccumulationOption.h"
 
 struct cameraPositions;
 
@@ -60,7 +61,7 @@ class AndorCameraSettingsControl
 		std::vector<std::vector<long>> getImagesToDraw( const std::vector<std::vector<long>>& rawData  );
 
 		const imageParameters fullResolution = { 1,512,1,512,1,1 };
-
+		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 	private:
 		double getKineticCycleTime( );
 		double getAccumulationCycleTime( );
@@ -68,13 +69,10 @@ class AndorCameraSettingsControl
 		imageParameters getImageParameters( );
 
 		AndorCamera* andorFriend;
-
 		Control<CStatic> header;
-		/// TODO - don't think accumulation mode details have been worked out.
-		// Accumulation Time
+		// Hardware Accumulation Parameters
 		Control<CStatic> accumulationCycleTimeLabel;
 		Control<CEdit> accumulationCycleTimeEdit;
-		// Accumulation Number
 		Control<CStatic> accumulationNumberLabel;
 		Control<CEdit> accumulationNumberEdit;
 
