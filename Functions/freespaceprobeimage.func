@@ -6,7 +6,7 @@ def freeSpaceProbeImage():
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning 0.2 %-1.5
+  var image_detuning 0.3 %-1.5
   var motPower 0.3 % 0.2
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
@@ -23,7 +23,7 @@ def freeSpaceProbeImage():
   var freeSpaceImageTime 0.02
   off: tweezerRf
   % wait time
-  t += 0.005
+  t += 0.02
   on: andorTrig
   t += 0.01
   off: rf795
