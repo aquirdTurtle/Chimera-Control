@@ -1,0 +1,12 @@
+% Master-Script See the "?" for info on commands.
+def AxialSidebandCooling():
+  % insert commands here...
+  dac: sigmaoppower 0.05
+  dac: sigmarepumpPower 0.3
+  rsg: (6.831 + uw_sbc/1000000) 5
+  pulseon: topPulseTrig 0.1 
+  repeat: 50
+    call axialRamanPulse()
+    call opPulse()
+  end
+  t += 2.1

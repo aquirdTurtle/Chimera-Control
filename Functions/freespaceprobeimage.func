@@ -1,13 +1,13 @@
 % Master-Script See the "?" for info on commands.
-def pgcAtomFlashingImage():
+def freeSpaceProbeImage():
   % give the shutter some time to open.
   off: diagMotRf
   on: andorShutter
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning -1.85 %-1.5
-  var motPower 0.18 %0.2
+  var image_detuning 0.2 %-1.5
+  var motPower 0.3 % 0.2
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
 
@@ -16,27 +16,28 @@ def pgcAtomFlashingImage():
   % to pump to the F=2 manifold.
   on: RepumpRf
   t += 0.2
+  dac: SideMotPower 0.3
+  dac: probePower 0
+  dac: RepumpPower 0.3
+  dac: DiagMotPower 0
+  var freeSpaceImageTime 0.02
+  off: tweezerRf
+  % wait time
+  t += 0.005
   on: andorTrig
-  on: a9
-  t += 0.1
-  dac: SideMotPower sidemot_imaging__servo_value 
-  dac: RepumpPower imagingRepumpPower
-  dac: DiagMotPower 0.1
-  on: tweezerflashrf
-  on: sidemotflash
+  t += 0.01
   off: rf795
+  off: proberf
   on: SideMotRf
   off: diagMotRf
-  t += andorImageTime
-  off: andorshutter
+  on: repumpRf
+  t += freeSpaceImageTime
+  % in principle expect its over by this point
   off: SideMotRf
   off: diagMotRf
   off: repumpRf
-  off: tweezerflashrf
-  off: sidemotflash
+  off: andorShutter
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
-  t += 1
-  off: a9
   t += 1
   off: andorTrig
   t += 0.2
@@ -44,4 +45,3 @@ def pgcAtomFlashingImage():
   % another image. Typically we need to wait like 5ms. The camera window
   % will tell you the minimum kinetic cycle time, which depends on the
   % exposure time and the image size, with some net overhead.
-	

@@ -79,6 +79,7 @@ class AndorCameraSettingsControl
 		Control<CEdit> accumulationNumberEdit;
 
 		Control<CComboBox> cameraModeCombo;
+		Control<CStatic> emGainLabel;
 		Control<CEdit> emGainEdit;
 		Control<CStatic> emGainDisplay;
 		Control<CComboBox> triggerCombo;

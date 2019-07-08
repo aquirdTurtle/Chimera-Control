@@ -7,7 +7,8 @@
 hold loadingDepth 1 onceWaitTrig # 
 %ramp lin loadingDepth stageTwoDepth 3 onceWaitTrig #    
 ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
-ramp lin imagingDepth loadingDepth 1 once # 
+ramp lin imagingDepth image2Depth 1 onceWaitTrig #
+ramp lin image2Depth loadingDepth 1 once # 
 
  
 
