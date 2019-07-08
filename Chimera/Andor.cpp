@@ -577,6 +577,10 @@ void AndorCamera::setFrameTransferMode()
  */
 void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
 {
+	if ( exposures.size ( ) == 0 )
+	{
+		return;
+	}
 	float tempExposure, tempAccumTime, tempKineticTime;
 	float * timesArray = NULL;
 	std::string errMsg;
@@ -604,7 +608,7 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 	// nearest possible time. eg if you set exposure time to be 0, the system
 	// will use the closest value (around 0.01s)
 	timesArray = new float[exposures.size()];
-	if (safemode)
+	if (!safemode)
 	{
 		getAcquisitionTimes(tempExposure, tempAccumTime, tempKineticTime);
 		getAdjustedRingExposureTimes(exposures.size(), timesArray);

@@ -49,13 +49,15 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	pos.videoPos.y += 25;
 	pos.seriesPos.y += 25;
 	/// EM Gain
-	emGainEdit.setPositions ( pos, 0, 0, 240, 20, false, false, true );
+	emGainLabel.setPositions ( pos, 0, 0, 160, 20, false, false, true );
+	emGainLabel.Create ( "EM Gain Setting", NORM_HEADER_OPTIONS, emGainLabel.seriesPos, parent, id++ );
+	emGainEdit.setPositions ( pos, 160, 0, 160, 20, false, false, true );
 	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, IDC_EM_GAIN_EDIT );
 	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 						   " mode off. The program will immediately change the state of the camera after changing this"
 						   " edit.", tooltips, parent );
 	//
-	emGainDisplay.setPositions ( pos, 240, 0, 240, 20, true, false, true );
+	emGainDisplay.setPositions ( pos, 320, 0, 160, 20, true, false, true );
 	emGainDisplay.Create( "OFF", NORM_STATIC_OPTIONS, emGainDisplay.seriesPos, parent, id++ );
 	// initialize settings.
 	settings.andor.emGainLevel = 0;
@@ -350,7 +352,7 @@ void AndorCameraSettingsControl::rearrange( AndorRunModes::mode cameraMode, Ando
 	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	minKineticCycleTimeDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
 	calControl.rearrange( cameraMode, triggerMode, width, height, fonts );
-
+	emGainLabel.rearrange ( cameraMode, triggerMode, width, height, fonts );
 }
 
 
@@ -504,7 +506,7 @@ void AndorCameraSettingsControl::handleTimer()
 			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
 			// completely stabilize or not.
 			temperatureMsg.SetWindowTextA((str("Camera is Acquiring data. No updates are available. ") +
-										   "Most recent temperature: " + str(currentTemperature)).c_str());
+										   "\r\nMost recent temperature: " + str(currentTemperature)).c_str());
 		}
 		else if (exception.whatBare() == "SAFEMODE")
 		{

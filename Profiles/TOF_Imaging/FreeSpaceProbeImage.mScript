@@ -9,15 +9,13 @@ pulseon: scoutTrig 0.1
 t += 2
 call pGCLoading()
 %call twoStageLambdaLoading()
-t += 20
 pulseon: tweezerIntensityTrig 0.1
 t += 1
-call pgcAtomFlashingImage()
+%call pgcAtomFlashingImage()
 call intrappgc()
-var waitTime 0
-t += (75 + waitTime)
-call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
 t += 1
+call freeSpaceProbeImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 off: A6

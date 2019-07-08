@@ -29,7 +29,7 @@ pulseon: tweezerIntensityTrig 0.1
 t += 0.1
 call pushout()
 %call pushout_all()
-t += 10.1
+t += 1
 pulseon: tweezerIntensityTrig 0.1
 %call zeroFields()
 t += 1
