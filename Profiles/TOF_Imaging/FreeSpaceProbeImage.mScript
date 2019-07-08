@@ -11,13 +11,12 @@ call pGCLoading()
 %call twoStageLambdaLoading()
 pulseon: tweezerIntensityTrig 0.1
 t += 1
-%call pgcAtomFlashingImage()
 call intrappgc()
 pulseon: tweezerIntensityTrig 0.1
-t += 1
 call freeSpaceProbeImage()
+%off: A6
+%t += 115
+%call freeSpaceProbeImage()
 pulseon: tweezerIntensityTrig 0.1
-t += 1
-off: A6
 t += 1
 
