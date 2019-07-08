@@ -107,6 +107,7 @@ class ProfileSystem
 		// version = str(versionMain) + "." + str(versionSub)
 		// I try to use version sub changes for small changes and version main for big formatting (sometimes backwards 
 		// incompatible) changes
+
 		// version 3.6: rerngMode added instead of various bools
 		// Version 3.7: stop reporting initial ttl and dac values in configs.
 		// Version 4.0: changed the way I read in data for different controls. Each control re-opens the file and scans  
@@ -115,7 +116,8 @@ class ProfileSystem
 		// Version 4.1: Added auto threshold analysis option
 		// Version 4.2: Agilent channel mode added and saving this as text instead of index
 		// Version 4.3: Refactored parameter system range structure to include range info separate for each dimension.
-		const Version version = Version( "4.3" );
+		// Version 4.4: added software accumulation picture options
+		const Version version = Version( "4.4" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

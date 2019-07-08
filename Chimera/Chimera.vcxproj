@@ -230,6 +230,7 @@
     <ClInclude Include="MyListCtrl.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="SegmentEnd.h" />
+    <ClInclude Include="softwareAccumulationOption.h" />
     <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
     <ClInclude Include="CameraImageDimensions.h" />
