@@ -43,11 +43,11 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	cameraModeCombo.AddString( "Accumulation Mode" );
 	cameraModeCombo.AddString( "Video Mode" );
 	cameraModeCombo.SelectString( 0, "Kinetic-Series-Mode" );
-	//settings.andor.cameraMode = "Kinetic-Series-Mode";
 	settings.andor.acquisitionMode = AndorRunModes::Kinetic;
-	pos.amPos.y += 25;
-	pos.videoPos.y += 25;
-	pos.seriesPos.y += 25;
+	pos.seriesPos.y += 20;
+	pos.videoPos.y += 20;
+	pos.amPos.y += 20;
+
 	/// EM Gain
 	emGainLabel.setPositions ( pos, 0, 0, 160, 20, false, false, true );
 	emGainLabel.Create ( "EM Gain Setting", NORM_HEADER_OPTIONS, emGainLabel.seriesPos, parent, id++ );
@@ -138,7 +138,6 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	//
 	calControl.initialize( pos, id, parent, tooltips );
 }
-
 
 
 // note that this object doesn't actually store the camera state, it just uses it in passing to figure out whether 
@@ -282,9 +281,14 @@ void AndorCameraSettingsControl::updateSettings()
 	settings.andor.accumulationTime = getAccumulationCycleTime( );
 	settings.andor.accumulationNumber = getAccumulationNumber( );
 
-	//setEmGain( );
 	updateCameraMode( );
 	updateTriggerMode( );
+}
+
+
+std::array<softwareAccumulationOption, 4> AndorCameraSettingsControl::getSoftwareAccumulationOptions ( )
+{
+	return picSettingsObj.getSoftwareAccumulationOptions();
 }
 
 
@@ -299,7 +303,6 @@ AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( )
 {
 	AndorCameraSettings calSettings;
 	calSettings.andor.acquisitionMode = AndorRunModes::Kinetic;
-	//calSettings.andor.cameraMode = "Kinetic-Series-Mode";
 	calSettings.andor.emGainLevel = 0;
 	calSettings.andor.emGainModeIsOn = false;
 	calSettings.andor.exposureTimes = { float(10e-3) };

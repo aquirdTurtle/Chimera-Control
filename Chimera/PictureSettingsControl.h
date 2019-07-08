@@ -3,13 +3,16 @@
 
 #include "Control.h"
 #include "Version.h"
-#include <array>
-#include <vector>
 #include "cameraPositions.h"
 #include "DoubleEdit.h"
+#include "myButton.h"
+#include "softwareAccumulationOption.h"
+#include <array>
+#include <vector>
 
 class AndorCamera;
 class AndorCameraSettingsControl;
+
 
 struct displayTypeOption
 {
@@ -17,6 +20,7 @@ struct displayTypeOption
 	// zero-indexed.
 	UINT whichPicForDif = 0;
 };
+
 
 /*
  * This class handles all of the gui objects for assigning camera settings. It works closely with the Andor class
@@ -49,6 +53,8 @@ class PictureSettingsControl
 		void updateSettings( );
 		void setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj );
 		std::array<std::string, 4> getThresholdStrings();
+		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
+		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 	private:
 		AndorCameraSettingsControl* parentSettingsControl;
 		std::array<int, 4> colors;
@@ -64,6 +70,7 @@ class PictureSettingsControl
 		Control<CStatic> thresholdLabel;
 		Control<CStatic> colormapLabel;
 		Control<CStatic> displayTypeLabel;
+		Control<CStatic> softwareAccumulationLabel;
 		// 
 		std::array<Control<CButton>, 4> totalNumberChoice;
 		std::array<Control<CStatic>, 4> pictureNumbers;
@@ -71,6 +78,8 @@ class PictureSettingsControl
 		std::array<Control<DoubleEdit>, 4> thresholdEdits;
 		std::array<Control<CComboBox>, 4> colormapCombos;
 		std::array<Control<CComboBox>, 4> displayTypeCombos;
+		std::array<Control<CleanCheck>, 4> softwareAccumulateAll;
+		std::array<Control<CEdit>, 4> softwareAccumulateNum;
 };
 
 

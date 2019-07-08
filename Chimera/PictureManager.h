@@ -27,6 +27,7 @@ class PictureManager
 		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc );
 		void drawBackgrounds(CDC* easel);
 		void setPalletes(std::array<int, 4> palleteIds);
+		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
