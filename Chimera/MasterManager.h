@@ -29,7 +29,8 @@ class MasterManager
 		bool getIsPaused();
 		void abort();
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
-		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& currentMasterScript );
+		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript );
+		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
 		void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, RhodeSchwarz& rsg, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,

@@ -77,7 +77,6 @@ Refactoring / Other:
 - reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times, perhaps just grey'd out
 - reconsider how to handle initial dac and ttl values
-- gui level accumulation images
 - seems that there's still auto fitting stuff in the data analysis but I don't think this is supported anymore?
 - either only put the "overwriting function definition" when actually uses the save or remove this
 - consider refactoring expression to include the evaluated value in the object itself. This probably includes 
