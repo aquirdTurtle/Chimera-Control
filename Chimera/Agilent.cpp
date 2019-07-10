@@ -224,17 +224,11 @@ void Agilent::analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars
 
 void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
 {
-	std::ifstream scriptFile( infoObj.fileAddress );
-	if (!scriptFile.is_open())
-	{
-		thrower ( "Scripted Agilent File \"" + infoObj.fileAddress + "\" failed to open!" );
-	}
 	ScriptStream stream;
-	stream << scriptFile.rdbuf();
-	stream.seekg( 0 );
+	MasterManager::loadAgilentScript ( infoObj.fileAddress, stream );
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers( );
-	// Procedurally read lines into segment informations.
+	// Procedurally read lines into segment objects.
 	while (!stream.eof())
 	{
 		int leaveTest;

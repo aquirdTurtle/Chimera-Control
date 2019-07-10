@@ -925,6 +925,18 @@ void MasterManager::abort()
 	isAborting = true;
 }
 
+void MasterManager::loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript )
+{
+	std::ifstream scriptFile ( scriptAddress );
+	if ( !scriptFile.is_open ( ) )
+	{
+		thrower ( "Scripted Agilent File \"" + scriptAddress + "\" failed to open!" );
+	}
+	agilentScript << scriptFile.rdbuf ( );
+	agilentScript.seekg ( 0 );
+	scriptFile.close ( );
+}
+
 
 void MasterManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript )
 {
@@ -934,7 +946,7 @@ void MasterManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& n
 	fopen_s ( &file, cstr ( scriptAddress ), "r" );
 	if ( !file )
 	{
-		thrower ( "The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
+		thrower ( "The Niawg Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
 				  "open this file before starting the script analysis." );
 	}
 	else
