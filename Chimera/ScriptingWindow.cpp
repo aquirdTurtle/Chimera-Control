@@ -216,6 +216,8 @@ BOOL ScriptingWindow::OnInitDialog()
 	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG",
 							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
 							IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
+	niawgScript.setEnabled ( true, false );
+
 	startLocation = { 640, 28 };
 	
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
