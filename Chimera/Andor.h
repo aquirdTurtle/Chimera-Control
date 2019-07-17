@@ -94,7 +94,7 @@ class AndorCamera
 		AndorRunSettings getAndorSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
-		void armCamera(AndorWindow* camWin, double& minKineticCycleTime);
+		void armCamera( double& minKineticCycleTime );
 		std::vector<std::vector<long>> acquireImageData();
 		void setTemperature();
 		void setExposures();

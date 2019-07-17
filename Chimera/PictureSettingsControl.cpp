@@ -9,6 +9,7 @@
 #include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
+
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {
 	// introducing things row by row

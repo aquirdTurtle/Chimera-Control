@@ -10,7 +10,7 @@
 #include "NiawgController.h"
 
 struct niawgIntensityThreadInput;
-struct MasterThreadInput;
+struct ExperimentThreadInput;
 struct waitThreadInput
 {
 	NiawgController* niawg;

@@ -25,19 +25,20 @@ class MasterManager
 	public:
 		MasterManager();
 		void pause();
-		void unPause();
+		void unPause(); 
 		bool getIsPaused();
 		void abort();
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
-		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& currentMasterScript );
+		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript );
+		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
 		void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, RhodeSchwarz& rsg, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
 								  std::string& warnings );
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
-		HANDLE startExperimentThread(MasterThreadInput* input);
-		void loadMotSettings(MasterThreadInput* input);
+		HANDLE startExperimentThread(ExperimentThreadInput* input);
+		void loadMotSettings(ExperimentThreadInput* input);
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
