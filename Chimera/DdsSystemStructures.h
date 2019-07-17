@@ -1,4 +1,5 @@
 ﻿#pragma once 
+
 #include <array>
 
 struct ddsConnectionType
@@ -9,25 +10,27 @@ struct ddsConnectionType
 	};
 };
 
-struct ddsRampInfo
+struct ddsIndvRampListInfo
 {
+	USHORT index=0;
+
+	UINT channel=0;
+	Expression freq1="100"; // in MHZ
+	Expression freq2="100";
+	Expression amp1="100";  // between 0 and 100
+	Expression amp2="100";
+	Expression rampTime="500"; // in milliseconds
+};
+
+struct ddsRampBasic
+{
+	bool explicitlySet = false;
 	double freq1; // in MHZ
 	double freq2;
 	double amp1;  // between 0 and 100
 	double amp2;
-	double rampTime; // in milliseconds
 };
 
-struct ddsRampInfoForm
-{
-	USHORT index;
-	UINT channel;
-	Expression freq1Form; // in MHZ
-	Expression freq2Form;
-	Expression amp1Form;  // between 0 and 100
-	Expression amp2Form;
-	Expression rampTimeForm; // in milliseconds
-};
 
 template<typename type>
 class ddsBox
@@ -35,50 +38,79 @@ class ddsBox
 	public:
 		// a wrapper to make a matrix of "type" with the dimensions of the dds box - i.e. one value of "type" for each 
 		// channel of each board.
-		type& operator ()(UINT boardNumber, UINT channelNumber)
-		{
-			if ( boardNumber > 1 )
-			{
-				thrower ( "DDS board number out of range - should be 0 or 1" );
-			}
-			if ( channelNumber > 3 )
-			{
-				thrower ( "DDS channel number out of range - should be between 0 and 3 (inclusive)" );
-			}
-			return data[ boardNumber ][ channelNumber ];
-		}
+		type& operator ()( UINT boardNumber, UINT channelNumber );
+		type operator ()( UINT boardNumber, UINT channelNumber ) const;
 
-		type operator ()( UINT boardNumber, UINT channelNumber ) const
-		{
-			if ( boardNumber > 1 )
-			{
-				thrower ( "DDS board number out of range - should be 0 or 1" );
-			}
-			if ( channelNumber > 3 )
-			{
-				thrower ( "DDS channel number out of range - should be between 0 and 3 (inclusive)" );
-			}
-			return data[ boardNumber ][ channelNumber ];
-		}
-
-		std::array<type, 4>& getBoard ( UINT which )
-		{
-			if ( which > 1 )
-			{
-				thrower ( "DDS board number out of range - should be 0 or 1" );
-			}
-			return data[ boardNumber ];
-		}
-
-		UINT numBoards ( )
-		{
-			return 2;
-		}
-		UINT numChannels ( )
-		{
-			return 4;
-		}
+		std::array<std::array<type, 4>, 2>& getBoards ( );
+		std::array<type, 4>& getBoard ( UINT which );
+		UINT numBoards ( );
+		UINT numChannels ( );
 
 	private:
 		std::array<std::array<type, 4>, 2> data;
+};
+
+template<typename type>
+UINT ddsBox<type>::numBoards ( )
+{
+	return 2;
+}
+
+template<typename type>
+UINT ddsBox<type>::numChannels ( )
+{
+	return 4;
+}
+
+
+
+template<typename type>
+type& ddsBox<type>::operator ()( UINT boardNumber, UINT channelNumber )
+{
+	if ( boardNumber > 1 )
+	{
+		thrower ( "DDS board number out of range - should be 0 or 1" );
+	}
+	if ( channelNumber > 3 )
+	{
+		thrower ( "DDS channel number out of range - should be between 0 and 3 (inclusive)" );
+	}
+	return data[ boardNumber ][ channelNumber ];
+}
+
+template<typename type>
+type ddsBox<type>::operator ()( UINT boardNumber, UINT channelNumber ) const 
+{
+	if ( boardNumber > 1 )
+	{
+		thrower ( "DDS board number out of range - should be 0 or 1" );
+	}
+	if ( channelNumber > 3 )
+	{
+		thrower ( "DDS channel number out of range - should be between 0 and 3 (inclusive)" );
+	}
+	return data[ boardNumber ][ channelNumber ];
+}
+
+template<typename type>
+std::array<std::array<type, 4>, 2>& ddsBox<type>::getBoards ( )
+{
+	return data;
+}
+
+template<typename type>
+std::array<type, 4>& ddsBox<type>::getBoard ( UINT which )
+{
+	if ( which > 1 )
+	{
+		thrower ( "DDS board number out of range - should be 0 or 1" );
+	}
+	return data[ boardNumber ];
+}
+
+
+struct ddsRampFinFullInfo
+{
+	ddsBox<ddsRampBasic> rampParams;
+	double rampTime;
 };

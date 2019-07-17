@@ -31,7 +31,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	timer.tick("Procedure-Start");
 	/// initialize various structures
 	// convert the input to the correct structure.
-	MasterThreadInput* input = (MasterThreadInput*)voidInput;
+	ExperimentThreadInput* input = (ExperimentThreadInput*)voidInput;
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
@@ -91,8 +91,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;
+	auto& dds = input->dds;
+	
 	timer.tick("After-File-Init");
-
 	/// ////////////////////////////
 	/// start analysis & experiment
 	try
@@ -101,6 +102,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( !useAuxDevices )
 		{
 			 expUpdate ( "Non-standard experiment type, so Tektronics & RSG will not be run.", comm, quiet );
+		}
+		if ( input->runAndor )
+		{
+			double kinTime;
+			input->andorCamera.armCamera( kinTime );
 		}
 		aoSys.resetDacEvents( );
 		ttls.resetTtlEvents( );
@@ -118,8 +124,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		timer.tick("After-Init");
 		for ( auto seqNum : range( input->seq.sequence.size() ) )
 		{
-			auto& seqVariables = input->variables[seqNum];
-			//auto& seqConstants = input->constants[seqNum];
+			auto& seqVariables = input->parameters[seqNum];
 			auto& seq = expSeq.sequence[ seqNum ];
 			if ( seqNum == 0 )
 			{
@@ -182,7 +187,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				boost::replace_all ( debugStr, "\n", "\r\n" );
 				comm.sendDebug ( debugStr );
 			}
-			for ( auto& seqVariables : input->variables )
+			for ( auto& seqVariables : input->parameters )
 			{
 				input->niawg.writeStaticNiawg ( output, input->debugOptions, seqVariables );
 			}
@@ -202,18 +207,18 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			subTimer.tick ( "After-Shade-TTLs" );
 			aoSys.shadeDacs ( dacShadeLocs );
 			subTimer.tick ( "After-Shade-Dacs" );
-			ttls.interpretKey( input->variables );
+			ttls.interpretKey( input->parameters );
 			subTimer.tick ( "After-ttl-Interpret" );
-			aoSys.interpretKey( input->variables, warnings );
+			aoSys.interpretKey( input->parameters, warnings );
 			subTimer.tick ( "After-aoSys-Interpret" );
 		}
 		if ( useAuxDevices )
 		{
-			input->rsg.interpretKey ( input->variables );
+			input->rsg.interpretKey ( input->parameters );
 			subTimer.tick ( "After-rsg-Interpret" );
-			input->topBottomTek.interpretKey ( input->variables );
+			input->topBottomTek.interpretKey ( input->parameters );
 			subTimer.tick ( "After-topBottomTek-Interpret" );
-			input->eoAxialTek.interpretKey ( input->variables );
+			input->eoAxialTek.interpretKey ( input->parameters );
 			subTimer.tick ( "After-eoAxialTek-Interpret" );
 		}
 		timer.tick("After-Key-Interpretation");
@@ -221,7 +226,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
 		for ( auto seqInc : range( input->seq.sequence.size( ) ) )
 		{
-			auto& seqVariables = input->variables[seqInc];
+			auto& seqVariables = input->parameters[seqInc];
 			for ( UINT variationInc = 0; variationInc < variations; variationInc++ )
 			{
 				timer.tick("Var-"+str(variationInc)+"-start");
@@ -295,8 +300,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			handleDebugPlots( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
 		}
 		// update the colors of the global variable control.
-		input->globalControl.setUsages( input->variables );
-		for ( auto& seqvars : input->variables )
+		input->globalControl.setUsages( input->parameters );
+		for ( auto& seqvars : input->parameters )
 		{
 			for ( auto& var : seqvars )
 			{
@@ -343,7 +348,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )
 			{
-				for (auto tempVariable : input->variables[seqInc])
+				for (auto tempVariable : input->parameters[seqInc])
 				{
 					// if varies...
 					if (tempVariable.valuesVary)
@@ -368,7 +373,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			// program devices
 			for (auto& agilent : input->agilents)
 			{
-				agilent->setAgilent( variationInc, input->variables[0] );
+				agilent->setAgilent( variationInc, input->parameters[0] );
 			}
 			// check right number of triggers (currently must be done after agilent is set.
 			for ( auto& agilent : input->agilents )
@@ -853,7 +858,7 @@ bool MasterManager::runningStatus()
  * this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
  * knows exactly where to look for the MOT profile. This is currently hard-coded.
  */
-void MasterManager::loadMotSettings(MasterThreadInput* input)
+void MasterManager::loadMotSettings(ExperimentThreadInput* input)
 {	
 	if ( experimentIsRunning )
 	{
@@ -861,12 +866,12 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 		thrower ( "Experiment is Running! Please abort the current run before setting the MOT settings." );
 	}
 	input->thisObj = this;
-	ParameterSystem::generateKey( input->variables, false, input->variableRangeInfo );
+	ParameterSystem::generateKey( input->parameters, false, input->variableRangeInfo );
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 }
 
 
-HANDLE MasterManager::startExperimentThread(MasterThreadInput* input)
+HANDLE MasterManager::startExperimentThread(ExperimentThreadInput* input)
 {
 	if ( !input )
 	{
@@ -925,6 +930,18 @@ void MasterManager::abort()
 	isAborting = true;
 }
 
+void MasterManager::loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript )
+{
+	std::ifstream scriptFile ( scriptAddress );
+	if ( !scriptFile.is_open ( ) )
+	{
+		thrower ( "Scripted Agilent File \"" + scriptAddress + "\" failed to open!" );
+	}
+	agilentScript << scriptFile.rdbuf ( );
+	agilentScript.seekg ( 0 );
+	scriptFile.close ( );
+}
+
 
 void MasterManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript )
 {
@@ -934,7 +951,7 @@ void MasterManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& n
 	fopen_s ( &file, cstr ( scriptAddress ), "r" );
 	if ( !file )
 	{
-		thrower ( "The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
+		thrower ( "The Niawg Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
 				  "open this file before starting the script analysis." );
 	}
 	else

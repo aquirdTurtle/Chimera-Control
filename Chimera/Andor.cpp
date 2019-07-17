@@ -237,7 +237,7 @@ void AndorCamera::setAcquisitionMode()
 /* 
 	* Large function which initializes a given camera image run.
 	*/
-void AndorCamera::armCamera(AndorWindow* camWin, double& minKineticCycleTime)
+void AndorCamera::armCamera( double& minKineticCycleTime )
 {
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
@@ -273,25 +273,14 @@ void AndorCamera::armCamera(AndorWindow* camWin, double& minKineticCycleTime)
 	}
 	setGainMode();
 	setCameraTriggerMode();
-	// Set trigger mode.
-	// check plotting parameters
-	/// TODO!
+	/// TODO! 
+	// 7/11/2019 I'm confused about the following warning
 	// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting 
-	// thread since the plotting thread hasn't
-	// started yet. If moving stuff around, be careful.
-	// Initialize the thread accumulation number.
-	// this->??? = 1;
+	// thread since the plotting thread hasn't started yet. If moving stuff around, be careful.
 	// //////////////////////////////
 	queryStatus();
 
-	/// Do some plotting stuffs
-	//eAlerts.setAlertThreshold();
-	//ePicStats.reset();
-
-	// the lock is released when the lock object function goes out of scope, which happens immediately after
-	// the start acquisition call
-	//std::lock_guard<std::mutex> lock( threadInput.runMutex );
-	
+	/// Do some plotting stuffs 
 	// get the min time after setting everything else.
 	minKineticCycleTime = getMinKineticCycleTime( );
 
@@ -300,7 +289,6 @@ void AndorCamera::armCamera(AndorWindow* camWin, double& minKineticCycleTime)
 	threadInput.spuriousWakeupHandler = true;
 	// notify the thread that the experiment has started..
 	threadInput.signaler.notify_all();
-	
 	startAcquisition();
 }
 

@@ -183,13 +183,13 @@ niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> tar
 }
 
 
-void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings,
+void NiawgController::programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings,
 									UINT variation, UINT totalVariations,  std::vector<long>& variedMixedSize, 
 									std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
 									rerngGuiOptions& rerngGui )
 {
 	input->comm.sendColorBox( System::Niawg, 'Y' );
-	input->niawg.handleVariations( output, input->variables, variation, variedMixedSize, warnings, input->debugOptions,
+	input->niawg.handleVariations( output, input->parameters, variation, variedMixedSize, warnings, input->debugOptions,
 									totalVariations, rerngGuiForm, rerngGui );
 	if ( input->settings.dontActuallyGenerate ) { return; }
 
@@ -231,7 +231,7 @@ void NiawgController::initForExperiment ( )
 }
 
 // this function checks if should be rearranging and if so starts the thread.
-void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output )
+void NiawgController::handleStartingRerng( ExperimentThreadInput* input, NiawgOutput& output )
 {
 	bool foundRearrangement = false;
 	// check if any waveforms are rearrangement instructions.

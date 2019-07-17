@@ -21,7 +21,7 @@ FEATURES:
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
-- restore ability to look multi-pixel conditions / events in plots
+- restore ability to look multi-pixel conditions / events in real time analysis plots
 - improve experiment status; include which config was run, variable options
 - report oscilloscope data to datalogger
 - report initial values of dacs and ttls to datalogger
@@ -29,7 +29,7 @@ FEATURES:
 - improve delete file after abort functionality
 	- decorate name, delete after a while, or something similar.
 - Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
-	variations.
+	variations, etc.
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
@@ -77,7 +77,6 @@ Refactoring / Other:
 - reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times, perhaps just grey'd out
 - reconsider how to handle initial dac and ttl values
-- gui level accumulation images
 - seems that there's still auto fitting stuff in the data analysis but I don't think this is supported anymore?
 - either only put the "overwriting function definition" when actually uses the save or remove this
 - consider refactoring expression to include the evaluated value in the object itself. This probably includes 
@@ -98,7 +97,7 @@ BUGS:
 - seems like master configuration file can get corrupted if saving fails - should do something to safeguard this...
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
 - if taking pictures too fast code can freeze while pics getting handled.
-- err boxes don't grab focus of entire program
+- err boxes don't grab focus of entire program - annoying to fix...
 - should be able to change basler image dimensions edits while running
 - constant beeping if no mot and continuous freezes things basler
 - figure out why figure update seems to cause main thread window thread to freak out

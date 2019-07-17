@@ -116,7 +116,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	settings.channel[0].option = AgilentChannelMode::which::No_Control;
 	settings.channel[1].option = AgilentChannelMode::which::No_Control;
 	currentChannel = 1;
-	agilentScript.setEnabled ( false );
+	agilentScript.setEnabled ( false, false );
 
 	programSetupCommands ( );
 }
@@ -224,17 +224,11 @@ void Agilent::analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars
 
 void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
 {
-	std::ifstream scriptFile( infoObj.fileAddress );
-	if (!scriptFile.is_open())
-	{
-		thrower ( "Scripted Agilent File \"" + infoObj.fileAddress + "\" failed to open!" );
-	}
 	ScriptStream stream;
-	stream << scriptFile.rdbuf();
-	stream.seekg( 0 );
+	MasterManager::loadAgilentScript ( infoObj.fileAddress, stream );
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers( );
-	// Procedurally read lines into segment informations.
+	// Procedurally read lines into segment objects.
 	while (!stream.eof())
 	{
 		int leaveTest;
@@ -399,13 +393,13 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 		case AgilentChannelMode::which::No_Control:
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
-			agilentScript.setEnabled ( false );
+			agilentScript.setEnabled ( false, false );
 			settingCombo.SetCurSel( 0 );
 			break;
 		case AgilentChannelMode::which::Output_Off:
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
-			agilentScript.setEnabled ( false );
+			agilentScript.setEnabled ( false, false );
 			settingCombo.SetCurSel( 1 );
 			break;
 		case AgilentChannelMode::which::DC:
@@ -413,7 +407,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput.expressionStr);
 			settingCombo.SetCurSel( 2 );
 			calibratedButton.SetCheck( settings.channel[chan].dc.useCalibration );
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Sine:
 			agilentScript.reset ( );
@@ -421,7 +415,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 										 + settings.channel[chan].sine.amplitudeInput.expressionStr);
 			settingCombo.SetCurSel( 3 );
 			calibratedButton.SetCheck( settings.channel[chan].sine.useCalibration );
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Square:
 			agilentScript.reset ( );
@@ -430,14 +424,14 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 										 + settings.channel[chan].square.offsetInput.expressionStr );
 			settingCombo.SetCurSel( 4 );
 			calibratedButton.SetCheck( settings.channel[chan].square.useCalibration );
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Preloaded:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(settings.channel[chan].preloadedArb.address);
 			settingCombo.SetCurSel( 5 );
 			calibratedButton.SetCheck( settings.channel[chan].preloadedArb.useCalibration );
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Script:
 			settingCombo.SetCurSel( 6 );
@@ -446,7 +440,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			agilentScript.openParentScript( settings.channel[chan].scriptedArb.fileAddress, currentCategoryPath, 
 											currentRunInfo );
 			calibratedButton.SetCheck( settings.channel[chan].scriptedArb.useCalibration );
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		default:
 			thrower ( "unrecognized agilent setting: " + AgilentChannelMode::toStr(settings.channel[chan].option));
@@ -482,37 +476,37 @@ void Agilent::handleModeCombo()
 		case 0:
 			optionsFormat.SetWindowTextA( "---" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::No_Control;
-			agilentScript.setEnabled ( false );
+			agilentScript.setEnabled ( false, false );
 			break;
 		case 1:
 			optionsFormat.SetWindowTextA( "---" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::Output_Off;
-			agilentScript.setEnabled ( false );
+			agilentScript.setEnabled ( false, false );
 			break;
 		case 2:
 			optionsFormat.SetWindowTextA( "[DC Level]" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::DC;
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case 3:
 			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)]" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::Sine;
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case 4:
 			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)] [Offset(V)]" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::Square;
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case 5:
 			optionsFormat.SetWindowTextA( "[File Address]" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::Preloaded;
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 		case 6:
 			optionsFormat.SetWindowTextA( "Hover over \"?\"" );
 			settings.channel[selectedChannel].option = AgilentChannelMode::which::Script;
-			agilentScript.setEnabled ( true );
+			agilentScript.setEnabled ( true, false );
 			break;
 	}
 }
