@@ -26,7 +26,7 @@
 
 #include <boost/container/vector.hpp>
 
-struct MasterThreadInput;
+struct ExperimentThreadInput;
 struct seqInfo;
 class NiawgWaiter;
 
@@ -45,7 +45,7 @@ class NiawgController
 		bool rerngThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
-		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
+		void handleStartingRerng( ExperimentThreadInput* input, NiawgOutput& output );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		
 		void handleVariations( NiawgOutput& output, std::vector<std::vector<parameterType>>& variables, UINT variation, 
@@ -77,7 +77,7 @@ class NiawgController
 		void turnOffRerng( );
 		void waitForRerng( bool andClearWvfm );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
-		void programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
+		void programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
 						   UINT totalVariations, std::vector<long>& variedMixedSize, 
 						   std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
 						   rerngGuiOptions& rerngGui );

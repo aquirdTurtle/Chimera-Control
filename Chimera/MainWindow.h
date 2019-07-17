@@ -41,6 +41,7 @@ class MainWindow : public CDialog
 	using CDialog::CDialog;
 	DECLARE_DYNAMIC(MainWindow);
 	public:
+		void showHardwareStatus ( );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 	    // overrides
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
@@ -78,7 +79,7 @@ class MainWindow : public CDialog
 
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
-		void loadCameraCalSettings( MasterThreadInput* input );
+		void loadCameraCalSettings( ExperimentThreadInput* input );
 		void stopRearranger( );
 		void waitForRearranger( );
 		void passCommonCommand( UINT id );
@@ -94,15 +95,15 @@ class MainWindow : public CDialog
 		// auxiliary functions used by the window.
 		void setNotes(std::string notes);
 		void setNiawgDefaults();
-		void fillMasterThreadInput( MasterThreadInput* input );
-		void fillMasterThreadSequence( MasterThreadInput* input );
-		void fillMotInput( MasterThreadInput* input);
-		void fillTempInput ( MasterThreadInput* input );
-		void fillMotTempProfile ( MasterThreadInput* input );
-		void fillRedPgcTempProfile ( MasterThreadInput* input );
-		void fillGreyPgcTempProfile ( MasterThreadInput* input );
+		void fillMasterThreadInput( ExperimentThreadInput* input );
+		void fillMasterThreadSequence( ExperimentThreadInput* input );
+		void fillMotInput( ExperimentThreadInput* input);
+		void fillTempInput ( ExperimentThreadInput* input );
+		void fillMotTempProfile ( ExperimentThreadInput* input );
+		void fillRedPgcTempProfile ( ExperimentThreadInput* input );
+		void fillGreyPgcTempProfile ( ExperimentThreadInput* input );
 
-		HANDLE startExperimentThread( MasterThreadInput* input, bool isTurnOnMot );
+		HANDLE startExperimentThread( ExperimentThreadInput* input, bool isTurnOnMot );
 		
 		std::string getNotes( );
 		fontMap getFonts();
@@ -129,14 +130,14 @@ class MainWindow : public CDialog
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
-		void fillMotSizeInput ( MasterThreadInput* input );
+		void fillMotSizeInput ( ExperimentThreadInput* input );
 		bool niawgIsRunning();
 		bool masterIsRunning();
 		void setNiawgRunningState( bool newRunningState );
 		RunInfo getRunInfo();
 		void handleFinish();
 		UINT getRepNumber();
-		void logParams( DataLogger* logger, MasterThreadInput* input );
+		void logParams( DataLogger* logger, ExperimentThreadInput* input );
 		bool experimentIsPaused( );
 		void notifyConfigUpdate( );
 		void passConfigPress( );

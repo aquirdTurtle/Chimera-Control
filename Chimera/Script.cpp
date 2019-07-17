@@ -1113,11 +1113,11 @@ void Script::saveAsFunction(Communicator* comm)
 }
 
 
-void Script::setEnabled ( bool enabled )
+void Script::setEnabled ( bool enabled, bool functionsEnabled )
 {
 	edit.SetReadOnly( !enabled );
 	edit.SetBackgroundColor ( false, enabled ? _myRGBs["Interactable-Bkgd"] : _myRGBs[ "Disabled-Bkgd" ] );
-	availableFunctionsCombo.EnableWindow ( enabled );
+	availableFunctionsCombo.EnableWindow ( functionsEnabled );
 }
 
 

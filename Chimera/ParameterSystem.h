@@ -52,11 +52,11 @@ class ParameterSystem
 		void addParameter( parameterType var );
 		void reorderVariableDimensions ( );
 		void removeVariableDimension();
-		void clearVariables ( );
+		void clearParameters ( );
 		void flattenScanDimensions ( );
 		void checkScanDimensionConsistency ( );
 		void checkVariationRangeConsistency ( );
-		void saveVariable ( std::ofstream& saveFile, parameterType variable );
+		void saveParameter ( std::ofstream& saveFile, parameterType variable );
 		static void generateKey ( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
 								  ScanRangeInfo inputRangeInfo );
 		static std::vector<parameterType> combineParametersForExperimentThread ( std::vector<parameterType>& masterVars,
@@ -83,8 +83,8 @@ class ParameterSystem
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
 		// file handling
-		static parameterType loadVariableFromFile ( std::ifstream& openFile, Version ver, ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> getVariablesFromFile ( std::ifstream& configFile, Version ver, ScanRangeInfo inputRangeInfo );
+		static parameterType loadParameterFromFile ( std::ifstream& openFile, Version ver, ScanRangeInfo inputRangeInfo );
+		static std::vector<parameterType> getParametersFromFile ( std::ifstream& configFile, Version ver, ScanRangeInfo inputRangeInfo );
 		static ScanRangeInfo getRangeInfoFromFile ( std::ifstream& configFile, Version ver );
 		static std::vector<parameterType> getConfigParamsFromFile ( std::string configFile );
 		static ScanRangeInfo getRangeInfoFromFile ( std::string configFileName );
