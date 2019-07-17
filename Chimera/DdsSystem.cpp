@@ -7,13 +7,17 @@
 #include "afxcmn.h"
 #include <boost/lexical_cast.hpp>
 
-DdsSystem::DdsSystem ( bool ftSafemode ) : ftFlume ( ftSafemode ) { }
+DdsSystem::DdsSystem ( bool ftSafemode ) : core( ftSafemode ) { }
 
 void DdsSystem::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title )
 {
 	ddsHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	ddsHeader.fontType = fontTypes::HeadingFont; 
 	ddsHeader.Create ( cstr ( title ), NORM_HEADER_OPTIONS, ddsHeader.sPos, parent, id++ );
+
+	programNowButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	programNowButton.fontType = fontTypes::NormalFont;
+	programNowButton.Create ( "Program Now", NORM_PUSH_OPTIONS, programNowButton.sPos, parent, IDC_DDS_PROGRAM_NOW );
 
 	RECT r1;
 	parent->GetClientRect ( &r1 );
@@ -36,50 +40,10 @@ void DdsSystem::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int&
 }
 
 void DdsSystem::rearrange ( UINT width, UINT height, fontMap fonts )
-{
-	ddsHeader.rearrange ( width, height, fonts );
+{ 
 	rampListview.rearrange ( width, height, fonts );
-}
-
-void DdsSystem::writeExperiment ( std::vector<ddsBox<ddsRampInfo>> rampInfo )
-{
-	if ( rampInfo.size ( ) == 0 )
-	{
-		return;
-	}
-	// why do I reconnect here?
-	connectasync ( );
-	lockPLLs ( );
-	for (auto boardNum : range( rampInfo.front().numBoards() ) )
-	{
-		for ( auto channelNum : range ( rampInfo.front ( ).numChannels ( ) ) )
-		{
-			writeArrResetFreq ( boardNum, channelNum, rampInfo.front ( ) ( boardNum, channelNum ).freq1 );
-			writeArrResetAmp ( boardNum, channelNum, rampInfo.front ( ) ( boardNum, channelNum ).amp1 );
-		}
-	}
-	for (auto rampIndex : range(rampInfo.size()) ) 
-	{
-		if ( rampIndex > 0 )
-		{
-			for ( auto boardNum : range ( rampInfo[ rampIndex ].numBoards ( ) ) )
-			{
-				for (auto channelNum : range ( rampInfo[ rampIndex ].numChannels ( ) ) )
-				{
-					auto& thisRamp = rampInfo[ rampIndex ] ( boardNum, channelNum );
-					auto& prevRamp = rampInfo[ rampIndex-1 ] ( boardNum, channelNum );
-					if ( thisRamp.freq1 != prevRamp.freq2 || thisRamp.amp1 != prevRamp.amp2 )
-					{
-						thrower ( "Initial ramp conditions should match the final ramp conditions of the previous ramp."
-									"This wasn't the case for ramp Index " + str ( rampIndex ) + " for Board number "
-									+ str ( boardNum ) + ", Channel number " + str ( channelNum ) );
-					}
-				}
-			}
-		}
-		writeOneRamp ( rampInfo[ rampIndex ], rampIndex );
-	}
-	longUpdate ( );
+	ddsHeader.rearrange ( width, height, fonts );
+	programNowButton.rearrange ( width, height, fonts );
 }
 
 void DdsSystem::redrawListview ( )
@@ -90,11 +54,11 @@ void DdsSystem::redrawListview ( )
 		auto& ramp = currentRamps[ rampInc ];
 		rampListview.InsertItem ( str ( ramp.index ), rampInc, 0 );
 		rampListview.SetItem ( str ( ramp.channel ), rampInc, 1 );
-		rampListview.SetItem ( str ( ramp.freq1Form.expressionStr ), rampInc, 2 );
-		rampListview.SetItem ( str ( ramp.amp1Form.expressionStr ), rampInc, 3 );
-		rampListview.SetItem ( str ( ramp.freq2Form.expressionStr ), rampInc, 4 );
-		rampListview.SetItem ( str ( ramp.amp2Form.expressionStr ), rampInc, 5 );
-		rampListview.SetItem ( str ( ramp.rampTimeForm.expressionStr ), rampInc, 6 );
+		rampListview.SetItem ( str ( ramp.freq1.expressionStr ), rampInc, 2 );
+		rampListview.SetItem ( str ( ramp.amp1.expressionStr ), rampInc, 3 );
+		rampListview.SetItem ( str ( ramp.freq2.expressionStr ), rampInc, 4 );
+		rampListview.SetItem ( str ( ramp.amp2.expressionStr ), rampInc, 5 );
+		rampListview.SetItem ( str ( ramp.rampTime.expressionStr ), rampInc, 6 );
 	}
 	rampListview.insertBlankRow ( );
 }
@@ -112,7 +76,7 @@ void DdsSystem::handleRampClick (  )
 	rampListview.SubItemHitTest ( &myItemInfo );
 	int subitem, itemIndicator;
 	itemIndicator = myItemInfo.iItem;
-	if ( itemIndicator == -1 )
+	if ( itemIndicator < 0  )
 	{
 		return;
 	}
@@ -141,7 +105,7 @@ void DdsSystem::handleRampClick (  )
 			USHORT newIndex;
 			try
 			{
-				newIndex = boost::lexical_cast<USHORT>( newIndex );
+				newIndex = boost::lexical_cast<USHORT>( newIndexStr );
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
@@ -195,18 +159,17 @@ void DdsSystem::handleRampClick (  )
 				}
 				switch ( subitem )
 				{
-					case 2: ramp.freq1Form = valStr;		break;
-					case 3: ramp.amp1Form = valStr;			break;
-					case 4: ramp.freq2Form = valStr;		break;
-					case 5: ramp.amp2Form = valStr;			break;
-					case 6: ramp.rampTimeForm = valStr;		break;
+					case 2: ramp.freq1 = valStr;		break;
+					case 3: ramp.amp1 = valStr;			break;
+					case 4: ramp.freq2 = valStr;		break;
+					case 5: ramp.amp2 = valStr;			break;
+					case 6: ramp.rampTime = valStr;		break;
 				}
 			}
 		}
 	}
 	redrawListview ( );
 }
-
 
 void DdsSystem::deleteRampVariable ( )
 {
@@ -239,249 +202,27 @@ void DdsSystem::deleteRampVariable ( )
 	redrawListview ( );
 }
 
-
-// this probably needs an overload with a default value for the empty parameters case...
-std::vector<ddsBox<ddsRampInfo>> DdsSystem::evaluateDdsInfoForm ( std::vector<ddsBox<ddsRampInfoForm>> rampInfoForm )
+void DdsSystem::programNow ( )
 {
-	std::vector<ddsBox<ddsRampInfo>> rampInfo( rampInfoForm.size() );
-	std::vector<parameterType> emptyParamVec;
-	for ( auto seqInc : range( rampInfoForm.size() ) )
+	try
 	{
-		for ( auto whichBoard : range(2) )
-		{
-			for (auto whichChannel : range(4) )
-			{
-				auto& channel = rampInfo[seqInc](whichBoard , whichChannel );
-				auto& channelForm = rampInfoForm[ seqInc ] ( whichBoard, whichChannel );
-				channel.freq1 = channelForm.freq1Form.evaluate ( emptyParamVec, -1 );
-				channel.freq2 = channelForm.freq2Form.evaluate ( emptyParamVec, -1 );
-				channel.amp1 = channelForm.amp1Form.evaluate ( emptyParamVec, -1 );
-				channel.amp2 = channelForm.amp2Form.evaluate ( emptyParamVec, -1 );
-				channel.rampTime = channelForm.rampTimeForm.evaluate ( emptyParamVec, -1 );
-			}
-		}
+		ExpWrap<std::vector<ddsIndvRampListInfo>> simpleExp;
+		simpleExp.resizeSeq ( 1 );
+		simpleExp.resizeVariations ( 0, 1 );
+		simpleExp ( 0, 0 ) = currentRamps;
+		core.updateRampLists ( simpleExp );
+		core.evaluateDdsInfo ( );
+		core.generateFullExpInfo ( );
+		core.writeExperiment ( 0, 0 );
 	}
-	return rampInfo;
-}
-
-// a low level write wrapper around the ftFlume write
-void DdsSystem::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, UINT8 dat3, UINT8 dat4 )
-{
-	if ( this->connType == ddsConnectionType::type::Async )
+	catch ( Error& )
 	{
-		// None of these should be possible based on the types of these args. 
-		if ( DEVICE > 255 || ADDRESS > 65535 || dat1 > 255 || dat2 > 255 || dat3 > 255 || dat4 > 255 )
-		{
-			thrower ( "Error: DDS write out of range." );
-		}
-		UINT8 ADDRESS_LO = ADDRESS & 0x00ffUL;
-		UINT8 ADDRESS_HI = ( ADDRESS & 0xff00UL ) >> 8;
-		std::vector<unsigned char> input = { unsigned char ( WBWRITE + DEVICE ), ADDRESS_HI, ADDRESS_LO, dat1, dat2, dat3, dat4 };
-		ftFlume.write ( input, MSGLENGTH );
-	}
-	else
-	{
-		thrower ( "Incorrect connection type, should be ASYNC" );
-	}
-
-}
-
-// a wrapper around the ftFlume open
-void DdsSystem::connectasync()
-{
-	DWORD numDevs = ftFlume.getNumDevices();
-	if (numDevs > 0)
-	{
-		ftFlume.open("FT1FJ8PEB");
-		ftFlume.setUsbParams();
-		connType = ddsConnectionType::type::Async;
-	}
-	else
-	{
-		thrower("No devices found.");
+		throwNested ( "Error seen while programming DDS system via Program Now Button." );
 	}
 }
 
-void DdsSystem::disconnect ( )
+
+std::string DdsSystem::getSystemInfo ( )
 {
-	ftFlume.close ( );
+	return core.getSystemInfo();
 }
-
-INT DdsSystem::getFTW(double freq) 
-{ 
-	// units expected???
-
-	// Negative ints, Nyquist resetFreq, works out.
-	if (freq > INTERNAL_CLOCK / 2) 
-	{
-		thrower("DDS frequency out of range. Must be < 250MHz.");
-		return 0;
-	}
-	return (INT) round ( ( freq * pow ( 2, 32 ) ) / ( INTERNAL_CLOCK ) );;
-}
-
-UINT DdsSystem::getATW(double amp) 
-{
-	// input is a percentage (/100) of the maximum amplitude
-	if (amp > 100) 
-	{
-		thrower("DDS amplitude out of range, should be < 100 %");
-	}
-	return (UINT) round ( amp * ( pow ( 2, 10 ) - 1 ) / 100.0 );
-}
-
-INT DdsSystem::get32bitATW(double amp) 
-{
-	// why do we need this and the getATW function?
-	//SIGNED
-	if (abs(amp) > 100) 
-	{
-		thrower("ERROR: DDS amplitude out of range, should be < 100%.");
-	}
-	return (INT) round ( amp * ( pow ( 2, 32 ) - pow ( 2, 22 ) ) / 100.0 );
-}
-
-void DdsSystem::longUpdate() 
-{
-	// what's this??? 
-	writeDDS(0, 0x1d, 0, 0, 0, 1);
-	writeDDS(1, 0x1d, 0, 0, 0, 1);
-}
-
-void DdsSystem::lockPLLs() 
-{
-	writeDDS(0, 1, 0, 0b10101000, 0, 0);
-	writeDDS(1, 1, 0, 0b10101000, 0, 0);
-	longUpdate();
-	Sleep(100); //This delay is critical, need to give the PLL time to lock.
-}
-
-void DdsSystem::channelSelect(UINT8 device, UINT8 channel) 
-{
-	// ??? this is hard-coded...
-	UINT8 CW = 0b11100000;
-	//CW |= 1 << (channel + 4);
-	writeDDS(device, 0, 0, 0, 0, CW);
-}
-
-void DdsSystem::writeFreq(UINT8 device, UINT8 channel, double freq) 
-{
-	UINT FTW = getFTW(freq);
-	UINT8 byte4 = FTW & 0x000000ffUL;
-	UINT8 byte3 = (FTW & 0x0000ff00UL) >> 8;
-	UINT8 byte2 = (FTW & 0x00ff0000UL) >> 16;
-	UINT8 byte1 = (FTW & 0xff000000UL) >> 24;
-	//TODO: Fix this. Currently sets FTW to zero and then back (to what?) to force a rewrite, 
-	// solving issue with inactive channels. (??? looks like chris might have already fixed this?)
-	//write(device, 4, 0, 0, 0, 0);
-	writeDDS(device, 4, byte1, byte2, byte3, byte4);
-	//longupdate();
-}
-
-void DdsSystem::writeAmp(UINT8 device, UINT8 channel, double amp) 
-{
-	UINT ATW = getATW(amp);
-	UINT8 byte2 = ATW & 0x000000ffUL;
-	UINT8 byte1 = ATW >> 8;
-
-	//Necessary to turn on amplitude multiplier.
-	byte1 |= 1 << 4; 
-	// only needs two bytes?
-	writeDDS(device, 6, 0, 0, byte1, byte2);
-}
-
-void DdsSystem::writeArrResetFreq(UINT8 device, UINT8 channel, double freq) 
-{
-	UINT16 address = 4 * device + 3 - channel;
-	// This looks strange. FTW is an insigned int but it's being bitwise compared to an unsigned long. (the UL suffix)
-	UINT FTW = getFTW(freq);
-	UINT8 byte4 = FTW & 0x000000ffUL;
-	UINT8 byte3 = (FTW & 0x0000ff00UL) >> 8;
-	UINT8 byte2 = (FTW & 0x00ff0000UL) >> 16;
-	UINT8 byte1 = (FTW & 0xff000000UL) >> 24;
-	writeDDS(WBWRITE_ARRAY, address, byte1, byte2, byte3, byte4);
-}
-
-void DdsSystem::writeArrResetAmp(UINT8 device, UINT8 channel, double amp) 
-{
-	UINT16 address = 0x100 + 4 * device + 3 - channel;
-	UINT32 ATW = getATW(amp);
-	ATW = ATW << 22;
-	UINT8 byte4 = ATW & 0x000000ffUL;
-	UINT8 byte3 = (ATW & 0x0000ff00UL) >> 8;
-	UINT8 byte2 = (ATW & 0x00ff0000UL) >> 16;
-	UINT8 byte1 = (ATW & 0xff000000UL) >> 24;
-
-	writeDDS(WBWRITE_ARRAY, address, byte1, byte2, byte3, byte4);
-}
-
-void DdsSystem::writeArrReps(UINT8 index, UINT16 reps) 
-{
-
-	UINT16 address = 0x200 + index;
-
-	UINT8 byte4 = reps & 0x000000ffUL;
-	UINT8 byte3 = (reps & 0x0000ff00UL) >> 8;
-	UINT8 byte2 = 0;
-	UINT8 byte1 = 0;
-
-	writeDDS(WBWRITE_ARRAY, address, byte1, byte2, byte3, byte4);
-}
-
-double DdsSystem::calcDeltaFreq(double freq1, double freq2, int reps) 
-{
-	double deltaFreq = (freq2 - freq1) / (reps);
-	return(deltaFreq);	
-}
-
-double DdsSystem::calcDeltaAmp(double amp1, double amp2, int reps) 
-{
-	double deltaAmp = (amp2 - amp1) / (reps);
-	return(deltaAmp);
-}
-
-INT DdsSystem::getRepsFromTime(double time) 
-{
-	// units of time is in milliseconds
-	double deltaTime = 8e-3; //8 usec
-	INT repNum = (int)((time / deltaTime) + 0.5);
-	return(repNum);
-}
-
-void DdsSystem::writeArrDeltaFreq(UINT8 device, UINT8 channel, UINT8 index, double deltafreq) 
-{
-	UINT16 address = 0x400 + 0x200 * (4 * device + 3 - channel) + index;
-	UINT FTW = getFTW(deltafreq);
-	UINT8 byte4 = FTW & 0x000000ffUL;
-	UINT8 byte3 = (FTW & 0x0000ff00UL) >> 8;
-	UINT8 byte2 = (FTW & 0x00ff0000UL) >> 16;
-	UINT8 byte1 = (FTW & 0xff000000UL) >> 24;
-	writeDDS(WBWRITE_ARRAY, address, byte1, byte2, byte3, byte4);
-}
-
-void DdsSystem::writeArrDeltaAmp(UINT8 device, UINT8 channel, UINT8 index, double deltaamp) 
-{
-	UINT16 address = 0x1400 + 0x200 * (4 * device + 3 - channel) + index;
-	INT ATW = get32bitATW(deltaamp);
-	UINT8 byte4 = ATW & 0x000000ffUL;
-	UINT8 byte3 = (ATW & 0x0000ff00UL) >> 8;
-	UINT8 byte2 = (ATW & 0x00ff0000UL) >> 16;
-	UINT8 byte1 = (ATW & 0xff000000UL) >> 24;
-	writeDDS(WBWRITE_ARRAY, address, byte1, byte2, byte3, byte4);
-}
-
-void DdsSystem::writeOneRamp(ddsBox<ddsRampInfo> boxRamp, UINT8 rampIndex) 
-{
-	for (auto boardNum : range(boxRamp.numBoards() ) ) 
-	{
-		for (auto channelNum : range(boxRamp.numChannels()) )
-		{
-			auto& channel = boxRamp(boardNum, channelNum);
-			auto reps = getRepsFromTime( channel.rampTime );
-			writeArrReps( rampIndex,reps);
-			writeArrDeltaFreq( boardNum, channelNum, rampIndex, calcDeltaFreq ( channel.freq1, channel.freq2, reps ) );
-			writeArrDeltaAmp( boardNum, channelNum, rampIndex, calcDeltaAmp ( channel.amp1, channel.amp2, reps ) );
-		}
-	}
-}
-

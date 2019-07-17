@@ -24,7 +24,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
 		ttlBoard ( true, true, DIO_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
-		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( true )
+		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE )
 {}
 
 
@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
+	ON_COMMAND( IDC_DDS_PROGRAM_NOW, &programDds )
 
 	ON_MESSAGE ( MainWindow::AutoServoMessage, &autoServo )
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
@@ -101,6 +102,20 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::programDds ( )
+{
+	try
+	{
+		dds.programNow ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
+
 
 void AuxiliaryWindow::DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
@@ -509,7 +524,7 @@ void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 }
 
 
-void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
+void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 {
 	try
 	{
@@ -519,8 +534,8 @@ void AuxiliaryWindow::loadCameraCalSettings( MasterThreadInput* input )
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
-		input->variables.clear( );
-		input->variables.push_back( globalParameters.getAllParams( ) );
+		input->parameters.clear( );
+		input->parameters.push_back( globalParameters.getAllParams( ) );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		// Only do this once of course.
 		input->repetitionNumber = 1;
@@ -785,7 +800,7 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 void AuxiliaryWindow::clearVariables()
 {
 	mainWin->updateConfigurationSavedStatus ( false );
-	configParameters.clearVariables();
+	configParameters.clearParameters();
 }
 
 
@@ -999,7 +1014,7 @@ DioSystem& AuxiliaryWindow::getTtlBoard ( )
 }
 
 /// these three at the moment are identical. keeping for the moment in case I find I need to change something.
-void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
+void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 {
 	try
 	{
@@ -1024,7 +1039,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 		globalParameters.setUsages ( { globals } );
 		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
-		input->variables = experimentVars;
+		input->parameters = experimentVars;
 		///
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
@@ -1041,7 +1056,7 @@ void AuxiliaryWindow::loadTempSettings ( MasterThreadInput* input )
 }
 
 
-void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
+void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
 {
 	try
 	{
@@ -1051,8 +1066,8 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->variables.clear( );
-		input->variables.push_back(globalParameters.getAllParams());
+		input->parameters.clear( );
+		input->parameters.push_back(globalParameters.getAllParams());
 		input->variableRangeInfo.defaultInit ( );
 		input->variableRangeInfo(0,0).variations = 1;
 		// Only set it once, clearly.
@@ -1087,15 +1102,20 @@ AiSystem& AuxiliaryWindow::getAiSys ( )
 	return aiSys;
 }
 
+DdsSystem& AuxiliaryWindow::getDds ( )
+{
+	return dds;
+}
 
-void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
+
+void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	try
 	{
 		input->auxWin = this;
 		input->dacData = dacData;
 		input->ttlData = ttlData;
-		/// variables.
+		/// Parameters.
 		std::vector<std::vector<parameterType>> experimentVars;
 		for ( auto seqFile : input->seq.sequence )
 		{
@@ -1108,19 +1128,7 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 		}
 		input->variableRangeInfo.reset ( );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
-		input->variables = experimentVars;
-		input->constants.resize ( input->variables.size ( ) );
-		// it's important to do this after the key is generated so that the constants have their values.
-		for ( auto seqInc : range ( input->variables.size ( ) ) )
-		{
-			for ( auto& variable : input->variables[ seqInc ] )
-			{
-				if ( variable.constant )
-				{
-					input->constants[ seqInc ].push_back ( variable );
-				}
-			}
-		}
+		input->parameters = experimentVars;
 		for ( auto& ag : agilents )
 		{
 			input->agilents.push_back ( &ag );
@@ -1302,7 +1310,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 			}
 		}
 		// Number of Variables
-		globalParameters.clearVariables();
+		globalParameters.clearParameters();
 		for (int varInc = 0; varInc < varNum; varInc++)
 		{
 			parameterType tempVar;
@@ -1668,6 +1676,16 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	else
 	{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	msg += "DDS System:\n";
+	if ( !DDS_SAFEMODE )
+	{
+		msg += "\tDDS System is Active!\n";
+		msg += "\t" + dds.getSystemInfo ( ) + "\n";
+	}
+	else
+	{
+		msg += "\tDDS System is disabled! Enable in \"constants.h\"\n";
 	}
 	return msg;
 }

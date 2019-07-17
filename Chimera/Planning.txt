@@ -29,7 +29,7 @@ FEATURES:
 - improve delete file after abort functionality
 	- decorate name, delete after a while, or something similar.
 - Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
-	variations.
+	variations, etc.
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
@@ -97,7 +97,7 @@ BUGS:
 - seems like master configuration file can get corrupted if saving fails - should do something to safeguard this...
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
 - if taking pictures too fast code can freeze while pics getting handled.
-- err boxes don't grab focus of entire program
+- err boxes don't grab focus of entire program - annoying to fix...
 - should be able to change basler image dimensions edits while running
 - constant beeping if no mot and continuous freezes things basler
 - figure out why figure update seems to cause main thread window thread to freak out
