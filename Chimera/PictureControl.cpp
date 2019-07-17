@@ -591,7 +591,6 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 								  bool specialMax )
 {
 	/// initialize various structures
-	mostRecentImage = picData;
 	float yscale;
 	long colorRange;
 	long minColor;
@@ -622,6 +621,7 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 		// TODO: should handle "normal" accumulation (i.e. not accumulate all but accumulate, say, 5) here
 		drawData = picData;
 	}
+	mostRecentImage = drawData;
 	// first element containst whether autoscaling or not.
 	if (std::get<0>(autoScaleInfo))
 	{
@@ -631,7 +631,7 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	}
 	else
 	{
-		colorRange = sliderMax.getValue ( ); - sliderMin.getValue ( );
+		colorRange = sliderMax.getValue ( ) - sliderMin.getValue ( );
 		minColor = sliderMin.getValue ( );
 	}
 
