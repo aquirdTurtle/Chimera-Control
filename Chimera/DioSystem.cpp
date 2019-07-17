@@ -961,10 +961,10 @@ void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 /*
  * Read key values from variables and convert command form to the final commands.
  */
-void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
+void DioSystem::interpretKey( vec<vec<parameterType>>& params )
 {
-	UINT sequenceLength = variables.size( );
-	UINT variations = variables.front( ).size() == 0 ? 1 : variables.front().front( ).keyValues.size( );
+	UINT sequenceLength = params.size( );
+	UINT variations = params.front( ).size() == 0 ? 1 : params.front().front( ).keyValues.size( );
 	if (variations == 0)
 	{
 		variations = 1;
@@ -986,7 +986,7 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 				{
 					for (auto varTime : formList.time.first)
 					{
-						variableTime += varTime.evaluate(variables[seqInc], variationNum);
+						variableTime += varTime.evaluate(params[seqInc], variationNum);
 					}
 				}
 				tempCommand.time = variableTime + formList.time.second;

@@ -569,7 +569,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 }
 
 
-void DataLogger::logMasterParameters( MasterThreadInput* input )
+void DataLogger::logMasterParameters( ExperimentThreadInput* input )
 {
 	try
 	{
@@ -600,7 +600,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		logFunctions( runParametersGroup );
 		writeDataSet( input->repetitionNumber, "Repetitions", runParametersGroup );
 		UINT count = 0;
-		for ( auto& seqVariables : input->variables )
+		for ( auto& seqVariables : input->parameters )
 		{
 			logVariables( seqVariables, runParametersGroup, count );
 			count++;
@@ -797,7 +797,7 @@ int DataLogger::getDataFileNumber()
 } 
 
 
-void DataLogger::logNiawgSettings(MasterThreadInput* input)
+void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
 {
 	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
 	writeDataSet( input->runNiawg, "Run-NIAWG", niawgGroup );

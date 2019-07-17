@@ -5,27 +5,25 @@
 ftdiFlume::ftdiFlume( bool safemode_option ) : safemode(safemode_option )
 {}
 
-
 UINT ftdiFlume::getNumDevices( )
 {
-	FT_STATUS ftStatus;
+
 	DWORD numDevs=1;
 	if ( !safemode )
 	{
+//#ifdef _WIN64
 		numDevs = 0;
-#ifdef _WIN64
+		FT_STATUS ftStatus;
 		ftStatus = FT_ListDevices( &numDevs, NULL, FT_LIST_NUMBER_ONLY );
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "ERROR: Error listing devices ftdi using FT_ListDevices! Status was \"" + getErrorText( ftStatus ) 
 					 + "\"" );
 		}
-#endif
+//#endif
 	}
 	return numDevs;
 }
-
-
 
 std::string ftdiFlume::getErrorText( int errCode )
 {
@@ -55,19 +53,61 @@ std::string ftdiFlume::getErrorText( int errCode )
 	return "ERROR CODE NOT RECOGNIZED!";
 }
 
-
 void ftdiFlume::open( const char devSerial[] )
 {
 	if ( !safemode )
 	{
-#ifdef _WIN64
+//#ifdef _WIN64
 		FT_STATUS ftStatus = FT_OpenEx( (PVOID)devSerial, FT_OPEN_BY_SERIAL_NUMBER, &ftAsyncHandle );
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "Error opening device! Status was \"" + getErrorText(ftStatus) + "\"" );
 		}
-#endif
+//#endif
 	}
+}
+
+
+std::string ftdiFlume::getDeviceInfoList ( )
+{
+	std::string msg = "";
+	if ( !safemode )
+	{
+		FT_STATUS ftStatus;
+		DWORD numDevs;
+		// create the device information list
+		ftStatus = FT_CreateDeviceInfoList ( &numDevs );
+		if ( ftStatus != FT_OK )
+		{
+			thrower ( "Error creating device info list! " + getErrorText ( ftStatus ) );
+		}
+		if ( numDevs > 0)
+		{
+			std::vector<FT_DEVICE_LIST_INFO_NODE> devInfo ( numDevs );
+			ftStatus = FT_GetDeviceInfoList ( &devInfo[ 0 ], &numDevs );
+			if ( ftStatus != FT_OK )
+			{
+				thrower ( "Error during FT_GetDeviceInfoList! " + getErrorText(ftStatus)  );
+			}
+			for ( auto deviceInc : range(numDevs) )
+			{
+				auto dev = devInfo[ deviceInc ];
+				msg += "\tDev " + str(deviceInc) + ":\n";
+				msg += "\t\tFlags = " + str(dev.Flags) + "\n";
+				msg += "\t\tType = " + str ( dev.Type ) + "\n";
+				msg += "\t\tID = " + str ( dev.ID ) + "\n";
+				msg += "\t\tLocId = " + str ( dev.LocId ) + "\n";
+				msg += "\t\tSerial Number = " + str ( dev.SerialNumber ) + "\n";
+				msg += "\t\tDescription = " + str ( dev.Description ) + "\n";
+				msg += "\t\tftHandle = " + str ( dev.ftHandle ) + "\n\n";
+			}
+		}
+		else
+		{
+			msg += "No Devices found.";
+		}
+	}
+	return msg;
 }
 
 
@@ -75,23 +115,22 @@ void ftdiFlume::setUsbParams( )
 {
 	if ( !safemode )
 	{
-#ifdef _WIN64
+//#ifdef _WIN64
 		FT_STATUS ftStatus = FT_SetUSBParameters( ftAsyncHandle, 65536, 65536 );
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "Error Setting usb parameters. Status was \"" + getErrorText( ftStatus ) + "\"" );
 		}
-#endif
+//#endif
 	}
 }
-
 
 DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite )
 {
 	DWORD BytesWritten=dataBuffer.size();
 	if ( !safemode )
 	{
-#ifdef _WIN64
+//#ifdef _WIN64
 		FT_STATUS ftStatus;
 		if ( amountToWrite == NULL )
 		{
@@ -102,22 +141,35 @@ DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWri
 		{
 			thrower ( "error writing; FT_Write failed! Status was \"" + getErrorText( ftStatus ) + "\"" );
 		}
-#endif
+//#endif
 	}
 	return BytesWritten;
 }
 
-
+std::vector<UINT8> ftdiFlume::read ( DWORD readSize )
+{
+	std::vector<UINT8> readData(readSize);
+	DWORD amountRead;
+	if ( !safemode )
+	{
+		auto status = FT_Read ( ftAsyncHandle, &readData[ 0 ], readSize, &amountRead );
+		if ( status != FT_OK )
+		{
+			thrower ( "Error Reading! Status was " + getErrorText ( status ) );
+		}
+	}
+	return readData;
+}
 void ftdiFlume::close( )
 {
 	if ( !safemode )
 	{
-#ifdef _WIN64
+//#ifdef _WIN64
 		FT_STATUS ftStatus = FT_Close( ftAsyncHandle );
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "Error closing async connection; FT_Write failed?  Status was \"" + getErrorText( ftStatus ) + "\"" );
 		}
-#endif
+//#endif
 	}
 }

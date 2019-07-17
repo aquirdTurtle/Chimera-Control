@@ -12,10 +12,13 @@ class ftdiFlume
 		ftdiFlume( bool safemode_option );
 		void open( const char devSerial[] );
 		void setUsbParams( );
-		DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=NULL );
+		DWORD write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=NULL );
 		UINT getNumDevices( );
+		std::vector<UINT8> read ( DWORD readSize );
 		void close( );
 		std::string getErrorText( int errCode );
+		std::string getDeviceInfoList ( );
+
 	private:
 		const bool safemode;
 		FT_HANDLE ftAsyncHandle;
