@@ -1,0 +1,7 @@
+
+
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth coolingDepth 1 onceWaitTrig #    
+ramp lin coolingDepth fsImageDepth 1 onceWaitTrig # 
+ramp lin fsImageDepth loadingDepth 1 once #  
+

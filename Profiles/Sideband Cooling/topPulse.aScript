@@ -1,2 +1,2 @@
-pulse gaussian 0 0.3 0.0178 (pulse_length/2) pulse_length oncewaittrig #
+pulse gaussian 0 0.4 0.0178 (pulse_length/2) pulse_length oncewaittrig #
  

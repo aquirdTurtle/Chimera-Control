@@ -21,11 +21,12 @@ def freeSpaceProbeImage():
   dac: RepumpPower 0.3
   dac: DiagMotPower 0
   var freeSpaceImageTime 0.02
-  off: tweezerRf
   % wait time
-  t += 0.02
+  off: tweezerRf
+  t += 0.005
   on: andorTrig
-  t += 0.01
+  t += 0.005
+  t += 0.005
   off: rf795
   off: proberf
   on: SideMotRf

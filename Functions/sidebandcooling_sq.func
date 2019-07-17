@@ -1,18 +1,18 @@
 % Master-Script See the "?" for info on commands.
-def SidebandCooling():
+def SidebandCooling_sq():
   dac: sigmaoppower 0.05
   dac: sigmarepumpPower 0.3
   rsg: (6.831 + uw_sbc2/1000000) 5
   pulseon: topPulseTrig 0.1 
   repeat: 30
-    call topRamanGaussianPulse()
+    call topRamanPulse()
     call opPulse()
   end
   pulseon: rsTrig 0.1
   t += 0.6
   rsg: (6.831 + uw_sbc/1000000) 5
   repeat: 50
-    call topRamanGaussianPulse()
+    call topRamanPulse()
     call opPulse()
   end
   t += 3.1

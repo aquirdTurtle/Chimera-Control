@@ -954,9 +954,6 @@ void AndorWindow::checkCameraIdle( )
 }
 
 
-
-
-
 BOOL AndorWindow::PreTranslateMessage(MSG* pMsg)
 {
 	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
