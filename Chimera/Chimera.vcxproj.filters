@@ -284,11 +284,14 @@
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="MasterThreadInput.cpp" />
-    <ClCompile Include="AgilentChannelMode.cpp" />
     <ClCompile Include="DdsSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="DdsSystemStructures.cpp" />
+    <ClCompile Include="AgilentChannelMode.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClCompile>
+    <ClCompile Include="DdsCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -489,9 +492,6 @@
     <ClInclude Include="PlotDialog.h">
       <Filter>Plotting-And-Viewing</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptWritingInstructionsDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
     <ClInclude Include="splashDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
@@ -663,13 +663,19 @@
     <ClInclude Include="MachineOptimizer.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="AgilentSettings.h" />
-    <ClInclude Include="AgilentChannelMode.h" />
     <ClInclude Include="DdsSystem.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="DdsSystemStructures.h" />
     <ClInclude Include="softwareAccumulationOption.h" />
+    <ClInclude Include="AgilentChannelMode.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="AgilentSettings.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpWrap.h" />
+    <ClInclude Include="DdsCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -792,6 +798,5 @@
     <None Include="Old_Intensity_Calibrations.txt">
       <Filter>National-Instruments</Filter>
     </None>
-    <None Include="DdsSystemStructures" />
   </ItemGroup>
 </Project>

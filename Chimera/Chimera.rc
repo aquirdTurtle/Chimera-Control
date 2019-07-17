@@ -390,6 +390,7 @@ BEGIN
     BEGIN
         MENUITEM "&General Information",        ID_HELP_GENERALINFORMATION
         MENUITEM "About",                       ID_HELP_ABOUT
+        MENUITEM "&Hardware Status",            ID_HELP_HARDWARESTATUS
     END
     POPUP "&Basler"
     BEGIN

@@ -111,7 +111,7 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 		// initialize the current values with the constant values from the main parameter controls
 		for ( auto& optParam : optParams )
 		{
-			for ( auto& expParam : input.masterInput->variables[0] )
+			for ( auto& expParam : input.masterInput->parameters[0] )
 			{
 				if ( optParam->name == expParam.name )
 				{
@@ -311,7 +311,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 	optStatus.currParam->resultHist.push_back ( resultValue );
 	for ( auto& param : optParams )
 	{
-		for ( auto& expParam : input.masterInput->variables[0] )	
+		for ( auto& expParam : input.masterInput->parameters[0] )	
 		{
 			if ( expParam.name == param->name )
 			{
@@ -500,7 +500,7 @@ void MachineOptimizer::reset ( )
 
 void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 {
-	if ( !input.includesCameraRun )
+	if ( !input.includesAndorRun )
 	{
 		thrower ( "Cannot optimize parameters if not taking camera data!" );
 	}
@@ -517,7 +517,7 @@ void MachineOptimizer::verifyOptInput ( ExperimentInput input )
 	for ( auto param : optParams )
 	{
 		bool found = false;
-		for ( auto& expParam : input.masterInput->variables[0] )
+		for ( auto& expParam : input.masterInput->parameters[0] )
 		{
 			if ( expParam.name == param->name )
 			{

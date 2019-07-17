@@ -243,20 +243,9 @@ void MainWindow::OnTimer( UINT_PTR id )
 }
 
 
-void MainWindow::loadCameraCalSettings( MasterThreadInput* input )
+void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
-	for ( auto seqInc : range( input->variables.size( ) ) )
-	{
-		for ( auto& variable : input->variables[seqInc] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[seqInc].push_back( variable );
-			}
-		}
-	}
+	ParameterSystem::generateKey( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->seq.name = "CameraCal";
 	input->seq.sequence.resize( 1 );
 	input->seq.sequence[0].configuration = "Camera-Calibration";
@@ -618,6 +607,26 @@ BOOL MainWindow::OnInitDialog( )
 
 	updateConfigurationSavedStatus( true );
 	return TRUE;
+}
+
+void MainWindow::showHardwareStatus ( )
+{
+	try
+	{
+		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
+		std::string initializationString;
+		initializationString += getSystemStatusString ( );
+		initializationString += TheAuxiliaryWindow->getOtherSystemStatusMsg ( );
+		initializationString += TheAndorWindow->getSystemStatusString ( );
+		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus ( );
+		initializationString += TheScriptingWindow->getSystemStatusString ( );
+		initializationString += TheAuxiliaryWindow->getGpibDeviceStatus ( );
+		infoBox ( initializationString );
+	}
+	catch ( Error& err )
+	{
+		errBox ( err.trace ( ) );
+	}
 }
 
 
@@ -985,13 +994,13 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-HANDLE MainWindow::startExperimentThread( MasterThreadInput* input, bool isTurnOnMot )
+HANDLE MainWindow::startExperimentThread( ExperimentThreadInput* input, bool isTurnOnMot )
 {
 	return masterThreadManager.startExperimentThread(input);
 }
 
 
-void MainWindow::fillRedPgcTempProfile ( MasterThreadInput* input )
+void MainWindow::fillRedPgcTempProfile ( ExperimentThreadInput* input )
 {
 	// this function needs to be called before aux fills.
 	input->seq.name = "pgcTemp";
@@ -1003,7 +1012,7 @@ void MainWindow::fillRedPgcTempProfile ( MasterThreadInput* input )
 }
 
 
-void MainWindow::fillGreyPgcTempProfile ( MasterThreadInput* input )
+void MainWindow::fillGreyPgcTempProfile ( ExperimentThreadInput* input )
 {
 	// this function needs to be called before aux fills.
 	input->seq.name = "greyPgcTemp";
@@ -1015,7 +1024,7 @@ void MainWindow::fillGreyPgcTempProfile ( MasterThreadInput* input )
 }
 
 
-void MainWindow::fillMotTempProfile ( MasterThreadInput* input )
+void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 {
 	// this function needs to be called before aux fills.
 	input->seq.name = "motTemp";
@@ -1027,21 +1036,9 @@ void MainWindow::fillMotTempProfile ( MasterThreadInput* input )
 }
 
 
-void MainWindow::fillTempInput ( MasterThreadInput* input )
+void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
-	for ( auto seqInc : range ( input->variables.size ( ) ) )
-	{
-		for ( auto& variable : input->variables[ seqInc ] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[ seqInc ].push_back ( variable );
-
-			}
-		}
-	}
+	ParameterSystem::generateKey ( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->repetitionNumber = 5;
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
@@ -1051,20 +1048,9 @@ void MainWindow::fillTempInput ( MasterThreadInput* input )
 }
 
 
-void MainWindow::fillMotInput( MasterThreadInput* input )
+void MainWindow::fillMotInput( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
-	for (auto seqInc : range(input->variables.size()))
-	{
-		for ( auto& variable : input->variables[seqInc] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[seqInc].push_back( variable );
-			}
-		}
-	}
+	ParameterSystem::generateKey( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
@@ -1080,20 +1066,9 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 }
 
 
-void MainWindow::fillMotSizeInput ( MasterThreadInput* input )
+void MainWindow::fillMotSizeInput ( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey ( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->constants = std::vector<std::vector<parameterType>> ( input->variables.size ( ) );
-	for ( auto seqInc : range ( input->variables.size ( ) ) )
-	{
-		for ( auto& variable : input->variables[ seqInc ] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[ seqInc ].push_back ( variable );
-			}
-		}
-	}
+	ParameterSystem::generateKey ( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->profile.configuration = "Mot_Size_Measurement";
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
@@ -1114,7 +1089,6 @@ unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 	// this thread just continuously requests new info from the scopes. The input is just a pointer to the scope 
 	// object.
 	ScopeViewer* input = (ScopeViewer*)voidInput;
-	
 	while ( true )
 	{
 		try
@@ -1129,7 +1103,7 @@ unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 }
 
 
-void MainWindow::fillMasterThreadSequence( MasterThreadInput* input )
+void MainWindow::fillMasterThreadSequence( ExperimentThreadInput* input )
 {
 	input->seq = profile.getSeqSettings( );
 }
@@ -1147,14 +1121,14 @@ Communicator& MainWindow::getCommRef ( )
 }
 
 
-void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
+void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
 {
 	input->settings = settings.getOptions();
 	input->repetitionNumber = getRepNumber();
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();
 	input->seq = profile.getSeqSettings( );
-	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations, input->variableRangeInfo );
+	ParameterSystem::generateKey( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->rerngGuiForm = rearrangeControl.getParams( );
 }
 
@@ -1165,7 +1139,7 @@ EmbeddedPythonHandler& MainWindow::getPython ( )
 }
 
 
-void MainWindow::logParams(DataLogger* logger, MasterThreadInput* input)
+void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 {
 	logger->logMasterParameters(input);
 	logger->logServoInfo ( TheAuxiliaryWindow->getServoinfo ( ) );

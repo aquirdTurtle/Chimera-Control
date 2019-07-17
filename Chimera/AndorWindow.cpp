@@ -743,7 +743,7 @@ atomGrid AndorWindow::getMainAtomGrid ( )
 }
 
 
-void AndorWindow::startCamera()
+void AndorWindow::armCameraWindow()
 {
 	// expecting that settings have already been set...
 	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
@@ -753,11 +753,10 @@ void AndorWindow::startCamera()
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
 	stats.reset();
-	// I used to initialize the data logger here.
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
 	double minKineticTime;
-	Andor.armCamera( this, minKineticTime );
-	CameraSettings.updateMinKineticCycleTime( minKineticTime );
+	//Andor.armCamera( this, minKineticTime );
+	//CameraSettings.updateMinKineticCycleTime( minKineticTime );
 	mainWin->getComm()->sendColorBox(System::Camera, 'G');
 }
 
@@ -1075,18 +1074,20 @@ void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
 	Andor.setCalibrating(true);
 }
 
+AndorCamera& AndorWindow::getCamera ( )
+{
+	return Andor;
+}
 
 void AndorWindow::prepareAndor( ExperimentInput& input )
 {
 	currentPictureNum = 0;
-	input.includesCameraRun = true;
+	input.includesAndorRun = true;
 	redrawPictures( false );
 	checkCameraIdle( );
 	CDC* dc = GetDC();
 	pics.refreshBackgrounds(dc);
 	ReleaseDC(dc);
-	// I used to mandate use of a button to change image parameters. Now I don't have the button and just always 
-	// update at this point.
 	readImageParameters( );
 	pics.setNumberPicturesActive( CameraSettings.getSettings().andor.picsPerRepetition );
 	// this is a bit awkward at the moment.
@@ -1104,6 +1105,7 @@ void AndorWindow::prepareAndor( ExperimentInput& input )
 	input.AndorSettings = CameraSettings.getSettings().andor;
 	/// start the camera.
 	Andor.setSettings( input.AndorSettings );
+
 }
 
 void AndorWindow::prepareAtomCruncher( ExperimentInput& input )
@@ -1187,7 +1189,7 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 	{
 		// this line makes the ordering of different parts of the experiment tricky and annoying. If master is running
 		// then it needs to have figured out variables at some level before this function runs.
-		input.plotterInput->key = ParameterSystem::getKeyValues( input.masterInput->variables[0] );
+		input.plotterInput->key = ParameterSystem::getKeyValues( input.masterInput->parameters[0] );
 	}
 	else
 	{
@@ -1209,11 +1211,11 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 					   activePlots.end() );
 	for ( auto plotParams : input.plotterInput->plotInfo )
 	{
-		// Create vector of data to be shared btween plotter and data analysis handler. 
+		// Create vector of data to be shared between plotter and data analysis handler. 
 		std::vector<pPlotDataVec> data;
 		// assume 1 data set...
 		UINT numDataSets = 1;
-		// +1 for average
+		// +1 for average line
 		UINT numLines = numDataSets * ( input.plotterInput->grids[plotParams.whichGrid].height 
 										* input.plotterInput->grids[plotParams.whichGrid].width + 1 );
 		data.resize( numLines );
@@ -1228,15 +1230,7 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 				line->at( count++ ).x = keyItem;
 			}
 		}
-		plotStyle style;
-		if ( plotParams.isHist )
-		{
-			style = plotStyle::HistPlot;
-		}
-		else
-		{
-			style = plotStyle::ErrorPlot;
-		}
+		plotStyle style = plotParams.isHist? plotStyle::HistPlot : plotStyle::ErrorPlot;
 		// start a PlotDialog dialog
 		PlotDialog* plot = new PlotDialog( data, style, mainWin->getPlotPens(), 
 										   mainWin->getPlotFont( ), mainWin->getPlotBrushes( ), 
@@ -1506,7 +1500,7 @@ std::string AndorWindow::getStartMessage()
 }
 
 
-void AndorWindow::fillMasterThreadInput( MasterThreadInput* input )
+void AndorWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	currentPictureNum = 0;
 	// starting a not-calibration, so reset this.

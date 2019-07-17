@@ -18,9 +18,10 @@
 //#define MASTER_COMPUTER
 #define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
-/// File Locations
 
+/// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
+	#define DDS_SAFEMODE false
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
@@ -430,6 +431,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_SERVO_LISTVIEW 14151
 
 #define IDC_DDS_LISTVIEW 14152
+#define IDC_DDS_PROGRAM_NOW 14153
 
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001

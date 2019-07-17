@@ -251,7 +251,7 @@ void ScriptingWindow::setMenuCheck ( UINT menuItem, UINT itemState )
 }
 
 
-void ScriptingWindow::fillMasterThreadInput( MasterThreadInput* input )
+void ScriptingWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	input->agilents.push_back( &intensityAgilent );
 	input->intensityAgilentNumber = input->agilents.size() - 1;
