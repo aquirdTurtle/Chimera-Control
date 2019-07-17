@@ -93,17 +93,17 @@ void ParameterSystem::setVariationRangeColumns ( int num, int width )
  */
 void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
 {
-	clearVariables( );
+	clearParameters( );
 	/// 
 	rangeInfo = getRangeInfoFromFile ( configFile, ver );
-	std::vector<parameterType> variables;
+	std::vector<parameterType> fileParams;
 	try
 	{
-		variables = getVariablesFromFile( configFile, ver, rangeInfo );
+		fileParams = getParametersFromFile( configFile, ver, rangeInfo );
 	}
 	catch ( Error& )
 	{/*??? Shouldn't I handle something here?*/}
-	currentParameters = variables;
+	currentParameters = fileParams;
 	flattenScanDimensions ( );	
 	redrawListview ( );
 }
@@ -177,7 +177,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile,
 }
 
 
-std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver, 
+std::vector<parameterType> ParameterSystem::getParametersFromFile( std::ifstream& configFile, Version ver, 
 																  ScanRangeInfo rangeInfo )
 {
 	UINT variableNumber;
@@ -195,7 +195,7 @@ std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream&
 	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadVariableFromFile( configFile, ver, rangeInfo ) );
+		tempVariables.push_back( loadParameterFromFile( configFile, ver, rangeInfo ) );
 	}
 	return tempVariables;
 }
@@ -294,40 +294,40 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver, ScanRangeInfo rangeInfo )
+parameterType ParameterSystem::loadParameterFromFile( std::ifstream& openFile, Version ver, ScanRangeInfo rangeInfo )
 {
-	parameterType tempVar;
-	std::string varName, typeText, valueString;
-	openFile >> varName >> typeText;
-	std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
-	tempVar.name = varName;
+	parameterType tempParam;
+	std::string paramName, typeText, valueString;
+	openFile >> paramName >> typeText;
+	std::transform( paramName.begin( ), paramName.end( ), paramName.begin( ), ::tolower );
+	tempParam.name = paramName;
 	if ( typeText == "Constant" )
 	{
-		tempVar.constant = true;
+		tempParam.constant = true;
 	}
 	else if ( typeText == "Variable" )
 	{
-		tempVar.constant = false;
+		tempParam.constant = false;
 	}
 	else
 	{
-		thrower ( "unknown variable type option: \"" + typeText + "\" for variable \"" + varName 
+		thrower ( "unknown parameter type option: \"" + typeText + "\" for parameter \"" + paramName 
 				 + "\". Check the formatting of the configuration file." );
 	}
 	if (ver > Version("2.7" ) )
 	{
-		openFile >> tempVar.scanDimension;
+		openFile >> tempParam.scanDimension;
 		if ( ver < Version ( "4.2" ) )
 		{
-			if ( tempVar.scanDimension > 0 )
+			if ( tempParam.scanDimension > 0 )
 			{
-				tempVar.scanDimension--;
+				tempParam.scanDimension--;
 			}
 		}
 	}
 	else
 	{
-		tempVar.scanDimension = 0;
+		tempParam.scanDimension = 0;
 	}
 	
 	if ( ver <= Version ( "3.4" ) )
@@ -340,10 +340,10 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 			errBox ( "Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
 			rangeNumber = 1;
 		}
-		rangeInfo.setNumRanges ( tempVar.scanDimension, rangeNumber );
+		rangeInfo.setNumRanges ( tempParam.scanDimension, rangeNumber );
 	}
 	UINT totalVariations = 0;
-	for ( auto rangeInc : range( rangeInfo.numRanges(tempVar.scanDimension ) ))
+	for ( auto rangeInc : range( rangeInfo.numRanges(tempParam.scanDimension ) ))
 	{
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
@@ -354,42 +354,42 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Ve
 			openFile >> variations >> leftInclusive >> rightInclusive;
 		}		
 		totalVariations += variations;
-		tempVar.ranges.push_back ( { initValue, finValue } );
+		tempParam.ranges.push_back ( { initValue, finValue } );
 	}
 	// shouldn't be because of 1 forcing earlier.
-	if ( tempVar.ranges.size( ) == 0 )
+	if ( tempParam.ranges.size( ) == 0 )
 	{
 		// make sure it has at least one entry.
-		tempVar.ranges.push_back ( { 0,0 } );
+		tempParam.ranges.push_back ( { 0,0 } );
 	}
 	if (ver >= Version("2.14") )
 	{
-		openFile >> tempVar.constantValue;
+		openFile >> tempParam.constantValue;
 	}
 	else
 	{
-		tempVar.constantValue = tempVar.ranges[0].initialValue;
+		tempParam.constantValue = tempParam.ranges[0].initialValue;
 	}
 	if (ver > Version("3.2"))
 	{
-		openFile >> tempVar.parameterScope;
+		openFile >> tempParam.parameterScope;
 	}
 	else
 	{
-		tempVar.parameterScope = GLOBAL_PARAMETER_SCOPE;
+		tempParam.parameterScope = GLOBAL_PARAMETER_SCOPE;
 	}
-	return tempVar;
+	return tempParam;
 }
 
 
-void ParameterSystem::saveVariable( std::ofstream& saveFile, parameterType variable )
+void ParameterSystem::saveParameter( std::ofstream& saveFile, parameterType parameter )
 {
-	saveFile << variable.name << " " << ( variable.constant ? "Constant " : "Variable " ) << variable.scanDimension << "\n";
-	for ( auto& range : variable.ranges )
+	saveFile << parameter.name << " " << ( parameter.constant ? "Constant " : "Variable " ) << parameter.scanDimension << "\n";
+	for ( auto& range : parameter.ranges )
 	{
 		saveFile << range.initialValue << "\n" << range.finalValue << "\n";
 	}
-	saveFile << variable.constantValue << "\n" << variable.parameterScope << "\n";
+	saveFile << parameter.constantValue << "\n" << parameter.parameterScope << "\n";
 }
 
 
@@ -412,7 +412,7 @@ void ParameterSystem::handleSaveConfig ( std::ofstream& saveFile )
 	saveFile << getCurrentNumberOfVariables ( ) << "\n";
 	for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
 	{
-		saveVariable(saveFile, getVariableInfo( varInc ));
+		saveParameter(saveFile, getVariableInfo( varInc ));
 	}
 	saveFile << "END_" + configDelim + "\n";
 }
@@ -714,7 +714,6 @@ void ParameterSystem::handleSingleClick ()
 	parametersListview.ScreenToClient ( &myItemInfo.pt );
 	parametersListview.SubItemHitTest ( &myItemInfo );
 	mostRecentlySelectedParam = myItemInfo.iItem;
-
 }
 
 void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
@@ -734,11 +733,11 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 	{
 		return;
 	}
-	/// check if adding new variable
+	/// check if adding new parameter
 	CString text = parametersListview.GetItemText(itemIndicator, 0);
 	if (text == "___")
 	{
-		// add a variable
+		// add a parameter
 		currentParameters.resize(currentParameters.size() + 1);
 		currentParameters.back().name = "";
 		currentParameters.back().constant = true;
@@ -759,18 +758,18 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 		{
 			/// person name
 			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter a name for the variable:");
+			TextPromptDialog dialog(&newName, "Please enter a name for the Parameter:");
 			dialog.DoModal();
 			newName = str ( newName, 13, false, true );
 			if (newName == "")
 			{
 				break; // probably canceled.
 			}
-			for (auto variable : currentParameters)
+			for (auto param : currentParameters)
 			{
-				if (variable.name == newName)
+				if (param.name == newName)
 				{
-					thrower ( "A varaible with name " + newName + " already exists!" );
+					thrower ( "A parameter with name " + newName + " already exists!" );
 				}
 			}
 			if ( ttls->isValidTTLName( newName ) )
@@ -791,7 +790,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			{
 				/// global value
 				std::string newValue;
-				TextPromptDialog dialog(&newValue, "Please enter a value for the global variable "
+				TextPromptDialog dialog(&newValue, "Please enter a value for the global parameter "
 										+ param.name + ". Value will be formatted as a double.");
 				childDlgs.push_back( &dialog );
 				dialog.DoModal();
@@ -1045,7 +1044,7 @@ void ParameterSystem::setUsages(std::vector<std::vector<parameterType>> vars)
 }
 
 
-void ParameterSystem::clearVariables()
+void ParameterSystem::clearParameters()
 {
 	currentParameters.clear();
 	redrawListview ( );
@@ -1218,7 +1217,7 @@ void ParameterSystem::reorderVariableDimensions( )
 	}
 	/// reset variables ??? why?
 	std::vector<parameterType> varCopy = currentParameters; 
-	clearVariables( );
+	clearParameters( );
 	for ( auto& variable : varCopy )
 	{
 		addParameter( variable);
@@ -1266,7 +1265,7 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 	{
 		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile ( f, ver );
-		configParams = getVariablesFromFile ( f, ver, rInfo );
+		configParams = getParametersFromFile ( f, ver, rInfo );
 		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
@@ -1286,7 +1285,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 	{
 		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile ( f, ver );
-		auto configVariables = getVariablesFromFile ( f, ver, rInfo );
+		auto configVariables = getParametersFromFile ( f, ver, rInfo );
 		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )

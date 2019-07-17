@@ -326,38 +326,13 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 	for ( auto& agilent : agilents )
 	{
 		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->configDelim ) );
-		// mode
 		deviceOutputInfo info = agilent->getOutputInfo( );
 		UINT channelCount = 1;
 		writeDataSet ( agilent->getStartupCommands(), "Startup-Commands", singleAgilent );
 		for ( auto& channel : info.channel )
 		{
 			H5::Group channelGroup( singleAgilent.createGroup( "Channel-" + str( channelCount ) ) );
-			std::string outputModeName;
-			switch ( channel.option )
-			{
-			case -2:
-				outputModeName = "No-Control";
-				break;
-			case -1:
-				outputModeName = "Output-Off";
-				break;
-			case 0:
-				outputModeName = "DC";
-				break;
-			case 1:
-				outputModeName = "Sine";
-				break;
-			case 2:
-				outputModeName = "Square";
-				break;
-			case 3:
-				outputModeName = "Preloaded-Arb";
-				break;
-			case 4:
-				outputModeName = "Scripted-Arb";
-				break;
-			}
+			std::string outputModeName = AgilentChannelMode::toStr(channel.option);
 			writeDataSet( outputModeName, "Output-Mode", channelGroup );
 			H5::Group dcGroup( channelGroup.createGroup( "DC-Settings" ) );
 			writeDataSet( channel.dc.dcLevelInput.expressionStr, "DC-Level", dcGroup );
@@ -373,6 +348,17 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 			H5::Group scriptedArbSettings( channelGroup.createGroup( "Scripted-Arb-Settings" ) );
 			writeDataSet( channel.scriptedArb.fileAddress, "Script-File-Address", scriptedArbSettings );
 			// TODO: load script file itself
+			ScriptStream stream;
+			try
+			{
+				MasterManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
+				writeDataSet ( stream.str ( ), "Agilent-Script-Script", scriptedArbSettings );
+			}
+			catch ( Error& err )
+			{
+				// failed to open, that's probably fine, 
+				writeDataSet ( "Script Failed to load.", "Agilent-Script-Script", scriptedArbSettings );
+			}
 			channelCount++;
 		}
 	}
@@ -583,7 +569,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 }
 
 
-void DataLogger::logMasterParameters( MasterThreadInput* input )
+void DataLogger::logMasterParameters( ExperimentThreadInput* input )
 {
 	try
 	{
@@ -614,7 +600,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		logFunctions( runParametersGroup );
 		writeDataSet( input->repetitionNumber, "Repetitions", runParametersGroup );
 		UINT count = 0;
-		for ( auto& seqVariables : input->variables )
+		for ( auto& seqVariables : input->parameters )
 		{
 			logVariables( seqVariables, runParametersGroup, count );
 			count++;
@@ -811,7 +797,7 @@ int DataLogger::getDataFileNumber()
 } 
 
 
-void DataLogger::logNiawgSettings(MasterThreadInput* input)
+void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
 {
 	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
 	writeDataSet( input->runNiawg, "Run-NIAWG", niawgGroup );

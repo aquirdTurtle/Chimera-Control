@@ -17,43 +17,48 @@
 #include <array>
 
 
-// Functions called by all windows to do the same thing, mostly things that happen on menu presses.
+// Functions called by all windows to do the same thing, mostly things that happen on menu presses or hotkeys
 namespace commonFunctions
 {
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							  AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
 	{
 		switch (msgID)
 		{
+			case ID_HELP_HARDWARESTATUS:
+			{
+				mainWin->showHardwareStatus ( );
+				break;
+			}
 			case ID_MACHINE_OPTIMIZATION:
 			{
-				if ( camWin->wantsAutoCal ( ) && !camWin->wasJustCalibrated ( ) )
+				if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) )
 				{
-					camWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
+					andorWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
 				ExperimentInput input;
-				camWin->redrawPictures ( false );
+				andorWin->redrawPictures ( false );
 				try
 				{
 					mainWin->getComm ( )->sendStatus( "Starting Automatic Optimization...\r\n" );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					camWin->prepareAndor ( input );
-					prepareMasterThread ( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					andorWin->prepareAndor ( input );
+					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
-					camWin->preparePlotter ( input );
-					camWin->prepareAtomCruncher ( input );
+					andorWin->preparePlotter ( input );
+					andorWin->prepareAtomCruncher ( input );
 					input.masterInput->quiet = true;
-					logParameters ( input, camWin, basWin, true, true );
+					logParameters ( input, andorWin, basWin, true, true );
 
 					auxWin->updateOptimization ( input );
 					input.masterInput->expType = ExperimentType::MachineOptimization;
 
-					camWin->startAtomCruncher ( input );
-					camWin->startPlotterThread ( input );
-					camWin->startCamera ( );
+					andorWin->startAtomCruncher ( input );
+					andorWin->startPlotterThread ( input );
+					andorWin->armCameraWindow ( );
 					
 					// basWin->startCamera ( );
 					
@@ -71,7 +76,7 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendColorBox ( System::Camera, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
-					camWin->assertOff ( );
+					andorWin->assertOff ( );
 					break;
 				}
 				break;
@@ -82,10 +87,10 @@ namespace commonFunctions
 				try
 				{
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					prepareMasterThread ( msgID, scriptWin, mainWin, camWin, auxWin, input, false, true );
-					commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, false, true, input );
+					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, false, true );
+					commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
-					logParameters ( input, camWin, basWin, false, true, "", false );
+					logParameters ( input, andorWin, basWin, false, true, "", false );
 					basWin->startCamera ( );
 					startExperimentThread ( mainWin, input );
 				}
@@ -96,23 +101,23 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendColorBox ( System::Master, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
-					camWin->assertOff ( );
+					andorWin->assertOff ( );
 					break;
 				}
 				break;
 			}
 			case ID_FORCE_EXIT:
 			{
-				forceExit ( scriptWin, mainWin, camWin, auxWin );
+				forceExit ( scriptWin, mainWin, andorWin, auxWin );
 				break;
 			}
 			case ID_FILE_RUN_EVERYTHING:
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
-				if ( camWin->wantsAutoCal( ) && !camWin->wasJustCalibrated( ) )
+				if ( andorWin->wantsAutoCal( ) && !andorWin->wasJustCalibrated( ) )
 				{
-					camWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
+					andorWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
 				ExperimentInput input;
@@ -129,23 +134,23 @@ namespace commonFunctions
 						}
 						break;
 					}
-					camWin->redrawPictures ( false );
+					andorWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					camWin->prepareAndor ( input );
-					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					andorWin->prepareAndor ( input );
+					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true );
 					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )
 					{
-						commonFunctions::getPermissionToStart ( camWin, mainWin, scriptWin, auxWin, true, true, input );
+						commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, true, true, input );
 					}
 					mainWin->autoF5_AfterFinish = false;
-					camWin->preparePlotter( input );
-					camWin->prepareAtomCruncher( input );
+					andorWin->preparePlotter( input );
+					andorWin->prepareAtomCruncher( input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
-					logParameters( input, camWin, basWin, true, true );
-					camWin->startAtomCruncher(input);
-					camWin->startPlotterThread(input);
-					camWin->startCamera();
+					logParameters( input, andorWin, basWin, true, true );
+					andorWin->startAtomCruncher(input);
+					andorWin->startPlotterThread(input);
+					andorWin->armCameraWindow();
 					basWin->startCamera ( );
 					startExperimentThread( mainWin, input );
 				}
@@ -161,7 +166,7 @@ namespace commonFunctions
 					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
-					camWin->assertOff();
+					andorWin->assertOff();
 					break;
 				}
 				break;
@@ -179,7 +184,7 @@ namespace commonFunctions
 				bool niawgAborted = false, andorAborted = false, masterAborted = false, baslerAborted = false;
 
 				mainWin->stopRearranger( );
-				camWin->wakeRearranger( );
+				andorWin->wakeRearranger( );
 				try
 				{
 					if ( mainWin->masterThreadManager.runningStatus( ) )
@@ -189,7 +194,7 @@ namespace commonFunctions
 						masterAborted = true;
 					}
 					mainWin->getComm( )->sendColorBox( System::Master, 'B' );
-					camWin->assertOff( );
+					andorWin->assertOff( );
 				}
 				catch ( Error& err )
 				{
@@ -202,10 +207,10 @@ namespace commonFunctions
 
 				try
 				{
-					if ( camWin->Andor.isRunning( ) )
+					if ( andorWin->Andor.isRunning( ) )
 					{
 						status = "ANDOR";
-						commonFunctions::abortCamera( camWin, mainWin );
+						commonFunctions::abortCamera( andorWin, mainWin );
 						andorAborted = true;
 					}
 					mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
@@ -275,17 +280,17 @@ namespace commonFunctions
 				{
 					mainWin->getComm ( )->sendColorBox ( System::Camera, 'Y' );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					camWin->prepareAndor ( input );
-					getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, false, input );
+					andorWin->prepareAndor ( input );
+					getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, false, false, input );
 					mainWin->getComm()->sendStatus("Starting Camera...\r\n");
-					camWin->preparePlotter( input );
-					camWin->prepareAtomCruncher( input );
+					andorWin->preparePlotter( input );
+					andorWin->prepareAtomCruncher( input );
 					//
-					logParameters( input, camWin, basWin, true, false, "", false );
+					logParameters( input, andorWin, basWin, true, false, "", false );
 					//
-					camWin->startAtomCruncher( input );
-					camWin->startPlotterThread( input );
-					camWin->startCamera();
+					andorWin->startAtomCruncher( input );
+					andorWin->startPlotterThread( input );
+					andorWin->armCameraWindow();
 					mainWin->getComm()->sendColorBox( System::Camera, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}
@@ -301,7 +306,7 @@ namespace commonFunctions
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
-					camWin->assertOff();
+					andorWin->assertOff();
 					break;
 				}
 				break;
@@ -311,10 +316,10 @@ namespace commonFunctions
 				ExperimentInput input;
 				try
 				{
-					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin,
+					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, andorWin, auxWin,
 														  input, true, false );
-					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, false, input );
-					commonFunctions::logParameters( input, camWin, basWin, false, false, "", false );
+					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, true, false, input );
+					commonFunctions::logParameters( input, andorWin, basWin, false, false, "", false );
 					//
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
@@ -340,9 +345,9 @@ namespace commonFunctions
 				ExperimentInput input;
 				try
 				{
-					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin, 
+					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, andorWin, auxWin, 
 														  input, false, true );
-					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, true, input );
+					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
 				catch (Error& err)
@@ -357,7 +362,7 @@ namespace commonFunctions
 				}
 				try
 				{
-					commonFunctions::logParameters( input, camWin, basWin, false, false, "", false );
+					commonFunctions::logParameters( input, andorWin, basWin, false, false, "", false );
 				}
 				catch (Error& err)
 				{
@@ -389,8 +394,8 @@ namespace commonFunctions
 					auxWin->updateAgilent( whichAg::Axial );
 					auxWin->updateAgilent( whichAg::Flashing );
 					auxWin->updateAgilent( whichAg::Microwave );
-					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin, basWin );
-					mainWin->masterConfig.save( mainWin, auxWin, camWin );
+					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, andorWin, basWin );
+					mainWin->masterConfig.save( mainWin, auxWin, andorWin );
 					
 				}
 				catch ( Error& err )
@@ -401,14 +406,14 @@ namespace commonFunctions
 			}
 			case ID_PROFILE_SAVE_PROFILE:
 			{
-				mainWin->profile.saveEntireProfile(scriptWin, mainWin, auxWin, camWin, basWin );
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin, auxWin, andorWin, basWin );
 				break;
 			}
 			case ID_FILE_MY_EXIT:
 			{
 				try
 				{
-					commonFunctions::exitProgram(scriptWin, mainWin, camWin, auxWin);
+					commonFunctions::exitProgram(scriptWin, mainWin, andorWin, auxWin);
 				}
 				catch (Error& err)
 				{
@@ -418,7 +423,7 @@ namespace commonFunctions
 			}
 			case ID_PLOTTING_STOPPLOTTER:
 			{
-				camWin->stopPlotter( );
+				andorWin->stopPlotter( );
 				break;
 			}
 			case ID_FILE_MY_INTENSITY_NEW:
@@ -612,7 +617,7 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_NEW_CONFIGURATION:
 			{
-				mainWin->profile.newConfiguration(mainWin, auxWin, camWin, scriptWin);
+				mainWin->profile.newConfiguration(mainWin, auxWin, andorWin, scriptWin);
 				break;
 			}
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
@@ -627,12 +632,12 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
 			{
-				mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, camWin, basWin);
+				mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, andorWin, basWin);
 				break;
 			}
 			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
 			{
-				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, camWin, basWin);
+				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, andorWin, basWin);
 				break;
 			}
 			case ID_NIAWG_SENDSOFTWARETRIGGER:
@@ -652,7 +657,7 @@ namespace commonFunctions
 			}
 			case ID_PICTURES_AUTOSCALEPICTURES:
 			{
-				camWin->handleAutoscaleSelection();
+				andorWin->handleAutoscaleSelection();
 				break;
 			}
 			case ID_BASLER_AUTOSCALE:
@@ -662,17 +667,17 @@ namespace commonFunctions
 			}
 			case ID_PICTURES_GREATER_THAN_MAX_SPECIAL:
 			{
-				camWin->handleSpecialGreaterThanMaxSelection();
+				andorWin->handleSpecialGreaterThanMaxSelection();
 				break;
 			}
 			case ID_PICTURES_LESS_THAN_MIN_SPECIAL:
 			{
-				camWin->handleSpecialLessThanMinSelection();
+				andorWin->handleSpecialLessThanMinSelection();
 				break;
 			}
 			case ID_PICTURES_ALWAYSSHOWGRID:
 			{
-				camWin->passAlwaysShowGrid();
+				andorWin->passAlwaysShowGrid();
 				break;
 			}
 			case ID_NIAWG_NIAWGISON:
@@ -682,24 +687,24 @@ namespace commonFunctions
 			}
 			case ID_DATATYPE_PHOTONS_COLLECTED:
 			{
-				camWin->setDataType( CAMERA_PHOTONS );
+				andorWin->setDataType( CAMERA_PHOTONS );
 				break;
 			}
 			case ID_DATATYPE_PHOTONS_SCATTERED:
 			{
-				camWin->setDataType( ATOM_PHOTONS );
+				andorWin->setDataType( ATOM_PHOTONS );
 				break;
 			}
 			case ID_DATATYPE_RAW_COUNTS:
 			{
-				camWin->setDataType( RAW_COUNTS );
+				andorWin->setDataType( RAW_COUNTS );
 				break;
 			}
 			case ID_RUNMENU_RUNBASLER:
 			{
 				ExperimentInput input;
 				input.baslerRunSettings = basWin->getCurrentSettings ( );
-				logParameters ( input, camWin, basWin, false, true, "", false );
+				logParameters ( input, andorWin, basWin, false, true, "", false );
 				basWin->handleArmPress();
 				break;
 			}
@@ -712,16 +717,16 @@ namespace commonFunctions
 			{
 				try
 				{
-					if (camWin->Andor.isRunning())
+					if (andorWin->Andor.isRunning())
 					{
-						commonFunctions::abortCamera(camWin, mainWin);
+						commonFunctions::abortCamera(andorWin, mainWin);
 					}
 					else
 					{
 						mainWin->getComm()->sendError("Camera was not running. Can't Abort.\r\n");
 					}
 					mainWin->getComm()->sendColorBox( System::Camera, 'B' );
-					camWin->assertOff();
+					andorWin->assertOff();
 				}
 				catch (Error& except)
 				{
@@ -758,12 +763,12 @@ namespace commonFunctions
 			case ID_MASTERCONFIG_SAVEMASTERCONFIGURATION:
 			{
 
-				mainWin->masterConfig.save(mainWin, auxWin, camWin);
+				mainWin->masterConfig.save(mainWin, auxWin, andorWin);
 				break;
 			}
 			case ID_MASTERCONFIGURATION_RELOAD_MASTER_CONFIG:
 			{
-				mainWin->masterConfig.load(mainWin, auxWin, camWin);
+				mainWin->masterConfig.load(mainWin, auxWin, andorWin);
 				break;
 			}
 			case ID_MASTER_VIEWORCHANGEINDIVIDUALDACSETTINGS:
@@ -793,14 +798,14 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput(auxWin, mainWin);
+				input.masterInput = new ExperimentThreadInput(auxWin, mainWin, andorWin);
 				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...\r\n" );
 				auxWin->loadMotSettings ( input.masterInput );
 				mainWin->fillMotSizeInput ( input.masterInput );
 				input.masterInput->expType = ExperimentType::MotSize;
 				basWin->fillMotSizeInput ( input.baslerRunSettings );
 				// this is used for basler calibrations.
-				logParameters ( input, camWin, basWin, false, true, "MOT_NUMBER", false );
+				logParameters ( input, andorWin, basWin, false, true, "MOT_NUMBER", false );
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput, true );
 				break;
@@ -809,7 +814,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput ( auxWin, mainWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
 				try
 				{
@@ -818,7 +823,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::MotTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, camWin, basWin, false, true, "MOT_TEMPERATURE", false );
+					logParameters ( input, andorWin, basWin, false, true, "MOT_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -839,7 +844,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput ( auxWin, mainWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
 				try
 				{
@@ -848,7 +853,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::PgcTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, camWin, basWin, false, true, "RED_PGC_TEMPERATURE", false );
+					logParameters ( input, andorWin, basWin, false, true, "RED_PGC_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -863,7 +868,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				ExperimentInput input;
-				input.masterInput = new MasterThreadInput ( auxWin, mainWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
 				try
 				{
@@ -872,7 +877,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::GreyTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, camWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", false );
+					logParameters ( input, andorWin, basWin, false, true, "GREY_MOLASSES_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -889,16 +894,16 @@ namespace commonFunctions
 		}
 	}
 
-	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
+	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* andorWin,
 									AuxiliaryWindow* auxWin )
 	{
 		try 
 		{
 			ExperimentInput input;
-			input.masterInput = new MasterThreadInput ( auxWin, mainWin );
+			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 			auxWin->loadCameraCalSettings( input.masterInput );
-			camWin->loadCameraCalSettings( input );
-			camWin->startCamera( );
+			andorWin->loadCameraCalSettings( input );
+			andorWin->armCameraWindow( );
 			mainWin->loadCameraCalSettings( input.masterInput );
 			mainWin->startExperimentThread( input.masterInput, true );
 		}
@@ -909,7 +914,7 @@ namespace commonFunctions
 	}
 	 
 
-	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
+	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* andorWin,
 							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
 	{
 		Communicator* comm = mainWin->getComm();
@@ -930,9 +935,9 @@ namespace commonFunctions
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
 		// Set the thread structure.
-		input.masterInput = new MasterThreadInput ( auxWin, mainWin );
+		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 		input.masterInput->runMaster = runTtls;
-		input.masterInput->skipNext = camWin->getSkipNextAtomic( );
+		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
 		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
 		input.masterInput->settings.dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
@@ -947,7 +952,7 @@ namespace commonFunctions
 		mainWin->fillMasterThreadSequence( input.masterInput );
 		auxWin->fillMasterThreadInput( input.masterInput );
 		mainWin->fillMasterThreadInput( input.masterInput );
-		camWin->fillMasterThreadInput( input.masterInput );
+		andorWin->fillMasterThreadInput( input.masterInput );
 		scriptWin->fillMasterThreadInput( input.masterInput );
 	}
 
@@ -1090,17 +1095,17 @@ namespace commonFunctions
 	}
 
 
-	void setMot(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin)
+	void setMot(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* andorWin, BaslerWindow* basWin)
 	{
 		ExperimentInput input;
-		input.masterInput = new MasterThreadInput ( auxWin, mainWin );
+		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 		auxWin->loadMotSettings ( input.masterInput );
 		mainWin->fillMotInput ( input.masterInput );
 		input.masterInput->expType = ExperimentType::LoadMot;
-		if ( camWin != NULL )
+		if ( andorWin != NULL )
 		{
 			// this is used for basler calibrations.
-			logParameters ( input, camWin, basWin, false, true );
+			logParameters ( input, andorWin, basWin, false, true );
 		}
 		mainWin->startExperimentThread ( input.masterInput, true );
 	}
@@ -1118,7 +1123,7 @@ namespace commonFunctions
 		UINT numVoltsMeasursments = 0;
 		if ( input.masterInput && input.masterInput->aiSys.wantsQueryBetweenVariations( ) )
 		{
-			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->variables.front() );
+			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->parameters.front() );
 		}
 		logger->initializeAiLogging( numVoltsMeasursments );		
 	}
@@ -1166,7 +1171,7 @@ namespace commonFunctions
 		}
 		if ( runNiawg || runMaster )
 		{
-			if ( input.masterInput->variables.size( ) == 0 )
+			if ( input.masterInput->parameters.size( ) == 0 )
 			{
 				startMsg += "Variable Names:.............. NO VARIABLES\r\n";
 			}
@@ -1174,7 +1179,7 @@ namespace commonFunctions
 			{
 				startMsg += "Variables:\r\n\t";
 				std::string constantsMsg="Constants:\r\n\t";
-				for ( auto& seq : input.masterInput->variables )
+				for ( auto& seq : input.masterInput->parameters )
 				{
 					for ( auto& var : seq )
 					{

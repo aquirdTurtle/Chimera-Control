@@ -451,7 +451,7 @@ void PictureManager::createPalettes( CDC* dc )
 
 	GetSystemPaletteEntries( *dc, 0, 256, Palette.aEntries );
 	// this is the parula colormap from matlab. It looks nice :D
-	double virida[256][3] =
+	double dark_viridis[256][3] =
 	{
 		// special entry
 		{ 0 , 0 , 1 },
@@ -716,16 +716,16 @@ void PictureManager::createPalettes( CDC* dc )
 	};
 
 	UCHAR r, g, b;
-	for (UINT paletteInc = 0; paletteInc < PICTURE_PALETTE_SIZE; paletteInc++)
+	for ( UINT paletteInc : range ( PICTURE_PALETTE_SIZE ) )
 	{
 		// scaling it to make it a bit darker near the bottom.
-		r = UCHAR(virida[paletteInc][0] * (255.0-1) * (1.0/4 + 3.0*paletteInc / (4*255.0)));
-		g = UCHAR(virida[paletteInc][1] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0)));
-		b = UCHAR(virida[paletteInc][2] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0)));
-		Palette.aEntries[paletteInc].peRed = LOBYTE( r );
-		Palette.aEntries[paletteInc].peGreen = LOBYTE( g );
-		Palette.aEntries[paletteInc].peBlue = LOBYTE( b );
-		Palette.aEntries[paletteInc].peFlags = PC_RESERVED;
+		r = UCHAR ( dark_viridis[ paletteInc ][ 0 ] * ( 255.0 - 1 ) * ( 1.0 / 4 + 3.0*paletteInc / ( 4 * 255.0 ) ) );
+		g = UCHAR ( dark_viridis[ paletteInc ][ 1 ] * ( 255.0 - 1 ) * ( 1.0 / 4 + 3.0*paletteInc / ( 4 * 255.0 ) ) );
+		b = UCHAR ( dark_viridis[ paletteInc ][ 2 ] * ( 255.0 - 1 ) * ( 1.0 / 4 + 3.0*paletteInc / ( 4 * 255.0 ) ) );
+		Palette.aEntries[ paletteInc ].peRed = LOBYTE ( r );
+		Palette.aEntries[ paletteInc ].peGreen = LOBYTE ( g );
+		Palette.aEntries[ paletteInc ].peBlue = LOBYTE ( b );
+		Palette.aEntries[ paletteInc ].peFlags = PC_RESERVED;
 	}
 	palettes[0] = CreatePalette((LOGPALETTE *)&Palette );
 	

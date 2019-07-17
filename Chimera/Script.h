@@ -73,7 +73,7 @@ class Script
 		void saveAsFunction( Communicator* comm );
 		void loadFunctions();
 
-		void setEnabled (bool enabled );
+		void setEnabled (bool enabled, bool functionsEnabled );
 
 	private:
 		CWnd syntaxTimer;

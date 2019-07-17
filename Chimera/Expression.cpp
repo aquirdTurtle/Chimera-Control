@@ -394,6 +394,18 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 }
 
 
+void Expression::internalEvaluate ( std::vector<parameterType>& variables, UINT variation )
+{
+	value = evaluate ( variables, variation );
+}
+
+
+double Expression::getValue ( )
+{
+	return value;
+}
+
+
 /*
 Evaluate takes in an expression, which can be a combination of variables, standard math operations, and standard
 math functions, and evaluates it to a double.

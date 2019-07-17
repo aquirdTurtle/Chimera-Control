@@ -30,10 +30,10 @@ class DataLogger
 		void writeBaslerPic ( Matrix<long> image, imageParameters dims );
 		void writeVolts ( UINT currentVoltNumber, std::vector<float64> data );
 
-		void logMasterParameters( MasterThreadInput* input);
+		void logMasterParameters( ExperimentThreadInput* input);
 		void logMiscellaneousStart();
 		void logAndorSettings( AndorRunSettings settings, bool on );
-		void logNiawgSettings( MasterThreadInput* input );
+		void logNiawgSettings( ExperimentThreadInput* input );
 		void logAgilentSettings( const std::vector<Agilent*>& input );
 		void logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
 		void logFunctions( H5::Group& group );

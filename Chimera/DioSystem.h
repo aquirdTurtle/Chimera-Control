@@ -87,7 +87,6 @@ class DioSystem
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
 									 std::vector<parameterType>& vars, UINT seqNum, std::string scope );
-		void interpretKey( std::vector<std::vector<parameterType>>& variables );
 		void organizeTtlCommands(UINT variation, UINT seqNum );
 		void convertToFinalViewpointFormat(UINT variation, UINT seqNum );
 		void convertToFtdiSnaps( UINT variation, UINT seqNum );
@@ -121,6 +120,7 @@ class DioSystem
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getViewpointSafemode ( );
 		allDigitalOutputs& getDigitalOutputs();
+		void interpretKey ( vec<vec<parameterType>>& params );
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
@@ -145,16 +145,6 @@ class DioSystem
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
 		allDigitalOutputs outputs;
-		/// being replaced by digitaloutput...
-		/*
-		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
-		std::array< std::array<bool, 16>, 4 > ttlStatus;
-		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
-		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
-		std::array< std::array<std::string, 16 >, 4> ttlNames;
-		std::array<std::array<bool, 16>, 4> defaultTtlState;
-		*/
-		/// 
 		// tells whether the hold button is down or not.
 		bool holdStatus;
 		// Each element of first vector is for each variation.
