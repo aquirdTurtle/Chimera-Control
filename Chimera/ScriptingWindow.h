@@ -44,7 +44,7 @@ class ScriptingWindow : public CDialog
 
 		void checkScriptSaves();
 		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
-		void fillMasterThreadInput(MasterThreadInput* input);
+		void fillMasterThreadInput(ExperimentThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
 
 		scriptInfo<std::string> getScriptNames();

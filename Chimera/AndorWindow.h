@@ -68,7 +68,7 @@ class AndorWindow : public CDialog
 		dataPoint getMainAnalysisResult ( );
 		void checkCameraIdle( );
 		void handleEmGainChange();
-		void fillMasterThreadInput( MasterThreadInput* input );
+		void fillMasterThreadInput( ExperimentThreadInput* input );
 		DataLogger* getLogger();
 		std::string getSystemStatusString();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
@@ -85,7 +85,7 @@ class AndorWindow : public CDialog
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
 		void prepareAndor( ExperimentInput& input );
-		void startCamera();
+		void armCameraWindow();
 		std::string getStartMessage();
 		void setEmGain();
 		void handlePictureSettings( UINT id );
@@ -122,6 +122,7 @@ class AndorWindow : public CDialog
 		int getMostRecentFid ( );
 		int getPicsPerRep ( );
 		bool wantsThresholdAnalysis ( );
+		AndorCamera& getCamera ( );
 	private:
 		bool justCalibrated=false;
 		DECLARE_MESSAGE_MAP();

@@ -220,11 +220,13 @@
     <ClInclude Include="BaslerWindow.h" />
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="dataPoint.h" />
+    <ClInclude Include="DdsCore.h" />
     <ClInclude Include="DdsSystem.h" />
     <ClInclude Include="DdsSystemStructures.h" />
     <ClInclude Include="DigitalOutput.h" />
     <ClInclude Include="DioRows.h" />
     <ClInclude Include="ErrDialog.h" />
+    <ClInclude Include="ExpWrap.h" />
     <ClInclude Include="LongCSlider.h" />
     <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="MyListCtrl.h" />
@@ -318,7 +320,6 @@
     <ClInclude Include="NiawgWaiter.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="saveWithExplorer.h" />
-    <ClInclude Include="ScriptWritingInstructionsDialog.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="DioSettingsDialog.h" />
@@ -346,6 +347,7 @@
     <ClCompile Include="BaslerWindow.cpp" />
     <ClCompile Include="CodeTimer.cpp" />
     <ClCompile Include="AndorRunMode.cpp" />
+    <ClCompile Include="DdsCore.cpp" />
     <ClCompile Include="DdsSystem.cpp" />
     <ClCompile Include="DdsSystemStructures.cpp" />
     <ClCompile Include="DigitalOutput.cpp" />
@@ -455,7 +457,6 @@
   <ItemGroup>
     <None Include="coordinate.h" />
     <None Include="DaqMxFlume.h" />
-    <None Include="DdsSystemStructures" />
     <None Include="DioStructures.h" />
     <None Include="ftdiStructures.h" />
     <None Include="my_str.h" />

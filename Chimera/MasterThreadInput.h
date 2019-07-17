@@ -13,6 +13,7 @@
 #include "EmbeddedPythonHandler.h"
 #include "TektronicsControl.h"
 #include "MainOptionsControl.h"
+#include "Andor.h"
 
 #include "AndorRunSettings.h"
 #include "atomGrid.h"
@@ -20,7 +21,8 @@
 #include "atomCruncherInput.h"
 #include "realTimePlotterInput.h"
 #include "baslerSettings.h"
-
+#include "DdsSystem.h"
+//#include "Andor.h"
 #include <chrono>
 #include <vector>
 #include <atomic>
@@ -48,9 +50,9 @@ enum class ExperimentType
 
 class MasterManager;
 
-struct MasterThreadInput
+struct ExperimentThreadInput
 {
-	MasterThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin );
+	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
 	EmbeddedPythonHandler& python;
 	// for posting messages only!
 	AuxiliaryWindow* auxWin;
@@ -59,12 +61,13 @@ struct MasterThreadInput
 	DioSystem& ttls;
 	AoSystem& aoSys;
 	AiSystem& aiSys;
+	AndorCamera& andorCamera;
+	DdsSystem& dds;
 	UINT repetitionNumber;
-	// believe outer layer here is for sequence increment
+	
 	ScanRangeInfo variableRangeInfo;
-	std::vector<std::vector<parameterType>> variables;
-	std::vector<std::vector<parameterType>> constants;
-	//std::vector<funcVarMap> functionVars;
+	// believe outer layer here is for sequence increment
+	std::vector<std::vector<parameterType>> parameters;
 	MasterManager* thisObj;
 	Communicator& comm;
 	RhodeSchwarz& rsg;
@@ -79,6 +82,7 @@ struct MasterThreadInput
 	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
+	bool runAndor;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;
@@ -100,11 +104,11 @@ struct MasterThreadInput
 struct ExperimentInput
 {
 	ExperimentInput::ExperimentInput( ) :
-		includesCameraRun( false ), masterInput( NULL ), plotterInput( NULL ), cruncherInput( NULL ) { }
-	MasterThreadInput* masterInput;
+		includesAndorRun( false ), masterInput( NULL ), plotterInput( NULL ), cruncherInput( NULL ) { }
+	ExperimentThreadInput* masterInput;
 	realTimePlotterInput* plotterInput;
 	atomCruncherInput* cruncherInput;
 	AndorRunSettings AndorSettings;
 	baslerSettings baslerRunSettings;
-	bool includesCameraRun;
+	bool includesAndorRun;
 };

@@ -80,8 +80,8 @@ class AuxiliaryWindow : public CDialog
 		void ViewOrChangeDACNames();
 		void Exit();
 		void passRoundToDac();
-		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-						  BaslerWindow* basWin_);
+		void loadFriends( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
+						  BaslerWindow* basWin_ );
 		std::string getOtherSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<AoInfo, 24> getDacInfo ( );
@@ -90,7 +90,7 @@ class AuxiliaryWindow : public CDialog
 		std::string getGpibDeviceStatus( );
 		void runServos( );
 		LRESULT autoServo( WPARAM w, LPARAM l );
-		void loadCameraCalSettings( MasterThreadInput* input );
+		void loadCameraCalSettings( ExperimentThreadInput* input );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );
@@ -100,7 +100,7 @@ class AuxiliaryWindow : public CDialog
 		void handleAgilentEditChange( UINT id );
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
-		void fillMasterThreadInput(MasterThreadInput* input);
+		void fillMasterThreadInput(ExperimentThreadInput* input);
 		void changeBoxColor(systemInfo<char> colors);
 		void DacEditChange(UINT id);
 		void SetDacs();
@@ -113,8 +113,8 @@ class AuxiliaryWindow : public CDialog
 
 		void handleAgilentOptions( UINT id );
 
-		void loadMotSettings(MasterThreadInput* input);
-		void loadTempSettings ( MasterThreadInput* input );
+		void loadMotSettings(ExperimentThreadInput* input);
+		void loadTempSettings ( ExperimentThreadInput* input );
 
 		void handleTektronicsButtons(UINT id);
 		void invalidateSaved ( UINT id );
@@ -158,6 +158,8 @@ class AuxiliaryWindow : public CDialog
 		TektronicsAfgControl& getTopBottomTek ( );
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
+		DdsSystem& getDds ( );
+		void programDds ( );
 	private:
 		DECLARE_MESSAGE_MAP();		
 
