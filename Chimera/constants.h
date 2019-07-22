@@ -125,6 +125,7 @@
 
 
 #ifdef MASTER_COMPUTER
+	#define DDS_SAFEMODE false
 	#define BASLER_SAFEMODE false
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false

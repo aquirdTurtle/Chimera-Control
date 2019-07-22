@@ -1009,6 +1009,7 @@ void MainWindow::fillRedPgcTempProfile ( ExperimentThreadInput* input )
 	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "PGC";
 	input->seq.sequence[ 0 ] = input->profile;
+	input->runAndor = false;
 }
 
 
@@ -1021,6 +1022,7 @@ void MainWindow::fillGreyPgcTempProfile ( ExperimentThreadInput* input )
 	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "PGC";
 	input->seq.sequence[ 0 ] = input->profile;
+	input->runAndor = false;
 }
 
 
@@ -1033,6 +1035,7 @@ void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	input->seq.sequence[ 0 ] = input->profile;
+	input->runAndor = false;
 }
 
 
@@ -1045,6 +1048,7 @@ void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams ( );
 	input->rerngGuiForm.active = false;
+	input->runAndor = false;
 }
 
 
@@ -1063,6 +1067,7 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
  	input->skipNext = NULL;
  	input->rerngGuiForm = rearrangeControl.getParams( ); 
  	input->rerngGuiForm.active = false; 
+	input->runAndor = false;
 }
 
 
@@ -1081,6 +1086,7 @@ void MainWindow::fillMotSizeInput ( ExperimentThreadInput* input )
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams ( );
 	input->rerngGuiForm.active = false;
+	input->runAndor = false;
 }
 
 
