@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>atmcd32m.lib;legacy_stdio_definitions.lib;niFgen.lib;%(AdditionalDependencies);python37.lib;NIDAQmx.lib;dio64_32.lib;visa32.lib;gpib-32.obj;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>atmcd32m.lib;legacy_stdio_definitions.lib;niFgen.lib;%(AdditionalDependencies);python37.lib;NIDAQmx.lib;dio64_32.lib;visa32.lib;gpib-32.obj;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib;ftd2xx.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
