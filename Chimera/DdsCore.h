@@ -20,19 +20,20 @@ class DdsCore
 	public:
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		void getRampListFromConfig ( );
+		std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file );
+		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file );
 		void writeExperiment ( UINT sequenceNum, UINT variationNum );
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
 		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList );
 		void generateFullExpInfo ( );
-		void evaluateDdsInfo ( std::vector<parameterType> params = std::vector<parameterType> ( ),
-							   UINT variationNumber = 0, UINT sequenceNumber = 0 );
+		void evaluateDdsInfo ( std::vector<std::vector<parameterType>> params = std::vector<std::vector<parameterType>> ( 1 ));
 		void forceRampsConsistent ( );
 		void updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> rampList );
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
+		const std::string configDelim = "DDS_SYSTEM";
 	private:
 		ExpWrap<std::vector<ddsIndvRampListInfo>> rampLists;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;

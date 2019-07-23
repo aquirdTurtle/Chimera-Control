@@ -36,15 +36,34 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
 	UINT seqNum = 0;
+	ExpWrap<std::vector<ddsIndvRampListInfo>> ddsRampList;
+	ddsRampList.resizeSeq ( input->seq.sequence.size ( ) );
+	// a couple shortcuts.
+	auto& ttls = input->ttls;
+	auto& aoSys = input->aoSys;
+	auto& comm = input->comm;
+	auto& dds = input->dds;
 	try
 	{
 		for ( auto& config : input->seq.sequence )
 		{
+
 			auto& seq = expSeq.sequence[seqNum]; 
 			if ( input->runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( config );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
+				/// Prep DDS.
+				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+				ddsRampList.resizeVariations ( seqNum, variations );
+				std::ifstream configFile ( config.configFilePath ( ) );
+				ProfileSystem::jumpToDelimiter ( configFile, dds.configDelim );
+				ddsRampList(seqNum,0) = dds.getRampListFromConfig ( configFile );
+				for ( auto varNum : range ( variations ) )
+				{
+					if ( varNum == 0 ) continue;
+					ddsRampList ( seqNum, varNum ) = ddsRampList ( seqNum, 0 );
+				}
 			}
 			if ( input->runNiawg )
 			{
@@ -52,7 +71,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
 				if ( input->debugOptions.outputNiawgHumanScript )
 				{
-					// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n with \r\n.
+					// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n 
+					// with \r\n.
 					std::string debugStr = "Human Script: " + seq.niawgStream.str ( ) + "\n\n";
 					debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
 					boost::replace_all ( debugStr, "\n", "\r\n" );
@@ -70,6 +90,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		delete voidInput;
 		return -1;
 	}
+
+	dds.updateRampLists ( ddsRampList );
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower () calls.
@@ -87,11 +109,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
 	auto quiet = input->quiet;
-	// a couple shortcuts.
-	auto& ttls = input->ttls;
-	auto& aoSys = input->aoSys;
-	auto& comm = input->comm;
-	auto& dds = input->dds;
 	
 	timer.tick("After-File-Init");
 	/// ////////////////////////////
@@ -134,8 +151,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				if ( variations != determineVariationNumber( seqVariables ) )
 				{
+					// why is this required???
 					thrower ( "Variation number changes between sequences! the number of variations must match"
-							 " between sequences.  (A low level bug, this shouldn't happen)" );
+							  " between sequences.  (A low level bug, this shouldn't happen)" );
 				}
 			}
 			/// Prep agilents
@@ -211,6 +229,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			subTimer.tick ( "After-ttl-Interpret" );
 			aoSys.interpretKey( input->parameters, warnings );
 			subTimer.tick ( "After-aoSys-Interpret" );
+			dds.evaluateDdsInfo ( input->parameters );
+			dds.generateFullExpInfo ( );
+			subTimer.tick ( "After-dds-Interpret" );
 		}
 		if ( useAuxDevices )
 		{
@@ -279,8 +300,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		expUpdate ( subTimer.getTimingMessage ( ), comm, input->quiet );
 		if (input->runMaster)
 		{
-			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", 
-					   comm, quiet );
+			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", comm, quiet );
 			ULONGLONG totalTime = 0;
 			for ( auto seqInc : range( input->seq.sequence.size()) )
 			{
@@ -330,6 +350,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		{
 			comm.sendColorBox( System::Master, 'G' );
 		}
+		// shouldn't there be a sequence loop here?
 		// loop for variations
 		for (const UINT& variationInc : range( variations ))
 		{
@@ -375,6 +396,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				agilent->setAgilent( variationInc, input->parameters[0] );
 			}
+			dds.writeExperiment ( 0, variationInc );
 			// check right number of triggers (currently must be done after agilent is set.
 			for ( auto& agilent : input->agilents )
 			{

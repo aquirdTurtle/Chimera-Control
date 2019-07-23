@@ -639,6 +639,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	}
 	topBottomTek.handleSaveConfig( saveFile );
 	eoAxialTek.handleSaveConfig( saveFile );
+	dds.handleSaveConfig ( saveFile );
 }
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
@@ -663,13 +664,17 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 															  mainWin->getRunInfo ( ) );
 		if ( ver > Version ( "2.6" ) )
 		{
-			ProfileSystem::standardOpenConfig ( configFile, agilents[whichAg::Microwave].configDelim, &agilents[ whichAg::Microwave ],
-												Version ( "4.0" ) );
+			ProfileSystem::standardOpenConfig ( configFile, agilents[whichAg::Microwave].configDelim,
+												&agilents[ whichAg::Microwave ], Version ( "4.0" ) );
 			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
 																   mainWin->getRunInfo ( ) );
 		}
 		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.configDelim, &topBottomTek, Version ( "4.0" ) );
 		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.configDelim, &eoAxialTek, Version ( "4.0" ) );
+		if ( ver >= Version ( "4.5" ) )
+		{
+			ProfileSystem::standardOpenConfig ( configFile, dds.getDelim(), &dds, Version ( "4.5" ) );
+		}
 	}
 	catch ( Error& )
 	{
@@ -1102,9 +1107,9 @@ AiSystem& AuxiliaryWindow::getAiSys ( )
 	return aiSys;
 }
 
-DdsSystem& AuxiliaryWindow::getDds ( )
+DdsCore& AuxiliaryWindow::getDds ( )
 {
-	return dds;
+	return dds.getCore();
 }
 
 

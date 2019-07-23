@@ -87,15 +87,11 @@ class ProfileSystem
 		template <class sysType>
 		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, 
 										 Version minVer = Version ( "0.0" ) );
-
-		//static void standardOpenConfig ( std::ifstream& openFile, std::string beginDelim, std::string endDelim,
-		//								 std::string systemName, void* thisPass,
-		//								 void ( *openFunction )( std::ifstream& f, Version ver, void* callThis ),
-		//								 Version minVer=Version("0.0") );
 		static void checkDelimiterLine ( std::ifstream& openFile, std::string keyword );
 		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
 		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
-		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, Version minVer=Version("0.0") );
+		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, 
+										Version minVer=Version("0.0") );
 	private:
 		profileSettings currentProfile; 
 		seqSettings currentSequence;
@@ -117,7 +113,8 @@ class ProfileSystem
 		// Version 4.2: Agilent channel mode added and saving this as text instead of index
 		// Version 4.3: Refactored parameter system range structure to include range info separate for each dimension.
 		// Version 4.4: added software accumulation picture options
-		const Version version = Version( "4.4" );
+		// Version 4.5: Added DDS system to save.
+		const Version version = Version( "4.5" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
