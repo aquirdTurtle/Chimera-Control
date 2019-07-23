@@ -25,16 +25,28 @@ void DdsCore::updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> newLis
 }
 
 // this probably needs an overload with a default value for the empty parameters case...
-void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params, UINT variationNumber, UINT sequenceNumber )
+void DdsCore::evaluateDdsInfo ( std::vector<std::vector<parameterType>> params )
 {
-	for ( auto& ramp : rampLists ( sequenceNumber, variationNumber ) )
+	if ( params.size ( ) == 0 )
 	{
-		ramp.rampTime.internalEvaluate ( params, variationNumber );
-		ramp.freq1.internalEvaluate ( params, variationNumber );
-		ramp.freq2.internalEvaluate ( params, variationNumber );
-		ramp.amp1.internalEvaluate ( params, variationNumber );
-		ramp.amp2.internalEvaluate ( params, variationNumber );
-		ramp.rampTime.internalEvaluate ( params, variationNumber );
+		thrower ( "ERROR: empty variables! Sequence size is zero?!" );
+	}
+	UINT variations = ( ( params[ 0 ].size ( ) ) == 0 ) ? 1 : params.front ( ).front ( ).keyValues.size ( );
+	for ( auto sequenceNumber : range ( params.size ( ) ) )
+	{
+		auto& seqParams = params[ sequenceNumber ];
+		for ( auto variationNumber : range ( variations ) )
+		{
+			for ( auto& ramp : rampLists ( sequenceNumber, variationNumber ) )
+			{
+				ramp.rampTime.internalEvaluate ( seqParams, variationNumber );
+				ramp.freq1.internalEvaluate ( seqParams, variationNumber );
+				ramp.freq2.internalEvaluate ( seqParams, variationNumber );
+				ramp.amp1.internalEvaluate ( seqParams, variationNumber );
+				ramp.amp2.internalEvaluate ( seqParams, variationNumber );
+				ramp.rampTime.internalEvaluate ( seqParams, variationNumber );
+			}
+		}
 	}
 }
 
@@ -386,6 +398,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, std::array<UINT8, 4> data
 	writeDDS ( DEVICE, ADDRESS, data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ] );
 }
 
+
 void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, UINT8 dat3, UINT8 dat4 )
 {
 	if ( connType == ddsConnectionType::type::Async )
@@ -406,21 +419,52 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 				thrower ( "Failed to open dds logging file!" );
 			}
 			writeLog << std::setfill ( '0' ) << std::hex
-				 << std::setw ( 2 ) << UINT ( input[ 0 ] )
-				 << std::setw ( 2 ) << UINT ( input[ 1 ] )
-				 << std::setw ( 2 ) << UINT ( input[ 2 ] )
-				 << " "
-				 << std::setw ( 2 ) << UINT ( input[ 3 ] )
-				 << std::setw ( 2 ) << UINT ( input[ 4 ] )
-				 << std::setw ( 2 ) << UINT ( input[ 5 ] )
-				 << std::setw ( 2 ) << UINT ( input[ 6 ] )
-				 << "\n";
+					 << std::setw ( 2 ) << UINT ( input[ 0 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 1 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 2 ] )
+					 << " "
+					 << std::setw ( 2 ) << UINT ( input[ 3 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 4 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 5 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 6 ] )
+					 << "\n";
 		}
 	}
 	else
 	{
 		// could probably take out other options entierly...
 		thrower ( "Incorrect connection type, should be ASYNC" );
+	}
+}
+
+
+std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file )
+{
+	UINT numRamps = 0;
+	file >> numRamps;
+	std::vector<ddsIndvRampListInfo> list(numRamps);
+	for ( auto& ramp : list )
+	{
+		file >> ramp.index >> ramp.channel >> ramp.freq1.expressionStr >> ramp.amp1.expressionStr 
+			 >> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
+		file.get ( ); // get newline.
+	}
+	return list;
+}
+
+
+void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file )
+{
+	file << list.size ( ) << "\n";
+	for ( auto& ramp : list )
+	{
+		file << ramp.index << " " << ramp.channel << " ";
+		// avoid outputing empty lines to the config file, 0 is a good default here. This prevents the user from saving
+		// empty expresssions, but empty expressions don't run anyways. 
+		for ( auto& val : { ramp.freq1, ramp.amp1, ramp.freq2, ramp.amp2, ramp.rampTime } )
+		{
+			file << ( val.expressionStr == "" ? 0 : val.expressionStr) << "\n";
+		}
 	}
 }
 
