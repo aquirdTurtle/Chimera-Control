@@ -158,7 +158,7 @@ class AuxiliaryWindow : public CDialog
 		TektronicsAfgControl& getTopBottomTek ( );
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
-		DdsSystem& getDds ( );
+		DdsCore& getDds ( );
 		void programDds ( );
 	private:
 		DECLARE_MESSAGE_MAP();		

@@ -202,6 +202,7 @@ void DdsSystem::deleteRampVariable ( )
 	redrawListview ( );
 }
 
+
 void DdsSystem::programNow ( )
 {
 	try
@@ -222,7 +223,35 @@ void DdsSystem::programNow ( )
 }
 
 
+void DdsSystem::handleSaveConfig ( std::ofstream& file )
+{
+	file << getDelim() << "\n";
+	core.writeRampListToConfig ( currentRamps, file );
+	file << "END_" + getDelim ( ) << "\n";
+}
+
+
+void DdsSystem::handleOpenConfig ( std::ifstream& file, Version ver )
+{
+	if ( ver >= Version ( "4.5" ) )
+	{
+		currentRamps = core.getRampListFromConfig ( file );
+	}
+	redrawListview ( );
+}
+
+
 std::string DdsSystem::getSystemInfo ( )
 {
 	return core.getSystemInfo();
+}
+
+std::string DdsSystem::getDelim ( )
+{
+	return core.configDelim;
+}
+
+DdsCore& DdsSystem::getCore ( )
+{
+	return core;
 }
