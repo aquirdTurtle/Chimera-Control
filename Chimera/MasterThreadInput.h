@@ -62,7 +62,7 @@ struct ExperimentThreadInput
 	AoSystem& aoSys;
 	AiSystem& aiSys;
 	AndorCamera& andorCamera;
-	DdsSystem& dds;
+	DdsCore& dds;
 	UINT repetitionNumber;
 	
 	ScanRangeInfo variableRangeInfo;

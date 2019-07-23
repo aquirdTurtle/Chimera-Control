@@ -29,8 +29,8 @@ class DdsSystem
 	public:
 		DdsSystem(bool ftSafemode);
 		void redrawListview ( );
-		void handleSaveConfig ( );
-		void handleOpenConfig ( );
+		void handleSaveConfig ( std::ofstream& file );
+		void handleOpenConfig ( std::ifstream& file, Version ver );
 		void handleNewConfig ( );
 		void initialize(POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title );
 		void rearrange(UINT width, UINT height, fontMap fonts);
@@ -38,7 +38,11 @@ class DdsSystem
 		void deleteRampVariable();
 		void programNow ( );
 		std::string getSystemInfo ( );
+		std::string getDelim ( );
+		DdsCore& getCore ( );
+		
 	private:
+		
 		Control<CStatic> ddsHeader;
 		Control<MyListCtrl> rampListview;
 		Control<CleanButton> programNowButton;
