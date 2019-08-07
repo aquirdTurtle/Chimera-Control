@@ -17,8 +17,8 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	ftFlume( ftSafemode ), 	
-winSerial( serialSafemode ),
+DioSystem::DioSystem(bool ftSafemode, bool serialSafemode, bool viewpointSafemode) : ftFlume(ftSafemode),
+winSerial(serialSafemode),
 vp_flume(viewpointSafemode)
 {
 	connectType = ftdiConnectionOption::None;
@@ -40,9 +40,7 @@ void DioSystem::ftdi_connectasync( const char devSerial[] )
 	connectType = ftdiConnectionOption::Async;
 }
 
-/*
-* is this a software trigger? is it the "start" command?
-*/
+
 DWORD DioSystem::ftdi_trigger( )
 {
 	std::vector<unsigned char> dataBuffer = { 161, 0, 0, 0, 0, 0, 1 };
@@ -65,7 +63,7 @@ DWORD DioSystem::ftdi_trigger( )
 	}
 	else if ( connectType == ftdiConnectionOption::Async )
 	{
-		return ftFlume.write( dataBuffer );
+		return ftFlume.trigger(); 
 	}
 	return 0;
 }
@@ -122,6 +120,7 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 		}
 		else
 		{
+			
 			totalBytes += ftFlume.write( buf.pts, buf.bytesToWrite );
 		}
 		return totalBytes;
@@ -140,25 +139,26 @@ void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT
 	{
 		thrower ( "tried to write data buffer out of bounds!" );
 	}
+	
 	dataBuffer[offset] = WBWRITE;
-	dataBuffer[offset + 1] = ((TIMEOFFS + count) >> 8) & 0xFF;
-	dataBuffer[offset + 2] = (TIMEOFFS + count) & 0xFF;
-	dataBuffer[offset + 3] = ((pt.time) >> 24) & 0xFF;
-	dataBuffer[offset + 4] = ((pt.time) >> 16) & 0xFF;
-	dataBuffer[offset + 5] = ((pt.time) >> 8) & 0xFF;
-	dataBuffer[offset + 6] = (pt.time) & 0xFF;
+	dataBuffer[offset + 1] = (((TIMEOFFS + count) >> 8) & 0xFF);
+	dataBuffer[offset + 2] = ((TIMEOFFS + count) & 0xFF);
+	dataBuffer[offset + 3] = (((pt.time) >> 24) & 0xFF);
+	dataBuffer[offset + 4] = (((pt.time) >> 16) & 0xFF);
+	dataBuffer[offset + 5] = (((pt.time) >> 8) & 0xFF);
+	dataBuffer[offset + 6] = ((pt.time) & 0xFF);
 
 	dataBuffer[offset + 7] = WBWRITE;
-	dataBuffer[offset + 8] = ((BANKAOFFS + count) >> 8) & 0xFF;
-	dataBuffer[offset + 9] = (BANKAOFFS + count) & 0xFF;
+	dataBuffer[offset + 8] = (((BANKAOFFS + count) >> 8) & 0xFF);
+	dataBuffer[offset + 9] = ((BANKAOFFS + count) & 0xFF);
 	dataBuffer[offset + 10] = pt.pts[0];
 	dataBuffer[offset + 11] = pt.pts[1];
 	dataBuffer[offset + 12] = pt.pts[2];
 	dataBuffer[offset + 13] = pt.pts[3];
 
 	dataBuffer[offset + 14] = WBWRITE;
-	dataBuffer[offset + 15] = ((BANKBOFFS + count) >> 8) & 0xFF;
-	dataBuffer[offset + 16] = (BANKBOFFS + count) & 0xFF;
+	dataBuffer[offset + 15] = (((BANKBOFFS + count) >> 8) & 0xFF);
+	dataBuffer[offset + 16] = ((BANKBOFFS + count) & 0xFF);
 	dataBuffer[offset + 17] = pt.pts[4];
 	dataBuffer[offset + 18] = pt.pts[5];
 	dataBuffer[offset + 19] = pt.pts[6];
@@ -321,6 +321,25 @@ std::string DioSystem::getSystemInfo()
 	return info;
 }
 
+std::string DioSystem::getDioSystemInfo()
+{
+	
+	UINT numDev;
+	std::string msg = "";
+	try
+	{
+		numDev = ftFlume.getNumDevices();
+		msg += "Number ft devices: " + str(numDev) + "\n";
+	}
+	catch (Error& err)
+	{
+		msg += "Failed to Get number ft Devices! Error was: " + err.trace();
+	}
+	msg += ftFlume.getDeviceInfoList();
+	return msg;
+}
+
+
 std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames()
 {
 	std::array<std::array<std::string, 16>, 4> ttlNames;
@@ -437,7 +456,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
 	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, 
 					 IDC_ZERO_TTLS );
-	zeroTtls.setToolTip( "Pres this button to set all ttls to their zero (false) state.", toolTips, master );
+	zeroTtls.setToolTip( "Press this button to set all ttls to their zero (false) state.", toolTips, master );
 	loc.y += 20;
 
 	for (long ttlNumberInc = 0; ttlNumberInc < long(ttlNumberLabels.size()); ttlNumberInc++)
@@ -551,8 +570,9 @@ int DioSystem::getNumberOfTTLsPerRow()
 
 void DioSystem::handleTTLPress(int id)
 {
+	
 	for ( auto& out : outputs )
-	{
+	{		
 		if ( out.getCheckID ( ) == id )
 		{
 			if ( out.getShadeStatus() )
@@ -562,7 +582,10 @@ void DioSystem::handleTTLPress(int id)
 			}
 			if ( holdStatus == false )
 			{
-				forceTtl ( out.getPosition().first, out.getPosition ( ).second, !out.getStatus() );
+				//forceTtl ( out.getPosition().first, out.getPosition ( ).second, !out.getStatus() );
+				
+				ftdi_ForceOutput(out.getPosition().first, out.getPosition().second, !out.getStatus() );
+			
 				out.updateStatus ( );
 			}
 			else
@@ -572,6 +595,27 @@ void DioSystem::handleTTLPress(int id)
 			break;
 		}
 	}
+}
+
+std::string DioSystem::testTTL() {
+	for (auto i : range(4))
+	{
+		for (auto j : range(16)) {
+			outputs(j, DioRows::which(i)).set(true);
+		}
+	}//above loop turns all ttls on
+
+	resetTtlEvents();
+	initializeDataObjects(1, 0);
+	sizeDataStructures(1, 1);
+	ttlSnapshots[0][0].push_back({ 0.00001, getCurrentStatus() });
+	ftdi_connectasync("FT2E722BB"); 
+	convertToFtdiSnaps(0, 0);
+	convertToFinalFtdiFormat(0, 0);
+	auto bytesWritten = ftdi_write(0, 0, false);
+	ftdi_trigger();
+	ftdi_disconnect();
+	return "finished";
 }
 
 
@@ -609,21 +653,20 @@ void DioSystem::prepareForce( )
 }
 
 
-void DioSystem::initializeDataObjects( UINT seqNum, UINT cmdNum )
+void DioSystem::initializeDataObjects(UINT seqNum, UINT cmdNum)
 {
-	ttlCommandFormList.resize( seqNum );
-	ttlSnapshots = vec<vec<vec<DioSnapshot>>>( seqNum, vec<vec<DioSnapshot>>( cmdNum ) );
-	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( seqNum, vec<vec<DioSnapshot>>( cmdNum ) );
-	ttlCommandList = vec<vec<vec<DioCommand>>>( seqNum, vec<vec<DioCommand>>( cmdNum ) );
-	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( seqNum, vec<vec<std::array<WORD, 6>>>( cmdNum ) );
-	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( seqNum, vec<vec<std::array<WORD, 6>>>( cmdNum ) );
-	finalFormatViewpointData = vec<vec<vec<WORD>>>( seqNum, vec<vec<WORD>>( cmdNum ) );
-	loadSkipFinalFormatViewpointData = vec<vec<vec<WORD>>>( seqNum, vec<vec<WORD>>( cmdNum ) );
-	// will prob need to change these to match above later.
-	ftdiSnaps.resize( seqNum );
-	ftdiSnaps_loadSkip.resize( seqNum );
-	finFtdiBuffers.resize( seqNum );
-	finFtdiBuffers_loadSkip.resize( seqNum );
+	ttlCommandFormList.resize(seqNum);
+	ttlSnapshots = vec<vec<vec<DioSnapshot>>>(seqNum, vec<vec<DioSnapshot>>(cmdNum));
+	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>(seqNum, vec<vec<DioSnapshot>>(cmdNum));
+	ttlCommandList = vec<vec<vec<DioCommand>>>(seqNum, vec<vec<DioCommand>>(cmdNum));
+	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>(seqNum, vec<vec<std::array<WORD, 6>>>(cmdNum));
+	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>(seqNum, vec<vec<std::array<WORD, 6>>>(cmdNum));
+	finalFormatViewpointData = vec<vec<vec<WORD>>>(seqNum, vec<vec<WORD>>(cmdNum));
+	loadSkipFinalFormatViewpointData = vec<vec<vec<WORD>>>(seqNum, vec<vec<WORD>>(cmdNum));
+	ftdiSnaps = vec<vec<std::array<ftdiPt, 2048>>>(seqNum, vec<std::array<ftdiPt, 2048>>(cmdNum));
+	ftdiSnaps_loadSkip = vec<vec<std::array<ftdiPt, 2048>>>(seqNum, vec<std::array<ftdiPt, 2048>>(cmdNum));
+	finFtdiBuffers = vec<vec<finBufInfo>>(seqNum, vec<finBufInfo>(cmdNum));
+	finFtdiBuffers_loadSkip = vec<vec<finBufInfo>>(seqNum, vec<finBufInfo>(cmdNum));
 }
 
 
@@ -731,6 +774,10 @@ void DioSystem::stopBoard()
 bool DioSystem::getViewpointSafemode ( )
 {
 	return vp_flume.getSafemodeSetting ( );
+}
+bool DioSystem::getFtFlumeSafemode()
+{
+	return ftFlume.getSafemodeSetting();
 }
 
 
@@ -1103,7 +1150,7 @@ std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
 	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
 	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 )
 	{
-		thrower ( "DIO system was asked to calculate at ime that was too long! this is limited by the card." );
+		thrower ( "DIO system was asked to calculate a time that was too long! this is limited by the card." );
 	}
 	return { lowordTime, hiwordTime };
 }
@@ -1119,29 +1166,33 @@ void DioSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
 	{
 		auto ttlSnaps = loadSkip ? loadSkipTtlSnapshots[seqNum][variation] : ttlSnapshots[seqNum][variation];
 		auto& ftSnaps = loadSkip ? ftdiSnaps_loadSkip[seqNum][variation] : ftdiSnaps[seqNum][variation];
-		for ( auto snapshot : ttlSnaps )
+		for ( auto snapshot : ttlSnaps)
 		{
 			ftdiPt pt;
 			fpgaBankCtr = 0;
-			for ( auto bank : snapshot.ttlStatus )
+			for ( auto rowOfTtls : snapshot.ttlStatus )
 			{
 				// currently this is split an awkward because the viewpoint organization was organized in sets of 16, not 8.
 				// convert first 8 of snap shot to int
 				val1 = 0;
 				for (auto i : range(8) )
 				{
-					val1 = val1 + pow( 2, i )*bank[i];
+					val1 = val1 + pow( 2, i )*rowOfTtls[i];
 				}
 				// convert next 8 of snap shot to int
 				val2 = 0;
 				for (auto j : range(8))
 				{
-					val2 = val2 + pow( 2, j )*bank[j + 8];
+					val2 = val2 + pow( 2, j )*rowOfTtls[j + 8];
 				}
 				pt.pts[fpgaBankCtr++] = val1;
 				pt.pts[fpgaBankCtr++] = val2;
 			}
 			pt.time = snapshot.time * timeConv;
+			if (snapIndex > ftSnaps.size())
+			{
+				thrower("More than 2048 Variations attempted to write to ftdi snapshots object!");
+			}
 			ftSnaps[snapIndex] = pt;
 			snapIndex++;
 		}
@@ -1169,14 +1220,14 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 		{
 			UINT offset = DIO_WRITESPERDATAPT * number * DIO_MSGLENGTH;
 			fillFtdiDataBuffer( buf.pts, offset, count, snaps[count] );
-			if ( snaps[count] == ftdiPt( { 0,0,0,0,0,0,0,0,0 } ) && number != 0 )
+			if ( snaps[count] == ftdiPt( { 0,0,0,0,0,0,0,0,0 } ) && number != 0 )//shouldn't there only be 8 zeros
 			{
-				proceed = false;
+				proceed = false;//this is never false since we reach 43008 size?
 			}
 			if ( count == NUMPOINTS )
 			{
-				thrower ( "RC028.cpp: Non-Terminated table, data was filled all the way to end of data array... "
-						 "Unit will not work right..., last element of data should be all zeros." );
+				thrower ( "Non-Terminated table, data was filled all the way to end of data array... "
+						  "Unit will not work right..., last element of data should be all zeros." );
 			}
 			number++;
 			count++;
@@ -1195,7 +1246,7 @@ DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 	ttlSnapshots[0][0].push_back( { 0.1, getCurrentStatus ( ) } );
 	convertToFtdiSnaps( 0, 0 );
 	convertToFinalFtdiFormat( 0, 0 );	
-	ftdi_connectasync( "FT1VAHJPB" );
+	ftdi_connectasync( "FT2E722BB" ); //FT2E722BB   FT1VAHJPB
 	auto bytesWritten = ftdi_write( 0, 0, false);
 	ftdi_trigger( );
 	ftdi_disconnect( );

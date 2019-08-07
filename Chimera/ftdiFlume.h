@@ -10,18 +10,20 @@ class ftdiFlume
 {
 	public:
 		ftdiFlume( bool safemode_option );
-		void open( const char devSerial[] );
-		void setUsbParams( );
 		DWORD write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=NULL );
 		UINT getNumDevices( );
 		std::vector<UINT8> read ( DWORD readSize );
 		void close( );
+		DWORD trigger();
 		std::string getErrorText( int errCode );
 		std::string getDeviceInfoList ( );
-
+		bool getSafemodeSetting();
+		void open(const char devSerial[]);
+		void setUsbParams();
 	private:
 		const bool safemode;
 		FT_HANDLE ftAsyncHandle;
+
 };
 
 
