@@ -15,6 +15,7 @@ struct ftdiPt
 {
 	unsigned int time;
 	std::array<unsigned char, 8> pts;
+
 	bool operator==( const ftdiPt& p )
 	{
 		bool pts_match = true;
