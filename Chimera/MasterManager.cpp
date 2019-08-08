@@ -129,6 +129,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		ttls.resetTtlEvents( );
 		aoSys.initializeDataObjects( input->seq.sequence.size( ), 0 );
 		ttls.initializeDataObjects( input->seq.sequence.size( ), 0 );
+		//ttls.sizeDataStructures(input->seq.sequence.size(), 1);
 		input->thisObj->loadSkipTimes.clear( );
 		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );
@@ -264,7 +265,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					aoSys.makeFinalDataFormat( variationInc, seqInc ); 
 					ttls.organizeTtlCommands ( variationInc, seqInc );
 					ttls.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					ttls.convertToFinalViewpointFormat( variationInc, seqInc );
+					ttls.convertToFtdiSnaps(variationInc, seqInc);
+					ttls.convertToFinalFtdiFormat( variationInc, seqInc );
 					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Main");
 					// run a couple checks.
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
@@ -466,12 +468,17 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 						aoSys.configureClocks( variationInc, seqInc, skipOption);
 						aoSys.writeDacs( variationInc, seqInc, skipOption);
 						aoSys.startDacs();
-						ttls.writeTtlData( variationInc, seqInc, skipOption);
-						ttls.startBoard();
+						//ttls.writeTtlData( variationInc, seqInc, skipOption);
+						//ttls.startBoard();
+						ttls.ftdi_connectasync("FT2E722BB");
+						ttls.ftdi_write(variationInc, seqInc, skipOption);
+						ttls.ftdi_trigger();
 						ttls.waitTillFinished( variationInc, seqInc, skipOption);
+						ttls.ftdi_disconnect();
 					}
 				}
 			}
+			
 			expUpdate( "\r\n", comm, quiet );
 		}
 		/// conclude.

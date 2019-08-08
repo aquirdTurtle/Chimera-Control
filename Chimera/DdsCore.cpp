@@ -249,6 +249,7 @@ std::string DdsCore::getSystemInfo ( )
 	return msg;
 }
 
+
 /* Get Frequency Tuning Word - convert a frequency in double to  */
 INT DdsCore::getFTW ( double freq )
 {

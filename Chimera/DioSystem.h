@@ -124,7 +124,7 @@ class DioSystem
 		std::string testTTL();
 		allDigitalOutputs& getDigitalOutputs();
 		void interpretKey ( vec<vec<parameterType>>& params );
-		void New_test_write(ftdiPt pt);
+		void wait2(double time);
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
