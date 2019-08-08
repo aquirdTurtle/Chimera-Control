@@ -1003,7 +1003,7 @@ void AuxiliaryWindow::zeroTtls()
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		ttlBoard.zeroBoard();
+		ttlBoard.ftdiZeroBoard();
 		sendStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)

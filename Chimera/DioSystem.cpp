@@ -803,8 +803,8 @@ double DioSystem::getClockStatus()
 		// return = Now * 24 * 60 * 60 * 1000
 		return GetTickCount();
 	}
-	double timeInSeconds = stat.time[0] + stat.time[1] * 65535;
-	return timeInSeconds / 10000.0;
+	double timeInMilliSeconds = stat.time[0] + stat.time[1] * 65535;
+	return timeInMilliSeconds / 10000.0;
 	// assuming the clock runs at 10 MHz, return in ms.
 }
 
@@ -938,23 +938,31 @@ void DioSystem::wait(double time)
 	double finTime = getClockStatus();
 }
 
+void DioSystem::wait2(double time) {
+	Sleep(time + 500);
+}
+
 
 // uses the last time of the ttl trigger to wait until the experiment is finished.
 void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 {
 	double totalTime;
-	if ( skipOption )
-	{
-		totalTime = ( loadSkipFormattedTtlSnapshots[seqNum][variation].back( )[0]
-					  + 65535 * loadSkipFormattedTtlSnapshots[seqNum][variation].back( )[1]) / 10000.0 + 1;
+	if (!loadSkipFormattedTtlSnapshots.empty()) {
+		if (skipOption)
+		{
+			totalTime = (ftdiSnaps_loadSkip[seqNum][variation].back().time
+				+ 65535 * ftdiSnaps_loadSkip[seqNum][variation].back().time) / 10000.0 + 1;
+		}
+		else
+		{
+			totalTime = (ftdiSnaps[seqNum][variation].back().time
+				+ 65535 * ftdiSnaps[seqNum][variation].back().time) / 10000.0 + 1;
+		}
 	}
-	else 
-	{
-		totalTime = (formattedTtlSnapshots[seqNum][variation].back( )[0]
-					  + 65535 * formattedTtlSnapshots[seqNum][variation].back( )[1]) / 10000.0 + 1;
+	else {
+		thrower("Nothing in ftdiSnaps vector");
 	}
-	 
-	wait(totalTime);
+	wait2(totalTime);
 }
 
 
@@ -976,8 +984,11 @@ double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 double DioSystem::getTotalTime(UINT variation, UINT seqNum )
 {
 	// ??? there used to be a +1 at the end of this...
-	return (formattedTtlSnapshots[seqNum][variation].back()[0]
-			 + 65535 * formattedTtlSnapshots[seqNum][variation].back()[1]) / 10000.0;
+	if (ftdiSnaps[seqNum][variation].empty()) { thrower("nothing in ftdi snaps vector"); }
+	else {
+		return (ftdiSnaps[seqNum][variation].back().time
+			 + 65535 * ftdiSnaps[seqNum][variation].back().time) / 10000.0 + 1;
+	}
 }
 
 // an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
@@ -1073,7 +1084,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 		// threshold to extra room. If dt<1ns, probably just some floating point issue. 
 		// If 1ns<dt<100ns I want to actually complain to the user since it seems likely that  this was intentional and 
 		// not a floating error.
-		if (commandInc == 0 || fabs(orderedCommandList[commandInc].time - timeOrganizer.back().first) > 1e-6)
+		if (commandInc == 0 || fabs(orderedCommandList[commandInc].time - timeOrganizer.back().first) > 2*DBL_EPSILON)
 		{
 			// new time
 			std::vector<USHORT> testVec =  { USHORT(commandInc) };
@@ -1095,6 +1106,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	snaps.clear();
 	// start with the initial status.
 	snaps.push_back({ 0, getCurrentStatus() });
+	///
 	if (timeOrganizer[0].first != 0)
 	{
 		// then there were no commands at time 0, so just set the initial state to be exactly the original state before
@@ -1107,26 +1119,26 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	snaps.back().time = timeOrganizer[0].first;
 	for (auto zeroInc : range( timeOrganizer[ 0 ].second.size ( ) ) )
 	{
-		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
+		// make sure to address the correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
 		UINT cmdNum = timeOrganizer[0].second[zeroInc];
 		UINT row = orderedCommandList[cmdNum].line.first;
 		UINT column = orderedCommandList[cmdNum].line.second;
 		snaps.back().ttlStatus[row][column]	= orderedCommandList[cmdNum].value;
 	}
-
+	///
 	// already handled the first case.
 	for (UINT commandInc = 1; commandInc < timeOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
 		snaps.push_back( snaps.back());
 		snaps.back().time = timeOrganizer[commandInc].first;
-		for (auto cmdNum : timeOrganizer[commandInc].second)
+		for (auto cmdIndex : timeOrganizer[commandInc].second)
 		{
 			// see description of this command above... update everything that changed at this time.
-			UINT row = orderedCommandList[cmdNum].line.first;
-			UINT column = orderedCommandList[cmdNum].line.second;
-			snaps.back().ttlStatus[row][column] = orderedCommandList[cmdNum].value;
+			UINT row = orderedCommandList[cmdIndex].line.first;
+			UINT column = orderedCommandList[cmdIndex].line.second;
+			snaps.back().ttlStatus[row][column] = orderedCommandList[cmdIndex].value;
 		}
 	}
 	// phew. Check for good input by user:
@@ -1137,6 +1149,10 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 			thrower ("The code tried to set a ttl event at a negative time value! This is clearly not allowed."
 					" Aborting.");
 		}
+	}
+	/* Test to see if adding 1ms to the starting time would solve the problem of the initial state of ttl*/
+	for (int i = 0; i < snaps.size(); i++) {
+		snaps[i].time = snaps[i].time + 1;
 	}
 }
 
@@ -1220,7 +1236,7 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 		{
 			UINT offset = DIO_WRITESPERDATAPT * number * DIO_MSGLENGTH;
 			fillFtdiDataBuffer( buf.pts, offset, count, snaps[count] );
-			if ( snaps[count] == ftdiPt( { 0,0,0,0,0,0,0,0,0 } ) && number != 0 )//shouldn't there only be 8 zeros
+			if ( snaps[count] == ftdiPt( { 0,0,0,0,0,0,0,0,0 } ) && number != 0 )
 			{
 				proceed = false;//this is never false since we reach 43008 size?
 			}
@@ -1239,18 +1255,19 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 
 DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 {
-	outputs ( number, row ).set ( state );
+	outputs ( number, row ).set( state );
 	resetTtlEvents( );
 	initializeDataObjects( 1, 0 );
 	sizeDataStructures( 1, 1 );
-	ttlSnapshots[0][0].push_back( { 0.1, getCurrentStatus ( ) } );
+	ttlSnapshots[0][0].push_back( { 0.00001, getCurrentStatus ( ) } );
+	ftdi_connectasync( "FT2E722BB" ); //FT2E722BB   FT1VAHJPB
 	convertToFtdiSnaps( 0, 0 );
 	convertToFinalFtdiFormat( 0, 0 );	
-	ftdi_connectasync( "FT2E722BB" ); //FT2E722BB   FT1VAHJPB
 	auto bytesWritten = ftdi_write( 0, 0, false);
 	ftdi_trigger( );
 	ftdi_disconnect( );
 	return bytesWritten;
+
 }
 
 
