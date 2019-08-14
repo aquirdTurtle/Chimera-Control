@@ -387,6 +387,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		}
  		if (!cameraController->isContinuous())
  		{
+			// don't write data if continuous, that's a recipe for disaster.
 			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, 
 									runningAutoAcq ? tempAcqSettings.dims : settingsCtrl.getCurrentSettings ( ).dims );
  		}
@@ -399,6 +400,12 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
 			mainWin->getComm ( )->sendBaslerFin ( );
 			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
+			if (!camWin->cameraIsRunning() )
+			{
+				// else it will close when the basler camera finishes.
+				camWin->getLogger ( )->closeFile ( );
+			}
+
  		}
 		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
 		{
