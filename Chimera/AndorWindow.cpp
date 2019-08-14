@@ -1508,6 +1508,7 @@ void AndorWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 	input->grabTimes = &imageGrabTimes;
 	input->analysisGrid = analysisHandler.getAtomGrid( 0 );
 	input->conditionVariableForRerng = &rearrangerConditionVariable;
+	input->runAndor = true;
 }
 
 

@@ -354,7 +354,7 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 				MasterManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
 				writeDataSet ( stream.str ( ), "Agilent-Script-Script", scriptedArbSettings );
 			}
-			catch ( Error& err )
+			catch ( Error& )
 			{
 				// failed to open, that's probably fine, 
 				writeDataSet ( "Script Failed to load.", "Agilent-Script-Script", scriptedArbSettings );

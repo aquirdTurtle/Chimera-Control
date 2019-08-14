@@ -28,5 +28,8 @@ dac: MotFreq defaultMotFreq
 dac: RepumpFreq repump_freq
 dac: SideMotPower sidemot__servo_value
 call triggerScout()
+off: diagMotRf
+off: sidemotRf
+off: repumpRf
 t += 1
 t += 5

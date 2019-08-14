@@ -47,22 +47,24 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	{
 		for ( auto& config : input->seq.sequence )
 		{
-
 			auto& seq = expSeq.sequence[seqNum]; 
 			if ( input->runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( config );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 				/// Prep DDS.
-				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
-				ddsRampList.resizeVariations ( seqNum, variations );
-				std::ifstream configFile ( config.configFilePath ( ) );
-				ProfileSystem::jumpToDelimiter ( configFile, dds.configDelim );
-				ddsRampList(seqNum,0) = dds.getRampListFromConfig ( configFile );
-				for ( auto varNum : range ( variations ) )
+				if ( input->runDds)
 				{
-					if ( varNum == 0 ) continue;
-					ddsRampList ( seqNum, varNum ) = ddsRampList ( seqNum, 0 );
+					auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+					ddsRampList.resizeVariations ( seqNum, variations );
+					std::ifstream configFile ( config.configFilePath ( ) );
+					ProfileSystem::jumpToDelimiter ( configFile, dds.configDelim );
+					ddsRampList ( seqNum, 0 ) = dds.getRampListFromConfig ( configFile );
+					for ( auto varNum : range ( variations ) )
+					{
+						if ( varNum == 0 ) continue;
+						ddsRampList ( seqNum, varNum ) = ddsRampList ( seqNum, 0 );
+					}
 				}
 			}
 			if ( input->runNiawg )
@@ -90,8 +92,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		delete voidInput;
 		return -1;
 	}
-
-	dds.updateRampLists ( ddsRampList );
+	if ( input->runDds )
+	{
+		dds.updateRampLists ( ddsRampList );
+	}
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower () calls.
@@ -229,8 +233,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			subTimer.tick ( "After-ttl-Interpret" );
 			aoSys.interpretKey( input->parameters, warnings );
 			subTimer.tick ( "After-aoSys-Interpret" );
-			dds.evaluateDdsInfo ( input->parameters );
-			dds.generateFullExpInfo ( );
+			if ( input->runDds )
+			{
+				dds.evaluateDdsInfo ( input->parameters );
+				dds.generateFullExpInfo ( );
+			}
 			subTimer.tick ( "After-dds-Interpret" );
 		}
 		if ( useAuxDevices )
@@ -396,7 +403,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				agilent->setAgilent( variationInc, input->parameters[0] );
 			}
-			dds.writeExperiment ( 0, variationInc );
+			if ( input->runDds )
+			{
+				dds.writeExperiment ( 0, variationInc );
+			}
 			// check right number of triggers (currently must be done after agilent is set.
 			for ( auto& agilent : input->agilents )
 			{

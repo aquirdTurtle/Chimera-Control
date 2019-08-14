@@ -83,6 +83,7 @@ struct ExperimentThreadInput
 	bool runNiawg;
 	bool runMaster;
 	bool runAndor;
+	bool runDds = true;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;

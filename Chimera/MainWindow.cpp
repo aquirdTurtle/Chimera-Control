@@ -1042,7 +1042,7 @@ void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 {
 	ParameterSystem::generateKey ( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->repetitionNumber = 5;
+	input->repetitionNumber = 15;
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
 	input->skipNext = NULL;

@@ -125,7 +125,7 @@ void AuxiliaryWindow::DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch (Error& err )
 	{
-		;
+		sendErr ( err.trace ( ) );
 	}
 }
 
@@ -137,7 +137,7 @@ void AuxiliaryWindow::DdsDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& err )
 	{
-		;
+		sendErr ( err.trace ( ) );
 	}
 }
 
@@ -1046,7 +1046,7 @@ void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
 		input->parameters = experimentVars;
 		///
-		// Only set it once, clearly.
+		// Only set it once, clearly. ??? - for temperature???
 		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;

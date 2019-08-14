@@ -10,8 +10,6 @@ def twoStageLambdaLoading():
   var rsfreq -0.2
   var rspow 2
   % the 795 is still off at this point.
-  daclinspace: freq795 0 initDetuning 2 10 
-  dac: freq795 initDetuning 
   dac: power795 init795Power 
   rsg: (6.834682 + rsfreq*0.001) rspow
   t += 4.01
@@ -31,7 +29,6 @@ def twoStageLambdaLoading():
   t += initTime
   dac: power795 fin795Power 
   pulseon: tweezerIntensityTrig 0.1
-  daclinspace: freq795 initDetuning findetuning 5 10
   % stage 2
   t += finTime
   off: rf795
@@ -42,7 +39,6 @@ def twoStageLambdaLoading():
   %off: C3
   t += 0.5
   %dac: freq795 0
-  daclinspace: freq795 findetuning 0 2 10
   t += 4.01
 
 

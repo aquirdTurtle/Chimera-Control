@@ -109,7 +109,7 @@ void BaslerWindow::fillMotSizeInput ( baslerSettings& motSizeSettings )
 	motSizeSettings.exposureTime = 100;
 	motSizeSettings.frameRate = 100;
 	motSizeSettings.rawGain = settingsCtrl.unityGainSetting; 
-	motSizeSettings.repCount = 50;
+	motSizeSettings.repCount = 100;
 	motSizeSettings.triggerMode = BaslerTrigger::mode::External; 
 }
 
@@ -118,10 +118,10 @@ void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
 {
 	settings.acquisitionMode = BaslerAcquisition::mode::Finite;
 
-	settings.dims.left = 250;
-	settings.dims.right = 450;
+	settings.dims.left = 100;
+	settings.dims.right = 550;
 	settings.dims.top = 440;
-	settings.dims.bottom = 150;
+	settings.dims.bottom = 50;
 	settings.dims.horizontalBinning = 1;
 	settings.dims.verticalBinning = 1;
 
@@ -129,7 +129,7 @@ void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
 	settings.exposureTime = 50;
 	settings.frameRate = 100;
 	settings.rawGain = settingsCtrl.unityGainSetting;
-	settings.repCount = 50;
+	settings.repCount = 150;
 	settings.triggerMode = BaslerTrigger::mode::External;
 }
 

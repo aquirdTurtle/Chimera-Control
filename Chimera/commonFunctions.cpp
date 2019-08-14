@@ -285,12 +285,15 @@ namespace commonFunctions
 					mainWin->getComm()->sendStatus("Starting Camera...\r\n");
 					andorWin->preparePlotter( input );
 					andorWin->prepareAtomCruncher( input );
-					//
 					logParameters( input, andorWin, basWin, true, false, "", false );
-					//
 					andorWin->startAtomCruncher( input );
 					andorWin->startPlotterThread( input );
 					andorWin->armCameraWindow();
+					commonFunctions::prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, false, 
+														   false );
+					input.masterInput->runDds = false;
+					commonFunctions::logParameters ( input, andorWin, basWin, true, false, "", false );
+					commonFunctions::startExperimentThread ( mainWin, input );
 					mainWin->getComm()->sendColorBox( System::Camera, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}

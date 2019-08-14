@@ -4,7 +4,7 @@ off: a0
 t += 100
 call turnOnMot()
 t += 0.1
-repeat: 50
+repeat: 100
 	pulseon: scoutTrig 0.1
 	t += 100
 end

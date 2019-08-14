@@ -3,11 +3,10 @@ t = 1
 
 % drop the mot to make sure you have a fresh start.
 dac: MotGradientCurrent 0
-t += droptime 
-
+t += 100
 call turnonmot()
 
 repeat: 20
 	call triggerScout()
-	t += pictureTimeSpacing 
+	t += 100 
 end 

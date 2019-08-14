@@ -1,39 +1,35 @@
-% free space grey molasses
+% free space grey molasses cooling
 def D1greyLambdaCooling():
-  var grey_detuning -0.55
-  var D1twoToTwopPower -0.5
-  var cooling_time 5
+  var D1twoToTwopPower -1
+  var cooling_time 0.5
   var rspow 2
   % init system
-  %dac: freq795 grey_detuning
-  daclinspace: freq795 0.2 grey_detuning 1 20
   dac: power795 D1twoToTwopPower
+  dac: side795Pow 0.3
+  dac: Diag795Pow 0.3
   var rsfreq -0.2
   rsg: (6.834682 + rsfreq*0.001) rspow
-  on: a15
-  t += 1.001
-  off: a15
   off: diagMotRf
   off: sideMotRf
   off: repumpRf
   dac: diagMotPower 0
   dac: sideMotPower 0
-  dac: RepumpPower 0
+  dac: RepumpPower 0.3
   dac: motGradientCurrent 0
 
   %call d1greyCoolingFields()
   %call d1greymolassesfreespacefields()
-  call d1greyLoadFields()
-
+  %call d1greyLoadFields()
+  call zeroFields()
+  on: repumprf
   off: eoswitch
   off: eoswitch2
   on: rf795
+  on: a15
   t += cooling_time 
   off: rf795
-  
+  off: a15
   on: C3
-  daclinspace: freq795 grey_detuning 0.2 5 20
-  % dac: freq795 0.2
   t += 0.201
   off: C3
 

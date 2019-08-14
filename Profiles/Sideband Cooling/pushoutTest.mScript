@@ -22,15 +22,19 @@ t += 0.1
 pulseon: tweezerIntensityTrig 0.1
 t += 0.1
 %call pump2F1()
-t += 0.1
+%t += 0.1
 call pump2stretch()
 
 pulseon: tweezerIntensityTrig 0.1
 t += 0.1
 call pushout()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+
 %call pushout_all()
 t += 10.1
-pulseon: tweezerIntensityTrig 0.1
 %call zeroFields()
 t += 1
 call pgcAtomFlashingImage()
