@@ -129,7 +129,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		ttls.resetTtlEvents( );
 		aoSys.initializeDataObjects( input->seq.sequence.size( ), 0 );
 		ttls.initializeDataObjects( input->seq.sequence.size( ), 0 );
-		//ttls.sizeDataStructures(input->seq.sequence.size(), 1);
+		//auto Variations = determineVariationNumber(input->parameters[seqNum]);
+		//ttls.sizeDataStructures(input->seq.sequence.size(), 2);
 		input->thisObj->loadSkipTimes.clear( );
 		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );
@@ -308,7 +309,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				for ( auto variationNumber : range(variations) )
 				{
-					totalTime += ULONGLONG( ttls.getTotalTime( variationNumber, seqInc ) 
+					totalTime += ULONGLONG( ttls.getFtdiTotalTime( variationNumber, seqInc ) 
 											* input->repetitionNumber );
 				}
 			}
@@ -438,45 +439,49 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			timer.tick(str(variationInc + 1) + "-After-Programming-Tektronix");
 			timer.tick(str(variationInc + 1) + "-After-All-Programming");
-			//
+			
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
+
+			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
+			ttls.ftdi_write(0, variationInc, skipOption);
+
 			for (UINT repInc = 0; repInc < input->repetitionNumber; repInc++)
 			{
-				for (auto seqInc : range(input->seq.sequence.size()))
-				{
-					if (input->thisObj->isAborting) { thrower ( abortString ); }
+				
+				/*for (auto seqInc : range(input->seq.sequence.size()))
+				{*///this was the original structure for handleing diffferent sequences across repetitions
+				if (input->seq.sequence.size() > 1) {
+					thrower("error the number of sequences should be zero");
+				}
+				else {
+					UINT seqInc = 0;
+					if (input->thisObj->isAborting) { thrower(abortString); }
 					else if (input->thisObj->isPaused)
 					{
-						expUpdate( "Paused\r\n!", comm, quiet );
+						expUpdate("Paused\r\n!", comm, quiet);
 						while (input->thisObj->isPaused)
 						{
 							// this could be changed to be a bit smarter using a std::condition_variable
-							Sleep( 100 );
-							if ( input->thisObj->isAborting ) { thrower ( abortString ); }
+							Sleep(100);
+							if (input->thisObj->isAborting) { thrower(abortString); }
 						}
-						expUpdate( "Un-Paused!\r\n", comm, quiet );
+						expUpdate("Un-Paused!\r\n", comm, quiet);
 					}
-					comm.sendRepProgress( repInc + 1 );
+					comm.sendRepProgress(repInc + 1);
 					if (input->runMaster)
 					{
 						aoSys.stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
 						// if the cruncher thread was running behind, it could change between writing and configuring the 
 						// aoSys and configuring the TTLs;
-						bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ( );
-						aoSys.configureClocks( variationInc, seqInc, skipOption);
-						aoSys.writeDacs( variationInc, seqInc, skipOption);
+						aoSys.configureClocks(variationInc, seqInc, skipOption);
+						aoSys.writeDacs(variationInc, seqInc, skipOption);
 						aoSys.startDacs();
-						//ttls.writeTtlData( variationInc, seqInc, skipOption);
-						//ttls.startBoard();
-						ttls.ftdi_connectasync("FT2E722BB");
-						ttls.ftdi_write(variationInc, seqInc, skipOption);
 						ttls.ftdi_trigger();
-						ttls.waitTillFinished( variationInc, seqInc, skipOption);
-						ttls.ftdi_disconnect();
+						ttls.FtdiWaitTillFinished(variationInc, seqInc, skipOption);
 					}
-				}
+				}//}
 			}
 			
 			expUpdate( "\r\n", comm, quiet );

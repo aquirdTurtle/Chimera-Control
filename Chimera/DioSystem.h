@@ -30,6 +30,8 @@ class DioSystem
 {
 	public:
 		DioSystem ( bool ftSafemode, bool serialSafemode, bool viewpointSafemode );
+		//DioSystem();
+		~DioSystem();
 		/// Felixes Dio handling. Much originally in a class called "RC028".
 		void ftdi_disconnect( );
 		void ftdi_connectasync( const char devSerial[] );
@@ -125,6 +127,7 @@ class DioSystem
 		allDigitalOutputs& getDigitalOutputs();
 		void interpretKey ( vec<vec<parameterType>>& params );
 		void wait2(double time);
+		void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption);
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
