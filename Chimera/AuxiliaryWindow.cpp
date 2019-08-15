@@ -1663,7 +1663,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 		msg += "\Dio System is active!\n";
 		ttlBoard.ftdi_connectasync("FT2E722BB");
 		msg += "\t" + ttlBoard.getDioSystemInfo() + "\n";
-		ttlBoard.ftdi_disconnect();
+		//ttlBoard.ftdi_disconnect();
 		msg += "\t Bites Written \n";// +ttlBoard.testTTL() + "\n";
 
 	}

@@ -21,12 +21,20 @@ DioSystem::DioSystem(bool ftSafemode, bool serialSafemode, bool viewpointSafemod
 winSerial(serialSafemode),
 vp_flume(viewpointSafemode)
 {
-	connectType = ftdiConnectionOption::None;
-	for ( auto& out : outputs )
+	connectType = ftdiConnectionOption::Async;
+	//ftdi_connectasync("FT2E722BB");
+	for (auto& out : outputs)
 	{
-		out.set ( 0 );
+		out.set(0);
 	}
 }
+
+/*DioSystem::DioSystem() : ftFlume(DIOFTDI_SAFEMODE),vp_flume(true), winSerial(true)
+{
+	
+	connectType = ftdiConnectionOption::Async;
+}*/
+DioSystem::~DioSystem() { ftdi_disconnect(); }
 
 
 void DioSystem::ftdi_connectasync( const char devSerial[] )
@@ -120,7 +128,6 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 		}
 		else
 		{
-			
 			totalBytes += ftFlume.write( buf.pts, buf.bytesToWrite );
 		}
 		return totalBytes;
@@ -939,7 +946,8 @@ void DioSystem::wait(double time)
 }
 
 void DioSystem::wait2(double time) {
-	Sleep(time + 500);
+	//errBox("time is: " + str(time));
+	Sleep(time + 10);
 }
 
 
@@ -964,20 +972,38 @@ void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 	}
 	wait2(totalTime);
 }
+void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption) {
+	double time = -1;
+	bool proceed = true;
+	int counter = 0;
+	for (auto snap : ftdiSnaps[seqNum][variation])
+	{
+		if (snap == ftdiPt({ 0, 0, 0, 0, 0, 0, 0, 0, 0 }) && time != -1 && counter >= 0 && proceed)
+		{
+			wait2((ftdiSnaps[seqNum][variation][--counter].time) / 100000);
+			proceed = false;
+		}
+		time = snap.time;
+		counter++;
+	}
+}
 
 
 double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 {
 	double time = -1;
-	for ( auto snap : ftdiSnaps[seqNum][variation] )
+	bool proceed = true;
+	int counter = 0;
+	for (auto snap : ftdiSnaps[seqNum][variation])
 	{
-		if ( snap == ftdiPt({0, 0, 0, 0, 0, 0, 0, 0, 0}) && time != -1 )
+		if (snap == ftdiPt({ 0, 0, 0, 0, 0, 0, 0, 0, 0 }) && time != -1 && counter >= 0 && proceed)
 		{
-			return time;
+			return ((ftdiSnaps[seqNum][variation][--counter].time) / 100000);
+			proceed = false;
 		}
 		time = snap.time;
+		counter++;
 	}
-	thrower ( "failed to find final time for dio system?!?!" );
 }
 
 
@@ -1152,7 +1178,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	}
 	/* Test to see if adding 1ms to the starting time would solve the problem of the initial state of ttl*/
 	for (int i = 0; i < snaps.size(); i++) {
-		snaps[i].time = snaps[i].time + 1;
+		snaps[i].time = snaps[i].time + 0.001;
 	}
 }
 
