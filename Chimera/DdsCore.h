@@ -28,6 +28,7 @@ class DdsCore
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
 		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList );
 		void generateFullExpInfo ( );
+		void assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params );
 		void evaluateDdsInfo ( std::vector<std::vector<parameterType>> params = std::vector<std::vector<parameterType>> ( 1 ));
 		void forceRampsConsistent ( );
 		void updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> rampList );
