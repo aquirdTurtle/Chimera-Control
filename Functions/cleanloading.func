@@ -1,18 +1,36 @@
-% Master-Script See the "?" for info on commands.
-def cleanLoading():
-  % insert commands here...
-  %dacLinSpace: MotFreq defaultMotFreq -1 1 5
-  dac: MotFreq -2.4
-  dac: SideMotPower sidemot__servo_value
-  dac: RepumpPower imagingRepumpPower
-  t += 1
-  % turn the repump on a tiny bit early 
-  % to pump to the F=2 manifold. 
-  on: RepumpRf
-  on: SideMotRf
-  t += 20
-  off: SideMotRf
-  off: repumpRf
-  %  dacLinSpace: MotFreq -1 defaultMotFreq 1 5
-  dac: MotFreq defaultMotFreq
-  t += 1.1
+% Master-Script See the "?" for info on commands.
+
+def cleanLoading():
+
+  % insert commands here...
+
+  %dacLinSpace: MotFreq defaultMotFreq -1 1 5
+
+  dac: MotFreq -2.4
+
+  dac: SideMotPower sidemot__servo_value
+
+  dac: RepumpPower imagingRepumpPower
+
+  t += 1
+
+  % turn the repump on a tiny bit early 
+
+  % to pump to the F=2 manifold. 
+
+  on: RepumpRf
+
+  on: SideMotRf
+
+  t += 20
+
+  off: SideMotRf
+
+  off: repumpRf
+
+  %  dacLinSpace: MotFreq -1 defaultMotFreq 1 5
+
+  dac: MotFreq defaultMotFreq
+
+  t += 1.1
+
