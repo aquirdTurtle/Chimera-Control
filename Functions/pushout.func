@@ -2,15 +2,15 @@
 def pushout():
   off: sideMotRf
   % not pushing out F=1
-  off: RepumpRF
-  var pushoutfreq -1.55
+  var pushoutfreq -1.5
   dac: RepumpPower 0
   daclinspace: motFreq defaultMotFreq pushoutfreq 1 10
   t += 1.01
   var pushout_Power 0
-  var pushouttime 0.2
+  var pushouttime 0.3
   dac: probePower pushout_power 
   on: proberf
+  %on: RepumpRF
   t += pushouttime 
   off: proberf
   t += 1

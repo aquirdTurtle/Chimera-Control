@@ -44,7 +44,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	currentDataSetNumberDisp.fontType = fontTypes::VeryLargeFont;
 	// Atom Grid Settings
 	gridHeader.setPositions( pos, 0, 0, 480, 25, true );
-	gridHeader.Create( "Atom Grid Settings", NORM_STATIC_OPTIONS, gridHeader.seriesPos, parent, id++ );
+	gridHeader.Create( "ATOM GRID SETTINGS", NORM_HEADER_OPTIONS, gridHeader.seriesPos, parent, id++ );
 	gridSelector.setPositions( pos, 0, 0, 50, 500 );
 	gridSelector.Create( NORM_COMBO_OPTIONS, gridSelector.seriesPos, parent, IDC_ATOM_GRID_COMBO );
 	gridSelector.AddString( "0" );

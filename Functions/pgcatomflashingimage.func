@@ -6,8 +6,7 @@ def pgcAtomFlashingImage():
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning -1.85 %-1.5
-  var motPower 0.18 %0.2
+  var image_detuning -2 %-1.5
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
 
@@ -19,9 +18,11 @@ def pgcAtomFlashingImage():
   on: andorTrig
   on: a9
   t += 0.1
-  dac: SideMotPower sidemot_imaging__servo_value 
+  var sidemot_imaging_power 0.3
+  var imaging_diagmot_power 0.1
+  dac: SideMotPower sidemot_imaging_power
   dac: RepumpPower imagingRepumpPower
-  dac: DiagMotPower 0.1
+  dac: DiagMotPower imaging_diagmot_power
   on: tweezerflashrf
   on: sidemotflash
   off: rf795

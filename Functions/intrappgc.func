@@ -4,12 +4,12 @@ def intrappgc():
 	call zeroFieldsPgc()
 	t += 1
 	dac: diagMotPower 0
-	var mot_detuning -2
+	var mot_detuning -2.5
 	var repump_pow 0.1
 	daclinspace: MotFreq defaultmotfreq mot_detuning 2 10
-	dac: SideMotPower sidemot_intrappgc__servo_value
+	dac: SideMotPower 0.2 % sidemot_intrappgc__servo_value
 	dac: RepumpPower repump_pow
-      dac: DiagmotPower 0
+      dac: DiagmotPower 0.3
 	t += 2.1
 	var cooling_time 5
 	on: RepumpRf

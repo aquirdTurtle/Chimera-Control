@@ -4,21 +4,20 @@
 #include "Thrower.h"
 
 
-ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn ) :
-	visa( safemode, usbAddress ),
-	numTraces( traceNumIn ), safemode(safemode)
+ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name ) :
+	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name )
 {
 	try
 	{
 		visa.open( );
-		//visa.write( "header off\n" );
 		visa.query( "WFMpre:YOFF?\n", yoffset );
 		visa.query( "WFMpre:YMULT?\n", ymult );
 		visa.close( );
 	}
 	catch ( Error& err )
 	{
-		errBox( "Error detected while initializing scope viewer! " + err.trace( ) );
+		errBox( "Error detected while initializing " + scopeName + "scope viewer! " + err.trace( ) );
+		initializationFailed = true;
 	}
 }
 
@@ -53,10 +52,17 @@ void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* 
 	{
 		data = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	}
+	if ( safemode )
+	{
+		title += " (SAFEMODE)";
+	}
+	if ( initializationFailed )
+	{
+		title += " (Initialization Failed)";
+	}
 	viewPlot = new PlotCtrl( scopeData, plotStyle::OscilloscopePlot, plotPens, font, plotBrushes, std::vector<int>(), title );
 	viewPlot->init( topLeftLoc, width, height, parent );
 	topLeftLoc.y += height;
-	//refreshData( );
 }
 
 

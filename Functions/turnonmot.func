@@ -1,4 +1,5 @@
-% this all happens at a isngle time.
+% this all happens at a single time, so imaging the mot directly 
+% afterwards should image before it actually starts loading.
 
 def turnOnMot():
   %% % TTLs
@@ -11,27 +12,28 @@ def turnOnMot():
   off: RamanShutter %off
   %% %%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% % DACS 
-  var repump_pow 0 
+  var repump_pow 0.1 
   var repump_freq 0.04
-  var mot_freq -0.6
-  dac: DiagMotPower 0.30946
+  var mot_freq -0.7
+  %dac: DiagMotPower 0.30946
+  dac: DiagMotPower diagmot__servo_value
   dac: RepumpPower repump_pow
   dac: MotFreq mot_freq 
   dac: RepumpFreq repump_freq
   %var tmpMotVal 0
-  %dac: SideMotPower sidemot__servo_value
-  dac: SideMotPower 0.16206
+  dac: SideMotPower sidemot__servo_value
+  %dac: SideMotPower 0.16206
   %% Magnetic Field Control
   var motStrength 7.1
 
   var dField 0
-  var right_field 0.801
-  var left_field -0.801
-  var front_field -0.845
-  var back_field 0.845
+  var right_field 0.77
+  var left_field -0.77
+  var front_field -0.69
+  var back_field 0.69
 
-  var bot_field -0.235
-  var top_field 0.235
+  var bot_field -0.39
+  var top_field 0.39
 
   %var front_field 0.44
   %var back_field 2
@@ -41,9 +43,9 @@ def turnOnMot():
   dac: MotGradientCurrent motStrength
   dac: RightCoilCurrent right_field 
   dac: LeftCoilCurrent left_field 
-  dac: FrontCoilCurrent (front_field - dField)
-  dac: BackCoilCurrent (back_field + dField)
-  dac: BottomCoilCurrent bot_field 
-  dac: TopCoilCurrent top_field 
+  dac: FrontCoilCurrent front_field 
+  dac: BackCoilCurrent back_field 
+  dac: BottomCoilCurrent (bot_field - dField)
+  dac: TopCoilCurrent (top_field + dField)
 
 

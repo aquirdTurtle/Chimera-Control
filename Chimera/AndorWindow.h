@@ -103,7 +103,7 @@ class AndorWindow : public CDialog
 														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		void passAtomGridCombo( );
 		void passDelGrid( );
-		void startAtomCruncher(ExperimentInput& input);
+		void startAtomCruncher ( ExperimentInput& input );
 		void startPlotterThread( ExperimentInput& input );
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();

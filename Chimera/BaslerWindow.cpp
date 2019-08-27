@@ -393,19 +393,15 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		}
  		if (currentRepNumber == cameraController->getRepCounts())
  		{
+			// handle balser finish
  			cameraController->disarm();
  			isRunning = false;
 			runningAutoAcq = false;
 			triggerThreadFlag = false;
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
+			// tell the andor window that the basler camera finished so that the data file can be handled appropriately.
 			mainWin->getComm ( )->sendBaslerFin ( );
 			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
-			if (!camWin->cameraIsRunning() )
-			{
-				// else it will close when the basler camera finishes.
-				camWin->getLogger ( )->closeFile ( );
-			}
-
  		}
 		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
 		{

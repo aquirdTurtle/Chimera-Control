@@ -237,82 +237,82 @@ void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > sta
 std::string DioSystem::getSystemInfo()
 {
 	DWORD answer = 1000;
-	std::string info = "TTL System Info:\nInput Mode: ";
+	std::string info = "Input Mode: ";
 	vp_flume.dioGetAttr( 0, 0, answer);
 	switch ( answer )
 	{
 		case 1100:
 			// didn't change from start; no board or system connected.
-			info += "no answer?\n";
+			info += "no answer?";
 			break;
 			//return "";
 		case 0:
-			info += "Polled\n";
+			info += "Polled";
 			break;
 		case 1:
-			info += "Interrupt\n";
+			info += "Interrupt";
 			break;
 		case 2:
-			info += "Packet\n";
+			info += "Packet";
 			break;
 		case 3:
-			info += "Demand\n";
+			info += "Demand";
 			break;
 		default:
-			info += "UNKNOWN!\n";
+			info += "UNKNOWN!";
 	}
 	vp_flume.dioGetAttr( 0, 1, answer );
-	info += "Output Mode: ";
+	info += "\n\tOutput Mode: ";
 	switch ( answer )
 	{
 		case 1000:
-			info += "no answer?\n";
+			info += "no answer?";
 			break;
 		case 0:
-			info += "Polled\n";
+			info += "Polled";
 			break;
 		case 1:
-			info += "Interrupt\n";
+			info += "Interrupt";
 			break;
 		case 2:
-			info += "Packet\n";
+			info += "Packet";
 			break;
 		case 3:
-			info += "Demand\n";
+			info += "Demand";
 			break;
 		default:
-			info += "UNKNOWN!\n";
+			info += "UNKNOWN!";
 	}
 	vp_flume.dioGetAttr( 0, 2, answer );
 	if (answer == 1000)
 	{
-		info += "Input Buffer Size: no answer?\n";
+		info += "\n\tInput Buffer Size: no answer?";
 	}
-	info += "Input Buffer Size: " + str( answer ) + "\n";
+	info += "\n\tInput Buffer Size: " + str( answer );
 	vp_flume.dioGetAttr( 0, 3, answer );
 	if (answer == 1000)
 	{
-		info += "Output Buffer Size: no answer?\n";
+		info += "\n\tOutput Buffer Size: no answer?";
 	}
-	info += "Output Buffer Size: " + str( answer ) + "\n";
+	info += "\n\tOutput Buffer Size: " + str( answer );
 	vp_flume.dioGetAttr( 0, 4, answer );
-	info += "Major Clock Source: ";
+	info += "\n\tMajor Clock Source: ";
 	switch ( answer )
 	{
 		case 1000:
-			info += "no answer?\n";
+			info += "no answer?";
 			break;
 		case 0:
-			info += "Local 40 MHz Clock\n";
+			info += "Local 40 MHz Clock";
 			break;
 		case 1:
-			info += "External Clock\n";
+			info += "External Clock";
 			break;
 		case 2:
-			info += "RTSI Clock / PXI chassis Clock\n";
+			info += "RTSI Clock / PXI chassis Clock";
 			break;
 		case 3:
-			info += "10 MHz Clock\n";
+			info += "10 MHz Clock";
 			break;
 		default:
 			info += "UNKNOWN!";

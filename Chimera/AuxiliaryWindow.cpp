@@ -1686,7 +1686,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	if ( !DDS_SAFEMODE )
 	{
 		msg += "\tDDS System is Active!\n";
-		msg += "\t" + dds.getSystemInfo ( ) + "\n";
+		msg += "\t" + dds.getSystemInfo ( );
 	}
 	else
 	{

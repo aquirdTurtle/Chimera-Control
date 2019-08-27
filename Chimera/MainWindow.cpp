@@ -14,8 +14,8 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
 	niawg( 1, 14, NIAWG_SAFEMODE ),
-	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4 ),
-	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2 )
+	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope" ),
+	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope" )
 {
 	programStartTime = startTime;
 	startupTimes.push_back(chronoClock::now());
@@ -877,9 +877,9 @@ std::string MainWindow::getSystemStatusString()
 	}
 	else
 	{
-		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
-	status += "MOT Scope:\n";
+	status += "\nMOT Scope:\n";
 	if ( !MOT_SCOPE_SAFEMODE )
 	{
 		status += "\tCode System is Active!\n";
@@ -994,7 +994,7 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-HANDLE MainWindow::startExperimentThread( ExperimentThreadInput* input, bool isTurnOnMot )
+HANDLE MainWindow::startExperimentThread( ExperimentThreadInput* input )
 {
 	return masterThreadManager.startExperimentThread(input);
 }

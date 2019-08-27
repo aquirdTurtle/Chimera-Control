@@ -643,7 +643,6 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	int dataWidth, dataHeight;
 	PBITMAPINFO bitmapInfoPtr;
 	WORD argbq[PICTURE_PALETTE_SIZE];
-	BYTE *DataArray;
 	// this should probably be rewritten to use the deviceContext directly instead of this win32 style call.
 	// Rotated
 	SelectPalette( deviceContext->GetSafeHdc(), imagePalette, true );
@@ -665,7 +664,6 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	{
 		argbq[paletteIndex] = (WORD)paletteIndex;
 	}
-
 	bitmapInfoPtr = (PBITMAPINFO)LocalAlloc( LPTR, sizeof( BITMAPINFOHEADER ) + sizeof( RGBQUAD ) * (1 << 8) );
 	bitmapInfoPtr->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bitmapInfoPtr->bmiHeader.biPlanes = 1;
@@ -675,8 +673,7 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	bitmapInfoPtr->bmiHeader.biSizeImage = 0;
 	bitmapInfoPtr->bmiHeader.biHeight = dataHeight;
 	memcpy(bitmapInfoPtr->bmiColors, argbq, sizeof(WORD) * PICTURE_PALETTE_SIZE);
-	DataArray = (BYTE*)malloc( (dataWidth * dataHeight) * sizeof( BYTE ) );
-	memset( DataArray, 255, (dataWidth * dataHeight) * sizeof( BYTE ) );
+	std::vector<BYTE> dataArray ( dataWidth * dataHeight, 255 );
 	double tempDouble = 1;
 	int tempInteger;
 	/// convert image data to correspond to colors, i.e. convert to being between 0 and 255.
@@ -690,35 +687,18 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 				return;
 			}
 			tempDouble = ceil(yscale * (drawData[widthInc + heightInc * dataWidth] - minColor));
-
 			// interpret the value depending on the range of values it can take.
 			if (tempDouble < 1)
 			{
 				// raise value to zero which is the floor of values this parameter can take.
-				if (specialMin)
-				{
-					// the absolute lowest color is a special color that doesn't match the rest of the pallete. 
-					// Typically a bright blue.
-					tempInteger = 0;
-				}
-				else
-				{
-					tempInteger = 1;
-				}
+				tempInteger = specialMin ? 0 : 1;
 			}
 			else if (tempDouble > PICTURE_PALETTE_SIZE - 2)
 			{
 				// round to maximum value.
-				if (specialMax)
-				{
-					// the absolute highest color is a special color that doesn't match the rest of the pallete.
-					// typically a bright red.
-					tempInteger = PICTURE_PALETTE_SIZE - 1;
-				}
-				else
-				{
-					tempInteger = PICTURE_PALETTE_SIZE - 2;
-				}
+				// the absolute highest color is a special color that doesn't match the rest of the pallete.
+				// typically a bright red.
+				tempInteger = specialMax ? PICTURE_PALETTE_SIZE - 1 : PICTURE_PALETTE_SIZE - 2;
 			}
 			else
 			{
@@ -726,14 +706,10 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 				tempInteger = (int)tempDouble;
 			}
 			// store the value.
-			DataArray[widthInc + heightInc * dataWidth] = (BYTE)tempInteger;
+			dataArray[widthInc + heightInc * dataWidth] = (BYTE)tempInteger;
 		}
 	}
-
 	SetStretchBltMode( deviceContext->GetSafeHdc(), COLORONCOLOR );
-	// I think that this should be possible to do witha  std::vector<BYTE> and getting the pointer to that vector using
-	// .data() member.
-	BYTE *finalDataArray = NULL;
 	/// draw the final data.
 	// handle the 0 (simple), 2 and 1/3 cases separately, scaling the latter three so that the data width is a multiple
 	// of 4 pixels wide. There might be a faster way to do this. If you don't do this however, StretchDIBits fails in
@@ -746,34 +722,35 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 			bitmapInfoPtr->bmiHeader.biSizeImage = 1;
 			StretchDIBits( deviceContext->GetSafeHdc(), pictureArea.left, pictureArea.top,
 						   pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
-						   dataHeight, DataArray, (BITMAPINFO FAR*)bitmapInfoPtr, DIB_PAL_COLORS, SRCCOPY );
+						   dataHeight, dataArray.data(), (BITMAPINFO *)bitmapInfoPtr, DIB_PAL_COLORS, SRCCOPY );
 			break;
 		}
 		case 2:
 		{
 			// make array that is twice as long.
-			finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
-			memset(finalDataArray, 255, dataWidth * dataHeight * 2);
+			std::vector<BYTE> finalDataArray ( dataWidth * dataHeight * 2, 255 );
+			//finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
+			//memset(finalDataArray, 255, dataWidth * dataHeight * 2);
 			for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
 			{
-				finalDataArray[2 * dataInc] = DataArray[dataInc];
-				finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
+				finalDataArray[2 * dataInc] = dataArray[dataInc];
+				finalDataArray[2 * dataInc + 1] = dataArray[dataInc];
 			}
 			bitmapInfoPtr->bmiHeader.biWidth = dataWidth * 2;
 			StretchDIBits( *deviceContext, pictureArea.left, pictureArea.top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, 
-						   dataWidth * 2, dataHeight, finalDataArray, (BITMAPINFO FAR*)bitmapInfoPtr, DIB_PAL_COLORS, 
+						   dataWidth * 2, dataHeight, finalDataArray.data(), (BITMAPINFO *)bitmapInfoPtr, DIB_PAL_COLORS, 
 						   SRCCOPY );
-			free(finalDataArray);
 			break;
 		}
 		default:
 		{
 			// scale by a factor of 4.
-			finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
-			memset(finalDataArray, 255, dataWidth * dataHeight * 4);
+			std::vector<BYTE> finalDataArray ( dataWidth * dataHeight * 4, 255 );
+			//finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
+			//memset(finalDataArray, 255, dataWidth * dataHeight * 4);
 			for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
 			{
-				int data = DataArray[dataInc];
+				auto& data = dataArray[dataInc];
 				finalDataArray[4 * dataInc] = data;
 				finalDataArray[4 * dataInc + 1] = data;
 				finalDataArray[4 * dataInc + 2] = data;
@@ -781,12 +758,10 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 			}
 			bitmapInfoPtr->bmiHeader.biWidth = dataWidth * 4;
 			StretchDIBits( *deviceContext, pictureArea.left, pictureArea.top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
-						   finalDataArray, (BITMAPINFO FAR*)bitmapInfoPtr, DIB_PAL_COLORS, SRCCOPY );
-			free(finalDataArray);
+						   finalDataArray.data(), (BITMAPINFO *)bitmapInfoPtr, DIB_PAL_COLORS, SRCCOPY );
 			break;
 		}
 	}
-	delete[] DataArray;
 	LocalFree( bitmapInfoPtr );
 	setHoverValue( );
 }

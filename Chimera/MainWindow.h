@@ -103,7 +103,7 @@ class MainWindow : public CDialog
 		void fillRedPgcTempProfile ( ExperimentThreadInput* input );
 		void fillGreyPgcTempProfile ( ExperimentThreadInput* input );
 
-		HANDLE startExperimentThread( ExperimentThreadInput* input, bool isTurnOnMot );
+		HANDLE startExperimentThread( ExperimentThreadInput* input );
 		
 		std::string getNotes( );
 		fontMap getFonts();

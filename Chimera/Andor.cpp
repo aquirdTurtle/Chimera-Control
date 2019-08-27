@@ -18,7 +18,7 @@ std::string AndorCamera::getSystemInfo()
 	// can potentially get more info from this.
 	//AndorCapabilities capabilities;
 	//getCapabilities( capabilities );
-	info += "Camera Model: " + getHeadModel() + "\n";
+	info += "Camera Model: " + getHeadModel() + "\n\t";
 	int num; 
 	getSerialNumber(num);
 	info += "Camera Serial Number: " + str(num) + "\n";

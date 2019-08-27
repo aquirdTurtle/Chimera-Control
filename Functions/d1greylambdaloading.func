@@ -1,8 +1,7 @@
 % free space grey molasses
 def D1greyLambdaloading():
   % settings
-  var grey_detuning 0.6
-  var D1twoToTwopPower -0.15
+  var D1twoToTwopPower -2
   var cooling_time 200
   var D1SidemotPow 0.3
   var rsfreq -0.2
@@ -17,7 +16,7 @@ def D1greyLambdaloading():
   dac: side795pow D1SidemotPow
   dac: diag795pow 0.3
   dac: diagMotPower 0
-  dac: sideMotPower 0   
+  dac: sideMotPower 0
   on: tweezerRf
   call d1greyLoadFields()
   %call d1greymolassesfreespacefields()
@@ -28,11 +27,11 @@ def D1greyLambdaloading():
   t += cooling_time 
   off: rf795
   off: repumpRf
+  dac: power795 0.1
   on: C3
   pulseon: a15 0.1
   t += 0.1
   off: C3
- 
- t += 4.01
+  t += 4.01
 
 

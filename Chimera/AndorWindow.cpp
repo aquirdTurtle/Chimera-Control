@@ -893,8 +893,15 @@ void AndorWindow::passAtomGridCombo( )
 */
 void AndorWindow::passPictureSettings( UINT id )
 {
-	handlePictureSettings( id );
-	mainWin->updateConfigurationSavedStatus( false );
+	try
+	{
+		handlePictureSettings ( id );
+		mainWin->updateConfigurationSavedStatus ( false );
+	}
+	catch ( Error& err )
+	{
+		mainWin->getComm ( )->sendError ( "Failed to handle picture Settings!\n" + err.trace ( ) );
+	}
 }
 
 
@@ -980,15 +987,23 @@ void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 // 3836, 1951
 void AndorWindow::OnSize( UINT nType, int cx, int cy )
 {
-	SetRedraw( false );
-	AndorRunSettings settings = CameraSettings.getSettings( ).andor;
-	stats.rearrange( cx, cy, mainWin->getFonts( ) );
-	CameraSettings.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
-	box.rearrange( cx, cy, mainWin->getFonts( ) );
-	pics.rearrange( cx, cy, mainWin->getFonts( ) );
-	alerts.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
-	analysisHandler.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
-	pics.setParameters( CameraSettings.getSettings( ).andor.imageSettings );
+	stats.rearrange ( cx, cy, mainWin->getFonts ( ) );
+	box.rearrange ( cx, cy, mainWin->getFonts ( ) );
+	pics.rearrange ( cx, cy, mainWin->getFonts ( ) );
+	try
+	{
+		SetRedraw ( false );
+		auto settings = CameraSettings.getSettings ( ).andor;
+		CameraSettings.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		alerts.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		analysisHandler.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		pics.setParameters ( settings.imageSettings );
+		timer.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+	}
+	catch ( Error& err )
+	{
+		mainWin->getComm ( )->sendError ( "Error while getting Andor Camera settings for OnSize!" + err.trace() );
+	}
 	CDC* dc = GetDC( );
 	try
 	{
@@ -1000,7 +1015,7 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 		mainWin->getComm( )->sendError( err.trace( ) );
 	}
 	ReleaseDC( dc );
-	timer.rearrange( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts( ) );
+	
 	SetRedraw( );
 	RedrawWindow( );
 }
