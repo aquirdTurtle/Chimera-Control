@@ -72,9 +72,6 @@ class DdsCore
 		void writeRampReps ( UINT8 index, UINT16 reps );
 		void writeRampDeltaFreq ( UINT8 device, UINT8 channel, UINT8 index, double deltafreq );
 		void writeRampDeltaAmp ( UINT8 device, UINT8 channel, UINT8 index, double deltaamp );
-		bool log = true;
-		std::string writeLogFileName = "DDS_Write_Log.txt";
-		std::ofstream writeLog;
 		// readDDS ( UINT device, UINT16 address );
 		void writeDDS ( UINT8 device, UINT16 address, UINT8 dat1, UINT8 dat2, UINT8 dat3, UINT8 dat4 );
 };
