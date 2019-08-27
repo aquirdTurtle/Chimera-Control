@@ -1,45 +1,90 @@
-% free space grey molasses cooling
-def D1greyLambdaCooling():
-  var D1twoToTwopPower -2
-  var cooling_time 0.2
-  var rspow 2
-  % init systema
-
-  var rsfreq -0.2
-  rsg: (6.834682 + rsfreq*0.001) rspow
-  off: diagMotRf
-  off: sideMotRf
-  off: repumpRf
-  dac: diagMotPower 0
-  dac: sideMotPower 0
-  dac: RepumpPower 0
-  dac: motGradientCurrent 0
-  %on: rf795
-  %call d1greyCoolingFields()
-  %call d1greymolassesfreespacefields()
-  %call d1greyLoadFields()
-  var side_795_power 0.02
-  dac: side795Pow side_795_power
-  dac: Diag795Pow 0.3
-  off: eoswitch
-  off: eoswitch2
-  call zeroFields()
-  on: a15
-  % dealing with servo lag, this ends up turning things on initially during the 
-  % zero fields delay
-  var preTime 0.42
-  t += (-preTime)
-  dac: power795 D1twoToTwopPower 
-  on: rf795
-  t += preTime
-  t += cooling_time 
-  off: rf795
-  off: a15
-  dac: power795 1
-  on: C3
-  t += 1.2
-  off: C3
-  off: rf795
-
-
-
+% free space grey molasses cooling
+
+def D1greyLambdaCooling():
+
+  var D1twoToTwopPower -2
+
+  var cooling_time 0.2
+
+  var rspow 2
+
+  % init systema
+
+
+
+  var rsfreq -0.2
+
+  rsg: (6.834682 + rsfreq*0.001) rspow
+
+  off: diagMotRf
+
+  off: sideMotRf
+
+  off: repumpRf
+
+  dac: diagMotPower 0
+
+  dac: sideMotPower 0
+
+  dac: RepumpPower 0
+
+  dac: motGradientCurrent 0
+
+  %on: rf795
+
+  %call d1greyCoolingFields()
+
+  %call d1greymolassesfreespacefields()
+
+  %call d1greyLoadFields()
+
+  var side_795_power 0.02
+
+  dac: side795Pow side_795_power
+
+  dac: Diag795Pow 0.3
+
+  off: eoswitch
+
+  off: eoswitch2
+
+  call zeroFields()
+
+  on: a15
+
+  % dealing with servo lag, this ends up turning things on initially during the 
+
+  % zero fields delay
+
+  var preTime 0.42
+
+  t += (-preTime)
+
+  dac: power795 D1twoToTwopPower 
+
+  on: rf795
+
+  t += preTime
+
+  t += cooling_time 
+
+  off: rf795
+
+  off: a15
+
+  dac: power795 1
+
+  on: C3
+
+  t += 1.2
+
+  off: C3
+
+  off: rf795
+
+
+
+
+
+
+
