@@ -226,11 +226,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( input->runMaster )
 		{
 			ttls.shadeTTLs ( ttlShadeLocs );
-			subTimer.tick ( "After-Shade-TTLs" );
 			aoSys.shadeDacs ( dacShadeLocs );
-			subTimer.tick ( "After-Shade-Dacs" );
 			ttls.interpretKey( input->parameters );
-			subTimer.tick ( "After-ttl-Interpret" );
 			aoSys.interpretKey( input->parameters, warnings );
 			subTimer.tick ( "After-aoSys-Interpret" );
 			if ( input->runDds )
@@ -243,11 +240,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( useAuxDevices )
 		{
 			input->rsg.interpretKey ( input->parameters );
-			subTimer.tick ( "After-rsg-Interpret" );
 			input->topBottomTek.interpretKey ( input->parameters );
-			subTimer.tick ( "After-topBottomTek-Interpret" );
 			input->eoAxialTek.interpretKey ( input->parameters );
-			subTimer.tick ( "After-eoAxialTek-Interpret" );
 		}
 		timer.tick("After-Key-Interpretation");
 		/// organize commands, prepping final forms of the data for each repetition.

@@ -24,6 +24,32 @@ void DdsCore::updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> newLis
 	rampLists = newList;
 }
 
+
+void DdsCore::assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params )
+{
+	if ( params.size ( ) == 0 )
+	{
+		thrower ( "ERROR: empty variables! Sequence size is zero?!" );
+	}
+	UINT variations = ( ( params[ 0 ].size ( ) ) == 0 ) ? 1 : params.front ( ).front ( ).keyValues.size ( );
+	for ( auto sequenceNumber : range ( params.size ( ) ) )
+	{
+		auto& seqParams = params[ sequenceNumber ];
+		for ( auto variationNumber : range ( variations ) )
+		{
+			for ( auto& ramp : rampLists ( sequenceNumber, variationNumber ) )
+			{
+				ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+				ramp.freq1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+				ramp.freq2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+				ramp.amp1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+				ramp.amp2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+				ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+			}
+		}
+	}
+}
+
 // this probably needs an overload with a default value for the empty parameters case...
 void DdsCore::evaluateDdsInfo ( std::vector<std::vector<parameterType>> params )
 {
