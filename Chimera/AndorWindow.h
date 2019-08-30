@@ -69,7 +69,7 @@ class AndorWindow : public CDialog
 		void checkCameraIdle( );
 		void handleEmGainChange();
 		void fillMasterThreadInput( ExperimentThreadInput* input );
-		DataLogger* getLogger();
+		DataLogger& getLogger();
 		std::string getSystemStatusString();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
 						  BaslerWindow* basWin);
@@ -84,7 +84,7 @@ class AndorWindow : public CDialog
 		cToolTips getToolTips();
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
-		void prepareAndor( ExperimentInput& input );
+		void prepareAndor( AllExperimentInput& input );
 		void armCameraWindow();
 		std::string getStartMessage();
 		void setEmGain();
@@ -94,8 +94,8 @@ class AndorWindow : public CDialog
 		void handleAutoscaleSelection();
 		void assertOff();
 		void passPictureSettings( UINT id );
-		void prepareAtomCruncher( ExperimentInput& input );
-		void preparePlotter( ExperimentInput& input );
+		void prepareAtomCruncher( AllExperimentInput& input );
+		void preparePlotter( AllExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
@@ -103,15 +103,15 @@ class AndorWindow : public CDialog
 														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		void passAtomGridCombo( );
 		void passDelGrid( );
-		void startAtomCruncher(ExperimentInput& input);
-		void startPlotterThread( ExperimentInput& input );
+		void startAtomCruncher(AllExperimentInput& input);
+		void startPlotterThread( AllExperimentInput& input );
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();
 		void handlePlotTimerEdit ( );
 		void stopPlotter( );
 		void stopSound( );
 		void handleImageDimsEdit(UINT id );
-		void loadCameraCalSettings( ExperimentInput& input );
+		void loadCameraCalSettings( AllExperimentInput& input );
 		bool wasJustCalibrated( );
 		bool wantsAutoCal( );
 		bool wantsNoMotAlert ( );

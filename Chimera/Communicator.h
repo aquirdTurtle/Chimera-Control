@@ -39,6 +39,7 @@ class Communicator
 		void sendCameraProgress ( long prog );
 		void sendCameraCalProgress ( long progress );
 		void sendRepProgress ( ULONG rep );
+		void sendLogVoltsMessage ( UINT variation );
 
 		void sendCameraCalFin( );
 		void sendCameraFin();

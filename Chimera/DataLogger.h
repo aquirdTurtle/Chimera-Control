@@ -24,13 +24,14 @@ class DataLogger
 	public:
 		DataLogger(std::string systemLocation);
 		~DataLogger( );
+		void logMasterRuntime ( UINT repNumber );
 		void logError ( H5::Exception& err );
 		void initializeDataFiles( std::string specialName="", bool needsCal=true);
 		void writeAndorPic( std::vector<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image, imageParameters dims );
 		void writeVolts ( UINT currentVoltNumber, std::vector<float64> data );
 
-		void logMasterParameters( ExperimentThreadInput* input);
+		void logMasterInput( ExperimentThreadInput* input );
 		void logMiscellaneousStart();
 		void logAndorSettings( AndorRunSettings settings, bool on );
 		void logNiawgSettings( ExperimentThreadInput* input );

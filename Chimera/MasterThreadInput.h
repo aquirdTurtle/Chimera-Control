@@ -22,13 +22,14 @@
 #include "realTimePlotterInput.h"
 #include "baslerSettings.h"
 #include "DdsSystem.h"
-//#include "Andor.h"
+
 #include <chrono>
 #include <vector>
 #include <atomic>
 
 class AuxiliaryWindow;
 class MainWindow;
+class DataLogger;
 
 enum class ExperimentType
 {
@@ -55,7 +56,7 @@ struct ExperimentThreadInput
 	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
 	EmbeddedPythonHandler& python;
 	// for posting messages only!
-	AuxiliaryWindow* auxWin;
+	//AuxiliaryWindow* auxWin;
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem& ttls;
@@ -63,7 +64,6 @@ struct ExperimentThreadInput
 	AiSystem& aiSys;
 	AndorCamera& andorCamera;
 	DdsCore& dds;
-	UINT repetitionNumber;
 	
 	ScanRangeInfo variableRangeInfo;
 	// believe outer layer here is for sequence increment
@@ -77,12 +77,15 @@ struct ExperimentThreadInput
 	TektronicsAfgControl& eoAxialTek;
 	ParameterSystem& globalControl;
 	NiawgController& niawg;
+	DataLogger& logger;
 	UINT intensityAgilentNumber;
 	bool quiet=false;
 	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
 	bool runAndor;
+	// at the moment
+	bool logBaslerPics;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;
@@ -97,13 +100,13 @@ struct ExperimentThreadInput
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
 
-	ExperimentType expType;
+	ExperimentType expType = ExperimentType::Normal;
 };
 
 
-struct ExperimentInput
+struct AllExperimentInput
 {
-	ExperimentInput::ExperimentInput( ) :
+	AllExperimentInput::AllExperimentInput( ) :
 		includesAndorRun( false ), masterInput( NULL ), plotterInput( NULL ), cruncherInput( NULL ) { }
 	ExperimentThreadInput* masterInput;
 	realTimePlotterInput* plotterInput;

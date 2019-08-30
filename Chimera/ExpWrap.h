@@ -9,11 +9,31 @@ class ExpWrap
 	public:
 		type& operator() ( UINT sequenceNumber, UINT variationNumber )
 		{ 
+			if ( sequenceNumber >= data.size ( ) )
+			{
+				thrower ( "ERROR: Bad indexing in experiment wrap structure! Sequence Number was " + str ( sequenceNumber )
+						  + " and size of structure was " + str(data.size ( )) );
+			}
+			if ( variationNumber >= data[ sequenceNumber ].size ( ) )
+			{
+				thrower ( "ERROR: Bad indexing in experiment wrap structure! Variation Number was " + str ( variationNumber )
+						  + " and size of structure was " + str ( data[ sequenceNumber ].size ( ) ) );
+			}
 			return data[ sequenceNumber ][ variationNumber ];
 		};
 
 		type operator() ( UINT sequenceNumber, UINT variationNumber ) const
 		{ 
+			if ( sequenceNumber >= data.size ( ) )
+			{
+				thrower ( "ERROR: Bad indexing in experiment wrap structure! Sequence Number was " + str ( sequenceNumber )
+						  + " and size of structure was " + str ( data.size ( ) ) );
+			}
+			if ( variationNumber >= data[ sequenceNumber ].size ( ) )
+			{
+				thrower ( "ERROR: Bad indexing in experiment wrap structure! Variation Number was " + str ( variationNumber )
+						  + " and size of structure was " + str ( data[ sequenceNumber ].size ( ) ) );
+			}
 			return data[ sequenceNumber ][ variationNumber ];
 		};
 

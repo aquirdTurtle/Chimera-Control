@@ -8,6 +8,7 @@ class AndorWindow;
 class AuxiliaryWindow;
 class ScriptingWindow;
 class BaslerWindow;
+class DataLogger;
 
 namespace commonFunctions
 {
@@ -18,18 +19,18 @@ namespace commonFunctions
 	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 									AuxiliaryWindow* auxWin );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-							  AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls );
-	void startExperimentThread(MainWindow* mainWin, ExperimentInput& input);
-	void logParameters( ExperimentInput& input, AndorWindow* camWin, BaslerWindow* basWin, bool takeAndorPictures, 
-						bool takeBaslerPictures, std::string specialName="", bool needsCal=true );
-	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin = NULL, BaslerWindow* basWin = NULL );
+							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runTtls, 
+							  bool runAndor, bool runBasler );
+	void startExperimentThread(MainWindow* mainWin, AllExperimentInput& input);
+	void logParameters( AllExperimentInput input, DataLogger& logger, std::string specialName="", bool needsCal=true );
+	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);
 	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin );
 	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin );
 	bool getPermissionToStart( AndorWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
-							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster, ExperimentInput& input );
+							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster, AllExperimentInput& input );
 	/// Scripting Menu
 	void reloadNIAWGDefaults( MainWindow* mainWin );
 

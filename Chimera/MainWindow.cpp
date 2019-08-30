@@ -1042,7 +1042,6 @@ void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 {
 	ParameterSystem::generateKey ( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
-	input->repetitionNumber = 5;
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
 	input->skipNext = NULL;
@@ -1130,7 +1129,6 @@ Communicator& MainWindow::getCommRef ( )
 void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
 {
 	input->settings = settings.getOptions();
-	input->repetitionNumber = getRepNumber();
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();
 	input->seq = profile.getSeqSettings( );
@@ -1147,7 +1145,7 @@ EmbeddedPythonHandler& MainWindow::getPython ( )
 
 void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 {
-	logger->logMasterParameters(input);
+	logger->logMasterInput(input);
 	logger->logServoInfo ( TheAuxiliaryWindow->getServoinfo ( ) );
 }
 
