@@ -76,7 +76,6 @@ class MainWindow : public CDialog
 		void onGreyTempCalFin ( );
 		void onMachineOptRoundFin ( );
 		void handleThresholdAnalysis ( );
-
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( ExperimentThreadInput* input );

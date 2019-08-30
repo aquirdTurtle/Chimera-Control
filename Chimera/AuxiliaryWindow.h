@@ -55,7 +55,7 @@ class AuxiliaryWindow : public CDialog
 		AuxiliaryWindow();
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
-		void updateOptimization ( ExperimentInput input );
+		void updateOptimization ( AllExperimentInput input );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();

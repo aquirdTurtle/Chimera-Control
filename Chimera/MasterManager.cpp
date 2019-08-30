@@ -35,7 +35,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
-	UINT seqNum = 0;
+	UINT seqNum = 0, repetitions = 1;
 	ExpWrap<std::vector<ddsIndvRampListInfo>> ddsRampList;
 	ddsRampList.resizeSeq ( input->seq.sequence.size ( ) );
 	// a couple shortcuts.
@@ -47,8 +47,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	{
 		for ( auto& config : input->seq.sequence )
 		{
-
-			auto& seq = expSeq.sequence[seqNum]; 
+			auto& seq = expSeq.sequence[seqNum];
 			if ( input->runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( config );
@@ -64,6 +63,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					if ( varNum == 0 ) continue;
 					ddsRampList ( seqNum, varNum ) = ddsRampList ( seqNum, 0 );
 				}
+				repetitions = ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS",
+																				 Repetitions::getRepsFromConfig );
 			}
 			if ( input->runNiawg )
 			{
@@ -71,9 +72,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
 				if ( input->debugOptions.outputNiawgHumanScript )
 				{
+					std::string debugStr = "Human Script: " + seq.niawgStream.str ( ) + "\n\n";
 					// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n 
 					// with \r\n.
-					std::string debugStr = "Human Script: " + seq.niawgStream.str ( ) + "\n\n";
 					debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
 					boost::replace_all ( debugStr, "\n", "\r\n" );
 					input->comm.sendDebug ( debugStr );
@@ -90,8 +91,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		delete voidInput;
 		return -1;
 	}
-
-	dds.updateRampLists ( ddsRampList );
+	
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower () calls.
@@ -109,31 +109,42 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
 	auto quiet = input->quiet;
-	
+	const auto& runMaster = input->runMaster;
+	const auto& runAndor = input->runAndor;
+	const auto& runNiawg = input->runNiawg;
 	timer.tick("After-File-Init");
 	/// ////////////////////////////
 	/// start analysis & experiment
 	try
 	{
-		bool useAuxDevices = ( input->expType == ExperimentType::MachineOptimization || input->expType == ExperimentType::Normal );
+		input->logger.logMasterRuntime ( repetitions );
+		bool useAuxDevices = input->runMaster && ( input->expType == ExperimentType::MachineOptimization 
+												   || input->expType == ExperimentType::Normal );
 		if ( !useAuxDevices )
 		{
-			 expUpdate ( "Non-standard experiment type, so Tektronics & RSG will not be run.", comm, quiet );
+			 expUpdate ( "Non-standard experiment type, so Tektronics, RSG, and Agilents will not be run.", comm, quiet );
 		}
-		if ( input->runAndor )
+		else
+		{
+			dds.updateRampLists ( ddsRampList );
+		}
+		if ( runAndor )
 		{
 			double kinTime;
 			input->andorCamera.armCamera( kinTime );
 		}
-		aoSys.resetDacEvents( );
-		ttls.resetTtlEvents( );
-		aoSys.initializeDataObjects( input->seq.sequence.size( ), 0 );
-		ttls.initializeDataObjects( input->seq.sequence.size( ), 0 );
-		input->thisObj->loadSkipTimes.clear( );
-		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
-		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );
-		input->rsg.clearFrequencies( );
-		if ( input->runNiawg )
+		if ( runMaster )
+		{
+			aoSys.resetDacEvents ( );
+			ttls.resetTtlEvents ( );
+			aoSys.initializeDataObjects ( input->seq.sequence.size ( ), 0 );
+			ttls.initializeDataObjects ( input->seq.sequence.size ( ), 0 );
+			input->thisObj->loadSkipTimes.clear ( );
+			input->thisObj->loadSkipTimes.resize ( input->seq.sequence.size ( ) );
+			input->thisObj->loadSkipTime.resize ( input->seq.sequence.size ( ) );
+			input->rsg.clearFrequencies ( );
+		}
+		if ( runNiawg )
 		{
 			input->niawg.initForExperiment ( );
 		}
@@ -159,13 +170,16 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			/// Prep agilents
 			expUpdate( "Loading Agilent Info...", comm, quiet );
 			timer.tick(str(seqNum) + "-Var-Number-Handling");
-			for ( auto& agilent : input->agilents )
+			if ( useAuxDevices )
 			{
-				RunInfo dum;
-				agilent->handleInput( input->profile.categoryPath, dum );
-				for ( auto channelInc : range ( 2 ) )
+				for ( auto& agilent : input->agilents )
 				{
-					agilent->analyzeAgilentScript ( channelInc, seqVariables );
+					RunInfo dum;
+					agilent->handleInput ( input->profile.categoryPath, dum );
+					for ( auto channelInc : range ( 2 ) )
+					{
+						agilent->analyzeAgilentScript ( channelInc, seqVariables );
+					}
 				}
 			}
 			timer.tick(str(seqNum) + "-All-Agilent-Handle-Input");
@@ -181,7 +195,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 			/// prep NIAWG
-			if ( input->runNiawg )
+			if ( runNiawg )
 			{
 				comm.sendColorBox ( System::Niawg, 'Y' );
 				input->niawg.analyzeNiawgScript ( seq.niawgStream, output, input->profile, input->debugOptions, 
@@ -190,11 +204,14 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				timer.tick(str(seqNum) + "-Preparing-Niawg");
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-			input->thisObj->loadSkipTimes[seqNum].resize( variations );
+			if ( runMaster )
+			{
+				input->thisObj->loadSkipTimes[ seqNum ].resize ( variations );
+			}
 		}
-		if ( input->runNiawg )
+		if ( runNiawg )
 		{
-			input->niawg.finalizeScript ( input->repetitionNumber, "experimentScript", workingNiawgScripts, niawgMachineScript,
+			input->niawg.finalizeScript ( repetitions, "experimentScript", workingNiawgScripts, niawgMachineScript,
 										   !input->niawg.outputVaries ( output ) );
 			if ( input->debugOptions.outputNiawgMachineScript )
 			{
@@ -225,13 +242,13 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey( input->parameters );
 			aoSys.interpretKey( input->parameters, warnings );
+		}
+		if ( useAuxDevices )
+		{
 			// prob a better place for this...
 			dds.assertDdsValuesValid ( input->parameters );
 			dds.evaluateDdsInfo ( input->parameters );
 			dds.generateFullExpInfo ( );
-		}
-		if ( useAuxDevices )
-		{
 			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );
 			input->eoAxialTek.interpretKey ( input->parameters );
@@ -301,7 +318,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				for ( auto variationNumber : range(variations) )
 				{
 					totalTime += ULONGLONG( ttls.getTotalTime( variationNumber, seqInc ) 
-											* input->repetitionNumber );
+											* repetitions );
 				}
 			}
 			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", comm, quiet );
@@ -353,7 +370,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			if ( input->aiSys.wantsQueryBetweenVariations( ) )
 			{
 				expUpdate( "Querying Voltages...\r\n", comm, quiet );
-				input->auxWin->PostMessage( MainWindow::LogVoltsMessageID, variationInc );
+				comm.sendLogVoltsMessage ( variationInc );
 			}
 			if ( input->debugOptions.sleepTime != 0 )
 			{
@@ -386,28 +403,31 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			timer.tick(str(variationInc + 1)+"-After-Programming-Rsg");
 			// program devices
-			for (auto& agilent : input->agilents)
+			if ( useAuxDevices )
 			{
-				agilent->setAgilent( variationInc, input->parameters[0] );
-			}
-			dds.writeExperiment ( 0, variationInc );
-			// check right number of triggers (currently must be done after agilent is set.
-			for ( auto& agilent : input->agilents )
-			{
-				for ( auto chan : range( 2 ) )
+				for ( auto& agilent : input->agilents )
 				{
-					if ( agilent->getOutputInfo( ).channel[chan].option != AgilentChannelMode::which::Script )
+					agilent->setAgilent ( variationInc, input->parameters[ 0 ] );
+				}
+				dds.writeExperiment ( 0, variationInc );
+			// check right number of triggers (currently must be done after agilent is set.
+				for ( auto& agilent : input->agilents )
+				{
+					for ( auto chan : range ( 2 ) )
 					{
-						continue;
-					}
-					UINT ttlTrigs = input->runMaster? ttls.countTriggers ( agilent->getTriggerLine ( ), variationInc, 0 ) : 0;
-					UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumTrigs( );
-					if ( ttlTrigs != agilentExpectedTrigs )
-					{
-						warnings += "WARNING: Agilent " + agilent->configDelim + " is not getting triggered by the "
-							"ttl system the same number of times a trigger command appears in the agilent channel "
-							+ str( chan + 1 ) + " script. There are " + str( agilentExpectedTrigs ) + " triggers in"
-							" the agilent script, and " + str( ttlTrigs ) + " ttl triggers sent to that agilent.\r\n";
+						if ( agilent->getOutputInfo ( ).channel[ chan ].option != AgilentChannelMode::which::Script )
+						{
+							continue;
+						}
+						UINT ttlTrigs = input->runMaster ? ttls.countTriggers ( agilent->getTriggerLine ( ), variationInc, 0 ) : 0;
+						UINT agilentExpectedTrigs = agilent->getOutputInfo ( ).channel[ chan ].scriptedArb.wave.getNumTrigs ( );
+						if ( ttlTrigs != agilentExpectedTrigs )
+						{
+							warnings += "WARNING: Agilent " + agilent->configDelim + " is not getting triggered by the "
+								"ttl system the same number of times a trigger command appears in the agilent channel "
+								+ str ( chan + 1 ) + " script. There are " + str ( agilentExpectedTrigs ) + " triggers in"
+								" the agilent script, and " + str ( ttlTrigs ) + " ttl triggers sent to that agilent.\r\n";
+						}
 					}
 				}
 			}
@@ -433,7 +453,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			//
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
-			for (UINT repInc = 0; repInc < input->repetitionNumber; repInc++)
+			for (UINT repInc = 0; repInc < repetitions; repInc++)
 			{
 				for (auto seqInc : range(input->seq.sequence.size()))
 				{

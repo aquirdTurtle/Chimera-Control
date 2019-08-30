@@ -70,23 +70,26 @@ class ProfileSystem
 		seqSettings getSeqSettings( );
 
 		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
-		static void reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension, 
-								 std::string nameToLoad );
-		bool fileOrFolderExists( std::string filePathway );
-		void fullyDeleteFolder(std::string folderToDelete);
+		static void reloadCombo ( HWND comboToReload, std::string locationToLook, std::string extension,
+								  std::string nameToLoad );
+		bool fileOrFolderExists ( std::string filePathway );
+		void fullyDeleteFolder ( std::string folderToDelete );
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
-		void rearrange(int width, int height, fontMap fonts);
+		void rearrange( int width, int height, fontMap fonts );
 		void handleSelectConfigButton( CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
 									   AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
 		
 		template <class sysType>
 		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, std::string endDelim, 
 										 sysType* this_in, Version minVer = Version("0.0"));
-		// an overload with the default end delimiter: "END_" + delim. Basically everything /should/ use the default,
-		// just still dealing with some edge cases.
+		// an overload with the default end delimiter: "END_" + delim. Basically everything /should/ use the default.
 		template <class sysType>
 		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, 
 										 Version minVer = Version ( "0.0" ) );
+		template <class returnType>
+		static returnType standardGetFromConfig ( std::ifstream& openFile, std::string delim, 
+												  returnType ( *getter )( std::ifstream&, Version ),
+												  Version minVer = Version( "0.0" ) );
 		static void checkDelimiterLine ( std::ifstream& openFile, std::string keyword );
 		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
 		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
@@ -164,4 +167,43 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 		errBox ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
 				 "control did not initialize properly.\n\n" + e.trace() );
 	}
+}
+
+template <class returnType>
+static returnType ProfileSystem::standardGetFromConfig ( std::ifstream& openFile, std::string delim, 
+													     returnType ( *getter )( std::ifstream&, Version ),
+													     Version minVer )
+{
+	// a template functor. The getter here should get whatever is wanted from the file and return it. 
+	Version ver;
+	// return type must have a default constructor so that the function knows what to do if fails.
+	returnType res = returnType();
+	try
+	{
+		ProfileSystem::initializeAtDelim ( openFile, delim, ver, minVer );
+	}
+	catch ( Error& e )
+	{
+		errBox ( "Failed to initialize config file for " + delim + "!\n\n" + e.trace ( ) );
+		return res;
+	}
+	try
+	{
+		res = (*getter) ( openFile, ver );
+	}
+	catch ( Error& e )
+	{
+		errBox ( "Failed to gather information from config file for " + delim + "!\n\n" + e.trace ( ) );
+		return res;
+	}
+	try
+	{
+		ProfileSystem::checkDelimiterLine ( openFile, "END_" + delim );
+	}
+	catch ( Error& e )
+	{
+		errBox ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
+				 "control did not initialize properly.\n\n" + e.trace ( ) );
+	}
+	return res;
 }

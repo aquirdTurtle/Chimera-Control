@@ -626,7 +626,7 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 		}
 		wave.varies = false;
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested( "Failed to convert simple niawg wave form to simple wave data! This might mean a low-level bug where"
 				 " the code thought that a wave didn't vary, but it did.\r\n" );
@@ -1732,7 +1732,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 		time.evaluate( );
 		wave.time = time;
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested( "niawg waveform time cannot be varied! Evaluation of time expression failed!" );
 	}
@@ -1870,7 +1870,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		{
 			copyPhase = ( signal.initPhase.evaluate ( ) == -1);
 		}
-		catch ( Error& err )
+		catch ( Error&  )
 		{
 			// is a variable, hopefully variable value isn't -1...
 		}

@@ -1036,13 +1036,13 @@ void AndorWindow::handleMasterConfigOpen(std::stringstream& configStream, Versio
 }
 
 
-DataLogger* AndorWindow::getLogger()
+DataLogger& AndorWindow::getLogger()
 {
-	return &dataHandler;
+	return dataHandler;
 }
 
 
-void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
+void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 {
 	redrawPictures( false );
 	try
@@ -1076,7 +1076,7 @@ AndorCamera& AndorWindow::getCamera ( )
 	return Andor;
 }
 
-void AndorWindow::prepareAndor( ExperimentInput& input )
+void AndorWindow::prepareAndor( AllExperimentInput& input )
 {
 	currentPictureNum = 0;
 	input.includesAndorRun = true;
@@ -1105,7 +1105,7 @@ void AndorWindow::prepareAndor( ExperimentInput& input )
 
 }
 
-void AndorWindow::prepareAtomCruncher( ExperimentInput& input )
+void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 {
 	input.cruncherInput = new atomCruncherInput;
 	input.cruncherInput->plotterActive = plotThreadActive;
@@ -1147,7 +1147,7 @@ void AndorWindow::prepareAtomCruncher( ExperimentInput& input )
 }
 
 
-void AndorWindow::startAtomCruncher(ExperimentInput& input)
+void AndorWindow::startAtomCruncher(AllExperimentInput& input)
 {
 	UINT atomCruncherID;
 	atomCruncherThreadHandle = (HANDLE)_beginthreadex( 0, 0, AndorWindow::atomCruncherProcedure,
@@ -1161,7 +1161,7 @@ bool AndorWindow::wantsAutoPause( )
 }
 
 
-void AndorWindow::preparePlotter( ExperimentInput& input )
+void AndorWindow::preparePlotter( AllExperimentInput& input )
 {
 	/// start the plotting thread.
 	plotThreadActive = true;
@@ -1260,7 +1260,7 @@ UINT AndorWindow::getNoMotThreshold ( )
 }
 
 
-void AndorWindow::startPlotterThread( ExperimentInput& input )
+void AndorWindow::startPlotterThread( AllExperimentInput& input )
 {
 	bool gridHasBeenSet = false;
 	for ( auto gridInfo : input.plotterInput->grids )

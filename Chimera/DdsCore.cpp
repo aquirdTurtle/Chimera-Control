@@ -3,12 +3,6 @@
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
 { 
-	writeLog.open ( writeLogFileName, std::ios::app ); 
-	if ( !writeLog.is_open ( ) )
-	{
-		thrower ( "Failed to open dds write log!" );
-	}
-	writeLog << "Chimera\n";
 	connectasync ( );
 	lockPLLs( );	
 }
@@ -16,7 +10,6 @@ DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
 DdsCore::~DdsCore ( )
 {
 	disconnect ( );
-	writeLog.close ( );
 }
 
 void DdsCore::updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> newList )
@@ -438,23 +431,6 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 		UINT8 ADDRESS_HI = ( ADDRESS & 0xff00UL ) >> 8;
 		std::vector<unsigned char> input = { unsigned char ( WBWRITE + DEVICE ), ADDRESS_HI, ADDRESS_LO, dat1, dat2, dat3, dat4 };
 		ftFlume.write ( input, MSGLENGTH );
-		if ( log )
-		{
-			if ( !writeLog.is_open ( ) )
-			{
-				thrower ( "Failed to open dds logging file!" );
-			}
-			writeLog << std::setfill ( '0' ) << std::hex
-					 << std::setw ( 2 ) << UINT ( input[ 0 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 1 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 2 ] )
-					 << " "
-					 << std::setw ( 2 ) << UINT ( input[ 3 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 4 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 5 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 6 ] )
-					 << "\n";
-		}
 	}
 	else
 	{

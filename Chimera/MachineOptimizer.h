@@ -79,10 +79,10 @@ class MachineOptimizer
 		void handleSaveConfig ( );
 		void handleNewConfig ( );
 		void reset ( );
-		void verifyOptInput ( ExperimentInput input );
+		void verifyOptInput ( AllExperimentInput input );
 		void rearrange ( UINT width, UINT height, fontMap fonts );
-		void updateParams( ExperimentInput input, dataPoint resultValue, DataLogger* logger );
-		void hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue, DataLogger* logger);
+		void updateParams( AllExperimentInput input, dataPoint resultValue, DataLogger& logger );
+		void hillClimbingUpdate ( AllExperimentInput input, dataPoint resultValue, DataLogger& logger);
 		void updateCurrentValueDisplays ( );
 		void handleListViewClick ( );
 		void deleteParam ( );

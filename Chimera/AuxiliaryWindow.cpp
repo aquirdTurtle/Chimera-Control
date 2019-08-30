@@ -125,7 +125,7 @@ void AuxiliaryWindow::DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch (Error& err )
 	{
-		;
+		sendErr ( err.trace ( ) );
 	}
 }
 
@@ -137,7 +137,7 @@ void AuxiliaryWindow::DdsDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& err )
 	{
-		;
+		sendErr ( err.trace ( ) );
 	}
 }
 
@@ -247,7 +247,7 @@ void AuxiliaryWindow::autoOptimize ( )
 }
 
 
-void AuxiliaryWindow::updateOptimization ( ExperimentInput input )
+void AuxiliaryWindow::updateOptimization ( AllExperimentInput input )
 {
 	optimizer.verifyOptInput ( input );
 	dataPoint resultValue = camWin->getMainAnalysisResult ( );
@@ -302,7 +302,6 @@ LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 	aiSys.refreshCurrentValues( );
 	aiSys.refreshDisplays( );
 	camWin->writeVolts( wp, aiSys.getCurrentValues() );
-
 	return TRUE;
 }
 
@@ -529,7 +528,6 @@ void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 	try
 	{
 		sendStatus( "Loading Camera-Cal Config...\r\n" );
-		input->auxWin = this;
 		input->quiet = true;
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
@@ -538,7 +536,6 @@ void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 		input->parameters.push_back( globalParameters.getAllParams( ) );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		// Only do this once of course.
-		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;
 		input->runNiawg = false;
@@ -1023,7 +1020,6 @@ void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 {
 	try
 	{
-		input->auxWin = this;
 		input->quiet = true;
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
@@ -1047,7 +1043,6 @@ void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 		input->parameters = experimentVars;
 		///
 		// Only set it once, clearly.
-		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;
 		input->runNiawg = false;
@@ -1066,7 +1061,6 @@ void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
 	try
 	{
 		sendStatus("Loading MOT Configuration...\r\n" );
-		input->auxWin = this;
 		input->quiet = true;
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
@@ -1076,7 +1070,6 @@ void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
 		input->variableRangeInfo.defaultInit ( );
 		input->variableRangeInfo(0,0).variations = 1;
 		// Only set it once, clearly.
-		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;
 		input->runNiawg = false;
@@ -1117,7 +1110,6 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	try
 	{
-		input->auxWin = this;
 		input->dacData = dacData;
 		input->ttlData = ttlData;
 		/// Parameters.
