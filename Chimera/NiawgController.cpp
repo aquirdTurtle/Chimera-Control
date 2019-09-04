@@ -191,7 +191,7 @@ void NiawgController::programNiawg( ExperimentThreadInput* input, NiawgOutput& o
 	input->comm.sendColorBox( System::Niawg, 'Y' );
 	input->niawg.handleVariations( output, input->parameters, variation, variedMixedSize, warnings, input->debugOptions,
 									totalVariations, rerngGuiForm, rerngGui );
-	if ( input->settings.dontActuallyGenerate ) { return; }
+	if ( input->dontActuallyGenerate ) { return; }
 
 	// Restart Waveform
 	input->niawg.turnOff( );

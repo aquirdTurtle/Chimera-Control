@@ -700,7 +700,7 @@ namespace commonFunctions
 		input.masterInput->logBaslerPics = logBaslerPics;
 		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
 		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-		input.masterInput->settings.dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
+		input.masterInput->dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
 		input.masterInput->profile = profile;
 		if (runNiawg)

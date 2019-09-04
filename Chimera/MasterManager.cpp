@@ -43,8 +43,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;
 	auto& dds = input->dds;
+	mainOptions mainOpts;
 	try
 	{
+		ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 		for ( auto& config : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
@@ -63,6 +65,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					if ( varNum == 0 ) continue;
 					ddsRampList ( seqNum, varNum ) = ddsRampList ( seqNum, 0 );
 				}
+				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
+																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS",
 																				 Repetitions::getRepsFromConfig );
 			}
@@ -117,7 +121,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// start analysis & experiment
 	try
 	{
-		input->logger.logMasterRuntime ( repetitions );
+		input->logger.logMasterRuntime ( repetitions, input->parameters );
 		bool useAuxDevices = input->runMaster && ( input->expType == ExperimentType::MachineOptimization 
 												   || input->expType == ExperimentType::Normal );
 		if ( !useAuxDevices )
@@ -190,7 +194,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				comm.sendColorBox ( System::Master, 'Y' );
 				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
 													 seqVariables, seq.masterStream, seqNum,
-													 input->settings.atomThresholdForSkip != UINT_MAX, warnings );
+													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings );
 				timer.tick(str(seqNum) + "-Analyzing-Master-Script");
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
@@ -508,7 +512,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if (input->runNiawg)
 		{
 			input->niawg.cleanupNiawg( input->profile, input->runMaster, output, comm, 
-										input->settings.dontActuallyGenerate );
+									   mainOpts.dontActuallyGenerate );
 		}
 		input->thisObj->experimentIsRunning = false;
 		switch ( input->expType )

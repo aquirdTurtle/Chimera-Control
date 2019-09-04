@@ -529,7 +529,6 @@ void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 	{
 		sendStatus( "Loading Camera-Cal Config...\r\n" );
 		input->quiet = true;
-		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
 		input->parameters.clear( );
@@ -1021,7 +1020,6 @@ void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 	try
 	{
 		input->quiet = true;
-		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		/// variables.
 		std::vector<std::vector<parameterType>> experimentVars;
@@ -1062,7 +1060,6 @@ void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
 	{
 		sendStatus("Loading MOT Configuration...\r\n" );
 		input->quiet = true;
-		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->parameters.clear( );

@@ -24,7 +24,7 @@ class DataLogger
 	public:
 		DataLogger(std::string systemLocation);
 		~DataLogger( );
-		void logMasterRuntime ( UINT repNumber );
+		void logMasterRuntime ( UINT repNumber, std::vector<std::vector<parameterType>> params );
 		void logError ( H5::Exception& err );
 		void initializeDataFiles( std::string specialName="", bool needsCal=true);
 		void writeAndorPic( std::vector<long> image, imageParameters dims );
@@ -36,7 +36,7 @@ class DataLogger
 		void logAndorSettings( AndorRunSettings settings, bool on );
 		void logNiawgSettings( ExperimentThreadInput* input );
 		void logAgilentSettings( const std::vector<Agilent*>& input );
-		void logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
+		void logParameters( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
 		void logFunctions( H5::Group& group );
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DioSystem& doSys );

@@ -186,7 +186,7 @@ class MainWindow : public CDialog
 		NoteSystem notes;
 		DebugOptionsControl debugger;
 		Repetitions repetitionControl;
-		MainOptionsControl settings;
+		MainOptionsControl mainOptsCtrl;
 		StatusControl mainStatus;
 		StatusControl debugStatus;
 		StatusControl errorStatus;

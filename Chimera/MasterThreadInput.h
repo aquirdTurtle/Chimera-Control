@@ -56,7 +56,7 @@ struct ExperimentThreadInput
 	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
 	EmbeddedPythonHandler& python;
 	// for posting messages only!
-	//AuxiliaryWindow* auxWin;
+	// AuxiliaryWindow* auxWin;
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem& ttls;
@@ -80,12 +80,11 @@ struct ExperimentThreadInput
 	DataLogger& logger;
 	UINT intensityAgilentNumber;
 	bool quiet=false;
-	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
 	bool runAndor;
-	// at the moment
 	bool logBaslerPics;
+	bool dontActuallyGenerate=false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;

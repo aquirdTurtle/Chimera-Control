@@ -548,12 +548,18 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 /*
 This function is for logging things that are read from the configuration file and otherwise obtained inside the main experiment thread.
 */
-void DataLogger::logMasterRuntime ( UINT repNumber )
+void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<std::vector<parameterType>> allParams)
 {
 	try
 	{
-		H5::Group runParametersGroup ( file.createGroup ( "/Master-Runtime" ) );
-		writeDataSet ( repNumber, "Repetitions", runParametersGroup );
+		H5::Group runtimeGroup ( file.createGroup ( "/Master-Runtime" ) );
+		writeDataSet ( repNumber, "Repetitions", runtimeGroup );
+		UINT count = 0;
+		for ( auto& seqParams : allParams )
+		{
+			logParameters ( seqParams, runtimeGroup, count );
+			count++;
+		}
 	}
 	catch ( H5::Exception& err )
 	{
@@ -592,12 +598,6 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 			writeDataSet( "", "NA:Master-Script-File-Address", runParametersGroup );
 		}
 		logFunctions( runParametersGroup );
-		UINT count = 0;
-		for ( auto& seqVariables : input->parameters )
-		{
-			logVariables( seqVariables, runParametersGroup, count );
-			count++;
-		}
 		logNiawgSettings( input );
 		logAgilentSettings( input->agilents );
 		logTektronicsSettings ( input->topBottomTek );
@@ -613,21 +613,21 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 }
 
 
-void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc )
+void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5::Group& group, UINT seqInc )
 {
-	H5::Group variableGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Variables" );
-	for ( auto& variable : variables )
+	H5::Group paramGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Parameters" );
+	for ( auto& param : parameters )
 	{
 		H5::DataSet varSet;
-		if ( variable.constant )
+		if ( param.constant )
 		{
-			varSet = writeDataSet( variable.constantValue, variable.name, variableGroup );
+			varSet = writeDataSet( param.constantValue, param.name, paramGroup );
 		}
 		else
 		{
-			varSet = writeDataSet( variable.keyValues, variable.name, variableGroup );
+			varSet = writeDataSet( param.keyValues, param.name, paramGroup );
 		}
-		writeAttribute( variable.constant, "Constant", varSet );
+		writeAttribute( param.constant, "Constant", varSet );
 	} 
 }
 
