@@ -245,7 +245,6 @@ void MainWindow::OnTimer( UINT_PTR id )
 
 void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->seq.name = "CameraCal";
 	input->seq.sequence.resize( 1 );
 	input->seq.sequence[0].configuration = "Camera-Calibration";
@@ -541,7 +540,7 @@ BOOL MainWindow::OnInitDialog( )
 	motScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
-	settings.initialize( id, controlLocation, this, tooltips );
+	mainOptsCtrl.initialize( id, controlLocation, this, tooltips );
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips );
@@ -716,7 +715,7 @@ LRESULT MainWindow::onRepProgress(WPARAM wParam, LPARAM lParam)
 void MainWindow::handleNewConfig( std::ofstream& newFile )
 {
 	notes.handleNewConfig( newFile );
-	settings.handleNewConfig( newFile );
+	mainOptsCtrl.handleNewConfig( newFile );
 	debugger.handleNewConfig( newFile );
 	repetitionControl.handleNewConfig( newFile );
 	rearrangeControl.handleNewConfig( newFile );
@@ -726,7 +725,7 @@ void MainWindow::handleNewConfig( std::ofstream& newFile )
 void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 {
 	notes.handleSaveConfig(saveFile);
-	settings.handleSaveConfig(saveFile);
+	mainOptsCtrl.handleSaveConfig(saveFile);
 	debugger.handleSaveConfig(saveFile);
 	repetitionControl.handleSaveConfig(saveFile);
 	rearrangeControl.handleSaveConfig( saveFile );
@@ -738,9 +737,11 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 	try
 	{
 		ProfileSystem::standardOpenConfig ( configFile, "CONFIGURATION_NOTES", &notes);
-		ProfileSystem::standardOpenConfig ( configFile, "MAIN_OPTIONS", &settings);
+		mainOptsCtrl.setOptions ( ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
+																		MainOptionsControl::getMainOptionsFromConfig ) );
 		ProfileSystem::standardOpenConfig ( configFile, "DEBUGGING_OPTIONS", &debugger );
-		ProfileSystem::standardOpenConfig ( configFile, "REPETITIONS", &repetitionControl );
+		repetitionControl.setRepetitions ( ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS", 
+																				  Repetitions::getRepsFromConfig ));
 		ProfileSystem::standardOpenConfig ( configFile, "REARRANGEMENT_INFORMATION", &rearrangeControl );
 	}
 	catch ( Error& )
@@ -758,7 +759,7 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	profile.rearrange(cx, cy, getFonts());
 	notes.rearrange(cx, cy, getFonts());
 	debugger.rearrange(cx, cy, getFonts());
-	settings.rearrange(cx, cy, getFonts());
+	mainOptsCtrl.rearrange(cx, cy, getFonts());
 	mainStatus.rearrange(cx, cy, getFonts());
 	debugStatus.rearrange(cx, cy, getFonts());
 	errorStatus.rearrange(cx, cy, getFonts());
@@ -1041,7 +1042,6 @@ void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 
 void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey ( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
 	input->skipNext = NULL;
@@ -1053,7 +1053,6 @@ void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 
 void MainWindow::fillMotInput( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
@@ -1072,7 +1071,6 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 
 void MainWindow::fillMotSizeInput ( ExperimentThreadInput* input )
 {
-	ParameterSystem::generateKey ( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->profile.configuration = "Mot_Size_Measurement";
 	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
@@ -1128,11 +1126,9 @@ Communicator& MainWindow::getCommRef ( )
 
 void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
 {
-	input->settings = settings.getOptions();
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();
 	input->seq = profile.getSeqSettings( );
-	ParameterSystem::generateKey( input->parameters, input->settings.randomizeVariations, input->variableRangeInfo );
 	input->rerngGuiForm = rearrangeControl.getParams( );
 }
 
@@ -1207,7 +1203,7 @@ void MainWindow::setDebuggingOptions(debugInfo options)
 
 mainOptions MainWindow::getMainOptions()
 {
-	return settings.getOptions();
+	return mainOptsCtrl.getOptions();
 }
 
 

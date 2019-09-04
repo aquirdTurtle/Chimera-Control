@@ -23,15 +23,6 @@ UINT Repetitions::getRepsFromConfig ( std::ifstream& openFile, Version ver )
 }
 
 
-
-void Repetitions::handleOpenConfig ( std::ifstream& openFile, Version ver )
-{
-	UINT repNum;
-	openFile >> repNum;
-	setRepetitions ( repNum );
-}
-
-
 void Repetitions::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "REPETITIONS\n";
@@ -63,7 +54,6 @@ HBRUSH Repetitions::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rG
 
 }
 
-
 void Repetitions::updateNumber(long repNumber)
 {
 	repetitionDisp.SetWindowText(cstr(repNumber));
@@ -72,26 +62,25 @@ void Repetitions::updateNumber(long repNumber)
 
 void Repetitions::initialize(POINT& pos, cToolTips& toolTips, CWnd* parent, int& id)
 {
+	repetitionNumber = 100;
+
 	// title
 	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
 	repetitionText.Create("Repetition #", NORM_STATIC_OPTIONS, repetitionText.sPos, parent, id++);
 	
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
 	repetitionEdit.Create( NORM_EDIT_OPTIONS, repetitionEdit.sPos, parent, IDC_REPETITION_EDIT );
-	repetitionEdit.SetWindowText("100");
+	repetitionEdit.SetWindowText(cstr(repetitionNumber));
 
 	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y += 20 };
 	repetitionDisp.Create( NORM_STATIC_OPTIONS | SS_SUNKEN , repetitionDisp.sPos,
 						  parent, id++);
 	repetitionDisp.SetWindowText("-");
-	// initialize the number to match the display.
-	repetitionNumber = 100;
 }
 
 
 void Repetitions::setRepetitions(UINT number)
 {
-	// check number for reasonable-ness?
 	repetitionNumber = number;
 	repetitionEdit.SetWindowTextA(cstr(number));
 	repetitionDisp.SetWindowTextA("---");

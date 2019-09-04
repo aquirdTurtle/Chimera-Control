@@ -9,7 +9,7 @@
 
 struct mainOptions
 {
-	bool dontActuallyGenerate;
+	bool dontActuallyGenerate=false;
 	bool randomizeVariations;
 	bool randomizeReps;
 	UINT atomThresholdForSkip=UINT_MAX;
@@ -21,7 +21,8 @@ class MainOptionsControl
 	public:
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
+		static mainOptions getMainOptionsFromConfig( std::ifstream& openFile, Version ver );
+		void setOptions ( mainOptions opts );
 		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		mainOptions getOptions();
 		void rearrange(int width, int height, fontMap fonts);
