@@ -47,6 +47,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	try
 	{
 		ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
+		/// load config parameters from config file
 		for ( auto& config : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
@@ -59,7 +60,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				ddsRampList.resizeVariations ( seqNum, variations );
 				std::ifstream configFile ( config.configFilePath ( ) );
 				ProfileSystem::jumpToDelimiter ( configFile, dds.configDelim );
-				ddsRampList(seqNum,0) = dds.getRampListFromConfig ( configFile );
+				ddsRampList ( seqNum, 0 ) = dds.getRampListFromConfig ( configFile );
 				for ( auto varNum : range ( variations ) )
 				{
 					if ( varNum == 0 ) continue;
@@ -89,8 +90,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	}
 	catch ( Error& err)
 	{
-		errBox( "Failed to load experiment sequence files!  (A low level bug, this shouldn't happen). \n" 
-				+ err.trace() );
+		errBox( "Failed to load experiment sequence / configuration files!  \n" + err.trace() );
 		input->thisObj->experimentIsRunning = false;
 		delete voidInput;
 		return -1;
@@ -166,7 +166,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				if ( variations != determineVariationNumber( seqVariables ) )
 				{
-					// why is this required???
+					// the sequences are always interwoven sequence right now, so variations need to match or else
+					// this doesn't make sense.
 					thrower ( "Variation number changes between sequences! the number of variations must match"
 							  " between sequences.  (A low level bug, this shouldn't happen)" );
 				}
@@ -187,9 +188,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				}
 			}
 			timer.tick(str(seqNum) + "-All-Agilent-Handle-Input");
-			/// prep master systems
 			expUpdate( "Analyzing Master Script...", comm, quiet );
-			if ( input->runMaster )
+			if ( input->runMaster ) /// prep master systems
 			{
 				comm.sendColorBox ( System::Master, 'Y' );
 				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
@@ -198,8 +198,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				timer.tick(str(seqNum) + "-Analyzing-Master-Script");
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-			/// prep NIAWG
-			if ( runNiawg )
+			if ( runNiawg )	/// prep NIAWG
 			{
 				comm.sendColorBox ( System::Niawg, 'Y' );
 				input->niawg.analyzeNiawgScript ( seq.niawgStream, output, input->profile, input->debugOptions, 
@@ -284,7 +283,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					// run a couple checks.
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
 					ttls.checkFinalFormatTimes( variationInc, seqInc );
-					if ( ttls.countDacTriggers( variationInc, seqInc ) != aoSys.getNumberSnapshots( variationInc, seqInc ) )
+					//if ( ttls.countDacTriggers( variationInc, seqInc ) != aoSys.getNumberSnapshots( variationInc, seqInc ) )
+					if ( ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc ) 
+						 != aoSys.getNumberSnapshots ( variationInc, seqInc ) )
 					{
 						thrower ( "the number of dac triggers that the ttl system sends to the dac line does not "
 								 "match the number of dac snapshots! Number of dac triggers was " 
@@ -321,8 +322,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				for ( auto variationNumber : range(variations) )
 				{
-					totalTime += ULONGLONG( ttls.getTotalTime( variationNumber, seqInc ) 
-											* repetitions );
+					totalTime += ULONGLONG( ttls.getTotalTime( variationNumber, seqInc ) * repetitions );
 				}
 			}
 			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", comm, quiet );
@@ -366,7 +366,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			comm.sendColorBox( System::Master, 'G' );
 		}
 		// shouldn't there be a sequence loop here?
-		// loop for variations
 		for (const UINT& variationInc : range( variations ))
 		{
 			timer.tick("Variation-"+str(variationInc+1)+"-Start");
@@ -386,13 +385,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				for (auto tempVariable : input->parameters[seqInc])
 				{
-					// if varies...
 					if (tempVariable.valuesVary)
 					{
 						if (tempVariable.keyValues.size() == 0)
 						{
 							thrower ( "Variable " + tempVariable.name + " varies, but has no values assigned to "
-									 "it! (This shouldn't happen, it's a low-level bug...)" );
+									  "it! (This shouldn't happen, it's a low-level bug...)" );
 						}
 						expUpdate( tempVariable.name + ": " + str( tempVariable.keyValues[variationInc], 12) + "\r\n", 
 								   comm, quiet );
@@ -414,7 +412,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					agilent->setAgilent ( variationInc, input->parameters[ 0 ] );
 				}
 				dds.writeExperiment ( 0, variationInc );
-			// check right number of triggers (currently must be done after agilent is set.
+				// check right number of triggers (currently must be done after agilent is set.
 				for ( auto& agilent : input->agilents )
 				{
 					for ( auto chan : range ( 2 ) )

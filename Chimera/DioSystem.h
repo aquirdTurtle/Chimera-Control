@@ -105,7 +105,7 @@ class DioSystem
 		void resetTtlEvents();
 		void prepareForce();
 		void updateDefaultTtl( DioRows::which row, UINT column, bool state);
-		UINT countTriggers( std::pair<UINT, UINT> which, UINT variation, UINT seqNum );
+		UINT countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum );
 		bool getDefaultTtl( DioRows::which row, UINT column);
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );

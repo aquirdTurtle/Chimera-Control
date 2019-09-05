@@ -1307,7 +1307,7 @@ void DioSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& 
 
 // counts the number of triggers on a given line.
 // which.first = row, which.second = number.
-UINT DioSystem::countTriggers( std::pair<UINT, UINT> which, UINT variation, UINT seqNum )
+UINT DioSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum )
 {
 	auto& snaps = ttlSnapshots[seqNum][variation];
 	UINT count = 0;
@@ -1317,8 +1317,8 @@ UINT DioSystem::countTriggers( std::pair<UINT, UINT> which, UINT variation, UINT
 	}
 	for ( auto eventInc : range(ttlSnapshots[seqNum][variation].size()-1) )
 	{
-		if (	snaps[eventInc].ttlStatus[which.first][which.second] == false 
-			 && snaps[eventInc+1].ttlStatus[which.first][which.second] == true )
+		if (	snaps[eventInc].ttlStatus[int(which.first)][which.second] == false 
+			 && snaps[eventInc+1].ttlStatus[int(which.first)][which.second] == true )
 		{
 			count++;
 		}

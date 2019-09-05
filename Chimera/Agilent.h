@@ -10,6 +10,7 @@
 #include "Script.h"
 #include "Expression.h"
 #include "Version.h"
+#include "DioRows.h"
 #include <vector>
 #include <array>
 #include "Windows.h"
@@ -61,14 +62,14 @@ class Agilent
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
 		static double convertPowerToSetPoint(double power, bool conversionOption, std::vector<double> calibCoeff );
-		std::pair<UINT, UINT> getTriggerLine( );
+		std::pair<DioRows::which, UINT> getTriggerLine( );
 		void programSetupCommands ( );
 		const std::string configDelim;
 		std::vector<std::string> getStartupCommands ( );
 		void verifyScriptable ( );
 	private:
 		// not that important, just used to check that number of triggers in script matches number in agilent.
-		const UINT triggerRow;
+		const DioRows::which triggerRow;
 		const UINT triggerNumber;
 		const agilentSettings initSettings;
 		minMaxDoublet chan2Range;
