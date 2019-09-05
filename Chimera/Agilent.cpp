@@ -255,7 +255,7 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 }
 
 
-std::pair<UINT, UINT> Agilent::getTriggerLine( )
+std::pair<DioRows::which, UINT> Agilent::getTriggerLine( )
 {
 	return { triggerRow, triggerNumber };
 }

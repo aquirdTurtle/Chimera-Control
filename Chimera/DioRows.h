@@ -1,6 +1,7 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include <string>
+#include <array>
 // as of now not yet used extensively in the actual dio system
 
 struct DioRows
