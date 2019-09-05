@@ -324,7 +324,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				if ( !var.constant && !var.active )
 				{
-					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n";
+					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?";
 				}
 			}
 		}
@@ -349,7 +349,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 									  + str ( ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc ) )
 									  + " while number of dac snapshots was "
 									  + str ( aoSys.getNumberSnapshots ( variationInc, seqInc ) ) + ", seen in sequence #" 
-									  + str(seqInc) + " variation #" + str(variationInc)) + "\r\n";
+									  + str(seqInc) + " variation #" + str(variationInc));
 						}
 					}
 					if ( runNiawg && !niawgMismatch )

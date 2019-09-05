@@ -204,7 +204,7 @@ ULONG DioSystem::countDacTriggers(UINT variation, UINT seqNum)
 	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
 	for (auto command : ttlCommandList[seqNum][variation])
 	{
-		// line each rising edge.
+		// count each rising edge.
 		if (command.line == dacLine && command.value == true)
 		{
 			triggerCount++;
@@ -1313,12 +1313,15 @@ UINT DioSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT varia
 	UINT count = 0;
 	if ( snaps.size( ) == 0 )
 	{
-		thrower ( "no ttl events in countTriggers?" );
+		thrower ( "No ttl events to examine in countTriggers?" );
 	}
-	for ( auto eventInc : range(ttlSnapshots[seqNum][variation].size()-1) )
+	for ( auto snapshotInc : range(ttlSnapshots[seqNum][variation].size()-1) )
 	{
-		if (	snaps[eventInc].ttlStatus[int(which.first)][which.second] == false 
-			 && snaps[eventInc+1].ttlStatus[int(which.first)][which.second] == true )
+		// count each rising edge. Also count if the first snapshot is high. 
+		if (	(snaps[snapshotInc].ttlStatus[int(which.first)][which.second] == false 
+			 &&  snaps[snapshotInc+1].ttlStatus[int(which.first)][which.second] == true) 
+			 || (snaps[ snapshotInc ].ttlStatus[ int ( which.first ) ][ which.second ] == true 
+			 && snapshotInc == 0))
 		{
 			count++;
 		}
