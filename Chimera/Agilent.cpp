@@ -907,7 +907,7 @@ bool Agilent::scriptingModeIsSelected( )
 }
 
 
-void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
+void Agilent::setAgilent( UINT variation, std::vector<parameterType>& params)
 {
 	if ( !connected( ) )
 	{
@@ -926,7 +926,7 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		auto& channel = settings.channel[chan];
 		try
 		{
-			convertInputToFinalSettings( chan, variables, variation );
+			convertInputToFinalSettings( chan, params, variation );
 			switch ( channel.option )
 			{
 				case AgilentChannelMode::which::No_Control:

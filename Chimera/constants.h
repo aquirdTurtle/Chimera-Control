@@ -80,7 +80,7 @@
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
-	#define PYTHON_SAFEMODE false
+	#define PYTHON_SAFEMODE true
 	#define DIO_SAFEMODE true
 	#define ANALOG_OUT_SAFEMODE true
 	#define ANALOG_IN_SAFEMODE true
