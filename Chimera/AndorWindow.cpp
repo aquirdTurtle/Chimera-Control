@@ -754,7 +754,6 @@ void AndorWindow::armCameraWindow()
 	ReleaseDC(dc);
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
-	double minKineticTime;
 	//Andor.armCamera( this, minKineticTime );
 	//CameraSettings.updateMinKineticCycleTime( minKineticTime );
 	mainWin->getComm()->sendColorBox(System::Camera, 'G');

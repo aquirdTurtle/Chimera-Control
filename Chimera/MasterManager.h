@@ -67,6 +67,7 @@ class MasterManager
 									  std::vector<std::vector<pPlotDataVec>> dacData );
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
 	private:
+		// I've forgotten why there are two of these. 
 		std::vector<timeType> loadSkipTime;
 		std::vector<std::vector<double>> loadSkipTimes;
 		void callCppCodeFunction();

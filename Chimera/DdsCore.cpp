@@ -440,7 +440,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 }
 
 
-std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file )
+std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file, Version ver )
 {
 	UINT numRamps = 0;
 	file >> numRamps;
