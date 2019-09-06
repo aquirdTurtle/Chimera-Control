@@ -567,7 +567,7 @@ TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
 }
 
 
-RhodeSchwarz& AuxiliaryWindow::getRsg ( )
+RohdeSchwarz& AuxiliaryWindow::getRsg ( )
 {
 	return RhodeSchwarzGenerator;
 }
