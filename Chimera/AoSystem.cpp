@@ -2,15 +2,14 @@
 #include "stdafx.h"
 #include "AoSystem.h"
 #include "AuxiliaryWindow.h"
+#include "MainWindow.h"
 #include "Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
 #include "Thrower.h"
 #include "range.h"
-#include "MainWindow.h"
 #include "CodeTimer.h"
 #include <boost/lexical_cast.hpp>
-
 
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 {
@@ -38,7 +37,7 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
 		daqmx.createTask("", digitalDac_0_00);
 		daqmx.createTask("", digitalDac_0_01);
-		// unused at the moment.
+		/// unused at the moment.
 		daqmx.createDiChan(digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine);
 		daqmx.createDiChan(digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine);
 		// new
@@ -189,8 +188,6 @@ std::string AoSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 void AoSystem::handleEditChange ( UINT dacNumber )
 {
 	if ( dacNumber >= outputs.size ( ) )
@@ -317,10 +314,10 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 		prepareDacForceChange( dacInc, vals[dacInc], ttls );
 	}
 	// wait until after all this to actually do this to make sure things get through okay.
-	for ( auto i : range ( outputs.size() ) )
+	for ( auto outputNum : range ( outputs.size() ) )
 	{
-		outputs[ i ].info.currVal = vals[ i ];
-		outputs[ i ].setEditColorState ( 0 );
+		outputs[ outputNum ].info.currVal = vals[ outputNum ];
+		outputs[ outputNum ].setEditColorState ( 0 );
 	}
 }
 
@@ -343,7 +340,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 	std::vector<AoCommand> tempEvents(dacCommandList(seqNum,variation));
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
-			   [](AoCommand a, AoCommand b){return a.time < b.time; });
+			   [](AoCommand a, AoCommand b){ return a.time < b.time; });
 	for (UINT commandInc : range(tempEvents.size()))
 	{
 		auto& command = tempEvents[commandInc];
@@ -547,9 +544,6 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 				if ( formList.commandName == "dac:" )
 				{
 					/// single point.
-					////////////////
-					// deal with value
-
 					tempEvent.value = formList.finalVal.evaluate( seqVariables, variationInc );
 					if ( variationInc == 0 )
 					{
@@ -631,13 +625,10 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					// interpret ramp time command. I need to know whether it's ramping or not.
 					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
 					/// many points to be made.
-					// convert initValue and finalValue to doubles to be used 
 					double initValue, finalValue;
 					UINT numSteps;
 					initValue = formList.initVal.evaluate( seqVariables, variationInc );
-					// deal with final value;
 					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );
-					// deal with numPoints
 					numSteps = formList.numSteps.evaluate( seqVariables, variationInc );
 					double rampInc = (finalValue - initValue) / numSteps;
 					if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
@@ -679,7 +670,6 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 			}
 		}
 	}
-	//errBox ( sTimer.getTimingMessage ( ) );
 }
 
 

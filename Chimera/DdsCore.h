@@ -27,17 +27,18 @@ class DdsCore
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
-		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList );
-		void generateFullExpInfo ( );
+		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation );
+		void generateFullExpInfo ( UINT numVariations );
 		void assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params );
 		void evaluateDdsInfo ( std::vector<std::vector<parameterType>> params = std::vector<std::vector<parameterType>> ( 1 ));
 		void forceRampsConsistent ( );
-		void updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> rampList );
+		void updateRampLists ( std::vector<std::vector<ddsIndvRampListInfo>> rampList );
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
 		const std::string configDelim = "DDS_SYSTEM";
 	private:
-		ExpWrap<std::vector<ddsIndvRampListInfo>> rampLists;
+		// there is one list for every sequence. the same list is shared between variations of the sequence element.
+		std::vector<std::vector<ddsIndvRampListInfo>> rampLists;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
 		ddsConnectionType::type connType;
 		const UINT MSGLENGTH = 7;
