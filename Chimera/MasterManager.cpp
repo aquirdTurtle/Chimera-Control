@@ -311,11 +311,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			expUpdate( "Number of TTL Events in experiment: " + str( ttls.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
 			expUpdate( "Number of DAC Events in experiment: " + str( aoSys.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
 		}
-		/// finish up
-		if ( input->runMaster )
-		{
-			handleDebugPlots( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
-		}
 		// update the colors of the global variable control.
 		input->globalControl.setUsages( input->parameters );
 		for ( auto& seqvars : input->parameters )
@@ -328,79 +323,18 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				}
 			}
 		}
-		/// check all trigger numbers. 
-		for ( auto seqInc : range ( input->seq.sequence.size ( ) ) )
+		MasterManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations );
+		/// finish up
+		if ( input->runMaster )
 		{
-			bool niawgMismatch=false;
-			std::vector<std::array<bool, 2>> agMismatchVec ( input->agilents.size ( ), { false,false } );
-			auto& seqVariables = input->parameters[ seqInc ];
-			for ( auto variationInc : range ( variations ) )
-			{
-				for ( auto variationInc : range ( variations ) )
-				{
-					if ( runMaster )
-					{
-						if ( ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc )
-							 != aoSys.getNumberSnapshots ( variationInc, seqInc ) )
-						{
-							// this is a serious low level error. throw, don't warn.
-							thrower ( "the number of dac triggers that the ttl system sends to the dac line does not "
-									  "match the number of dac snapshots! Number of dac triggers was "
-									  + str ( ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc ) )
-									  + " while number of dac snapshots was "
-									  + str ( aoSys.getNumberSnapshots ( variationInc, seqInc ) ) + ", seen in sequence #" 
-									  + str(seqInc) + " variation #" + str(variationInc)) + "\r\n";
-						}
-					}
-					if ( runNiawg && !niawgMismatch )
-					{
-						if ( ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc, seqInc )
-							 != input->niawg.getNumberTrigsInScript ( ) )
-						{
-							warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
-								" of times a trigger command appears in the NIAWG script. First instance seen sequence"
-								" number " + str ( seqInc ) + " variation " + str ( variationInc ) + ".\r\n";
-							niawgMismatch = true;
-						}
-					}
-					if ( useAuxDevices )
-					{
-						for ( auto agInc : range(input->agilents.size()) )
-						{
-							auto& agilent = input->agilents[ agInc ];
-							for ( auto chan : range ( 2 ) )
-							{
-								auto& agChan = agilent->getOutputInfo ( ).channel[ chan ];
-								if ( agChan.option != AgilentChannelMode::which::Script || agMismatchVec[ agInc ][ chan ] )
-								{
-									continue;
-								}
-								UINT ttlTrigs = input->runMaster ? ttls.countTriggers ( agilent->getTriggerLine ( ), 
-																						variationInc, seqInc ) : 0;
-								UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
-								if ( ttlTrigs != agilentExpectedTrigs )
-								{
-									warnings += "WARNING: Agilent " + agilent->configDelim + " is not getting "
-										"triggered by the ttl system the same number of times a trigger command "
-										"appears in the agilent channel " + str ( chan + 1 ) + " script. There are " 
-										+ str ( agilentExpectedTrigs ) + " triggers in the agilent script, and " 
-										+ str ( ttlTrigs ) + " ttl triggers sent to that agilent. First seen in "
-										"sequence #" + str(seqInc) + ", variation #" + str(variationInc) + ".\r\n";
-									agMismatchVec[ agInc ][ chan ] = true;
-								}
-							}
-						}
-					}
-				}
-			}
+			handleDebugPlots ( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
 		}
-
 		if ( warnings != "" )
 		{
 			comm.sendError ( warnings );
-			auto res = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
+			auto response = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
 								   + warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO );
-			if ( res == IDNO )
+			if ( response == IDNO )
 			{
 				thrower ( abortString );
 			}
@@ -893,9 +827,7 @@ double MasterManager::convertToTime( timeType time, std::vector<parameterType> v
 	return variableTime + time.second;
 }
 
-/*
-I think I can get rid of this??? or maybe just simplify a lot...
-*/
+
 void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DioSystem& ttls, AoSystem& aoSys,
 									  std::vector<std::vector<pPlotDataVec>> ttlData, 
 									  std::vector<std::vector<pPlotDataVec>> dacData )
@@ -1418,6 +1350,92 @@ UINT MasterManager::determineVariationNumber( std::vector<parameterType> variabl
 		}
 	}
 	return variationNumber;
+}
+
+
+void MasterManager::checkTriggerNumbers (ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
+										  UINT variations )
+{
+	/// check all trigger numbers. 
+	for ( auto seqInc : range ( input->seq.sequence.size ( ) ) )
+	{
+		bool niawgMismatch = false;
+		std::vector<std::array<bool, 2>> agMismatchVec ( input->agilents.size ( ), { false,false } );
+		auto& seqVariables = input->parameters[ seqInc ];
+		for ( auto variationInc : range ( variations ) )
+		{
+			if ( input->runMaster )
+			{
+				UINT actualTrigs = input->ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc );
+				UINT dacExpectedTrigs = input->aoSys.getNumberSnapshots ( variationInc, seqInc );
+				std::string infoString = "Actual/Expected DAC Triggers: " + str ( actualTrigs ) + "/" 
+					+ str ( dacExpectedTrigs ) + ".";
+				if ( actualTrigs != dacExpectedTrigs )
+				{
+					// this is a serious low level error. throw, don't warn.
+					thrower ( "the number of dac triggers that the ttl system sends to the dac line does not "
+								"match the number of dac snapshots! " + infoString + ", seen in sequence #"
+								+ str ( seqInc ) + " variation #" + str ( variationInc ) + "\r\n" );
+				}
+				if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
+				{
+					input->debugOptions.message += infoString + "\n";
+				}
+			}
+			if ( input->runNiawg && !niawgMismatch )
+			{
+				auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc, seqInc );
+				auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
+				std::string infoString = "Actual/Expected NIAWG Triggers: " + str ( actualTrigs ) + "/" 
+					+ str ( niawgExpectedTrigs ) + ".";
+				if ( actualTrigs != niawgExpectedTrigs )
+				{
+					warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
+						" of times a trigger command appears in the NIAWG script. " + infoString + " First "
+						"instance seen sequence number " + str ( seqInc ) + " variation " + str ( variationInc ) 
+						+ ".\r\n";
+					niawgMismatch = true;
+				}
+				if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
+				{
+					input->debugOptions.message += infoString + "\n";
+				}
+			}
+			if ( useAuxDevices )
+			{
+				for ( auto agInc : range ( input->agilents.size ( ) ) )
+				{
+					auto& agilent = input->agilents[ agInc ];
+					for ( auto chan : range ( 2 ) )
+					{
+						auto& agChan = agilent->getOutputInfo ( ).channel[ chan ];
+						if ( agChan.option != AgilentChannelMode::which::Script || agMismatchVec[ agInc ][ chan ] )
+						{
+							continue;
+						}
+						UINT actualTrigs = input->runMaster ? input->ttls.countTriggers ( agilent->getTriggerLine ( ),
+																				variationInc, seqInc ) : 0;
+						UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
+						std::string infoString = "Actual/Expected Agilent " + agilent->configDelim + " Triggers: " 
+							+ str ( actualTrigs ) + "/" + str ( agilentExpectedTrigs ) + ".";
+						if ( actualTrigs != agilentExpectedTrigs )
+						{
+							warnings += "WARNING: Agilent " + agilent->configDelim + " is not getting "
+								"triggered by the ttl system the same number of times a trigger command "
+								"appears in the agilent channel " + str ( chan + 1 ) + " script. " + infoString 
+								+ " First seen in "
+								"sequence #" + str ( seqInc ) + ", variation #" + str ( variationInc ) + ".\r\n";
+							agMismatchVec[ agInc ][ chan ] = true;
+						}
+						if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
+						{
+							input->debugOptions.message += infoString + "\n";
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 
