@@ -394,15 +394,20 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 }
 
 
-void Expression::internalEvaluate ( std::vector<parameterType>& variables, UINT variation )
+void Expression::internalEvaluate ( std::vector<parameterType>& params, UINT variations )
 {
-	value = evaluate ( variables, variation );
+	values.clear ( );
+	values.resize ( variations );
+	for ( auto variation : range ( variations ) )
+	{
+		values[variation] = evaluate ( params, variation );
+	}
 }
 
 
-double Expression::getValue ( )
+double Expression::getValue ( UINT variation )
 {
-	return value;
+	return values[variation];
 }
 
 

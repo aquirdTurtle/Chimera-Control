@@ -34,8 +34,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
 	UINT seqNum = 0, repetitions = 1;
-	ExpWrap<std::vector<ddsIndvRampListInfo>> ddsRampList;
-	ddsRampList.resizeSeq ( input->seq.sequence.size ( ) );
+	std::vector<std::vector<ddsIndvRampListInfo>> ddsRampList;
+	ddsRampList.resize( input->seq.sequence.size ( ) );
 	// a couple shortcut aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
@@ -57,7 +57,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 				std::ifstream configFile ( configInfo.configFilePath ( ) );
-				auto indvDdsrampList = ProfileSystem::standardGetFromConfig ( configFile, dds.configDelim, 
+				ddsRampList[ seqNum ] = ProfileSystem::standardGetFromConfig ( configFile, dds.configDelim,
 																	   DdsCore::getRampListFromConfig );
 				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
@@ -65,13 +65,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 																	 Repetitions::getRepsFromConfig );
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
-				ddsRampList.resizeVariations ( seqNum, variations );
-				ddsRampList ( seqNum, 0 ) = indvDdsrampList;
-				for ( auto varNum : range ( variations ) )
-				{
-					if ( varNum == 0 ) continue;
-					ddsRampList ( seqNum, varNum ) = indvDdsrampList;
-				}
 			}
 			if ( input->runNiawg )
 			{
@@ -236,7 +229,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			// prob a better place for this...
 			dds.assertDdsValuesValid ( input->parameters );
 			dds.evaluateDdsInfo ( input->parameters );
-			dds.generateFullExpInfo ( );
+			dds.generateFullExpInfo ( variations );
 			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );
 			input->eoAxialTek.interpretKey ( input->parameters );
