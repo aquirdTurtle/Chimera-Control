@@ -28,10 +28,10 @@ struct rsgEvent
 
 
 /**/
-class RhodeSchwarz
+class RohdeSchwarz
 {
 	public:
-		RhodeSchwarz();
+		RohdeSchwarz();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void programRsg(UINT variation );
 		void addFrequency( rsgEventForm eventInfo );
@@ -41,16 +41,16 @@ class RhodeSchwarz
 		void orderEvents(UINT variation );
 		void setInfoDisp(UINT variation );
 		std::string getIdentity();
-		std::string getRsgTtl();
-		double getTriggerLength();
+		std::pair<DioRows::which, UINT> getRsgTriggerLine();
 		void rearrange(UINT width, UINT height, fontMap fonts);
+		UINT getNumTriggers (UINT );
 	private:
 		GpibFlume gpibFlume;
 		std::vector<rsgEventForm> eventForms;
 		// outer vector is over each variation.
 		std::vector<std::vector<rsgEvent>> events;
-		double triggerTime;
-		std::string rsgTtl;
+		const double triggerTime = 0.01;
+		const std::pair<DioRows::which, UINT> rsgTriggerLine = { DioRows::which::A, 15 };
 		// 
 		Control<CStatic> header;
 		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.

@@ -1438,7 +1438,7 @@ void MasterManager::checkTriggerNumbers (ExperimentThreadInput* input, bool useA
 						UINT actualTrigs = input->runMaster ? input->ttls.countTriggers ( agilent->getTriggerLine ( ),
 																				variationInc, seqInc ) : 0;
 						UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
-						std::string infoString = "Actual/Expected " + agilent->configDelim + " Triggers: " 
+						std::string infoString = "Actual/Expected Agilent " + agilent->configDelim + " Triggers: " 
 							+ str ( actualTrigs ) + "/" + str ( agilentExpectedTrigs ) + ".";
 						if ( actualTrigs != agilentExpectedTrigs )
 						{

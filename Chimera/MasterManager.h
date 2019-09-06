@@ -34,7 +34,7 @@ class MasterManager
 		static void checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
 										  UINT variations );
 		void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								  std::vector<UINT>& dacShades, RhodeSchwarz& rsg, std::vector<parameterType>& vars, 
+								  std::vector<UINT>& dacShades, RohdeSchwarz& rsg, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
 								  std::string& warnings );
 
@@ -54,7 +54,7 @@ class MasterManager
 							   std::string scope );
 		bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
 								 DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								 std::vector<UINT>& dacShades, RhodeSchwarz& rsg, UINT seqNum, std::string& warnings,
+								 std::vector<UINT>& dacShades, RohdeSchwarz& rsg, UINT seqNum, std::string& warnings,
 								 std::string callingFunction );
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											   std::string scope, std::string& warnings );
@@ -75,7 +75,7 @@ class MasterManager
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem& ttls, AoSystem& aoSys,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-							  RhodeSchwarz& rsg, std::vector<parameterType>& vars, UINT seqNum, std::string& warnings);
+							  RohdeSchwarz& rsg, std::vector<parameterType>& vars, UINT seqNum, std::string& warnings);
 		timeType operationTime;
 		bool experimentIsRunning = false;
 		/// task handles

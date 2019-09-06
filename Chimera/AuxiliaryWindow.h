@@ -154,7 +154,7 @@ class AuxiliaryWindow : public CDialog
 		DioSystem& getTtlBoard ( );
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
-		RhodeSchwarz& getRsg ( );
+		RohdeSchwarz& getRsg ( );
 		TektronicsAfgControl& getTopBottomTek ( );
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
@@ -172,7 +172,7 @@ class AuxiliaryWindow : public CDialog
 		std::string title;
 		toolTipTextMap toolTipText;
 		/// control system classes
-		RhodeSchwarz RhodeSchwarzGenerator;
+		RohdeSchwarz RhodeSchwarzGenerator;
 		std::array<Agilent, 4> agilents;
 
 		std::vector<PlotCtrl*> aoPlots;

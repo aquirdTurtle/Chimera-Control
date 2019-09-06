@@ -6,10 +6,10 @@
 #include "AuxiliaryWindow.h"
 #include "Thrower.h"
 
-RhodeSchwarz::RhodeSchwarz() : gpibFlume(RSG_ADDRESS, RSG_SAFEMODE){}
+RohdeSchwarz::RohdeSchwarz() : gpibFlume(RSG_ADDRESS, RSG_SAFEMODE){}
 
 
-std::string RhodeSchwarz::getIdentity()
+std::string RohdeSchwarz::getIdentity()
 {
 	return gpibFlume.queryIdentity();
 }
@@ -20,21 +20,15 @@ std::string RhodeSchwarz::getIdentity()
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void RohdeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
-	// These are currently just hard-coded.
-	triggerTime = 0.01;
-	rsgTtl = "a15"; //c3
-
 	// controls
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	header.Create( "RHODE-SHWARTZ GENERATOR INFO (READ-ONLY)", NORM_HEADER_OPTIONS, header.sPos, master, id++ );
 	header.fontType = fontTypes::HeadingFont;
-	//pos.y += 25;
 
 	infoControl.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
-	infoControl.Create( NORM_LISTVIEW_OPTIONS, infoControl.sPos, master, 
-					   id++ );
+	infoControl.Create( NORM_LISTVIEW_OPTIONS, infoControl.sPos, master, id++ );
 	infoControl.fontType = fontTypes::SmallFont;
 	infoControl.SetBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextBkColor( RGB( 15, 15, 15 ) );
@@ -56,7 +50,8 @@ void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow*
 	pos.y += 100;
 }
 
-void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
+
+void RohdeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
 	infoControl.rearrange( width, height, fonts);
@@ -66,7 +61,7 @@ void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
  * The following function takes the existing list of events (already evaluated for a particular variation) and
  * orders them in time. 
  */
-void RhodeSchwarz::orderEvents(UINT variation)
+void RohdeSchwarz::orderEvents(UINT variation)
 {
 	std::vector<rsgEvent> newOrder;
 	for (auto event : events[variation])
@@ -99,7 +94,7 @@ void RhodeSchwarz::orderEvents(UINT variation)
 }
 
 
-void RhodeSchwarz::setInfoDisp(UINT variation)
+void RohdeSchwarz::setInfoDisp(UINT variation)
 {
 	infoControl.DeleteAllItems();
 	int count = 0;
@@ -126,7 +121,7 @@ void RhodeSchwarz::setInfoDisp(UINT variation)
 	}
 }
 
-void RhodeSchwarz::interpretKey( std::vector<std::vector<parameterType>>& variables)
+void RohdeSchwarz::interpretKey( std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequencNumber;
@@ -177,13 +172,13 @@ void RhodeSchwarz::interpretKey( std::vector<std::vector<parameterType>>& variab
 
 
 // Essentially gets called by a script command.
-void RhodeSchwarz::addFrequency(rsgEventForm info)
+void RohdeSchwarz::addFrequency(rsgEventForm info)
 {
 	eventForms.push_back( info );
 }
 
 
-void RhodeSchwarz::programRsg( UINT variationNumber )
+void RohdeSchwarz::programRsg( UINT variationNumber )
 {
 	if (events[variationNumber].size() == 0)
 	{
@@ -220,26 +215,26 @@ void RhodeSchwarz::programRsg( UINT variationNumber )
 }
 
 
-void RhodeSchwarz::clearFrequencies()
+void RohdeSchwarz::clearFrequencies()
 {
 	eventForms.clear();
 	events.clear();
 }
 
 
-std::vector<rsgEventForm> RhodeSchwarz::getFrequencyForms()
+std::vector<rsgEventForm> RohdeSchwarz::getFrequencyForms()
 {
 	return eventForms;
 }
 
 
-std::string RhodeSchwarz::getRsgTtl()
+std::pair<DioRows::which, UINT> RohdeSchwarz::getRsgTriggerLine ()
 {
-	return rsgTtl;
+	return rsgTriggerLine;
 }
 
-double RhodeSchwarz::getTriggerLength()
-{
-	return triggerTime;
-}
 
+UINT RohdeSchwarz::getNumTriggers (UINT variationNumber )
+{
+	return events[ variationNumber ].size ( ) == 1 ? 0 : events[ variationNumber ].size ( );
+}
