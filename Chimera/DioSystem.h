@@ -144,13 +144,13 @@ class DioSystem
 		allDigitalOutputs outputs;
 		// tells whether the hold button is down or not.
 		bool holdStatus;
-		// Each element of first vector is for each variation.
 		vec<vec<DioCommandForm>> ttlCommandFormList;
 		ExpWrap<vec<DioCommand>> ttlCommandList;
 		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
 		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
 		ExpWrap<vec<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
+		// ftdi equivalents...
 		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;
 		ExpWrap<finBufInfo> finFtdiBuffers;
 		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps_loadSkip;
