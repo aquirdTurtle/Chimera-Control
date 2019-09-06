@@ -3,6 +3,7 @@
 
 #include "DdsSystemStructures.h"
 #include "ExpWrap.h"
+#include "Version.h"
 #include "ftdiFlume.h"
 #include <vector>
 #include <array>
@@ -20,7 +21,7 @@ class DdsCore
 	public:
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file );
+		static std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file, Version ver );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file );
 		void writeExperiment ( UINT sequenceNum, UINT variationNum );
 		void connectasync ( );

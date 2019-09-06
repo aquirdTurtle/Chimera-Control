@@ -27,8 +27,6 @@ MasterManager::MasterManager() {}
  */
 unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput )
 {
-	CodeTimer timer;
-	timer.tick("Procedure-Start");
 	/// initialize various structures
 	// convert the input to the correct structure.
 	ExperimentThreadInput* input = (ExperimentThreadInput*)voidInput;
@@ -38,48 +36,50 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	UINT seqNum = 0, repetitions = 1;
 	ExpWrap<std::vector<ddsIndvRampListInfo>> ddsRampList;
 	ddsRampList.resizeSeq ( input->seq.sequence.size ( ) );
-	// a couple shortcuts.
+	// a couple shortcut aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;
 	auto& dds = input->dds;
+	auto quiet = input->quiet;
+	const auto& runMaster = input->runMaster;
+	const auto& runAndor = input->runAndor;
+	const auto& runNiawg = input->runNiawg;
 	mainOptions mainOpts;
 	try
 	{
-		ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 		/// load config parameters from config file
-		for ( auto& config : input->seq.sequence )
+		for ( auto& configInfo : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
 			if ( input->runMaster )
 			{
-				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( config );
+				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
-				/// Prep DDS.
-				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
-				ddsRampList.resizeVariations ( seqNum, variations );
-				std::ifstream configFile ( config.configFilePath ( ) );
-				ProfileSystem::jumpToDelimiter ( configFile, dds.configDelim );
-				ddsRampList ( seqNum, 0 ) = dds.getRampListFromConfig ( configFile );
-				for ( auto varNum : range ( variations ) )
-				{
-					if ( varNum == 0 ) continue;
-					ddsRampList ( seqNum, varNum ) = ddsRampList ( seqNum, 0 );
-				}
+				std::ifstream configFile ( configInfo.configFilePath ( ) );
+				auto indvDdsrampList = ProfileSystem::standardGetFromConfig ( configFile, dds.configDelim, 
+																	   DdsCore::getRampListFromConfig );
 				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS",
-																				 Repetitions::getRepsFromConfig );
+																	 Repetitions::getRepsFromConfig );
+				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
+				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+				ddsRampList.resizeVariations ( seqNum, variations );
+				ddsRampList ( seqNum, 0 ) = indvDdsrampList;
+				for ( auto varNum : range ( variations ) )
+				{
+					if ( varNum == 0 ) continue;
+					ddsRampList ( seqNum, varNum ) = indvDdsrampList;
+				}
 			}
 			if ( input->runNiawg )
 			{
-				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( config );
+				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( configInfo );
 				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
 				if ( input->debugOptions.outputNiawgHumanScript )
 				{
 					std::string debugStr = "Human Script: " + seq.niawgStream.str ( ) + "\n\n";
-					// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n 
-					// with \r\n.
 					debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
 					boost::replace_all ( debugStr, "\n", "\r\n" );
 					input->comm.sendDebug ( debugStr );
@@ -95,7 +95,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		delete voidInput;
 		return -1;
 	}
-	
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower () calls.
@@ -112,11 +111,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
 	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
-	auto quiet = input->quiet;
-	const auto& runMaster = input->runMaster;
-	const auto& runAndor = input->runAndor;
-	const auto& runNiawg = input->runNiawg;
-	timer.tick("After-File-Init");
 	/// ////////////////////////////
 	/// start analysis & experiment
 	try
@@ -153,7 +147,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			input->niawg.initForExperiment ( );
 		}
 		UINT variations;
-		timer.tick("After-Init");
 		for ( auto seqNum : range( input->seq.sequence.size() ) )
 		{
 			auto& seqVariables = input->parameters[seqNum];
@@ -174,37 +167,33 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			/// Prep agilents
 			expUpdate( "Loading Agilent Info...", comm, quiet );
-			timer.tick(str(seqNum) + "-Var-Number-Handling");
 			if ( useAuxDevices )
 			{
 				for ( auto& agilent : input->agilents )
 				{
-					RunInfo dum;
-					agilent->handleInput ( input->profile.categoryPath, dum );
+					RunInfo fixme;
+					agilent->handleInput ( input->profile.categoryPath, fixme );
 					for ( auto channelInc : range ( 2 ) )
 					{
 						agilent->analyzeAgilentScript ( channelInc, seqVariables );
 					}
 				}
 			}
-			timer.tick(str(seqNum) + "-All-Agilent-Handle-Input");
 			expUpdate( "Analyzing Master Script...", comm, quiet );
-			if ( input->runMaster ) /// prep master systems
+			if ( input->runMaster ) 
 			{
 				comm.sendColorBox ( System::Master, 'Y' );
 				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
 													 seqVariables, seq.masterStream, seqNum,
 													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings );
-				timer.tick(str(seqNum) + "-Analyzing-Master-Script");
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-			if ( runNiawg )	/// prep NIAWG
+			if ( runNiawg )	
 			{
 				comm.sendColorBox ( System::Niawg, 'Y' );
 				input->niawg.analyzeNiawgScript ( seq.niawgStream, output, input->profile, input->debugOptions, 
 												   warnings, input->rerngGuiForm, seqVariables );
 				workingNiawgScripts[ seqNum ] = output.niawgLanguageScript;
-				timer.tick(str(seqNum) + "-Preparing-Niawg");
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 			if ( runMaster )
@@ -218,7 +207,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 										   !input->niawg.outputVaries ( output ) );
 			if ( input->debugOptions.outputNiawgMachineScript )
 			{
-				// Want to properly replace any singular \n with \r\n. first remove all \r, then replace all \n with \r\n.
 				std::string debugStr = "NIAWG Machine Script:\n"
 					+ std::string ( niawgMachineScript.begin ( ), niawgMachineScript.end ( ) ) + "\n\n";
 				debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
@@ -231,14 +219,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			expUpdate("Constant NIAWG Waveform Preparation Completed...\r\n", comm, input->quiet );
 		}
-		timer.tick("After-Shading-Ttls-&-Dacs");
 		if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 		/// The Key Interpretation step.
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
 		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
-		CodeTimer subTimer;
-		subTimer.tick ( "Start" );
 		if ( input->runMaster )
 		{
 			ttls.shadeTTLs ( ttlShadeLocs );
@@ -256,7 +241,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			input->topBottomTek.interpretKey ( input->parameters );
 			input->eoAxialTek.interpretKey ( input->parameters );
 		}
-		timer.tick("After-Key-Interpretation");
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
 		for ( auto seqInc : range( input->seq.sequence.size( ) ) )
@@ -264,7 +248,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			auto& seqVariables = input->parameters[seqInc];
 			for (auto variationInc : range(variations))
 			{
-				timer.tick("Var-"+str(variationInc)+"-start");
 				if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 				if ( input->runMaster )
 				{
@@ -279,12 +262,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					ttls.organizeTtlCommands ( variationInc, seqInc );
 					ttls.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
 					ttls.convertToFinalViewpointFormat( variationInc, seqInc );
-					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Main");
 					// run a couple checks.
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
 					ttls.checkFinalFormatTimes( variationInc, seqInc );
 					aoSys.checkTimingsWork( variationInc, seqInc );
-					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Checks");
 				}
 				if ( useAuxDevices )
 				{
@@ -293,9 +274,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 		}
 		/// output some timing information 
-		timer.tick("After-All-Var-Calcs");
-		//expUpdate(timer.getTimingMessage(), comm, input->quiet);
-		expUpdate ( subTimer.getTimingMessage ( ), comm, input->quiet );
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", comm, quiet );
@@ -311,7 +289,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			expUpdate( "Number of TTL Events in experiment: " + str( ttls.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
 			expUpdate( "Number of DAC Events in experiment: " + str( aoSys.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
 		}
-		// update the colors of the global variable control.
 		input->globalControl.setUsages( input->parameters );
 		for ( auto& seqvars : input->parameters )
 		{
@@ -339,19 +316,17 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				thrower ( abortString );
 			}
 		}
-		// then reset so as to not mindlessly repeat warnings from the experiment loop.
-		warnings = ""; 
+		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
 		/// /////////////////////////////
 		/// Begin experiment loop
-		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		if (input->runMaster)
 		{
 			comm.sendColorBox( System::Master, 'G' );
 		}
+		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		// shouldn't there be a sequence loop here?
 		for (const UINT& variationInc : range( variations ))
 		{
-			timer.tick("Variation-"+str(variationInc+1)+"-Start");
 			expUpdate( "Variation #" + str( variationInc + 1 ) + "/" + str(variations) + ": ", comm, quiet );
 			if ( input->aiSys.wantsQueryBetweenVariations( ) )
 			{
@@ -380,13 +355,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					}
 				}
 			}
-			expUpdate( "Programming RSG, Agilents, NIAWG, & Tektronics...\r\n", comm, quiet );
+			expUpdate( "Programming Devices... ", comm, quiet );
 			if ( useAuxDevices )
 			{
 				input->rsg.programRsg ( variationInc );
 				input->rsg.setInfoDisp ( variationInc );
 			}
-			timer.tick(str(variationInc + 1)+"-After-Programming-Rsg");
 			// program devices
 			if ( useAuxDevices )
 			{
@@ -397,7 +371,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				dds.writeExperiment ( 0, variationInc );
 
 			}
-			timer.tick(str(variationInc + 1) + "-After-Programming-Agilents");
 			if (input->runNiawg)
 			{
 				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
@@ -406,7 +379,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->conditionVariableForRerng->notify_all( );
 				input->niawg.waitForRerng( false );
 				input->niawg.handleStartingRerng( input, output );
-				timer.tick(str(variationInc + 1) + "-After-Programming-NIAWG");
 			}
 			comm.sendError( warnings );
 			if ( useAuxDevices )
@@ -414,12 +386,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->topBottomTek.programMachine ( variationInc );
 				input->eoAxialTek.programMachine ( variationInc );
 			}
-			timer.tick(str(variationInc + 1) + "-After-Programming-Tektronix");
-			timer.tick(str(variationInc + 1) + "-After-All-Programming");
-			//
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
-			for (UINT repInc = 0; repInc < repetitions; repInc++)
+			for (auto repInc : range(repetitions))
 			{
 				for (auto seqInc : range(input->seq.sequence.size()))
 				{
@@ -441,7 +410,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 						aoSys.stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
 						// if the cruncher thread was running behind, it could change between writing and configuring the 
-						// aoSys and configuring the TTLs;
+						// aoSys and configuring the TTLs, resulting in some funny behavior;
 						bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ( );
 						aoSys.configureClocks( variationInc, seqInc, skipOption);
 						aoSys.writeDacs( variationInc, seqInc, skipOption);
@@ -452,7 +421,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					}
 				}
 			}
-			expUpdate( "\r\n", comm, quiet );
 		}
 		/// conclude.
 		expUpdate( "\r\nExperiment Finished Normally.\r\n", comm, quiet );
@@ -496,10 +464,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	}
 	catch (Error& exception)
 	{
-
 		if (input->runNiawg)
 		{
-			// clear out some niawg stuff
 			for (auto& wave : output.waves)
 			{
 				wave.core.waveVals.clear();
@@ -511,7 +477,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		{
 			input->ttls.unshadeTtls();
 			input->aoSys.unshadeDacs();
-		}
+		}	
 		if ( input->thisObj->isAborting )
 		{
 			expUpdate( abortString, comm, quiet );
@@ -519,11 +485,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		else
 		{
-			// No quiet option for a bad exit.
 			comm.sendColorBox( System::Master, 'R' );
 			comm.sendStatus( "Bad Exit!\r\n" );
 			auto txt = "Exited main experiment thread abnormally." + exception.trace ( );
-			//comm.sendError( txt );
 			comm.sendFatalError( txt );
 		}	
 		{

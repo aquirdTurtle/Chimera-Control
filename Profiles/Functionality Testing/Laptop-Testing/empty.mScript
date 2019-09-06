@@ -9,10 +9,8 @@ dac: dac2 1
 t += 1
 dac: dac2 2
 t += 1
-rsg: 1000000000 1
 dac: dac2 7
 t += 1
-rsg: 1000000000 2
 dac: dac9 0
 t += 1
 dac: dac9 10
