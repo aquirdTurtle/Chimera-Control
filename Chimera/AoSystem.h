@@ -92,7 +92,6 @@ class AoSystem
 		std::pair<double, double> getDacRange( int dacNumber );
 		std::array<AoInfo, 24> getDacInfo ( );
 		std::array<double, 24> getFinalSnapshot( );
-		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
 		bool handleArrow ( CWnd* focus, bool up );
 	private:
 		Control<CStatic> dacTitle;
@@ -101,15 +100,11 @@ class AoSystem
 		Control<CleanCheck> quickChange;
 		std::array<AnalogOutput, 24> outputs;
 
-		//std::array<Control<CStatic>, 24> dacLabels;
-		//std::array<Control<CEdit>, 24> breakoutBoardEdits;
-		//std::array<AoInfo, 24> dacInfo;
-
 		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
 		// first = sequence, 2nd = variation
-		std::vector<std::vector<std::vector<AoCommand>>> dacCommandList;
-		std::vector<std::vector<std::vector<AoSnapshot>>> dacSnapshots, loadSkipDacSnapshots;
-		std::vector<std::vector<std::array<std::vector<double>, 3>>> finalFormatDacData, loadSkipDacFinalFormat;
+		ExpWrap<std::vector<AoCommand>> dacCommandList;
+		ExpWrap<std::vector<AoSnapshot>> dacSnapshots, loadSkipDacSnapshots;
+		ExpWrap<std::array<std::vector<double>, 3>> finalFormatDacData, loadSkipDacFinalFormat;
 		std::pair<USHORT, USHORT> dacTriggerLine;
 
 		double dacTriggerTime;
