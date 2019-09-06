@@ -45,10 +45,22 @@ class ExpWrap
 		{
 			return data[seqNum].size();
 		}
+
+		void uniformSizeReset ( UINT numSeqs, UINT numVariations )
+		{
+			data.clear ( );
+			data.resize ( numSeqs );
+			for ( auto& seqData : data )
+			{
+				seqData.resize ( numVariations );
+			}
+		}
+
 		void resizeSeq ( UINT numSeqs )
 		{ 
 			data.resize ( numSeqs );
 		}
+
 		void resizeVariations ( UINT whichSeq, UINT numVariations )
 		{
 			if ( whichSeq >= data.size ( ) )

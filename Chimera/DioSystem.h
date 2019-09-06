@@ -12,6 +12,7 @@
 #include "Version.h"
 #include "viewpointFlume.h"
 #include "DigitalOutput.h"
+#include "ExpWrap.h"
 #include <array>
 #include <sstream>
 #include <unordered_map>
@@ -113,10 +114,6 @@ class DioSystem
 		std::vector<std::vector<double>> getFinalTimes( );
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
 		void updatePush( DioRows::which row, UINT col );
-		vec<vec<vec<DioSnapshot>>> getSnapshots( );
-		vec<vec<std::array<ftdiPt, 2048>>> getFtdiSnaps( );
-		vec<vec<vec<WORD>>> getFinalViewpointData( );
-		vec<vec<finBufInfo>> getFinalFtdiData( );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getViewpointSafemode ( );
 		allDigitalOutputs& getDigitalOutputs();
@@ -149,15 +146,14 @@ class DioSystem
 		bool holdStatus;
 		// Each element of first vector is for each variation.
 		vec<vec<DioCommandForm>> ttlCommandFormList;
-		vec<vec<vec<DioCommand>>> ttlCommandList;
-		vec<vec<vec<DioSnapshot>>> ttlSnapshots, loadSkipTtlSnapshots;
-		vec<vec<vec<std::array<WORD, 6>>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
+		ExpWrap<vec<DioCommand>> ttlCommandList;
+		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
+		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		vec<vec<vec<WORD>>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
-		// ftdiSnaps[seqNum][variationNum][snapshotNum]
-		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps;
-		vec<vec<finBufInfo>> finFtdiBuffers;
-		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps_loadSkip;
-		vec<vec<finBufInfo>> finFtdiBuffers_loadSkip;
+		ExpWrap<vec<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
+		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;
+		ExpWrap<finBufInfo> finFtdiBuffers;
+		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps_loadSkip;
+		ExpWrap<finBufInfo> finFtdiBuffers_loadSkip;
 };
 

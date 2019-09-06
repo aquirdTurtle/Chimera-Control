@@ -92,7 +92,6 @@ class AoSystem
 		std::pair<double, double> getDacRange( int dacNumber );
 		std::array<AoInfo, 24> getDacInfo ( );
 		std::array<double, 24> getFinalSnapshot( );
-		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
 		bool handleArrow ( CWnd* focus, bool up );
 	private:

@@ -79,11 +79,6 @@ void AoSystem::standardNonExperiemntStartDacsSequence( )
 }
 
 
-std::vector<std::vector<std::vector<AoSnapshot>>> AoSystem::getSnapshots( )
-{
-	return dacSnapshots;
-}
-
 std::vector<std::vector<std::array<std::vector<double>, 3>>> AoSystem::getFinData( )
 {
 	return finalFormatDacData;
