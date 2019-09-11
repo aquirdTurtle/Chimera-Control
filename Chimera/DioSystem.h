@@ -63,7 +63,6 @@ class DioSystem
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
-		ULONG countDacTriggers(UINT variation, UINT seqNum );
 		ULONG getNumberEvents(UINT variation, UINT seqNum );
 
 		void rearrange(UINT width, UINT height, fontMap fonts);
@@ -145,7 +144,6 @@ class DioSystem
 		// tells whether the hold button is down or not.
 		bool holdStatus;
 		vec<vec<DioCommandForm>> ttlCommandFormList;
-		ExpWrap<vec<DioCommand>> ttlCommandList;
 		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
 		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.

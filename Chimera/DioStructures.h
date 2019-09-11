@@ -11,6 +11,8 @@ struct DioCommandForm
 	std::pair<unsigned short, unsigned short> line;
 	// the time to make the change
 	timeType time;
+	// the evaluated values of the time for each varation.
+	std::vector<double> timeVals;
 	// the value to set it to. 
 	bool value;
 };
