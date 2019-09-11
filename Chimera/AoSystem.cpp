@@ -570,9 +570,9 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 					{
 						resolutionWarningPosted = true;
-						warnings += "Warning: ramp increment of " + str( rampInc ) + " is below the resolution of the aoSys "
-							"(which is 10/2^16 = " + str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
-							"calculate the ramp unnecessarily.\r\n";
+						warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " + eventInc 
+							+ " is below the resolution of the aoSys (which is 10/2^16 = " + str( 10.0 / pow( 2, 16 ) ) 
+							+ "). These ramp points are unnecessary.\r\n";
 					}
 					// This might be the first not i++ usage of a for loop I've ever done... XD
 					// calculate the time increment:

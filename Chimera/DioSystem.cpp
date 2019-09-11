@@ -197,23 +197,6 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 }
 
 
-ULONG DioSystem::countDacTriggers(UINT variation, UINT seqNum)
-{
-	ULONG triggerCount = 0;
-	// D14
-	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
-	for (auto command : ttlCommandList(seqNum, variation))
-	{
-		// count each rising edge.
-		if (command.line == dacLine && command.value == true)
-		{
-			triggerCount++;
-		}
-	}
-	return triggerCount;
-} 
-
-
 std::array< std::array<bool, 16>, 4 > DioSystem::getFinalSnapshot()
 {
 	auto numSeq = ttlSnapshots.getNumSequences ( );
@@ -626,7 +609,6 @@ void DioSystem::initializeDataObjects( UINT seqNum, UINT variationNum )
 	ttlCommandFormList.resize( seqNum );
 	ttlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	loadSkipTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
-	ttlCommandList.uniformSizeReset ( seqNum, variationNum );
 	formattedTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	loadSkipFormattedTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	finalFormatViewpointData.uniformSizeReset ( seqNum, variationNum );
@@ -698,21 +680,21 @@ void DioSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 
 void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc )
 {
-	DioCommand command;
+	DioCommandForm command;
 	command.line = { row, column };
-	command.time = time;
+	command.timeVal = time;
 	command.value = true;
-	ttlCommandList(seqInc,variation).push_back( command );
+	ttlCommandFormList[seqInc].push_back( command );
 }
 
 
 void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc )
 {
-	DioCommand command;
+	DioCommandForm command;
 	command.line = { row, column };
-	command.time = time;
+	command.timeVal = time;
 	command.value = false;
-	ttlCommandList(seqInc,variation).push_back( command );
+	ttlCommandFormList[seqInc].push_back( command );
 }
 
 
@@ -934,7 +916,6 @@ template<class T> using vec = std::vector<T>;
 void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 {
 	/// imporantly, this sizes the relevant structures.
-	ttlCommandList.uniformSizeReset ( sequenceLength, variations );
 	ttlSnapshots.uniformSizeReset ( sequenceLength, variations );
 	loadSkipTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
 	formattedTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
@@ -966,22 +947,18 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& params )
 	{
 		for (auto variationNum : range(variations))
 		{
-			for (auto& formList : ttlCommandFormList[seqInc])
+			for (auto& dioCommandForm : ttlCommandFormList[seqInc])
 			{
-				DioCommand tempCommand;
-				tempCommand.line = formList.line;
-				tempCommand.value = formList.value;
 				double variableTime = 0;
 				// add together current values for all variable times.
-				if ( formList.time.first.size() != 0)
+				if ( dioCommandForm.time.first.size() != 0)
 				{
-					for (auto varTime : formList.time.first)
+					for (auto varTime : dioCommandForm.time.first)
 					{
 						variableTime += varTime.evaluate(params[seqInc], variationNum);
 					}
 				}
-				tempCommand.time = variableTime + formList.time.second;
-				ttlCommandList(seqInc,variationNum).push_back(tempCommand);
+				dioCommandForm.timeVal = variableTime + dioCommandForm.time.second;
 			}
 		}
 	}
@@ -999,23 +976,24 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	std::vector<DioCommand> orderedCommandList(ttlCommandList(seqNum,variation));
+	//std::vector<DioCommand> orderedCommandList(ttlCommandList(seqNum,variation));
+	std::vector<DioCommandForm> orderedCommandList ( ttlCommandFormList[ seqNum ] );
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedCommandList.begin(), orderedCommandList.end(), 
 			   [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (auto commandInc : range( ttlCommandList(seqNum,variation).size ( ) ) )
+	for (auto commandInc : range( ttlCommandFormList[seqNum].size ( ) ) )
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time. DIO64 uses a 10MHz clock, can do 100ns spacing, check diff 
 		// threshold to extra room. If dt<1ns, probably just some floating point issue. 
 		// If 1ns<dt<100ns I want to actually complain to the user since it seems likely that  this was intentional and 
 		// not a floating error.
-		if (commandInc == 0 || fabs(orderedCommandList[commandInc].time - timeOrganizer.back().first) > 1e-6)
+		if (commandInc == 0 || fabs(orderedCommandList[commandInc].timeVal - timeOrganizer.back().first) > 1e-6)
 		{
 			// new time
 			std::vector<USHORT> testVec =  { USHORT(commandInc) };
-			timeOrganizer.push_back({ orderedCommandList[commandInc].time, testVec });
+			timeOrganizer.push_back({ orderedCommandList[commandInc].timeVal, testVec });
 		}
 		else
 		{
