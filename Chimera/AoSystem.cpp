@@ -570,9 +570,9 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 					{
 						resolutionWarningPosted = true;
-						warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " + eventInc 
-							+ " is below the resolution of the aoSys (which is 10/2^16 = " + str( 10.0 / pow( 2, 16 ) ) 
-							+ "). These ramp points are unnecessary.\r\n";
+						warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " 
+							+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
+							+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
 					}
 					// This might be the first not i++ usage of a for loop I've ever done... XD
 					// calculate the time increment:
@@ -731,13 +731,13 @@ void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc)
+void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc, UINT totalVariations)
 {
 	for ( auto snapshot : dacSnapshots(seqInc,variation))
 	{
-		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc);
+		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc, totalVariations );
 		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation, 
-							seqInc );
+							seqInc, totalVariations );
 	}
 }
 
@@ -804,8 +804,21 @@ void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT var
 	eventInfo.time = 10;
 	dacCommandList(seqNum,variation).push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the aoSys to change the output at the correct time.
-	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0 );
-	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0 );
+	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0, 1 );
+	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0, 1 );
+}
+
+
+ExpWrap<std::vector<AoSnapshot>> AoSystem::getSnapshots ( )
+{
+	/* used by the unit testing suite. */
+	return dacSnapshots;
+}
+
+ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( )
+{
+	/* used by the unit testing suite. */
+	return finalFormatDacData;
 }
 
 

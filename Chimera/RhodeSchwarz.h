@@ -32,7 +32,7 @@ class RohdeSchwarz
 {
 	public:
 		RohdeSchwarz();
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* parentWin, int& id );
 		void programRsg(UINT variation );
 		void addFrequency( rsgEventForm eventInfo );
 		void clearFrequencies();
@@ -56,3 +56,4 @@ class RohdeSchwarz
 		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.
 		Control<CListCtrl> infoControl;
 };
+

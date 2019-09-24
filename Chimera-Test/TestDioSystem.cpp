@@ -24,9 +24,9 @@ namespace TestDioSystem
 		TEST_METHOD( InitStructures )
 		{
 			DioSystem dio( true, true, true );
-			dio.initializeDataObjects( 1, 0 );
+			dio.initializeDataObjects( 1, 1 );
 			dio.interpretKey( std::vector<std::vector<parameterType>>( 1 ) );
-			Assert::IsTrue( dio.countDacTriggers( 0, 0 ) == 0 );
+			Assert::IsTrue ( dio.countTriggers ( { DioRows::which::A, 0 }, 0, 0 ) == 0 );
 			auto size = dio.getTtlBoardSize( );
 			Assert::IsTrue( size.first == 4 );
 			Assert::IsTrue( size.second == 16 );

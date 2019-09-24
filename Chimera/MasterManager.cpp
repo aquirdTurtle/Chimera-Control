@@ -249,7 +249,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 																	 seqVariables, variationInc );
 				    // organize & format the ttl and dac commands
 					aoSys.organizeDacCommands( variationInc, seqInc );
-					aoSys.setDacTriggerEvents( ttls, variationInc, seqInc );
+					aoSys.setDacTriggerEvents( ttls, variationInc, seqInc, variations );
 					aoSys.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
 					aoSys.makeFinalDataFormat( variationInc, seqInc ); 
 					ttls.organizeTtlCommands ( variationInc, seqInc );

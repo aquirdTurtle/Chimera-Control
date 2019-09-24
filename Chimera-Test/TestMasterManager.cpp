@@ -44,21 +44,21 @@ namespace TestManager
 			dio.convertToFtdiSnaps( 0, 0 );
 			// assert that the important structures are filled correctly.
 			auto snaps = dio.getFtdiSnaps( );
-			Assert::AreEqual( size_t( 1 ), snaps.size( ) );
-			Assert::AreEqual( size_t( 1 ), snaps[0].size( ) );
-			Assert::AreEqual( size_t( 2048 ), snaps[0][0].size( ) );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( size_t( 2048 ), snaps(0,0).size( ) );
 			// first command is at t=5, so first snapshot at t=0 should be all off.
-			for ( auto pt : snaps[0][0][0].pts )
+			for ( auto pt : snaps ( 0, 0 )[0].pts )
 			{
 				Assert::AreEqual( 0, int(pt) );
 			}
-			Assert::AreEqual( 32, int(snaps[0][0][1].pts[0]) );
-			Assert::AreEqual( 32, int(snaps[0][0][2].pts[0]) );
-			Assert::AreEqual( 32, int( snaps[0][0][3].pts[0] ) );
-			Assert::AreEqual( 0, int( snaps[0][0][1].pts[5] ) );
-			Assert::AreEqual( 32, int( snaps[0][0][2].pts[5] ) );
-			Assert::AreEqual( 0, int( snaps[0][0][3].pts[5] ) );
-			for ( auto pt : snaps[0][0][5].pts )
+			Assert::AreEqual( 32, int(snaps ( 0, 0 )[1].pts[0]) );
+			Assert::AreEqual( 32, int(snaps ( 0, 0 )[2].pts[0]) );
+			Assert::AreEqual( 32, int( snaps ( 0, 0 )[3].pts[0] ) );
+			Assert::AreEqual( 0, int( snaps ( 0, 0 )[1].pts[5] ) );
+			Assert::AreEqual( 32, int( snaps ( 0, 0 )[2].pts[5] ) );
+			Assert::AreEqual( 0, int( snaps ( 0, 0 )[3].pts[5] ) );
+			for ( auto pt : snaps ( 0, 0 )[5].pts )
 			{
 				Assert::AreEqual( 0, int( pt ) );
 			}
@@ -78,23 +78,23 @@ namespace TestManager
 			{
 				if ( inc == 0 || inc == 7 || inc == 14 )
 				{
-					Assert::IsTrue( fin[0][0].pts[inc] == WORD( 161 ) );
+					Assert::IsTrue( fin(0,0).pts[inc] == WORD( 161 ) );
 				}
 				else
 				{
-					Assert::IsTrue( fin[0][0].pts[inc] == WORD( 0 ) );
+					Assert::IsTrue( fin(0,0).pts[inc] == WORD( 0 ) );
 				}
 			}
 			// check (only) some points in the second.
-			Assert::IsTrue( fin[0][0].pts[21] == WORD( 161 ) );
-			Assert::IsTrue( fin[0][0].pts[22] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0].pts[23] == WORD( 1 ) );
-			Assert::IsTrue( fin[0][0].pts[24] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0].pts[25] == WORD( 76 ) );
-			Assert::IsTrue( fin[0][0].pts[26] == WORD( 75 ) );
-			Assert::IsTrue( fin[0][0].pts[27] == WORD( 64 ) );
-			Assert::IsTrue( fin[0][0].pts[28] == WORD( 161 ) );
-			Assert::IsTrue( fin[0][0].pts[35] == WORD( 161 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[21] == WORD( 161 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[22] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[23] == WORD( 1 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[24] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[25] == WORD( 76 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[26] == WORD( 75 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[27] == WORD( 64 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[28] == WORD( 161 ) );
+			Assert::IsTrue( fin ( 0, 0 ).pts[35] == WORD( 161 ) );
 
 		};
 	};
@@ -111,19 +111,19 @@ namespace TestManager
 			dio.checkNotTooManyTimes( 0, 0 );
 			dio.checkFinalFormatTimes( 0, 0 );
 			// assert that the important structures are filled correctly.
-			auto snaps = dio.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.size( ) );
-			Assert::AreEqual( size_t( 1 ), snaps[0].size( ) );
-			Assert::AreEqual( size_t( 4 ), snaps[0][0].size( ) );
+			auto snaps = dio.getTtlSnapshots( );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences( ) );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( size_t( 4 ), snaps(0,0).size( ) );
 			// first command is at t=5, so first snapshot at t=0 should be all off.
-			for ( auto row : snaps[0][0][0].ttlStatus )
+			for ( auto row : snaps ( 0, 0 )[0].ttlStatus )
 			{
 				for ( auto elem : row )
 				{
 					Assert::AreEqual( false, elem );
 				}
 			}
-			Assert::AreEqual( true, snaps[0][0][1].ttlStatus[0][5] );
+			Assert::AreEqual( true, snaps ( 0, 0 )[1].ttlStatus[0][5] );
 			double time = dio.getTotalTime( 0, 0 );
 			Assert::AreEqual( 51.1, time );
 		}
@@ -140,33 +140,33 @@ namespace TestManager
 			// again, first snapshot is all zeros should be empty on the final data as well.
 			for ( auto inc : range( 6 ) )
 			{
-				Assert::IsTrue( fin[0][0][inc] == WORD( 0 ) );
+				Assert::IsTrue( fin ( 0, 0 )[inc] == WORD( 0 ) );
 			}
 			UINT offSet = 1;
 			// check actual flip and time calculations
 			// first element is loword of time, second his hiword. The units of this number are "clock cycles". 
 			// We use a 10MHz clock. If this ever changed, I'd need to change the time calculations here.
-			Assert::IsTrue( fin[0][0][offSet * 6] == WORD( 41255 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 1] == WORD( 7 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6] == WORD( 41255 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 1] == WORD( 7 ) );
 			// 32 because 2^5 for flipping 5th bit.
-			Assert::IsTrue( fin[0][0][offSet * 6 + 2] == WORD( 32 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 3] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 4] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 5] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 2] == WORD( 32 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 3] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 4] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 5] == WORD( 0 ) );
 			offSet = 2;
-			Assert::IsTrue( fin[0][0][offSet * 6] == WORD( 51255 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 1] == WORD( 7 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 2] == WORD( 32 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 3] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 4] == WORD( 8192 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 5] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6] == WORD( 51255 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 1] == WORD( 7 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 2] == WORD( 32 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 3] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 4] == WORD( 8192 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 5] == WORD( 0 ) );
 			offSet = 3;
-			Assert::IsTrue( fin[0][0][offSet * 6] == WORD( 52255 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 1] == WORD( 7 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 2] == WORD( 32 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 3] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 4] == WORD( 0 ) );
-			Assert::IsTrue( fin[0][0][offSet * 6 + 5] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6] == WORD( 52255 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 1] == WORD( 7 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 2] == WORD( 32 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 3] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 4] == WORD( 0 ) );
+			Assert::IsTrue( fin ( 0, 0 )[offSet * 6 + 5] == WORD( 0 ) );
 		};
 	};
 	TEST_CLASS( Test_Manager_AO )
@@ -192,11 +192,11 @@ namespace TestManager
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
 			auto snaps = ao.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.size( ) );
-			Assert::AreEqual( size_t( 1 ), snaps[0].size( ) );
-			Assert::AreEqual( size_t( 2 ), snaps[0][0].size( ) );
-			Assert::AreEqual( 1.0, snaps[0][0][1].dacValues[2] );
-			for ( auto dac : snaps[0][0][0].dacValues )
+			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( size_t( 2 ), snaps ( 0, 0 ).size( ) );
+			Assert::AreEqual( 1.0, snaps(0,0)[1].dacValues[2] );
+			for ( auto dac : snaps(0,0)[0].dacValues )
 			{
 				Assert::IsTrue( 0 == dac );
 			}
@@ -222,19 +222,19 @@ namespace TestManager
 			dio.sizeDataStructures( 1, 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
-			ao.setDacTriggerEvents( dio, 0, 0 );
+			ao.setDacTriggerEvents( dio, 0, 0, 1 );
 			ao.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 			ao.makeFinalDataFormat( 0, 0 );
 			auto res = ao.getFinData( );
-			Assert::AreEqual( size_t( 1 ), res.size( ) );
-			Assert::AreEqual( size_t( 1 ), res[0].size( ) );
-			Assert::AreEqual( size_t( 3 ), res[0][0].size( ) );
-			for ( auto finDat : res[0][0] )
+			Assert::AreEqual( size_t( 1 ), res.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), res.getNumVariations(0) );
+			Assert::AreEqual( size_t( 3 ), res(0,0).size( ) );
+			for ( auto finDat : res ( 0, 0 ) )
 			{
-				Assert::AreEqual( size_t( 16 ), res[0][0][0].size( ) );
+				Assert::AreEqual( size_t( 16 ), res ( 0, 0 )[0].size( ) );
 			}
 			UINT count = 0;
-			for ( auto finDat : res[0][0][0] )
+			for ( auto finDat : res ( 0, 0 )[0] )
 			{
 				if ( count++ == 10 )
 				{
@@ -243,11 +243,11 @@ namespace TestManager
 				}
 				Assert::AreEqual( 0.0, finDat );
 			}
-			for ( auto finDat : res[0][0][1] )
+			for ( auto finDat : res ( 0, 0 )[1] )
 			{
 				Assert::AreEqual( 0.0, finDat );
 			}
-			for ( auto finDat : res[0][0][2] )
+			for ( auto finDat : res ( 0, 0 )[2] )
 			{
 				Assert::AreEqual( 0.0, finDat );
 			}
@@ -273,22 +273,22 @@ namespace TestManager
 			dio.sizeDataStructures( 1, 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
-			ao.setDacTriggerEvents( dio, 0, 0 );
+			ao.setDacTriggerEvents( dio, 0, 0, 1 );
 			ao.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 			ao.makeFinalDataFormat( 0, 0 );
 			auto snaps = ao.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.size( ) );
-			Assert::AreEqual( size_t( 1 ), snaps[0].size( ) );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
 			// 20 steps means 21 points created from the ramp.
-			Assert::AreEqual( size_t( 22 ), snaps[0][0].size( ) );
-			Assert::AreEqual( 0.0, snaps[0][0][0].time );
-			Assert::AreEqual( 5.0, snaps[0][0][1].time );
-			Assert::AreEqual( 5.1, snaps[0][0].back( ).time );
+			Assert::AreEqual( size_t( 22 ), snaps ( 0, 0 ).size( ) );
+			Assert::AreEqual( 0.0, snaps ( 0, 0 )[0].time );
+			Assert::AreEqual( 5.0, snaps ( 0, 0 )[1].time );
+			Assert::AreEqual( 5.1, snaps ( 0, 0 ).back( ).time );
 			auto res = ao.getFinData( );
-			Assert::AreEqual( size_t( 1 ), res.size( ) );
-			Assert::AreEqual( size_t( 1 ), res[0].size( ) );
-			Assert::AreEqual( size_t( 3 ), res[0][0].size( ) );
-			for ( auto board : res[0][0] )
+			Assert::AreEqual( size_t( 1 ), res.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), res.getNumVariations(0) );
+			Assert::AreEqual( size_t( 3 ), res ( 0, 0 ).size( ) );
+			for ( auto board : res ( 0, 0 ) )
 			{
 				Assert::AreEqual( size_t( 22 * 8 ), board.size( ) );
 			}
@@ -313,21 +313,21 @@ namespace TestManager
 			dio.sizeDataStructures( 1, 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
-			ao.setDacTriggerEvents( dio, 0, 0 );
+			ao.setDacTriggerEvents( dio, 0, 0, 1 );
 			ao.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 			ao.makeFinalDataFormat( 0, 0 );
 			auto snaps = ao.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.size( ) );
-			Assert::AreEqual( size_t( 1 ), snaps[0].size( ) );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
 			// spacing of 1 means 11 pts in the ramp.
-			Assert::AreEqual( size_t( 12 ), snaps[0][0].size( ) );
-			Assert::AreEqual( 0.0, snaps[0][0][0].time );
-			Assert::AreEqual( 5.0, snaps[0][0][1].time );
-			Assert::AreEqual( 5.1, snaps[0][0].back( ).time );
+			Assert::AreEqual( size_t( 12 ), snaps ( 0, 0 ).size( ) );
+			Assert::AreEqual( 0.0, snaps ( 0, 0 )[0].time );
+			Assert::AreEqual( 5.0, snaps ( 0, 0 )[1].time );
+			Assert::AreEqual( 5.1, snaps ( 0, 0 ).back( ).time );
 			auto count = 0;
 			double last_time = -1;
 			double last_val = -1;
-			for ( auto snap : snaps[0][0] )
+			for ( auto snap : snaps ( 0, 0 ) )
 			{
 				if ( count++ == 0 )
 				{
@@ -346,10 +346,10 @@ namespace TestManager
 				last_val = snap.dacValues[2];
 			}
 			auto res = ao.getFinData( );
-			Assert::AreEqual( size_t( 1 ), res.size( ) );
-			Assert::AreEqual( size_t( 1 ), res[0].size( ) );
-			Assert::AreEqual( size_t( 3 ), res[0][0].size( ) );
-			for ( auto board : res[0][0] )
+			Assert::AreEqual( size_t( 1 ), res.getNumSequences() );
+			Assert::AreEqual( size_t( 1 ), res.getNumVariations(0) );
+			Assert::AreEqual( size_t( 3 ), res ( 0, 0 ).size( ) );
+			for ( auto board : res ( 0, 0 ) )
 			{
 				Assert::AreEqual( size_t( 12 * 8 ), board.size( ) );
 			}
