@@ -111,9 +111,9 @@ axialfsktrig
 0
 d7
 0
-d8
+dds_reset
 0
-d9
+dds_step
 0
 acetrig
 0
@@ -128,31 +128,31 @@ dacboardtrig
 d15
 0
 rightcoilcurrent
--10 - 10
+-4 - 4
 0
 _
 leftcoilcurrent
--10 - 10
+-4 - 4
 0
 _
 frontcoilcurrent
--10 - 10
+-4 - 4
 0
 _
 backcoilcurrent
--10 - 10
+-4 - 4
 0
 _
 bottomcoilcurrent
--10 - 10
+-4 - 4
 0
 _
 topcoilcurrent
--10 - 10
+-4 - 4
 0
 _
 motgradientcurrent
--10 - 10
+-7.1 - 7.1
 0
 _
 probefreq
@@ -191,11 +191,11 @@ sigmarepumppower
 0 - 0.38
 0
 _
-auxtweezerpower
+dac16
 0 - 0.23
 0
-sdfsdf
-freq795
+-
+dac17
 -10 - 10
 0
 _
@@ -223,26 +223,27 @@ piezomirror
 -10 - 10
 0
 _
-15
-loadmottime 200
-andorimagetime 20
+16
+loadmottime 150
+andorimagetime 15
 imagingpower 0.3
 fieldtheta 1.5708
 fieldphi 1.5708
 imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
-defaultmotfreq -0.1
-sidemot__servo_value 0.0530223
-diagmot__servo_value 0.314194
+defaultmotfreq -1.5
+sidemot__servo_value 0.120569
+diagmot__servo_value 0.247631
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__servo_value 0.107452
-sidemot_imaging__servo_value 0.175358
+sidemot_intrappgc__servo_value 0.119015
+sidemot_imaging__servo_value 0.193302
+motimagingdetuning -0.32
 1
-4Sidemot 6 22 1 0.48 1 a 5 0.01 0.02 0
-DiagMot 5 9 1 0.016 1 a 0 0.01 0.03 0
+4Sidemot 6 22 1 1.53 1 a 5 0.01 0.02 0
+DiagMot 5 9 1 0.0163 1 a 0 0.01 0.03 0
 sidemot_intrappgc 6 22 1 1.5 1 a 5 0.01 0.02 0
 sidemot_imaging 6 22 1 3.48 1 a 5 0.02 0.02 0
-208 348 1 181 291 1
+257 316 3 208 267 3
 0 0

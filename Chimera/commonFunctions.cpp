@@ -14,7 +14,6 @@
 #include "BaslerWindow.h"
 #include "Thrower.h"
 #include "externals.h"
-#include <array>
 
 
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses or hotkeys
@@ -83,6 +82,7 @@ namespace commonFunctions
 					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, false, true, false, true );
 					commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
+					input.masterInput->runAndor = false;
 					input.masterInput->expType = ExperimentType::Normal;
 					logParameters ( input, andorWin->getLogger ( ), "", false );
 					basWin->startCamera ( );
@@ -281,7 +281,6 @@ namespace commonFunctions
 					andorWin->startPlotterThread ( input );
 					logParameters ( input, andorWin->getLogger ( ), "", false );
 					commonFunctions::startExperimentThread ( mainWin, input );
-					//
 					mainWin->getComm()->sendColorBox( System::Camera, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}
@@ -485,7 +484,7 @@ namespace commonFunctions
 				// this is used for basler calibrations.
 				logParameters ( input, andorWin->getLogger ( ), "MOT_NUMBER", false );
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
-				mainWin->startExperimentThread ( input.masterInput, true );
+				mainWin->startExperimentThread ( input.masterInput );
 				break;
 			}
 			case ID_MOT_TEMP_CAL:
@@ -514,7 +513,7 @@ namespace commonFunctions
 				try
 				{
 					basWin->startTemporaryAcquisition ( input.baslerRunSettings );
-					mainWin->startExperimentThread ( input.masterInput, true );
+					mainWin->startExperimentThread ( input.masterInput );
 				}
 				catch ( Error& err )
 				{
@@ -547,7 +546,7 @@ namespace commonFunctions
 				}
 
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
-				mainWin->startExperimentThread ( input.masterInput, true );
+				mainWin->startExperimentThread ( input.masterInput );
 				break;
 			}
 			case ID_GREY_TEMP_CAL:
@@ -575,7 +574,7 @@ namespace commonFunctions
 				}
 
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
-				mainWin->startExperimentThread ( input.masterInput, true );
+				mainWin->startExperimentThread ( input.masterInput );
 				break;
 			}
 			// the rest of these are all one-liners. 
@@ -663,7 +662,7 @@ namespace commonFunctions
 			andorWin->loadCameraCalSettings( input );
 			andorWin->armCameraWindow( );
 			mainWin->loadCameraCalSettings( input.masterInput );
-			mainWin->startExperimentThread( input.masterInput, true );
+			mainWin->startExperimentThread( input.masterInput );
 		}
 		catch ( Error& err )
 		{
@@ -722,7 +721,7 @@ namespace commonFunctions
 		mainWin->addTimebar( "main" );
 		mainWin->addTimebar( "error" );
 		mainWin->addTimebar( "debug" );
-		mainWin->startExperimentThread( input.masterInput, false );
+		mainWin->startExperimentThread( input.masterInput );
 	}
 
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin )

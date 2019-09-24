@@ -1,40 +1,80 @@
-% this function takes 2 + PGCtime ms (typically around 20)
-def PgcCooling():
-  %Shutting off gradient from MOT loading:    
-
-  dac: motGradientCurrent 0
-  call zeroFieldsPgc()
-  %  call zeroFields()
-    
-  %Set beam powers for PGC and turn on beams 
-  % (should already be on, but just in case):
-  var cooling_freq -2
-  var diag_mot_power 0.22
-  daclinspace: MotFreq defaultMotFreq cooling_freq 1 10
-  % to let the ramp finish
-  dac: repumpPower 0.1   
-  dac: diagMotPower diag_mot_power
-  dac: sideMotPower 0
-  dac: repumpFreq -0.5
-  t += 1 
-  
-  var pgc_time 3
-
-  on: repumpRf
-  off: sideMotRf
-  on: diagMotRf
-  t += pgc_time 
-  off: repumpRf
-  off: sideMotRf
-  off: diagMotRf
-  
-  daclinspace: MotFreq cooling_freq defaultMotFreq 1 20
-
-  dac: repumpPower 0
-  dac: diagMotPower 0
-  dac: sideMotPower 0
-
-  t += 1
-
-
-
+% this function takes 2 + PGCtime ms (typically around 20)
+
+def PgcCooling():
+
+  %Shutting off gradient from MOT loading:    
+
+
+
+  dac: motGradientCurrent 0
+
+  call zeroFieldsPgc()
+
+  %  call zeroFields()
+
+    
+
+  %Set beam powers for PGC and turn on beams 
+
+  % (should already be on, but just in case):
+
+  var cooling_freq -2
+
+  var diag_mot_power 0.27
+
+  daclinspace: MotFreq defaultMotFreq cooling_freq 1 10
+
+  % to let the ramp finish
+
+  dac: repumpPower 0.1   
+
+  dac: diagMotPower diag_mot_power
+
+  dac: sideMotPower 0
+
+  dac: repumpFreq -0.5
+
+  t += 1 
+
+  
+
+  var pgc_time 4
+
+
+
+  on: repumpRf
+
+  off: sideMotRf
+
+  on: diagMotRf
+
+  t += pgc_time 
+
+  off: repumpRf
+
+  off: sideMotRf
+
+  off: diagMotRf
+
+  
+
+  daclinspace: MotFreq cooling_freq defaultMotFreq 1 20
+
+
+
+  dac: repumpPower 0
+
+  dac: diagMotPower 0
+
+  dac: sideMotPower 0
+
+
+
+  t += 1
+
+
+
+
+
+
+
