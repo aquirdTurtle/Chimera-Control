@@ -1,0 +1,41 @@
+% Master-Script See the "?" for info on commands.
+t = 0.1
+on: tweezerrf
+off: c12
+call turnonmot()
+t += loadMotTime
+%call pgcoading()
+call D1GreyLambdaLoading()
+
+call triggerScout()
+loadSkipEntryPoint!
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+call pgcAtomFlashingImage()
+t += 0.1
+call intrappgc()
+
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pump2stretch()
+rsg: (6.831 + uw_mod/1000000) 5
+% spectroscopic pulse
+call topRamanPulse()
+%call axialRamanPulse()
+
+pulseon: a15 0.1
+pulseon: tweezerIntensityTrig 0.1
+
+t += 0.1
+
+t += 0.1
+call pushout()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+call zeroFields()
+t += 20
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+pulseon: rsTrig 0.1
+t += 0.2

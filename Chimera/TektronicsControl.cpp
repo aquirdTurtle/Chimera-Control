@@ -362,7 +362,6 @@ void TektronicsAfgControl::handleProgram()
 void TektronicsAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 								    std::string channel2Text, LONG width, UINT control_id )
 {
-
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
@@ -370,8 +369,10 @@ void TektronicsAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::s
 	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
 	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, control_id );
 
-	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, control_id+1 );
-	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, control_id+50 );
+	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, "Channel 1:" + channel1Text, width / 3, 
+						 control_id+1 );
+	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, "Channel 2:" + channel2Text, width / 3, 
+						 control_id+50 );
 
 	loc.y += 20;
 	controlLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };

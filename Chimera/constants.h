@@ -15,9 +15,9 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-//#define MASTER_COMPUTER
+#define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP
-#define ANALYSIS_COMPUTER
+//#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
@@ -139,9 +139,9 @@
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
-	#define TOP_BOTTOM_TEK_SAFEMODE true
+	#define TOP_BOTTOM_TEK_SAFEMODE false
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
-	#define EO_AXIAL_TEK_SAFEMODE true
+	#define EO_AXIAL_TEK_SAFEMODE false
 	#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
 	#define TOP_BOTTOM_AGILENT_SAFEMODE false
 	#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
@@ -153,9 +153,9 @@
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 	#define UWAVE_SAFEMODE false
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE true
+	#define MASTER_REPUMP_SCOPE_SAFEMODE false
 	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0699::0x03B3::C011388::0::INSTR"
-	#define MOT_SCOPE_SAFEMODE			 true
+	#define MOT_SCOPE_SAFEMODE			 false
 	#define MOT_SCOPE_ADDRESS			 "USB0::0x0699::0x0363::C100939::0::INSTR"
 	#define ANALOG_OUT_SAFEMODE false
 	#define ANALOG_IN_SAFEMODE false

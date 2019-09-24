@@ -70,23 +70,19 @@ IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_AGILENT_COMBO,
 IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT,
 IDC_FLASHING_PROGRAM, IDC_FLASHING_CALIBRATION_BUTTON,
 DioRows::which::A, 0,
-"FLASHING_AGILENT_AWG",{ },
+"FLASHING_AGILENT_AWG", { },
 { "output1 off", "output2 off",
 "Source1:burst:state off",
 "Source1:Apply:Square 2 MHz, 3 VPP, 1.5 V",
 "Source1:Function:Square:DCycle 42",
-"Source1:burst:mode triggered",
-"Source1:burst:ncycles Infinity", "Source1:burst:phase 0.0",
 "Source2:burst:state off",
-"Source2:Apply:Square 2 MHz, 6.5 VPP, 0.9 V",
+"Source2:Apply:Square 2 MHz, 3 VPP, 1.5 V",
 "Source2:Function:Square:DCycle 50",
-"Source2:burst:mode triggered",
-"Source2:burst:ncycles Infinity", "Source2:burst:phase 280",
-"Trigger1:Source Bus", "Trigger1:Slope Positive",
-"Trigger2:Source Bus", "Trigger2:Slope Positive",
-"Source1:burst:state on", "Source2:burst:state on",
-"output1 on", "output2 on", "*TRG", "output1:load INF", "output2:load INF", 
-"SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
+"Source1:burst:state off", "Source2:burst:state off",
+"output1 on", "output2 on", "output1:load INF", "output2:load INF",
+"SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal",
+"SOURCE1:PHASE 0", "SOURCE2:PHASE 165",
+"SOURCE1:PHASE:SYNCHRONIZE", "SOURCE2:PHASE:SYNCHRONIZE" }
 }; 
 
 
@@ -97,8 +93,9 @@ const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSI
 													IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
 													IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
 													DioRows::which::B, 6,
-													"INTENSITY_AGILENT_AWG",{ 0.000505870656651, -0.0108632090621 },
+													"INTENSITY_AGILENT_AWG",{ 0.00102751, -0.02149967 },
 													{ "Trigger:Source external", "Trigger:Slope Positive", 
 													  "output1:load INF", "output2:load INF",
 													  "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }
 };
+

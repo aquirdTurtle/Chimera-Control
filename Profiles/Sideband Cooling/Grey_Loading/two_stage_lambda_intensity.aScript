@@ -1,0 +1,10 @@
+
+
+hold loadingDepth 1 onceWaitTrig #   
+%ramp lin loadingDepth stageTwoDepth 3 onceWaitTrig #    
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #     
+ramp lin imagingDepth opDepth 1 onceWaitTrig #
+ramp lin opDepth pushoutDepth 1 onceWaitTrig #
+ramp lin pushoutDepth imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth loadingDepth 1 once #  
+

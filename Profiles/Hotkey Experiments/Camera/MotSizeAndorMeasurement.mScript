@@ -1,0 +1,12 @@
+%% make sure the mot is off, then turn it on and take a series of pictures.
+t = 1
+off: a0
+t += 100
+call turnOnMot()
+t += 0.1
+repeat: 100
+	pulseon: scoutTrig 0.1
+	t += 100
+end
+
+

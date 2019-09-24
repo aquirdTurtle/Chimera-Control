@@ -223,12 +223,16 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey( input->parameters );
 			aoSys.interpretKey( input->parameters, warnings );
+			subTimer.tick ( "After-aoSys-Interpret" );
+			if ( input->runDds )
+			{
+				dds.evaluateDdsInfo ( input->parameters );
+				dds.generateFullExpInfo ( );
+			}
+			subTimer.tick ( "After-dds-Interpret" );
 		}
 		if ( useAuxDevices )
 		{
-			// prob a better place for this...
-			dds.assertDdsValuesValid ( input->parameters );
-			dds.evaluateDdsInfo ( input->parameters );
 			dds.generateFullExpInfo ( variations );
 			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );

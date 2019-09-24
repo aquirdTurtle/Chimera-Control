@@ -63,10 +63,10 @@ std::string FgenFlume::getDeviceInfo()
 													&minimumWaveformSize, &maximumWaveformSize ) );
 	}
 
-	return "Max # Of Waveforms: " + str( maximumNumberofWaveforms ) + "\n"
-		"Waveform Quantum: " + str( waveformQuantum ) + "\n"
-		"Minimum Waveform Size: " + str( minimumWaveformSize ) + "\n"
-		"Maximum Waveform Size: " + str( maximumWaveformSize ) + "\n";
+	return "Max # Of Waveforms: " + str( maximumNumberofWaveforms ) +
+		"\n\tWaveform Quantum: " + str( waveformQuantum ) + 
+		"\n\tMinimum Waveform Size: " + str( minimumWaveformSize ) +
+		"\n\tMaximum Waveform Size: " + str( maximumWaveformSize ) ;
 }
 
 

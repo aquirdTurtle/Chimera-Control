@@ -99,7 +99,7 @@ std::string ftdiFlume::getDeviceInfoList ( )
 				msg += "\t\tLocId = " + str ( dev.LocId ) + "\n";
 				msg += "\t\tSerial Number = " + str ( dev.SerialNumber ) + "\n";
 				msg += "\t\tDescription = " + str ( dev.Description ) + "\n";
-				msg += "\t\tftHandle = " + str ( dev.ftHandle ) + "\n\n";
+				msg += "\t\tftHandle = " + str ( dev.ftHandle ) + "\n";
 			}
 		}
 		else
