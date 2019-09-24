@@ -666,33 +666,33 @@ bool DioSystem::isValidTTLName( std::string name )
 
 void DioSystem::ttlOn(UINT row, UINT column, timeType time, UINT seqNum )
 {
-	// make sure it's either a variable or a number that can be used.
-	ttlCommandFormList[seqNum].push_back({ {row, column}, time, true });
+	ttlCommandFormList[ seqNum ].push_back ( { {row, column}, time, {}, true } );
 }
 
 
 void DioSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 {
-	// check to make sure either variable or actual value.
-	ttlCommandFormList[seqNum].push_back({ {row, column}, time, false });
+	ttlCommandFormList[ seqNum ].push_back ( { {row, column}, time, {}, false } );
 }
 
 
-void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc )
+void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc, UINT totalVariations )
 {
 	DioCommandForm command;
 	command.line = { row, column };
-	command.timeVal = time;
+	command.timeVals.resize ( totalVariations );
+	command.timeVals[ variation ] = time;
 	command.value = true;
 	ttlCommandFormList[seqInc].push_back( command );
 }
 
 
-void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc )
+void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc, UINT totalVariations )
 {
 	DioCommandForm command;
 	command.line = { row, column };
-	command.timeVal = time;
+	command.timeVals.resize ( totalVariations );
+	command.timeVals[ variation ] = time;
 	command.value = false;
 	ttlCommandFormList[seqInc].push_back( command );
 }
@@ -943,8 +943,13 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& params )
 	}
 	sizeDataStructures( sequenceLength, variations );
 	// and interpret the command list for each variation.
-	for (auto seqInc : range( sequenceLength ) )
+	
+	for ( auto seqInc : range ( sequenceLength ) )
 	{
+		for ( auto& dioCommandForm : ttlCommandFormList[ seqInc ] )
+		{
+			dioCommandForm.timeVals.resize ( variations );
+		}
 		for (auto variationNum : range(variations))
 		{
 			for (auto& dioCommandForm : ttlCommandFormList[seqInc])
@@ -958,7 +963,7 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& params )
 						variableTime += varTime.evaluate(params[seqInc], variationNum);
 					}
 				}
-				dioCommandForm.timeVal = variableTime + dioCommandForm.time.second;
+				dioCommandForm.timeVals[variationNum] = variableTime + dioCommandForm.time.second;
 			}
 		}
 	}
@@ -968,6 +973,28 @@ void DioSystem::interpretKey( vec<vec<parameterType>>& params )
 allDigitalOutputs& DioSystem::getDigitalOutputs ( )
 {
 	return outputs;
+}
+
+ExpWrap<vec<DioSnapshot>> DioSystem::getTtlSnapshots ( )
+{
+	/* used in the unit testing suite */
+	return ttlSnapshots;
+}
+
+ExpWrap<finBufInfo> DioSystem::getFinalFtdiData ( )
+{
+	return finFtdiBuffers;
+}
+
+
+ExpWrap<std::array<ftdiPt, 2048>> DioSystem::getFtdiSnaps ( )
+{
+	return ftdiSnaps;
+}
+
+ExpWrap<vec<WORD>> DioSystem::getFinalViewpointData ( )
+{
+	return finalFormatViewpointData;
 }
 
 
@@ -980,7 +1007,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	std::vector<DioCommandForm> orderedCommandList ( ttlCommandFormList[ seqNum ] );
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedCommandList.begin(), orderedCommandList.end(), 
-			   [](DioCommand a, DioCommand b) {return a.time < b.time; });
+			   [variation](DioCommandForm a, DioCommandForm b) {return a.timeVals[variation] < b.timeVals[variation]; });
 	/// organize all of the commands.
 	for (auto commandInc : range( ttlCommandFormList[seqNum].size ( ) ) )
 	{
@@ -989,11 +1016,11 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 		// threshold to extra room. If dt<1ns, probably just some floating point issue. 
 		// If 1ns<dt<100ns I want to actually complain to the user since it seems likely that  this was intentional and 
 		// not a floating error.
-		if (commandInc == 0 || fabs(orderedCommandList[commandInc].timeVal - timeOrganizer.back().first) > 1e-6)
+		if (commandInc == 0 || fabs(orderedCommandList[commandInc].timeVals[variation] - timeOrganizer.back().first) > 1e-6)
 		{
 			// new time
 			std::vector<USHORT> testVec =  { USHORT(commandInc) };
-			timeOrganizer.push_back({ orderedCommandList[commandInc].timeVal, testVec });
+			timeOrganizer.push_back({ orderedCommandList[commandInc].timeVals[ variation ], testVec });
 		}
 		else
 		{
@@ -1276,7 +1303,8 @@ UINT DioSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT varia
 	UINT count = 0;
 	if ( snaps.size( ) == 0 )
 	{
-		thrower ( "No ttl events to examine in countTriggers?" );
+		return 0;
+		//thrower ( "No ttl events to examine in countTriggers?" );
 	}
 	for ( auto snapshotInc : range(ttlSnapshots(seqNum,variation).size()-1) )
 	{

@@ -662,7 +662,6 @@ void DataAnalysisControl::handlePlotAtoms( PlottingInfo plotInfo, UINT pictureNu
 			// Will be function fo groupI and dataSetI; TBD			
 			UINT dataId = (dataSetI+1) * groupI;
 			// check if first picture of set
-			// ?????????????????????? I don't know what this is doing anymore.
 			if ( pictureNumber % plottingFrequency != 0 )
 			{
 				continue;

@@ -68,9 +68,9 @@ class DioSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		void ttlOn(UINT row, UINT column, timeType time, UINT seqNum );
-		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
+		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum, UINT totalVariations );
 		void ttlOff(UINT row, UINT column, timeType time, UINT seqNum );
-		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
+		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum, UINT totalVariations );
 		void forceTtl( DioRows::which row, int number, bool state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
@@ -117,6 +117,11 @@ class DioSystem
 		bool getViewpointSafemode ( );
 		allDigitalOutputs& getDigitalOutputs();
 		void interpretKey ( vec<vec<parameterType>>& params );
+		ExpWrap<vec<DioSnapshot>> getTtlSnapshots ( );
+		ExpWrap<vec<WORD>> getFinalViewpointData ( );
+		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
+		ExpWrap<finBufInfo> getFinalFtdiData ( );
+
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio

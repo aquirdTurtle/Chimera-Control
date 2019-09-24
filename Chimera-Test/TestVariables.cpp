@@ -186,8 +186,7 @@ namespace TestVariables
 			{
 				Assert::AreEqual( expectedresult[count], vals[count] );
 			}
-
-			testSys.clearVariables( );
+			testSys.clearParameters( );
 			rangeInfo(0,0) = { 10,true,false };
 			var.ranges[0] = { 11,21 };
 			testSys.addParameter( var );
@@ -202,7 +201,7 @@ namespace TestVariables
 				Assert::AreEqual( expectedresult[count] + 10, vals[count] );
 			}
 
-			testSys.clearVariables( );
+			testSys.clearParameters ( );
 			var.ranges[0] = { 31, 40 };
 			rangeInfo(0, 0) = { 10,true,true };
 			testSys.addParameter( var );

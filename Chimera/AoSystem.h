@@ -26,6 +26,7 @@ class AoSystem
 {
 	public:
 		AoSystem( bool aoSafemode );
+
 		// standard functions for gui elements
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void rearrange( UINT width, UINT height, fontMap fonts );
@@ -57,7 +58,7 @@ class AoSystem
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum );
+		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum, UINT totalVariations );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
@@ -93,6 +94,8 @@ class AoSystem
 		std::array<AoInfo, 24> getDacInfo ( );
 		std::array<double, 24> getFinalSnapshot( );
 		bool handleArrow ( CWnd* focus, bool up );
+		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
+		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;

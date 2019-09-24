@@ -675,9 +675,8 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 	}
-
 	// axis labels
-	RECT r = { scaledArea.left, scaledArea.bottom, scaledArea.right, controlDims.bottom * heightScale2 };
+	RECT r = { scaledArea.left, scaledArea.bottom+10, scaledArea.right, controlDims.bottom * heightScale2 + 10 };
 	std::string txt = "xlabel";
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
@@ -697,6 +696,10 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	else if ( style == plotStyle::HistPlot )
 	{
 		txt = "Occurances";
+	}
+	else
+	{
+		txt = "ylabel";
 	}
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
