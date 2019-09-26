@@ -14,7 +14,15 @@ Expression::Expression( )
 {
 	// in this case, the expression must be explicitly initialized using init() later.
 }
-
+/*
+Expression& Expression::operator=( const std::string& expr )
+{
+	expressionStr = expr;
+	values.clear ( );
+	expressionScope = "";
+	return *this;
+}
+*/
 
 Expression::Expression( std::string expressionString )
 {
@@ -407,6 +415,10 @@ void Expression::internalEvaluate ( std::vector<parameterType>& params, UINT var
 
 double Expression::getValue ( UINT variation )
 {
+	if ( variation >= values.size ( ) )
+	{
+		thrower ( "Tried to get expression value for variation that doesn't seem to exist!" );
+	}
 	return values[variation];
 }
 

@@ -245,10 +245,12 @@ std::string DdsSystem::getSystemInfo ( )
 	return core.getSystemInfo();
 }
 
+
 std::string DdsSystem::getDelim ( )
 {
 	return core.configDelim;
 }
+
 
 DdsCore& DdsSystem::getCore ( )
 {

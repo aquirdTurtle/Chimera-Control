@@ -463,7 +463,7 @@ namespace commonFunctions
 				auxWin->loadMotSettings ( input.masterInput );
 				mainWin->fillMotInput ( input.masterInput );
 				input.masterInput->expType = ExperimentType::LoadMot;
-				mainWin->startExperimentThread ( input.masterInput, true );
+				mainWin->startExperimentThread ( input.masterInput );
 				basWin->startDefaultAcquisition ( );
 				break;
 			}
@@ -698,6 +698,7 @@ namespace commonFunctions
 		input.masterInput->runMaster = runMaster;
 		input.masterInput->logBaslerPics = logBaslerPics;
 		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
+		input.masterInput->numVariations = auxWin->getTotalVariationNumber ( );
 		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
 		input.masterInput->dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();

@@ -13,6 +13,7 @@
 #include "EmbeddedPythonHandler.h"
 #include "TektronicsControl.h"
 #include "MainOptionsControl.h"
+#include "PiezoCore.h"
 #include "Andor.h"
 
 #include "AndorRunSettings.h"
@@ -64,7 +65,7 @@ struct ExperimentThreadInput
 	AiSystem& aiSys;
 	AndorCamera& andorCamera;
 	DdsCore& dds;
-	
+	std::vector<PiezoCore*> piezoControllers;
 	ScanRangeInfo variableRangeInfo;
 	// believe outer layer here is for sequence increment
 	std::vector<std::vector<parameterType>> parameters;
@@ -79,6 +80,7 @@ struct ExperimentThreadInput
 	NiawgController& niawg;
 	DataLogger& logger;
 	UINT intensityAgilentNumber;
+	UINT numVariations = 1;
 	bool quiet=false;
 	bool runNiawg;
 	bool runMaster;

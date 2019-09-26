@@ -15,13 +15,15 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
 	#define DDS_SAFEMODE true
+	#define PIEZO1_SAFEMODE true
+	#define PIEZO2_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
@@ -435,6 +437,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 
 #define IDC_DDS_LISTVIEW 14152
 #define IDC_DDS_PROGRAM_NOW 14153
+#define IDC_PIEZO1_PROGRAM_NOW 14154
+#define IDC_PIEZO2_PROGRAM_NOW 14155
 
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001

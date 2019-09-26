@@ -36,6 +36,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	UINT seqNum = 0, repetitions = 1;
 	std::vector<std::vector<ddsIndvRampListInfo>> ddsRampList;
 	ddsRampList.resize( input->seq.sequence.size ( ) );
+	// outermost level is for each controller, 2nd level is for sequence number
+	std::vector<std::vector<piezoChan<Expression>>> piezoExpressions(input->piezoControllers.size(), 
+												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
 	// a couple shortcut aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
@@ -45,6 +48,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	const auto& runMaster = input->runMaster;
 	const auto& runAndor = input->runAndor;
 	const auto& runNiawg = input->runNiawg;
+	const auto& piezos = input->piezoControllers;
 	mainOptions mainOpts;
 	try
 	{
@@ -58,11 +62,18 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 				std::ifstream configFile ( configInfo.configFilePath ( ) );
 				ddsRampList[ seqNum ] = ProfileSystem::standardGetFromConfig ( configFile, dds.configDelim,
-																	   DdsCore::getRampListFromConfig );
+																			   DdsCore::getRampListFromConfig );
+				for ( auto piezoInc : range(input->piezoControllers.size()))
+				{
+					auto res = ProfileSystem::standardGetFromConfig (
+						configFile, input->piezoControllers[ piezoInc ]->configDelim, PiezoCore::getPiezoValsFromConfig );
+					piezoExpressions[ piezoInc ][ seqNum ] = { Expression ( res.x ), Expression ( res.y ), Expression ( res.z ) };
+				}
 				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS",
 																	 Repetitions::getRepsFromConfig );
+				
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
 			}
@@ -117,6 +128,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		else
 		{
+			for ( auto piezoInc : range ( piezos.size ( ) ) )
+			{
+				piezos[ piezoInc ]->updateExprVals ( piezoExpressions[ piezoInc ] );
+			}
 			dds.updateRampLists ( ddsRampList );
 		}
 		if ( runAndor )
@@ -223,16 +238,14 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey( input->parameters );
 			aoSys.interpretKey( input->parameters, warnings );
-			subTimer.tick ( "After-aoSys-Interpret" );
-			if ( input->runDds )
-			{
-				dds.evaluateDdsInfo ( input->parameters );
-				dds.generateFullExpInfo ( );
-			}
-			subTimer.tick ( "After-dds-Interpret" );
 		}
 		if ( useAuxDevices )
 		{
+			for ( auto& piezo : piezos )
+			{
+				piezo->evaluateVariations ( input->parameters, variations );
+			}
+			dds.evaluateDdsInfo ( input->parameters );
 			dds.generateFullExpInfo ( variations );
 			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );
@@ -365,8 +378,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				{
 					agilent->setAgilent ( variationInc, input->parameters[ 0 ] );
 				}
+				for ( auto& piezo : piezos )
+				{
+					piezo->exprProgramPiezo ( 0, variationInc );
+				}
 				dds.writeExperiment ( 0, variationInc );
-
 			}
 			if (input->runNiawg)
 			{
@@ -532,14 +548,11 @@ void MasterManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
 			// got handled, so break out of the if-else by entering this scope.
 		}
 		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
-		{
-		}
+		{}
 		else if ( handleDioCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope ) )
-		{
-		}
+		{}
 		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope ) )
-		{
-		}
+		{}
 		/// callcppcode function
 		else if ( word == "callcppcode" )
 		{
@@ -566,8 +579,7 @@ void MasterManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
 		/// deal with function calls.
 		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
 									   warnings, PARENT_PARAMETER_SCOPE ) )
-		{
-		}
+		{ }
 		else if ( word == "repeat:" )
 		{
 			Expression repeatStr;
