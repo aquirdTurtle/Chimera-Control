@@ -101,7 +101,7 @@ std::vector<std::shared_ptr<optParamSettings>> MachineOptimizer::getOptParams ( 
 /*
 	resultValue: the value of the metric that was measured in the last round.
  */
-void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultValue, DataLogger* logger )
+void MachineOptimizer::updateParams ( AllExperimentInput input, dataPoint resultValue, DataLogger& logger )
 {
 	if ( optCount == 0 )
 	{
@@ -119,14 +119,14 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 				}
 			}
 		}
-		logger->initOptimizationFile ( );
+		logger.initOptimizationFile ( );
 		std::string initString = "Parameters: ";
 		for ( auto& param : optParams )
 		{
 			initString += param->name + " ";
 		}
 		initString += "\n";
-		logger->updateOptimizationFile ( initString );
+		logger.updateOptimizationFile ( initString );
 	}
 	else
 	{
@@ -154,7 +154,7 @@ void MachineOptimizer::updateParams ( ExperimentInput input, dataPoint resultVal
 		}
 		pointString += str ( resultValue.y ) + " " + str ( resultValue.err );
 		pointString += "\n";
-		logger->updateOptimizationFile ( pointString );
+		logger.updateOptimizationFile ( pointString );
 		updateBestResult ( str ( bestVal ), str ( bestErr ) );
 	}
 	switch ( currentSettings.alg )
@@ -199,7 +199,7 @@ bool MachineOptimizer::isInMiddleOfOptimizing ( )
 }
 
 
-void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint resultValue, DataLogger* logger )
+void MachineOptimizer::hillClimbingUpdate ( AllExperimentInput input, dataPoint resultValue, DataLogger& logger )
 {
 	// handle first value case, should only happen once in entire experiment.
 	auto& param = optStatus.currParam;
@@ -210,7 +210,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 		param = optParams.front ( ); 
 		param->index = 0;
 		param->resultHist.clear ( ); 
-		logger->updateOptimizationFile ( "Variable: " + param->name + "\n" );
+		logger.updateOptimizationFile ( "Variable: " + param->name + "\n" );
 	}
 	resultValue.x = param->currentValue;
 	if ( param->resultHist.size ( ) == 0 )
@@ -257,13 +257,13 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					// finished round!
 					if ( roundCount >= getMaxRoundNum ( ) )
 					{
-						logger->finOptimizationFile ( );
+						logger.finOptimizationFile ( );
 						onFinOpt ( );
 						thrower ( "Finished Optimization!" );
 					}
 					else
 					{
-						logger->updateOptimizationFile ( "Finished round " + str ( roundCount ) + "\n" );
+						logger.updateOptimizationFile ( "Finished round " + str ( roundCount ) + "\n" );
 						roundCount++;
 						updateCurrRoundDisplay ( str ( roundCount ) );
 						/// go back to first variable.
@@ -279,7 +279,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 						param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 						optStatus.scanDir = 1;
 						param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
-						logger->updateOptimizationFile ( "Variable: " + param->name + "\n" );
+						logger.updateOptimizationFile ( "Variable: " + param->name + "\n" );
 					}
 				}
 				else
@@ -296,7 +296,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 					param->resultHist.push_back ( { param->currentValue, tempResult.y, tempResult.err } );
 					optStatus.scanDir = 1;
 					param->currentValue = param->currentValue + double ( optStatus.scanDir ) * param->increment;
-					logger->updateOptimizationFile ( "Variable: " + param->name + "\n" );
+					logger.updateOptimizationFile ( "Variable: " + param->name + "\n" );
 				}
 			}
 			else
@@ -304,7 +304,7 @@ void MachineOptimizer::hillClimbingUpdate ( ExperimentInput input, dataPoint res
 				// first data point was in wrong direction. Go back to beginning and change direction.
 				optStatus.scanDir = -1;
 				param->currentValue = param->resultHist.front ( ).x + double ( optStatus.scanDir ) * param->increment;
-				logger->updateOptimizationFile ( "Switched_Direction\n");
+				logger.updateOptimizationFile ( "Switched_Direction\n");
 			}
 		}
 	}
@@ -498,7 +498,7 @@ void MachineOptimizer::reset ( )
 }
 
 
-void MachineOptimizer::verifyOptInput ( ExperimentInput input )
+void MachineOptimizer::verifyOptInput ( AllExperimentInput input )
 {
 	if ( !input.includesAndorRun )
 	{

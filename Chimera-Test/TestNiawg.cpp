@@ -17,7 +17,8 @@ namespace TestNiawg
 		TEST_METHOD( Simple_Rerng )
 		{
 			// single move; obvious solution to rearrangement algorithm
-			UINT trigRow( 0 ), trigNum( 0 );
+			auto trigRow = DioRows::which::A;
+			UINT trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
 			Matrix<bool> source( 6, 3 );
@@ -40,7 +41,8 @@ namespace TestNiawg
 		TEST_METHOD( Complex_Rerng )
 		{
 			// many single moves (no parallelization), result compared to solution that's known to work.
-			UINT trigRow( 0 ), trigNum( 0 );
+			auto trigRow = DioRows::which::A;
+			UINT trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
 			Matrix<bool> source( 6, 3 );
@@ -70,7 +72,8 @@ namespace TestNiawg
 		TEST_METHOD( No_Flash_Rerng )
 		{
 			// a predictable no-flash config.
-			UINT trigRow( 0 ), trigNum( 0 );
+			auto trigRow = DioRows::which::A;
+			UINT trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
 			Matrix<bool> source( 6, 3 );
@@ -104,7 +107,8 @@ namespace TestNiawg
 		}
 		TEST_METHOD( Pi_Parallel_Rerng )
 		{
-			UINT trigRow( 0 ), trigNum( 0 );
+			auto trigRow = DioRows::which::A;
+			UINT trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
 			Matrix<bool> source( 6, 3 );
@@ -149,17 +153,18 @@ namespace TestNiawg
 		public:
 		CONNECTED_TEST ( c_Connect_To_Niawg )
 		{
-			NiawgController niawg ( 0, 0, false );
+			NiawgController niawg ( DioRows::which::A, 0, false );
 			niawg.initialize ( );
 			niawg.fgenConduit.getDeviceInfo ( );
 		}
 		TEST_METHOD ( Init_Niawg )
 		{
-			UINT trigRow ( 0 ), trigNum ( 0 );
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
 			bool safemode ( true );
 			NiawgController niawg ( trigRow, trigNum, safemode );
-			std::pair<UINT, UINT> res = niawg.getTrigLines ( );
-			Assert::AreEqual ( res.first, trigRow );
+			auto res = niawg.getTrigLines ( );
+			Assert::AreEqual ( DioRows::toStr(res.first), DioRows::toStr ( trigRow ) );
 			Assert::AreEqual ( res.second, trigNum );
 			Assert::AreEqual ( niawg.getCurrentScript ( ), std::string ( "" ) );
 			UINT numTrigs = niawg.getNumberTrigsInScript ( );
@@ -169,7 +174,8 @@ namespace TestNiawg
 		{
 			// assert that analyzeNiawgScript correctly creates a simple form, i.e. it reads the
 			// script correctly and fills out the form correctly.
-			UINT trigRow ( 0 ), trigNum ( 0 );
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
 			bool safemode ( true );
 			NiawgController niawg ( trigRow, trigNum, safemode );
 			ScriptStream stream ( simpleScript );
@@ -213,7 +219,8 @@ namespace TestNiawg
 		{
 			// check that the core has the correct values after actually writing the wave. Force actual writing of the 
 			// wave, don't use the library. The library is to be tested seperately.
-			UINT trigRow ( 0 ), trigNum ( 0 );
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
 			bool safemode ( true );
 			NiawgController niawg ( trigRow, trigNum, safemode );
 			ScriptStream stream ( simpleScript );
@@ -257,7 +264,8 @@ namespace TestNiawg
 		{
 			// check various properties of the wavevals and the wavevals themselves. Using actual calculations, not the
 			// library.
-			UINT trigRow ( 0 ), trigNum ( 0 );
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
 			bool safemode ( true );
 			NiawgController niawg ( trigRow, trigNum, safemode );
 			ScriptStream stream ( simpleScript );
@@ -298,11 +306,12 @@ namespace TestNiawg
 		}
 		TEST_METHOD ( SimpleScript_LibRead_Wavevals )
 		{
-			// note: this requires that the wave has already been written! to get the wave written, I often will change
+			// NOTE: this requires that the wave has already been written! to get the wave written, I often will change
 			// the lib mode to "allowed", run the test once, and then re-run it with lib mode "forced".
 			// check various properties of the wavevals and the wavevals themselves. Using actual calculations, not the
 			// library.
-			UINT trigRow ( 0 ), trigNum ( 0 );
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
 			bool safemode ( true );
 			NiawgController niawg ( trigRow, trigNum, safemode );
 			niawg.initialize ( );
@@ -355,7 +364,8 @@ namespace TestNiawg
 			// there are potentially memory issues with writing long waves, so make sure the code can make it through 
 			// writing a 10ms wave. This can take a while in debug mode, takes about 1s in release.
 			const std::string longWaveScript = "gen1const HORIZONTAL 80 1 0 # gen1const VERTICAL 70 1 0 # 10 0";
-			UINT trigRow ( 0 ), trigNum ( 0 );
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
 			bool safemode ( true );
 			NiawgController niawg ( trigRow, trigNum, safemode );
 			ScriptStream stream ( longWaveScript );

@@ -79,7 +79,10 @@ void Communicator::sendCameraCalProgress( long progress )
 	camWin->PostMessageA( MainWindow::AndorCalProgMessageID, 0, (LPARAM)progress );
 }
 
-
+void Communicator::sendLogVoltsMessage ( UINT variation )
+{
+	auxWin->PostMessage ( MainWindow::LogVoltsMessageID, variation );
+}
 
 
 void Communicator::sendRepProgress(ULONG rep)

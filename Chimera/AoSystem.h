@@ -26,6 +26,7 @@ class AoSystem
 {
 	public:
 		AoSystem( bool aoSafemode );
+
 		// standard functions for gui elements
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void rearrange( UINT width, UINT height, fontMap fonts );
@@ -57,7 +58,7 @@ class AoSystem
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum );
+		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum, UINT totalVariations );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
@@ -92,9 +93,9 @@ class AoSystem
 		std::pair<double, double> getDacRange( int dacNumber );
 		std::array<AoInfo, 24> getDacInfo ( );
 		std::array<double, 24> getFinalSnapshot( );
-		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
-		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
 		bool handleArrow ( CWnd* focus, bool up );
+		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
+		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
@@ -102,15 +103,11 @@ class AoSystem
 		Control<CleanCheck> quickChange;
 		std::array<AnalogOutput, 24> outputs;
 
-		//std::array<Control<CStatic>, 24> dacLabels;
-		//std::array<Control<CEdit>, 24> breakoutBoardEdits;
-		//std::array<AoInfo, 24> dacInfo;
-
 		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
 		// first = sequence, 2nd = variation
-		std::vector<std::vector<std::vector<AoCommand>>> dacCommandList;
-		std::vector<std::vector<std::vector<AoSnapshot>>> dacSnapshots, loadSkipDacSnapshots;
-		std::vector<std::vector<std::array<std::vector<double>, 3>>> finalFormatDacData, loadSkipDacFinalFormat;
+		ExpWrap<std::vector<AoCommand>> dacCommandList;
+		ExpWrap<std::vector<AoSnapshot>> dacSnapshots, loadSkipDacSnapshots;
+		ExpWrap<std::array<std::vector<double>, 3>> finalFormatDacData, loadSkipDacFinalFormat;
 		std::pair<USHORT, USHORT> dacTriggerLine;
 
 		double dacTriggerTime;

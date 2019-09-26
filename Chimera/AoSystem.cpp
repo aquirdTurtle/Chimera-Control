@@ -2,15 +2,14 @@
 #include "stdafx.h"
 #include "AoSystem.h"
 #include "AuxiliaryWindow.h"
+#include "MainWindow.h"
 #include "Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
 #include "Thrower.h"
 #include "range.h"
-#include "MainWindow.h"
 #include "CodeTimer.h"
 #include <boost/lexical_cast.hpp>
-
 
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 {
@@ -38,7 +37,7 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
 		daqmx.createTask("", digitalDac_0_00);
 		daqmx.createTask("", digitalDac_0_01);
-		// unused at the moment.
+		/// unused at the moment.
 		daqmx.createDiChan(digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine);
 		daqmx.createDiChan(digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine);
 		// new
@@ -76,17 +75,6 @@ void AoSystem::standardNonExperiemntStartDacsSequence( )
 	configureClocks( 0, false, 0 );
 	writeDacs( 0, false, 0 );
 	startDacs( );
-}
-
-
-std::vector<std::vector<std::vector<AoSnapshot>>> AoSystem::getSnapshots( )
-{
-	return dacSnapshots;
-}
-
-std::vector<std::vector<std::array<std::vector<double>, 3>>> AoSystem::getFinData( )
-{
-	return finalFormatDacData;
 }
 
 
@@ -176,7 +164,7 @@ void AoSystem::handleSaveConfig(std::ofstream& saveFile)
 std::string AoSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
 {
 	std::string message;
-	for ( auto snap : dacSnapshots[seqNum][variation] )
+	for ( auto snap : dacSnapshots(seqNum,variation) )
 	{
 		std::string time = str( snap.time, 12, true );
 		message += time + ":\r\n";
@@ -199,8 +187,6 @@ std::string AoSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 void AoSystem::handleEditChange ( UINT dacNumber )
 {
@@ -328,10 +314,10 @@ void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
 		prepareDacForceChange( dacInc, vals[dacInc], ttls );
 	}
 	// wait until after all this to actually do this to make sure things get through okay.
-	for ( auto i : range ( outputs.size() ) )
+	for ( auto outputNum : range ( outputs.size() ) )
 	{
-		outputs[ i ].info.currVal = vals[ i ];
-		outputs[ i ].setEditColorState ( 0 );
+		outputs[ outputNum ].info.currVal = vals[ outputNum ];
+		outputs[ outputNum ].setEditColorState ( 0 );
 	}
 }
 
@@ -351,10 +337,10 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<AoCommand>>> timeOrganizer;
-	std::vector<AoCommand> tempEvents(dacCommandList[seqNum][variation]);
+	std::vector<AoCommand> tempEvents(dacCommandList(seqNum,variation));
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
-			   [](AoCommand a, AoCommand b){return a.time < b.time; });
+			   [](AoCommand a, AoCommand b){ return a.time < b.time; });
 	for (UINT commandInc : range(tempEvents.size()))
 	{
 		auto& command = tempEvents[commandInc];
@@ -379,7 +365,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 		// no commands, that's fine.
 		return;
 	}
-	auto& snap = dacSnapshots[seqNum][variation];
+	auto& snap = dacSnapshots(seqNum,variation);
 	snap.clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
 	std::array<double, 24> dacValues;
@@ -406,8 +392,8 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
-	auto& snaps = dacSnapshots[seqNum][variation];
-	auto& loadSkipSnaps = loadSkipDacSnapshots[seqNum][variation];
+	auto& snaps = dacSnapshots(seqNum,variation);
+	auto& loadSkipSnaps = loadSkipDacSnapshots(seqNum,variation);
 	if ( snaps.size( ) == 0 )
 	{
 		return;
@@ -425,28 +411,19 @@ void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& v
 
 std::array<double, 24> AoSystem::getFinalSnapshot()
 {
-	if (dacSnapshots.size() != 0)
+	auto numSeq = dacSnapshots.getNumSequences ( );
+	if (numSeq != 0)
 	{
-		if (dacSnapshots.back().size() != 0)
+		auto numVar = dacSnapshots.getNumVariations ( numSeq - 1 );
+		if (numVar != 0)
 		{
-			if ( dacSnapshots.back( ).back( ).size( ) != 0 )
+			if ( dacSnapshots( numSeq - 1, numVar-1 ).size( ) != 0 )
 			{
-				return dacSnapshots.back( ).back( ).back( ).dacValues;
-			}
-			else
-			{
-				thrower ( "No DAC Events" );
+				return dacSnapshots ( numSeq - 1, numVar - 1 ).back( ).dacValues;
 			}
 		}
-		else
-		{
-			thrower ( "No DAC Events" );
-		}
 	}
-	else
-	{
-		thrower ("No DAC Events");
-	}
+	thrower ("No DAC Events");
 }
 
 
@@ -483,14 +460,15 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 		data->clear( );
 		UINT seqInc = 0;
 		UINT runningSeqTime = 0;
-		for ( auto& dacSeqInfo : dacSnapshots )
+		for (auto seqNum : range(dacSnapshots.getNumSequences( ) ) )
+		//for ( auto& dacSeqInfo : dacSnapshots )
 		{
-			if ( dacSeqInfo.size( ) <= variation )
+			if ( dacSnapshots.getNumVariations(seqNum) <= variation )
 			{
 				thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
 						 "exist!" );
 			}
-			for ( auto& snap : dacSeqInfo[variation] )
+			for ( auto& snap : dacSnapshots(seqNum, variation) )
 			{
 				data->push_back( { runningSeqTime + snap.time, double( snap.dacValues[line] ), 0 } );
 			}
@@ -519,15 +497,12 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 	{
 		variations = 1;
 	}
-
 	/// imporantly, this sizes the relevant structures.
-	dacCommandList = vec<vec<vec<AoCommand>>>( sequenceLength, vec<vec<AoCommand>>(variations) );
-	dacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceLength, vec<vec<AoSnapshot>>(variations) );
-	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceLength, vec<vec<AoSnapshot>>( variations ) );
-	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( sequenceLength, 
-															   vec<std::array<vec<double>, 3>>( variations ));
-	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( sequenceLength, 
-																   vec<std::array<vec<double>, 3>>( variations ) );
+	dacCommandList.uniformSizeReset ( sequenceLength, variations );
+	dacSnapshots.uniformSizeReset ( sequenceLength, variations );
+	loadSkipDacSnapshots.uniformSizeReset ( sequenceLength, variations );
+	finalFormatDacData.uniformSizeReset ( sequenceLength, variations );
+	loadSkipDacFinalFormat.uniformSizeReset ( sequenceLength, variations );
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
 	sTimer.tick ( "After-init" );
@@ -540,7 +515,7 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 				sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
 			}
 			auto& seqVariables = variables[ seqInc ];
-			auto& cmdList = dacCommandList[ seqInc ][ variationInc ];
+			auto& cmdList = dacCommandList(seqInc, variationInc);
 			for (auto eventInc : range( dacCommandFormList[ seqInc ].size ( ) ) )
 			{
 				AoCommand tempEvent;
@@ -569,9 +544,6 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 				if ( formList.commandName == "dac:" )
 				{
 					/// single point.
-					////////////////
-					// deal with value
-
 					tempEvent.value = formList.finalVal.evaluate( seqVariables, variationInc );
 					if ( variationInc == 0 )
 					{
@@ -598,9 +570,9 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 					{
 						resolutionWarningPosted = true;
-						warnings += "Warning: ramp increment of " + str( rampInc ) + " is below the resolution of the aoSys "
-							"(which is 10/2^16 = " + str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
-							"calculate the ramp unnecessarily.\r\n";
+						warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " 
+							+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
+							+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
 					}
 					// This might be the first not i++ usage of a for loop I've ever done... XD
 					// calculate the time increment:
@@ -653,13 +625,10 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 					// interpret ramp time command. I need to know whether it's ramping or not.
 					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
 					/// many points to be made.
-					// convert initValue and finalValue to doubles to be used 
 					double initValue, finalValue;
 					UINT numSteps;
 					initValue = formList.initVal.evaluate( seqVariables, variationInc );
-					// deal with final value;
 					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );
-					// deal with numPoints
 					numSteps = formList.numSteps.evaluate( seqVariables, variationInc );
 					double rampInc = (finalValue - initValue) / numSteps;
 					if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
@@ -701,13 +670,12 @@ void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables,
 			}
 		}
 	}
-	//errBox ( sTimer.getTimingMessage ( ) );
 }
 
 
 UINT AoSystem::getNumberSnapshots(UINT variation, UINT seqNum)
 {
-	return dacSnapshots[seqNum][variation].size();
+	return dacSnapshots(seqNum,variation).size();
 }
 
 
@@ -715,7 +683,7 @@ void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 {
 	std::vector<double> times;
 	// grab all the times.
-	for (auto snapshot : dacSnapshots[seqInc][variation])
+	for (auto snapshot : dacSnapshots(seqInc,variation))
 	{
 		times.push_back(snapshot.time);
 	}
@@ -746,7 +714,7 @@ void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 
 ULONG AoSystem::getNumberEvents(UINT variation, UINT seqInc)
 {
-	return dacSnapshots[seqInc][variation].size();
+	return dacSnapshots(seqInc,variation).size();
 }
 
 
@@ -763,13 +731,13 @@ void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc)
+void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc, UINT totalVariations)
 {
-	for ( auto snapshot : dacSnapshots[seqInc][variation])
+	for ( auto snapshot : dacSnapshots(seqInc,variation))
 	{
-		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc);
+		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc, totalVariations );
 		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation, 
-							seqInc );
+							seqInc, totalVariations );
 	}
 }
 
@@ -803,7 +771,7 @@ void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 {
 	for (auto line : range(outputs.size()))
 	{
-		for (auto snapshot : dacSnapshots[seqNum][variation])
+		for (auto snapshot : dacSnapshots(seqNum,variation))
 		{
 			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )
 			{
@@ -830,14 +798,27 @@ void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT var
 	eventInfo.line = line;
 	eventInfo.time = 1;	
 	eventInfo.value = val;
-	dacCommandList[seqNum][variation].push_back( eventInfo );
+	dacCommandList(seqNum,variation).push_back( eventInfo );
 	// important! need at least 2 states to run the dac board. can't just give it one value. This is how this was done in the VB code,
 	// there might be better ways of dealing with this. 
 	eventInfo.time = 10;
-	dacCommandList[seqNum][variation].push_back( eventInfo );
+	dacCommandList(seqNum,variation).push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the aoSys to change the output at the correct time.
-	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0 );
-	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0 );
+	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0, 1 );
+	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0, 1 );
+}
+
+
+ExpWrap<std::vector<AoSnapshot>> AoSystem::getSnapshots ( )
+{
+	/* used by the unit testing suite. */
+	return dacSnapshots;
+}
+
+ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( )
+{
+	/* used by the unit testing suite. */
+	return finalFormatDacData;
 }
 
 
@@ -850,11 +831,11 @@ void AoSystem::prepareForce( )
 void AoSystem::initializeDataObjects( UINT sequenceNum, UINT cmdNum )
 {
 	dacCommandFormList = vec<vec<AoCommandForm>>( sequenceNum, vec<AoCommandForm>( cmdNum ) );
-	dacCommandList = vec<vec<vec<AoCommand>>>( sequenceNum, vec<vec<AoCommand>>( cmdNum ) );
-	dacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceNum, vec<vec<AoSnapshot>>( cmdNum ) );
-	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceNum, vec<vec<AoSnapshot>>( cmdNum ) );
-	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( sequenceNum, vec<std::array<vec<double>, 3>>( cmdNum ) );
-	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( sequenceNum, vec<std::array<vec<double>, 3>>( cmdNum ) );
+	dacCommandList.uniformSizeReset ( sequenceNum, cmdNum );
+	dacSnapshots.uniformSizeReset ( sequenceNum, cmdNum );
+	loadSkipDacSnapshots.uniformSizeReset ( sequenceNum, cmdNum );
+	finalFormatDacData.uniformSizeReset ( sequenceNum, cmdNum );
+	loadSkipDacFinalFormat.uniformSizeReset ( sequenceNum, cmdNum );
 }
 
 
@@ -877,11 +858,11 @@ void AoSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
 	long sampleNumber;
 	if ( loadSkip )
 	{
-		sampleNumber = loadSkipDacSnapshots[seqNum][variation].size( );
+		sampleNumber = loadSkipDacSnapshots(seqNum,variation).size( );
 	}
 	else
 	{
-		sampleNumber = dacSnapshots[seqNum][variation].size( );
+		sampleNumber = dacSnapshots(seqNum,variation).size( );
 	}
 	daqmx.configSampleClkTiming( analogOutTask0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 	daqmx.configSampleClkTiming( analogOutTask1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
@@ -891,10 +872,10 @@ void AoSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
 
 void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
 {
-	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots[seqNum][variation] 
-												   : dacSnapshots[seqNum][variation];
-	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat[seqNum][variation]
-															 : finalFormatDacData[seqNum][variation];
+	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(seqNum,variation) 
+												   : dacSnapshots(seqNum,variation);
+	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(seqNum,variation)
+															 : finalFormatDacData(seqNum,variation);
 	if (snapshots.size() <= 1)
 	{
 		// need at least 2 events to run aoSys.
@@ -909,12 +890,12 @@ void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
 	// Should probably run a check on samples written.
 	int32 samplesWritten;
 	//
-	daqmx.writeAnalogF64( analogOutTask0, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[0].front(),
-					      &samplesWritten );
-	daqmx.writeAnalogF64( analogOutTask1, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[1].front(),
-					      &samplesWritten );
-	daqmx.writeAnalogF64( analogOutTask2, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[2].front(),
-					      &samplesWritten );
+	daqmx.writeAnalogF64( analogOutTask0, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
+						  &finalData[0].front(), &samplesWritten );
+	daqmx.writeAnalogF64( analogOutTask1, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
+						  &finalData[1].front(), &samplesWritten );
+	daqmx.writeAnalogF64( analogOutTask2, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
+						  &finalData[2].front(), &samplesWritten );
 }
 
 
@@ -928,10 +909,10 @@ void AoSystem::startDacs()
 
 void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 {
-	auto& finalNormal = finalFormatDacData[seqNum][variation];
-	auto& finalLoadSkip = loadSkipDacFinalFormat[seqNum][variation];
-	auto& normSnapshots = dacSnapshots[seqNum][variation];
-	auto& loadSkipSnapshots = loadSkipDacSnapshots[seqNum][variation];
+	auto& finalNormal = finalFormatDacData(seqNum,variation);
+	auto& finalLoadSkip = loadSkipDacFinalFormat(seqNum,variation);
+	auto& normSnapshots = dacSnapshots(seqNum,variation);
+	auto& loadSkipSnapshots = loadSkipDacSnapshots(seqNum,variation);
 
 	for ( auto& data : finalNormal )
 	{

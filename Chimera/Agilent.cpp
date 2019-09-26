@@ -255,7 +255,7 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parame
 }
 
 
-std::pair<UINT, UINT> Agilent::getTriggerLine( )
+std::pair<DioRows::which, UINT> Agilent::getTriggerLine( )
 {
 	return { triggerRow, triggerNumber };
 }
@@ -908,7 +908,7 @@ bool Agilent::scriptingModeIsSelected( )
 }
 
 
-void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
+void Agilent::setAgilent( UINT variation, std::vector<parameterType>& params)
 {
 	if ( !connected( ) )
 	{
@@ -927,7 +927,7 @@ void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 		auto& channel = settings.channel[chan];
 		try
 		{
-			convertInputToFinalSettings( chan, variables, variation );
+			convertInputToFinalSettings( chan, params, variation );
 			switch ( channel.option )
 			{
 				case AgilentChannelMode::which::No_Control:

@@ -230,6 +230,9 @@
     <ClInclude Include="LongCSlider.h" />
     <ClInclude Include="MachineOptimizer.h" />
     <ClInclude Include="MyListCtrl.h" />
+    <ClInclude Include="PiezoController.h" />
+    <ClInclude Include="PiezoCore.h" />
+    <ClInclude Include="PiezoFlume.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="softwareAccumulationOption.h" />
@@ -358,6 +361,9 @@
     <ClCompile Include="MasterThreadInput.cpp" />
     <ClCompile Include="MyListCtrl.cpp" />
     <ClCompile Include="NiawgStructures.cpp" />
+    <ClCompile Include="PiezoController.cpp" />
+    <ClCompile Include="PiezoCore.cpp" />
+    <ClCompile Include="PiezoFlume.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
     <ClCompile Include="SegmentEnd.cpp" />
     <ClCompile Include="StartDialog.cpp" />

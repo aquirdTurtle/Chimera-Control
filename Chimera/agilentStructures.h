@@ -4,7 +4,7 @@
 #include "scriptedAgilentWaveform.h"
 #include "AgilentChannelMode.h"
 #include "Expression.h"
-
+#include "DioRows.h"
 #include <string>
 #include <array>
 #include "afxwin.h"
@@ -30,7 +30,7 @@ struct agilentSettings
 	ULONG programButtonId;
 	ULONG calibrationButtonId;
 	
-	ULONG triggerRow;
+	DioRows::which triggerRow;
 	ULONG triggerNumber;
 	std::string configurationFileDelimiter;
 

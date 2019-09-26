@@ -5,6 +5,7 @@
 
 #include "constants.h"
 #include "MasterManager.h" 
+#include "PiezoController.h"
 #include "DioSystem.h"
 #include "AoSystem.h"
 #include "ParameterSystem.h"
@@ -55,7 +56,7 @@ class AuxiliaryWindow : public CDialog
 		AuxiliaryWindow();
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
-		void updateOptimization ( ExperimentInput input );
+		void updateOptimization ( AllExperimentInput input );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
@@ -66,6 +67,7 @@ class AuxiliaryWindow : public CDialog
 		void OnPaint( );
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
+		std::vector<PiezoCore* > getPiezoControllers ( );
 		std::vector<servoInfo> getServoinfo ( );
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
@@ -74,6 +76,10 @@ class AuxiliaryWindow : public CDialog
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
+		void programPiezo1 ( );
+		void programPiezo2 ( );
+		void handlePiezo1Ctrl ( );
+		void handlePiezo2Ctrl ( );
 		void handleTtlPush(UINT id);
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
@@ -154,7 +160,7 @@ class AuxiliaryWindow : public CDialog
 		DioSystem& getTtlBoard ( );
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
-		RhodeSchwarz& getRsg ( );
+		RohdeSchwarz& getRsg ( );
 		TektronicsAfgControl& getTopBottomTek ( );
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
@@ -172,7 +178,7 @@ class AuxiliaryWindow : public CDialog
 		std::string title;
 		toolTipTextMap toolTipText;
 		/// control system classes
-		RhodeSchwarz RhodeSchwarzGenerator;
+		RohdeSchwarz RhodeSchwarzGenerator;
 		std::array<Agilent, 4> agilents;
 
 		std::vector<PlotCtrl*> aoPlots;
@@ -191,6 +197,8 @@ class AuxiliaryWindow : public CDialog
 		ColorBox boxes;
 		ParameterSystem configParameters, globalParameters;
 		DdsSystem dds;
+		
+		PiezoController piezo1, piezo2;
 
 		ColorBox statusBox;
 };

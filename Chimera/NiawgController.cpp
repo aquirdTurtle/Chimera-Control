@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <random>
 
-NiawgController::NiawgController ( UINT trigRow, UINT trigNumber, bool safemode ) :
+NiawgController::NiawgController ( DioRows::which trigRow, UINT trigNumber, bool safemode ) :
 	triggerRow ( trigRow ), triggerNumber ( trigNumber ), fgenConduit ( safemode )
 {
 	// Contains all of of the names of the files that hold actual data file names.	
@@ -145,7 +145,7 @@ UINT NiawgController::getNumberTrigsInScript( )
 }
 
 
-std::pair<UINT, UINT> NiawgController::getTrigLines( )
+std::pair<DioRows::which, UINT> NiawgController::getTrigLines( )
 {
 	return { triggerRow, triggerNumber };
 }
@@ -191,7 +191,7 @@ void NiawgController::programNiawg( ExperimentThreadInput* input, NiawgOutput& o
 	input->comm.sendColorBox( System::Niawg, 'Y' );
 	input->niawg.handleVariations( output, input->parameters, variation, variedMixedSize, warnings, input->debugOptions,
 									totalVariations, rerngGuiForm, rerngGui );
-	if ( input->settings.dontActuallyGenerate ) { return; }
+	if ( input->dontActuallyGenerate ) { return; }
 
 	// Restart Waveform
 	input->niawg.turnOff( );
@@ -626,7 +626,7 @@ void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& 
 		}
 		wave.varies = false;
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested( "Failed to convert simple niawg wave form to simple wave data! This might mean a low-level bug where"
 				 " the code thought that a wave didn't vary, but it did.\r\n" );
@@ -1732,7 +1732,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 		time.evaluate( );
 		wave.time = time;
 	}
-	catch ( Error& err )
+	catch ( Error& )
 	{
 		throwNested( "niawg waveform time cannot be varied! Evaluation of time expression failed!" );
 	}
@@ -1870,7 +1870,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		{
 			copyPhase = ( signal.initPhase.evaluate ( ) == -1);
 		}
-		catch ( Error& err )
+		catch ( Error&  )
 		{
 			// is a variable, hopefully variable value isn't -1...
 		}

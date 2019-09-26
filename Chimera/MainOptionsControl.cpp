@@ -62,7 +62,49 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "END_MAIN_OPTIONS\n";
 }
 
+mainOptions MainOptionsControl::getMainOptionsFromConfig ( std::ifstream& openFile, Version ver )
+{
+	mainOptions options;
+	if ( ver < Version ( "2.1" ) )
+	{
+		// rearrange option used to be stored here.
+		std::string garbage;
+		openFile >> garbage;
+	}
+	openFile >> options.randomizeReps;
+	openFile >> options.randomizeVariations;
+	if ( ver > Version ( "2.9" ) )
+	{
+		std::string txt;
+		openFile >> txt;
+		try
+		{
+			options.atomThresholdForSkip = boost::lexical_cast<unsigned long>( txt );
+		}
+		catch ( boost::bad_lexical_cast& )
+		{
+			errBox ( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
+					 "the threshold to the maximum threshold." );
+			options.atomThresholdForSkip = -1;
+		}
+	}
+	else
+	{
+		options.atomThresholdForSkip = UINT_MAX;
+	}
+	return options;
+}
 
+
+void MainOptionsControl::setOptions ( mainOptions opts )
+{
+	currentOptions = opts;
+	randomizeRepsButton.SetCheck ( currentOptions.randomizeReps );
+	randomizeVariationsButton.SetCheck ( currentOptions.randomizeVariations );
+	atomThresholdForSkipEdit.SetWindowTextA ( cstr ( currentOptions.atomThresholdForSkip ) );
+}
+
+/*
 void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
 	if (ver < Version("2.1") )
@@ -96,7 +138,7 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 		currentOptions.atomThresholdForSkip = UINT_MAX;
 	}
 }
-
+*/
 
 mainOptions MainOptionsControl::getOptions()
 {

@@ -15,13 +15,15 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
 	#define DDS_SAFEMODE true
+	#define PIEZO1_SAFEMODE true
+	#define PIEZO2_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
@@ -80,7 +82,7 @@
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
-	#define PYTHON_SAFEMODE false
+	#define PYTHON_SAFEMODE true
 	#define DIO_SAFEMODE true
 	#define ANALOG_OUT_SAFEMODE true
 	#define ANALOG_IN_SAFEMODE true
@@ -435,6 +437,10 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 
 #define IDC_DDS_LISTVIEW 14152
 #define IDC_DDS_PROGRAM_NOW 14153
+#define IDC_PIEZO1_PROGRAM_NOW 14154
+#define IDC_PIEZO2_PROGRAM_NOW 14155
+#define IDC_PIEZO1_CTRL 14156
+#define IDC_PIEZO2_CTRL 14157
 
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001
@@ -452,17 +458,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define ID_PGC_TEMP_CAL 15013
 #define ID_GREY_TEMP_CAL 15014
 #define IDC_MOT_LOADED_INDICATOR 15015
-
-#define UWAVE_AGILENT_TRIGGER_ROW 3
-#define UWAVE_AGILENT_TRIGGER_NUM 1
-#define TOP_BOTTOM_AGILENT_TRIGGER_ROW 1
-#define TOP_BOTTOM_AGILENT_TRIGGER_NUM 4
-#define AXIAL_AGILENT_TRIGGER_ROW 3
-#define AXIAL_AGILENT_TRIGGER_NUM 3
-#define FLASHING_AGILENT_TRIGGER_ROW 0
-#define FLASHING_AGILENT_TRIGGER_NUM 0
-#define INTENSITY_AGILENT_TRIGGER_ROW 1
-#define INTENSITY_AGILENT_TRIGGER_NUM 6
 
 // plot designer
 #define IDC_GENERAL_PLOT_TYPE 15008

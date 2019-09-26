@@ -388,7 +388,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		if (!cameraController->isContinuous())
  		{
 			// don't write data if continuous, that's a recipe for disaster.
-			camWin->getLogger ( )->writeBaslerPic ( *imageMatrix, 
+			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix, 
 									runningAutoAcq ? tempAcqSettings.dims : settingsCtrl.getCurrentSettings ( ).dims );
  		}
  		if (currentRepNumber == cameraController->getRepCounts())
@@ -402,6 +402,12 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 			// tell the andor window that the basler camera finished so that the data file can be handled appropriately.
 			mainWin->getComm ( )->sendBaslerFin ( );
 			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
+			if (!camWin->cameraIsRunning() )
+			{
+				// else it will close when the basler camera finishes.
+				camWin->getLogger ( ).closeFile ( );
+			}
+
  		}
 		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
 		{

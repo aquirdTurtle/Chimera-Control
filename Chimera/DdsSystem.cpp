@@ -207,13 +207,12 @@ void DdsSystem::programNow ( )
 {
 	try
 	{
-		ExpWrap<std::vector<ddsIndvRampListInfo>> simpleExp;
-		simpleExp.resizeSeq ( 1 );
-		simpleExp.resizeVariations ( 0, 1 );
-		simpleExp ( 0, 0 ) = currentRamps;
+		std::vector<std::vector<ddsIndvRampListInfo>> simpleExp;
+		simpleExp.resize( 1 );
+		simpleExp[0] = currentRamps;
 		core.updateRampLists ( simpleExp );
 		core.evaluateDdsInfo ( );
-		core.generateFullExpInfo ( );
+		core.generateFullExpInfo ( 1 );
 		core.writeExperiment ( 0, 0 );
 	}
 	catch ( Error& )
@@ -235,7 +234,7 @@ void DdsSystem::handleOpenConfig ( std::ifstream& file, Version ver )
 {
 	if ( ver >= Version ( "4.5" ) )
 	{
-		currentRamps = core.getRampListFromConfig ( file );
+		currentRamps = core.getRampListFromConfig ( file, ver );
 	}
 	redrawListview ( );
 }
@@ -246,10 +245,12 @@ std::string DdsSystem::getSystemInfo ( )
 	return core.getSystemInfo();
 }
 
+
 std::string DdsSystem::getDelim ( )
 {
 	return core.configDelim;
 }
+
 
 DdsCore& DdsSystem::getCore ( )
 {

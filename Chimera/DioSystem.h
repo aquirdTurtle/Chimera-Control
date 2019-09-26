@@ -12,6 +12,7 @@
 #include "Version.h"
 #include "viewpointFlume.h"
 #include "DigitalOutput.h"
+#include "ExpWrap.h"
 #include <array>
 #include <sstream>
 #include <unordered_map>
@@ -62,15 +63,14 @@ class DioSystem
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
-		ULONG countDacTriggers(UINT variation, UINT seqNum );
 		ULONG getNumberEvents(UINT variation, UINT seqNum );
 
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		void ttlOn(UINT row, UINT column, timeType time, UINT seqNum );
-		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
+		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum, UINT totalVariations );
 		void ttlOff(UINT row, UINT column, timeType time, UINT seqNum );
-		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum );
+		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum, UINT totalVariations );
 		void forceTtl( DioRows::which row, int number, bool state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
@@ -105,7 +105,7 @@ class DioSystem
 		void resetTtlEvents();
 		void prepareForce();
 		void updateDefaultTtl( DioRows::which row, UINT column, bool state);
-		UINT countTriggers( std::pair<UINT, UINT> which, UINT variation, UINT seqNum );
+		UINT countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum );
 		bool getDefaultTtl( DioRows::which row, UINT column);
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );
@@ -113,14 +113,15 @@ class DioSystem
 		std::vector<std::vector<double>> getFinalTimes( );
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
 		void updatePush( DioRows::which row, UINT col );
-		vec<vec<vec<DioSnapshot>>> getSnapshots( );
-		vec<vec<std::array<ftdiPt, 2048>>> getFtdiSnaps( );
-		vec<vec<vec<WORD>>> getFinalViewpointData( );
-		vec<vec<finBufInfo>> getFinalFtdiData( );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getViewpointSafemode ( );
 		allDigitalOutputs& getDigitalOutputs();
 		void interpretKey ( vec<vec<parameterType>>& params );
+		ExpWrap<vec<DioSnapshot>> getTtlSnapshots ( );
+		ExpWrap<vec<WORD>> getFinalViewpointData ( );
+		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
+		ExpWrap<finBufInfo> getFinalFtdiData ( );
+
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
@@ -147,17 +148,15 @@ class DioSystem
 		allDigitalOutputs outputs;
 		// tells whether the hold button is down or not.
 		bool holdStatus;
-		// Each element of first vector is for each variation.
 		vec<vec<DioCommandForm>> ttlCommandFormList;
-		vec<vec<vec<DioCommand>>> ttlCommandList;
-		vec<vec<vec<DioSnapshot>>> ttlSnapshots, loadSkipTtlSnapshots;
-		vec<vec<vec<std::array<WORD, 6>>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
+		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
+		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		vec<vec<vec<WORD>>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
-		// ftdiSnaps[seqNum][variationNum][snapshotNum]
-		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps;
-		vec<vec<finBufInfo>> finFtdiBuffers;
-		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps_loadSkip;
-		vec<vec<finBufInfo>> finFtdiBuffers_loadSkip;
+		ExpWrap<vec<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
+		// ftdi equivalents...
+		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;
+		ExpWrap<finBufInfo> finFtdiBuffers;
+		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps_loadSkip;
+		ExpWrap<finBufInfo> finFtdiBuffers_loadSkip;
 };
 
