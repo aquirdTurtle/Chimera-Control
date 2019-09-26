@@ -16,6 +16,7 @@ class Expression
 		double evaluate( std::vector<parameterType>& variables = std::vector<parameterType>( ), UINT variation=-1 );
 		static std::vector<std::string> splitString( std::string workingString );
 		std::string expressionStr;
+		//Expression& operator=( const std::string& expr );
 		bool varies( );
 
 		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ), UINT variation = -1 );

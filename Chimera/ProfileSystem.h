@@ -117,7 +117,8 @@ class ProfileSystem
 		// Version 4.3: Refactored parameter system range structure to include range info separate for each dimension.
 		// Version 4.4: added software accumulation picture options
 		// Version 4.5: Added DDS system to save.
-		const Version version = Version( "4.5" );
+		// Version 4.6: Added Piezo System 1 to save.
+		const Version version = Version( "4.6" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

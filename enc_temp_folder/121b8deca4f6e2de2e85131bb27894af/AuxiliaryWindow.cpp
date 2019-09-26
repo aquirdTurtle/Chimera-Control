@@ -1589,7 +1589,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
 		configParameters.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
 									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
-		dds.initialize ( controlLocation, toolTips, this, id, "DDS SYSTEM" );
+		dds.initialize ( controlLocation, toolTips, this, id, "DDS System" );
 		piezo1.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO1_PROGRAM_NOW, 
 			{ "Top-x", "Top-y", "Axial-y" } );
 		controlLocation.x += 240;

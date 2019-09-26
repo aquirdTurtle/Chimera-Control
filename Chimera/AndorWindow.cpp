@@ -1196,24 +1196,15 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
-	if ( input.masterInput )
+	std::vector<double> dummyKey;
+	// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
+	// a long time this could crash...  TODO take care of this!
+	dummyKey.resize( input.masterInput->numVariations );
+	input.plotterInput->key = dummyKey;
+	UINT count = 0;
+	for ( auto& e : input.plotterInput->key )
 	{
-		// this line makes the ordering of different parts of the experiment tricky and annoying. If master is running
-		// then it needs to have figured out variables at some level before this function runs.
-		input.plotterInput->key = ParameterSystem::getKeyValues( input.masterInput->parameters[0] );
-	}
-	else
-	{
-		std::vector<double> dummyKey;
-		// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
-		// a long time this could crash...  TODO take care of this!
-		dummyKey.resize( 100 );
-		input.plotterInput->key = dummyKey;
-		UINT count = 0;
-		for ( auto& e : input.plotterInput->key )
-		{
-			e = count++;
-		}
+		e = count++;
 	}
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );

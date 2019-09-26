@@ -9,6 +9,8 @@
 
 #define GLOBAL_PARAMETER_SCOPE "global"
 #define PARENT_PARAMETER_SCOPE "parent"
+#define PIEZO_PARAMETER_SCOPE "piezo"
+#define DDS_PARAMETER_SCOPE "dds"
 #define NO_PARAMETER_SCOPE "__NO__"
 
 // individual to a given parameter.

@@ -5,6 +5,7 @@
 
 #include "constants.h"
 #include "MasterManager.h" 
+#include "PiezoController.h"
 #include "DioSystem.h"
 #include "AoSystem.h"
 #include "ParameterSystem.h"
@@ -66,6 +67,7 @@ class AuxiliaryWindow : public CDialog
 		void OnPaint( );
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
+		std::vector<PiezoCore* > getPiezoControllers ( );
 		std::vector<servoInfo> getServoinfo ( );
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
@@ -74,6 +76,8 @@ class AuxiliaryWindow : public CDialog
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
+		void programPiezo1 ( );
+		void programPiezo2 ( );
 		void handleTtlPush(UINT id);
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
@@ -191,6 +195,8 @@ class AuxiliaryWindow : public CDialog
 		ColorBox boxes;
 		ParameterSystem configParameters, globalParameters;
 		DdsSystem dds;
+		
+		PiezoController piezo1, piezo2;
 
 		ColorBox statusBox;
 };
