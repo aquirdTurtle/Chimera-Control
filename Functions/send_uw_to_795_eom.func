@@ -1,0 +1,4 @@
+def send_uw_to_795_eom():
+  off: eoswitch
+  % set this to on to redirect any leakage to raman eom instead of uw horn.
+  on: eoswitch2

@@ -15,6 +15,7 @@
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <regex>
 
 MasterManager::MasterManager() {}
@@ -1390,7 +1391,8 @@ bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, 
 	}
 	// calling a user-defined function. Get the name and the arguments to pass to the function handler.
 	std::string functionCall, functionName, functionArgs;
-	functionCall = stream.getline( '\r' );
+	functionCall = stream.getline( '\n' );
+	boost::erase_all ( functionCall, "\r" );
 	int pos = functionCall.find_first_of( "(" ) + 1;
 	int finalpos2 = functionCall.find_last_of( ")" );
 	int finalpos = functionCall.find_last_of( ")" );

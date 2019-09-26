@@ -1,0 +1,13 @@
+
+
+hold loadingDepth 1 onceWaitTrig # 
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth coolingDepth 1 onceWaitTrig # 
+ramp lin coolingDepth 2 1 once # 
+ramp lin 2 dropDepth 1 onceWaitTrig # 
+ramp lin dropDepth 2 1 once # 
+ramp lin 2 imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth loadingDepth 1 once # 
+
+ 
+

@@ -1,22 +1,16 @@
 % free space grey molasses
 def inTrapGreyMolasses():
   % settings
-  var grey_detuning 2
-  var D1twoToTwopPower -1.5
-  var repump_Power 0.3
-  var repump_Freq -0.55
-  var cooling_time 5
-  var D1SidemotPow 0.1
-  var rsfreq -0.15
-  var rspow 2
+  var D1twoToTwopPower -1.8
+  var cooling_time 20
+  var D1SidemotPow 0.27
+  var rsfreq -0.05
+  var rsPow 2
   % init system
-  daclinspace: freq795 0 grey_detuning 2 10
-  dac: freq795 grey_detuning 
   off: diagMotRf
   off: sideMotRf
   off: repumpRf
-  % rsg: (6.834682 + rsfreq*0.001) rspow 
-  t += 2.01
+  rsg: (6.834682 + rsfreq*0.001) rspow 
   dac: power795 D1twoToTwopPower
   dac: side795pow D1SidemotPow
   dac: diag795pow 0.3
@@ -25,8 +19,7 @@ def inTrapGreyMolasses():
   
   call d1greyInTrapPgcFields()
 
-  off: eoswitch
-  off: eoswitch2
+  call send_uw_to_795_eom()
   on: rf795
   t += cooling_time 
   off: rf795
@@ -34,9 +27,6 @@ def inTrapGreyMolasses():
   pulseon: rsTrig 0.1
   pulseon: a15 0.1 
   t += 0.1
-  %dac: freq795 0
-  daclinspace: freq795 grey_detuning 0 2 10
-  t += 2.01
 
 
 

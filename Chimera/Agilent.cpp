@@ -445,7 +445,8 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 		default:
 			thrower ( "unrecognized agilent setting: " + AgilentChannelMode::toStr(settings.channel[chan].option));
 	}
-	if ( chan == 0 )
+	currentChannel = chan+1;
+	if ( currentChannel == 1 )
 	{
 		channel1Button.SetCheck( true );
 		channel2Button.SetCheck( false );

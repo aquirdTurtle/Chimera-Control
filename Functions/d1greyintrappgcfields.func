@@ -2,19 +2,26 @@ def D1GreyInTrapPgcFields():
 
   dac: motGradientCurrent 0
 
-  var left_field -0.7352
-  var right_field 0.0903
-  var top_field 2.304
-  var bot_field -1.711 % 
-  var front_field -0.686
-  var back_field 0.512
+  %var left_field -0.7352
+  %var right_field 0.0903
+  %var top_field 2.304
+  %var bot_field -1.711 % 
+  %var front_field -0.686
+  %var back_field 0.512
+  var left_field -0.41284
+  var right_field 0.41284
+  var top_field 2.0216
+  var bot_field -2.0216 
+  var front_field -0.5523
+  var back_field 0.5523
 
+  var dField 0
   dac: leftCoilCurrent left_field 
   dac: rightCoilCurrent right_field 
   dac: topCoilCurrent top_field 
-  dac: bottomCoilCurrent  bot_field 
-  dac: frontCoilCurrent front_field 
-  dac: backCoilCurrent back_field 
+  dac: bottomCoilCurrent bot_field 
+  dac: frontCoilCurrent (front_field - dField)
+  dac: backCoilCurrent (back_field + dField)
   
   var greyLoadFieldTime 2.01
   t += greyLoadFieldTime 

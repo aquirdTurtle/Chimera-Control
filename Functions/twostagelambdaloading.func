@@ -1,88 +1,46 @@
-% Master-Script See the "?" for info on commands.
-
-def twoStageLambdaLoading():
-
-  var initDetuning 0.6
-
-  var finDetuning 0.5
-
-  var init795Power -0.15
-
-  var fin795Power -0.2
-
-  var initTime 100
-
-  var finTime 5
-
-  % in MHz
-
-  var rsfreq -0.2
-
-  var rspow 2
-
-  % the 795 is still off at this point.
-
-  dac: power795 init795Power 
-
-  rsg: (6.834682 + rsfreq*0.001) rspow
-
-  t += 4.01
-
-  off: diagMotRf
-
-  off: sideMotRf
-
-  off: repumpRf
-
-  dac: side795pow 0.3
-
-  dac: diag795pow 0.3
-
-  dac: diagMotPower 0
-
-  dac: sideMotPower 0
-
-  on: tweezerRf
-
-  call d1greyLoadFields()
-
-  off: eoswitch
-
-  off: eoswitch2
-
-  on: rf795
-
-  % stage 1
-
-  t += initTime
-
-  dac: power795 fin795Power 
-
-  pulseon: tweezerIntensityTrig 0.1
-
-  % stage 2
-
-  t += finTime
-
-  off: rf795
-
-  off: repumpRf
-
-  %on: C3
-
-  pulseon: a15 0.1
-
-  t += 0.1
-
-  %off: C3
-
-  t += 0.5
-
-  %dac: freq795 0
-
-  t += 4.01
-
-
-
-
-
+% Master-Script See the "?" for info on commands.
+def twoStageLambdaLoading():
+  var initDetuning 0.6
+  var finDetuning 0.5
+  var init795Power -0.15
+  var fin795Power -0.2
+  var initTime 100
+  var finTime 5
+  % in MHz
+  var rsfreq -0.2
+  var rspow 2
+  % the 795 is still off at this point.
+  dac: power795 init795Power 
+  rsg: (6.834682 + rsfreq*0.001) rspow
+  t += 4.01
+  off: diagMotRf
+  off: sideMotRf
+  off: repumpRf
+  dac: side795pow 0.3
+  dac: diag795pow 0.3
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  on: tweezerRf
+  call d1greyLoadFields()
+  off: eoswitch
+  off: eoswitch2
+  on: rf795
+  % stage 1
+  t += initTime
+  dac: power795 fin795Power 
+  pulseon: tweezerIntensityTrig 0.1
+  % stage 2
+  t += finTime
+  off: rf795
+  off: repumpRf
+  %on: C3
+  pulseon: a15 0.1
+  t += 0.1
+  %off: C3
+  t += 0.5
+  %dac: freq795 0
+  t += 4.01
+
+
+
+
