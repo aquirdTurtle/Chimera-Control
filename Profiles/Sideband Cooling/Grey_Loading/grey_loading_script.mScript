@@ -2,6 +2,7 @@
 % Time starts at 1 ms.
 t = 0.1
 pulseon: dds_reset 0.1
+on: shutter795
 on: A6 %tweezers on
 t += 1
 call turnonmot()

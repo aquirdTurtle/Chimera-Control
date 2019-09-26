@@ -12,7 +12,7 @@ def pump2F1():
   var depumpfreq 0.5
   daclinspace: motFreq defaultMotFreq depumpFreq 1 10
   t += 1.1
-  var pumpTime 5
+  var pumpTime 50
   on: sigmaopRf
   off: sidemotrf
   t += pumpTime

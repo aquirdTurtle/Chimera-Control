@@ -5,14 +5,17 @@ def setQuantAxis():
   var rotateFieldTime 3
 
   % total time = 0. This function is for doing pgc.
-  var left_field 3.6461
-  var right_field -2.7361
+  %var left_field 3.6461
+  %var right_field -2.7361
+  var dfield 0
+  var left_field 3.1911
+  var right_field -3.1911
   var top_field 1.8758
   var bot_field -1.915
   var front_field -0.4055
   var back_field 0.6063
-  dac: leftCoilCurrent left_field 
-  dac: rightCoilCurrent right_field 
+  dac: leftCoilCurrent (left_field + dfield)
+  dac: rightCoilCurrent (right_field + dfield)
   dac: topCoilCurrent top_field 
   dac: bottomCoilCurrent bot_field 
   dac: frontCoilCurrent front_field 

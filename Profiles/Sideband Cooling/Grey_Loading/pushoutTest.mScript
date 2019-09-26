@@ -1,44 +1,33 @@
 % Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
 t = 0.1
-off: c12
-on: A6 %tweezers on
-%dac: piezomirror piezoval
+on: tweezerrf
+off: axialRamanShutter 
+on: shutter795
+off: probeShutter 
+pulseon: dds_reset 1.1
 t += 1
 call turnonmot()
 t += loadmottime
 pulseon: scoutTrig 0.1
 t += 2
-%call twostagelambdaloading()
-%call pgcLoading()
 call D1GreyLambdaLoading()
 t += 20
-pulseon: tweezerIntensityTrig 0.1
-t += 0.1
+pulseon: tweezerIntensityTrig 0.1 
+pulseon: dds_step 5
 call pgcAtomFlashingImage()
 t += 0.1
-%call intrapgreymolasses()
-call intrappgc()
-t += 0.1
+call intrapgreymolasses()
 pulseon: tweezerIntensityTrig 0.1
-t += 0.1
-%call pump2F1()
-%t += 0.1
-call pump2stretch()
-
-pulseon: tweezerIntensityTrig 0.1
-t += 0.1
+t += 10.1
+call pump2f1() 
+t += waitTime
 call pushout()
-
 pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
-
-%call pushout_all()
-t += 10.1
-%call zeroFields()
-t += 1
+t += 11.1
 call pgcAtomFlashingImage()
 t += 1
 pulseon: tweezerIntensityTrig 0.1
 t += 1
+ 

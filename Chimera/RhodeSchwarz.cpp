@@ -14,7 +14,6 @@ std::string RhodeSchwarz::getIdentity()
 	return gpibFlume.queryIdentity();
 }
 
-
 /*
  * The controls in this class only display information about what get's programmed to the RSG. They do not
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
@@ -182,6 +181,27 @@ void RhodeSchwarz::addFrequency(rsgEventForm info)
 	eventForms.push_back( info );
 }
 
+void RhodeSchwarz::setFmSettings ( )
+{
+	gpibFlume.send ( "SOURCE:PM1:STATe OFF" );
+	gpibFlume.send ( "SOURCE:FM:MODE NORMal" );
+	gpibFlume.send ( "SOURCE:FM:RATio 100PCT" );
+	gpibFlume.send ( "SOURCE:FM1:SOURce EXT1" );
+	gpibFlume.send ( "SOURCE:FM1:DEViation 20kHz" ); 
+	gpibFlume.send ( "SOURCE:FM1:STATe ON" );
+}
+
+
+void RhodeSchwarz::setPmSettings ( )
+{
+	gpibFlume.send ( "SOURCE:FM1:STATe OFF" );
+	gpibFlume.send ( "SOURCE:PM:MODE HDEViation" );
+	gpibFlume.send ( "SOURCE:PM:RATio 100PCT" );
+	gpibFlume.send ( "SOURCE:PM1:SOURce EXT1" );
+	gpibFlume.send ( "SOURCE:PM1:DEViation 6.28RAD" );
+	gpibFlume.send ( "SOURCE:PM1:STATe ON" );
+}
+
 
 void RhodeSchwarz::programRsg( UINT variationNumber )
 {
@@ -190,32 +210,36 @@ void RhodeSchwarz::programRsg( UINT variationNumber )
 		// nothing to do.
 		return;
 	}
-	else if (events[variationNumber].size() == 1)
-	{
-		gpibFlume.send( "OUTPUT ON" );
-		gpibFlume.send( "SOURce:FREQuency:MODE CW" );
-		gpibFlume.send( "FREQ " + str( events[variationNumber][0].frequency, 13 ) + " GHz" );
-		gpibFlume.send( "POW " + str( events[variationNumber][0].power, 13 ) + " dBm" );
-		gpibFlume.send( "OUTP ON" );
-	}
 	else
 	{
-		gpibFlume.send( "OUTP ON" );
-		gpibFlume.send( "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
-		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[variationNumber][0].frequency, 13 ) + " GHz";
-		std::string powerList = "SOURce:LIST:POW " + str( events[variationNumber][0].power, 13 ) + "dBm";
-		for (UINT eventInc = 1; eventInc < events[variationNumber].size(); eventInc++)
+		setPmSettings ( );
+		if ( events[ variationNumber ].size ( ) == 1 )
 		{
-			frequencyList += ", ";
-			frequencyList += str( events[variationNumber][eventInc].frequency, 13 ) + " GHz";
-			powerList += ", ";
-			powerList += str( events[variationNumber][eventInc].power, 13 ) + "dBm";
+			gpibFlume.send ( "OUTPUT ON" );
+			gpibFlume.send ( "SOURce:FREQuency:MODE CW" );
+			gpibFlume.send ( "FREQ " + str ( events[ variationNumber ][ 0 ].frequency, 13 ) + " GHz" );
+			gpibFlume.send ( "POW " + str ( events[ variationNumber ][ 0 ].power, 13 ) + " dBm" );
+			gpibFlume.send ( "OUTP ON" );
 		}
-		gpibFlume.send( cstr(frequencyList) );
-		gpibFlume.send( cstr(powerList));
-		gpibFlume.send( "SOURce:LIST:MODE STEP" );
-		gpibFlume.send( "SOURce:LIST:TRIG:SOURce EXT" );
-		gpibFlume.send( "SOURce:FREQ:MODE LIST" );
+		else
+		{
+			gpibFlume.send ( "OUTP ON" );
+			gpibFlume.send ( "SOURce:LIST:SEL 'freqList" + str ( events.size ( ) ) + "'" );
+			std::string freqList = "SOURce:LIST:FREQ " + str ( events[ variationNumber ][ 0 ].frequency, 13 ) + " GHz";
+			std::string powerList = "SOURce:LIST:POW " + str ( events[ variationNumber ][ 0 ].power, 13 ) + "dBm";
+			for ( UINT eventInc = 1; eventInc < events[ variationNumber ].size ( ); eventInc++ )
+			{
+				freqList += ", ";
+				freqList += str ( events[ variationNumber ][ eventInc ].frequency, 13 ) + " GHz";
+				powerList += ", ";
+				powerList += str ( events[ variationNumber ][ eventInc ].power, 13 ) + "dBm";
+			}
+			gpibFlume.send ( cstr ( freqList ) );
+			gpibFlume.send ( cstr ( powerList ) );
+			gpibFlume.send ( "SOURce:LIST:MODE STEP" );
+			gpibFlume.send ( "SOURce:LIST:TRIG:SOURce EXT" );
+			gpibFlume.send ( "SOURce:FREQ:MODE LIST" );
+		}
 	}
 }
 

@@ -15,10 +15,11 @@ t += 20
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 call pgcAtomFlashingImage()
-t += 1
+t += 10
 call inTrapPgc()
 t += 80
 call pgcAtomFlashingImage()
 t += 1
 pulseon: tweezerIntensityTrig 0.1
+
 t += 1

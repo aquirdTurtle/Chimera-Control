@@ -1,48 +1,24 @@
-% simple load experiment
-
-t = 1
-
-call turnonmot()
-
-t += 2000
-
-% turn off the relevant lasers and field to not distrub the mot as it drops.
-
-off: diagMotRf
-
-off: sideMotRf
-
-off: repumpRf
-
-dac: motGradientCurrent 0
-
-
-
-% wait for the drop
-
-t += MotDropTime 
-
-dac: motFreq motImagingDetuning
-
-% image
-
-on: diagMotRf
-
-on: sideMotRf
-
-on: repumpRf
-
-call triggerScout()
-
-t += 1
-
-% make sure that the mot drops all the way for 
-
-% consistency between experiments.
-
-t += 50
-
-call turnOnMot()
-
-t += 1
-
+% simple load experiment
+t = 1
+call turnonmot()
+t += 2000
+% turn off the relevant lasers and field to not distrub the mot as it drops.
+off: diagMotRf
+off: sideMotRf
+off: repumpRf
+dac: motGradientCurrent 0
+
+% wait for the drop
+t += MotDropTime 
+dac: motFreq motImagingDetuning
+% image
+on: diagMotRf
+on: sideMotRf
+on: repumpRf
+call triggerScout()
+t += 1
+% make sure that the mot drops all the way for 
+% consistency between experiments.
+t += 50
+call turnOnMot()
+t += 1

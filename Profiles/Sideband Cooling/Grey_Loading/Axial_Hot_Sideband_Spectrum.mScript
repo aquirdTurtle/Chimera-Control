@@ -1,0 +1,40 @@
+% Master-Script See the "?" for info on commands.
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter 
+off: axialRamanRf
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadMotTime
+pulseon: scoutTrig 0.1
+t += 2
+call D1GreyLambdaLoading()
+t += 20
+pulseon: tweezerIntensityTrig 0.1 % to imagingDepth 
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+t += 0.1
+on: axialRamanShutter  
+call intrapgreymolasses()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1 % to RamanDepth
+t += 0.1
+call pump2stretch()
+%pulseon: tweezerIntensityTrig 0.1
+rsg: (6.83103 + uw_mod/1000000) 5
+call axialRamanPulse()
+off: axialRamanShutter 
+% pulseon: tweezerIntensityTrig 0.1
+call pushout()
+pulseon: tweezerIntensityTrig 0.1
+t += 25
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+pulseon: rsTrig 0.1
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2
+

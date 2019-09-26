@@ -1,0 +1,34 @@
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 0.1
+off: c12
+on: A6 %tweezers on
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
+call D1GreyLambdaLoading()
+%pulseon: dds_step 5
+%t += 10
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+call pgcAtomFlashingImage()
+t += 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call inTrapPgc()
+t += 0.1
+var waitTime 0
+
+pulseon: tweezerIntensityTrig 0.1
+t += 2
+t += waitTime
+pulseon: tweezerIntensityTrig 0.1
+t += 10.1
+call pgcAtomFlashingImage()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+ 

@@ -33,17 +33,19 @@ class RhodeSchwarz
 	public:
 		RhodeSchwarz();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
-		void programRsg(UINT variation );
+		void programRsg( UINT variation );
 		void addFrequency( rsgEventForm eventInfo );
 		void clearFrequencies();
 		std::vector<rsgEventForm> getFrequencyForms();
-		void interpretKey(std::vector<std::vector<parameterType>>& variables);
-		void orderEvents(UINT variation );
-		void setInfoDisp(UINT variation );
+		void interpretKey( std::vector<std::vector<parameterType>>& variables);
+		void orderEvents( UINT variation );
+		void setInfoDisp( UINT variation );
+		void setFmSettings ( );
+		void setPmSettings ( );
 		std::string getIdentity();
 		std::string getRsgTtl();
 		double getTriggerLength();
-		void rearrange(UINT width, UINT height, fontMap fonts);
+		void rearrange( UINT width, UINT height, fontMap fonts);
 	private:
 		GpibFlume gpibFlume;
 		std::vector<rsgEventForm> eventForms;
