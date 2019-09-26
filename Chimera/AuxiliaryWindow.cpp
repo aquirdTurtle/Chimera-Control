@@ -24,7 +24,8 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
 		ttlBoard ( true, true, DIO_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
-		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE )
+		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
+	piezo1(PIEZO1_SAFEMODE, "COM4", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO2_SAFEMODE, "com?", "PIEZO_CONTROLLER_2" )
 {}
 
 
@@ -57,6 +58,10 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
 	ON_COMMAND( IDC_DDS_PROGRAM_NOW, &programDds )
+	ON_COMMAND( IDC_PIEZO1_PROGRAM_NOW, &programPiezo1 )
+	ON_COMMAND( IDC_PIEZO2_PROGRAM_NOW, &programPiezo2 )
+	ON_COMMAND ( IDC_PIEZO1_CTRL, &handlePiezo1Ctrl)
+	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 
 	ON_MESSAGE ( MainWindow::AutoServoMessage, &autoServo )
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
@@ -102,6 +107,54 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::handlePiezo1Ctrl ( )
+{
+	try
+	{
+		piezo1.updateCtrl ( );
+	}
+	catch ( Error& err)
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
+
+void AuxiliaryWindow::handlePiezo2Ctrl ( )
+{
+	try
+	{
+		piezo2.updateCtrl ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
+
+void AuxiliaryWindow::programPiezo1 ( )
+{
+	try
+	{
+		piezo1.handleProgramNowPress ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
+void AuxiliaryWindow::programPiezo2 ( )
+{
+	try
+	{
+		piezo2.handleProgramNowPress ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
 
 
 void AuxiliaryWindow::programDds ( )
@@ -247,7 +300,7 @@ void AuxiliaryWindow::autoOptimize ( )
 }
 
 
-void AuxiliaryWindow::updateOptimization ( ExperimentInput input )
+void AuxiliaryWindow::updateOptimization ( AllExperimentInput input )
 {
 	optimizer.verifyOptInput ( input );
 	dataPoint resultValue = camWin->getMainAnalysisResult ( );
@@ -302,7 +355,6 @@ LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 	aiSys.refreshCurrentValues( );
 	aiSys.refreshDisplays( );
 	camWin->writeVolts( wp, aiSys.getCurrentValues() );
-
 	return TRUE;
 }
 
@@ -472,6 +524,11 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 	{
 		OnPaint( );
 	}
+	if ( eventID == 1000 )
+	{
+		piezo1.updateCurrentValues ( );
+		piezo2.updateCurrentValues ( );
+	}
 	else
 	{
 		for ( auto& agilent : agilents )
@@ -529,16 +586,13 @@ void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 	try
 	{
 		sendStatus( "Loading Camera-Cal Config...\r\n" );
-		input->auxWin = this;
 		input->quiet = true;
-		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. This calibration shouldn't depend on config variables.
 		input->parameters.clear( );
 		input->parameters.push_back( globalParameters.getAllParams( ) );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		// Only do this once of course.
-		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;
 		input->runNiawg = false;
@@ -571,7 +625,7 @@ TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
 }
 
 
-RhodeSchwarz& AuxiliaryWindow::getRsg ( )
+RohdeSchwarz& AuxiliaryWindow::getRsg ( )
 {
 	return RhodeSchwarzGenerator;
 }
@@ -602,6 +656,15 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 	{
 		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
 	}
+}
+
+
+std::vector<PiezoCore* > AuxiliaryWindow::getPiezoControllers ( )
+{
+	std::vector<PiezoCore* > controllers;
+	controllers.push_back ( &piezo1.getCore( ) );
+	controllers.push_back ( &piezo2.getCore( ) );
+	return controllers;
 }
 
 
@@ -640,6 +703,8 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	topBottomTek.handleSaveConfig( saveFile );
 	eoAxialTek.handleSaveConfig( saveFile );
 	dds.handleSaveConfig ( saveFile );
+	piezo1.handleSaveConfig ( saveFile );
+	piezo2.handleSaveConfig ( saveFile );
 }
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
@@ -675,6 +740,8 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		{
 			ProfileSystem::standardOpenConfig ( configFile, dds.getDelim(), &dds, Version ( "4.5" ) );
 		}
+		ProfileSystem::standardOpenConfig ( configFile, piezo1.getConfigDelim(), &piezo1, Version ( "4.6" ) );
+		ProfileSystem::standardOpenConfig ( configFile, piezo2.getConfigDelim ( ), &piezo2, Version ( "4.6" ) );
 	}
 	catch ( Error& )
 	{
@@ -903,6 +970,8 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	optimizer.rearrange ( cx, cy, getFonts ( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
+	piezo1.rearrange ( cx, cy, getFonts ( ) );
+	piezo2.rearrange ( cx, cy, getFonts ( ) );
 	SetRedraw();
 	RedrawWindow();
 }
@@ -1023,9 +1092,7 @@ void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 {
 	try
 	{
-		input->auxWin = this;
 		input->quiet = true;
-		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		/// variables.
 		std::vector<std::vector<parameterType>> experimentVars;
@@ -1046,8 +1113,7 @@ void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
 		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
 		input->parameters = experimentVars;
 		///
-		// Only set it once, clearly. ??? - for temperature???
-		input->repetitionNumber = 1;
+		// Only set it once, clearly.
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;
 		input->runNiawg = false;
@@ -1066,9 +1132,7 @@ void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
 	try
 	{
 		sendStatus("Loading MOT Configuration...\r\n" );
-		input->auxWin = this;
 		input->quiet = true;
-		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->parameters.clear( );
@@ -1076,7 +1140,6 @@ void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
 		input->variableRangeInfo.defaultInit ( );
 		input->variableRangeInfo(0,0).variations = 1;
 		// Only set it once, clearly.
-		input->repetitionNumber = 1;
 		input->intensityAgilentNumber = -1;
 		input->runMaster = true;
 		input->runNiawg = false;
@@ -1117,7 +1180,6 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	try
 	{
-		input->auxWin = this;
 		input->dacData = dacData;
 		input->ttlData = ttlData;
 		/// Parameters.
@@ -1553,10 +1615,15 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
 		configParameters.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
 									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
-		dds.initialize ( controlLocation, toolTips, this, id, "DDS System" );
-
+		dds.initialize ( controlLocation, toolTips, this, id, "DDS SYSTEM" );
+		piezo1.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO1_PROGRAM_NOW, 
+			{ "Top-x", "Top-y", "Axial-y" }, IDC_PIEZO1_CTRL );
+		controlLocation.x += 240;
+		controlLocation.y -= 85;
+		piezo2.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO2_PROGRAM_NOW, 
+		{ "EO-x", "EO-y", "Axial-x" }, IDC_PIEZO2_CTRL );
 		configParameters.setParameterControlActive( false );
-
+		controlLocation.x -= 240;
 		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalParameters );
 		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
@@ -1641,6 +1708,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	}
 	SetTimer( 1, 10000, NULL );
 	SetTimer( 2, 1000, NULL );
+	// piezo 1 update
+	SetTimer ( 1000, 1000, NULL );
 
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
@@ -1691,6 +1760,20 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	else
 	{
 		msg += "\tDDS System is disabled! Enable in \"constants.h\"\n";
+	}
+	msg += "Piezo System:\n";
+	if ( !PIEZO1_SAFEMODE )
+	{
+		msg += "\tPiezo System is Active!\n";
+		msg += "\tDevice List: " + piezo1.getPiezoDeviceList ( ) + "\n";
+		msg += "\t Device Info:\n" + str("\t\t");
+		msg += piezo1.getDeviceInfo ( ) + "\n";
+		msg += piezo2.getDeviceInfo ( ) + "\n";
+		msg += "- End Dev Info";
+	}
+	else
+	{
+		msg += "\tPiezo System is disabled! Enable in \"constants.h\"\n";
 	}
 	return msg;
 }

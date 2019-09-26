@@ -13,12 +13,13 @@ class Repetitions
 		void initialize(POINT& pos, cToolTips& toolTips, CWnd* mainWin, int& id );
 		void setRepetitions(UINT number);
 		unsigned int getRepetitionNumber();
+		static UINT getRepsFromConfig ( std::ifstream& openFile, Version ver );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void updateNumber(long repNumber);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig ( std::ifstream& openFile, Version ver );
+		//void handleOpenConfig ( std::ifstream& openFile, Version ver );
 	private:
 		UINT repetitionNumber;
 		Control<CEdit> repetitionEdit;

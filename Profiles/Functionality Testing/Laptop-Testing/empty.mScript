@@ -9,41 +9,7 @@ dac: dac2 1
 t += 1
 dac: dac2 2
 t += 1
-dac: dac2 3
-t += 1
-dac: dac2 4
-t += 1
-dac: dac2 5
-t += 1
-dac: dac2 6
-       t += 1
 dac: dac2 7
-       t += 1
-dac: dac2 8
-       t += 1
-dac: dac2 9
-       t += 1
-dac: dac2 10
-       t += 1
-dac: dac2 -1
-       t += 1
-dac: dac2 -2
-       t += 1
-dac: dac2 -3
-       t += 1
-dac: dac2 -4
-       t += 1
-dac: dac2 -5
-       t += 1
-dac: dac2 -6
-       t += 1
-dac: dac2 -7
-       t += 1
-dac: dac2 -8
-       t += 1
-dac: dac2 -9
-       t += 1
-dac: dac2 -10
 t += 1
 dac: dac9 0
 t += 1

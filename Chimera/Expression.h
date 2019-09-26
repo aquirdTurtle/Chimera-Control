@@ -16,11 +16,11 @@ class Expression
 		double evaluate( std::vector<parameterType>& variables = std::vector<parameterType>( ), UINT variation=-1 );
 		static std::vector<std::string> splitString( std::string workingString );
 		std::string expressionStr;
+		//Expression& operator=( const std::string& expr );
 		bool varies( );
 
 		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ), UINT variation = -1 );
-
-		double getValue ( );
+		double getValue ( UINT variation );
 
 	private:
 		void doMultAndDiv( std::vector<std::string>& terms );
@@ -29,7 +29,7 @@ class Expression
 		void evaluateFunctions( std::vector<std::string>& terms );
 		bool expressionVaries = false;
 		std::string expressionScope;
-
-		double value;
+		std::vector<double> values;
+		//double value;
 };
 

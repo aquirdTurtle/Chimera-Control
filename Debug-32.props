@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)..\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\Anaconda3\include;C:\Program Files\Basler\pylon 5\Development\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)..\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\Anaconda3\include;C:\Program Files\Basler\pylon 5\Development\include;C:\ProgramData\Miniconda3\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;$(ProjectDir)..\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\lib;$(ProjectDir)..\Packages\32-Bit-Libs\DIO64;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\Python;$(ProjectDir)..\Packages\32-Bit-Libs\Debug\Andor;$(ProjectDir)..\Chimera;C:\Program Files\Basler\pylon 5\Development\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>

@@ -754,7 +754,6 @@ void AndorWindow::armCameraWindow()
 	ReleaseDC(dc);
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
-	double minKineticTime;
 	//Andor.armCamera( this, minKineticTime );
 	//CameraSettings.updateMinKineticCycleTime( minKineticTime );
 	mainWin->getComm()->sendColorBox(System::Camera, 'G');
@@ -1051,13 +1050,13 @@ void AndorWindow::handleMasterConfigOpen(std::stringstream& configStream, Versio
 }
 
 
-DataLogger* AndorWindow::getLogger()
+DataLogger& AndorWindow::getLogger()
 {
-	return &dataHandler;
+	return dataHandler;
 }
 
 
-void AndorWindow::loadCameraCalSettings( ExperimentInput& input )
+void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 {
 	redrawPictures( false );
 	try
@@ -1091,7 +1090,7 @@ AndorCamera& AndorWindow::getCamera ( )
 	return Andor;
 }
 
-void AndorWindow::prepareAndor( ExperimentInput& input )
+void AndorWindow::prepareAndor( AllExperimentInput& input )
 {
 	currentPictureNum = 0;
 	input.includesAndorRun = true;
@@ -1120,7 +1119,7 @@ void AndorWindow::prepareAndor( ExperimentInput& input )
 
 }
 
-void AndorWindow::prepareAtomCruncher( ExperimentInput& input )
+void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 {
 	input.cruncherInput = new atomCruncherInput;
 	input.cruncherInput->plotterActive = plotThreadActive;
@@ -1162,7 +1161,7 @@ void AndorWindow::prepareAtomCruncher( ExperimentInput& input )
 }
 
 
-void AndorWindow::startAtomCruncher(ExperimentInput& input)
+void AndorWindow::startAtomCruncher(AllExperimentInput& input)
 {
 	UINT atomCruncherID;
 	atomCruncherThreadHandle = (HANDLE)_beginthreadex( 0, 0, AndorWindow::atomCruncherProcedure,
@@ -1176,7 +1175,7 @@ bool AndorWindow::wantsAutoPause( )
 }
 
 
-void AndorWindow::preparePlotter( ExperimentInput& input )
+void AndorWindow::preparePlotter( AllExperimentInput& input )
 {
 	/// start the plotting thread.
 	plotThreadActive = true;
@@ -1197,24 +1196,15 @@ void AndorWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
-	if ( input.masterInput )
+	std::vector<double> dummyKey;
+	// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
+	// a long time this could crash...  TODO take care of this!
+	dummyKey.resize( input.masterInput->numVariations );
+	input.plotterInput->key = dummyKey;
+	UINT count = 0;
+	for ( auto& e : input.plotterInput->key )
 	{
-		// this line makes the ordering of different parts of the experiment tricky and annoying. If master is running
-		// then it needs to have figured out variables at some level before this function runs.
-		input.plotterInput->key = ParameterSystem::getKeyValues( input.masterInput->parameters[0] );
-	}
-	else
-	{
-		std::vector<double> dummyKey;
-		// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
-		// a long time this could crash...  TODO take care of this!
-		dummyKey.resize( 100 );
-		input.plotterInput->key = dummyKey;
-		UINT count = 0;
-		for ( auto& e : input.plotterInput->key )
-		{
-			e = count++;
-		}
+		e = count++;
 	}
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
@@ -1275,7 +1265,7 @@ UINT AndorWindow::getNoMotThreshold ( )
 }
 
 
-void AndorWindow::startPlotterThread( ExperimentInput& input )
+void AndorWindow::startPlotterThread( AllExperimentInput& input )
 {
 	bool gridHasBeenSet = false;
 	for ( auto gridInfo : input.plotterInput->grids )

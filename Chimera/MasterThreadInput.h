@@ -13,6 +13,7 @@
 #include "EmbeddedPythonHandler.h"
 #include "TektronicsControl.h"
 #include "MainOptionsControl.h"
+#include "PiezoCore.h"
 #include "Andor.h"
 
 #include "AndorRunSettings.h"
@@ -22,13 +23,14 @@
 #include "realTimePlotterInput.h"
 #include "baslerSettings.h"
 #include "DdsSystem.h"
-//#include "Andor.h"
+
 #include <chrono>
 #include <vector>
 #include <atomic>
 
 class AuxiliaryWindow;
 class MainWindow;
+class DataLogger;
 
 enum class ExperimentType
 {
@@ -55,7 +57,7 @@ struct ExperimentThreadInput
 	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
 	EmbeddedPythonHandler& python;
 	// for posting messages only!
-	AuxiliaryWindow* auxWin;
+	// AuxiliaryWindow* auxWin;
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem& ttls;
@@ -63,27 +65,28 @@ struct ExperimentThreadInput
 	AiSystem& aiSys;
 	AndorCamera& andorCamera;
 	DdsCore& dds;
-	UINT repetitionNumber;
-	
+	std::vector<PiezoCore*> piezoControllers;
 	ScanRangeInfo variableRangeInfo;
 	// believe outer layer here is for sequence increment
 	std::vector<std::vector<parameterType>> parameters;
 	MasterManager* thisObj;
 	Communicator& comm;
-	RhodeSchwarz& rsg;
+	RohdeSchwarz& rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
 	TektronicsAfgControl& topBottomTek;
 	TektronicsAfgControl& eoAxialTek;
 	ParameterSystem& globalControl;
 	NiawgController& niawg;
+	DataLogger& logger;
 	UINT intensityAgilentNumber;
+	UINT numVariations = 1;
 	bool quiet=false;
-	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
 	bool runAndor;
-	bool runDds = true;
+	bool logBaslerPics;
+	bool dontActuallyGenerate=false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;
@@ -98,13 +101,13 @@ struct ExperimentThreadInput
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
 
-	ExperimentType expType;
+	ExperimentType expType = ExperimentType::Normal;
 };
 
 
-struct ExperimentInput
+struct AllExperimentInput
 {
-	ExperimentInput::ExperimentInput( ) :
+	AllExperimentInput::AllExperimentInput( ) :
 		includesAndorRun( false ), masterInput( NULL ), plotterInput( NULL ), cruncherInput( NULL ) { }
 	ExperimentThreadInput* masterInput;
 	realTimePlotterInput* plotterInput;

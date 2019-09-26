@@ -58,42 +58,18 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 	std::string month;
 	switch ( timeStruct.tm_mon + 1 )
 	{
-		case 1:
-			month = "January";
-			break;
-		case 2:
-			month = "February";
-			break;
-		case 3:
-			month = "March";
-			break;
-		case 4:
-			month = "April";
-			break;
-		case 5:
-			month = "May";
-			break;
-		case 6:
-			month = "June";
-			break;
-		case 7:
-			month = "July";
-			break;
-		case 8:
-			month = "August";
-			break;
-		case 9:
-			month = "September";
-			break;
-		case 10:
-			month = "October";
-			break;
-		case 11:
-			month = "November";
-			break;
-		case 12:
-			month = "December";
-			break;
+		case 1:  month = "January";		break;
+		case 2:  month = "February";	break;
+		case 3:  month = "March";		break;
+		case 4:  month = "April";		break;
+		case 5:  month = "May";			break; 
+		case 6:  month = "June";		break;
+		case 7:  month = "July";		break;
+		case 8:  month = "August";		break; 
+		case 9:  month = "September";	break;
+		case 10: month = "October";		break; 
+		case 11: month = "November";	break;
+		case 12: month = "December";	break;
 	}
 	finalSaveFolder += month + "\\" + month + " " + str ( timeStruct.tm_mday );
 	todayFolder = finalSaveFolder;
@@ -131,7 +107,7 @@ specialName: optional, the name of the data file. This is a unique name, it will
 	for things like the mot size measurement or temperature measurements which are automated. The default is to use
 	data_ as the name and add an incrementing number at the end of it.
 */
-void DataLogger::initializeDataFiles( std::string specialName, bool needsCal )
+void DataLogger::initializeDataFiles( std::string specialName, bool checkForCalibrationFiles )
 {
 	// if the function fails, the h5 file will not be open. If it succeeds, this will get set to true.
 	fileIsOpen = false;
@@ -155,7 +131,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool needsCal )
 		fclose ( temperatureFile );
 	}
 	/// check that the mot calibration files have been recorded.
-	if ( needsCal )
+	if ( checkForCalibrationFiles )
 	{
 		for ( std::string fName : {"MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
 			  "GREY_MOLASSES_TEMPERATURE.h5"} )
@@ -564,21 +540,45 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 	catch ( H5::Exception err )
 	{
 		logError ( err );
+
 		throwNested ( "ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg( ) );
 	}
 }
 
+/*
+This function is for logging things that are read from the configuration file and otherwise obtained inside the main experiment thread.
+*/
+void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<std::vector<parameterType>> allParams)
+{
+	try
+	{
+		H5::Group runtimeGroup ( file.createGroup ( "/Master-Runtime" ) );
+		writeDataSet ( repNumber, "Repetitions", runtimeGroup );
+		UINT count = 0;
+		for ( auto& seqParams : allParams )
+		{
+			logParameters ( seqParams, runtimeGroup, count );
+			count++;
+		}
+	}
+	catch ( H5::Exception& err )
+	{
+		logError ( err );
+		throwNested ( "ERROR: Failed to log master runtime in HDF5 file: detail:" + err.getDetailMsg ( ) );
+	}
+}
 
-void DataLogger::logMasterParameters( ExperimentThreadInput* input )
+
+void DataLogger::logMasterInput( ExperimentThreadInput* input )
 {
 	try
 	{
 		if ( input == NULL )
 		{
-			H5::Group runParametersGroup( file.createGroup( "/Master-Parameters:NA" ) );
+			H5::Group runParametersGroup( file.createGroup( "/Master-Input:NA" ) );
 			return;
 		}
-		H5::Group runParametersGroup( file.createGroup( "/Master-Parameters" ) );
+		H5::Group runParametersGroup( file.createGroup( "/Master-Input" ) );
 		writeDataSet( input->runMaster, "Run-Master", runParametersGroup );
 		if ( input->runMaster )
 		{
@@ -598,13 +598,6 @@ void DataLogger::logMasterParameters( ExperimentThreadInput* input )
 			writeDataSet( "", "NA:Master-Script-File-Address", runParametersGroup );
 		}
 		logFunctions( runParametersGroup );
-		writeDataSet( input->repetitionNumber, "Repetitions", runParametersGroup );
-		UINT count = 0;
-		for ( auto& seqVariables : input->parameters )
-		{
-			logVariables( seqVariables, runParametersGroup, count );
-			count++;
-		}
 		logNiawgSettings( input );
 		logAgilentSettings( input->agilents );
 		logTektronicsSettings ( input->topBottomTek );
@@ -620,21 +613,21 @@ void DataLogger::logMasterParameters( ExperimentThreadInput* input )
 }
 
 
-void DataLogger::logVariables( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc )
+void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5::Group& group, UINT seqInc )
 {
-	H5::Group variableGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Variables" );
-	for ( auto& variable : variables )
+	H5::Group paramGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Parameters" );
+	for ( auto& param : parameters )
 	{
 		H5::DataSet varSet;
-		if ( variable.constant )
+		if ( param.constant )
 		{
-			varSet = writeDataSet( variable.constantValue, variable.name, variableGroup );
+			varSet = writeDataSet( param.constantValue, param.name, paramGroup );
 		}
 		else
 		{
-			varSet = writeDataSet( variable.keyValues, variable.name, variableGroup );
+			varSet = writeDataSet( param.keyValues, param.name, paramGroup );
 		}
-		writeAttribute( variable.constant, "Constant", varSet );
+		writeAttribute( param.constant, "Constant", varSet );
 	} 
 }
 

@@ -292,6 +292,9 @@
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
     <ClCompile Include="DdsCore.cpp" />
+    <ClCompile Include="PiezoFlume.cpp" />
+    <ClCompile Include="PiezoController.cpp" />
+    <ClCompile Include="PiezoCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -676,6 +679,9 @@
     </ClInclude>
     <ClInclude Include="ExpWrap.h" />
     <ClInclude Include="DdsCore.h" />
+    <ClInclude Include="PiezoFlume.h" />
+    <ClInclude Include="PiezoController.h" />
+    <ClInclude Include="PiezoCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

@@ -76,7 +76,6 @@ class MainWindow : public CDialog
 		void onGreyTempCalFin ( );
 		void onMachineOptRoundFin ( );
 		void handleThresholdAnalysis ( );
-
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( ExperimentThreadInput* input );
@@ -187,7 +186,7 @@ class MainWindow : public CDialog
 		NoteSystem notes;
 		DebugOptionsControl debugger;
 		Repetitions repetitionControl;
-		MainOptionsControl settings;
+		MainOptionsControl mainOptsCtrl;
 		StatusControl mainStatus;
 		StatusControl debugStatus;
 		StatusControl errorStatus;
