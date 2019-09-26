@@ -78,6 +78,8 @@ class AuxiliaryWindow : public CDialog
 		/// Message Map Functions
 		void programPiezo1 ( );
 		void programPiezo2 ( );
+		void handlePiezo1Ctrl ( );
+		void handlePiezo2Ctrl ( );
 		void handleTtlPush(UINT id);
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();

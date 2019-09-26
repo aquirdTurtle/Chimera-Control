@@ -60,6 +60,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_DDS_PROGRAM_NOW, &programDds )
 	ON_COMMAND( IDC_PIEZO1_PROGRAM_NOW, &programPiezo1 )
 	ON_COMMAND( IDC_PIEZO2_PROGRAM_NOW, &programPiezo2 )
+	ON_COMMAND ( IDC_PIEZO1_CTRL, &handlePiezo1Ctrl)
+	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 
 	ON_MESSAGE ( MainWindow::AutoServoMessage, &autoServo )
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
@@ -106,6 +108,30 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
 
+
+void AuxiliaryWindow::handlePiezo1Ctrl ( )
+{
+	try
+	{
+		piezo1.updateCtrl ( );
+	}
+	catch ( Error& err)
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
+
+void AuxiliaryWindow::handlePiezo2Ctrl ( )
+{
+	try
+	{
+		piezo2.updateCtrl ( );
+	}
+	catch ( Error& err )
+	{
+		sendErr ( err.trace ( ) );
+	}
+}
 
 void AuxiliaryWindow::programPiezo1 ( )
 {
@@ -1591,11 +1617,11 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
 		dds.initialize ( controlLocation, toolTips, this, id, "DDS SYSTEM" );
 		piezo1.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO1_PROGRAM_NOW, 
-			{ "Top-x", "Top-y", "Axial-y" } );
+			{ "Top-x", "Top-y", "Axial-y" }, IDC_PIEZO1_CTRL );
 		controlLocation.x += 240;
 		controlLocation.y -= 85;
 		piezo2.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO2_PROGRAM_NOW, 
-		{ "EO-x", "EO-y", "Axial-x" } );
+		{ "EO-x", "EO-y", "Axial-x" }, IDC_PIEZO2_CTRL );
 		configParameters.setParameterControlActive( false );
 		controlLocation.x -= 240;
 		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalParameters );

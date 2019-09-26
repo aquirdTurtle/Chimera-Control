@@ -39,6 +39,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	// outermost level is for each controller, 2nd level is for sequence number
 	std::vector<std::vector<piezoChan<Expression>>> piezoExpressions(input->piezoControllers.size(), 
 												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
+	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoControllers.size ( ),
+												   std::vector<bool> ( input->seq.sequence.size ( ) ));
 	// a couple shortcut aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
@@ -66,8 +68,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				for ( auto piezoInc : range(input->piezoControllers.size()))
 				{
 					auto res = ProfileSystem::standardGetFromConfig (
-						configFile, input->piezoControllers[ piezoInc ]->configDelim, PiezoCore::getPiezoValsFromConfig );
-					piezoExpressions[ piezoInc ][ seqNum ] = { Expression ( res.x ), Expression ( res.y ), Expression ( res.z ) };
+						configFile, input->piezoControllers[ piezoInc ]->configDelim, PiezoCore::getPiezoSettingsFromConfig );
+					piezoExpressions[ piezoInc ][ seqNum ] 
+						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
+					ctrlPztOptions[ piezoInc ][ seqNum ] = res.second;
 				}
 				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
@@ -241,9 +245,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		if ( useAuxDevices )
 		{
-			for ( auto& piezo : piezos )
+			for ( auto piezoInc : range(piezos.size()) )
 			{
-				piezo->evaluateVariations ( input->parameters, variations );
+				if ( ctrlPztOptions[ piezoInc ][ 0 ] )
+				{
+					piezos[piezoInc]->evaluateVariations ( input->parameters, variations );
+				}
 			}
 			dds.evaluateDdsInfo ( input->parameters );
 			dds.generateFullExpInfo ( variations );
@@ -378,16 +385,19 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 				{
 					agilent->setAgilent ( variationInc, input->parameters[ 0 ] );
 				}
-				for ( auto& piezo : piezos )
+				for ( auto piezoInc : range(piezos.size()) )
 				{
-					piezo->exprProgramPiezo ( 0, variationInc );
+					if ( ctrlPztOptions[ piezoInc ][ 0 ] )
+					{
+						piezos[piezoInc]->exprProgramPiezo ( 0, variationInc );
+					}
 				}
 				dds.writeExperiment ( 0, variationInc );
 			}
 			if (input->runNiawg)
 			{
 				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-											niawgMachineScript, input->rerngGuiForm, input->rerngGui );
+										   niawgMachineScript, input->rerngGuiForm, input->rerngGui );
 				input->niawg.turnOffRerng( );
 				input->conditionVariableForRerng->notify_all( );
 				input->niawg.waitForRerng( false );
