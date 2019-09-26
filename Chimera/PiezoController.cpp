@@ -51,10 +51,12 @@ void PiezoController::handleOpenConfig ( std::ifstream& configFile, Version ver 
 {
 	if ( ver > Version ( "4.5" ) )
 	{
-		auto res = core.getPiezoValsFromConfig ( configFile, ver );
-		edits.x.SetWindowTextA ( res.x.c_str ( ) );
-		edits.y.SetWindowTextA ( res.y.c_str ( ) );
-		edits.z.SetWindowTextA ( res.z.c_str ( ) );
+		auto configVals = core.getPiezoSettingsFromConfig ( configFile, ver );
+		edits.x.SetWindowTextA ( configVals.first.x.c_str ( ) );
+		edits.y.SetWindowTextA ( configVals.first.y.c_str ( ) );
+		edits.z.SetWindowTextA ( configVals.first.z.c_str ( ) );
+		ctrlButton.SetCheck ( configVals.second );
+		updateCtrl ( );
 	}
 }
 
@@ -67,7 +69,7 @@ void PiezoController::handleSaveConfig ( std::ofstream& configFile )
 	edits.y.GetWindowTextA ( txt );
 	configFile << txt << "\n";
 	edits.z.GetWindowTextA ( txt );
-	configFile << txt << "\n";
+	configFile << txt << "\n" << ctrlButton.GetCheck() << "\n";
 	configFile << "END_" + core.configDelim << "\n";
 }
 
@@ -81,9 +83,20 @@ std::string PiezoController::getPiezoDeviceList ( )
 {
 	return core.getDeviceList ( );
 }
+
+void PiezoController::updateCtrl ( )
+{
+	auto ctrl = ctrlButton.GetCheck ( );
+	core.setCtrl ( ctrl );
+	edits.x.EnableWindow ( ctrl );
+	edits.y.EnableWindow ( ctrl );
+	edits.z.EnableWindow ( ctrl );
+}
+
 void PiezoController::rearrange ( UINT width, UINT height, fontMap fonts )
 {
 	programNowButton.rearrange ( width, height, fonts );
+	ctrlButton.rearrange ( width, height, fonts );
 	edits.x.rearrange ( width, height, fonts );
 	edits.y.rearrange ( width, height, fonts );
 	edits.z.rearrange ( width, height, fonts );
@@ -95,13 +108,18 @@ void PiezoController::rearrange ( UINT width, UINT height, fontMap fonts )
 	labels.z.rearrange ( width, height, fonts );
 }
 
-void PiezoController::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT buttonID, 
-								   piezoChan<std::string> names )
+
+void PiezoController::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT programButtonID, 
+								   piezoChan<std::string> names, UINT ctrlButtonID )
 {
 	core.initialize ( );
-	programNowButton.sPos = {pos.x, pos.y, pos.x + width, pos.y += 25};
-	programNowButton.Create ( "Program Piezo Controller Now", NORM_PUSH_OPTIONS, programNowButton.sPos, parent, 
-							  buttonID );
+	programNowButton.sPos = {pos.x, pos.y, pos.x + 6*width/8, pos.y + 25};
+	programNowButton.Create ( "Program Pzt Now", NORM_PUSH_OPTIONS, programNowButton.sPos, parent, 
+							  programButtonID );
+	ctrlButton.sPos = { pos.x + 6*width / 8, pos.y, pos.x + width, pos.y += 25 };
+	ctrlButton.Create ( "Ctrl?", NORM_CHECK_OPTIONS, ctrlButton.sPos, parent, ctrlButtonID );
+	ctrlButton.SetCheck ( true );
+
 	labels.x.sPos = { pos.x, pos.y, pos.x + width / 3, pos.y + 20 };
 	labels.x.Create ( names.x.c_str(), NORM_STATIC_OPTIONS | WS_BORDER, labels.x.sPos, parent, id++ );
 	labels.y.sPos = { pos.x + width / 3, pos.y, pos.x + 2 * width / 3, pos.y + 20 };

@@ -402,11 +402,11 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 }
 
 
-void Expression::internalEvaluate ( std::vector<parameterType>& params, UINT variations )
+void Expression::internalEvaluate ( std::vector<parameterType>& params, UINT totalVariations )
 {
 	values.clear ( );
-	values.resize ( variations );
-	for ( auto variation : range ( variations ) )
+	values.resize ( totalVariations );
+	for ( auto variation : range ( totalVariations ) )
 	{
 		values[variation] = evaluate ( params, variation );
 	}

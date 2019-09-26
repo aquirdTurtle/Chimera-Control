@@ -20,8 +20,10 @@ class PiezoCore
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
 		void exprProgramPiezo ( UINT sequenceNumber, UINT variationNumber );
-		static piezoChan<std::string> getPiezoValsFromConfig ( std::ifstream& file, Version ver );
+		static std::pair<piezoChan<std::string>, bool> getPiezoSettingsFromConfig ( std::ifstream& file, Version ver );
 		void programAll ( piezoChan<double> vals );
+		void setCtrl ( bool ctrl );
+		bool wantsCtrl ( );
 		double getCurrentXVolt ( );
 		void programXNow ( double val );
 		double getCurrentYVolt ( );
@@ -31,7 +33,9 @@ class PiezoCore
 		void updateExprVals ( std::vector<piezoChan<Expression>> newVals );
 		void evaluateVariations ( std::vector<std::vector<parameterType>>& params, UINT totalVariations );
 		const std::string configDelim;
+		
 	private:
+		bool ctrlOption;
 		PiezoFlume flume;
 		std::vector<piezoChan<Expression>> experimentVals;
 
