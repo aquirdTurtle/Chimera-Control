@@ -176,7 +176,7 @@ void RohdeSchwarz::addFrequency(rsgEventForm info)
 	eventForms.push_back( info );
 }
 
-void RhodeSchwarz::setFmSettings ( )
+void RohdeSchwarz::setFmSettings ( )
 {
 	gpibFlume.send ( "SOURCE:PM1:STATe OFF" );
 	gpibFlume.send ( "SOURCE:FM:MODE NORMal" );
@@ -187,7 +187,7 @@ void RhodeSchwarz::setFmSettings ( )
 }
 
 
-void RhodeSchwarz::setPmSettings ( )
+void RohdeSchwarz::setPmSettings ( )
 {
 	gpibFlume.send ( "SOURCE:FM1:STATe OFF" );
 	gpibFlume.send ( "SOURCE:PM:MODE HDEViation" );

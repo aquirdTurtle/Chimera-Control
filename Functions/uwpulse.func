@@ -3,4 +3,7 @@ def uwPulse(uwLength):
   % var uwLength 0.017
   call send_uw_to_horn()
   t += uwLength
-  call send_uw_to_795_eom()
+  %call send_uw_to_795_eom()
+  off: eoSwitch
+  off: eoSwitch2
+

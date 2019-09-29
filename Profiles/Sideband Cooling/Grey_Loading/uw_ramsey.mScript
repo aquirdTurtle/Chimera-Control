@@ -25,17 +25,22 @@ call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
 rsg: (6.84 + uw_mod/1000000) -1
 var ramseyTime 1
-call uwPulse(0.0053)
+%t += 0.0053
+call uwPulse(0.005)
+off: topRamanRf
 t += ramseyTime
-call uwPulse(0.0056)
+off: topRamanRf
+%t += 0.0056
+call uwPulse(0.006)
 % pulseon: tweezerIntensityTrig 0.1
-
+t += 5.1
 call pushout()
 pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 pulseon: rsTrig 0.1
+t += 1
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 0.2

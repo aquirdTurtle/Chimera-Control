@@ -52,7 +52,7 @@ class RohdeSchwarz
 		// outer vector is over each variation.
 		std::vector<std::vector<rsgEvent>> events;
 		const double triggerTime = 0.01;
-		const std::pair<DioRows::which, UINT> rsgTriggerLine = { DioRows::which::A, 15 };
+		const std::pair<DioRows::which, UINT> rsgTriggerLine = { DioRows::which::C, 3 };
 		// 
 		Control<CStatic> header;
 		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.

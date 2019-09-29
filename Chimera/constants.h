@@ -15,8 +15,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
@@ -130,6 +130,8 @@
 
 #ifdef MASTER_COMPUTER
 	#define DDS_SAFEMODE false
+	#define PIEZO1_SAFEMODE true
+	#define PIEZO2_SAFEMODE false
 	#define BASLER_SAFEMODE false
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false

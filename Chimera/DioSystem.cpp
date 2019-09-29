@@ -607,6 +607,7 @@ void DioSystem::prepareForce( )
 void DioSystem::initializeDataObjects( UINT seqNum, UINT variationNum )
 {
 	ttlCommandFormList.resize( seqNum );
+	ttlCommandList.uniformSizeReset ( seqNum, variationNum );
 	ttlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	loadSkipTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	formattedTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
@@ -676,25 +677,25 @@ void DioSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 }
 
 
-void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc, UINT totalVariations )
+void DioSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc, UINT totalVariations )
 {
-	DioCommandForm command;
+	DioCommand command;
 	command.line = { row, column };
-	command.timeVals.resize ( totalVariations );
-	command.timeVals[ variation ] = time;
+	//command.timeVals.resize ( totalVariations );
+	//command.timeVals[ variation ] = time;
+	command.time = timev;
 	command.value = true;
-	ttlCommandFormList[seqInc].push_back( command );
+	ttlCommandList(seqInc, variation).push_back( command );
 }
 
 
-void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc, UINT totalVariations )
+void DioSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc, UINT totalVariations )
 {
-	DioCommandForm command;
+	DioCommand command;
 	command.line = { row, column };
-	command.timeVals.resize ( totalVariations );
-	command.timeVals[ variation ] = time;
+	command.time = timev;
 	command.value = false;
-	ttlCommandFormList[seqInc].push_back( command );
+	ttlCommandList(seqInc, variation).push_back( command );
 }
 
 
@@ -929,6 +930,43 @@ void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 	finFtdiBuffers_loadSkip.uniformSizeReset ( sequenceLength, variations );
 }
 
+/*
+PLAN:
+interpret key gives me effectively a 3D list of all the FIXED dio commands. then I add commands to it after using the 
+AO system, but these commands should only be added to the relevant variation / sequence instead of making a ton of
+redundant commands at time t=0 (which I think were causing issues with the number of trigs...) So I need to break the 
+list of dio commands out of the original structure which is [seq][cmd][variation] so that I can do it 
+as [seq][variation][cmd].
+*/
+
+
+void DioSystem::restructureCommands ( )
+{
+	/* this is to be done after key interpretation. */
+	ttlCommandFormList;
+	ttlCommandList;
+	ttlCommandList.resizeSeq ( ttlCommandFormList.size ( ) );
+	for ( auto seqInc : range ( ttlCommandFormList.size ( ) ) )
+	{
+		if ( ttlCommandFormList[ seqInc ].size ( ) == 0 )
+		{
+			thrower ( "No TTL Commands???" );
+		}
+		ttlCommandList.resizeVariations ( seqInc, ttlCommandFormList[seqInc][0].timeVals.size());
+		for ( auto varInc : range(ttlCommandList.getNumVariations ( seqInc ) ) )
+		{
+			for ( auto& cmd : ttlCommandFormList[ seqInc ] )
+			{
+				DioCommand nCmd;
+				nCmd.line = cmd.line;
+				nCmd.time = cmd.timeVals[ varInc ];
+				nCmd.value = cmd.value;
+				ttlCommandList ( seqInc, varInc ).push_back ( nCmd );
+			}
+		}
+	}
+}
+
 
 /*
  * Read key values from variables and convert command form to the final commands.
@@ -1003,24 +1041,23 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	//std::vector<DioCommand> orderedCommandList(ttlCommandList(seqNum,variation));
-	std::vector<DioCommandForm> orderedCommandList ( ttlCommandFormList[ seqNum ] );
+	std::vector<DioCommand> orderedCommandList ( ttlCommandList( seqNum , variation) );
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedCommandList.begin(), orderedCommandList.end(), 
-			   [variation](DioCommandForm a, DioCommandForm b) {return a.timeVals[variation] < b.timeVals[variation]; });
+			   [variation](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (auto commandInc : range( ttlCommandFormList[seqNum].size ( ) ) )
+	for (auto commandInc : range( ttlCommandList(seqNum, variation).size ( ) ) )
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time. DIO64 uses a 10MHz clock, can do 100ns spacing, check diff 
 		// threshold to extra room. If dt<1ns, probably just some floating point issue. 
 		// If 1ns<dt<100ns I want to actually complain to the user since it seems likely that  this was intentional and 
 		// not a floating error.
-		if (commandInc == 0 || fabs(orderedCommandList[commandInc].timeVals[variation] - timeOrganizer.back().first) > 1e-6)
+		if (commandInc == 0 || fabs(orderedCommandList[commandInc].time - timeOrganizer.back().first) > 1e-6)
 		{
 			// new time
 			std::vector<USHORT> testVec =  { USHORT(commandInc) };
-			timeOrganizer.push_back({ orderedCommandList[commandInc].timeVals[ variation ], testVec });
+			timeOrganizer.push_back({ orderedCommandList[commandInc].time, testVec });
 		}
 		else
 		{

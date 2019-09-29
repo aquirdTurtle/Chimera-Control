@@ -121,7 +121,7 @@ class DioSystem
 		ExpWrap<vec<WORD>> getFinalViewpointData ( );
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
 		ExpWrap<finBufInfo> getFinalFtdiData ( );
-
+		void restructureCommands ( );
 	private:
 		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
@@ -149,6 +149,7 @@ class DioSystem
 		// tells whether the hold button is down or not.
 		bool holdStatus;
 		vec<vec<DioCommandForm>> ttlCommandFormList;
+		ExpWrap<std::vector<DioCommand>> ttlCommandList;
 		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
 		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.

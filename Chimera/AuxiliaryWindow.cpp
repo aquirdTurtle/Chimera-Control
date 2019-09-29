@@ -25,7 +25,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 		ttlBoard ( true, true, DIO_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
-	piezo1(PIEZO1_SAFEMODE, "COM4", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO2_SAFEMODE, "com?", "PIEZO_CONTROLLER_2" )
+	piezo1(PIEZO1_SAFEMODE, "COM4", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO2_SAFEMODE, "COM8", "PIEZO_CONTROLLER_2" )
 {}
 
 
@@ -524,7 +524,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 	{
 		OnPaint( );
 	}
-	if ( eventID == 1000 )
+	if ( eventID == 1000 && !mainWin->masterIsRunning() )
 	{
 		piezo1.updateCurrentValues ( );
 		piezo2.updateCurrentValues ( );
