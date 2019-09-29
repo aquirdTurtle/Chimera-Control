@@ -955,7 +955,4 @@ namespace commonFunctions
 		}
 		return areYouSure;
 	}
-
 };
-
-

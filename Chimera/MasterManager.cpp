@@ -124,7 +124,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// start analysis & experiment
 	try
 	{
-		input->logger.logMasterRuntime ( repetitions, input->parameters );
+		if ( input->expType != ExperimentType::LoadMot )
+		{
+			input->logger.logMasterRuntime ( repetitions, input->parameters );
+		}
 		bool useAuxDevices = input->runMaster && ( input->expType == ExperimentType::MachineOptimization 
 												   || input->expType == ExperimentType::Normal );
 		if ( !useAuxDevices )
@@ -242,6 +245,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			ttls.shadeTTLs ( ttlShadeLocs );
 			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey( input->parameters );
+			ttls.restructureCommands ( );
 			aoSys.interpretKey( input->parameters, warnings );
 		}
 		if ( useAuxDevices )
