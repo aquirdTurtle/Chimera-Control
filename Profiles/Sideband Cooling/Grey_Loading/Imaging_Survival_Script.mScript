@@ -3,6 +3,7 @@
 t = 0.1
 off: c12
 on: A6 %tweezers on
+on: shutter795
 pulseon: dds_reset 0.1
 %dac: piezomirror piezoval
 t += 1

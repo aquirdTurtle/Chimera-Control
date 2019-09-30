@@ -16,8 +16,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
@@ -131,8 +131,8 @@
 
 #ifdef MASTER_COMPUTER
 	#define DDS_SAFEMODE false
-	#define PIEZO1_SAFEMODE true
-	#define PIEZO2_SAFEMODE false
+	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
+	const PiezoType PIEZO_2_TYPE = PiezoType::B;
 	#define BASLER_SAFEMODE false
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
@@ -158,7 +158,7 @@
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 	#define UWAVE_SAFEMODE false
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE false
+	#define MASTER_REPUMP_SCOPE_SAFEMODE true
 	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0699::0x03B3::C011388::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE			 false
 	#define MOT_SCOPE_ADDRESS			 "USB0::0x0699::0x0363::C100939::0::INSTR"

@@ -461,6 +461,7 @@ namespace commonFunctions
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
 				input.masterInput->logBaslerPics = false;
+				input.masterInput->updatePlotterXVals = false;
 				auxWin->loadMotSettings ( input.masterInput );
 				mainWin->fillMotInput ( input.masterInput );
 				input.masterInput->expType = ExperimentType::LoadMot;
@@ -477,6 +478,7 @@ namespace commonFunctions
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
 				input.masterInput->logBaslerPics = true;
+				input.masterInput->updatePlotterXVals = false;
 				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...\r\n" );
 				auxWin->loadMotSettings ( input.masterInput );
 				mainWin->fillMotSizeInput ( input.masterInput );
@@ -497,6 +499,7 @@ namespace commonFunctions
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
 				input.masterInput->logBaslerPics = true;
+				input.masterInput->updatePlotterXVals = false;
 				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
 				try
 				{
@@ -531,6 +534,7 @@ namespace commonFunctions
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
 				input.masterInput->logBaslerPics = true;
+				input.masterInput->updatePlotterXVals = false;
 				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
 				try
 				{
@@ -559,6 +563,7 @@ namespace commonFunctions
 				input.masterInput->runAndor = false;
 				input.masterInput->logBaslerPics = true;
 				input.masterInput->runMaster = true;
+				input.masterInput->updatePlotterXVals = false;
 				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
 				try
 				{
