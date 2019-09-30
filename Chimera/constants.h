@@ -3,6 +3,7 @@
 
 #include "agilentStructures.h"
 #include "my_str.h"
+#include "PiezoType.h"
 #include <string>
 #include <vector>
 #include <array>
@@ -22,8 +23,6 @@
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
 	#define DDS_SAFEMODE true
-	#define PIEZO1_SAFEMODE true
-	#define PIEZO2_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
@@ -73,6 +72,8 @@
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
+	const PiezoType PIEZO_1_TYPE = PiezoType::A;
+	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 #endif
 
 
@@ -1105,3 +1106,4 @@ const std::vector<std::string> GIST_RAINBOW{
 	"ff00c4",
 	"ff00bf"
 };
+

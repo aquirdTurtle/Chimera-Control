@@ -233,6 +233,7 @@
     <ClInclude Include="PiezoController.h" />
     <ClInclude Include="PiezoCore.h" />
     <ClInclude Include="PiezoFlume.h" />
+    <ClInclude Include="PiezoType.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="SerialPiezoFlume.h" />

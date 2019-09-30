@@ -25,7 +25,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 		ttlBoard ( true, true, DIO_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
-	piezo1(PIEZO1_SAFEMODE, "COM4", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO2_SAFEMODE, "COM8", "PIEZO_CONTROLLER_2" )
+	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM8", "PIEZO_CONTROLLER_2" )
 {}
 
 
@@ -1762,19 +1762,19 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 		msg += "\tDDS System is disabled! Enable in \"constants.h\"\n";
 	}
 	msg += "Piezo System:\n";
-	if ( !PIEZO1_SAFEMODE )
+	msg += "\tPiezo System is Active!\n";
+	msg += "\tDevice List: " + piezo1.getPiezoDeviceList ( ) + "\n";
+	msg += "\t Device Info:\n" + str ( "\t\t" );
+	msg += piezo1.getDeviceInfo ( ) + "\n";
+	msg += piezo2.getDeviceInfo ( ) + "\n";
+	msg += "- End Dev Info";
+/*	if ( !PIEZO1_SAFEMODE )
 	{
-		msg += "\tPiezo System is Active!\n";
-		msg += "\tDevice List: " + piezo1.getPiezoDeviceList ( ) + "\n";
-		msg += "\t Device Info:\n" + str("\t\t");
-		msg += piezo1.getDeviceInfo ( ) + "\n";
-		msg += piezo2.getDeviceInfo ( ) + "\n";
-		msg += "- End Dev Info";
 	}
 	else
 	{
 		msg += "\tPiezo System is disabled! Enable in \"constants.h\"\n";
-	}
+	}*/
 	return msg;
 }
 

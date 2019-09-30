@@ -5,11 +5,12 @@
 #include "Version.h"
 #include <fstream>
 #include "myButton.h"
+#include "PiezoType.h"
 
 class PiezoController
 {
 	public:
-		PiezoController ( bool safemode, std::string sn, std::string delim);
+		PiezoController ( PiezoType piezoControllerType, std::string sn, std::string delim);
 		void initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT buttonID,
 						  piezoChan<std::string> names, UINT ctrlButtonID );
 		std::string getDeviceInfo ( );
