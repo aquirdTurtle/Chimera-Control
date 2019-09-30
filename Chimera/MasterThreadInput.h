@@ -89,7 +89,7 @@ struct ExperimentThreadInput
 	bool runMaster;
 	bool runAndor;
 	bool logBaslerPics;
-	bool updatePlotterXVals;
+	bool updatePlotterXVals=false;
 	bool dontActuallyGenerate=false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;

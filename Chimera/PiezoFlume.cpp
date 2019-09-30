@@ -109,7 +109,6 @@ void PiezoFlume::open (  )
 			close ( );
 		}
 		deviceHandle = Open_raw ( &comPortNumber[ 0 ], 115200, 10 );
-		//deviceHandle = Open_raw ( "COM4", 115200, 10 );
 		if ( deviceHandle < 0 )
 		{
 			thrower ( "ERROR: raw \"Open\" function from the thorlabs piezo driver dll returned an error! Error code: "

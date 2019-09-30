@@ -125,6 +125,8 @@ std::string PiezoCore::getDeviceInfo ( )
 			return serFlume.getDeviceInfo ( );
 		case PiezoType::B:
 			return flume.getDeviceInfo ( );
+		case PiezoType::NONE:
+			return "NONE";
 	}
 }
 

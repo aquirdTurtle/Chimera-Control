@@ -1403,7 +1403,7 @@ void MasterThreadManager::checkTriggerNumbers (ExperimentThreadInput* input, boo
 					auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc );
 					std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
 						+ str ( rsgExpectedTrigs ) + ".";
-					if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
+					if ( actualTrigs != rsgExpectedTrigs )
 					{
 						warnings += "WARNING: the RSG is not getting triggered by the ttl system the same number"
 							" of times a trigger command appears in the master script. " + infoString + " First "
