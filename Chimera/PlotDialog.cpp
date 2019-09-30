@@ -26,6 +26,11 @@ PlotDialog::PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn
 	plotAreaBrush.CreateSolidBrush ( _myRGBs[ "Interactable-Bkgd" ] );
 }
 
+PlotDialog::~PlotDialog ( )
+{
+	errBox ( "Deleting plotdlg!" );
+}
+
 
 IMPLEMENT_DYNAMIC( PlotDialog, CDialog )
 
@@ -120,6 +125,7 @@ BOOL PlotDialog::OnInitDialog( )
 
 void PlotDialog::OnPaint( )
 {
+
 	CDC* cdc = GetDC( );
 	{
 		CRect size;

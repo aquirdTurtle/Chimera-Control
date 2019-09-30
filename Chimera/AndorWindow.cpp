@@ -680,6 +680,16 @@ dataPoint AndorWindow::getMainAnalysisResult ( )
 	return mostRecentAnalysisResult;
 }
 
+std::mutex& AndorWindow::getActivePlotMutexRef ( )
+{
+	return activePlotMutex;
+}
+
+std::vector<PlotDialog*>& AndorWindow::getActivePlotListRef ( )
+{
+	return activePlots;
+}
+
 
 LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
@@ -707,9 +717,12 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	crunchSeesTimes.clear( );
 	mainWin->stopRearranger( );
 	wakeRearranger( );
-	if ( activePlots.size ( ) != 0 )
 	{
-		mostRecentAnalysisResult = activePlots.back ( )->getMainAnalysisResult ( );
+		std::lock_guard<std::mutex> lock ( activePlotMutex );
+		if ( activePlots.size ( ) != 0 )
+		{
+			mostRecentAnalysisResult = activePlots.back ( )->getMainAnalysisResult ( );
+		}
 	}
 	return 0;
 }
@@ -1125,7 +1138,7 @@ void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 	input.cruncherInput->plotterActive = plotThreadActive;
 	input.cruncherInput->imageDims = CameraSettings.getSettings( ).andor.imageSettings;
 	atomCrunchThreadActive = true;
-	input.cruncherInput->plotterNeedsImages = input.plotterInput->needsCounts;
+	input.cruncherInput->plotterNeedsImages = input.masterInput->plotterInput->needsCounts;
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
 	skipNext = false;
 	input.cruncherInput->skipNext = &skipNext;
@@ -1174,6 +1187,14 @@ bool AndorWindow::wantsAutoPause( )
 	return alerts.wantsAutoPause( );
 }
 
+std::atomic<bool>& AndorWindow::getPlotThreadActiveRef ( )
+{
+	return plotThreadActive;
+}
+std::atomic<HANDLE>& AndorWindow::getPlotThreadHandleRef ( )
+{
+	return plotThreadHandle;
+}
 
 void AndorWindow::preparePlotter( AllExperimentInput& input )
 {
@@ -1182,52 +1203,57 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 	plotThreadAborting = false;
 	imQueue.clear();
 	plotterAtomQueue.clear();
-	input.plotterInput = new realTimePlotterInput;
-	input.plotterInput->aborting = &plotThreadAborting;
-	input.plotterInput->active = &plotThreadActive;
-	input.plotterInput->imQueue = &plotterPictureQueue;
-	input.plotterInput->imageShape = CameraSettings.getSettings().andor.imageSettings;
-	input.plotterInput->picsPerVariation = mainWin->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
-	input.plotterInput->variations = auxWin->getTotalVariationNumber();
-	input.plotterInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
-	input.plotterInput->alertThreshold = alerts.getAlertThreshold();
-	input.plotterInput->wantAtomAlerts = alerts.wantsAtomAlerts();
-	input.plotterInput->comm = mainWin->getComm();
-	input.plotterInput->plotLock = &plotLock;
-	input.plotterInput->numberOfRunsToAverage = 5;
-	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
+	input.masterInput->plotterInput = new realTimePlotterInput( analysisHandler.getPlotTime() );
+	auto& pltInput = input.masterInput->plotterInput;
+	pltInput->plotPens = mainWin->getPlotPens ( );
+	pltInput->plotBrushes = mainWin->getPlotBrushes ( );
+	pltInput->plotFont = mainWin->getPlotFont ( );
+	pltInput->plotParentWindow = this;
+	pltInput->cameraSettings = CameraSettings.getSettings ( );
+	pltInput->aborting = &plotThreadAborting;
+	pltInput->active = &plotThreadActive;
+	pltInput->imQueue = &plotterPictureQueue;
+	pltInput->imageShape = CameraSettings.getSettings().andor.imageSettings;
+	pltInput->picsPerVariation = mainWin->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
+	pltInput->variations = auxWin->getTotalVariationNumber();
+	pltInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
+	pltInput->alertThreshold = alerts.getAlertThreshold();
+	pltInput->wantAtomAlerts = alerts.wantsAtomAlerts();
+	pltInput->comm = mainWin->getComm();
+	pltInput->plotLock = &plotLock;
+	pltInput->numberOfRunsToAverage = 5;
+	pltInput->plottingFrequency = analysisHandler.getPlotFreq( );
+	pltInput->atomQueue = &plotterAtomQueue;
+	analysisHandler.fillPlotThreadInput( pltInput );
+
+	// remove old plots that aren't trying to sustain.
+	activePlots.erase( std::remove_if( activePlots.begin(), activePlots.end(), PlotDialog::removeQuery ), 
+					   activePlots.end() );	
 	std::vector<double> dummyKey;
-	// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
-	// a long time this could crash...  TODO take care of this!
-	dummyKey.resize( input.masterInput->numVariations );
-	input.plotterInput->key = dummyKey;
+	dummyKey.resize ( input.masterInput->numVariations );
+	pltInput->key = dummyKey;
 	UINT count = 0;
-	for ( auto& e : input.plotterInput->key )
+	for ( auto& e : pltInput->key )
 	{
 		e = count++;
 	}
-	input.plotterInput->atomQueue = &plotterAtomQueue;
-	analysisHandler.fillPlotThreadInput( input.plotterInput );
-	// remove old plots that aren't trying to sustain.
-	activePlots.erase( std::remove_if( activePlots.begin(), activePlots.end(), PlotDialog::removeQuery ), 
-					   activePlots.end() );
-	for ( auto plotParams : input.plotterInput->plotInfo )
+	for ( auto plotParams : pltInput->plotInfo )
 	{
 		// Create vector of data to be shared between plotter and data analysis handler. 
 		std::vector<pPlotDataVec> data;
 		// assume 1 data set...
 		UINT numDataSets = 1;
 		// +1 for average line
-		UINT numLines = numDataSets * ( input.plotterInput->grids[plotParams.whichGrid].height 
-										* input.plotterInput->grids[plotParams.whichGrid].width + 1 );
+		UINT numLines = numDataSets * ( pltInput->grids[plotParams.whichGrid].height
+										* pltInput->grids[plotParams.whichGrid].width + 1 );
 		data.resize( numLines );
 		for ( auto& line : data )
 		{
-			line = pPlotDataVec( new plotDataVec( input.plotterInput->key.size( ), { 0, -1, 0 } ) );
-			line->resize( input.plotterInput->key.size( ) );
+			line = pPlotDataVec( new plotDataVec( pltInput->key.size( ), { 0, -1, 0 } ) );
+			line->resize( pltInput->key.size( ) );
 			// initialize x axis for all data sets.
 			UINT count = 0;
-			for ( auto& keyItem : input.plotterInput->key )
+			for ( auto& keyItem : pltInput->key )
 			{
 				line->at( count++ ).x = keyItem;
 			}
@@ -1241,7 +1267,7 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 		plot->Create( IDD_PLOT_DIALOG, this );
 		plot->ShowWindow( SW_SHOW );
 		activePlots.push_back( plot );
-		input.plotterInput->dataArrays.push_back( data );
+		pltInput->dataArrays.push_back( data );
 	}
 }
 
@@ -1264,11 +1290,11 @@ UINT AndorWindow::getNoMotThreshold ( )
 	return alerts.getAlertThreshold ( );
 }
 
-
 void AndorWindow::startPlotterThread( AllExperimentInput& input )
 {
 	bool gridHasBeenSet = false;
-	for ( auto gridInfo : input.plotterInput->grids )
+	auto& pltInput = input.masterInput->plotterInput;
+	for ( auto gridInfo : pltInput->grids )
 	{
 		if ( !(gridInfo.topLeftCorner == coordinate( 0, 0 )) )
 		{
@@ -1277,26 +1303,25 @@ void AndorWindow::startPlotterThread( AllExperimentInput& input )
 		}
 	}
 	UINT plottingThreadID;
-	if ((!gridHasBeenSet && input.plotterInput->analysisLocations.size() == 0) 
-		 || input.plotterInput->plotInfo.size() == 0)
+	if ((!gridHasBeenSet && pltInput->analysisLocations.size() == 0)
+		 || pltInput->plotInfo.size() == 0)
 	{
 		plotThreadActive = false;
 	}
 	else
 	{
-		if ( input.AndorSettings.totalPicsInExperiment() * input.plotterInput->analysisLocations.size()
-			 / input.plotterInput->plottingFrequency > 1000 )
+		if ( input.AndorSettings.totalPicsInExperiment() * pltInput->analysisLocations.size()
+			 / pltInput->plottingFrequency > 1000 )
 		{
 			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
 					 " and the plotting period is fairly small. Consider increasing the plotting period. " );
 		}
 		// start the plotting thread
 		plotThreadActive = true;
-		plotThreadHandle = (HANDLE)_beginthreadex( 0, 0, DataAnalysisControl::plotterProcedure, (void*)input.plotterInput,
+		plotThreadHandle = (HANDLE)_beginthreadex( 0, 0, DataAnalysisControl::plotterProcedure, (void*) pltInput,
 												   0, &plottingThreadID );
 	}
 }
-
 
 // this thread has one purpose: watch the image vector thread for new images, determine where atoms are 
 // (the atom crunching part), and pass them to the threads waiting on atom info.

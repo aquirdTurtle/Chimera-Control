@@ -31,6 +31,7 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 
 PlotCtrl::~PlotCtrl ( )
 {
+	errBox ( "Deleteing Plot Ctrl!" );
 	for ( auto& pen : pens )
 	{
 		delete pen;

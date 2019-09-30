@@ -235,6 +235,7 @@
     <ClInclude Include="PiezoFlume.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="SegmentEnd.h" />
+    <ClInclude Include="SerialPiezoFlume.h" />
     <ClInclude Include="softwareAccumulationOption.h" />
     <ClInclude Include="StartDialog.h" />
     <ClInclude Include="CameraCalibration.h" />
@@ -366,6 +367,7 @@
     <ClCompile Include="PiezoFlume.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
     <ClCompile Include="SegmentEnd.cpp" />
+    <ClCompile Include="SerialPiezoFlume.cpp" />
     <ClCompile Include="StartDialog.cpp" />
     <ClCompile Include="CameraCalibration.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />

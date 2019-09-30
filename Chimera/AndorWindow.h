@@ -123,6 +123,11 @@ class AndorWindow : public CDialog
 		int getPicsPerRep ( );
 		bool wantsThresholdAnalysis ( );
 		AndorCamera& getCamera ( );
+		std::atomic<bool>& getPlotThreadActiveRef ( );
+		std::atomic<HANDLE>& getPlotThreadHandleRef ( );
+		std::mutex& getActivePlotMutexRef ( );
+		std::vector<PlotDialog*>& getActivePlotListRef( );
+
 	private:
 		bool justCalibrated=false;
 		DECLARE_MESSAGE_MAP();
@@ -154,7 +159,7 @@ class AndorWindow : public CDialog
 		bool specialGreaterThanMax;
 		bool realTimePic;
 		// plotting stuff;
-		HANDLE plotThreadHandle;
+		std::atomic<HANDLE> plotThreadHandle;
 		imageQueue imQueue;
 		std::mutex imageLock;
 		std::condition_variable rearrangerConditionVariable;
@@ -176,6 +181,7 @@ class AndorWindow : public CDialog
 		std::atomic<bool> skipNext=false;
 		std::vector<double> plotterKey;
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;		
+		std::mutex activePlotMutex;
 		std::vector<PlotDialog*> activePlots;
 		UINT mostRecentPicNum = 0;
 		UINT currentPictureNum = 0;

@@ -225,7 +225,7 @@ void Agilent::analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars
 void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
 {
 	ScriptStream stream;
-	MasterManager::loadAgilentScript ( infoObj.fileAddress, stream );
+	MasterThreadManager::loadAgilentScript ( infoObj.fileAddress, stream );
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers( );
 	// Procedurally read lines into segment objects.

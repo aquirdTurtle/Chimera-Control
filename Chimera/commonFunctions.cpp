@@ -41,7 +41,7 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendStatus( "Starting Automatic Optimization...\r\n" );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					andorWin->prepareAndor ( input );
-					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true );
+					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true, true );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					andorWin->preparePlotter ( input );
 					andorWin->prepareAtomCruncher ( input );
@@ -50,9 +50,8 @@ namespace commonFunctions
 
 					auxWin->updateOptimization ( input );
 					input.masterInput->expType = ExperimentType::MachineOptimization;
-
-					andorWin->startAtomCruncher ( input );
 					andorWin->startPlotterThread ( input );
+					andorWin->startAtomCruncher ( input );
 					andorWin->armCameraWindow ( );
 					startExperimentThread ( mainWin, input );
 				}
@@ -79,7 +78,8 @@ namespace commonFunctions
 				try
 				{
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, false, true, false, true );
+					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, false, true, false, 
+										  true, false );
 					commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					input.masterInput->runAndor = false;
@@ -126,7 +126,8 @@ namespace commonFunctions
 					andorWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					andorWin->prepareAndor ( input );
-					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true );
+					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true, 
+										 true );
 					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )
 					{
@@ -139,9 +140,9 @@ namespace commonFunctions
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					logParameters( input, andorWin->getLogger ( ));
 					andorWin->startAtomCruncher(input);
-					andorWin->startPlotterThread(input);
 					andorWin->armCameraWindow();
 					basWin->startCamera ( );
+					andorWin->startPlotterThread ( input );
 					startExperimentThread( mainWin, input );
 				}
 				catch (Error& err)
@@ -271,7 +272,7 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendColorBox ( System::Camera, 'Y' );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, scriptWin, mainWin, andorWin, auxWin,
-														   input, false, false, true, false );
+														   input, false, false, true, false, true );
 					andorWin->prepareAndor ( input );
 					andorWin->preparePlotter ( input );
 					andorWin->prepareAtomCruncher ( input );
@@ -306,7 +307,7 @@ namespace commonFunctions
 				try
 				{
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNNIAWG, scriptWin, mainWin, andorWin, auxWin,
-														  input, true, false, false, false );
+														  input, true, false, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, true, false, input );
 					commonFunctions::logParameters( input, andorWin->getLogger ( ), "", false );
@@ -326,7 +327,7 @@ namespace commonFunctions
 				try
 				{
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, andorWin, auxWin, 
-														  input, false, true, false, false );
+														  input, false, true, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					commonFunctions::logParameters ( input, andorWin->getLogger ( ), "", false );
@@ -673,7 +674,7 @@ namespace commonFunctions
 
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* andorWin,
 							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runMaster, 
-							  bool runAndor, bool logBaslerPics )
+							  bool runAndor, bool logBaslerPics, bool updatePlotXVals )
 	{
 		profileSettings profile = mainWin->getProfileSettings();
 		seqSettings seq = mainWin->getSeqSettings( );
@@ -695,6 +696,7 @@ namespace commonFunctions
 		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 		input.masterInput->runNiawg = runNiawg;
 		input.masterInput->runAndor = runAndor;
+		input.masterInput->updatePlotterXVals = updatePlotXVals;
 		input.masterInput->runMaster = runMaster;
 		input.masterInput->logBaslerPics = logBaslerPics;
 		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
@@ -867,7 +869,7 @@ namespace commonFunctions
 		UINT numVoltsMeasursments = 0;
 		if ( input.masterInput && input.masterInput->aiSys.wantsQueryBetweenVariations( ) )
 		{
-			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->parameters.front() );
+			numVoltsMeasursments = MasterThreadManager::determineVariationNumber( input.masterInput->parameters.front() );
 		}
 		logger.initializeAiLogging( numVoltsMeasursments );		
 	}

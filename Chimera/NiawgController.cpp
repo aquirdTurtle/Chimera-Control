@@ -460,7 +460,7 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 	/// Analyze!
 	while ( script.peek( ) != EOF )
 	{
-		if ( MasterManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		if ( MasterThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
 		{}
 		else if ( isLogic( command ) )
 		{

@@ -11,6 +11,14 @@
 
 struct realTimePlotterInput
 {
+	realTimePlotterInput ( std::atomic<UINT>& pltTime ) : plotTime ( pltTime ) { }
+	std::vector<Gdiplus::Pen*> plotPens;
+	CFont* plotFont;
+	std::vector<Gdiplus::SolidBrush*> plotBrushes;
+	std::atomic<UINT>& plotTime;
+	AndorCameraSettings cameraSettings;
+	CWnd* plotParentWindow;
+
 	std::vector<tinyPlotInfo> plotInfo;
 	std::vector<coordinate> analysisLocations;
 	std::vector<atomGrid> grids;

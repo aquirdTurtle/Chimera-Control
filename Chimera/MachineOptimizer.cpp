@@ -505,7 +505,7 @@ void MachineOptimizer::verifyOptInput ( AllExperimentInput input )
 		thrower ( "Cannot optimize parameters if not taking camera data!" );
 	}
 	UINT count = 0;
-	for ( auto& info : input.plotterInput->plotInfo )
+	for ( auto& info : input.masterInput->plotterInput->plotInfo )
 	{
 		count += info.isActive;
 	}

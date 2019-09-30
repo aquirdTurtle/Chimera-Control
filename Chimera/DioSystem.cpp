@@ -18,7 +18,7 @@
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
 DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	ftFlume( ftSafemode ), 	
-winSerial( serialSafemode ),
+winSerial( serialSafemode, "" ),
 vp_flume(viewpointSafemode)
 {
 	connectType = ftdiConnectionOption::None;
@@ -51,15 +51,15 @@ DWORD DioSystem::ftdi_trigger( )
 		unsigned long totalBytesSent = 0;
 		while ( totalBytesSent < 7 )
 		{
-			auto bytesWritten = winSerial.writeFile( totalBytesSent, dataBuffer );
-			if ( bytesWritten > 0 )
+			winSerial.write( std::string(dataBuffer.begin(), dataBuffer.end()) );
+			/*if ( bytesWritten > 0 )
 			{
 				++totalBytesSent;
 			}
 			else
 			{
 				thrower ( "bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
-			}
+			}*/
 		}
 		return totalBytesSent;
 	}
@@ -108,7 +108,7 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 		{
 			while ( dwNumberOfBytesSent < buf.bytesToWrite )
 			{
-				auto bytesWritten = winSerial.writeFile( dwNumberOfBytesSent, buf.pts );
+				/*auto bytesWritten = winSerial.writeFile( dwNumberOfBytesSent, buf.pts );
 				if ( bytesWritten > 0 )
 				{
 					++totalBytes;
@@ -116,7 +116,7 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 				else
 				{
 					thrower ( "bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
-				}
+				}*/
 			}
 			totalBytes += dwNumberOfBytesSent;
 		}

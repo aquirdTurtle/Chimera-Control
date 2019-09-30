@@ -109,7 +109,6 @@ class DataAnalysisControl
 
 		Control<CleanCheck> autoThresholdAnalysisButton;
 
-
 		Control<CStatic> plotTimerTxt;
 		Control<CEdit> plotTimerEdit;
 		std::atomic<UINT> plotTime=5000;

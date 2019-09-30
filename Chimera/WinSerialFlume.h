@@ -5,11 +5,13 @@
 class WinSerialFlume
 {
 	public:
-		WinSerialFlume( bool safemode_option );
-		// probably need an open() function to actually use this...
+		WinSerialFlume( bool safemode_option, std::string portAddress );
+		void open ( std::string fileAddr );
 		void close( );
-		unsigned long WinSerialFlume::writeFile( unsigned long index, std::vector<unsigned char> dataBuffer );
+		void write ( std::string msg );
+		std::string read (  );
+		std::string query ( std::string msg );
 	private:
 		const bool safemode;
-		HANDLE m_hSerialComm;
+		HANDLE serialPortHandle;
 };
