@@ -684,6 +684,7 @@
     <ClInclude Include="PiezoController.h" />
     <ClInclude Include="PiezoCore.h" />
     <ClInclude Include="SerialPiezoFlume.h" />
+    <ClInclude Include="PiezoType.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

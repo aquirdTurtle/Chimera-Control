@@ -1,11 +1,15 @@
 ﻿#include "stdafx.h"
 #include "PiezoCore.h"
+#include "PiezoType.h"
 #include "Version.h"
 
-PiezoCore::PiezoCore ( bool safemode, std::string sn, std::string delim ) : flume (safemode, sn), 
+PiezoCore::PiezoCore ( PiezoType piezoControllerType, std::string sn, std::string delim ) : 
+	controllerType ( piezoControllerType ),
+	flume ( piezoControllerType != PiezoType::B, sn),
+	serFlume ( piezoControllerType != PiezoType::A, sn ),
 	configDelim( delim )
 {
-	
+		
 }
 
 void PiezoCore::updateExprVals ( std::vector<piezoChan<Expression>> newVals )
@@ -76,7 +80,14 @@ std::pair<piezoChan<std::string>, bool> PiezoCore::getPiezoSettingsFromConfig ( 
 
 void PiezoCore::initialize ( )
 {
-	flume.open ( );
+	switch ( controllerType )
+	{
+		case PiezoType::A:
+			serFlume.open ( );
+			break;
+		case PiezoType::B:
+			flume.open ( );
+	}
 }
 
 double PiezoCore::getCurrentXVolt ( )
@@ -108,7 +119,13 @@ void PiezoCore::programZNow ( double val )
 
 std::string PiezoCore::getDeviceInfo ( )
 {
-	return flume.getDeviceInfo ( );
+	switch ( controllerType )
+	{
+		case PiezoType::A:
+			return serFlume.getDeviceInfo ( );
+		case PiezoType::B:
+			return flume.getDeviceInfo ( );
+	}
 }
 
 

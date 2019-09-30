@@ -26,7 +26,7 @@ void WinSerialFlume::open ( std::string fileAddr )
 		dcbSettings.StopBits = ONESTOPBIT;
 		dcbSettings.Parity = NOPARITY;
 		auto res = SetCommState ( serialPortHandle, &dcbSettings );
-		if ( res != 0 )
+		if ( res == 0 )
 		{
 			thrower ( "Failed to initialize port: Failed to set comm state!" );
 		}
@@ -38,7 +38,7 @@ void WinSerialFlume::open ( std::string fileAddr )
 		timeouts.WriteTotalTimeoutConstant = 50; 
 		timeouts.WriteTotalTimeoutMultiplier = 10; 
 		res = SetCommTimeouts ( serialPortHandle, &timeouts );
-		if ( res != 0 )
+		if ( res == 0 )
 		{
 			thrower ( "Failed to initialize port: Failed to set comm timeouts!" );
 		}
@@ -75,16 +75,37 @@ void WinSerialFlume::write( std::string msg )
 
 std::string WinSerialFlume::read ( )
 {
-	char buf[ 256 ];
+	char buf[ 256 ] = { 0 };
 	DWORD numBytesRead;
 	if ( !safemode )
 	{
-		auto res = ReadFile ( serialPortHandle, buf, 256, &numBytesRead, 0 );
-		if ( res != 0 )
+		/*
+		auto err = SetCommMask ( serialPortHandle, EV_RXCHAR );
+		if ( err == 0 )
 		{
-			thrower ( "Failed to read serial port!" );
+			thrower ( "Failed to set comm mask?!?" );
 		}
+		DWORD dwEventMask; 
+		err = WaitCommEvent ( serialPortHandle, &dwEventMask, NULL );
+		if ( err == 0 )
+		{
+			thrower ( "WaitCommEvent Failed?!" );
+		}
+		*/
+		int err;
+		char readChar;
+		int totalCount = 0;
+		do
+		{
+			err = ReadFile ( serialPortHandle, &readChar, sizeof ( readChar ), &numBytesRead, 0 );
+			if ( err == 0 )
+			{
+				thrower ( "ReadFile Failed?!" );
+			}
+			buf[ totalCount++ ] = readChar;
+		} while ( numBytesRead > 0 );
 	}
+	return str ( buf );
 }
 
 

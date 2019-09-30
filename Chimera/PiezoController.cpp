@@ -2,7 +2,8 @@
 #include "PiezoController.h"
 #include <boost/lexical_cast.hpp>
 
-PiezoController::PiezoController ( bool safemode, std::string sn, std::string delim ) : core( safemode, sn, delim )
+PiezoController::PiezoController ( PiezoType piezoControllerType, std::string sn, std::string delim ) :
+	core( piezoControllerType, sn, delim )
 {
 
 }

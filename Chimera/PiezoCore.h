@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "PiezoFlume.h"
+#include "SerialPiezoFlume.h"
 #include "Expression.h"
 #include "Version.h"
 
@@ -15,7 +16,7 @@ template <typename type> struct piezoChan
 class PiezoCore
 {
 	public:
-		PiezoCore (bool safemode, std::string sn, std::string delim );
+		PiezoCore ( PiezoType piezoControllerType, std::string sn, std::string delim );
 		void initialize (  );
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
@@ -35,8 +36,10 @@ class PiezoCore
 		const std::string configDelim;
 		
 	private:
+		const PiezoType controllerType;
 		bool ctrlOption;
 		PiezoFlume flume;
+		SerialPiezoFlume serFlume;
 		std::vector<piezoChan<Expression>> experimentVals;
 
 };
