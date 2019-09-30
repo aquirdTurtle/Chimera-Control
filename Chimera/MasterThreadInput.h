@@ -23,6 +23,7 @@
 #include "realTimePlotterInput.h"
 #include "baslerSettings.h"
 #include "DdsSystem.h"
+#include "PlotDialog.h"
 
 #include <chrono>
 #include <vector>
@@ -50,11 +51,13 @@ enum class ExperimentType
 	MachineOptimization
 };
 
-class MasterManager;
+class MasterThreadManager;
 
 struct ExperimentThreadInput
 {
 	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
+	realTimePlotterInput* plotterInput;
+
 	EmbeddedPythonHandler& python;
 	// for posting messages only!
 	// AuxiliaryWindow* auxWin;
@@ -69,7 +72,7 @@ struct ExperimentThreadInput
 	ScanRangeInfo variableRangeInfo;
 	// believe outer layer here is for sequence increment
 	std::vector<std::vector<parameterType>> parameters;
-	MasterManager* thisObj;
+	MasterThreadManager* thisObj;
 	Communicator& comm;
 	RohdeSchwarz& rsg;
 	debugInfo debugOptions;
@@ -86,6 +89,7 @@ struct ExperimentThreadInput
 	bool runMaster;
 	bool runAndor;
 	bool logBaslerPics;
+	bool updatePlotterXVals;
 	bool dontActuallyGenerate=false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
@@ -98,7 +102,7 @@ struct ExperimentThreadInput
 	std::condition_variable* conditionVariableForRerng;
 	rerngGuiOptionsForm rerngGuiForm;
 	rerngGuiOptions rerngGui;
-	std::atomic<bool>* skipNext;
+	std::atomic<bool>* skipNext;	
 	atomGrid analysisGrid;
 
 	ExperimentType expType = ExperimentType::Normal;
@@ -108,9 +112,9 @@ struct ExperimentThreadInput
 struct AllExperimentInput
 {
 	AllExperimentInput::AllExperimentInput( ) :
-		includesAndorRun( false ), masterInput( NULL ), plotterInput( NULL ), cruncherInput( NULL ) { }
+		includesAndorRun( false ), masterInput( NULL ), cruncherInput( NULL ) { }
 	ExperimentThreadInput* masterInput;
-	realTimePlotterInput* plotterInput;
+	
 	atomCruncherInput* cruncherInput;
 	AndorRunSettings AndorSettings;
 	baslerSettings baslerRunSettings;

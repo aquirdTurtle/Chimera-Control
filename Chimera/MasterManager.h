@@ -18,12 +18,12 @@
 #include <sstream>
 #include <mutex>
 
-class MasterManager;
+class MasterThreadManager;
 
-class MasterManager
+class MasterThreadManager
 {
 	public:
-		MasterManager();
+		MasterThreadManager();
 		void pause();
 		void unPause(); 
 		bool getIsPaused();
@@ -56,6 +56,7 @@ class MasterManager
 								 DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								 std::vector<UINT>& dacShades, RohdeSchwarz& rsg, UINT seqNum, std::string& warnings,
 								 std::string callingFunction );
+		static void updatePlotX_vals (ExperimentThreadInput* input );
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											   std::string scope, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);

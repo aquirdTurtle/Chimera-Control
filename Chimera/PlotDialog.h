@@ -9,7 +9,8 @@ class PlotDialog : public CDialog
 {
 	/*
 	 * PlotDialog is a wrapper around a CDialog and a PlotCtrl. That is, it's a dialog with a PlotCtrl plot in it. 
-	 * It's purpose is to act as a movable window for extra plots that don't belong in the main window.
+	 * It's purpose is to act as a movable window for extra plots that don't belong in the main window, mainly 
+	 * real-time data analysis plots.
 	 */
 	public:
 		DECLARE_DYNAMIC( PlotDialog );
@@ -20,6 +21,7 @@ class PlotDialog : public CDialog
 		PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
 					 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
 					 std::vector<int> thresholds, std::string title );
+		~PlotDialog ( );
 		static bool removeQuery( PlotDialog* plt );
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog( ) override;

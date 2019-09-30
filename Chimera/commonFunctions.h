@@ -20,7 +20,7 @@ namespace commonFunctions
 									AuxiliaryWindow* auxWin );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runTtls, 
-							  bool runAndor, bool runBasler );
+							  bool runAndor, bool runBasler, bool startPlotThread );
 	void startExperimentThread(MainWindow* mainWin, AllExperimentInput& input);
 	void logParameters( AllExperimentInput input, DataLogger& logger, std::string specialName="", bool needsCal=true );
 	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin );

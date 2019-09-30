@@ -198,7 +198,7 @@ class MainWindow : public CDialog
 		// auxiliary members
 		Communicator comm;
 		fontMap mainFonts;
-		MasterManager masterThreadManager;
+		MasterThreadManager masterThreadManager;
 		CMenu menu;
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;

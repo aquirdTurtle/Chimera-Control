@@ -327,7 +327,7 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 			ScriptStream stream;
 			try
 			{
-				MasterManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
+				MasterThreadManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
 				writeDataSet ( stream.str ( ), "Agilent-Script-Script", scriptedArbSettings );
 			}
 			catch ( Error& )
@@ -802,7 +802,7 @@ void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
 		{
 			std::string niawgAddr = ProfileSystem::getNiawgScriptAddrFromConfig( config );
 			ScriptStream niawgStream;
-			MasterManager::loadNiawgScript ( niawgAddr, niawgStream );
+			MasterThreadManager::loadNiawgScript ( niawgAddr, niawgStream );
 			writeDataSet( niawgStream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
 			seqInc++;
 		}
