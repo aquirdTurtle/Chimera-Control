@@ -4,6 +4,7 @@ CODE PLANNING
 ===================
 IMMEDIATE LIST:
 - Fix EM Gain Mode opertion
+- fix attempts to set camera mode on config change.
 - Set Andor Settings From inside main exp thread
 - Start camera separately for each variation (should soften issues related to too many pictures)
 - get rs232 piezo controllers integrated

@@ -87,7 +87,6 @@ class AndorWindow : public CDialog
 		void prepareAndor( AllExperimentInput& input );
 		void armCameraWindow();
 		std::string getStartMessage();
-		void setEmGain();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();
 		void abortCameraRun();

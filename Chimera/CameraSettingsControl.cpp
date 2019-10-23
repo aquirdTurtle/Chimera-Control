@@ -49,8 +49,8 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	pos.amPos.y += 20;
 
 	/// EM Gain
-	emGainLabel.setPositions ( pos, 0, 0, 160, 20, false, false, true );
-	emGainLabel.Create ( "EM Gain Setting", NORM_HEADER_OPTIONS, emGainLabel.seriesPos, parent, id++ );
+	emGainBtn.setPositions ( pos, 0, 0, 160, 20, false, false, true );
+	emGainBtn.Create ( "Set EM Gain (-1=OFF)", NORM_PUSH_OPTIONS, emGainBtn.seriesPos, parent, IDC_EM_GAIN_BTN );
 	emGainEdit.setPositions ( pos, 160, 0, 160, 20, false, false, true );
 	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, IDC_EM_GAIN_EDIT );
 	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
@@ -163,11 +163,11 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 		emGainEdit.SetWindowTextA(cstr(inputSettings.emGainLevel));
 		emGainDisplay.SetWindowTextA(cstr("X" + str(inputSettings.emGainLevel)));
 	}
-	andorFriend->setGainMode();
+	//andorFriend->setGainMode();
 	// try to set this time.
-	picSettingsObj.setExposureTimes(inputSettings.exposureTimes, andorFriend);
+	//picSettingsObj.setExposureTimes(inputSettings.exposureTimes, andorFriend);
 	// now check actual times.
-	checkTimings(inputSettings.exposureTimes);
+	//checkTimings(inputSettings.exposureTimes);
 	///
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
@@ -335,7 +335,7 @@ void AndorCameraSettingsControl::rearrange( AndorRunModes::mode cameraMode, Ando
 	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	minKineticCycleTimeDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
 	calControl.rearrange( cameraMode, triggerMode, width, height, fonts );
-	emGainLabel.rearrange ( cameraMode, triggerMode, width, height, fonts );
+	emGainBtn.rearrange ( cameraMode, triggerMode, width, height, fonts );
 }
 
 
