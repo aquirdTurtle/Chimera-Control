@@ -824,7 +824,9 @@ namespace commonFunctions
 		}
 		scriptWindow->checkScriptSaves( );
 		mainWin->checkProfileSave();
-		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
+		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the NI arbitrary "
+			"waveform generator. The Andor camera temperature control will also stop, causing the Andor camera to "
+			"return to room temperature.";
 		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
 		if (areYouSure == IDOK)
 		{

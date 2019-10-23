@@ -133,7 +133,7 @@ class AndorWindow : public CDialog
 		DECLARE_MESSAGE_MAP();
 
 		AndorCamera Andor;
-		AndorCameraSettingsControl CameraSettings;
+		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
 
 		ColorBox box;
