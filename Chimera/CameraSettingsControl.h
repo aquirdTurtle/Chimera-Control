@@ -86,6 +86,7 @@ class AndorCameraSettingsControl
 		Control<CComboBox> cameraModeCombo;
 		Control<CStatic> emGainLabel;
 		Control<CEdit> emGainEdit;
+		Control<CleanButton> emGainBtn;
 		Control<CStatic> emGainDisplay;
 		Control<CComboBox> triggerCombo;
 		// Temperature

@@ -69,7 +69,8 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 
 	ON_NOTIFY(NM_RCLICK, IDC_PLOTTING_LISTVIEW, &AndorWindow::listViewRClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &AndorWindow::handleDblClick)
-	ON_EN_KILLFOCUS(IDC_EM_GAIN_EDIT, &AndorWindow::handleEmGainChange )
+	//ON_EN_KILLFOCUS(IDC_EM_GAIN_EDIT, &AndorWindow::handleEmGainChange )
+	ON_COMMAND ( IDC_EM_GAIN_BTN, &AndorWindow::handleEmGainChange )
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
@@ -208,6 +209,7 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 	pics.handleSaveConfig(saveFile);
 	analysisHandler.handleSaveConfig( saveFile );
 }
+
 
 void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
@@ -1059,20 +1061,6 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	
 	SetRedraw( );
 	RedrawWindow( );
-}
-
-
-void AndorWindow::setEmGain()
-{
-	try 
-	{
-		andorSettingsCtrl.setEmGain();
-	}
-	catch (Error& exception)
-	{
-		errBox( exception.trace() );
-	}
-	mainWin->updateConfigurationSavedStatus( false );
 }
 
 
