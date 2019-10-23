@@ -64,19 +64,19 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 				std::ifstream configFile ( configInfo.configFilePath ( ) );
-				ddsRampList[ seqNum ] = ProfileSystem::standardGetFromConfig ( configFile, dds.configDelim,
+				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
 																			   DdsCore::getRampListFromConfig );
 				for ( auto piezoInc : range(input->piezoControllers.size()))
 				{
-					auto res = ProfileSystem::standardGetFromConfig (
+					auto res = ProfileSystem::stdGetFromConfig (
 						configFile, input->piezoControllers[ piezoInc ]->configDelim, PiezoCore::getPiezoSettingsFromConfig );
 					piezoExpressions[ piezoInc ][ seqNum ] 
 						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
 					ctrlPztOptions[ piezoInc ][ seqNum ] = res.second;
 				}
-				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
+				mainOpts = ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
-				repetitions = ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS",
+				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
 																	 Repetitions::getRepsFromConfig );
 				
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );

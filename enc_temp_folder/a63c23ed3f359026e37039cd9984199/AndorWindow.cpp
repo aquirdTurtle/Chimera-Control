@@ -16,7 +16,7 @@
 #include "BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),
-							andorSettingsCtrl ( &Andor ),
+							CameraSettings ( &Andor ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
 							pics ( false, "ANDOR_PICTURE_MANAGER", false )
@@ -98,7 +98,7 @@ bool AndorWindow::wasJustCalibrated( )
 
 bool AndorWindow::wantsAutoCal( )
 {
-	return andorSettingsCtrl.getAutoCal( );
+	return CameraSettings.getAutoCal( );
 }
 
 
@@ -149,7 +149,7 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 
 void AndorWindow::handleImageDimsEdit( UINT id )
 {
-	pics.setParameters( andorSettingsCtrl.getSettings().andor.imageSettings );
+	pics.setParameters( CameraSettings.getSettings().andor.imageSettings );
 	CDC* dc = GetDC( );
 	try
 	{
@@ -168,7 +168,7 @@ void AndorWindow::handleEmGainChange()
 {
 	try
 	{
-		andorSettingsCtrl.setEmGain( );
+		CameraSettings.setEmGain( );
 	}
 	catch ( Error err )
 	{
@@ -196,7 +196,7 @@ std::string AndorWindow::getSystemStatusString()
 
 void AndorWindow::handleNewConfig( std::ofstream& newFile )
 {
-	andorSettingsCtrl.handleNewConfig( newFile );
+	CameraSettings.handleNewConfig( newFile );
 	pics.handleNewConfig( newFile );
 	analysisHandler.handleNewConfig( newFile );
 }
@@ -204,7 +204,7 @@ void AndorWindow::handleNewConfig( std::ofstream& newFile )
 
 void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 {
-	andorSettingsCtrl.handleSaveConfig(saveFile);
+	CameraSettings.handleSaveConfig(saveFile);
 	pics.handleSaveConfig(saveFile);
 	analysisHandler.handleSaveConfig( saveFile );
 }
@@ -213,50 +213,37 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
 	try
 	{
+		//ProfileSystem::standardOpenConfig ( configFile, "CAMERA_SETTINGS", "END_CAMERA_IMAGE_DIMENSIONS", &CameraSettings );
 		auto camSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS", 
 															 AndorCameraSettingsControl::getRunSettingsFromConfig );
-		andorSettingsCtrl.setRunSettings ( camSettings );
-	}
-	catch ( Error& err )
-	{
-		errBox ( "Failed to get Andor Camera Run settings from file! " + err.trace() );
-	}
-	try
-	{
+		CameraSettings.setRunSettings ( camSettings );
 		auto picSettings = ProfileSystem::stdGetFromConfig ( configFile, "PICTURE_SETTINGS",
 															 AndorCameraSettingsControl::getPictureSettingsFromConfig );
-		andorSettingsCtrl.updatePicSettings ( picSettings );
-	}
-	catch ( Error& err )
-	{
-		errBox ( "Failed to get Andor Camera Picture settings from file! " + err.trace ( ) );
-	}
-	try
-	{
+		CameraSettings.updatePicSettings ( picSettings );
 		auto imageDimSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS",
 																  AndorCameraSettingsControl::getImageDimSettingsFromConfig );
-		andorSettingsCtrl.updateImageDimSettings ( imageDimSettings );
+		CameraSettings.updateImageDimSettings( imageDimSettings );
+		CameraSettings.updateRunSettingsFromPicSettings ( );
 	}
 	catch ( Error& err )
 	{
-		errBox ( "Failed to get Andor Image Dimension settings from file! " + err.trace ( ) );
+		errBox ( "Failed to get Andor Camera settings from file!" );
 	}
-	andorSettingsCtrl.updateRunSettingsFromPicSettings ( );
 	ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
 	ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
 	try
 	{
-		if ( andorSettingsCtrl.getSettings ( ).andor.picsPerRepetition == 1 )
+		if ( CameraSettings.getSettings ( ).andor.picsPerRepetition == 1 )
 		{
-			pics.setSinglePicture ( this, andorSettingsCtrl.getSettings ( ).andor.imageSettings );
+			pics.setSinglePicture ( this, CameraSettings.getSettings ( ).andor.imageSettings );
 		}
 		else
 		{
-			pics.setMultiplePictures ( this, andorSettingsCtrl.getSettings ( ).andor.imageSettings,
-									   andorSettingsCtrl.getSettings ( ).andor.picsPerRepetition );
+			pics.setMultiplePictures ( this, CameraSettings.getSettings ( ).andor.imageSettings,
+									   CameraSettings.getSettings ( ).andor.picsPerRepetition );
 		}
 		pics.resetPictureStorage ( );
-		std::array<int, 4> nums = andorSettingsCtrl.getSettings ( ).palleteNumbers;
+		std::array<int, 4> nums = CameraSettings.getSettings ( ).palleteNumbers;
 		pics.setPalletes ( nums );
 		CRect rect;
 		GetWindowRect ( &rect );
@@ -321,7 +308,7 @@ void AndorWindow::passAlwaysShowGrid()
 
 void AndorWindow::passCameraMode()
 {
-	andorSettingsCtrl.handleModeChange(this);
+	CameraSettings.handleModeChange(this);
 	CRect rect;
 	GetClientRect ( &rect );
 	OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
@@ -529,7 +516,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		return NULL;
 	}
 	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
-	if ( andorSettingsCtrl.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
+	if ( CameraSettings.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
 	{
 		for ( UINT picInc = 0; picInc < rawPicData.size(); picInc++ )
 		{
@@ -555,7 +542,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		imQueue.push_back ( { picNum, calPicData[ ( picNum - 1 ) % curSettings.picsPerRepetition ] } );
 	}
 
-	auto picsToDraw = andorSettingsCtrl.getImagesToDraw( calPicData );
+	auto picsToDraw = CameraSettings.getImagesToDraw( calPicData );
 
 	CDC* drawer = GetDC( );
 	try
@@ -689,14 +676,14 @@ LRESULT AndorWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 	Andor.setCalibrating( false );
 	justCalibrated = true;
 	mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
-	andorSettingsCtrl.cameraIsOn( false );
+	CameraSettings.cameraIsOn( false );
 	// normalize.
 	for ( auto& p : avgBackground )
 	{
 		p /= 100.0;
 	}
 	// if auto cal is selected, always assume that the user was trying to start with F5.
-	if ( andorSettingsCtrl.getAutoCal( ) ) 
+	if ( CameraSettings.getAutoCal( ) ) 
 	{
 		PostMessageA( WM_COMMAND, MAKEWPARAM( ID_ACCELERATOR_F5, 0 ) );
 	}
@@ -736,7 +723,7 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	}
 	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
 	mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
-	andorSettingsCtrl.cameraIsOn( false );
+	CameraSettings.cameraIsOn( false );
 	mainWin->handleFinish();
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
@@ -765,7 +752,7 @@ int AndorWindow::getMostRecentFid ( )
 
 int AndorWindow::getPicsPerRep ( )
 {
-	return andorSettingsCtrl.getSettings ( ).andor.picsPerRepetition;
+	return CameraSettings.getSettings ( ).andor.picsPerRepetition;
 }
 
 std::string AndorWindow::getMostRecentDateString ( )
@@ -790,14 +777,14 @@ void AndorWindow::armCameraWindow()
 	// expecting that settings have already been set...
 	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
 	// turn some buttons off.
-	andorSettingsCtrl.cameraIsOn( true );
+	CameraSettings.cameraIsOn( true );
 	CDC* dc = GetDC();
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
 	//Andor.armCamera( this, minKineticTime );
-	//andorSettingsCtrl.updateMinKineticCycleTime( minKineticTime );
+	//CameraSettings.updateMinKineticCycleTime( minKineticTime );
 	mainWin->getComm()->sendColorBox(System::Camera, 'G');
 }
 
@@ -812,7 +799,7 @@ void AndorWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 {
 	try
 	{
-		analysisHandler.handleDoubleClick( &mainWin->getFonts( ), andorSettingsCtrl.getSettings( ).andor.picsPerRepetition );
+		analysisHandler.handleDoubleClick( &mainWin->getFonts( ), CameraSettings.getSettings( ).andor.picsPerRepetition );
 	}
 	catch ( Error& err )
 	{
@@ -888,7 +875,7 @@ void AndorWindow::passSetTemperaturePress()
 {
 	try
 	{
-		andorSettingsCtrl.handleSetTemperaturePress();
+		CameraSettings.handleSetTemperaturePress();
 	}
 	catch (Error& err)
 	{
@@ -903,7 +890,7 @@ void AndorWindow::passSetTemperaturePress()
  */
 void AndorWindow::OnTimer(UINT_PTR id)
 {
-	andorSettingsCtrl.handleTimer();
+	CameraSettings.handleTimer();
 }
 
 
@@ -912,7 +899,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
  */
 void AndorWindow::passTrigger()
 {
-	andorSettingsCtrl.handleTriggerChange(this);
+	CameraSettings.handleTriggerChange(this);
 	mainWin->updateConfigurationSavedStatus( false );
 }
 
@@ -949,18 +936,18 @@ void AndorWindow::passPictureSettings( UINT id )
 void AndorWindow::handlePictureSettings(UINT id)
 {
 	selectedPixel = { 0,0 };
-	andorSettingsCtrl.handlePictureSettings(id, &Andor);
-	if (andorSettingsCtrl.getSettings().andor.picsPerRepetition == 1)
+	CameraSettings.handlePictureSettings(id, &Andor);
+	if (CameraSettings.getSettings().andor.picsPerRepetition == 1)
 	{
-		pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
+		pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	}
 	else
 	{
-		pics.setMultiplePictures( this, andorSettingsCtrl.getSettings( ).andor.imageSettings,
-								  andorSettingsCtrl.getSettings().andor.picsPerRepetition);
+		pics.setMultiplePictures( this, CameraSettings.getSettings( ).andor.imageSettings,
+								  CameraSettings.getSettings().andor.picsPerRepetition);
 	}
 	pics.resetPictureStorage();
-	std::array<int, 4> nums = andorSettingsCtrl.getSettings( ).palleteNumbers;
+	std::array<int, 4> nums = CameraSettings.getSettings( ).palleteNumbers;
 	pics.setPalletes(nums);
 
 	CRect rect;
@@ -1034,8 +1021,8 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	try
 	{
 		SetRedraw ( false );
-		auto settings = andorSettingsCtrl.getSettings ( ).andor;
-		andorSettingsCtrl.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		auto settings = CameraSettings.getSettings ( ).andor;
+		CameraSettings.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
 		alerts.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
 		analysisHandler.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
 		pics.setParameters ( settings.imageSettings );
@@ -1066,7 +1053,7 @@ void AndorWindow::setEmGain()
 {
 	try 
 	{
-		andorSettingsCtrl.setEmGain();
+		CameraSettings.setEmGain();
 	}
 	catch (Error& exception)
 	{
@@ -1078,7 +1065,7 @@ void AndorWindow::setEmGain()
 
 void AndorWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
-	andorSettingsCtrl.handelSaveMasterConfig(configStream);
+	CameraSettings.handelSaveMasterConfig(configStream);
 }
 
 
@@ -1086,8 +1073,8 @@ void AndorWindow::handleMasterConfigOpen(std::stringstream& configStream, Versio
 {
 	mainWin->updateConfigurationSavedStatus( false );
 	selectedPixel = { 0,0 }; 
-	andorSettingsCtrl.handleOpenMasterConfig(configStream, version, this);
-	pics.setParameters(andorSettingsCtrl.getSettings().andor.imageSettings);
+	CameraSettings.handleOpenMasterConfig(configStream, version, this);
+	pics.setParameters(CameraSettings.getSettings().andor.imageSettings);
 	redrawPictures(true);
 }
 
@@ -1118,8 +1105,8 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	readImageParameters( );
 	pics.setNumberPicturesActive( 1 );
 	// biggest check here, camera settings includes a lot of things.
-	andorSettingsCtrl.checkIfReady( );
-	input.AndorSettings = andorSettingsCtrl.getCalibrationSettings( ).andor;
+	CameraSettings.checkIfReady( );
+	input.AndorSettings = CameraSettings.getCalibrationSettings( ).andor;
 	// reset the image which is about to be calibrated.
 	avgBackground.clear( );
 	/// start the camera.
@@ -1142,20 +1129,20 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	pics.refreshBackgrounds(dc);
 	ReleaseDC(dc);
 	readImageParameters( );
-	pics.setNumberPicturesActive( andorSettingsCtrl.getSettings().andor.picsPerRepetition );
+	pics.setNumberPicturesActive( CameraSettings.getSettings().andor.picsPerRepetition );
 	// this is a bit awkward at the moment.
-	andorSettingsCtrl.setRepsPerVariation(mainWin->getRepNumber());
+	CameraSettings.setRepsPerVariation(mainWin->getRepNumber());
 	UINT varNumber = auxWin->getTotalVariationNumber();
 	if (varNumber == 0)
 	{
 		// this means that the user isn't varying anything, so effectively this should be 1.
 		varNumber = 1;
 	}
-	andorSettingsCtrl.setVariationNumber(varNumber);
+	CameraSettings.setVariationNumber(varNumber);
 	// biggest check here, camera settings includes a lot of things.
-	andorSettingsCtrl.checkIfReady();
-	pics.setSoftwareAccumulationOptions ( andorSettingsCtrl.getSoftwareAccumulationOptions() );
-	input.AndorSettings = andorSettingsCtrl.getSettings().andor;
+	CameraSettings.checkIfReady();
+	pics.setSoftwareAccumulationOptions ( CameraSettings.getSoftwareAccumulationOptions() );
+	input.AndorSettings = CameraSettings.getSettings().andor;
 	/// start the camera.
 	Andor.setSettings( input.AndorSettings );
 
@@ -1165,7 +1152,7 @@ void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 {
 	input.cruncherInput = new atomCruncherInput;
 	input.cruncherInput->plotterActive = plotThreadActive;
-	input.cruncherInput->imageDims = andorSettingsCtrl.getSettings( ).andor.imageSettings;
+	input.cruncherInput->imageDims = CameraSettings.getSettings( ).andor.imageSettings;
 	atomCrunchThreadActive = true;
 	input.cruncherInput->plotterNeedsImages = input.masterInput->plotterInput->needsCounts;
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
@@ -1194,8 +1181,8 @@ void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
 	rearrangerAtomQueue.clear( );
 	input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
-	input.cruncherInput->thresholds = andorSettingsCtrl.getSettings( ).thresholds;
-	input.cruncherInput->picsPerRep = andorSettingsCtrl.getSettings().andor.picsPerRepetition;	
+	input.cruncherInput->thresholds = CameraSettings.getSettings( ).thresholds;
+	input.cruncherInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;	
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
 	input.cruncherInput->finTime = &crunchFinTimes;
 	input.cruncherInput->atomThresholdForSkip = mainWin->getMainOptions( ).atomThresholdForSkip;
@@ -1238,14 +1225,14 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 	pltInput->plotBrushes = mainWin->getPlotBrushes ( );
 	pltInput->plotFont = mainWin->getPlotFont ( );
 	pltInput->plotParentWindow = this;
-	pltInput->cameraSettings = andorSettingsCtrl.getSettings ( );
+	pltInput->cameraSettings = CameraSettings.getSettings ( );
 	pltInput->aborting = &plotThreadAborting;
 	pltInput->active = &plotThreadActive;
 	pltInput->imQueue = &plotterPictureQueue;
-	pltInput->imageShape = andorSettingsCtrl.getSettings().andor.imageSettings;
-	pltInput->picsPerVariation = mainWin->getRepNumber() * andorSettingsCtrl.getSettings().andor.picsPerRepetition;
+	pltInput->imageShape = CameraSettings.getSettings().andor.imageSettings;
+	pltInput->picsPerVariation = mainWin->getRepNumber() * CameraSettings.getSettings().andor.picsPerRepetition;
 	pltInput->variations = auxWin->getTotalVariationNumber();
-	pltInput->picsPerRep = andorSettingsCtrl.getSettings().andor.picsPerRepetition;
+	pltInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
 	pltInput->alertThreshold = alerts.getAlertThreshold();
 	pltInput->wantAtomAlerts = alerts.wantsAtomAlerts();
 	pltInput->comm = mainWin->getComm();
@@ -1291,7 +1278,7 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 		// start a PlotDialog dialog
 		PlotDialog* plot = new PlotDialog( data, style, mainWin->getPlotPens(), 
 										   mainWin->getPlotFont( ), mainWin->getPlotBrushes( ), 
-										   analysisHandler.getPlotTime(), andorSettingsCtrl.getSettings( ).thresholds[0], 
+										   analysisHandler.getPlotTime(), CameraSettings.getSettings( ).thresholds[0], 
 										   plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, this );
 		plot->ShowWindow( SW_SHOW );
@@ -1500,12 +1487,12 @@ std::string AndorWindow::getStartMessage()
 {
 	// get selected plots
 	std::vector<std::string> plots = analysisHandler.getActivePlotList();
-	imageParameters currentImageParameters = andorSettingsCtrl.getSettings( ).andor.imageSettings;
+	imageParameters currentImageParameters = CameraSettings.getSettings( ).andor.imageSettings;
 	bool errCheck = false;
 	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		PlottingInfo tempInfoCheck(PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
-		if (tempInfoCheck.getPicNumber() != andorSettingsCtrl.getSettings().andor.picsPerRepetition)
+		if (tempInfoCheck.getPicNumber() != CameraSettings.getSettings().andor.picsPerRepetition)
 		{
 			thrower ( ": one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
@@ -1517,9 +1504,9 @@ std::string AndorWindow::getStartMessage()
 	std::string dialogMsg;
 	dialogMsg = "Camera Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
 	dialogMsg += "Current Camera Temperature Setting:\r\n\t" + str(
-		andorSettingsCtrl.getSettings().andor.temperatureSetting ) + "\r\n";
+		CameraSettings.getSettings().andor.temperatureSetting ) + "\r\n";
 	dialogMsg += "Exposure Times: ";
-	for (auto& time : andorSettingsCtrl.getSettings().andor.exposureTimes)
+	for (auto& time : CameraSettings.getSettings().andor.exposureTimes)
 	{
 		dialogMsg += str( time * 1000 ) + ", ";
 	}
@@ -1527,15 +1514,15 @@ std::string AndorWindow::getStartMessage()
 	dialogMsg += "Image Settings:\r\n\t" + str( currentImageParameters.left ) + " - " + str( currentImageParameters.right ) + ", "
 		+ str( currentImageParameters.bottom ) + " - " + str( currentImageParameters.top ) + "\r\n";
 	dialogMsg += "\r\n";
-	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.kineticCycleTime ) + "\r\n";
-	dialogMsg += "Pictures per Repetition:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.picsPerRepetition ) + "\r\n";
-	dialogMsg += "Repetitions per Variation:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.totalPicsInVariation() ) + "\r\n";
-	dialogMsg += "Variations per Experiment:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.totalVariations ) + "\r\n";
-	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.totalPicsInExperiment() ) + "\r\n";
+	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( CameraSettings.getSettings().andor.kineticCycleTime ) + "\r\n";
+	dialogMsg += "Pictures per Repetition:\r\n\t" + str( CameraSettings.getSettings().andor.picsPerRepetition ) + "\r\n";
+	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation() ) + "\r\n";
+	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment() ) + "\r\n";
 	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 	UINT count = 0;
-	for (auto& picThresholds : andorSettingsCtrl.getSettings().thresholds)
+	for (auto& picThresholds : CameraSettings.getSettings().thresholds)
 	{
 		dialogMsg += "Pic " + str ( count ) + " thresholds: ";
 		for ( auto thresh : picThresholds )
@@ -1611,7 +1598,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	alerts.alertMainThread ( 0 );
 	alerts.initialize ( positions, this, false, id, tooltips );
 	analysisHandler.initialize ( positions, id, this, tooltips, false );
-	andorSettingsCtrl.initialize ( positions, id, this, tooltips );
+	CameraSettings.initialize ( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize ( position, this, id, tooltips );
 	positions.sPos = { 797, 0 };
@@ -1623,9 +1610,9 @@ BOOL AndorWindow::OnInitDialog ( )
 					   IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT, 
 					   IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
 	// end of literal initialization calls
-	pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
+	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
-	Andor.setSettings( andorSettingsCtrl.getSettings().andor );
+	Andor.setSettings( CameraSettings.getSettings().andor );
 	// load the menu
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
@@ -1669,7 +1656,7 @@ HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	CBrush * result;
 	int num = pWnd->GetDlgCtrlID();
 
-	result = andorSettingsCtrl.handleColor(num, pDC );
+	result = CameraSettings.handleColor(num, pDC );
 	HBRUSH res = *result;
 	if (res) { return res; }
 
@@ -1739,7 +1726,7 @@ void AndorWindow::passCommonCommand(UINT id)
 // this is typically a little redundant to call, but can use to make sure things are set to off.
 void AndorWindow::assertOff()
 {
-	andorSettingsCtrl.cameraIsOn(false);
+	CameraSettings.cameraIsOn(false);
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
 }
@@ -1751,7 +1738,7 @@ void AndorWindow::readImageParameters()
 	try
 	{
 		redrawPictures(false);
-		imageParameters parameters = andorSettingsCtrl.getSettings( ).andor.imageSettings;
+		imageParameters parameters = CameraSettings.getSettings( ).andor.imageSettings;
 		pics.setParameters( parameters );
 	}
 	catch (Error& exception)

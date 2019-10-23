@@ -87,7 +87,7 @@ class ProfileSystem
 		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, 
 										 Version minVer = Version ( "0.0" ) );
 		template <class returnType>
-		static returnType standardGetFromConfig ( std::ifstream& openFile, std::string delim, 
+		static returnType stdGetFromConfig ( std::ifstream& openFile, std::string delim, 
 												  returnType ( *getter )( std::ifstream&, Version ),
 												  Version minVer = Version( "0.0" ) );
 		static void checkDelimiterLine ( std::ifstream& openFile, std::string keyword );
@@ -171,7 +171,7 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 }
 
 template <class returnType>
-static returnType ProfileSystem::standardGetFromConfig ( std::ifstream& openFile, std::string delim, 
+static returnType ProfileSystem::stdGetFromConfig ( std::ifstream& openFile, std::string delim, 
 													     returnType ( *getter )( std::ifstream&, Version ),
 													     Version minVer )
 {

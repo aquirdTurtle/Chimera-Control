@@ -737,10 +737,10 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 	try
 	{
 		ProfileSystem::standardOpenConfig ( configFile, "CONFIGURATION_NOTES", &notes);
-		mainOptsCtrl.setOptions ( ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
+		mainOptsCtrl.setOptions ( ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																		MainOptionsControl::getMainOptionsFromConfig ) );
 		ProfileSystem::standardOpenConfig ( configFile, "DEBUGGING_OPTIONS", &debugger );
-		repetitionControl.setRepetitions ( ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS", 
+		repetitionControl.setRepetitions ( ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS", 
 																				  Repetitions::getRepsFromConfig ));
 		ProfileSystem::standardOpenConfig ( configFile, "REARRANGEMENT_INFORMATION", &rearrangeControl );
 	}

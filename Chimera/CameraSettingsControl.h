@@ -51,6 +51,13 @@ class AndorCameraSettingsControl
 		bool getUseCal( );
 		void setImageParameters(imageParameters newSettings, AndorWindow* camWin);
 		void setRunSettings(AndorRunSettings inputSettings);
+		void updateImageDimSettings ( imageParameters settings );
+		void updatePicSettings ( andorPicSettingsGroup settings );
+
+		static AndorRunSettings getRunSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static andorPicSettingsGroup getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static imageParameters getImageDimSettingsFromConfig ( std::ifstream& configFile ,Version ver );
+
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
