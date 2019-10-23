@@ -188,26 +188,6 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	{
 		thrower ( "ERROR: unrecognized camera mode: " + AndorRunModes::toStr(inputSettings.acquisitionMode) );
 	}
-	/*
-	if (inputSettings.cameraMode == "Video-Mode")
-	{
-		inputSettings.acquisitionMode = AndorRunModes::Video;
-		inputSettings.totalPicsInVariation = INT_MAX;
-	}
-	else if (inputSettings.cameraMode == "Kinetic-Series-Mode")
-	{
-		inputSettings.acquisitionMode = AndorRunModes::Kinetic;
-	}
-	else if ( inputSettings.cameraMode == "Accumulate-Mode" )
-	{
-		inputSettings.acquisitionMode = AndorRunModes::Accumulate;
-		inputSettings.totalPicsInVariation = INT_MAX;
-	}
-	else
-	{
-		thrower ( "ERROR: unrecognized camera mode: " + inputSettings.cameraMode );
-	}
-	*/
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime * 1000.0));
 	accumulationNumberEdit.SetWindowTextA(cstr(inputSettings.accumulationNumber));
@@ -599,18 +579,60 @@ UINT AndorCameraSettingsControl::getAccumulationNumber( )
 }
 
 
+void AndorCameraSettingsControl::updatePicSettings ( andorPicSettingsGroup settings )
+{
+	picSettingsObj.updateAllSettings ( settings );
+}
+
+void AndorCameraSettingsControl::updateImageDimSettings( imageParameters settings )
+{
+	imageDimensionsObj.setImageParametersFromInput ( settings, NULL );
+}
+
+
 void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
+	auto tempSettings = AndorCameraSettingsControl::getRunSettingsFromConfig ( configFile, ver );
+ 	setRunSettings(tempSettings);
+ 	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
+	ProfileSystem::checkDelimiterLine( configFile, "PICTURE_SETTINGS" );
+	auto settings = getPictureSettingsFromConfig ( configFile, ver );
+	picSettingsObj.updateAllSettings ( settings );
+	ProfileSystem::checkDelimiterLine ( configFile, "END_PICTURE_SETTINGS" );
+	if ( ver > Version ( "2.4" ) )
+	{
+		ProfileSystem::checkDelimiterLine ( configFile, "CAMERA_IMAGE_DIMENSIONS" );
+		auto params = getImageDimSettingsFromConfig ( configFile, ver );
+		imageDimensionsObj.setImageParametersFromInput ( params, NULL );
+	}
+	updateRunSettingsFromPicSettings( );
+}
+
+
+imageParameters AndorCameraSettingsControl::getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
+	return ImageDimsControl::getImageDimSettingsFromConfig ( configFile, ver );
+}
+
+
+andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
+	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile, ver );
+}
+
+
+AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
 	AndorRunSettings tempSettings;
-	configFile.get( );
+	configFile.get ( );
 	std::string txt;
-	std::getline(configFile, txt);
-	tempSettings.triggerMode = AndorTriggerMode::fromStr(txt);
+	std::getline ( configFile, txt );
+	tempSettings.triggerMode = AndorTriggerMode::fromStr ( txt );
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
-	configFile.get();
+	configFile.get ( );
 	std::getline ( configFile, txt );
-	if (txt == AndorRunModes::toStr(AndorRunModes::mode::Video) || txt == "Video Mode" )
+	if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Video ) || txt == "Video Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Video;
 		tempSettings.repetitionsPerVariation = INT_MAX;
@@ -618,32 +640,21 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
-		//settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
 	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Accumulate ) || txt == "Accumulate Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Accumulate;
-		//tempSettings.totalPicsInVariation = INT_MAX;
 	}
 	else
 	{
-		thrower ("ERROR: Unrecognized camera mode!");
+		thrower ( "ERROR: Unrecognized camera mode!" );
 	}
-	updateCameraMode ( );
+	//updateCameraMode ( );
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
- 	setRunSettings(tempSettings);
- 	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
-	
-	picSettingsObj.handleOpenConfig(configFile, ver, andorFriend);
-	
-	updateRunSettingsFromPicSettings( );
-	if (ver > Version("2.4" ) )
-	{
-		imageDimensionsObj.handleOpen( configFile, ver );
-	}
+	return tempSettings;
 }
 
 

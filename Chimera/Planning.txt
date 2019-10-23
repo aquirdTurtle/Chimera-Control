@@ -2,6 +2,11 @@
 ===================
 CODE PLANNING
 ===================
+IMMEDIATE LIST:
+- Fix EM Gain Mode opertion
+- Set Andor Settings From inside main exp thread
+- Start camera separately for each variation (should soften issues related to too many pictures)
+
 FEATURES:
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible.

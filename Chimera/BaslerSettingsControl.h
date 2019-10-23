@@ -35,7 +35,7 @@ class BaslerSettingsControl
 		const UINT unityGainSetting = 260;
 		
 		double getMotThreshold ( );
-
+		static baslerSettings getBaslerSettingsFromConfig ( std::ifstream& configFile, Version ver );
 
 	private:
 		ULONG lastTime;

@@ -121,6 +121,7 @@ void AuxiliaryWindow::handlePiezo1Ctrl ( )
 	}
 }
 
+
 void AuxiliaryWindow::handlePiezo2Ctrl ( )
 {
 	try
