@@ -97,18 +97,20 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 	drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
 }
 
-
 /*
  *
  */
 void PictureManager::drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-								  std::vector<atomGrid> grids, UINT pictureNumber )
+								  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers )
 {
 	UINT count = 1;
 	for (auto& pic : pictures)
 	{
 		pic.drawCircle(dc, selectedLocation);
-		pic.drawAnalysisMarkers(dc, analysisLocs, grids);
+		if ( includingAnalysisMarkers )
+		{
+			pic.drawAnalysisMarkers ( dc, analysisLocs, grids );
+		}
 		pic.drawPicNum( dc, pictureNumber - getNumberActive() + count++ );
 	}
 }
