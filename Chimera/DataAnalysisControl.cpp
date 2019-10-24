@@ -56,7 +56,6 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	setGridCorner.setPositions( pos, 100, 0, 200, 25 );
 	setGridCorner.Create( "Set Grid Top-Left Corner", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
 						  setGridCorner.seriesPos, parent, IDC_SET_GRID_CORNER );
-
 	gridSpacingText.setPositions( pos, 300, 0, 120, 25 );
 	gridSpacingText.Create("Pixel Spacing", NORM_STATIC_OPTIONS, gridSpacingText.seriesPos, parent, id++ );
 	gridSpacing.setPositions( pos, 420, 0, 60, 25, true );
@@ -73,11 +72,14 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	gridHeight.Create( NORM_EDIT_OPTIONS, gridHeight.seriesPos, parent, id++ );
 	gridHeight.SetWindowTextA( "0" );
 	// 
-	manualSetAnalysisLocsButton.setPositions( pos, 0, 0, 480, 25, true );
-	manualSetAnalysisLocsButton.Create("Manually Set AutoAnalysis Points", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
+	manualSetAnalysisLocsButton.setPositions( pos, 0, 0, 240, 25, false );
+	manualSetAnalysisLocsButton.Create("Manual Analysis Points", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
 										manualSetAnalysisLocsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
 
 	manualSetAnalysisLocsButton.EnableWindow( false );
+	displayGridBtn.setPositions ( pos, 240, 0, 240, 25, true );
+	displayGridBtn.Create ( "Display Grid?", NORM_CHECK_OPTIONS, displayGridBtn.seriesPos, parent, id++ );
+
 	/// PLOTTING FREQUENCY CONTROLS
 	updateFrequencyLabel1.setPositions( pos, 0, 0, 150, 25, false, false, true );
 	updateFrequencyLabel1.Create("Update plots every (", NORM_STATIC_OPTIONS | ES_CENTER | ES_RIGHT, 
@@ -115,6 +117,10 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	reloadListView();
 }
 
+bool DataAnalysisControl::getDrawGridOption ( )
+{
+	return displayGridBtn.GetCheck ( );
+}
 
 bool DataAnalysisControl::wantsThresholdAnalysis ( )
 {
@@ -267,7 +273,16 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 			}
 			counter++;
 		}
+
+
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
+	}
+
+	if ( ver > Version ( "4.7" ) )
+	{
+		bool option;
+		file >> option;
+		displayGridBtn.SetCheck ( option );
 	}
 }
 
@@ -315,7 +330,8 @@ void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 		}
 	}
 	file << "END_ACTIVE_PLOTS\n";
-	file << "END_DATA_ANALYSIS\n";
+	file << displayGridBtn.GetCheck ( ) << "\n";
+	file << "END_DATA_ANALYSIS\n"; 
 }
 
 
@@ -882,7 +898,7 @@ void DataAnalysisControl::rearrange( AndorRunModes::mode cameraMode, AndorTrigge
 	deleteGrid.rearrange( cameraMode, trigMode, width, height, fonts );
 	plotTimerTxt.rearrange( cameraMode, trigMode, width, height, fonts );
 	plotTimerEdit.rearrange( cameraMode, trigMode, width, height, fonts );
-	
+	displayGridBtn.rearrange ( cameraMode, trigMode, width, height, fonts );
 }
 
 

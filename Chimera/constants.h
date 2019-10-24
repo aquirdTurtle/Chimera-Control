@@ -17,8 +17,8 @@
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
 //#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
-//#define ANALYSIS_COMPUTER
+//#define SPECTRE_LAPTOP
+#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
@@ -78,6 +78,8 @@
 	
 
 #ifdef ANALYSIS_COMPUTER
+	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
+	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 	#define DDS_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
@@ -107,8 +109,8 @@
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Code\\";
-	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Chimera/Chimera-Control/Chimera";
-	const std::string PROJECT_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Chimera\\Chimera-Control\\";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Chimera-Control/Chimera";
+	const std::string PROJECT_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\";
 	//const std::string PYTHON_CODE_LOCATION = PROJECT_LOCATION + "\\Chimera";
 	// same as debug output location but with forward slashes for ease of use in python
 	const std::string PYTHON_INPUT_LOCATION = PROJECT_LOCATION + "\\Debug-Output\\";

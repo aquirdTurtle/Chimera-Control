@@ -33,7 +33,7 @@ class PictureManager
 						  std::pair<UINT, UINT> minMaxPair );
 		void drawBitmap ( CDC* deviceContext, Matrix<long> picData, std::pair<int, int> minMax );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-						  std::vector<atomGrid> gridInfo, UINT pictureNumber );
+						  std::vector<atomGrid> gridInfo, UINT pictureNumber, bool includingAnalysisMarkers=true );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);

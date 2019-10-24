@@ -471,7 +471,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
-								  analysisHandler.getGrids( ), picNum );
+								  analysisHandler.getGrids( ), picNum, false );
 				counter++;
 			}
 			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
@@ -553,7 +553,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	{
 		std::lock_guard<std::mutex> locker( plotLock );
-		// TODO: add check to check if this is needed.
+		// TODO: add check to check if this is needed. // ???????? dunno what I meant by this MOB Oct 23 2019
 		imQueue.push_back ( { picNum, calPicData[ ( picNum - 1 ) % curSettings.picsPerRepetition ] } );
 	}
 
@@ -588,7 +588,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
-								  analysisHandler.getGrids(), picNum );
+								  analysisHandler.getGrids(), picNum, analysisHandler.getDrawGridOption() );
 				counter++;
 			}
 			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
