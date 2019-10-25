@@ -119,6 +119,7 @@ void initMyColors( )
 	_myRGBs[ "BasWin-Text" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Disabled-Bkgd" ] = _myRGBs[ "Dark Grey Red" ];
 	_myRGBs[ "Static-Bkgd" ] = _myRGBs[ "Medium Grey" ];
+	_myRGBs[ "Button-Color" ] = _myRGBs[ "Dark Grey" ];
 	_myRGBs[ "Interactable-Bkgd" ] = _myRGBs[ "Light Grey" ];
 	// create corresponding brushes
 	for ( auto& rgb : _myRGBs )
