@@ -70,7 +70,6 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	//Get state of the button
 	
 	UINT state = lpDrawItemStruct->itemState;
-	//dc.FillSolidRect( rt, _myRGBs["Static-Bkgd"] );
 	if ( IsWindowEnabled( ) )
 	{
 		dc.FillSolidRect( subr, _myRGBs[ "Interactable-Bkgd" ] );
@@ -90,11 +89,10 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	//if ( (state & ODS_SELECTED) )
 	if ( GetCheck( ) )
 	{
-		// Draw a sunken face
-		//dc.DrawEdge( rt, EDGE_SUNKEN, BF_RECT );	
 		dc.SetTextColor( _myRGBs[ "Text-Emph" ] );
 		CPen pen( PS_SOLID, 0, _myRGBs[ "Text-Emph" ] );
 		dc.SelectObject( pen );
+		// draw the X
 		dc.MoveTo( subr.TopLeft( ) );
 		dc.LineTo( subr.BottomRight( ) );
 		dc.MoveTo( { subr.right, subr.top } );
@@ -103,8 +101,6 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	else
 	{
 		dc.SetTextColor( _myRGBs[ "Text-Emph" ] );
-		// Draw a raised face
-		//dc.DrawEdge( rt, EDGE_RAISED, BF_RECT );
 	}
 	// Get the caption which have been set
 	CString strTemp;
