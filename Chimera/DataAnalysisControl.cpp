@@ -281,6 +281,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 	if ( ver > Version ( "4.7" ) )
 	{
 		bool option;
+		file.get ( );
 		file >> option;
 		displayGridBtn.SetCheck ( option );
 	}

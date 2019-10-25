@@ -23,7 +23,6 @@ namespace commonFunctions
 							  bool runAndor, bool runBasler, bool startPlotThread );
 	void startExperimentThread(MainWindow* mainWin, AllExperimentInput& input);
 	void logParameters( AllExperimentInput input, DataLogger& logger, std::string specialName="", bool needsCal=true );
-	void setMot ( MainWindow* mainWin, AuxiliaryWindow* auxWin );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);
