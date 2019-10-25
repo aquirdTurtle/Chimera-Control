@@ -296,6 +296,7 @@
     <ClCompile Include="PiezoController.cpp" />
     <ClCompile Include="PiezoCore.cpp" />
     <ClCompile Include="SerialPiezoFlume.cpp" />
+    <ClCompile Include="AndorFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -685,6 +686,7 @@
     <ClInclude Include="PiezoCore.h" />
     <ClInclude Include="SerialPiezoFlume.h" />
     <ClInclude Include="PiezoType.h" />
+    <ClInclude Include="AndorFlume.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

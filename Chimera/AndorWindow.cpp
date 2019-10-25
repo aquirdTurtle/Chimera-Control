@@ -798,8 +798,6 @@ void AndorWindow::armCameraWindow()
 	ReleaseDC(dc);
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
-	//Andor.armCamera( this, minKineticTime );
-	//andorSettingsCtrl.updateMinKineticCycleTime( minKineticTime );
 	mainWin->getComm()->sendColorBox(System::Camera, 'G');
 }
 
@@ -1146,7 +1144,6 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	input.AndorSettings = andorSettingsCtrl.getSettings().andor;
 	/// start the camera.
 	Andor.setSettings( input.AndorSettings );
-
 }
 
 void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )

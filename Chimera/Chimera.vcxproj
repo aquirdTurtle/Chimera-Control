@@ -209,6 +209,7 @@
     <ClInclude Include="AiSystem.h" />
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="AnalogOutput.h" />
+    <ClInclude Include="AndorFlume.h" />
     <ClInclude Include="AndorRunSettings.h" />
     <ClInclude Include="AndorTriggerModes.h" />
     <ClInclude Include="ATMCD32D.H" />
@@ -344,6 +345,7 @@
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="AnalogOutput.cpp" />
+    <ClCompile Include="AndorFlume.cpp" />
     <ClCompile Include="AndorRunSettings.cpp" />
     <ClCompile Include="AndorTriggerModes.cpp" />
     <ClCompile Include="BaslerCamera.cpp" />
