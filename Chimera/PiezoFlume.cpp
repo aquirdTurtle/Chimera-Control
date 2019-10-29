@@ -1,11 +1,13 @@
 ﻿#include "stdafx.h"
 #include <boost/algorithm/string/replace.hpp>
 #include "PiezoFlume.h"
+#include "CmdLibrary.h"
 
-PiezoFlume::PiezoFlume ( bool sMode, std::string sn ) : safemode(sMode), comPortNumber(sn.begin(), sn.end())
+PiezoFlume::PiezoFlume(bool sMode, std::string sn) : safemode(sMode), comPortNumber(sn.begin(), sn.end())
 {
-	comPortNumber.push_back ( '\0' );
-	HINSTANCE hdll = LoadLibrary ( TEXT ( "MDT_COMMAND_LIB_win32.dll" ) );
+	comPortNumber.push_back('\0');
+	/*
+	HINSTANCE hdll = LoadLibrary ( TEXT ( "MDT_COMMAND_LIB_x64.dll" ) );
 	if ( hdll == NULL )
 	{
 		thrower ( "Failed to load thorlabs piezo driver dll! Make sure that MDT_COMMAND_LIB_win32.dll is in the "
@@ -62,34 +64,35 @@ PiezoFlume::PiezoFlume ( bool sMode, std::string sn ) : safemode(sMode), comPort
 		 SetZAxisVoltage_raw != NULL && SetZAxisMinVoltage_raw != NULL && SetZAxisMaxVoltage_raw != NULL &&
 		 GetZAxisVoltage_raw != NULL && GetZAxisMinVoltage_raw != NULL && GetZAxisMaxVoltage_raw != NULL &&
 		 SetAllVoltage_raw != NULL && SetXYZAxisVoltage_raw != NULL && GetXYZAxisVoltage_raw != NULL &&
-		 SetMasterScanEnable_raw != NULL && GetMasterScanEnable_raw != NULL && GetLimitVoltage_raw != NULL && 
+		 SetMasterScanEnable_raw != NULL && GetMasterScanEnable_raw != NULL && GetLimitVoltage_raw != NULL &&
 		 IsOpen_raw != NULL && GetSerialNumber_raw != NULL))
 	{
 		thrower ( "ERROR: Opened thorlabs piezo driver dll but failed to load one of the procedures?!?" );
 	}
+	*/
 }
 
 
-std::string PiezoFlume::list ( )
-{	
-	if ( !safemode )
-	{		
-		std::vector<char> sNum ( bufferSize );
-		auto res = List_raw ( &sNum[ 0 ] );
-		if ( res < 0 )
+std::string PiezoFlume::list()
+{
+	if (!safemode)
+	{
+		std::vector<unsigned char> sNum(bufferSize);
+		auto res = List(&sNum[0]);
+		if (res < 0)
 		{
-			thrower ( "ERROR: raw \"List\" function from the thorlabs piezo driver dll returned an error! Error code: "
-					  + str ( res ) + "." );
+			thrower("ERROR: raw \"List\" function from the thorlabs piezo driver dll returned an error! Error code: "
+					+ str(res) + ".");
 		}
-		for ( auto character : sNum )
+		for (auto character : sNum)
 		{
-			if ( character == '\0' )
+			if (character == '\0')
 			{
 
 			}
 		}
-		std::string tmpStr = std::string ( sNum.begin ( ), sNum.end ( ) ).c_str();
-		std::string listStr = str ( res ) + " Device(s): " + tmpStr;
+		std::string tmpStr = std::string(sNum.begin(), sNum.end()).c_str();
+		std::string listStr = str(res) + " Device(s): " + tmpStr;
 		return listStr;
 	}
 	else
@@ -99,29 +102,29 @@ std::string PiezoFlume::list ( )
 }
 
 
-void PiezoFlume::open (  )
+void PiezoFlume::open()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
 		// nBaud and timeout taken from example thorlabs program. Not sure if nBaud is changable without causing probs.
-		if ( isOpen ( ) )
+		if (isOpen())
 		{
-			close ( );
+			close();
 		}
-		deviceHandle = Open_raw ( &comPortNumber[ 0 ], 115200, 10 );
-		if ( deviceHandle < 0 )
+		deviceHandle = Open(&comPortNumber[0], 115200, 10);
+		if (deviceHandle < 0)
 		{
-			thrower ( "ERROR: raw \"Open\" function from the thorlabs piezo driver dll returned an error! Error code: "
-					  + str ( deviceHandle ) + "." );
+			thrower("ERROR: raw \"Open\" function from the thorlabs piezo driver dll returned an error! Error code: "
+					+ str(deviceHandle) + ".");
 		}
 	}
 }
 
-bool PiezoFlume::isOpen ( )
+bool PiezoFlume::isOpen()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		return IsOpen_raw ( &comPortNumber[0] );
+		return IsOpen(&comPortNumber[0]);
 	}
 	else
 	{
@@ -130,28 +133,28 @@ bool PiezoFlume::isOpen ( )
 }
 
 
-void PiezoFlume::close ( )
+void PiezoFlume::close()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		auto res = Close_raw ( deviceHandle );
-		if ( res < 0 )
+		auto res = Close(deviceHandle);
+		if (res < 0)
 		{
-			thrower ( "ERROR: Failed to close!" );
+			thrower("ERROR: Failed to close!");
 		}
 	}
 }
 
 
-double PiezoFlume::getXAxisVoltage ( )
+double PiezoFlume::getXAxisVoltage()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
 		double val;
-		auto res = GetXAxisVoltage_raw ( deviceHandle, val );
-		if ( res < 0 )
+		auto res = GetXAxisVoltage(deviceHandle, &val);
+		if (res < 0)
 		{
-			thrower ( "GetXAxisVoltage Failed! Error was: " + str ( res ) + "." );
+			thrower("GetXAxisVoltage Failed! Error was: " + str(res) + ".");
 		}
 		return val;
 	}
@@ -161,15 +164,15 @@ double PiezoFlume::getXAxisVoltage ( )
 	}
 }
 
-double PiezoFlume::getYAxisVoltage ( )
+double PiezoFlume::getYAxisVoltage()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
 		double val;
-		auto res = GetYAxisVoltage_raw ( deviceHandle, val );
-		if ( res < 0 )
+		auto res = GetYAxisVoltage(deviceHandle, &val);
+		if (res < 0)
 		{
-			thrower ( "GetYAxisVoltage Failed! Error was: " + str ( res ) + "." );
+			thrower("GetYAxisVoltage Failed! Error was: " + str(res) + ".");
 		}
 		return val;
 	}
@@ -179,15 +182,15 @@ double PiezoFlume::getYAxisVoltage ( )
 	}
 }
 
-double PiezoFlume::getZAxisVoltage ( )
+double PiezoFlume::getZAxisVoltage()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
 		double val;
-		auto res = GetZAxisVoltage_raw ( deviceHandle, val );
-		if ( res < 0 )
+		auto res = GetZAxisVoltage(deviceHandle, &val);
+		if (res < 0)
 		{
-			thrower ( "GetZAxisVoltage Failed! Error was: " + str ( res ) + "." );
+			thrower("GetZAxisVoltage Failed! Error was: " + str(res) + ".");
 		}
 		return val;
 	}
@@ -198,29 +201,29 @@ double PiezoFlume::getZAxisVoltage ( )
 }
 
 
-std::string PiezoFlume::getDeviceInfo ( )
+std::string PiezoFlume::getDeviceInfo()
 {
-	std::string devInfo = getID ( ).c_str();
-	boost::replace_all ( devInfo, "\r\r\r", "\r" );
-	boost::replace_all ( devInfo, "\r", "\n\t\t" );
+	std::string devInfo = getID().c_str();
+	boost::replace_all(devInfo, "\r\r\r", "\r");
+	boost::replace_all(devInfo, "\r", "\n\t\t");
 	return devInfo;
 }
 
 
-std::string PiezoFlume::getID ( )
+std::string PiezoFlume::getID()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		if ( !isOpen ( ) )
+		if (!isOpen())
 		{
-			thrower ( "Piezo Driver Com Port was not open!" );
+			thrower("Piezo Driver Com Port was not open!");
 		}
-		std::vector<char> txt ( bufferSize, '\0' );
-		auto res = GetId_raw ( deviceHandle, &txt[0] );
-		if ( res < 0 )
+		std::vector<unsigned char> txt(bufferSize, '\0');
+		auto res = GetId(deviceHandle, &txt[0]);
+		if (res < 0)
 		{
-			thrower ( "ERROR: raw \"GetId\" function from the thorlabs piezo driver dll returned an error! Error code: "
-					  + str ( res ) + "." );
+			thrower("ERROR: raw \"GetId\" function from the thorlabs piezo driver dll returned an error! Error code: "
+					+ str(res) + ".");
 		}
 		return std::string(txt.begin(), txt.end());
 	}
@@ -230,20 +233,20 @@ std::string PiezoFlume::getID ( )
 	}
 }
 
-double PiezoFlume::getLimitVoltage ( )
+double PiezoFlume::getLimitVoltage()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		if ( !isOpen ( ) )
+		if (!isOpen())
 		{
-			thrower ( "Piezo Driver Com Port was not open!" );
+			thrower("Piezo Driver Com Port was not open!");
 		}
 		double voltLimit;
-		auto res = GetLimitVoltage_raw ( deviceHandle, voltLimit );
-		if ( res < 0 )
+		auto res = GetLimitVoltage(deviceHandle, &voltLimit);
+		if (res < 0)
 		{
-			thrower ( "ERROR: raw \"GetLimitVoltage\" function from the thorlabs piezo driver dll returned an error! Error code: "
-					  + str ( res ) + "." );
+			thrower("ERROR: raw \"GetLimitVoltage\" function from the thorlabs piezo driver dll returned an error! Error code: "
+					+ str(res) + ".");
 		}
 		return voltLimit;
 	}
@@ -253,22 +256,22 @@ double PiezoFlume::getLimitVoltage ( )
 	}
 }
 
-std::string PiezoFlume::getSerialNumber ( )
+std::string PiezoFlume::getSerialNumber()
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		if ( !isOpen ( ) )
+		if (!isOpen())
 		{
-			thrower ( "Piezo Driver Com Port was not open!" );
+			thrower("Piezo Driver Com Port was not open!");
 		}
-		std::vector<char> txt ( bufferSize, '\0' );
-		auto res = GetSerialNumber_raw ( deviceHandle, &txt[ 0 ] );
-		if ( res < 0 )
+		std::vector<unsigned char> txt(bufferSize, '\0');
+		auto res = GetSerialNumber(deviceHandle, &txt[0]);
+		if (res < 0)
 		{
-			thrower ( "ERROR: raw \"GetSerialNumber\" function from the thorlabs piezo driver dll returned an error! "
-					  "Error code: " + str ( res ) + "." );
+			thrower("ERROR: raw \"GetSerialNumber\" function from the thorlabs piezo driver dll returned an error! "
+					"Error code: " + str(res) + ".");
 		}
-		return std::string ( txt.begin ( ), txt.end ( ) );
+		return std::string(txt.begin(), txt.end());
 	}
 	else
 	{
@@ -278,38 +281,38 @@ std::string PiezoFlume::getSerialNumber ( )
 
 
 
-void PiezoFlume::setXAxisVoltage ( double val )
+void PiezoFlume::setXAxisVoltage(double val)
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		auto res = SetXAxisVoltage_raw ( deviceHandle, val );
-		if ( res != 0 )
+		auto res = SetXAxisVoltage(deviceHandle, val);
+		if (res != 0)
 		{
-			thrower ( "Piezo Controller Set X Axis Voltage Failed! Error code was: " + str ( res ) + "." );
+			thrower("Piezo Controller Set X Axis Voltage Failed! Error code was: " + str(res) + ".");
 		}
 	}
 }
 
-void PiezoFlume::setYAxisVoltage ( double val )
+void PiezoFlume::setYAxisVoltage(double val)
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		auto res = SetYAxisVoltage_raw ( deviceHandle, val );
-		if ( res != 0 )
+		auto res = SetYAxisVoltage(deviceHandle, val);
+		if (res != 0)
 		{
-			thrower ( "Piezo Controller Set X Axis Voltage Failed! Error code was: " + str ( res ) + "." );
+			thrower("Piezo Controller Set X Axis Voltage Failed! Error code was: " + str(res) + ".");
 		}
 	}
 }
 
-void PiezoFlume::setZAxisVoltage ( double val )
+void PiezoFlume::setZAxisVoltage(double val)
 {
-	if ( !safemode )
+	if (!safemode)
 	{
-		auto res = SetZAxisVoltage_raw ( deviceHandle, val );
-		if ( res != 0 )
+		auto res = SetZAxisVoltage(deviceHandle, val);
+		if (res != 0)
 		{
-			thrower ( "Piezo Controller Set X Axis Voltage Failed! Error code was: " + str ( res ) + "." );
+			thrower("Piezo Controller Set X Axis Voltage Failed! Error code was: " + str(res) + ".");
 		}
 	}
 }

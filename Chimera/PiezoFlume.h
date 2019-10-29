@@ -23,7 +23,7 @@ class PiezoFlume
 
 	private:
 		const bool safemode;
-		std::vector<char> comPortNumber;
+		std::vector<unsigned char> comPortNumber;
 		int deviceHandle=0;
 		const UINT bufferSize = 256;
 		typedef int ( *ftype_List )( char *serialNo );
