@@ -272,12 +272,13 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 
 
 void AndorWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
-								BaslerWindow* basWin_)
+								BaslerWindow* basWin_, AuxiliaryWindow2* auxWin2_)
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	auxWin = auxWin_;
 	basWin = basWin_;
+	auxWin2 = auxWin2_;
 }
 
 

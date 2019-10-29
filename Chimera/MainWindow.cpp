@@ -3,11 +3,13 @@
 #include "MainWindow.h"
 #include "AndorWindow.h"
 #include "AuxiliaryWindow.h"
+#include "AuxiliaryWindow2.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
 #include <future>
 #include "Thrower.h"
 #include "externals.h"
+#include "DmCore.h"
 
 
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
@@ -15,7 +17,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	appSplash( splash ),
 	niawg( DioRows::which::B, 14, NIAWG_SAFEMODE ),
 	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope" ),
-	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope" )
+	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope" ), defMirror(DM_SERIAL, DM_SAFEMODE)
 {
 	programStartTime = startTime;
 	startupTimes.push_back(chronoClock::now());
@@ -495,6 +497,8 @@ BOOL MainWindow::OnInitDialog( )
 		TheAuxiliaryWindow = new AuxiliaryWindow;
 		which = "Basler";
 		TheBaslerWindow = new BaslerWindow;
+		which = "Auxiliary2";
+		TheAuxiliaryWindow2 = new AuxiliaryWindow2;
 	}
 	catch ( Error& err )
 	{
@@ -502,10 +506,11 @@ BOOL MainWindow::OnInitDialog( )
 		forceExit ( );
 		return -1;
 	}
-	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
-	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow );
-	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow );
-	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
+	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2 );
+	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2);
+	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow, TheAuxiliaryWindow2);
+	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheAuxiliaryWindow2);
+	TheAuxiliaryWindow2->loadFriends(this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow);
 	startupTimes.push_back(chronoClock::now());
 	try
 	{
@@ -514,6 +519,7 @@ BOOL MainWindow::OnInitDialog( )
 		TheAndorWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheBaslerWindow->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
+		TheAuxiliaryWindow2->Create(IDD_LARGE_TEMPLATE, GetDesktopWindow());
 	}
 	catch ( Error& err )
 	{
@@ -566,6 +572,7 @@ BOOL MainWindow::OnInitDialog( )
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
 	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
+	TheAuxiliaryWindow2->ShowWindow(SW_MAXIMIZE);
 	std::vector<CDialog*> windows = {NULL, this, TheAndorWindow, TheScriptingWindow, TheAuxiliaryWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
@@ -912,6 +919,20 @@ std::string MainWindow::getSystemStatusString()
 	}
 	else
 	{
+		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
+	}
+	status += "Deformable Mirror: \n";
+	if (!DM_SAFEMODE)
+	{
+		status += "\t Code System is Active!\n";
+		try {
+			status += "\t" + defMirror.getDeviceInfo();
+		}
+		catch (Error & err) {
+			status += "\tFiled to get device info! Error: " + err.trace();
+		}
+	}
+	else {
 		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	return status;

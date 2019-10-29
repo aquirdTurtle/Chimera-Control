@@ -53,11 +53,14 @@
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
-	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
-	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Chimera";
-	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Data_Analysis_Code\\";
+	#define DM_SERIAL "25CW012#060"
+	#define DM_SAFEMODE true 
+
+	const std::string PROJECT_LOCATION = "C:\\Users\\Max\\Chimera-Control\\";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Max/Chimera-Control/Chimera";
+	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Max\\Code\\Data_Analysis_Code\\";
 	// same as debug output location but with forward slashes for ease of use in python
-	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Debug-Output/";
+	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Max/Chimera-Control/Debug-Output/";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default-Scripts\\";

@@ -45,6 +45,7 @@ struct whichAg
 
 
 class BaslerWindow;
+class AuxiliaryWindow2;
 
 
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
@@ -87,7 +88,7 @@ class AuxiliaryWindow : public CDialog
 		void Exit();
 		void passRoundToDac();
 		void loadFriends( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-						  BaslerWindow* basWin_ );
+						  BaslerWindow* basWin_, AuxiliaryWindow2* auxWin2_);
 		std::string getOtherSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<AoInfo, 24> getDacInfo ( );
@@ -173,6 +174,7 @@ class AuxiliaryWindow : public CDialog
 		ScriptingWindow* scriptWin;
 		AndorWindow* camWin;
 		BaslerWindow* basWin;
+		AuxiliaryWindow2* auxWin2;
 
 		CMenu menu;
 		std::string title;

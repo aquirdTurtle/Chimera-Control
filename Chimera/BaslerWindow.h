@@ -16,6 +16,7 @@ class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class AuxiliaryWindow2;
 
 
 class BaslerWindow : public CDialogEx
@@ -51,7 +52,7 @@ class BaslerWindow : public CDialogEx
 		void OnMouseMove(UINT flags, CPoint point );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void DoDataExchange( CDataExchange* pDX );
-		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ );
+		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ , AuxiliaryWindow2* auxWin2_);
 		void handleSavingConfig ( std::ofstream& configFile );
 		void startCamera ( );
 		baslerSettings getCurrentSettings ( );
@@ -83,6 +84,7 @@ class BaslerWindow : public CDialogEx
 		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		ScriptingWindow* scriptWin;
+		AuxiliaryWindow2* auxWin2;
 		coordinate selectedPixel = { 0,0 };
 	protected:
 		HICON m_hIcon;

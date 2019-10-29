@@ -71,12 +71,13 @@ baslerSettings BaslerWindow::getCurrentSettings ( )
 
 
 void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								 AuxiliaryWindow* auxWin_ )
+								 AuxiliaryWindow* auxWin_, AuxiliaryWindow2* auxWin2_)
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	camWin = camWin_;
 	auxWin = auxWin_;
+	auxWin2 = auxWin2_;
 }
 
 

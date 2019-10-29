@@ -20,15 +20,18 @@
 #include "OscilloscopeViewer.h"
 #include "profileSettings.h"
 #include "commonFunctions.h"
+#include "DmCore.h"
 
 #include <string>
 #include <vector>
 #include "afxwin.h"
 
+
 class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class AuxiliaryWindow2;
 
 struct scopeRefreshInput
 {
@@ -180,6 +183,7 @@ class MainWindow : public CDialog
 		AndorWindow* TheAndorWindow;
 		AuxiliaryWindow* TheAuxiliaryWindow;
 		BaslerWindow* TheBaslerWindow;
+		AuxiliaryWindow2* TheAuxiliaryWindow2;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -205,6 +209,7 @@ class MainWindow : public CDialog
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;
 		CFont* plotfont;
+		DmCore defMirror;
 		//
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 												  _In_ LPRECT lprcMonitor, _In_ LPARAM dwData );

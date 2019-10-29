@@ -280,12 +280,13 @@ std::string ScriptingWindow::getSystemStatusString()
 }
 
 
-void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_)
+void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_, AuxiliaryWindow2* auxWin2_)
 {
 	mainWin = mainWin_;
 	camWin = camWin_;
 	auxWin = auxWin_;
 	basWin = basWin_;
+	auxWin2 = auxWin2_;
 }
 
 /*

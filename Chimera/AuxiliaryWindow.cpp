@@ -1,6 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "AuxiliaryWindow.h"
+#include "AuxiliaryWindow2.h"
 #include "DioSettingsDialog.h"
 #include "AoSettingsDialog.h"
 #include "TextPromptDialog.h"
@@ -897,12 +898,13 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value)
 
 
 void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								   BaslerWindow* basWin_)
+								   BaslerWindow* basWin_, AuxiliaryWindow2* auxWin2_)
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	camWin = camWin_;
 	basWin = basWin_;
+	auxWin2 = auxWin2_;
 }
 
 

@@ -14,6 +14,7 @@ class MainWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class AuxiliaryWindow2;
 
 
 // a convenient structure for containing one object for each script. For example, the address of each script.
@@ -43,7 +44,7 @@ class ScriptingWindow : public CDialog
 		void passCommonCommand(UINT id);
 
 		void checkScriptSaves();
-		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
+		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_, AuxiliaryWindow2* auxWin2_);
 		void fillMasterThreadInput(ExperimentThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
 
@@ -113,6 +114,7 @@ class ScriptingWindow : public CDialog
 		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		BaslerWindow* basWin;
+		AuxiliaryWindow2* auxWin2;
 		//
 		cToolTips tooltips;
 		Script niawgScript, masterScript;

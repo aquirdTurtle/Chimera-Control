@@ -21,6 +21,7 @@ class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class AuxiliaryWindow2;
 
 
 class AndorWindow : public CDialog
@@ -72,7 +73,7 @@ class AndorWindow : public CDialog
 		DataLogger& getLogger();
 		std::string getSystemStatusString();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
-						  BaslerWindow* basWin);
+						  BaslerWindow* basWin, AuxiliaryWindow2* auxWin2_);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);
@@ -147,6 +148,7 @@ class AndorWindow : public CDialog
 		ScriptingWindow* scriptWin;
 		AuxiliaryWindow* auxWin;
 		BaslerWindow* basWin;
+		AuxiliaryWindow2* auxWin2;
 
 		cToolTips tooltips;
 		coordinate selectedPixel = { 0,0 };
