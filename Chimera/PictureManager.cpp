@@ -42,6 +42,11 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 {
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
+		if ( palleteIds[ picInc ] > 3 )
+		{
+			errBox ( "Image Pallete ID out of range! Forcing to 0." );
+			palleteIds[ picInc ] = 0;
+		}
 		pictures[picInc].updatePalette(palettes[palleteIds[picInc]]);
 	}
 }

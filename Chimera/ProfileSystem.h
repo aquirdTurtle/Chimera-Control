@@ -119,7 +119,8 @@ class ProfileSystem
 		// Version 4.5: Added DDS system to save.
 		// Version 4.6: Added Piezo System 1 to save.
 		// Version 4.7: Added display grid check
-		const Version version = Version( "4.7" );
+		// Version 4.8: Moved pics per rep and exposure times to the CameraSettingsControl part of the config.
+		const Version version = Version( "4.8" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

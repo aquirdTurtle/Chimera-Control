@@ -973,7 +973,7 @@ void AndorWindow::passPictureSettings( UINT id )
 void AndorWindow::handlePictureSettings(UINT id)
 {
 	selectedPixel = { 0,0 };
-	andorSettingsCtrl.handlePictureSettings(id, &andor);
+	andorSettingsCtrl.handlePictureSettings(id);
 	if (andorSettingsCtrl.getSettings().andor.picsPerRepetition == 1)
 	{
 		pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
@@ -1167,7 +1167,7 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	pics.setSoftwareAccumulationOptions ( andorSettingsCtrl.getSoftwareAccumulationOptions() );
 	input.AndorSettings = andorSettingsCtrl.getSettings().andor;
 	/// start the camera.
-	andor.setSettings( input.AndorSettings );
+	//andor.setSettings( input.AndorSettings );
 }
 
 void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )

@@ -8,8 +8,7 @@
 
 AndorCameraSettingsControl::AndorCameraSettingsControl() 
 {
-	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
-	// function.
+	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" function.
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.exposureTimes = { 0.026f };
 	andorSettings.picsPerRepetition = 1;
@@ -162,7 +161,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	//andorFriend->setGainMode();
 	// try to set this time.
 	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
-	//picSettingsObj.setExposureTimes(inputSettings.exposureTimes, andorFriend);
+	picSettingsObj.setUnofficialPicsPerRep ( inputSettings.picsPerRepetition );
 	// now check actual times.
 	//checkTimings(inputSettings.exposureTimes);
 	///
@@ -376,8 +375,6 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 			thrower ( "Aborting camera settings update at EM Gain update!" );
 		}
 	}
-	//andorSettings.emGainLevel = settings.andor.emGainLevel;
-	//andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
 	emGainEdit.RedrawWindow();
 }
 
@@ -422,9 +419,9 @@ void AndorCameraSettingsControl::updateRunSettingsFromPicSettings( )
 }
 
 
-void AndorCameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
+void AndorCameraSettingsControl::handlePictureSettings(UINT id)
 {
-	picSettingsObj.handleOptionChange(id, andorObj);
+	picSettingsObj.handleOptionChange(id);
 	updateRunSettingsFromPicSettings( );
 }
 
@@ -556,11 +553,27 @@ AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( std::ifs
 	{
 		thrower ( "ERROR: Unrecognized camera mode!" );
 	}
-	//updateCameraMode ( );
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
+	if ( ver > Version ( "4.7" ) )
+	{
+		UINT numExposures = 0;
+		configFile >> numExposures;
+		tempSettings.exposureTimes.resize ( numExposures );
+		for ( auto& exp : tempSettings.exposureTimes )
+		{
+			configFile >> exp;
+		}
+		configFile >> tempSettings.picsPerRepetition;
+	}
+	else
+	{
+		tempSettings.picsPerRepetition = 1;
+		tempSettings.exposureTimes.clear( );
+		tempSettings.exposureTimes.push_back ( 1e-3 );
+	}
 	return tempSettings;
 }
 
@@ -584,6 +597,7 @@ void AndorCameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 
 void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
+	updateSettings ( );
 	saveFile << "CAMERA_SETTINGS\n";
 	saveFile << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
 	saveFile << settings.andor.emGainModeIsOn << "\n";
@@ -593,6 +607,12 @@ void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << settings.andor.accumulationTime << "\n";
 	saveFile << settings.andor.accumulationNumber << "\n";
 	saveFile << settings.andor.temperatureSetting << "\n";
+	saveFile << settings.andor.exposureTimes.size ( ) << "\n";
+	for ( auto exposure : settings.andor.exposureTimes )
+	{
+		saveFile << exposure << " ";
+	}
+	saveFile << "\n" << settings.andor.picsPerRepetition << "\n";
 	saveFile << "END_CAMERA_SETTINGS\n";
 
 	picSettingsObj.handleSaveConfig(saveFile);
