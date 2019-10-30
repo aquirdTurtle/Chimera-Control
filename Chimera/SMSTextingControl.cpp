@@ -4,7 +4,6 @@
 #include "SMSTextingControl.h"
 #include "commctrl.h"
 #include "TextPromptDialog.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 

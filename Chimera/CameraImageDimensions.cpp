@@ -4,7 +4,6 @@
 #include "AndorWindow.h"
 #include "MainWindow.h"
 #include "CameraSettingsControl.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 ImageDimsControl::ImageDimsControl()

@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "PictureControl.h"
-#include "Thrower.h"
 #include <algorithm>
 #include <numeric>
 #include <boost/lexical_cast.hpp>

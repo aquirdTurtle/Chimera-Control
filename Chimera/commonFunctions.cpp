@@ -12,7 +12,6 @@
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
-#include "Thrower.h"
 #include "externals.h"
 
 

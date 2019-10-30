@@ -12,7 +12,6 @@
 #include "ErrDialog.h"
 #include "ATMCD32D.H"
 #include <numeric>
-#include "Thrower.h"
 #include "BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),

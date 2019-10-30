@@ -6,7 +6,6 @@
 #include "Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
-#include "Thrower.h"
 #include "range.h"
 #include "CodeTimer.h"
 #include <boost/lexical_cast.hpp>

@@ -9,7 +9,6 @@
 #include <process.h>
 #include <algorithm>
 #include <numeric>
-#include "Thrower.h"
 #include <random>
 
 std::string AndorCamera::getSystemInfo()
@@ -635,7 +634,8 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 	std::string errMsg;
 	if (isKinetic)
 	{
-		// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
+		// right now, kinetic series mode always has one accumulation. could add this feature later if desired to do 
+		// both kinetic and accumulation. Not sure there's actually much of a reason to use accumulations. 
 		//setNumberAccumulations(true); // ???
 		flume.setAccumulationNumber(1);
 	}
@@ -707,11 +707,6 @@ void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 		}
 	}
 
-	// ???
-	/*
-	eCooler = TRUE;
-	SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
-	*/
 	if (turnTemperatureControlOff == false)
 	{
 		flume.setTemperature(runSettings.temperatureSetting);

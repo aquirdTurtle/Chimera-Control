@@ -4,7 +4,6 @@
 #include <vector>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-#include "Thrower.h"
 #include <iomanip>
 #include <iostream>
 #include "my_str.h"
@@ -14,16 +13,6 @@ Expression::Expression( )
 {
 	// in this case, the expression must be explicitly initialized using init() later.
 }
-/*
-Expression& Expression::operator=( const std::string& expr )
-{
-	expressionStr = expr;
-	values.clear ( );
-	expressionScope = "";
-	return *this;
-}
-*/
-
 Expression::Expression( std::string expressionString )
 {
 	expressionStr = expressionString;

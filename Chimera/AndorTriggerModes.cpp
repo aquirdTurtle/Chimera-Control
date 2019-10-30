@@ -1,6 +1,5 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
-#include "Thrower.h"
 #include "AndorTriggerModes.h"
 const std::array<AndorTriggerMode::mode, 3> AndorTriggerMode::allModes = { AndorTriggerMode::mode::External,
 AndorTriggerMode::mode::Internal,

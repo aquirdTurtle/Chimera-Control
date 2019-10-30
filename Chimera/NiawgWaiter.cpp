@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "NiawgWaiter.h"
 #include "Communicator.h"
-#include "Thrower.h"
 #include "externals.h"
 
 

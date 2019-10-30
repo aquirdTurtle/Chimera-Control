@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "DaqMxFlume.h"
 #include <vector>
-#include "Thrower.h"
 
 
 DaqMxFlume::DaqMxFlume( bool safemodeOption ) : safemode ( safemodeOption )

@@ -8,12 +8,10 @@
 
 #include "MasterThreadInput.h"
 #include "Matrix.h"
-#include "Thrower.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <numeric>
-#include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"
 #include "Queues.h"

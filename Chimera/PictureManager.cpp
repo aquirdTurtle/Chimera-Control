@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "PictureManager.h"
 #include "ProfileSystem.h"
-#include "Thrower.h"
 #include "pictureSettingsControl.h"
 
 PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 

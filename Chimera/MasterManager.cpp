@@ -8,7 +8,6 @@
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
-#include "Thrower.h"
 #include "range.h"
 #include "MainWindow.h"
 #include "nidaqmx2.h"

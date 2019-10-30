@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "rerngGuiControl.h"
 #include "ProfileSystem.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )

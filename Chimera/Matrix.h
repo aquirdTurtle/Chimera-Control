@@ -3,7 +3,6 @@
 #include <boost/container/vector.hpp>
 #include <vector>
 #include "afxwin.h"
-#include "Thrower.h"
 #include "range.h"
 #include "my_str.h"
 
