@@ -128,10 +128,10 @@ class AndorWindow : public CDialog
 		std::vector<PlotDialog*>& getActivePlotListRef( );
 
 	private:
-		bool justCalibrated=false;
+		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
 
-		AndorCamera Andor;
+		AndorCamera andor;
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
 
@@ -139,7 +139,7 @@ class AndorWindow : public CDialog
 		PictureStats stats;
 		AlertSystem alerts;
 		ExperimentTimer timer;		
-		// these two could probably be combined in a sensible way.
+		
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;
 

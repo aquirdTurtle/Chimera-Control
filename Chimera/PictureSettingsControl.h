@@ -42,7 +42,7 @@ class PictureSettingsControl
 {
 	public:
 		// must have parent. Enforced partially because both are singletons.
-		PictureSettingsControl( AndorCameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
+		// PictureSettingsControl( )
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
@@ -71,7 +71,6 @@ class PictureSettingsControl
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		static andorPicSettingsGroup getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver );
 	private:
-		AndorCameraSettingsControl* parentSettingsControl;
 		// the internal memory of the settings here is somewhat redundant with the gui objects. It'd probably be better
 		// if this didn't exist and all the getters just converted straight from the gui objects, but that's a 
 		// refactoring for another time.

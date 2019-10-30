@@ -17,7 +17,7 @@
 AndorWindow::AndorWindow ( ) : CDialog ( ),
 							andorSettingsCtrl ( ),
 							dataHandler ( DATA_SAVE_LOCATION ),
-							Andor ( ANDOR_SAFEMODE ),
+							andor ( ANDOR_SAFEMODE ),
 							pics ( false, "ANDOR_PICTURE_MANAGER", false )
 {};
 
@@ -168,16 +168,16 @@ void AndorWindow::handleEmGainChange()
 {
 	try
 	{
-		auto runSettings = Andor.getAndorRunSettings ( ); 
+		auto runSettings = andor.getAndorRunSettings ( ); 
 		andorSettingsCtrl.setEmGain(runSettings.emGainModeIsOn, runSettings.emGainLevel );
 		auto settings = andorSettingsCtrl.getSettings ( );
 		runSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
 		runSettings.emGainLevel = settings.andor.emGainLevel;
-		Andor.setSettings ( runSettings );
+		andor.setSettings ( runSettings );
 		// and immediately change the EM gain mode.
 		try
 		{
-			Andor.setGainMode ( );
+			andor.setGainMode ( );
 		}
 		catch ( Error& err )
 		{
@@ -200,7 +200,7 @@ std::string AndorWindow::getSystemStatusString()
 	if (!ANDOR_SAFEMODE)
 	{
 		statusStr += "\tCode System is Active!\n";
-		statusStr += "\t" + Andor.getSystemInfo();
+		statusStr += "\t" + andor.getSystemInfo();
 	}
 	else
 	{
@@ -349,7 +349,7 @@ void AndorWindow::passCameraMode()
 void AndorWindow::abortCameraRun()
 {
 	int status;
-	Andor.queryStatus(status);
+	andor.queryStatus(status);
 	
 	if (ANDOR_SAFEMODE)
 	{
@@ -358,9 +358,9 @@ void AndorWindow::abortCameraRun()
 	}
 	if (status == DRV_ACQUIRING)
 	{
-		Andor.abortAcquisition();
+		andor.abortAcquisition();
 		timer.setTimerDisplay( "Aborted" );
-		Andor.setIsRunningState( false );
+		andor.setIsRunningState( false );
 		// close the plotting thread.
 		plotThreadAborting = true;
 		plotThreadActive = false;
@@ -396,7 +396,7 @@ void AndorWindow::abortCameraRun()
 		}
 		
 
-		if (Andor.getAndorRunSettings().acquisitionMode != AndorRunModes::Video)
+		if (andor.getAndorRunSettings().acquisitionMode != AndorRunModes::Video)
 		{
 			int answer = promptBox("Acquisition Aborted. Delete Data file (data_" + str(dataHandler.getDataFileNumber())
 									  + ".h5) for this run?",MB_YESNO );
@@ -415,14 +415,14 @@ void AndorWindow::abortCameraRun()
 	}
 	else if (status == DRV_IDLE)
 	{
-		Andor.setIsRunningState(false);
+		andor.setIsRunningState(false);
 	}
 }
 
 
 bool AndorWindow::cameraIsRunning()
 {
-	return Andor.isRunning();
+	return andor.isRunning();
 }
 
 
@@ -448,19 +448,19 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 		// ???
 		return NULL;
 	}
-	AndorRunSettings curSettings = Andor.getAndorRunSettings( );
+	AndorRunSettings curSettings = andor.getAndorRunSettings( );
 	if ( lParam == -1 )
 	{
 		// last picture.
 		picNum = curSettings.totalPicsInExperiment();
 	}
 	// need to call this before acquireImageData().
-	Andor.updatePictureNumber( picNum );
+	andor.updatePictureNumber( picNum );
 
 	std::vector<std::vector<long>> picData;
 	try
 	{
-		picData = Andor.acquireImageData( );
+		picData = andor.acquireImageData( );
 	}
 	catch ( Error& err )
 	{
@@ -517,7 +517,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		// ???
 		return NULL;
 	}
-	AndorRunSettings curSettings = Andor.getAndorRunSettings( );
+	AndorRunSettings curSettings = andor.getAndorRunSettings( );
 	if ( lParam == -1 )
 	{
 		// last picture.
@@ -533,12 +533,12 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 
 	// need to call this before acquireImageData().
-	Andor.updatePictureNumber( picNum );
+	andor.updatePictureNumber( picNum );
 	
 	std::vector<std::vector<long>> rawPicData;
 	try
 	{
-		rawPicData = Andor.acquireImageData();
+		rawPicData = andor.acquireImageData();
 	}
 	catch (Error& err)
 	{
@@ -701,9 +701,9 @@ void AndorWindow::handleAutoscaleSelection()
 LRESULT AndorWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 {
 	// notify the andor object that it is done.
-	Andor.onFinish( );
-	Andor.pauseThread( );
-	Andor.setCalibrating( false );
+	andor.onFinish( );
+	andor.pauseThread( );
+	andor.setCalibrating( false );
 	justCalibrated = true;
 	mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
 	andorSettingsCtrl.cameraIsOn( false );
@@ -740,8 +740,8 @@ std::vector<PlotDialog*>& AndorWindow::getActivePlotListRef ( )
 LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
 	// notify the andor object that it is done.
-	Andor.onFinish();
-	Andor.pauseThread();
+	andor.onFinish();
+	andor.pauseThread();
 	if (alerts.soundIsToBePlayed())
 	{
 		alerts.playSound();
@@ -819,7 +819,7 @@ void AndorWindow::armCameraWindow()
 
 bool AndorWindow::getCameraStatus()
 {
-	return Andor.isRunning();
+	return andor.isRunning();
 }
 
 
@@ -903,15 +903,15 @@ void AndorWindow::passSetTemperaturePress()
 {
 	try
 	{
-		if ( Andor.isRunning ( ) )
+		if ( andor.isRunning ( ) )
 		{
 			thrower ( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
 					  "operation." );
 		}
 		andorSettingsCtrl.handleSetTemperaturePress();
 		auto settings = andorSettingsCtrl.getSettings ( );
-		Andor.setSettings ( settings.andor );
-		Andor.setTemperature ( );
+		andor.setSettings ( settings.andor );
+		andor.setTemperature ( );
 	}
 	catch (Error& err)
 	{
@@ -926,7 +926,7 @@ void AndorWindow::passSetTemperaturePress()
  */
 void AndorWindow::OnTimer(UINT_PTR id)
 {
-	auto temp = Andor.getTemperature();
+	auto temp = andor.getTemperature();
 	andorSettingsCtrl.changeTemperatureDisplay(temp);
 }
 
@@ -973,7 +973,7 @@ void AndorWindow::passPictureSettings( UINT id )
 void AndorWindow::handlePictureSettings(UINT id)
 {
 	selectedPixel = { 0,0 };
-	andorSettingsCtrl.handlePictureSettings(id, &Andor);
+	andorSettingsCtrl.handlePictureSettings(id, &andor);
 	if (andorSettingsCtrl.getSettings().andor.picsPerRepetition == 1)
 	{
 		pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
@@ -998,7 +998,7 @@ Check that the camera is idle, or not aquiring pictures. Also checks that the da
 */
 void AndorWindow::checkCameraIdle( )
 {
-	if ( Andor.isRunning( ) )
+	if ( andor.isRunning( ) )
 	{
 		thrower ( "Camera is already running! Please Abort to restart.\r\n" );
 	}
@@ -1009,7 +1009,7 @@ void AndorWindow::checkCameraIdle( )
 	// make sure it's idle.
 	try
 	{
-		Andor.queryStatus( );
+		andor.queryStatus( );
 		if ( ANDOR_SAFEMODE )
 		{
 			thrower ( "DRV_IDLE" );
@@ -1133,13 +1133,13 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	// reset the image which is about to be calibrated.
 	avgBackground.clear( );
 	/// start the camera.
-	Andor.setSettings( input.AndorSettings );
-	Andor.setCalibrating(true);
+	andor.setSettings( input.AndorSettings );
+	andor.setCalibrating(true);
 }
 
 AndorCamera& AndorWindow::getCamera ( )
 {
-	return Andor;
+	return andor;
 }
 
 void AndorWindow::prepareAndor( AllExperimentInput& input )
@@ -1167,7 +1167,7 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	pics.setSoftwareAccumulationOptions ( andorSettingsCtrl.getSoftwareAccumulationOptions() );
 	input.AndorSettings = andorSettingsCtrl.getSettings().andor;
 	/// start the camera.
-	Andor.setSettings( input.AndorSettings );
+	andor.setSettings( input.AndorSettings );
 }
 
 void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
@@ -1610,7 +1610,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	SetWindowText ( "Andor Camera Control" );
 	// don't redraw until the first OnSize.
 	SetRedraw ( false );
-	Andor.initializeClass ( mainWin->getComm ( ), &imageTimes );
+	andor.initializeClass ( mainWin->getComm ( ), &imageTimes );
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
@@ -1634,7 +1634,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	// end of literal initialization calls
 	pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
 	// set initial settings.
-	Andor.setSettings( andorSettingsCtrl.getSettings().andor );
+	andor.setSettings( andorSettingsCtrl.getSettings().andor );
 	// load the menu
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );

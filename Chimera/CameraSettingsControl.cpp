@@ -6,7 +6,7 @@
 #include <boost/lexical_cast.hpp>
 
 
-AndorCameraSettingsControl::AndorCameraSettingsControl() : picSettingsObj(this)
+AndorCameraSettingsControl::AndorCameraSettingsControl() 
 {
 	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
 	// function.
@@ -16,8 +16,6 @@ AndorCameraSettingsControl::AndorCameraSettingsControl() : picSettingsObj(this)
 	andorSettings.kineticCycleTime = 0.1f;
 	andorSettings.repetitionsPerVariation = 10;
 	andorSettings.totalVariations = 3;
-	//andorSettings.totalPicsInExperiment = 30;
-	//andorSettings.totalPicsInVariation = 10;
 	// the read mode never gets changed currently. we always want images.
 	andorSettings.readMode = 4;
 	andorSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
