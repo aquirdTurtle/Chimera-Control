@@ -5,6 +5,7 @@
 #include "AndorWindow.h"
 #include "AndorTriggerModes.h"
 #include "AndorRunMode.h"
+
 #include <chrono>
 #include <process.h>
 #include <algorithm>
@@ -218,7 +219,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 /*
  * Get whatever settings the camera is currently using in it's operation, assuming it's operating.
  */
-AndorRunSettings AndorCamera::getAndorSettings()
+AndorRunSettings AndorCamera::getAndorRunSettings()
 {
 	return runSettings;
 }
@@ -717,9 +718,59 @@ void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 	}
 }
 
-void AndorCamera::getTemperature ( int& temp )
+AndorTemperatureStatus AndorCamera::getTemperature ( )
 {
-	flume.getTemperature ( temp );
+	AndorTemperatureStatus stat;
+	stat.temperatureSetting = getAndorRunSettings().temperatureSetting;
+	try
+	{
+		flume.getTemperature ( stat.temperature );
+		// in this case you expect it to throw.
+		//setTemperature = andorFriend->getAndorRunSettings().temperatureSetting;
+		if ( ANDOR_SAFEMODE ) { thrower ( "SAFEMODE" ); }
+	}
+	catch ( Error& exception )
+	{
+		// if not stable this won't get changed.
+		if ( exception.whatBare ( ) == "DRV_TEMPERATURE_STABILIZED" )
+		{
+			stat.msg = "Temperature has stabilized at " + str ( stat.temperature ) + " (C)\r\n";
+		}
+		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_NOT_REACHED" )
+		{
+			stat.msg = "Set temperature not yet reached. Current temperature is " + str ( stat.temperature ) + " (C)\r\n";
+		}
+		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_NOT_STABILIZED" )
+		{
+			stat.msg = "Temperature of " + str ( stat.temperature ) + " (C) reached but not stable.";
+		}
+		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_DRIFT" )
+		{
+			stat.msg = "Temperature had stabilized but has since drifted. Temperature: " + str ( stat.temperature );
+		}
+		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_OFF" )
+		{
+			stat.msg = "Temperature control is off. Temperature: " + str ( stat.temperature );
+		}
+		else if ( exception.whatBare ( ) == "DRV_ACQUIRING" )
+		{
+			// doesn't change color of temperature control. This way the color of the control represents the state of
+			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
+			// completely stabilize or not.
+			stat.msg = "Camera is Acquiring data. No updates are available. \r\nMost recent temperature: "
+				+ str ( stat.temperature );
+		}
+		else if ( exception.whatBare ( ) == "SAFEMODE" )
+		{
+			stat.msg = "Application is running in Safemode... No Real Temperature Data is available.";
+		}
+		else
+		{
+			stat.msg = "Unexpected Temperature Code: " + exception.whatBare ( ) + ". Temperature: "
+												   + str ( stat.temperature );
+		}
+	}
+	return stat;
 }
 
 void AndorCamera::queryStatus ( )

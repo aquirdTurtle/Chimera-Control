@@ -60,7 +60,6 @@ class PictureSettingsControl
 		std::array<std::vector<int>, 4> getThresholds();
 		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
 		CBrush* colorControls(int idNumber, CDC* colorer );
-		void confirmAcquisitionTimings();
 		void setThresholds( std::array<std::string, 4> thresholds);
 		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();

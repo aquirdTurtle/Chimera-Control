@@ -2,6 +2,8 @@
 #    **Chimera-Control Project**
 ========================================================================
 
+## This readme is old and needs updating. Contact me.
+
 ## Contact
 Please feel free to contact me at any time with questions, bug reports, feature requests, or general support or for advice. I'm happy to help the project be as useful as possible to others who wish to use it. Contact me at 	Mark.O.Brown@colorado.edu with any such questions.
 

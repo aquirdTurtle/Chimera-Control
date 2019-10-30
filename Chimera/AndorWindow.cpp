@@ -15,7 +15,7 @@
 #include "BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),
-							andorSettingsCtrl ( &Andor ),
+							andorSettingsCtrl ( ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							Andor ( ANDOR_SAFEMODE ),
 							pics ( false, "ANDOR_PICTURE_MANAGER", false )
@@ -168,7 +168,23 @@ void AndorWindow::handleEmGainChange()
 {
 	try
 	{
-		andorSettingsCtrl.setEmGain( );
+		auto runSettings = Andor.getAndorRunSettings ( ); 
+		andorSettingsCtrl.setEmGain(runSettings.emGainModeIsOn, runSettings.emGainLevel );
+		auto settings = andorSettingsCtrl.getSettings ( );
+		runSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
+		runSettings.emGainLevel = settings.andor.emGainLevel;
+		Andor.setSettings ( runSettings );
+		// and immediately change the EM gain mode.
+		try
+		{
+			Andor.setGainMode ( );
+		}
+		catch ( Error& err )
+		{
+			// this can happen e.g. if the camera is aquiring.
+			errBox ( err.trace ( ) );
+		}
+
 	}
 	catch ( Error err )
 	{
@@ -380,7 +396,7 @@ void AndorWindow::abortCameraRun()
 		}
 		
 
-		if (Andor.getAndorSettings().acquisitionMode != AndorRunModes::Video)
+		if (Andor.getAndorRunSettings().acquisitionMode != AndorRunModes::Video)
 		{
 			int answer = promptBox("Acquisition Aborted. Delete Data file (data_" + str(dataHandler.getDataFileNumber())
 									  + ".h5) for this run?",MB_YESNO );
@@ -432,7 +448,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 		// ???
 		return NULL;
 	}
-	AndorRunSettings curSettings = Andor.getAndorSettings( );
+	AndorRunSettings curSettings = Andor.getAndorRunSettings( );
 	if ( lParam == -1 )
 	{
 		// last picture.
@@ -501,7 +517,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		// ???
 		return NULL;
 	}
-	AndorRunSettings curSettings = Andor.getAndorSettings( );
+	AndorRunSettings curSettings = Andor.getAndorRunSettings( );
 	if ( lParam == -1 )
 	{
 		// last picture.
@@ -887,7 +903,15 @@ void AndorWindow::passSetTemperaturePress()
 {
 	try
 	{
+		if ( Andor.isRunning ( ) )
+		{
+			thrower ( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
+					  "operation." );
+		}
 		andorSettingsCtrl.handleSetTemperaturePress();
+		auto settings = andorSettingsCtrl.getSettings ( );
+		Andor.setSettings ( settings.andor );
+		Andor.setTemperature ( );
 	}
 	catch (Error& err)
 	{
@@ -902,7 +926,8 @@ void AndorWindow::passSetTemperaturePress()
  */
 void AndorWindow::OnTimer(UINT_PTR id)
 {
-	andorSettingsCtrl.handleTimer();
+	auto temp = Andor.getTemperature();
+	andorSettingsCtrl.changeTemperatureDisplay(temp);
 }
 
 

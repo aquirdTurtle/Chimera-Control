@@ -122,7 +122,6 @@ namespace commonFunctions
 						}
 						break;
 					}
-					andorWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					andorWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true, 
