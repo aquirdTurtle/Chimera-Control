@@ -196,7 +196,7 @@ namespace commonFunctions
 
 				try
 				{
-					if ( andorWin->Andor.isRunning( ) )
+					if ( andorWin->andor.isRunning( ) )
 					{
 						status = "ANDOR";
 						commonFunctions::abortCamera( andorWin, mainWin );
@@ -407,7 +407,7 @@ namespace commonFunctions
 			{
 				try
 				{
-					if ( andorWin->Andor.isRunning ( ) )
+					if ( andorWin->andor.isRunning ( ) )
 					{
 						commonFunctions::abortCamera ( andorWin, mainWin );
 					}

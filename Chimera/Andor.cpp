@@ -318,16 +318,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	// each image processed from the call from a separate windows message
 	// If there is no data the acquisition must have been aborted
-	int experimentPictureNumber;
-	if (runSettings.showPicsInRealTime)
-	{
-		experimentPictureNumber = 0;
-	}
-	else
-	{
-		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation()) 
-								   % runSettings.picsPerRepetition);
-	}
+	int experimentPictureNumber = runSettings.showPicsInRealTime ? 0
+		: ( ( ( currentPictureNumber - 1 ) % runSettings.totalPicsInVariation ( ) ) % runSettings.picsPerRepetition );
 	if (experimentPictureNumber == 0)
 	{
 		while ( true )
@@ -349,14 +341,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 			}
 		}
 		imagesOfExperiment.clear();
-		if (runSettings.showPicsInRealTime)
-		{
-			imagesOfExperiment.resize(1);
-		}
-		else
-		{
-			imagesOfExperiment.resize(runSettings.picsPerRepetition);
-		}
+		imagesOfExperiment.resize ( runSettings.showPicsInRealTime ? 1 : runSettings.picsPerRepetition );
 		ReleaseMutex(imagesMutex);
 	}
 	std::vector<long> tempImage;
@@ -370,7 +355,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 								   MB_YESNO );
 			if ( ans == IDNO )
 			{
-				// This might indicate something about the code is gonna crash...
 				break;
 			}
 		}
@@ -378,8 +362,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		{
 			break;
 		}
-	}
-	
+	}	
 	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
  	if (!safemode)
 	{
@@ -394,30 +377,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	else
 	{
-		// generate a fake image.
-		std::vector<bool> atomSpots = { 0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
-										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0
-									  };
-		atomSpots = { 0,0,0,
-					  0,1,0,
-					  0,0,0,
-					  0,0,0,
-					  0,0,0};
-		
-		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
+		for (auto imageVecInc : range( imagesOfExperiment[ experimentPictureNumber ].size ( ) ) )
 		{
 			std::random_device rd;
 			std::mt19937 e2 ( rd ( ) );
@@ -430,7 +390,12 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				// can have an atom here.
 				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
 				{
-					tempImage[imageVecInc] += dist2(e2);
+					// use the exposure time and em gain level 
+					tempImage[imageVecInc] += runSettings.exposureTimes[ experimentPictureNumber ]*1e3 * dist2(e2);
+					if ( runSettings.emGainModeIsOn )
+					{
+						tempImage[ imageVecInc ] *= runSettings.emGainLevel;
+					}
 				}
 			}
 		}
@@ -454,12 +419,14 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width())
-				+ 1) * runSettings.imageSettings.height() - imageVecInc / runSettings.imageSettings.width() - 1];
+			auto& ims = runSettings.imageSettings;
+			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % ims.width()) + 1) * ims.height() 
+				- imageVecInc / ims.width() - 1];
 		}
 		ReleaseMutex( imagesMutex );
 	}
 	ReleaseMutex( imagesMutex );
+	// extra release redundant?
 	return imagesOfExperiment;
 }
 
@@ -490,7 +457,7 @@ void AndorCamera::setTemperature()
 	// Get the current temperature
 	if (runSettings.temperatureSetting < -60 || runSettings.temperatureSetting > 25)
 	{
-		int answer = promptBox( "Warning: The selected temperature is outside the normal temperature range of the "
+		int answer = promptBox( "Warning: The selected temperature is outside the \"normal\" temperature range of the "
 								"camera (-60 through 25 C). Proceed anyways?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{

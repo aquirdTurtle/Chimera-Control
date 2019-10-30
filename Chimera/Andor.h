@@ -40,17 +40,7 @@ class AndorCamera
 {
 	public:
 		AndorCamera(bool safemode_opt);
-		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
-		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
-		// looking for specific sdk functions, search in the cpp file.
-		void setAccumulationCycleTime();
-		void setAcquisitionMode();
-		void setFrameTransferMode();
-		void setKineticCycleTime();
-		void setReadMode();
 
-		/// End Andor sdk wrappers.
-		// all of the following do something more interesting.
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
@@ -81,11 +71,19 @@ class AndorCamera
 		void queryStatus ();
 		AndorTemperatureStatus getTemperature ( );
 	private:
+
+		void setAccumulationCycleTime ( );
+		void setAcquisitionMode ( );
+		void setFrameTransferMode ( );
+		void setKineticCycleTime ( );
+		void setReadMode ( );
+
 		bool calInProgress = false;
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
 		/// settings are stored in smaller classes.
-		// If the experiment is running, these settings hold the options that the experiment is using.y
+		// If the experiment is running, these settings hold the options that the experiment is using.
 		AndorRunSettings runSettings;
+
 		AndorFlume flume;
 		const bool safemode;
 		// 
