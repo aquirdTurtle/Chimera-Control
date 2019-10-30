@@ -5,7 +5,6 @@
 #include "DioSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
-#include "Thrower.h"
 #include "range.h"
 
 #include <sstream>

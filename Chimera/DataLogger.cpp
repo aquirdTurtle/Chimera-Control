@@ -5,7 +5,6 @@
 #include "longnam.h"
 #include "DataAnalysisControl.h"
 #include "CameraImageDimensions.h"
-#include "Thrower.h"
 #include "MasterManager.h"
 
 

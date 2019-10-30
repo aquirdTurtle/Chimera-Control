@@ -4,7 +4,6 @@
 #include "GpibFlume.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
-#include "Thrower.h"
 
 RohdeSchwarz::RohdeSchwarz() : gpibFlume(RSG_ADDRESS, RSG_SAFEMODE){}
 

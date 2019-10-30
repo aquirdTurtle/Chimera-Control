@@ -6,7 +6,6 @@
 #pragma comment(lib, "Winmm.lib")
 #include "AndorWindow.h"
 #include "miscCommonFunctions.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,

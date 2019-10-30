@@ -11,14 +11,14 @@
 #include "Matrix.h"
 
 /// /////////////////////////////////////////////////////
-/// 
 ///			The Andor Class
-///
 /// /////////////////////////////////////////////////////
 
 // This class is designed to facilitate interaction with the andor camera and
 // is based around the andor SDK. I did not write the Andor SDK, this was obtained from andor. I did write everything
 // else in this class.
+
+// This is a "Core"-like class. there's no gui associated with this. 
 
 class AndorCamera;
 
@@ -34,7 +34,7 @@ struct cameraThreadInput
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes;
 };
 
-/// the all-important camera class.
+/// the important camera class.
 class AndorCamera
 {
 	public:

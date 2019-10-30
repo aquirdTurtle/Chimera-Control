@@ -11,7 +11,6 @@
 #include "AuxiliaryWindow.h"
 #include "DioSystem.h"
 #include "RunInfo.h"
-#include "Thrower.h"
 
 #include <fstream>
 #include <sstream>

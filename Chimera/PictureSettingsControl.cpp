@@ -6,7 +6,6 @@
 #include "CameraSettingsControl.h"
 #include "AndorWindow.h"
 #include "Commctrl.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 

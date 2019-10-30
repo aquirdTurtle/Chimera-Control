@@ -12,7 +12,6 @@
 #include <boost/lexical_cast.hpp>
 #include <map>
 #include "TextPromptDialog.h"
-#include "Thrower.h"
 #include "range.h"
 
 using std::vector;

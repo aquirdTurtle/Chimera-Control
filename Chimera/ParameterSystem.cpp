@@ -7,7 +7,6 @@
 #include "TextPromptDialog.h"
 #include "multiDimensionalKey.h"
 #include "cleanString.h"
-#include "Thrower.h"
 
 #include <iomanip>
 #include <unordered_map>

@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "MainOptionsControl.h"
 #include "ProfileSystem.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )

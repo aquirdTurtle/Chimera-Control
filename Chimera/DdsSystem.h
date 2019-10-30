@@ -5,7 +5,6 @@
 #include "Control.h"
 #include "MyListCtrl.h"
 #include "Version.h"
-#include "Thrower.h"
 #include "ftdiFlume.h"
 #include "Expression.h"
 #include "functionCombo.h"

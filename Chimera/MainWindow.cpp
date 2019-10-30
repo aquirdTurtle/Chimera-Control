@@ -6,7 +6,6 @@
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
 #include <future>
-#include "Thrower.h"
 #include "externals.h"
 
 

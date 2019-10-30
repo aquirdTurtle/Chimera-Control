@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "PlotDataSet.h"
-#include "Thrower.h"
 
 
 PlotDataSet::PlotDataSet()

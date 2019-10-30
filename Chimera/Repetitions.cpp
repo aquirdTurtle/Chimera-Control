@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include "constants.h"
 #include "AuxiliaryWindow.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)

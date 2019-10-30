@@ -15,7 +15,6 @@
 #include "saveWithExplorer.h"
 
 #include "Commctrl.h"
-#include "Thrower.h"
 #include "BaslerWindow.h"
 
 

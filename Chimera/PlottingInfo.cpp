@@ -3,7 +3,6 @@
 #include "PlottingInfo.h"
 #include "ProfileSystem.h"
 #include <sstream>
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 PlottingInfo::PlottingInfo(UINT picNumber)

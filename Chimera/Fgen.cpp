@@ -2,8 +2,6 @@
 #include "stdafx.h"
 #include "constants.h"
 #include "Fgen.h"
-#include "Thrower.h"
-
 
 FgenFlume::FgenFlume( bool safemodeOption ) : safemode(safemodeOption)
 {}
