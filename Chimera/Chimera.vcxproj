@@ -211,6 +211,7 @@
     <ClInclude Include="AnalogOutput.h" />
     <ClInclude Include="AndorFlume.h" />
     <ClInclude Include="AndorRunSettings.h" />
+    <ClInclude Include="AndorTemperatureStatus.h" />
     <ClInclude Include="AndorTriggerModes.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="atomCruncherInput.h" />

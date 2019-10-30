@@ -4,11 +4,9 @@
 #include "DioSystem.h"
 #include "AoSystem.h"
 #include "CodeTimer.h"
-#include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
-#include "range.h"
 #include "MainWindow.h"
 #include "nidaqmx2.h"
 #include <fstream>
@@ -41,7 +39,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
 	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoControllers.size ( ),
 												   std::vector<bool> ( input->seq.sequence.size ( ) ));
-	// a couple shortcut aliases.
+	// a couple aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;

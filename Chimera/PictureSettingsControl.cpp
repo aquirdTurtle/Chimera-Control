@@ -140,7 +140,6 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	disablePictureControls( 3 );
 }
 
-
 std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( )
 {
 	std::array<displayTypeOption, 4> options;
@@ -158,7 +157,6 @@ std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( 
 	}
 	return options;
 }
-
 
 void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 {
@@ -183,7 +181,6 @@ void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 	newFile << "END_PICTURE_SETTINGS\n";
 }
 
-
 std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
 {
 	std::array<std::string, 4> res;
@@ -198,7 +195,6 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
 	}
 	return res;
 }
-
 
 void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
@@ -228,7 +224,6 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "END_PICTURE_SETTINGS\n";
 }
 
-
 andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver )
 {
 	UINT picsPerRep;
@@ -257,7 +252,6 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std
 	}
 	return fileSettings;
 }
-
 
 void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor)
 {
@@ -433,7 +427,7 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* 
 {
 	settings.picsPerRepetitionUnofficial = picNum;
 	// not all settings are changed here, and some are used to recalculate totals.
-	AndorRunSettings runSettings = andorObj->getAndorSettings( );
+	AndorRunSettings runSettings = andorObj->getAndorRunSettings( );
 	runSettings.picsPerRepetition = settings.picsPerRepetitionUnofficial;
 	if ( runSettings.totalVariations * runSettings.totalPicsInVariation() > INT_MAX )
 	{
@@ -483,44 +477,6 @@ void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 }
 
 
-void PictureSettingsControl::setExposureTimes(AndorCamera* andorObj)
-{
-	setExposureTimes( settings.exposureTimesUnofficial, andorObj );
-}
-
-
-void PictureSettingsControl::setExposureTimes(std::vector<float>& times, AndorCamera* andorObj)
-{
-	std::vector<float> exposuresToSet;
-	exposuresToSet = times;
-	exposuresToSet.resize( settings.picsPerRepetitionUnofficial);
-	AndorRunSettings runSettings = andorObj->getAndorSettings();
-	runSettings.exposureTimes = exposuresToSet;
-	andorObj->setSettings(runSettings);
-	// try to set this time.
-	andorObj->setExposures();
-	// now check actual times.
-	try { parentSettingsControl->checkTimings(exposuresToSet); }
-	catch (std::runtime_error&) { throw; }
-	for (auto exposureInc : range(exposuresToSet.size() ) )
-	{
-		settings.exposureTimesUnofficial[exposureInc] = exposuresToSet[exposureInc];
-	}
-
-	if ( settings.exposureTimesUnofficial.size() <= 0)
-	{
-		// this shouldn't happend
-		thrower ("ERROR: reached bad location where exposure times was of zero size, but this should have been detected earlier in the "
-				 "code.");
-	}
-	// now output things.
-	for (auto exposureInc : range(4) )
-	{
-		exposureEdits[exposureInc].SetWindowTextA(cstr( settings.exposureTimesUnofficial[exposureInc] * 1000));
-	}
-}
-
-
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 {
 	updateSettings( );
@@ -530,31 +486,9 @@ std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 	return usedTimes;
 }
 
-/*
- * modifies values for exposures, accumlation time, kinetic cycle time as the andor camera reports them.
- */
-void PictureSettingsControl::confirmAcquisitionTimings()
-{
-	std::vector<float> usedExposures;
-	usedExposures = settings.exposureTimesUnofficial;
-	usedExposures.resize( settings.picsPerRepetitionUnofficial);
-	try
-	{
-		parentSettingsControl->checkTimings(usedExposures);
-	}
-	catch (std::runtime_error)
-	{
-		throw;
-	}
-	for (UINT exposureInc = 0; exposureInc < usedExposures.size(); exposureInc++)
-	{
-		settings.exposureTimesUnofficial[exposureInc] = usedExposures[exposureInc];
-	}
-}
 
 void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds)
 {
-	//thresholds = newThresholds;
 	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++)
 	{
 		thresholdEdits[thresholdInc].SetWindowTextA(newThresholds[thresholdInc].c_str());
@@ -582,6 +516,14 @@ void PictureSettingsControl::updateColors ( std::array<int, 4> colorIndexes )
 void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
 {
 	settings.exposureTimesUnofficial = times;
+	for ( auto exposureInc : range ( times.size ( ) ) )
+	{
+		settings.exposureTimesUnofficial[ exposureInc ] = times[ exposureInc ];
+	}
+	for ( auto exposureInc : range ( settings.exposureTimesUnofficial.size() ) )
+	{
+		exposureEdits[ exposureInc ].SetWindowTextA ( cstr ( settings.exposureTimesUnofficial[ exposureInc ] * 1000 ) );
+	}
 }
 
 void PictureSettingsControl::getPicsPerRepetitionUnofficial(UINT picsPerRep)

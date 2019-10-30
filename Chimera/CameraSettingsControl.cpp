@@ -6,9 +6,8 @@
 #include <boost/lexical_cast.hpp>
 
 
-AndorCameraSettingsControl::AndorCameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
+AndorCameraSettingsControl::AndorCameraSettingsControl() : picSettingsObj(this)
 {
-	andorFriend = friendInitializer;
 	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
 	// function.
 	AndorRunSettings& andorSettings = settings.andor;
@@ -164,6 +163,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	}
 	//andorFriend->setGainMode();
 	// try to set this time.
+	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
 	//picSettingsObj.setExposureTimes(inputSettings.exposureTimes, andorFriend);
 	// now check actual times.
 	//checkTimings(inputSettings.exposureTimes);
@@ -194,19 +194,8 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 }
 
 
-void AndorCameraSettingsControl::handleSetTemperatureOffPress()
-{
-	andorFriend->changeTemperatureSetting(true);
-}
-
-
 void AndorCameraSettingsControl::handleSetTemperaturePress()
 {
-	if (andorFriend->isRunning())
-	{
-		thrower ( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
-				 "operation." );
-	}
 	CString text;
 	temperatureEdit.GetWindowTextA(text);
 	int temp;
@@ -219,9 +208,6 @@ void AndorCameraSettingsControl::handleSetTemperaturePress()
 		throwNested("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
 	settings.andor.temperatureSetting = temp;
-	andorFriend->setSettings(settings.andor );
-
-	andorFriend->setTemperature();
 }
 
 
@@ -338,7 +324,7 @@ void AndorCameraSettingsControl::rearrange( AndorRunModes::mode cameraMode, Ando
 }
 
 
-void AndorCameraSettingsControl::setEmGain()
+void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentEmGainLevel )
 {
 	CString emGainText;
 	emGainEdit.GetWindowTextA(emGainText);
@@ -370,21 +356,12 @@ void AndorCameraSettingsControl::setEmGain()
 		emGainDisplay.SetWindowTextA(cstr("Gain: X" + str(settings.andor.emGainLevel)));
 	}
 	// Change the andor settings.
-	AndorRunSettings andorSettings = andorFriend->getAndorSettings();
 	std::string promptMsg = "";
-	if ( andorSettings.emGainModeIsOn != settings.andor.emGainModeIsOn )
+	if ( emGainCurrentlyOn != settings.andor.emGainModeIsOn )
 	{
-		promptMsg += "Set Andor EM Gain State to ";
-		if ( settings.andor.emGainModeIsOn )
-		{
-			promptMsg += "ON";
-		}
-		else
-		{
-			promptMsg += "OFF";
-		}
+		promptMsg += "Set Andor EM Gain State to " + settings.andor.emGainModeIsOn ? "ON" : "OFF" ;
 	}
-	if ( andorSettings.emGainLevel != settings.andor.emGainLevel )
+	if ( currentEmGainLevel != settings.andor.emGainLevel )
 	{
 		if ( promptMsg != "" )
 		{
@@ -401,19 +378,8 @@ void AndorCameraSettingsControl::setEmGain()
 			thrower ( "Aborting camera settings update at EM Gain update!" );
 		}
 	}
-	andorSettings.emGainLevel = settings.andor.emGainLevel;
-	andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
-	andorFriend->setSettings( andorSettings );
-	// and immediately change the EM gain mode.
-	try
-	{
-		andorFriend->setGainMode( );
-	}
-	catch ( Error& err )
-	{
-		// this can happen e.g. if the camera is aquiring.
-		errBox( err.trace( ) );
-	}
+	//andorSettings.emGainLevel = settings.andor.emGainLevel;
+	//andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
 	emGainEdit.RedrawWindow();
 }
 
@@ -440,66 +406,10 @@ void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 }
 
 
-void AndorCameraSettingsControl::handleTimer()
+void AndorCameraSettingsControl::changeTemperatureDisplay( AndorTemperatureStatus stat )
 {
-	// This case displays the current temperature in the main window. When the temp stabilizes at the desired 
-	// level the appropriate message is displayed.
-	// initial value is only relevant for safemode.
-	int currentTemperature = INT_MAX;
-	int setTemperature = INT_MAX;
-	try
-	{
-		// in this case you expect it to throw.
-		setTemperature = andorFriend->getAndorSettings().temperatureSetting;
-		temperatureDisplay.SetWindowTextA ( cstr ( setTemperature ) );
-		andorFriend->getTemperature(currentTemperature);
-		if ( ANDOR_SAFEMODE ) { thrower ( "SAFEMODE" ); }
-	}
-	catch (Error& exception)
-	{
-		// if not stable this won't get changed.
-		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature has stabilized at " + str(currentTemperature) 
-											  + " (C)\r\n"));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_REACHED")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Set temperature not yet reached. Current temperature is " 
-											  + str(currentTemperature) + " (C)\r\n"));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_STABILIZED")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature of " + str(currentTemperature) 
-											  + " (C) reached but not stable."));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_DRIFT")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature had stabilized but has since drifted. Temperature: " 
-											  + str(currentTemperature)));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_OFF")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature control is off. Temperature: " + str(currentTemperature)));
-		}
-		else if (exception.whatBare() == "DRV_ACQUIRING")
-		{
-			// doesn't change color of temperature control. This way the color of the control represents the state of
-			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
-			// completely stabilize or not.
-			temperatureMsg.SetWindowTextA((str("Camera is Acquiring data. No updates are available. ") +
-										   "\r\nMost recent temperature: " + str(currentTemperature)).c_str());
-		}
-		else if (exception.whatBare() == "SAFEMODE")
-		{
-			temperatureMsg.SetWindowTextA("Application is running in Safemode... No Real Temperature Data is available.");
-		}
-		else
-		{
-			temperatureMsg.SetWindowTextA(cstr("Unexpected Temperature Code: " + exception.whatBare() + ". Temperature: " 
-												+ str(currentTemperature)));
-		}
-	}
+	temperatureDisplay.SetWindowTextA ( cstr ( stat.temperatureSetting ) );
+	temperatureMsg.SetWindowTextA ( cstr ( stat.msg ) );
 }
 
 
@@ -730,23 +640,6 @@ void AndorCameraSettingsControl::updateCameraMode( )
 void AndorCameraSettingsControl::handleModeChange( AndorWindow* cameraWindow )
 {
 	updateCameraMode( );
-	/*
-	CRect rect;
-	cameraWindow->GetWindowRect( &rect );
-	cameraWindow->OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
-	*/
-}
-
-
-void AndorCameraSettingsControl::checkTimings(std::vector<float>& exposureTimes)
-{
-	checkTimings(settings.andor.kineticCycleTime, settings.andor.accumulationTime, exposureTimes);
-}
-
-
-void AndorCameraSettingsControl::checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes)
-{
-	andorFriend->checkAcquisitionTimings(kineticCycleTime, accumulationTime, exposureTimes);
 }
 
 

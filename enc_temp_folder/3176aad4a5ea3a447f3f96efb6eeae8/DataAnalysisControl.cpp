@@ -272,8 +272,11 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 			}
 			counter++;
 		}
+
+
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
 	}
+
 	if ( ver >= Version ( "4.7" ) )
 	{
 		bool option;

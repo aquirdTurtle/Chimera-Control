@@ -9,6 +9,7 @@
 #include "AndorRunSettings.h"
 #include "AndorFlume.h"
 #include "Matrix.h"
+#include "AndorTemperatureStatus.h"
 
 /// /////////////////////////////////////////////////////
 ///			The Andor Class
@@ -50,7 +51,7 @@ class AndorCamera
 
 		/// End Andor sdk wrappers.
 		// all of the following do something more interesting.
-		AndorRunSettings getAndorSettings();
+		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
 		void armCamera( double& minKineticCycleTime );
@@ -78,7 +79,7 @@ class AndorCamera
 		void abortAcquisition ( );
 		void queryStatus ( int & stat );
 		void queryStatus ();
-		void getTemperature ( int& temp );
+		AndorTemperatureStatus getTemperature ( );
 	private:
 		bool calInProgress = false;
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
