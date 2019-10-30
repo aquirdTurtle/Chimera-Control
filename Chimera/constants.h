@@ -17,8 +17,8 @@
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
 //#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
-#define ANALYSIS_COMPUTER
+#define SPECTRE_LAPTOP
+//#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
