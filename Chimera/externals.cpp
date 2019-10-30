@@ -3,8 +3,6 @@
 // without making it look like a normal variable.
 #include "stdafx.h"
 #include "externals.h"
-#include <string>
-#include <vector>
 #include "Windows.h"
 #include "constants.h"
 #include "ProfileSystem.h"

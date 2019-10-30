@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "cleanString.h"
-#include <string>
 
 /*
  * This function deals with the trailing \r\n on each line required for edit controls to make sure everything is consistent. It also makes sure that there is 

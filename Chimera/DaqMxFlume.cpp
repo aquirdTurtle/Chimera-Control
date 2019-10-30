@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "DaqMxFlume.h"
-#include <vector>
 
 
 DaqMxFlume::DaqMxFlume( bool safemodeOption ) : safemode ( safemodeOption )

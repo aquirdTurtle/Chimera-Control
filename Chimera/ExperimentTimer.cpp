@@ -3,7 +3,6 @@
 #include "Commctrl.h"
 #include "Uxtheme.h"
 #include "ExperimentTimer.h"
-#include <vector>
 #include "AndorWindow.h"
 
 
