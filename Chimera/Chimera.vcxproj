@@ -210,6 +210,7 @@
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="AnalogOutput.h" />
     <ClInclude Include="AndorFlume.h" />
+    <ClInclude Include="andorPicSettingsGroup.h" />
     <ClInclude Include="AndorRunSettings.h" />
     <ClInclude Include="AndorTemperatureStatus.h" />
     <ClInclude Include="AndorTriggerModes.h" />

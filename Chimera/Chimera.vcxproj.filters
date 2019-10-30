@@ -688,6 +688,7 @@
     <ClInclude Include="PiezoType.h" />
     <ClInclude Include="AndorFlume.h" />
     <ClInclude Include="AndorTemperatureStatus.h" />
+    <ClInclude Include="andorPicSettingsGroup.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

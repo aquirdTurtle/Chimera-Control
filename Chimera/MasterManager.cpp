@@ -9,6 +9,7 @@
 #include "Expression.h"
 #include "MainWindow.h"
 #include "nidaqmx2.h"
+#include "CameraSettingsControl.h"
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -39,6 +40,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
 	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoControllers.size ( ),
 												   std::vector<bool> ( input->seq.sequence.size ( ) ));
+	std::vector<AndorRunSettings> andorRunsettings ( input->seq.sequence.size ( ) );
 	// a couple aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
@@ -66,7 +68,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				for ( auto piezoInc : range(input->piezoControllers.size()))
 				{
 					auto res = ProfileSystem::stdGetFromConfig (
-						configFile, input->piezoControllers[ piezoInc ]->configDelim, PiezoCore::getPiezoSettingsFromConfig );
+						configFile, input->piezoControllers[ piezoInc ]->configDelim, 
+						PiezoCore::getPiezoSettingsFromConfig );
 					piezoExpressions[ piezoInc ][ seqNum ] 
 						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
 					ctrlPztOptions[ piezoInc ][ seqNum ] = res.second;
@@ -74,8 +77,9 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				mainOpts = ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
-																	 Repetitions::getRepsFromConfig );
-				
+																Repetitions::getRepsFromConfig );
+				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS",
+																AndorCameraSettingsControl::getRunSettingsFromConfig );
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
 			}
@@ -141,6 +145,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		}
 		if ( runAndor )
 		{
+			input->andorCamera.setSettings ( andorRunsettings[ 0 ] );
 			double kinTime;
 			input->andorCamera.armCamera( kinTime );
 		}

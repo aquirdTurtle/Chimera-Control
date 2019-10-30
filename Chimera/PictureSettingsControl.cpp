@@ -39,13 +39,10 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 											 totalNumberChoice[ picInc ].seriesPos, parent, PICTURE_SETTINGS_ID_START + count++ );
 		totalNumberChoice[ picInc ].SetCheck ( picInc == 0 );
 	}
-	settings.picsPerRepetitionUnofficial = 1;
-
 	/// Exposure Times
 	exposureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
 	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent, 
 						  PICTURE_SETTINGS_ID_START + count++ );
-	settings.exposureTimesUnofficial.resize( 4 );
 	exposureLabel.fontType = fontTypes::SmallFont;
 
 	for ( auto picInc : range(4) )
@@ -53,9 +50,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		exposureEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
 		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].seriesPos, parent,
 									  PICTURE_SETTINGS_ID_START + count++ );
-		exposureEdits[picInc].SetWindowTextA( "10.0" );
-		settings.exposureTimesUnofficial[picInc] = 10 / 1000.0f;
 	}
+	setUnofficialExposures ( std::vector<float> ( 4, 10 / 1000.0f ) );
 
 	/// Thresholds
 	thresholdLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
@@ -161,16 +157,9 @@ std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( 
 void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "PICTURE_SETTINGS\n";
-	newFile << 1 << "\n";
 	for ( auto color : settings.colors )
 	{
 		newFile << 0 << " ";
-	}
-	newFile << "\n";
-	for ( auto exposure : settings.exposureTimesUnofficial )
-	{
-		// in seconds
-		newFile << 0.025 << " ";
 	}
 	newFile << "\n";
 	for ( auto threshold : settings.thresholds )
@@ -199,15 +188,9 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
 void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "PICTURE_SETTINGS\n";
-	saveFile << settings.picsPerRepetitionUnofficial << "\n";
 	for (auto color : settings.colors)
 	{
 		saveFile << color << " ";
-	}
-	saveFile << "\n";
-	for (auto exposure : settings.exposureTimesUnofficial)
-	{
-		saveFile << exposure << " ";
 	}
 	saveFile << "\n";
 	for (auto threshold : getThresholdStrings() )
@@ -228,16 +211,23 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std
 {
 	UINT picsPerRep;
 	andorPicSettingsGroup fileSettings;
-	configFile >> fileSettings.picsPerRepetitionUnofficial;
-	//std::array<std::string, 4> fileThresholds;
+	if ( ver <= Version ( "4.7" ) )
+	{
+		int oldPicsPerRepTrash = 0;
+		configFile >> oldPicsPerRepTrash;
+	}
 	for ( auto& color : fileSettings.colors )
 	{
+	
 		configFile >> color;
 	}
-	fileSettings.exposureTimesUnofficial.resize ( 4 );
-	for ( auto& exposure : fileSettings.exposureTimesUnofficial )
+	if ( ver <= Version ( "4.7" ) )
 	{
-		configFile >> exposure;
+		std::vector<float> oldExposureTimeTrash(4);
+		for ( auto& exposure : oldExposureTimeTrash )
+		{
+			configFile >> exposure;
+		}
 	}
 	for ( auto& threshold : fileSettings.thresholdStrs )
 	{
@@ -339,7 +329,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
 		try
 		{
 			exposure = boost::lexical_cast<float>(str(text));// / 1000.0f;
-			double dif = std::fabs(exposure/1000.0 - settings.exposureTimesUnofficial[picNum]);
+			double dif = 0;  //= std::fabs(exposure/1000.0 - settings.exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
 				colorer->SetBkColor( _myRGBs["Solarized Green"]);
@@ -419,44 +409,31 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
 
 UINT PictureSettingsControl::getPicsPerRepetition()
 {
-	return settings.picsPerRepetitionUnofficial;
+	UINT which = 0, count=0;
+	for ( auto& ctrl : totalNumberChoice )
+	{
+		count++;		
+		which = ctrl.GetCheck ( ) ? count : which;
+	}
+	if ( which == 0 )
+	{
+		thrower ( "ERROR: failed to get pics per repetition?!?" );
+	}
+	return which;
 }
 
 
-void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj )
+void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum )
 {
-	settings.picsPerRepetitionUnofficial = picNum;
-	// not all settings are changed here, and some are used to recalculate totals.
-	AndorRunSettings runSettings = andorObj->getAndorRunSettings( );
-	runSettings.picsPerRepetition = settings.picsPerRepetitionUnofficial;
-	if ( runSettings.totalVariations * runSettings.totalPicsInVariation() > INT_MAX )
+	if ( picNum < 1 || picNum > 4 )
 	{
-		thrower ( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
+		thrower ( "Tried to set bad number of pics per rep: " + str ( picNum ) );
 	}
-	andorObj->setSettings( runSettings );
-	for ( UINT picInc = 0; picInc < 4; picInc++ )
-	{
-		if ( picInc < picNum )
-		{
-			enablePictureControls( picInc );
-		}
-		else
-		{
-			disablePictureControls( picInc );
-		}
-		if ( picInc == picNum-1 )
-		{
-			totalNumberChoice[picInc].SetCheck( 1 );
-		}
-		else
-		{
-			totalNumberChoice[picInc].SetCheck( 0 );
-		}
-	}
+	totalNumberChoice[ picNum - 1 ].SetCheck ( true );
 }
 
 
-void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
+void PictureSettingsControl::handleOptionChange( int id )
 {
 	if (id >= totalNumberChoice.front().GetDlgCtrlID() && id <= totalNumberChoice.back().GetDlgCtrlID())
 	{
@@ -465,7 +442,7 @@ void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 		// relevant button is now checked.
 		if ( totalNumberChoice[picNum].GetCheck( ) )
 		{
-			setUnofficialPicsPerRep( picNum + 1, andorObj );
+			setUnofficialPicsPerRep( picNum + 1 );
 		}
 	}
 	else if (id >= colormapCombos[0].GetDlgCtrlID() && id <= colormapCombos[3].GetDlgCtrlID())
@@ -477,12 +454,33 @@ void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 }
 
 
+std::array<float, 4> PictureSettingsControl::getExposureTimes ( )
+{
+	std::array<float, 4> times;
+	for ( auto ctrlNum : range(exposureEdits.size()) )
+	{
+		auto& ctrl = exposureEdits[ ctrlNum ];
+		CString txt;
+		ctrl.GetWindowTextA ( txt );
+		try
+		{
+			times[ ctrlNum ] = boost::lexical_cast<double>( txt );
+		}
+		catch ( boost::bad_lexical_cast )
+		{
+			thrower ( "Failed to convert exposure time to a float!" );
+		}
+	}
+	return times;
+}
+
+
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 {
 	updateSettings( );
-	std::vector<float> usedTimes;
-	usedTimes = settings.exposureTimesUnofficial;
-	usedTimes.resize( settings.picsPerRepetitionUnofficial);
+	auto allTimes = getExposureTimes();
+	std::vector<float> usedTimes(std::begin(allTimes), std::end(allTimes));
+	usedTimes.resize ( getPicsPerRepetition ( ));
 	return usedTimes;
 }
 
@@ -515,20 +513,11 @@ void PictureSettingsControl::updateColors ( std::array<int, 4> colorIndexes )
 
 void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
 {
-	settings.exposureTimesUnofficial = times;
-	for ( auto exposureInc : range ( times.size ( ) ) )
+	UINT count = 0;
+	for ( auto ti : times )
 	{
-		settings.exposureTimesUnofficial[ exposureInc ] = times[ exposureInc ];
+		exposureEdits[ count++ ].SetWindowTextA ( cstr ( ti*1e3 ) );
 	}
-	for ( auto exposureInc : range ( settings.exposureTimesUnofficial.size() ) )
-	{
-		exposureEdits[ exposureInc ].SetWindowTextA ( cstr ( settings.exposureTimesUnofficial[ exposureInc ] * 1000 ) );
-	}
-}
-
-void PictureSettingsControl::getPicsPerRepetitionUnofficial(UINT picsPerRep)
-{
-	settings.picsPerRepetitionUnofficial = picsPerRep;
 }
 
 
@@ -536,8 +525,6 @@ void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSett
 {
 	updateColors ( inputSettings.colors );
 	setThresholds ( inputSettings.thresholdStrs );
-	setUnofficialExposures ( inputSettings.exposureTimesUnofficial );
-	getPicsPerRepetitionUnofficial ( inputSettings.picsPerRepetitionUnofficial );
 }
 
 
@@ -586,24 +573,6 @@ void PictureSettingsControl::updateSettings( )
 			}
 		}
 		thresholdEdits[thresholdInc].RedrawWindow( );
-	}
-	// grab the exposures.
-	for ( int exposureInc = 0; exposureInc < 4; exposureInc++ )
-	{
-		CString textEdit;
-		exposureEdits[exposureInc].GetWindowTextA( textEdit );
-		float exposure;
-		try
-		{
-			exposure = boost::lexical_cast<float>( str( textEdit ) );
-			settings.exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
-		}
-		catch ( boost::bad_lexical_cast& )
-		{
-			errBox( "ERROR: failed to convert exposure number " + str( exposureInc + 1 ) + " to an integer." );
-		}
-		// refresh for new color
-		exposureEdits[exposureInc].RedrawWindow( );
 	}
 }
 
