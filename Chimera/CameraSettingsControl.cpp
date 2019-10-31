@@ -10,6 +10,7 @@ AndorCameraSettingsControl::AndorCameraSettingsControl()
 {
 	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" function.
 	AndorRunSettings& andorSettings = settings.andor;
+	/*
 	andorSettings.exposureTimes = { 0.026f };
 	andorSettings.picsPerRepetition = 1;
 	andorSettings.kineticCycleTime = 0.1f;
@@ -21,6 +22,7 @@ AndorCameraSettingsControl::AndorCameraSettingsControl()
 	andorSettings.emGainModeIsOn = false;
 	andorSettings.showPicsInRealTime = false;
 	andorSettings.triggerMode = AndorTriggerMode::mode::External;
+	*/
 }
 
 

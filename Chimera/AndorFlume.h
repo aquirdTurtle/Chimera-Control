@@ -30,8 +30,7 @@ class AndorFlume
 		void setKineticCycleTime ( float cycleTime );
 		void setFrameTransferMode ( int mode );
 		void getAcquisitionTimes ( float& exposure, float& accumulation, float& kinetic );
-		void queryStatus ( );
-		void queryStatus ( int& status );
+		int queryStatus ( );
 		void startAcquisition ( );
 		void abortAcquisition ( );
 		void setAccumulationCycleTime ( float time );

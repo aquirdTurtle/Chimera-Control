@@ -111,8 +111,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		{
 			try
 			{
-				int status;
-				input->Andor->flume.queryStatus(status);
+				int status = input->Andor->flume.queryStatus();
 				if (status == DRV_IDLE && armed)
 				{
 					// get the last picture. acquisition is over so getAcquisitionProgress returns 0.
@@ -362,7 +361,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		{
 			break;
 		}
-	}	
+	}
 	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
  	if (!safemode)
 	{
@@ -490,9 +489,9 @@ void AndorCamera::setExposures()
 
 void AndorCamera::setImageParametersToCamera()
 {
-	flume.setImage(runSettings.imageSettings.verticalBinning, runSettings.imageSettings.horizontalBinning,
-			 runSettings.imageSettings.bottom, runSettings.imageSettings.top, 
-			 runSettings.imageSettings.left, runSettings.imageSettings.right);
+	flume.setImage( runSettings.imageSettings.verticalBinning, runSettings.imageSettings.horizontalBinning,
+				    runSettings.imageSettings.bottom, runSettings.imageSettings.top, 
+				    runSettings.imageSettings.left, runSettings.imageSettings.right );
 }
 
 
@@ -514,7 +513,8 @@ void AndorCamera::setScanNumber()
 	}
 	else
 	{
-		flume.setNumberKinetics(int(runSettings.totalPicsInExperiment()));
+		//flume.setNumberKinetics(int(runSettings.totalPicsInExperiment()));
+		flume.setNumberKinetics ( int ( runSettings.totalPicsInVariation ( ) ) );
 	}
 }
 
@@ -740,14 +740,9 @@ AndorTemperatureStatus AndorCamera::getTemperature ( )
 	return stat;
 }
 
-void AndorCamera::queryStatus ( )
+int AndorCamera::queryStatus ( )
 {
-	flume.queryStatus ( );
-}
-
-void AndorCamera::queryStatus ( int & stat )
-{
-	flume.queryStatus ( stat );
+	return flume.queryStatus ( );
 }
 
 bool AndorCamera::isRunning ( )

@@ -464,7 +464,7 @@ std::array<float, 4> PictureSettingsControl::getExposureTimes ( )
 		ctrl.GetWindowTextA ( txt );
 		try
 		{
-			times[ ctrlNum ] = boost::lexical_cast<double>( txt );
+			times[ ctrlNum ] = boost::lexical_cast<double>( txt ) * 1e-3;
 		}
 		catch ( boost::bad_lexical_cast )
 		{

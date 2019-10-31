@@ -12,27 +12,26 @@ struct AndorRunSettings
 {
 	imageParameters imageSettings;
 	//
-	bool emGainModeIsOn;
-	int emGainLevel;
-	int readMode;
+	bool emGainModeIsOn = false;
+	int emGainLevel = 0;
+	int readMode = 4;
 	AndorRunModes::mode acquisitionMode = AndorRunModes::mode::Kinetic;
 	int frameTransferMode = 0;
 	AndorTriggerMode::mode triggerMode = AndorTriggerMode::mode::External;
-	//std::string cameraMode;
-	bool showPicsInRealTime;
+	bool showPicsInRealTime = false;
 	//
-	float kineticCycleTime;
-	float accumulationTime;
-	int accumulationNumber;
-	std::vector<float> exposureTimes;
+	float kineticCycleTime = 0.1f;
+	float accumulationTime = 0;
+	int accumulationNumber = 1;
+	std::vector<float> exposureTimes = { 0.026f };
 	//
-	UINT picsPerRepetition;
-	ULONGLONG repetitionsPerVariation;
-	ULONGLONG totalVariations;
+	UINT picsPerRepetition=1;
+	ULONGLONG repetitionsPerVariation=10;
+	ULONGLONG totalVariations = 3;
 	ULONGLONG totalPicsInVariation();
 	// this is an int to reflect that the final number that's programmed to the camera is an int
 	int totalPicsInExperiment();
-	int temperatureSetting;
+	int temperatureSetting = 25;
 };
 
 

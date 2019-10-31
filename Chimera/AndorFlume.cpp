@@ -238,29 +238,15 @@ void AndorFlume::getAcquisitionTimes ( float& exposure, float& accumulation, flo
 	}
 }
 
-/*
-*/
-void AndorFlume::queryStatus ( )
-{
-	int status;
-	queryStatus ( status );
-	if ( safemode )
-	{
-		status = DRV_IDLE;
-	}
-	if ( status != DRV_IDLE )
-	{
-		thrower ( "ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
-				  + str ( status ) + "\r\n" );
-	}
-}
 
-void AndorFlume::queryStatus ( int& status )
+int AndorFlume::queryStatus ( )
 {
+	int status = DRV_IDLE;
 	if ( !safemode )
 	{
 		andorErrorChecker ( GetStatus ( &status ) );
 	}
+	return status;
 }
 
 
