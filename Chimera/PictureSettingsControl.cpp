@@ -328,8 +328,8 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
 		double exposure;
 		try
 		{
-			exposure = boost::lexical_cast<float>(str(text));// / 1000.0f;
-			double dif = 0;  //= std::fabs(exposure/1000.0 - settings.exposureTimesUnofficial[picNum]);
+			exposure = boost::lexical_cast<float>(str(text));
+			double dif = 1;  //= std::fabs(exposure/1000.0 - settings.exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
 				colorer->SetBkColor( _myRGBs["Solarized Green"]);

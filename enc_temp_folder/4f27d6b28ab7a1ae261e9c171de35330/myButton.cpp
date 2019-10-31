@@ -6,8 +6,8 @@
 void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 {
 	CDC dc;
-	// Get device context object
-	dc.Attach( lpDrawItemStruct->hDC );
+	//Get device context object
+	dc.Attach( lpDrawItemStruct->hDC );     
 	CRect rt;
 	// Get button rect
 	rt = lpDrawItemStruct->rcItem;
@@ -26,11 +26,14 @@ void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	if ( (state & ODS_SELECTED) )
 	{
 		// Draw a sunken face
+		//dc.DrawEdge( rt, EDGE_SUNKEN, BF_RECT );    		
 		dc.SetTextColor( RGB( 255, 255, 255 ) );
 	}
 	else
 	{
 		dc.SetTextColor( _myRGBs["Text-Emph"] );
+		// Draw a raised face
+		//dc.DrawEdge( rt, EDGE_RAISED, BF_RECT );
 	}
 	// Get the caption which have been set
 	CString strTemp;
@@ -65,6 +68,12 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	CRect subr = { rt.TopLeft( ), rt.BottomRight( ) };
 	subr.right = subr.left + (subr.bottom - subr.top);	
 	UINT state = lpDrawItemStruct->itemState;
+	/*
+	if ( uncheckedRed && !GetCheck() )
+	{
+		dc.FillSolidRect ( rt, _myRGBs[ "Red" ] );
+	}*/
+
 	if ( IsWindowEnabled( ) )
 	{
 		dc.FillSolidRect( subr, _myRGBs[ "Interactable-Bkgd" ] );
@@ -99,7 +108,7 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	CString strTemp;
 	GetWindowText( strTemp );
 	dc.SelectObject( GetFont( ) );
-	dc.SetBkColor( _myRGBs[ "Button-Color" ] );
+	dc.SetBkColor( (uncheckedRed && GetCheck()) ? _myRGBs["Red"] : _myRGBs[ "Button-Color" ] );
 	dc.DrawText( strTemp, rt, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
 	// Draw out the caption
 	// If the button is focused
