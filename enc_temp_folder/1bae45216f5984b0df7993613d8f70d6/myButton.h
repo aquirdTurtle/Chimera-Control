@@ -17,4 +17,5 @@ class CleanCheck : public CMFCButton
 {
 	virtual void DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct );
 	public:
+		bool uncheckedRed=false;
 };

@@ -936,6 +936,8 @@ void MainWindow::restartNiawgDefaults()
 
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
+	auto result = profile.handleColoring ( pWnd->GetDlgCtrlID ( ), pDC );
+	if ( result ) { return *result; }
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:

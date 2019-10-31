@@ -95,6 +95,7 @@ class ProfileSystem
 		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
 		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, 
 										Version minVer=Version("0.0") );
+		CBrush* handleColoring ( int id, CDC* pDC );
 	private:
 		profileSettings currentProfile; 
 		seqSettings currentSequence;

@@ -385,7 +385,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			{
 				andorRunsettings[ 0 ].repetitionsPerVariation = repetitions;
 				andorRunsettings[ 0 ].totalVariations = variations;
-				int stat=0;
+				int stat = 0;
 				while ( true )
 				{
 					stat = input->andorCamera.queryStatus ( );

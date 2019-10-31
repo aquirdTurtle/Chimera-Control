@@ -1682,7 +1682,6 @@ HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	result = andorSettingsCtrl.handleColor(num, pDC );
 	HBRUSH res = *result;
 	if (res) { return res; }
-
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
