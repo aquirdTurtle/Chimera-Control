@@ -228,9 +228,10 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 
 void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
+	AndorRunSettings camSettings;
 	try
 	{
-		auto camSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS", 
+		camSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS", 
 															 AndorCameraSettingsControl::getRunSettingsFromConfig );
 		andorSettingsCtrl.setRunSettings ( camSettings );
 	}
@@ -250,9 +251,9 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 	}
 	try
 	{
-		auto imageDimSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS",
+		camSettings.imageSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS",
 																  AndorCameraSettingsControl::getImageDimSettingsFromConfig );
-		andorSettingsCtrl.updateImageDimSettings ( imageDimSettings );
+		andorSettingsCtrl.updateImageDimSettings ( camSettings.imageSettings );
 	}
 	catch ( Error& err )
 	{
@@ -348,9 +349,7 @@ void AndorWindow::passCameraMode()
 
 void AndorWindow::abortCameraRun()
 {
-	int status;
-	andor.queryStatus(status);
-	
+	int status = andor.queryStatus ( );	
 	if (ANDOR_SAFEMODE)
 	{
 		// simulate as if you needed to abort.
@@ -630,6 +629,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		catch (Error& err)
 		{
 			mainWin->getComm()->sendError( err.trace() );
+			mainWin->handlePause ( );
 		}
 	}
 	mostRecentPicNum = picNum;
@@ -1169,6 +1169,7 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	/// start the camera.
 	//andor.setSettings( input.AndorSettings );
 }
+
 
 void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 {

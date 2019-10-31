@@ -385,21 +385,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			{
 				andorRunsettings[ 0 ].repetitionsPerVariation = repetitions;
 				andorRunsettings[ 0 ].totalVariations = variations;
-				int stat=0;
-				while ( true )
-				{
-					stat = input->andorCamera.queryStatus ( );
-					if ( stat == DRV_ACQUIRING )
-					{
-						Sleep ( 1000 );
-						expUpdate ( "Waiting for camera to finish...", comm, quiet );
-					}
-					else
-					{
-						break;
-					}
-				} 
 				input->andorCamera.setSettings ( andorRunsettings[ 0 ] );
+				
 				double kinTime;
 				input->andorCamera.armCamera ( kinTime );
 			}

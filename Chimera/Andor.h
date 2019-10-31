@@ -67,8 +67,7 @@ class AndorCamera
 		void setCalibrating( bool cal );
 		bool isCalibrating( );
 		void abortAcquisition ( );
-		void queryStatus ( int & stat );
-		void queryStatus ();
+		int queryStatus (  );
 		AndorTemperatureStatus getTemperature ( );
 	private:
 
