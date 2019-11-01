@@ -286,7 +286,9 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					aoSys.makeFinalDataFormat( variationInc, seqInc ); 
 					ttls.organizeTtlCommands ( variationInc, seqInc );
 					ttls.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					ttls.convertToFinalViewpointFormat( variationInc, seqInc );
+					ttls.convertToFtdiSnaps(variationInc, seqInc);
+					ttls.convertToFinalFtdiFormat( variationInc, seqInc );
+					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Main");
 					// run a couple checks.
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
 					ttls.checkFinalFormatTimes( variationInc, seqInc );
@@ -348,6 +350,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		{
 			comm.sendColorBox( System::Master, 'G' );
 		}
+		// shouldn't there be a sequence loop here?
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		// shouldn't there be a sequence loop here?
 		for (const UINT& variationInc : range( variations ))
@@ -442,38 +445,46 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			}
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
+
+			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
+			ttls.ftdi_write(0, variationInc, skipOption);
+
 			for (auto repInc : range(repetitions))
 			{
-				for (auto seqInc : range(input->seq.sequence.size()))
-				{
-					if (input->thisObj->isAborting) { thrower ( abortString ); }
+				
+				/*for (auto seqInc : range(input->seq.sequence.size()))
+				{*///this was the original structure for handleing diffferent sequences across repetitions
+				if (input->seq.sequence.size() > 1) {
+					thrower("error the number of sequences should be zero");
+				}
+				else {
+					UINT seqInc = 0;
+					if (input->thisObj->isAborting) { thrower(abortString); }
 					else if (input->thisObj->isPaused)
 					{
-						expUpdate( "Paused\r\n!", comm, quiet );
+						expUpdate("Paused\r\n!", comm, quiet);
 						while (input->thisObj->isPaused)
 						{
 							// this could be changed to be a bit smarter using a std::condition_variable
-							Sleep( 100 );
-							if ( input->thisObj->isAborting ) { thrower ( abortString ); }
+							Sleep(100);
+							if (input->thisObj->isAborting) { thrower(abortString); }
 						}
-						expUpdate( "Un-Paused!\r\n", comm, quiet );
+						expUpdate("Un-Paused!\r\n", comm, quiet);
 					}
-					comm.sendRepProgress( repInc + 1 );
+					comm.sendRepProgress(repInc + 1);
 					if (input->runMaster)
 					{
 						aoSys.stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
 						// if the cruncher thread was running behind, it could change between writing and configuring the 
 						// aoSys and configuring the TTLs, resulting in some funny behavior;
-						bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ( );
-						aoSys.configureClocks( variationInc, seqInc, skipOption);
-						aoSys.writeDacs( variationInc, seqInc, skipOption);
+						aoSys.configureClocks(variationInc, seqInc, skipOption);
+						aoSys.writeDacs(variationInc, seqInc, skipOption);
 						aoSys.startDacs();
-						ttls.writeTtlData( variationInc, seqInc, skipOption);
-						ttls.startBoard();
-						ttls.waitTillFinished( variationInc, seqInc, skipOption);
+						ttls.ftdi_trigger();
+						ttls.FtdiWaitTillFinished(variationInc, seqInc, skipOption);
 					}
-				}
+				}//}
 			}
 		}
 		/// conclude.

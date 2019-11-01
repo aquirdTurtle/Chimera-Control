@@ -3,7 +3,6 @@
 
 #include "DdsSystemStructures.h"
 #include "ExpWrap.h"
-#include "Version.h"
 #include "ftdiFlume.h"
 #include <vector>
 #include <array>
@@ -21,24 +20,22 @@ class DdsCore
 	public:
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		static std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file, Version ver );
+		std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file );
 		void writeExperiment ( UINT sequenceNum, UINT variationNum );
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
-		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation );
-		void generateFullExpInfo ( UINT numVariations );
-		void assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params );
+		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList );
+		void generateFullExpInfo ( );
 		void evaluateDdsInfo ( std::vector<std::vector<parameterType>> params = std::vector<std::vector<parameterType>> ( 1 ));
 		void forceRampsConsistent ( );
-		void updateRampLists ( std::vector<std::vector<ddsIndvRampListInfo>> rampList );
+		void updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> rampList );
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
 		const std::string configDelim = "DDS_SYSTEM";
 	private:
-		// there is one list for every sequence. the same list is shared between variations of the sequence element.
-		std::vector<std::vector<ddsIndvRampListInfo>> rampLists;
+		ExpWrap<std::vector<ddsIndvRampListInfo>> rampLists;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
 		ddsConnectionType::type connType;
 		const UINT MSGLENGTH = 7;
@@ -74,5 +71,9 @@ class DdsCore
 		void writeRampReps ( UINT8 index, UINT16 reps );
 		void writeRampDeltaFreq ( UINT8 device, UINT8 channel, UINT8 index, double deltafreq );
 		void writeRampDeltaAmp ( UINT8 device, UINT8 channel, UINT8 index, double deltaamp );
+		bool log = true;
+		std::string writeLogFileName = "DDS_Write_Log.txt";
+		std::ofstream writeLog;
+		// readDDS ( UINT device, UINT16 address );
 		void writeDDS ( UINT8 device, UINT16 address, UINT8 dat1, UINT8 dat2, UINT8 dat3, UINT8 dat4 );
 };

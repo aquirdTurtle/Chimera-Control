@@ -21,7 +21,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 	eoAxialTek ( EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 	agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-		ttlBoard ( true, true, DIO_SAFEMODE ),
+		ttlBoard ( DIOFTDI_SAFEMODE, true, DIO_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
 	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM8", "PIEZO_CONTROLLER_2" )
@@ -1072,7 +1072,7 @@ void AuxiliaryWindow::zeroTtls()
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		ttlBoard.zeroBoard();
+		ttlBoard.ftdiZeroBoard();
 		sendStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1727,10 +1727,20 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 		msg += "\tCode System is active!\n";
 		msg += "\t" + ttlBoard.getSystemInfo( ) + "\n";
 	}
+	else if(!ttlBoard.getFtFlumeSafemode())
+	{
+		msg += "\Dio System is active!\n";
+		ttlBoard.ftdi_connectasync("FT2E722BB");
+		msg += "\t" + ttlBoard.getDioSystemInfo() + "\n";
+		//ttlBoard.ftdi_disconnect();
+		msg += "\t Bites Written \n";// +ttlBoard.testTTL() + "\n";
+
+	}
 	else
 	{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
+	
 	msg += "Analog Out System:\n";
 	if ( !ANALOG_OUT_SAFEMODE )
 	{
@@ -1755,6 +1765,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	if ( !DDS_SAFEMODE )
 	{
 		msg += "\tDDS System is Active!\n";
+		msg += "\t" + dds.getSystemInfo ( ) + "\n";
 		msg += "\t" + dds.getSystemInfo ( );
 	}
 	else
