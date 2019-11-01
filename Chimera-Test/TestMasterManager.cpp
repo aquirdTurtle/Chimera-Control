@@ -2,12 +2,11 @@
 #include "CppUnitTest.h"
 #include "../Chimera/MasterManager.h"
 
-
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace TestManager
 {
-	void handleInitDio( DioSystem& dio, MasterManager& testMan )
+	void handleInitDio( DioSystem& dio, MasterThreadManager& testMan )
 	{
 		ScriptStream stream( "t += 50 on: A5 t += 1 pulseon: C13 0.1" );
 		std::vector<std::pair<UINT, UINT>>  shades;
@@ -26,6 +25,7 @@ namespace TestManager
 		testMan.handleDioCommands( word, stream, emptyvars, dio, shades, 0, scope );
 		std::vector<std::vector<parameterType>> emptyVars2( 1, emptyvars );
 		dio.interpretKey( emptyVars2 );
+		dio.restructureCommands ( );
 		dio.organizeTtlCommands( 0, 0 );
 		dio.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 		// run a couple checks.
@@ -38,7 +38,7 @@ namespace TestManager
 		TEST_METHOD( FTDI_basic_handling )
 		{
 			// script reading and checking snapshots
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFtdiSnaps( 0, 0 );
@@ -67,7 +67,7 @@ namespace TestManager
 		}
 		TEST_METHOD( FTDI_DioFinalFormatting )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFtdiSnaps( 0, 0 );
@@ -103,7 +103,7 @@ namespace TestManager
 		TEST_METHOD( DioBasicHandling )
 		{
 			// script reading and checking snapshots
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFinalViewpointFormat( 0, 0 );
@@ -129,7 +129,7 @@ namespace TestManager
 		}
 		TEST_METHOD( DioFinalFormatting )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 			dio.convertToFinalViewpointFormat( 0, 0 );
@@ -173,7 +173,7 @@ namespace TestManager
 	{
 		TEST_METHOD( AoBasicHandling )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			AoSystem ao( true );
 			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
@@ -203,7 +203,7 @@ namespace TestManager
 		}
 		TEST_METHOD( AoFinalHandling )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			AoSystem ao( true );
 			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
@@ -254,7 +254,7 @@ namespace TestManager
 		}
 		TEST_METHOD( AoRampLinspace )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			AoSystem ao( true );
 			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 daclinspace: dac2 0 10 0.1 20" );
@@ -295,7 +295,7 @@ namespace TestManager
 		}
 		TEST_METHOD( Ao_Ramp_Arange )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			AoSystem ao( true );
 			DioSystem dio( true, true, true );
 			ScriptStream stream( "t += 5 dacarange: dac2 0 10 0.1 1" );
@@ -360,7 +360,7 @@ namespace TestManager
 		public:
 		TEST_METHOD( InitManager )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			Assert::AreEqual( false, testMan.runningStatus( ));
 			Assert::AreEqual( false, testMan.getAbortStatus( ));
 			Assert::AreEqual( false, testMan.getIsPaused( ));
@@ -370,7 +370,7 @@ namespace TestManager
 		}
 		TEST_METHOD( TimeCalc )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			timeType time;
 			time.second = 0;
 			auto val = testMan.convertToTime(time, std::vector<parameterType>(), 0);
@@ -385,7 +385,7 @@ namespace TestManager
 		}
 		TEST_METHOD( Run_DIO_Core )
 		{
-			MasterManager testMan;
+			MasterThreadManager testMan;
 			DioSystem dio( true, true, true );
 			handleInitDio( dio, testMan );
 		}
