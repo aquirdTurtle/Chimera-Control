@@ -152,7 +152,6 @@ class MainWindow : public CDialog
 			StatusUpdateMessageID		= ( WM_APP + 1 ),
 			ErrorUpdateMessageID		= ( WM_APP + 2 ),
 			FatalErrorMessageID			= ( WM_APP + 3 ),
-			NormalFinishMessageID		= ( WM_APP + 4 ),
 			DebugUpdateMessageID		= ( WM_APP + 6 ),
 			AndorFinishMessageID		= ( WM_APP + 7 ),
 			AndorProgressMessageID		= ( WM_APP + 8 ),
@@ -165,7 +164,8 @@ class MainWindow : public CDialog
 			BaslerProgressMessageID		= ( WM_APP + 15 ),
 			BaslerFinMessageID			= ( WM_APP + 18 ),
 			GeneralFinMsgID				= ( WM_APP + 19 ),
-			NoMotAlertMessageID			= ( WM_APP + 20 );
+			NoMotAlertMessageID			= ( WM_APP + 20 ),
+			experimentProcedureFinish	= ( WM_APP + 21 );
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
 		NiawgController& getNiawg ( );

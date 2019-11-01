@@ -526,8 +526,8 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	{
 		if ( curSettings.acquisitionMode != AndorRunModes::Video )
 		{
-			mainWin->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
-													   "camera window record?!?!?!?!?" );
+			//mainWin->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
+			//								  "camera window record?!?!?!?!?" );
 		}
 	}
 
@@ -745,6 +745,11 @@ std::vector<PlotDialog*>& AndorWindow::getActivePlotListRef ( )
 	return activePlots;
 }
 
+void AndorWindow::closeDataFile ( )
+{
+	dataHandler.closeFile ( );
+}
+
 
 LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
@@ -755,15 +760,11 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-	if ( !basWin->baslerCameraIsRunning ( ) || basWin->baslerCameraIsContinuous() )
-	{
-		// else it will close when the basler camera finishes.
-		dataHandler.closeFile ( );
-	}
+
 	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
 	mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	andorSettingsCtrl.cameraIsOn( false );
-	mainWin->handleFinish();
+			// mainWin->handleFinish();
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
 	// rearranger thread handles these right now.
