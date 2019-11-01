@@ -1,0 +1,13 @@
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #     
+ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
+ramp lin ramanDepth tof_Depth 1 onceWaitTrig # 
+ramp lin tof_Depth loadingDepth 1 once # 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

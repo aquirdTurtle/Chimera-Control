@@ -38,7 +38,7 @@ class VisaFlume
 {
 	public:
 	    VisaFlume(bool safemode, std::string address);
-		void write( std::string message );		
+		void write( std::string message );
 		void close( );
 		void open( );
 		char scan( );

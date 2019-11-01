@@ -1,0 +1,30 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter
+off: axialRamanShutter2
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+call D1GreyLambdaLoading()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+pulseon: dds_step 5
+t += 1
+call pgcAtomFlashingImage()
+pulseon: niAWGTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
+t += 10 
+call intrapgreymolasses()
+off: shutter795
+t += 1
+call pgcAtomFlashingImage()
+%t += 1
+pulseon: tweezerIntensityTrig 0.1
+pulseon: niAWGTrig 0.1
+t += 1
+

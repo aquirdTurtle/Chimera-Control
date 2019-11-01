@@ -2,46 +2,65 @@
 def freeSpaceProbeImage():
   % give the shutter some time to open.
   off: diagMotRf
+  off: SideMotRf
+  off: diagMotRf
+  off: repumpRf
   on: andorShutter
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning 0.3 %-1.5
+  var image_detuning -0.111 %0.3
   var motPower 0.3 % 0.2
-  dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
+  dacLinSpace: MotFreq defaultMotFreq image_detuning 1 10
   call zeroFields()
-
-  t += 5
+  t += 1
   % turn the repump on a tiny bit early 
   % to pump to the F=2 manifold.
-  on: RepumpRf
-  t += 0.2
-  dac: SideMotPower 0.3
+  %on: RepumpRf
+  %t += 0.2
+  var freespacePower 0.2
+  dac: SideMotPower freespacePower %0.3
   dac: probePower 0
   dac: RepumpPower 0.3
   dac: DiagMotPower 0
-  var freeSpaceImageTime 0.02
-  % wait time
+  var waitTime 0.000
+  var freeSpaceImageTime 0.01
   off: tweezerRf
-  t += 0.005
-  on: andorTrig
-  t += 0.005
-  t += 0.005
+  t += waitTime
+  % the Andor has about a 20 us delay between when you send the trig
+  % and when the camera actually starts exposing. This puts the trigger
+  % always 25 us before the imaging light turns on to make sure the 
+  % camera is exposed during the full imaging time. 
+  % at waitTime = 0, this is equivalent to 
+  % 
+  % on: andorTrig
+  % t += 0.025
+  % off: tweezerRf
+  % on: sidemotRf etc.
+
+  on: a15
   off: rf795
   off: proberf
   on: SideMotRf
-  off: diagMotRf
+  on: diagMotRf
   on: repumpRf
   t += freeSpaceImageTime
-  % in principle expect its over by this point
+  off: a15
   off: SideMotRf
   off: diagMotRf
   off: repumpRf
   off: andorShutter
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
+
+  %t += ( - 0.745 )
+  on: andorTrig
+  %t += 0.745
   t += 1
   off: andorTrig
   t += 0.2
+
+  off: tweezerRf
+
   % note that the camera needs some time before it can take
   % another image. Typically we need to wait like 5ms. The camera window
   % will tell you the minimum kinetic cycle time, which depends on the

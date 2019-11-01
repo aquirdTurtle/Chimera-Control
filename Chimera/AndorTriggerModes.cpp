@@ -22,7 +22,7 @@ std::string AndorTriggerMode::toStr( AndorTriggerMode::mode m )
 	}
 	else
 	{
-		thrower ("ERROR: AndorTriggerMode not recognized?!");
+		thrower ("AndorTriggerMode not recognized?!");
 	}
 }
 

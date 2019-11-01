@@ -1,0 +1,82 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf 
+off: axialRamanShutter 
+off: axialRamanShutter2
+off: axialRamanRf 
+off: probeShutter 
+dac: axPulseLev 0 
+on: b10
+
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+call D1GreyLambdaLoading()
+t += 11
+pulseon: tweezerIntensityTrig 0.1
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+t += 5
+
+on: axialRamanShutter 
+on: axialRamanShutter2 
+
+call intrapgreymolasses()
+
+t += 0.1
+off: b10
+pulseon: tweezerIntensityTrig 0.1
+t += 10
+call pump2stretch()
+dac: sigmaoppower 0.05
+dac: sigmarepumpPower 0.3
+rsg: (6.83103 + uw_cooling_mod_khz/1000000) 5
+% pulseon: topPulseTrig 0.1 
+% pulseon: tweezerIntensityTrig 0.1 
+var axialPulseTime 0.05 %0.036
+var topPulseTime 0.1
+dac: topPulseLev 0.7
+dac: axPulseLev  0.22  %0.21  %0.55 %0.7
+repeat: 60
+  on: uw_mod_switch 
+  call axialRamanPulse(0.05) %0.05
+  off: uw_mod_switch
+  
+
+  call opPulse() 
+
+  on: uw_mod_switch 
+  call topRamanPulse(0.1)
+  off: uw_mod_switch
+
+  call opPulse()
+end
+
+off: axialRamanShutter
+off: axialRamanShutter2
+
+pulseon: tweezerIntensityTrig 0.1
+pulseon: rsTrig 0.1
+t += 5
+pulseon: niAWGTrig 0.1
+
+t += 42
+
+%call zeroFields() 
+%call pgcAtomFlashingImage()
+call freeSpaceProbeImage()
+t += 55
+call freeSpaceProbeImage()
+pulseon: tweezerIntensityTrig 0.1
+t += 10.2
+
+pulseon: niAWGTrig 0.1
+t += 10
+
+%pulseon: niAWGTrig 0.1
+t += 1
+
+
+

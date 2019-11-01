@@ -954,3 +954,4 @@ void BaslerWrapper::setExposureAuto(cameraParams::ExposureAutoEnums mode)
 		}
 	}
 }
+

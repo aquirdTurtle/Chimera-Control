@@ -29,7 +29,6 @@
 #include "MasterThreadInput.h"
 #include "Version.h"
 
-
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
 struct whichAg

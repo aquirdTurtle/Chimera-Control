@@ -7,7 +7,7 @@ def pgcAtomFlashingImage():
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning -2.1 %-1.5
+  var image_detuning -2.2 %-1.5
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
   t += 5
@@ -15,12 +15,12 @@ def pgcAtomFlashingImage():
   % to pump to the F=2 manifold.
   on: RepumpRf
   t += 0.2
-  on: andorTrig
+  %on: andorTrig
   on: a9
   t += 0.1
-  var sidemot_imaging_power 0.3
+  var sidemot_imaging_power 0.24
   var imaging_diagmot_power 0.1
-  dac: SideMotPower sidemot_imaging_power
+  dac: SideMotPower sidemot_imaging__servo_value
   dac: RepumpPower imagingRepumpPower
   dac: DiagMotPower imaging_diagmot_power
   on: tweezerflashrf
@@ -35,6 +35,10 @@ def pgcAtomFlashingImage():
   off: repumpRf
   off: tweezerflashrf
   off: sidemotflash
+  pulseon: andorTrig 10
+  dac: DiagMotPower 0
+  dac: SideMotPower 0
+  dac: RepumpPower 0
   dacLinSpace: MotFreq image_detuning defaultMotFreq 2 10
   t += 1
   off: a9

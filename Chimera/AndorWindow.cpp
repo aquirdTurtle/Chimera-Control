@@ -548,13 +548,22 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		else if (picNum % curSettings.picsPerRepetition == 0)
 		{
 			int counter = 0;
-			for (auto data : picsToDraw )
+			for ( auto data : picsToDraw )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
-									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
-									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-
+				minMax = stats.update ( data, counter, selectedPixel, curSettings.imageSettings.width ( ),
+										curSettings.imageSettings.height ( ), picNum / curSettings.picsPerRepetition,
+										curSettings.totalPicsInExperiment ( ) / curSettings.picsPerRepetition );
+				if ( minMax.second > 50000 )
+				{
+					// POTENTIALLY DANGEROUS TO CAMERA.
+					// AUTO PAUSE THE EXPERIMENT. 
+					// This can happen if a laser, particularly the axial raman laser, is left on during an image.
+					// cosmic rays may occasionally trip it as well. 
+					commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F2, this, mainWin, scriptWin, this,
+														   auxWin, basWin );
+					errBox ( "EXCCESSIVE CAMERA COUNTS DETECTED!!!" );
+				}
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
 								  analysisHandler.getGrids(), picNum );

@@ -1,0 +1,372 @@
+% Default Y Script
+% 
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+var f1_1 45
+var f1_2 57
+var f1_3 69
+var f1_4 81
+var f1_5 93
+var f1_6 105
+
+var a1h_1 0.21936713862605295
+var a1h_2 0.14384413540638677
+var a1h_3 0.16991629906853267
+var a1h_4 0.12089583898523688
+var a1h_5 0.1410508634657333
+var a1h_6 0.2049257244480576
+
+var a1v_1 0.24019216040119318
+var a1v_2 0.16350750474114234
+var a1v_3 0.20409344271128455
+var a1v_4 0.13339038610955817
+var a1v_5 0.10795983917400437
+var a1v_6 0.15085666686281737
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+var f2h_1 57.5
+var f2h_2 64.5
+var f2h_3 71.5
+var f2h_4 78.5
+var f2h_5 85.5
+var f2h_6 92.5
+
+var f2v_1 65.5
+var f2v_2 72.5
+var f2v_3 79.5
+var f2v_4 86.5
+var f2v_5 93.5
+var f2v_6 100.5
+
+var a2h_1 0.13
+var a2h_2 0.17
+var a2h_3 0.169916
+var a2h_4 0.120895
+var a2h_5 0.13
+var a2h_6 0.19
+
+var a2v_1 0.26
+var a2v_2 0.22
+var a2v_3 0.14
+var a2v_4 0.25
+var a2v_5 0.16
+var a2v_6 0.18
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+var f2bh_1 60
+var f2bh_2 66
+var f2bh_3 72
+var f2bh_4 78
+var f2bh_5 84
+var f2bh_6 90
+
+var f2bv_1 69.6
+var f2bv_2 75.6
+var f2bv_3 81.6
+var f2bv_4 87.6
+var f2bv_5 93.6
+var f2bv_6 99.6
+
+var a2bh_1 0.1351
+var a2bh_2 0.1751
+var a2bh_3 0.14991601
+var a2bh_4 0.12089501
+var a2bh_5 0.1201
+var a2bh_6 0.1901
+
+var a2bv_1 0.2601
+var a2bv_2 0.1801
+var a2bv_3 0.1651
+var a2bv_4 0.2501
+var a2bv_5 0.1601
+var a2bv_6 0.1801
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+var f2ch_1 62.5
+var f2ch_2 67.5
+var f2ch_3 72.5
+var f2ch_4 77.5
+var f2ch_5 82.5
+var f2ch_6 87.5
+
+var f2cv_1 73.7
+var f2cv_2 78.7
+var f2cv_3 83.7
+var f2cv_4 88.7
+var f2cv_5 93.7
+var f2cv_6 98.7
+
+var a2ch_1 0.1552
+var a2ch_2 0.1852
+var a2ch_3 0.14991602
+var a2ch_4 0.12589502
+var a2ch_5 0.1102
+var a2ch_6 0.1902
+
+var a2cv_1 0.2152
+var a2cv_2 0.1752
+var a2cv_3 0.1852
+var a2cv_4 0.2552
+var a2cv_5 0.1602
+var a2cv_6 0.192
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+var f3h_1 65
+var f3h_2 69
+var f3h_3 73
+var f3h_4 77
+var f3h_5 81
+var f3h_6 85
+
+var f3v_1 77.8
+var f3v_2 81.8
+var f3v_3 85.8
+var f3v_4 89.8
+var f3v_5 93.8
+var f3v_6 97.8
+
+var a3h_1 0.21
+var a3h_2 0.22
+var a3h_3 0.165
+var a3h_4 0.155
+var a3h_5 0.125
+var a3h_6 0.20
+
+var a3v_1 0.17
+var a3v_2 0.2201
+var a3v_3 0.235
+var a3v_4 0.28
+var a3v_5 0.1601
+var a3v_6 0.2
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+var f4h_1 67.5
+var f4h_2 70.5
+var f4h_3 73.5
+var f4h_4 76.5
+var f4h_5 79.5
+var f4h_6 82.5
+
+var f4v_1 81.9
+var f4v_2 84.9
+var f4v_3 87.9
+var f4v_4 90.9
+var f4v_5 93.9
+var f4v_6 96.9
+
+var a4h_1 0.25
+var a4h_2 0.25
+var a4h_3 0.165001
+var a4h_4 0.190
+var a4h_5 0.125001
+var a4h_6 0.20001
+
+var a4v_1 0.25
+var a4v_2 0.2501
+var a4v_3 0.21
+var a4v_4 0.256
+var a4v_5 0.17
+var a4v_6 0.25
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+var ffh_1 70
+var ffh_2 72
+var ffh_3 74
+var ffh_4 76
+var ffh_5 78
+var ffh_6 80
+
+var ffv_1 86
+var ffv_2 88
+var ffv_3 90
+var ffv_4 92
+var ffv_5 94
+var ffv_6 96
+
+var afh_1 0.25
+var afh_2 0.25
+var afh_3 0.165001
+var afh_4 0.190
+var afh_5 0.125001
+var afh_6 0.20001
+
+var afv_1 0.25
+var afv_2 0.2501
+var afv_3 0.21
+var afv_4 0.256
+var afv_5 0.17
+var afv_6 0.25
+
+repeatTilTrig
+gen6const
+Horizontal
+f1_1	a1h_1	2.545681471
+f1_2	a1h_2	2.406442385
+f1_3	a1h_3	0.016308521
+f1_4	a1h_4	4.188140938
+f1_5	a1h_5	6.135687272
+f1_6	a1h_6	0
+#
+gen6const
+Vertical
+f1_1	a1v_1	2.545681471
+f1_2	a1v_2	2.406442385
+f1_3	a1v_3	0.016308521
+f1_4	a1v_4	4.188140938
+f1_5	a1v_5	6.135687272
+f1_6	a1v_6	0
+#
+0.001 0
+endRepeat 
+
+gen6Freq&AmpRamp
+Horizontal
+lin f1_1	f2h_1		lin 	a1h_1	a2h_1	2.545681471
+lin f1_2	f2h_2		lin 	a1h_2	a2h_2	2.406442385
+lin f1_3	f2h_3		lin 	a1h_3	a2h_3	0.016308521
+lin f1_4	f2h_4		lin 	a1h_4	a2h_4	4.188140938
+lin f1_5	f2h_5		lin 	a1h_5	a2h_5	6.135687272
+lin f1_6	f2h_6		lin 	a1h_6	a2h_6	0
+#
+gen6Freq&AmpRamp
+Vertical
+lin f1_1	f2v_1		lin	a1v_1	a2v_1	2.545681471
+lin f1_2	f2v_2		lin	a1v_2	a2v_2	2.406442385
+lin f1_3	f2v_3		lin	a1v_3	a2v_3	0.016308521
+lin f1_4	f2v_4		lin	a1v_4	a2v_4	4.188140938
+lin f1_5	f2v_5		lin	a1v_5	a2v_5	6.135687272
+lin f1_6	f2v_6		lin	a1v_6	a2v_6	0
+#
+5 0
+
+
+gen6Freq&AmpRamp
+Horizontal
+lin f2h_1	f2bh_1	lin	a2h_1	a2bh_1	-1
+lin f2h_2	f2bh_2	lin	a2h_2	a2bh_2	-1
+lin f2h_3	f2bh_3	lin	a2h_3	a2bh_3	-1
+lin f2h_4	f2bh_4	lin	a2h_4	a2bh_4	-1
+lin f2h_5	f2bh_5	lin	a2h_5	a2bh_5	-1
+lin f2h_6	f2bh_6	lin	a2h_6	a2bh_6	-1
+#
+gen6Freq&AmpRamp
+Vertical
+lin f2v_1	f2bv_1	lin	a2v_1	a2bv_1	-1
+lin f2v_2	f2bv_2	lin	a2v_2	a2bv_2	-1
+lin f2v_3	f2bv_3	lin	a2v_3	a2bv_3	-1
+lin f2v_4	f2bv_4	lin	a2v_4	a2bv_4	-1
+lin f2v_5	f2bv_5	lin	a2v_5	a2bv_5	-1
+lin f2v_6	f2bv_6	lin	a2v_6	a2bv_6	-1
+#
+1 0
+
+gen6Freq&AmpRamp
+Horizontal
+lin f2bh_1	f2ch_1	lin 	a2bh_1	a2ch_1	2.545681471
+lin f2bh_2	f2ch_2	lin 	a2bh_2	a2ch_2	2.406442385
+lin f2bh_3	f2ch_3	lin 	a2bh_3	a2ch_3	0.016308521
+lin f2bh_4	f2ch_4	lin 	a2bh_4	a2ch_4	4.188140938
+lin f2bh_5	f2ch_5	lin 	a2bh_5	a2ch_5	6.135687272
+lin f2bh_6	f2ch_6	lin 	a2bh_6	a2ch_6	0
+#
+gen6Freq&AmpRamp
+Vertical
+lin f2bv_1	f2cv_1	lin	a2bv_1	a2cv_1	2.545681471
+lin f2bv_2	f2cv_2	lin	a2bv_2	a2cv_2	2.406442385
+lin f2bv_3	f2cv_3	lin	a2bv_3	a2cv_3	0.016308521
+lin f2bv_4	f2cv_4	lin	a2bv_4	a2cv_4	4.188140938
+lin f2bv_5	f2cv_5	lin	a2bv_5	a2cv_5	6.135687272
+lin f2bv_6	f2cv_6	lin	a2bv_6	a2cv_6	0
+#
+1 0
+
+gen6Freq&AmpRamp
+Horizontal
+lin f2ch_1	f3h_1		lin 	a2ch_1	a3h_1	2.545681471
+lin f2ch_2	f3h_2		lin 	a2ch_2	a3h_2	2.406442385
+lin f2ch_3	f3h_3		lin 	a2ch_3	a3h_3	0.016308521
+lin f2ch_4	f3h_4		lin 	a2ch_4	a3h_4	4.188140938
+lin f2ch_5	f3h_5		lin 	a2ch_5	a3h_5	6.135687272
+lin f2ch_6	f3h_6		lin 	a2ch_6	a3h_6	0
+#
+gen6Freq&AmpRamp
+Vertical
+lin f2cv_1	f3v_1		lin	a2cv_1	a3v_1	2.545681471
+lin f2cv_2	f3v_2		lin	a2cv_2	a3v_2	2.406442385
+lin f2cv_3	f3v_3		lin	a2cv_3	a3v_3	0.016308521
+lin f2cv_4	f3v_4		lin	a2cv_4	a3v_4	4.188140938
+lin f2cv_5	f3v_5		lin	a2cv_5	a3v_5	6.135687272
+lin f2cv_6	f3v_6		lin	a2cv_6	a3v_6	0
+#
+1 0
+
+
+
+gen6Freq&AmpRamp
+Horizontal
+lin f3h_1	f4h_1		lin	a3h_1	a4h_1	-1
+lin f3h_2	f4h_2		lin	a3h_2	a4h_2	-1
+lin f3h_3	f4h_3		lin	a3h_3	a4h_3	-1
+lin f3h_4	f4h_4		lin	a3h_4	a4h_4	-1
+lin f3h_5	f4h_5		lin	a3h_5	a4h_5	-1
+lin f3h_6	f4h_6		lin	a3h_6	a4h_6	-1
+#
+gen6Freq&AmpRamp
+Vertical
+lin f3v_1	f4v_1		lin	a3v_1	a4v_1	-1
+lin f3v_2	f4v_2		lin	a3v_2	a4v_2	-1
+lin f3v_3	f4v_3		lin	a3v_3	a4v_3	-1
+lin f3v_4	f4v_4		lin	a3v_4	a4v_4	-1
+lin f3v_5	f4v_5		lin	a3v_5	a4v_5	-1
+lin f3v_6	f4v_6		lin	a3v_6	a4v_6	-1
+#
+1 0
+
+gen6Freq&AmpRamp
+Horizontal
+lin f4h_1	ffh_1		nr	a4h_1	afh_1	-1
+lin f4h_2	ffh_2		nr	a4h_2	afh_2	-1
+lin f4h_3	ffh_3		nr	a4h_3	afh_3	-1
+lin f4h_4	ffh_4		nr	a4h_4	afh_4	-1
+lin f4h_5	ffh_5		nr	a4h_5	afh_5	-1
+lin f4h_6	ffh_6		nr	a4h_6	afh_6	-1
+#
+gen6Freq&AmpRamp
+Vertical
+lin f4v_1	ffv_1		nr	a4v_1	afv_1	-1
+lin f4v_2	ffv_2		nr	a4v_2	afv_2	-1
+lin f4v_3	ffv_3		nr	a4v_3	afv_3	-1
+lin f4v_4	ffv_4		nr	a4v_4	afv_4	-1
+lin f4v_5	ffv_5		nr	a4v_5	afv_5	-1
+lin f4v_6	ffv_6		nr	a4v_6	afv_6	-1
+#
+1 0
+
+repeatTilTrig
+gen6const
+Horizontal
+ffh_1	afh_1	-1
+ffh_2	afh_2	-1
+ffh_3	afh_3	-1
+ffh_4	afh_4	-1
+ffh_5	afh_5	-1
+ffh_6	afh_6	-1
+#
+gen6const
+Vertical
+ffv_1	afv_1	-1
+ffv_2	afv_2	-1
+ffv_3	afv_3	-1
+ffv_4	afv_4	-1
+ffv_5	afv_5	-1
+ffv_6	afv_6	-1
+#
+0.001 0
+endRepeat 

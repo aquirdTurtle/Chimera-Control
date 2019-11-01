@@ -1941,7 +1941,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 	else
 	{
 		thrower ( "Expected either \"vertical\" or \"horizontal\" after waveform type declaration. Instead, found"
-				 " \"" + newAxisStr + "\"." );
+				  " \"" + newAxisStr + "\"." );
 	}
 	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
 	// get the common things.
@@ -2327,18 +2327,18 @@ void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, Niaw
 				///
 				if ( currSig.initPower != prevSig.finPower )
 				{
-					warnings += "Warning: Amplitude jump at waveform #" + str( waveInc ) + "signal # " + str(signalNum) 
+					warnings += "Warning: Amplitude jump at waveform #" + str( waveInc ) + " signal # " + str(signalNum) 
 						+ " in " + AXES_NAMES[axis] + " component detected!\r\n";
 				}
 				if ( currSig.freqInit != prevSig.freqFin )
 				{
-					warnings += "Warning: Frequency jump at waveform #" + str( waveInc ) + "signal # " + str ( signalNum ) 
+					warnings += "Warning: Frequency jump at waveform #" + str( waveInc ) + " signal # " + str ( signalNum ) 
 						+ " in " + AXES_NAMES[axis] + " component detected!\r\n";
 				}
 				if ( currSig.initPhase - prevSig.finPhase > CORRECTION_WAVEFORM_ERROR_THRESHOLD )
 				{
 					warnings += "Warning: Phase jump (greater than what's wanted for correction waveforms) at "
-						"waveform #" + str( waveInc ) + "signal # " + str ( signalNum ) + " in " + AXES_NAMES[axis] 
+						"waveform #" + str( waveInc ) + " signal # " + str ( signalNum ) + " in " + AXES_NAMES[axis] 
 						+ " component detected!\r\n";
 				}
 				// if there signal is ramping but the beginning and end amplitudes are the same, that's weird. 
