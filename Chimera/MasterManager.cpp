@@ -1101,9 +1101,63 @@ void MasterThreadManager::analyzeFunctionDefinition(std::string defLine, std::st
 	}
 }
 
+// at least right now, this doesn't support varying any of the values of the constant vector. this could probably
+// be sensibly changed at some point.
+bool MasterThreadManager::handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
+															std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings )
+{
+	if ( word != "var_v" )
+	{
+		return false;
+	}
+	std::string vecLength;
+	vectorizedNiawgVals tmpVec;
+	stream >> vecLength >> tmpVec.name;
+	for ( auto& cv : constVecs )
+	{
+		if ( tmpVec.name == cv.name )
+		{
+			thrower ( "Constant Vector name \"" + tmpVec.name + "\"being re-used! You may only declare one constant "
+					  "vector with this name." );
+		}
+	}
+	UINT vecLength_ui = 0;
+	try
+	{
+		vecLength_ui = boost::lexical_cast<UINT>( vecLength );
+	}
+	catch ( boost::bad_lexical_cast )
+	{
+		thrower ( "Failed to convert constant vector length to an unsigned int!" );
+	}
+	if ( vecLength_ui == 0 || vecLength_ui > MAX_NIAWG_SIGNALS)
+	{
+		thrower ( "Invalid constant vector length: " + str ( vecLength_ui ) + ", must be greater than 0 and less than " 
+				  + str ( MAX_NIAWG_SIGNALS ) );
+	}
+	std::string bracketDelims;
+	stream >> bracketDelims;
+	if ( bracketDelims != "[" )
+	{
+		thrower ( "Expected \"[\" after constant vector size and name." );
+	}
+	tmpVec.vals.resize ( vecLength_ui );
+	for ( auto& val : tmpVec.vals )
+	{
+		stream >> val;
+	}
+	stream >> bracketDelims;
+	if ( bracketDelims != "]" )
+	{
+		thrower ( "Expected \"]\" after constant vector values. Is the vector size right?" );
+	}
+	constVecs.push_back ( tmpVec );
+	return true;
+}
+
 
 bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											   std::string scope, std::string& warnings )
+													 std::string scope, std::string& warnings )
 {
 	if ( word != "var" )
 	{
