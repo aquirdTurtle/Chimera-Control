@@ -3,6 +3,12 @@
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
 { 
+	writeLog.open ( writeLogFileName, std::ios::app ); 
+	if ( !writeLog.is_open ( ) )
+	{
+		thrower ( "Failed to open dds write log!" );
+	}
+	writeLog << "Chimera\n";
 	connectasync ( );
 	lockPLLs( );	
 }
@@ -10,34 +16,12 @@ DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
 DdsCore::~DdsCore ( )
 {
 	disconnect ( );
+	writeLog.close ( );
 }
 
-void DdsCore::updateRampLists ( std::vector<std::vector<ddsIndvRampListInfo>> newList )
+void DdsCore::updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> newList )
 {
 	rampLists = newList;
-}
-
-
-void DdsCore::assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params )
-{
-	if ( params.size ( ) == 0 )
-	{
-		thrower ( "ERROR: empty variables! Sequence size is zero?!" );
-	}
-	UINT variations = ( ( params[ 0 ].size ( ) ) == 0 ) ? 1 : params.front ( ).front ( ).keyValues.size ( );
-	for ( auto sequenceNumber : range ( params.size ( ) ) )
-	{
-		auto& seqParams = params[ sequenceNumber ];
-		for ( auto& ramp : rampLists[sequenceNumber] )
-		{
-			ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.freq1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.freq2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.amp1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.amp2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-		}
-	}
 }
 
 // this probably needs an overload with a default value for the empty parameters case...
@@ -53,14 +37,14 @@ void DdsCore::evaluateDdsInfo ( std::vector<std::vector<parameterType>> params )
 		auto& seqParams = params[ sequenceNumber ];
 		for ( auto variationNumber : range ( variations ) )
 		{
-			for ( auto& ramp : rampLists[sequenceNumber] )
+			for ( auto& ramp : rampLists ( sequenceNumber, variationNumber ) )
 			{
-				ramp.rampTime.internalEvaluate ( seqParams, variations );
-				ramp.freq1.internalEvaluate ( seqParams, variations );
-				ramp.freq2.internalEvaluate ( seqParams, variations );
-				ramp.amp1.internalEvaluate ( seqParams, variations );
-				ramp.amp2.internalEvaluate ( seqParams, variations );
-				ramp.rampTime.internalEvaluate ( seqParams, variations );
+				ramp.rampTime.internalEvaluate ( seqParams, variationNumber );
+				ramp.freq1.internalEvaluate ( seqParams, variationNumber );
+				ramp.freq2.internalEvaluate ( seqParams, variationNumber );
+				ramp.amp1.internalEvaluate ( seqParams, variationNumber );
+				ramp.amp2.internalEvaluate ( seqParams, variationNumber );
+				ramp.rampTime.internalEvaluate ( seqParams, variationNumber );
 			}
 		}
 	}
@@ -109,15 +93,15 @@ void DdsCore::writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex )
 	}
 }
 
-void DdsCore::generateFullExpInfo (UINT numVariations)
+void DdsCore::generateFullExpInfo ( )
 {
-	fullExpInfo.resizeSeq ( rampLists.size ( ) );
-	for ( auto seqInc : range ( rampLists.size( ) ) )
+	fullExpInfo.resizeSeq ( rampLists.getNumSequences ( ) );
+	for ( auto seqInc : range ( rampLists.getNumSequences ( ) ) )
 	{
-		fullExpInfo.resizeVariations ( seqInc, numVariations );
-		for ( auto varInc : range ( numVariations ) )
+		fullExpInfo.resizeVariations ( seqInc, rampLists.getNumVariations ( seqInc ) );
+		for ( auto varInc : range ( rampLists.getNumVariations ( seqInc ) ) )
 		{
-			fullExpInfo ( seqInc, varInc ) = analyzeRampList ( rampLists[seqInc], varInc );
+			fullExpInfo ( seqInc, varInc ) = analyzeRampList ( rampLists ( seqInc, varInc ) );
 		}
 	}
 }
@@ -126,7 +110,7 @@ void DdsCore::generateFullExpInfo (UINT numVariations)
 converts the list of individual set ramps, as set by the user, to the full ramp list which contains the state
 of each dds at each point in the ramp.
 */
-std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation )
+std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList )
 {
 	// always rewrite the full vector
 	UINT maxIndex = 0;
@@ -141,20 +125,20 @@ std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRa
 		auto& rampF = fullRampInfo[ rampL.index ].rampParams ( rampL.channel / 4, rampL.channel % 4 );
 		if ( rampF.explicitlySet == true )
 		{
-			if ( fullRampInfo[ rampL.index ].rampTime != rampL.rampTime.getValue ( variation ) )
+			if ( fullRampInfo[ rampL.index ].rampTime != rampL.rampTime.getValue ( ) )
 			{
 				thrower ( "The ramp times of different channels on the same ramp index must match!" );
 			}
 		}
 		else
 		{
-			fullRampInfo[ rampL.index ].rampTime = rampL.rampTime.getValue ( variation );
+			fullRampInfo[ rampL.index ].rampTime = rampL.rampTime.getValue ( );
 			rampF.explicitlySet = true;
 		}
-		rampF.freq1 = rampL.freq1.getValue ( variation );
-		rampF.freq2 = rampL.freq2.getValue ( variation );
-		rampF.amp1 = rampL.amp1.getValue ( variation );
-		rampF.amp2 = rampL.amp2.getValue ( variation );
+		rampF.freq1 = rampL.freq1.getValue ( );
+		rampF.freq2 = rampL.freq2.getValue ( );
+		rampF.amp1 = rampL.amp1.getValue ( );
+		rampF.amp2 = rampL.amp2.getValue ( );
 	}
 	return fullRampInfo;
 }
@@ -264,6 +248,7 @@ std::string DdsCore::getSystemInfo ( )
 	msg += ftFlume.getDeviceInfoList ( );
 	return msg;
 }
+
 
 /* Get Frequency Tuning Word - convert a frequency in double to  */
 INT DdsCore::getFTW ( double freq )
@@ -428,6 +413,23 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 		UINT8 ADDRESS_HI = ( ADDRESS & 0xff00UL ) >> 8;
 		std::vector<unsigned char> input = { unsigned char ( WBWRITE + DEVICE ), ADDRESS_HI, ADDRESS_LO, dat1, dat2, dat3, dat4 };
 		ftFlume.write ( input, MSGLENGTH );
+		if ( log )
+		{
+			if ( !writeLog.is_open ( ) )
+			{
+				thrower ( "Failed to open dds logging file!" );
+			}
+			writeLog << std::setfill ( '0' ) << std::hex
+					 << std::setw ( 2 ) << UINT ( input[ 0 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 1 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 2 ] )
+					 << " "
+					 << std::setw ( 2 ) << UINT ( input[ 3 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 4 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 5 ] )
+					 << std::setw ( 2 ) << UINT ( input[ 6 ] )
+					 << "\n";
+		}
 	}
 	else
 	{
@@ -437,7 +439,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 }
 
 
-std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file, Version ver )
+std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file )
 {
 	UINT numRamps = 0;
 	file >> numRamps;

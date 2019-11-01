@@ -212,6 +212,7 @@ void DdsSystem::programNow ( )
 		simpleExp[0] = currentRamps;
 		core.updateRampLists ( simpleExp );
 		core.evaluateDdsInfo ( );
+		core.generateFullExpInfo ( );
 		core.generateFullExpInfo ( 1 );
 		core.writeExperiment ( 0, 0 );
 	}
@@ -251,7 +252,9 @@ std::string DdsSystem::getDelim ( )
 	return core.configDelim;
 }
 
-
+DdsCore& DdsSystem::getCore ( )
+{
+	return core;
 DdsCore& DdsSystem::getCore ( )
 {
 	return core;

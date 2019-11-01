@@ -25,6 +25,11 @@ namespace commonFunctions
 	{
 		switch (msgID)
 		{
+			case ID_HELP_HARDWARESTATUS:
+			{
+				mainWin->showHardwareStatus ( );
+				break;
+			}
 			case ID_MACHINE_OPTIMIZATION:
 			{
 				// this is mostly prepared like F5.
