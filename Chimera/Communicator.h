@@ -47,6 +47,8 @@ class Communicator
 		void sendNoAtomsAlert( );
 		void sendNoMotAlert ( );
 
+		void sendExperimentProcedureFinish ( );
+
 		void sendAutoServo( );
 	private:
 		MainWindow* mainWin;

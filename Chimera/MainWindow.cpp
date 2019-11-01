@@ -1426,7 +1426,6 @@ void MainWindow::waitForRearranger( )
 }
 
 
-// I think I can delete this...
 void MainWindow::onNormalFinishMessage()
 {
 	TheScriptingWindow->setIntensityDefault();
@@ -1435,6 +1434,8 @@ void MainWindow::onNormalFinishMessage()
 	changeShortStatusColor("B");
 	stopRearranger( );
 	TheAndorWindow->wakeRearranger();
+	TheAndorWindow->closeDataFile ( );
+	handleFinish ( );
 	comm.sendColorBox( System::Niawg, 'B' );
 	try
 	{
@@ -1490,7 +1491,6 @@ void MainWindow::handleFinish()
 		message += "0";
 	}
 	message += str(now.tm_sec);
-
 	try
 	{
 		texter.sendMessage(message, &python, "Finished");

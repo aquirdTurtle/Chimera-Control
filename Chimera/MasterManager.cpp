@@ -554,6 +554,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	expUpdate( "Experiment took " + str( int(exp_t) / 3600 )  + " hours, " + str(int(exp_t) % 3600 / 60) + " minutes, "
 			   + str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
 	input->thisObj->experimentIsRunning = false;
+	
 	delete input;
 	return false;
 }

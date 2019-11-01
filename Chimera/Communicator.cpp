@@ -51,6 +51,11 @@ void Communicator::sendCameraFin()
 	camWin->PostMessage( MainWindow::AndorFinishMessageID, 0, 0 );
 }
 
+void Communicator::sendExperimentProcedureFinish ( )
+{
+	mainWin->PostMessageA ( MainWindow::experimentProcedureFinish, 0, 0 );
+}
+
 void Communicator::sendCameraCalFin( )
 {
 	camWin->PostMessage( MainWindow::AndorCalFinMessageID, 0, 0 );
@@ -62,12 +67,6 @@ void Communicator::sendAutoServo( )
 	auxWin->PostMessageA( MainWindow::AutoServoMessage, 0, 0 );
 }
 
-/*
-void Communicator::sendNormalFinish( )
-{
-	mainWin->PostMessageA( NormalFinishMessageID );
-}
-*/
 
 void Communicator::sendCameraProgress(long progress)
 {
