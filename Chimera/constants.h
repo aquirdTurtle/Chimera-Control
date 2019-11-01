@@ -16,8 +16,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 //#define ANALYSIS_COMPUTER
 
 /// File Locations and safemode options
@@ -72,12 +72,14 @@
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
-	const PiezoType PIEZO_1_TYPE = PiezoType::A;
+	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 #endif
-
+	
 
 #ifdef ANALYSIS_COMPUTER
+	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
+	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 	#define DDS_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
@@ -107,8 +109,8 @@
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Data_Analysis_Code\\";
-	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Chimera/Chimera-Control/Chimera";
-	const std::string PROJECT_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Chimera\\Chimera-Control\\";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Chimera-Control/Chimera";
+	const std::string PROJECT_LOCATION = "C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\";
 	//const std::string PYTHON_CODE_LOCATION = PROJECT_LOCATION + "\\Chimera";
 	// same as debug output location but with forward slashes for ease of use in python
 	const std::string PYTHON_INPUT_LOCATION = PROJECT_LOCATION + "\\Debug-Output\\";
@@ -356,6 +358,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_CAMERA_CALIBRATION_BUTTON 23063
 #define IDC_PLOT_TIMER_EDIT 23064
 #define IDC_SOFTWARE_ACCUMULATE_ALL_OPTION 23065
+#define IDC_EM_GAIN_BTN 23066
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //

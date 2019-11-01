@@ -3,29 +3,26 @@
 #include "CameraSettingsControl.h"
 #include "AndorWindow.h"
 #include "miscCommonFunctions.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 
-AndorCameraSettingsControl::AndorCameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
+AndorCameraSettingsControl::AndorCameraSettingsControl() 
 {
-	andorFriend = friendInitializer;
-	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
-	// function.
+	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" function.
 	AndorRunSettings& andorSettings = settings.andor;
+	/*
 	andorSettings.exposureTimes = { 0.026f };
 	andorSettings.picsPerRepetition = 1;
 	andorSettings.kineticCycleTime = 0.1f;
 	andorSettings.repetitionsPerVariation = 10;
 	andorSettings.totalVariations = 3;
-	//andorSettings.totalPicsInExperiment = 30;
-	//andorSettings.totalPicsInVariation = 10;
 	// the read mode never gets changed currently. we always want images.
 	andorSettings.readMode = 4;
 	andorSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
 	andorSettings.emGainModeIsOn = false;
 	andorSettings.showPicsInRealTime = false;
 	andorSettings.triggerMode = AndorTriggerMode::mode::External;
+	*/
 }
 
 
@@ -49,8 +46,8 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	pos.amPos.y += 20;
 
 	/// EM Gain
-	emGainLabel.setPositions ( pos, 0, 0, 160, 20, false, false, true );
-	emGainLabel.Create ( "EM Gain Setting", NORM_HEADER_OPTIONS, emGainLabel.seriesPos, parent, id++ );
+	emGainBtn.setPositions ( pos, 0, 0, 160, 20, false, false, true );
+	emGainBtn.Create ( "Set EM Gain (-1=OFF)", NORM_PUSH_OPTIONS, emGainBtn.seriesPos, parent, IDC_EM_GAIN_BTN );
 	emGainEdit.setPositions ( pos, 160, 0, 160, 20, false, false, true );
 	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, IDC_EM_GAIN_EDIT );
 	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
@@ -163,11 +160,12 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 		emGainEdit.SetWindowTextA(cstr(inputSettings.emGainLevel));
 		emGainDisplay.SetWindowTextA(cstr("X" + str(inputSettings.emGainLevel)));
 	}
-	andorFriend->setGainMode();
+	//andorFriend->setGainMode();
 	// try to set this time.
-	picSettingsObj.setExposureTimes(inputSettings.exposureTimes, andorFriend);
+	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
+	picSettingsObj.setUnofficialPicsPerRep ( inputSettings.picsPerRepetition );
 	// now check actual times.
-	checkTimings(inputSettings.exposureTimes);
+	//checkTimings(inputSettings.exposureTimes);
 	///
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
@@ -188,26 +186,6 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	{
 		thrower ( "ERROR: unrecognized camera mode: " + AndorRunModes::toStr(inputSettings.acquisitionMode) );
 	}
-	/*
-	if (inputSettings.cameraMode == "Video-Mode")
-	{
-		inputSettings.acquisitionMode = AndorRunModes::Video;
-		inputSettings.totalPicsInVariation = INT_MAX;
-	}
-	else if (inputSettings.cameraMode == "Kinetic-Series-Mode")
-	{
-		inputSettings.acquisitionMode = AndorRunModes::Kinetic;
-	}
-	else if ( inputSettings.cameraMode == "Accumulate-Mode" )
-	{
-		inputSettings.acquisitionMode = AndorRunModes::Accumulate;
-		inputSettings.totalPicsInVariation = INT_MAX;
-	}
-	else
-	{
-		thrower ( "ERROR: unrecognized camera mode: " + inputSettings.cameraMode );
-	}
-	*/
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime * 1000.0));
 	accumulationNumberEdit.SetWindowTextA(cstr(inputSettings.accumulationNumber));
@@ -215,19 +193,8 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 }
 
 
-void AndorCameraSettingsControl::handleSetTemperatureOffPress()
-{
-	andorFriend->changeTemperatureSetting(true);
-}
-
-
 void AndorCameraSettingsControl::handleSetTemperaturePress()
 {
-	if (andorFriend->isRunning())
-	{
-		thrower ( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
-				 "operation." );
-	}
 	CString text;
 	temperatureEdit.GetWindowTextA(text);
 	int temp;
@@ -240,9 +207,6 @@ void AndorCameraSettingsControl::handleSetTemperaturePress()
 		throwNested("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
 	settings.andor.temperatureSetting = temp;
-	andorFriend->setSettings(settings.andor );
-
-	andorFriend->setTemperature();
 }
 
 
@@ -355,11 +319,11 @@ void AndorCameraSettingsControl::rearrange( AndorRunModes::mode cameraMode, Ando
 	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	minKineticCycleTimeDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
 	calControl.rearrange( cameraMode, triggerMode, width, height, fonts );
-	emGainLabel.rearrange ( cameraMode, triggerMode, width, height, fonts );
+	emGainBtn.rearrange ( cameraMode, triggerMode, width, height, fonts );
 }
 
 
-void AndorCameraSettingsControl::setEmGain()
+void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentEmGainLevel )
 {
 	CString emGainText;
 	emGainEdit.GetWindowTextA(emGainText);
@@ -391,21 +355,12 @@ void AndorCameraSettingsControl::setEmGain()
 		emGainDisplay.SetWindowTextA(cstr("Gain: X" + str(settings.andor.emGainLevel)));
 	}
 	// Change the andor settings.
-	AndorRunSettings andorSettings = andorFriend->getAndorSettings();
 	std::string promptMsg = "";
-	if ( andorSettings.emGainModeIsOn != settings.andor.emGainModeIsOn )
+	if ( emGainCurrentlyOn != settings.andor.emGainModeIsOn )
 	{
-		promptMsg += "Set Andor EM Gain State to ";
-		if ( settings.andor.emGainModeIsOn )
-		{
-			promptMsg += "ON";
-		}
-		else
-		{
-			promptMsg += "OFF";
-		}
+		promptMsg += "Set Andor EM Gain State to " + settings.andor.emGainModeIsOn ? "ON" : "OFF" ;
 	}
-	if ( andorSettings.emGainLevel != settings.andor.emGainLevel )
+	if ( currentEmGainLevel != settings.andor.emGainLevel )
 	{
 		if ( promptMsg != "" )
 		{
@@ -421,19 +376,6 @@ void AndorCameraSettingsControl::setEmGain()
 		{
 			thrower ( "Aborting camera settings update at EM Gain update!" );
 		}
-	}
-	andorSettings.emGainLevel = settings.andor.emGainLevel;
-	andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
-	andorFriend->setSettings( andorSettings );
-	// and immediately change the EM gain mode.
-	try
-	{
-		andorFriend->setGainMode( );
-	}
-	catch ( Error& err )
-	{
-		// this can happen e.g. if the camera is aquiring.
-		errBox( err.trace( ) );
 	}
 	emGainEdit.RedrawWindow();
 }
@@ -461,66 +403,10 @@ void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 }
 
 
-void AndorCameraSettingsControl::handleTimer()
+void AndorCameraSettingsControl::changeTemperatureDisplay( AndorTemperatureStatus stat )
 {
-	// This case displays the current temperature in the main window. When the temp stabilizes at the desired 
-	// level the appropriate message is displayed.
-	// initial value is only relevant for safemode.
-	int currentTemperature = INT_MAX;
-	int setTemperature = INT_MAX;
-	try
-	{
-		// in this case you expect it to throw.
-		setTemperature = andorFriend->getAndorSettings().temperatureSetting;
-		temperatureDisplay.SetWindowTextA ( cstr ( setTemperature ) );
-		andorFriend->getTemperature(currentTemperature);
-		if ( ANDOR_SAFEMODE ) { thrower ( "SAFEMODE" ); }
-	}
-	catch (Error& exception)
-	{
-		// if not stable this won't get changed.
-		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature has stabilized at " + str(currentTemperature) 
-											  + " (C)\r\n"));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_REACHED")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Set temperature not yet reached. Current temperature is " 
-											  + str(currentTemperature) + " (C)\r\n"));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_STABILIZED")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature of " + str(currentTemperature) 
-											  + " (C) reached but not stable."));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_DRIFT")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature had stabilized but has since drifted. Temperature: " 
-											  + str(currentTemperature)));
-		}
-		else if (exception.whatBare() == "DRV_TEMPERATURE_OFF")
-		{
-			temperatureMsg.SetWindowTextA(cstr("Temperature control is off. Temperature: " + str(currentTemperature)));
-		}
-		else if (exception.whatBare() == "DRV_ACQUIRING")
-		{
-			// doesn't change color of temperature control. This way the color of the control represents the state of
-			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
-			// completely stabilize or not.
-			temperatureMsg.SetWindowTextA((str("Camera is Acquiring data. No updates are available. ") +
-										   "\r\nMost recent temperature: " + str(currentTemperature)).c_str());
-		}
-		else if (exception.whatBare() == "SAFEMODE")
-		{
-			temperatureMsg.SetWindowTextA("Application is running in Safemode... No Real Temperature Data is available.");
-		}
-		else
-		{
-			temperatureMsg.SetWindowTextA(cstr("Unexpected Temperature Code: " + exception.whatBare() + ". Temperature: " 
-												+ str(currentTemperature)));
-		}
-	}
+	temperatureDisplay.SetWindowTextA ( cstr ( stat.temperatureSetting ) );
+	temperatureMsg.SetWindowTextA ( cstr ( stat.msg ) );
 }
 
 
@@ -535,9 +421,9 @@ void AndorCameraSettingsControl::updateRunSettingsFromPicSettings( )
 }
 
 
-void AndorCameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
+void AndorCameraSettingsControl::handlePictureSettings(UINT id)
 {
-	picSettingsObj.handleOptionChange(id, andorObj);
+	picSettingsObj.handleOptionChange(id);
 	updateRunSettingsFromPicSettings( );
 }
 
@@ -599,18 +485,60 @@ UINT AndorCameraSettingsControl::getAccumulationNumber( )
 }
 
 
+void AndorCameraSettingsControl::updatePicSettings ( andorPicSettingsGroup settings )
+{
+	picSettingsObj.updateAllSettings ( settings );
+}
+
+void AndorCameraSettingsControl::updateImageDimSettings( imageParameters settings )
+{
+	imageDimensionsObj.setImageParametersFromInput ( settings, NULL );
+}
+
+
 void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
+	auto tempSettings = AndorCameraSettingsControl::getRunSettingsFromConfig ( configFile, ver );
+ 	setRunSettings(tempSettings);
+ 	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
+	ProfileSystem::checkDelimiterLine( configFile, "PICTURE_SETTINGS" );
+	auto settings = getPictureSettingsFromConfig ( configFile, ver );
+	picSettingsObj.updateAllSettings ( settings );
+	ProfileSystem::checkDelimiterLine ( configFile, "END_PICTURE_SETTINGS" );
+	if ( ver > Version ( "2.4" ) )
+	{
+		ProfileSystem::checkDelimiterLine ( configFile, "CAMERA_IMAGE_DIMENSIONS" );
+		auto params = getImageDimSettingsFromConfig ( configFile, ver );
+		imageDimensionsObj.setImageParametersFromInput ( params, NULL );
+	}
+	updateRunSettingsFromPicSettings( );
+}
+
+
+imageParameters AndorCameraSettingsControl::getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
+	return ImageDimsControl::getImageDimSettingsFromConfig ( configFile, ver );
+}
+
+
+andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
+	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile, ver );
+}
+
+
+AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
 	AndorRunSettings tempSettings;
-	configFile.get( );
+	configFile.get ( );
 	std::string txt;
-	std::getline(configFile, txt);
-	tempSettings.triggerMode = AndorTriggerMode::fromStr(txt);
+	std::getline ( configFile, txt );
+	tempSettings.triggerMode = AndorTriggerMode::fromStr ( txt );
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
-	configFile.get();
+	configFile.get ( );
 	std::getline ( configFile, txt );
-	if (txt == AndorRunModes::toStr(AndorRunModes::mode::Video) || txt == "Video Mode" )
+	if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Video ) || txt == "Video Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Video;
 		tempSettings.repetitionsPerVariation = INT_MAX;
@@ -618,32 +546,37 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
-		//settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
 	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Accumulate ) || txt == "Accumulate Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Accumulate;
-		//tempSettings.totalPicsInVariation = INT_MAX;
 	}
 	else
 	{
-		thrower ("ERROR: Unrecognized camera mode!");
+		thrower ( "ERROR: Unrecognized camera mode!" );
 	}
-	updateCameraMode ( );
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
- 	setRunSettings(tempSettings);
- 	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
-	
-	picSettingsObj.handleOpenConfig(configFile, ver, andorFriend);
-	
-	updateRunSettingsFromPicSettings( );
-	if (ver > Version("2.4" ) )
+	if ( ver > Version ( "4.7" ) )
 	{
-		imageDimensionsObj.handleOpen( configFile, ver );
+		UINT numExposures = 0;
+		configFile >> numExposures;
+		tempSettings.exposureTimes.resize ( numExposures );
+		for ( auto& exp : tempSettings.exposureTimes )
+		{
+			configFile >> exp;
+		}
+		configFile >> tempSettings.picsPerRepetition;
 	}
+	else
+	{
+		tempSettings.picsPerRepetition = 1;
+		tempSettings.exposureTimes.clear( );
+		tempSettings.exposureTimes.push_back ( 1e-3 );
+	}
+	return tempSettings;
 }
 
 
@@ -666,6 +599,7 @@ void AndorCameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 
 void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
+	updateSettings ( );
 	saveFile << "CAMERA_SETTINGS\n";
 	saveFile << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
 	saveFile << settings.andor.emGainModeIsOn << "\n";
@@ -675,6 +609,12 @@ void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << settings.andor.accumulationTime << "\n";
 	saveFile << settings.andor.accumulationNumber << "\n";
 	saveFile << settings.andor.temperatureSetting << "\n";
+	saveFile << settings.andor.exposureTimes.size ( ) << "\n";
+	for ( auto exposure : settings.andor.exposureTimes )
+	{
+		saveFile << exposure << " ";
+	}
+	saveFile << "\n" << settings.andor.picsPerRepetition << "\n";
 	saveFile << "END_CAMERA_SETTINGS\n";
 
 	picSettingsObj.handleSaveConfig(saveFile);
@@ -720,23 +660,6 @@ void AndorCameraSettingsControl::updateCameraMode( )
 void AndorCameraSettingsControl::handleModeChange( AndorWindow* cameraWindow )
 {
 	updateCameraMode( );
-	/*
-	CRect rect;
-	cameraWindow->GetWindowRect( &rect );
-	cameraWindow->OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
-	*/
-}
-
-
-void AndorCameraSettingsControl::checkTimings(std::vector<float>& exposureTimes)
-{
-	checkTimings(settings.andor.kineticCycleTime, settings.andor.accumulationTime, exposureTimes);
-}
-
-
-void AndorCameraSettingsControl::checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes)
-{
-	andorFriend->checkAcquisitionTimings(kineticCycleTime, accumulationTime, exposureTimes);
 }
 
 

@@ -2,7 +2,6 @@
 #pragma once
 // This header file includes all of the extern declarations of all of my external (global) variables.
 #include "NiawgStructures.h"
-//#include "commonTypes.h"
 #include "Control.h"
 #include "afxWin.h"
 #include <string>

@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "Segment.h"
-#include "Thrower.h"
 
 void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& variables )
 {	

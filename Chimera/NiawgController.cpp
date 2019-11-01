@@ -8,12 +8,10 @@
 
 #include "MasterThreadInput.h"
 #include "Matrix.h"
-#include "Thrower.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <numeric>
-#include "Thrower.h"
 #include "miscCommonFunctions.h"
 #include "range.h"
 #include "Queues.h"
@@ -450,7 +448,6 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 										  std::vector<parameterType>& variables )
 {
 	/// Preparation
-	//output.niawgLanguageScript = "";
 	currentScript = script.str( );
 	script.clear();
 	script.seekg( 0, std::ios::beg );
@@ -458,9 +455,12 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 	// get the first command
 	script >> command;
 	/// Analyze!
+	std::vector<vectorizedNiawgVals> vectorizedVals;
 	while ( script.peek( ) != EOF )
 	{
 		if ( MasterThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		{}
+		if ( MasterThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
 		{}
 		else if ( isLogic( command ) )
 		{
@@ -472,11 +472,11 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 		}
 		else if ( isStandardWaveform( command ) )
 		{
-			handleStandardWaveform( output, command, script, variables );
+			handleStandardWaveform( output, command, script, variables, vectorizedVals );
 		}
 		else if ( isSpecialWaveform( command ) )
 		{
-			handleSpecialWaveform( output, profile, command, script, options, rerngGuiInfo, variables );
+			handleSpecialWaveform( output, profile, command, script, options, rerngGuiInfo, variables, vectorizedVals );
 		}
 		else
 		{
@@ -655,7 +655,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo& options, bo
 
 void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd,
 													   ScriptStream& script, debugInfo& options, rerngGuiOptionsForm rerngGuiInfo,
-													   std::vector<parameterType>& variables )
+													   std::vector<parameterType>& variables, std::vector<vectorizedNiawgVals>& vectorizedVals )
 {
 	if ( cmd == "flash" )
 	{
@@ -736,7 +736,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 				thrower ( "Expected " + str( flashingWave.flash.flashNumber ) + " waveforms for flashing but "
 							"only found" + str( waveCount ) );
 			}
-			loadFullWave( flashOutInfo, flashWaveCmd, script, variables, wave );
+			loadFullWave( flashOutInfo, flashWaveCmd, script, variables, wave, vectorizedVals );
 			flashOutInfo.waveFormInfo.push_back( toWaveInfoForm( wave ) );
 			// add the new wave in flashOutInfo to flashingInfo structure
 			flashingWave.flash.flashWaves.push_back( flashOutInfo.waveFormInfo.back( ).core );
@@ -841,7 +841,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutput& output, profileSetting
 		}
 		// don't want to add to the real output variable directly, this is a little hacky.
 		NiawgOutput tempInfo = output;
-		loadFullWave( tempInfo, holdingCommands, script, variables, rearrangeWave.rearrange.staticWave );
+		loadFullWave( tempInfo, holdingCommands, script, variables, rearrangeWave.rearrange.staticWave, vectorizedVals );
 		/// get the target picture
 		Matrix<bool> targetTemp = Matrix<bool>( rows, cols );
 		// get the target picture. The picture must be replicated in each file.
@@ -990,19 +990,20 @@ void NiawgController::loadStandardInputFormType( std::string inputType, channelW
 	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
 		number += 1;
-		if ( inputType == "gen" + str( number ) + "const" )
+		auto num_s = str ( number );
+		if ( inputType == "gen" + num_s + "const" || inputType == "gen" + num_s + "const_v" )
 		{
 			wvInfo.initType = number;
 		}
-		else if ( inputType == "gen" + str( number ) + "ampramp" )
+		else if ( inputType == "gen" + num_s + "ampramp" || inputType == "gen" + num_s + "ampramp_v" )
 		{
 			wvInfo.initType = number + MAX_NIAWG_SIGNALS;
 		}
-		else if ( inputType == "gen" + str( number ) + "freqramp" )
+		else if ( inputType == "gen" + num_s + "freqramp" || inputType == "gen" + num_s + "freqramp_v" )
 		{
 			wvInfo.initType = number + 2 * MAX_NIAWG_SIGNALS;
 		}
-		else if ( inputType == "gen" + str( number ) + "freq&ampramp" )
+		else if ( inputType == "gen" + num_s + "freq&ampramp" || inputType == "gen" + num_s + "freq&ampramp_v" )
 		{
 			wvInfo.initType = number + 3 * MAX_NIAWG_SIGNALS;
 		}
@@ -1010,7 +1011,7 @@ void NiawgController::loadStandardInputFormType( std::string inputType, channelW
 	if ( wvInfo.initType == -1 )
 	{
 		thrower ( "waveform input type not found while loading standard input type?!?!? "
-				 " (A low level bug, this shouldn't happen)\r\n" );
+				 " (A low level bug, this shouldn't happen, this should have been caught earlier in the code.)\r\n" );
 	}
 }
 
@@ -1750,10 +1751,214 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 	}
 }
 
+void NiawgController::readTraditionalSimpleWaveParams ( ScriptStream& script, std::vector<parameterType>& parameters, 
+														int axis, simpleWaveForm& wave )
+{
+	std::string scope = "niawg";
+	for ( int signal = 0; signal < int ( wave.chan[ axis ].signals.size ( ) ); signal++ )
+	{
+		auto& sig = wave.chan[ axis ].signals[ signal ];
+		switch ( ( wave.chan[ axis ].initType - 1 ) / MAX_NIAWG_SIGNALS )
+		{
+			/// the case for "gen ?, const"
+			case 0:
+			{
+				script >> sig.freqInit >> sig.initPower >> sig.initPhase;
+				sig.freqFin = sig.freqInit;
+				sig.finPower = sig.initPower;
+				sig.powerRampType = "nr";
+				sig.freqRampType = "nr";
+				assertAllValid ( sig, parameters );
+				break;
+			}
+			/// The case for "gen ?, amp ramp"
+			case 1:
+			{
+				script >> sig.freqInit >> sig.powerRampType >> sig.initPower >> sig.finPower >> sig.initPhase;
+				sig.freqFin = sig.freqInit;
+				sig.freqRampType = "nr";
+				assertAllValid ( sig, parameters );
+				break;
+			}
+			/// The case for "gen ?, resetFreq ramp"
+			case 2:
+			{
+				script >> sig.freqRampType >> sig.freqInit >> sig.freqFin >> sig.initPower >> sig.initPhase;
+				sig.finPower = sig.initPower;
+				sig.powerRampType = "nr";				
+				assertAllValid ( sig, parameters );
+				break;
+			}
+			/// The case for "gen ?, resetFreq & amp ramp"
+			case 3:
+			{
+				script >> sig.freqRampType >> sig.freqInit >> sig.freqFin >> sig.powerRampType >> sig.initPower 
+					   >> sig.finPower >> sig.initPhase;
+				assertAllValid ( sig, parameters );
+				break;
+			}
+		}
+	}
+}
+
+void NiawgController::readVectorizedSimpleWaveParams ( ScriptStream& script, std::vector<vectorizedNiawgVals>& constVecs,
+													   int axis, simpleWaveForm& wave, 
+													   std::vector<parameterType>& parameters )
+{
+	std::string scope = "niawg";
+	switch ( ( wave.chan[ axis ].initType - 1 ) / MAX_NIAWG_SIGNALS )
+	{
+		/// the case for "gen?const"
+		case 0:
+		{
+			vectorizedNiawgVals freqs, powers, phases; 
+			script >> freqs.name >> powers.name >> phases.name;
+			for ( auto& cv : constVecs )
+			{
+				if ( cv.name == freqs.name ) { freqs = cv; }
+				if ( cv.name == powers.name ) { powers = cv; }
+				if ( cv.name == phases.name ) { phases = cv; }
+			}
+			if ( freqs.vals.size ( ) == 0) { thrower ( "Failed to find constant vector named " + freqs.name ); }
+			if ( powers.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + powers.name ); }
+			if ( phases.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + phases.name ); }
+			for ( auto signal : range( wave.chan[ axis ].signals.size ( ) ) )
+			{
+				auto& sig = wave.chan[ axis ].signals[ signal ];
+				sig.freqInit = sig.freqFin = freqs.vals[ signal ];
+				sig.initPower = sig.finPower = powers.vals[ signal ];
+				sig.initPhase = phases.vals[ signal ];
+				sig.freqRampType = sig.powerRampType = "nr";
+				assertAllValid ( sig, parameters );
+			}
+			break;
+		}
+		/// The case for "gen?ampRamp"
+		case 1:
+		{
+			vectorizedNiawgVals freqs, powerRampTypes, initPowers, finPowers, phases; 
+			script >> freqs.name >> powerRampTypes.name >> initPowers.name >> finPowers.name >> phases.name;
+			for ( auto& cv : constVecs )
+			{
+				if ( cv.name == freqs.name ) { freqs = cv; }
+				if ( cv.name == powerRampTypes.name ) { powerRampTypes = cv; }
+				if ( cv.name == initPowers.name ) { initPowers = cv; }
+				if ( cv.name == finPowers.name ) { finPowers = cv; }
+				if ( cv.name == phases.name ) { phases = cv; }
+			}
+			if ( freqs.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + freqs.name ); }
+			if ( powerRampTypes.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + powerRampTypes.name ); }
+			if ( initPowers.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + initPowers.name ); }
+			if ( finPowers.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + finPowers.name ); }
+			if ( phases.vals.size ( ) == 0 ) { thrower ( "Failed to find constant vector named " + phases.name ); }
+			for ( auto signal : range ( wave.chan[ axis ].signals.size ( ) ) )
+			{
+				auto& sig = wave.chan[ axis ].signals[ signal ];
+				sig.freqInit = sig.freqFin = freqs.vals[ signal ];
+				sig.powerRampType = powerRampTypes.vals[ signal ];
+				sig.initPower = initPowers.vals[ signal ];
+				sig.finPower = finPowers.vals[ signal ];
+				sig.initPhase = phases.vals[ signal ];
+				sig.freqRampType = "nr";
+				assertAllValid ( sig, parameters );
+			}
+			break;
+		}
+		/// The case for "gen?FreqRamp"
+		case 2:
+		{
+			vectorizedNiawgVals freqRampTypes, initFreqs, finFreqs, powers, phases;
+			script >> freqRampTypes.name >> initFreqs.name >> finFreqs.name >> powers.name >> phases.name;
+			for ( auto& cv : constVecs )
+			{
+				if ( cv.name == freqRampTypes.name ) { freqRampTypes = cv; }
+				if ( cv.name == initFreqs.name ) { initFreqs = cv; }
+				if ( cv.name == finFreqs.name ) { finFreqs = cv; }
+				if ( cv.name == powers.name ) { powers = cv; }
+				if ( cv.name == phases.name ) { phases = cv; }
+			}
+			if ( freqRampTypes.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " 
+																+ freqRampTypes.name ); }
+			if ( initFreqs.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + initFreqs.name ); }
+			if ( finFreqs.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + finFreqs.name ); }
+			if ( phases.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + phases.name ); }
+			for ( auto signal : range ( wave.chan[ axis ].signals.size ( ) ) )
+			{
+				auto& sig = wave.chan[ axis ].signals[ signal ];
+				sig.freqRampType = freqRampTypes.vals[signal];
+				sig.freqInit = initFreqs.vals[ signal ];
+				sig.freqFin = finFreqs.vals[ signal ];
+				sig.initPower = sig.finPower = powers.vals[ signal ];
+				sig.initPhase = phases.vals[ signal ];
+				sig.powerRampType = "nr";
+				assertAllValid ( sig, parameters );
+			}
+			break;
+		}
+		/// The case for "gen ?, resetFreq & amp ramp"
+		case 3:
+		{
+			vectorizedNiawgVals freqRampTypes, initFreqs, finFreqs, powerRampTypes, initPowers, finPowers, phases;
+			script >> freqRampTypes.name >> initFreqs.name >> finFreqs.name >> powerRampTypes.name >> initPowers.name 
+				   >> finPowers.name >> phases.name;
+			for ( auto& cv : constVecs )
+			{
+				if ( cv.name == freqRampTypes.name ) { freqRampTypes = cv; }
+				if ( cv.name == initFreqs.name ) { initFreqs = cv; }
+				if ( cv.name == finFreqs.name ) { finFreqs = cv; }
+				if ( cv.name == powerRampTypes.name ) { powerRampTypes = cv; }
+				if ( cv.name == initPowers.name ) { initPowers = cv; }
+				if ( cv.name == finPowers.name ) { finPowers = cv; }
+				if ( cv.name == phases.name ) { phases = cv; }
+			}
+			if ( freqRampTypes.vals.size ( ) == 0 )
+			{
+				thrower ( "failed to find constant vector named "
+						  + freqRampTypes.name );
+			}
+			if ( initFreqs.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + initFreqs.name ); }
+			if ( finFreqs.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + finFreqs.name ); }
+			if ( phases.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + phases.name ); }
+			for ( auto signal : range ( wave.chan[ axis ].signals.size ( ) ) )
+			{
+				auto& sig = wave.chan[ axis ].signals[ signal ];
+				sig.freqRampType = freqRampTypes.vals[ signal ];
+				sig.freqInit = initFreqs.vals[ signal ];
+				sig.freqFin = finFreqs.vals[ signal ];
+				sig.initPower = initPowers.vals[ signal ];
+				sig.finPower = finPowers.vals[ signal ];
+				sig.initPhase = phases.vals[ signal ];
+				sig.powerRampType = powerRampTypes.vals[signal];
+				assertAllValid ( sig, parameters );
+			}
+			break;
+		}
+	}
+}
+
+void NiawgController::assertAllValid ( waveSignalForm& signal, std::vector<parameterType>& parameters )
+{
+	signal.initPhase.assertValid ( parameters, "niawg" );
+	signal.initPower.assertValid ( parameters, "niawg" );
+	signal.finPower.assertValid ( parameters, "niawg" );
+	signal.freqInit.assertValid ( parameters, "niawg" );
+	signal.freqFin.assertValid ( parameters, "niawg" );
+}
+
+bool NiawgController::isVectorizedCmd ( std::string cmd )
+{
+	if ( cmd.size ( ) == 0 )
+	{
+		thrower ( "Attempted to figure out if empty niawg command was vectorized or not?!" );
+	}
+	return cmd[ cmd.size ( ) - 1 ] == 'v';
+}
+
 
 void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
 														std::vector<parameterType>& variables, int axis, 
-														simpleWaveForm& wave )
+														simpleWaveForm& wave,
+														std::vector<vectorizedNiawgVals>& vectorizedVals )
 {
 	// Don't remember why I have this limitation built in.
 	if ( output.isDefault && output.waveFormInfo.size( ) == 1 )
@@ -1773,80 +1978,15 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 	{
 		wave.chan[axis].signals.resize( wave.chan[axis].initType % MAX_NIAWG_SIGNALS );
 	}
-
-	for ( int signal = 0; signal < int( wave.chan[axis].signals.size( ) ); signal++ )
+	if ( !isVectorizedCmd ( cmd ) )
 	{
-		auto& sig = wave.chan[axis].signals[signal];
-		switch ( (wave.chan[axis].initType - 1) / MAX_NIAWG_SIGNALS )
-		{
-			/// the case for "gen ?, const"
-			case 0:
-			{
-				// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables, scope );
-				// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-				script >> sig.initPower;
-				sig.initPower.assertValid( variables, scope );
-				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables, scope );
-				sig.freqFin = sig.freqInit;
-				sig.finPower = sig.initPower;
-				sig.powerRampType = "nr";
-				sig.freqRampType = "nr";
-				break;
-			}
-			/// The case for "gen ?, amp ramp"
-			case 1:
-			{
-				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables, scope );
-				script >> sig.powerRampType;
-				script >> sig.initPower;
-				sig.initPower.assertValid( variables, scope );
-				script >> sig.finPower;
-				sig.finPower.assertValid( variables, scope );
-				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables, scope );
-				sig.freqFin = sig.freqInit;
-				sig.freqRampType = "nr";
-				break;
-			}
-			/// The case for "gen ?, resetFreq ramp"
-			case 2:
-			{
-				script >> sig.freqRampType;
-				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables, scope );
-				script >> sig.freqFin;
-				sig.freqFin.assertValid( variables, scope );
-				script >> sig.initPower;
-				sig.initPower.assertValid( variables, scope );
-				sig.finPower = sig.initPower;
-				sig.powerRampType = "nr";
-				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables, scope );
-				break;
-			}
-			/// The case for "gen ?, resetFreq & amp ramp"
-			case 3:
-			{
-				script >> sig.freqRampType;
-				script >> sig.freqInit;
-				sig.freqInit.assertValid( variables, scope );
-				script >> sig.freqFin;
-				sig.freqFin.assertValid( variables, scope );
-				script >> sig.powerRampType;
-				script >> sig.initPower;
-				sig.initPower.assertValid( variables, scope );
-				script >> sig.finPower;
-				sig.finPower.assertValid( variables, scope );
-				script >> sig.initPhase;
-				sig.initPhase.assertValid( variables, scope );
-				break;
-			}
-		}
+		readTraditionalSimpleWaveParams ( script, variables, axis, wave );
 	}
+	else
+	{
+		readVectorizedSimpleWaveParams( script, vectorizedVals, axis, wave, variables );
+	}
+
 
 	script >> wave.chan[axis].delim;
 	// check delimiter
@@ -1897,7 +2037,8 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 
 
 void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script,
-									std::vector<parameterType>& variables, simpleWaveForm& wave )
+									std::vector<parameterType>& variables, simpleWaveForm& wave, 
+									std::vector<vectorizedNiawgVals>& vectorizedVals )
 {
 	int axis;
 	std::string axisStr;
@@ -1915,7 +2056,7 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 		thrower ( "unrecognized niawg axis string: " + axisStr + " inside NIAWG script file! axis string must be one of"
 				 "\"horizontal\" or \"vertical\"" );
 	}
-	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
+	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave, vectorizedVals );
 	// get cmd, axis of second waveform
 	script >> cmd;
 	if ( !isStandardWaveform( cmd ) )
@@ -1943,14 +2084,15 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 		thrower ( "Expected either \"vertical\" or \"horizontal\" after waveform type declaration. Instead, found"
 				  " \"" + newAxisStr + "\"." );
 	}
-	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
+	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave, vectorizedVals );
 	// get the common things.
 	loadCommonWaveParams( script, wave );
 }
 
 
 void NiawgController::handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script, 
-														std::vector<parameterType>& variables )
+											  std::vector<parameterType>& variables, 
+											  std::vector<vectorizedNiawgVals>& vectorizedVals )
 {
 	/*
 	example syntax:
@@ -1966,21 +2108,25 @@ void NiawgController::handleStandardWaveform( NiawgOutput& output, std::string c
 	#
 	% time, phase option
 	0.1 0
+
+	% Example vectorized syntax:
+	% ordering follows the same order as the traditional waves. 
+	var_v 10 freqsVecName [ 10 20 30 40 50 60 70 80 90 100 ] 
+	var_v 10 ampVecName [ 1 0.7 1 1 0.9 1 1 1 1 1.1 ]
+	var_v 10 phaseVecName [ 0 1 2 3 4 5 6 1.14 2.14 3.14 ]
+	gen10const_v Horizontal freqsVecName ampVecName phaseVecName
+	gen10const_v Vertical freqsVecName ampVecName phaseVecName
+	% time, phase option
+	0.1 0
 	*/
+
 	simpleWaveForm wave;
-	loadFullWave( output, cmd, script, variables, wave );
+	loadFullWave( output, cmd, script, variables, wave, vectorizedVals );
 	output.waveFormInfo.push_back( toWaveInfoForm( wave ) );
 	// +1 to avoid the default waveform.
-	if ( output.isDefault )
-	{
-		output.waveFormInfo.back( ).core.name = "Waveform0";
-	}
-	else
-	{
-		output.waveFormInfo.back( ).core.name = "Waveform" + str( output.waveFormInfo.size( ) );
-	}
-	// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
-	// have to rewrite the script to insert the new waveform name into it.
+	output.waveFormInfo.back ( ).core.name = output.isDefault ? "Waveform0" : "Waveform" + str ( output.waveFormInfo.size ( ) );
+	// append script with the relevant command. This needs to be done even if variable waveforms are used, because I 
+	// don't want to have to rewrite the script to insert the new waveform name into it.
 	output.niawgLanguageScript += "generate " + output.waveFormInfo.back( ).core.name + "\n";
 }
 
@@ -2248,8 +2394,15 @@ bool NiawgController::isStandardWaveform(std::string inputType)
 {
 	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
+		// traditional versions.
 		if ( inputType == "gen" + str( number+1 ) + "const" || inputType == "gen" + str(number + 1) + "ampramp"
 			 || inputType == "gen" + str(number + 1) + "freqramp" || inputType == "gen" + str(number + 1) + "freq&ampramp")
+		{
+			return true;
+		}
+		// vectorized versions
+		if ( inputType == "gen" + str ( number + 1 ) + "const_v" || inputType == "gen" + str ( number + 1 ) + "ampramp_v"
+			 || inputType == "gen" + str ( number + 1 ) + "freqramp_v" || inputType == "gen" + str ( number + 1 ) + "freq&ampramp_v" )
 		{
 			return true;
 		}

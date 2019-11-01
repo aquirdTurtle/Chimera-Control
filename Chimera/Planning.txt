@@ -2,6 +2,11 @@
 ===================
 CODE PLANNING
 ===================
+IMMEDIATE LIST:
+- fix attempts to set camera mode on config change.
+- get rs232 piezo controllers integrated
+- niawg vector variable functionaily
+
 FEATURES:
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible.

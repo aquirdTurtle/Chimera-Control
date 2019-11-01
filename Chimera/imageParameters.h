@@ -16,19 +16,27 @@ struct imageParameters
 	}
 	
 	UINT left=1;
-	UINT top = 1; 
+	UINT top = 100; 
 	UINT right=100;
-	UINT bottom=100;
+	UINT bottom=1;
 	
 	UINT horizontalBinning=1;
 	UINT verticalBinning=1;
 
 	UINT horRawPixelNum ( )
 	{
+		if ( left > right )
+		{
+			thrower ( "Invalid Image Parameters! Left greater than right!" );
+		}
 		return this->right - this->left + 1;
 	}
 	UINT vertRawPixelNum ( )
 	{
+		if ( bottom > top )
+		{
+			thrower ( "Invalid Image Parameters! bottom greater than top!" );
+		}
 		return this->top - this->bottom + 1;
 	}
 

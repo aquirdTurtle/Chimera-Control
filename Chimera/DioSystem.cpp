@@ -5,7 +5,6 @@
 #include "DioSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
-#include "Thrower.h"
 #include "range.h"
 
 #include <sstream>
@@ -918,6 +917,7 @@ void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 {
 	/// imporantly, this sizes the relevant structures.
 	ttlSnapshots.uniformSizeReset ( sequenceLength, variations );
+	ttlCommandList.uniformSizeReset ( sequenceLength, variations );
 	loadSkipTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
 	formattedTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
 	loadSkipFormattedTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
@@ -943,8 +943,6 @@ as [seq][variation][cmd].
 void DioSystem::restructureCommands ( )
 {
 	/* this is to be done after key interpretation. */
-	ttlCommandFormList;
-	ttlCommandList;
 	ttlCommandList.resizeSeq ( ttlCommandFormList.size ( ) );
 	for ( auto seqInc : range ( ttlCommandFormList.size ( ) ) )
 	{

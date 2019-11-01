@@ -8,7 +8,7 @@ SerialPiezoFlume::SerialPiezoFlume ( bool sMode, std::string addr ) : safemode(s
 
 std::string SerialPiezoFlume::getDeviceInfo ( )
 {
-	return flumeCore.query ( "fuck you" );
+	return flumeCore.query ( "i\r" );
 }
 
 void SerialPiezoFlume::open ( )

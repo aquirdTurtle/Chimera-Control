@@ -31,10 +31,8 @@
 
 // Some general use headers.
 #include <stdio.h>
-#include <string>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <sstream>
 #include <stdlib.h>
 #include <afxsock.h>

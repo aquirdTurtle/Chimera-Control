@@ -87,7 +87,6 @@ class AndorWindow : public CDialog
 		void prepareAndor( AllExperimentInput& input );
 		void armCameraWindow();
 		std::string getStartMessage();
-		void setEmGain();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();
 		void abortCameraRun();
@@ -129,18 +128,18 @@ class AndorWindow : public CDialog
 		std::vector<PlotDialog*>& getActivePlotListRef( );
 
 	private:
-		bool justCalibrated=false;
+		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
 
-		AndorCamera Andor;
-		AndorCameraSettingsControl CameraSettings;
+		AndorCamera andor;
+		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
 
 		ColorBox box;
 		PictureStats stats;
 		AlertSystem alerts;
 		ExperimentTimer timer;		
-		// these two could probably be combined in a sensible way.
+		
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;
 

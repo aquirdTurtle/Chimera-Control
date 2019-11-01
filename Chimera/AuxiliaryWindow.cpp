@@ -12,7 +12,6 @@
 #include "openWithExplorer.h"
 #include "saveWithExplorer.h"
 #include "agilentStructures.h"
-#include "Thrower.h"
 #include "range.h"
 #include <boost/lexical_cast.hpp>
 #include "AgilentSettings.h"
@@ -120,6 +119,7 @@ void AuxiliaryWindow::handlePiezo1Ctrl ( )
 		sendErr ( err.trace ( ) );
 	}
 }
+
 
 void AuxiliaryWindow::handlePiezo2Ctrl ( )
 {

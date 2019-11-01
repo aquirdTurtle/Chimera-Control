@@ -87,7 +87,7 @@ class ProfileSystem
 		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, 
 										 Version minVer = Version ( "0.0" ) );
 		template <class returnType>
-		static returnType standardGetFromConfig ( std::ifstream& openFile, std::string delim, 
+		static returnType stdGetFromConfig ( std::ifstream& openFile, std::string delim, 
 												  returnType ( *getter )( std::ifstream&, Version ),
 												  Version minVer = Version( "0.0" ) );
 		static void checkDelimiterLine ( std::ifstream& openFile, std::string keyword );
@@ -95,6 +95,7 @@ class ProfileSystem
 		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
 		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, 
 										Version minVer=Version("0.0") );
+		CBrush* handleColoring ( int id, CDC* pDC );
 	private:
 		profileSettings currentProfile; 
 		seqSettings currentSequence;
@@ -118,7 +119,9 @@ class ProfileSystem
 		// Version 4.4: added software accumulation picture options
 		// Version 4.5: Added DDS system to save.
 		// Version 4.6: Added Piezo System 1 to save.
-		const Version version = Version( "4.6" );
+		// Version 4.7: Added display grid check
+		// Version 4.8: Moved pics per rep and exposure times to the CameraSettingsControl part of the config.
+		const Version version = Version( "4.8" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
@@ -171,7 +174,7 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 }
 
 template <class returnType>
-static returnType ProfileSystem::standardGetFromConfig ( std::ifstream& openFile, std::string delim, 
+static returnType ProfileSystem::stdGetFromConfig ( std::ifstream& openFile, std::string delim, 
 													     returnType ( *getter )( std::ifstream&, Version ),
 													     Version minVer )
 {

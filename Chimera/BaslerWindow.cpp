@@ -666,7 +666,9 @@ HCURSOR BaslerWindow::OnQueryDragIcon()
 void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 {
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
-	ProfileSystem::standardOpenConfig ( configFile, "BASLER_CAMERA_SETTINGS", &settingsCtrl, Version ( "4.0" ) );
+	settingsCtrl.setSettings ( 
+		ProfileSystem::stdGetFromConfig ( configFile, "BASLER_CAMERA_SETTINGS",
+											   &BaslerSettingsControl::getBaslerSettingsFromConfig, Version ( "4.0" ) ) );
 }
 
 

@@ -11,7 +11,6 @@
 #include "EmbeddedPythonHandler.h"
 // for personInfo structure.
 #include "SMSTextingControl.h"
-#include "Thrower.h"
 
 
 // python constructor is important.

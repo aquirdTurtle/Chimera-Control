@@ -22,25 +22,21 @@ struct cameraPositions;
 class AndorCameraSettingsControl
 {
 	public:
-		AndorCameraSettingsControl(AndorCamera* friendInitializer);
+		AndorCameraSettingsControl();
 		void setVariationNumber(UINT varNumber);
 		void setRepsPerVariation(UINT repsPerVar);
 		void updateRunSettingsFromPicSettings( );
 		CBrush* handleColor(int idNumber, CDC* colorer );
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips);
-		void checkTimings(std::vector<float>& exposureTimes);
-		void checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes);
-
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
-		void setEmGain();
+		void setEmGain( bool currentlyOn, int currentEmGainLevel );
 		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
-		void handlePictureSettings(UINT id, AndorCamera* andorObj);
+		void handlePictureSettings(UINT id);
 		void updateTriggerMode( );
 		void handleTriggerChange(AndorWindow* cameraWindow);
-		void handleSetTemperatureOffPress();
 		void handleSetTemperaturePress();
-		void handleTimer();
+		void changeTemperatureDisplay( AndorTemperatureStatus stat );
 		void checkIfReady();
 		void cameraIsOn( bool state );
 		void handleModeChange( AndorWindow* cameraWindow );
@@ -51,6 +47,13 @@ class AndorCameraSettingsControl
 		bool getUseCal( );
 		void setImageParameters(imageParameters newSettings, AndorWindow* camWin);
 		void setRunSettings(AndorRunSettings inputSettings);
+		void updateImageDimSettings ( imageParameters settings );
+		void updatePicSettings ( andorPicSettingsGroup settings );
+
+		static AndorRunSettings getRunSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static andorPicSettingsGroup getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static imageParameters getImageDimSettingsFromConfig ( std::ifstream& configFile ,Version ver );
+
 		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
@@ -67,8 +70,6 @@ class AndorCameraSettingsControl
 		double getAccumulationCycleTime( );
 		UINT getAccumulationNumber( );
 		imageParameters getImageParameters( );
-
-		AndorCamera* andorFriend;
 		Control<CStatic> header;
 		// Hardware Accumulation Parameters
 		Control<CStatic> accumulationCycleTimeLabel;
@@ -79,6 +80,7 @@ class AndorCameraSettingsControl
 		Control<CComboBox> cameraModeCombo;
 		Control<CStatic> emGainLabel;
 		Control<CEdit> emGainEdit;
+		Control<CleanButton> emGainBtn;
 		Control<CStatic> emGainDisplay;
 		Control<CComboBox> triggerCombo;
 		// Temperature

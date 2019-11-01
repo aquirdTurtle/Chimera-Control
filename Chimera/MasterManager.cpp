@@ -4,14 +4,12 @@
 #include "DioSystem.h"
 #include "AoSystem.h"
 #include "CodeTimer.h"
-#include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
-#include "Thrower.h"
-#include "range.h"
 #include "MainWindow.h"
 #include "nidaqmx2.h"
+#include "CameraSettingsControl.h"
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -42,7 +40,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
 	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoControllers.size ( ),
 												   std::vector<bool> ( input->seq.sequence.size ( ) ));
-	// a couple shortcut aliases.
+	std::vector<AndorRunSettings> andorRunsettings ( input->seq.sequence.size ( ) );
+	// a couple aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;
@@ -64,21 +63,26 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 				std::ifstream configFile ( configInfo.configFilePath ( ) );
-				ddsRampList[ seqNum ] = ProfileSystem::standardGetFromConfig ( configFile, dds.configDelim,
+				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
 																			   DdsCore::getRampListFromConfig );
 				for ( auto piezoInc : range(input->piezoControllers.size()))
 				{
-					auto res = ProfileSystem::standardGetFromConfig (
-						configFile, input->piezoControllers[ piezoInc ]->configDelim, PiezoCore::getPiezoSettingsFromConfig );
+					auto res = ProfileSystem::stdGetFromConfig (
+						configFile, input->piezoControllers[ piezoInc ]->configDelim, 
+						PiezoCore::getPiezoSettingsFromConfig );
 					piezoExpressions[ piezoInc ][ seqNum ] 
 						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
 					ctrlPztOptions[ piezoInc ][ seqNum ] = res.second;
 				}
-				mainOpts = ProfileSystem::standardGetFromConfig ( configFile, "MAIN_OPTIONS", 
+				mainOpts = ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
 																  MainOptionsControl::getMainOptionsFromConfig );
-				repetitions = ProfileSystem::standardGetFromConfig ( configFile, "REPETITIONS",
-																	 Repetitions::getRepsFromConfig );
-				
+				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
+																Repetitions::getRepsFromConfig );
+				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS",
+																AndorCameraSettingsControl::getRunSettingsFromConfig );
+				andorRunsettings[ seqNum ].imageSettings = ProfileSystem::stdGetFromConfig ( configFile, 
+																							 "CAMERA_IMAGE_DIMENSIONS",
+																							 AndorCameraSettingsControl::getImageDimSettingsFromConfig );
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
 			}
@@ -141,11 +145,6 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				piezos[ piezoInc ]->updateExprVals ( piezoExpressions[ piezoInc ] );
 			}
 			dds.updateRampLists ( ddsRampList );
-		}
-		if ( runAndor )
-		{
-			double kinTime;
-			input->andorCamera.armCamera( kinTime );
 		}
 		if ( input->updatePlotterXVals )
 		{
@@ -380,6 +379,29 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 								   comm, quiet );
 					}
 				}
+			}
+			expUpdate ( "Starting Andor Camera...", comm, quiet );
+			if ( runAndor )
+			{
+				andorRunsettings[ 0 ].repetitionsPerVariation = repetitions;
+				andorRunsettings[ 0 ].totalVariations = variations;
+				int stat = 0;
+				while ( true )
+				{
+					stat = input->andorCamera.queryStatus ( );
+					if ( stat == DRV_ACQUIRING )
+					{
+						Sleep ( 1000 );
+						expUpdate ( "Waiting for camera to finish...", comm, quiet );
+					}
+					else
+					{
+						break;
+					}
+				} 
+				input->andorCamera.setSettings ( andorRunsettings[ 0 ] );
+				double kinTime;
+				input->andorCamera.armCamera ( kinTime );
 			}
 			expUpdate( "Programming Devices... ", comm, quiet );
 			if ( useAuxDevices )
@@ -1079,9 +1101,63 @@ void MasterThreadManager::analyzeFunctionDefinition(std::string defLine, std::st
 	}
 }
 
+// at least right now, this doesn't support varying any of the values of the constant vector. this could probably
+// be sensibly changed at some point.
+bool MasterThreadManager::handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
+															std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings )
+{
+	if ( word != "var_v" )
+	{
+		return false;
+	}
+	std::string vecLength;
+	vectorizedNiawgVals tmpVec;
+	stream >> vecLength >> tmpVec.name;
+	for ( auto& cv : constVecs )
+	{
+		if ( tmpVec.name == cv.name )
+		{
+			thrower ( "Constant Vector name \"" + tmpVec.name + "\"being re-used! You may only declare one constant "
+					  "vector with this name." );
+		}
+	}
+	UINT vecLength_ui = 0;
+	try
+	{
+		vecLength_ui = boost::lexical_cast<UINT>( vecLength );
+	}
+	catch ( boost::bad_lexical_cast )
+	{
+		thrower ( "Failed to convert constant vector length to an unsigned int!" );
+	}
+	if ( vecLength_ui == 0 || vecLength_ui > MAX_NIAWG_SIGNALS)
+	{
+		thrower ( "Invalid constant vector length: " + str ( vecLength_ui ) + ", must be greater than 0 and less than " 
+				  + str ( MAX_NIAWG_SIGNALS ) );
+	}
+	std::string bracketDelims;
+	stream >> bracketDelims;
+	if ( bracketDelims != "[" )
+	{
+		thrower ( "Expected \"[\" after constant vector size and name." );
+	}
+	tmpVec.vals.resize ( vecLength_ui );
+	for ( auto& val : tmpVec.vals )
+	{
+		stream >> val;
+	}
+	stream >> bracketDelims;
+	if ( bracketDelims != "]" )
+	{
+		thrower ( "Expected \"]\" after constant vector values. Is the vector size right?" );
+	}
+	constVecs.push_back ( tmpVec );
+	return true;
+}
+
 
 bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											   std::string scope, std::string& warnings )
+													 std::string scope, std::string& warnings )
 {
 	if ( word != "var" )
 	{

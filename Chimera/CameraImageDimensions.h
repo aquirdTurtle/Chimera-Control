@@ -21,6 +21,7 @@ class ImageDimsControl
 		void handleSave( std::ofstream& saveFile );
 		void handleNew( std::ofstream& newfile );
 		void handleOpen( std::ifstream& openFile, Version ver );
+		static imageParameters getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver );
 		imageParameters getImageParameters();
 		void rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );

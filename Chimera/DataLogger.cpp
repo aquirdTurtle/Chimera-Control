@@ -5,7 +5,6 @@
 #include "longnam.h"
 #include "DataAnalysisControl.h"
 #include "CameraImageDimensions.h"
-#include "Thrower.h"
 #include "MasterManager.h"
 
 
@@ -767,8 +766,7 @@ void DataLogger::closeFile()
 		errBox ( "Failed to write closing information (e.g. time of stop) to H5 File! Error was:\n\n" + str( err.getDetailMsg( ) ) + "\n" );
 	}
 	AndorPicureSetDataSpace.close();
-	AndorPictureDataset.close();	
-	//BaslerPicDataSpace.close ( );
+	AndorPictureDataset.close();
 	BaslerPictureDataset.close ( );
 	BaslerPicureSetDataSpace.close ( );
 	voltsDataSpace.close( );
