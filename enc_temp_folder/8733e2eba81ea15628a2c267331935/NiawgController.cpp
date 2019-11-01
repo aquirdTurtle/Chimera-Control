@@ -2108,7 +2108,8 @@ void NiawgController::handleStandardWaveform( NiawgOutput& output, std::string c
 	#
 	% time, phase option
 	0.1 0
-
+	*/
+	/*
 	% Example vectorized syntax:
 	% ordering follows the same order as the traditional waves. 
 	var_v 10 freqsVecName [ 10 20 30 40 50 60 70 80 90 100 ] 

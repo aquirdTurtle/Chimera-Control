@@ -1,10 +1,11 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include <string>
-#include "afxwin.h"
-#include <vector>
+
 #include "range.h"
 #include "Thrower.h"
+#include "afxwin.h"
+#include <string>
+#include <vector>
 #include <unordered_map>
 
 #define GLOBAL_PARAMETER_SCOPE "global"
@@ -140,6 +141,14 @@ class ScanRangeInfo
 			}
 		}
 };
+
+
+struct vectorizedNiawgVals
+{
+	std::string name;
+	std::vector<std::string> vals;
+};
+
 
 struct parameterType
 {

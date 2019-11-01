@@ -292,11 +292,17 @@
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
     <ClCompile Include="DdsCore.cpp" />
-    <ClCompile Include="PiezoFlume.cpp" />
-    <ClCompile Include="PiezoController.cpp" />
-    <ClCompile Include="PiezoCore.cpp" />
     <ClCompile Include="SerialPiezoFlume.cpp" />
     <ClCompile Include="AndorFlume.cpp" />
+    <ClCompile Include="PiezoController.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="PiezoCore.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="PiezoFlume.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -681,14 +687,24 @@
     </ClInclude>
     <ClInclude Include="ExpWrap.h" />
     <ClInclude Include="DdsCore.h" />
-    <ClInclude Include="PiezoFlume.h" />
-    <ClInclude Include="PiezoController.h" />
-    <ClInclude Include="PiezoCore.h" />
     <ClInclude Include="SerialPiezoFlume.h" />
-    <ClInclude Include="PiezoType.h" />
     <ClInclude Include="AndorFlume.h" />
-    <ClInclude Include="AndorTemperatureStatus.h" />
     <ClInclude Include="andorPicSettingsGroup.h" />
+    <ClInclude Include="PiezoController.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="PiezoCore.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="PiezoFlume.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="PiezoType.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="AndorTemperatureStatus.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -773,6 +789,9 @@
     </Filter>
     <Filter Include="Andor Window\Real-Time-Analysis">
       <UniqueIdentifier>{f1cc8d58-53d9-4ab5-8571-1ef0a1a60399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PiezoControllers">
+      <UniqueIdentifier>{1befae8c-1b44-42be-8ce3-3c3ecddfb6c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
