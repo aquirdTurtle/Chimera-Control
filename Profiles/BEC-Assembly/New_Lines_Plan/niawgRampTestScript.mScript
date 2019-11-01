@@ -1,0 +1,10 @@
+t = 1
+t += 1
+pulseon: niawgTrig 0.1
+var waitTime 1
+t += waitTime
+t += -1
+dac: dac0 0
+pulseon: aceTrig 0.1
+t += 300
+pulseon: niawgTrig 0.1

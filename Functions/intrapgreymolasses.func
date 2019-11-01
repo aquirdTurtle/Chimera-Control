@@ -6,6 +6,7 @@ def inTrapGreyMolasses():
   var D1SidemotPow 0.27
   var rsfreq -0.05
   var rsPow 2
+
   % init system
   off: diagMotRf
   off: sideMotRf
@@ -24,6 +25,10 @@ def inTrapGreyMolasses():
   t += cooling_time 
   off: rf795
   off: repumpRf
+  dac: diag795pow 0
+  dac: side795pow 0
+  dac: power795 0.1
+
   pulseon: rsTrig 0.1
   pulseon: a15 0.1 
   t += 0.1

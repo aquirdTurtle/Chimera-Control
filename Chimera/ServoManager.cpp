@@ -512,7 +512,8 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 					break;
 				}
 			}
-			// there's a break built in here in order to let the laser settle a little. Not sure how necessary this is.
+			// There's a little break built in here in order to let the laser settle a little. 
+			// Not sure how necessary this is.
 			Sleep( 20 );
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 		}

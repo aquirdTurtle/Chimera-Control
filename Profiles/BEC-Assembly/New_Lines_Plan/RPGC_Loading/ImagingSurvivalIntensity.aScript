@@ -1,0 +1,7 @@
+ 
+hold loadingDepth 1 onceWaitTrig #  
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #  
+ramp lin imagingDepth loadingDepth 1 once #  
+
+ 
+

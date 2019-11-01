@@ -1,0 +1,22 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+dac: dac0 0
+on: tweezerrf 
+off: axialRamanShutter 
+off: axialRamanShutter2
+off: axialRamanRf 
+off: probeShutter 
+t += 100
+
+
+pulseon: niAWGTrig 0.1
+t += waitTime 
+pulseon: aceTrig 0.1
+t += 1
+pulseon: niAWGTrig 0.1
+t += 1
+
+
+
+
+

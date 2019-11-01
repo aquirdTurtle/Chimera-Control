@@ -7,12 +7,12 @@ def PgcLoading():
   call zeroFields()
   % Set beam powers for PGC and turn on beams 
   % to let the ramp finish
-  var diag_power 0.03
+  var diag_power 0.0
   var sidemot_power 0.25
   dac: repumpPower 0.1
   dac: diagMotPower diag_power
   dac: sideMotPower sidemot_power 
-  dac: repumpFreq -0.3
+  dac: repumpFreq -1.3
   % 8 would be okay too, but just make sure it saturates.
   var pgc_time 20 % Was 10  - C.K. 6/22/18
   on: repumpRf

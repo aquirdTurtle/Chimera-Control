@@ -18,9 +18,10 @@ pulseon: dds_step 5
 call pgcAtomFlashingImage()
 t += 0.1
 call intrapgreymolasses()
+off: shutter795
 t += 0.1
 pulseon: tweezerIntensityTrig 0.1 % to RamanDepth
-t += 1.1
+t += 50.1
 call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
 rsg: (6.84 + uw_mod/1000000) -1
@@ -28,7 +29,9 @@ var ramseyTime 1
 %t += 0.0053
 call uwPulse(0.005)
 off: topRamanRf
+on: a15
 t += ramseyTime
+off: a15
 off: topRamanRf
 %t += 0.0056
 call uwPulse(0.006)

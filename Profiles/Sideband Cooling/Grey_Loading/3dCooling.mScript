@@ -1,0 +1,75 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: b10
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+call D1GreyLambdaLoading()
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+t += 0.1
+on: axialRamanShutter 
+call intrapgreymolasses()
+off: b10
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pump2stretch()
+dac: sigmaoppower 0.05
+dac: sigmarepumpPower 0.3
+rsg: (6.83103 + uw_cooling_mod_khz/1000000) 5
+% pulseon: topPulseTrig 0.1 
+% pulseon: tweezerIntensityTrig 0.1 
+var axialPulseTime 0.05 %0.036
+var topPulseTime 0.1
+dac: topPulseLev 0.7
+dac: axPulseLev  0.22  %0.21  %0.55 %0.7
+repeat: 60
+  on: uw_mod_switch 
+  call axialRamanPulse(0.05) %0.05
+  off: uw_mod_switch
+  
+  call opPulse() 
+
+  on: uw_mod_switch 
+  call topRamanPulse(0.1)
+  off: uw_mod_switch
+
+  call opPulse()
+end
+% its important that you wait long enough after the rstrig for the rsg
+% to actually change its output, which I find takes about 0.15 s 
+% MOB Sep 11th 2019 
+pulseon: rsTrig 0.1
+t += 0.16
+%pulseon: tweezerIntensityTrig 0.1 
+rsg: (6.83103 + uw_Spec_mod_khz/1000000) 5
+var axialSpecpulseTime 0.22
+var topSpecpulseTime 0.15
+dac: topPulseLev 0.3
+dac: axPulseLev 0.12 %0.15
+call axialRamanPulse(0.2) %0.09
+%call topRamanPulse(0.15)
+dac: topPulseLev 0
+dac: axPulseLev 0
+off: axialRamanShutter  
+
+% t += 20
+
+t += 0.1
+call pushout()
+pulseon: tweezerIntensityTrig 0.1
+t += 5
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+%call zeroFields() 
+pulseon: rsTrig 0.1
+call pgcAtomFlashingImage()
+pulseon: tweezerIntensityTrig 0.1
+t += 0.2

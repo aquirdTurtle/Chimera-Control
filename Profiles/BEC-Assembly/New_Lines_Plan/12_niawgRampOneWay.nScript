@@ -1,0 +1,379 @@
+% Default Y Script
+% 
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+
+% 10.7 MHz Spacing
+var f0_1 22.5
+var f0_2 33.2
+var f0_3 43.9
+var f0_4 54.6
+var f0_5 65.3
+var f0_6 76
+var f0_7 86.7
+var f0_8 97.4
+var f0_9 108.1
+var f0_10 117.8
+var f0_11 129.5
+
+var a0_1 0.25902751376184935
+var a0_2 0.09030579711954549
+var a0_3 0.07318268092757406
+var a0_4 0.04593433960560745
+var a0_5 0.06542074179373164
+var a0_6 0.029578033615708706
+var a0_7 0.0639308204029522
+var a0_8 0.037788260181467276
+var a0_9 0.07916710260267705
+var a0_10 0.06888965371083225
+var a0_11 0.18677505627805446
+
+% 9.83 MHz Spacing
+var f0c_1 26.85
+var f0c_2 36.68
+var f0c_3 46.51
+var f0c_4 56.34
+var f0c_5 66.17
+var f0c_6 76
+var f0c_7 85.83
+var f0c_8 95.66
+var f0c_9 105.49
+var f0c_10 115.32
+var f0c_11 125.15
+
+var a0c_1 0.152
+var a0c_2 0.082
+var a0c_3 0.10401
+var a0c_4 0.052101
+var a0c_5 0.09801
+var a0c_6 0.041
+var a0c_7 0.084
+var a0c_8 0.052
+var a0c_9 0.084
+var a0c_10 0.047
+var a0c_11 0.145
+
+% 7.22 MHz Spacing
+var f0b_1 39.9
+var f0b_2 47.12
+var f0b_3 54.34
+var f0b_4 61.56
+var f0b_5 68.78
+var f0b_6 76
+var f0b_7 83.22
+var f0b_8 90.44
+var f0b_9 97.66
+var f0b_10 104.88
+var f0b_11 112.1
+
+var a0b_1 0.086
+var a0b_2 0.078
+var a0b_3 0.084
+var a0b_4 0.0521
+var a0b_5 0.098
+var a0b_6 0.051
+var a0b_7 0.07
+var a0b_8 0.078
+var a0b_9 0.071
+var a0b_10 0.057
+var a0b_11 0.0851
+
+
+% 6.35 spacing
+var f1_1 44.25
+var f1_2 50.6
+var f1_3 56.95
+var f1_4 63.3
+var f1_5 69.65
+var f1_6 76
+var f1_7 82.35
+var f1_8 88.7
+var f1_9 95.05
+var f1_10 101.4
+var f1_11 107.75
+
+var a1_1 0.077
+var a1_2 0.074
+var a1_3 0.065
+var a1_4 0.052
+var a1_5 0.097
+var a1_6 0.05
+var a1_7 0.065
+var a1_8 0.065
+var a1_9 0.08
+var a1_10 0.047
+var a1_11 0.085
+
+% 5.48 MHz Spacing
+var f1b_1  48.6
+var f1b_2  54.08
+var f1b_3  59.56
+var f1b_4  65.04
+var f1b_5  70.52
+var f1b_6  76
+var f1b_7  81.48
+var f1b_8  86.96
+var f1b_9  92.44
+var f1b_10 97.92
+var f1b_11 103.4
+
+var a1b_1 0.099
+var a1b_2 0.065
+var a1b_3 0.06509
+var a1b_4 0.06
+var a1b_5 0.09709
+var a1b_6 0.0509
+var a1b_7 0.06509
+var a1b_8 0.06509
+var a1b_9 0.091
+var a1b_10 0.043
+var a1b_11 0.075
+
+
+% 4.61 MHz Spacing
+var f2_1 52.95
+var f2_2 57.56
+var f2_3 62.17
+var f2_4 66.78
+var f2_5 71.39
+var f2_6 76
+var f2_7 80.61
+var f2_8 85.22
+var f2_9 89.83
+var f2_10 94.44
+var f2_11 99.05
+
+var a2_1 0.0891
+var a2_2 0.0541
+var a2_3 0.071
+var a2_4 0.071
+var a2_5 0.0971
+var a2_6 0.0541
+var a2_7 0.0651
+var a2_8 0.0631
+var a2_9 0.101
+var a2_10 0.0571
+var a2_11 0.0681
+
+% 2MHz Spacing
+var ff_1 66
+var ff_2 68
+var ff_3 70
+var ff_4 72
+var ff_5 74
+var ff_6 76
+var ff_7 78
+var ff_8 80
+var ff_9 82
+var ff_10 84
+var ff_11 86
+
+var af_1 0.08911
+var af_2 0.05411
+var af_3 0.0711
+var af_4 0.0711
+var af_5 0.09711
+var af_6 0.05411
+var af_7 0.06511
+var af_8 0.06311
+var af_9 0.1011
+var af_10 0.05711
+var af_11 0.06811
+
+repeatTilTrig
+gen11const
+Horizontal
+f0_1	a0_1	0.3550534427
+f0_2	a0_2	0.3729561747
+f0_3	a0_3	2.591875344
+f0_4	a0_4	4.205774186
+f0_5	a0_5	3.775361594
+f0_6	a0_6	6.253222519
+f0_7	a0_7	4.75830296
+f0_8	a0_8	6.266974382
+f0_9	a0_9	5.089729223
+f0_10	a0_10	4.53322605
+f0_11	a0_11	0
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+0.01 0
+endRepeat 
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%% 0 -> 0c
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+gen11Freq&AmpRamp
+Horizontal
+lin 	f0_1	f0c_1		lin 	a0_1		a0c_1		-1
+lin 	f0_2	f0c_2		lin 	a0_2		a0c_2		-1
+lin 	f0_3	f0c_3		lin 	a0_3		a0c_3		-1
+lin 	f0_4	f0c_4		lin 	a0_4		a0c_4		-1
+lin 	f0_5	f0c_5		lin 	a0_5		a0c_5		-1
+nr 	f0_6	f0c_6		lin 	a0_6		a0c_6		-1
+lin 	f0_7	f0c_7		lin 	a0_7		a0c_7		-1
+lin 	f0_8	f0c_8		lin 	a0_8		a0c_8		-1
+lin 	f0_9	f0c_9		lin 	a0_9		a0c_9		-1
+lin 	f0_10	f0c_10	lin 	a0_10		a0c_10	-1
+lin 	f0_11	f0c_11	lin 	a0_11		a0c_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+1 0
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%% 0c -> 0b
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+gen11Freq&AmpRamp
+Horizontal
+lin 	f0c_1		f0b_1		lin 	a0c_1		a0b_1		-1
+lin 	f0c_2		f0b_2		lin 	a0c_2		a0b_2		-1
+lin 	f0c_3		f0b_3		lin 	a0c_3		a0b_3		-1
+lin 	f0c_4		f0b_4		lin 	a0c_4		a0b_4		-1
+lin 	f0c_5		f0b_5		lin 	a0c_5		a0b_5		-1
+nr 	f0c_6		f0b_6		lin 	a0c_6		a0b_6		-1
+lin 	f0c_7		f0b_7		lin 	a0c_7		a0b_7		-1
+lin 	f0c_8		f0b_8		lin 	a0c_8		a0b_8		-1
+lin 	f0c_9		f0b_9		lin 	a0c_9		a0b_9		-1
+lin 	f0c_10	f0b_10	lin 	a0c_10	a0b_10	-1
+lin 	f0c_11	f0b_11	lin 	a0c_11	a0b_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+3 0
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%% 0b -> 1
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+gen11Freq&AmpRamp
+Horizontal
+lin 	f0b_1		f1_1	lin 	a0b_1		a1_1	-1
+lin 	f0b_2		f1_2	lin 	a0b_2		a1_2	-1
+lin 	f0b_3		f1_3	lin 	a0b_3		a1_3	-1
+lin 	f0b_4		f1_4	lin 	a0b_4		a1_4	-1
+lin 	f0b_5		f1_5	lin 	a0b_5		a1_5	-1
+nr 	f0b_6		f1_6	lin 	a0b_6		a1_6	-1
+lin 	f0b_7		f1_7	lin 	a0b_7		a1_7	-1
+lin 	f0b_8		f1_8	lin 	a0b_8		a1_8	-1
+lin 	f0b_9		f1_9	lin 	a0b_9		a1_9	-1
+lin 	f0b_10	f1_10	lin 	a0b_10	a1_10	-1
+lin 	f0b_11	f1_11	lin 	a0b_11	a1_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+1 0
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%% 1 -> 1b
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+gen11Freq&AmpRamp
+Horizontal
+lin 	f1_1	f1b_1		lin 	a1_1	a1b_1		-1
+lin 	f1_2	f1b_2		lin 	a1_2	a1b_2		-1
+lin 	f1_3	f1b_3		lin 	a1_3	a1b_3		-1
+lin 	f1_4	f1b_4		lin 	a1_4	a1b_4		-1
+lin 	f1_5	f1b_5		lin 	a1_5	a1b_5		-1
+nr	f1_6	f1b_6		lin 	a1_6	a1b_6		-1
+lin 	f1_7	f1b_7		lin 	a1_7	a1b_7		-1
+lin 	f1_8	f1b_8		lin 	a1_8	a1b_8		-1
+lin 	f1_9	f1b_9		lin 	a1_9	a1b_9		-1
+lin 	f1_10	f1b_10	lin 	a1_10	a1b_10	-1
+lin 	f1_11	f1b_11	lin 	a1_11	a1b_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+1 0
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%% 1b -> 2
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+gen11Freq&AmpRamp
+Horizontal
+lin 	f1b_1		f2_1	lin 	a1b_1		a2_1	-1
+lin 	f1b_2		f2_2	lin 	a1b_2		a2_2	-1
+lin 	f1b_3		f2_3	lin 	a1b_3		a2_3	-1
+lin 	f1b_4		f2_4	lin 	a1b_4		a2_4	-1
+lin 	f1b_5		f2_5	lin 	a1b_5		a2_5	-1
+nr	f1b_6		f2_6	lin 	a1b_6		a2_6	-1
+lin 	f1b_7		f2_7	lin 	a1b_7		a2_7	-1
+lin 	f1b_8		f2_8	lin 	a1b_8		a2_8	-1
+lin 	f1b_9		f2_9	lin 	a1b_9		a2_9	-1
+lin 	f1b_10	f2_10	lin 	a1b_10	a2_10	-1
+lin 	f1b_11	f2_11	lin 	a1b_11	a2_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+1 0
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%% 2 -> f
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+gen11Freq&AmpRamp
+Horizontal
+lin 	f2_1	ff_1	lin 	a2_1	af_1	-1
+lin 	f2_2	ff_2	lin 	a2_2	af_2	-1
+lin 	f2_3	ff_3	lin 	a2_3	af_3	-1
+lin 	f2_4	ff_4	lin 	a2_4	af_4	-1
+lin 	f2_5	ff_5	lin 	a2_5	af_5	-1
+nr	f2_6	ff_6	lin 	a2_6	af_6	-1
+lin 	f2_7	ff_7	lin 	a2_7	af_7	-1
+lin 	f2_8	ff_8	lin 	a2_8	af_8	-1
+lin 	f2_9	ff_9	lin 	a2_9	af_9	-1
+lin 	f2_10	ff_10	lin 	a2_10	af_10	-1
+lin 	f2_11	ff_11	lin 	a2_11	af_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+3 0
+
+repeatTilTrig
+
+gen11const
+Horizontal
+ff_1	af_1	-1
+ff_2	af_2	-1
+ff_3	af_3	-1
+ff_4	af_4	-1
+ff_5	af_5	-1
+ff_6	af_6	-1
+ff_7	af_7	-1
+ff_8	af_8	-1
+ff_9	af_9	-1
+ff_10	af_10	-1
+ff_11	af_11	-1
+# 
+
+gen1const
+Vertical
+75	1	0
+#
+0.01 0
+endRepeat 
+
+

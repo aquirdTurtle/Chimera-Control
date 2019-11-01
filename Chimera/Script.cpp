@@ -164,7 +164,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	// Check NIAWG-specific commands
 	if ( editType == "NIAWG")
 	{
-		for ( auto num : range( 10 ) )
+		for ( auto num : range( MAX_NIAWG_SIGNALS ) )
 		{
 			if ( word == "gen" + str( num + 1 ) + "const" || word == "gen" + str( num + 1 ) + "ampramp"
 				|| word == "gen" + str( num + 1 ) + "freqramp" || word == "gen" + str( num + 1 ) + "freq&ampramp")

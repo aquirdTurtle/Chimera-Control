@@ -265,6 +265,7 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 		setScanNumber();
 		// set this to 1.
 		setNumberAccumulations(true);
+		setFrameTransferMode ( );
 	}	
 	else if (runSettings.acquisitionMode == AndorRunModes::Accumulate)
 	{
