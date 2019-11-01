@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "saveWithExplorer.h"
-#include <string>
 
 /*
  * This function opens up the dialog for selecting an existing or new file name for saving scripts and configurations. It uses GetSaveFileName.

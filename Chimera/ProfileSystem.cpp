@@ -15,7 +15,6 @@
 #include "saveWithExplorer.h"
 
 #include "Commctrl.h"
-#include "Thrower.h"
 #include "BaslerWindow.h"
 
 
@@ -34,6 +33,7 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	configurationSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
 										configurationSavedIndicator.sPos, parent, id++ );
 	configurationSavedIndicator.SetCheck( BST_CHECKED );
+	//configurationSavedIndicator.uncheckedRed = true;
 	updateConfigurationSavedStatus( true );
 	selectConfigButton.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 25 };
 	selectConfigButton.Create( "Open Configuration", NORM_PUSH_OPTIONS, selectConfigButton.sPos, parent, 
@@ -311,6 +311,25 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 }
 
 
+CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
+{
+	static std::string txt;
+	auto id_ = configurationSavedIndicator.GetDlgCtrlID ( );
+	txt += str ( id ) + ", ";
+	if ( id == id_ )
+	{
+		if ( !configurationSavedIndicator.GetCheck ( ) )
+		{
+			pDC->SetTextColor ( _myRGBs[ "White" ] );
+			pDC->SetBkColor ( _myRGBs[ "Red" ] );
+			// SetBkColor ( _myRGBs[ "Red" ] );
+			return _myBrushes[ "Red" ];
+		}
+	}
+	return NULL;
+}
+
+
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
@@ -427,14 +446,9 @@ void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 		return;
 	}
 	configurationIsSaved = isSaved;
-	if (isSaved)
-	{
-		configurationSavedIndicator.SetCheck(BST_CHECKED);
-	}
-	else
-	{
-		configurationSavedIndicator.SetCheck(BST_UNCHECKED);
-	}
+	configurationSavedIndicator.SetCheck ( isSaved );
+	configurationSavedIndicator.Invalidate ( true );
+	configurationSavedIndicator.RedrawWindow ( );
 }
 
 

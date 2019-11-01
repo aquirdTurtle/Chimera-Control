@@ -63,13 +63,23 @@ class NiawgController
 		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& variables,
 							   bool deleteWaveAfterWrite=true, niawgLibOption::mode libOption = niawgLibOption::defaultMode );
 		void deleteWaveData( simpleWave& core );
+		bool isVectorizedCmd ( std::string cmd );
 		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave );
 		void handleStandardWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script,
-											   std::vector<parameterType>& variables );
+									 std::vector<parameterType>& variables,
+									 std::vector<vectorizedNiawgVals>& vectorizedVals );
 		void loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
-											   std::vector<parameterType>& variables, int axis, simpleWaveForm& wave );
+											   std::vector<parameterType>& variables, int axis, simpleWaveForm& wave,
+											   std::vector<vectorizedNiawgVals>& vectorizedVals );
+		void readTraditionalSimpleWaveParams ( ScriptStream& script,
+											   std::vector<parameterType>& variables, int axis,
+											   simpleWaveForm& wave );
+		void readVectorizedSimpleWaveParams ( ScriptStream& script, std::vector<vectorizedNiawgVals>& constVecs,
+											  int axis, simpleWaveForm& wave, std::vector<parameterType>& parameters );
+		void assertAllValid ( waveSignalForm& signal, std::vector<parameterType>& parameters );
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
-						   std::vector<parameterType>& variables, simpleWaveForm& wave );
+						   std::vector<parameterType>& variables, simpleWaveForm& wave,
+						   std::vector<vectorizedNiawgVals>& vectorizedVals );
 		void setDefaultWaveforms( MainWindow* mainWin );
 		//static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
@@ -150,7 +160,7 @@ class NiawgController
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd, 
 									ScriptStream& scripts, debugInfo& options, rerngGuiOptionsForm guiInfo,
-									std::vector<parameterType>& variables );
+									std::vector<parameterType>& variables, std::vector<vectorizedNiawgVals>& vectorizedVals );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
 		void handleSpecial( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 

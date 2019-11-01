@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <numeric>
 #include <fstream>
-#include "Thrower.h"
 #include "range.h"
 #include <boost/lexical_cast.hpp>
 

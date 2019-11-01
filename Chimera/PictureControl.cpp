@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "PictureControl.h"
-#include "Thrower.h"
 #include <algorithm>
 #include <numeric>
 #include <boost/lexical_cast.hpp>
@@ -616,10 +615,37 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 		}
 		drawData = accumPicLongData;
 	}
+	else if ( saOption.accumNum == 1 )
+	{
+		drawData = picData;
+	}
 	else
 	{
-		// TODO: should handle "normal" accumulation (i.e. not accumulate all but accumulate, say, 5) here
-		drawData = picData;
+		if ( accumPicData.size ( ) == 0 )
+		{
+			accumPicData.resize ( picData.size ( ) );
+			accumNum = 0;
+		}
+		accumNum++;
+		if ( accumPicData.size ( ) != picData.size ( ) )
+		{
+			thrower ( "Size mismatch between software accumulated picture and picture input!" );
+		}
+		std::vector<long> accumPicLongData ( picData.size ( ) );
+		for ( auto pixelInc : range ( accumPicData.size ( ) ) )
+		{
+			if ( accumNum == 1 )
+			{
+				accumPicData[ pixelInc ] = picData[ pixelInc ];
+			}
+			else
+			{
+				auto& num = saOption.accumNum;
+				accumPicData[ pixelInc ] = double( num - 1 ) / num * accumPicData[ pixelInc ] + double(picData[ pixelInc ]) / num;
+			}
+			accumPicLongData[ pixelInc ] = long ( accumPicData[ pixelInc ] );
+		}
+		drawData = accumPicLongData;
 	}
 	mostRecentImage = drawData;
 	// first element containst whether autoscaling or not.

@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "PictureManager.h"
 #include "ProfileSystem.h"
-#include "Thrower.h"
 #include "pictureSettingsControl.h"
 
 PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 
@@ -43,6 +42,11 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 {
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
+		if ( palleteIds[ picInc ] > 3 )
+		{
+			errBox ( "Image Pallete ID out of range! Forcing to 0." );
+			palleteIds[ picInc ] = 0;
+		}
 		pictures[picInc].updatePalette(palettes[palleteIds[picInc]]);
 	}
 }
@@ -97,18 +101,20 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 	drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
 }
 
-
 /*
  *
  */
 void PictureManager::drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-								  std::vector<atomGrid> grids, UINT pictureNumber )
+								  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers )
 {
 	UINT count = 1;
 	for (auto& pic : pictures)
 	{
 		pic.drawCircle(dc, selectedLocation);
-		pic.drawAnalysisMarkers(dc, analysisLocs, grids);
+		if ( includingAnalysisMarkers )
+		{
+			pic.drawAnalysisMarkers ( dc, analysisLocs, grids );
+		}
 		pic.drawPicNum( dc, pictureNumber - getNumberActive() + count++ );
 	}
 }

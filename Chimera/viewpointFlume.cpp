@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "viewpointFlume.h"
-#include "Thrower.h"
 
 ViewpointFlume::ViewpointFlume( bool safemode_ ) : safemode( safemode_ )
 {

@@ -55,7 +55,7 @@ namespace TestMatrix
 									"8 % c % c2\r\n"
 									"9 %% comment \r\n"
 									"10 %% comment \r\r"
-									"100 %% actually still part of prev comment\m\n"
+									"100 %% actually still part of prev comment\r\n"
 									"11 %% comment \n\n"
 									"12");
 			testStream.str( testString );

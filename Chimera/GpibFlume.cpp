@@ -4,7 +4,6 @@
 #include "ni488.h"
 #include <array>
 #include "constants.h"
-#include "Thrower.h"
 
 
 GpibFlume::GpibFlume(short device, bool safemode) : deviceSafemode(safemode), deviceID(device)

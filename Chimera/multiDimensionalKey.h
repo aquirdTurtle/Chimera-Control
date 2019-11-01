@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "range.h"
-#include "Thrower.h"
 #include "afxwin.h"
 #include <vector>
 

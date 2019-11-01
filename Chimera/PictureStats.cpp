@@ -142,6 +142,7 @@ void PictureStats::reset()
 	repetitionIndicator.SetWindowTextA( "Repetition ---/---" );
 }
 
+
 void PictureStats::updateType(std::string typeText)
 {
 	displayDataType = typeText;

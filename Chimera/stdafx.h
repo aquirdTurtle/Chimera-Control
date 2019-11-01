@@ -29,10 +29,7 @@
 ///
 // 
 #include <afxcontrolbars.h>
-// Contains functions and types used by the waveform generator.
-// #include "niFgen.h"
 
-// important!
 #include "miscCommonFunctions.h"
 
 #include <stdio.h>
@@ -41,6 +38,7 @@
 #include "constants.h"
 #include "resource.h"
 #include "Thrower.h"
+#include "range.h"
 
 #include <fstream>
 #include <string>

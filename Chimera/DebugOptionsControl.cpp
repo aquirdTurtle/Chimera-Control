@@ -13,63 +13,65 @@ void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTi
 	header.Create( "DEBUGGING OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 	UINT count = 0;
-	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
 	niawgMachineScript.Create( "Output Machine NIAWG Script?", NORM_CHECK_OPTIONS, niawgMachineScript.sPos, parent, 
 							   IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	niawgMachineScript.SetCheck( BST_CHECKED );
 
 	currentOptions.outputNiawgMachineScript = true;
-	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
 	outputAgilentScript.Create( "Output Agilent Script?", NORM_CHECK_OPTIONS, outputAgilentScript.sPos, parent, 
 								IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	outputAgilentScript.SetCheck( BST_CHECKED );
 	currentOptions.outputAgilentScript = true;
 	///
-	niawgScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	niawgScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
 	niawgScript.Create( "Output Human NIAWG Script?", NORM_CHECK_OPTIONS, niawgScript.sPos, parent, 
 						IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	niawgScript.SetCheck( BST_CHECKED );
 	currentOptions.outputNiawgHumanScript = true;
 
 	///
-	readProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	readProgress.Create( "Output Waveform Read Progress?", NORM_CHECK_OPTIONS, readProgress.sPos, parent, 
+	readProgress.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
+	readProgress.Create( "Output Wvfm Read Progress?", NORM_CHECK_OPTIONS, readProgress.sPos, parent, 
 						 IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	readProgress.SetCheck( BST_CHECKED );
 	currentOptions.showReadProgress = true;
 	///
-	writeProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	writeProgress.Create( "Output Waveform Write Progress?", NORM_CHECK_OPTIONS, writeProgress.sPos, parent, 
+	writeProgress.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
+	writeProgress.Create( "Output Wvfm Write Progress?", NORM_CHECK_OPTIONS, writeProgress.sPos, parent, 
 						  IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	writeProgress.SetCheck( BST_CHECKED );
 	currentOptions.showWriteProgress = true;
+	loc.y += -100;
 	///
-	correctionTimes.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	correctionTimes.Create( "Output Phase Correction Waveform Times?", NORM_CHECK_OPTIONS, correctionTimes.sPos,
+	correctionTimes.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
+	correctionTimes.Create( "Output Phase Correction Wvfm Times?", NORM_CHECK_OPTIONS, correctionTimes.sPos,
 							parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	correctionTimes.SetCheck( BST_CHECKED );
+	correctionTimes.fontType = fontTypes::SmallFont;
 	currentOptions.showCorrectionTimes = true;
 	///
-	excessInfo.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	excessInfo.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
 	excessInfo.Create( "Output Excess Run Info?", NORM_CHECK_OPTIONS, correctionTimes.sPos, parent, 
 					   IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	excessInfo.SetCheck( BST_CHECKED );
 	currentOptions.outputExcessInfo = true;
 
-	outputNiawgWavesToText.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	outputNiawgWavesToText.Create( "Output Niawg Waveforms to .txt?", NORM_CHECK_OPTIONS, outputNiawgWavesToText.sPos, 
+	outputNiawgWavesToText.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
+	outputNiawgWavesToText.Create( "Output Niawg Wvfms to .txt?", NORM_CHECK_OPTIONS, outputNiawgWavesToText.sPos, 
 								   parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 
-	showTtlsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	showTtlsButton.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
 	showTtlsButton.Create( "Show All TTL Events", NORM_CHECK_OPTIONS, showTtlsButton.sPos, parent, IDC_SHOW_TTLS );
 
-	showDacsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	showDacsButton.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
 	showDacsButton.Create( "Show All Dac Events", NORM_CHECK_OPTIONS, showDacsButton.sPos, parent, IDC_SHOW_DACS );
 
-	pauseText.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
-	pauseText.Create( "Pause Between Variations (ms)", NORM_STATIC_OPTIONS, pauseText.sPos, parent, id++ );
+	pauseText.sPos = { loc.x + 200, loc.y, loc.x + 480, loc.y + 20 };
+	pauseText.Create( "Pause Btwn Variations (ms)", NORM_STATIC_OPTIONS, pauseText.sPos, parent, id++ );
 
-	pauseEdit.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
+	pauseEdit.sPos = { loc.x, loc.y, loc.x + 200, loc.y += 20 };
 	pauseEdit.Create( NORM_EDIT_OPTIONS, pauseEdit.sPos, parent, id++ );
 	pauseEdit.SetWindowTextA( "0" );
 }

@@ -2,7 +2,6 @@
 #include "stdafx.h"
 
 #include "openWithExplorer.h"
-#include <string>
 
 /*
  * This function gets the name of a file to open, using the fancy windows dialog box.

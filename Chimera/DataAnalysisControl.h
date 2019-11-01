@@ -80,6 +80,7 @@ class DataAnalysisControl
 			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays, UINT groupNum );
 		static void determineWhichPscsSatisfied(
 			PlottingInfo& info, UINT groupSize, vector<vector<int>> atomPresentData, vector<vector<bool>>& pscSatisfied );
+		bool getDrawGridOption ( );
 	private:
 		// real time plotting
 		ULONG updateFrequency;
@@ -108,6 +109,8 @@ class DataAnalysisControl
 		Control<CEdit> gridHeight;
 
 		Control<CleanCheck> autoThresholdAnalysisButton;
+		Control<CleanCheck> displayGridBtn;
+
 
 		Control<CStatic> plotTimerTxt;
 		Control<CEdit> plotTimerEdit;

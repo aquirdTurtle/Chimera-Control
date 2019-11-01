@@ -4,7 +4,6 @@
 #include "AndorWindow.h"
 #include "MainWindow.h"
 #include "CameraSettingsControl.h"
-#include "Thrower.h"
 #include <boost/lexical_cast.hpp>
 
 ImageDimsControl::ImageDimsControl()
@@ -120,17 +119,22 @@ void ImageDimsControl::handleNew( std::ofstream& newfile )
 	newfile << "END_CAMERA_IMAGE_DIMENSIONS\n";
 }
 
+imageParameters ImageDimsControl::getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver )
+{
+	imageParameters params;
+	configFile >> params.left;
+	configFile >> params.right;
+	configFile >> params.horizontalBinning;
+	configFile >> params.bottom;
+	configFile >> params.top;
+	configFile >> params.verticalBinning;
+	return params;
+}
 
 void ImageDimsControl::handleOpen( std::ifstream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
-	imageParameters params;
-	openFile >> params.left;
-	openFile >> params.right;
-	openFile >> params.horizontalBinning;
-	openFile >> params.bottom;
-	openFile >> params.top;
-	openFile >> params.verticalBinning;
+	imageParameters params = getImageDimSettingsFromConfig ( openFile, ver );
 	setImageParametersFromInput( params, NULL );
 }
 

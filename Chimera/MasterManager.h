@@ -59,6 +59,8 @@ class MasterThreadManager
 		static void updatePlotX_vals (ExperimentThreadInput* input );
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											   std::string scope, std::string& warnings );
+		static bool handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, std::vector<vectorizedNiawgVals>& 
+											   constVecs, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator& comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);

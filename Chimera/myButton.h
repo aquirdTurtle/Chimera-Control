@@ -16,4 +16,5 @@ class CleanButton : public CMFCButton
 class CleanCheck : public CMFCButton
 {
 	virtual void DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct );
+	public:
 };

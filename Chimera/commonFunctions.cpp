@@ -12,7 +12,6 @@
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
-#include "Thrower.h"
 #include "externals.h"
 
 
@@ -123,7 +122,6 @@ namespace commonFunctions
 						}
 						break;
 					}
-					andorWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					andorWin->prepareAndor ( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true, 
@@ -198,7 +196,7 @@ namespace commonFunctions
 
 				try
 				{
-					if ( andorWin->Andor.isRunning( ) )
+					if ( andorWin->andor.isRunning( ) )
 					{
 						status = "ANDOR";
 						commonFunctions::abortCamera( andorWin, mainWin );
@@ -409,7 +407,7 @@ namespace commonFunctions
 			{
 				try
 				{
-					if ( andorWin->Andor.isRunning ( ) )
+					if ( andorWin->andor.isRunning ( ) )
 					{
 						commonFunctions::abortCamera ( andorWin, mainWin );
 					}
@@ -824,7 +822,9 @@ namespace commonFunctions
 		}
 		scriptWindow->checkScriptSaves( );
 		mainWin->checkProfileSave();
-		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
+		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the NI arbitrary "
+			"waveform generator. The Andor camera temperature control will also stop, causing the Andor camera to "
+			"return to room temperature.";
 		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
 		if (areYouSure == IDOK)
 		{

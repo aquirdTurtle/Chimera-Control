@@ -7,17 +7,19 @@
 #include <mutex>
 #include "ATMCD32D.h"
 #include "AndorRunSettings.h"
+#include "AndorFlume.h"
 #include "Matrix.h"
+#include "AndorTemperatureStatus.h"
 
 /// /////////////////////////////////////////////////////
-/// 
 ///			The Andor Class
-///
 /// /////////////////////////////////////////////////////
 
 // This class is designed to facilitate interaction with the andor camera and
 // is based around the andor SDK. I did not write the Andor SDK, this was obtained from andor. I did write everything
 // else in this class.
+
+// This is a "Core"-like class. there's no gui associated with this. 
 
 class AndorCamera;
 
@@ -33,65 +35,13 @@ struct cameraThreadInput
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes;
 };
 
-/// the all-important camera class.
+/// the important camera class.
 class AndorCamera
 {
 	public:
 		AndorCamera(bool safemode_opt);
-		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
-		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
-		// looking for specific sdk functions, search in the cpp file.
-		void abortAcquisition();
-		void checkForNewImages();
-		void getAcquisitionProgress( long& seriesNumber );
-		void getAcquisitionProgress( long& accumulationNumber, long& seriesNumber );
-		void getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic);
-		void getAdjustedRingExposureTimes(int size, float* timesArray);
-		void getNumberOfPreAmpGains(int& number);
-		void getOldestImage( Matrix<long>& dataMatrix );
-		void getOldestImage(std::vector<long>& dataArray);
-		void getPreAmpGain(int index, float& gain);
-		void queryStatus();
-		void queryStatus(int& status);
-		void getTemperatureRange(int& min, int& max);
-		void getTemperature(int& temp);
 
-		void setAccumulationCycleTime();
-		void setAccumulationCycleTime(float time);
-		void setAccumulationNumber(int number);
-		void setAcquisitionMode();
-		void setAcquisitionMode(int mode);
-		void setADChannel(int channel); 
-		void setEmCcdGain(int gain);
-		void setEmGainSettingsAdvanced(int state);
-		void setFrameTransferMode();
-		void setFrameTransferMode(int mode);
-		void setHSSpeed(int type, int index);
-		void setImage(int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder);
-		void setKineticCycleTime();
-		void setKineticCycleTime(float cycleTime);
-		void setNumberKinetics(int number);
-		void setOutputAmplifier(int type);
-		void setPreAmpGain(int index);
-		void setReadMode();
-		void setReadMode(int mode);
-		void setRingExposureTimes(int sizeOfTimesArray, float* arrayOfTimes);
-		void setTemperature(int temp);
-		void setTriggerMode(int mode);
-		void startAcquisition();
-
-		void temperatureControlOn();
-		void temperatureControlOff();
-
-		void waitForAcquisition();
-
-		void getCapabilities( AndorCapabilities& caps );
-		void getSerialNumber( int& num );
-		std::string getHeadModel();
-
-		/// End Andor sdk wrappers.
-		// all of the following do something more interesting.
-		AndorRunSettings getAndorSettings();
+		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
 		void armCamera( double& minKineticCycleTime );
@@ -110,23 +60,30 @@ class AndorCamera
 		void updatePictureNumber( ULONGLONG newNumber );
 		void setGainMode();
 		void changeTemperatureSetting(bool temperatureControlOff);
-		void andorErrorChecker(int errorCode);
-		
-		void initialize();
-		void setBaselineClamp(int clamp);
-		void setBaselineOffset(int offset);
-		void setDMAParameters(int maxImagesPerDMA, float secondsPerDMA);
+
 		static UINT __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
 		void initializeClass( Communicator* comm, chronoTimes* imageTimes );
 		void setCalibrating( bool cal );
 		bool isCalibrating( );
+		void abortAcquisition ( );
+		int queryStatus (  );
+		AndorTemperatureStatus getTemperature ( );
 	private:
+
+		void setAccumulationCycleTime ( );
+		void setAcquisitionMode ( );
+		void setFrameTransferMode ( );
+		void setKineticCycleTime ( );
+		void setReadMode ( );
+
 		bool calInProgress = false;
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
 		/// settings are stored in smaller classes.
-		// If the experiment is running, these settings hold the options that the experiment is using.y
+		// If the experiment is running, these settings hold the options that the experiment is using.
 		AndorRunSettings runSettings;
+
+		AndorFlume flume;
 		const bool safemode;
 		// 
 		bool cameraIsRunning;

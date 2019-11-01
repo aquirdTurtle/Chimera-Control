@@ -7,7 +7,6 @@
 #include "AuxiliaryWindow.h"
 #include "AndorWindow.h"
 #include "MainWindow.h"
-#include "Thrower.h"
 #include <string>
 #include <fstream>
 
