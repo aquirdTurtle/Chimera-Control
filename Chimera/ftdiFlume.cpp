@@ -163,7 +163,7 @@ DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWri
 			amountToWrite = sizeof( dataBuffer );
 		}
 
-		&dataBuffer[0];
+		
 		ftStatus = FT_Write( ftAsyncHandle, dataBuffer.data(), amountToWrite, &BytesWritten );
 
 		if ( ftStatus != FT_OK )
