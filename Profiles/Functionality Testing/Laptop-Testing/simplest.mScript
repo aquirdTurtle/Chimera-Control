@@ -1,8 +1,14 @@
-t = 1
-on: a0
-call turnonmot()
-t += 1
-off: a0
-t += 0.1
-%pulseon: a0 0.1
-t += 1
+t = 1
+
+on: a0
+
+call turnonmot()
+
+t += 1
+
+off: a0
+t += 0.1
+
+%pulseon: a0 0.1
+t += 1
+
