@@ -5,7 +5,7 @@
 #include <string>
 #include "afxwin.h"
 #include "ColorBox.h"
-#include "DmCore.h"
+#include "DmControl.h"
 class MainWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
@@ -51,5 +51,5 @@ class AuxiliaryWindow2 : public CDialog
 		fontMap Aux2fonts;
 
 		ColorBox statusBox;
-		DmCore DM;
+		DmControl DM;
 };

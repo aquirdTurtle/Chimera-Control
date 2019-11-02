@@ -2,8 +2,8 @@
 #include "AuxiliaryWindow2.h"
 #include "MainWindow.h"
 
-AuxiliaryWindow2::AuxiliaryWindow2() {
-
+AuxiliaryWindow2::AuxiliaryWindow2() : CDialog(), DM(DM_SERIAL, DM_SAFEMODE){
+	
 }
 
 BOOL AuxiliaryWindow2::OnInitDialog() {

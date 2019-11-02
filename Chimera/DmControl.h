@@ -3,6 +3,7 @@
 #include "myButton.h"
 #include "VisaFlume.h"
 #include "Version.h"
+#include "DmCore.h"
 
 struct DmInfo
 {
@@ -23,10 +24,17 @@ struct pistonButton {
 class DmControl
 {
 	public:
+	DmControl::DmControl(std::string serialNumber, bool safeMode);
 		void initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT control_id);
 	    void handleOnPress(int i);
+		void programNow();
+		void setMirror(std::vector<double> A);
+		void updateButtons();
+
 	private:
 		
 		DmInfo currentInfo;
+		DmCore defObject;
 		std::vector<pistonButton> piston;
+		std::vector<double> temp;
 };

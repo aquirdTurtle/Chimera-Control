@@ -11,8 +11,9 @@ class DmCore {
 		void setMap();
 		void pokePiston(unsigned int piston, double value);
 		void zeroPistons();
-		void readDMArray();
+		void readDMArray(std::vector<double> &testArray);
 		void testMirror();
+		void loadArray(std::vector<double> A);
 	private:
 		DmFlume DM;
 		std::vector<unsigned int> map_lut = std::vector<unsigned int>(MAX_DM_SIZE, 0);

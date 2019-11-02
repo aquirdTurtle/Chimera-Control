@@ -49,10 +49,12 @@ void DmCore::zeroPistons() {
 	DM.reset();
 }
 
-void DmCore::readDMArray() {
+void DmCore::readDMArray(std::vector<double> &testArray) {
 	std::vector<double> testArray = std::vector<double>(DM.getActuatorCount(), 0.0);
 
 	DM.getArray(testArray.data(), DM.getActuatorCount());
+
+	
 }
 
 void DmCore::testMirror() {
@@ -64,6 +66,11 @@ void DmCore::testMirror() {
 	setMap();
 	std::vector<double> testArray = std::vector<double>(DM.getActuatorCount(), 0.0);
 	DM.setArray(valueArray.data(), map_lut.data());
-	readDMArray();
+	readDMArray(testArray);
+}
+
+void DmCore::loadArray(std::vector<double> A) {
+	setMap();
+	DM.setArray(A.data(), map_lut.data());
 }
 
