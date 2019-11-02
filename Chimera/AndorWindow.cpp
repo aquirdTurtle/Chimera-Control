@@ -514,13 +514,13 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	if (lParam == 0)
 	{
 		// ???
-		return NULL;
+		//return NULL;
 	}
 	AndorRunSettings curSettings = andor.getAndorRunSettings( );
 	if ( lParam == -1 )
 	{
 		// last picture.
-		picNum = curSettings.totalPicsInExperiment();
+		//picNum = curSettings.totalPicsInExperiment();
 	}
 	if ( lParam != currentPictureNum && lParam != -1 )
 	{
@@ -740,13 +740,17 @@ std::mutex& AndorWindow::getActivePlotMutexRef ( )
 	return activePlotMutex;
 }
 
+
 std::vector<PlotDialog*>& AndorWindow::getActivePlotListRef ( )
 {
 	return activePlots;
 }
 
-void AndorWindow::closeDataFile ( )
+
+void AndorWindow::cleanUpAfterExp ( )
 {
+	plotThreadActive = false;
+	atomCrunchThreadActive = false;
 	dataHandler.closeFile ( );
 }
 
@@ -760,13 +764,9 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-
 	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
 	mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	andorSettingsCtrl.cameraIsOn( false );
-			// mainWin->handleFinish();
-	plotThreadActive = false;
-	atomCrunchThreadActive = false;
 	// rearranger thread handles these right now.
 	mainThreadStartTimes.clear();
 	crunchFinTimes.clear( );
