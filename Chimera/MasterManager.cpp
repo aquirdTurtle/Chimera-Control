@@ -288,7 +288,6 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					ttls.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
 					ttls.convertToFtdiSnaps(variationInc, seqInc);
 					ttls.convertToFinalFtdiFormat( variationInc, seqInc );
-					timer.tick(str(variationInc) + "-After-Ao-And-Dio-Main");
 					// run a couple checks.
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
 					ttls.checkFinalFormatTimes( variationInc, seqInc );

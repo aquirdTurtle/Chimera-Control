@@ -12,7 +12,7 @@ UINT ftdiFlume::getNumDevices( )
 	DWORD numDevs=1;
 	if ( !safemode )
 	{
-#ifdef _WIN64
+//#ifdef _WIN64
 		numDevs = 0;
 		FT_STATUS ftStatus;
 		ftStatus = FT_ListDevices( &numDevs, NULL, FT_LIST_NUMBER_ONLY );
@@ -141,13 +141,14 @@ DWORD ftdiFlume::trigger() {
 		dataBuffer[4] = 0;
 		dataBuffer[5] = 0;
 		dataBuffer[6] = 1;
-
+		write ( dataBuffer, 7 );
+		/*
 		ftStatus = FT_Write(ftAsyncHandle, dataBuffer.data(), dataBuffer.size(), &BytesWritten);
-		
 		if (ftStatus != FT_OK)
 		{
 			thrower("error writing; FT_Write failed! Status was \"" + getErrorText(ftStatus) + "\"");
 		}
+		*/
 		return BytesWritten;
 }
 

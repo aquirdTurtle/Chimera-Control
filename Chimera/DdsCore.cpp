@@ -2,26 +2,42 @@
 #include "DdsCore.h"
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
-{ 
-	writeLog.open ( writeLogFileName, std::ios::app ); 
-	if ( !writeLog.is_open ( ) )
-	{
-		thrower ( "Failed to open dds write log!" );
-	}
-	writeLog << "Chimera\n";
+{
 	connectasync ( );
-	lockPLLs( );	
+	lockPLLs ( );
 }
 
 DdsCore::~DdsCore ( )
 {
 	disconnect ( );
-	writeLog.close ( );
 }
 
-void DdsCore::updateRampLists ( ExpWrap<std::vector<ddsIndvRampListInfo>> newList )
+void DdsCore::updateRampLists ( std::vector<std::vector<ddsIndvRampListInfo>> newList )
 {
 	rampLists = newList;
+}
+
+
+void DdsCore::assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params )
+{
+	if ( params.size ( ) == 0 )
+	{
+		thrower ( "ERROR: empty variables! Sequence size is zero?!" );
+	}
+	UINT variations = ( ( params[ 0 ].size ( ) ) == 0 ) ? 1 : params.front ( ).front ( ).keyValues.size ( );
+	for ( auto sequenceNumber : range ( params.size ( ) ) )
+	{
+		auto& seqParams = params[ sequenceNumber ];
+		for ( auto& ramp : rampLists[ sequenceNumber ] )
+		{
+			ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+			ramp.freq1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+			ramp.freq2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+			ramp.amp1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+			ramp.amp2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+			ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
+		}
+	}
 }
 
 // this probably needs an overload with a default value for the empty parameters case...
@@ -37,14 +53,14 @@ void DdsCore::evaluateDdsInfo ( std::vector<std::vector<parameterType>> params )
 		auto& seqParams = params[ sequenceNumber ];
 		for ( auto variationNumber : range ( variations ) )
 		{
-			for ( auto& ramp : rampLists ( sequenceNumber, variationNumber ) )
+			for ( auto& ramp : rampLists[ sequenceNumber ] )
 			{
-				ramp.rampTime.internalEvaluate ( seqParams, variationNumber );
-				ramp.freq1.internalEvaluate ( seqParams, variationNumber );
-				ramp.freq2.internalEvaluate ( seqParams, variationNumber );
-				ramp.amp1.internalEvaluate ( seqParams, variationNumber );
-				ramp.amp2.internalEvaluate ( seqParams, variationNumber );
-				ramp.rampTime.internalEvaluate ( seqParams, variationNumber );
+				ramp.rampTime.internalEvaluate ( seqParams, variations );
+				ramp.freq1.internalEvaluate ( seqParams, variations );
+				ramp.freq2.internalEvaluate ( seqParams, variations );
+				ramp.amp1.internalEvaluate ( seqParams, variations );
+				ramp.amp2.internalEvaluate ( seqParams, variations );
+				ramp.rampTime.internalEvaluate ( seqParams, variations );
 			}
 		}
 	}
@@ -86,22 +102,22 @@ void DdsCore::writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex )
 	{
 		for ( auto channelNum : range ( boxRamp.rampParams.numChannels ( ) ) )
 		{
-			auto& channel = boxRamp.rampParams ( boardNum, channelNum );			
+			auto& channel = boxRamp.rampParams ( boardNum, channelNum );
 			writeRampDeltaFreq ( boardNum, channelNum, rampIndex, ( channel.freq2 - channel.freq1 ) / reps );
 			writeRampDeltaAmp ( boardNum, channelNum, rampIndex, ( channel.amp2 - channel.amp1 ) / reps );
 		}
 	}
 }
 
-void DdsCore::generateFullExpInfo ( )
+void DdsCore::generateFullExpInfo ( UINT numVariations )
 {
-	fullExpInfo.resizeSeq ( rampLists.getNumSequences ( ) );
-	for ( auto seqInc : range ( rampLists.getNumSequences ( ) ) )
+	fullExpInfo.resizeSeq ( rampLists.size ( ) );
+	for ( auto seqInc : range ( rampLists.size ( ) ) )
 	{
-		fullExpInfo.resizeVariations ( seqInc, rampLists.getNumVariations ( seqInc ) );
-		for ( auto varInc : range ( rampLists.getNumVariations ( seqInc ) ) )
+		fullExpInfo.resizeVariations ( seqInc, numVariations );
+		for ( auto varInc : range ( numVariations ) )
 		{
-			fullExpInfo ( seqInc, varInc ) = analyzeRampList ( rampLists ( seqInc, varInc ) );
+			fullExpInfo ( seqInc, varInc ) = analyzeRampList ( rampLists[ seqInc ], varInc );
 		}
 	}
 }
@@ -110,13 +126,13 @@ void DdsCore::generateFullExpInfo ( )
 converts the list of individual set ramps, as set by the user, to the full ramp list which contains the state
 of each dds at each point in the ramp.
 */
-std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList )
+std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation )
 {
 	// always rewrite the full vector
 	UINT maxIndex = 0;
 	for ( auto& rampL : rampList )
 	{
-		maxIndex = ((maxIndex > rampL.index) ? maxIndex : rampL.index);
+		maxIndex = ( ( maxIndex > rampL.index ) ? maxIndex : rampL.index );
 	}
 	std::vector<ddsRampFinFullInfo> fullRampInfo ( maxIndex + 1 );
 
@@ -125,20 +141,20 @@ std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRa
 		auto& rampF = fullRampInfo[ rampL.index ].rampParams ( rampL.channel / 4, rampL.channel % 4 );
 		if ( rampF.explicitlySet == true )
 		{
-			if ( fullRampInfo[ rampL.index ].rampTime != rampL.rampTime.getValue ( ) )
+			if ( fullRampInfo[ rampL.index ].rampTime != rampL.rampTime.getValue ( variation ) )
 			{
 				thrower ( "The ramp times of different channels on the same ramp index must match!" );
 			}
 		}
 		else
 		{
-			fullRampInfo[ rampL.index ].rampTime = rampL.rampTime.getValue ( );
+			fullRampInfo[ rampL.index ].rampTime = rampL.rampTime.getValue ( variation );
 			rampF.explicitlySet = true;
 		}
-		rampF.freq1 = rampL.freq1.getValue ( );
-		rampF.freq2 = rampL.freq2.getValue ( );
-		rampF.amp1 = rampL.amp1.getValue ( );
-		rampF.amp2 = rampL.amp2.getValue ( );
+		rampF.freq1 = rampL.freq1.getValue ( variation );
+		rampF.freq2 = rampL.freq2.getValue ( variation );
+		rampF.amp1 = rampL.amp1.getValue ( variation );
+		rampF.amp2 = rampL.amp2.getValue ( variation );
 	}
 	return fullRampInfo;
 }
@@ -249,7 +265,6 @@ std::string DdsCore::getSystemInfo ( )
 	return msg;
 }
 
-
 /* Get Frequency Tuning Word - convert a frequency in double to  */
 INT DdsCore::getFTW ( double freq )
 {
@@ -311,7 +326,7 @@ void DdsCore::writeAmpMultiplier ( UINT8 device )
 	// Necessary to turn on amplitude multiplier.
 	UINT8 byte1 = 1 << 4;
 	writeDDS ( device, 6, 0, 0, 0, 0 );
-	writeDDS ( device, 6, 0, 0, byte1, 0);
+	writeDDS ( device, 6, 0, 0, byte1, 0 );
 }
 
 void DdsCore::writeResetFreq ( UINT8 device, UINT8 channel, double freq )
@@ -331,7 +346,7 @@ void DdsCore::writeRampReps ( UINT8 index, UINT16 reps )
 	UINT16 address = REPS_ADDRESS_OFFSET + index;
 	UINT8 byte4 = reps & 0x000000ffUL;
 	UINT8 byte3 = ( reps & 0x0000ff00UL ) >> 8;
-	writeDDS ( WBWRITE_ARRAY, address, 0,0, byte3, byte4 );
+	writeDDS ( WBWRITE_ARRAY, address, 0, 0, byte3, byte4 );
 }
 
 UINT16 DdsCore::getRepsFromTime ( double time )
@@ -339,7 +354,7 @@ UINT16 DdsCore::getRepsFromTime ( double time )
 	// 125 kHz update rate
 	// units of time is milliseconds
 	double deltaTime = 8e-3; // 8 usec
-	double maxTime = (( std::numeric_limits<UINT16>::max )( ) - 0.5) * deltaTime;
+	double maxTime = ( ( std::numeric_limits<UINT16>::max )( ) - 0.5 ) * deltaTime;
 	ULONGLONG repNum = ( time / deltaTime ) + 0.5;
 	ULONGLONG maxTimeLong = ( std::numeric_limits<UINT16>::max )( );
 	// I'm moderately confused as to why I have to also exclude the max time itself here, this should be all 1's in 
@@ -348,7 +363,7 @@ UINT16 DdsCore::getRepsFromTime ( double time )
 	{
 		thrower ( "time too long for ramp! Max time is " + str ( maxTime ) + " ms" );
 	}
-	return repNum ;
+	return repNum;
 }
 
 
@@ -386,10 +401,10 @@ std::array<UINT8, 4> DdsCore::intTo4Bytes ( int i_ )
 	// order here is hiword to loword, i.e. if you wrote out the int in 
 	// This looks strange. FTW is an insigned int but it's being bitwise compared to an unsigned long. (the UL suffix)
 	std::array<UINT8, 4> res;
-	res[ 3 ] = (i_ & 0x000000ffUL);
-	res[ 2 ] = (( i_ & 0x0000ff00UL ) >> 8);
-	res[ 1 ] = (( i_ & 0x00ff0000UL ) >> 16);
-	res[ 0 ] = (( i_ & 0xff000000UL ) >> 24);
+	res[ 3 ] = ( i_ & 0x000000ffUL );
+	res[ 2 ] = ( ( i_ & 0x0000ff00UL ) >> 8 );
+	res[ 1 ] = ( ( i_ & 0x00ff0000UL ) >> 16 );
+	res[ 0 ] = ( ( i_ & 0xff000000UL ) >> 24 );
 	return res;
 }
 
@@ -413,23 +428,6 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 		UINT8 ADDRESS_HI = ( ADDRESS & 0xff00UL ) >> 8;
 		std::vector<unsigned char> input = { unsigned char ( WBWRITE + DEVICE ), ADDRESS_HI, ADDRESS_LO, dat1, dat2, dat3, dat4 };
 		ftFlume.write ( input, MSGLENGTH );
-		if ( log )
-		{
-			if ( !writeLog.is_open ( ) )
-			{
-				thrower ( "Failed to open dds logging file!" );
-			}
-			writeLog << std::setfill ( '0' ) << std::hex
-					 << std::setw ( 2 ) << UINT ( input[ 0 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 1 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 2 ] )
-					 << " "
-					 << std::setw ( 2 ) << UINT ( input[ 3 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 4 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 5 ] )
-					 << std::setw ( 2 ) << UINT ( input[ 6 ] )
-					 << "\n";
-		}
 	}
 	else
 	{
@@ -439,15 +437,15 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 }
 
 
-std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file )
+std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file, Version ver )
 {
 	UINT numRamps = 0;
 	file >> numRamps;
-	std::vector<ddsIndvRampListInfo> list(numRamps);
+	std::vector<ddsIndvRampListInfo> list ( numRamps );
 	for ( auto& ramp : list )
 	{
-		file >> ramp.index >> ramp.channel >> ramp.freq1.expressionStr >> ramp.amp1.expressionStr 
-			 >> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
+		file >> ramp.index >> ramp.channel >> ramp.freq1.expressionStr >> ramp.amp1.expressionStr
+			>> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
 		file.get ( ); // get newline.
 	}
 	return list;
@@ -464,8 +462,7 @@ void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std
 		// empty expresssions, but empty expressions don't run anyways. 
 		for ( auto& val : { ramp.freq1, ramp.amp1, ramp.freq2, ramp.amp2, ramp.rampTime } )
 		{
-			file << ( val.expressionStr == "" ? 0 : val.expressionStr) << "\n";
+			file << ( val.expressionStr == "" ? 0 : val.expressionStr ) << "\n";
 		}
 	}
 }
-

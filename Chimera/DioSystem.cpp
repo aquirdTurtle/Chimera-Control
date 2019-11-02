@@ -609,7 +609,7 @@ std::string DioSystem::testTTL() {
 	resetTtlEvents();
 	initializeDataObjects(1, 0);
 	sizeDataStructures(1, 1);
-	ttlSnapshots[0][0].push_back({ 0.00001, getCurrentStatus() });
+	ttlSnapshots(0,0).push_back({ 0.00001, getCurrentStatus() });
 	ftdi_connectasync("FT2E722BB"); 
 	convertToFtdiSnaps(0, 0);
 	convertToFinalFtdiFormat(0, 0);
@@ -922,7 +922,6 @@ void DioSystem::wait(double time)
 }
 
 void DioSystem::wait2(double time) {
-	//errBox("time is: " + str(time));
 	Sleep(time + 10);
 }
 
@@ -931,32 +930,36 @@ void DioSystem::wait2(double time) {
 void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 {
 	double totalTime;
-	if (!loadSkipFormattedTtlSnapshots.empty()) {
-		if (skipOption)
+	if (skipOption)
+	{
+		if ( !loadSkipFormattedTtlSnapshots.getNumSequences ( ) )
 		{
-			totalTime = (ftdiSnaps_loadSkip[seqNum][variation].back().time
-				+ 65535 * ftdiSnaps_loadSkip[seqNum][variation].back().time) / 10000.0 + 1;
+			totalTime = ( ftdiSnaps_loadSkip( seqNum, variation).back ( ).time
+							+ 65535 * ftdiSnaps_loadSkip( seqNum, variation).back ( ).time ) / 10000.0 + 1;
 		}
 		else
 		{
-			totalTime = (ftdiSnaps[seqNum][variation].back().time
-				+ 65535 * ftdiSnaps[seqNum][variation].back().time) / 10000.0 + 1;
+			thrower ( "Nothing in loadskipftdiSnaps struct" );
 		}
 	}
-	else {
-		thrower("Nothing in ftdiSnaps vector");
+	else
+	{
+		totalTime = (ftdiSnaps ( seqNum, variation ).back().time
+			+ 65535 * ftdiSnaps ( seqNum, variation ).back().time) / 10000.0 + 1;
 	}
 	wait2(totalTime);
 }
+
+
 void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption) {
 	double time = -1;
 	bool proceed = true;
 	int counter = 0;
-	for (auto snap : ftdiSnaps[seqNum][variation])
+	for (auto snap : ftdiSnaps(seqNum,variation))
 	{
 		if (snap == ftdiPt({ 0, 0, 0, 0, 0, 0, 0, 0, 0 }) && time != -1 && counter >= 0 && proceed)
 		{
-			wait2((ftdiSnaps[seqNum][variation][--counter].time) / 100000);
+			wait2((ftdiSnaps(seqNum,variation)[--counter].time) / 100000);
 			proceed = false;
 		}
 		time = snap.time;
@@ -970,11 +973,11 @@ double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 	double time = -1;
 	bool proceed = true;
 	int counter = 0;
-	for (auto snap : ftdiSnaps[seqNum][variation])
+	for (auto snap : ftdiSnaps(seqNum,variation))
 	{
 		if (snap == ftdiPt({ 0, 0, 0, 0, 0, 0, 0, 0, 0 }) && time != -1 && counter >= 0 && proceed)
 		{
-			return ((ftdiSnaps[seqNum][variation][--counter].time) / 100000);
+			return ((ftdiSnaps(seqNum,variation)[--counter].time) / 100000);
 			proceed = false;
 		}
 		time = snap.time;
@@ -986,10 +989,10 @@ double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 double DioSystem::getTotalTime(UINT variation, UINT seqNum )
 {
 	// ??? there used to be a +1 at the end of this...
-	if (ftdiSnaps[seqNum][variation].empty()) { thrower("nothing in ftdi snaps vector"); }
+	if (ftdiSnaps(seqNum,variation).empty()) { thrower("nothing in ftdi snaps vector"); }
 	else {
-		return (ftdiSnaps[seqNum][variation].back().time
-			 + 65535 * ftdiSnaps[seqNum][variation].back().time) / 10000.0 + 1;
+		return (ftdiSnaps(seqNum,variation).back().time
+			 + 65535 * ftdiSnaps(seqNum,variation).back().time) / 10000.0 + 1;
 	}
 }
 
@@ -1311,7 +1314,7 @@ DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 	resetTtlEvents( );
 	initializeDataObjects( 1, 0 );
 	sizeDataStructures( 1, 1 );
-	ttlSnapshots[0][0].push_back( { 0.00001, getCurrentStatus ( ) } );
+	ttlSnapshots(0,0).push_back( { 0.00001, getCurrentStatus ( ) } );
 	ftdi_connectasync( "FT2E722BB" ); //FT2E722BB   FT1VAHJPB
 	convertToFtdiSnaps( 0, 0 );
 	convertToFinalFtdiFormat( 0, 0 );	

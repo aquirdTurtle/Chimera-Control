@@ -18,8 +18,8 @@
 
 //#define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP 
-//#define ANALYSIS_COMPUTER
-#define TEST_PC
+#define ANALYSIS_COMPUTER
+//#define TEST_PC
 
 /// File Locations and safemode options
 #ifdef TEST_PC
@@ -135,6 +135,7 @@ const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
 	
 
 #ifdef ANALYSIS_COMPUTER
+	#define DIOFTDI_SAFEMODE true
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 	#define DDS_SAFEMODE true
