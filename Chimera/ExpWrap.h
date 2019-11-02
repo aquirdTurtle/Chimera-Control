@@ -37,7 +37,15 @@ class ExpWrap
 			}
 			data[ whichSeq ].resize ( numVariations );
 		}
-
+		void uniformSizeReset ( UINT numSeqs, UINT numVariations )
+		{
+			data.clear ( );
+			data.resize ( numSeqs );
+			for ( auto& seqData : data )
+			{
+				seqData.resize ( numVariations );
+			}
+		}
 
 	private:
 		std::vector<std::vector<type>> data;
