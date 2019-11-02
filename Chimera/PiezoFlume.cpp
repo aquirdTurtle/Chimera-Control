@@ -5,6 +5,7 @@
 PiezoFlume::PiezoFlume ( bool sMode, std::string sn ) : safemode(sMode), comPortNumber(sn.begin(), sn.end())
 {
 	comPortNumber.push_back ( '\0' );
+	/*
 	HINSTANCE hdll = LoadLibrary ( TEXT ( "MDT_COMMAND_LIB_win32.dll" ) );
 	if ( hdll == NULL )
 	{
@@ -56,7 +57,7 @@ PiezoFlume::PiezoFlume ( bool sMode, std::string sn ) : safemode(sMode), comPort
 
 	if ( !(List_raw != NULL && Open_raw != NULL && Close_raw != NULL && GetId_raw != NULL && GetFriendlyName_raw != NULL &&
 		 SetXAxisVoltage_raw != NULL && SetXAxisMinVoltage_raw != NULL && SetXAxisMaxVoltage_raw != NULL &&
-		 GetXAxisVoltage_raw != NULL && GetXAxisMinVoltage_raw != NULL && GetXAxisMaxVoltage_raw != NULL &&
+		 GetXAxisVoltage_raw != NULL && GetXAxisMinVoltage_raw != NULL  && GetXAxisMaxVoltage_raw != NULL &&
 		 SetYAxisVoltage_raw != NULL && SetYAxisMinVoltage_raw != NULL && SetYAxisMaxVoltage_raw != NULL &&
 		 GetYAxisVoltage_raw != NULL && GetYAxisMinVoltage_raw != NULL && GetYAxisMaxVoltage_raw != NULL &&
 		 SetZAxisVoltage_raw != NULL && SetZAxisMinVoltage_raw != NULL && SetZAxisMaxVoltage_raw != NULL &&
@@ -67,6 +68,7 @@ PiezoFlume::PiezoFlume ( bool sMode, std::string sn ) : safemode(sMode), comPort
 	{
 		thrower ( "ERROR: Opened thorlabs piezo driver dll but failed to load one of the procedures?!?" );
 	}
+	*/
 }
 
 

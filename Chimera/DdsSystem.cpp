@@ -251,7 +251,6 @@ std::string DdsSystem::getDelim ( )
 	return core.configDelim;
 }
 
-
 DdsCore& DdsSystem::getCore ( )
 {
 	return core;
