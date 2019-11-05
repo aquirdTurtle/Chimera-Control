@@ -126,7 +126,7 @@ class AndorWindow : public CDialog
 		std::atomic<HANDLE>& getPlotThreadHandleRef ( );
 		std::mutex& getActivePlotMutexRef ( );
 		std::vector<PlotDialog*>& getActivePlotListRef( );
-		void closeDataFile ( );
+		void cleanUpAfterExp ( );
 
 	private:
 		bool justCalibrated = false;

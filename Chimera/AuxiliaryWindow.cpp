@@ -21,7 +21,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 	eoAxialTek ( EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 	agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-		ttlBoard ( DIOFTDI_SAFEMODE, true, DIO_SAFEMODE ),
+		ttlBoard ( DIOFTDI_SAFEMODE, true, VIEWPOINT_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
 	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM8", "PIEZO_CONTROLLER_2" )
@@ -1729,7 +1729,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	}
 	else if(!ttlBoard.getFtFlumeSafemode())
 	{
-		msg += "\Dio System is active!\n";
+		msg += "\tDio System is active!\n";
 		ttlBoard.ftdi_connectasync("FT2E722BB");
 		msg += "\t" + ttlBoard.getDioSystemInfo() + "\n";
 		//ttlBoard.ftdi_disconnect();

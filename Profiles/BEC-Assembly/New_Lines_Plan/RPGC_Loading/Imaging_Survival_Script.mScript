@@ -18,9 +18,9 @@ t += 1
 call pgcAtomFlashingImage()
 t += 100
 %call inTrapGreyMolasses()
-t += 80
+%t += 80
 call pgcAtomFlashingImage()
-t += 1
+t += 20
 pulseon: tweezerIntensityTrig 0.1
 
 t += 1

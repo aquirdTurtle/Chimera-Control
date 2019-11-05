@@ -31,9 +31,8 @@ class DioSystem
 {
 	public:
 		DioSystem ( bool ftSafemode, bool serialSafemode, bool viewpointSafemode );
-		//DioSystem();
 		~DioSystem();
-		/// Felixes Dio handling. Much originally in a class called "RC028".
+		/// Felix's Dio handling. Much originally in a class called "RC028".
 		void ftdi_disconnect( );
 		void ftdi_connectasync( const char devSerial[] );
 		void fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt );

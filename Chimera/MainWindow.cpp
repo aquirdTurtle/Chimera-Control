@@ -1434,7 +1434,7 @@ void MainWindow::onNormalFinishMessage()
 	changeShortStatusColor("B");
 	stopRearranger( );
 	TheAndorWindow->wakeRearranger();
-	TheAndorWindow->closeDataFile ( );
+	TheAndorWindow->cleanUpAfterExp ( );
 	handleFinish ( );
 	comm.sendColorBox( System::Niawg, 'B' );
 	try
