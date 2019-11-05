@@ -30,11 +30,16 @@ class DmControl
 		void programNow();
 		void setMirror(std::vector<double> A);
 		void updateButtons();
+		int getActNum();
+		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
+		//void rearrange(int cx, int cy);
 
 	private:
 		
 		DmInfo currentInfo;
 		DmCore defObject;
 		std::vector<pistonButton> piston;
+		//Control<CleanButton> programNow;
+		Control<CStatic> onOffLabel;
 		std::vector<double> temp;
 };

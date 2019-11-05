@@ -14,6 +14,7 @@ class DmCore {
 		void readDMArray(std::vector<double> &testArray);
 		void testMirror();
 		void loadArray(std::vector<double> A);
+		int getActCount();
 	private:
 		DmFlume DM;
 		std::vector<unsigned int> map_lut = std::vector<unsigned int>(MAX_DM_SIZE, 0);

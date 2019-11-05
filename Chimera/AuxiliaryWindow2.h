@@ -6,6 +6,8 @@
 #include "afxwin.h"
 #include "ColorBox.h"
 #include "DmControl.h"
+#include "PlotCtrl.h"
+#include "ParameterSystem.h"
 class MainWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
@@ -52,4 +54,8 @@ class AuxiliaryWindow2 : public CDialog
 
 		ColorBox statusBox;
 		DmControl DM;
+		PlotCtrl *Mirror;
+
+		ParameterSystem configParameters;
+		ParameterSystem globalParameters;
 };

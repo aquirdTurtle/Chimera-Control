@@ -14,116 +14,37 @@ DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serial
 void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT control_id) {
 	currentInfo.ActuatorCount = count;
 	currentInfo.serialNumber = serialNumber;
-	std::vector<pistonButton> piston = std::vector<pistonButton>(count);
+	piston = std::vector<pistonButton>(count);
+	POINT B[137];
+	POINT A[13] = { {loc}, {loc.x - (2 * width), loc.y + width }, {loc.x - (3 * width), loc.y + 2 * width},
+				{loc.x - (3 * width), loc.y + 3 * width}, {loc.x - (4 * width), loc.y + 4 * width},
+				{loc.x - (4 * width), loc.y + 5 * width}, {loc.x - (4 * width), loc.y + 6 * width},
+				{loc.x - (4 * width), loc.y + 7 * width} , {loc.x - (4 * width), loc.y + 8 * width},
+				{loc.x - (3 * width), loc.y + 9 * width} , {loc.x - (3 * width), loc.y + 10 * width},
+				{loc.x - (2 * width), loc.y + 11 * width}, {loc.x, loc.y + 12 * width } };
+	int collumns[13] = { 5, 9, 11, 11, 13, 13, 13, 13, 13, 11, 11, 9, 5 };
+	int w = 0;
+	for (int y = 0; y < 13; y++) {
+		for (int z = 0; z < collumns[y]; z++) {
+			B[w] = { A[y].x, A[y].y };
+			A[y].x += width;
+			w++;
+		}
+	}
 	auto& cid = control_id;
 	if (count != 137) {
 		thrower("GUI Only Works with acutator count of 137");
 	}
 	else {
-		POINT init = loc;
+		//POINT init = A[0];
 		int i;
-		for (i = 0; i < 5; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.x = (init.x - (2 * width));
-		loc.y += width;
-		for (; i < 14; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.x = (init.x - (3 * width));
-		loc.y += width;
-		for (; i < 25; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (3 * width));
-		for (; i < 36; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (4 * width));
-		for (; i < 49; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (4 * width));
-		for (; i < 62; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (4 * width));
-		for (; i < 75; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (4 * width));
-		for (; i < 88; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (4 * width));
-		for (; i < 101; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (3 * width));
-		for (; i < 112; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (3 * width));
-		for (; i < 123; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x - (2 * width));
-		for (; i < 132; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
-		loc.y += width;
-		loc.x = (init.x);
-		for (; i < 137; i++) {
-			piston[i].Voltage.sPos = { loc.x, loc.y, loc.x + width, loc.y + width };
-			piston[i].Voltage.Create(NORM_CHECK_OPTIONS, piston[i].Voltage.sPos, parent, cid++);
-			piston[i].Voltage.EnableWindow(0);
-			loc.x += width;
-		}
+			for (i = 0; i < 137; i++) {
+				
+				piston[i].Voltage.sPos = { B[i].x, B[i].y, B[i].x + width, B[i].y + width };
+				piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER, piston[i].Voltage.sPos, parent, cid++);
+				
+			}
+		
 	}
 
 }
@@ -163,3 +84,23 @@ void DmControl::setMirror(std::vector<double> A) {
 	updateButtons();
 
 }
+
+int DmControl::getActNum() {
+	return defObject.getActCount();
+}
+
+HBRUSH DmControl::handleColorMessage(CWnd* window, CDC* cDC)
+{
+	DWORD controlID = window->GetDlgCtrlID();
+	if (controlID == onOffLabel.GetDlgCtrlID())
+	{
+		cDC->SetBkColor(_myRGBs["Static-Bkgd"]);
+		cDC->SetTextColor(_myRGBs["Text"]);
+		return *_myBrushes["Static-Bkgd"];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+

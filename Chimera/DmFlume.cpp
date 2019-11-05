@@ -6,6 +6,9 @@
 DmFlume::DmFlume(bool safemode_option) {
 	safemode = safemode_option;
 	hdm = {};
+	if (safemode) {
+		ActuatorCount = 137;
+	}
 	
 	open("25CW012#060");
 }

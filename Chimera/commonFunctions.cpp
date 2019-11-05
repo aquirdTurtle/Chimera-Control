@@ -12,6 +12,7 @@
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
+#include "AuxiliaryWindow2.h"
 #include "Thrower.h"
 #include "externals.h"
 
@@ -22,7 +23,8 @@ namespace commonFunctions
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin 
+							 )
 	{
 		switch (msgID)
 		{
