@@ -493,6 +493,6 @@ void AndorFlume::andorErrorChecker ( int errorCode )
 	/// So no throw is considered success.
 	if ( errorMessage != "DRV_SUCCESS" )
 	{
-		thrower ( errorMessage );
+		// thrower ( errorMessage );
 	}
 }

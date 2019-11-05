@@ -453,10 +453,12 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				
 				/*for (auto seqInc : range(input->seq.sequence.size()))
 				{*///this was the original structure for handleing diffferent sequences across repetitions
-				if (input->seq.sequence.size() > 1) {
+				if (input->seq.sequence.size() > 1) 
+				{
 					thrower("error the number of sequences should be zero");
 				}
-				else {
+				else 
+				{
 					UINT seqInc = 0;
 					if (input->thisObj->isAborting) { thrower(abortString); }
 					else if (input->thisObj->isPaused)

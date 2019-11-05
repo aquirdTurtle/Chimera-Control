@@ -29,8 +29,7 @@ class DataAnalysisControl
 	public:
 		DataAnalysisControl( );
 		bool wantsThresholdAnalysis ( );
-		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
-						 int isTriggerModeSensitive );
+		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, int isTriggerModeSensitive );
 		ULONG getPlotFreq( );
 		void handleOpenConfig( std::ifstream& file, Version ver );
 		void handleNewConfig( std::ofstream& file );
