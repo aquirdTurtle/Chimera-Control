@@ -16,9 +16,9 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-//#define MASTER_COMPUTER
+#define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP 
-#define ANALYSIS_COMPUTER
+//#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
 /// File Locations and safemode options
