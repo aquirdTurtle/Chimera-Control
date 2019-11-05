@@ -1280,14 +1280,14 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 		auto& snaps = loadSkip ? ftdiSnaps_loadSkip(seqNum,variation) : ftdiSnaps(seqNum,variation);
 		auto& buf = loadSkip ? finFtdiBuffers_loadSkip(seqNum,variation) : finFtdiBuffers(seqNum,variation);
 		// please note that Serial mode has not been thoroughly tested (by me, MOB at least)!
-		buf.pts = std::vector<unsigned char>( (connectType == ftdiConnectionOption::Serial ?
-								DIO_BUFFERSIZESER : DIO_BUFFERSIZEASYNC) * DIO_MSGLENGTH * DIO_WRITESPERDATAPT, 0 );
+		auto bufSize = (connectType == ftdiConnectionOption::Serial ? DIO_BUFFERSIZESER : DIO_BUFFERSIZEASYNC);
+		buf.pts = std::vector<unsigned char>(bufSize * DIO_MSGLENGTH * DIO_WRITESPERDATAPT, 0 );
 		bool proceed = true;
 		int count = 0;
 		unsigned int totalBytes = 0;
 		buf.bytesToWrite = 0;
 		unsigned int number = 0;
-		while ( (number < DIO_BUFFERSIZESER) && proceed )
+		while ( (number < bufSize) && proceed )
 		{
 			UINT offset = DIO_WRITESPERDATAPT * number * DIO_MSGLENGTH;
 			fillFtdiDataBuffer( buf.pts, offset, count, snaps[count] );
@@ -1315,12 +1315,12 @@ DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 	initializeDataObjects( 1, 0 );
 	sizeDataStructures( 1, 1 );
 	ttlSnapshots(0,0).push_back( { 0.00001, getCurrentStatus ( ) } );
-	ftdi_connectasync( "FT2E722BB" ); //FT2E722BB   FT1VAHJPB
+	//ftdi_connectasync( "FT2E722BB" ); //FT2E722BB   FT1VAHJPB
 	convertToFtdiSnaps( 0, 0 );
 	convertToFinalFtdiFormat( 0, 0 );	
 	auto bytesWritten = ftdi_write( 0, 0, false);
 	ftdi_trigger( );
-	ftdi_disconnect( );
+	//ftdi_disconnect( );
 	return bytesWritten;
 
 }
