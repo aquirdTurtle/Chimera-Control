@@ -11,9 +11,10 @@ AuxiliaryWindow2::AuxiliaryWindow2() : CDialog(), DM(DM_SERIAL, DM_SAFEMODE), gl
 BOOL AuxiliaryWindow2::OnInitDialog() {
 	POINT pos = { 0,0 };
 	POINT controlLocation = { 500, 50 };
-	int id = 1000;
-	statusBox.initialize(pos, id, this, 480, toolTips);
-	DM.initialize(controlLocation, this, DM.getActNum(), DM_SERIAL, 50, id);
+	UINT id = 1001;
+	int ID = 1000;
+	statusBox.initialize(pos, ID, this, 480, toolTips);
+	DM.initialize(controlLocation, this, DM.getActNum(), DM_SERIAL, 40, id);
 
 	return TRUE;
 }
@@ -44,6 +45,8 @@ IMPLEMENT_DYNAMIC(AuxiliaryWindow2, CDialog)
 
 BEGIN_MESSAGE_MAP(AuxiliaryWindow2, CDialog)
 	ON_WM_SIZE()
+
+	ON_COMMAND(IDC_DM_PROGRAMNOW, &handleProgramNow)
 END_MESSAGE_MAP()
 
 void AuxiliaryWindow2::passCommonCommand(UINT id)
@@ -125,4 +128,8 @@ HBRUSH AuxiliaryWindow2::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 BOOL AuxiliaryWindow2::handleAccelerators(HACCEL m_haccel, LPMSG lpMsg)
 {
 	return globalParameters.handleAccelerators(m_haccel, lpMsg);
+}
+
+void AuxiliaryWindow2::handleProgramNow() {
+	DM.ProgramNow();
 }

@@ -9,9 +9,10 @@
 
 DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode){
 	defObject.initialize();
+	temp = std::vector<double>(137);
 }
 
-void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT control_id) {
+void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id) {
 	currentInfo.ActuatorCount = count;
 	currentInfo.serialNumber = serialNumber;
 	piston = std::vector<pistonButton>(count);
@@ -31,7 +32,6 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 			w++;
 		}
 	}
-	auto& cid = control_id;
 	if (count != 137) {
 		thrower("GUI Only Works with acutator count of 137");
 	}
@@ -39,14 +39,15 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 		//POINT init = A[0];
 		int i;
 			for (i = 0; i < 137; i++) {
-				
 				piston[i].Voltage.sPos = { B[i].x, B[i].y, B[i].x + width, B[i].y + width };
-				piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER, piston[i].Voltage.sPos, parent, cid++);
-				
+				piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER, piston[i].Voltage.sPos, parent, control_id++);
 			}
-		
 	}
-
+	programNow.sPos = { 40, 50, 90, 60 };
+	programNow.Create("Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, IDC_DM_PROGRAMNOW);
+	std::vector<double> initial = std::vector<double>(137, 0.0);
+	setMirror(initial.data());
+	updateButtons();
 }
 
 void DmControl::handleOnPress(int i) {
@@ -66,22 +67,34 @@ void DmControl::updateButtons() {
 	}
 }
 
-void DmControl::programNow() {
+void DmControl::ProgramNow() {
 	std::vector<double> values;
 	for (int i = 0; i < 137; i++) {
 		CString s1;
 		piston[i].Voltage.GetWindowTextA(s1);
 		std::string s2 = str(s1, 4, false, true);
-		double s3 = boost::lexical_cast<double>(s2);
-		values.push_back(s3);
+		try{
+			double s3 = boost::lexical_cast<double>(s2);
+			if (s3 < 0 || s3 > 1) {
+				thrower("cannot enter values greater than 1 or less than 0");
+				values.push_back(0.0);
+			}
+			else {
+				values.push_back(s3);
+			}
+		}
+		catch(Error&){
+			
+		}
+		
 	}
-	defObject.loadArray(values);
+	defObject.loadArray(values.data());
 	updateButtons();
 }
 
-void DmControl::setMirror(std::vector<double> A) {
+void DmControl::setMirror(double *A) {
 	defObject.loadArray(A);
-	updateButtons();
+	updateButtons(); //pass an array and program it
 
 }
 

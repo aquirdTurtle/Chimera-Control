@@ -114,6 +114,7 @@ void DmFlume::setArray(double* vectorPointer, unsigned int* MAP) {
 			thrower(BMCErrorString(err));
 		}
 	}
+
 }
 
 void DmFlume::reset() {

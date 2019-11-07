@@ -69,9 +69,9 @@ void DmCore::testMirror() {
 	readDMArray(testArray);
 }
 
-void DmCore::loadArray(std::vector<double> A) {
+void DmCore::loadArray(double *A) {
 	setMap();
-	DM.setArray(A.data(), map_lut.data());
+	DM.setArray(A, map_lut.data());
 }
 
 int DmCore::getActCount() {

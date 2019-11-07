@@ -13,7 +13,7 @@ class DmCore {
 		void zeroPistons();
 		void readDMArray(std::vector<double> &testArray);
 		void testMirror();
-		void loadArray(std::vector<double> A);
+		void loadArray(double *A);
 		int getActCount();
 	private:
 		DmFlume DM;

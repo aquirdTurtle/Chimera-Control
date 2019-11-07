@@ -25,10 +25,10 @@ class DmControl
 {
 	public:
 	DmControl::DmControl(std::string serialNumber, bool safeMode);
-		void initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT control_id);
+		void initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id);
 	    void handleOnPress(int i);
-		void programNow();
-		void setMirror(std::vector<double> A);
+		void ProgramNow();
+		void setMirror(double *A);
 		void updateButtons();
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
@@ -39,7 +39,7 @@ class DmControl
 		DmInfo currentInfo;
 		DmCore defObject;
 		std::vector<pistonButton> piston;
-		//Control<CleanButton> programNow;
+		Control<CButton> programNow;
 		Control<CStatic> onOffLabel;
 		std::vector<double> temp;
 };
