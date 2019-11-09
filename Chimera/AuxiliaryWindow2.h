@@ -27,6 +27,7 @@ class AuxiliaryWindow2 : public CDialog
 	
 		BOOL handleAccelerators(HACCEL m_haccel, LPMSG lpMsg);
 		void handleProgramNow();
+		void handlePistonChange(UINT id);
 	
 		BOOL OnInitDialog();
 		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_,

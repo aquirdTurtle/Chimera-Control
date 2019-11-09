@@ -32,6 +32,7 @@ class DmControl
 		void updateButtons();
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
+		void reColor(UINT id);
 		//void rearrange(int cx, int cy);
 
 	private:

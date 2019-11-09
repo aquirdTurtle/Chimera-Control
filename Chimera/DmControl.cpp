@@ -40,10 +40,11 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 		int i;
 			for (i = 0; i < 137; i++) {
 				piston[i].Voltage.sPos = { B[i].x, B[i].y, B[i].x + width, B[i].y + width };
-				piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER, piston[i].Voltage.sPos, parent, control_id++);
+				piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+										 | ES_NUMBER | ES_MULTILINE, piston[i].Voltage.sPos, parent, control_id++);
 			}
 	}
-	programNow.sPos = { 40, 50, 90, 60 };
+	programNow.sPos = { 40, 50, 140, 70 };
 	programNow.Create("Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, IDC_DM_PROGRAMNOW);
 	std::vector<double> initial = std::vector<double>(137, 0.0);
 	setMirror(initial.data());
@@ -105,15 +106,41 @@ int DmControl::getActNum() {
 HBRUSH DmControl::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == onOffLabel.GetDlgCtrlID())
-	{
-		cDC->SetBkColor(_myRGBs["Static-Bkgd"]);
+	if (controlID == programNow.GetDlgCtrlID()) {
+		cDC->SetBkColor(_myRGBs["Slate Grey"]);
 		cDC->SetTextColor(_myRGBs["Text"]);
 		return *_myBrushes["Static-Bkgd"];
 	}
-	else
-	{
-		return NULL;
+	for (auto& pis : piston) {
+		if (controlID == pis.Voltage.GetDlgCtrlID()) {
+			CString s1;
+			double s3;
+			pis.Voltage.GetWindowTextA(s1);
+			std::string s2 = str(s1, 4, false, true);
+			try {
+				s3 = boost::lexical_cast<double>(s2);
+			}
+			catch (Error&) {
+
+			}
+			int value = int(254 * s3) + 1;
+			std::string name = "DmColor" + str(value);
+			cDC->SetBkColor(_myRGBs[name]);
+			cDC->SetTextColor(_myRGBs["Text"]);
+			return *_myBrushes[name];
+		}
 	}
+	
+	return NULL;
+}
+
+void DmControl::reColor(UINT id) {
+	for (auto& pis : piston) {
+		if (id == pis.Voltage.GetDlgCtrlID()) {
+			//.Voltage.SetRedraw();
+			pis.Voltage.RedrawWindow();
+		}
+	}
+	
 }
 

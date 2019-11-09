@@ -232,18 +232,19 @@ void Control<ControlType>::rearrange( AndorRunModes::mode cameraMode, AndorTrigg
 	rearrange( cameraMode, trigMode, width, height );
 	double widthScale = width / 1920.0;
 	double heightScale = height / 997.0;
+	double resolutionModifier = 1/2.2;
 	/// Set Fonts
   	if (fontType == fontTypes::NormalFont)
 	{
-		if (widthScale * heightScale > 2)
+		if (widthScale * heightScale > 2* resolutionModifier)
 		{
 			SetFont(fonts["Normal Font Max"]);
 		}
-		else if (widthScale * heightScale > 0.8)
+		else if (widthScale * heightScale > 0.8* resolutionModifier)
 		{
 			SetFont(fonts["Normal Font Large"]);
 		}
-		else if (widthScale * heightScale > 0.6)
+		else if (widthScale * heightScale > 0.6* resolutionModifier)
 		{
 			SetFont(fonts["Normal Font Med"]);
 		}

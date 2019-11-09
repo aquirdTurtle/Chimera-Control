@@ -11,8 +11,8 @@ AuxiliaryWindow2::AuxiliaryWindow2() : CDialog(), DM(DM_SERIAL, DM_SAFEMODE), gl
 BOOL AuxiliaryWindow2::OnInitDialog() {
 	POINT pos = { 0,0 };
 	POINT controlLocation = { 500, 50 };
-	UINT id = 1001;
-	int ID = 1000;
+	UINT id = 1004;
+	int ID = IDC_DM_PROGRAMNOW;
 	statusBox.initialize(pos, ID, this, 480, toolTips);
 	DM.initialize(controlLocation, this, DM.getActNum(), DM_SERIAL, 40, id);
 
@@ -45,8 +45,10 @@ IMPLEMENT_DYNAMIC(AuxiliaryWindow2, CDialog)
 
 BEGIN_MESSAGE_MAP(AuxiliaryWindow2, CDialog)
 	ON_WM_SIZE()
-
+	ON_WM_CTLCOLOR()
 	ON_COMMAND(IDC_DM_PROGRAMNOW, &handleProgramNow)
+
+	ON_CONTROL_RANGE(EN_CHANGE, IDC_DM_PROGRAMNOW, IDC_DM_PROGRAMNOW+137, &AuxiliaryWindow2::handlePistonChange)
 END_MESSAGE_MAP()
 
 void AuxiliaryWindow2::passCommonCommand(UINT id)
@@ -132,4 +134,8 @@ BOOL AuxiliaryWindow2::handleAccelerators(HACCEL m_haccel, LPMSG lpMsg)
 
 void AuxiliaryWindow2::handleProgramNow() {
 	DM.ProgramNow();
+}
+
+void AuxiliaryWindow2::handlePistonChange(UINT id) {
+	DM.reColor(id);
 }
