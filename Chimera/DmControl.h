@@ -33,7 +33,8 @@ class DmControl
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void reColor(UINT id);
-		//void rearrange(int cx, int cy);
+		void rearrange(int width, int height, fontMap fonts);
+		bool isFloat(const std::string& someString);
 
 	private:
 		

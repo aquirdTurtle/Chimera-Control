@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 
 
+
 DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode){
 	defObject.initialize();
 	temp = std::vector<double>(137);
@@ -41,10 +42,10 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 			for (i = 0; i < 137; i++) {
 				piston[i].Voltage.sPos = { B[i].x, B[i].y, B[i].x + width, B[i].y + width };
 				piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
-										 | ES_NUMBER | ES_MULTILINE, piston[i].Voltage.sPos, parent, control_id++);
+										 | ES_MULTILINE, piston[i].Voltage.sPos, parent, IDC_DM_EDIT_START + i);//control_id++);
 			}
 	}
-	programNow.sPos = { 40, 50, 140, 70 };
+	programNow.sPos = { 40, 50, 240, 100 };
 	programNow.Create("Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, IDC_DM_PROGRAMNOW);
 	std::vector<double> initial = std::vector<double>(137, 0.0);
 	setMirror(initial.data());
@@ -62,7 +63,7 @@ void DmControl::updateButtons() {
 	for (int i = 0; i < 137; i++) {
 	
 		value = temp[i];
-		double rounded = (int)(value * 1000.0) / 1000.0;
+		double rounded = (int)(value * 100000.0) / 100000.0;
 		std::string s1 = boost::lexical_cast<std::string>(rounded);
 		piston[i].Voltage.SetWindowTextA(cstr(s1));
 	}
@@ -85,7 +86,7 @@ void DmControl::ProgramNow() {
 			}
 		}
 		catch(Error&){
-			
+			values.push_back(0.0);
 		}
 		
 	}
@@ -103,6 +104,21 @@ int DmControl::getActNum() {
 	return defObject.getActCount();
 }
 
+bool DmControl::isFloat(const std::string& someString)//put in class
+{
+
+	try
+	{
+		boost::lexical_cast<float>(someString);
+	}
+	catch (boost::bad_lexical_cast&)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 HBRUSH DmControl::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
@@ -114,19 +130,32 @@ HBRUSH DmControl::handleColorMessage(CWnd* window, CDC* cDC)
 	for (auto& pis : piston) {
 		if (controlID == pis.Voltage.GetDlgCtrlID()) {
 			CString s1;
-			double s3;
+			double s3 = 0;
 			pis.Voltage.GetWindowTextA(s1);
 			std::string s2 = str(s1, 4, false, true);
 			try {
-				s3 = boost::lexical_cast<double>(s2);
+				if (isFloat(s2) ){
+					s2.erase(std::remove(s2.begin(), s2.end(), '\n'), s2.end());
+					s3 = boost::lexical_cast<double>(s2);
+						if (s3 < 0 || s3 > 1) {
+							return *_myBrushes["DmColor1"];
+						}
+				}
+				
 			}
 			catch (Error&) {
-
+				return *_myBrushes["DmColor1"];
 			}
 			int value = int(254 * s3) + 1;
 			std::string name = "DmColor" + str(value);
 			cDC->SetBkColor(_myRGBs[name]);
-			cDC->SetTextColor(_myRGBs["Text"]);
+			if (s3 >= 0.8) {
+				cDC->SetTextColor(_myRGBs["Black"]);
+			}
+			else {
+				cDC->SetTextColor(_myRGBs["Text"]);
+			}
+			//updateButton(controlID - IDC_DM_PROGRAMNOW, s3);
 			return *_myBrushes[name];
 		}
 	}
@@ -140,6 +169,14 @@ void DmControl::reColor(UINT id) {
 			//.Voltage.SetRedraw();
 			pis.Voltage.RedrawWindow();
 		}
+	}
+}
+
+void DmControl::rearrange(int width, int height, fontMap fonts)
+{
+	programNow.rearrange(width, height, fonts);
+	for (auto& pis : piston) {
+		pis.Voltage.rearrange(width, height, fonts);
 	}
 	
 }

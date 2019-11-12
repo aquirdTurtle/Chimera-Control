@@ -493,7 +493,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 
 //Auxiliary Window 2
 #define IDC_DM_PROGRAMNOW 17000
-
+#define IDC_DM_EDIT_START 17001
+#define IDC_DM_EDIT_END 17138
 #define MASTER_SCRIPT_EXTENSION "mScript"
 #define NIAWG_SCRIPT_EXTENSION "nScript"
 #define AGILENT_SCRIPT_EXTENSION "aScript"
