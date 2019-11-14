@@ -29,6 +29,7 @@ class DmControl
 	    void handleOnPress(int i);
 		void ProgramNow();
 		void setMirror(double *A);
+		void loadFlatProfile();
 		void updateButtons();
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);

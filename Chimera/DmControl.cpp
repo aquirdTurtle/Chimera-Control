@@ -5,6 +5,7 @@
 #include "DmControl.h"
 #include "string.h"
 #include <boost/lexical_cast.hpp>
+#include <fstream>
 
 
 
@@ -47,9 +48,10 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	}
 	programNow.sPos = { 40, 50, 240, 100 };
 	programNow.Create("Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, IDC_DM_PROGRAMNOW);
-	std::vector<double> initial = std::vector<double>(137, 0.0);
+	/*std::vector<double> initial = std::vector<double>(137, 0.0);
 	setMirror(initial.data());
-	updateButtons();
+	updateButtons();*/
+	loadFlatProfile();
 }
 
 void DmControl::handleOnPress(int i) {
@@ -179,5 +181,42 @@ void DmControl::rearrange(int width, int height, fontMap fonts)
 		pis.Voltage.rearrange(width, height, fonts);
 	}
 	
+}
+
+void DmControl::loadFlatProfile() {
+	if (DM_SAFEMODE) {
+		std::ifstream file(DM_PROFILES_LOCATION + "\\flatProfile.txt");
+		std::string value;
+		double temp;
+		for (auto& pis : piston) {
+			std::getline(file, value);
+			try {
+				temp = boost::lexical_cast<double>(value);
+			}
+			catch (boost::bad_lexical_cast) {
+				temp = 0.0;
+			}
+			double rounded = (int)( temp * 100000.0) / 100000.0;
+			std::string s1 = boost::lexical_cast<std::string>(rounded);
+			pis.Voltage.SetWindowTextA(cstr(s1));
+		}
+	}
+	else {
+		std::ifstream file(DM_PROFILES_LOCATION + "flatProfile.txt");
+		std::string value;
+		int length = temp.size();
+		double voltage;
+		for (int counter = 0; counter < length; counter++) {
+			std::getline(file, value);
+			try {
+				voltage = boost::lexical_cast<double>(value);
+			}
+			catch (boost::bad_lexical_cast) {
+				voltage = 0.0;
+			}
+			temp[0] = voltage;
+		}
+		setMirror(temp.data());
+	}
 }
 

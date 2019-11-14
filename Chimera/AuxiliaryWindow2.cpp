@@ -10,11 +10,11 @@ AuxiliaryWindow2::AuxiliaryWindow2() : CDialog(), DM(DM_SERIAL, DM_SAFEMODE), gl
 
 BOOL AuxiliaryWindow2::OnInitDialog() {
 	POINT pos = { 0,0 };
-	POINT controlLocation = { 500, 50 };
-	UINT id = 1004;
-	int ID = IDC_DM_PROGRAMNOW;
-	statusBox.initialize(pos, ID, this, 480, toolTips);
-	DM.initialize(controlLocation, this, DM.getActNum(), DM_SERIAL, 40, id);
+	POINT controlLocation = { 798, 85 };
+	int id = 1000;
+	UINT ID = IDC_DM_PROGRAMNOW;
+	statusBox.initialize(pos, id, this, 480, toolTips);
+	DM.initialize(controlLocation, this, DM.getActNum(), DM_SERIAL, 65, ID);
 
 	return TRUE;
 }
@@ -35,6 +35,7 @@ void AuxiliaryWindow2::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw(false);
 	statusBox.rearrange(cx, cy, mainWin->getFonts());
+	DM.rearrange(cx, cy, mainWin->getFonts());
 	SetRedraw();
 	RedrawWindow();
 	//DM.rearrange(cx, cy);
@@ -48,7 +49,7 @@ BEGIN_MESSAGE_MAP(AuxiliaryWindow2, CDialog)
 	ON_WM_CTLCOLOR()
 	ON_COMMAND(IDC_DM_PROGRAMNOW, &handleProgramNow)
 
-	ON_CONTROL_RANGE(EN_CHANGE, IDC_DM_PROGRAMNOW, IDC_DM_PROGRAMNOW+137, &AuxiliaryWindow2::handlePistonChange)
+	ON_CONTROL_RANGE(EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &AuxiliaryWindow2::handlePistonChange)
 END_MESSAGE_MAP()
 
 void AuxiliaryWindow2::passCommonCommand(UINT id)
