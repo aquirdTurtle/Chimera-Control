@@ -13,6 +13,7 @@
 #include "ATMCD32D.H"
 #include <numeric>
 #include "Thrower.h"
+#include "cameraPositions.h"
 #include "BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),

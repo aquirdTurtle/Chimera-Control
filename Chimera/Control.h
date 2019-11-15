@@ -2,7 +2,6 @@
 #pragma once
 
 #include "commonTypes.h"
-#include "CameraPositions.h"
 #include "AndorRunMode.h"
 #include "AndorTriggerModes.h"
 #include "afxwin.h"
@@ -10,6 +9,7 @@
 #include <unordered_map>
 #include <string>
 #include <type_traits>
+#include "cameraPositions.h"
 
 
 static HFONT toolTipFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 

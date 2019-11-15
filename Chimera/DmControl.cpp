@@ -6,7 +6,8 @@
 #include "string.h"
 #include <boost/lexical_cast.hpp>
 #include <fstream>
-
+#include "cameraPositions.h"
+#include "ProfileSystem.h"
 
 
 DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode){
@@ -51,7 +52,13 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	/*std::vector<double> initial = std::vector<double>(137, 0.0);
 	setMirror(initial.data());
 	updateButtons();*/
-	loadFlatProfile();
+	//loadProfile("flatProfile.txt");
+	cameraPositions positions;
+	positions.sPos = { 40, 200 };
+	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
+	profileSelector.setPositions(positions, 0, 0, 100, 500);
+	profileSelector.Create(NORM_COMBO_OPTIONS, profileSelector.seriesPos, parent, IDC_DM_PROFILE_COMBO);
+	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + ".txt", "flatProfile.txt");
 }
 
 void DmControl::handleOnPress(int i) {
@@ -129,6 +136,11 @@ HBRUSH DmControl::handleColorMessage(CWnd* window, CDC* cDC)
 		cDC->SetTextColor(_myRGBs["Text"]);
 		return *_myBrushes["Static-Bkgd"];
 	}
+	if (controlID == profileSelector.GetDlgCtrlID()) {
+		cDC->SetBkColor(_myRGBs["Slate Grey"]);
+		cDC->SetTextColor(_myRGBs["Text"]);
+		return *_myBrushes["Static-Bkgd"];
+	}
 	for (auto& pis : piston) {
 		if (controlID == pis.Voltage.GetDlgCtrlID()) {
 			CString s1;
@@ -183,9 +195,17 @@ void DmControl::rearrange(int width, int height, fontMap fonts)
 	
 }
 
-void DmControl::loadFlatProfile() {
+void DmControl::loadProfile()
+{
+	CString file;
+	int id = profileSelector.GetCurSel();
+	profileSelector.GetLBText(id,file);
+	std::string filename = str(file);
 	if (DM_SAFEMODE) {
-		std::ifstream file(DM_PROFILES_LOCATION + "\\flatProfile.txt");
+		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename);
+		if (!file.is_open()) {
+			thrower("File did not open");
+		}
 		std::string value;
 		double temp;
 		for (auto& pis : piston) {
@@ -202,7 +222,7 @@ void DmControl::loadFlatProfile() {
 		}
 	}
 	else {
-		std::ifstream file(DM_PROFILES_LOCATION + "flatProfile.txt");
+		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename);
 		std::string value;
 		int length = temp.size();
 		double voltage;

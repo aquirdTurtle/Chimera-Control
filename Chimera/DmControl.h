@@ -29,7 +29,7 @@ class DmControl
 	    void handleOnPress(int i);
 		void ProgramNow();
 		void setMirror(double *A);
-		void loadFlatProfile();
+		void loadProfile();
 		void updateButtons();
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
@@ -43,6 +43,6 @@ class DmControl
 		DmCore defObject;
 		std::vector<pistonButton> piston;
 		Control<CButton> programNow;
-		Control<CStatic> onOffLabel;
+		Control<CComboBox> profileSelector;
 		std::vector<double> temp;
 };

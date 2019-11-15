@@ -48,6 +48,7 @@ BEGIN_MESSAGE_MAP(AuxiliaryWindow2, CDialog)
 	ON_WM_SIZE()
 	ON_WM_CTLCOLOR()
 	ON_COMMAND(IDC_DM_PROGRAMNOW, &handleProgramNow)
+	ON_CBN_SELENDOK(IDC_DM_PROFILE_COMBO, &handleNewProfile)
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &AuxiliaryWindow2::handlePistonChange)
 END_MESSAGE_MAP()
@@ -135,6 +136,10 @@ BOOL AuxiliaryWindow2::handleAccelerators(HACCEL m_haccel, LPMSG lpMsg)
 
 void AuxiliaryWindow2::handleProgramNow() {
 	DM.ProgramNow();
+}
+
+void AuxiliaryWindow2::handleNewProfile() {
+	DM.loadProfile();
 }
 
 void AuxiliaryWindow2::handlePistonChange(UINT id) {
