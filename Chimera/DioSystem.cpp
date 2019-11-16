@@ -549,11 +549,26 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 
 void DioSystem::standardNonExperimentStartDioSequence( )
 {
+	/*
 	organizeTtlCommands( 0, 0 );
-	convertToFinalViewpointFormat( 0, 0 );
-	writeTtlData( 0, false, 0 );
-	startBoard( );
+	convertToFinalViewpointFormat( 0, 0 ); 
+ 	writeTtlData( 0, false, 0 );
+ 	startBoard( );
 	waitTillFinished( 0, false, 0 );
+	*/
+	//resetTtlEvents ();
+	//initializeDataObjects (1, 0);
+	//std::vector<std::vector<parameterType>> emptyParams;
+	//emptyParams.push_back(std::vector<parameterType> ());
+	//interpretKey ( emptyParams );
+	//restructureCommands ();
+	organizeTtlCommands (0, 0);
+	findLoadSkipSnapshots (0, std::vector<parameterType>(), 0, 0);
+	convertToFtdiSnaps (0, 0);
+	convertToFinalFtdiFormat (0, 0);
+	ftdi_write (0, 0, false);
+	ftdi_trigger ();
+	FtdiWaitTillFinished (0,0,false);
 }
 
 
@@ -1057,11 +1072,11 @@ void DioSystem::restructureCommands ( )
 /*
  * Read key values from variables and convert command form to the final commands.
  */
-void DioSystem::interpretKey( vec<vec<parameterType>>& params )
+void DioSystem::interpretKey(std::vector<std::vector<parameterType>>& params )
 {
 	UINT sequenceLength = params.size( );
-	UINT variations = params.front( ).size() == 0 ? 1 : params.front().front( ).keyValues.size( );
-	if (variations == 0)
+	UINT variations = params.front ().size () == 0 ? 1 : params.front ().front ().keyValues.size ();
+	if (variations == 0) 
 	{
 		variations = 1;
 	}
@@ -1099,7 +1114,7 @@ allDigitalOutputs& DioSystem::getDigitalOutputs ( )
 	return outputs;
 }
 
-ExpWrap<vec<DioSnapshot>> DioSystem::getTtlSnapshots ( )
+ExpWrap<std::vector<DioSnapshot>> DioSystem::getTtlSnapshots ( )
 {
 	/* used in the unit testing suite */
 	return ttlSnapshots;
@@ -1116,7 +1131,7 @@ ExpWrap<std::array<ftdiPt, 2048>> DioSystem::getFtdiSnaps ( )
 	return ftdiSnaps;
 }
 
-ExpWrap<vec<WORD>> DioSystem::getFinalViewpointData ( )
+ExpWrap<std::vector<WORD>> DioSystem::getFinalViewpointData ( )
 {
 	return finalFormatViewpointData;
 }

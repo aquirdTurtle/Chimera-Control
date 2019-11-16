@@ -41,7 +41,7 @@ class DioSystem
 		void standardNonExperimentStartDioSequence( );
 		// an "alias template". effectively a local "using std::vector;" declaration. makes these declarations much more
 		// readable. I very rarely use things like this.
-		template<class T> using vec = std::vector<T>;
+		//template<class T> using vec = std::vector<T>;
 
 		/// config handling
 		void initializeDataObjects( UINT seqNum, UINT cmdNum );
@@ -120,11 +120,11 @@ class DioSystem
 		bool getFtFlumeSafemode();
 		std::string testTTL();
 		allDigitalOutputs& getDigitalOutputs();
-		void interpretKey ( vec<vec<parameterType>>& params );
+		void interpretKey ( std::vector<std::vector<parameterType>>& params );
 		void wait2(double time);
 		void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption);
-		ExpWrap<vec<DioSnapshot>> getTtlSnapshots ( );
-		ExpWrap<vec<WORD>> getFinalViewpointData ( );
+		ExpWrap<std::vector<DioSnapshot>> getTtlSnapshots ( );
+		ExpWrap<std::vector<WORD>> getFinalViewpointData ( );
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
 		ExpWrap<finBufInfo> getFinalFtdiData ( );
 		void restructureCommands ( );
@@ -154,12 +154,12 @@ class DioSystem
 		allDigitalOutputs outputs;
 		// tells whether the hold button is down or not.
 		bool holdStatus; 
-		vec<vec<DioCommandForm>> ttlCommandFormList;
+		std::vector<std::vector<DioCommandForm>> ttlCommandFormList;
 		ExpWrap<std::vector<DioCommand>> ttlCommandList;
-		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
-		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
+		ExpWrap<std::vector<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
+		ExpWrap<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		ExpWrap<vec<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
+		ExpWrap<std::vector<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
 		// ftdi equivalents...
 		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;
 		ExpWrap<finBufInfo> finFtdiBuffers;

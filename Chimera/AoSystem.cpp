@@ -20,8 +20,8 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 	// in ms.
 	// ?? I thought it was 10 MHz...
 	dacTriggerTime = 0.0005;
-	//try
-	//{
+	try
+	{
 		// initialize tasks and chanells on the DACs
 		long output = 0;
 		// Create a task for each board
@@ -30,22 +30,27 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 		daqmx.createTask("Board 3 Dacs 16-23", analogOutTask2);
 		daqmx.createTask("Board 2 Dacs 8-15", analogOutTask1);
 		daqmx.createTask("Board 1 Dacs 0-7", analogOutTask0);
-		daqmx.createAoVoltageChan(analogOutTask0, "dev2/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "");
-		daqmx.createAoVoltageChan(analogOutTask1, "dev3/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "");
-		daqmx.createAoVoltageChan(analogOutTask2, "dev4/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "");
+		// SLOT 3
+		daqmx.createAoVoltageChan(analogOutTask0, cstr(board0Name + "/ao0:7"), "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "");
+		// SLOT 4
+		daqmx.createAoVoltageChan(analogOutTask1, cstr(board1Name + "/ao0:7"), "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "");
+		// SLOT 5
+		daqmx.createAoVoltageChan(analogOutTask2, cstr(board2Name + "/ao0:7"), "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "");
 		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
 		daqmx.createTask("", digitalDac_0_00);
 		daqmx.createTask("", digitalDac_0_01);
 		/// unused at the moment.
-		daqmx.createDiChan(digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine);
-		daqmx.createDiChan(digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine);
+		daqmx.createDiChan(digitalDac_0_00, cstr(board0Name + "/port0/line0"), "DIDAC_0", DAQmx_Val_ChanPerLine);
+		daqmx.createDiChan(digitalDac_0_01, cstr (board0Name + "/port0/line1"), "DIDAC_0", DAQmx_Val_ChanPerLine);
 		// new
-	//}
+	}
 	// I catch here because it's the constructor, and catching elsewhere is weird.
-	//catch (Error& exception)
-	//{
-	//	errBox(exception.trace());
-	//}
+	catch (Error& exception)
+	{
+		errBox(exception.trace());
+		// should fail.
+		throw;
+	}
 }
 
 
@@ -743,7 +748,7 @@ void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc,
 
 std::string AoSystem::getSystemInfo( )
 {
-	return daqmx.getDacSystemInfo( );
+	return daqmx.getDacSystemInfo ({ board0Name, board1Name, board2Name } );
 }
 
 
@@ -863,9 +868,9 @@ void AoSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
 	{
 		sampleNumber = dacSnapshots(seqNum,variation).size( );
 	}
-	daqmx.configSampleClkTiming( analogOutTask0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqmx.configSampleClkTiming( analogOutTask1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqmx.configSampleClkTiming( analogOutTask2, "/Dev4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask0, cstr("/" + board0Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask1, cstr("/" + board1Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask2, cstr("/" + board2Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 

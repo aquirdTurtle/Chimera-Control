@@ -1,0 +1,70 @@
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 698 in H5D__write(): no output buffer
+    major: Invalid arguments to routine
+    minor: Bad value

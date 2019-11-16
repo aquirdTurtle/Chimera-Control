@@ -37,8 +37,7 @@ class PictureSettingsControl
 		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange( int id );
-		void disablePictureControls(int pic);
-		void enablePictureControls(int pic);
+		void setPictureControlEnabled (int pic, bool enabled);
 		void setUnofficialExposures ( std::vector<float> times );
 		std::array<int, 4> getPictureColors ( );
 		std::array<float, 4> getExposureTimes ( );

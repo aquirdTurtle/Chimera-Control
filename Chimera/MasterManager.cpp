@@ -58,11 +58,11 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		for ( auto& configInfo : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
+			std::ifstream configFile (configInfo.configFilePath ());
 			if ( input->runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
-				std::ifstream configFile ( configInfo.configFilePath ( ) );
 				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
 																			   DdsCore::getRampListFromConfig );
 				for ( auto piezoInc : range(input->piezoControllers.size()))
@@ -78,13 +78,16 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
 																Repetitions::getRepsFromConfig );
-				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS",
-																AndorCameraSettingsControl::getRunSettingsFromConfig );
-				andorRunsettings[ seqNum ].imageSettings = ProfileSystem::stdGetFromConfig ( configFile, 
-																							 "CAMERA_IMAGE_DIMENSIONS",
-																							 AndorCameraSettingsControl::getImageDimSettingsFromConfig );
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+			}
+			if (input->runAndor) 
+			{
+				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS",
+					AndorCameraSettingsControl::getRunSettingsFromConfig);
+				andorRunsettings[seqNum].imageSettings = ProfileSystem::stdGetFromConfig (configFile,
+					"CAMERA_IMAGE_DIMENSIONS",
+					AndorCameraSettingsControl::getImageDimSettingsFromConfig);
 			}
 			if ( input->runNiawg )
 			{
@@ -395,6 +398,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					{
 						Sleep ( 1000 );
 						expUpdate ( "Waiting for camera to finish...", comm, quiet );
+						if (input->thisObj->isAborting) { thrower (abortString); }
 					}
 					else
 					{
@@ -446,8 +450,10 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
 
 			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
-			ttls.ftdi_write(0, variationInc, skipOption);
-
+			if (input->runMaster)
+			{
+				ttls.ftdi_write (0, variationInc, skipOption);
+			}
 			for (auto repInc : range(repetitions))
 			{
 				

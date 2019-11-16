@@ -28,7 +28,8 @@ BaslerAutoExposure::mode BaslerAutoExposure::fromStr ( std::string txt )
 			return m;
 		}
 	}
-	throw;
+	errBox ("Failed to convert text (" + txt + ") to balser auto exposure mode! defaulting to auto exposure off.");
+	return BaslerAutoExposure::mode::Off;
 }
 
 
@@ -59,7 +60,8 @@ BaslerTrigger::mode BaslerTrigger::fromStr ( std::string txt )
 		}
 	}
 	// doesn't match any.
-	throw;
+	errBox ("Failed to convert text (" + txt + ") to balser trigger mode! defaulting to external trigger.");
+	return BaslerTrigger::mode::External;
 }
 
 
@@ -73,7 +75,8 @@ BaslerAcquisition::mode BaslerAcquisition::fromStr ( std::string txt )
 			return m;
 		}
 	}
-	throw;
+	errBox ("Failed to convert text (" + txt + ") to balser acquisition mode! defaulting to Finite acquisition.");
+	return BaslerAcquisition::mode::Finite;
 }
 
 

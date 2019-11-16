@@ -13,6 +13,7 @@
 #include "AnalogOutput.h"
 
 #include "Version.h"
+
 class MainWindow;
 
 /**
@@ -113,12 +114,15 @@ class AoSystem
 		double dacTriggerTime;
 		bool roundToDacPrecision;
 
-		// task for DACboard0 (tasks are a national instruments DAQmx thing)
+		// For DACboard0 (tasks are a national instruments DAQmx thing)
 		TaskHandle analogOutTask0 = NULL;
+		const std::string board0Name = "dev5";
 		// task for DACboard1
 		TaskHandle analogOutTask1 = NULL;
+		const std::string board1Name = "dev4";
 		// task for DACboard2
 		TaskHandle analogOutTask2 = NULL;
+		const std::string board2Name = "dev6";
 
 		/// digital in lines not used at the moment.
 		TaskHandle digitalDac_0_00 = NULL;

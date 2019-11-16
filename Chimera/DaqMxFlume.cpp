@@ -30,12 +30,12 @@ long DaqMxFlume::getProductCategory( std::string deviceLocation )
 }
 
 
-std::string DaqMxFlume::getDacSystemInfo( )
+std::string DaqMxFlume::getDacSystemInfo( std::array<std::string, 3> boardNames )
 {
 	std::array<long, 3> answers;
-	answers[0] = getProductCategory( "dev2" );
-	answers[1] = getProductCategory( "dev3" );
-	answers[2] = getProductCategory( "dev4" );
+	answers[0] = getProductCategory(boardNames[0] );
+	answers[1] = getProductCategory(boardNames[0]);
+	answers[2] = getProductCategory(boardNames[0]);
 	std::string answerStr = "Dac System: Connected... device categories = " + str( answers[0] ) + ", " 
 		+ str( answers[1] ) + ", " + str( answers[2] ) + ". Typical value 14647 = AO Series.\n";
 	return answerStr;

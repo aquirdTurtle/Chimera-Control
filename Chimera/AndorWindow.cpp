@@ -149,10 +149,10 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 
 void AndorWindow::handleImageDimsEdit( UINT id )
 {
-	pics.setParameters( andorSettingsCtrl.getSettings().andor.imageSettings );
-	CDC* dc = GetDC( );
+	CDC* dc = GetDC ();
 	try
 	{
+		pics.setParameters (andorSettingsCtrl.getSettings ().andor.imageSettings);
 		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true,
 							 mostRecentPicNum );
 	}
@@ -507,6 +507,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
 	currentPictureNum++;
 	UINT picNum = currentPictureNum;
+	OutputDebugString (("A.W. Curr Pic #: " + str (currentPictureNum) + "; ").c_str());
 	if ( picNum % 2 == 1 )
 	{
 		mainThreadStartTimes.push_back( std::chrono::high_resolution_clock::now( ) );
@@ -758,8 +759,9 @@ void AndorWindow::cleanUpAfterExp ( )
 LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
 	// notify the andor object that it is done.
+	OutputDebugString ("A.W. On Andor Camera Finish; ");
 	andor.onFinish();
-	andor.pauseThread();
+	//andor.pauseThread();
 	if (alerts.soundIsToBePlayed())
 	{
 		alerts.playSound();
@@ -769,6 +771,7 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	andorSettingsCtrl.cameraIsOn( false );
 	// rearranger thread handles these right now.
 	mainThreadStartTimes.clear();
+	
 	crunchFinTimes.clear( );
 	crunchSeesTimes.clear( );
 	mainWin->stopRearranger( );
@@ -1519,13 +1522,14 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 std::string AndorWindow::getStartMessage()
 {
 	// get selected plots
+	auto andrSttngs = andorSettingsCtrl.getSettings ().andor;
 	std::vector<std::string> plots = analysisHandler.getActivePlotList();
-	imageParameters currentImageParameters = andorSettingsCtrl.getSettings( ).andor.imageSettings;
+	imageParameters currentImageParameters = andrSttngs.imageSettings;
 	bool errCheck = false;
 	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		PlottingInfo tempInfoCheck(PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
-		if (tempInfoCheck.getPicNumber() != andorSettingsCtrl.getSettings().andor.picsPerRepetition)
+		if (tempInfoCheck.getPicNumber() != andrSttngs.picsPerRepetition)
 		{
 			thrower ( ": one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
@@ -1537,9 +1541,9 @@ std::string AndorWindow::getStartMessage()
 	std::string dialogMsg;
 	dialogMsg = "Camera Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
 	dialogMsg += "Current Camera Temperature Setting:\r\n\t" + str(
-		andorSettingsCtrl.getSettings().andor.temperatureSetting ) + "\r\n";
+		andrSttngs.temperatureSetting ) + "\r\n";
 	dialogMsg += "Exposure Times: ";
-	for (auto& time : andorSettingsCtrl.getSettings().andor.exposureTimes)
+	for (auto& time : andrSttngs.exposureTimes)
 	{
 		dialogMsg += str( time * 1000 ) + ", ";
 	}
@@ -1547,11 +1551,11 @@ std::string AndorWindow::getStartMessage()
 	dialogMsg += "Image Settings:\r\n\t" + str( currentImageParameters.left ) + " - " + str( currentImageParameters.right ) + ", "
 		+ str( currentImageParameters.bottom ) + " - " + str( currentImageParameters.top ) + "\r\n";
 	dialogMsg += "\r\n";
-	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.kineticCycleTime ) + "\r\n";
-	dialogMsg += "Pictures per Repetition:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.picsPerRepetition ) + "\r\n";
-	dialogMsg += "Repetitions per Variation:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.totalPicsInVariation() ) + "\r\n";
-	dialogMsg += "Variations per Experiment:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.totalVariations ) + "\r\n";
-	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( andorSettingsCtrl.getSettings().andor.totalPicsInExperiment() ) + "\r\n";
+	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str(andrSttngs.kineticCycleTime ) + "\r\n";
+	dialogMsg += "Pictures per Repetition:\r\n\t" + str(andrSttngs.picsPerRepetition ) + "\r\n";
+	dialogMsg += "Repetitions per Variation:\r\n\t" + str(andrSttngs.totalPicsInVariation() ) + "\r\n";
+	dialogMsg += "Variations per Experiment:\r\n\t" + str(andrSttngs.totalVariations ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str(andrSttngs.totalPicsInExperiment() ) + "\r\n";
 	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 	UINT count = 0;

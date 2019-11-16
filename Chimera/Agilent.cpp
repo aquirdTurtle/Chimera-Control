@@ -14,7 +14,6 @@
 #include <boost/lexical_cast.hpp>
 
 
-// NI's visa file. Also gets indirectly included via #include "nifgen.h".
 Agilent::Agilent( const agilentSettings& settings ) : 
 	visaFlume( settings.safemode, settings.address ),
 	sampleRate( settings.sampleRate ),
