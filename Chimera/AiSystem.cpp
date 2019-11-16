@@ -13,13 +13,13 @@ AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE )
 void AiSystem::initDaqmx( )
 {
 	daqmx.createTask( "Analog-Input", analogInTask0 );
-	daqmx.createAiVoltageChan( analogInTask0, "Dev8/ai0:7", "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
+	daqmx.createAiVoltageChan( analogInTask0, cstr(boardName + "/ai0:7"), "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
 }
 
 
 std::string AiSystem::getSystemStatus( )
 {
-	long answer = daqmx.getProductCategory( "dev8" );
+	long answer = daqmx.getProductCategory( cstr(boardName) );
 	std::string answerStr = "AI System: Connected... device category = " + str( answer );
 	return answerStr;
 }
@@ -29,7 +29,7 @@ void AiSystem::refreshDisplays( )
 {
 	for ( auto dispInc : range(voltDisplays.size()))
 	{
-		voltDisplays[dispInc].SetWindowTextA( cstr(currentValues[dispInc]) );
+		voltDisplays[dispInc].SetWindowTextA( str(currentValues[dispInc], 5).c_str() );
 	}
 }
 

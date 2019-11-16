@@ -40,8 +40,9 @@ void AndorCamera::initializeClass(Communicator* comm, chronoTimes* imageTimes)
 	threadInput.comm = comm;
 	threadInput.imageTimes = imageTimes;
 	threadInput.Andor = this;
-	threadInput.spuriousWakeupHandler = false;
+	threadInput.expectingAcquisition = false;
 	threadInput.safemode = safemode;
+	threadInput.runMutex = &camThreadMutex;
 	// begin the camera wait thread.
 	_beginthreadex(NULL, 0, &AndorCamera::cameraThread, &threadInput, 0, &cameraThreadID);
 }
@@ -57,7 +58,7 @@ void AndorCamera::updatePictureNumber( ULONGLONG newNumber )
 void AndorCamera::pauseThread()
 {
 	// andor should not be taking images anymore at this point.
-	threadInput.spuriousWakeupHandler = false;
+	threadInput.expectingAcquisition = false;
 }
 
 
@@ -66,7 +67,7 @@ void AndorCamera::pauseThread()
  */
 void AndorCamera::onFinish()
 {
-	threadInput.signaler.notify_all();
+	//threadInput.signaler.notify_all();
 	cameraIsRunning = false;
 }
 
@@ -90,10 +91,16 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 {
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
 	//... I'm not sure what this lock is doing here... why not inside while loop?
-	std::unique_lock<std::mutex> lock( input->runMutex );
 	int safeModeCount = 0;
 	long pictureNumber = 0;
-	bool armed = false;
+	bool armed = false;		
+	std::unique_lock<std::timed_mutex> lock (*input->runMutex, std::chrono::milliseconds(1000));
+	if (!lock.owns_lock ())
+	{
+		errBox ("ERROR: ANDOR IMAGING THREAD FAILED TO LOCK THE RUN MUTEX! IMAGING THREAD CLOSING!");
+		return -1;
+	}
+
 	while ( !input->Andor->cameraThreadExitIndicator )
 	{
 		/* 
@@ -106,7 +113,13 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		 * them.
 		 */
 		// Also, anytime this gets locked, the count should be reset.
-		input->signaler.wait( lock, [input, &safeModeCount ]() { return input->spuriousWakeupHandler; } );
+		//input->signaler.wait( lock, [input]() { return input->expectingAcquisition; } );
+		while (!input->expectingAcquisition) 
+		{
+			OutputDebugString ("A.T. waiting for lock; ");
+			input->signaler.wait (lock);
+		}
+		
 		if ( !input->safemode )
 		{
 			try
@@ -126,12 +139,16 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						//input->comm->sendCameraProgress( -1 );
 						// signal the end to the main thread.
+						OutputDebugString ("A.T. Sending Fin; ");
 						input->comm->sendCameraFin( );
+						// make sure the thread waits when it hits the condition variable.
+						input->expectingAcquisition = false;
 						armed = false;
 					}
 				}
 				else
 				{
+					OutputDebugString ("A.T. Wait for acq; ");
 					input->Andor->flume.waitForAcquisition();
 					if ( pictureNumber % 2 == 0 )
 					{
@@ -161,7 +178,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				//...? When does this happen? not sure why this is here...
 			}
 		}
-		else
+		else // safemode
 		{
 			// simulate an actual wait.
 			Sleep( 200 );
@@ -207,7 +224,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				{
 					input->comm->sendCameraFin( );
 				}
-				input->spuriousWakeupHandler = false;
+				input->expectingAcquisition = false;
 			}
 		}
 	}
@@ -257,6 +274,7 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 	if (runSettings.acquisitionMode == AndorRunModes::Video)
 	{
 		setFrameTransferMode();
+		setKineticCycleTime ();
 	}
 	else if (runSettings.acquisitionMode == AndorRunModes::Kinetic)
 	{
@@ -273,11 +291,7 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 	}
 	setGainMode();
 	setCameraTriggerMode();
-	/// TODO! 
-	// 7/11/2019 I'm confused about the following warning
-	// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting 
-	// thread since the plotting thread hasn't started yet. If moving stuff around, be careful.
-	// //////////////////////////////
+
 	flume.queryStatus();
 
 	/// Do some plotting stuffs 
@@ -285,10 +299,17 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 	minKineticCycleTime = getMinKineticCycleTime( );
 
 	cameraIsRunning = true;
+	std::unique_lock<std::timed_mutex> lock (camThreadMutex, std::chrono::milliseconds(1000));
+	if (!lock.owns_lock ())
+	{
+		errBox("Failed to get Andor imaging thread lock! Imaging thread is probably waiting for aquisition... Attempting to continue...");
+	}
 	// remove the spurious wakeup check.
-	threadInput.spuriousWakeupHandler = true;
+	threadInput.expectingAcquisition = true;
 	// notify the thread that the experiment has started..
+	OutputDebugString ("Notifying Andor Thread; ");
 	threadInput.signaler.notify_all();
+	OutputDebugString ("Starting acquisition; ");
 	flume.startAcquisition();
 }
 

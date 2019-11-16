@@ -1398,6 +1398,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	servos.handleOpenMasterConfig( configStream, version );
 }
 
+
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::SetDacs()
 {
@@ -1416,6 +1417,7 @@ void AuxiliaryWindow::SetDacs()
 		sendErr( exception.trace() );
 	}
 }
+
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::DacEditChange(UINT id)

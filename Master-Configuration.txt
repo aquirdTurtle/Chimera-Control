@@ -233,21 +233,21 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__servo_value 0.103721
-diagmot__servo_value 0.37145
+sidemot__servo_value 0.134035
+diagmot__servo_value 0.282438
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__servo_value 0.124066
-sidemot_imaging__servo_value 0.243565
+sidemot_intrappgc__servo_value 0.159905
+sidemot_imaging__servo_value 0.315142
 motimagingdetuning -0.32
 d1loadingfreq 112.5
 intraplgmcoolingfreq 99
-sidemot_d1__servo_value 0.236668
+sidemot_d1__servo_value 0.165155
 1
-5Sidemot 6 22 0 1.88 1 a 5 0.01 0.02 0
-DiagMot 5 9 0 0.0163 1 a 0 0.01 0.03 0
-sidemot_intrappgc 6 22 0 2.57 1 a 5 0.01 0.02 0
-sidemot_imaging 6 22 0 8 1 a 5 0.02 0.02 0
-sidemot_d1 6 8 0 1 2 c 10 b 10 0.02 0.02 0
-240 335 2 229 246 2
+5Sidemot 6 22 1 1.88 1 a 5 0.01 0.02 0
+DiagMot 5 9 1 0.0163 1 a 0 0.01 0.03 0
+sidemot_intrappgc 6 22 1 2.57 1 a 5 0.01 0.02 0
+sidemot_imaging 6 22 1 8 1 a 5 0.02 0.02 0
+sidemot_d1 6 8 1 1 2 c 10 b 10 0.02 0.02 0
+238 335 2 229 246 2
 0 0

@@ -168,7 +168,7 @@ class NiawgController
 		void finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		/// member variables
  		// Important. This can change if you change computers.
- 		const ViRsrc NI_5451_LOCATION = "Dev6";
+ 		const ViRsrc NI_5451_LOCATION = "Dev1";
  		niawgPair<std::string> currentScripts;
 		std::string currentScript;
 		bool runningState;

@@ -303,7 +303,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 			currentSettings.exposureTime = boost::lexical_cast<double> ( std::string ( text ) );
 			if ( currentSettings.exposureTime <= 0 )
 			{
-				thrower  ( "err!" );
+				thrower  ( "Invalid Basler exposure time!" );
 			}
 		}
 		catch ( boost::bad_lexical_cast& )
