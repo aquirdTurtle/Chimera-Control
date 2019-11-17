@@ -18,18 +18,19 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	autoServoButton.setToolTip ( "Automatically calibrate all servos after F1.", toolTips, parent );
 
 	std::vector<LONG> positions = { 0, 110, 170, 270, 320, 370, 480 };
-	servoList.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
+	servoList.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 160 };
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
-	servoList.InsertColumn ( 0, "Name", 50 );
-	servoList.InsertColumn ( 1, "Active?" );
-	servoList.InsertColumn ( 2, "Set" );
-	servoList.InsertColumn ( 3, "Ctrl" );
-	servoList.InsertColumn ( 4, "Ai", 30 );
-	servoList.InsertColumn ( 5, "Ao" );
-	servoList.InsertColumn ( 6, "DO-Config", 70 );
-	servoList.InsertColumn ( 7, "Tol.", 40 );
-	servoList.InsertColumn ( 8, "Gain" );
-	servoList.InsertColumn ( 9, "Montor" );
+	servoList.InsertColumn ( 0,  "Name", 50 );
+	servoList.InsertColumn ( 1,  "Active?" );
+	servoList.InsertColumn ( 2,  "Set", 40);
+	servoList.InsertColumn ( 3,  "Ctrl" );
+	servoList.InsertColumn ( 4,  "Ai", 30 );
+	servoList.InsertColumn ( 5,  "Ao" );
+	servoList.InsertColumn ( 6,  "DO-Config", 40 );
+	servoList.InsertColumn ( 7,  "Tol." );
+	servoList.InsertColumn ( 8,  "Gain" );
+	servoList.InsertColumn ( 9,  "Monitor", 50 );
+	servoList.InsertColumn ( 10, "AO-Config", 40);
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
@@ -38,7 +39,12 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 						   "Ai: The analog input that the servo will watch & match to the set-point\n"
 						   "Ao: The analog output the servo will use to try to change the value of the analog input\n"
 						   "DO-Config: The digital output configuration the sevo will set before servoing. If a ttl is "
-						   "not listed here, it will be zero\'d.\n", toolTips, parent );
+								"not listed here, it will be zero\'d.\n"
+						   "Tolerance: The tolerance of the servo. The servo will stop servoing when value falls within tol of the set point\n"
+						   "Gain: The gain of the servo loop.\n"
+						   "Monitor: If monitoring, the servo only checks that the value is within the tolerance of the set point and raises a warning if not.\n"
+						   "AO-Config: The digital output configuration the sevo will set before servoing. If a ao is "
+								"not listed here, it will be zero\'d.\n", toolTips, parent );
 	servoList.fontType = fontTypes::SmallFont;
 	servoList.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
 	servoList.SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
@@ -146,8 +152,7 @@ void ServoManager::handleListViewClick ( )
 	}
 	CString text = servoList.GetItemText ( itemIndicator, 0 );
 	if ( text == "___" )
-	{
-		// add a variable
+	{	// add a variable		
 		servos.resize ( servos.size ( ) + 1 );
 		servos.back ( ).servoName = "noname";
 		// make a new "new" row.
@@ -160,8 +165,7 @@ void ServoManager::handleListViewClick ( )
 	switch ( subitem )
 	{
 		case 0:
-		{
-			/// person name
+		{	/// person name
 			std::string newName;
 			TextPromptDialog dialog ( &newName, "Please enter a name for the servo." );
 			dialog.DoModal ( );
@@ -180,14 +184,11 @@ void ServoManager::handleListViewClick ( )
 				}
 			}
 			servo.servoName = newName;
-			servoList.SetItem ( newName, itemIndicator, subitem );
 			break;
 		}
 		case 1:
-		{
-			// active, toggles.
+		{	// active, toggles.			
 			servo.active = !servo.active;
-			servoList.SetItem ( servo.active ? "Yes" : "No", itemIndicator, subitem );
 			break;
 		}
 		case 2:
@@ -203,7 +204,6 @@ void ServoManager::handleListViewClick ( )
 			{
 				throwNested ( "Failed to convert text to a double!" );
 			}
-			servoList.SetItem ( str(servo.setPoint), itemIndicator, subitem );
 			// set point
 			break;
 		}
@@ -213,8 +213,7 @@ void ServoManager::handleListViewClick ( )
 			break;
 		}
 		case 4:
-		{
-			// ai
+		{	// ai
 			std::string aiTxt;
 			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at." );
 			dialog.DoModal ( );
@@ -226,12 +225,10 @@ void ServoManager::handleListViewClick ( )
 			{
 				throwNested ( "Failed to convert text to an unsigned int!" );
 			}
-			servoList.SetItem ( str ( servo.aiInputChannel ), itemIndicator, subitem );
 			break;
 		}
 		case 5:
-		{
-			// ao
+		{	// ao			
 			std::string aoTxt;
 			TextPromptDialog dialog ( &aoTxt, "Please enter a the analog-output for the servo to use for control." );
 			dialog.DoModal ( );
@@ -243,12 +240,10 @@ void ServoManager::handleListViewClick ( )
 			{
 				throwNested ( "Failed to convert text to an unsigned int!" );
 			}
-			servoList.SetItem ( str ( servo.aoControlChannel ), itemIndicator, subitem );
 			break;
 		}
 		case 6:
-		{
-			// Digital-output config
+		{	// Digital-output config
 			std::string doTxt;
 			TextPromptDialog dialog ( &doTxt, "Please enter the digital outputs that must be on for the calibration. "
 									  "Everthing else will be off. Please separate the row from the number with a "
@@ -271,17 +266,10 @@ void ServoManager::handleListViewClick ( )
 					throwNested ( "Error In trying to set the servo ttl config!" );
 				}
 			}
-			std::string diostring;
-			for ( auto ttl : servo.ttlConfig )
-			{
-				diostring += DioRows::toStr(ttl.first) + " " + str(ttl.second) + " ";
-			}
-			servoList.SetItem ( diostring, itemIndicator, subitem );
 			break;
  		}
 		case 7:
-		{
-			// tolerance
+		{	// tolerance
 			std::string tolTxt;
 			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo." );
 			dialog.DoModal ( );
@@ -293,12 +281,10 @@ void ServoManager::handleListViewClick ( )
 			{
 				throwNested ( "Failed to convert text to a double!" );
 			}
-			servoList.SetItem ( str ( servo.tolerance ), itemIndicator, subitem );
 			break;
 		}
 		case 8:
-		{
-			// gain 
+		{	// gain 
 			std::string gainTxt;
 			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo." );
 			dialog.DoModal ( );
@@ -310,14 +296,44 @@ void ServoManager::handleListViewClick ( )
 			{
 				throwNested ( "Failed to convert text to a double!" );
 			}
-			servoList.SetItem ( str ( servo.gain ), itemIndicator, subitem );
 			break;
 		}
 		case 9:
-		{
-			// monitor only toggle
+		{	// monitor only toggle
 			servo.monitorOnly = !servo.monitorOnly;
-			servoList.SetItem ( servo.monitorOnly ? "Yes" : "No", itemIndicator, subitem );
+			break;
+		}
+		case 10:
+		{	// Analog-output config
+
+			std::string aoTxt;
+			TextPromptDialog dialog (&aoTxt, "Please enter the Analog outputs that must be on for the calibration. "
+				"Everthing else will be off. Please separate the dac identifier from the value with a space. "
+				"E.g. \"dac20 0.4 dac4 -10\"");
+			dialog.DoModal ();
+			std::stringstream tmpStream (aoTxt);
+			std::string dacIdTxt;
+			servo.aoConfig.clear ();
+			while (tmpStream >> dacIdTxt)
+			{
+				try
+				{
+					auto id = AoSystem::getBasicDacIdentifier (dacIdTxt);
+					if (id == -1)
+					{
+						thrower ("Dac Identifier \"" + dacIdTxt + "\" failed to convert to a basic dac id!");
+					}
+					std::pair<UINT, double> dacSetting;
+					dacSetting.first = id;
+					tmpStream >> dacSetting.second;
+					servo.aoConfig.push_back (dacSetting);
+				}
+				catch (Error&)
+				{
+					throwNested ("Error In trying to set the servo dac config!");
+				}
+			}
+			break;
 		}
  	}
  	refreshAllServos ( );
@@ -347,6 +363,18 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 			std::string rowStr;
 			configStream >> rowStr >> ttl.second;
 			ttl.first = DioRows::fromStr ( rowStr );
+		}
+	}
+	if (version > Version ("2.6")) 
+	{
+		UINT numSettings;
+		configStream >> numSettings;
+		tmpInfo.aoConfig.resize (numSettings);
+		for (auto& ao : tmpInfo.aoConfig)
+		{
+			UINT dacID;
+			configStream >> dacID >> ao.second;
+			ao.first = dacID;
 		}
 	}
 	if ( version > Version ( "2.4" ) )
@@ -390,6 +418,13 @@ void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
 	servoList.SetItem ( str ( s.tolerance ), which, 7 );
 	servoList.SetItem ( str ( s.gain ), which, 8 );
 	servoList.SetItem ( s.monitorOnly ? "Yes" : "No", which, 9 );
+	std::string aoString;
+	for (auto ao : s.aoConfig)
+	{
+		aoString += "dac" + str (ao.first) + " " + str (ao.second, 4) + " ";
+	}
+	servoList.SetItem (aoString, which, 10);
+	
 }
 
 
@@ -400,6 +435,11 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 	for ( auto& ttl : servo.ttlConfig )
 	{
 		configStream << DioRows::toStr(ttl.first) << " " << str(ttl.second) << " ";
+	}
+	configStream << servo.aoConfig.size () << " ";
+	for (auto& dac : servo.aoConfig)
+	{
+		configStream << dac.first << " " << dac.second << " ";
 	}
 	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << "\n";
 }
@@ -441,6 +481,12 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	double sp = s.setPoint;
 	// helps auto calibrate the servo for lower servo powers
 	ttls->zeroBoard ( );
+	ao->zeroDacs (ttls);
+	ao->forceDacs (ttls);
+	for (auto dac : s.aoConfig)
+	{
+		ao->setSingleDac (dac.first, dac.second, ttls);
+	}
 	for ( auto ttl : s.ttlConfig )
 	{
 		ttls->forceTtl ( ttl.first, ttl.second, 1 );

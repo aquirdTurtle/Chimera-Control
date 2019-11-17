@@ -23,10 +23,10 @@ class Version
 			try
 			{
 				version = boost::lexical_cast<double>( versionStr );
-				int periodPos = versionStr.find_last_of( '.' );
+				auto periodPos = versionStr.find_last_of( '.' );
 				std::string tempStr( versionStr.substr( 0, periodPos ) );
 				versionMajor = boost::lexical_cast<ULONG>( tempStr );
-				tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
+				tempStr = versionStr.substr( periodPos + size_t(1), versionStr.size( ) );
 				versionMinor = boost::lexical_cast<ULONG>( tempStr );
 			}
 			catch ( boost::bad_lexical_cast& )

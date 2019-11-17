@@ -980,6 +980,19 @@ int AoSystem::getDacIdentifier(std::string name)
 	return -1;
 }
 
+/* only handles basic names like dac5.*/
+int AoSystem::getBasicDacIdentifier (std::string name)
+{
+	for (auto dacInc : range (24))
+	{
+		if (name == "dac" + str (dacInc))
+		{
+			return dacInc;
+		}
+	}
+	// not an identifier.
+	return -1;
+}
 
 void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
 {

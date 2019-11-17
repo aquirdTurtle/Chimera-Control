@@ -19,4 +19,5 @@ struct servoInfo
 	double gain = 0.02;
 	bool servoed=false;
 	std::vector<std::pair<DioRows::which, UINT> > ttlConfig;
+	std::vector<std::pair<UINT, double>> aoConfig;
 };

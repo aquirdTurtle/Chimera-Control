@@ -24,7 +24,7 @@ DioRows::which DioRows::fromStr ( std::string rowStr )
 			return w;
 		}
 	}
-	thrower  ( "Failed to convert string to diorow!" );
+ 	thrower  ( "Failed to convert string to diorow!" );
 	return which::A;
 }
 

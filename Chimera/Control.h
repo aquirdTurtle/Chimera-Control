@@ -54,7 +54,7 @@ template <class ControlType> class Control : public ControlType
 		// Continuous Single Scan Mode Position
 		RECT videoPos;
 		fontTypes fontType;
-		int triggerModeSensitive;
+		int triggerModeSensitive=0;
 		//
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
@@ -67,7 +67,7 @@ template <class ControlType> class Control : public ControlType
 	private:
 		int toolTipID;
 		CToolTipCtrl toolTip;
-		bool toolTipIsSet;
+		bool toolTipIsSet=false;
 };
 
 
