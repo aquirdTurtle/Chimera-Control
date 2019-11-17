@@ -56,7 +56,6 @@ class AoSystem
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
-		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum, UINT totalVariations );
@@ -89,6 +88,8 @@ class AoSystem
 		std::string getNote ( int dacNumber );
 		ULONG getNumberEvents( UINT variation, UINT seqNum );
 		int getDacIdentifier( std::string name );
+		static int getBasicDacIdentifier (std::string name);
+
 		double getDacValue( int dacNumber );
 		unsigned int getNumberOfDacs( );
 		std::pair<double, double> getDacRange( int dacNumber );
@@ -98,6 +99,8 @@ class AoSystem
 		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
 		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 	private:
+		void setForceDacEvent (int line, double val, DioSystem* ttls, UINT variation, UINT seqNum);
+
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
 		Control<CleanButton> zeroDacsButton;

@@ -112,6 +112,8 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
 	ON_NOTIFY( NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
+	ON_NOTIFY (NM_DBLCLK, IDC_SERVO_LISTVIEW, &MainWindow::ServoDblClick)
+	ON_NOTIFY (NM_RCLICK, IDC_SERVO_LISTVIEW, &MainWindow::ServoRClick)
 	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
 	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
 	ON_MESSAGE ( RepProgressMessageID, &MainWindow::onRepProgress )
@@ -134,6 +136,8 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
+	ON_COMMAND (IDC_SERVO_CAL, &runServos)
+	ON_MESSAGE (MainWindow::AutoServoMessage, &autoServo)
 	ON_COMMAND( IDC_RERNG_EXPERIMENT_BUTTON, &MainWindow::passExperimentRerngButton )
 	ON_CBN_SELENDOK ( IDC_RERNG_MODE_COMBO, &MainWindow::passRerngModeComboChange )
 	ON_WM_RBUTTONUP( )
@@ -543,6 +547,8 @@ BOOL MainWindow::OnInitDialog( )
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips );
+	servos.initialize (controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (), 
+		&TheAuxiliaryWindow->getAoSys (), &TheAuxiliaryWindow->getTtlBoard (), &TheAuxiliaryWindow->getGlobals ());	
 	controlLocation = { 960, 910 };
 
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
@@ -767,6 +773,7 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	boxes.rearrange( cx, cy, getFonts());
 	repetitionControl.rearrange(cx, cy, getFonts());
 	rearrangeControl.rearrange( cx, cy, getFonts( ) );
+	servos.rearrange (cx, cy, getFonts ());
 	SetRedraw();
 	RedrawWindow();
 }
@@ -1143,7 +1150,7 @@ EmbeddedPythonHandler& MainWindow::getPython ( )
 void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 {
 	logger->logMasterInput(input);
-	logger->logServoInfo ( TheAuxiliaryWindow->getServoinfo ( ) );
+	logger->logServoInfo ( getServoinfo ( ) );
 }
 
 
@@ -1515,4 +1522,80 @@ LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)
 	delete[] pointerToMessage;
 	debugStatus.addStatusText(statusMessage);
 	return 0;
+}
+
+// MESSAGE MAP FUNCTION
+void MainWindow::ServoRClick (NMHDR* pNotifyStruct, LRESULT* result)
+{
+	try
+	{
+		updateConfigurationSavedStatus (false);
+		servos.deleteServo ();
+	}
+	catch (Error & err)
+	{
+		comm.sendError ("Servo Right-Click Handler Failed.\n" + err.trace ());
+	}
+}
+
+// MESSAGE MAP FUNCTION
+void MainWindow::ServoDblClick (NMHDR* pNotifyStruct, LRESULT* result)
+{
+	try
+	{
+		updateConfigurationSavedStatus (false);
+		servos.handleListViewClick ();
+	}
+	catch (Error & err)
+	{
+		comm.sendError ("Servo Double-Click handler failed." + err.trace ());
+	}
+}
+
+// MESSAGE MAP FUNCTION
+LRESULT MainWindow::autoServo (WPARAM w, LPARAM l)
+{
+	try
+	{
+		updateConfigurationSavedStatus (false);
+		if (servos.autoServo ())
+		{
+			runServos ();
+		}
+	}
+	catch (Error & err)
+	{
+		comm.sendError ("Auto-Servo Failed.\n" + err.trace ());
+	}
+	return TRUE;
+}
+
+// MESSAGE MAP FUNCTION
+void MainWindow::runServos ()
+{
+	try
+	{
+		updateConfigurationSavedStatus (false);
+		comm.sendStatus ("Running Servos...\r\n");
+		servos.runAll ();
+	}
+	catch (Error & err)
+	{
+		comm.sendError ("Running Servos failed.\n" + err.trace ());
+	}
+}
+
+std::vector<servoInfo> MainWindow::getServoinfo ()
+{
+	return servos.getServoInfo ();
+}
+
+void MainWindow::handleMasterConfigOpen (std::stringstream& configStream, Version version)
+{
+	servos.handleOpenMasterConfig (configStream, version);
+}
+
+void MainWindow::handleMasterConfigSave (std::stringstream& configStream)
+{
+	servos.handleSaveMasterConfig (configStream);
 }
