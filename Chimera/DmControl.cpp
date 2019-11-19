@@ -58,7 +58,7 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
 	profileSelector.setPositions(positions, 0, 0, 100, 500);
 	profileSelector.Create(NORM_COMBO_OPTIONS, profileSelector.seriesPos, parent, IDC_DM_PROFILE_COMBO);
-	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + ".txt", "flatProfile.txt");
+	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
 }
 
 void DmControl::handleOnPress(int i) {
@@ -202,7 +202,7 @@ void DmControl::loadProfile()
 	profileSelector.GetLBText(id,file);
 	std::string filename = str(file);
 	if (DM_SAFEMODE) {
-		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename);
+		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
 		if (!file.is_open()) {
 			thrower("File did not open");
 		}
