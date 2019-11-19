@@ -44,8 +44,8 @@ namespace TestManager
 			dio.convertToFtdiSnaps( 0, 0 );
 			// assert that the important structures are filled correctly.
 			auto snaps = dio.getFtdiSnaps( );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual(UINT ( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual(UINT ( 1 ), snaps.getNumVariations(0) );
 			Assert::AreEqual( size_t( 2048 ), snaps(0,0).size( ) );
 			// first command is at t=5, so first snapshot at t=0 should be all off.
 			for ( auto pt : snaps ( 0, 0 )[0].pts )
@@ -112,8 +112,8 @@ namespace TestManager
 			dio.checkFinalFormatTimes( 0, 0 );
 			// assert that the important structures are filled correctly.
 			auto snaps = dio.getTtlSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences( ) );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( UINT ( 1 ), snaps.getNumSequences( ) );
+			Assert::AreEqual( UINT ( 1 ), snaps.getNumVariations(0) );
 			Assert::AreEqual( size_t( 4 ), snaps(0,0).size( ) );
 			// first command is at t=5, so first snapshot at t=0 should be all off.
 			for ( auto row : snaps ( 0, 0 )[0].ttlStatus )
@@ -192,8 +192,8 @@ namespace TestManager
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
 			auto snaps = ao.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( size_t( 1 ), size_t (snaps.getNumSequences() ));
+			Assert::AreEqual( size_t( 1 ), size_t (snaps.getNumVariations(0) ));
 			Assert::AreEqual( size_t( 2 ), snaps ( 0, 0 ).size( ) );
 			Assert::AreEqual( 1.0, snaps(0,0)[1].dacValues[2] );
 			for ( auto dac : snaps(0,0)[0].dacValues )
@@ -226,8 +226,8 @@ namespace TestManager
 			ao.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 			ao.makeFinalDataFormat( 0, 0 );
 			auto res = ao.getFinData( );
-			Assert::AreEqual( size_t( 1 ), res.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), res.getNumVariations(0) );
+			Assert::AreEqual( size_t( 1 ), size_t (res.getNumSequences()) );
+			Assert::AreEqual( size_t( 1 ), size_t (res.getNumVariations(0)) );
 			Assert::AreEqual( size_t( 3 ), res(0,0).size( ) );
 			for ( auto finDat : res ( 0, 0 ) )
 			{
@@ -277,16 +277,16 @@ namespace TestManager
 			ao.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 			ao.makeFinalDataFormat( 0, 0 );
 			auto snaps = ao.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( UINT( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual( UINT( 1 ), snaps.getNumVariations(0) );
 			// 20 steps means 21 points created from the ramp.
-			Assert::AreEqual( size_t( 22 ), snaps ( 0, 0 ).size( ) );
+			Assert::AreEqual(size_t ( 22 ), snaps ( 0, 0 ).size( ) );
 			Assert::AreEqual( 0.0, snaps ( 0, 0 )[0].time );
 			Assert::AreEqual( 5.0, snaps ( 0, 0 )[1].time );
 			Assert::AreEqual( 5.1, snaps ( 0, 0 ).back( ).time );
 			auto res = ao.getFinData( );
-			Assert::AreEqual( size_t( 1 ), res.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), res.getNumVariations(0) );
+			Assert::AreEqual( UINT ( 1 ), res.getNumSequences() );
+			Assert::AreEqual( UINT ( 1 ), res.getNumVariations(0) );
 			Assert::AreEqual( size_t( 3 ), res ( 0, 0 ).size( ) );
 			for ( auto board : res ( 0, 0 ) )
 			{
@@ -317,8 +317,8 @@ namespace TestManager
 			ao.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
 			ao.makeFinalDataFormat( 0, 0 );
 			auto snaps = ao.getSnapshots( );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), snaps.getNumVariations(0) );
+			Assert::AreEqual( UINT ( 1 ), snaps.getNumSequences() );
+			Assert::AreEqual( UINT ( 1 ), snaps.getNumVariations(0) );
 			// spacing of 1 means 11 pts in the ramp.
 			Assert::AreEqual( size_t( 12 ), snaps ( 0, 0 ).size( ) );
 			Assert::AreEqual( 0.0, snaps ( 0, 0 )[0].time );
@@ -346,8 +346,8 @@ namespace TestManager
 				last_val = snap.dacValues[2];
 			}
 			auto res = ao.getFinData( );
-			Assert::AreEqual( size_t( 1 ), res.getNumSequences() );
-			Assert::AreEqual( size_t( 1 ), res.getNumVariations(0) );
+			Assert::AreEqual( UINT ( 1 ), res.getNumSequences() );
+			Assert::AreEqual( UINT ( 1 ), res.getNumVariations(0) );
 			Assert::AreEqual( size_t( 3 ), res ( 0, 0 ).size( ) );
 			for ( auto board : res ( 0, 0 ) )
 			{

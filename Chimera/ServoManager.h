@@ -42,7 +42,7 @@ class ServoManager
 		Control<CStatic> servosHeader;
 		Control<CleanButton> servoButton;
 		Control<CleanCheck> autoServoButton;
-
+		void setResDisplay (UINT which, double value);
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
 		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
 		Control<MyListCtrl> servoList;

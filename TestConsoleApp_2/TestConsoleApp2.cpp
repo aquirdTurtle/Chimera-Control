@@ -2,11 +2,19 @@
 //
 
 #include "stdafx.h"
-#include "Thrower.h"
+
+int main ()
+{
+	return 0;
+}
+
+/*#include "Thrower.h"
 #include "Matrix.h"
 #include <fstream>
 #include <vector>
 #include <array>
+
+/*
 enum class dir
 {
 	up,
@@ -460,7 +468,7 @@ double minCostMatching ( Matrix<double> cost, std::vector<int> &sourceMates, std
 
 /*
 this part was written by Mark O Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
-*/
+
 void orderMoves ( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence, 
 				  Matrix<bool> sourceMatrix )
 {
@@ -726,3 +734,4 @@ int main ( )
 	std::cin.get ( );
 	return 0;
 }
+*/

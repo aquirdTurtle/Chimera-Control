@@ -39,7 +39,7 @@ template <typename T> std::string str( T input, const int precision = 13, bool e
 		}
 	}
 	if (eatZeros)
-	{
+	{	// this only makes sense if input was a double.
 		if (outStr.find(".") != std::string::npos)
 		{
 			outStr.erase(outStr.find_last_not_of('0') + 1, std::string::npos);
