@@ -2,12 +2,12 @@
 
 def D1greyLambdaloading():
   % settings
-  var D1twoToTwopPower -2 %-2
+  var D1_2_to_2p_Power -.6 %-2
   var cooling_time 200
   var rsfreq -0.035 %-0.05
   var rspow 3.5 %2
   % init system
-  dac: power795 D1twoToTwopPower
+  dac: power795 D1_2_to_2p_Power
   rsg: (6.834682 + rsfreq*0.001) rspow
   t += 4.01
   off: diagMotRf
@@ -31,7 +31,4 @@ def D1greyLambdaloading():
   pulseon: rstrig 0.1
   pulseon: a15 0.1
   t += 4.01
-
-
-
 

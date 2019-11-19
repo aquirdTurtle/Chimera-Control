@@ -222,7 +222,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	{
 		currentImageParameters.checkConsistency ( );
 	}
-	catch ( Error )
+	catch ( Error& )
 	{
 		isReady = false;
 		throw;

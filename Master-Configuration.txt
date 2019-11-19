@@ -1,4 +1,4 @@
-Version 2.6
+Version 2.7
 diagmotrf
 0
 repumprf
@@ -200,7 +200,7 @@ dac17
 0
 _
 power795
--4 - 0
+-4 - 0.1
 0
 _
 probepower
@@ -223,8 +223,8 @@ axpulselev
 0 - 1
 0
 _
-19
-loadmottime 300
+23
+loadmottime 100
 andorimagetime 15
 imagingpower 0.3
 fieldtheta 1.5708
@@ -233,21 +233,29 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__servo_value 0.103721
-diagmot__servo_value 0.37145
+sidemot__servo_value 0.138497
+diagmot__servo_value 0.244531
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__servo_value 0.124066
-sidemot_imaging__servo_value 0.243565
+sidemot_intrappgc__servo_value 0.165236
+sidemot_imaging__servo_value 0.328901
 motimagingdetuning -0.32
 d1loadingfreq 112.5
 intraplgmcoolingfreq 99
-sidemot_d1__servo_value 0.236668
+sidemot_d1__servo_value 0.24909
+diagmot_imaging__servo_value 0.0981197
+diag_d1_load__servo_value -0.633002
+repump_load__servo_value 0.110552
+repump_imaging__servo_value 0.140979
 1
-5Sidemot 6 22 1 1.88 1 a 5 0.01 0.02 0
-DiagMot 5 9 1 0.0163 1 a 0 0.01 0.03 0
-sidemot_intrappgc 6 22 1 2.57 1 a 5 0.01 0.02 0
-sidemot_imaging 6 22 1 8 1 a 5 0.02 0.02 0
-sidemot_d1 6 8 1 1 2 c 10 b 10 0.02 0.02 0
-238 335 2 229 246 2
+9Sidemot 6 22 1 1.88 1 a 5 0 0.01 0.02 0
+DiagMot 7 9 1 4.6 1 a 0 0 0.01 0.03 0
+sidemot_intrappgc 6 22 1 2.57 1 a 5 0 0.01 0.02 0
+sidemot_imaging 6 22 1 8 1 a 5 0 0.02 0.02 0
+sidemot_d1 6 8 1 1 2 b 10 c 10 2 18 -0.6 10 0.3 0.02 0.02 0
+diag_d1_load 7 18 1 0.6 2 b 10 c 10 2 18 -0.6 10 0.3 0.02 -0.1 0
+repump_load 7 11 1 0.013 1 a 1 1 11 0.15 0.02 0.02 0
+diagmot_imaging 7 9 1 0.86 1 a 0 0 0.02 0.02 0
+repump_imaging 7 11 1 0.02 1 a 1 0 0.02 0.02 0
+240 335 2 229 246 2
 0 0

@@ -1,15 +1,16 @@
 // created by Mark O. Brown
 #pragma once
-#include <string>
 #include "CameraImageDimensions.h"
 #include "Communicator.h"
-#include <process.h>
-#include <mutex>
 #include "ATMCD32D.h"
 #include "AndorRunSettings.h"
 #include "AndorFlume.h"
 #include "Matrix.h"
 #include "AndorTemperatureStatus.h"
+#include <string>
+#include <process.h>
+#include <mutex>
+#include <condition_variable>
 
 /// /////////////////////////////////////////////////////
 ///			The Andor Class
@@ -25,9 +26,9 @@ class AndorCamera;
 
 struct cameraThreadInput
 {
-	bool spuriousWakeupHandler;
-	std::mutex runMutex;
-	std::condition_variable signaler;
+	bool expectingAcquisition;
+	std::timed_mutex* runMutex;
+	std::condition_variable_any signaler;
 	Communicator* comm;
 	// Andor is set to this in the constructor of the andor camera.
 	AndorCamera* Andor;
@@ -69,6 +70,7 @@ class AndorCamera
 		void abortAcquisition ( );
 		int queryStatus (  );
 		AndorTemperatureStatus getTemperature ( );
+
 	private:
 
 		void setAccumulationCycleTime ( );
@@ -93,7 +95,7 @@ class AndorCamera
 
 		ULONGLONG currentPictureNumber;
 		ULONGLONG currentRepetitionNumber;
-
+		std::timed_mutex camThreadMutex;
 		HANDLE plottingMutex;
 		HANDLE imagesMutex;
 		std::vector<Matrix<long>> experimentImageMatrices;

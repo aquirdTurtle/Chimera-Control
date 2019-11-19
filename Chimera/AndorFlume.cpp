@@ -480,6 +480,7 @@ void AndorFlume::andorErrorChecker ( int errorCode )
 		case 20119:	errorMessage = "DRV_ERROR_BUFSIZE";					break;
 		case 20121:	errorMessage = "DRV_ERROR_NOHANDLE";				break;
 		case 20130:	errorMessage = "DRV_GATING_NOT_AVAILABLE";			break;	
+
 		case 20131:	errorMessage = "DRV_FPGA_VOLTAGE_ERROR";			break;		
 		case 20990:	errorMessage = "DRV_ERROR_NOCAMERA";				break;	
 		case 20991:	errorMessage = "DRV_NOT_SUPPORTED";					break;	

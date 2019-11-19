@@ -33,7 +33,7 @@ void MyListCtrl::insertBlankRow ( )
 	InsertItem ( "___", rowCount, 0 );
 	for ( int itemInc = 1; itemInc < colCount; itemInc++ )
 	{
-		SetItem ( "___", rowCount, itemInc );
+		SetItem ( "__", rowCount, itemInc );
 	}
 }
 

@@ -81,6 +81,7 @@ baslerSettings BaslerCameras::getDefaultSettings()
 {
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
+	defaultSettings.repCount = 100;
 	defaultSettings.dims.left = 1;
 	defaultSettings.dims.right = dim.x; 
 	defaultSettings.dims.horizontalBinning = 4;

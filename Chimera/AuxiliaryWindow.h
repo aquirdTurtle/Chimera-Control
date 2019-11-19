@@ -67,7 +67,6 @@ class AuxiliaryWindow : public CDialog
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
 		std::vector<PiezoCore* > getPiezoControllers ( );
-		std::vector<servoInfo> getServoinfo ( );
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		cToolTips toolTips;
@@ -93,8 +92,6 @@ class AuxiliaryWindow : public CDialog
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
-		void runServos( );
-		LRESULT autoServo( WPARAM w, LPARAM l );
 		void loadCameraCalSettings( ExperimentThreadInput* input );
 
 		void updateAgilent( whichAg::agilentNames name );
@@ -136,8 +133,6 @@ class AuxiliaryWindow : public CDialog
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsSingleClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
-		void ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result );
-		void ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result );
 		void DdsDblClick ( NMHDR * pNotifyStruct, LRESULT * result );
 
@@ -191,7 +186,6 @@ class AuxiliaryWindow : public CDialog
 		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronicsAfgControl topBottomTek, eoAxialTek;
-		ServoManager servos;
 		MachineOptimizer optimizer;
 		ColorBox boxes;
 		ParameterSystem configParameters, globalParameters;

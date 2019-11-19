@@ -5,10 +5,11 @@
 #include <iomanip>
 #include <algorithm>
 
+
 // this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
-template <typename T> std::string str(T input, const int precision = 13, bool eatZeros = false, bool toLower = false,
-									   bool zeroPad = false)
+template <typename T> std::string str( T input, const int precision = 13, bool eatZeros = false, bool toLower = false,
+									   bool zeroPad = false )
 {
 	std::ostringstream out;
 	out << std::setprecision(precision) << input;
@@ -38,7 +39,7 @@ template <typename T> std::string str(T input, const int precision = 13, bool ea
 		}
 	}
 	if (eatZeros)
-	{
+	{	// this only makes sense if input was a double.
 		if (outStr.find(".") != std::string::npos)
 		{
 			outStr.erase(outStr.find_last_not_of('0') + 1, std::string::npos);

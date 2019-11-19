@@ -13,13 +13,13 @@ AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE )
 void AiSystem::initDaqmx( )
 {
 	daqmx.createTask( "Analog-Input", analogInTask0 );
-	daqmx.createAiVoltageChan( analogInTask0, "Dev8/ai0:7", "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
+	daqmx.createAiVoltageChan( analogInTask0, cstr(boardName + "/ai0:7"), "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
 }
 
 
 std::string AiSystem::getSystemStatus( )
 {
-	long answer = daqmx.getProductCategory( "dev8" );
+	long answer = daqmx.getProductCategory( cstr(boardName) );
 	std::string answerStr = "AI System: Connected... device category = " + str( answer );
 	return answerStr;
 }
@@ -29,7 +29,7 @@ void AiSystem::refreshDisplays( )
 {
 	for ( auto dispInc : range(voltDisplays.size()))
 	{
-		voltDisplays[dispInc].SetWindowTextA( cstr(currentValues[dispInc]) );
+		voltDisplays[dispInc].SetWindowTextA( str(currentValues[dispInc], 4).c_str() );
 	}
 }
 
@@ -60,43 +60,39 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 	getValuesButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
 	getValuesButton.Create( "Get Values", NORM_PUSH_OPTIONS, getValuesButton.sPos, parent, ID_GET_ANALOG_IN_VALUES );
 	continuousQueryCheck.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
-	continuousQueryCheck.Create( "Query Cont.", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
+	continuousQueryCheck.Create( "Qry Cont.", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
 	queryBetweenVariations.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 25 };
-	queryBetweenVariations.Create( "Query Btwn Vars?", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
+	queryBetweenVariations.Create( "Qry Btwn Vars", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
 								   parent, id++ );
 	loc.x -= 480;
 	// there's a single label first, hence the +1.
-	long dacInc = 0, collumnInc = 0;
+	long dacInc = 0, collumnInc = 0, numCols=4;
+	LONG colSize = LONG(480 / numCols);
 	for ( auto& disp : voltDisplays )
 	{
-		if ( dacInc == voltDisplays.size( ) / 2)
-		{
+		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols )
+		{	// then next column. 
 			collumnInc++;
-			// go to second or third collumn
-			loc.y -= 25 * voltDisplays.size( ) / 2;
+			loc.y -= 25 * NUMBER_AI_CHANNELS / numCols;
 		}
-		disp.sPos = { loc.x + 20 + collumnInc * 240, loc.y, loc.x + (collumnInc + 1) * 240, loc.y += 25 };
+		disp.sPos = { loc.x + 20 + collumnInc * colSize, loc.y, loc.x + (collumnInc + 1) * colSize, loc.y += 25 };
 		disp.colorState = 0;
 		disp.Create( "0", NORM_STATIC_OPTIONS, disp.sPos, parent, id++ );
 		dacInc++;
 	}
-
 	collumnInc = 0;
-	loc.y -= 25 * voltDisplays.size( ) / 2;
+	loc.y -= 25 * voltDisplays.size( ) / numCols;
 
 	for ( auto dacInc : range( NUMBER_AI_CHANNELS ) )
 	{
 		auto& label = dacLabels[dacInc];
-		if ( dacInc == NUMBER_AI_CHANNELS / 2 )
-		{
+		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols)
+		{	// then next column
 			collumnInc++;
-			// go to second or third collumn
-			loc.y -= 25 * NUMBER_AI_CHANNELS / 2;
+			loc.y -= 25 * NUMBER_AI_CHANNELS / numCols;
 		}
-		// create label
-		label.sPos = { loc.x + collumnInc * 240, loc.y, loc.x + 20 + collumnInc * 240, loc.y += 25 };
-		label.Create( cstr( dacInc ), WS_CHILD | WS_VISIBLE | SS_CENTER,
-								  dacLabels[dacInc].sPos, parent, ID_DAC_FIRST_EDIT + dacInc );
+		label.sPos = { loc.x + collumnInc * colSize, loc.y, loc.x + 20 + collumnInc * colSize, loc.y += 25 };
+		label.Create( cstr( dacInc ), WS_CHILD | WS_VISIBLE | SS_CENTER, dacLabels[dacInc].sPos, parent, ID_DAC_FIRST_EDIT + dacInc );
 	}
 }
 

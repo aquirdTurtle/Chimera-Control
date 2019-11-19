@@ -13,6 +13,7 @@
 #include "AnalogOutput.h"
 
 #include "Version.h"
+
 class MainWindow;
 
 /**
@@ -55,7 +56,6 @@ class AoSystem
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
-		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );		
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum, UINT totalVariations );
@@ -88,6 +88,8 @@ class AoSystem
 		std::string getNote ( int dacNumber );
 		ULONG getNumberEvents( UINT variation, UINT seqNum );
 		int getDacIdentifier( std::string name );
+		static int getBasicDacIdentifier (std::string name);
+
 		double getDacValue( int dacNumber );
 		unsigned int getNumberOfDacs( );
 		std::pair<double, double> getDacRange( int dacNumber );
@@ -97,6 +99,8 @@ class AoSystem
 		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
 		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 	private:
+		void setForceDacEvent (int line, double val, DioSystem* ttls, UINT variation, UINT seqNum);
+
 		Control<CStatic> dacTitle;
 		Control<CleanButton> dacSetButton;
 		Control<CleanButton> zeroDacsButton;
@@ -113,12 +117,15 @@ class AoSystem
 		double dacTriggerTime;
 		bool roundToDacPrecision;
 
-		// task for DACboard0 (tasks are a national instruments DAQmx thing)
+		// For DACboard0 (tasks are a national instruments DAQmx thing)
 		TaskHandle analogOutTask0 = NULL;
+		const std::string board0Name = "dev5";
 		// task for DACboard1
 		TaskHandle analogOutTask1 = NULL;
+		const std::string board1Name = "dev4";
 		// task for DACboard2
 		TaskHandle analogOutTask2 = NULL;
+		const std::string board2Name = "dev6";
 
 		/// digital in lines not used at the moment.
 		TaskHandle digitalDac_0_00 = NULL;

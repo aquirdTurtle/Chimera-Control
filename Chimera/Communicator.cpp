@@ -70,6 +70,7 @@ void Communicator::sendAutoServo( )
 
 void Communicator::sendCameraProgress(long progress)
 {
+	OutputDebugString (("A.T. Prog: " + str (progress) + "; ").c_str ());
 	camWin->PostMessageA( MainWindow::AndorProgressMessageID, 0, (LPARAM)progress );
 }
 

@@ -101,8 +101,6 @@ class ProfileSystem
 		seqSettings currentSequence;
 		std::string FILE_SYSTEM_PATH;
 		bool configurationIsSaved;
-		bool categoryIsSaved;
-		bool experimentIsSaved;
 		bool sequenceIsSaved;
 		// version = str(versionMain) + "." + str(versionSub)
 		// I try to use version sub changes for small changes and version main for big formatting (sometimes backwards 

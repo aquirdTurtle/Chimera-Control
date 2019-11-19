@@ -130,11 +130,12 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		softwareAccumulateNum[ picInc ].fontType = fontTypes::SmallFont;
 	}
 	//
-	enablePictureControls( 0 );
-	disablePictureControls( 1 );
-	disablePictureControls( 2 );
-	disablePictureControls( 3 );
+	setPictureControlEnabled (0, true);
+	setPictureControlEnabled (1, false);
+	setPictureControlEnabled (2, false);
+	setPictureControlEnabled (3, false);
 }
+
 
 std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( )
 {
@@ -260,22 +261,6 @@ void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwar
 	}
 }
 
-
-void PictureSettingsControl::disablePictureControls ( int pic )
-{
-	if ( pic > 3 )
-	{
-		return;
-	}
-	exposureEdits[ pic ].EnableWindow ( 0 );
-	thresholdEdits[ pic ].EnableWindow ( 0 );
-	colormapCombos[ pic ].EnableWindow ( 0 );
-	displayTypeCombos[ pic ].EnableWindow ( 0 );
-	softwareAccumulateAll[ pic ].EnableWindow ( 0 );
-	softwareAccumulateNum[ pic ].EnableWindow ( 0 );
-}
-
-
 std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( )
 {
 	std::array<softwareAccumulationOption, 4> opts;
@@ -296,19 +281,18 @@ std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAcc
 	return opts;
 }
 
-
-void PictureSettingsControl::enablePictureControls ( int pic )
+void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled)
 {
-	if ( pic > 3 )
+	if (pic > 3)
 	{
 		return;
 	}
-	exposureEdits[ pic ].EnableWindow ( );
-	thresholdEdits[ pic ].EnableWindow ( );
-	colormapCombos[ pic ].EnableWindow ( );
-	displayTypeCombos[ pic ].EnableWindow ( );
-	softwareAccumulateAll[ pic ].EnableWindow ( );
-	softwareAccumulateNum[ pic ].EnableWindow ( );
+	exposureEdits[pic].EnableWindow (enabled);
+	thresholdEdits[pic].EnableWindow (enabled);
+	colormapCombos[pic].EnableWindow (enabled);
+	displayTypeCombos[pic].EnableWindow (enabled);
+	softwareAccumulateAll[pic].EnableWindow (enabled);
+	softwareAccumulateNum[pic].EnableWindow (enabled);
 }
 
 
@@ -429,7 +413,13 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum )
 	{
 		thrower ( "Tried to set bad number of pics per rep: " + str ( picNum ) );
 	}
-	totalNumberChoice[ picNum - 1 ].SetCheck ( true );
+	int count = 0;
+	for (auto& totalNumRadio : totalNumberChoice)
+	{
+		count++;
+		totalNumRadio.SetCheck (count == picNum);
+		setPictureControlEnabled (count-1, count <= picNum);
+	}
 }
 
 

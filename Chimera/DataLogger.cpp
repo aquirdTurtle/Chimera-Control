@@ -504,13 +504,25 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		H5::Group andorGroup( file.createGroup( "/Andor" ) );
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
-		hsize_t setDims[] = { ULONGLONG( settings.totalPicsInExperiment() ), settings.imageSettings.width(),
-			settings.imageSettings.height() };
-		hsize_t picDims[] = { 1, settings.imageSettings.width(), settings.imageSettings.height() };
-		AndorPicureSetDataSpace = H5::DataSpace( 3, setDims );
-		AndorPicDataSpace = H5::DataSpace( 3, picDims );
-		AndorPictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace );
-		currentAndorPicNumber = 0;
+		if (settings.acquisitionMode == AndorRunModes::mode::Kinetic) {
+			hsize_t setDims[] = { ULONGLONG (settings.totalPicsInExperiment ()), settings.imageSettings.width (),
+				settings.imageSettings.height () };
+			hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
+			AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
+			AndorPicDataSpace = H5::DataSpace (3, picDims);
+			AndorPictureDataset = andorGroup.createDataSet ("Pictures", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
+			currentAndorPicNumber = 0;
+		}
+		else
+		{
+			/*
+			hsize_t setDims[] = { 0, settings.imageSettings.width (), settings.imageSettings.height () };
+			hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
+			AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
+			AndorPicDataSpace = H5::DataSpace (3, picDims);
+			AndorPictureDataset = andorGroup.createDataSet ("Pictures: N/A", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
+			*/
+		}
 		writeDataSet( int(settings.acquisitionMode), "Camera-Mode", andorGroup );
 		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
 		writeDataSet( AndorTriggerMode::toStr(settings.triggerMode), "Trigger-Mode", andorGroup );

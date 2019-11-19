@@ -51,6 +51,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 	// output version
 	configStream << "Version " + version.str() + "\n";
 	auxWin->handleMasterConfigSave(configStream);
+	mainWin->handleMasterConfigSave (configStream);
 	camWin->handleMasterConfigSave(configStream);
 	configFile << configStream.str();
 	configFile.close();
@@ -87,6 +88,9 @@ void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 	Version ver( versionStr );
 	// Initialize ttl, dac, and servo structures.
 	auxWin->handleMasterConfigOpen( configStream, ver );
+	mainWin->handleMasterConfigOpen (configStream, ver);
+	// servos.handleOpenMasterConfig (configStream, version);
+
 	// initialize camera window
 	camWin->handleMasterConfigOpen( configStream, ver);
 

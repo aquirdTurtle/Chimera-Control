@@ -55,8 +55,8 @@ void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* paren
 	optParamsListview.InsertColumn ( 1, "Current-Val.", 100 );
 	optParamsListview.InsertColumn ( 2, "[", 50 );
 	optParamsListview.InsertColumn ( 3, "]", 50 );
-	optParamsListview.InsertColumn ( 4, "Incr.", 100 );
 	optParamsListview.InsertColumn ( 4, "Best-Val.", 100 );
+	optParamsListview.InsertColumn (5, "Incr.", 50);
 	optParamsListview.insertBlankRow ( );
 }
 
