@@ -31,7 +31,8 @@ class DioSystem
 {
 	public:
 		DioSystem ( bool ftSafemode, bool serialSafemode, bool viewpointSafemode );
-		/// Felixes Dio handling. Much originally in a class called "RC028".
+		~DioSystem();
+		/// Felix's Dio handling. Much originally in a class called "RC028".
 		void ftdi_disconnect( );
 		void ftdi_connectasync( const char devSerial[] );
 		void fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt );
@@ -40,7 +41,7 @@ class DioSystem
 		void standardNonExperimentStartDioSequence( );
 		// an "alias template". effectively a local "using std::vector;" declaration. makes these declarations much more
 		// readable. I very rarely use things like this.
-		template<class T> using vec = std::vector<T>;
+		//template<class T> using vec = std::vector<T>;
 
 		/// config handling
 		void initializeDataObjects( UINT seqNum, UINT cmdNum );
@@ -60,6 +61,7 @@ class DioSystem
 		void handleHoldPress();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		std::string getSystemInfo();
+		std::string getDioSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
@@ -115,10 +117,14 @@ class DioSystem
 		void updatePush( DioRows::which row, UINT col );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getViewpointSafemode ( );
+		bool getFtFlumeSafemode();
+		std::string testTTL();
 		allDigitalOutputs& getDigitalOutputs();
-		void interpretKey ( vec<vec<parameterType>>& params );
-		ExpWrap<vec<DioSnapshot>> getTtlSnapshots ( );
-		ExpWrap<vec<WORD>> getFinalViewpointData ( );
+		void interpretKey ( std::vector<std::vector<parameterType>>& params );
+		void wait2(double time);
+		void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption);
+		ExpWrap<std::vector<DioSnapshot>> getTtlSnapshots ( );
+		ExpWrap<std::vector<WORD>> getFinalViewpointData ( );
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
 		ExpWrap<finBufInfo> getFinalFtdiData ( );
 		void restructureCommands ( );
@@ -127,13 +133,13 @@ class DioSystem
 		/// stuff for felix's dio
 		ftdiConnectionOption connectType;
 		const UINT NUMPOINTS = 2048;
-		const unsigned char TIMEOFFS = unsigned char(0x0800);
-		const unsigned char BANKAOFFS = unsigned char(0x1000);
-		const unsigned char BANKBOFFS = unsigned char(0x1800);
-		const unsigned char WBWRITE = unsigned char(161);
+		const unsigned int TIMEOFFS = unsigned int(0x0800);
+		const unsigned int BANKAOFFS = unsigned int(0x1000);
+		const unsigned int BANKBOFFS = unsigned int(0x1800);
+		const unsigned int WBWRITE = (unsigned char)161;
 		ftdiFlume ftFlume;
 		// note: it doesn't look like felix's / Adam's programming actually facilitates the serial mode programming
-		// because this handle never gets initialized anywhere int he code. Probably not hard to set up, although I 
+		// because this handle never gets initialized anywhere in the code. Probably not hard to set up, although I 
 		// think that the ftdi stuff is a superset of the normal serial communications so probably no reason to do 
 		// this? I don't know, there might be speed considerations.
 		WinSerialFlume winSerial;
@@ -147,13 +153,13 @@ class DioSystem
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
 		allDigitalOutputs outputs;
 		// tells whether the hold button is down or not.
-		bool holdStatus;
-		vec<vec<DioCommandForm>> ttlCommandFormList;
+		bool holdStatus; 
+		std::vector<std::vector<DioCommandForm>> ttlCommandFormList;
 		ExpWrap<std::vector<DioCommand>> ttlCommandList;
-		ExpWrap<vec<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
-		ExpWrap<vec<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
+		ExpWrap<std::vector<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
+		ExpWrap<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		ExpWrap<vec<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
+		ExpWrap<std::vector<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
 		// ftdi equivalents...
 		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;
 		ExpWrap<finBufInfo> finFtdiBuffers;

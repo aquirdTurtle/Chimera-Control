@@ -6,6 +6,8 @@ IMMEDIATE LIST:
 - fix attempts to set camera mode on config change.
 - get rs232 piezo controllers integrated
 - niawg vector variable functionaily
+- fix auto-thresholding
+- fix python
 
 FEATURES:
 - Full experiments following each other, alternative use of sequences.
@@ -19,7 +21,6 @@ FEATURES:
 		- also gets tricky if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- support variables for agilent scripts
 - proper syntax coloring for local variables
 - implement real-time sanity check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
@@ -27,20 +28,16 @@ FEATURES:
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in real time analysis plots
-- improve experiment status; include which config was run, variable options
-- report oscilloscope data to datalogger
+- report most recent oscilloscope data to datalogger
 - report initial values of dacs and ttls to datalogger
 - report andor background data to datalogger if calibrating background out
 - improve delete file after abort functionality
 	- decorate name, delete after a while, or something similar.
-- Integrate the Andor and Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between 
-	variations, etc.
+- Integrate Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between variations, etc.
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well
 - prompt for load after saving config as
-- improve delete file after abort functionality
-	- decorate name and (maybe) delete after a while, or just decorate...
 - Improve auto-optimization
 	- Implement different algorithms...
 		- basin-hopping
@@ -50,29 +47,25 @@ FEATURES:
 	- End when converged
 	- make finishing of optimization smoother
 	- option to text when optimization finished. 
-- Implement smarter thresholding?
-	- Have code run python script which makes use of my auto-finding of the gaussian thresholds at the end of a run.
-	  Especially useful for auto-optimization to keep this good over time.
 - Make (option for) hist plots for single pic mode andor images
-- include calibration data in dac and servos
-- be able to query current connection status like what shows up in the beginning
 - some way of making niawg scripts with many tones more compact. something with arrays.
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
 - check number of basler triggers against basler total picture number
 - make data analysis plotting listview smart about # of pictures
 - some sort of more real-time adjustment of parameters, need some sort of looping around starting configs... or some other solution
-- Label all values in config file, making it extra human-readable.
+- Implement custom configstream class - skip over decorated text which can be added freely as description text. Allows
+	easy adding of labeling of everything in config file, making it extra human-readable, without huge backwards 
+	compatibility challenges.
 Refactoring / Other:
-- change threads waiting on bools to waiting on signalers
+- change threads waiting on bools to waiting on condition_variables
 - refactor groups in plotinfo in real time plotting
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
 - Andor system should use Matrix class for pictures, like basler.
-- all mutexes should use lock_guard or similar for consistency
-	- refactor main experiment thread / master procedure handling to make more use of DioRows. Right now I believe there's 
-		a lot of conversion back and forth between DioRows and ints. maybe not worthwhile though considering the impending
-		ftdi change?
+- refactor main experiment thread / master procedure handling to make more use of DioRows. Right now I believe there's 
+	a lot of conversion back and forth between DioRows and ints. maybe not worthwhile though considering the impending
+	ftdi change?
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
@@ -80,7 +73,8 @@ Refactoring / Other:
 - refactor rerngmove complexmove and simplemove names which are confusing... 
 - refactor master configuration to be more similar to normal configuration reading
 - reorganize .h and .cpp files in visual studio
-- remove the complicated rearrangement that happens on the camera window, all functions available at all times, perhaps just grey'd out
+- remove the complicated rearrangement that happens on the camera window, all functions available at all times, 
+	perhaps just grey'd out
 - reconsider how to handle initial dac and ttl values
 - seems that there's still auto fitting stuff in the data analysis but I don't think this is supported anymore?
 - either only put the "overwriting function definition" when actually uses the save or remove this
@@ -106,9 +100,9 @@ BUGS:
 - should be able to change basler image dimensions edits while running
 - constant beeping if no mot and continuous freezes things basler
 - figure out why figure update seems to cause main thread window thread to freak out
-- new function then save doesn't save as function
-- ttl display not accurate at end of exp
+- new function then save doesn't save as function!
+- ttl display not accurate at end of exp, and in general not always accurate... e.g. on startup. 
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
-
+- figure out or avoid throw issue on f12

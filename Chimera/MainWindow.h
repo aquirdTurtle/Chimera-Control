@@ -68,7 +68,7 @@ class MainWindow : public CDialog
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
 		LRESULT onNoMotAlertMessage ( WPARAM wp, LPARAM lp );
 		LRESULT onFinish ( WPARAM wp, LPARAM lp );
-
+		
 		void onNormalFinishMessage ( );
 		void onMotNumCalFin ( );
 		void onMotTempCalFin ( );
@@ -148,6 +148,14 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::SolidBrush*> getBrightPlotBrushes( );
 		void passRerngModeComboChange ( );
 		void checkAllMenus ( UINT menuItem, UINT itemState );
+		void ServoRClick (NMHDR* pNotifyStruct, LRESULT* result);
+		void ServoDblClick (NMHDR* pNotifyStruct, LRESULT* result);
+		LRESULT autoServo (WPARAM w, LPARAM l);
+		void runServos ();
+		std::vector<servoInfo> getServoinfo ();
+		void handleMasterConfigSave (std::stringstream& configStream);
+		void handleMasterConfigOpen (std::stringstream& configStream, Version version);
+
 		const static UINT 
 			StatusUpdateMessageID		= ( WM_APP + 1 ),
 			ErrorUpdateMessageID		= ( WM_APP + 2 ),
@@ -176,10 +184,10 @@ class MainWindow : public CDialog
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;
 
-		ScriptingWindow* TheScriptingWindow;
-		AndorWindow* TheAndorWindow;
-		AuxiliaryWindow* TheAuxiliaryWindow;
-		BaslerWindow* TheBaslerWindow;
+		ScriptingWindow* TheScriptingWindow = NULL;
+		AndorWindow* TheAndorWindow = NULL;
+		AuxiliaryWindow* TheAuxiliaryWindow = NULL;
+		BaslerWindow* TheBaslerWindow = NULL;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -195,6 +203,7 @@ class MainWindow : public CDialog
 		rerngGuiControl rearrangeControl;
 		NiawgController niawg;
 		ColorBox boxes;
+		ServoManager servos;
 		// auxiliary members
 		Communicator comm;
 		fontMap mainFonts;

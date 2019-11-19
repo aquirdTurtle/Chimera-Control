@@ -256,9 +256,6 @@ bool AnalogOutput::handleArrow ( CWnd* focus, bool up )
 			edit.GetSel ( cursorPos, end );
 			edit.SetSel ( cursorPos - 1, cursorPos - 1 );
 		}
-
-
-
 		return true;
 	}
 	return false;

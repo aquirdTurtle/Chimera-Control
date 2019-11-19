@@ -22,7 +22,8 @@ def pgcAtomFlashingImage():
   var imaging_diagmot_power 0.1
   dac: SideMotPower sidemot_imaging__servo_value
   dac: RepumpPower imagingRepumpPower
-  dac: DiagMotPower imaging_diagmot_power
+  dac: DiagMotPower diagmot_imaging__servo_value
+  on: andorTrig
   on: tweezerflashrf
   on: sidemotflash
   off: rf795
@@ -35,7 +36,8 @@ def pgcAtomFlashingImage():
   off: repumpRf
   off: tweezerflashrf
   off: sidemotflash
-  pulseon: andorTrig 10
+  off: andorTrig
+  
   dac: DiagMotPower 0
   dac: SideMotPower 0
   dac: RepumpPower 0

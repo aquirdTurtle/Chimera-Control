@@ -21,7 +21,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 	eoAxialTek ( EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 	agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-		ttlBoard ( true, true, DIO_SAFEMODE ),
+		ttlBoard ( DIOFTDI_SAFEMODE, true, VIEWPOINT_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
 	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM8", "PIEZO_CONTROLLER_2" )
@@ -54,7 +54,6 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( TOP_BOTTOM_TEK_START, &passTopBottomTekProgram )
 	ON_COMMAND(	EO_AXIAL_TEK_START, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
-	ON_COMMAND( IDC_SERVO_CAL, &runServos )
 	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
 	ON_COMMAND( IDC_DDS_PROGRAM_NOW, &programDds )
 	ON_COMMAND( IDC_PIEZO1_PROGRAM_NOW, &programPiezo1 )
@@ -62,7 +61,6 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND ( IDC_PIEZO1_CTRL, &handlePiezo1Ctrl)
 	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 
-	ON_MESSAGE ( MainWindow::AutoServoMessage, &autoServo )
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
@@ -87,8 +85,6 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
-	ON_NOTIFY ( NM_DBLCLK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoDblClick )
-	ON_NOTIFY ( NM_RCLICK, IDC_SERVO_LISTVIEW, &AuxiliaryWindow::ServoRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsRClick )
 
@@ -235,33 +231,7 @@ void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result
 	}
 }
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::ServoRClick ( NMHDR * pNotifyStruct, LRESULT * result )
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		servos.deleteServo ( );
-	}
-	catch ( Error& err )
-	{
-		sendErr ( "Servo Right-Click Handler Failed.\n" + err.trace ( ) );
-	}
-}
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::ServoDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		servos.handleListViewClick ( );
-	}
-	catch ( Error& err )
-	{
-		sendErr ( "Servo Double-Click handler failed." + err.trace ( ) );
-	}
-}
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
@@ -316,40 +286,6 @@ void AuxiliaryWindow::updateOptimization ( AllExperimentInput input )
 }
 
 // MESSAGE MAP FUNCTION
-LRESULT AuxiliaryWindow::autoServo(WPARAM w, LPARAM l )
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		if ( servos.autoServo ( ) )
-		{
-			runServos ( );
-		}
-	}
-	catch ( Error& err )
-	{
-		sendErr ( "Auto-Servo Failed.\n" + err.trace ( ) );
-	}
-	return TRUE;
-}
-
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::runServos( )
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		sendStatus ( "Running Servos...\r\n" );
-		servos.runAll( );
-	}
-	catch ( Error& err )
-	{
-		sendErr( "Running Servos failed.\n" + err.trace( ) );
-	}
-}
-
-// MESSAGE MAP FUNCTION
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
 	aiSys.refreshCurrentValues( );
@@ -392,12 +328,6 @@ void AuxiliaryWindow::OnPaint( )
 		}
 		ReleaseDC( cdc );
 	}
-}
-
-
-std::vector<servoInfo> AuxiliaryWindow::getServoinfo ( )
-{
-	return servos.getServoInfo ( );
 }
 
 
@@ -740,7 +670,7 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		{
 			ProfileSystem::standardOpenConfig ( configFile, dds.getDelim(), &dds, Version ( "4.5" ) );
 		}
-		ProfileSystem::standardOpenConfig ( configFile, piezo1.getConfigDelim(), &piezo1, Version ( "4.6" ) );
+		ProfileSystem::standardOpenConfig ( configFile, piezo1.getConfigDelim( ), &piezo1, Version ( "4.6" ) );
 		ProfileSystem::standardOpenConfig ( configFile, piezo2.getConfigDelim ( ), &piezo2, Version ( "4.6" ) );
 	}
 	catch ( Error& )
@@ -966,7 +896,6 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 
 	configParameters.rearrange( cx, cy, getFonts( ) );
 	globalParameters.rearrange( cx, cy, getFonts( ) );
-	servos.rearrange( cx, cy, getFonts( ) );
 	optimizer.rearrange ( cx, cy, getFonts ( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
@@ -1072,7 +1001,7 @@ void AuxiliaryWindow::zeroTtls()
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		ttlBoard.zeroBoard();
+		ttlBoard.ftdiZeroBoard();
 		sendStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1274,7 +1203,6 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 		configStream << info.constantValue << "\n";
 		// all globals are constants, no need to output anything else.
 	}
-	servos.handleSaveMasterConfig( configStream );
 }
 
 
@@ -1395,8 +1323,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	tempVar.name = "";
 	globalParameters.addParameter(tempVar);
 	//
-	servos.handleOpenMasterConfig( configStream, version );
 }
+
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::SetDacs()
@@ -1416,6 +1344,7 @@ void AuxiliaryWindow::SetDacs()
 		sendErr( exception.trace() );
 	}
 }
+
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::DacEditChange(UINT id)
@@ -1602,13 +1531,13 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		
-		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
+		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,	   
 												 _myRGBs["Interactable-Bkgd"] );
 		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
 											 _myRGBs["Interactable-Bkgd"] );
 		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id, "Flashing-Agilent", 100, 
 												_myRGBs["Interactable-Bkgd"] );
-		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
+		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,		   
 												 _myRGBs["Interactable-Bkgd"] );
 		controlLocation = POINT{ 1440, 0 };
 		globalParameters.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
@@ -1624,7 +1553,6 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		{ "EO-x", "EO-y", "Axial-x" }, IDC_PIEZO2_CTRL );
 		configParameters.setParameterControlActive( false );
 		controlLocation.x -= 240;
-		servos.initialize( controlLocation, toolTips, this, id, &aiSys, &aoSys, &ttlBoard, &globalParameters );
 		optimizer.initialize ( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
@@ -1727,10 +1655,20 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 		msg += "\tCode System is active!\n";
 		msg += "\t" + ttlBoard.getSystemInfo( ) + "\n";
 	}
+	else if(!ttlBoard.getFtFlumeSafemode())
+	{
+		msg += "\tDio System is active!\n";
+		ttlBoard.ftdi_connectasync("FT2E722BB");
+		msg += "\t" + ttlBoard.getDioSystemInfo() + "\n";
+		//ttlBoard.ftdi_disconnect();
+		msg += "\t Bites Written \n";// +ttlBoard.testTTL() + "\n";
+
+	}
 	else
 	{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
+	
 	msg += "Analog Out System:\n";
 	if ( !ANALOG_OUT_SAFEMODE )
 	{
@@ -1755,6 +1693,7 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	if ( !DDS_SAFEMODE )
 	{
 		msg += "\tDDS System is Active!\n";
+		msg += "\t" + dds.getSystemInfo ( ) + "\n";
 		msg += "\t" + dds.getSystemInfo ( );
 	}
 	else

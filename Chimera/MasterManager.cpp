@@ -58,11 +58,11 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		for ( auto& configInfo : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
+			std::ifstream configFile (configInfo.configFilePath ());
 			if ( input->runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
-				std::ifstream configFile ( configInfo.configFilePath ( ) );
 				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
 																			   DdsCore::getRampListFromConfig );
 				for ( auto piezoInc : range(input->piezoControllers.size()))
@@ -78,13 +78,16 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
 																Repetitions::getRepsFromConfig );
-				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS",
-																AndorCameraSettingsControl::getRunSettingsFromConfig );
-				andorRunsettings[ seqNum ].imageSettings = ProfileSystem::stdGetFromConfig ( configFile, 
-																							 "CAMERA_IMAGE_DIMENSIONS",
-																							 AndorCameraSettingsControl::getImageDimSettingsFromConfig );
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+			}
+			if (input->runAndor) 
+			{
+				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS",
+					AndorCameraSettingsControl::getRunSettingsFromConfig);
+				andorRunsettings[seqNum].imageSettings = ProfileSystem::stdGetFromConfig (configFile,
+					"CAMERA_IMAGE_DIMENSIONS",
+					AndorCameraSettingsControl::getImageDimSettingsFromConfig);
 			}
 			if ( input->runNiawg )
 			{
@@ -286,7 +289,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					aoSys.makeFinalDataFormat( variationInc, seqInc ); 
 					ttls.organizeTtlCommands ( variationInc, seqInc );
 					ttls.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					ttls.convertToFinalViewpointFormat( variationInc, seqInc );
+					ttls.convertToFtdiSnaps(variationInc, seqInc);
+					ttls.convertToFinalFtdiFormat( variationInc, seqInc );
 					// run a couple checks.
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
 					ttls.checkFinalFormatTimes( variationInc, seqInc );
@@ -348,6 +352,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		{
 			comm.sendColorBox( System::Master, 'G' );
 		}
+		// shouldn't there be a sequence loop here?
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		// shouldn't there be a sequence loop here?
 		for (const UINT& variationInc : range( variations ))
@@ -393,6 +398,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					{
 						Sleep ( 1000 );
 						expUpdate ( "Waiting for camera to finish...", comm, quiet );
+						if (input->thisObj->isAborting) { thrower (abortString); }
 					}
 					else
 					{
@@ -442,38 +448,50 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			}
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
+
+			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
+			if (input->runMaster)
+			{
+				ttls.ftdi_write (0, variationInc, skipOption);
+			}
 			for (auto repInc : range(repetitions))
 			{
-				for (auto seqInc : range(input->seq.sequence.size()))
+				
+				/*for (auto seqInc : range(input->seq.sequence.size()))
+				{*///this was the original structure for handleing diffferent sequences across repetitions
+				if (input->seq.sequence.size() > 1) 
 				{
-					if (input->thisObj->isAborting) { thrower ( abortString ); }
+					thrower("error the number of sequences should be zero");
+				}
+				else 
+				{
+					UINT seqInc = 0;
+					if (input->thisObj->isAborting) { thrower(abortString); }
 					else if (input->thisObj->isPaused)
 					{
-						expUpdate( "Paused\r\n!", comm, quiet );
+						expUpdate("Paused\r\n!", comm, quiet);
 						while (input->thisObj->isPaused)
 						{
 							// this could be changed to be a bit smarter using a std::condition_variable
-							Sleep( 100 );
-							if ( input->thisObj->isAborting ) { thrower ( abortString ); }
+							Sleep(100);
+							if (input->thisObj->isAborting) { thrower(abortString); }
 						}
-						expUpdate( "Un-Paused!\r\n", comm, quiet );
+						expUpdate("Un-Paused!\r\n", comm, quiet);
 					}
-					comm.sendRepProgress( repInc + 1 );
+					comm.sendRepProgress(repInc + 1);
 					if (input->runMaster)
 					{
 						aoSys.stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
 						// if the cruncher thread was running behind, it could change between writing and configuring the 
 						// aoSys and configuring the TTLs, resulting in some funny behavior;
-						bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ( );
-						aoSys.configureClocks( variationInc, seqInc, skipOption);
-						aoSys.writeDacs( variationInc, seqInc, skipOption);
+						aoSys.configureClocks(variationInc, seqInc, skipOption);
+						aoSys.writeDacs(variationInc, seqInc, skipOption);
 						aoSys.startDacs();
-						ttls.writeTtlData( variationInc, seqInc, skipOption);
-						ttls.startBoard();
-						ttls.waitTillFinished( variationInc, seqInc, skipOption);
+						ttls.ftdi_trigger();
+						ttls.FtdiWaitTillFinished(variationInc, seqInc, skipOption);
 					}
-				}
+				}//}
 			}
 		}
 		/// conclude.
@@ -544,6 +562,12 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			auto txt = "Exited main experiment thread abnormally." + exception.trace ( );
 			comm.sendFatalError( txt );
 		}	
+		try
+		{
+			input->andorCamera.abortAcquisition ();
+		}
+		catch (Error & err) 
+		{ /*Probably just idle.*/ }
 		{
 			std::lock_guard<std::mutex> locker ( input->thisObj->abortLock );
 			input->thisObj->isAborting = false;
@@ -673,10 +697,10 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 
 
 void MasterThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
-									  AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-									  std::vector<UINT>& dacShades, RohdeSchwarz& rsg, std::vector<parameterType>& vars,
-									  UINT seqNum, std::string& warnings )
-{
+											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
+											std::vector<UINT>& dacShades, RohdeSchwarz& rsg, 
+											std::vector<parameterType>& vars, UINT seqNum, std::string& warnings )
+{	
 	/// load the file
 	std::fstream functionFile;
 	// check if file address is good.
@@ -728,8 +752,8 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 			functionArgsString += elem + ",";
 		}
 		thrower ( "incorrect number of arguments in the call for function " + function + ". Number in call was: "
-				  + str ( args.size ( ) ) + ", number expected was " + str ( functionArgs.size ( ) ) + ". Function arguments were:"
-				  + functionArgsString + "." );
+				  + str ( args.size ( ) ) + ", number expected was " + str ( functionArgs.size ( ) ) 
+				  + ". Function arguments were:" + functionArgsString + "." );
 	}
 	std::vector<std::pair<std::string, std::string>> replacements;
 	for ( UINT replacementInc = 0; replacementInc < args.size ( ); replacementInc++ )
@@ -742,20 +766,10 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 	functionStream >> word;
 	while ( !( functionStream.peek ( ) == EOF ) || word != "__end__" )
 	{
-		if ( handleTimeCommands ( word, functionStream, vars, scope ) )
-		{
-			// got handled
-		}
-		else if ( handleVariableDeclaration ( word, functionStream, vars, scope, warnings ) )
-		{
-		}
-		else if ( handleDioCommands ( word, functionStream, vars, ttls, ttlShades, seqNum, scope ) )
-		{
-		}
-		else if ( handleAoCommands ( word, functionStream, vars, aoSys, dacShades, ttls, seqNum, scope ) )
-		{
-		}
-		/// callcppcode command
+		if (handleTimeCommands (word, functionStream, vars, scope)){ /* got handled*/ }
+		else if ( handleVariableDeclaration ( word, functionStream, vars, scope, warnings ) ){}
+		else if ( handleDioCommands ( word, functionStream, vars, ttls, ttlShades, seqNum, scope ) ){}
+		else if ( handleAoCommands ( word, functionStream, vars, aoSys, dacShades, ttls, seqNum, scope ) ){}
 		else if ( word == "callcppcode" )
 		{
 			// and that's it... 
@@ -774,9 +788,7 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 		}
 		/// deal with function calls.
 		else if ( handleFunctionCall ( word, functionStream, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
-									   warnings, function ) )
-		{
-		}
+									   warnings, function ) ) {}
 		else if ( word == "repeat:" )
 		{
 			std::string repeatStr;
@@ -1177,15 +1189,16 @@ bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStr
 		{
 			if ( var.parameterScope == GLOBAL_PARAMETER_SCOPE )
 			{
-				warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
-					" variable with the same name. It is generally recommended to use the appropriate local scope when "
+				warnings += "Warning: local variable \"" + tmpVariable.name + "\" with scope \"" 
+					+ scope + "\"is being overwritten by a parameter with the same name and "
+					"global parameter scope. It is generally recommended to use the appropriate local scope when "
 					"possible.\r\n";
 				// this variable is being overwritten, so don't add this variable vector
 				return true;
 			}
 			else if ( str( var.parameterScope, 13, false, true ) == str( scope, 13, false, true ) )
 			{
-				// being overwritten, but the variable was specific, so this must be fine.
+				// being overwritten so don't add, but the variable was specific, so this must be fine.
 				return true;
 			}
 		}
@@ -1220,54 +1233,61 @@ bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStr
 
 // if it handled it, returns true, else returns false.
 bool MasterThreadManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
-										std::string scope )
+											  std::string scope )
 {
-	if ( word == "t" )
+	try
 	{
-		std::string command;
-		stream >> command;
-		word += command;
-	}
-	//
-	if ( word == "t++" )
-	{
-		operationTime.second++;
-	}
-	else if ( word == "t+=" )
-	{
-		Expression time;
-		stream >> time;
-		try
+		if (word == "t")
 		{
-			operationTime.second += time.evaluate( );
+			std::string command;
+			stream >> command;
+			word += command;
 		}
-		catch ( Error& )
+		//
+		if (word == "t++")
 		{
-			time.assertValid( vars, scope );
-			operationTime.first.push_back( time );
+			operationTime.second++;
 		}
+		else if (word == "t+=")
+		{
+			Expression time;
+			stream >> time;
+			try
+			{
+				operationTime.second += time.evaluate ();
+			}
+			catch (Error&)
+			{
+				time.assertValid (vars, scope);
+				operationTime.first.push_back (time);
+			}
+		}
+		else if (word == "t=")
+		{
+			Expression time;
+			stream >> time;
+			try
+			{
+				operationTime.second = time.evaluate ();
+			}
+			catch (Error&)
+			{
+				time.assertValid (vars, scope);
+				operationTime.first.push_back (time);
+				// because it's equals. There shouldn't be any extra terms added to this now.
+				operationTime.second = 0;
+			}
+		}
+		else
+		{
+			return false;
+		}
+		return true;
 	}
-	else if ( word == "t=" )
+	catch (Error & err)
 	{
-		Expression time;
-		stream >> time;
-		try
-		{
-			operationTime.second = time.evaluate( );
-		}
-		catch ( Error & )
-		{
-			time.assertValid( vars, scope );
-			operationTime.first.push_back( time );
-			// because it's equals. There shouldn't be any extra terms added to this now.
-			operationTime.second = 0;
-		}
+		throwNested ("Error seen while handling time commands. Word was \"" + word + "\"");
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 /* returns true if handles word, false otherwise. */
@@ -1544,7 +1564,6 @@ bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& st
 	functionCall = stream.getline( '\n' );
 	boost::erase_all ( functionCall, "\r" );
 	int pos = functionCall.find_first_of( "(" ) + 1;
-	int finalpos2 = functionCall.find_last_of( ")" );
 	int finalpos = functionCall.find_last_of( ")" );
 
 	functionName = functionCall.substr( 0, pos - 1 );

@@ -53,8 +53,8 @@ template <class ControlType> class Control : public ControlType
 		RECT amPos;
 		// Continuous Single Scan Mode Position
 		RECT videoPos;
-		fontTypes fontType;
-		int triggerModeSensitive;
+		fontTypes fontType = fontTypes::NormalFont;
+		int triggerModeSensitive=0;
 		//
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
@@ -67,7 +67,7 @@ template <class ControlType> class Control : public ControlType
 	private:
 		int toolTipID;
 		CToolTipCtrl toolTip;
-		bool toolTipIsSet;
+		bool toolTipIsSet=false;
 };
 
 
@@ -233,119 +233,19 @@ void Control<ControlType>::rearrange( AndorRunModes::mode cameraMode, AndorTrigg
 	double widthScale = width / 1920.0;
 	double heightScale = height / 997.0;
 	/// Set Fonts
-  	if (fontType == fontTypes::NormalFont)
+	std::string fontSize;
+	if (widthScale * heightScale > 2)		 { fontSize = "Max"; }
+	else if (widthScale * heightScale > 0.8) { fontSize = "Large"; }
+	else if (widthScale * heightScale > 0.6) { fontSize = "Med"; }
+	else									 { fontSize = "Small"; }
+	switch (fontType)
 	{
-		if (widthScale * heightScale > 2)
-		{
-			SetFont(fonts["Normal Font Max"]);
-		}
-		else if (widthScale * heightScale > 0.8)
-		{
-			SetFont(fonts["Normal Font Large"]);
-		}
-		else if (widthScale * heightScale > 0.6)
-		{
-			SetFont(fonts["Normal Font Med"]);
-		}
-		else
-		{
-			SetFont(fonts["Normal Font Small"]);
-		}
-	}
-	else if (fontType == fontTypes::CodeFont)
-	{
-		if (widthScale * heightScale > 2)
-		{
-			SetFont(fonts["Code Font Max"]);
-		}
-		else if (widthScale * heightScale > 0.8)
-		{
-			SetFont(fonts["Code Font Large"]);
-		}
-		else if (widthScale * heightScale > 0.6)
-		{
-			SetFont(fonts["Code Font Med"]);
-		}
-		else
-		{
-			SetFont(fonts["Code Font Small"]);
-		}
-	}
-	else if (fontType == fontTypes::HeadingFont)
-	{
-		if (widthScale * heightScale > 2)
-		{
-			SetFont(fonts["Heading Font Max"]);
-		}
-		else if (widthScale * heightScale > 0.8)
-		{
-			SetFont(fonts["Heading Font Large"]);
-		}
-		else if (widthScale * heightScale > 0.6)
-		{
-			SetFont(fonts["Heading Font Med"]);
-		}
-		else
-		{
-			SetFont(fonts["Heading Font Small"]);
-		}
-	}
-	else if (fontType == fontTypes::LargeFont)
-	{
-		if (widthScale * heightScale > 2)
-		{
-			SetFont(fonts["Larger Font Max"]);
-		}
-		else if (widthScale * heightScale > 0.8)
-		{
-			SetFont(fonts["Larger Font Large"]);
-		}
-		else if (widthScale * heightScale > 0.6)
-		{
-			SetFont(fonts["Larger Font Med"]);
-		}
-		else
-		{
-			SetFont(fonts["Larger Font Small"]);
-		}
-	}
-	else if ( fontType == fontTypes::VeryLargeFont )
-	{
-		if ( widthScale * heightScale > 2 )
-		{
-			SetFont( fonts["Very Larger Font Max"] );
-		}
-		else if ( widthScale * heightScale > 0.8 )
-		{
-			SetFont( fonts["Very Larger Font Large"] );
-		}
-		else if ( widthScale * heightScale > 0.6 )
-		{
-			SetFont( fonts["Very Larger Font Med"] );
-		}
-		else
-		{
-			SetFont( fonts["Very Larger Font Small"] );
-		}
-	}
-	else if (fontType == fontTypes::SmallFont)
-	{
-		if (widthScale * heightScale > 2)
-		{
-			SetFont(fonts["Smaller Font Max"]);
-		}
-		else if (widthScale * heightScale > 0.8)
-		{
-			SetFont(fonts["Smaller Font Large"]);
-		}
-		else if (widthScale * heightScale > 0.6)
-		{
-			SetFont(fonts["Smaller Font Med"]);
-		}
-		else
-		{
-			SetFont(fonts["Smaller Font Small"]);
-		}
+	case fontTypes::NormalFont: SetFont (fonts["Normal Font " + fontSize]); break;
+	case fontTypes::CodeFont: SetFont (fonts["Code Font " + fontSize]); break;
+	case fontTypes::HeadingFont: SetFont (fonts["Heading Font " + fontSize]); break;
+	case fontTypes::LargeFont: SetFont (fonts["Larger Font " + fontSize]); break;
+	case fontTypes::VeryLargeFont: SetFont (fonts["Very Larger Font " + fontSize]); break;
+	case fontTypes::SmallFont: SetFont (fonts["Smaller Font " + fontSize]); break;
 	}
 }
 

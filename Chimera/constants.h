@@ -17,8 +17,65 @@
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
 #define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
+//#define TEST_PC
+
+/// File Locations and safemode options
+#ifdef TEST_PC
+
+#define DDS_SAFEMODE true
+#define BASLER_SAFEMODE true
+#define PYTHON_HOME L"C:\\ProgramData\\Python37\\"
+#define NIAWG_SAFEMODE true
+#define ANDOR_SAFEMODE true
+#define PYTHON_SAFEMODE true
+#define VIEWPOINT_SAFEMODE true
+#define DIOFTDI_SAFEMODE false
+#define ANALOG_OUT_SAFEMODE true
+#define ANALOG_IN_SAFEMODE true
+#define RSG_SAFEMODE true
+#define TOP_BOTTOM_TEK_SAFEMODE true
+#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
+#define EO_AXIAL_TEK_SAFEMODE true
+#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
+#define TOP_BOTTOM_AGILENT_SAFEMODE true
+#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
+#define AXIAL_AGILENT_SAFEMODE true
+#define AXIAL_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52810615::0::INSTR"
+#define INTENSITY_SAFEMODE true
+#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
+#define FLASHING_SAFEMODE true
+#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
+#define UWAVE_SAFEMODE true
+//#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+#define UWAVE_AGILENT_USB_ADDRESS "USB0::2391::11271::MY52801397::0::INSTR"
+
+#define MASTER_REPUMP_SCOPE_SAFEMODE true
+#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+#define MOT_SCOPE_SAFEMODE true
+#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+
+const std::string PROJECT_LOCATION = "C:\\Users\\Max\\64bitControlCode\\";
+const std::string PYTHON_CODE_LOCATION = "C:/Users/Max/64bitControlCode/Chimera";
+const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Data_Analysis_Code\\";
+// same as debug output location but with forward slashes for ease of use in python
+const std::string PYTHON_INPUT_LOCATION = "C:/Users/Max/64bitControlCode/Debug-Output/";
+const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
+const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
+const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default-Scripts\\";
+const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
+const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
+const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
+const std::string FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
+const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
+const std::string MOT_ROUTINES_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\MOT";
+const std::string PGC_ROUTINES_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\PGC";
+const std::string CAMERA_CAL_ROUTINE_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\Camera";
+const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
+const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
+const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
+#endif
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
@@ -28,7 +85,7 @@
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
 	#define PYTHON_SAFEMODE true
-	#define DIO_SAFEMODE true
+	#define VIEWPOINT_SAFEMODE true
 	#define ANALOG_OUT_SAFEMODE true
 	#define ANALOG_IN_SAFEMODE true
 	#define RSG_SAFEMODE true
@@ -78,6 +135,7 @@
 	
 
 #ifdef ANALYSIS_COMPUTER
+	#define DIOFTDI_SAFEMODE true
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 	#define DDS_SAFEMODE true
@@ -86,7 +144,7 @@
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
 	#define PYTHON_SAFEMODE true
-	#define DIO_SAFEMODE true
+	#define VIEWPOINT_SAFEMODE true
 	#define ANALOG_OUT_SAFEMODE true
 	#define ANALOG_IN_SAFEMODE true
 	#define RSG_SAFEMODE true
@@ -132,9 +190,10 @@
 
 
 #ifdef MASTER_COMPUTER
+	#define DIOFTDI_SAFEMODE false
 	#define DDS_SAFEMODE false
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
-	const PiezoType PIEZO_2_TYPE = PiezoType::B;
+	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 	#define BASLER_SAFEMODE false
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
@@ -143,7 +202,7 @@
 	#else
 		#define PYTHON_SAFEMODE false
 	#endif
-	#define DIO_SAFEMODE false
+	#define VIEWPOINT_SAFEMODE true
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
 	#define TOP_BOTTOM_TEK_SAFEMODE false

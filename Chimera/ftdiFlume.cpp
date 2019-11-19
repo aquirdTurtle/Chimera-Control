@@ -1,6 +1,7 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "ftdiFlume.h"
+#include <fstream>
 
 ftdiFlume::ftdiFlume( bool safemode_option ) : safemode(safemode_option )
 {}
@@ -99,6 +100,7 @@ std::string ftdiFlume::getDeviceInfoList ( )
 				msg += "\t\tLocId = " + str ( dev.LocId ) + "\n";
 				msg += "\t\tSerial Number = " + str ( dev.SerialNumber ) + "\n";
 				msg += "\t\tDescription = " + str ( dev.Description ) + "\n";
+				msg += "\t\tftHandle = " + str ( dev.ftHandle ) + "\n\n";
 				msg += "\t\tftHandle = " + str ( dev.ftHandle ) + "\n";
 			}
 		}
@@ -125,9 +127,35 @@ void ftdiFlume::setUsbParams( )
 	}
 }
 
+DWORD ftdiFlume::trigger() {
+	
+		FT_STATUS ftStatus;
+		std::vector<unsigned char> dataBuffer(7);
+		unsigned long dwNumberOfBytesSent = 0;
+		DWORD BytesWritten = dataBuffer.size();
+		
+		dataBuffer[0] = 161;
+		dataBuffer[1] = 0;
+		dataBuffer[2] = 0;
+		dataBuffer[3] = 0;
+		dataBuffer[4] = 0;
+		dataBuffer[5] = 0;
+		dataBuffer[6] = 1;
+		write ( dataBuffer, 7 );
+		/*
+		ftStatus = FT_Write(ftAsyncHandle, dataBuffer.data(), dataBuffer.size(), &BytesWritten);
+		if (ftStatus != FT_OK)
+		{
+			thrower("error writing; FT_Write failed! Status was \"" + getErrorText(ftStatus) + "\"");
+		}
+		*/
+		return BytesWritten;
+}
+
 DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite )
 {
 	DWORD BytesWritten=dataBuffer.size();
+
 	if ( !safemode )
 	{
 //#ifdef _WIN64
@@ -136,7 +164,10 @@ DWORD ftdiFlume::write( std::vector<unsigned char> dataBuffer, DWORD amountToWri
 		{
 			amountToWrite = sizeof( dataBuffer );
 		}
+
+		
 		ftStatus = FT_Write( ftAsyncHandle, dataBuffer.data(), amountToWrite, &BytesWritten );
+
 		if ( ftStatus != FT_OK )
 		{
 			thrower ( "error writing; FT_Write failed! Status was \"" + getErrorText( ftStatus ) + "\"" );
@@ -172,4 +203,7 @@ void ftdiFlume::close( )
 		}
 //#endif
 	}
+}
+bool ftdiFlume::getSafemodeSetting() {
+	return safemode;
 }

@@ -127,6 +127,8 @@ std::string PiezoCore::getDeviceInfo ( )
 			return flume.getDeviceInfo ( );
 		case PiezoType::NONE:
 			return "NONE";
+		default:
+			return "PIEZO TYPE NOT RECOGNIZED!";
 	}
 }
 

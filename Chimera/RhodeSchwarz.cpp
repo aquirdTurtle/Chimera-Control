@@ -43,7 +43,7 @@ void RohdeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow*
 	listViewDefaultCollumn.cx = 200;
 	infoControl.InsertColumn( 1, &listViewDefaultCollumn );
 	listViewDefaultCollumn.pszText = "Power (dBm)";
-	listViewDefaultCollumn.cx = 200;
+	listViewDefaultCollumn.cx = 180;
 	infoControl.InsertColumn( 2, &listViewDefaultCollumn );
 	pos.y += 100;
 }

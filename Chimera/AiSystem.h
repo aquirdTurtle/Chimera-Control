@@ -44,6 +44,7 @@ class AiSystem
 		std::vector<float64> aquisitionData;
 		TaskHandle analogInTask0 = NULL;
 		DaqMxFlume daqmx;
+		const std::string boardName = "dev2";
 };
 
 

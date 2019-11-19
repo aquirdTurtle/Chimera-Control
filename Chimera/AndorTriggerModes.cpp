@@ -35,5 +35,6 @@ AndorTriggerMode::mode AndorTriggerMode::fromStr ( std::string txt )
 			return m;
 		}
 	}
+	thrower ( "AndorTriggerMode string not recognized?!" );
 }
 

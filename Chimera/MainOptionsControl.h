@@ -10,8 +10,8 @@
 struct mainOptions
 {
 	bool dontActuallyGenerate=false;
-	bool randomizeVariations;
-	bool randomizeReps;
+	bool randomizeVariations=false;
+	bool randomizeReps=false;
 	UINT atomThresholdForSkip=UINT_MAX;
 };
 

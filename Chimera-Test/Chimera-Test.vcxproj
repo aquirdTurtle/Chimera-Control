@@ -94,7 +94,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Mark-Brown\Chimera-Control\x64\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Mark-Brown\Chimera-Control\x64\Release;$(PROJECTDIR)..\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

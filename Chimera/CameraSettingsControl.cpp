@@ -37,8 +37,8 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	cameraModeCombo.setPositions ( pos, 0, 0, 480, 100, false, false, true );
 	cameraModeCombo.Create( NORM_COMBO_OPTIONS, cameraModeCombo.seriesPos, parent, IDC_CAMERA_MODE_COMBO );
 	cameraModeCombo.AddString( "Kinetic-Series-Mode" );
-	cameraModeCombo.AddString( "Accumulation Mode" );
-	cameraModeCombo.AddString( "Video Mode" );
+	cameraModeCombo.AddString( "Accumulation-Mode" );
+	cameraModeCombo.AddString( "Video-Mode" );
 	cameraModeCombo.SelectString( 0, "Kinetic-Series-Mode" );
 	settings.andor.acquisitionMode = AndorRunModes::Kinetic;
 	pos.seriesPos.y += 20;
@@ -125,7 +125,7 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	// Kinetic Cycle Time Label
 	kineticCycleTimeLabel.setPositions ( pos, 0, 0, 240, 25, false, false, true, true );
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
-	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.seriesPos, parent, id++ );
+	kineticCycleTimeLabel.Create( "Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.seriesPos, parent, id++ );
 
 	// Kinetic Cycle Time Edit
 	kineticCycleTimeEdit.setPositions ( pos, 240, 0, 240, 25, true, false, true, true );
@@ -170,6 +170,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
 	cameraModeCombo.SelectString ( 0, AndorRunModes::toStr ( inputSettings.acquisitionMode ).c_str() );// cstr ( inputSettings.cameraMode ));
+	triggerCombo.SelectString (0, AndorTriggerMode::toStr (inputSettings.triggerMode).c_str ());
 	if ( inputSettings.acquisitionMode == AndorRunModes::Video )
 	{
 		inputSettings.repetitionsPerVariation = INT_MAX;

@@ -452,7 +452,7 @@ namespace commonFunctions
 			}
 			case ID_ACCELERATOR_F1:
 			{
-				auxWin->autoServo ( 0, 0 );
+				mainWin->autoServo ( 0, 0 );
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL );
 				input.masterInput->runNiawg = false;

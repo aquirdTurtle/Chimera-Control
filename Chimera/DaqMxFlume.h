@@ -32,7 +32,7 @@ class DaqMxFlume
 		void writeAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool32 autoStart, float64 timeout,
 								bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten );
 		void startTask( TaskHandle handle );
-		std::string getDacSystemInfo( );
+		std::string getDacSystemInfo(std::array<std::string, 3> boardNames);
 		void readAnalogF64( TaskHandle taskHandle, std::vector<float64> &readData, int32& sampsPerChanRead );
 		long getProductCategory( std::string deviceLocation );
 		const bool safemode;

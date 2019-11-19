@@ -30,7 +30,6 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 	peopleListView.SetTextBkColor( _myRGBs["Interactable-Bkgd"] );
 	peopleListView.SetTextColor( _myRGBs["MainWin-Text"] );
 	peopleListView.insertBlankRow ( );
-	pos.y += 120;
 	if ( !PYTHON_SAFEMODE )
 	{
 		// initialize myself;
@@ -41,13 +40,6 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 		me.textIfLoadingStops = false;
 		me.textWhenComplete = false;
 		addPerson( me );
-		personInfo tobias;
-		tobias.name = "Tobias Thiele";
-		tobias.number = "7207252841";
-		tobias.provider = "googlefi";
-		tobias.textIfLoadingStops = false;
-		tobias.textWhenComplete = false;
-		addPerson ( tobias );
 	}
 }
 
