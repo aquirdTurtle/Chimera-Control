@@ -260,6 +260,50 @@ namespace TestNiawg
 				count++;
 			}
 		}
+		TEST_METHOD ( VectorizedVsTraditional )
+		{
+			// check various properties of the wavevals and the wavevals themselves. Using actual calculations, not the
+			// library.
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
+			bool safemode ( true );
+			NiawgController niawg ( trigRow, trigNum, safemode );
+			ScriptStream stream ( simpleScript );
+			NiawgOutput output;
+			//
+			niawg.analyzeNiawgScript ( stream, output, profileSettings ( ), debugInfo ( ), std::string ( ), rerngGuiOptionsForm ( ),
+									   std::vector<parameterType> ( ) );
+			niawg.writeStaticNiawg ( output, debugInfo ( ), std::vector<parameterType> ( ), false, niawgLibOption::mode::banned );
+			//
+			auto& vals = output.waves[ 0 ].core.waveVals;
+			// should be long enough to sum close to zero.
+			double sum = 0;
+			double max = 0, min = 0;
+			for ( auto val : vals )
+			{
+				sum += val;
+				if ( val > max )
+				{
+					max = val;
+				}
+				else if ( val < min )
+				{
+					min = val;
+				}
+			}
+			// a couple sanity checks before the complete comparison.
+			Assert::AreEqual ( 0.0, sum, 1e-9 );
+			Assert::AreEqual ( 0.0, vals[ 0 ] );
+			Assert::AreEqual ( 0.0, vals[ 1 ] );
+			Assert::AreNotEqual ( vals[ 2 ], vals[ 3 ] );
+			Assert::IsTrue ( max < 1.0 );
+			Assert::IsTrue ( min > -1.0 );
+			Assert::IsTrue ( vals.size ( ) == simpleScriptVals.size ( ) );
+			for ( auto valInc : range ( vals.size ( ) ) )
+			{
+				Assert::AreEqual ( simpleScriptVals[ valInc ], vals[ valInc ], 1e-6 );
+			}
+		}
 		TEST_METHOD ( SimpleScript_WriteWave_Wavevals )
 		{
 			// check various properties of the wavevals and the wavevals themselves. Using actual calculations, not the
@@ -303,6 +347,45 @@ namespace TestNiawg
 			{
 				Assert::AreEqual ( simpleScriptVals[ valInc ], vals[ valInc ], 1e-6 );
 			}
+		}
+		TEST_METHOD ( RampScriptTests )
+		{
+			// check various properties of the wavevals and the wavevals themselves. Using actual calculations, not the
+			// library.
+			DioRows::which trigRow = DioRows::which::A;
+			UINT trigNum ( 0 );
+			bool safemode ( true );
+			NiawgController niawg ( trigRow, trigNum, safemode );
+			ScriptStream stream ( rampScript );
+			NiawgOutput output;
+			//
+			niawg.analyzeNiawgScript ( stream, output, profileSettings ( ), debugInfo ( ), std::string ( ), rerngGuiOptionsForm ( ),
+									   std::vector<parameterType> ( ) );
+			niawg.writeStaticNiawg ( output, debugInfo ( ), std::vector<parameterType> ( ), false, niawgLibOption::mode::banned );
+			//
+			auto& vals = output.waves[ 0 ].core.waveVals;
+			// should be long enough to sum close to zero.
+			double sum = 0;
+			double max = 0, min = 0;
+			for ( auto val : vals )
+			{
+				sum += val;
+				if ( val > max )
+				{
+					max = val;
+				}
+				else if ( val < min )
+				{
+					min = val;
+				}
+			}
+			// a couple sanity checks before the complete comparison.
+			Assert::AreEqual ( 0.0, sum, 1e-9 );
+			Assert::AreEqual ( 0.0, vals[ 0 ] );
+			Assert::AreEqual ( 0.0, vals[ 1 ] );
+			Assert::AreNotEqual ( vals[ 2 ], vals[ 3 ] );
+			Assert::IsTrue ( max < 1.0 );
+			Assert::IsTrue ( min > -1.0 );
 		}
 		TEST_METHOD ( SimpleScript_LibRead_Wavevals )
 		{
@@ -377,9 +460,92 @@ namespace TestNiawg
 			Assert::AreEqual ( long ( NIAWG_SAMPLE_RATE * 10e-3 ), output.waves[ 0 ].core.sampleNum() );
 		}
 		private:
-		const std::string simpleScript = "gen1const HORIZONTAL 80 1 0 # gen1const VERTICAL 70 1 0 # 0.01 0";
-		const std::string rampScript = "gen2ampramp HORIZONTAL 80 lin 0.3 0.7 0 80 lin 0.7 0.3 0 # "
-			"gen1freqramp VERTICAL lin 70 80 1 0 # 0.01 0";
+		const std::string simpleScript =
+			"gen1const "
+			"HORIZONTAL "
+			"80 1 0 # "
+			"gen1const "
+			"VERTICAL "
+			"70 1 0 # "
+			"0.01 0";
+		const std::string simpleScript_v =
+			"var_v 1 freqs_h [ 80 ] "
+			"var_v 1 amps_h [ 1 ] "
+			"var_v 1 phases_h [ 0 ] "
+			"var_v 1 freqs_v [ 70 ] "
+			"gen1const_v "
+			"HORIZONTAL "
+			"freqs_h amps_h phases_h # "
+			"gen1const_v "
+			"VERTICAL "
+			"freqs_v amps_h phases_h # "
+			"0.01 0";
+		const std::string rampScript = 
+			"gen2ampramp "
+			"HORIZONTAL "
+			"80 lin 0.3 0.7 0 "
+			"80 lin 0.7 0.3 0 # "
+			"gen1freqramp "
+			"VERTICAL "
+			"lin 70 80 1 0 "
+			"# 0.01 0";
+		const std::string rampScript_V =
+			"var_v 2 freqs_h [ 80 80 ] "
+			"var_v 2 PRT_h [ lin lin ] "
+			"var_v 2 initAmps_h [ 0.3 0.7 ] "
+			"var_v 2 finAmps_h [ 0.7 0.3 ] "
+			"var_v 2 phases_h [ 0 0 ] "
+			"var_v 1 FRT_v [ lin ] "
+			"var_v 1 initFreqs [ 70 ] "
+			"var_v 1 finFreqs [ 80 ] "
+			"var_v 1 phases_v [ 0 ] "
+			"var_v 1 amps_v [ 1 ] "
+			"gen2ampramp_v "
+			"HORIZONTAL "
+			"freqs_h PRT_h initAmps_h finAmps_h phases_h # "
+			"gen1freqramp_v "
+			"VERTICAL "
+			"FRT_v initFreqs finFreqs amps_v phases_v # "
+			"0.01 0";
+		const std::string dblRampScript =
+			"gen3amp&freqramp "
+			"HORIZONTAL "
+			"lin 70 80 lin 0.5 1 0 "
+			"lin 60 80 lin 1 0.1 0 "
+			"lin 80 90 lin 0.5 2 0 #"
+			"gen3amp&freqramp "
+			"VERTICAL "
+			"lin 75 85 lin 0 1 0 "
+			"lin 60 60.1 lin 1 0.2 0 "
+			"lin 30 90 lin 0.5 20 0 #"
+			"0.01 0";
+
+		const std::string dblRampScript_v =
+			"var_v 3 FRT_h [ lin lin lin ] "
+			"var_v 3 initFreqs_h [ 70 60 80 ] "
+			"var_v 3 finFreqs_h [ 80 80 90 ] "
+			"var_v 3 PRT_h [ lin lin lin ] "
+			"var_v 3 initAmps_h [ 0.5 1 0.5 ] "
+			"var_v 3 finAmps_h [ 1 0.1 2 ] "
+			"var_v 3 phases_h [ 0 0 0 ] "
+
+			"var_v 3 FRT_v [ lin lin lin ] "
+			"var_v 3 initFreqs_v [ 75 60 30 ] "
+			"var_v 3 finFreqs_v [ 85 60.1 90 ] "
+			"var_v 3 PRT_v [ lin lin lin ] "
+			"var_v 3 initAmps_v [ 0 1 0.5 ] "
+			"var_v 3 finAmps_v [ 1 0.2 20 ] "
+			"var_v 3 phases_v [ 0 0 0 ] "
+
+			"gen3amp&freqramp_v "
+			"HORIZONTAL "
+			"FRT_h initFreqs_h finFreqs_h PRT_h initAmps_h finAmps_h phases_h #"
+			"gen3amp&freqramp_v "
+			"VERTICAL "
+			"FRT_v initFreqs_v finFreqs_v PRT_v initAmps_v finAmps_v phases_v #"
+			"0.01 0";
+
+
 		const std::string complexLogicScript = "repeattiltrig "
 			"gen1const HORIZONTAL 80 1 0 # "
 			"gen1const VERTICAL 70 1 0 # 0.01 0"
