@@ -15,7 +15,7 @@ typedef std::vector<CToolTipCtrl*> cToolTips;
 typedef std::unordered_map<HWND, std::string> toolTipTextMap;
 typedef std::unordered_map<std::string, CFont*> fontMap;
 
-enum class fontTypes { NormalFont, HeadingFont, CodeFont, SmallFont, LargeFont, VeryLargeFont };
+enum class fontTypes { NormalFont, HeadingFont, CodeFont, SmallFont, LargeFont, VeryLargeFont, SmallCodeFont };
 
 // first part of pair is the variable component of the time, second part is the "raw" or constant part of the time.
 // this structure will be evaluated to determine the real time (given a variation # and variable values) that an 

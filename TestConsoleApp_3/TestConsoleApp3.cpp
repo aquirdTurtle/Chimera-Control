@@ -9,7 +9,7 @@ int main ( )
 	{
 		throw 5;
 	}
-	catch ( int e )
+	catch ( int  )
 	{
 
 	}

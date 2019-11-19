@@ -62,16 +62,20 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	CRect rt;
 	// Get button rect
 	rt = lpDrawItemStruct->rcItem;
-	CRect subr = { rt.TopLeft( ), rt.BottomRight( ) };
-	subr.right = subr.left + (subr.bottom - subr.top);	
+	CRect txtRect = { rt.TopLeft (), rt.BottomRight () };
+	CRect checkRect = { rt.TopLeft( ), rt.BottomRight( ) };
+	auto height = (checkRect.bottom - checkRect.top);
+	// always square on the left side of window. 
+	checkRect.right = checkRect.left + height;
+	txtRect.left = checkRect.right;
 	UINT state = lpDrawItemStruct->itemState;
 	if ( IsWindowEnabled( ) )
 	{
-		dc.FillSolidRect( subr, _myRGBs[ "Interactable-Bkgd" ] );
+		dc.FillSolidRect( checkRect, _myRGBs[ "Interactable-Bkgd" ] );
 	}
 	else
 	{
-		dc.FillSolidRect( subr, _myRGBs[ "Static-Bkgd" ] );
+		dc.FillSolidRect( checkRect, _myRGBs[ "Static-Bkgd" ] );
 	}
 	CPen pen( PS_SOLID, 0, _myRGBs["Text-Emph"] );
 	dc.SelectObject( pen );
@@ -86,10 +90,10 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 		CPen pen( PS_SOLID, 0, _myRGBs[ "Text-Emph" ] );
 		dc.SelectObject( pen );
 		// draw the X
-		dc.MoveTo( subr.TopLeft( ) );
-		dc.LineTo( subr.BottomRight( ) );
-		dc.MoveTo( { subr.right, subr.top } );
-		dc.LineTo( { subr.left, subr.bottom } );
+		dc.MoveTo( checkRect.TopLeft( ) );
+		dc.LineTo( checkRect.BottomRight( ) );
+		dc.MoveTo( { checkRect.right, checkRect.top } );
+		dc.LineTo( { checkRect.left, checkRect.bottom } );
 	}
 	else
 	{
@@ -100,7 +104,7 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	GetWindowText( strTemp );
 	dc.SelectObject( GetFont( ) );
 	dc.SetBkColor( _myRGBs[ "Button-Color" ] );
-	dc.DrawText( strTemp, rt, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+	dc.DrawText( strTemp, txtRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
 	// Draw out the caption
 	// If the button is focused
 	if ( (state & ODS_FOCUS) )

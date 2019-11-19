@@ -66,7 +66,7 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 
 ScriptStream & ScriptStream::operator>>( Expression& expression )
 {
-	return operator>>( expression.expressionStr);
+	return operator>>( expression.expressionStr );
 }
 
 

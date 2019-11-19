@@ -34,25 +34,26 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 200 };
 	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos,
 							  parent, listviewId );
-
+	
 	RECT r;
-	parent->GetClientRect( &r );
+	parametersListview.GetClientRect (&r);
+	auto width = r.right - r.left;
 	if ( paramSysType == ParameterSysType::global )
 	{
-		parametersListview.InsertColumn( 0, "Symbol", 3 * r.right / 5 );
-		parametersListview.InsertColumn( 1, "Value", r.right / 6 );
+		parametersListview.InsertColumn( 0, "Symbol", 0.5*width);
+		parametersListview.InsertColumn( 1, "Value", 0.3*width );
 	}
 	else 
 	{
-		parametersListview.InsertColumn( 0, "Symbol", r.right/4 );
-		parametersListview.InsertColumn( 1,"Type", r.right/10);
-		parametersListview.InsertColumn( 2,"Dim" );
-		parametersListview.InsertColumn( 3, "Value" );
+		parametersListview.InsertColumn( 0, "Symbol", 0.2*width );
+		parametersListview.InsertColumn( 1, "Type", 0.1*width);
+		parametersListview.InsertColumn( 2, "Dim");
+		parametersListview.InsertColumn( 3, "Value");
 		parametersListview.InsertColumn ( 4, "Scope" );
-		setVariationRangeColumns ( 1, r.right/15 );
+		setVariationRangeColumns ( 1, 0.05*width );
 	}
 	parametersListview.insertBlankRow ( );
-	parametersListview.fontType = fontTypes::SmallFont;
+	parametersListview.fontType = fontTypes::SmallCodeFont;
 	parametersListview.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
 	parametersListview.SetTextColor ( _myRGBs["AuxWin-Text"] );
 	parametersListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
@@ -117,7 +118,9 @@ void ParameterSystem::redrawListview ( )
 	parametersListview.DeleteAllItems ( );
 	if ( paramSysType == ParameterSysType::config )
 	{
-		setVariationRangeColumns ( );
+		RECT r;
+		parametersListview.GetClientRect (&r);
+		setVariationRangeColumns (-1, 0.08*(r.right - r.left ));
 		if ( currentParameters.size ( ) != 0 )
 		{
 			UINT varInc = 0;

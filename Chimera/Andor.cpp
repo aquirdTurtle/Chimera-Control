@@ -294,17 +294,17 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 
 	flume.queryStatus();
 
-	/// Do some plotting stuffs 
+	/// Do some plotting stuffs
 	// get the min time after setting everything else.
 	minKineticCycleTime = getMinKineticCycleTime( );
 
 	cameraIsRunning = true;
 	std::unique_lock<std::timed_mutex> lock (camThreadMutex, std::chrono::milliseconds(1000));
 	if (!lock.owns_lock ())
-	{
-		errBox("Failed to get Andor imaging thread lock! Imaging thread is probably waiting for aquisition... Attempting to continue...");
-	}
-	// remove the spurious wakeup check.
+	{/* Then the thread couldn't get a lock on the spurious wakeup check, but that means that the thread is just
+	 waiting for an acquisition... should fix this behavior, but should be okay to continue.*/	}
+
+	 // remove the spurious wakeup check.
 	threadInput.expectingAcquisition = true;
 	// notify the thread that the experiment has started..
 	OutputDebugString ("Notifying Andor Thread; ");

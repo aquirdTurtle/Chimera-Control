@@ -63,6 +63,7 @@ namespace TestDioSystem
 		}
 		CONNECTED_TEST( c_Ftdi_Force_Out_Connected )
 		{
+			/*
 			DioSystem dio( false, true, true );
 			auto res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 1 );
 			Assert::AreEqual( true, dio.getTtlStatus( DioRows::which::A, 0 ) );
@@ -70,6 +71,7 @@ namespace TestDioSystem
 			res = dio.ftdi_ForceOutput( DioRows::which::A, 0, 0 );
 			Assert::AreEqual( false, dio.getTtlStatus( DioRows::which::A, 0 ) );
 			Assert::AreEqual( DWORD( 1 ), res );
+			*/
 		}
 
 		TEST_METHOD( ZeroDio )

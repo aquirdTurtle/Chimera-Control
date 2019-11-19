@@ -26,7 +26,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 		->CreateFontA(27, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 	(mainFonts["Normal Font Max"] = new CFont)
-		->CreateFontA(34, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		->CreateFontA(33, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 	(mainFonts["Heading Font Max"] = new CFont)
 		->CreateFontA(42, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
@@ -34,6 +34,9 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainFonts["Code Font Max"] = new CFont)
 		->CreateFontA(32, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Small Code Font Max"] = new CFont)
+		->CreateFontA (25, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT ("Consolas"));
 	(mainFonts["Larger Font Max"] = new CFont)
 		->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -53,6 +56,9 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainFonts["Code Font Large"] = new CFont)
 		->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Small Code Font Large"] = new CFont)
+		->CreateFontA (12, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT ("Consolas"));
 	(mainFonts["Larger Font Large"] = new CFont)
 		->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -73,6 +79,9 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainFonts["Code Font Med"] = new CFont)
 		->CreateFontA(10, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Small Code Font Med"] = new CFont)
+		->CreateFontA (9, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT ("Consolas"));
 	(mainFonts["Larger Font Med"] = new CFont)
 		->CreateFontA(22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -92,6 +101,9 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainFonts["Code Font Small"] = new CFont)
 		->CreateFontA(7, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Small Code Font Small"] = new CFont)
+		->CreateFontA (5, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT ("Consolas"));
 	(mainFonts["Larger Font Small"] = new CFont)
 		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -538,17 +550,17 @@ BOOL MainWindow::OnInitDialog( )
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(), 
+	masterRepumpScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(), 
 								  "Master/Repump" );
-	motScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
+	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
+	servos.initialize (controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (),
+		&TheAuxiliaryWindow->getAoSys (), &TheAuxiliaryWindow->getTtlBoard (), &TheAuxiliaryWindow->getGlobals ());
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	mainOptsCtrl.initialize( id, controlLocation, this, tooltips );
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips );
-	servos.initialize (controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (), 
-		&TheAuxiliaryWindow->getAoSys (), &TheAuxiliaryWindow->getTtlBoard (), &TheAuxiliaryWindow->getGlobals ());	
 	controlLocation = { 960, 910 };
 
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
@@ -571,7 +583,7 @@ BOOL MainWindow::OnInitDialog( )
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
 	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
-	std::vector<CDialog*> windows = {NULL, this, TheAndorWindow, TheScriptingWindow, TheAuxiliaryWindow };
+	std::vector<CDialog*> windows = { TheBaslerWindow, NULL, TheAndorWindow, this, TheScriptingWindow, TheAuxiliaryWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
@@ -653,15 +665,22 @@ BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC 
 {
 	static UINT count = 0;
 	std::vector<CDialog*>* windows = reinterpret_cast<std::vector<CDialog*>*>(dwData);
-	if ( count == 0 )
+	if ( count == 1 )
 	{
-		// skip the high monitor.
+		// skip the tall monitor.
 		count++;
 		return TRUE;
 	}
-	if ( count < 5 )
+	if ( count < 6 )
 	{
-		windows->at(count)->MoveWindow( lprcMonitor );
+		if (windows->at (count) != NULL) 
+		{
+			windows->at (count)->MoveWindow (lprcMonitor);
+		}
+		else
+		{
+			errBox ("Error in monitorHandlingProc! Tried to move \"NULL\" Window to monitor.");
+		}
 	}
 	count++;
 	return TRUE;

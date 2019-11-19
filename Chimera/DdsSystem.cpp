@@ -22,14 +22,14 @@ void DdsSystem::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int&
 	RECT r1;
 	parent->GetClientRect ( &r1 );
 	rampListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 160 };
-	rampListview.fontType = fontTypes::SmallFont; 
+	rampListview.fontType = fontTypes::SmallCodeFont; 
 	rampListview.Create ( NORM_LISTVIEW_OPTIONS, rampListview.sPos, parent, IDC_DDS_LISTVIEW );
 	rampListview.SetTextBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
 	rampListview.SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
 	rampListview.SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
 
 	rampListview.InsertColumn ( 0, "Index", r1.right / 12 );
-	rampListview.InsertColumn ( 1, "Channel", r1.right / 12 );
+	rampListview.InsertColumn ( 1, "Channel", r1.right / 8 );
 	rampListview.InsertColumn ( 2, "Freq 1", r1.right / 8 );
 	rampListview.InsertColumn ( 3, "Amp 1" );
 	rampListview.InsertColumn ( 4, "Freq 2" );
@@ -152,6 +152,7 @@ void DdsSystem::handleRampClick (  )
 				std::string valStr;
 				TextPromptDialog dialog ( &valStr, "Please enter an Expression for this value:" );
 				dialog.DoModal ( );
+				valStr = str (valStr, 13, false, true);
 				if ( valStr == "" )
 				{
 					// probably canceled.

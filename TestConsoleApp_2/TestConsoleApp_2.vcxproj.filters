@@ -24,15 +24,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Thrower.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="my_str.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="range.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -42,9 +33,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TestConsoleApp2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="range.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
