@@ -234,7 +234,7 @@ void DmControl::loadProfile()
 			catch (boost::bad_lexical_cast) {
 				voltage = 0.0;
 			}
-			temp[0] = voltage;
+			temp[counter] = voltage;
 		}
 		setMirror(temp.data());
 	}

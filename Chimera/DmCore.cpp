@@ -78,3 +78,7 @@ int DmCore::getActCount() {
 	return DM.getActuatorCount();
 }
 
+std::vector<double> DmCore::getActuatorValues() {
+	readDMArray(valueArray);
+	return valueArray;
+}

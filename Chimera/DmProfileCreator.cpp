@@ -2,6 +2,8 @@
 #include "DmProfileCreator.h"
 #include "Thrower.h"
 #include "math.h"
+#include <fstream>
+#include <boost/lexical_cast.hpp>
 #define M_PI 3.14159265358979323846
 
 double DmProfileCreator::getKnoll(int n, int m) {
@@ -88,7 +90,7 @@ double DmProfileCreator::zernikeRadial(int n, int m, double r) {
 	if (m > n) {
 		thrower("Error: n must be greater than or equal to n!");
 	}
-	if((int(n - m) % 2) > 0) {
+	if ((int(n - m) % 2) > 0) {
 		thrower("Error: (n - m) must be even!");
 	}
 	double end = ((n - m) / 2);
@@ -122,10 +124,10 @@ double DmProfileCreator::zernike(int n, int m, double x, double y) {
 	toPolar(r, phi, x, y);
 	return zernikePolar(n, m, r, phi);
 }
-	
+
 double DmProfileCreator::zernikeFit(POINT X, std::vector<double> param) {
 	double x = X.x;
-    double y = X.y;
+	double y = X.y;
 	int n = 0;
 	int m = 0;
 	fromNoll(0, n, m);
@@ -166,5 +168,84 @@ POINT DmProfileCreator::myDmLookup(int pixNum, double factor = 1 / 3.0) {
 		counter++;
 	}
 	thrower("ERROR: Somehow made it to the end of the loop depsite passing the initial value range check...");
-				
+
+}
+
+void DmProfileCreator::readZernikeFile(std::string file) {
+
+	std::ifstream read_file(file);
+	double voltage;
+	int counter = 0;
+	while (counter < 137){
+		std::getline(read_file, voltage);
+		try {
+			voltage = boost::lexical_cast<double>(voltage);
+		}
+		catch (boost::bad_lexical_cast) {
+			voltage = 0.0;
+		}
+		valArray[counter] = voltage;
+		counter++;
+	}
+}
+
+void DmProfileCreator::writeZernikeFile(std::string out_file) {
+	std::ofstream outWrite(out_file);
+	for (auto& element : valArray) {
+		outWrite << element << std::endl;
+	}
+}
+
+void DmProfileCreator::makeIm() {
+	std::vector<double> alv = Mirror.getActuatorValues();
+	int rowOff[] = { 4, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2, 4 };
+	int tc = 0;
+	int numInRow;
+	for (int i = 0; i < 13; i++) {
+		int rowO = rowOff[i];
+		numInRow = (7 - (rowO + 1)) * 2 + 1;
+		for (int j = 0; j < numInRow; j++) {
+			temp[i][rowO + j] = alv[tc];
+			tc++;
+		}
+	}
+}
+
+void DmProfileCreator::checkVals() {
+	int i = 0;
+	for (auto& voltage : valArray) {
+		if (voltage >= 1 || voltage < 0) {
+			thrower("Error: voltage on piston " + str(i) + " is out of range");
+		}
+		i++;
+	}
+}
+
+void DmProfileCreator::addComa(std::vector<double>& zAmps, double comaMag, double comaAngle) {
+		//Adds at a particular angle and magnitude to a list of zernike amplituders.
+	double x;
+	double y;
+	toCartesian(comaMag, comaAngle, x, y);
+	zAmps[7] += x;
+	zAmps[8] += y;
+}
+
+void DmProfileCreator::addAstigmatism(std::vector<double>& zAmps, double astigMag, double astigAngle) {
+	double x;
+	double y;
+	toCartesian(astigMag, astigAngle, x, y);
+	zAmps[3] += x;
+	zAmps[5] += y;
+}
+
+void DmProfileCreator::addTrefoil(std::vector<double>& zAmps, double trefMag, double trefAngle) {
+	double x;
+	double y;
+	toCartesian(trefMag, trefAngle, x, y);
+	zAmps[6] += x;
+	zAmps[9] += y;
+}
+
+void DmProfileCreator::addSpherical(std::vector<double>& zAmps, double sphereMag) {
+	zAmps[12] += sphereMag;
 }
