@@ -729,7 +729,7 @@ double DioSystem::getClockStatus()
 		// get current time in ms...
 		// ***NOT SURE*** if this is what I want. The vb6 code used...
 		// return = Now * 24 * 60 * 60 * 1000
-		return GetTickCount();
+		return GetTickCount64();
 	}
 	double timeInSeconds = stat.time[0] + stat.time[1] * 65535;
 	return timeInSeconds / 10000.0;
