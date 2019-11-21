@@ -14,9 +14,9 @@ void DmProfileCreator::fromNoll(int j, int& n, int& m) {
 	    n = 0;
 		m = 0;
 		while (j > n) {
-			n += 1
-				j -= n
-				m = -n + 2 * j
+			n += 1;
+			j -= n;
+			m = -n + 2 * j;
 		}
 		for(int j = 0; j <200; j++){
 			int check1 = 0;
@@ -175,11 +175,12 @@ void DmProfileCreator::readZernikeFile(std::string file) {
 
 	std::ifstream read_file(file);
 	double voltage;
+	std::string value;
 	int counter = 0;
 	while (counter < 137){
-		std::getline(read_file, voltage);
+		std::getline(read_file, value);
 		try {
-			voltage = boost::lexical_cast<double>(voltage);
+			voltage = boost::lexical_cast<double>(value);
 		}
 		catch (boost::bad_lexical_cast) {
 			voltage = 0.0;
@@ -191,7 +192,7 @@ void DmProfileCreator::readZernikeFile(std::string file) {
 
 void DmProfileCreator::writeZernikeFile(std::string out_file) {
 	std::ofstream outWrite(out_file);
-	for (auto& element : valArray) {
+	for (auto& element : writeArray) {
 		outWrite << element << std::endl;
 	}
 }
@@ -211,9 +212,9 @@ void DmProfileCreator::makeIm() {
 	}
 }
 
-void DmProfileCreator::checkVals() {
+void DmProfileCreator::checkVals(std::vector<double> val) {
 	int i = 0;
-	for (auto& voltage : valArray) {
+	for (auto& voltage : val) {
 		if (voltage >= 1 || voltage < 0) {
 			thrower("Error: voltage on piston " + str(i) + " is out of range");
 		}
@@ -248,4 +249,76 @@ void DmProfileCreator::addTrefoil(std::vector<double>& zAmps, double trefMag, do
 
 void DmProfileCreator::addSpherical(std::vector<double>& zAmps, double sphereMag) {
 	zAmps[12] += sphereMag;
+}
+
+std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amplitudes, std::string baselineFile, bool quiet = false) {
+
+		double inc = 1 / 3;
+		std::vector<double> flatVoltage = linspace(0, 136, 137);
+		std::vector<double> vals;
+		int sign = 0;
+		std::ifstream csvfile(baselineFile);
+		int counter = 0;
+		std::string value;
+		double voltage;
+		while (counter < 137) {
+			std::getline(csvfile, value);
+			try {
+				voltage = boost::lexical_cast<double>(value);
+			}
+			catch (boost::bad_lexical_cast) {
+				voltage = 0.0;
+			}
+			flatVoltage[counter] = voltage;
+			counter++;
+		}
+		for (int i = 0; i < 137; i++) {
+			int zernSum = 0;
+			int weightFactor = 1;
+			POINT X = myDmLookup(i);
+			if ((pow(X.x, 2) + pow(X.y, 2)) <= 1) {
+				int j = 0;
+				for (auto& amp : amplitudes) {
+					int n, m;
+					fromNoll(j, n, m);
+					zernSum += amp * zernike(m, n, X.x, X.y);
+					j++;
+				}
+			}
+			else if ((pow(X.x, 2) + pow(X.y, 2)) < 1.5) {
+				int j = 0;
+				for (auto& amp : amplitudes) {
+					int n, m;
+					fromNoll(j, n, m);
+					double r, t;
+					toPolar(r, t, X.x, X.y);
+					//use circle's edge (i.e. r=1) value at the angle of the pixel
+					double x_, y_;
+					toCartesian(1, t, x_, y_);
+					zernSum += amp * zernike(m, n, x_, y_);
+					j++;
+				}
+			}
+			double volt = zernSum <= 0 ? -1 : 1;
+			volt *= pow(zernSum, 2) * weightFactor;
+			volt += flatVoltage[i];
+			vals.push_back(volt);
+		}
+		if (!quiet) {
+			checkVals(vals);
+		}
+
+		return vals;
+}
+
+void DmProfileCreator::generateProfile() {
+	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
+	readZernikeFile(location);
+	std::vector<double> currentAmps = linspace(0, 0, 45);
+	double mag = 0.2;
+	std::vector<double> amp = std::vector<double>(0.0, 45);
+	std::vector<double> vals_base = createZernikeArray(amp, location);
+	addComa(amp, 0.2, M_PI / 6);
+	std::vector<double> vals_new = createZernikeArray(amp, location);
+
 }

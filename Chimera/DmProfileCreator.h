@@ -19,13 +19,16 @@ class DmProfileCreator {
 		void readZernikeFile(std::string file);
 		void writeZernikeFile(std::string out_file);
 		void makeIm();
-		void checkVals();
+		void checkVals(std::vector<double> val);
 		void addComa(std::vector<double> &zAmps, double comaMag, double comaAngle);
 		void addAstigmatism(std::vector<double>& zAmps, double astigMag, double astigAngle);
 		void addTrefoil(std::vector<double>& zAmps, double trefMag, double trefAngle);
 		void addSpherical(std::vector<double>& zAmps, double sphereMag);
+		std::vector<double> createZernikeArray(std::vector<double> amplitudes, std::string baselineFile, bool quiet = false);
+		void generateProfile();
 	private:
 		std::vector<double> valArray = std::vector<double>(137);
+		std::vector<double> writeArray = std::vector<double>(137);
 		std::vector<std::vector<double>> temp = std::vector <std::vector<double>>(0.5, std::vector<double>(0.5,13));
 		DmCore Mirror;
 };
