@@ -16,9 +16,10 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	ftFlume( ftSafemode ), 	
-winSerial( serialSafemode, "" ),
-vp_flume(viewpointSafemode)
+DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	
+	ftFlume( ftSafemode ), 	
+	winSerial( serialSafemode, "" ),
+	vp_flume(viewpointSafemode)
 {
 	connectType = ftdiConnectionOption::Async;
 	//ftdi_connectasync("FT2E722BB");
@@ -568,7 +569,7 @@ void DioSystem::standardNonExperimentStartDioSequence( )
 	convertToFinalFtdiFormat (0, 0);
 	ftdi_write (0, 0, false);
 	ftdi_trigger ();
-	FtdiWaitTillFinished (0,0,false);
+	FtdiWaitTillFinished (0,0);
 }
 
 
@@ -966,7 +967,10 @@ void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 }
 
 
-void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption) {
+void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum) {
+	auto time = getFtdiTotalTime (variation, seqNum);
+	wait2 (time);
+	/*
 	double time = -1;
 	bool proceed = true;
 	int counter = 0;
@@ -974,12 +978,13 @@ void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOptio
 	{
 		if (snap == ftdiPt({ 0, 0, 0, 0, 0, 0, 0, 0, 0 }) && time != -1 && counter >= 0 && proceed)
 		{
-			wait2((ftdiSnaps(seqNum,variation)[--counter].time) / 100000);
+			wait2(double(ftdiSnaps(seqNum,variation)[--counter].time) / 100000);
 			proceed = false;
 		}
 		time = snap.time;
 		counter++;
 	}
+	*/
 }
 
 
@@ -992,7 +997,7 @@ double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 	{
 		if (snap == ftdiPt({ 0, 0, 0, 0, 0, 0, 0, 0, 0 }) && time != -1 && counter >= 0 && proceed)
 		{
-			return ((ftdiSnaps(seqNum,variation)[--counter].time) / 100000);
+			return (double(ftdiSnaps(seqNum,variation)[--counter].time) / 100000);
 			proceed = false;
 		}
 		time = snap.time;
@@ -1124,7 +1129,6 @@ ExpWrap<finBufInfo> DioSystem::getFinalFtdiData ( )
 {
 	return finFtdiBuffers;
 }
-
 
 ExpWrap<std::array<ftdiPt, 2048>> DioSystem::getFtdiSnaps ( )
 {

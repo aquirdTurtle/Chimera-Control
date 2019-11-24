@@ -41,8 +41,8 @@ class AlertSystem
 		Control<CEdit> alertThresholdEdit;
 		Control<CleanCheck> soundAtFinshCheck;
 		Control<CleanCheck> autoPauseAtAlert;
-		int alertThreshold;
-		bool useAlerts;
-		bool autoPause;
+		int alertThreshold=-1;
+		bool useAlerts=false;
+		bool autoPause=false;
 		UINT alertMessageID = 0;
 };

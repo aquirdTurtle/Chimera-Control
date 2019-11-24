@@ -122,7 +122,7 @@ class DioSystem
 		allDigitalOutputs& getDigitalOutputs();
 		void interpretKey ( std::vector<std::vector<parameterType>>& params );
 		void wait2(double time);
-		void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum, bool skipOption);
+		void FtdiWaitTillFinished( UINT variation, UINT seqNum );
 		ExpWrap<std::vector<DioSnapshot>> getTtlSnapshots ( );
 		ExpWrap<std::vector<WORD>> getFinalViewpointData ( );
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
