@@ -13,7 +13,6 @@
 #include "RunInfo.h"
 #include "RichEditControl.h"
 #include "Repetitions.h"
-#include "SocketWrapper.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
 #include "MasterConfiguration.h"

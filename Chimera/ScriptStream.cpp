@@ -3,6 +3,24 @@
 #include "ScriptStream.h"
 #include <algorithm>
 
+/*
+Notes on function args problem
+
+See tests for examples
+Possible solutions:
+- Decoration method
+	- need to parse expressions in analyzing function args to replace parts of expressions
+		- shouldn't need to change >> operator functionality
+	- replace variable names with decorated names which indicate scope
+	- effectively deals with name conflict issue
+- change scoping of expression
+	- add exceptions to expression, keeping existing structure.
+		- doesn't deal with name conflict issue
+	- expression core structure is vector of strings instead of single string
+		- add vector of scopes
+*/
+
+
 ScriptStream & ScriptStream::operator>>( std::string& outputString )
 {
 	eatComments();
@@ -134,8 +152,40 @@ std::string ScriptStream::getline(char delim)
  or anything, although perhaps it could, if the design of this system was different. Right
  now I don't think it suits the design.
  */
-void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::string>> args )
+void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::string>> args, std::vector<parameterType>& params, 
+									 std::string paramDecoration, std::string replCallScope, std::string funcScope )
 {
+	// need to parse each replacement string and decorate parameters to give proper scoping
+	for (auto replNum : range(args.size()))
+	{
+		auto& repl = args[replNum];
+		auto replSplit = Expression::splitString(repl.second);
+		for (auto& replTerm : replSplit)
+		{
+			for (auto& param : params)
+			{
+				if (replTerm == param.name && (param.parameterScope == replCallScope
+					|| param.parameterScope == GLOBAL_PARAMETER_SCOPE))
+				{
+					// is a variable with the right scope for the replacement. Make a copy of the parameter, 
+					// decorate the name, and change the scope.
+					auto replParam = param;
+					// make it hard to accidentally cause conflicts with the new name. paramDecoration should be the
+					// name of the calling function.
+					replParam.name += "#!@#" + paramDecoration + "#!@#";
+					replParam.parameterScope = funcScope;
+					params.push_back (replParam);
+					replTerm = replParam.name;
+				}
+			}
+		}
+		std::string finReplString = "";
+		for (auto replTerm : replSplit)
+		{
+			finReplString += replTerm;
+		}
+		args[replNum].second = finReplString;
+	}
 	replacements = args;
 }
 

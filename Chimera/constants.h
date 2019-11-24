@@ -16,8 +16,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -79,6 +79,7 @@ const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
+	#define DIOFTDI_SAFEMODE true
 	#define DDS_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"

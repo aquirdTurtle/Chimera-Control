@@ -9,11 +9,27 @@ class ExpWrap
 	public:
 		type& operator() ( UINT sequenceNumber, UINT variationNumber )
 		{ 
+			if (sequenceNumber >= data.size ())
+			{
+				thrower ("Tried to access experiment wrap structure sequence which doesn't exist!");
+			}
+			if (variationNumber >= data[sequenceNumber].size ())
+			{
+				thrower ("Tried to access experiment wrap structure variation which doesn't exist!");
+			}
 			return data[ sequenceNumber ][ variationNumber ];
 		};
 
 		type operator() ( UINT sequenceNumber, UINT variationNumber ) const
-		{ 
+		{
+			if (sequenceNumber >= data.size ())
+			{
+				thrower ("Tried to access experiment wrap structure sequence which doesn't exist!");
+			}
+			if (variationNumber >= data[sequenceNumber].size ())
+			{
+				thrower ("Tried to access experiment wrap structure variation which doesn't exist!");
+			}
 			return data[ sequenceNumber ][ variationNumber ];
 		};
 
