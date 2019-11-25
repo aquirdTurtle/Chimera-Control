@@ -7,10 +7,6 @@ IMMEDIATE LIST:
 - get rs232 piezo controllers integrated
 - fix auto-thresholding
 - fix python
-- add features to analog input
-	- save settings
-	- query frequency
-	- avg number
 
 FEATURES:
 - Full experiments following each other, alternative use of sequences.

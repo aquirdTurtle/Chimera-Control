@@ -361,6 +361,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			expUpdate( "Variation #" + str( variationInc + 1 ) + "/" + str(variations) + ": ", comm, quiet );
 			if ( input->aiSys.wantsQueryBetweenVariations( ) )
 			{
+				// I'm writing data which is handled by the main gui thread, so I just let the main gui thread do the 
+				// whole measurement here. 
 				expUpdate( "Querying Voltages...\r\n", comm, quiet );
 				comm.sendLogVoltsMessage ( variationInc );
 			}
