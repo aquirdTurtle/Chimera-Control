@@ -15,7 +15,7 @@ std::string saveWithExplorer(CWnd* owner, std::string extension, profileSettings
 	char szSaveFileName[MAX_PATH];
 	szSaveFileName[0] = '\0';
 	ZeroMemory(&saveFileDialogInfoObj, sizeof(saveFileDialogInfoObj));
-	std::string initDir( location.categoryPath );
+	std::string initDir( location.configLocation );
 	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)initDir.c_str();
 	saveFileDialogInfoObj.lStructSize = sizeof(saveFileDialogInfoObj);
 	saveFileDialogInfoObj.hwndOwner = owner->GetSafeHwnd();
@@ -38,14 +38,6 @@ std::string saveWithExplorer(CWnd* owner, std::string extension, profileSettings
 	else if ( extension == "Config" )
 	{
 		txt = "Configuration\0*.Config\0"s;
-	}
-	else if ( extension == "catConfig" )
-	{
-		txt = "Category Config File\0*.catConfig\0"s;
-	}
-	else if ( extension == "eConfig" )
-	{
-		txt = "Experiment Config File\0*.eConfig\0"s;
 	}
 
 	saveFileDialogInfoObj.lpstrFilter = txt.c_str();

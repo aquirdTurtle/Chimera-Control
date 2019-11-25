@@ -36,6 +36,15 @@ Agilent::Agilent( const agilentSettings& settings ) :
 	}
 }
 
+bool Agilent::getSavedStatus ()
+{
+	return agilentScript.savedStatus ();
+}
+
+void Agilent::updateSavedStatus (bool isSaved)
+{
+	agilentScript.updateSavedStatus (isSaved);
+}
 
 Agilent::~Agilent()
 {
@@ -140,11 +149,11 @@ void Agilent::programSetupCommands()
 }
 
 
-void Agilent::checkSave( std::string categoryPath, RunInfo info )
+void Agilent::checkSave( std::string configPath, RunInfo info )
 {
 	if ( settings.channel[currentChannel-1].option == AgilentChannelMode::which::Script )
 	{
-		agilentScript.checkSave( categoryPath, info );
+		agilentScript.checkSave( configPath, info );
 	}
 }
 
@@ -302,7 +311,7 @@ HBRUSH Agilent::handleColorMessage(CWnd* window, CDC* cDC)
 }
 
 
-void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
+void Agilent::handleInput(int chan, std::string configPath, RunInfo info )
 {
 	if (chan != 1 && chan != 2)
 	{
@@ -340,7 +349,7 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
 			settings.channel[chan].preloadedArb.useCalibration = calibratedButton.GetCheck( );
 			break;
 		case AgilentChannelMode::which::Script:
-			agilentScript.checkSave( categoryPath, info );
+			agilentScript.checkSave( configPath, info );
 			settings.channel[chan].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
 			settings.channel[chan].scriptedArb.useCalibration = calibratedButton.GetCheck( );
 			break;
@@ -351,17 +360,17 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info )
 
 
 // overload for handling whichever channel is currently selected.
-void Agilent::handleInput( std::string categoryPath, RunInfo info )
+void Agilent::handleInput( std::string configPath, RunInfo info )
 {
 	// true -> 0 + 1 = 1
 	// false -> 1 + 1 = 2
-	handleInput( (!channel1Button.GetCheck()) + 1, categoryPath, info );
+	handleInput( (!channel1Button.GetCheck()) + 1, configPath, info );
 }
 
 
-void Agilent::updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo )
+void Agilent::updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo )
 {
-	updateSettingsDisplay( (!channel1Button.GetCheck()) + 1, currentCategoryPath, currentRunInfo );
+	updateSettingsDisplay( (!channel1Button.GetCheck()) + 1, configPath, currentRunInfo );
 }
 
 
@@ -381,7 +390,7 @@ void Agilent::updateButtonDisplay( int chan )
 }
 
 
-void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, RunInfo currentRunInfo)
+void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo currentRunInfo)
 {
 	updateButtonDisplay( chan ); 
 	// convert to zero-indexed.
@@ -435,7 +444,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 			settingCombo.SetCurSel( 6 );
 			// clear it in case the file fails to open.
 			agilentScript.setScriptText( "" );
-			agilentScript.openParentScript( settings.channel[chan].scriptedArb.fileAddress, currentCategoryPath, 
+			agilentScript.openParentScript( settings.channel[chan].scriptedArb.fileAddress, configPath,
 											currentRunInfo );
 			calibratedButton.SetCheck( settings.channel[chan].scriptedArb.useCalibration );
 			agilentScript.setEnabled ( true, false );
@@ -457,11 +466,11 @@ void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, R
 }
 
 
-void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo )
+void Agilent::handleChannelPress( int chan, std::string configPath, RunInfo currentRunInfo )
 {
 	// convert from channel 1/2 to 0/1 to access the right array entr
-	handleInput( currentChannel, currentCategoryPath, currentRunInfo );
-	updateSettingsDisplay( chan, currentCategoryPath, currentRunInfo );
+	handleInput( currentChannel, configPath, currentRunInfo );
+	updateSettingsDisplay( chan, configPath, currentRunInfo );
 	currentChannel = channel1Button.GetCheck ( ) ? 1 : 2;
 }
 
@@ -570,10 +579,10 @@ void Agilent::handleNewConfig( std::ofstream& newFile )
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
 */
-void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPath, RunInfo info)
+void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string configPath, RunInfo info)
 {	
 	// make sure data is up to date.
-	handleInput( currentChannel, categoryPath, info);
+	handleInput( currentChannel, configPath, info);
 	// start outputting.
 	saveFile << configDelim+"\n";
 	saveFile << str(settings.synced) << "\n";

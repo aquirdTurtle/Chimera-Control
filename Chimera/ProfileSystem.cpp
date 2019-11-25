@@ -154,11 +154,11 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	int slashPos = pathToConfig.find_last_of( '\\' );
 	int extensionPos = pathToConfig.find_last_of( '.' );
 	currentProfile.configuration = pathToConfig.substr( slashPos + 1, extensionPos - slashPos - 1 );
-	currentProfile.categoryPath = pathToConfig.substr( 0, slashPos);
-	slashPos = currentProfile.categoryPath.find_last_of( '\\' );
-	currentProfile.parentFolderName = currentProfile.categoryPath.substr( slashPos + 1,
-																		  currentProfile.categoryPath.size( ) );
-	currentProfile.categoryPath += "\\";
+	currentProfile.configLocation = pathToConfig.substr( 0, slashPos);
+	slashPos = currentProfile.configLocation.find_last_of( '\\' );
+	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
+																		  currentProfile.configLocation.size( ) );
+	currentProfile.configLocation += "\\";
 	configDisplay.SetWindowTextA( cstr( currentProfile.configuration + ": " + pathToConfig ) );
 	std::string versionStr;
 	try
@@ -277,10 +277,10 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 		thrower ( "ERROR: Please select a configuration before saving!" );
 	}
 	// check if file already exists
-	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + "." + CONFIG_EXTENSION))  
+	if (!ProfileSystem::fileOrFolderExists(currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION))  
 	{
 		int answer = promptBox("This configuration file appears to not exist in the expected location: " 
-								+ currentProfile.categoryPath + configNameToSave 
+								+ currentProfile.configLocation + configNameToSave 
 								+ "." + CONFIG_EXTENSION + ". Continue by making a new configuration file?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
@@ -288,7 +288,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 		}
 	}
 
-	std::ofstream configSaveFile(currentProfile.categoryPath + configNameToSave + "." + CONFIG_EXTENSION);
+	std::ofstream configSaveFile(currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
 	if (!configSaveFile.is_open())
 	{
 		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
@@ -336,7 +336,6 @@ CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										 AndorWindow* camWin, BaslerWindow* basWin )
 {
-	// check if category has been set yet.
 	std::string configurationPathToSave = saveWithExplorer( mainWin, CONFIG_EXTENSION, currentProfile );
 	if ( configurationPathToSave == "")
 	{
@@ -353,11 +352,11 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	int slashPos = configurationPathToSave.find_last_of( '\\' );
 	int extensionPos = configurationPathToSave.find_last_of( '.' );
 	currentProfile.configuration = configurationPathToSave.substr( slashPos + 1, extensionPos - slashPos - 1 );
-	currentProfile.categoryPath = configurationPathToSave.substr( 0, slashPos );
-	slashPos = currentProfile.categoryPath.find_last_of( '\\' );
-	currentProfile.parentFolderName = currentProfile.categoryPath.substr( slashPos + 1,
-																		  currentProfile.categoryPath.size( ) );
-	currentProfile.categoryPath += "\\";
+	currentProfile.configLocation = configurationPathToSave.substr( 0, slashPos );
+	slashPos = currentProfile.configLocation.find_last_of( '\\' );
+	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
+																		  currentProfile.configLocation.size( ) );
+	currentProfile.configLocation += "\\";
 	// That's the last prompt the user gets, so the save is final now.
 	// Version info tells future code about formatting.
 	configSaveFile << std::setprecision( 13 );
@@ -381,7 +380,7 @@ void ProfileSystem::renameConfiguration()
 	// check if configuration has been set yet.
 	if (currentProfile.configuration == "")
 	{
-		thrower ( "The Configuration has not yet been selected! Please select a category or create a new one before "
+		thrower ( "The Configuration has not yet been selected! Please select a configuration or create a new one before "
 					"trying to rename it." );
 	}
 
@@ -394,9 +393,9 @@ void ProfileSystem::renameConfiguration()
 		// canceled
 		return;
 	}
-	std::string currentConfigurationLocation = currentProfile.categoryPath + currentProfile.configuration + "." 
+	std::string currentConfigurationLocation = currentProfile.configLocation + currentProfile.configuration + "." 
 		+ CONFIG_EXTENSION;
-	std::string newConfigurationLocation = currentProfile.categoryPath + newConfigurationName + "." + CONFIG_EXTENSION;
+	std::string newConfigurationLocation = currentProfile.configLocation + newConfigurationName + "." + CONFIG_EXTENSION;
 	int result = MoveFile(cstr(currentConfigurationLocation), cstr(newConfigurationLocation));
 	if (result == 0)
 	{
@@ -414,7 +413,7 @@ void ProfileSystem::deleteConfiguration()
 	// check if configuration has been set yet.
 	if (currentProfile.configuration == "")
 	{
-		thrower ( "The Configuration has not yet been selected! Please select a category or create a new one before "
+		thrower ( "The Configuration has not yet been selected! Please select a configuration or create a new one before "
 				 "trying to rename it." );
 	}
 	int answer = promptBox("Are you sure you want to delete the current configuration: " 
@@ -423,7 +422,7 @@ void ProfileSystem::deleteConfiguration()
 	{
 		return;
 	}
-	std::string currentConfigurationLocation = currentProfile.categoryPath + currentProfile.configuration + "." + CONFIG_EXTENSION;
+	std::string currentConfigurationLocation = currentProfile.configLocation + currentProfile.configuration + "." + CONFIG_EXTENSION;
 	int result = DeleteFile(cstr(currentConfigurationLocation));
 	if (result == 0)
 	{
@@ -485,11 +484,6 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow*
 	return false;
 }
 
-
-std::string ProfileSystem::getCurrentPathIncludingCategory()
-{
-	return currentProfile.categoryPath;
-}
 
 
 void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
@@ -574,7 +568,7 @@ void ProfileSystem::sequenceChangeHandler()
 
 void ProfileSystem::reloadSequence(std::string sequenceToReload)
 {
-	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + "." + SEQUENCE_EXTENSION, sequenceToReload);
+	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfile.configLocation, str("*") + "." + SEQUENCE_EXTENSION, sequenceToReload);
 	sequenceCombo.AddString(NULL_SEQUENCE);
 	if (sequenceToReload == NULL_SEQUENCE)
 	{
@@ -603,7 +597,7 @@ void ProfileSystem::saveSequence()
 		}
 		currentSequence.name = result;
 	}
-	std::fstream sequenceSaveFile( currentProfile.categoryPath + "\\" + currentSequence.name + "."
+	std::fstream sequenceSaveFile( currentProfile.configLocation + "\\" + currentSequence.name + "."
 								   + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
@@ -613,7 +607,7 @@ void ProfileSystem::saveSequence()
 	for (auto& seq : currentSequence.sequence)
 	{
 		sequenceSaveFile << seq.configuration + "\n";
-		sequenceSaveFile << seq.categoryPath + "\n";
+		sequenceSaveFile << seq.configLocation + "\n";
 		sequenceSaveFile << seq.parentFolderName + "\n";
 	}
 	sequenceSaveFile.close();
@@ -629,7 +623,7 @@ void ProfileSystem::saveSequenceAs()
 	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
 	dialog.DoModal();
 	//
-	if (result == "" || result == "")
+	if (result == "")
 	{
 		// user canceled or entered nothing
 		return;
@@ -640,7 +634,7 @@ void ProfileSystem::saveSequenceAs()
 		return;
 	}
 	// if not saved...
-	std::fstream sequenceSaveFile(currentProfile.categoryPath + "\\" + str(result) + "." + SEQUENCE_EXTENSION, 
+	std::fstream sequenceSaveFile(currentProfile.configLocation + "\\" + str(result) + "." + SEQUENCE_EXTENSION, 
 								   std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
@@ -672,8 +666,8 @@ void ProfileSystem::renameSequence()
 		// canceled
 		return;
 	}
-	int result = MoveFile( cstr(currentProfile.categoryPath + currentSequence.name + "." + SEQUENCE_EXTENSION),
-						   cstr(currentProfile.categoryPath + newSequenceName + "." + SEQUENCE_EXTENSION) );
+	int result = MoveFile( cstr(currentProfile.configLocation + currentSequence.name + "." + SEQUENCE_EXTENSION),
+						   cstr(currentProfile.configLocation + newSequenceName + "." + SEQUENCE_EXTENSION) );
 	if (result == 0)
 	{
 		thrower ( "Renaming of the sequence file Failed! Ask Mark about bugs" );
@@ -697,7 +691,7 @@ void ProfileSystem::deleteSequence()
 	{
 		return;
 	}
-	std::string currentSequenceLocation = currentProfile.categoryPath + currentSequence.name + "."
+	std::string currentSequenceLocation = currentProfile.configLocation + currentSequence.name + "."
 		+ SEQUENCE_EXTENSION;
 	int result = DeleteFile(cstr(currentSequenceLocation));
 	if (result == 0)
@@ -726,7 +720,7 @@ void ProfileSystem::newSequence(CWnd* parent)
 		return;
 	}
 	// try to open the file.
-	std::fstream sequenceFile(currentProfile.categoryPath + "\\" + result + "." + SEQUENCE_EXTENSION, 
+	std::fstream sequenceFile(currentProfile.configLocation + "\\" + result + "." + SEQUENCE_EXTENSION, 
 							   std::fstream::out);
 	if (!sequenceFile.is_open())
 	{
@@ -748,11 +742,11 @@ void ProfileSystem::newSequence(CWnd* parent)
 void ProfileSystem::openSequence(std::string sequenceName)
 {
 	// try to open the file
-	std::fstream sequenceFile(currentProfile.categoryPath + sequenceName + "." + SEQUENCE_EXTENSION);
+	std::fstream sequenceFile(currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION);
 	if (!sequenceFile.is_open())
 	{
 		thrower ( "ERROR: sequence file failed to open! Make sure the sequence with address ..." 
-				 + currentProfile.categoryPath + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
+				 + currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
 	}
 	currentSequence.name = str(sequenceName);
 	// read the file
@@ -763,7 +757,7 @@ void ProfileSystem::openSequence(std::string sequenceName)
 	{
 		profileSettings tempSettings;
 		getline( sequenceFile, tempSettings.configuration );
-		getline( sequenceFile, tempSettings.categoryPath );
+		getline( sequenceFile, tempSettings.configLocation );
 		getline( sequenceFile, tempSettings.parentFolderName );
 		if ( !sequenceFile )
 		{

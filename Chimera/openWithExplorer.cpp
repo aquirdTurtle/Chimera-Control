@@ -41,14 +41,6 @@ std::string openWithExplorer(CWnd* parent, std::string extension)
 	{
 		txt = "Configuration\0*.Config\0"s;
 	}
-	else if ( extension == "catConfig" )
-	{
-		txt = "Category Config File\0*.catConfig\0"s;
-	}
-	else if ( extension == "eConfig" )
-	{
-		txt = "Experiment Config File\0*.eConfig\0"s;
-	}
 
 	dialogInfo.lpstrFilter = txt.c_str( );
 	dialogInfo.nFilterIndex = 1;

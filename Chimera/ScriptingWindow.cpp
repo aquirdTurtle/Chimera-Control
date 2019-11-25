@@ -61,7 +61,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 {
 	try
 	{
-		masterScript.functionChangeHandler(mainWin->getProfileSettings().categoryPath);
+		masterScript.functionChangeHandler(mainWin->getProfileSettings().configLocation);
 		masterScript.colorEntireScript( auxWin->getAllVariables( ), auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 		masterScript.updateSavedStatus( true );
 	}
@@ -74,9 +74,9 @@ void ScriptingWindow::handleMasterFunctionChange( )
 
 void ScriptingWindow::handleIntensityCombo()
 {
-	intensityAgilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
+	intensityAgilent.handleInput( mainWin->getProfileSettings().configLocation, mainWin->getRunInfo() );
 	intensityAgilent.handleModeCombo();
-	intensityAgilent.updateSettingsDisplay(mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo());
+	intensityAgilent.updateSettingsDisplay(mainWin->getProfileSettings().configLocation, mainWin->getRunInfo());
 }
 
 
@@ -86,13 +86,13 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 	if (id % 7 == 0)
 	{
 		// channel 1
-		intensityAgilent.handleChannelPress( 1, mainWin->getProfileSettings().categoryPath, 
+		intensityAgilent.handleChannelPress( 1, mainWin->getProfileSettings().configLocation, 
 											 mainWin->getRunInfo() );
 	}
 	else if (id % 7 == 1)
 	{
 		// channel 2
-		intensityAgilent.handleChannelPress( 2, mainWin->getProfileSettings().categoryPath,
+		intensityAgilent.handleChannelPress( 2, mainWin->getProfileSettings().configLocation,
 											 mainWin->getRunInfo() );
 	}
 	else if (id % 7 == 3)
@@ -105,7 +105,7 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 	{
 		try
 		{
-			intensityAgilent.handleInput(mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo());
+			intensityAgilent.handleInput(mainWin->getProfileSettings().configLocation, mainWin->getRunInfo());
 			intensityAgilent.setAgilent();
 			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.configDelim + ".\r\n" );
 		}
@@ -145,6 +145,8 @@ void ScriptingWindow::catchEnter()
 
 void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 {
+	bool intSaved = intensityAgilent.getSavedStatus(), niawgSaved = niawgScript.savedStatus (), masterSaved = masterScript.savedStatus();
+	
 	SetRedraw( false );
 	niawgScript.rearrange(cx, cy, mainWin->getFonts());
 	intensityAgilent.rearrange( cx, cy, mainWin->getFonts() );
@@ -154,6 +156,9 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	recolorScripts ( );
 	SetRedraw( true );
 	RedrawWindow();
+	intensityAgilent.updateSavedStatus (intSaved);
+	niawgScript.updateSavedStatus (niawgSaved);
+	masterScript.updateSavedStatus (masterSaved);
 }
 
 // special handling for long tooltips.
@@ -267,9 +272,9 @@ void ScriptingWindow::OnTimer(UINT_PTR eventID)
 
 void ScriptingWindow::checkScriptSaves()
 {
-	niawgScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo() );
-	intensityAgilent.checkSave ( getProfile ( ).categoryPath, mainWin->getRunInfo ( ) );
-	masterScript.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ), comm ( ) );
+	niawgScript.checkSave(getProfile().configLocation, mainWin->getRunInfo() );
+	intensityAgilent.checkSave ( getProfile ( ).configLocation, mainWin->getRunInfo ( ) );
+	masterScript.checkSave( getProfile( ).configLocation, mainWin->getRunInfo( ), comm ( ) );
 }
 
 
@@ -410,10 +415,10 @@ void ScriptingWindow::newIntensityScript()
 	try
 	{
 		intensityAgilent.verifyScriptable ( );
-		intensityAgilent.checkSave( getProfile().categoryPath, mainWin->getRunInfo() );
+		intensityAgilent.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
 		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );
-		intensityAgilent.agilentScript.updateScriptNameText( mainWin->getProfileSettings().categoryPath );
+		intensityAgilent.agilentScript.updateScriptNameText( mainWin->getProfileSettings().configLocation );
 		intensityAgilent.agilentScript.colorEntireScript( auxWin->getAllVariables(), 
 														  auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
@@ -429,12 +434,12 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 	try
 	{
 		intensityAgilent.verifyScriptable ( );
-		intensityAgilent.checkSave( getProfile().categoryPath, mainWin->getRunInfo() );
+		intensityAgilent.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
 		std::string intensityOpenName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
-		intensityAgilent.agilentScript.openParentScript( intensityOpenName, getProfile().categoryPath,
+		intensityAgilent.agilentScript.openParentScript( intensityOpenName, getProfile().configLocation,
 														 mainWin->getRunInfo() );
 		updateConfigurationSavedStatus( false );
-		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
+		intensityAgilent.agilentScript.updateScriptNameText( getProfile().configLocation );
 		intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), 
 														  auxWin->getTtlNames(), 
 														  auxWin->getDacInfo ());
@@ -452,8 +457,8 @@ void ScriptingWindow::saveIntensityScript()
 		// channel 0 is the intensity channel, the 4th option is the scripting option.
 		if ( intensityAgilent.getOutputInfo( ).channel[0].option == AgilentChannelMode::which::Script )
 		{
-			intensityAgilent.agilentScript.saveScript( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
-			intensityAgilent.agilentScript.updateScriptNameText( getProfile( ).categoryPath );
+			intensityAgilent.agilentScript.saveScript( getProfile( ).configLocation, mainWin->getRunInfo( ) );
+			intensityAgilent.agilentScript.updateScriptNameText( getProfile( ).configLocation );
 		}
 	}
 	catch (Error& err)
@@ -477,7 +482,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod, getProfileSettings() );
 		intensityAgilent.agilentScript.saveScriptAs( newScriptAddress, mainWin->getRunInfo() );
 		updateConfigurationSavedStatus( false );
-		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
+		intensityAgilent.agilentScript.updateScriptNameText( getProfile().configLocation );
 	}
 	catch (Error& err)
 	{
@@ -497,10 +502,10 @@ void ScriptingWindow::newNiawgScript()
 {
 	try
 	{
-		niawgScript.checkSave( getProfile().categoryPath, mainWin->getRunInfo() );
+		niawgScript.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
 		niawgScript.newScript( );
 		updateConfigurationSavedStatus( false );
-		niawgScript.updateScriptNameText( getProfile().categoryPath );
+		niawgScript.updateScriptNameText( getProfile().configLocation );
 		niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
@@ -514,11 +519,11 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 {
 	try
 	{
-		niawgScript.checkSave( getProfile().categoryPath, mainWin->getRunInfo() );
+		niawgScript.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
 		std::string horizontalOpenName = openWithExplorer( parent, NIAWG_SCRIPT_EXTENSION );
-		niawgScript.openParentScript( horizontalOpenName, getProfile().categoryPath, mainWin->getRunInfo() );
+		niawgScript.openParentScript( horizontalOpenName, getProfile().configLocation, mainWin->getRunInfo() );
 		updateConfigurationSavedStatus( false );
-		niawgScript.updateScriptNameText( getProfile().categoryPath );
+		niawgScript.updateScriptNameText( getProfile().configLocation );
 		niawgScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
@@ -533,8 +538,8 @@ void ScriptingWindow::saveNiawgScript()
 {
 	try
 	{
-		niawgScript.saveScript( getProfile().categoryPath, mainWin->getRunInfo() );
-		niawgScript.updateScriptNameText( getProfile().categoryPath );
+		niawgScript.saveScript( getProfile().configLocation, mainWin->getRunInfo() );
+		niawgScript.updateScriptNameText( getProfile().configLocation );
 	}
 	catch (Error& err)
 	{
@@ -555,15 +560,15 @@ void ScriptingWindow::saveNiawgScriptAs(CWnd* parent)
 														getProfileSettings());
 	niawgScript.saveScriptAs(newScriptAddress, mainWin->getRunInfo() );
 	updateConfigurationSavedStatus(false);
-	niawgScript.updateScriptNameText(getProfile().categoryPath);
+	niawgScript.updateScriptNameText(getProfile().configLocation);
 }
 
 
 void ScriptingWindow::updateScriptNamesOnScreen()
 {
-	niawgScript.updateScriptNameText(getProfile().categoryPath);
-	niawgScript.updateScriptNameText(getProfile().categoryPath);
-	intensityAgilent.agilentScript.updateScriptNameText(getProfile().categoryPath);
+	niawgScript.updateScriptNameText(getProfile().configLocation);
+	niawgScript.updateScriptNameText(getProfile().configLocation);
+	intensityAgilent.agilentScript.updateScriptNameText(getProfile().configLocation);
 }
 
 
@@ -577,7 +582,7 @@ void ScriptingWindow::recolorScripts()
 
 void ScriptingWindow::openIntensityScript(std::string name)
 {
-	intensityAgilent.agilentScript.openParentScript(name, getProfile().categoryPath, mainWin->getRunInfo());
+	intensityAgilent.agilentScript.openParentScript(name, getProfile().configLocation, mainWin->getRunInfo());
 }
 
 
@@ -605,7 +610,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		getline ( configFile, masterName );
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
 		ProfileSystem::standardOpenConfig ( configFile, intensityAgilent.configDelim, &intensityAgilent, Version("4.0") );
-		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
 												 mainWin->getRunInfo ( ) );
 		try
 		{
@@ -645,10 +650,10 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 
 void ScriptingWindow::newMasterScript()
 {
-	masterScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo());
+	masterScript.checkSave(getProfile().configLocation, mainWin->getRunInfo());
 	masterScript.newScript( );
 	updateConfigurationSavedStatus(false);
-	masterScript.updateScriptNameText(getProfile().categoryPath);
+	masterScript.updateScriptNameText(getProfile().configLocation);
 	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
@@ -656,11 +661,11 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 {
 	try
 	{
-		masterScript.checkSave( getProfile( ).categoryPath, mainWin->getRunInfo( ) );
+		masterScript.checkSave( getProfile( ).configLocation, mainWin->getRunInfo( ) );
 		std::string openName = openWithExplorer( parent, MASTER_SCRIPT_EXTENSION );
-		masterScript.openParentScript( openName, getProfile( ).categoryPath, mainWin->getRunInfo( ) );
+		masterScript.openParentScript( openName, getProfile( ).configLocation, mainWin->getRunInfo( ) );
 		updateConfigurationSavedStatus( false );
-		masterScript.updateScriptNameText( getProfile( ).categoryPath );
+		masterScript.updateScriptNameText( getProfile( ).configLocation );
 		masterScript.colorEntireScript( auxWin->getAllVariables( ), auxWin->getTtlNames( ), auxWin->getDacInfo ( ) );
 	}
 	catch ( Error& err )
@@ -677,8 +682,8 @@ void ScriptingWindow::saveMasterScript()
 		masterScript.saveAsFunction ( comm () );
 		return;
 	}
-	masterScript.saveScript(getProfile().categoryPath, mainWin->getRunInfo());
-	masterScript.updateScriptNameText(getProfile().categoryPath);
+	masterScript.saveScript(getProfile().configLocation, mainWin->getRunInfo());
+	masterScript.updateScriptNameText(getProfile().configLocation);
 }
 
 
@@ -693,7 +698,7 @@ void ScriptingWindow::saveMasterScriptAs(CWnd* parent)
 	std::string newScriptAddress = saveWithExplorer(parent, extensionNoPeriod, getProfileSettings());
 	masterScript.saveScriptAs(newScriptAddress, mainWin->getRunInfo());
 	updateConfigurationSavedStatus(false);
-	masterScript.updateScriptNameText(getProfile().categoryPath);
+	masterScript.updateScriptNameText(getProfile().configLocation);
 }
 
 
@@ -748,33 +753,33 @@ void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
 	saveFile << addresses.niawg << "\n";
 	saveFile << addresses.master << "\n";
 	saveFile << "END_SCRIPTS\n";
-	intensityAgilent.handleSavingConfig(saveFile, mainWin->getProfileSettings().categoryPath, 
+	intensityAgilent.handleSavingConfig(saveFile, mainWin->getProfileSettings().configLocation, 
 										 mainWin->getRunInfo());
 }
 
 
 void ScriptingWindow::checkMasterSave()
 {
-	masterScript.checkSave(getProfile().categoryPath, mainWin->getRunInfo());
+	masterScript.checkSave(getProfile().configLocation, mainWin->getRunInfo());
 }
 
 
 void ScriptingWindow::openMasterScript(std::string name)
 {
-	masterScript.openParentScript(name, getProfile().categoryPath, mainWin->getRunInfo());
+	masterScript.openParentScript(name, getProfile().configLocation, mainWin->getRunInfo());
 }
 
 
 void ScriptingWindow::openNiawgScript(std::string name)
 {
-	niawgScript.openParentScript(name, getProfile().categoryPath, mainWin->getRunInfo());
+	niawgScript.openParentScript(name, getProfile().configLocation, mainWin->getRunInfo());
 }
 
 
 void ScriptingWindow::considerScriptLocations()
 {
-	niawgScript.considerCurrentLocation(getProfile().categoryPath, mainWin->getRunInfo());
-	intensityAgilent.agilentScript.considerCurrentLocation(getProfile().categoryPath, mainWin->getRunInfo());
+	niawgScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
+	intensityAgilent.agilentScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
 }
 
 
