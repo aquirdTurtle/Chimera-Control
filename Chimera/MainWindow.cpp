@@ -278,7 +278,7 @@ void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 	input->seq.name = "CameraCal";
 	input->seq.sequence.resize( 1 );
 	input->seq.sequence[0].configuration = "Camera-Calibration";
-	input->seq.sequence[0].categoryPath = CAMERA_CAL_ROUTINE_ADDRESS;
+	input->seq.sequence[0].configLocation = CAMERA_CAL_ROUTINE_ADDRESS;
 	input->seq.sequence[0].parentFolderName = "Camera";
 	// the calibration procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
@@ -1050,7 +1050,7 @@ void MainWindow::fillRedPgcTempProfile ( ExperimentThreadInput* input )
 	input->seq.name = "pgcTemp";
 	input->seq.sequence.resize ( 1 );
 	input->profile.configuration = "Automated-PGC-Temperature-Measurement";
-	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
+	input->profile.configLocation = PGC_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "PGC";
 	input->seq.sequence[ 0 ] = input->profile;
 	input->runAndor = false;
@@ -1063,7 +1063,7 @@ void MainWindow::fillGreyPgcTempProfile ( ExperimentThreadInput* input )
 	input->seq.name = "greyPgcTemp";
 	input->seq.sequence.resize ( 1 );
 	input->profile.configuration = "Automated-Grey-PGC-Temperature-Measurement";
-	input->profile.categoryPath = PGC_ROUTINES_ADDRESS;
+	input->profile.configLocation = PGC_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "PGC";
 	input->seq.sequence[ 0 ] = input->profile;
 	input->runAndor = false;
@@ -1076,7 +1076,7 @@ void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 	input->seq.name = "motTemp";
 	input->seq.sequence.resize ( 1 );
 	input->profile.configuration = "Automated-MOT-Temperature-Measurement";
-	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	input->seq.sequence[ 0 ] = input->profile;
 	input->runAndor = false;
@@ -1097,7 +1097,7 @@ void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 void MainWindow::fillMotInput( ExperimentThreadInput* input )
 {
 	input->profile.configuration = "Set MOT Settings";
-	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	input->seq.name = "loadMot";
 	input->seq.sequence.resize( 1 );
@@ -1115,7 +1115,7 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 void MainWindow::fillMotSizeInput ( ExperimentThreadInput* input )
 {
 	input->profile.configuration = "Mot_Size_Measurement";
-	input->profile.categoryPath = MOT_ROUTINES_ADDRESS;
+	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	input->seq.name = "loadMot";
 	input->seq.sequence.resize ( 1 );

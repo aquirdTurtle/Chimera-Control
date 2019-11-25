@@ -348,9 +348,9 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 	{
 		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );
-		agilents[name].checkSave( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
+		agilents[name].checkSave( mainWin->getProfileSettings( ).configLocation, mainWin->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
-		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).configLocation );
 		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), getTtlNames( ), getDacInfo ( ) );
 	}
 	catch ( Error& err )
@@ -367,13 +367,13 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 	{
 		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );		
-		agilents[name].agilentScript.checkSave( mainWin->getProfileSettings( ).categoryPath, 
+		agilents[name].agilentScript.checkSave( mainWin->getProfileSettings( ).configLocation, 
 												mainWin->getRunInfo( ) );
 		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		agilents[name].agilentScript.openParentScript( openFileName, 
-													   mainWin->getProfileSettings( ).categoryPath,
+													   mainWin->getProfileSettings( ).configLocation,
 													   mainWin->getRunInfo( ) );
-		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).configLocation );
 	}
 	catch ( Error& err )
 	{
@@ -387,7 +387,7 @@ void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		agilents[name].handleInput( mainWin->getProfileSettings( ).categoryPath,
+		agilents[name].handleInput( mainWin->getProfileSettings( ).configLocation,
 									mainWin->getRunInfo( ) );
 	}
 	catch ( Error& )
@@ -403,9 +403,9 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 	{
 		agilents[ name ].verifyScriptable ( );
 		mainWin->updateConfigurationSavedStatus( false );
-		agilents[name].agilentScript.saveScript( mainWin->getProfileSettings( ).categoryPath,
+		agilents[name].agilentScript.saveScript( mainWin->getProfileSettings( ).configLocation,
 												   mainWin->getRunInfo( ) );
-		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).configLocation );
 	}
 	catch ( Error& err )
 	{
@@ -429,7 +429,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod,
 														 mainWin->getProfileSettings( ) );
 		agilents[name].agilentScript.saveScriptAs( newScriptAddress, mainWin->getRunInfo( ) );
-		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).categoryPath );
+		agilents[name].agilentScript.updateScriptNameText( mainWin->getProfileSettings( ).configLocation );
 	}
 	catch ( Error& err )
 	{
@@ -449,6 +449,8 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		{
 			GetAnalogInSnapshot( );
 		}
+		KillTimer (2);
+		SetTimer (2, aiSys.getAiSettings().continuousModeInterval, NULL);
 	}
 	if ( eventID == 1 )
 	{
@@ -627,7 +629,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
 	{
-		agilent.handleSavingConfig( saveFile, mainWin->getProfileSettings( ).categoryPath,
+		agilent.handleSavingConfig( saveFile, mainWin->getProfileSettings( ).configLocation,
 									mainWin->getRunInfo( ) );
 	}
 	topBottomTek.handleSaveConfig( saveFile );
@@ -635,6 +637,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	dds.handleSaveConfig ( saveFile );
 	piezo1.handleSaveConfig ( saveFile );
 	piezo2.handleSaveConfig ( saveFile );
+	aiSys.handleSaveConfig (saveFile);
 }
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
@@ -647,21 +650,21 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		aoSys.updateEdits ( );
 		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::TopBottom ].configDelim, &agilents[ whichAg::TopBottom ],
 											Version ( "4.0" ) );
-		agilents[ whichAg::TopBottom ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+		agilents[ whichAg::TopBottom ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
 															   mainWin->getRunInfo ( ) );
 		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Axial ].configDelim, &agilents[ whichAg::Axial ],
 											Version ( "4.0" ) );
-		agilents[ whichAg::Axial ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+		agilents[ whichAg::Axial ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
 														   mainWin->getRunInfo ( ) );
 		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Flashing ].configDelim, &agilents[ whichAg::Flashing ],
 											Version ( "4.0" ) );
-		agilents[ whichAg::Flashing ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+		agilents[ whichAg::Flashing ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
 															  mainWin->getRunInfo ( ) );
 		if ( ver > Version ( "2.6" ) )
 		{
 			ProfileSystem::standardOpenConfig ( configFile, agilents[whichAg::Microwave].configDelim,
 												&agilents[ whichAg::Microwave ], Version ( "4.0" ) );
-			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).categoryPath,
+			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
 																   mainWin->getRunInfo ( ) );
 		}
 		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.configDelim, &topBottomTek, Version ( "4.0" ) );
@@ -672,6 +675,8 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		}
 		ProfileSystem::standardOpenConfig ( configFile, piezo1.getConfigDelim( ), &piezo1, Version ( "4.6" ) );
 		ProfileSystem::standardOpenConfig ( configFile, piezo2.getConfigDelim ( ), &piezo2, Version ( "4.6" ) );
+		aiSys.setAiSettings ( ProfileSystem::stdGetFromConfig (configFile, aiSys.configDelim,
+							  AiSystem::getAiSettingsFromConfig, Version ("4.9")) );
 	}
 	catch ( Error& )
 	{
@@ -923,13 +928,13 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 	if (id % 7 == 0)
 	{
 		// channel 1
-		agilent.handleChannelPress( 1, mainWin->getProfileSettings().categoryPath, 
+		agilent.handleChannelPress( 1, mainWin->getProfileSettings().configLocation, 
 									 mainWin->getRunInfo() );
 	}
 	else if (id % 7 == 1)
 	{
 		// channel 2
-		agilent.handleChannelPress( 2, mainWin->getProfileSettings().categoryPath, 
+		agilent.handleChannelPress( 2, mainWin->getProfileSettings().configLocation, 
 									 mainWin->getRunInfo() );
 	}
 	// sync is just a check, no handling needed.
@@ -938,7 +943,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		// program now
 		try
 		{
-			agilent.handleInput( mainWin->getProfileSettings().categoryPath, mainWin->getRunInfo() );
+			agilent.handleInput( mainWin->getProfileSettings().configLocation, mainWin->getRunInfo() );
 			agilent.setAgilent();
 			sendStatus( "Programmed Agilent " + agilent.configDelim + ".\r\n" );
 		}
@@ -957,9 +962,9 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	Agilent& ag = whichAgilent( id );
 	try
 	{
-		ag.handleInput( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
+		ag.handleInput( mainWin->getProfileSettings( ).configLocation, mainWin->getRunInfo( ) );
 		ag.handleModeCombo( );
-		ag.updateSettingsDisplay( mainWin->getProfileSettings( ).categoryPath, mainWin->getRunInfo( ) );
+		ag.updateSettingsDisplay( mainWin->getProfileSettings( ).configLocation, mainWin->getRunInfo( ) );
 	}
 	catch ( Error& err )
 	{
