@@ -1125,6 +1125,10 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 		input->variableRangeInfo.reset ( );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		input->parameters = experimentVars;
+		if (aiSys.wantsQueryBetweenVariations ())
+		{
+			input->numAiMeasurements = configParameters.getTotalVariationNumber ();
+		}
 		for ( auto& ag : agilents )
 		{
 			input->agilents.push_back ( &ag );

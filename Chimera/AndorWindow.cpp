@@ -1389,12 +1389,12 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 	}
 	std::vector<std::vector<long>> monitoredPixelIndecies( gridSize );
 	// preparing for the crunching
-	for ( UINT gridInc = 0; gridInc < gridSize; gridInc++)
+	for (auto gridInc : range(gridSize))
 	{
 		auto& grid = input->grids[ gridInc ];
-		for ( UINT columnInc = 0; columnInc < grid.width; columnInc++ )
+		for (auto columnInc : range(grid.width))
 		{
-			for ( UINT rowInc =0; rowInc < grid.height; rowInc++ )
+			for (auto rowInc : range(grid.height))
 			{
 				ULONG pixelRow = ( grid.topLeftCorner.row - 1) + rowInc * grid.pixelSpacing;
 				ULONG pixelColumn = ( grid.topLeftCorner.column - 1)  + columnInc * grid.pixelSpacing;
@@ -1430,34 +1430,34 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 	// loop watching the image queue.
 	while (*input->cruncherThreadActive || input->imQueue->size() != 0)
 	{
-		// if no images wait until images. Should probably change to be event based, but want this to be fast...
-		if (input->imQueue->size() == 0)
-		{
-			continue;
-		}
-		if ( imageCount % 2 == 0 )
+		if ( imageCount % 2 == 0 ) 
 		{
 			input->catchPicTime->push_back( chronoClock::now( ) );
 		}
-		
 		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
 		imageQueue tempImagePixels( gridSize );
 		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
 		atomQueue tempAtomArray( gridSize );
-		for (UINT gridInc = 0; gridInc < gridSize; gridInc++)
+		for (auto gridInc : range(gridSize))
 		{
 			tempAtomArray[gridInc].image = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
 			tempImagePixels[gridInc].image = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
 		}
-		for ( UINT gridInc = 0; gridInc < gridSize; gridInc++ )
+		for ( auto gridInc : range(gridSize) )
 		{
-			tempImagePixels[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
-			tempAtomArray[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
-			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the 
-			/// load-skip both of which are very time-sensitive.
-			UINT count = 0;
-			{ // scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
-				std::lock_guard<std::mutex> locker( *input->imageLock );				
+			UINT count = 0; 
+			{   
+				// if no images wait until images. Should probably change to be event based, but want this to be fast...
+				if (input->imQueue->size () == 0)
+				{
+					continue;
+				} 
+				// scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
+				std::lock_guard<std::mutex> locker (*input->imageLock);				
+				tempImagePixels[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
+				tempAtomArray[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
+				///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the 
+				/// load-skip both of which are very time-sensitive.
 				for ( auto pixelIndex : monitoredPixelIndecies[gridInc] )
 				{
 					tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
@@ -1498,8 +1498,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 				}
 			}
 		}
-
-		if ( input->plotterActive ) ///
+		if ( input->plotterActive ) 
 		{
 			// copies the array. Right now I'm assuming that the thread always needs atoms, which is not a good 
 			// assumption potentially...
@@ -1510,7 +1509,6 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 				(*input->plotterImageQueue).push_back( tempImagePixels );
 			}
 		}
-
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
 		(*input->imQueue).erase((*input->imQueue).begin());		
@@ -1648,12 +1646,9 @@ BOOL AndorWindow::OnInitDialog ( )
 					   IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
 	// end of literal initialization calls
 	pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
-	// set initial settings.
 	andor.setSettings( andorSettingsCtrl.getSettings().andor );
-	// load the menu
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
-	// final steps
 	SetTimer( NULL, 1000, NULL );
 	CRect rect;
 	GetWindowRect( &rect );
@@ -1748,8 +1743,7 @@ void AndorWindow::passCommonCommand(UINT id)
 {
 	try
 	{
-		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, 
-											  auxWin, basWin );
+		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, auxWin, basWin );
 	}
 	catch (Error& err)
 	{

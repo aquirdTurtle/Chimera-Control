@@ -17,7 +17,7 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	autoServoButton.Create( "Auto-Servo", NORM_CHECK_OPTIONS, autoServoButton.sPos, parent, id++ );
 	autoServoButton.setToolTip ( "Automatically calibrate all servos after F1.", toolTips, parent );
 
-	servoList.sPos = { pos.x, pos.y, pos.x + 960, pos.y += 240 };
+	servoList.sPos = { pos.x, pos.y, pos.x + 960, pos.y += 340 };
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
 	servoList.InsertColumn ( 0,  "Name", 150 );
 	servoList.InsertColumn ( 1,  "Active?", 50 );

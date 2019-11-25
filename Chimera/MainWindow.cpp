@@ -459,6 +459,7 @@ CFont* MainWindow::getPlotFont( )
 BOOL MainWindow::OnInitDialog( )
 {
 	SetWindowText ( "Main Window" );
+
 	startupTimes.push_back(chronoClock::now());
 	eMainWindowHwnd = this;
 	for ( auto elem : GIST_RAINBOW_RGB )
@@ -540,11 +541,13 @@ BOOL MainWindow::OnInitDialog( )
 	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
-	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
+	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
+	boxes.initialize ( controlLocation, id, this, 960, tooltips);
+	shortStatus.initialize (controlLocation, this, id, tooltips);
 	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 100, 0, 0 ), tooltips, 
+	errorStatus.initialize( controlLocation, this, id, 420, "ERROR STATUS", RGB( 100, 0, 0 ), tooltips, 
 							IDC_ERROR_STATUS_BUTTON );
-	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, 
+	debugStatus.initialize( controlLocation, this, id, 420, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, 
 							IDC_DEBUG_STATUS_BUTTON );
 	controlLocation = { 960, 0 };
 	profile.initialize( controlLocation, this, id, tooltips );
@@ -561,12 +564,10 @@ BOOL MainWindow::OnInitDialog( )
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips );
-	controlLocation = { 960, 910 };
 
-	boxes.initialize( controlLocation, id, this, 960, tooltips );
-	shortStatus.initialize( controlLocation, this, id, tooltips );
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
+
 	// just initializes the rectangles.
 	TheAndorWindow->redrawPictures( true );
 	try

@@ -6,7 +6,7 @@
 class StatusControl
 {
 	public:
-		void initialize(POINT &topLeftCorner, CWnd* parent, int& id, unsigned int size, std::string headerText, 
+		void initialize(POINT &topLeftCorner, CWnd* parent, int& id, long size, std::string headerText, 
 						COLORREF textColor, cToolTips& tooltips, UINT clearId );
 		void setDefaultColor(COLORREF color);
 		void addStatusText(std::string text);

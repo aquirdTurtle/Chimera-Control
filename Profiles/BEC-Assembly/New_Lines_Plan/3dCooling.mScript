@@ -23,15 +23,13 @@ off: b10
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 call pump2stretch()
-dac: sigmaoppower 0.05
-dac: sigmarepumpPower 0.3
+dac: sigmaoppower sigma_op__servo_value
+dac: sigmarepumpPower sigma_repump__servo_value
 rsg: (6.83103 + uw_cooling_mod_khz/1000000) 5
-% pulseon: topPulseTrig 0.1 
-% pulseon: tweezerIntensityTrig 0.1
-daclinspace: motFreq defaultMotFreq -0.5 1 10  %-0.4852 
+daclinspace: motFreq defaultMotFreq -0.5 1 10  
 var axialPulseTime 0.05 % 0.036
 var topPulseTime 0.0655
-dac: topPulseLev 0.7
+dac: topPulseLev 0.3
 dac: axPulseLev 0.22
 off: uw_mod_switch 
 repeat: 20
