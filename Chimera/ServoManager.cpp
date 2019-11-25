@@ -4,6 +4,45 @@
 #include "TextPromptDialog.h"
 #include "boost/lexical_cast.hpp"
 
+void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
+{
+	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
+	*pResult = CDRF_DODEFAULT;
+	// First thing - check the draw stage. If it's the control's prepaint
+	// stage, then tell Windows we want messages for every item.
+	if (CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage)
+	{
+		*pResult = CDRF_NOTIFYITEMDRAW;
+	}
+	else if (CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage)
+	{
+		int item = pLVCD->nmcd.dwItemSpec;
+		if (item < 0)
+		{
+			return;
+		}
+		if (item >= servos.size ())
+		{
+			pLVCD->clrText = _myRGBs["AuxWin-Text"];
+			pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
+		}
+		else
+		{
+			if (servos[item].currentlyServoing)
+			{
+				pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
+			}
+			else
+			{
+				pLVCD->clrTextBk = _myRGBs["Interactive-Bkgd"];
+			}
+			pLVCD->clrText = _myRGBs["Text"];
+		}
+		// Tell Windows to paint the control itself.
+		*pResult = CDRF_DODEFAULT;
+	}
+}
+
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
 							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in )
 {
@@ -488,6 +527,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		return;
 	}
 	double sp = s.setPoint;
+	s.currentlyServoing = true;
 	// helps auto calibrate the servo for lower servo powers
 	ttls->zeroBoard ( );
 	ao->zeroDacs (ttls);
@@ -522,6 +562,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 			errBox ( s.servoName + " Monitor: Value has drifted out of tolerance!" );
 		}
 		// And the rest of the function is handling the servo part. 
+		s.currentlyServoing = false;
 		return;
 	}
 	s.controlValue = globals->getVariableValue (str (s.servoName + "__servo_value", 13, false, true));
@@ -589,6 +630,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	{
 		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), dacVal );
 	}
+	s.currentlyServoing = false;
 }
 
 
