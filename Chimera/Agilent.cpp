@@ -36,6 +36,15 @@ Agilent::Agilent( const agilentSettings& settings ) :
 	}
 }
 
+bool Agilent::getSavedStatus ()
+{
+	return agilentScript.savedStatus ();
+}
+
+void Agilent::updateSavedStatus (bool isSaved)
+{
+	agilentScript.updateSavedStatus (isSaved);
+}
 
 Agilent::~Agilent()
 {

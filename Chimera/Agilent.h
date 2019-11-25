@@ -41,6 +41,8 @@ class Agilent
 		void prepAgilentSettings(UINT channel );
 		bool connected();
 		bool scriptingModeIsSelected( );
+		bool getSavedStatus ();
+		void updateSavedStatus (bool isSaved);
 		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& vars );
 		void analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars );
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
