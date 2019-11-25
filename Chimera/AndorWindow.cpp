@@ -1430,6 +1430,11 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 	// loop watching the image queue.
 	while (*input->cruncherThreadActive || input->imQueue->size() != 0)
 	{
+		// if no images wait until images. Should probably change to be event based, but want this to be fast...
+		if (input->imQueue->size () == 0)
+		{
+			continue;
+		}
 		if ( imageCount % 2 == 0 ) 
 		{
 			input->catchPicTime->push_back( chronoClock::now( ) );
@@ -1511,7 +1516,12 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 		}
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
-		(*input->imQueue).erase((*input->imQueue).begin());		
+		// if no images wait until images. Should probably change to be event based, but want this to be fast...
+		if (input->imQueue->size () != 0)
+		{
+			(*input->imQueue).erase ((*input->imQueue).begin ());
+		}
+		
 	}
 	return 0;
 }
