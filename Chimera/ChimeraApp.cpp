@@ -14,10 +14,6 @@
 // Contains functions and types used by the NIAWG.
 #include "niFgen.h"
 
-// Contians the declaration of the main window procedure control function
-#include "winProcScripts.h"
-#include "winProcMain.h"
-
 // Contains information the API uses for dialogues.
 #include "resource.h"
 #include "externals.h"

@@ -207,7 +207,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				comm.sendColorBox ( System::Master, 'Y' );
 				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
 													 seqVariables, seq.masterStream, seqNum,
-													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings );
+													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
+													 input->thisObj->operationTime, input->thisObj->loadSkipTime );
 			}
 			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
 			if ( runNiawg )	
@@ -489,7 +490,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 						aoSys.writeDacs(variationInc, seqInc, skipOption);
 						aoSys.startDacs();
 						ttls.ftdi_trigger();
-						ttls.FtdiWaitTillFinished(variationInc, seqInc, skipOption);
+						ttls.FtdiWaitTillFinished(variationInc, seqInc);
 					}
 				}//}
 			}
@@ -585,10 +586,10 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 
 
 void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
-										  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
-										  RohdeSchwarz& rsg, std::vector<parameterType>& vars,
-										  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
-										  std::string& warnings )
+												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
+												RohdeSchwarz& rsg, std::vector<parameterType>& vars,
+												ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+												std::string& warnings, timeType& operationTime, std::vector<timeType>& loadSkipTime )
 {
 	std::string currentMasterScriptText = currentMasterScript.str ( );
 	loadSkipTime[ seqNum ].first.clear ( );
@@ -609,15 +610,15 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 	std::string scope = PARENT_PARAMETER_SCOPE;                                                                                              
 	while ( !( currentMasterScript.peek ( ) == EOF ) || word != "__end__" )
 	{
- 		if ( handleTimeCommands ( word, currentMasterScript, vars, scope ) )
+ 		if ( handleTimeCommands ( word, currentMasterScript, vars, scope, operationTime ) )
 		{
 			// got handled, so break out of the if-else by entering this scope.
 		}
 		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
 		{}
-		else if ( handleDioCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope ) )
+		else if ( handleDioCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
 		{}
-		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope ) )
+		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
 		{}
 		/// callcppcode function
 		else if ( word == "callcppcode" )
@@ -644,7 +645,7 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 		}
 		/// deal with function calls.
 		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
-									   warnings, PARENT_PARAMETER_SCOPE ) )
+									   warnings, PARENT_PARAMETER_SCOPE, operationTime ) )
 		{ }
 		else if ( word == "repeat:" )
 		{
@@ -699,7 +700,8 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 void MasterThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
 											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
 											std::vector<UINT>& dacShades, RohdeSchwarz& rsg, 
-											std::vector<parameterType>& vars, UINT seqNum, std::string& warnings )
+											std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
+											timeType& operationTime, std::string callingScope )
 {	
 	/// load the file
 	std::fstream functionFile;
@@ -760,16 +762,16 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 	{
 		replacements.push_back ( { functionArgs[ replacementInc ], args[ replacementInc ] } );
 	}
-	functionStream.loadReplacements ( replacements );
+	functionStream.loadReplacements ( replacements, params, function, callingScope, function );
 	std::string currentFunctionText = functionStream.str ( );
 	///
 	functionStream >> word;
 	while ( !( functionStream.peek ( ) == EOF ) || word != "__end__" )
 	{
-		if (handleTimeCommands (word, functionStream, vars, scope)){ /* got handled*/ }
-		else if ( handleVariableDeclaration ( word, functionStream, vars, scope, warnings ) ){}
-		else if ( handleDioCommands ( word, functionStream, vars, ttls, ttlShades, seqNum, scope ) ){}
-		else if ( handleAoCommands ( word, functionStream, vars, aoSys, dacShades, ttls, seqNum, scope ) ){}
+		if (handleTimeCommands (word, functionStream, params, scope, operationTime)){ /* got handled*/ }
+		else if ( handleVariableDeclaration ( word, functionStream, params, scope, warnings ) ){}
+		else if ( handleDioCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
+		else if ( handleAoCommands ( word, functionStream, params, aoSys, dacShades, ttls, seqNum, scope, operationTime) ){}
 		else if ( word == "callcppcode" )
 		{
 			// and that's it... 
@@ -780,15 +782,15 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 		{
 			rsgEventForm info;
 			functionStream >> info.frequency >> info.power;
-			info.frequency.assertValid ( vars, scope );
-			info.power.assertValid ( vars, scope );
+			info.frequency.assertValid ( params, scope );
+			info.power.assertValid ( params, scope );
 			// test frequency
 			info.time = operationTime;
 			rsg.addFrequency ( info );
 		}
 		/// deal with function calls.
-		else if ( handleFunctionCall ( word, functionStream, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
-									   warnings, function ) ) {}
+		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
+									   warnings, function, operationTime ) ) {}
 		else if ( word == "repeat:" )
 		{
 			std::string repeatStr;
@@ -1233,7 +1235,7 @@ bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStr
 
 // if it handled it, returns true, else returns false.
 bool MasterThreadManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
-											  std::string scope )
+											  std::string scope, timeType& operationTime )
 {
 	try
 	{
@@ -1293,7 +1295,7 @@ bool MasterThreadManager::handleTimeCommands( std::string word, ScriptStream& st
 /* returns true if handles word, false otherwise. */
 bool MasterThreadManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 									   DioSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
-									   std::string scope )
+									   std::string scope, timeType& operationTime )
 {
 	if ( word == "on:" || word == "off:" )
 	{
@@ -1318,8 +1320,8 @@ bool MasterThreadManager::handleDioCommands( std::string word, ScriptStream& str
 
 /* returns true if handles word, false otherwise. */
 bool MasterThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-									  AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum, 
-									  std::string scope )
+											AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum, 
+											std::string scope, timeType& operationTime )
 {
 	if ( word == "dac:" )
 	{
@@ -1551,9 +1553,9 @@ void MasterThreadManager::checkTriggerNumbers (ExperimentThreadInput* input, boo
 
 
 bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-										DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-										std::vector<UINT>& dacShades, RohdeSchwarz& rsg, UINT seqNum, std::string& warnings,
-										std::string callingFunction )
+											  DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+											  std::vector<UINT>& dacShades, RohdeSchwarz& rsg, UINT seqNum, std::string& warnings,
+											  std::string callingFunction, timeType& operationTime )
 {
 	if ( word != "call" )
 	{
@@ -1595,7 +1597,8 @@ bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& st
 	}
 	try
 	{
-		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum, warnings );
+		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum, warnings, 
+			operationTime, callingFunction);
 	}
 	catch ( Error& )
 	{
