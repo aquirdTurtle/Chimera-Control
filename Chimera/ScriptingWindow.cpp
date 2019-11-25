@@ -145,6 +145,8 @@ void ScriptingWindow::catchEnter()
 
 void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 {
+	bool intSaved = intensityAgilent.getSavedStatus(), niawgSaved = niawgScript.savedStatus (), masterSaved = masterScript.savedStatus();
+	
 	SetRedraw( false );
 	niawgScript.rearrange(cx, cy, mainWin->getFonts());
 	intensityAgilent.rearrange( cx, cy, mainWin->getFonts() );
@@ -154,6 +156,9 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	recolorScripts ( );
 	SetRedraw( true );
 	RedrawWindow();
+	intensityAgilent.updateSavedStatus (intSaved);
+	niawgScript.updateSavedStatus (niawgSaved);
+	masterScript.updateSavedStatus (masterSaved);
 }
 
 // special handling for long tooltips.
