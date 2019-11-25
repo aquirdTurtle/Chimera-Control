@@ -118,7 +118,8 @@ class ProfileSystem
 		// Version 4.6: Added Piezo System 1 to save.
 		// Version 4.7: Added display grid check
 		// Version 4.8: Moved pics per rep and exposure times to the CameraSettingsControl part of the config.
-		const Version version = Version( "4.8" );
+		// Version 4.9: added aisystem settings to config file.
+		const Version version = Version( "4.9" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

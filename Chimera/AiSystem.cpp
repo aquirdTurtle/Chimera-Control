@@ -48,6 +48,10 @@ void AiSystem::rearrange( int width, int height, fontMap fonts )
 	getValuesButton.rearrange( width, height, fonts );
 	continuousQueryCheck.rearrange( width, height, fonts );
 	queryBetweenVariations.rearrange( width, height, fonts );
+	continuousInterval.rearrange (width, height, fonts);
+	continuousIntervalLabel.rearrange( width, height, fonts );
+	avgNumberEdit.rearrange (width, height, fonts);
+	avgNumberLabel.rearrange (width, height, fonts);
 }
 
 
@@ -64,7 +68,19 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 	queryBetweenVariations.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 25 };
 	queryBetweenVariations.Create( "Qry Btwn Vars", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
 								   parent, id++ );
-	loc.x -= 480;
+	loc.x -= 480; 
+	continuousIntervalLabel.sPos = { loc.x, loc.y, loc.x + 160, loc.y + 25 };
+	continuousIntervalLabel.Create ("Cont. Interval:", NORM_STATIC_OPTIONS, continuousIntervalLabel.sPos, parent, id++);
+	continuousInterval.sPos = { loc.x + 160, loc.y, loc.x + 240, loc.y + 25 };
+	continuousInterval.Create (NORM_EDIT_OPTIONS, continuousInterval.sPos, parent, id++);
+	continuousInterval.SetWindowText (cstr (AiSettings ().continuousModeInterval));
+
+	avgNumberLabel.sPos = { loc.x + 240, loc.y, loc.x + 400, loc.y + 25 };
+	avgNumberLabel.Create ("# To Avg:", NORM_STATIC_OPTIONS, avgNumberLabel.sPos, parent, id++);
+	avgNumberEdit.sPos = { loc.x + 400, loc.y, loc.x + 480, loc.y += 25 };
+	avgNumberEdit.Create (NORM_EDIT_OPTIONS, avgNumberEdit.sPos, parent, id++);
+	avgNumberEdit.SetWindowText (cstr (AiSettings ().numberMeasurementsToAverage));
+	
 	// there's a single label first, hence the +1.
 	long dacInc = 0, collumnInc = 0, numCols=4;
 	LONG colSize = LONG(480 / numCols);
@@ -96,6 +112,53 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 	}
 }
 
+AiSettings AiSystem::getAiSettings ()
+{
+	AiSettings settings;
+	settings.queryBtwnVariations = queryBetweenVariations.GetCheck ();
+	settings.queryContinuously = continuousQueryCheck.GetCheck ();
+	try
+	{
+		settings.numberMeasurementsToAverage = avgNumberEdit.getWindowTextAsUINT ();
+	}
+	catch (Error & err) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
+	try
+	{
+		settings.continuousModeInterval = continuousInterval.getWindowTextAsDouble();
+	}
+	catch (Error & err) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
+	return settings;
+}
+
+AiSettings AiSystem::getAiSettingsFromConfig (std::ifstream& file, Version ver)
+{
+	AiSettings settings;
+	file >> settings.queryBtwnVariations;
+	file >> settings.queryContinuously;
+	file >> settings.numberMeasurementsToAverage;
+	file >> settings.continuousModeInterval;
+	return settings;
+}
+
+void AiSystem::handleSaveConfig (std::ofstream& file)
+{
+	auto settings = getAiSettings ();
+	file << configDelim << "\n";
+	file << settings.queryBtwnVariations << "\n";
+	file << settings.queryContinuously << "\n";
+	file << settings.numberMeasurementsToAverage << "\n";
+	file << settings.continuousModeInterval << "\n";
+	file << "END_" + configDelim + "\n";
+}
+
+void AiSystem::setAiSettings (AiSettings settings)
+{
+	queryBetweenVariations.SetCheck (settings.queryBtwnVariations);
+	continuousQueryCheck.SetCheck (settings.queryContinuously);
+	avgNumberEdit.SetWindowText (cstr(settings.numberMeasurementsToAverage));
+	continuousInterval.SetWindowText (cstr (settings.continuousModeInterval));
+}
+
 
 bool AiSystem::wantsContinuousQuery( )
 {
@@ -105,7 +168,7 @@ bool AiSystem::wantsContinuousQuery( )
 
 void AiSystem::refreshCurrentValues( )
 {
-	currentValues = getSingleSnapArray( 100 );
+	currentValues = getSingleSnapArray( getAiSettings().numberMeasurementsToAverage );
 }
 
 
