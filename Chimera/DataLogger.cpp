@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "DataLogger.h"
 #include "externals.h"
-#include "longnam.h"
 #include "DataAnalysisControl.h"
 #include "CameraImageDimensions.h"
 #include "MasterManager.h"

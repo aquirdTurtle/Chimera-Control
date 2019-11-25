@@ -21,7 +21,8 @@ class ScriptStream : public std::stringstream
 		ScriptStream & operator>>( std::string& outputString );
 		ScriptStream & operator>>( Expression& expression );
 
-		void loadReplacements( std::vector<std::pair<std::string, std::string>> args );
+		void loadReplacements (std::vector<std::pair<std::string, std::string>> args, std::vector<parameterType>& params,
+			std::string paramDecoration, std::string replCallScope, std::string funcScope);
 		void clearReplacements();
 		std::string getline();
 		std::string getline(char delim);

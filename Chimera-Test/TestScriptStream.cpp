@@ -4,7 +4,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace TestMatrix
+namespace TestScriptStream
 {
 	TEST_CLASS( TestScriptStream )
 	{
@@ -70,6 +70,24 @@ namespace TestMatrix
 			testStream.clear( );
 			testStream.seekg( 0 );
 			Assert::AreEqual( testStream.getline( ).c_str( ), "0" );
+		}
+
+		TEST_METHOD ( FunctionArgReplacements ) 
+		{
+			ScriptStream testStream;
+			std::string testString ("t+= hello");
+			testStream.str (testString);
+			std::vector<std::pair<std::string, std::string>> repls;
+			repls.push_back ({ "hello", "goodbye" });
+			std::vector<parameterType> params;
+			params.push_back ({ "goodbye", true, 0, false, false, 0, {}, {}, false, "GLOBAL_PARAMETER_SCOPE" });
+			testStream.loadReplacements (repls, params, "test1", "test2", "test1" );
+			std::string timeWord;
+			Expression timeAmount;
+			testStream >> timeWord >> timeAmount;
+			Assert::AreEqual (timeWord, str("t+="));
+			// this is the replacement.
+			Assert::AreEqual (timeAmount.expressionStr, str ("goodbye"));
 		}
 	};
 }
