@@ -126,6 +126,8 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
 	ON_NOTIFY (NM_DBLCLK, IDC_SERVO_LISTVIEW, &MainWindow::ServoDblClick)
 	ON_NOTIFY (NM_RCLICK, IDC_SERVO_LISTVIEW, &MainWindow::ServoRClick)
+	ON_NOTIFY (NM_CUSTOMDRAW, IDC_SERVO_LISTVIEW, &MainWindow::drawServoListview)
+
 	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
 	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
 	ON_MESSAGE ( RepProgressMessageID, &MainWindow::onRepProgress )
@@ -157,6 +159,19 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
+
+
+void MainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult)
+{
+	try
+	{
+		servos.handleDraw (pNMHDR, pResult);
+	}
+	catch (Error & err)
+	{
+		comm.sendError (err.trace ());
+	}
+}
 
 
 void MainWindow::passRerngModeComboChange ( )

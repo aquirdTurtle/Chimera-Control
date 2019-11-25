@@ -21,4 +21,5 @@ struct servoInfo
 	double mostRecentResult = 0;
 	std::vector<std::pair<DioRows::which, UINT> > ttlConfig;
 	std::vector<std::pair<UINT, double>> aoConfig;
+	bool currentlyServoing = false;
 };
