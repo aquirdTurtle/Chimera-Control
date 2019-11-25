@@ -506,8 +506,8 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
 	currentPictureNum++;
+	OutputDebugString (cstr("Handling Pic #" + str (currentPictureNum) + ", "));
 	UINT picNum = currentPictureNum;
-	OutputDebugString (("A.W. Curr Pic #: " + str (currentPictureNum) + "; ").c_str());
 	if ( picNum % 2 == 1 )
 	{
 		mainThreadStartTimes.push_back( std::chrono::high_resolution_clock::now( ) );
@@ -545,6 +545,10 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm()->sendError( err.trace() );
 		return NULL;
 	}
+	if (rawPicData[(picNum - 1) % curSettings.picsPerRepetition].size () == 0)
+	{
+		DebugBreak ();
+	}
 	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
 	if ( andorSettingsCtrl.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
 	{
@@ -567,8 +571,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		imageGrabTimes.push_back( std::chrono::high_resolution_clock::now( ) );
 	}
 	{
-		std::lock_guard<std::mutex> locker( plotLock );
-		// TODO: add check to check if this is needed. // ???????? dunno what I meant by this MOB Oct 23 2019
+		std::lock_guard<std::mutex> locker( imageQueueLock );
 		imQueue.push_back ( { picNum, calPicData[ ( picNum - 1 ) % curSettings.picsPerRepetition ] } );
 	}
 
@@ -633,6 +636,10 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		{
 			// important! write the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
 			// pictures, which can have the background subtracted.
+			if (rawPicData[(picNum - 1) % curSettings.picsPerRepetition].size () == 0)
+			{
+				DebugBreak ();
+			}
 			dataHandler.writeAndorPic( rawPicData[(picNum - 1) % curSettings.picsPerRepetition], 
 									   curSettings.imageSettings );
 		}
@@ -758,8 +765,8 @@ void AndorWindow::cleanUpAfterExp ( )
 
 LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
+	OutputDebugString ("Handling Finish. ");
 	// notify the andor object that it is done.
-	OutputDebugString ("A.W. On Andor Camera Finish; ");
 	andor.onFinish();
 	//andor.pauseThread();
 	if (alerts.soundIsToBePlayed())
@@ -1205,7 +1212,7 @@ void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 		input.cruncherInput->rearrangerActive = false;
 	}
 	// locks
-	input.cruncherInput->imageLock = &imageLock;
+	input.cruncherInput->imageQueueLock = &imageQueueLock;
 	input.cruncherInput->plotLock = &plotLock;
 	input.cruncherInput->rearrangerLock = &rearrangerLock;
 	// what the thread fills.
@@ -1453,19 +1460,27 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 			UINT count = 0; 
 			{   
 				// if no images wait until images. Should probably change to be event based, but want this to be fast...
+				std::lock_guard<std::mutex> locker (*input->imageQueueLock);
 				if (input->imQueue->size () == 0)
 				{
 					continue;
 				} 
 				// scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
-				std::lock_guard<std::mutex> locker (*input->imageLock);				
 				tempImagePixels[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
 				tempAtomArray[ gridInc ].repNum = ( *input->imQueue )[ 0 ].repNum;
 				///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the 
 				/// load-skip both of which are very time-sensitive.
 				for ( auto pixelIndex : monitoredPixelIndecies[gridInc] )
 				{
-					tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
+					if (pixelIndex > (*input->imQueue)[0].image.size ())
+					{
+						/*errBox ("Monitored pixel indecies included pixel out of image?!?! pixel: " + str(pixelIndex) 
+							+ ", size: " + str((*input->imQueue)[0].image.size()) );*/
+					}
+					else
+					{
+						tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
+					}
 				}
 			}
 			count = 0;
@@ -1515,13 +1530,12 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 			}
 		}
 		imageCount++;
-		std::lock_guard<std::mutex> locker( *input->imageLock );
+		std::lock_guard<std::mutex> locker( *input->imageQueueLock );
 		// if no images wait until images. Should probably change to be event based, but want this to be fast...
 		if (input->imQueue->size () != 0)
 		{
 			(*input->imQueue).erase ((*input->imQueue).begin ());
 		}
-		
 	}
 	return 0;
 }
