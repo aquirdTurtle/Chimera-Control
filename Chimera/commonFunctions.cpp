@@ -872,11 +872,12 @@ namespace commonFunctions
 		logger.logMiscellaneousStart();
 		logger.logBaslerSettings ( input.baslerRunSettings, input.masterInput ? input.masterInput->logBaslerPics : false );
 		UINT numVoltsMeasursments = 0;
+		/*
 		if ( input.masterInput && input.masterInput->aiSys.wantsQueryBetweenVariations( ) )
 		{
 			numVoltsMeasursments = MasterThreadManager::determineVariationNumber( input.masterInput->parameters.front() );
-		}
-		logger.initializeAiLogging( numVoltsMeasursments );		
+		}*/
+		logger.initializeAiLogging( input.masterInput->numAiMeasurements );		
 	}
 
 

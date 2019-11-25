@@ -15,7 +15,7 @@ void StatusControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std::string headerText, 
+void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, long size, std::string headerText, 
 							   COLORREF textColor, cToolTips& tooltips, UINT clearId)
 {
 	// set formatting for these scripts
@@ -26,13 +26,12 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y += 25 };
 	clearButton.Create("Clear", NORM_PUSH_OPTIONS, clearButton.sPos, parent, clearId );
 	//
-	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
+	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + size};
 	edit.Create( NORM_EDIT_OPTIONS | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, edit.sPos, parent, id++ );
 	edit.fontType = fontTypes::CodeFont;
 	edit.SetBackgroundColor(0, _myRGBs["Static-Bkgd"]);
-
 	setDefaultColor(textColor);
-	loc.y += size;
+	loc.y += long (size);
 }
 
 //

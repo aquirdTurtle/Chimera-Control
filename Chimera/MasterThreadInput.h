@@ -86,6 +86,7 @@ struct ExperimentThreadInput
 	UINT numVariations = 1;
 	bool quiet=false;
 	bool runNiawg;
+	UINT numAiMeasurements=0;
 	bool runMaster;
 	bool runAndor;
 	bool logBaslerPics;

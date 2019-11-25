@@ -1,5 +1,6 @@
 % Master-Script See the "?" for info on commands.
 t = 0.1
+off: eoramanrf
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
@@ -23,16 +24,16 @@ pulseon: tweezerIntensityTrig 0.1 % to RamanDepth
 t += 1
 call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
-var pulsePower 0.3
+var pulsePower 0.135
 dac: toppulselev pulsePower
-rsg: (6.83103 + uw_mod/1000000) 5
+rsg: (6.83103 + uw_spec_mod_khz/1000000) 5
 %call topRamanPulse(0.3)
 on: topRamanrf
 on: eoramanrf
 %on: topPulseTrig
 on: eoswitch
 on: eoswitch2
-t += pulseTime
+t += 0.04
 off: topRamanRf
 off: eoramanRF
 off: eoswitch
@@ -47,5 +48,6 @@ t += 1
 pulseon: rsTrig 0.1
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1
+on: eoramanrf
 t += 0.2
 
