@@ -7,6 +7,10 @@ IMMEDIATE LIST:
 - get rs232 piezo controllers integrated
 - fix auto-thresholding
 - fix python
+- add features to analog input
+	- save settings
+	- query frequency
+	- avg number
 
 FEATURES:
 - Full experiments following each other, alternative use of sequences.
@@ -90,7 +94,6 @@ Checks and Tests
 - test niawg script reading for different inputs that should be identical, related to ramps with nr for example.
 
 BUGS:
-- scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct; agilent variable issue probably?
 - seems like master configuration file can get corrupted if saving fails - should do something to safeguard this...
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high

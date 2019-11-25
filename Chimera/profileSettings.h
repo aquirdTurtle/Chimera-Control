@@ -15,11 +15,10 @@ struct profileSettings
 {
 	std::string configuration;
 	std::string parentFolderName;
-	// Note: The category path include the category name in the string.
-	std::string categoryPath;
+	std::string configLocation;
 	std::string configFilePath( )
 	{
-		return categoryPath + "\\" + configuration + "." + CONFIG_EXTENSION;
+		return configLocation + "\\" + configuration + "." + CONFIG_EXTENSION;
 	}
 };
 

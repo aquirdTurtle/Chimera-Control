@@ -194,7 +194,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				for ( auto& agilent : input->agilents )
 				{
 					RunInfo fixme;
-					agilent->handleInput ( input->profile.categoryPath, fixme );
+					agilent->handleInput ( input->profile.configLocation, fixme );
 					for ( auto channelInc : range ( 2 ) )
 					{
 						agilent->analyzeAgilentScript ( channelInc, seqVariables );

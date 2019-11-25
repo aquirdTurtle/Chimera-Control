@@ -206,6 +206,7 @@
     <ClInclude Include="AgilentChannelMode.h" />
     <ClInclude Include="AgilentSettings.h" />
     <ClInclude Include="agilentStructures.h" />
+    <ClInclude Include="AiSettings.h" />
     <ClInclude Include="AiSystem.h" />
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="AnalogOutput.h" />
@@ -334,6 +335,7 @@
     <ClInclude Include="DioSystem.h" />
     <ClInclude Include="Thrower.h" />
     <ClInclude Include="tinyPlotInfo.h" />
+    <ClInclude Include="UintEdit.h" />
     <ClInclude Include="VariableStructures.h" />
     <ClInclude Include="ParameterSystem.h" />
     <ClInclude Include="Version.h" />
@@ -448,6 +450,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ParameterSystem.cpp" />
+    <ClCompile Include="UintEdit.cpp" />
     <ClCompile Include="viewpointFlume.cpp" />
     <ClCompile Include="VisaFlume.cpp" />
     <ClCompile Include="WinSerialFlume.cpp" />

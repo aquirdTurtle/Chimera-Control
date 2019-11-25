@@ -30,7 +30,7 @@ class Script
 		void handleToolTip( NMHDR * pNMHDR, LRESULT * pResult );
 		std::string getScriptText();
 		void setScriptText( std::string text );
-		void functionChangeHandler( std::string categoryPath );
+		void functionChangeHandler( std::string configPath);
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void colorEntireScript( std::vector<parameterType> vars, 
 								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
@@ -44,11 +44,11 @@ class Script
 		void handleEditChange();
 		void handleTimerCall( std::vector<parameterType> vars, 
 							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
-		void changeView( std::string viewName, bool isFunction, std::string categoryPath );
+		void changeView( std::string viewName, bool isFunction, std::string configPath);
 		void saveScript( std::string location, RunInfo info );
 		void saveScriptAs( std::string location, RunInfo info );
-		void renameScript( std::string categoryPath );
-		void deleteScript( std::string categoryPath );
+		void renameScript( std::string configPath);
+		void deleteScript( std::string configPath);
 		void newScript( );
 		void newFunction();
 
@@ -58,9 +58,9 @@ class Script
 		std::string getExtension();
 
 		void loadFile( std::string pathToFile );
-		void openParentScript( std::string parentScriptFileAndPath, std::string categoryPath, RunInfo info );
-		void considerCurrentLocation( std::string categoryPath, RunInfo info );
-		void checkSave( std::string categoryPath, RunInfo info, Communicator* comm=NULL );
+		void openParentScript( std::string parentScriptFileAndPath, std::string configPath, RunInfo info );
+		void considerCurrentLocation( std::string configPath, RunInfo info );
+		void checkSave( std::string configPath, RunInfo info, Communicator* comm=NULL );
 		void updateSavedStatus( bool isSaved );
 		bool coloringIsNeeded();
 		void updateScriptNameText( std::string path );
@@ -87,7 +87,6 @@ class Script
 		std::string scriptName;
 		std::string scriptPath;
 		std::string scriptFullAddress;
-		std::string scriptCategory;
 		std::string deviceType;
 		std::string extension;
 		bool isLocalReference;
