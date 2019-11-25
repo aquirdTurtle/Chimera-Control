@@ -459,7 +459,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	std::vector<std::vector<long>> picData;
 	try
 	{
-		picData = andor.acquireImageData( );
+		picData = andor.acquireImageData(mainWin->getComm());
 	}
 	catch ( Error& err )
 	{
@@ -538,7 +538,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	std::vector<std::vector<long>> rawPicData;
 	try
 	{
-		rawPicData = andor.acquireImageData();
+		rawPicData = andor.acquireImageData(mainWin->getComm ());
 	}
 	catch (Error& err)
 	{
