@@ -65,7 +65,6 @@ class ProfileSystem
 											 AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 									AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
-		std::string getCurrentPathIncludingCategory();
 		profileSettings getProfileSettings();
 		seqSettings getSeqSettings( );
 

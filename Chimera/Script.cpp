@@ -101,7 +101,7 @@ void Script::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void Script::functionChangeHandler(std::string categoryPath)
+void Script::functionChangeHandler(std::string configPath)
 {
 	int selection = availableFunctionsCombo.GetCurSel( );
 	if ( selection != -1 )
@@ -110,7 +110,7 @@ void Script::functionChangeHandler(std::string categoryPath)
 		availableFunctionsCombo.GetLBText( selection, text );
 		std::string textStr( text.GetBuffer( ) );
 		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
-		changeView( textStr, true, categoryPath );
+		changeView( textStr, true, configPath );
 	}
 }
 
@@ -554,12 +554,12 @@ HBRUSH Script::handleColorMessage ( CWnd* window, CDC* cDC )
 
 
 
-void Script::changeView(std::string viewName, bool isFunction, std::string categoryPath)
+void Script::changeView(std::string viewName, bool isFunction, std::string configPath)
 {
 	if (viewName == "Parent Script")
 	{
 		// load parent
-		loadFile(categoryPath + scriptName + extension);
+		loadFile(configPath + scriptName + extension);
 	}
 	else if (isFunction)
 	{
@@ -568,7 +568,7 @@ void Script::changeView(std::string viewName, bool isFunction, std::string categ
 	else
 	{
 		// load child
-		loadFile(categoryPath + viewName);
+		loadFile(configPath + viewName);
 	}
 
 	// colorEntireScript(variables, rgbs, ttlNames, dacNames);
@@ -689,7 +689,7 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 
 
 //
-void Script::checkSave(std::string categoryPath, RunInfo info, Communicator* comm)
+void Script::checkSave(std::string configPath, RunInfo info, Communicator* comm)
 {
 	if (isSaved)
 	{
@@ -741,7 +741,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info, Communicator* com
 			std::string newName;
 			TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
 			dialog.DoModal();
-			std::string path = categoryPath + newName + extension;
+			std::string path = configPath + newName + extension;
 			saveScriptAs(path, info);
 			return;
 		}
@@ -759,14 +759,14 @@ void Script::checkSave(std::string categoryPath, RunInfo info, Communicator* com
 		}
 		else if (answer == IDYES)
 		{
-			saveScript(categoryPath, info);
+			saveScript(configPath, info);
 		}
 	}
 }
 
 
 //
-void Script::renameScript(std::string categoryPath)
+void Script::renameScript(std::string configPath)
 {
 	if (scriptName == "")
 	{
@@ -781,19 +781,19 @@ void Script::renameScript(std::string categoryPath)
 		// canceled
 		return;
 	}
-	int result = MoveFile(cstr(categoryPath + scriptName + extension), cstr(categoryPath + newName + extension));
+	int result = MoveFile(cstr(configPath + scriptName + extension), cstr(configPath + newName + extension));
 
 	if (result == 0)
 	{
 		thrower ("Failed to rename file. (A low level bug? this shouldn't happen)");
 	}
-	scriptFullAddress = categoryPath + scriptName + extension;
-	scriptPath = categoryPath;
+	scriptFullAddress = configPath + scriptName + extension;
+	scriptPath = configPath;
 }
 
 
 //
-void Script::deleteScript(std::string categoryPath)
+void Script::deleteScript(std::string configPath)
 {
 	if (scriptName == "")
 	{
@@ -805,7 +805,7 @@ void Script::deleteScript(std::string categoryPath)
 	{
 		return;
 	}
-	int result = DeleteFile(cstr(categoryPath + scriptName + extension));
+	int result = DeleteFile(cstr(configPath + scriptName + extension));
 	if (result == 0)
 	{
 		thrower ("Deleting script file failed!  (A low level bug, this shouldn't happen)");
@@ -820,7 +820,7 @@ void Script::deleteScript(std::string categoryPath)
 
 
 // the differences between this and new script are that this opens the default function instead of the default script
-// and that this does not reset the script category, etc. 
+// and that this does not reset the script config, etc. 
 void Script::newFunction()
 {
 	std::string tempName;
@@ -859,7 +859,7 @@ void Script::newScript()
 }
 
 
-void Script::openParentScript(std::string parentScriptFileAndPath, std::string categoryPath, RunInfo info)
+void Script::openParentScript(std::string parentScriptFileAndPath, std::string configPath, RunInfo info)
 {
 	if (parentScriptFileAndPath == "" || parentScriptFileAndPath == "NONE")
 	{
@@ -904,7 +904,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	// Check location of NIAWG script.
 	int sPos = parentScriptFileAndPath.find_last_of('\\');
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, sPos);
-	if (scriptLocation + "\\" != categoryPath && categoryPath != "")
+	if (scriptLocation + "\\" != configPath && configPath != "")
 	{
 		int answer = promptBox("The requested " + deviceType + " script: " + parentScriptFileAndPath + " is not "
 								"currently located in the current configuration folder. This is recommended so that "
@@ -913,11 +913,11 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 		if (answer == IDYES)
 		{
 			std::string scriptName = parentScriptFileAndPath.substr(sPos+1, parentScriptFileAndPath.size());
-			std::string path = categoryPath + scriptName;
+			std::string path = configPath + scriptName;
 			saveScriptAs(path, info);
 		}
 	}
-	updateScriptNameText( categoryPath );
+	updateScriptNameText( configPath );
 	availableFunctionsCombo.SelectString(0, "Parent Script");
 }
 
@@ -974,14 +974,14 @@ std::string Script::getScriptName()
 	return scriptName;
 }
 
-void Script::considerCurrentLocation(std::string categoryPath, RunInfo info)
+void Script::considerCurrentLocation(std::string configPath, RunInfo info)
 {
 	if (scriptFullAddress.size() > 0)
 	{
 		// Check location of NIAWG script.
 		int sPos = scriptFullAddress.find_last_of('\\');
 		std::string scriptLocation = scriptFullAddress.substr(0, sPos);
-		if (scriptLocation + "\\" != categoryPath)
+		if (scriptLocation + "\\" != configPath)
 		{
 			int answer = promptBox( "The requested " + deviceType + " script location: \"" + scriptLocation + "\" "
 									"is not currently located in the current configuration folder. This is recommended"
@@ -990,8 +990,8 @@ void Script::considerCurrentLocation(std::string categoryPath, RunInfo info)
 			if (answer == IDYES)
 			{
 				std::string scriptName = scriptFullAddress.substr(sPos, scriptFullAddress.size());
-				scriptFullAddress = categoryPath + scriptName;
-				scriptPath = categoryPath;
+				scriptFullAddress = configPath + scriptName;
+				scriptPath = configPath;
 				saveScriptAs(scriptFullAddress, info);
 			}
 		}
@@ -1003,15 +1003,15 @@ std::string Script::getExtension()
 	return extension;
 }
 
-void Script::updateScriptNameText(std::string categoryPath)
+void Script::updateScriptNameText(std::string configPath)
 {
 	// there are some \\ on the end of the path by default.
-	categoryPath = categoryPath.substr(0, categoryPath.size() - 1);
-	int sPos = categoryPath.find_last_of('\\');
+	configPath = configPath.substr(0, configPath.size() - 1);
+	int sPos = configPath.find_last_of('\\');
 	if (sPos != -1)
 	{
-		std::string category = categoryPath.substr(sPos + 1, categoryPath.size());
-		std::string text = category + "->" + scriptName;
+		std::string parentFolder = configPath.substr(sPos + 1, configPath.size());
+		std::string text = parentFolder + "->" + scriptName;
 		fileNameText.SetWindowTextA(cstr(text));
 	}
 	else
