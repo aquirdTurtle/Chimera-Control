@@ -161,7 +161,7 @@ class AndorWindow : public CDialog
 		// plotting stuff;
 		std::atomic<HANDLE> plotThreadHandle;
 		imageQueue imQueue;
-		std::mutex imageLock;
+		std::mutex imageQueueLock;
 		std::condition_variable rearrangerConditionVariable;
 		// the following two queues and locks aren't directly used by the camera window, but the camera window
 		// distributes them to the threads that do use them.
@@ -169,10 +169,11 @@ class AndorWindow : public CDialog
 		multiGridAtomQueue plotterAtomQueue;
 		multiGridImageQueue plotterPictureQueue;
 		atomQueue rearrangerAtomQueue;
-		dataPoint mostRecentAnalysisResult;
-		// 
 		std::mutex plotLock;
 		std::mutex rearrangerLock;
+
+		dataPoint mostRecentAnalysisResult;
+		// 
 		HANDLE atomCruncherThreadHandle;
 		std::atomic<bool> atomCrunchThreadActive;
 		// 

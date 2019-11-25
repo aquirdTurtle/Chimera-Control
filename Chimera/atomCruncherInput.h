@@ -32,7 +32,7 @@ struct atomCruncherInput
 	std::array<std::vector<int>, 4> thresholds;
 	imageParameters imageDims;
 	// locks
-	std::mutex* imageLock;
+	std::mutex* imageQueueLock;
 	std::mutex* plotLock;
 	std::mutex* rearrangerLock;
 	std::condition_variable* rearrangerConditionWatcher;
