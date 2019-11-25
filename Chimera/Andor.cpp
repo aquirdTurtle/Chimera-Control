@@ -116,7 +116,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		//input->signaler.wait( lock, [input]() { return input->expectingAcquisition; } );
 		while (!input->expectingAcquisition) 
 		{
-			OutputDebugString ("A.T. waiting for lock; ");
 			input->signaler.wait (lock);
 		}
 		
@@ -139,7 +138,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						//input->comm->sendCameraProgress( -1 );
 						// signal the end to the main thread.
-						OutputDebugString ("A.T. Sending Fin; ");
 						input->comm->sendCameraFin( );
 						// make sure the thread waits when it hits the condition variable.
 						input->expectingAcquisition = false;
@@ -148,7 +146,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				}
 				else
 				{
-					OutputDebugString ("A.T. Wait for acq; ");
 					input->Andor->flume.waitForAcquisition();
 					if ( pictureNumber % 2 == 0 )
 					{
@@ -307,9 +304,7 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 	 // remove the spurious wakeup check.
 	threadInput.expectingAcquisition = true;
 	// notify the thread that the experiment has started..
-	OutputDebugString ("Notifying Andor Thread; ");
 	threadInput.signaler.notify_all();
-	OutputDebugString ("Starting acquisition; ");
 	flume.startAcquisition();
 }
 
@@ -318,137 +313,93 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
  * This function checks for new pictures, if they exist it gets them, and shapes them into the array which holds all of
  * the pictures for a given repetition.
  */
-std::vector<std::vector<long>> AndorCamera::acquireImageData()
+std::vector<std::vector<long>> AndorCamera::acquireImageData (Communicator* comm)
 {
 	try
 	{
-		flume.checkForNewImages();
-	}
-	catch (Error& exception)
-	{
-		if (exception.whatBare() == "DRV_NO_NEW_DATA")
+		try
 		{
-			// just return this anyways.
-			return imagesOfExperiment;
+			flume.checkForNewImages ();
 		}
-		else
+		catch (Error & err)
 		{
-			// it's an actual error, pass it up.
-			throw;
+			comm->sendError("Error seen while checking for new images: " + err.trace ());
 		}
-	}
-	// each image processed from the call from a separate windows message
-	// If there is no data the acquisition must have been aborted
-	int experimentPictureNumber = runSettings.showPicsInRealTime ? 0
-		: ( ( ( currentPictureNumber - 1 ) % runSettings.totalPicsInVariation ( ) ) % runSettings.picsPerRepetition );
-	if (experimentPictureNumber == 0)
-	{
-		while ( true )
+		// each image processed from the call from a separate windows message
+		// If there is no data the acquisition must have been aborted
+		int experimentPictureNumber = runSettings.showPicsInRealTime ? 0
+			: (((currentPictureNumber - 1) % runSettings.totalPicsInVariation ()) % runSettings.picsPerRepetition);
+		if (experimentPictureNumber == 0)
 		{
-			auto res = WaitForSingleObject ( imagesMutex, 10e3 );
-			if ( res == WAIT_TIMEOUT )
+			imagesOfExperiment.clear ();
+			imagesOfExperiment.resize (runSettings.showPicsInRealTime ? 1 : runSettings.picsPerRepetition);
+		}
+		std::vector<long> tempImage(runSettings.imageSettings.size (),0);
+		imagesOfExperiment[experimentPictureNumber].resize (runSettings.imageSettings.size ());
+		if (!safemode)
+		{
+			try
 			{
-				auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
-									   MB_YESNO );
-				if ( ans == IDNO )
-				{
-					// This might indicate something about the code is gonna crash...
-					break;
-				}
+				flume.getOldestImage(tempImage);
 			}
-			else
+			catch (Error & err)
 			{
-				break;
+				// let the blank image roll through to keep the image numbers going sensibly.
+				//throwNested ("Error while calling getOldestImage.");
 			}
-		}
-		imagesOfExperiment.clear();
-		imagesOfExperiment.resize ( runSettings.showPicsInRealTime ? 1 : runSettings.picsPerRepetition );
-		ReleaseMutex(imagesMutex);
-	}
-	std::vector<long> tempImage;
-	tempImage.resize( runSettings.imageSettings.size());
-	while ( true )
-	{
-		auto res = WaitForSingleObject ( imagesMutex, 10e3 );
-		if ( res == WAIT_TIMEOUT )
-		{
-			auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
-								   MB_YESNO );
-			if ( ans == IDNO )
+			if (tempImage.size () == 0)
 			{
-				break;
+				DebugBreak ();
+			}
+			// immediately rotate
+			for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size (); imageVecInc++)
+			{
+				imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc
+					% runSettings.imageSettings.width ()) + 1) * runSettings.imageSettings.height ()
+					- imageVecInc / runSettings.imageSettings.width () - 1];
 			}
 		}
 		else
 		{
-			break;
-		}
-	}
-	imagesOfExperiment[experimentPictureNumber].resize( runSettings.imageSettings.size());
- 	if (!safemode)
-	{
-		flume.getOldestImage(tempImage);
-		// immediately rotate
-		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
-		{
-			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc 
-				% runSettings.imageSettings.width()) + 1) * runSettings.imageSettings.height()
-				- imageVecInc / runSettings.imageSettings.width() - 1];
-		}
-	}
-	else
-	{
-		for (auto imageVecInc : range( imagesOfExperiment[ experimentPictureNumber ].size ( ) ) )
-		{
-			std::random_device rd;
-			std::mt19937 e2 ( rd ( ) );
-			std::normal_distribution<> dist ( 180, 20 );
-			std::normal_distribution<> dist2 ( 350, 100 );
-			tempImage[imageVecInc] = dist(e2) + 10;
-			if ( ((imageVecInc / runSettings.imageSettings.width()) % 2 == 1)
-				 && ((imageVecInc % runSettings.imageSettings.width()) % 2 == 1) )
+			for (auto imageVecInc : range (imagesOfExperiment[experimentPictureNumber].size ()))
 			{
-				// can have an atom here.
-				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
+				std::random_device rd;
+				std::mt19937 e2 (rd ());
+				std::normal_distribution<> dist (180, 20);
+				std::normal_distribution<> dist2 (350, 100);
+				tempImage[imageVecInc] = dist (e2) + 10;
+				if (((imageVecInc / runSettings.imageSettings.width ()) % 2 == 1)
+					&& ((imageVecInc % runSettings.imageSettings.width ()) % 2 == 1))
 				{
-					// use the exposure time and em gain level 
-					tempImage[imageVecInc] += runSettings.exposureTimes[ experimentPictureNumber ]*1e3 * dist2(e2);
-					if ( runSettings.emGainModeIsOn )
+					// can have an atom here.
+					if (UINT (rand ()) % 300 > imageVecInc + 50)
 					{
-						tempImage[ imageVecInc ] *= runSettings.emGainLevel;
+						// use the exposure time and em gain level 
+						tempImage[imageVecInc] += runSettings.exposureTimes[experimentPictureNumber] * 1e3 * dist2 (e2);
+						if (runSettings.emGainModeIsOn)
+						{
+							tempImage[imageVecInc] *= runSettings.emGainLevel;
+						}
 					}
 				}
 			}
-		}
-		while ( true )
-		{
-			auto res = WaitForSingleObject ( imagesMutex, 10e3 );
-			if ( res == WAIT_TIMEOUT )
+			for (auto imageVecInc : range (imagesOfExperiment[experimentPictureNumber].size ()))
 			{
-				auto ans = promptBox ( "The image mutex is taking a while to become available. Continue waiting?",
-									   MB_YESNO );
-				if ( ans == IDNO )
-				{
-					// This might indicate something about the code is gonna crash...
-					break;
-				}
-			}
-			else
-			{
-				break;
+				auto& ims = runSettings.imageSettings;
+				imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % ims.width ()) + 1) * ims.height ()
+					- imageVecInc / ims.width () - 1];
 			}
 		}
-		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
+		if (imagesOfExperiment[experimentPictureNumber].size () == 0)
 		{
-			auto& ims = runSettings.imageSettings;
-			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % ims.width()) + 1) * ims.height() 
-				- imageVecInc / ims.width() - 1];
+			DebugBreak ();
 		}
-		ReleaseMutex( imagesMutex );
+		return imagesOfExperiment;
 	}
-	ReleaseMutex( imagesMutex );
-	// extra release redundant?
-	return imagesOfExperiment;
+	catch (Error & err)
+	{
+		throwNested ("Error Seen in acquireImageData.");
+	}
 }
 
 
