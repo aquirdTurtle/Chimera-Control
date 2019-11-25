@@ -42,6 +42,7 @@ class MainWindow : public CDialog
 	DECLARE_DYNAMIC(MainWindow);
 	public:
 		void showHardwareStatus ( );
+		void drawServoListview (NMHDR* pNMHDR, LRESULT* pResult);
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 	    // overrides
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
