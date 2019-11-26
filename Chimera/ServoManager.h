@@ -1,6 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "Servo.h"
+#include "servoInfo.h"
 #include "myButton.h"
 #include "AiSystem.h"
 #include "AoSystem.h"

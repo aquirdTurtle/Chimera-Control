@@ -545,10 +545,6 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm()->sendError( err.trace() );
 		return NULL;
 	}
-	if (rawPicData[(picNum - 1) % curSettings.picsPerRepetition].size () == 0)
-	{
-		DebugBreak ();
-	}
 	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
 	if ( andorSettingsCtrl.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
 	{
@@ -636,10 +632,6 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		{
 			// important! write the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
 			// pictures, which can have the background subtracted.
-			if (rawPicData[(picNum - 1) % curSettings.picsPerRepetition].size () == 0)
-			{
-				DebugBreak ();
-			}
 			dataHandler.writeAndorPic( rawPicData[(picNum - 1) % curSettings.picsPerRepetition], 
 									   curSettings.imageSettings );
 		}

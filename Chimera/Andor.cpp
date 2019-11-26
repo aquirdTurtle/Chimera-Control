@@ -347,10 +347,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData (Communicator* comm
 				// let the blank image roll through to keep the image numbers going sensibly.
 				//throwNested ("Error while calling getOldestImage.");
 			}
-			if (tempImage.size () == 0)
-			{
-				DebugBreak ();
-			}
 			// immediately rotate
 			for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size (); imageVecInc++)
 			{
@@ -389,10 +385,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData (Communicator* comm
 				imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % ims.width ()) + 1) * ims.height ()
 					- imageVecInc / ims.width () - 1];
 			}
-		}
-		if (imagesOfExperiment[experimentPictureNumber].size () == 0)
-		{
-			DebugBreak ();
 		}
 		return imagesOfExperiment;
 	}

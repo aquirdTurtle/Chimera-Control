@@ -45,7 +45,7 @@ namespace commonFunctions
 					andorWin->preparePlotter ( input );
 					andorWin->prepareAtomCruncher ( input );
 					input.masterInput->quiet = true;
-					logParameters ( input, andorWin->getLogger ( ) );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo() );
 
 					auxWin->updateOptimization ( input );
 					input.masterInput->expType = ExperimentType::MachineOptimization;
@@ -83,7 +83,7 @@ namespace commonFunctions
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					input.masterInput->runAndor = false;
 					input.masterInput->expType = ExperimentType::Normal;
-					logParameters ( input, andorWin->getLogger ( ), "", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
 					basWin->startCamera ( );
 					startExperimentThread ( mainWin, input );
 				}
@@ -136,7 +136,7 @@ namespace commonFunctions
 					andorWin->preparePlotter( input );
 					andorWin->prepareAtomCruncher( input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
-					logParameters( input, andorWin->getLogger ( ));
+					logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo ());
 					andorWin->startAtomCruncher(input);
 					andorWin->armCameraWindow();
 					basWin->startCamera ( );
@@ -278,7 +278,7 @@ namespace commonFunctions
 					commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, false, false, input );
 					andorWin->startAtomCruncher ( input );
 					andorWin->startPlotterThread ( input );
-					logParameters ( input, andorWin->getLogger ( ), "", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
 					commonFunctions::startExperimentThread ( mainWin, input );
 					mainWin->getComm()->sendColorBox( System::Camera, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
@@ -308,7 +308,7 @@ namespace commonFunctions
 														  input, true, false, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, true, false, input );
-					commonFunctions::logParameters( input, andorWin->getLogger ( ), "", false );
+					commonFunctions::logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
 				catch (Error& except)
@@ -328,7 +328,7 @@ namespace commonFunctions
 														  input, false, true, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, false, true, input );
-					commonFunctions::logParameters ( input, andorWin->getLogger ( ), "", false );
+					commonFunctions::logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
 				catch (Error& err)
@@ -483,7 +483,7 @@ namespace commonFunctions
 				input.masterInput->expType = ExperimentType::MotSize;
 				basWin->fillMotSizeInput ( input.baslerRunSettings );
 				// this is used for basler calibrations.
-				logParameters ( input, andorWin->getLogger ( ), "MOT_NUMBER", false );
+				logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "MOT_NUMBER", false );
 				basWin->startTemporaryAcquisition ( input.baslerRunSettings );
 				mainWin->startExperimentThread ( input.masterInput );
 				break;
@@ -506,7 +506,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::MotTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, andorWin->getLogger ( ), "MOT_TEMPERATURE", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "MOT_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -541,7 +541,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::PgcTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, andorWin->getLogger ( ), "RED_PGC_TEMPERATURE", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "RED_PGC_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -570,7 +570,7 @@ namespace commonFunctions
 					mainWin->fillTempInput ( input.masterInput );
 					input.masterInput->expType = ExperimentType::GreyTemperature;
 					basWin->fillTemperatureMeasurementInput ( input.baslerRunSettings );
-					logParameters ( input, andorWin->getLogger ( ), "GREY_MOLASSES_TEMPERATURE", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "GREY_MOLASSES_TEMPERATURE", false );
 				}
 				catch ( Error& err )
 				{
@@ -863,20 +863,15 @@ namespace commonFunctions
 	}
 
 
-	void logParameters( AllExperimentInput input, DataLogger& logger, std::string specialName, 
-						bool needsCal )
+	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, std::string specialName,
+					  bool needsCal )
 	{
 		logger.initializeDataFiles( specialName, needsCal );
 		logger.logAndorSettings( input.AndorSettings, input.masterInput ? input.masterInput->runAndor : false );
 		logger.logMasterInput( input.masterInput );
+		logger.logServoInfo (servos);
 		logger.logMiscellaneousStart();
 		logger.logBaslerSettings ( input.baslerRunSettings, input.masterInput ? input.masterInput->logBaslerPics : false );
-		UINT numVoltsMeasursments = 0;
-		/*
-		if ( input.masterInput && input.masterInput->aiSys.wantsQueryBetweenVariations( ) )
-		{
-			numVoltsMeasursments = MasterThreadManager::determineVariationNumber( input.masterInput->parameters.front() );
-		}*/
 		logger.initializeAiLogging( input.masterInput->numAiMeasurements );		
 	}
 
