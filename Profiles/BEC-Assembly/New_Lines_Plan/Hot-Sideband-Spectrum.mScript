@@ -25,7 +25,8 @@ t += 1
 call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
 var pulsePower 0.135
-dac: toppulselev pulsePower
+dac: toppulselev top_raman_carrier__servo_value
+dac: eopulselev eo_raman_radial_carrier__servo_value
 rsg: (6.83103 + uw_spec_mod_khz/1000000) 5
 %call topRamanPulse(0.3)
 on: topRamanrf
