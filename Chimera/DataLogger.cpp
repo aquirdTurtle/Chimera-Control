@@ -195,7 +195,7 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 	H5::Group servoGroup( file.createGroup ( "/Servos" ) );
 	for ( auto servo : servos )
 	{
-		H5::Group thisServo ( servoGroup.createGroup ( "/" + servo.servoName ) );
+		H5::Group thisServo ( servoGroup.createGroup ( servo.servoName ) );
 		writeDataSet ( servo.active, "Servo_Active", thisServo );
 		writeDataSet ( servo.aiInputChannel, "AI_Input_Channel", thisServo );
 		writeDataSet ( servo.aoControlChannel, "AO_Control_Channel", thisServo );
@@ -239,7 +239,7 @@ void DataLogger::logAoSystemSettings ( AoSystem& aoSys )
 	UINT count = 0;
 	for ( auto& output : info )
 	{
-		H5::Group indvOutput( AoSystemGroup.createGroup ( "/Output_" + str(count++) ) );
+		H5::Group indvOutput( AoSystemGroup.createGroup ( "Output_" + str(count++) ) );
 		writeDataSet ( output.name, "Output_Name", indvOutput );
 		writeDataSet ( output.note, "Note", indvOutput );
 		writeDataSet ( output.currVal, "Value_At_Start", indvOutput );
@@ -257,7 +257,7 @@ void DataLogger::logDoSystemSettings ( DioSystem& doSys )
 	for ( auto& out : doSysOutputs )
 	{
 		auto pos = out.getPosition ( );
-		H5::Group indvOutput ( DoSystemGroup.createGroup ( "/" + DioRows::toStr( pos.first) + str(pos.second) ) );
+		H5::Group indvOutput ( DoSystemGroup.createGroup ( DioRows::toStr( pos.first) + str(pos.second) ) );
 		writeDataSet ( out.getName(), "Name", indvOutput );
 		writeDataSet ( out.defaultStatus, "Default_Status", indvOutput );
 		writeDataSet ( out.getStatus(), "Value_at_start", indvOutput );
