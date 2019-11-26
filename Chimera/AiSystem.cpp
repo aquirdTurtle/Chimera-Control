@@ -119,12 +119,17 @@ AiSettings AiSystem::getAiSettings ()
 	settings.queryContinuously = continuousQueryCheck.GetCheck ();
 	try
 	{
-		settings.numberMeasurementsToAverage = avgNumberEdit.getWindowTextAsUINT ();
+		settings.continuousModeInterval = continuousInterval.getWindowTextAsDouble();
 	}
 	catch (Error & err) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
 	try
 	{
-		settings.continuousModeInterval = continuousInterval.getWindowTextAsDouble();
+		settings.numberMeasurementsToAverage = avgNumberEdit.getWindowTextAsUINT ();
+		if (settings.numberMeasurementsToAverage < 2)
+		{
+			settings.numberMeasurementsToAverage = 2;
+			setAiSettings (settings);
+		}
 	}
 	catch (Error & err) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
 	return settings;
@@ -202,25 +207,32 @@ bool AiSystem::wantsQueryBetweenVariations( )
 
 std::vector<float64> AiSystem::getSingleSnap( UINT n_to_avg )
 {
-	daqmx.configSampleClkTiming( analogInTask0, "", 10000.0, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, n_to_avg );
-	daqmx.startTask( analogInTask0 );
-	// don't understand why but need 2 samples min???
-	std::vector<float64> tmpdata( NUMBER_AI_CHANNELS*n_to_avg );
-	int32 sampsRead;
-	daqmx.readAnalogF64( analogInTask0, tmpdata, sampsRead );
-	daqmx.stopTask( analogInTask0 );
-	std::vector<float64> data( NUMBER_AI_CHANNELS );
-	UINT count = 0;
-	for ( auto& d : data )
+	try
 	{
-		d = 0;
-		for ( auto i : range( n_to_avg ) )
+		daqmx.configSampleClkTiming( analogInTask0, "", 10000.0, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, n_to_avg );
+		daqmx.startTask( analogInTask0 );
+		// don't understand why but need 2 samples min???
+		std::vector<float64> tmpdata( NUMBER_AI_CHANNELS*n_to_avg );
+		int32 sampsRead;
+		daqmx.readAnalogF64( analogInTask0, tmpdata, sampsRead );
+		daqmx.stopTask( analogInTask0 );
+		std::vector<float64> data( NUMBER_AI_CHANNELS );
+		UINT count = 0;
+		for ( auto& d : data )
 		{
-			d += tmpdata[count++];
+			d = 0;
+			for ( auto i : range( n_to_avg ) )
+			{
+				d += tmpdata[count++];
+			}
+			d /= n_to_avg;
 		}
-		d /= n_to_avg;
+		return data;
 	}
-	return data;
+	catch (Error & err)
+	{
+		throwNested ("Error exception thrown while getting Ai system single snap!");
+	}
 }
 
 

@@ -447,7 +447,14 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		if ( aiSys.wantsContinuousQuery( ) && (!mainWin->masterIsRunning( ) 
 												|| !aiSys.wantsQueryBetweenVariations() ) )
 		{
-			GetAnalogInSnapshot( );
+			try
+			{
+				GetAnalogInSnapshot ();
+			}
+			catch (Error & err)
+			{
+				sendErr (err.trace ());
+			}
 		}
 		KillTimer (2);
 		SetTimer (2, aiSys.getAiSettings().continuousModeInterval, NULL);
