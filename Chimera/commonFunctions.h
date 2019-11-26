@@ -2,6 +2,7 @@
 #pragma once
 #include "afxwin.h"
 #include "MasterThreadInput.h"
+#include "servoInfo.h"
 
 class MainWindow;
 class AndorWindow;
@@ -22,7 +23,8 @@ namespace commonFunctions
 							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runTtls, 
 							  bool runAndor, bool runBasler, bool startPlotThread );
 	void startExperimentThread(MainWindow* mainWin, AllExperimentInput& input);
-	void logParameters( AllExperimentInput input, DataLogger& logger, std::string specialName="", bool needsCal=true );
+	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, 
+					  std::string specialName="", bool needsCal=true );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);

@@ -486,9 +486,6 @@
     <ClInclude Include="ServoManager.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="Servo.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
     <ClInclude Include="functionCombo.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
@@ -708,6 +705,9 @@
     </ClInclude>
     <ClInclude Include="AiSettings.h" />
     <ClInclude Include="UintEdit.h" />
+    <ClInclude Include="servoInfo.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

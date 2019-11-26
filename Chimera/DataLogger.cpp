@@ -21,7 +21,6 @@ DataLogger::~DataLogger( )
 	closeFile( );
 }
 
-
 // this file assumes that h5 is the data_#.h5 file. User should check if incDataSet is on before calling. ???
 void DataLogger::deleteFile(Communicator* comm)
 {
@@ -205,6 +204,8 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 		writeDataSet ( servo.servoed, "Servo_Is_Servoing_Correctly", thisServo );
 		writeDataSet ( servo.setPoint, "Set_Point", thisServo );
 		writeDataSet ( servo.tolerance, "Servo_Tolerance", thisServo );
+		writeDataSet (servo.monitorOnly, "Monitor_Only", thisServo );
+		writeDataSet (servo.mostRecentResult, "Most_Recent_Result", thisServo);
 		std::string ttlConfigStr;
 		for ( auto ttl : servo.ttlConfig )
 		{
@@ -213,9 +214,20 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 		if ( ttlConfigStr.size ( ) > 2 )
 		{
 			// kill last comma and space.
-			ttlConfigStr.substr ( 0, ttlConfigStr.size ( ) - 2 );
+			ttlConfigStr = ttlConfigStr.substr ( 0, ttlConfigStr.size ( ) - 2 );
 		}
 		writeDataSet ( ttlConfigStr, "TTL_Configuration_During_Servo", thisServo );
+		std::string dacConfigStr;
+		for (auto dac : servo.aoConfig)
+		{
+			dacConfigStr += "dac" + str (dac.first) + ": " + str(dac.second) + "; ";
+		}
+		if (dacConfigStr.size () > 2)
+		{
+			// kill last comma and space.
+			dacConfigStr = dacConfigStr.substr (0, dacConfigStr.size () - 2);
+		}
+		writeDataSet (dacConfigStr, "AO_Configuration_During_Servo", thisServo);
 	}
 }
 

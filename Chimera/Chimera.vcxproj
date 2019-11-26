@@ -316,7 +316,7 @@
     <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="Segment.h" />
     <ClInclude Include="segmentStructs.h" />
-    <ClInclude Include="Servo.h" />
+    <ClInclude Include="servoInfo.h" />
     <ClInclude Include="ServoManager.h" />
     <ClInclude Include="SmsTextingControl.h" />
     <ClInclude Include="splashDialog.h" />

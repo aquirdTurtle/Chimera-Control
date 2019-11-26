@@ -15,6 +15,7 @@
 #undef ssize_t
 #include <vector>
 #include <string>
+#include "servoInfo.h"
 
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
