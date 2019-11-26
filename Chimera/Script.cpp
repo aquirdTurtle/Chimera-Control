@@ -589,7 +589,7 @@ bool Script::isFunction ( )
 	{
 		text = "";
 	}
-	return text != "Parent Script" && text != "";
+	return text != "Parent Script";// && text != "";
 }
 
 //
@@ -835,6 +835,7 @@ void Script::newFunction()
 				 " currently.");
 	}
 	loadFile(tempName);
+	availableFunctionsCombo.SetCurSel (-1);
 }
 
 //

@@ -39,10 +39,7 @@ FEATURES:
 - prompt for load after saving config as
 - Improve auto-optimization
 	- Implement different algorithms...
-		- basin-hopping
- 		- Randomized Search
- 		- Neural Network
-		- Genetic / evolutionary
+		- basin-hopping, Randomized Search, Neural Network, Genetic / evolutionary
 	- End when converged
 	- make finishing of optimization smoother
 	- option to text when optimization finished. 
@@ -98,9 +95,9 @@ BUGS:
 - should be able to change basler image dimensions edits while running
 - constant beeping if no mot and continuous freezes things basler
 - figure out why figure update seems to cause main thread window thread to freak out
-- new function then save doesn't save as function!
 - ttl display not accurate at end of exp, and in general not always accurate... e.g. on startup. 
 - image grid popping errors issue, seems related to different binning between f1 and config setting
 	- picture data didn't match grid size!
 - figure out why plot figure update seems to cause main thread window thread to freak out
 - figure out or avoid throw issue on f12
+
