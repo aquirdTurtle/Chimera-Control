@@ -101,7 +101,7 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 1,  "Active?", 50 );
 	servoList.InsertColumn ( 2,  "Set (V)" );
 	servoList.InsertColumn ( 3,  "Ctrl (V)");
-	servoList.InsertColumn ( 4,  "dCtrl (V)");
+	servoList.InsertColumn ( 4, "Ctrl Change (V)");
 	servoList.InsertColumn ( 5,  "Res (V)");
 	servoList.InsertColumn ( 6,  "Ai", 35 );
 	servoList.InsertColumn ( 7,  "Ao" );
