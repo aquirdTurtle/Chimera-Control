@@ -28,6 +28,7 @@ class ServoManager
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
 						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
+		void setChangeVal (UINT which, double change);
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll( );
 		void calibrate( servoInfo& s, UINT which );

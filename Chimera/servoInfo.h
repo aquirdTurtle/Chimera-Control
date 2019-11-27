@@ -15,6 +15,7 @@ struct servoInfo
 	UINT aoControlChannel=0;
 	double setPoint=0;
 	double controlValue=0;
+	double changeInCtrl=0.1;
 	double tolerance = 0.02;
 	double gain = 0.02;
 	bool servoed=false;
