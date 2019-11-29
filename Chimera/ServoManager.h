@@ -49,8 +49,8 @@ class ServoManager
 		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
 		Control<MyListCtrl> servoList;
 		std::vector<servoInfo> servos;
-		void refreshAllServos ( );
-		void updateServoInfo ( servoInfo& s, UINT which );
+		void refreshListview ( );
+		void addServoToListview ( servoInfo& s, UINT which );
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
 		to give to the ao system for changes.

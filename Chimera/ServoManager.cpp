@@ -110,6 +110,8 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 10,  "Gain", 45 );
 	servoList.InsertColumn ( 11,  "Monitor?", 70 );
 	servoList.InsertColumn ( 12, "AO-Config", 150);
+	servoList.InsertColumn ( 13, "Avgs", 50);
+
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
@@ -173,7 +175,7 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 	{
 		servos.push_back ( handleOpenMasterConfigIndvServo ( configStream, version ) );
 	}
-	refreshAllServos ( );
+	refreshListview ( );
 }
 
 
@@ -383,7 +385,6 @@ void ServoManager::handleListViewClick ( )
 		}
 		case 12:
 		{	// Analog-output config
-
 			std::string aoTxt;
 			TextPromptDialog dialog (&aoTxt, "Please enter the Analog outputs that must be on for the calibration. "
 				"Everthing else will be off. Please separate the dac identifier from the value with a space. "
@@ -413,8 +414,23 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
- 	}
- 	refreshAllServos ( );
+		case 13:
+		{
+			std::string numAvgsTxt;
+			TextPromptDialog dialog (&numAvgsTxt, "Please enter a number (>1) of ai averages for the servo.");
+			dialog.DoModal ();
+			try
+			{
+				servo.avgNum = boost::lexical_cast<UINT>(numAvgsTxt);
+			}
+			catch (boost::bad_lexical_cast&)
+			{
+				throwNested ("Failed to convert text to a double!");
+			}
+			break;
+		}
+	}
+ 	refreshListview ( );
 }
 
 
@@ -467,19 +483,19 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 }
 
 
-void ServoManager::refreshAllServos ( )
+void ServoManager::refreshListview ( )
 {
 	servoList.DeleteAllItems ( );
 	UINT count = 0;
 	for ( auto& servo : servos )
 	{
-		updateServoInfo ( servo, count++ );
+		addServoToListview ( servo, count++ );
 	}
 	servoList.insertBlankRow ( );
 }
 
 
-void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
+void ServoManager::addServoToListview ( servoInfo& s, UINT which )
 {
 	servoList.InsertItem ( s.servoName, which, 0 );
 	servoList.SetItem ( s.active ? "Yes" : "No", which, 1 );
@@ -504,7 +520,7 @@ void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
 		aoString += "dac" + str (ao.first) + " " + str (ao.second, 4) + " ";
 	}
 	servoList.SetItem (aoString, which, 12);
-	
+	servoList.SetItem (str (s.avgNum), which, 13);
 }
 
 
@@ -556,7 +572,7 @@ void ServoManager::runAll( )
 			// but continue to try the other ones. 
 		}
 	}
-	refreshAllServos ();
+	refreshListview ();
 	ttls->zeroBoard ( );
 	ao->zeroDacs(ttls);
 }
@@ -590,11 +606,10 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	UINT aoNum = s.aoControlChannel;
 	if ( s.monitorOnly )
 	{	// handle "servos" which are only monitoring values, not trying to change them. 
-		double avgVal = ai->getSingleChannelValue ( aiNum, 100 );
-		double avgVal2 = ai->getSingleChannelValue (aiNum, 100);
+		double avgVal = ai->getSingleChannelValue ( aiNum, s.avgNum );
 
-		s.mostRecentResult = avgVal2;
-		double percentDif = ( sp - avgVal2) / sp;
+		s.mostRecentResult = avgVal;
+		double percentDif = ( sp - avgVal) / sp;
 		if ( fabs ( percentDif )  < s.tolerance )
 		{
 			// Value looks good, nothing to report.
@@ -613,7 +628,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	ao->setSingleDac (aoNum, s.controlValue, ttls);
 	while ( count++ < attemptLimit )
 	{
-		double avgVal = ai->getSingleChannelValue(aiNum, 10);
+		double avgVal = ai->getSingleChannelValue(aiNum, s.avgNum);
 		s.mostRecentResult = avgVal;
 		double percentDif = (sp - avgVal) / sp;
 		if ( fabs(percentDif)  < s.tolerance )
