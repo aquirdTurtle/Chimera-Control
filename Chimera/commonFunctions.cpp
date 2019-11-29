@@ -467,6 +467,7 @@ namespace commonFunctions
 				basWin->startDefaultAcquisition ( );
 				break;
 			}
+			case ID_ACCELERATOR_F11:
 			case ID_ACCELERATOR_F12:
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.

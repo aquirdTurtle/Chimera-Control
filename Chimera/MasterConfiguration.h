@@ -23,6 +23,7 @@ class MasterConfiguration
 		const std::string configurationFileAddress;
 		// version 2.6: Added servo monitor-only option
 		// version 2.7: Added Servo Ao config
-		const Version version = Version("2.7");
+		// version 2.8: Added servo avg num setting
+		const Version version = Version("2.8");
 };
 

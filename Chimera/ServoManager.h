@@ -28,6 +28,7 @@ class ServoManager
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
 						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
+		void setChangeVal (UINT which, double change);
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll( );
 		void calibrate( servoInfo& s, UINT which );
@@ -48,8 +49,8 @@ class ServoManager
 		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
 		Control<MyListCtrl> servoList;
 		std::vector<servoInfo> servos;
-		void refreshAllServos ( );
-		void updateServoInfo ( servoInfo& s, UINT which );
+		void refreshListview ( );
+		void addServoToListview ( servoInfo& s, UINT which );
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
 		to give to the ao system for changes.

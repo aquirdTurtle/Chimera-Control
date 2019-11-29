@@ -1,0 +1,6 @@
+t = 1
+on: a5
+t += 5
+off: a5
+dac: dac0 1
+t += 1
