@@ -479,6 +479,10 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 	{
 		configStream >> tmpInfo.monitorOnly;
 	}
+	if (version > Version ("2.7"))
+	{
+		configStream >> tmpInfo.avgNum;
+	}
 	return tmpInfo;
 }
 
@@ -537,7 +541,7 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 	{
 		configStream << dac.first << " " << dac.second << " ";
 	}
-	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << "\n";
+	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << " " << servo.avgNum << "\n";
 }
 
 
@@ -607,7 +611,6 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	if ( s.monitorOnly )
 	{	// handle "servos" which are only monitoring values, not trying to change them. 
 		double avgVal = ai->getSingleChannelValue ( aiNum, s.avgNum );
-
 		s.mostRecentResult = avgVal;
 		double percentDif = ( sp - avgVal) / sp;
 		if ( fabs ( percentDif )  < s.tolerance )
