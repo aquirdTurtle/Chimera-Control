@@ -10,36 +10,75 @@ void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = CDRF_DODEFAULT;
 	// First thing - check the draw stage. If it's the control's prepaint
 	// stage, then tell Windows we want messages for every item.
-	if (CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage)
+	switch (pLVCD->nmcd.dwDrawStage)
 	{
-		*pResult = CDRF_NOTIFYITEMDRAW;
-	}
-	else if (CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage)
-	{
-		int item = pLVCD->nmcd.dwItemSpec;
-		if (item < 0)
+		case CDDS_PREPAINT:
+			*pResult = CDRF_NOTIFYITEMDRAW;
+			break;
+		case CDDS_ITEMPREPAINT:
 		{
-			return;
-		}
-		if (item >= servos.size ())
-		{
-			pLVCD->clrText = _myRGBs["AuxWin-Text"];
-			pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
-		}
-		else
-		{
-			if (servos[item].currentlyServoing)
+			int item = pLVCD->nmcd.dwItemSpec;
+			if (item < 0)
 			{
-				pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
+				return;
+			}
+			if (item >= servos.size ())
+			{
+				pLVCD->clrText = _myRGBs["AuxWin-Text"];
+				pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
 			}
 			else
 			{
-				pLVCD->clrTextBk = _myRGBs["Interactive-Bkgd"];
+				if (servos[item].currentlyServoing)
+				{
+					pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
+				}
+				else
+				{
+					pLVCD->clrTextBk = _myRGBs["Interactive-Bkgd"];
+				}
+				pLVCD->clrText = _myRGBs["Text"];
 			}
-			pLVCD->clrText = _myRGBs["Text"];
+			// Tell Windows to paint the control itself.
+			*pResult = CDRF_NOTIFYSUBITEMDRAW;
 		}
-		// Tell Windows to paint the control itself.
-		*pResult = CDRF_DODEFAULT;
+		case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+		{	// handle subitem stuff...
+			switch (pLVCD->iSubItem)
+			{
+				case 3:
+				case 5: 
+					pLVCD->clrText = _myRGBs["Text"];
+					break;
+				case 4:
+				{
+					auto servoInfos = getServoInfo ();
+					if (pLVCD->nmcd.dwItemSpec < 0 || pLVCD->nmcd.dwItemSpec >= servoInfos.size ())
+					{
+						// at least happens on the new item row
+						pLVCD->clrText = _myRGBs["AuxWin-Text"];
+						break;
+					}
+					auto chng = servoInfos [pLVCD->nmcd.dwItemSpec] .changeInCtrl;
+					if (chng > 0)
+					{
+						pLVCD->clrText = _myRGBs["Green"];
+					}
+					else if (chng < 0)
+					{
+						pLVCD->clrText = _myRGBs["Red"];
+					}
+					else
+					{
+						pLVCD->clrText = _myRGBs["Text"];
+					}
+					break;
+				}
+				default:
+					pLVCD->clrText = _myRGBs["AuxWin-Text"];
+					break;
+			}
+		}
 	}
 }
 
@@ -62,14 +101,17 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 1,  "Active?", 50 );
 	servoList.InsertColumn ( 2,  "Set (V)" );
 	servoList.InsertColumn ( 3,  "Ctrl (V)");
-	servoList.InsertColumn ( 4,  "Res (V)");
-	servoList.InsertColumn ( 5,  "Ai", 35 );
-	servoList.InsertColumn ( 6,  "Ao" );
-	servoList.InsertColumn ( 7,  "DO-Config", 90 );
-	servoList.InsertColumn ( 8,  "Tolerance", 80 );
-	servoList.InsertColumn ( 9,  "Gain", 45 );
-	servoList.InsertColumn ( 10,  "Monitor?", 70 );
-	servoList.InsertColumn ( 11, "AO-Config", 150);
+	servoList.InsertColumn ( 4,  "dCtrl (V)");
+	servoList.InsertColumn ( 5,  "Res (V)");
+	servoList.InsertColumn ( 6,  "Ai", 35 );
+	servoList.InsertColumn ( 7,  "Ao" );
+	servoList.InsertColumn ( 8,  "DO-Config", 90 );
+	servoList.InsertColumn ( 9,  "Tolerance", 80 );
+	servoList.InsertColumn ( 10,  "Gain", 45 );
+	servoList.InsertColumn ( 11,  "Monitor?", 70 );
+	servoList.InsertColumn ( 12, "AO-Config", 150);
+	servoList.InsertColumn ( 13, "Avgs", 50);
+
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
@@ -133,7 +175,7 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 	{
 		servos.push_back ( handleOpenMasterConfigIndvServo ( configStream, version ) );
 	}
-	refreshAllServos ( );
+	refreshListview ( );
 }
 
 
@@ -247,9 +289,10 @@ void ServoManager::handleListViewClick ( )
 			break;
 		}
 		case 3: // control value, unresponsive
-		case 4: // result value, unresponsive
+		case 4: // control change, unresponsive
+		case 5: // result value, unresponsive
 			break;
-		case 5:
+		case 6:
 		{	// ai
 			std::string aiTxt;
 			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at." );
@@ -264,7 +307,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 6:
+		case 7:
 		{	// ao			
 			std::string aoTxt;
 			TextPromptDialog dialog ( &aoTxt, "Please enter a the analog-output for the servo to use for control." );
@@ -279,7 +322,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 7:
+		case 8:
 		{	// Digital-output config
 			std::string doTxt;
 			TextPromptDialog dialog ( &doTxt, "Please enter the digital outputs that must be on for the calibration. "
@@ -305,7 +348,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
  		}
-		case 8:
+		case 9:
 		{	// tolerance
 			std::string tolTxt;
 			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo." );
@@ -320,7 +363,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 9:
+		case 10:
 		{	// gain 
 			std::string gainTxt;
 			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo." );
@@ -335,14 +378,13 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 10:
+		case 11:
 		{	// monitor only toggle
 			servo.monitorOnly = !servo.monitorOnly;
 			break;
 		}
-		case 11:
+		case 12:
 		{	// Analog-output config
-
 			std::string aoTxt;
 			TextPromptDialog dialog (&aoTxt, "Please enter the Analog outputs that must be on for the calibration. "
 				"Everthing else will be off. Please separate the dac identifier from the value with a space. "
@@ -372,8 +414,23 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
- 	}
- 	refreshAllServos ( );
+		case 13:
+		{
+			std::string numAvgsTxt;
+			TextPromptDialog dialog (&numAvgsTxt, "Please enter a number (>1) of ai averages for the servo.");
+			dialog.DoModal ();
+			try
+			{
+				servo.avgNum = boost::lexical_cast<UINT>(numAvgsTxt);
+			}
+			catch (boost::bad_lexical_cast&)
+			{
+				throwNested ("Failed to convert text to a double!");
+			}
+			break;
+		}
+	}
+ 	refreshListview ( );
 }
 
 
@@ -422,47 +479,52 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 	{
 		configStream >> tmpInfo.monitorOnly;
 	}
+	if (version > Version ("2.7"))
+	{
+		configStream >> tmpInfo.avgNum;
+	}
 	return tmpInfo;
 }
 
 
-void ServoManager::refreshAllServos ( )
+void ServoManager::refreshListview ( )
 {
 	servoList.DeleteAllItems ( );
 	UINT count = 0;
 	for ( auto& servo : servos )
 	{
-		updateServoInfo ( servo, count++ );
+		addServoToListview ( servo, count++ );
 	}
 	servoList.insertBlankRow ( );
 }
 
 
-void ServoManager::updateServoInfo ( servoInfo& s, UINT which )
+void ServoManager::addServoToListview ( servoInfo& s, UINT which )
 {
 	servoList.InsertItem ( s.servoName, which, 0 );
 	servoList.SetItem ( s.active ? "Yes" : "No", which, 1 );
 	servoList.SetItem ( str ( s.setPoint ), which, 2 );
 	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.controlValue ), which, 3 );
-	servoList.SetItem ( str (s.mostRecentResult), which, 4);
-	servoList.SetItem ( str ( s.aiInputChannel ), which, 5 );
-	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.aoControlChannel ), which, 6 );
+	servoList.SetItem ( (s.changeInCtrl < 0 ? "-" : "+") + str (s.changeInCtrl), which, 4);
+	servoList.SetItem ( str ( s.mostRecentResult), which, 5);
+	servoList.SetItem ( str ( s.aiInputChannel ), which, 6 );
+	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.aoControlChannel ), which, 7 );
 	std::string digitalOutConfigString;
 	for ( auto val : s.ttlConfig )
 	{
 		digitalOutConfigString += DioRows::toStr( val.first ) + " " + str ( val.second ) + " ";
 	}
-	servoList.SetItem ( str ( digitalOutConfigString ), which, 7 );
-	servoList.SetItem ( str ( s.tolerance ), which, 8 );
-	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.gain ), which, 9 );
-	servoList.SetItem ( s.monitorOnly ? "Yes" : "No", which, 10 );
+	servoList.SetItem ( str ( digitalOutConfigString ), which, 8 );
+	servoList.SetItem ( str ( s.tolerance ), which, 9 );
+	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.gain ), which, 10 );
+	servoList.SetItem ( s.monitorOnly ? "Yes" : "No", which, 11 );
 	std::string aoString;
 	for (auto ao : s.aoConfig)
 	{
 		aoString += "dac" + str (ao.first) + " " + str (ao.second, 4) + " ";
 	}
-	servoList.SetItem (aoString, which, 11);
-	
+	servoList.SetItem (aoString, which, 12);
+	servoList.SetItem (str (s.avgNum), which, 13);
 }
 
 
@@ -479,7 +541,7 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 	{
 		configStream << dac.first << " " << dac.second << " ";
 	}
-	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << "\n";
+	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << " " << servo.avgNum << "\n";
 }
 
 
@@ -514,7 +576,7 @@ void ServoManager::runAll( )
 			// but continue to try the other ones. 
 		}
 	}
-	refreshAllServos ();
+	refreshListview ();
 	ttls->zeroBoard ( );
 	ao->zeroDacs(ttls);
 }
@@ -548,11 +610,9 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	UINT aoNum = s.aoControlChannel;
 	if ( s.monitorOnly )
 	{	// handle "servos" which are only monitoring values, not trying to change them. 
-		double avgVal = ai->getSingleChannelValue ( aiNum, 100 );
-		double avgVal2 = ai->getSingleChannelValue (aiNum, 100);
-
-		s.mostRecentResult = avgVal2;
-		double percentDif = ( sp - avgVal2) / sp;
+		double avgVal = ai->getSingleChannelValue ( aiNum, s.avgNum );
+		s.mostRecentResult = avgVal;
+		double percentDif = ( sp - avgVal) / sp;
 		if ( fabs ( percentDif )  < s.tolerance )
 		{
 			// Value looks good, nothing to report.
@@ -567,10 +627,11 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	}
 	s.controlValue = globals->getVariableValue (str (s.servoName + "__servo_value", 13, false, true));
 	// start the dac where it was last.
+	auto oldVal = s.controlValue;
 	ao->setSingleDac (aoNum, s.controlValue, ttls);
 	while ( count++ < attemptLimit )
 	{
-		double avgVal = ai->getSingleChannelValue(aiNum, 10);
+		double avgVal = ai->getSingleChannelValue(aiNum, s.avgNum);
 		s.mostRecentResult = avgVal;
 		double percentDif = (sp - avgVal) / sp;
 		if ( fabs(percentDif)  < s.tolerance )
@@ -618,8 +679,12 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
+	s.changeInCtrl = s.controlValue - oldVal; 
+
 	setControlDisplay ( which, dacVal );
 	setResDisplay (which, s.mostRecentResult);
+	
+
 	s.servoed = (count < attemptLimit);
 	if ( !s.servoed )
 	{
@@ -635,6 +700,11 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 
 
 
+void ServoManager::setChangeVal(UINT which, double change)
+{
+	servoList.SetItem ((change < 0 ? "-" : "+") + str (change), which, 4);
+	servoList.RedrawWindow ();
+}
 
 void ServoManager::setControlDisplay (UINT which, double value )
 {
@@ -644,7 +714,7 @@ void ServoManager::setControlDisplay (UINT which, double value )
 
 void ServoManager::setResDisplay (UINT which, double value)
 {
-	servoList.SetItem (str (value), which, 4);
+	servoList.SetItem (str (value), which, 5);
 	servoList.RedrawWindow ();
 }
 
