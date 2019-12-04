@@ -219,6 +219,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std
 	}
 	for ( auto& color : fileSettings.colors )
 	{
+	
 		configFile >> color;
 	}
 	if ( ver <= Version ( "4.7" ) )

@@ -23,9 +23,10 @@ class PiezoFlume
 
 	private:
 		const bool safemode;
-		std::vector<char> comPortNumber;
+		std::vector<unsigned char> comPortNumber;
 		int deviceHandle=0;
 		const UINT bufferSize = 256;
+		/*
 		typedef int ( *ftype_List )( char *serialNo );
 		typedef int ( *ftype_Open )( char* serialNo, int nBaud, int timeout );
 		typedef int ( *ftype_IsOpen )( char* serialNo );
@@ -104,4 +105,5 @@ class PiezoFlume
 		ftype_GetLimitVoltage GetLimitVoltage_raw;
 		ftype_GetFriendlyName GetFriendlyName_raw;
 		ftype_SetAllVoltage SetAllVoltage_raw;
+		*/
 };

@@ -16,8 +16,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP 
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -194,7 +194,7 @@ const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
 	#define DIOFTDI_SAFEMODE false
 	#define DDS_SAFEMODE false
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
-	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
+	const PiezoType PIEZO_2_TYPE = PiezoType::B;
 	#define BASLER_SAFEMODE false
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false

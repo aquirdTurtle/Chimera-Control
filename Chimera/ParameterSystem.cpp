@@ -675,7 +675,7 @@ void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult )
 			}
 			else
 			{
-				pLVCD->clrTextBk = _myRGBs["Interactive-Bkgd"];
+				pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
 			}
 			if (currentParameters[item].overwritten)
 			{
