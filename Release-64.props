@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>NIDAQmx.lib;ni4882.obj;niFgen.lib;atmcd64m.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);ftd2xx.lib;visa64.lib;visa32.lib;nivisa64.lib;nifgen.lib;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>NIDAQmx.lib;ni4882.obj;niFgen.lib;atmcd64m.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);ftd2xx.lib;visa64.lib;visa32.lib;nivisa64.lib;nifgen.lib;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib;MDT_COMMAND_LIB_x64.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

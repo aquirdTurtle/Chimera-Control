@@ -10,7 +10,6 @@ def pushout():
   on: a15
   t += 0.01
   off: a15
-  var pushout_Power 0.4
   var pushouttime 0.5
   dac: probePower pushout_probe__servo_value
   t += (-8)

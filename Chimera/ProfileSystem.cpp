@@ -176,8 +176,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	}
 	catch ( Error& err )
 	{
-		errBox( "ERROR: Failed to open configuration file! The code will now open the config file so that you can "
-				"attempt to fix the issue.\n\n" + err.trace() );
+		errBox( "ERROR: Unhandled error while opening configuration files!\n\n" + err.trace() );
 
 		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}

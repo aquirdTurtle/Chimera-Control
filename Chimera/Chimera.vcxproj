@@ -222,6 +222,7 @@
     <ClInclude Include="BaslerSettings.h" />
     <ClInclude Include="BaslerSettingsControl.h" />
     <ClInclude Include="BaslerWindow.h" />
+    <ClInclude Include="CmdLibrary.h" />
     <ClInclude Include="CodeTimer.h" />
     <ClInclude Include="dataPoint.h" />
     <ClInclude Include="DdsCore.h" />

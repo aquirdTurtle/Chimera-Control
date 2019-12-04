@@ -24,7 +24,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 		ttlBoard ( DIOFTDI_SAFEMODE, true, VIEWPOINT_SAFEMODE ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
-	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM8", "PIEZO_CONTROLLER_2" )
+	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM4", "PIEZO_CONTROLLER_2" )
 {}
 
 
@@ -447,7 +447,14 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		if ( aiSys.wantsContinuousQuery( ) && (!mainWin->masterIsRunning( ) 
 												|| !aiSys.wantsQueryBetweenVariations() ) )
 		{
-			GetAnalogInSnapshot( );
+			try
+			{
+				GetAnalogInSnapshot ();
+			}
+			catch (Error & err)
+			{
+				sendErr (err.trace ());
+			}
 		}
 		KillTimer (2);
 		SetTimer (2, aiSys.getAiSettings().continuousModeInterval, NULL);
