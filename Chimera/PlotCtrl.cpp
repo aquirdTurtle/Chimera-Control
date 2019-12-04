@@ -627,7 +627,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			// draw vertical lines for x points
 			RECT r = { long ( x - 40 ), long ( scaledArea.bottom ), long ( x + 60 ),
 				long ( controlDims.bottom * heightScale2 ) };
-			std::string txt = str ( xAxisPts[ count ], 3 );
+			std::string txt = str ( xAxisPts[ count ], 4 );
 			drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top, greyGdiPen );
 			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
@@ -645,7 +645,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			RECT r = { long ( scaledArea.left + count * ( scaledWidth - 20 ) / ( numLines - 1 ) - 40 ), long ( scaledArea.bottom ),
 					   long ( scaledArea.left + count * ( scaledWidth - 20 ) / ( numLines - 1 ) + 60 ),
 					   long ( controlDims.bottom * heightScale2 ) };
-			std::string txt = str ( view_minmax.min_x + count * dataRange / ( numLines - 1 ) );
+			std::string txt = str ( view_minmax.min_x + count * dataRange / ( numLines - 1 ), 4 );
 			drawLine ( d, scaledArea.left + count * ( scaledWidth) / ( numLines - 1 ), scaledArea.bottom + 5,
 					   scaledArea.left + count * ( scaledWidth) / ( numLines - 1 ), scaledArea.top, greyGdiPen );
 			d->SelectObject( textFont );

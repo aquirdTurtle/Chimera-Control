@@ -708,6 +708,7 @@
     <ClInclude Include="servoInfo.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
+    <ClInclude Include="CmdLibrary.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
