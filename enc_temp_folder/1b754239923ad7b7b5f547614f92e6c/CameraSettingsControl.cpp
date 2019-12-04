@@ -8,7 +8,21 @@
 
 AndorCameraSettingsControl::AndorCameraSettingsControl() 
 {
+	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" function.
 	AndorRunSettings& andorSettings = settings.andor;
+	/*
+	andorSettings.exposureTimes = { 0.026f };
+	andorSettings.picsPerRepetition = 1;
+	andorSettings.kineticCycleTime = 0.1f;
+	andorSettings.repetitionsPerVariation = 10;
+	andorSettings.totalVariations = 3;
+	// the read mode never gets changed currently. we always want images.
+	andorSettings.readMode = 4;
+	andorSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
+	andorSettings.emGainModeIsOn = false;
+	andorSettings.showPicsInRealTime = false;
+	andorSettings.triggerMode = AndorTriggerMode::mode::External;
+	*/
 }
 
 
@@ -74,6 +88,8 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	picSettingsObj.initialize( pos, parent, id );
 
 	imageDimensionsObj.initialize( pos, parent, false, id );
+
+	/// REPETITIONS PER VARIATION
 
 	// Accumulation Time
 	accumulationCycleTimeLabel.videoPos = accumulationCycleTimeLabel.seriesPos = { -1,-1,-1,-1 };

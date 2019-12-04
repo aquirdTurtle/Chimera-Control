@@ -254,14 +254,28 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 		camSettings.imageSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS",
 																  AndorCameraSettingsControl::getImageDimSettingsFromConfig );
 		andorSettingsCtrl.updateImageDimSettings ( camSettings.imageSettings );
+		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
 	}
 	catch ( Error& err )
 	{
 		errBox ( "Failed to get Andor Image Dimension settings from file! " + err.trace ( ) );
 	}
-	andorSettingsCtrl.updateRunSettingsFromPicSettings ( );
-	ProfileSystem::standardOpenConfig ( configFile, pics.configDelim, &pics, Version ( "4.0" ) );
-	ProfileSystem::standardOpenConfig ( configFile, "DATA_ANALYSIS", &analysisHandler, Version ( "4.0" ) );
+	try
+	{
+		ProfileSystem::standardOpenConfig (configFile, pics.configDelim, &pics, Version ("4.0"));
+	}
+	catch (Error & err)
+	{
+		errBox ("Failed to load picture settings from config!");
+	}
+	try
+	{
+		ProfileSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler, Version ("4.0"));
+	}
+	catch (Error & err)
+	{
+		errBox ("Failed to load Data Analysis settings from config!");
+	}
 	try
 	{
 		if ( andorSettingsCtrl.getSettings ( ).andor.picsPerRepetition == 1 )

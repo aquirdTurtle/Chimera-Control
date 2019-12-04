@@ -180,15 +180,22 @@ void MainWindow::passRerngModeComboChange ( )
 }
 
 
-void MainWindow::handleThresholdAnalysis ( )
+void MainWindow::handleThresholdAnalysis ()
 {
-	auto grid = TheAndorWindow->getMainAtomGrid ( );
-	auto dateStr = TheAndorWindow->getMostRecentDateString ( );
-	auto fid = TheAndorWindow->getMostRecentFid ( );
-	auto ppr = TheAndorWindow->getPicsPerRep ( );
-	std::string gridString = "[" + str ( grid.topLeftCorner.row-1 ) + "," + str(grid.topLeftCorner.column-1 ) + ","
-		+ str(grid.pixelSpacing) + "," + str(grid.width) + "," + str(grid.height) + "]";
-	python.thresholdAnalysis (dateStr, fid, gridString, ppr);
+	auto grid = TheAndorWindow->getMainAtomGrid ();
+	auto dateStr = TheAndorWindow->getMostRecentDateString ();
+	auto fid = TheAndorWindow->getMostRecentFid ();
+	auto ppr = TheAndorWindow->getPicsPerRep ();
+	std::string gridString = "[" + str (grid.topLeftCorner.row - 1) + "," + str (grid.topLeftCorner.column - 1) + ","
+		+ str (grid.pixelSpacing) + "," + str (grid.width) + "," + str (grid.height) + "]";
+	try
+	{
+		python.thresholdAnalysis (dateStr, fid, gridString, ppr);
+	}
+	catch (Error & err)
+	{
+		comm.sendError ("Threshold Analysis Failed! " + err.trace ());
+	}
 }
 
 
