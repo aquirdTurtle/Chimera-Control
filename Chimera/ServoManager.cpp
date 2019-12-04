@@ -477,7 +477,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 	}
 	if ( version > Version ( "2.5" ) )
 	{
-		configStream >> tmpInfo.monitorOnly;
+		configStream >> tmpInfo.monitorOnly;	
 	}
 	if (version > Version ("2.7"))
 	{
