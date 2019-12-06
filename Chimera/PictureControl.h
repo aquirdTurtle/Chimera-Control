@@ -53,7 +53,7 @@ class PictureControl
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
 		UINT accumNum;
-
+		int plotIDs = 1000;
 
 		const bool histOption;
 		std::vector<pPlotDataVec> horData, vertData;

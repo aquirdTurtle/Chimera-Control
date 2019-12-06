@@ -46,7 +46,7 @@ class PlotCtrl
 		void clear( );
 		void setCurrentDims( int width, int height);
 		void rearrange( int width, int height, fontMap fonts );
-		void init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent );
+		void init( POINT& topLeftLoc, LONG width, LONG height, CWnd* parent, int popId );
 		void drawBorder( memDC* d );
 		void plotPoints( memDC* d );
 		dataPoint getMainAnalysisResult ( );
@@ -75,7 +75,11 @@ class PlotCtrl
 		bool wantsSustain( );
 		void setControlLocation ( POINT topLeftLoc, LONG width, LONG height );
 		std::vector<std::mutex> dataMutexes;
-
+		bool handlePop (UINT id, CWnd* parent);
+		void setStyle (plotStyle newStyle);
+		void setData (std::vector<pPlotDataVec> newData);
+		void setTitle (std::string newTitle);
+		void setThresholds (std::vector<int> newThresholds);
 	private:
 		const bool narrow;
 		// in units of the data
@@ -83,7 +87,7 @@ class PlotCtrl
 		double boxWidthPixels;
 		double widthScale2, heightScale2;
 		std::vector<int> thresholds;
-		const plotStyle style;
+		plotStyle style;
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.
 		std::string title;
@@ -91,10 +95,11 @@ class PlotCtrl
 		std::vector<pPlotDataVec> data;
 		RECT controlDims;
 		RECT plotAreaDims;
-		CPen whitePen, greyPen, redPen, solarizedPen;
+		CPen whitePen, greyPen;//, redPen, solarizedPen;
 		Gdiplus::SolidBrush* whiteBrush;
 		Control<CleanCheck> legButton;
 		Control<CleanCheck> sustainButton;
+		Control<CleanButton> popDlgBttn;
 		//std::vector<CPen*> pens;
 		std::vector<Gdiplus::SolidBrush*> brushes;
 		std::vector<Gdiplus::Pen*> pens;

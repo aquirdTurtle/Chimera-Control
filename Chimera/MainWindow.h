@@ -41,6 +41,7 @@ class MainWindow : public CDialog
 	using CDialog::CDialog;
 	DECLARE_DYNAMIC(MainWindow);
 	public:
+		void handlePlotPop (UINT id);
 		void showHardwareStatus ( );
 		void drawServoListview (NMHDR* pNMHDR, LRESULT* pResult);
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );

@@ -1618,7 +1618,12 @@ void MasterThreadManager::updatePlotX_vals ( ExperimentThreadInput* input )
 	auto plotInc = 0;
 	for ( auto plotParams : pltInput->plotInfo )
 	{
-		auto& data = pltInput->dataArrays[ pltInput->dataArrays.size ( ) - pltInput->plotInfo.size ( ) + plotInc ];
+		int which = pltInput->dataArrays.size () - pltInput->plotInfo.size () + plotInc;
+		if (which < 0 || which >= pltInput->dataArrays.size ())
+		{
+			thrower ("Plotter data array access out of range?!");
+		}
+		auto& data = pltInput->dataArrays[which];
 		for ( auto& line : data )
 		{
 			// initialize x axis for all data sets.
