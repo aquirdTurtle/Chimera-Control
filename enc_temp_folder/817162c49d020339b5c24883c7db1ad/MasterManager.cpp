@@ -760,7 +760,7 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 				  + ". Function arguments were:" + functionArgsString + "." );
 	}
 	std::vector<std::pair<std::string, std::string>> replacements;
-	for (auto replacementInc : range(args.size()))
+	for ( UINT replacementInc = 0; replacementInc < args.size ( ); replacementInc++ )
 	{
 		replacements.push_back ( { functionArgs[ replacementInc ], args[ replacementInc ] } );
 	}

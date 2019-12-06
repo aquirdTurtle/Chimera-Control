@@ -1199,6 +1199,8 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	andorSettingsCtrl.checkIfReady();
 	pics.setSoftwareAccumulationOptions ( andorSettingsCtrl.getSoftwareAccumulationOptions() );
 	input.AndorSettings = andorSettingsCtrl.getSettings().andor;
+	/// start the camera.
+	//andor.setSettings( input.AndorSettings );
 }
 
 
@@ -1261,7 +1263,6 @@ std::atomic<bool>& AndorWindow::getPlotThreadActiveRef ( )
 {
 	return plotThreadActive;
 }
-
 std::atomic<HANDLE>& AndorWindow::getPlotThreadHandleRef ( )
 {
 	return plotThreadHandle;
