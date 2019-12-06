@@ -11,6 +11,7 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, UINT traceNumI
 		visa.open( );
 		visa.query( "WFMpre:YOFF?\n", yoffset );
 		visa.query( "WFMpre:YMULT?\n", ymult );
+		if (safemode) { ymult = 1.0; }
 		visa.close( );
 	}
 	catch ( Error& err )
@@ -18,6 +19,12 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, UINT traceNumI
 		errBox( "Error detected while initializing " + scopeName + "scope viewer! " + err.trace( ) );
 		initializationFailed = true;
 	}
+}
+
+
+bool ScopeViewer::handlePlotPop (UINT id, CWnd* parent)
+{
+	return viewPlot->handlePop (id, parent);
 }
 
 
@@ -44,7 +51,7 @@ void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 
 
 void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent, std::vector<Gdiplus::Pen*> plotPens,
-							  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::string title )
+							  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, int pltPopId, std::string title)
 {
 	scopeData.resize( numTraces );
 	for ( auto& data : scopeData )
@@ -60,8 +67,8 @@ void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* 
 		title += " (Initialization Failed)";
 	}
 	viewPlot = new PlotCtrl( scopeData, plotStyle::OscilloscopePlot, plotPens, font, plotBrushes, std::vector<int>(), title );
-	viewPlot->init( topLeftLoc, width, height, parent );
-	topLeftLoc.y += height;
+	viewPlot->init( topLeftLoc, width, height, parent, pltPopId);
+	//topLeftLoc.y += height;
 }
 
 
@@ -70,6 +77,16 @@ void ScopeViewer::refreshData( )
 	if ( safemode )
 	{
 		Sleep( 5000 );
+		for (auto line : range (numTraces))
+		{
+			scopeData[line]->clear ();
+			double count = 0;
+			for (auto count : range (1000))
+			{
+				auto val = double(rand () % 1000) / 1e3;
+				scopeData[line]->push_back ({ double(count - 7), ((double(val) - yoffset) * ymult), 0 });
+			}
+		}
 		return;
 	}
 	visa.open( );
