@@ -16,46 +16,40 @@ t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imagingDepth 
 pulseon: dds_step 5
 call pgcAtomFlashingImage()
-on: axialRamanShutter
-on: axialRamanShutter2
+t += 0.1
 pulseon: tweezerIntensityTrig 0.1 % to intraplgmDepth
 t += 1.1
 call intrapgreymolasses()
-t += 100.1
-pulseon: tweezerIntensityTrig 0.1 % to RamanDepth
+t += 10.1
+pulseon: tweezerIntensityTrig 0.1 % to RamanDepth 
 t += 1
 call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
-%dac: toppulselev top_raman_carrier__servo_value
-dac: toppulselev 0
-dac: axPulseLev ax_raman_spec__servo_value
+dac: toppulselev top_raman_sideband_spec__servo_value
 dac: eopulselev eo_raman_radial_carrier__servo_value
 rsg: (6.83103 + uw_spec_mod_khz/1000000) 5
-var pulsetime 0.06
-on: axialRamanRf
+%call topRamanPulse(0.3)
+var pulsetime 0.04
+on: topRamanrf
 on: eoramanrf
+%on: topPulseTrig
 on: eoswitch
 on: eoswitch2
-on: a15
 t += pulsetime
-off: a15
-off: axialRamanRf
+off: topRamanRf
 off: eoramanRF
 off: eoswitch
 off: eoswitch2
-off: axialRamanShutter
-off: axialRamanShutter2
-t += 1
+%off: topPulseTrig
+% pulseon: tweezerIntensityTrig 0.1
 call pushout()
 pulseon: tweezerIntensityTrig 0.1
-t += 5
+t += 25
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 pulseon: rsTrig 0.1
 call pgcAtomFlashingImage()
-off: axialRamanShutter
-off: axialRamanShutter2
 pulseon: tweezerIntensityTrig 0.1
-off: eoramanrf
+on: eoramanrf
 t += 0.2
 

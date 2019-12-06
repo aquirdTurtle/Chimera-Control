@@ -19,7 +19,7 @@ t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
 call intrapgreymolasses()
-off: b10
+off: shutter795
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 call pump2stretch()
