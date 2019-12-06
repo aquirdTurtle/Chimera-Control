@@ -468,8 +468,9 @@ namespace commonFunctions
 				break;
 			}
 			case ID_ACCELERATOR_F11:
+			case ID_ACCELERATOR_F12:
 			{
-				// F11 is the set of mot calibrations. Start with the mot size.
+				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				input.masterInput->runNiawg = false;
@@ -490,7 +491,7 @@ namespace commonFunctions
 			}
 			case ID_MOT_TEMP_CAL:
 			{
-				// F11 is the set of mot calibrations. Start with the mot size.
+				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				input.masterInput->runNiawg = false;
@@ -525,7 +526,7 @@ namespace commonFunctions
 			}
 			case ID_PGC_TEMP_CAL:
 			{
-				// F11 is the set of mot calibrations. Start with the mot size.
+				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				input.masterInput->runNiawg = false;
@@ -554,7 +555,7 @@ namespace commonFunctions
 			}
 			case ID_GREY_TEMP_CAL:
 			{
-				// F11 is the set of mot calibrations. Start with the mot size.
+				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
 				input.masterInput->runNiawg = false;
