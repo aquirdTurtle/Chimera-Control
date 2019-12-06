@@ -83,7 +83,7 @@ void PlotCtrl::drawTitle( memDC* d )
 {
 	RECT scaledArea = { plotAreaDims.left * widthScale2, plotAreaDims.top * heightScale2,
 						plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
-	RECT r = { scaledArea.left, scaledArea.top - 40, scaledArea.right, scaledArea.top};
+	RECT r = { scaledArea.left, scaledArea.top - 30, scaledArea.right, scaledArea.top};
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( _myRGBs[ "Text" ] );
@@ -523,6 +523,16 @@ void PlotCtrl::plotPoints ( memDC* d )
 	{
 		drawLegend( d, shiftedData );
 	}
+	/*
+	if ( legButton )
+	{
+		legButton.Invalidate( );
+	}
+	if ( sustainButton )
+	{
+		sustainButton.Invalidate( );
+	}
+	*/
 }
 
 

@@ -1743,7 +1743,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	andor.setSettings( andorSettingsCtrl.getSettings().andor );
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
-	SetTimer( NULL, 1000, NULL );
+	SetTimer( NULL, 2000, NULL );
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );

@@ -140,7 +140,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 			{
 				thrower ( "ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
 						  "location:" + calDataLoc + ". Please make sure that the mot is running okay and then "
-						  "run F11 before starting an experiment." );
+						  "run F12 before starting an experiment." );
 			}
 			else
 			{

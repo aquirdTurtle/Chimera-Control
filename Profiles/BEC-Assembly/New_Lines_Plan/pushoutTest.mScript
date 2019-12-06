@@ -24,7 +24,7 @@ t += 10.1
 
 call pump2stretch()
 t += 0.1
-call pushout()
+%call pushout()
 pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
