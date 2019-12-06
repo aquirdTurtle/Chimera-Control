@@ -16,8 +16,8 @@
 // instead simply skip this step. It might generate example data where useful / necessary.
 // It can be used to build and debug other aspects of the program, such as the gui, coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -373,6 +373,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_ENTER_EMAIL_INFO 10024
 #define IDC_RERNG_EXPERIMENT_BUTTON 10025
 #define ID_FORCE_EXIT 10026
+
 // Scripting Window
 #define IDC_NIAWG_FUNCTION_COMBO 12003
 #define IDC_NIAWG_EDIT 12004
@@ -549,6 +550,15 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define GAUSSIAN_FIT 16005
 #define LORENTZIAN_FIT 16006
 #define SINE_FIT 16007
+
+// 17xxx is reserved for plotting controls.
+#define ID_PLOT_POP_IDS_BEGIN 17000
+#define ID_MOT_SCOPE_VIEWER_POP_ID 17000
+#define ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID 17001
+// 17002 - 17008 are the dac / ttl plots on the aux window.
+// 17009-17014 are the andor window analysis plots
+#define ID_PLOT_POP_IDS_END 17015
+
 
 #define MASTER_SCRIPT_EXTENSION "mScript"
 #define NIAWG_SCRIPT_EXTENSION "nScript"

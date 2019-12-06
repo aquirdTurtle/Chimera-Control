@@ -32,6 +32,7 @@ class AndorWindow : public CDialog
 	public:
 		/// overrides
  		AndorWindow();
+		void OnPaint ();
  		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
 		void OnMouseMove( UINT thing, CPoint point );
@@ -125,8 +126,8 @@ class AndorWindow : public CDialog
 		std::atomic<bool>& getPlotThreadActiveRef ( );
 		std::atomic<HANDLE>& getPlotThreadHandleRef ( );
 		std::mutex& getActivePlotMutexRef ( );
-		std::vector<PlotDialog*>& getActivePlotListRef( );
 		void cleanUpAfterExp ( );
+		void handlePlotPop (UINT id);
 
 	private:
 		bool justCalibrated = false;
@@ -135,7 +136,7 @@ class AndorWindow : public CDialog
 		AndorCamera andor;
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
-
+		int plotIds = 17009;
 		ColorBox box;
 		PictureStats stats;
 		AlertSystem alerts;
@@ -143,7 +144,7 @@ class AndorWindow : public CDialog
 		
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;
-
+		std::vector<PlotCtrl*> mainAnalysisPlots;
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
 		AuxiliaryWindow* auxWin;
@@ -183,7 +184,7 @@ class AndorWindow : public CDialog
 		std::vector<double> plotterKey;
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;		
 		std::mutex activePlotMutex;
-		std::vector<PlotDialog*> activePlots;
+		std::vector<PlotDialog*> activeDlgPlots;
 		UINT mostRecentPicNum = 0;
 		UINT currentPictureNum = 0;
 		std::vector<long> avgBackground;
