@@ -45,6 +45,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
 	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AuxiliaryWindow::passCommonCommand )
 	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &AuxiliaryWindow::handleTtlPush )
+	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &AuxiliaryWindow::handlePlotPop)
 
 	ON_COMMAND( TTL_HOLD, &handlTtlHoldPush )
 	ON_COMMAND( ID_DAC_SET_BUTTON, &SetDacs )
@@ -102,6 +103,19 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::handlePlotPop (UINT id)
+{
+	for (auto& dacPlot : aoPlots)
+	{
+		if (dacPlot->handlePop (id, this)) { return; }
+	}
+	for (auto& doPlot : ttlPlots)
+	{
+		if (doPlot->handlePop (id, this)) { return; }
+	}
+}
 
 
 void AuxiliaryWindow::handlePiezo1Ctrl ( )
@@ -1603,8 +1617,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			aoPlots[ dacPltCount ] = new PlotCtrl ( dacData[ dacPltCount ], plotStyle::DacPlot, mainWin->getBrightPlotPens ( ),
 													mainWin->getPlotFont ( ), mainWin->getBrightPlotBrushes ( ), 
 													std::vector<int>(), titleTxt );
-			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
-			controlLocation.y += dacPlotSize;
+			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this, plotIds++ );
+			//controlLocation.y += dacPlotSize;
 		}
 		// ttl plots are similar to aoSys.
 		ttlPlots.resize( NUM_TTL_PLTS );
@@ -1641,8 +1655,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWin->getBrightPlotPens( ),
 												  mainWin->getPlotFont( ), mainWin->getBrightPlotBrushes( ), 
 												  std::vector<int>(), titleTxt );
-			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
-			controlLocation.y += ttlPlotSize;
+			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this, plotIds++);
+			//controlLocation.y += ttlPlotSize;
 		}
 	}
 	catch (Error& )

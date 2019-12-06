@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_WM_TIMER ( )
 	ON_WM_VSCROLL ( )
 	ON_WM_MOUSEMOVE ( )
+	ON_WM_PAINT()
 
 	ON_COMMAND_RANGE ( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AndorWindow::passCommonCommand )
 	ON_COMMAND_RANGE ( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &AndorWindow::passPictureSettings )
@@ -54,7 +55,7 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_COMMAND( IDC_SET_GRID_CORNER, &AndorWindow::passSetGridCorner)
 	ON_COMMAND( IDC_DEL_GRID_BUTTON, &AndorWindow::passDelGrid)
 	ON_COMMAND( IDC_CAMERA_CALIBRATION_BUTTON, &AndorWindow::calibrate)
-
+	ON_COMMAND_RANGE(ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &AndorWindow::handlePlotPop)
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &AndorWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
 
@@ -73,6 +74,15 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
+
+void AndorWindow::handlePlotPop (UINT id)
+{
+	for (auto& plt : mainAnalysisPlots)
+	{
+		if (plt->handlePop (id, this)) { return; }
+	}
+}
 
 
 void AndorWindow::handlePlotTimerEdit ( )
@@ -755,12 +765,6 @@ std::mutex& AndorWindow::getActivePlotMutexRef ( )
 }
 
 
-std::vector<PlotDialog*>& AndorWindow::getActivePlotListRef ( )
-{
-	return activePlots;
-}
-
-
 void AndorWindow::cleanUpAfterExp ( )
 {
 	plotThreadActive = false;
@@ -791,9 +795,9 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	wakeRearranger( );
 	{
 		std::lock_guard<std::mutex> lock ( activePlotMutex );
-		if ( activePlots.size ( ) != 0 )
+		if ( activeDlgPlots.size ( ) != 0 )
 		{
-			mostRecentAnalysisResult = activePlots.back ( )->getMainAnalysisResult ( );
+			mostRecentAnalysisResult = activeDlgPlots.back ( )->getMainAnalysisResult ( );
 		}
 	}
 	return 0;
@@ -954,6 +958,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
 {
 	auto temp = andor.getTemperature();
 	andorSettingsCtrl.changeTemperatureDisplay(temp);
+	OnPaint ();
 }
 
 
@@ -1079,6 +1084,10 @@ void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 void AndorWindow::OnSize( UINT nType, int cx, int cy )
 {
 	stats.rearrange ( cx, cy, mainWin->getFonts ( ) );
+	for (auto* plt : mainAnalysisPlots)
+	{
+		plt->rearrange (cx, cy, mainWin->getFonts ());
+	}
 	box.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	pics.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	try
@@ -1292,8 +1301,8 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 	analysisHandler.fillPlotThreadInput( pltInput );
 
 	// remove old plots that aren't trying to sustain.
-	activePlots.erase( std::remove_if( activePlots.begin(), activePlots.end(), PlotDialog::removeQuery ), 
-					   activePlots.end() );	
+	activeDlgPlots.erase( std::remove_if( activeDlgPlots.begin(), activeDlgPlots.end(), PlotDialog::removeQuery ), 
+					   activeDlgPlots.end() );	
 	std::vector<double> dummyKey;
 	dummyKey.resize ( input.masterInput->numVariations );
 	pltInput->key = dummyKey;
@@ -1302,6 +1311,7 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 	{
 		e = count++;
 	}
+	UINT mainPlotInc = 0;
 	for ( auto plotParams : pltInput->plotInfo )
 	{
 		// Create vector of data to be shared between plotter and data analysis handler. 
@@ -1323,17 +1333,64 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 				line->at( count++ ).x = keyItem;
 			}
 		}
-		plotStyle style = plotParams.isHist? plotStyle::HistPlot : plotStyle::ErrorPlot;
-		// start a PlotDialog dialog
-		PlotDialog* plot = new PlotDialog( data, style, mainWin->getPlotPens(), 
-										   mainWin->getPlotFont( ), mainWin->getPlotBrushes( ), 
-										   analysisHandler.getPlotTime(), andorSettingsCtrl.getSettings( ).thresholds[0], 
-										   plotParams.name );
-		plot->Create( IDD_PLOT_DIALOG, this );
-		plot->ShowWindow( SW_SHOW );
-		activePlots.push_back( plot );
-		pltInput->dataArrays.push_back( data );
+		bool usedDlg = false;
+		plotStyle style = plotParams.isHist ? plotStyle::HistPlot : plotStyle::ErrorPlot;
+		while (true)
+		{
+			if (mainPlotInc >= 6)
+			{
+				// put extra plots in dialogs.
+				// start a PlotDialog dialog
+				PlotDialog* plot = new PlotDialog (data, style, mainWin->getPlotPens (),
+					mainWin->getPlotFont (), mainWin->getPlotBrushes (),
+					analysisHandler.getPlotTime (), andorSettingsCtrl.getSettings ().thresholds[0],
+					plotIds,
+					plotParams.name);
+				plot->Create (IDD_PLOT_DIALOG, this);
+				plot->ShowWindow (SW_SHOW);
+				activeDlgPlots.push_back (plot);
+				pltInput->dataArrays.push_back (data);
+				usedDlg = true;
+				break;
+			}
+			if (mainAnalysisPlots[mainPlotInc]->wantsSustain ())
+			{
+				// skip this one then.
+				mainPlotInc++;
+				continue;
+			}
+			break;
+		}
+		if (!usedDlg && mainPlotInc < 6)
+		{
+			mainAnalysisPlots[mainPlotInc]->setStyle (style);
+			mainAnalysisPlots[mainPlotInc]->setData (data);
+			mainAnalysisPlots[mainPlotInc]->setThresholds (andorSettingsCtrl.getSettings ().thresholds[0]);
+			mainAnalysisPlots[mainPlotInc]->setTitle (plotParams.name);
+			pltInput->dataArrays.push_back (data);
+			mainPlotInc++;
+		}
 	}
+}
+
+void AndorWindow::OnPaint ()
+{
+	CDialog::OnPaint ();
+	CRect size;
+	GetClientRect (&size);
+	CDC* cdc = GetDC ();
+	// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
+	// work without this and I don't know what changed. I used to do:
+	cdc->SetBkColor (_myRGBs["Main-Bkgd"]);
+	long width = size.right - size.left, height = size.bottom - size.top;
+	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
+	// for a single plot.
+	for (auto& plt : mainAnalysisPlots)
+	{
+		plt->setCurrentDims (width, height);
+		plt->drawPlot (cdc, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"]);
+	}
+	ReleaseDC (cdc);
 }
 
 
@@ -1666,6 +1723,13 @@ BOOL AndorWindow::OnInitDialog ( )
 	andorSettingsCtrl.initialize ( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize ( position, this, id, tooltips );
+	for (auto pltInc : range (6))
+	{
+		std::vector<pPlotDataVec> nodata(0);
+		mainAnalysisPlots.push_back (new PlotCtrl (nodata, plotStyle::ErrorPlot, mainWin->getPlotPens (),
+			mainWin->getPlotFont (), mainWin->getPlotBrushes (), { 0,0,0,0 }, "INACTIVE", false, false));
+		mainAnalysisPlots.back ()->init (position, 315, 130, this, plotIds++);
+	}
 	positions.sPos = { 797, 0 };
 	timer.initialize ( positions, this, false, id, tooltips );
 	position = { 797, 40 };

@@ -148,6 +148,7 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
+	ON_COMMAND_RANGE( ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &MainWindow::handlePlotPop)
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
 	ON_COMMAND (IDC_SERVO_CAL, &runServos)
@@ -159,6 +160,13 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
+
+
+void MainWindow::handlePlotPop(UINT id)
+{
+	masterRepumpScope.handlePlotPop (id, this); 
+	motScope.handlePlotPop (id, this);
+}
 
 
 void MainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult)
@@ -575,9 +583,10 @@ BOOL MainWindow::OnInitDialog( )
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	masterRepumpScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(), 
-								  "Master/Repump" );
-	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
+	masterRepumpScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(),
+								  ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID,	"Master/Repump" );
+	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), 
+						 ID_MOT_SCOPE_VIEWER_POP_ID, "MOT" );
 	servos.initialize (controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (),
 		&TheAuxiliaryWindow->getAoSys (), &TheAuxiliaryWindow->getTtlBoard (), &TheAuxiliaryWindow->getGlobals ());
 	controlLocation = { 1440, 50 };

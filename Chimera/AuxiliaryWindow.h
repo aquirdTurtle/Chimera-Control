@@ -68,6 +68,7 @@ class AuxiliaryWindow : public CDialog
 		std::vector<PiezoCore* > getPiezoControllers ( );
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
+		void handlePlotPop (UINT id);
 		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
@@ -166,7 +167,7 @@ class AuxiliaryWindow : public CDialog
 		ScriptingWindow* scriptWin;
 		AndorWindow* camWin;
 		BaslerWindow* basWin;
-
+		int plotIds = 17002;
 		CMenu menu;
 		std::string title;
 		toolTipTextMap toolTipText;

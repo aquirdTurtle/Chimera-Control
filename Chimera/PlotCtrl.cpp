@@ -1,6 +1,7 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "PlotCtrl.h"
+#include "PlotDialog.h"
 #include <numeric>
 
 PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pensIn,
@@ -8,8 +9,6 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 					std::string titleIn, bool narrowOpt, bool plotHistOption ) :
 	whitePen( PS_SOLID, 0, RGB( 255, 255, 255 ) ),
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
-	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
-	solarizedPen( PS_SOLID, 0, RGB( 0, 30, 38 ) ),
 	data( dataHolder ), style( inStyle ), dataMutexes( dataHolder.size( ) ), textFont( font ),
 	brushes( plotBrushes ), pens( pensIn ), narrow(narrowOpt )
 {
@@ -103,7 +102,6 @@ CRect PlotCtrl::GetPlotRect( )
 	return realArea;
 }
 
-
 void PlotCtrl::setControlLocation ( POINT topLeftLoc, LONG width, LONG height )
 {
 	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
@@ -120,18 +118,45 @@ void PlotCtrl::setControlLocation ( POINT topLeftLoc, LONG width, LONG height )
 	}
 }
 
-
-void PlotCtrl::init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent )
+void PlotCtrl::setData (std::vector<pPlotDataVec> newData)
 {
-	setControlLocation ( topLeftLoc, width, height );
-
-	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
-	legButton.Create( "", NORM_CHECK_OPTIONS, legButton.sPos, parent, 0 );
-	sustainButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
-	sustainButton.Create( "", NORM_CHECK_OPTIONS, sustainButton.sPos, parent, 0 );
+	for (auto& dvec : data)
+	{
+		dvec.reset ();
+	}
+	data.clear ();
+	data = newData;
 }
 
+void PlotCtrl::setTitle (std::string newTitle)
+{
+	title = newTitle;
+}
 
+void PlotCtrl::setThresholds (std::vector<int> newThresholds)
+{
+	thresholds = newThresholds;
+}
+
+void PlotCtrl::setStyle (plotStyle newStyle)
+{
+	style = newStyle;
+}
+
+void PlotCtrl::init( POINT& topLeftLoc, LONG width, LONG height, CWnd* parent, int popId )
+{ 
+	setControlLocation ( topLeftLoc, width, height );
+ 	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y + 22 };
+	legButton.Create( "", NORM_CHECK_OPTIONS, legButton.sPos, parent, 0 );
+ 	sustainButton.sPos = { topLeftLoc.x, topLeftLoc.y+22, topLeftLoc.x + 22, topLeftLoc.y + 44 };
+	sustainButton.Create( "", NORM_CHECK_OPTIONS, sustainButton.sPos, parent, 0 );
+	popDlgBttn.sPos = { topLeftLoc.x, topLeftLoc.y+44, topLeftLoc.x + 22, topLeftLoc.y + 66 };
+	popDlgBttn.Create ("Pop", NORM_PUSH_OPTIONS, popDlgBttn.sPos, parent, popId);
+	popDlgBttn.fontType = fontTypes::SmallFont;
+	topLeftLoc.y += height;
+} 
+ 
+ 
 bool PlotCtrl::wantsSustain( )
 {
 	return sustainButton.GetCheck( );
@@ -142,6 +167,7 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 {
 	legButton.rearrange( width, height, fonts );
 	sustainButton.rearrange( width, height, fonts );
+	popDlgBttn.rearrange (width, height, fonts);
 }
 
 /*
@@ -202,6 +228,21 @@ void PlotCtrl::getDataYLims ( std::vector<plotDataVec>& data )
 	{
 		miny = 0;
 	}
+}
+
+
+bool PlotCtrl::handlePop (UINT id, CWnd* parent)
+{
+	if (id == popDlgBttn.GetDlgCtrlID ())
+	{
+		// start a new PlotDialog dialog
+		PlotDialog* plot = new PlotDialog ( data, style, pens, textFont, brushes, 1000, { 0,0,0,0 }, 
+											popDlgBttn.GetDlgCtrlID (), title );
+		plot->Create (IDD_PLOT_DIALOG, parent);
+		plot->ShowWindow (SW_SHOW);
+		return true;
+	}
+	return false;
 }
 
 
@@ -361,7 +402,7 @@ void PlotCtrl::plotPoints ( memDC* d )
 	{
 		for ( auto lineCount : range ( data.size ( ) ) )
 		{
-			std::lock_guard<std::mutex> lock ( dataMutexes[ lineCount ] );
+			//std::lock_guard<std::mutex> lock ( dataMutexes[ lineCount ] );
 			screenData.push_back ( *data[ lineCount ] );
 		}
 	}
@@ -385,7 +426,7 @@ void PlotCtrl::plotPoints ( memDC* d )
 	}
 	std::vector<double> xRaw, xScaled;
 	{
-		std::lock_guard<std::mutex> lock ( dataMutexes[ 0 ] );
+		//std::lock_guard<std::mutex> lock ( dataMutexes[ 0 ] );
 		if ( style == plotStyle::HistPlot )
 		{
 			for ( auto lineInc : range ( shiftedData.size ( )-1 ))
@@ -445,7 +486,7 @@ void PlotCtrl::plotPoints ( memDC* d )
 		if ( style == plotStyle::ErrorPlot )
 		{
 			UINT pointCount = 0;
-			std::lock_guard<std::mutex> lock( dataMutexes[lineNum] );
+			//std::lock_guard<std::mutex> lock( dataMutexes[lineNum] );
 			for ( auto point : line )
 			{
 				if ( data[lineNum]->at( pointCount ).y <= 1 && data[lineNum]->at( pointCount ).y >= 0 )

@@ -13,11 +13,13 @@ class ScopeViewer
 	public:
 		ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name );
 		void initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent, std::vector<Gdiplus::Pen*> plotPens, 
-						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::string title="Scope!" );
+						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, int pltPopId,
+						 std::string title="Scope!");
 		void refreshData( );
 		void refreshPlot( CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void rearrange( int width, int height, fontMap fonts );
 		std::string getScopeInfo( );
+		bool handlePlotPop (UINT id, CWnd* parent);
 	private:
 		const std::string usbAddress;
 		const std::string scopeName;
