@@ -79,11 +79,13 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	}
 	CPen pen( PS_SOLID, 0, _myRGBs["Text-Emph"] );
 	dc.SelectObject( pen );
+	/*
 	dc.MoveTo( rt.TopLeft( ) );
 	dc.LineTo( { rt.right, rt.top } );
 	dc.LineTo( rt.BottomRight( ) );
 	dc.LineTo( { rt.left, rt.bottom } );
 	dc.LineTo( rt.TopLeft( ) );
+	*/
 	if ( GetCheck( ) )
 	{
 		dc.SetTextColor( _myRGBs[ "Text-Emph" ] );

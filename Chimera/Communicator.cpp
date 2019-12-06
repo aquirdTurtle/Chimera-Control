@@ -48,8 +48,6 @@ void Communicator::sendFinish ( ExperimentType type )
 // the two camera messages go straight to the camera window.
 void Communicator::sendCameraFin()
 {
-
-	OutputDebugString ("ctFin!\n");
 	camWin->PostMessage( MainWindow::AndorFinishMessageID, 0, 0 );
 }
 
@@ -72,7 +70,6 @@ void Communicator::sendAutoServo( )
 
 void Communicator::sendCameraProgress(long progress)
 {
-	OutputDebugString (cstr("ctProg: " + str(progress) + ", " ));
 	camWin->PostMessageA( MainWindow::AndorProgressMessageID, 0, (LPARAM)progress );
 }
 

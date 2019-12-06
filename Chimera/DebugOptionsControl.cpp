@@ -14,46 +14,46 @@ void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTi
 	header.fontType = fontTypes::HeadingFont;
 	UINT count = 0;
 	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	niawgMachineScript.Create( "Output Machine NIAWG Script?", NORM_CHECK_OPTIONS, niawgMachineScript.sPos, parent, 
+	niawgMachineScript.Create( "Show Machine NIAWG Script?", NORM_CHECK_OPTIONS, niawgMachineScript.sPos, parent, 
 							   IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	niawgMachineScript.SetCheck( BST_CHECKED );
 
 	currentOptions.outputNiawgMachineScript = true;
 	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	outputAgilentScript.Create( "Output Agilent Script?", NORM_CHECK_OPTIONS, outputAgilentScript.sPos, parent, 
+	outputAgilentScript.Create( "Show Agilent Script?", NORM_CHECK_OPTIONS, outputAgilentScript.sPos, parent, 
 								IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	outputAgilentScript.SetCheck( BST_CHECKED );
 	currentOptions.outputAgilentScript = true;
 	///
 	niawgScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	niawgScript.Create( "Output Human NIAWG Script?", NORM_CHECK_OPTIONS, niawgScript.sPos, parent, 
+	niawgScript.Create( "Show Human NIAWG Script?", NORM_CHECK_OPTIONS, niawgScript.sPos, parent, 
 						IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	niawgScript.SetCheck( BST_CHECKED );
 	currentOptions.outputNiawgHumanScript = true;
 
 	///
 	readProgress.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	readProgress.Create( "Output Wvfm Read Progress?", NORM_CHECK_OPTIONS, readProgress.sPos, parent, 
+	readProgress.Create( "Show Wvfm Read Progress?", NORM_CHECK_OPTIONS, readProgress.sPos, parent, 
 						 IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	readProgress.SetCheck( BST_CHECKED );
 	currentOptions.showReadProgress = true;
 	///
 	writeProgress.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	writeProgress.Create( "Output Wvfm Write Progress?", NORM_CHECK_OPTIONS, writeProgress.sPos, parent, 
+	writeProgress.Create( "Show Wvfm Write Progress?", NORM_CHECK_OPTIONS, writeProgress.sPos, parent, 
 						  IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	writeProgress.SetCheck( BST_CHECKED );
 	currentOptions.showWriteProgress = true;
 	loc.y += -100;
 	///
 	correctionTimes.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	correctionTimes.Create( "Output Phase Correction Wvfm Times?", NORM_CHECK_OPTIONS, correctionTimes.sPos,
+	correctionTimes.Create( "Show Phase Correction Wvfm Times?", NORM_CHECK_OPTIONS, correctionTimes.sPos,
 							parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	correctionTimes.SetCheck( BST_CHECKED );
 	correctionTimes.fontType = fontTypes::SmallFont;
 	currentOptions.showCorrectionTimes = true;
 	///
 	excessInfo.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	excessInfo.Create( "Output Excess Run Info?", NORM_CHECK_OPTIONS, correctionTimes.sPos, parent, 
+	excessInfo.Create( "Show Excess Run Info?", NORM_CHECK_OPTIONS, correctionTimes.sPos, parent, 
 					   IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
 	excessInfo.SetCheck( BST_CHECKED );
 	currentOptions.outputExcessInfo = true;

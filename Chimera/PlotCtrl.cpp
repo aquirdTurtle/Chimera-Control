@@ -88,7 +88,7 @@ void PlotCtrl::drawTitle( memDC* d )
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( _myRGBs[ "Text" ] );
 	d->SelectObject( textFont );
-	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_TOP, NULL );
 }
 
 
@@ -206,24 +206,22 @@ void PlotCtrl::getDataYLims ( std::vector<plotDataVec>& data )
 {
 	auto& miny = data_minmax.min_y;
 	auto& maxy = data_minmax.max_y;
-	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot
-		 || style == plotStyle::VertHist )
+	for (auto line : data)
 	{
-		for ( auto line : data )
+		for (auto elem : line)
 		{
-			for ( auto elem : line )
+			if (elem.y < miny)
 			{
-				if ( elem.y < miny )
-				{
-					miny = elem.y;
-				}
-				if ( elem.y > maxy )
-				{
-					maxy = elem.y;
-				}
+				miny = elem.y;
+			}
+			if (elem.y > maxy)
+			{
+				maxy = elem.y;
 			}
 		}
 	}
+	//if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot
+	//	 || style == plotStyle::VertHist ) {}
 	if ( style == plotStyle::VertHist || style == plotStyle::HistPlot )
 	{
 		miny = 0;
@@ -315,7 +313,7 @@ the modified minx and maxx refer to the minimum and maximum data points which *c
 void PlotCtrl::getXLims ()
 {
 	auto& minx = view_minmax.min_x, &maxx = view_minmax.max_x;
-	auto& min_d_x = data_minmax.min_x, &max_d_x = data_minmax.max_x;
+	auto min_d_x = data_minmax.min_x, max_d_x = data_minmax.max_x;
 	// in data's coordinates, not screen coordinates
 	if ( style == plotStyle::HistPlot )
 	{
@@ -339,7 +337,7 @@ the modified minx and maxx refer to the minimum and maximum data points which *c
 void PlotCtrl::getYLims ( )
 {
 	auto& miny = view_minmax.min_y, &maxy = view_minmax.max_y;
-	auto& min_d_y = data_minmax.min_y, &max_d_y = data_minmax.max_y;
+	auto min_d_y = data_minmax.min_y, max_d_y = data_minmax.max_y;
 	// in data's coordinates, not screen coordinates
 	if ( style == plotStyle::ErrorPlot )
 	{
@@ -455,19 +453,15 @@ void PlotCtrl::plotPoints ( memDC* d )
 	UINT lineNum = 0;
 	for ( auto lineNum : range(shiftedData.size()) )
 	{
-		if ( shiftedData.size ( ) > 1 )
-		{
-			//lineNum = shiftedData.size ( ) - 2;
-		}
 		auto& line = shiftedData[ lineNum ];
 		if ( style == plotStyle::HistPlot && lineNum == shiftedData.size ( ) - 1 )
 		{
 			break;
 		}
-		long t;
+		long thresh;
 		if ( style == plotStyle::HistPlot )
 		{
-			t = scaledThresholds[ lineNum ];
+			thresh = scaledThresholds[ lineNum ];
 		}
 		Gdiplus::SolidBrush* brush;
 		Gdiplus::Pen* pen;
@@ -510,7 +504,7 @@ void PlotCtrl::plotPoints ( memDC* d )
 		{
 			makeBarPlot( d, line, brush );
 			pen->SetWidth ( 3 );
-			drawThresholds ( d, t, pen );
+			drawThresholds ( d, thresh, pen );
 			pen->SetWidth ( 1 );
 		}
 		else if ( style == plotStyle::VertHist )
@@ -522,6 +516,15 @@ void PlotCtrl::plotPoints ( memDC* d )
 	if ( legButton && legButton.GetCheck( ) )
 	{
 		drawLegend( d, shiftedData );
+	}
+	if (data.size () > 0 && data.back()->size() == 1 && style == plotStyle::ErrorPlot)
+	{
+		// if single data point, then print the avg on the plot.
+		RECT r = { plotAreaDims.left * widthScale2, plotAreaDims.top * heightScale2,
+				   plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
+		auto avgPt = data.back ()->at(0).y;
+		d->DrawTextEx (const_cast<char*>( cstr (avgPt)), str (avgPt).size (), &r,
+										  DT_CENTER | DT_SINGLELINE | DT_CENTER, NULL);
 	}
 }
 
@@ -705,9 +708,9 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	r = { long( controlDims.left * widthScale2), scaledArea.top, scaledArea.left, scaledArea.bottom };
 	if ( style == plotStyle::TtlPlot )	{ txt = "Ttl State"; }
-	else if ( style == plotStyle::DacPlot )	{ txt = "Dac Voltage"; }
+	else if ( style == plotStyle::DacPlot )	{ txt = "Dac Volt"; }
 	else if ( style == plotStyle::ErrorPlot ) { txt = "%"; }
-	else if ( style == plotStyle::HistPlot ) { txt = "Occurances"; }
+	else if ( style == plotStyle::HistPlot ) { txt = "Occ"; }
 	else { txt = "ylabel"; }
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );

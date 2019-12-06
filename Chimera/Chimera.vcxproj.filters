@@ -292,7 +292,6 @@
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
     <ClCompile Include="DdsCore.cpp" />
-    <ClCompile Include="SerialPiezoFlume.cpp" />
     <ClCompile Include="AndorFlume.cpp" />
     <ClCompile Include="PiezoController.cpp">
       <Filter>PiezoControllers</Filter>
@@ -303,7 +302,12 @@
     <ClCompile Include="PiezoFlume.cpp">
       <Filter>PiezoControllers</Filter>
     </ClCompile>
-    <ClCompile Include="UintEdit.cpp" />
+    <ClCompile Include="UintEdit.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialPiezoFlume.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -685,7 +689,6 @@
     </ClInclude>
     <ClInclude Include="ExpWrap.h" />
     <ClInclude Include="DdsCore.h" />
-    <ClInclude Include="SerialPiezoFlume.h" />
     <ClInclude Include="AndorFlume.h" />
     <ClInclude Include="andorPicSettingsGroup.h" />
     <ClInclude Include="PiezoController.h">
@@ -704,11 +707,18 @@
       <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="AiSettings.h" />
-    <ClInclude Include="UintEdit.h" />
     <ClInclude Include="servoInfo.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="CmdLibrary.h" />
+    <ClInclude Include="UintEdit.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="SerialPiezoFlume.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="CmdLibrary.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
