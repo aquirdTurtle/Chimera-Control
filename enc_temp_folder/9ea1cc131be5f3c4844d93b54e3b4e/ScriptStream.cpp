@@ -167,7 +167,6 @@ void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::str
 				if (replTerm == param.name && (param.parameterScope == replCallScope
 					|| param.parameterScope == GLOBAL_PARAMETER_SCOPE))
 				{
-					param.active = true;
 					// is a variable with the right scope for the replacement. Make a copy of the parameter, 
 					// decorate the name, and change the scope.
 					auto replParam = param;
