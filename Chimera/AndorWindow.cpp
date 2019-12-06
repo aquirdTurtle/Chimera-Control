@@ -530,7 +530,6 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
 	currentPictureNum++;
-	OutputDebugString (cstr("Handling Pic #" + str (currentPictureNum) + ", "));
 	UINT picNum = currentPictureNum;
 	if ( picNum % 2 == 1 )
 	{
@@ -775,7 +774,6 @@ void AndorWindow::cleanUpAfterExp ( )
 
 LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
-	OutputDebugString ("Handling Finish. ");
 	// notify the andor object that it is done.
 	andor.onFinish();
 	//andor.pauseThread();
