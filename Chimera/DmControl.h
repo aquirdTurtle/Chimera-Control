@@ -4,6 +4,7 @@
 #include "VisaFlume.h"
 #include "Version.h"
 #include "DmCore.h"
+#include "DmProfileCreator.h"
 
 struct DmInfo
 {
@@ -30,19 +31,26 @@ class DmControl
 		void ProgramNow();
 		void setMirror(double *A);
 		void loadProfile();
+		void loadProfile(std::string filename);
 		void updateButtons();
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void reColor(UINT id);
 		void rearrange(int width, int height, fontMap fonts);
 		bool isFloat(const std::string& someString);
+		void add_Coma();
+		void writeCurrentFile(std::string out_file);
 
 	private:
 		
 		DmInfo currentInfo;
 		DmCore defObject;
+		DmProfileCreator Profile;
 		std::vector<pistonButton> piston;
+		Control<CEdit> Coma;
+		Control<CButton> addComa;
 		Control<CButton> programNow;
 		Control<CComboBox> profileSelector;
 		std::vector<double> temp;
+		std::vector<double> writeArray;
 };

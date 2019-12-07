@@ -6,49 +6,6 @@
 #include <boost/lexical_cast.hpp>
 #define M_PI 3.14159265358979323846
 
-double DmProfileCreator::getKnoll(int n, int m) {
-	return ((n * (n + 2) + m) / 2);
-}
-
-void DmProfileCreator::fromNoll(int j, int& n, int& m) {
-	    n = 0;
-		m = 0;
-		while (j > n) {
-			n += 1;
-			j -= n;
-			m = -n + 2 * j;
-		}
-		for(int j = 0; j <200; j++){
-			int check1 = 0;
-			int check2 = 0;
-			fromNoll(j, check1, check2);
-			if (j != getKnoll(check1, check2)) {
-				thrower("Nolls are not inverses");
-			}
-		
-		}
-}
-
-void DmProfileCreator::toPolar(double& r, double& phi, double x, double y) {
-	r = sqrt((x*x) + (y*y));
-	phi = atan2(y, x);
-}
-
-void DmProfileCreator::toCartesian(double r, double theta, double& x, double& y) {
-	x = r * cos(theta);
-	y = r * sin(theta);
-
-}
-
-double DmProfileCreator::zernikeTheta(int m, int theta) {
-	if (m >= 0) {
-		return cos(m * theta);
-	}
-	else {
-		return sin(-m * theta);
-	}
-}
-
 template<typename T>
 std::vector<double> linspace(T start_in, T end_in, int num_in)
 {
@@ -77,10 +34,59 @@ std::vector<double> linspace(T start_in, T end_in, int num_in)
 	return linspaced;
 }
 
-unsigned int DmProfileCreator::factorial(unsigned int n)
+DmProfileCreator::DmProfileCreator() : Mirror("0", true) {
+	currentAmps = linspace(0, 0, 45);
+}
+
+double DmProfileCreator::getKnoll(int n, int m) {
+	return ((n * (n + 2) + m) / 2);
+}
+
+void DmProfileCreator::fromNoll(int j, int& n, int& m) {
+	    n = 0;
+		m = 0;
+		while (j > n) {
+			n += 1;
+			j -= n;
+		}
+		m = -n + (2 * j);
+		/*for(int j = 0; j <200; j++){
+			int check1 = 0;
+			int check2 = 0;
+			fromNoll(j, check1, check2);
+			if (j != getKnoll(check1, check2)) {
+				thrower("Nolls are not inverses");
+			}
+		
+		}*/
+}
+
+void DmProfileCreator::toPolar(double& r, double& phi, double x, double y) {
+	r = sqrt((x*x) + (y*y));
+	phi = atan2(y, x);
+}
+
+void DmProfileCreator::toCartesian(double r, double theta, double& x, double& y) {
+	x = r * cos(theta);
+	y = r * sin(theta);
+
+}
+
+double DmProfileCreator::zernikeTheta(int m, double theta) {
+	if (m >= 0) {
+		return cos(m * theta);
+	}
+	else {
+		return sin(-m * theta);
+	}
+}
+
+
+
+double DmProfileCreator::factorial(unsigned int n)
 {
-	unsigned int ret = 1;
-	for (unsigned int i = 1; i <= n; ++i)
+	double ret = 1;
+	for (double i = 1; i <= n; ++i)
 		ret *= i;
 	return ret;
 }
@@ -88,7 +94,8 @@ unsigned int DmProfileCreator::factorial(unsigned int n)
 double DmProfileCreator::zernikeRadial(int n, int m, double r) {
 	m = abs(m);
 	if (m > n) {
-		thrower("Error: n must be greater than or equal to n!");
+		thrower("Error: n must be greater than or equal to m!");
+		
 	}
 	if ((int(n - m) % 2) > 0) {
 		thrower("Error: (n - m) must be even!");
@@ -98,7 +105,11 @@ double DmProfileCreator::zernikeRadial(int n, int m, double r) {
 	std::vector<double> kArray = linspace(0.0, end, num);
 	double rArray = 0;
 	for (auto& k : kArray) {
-		rArray = rArray + (pow(r, n - 2 * k)) * pow(-1, k) * factorial(n - k) / (factorial(k) * factorial((n + m) / 2 - k) * factorial((n - m) / 2 - k));
+		double factk = factorial(k);
+		double factNext = factorial((n + m) / 2 - k);
+		double temp = factk * factNext;
+		temp *= factorial((n - m) / 2 - k);
+		rArray = rArray + (pow(r, n - 2 * k)) * pow(-1, k) * factorial(n - k) / temp;
 	}
 	return rArray;
 }
@@ -106,16 +117,21 @@ double DmProfileCreator::zernikeRadial(int n, int m, double r) {
 double DmProfileCreator::normalization(int n, int m) {
 	double a;
 	if (m == 0) {
-		double a = 2 * M_PI;
+		a = 2 * M_PI;
 	}
 	else {
 		a = 1 * M_PI;
 	}
-	return sqrt((2 * n + 2) / a);
+	double N = n;
+	return sqrt(((2 * N) + 2) / a);
 }
 
 double DmProfileCreator::zernikePolar(int n, int m, double r, double theta) {
-	return zernikeTheta(m, theta) * zernikeRadial(n, m, r) * normalization(n, m);
+	double Product;
+	Product = zernikeTheta(m, theta);
+	Product *= zernikeRadial(n, m, r);
+	Product *= normalization(n, m);
+	return Product;
 }
 
 double DmProfileCreator::zernike(int n, int m, double x, double y) {
@@ -139,14 +155,14 @@ double DmProfileCreator::zernikeFit(POINT X, std::vector<double> param) {
 	return height;
 }
 
-POINT DmProfileCreator::myDmLookup(int pixNum, double factor = 1 / 3.0) {
+void DmProfileCreator::myDmLookup(double &x_coordinate, double &y_coordinate, int pixNum, double factor) {
 	if (pixNum < 0 || pixNum > 136) {
 		thrower("Invalid Pixel Number!");
 	}
 	int rowOff[] = { 4, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2, 4 };
 	std::vector<int> numInRow;
-	std::vector<int> centerOffsets;
-	int yInit = 6;
+	std::vector<double> centerOffsets;
+	double yInit = 6.0;
 	for (auto& rowOffset : rowOff) {
 		numInRow.push_back((7 - (rowOffset + 1)) * 2 + 1);
 	}
@@ -154,18 +170,19 @@ POINT DmProfileCreator::myDmLookup(int pixNum, double factor = 1 / 3.0) {
 		centerOffsets.push_back(-(numInRow[i] - 1) / 2);
 	}
 
-	int pn = pixNum;
-	int counter = 0;
+	//int pn = pixNum;
+	double rowNum = 0;
+	double pn = pixNum;
 	POINT PIXEL;
-	for (auto& rowNum : numInRow) {
-		pn -= counter;
+	for (auto& num : numInRow) {
+		pn -= num;
 		if (pn < 0) {
-			pn += counter;
-			PIXEL.x = factor * (centerOffsets[rowNum] + pn);
-			PIXEL.y = factor * (yInit - rowNum);
-			return PIXEL;
+			pn += num;
+			x_coordinate = (factor * (centerOffsets[rowNum] + pn));
+			y_coordinate = (factor * (yInit - rowNum));
+			return;
 		}
-		counter++;
+		rowNum++;
 	}
 	thrower("ERROR: Somehow made it to the end of the loop depsite passing the initial value range check...");
 
@@ -191,7 +208,7 @@ void DmProfileCreator::readZernikeFile(std::string file) {
 }
 
 void DmProfileCreator::writeZernikeFile(std::string out_file) {
-	std::ofstream outWrite(out_file);
+	std::ofstream outWrite(DM_PROFILES_LOCATION + "//" + out_file);
 	for (auto& element : writeArray) {
 		outWrite << element << std::endl;
 	}
@@ -202,8 +219,9 @@ void DmProfileCreator::makeIm() {
 	int rowOff[] = { 4, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2, 4 };
 	int tc = 0;
 	int numInRow;
+	int rowO;
 	for (int i = 0; i < 13; i++) {
-		int rowO = rowOff[i];
+		rowO = rowOff[i];
 		numInRow = (7 - (rowO + 1)) * 2 + 1;
 		for (int j = 0; j < numInRow; j++) {
 			temp[i][rowO + j] = alv[tc];
@@ -222,13 +240,13 @@ void DmProfileCreator::checkVals(std::vector<double> val) {
 	}
 }
 
-void DmProfileCreator::addComa(std::vector<double>& zAmps, double comaMag, double comaAngle) {
+void DmProfileCreator::addComa(double comaMag, double comaAngle) {
 		//Adds at a particular angle and magnitude to a list of zernike amplituders.
 	double x;
 	double y;
 	toCartesian(comaMag, comaAngle, x, y);
-	zAmps[7] += x;
-	zAmps[8] += y;
+	currentAmps[7] += x;
+	currentAmps[8] += y;
 }
 
 void DmProfileCreator::addAstigmatism(std::vector<double>& zAmps, double astigMag, double astigAngle) {
@@ -251,59 +269,58 @@ void DmProfileCreator::addSpherical(std::vector<double>& zAmps, double sphereMag
 	zAmps[12] += sphereMag;
 }
 
-std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amplitudes, std::string baselineFile, bool quiet = false) {
+std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amplitudes, std::string baselineFile, bool quiet) {
 
-		double inc = 1 / 3;
-		std::vector<double> flatVoltage = linspace(0, 136, 137);
+		double inc = 1 / 3.0;
+		std::vector<double> flatVoltage = valArray;
 		std::vector<double> vals;
-		int sign = 0;
-		std::ifstream csvfile(baselineFile);
-		int counter = 0;
-		std::string value;
-		double voltage;
-		while (counter < 137) {
-			std::getline(csvfile, value);
-			try {
-				voltage = boost::lexical_cast<double>(value);
-			}
-			catch (boost::bad_lexical_cast) {
-				voltage = 0.0;
-			}
-			flatVoltage[counter] = voltage;
-			counter++;
-		}
+		
 		for (int i = 0; i < 137; i++) {
-			int zernSum = 0;
+			double zernSum = 0;
 			int weightFactor = 1;
-			POINT X = myDmLookup(i);
-			if ((pow(X.x, 2) + pow(X.y, 2)) <= 1) {
+			double factor = 1/3.0;
+			double x,y;
+			double amp;
+			myDmLookup(x, y, i, factor);
+
+			if ((pow(x, 2) + pow(y, 2)) <= 1) {
 				int j = 0;
-				for (auto& amp : amplitudes) {
+
+				for(int c = 0; c < 45; c++) {
 					int n, m;
 					fromNoll(j, n, m);
-					zernSum += amp * zernike(m, n, X.x, X.y);
+					zernSum += amplitudes[c] * zernike(n, m, x, y);
 					j++;
 				}
 			}
-			else if ((pow(X.x, 2) + pow(X.y, 2)) < 1.5) {
-				int j = 0;
-				for (auto& amp : amplitudes) {
+			
+			else if ((pow(x, 2) + pow(y, 2)) < 1.5) {
+				int count = 0;
+				for (int d = 0; d < 45; d++) {
+
 					int n, m;
-					fromNoll(j, n, m);
+					fromNoll(count, n, m);
 					double r, t;
-					toPolar(r, t, X.x, X.y);
+					toPolar(r, t, x, y);
 					//use circle's edge (i.e. r=1) value at the angle of the pixel
 					double x_, y_;
 					toCartesian(1, t, x_, y_);
-					zernSum += amp * zernike(m, n, x_, y_);
-					j++;
-				}
+					double Zern;
+					if (i == 28 && d==8) {
+						Zern = Zern;
+					}
+					Zern = zernike(n, m, x_, y_);
+					zernSum += (amplitudes[d] * Zern);
+					count++;
+				};
 			}
 			double volt = zernSum <= 0 ? -1 : 1;
 			volt *= pow(zernSum, 2) * weightFactor;
 			volt += flatVoltage[i];
 			vals.push_back(volt);
+
 		}
+
 		if (!quiet) {
 			checkVals(vals);
 		}
@@ -314,11 +331,18 @@ std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amp
 void DmProfileCreator::generateProfile() {
 	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
 	readZernikeFile(location);
-	std::vector<double> currentAmps = linspace(0, 0, 45);
 	double mag = 0.2;
-	std::vector<double> amp = std::vector<double>(0.0, 45);
-	std::vector<double> vals_base = createZernikeArray(amp, location);
-	addComa(amp, 0.2, M_PI / 6);
-	std::vector<double> vals_new = createZernikeArray(amp, location);
+	//std::vector<double> amp = std::vector<double>(0.0, 45);
+	std::vector<double> vals_base = createZernikeArray(currentAmps, location, false);
+	addComa(0.2, M_PI / 6);
+	//addAstigmatism(currentAmps, 0.1, 3 * M_PI / 2);
+	//addTrefoil(currentAmps, 0.1, M_PI);
+	std::vector<double> vals_new;
+	vals_new = createZernikeArray(currentAmps, location, false);
+	writeArray = vals_new; 
+	writeZernikeFile("checktheprofilemaker.txt");
+}
 
+std::vector<double> DmProfileCreator::getCurrAmps() {
+	return currentAmps;
 }

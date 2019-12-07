@@ -8,11 +8,16 @@
 #include <fstream>
 #include "cameraPositions.h"
 #include "ProfileSystem.h"
+#define M_PI 3.14159265358979323846
 
 
-DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode){
+DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode),
+Profile() {
 	defObject.initialize();
 	temp = std::vector<double>(137);
+	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
+	Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
+	Profile.readZernikeFile(location);
 }
 
 void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id) {
@@ -52,13 +57,19 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	/*std::vector<double> initial = std::vector<double>(137, 0.0);
 	setMirror(initial.data());
 	updateButtons();*/
-	//loadProfile("flatProfile.txt");
+	loadProfile("flatProfile");
 	cameraPositions positions;
 	positions.sPos = { 40, 200 };
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
 	profileSelector.setPositions(positions, 0, 0, 100, 500);
 	profileSelector.Create(NORM_COMBO_OPTIONS, profileSelector.seriesPos, parent, IDC_DM_PROFILE_COMBO);
 	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
+	
+	Coma.sPos = { 1100, 100, 1130, 125 };
+	Coma.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+				| ES_MULTILINE, Coma.sPos, parent, IDC_DM_ADD_ZERNIKE);
+	addComa.sPos = { 1140, 100, 1220, 125 };
+	addComa.Create("Add Coma", NORM_PUSH_OPTIONS, addComa.sPos, parent, IDC_DM_ADD_ZERNIKE + 1);
 }
 
 void DmControl::handleOnPress(int i) {
@@ -99,7 +110,9 @@ void DmControl::ProgramNow() {
 		}
 		
 	}
-	defObject.loadArray(values.data());
+	if (!DM_SAFEMODE) {
+		defObject.loadArray(values.data());
+	}
 	updateButtons();
 }
 
@@ -208,6 +221,7 @@ void DmControl::loadProfile()
 		}
 		std::string value;
 		double temp;
+		int count=0;
 		for (auto& pis : piston) {
 			std::getline(file, value);
 			try {
@@ -219,6 +233,8 @@ void DmControl::loadProfile()
 			double rounded = (int)( temp * 100000.0) / 100000.0;
 			std::string s1 = boost::lexical_cast<std::string>(rounded);
 			pis.Voltage.SetWindowTextA(cstr(s1));
+			reColor(IDC_DM_EDIT_START + count);
+			count++;
 		}
 	}
 	else {
@@ -235,8 +251,84 @@ void DmControl::loadProfile()
 				voltage = 0.0;
 			}
 			temp[counter] = voltage;
+			
+			reColor(IDC_DM_EDIT_START + counter);
 		}
 		setMirror(temp.data());
 	}
+}
+
+void DmControl::loadProfile(std:: string filename)
+{
+	if (DM_SAFEMODE) {
+		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
+		if (!file.is_open()) {
+			thrower("File did not open");
+		}
+		std::string value;
+		double temp;
+		int count = 0;
+		for (auto& pis : piston) {
+			std::getline(file, value);
+			try {
+				temp = boost::lexical_cast<double>(value);
+			}
+			catch (boost::bad_lexical_cast) {
+				temp = 0.0;
+			}
+			double rounded = (int)(temp * 100000.0) / 100000.0;
+			std::string s1 = boost::lexical_cast<std::string>(rounded);
+			pis.Voltage.SetWindowTextA(cstr(s1));
+			reColor(IDC_DM_PROFILE_COMBO + count);
+			count++;
+		}
+	}
+	else {
+		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename);
+		std::string value;
+		int length = temp.size();
+		double voltage;
+		for (int counter = 0; counter < length; counter++) {
+			std::getline(file, value);
+			try {
+				voltage = boost::lexical_cast<double>(value);
+			}
+			catch (boost::bad_lexical_cast) {
+				voltage = 0.0;
+			}
+			temp[counter] = voltage;
+			reColor(IDC_DM_PROFILE_COMBO + counter);
+		}
+		setMirror(temp.data());
+	}
+}
+
+void DmControl::writeCurrentFile(std::string out_file) {
+	std::ofstream outWrite(DM_PROFILES_LOCATION + "//" + out_file);
+	for (auto& element : writeArray) {
+		outWrite << element << std::endl;
+	}
+}
+
+void DmControl::add_Coma() {
+	CString s1;
+	Coma.GetWindowTextA(s1);
+	std::string s2 = str(s1, 4, false, true);
+	double weight;
+	try {
+		double s3 = boost::lexical_cast<double>(s2);
+
+		weight = s3;
+	}
+	catch (Error&) {
+		weight = 0.0;
+		thrower("Error:  bad lexical cast");
+	}
+	Profile.addComa(weight, M_PI / 6);
+	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
+	writeArray = Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
+	writeCurrentFile("currentLoadOut.txt");
+	loadProfile("currentLoadOut");//Cstatic and Norm_header options for a table. 
+	//make it so that 0 in the box is no coma. make object to store total amount of coma. 
 }
 

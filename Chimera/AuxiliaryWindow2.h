@@ -29,6 +29,7 @@ class AuxiliaryWindow2 : public CDialog
 		void handleProgramNow();
 		void handlePistonChange(UINT id);
 		void handleNewProfile();
+		void handleComa();
 	
 		BOOL OnInitDialog();
 		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_,
