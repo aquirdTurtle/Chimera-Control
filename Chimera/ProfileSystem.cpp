@@ -169,6 +169,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 		camWin->handleOpeningConfig( configFile, ver );
 		auxWin->handleOpeningConfig( configFile, ver );
 		mainWin->handleOpeningConfig( configFile, ver );
+		// ###TODO add auxwin2->handleopeningconfig here
 		if ( ver >= Version ( "3.4" ) )
 		{
 			basWin->handleOpeningConfig ( configFile, ver );
@@ -306,6 +307,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	auxWin->handleSaveConfig(configSaveFile);
 	mainWin->handleSaveConfig(configSaveFile);
 	basWin->handleSavingConfig ( configSaveFile );
+	//auxwin2->handlesavingconfig();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }

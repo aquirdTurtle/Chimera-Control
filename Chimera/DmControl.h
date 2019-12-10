@@ -1,3 +1,4 @@
+//Created by Max Kolanz
 #pragma once
 #include "Control.h"
 #include "myButton.h"
@@ -38,8 +39,10 @@ class DmControl
 		void reColor(UINT id);
 		void rearrange(int width, int height, fontMap fonts);
 		bool isFloat(const std::string& someString);
-		void add_Coma();
+		void add_Changes();
+		std::vector<double> getTableValues();
 		void writeCurrentFile(std::string out_file);
+		void initializeTable(int xPos, int yPos, int width, int height, CWnd* parent, UINT id);
 
 	private:
 		
@@ -47,8 +50,21 @@ class DmControl
 		DmCore defObject;
 		DmProfileCreator Profile;
 		std::vector<pistonButton> piston;
-		Control<CEdit> Coma;
-		Control<CButton> addComa;
+		Control<CEdit> comaMag;
+		Control<CEdit> trefoilMag;
+		Control<CEdit> astigMag;
+		Control<CEdit> sphereMag;
+		Control<CEdit> comaAngle;
+		Control<CEdit> trefoilAngle;
+		Control<CEdit> astigAngle;
+		Control<CEdit> sphereAngle;
+		Control<CButton> applyCorrections;
+		Control<CStatic> Angle;
+		Control<CStatic> Mag;
+		Control<CStatic> Astigmatism;
+		Control<CStatic> Spherical;
+		Control<CStatic> Trefoil;
+		Control<CStatic> Coma;
 		Control<CButton> programNow;
 		Control<CComboBox> profileSelector;
 		std::vector<double> temp;

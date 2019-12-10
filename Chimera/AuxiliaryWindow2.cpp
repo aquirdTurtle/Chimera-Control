@@ -1,3 +1,4 @@
+//Created by Max Kolanz
 #include "stdafx.h"
 #include "AuxiliaryWindow2.h"
 #include "MainWindow.h"
@@ -48,7 +49,7 @@ BEGIN_MESSAGE_MAP(AuxiliaryWindow2, CDialog)
 	ON_WM_SIZE()
 	ON_WM_CTLCOLOR()
 	ON_COMMAND(IDC_DM_PROGRAMNOW, &handleProgramNow)
-	ON_COMMAND(IDC_DM_ADD_ZERNIKE + 1, &handleComa)
+	ON_COMMAND(IDC_DM_ADD_ZERNIKE + 15, &handleAbberations)
 	ON_CBN_SELENDOK(IDC_DM_PROFILE_COMBO, &handleNewProfile)
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &AuxiliaryWindow2::handlePistonChange)
@@ -147,6 +148,6 @@ void AuxiliaryWindow2::handlePistonChange(UINT id) {
 	DM.reColor(id);
 }
 
-void AuxiliaryWindow2::handleComa() {
-	DM.add_Coma();
+void AuxiliaryWindow2::handleAbberations() {
+	DM.add_Changes();
 }

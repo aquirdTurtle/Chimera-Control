@@ -81,6 +81,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+				// Load DM settings from config file###TODO
 			}
 			if ( input->runNiawg )
 			{
@@ -266,6 +267,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );
 			input->eoAxialTek.interpretKey ( input->parameters );
+			// DM interpret key here! ###TODO
 		}
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
@@ -402,6 +404,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					}
 				}
 				dds.writeExperiment ( 0, variationInc );
+				// DM Program now  (variationInc) here ###TODO
 			}
 			if (input->runNiawg)
 			{

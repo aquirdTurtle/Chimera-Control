@@ -1,3 +1,4 @@
+//Created by Max Kolanz
 #include "stdafx.h"
 #include "Thrower.h"
 #include "ProfileSystem.h"
@@ -8,7 +9,6 @@
 #include <fstream>
 #include "cameraPositions.h"
 #include "ProfileSystem.h"
-#define M_PI 3.14159265358979323846
 
 
 DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serialNumber, safeMode),
@@ -18,6 +18,57 @@ Profile() {
 	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
 	Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
 	Profile.readZernikeFile(location);
+}
+
+void DmControl::initializeTable(int xPos, int yPos, int width, int height, CWnd* parent, UINT id) {
+	int xPos2 = xPos + width + 5;
+	int xPos3 = xPos2 + width + 5;
+	int yPos2 = yPos + height + 5;
+	int yPos3 = yPos2 + height + 5;
+	int yPos4 = yPos3 + height + 5;
+	int yPos5 = yPos4 + height + 5;
+
+	Mag.sPos = { xPos, yPos, xPos+width, yPos+height };
+	Mag.Create(cstr("Magnitude"), NORM_STATIC_OPTIONS, Mag.sPos, parent, id + 1);
+	Angle.sPos = { xPos2, yPos, xPos2 + width, yPos + height};
+	Angle.Create(cstr("Angle"), NORM_STATIC_OPTIONS, Angle.sPos, parent, id + 2);
+
+	Coma.sPos = { xPos3, yPos2, xPos3+90, yPos2 + height };
+	Coma.Create(cstr("Coma"), NORM_STATIC_OPTIONS, Coma.sPos, parent, id + 3);
+	Astigmatism.sPos = { xPos3, yPos3, xPos3 + 90, yPos3 + height };
+	Astigmatism.Create(cstr("Astigmatism"), NORM_STATIC_OPTIONS, Astigmatism.sPos, parent, id + 4);
+	Trefoil.sPos = { xPos3, yPos4, xPos3 + 90, yPos4 + height };
+	Trefoil.Create(cstr("Trefoil"), NORM_STATIC_OPTIONS, Trefoil.sPos, parent, id + 5);
+	Spherical.sPos = { xPos3, yPos5, xPos3 + 90, yPos5 + height };
+	Spherical.Create(cstr("Spherical"), NORM_STATIC_OPTIONS, Spherical.sPos, parent, id + 6);
+
+	comaMag.sPos = { xPos, yPos2, xPos + width, yPos2 + height };
+	comaMag.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+				   | ES_MULTILINE, comaMag.sPos, parent, id+7);
+	comaAngle.sPos = { xPos2, yPos2, xPos2+width, yPos2 + height};
+	comaAngle.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+					 | ES_MULTILINE, comaAngle.sPos, parent, id+8);
+	astigMag.sPos = { xPos, yPos3, xPos + width, yPos3 + height };
+	astigMag.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+					| ES_MULTILINE, astigMag.sPos, parent, id + 9);
+	astigAngle.sPos = { xPos2, yPos3, xPos2 + width, yPos3 + height };
+	astigAngle.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+					  | ES_MULTILINE, astigAngle.sPos, parent, id + 10);
+	trefoilMag.sPos = { xPos, yPos4, xPos + width, yPos4+height };
+	trefoilMag.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+					  | ES_MULTILINE, trefoilMag.sPos, parent, id + 11);
+	trefoilAngle.sPos = { xPos2, yPos4, xPos2 +width, yPos4 + height };
+	trefoilAngle.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+						| ES_MULTILINE, trefoilAngle.sPos, parent, id + 12);
+	sphereMag.sPos = { xPos, yPos5 , xPos + width, yPos5 + height };
+	sphereMag.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+					 | ES_MULTILINE, sphereMag.sPos, parent, id + 13);
+	sphereAngle.sPos = {xPos2, yPos5 , xPos2 + width, yPos5 + height };
+	sphereAngle.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
+					   | ES_MULTILINE, sphereAngle.sPos, parent, id + 14);
+
+	applyCorrections.sPos = { xPos3, yPos5 + height + 5, xPos3 + 140, yPos5 + (2 * height) + 5 };
+	applyCorrections.Create("Apply Corrections", NORM_PUSH_OPTIONS, applyCorrections.sPos, parent, id + 15);
 }
 
 void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id) {
@@ -65,11 +116,8 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	profileSelector.Create(NORM_COMBO_OPTIONS, profileSelector.seriesPos, parent, IDC_DM_PROFILE_COMBO);
 	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
 	
-	Coma.sPos = { 1100, 100, 1130, 125 };
-	Coma.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN
-				| ES_MULTILINE, Coma.sPos, parent, IDC_DM_ADD_ZERNIKE);
-	addComa.sPos = { 1140, 100, 1220, 125 };
-	addComa.Create("Add Coma", NORM_PUSH_OPTIONS, addComa.sPos, parent, IDC_DM_ADD_ZERNIKE + 1);
+	initializeTable(1050, 100, 50, 25, parent, IDC_DM_ADD_ZERNIKE);
+	
 }
 
 void DmControl::handleOnPress(int i) {
@@ -310,25 +358,43 @@ void DmControl::writeCurrentFile(std::string out_file) {
 	}
 }
 
-void DmControl::add_Coma() {
-	CString s1;
-	Coma.GetWindowTextA(s1);
-	std::string s2 = str(s1, 4, false, true);
-	double weight;
-	try {
-		double s3 = boost::lexical_cast<double>(s2);
+std::vector<double> DmControl::getTableValues() {
+	CString s[8];
+	comaMag.GetWindowTextA(s[0]);
+	comaAngle.GetWindowTextA(s[1]);
+	astigMag.GetWindowTextA(s[2]);
+	astigAngle.GetWindowTextA(s[3]);
+	trefoilMag.GetWindowTextA(s[4]);
+	trefoilAngle.GetWindowTextA(s[5]);
+	sphereMag.GetWindowTextA(s[6]);
+	sphereAngle.GetWindowTextA(s[7]);
+	std::string s2;
+	std::vector<double> parameters(8);
+	for (int i = 0; i < 8; i++) {
+		s2 = str(s[i], 4, false, true);
+		if (s2.length() == 0) {
+			s2 = "0.0";
+		}
+		try {
+			parameters[i] = boost::lexical_cast<double>(s2);
+		}
+		catch (Error&) {
+			parameters[i] = 0.0;
+			thrower("Error:  bad lexical cast");
+		}
+	}
+	return parameters;
+}
 
-		weight = s3;
-	}
-	catch (Error&) {
-		weight = 0.0;
-		thrower("Error:  bad lexical cast");
-	}
-	Profile.addComa(weight, M_PI / 6);
+void DmControl::add_Changes() {
+	std::vector<double> params = getTableValues();
+	Profile.addComa(params[0], params[1]);
+	Profile.addAstigmatism(params[2], params[3]);
+	Profile.addTrefoil(params[4], params[5]);
+	Profile.addSpherical(params[6]);
 	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
 	writeArray = Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
 	writeCurrentFile("currentLoadOut.txt");
-	loadProfile("currentLoadOut");//Cstatic and Norm_header options for a table. 
-	//make it so that 0 in the box is no coma. make object to store total amount of coma. 
+	loadProfile("currentLoadOut");
 }
 

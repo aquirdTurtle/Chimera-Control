@@ -1,3 +1,4 @@
+//Created by Max Kolanz, Mark Brown, and Chris Kheil
 #include "stdafx.h"
 #include "DmProfileCreator.h"
 #include "Thrower.h"
@@ -245,28 +246,28 @@ void DmProfileCreator::addComa(double comaMag, double comaAngle) {
 	double x;
 	double y;
 	toCartesian(comaMag, comaAngle, x, y);
-	currentAmps[7] += x;
-	currentAmps[8] += y;
+	currentAmps[7] = x;
+	currentAmps[8] = y;
 }
 
-void DmProfileCreator::addAstigmatism(std::vector<double>& zAmps, double astigMag, double astigAngle) {
+void DmProfileCreator::addAstigmatism( double astigMag, double astigAngle) {
 	double x;
 	double y;
 	toCartesian(astigMag, astigAngle, x, y);
-	zAmps[3] += x;
-	zAmps[5] += y;
+	currentAmps[3] = x;
+	currentAmps[5] = y;
 }
 
-void DmProfileCreator::addTrefoil(std::vector<double>& zAmps, double trefMag, double trefAngle) {
+void DmProfileCreator::addTrefoil( double trefMag, double trefAngle) {
 	double x;
 	double y;
 	toCartesian(trefMag, trefAngle, x, y);
-	zAmps[6] += x;
-	zAmps[9] += y;
+	currentAmps[6] = x;
+	currentAmps[9] = y;
 }
 
-void DmProfileCreator::addSpherical(std::vector<double>& zAmps, double sphereMag) {
-	zAmps[12] += sphereMag;
+void DmProfileCreator::addSpherical(double sphereMag) {
+	currentAmps[12] = sphereMag;
 }
 
 std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amplitudes, std::string baselineFile, bool quiet) {
@@ -306,9 +307,7 @@ std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amp
 					double x_, y_;
 					toCartesian(1, t, x_, y_);
 					double Zern;
-					if (i == 28 && d==8) {
-						Zern = Zern;
-					}
+					
 					Zern = zernike(n, m, x_, y_);
 					zernSum += (amplitudes[d] * Zern);
 					count++;

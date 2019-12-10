@@ -22,9 +22,9 @@ class DmProfileCreator {
 		void makeIm();
 		void checkVals(std::vector<double> val);
 		void addComa(double comaMag, double comaAngle);
-		void addAstigmatism(std::vector<double>& zAmps, double astigMag, double astigAngle);
-		void addTrefoil(std::vector<double>& zAmps, double trefMag, double trefAngle);
-		void addSpherical(std::vector<double>& zAmps, double sphereMag);
+		void addAstigmatism( double astigMag, double astigAngle);
+		void addTrefoil( double trefMag, double trefAngle);
+		void addSpherical( double sphereMag);
 		std::vector<double> createZernikeArray(std::vector<double> amplitudes, std::string baselineFile, bool quiet = false);
 		void generateProfile();
 		std::vector<double> getCurrAmps();

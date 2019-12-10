@@ -118,7 +118,8 @@ class ProfileSystem
 		// Version 4.4: added software accumulation picture options
 		// Version 4.5: Added DDS system to save.
 		// Version 4.6: Added Piezo System 1 to save.
-		const Version version = Version( "4.6" );
+		// Version 4.7: Adding DM system to configuration file
+		const Version version = Version( "4.7" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
