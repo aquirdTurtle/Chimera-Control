@@ -10,14 +10,14 @@ def setQuantAxis():
   var dfield 0
   var left_field 3.1911
   var right_field -3.1911
-  var top_field 1.8758
-  var bot_field -1.915
-  var front_field -0.4055
-  var back_field 0.6063
-  dac: leftCoilCurrent (left_field + dfield)
-  dac: rightCoilCurrent (right_field + dfield)
-  dac: topCoilCurrent top_field 
+  var top_field 1.8498
+  var bot_field -1.941
+  var front_field -0.3849
+  var back_field 0.5857
+  dac: leftCoilCurrent left_field 
+  dac: rightCoilCurrent right_field
+  dac: topCoilCurrent top_field
   dac: bottomCoilCurrent bot_field 
-  dac: frontCoilCurrent front_field 
-  dac: backCoilCurrent back_field 
+  dac: frontCoilCurrent (front_field - dfield)
+  dac: backCoilCurrent (back_field + dfield)
   t += rotateFieldTime

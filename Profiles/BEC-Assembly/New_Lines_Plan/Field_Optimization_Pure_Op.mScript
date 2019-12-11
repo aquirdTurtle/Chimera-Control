@@ -10,7 +10,7 @@ call turnonmot()
 t += loadmottime
 pulseon: scoutTrig 0.1
 t += 2
-call D1GreyLambdaLoading() 
+call D1GreyLambdaLoading()
 t += 20
 pulseon: tweezerIntensityTrig 0.1 
 pulseon: dds_step 5
@@ -21,8 +21,33 @@ call intrapgreymolasses()
 pulseon: tweezerIntensityTrig 0.1
 t += 1.1
 %call pump2f1()
-
+% pump to the stretch state
 call pump2stretch()
+
+var opFreq -0.5
+var opTime 1
+% set to 3G field
+call setQuantAxis()
+%call zerofields()
+
+dac: sigmaopfreq 0
+daclinspace: motFreq defaultMotFreq opFreq 1 10  
+%dac: sigmaoppower sigma_op__servo_value 
+dac: sigmaoppower 0.12
+
+dac: sigmarepumpPower 0
+t += 1.01
+% just op, no repump
+on: sigmaoprf
+t += opTime
+off: sigmaoprf
+dac: sigmarepumpPower 0
+dac: sigmaoppower 0
+var finPumpFreq 0.5
+daclinspace: motFreq opFreq finPumpFreq 0.2 10  
+t += 1.01
+call setQuantAxis()
+
 call pushout()
 pulseon: tweezerIntensityTrig 0.1
 t += 5
