@@ -233,30 +233,30 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__servo_value 0.0766232
-diagmot__servo_value 0.289359
+sidemot__servo_value 0.0763251
+diagmot__servo_value 0.288542
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__servo_value 0.092197
+sidemot_intrappgc__servo_value 0.091949
 sidemot_imaging__servo_value 0.168824
 motimagingdetuning -0.32
 d1loadingfreq 112.5
 intraplgmcoolingfreq 99
-sidemot_d1__servo_value 0.231277
+sidemot_d1__servo_value 0.270542
 diagmot_imaging__servo_value 0.107223
-diag_d1_load__servo_value -0.432438
+diag_d1_load__servo_value -0.545008
 repump_load__servo_value 0.114553
 repump_imaging__servo_value 0.114194
-sigma_repump__servo_value 0.17946
+sigma_repump__servo_value 0.179253
 sigma_op__servo_value 0.199655
-pushout_probe__servo_value 0.32001
+pushout_probe__servo_value 0.318704
 top_raman__servo_value 0.0758206
-top_raman_carrier__servo_value 0.161171
-eo_raman__servo_value 0.202161
-ax_raman_spec__servo_value 0.195943
-top_raman_sideband_spec__servo_value 0.100739
-top_sbc_sideband_spec__servo_value 0.165782
-sbc_sigma_op__servo_value 0.058403
+top_raman_carrier__servo_value 0.156059
+eo_raman__servo_value 0.207229
+ax_raman_spec__servo_value 0.179898
+top_raman_sideband_spec__servo_value 0.096956
+top_sbc_sideband_spec__servo_value 0.160538
+sbc_sigma_op__servo_value 0.0579565
 0
 18Sidemot 6 22 1 1.88 1 a 5 0 0.01 0.02 0 100
 DiagMot 7 9 1 4.6 1 a 0 0 0.01 0.03 0 100
