@@ -14,6 +14,7 @@ struct servoInfo
 	unsigned int aoControlChannel=0;
 	double setPoint=0;
 	double controlValue=0;
+	// in % from old value
 	double changeInCtrl=0;
 	double tolerance = 0.02;
 	double gain = 0.02;

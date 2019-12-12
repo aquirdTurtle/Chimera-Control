@@ -35,7 +35,7 @@ void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 				}
 				else
 				{
-					pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
+					pLVCD->clrTextBk = _myRGBs[servos[item].servoed ? "Interactable-Bkgd" : "Red"];
 				}
 				pLVCD->clrText = _myRGBs["Text"];
 			}
@@ -59,18 +59,19 @@ void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 						pLVCD->clrText = _myRGBs["AuxWin-Text"];
 						break;
 					}
-					auto chng = servoInfos [pLVCD->nmcd.dwItemSpec] .changeInCtrl;
-					if (chng > 0)
-					{
+					auto chng = fabs(servoInfos [pLVCD->nmcd.dwItemSpec].changeInCtrl);
+					// these ranges are arbitrary and you should feel free to change them as seems reasonable.
+					if (chng < 0.01)
+					{	// "Stable" reading.
 						pLVCD->clrText = _myRGBs["Green"];
 					}
-					else if (chng < 0)
-					{
-						pLVCD->clrText = _myRGBs["Red"];
+					else if (chng < 0.05)
+					{	// "Warning" - Value changed significantly
+						pLVCD->clrText = _myRGBs["Orange"];
 					}
 					else
-					{
-						pLVCD->clrText = _myRGBs["Text"];
+					{	// "Stronger Warning" - Value changed a lot
+						pLVCD->clrText = _myRGBs["Red"];
 					}
 					break;
 				}
@@ -674,14 +675,14 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 			// There's a little break built in here in order to let the laser power settle a little. 
 			// Not sure how necessary this is.
 			Sleep( 20 );
-			s.changeInCtrl = s.controlValue - oldVal;
+			s.changeInCtrl = (s.controlValue - oldVal) / oldVal;
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 			setResDisplay (which, s.mostRecentResult);
 			setChangeVal (which, s.changeInCtrl);
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
-	s.changeInCtrl = s.controlValue - oldVal; 
+	s.changeInCtrl = (s.controlValue - oldVal) / oldVal; 
 	setControlDisplay ( which, dacVal );
 	setResDisplay (which, s.mostRecentResult);
 	setChangeVal (which, s.changeInCtrl);
