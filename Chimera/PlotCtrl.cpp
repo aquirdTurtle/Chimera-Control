@@ -29,7 +29,6 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 
 PlotCtrl::~PlotCtrl ( )
 {
-	errBox ( "Deleteing Plot Ctrl!" );
 	for ( auto& pen : pens )
 	{
 		delete pen;
@@ -49,10 +48,11 @@ void PlotCtrl::drawPlot ( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBru
 {
 	memDC dc ( cdc, &GetPlotRect() );
 	drawBackground ( dc, backgroundBrush, plotAreaBrush );
-	drawTitle ( dc );
 	drawBorder ( dc );
 	plotPoints ( &dc );
+	drawTitle (dc);
 }
+
 
 std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
 {
@@ -62,8 +62,8 @@ std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
 
 void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
-	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
-		controlDims.bottom*heightScale2 };
+	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, 
+			   controlDims.right * widthScale2, controlDims.bottom*heightScale2 };
 	//d->
 	CPen pen( 0, 0, RGB( 0, 0, 0 ) );
 	d->SelectObject( pen );
@@ -81,14 +81,13 @@ void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAr
 
 void PlotCtrl::drawTitle( memDC* d )
 {
-	RECT scaledArea = { plotAreaDims.left * widthScale2, plotAreaDims.top * heightScale2,
-						plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
-	RECT r = { scaledArea.left, scaledArea.top - 40, scaledArea.right, scaledArea.top};
+	RECT scaledArea = { plotAreaDims.left * widthScale2, controlDims.top * heightScale2,
+						plotAreaDims.right * widthScale2, plotAreaDims.top * heightScale2 };
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( _myRGBs[ "Text" ] );
 	d->SelectObject( textFont );
-	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_TOP, NULL );
+	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &scaledArea, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
 
 
@@ -105,17 +104,11 @@ CRect PlotCtrl::GetPlotRect( )
 void PlotCtrl::setControlLocation ( POINT topLeftLoc, LONG width, LONG height )
 {
 	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
-	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
 	RECT d = controlDims;
 	long w = d.right - d.left, h = d.bottom - d.top;
-	if ( !narrow )
-	{
-		plotAreaDims = { long ( d.left + w*0.1 ), long ( d.top + h*0.08 ), long ( d.right*0.98 ), long ( d.bottom - h*0.1 ) };
-	}
-	else
-	{
-		plotAreaDims = controlDims;
-	}
+	plotAreaDims = (!narrow) ? 
+					RECT{ long (d.left + w * 0.1), long (d.top + h * 0.08), long (d.right * 0.98), long (d.bottom - h * 0.2) }
+					: controlDims;
 }
 
 void PlotCtrl::setData (std::vector<pPlotDataVec> newData)
