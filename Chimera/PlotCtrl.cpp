@@ -29,7 +29,6 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 
 PlotCtrl::~PlotCtrl ( )
 {
-	errBox ( "Deleteing Plot Ctrl!" );
 	for ( auto& pen : pens )
 	{
 		delete pen;
@@ -54,6 +53,7 @@ void PlotCtrl::drawPlot ( CDC* cdc, CBrush* backgroundBrush, CBrush* plotAreaBru
 	drawTitle (dc);
 }
 
+
 std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
 {
 	return data;
@@ -62,8 +62,8 @@ std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
 
 void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
-	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
-		controlDims.bottom*heightScale2 };
+	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, 
+			   controlDims.right * widthScale2, controlDims.bottom*heightScale2 };
 	//d->
 	CPen pen( 0, 0, RGB( 0, 0, 0 ) );
 	d->SelectObject( pen );
@@ -106,14 +106,9 @@ void PlotCtrl::setControlLocation ( POINT topLeftLoc, LONG width, LONG height )
 	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
 	RECT d = controlDims;
 	long w = d.right - d.left, h = d.bottom - d.top;
-	if ( !narrow )
-	{
-		plotAreaDims = { long ( d.left + w*0.1 ), long ( d.top + h*0.08 ), long ( d.right*0.98 ), long ( d.bottom - h*0.2 ) };
-	}
-	else
-	{
-		plotAreaDims = controlDims;
-	}
+	plotAreaDims = (!narrow) ? 
+					RECT{ long (d.left + w * 0.1), long (d.top + h * 0.08), long (d.right * 0.98), long (d.bottom - h * 0.2) }
+					: controlDims;
 }
 
 void PlotCtrl::setData (std::vector<pPlotDataVec> newData)
