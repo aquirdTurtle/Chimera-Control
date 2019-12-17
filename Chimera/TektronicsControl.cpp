@@ -206,14 +206,14 @@ void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
 	newFile << "CHANNEL_1\n";
 	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "CHANNEL_2\n";
+
+
+void TektronicsAfgControl::handleSaveConfig(std::ofstream & saveFile)
+{
 	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "END_" + configDelim + "\n";
-}
-
-
-void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
-{
 	saveFile << configDelim + "\n";
+
 	saveFile << "CHANNEL_1\n";
 	tektronicsInfo tekInfo = getTekSettings();
 	saveFile << tekInfo.channels.first.control << "\n" << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"

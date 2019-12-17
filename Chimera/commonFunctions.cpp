@@ -23,7 +23,7 @@ namespace commonFunctions
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin 
+							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin, AuxiliaryWindow2* auxWin2
 							 )
 	{
 		switch (msgID)
@@ -43,7 +43,8 @@ namespace commonFunctions
 					mainWin->getComm ( )->sendStatus( "Starting Automatic Optimization...\r\n" );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					andorWin->prepareAndor ( input );
-					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true, true );
+					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, auxWin2, input, true, true, true, true, 
+										 true, true, true, true );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					andorWin->preparePlotter ( input );
 					andorWin->prepareAtomCruncher ( input );
@@ -80,8 +81,8 @@ namespace commonFunctions
 				try
 				{
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, input, false, true, false, 
-										  true, false );
+					prepareMasterThread ( msgID, scriptWin, mainWin, andorWin, auxWin, auxWin2, input, false, true, false, 
+										  true, false, false, false, false );
 					commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					input.baslerRunSettings = basWin->getCurrentSettings ( );
 					input.masterInput->runAndor = false;
@@ -128,8 +129,8 @@ namespace commonFunctions
 					andorWin->redrawPictures ( false );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					andorWin->prepareAndor ( input );
-					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, input, true, true, true, true, 
-										 true );
+					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, auxWin2, input, true, true, true, true, 
+										 true, true, true, true );
 					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )
 					{
@@ -273,8 +274,8 @@ namespace commonFunctions
 				{
 					mainWin->getComm ( )->sendColorBox ( System::Camera, 'Y' );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, scriptWin, mainWin, andorWin, auxWin,
-														   input, false, false, true, false, true );
+					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, scriptWin, mainWin, andorWin, auxWin, auxWin2,
+														   input, false, false, true, false, true, false, false, false );
 					andorWin->prepareAndor ( input );
 					andorWin->preparePlotter ( input );
 					andorWin->prepareAtomCruncher ( input );
@@ -308,8 +309,8 @@ namespace commonFunctions
 				AllExperimentInput input;
 				try
 				{
-					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNNIAWG, scriptWin, mainWin, andorWin, auxWin,
-														  input, true, false, false, false, false );
+					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNNIAWG, scriptWin, mainWin, andorWin, auxWin, auxWin2,
+														  input, true, false, false, false, false, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, true, false, input );
 					commonFunctions::logParameters( input, andorWin->getLogger ( ), "", false );
@@ -328,8 +329,8 @@ namespace commonFunctions
 				AllExperimentInput input;
 				try
 				{
-					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, andorWin, auxWin, 
-														  input, false, true, false, false, false );
+					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, andorWin, auxWin, auxWin2, 
+														  input, false, true, false, false, false, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( andorWin, mainWin, scriptWin, auxWin, false, true, input );
 					commonFunctions::logParameters ( input, andorWin->getLogger ( ), "", false );
@@ -370,7 +371,7 @@ namespace commonFunctions
 					auxWin->updateAgilent( whichAg::Axial );
 					auxWin->updateAgilent( whichAg::Flashing );
 					auxWin->updateAgilent( whichAg::Microwave );
-					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, andorWin, basWin );
+					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, andorWin, basWin, auxWin2 );
 					mainWin->masterConfig.save( mainWin, auxWin, andorWin );
 					
 				}
@@ -384,7 +385,7 @@ namespace commonFunctions
 			{
 				try
 				{
-					commonFunctions::exitProgram(scriptWin, mainWin, andorWin, auxWin);
+					commonFunctions::exitProgram(scriptWin, mainWin, andorWin, auxWin, auxWin2);
 				}
 				catch (Error& err)
 				{
@@ -458,7 +459,7 @@ namespace commonFunctions
 			{
 				auxWin->autoServo ( 0, 0 );
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL, auxWin2 );
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -475,7 +476,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, auxWin2 );
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -496,7 +497,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, auxWin2 );
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -531,7 +532,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, auxWin2 );
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -560,7 +561,7 @@ namespace commonFunctions
 			{
 				// F12 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, auxWin2 );
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->logBaslerPics = true;
@@ -586,7 +587,7 @@ namespace commonFunctions
 				break;
 			}
 			// the rest of these are all one-liners. 
-			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile ( scriptWin, mainWin, auxWin, andorWin, basWin ); break; }
+			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile ( scriptWin, mainWin, auxWin, andorWin, basWin, auxWin2 ); break; }
 			case ID_PLOTTING_STOPPLOTTER: { andorWin->stopPlotter( ); break; }
 			case ID_FILE_MY_INTENSITY_NEW: { scriptWin->newIntensityScript(); break; }
 			case ID_FILE_MY_INTENSITY_OPEN: { scriptWin->openIntensityScript(parent); break; }
@@ -625,11 +626,11 @@ namespace commonFunctions
 			case ID_SEQUENCE_RESET_SEQUENCE: { mainWin->profile.loadNullSequence(); break; }
 			case ID_SEQUENCE_DELETE_SEQUENCE: { mainWin->profile.deleteSequence(); break; }
 			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin); break; }
-			case ID_CONFIGURATION_NEW_CONFIGURATION: { mainWin->profile.newConfiguration(mainWin, auxWin, andorWin, scriptWin); break; }
+			case ID_CONFIGURATION_NEW_CONFIGURATION: { mainWin->profile.newConfiguration(mainWin, auxWin, andorWin, scriptWin, auxWin2 ); break; }
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration(); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration(); break; }
-			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, andorWin, basWin); break; }
-			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, andorWin, basWin); break; }
+			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, andorWin, basWin, auxWin2); break; }
+			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, andorWin, basWin, auxWin2); break; }
 			case ID_NIAWG_SENDSOFTWARETRIGGER: { mainWin->niawg.fgenConduit.sendSoftwareTrigger(); break; }
 			case ID_NIAWG_STREAMWAVEFORM: { mainWin->niawg.streamWaveform(); break; }
 			case ID_NIAWG_GETNIAWGERROR: { errBox(mainWin->niawg.fgenConduit.getErrorMsg()); break; }
@@ -649,7 +650,7 @@ namespace commonFunctions
 			case ID_MASTER_VIEWORCHANGETTLNAMES: { auxWin->ViewOrChangeTTLNames(); break; }
 			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE: { mainWin->handlePause(); break; }
 			case ID_HELP_HARDWARESTATUS: { mainWin->showHardwareStatus ( ); break; }
-			case ID_FORCE_EXIT:	{ forceExit ( scriptWin, mainWin, andorWin, auxWin ); break; }
+			case ID_FORCE_EXIT:	{ forceExit ( scriptWin, mainWin, andorWin, auxWin, auxWin2 ); break; }
 			default:
 				errBox("Common message passed but not handled! The feature you're trying to use"\
 						" feature likely needs re-implementation / new handling.");
@@ -657,12 +658,12 @@ namespace commonFunctions
 	}
 
 	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* andorWin,
-									AuxiliaryWindow* auxWin )
+									AuxiliaryWindow* auxWin, AuxiliaryWindow2* auxWin2 )
 	{
 		try 
 		{
 			AllExperimentInput input;
-			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, auxWin2);
 			input.masterInput->runNiawg = false;
 			input.masterInput->runAndor = true;
 			input.masterInput->runMaster = true;
@@ -680,8 +681,9 @@ namespace commonFunctions
 	 
 
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* andorWin,
-							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runMaster, 
-							  bool runAndor, bool logBaslerPics, bool updatePlotXVals )
+							  AuxiliaryWindow* auxWin, AuxiliaryWindow2 *auxWin2, AllExperimentInput& input, bool runNiawg, 
+							 bool runMaster, bool runTtls, bool runAndor, bool runBasler, bool startPlotThread, 
+							 bool updatePlotXVals, bool logBaslerPics )
 	{
 		profileSettings profile = mainWin->getProfileSettings();
 		seqSettings seq = mainWin->getSeqSettings( );
@@ -700,7 +702,7 @@ namespace commonFunctions
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
 		// Set the thread structure.
-		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, auxWin2 );
 		input.masterInput->runNiawg = runNiawg;
 		input.masterInput->runAndor = runAndor;
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
@@ -787,7 +789,7 @@ namespace commonFunctions
 	}
 
 
-	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
+	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin, AuxiliaryWindow2 *auxWin2)
 	{
 		/// Exiting
 		// Close the NIAWG normally.
@@ -803,11 +805,13 @@ namespace commonFunctions
 		camWin->EndDialog ( 0 );
 		scriptWindow->EndDialog ( 0 );
 		mainWin->EndDialog ( 0 );
+		auxWin2->EndDialog(0);
 		PostQuitMessage ( 1 );
 	}
 
 
-	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
+	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin,
+															AuxiliaryWindow2* auxWin2)
 	{
 		if (mainWin->niawgIsRunning())
 		{
@@ -832,7 +836,7 @@ namespace commonFunctions
 		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
 		if (areYouSure == IDOK)
 		{
-			forceExit ( scriptWindow, mainWin, camWin, auxWin );
+			forceExit ( scriptWindow, mainWin, camWin, auxWin, auxWin2 );
 		}
 	}
 

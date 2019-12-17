@@ -4,6 +4,7 @@
 #include "DioSystem.h"
 #include "AoSystem.h"
 #include "AiSystem.h"
+#include "DmCore.h"
 #include "ParameterSystem.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
@@ -30,6 +31,7 @@
 #include <atomic>
 
 class AuxiliaryWindow;
+class AuxiliaryWindow2;
 class MainWindow;
 class DataLogger;
 
@@ -55,7 +57,8 @@ class MasterThreadManager;
 
 struct ExperimentThreadInput
 {
-	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
+	ExperimentThreadInput (AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin,
+						   AuxiliaryWindow2* auxWin2);
 	realTimePlotterInput* plotterInput;
 
 	EmbeddedPythonHandler& python;
@@ -64,6 +67,7 @@ struct ExperimentThreadInput
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem& ttls;
+	DmCore& Dmir;
 	AoSystem& aoSys;
 	AiSystem& aiSys;
 	AndorCamera& andorCamera;

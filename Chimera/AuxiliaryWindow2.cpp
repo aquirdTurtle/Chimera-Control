@@ -3,6 +3,9 @@
 #include "AuxiliaryWindow2.h"
 #include "MainWindow.h"
 #include "commonFunctions.h"
+#include "openWithExplorer.h"
+#include "saveWithExplorer.h"
+#include "ProfileSystem.h"
 
 AuxiliaryWindow2::AuxiliaryWindow2() : CDialog(), DM(DM_SERIAL, DM_SAFEMODE), globalParameters("GLOBAL_PARAMETERS"),
                                        configParameters("CONFIG_PARAMETERS"){
@@ -150,4 +153,30 @@ void AuxiliaryWindow2::handlePistonChange(UINT id) {
 
 void AuxiliaryWindow2::handleAbberations() {
 	DM.add_Changes();
+}
+
+DmCore AuxiliaryWindow2::GetCore() {
+	return DM.getCore();
+}
+
+void AuxiliaryWindow2::handleNewConfig(std::ofstream& newFile) {
+	DM.getCore().handleNewConfig( newFile );
+}
+
+void AuxiliaryWindow2::handleOpeningConfig(std::ifstream& configFile, Version ver) {
+	try {
+		if (ver >= Version("4.7"))
+		{
+			//ProfileSystem::standardOpenConfig(configFile, DM.getCore().getDelim(), &(DM.getCore()), Version("4.5"));
+		}
+	}
+	catch (Error&)
+	{
+		throwNested("Auxiliary Window failed to read parameters from the configuration file.");
+	}
+}
+
+
+void AuxiliaryWindow2::handleSaveConfig(std::ofstream& newFile) {
+	DM.getCore().handleSaveConfig(newFile);
 }

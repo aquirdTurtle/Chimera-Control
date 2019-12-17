@@ -85,7 +85,7 @@ void BaslerWindow::passCommonCommand ( UINT id )
 {
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this );
+		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this, auxWin2 );
 	}
 	catch ( Error& err )
 	{

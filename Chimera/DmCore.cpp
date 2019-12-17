@@ -82,3 +82,17 @@ std::vector<double> DmCore::getActuatorValues() {
 	readDMArray(valueArray);
 	return valueArray;
 }
+
+void DmCore::handleNewConfig(std::ofstream& newFile) {
+	newFile << "DM\n";
+	// nothing at the moment.
+	newFile << "END_DM\n";
+}
+
+void DmCore::handleOpeningConfig(std::ifstream& configFile, Version ver) {
+
+}
+
+void DmCore::handleSaveConfig(std::ofstream& newFile) {
+
+}

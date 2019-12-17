@@ -106,7 +106,7 @@ bool AndorWindow::wantsAutoCal( )
 
 void AndorWindow::calibrate( )
 {
-	commonFunctions::calibrateCameraBackground(scriptWin, mainWin, this, auxWin );
+	commonFunctions::calibrateCameraBackground(scriptWin, mainWin, this, auxWin, auxWin2 );
 }
 
 
@@ -1716,7 +1716,7 @@ void AndorWindow::passCommonCommand(UINT id)
 	try
 	{
 		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, 
-											  auxWin, basWin );
+											  auxWin, basWin, auxWin2 );
 	}
 	catch (Error& err)
 	{

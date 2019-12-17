@@ -398,3 +398,7 @@ void DmControl::add_Changes() {
 	loadProfile("currentLoadOut");
 }
 
+DmCore DmControl::getCore() {
+	return defObject;
+}
+

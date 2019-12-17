@@ -173,6 +173,7 @@ class MainWindow : public CDialog
 		EmbeddedPythonHandler& getPython ( );
 		NiawgController& getNiawg ( );
 		Communicator& getCommRef ( );
+		
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -218,7 +219,7 @@ class MainWindow : public CDialog
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, AndorWindow* camWin,
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, AuxiliaryWindow2 *auxWin2 );
 		CDialog* appSplash;
 };
 

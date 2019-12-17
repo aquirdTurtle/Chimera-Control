@@ -30,6 +30,9 @@ class AuxiliaryWindow2 : public CDialog
 		void handlePistonChange(UINT id);
 		void handleNewProfile();
 		void handleAbberations();
+		void handleNewConfig(std::ofstream& newFile);
+		void handleOpeningConfig(std::ifstream& configFile, Version ver);
+		void handleSaveConfig(std::ofstream& newFile);
 	
 		BOOL OnInitDialog();
 		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_,
@@ -40,6 +43,7 @@ class AuxiliaryWindow2 : public CDialog
 		void OnSize(UINT nType, int cx, int cy);
 		void OnPaint();
 		void passCommonCommand(UINT id);
+		DmCore GetCore();
 
 		cToolTips toolTips;
 	

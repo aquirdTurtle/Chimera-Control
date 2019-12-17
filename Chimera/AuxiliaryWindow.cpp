@@ -214,7 +214,7 @@ void AuxiliaryWindow::passCommonCommand ( UINT id )
 {
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, this, basWin );
+		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, this, basWin, auxWin2 );
 	}
 	catch ( Error& err )
 	{
@@ -292,7 +292,7 @@ void AuxiliaryWindow::autoOptimize ( )
 			return;
 		}
 		optimizer.reset ( );
-		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, mainWin, scriptWin, camWin, this, basWin );
+		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, mainWin, scriptWin, camWin, this, basWin, auxWin2 );
 	}
 	catch ( Error& err )
 	{

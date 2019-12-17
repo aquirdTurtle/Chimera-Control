@@ -784,7 +784,7 @@ void ScriptingWindow::considerScriptLocations()
 void ScriptingWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin );
+	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin, auxWin2 );
 }
 
 

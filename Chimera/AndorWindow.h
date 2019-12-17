@@ -100,7 +100,7 @@ class AndorWindow : public CDialog
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
 														  ScriptingWindow* scriptWin, AndorWindow* camWin, 
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, AuxiliaryWindow2* auxWin2 );
 		void passAtomGridCombo( );
 		void passDelGrid( );
 		void startAtomCruncher(AllExperimentInput& input);

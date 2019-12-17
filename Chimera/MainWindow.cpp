@@ -199,21 +199,21 @@ LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
 void MainWindow::onMotNumCalFin ( )
 {
 	commonFunctions::handleCommonMessage ( ID_MOT_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
-										   TheAuxiliaryWindow, TheBaslerWindow );
+										   TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2 );
 }
 
 
 void MainWindow::onMotTempCalFin ( )
 {
 	commonFunctions::handleCommonMessage ( ID_PGC_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
-										   TheAuxiliaryWindow, TheBaslerWindow );
+										   TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 }
 
 
 void MainWindow::onPgcTempCalFin ( )
 {
 	commonFunctions::handleCommonMessage ( ID_GREY_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
-										   TheAuxiliaryWindow, TheBaslerWindow );
+										   TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 }
 
 
@@ -229,7 +229,7 @@ void MainWindow::onMachineOptRoundFin (  )
 	Sleep ( 1000 );
 	// then restart.
 	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, this, TheScriptingWindow, TheAndorWindow, 
-										   TheAuxiliaryWindow, TheBaslerWindow );
+										   TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 }
 
 
@@ -332,7 +332,7 @@ void MainWindow::passConfigPress( )
 	try
 	{
 		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, 
-										  TheBaslerWindow );
+										  TheBaslerWindow, TheAuxiliaryWindow2);
 	}
 	catch ( Error& err )
 	{
@@ -1007,7 +1007,7 @@ void MainWindow::passCommonCommand(UINT id)
 	try
 	{
 		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheAndorWindow, 
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 	}
 	catch (Error& exception)
 	{
@@ -1182,13 +1182,13 @@ seqSettings MainWindow::getSeqSettings( )
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow );
+	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow );
+	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 }
 
 
@@ -1483,7 +1483,7 @@ void MainWindow::onNormalFinishMessage()
 	if ( autoF5_AfterFinish )
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheAuxiliaryWindow2);
 		autoF5_AfterFinish = false;
 	}
 }
