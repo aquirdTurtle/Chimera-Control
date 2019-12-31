@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "RohdeSchwarzCore.h"
+#include "MicrowaveCore.h"
 
 
-RohdeSchwarzCore::RohdeSchwarzCore() : gpibFlume (RSG_ADDRESS, RSG_SAFEMODE) {}
+MicrowaveCore::MicrowaveCore() : gpibFlume (RSG_ADDRESS, RSG_SAFEMODE) {}
 
-void RohdeSchwarzCore::programRsg (UINT variationNumber)
+void MicrowaveCore::programRsg (UINT variationNumber)
 {
 	if (events[variationNumber].size () == 0)
 	{
@@ -44,13 +44,13 @@ void RohdeSchwarzCore::programRsg (UINT variationNumber)
 	}
 }
 
-std::string RohdeSchwarzCore::queryIdentity ()
+std::string MicrowaveCore::queryIdentity ()
 {
 	return gpibFlume.queryIdentity ();
 }
 
 
-void RohdeSchwarzCore::setFmSettings ()
+void MicrowaveCore::setFmSettings ()
 {
 	gpibFlume.send ("SOURCE:PM1:STATe OFF");
 	gpibFlume.send ("SOURCE:FM:MODE NORMal");
@@ -61,7 +61,7 @@ void RohdeSchwarzCore::setFmSettings ()
 }
 
 
-void RohdeSchwarzCore::setPmSettings ()
+void MicrowaveCore::setPmSettings ()
 {
 	gpibFlume.send ("SOURCE:FM1:STATe OFF");
 	gpibFlume.send ("SOURCE:PM:MODE HDEViation");
@@ -75,7 +75,7 @@ void RohdeSchwarzCore::setPmSettings ()
  * The following function takes the existing list of events (already evaluated for a particular variation) and
  * orders them in time.
  */
-void RohdeSchwarzCore::orderEvents (UINT variation)
+void MicrowaveCore::orderEvents (UINT variation)
 {
 	std::vector<rsgEvent> newOrder;
 	for (auto event : events[variation])
@@ -108,7 +108,7 @@ void RohdeSchwarzCore::orderEvents (UINT variation)
 }
 
 
-void RohdeSchwarzCore::interpretKey (std::vector<std::vector<parameterType>>& params)
+void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& params)
 {
 	UINT variations;
 	UINT sequencNumber;
@@ -158,31 +158,31 @@ void RohdeSchwarzCore::interpretKey (std::vector<std::vector<parameterType>>& pa
 }
 
 // Essentially gets called by a script command.
-void RohdeSchwarzCore::addFrequency (rsgEventForm info)
+void MicrowaveCore::addFrequency (rsgEventForm info)
 {
 	eventForms.push_back (info);
 }
 
 
-void RohdeSchwarzCore::clearFrequencies ()
+void MicrowaveCore::clearFrequencies ()
 {
 	eventForms.clear ();
 	events.clear ();
 }
 
-std::vector<rsgEventForm> RohdeSchwarzCore::getFrequencyForms ()
+std::vector<rsgEventForm> MicrowaveCore::getFrequencyForms ()
 {
 	return eventForms;
 }
 
 
-std::pair<DioRows::which, UINT> RohdeSchwarzCore::getRsgTriggerLine ()
+std::pair<DioRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 {
 	return rsgTriggerLine;
 }
 
 
-UINT RohdeSchwarzCore::getNumTriggers (UINT variationNumber)
+UINT MicrowaveCore::getNumTriggers (UINT variationNumber)
 {
 	return events[variationNumber].size () == 1 ? 0 : events[variationNumber].size ();
 }

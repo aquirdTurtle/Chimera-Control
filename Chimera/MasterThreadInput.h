@@ -5,7 +5,7 @@
 #include "AoSystem.h"
 #include "AiSystem.h"
 #include "ParameterSystem.h"
-#include "RhodeSchwarz.h"
+#include "MicrowaveCore.h"
 #include "GpibFlume.h"
 #include "DebugOptionsControl.h"
 #include "Agilent.h"
@@ -74,7 +74,7 @@ struct ExperimentThreadInput
 	std::vector<std::vector<parameterType>> parameters;
 	MasterThreadManager* thisObj;
 	Communicator& comm;
-	RohdeSchwarzCore& rsg;
+	MicrowaveCore& rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
 	TektronicsAfgControl& topBottomTek;

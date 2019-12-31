@@ -18,10 +18,10 @@ struct rsgEvent
 	double time;
 };
 
-class RohdeSchwarzCore
+class MicrowaveCore
 {
 	public:
-		RohdeSchwarzCore ();
+		MicrowaveCore ();
 		std::string queryIdentity ();
 		void orderEvents (UINT variation);
 		void setFmSettings ();

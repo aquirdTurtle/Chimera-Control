@@ -240,7 +240,7 @@
     <ClInclude Include="PiezoFlume.h" />
     <ClInclude Include="PiezoType.h" />
     <ClInclude Include="Queues.h" />
-    <ClInclude Include="RohdeSchwarzCore.h" />
+    <ClInclude Include="MicrowaveCore.h" />
     <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="SerialPiezoFlume.h" />
     <ClInclude Include="softwareAccumulationOption.h" />
@@ -309,7 +309,7 @@
     <ClInclude Include="rerngOptionStructures.h" />
     <ClInclude Include="rerngGuiControl.h" />
     <ClInclude Include="Repetitions.h" />
-    <ClInclude Include="RhodeSchwarz.h" />
+    <ClInclude Include="MicrowaveSystem.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="AndorRunMode.h" />
     <ClInclude Include="Script.h" />
@@ -375,7 +375,7 @@
     <ClCompile Include="PiezoCore.cpp" />
     <ClCompile Include="PiezoFlume.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
-    <ClCompile Include="RohdeSchwarzCore.cpp" />
+    <ClCompile Include="MicrowaveCore.cpp" />
     <ClCompile Include="SegmentEnd.cpp" />
     <ClCompile Include="SerialPiezoFlume.cpp" />
     <ClCompile Include="StartDialog.cpp" />
@@ -425,7 +425,7 @@
     <ClCompile Include="range.cpp" />
     <ClCompile Include="rerngGuiControl.cpp" />
     <ClCompile Include="Repetitions.cpp" />
-    <ClCompile Include="RhodeSchwarz.cpp" />
+    <ClCompile Include="MicrowaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="scriptedAgilentWaveform.cpp" />
     <ClCompile Include="ScriptingWindow.cpp" />
