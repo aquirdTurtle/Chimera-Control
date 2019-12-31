@@ -74,7 +74,7 @@ struct ExperimentThreadInput
 	std::vector<std::vector<parameterType>> parameters;
 	MasterThreadManager* thisObj;
 	Communicator& comm;
-	RohdeSchwarz& rsg;
+	RohdeSchwarzCore& rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
 	TektronicsAfgControl& topBottomTek;

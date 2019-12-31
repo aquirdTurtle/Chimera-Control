@@ -578,9 +578,9 @@ TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
 }
 
 
-RohdeSchwarz& AuxiliaryWindow::getRsg ( )
+RohdeSchwarzCore& AuxiliaryWindow::getRsg ( )
 {
-	return RhodeSchwarzGenerator;
+	return RhodeSchwarzGenerator.getCore();
 }
 
 // MESSAGE MAP FUNCTION

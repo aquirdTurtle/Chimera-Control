@@ -1,5 +1,6 @@
 t = 1
 on: a5
+rsg: 10000000 -5
 t += 5
 off: a5
 dac: dac0 1

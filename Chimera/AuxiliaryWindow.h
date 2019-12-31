@@ -154,7 +154,7 @@ class AuxiliaryWindow : public CDialog
 		DioSystem& getTtlBoard ( );
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
-		RohdeSchwarz& getRsg ( );
+		RohdeSchwarzCore& getRsg ( );
 		TektronicsAfgControl& getTopBottomTek ( );
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
