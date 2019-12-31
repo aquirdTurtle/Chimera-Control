@@ -240,6 +240,7 @@
     <ClInclude Include="PiezoFlume.h" />
     <ClInclude Include="PiezoType.h" />
     <ClInclude Include="Queues.h" />
+    <ClInclude Include="RohdeSchwarzCore.h" />
     <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="SerialPiezoFlume.h" />
     <ClInclude Include="softwareAccumulationOption.h" />
@@ -374,6 +375,7 @@
     <ClCompile Include="PiezoCore.cpp" />
     <ClCompile Include="PiezoFlume.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
+    <ClCompile Include="RohdeSchwarzCore.cpp" />
     <ClCompile Include="SegmentEnd.cpp" />
     <ClCompile Include="SerialPiezoFlume.cpp" />
     <ClCompile Include="StartDialog.cpp" />

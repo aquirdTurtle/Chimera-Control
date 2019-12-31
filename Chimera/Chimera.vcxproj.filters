@@ -308,6 +308,7 @@
     <ClCompile Include="SerialPiezoFlume.cpp">
       <Filter>PiezoControllers</Filter>
     </ClCompile>
+    <ClCompile Include="RohdeSchwarzCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -719,6 +720,7 @@
     <ClInclude Include="CmdLibrary.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
+    <ClInclude Include="RohdeSchwarzCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

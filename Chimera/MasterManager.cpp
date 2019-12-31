@@ -416,7 +416,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			if ( useAuxDevices )
 			{
 				input->rsg.programRsg ( variationInc );
-				input->rsg.setInfoDisp ( variationInc );
+				//input->rsg.setInfoDisp ( variationInc );
 			}
 			// program devices
 			if ( useAuxDevices )
@@ -589,7 +589,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 
 void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
 												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
-												RohdeSchwarz& rsg, std::vector<parameterType>& vars,
+												RohdeSchwarzCore& rsg, std::vector<parameterType>& vars,
 												ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
 												std::string& warnings, timeType& operationTime, std::vector<timeType>& loadSkipTime )
 {
@@ -701,7 +701,7 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 
 void MasterThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
 											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-											std::vector<UINT>& dacShades, RohdeSchwarz& rsg, 
+											std::vector<UINT>& dacShades, RohdeSchwarzCore& rsg, 
 											std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
 											timeType& operationTime, std::string callingScope )
 {	
@@ -1556,7 +1556,7 @@ void MasterThreadManager::checkTriggerNumbers (ExperimentThreadInput* input, boo
 
 bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											  DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-											  std::vector<UINT>& dacShades, RohdeSchwarz& rsg, UINT seqNum, std::string& warnings,
+											  std::vector<UINT>& dacShades, RohdeSchwarzCore& rsg, UINT seqNum, std::string& warnings,
 											  std::string callingFunction, timeType& operationTime )
 {
 	if ( word != "call" )
