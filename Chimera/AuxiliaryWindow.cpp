@@ -578,7 +578,7 @@ TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
 }
 
 
-RohdeSchwarzCore& AuxiliaryWindow::getRsg ( )
+MicrowaveCore& AuxiliaryWindow::getRsg ( )
 {
 	return RhodeSchwarzGenerator.getCore();
 }

@@ -13,7 +13,7 @@
 #include "RunInfo.h"
 #include "RichEditControl.h"
 #include "Repetitions.h"
-#include "RhodeSchwarz.h"
+#include "MicrowaveSystem.h"
 #include "GpibFlume.h"
 #include "MasterConfiguration.h"
 #include "Agilent.h"
@@ -154,7 +154,7 @@ class AuxiliaryWindow : public CDialog
 		DioSystem& getTtlBoard ( );
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
-		RohdeSchwarzCore& getRsg ( );
+		MicrowaveCore& getRsg ( );
 		TektronicsAfgControl& getTopBottomTek ( );
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
@@ -172,7 +172,7 @@ class AuxiliaryWindow : public CDialog
 		std::string title;
 		toolTipTextMap toolTipText;
 		/// control system classes
-		RohdeSchwarz RhodeSchwarzGenerator;
+		MicrowaveSystem RhodeSchwarzGenerator;
 		std::array<Agilent, 4> agilents;
 
 		std::vector<PlotCtrl*> aoPlots;

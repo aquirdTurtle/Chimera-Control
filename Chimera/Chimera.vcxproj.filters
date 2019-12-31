@@ -22,9 +22,6 @@
     <ClCompile Include="ScriptingWindow.cpp">
       <Filter>Scripting Window</Filter>
     </ClCompile>
-    <ClCompile Include="RhodeSchwarz.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Repetitions.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
@@ -308,7 +305,10 @@
     <ClCompile Include="SerialPiezoFlume.cpp">
       <Filter>PiezoControllers</Filter>
     </ClCompile>
-    <ClCompile Include="RohdeSchwarzCore.cpp" />
+    <ClCompile Include="MicrowaveCore.cpp" />
+    <ClCompile Include="MicrowaveSystem.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -334,9 +334,6 @@
     </ClInclude>
     <ClInclude Include="ScriptingWindow.h">
       <Filter>Scripting Window</Filter>
-    </ClInclude>
-    <ClInclude Include="RhodeSchwarz.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Repetitions.h">
       <Filter>Main Window</Filter>
@@ -720,7 +717,10 @@
     <ClInclude Include="CmdLibrary.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
-    <ClInclude Include="RohdeSchwarzCore.h" />
+    <ClInclude Include="MicrowaveCore.h" />
+    <ClInclude Include="MicrowaveSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

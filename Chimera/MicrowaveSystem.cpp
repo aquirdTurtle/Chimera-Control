@@ -1,13 +1,13 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-#include "RhodeSchwarz.h"
+#include "MicrowaveSystem.h"
 #include "GpibFlume.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 
-RohdeSchwarz::RohdeSchwarz() {}
+MicrowaveSystem::MicrowaveSystem() {}
 
-std::string RohdeSchwarz::getIdentity()
+std::string MicrowaveSystem::getIdentity()
 {
 	return core.queryIdentity();
 }
@@ -17,7 +17,7 @@ std::string RohdeSchwarz::getIdentity()
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void RohdeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
 	// controls
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
@@ -37,14 +37,14 @@ void RohdeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow*
 }
 
 
-void RohdeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
+void MicrowaveSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
 	infoControl.rearrange( width, height, fonts);
 }
 
 
-void RohdeSchwarz::setInfoDisp(UINT variation)
+void MicrowaveSystem::setInfoDisp(UINT variation)
 {
 	infoControl.DeleteAllItems();
 	int count = 0;
@@ -59,7 +59,7 @@ void RohdeSchwarz::setInfoDisp(UINT variation)
 	*/
 }
 
-RohdeSchwarzCore& RohdeSchwarz::getCore ()
+MicrowaveCore& MicrowaveSystem::getCore ()
 {
 	return core;
 }
