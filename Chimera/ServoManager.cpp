@@ -102,16 +102,17 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 1,  "Active?", 50 );
 	servoList.InsertColumn ( 2,  "Set (V)" );
 	servoList.InsertColumn ( 3,  "Ctrl (V)");
-	servoList.InsertColumn ( 4,  "dCtrl (V)", 60);
+	servoList.InsertColumn ( 4,  "dCtrl (%)", 60);
 	servoList.InsertColumn ( 5,  "Res (V)", 50);
-	servoList.InsertColumn ( 6,  "Ai", 35 );
-	servoList.InsertColumn ( 7,  "Ao" );
-	servoList.InsertColumn ( 8,  "DO-Config", 90 );
-	servoList.InsertColumn ( 9,  "Tolerance", 70 );
-	servoList.InsertColumn ( 10,  "Gain", 45 );
-	servoList.InsertColumn ( 11,  "Monitor?", 70 );
-	servoList.InsertColumn ( 12, "AO-Config", 150);
-	servoList.InsertColumn ( 13, "Avgs", 50);
+	servoList.InsertColumn ( 6,  "dRes (%)", 60);
+	servoList.InsertColumn ( 7,  "Ai", 35 );
+	servoList.InsertColumn ( 8,  "Ao" );
+	servoList.InsertColumn ( 9,  "DO-Config", 90 );
+	servoList.InsertColumn ( 10,  "Tolerance", 70 );
+	servoList.InsertColumn ( 11,  "Gain", 45 );
+	servoList.InsertColumn ( 12,  "Monitor?", 70 );
+	servoList.InsertColumn ( 13, "AO-Config", 150);
+	servoList.InsertColumn ( 14, "Avgs", 50);
 
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
@@ -292,8 +293,9 @@ void ServoManager::handleListViewClick ( )
 		case 3: // control value, unresponsive
 		case 4: // control change, unresponsive
 		case 5: // result value, unresponsive
+		case 6: // result change, unresponsive
 			break;
-		case 6:
+		case 7:
 		{	// ai
 			std::string aiTxt;
 			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at." );
@@ -308,7 +310,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 7:
+		case 8:
 		{	// ao			
 			std::string aoTxt;
 			TextPromptDialog dialog ( &aoTxt, "Please enter a the analog-output for the servo to use for control." );
@@ -323,7 +325,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 8:
+		case 9:
 		{	// Digital-output config
 			std::string doTxt;
 			TextPromptDialog dialog ( &doTxt, "Please enter the digital outputs that must be on for the calibration. "
@@ -349,7 +351,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
  		}
-		case 9:
+		case 10:
 		{	// tolerance
 			std::string tolTxt;
 			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo." );
@@ -364,7 +366,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 10:
+		case 11:
 		{	// gain 
 			std::string gainTxt;
 			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo." );
@@ -379,12 +381,12 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 11:
+		case 12:
 		{	// monitor only toggle
 			servo.monitorOnly = !servo.monitorOnly;
 			break;
 		}
-		case 12:
+		case 13:
 		{	// Analog-output config
 			std::string aoTxt;
 			TextPromptDialog dialog (&aoTxt, "Please enter the Analog outputs that must be on for the calibration. "
@@ -415,7 +417,7 @@ void ServoManager::handleListViewClick ( )
 			}
 			break;
 		}
-		case 13:
+		case 14:
 		{
 			std::string numAvgsTxt;
 			TextPromptDialog dialog (&numAvgsTxt, "Please enter a number (>1) of ai averages for the servo.");
