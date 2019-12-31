@@ -170,6 +170,12 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			{
 				return _myRGBs["Solarized Violet"];
 			}
+			if (word == "gen" + str (num + 1) + "const_v" || word == "gen" + str (num + 1) + "ampramp_v"
+				|| word == "gen" + str (num + 1) + "freqramp_v" || word == "gen" + str (num + 1) + "freq&ampramp_v")
+			{
+				return _myRGBs["Solarized Violet"];
+			}
+
 		}
 		if ( word == "flash" || word == "rearrange" || word == "horizontal" || word == "vertical" )
 		{
