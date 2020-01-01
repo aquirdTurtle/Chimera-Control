@@ -22,6 +22,7 @@ class MicrowaveSystem
 		MicrowaveSystem();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* parentWin, int& id );
 		void handleListviewDblClick ();
+		void handleListviewRClick ();
 		std::string getIdentity();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		MicrowaveCore& getCore ();
@@ -29,13 +30,14 @@ class MicrowaveSystem
 		static const std::string delim;
 		static microwaveSettings getMicrowaveSettingsFromConfig (std::ifstream& openFile, Version ver);
 		void setMicrowaveSettings (microwaveSettings settings);
+		void programNow (std::vector<std::vector<parameterType>> constants);
 	private:
 		MicrowaveCore core;
 		Control<CStatic> header;
 		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.
 		Control<MyListCtrl> uwListListview;
-		Control<CleanCheck> controlOption;
-		Control<CleanPush> programNow;
+		Control<CleanCheck> controlOptionCheck;
+		Control<CleanPush> programNowPush;
 		std::vector<microwaveListEntry> currentList;
 		void refreshListview ();
 };

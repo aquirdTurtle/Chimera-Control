@@ -11,7 +11,7 @@ MicrowaveSystem::MicrowaveSystem() {}
 const std::string MicrowaveSystem::delim = "MICROWAVE_SYSTEM";
 
 std::string MicrowaveSystem::getIdentity()
-{
+{ 
 	return core.queryIdentity();
 }
 
@@ -27,11 +27,11 @@ void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWind
 	header.Create( "Microwave System", NORM_HEADER_OPTIONS, header.sPos, master, id++ );
 	header.fontType = fontTypes::HeadingFont;
 
-	controlOption.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 20 };
-	controlOption.Create ("Control?", NORM_CHECK_OPTIONS, controlOption.sPos, master, id++);
+	controlOptionCheck.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 20 };
+	controlOptionCheck.Create ("Control?", NORM_CHECK_OPTIONS, controlOptionCheck.sPos, master, id++);
 
-	programNow.sPos = { pos.x+240, pos.y, pos.x + 480, pos.y += 20 };
-	programNow.Create ("Program Now", NORM_PUSH_OPTIONS, controlOption.sPos, master, IDC_UW_SYSTEM_PROGRAM_NOW);
+	programNowPush.sPos = { pos.x+240, pos.y, pos.x + 480, pos.y += 20 };
+	programNowPush.Create ("Program Now", NORM_PUSH_OPTIONS, controlOptionCheck.sPos, master, IDC_UW_SYSTEM_PROGRAM_NOW);
 
 	uwListListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
 	uwListListview.Create( NORM_LISTVIEW_OPTIONS, uwListListview.sPos, master, IDC_UW_SYSTEM_LISTVIEW );
@@ -46,11 +46,21 @@ void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWind
 	pos.y += 100;
 }
 
+void MicrowaveSystem::programNow(std::vector<std::vector<parameterType>> constants)
+{
+	microwaveSettings settings;
+	// ignore the check if the user literally presses program now.
+	settings.control = true;
+	settings.list = currentList;
+	core.interpretKey (constants, settings);
+	core.programRsg (0, settings);
+}
+
 
 void MicrowaveSystem::handleSaveConfig (std::ofstream& saveFile)
 {
 	saveFile << delim << "\n";
-	saveFile << controlOption.GetCheck () << "\n";
+	saveFile << controlOptionCheck.GetCheck () << "\n";
 	saveFile << currentList.size () << "\n";
 	for (auto listElem : currentList)
 	{
@@ -93,8 +103,47 @@ microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (std::ifstream
 
 void MicrowaveSystem::setMicrowaveSettings (microwaveSettings settings)
 {
-	controlOption.SetCheck (settings.control);
+	controlOptionCheck.SetCheck (settings.control);
 	currentList = settings.list;
+	refreshListview ();
+}
+
+
+void MicrowaveSystem::handleListviewRClick ()
+{
+	POINT cursorPos;
+	GetCursorPos (&cursorPos);
+	uwListListview.ScreenToClient (&cursorPos);
+	int subitemIndicator = uwListListview.HitTest (cursorPos);
+	LVHITTESTINFO myItemInfo;
+	memset (&myItemInfo, 0, sizeof (LVHITTESTINFO));
+	myItemInfo.pt = cursorPos;
+	int itemIndicator = uwListListview.SubItemHitTest (&myItemInfo);
+	if (itemIndicator == -1 || itemIndicator == currentList.size ())
+	{
+		// user didn't click in a deletable item.
+		return;
+	}
+	int answer;
+	if (UINT (itemIndicator) < currentList.size ())
+	{
+		answer = promptBox ("Delete List Element #" + str(itemIndicator+1) + "?", MB_YESNO);
+		if (answer == IDYES)
+		{
+			uwListListview.DeleteItem (itemIndicator);
+			currentList.erase (currentList.begin () + itemIndicator);
+		}
+
+	}
+	else if (UINT (itemIndicator) > currentList.size ())
+	{
+		answer = promptBox ("You appear to have found a bug with the listview control... there are too many lines "
+			"in this control. Clear this line?", MB_YESNO);
+		if (answer == IDYES)
+		{
+			uwListListview.DeleteItem (itemIndicator);
+		}
+	}
 	refreshListview ();
 }
 
@@ -150,8 +199,8 @@ void MicrowaveSystem::handleListviewDblClick ()
 void MicrowaveSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
-	controlOption.rearrange (width, height, fonts);
-	programNow.rearrange (width, height, fonts);
+	controlOptionCheck.rearrange (width, height, fonts);
+	programNowPush.rearrange (width, height, fonts);
 	uwListListview.rearrange( width, height, fonts);
 }
 

@@ -70,7 +70,8 @@ struct ExperimentThreadInput
 	DdsCore& dds;
 	std::vector<PiezoCore*> piezoControllers;
 	ScanRangeInfo variableRangeInfo;
-	// believe outer layer here is for sequence increment
+	// believe outer layer here is for sequence increment. 
+	// TODO: this should be loaded from config file, not gui thread.
 	std::vector<std::vector<parameterType>> parameters;
 	MasterThreadManager* thisObj;
 	Communicator& comm;

@@ -242,6 +242,7 @@
     <ClInclude Include="PiezoType.h" />
     <ClInclude Include="Queues.h" />
     <ClInclude Include="MicrowaveCore.h" />
+    <ClInclude Include="RsgFlume.h" />
     <ClInclude Include="SegmentEnd.h" />
     <ClInclude Include="SerialPiezoFlume.h" />
     <ClInclude Include="softwareAccumulationOption.h" />
@@ -345,6 +346,7 @@
     <ClInclude Include="viewpointFlume.h" />
     <ClInclude Include="viewpointStructures.h" />
     <ClInclude Include="VisaFlume.h" />
+    <ClInclude Include="WindFreakFlume.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agilent.cpp" />
@@ -377,6 +379,7 @@
     <ClCompile Include="PiezoFlume.cpp" />
     <ClCompile Include="rerngOptionStructures.cpp" />
     <ClCompile Include="MicrowaveCore.cpp" />
+    <ClCompile Include="RsgFlume.cpp" />
     <ClCompile Include="SegmentEnd.cpp" />
     <ClCompile Include="SerialPiezoFlume.cpp" />
     <ClCompile Include="StartDialog.cpp" />
@@ -457,6 +460,7 @@
     <ClCompile Include="UintEdit.cpp" />
     <ClCompile Include="viewpointFlume.cpp" />
     <ClCompile Include="VisaFlume.cpp" />
+    <ClCompile Include="WindFreakFlume.cpp" />
     <ClCompile Include="WinSerialFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
