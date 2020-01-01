@@ -12,12 +12,12 @@ AnalogOutput::AnalogOutput( )
 void AnalogOutput::initialize ( POINT& pos, CWnd* parent, int id, cToolTips& toolTips, int whichDac)
 {
 	// create label
-	label.sPos = { pos.x, pos.y, pos.x + 20, pos.y + 25 };
+	label.sPos = { pos.x, pos.y, pos.x + 20, pos.y + 20 };
 	label.Create ( cstr(whichDac), WS_CHILD | WS_VISIBLE | SS_CENTER,
 								 label.sPos, parent, id++ );
 	label.setToolTip ( info.name + "\r\n" + info.note, toolTips, parent );
 	// create edit
-	edit.sPos = { pos.x + 20, pos.y, pos.x + 160, pos.y += 25 };
+	edit.sPos = { pos.x + 20, pos.y, pos.x + 160, pos.y += 20 };
 	edit.colorState = 0;
 	edit.Create ( WS_CHILD | WS_VISIBLE | WS_BORDER, edit.sPos, parent, ID_DAC_FIRST_EDIT + whichDac );
 	edit.SetWindowText ( "0" );

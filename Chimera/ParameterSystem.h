@@ -108,8 +108,7 @@ class ParameterSystem
 		// Only 2 gui elements.
 		Control<CStatic> parametersHeader;
 		Control<MyListCtrl> parametersListview;
-		// most important member, holds the settings for all current variables. Might change to have an outer vector 
-		// for each scan dimension, like so?
+		// most important member, holds the settings for all current variables. 
 		std::vector<parameterType> currentParameters;
 		// number of variations that the variables will go through.
 		UINT currentVariations;

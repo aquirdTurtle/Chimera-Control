@@ -16,7 +16,7 @@ class CameraCalibration
 		void setUse(bool option);
 	private:
 		Control<CStatic> header;
-		Control<CleanButton> calButton;
+		Control<CleanPush> calButton;
 		Control<CleanCheck> autoCalButton;
 		Control<CleanCheck> useButton;
 };

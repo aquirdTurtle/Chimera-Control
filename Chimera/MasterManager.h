@@ -32,9 +32,9 @@ class MasterThreadManager
 		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript );
 		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
 		static void checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
-										  UINT variations );
+										  UINT variations, microwaveSettings settings);
 		static void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								  std::vector<UINT>& dacShades, MicrowaveCore& rsg, std::vector<parameterType>& vars, 
+								  std::vector<UINT>& dacShades, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
 								  std::string& warnings, timeType& operationTime, std::vector<timeType>& loadSkipTime);
 
@@ -54,7 +54,7 @@ class MasterThreadManager
 									  std::string scope, timeType& operationTime);
 		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 										DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-										std::vector<UINT>& dacShades, MicrowaveCore& rsg, UINT seqNum, std::string& warnings,
+										std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
 										std::string callingFunction, timeType& operationTime);
 		static void updatePlotX_vals (ExperimentThreadInput* input );
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
@@ -79,7 +79,7 @@ class MasterThreadManager
 		// called by analyzeMasterScript functions only.
 		static void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem& ttls, AoSystem& aoSys,
 									 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-									 MicrowaveCore& rsg, std::vector<parameterType>& vars, UINT seqNum, std::string& warnings,
+									 std::vector<parameterType>& vars, UINT seqNum, std::string& warnings,
 									 timeType& operationTime, std::string callingScope);
 		timeType operationTime;
 		bool experimentIsRunning = false;

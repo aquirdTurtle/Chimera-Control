@@ -4,36 +4,41 @@
 
 MicrowaveCore::MicrowaveCore() : gpibFlume (RSG_ADDRESS, RSG_SAFEMODE) {}
 
-void MicrowaveCore::programRsg (UINT variationNumber)
+void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings)
 {
-	if (events[variationNumber].size () == 0)
+	if (!settings.control)
 	{
-		// nothing to do.
+		return;
+	}
+	auto list = settings.list;
+	if (!settings.control || list.size () == 0)
+	{
+		// Don't program anything.
 		return;
 	}
 	else
 	{
 		setPmSettings ();
-		if (events[variationNumber].size () == 1)
+		if (list.size () == 1)
 		{
 			gpibFlume.send ("OUTPUT ON");
 			gpibFlume.send ("SOURce:FREQuency:MODE CW");
-			gpibFlume.send ("FREQ " + str (events[variationNumber][0].frequency, 13) + " GHz");
-			gpibFlume.send ("POW " + str (events[variationNumber][0].power, 13) + " dBm");
+			gpibFlume.send ("FREQ " + str (list[0].frequency.getValue(variationNumber), 13) + " GHz");
+			gpibFlume.send ("POW " + str (list[0].power.getValue (variationNumber), 13) + " dBm");
 			gpibFlume.send ("OUTP ON");
 		}
 		else
 		{
 			gpibFlume.send ("OUTP ON");
-			gpibFlume.send ("SOURce:LIST:SEL 'freqList" + str (events.size ()) + "'");
-			std::string freqList = "SOURce:LIST:FREQ " + str (events[variationNumber][0].frequency, 13) + " GHz";
-			std::string powerList = "SOURce:LIST:POW " + str (events[variationNumber][0].power, 13) + "dBm";
-			for (UINT eventInc = 1; eventInc < events[variationNumber].size (); eventInc++)
+			gpibFlume.send ("SOURce:LIST:SEL 'freqList" + str (list.size ()) + "'");
+			std::string freqList = "SOURce:LIST:FREQ " + str (list[0].frequency.getValue (variationNumber), 13) + " GHz";
+			std::string powerList = "SOURce:LIST:POW " + str (list[0].power.getValue (variationNumber), 13) + "dBm";
+			for (UINT eventInc = 1; eventInc < list.size (); eventInc++)
 			{
 				freqList += ", ";
-				freqList += str (events[variationNumber][eventInc].frequency, 13) + " GHz";
+				freqList += str (list[eventInc].frequency.getValue (variationNumber), 13) + " GHz";
 				powerList += ", ";
-				powerList += str (events[variationNumber][eventInc].power, 13) + "dBm";
+				powerList += str (list[eventInc].power.getValue (variationNumber), 13) + "dBm";
 			}
 			gpibFlume.send (cstr (freqList));
 			gpibFlume.send (cstr (powerList));
@@ -71,45 +76,13 @@ void MicrowaveCore::setPmSettings ()
 	gpibFlume.send ("SOURCE:PM1:STATe ON");
 }
 
-/*
- * The following function takes the existing list of events (already evaluated for a particular variation) and
- * orders them in time.
- */
-void MicrowaveCore::orderEvents (UINT variation)
+
+void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& params, microwaveSettings& settings)
 {
-	std::vector<rsgEvent> newOrder;
-	for (auto event : events[variation])
+	if (!settings.control)
 	{
-		bool set = false;
-		int count = 0;
-		// deal with the first case.
-		if (newOrder.size () == 0)
-		{
-			newOrder.push_back (event);
-			continue;
-		}
-
-		for (UINT eventInc = 0; eventInc < newOrder.size (); eventInc++)
-		{
-			if (newOrder[eventInc].time > event.time)
-			{
-				newOrder.insert (newOrder.begin () + count, event);
-				set = true;
-				break;
-			}
-		}
-
-		if (!set)
-		{
-			newOrder.push_back (event);
-		}
+		return;
 	}
-	events[variation] = newOrder;
-}
-
-
-void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& params)
-{
 	UINT variations;
 	UINT sequencNumber;
 	if (params.size () == 0)
@@ -126,55 +99,30 @@ void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& param
 	}
 	sequencNumber = params.size ();
 	/// imporantly, this sizes the relevant structures.
-	events.clear ();
-	events.resize (variations);
 	for (auto seqNum : range (sequencNumber))
 	{
-		for (auto variationNumber : range(variations))
+		for (auto freqInc : range(settings.list.size()))
 		{
-			for (auto freqInc : range(eventForms.size()))
-			{
-				rsgEvent event;
-				event.frequency = eventForms[freqInc].frequency.evaluate (params[seqNum], variationNumber);
-				event.power = eventForms[freqInc].power.evaluate (params[seqNum], variationNumber);
-				/// deal with time!
-				if (eventForms[freqInc].time.first.size () == 0)
-				{
-					event.time = eventForms[freqInc].time.second;
-				}
-				else
-				{
-					event.time = 0;
-					for (auto timeStr : eventForms[freqInc].time.first)
-					{
-						event.time += timeStr.evaluate (params[seqNum], variationNumber);
-					}
-					event.time += eventForms[freqInc].time.second;
-				}
-				events[variationNumber].push_back (event);
-			}
+			settings.list[freqInc].frequency.internalEvaluate (params[seqNum], variations);
+			settings.list[freqInc].power.internalEvaluate (params[seqNum], variations);
 		}
 	}
 }
 
 // Essentially gets called by a script command.
-void MicrowaveCore::addFrequency (rsgEventForm info)
+/*void MicrowaveCore::addFrequency (microwaveListEntry info)
 {
 	eventForms.push_back (info);
 }
-
-
 void MicrowaveCore::clearFrequencies ()
 {
 	eventForms.clear ();
-	events.clear ();
 }
-
-std::vector<rsgEventForm> MicrowaveCore::getFrequencyForms ()
+std::vector<microwaveListEntry> MicrowaveCore::getFrequencyForms ()
 {
 	return eventForms;
 }
-
+*/
 
 std::pair<DioRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 {
@@ -182,7 +130,8 @@ std::pair<DioRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 }
 
 
-UINT MicrowaveCore::getNumTriggers (UINT variationNumber)
+UINT MicrowaveCore::getNumTriggers (UINT variationNumber, microwaveSettings settings)
 {
-	return events[variationNumber].size () == 1 ? 0 : events[variationNumber].size ();
+	return settings.list.size () == 1 ? 0 : settings.list.size ();
 }
+

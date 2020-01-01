@@ -95,11 +95,11 @@ class DataAnalysisControl
 		bool currentlySettingAnalysisLocations;
 		Control<CStatic> currentDataSetNumberText;
 		Control<CStatic> currentDataSetNumberDisp;
-		Control<CleanButton> manualSetAnalysisLocsButton;
+		Control<CleanPush> manualSetAnalysisLocsButton;
 
 		Control<CComboBox> gridSelector;
 		Control<CStatic> gridHeader;
-		Control<CleanButton> setGridCorner;
+		Control<CleanPush> setGridCorner;
 		Control<CStatic> gridSpacingText;
 		Control<CEdit> gridSpacing;
 		Control<CStatic> gridWidthText;
@@ -117,7 +117,7 @@ class DataAnalysisControl
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
-		Control<CleanButton> deleteGrid;
+		Control<CleanPush> deleteGrid;
 
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;

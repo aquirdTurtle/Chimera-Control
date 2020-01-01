@@ -78,7 +78,7 @@
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
-	#define DIOFTDI_SAFEMODE true
+	constexpr bool DIOFTDI_SAFEMODE = true;
 	#define DDS_SAFEMODE true
 	#define BASLER_SAFEMODE true
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
@@ -507,7 +507,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_PIEZO2_PROGRAM_NOW 14155
 #define IDC_PIEZO1_CTRL 14156
 #define IDC_PIEZO2_CTRL 14157
-
+constexpr UINT IDC_UW_SYSTEM_LISTVIEW = 14158;
+constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
 // BASLER WIN CONSTS
 #define IDC_MIN_BASLER_SLIDER_EDIT 15001
 #define IDC_MAX_BASLER_SLIDER_EDIT 15002

@@ -277,7 +277,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 		{
 			collumnInc++;
 			// go to second or third collumn
-			pos.y -= 25 * outputs.size ( ) / 3;
+			pos.y -= 20 * outputs.size ( ) / 3;
 			pos.x += 160;
 		}
 		out.initialize ( pos, master, id, toolTips, dacInc );

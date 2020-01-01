@@ -19,7 +19,8 @@ class Expression
 		//Expression& operator=( const std::string& expr );
 		bool varies( );
 
-		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ), UINT variation = -1 );
+		void internalEvaluate ( std::vector<parameterType>& variables = std::vector<parameterType> ( ), 
+			UINT totalVariationNumber = -1 );
 		double getValue ( UINT variation );
 
 	private:

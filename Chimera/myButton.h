@@ -7,7 +7,7 @@
 Just a tiny wrapper to redraw which cleans up the nasty bright white borders on the default button which conflict with 
 the dark color scheme.
 */
-class CleanButton : public CMFCButton
+class CleanPush : public CMFCButton
 {
 	virtual void DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct );
 	public:

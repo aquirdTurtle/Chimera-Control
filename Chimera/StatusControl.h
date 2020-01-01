@@ -19,6 +19,6 @@ class StatusControl
 	private:
 		Control<CStatic> header;
 		Control<CRichEditCtrl> edit;
-		Control<CleanButton> clearButton;
+		Control<CleanPush> clearButton;
 		COLORREF defaultColor;
 };

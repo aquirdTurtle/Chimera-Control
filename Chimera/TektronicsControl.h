@@ -85,7 +85,7 @@ class TektronicsAfgControl
 		const std::string configDelim;
 	private:
 		Control<CStatic> header;
-		Control<CleanButton> programNow;
+		Control<CleanPush> programNow;
 		Control<CStatic> onOffLabel;
 		Control<CStatic> controlLabel;
 		Control<CStatic> fskLabel;

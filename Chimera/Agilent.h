@@ -96,7 +96,7 @@ class Agilent
 		Control<CleanCheck> calibratedButton;
 		Control<CComboBox> settingCombo;
 		Control<CStatic> optionsFormat;
-		Control<CleanButton> programNow;
+		Control<CleanPush> programNow;
 		const std::string agilentName;
 		// includes burst commands, trigger commands, etc. This is a place for any commands which don't have a 
 		// GUI control option. You could also use this to put commands that should be the same for all configurations.
