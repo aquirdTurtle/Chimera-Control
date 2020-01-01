@@ -305,9 +305,11 @@
     <ClCompile Include="SerialPiezoFlume.cpp">
       <Filter>PiezoControllers</Filter>
     </ClCompile>
-    <ClCompile Include="MicrowaveCore.cpp" />
+    <ClCompile Include="MicrowaveCore.cpp">
+      <Filter>MicrowaveSystem</Filter>
+    </ClCompile>
     <ClCompile Include="MicrowaveSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
+      <Filter>MicrowaveSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -717,9 +719,14 @@
     <ClInclude Include="CmdLibrary.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
-    <ClInclude Include="MicrowaveCore.h" />
+    <ClInclude Include="MicrowaveCore.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
     <ClInclude Include="MicrowaveSystem.h">
-      <Filter>Auxiliary Window</Filter>
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="microwaveSettings.h">
+      <Filter>MicrowaveSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -808,6 +815,9 @@
     </Filter>
     <Filter Include="PiezoControllers">
       <UniqueIdentifier>{1befae8c-1b44-42be-8ce3-3c3ecddfb6c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MicrowaveSystem">
+      <UniqueIdentifier>{e757d9d7-2044-4078-b3e8-9df8e98eec09}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

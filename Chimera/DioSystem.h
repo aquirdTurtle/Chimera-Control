@@ -147,8 +147,8 @@ class DioSystem
 		void handleInvert( );
 		// one control for each TTL
 		Control<CStatic> ttlTitle;
-		Control<CleanButton> ttlHold;
-		Control<CleanButton> zeroTtls;
+		Control<CleanPush> ttlHold;
+		Control<CleanPush> zeroTtls;
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
 		allDigitalOutputs outputs;

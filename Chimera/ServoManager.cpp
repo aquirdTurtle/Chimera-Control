@@ -220,7 +220,6 @@ void ServoManager::deleteServo ( )
 }
 
 
-
 void ServoManager::handleListViewClick ( )
 {
 	LVHITTESTINFO myItemInfo = { 0 };

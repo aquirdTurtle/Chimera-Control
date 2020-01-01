@@ -69,15 +69,15 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 	queryBetweenVariations.Create( "Qry Btwn Vars", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
 								   parent, id++ );
 	loc.x -= 480; 
-	continuousIntervalLabel.sPos = { loc.x, loc.y, loc.x + 160, loc.y + 25 };
+	continuousIntervalLabel.sPos = { loc.x, loc.y, loc.x + 160, loc.y + 20 };
 	continuousIntervalLabel.Create ("Cont. Interval:", NORM_STATIC_OPTIONS, continuousIntervalLabel.sPos, parent, id++);
-	continuousInterval.sPos = { loc.x + 160, loc.y, loc.x + 240, loc.y + 25 };
+	continuousInterval.sPos = { loc.x + 160, loc.y, loc.x + 240, loc.y + 20 };
 	continuousInterval.Create (NORM_EDIT_OPTIONS, continuousInterval.sPos, parent, id++);
 	continuousInterval.SetWindowText (cstr (AiSettings ().continuousModeInterval));
 
-	avgNumberLabel.sPos = { loc.x + 240, loc.y, loc.x + 400, loc.y + 25 };
+	avgNumberLabel.sPos = { loc.x + 240, loc.y, loc.x + 400, loc.y + 20 };
 	avgNumberLabel.Create ("# To Avg:", NORM_STATIC_OPTIONS, avgNumberLabel.sPos, parent, id++);
-	avgNumberEdit.sPos = { loc.x + 400, loc.y, loc.x + 480, loc.y += 25 };
+	avgNumberEdit.sPos = { loc.x + 400, loc.y, loc.x + 480, loc.y += 20 };
 	avgNumberEdit.Create (NORM_EDIT_OPTIONS, avgNumberEdit.sPos, parent, id++);
 	avgNumberEdit.SetWindowText (cstr (AiSettings ().numberMeasurementsToAverage));
 	
@@ -89,15 +89,15 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols )
 		{	// then next column. 
 			collumnInc++;
-			loc.y -= 25 * NUMBER_AI_CHANNELS / numCols;
+			loc.y -= 20 * NUMBER_AI_CHANNELS / numCols;
 		}
-		disp.sPos = { loc.x + 20 + collumnInc * colSize, loc.y, loc.x + (collumnInc + 1) * colSize, loc.y += 25 };
+		disp.sPos = { loc.x + 20 + collumnInc * colSize, loc.y, loc.x + (collumnInc + 1) * colSize, loc.y += 20 };
 		disp.colorState = 0;
 		disp.Create( "0", NORM_STATIC_OPTIONS, disp.sPos, parent, id++ );
 		dacInc++;
 	}
 	collumnInc = 0;
-	loc.y -= 25 * voltDisplays.size( ) / numCols;
+	loc.y -= 20 * voltDisplays.size( ) / numCols;
 
 	for ( auto dacInc : range( NUMBER_AI_CHANNELS ) )
 	{
@@ -105,9 +105,9 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols)
 		{	// then next column
 			collumnInc++;
-			loc.y -= 25 * NUMBER_AI_CHANNELS / numCols;
+			loc.y -= 20 * NUMBER_AI_CHANNELS / numCols;
 		}
-		label.sPos = { loc.x + collumnInc * colSize, loc.y, loc.x + 20 + collumnInc * colSize, loc.y += 25 };
+		label.sPos = { loc.x + collumnInc * colSize, loc.y, loc.x + 20 + collumnInc * colSize, loc.y += 20 };
 		label.Create( cstr( dacInc ), WS_CHILD | WS_VISIBLE | SS_CENTER, dacLabels[dacInc].sPos, parent, ID_DAC_FIRST_EDIT + dacInc );
 	}
 }

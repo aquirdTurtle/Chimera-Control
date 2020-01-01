@@ -69,6 +69,7 @@ class AuxiliaryWindow : public CDialog
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		void handlePlotPop (UINT id);
+		void uwDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
@@ -172,7 +173,7 @@ class AuxiliaryWindow : public CDialog
 		std::string title;
 		toolTipTextMap toolTipText;
 		/// control system classes
-		MicrowaveSystem RhodeSchwarzGenerator;
+		MicrowaveSystem RohdeSchwarzGenerator;
 		std::array<Agilent, 4> agilents;
 
 		std::vector<PlotCtrl*> aoPlots;

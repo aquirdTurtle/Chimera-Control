@@ -43,7 +43,7 @@ class DdsSystem
 		
 		Control<CStatic> ddsHeader;
 		Control<MyListCtrl> rampListview;
-		Control<CleanButton> programNowButton;
+		Control<CleanPush> programNowButton;
 		bool controlActive = true;
 		std::vector<ddsIndvRampListInfo> currentRamps;
 		DdsCore core;

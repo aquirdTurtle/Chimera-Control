@@ -234,6 +234,7 @@
     <ClInclude Include="ExpWrap.h" />
     <ClInclude Include="LongCSlider.h" />
     <ClInclude Include="MachineOptimizer.h" />
+    <ClInclude Include="microwaveSettings.h" />
     <ClInclude Include="MyListCtrl.h" />
     <ClInclude Include="PiezoController.h" />
     <ClInclude Include="PiezoCore.h" />

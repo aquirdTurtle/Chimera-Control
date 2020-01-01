@@ -99,7 +99,7 @@ class PlotCtrl
 		Gdiplus::SolidBrush* whiteBrush;
 		Control<CleanCheck> legButton;
 		Control<CleanCheck> sustainButton;
-		Control<CleanButton> popDlgBttn;
+		Control<CleanPush> popDlgBttn;
 		//std::vector<CPen*> pens;
 		std::vector<Gdiplus::SolidBrush*> brushes;
 		std::vector<Gdiplus::Pen*> pens;

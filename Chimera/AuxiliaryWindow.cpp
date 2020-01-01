@@ -88,6 +88,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsRClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_UW_SYSTEM_LISTVIEW, &AuxiliaryWindow::uwDblClick )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
@@ -103,6 +104,19 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_TIMER( )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::uwDblClick (NMHDR* pNotifyStruct, LRESULT* result) 
+{
+	try
+	{
+		RohdeSchwarzGenerator.handleListviewDblClick ();
+	}
+	catch (Error & err)
+	{
+		sendErr (err.trace ());
+	}
+}
 
 
 void AuxiliaryWindow::handlePlotPop (UINT id)
@@ -580,7 +594,7 @@ TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
 
 MicrowaveCore& AuxiliaryWindow::getRsg ( )
 {
-	return RhodeSchwarzGenerator.getCore();
+	return RohdeSchwarzGenerator.getCore();
 }
 
 // MESSAGE MAP FUNCTION
@@ -644,7 +658,7 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 
 void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 {
-	// order matters.
+	// order matters! Don't change the order here.
 	configParameters.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
 	aoSys.handleSaveConfig( saveFile );
@@ -659,6 +673,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	piezo1.handleSaveConfig ( saveFile );
 	piezo2.handleSaveConfig ( saveFile );
 	aiSys.handleSaveConfig (saveFile);
+	RohdeSchwarzGenerator.handleSaveConfig (saveFile);
 }
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
@@ -698,6 +713,8 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		ProfileSystem::standardOpenConfig ( configFile, piezo2.getConfigDelim ( ), &piezo2, Version ( "4.6" ) );
 		aiSys.setAiSettings ( ProfileSystem::stdGetFromConfig (configFile, aiSys.configDelim,
 							  AiSystem::getAiSettingsFromConfig, Version ("4.9")) );
+		RohdeSchwarzGenerator.setMicrowaveSettings (ProfileSystem::stdGetFromConfig (configFile,
+			RohdeSchwarzGenerator.delim, MicrowaveSystem::getMicrowaveSettingsFromConfig, Version ("4.10")));
 	}
 	catch ( Error& )
 	{
@@ -914,7 +931,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 		ag.rearrange( cx, cy, getFonts( ) );
 	}
 
-	RhodeSchwarzGenerator.rearrange(cx, cy, getFonts());
+	RohdeSchwarzGenerator.rearrange(cx, cy, getFonts());
 
 	ttlBoard.rearrange(cx, cy, getFonts());
 	aoSys.rearrange(cx, cy, getFonts());
@@ -1558,7 +1575,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		aiSys.initialize( controlLocation, this, id );
 		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480, TOP_BOTTOM_TEK_START);
 		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, EO_AXIAL_TEK_START );
-		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
+		RohdeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		
 		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,	   
@@ -1770,7 +1787,7 @@ std::string AuxiliaryWindow::getGpibDeviceStatus( )
 	if ( !RSG_SAFEMODE )
 	{
 		msg += "\tCode System is Active!\n";
-		msg += "\t" + RhodeSchwarzGenerator.getIdentity( );
+		msg += "\t" + RohdeSchwarzGenerator.getIdentity( );
 	}
 	else
 	{

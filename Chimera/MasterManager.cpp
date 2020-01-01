@@ -41,6 +41,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoControllers.size ( ),
 												   std::vector<bool> ( input->seq.sequence.size ( ) ));
 	std::vector<AndorRunSettings> andorRunsettings ( input->seq.sequence.size ( ) );
+	microwaveSettings uwSettings;
 	// a couple aliases.
 	auto& ttls = input->ttls;
 	auto& aoSys = input->aoSys;
@@ -78,6 +79,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
 																Repetitions::getRepsFromConfig );
+				uwSettings = ProfileSystem::stdGetFromConfig (configFile, MicrowaveSystem::delim,
+					MicrowaveSystem::getMicrowaveSettingsFromConfig);
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
 			}
@@ -139,7 +142,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 												   || input->expType == ExperimentType::Normal );
 		if ( !useAuxDevices )
 		{
-			 expUpdate ( "Non-standard experiment type, so Tektronics, RSG, and Agilents will not be run.", comm, quiet );
+			 expUpdate ( "Non-standard experiment type, so Tektronics, and Agilents will not be run.", comm, quiet );
 		}
 		else
 		{
@@ -162,7 +165,6 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			input->thisObj->loadSkipTimes.clear ( );
 			input->thisObj->loadSkipTimes.resize ( input->seq.sequence.size ( ) );
 			input->thisObj->loadSkipTime.resize ( input->seq.sequence.size ( ) );
-			input->rsg.clearFrequencies ( );
 		}
 		if ( runNiawg )
 		{
@@ -205,7 +207,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			if ( input->runMaster ) 
 			{
 				comm.sendColorBox ( System::Master, 'Y' );
-				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
+				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs,
 													 seqVariables, seq.masterStream, seqNum,
 													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
 													 input->thisObj->operationTime, input->thisObj->loadSkipTime );
@@ -266,10 +268,10 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			}
 			dds.evaluateDdsInfo ( input->parameters );
 			dds.generateFullExpInfo ( variations );
-			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );
 			input->eoAxialTek.interpretKey ( input->parameters );
 		}
+		input->rsg.interpretKey (input->parameters, uwSettings);
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
 		for ( auto seqInc : range( input->seq.sequence.size( ) ) )
@@ -282,7 +284,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				{
 					double& currLoadSkipTime = input->thisObj->loadSkipTimes[seqInc][variationInc];
 					currLoadSkipTime = MasterThreadManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
-																	 seqVariables, variationInc );
+																		   seqVariables, variationInc );
 				    // organize & format the ttl and dac commands
 					aoSys.organizeDacCommands( variationInc, seqInc );
 					aoSys.setDacTriggerEvents( ttls, variationInc, seqInc, variations );
@@ -296,10 +298,6 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					ttls.checkNotTooManyTimes( variationInc, seqInc );
 					ttls.checkFinalFormatTimes( variationInc, seqInc );
 					aoSys.checkTimingsWork( variationInc, seqInc );
-				}
-				if ( useAuxDevices )
-				{
-					input->rsg.orderEvents ( variationInc );
 				}
 			}
 		}
@@ -330,7 +328,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				}
 			}
 		}
-		MasterThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations );
+		MasterThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings );
 		/// finish up
 		if ( input->runMaster )
 		{
@@ -413,11 +411,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				input->andorCamera.armCamera ( kinTime );
 			}
 			expUpdate( "Programming Devices... ", comm, quiet );
-			if ( useAuxDevices )
-			{
-				input->rsg.programRsg ( variationInc );
-				//input->rsg.setInfoDisp ( variationInc );
-			}
+			input->rsg.programRsg (variationInc, uwSettings);
 			// program devices
 			if ( useAuxDevices )
 			{
@@ -589,9 +583,9 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 
 void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
 												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
-												MicrowaveCore& rsg, std::vector<parameterType>& vars,
-												ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
-												std::string& warnings, timeType& operationTime, std::vector<timeType>& loadSkipTime )
+												std::vector<parameterType>& vars, ScriptStream& currentMasterScript, 
+												UINT seqNum, bool expectsLoadSkip, std::string& warnings, 
+												timeType& operationTime, std::vector<timeType>& loadSkipTime )
 {
 	std::string currentMasterScriptText = currentMasterScript.str ( );
 	loadSkipTime[ seqNum ].first.clear ( );
@@ -637,16 +631,10 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 		/// Deal with RSG calls
 		else if ( word == "rsg:" )
 		{
-			rsgEventForm info;
-			currentMasterScript >> info.frequency;
-			info.frequency.assertValid ( vars, scope );
-			currentMasterScript >> info.power;
-			info.power.assertValid ( vars, scope );
-			info.time = operationTime;
-			rsg.addFrequency ( info );
+			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
 		/// deal with function calls.
-		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
+		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, seqNum,
 									   warnings, PARENT_PARAMETER_SCOPE, operationTime ) )
 		{ }
 		else if ( word == "repeat:" )
@@ -701,7 +689,7 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 
 void MasterThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
 											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-											std::vector<UINT>& dacShades, MicrowaveCore& rsg, 
+											std::vector<UINT>& dacShades, 
 											std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
 											timeType& operationTime, std::string callingScope )
 {	
@@ -782,16 +770,10 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 		/// Handle RSG calls.
 		else if ( word == "rsg:" )
 		{
-			rsgEventForm info;
-			functionStream >> info.frequency >> info.power;
-			info.frequency.assertValid ( params, scope );
-			info.power.assertValid ( params, scope );
-			// test frequency
-			info.time = operationTime;
-			rsg.addFrequency ( info );
+			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
 		/// deal with function calls.
-		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, ttlShades, dacShades, rsg, seqNum,
+		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, ttlShades, dacShades, seqNum,
 									   warnings, function, operationTime ) ) {}
 		else if ( word == "repeat:" )
 		{
@@ -1410,7 +1392,7 @@ void MasterThreadManager::callCppCodeFunction()
 bool MasterThreadManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
-		 || word == "dac:" || word == "dacarange:" || word == "daclinspace:" || word == "rsg:" || word == "call" 
+		 || word == "dac:" || word == "dacarange:" || word == "daclinspace:" || word == "call" 
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;
@@ -1446,8 +1428,8 @@ UINT MasterThreadManager::determineVariationNumber( std::vector<parameterType> v
 }
 
 
-void MasterThreadManager::checkTriggerNumbers (ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
-										  UINT variations )
+void MasterThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
+												UINT variations, microwaveSettings settings )
 {
 	/// check all trigger numbers between the DIO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
@@ -1501,7 +1483,7 @@ void MasterThreadManager::checkTriggerNumbers (ExperimentThreadInput* input, boo
 				if ( !rsgMismatch )
 				{
 					auto actualTrigs = input->ttls.countTriggers ( input->rsg.getRsgTriggerLine ( ), variationInc, seqInc );
-					auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc );
+					auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc, settings );
 					std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
 						+ str ( rsgExpectedTrigs ) + ".";
 					if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
@@ -1556,7 +1538,7 @@ void MasterThreadManager::checkTriggerNumbers (ExperimentThreadInput* input, boo
 
 bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											  DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-											  std::vector<UINT>& dacShades, MicrowaveCore& rsg, UINT seqNum, std::string& warnings,
+											  std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
 											  std::string callingFunction, timeType& operationTime )
 {
 	if ( word != "call" )
@@ -1599,7 +1581,7 @@ bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& st
 	}
 	try
 	{
-		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum, warnings, 
+		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, vars, seqNum, warnings, 
 			operationTime, callingFunction);
 	}
 	catch ( Error& )

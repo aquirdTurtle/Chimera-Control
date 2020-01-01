@@ -3,7 +3,7 @@
 #include "myButton.h"
 #include "externals.h"
 
-void CleanButton::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
+void CleanPush::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 {
 	CDC dc;
 	// Get device context object

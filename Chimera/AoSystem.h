@@ -102,8 +102,8 @@ class AoSystem
 		void setForceDacEvent (int line, double val, DioSystem* ttls, UINT variation, UINT seqNum);
 
 		Control<CStatic> dacTitle;
-		Control<CleanButton> dacSetButton;
-		Control<CleanButton> zeroDacsButton;
+		Control<CleanPush> dacSetButton;
+		Control<CleanPush> zeroDacsButton;
 		Control<CleanCheck> quickChange;
 		std::array<AnalogOutput, 24> outputs;
 

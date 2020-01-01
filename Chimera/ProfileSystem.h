@@ -119,7 +119,8 @@ class ProfileSystem
 		// Version 4.7: Added display grid check
 		// Version 4.8: Moved pics per rep and exposure times to the CameraSettingsControl part of the config.
 		// Version 4.9: added aisystem settings to config file.
-		const Version version = Version( "4.9" );
+		// Version 4.10: Added Microwave system settings to config file.
+		const Version version = Version( "4.10" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
