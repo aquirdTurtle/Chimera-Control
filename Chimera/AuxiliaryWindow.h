@@ -70,6 +70,7 @@ class AuxiliaryWindow : public CDialog
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		void handlePlotPop (UINT id);
 		void uwDblClick (NMHDR* pNotifyStruct, LRESULT* result);
+		void uwRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
@@ -160,7 +161,9 @@ class AuxiliaryWindow : public CDialog
 		TektronicsAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
 		DdsCore& getDds ( );
+		void handleProgramUwSystemNow ();
 		void programDds ( );
+		std::vector<std::vector<parameterType>> getUsableConstants ();
 	private:
 		DECLARE_MESSAGE_MAP();		
 

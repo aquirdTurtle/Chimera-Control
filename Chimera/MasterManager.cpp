@@ -55,7 +55,6 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	mainOptions mainOpts;
 	try
 	{
-		/// load config parameters from config file
 		for ( auto& configInfo : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
@@ -879,7 +878,7 @@ void MasterThreadManager::loadMotSettings(ExperimentThreadInput* input)
 		thrower ( "Experiment is Running! Please abort the current run before setting the MOT settings." );
 	}
 	input->thisObj = this;
-	ParameterSystem::generateKey( input->parameters, false, input->variableRangeInfo );
+	//ParameterSystem::generateKey( input->parameters, false, input->variableRangeInfo );
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterThreadManager::experimentThreadProcedure, input, NULL, NULL );
 }
 

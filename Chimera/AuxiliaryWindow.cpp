@@ -59,8 +59,9 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDC_DDS_PROGRAM_NOW, &programDds )
 	ON_COMMAND( IDC_PIEZO1_PROGRAM_NOW, &programPiezo1 )
 	ON_COMMAND( IDC_PIEZO2_PROGRAM_NOW, &programPiezo2 )
-	ON_COMMAND ( IDC_PIEZO1_CTRL, &handlePiezo1Ctrl)
+	ON_COMMAND ( IDC_PIEZO1_CTRL, &handlePiezo1Ctrl )
 	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
+	ON_COMMAND( IDC_UW_SYSTEM_PROGRAM_NOW, &handleProgramUwSystemNow)
 
 	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
@@ -76,7 +77,6 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, 
 					  &AuxiliaryWindow::handleAgilentCombo )
 	
-
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
@@ -88,7 +88,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsRClick )
-	ON_NOTIFY( NM_DBLCLK, IDC_UW_SYSTEM_LISTVIEW, &AuxiliaryWindow::uwDblClick )
+	ON_NOTIFY ( NM_DBLCLK, IDC_UW_SYSTEM_LISTVIEW, &AuxiliaryWindow::uwDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_UW_SYSTEM_LISTVIEW, &AuxiliaryWindow::uwRClick)
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
@@ -106,6 +107,35 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
+std::vector<std::vector<parameterType>> AuxiliaryWindow::getUsableConstants ()
+{
+	// This generates a usable set of constants (mostly for "Program Now" commands") based on the current GUI settings.
+	// imporantly, when running the experiment proper, the saved config settings are what is used to determine 
+	// parameters, not the gui setttings.
+	std::vector<parameterType> configParams = configParameters.getAllConstants ();
+	std::vector<parameterType> globals = globalParameters.getAllParams ();
+	std::vector<std::vector<parameterType>> params;
+	params.push_back (ParameterSystem::combineParametersForExperimentThread (configParams, globals));
+	ScanRangeInfo constantRange;
+	constantRange.defaultInit ();
+	ParameterSystem::generateKey (params, false, constantRange);
+	return params;
+}
+
+
+void AuxiliaryWindow::handleProgramUwSystemNow ()
+{
+	try
+	{
+		RohdeSchwarzGenerator.programNow (getUsableConstants ());
+	}
+	catch (Error & err)
+	{
+		sendErr ("Failed to program microwave system! " + err.trace ());
+	}
+}
+
+
 void AuxiliaryWindow::uwDblClick (NMHDR* pNotifyStruct, LRESULT* result) 
 {
 	try
@@ -117,6 +147,19 @@ void AuxiliaryWindow::uwDblClick (NMHDR* pNotifyStruct, LRESULT* result)
 		sendErr (err.trace ());
 	}
 }
+
+void AuxiliaryWindow::uwRClick (NMHDR* pNotifyStruct, LRESULT* result)
+{
+	try
+	{
+		RohdeSchwarzGenerator.handleListviewRClick ();
+	}
+	catch (Error & err)
+	{
+		sendErr (err.trace ());
+	}
+}
+
 
 
 void AuxiliaryWindow::handlePlotPop (UINT id)
@@ -1155,19 +1198,19 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 		input->dacData = dacData;
 		input->ttlData = ttlData;
 		/// Parameters.
-		std::vector<std::vector<parameterType>> experimentVars;
+		std::vector<std::vector<parameterType>> experimentParams;
 		for ( auto seqFile : input->seq.sequence )
 		{
 			// load the variables. This little loop is for letting configuration variables overwrite the globals.
 			// the config variables are loaded directly from the file.
 			std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( seqFile.configFilePath ( ) );
 			std::vector<parameterType> globals = globalParameters.getAllParams ( );
-			experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
+			experimentParams.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
 			globalParameters.setUsages ( { globals } );
 		}
 		input->variableRangeInfo.reset ( );
 		input->variableRangeInfo = configParameters.getRangeInfo ( );
-		input->parameters = experimentVars;
+		input->parameters = experimentParams;
 		if (aiSys.wantsQueryBetweenVariations ())
 		{
 			input->numAiMeasurements = configParameters.getTotalVariationNumber ();

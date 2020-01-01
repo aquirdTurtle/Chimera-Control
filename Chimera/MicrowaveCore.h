@@ -1,5 +1,5 @@
 #pragma once
-#include "GpibFlume.h"
+#include "RsgFlume.h"
 #include "microwaveSettings.h"
 
 
@@ -17,7 +17,6 @@ class MicrowaveCore
 	private:
 		const double triggerTime = 0.01;
 		const std::pair<DioRows::which, UINT> rsgTriggerLine = { DioRows::which::C, 3 };
-		GpibFlume gpibFlume;
-		//std::vector<microwaveListEntry> eventForms;
-
+		RsgFlume rsgFlume;
+		//GpibFlume gpibFlume;
 };

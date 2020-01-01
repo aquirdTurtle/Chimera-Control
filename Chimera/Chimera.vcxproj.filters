@@ -311,6 +311,12 @@
     <ClCompile Include="MicrowaveSystem.cpp">
       <Filter>MicrowaveSystem</Filter>
     </ClCompile>
+    <ClCompile Include="RsgFlume.cpp">
+      <Filter>MicrowaveSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="WindFreakFlume.cpp">
+      <Filter>MicrowaveSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -726,6 +732,12 @@
       <Filter>MicrowaveSystem</Filter>
     </ClInclude>
     <ClInclude Include="microwaveSettings.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="WindFreakFlume.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RsgFlume.h">
       <Filter>MicrowaveSystem</Filter>
     </ClInclude>
   </ItemGroup>
