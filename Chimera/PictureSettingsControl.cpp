@@ -514,6 +514,7 @@ void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSett
 {
 	updateColors ( inputSettings.colors );
 	setThresholds ( inputSettings.thresholdStrs );
+	setSoftwareAccumulationOptions (inputSettings.saOpts);
 }
 
 

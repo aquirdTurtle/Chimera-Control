@@ -1822,12 +1822,12 @@ std::string AuxiliaryWindow::getVisaDeviceStatus( )
 }
 
 
-std::string AuxiliaryWindow::getGpibDeviceStatus( )
+std::string AuxiliaryWindow::getMicrowaveSystemStatus( )
 {
 	std::string msg;
-	msg += "----------------------------------------------------------------------------------- GPIB Devices:\n";
-	msg += "RSG:\n";
-	if ( !RSG_SAFEMODE )
+	//msg += "----------------------------------------------------------------------------------- GPIB Devices:\n";
+	msg += "Microwave System:\n";
+	if ( !(MICROWAVE_SYSTEM_DEVICE_TYPE == microwaveDevice::NONE ))
 	{
 		msg += "\tCode System is Active!\n";
 		msg += "\t" + RohdeSchwarzGenerator.getIdentity( );

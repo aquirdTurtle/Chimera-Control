@@ -78,8 +78,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 																  MainOptionsControl::getMainOptionsFromConfig );
 				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
 																Repetitions::getRepsFromConfig );
-				uwSettings = ProfileSystem::stdGetFromConfig (configFile, MicrowaveSystem::delim,
-					MicrowaveSystem::getMicrowaveSettingsFromConfig);
+				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
+															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
 			}

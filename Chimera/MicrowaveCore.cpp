@@ -2,7 +2,12 @@
 #include "MicrowaveCore.h"
 
 
-MicrowaveCore::MicrowaveCore() : rsgFlume (RSG_ADDRESS, RSG_SAFEMODE) {}
+MicrowaveCore::MicrowaveCore() :
+	uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE)
+//	rsgFlume (RSG_ADDRESS, MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::RohdeSchwarzGenerator),
+//	wfFlume(MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::WindFreak, WIND_FREAK_ADDR)
+{
+}
 
 void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings)
 {
@@ -14,29 +19,29 @@ void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings
 	setPmSettings ();
 	if (settings.list.size () == 1)
 	{
-		rsgFlume.programSingleSetting (settings.list[0], variationNumber);
+		uwFlume.programSingleSetting (settings.list[0], variationNumber);
 	}
 	else
 	{
-		rsgFlume.programList (settings.list, variationNumber);
+		uwFlume.programList (settings.list, variationNumber);
 	}
 }
 
 std::string MicrowaveCore::queryIdentity ()
 {
-	return rsgFlume.queryIdentity ();
+	return uwFlume.queryIdentity ();
 }
 
 
 void MicrowaveCore::setFmSettings ()
 {
-	rsgFlume.setFmSettings ();
+	uwFlume.setFmSettings ();
 }
 
 
 void MicrowaveCore::setPmSettings ()
 {
-	rsgFlume.setPmSettings ();
+	uwFlume.setPmSettings ();
 }
 
 
@@ -71,7 +76,6 @@ void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& param
 		}
 	}
 }
-
 
 std::pair<DioRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 {

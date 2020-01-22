@@ -2,6 +2,9 @@
 #pragma once
 
 #include "agilentStructures.h"
+#include "WindFreakFlume.h"
+#include "RsgFlume.h"
+#include "microwaveSettings.h"
 #include "my_str.h"
 #include "PiezoType.h"
 #include <string>
@@ -78,6 +81,9 @@
 
 /// File Locations and safemode options
 #ifdef SPECTRE_LAPTOP
+	using MICROWAVE_FLUME = WindFreakFlume;
+	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
+	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
 	constexpr bool DIOFTDI_SAFEMODE = true;
 	#define DDS_SAFEMODE true
 	#define BASLER_SAFEMODE true
@@ -88,7 +94,7 @@
 	#define VIEWPOINT_SAFEMODE true
 	#define ANALOG_OUT_SAFEMODE true
 	#define ANALOG_IN_SAFEMODE true
-	#define RSG_SAFEMODE true
+	constexpr bool UW_SYSTEM_SAFEMODE = true;
 	#define TOP_BOTTOM_TEK_SAFEMODE true
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
 	#define EO_AXIAL_TEK_SAFEMODE true
