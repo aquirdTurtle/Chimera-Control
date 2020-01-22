@@ -27,9 +27,9 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	cameraModeCombo.AddString( "Video-Mode" );
 	cameraModeCombo.SelectString( 0, "Kinetic-Series-Mode" );
 	settings.andor.acquisitionMode = AndorRunModes::Kinetic;
-	pos.seriesPos.y += 20;
-	pos.videoPos.y += 20;
-	pos.amPos.y += 20;
+	pos.seriesPos.y += 25;
+	pos.videoPos.y += 25;
+	pos.amPos.y += 25;
 
 	/// EM Gain
 	emGainBtn.setPositions ( pos, 0, 0, 160, 20, false, false, true );
@@ -134,6 +134,7 @@ void AndorCameraSettingsControl::cameraIsOn(bool state)
 
 void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 {
+	/*
 	if (inputSettings.emGainModeIsOn == false || inputSettings.emGainLevel < 0)
 	{
 		emGainEdit.SetWindowTextA("-1");
@@ -144,6 +145,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 		emGainEdit.SetWindowTextA(cstr(inputSettings.emGainLevel));
 		emGainDisplay.SetWindowTextA(cstr("X" + str(inputSettings.emGainLevel)));
 	}
+	*/
 	//andorFriend->setGainMode();
 	// try to set this time.
 	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
