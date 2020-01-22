@@ -305,83 +305,21 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
 		{
 			return NULL;
 		}
-		colorer->SetTextColor( _myRGBs["White"]);
-		CString text;
-		exposureEdits[picNum].GetWindowTextA(text);
-		double exposure;
-		try
-		{
-			exposure = boost::lexical_cast<float>(str(text));
-			double dif = 1;  //= std::fabs(exposure/1000.0 - settings.exposureTimesUnofficial[picNum]);
-			if (dif < 0.000000001)
-			{
-				colorer->SetBkColor( _myRGBs["Solarized Green"]);
-				// catch change of color and redraw window.
-				if (exposureEdits[picNum].colorState != 0)
-				{
-					exposureEdits[picNum].colorState = 0;
-					exposureEdits[picNum].RedrawWindow();
-				}
-				return _myBrushes["Solarized Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast& )
-		{
-			// don't do anything with it.
-		}
-		colorer->SetBkColor( _myRGBs["Red"]);
-		// catch change of color and redraw window.
-		if (exposureEdits[picNum].colorState != 1)
-		{
-			exposureEdits[picNum].colorState = 1;
-			exposureEdits[picNum].RedrawWindow();
-		}
-		return _myBrushes["Red"];
+		colorer->SetTextColor( _myRGBs["AndorWin-Text"]);
+		colorer->SetBkColor (_myRGBs["Interactable-Bkgd"]);
+		return _myBrushes["Interactable-Bkgd"];
 	}
 	/// Thresholds
 	else if (id >= thresholdEdits.front().GetDlgCtrlID() && id <= thresholdEdits.back().GetDlgCtrlID())
 	{
-		/*
-		int picNum = id - thresholdEdits.front().GetDlgCtrlID();
-		if (!thresholdEdits[picNum].IsWindowEnabled())
+		int picNum = id - thresholdEdits.front ().GetDlgCtrlID ();
+		if (!thresholdEdits[picNum].IsWindowEnabled ())
 		{
 			return NULL;
 		}
-		colorer->SetTextColor(RGB(255, 255, 255));
-		CString text;
-		thresholdEdits[picNum].GetWindowTextA(text);
-		int threshold;
-		try
-		{
-			threshold = boost::lexical_cast<int>(str(text));
-			double dif = std::fabs(threshold - thresholds[picNum]);
-			if (dif < 0.000000001)
-			{
-				// good.
-				colorer->SetBkColor(rgbs["Solarized Green"]);
-				// catch change of color and redraw window.
-				if (thresholdEdits[picNum].colorState != 0)
-				{
-					thresholdEdits[picNum].colorState = 0;
-					thresholdEdits[picNum].RedrawWindow();
-				}
-				return brushes["Solarized Green"];
-			}
-		}
-		catch (boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		colorer->SetBkColor(rgbs["Red"]);
-		// catch change of color and redraw window.
-		if (exposureEdits[picNum].colorState != 1)
-		{
-			exposureEdits[picNum].colorState = 1;
-			exposureEdits[picNum].RedrawWindow();
-		}
-		return brushes["Red"];
-		*/
-		return _myBrushes[ "Solarized Green" ];
+		colorer->SetTextColor (_myRGBs["AndorWin-Text"]);
+		colorer->SetBkColor (_myRGBs["Interactable-Bkgd"]);
+		return _myBrushes["Interactable-Bkgd"];
 	}
 	else
 	{
@@ -490,7 +428,7 @@ std::array<int, 4> PictureSettingsControl::getPictureColors()
 }
 
 
-void PictureSettingsControl::updateColors ( std::array<int, 4> colorIndexes )
+void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes )
 {
 	settings.colors = colorIndexes;
 	for ( auto picInc : range(4) )
@@ -512,7 +450,7 @@ void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
 
 void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSettings )
 {
-	updateColors ( inputSettings.colors );
+	updateColormaps ( inputSettings.colors );
 	setThresholds ( inputSettings.thresholdStrs );
 	setSoftwareAccumulationOptions (inputSettings.saOpts);
 }
