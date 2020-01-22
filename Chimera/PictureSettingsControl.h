@@ -49,7 +49,7 @@ class PictureSettingsControl
 		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
 		void updateSettings( );
-		void updateColors ( std::array<int, 4> colorsIndexes );
+		void updateColormaps ( std::array<int, 4> colorsIndexes );
 		void setUnofficialPicsPerRep( UINT picNum);
 		std::array<std::string, 4> getThresholdStrings();
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
