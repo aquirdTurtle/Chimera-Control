@@ -1,8 +1,8 @@
 #pragma once
 #include "RsgFlume.h"
+#include "WindFreakFlume.h"
 #include "microwaveSettings.h"
-
-
+#include "constants.h"
 class MicrowaveCore
 {
 	public:
@@ -17,6 +17,7 @@ class MicrowaveCore
 	private:
 		const double triggerTime = 0.01;
 		const std::pair<DioRows::which, UINT> rsgTriggerLine = { DioRows::which::C, 3 };
-		RsgFlume rsgFlume;
-		//GpibFlume gpibFlume;
+		MICROWAVE_FLUME uwFlume;
+		//RsgFlume rsgFlume;
+		//WindFreakFlume wfFlume;
 };

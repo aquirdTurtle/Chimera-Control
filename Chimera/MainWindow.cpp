@@ -640,7 +640,7 @@ BOOL MainWindow::OnInitDialog( )
 		initializationString += TheAndorWindow->getSystemStatusString( );
 		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus( );
 		initializationString += TheScriptingWindow->getSystemStatusString( );
-		initializationString += TheAuxiliaryWindow->getGpibDeviceStatus( );
+		initializationString += TheAuxiliaryWindow->getMicrowaveSystemStatus( );
 		infoBox( initializationString );
 	}
 	catch ( Error& err )
@@ -668,7 +668,7 @@ void MainWindow::showHardwareStatus ( )
 		initializationString += TheAndorWindow->getSystemStatusString ( );
 		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus ( );
 		initializationString += TheScriptingWindow->getSystemStatusString ( );
-		initializationString += TheAuxiliaryWindow->getGpibDeviceStatus ( );
+		initializationString += TheAuxiliaryWindow->getMicrowaveSystemStatus ( );
 		infoBox ( initializationString );
 	}
 	catch ( Error& err )

@@ -93,7 +93,7 @@ class AuxiliaryWindow : public CDialog
 		std::array<AoInfo, 24> getDacInfo ( );
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
-		std::string getGpibDeviceStatus( );
+		std::string getMicrowaveSystemStatus( );
 		void loadCameraCalSettings( ExperimentThreadInput* input );
 
 		void updateAgilent( whichAg::agilentNames name );

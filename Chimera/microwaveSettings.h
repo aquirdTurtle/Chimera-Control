@@ -3,6 +3,14 @@
 #include "Expression.h"
 #include <vector>
 
+enum class microwaveDevice
+{
+	RohdeSchwarzGenerator,
+	WindFreak,
+	NONE // I.e. total safemode.
+};
+
+
 struct microwaveListEntry
 {
 	Expression frequency;

@@ -1,5 +1,6 @@
 // created by Mark O. Brown
 #pragma once
+
 #include "functionCombo.h"
 #include "VariableStructures.h"
 #include "Control.h"
@@ -11,6 +12,7 @@
 #include <string>
 #include <unordered_map>
 #include "Version.h"
+
 class MainWindow;
 class AuxiliaryWindow;
 class Script;
