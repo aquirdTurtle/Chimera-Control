@@ -11,7 +11,7 @@
 #include <numeric>
 #include <fstream>
 #include "range.h"
-#include <boost/lexical_cast.hpp>
+#include "boost/lexical_cast.hpp"
 
 
 Agilent::Agilent( const agilentSettings& settings ) : 

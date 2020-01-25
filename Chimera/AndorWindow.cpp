@@ -194,7 +194,6 @@ void AndorWindow::handleEmGainChange()
 			// this can happen e.g. if the camera is aquiring.
 			errBox ( err.trace ( ) );
 		}
-
 	}
 	catch ( Error err )
 	{
