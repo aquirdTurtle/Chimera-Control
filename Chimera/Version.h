@@ -4,6 +4,7 @@
 #include "my_str.h"
 #include <string>
 #include "afxwin.h"
+//#include "boost/lexical_cast.hpp"
 #include <boost/lexical_cast.hpp>
 
 /*

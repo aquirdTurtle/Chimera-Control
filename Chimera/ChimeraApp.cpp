@@ -40,9 +40,8 @@
 #include "ChimeraApp.h"
 #include "commonFunctions.h"
 // This is used to tell the compiler that this specific library is needed.
+// I don't remember why this specific library is needed though. 
 #pragma comment(lib, "Ws2_32.lib")
-
-
 
 BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
 {
