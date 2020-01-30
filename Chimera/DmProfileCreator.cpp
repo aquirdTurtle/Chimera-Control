@@ -231,18 +231,27 @@ void DmProfileCreator::makeIm() {
 	}
 }
 
-void DmProfileCreator::checkVals(std::vector<double> val) {
+std::vector<double> DmProfileCreator::checkVals(std::vector<double> val) {
 	int i = 0;
 	for (auto& voltage : val) {
-		if (voltage >= 1 || voltage < 0) {
-			thrower("Error: voltage on piston " + str(i) + " is out of range");
+		if (voltage >= 1) {
+			val[i] = 1;
+			//thrower("Error: voltage on piston " + str(i) + " is out of range");
+			break;
+		}
+		else if(voltage < 0){
+			val[i] = 0;
 		}
 		i++;
 	}
+	return val;
 }
 
 void DmProfileCreator::addComa(double comaMag, double comaAngle) {
 		//Adds at a particular angle and magnitude to a list of zernike amplituders.
+	if (comaMag > 0.358) {
+		comaMag = 0.358;
+	}
 	double x;
 	double y;
 	toCartesian(comaMag, comaAngle, x, y);
@@ -321,7 +330,7 @@ std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amp
 		}
 
 		if (!quiet) {
-			checkVals(vals);
+			vals = checkVals(vals);
 		}
 
 		return vals;

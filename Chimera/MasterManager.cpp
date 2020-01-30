@@ -6,6 +6,7 @@
 #include "CodeTimer.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
+#include "AuxiliaryWindow2.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
 #include "Thrower.h"
@@ -17,6 +18,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <regex>
+#include "DmCore.h"
+#include "DmOutputForm.h"
 
 MasterThreadManager::MasterThreadManager() {}
 
@@ -47,12 +50,14 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	auto& aoSys = input->aoSys;
 	auto& comm = input->comm;
 	auto& dds = input->dds;
+	auto& dm = input->Dmir;
 	auto quiet = input->quiet;
 	const auto& runMaster = input->runMaster;
 	const auto& runAndor = input->runAndor;
 	const auto& runNiawg = input->runNiawg;
 	const auto& piezos = input->piezoControllers;
 	mainOptions mainOpts;
+	DMOutputForm DmOutput;
 	try
 	{
 		/// load config parameters from config file
@@ -82,6 +87,9 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
 				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
 				// Load DM settings from config file###TODO
+				DmOutput = ProfileSystem::stdGetFromConfig(configFile, "DM", DmCore::handleGetConfig);
+				Version ver("4.7");
+				
 			}
 			if ( input->runNiawg )
 			{
@@ -267,6 +275,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			input->rsg.interpretKey ( input->parameters );
 			input->topBottomTek.interpretKey ( input->parameters );
 			input->eoAxialTek.interpretKey ( input->parameters );
+			DmCore::interpretKey(input->parameters, input->Dmir);
 			// DM interpret key here! ###TODO
 		}
 		/// organize commands, prepping final forms of the data for each repetition.
@@ -405,6 +414,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				}
 				dds.writeExperiment ( 0, variationInc );
 				// DM Program now  (variationInc) here ###TODO
+				dm.ProgramNow(variationInc);
 			}
 			if (input->runNiawg)
 			{

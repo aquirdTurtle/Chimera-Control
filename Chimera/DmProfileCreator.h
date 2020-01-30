@@ -20,7 +20,7 @@ class DmProfileCreator {
 		void readZernikeFile(std::string file);
 		void writeZernikeFile(std::string out_file);
 		void makeIm();
-		void checkVals(std::vector<double> val);
+		std::vector<double> checkVals(std::vector<double> val);
 		void addComa(double comaMag, double comaAngle);
 		void addAstigmatism( double astigMag, double astigAngle);
 		void addTrefoil( double trefMag, double trefAngle);

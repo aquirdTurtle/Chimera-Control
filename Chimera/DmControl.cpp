@@ -21,6 +21,9 @@ Profile() {
 }
 
 void DmControl::initializeTable(int xPos, int yPos, int width, int height, CWnd* parent, UINT id) {
+
+	//xPos = (3840 * xPos)/1920;
+
 	int xPos2 = xPos + width + 5;
 	int xPos3 = xPos2 + width + 5;
 	int yPos2 = yPos + height + 5;
@@ -72,8 +75,8 @@ void DmControl::initializeTable(int xPos, int yPos, int width, int height, CWnd*
 }
 
 void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id) {
-	currentInfo.ActuatorCount = count;
-	currentInfo.serialNumber = serialNumber;
+	theDMInfo.ActuatorCount = count;
+	theDMInfo.serialNumber = serialNumber;
 	piston = std::vector<pistonButton>(count);
 	POINT B[137];
 	POINT A[13] = { {loc}, {loc.x - (2 * width), loc.y + width }, {loc.x - (3 * width), loc.y + 2 * width},
@@ -116,7 +119,7 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	profileSelector.Create(NORM_COMBO_OPTIONS, profileSelector.seriesPos, parent, IDC_DM_PROFILE_COMBO);
 	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
 	
-	initializeTable(1050, 100, 50, 25, parent, IDC_DM_ADD_ZERNIKE);
+	initializeTable(1450, 100, 50, 25, parent, IDC_DM_ADD_ZERNIKE);
 	
 }
 
@@ -250,6 +253,23 @@ void DmControl::reColor(UINT id) {
 void DmControl::rearrange(int width, int height, fontMap fonts)
 {
 	programNow.rearrange(width, height, fonts);
+	comaMag.rearrange(width, height, fonts);
+	trefoilMag.rearrange(width, height, fonts);;
+	astigMag.rearrange(width, height, fonts);
+	sphereMag.rearrange(width, height, fonts);
+	comaAngle.rearrange(width, height, fonts);
+	trefoilAngle.rearrange(width, height, fonts);
+	astigAngle.rearrange(width, height, fonts);
+	sphereAngle.rearrange(width, height, fonts);
+	applyCorrections.rearrange(width, height, fonts);
+	Angle.rearrange(width, height, fonts);
+	Mag.rearrange(width, height, fonts);
+	Astigmatism.rearrange(width, height, fonts);
+	Spherical.rearrange(width, height, fonts);
+	Trefoil.rearrange(width, height, fonts);
+	Coma.rearrange(width, height, fonts);
+	programNow.rearrange(width, height, fonts);
+	profileSelector.rearrange(width, height, fonts);
 	for (auto& pis : piston) {
 		pis.Voltage.rearrange(width, height, fonts);
 	}
@@ -401,4 +421,45 @@ void DmControl::add_Changes() {
 DmCore DmControl::getCore() {
 	return defObject;
 }
+
+DMOutputForm DmControl::getExpressionValues() {
+	DMOutputForm output;
+	CString s[8];
+	comaMag.GetWindowTextA(s[0]);
+	comaAngle.GetWindowTextA(s[1]);
+	astigMag.GetWindowTextA(s[2]);
+	astigAngle.GetWindowTextA(s[3]);
+	trefoilMag.GetWindowTextA(s[4]);
+	trefoilAngle.GetWindowTextA(s[5]);
+	sphereMag.GetWindowTextA(s[6]);
+	profileSelector.GetWindowTextA(s[7]);
+
+	output.coma = str(s[0]);
+	output.comaAng = str(s[1]);
+	output.astig= str(s[2]);
+	output.astigAng = str(s[3]);
+	output.trefoil = str(s[4]);
+	output.trefoilAng = str(s[5]);
+	output.spherical = str(s[6]);
+	output.base = str(s[7]);
+	return output;
+}
+
+void DmControl::handleSaveConfig(std::ofstream& newFile) {
+	defObject.handleSaveConfig(newFile, getExpressionValues());
+}
+
+void DmControl::openConfig() {
+	DMOutputForm Form = defObject.getInfo();
+	comaMag.SetWindowTextA(cstr(Form.coma.expressionStr));
+	comaAngle.SetWindowTextA(cstr(Form.comaAng.expressionStr));
+	astigMag.SetWindowTextA(cstr(Form.astig.expressionStr));
+	astigAngle.SetWindowTextA(cstr(Form.astigAng.expressionStr));
+	trefoilMag.SetWindowTextA(cstr(Form.trefoil.expressionStr));
+	trefoilAngle.SetWindowTextA(cstr(Form.trefoilAng.expressionStr));
+	Spherical.SetWindowTextA(cstr(Form.spherical.expressionStr));
+	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", Form.base);
+}
+
+
 

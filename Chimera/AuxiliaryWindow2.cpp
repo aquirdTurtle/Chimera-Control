@@ -22,9 +22,7 @@ BOOL AuxiliaryWindow2::OnInitDialog() {
 
 	return TRUE;
 }
-void AuxiliaryWindow2::OnCancel() {
 
-}
 
 void AuxiliaryWindow2::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_,
 						  AuxiliaryWindow* auxWin_, BaslerWindow* basWin_) {
@@ -54,21 +52,28 @@ BEGIN_MESSAGE_MAP(AuxiliaryWindow2, CDialog)
 	ON_COMMAND(IDC_DM_PROGRAMNOW, &handleProgramNow)
 	ON_COMMAND(IDC_DM_ADD_ZERNIKE + 15, &handleAbberations)
 	ON_CBN_SELENDOK(IDC_DM_PROFILE_COMBO, &handleNewProfile)
+	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AuxiliaryWindow2::passCommonCommand)
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &AuxiliaryWindow2::handlePistonChange)
 END_MESSAGE_MAP()
 
+
+
 void AuxiliaryWindow2::passCommonCommand(UINT id)
 {
-	//try
-	//{
-	//	commonFunctions::handleCommonMessage(id, this, mainWin, scriptWin, camWin, this, basWin);
-	//}
-	//catch (Error & err)
-	//{
-	//	// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-	//	errBox(err.what());
-	//}
+	try
+	{
+		commonFunctions::handleCommonMessage(id, this, mainWin, scriptWin, camWin, auxWin, basWin, this);
+	}
+	catch (Error & err)
+	{
+		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
+		errBox(err.what());
+	}
+}
+
+void AuxiliaryWindow2::OnCancel() {
+	passCommonCommand(ID_FILE_MY_EXIT);
 }
 
 void AuxiliaryWindow2::OnPaint()
@@ -167,7 +172,8 @@ void AuxiliaryWindow2::handleOpeningConfig(std::ifstream& configFile, Version ve
 	try {
 		if (ver >= Version("4.7"))
 		{
-			//ProfileSystem::standardOpenConfig(configFile, DM.getCore().getDelim(), &(DM.getCore()), Version("4.5"));
+			ProfileSystem::standardOpenConfig(configFile, DM.getCore().delimeter, &DM.getCore(), Version("4.5"));
+			DM.openConfig();
 		}
 	}
 	catch (Error&)
@@ -178,5 +184,6 @@ void AuxiliaryWindow2::handleOpeningConfig(std::ifstream& configFile, Version ve
 
 
 void AuxiliaryWindow2::handleSaveConfig(std::ofstream& newFile) {
-	DM.getCore().handleSaveConfig(newFile);
+	DM.handleSaveConfig(newFile);
 }
+

@@ -9,7 +9,7 @@
 #include <array>
 #include <pylon/PylonIncludes.h>
 #include <pylon/usb/BaslerUsbInstantCamera.h>
-#include <pylon/1394/Basler1394InstantCamera.h>
+#include <pylon/1394/Basler1394InstantCamera.h> //Pylon 6 doesn't include this file, need pylon 5
 
 // running in safemode means that the program doesn't actually try to connect to physical devices. Generally, it will 
 // follow the exact coding logic, but at the exact point where it would normally communicate with a device, it will 
@@ -56,11 +56,11 @@
 	#define DM_SERIAL "25CW012#060"
 	#define DM_SAFEMODE true 
 
-	const std::string PROJECT_LOCATION = "C:\\Users\\Max\\Chimera-Control\\";
-	const std::string PYTHON_CODE_LOCATION = "C:/Users/Max/Chimera-Control/Chimera";
-	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Max\\Code\\Data_Analysis_Code\\";
+	const std::string PROJECT_LOCATION = "C:\\Users\\maxko\\Chimera-Control\\";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/maxko/Chimera-Control/Chimera";
+	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\maxko\\Code\\Data_Analysis_Code\\";
 	// same as debug output location but with forward slashes for ease of use in python
-	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Max/Chimera-Control/Debug-Output/";
+	const std::string PYTHON_INPUT_LOCATION = "C:/Users/maxko/Chimera-Control/Debug-Output/";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default-Scripts\\";

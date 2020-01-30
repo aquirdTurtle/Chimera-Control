@@ -26,7 +26,7 @@ struct pistonButton {
 class DmControl
 {
 	public:
-	DmControl::DmControl(std::string serialNumber, bool safeMode);
+		DmControl::DmControl(std::string serialNumber, bool safeMode);
 		void initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id);
 	    void handleOnPress(int i);
 		void ProgramNow();
@@ -36,6 +36,7 @@ class DmControl
 		void updateButtons();
 		int getActNum();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
+		void handleSaveConfig(std::ofstream& newFile);
 		void reColor(UINT id);
 		void rearrange(int width, int height, fontMap fonts);
 		bool isFloat(const std::string& someString);
@@ -44,10 +45,12 @@ class DmControl
 		void writeCurrentFile(std::string out_file);
 		void initializeTable(int xPos, int yPos, int width, int height, CWnd* parent, UINT id);
 		DmCore getCore();
+		DMOutputForm getExpressionValues();
+		void openConfig();
 
 	private:
 		
-		DmInfo currentInfo;
+		DmInfo theDMInfo;
 		DmCore defObject;
 		DmProfileCreator Profile;
 		std::vector<pistonButton> piston;

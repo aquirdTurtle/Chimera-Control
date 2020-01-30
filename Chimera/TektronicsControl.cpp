@@ -200,18 +200,18 @@ void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
 }
 
 
-void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
+void TektronicsAfgControl::handleNewConfig(std::ofstream& newFile)
 {
 	newFile << configDelim + "\n";
 	newFile << "CHANNEL_1\n";
 	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
 	newFile << "CHANNEL_2\n";
+}
 
-
-void TektronicsAfgControl::handleSaveConfig(std::ofstream & saveFile)
+void TektronicsAfgControl::handleSaveConfig(std::ofstream &saveFile)
 {
-	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "END_" + configDelim + "\n";
+	saveFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	saveFile << "END_" + configDelim + "\n";
 	saveFile << configDelim + "\n";
 
 	saveFile << "CHANNEL_1\n";
