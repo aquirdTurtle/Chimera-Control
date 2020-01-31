@@ -3,13 +3,19 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Users\Mark\Anaconda3\include;$(ProjectDir)..\Packages\boost_1_64_0;$(ProjectDir)..\Packages\64-Bit-Libs\Release\HDF5-1.10.1-win64-Release\include;C:\Program Files\Basler\pylon 5\Development\include;$(ProjectDir)..\Packages\64-Bit-Libs\Release\Python;C:\ProgramData\Python38\include;C:\ProgramData\Basler\pylon 5\Development\include</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;$(ProjectDir)..\Packages\boost_1_64_0\lib-64bit;$(LibraryPath);$(ProjectDir)..\Packages\64-Bit-Libs\Andor;$(ProjectDir)..\Packages\64-Bit-Libs\Release\Python;$(ProjectDir)..\Packages\64-Bit-Libs;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64\msvc;$(ProjectDir)..\Packages\64-Bit-Libs\Release\HDF5-1.10.1-win64-Release\lib;C:\Program Files\Basler\pylon 5\Development\lib\x64;C:\ProgramData\CDM v2.12.28 WHQL Certified\amd64;C:\ProgramData\Basler\pylon 5\Development\lib\x64;C:\ProgramData\Python38\libs</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Users\Mark\Anaconda3\include;$(ProjectDir)3rd_Party\myBoost;$(ProjectDir)3rd_Party\HDF5\HDF5-1.10.1-win64-Release\include;C:\Program Files\Basler\pylon 5\Development\include;$(ProjectDir)3rd_Party\Python;C:\ProgramData\Python38\include;C:\ProgramData\Basler\pylon 5\Development\include;$(ProjectDir)3rd_Party\FTDI\include;$(ProjectDir)3rd_Party\NI\include;$(ProjectDir)3rd_Party\Andor\Include;$(ProjectDir)Source</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;$(ProjectDir)3rd_Party\myBoost\boost_1_64_0\lib-64bit;$(LibraryPath);$(ProjectDir)3rd_Party\Andor\Lib;$(ProjectDir)3rd_Party\Python;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64\msvc;$(ProjectDir)3rd_Party\HDF5\HDF5-1.10.1-win64-Release\lib;C:\Program Files\Basler\pylon 5\Development\lib\x64;C:\ProgramData\CDM v2.12.28 WHQL Certified\amd64;C:\ProgramData\Basler\pylon 5\Development\lib\x64;C:\ProgramData\Python38\libs;$(ProjectDir)3rd_Party\FTDI\Lib;$(ProjectDir)3rd_Party\Thorlabs\Lib;$(ProjectDir)3rd_Party\myBoost\actualLibs</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>NIDAQmx.lib;ni4882.obj;niFgen.lib;atmcd64m.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);ftd2xx.lib;visa64.lib;visa32.lib;nivisa64.lib;nifgen.lib;libhdf5.lib;libhdf5_cpp.lib;libhdf5_hl.lib;libhdf5_hl_cpp.lib;libhdf5_tools.lib;libszip.lib;libzlib.lib;MDT_COMMAND_LIB_x64.lib</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
