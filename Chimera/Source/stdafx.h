@@ -30,15 +30,15 @@
 // 
 #include <afxcontrolbars.h>
 
-#include "miscCommonFunctions.h"
+#include "GeneralUtilityFunctions/miscCommonFunctions.h"
 
 #include <stdio.h>
 #include <tchar.h>
 // My stuff
-#include "constants.h"
+#include "LowLevel/constants.h"
 #include "resource.h"
-#include "Thrower.h"
-#include "range.h"
+#include "GeneralUtilityFunctions/Thrower.h"
+#include "GeneralUtilityFunctions/range.h"
 
 #include <fstream>
 #include <string>
