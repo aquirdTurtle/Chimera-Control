@@ -11,7 +11,7 @@
 #include "LowLevel/constants.h"
 #include <atomic>
 
-class BaslerCameras;
+class BaslerCameraCore;
 class BaslerWrapper;
 
 struct triggerThreadInput
@@ -76,12 +76,12 @@ class BaslerWrapper : public cameraType
 };
 
 // the object for an actual camera.  doesn't handle gui things itself, just the interface from my code to the camera object.
-class BaslerCameras
+class BaslerCameraCore
 {
 	public:
 		// important constructor to initialize camera
-		BaslerCameras( CWnd* parent );
-		~BaslerCameras();
+		BaslerCameraCore( CWnd* parent );
+		~BaslerCameraCore();
 		bool isRunning ( );
 		void setParameters( baslerSettings settings );
 		void setDefaultParameters();

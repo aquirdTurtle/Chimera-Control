@@ -4,6 +4,7 @@
 #include "limits.h"
 #include <algorithm>
 #include "GeneralImaging/memdc.h"
+#include "GeneralObjects/SmartDC.h"
 
 PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
 						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<UINT>& timerTime, 
@@ -131,15 +132,13 @@ BOOL PlotDialog::OnInitDialog( )
 
 void PlotDialog::OnPaint( )
 {
-
-	CDC* cdc = GetDC( );
 	{
 		CRect size;
 		GetClientRect( &size );
-		memDC dc( cdc );
+		SmartDC sdc (this);
+		memDC dc (sdc.get ());
 		plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
 		plot.drawPlot ( dc, &backgroundBrush, &plotAreaBrush );
 		CDialog::OnPaint( );
 	}
-	ReleaseDC( cdc );
 }

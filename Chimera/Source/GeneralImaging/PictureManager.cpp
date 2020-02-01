@@ -20,7 +20,7 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 }
 
 
-void PictureManager::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
+void PictureManager::paint (CDC* cdc, CRect size, CBrush* bgdBrush )
 {
 	for ( auto& pic : pictures )
 	{
@@ -29,7 +29,7 @@ void PictureManager::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
 }
 
 
-void PictureManager::drawBitmap ( CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax )
+void PictureManager::drawBitmap (CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax )
 {
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
 	for ( auto& pic : pictures )
@@ -77,7 +77,7 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 }
 
 
-void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
+void PictureManager::redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 									 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber )
 {
 	if (!pictures[1].isActive())
@@ -104,13 +104,13 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 /*
  *
  */
-void PictureManager::drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+void PictureManager::drawDongles(CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 								  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers )
 {
 	UINT count = 1;
 	for (auto& pic : pictures)
 	{
-		pic.drawCircle(dc, selectedLocation);
+		pic.drawCircle( dc, selectedLocation);
 		if ( includingAnalysisMarkers )
 		{
 			pic.drawAnalysisMarkers ( dc, analysisLocs, grids );
@@ -213,7 +213,7 @@ void PictureManager::setSpecialGreaterThanMax(bool option)
 }
 
 
-void PictureManager::drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
+void PictureManager::drawPicture(CDC* deviceContext, int pictureNumber, std::vector<long> picData,
 								 std::pair<UINT, UINT> minMaxPair )
 {
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple(autoScalePictures, minMaxPair.first, minMaxPair.second);
@@ -359,7 +359,8 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 							font, graphBrushes );
 	loc.y += 440;
 	loc.x -= 550;
-	createPalettes( parent->GetDC() );
+	SmartDC sdc (parent);
+	createPalettes( sdc.get() );
 	for (auto& pic : pictures)
 	{
 		pic.updatePalette( palettes[2] );
@@ -446,7 +447,7 @@ void PictureManager::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void PictureManager::createPalettes( CDC* dc )
+void PictureManager::createPalettes(CDC* dc )
 {
 	struct
 	{

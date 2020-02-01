@@ -135,7 +135,7 @@ void ImageDimsControl::handleOpen( std::ifstream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params = getImageDimSettingsFromConfig ( openFile, ver );
-	setImageParametersFromInput( params, NULL );
+	setImageParametersFromInput( params );
 }
 
 
@@ -237,12 +237,8 @@ imageParameters ImageDimsControl::readImageParameters()
 /*
  * I forget why I needed a second function for this.
  */
-void ImageDimsControl::setImageParametersFromInput( imageParameters param, AndorWindow* camWin )
+void ImageDimsControl::setImageParametersFromInput( imageParameters param )
 {
-	if ( camWin != NULL )
-	{
-		drawBackgrounds( camWin );
-	}
 	// set all of the image parameters
 	currentImageParameters.left = param.left;
 	leftEdit.SetWindowText( cstr( currentImageParameters.left ) );

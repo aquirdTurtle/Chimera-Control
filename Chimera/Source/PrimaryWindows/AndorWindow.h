@@ -122,7 +122,7 @@ class AndorWindow : public CDialog
 		int getMostRecentFid ( );
 		int getPicsPerRep ( );
 		bool wantsThresholdAnalysis ( );
-		AndorCamera& getCamera ( );
+		AndorCameraCore& getCamera ( );
 		std::atomic<bool>& getPlotThreadActiveRef ( );
 		std::atomic<HANDLE>& getPlotThreadHandleRef ( );
 		std::mutex& getActivePlotMutexRef ( );
@@ -133,7 +133,7 @@ class AndorWindow : public CDialog
 		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
 
-		AndorCamera andor;
+		AndorCameraCore andor;
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
 		int plotIds = 17009;

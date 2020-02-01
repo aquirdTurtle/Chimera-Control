@@ -19,7 +19,7 @@ PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramO
 }
 
 
-void PictureControl::paint ( CDC* cdc, CRect size, CBrush* bgdBrush )
+void PictureControl::paint (CDC* cdc, CRect size, CBrush* bgdBrush )
 {
 	if ( !active )
 	{
@@ -412,7 +412,7 @@ void PictureControl::setActive( bool activeState )
 /*
  * redraws the background and image. 
  */
-void PictureControl::redrawImage( CDC* easel, bool bkgd)
+void PictureControl::redrawImage(CDC* easel, bool bkgd)
 {
 	if ( bkgd )
 	{
@@ -446,7 +446,7 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
-void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo )
+void PictureControl::drawBitmap (CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo )
 {
 	mostRecentImage_m = picData;
 	unsigned int minColor = sliderMin.getValue ( );
@@ -586,7 +586,7 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tup
  * the camera window context since there's no direct control associated with the picture itself. Could probably change 
  * that.
  */
-void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData, 
+void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 								  std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, 
 								  bool specialMax )
 {
@@ -833,17 +833,17 @@ void PictureControl::handleMouse( CPoint p )
 /*
  * recolor the background box, clearing last run.
  */
-void PictureControl::drawBackground(CDC* easel)
-{	
-	easel->SelectObject(GetStockObject(DC_BRUSH));
-	easel->SelectObject(GetStockObject(DC_PEN));
+void PictureControl::drawBackground (CDC* easel)
+{
+	easel->SelectObject (GetStockObject (DC_BRUSH));
+	easel->SelectObject (GetStockObject (DC_PEN));
 	// dark green brush
-	easel->SetDCBrushColor(RGB(0, 10, 0));
+	easel->SetDCBrushColor (RGB (0, 10, 0));
 	// Drawing a rectangle with the current Device Context
 	// (slightly larger than the image zone).
-	RECT rectArea = { scaledBackgroundArea.left, scaledBackgroundArea.top, scaledBackgroundArea.right, 
+	RECT rectArea = { scaledBackgroundArea.left, scaledBackgroundArea.top, scaledBackgroundArea.right,
 					  scaledBackgroundArea.bottom };
-	easel->Rectangle(&rectArea);
+	easel->Rectangle (&rectArea);
 }
 
 
@@ -936,19 +936,19 @@ void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 }
 
 
-void PictureControl::drawPicNum( CDC* dc, UINT picNum )
+void PictureControl::drawPicNum(CDC* dc, UINT picNum )
 {
 	HPEN textPen = CreatePen( 0, 1, RGB(100, 100, 120) );
 	dc->SelectObject( textPen );
 	RECT rect = grid[0][0];
 	rect.right += 50;
-			dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
-					DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+	dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
+			DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	DeleteObject( textPen );
 }
 
 
-void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, 
+void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs,
 										  std::vector<atomGrid> gridInfo )
 {
 	if ( !active )
@@ -1005,7 +1005,7 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 }
 
 
-void PictureControl::drawRectangle( CDC* dc, RECT pixelRect )
+void PictureControl::drawRectangle(CDC* dc, RECT pixelRect )
 {
 	dc->MoveTo( { pixelRect.left, pixelRect.top } );
 

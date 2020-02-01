@@ -2,7 +2,7 @@
 #pragma once
 #include "GeneralFlumes/VisaFlume.h"
 #include "Plotting/PlotCtrl.h"
-
+#include "GeneralObjects/SmartDC.h"
 /*
  * This is a wrapper around a PlotCtrl object and a VisaFlume object that facilitates autmatically retrieving data
  * from a tektronics oscilloscope and plotting it. Currently this just allows users to see the scope without moving 
@@ -16,7 +16,7 @@ class ScopeViewer
 						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, int pltPopId,
 						 std::string title="Scope!");
 		void refreshData( );
-		void refreshPlot( CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush );
+		void refreshPlot(CDC* sdc, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void rearrange( int width, int height, fontMap fonts );
 		std::string getScopeInfo( );
 		bool handlePlotPop (UINT id, CWnd* parent);

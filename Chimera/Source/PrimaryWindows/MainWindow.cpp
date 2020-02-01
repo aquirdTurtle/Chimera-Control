@@ -324,12 +324,11 @@ void MainWindow::OnPaint( )
 	{
 		CRect size;
 		GetClientRect( &size );
-		CDC* cdc = GetDC( );
-		cdc->SetBkColor( _myRGBs["Main-Bkgd"] );
+		SmartDC sdc (this);
+		sdc.get()->SetBkColor( _myRGBs["Main-Bkgd"] );
 		UINT width = size.right - size.left, height = size.bottom - size.top;
-		masterRepumpScope.refreshPlot( cdc, width, height, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
-		motScope.refreshPlot( cdc, width, height, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
-		ReleaseDC( cdc );
+		masterRepumpScope.refreshPlot( sdc.get(), width, height, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
+		motScope.refreshPlot( sdc.get(), width, height, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"] );
 	}
 }
 

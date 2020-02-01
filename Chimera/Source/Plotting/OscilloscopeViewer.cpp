@@ -34,10 +34,10 @@ std::string ScopeViewer::getScopeInfo( )
 }
 
 
-void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush )
+void ScopeViewer::refreshPlot(CDC* cdc, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	viewPlot->setCurrentDims( width, height );
-	viewPlot->drawPlot ( d, backgroundBrush, plotAreaBrush );
+	viewPlot->drawPlot ( cdc, backgroundBrush, plotAreaBrush );
 }
 
 

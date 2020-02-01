@@ -8,6 +8,7 @@
 #include "ScriptingWindow.h"
 #include "afxdialogex.h"
 #include "LowLevel/constants.h"
+#include "GeneralObjects/SmartDC.h"
 
 
 BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
@@ -205,20 +206,15 @@ void BaslerWindow::handleClose( )
 
 void BaslerWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	CDC* cdc = GetDC( );
 	try
 	{
 		coordinate box = picManager.getClickLocation ( clickLocation );
 		selectedPixel = box;
-		//picManager.redrawPictures ( cdc, selectedPixel, analysisHandler.getAnalysisLocs ( ),
-		//					  analysisHandler.getGrids ( ), false, mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{
 		errBox ( err.what ( ) );
 	}
-	//picture.handleRightClick(clickLocation, cdc);
-	ReleaseDC( cdc );
 }
 
 
@@ -258,9 +254,8 @@ void BaslerWindow::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar )
 	{
 		try
 		{
-			CDC* cdc = GetDC ( );
-			picManager.handleScroll ( nSBCode, nPos, scrollbar, cdc );
-			ReleaseDC( cdc );
+			SmartDC sdc(this);
+			picManager.handleScroll ( nSBCode, nPos, scrollbar, sdc.get ());
 		}
 		catch (Error& err)
 		{
@@ -334,9 +329,8 @@ void BaslerWindow::startDefaultAcquisition ( )
 
 		cameraController->setParameters ( tempSettings );
 		picManager.setParameters ( tempSettings.dims );
-		auto* dc = GetDC ( );
-		picManager.drawBackgrounds ( dc );
-		ReleaseDC ( dc );
+		SmartDC sdc (this);
+		picManager.drawBackgrounds ( sdc.get ());
 		runExposureMode = tempSettings.exposureMode;
 		imageWidth = tempSettings.dims.width ( );
 		// only important in safemode
@@ -369,13 +363,11 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
   	try
  	{
  		currentRepNumber++;
- 		CDC* cdc = GetDC();
-		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );
-		
-		picManager.drawBitmap( cdc, *imageMatrix, minMax );
+		SmartDC sdc (this);
+		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );		
+		picManager.drawBitmap( sdc.get (), *imageMatrix, minMax );
  		picManager.updatePlotData ( );
- 		picManager.drawDongles ( cdc, { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
-		ReleaseDC( cdc );
+ 		picManager.drawDongles ( sdc.get(), { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)
 		{ 
 			settingsCtrl.updateExposure( cameraController->getCurrentExposure() );
@@ -466,7 +458,7 @@ void BaslerWindow::passExposureMode()
 }
 
 
-void BaslerWindow::handleArmPress()
+void BaslerWindow::ArmCamera()
 {
 	try
 	{
@@ -480,9 +472,9 @@ void BaslerWindow::handleArmPress()
 		cameraController->setParameters( tempSettings );
 		imageParameters params;
 		picManager.setParameters( tempSettings.dims );
-		auto* dc = GetDC( );
-		picManager.drawBackgrounds ( dc );
-		ReleaseDC( dc );
+		
+		SmartDC sdc (this);
+		picManager.drawBackgrounds ( sdc.get ());
 		runExposureMode = tempSettings.exposureMode;
 		imageWidth = tempSettings.dims.width();
 		// only important in safemode
@@ -528,7 +520,7 @@ void BaslerWindow::startCamera ( )
 	{
 		cameraController->disarm ( );
 	}
-	handleArmPress ( );
+	ArmCamera ( );
 }
 
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
@@ -647,11 +639,10 @@ void BaslerWindow::OnPaint()
 	else
 	{
 		CDialogEx::OnPaint();
-		auto* dc = GetDC( );
 		CRect size;
 		GetClientRect( &size );
-		picManager.paint ( dc, size, _myBrushes[ "Interactable-Bkgd" ] );
-		ReleaseDC( dc );
+		SmartDC sdc (this);
+		picManager.paint ( sdc.get (), size, _myBrushes[ "Interactable-Bkgd" ] );
 	}
 }
 
@@ -668,7 +659,7 @@ void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver 
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
 	settingsCtrl.setSettings ( 
 		ProfileSystem::stdGetFromConfig ( configFile, "BASLER_CAMERA_SETTINGS",
-											   &BaslerSettingsControl::getBaslerSettingsFromConfig, Version ( "4.0" ) ) );
+											   &BaslerSettingsControl::getSettingsFromConfig, Version ( "4.0" ) ) );
 }
 
 
@@ -687,7 +678,7 @@ void BaslerWindow::initializeControls()
 		SetWindowText("USB Basler Camera Control");
 	#endif
 
-	cameraController = new BaslerCameras( this );
+	cameraController = new BaslerCameraCore( this );
 	if (!cameraController->isInitialized())
 	{
 		thrower ("ERROR: Camera not connected! Exiting program..." );
@@ -708,16 +699,13 @@ void BaslerWindow::initializeControls()
 	dims.x *= 1.65;
 	dims.y *= 1.65;
 
-	CDC* cdc = GetDC( );
-	
 	picManager.initialize ( picPos, this, id, _myBrushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
 						   { IDC_MIN_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, NULL,NULL,NULL,NULL,NULL,NULL},
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );
 	picManager.setPalletes ( { 1,1,1,1 } );
 	this->RedrawWindow ( );
-	picManager.drawBackgrounds( cdc );
-	
-	ReleaseDC( cdc );
+	SmartDC sdc (this);
+	picManager.drawBackgrounds( sdc.get ());
 }
 

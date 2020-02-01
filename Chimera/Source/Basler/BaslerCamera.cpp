@@ -13,7 +13,7 @@
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
 // work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 
 // once.
-BaslerCameras::BaslerCameras(CWnd* parent)
+BaslerCameraCore::BaslerCameraCore(CWnd* parent)
 {
 	Pylon::PylonInitialize();
 	Pylon::CDeviceInfo info;
@@ -40,18 +40,18 @@ BaslerCameras::BaslerCameras(CWnd* parent)
 	}
 }
 
-bool BaslerCameras::isRunning ( )
+bool BaslerCameraCore::isRunning ( )
 { 
 	return camera->isGrabbing ( );
 }
 
-bool BaslerCameras::isInitialized()
+bool BaslerCameraCore::isInitialized()
 {
 	return cameraInitialized;
 }
 
 // send a software trigger to the camera after waiting to make sure it's ready to recieve said trigger.
-void BaslerCameras::softwareTrigger()
+void BaslerCameraCore::softwareTrigger()
 {
 	camera->waitForFrameTriggerReady( 5000 );
 	camera->executeSoftwareTrigger();
@@ -59,7 +59,7 @@ void BaslerCameras::softwareTrigger()
 
 
 // important deconstructor.
-BaslerCameras::~BaslerCameras()
+BaslerCameraCore::~BaslerCameraCore()
 {
 	Pylon::PylonTerminate();
 	delete camera;
@@ -67,7 +67,7 @@ BaslerCameras::~BaslerCameras()
 
 
 // get some information about the camera from the camera itself through pylon.
-std::string BaslerCameras::getCameraInfo()
+std::string BaslerCameraCore::getCameraInfo()
 {
 	// Get camera device information.
 	return "Camera Device Information\n=========================\nVendor           : " + std::string( camera->DeviceVendorName.GetValue() )
@@ -77,7 +77,7 @@ std::string BaslerCameras::getCameraInfo()
 
 
 // Can change this for nicer defaults.
-baslerSettings BaslerCameras::getDefaultSettings()
+baslerSettings BaslerCameraCore::getDefaultSettings()
 {
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
@@ -96,13 +96,13 @@ baslerSettings BaslerCameras::getDefaultSettings()
 }
 
 // set the default parameters defined in the function above.
-void BaslerCameras::setDefaultParameters()
+void BaslerCameraCore::setDefaultParameters()
 {
 	setParameters( getDefaultSettings() );
 }
 
 // general function you should use for setting camera settings based on the input.
-void BaslerCameras::setParameters( baslerSettings settings )
+void BaslerCameraCore::setParameters( baslerSettings settings )
 {
 	/// Set the AOI:
 
@@ -195,7 +195,7 @@ void BaslerCameras::setParameters( baslerSettings settings )
 
 // I can potentially use this to reopen the camera if e.g. the user disconnects. Don't think this is really implemented
 // yet.
-void BaslerCameras::reOpenCamera(CWnd* parent)
+void BaslerCameraCore::reOpenCamera(CWnd* parent)
 {
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
@@ -212,7 +212,7 @@ void BaslerCameras::reOpenCamera(CWnd* parent)
 // get the dimensions of the camera. This is tricky because while I can get info about each parameter easily through
 // pylon, several of the parameters, such as the width, are context-sensitive and return the max values as possible 
 // given other camera settings at the moment (e.g. the binning).
-POINT BaslerCameras::getCameraDimensions()
+POINT BaslerCameraCore::getCameraDimensions()
 {
 	if (BASLER_SAFEMODE)
 	{
@@ -247,7 +247,7 @@ POINT BaslerCameras::getCameraDimensions()
 
 // get the camera "armed" (ready for aquisition). Actual start of camera taking pictures depends on things like the 
 // trigger mode.
-void BaslerCameras::armCamera( triggerThreadInput* input )
+void BaslerCameraCore::armCamera( triggerThreadInput* input )
 {
 	Pylon::EGrabStrategy grabStrat;
 	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous )
@@ -267,33 +267,33 @@ void BaslerCameras::armCamera( triggerThreadInput* input )
 }
 
 
-HANDLE BaslerCameras::getCameraThreadObj ( )
+HANDLE BaslerCameraCore::getCameraThreadObj ( )
 {
 	return cameraTrigThread;
 }
 
 
 // 
-double BaslerCameras::getCurrentExposure()
+double BaslerCameraCore::getCurrentExposure()
 {
 	return camera->getCurrentExposure();
 }
 
 //
-unsigned int BaslerCameras::getRepCounts()
+unsigned int BaslerCameraCore::getRepCounts()
 {
 	return runSettings.repCount;
 }
 
 //
-bool BaslerCameras::isContinuous()
+bool BaslerCameraCore::isContinuous()
 {
 	return runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous;
 }
 
 
 // this is the thread that programatically software-triggers the camera when triggering internally.
-void BaslerCameras::triggerThread( void* voidInput )
+void BaslerCameraCore::triggerThread( void* voidInput )
 {
 	int count = 0;
 	triggerThreadInput* input = (triggerThreadInput*)voidInput;
@@ -356,7 +356,7 @@ void BaslerCameras::triggerThread( void* voidInput )
 
 
 // stop the camera from taking any pictures, even if triggered afterwards.
-void BaslerCameras::disarm()
+void BaslerCameraCore::disarm()
 {
 	camera->stopGrabbing();
 }
@@ -370,7 +370,7 @@ void BaslerCameras::disarm()
 
  * this function comes from basler example code. Not sure if I'm using it right now.
  */
-int64_t BaslerCameras::Adjust( int64_t val, int64_t minimum, int64_t maximum, int64_t inc )
+int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum, int64_t inc )
 {
 	// Check the input parameters.
 	if (inc <= 0)

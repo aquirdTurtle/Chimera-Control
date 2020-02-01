@@ -66,7 +66,7 @@ struct ExperimentThreadInput
 	DioSystem& ttls;
 	AoSystem& aoSys;
 	AiSystem& aiSys;
-	AndorCamera& andorCamera;
+	AndorCameraCore& andorCamera;
 	DdsCore& dds;
 	std::vector<PiezoCore*> piezoControllers;
 	ScanRangeInfo variableRangeInfo;
