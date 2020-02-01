@@ -85,21 +85,6 @@ void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTr
 }
 
 
-void ImageDimsControl::drawBackgrounds( AndorWindow* camWin )
-{
-	// recolor the box, clearing last run
-	CDC* dc = camWin->GetDC();
-	dc->SelectObject( GetStockObject( DC_BRUSH ) );
-	dc->SelectObject( GetStockObject( DC_PEN ) );
-	// dark green brush
-	dc->SetDCBrushColor( RGB( 0, 10, 0 ) );
-	dc->SetDCPenColor( RGB( 255, 255, 255 ) );
-	// Drawing a rectangle with the current Device Context
-	// ??? Is there something missing here??? There's no draw...
-	camWin->ReleaseDC( dc );
-}
-
-
 void ImageDimsControl::handleSave( std::ofstream& saveFile )
 {
 	saveFile << "CAMERA_IMAGE_DIMENSIONS\n";

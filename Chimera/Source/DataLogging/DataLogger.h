@@ -42,7 +42,7 @@ class DataLogger
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DioSystem& doSys );
 		void logBaslerSettings ( baslerSettings settings, bool on );
-		void logTektronicsSettings( TektronicsAfgControl& tek );
+		void logTektronicsSettings( TektronixAfgControl& tek );
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
 		void logServoInfo ( std::vector<servoInfo> servos );
 		void initializeAiLogging ( UINT numSnapshots );

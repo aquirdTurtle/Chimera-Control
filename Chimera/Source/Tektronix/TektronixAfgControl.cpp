@@ -1,47 +1,17 @@
 // created by Mark O. Brown
 
 #include "stdafx.h"
-#include "Tektronix/TektronicsControl.h"
+#include "Tektronix/TektronixAfgControl.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "GeneralUtilityFunctions/range.h"
 
-TektronicsAfgControl::TektronicsAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
+TektronixAfgControl::TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
 	: visaFlume(safemode, address), configDelim(configurationFileDelimiter)
 {
 	
 }
 
-void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
-										   UINT control_id )
-{
-	auto& cid = control_id;
-	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	channelLabel.Create( cstr(channelText), NORM_STATIC_OPTIONS, channelLabel.sPos, parent, id++ );
-
-	controlButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	controlButton.Create( "", NORM_CHECK_OPTIONS, controlButton.sPos, parent, cid++ );
-
-	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	onOffButton.Create( "", NORM_CHECK_OPTIONS, onOffButton.sPos, parent, cid++ );
-	
-	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskButton.Create("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, cid++ );
-	
-	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	power.Create(NORM_EDIT_OPTIONS, power.sPos, parent, cid++);
-	power.EnableWindow(0);
-
-	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	mainFreq.Create(NORM_EDIT_OPTIONS, mainFreq.sPos, parent, cid++ );
-	mainFreq.EnableWindow(0);
-	
-	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskFreq.Create(NORM_EDIT_OPTIONS, fskFreq.sPos, parent, cid++ );
-	fskFreq.EnableWindow(0);
-}
-
-
-void TektronicsAfgControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
+void TektronixAfgControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequenceNumber;
@@ -95,7 +65,7 @@ void TektronicsAfgControl::interpretKey(std::vector<std::vector<parameterType>>&
 }
 
 
-HBRUSH TektronicsAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
+HBRUSH TektronixAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
 	if (controlID == onOffLabel.GetDlgCtrlID() || controlID == fskLabel.GetDlgCtrlID() 
@@ -113,93 +83,7 @@ HBRUSH TektronicsAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
 }
 
 
-void TektronicsChannelControl::handleButton ( UINT indicator )
-{
-	if ( indicator == onOffButton.GetDlgCtrlID ( ) )
-	{
-		handleOnPress ( );
-	}
-	else if ( indicator == fskButton.GetDlgCtrlID ( ) )
-	{
-		handleFskPress ( );
-	}
-}
-
-
-void TektronicsChannelControl::handleOnPress()
-{
-	if (onOffButton.GetCheck())
-	{
-		fskButton.EnableWindow();
-		power.EnableWindow();
-		mainFreq.EnableWindow();
-		if (fskButton.GetCheck())
-		{
-			fskFreq.EnableWindow();
-		}
-		else
-		{
-			fskFreq.EnableWindow(0);
-		}
-	}
-	else
-	{
-		fskButton.EnableWindow(0);
-		power.EnableWindow(0);
-		mainFreq.EnableWindow(0);
-		fskFreq.EnableWindow(0);
-	}
-}
-
-
-void TektronicsChannelControl::handleFskPress()
-{
-	bool status = fskButton.GetCheck();
-	if (status)
-	{
-		fskFreq.EnableWindow();
-	}
-	else
-	{
-		fskFreq.EnableWindow(0);
-	}	
-}
-
-
-// TODO: Gonna need to add a check if what gets returned is a double or a variable.
-tektronicsChannelOutputForm TektronicsChannelControl::getTekChannelSettings()
-{
-	currentInfo.control = controlButton.GetCheck();
-	currentInfo.on = onOffButton.GetCheck();
-	currentInfo.fsk = fskButton.GetCheck();
-
-	CString text;
-	power.GetWindowTextA(text);
-	currentInfo.power = str(text, 13, false, true);
-
-	mainFreq.GetWindowTextA(text);
-	currentInfo.mainFreq = str(text, 13, false, true);
-
-	fskFreq.GetWindowTextA(text);
-	currentInfo.fskFreq = str(text, 13, false, true);
-
-	return currentInfo;
-}
-
-
-void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
-{
-	currentInfo = info;
-	controlButton.SetCheck ( currentInfo.control );
-	onOffButton.SetCheck(currentInfo.on);
-	fskButton.SetCheck(currentInfo.fsk);
-	power.SetWindowTextA(cstr(currentInfo.power.expressionStr));
-	mainFreq.SetWindowTextA(cstr(currentInfo.mainFreq.expressionStr ));
-	fskFreq.SetWindowTextA(cstr(currentInfo.fskFreq.expressionStr ));
-}
-
-
-void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
+void TektronixAfgControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << configDelim + "\n";
 	newFile << "CHANNEL_1\n";
@@ -210,7 +94,7 @@ void TektronicsAfgControl::handleNewConfig( std::ofstream& newFile )
 }
 
 
-void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
+void TektronixAfgControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << configDelim + "\n";
 	saveFile << "CHANNEL_1\n";
@@ -226,7 +110,7 @@ void TektronicsAfgControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void TektronicsAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
+void TektronixAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
 {
 	std::string tempStr;
 	tektronicsInfo tekInfo;
@@ -251,7 +135,7 @@ void TektronicsAfgControl::handleOpenConfig(std::ifstream& configFile, Version v
 
 
 
-void TektronicsAfgControl::programMachine(UINT variation)
+void TektronixAfgControl::programMachine(UINT variation)
 {
 	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
@@ -323,7 +207,7 @@ void TektronicsAfgControl::programMachine(UINT variation)
 	}
 }
 
-void TektronicsAfgControl::handleProgram()
+void TektronixAfgControl::handleProgram()
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
@@ -358,7 +242,7 @@ void TektronicsAfgControl::handleProgram()
 }
 
 
-void TektronicsAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
+void TektronixAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 								    std::string channel2Text, LONG width, UINT control_id )
 {
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
@@ -394,19 +278,7 @@ void TektronicsAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::s
 }
 
 
-void TektronicsChannelControl::rearrange(int width, int height, fontMap fonts)
-{
-	channelLabel.rearrange(width, height, fonts);
-	controlButton.rearrange( width, height, fonts );
-	onOffButton.rearrange(width, height, fonts);
-	fskButton.rearrange(width, height, fonts);
-	mainFreq.rearrange(width, height, fonts);
-	power.rearrange(width, height, fonts);
-	fskFreq.rearrange(width, height, fonts);
-}
-
-
-std::string TektronicsAfgControl::queryIdentity()
+std::string TektronixAfgControl::queryIdentity()
 {
 	try
 	{
@@ -422,7 +294,7 @@ std::string TektronicsAfgControl::queryIdentity()
 }
 
 
-void TektronicsAfgControl::rearrange(int width, int height, fontMap fonts)
+void TektronixAfgControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
 	controlLabel.rearrange( width, height, fonts );
@@ -437,7 +309,7 @@ void TektronicsAfgControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-tektronicsInfo TektronicsAfgControl::getTekSettings()
+tektronicsInfo TektronixAfgControl::getTekSettings()
 {
 	currentInfo.channels.first = channel1.getTekChannelSettings();
 	currentInfo.channels.second = channel2.getTekChannelSettings();
@@ -445,7 +317,7 @@ tektronicsInfo TektronicsAfgControl::getTekSettings()
 }
 
 // does not set the address, that's permanent.
-void TektronicsAfgControl::setSettings(tektronicsInfo info)
+void TektronixAfgControl::setSettings(tektronicsInfo info)
 {
 	currentInfo.channels = info.channels;
 	channel1.setSettings(currentInfo.channels.first);
@@ -458,7 +330,7 @@ void TektronicsAfgControl::setSettings(tektronicsInfo info)
 }
 
 
-void TektronicsAfgControl::handleButtons(UINT indicator)
+void TektronixAfgControl::handleButtons(UINT indicator)
 {
 	channel1.handleButton ( indicator );
 	channel2.handleButton ( indicator );

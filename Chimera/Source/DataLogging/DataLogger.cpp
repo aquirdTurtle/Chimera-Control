@@ -268,7 +268,7 @@ void DataLogger::logDoSystemSettings ( DioSystem& doSys )
 
 
 
-void DataLogger::logTektronicsSettings ( TektronicsAfgControl& tek )
+void DataLogger::logTektronicsSettings ( TektronixAfgControl& tek )
 {
 	auto info = tek.getTekSettings ( );
 	try

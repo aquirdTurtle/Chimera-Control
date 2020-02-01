@@ -622,13 +622,13 @@ ParameterSystem& AuxiliaryWindow::getGlobals ( )
 }
 
 
-TektronicsAfgControl& AuxiliaryWindow::getTopBottomTek ( )
+TektronixAfgControl& AuxiliaryWindow::getTopBottomTek ( )
 {
 	return topBottomTek;
 }
 
 
-TektronicsAfgControl& AuxiliaryWindow::getEoAxialTek ( )
+TektronixAfgControl& AuxiliaryWindow::getEoAxialTek ( )
 {
 	return eoAxialTek;
 }

@@ -11,11 +11,11 @@
 #include "Agilent/Agilent.h"
 #include "NIAWG/NiawgController.h"
 #include "Python/EmbeddedPythonHandler.h"
-#include "Tektronix/TektronicsControl.h"
+#include "Tektronix/TektronixAfgControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Piezo/PiezoCore.h"
 #include "Andor/Andor.h"
-
+ 
 #include "Andor/AndorRunSettings.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "ConfigurationSystems/profileSettings.h"
@@ -78,8 +78,8 @@ struct ExperimentThreadInput
 	MicrowaveCore& rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
-	TektronicsAfgControl& topBottomTek;
-	TektronicsAfgControl& eoAxialTek;
+	TektronixAfgControl& topBottomTek;
+	TektronixAfgControl& eoAxialTek;
 	ParameterSystem& globalControl;
 	NiawgController& niawg;
 	DataLogger& logger;

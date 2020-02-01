@@ -19,7 +19,7 @@
 #include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
-#include "Tektronix/TektronicsControl.h"
+#include "Tektronix/TektronixAfgControl.h"
 #include "AnalogInput/AiSystem.h"
 #include "AnalogInput/ServoManager.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
@@ -157,8 +157,8 @@ class AuxiliaryWindow : public CDialog
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
 		MicrowaveCore& getRsg ( );
-		TektronicsAfgControl& getTopBottomTek ( );
-		TektronicsAfgControl& getEoAxialTek( );
+		TektronixAfgControl& getTopBottomTek ( );
+		TektronixAfgControl& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
 		DdsCore& getDds ( );
 		void handleProgramUwSystemNow ();
@@ -189,7 +189,7 @@ class AuxiliaryWindow : public CDialog
  		AoSystem aoSys;
 		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-		TektronicsAfgControl topBottomTek, eoAxialTek;
+		TektronixAfgControl topBottomTek, eoAxialTek;
 		MachineOptimizer optimizer;
 		ColorBox boxes;
 		ParameterSystem configParameters, globalParameters;

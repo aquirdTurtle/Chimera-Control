@@ -28,3 +28,4 @@ class SmartDC
 		CWnd* parent;
 		CDC* cdc;
 };
+
