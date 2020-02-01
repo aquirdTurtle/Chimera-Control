@@ -727,6 +727,7 @@
     <ClInclude Include="Source\MiscellaneousExperimentOptions\Repetitions.h">
       <Filter>Main Window</Filter>
     </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

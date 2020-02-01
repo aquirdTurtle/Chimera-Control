@@ -5,7 +5,7 @@
 //
 
 #pragma once
-#include "targetver.h"
+#include "LowLevel/targetver.h"
 /// MFC Stuff
 // some CString constructors will be explicit
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      
@@ -36,7 +36,7 @@
 #include <tchar.h>
 // My stuff
 #include "LowLevel/constants.h"
-#include "resource.h"
+#include "LowLevel/resource.h"
 #include "GeneralUtilityFunctions/Thrower.h"
 #include "GeneralUtilityFunctions/range.h"
 

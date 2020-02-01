@@ -11,7 +11,7 @@
 #include <array>
 #include <vector>
 
-class AndorCamera;
+class AndorCameraCore;
 class AndorCameraSettingsControl;
 
 
@@ -34,7 +34,7 @@ class PictureSettingsControl
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor);
+		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCameraCore* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange( int id );
 		void setPictureControlEnabled (int pic, bool enabled);

@@ -45,7 +45,7 @@ class AndorCameraSettingsControl
 		AndorCameraSettings getCalibrationSettings( );
 		bool getAutoCal( );
 		bool getUseCal( );
-		void setImageParameters(imageParameters newSettings, AndorWindow* camWin);
+		void setImageParameters(imageParameters newSettings);
 		void setRunSettings(AndorRunSettings inputSettings);
 		void updateImageDimSettings ( imageParameters settings );
 		void updatePicSettings ( andorPicSettingsGroup settings );

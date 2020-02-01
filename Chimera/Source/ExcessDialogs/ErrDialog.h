@@ -2,7 +2,7 @@
 #pragma once
 #include "Windows.h"
 #include "CustomMfcControlWrappers/Control.h"
-#include "resource.h"
+#include "LowLevel/resource.h"
 
 
 

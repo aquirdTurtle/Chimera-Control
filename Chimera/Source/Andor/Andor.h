@@ -22,7 +22,7 @@
 
 // This is a "Core"-like class. there's no gui associated with this. 
 
-class AndorCamera;
+class AndorCameraCore;
 
 struct cameraThreadInput
 {
@@ -31,16 +31,16 @@ struct cameraThreadInput
 	std::condition_variable_any signaler;
 	Communicator* comm;
 	// Andor is set to this in the constructor of the andor camera.
-	AndorCamera* Andor;
+	AndorCameraCore* Andor;
 	bool safemode;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes;
 };
 
 /// the important camera class.
-class AndorCamera
+class AndorCameraCore
 {
 	public:
-		AndorCamera(bool safemode_opt);
+		AndorCameraCore(bool safemode_opt);
 
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();

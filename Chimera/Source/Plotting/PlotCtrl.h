@@ -58,8 +58,8 @@ class PlotCtrl
 		void makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush );
 		void drawThresholds ( memDC* d, long  thresholds, Gdiplus::Pen* pen );
 		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX );
-		void drawLine( CDC* d, double begX, double begY, double endX, double endY, Gdiplus::Pen* p );
-		void drawLine( CDC* d, POINT beg, POINT end, Gdiplus::Pen* p );
+		void drawLine(CDC* sdc, double begX, double begY, double endX, double endY, Gdiplus::Pen* p );
+		void drawLine(CDC* sdc, POINT beg, POINT end, Gdiplus::Pen* p );
 		void convertDataToScreenCoords( std::vector<plotDataVec>& dat, std::vector<long>& thresholds);
 		void shiftTtlData( std::vector<plotDataVec>& rawData );
 		void drawLegend( memDC* d, std::vector<plotDataVec> screenData );

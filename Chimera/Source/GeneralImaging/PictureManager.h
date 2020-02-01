@@ -2,6 +2,7 @@
 #pragma once
 #include "PictureControl.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
+#include "GeneralObjects/SmartDC.h"
 #include <array>
 #include <fstream>
 
@@ -24,20 +25,20 @@ class PictureManager
 		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );
 		void rearrange( int width, int height, fontMap fonts );
-		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc );
+		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* sdc );
 		void drawBackgrounds(CDC* easel);
 		void setPalletes(std::array<int, 4> palleteIds);
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		// draw pictures...
-		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
+		void drawPicture(CDC* deviceContext, int pictureNumber, std::vector<long> picData,
 						  std::pair<UINT, UINT> minMaxPair );
-		void drawBitmap ( CDC* deviceContext, Matrix<long> picData, std::pair<int, int> minMax );
-		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+		void drawBitmap (CDC* deviceContext, Matrix<long> picData, std::pair<int, int> minMax );
+		void drawDongles(CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 						  std::vector<atomGrid> gridInfo, UINT pictureNumber, bool includingAnalysisMarkers=true );
-		void createPalettes( CDC* dc );
+		void createPalettes(CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);
-		void redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+		void redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 							 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
@@ -48,7 +49,7 @@ class PictureManager
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);
 		void resetPictureStorage();
-		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
+		void paint (CDC* sdc, CRect size, CBrush* bgdBrush );
 		const std::string configDelim;
 	private:
 		std::array<PictureControl, 4> pictures;

@@ -32,7 +32,7 @@ class BaslerWindow : public CDialogEx
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		HCURSOR OnQueryDragIcon();
 		void OnSize( UINT nType, int cx, int cy );
-		void handleArmPress();
+		void ArmCamera();
 		void handleClose();
 		void handleDisarmPress();
 		void initializeControls();
@@ -62,7 +62,7 @@ class BaslerWindow : public CDialogEx
 		bool autoScaleBaslerPictureData = true;
 		PictureManager picManager;
 		BaslerSettingsControl settingsCtrl;
-		BaslerCameras* cameraController;
+		BaslerCameraCore* cameraController;
 		PictureStats stats;
 		baslerSettings tempAcqSettings;
 		bool runningAutoAcq;

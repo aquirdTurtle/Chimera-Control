@@ -159,18 +159,17 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 
 void AndorWindow::handleImageDimsEdit( UINT id )
 {
-	CDC* dc = GetDC ();
 	try
 	{
+		SmartDC sdc (this);
 		pics.setParameters (andorSettingsCtrl.getSettings ().andor.imageSettings);
-		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true,
+		pics.redrawPictures( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true,
 							 mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{
 		mainWin->getComm( )->sendError( err.trace( ) );
 	}
-	ReleaseDC( dc );
 }
 
 
@@ -353,9 +352,8 @@ void AndorWindow::passAlwaysShowGrid()
 		alwaysShowGrid = true;
 		mainWin->checkAllMenus ( ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED );
 	}
-	CDC* dc = GetDC();
-	pics.setAlwaysShowGrid(alwaysShowGrid, dc);	
-	ReleaseDC(dc);
+	SmartDC sdc (this);
+	pics.setAlwaysShowGrid(alwaysShowGrid, sdc.get ());
 	pics.setSpecialGreaterThanMax(specialGreaterThanMax);
 }
 
@@ -494,7 +492,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	{
 		avgBackground[i] += picData.back( )[i];
 	}
-	CDC* drawer = GetDC( );
+	SmartDC sdc (this);
 	try
 	{
 		if ( picNum % curSettings.picsPerRepetition == 0 )
@@ -506,8 +504,8 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
 									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
 									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-				pics.drawPicture( drawer, counter, data, minMax );
-				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs( ),
+				pics.drawPicture( sdc.get(), counter, data, minMax );
+				pics.drawDongles( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs( ),
 								  analysisHandler.getGrids( ), picNum, false );
 				counter++;
 			}
@@ -519,7 +517,6 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	{
 		mainWin->getComm( )->sendError( err.trace( ) );
 	}
-	ReleaseDC( drawer );
 	mostRecentPicNum = picNum;
 	return 0;
 }
@@ -594,10 +591,9 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 
 	auto picsToDraw = andorSettingsCtrl.getImagesToDraw( calPicData );
-
-	CDC* drawer = GetDC( );
 	try
 	{
+		SmartDC sdc (this);
 		if (realTimePic)
 		{
 			std::pair<int, int> minMax;
@@ -606,8 +602,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
 								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-
-			pics.drawPicture( drawer, picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
+			pics.drawPicture( sdc.get (), picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
 
 			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
 						  curSettings.totalVariations, curSettings.picsPerRepetition );
@@ -631,8 +626,8 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 														   auxWin, basWin );
 					errBox ( "EXCCESSIVE CAMERA COUNTS DETECTED!!!" );
 				}
-				pics.drawPicture( drawer, counter, data, minMax );
-				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
+				pics.drawPicture( sdc.get (), counter, data, minMax );
+				pics.drawDongles( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs(),
 								  analysisHandler.getGrids(), picNum, analysisHandler.getDrawGridOption() );
 				counter++;
 			}
@@ -644,8 +639,6 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	{
 		mainWin->getComm()->sendError( err.trace() );
 	}
-
-	ReleaseDC( drawer );
 
 	// write the data to the file.
 	if (curSettings.acquisitionMode != AndorRunModes::Video)
@@ -835,9 +828,8 @@ void AndorWindow::armCameraWindow()
 	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
 	// turn some buttons off.
 	andorSettingsCtrl.cameraIsOn( true );
-	CDC* dc = GetDC();
-	pics.refreshBackgrounds( dc );
-	ReleaseDC(dc);
+	SmartDC sdc (this);
+	pics.refreshBackgrounds( sdc.get ());
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
 	mainWin->getComm()->sendColorBox(System::Camera, 'G');
@@ -888,16 +880,16 @@ void AndorWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
 	stopSound( );
 	analysisHandler.saveGridParams( );
-	CDC* dc = GetDC();
 	try
 	{
+		SmartDC sdc (this);
 		if (analysisHandler.buttonClicked())
 		{
 			coordinate loc = pics.getClickLocation(clickLocation);
 			if (loc.row != -1)
 			{
 				analysisHandler.handlePictureClick(loc);
-				pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
+				pics.redrawPictures( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs(),
 									 analysisHandler.getGrids(), false, mostRecentPicNum );
 			}
 		}
@@ -907,7 +899,7 @@ void AndorWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			if (box.row != -1)
 			{
 				selectedPixel = box;
-				pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
+				pics.redrawPictures( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs(),
 									 analysisHandler.getGrids( ), false, mostRecentPicNum );
 			}
 		}
@@ -919,7 +911,6 @@ void AndorWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			mainWin->getComm( )->sendError( err.trace( ) );
 		}
 	}
-	ReleaseDC(dc);
 }
 
 
@@ -1061,15 +1052,13 @@ BOOL AndorWindow::PreTranslateMessage(MSG* pMsg)
 	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
-// C:\Users\Regal-Lab\Code\Data_Analysis_Control
 
 void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {
 	try
 	{
-		CDC* cdc = GetDC ( );
-		pics.handleScroll ( nSBCode, nPos, scrollbar, cdc );
-		ReleaseDC ( cdc );
+		SmartDC sdc (this);
+		pics.handleScroll ( nSBCode, nPos, scrollbar, sdc.get ());
 	}
 	catch ( Error& err )
 	{
@@ -1101,18 +1090,16 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	{
 		mainWin->getComm ( )->sendError ( "Error while getting Andor Camera settings for OnSize!" + err.trace() );
 	}
-	CDC* dc = GetDC( );
 	try
 	{
-		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), false,
+		SmartDC sdc (this);
+		pics.redrawPictures( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), false,
 							 mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{
 		mainWin->getComm( )->sendError( err.trace( ) );
-	}
-	ReleaseDC( dc );
-	
+	}	
 	SetRedraw( );
 	RedrawWindow( );
 }
@@ -1151,10 +1138,8 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	{
 		mainWin->getComm( )->sendError( err.trace( ) );
 	}
-
-	CDC* dc = GetDC( );
-	pics.refreshBackgrounds( dc );
-	ReleaseDC( dc );
+	SmartDC sdc (this);
+	pics.refreshBackgrounds( sdc.get ());
 	// I used to mandate use of a button to change image parameters. Now I don't have the button and just always 
 	// update at this point.
 	readImageParameters( );
@@ -1169,7 +1154,7 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	andor.setCalibrating(true);
 }
 
-AndorCamera& AndorWindow::getCamera ( )
+AndorCameraCore& AndorWindow::getCamera ( )
 {
 	return andor;
 }
@@ -1180,9 +1165,8 @@ void AndorWindow::prepareAndor( AllExperimentInput& input )
 	input.includesAndorRun = true;
 	redrawPictures( false );
 	checkCameraIdle( );
-	CDC* dc = GetDC();
-	pics.refreshBackgrounds(dc);
-	ReleaseDC(dc);
+	SmartDC sdc (this);
+	pics.refreshBackgrounds(sdc.get ());
 	readImageParameters( );
 	pics.setNumberPicturesActive( andorSettingsCtrl.getSettings().andor.picsPerRepetition );
 	// this is a bit awkward at the moment.
@@ -1374,19 +1358,18 @@ void AndorWindow::OnPaint ()
 	CDialog::OnPaint ();
 	CRect size;
 	GetClientRect (&size);
-	CDC* cdc = GetDC ();
+	SmartDC sdc (this);
 	// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 	// work without this and I don't know what changed. I used to do:
-	cdc->SetBkColor (_myRGBs["Main-Bkgd"]);
+	sdc.get()->SetBkColor (_myRGBs["Main-Bkgd"]);
 	long width = size.right - size.left, height = size.bottom - size.top;
 	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 	// for a single plot.
 	for (auto& plt : mainAnalysisPlots)
 	{
 		plt->setCurrentDims (width, height);
-		plt->drawPlot (cdc, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"]);
+		plt->drawPlot (sdc.get (), _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"]);
 	}
-	ReleaseDC (cdc);
 }
 
 
@@ -1754,19 +1737,17 @@ void AndorWindow::setDataType( std::string dataType )
 
 void AndorWindow::redrawPictures( bool andGrid )
 {
-	CDC* dc = GetDC();
 	try
 	{
-		pics.refreshBackgrounds( dc );
+		SmartDC sdc (this);
+		pics.refreshBackgrounds( sdc.get ());
 		if (andGrid)
 		{
-			pics.drawGrids( dc );
+			pics.drawGrids( sdc.get ());
 		}
-		ReleaseDC( dc );
 	}
 	catch (Error& err)
 	{
-		ReleaseDC( dc );
 		mainWin->getComm()->sendError( err.trace() );
 	}
 	// currently don't attempt to redraw previous picture data.
@@ -1867,9 +1848,8 @@ void AndorWindow::readImageParameters()
 		comm->sendColorBox( System::Camera, 'R' );
 		comm->sendError( exception.trace() + "\r\n" );
 	}
-	CDC* dc = GetDC();
-	pics.drawGrids(dc);
-	ReleaseDC(dc);
+	SmartDC sdc (this);
+	pics.drawGrids(sdc.get ());
 }
 
 void AndorWindow::changeBoxColor(systemInfo<char> colors)

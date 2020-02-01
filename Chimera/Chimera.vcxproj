@@ -220,6 +220,7 @@
     <ClInclude Include="Source\Andor\AndorRunSettings.h" />
     <ClInclude Include="Source\Andor\AndorTemperatureStatus.h" />
     <ClInclude Include="Source\Andor\AndorTriggerModes.h" />
+    <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomGrid.h" />
     <ClInclude Include="Source\Basler\BaslerCamera.h" />

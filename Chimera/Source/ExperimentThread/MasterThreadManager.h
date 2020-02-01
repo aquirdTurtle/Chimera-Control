@@ -11,6 +11,7 @@
 #include "Python/EmbeddedPythonHandler.h"
 #include "MasterThreadInput.h"
 #include "Communicator.h"
+#include "GeneralObjects/SmartDC.h"
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include <fstream>
 #include <string>

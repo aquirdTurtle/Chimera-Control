@@ -479,7 +479,7 @@ void AndorCameraSettingsControl::updatePicSettings ( andorPicSettingsGroup setti
 
 void AndorCameraSettingsControl::updateImageDimSettings( imageParameters settings )
 {
-	imageDimensionsObj.setImageParametersFromInput ( settings, NULL );
+	imageDimensionsObj.setImageParametersFromInput ( settings );
 }
 
 
@@ -496,7 +496,7 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 	{
 		ProfileSystem::checkDelimiterLine ( configFile, "CAMERA_IMAGE_DIMENSIONS" );
 		auto params = getImageDimSettingsFromConfig ( configFile, ver );
-		imageDimensionsObj.setImageParametersFromInput ( params, NULL );
+		imageDimensionsObj.setImageParametersFromInput ( params );
 	}
 	updateRunSettingsFromPicSettings( );
 }
@@ -668,9 +668,9 @@ CBrush* AndorCameraSettingsControl::handleColor( int idNumber, CDC* colorer )
 }
 
 
-void AndorCameraSettingsControl::setImageParameters(imageParameters newSettings, AndorWindow* camWin)
+void AndorCameraSettingsControl::setImageParameters(imageParameters newSettings)
 {
-	imageDimensionsObj.setImageParametersFromInput(newSettings, camWin);
+	imageDimensionsObj.setImageParametersFromInput(newSettings);
 }
 
 
@@ -745,7 +745,7 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& con
 		settings.top = boost::lexical_cast<long> ( tempStr );
 		configStream >> tempStr;
 		settings.verticalBinning = boost::lexical_cast<long> ( tempStr );
-		setImageParameters ( settings, camWin );
+		setImageParameters ( settings );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{

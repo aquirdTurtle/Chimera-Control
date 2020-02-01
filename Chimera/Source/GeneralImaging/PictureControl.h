@@ -5,6 +5,7 @@
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "Plotting/PlotCtrl.h"
 #include "CustomMfcControlWrappers/LongCSlider.h"
+#include "GeneralObjects/SmartDC.h"
 #include "softwareAccumulationOption.h"
 
 /*
@@ -21,21 +22,21 @@ class PictureControl
 						 std::vector<Gdiplus::Pen*> graphPens= std::vector<Gdiplus::Pen*>(), CFont* font=NULL,
 						 std::vector<Gdiplus::SolidBrush*> graphBrushes= std::vector<Gdiplus::SolidBrush*>() );
 		void handleMouse( CPoint p );
-		void drawPicNum( CDC* dc, UINT picNum );
+		void drawPicNum(CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
-		void drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo);
+		void drawBitmap (CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo);
 		void setSliderControlLocs(CWnd* parent);
-		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
+		void drawPicture(CDC* deviceContext, std::vector<long> picData,
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
 		void setSliderPositions(UINT min, UINT max);
 		void drawBackground(CDC* easel);
 		void drawGrid(CDC* easel, CBrush* brush);
 		void drawCircle(CDC* dc, coordinate selectedLocation );
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
-		void drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
+		void drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
 		void setCursorValueLocations( CWnd* parent );
-		void drawRectangle( CDC* dc, RECT pixelRect );
+		void drawRectangle(CDC* dc, RECT pixelRect );
 		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
@@ -48,7 +49,7 @@ class PictureControl
 		void resetStorage();
 		void setHoverValue( );
 		void updatePlotData ( );
-		void paint ( CDC* cdc, CRect size, CBrush* bgdBrush );
+		void paint (CDC* cdc, CRect size, CBrush* bgdBrush );
 	private:
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;

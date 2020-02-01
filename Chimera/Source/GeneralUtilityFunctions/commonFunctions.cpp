@@ -400,7 +400,7 @@ namespace commonFunctions
 				logger.logMasterInput ( NULL );
 				logger.logMiscellaneousStart ( );
 				logger.logBaslerSettings ( input.baslerRunSettings, true );
-				basWin->handleArmPress ( );
+				basWin->ArmCamera( );
 				break;
 			}
 			case ID_RUNMENU_ABORTCAMERA:

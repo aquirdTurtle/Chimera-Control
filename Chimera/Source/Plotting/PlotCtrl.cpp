@@ -747,17 +747,17 @@ void PlotCtrl::drawLegend( memDC* d, std::vector<plotDataVec> screenData )
 }
 
 
-void PlotCtrl::drawLine( CDC* d, double begX, double begY, double endX, double endY, Gdiplus::Pen* p )
+void PlotCtrl::drawLine(CDC* cdc, double begX, double begY, double endX, double endY, Gdiplus::Pen* p )
 {
-	Gdiplus::Graphics g( d->GetSafeHdc( ) );
+	Gdiplus::Graphics g( cdc->GetSafeHdc( ) );
 	Gdiplus::Point p1( { int(begX), int(begY) } ), p2( { int(endX), int(endY) } );
 	g.DrawLine( p, p1, p2 );
 }
 
 
-void PlotCtrl::drawLine( CDC* d, POINT beg, POINT end, Gdiplus::Pen* p )
+void PlotCtrl::drawLine(CDC* cdc, POINT beg, POINT end, Gdiplus::Pen* p )
 {
-	Gdiplus::Graphics g( d->GetSafeHdc( ) );
+	Gdiplus::Graphics g( cdc->GetSafeHdc( ) );
 	Gdiplus::Point p1( { beg.x, beg.y } ), p2( { end.x, end.y } );
 	g.DrawLine( p, p1, p2 );
 }

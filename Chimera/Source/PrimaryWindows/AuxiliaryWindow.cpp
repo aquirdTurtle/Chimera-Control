@@ -380,24 +380,23 @@ void AuxiliaryWindow::OnPaint( )
 	{
 		CRect size;
 		GetClientRect( &size );
-		CDC* cdc = GetDC( );
+		SmartDC sdc (this);
 		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 		// work without this and I don't know what changed. I used to do:
-		cdc->SetBkColor( _myRGBs["Main-Bkgd"] );
+		sdc.get()->SetBkColor( _myRGBs["Main-Bkgd"] );
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 		// for a single plot.
 		for ( auto& ttlPlt : ttlPlots )
 		{
 			ttlPlt->setCurrentDims( width, height );
-			ttlPlt->drawPlot ( cdc, _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
+			ttlPlt->drawPlot ( sdc.get (), _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
 		}
 		for ( auto& dacPlt : aoPlots )
 		{
 			dacPlt->setCurrentDims( width, height );
-			dacPlt->drawPlot ( cdc, _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
+			dacPlt->drawPlot ( sdc.get (), _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
 		}
-		ReleaseDC( cdc );
 	}
 }
 

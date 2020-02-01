@@ -243,7 +243,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std
 	return fileSettings;
 }
 
-void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor)
+void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version ver, AndorCameraCore* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
 	auto settings = getPictureSettingsFromConfig ( openFile, ver );
