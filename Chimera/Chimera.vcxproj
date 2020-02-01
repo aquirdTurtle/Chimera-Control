@@ -328,7 +328,7 @@
     <ClInclude Include="Source\ExcessDialogs\splashDialog.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h" />
-    <ClInclude Include="Source\Tektronix\TektronicsControl.h" />
+    <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
     <ClInclude Include="Source\ExcessDialogs\TextPromptDialog.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\commonFunctions.h" />
     <ClInclude Include="Source\NIAWG\NiawgController.h" />
@@ -349,6 +349,8 @@
     <ClInclude Include="Source\DigitalOutput\viewpointStructures.h" />
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h" />
     <ClInclude Include="Source\Microwave\WindFreakFlume.h" />
+    <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
+    <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Agilent\Agilent.cpp" />
@@ -442,7 +444,7 @@
     <ClCompile Include="Source\ExcessDialogs\splashDialog.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />
-    <ClCompile Include="Source\Tektronix\TektronicsControl.cpp" />
+    <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
     <ClCompile Include="Source\ExcessDialogs\TextPromptDialog.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgController.cpp" />
@@ -464,6 +466,7 @@
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp" />
     <ClCompile Include="Source\Microwave\WindFreakFlume.cpp" />
     <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp" />
+    <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\JILA.bmp" />

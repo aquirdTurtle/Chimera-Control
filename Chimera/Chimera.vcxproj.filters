@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\Tektronix\TektronicsControl.cpp" />
     <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
@@ -311,6 +310,8 @@
     <ClCompile Include="Source\MiscellaneousExperimentOptions\Repetitions.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
+    <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -319,7 +320,6 @@
     <ClInclude Include="FTDI\ftd2xx.h">
       <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Tektronix\TektronicsControl.h" />
     <ClInclude Include="Source\Agilent\agilentStructures.h">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClInclude>
@@ -728,6 +728,9 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
+    <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
+    <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
+    <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
