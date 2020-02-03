@@ -1,0 +1,1 @@
+This is a subset of the boost libraries (which are very big) which I've set aside using the "bcp" utility. (https://www.boost.org/doc/libs/1_43_0/tools/bcp/doc/html/index.html). If you need to add to this, I suggest downloading a full install of boost and then using bcp yourself. 
