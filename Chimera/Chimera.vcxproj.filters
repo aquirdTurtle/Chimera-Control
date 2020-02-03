@@ -1,724 +1,736 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="externals.cpp">
-      <Filter>Constants, Externals, Etc.</Filter>
+    <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    <ClCompile Include="Source\Agilent\Agilent.cpp">
+      <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
-    <ClCompile Include="Script.cpp">
-      <Filter>Scripting Window</Filter>
-    </ClCompile>
-    <ClCompile Include="StatusIndicator.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StatusControl.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TektronicsControl.cpp">
+    <ClCompile Include="Source\AnalogInput\AiSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptingWindow.cpp">
-      <Filter>Scripting Window</Filter>
-    </ClCompile>
-    <ClCompile Include="RhodeSchwarz.cpp">
+    <ClCompile Include="Source\AnalogOutput\AnalogOutput.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Repetitions.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ProfileIndicator.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PictureControl.cpp">
+    <ClCompile Include="Source\Andor\Andor.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
-    <ClCompile Include="PictureStats.cpp">
+    <ClCompile Include="Source\Andor\AndorRunMode.cpp">
+      <Filter>Andor Window\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Andor\AndorRunSettings.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
-    <ClCompile Include="PictureManager.cpp">
-      <Filter>Andor Window</Filter>
+    <ClCompile Include="Source\Andor\AndorTriggerModes.cpp">
+      <Filter>Andor Window\Structures</Filter>
     </ClCompile>
-    <ClCompile Include="PictureSettingsControl.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="NoteSystem.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterConfiguration.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="MainOptionsControl.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ExperimentTimer.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="EmbeddedPythonHandler.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AuxiliaryWindow.cpp">
+    <ClCompile Include="Source\AnalogOutput\AoSettingsDialog.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Communicator.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="commonFunctions.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorBox.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraImageDimensions.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraSettingsControl.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Andor.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="AlertSystem.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="SmsTextingControl.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="DataLogger.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="VisaFlume.cpp">
+    <ClCompile Include="Source\AnalogOutput\AoSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="ProfileSystem.cpp">
-      <Filter>Main Window</Filter>
+    <ClCompile Include="Source\Basler\BaslerCamera.cpp">
+      <Filter>Basler Window</Filter>
     </ClCompile>
-    <ClCompile Include="ChimeraApp.cpp">
-      <Filter>General Files</Filter>
+    <ClCompile Include="Source\Basler\BaslerSettings.cpp">
+      <Filter>Basler Window</Filter>
     </ClCompile>
-    <ClCompile Include="GpibFlume.cpp">
+    <ClCompile Include="Source\Basler\BaslerSettingsControl.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DirectDigitalSynthesis\DdsCore.cpp" />
+    <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="DebugOptionsControl.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="AoSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ParameterSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="AiSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="ftdiFlume.cpp">
+    <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystemStructures.cpp" />
+    <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
-    <ClCompile Include="DoubleEdit.cpp">
-      <Filter>Custom-Controls</Filter>
+    <ClCompile Include="Source\DigitalOutput\DioSystem.cpp">
+      <Filter>DIO</Filter>
     </ClCompile>
-    <ClCompile Include="DaqMxFlume.cpp">
+    <ClCompile Include="Source\DigitalOutput\DioSettingsDialog.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DigitalOutput\DioRows.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp">
       <Filter>National-Instruments</Filter>
     </ClCompile>
-    <ClCompile Include="myButton.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="ServoManager.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="functionCombo.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="DioSettingsDialog.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="DioSystem.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="WinSerialFlume.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="OscilloscopeViewer.cpp">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClCompile>
-    <ClCompile Include="PlotCtrl.cpp">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClCompile>
-    <ClCompile Include="PlotDialog.cpp">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClCompile>
-    <ClCompile Include="splashDialog.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="TextPromptDialog.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="saveWithExplorer.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="openWithExplorer.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="cleanString.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="miscCommonFunctions.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Expression.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="ScriptStream.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="PlotDataSet.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
-    <ClCompile Include="PlotDesignerDialog.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
-    <ClCompile Include="PlottingInfo.cpp">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClCompile>
-    <ClCompile Include="viewpointFlume.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="NiawgController.cpp">
+    <ClCompile Include="Source\NIAWG\NiawgController.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
-    <ClCompile Include="Fgen.cpp">
+    <ClCompile Include="Source\NIAWG\NiawgStructures.cpp">
+      <Filter>National-Instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NIAWG\NiawgWaiter.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
-    <ClCompile Include="NiawgWaiter.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    <ClCompile Include="Source\Piezo\PiezoController.cpp">
+      <Filter>PiezoControllers</Filter>
     </ClCompile>
-    <ClCompile Include="Agilent.cpp">
+    <ClCompile Include="Source\Piezo\PiezoCore.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Piezo\PiezoFlume.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Microwave\MicrowaveCore.cpp">
+      <Filter>MicrowaveSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Microwave\MicrowaveSystem.cpp">
+      <Filter>MicrowaveSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
-    <ClCompile Include="scriptedAgilentWaveform.cpp">
+    <ClCompile Include="Source\Agilent\Segment.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
-    <ClCompile Include="Segment.cpp">
+    <ClCompile Include="Source\Agilent\SegmentEnd.cpp">
       <Filter>Auxiliary Window\Agilent</Filter>
     </ClCompile>
-    <ClCompile Include="AoSettingsDialog.cpp">
-      <Filter>Auxiliary Window</Filter>
+    <ClCompile Include="Source\Microwave\WindFreakFlume.cpp">
+      <Filter>MicrowaveSystem</Filter>
     </ClCompile>
-    <ClCompile Include="range.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    <ClCompile Include="Source\Plotting\PlotCtrl.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
     </ClCompile>
-    <ClCompile Include="CameraCalibration.cpp">
-      <Filter>Andor Window</Filter>
+    <ClCompile Include="Source\Plotting\PlotDataSet.cpp">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="StartDialog.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
+    <ClCompile Include="Source\Plotting\PlotDialog.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
     </ClCompile>
-    <ClCompile Include="CodeTimer.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    <ClCompile Include="Source\Plotting\PlottingInfo.cpp">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="rerngGuiControl.cpp">
+    <ClCompile Include="Source\NIAWG\Rearrangement\rerngGuiControl.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
-    <ClCompile Include="BaslerCamera.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
-    <ClCompile Include="BaslerWindow.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
-    <ClCompile Include="BaslerSettings.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
-    <ClCompile Include="BaslerSettingsControl.cpp">
-      <Filter>Basler Window</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterManager.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AndorRunMode.cpp">
-      <Filter>Andor Window\Structures</Filter>
-    </ClCompile>
-    <ClCompile Include="AndorTriggerModes.cpp">
-      <Filter>Andor Window\Structures</Filter>
-    </ClCompile>
-    <ClCompile Include="DioRows.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="MyListCtrl.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="rerngOptionStructures.cpp">
+    <ClCompile Include="Source\NIAWG\Rearrangement\rerngOptionStructures.cpp">
       <Filter>Main Window\Structures</Filter>
     </ClCompile>
-    <ClCompile Include="ErrDialog.cpp">
+    <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="AndorWindow.cpp">
+    <ClCompile Include="Source\PrimaryWindows\AndorWindow.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
-    <ClCompile Include="DataAnalysisControl.cpp">
+    <ClCompile Include="Source\PrimaryWindows\AuxiliaryWindow.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PrimaryWindows\BaslerWindow.cpp">
+      <Filter>Basler Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PrimaryWindows\MainWindow.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PrimaryWindows\ScriptingWindow.cpp">
+      <Filter>Scripting Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp">
+      <Filter>PiezoControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentThread\MasterThreadInput.cpp" />
+    <ClCompile Include="Source\ExperimentThread\MasterThreadManager.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\openWithExplorer.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\ErrDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="AnalogOutput.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="AndorRunSettings.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="NiawgStructures.cpp">
-      <Filter>National-Instruments</Filter>
-    </ClCompile>
-    <ClCompile Include="SegmentEnd.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClCompile>
-    <ClCompile Include="LongCSlider.cpp">
+    <ClCompile Include="Source\CustomMfcControlWrappers\DoubleEdit.cpp">
       <Filter>Custom-Controls</Filter>
     </ClCompile>
-    <ClCompile Include="DigitalOutput.cpp">
-      <Filter>DIO</Filter>
+    <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp">
+      <Filter>Custom-Controls</Filter>
     </ClCompile>
-    <ClCompile Include="MachineOptimizer.cpp">
-      <Filter>Auxiliary Window</Filter>
+    <ClCompile Include="Source\CustomMfcControlWrappers\functionCombo.cpp">
+      <Filter>Custom-Controls</Filter>
     </ClCompile>
-    <ClCompile Include="MasterThreadInput.cpp" />
-    <ClCompile Include="DdsSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
+    <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="DdsSystemStructures.cpp" />
-    <ClCompile Include="AgilentChannelMode.cpp">
-      <Filter>Auxiliary Window\Agilent</Filter>
+    <ClCompile Include="Source\CustomMfcControlWrappers\myButton.cpp">
+      <Filter>Custom-Controls</Filter>
     </ClCompile>
-    <ClCompile Include="DdsCore.cpp" />
-    <ClCompile Include="AndorFlume.cpp" />
-    <ClCompile Include="PiezoController.cpp">
-      <Filter>PiezoControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="PiezoCore.cpp">
-      <Filter>PiezoControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="PiezoFlume.cpp">
-      <Filter>PiezoControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="UintEdit.cpp">
+    <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
-    <ClCompile Include="SerialPiezoFlume.cpp">
-      <Filter>PiezoControllers</Filter>
+    <ClCompile Include="Source\DigitalOutput\viewpointFlume.cpp">
+      <Filter>DIO</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Microwave\RsgFlume.cpp">
+      <Filter>MicrowaveSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CustomMfcControlWrappers\UintEdit.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\StartDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\splashDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\TextPromptDialog.cpp">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ParameterSystem\ParameterSystem.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NIAWG\Fgen.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralFlumes\ftdiFlume.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Andor\CameraCalibration.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Andor\CameraImageDimensions.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Andor\CameraSettingsControl.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigurationSystems\ProfileIndicator.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigurationSystems\ProfileSystem.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ParameterSystem\Expression.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigurationSystems\MasterConfiguration.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scripts\Script.cpp">
+      <Filter>Scripting Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scripts\ScriptStream.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Python\SmsTextingControl.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Python\EmbeddedPythonHandler.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralImaging\PictureControl.cpp" />
+    <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
+    <ClCompile Include="Source\GeneralImaging\PictureStats.cpp" />
+    <ClCompile Include="Source\Andor\PictureSettingsControl.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Andor\AndorFlume.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LowLevel\ChimeraApp.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LowLevel\stdafx.cpp">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LowLevel\externals.cpp">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralUtilityFunctions\cleanString.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralUtilityFunctions\miscCommonFunctions.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Plotting\OscilloscopeViewer.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralUtilityFunctions\range.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\AlertSystem.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\ColorBox.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExperimentThread\Communicator.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AnalogInput\ServoManager.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralObjects\CodeTimer.cpp">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataLogging\DataLogger.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MiscellaneousExperimentOptions\Repetitions.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
+    <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="constants.h">
-      <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="externals.h">
-      <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="TektronicsControl.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Script.h">
-      <Filter>Scripting Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptingWindow.h">
-      <Filter>Scripting Window</Filter>
-    </ClInclude>
-    <ClInclude Include="RhodeSchwarz.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Repetitions.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PictureStats.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PictureSettingsControl.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PictureControl.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="PictureManager.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="NoteSystem.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ProfileIndicator.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StatusControl.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StatusIndicator.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MasterConfiguration.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="MainWindow.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="MainOptionsControl.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ExperimentTimer.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="AuxiliaryWindow.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="EmbeddedPythonHandler.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraSettingsControl.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Communicator.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="commonTypes.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="commonFunctions.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorBox.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Andor.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="AlertSystem.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="SmsTextingControl.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraImageDimensions.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ATMCD32D.H">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ClInclude>
     <ClInclude Include="longnam.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
-    <ClInclude Include="DataLogger.h">
+    <ClInclude Include="FTDI\ftd2xx.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\agilentStructures.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\AgilentSettings.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\AgilentChannelMode.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\Agilent.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogInput\AiSettings.h" />
+    <ClInclude Include="Source\AnalogInput\AiSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogOutput\AnalogOutput.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\Andor.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
-    <ClInclude Include="VisaFlume.h">
+    <ClInclude Include="Source\Andor\AndorRunMode.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\AndorRunSettings.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\AndorTemperatureStatus.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\AndorTriggerModes.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogOutput\AoSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="ProfileSystem.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ChimeraApp.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VariableStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="GpibFlume.h">
+    <ClInclude Include="Source\AnalogOutput\AoStructures.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="AndorRunSettings.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="atomCruncherInput.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="atomGrid.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="cameraPositions.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="imageParameters.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="tinyPlotInfo.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="realTimePlotterInput.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="profileSettings.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="segmentStructs.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugOptionsControl.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngThreadInput.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="AoSystem.h">
+    <ClInclude Include="Source\AnalogOutput\AoSystem.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="ParameterSystem.h">
+    <ClInclude Include="Source\Andor\andorPicSettingsGroup.h" />
+    <ClInclude Include="Source\Basler\BaslerCamera.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Basler\BaslerSettings.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Basler\BaslerSettingsControl.h">
+      <Filter>Basler Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DirectDigitalSynthesis\DdsCore.h" />
+    <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystem.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="AiSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="AoStructures.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="ftdiFlume.h">
+    <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystemStructures.h" />
+    <ClInclude Include="Source\DigitalOutput\DigitalOutput.h">
       <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="DoubleEdit.h">
-      <Filter>Custom-Controls</Filter>
+    <ClInclude Include="Source\DigitalOutput\DioSystem.h">
+      <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="myButton.h">
-      <Filter>Custom-Controls</Filter>
+    <ClInclude Include="Source\DigitalOutput\DioSettingsDialog.h">
+      <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="ServoManager.h">
+    <ClInclude Include="Source\DigitalOutput\DioRows.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\NiawgController.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\NiawgStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\NiawgWaiter.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\CmdLibrary.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\PiezoController.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\PiezoCore.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\PiezoFlume.h">
+      <Filter>PiezoControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Microwave\MicrowaveCore.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Microwave\microwaveSettings.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Microwave\MicrowaveSystem.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\scriptedAgilentWaveform.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\Segment.h">
+      <Filter>Auxiliary Window\Agilent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Agilent\SegmentEnd.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="functionCombo.h">
-      <Filter>Custom-Controls</Filter>
+    <ClInclude Include="Source\Agilent\segmentStructs.h">
+      <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="DioSettingsDialog.h">
-      <Filter>DIO</Filter>
+    <ClInclude Include="Source\Microwave\WindFreakFlume.h">
+      <Filter>MicrowaveSystem</Filter>
     </ClInclude>
-    <ClInclude Include="DioSystem.h">
-      <Filter>DIO</Filter>
+    <ClInclude Include="Source\Plotting\PlotDataSet.h">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="ftd2xx.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="PlotDialog.h">
+    <ClInclude Include="Source\Plotting\PlotDialog.h">
       <Filter>Plotting-And-Viewing</Filter>
     </ClInclude>
-    <ClInclude Include="splashDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="TextPromptDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="saveWithExplorer.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="multiDimensionalKey.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Version.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Thrower.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="range.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Control.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="cleanString.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="miscCommonFunctions.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Expression.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptStream.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="PlotDataSet.h">
+    <ClInclude Include="Source\Plotting\PlottingInfo.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="PlotDesignerDialog.h">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
-    <ClInclude Include="PlottingInfo.h">
-      <Filter>Andor Window\Real-Time-Analysis</Filter>
-    </ClInclude>
-    <ClInclude Include="viewpointStructures.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="viewpointFlume.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="NiawgController.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
-    <ClInclude Include="directions.h">
+    <ClInclude Include="Source\NIAWG\Rearrangement\rerngContainer.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Fgen.h">
+    <ClInclude Include="Source\NIAWG\Rearrangement\rerngGuiControl.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
-    <ClInclude Include="NiawgWaiter.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
-    <ClInclude Include="memdc.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="debugInfo.h">
+    <ClInclude Include="Source\NIAWG\Rearrangement\rerngMoveStructures.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Agilent.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
+    <ClInclude Include="Source\NIAWG\Rearrangement\rerngOptionStructures.h">
+      <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="agilentStructures.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
+    <ClInclude Include="Source\NIAWG\Rearrangement\rerngThreadInput.h">
+      <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="scriptedAgilentWaveform.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
+    <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="Segment.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="AoSettingsDialog.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="MasterThreadInput.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraCalibration.h">
+    <ClInclude Include="Source\PrimaryWindows\AndorWindow.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
-    <ClInclude Include="StartDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
+    <ClInclude Include="Source\PrimaryWindows\AuxiliaryWindow.h">
+      <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="CodeTimer.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    <ClInclude Include="Source\PrimaryWindows\ScriptingWindow.h">
+      <Filter>Scripting Window</Filter>
     </ClInclude>
-    <ClInclude Include="Queues.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngGuiControl.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
-    </ClInclude>
-    <ClInclude Include="BaslerCamera.h">
+    <ClInclude Include="Source\PrimaryWindows\BaslerWindow.h">
       <Filter>Basler Window</Filter>
     </ClInclude>
-    <ClInclude Include="BaslerWindow.h">
-      <Filter>Basler Window</Filter>
+    <ClInclude Include="Source\PrimaryWindows\MainWindow.h">
+      <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="BaslerSettingsControl.h">
-      <Filter>Basler Window</Filter>
+    <ClInclude Include="Source\Piezo\SerialPiezoFlume.h">
+      <Filter>PiezoControllers</Filter>
     </ClInclude>
-    <ClInclude Include="BaslerSettings.h">
-      <Filter>Basler Window</Filter>
-    </ClInclude>
-    <ClInclude Include="MasterManager.h">
+    <ClInclude Include="Source\ExperimentThread\MasterThreadInput.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="AndorTriggerModes.h">
-      <Filter>Andor Window\Structures</Filter>
+    <ClInclude Include="Source\ExperimentThread\MasterThreadManager.h">
+      <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="AndorRunMode.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="DioRows.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="MyListCtrl.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="NiawgStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngContainer.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngOptionStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rerngMoveStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="ErrDialog.h">
+    <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
+    <ClInclude Include="Source\ExcessDialogs\ErrDialog.h">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="AndorWindow.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DataAnalysisControl.h">
+    <ClInclude Include="Source\RealTimeDataAnalysis\DataAnalysisControl.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="AnalogOutput.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="SegmentEnd.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="dataPoint.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="LongCSlider.h">
+    <ClInclude Include="Source\CustomMfcControlWrappers\DoubleEdit.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
-    <ClInclude Include="DigitalOutput.h">
-      <Filter>DIO</Filter>
+    <ClInclude Include="Source\CustomMfcControlWrappers\LongCSlider.h">
+      <Filter>Custom-Controls</Filter>
     </ClInclude>
-    <ClInclude Include="MachineOptimizer.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DdsSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DdsSystemStructures.h" />
-    <ClInclude Include="softwareAccumulationOption.h" />
-    <ClInclude Include="AgilentChannelMode.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="AgilentSettings.h">
-      <Filter>Auxiliary Window\Agilent</Filter>
-    </ClInclude>
-    <ClInclude Include="ExpWrap.h" />
-    <ClInclude Include="DdsCore.h" />
-    <ClInclude Include="AndorFlume.h" />
-    <ClInclude Include="andorPicSettingsGroup.h" />
-    <ClInclude Include="PiezoController.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="PiezoCore.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="PiezoFlume.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="PiezoType.h">
-      <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="AndorTemperatureStatus.h">
-      <Filter>Andor Window</Filter>
-    </ClInclude>
-    <ClInclude Include="AiSettings.h" />
-    <ClInclude Include="servoInfo.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="UintEdit.h">
+    <ClInclude Include="Source\Plotting\dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
-    <ClInclude Include="SerialPiezoFlume.h">
+    <ClInclude Include="Source\CustomMfcControlWrappers\functionCombo.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
+      <Filter>Andor Window\Real-Time-Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomMfcControlWrappers\myButton.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomMfcControlWrappers\MyListCtrl.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
-    <ClInclude Include="CmdLibrary.h">
-      <Filter>PiezoControllers</Filter>
+    <ClInclude Include="Source\DigitalOutput\viewpointStructures.h">
+      <Filter>DIO</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DigitalOutput\viewpointFlume.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Microwave\RsgFlume.h">
+      <Filter>MicrowaveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomMfcControlWrappers\Control.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomMfcControlWrappers\UintEdit.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExcessDialogs\StartDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExcessDialogs\splashDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExcessDialogs\TextPromptDialog.h">
+      <Filter>Miscellaneous-Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParameterSystem\ParameterSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\Fgen.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\ftdiFlume.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\CameraCalibration.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\CameraImageDimensions.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\cameraPositions.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\CameraSettingsControl.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\profileSettings.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\ProfileSystem.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\Version.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\realTimePlotterInput.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ParameterSystem\Expression.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\MasterConfiguration.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scripts\Script.h">
+      <Filter>Scripting Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Scripts\ScriptStream.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Python\SmsTextingControl.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Python\EmbeddedPythonHandler.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralImaging\imageParameters.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
+    <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
+    <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
+    <ClInclude Include="Source\Andor\PictureSettingsControl.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\AndorFlume.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
+    <ClInclude Include="Source\NIAWG\directions.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\atomGrid.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralImaging\memdc.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Plotting\tinyPlotInfo.h">
+      <Filter>Andor Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LowLevel\ChimeraApp.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LowLevel\targetver.h">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LowLevel\constants.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LowLevel\externals.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LowLevel\resource.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\commonTypes.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\ExpWrap.h" />
+    <ClInclude Include="Source\GeneralObjects\Matrix.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\multiDimensionalKey.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\Queues.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\RunInfo.h" />
+    <ClInclude Include="Source\GeneralUtilityFunctions\commonFunctions.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralUtilityFunctions\cleanString.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralUtilityFunctions\miscCommonFunctions.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralUtilityFunctions\range.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralUtilityFunctions\Thrower.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\AlertSystem.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\ColorBox.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentThread\Communicator.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\NoteSystem.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogInput\ServoManager.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogInput\servoInfo.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\CodeTimer.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\stdafx.h">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataLogging\DataLogger.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MiscellaneousExperimentOptions\debugInfo.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MiscellaneousExperimentOptions\Repetitions.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
+    <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
+    <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
+    <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -807,42 +819,45 @@
     <Filter Include="PiezoControllers">
       <UniqueIdentifier>{1befae8c-1b44-42be-8ce3-3c3ecddfb6c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MicrowaveSystem">
+      <UniqueIdentifier>{e757d9d7-2044-4078-b3e8-9df8e98eec09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Chimera.rc">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="coordinate.h">
-      <Filter>Andor Window\Structures</Filter>
-    </None>
-    <None Include="ftdiStructures.h">
-      <Filter>DIO</Filter>
-    </None>
-    <None Include="DaqMxFlume.h">
-      <Filter>National-Instruments</Filter>
-    </None>
-    <None Include="DioStructures.h">
-      <Filter>DIO</Filter>
-    </None>
-    <None Include="WinSerialFlume.h">
-      <Filter>DIO</Filter>
-    </None>
-    <None Include="OscilloscopeViewer.h">
-      <Filter>Plotting-And-Viewing</Filter>
-    </None>
-    <None Include="PlotCtrl.h">
-      <Filter>Plotting-And-Viewing</Filter>
-    </None>
-    <None Include="my_str.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </None>
     <None Include="Old_Intensity_Calibrations.txt">
       <Filter>National-Instruments</Filter>
     </None>
+    <None Include="Source\DigitalOutput\DioStructures.h">
+      <Filter>DIO</Filter>
+    </None>
+    <None Include="Source\AnalogOutput\DaqMxFlume.h">
+      <Filter>National-Instruments</Filter>
+    </None>
+    <None Include="Source\Plotting\PlotCtrl.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </None>
+    <None Include="Source\GeneralFlumes\WinSerialFlume.h">
+      <Filter>DIO</Filter>
+    </None>
+    <None Include="Source\GeneralFlumes\ftdiStructures.h">
+      <Filter>DIO</Filter>
+    </None>
+    <None Include="Source\GeneralObjects\coordinate.h">
+      <Filter>Andor Window\Structures</Filter>
+    </None>
+    <None Include="Source\GeneralUtilityFunctions\my_str.h">
+      <Filter>Misc-Small-Funcs-And-Classes</Filter>
+    </None>
+    <None Include="Source\Plotting\OscilloscopeViewer.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Source\LowLevel\Chimera.rc">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
