@@ -15,18 +15,29 @@ pulseon: tweezerIntensityTrig 0.1
 pulseon: dds_step 5
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1
+off: sidemotShutter 
+off: diagmotShutter 
+on: totalRamanRf
+off: repumpShutter
 t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
 call intrapgreymolasses()
 off: shutter795
 pulseon: tweezerIntensityTrig 0.1
+call send_uw_to_raman_eom()
 t += 1
 call pump2stretch() 
 call sbc()
-rsg: (6.83103 + uw_spec_mod_khz/1000000) 5
-var specPulseTime 0.12 % 0.07
+%dac: repumpfreq 1.5
+%pulseon: tweezerIntensityTrig 0.1
+%t += 1.01
+%pulseon: tweezerIntensityTrig 0.1
+%t += 1.01
+rsg: (6.83103 + uw_spec_mod_khz/1000000) -9.5
+var specPulseTime 0.08 % 0.07
 on: a15
+dac: eoPulseLev eo_raman__servo_value
 dac: topPulseLev top_raman_sideband_spec__servo_value
 call topRamanPulse(specPulseTime)
 off: a15

@@ -79,19 +79,6 @@ std::string WinSerialFlume::read ( )
 	DWORD numBytesRead;
 	if ( !safemode )
 	{
-		/*
-		auto err = SetCommMask ( serialPortHandle, EV_RXCHAR );
-		if ( err == 0 )
-		{
-			thrower ( "Failed to set comm mask?!?" );
-		}
-		DWORD dwEventMask; 
-		err = WaitCommEvent ( serialPortHandle, &dwEventMask, NULL );
-		if ( err == 0 )
-		{
-			thrower ( "WaitCommEvent Failed?!" );
-		}
-		*/
 		int err;
 		char readChar;
 		int totalCount = 0;

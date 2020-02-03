@@ -5,7 +5,7 @@ def inTrapGreyMolasses():
   var cooling_time 20
   var D1SidemotPow 0.27
   var rsfreq -0.05
-  var rsPow 2
+  var rsPow -5 % 2
 
   % init system
   off: diagMotRf

@@ -649,7 +649,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	SetTimer( 1, 10000, NULL );
 	// set up the threads that update the scope data.
-	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL );
+	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL);
 	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
 	//
 

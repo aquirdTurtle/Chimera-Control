@@ -17,7 +17,7 @@ struct AndorRunSettings
 	int readMode = 4;
 	AndorRunModes::mode acquisitionMode = AndorRunModes::mode::Kinetic;
 	// 1 means frame transfer mode on, 0 means non-frame transfer mode.
-	int frameTransferMode = 0;
+	int frameTransferMode = 1;
 	AndorTriggerMode::mode triggerMode = AndorTriggerMode::mode::External;
 	bool showPicsInRealTime = false;
 	//

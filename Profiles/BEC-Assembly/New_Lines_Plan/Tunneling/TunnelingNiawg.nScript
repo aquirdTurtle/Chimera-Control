@@ -1,0 +1,87 @@
+% Default Y Script
+% 
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+var_v 11 initFreqs [ 22.5 33.2 43.9 54.6 65.3 76.0 86.7 97.4 108.1 118.8 129.5 ]
+var_v 11 initAmps [ 0.2713981241673309 0.09072613769741242 0.07847745769086616
+0.04659757380473037 0.06543435405527302 0.02935756685076464 0.06287587394122254
+0.0367271747178628 0.0769993883224057 0.06866790495218023 0.17273844379995124 ]
+var_v 11 initPhases [ 0.3550534427 0.3729561747 2.591875344 4.205774186
+3.775361594 6.253222519 4.75830296 6.266974382 5.089729223 4.53322605 0 ]
+var_v 11 tunnelFreqs [ 30.5 33.2 51.9 54.6 65.3 
+			     76.0 78.7 97.4 100.1 118.8 121.5 ]
+var_v 11 tunnelAmps [ 0.2713981241673309 0.09072613769741242 0.07847745769086616
+0.04659757380473037 0.06543435405527302 0.02935756685076464 0.06287587394122254
+0.0367271747178628 0.0769993883224057 0.06866790495218023 0.17273844379995124 ]
+var_v 11 prevPhases [ -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 ]
+var_v 11 ampR [ nr nr nr nr nr nr nr nr nr nr nr ]
+var_v 11 freqR [ lin nr lin nr nr nr lin nr lin nr lin ]
+
+repeatForever
+repeatTilTrig
+gen11const_v 
+Horizontal
+initFreqs initAmps initPhases # 
+gen1const
+Vertical
+75	1	0 #
+0.01 0
+endRepeat
+
+gen11const_v 
+Horizontal
+initFreqs initAmps initPhases  # 
+gen1const
+Vertical
+75	1	0 #
+0.01 0
+
+gen11const_v 
+Horizontal
+initFreqs initAmps initPhases  # 
+gen1const
+Vertical
+75	1	0 #
+0.01 0
+
+gen11freq&ampramp_v
+Horizontal
+freqR initfreqs tunnelFreqs ampR initAmps tunnelAmps initPhases # 
+gen1const
+Vertical
+75 	1	0 #
+2 0
+
+repeatTilTrig
+
+gen11const_v
+Horizontal
+tunnelFreqs tunnelAmps prevPhases # 
+gen1const
+Vertical
+75	1	0 #
+0.01 0
+
+endRepeat
+
+gen11freq&ampramp_v
+Horizontal
+freqR tunnelFreqs initfreqs ampR tunnelAmps initAmps prevPhases  # 
+gen1const
+Vertical
+75 	1	0 #
+1 0
+
+repeatTilTrig
+gen11const_v 
+Horizontal
+initFreqs initAmps prevPhases  # 
+gen1const
+Vertical
+75	1	0 #
+0.01 0
+endRepeat
+
+endRepeat
+
+

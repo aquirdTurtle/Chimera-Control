@@ -419,7 +419,7 @@ void AndorWindow::abortCameraRun()
 		}
 		
 
-		if (andor.getAndorRunSettings().acquisitionMode != AndorRunModes::Video)
+		if (andor.getAndorRunSettings().acquisitionMode != AndorRunModes::mode::Video)
 		{
 			int answer = promptBox("Acquisition Aborted. Delete Data file (data_" + str(dataHandler.getDataFileNumber())
 									  + ".h5) for this run?",MB_YESNO );
@@ -548,7 +548,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	if ( lParam != currentPictureNum && lParam != -1 )
 	{
-		if ( curSettings.acquisitionMode != AndorRunModes::Video )
+		if ( curSettings.acquisitionMode != AndorRunModes::mode::Video )
 		{
 			//mainWin->getComm ( )->sendError ( "WARNING: picture number reported by andor isn't matching the"
 			//								  "camera window record?!?!?!?!?" );
@@ -624,13 +624,21 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 										curSettings.totalPicsInExperiment ( ) / curSettings.picsPerRepetition );
 				if ( minMax.second > 50000 )
 				{
-					// POTENTIALLY DANGEROUS TO CAMERA.
-					// AUTO PAUSE THE EXPERIMENT. 
-					// This can happen if a laser, particularly the axial raman laser, is left on during an image.
-					// cosmic rays may occasionally trip it as well. 
-					commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F2, this, mainWin, scriptWin, this,
-														   auxWin, basWin );
-					errBox ( "EXCCESSIVE CAMERA COUNTS DETECTED!!!" );
+					numExcessCounts++;
+					if (numExcessCounts > 2)
+					{
+						// POTENTIALLY DANGEROUS TO CAMERA.
+						// AUTO PAUSE THE EXPERIMENT. 
+						// This can happen if a laser, particularly the axial raman laser, is left on during an image.
+						// cosmic rays may occasionally trip it as well.
+						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F2, this, mainWin, scriptWin, this,
+							auxWin, basWin);
+						errBox ("EXCCESSIVE CAMERA COUNTS DETECTED!!!");
+					}
+				}
+				else
+				{
+					numExcessCounts = 0;
 				}
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
@@ -649,7 +657,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	ReleaseDC( drawer );
 
 	// write the data to the file.
-	if (curSettings.acquisitionMode != AndorRunModes::Video)
+	if (curSettings.acquisitionMode != AndorRunModes::mode::Video)
 	{
 		try
 		{

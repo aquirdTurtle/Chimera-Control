@@ -3,11 +3,16 @@
 def pgcAtomFlashingImage():
   % give the shutter some time to open.
   off: diagMotRf
+  t += -5
+  on: repumpShutter
+  on: sidemotShutter
+  on: diagmotShutter
+  t += 5
   on: andorShutter
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning -2.2 %-1.5
+  var image_detuning -2 % -2.2 %-1.5
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
   t += 5
@@ -23,12 +28,12 @@ def pgcAtomFlashingImage():
   dac: SideMotPower sidemot_imaging__servo_value
   dac: RepumpPower repump_imaging__servo_value
   dac: DiagMotPower diagmot_imaging__servo_value
-  on: andorTrig
   on: tweezerflashrf
   on: sidemotflash
   off: rf795
   on: SideMotRf
   off: diagMotRf
+  on: andorTrig
   t += andorImageTime
   off: andorshutter
   off: SideMotRf
@@ -36,8 +41,6 @@ def pgcAtomFlashingImage():
   off: repumpRf
   off: tweezerflashrf
   off: sidemotflash
-  off: andorTrig
-  
   dac: DiagMotPower 0
   dac: SideMotPower 0
   dac: RepumpPower 0

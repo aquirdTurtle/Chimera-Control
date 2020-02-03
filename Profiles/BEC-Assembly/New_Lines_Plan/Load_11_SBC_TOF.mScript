@@ -1,0 +1,50 @@
+% Master-Script See the "?" for info on commands. 
+t = 0.1
+on: tweezerrf
+off: axialRamanShutter 
+off: probeShutter 
+on: shutter795
+pulseon: dds_reset 0.1
+t += 1
+call turnonmot()
+t += loadMotTime
+call triggerScout()
+call D1GreyLambdaLoading()
+t += 20
+pulseon: tweezerIntensityTrig 0.1
+pulseon: dds_step 5
+call pgcAtomFlashingImage()
+on: totalramanrf 
+off: sidemotShutter
+off: diagmotShutter
+t += 65
+pulseon: tweezerIntensityTrig 0.1
+t += 0.1
+on: axialRamanShutter 
+on: axialRamanShutter2 
+call intrapgreymolasses()
+off: shutter795
+pulseon: tweezerIntensityTrig 0.1
+t += 1
+call pump2stretch() 
+call sbc()
+% there's a delay in sbc for triggering the microwave system, 
+% but this is only important if there is more microwave stuff immediately 
+% after, like in spectroscopy measurements, so I can subtract it here. 
+t += -0.16
+off: totalRamanRf
+var shutterOffsetTime 1.0
+t += (-1 * shutterOffsetTime) 
+off: axialRamanShutter  
+off: axialRamanShutter2  
+t += shutterOffsetTime
+%off: tweezerrf
+%pulseon: tweezerIntensityTrig 0.1
+%t += 15
+%t += 10
+call freeSpaceImage()
+pulseon: tweezerIntensityTrig 0.1
+%t += 100
+%call pgcAtomFlashingImage()
+%pulseon: tweezerIntensityTrig 0.1
+t += 1.2

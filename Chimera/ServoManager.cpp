@@ -102,7 +102,7 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 1,  "Active?", 50 );
 	servoList.InsertColumn ( 2,  "Set (V)" );
 	servoList.InsertColumn ( 3,  "Ctrl (V)");
-	servoList.InsertColumn ( 4,  "dCtrl (V)", 60);
+	servoList.InsertColumn ( 4,  "dCtrl (%)", 60);
 	servoList.InsertColumn ( 5,  "Res (V)", 50);
 	servoList.InsertColumn ( 6,  "Ai", 35 );
 	servoList.InsertColumn ( 7,  "Ao" );
@@ -506,7 +506,7 @@ void ServoManager::addServoToListview ( servoInfo& s, UINT which )
 	servoList.SetItem ( s.active ? "Yes" : "No", which, 1 );
 	servoList.SetItem ( str ( s.setPoint ), which, 2 );
 	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.controlValue ), which, 3 );
-	servoList.SetItem ( (s.changeInCtrl < 0 ? "" : "+") + str (s.changeInCtrl), which, 4);
+	servoList.SetItem ( (s.changeInCtrl < 0 ? "" : "+") + str (s.changeInCtrl*100), which, 4);
 	servoList.SetItem ( str ( s.mostRecentResult), which, 5);
 	servoList.SetItem ( str ( s.aiInputChannel ), which, 6 );
 	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.aoControlChannel ), which, 7 );
@@ -704,7 +704,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 
 void ServoManager::setChangeVal(UINT which, double change)
 {
-	servoList.SetItem ((change < 0 ? "" : "+") + str (change), which, 4);
+	servoList.SetItem ((change < 0 ? "" : "+") + str (change*100), which, 4);
 	servoList.RedrawWindow ();
 }
 

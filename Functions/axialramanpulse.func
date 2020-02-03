@@ -3,8 +3,7 @@ def AxialRamanPulse(pulseTime):
   %on: axialPulseTrig
   on: axialRamanRf
   on: eoramanrf
-  on: eoswitch
-  on: eoswitch2
+  call send_uw_to_raman_eom()
   t += pulseTime
   off: axialRamanRf
   off: eoramanRF

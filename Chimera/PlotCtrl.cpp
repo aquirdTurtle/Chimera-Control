@@ -434,10 +434,13 @@ void PlotCtrl::plotPoints ( memDC* d )
 		}
 		else
 		{
-			for ( auto pointCount : range ( shiftedData[ 0 ].size ( ) ) )
+			for ( auto point : shiftedData[ 0 ] )
 			{
-				xRaw.push_back ( data[ 0 ]->at ( pointCount ).x );
-				xScaled.push_back ( shiftedData[ 0 ][ pointCount ].x );
+				xScaled.push_back ( point.x );
+			}
+			for (auto point : *data[0])
+			{
+				xRaw.push_back (point.x);
 			}
 		}
 	}

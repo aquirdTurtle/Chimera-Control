@@ -3,8 +3,7 @@ def TopRamanPulse(pulseTime):
   on: topRamanrf
   on: eoramanrf
   %on: topPulseTrig
-  on: eoswitch
-  on: eoswitch2
+  call send_uw_to_raman_eom()
   t += pulseTime
   off: topRamanRf
   off: eoramanRF

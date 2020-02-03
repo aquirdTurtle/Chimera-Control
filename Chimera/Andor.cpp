@@ -185,7 +185,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			}
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment())
 			{
-				if ( input->Andor->runSettings.acquisitionMode == AndorRunModes::Kinetic)
+				if ( input->Andor->runSettings.acquisitionMode == AndorRunModes::mode::Kinetic)
 				{
 					safeModeCount++;
 					if ( input->Andor->isCalibrating( ) )
@@ -268,12 +268,12 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 	setExposures();
 	setImageParametersToCamera();
 	// Set Mode-Specific Parameters
-	if (runSettings.acquisitionMode == AndorRunModes::Video)
+	if (runSettings.acquisitionMode == AndorRunModes::mode::Video)
 	{
 		setFrameTransferMode();
 		setKineticCycleTime ();
 	}
-	else if (runSettings.acquisitionMode == AndorRunModes::Kinetic)
+	else if (runSettings.acquisitionMode == AndorRunModes::mode::Kinetic)
 	{
 		setKineticCycleTime();
 		setScanNumber();
@@ -281,7 +281,7 @@ void AndorCamera::armCamera( double& minKineticCycleTime )
 		setNumberAccumulations(true);
 		setFrameTransferMode ( );
 	}	
-	else if (runSettings.acquisitionMode == AndorRunModes::Accumulate)
+	else if (runSettings.acquisitionMode == AndorRunModes::mode::Accumulate)
 	{
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);

@@ -26,15 +26,15 @@ t += 1
 call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
 dac: toppulselev top_raman_sideband_spec__servo_value
-dac: eopulselev eo_raman_radial_carrier__servo_value
-rsg: (6.83103 + uw_spec_mod_khz/1000000) 5
-%call topRamanPulse(0.3)
-var pulsetime 0.04
+%dac: toppulselev 0.23
+dac: eopulselev eo_raman__servo_value
+rsg: (6.83103 + uw_spec_mod_khz/1000000) -9.5 % 5
+% call topRamanPulse(0.3)
+var pulsetime 0.12
 on: topRamanrf
 on: eoramanrf
 %on: topPulseTrig
-on: eoswitch
-on: eoswitch2
+call send_uw_to_raman_eom()
 t += pulsetime
 off: topRamanRf
 off: eoramanRF
@@ -44,7 +44,7 @@ off: eoswitch2
 % pulseon: tweezerIntensityTrig 0.1
 call pushout()
 pulseon: tweezerIntensityTrig 0.1
-t += 25
+t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 pulseon: rsTrig 0.1
