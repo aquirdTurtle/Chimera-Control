@@ -26,7 +26,7 @@ void AndorCameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd
 	cameraModeCombo.AddString( "Accumulation-Mode" );
 	cameraModeCombo.AddString( "Video-Mode" );
 	cameraModeCombo.SelectString( 0, "Kinetic-Series-Mode" );
-	settings.andor.acquisitionMode = AndorRunModes::Kinetic;
+	settings.andor.acquisitionMode = AndorRunModes::mode::Kinetic;
 	pos.seriesPos.y += 20;
 	pos.videoPos.y += 20;
 	pos.amPos.y += 20;
@@ -155,15 +155,15 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
 	cameraModeCombo.SelectString ( 0, AndorRunModes::toStr ( inputSettings.acquisitionMode ).c_str() );// cstr ( inputSettings.cameraMode ));
 	triggerCombo.SelectString (0, AndorTriggerMode::toStr (inputSettings.triggerMode).c_str ());
-	if ( inputSettings.acquisitionMode == AndorRunModes::Video )
+	if ( inputSettings.acquisitionMode == AndorRunModes::mode::Video )
 	{
 		inputSettings.repetitionsPerVariation = INT_MAX;
 	}
-	else if ( inputSettings.acquisitionMode == AndorRunModes::Kinetic )
+	else if ( inputSettings.acquisitionMode == AndorRunModes::mode::Kinetic )
 	{
 		
 	}
-	else if ( inputSettings.acquisitionMode == AndorRunModes::Accumulate )
+	else if ( inputSettings.acquisitionMode == AndorRunModes::mode::Accumulate )
 	{
 		inputSettings.repetitionsPerVariation = INT_MAX;
 	}
@@ -251,7 +251,7 @@ AndorCameraSettings AndorCameraSettingsControl::getSettings()
 AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( )
 {
 	AndorCameraSettings calSettings;
-	calSettings.andor.acquisitionMode = AndorRunModes::Kinetic;
+	calSettings.andor.acquisitionMode = AndorRunModes::mode::Kinetic;
 	calSettings.andor.emGainLevel = 0;
 	calSettings.andor.emGainModeIsOn = false;
 	calSettings.andor.exposureTimes = { float(10e-3) };
@@ -343,7 +343,7 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 	std::string promptMsg = "";
 	if ( emGainCurrentlyOn != settings.andor.emGainModeIsOn )
 	{
-		promptMsg += "Set Andor EM Gain State to " + settings.andor.emGainModeIsOn ? "ON" : "OFF" ;
+		promptMsg += "Set Andor EM Gain State to " + str(settings.andor.emGainModeIsOn ? "ON" : "OFF");
 	}
 	if ( currentEmGainLevel != settings.andor.emGainLevel )
 	{
@@ -622,18 +622,18 @@ void AndorCameraSettingsControl::updateCameraMode( )
 	cameraModeCombo.GetLBText( sel, mode );
 	std::string txt ( mode );
 	//settings.andor.cameraMode = mode;
-	if ( txt == AndorRunModes::toStr (AndorRunModes::Video) || txt == "Video Mode" )
+	if ( txt == AndorRunModes::toStr (AndorRunModes::mode::Video) || txt == "Video Mode" )
 	{
-		settings.andor.acquisitionMode = AndorRunModes::Video;
+		settings.andor.acquisitionMode = AndorRunModes::mode::Video;
 		settings.andor.repetitionsPerVariation = INT_MAX;
 	}
-	else if ( txt == AndorRunModes::toStr ( AndorRunModes::Kinetic ) || txt == "Kinetic Series Mode" )
+	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Kinetic ) || txt == "Kinetic Series Mode" )
 	{
-		settings.andor.acquisitionMode = AndorRunModes::Kinetic;
+		settings.andor.acquisitionMode = AndorRunModes::mode::Kinetic;
 	}
-	else if ( txt == AndorRunModes::toStr ( AndorRunModes::Accumulate ) || txt == "Accumulate Mode" || txt == "Accumulation Mode" )
+	else if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Accumulate ) || txt == "Accumulate Mode" || txt == "Accumulation Mode" )
 	{
-		settings.andor.acquisitionMode = AndorRunModes::Accumulate;
+		settings.andor.acquisitionMode = AndorRunModes::mode::Accumulate;
 	}
 	else
 	{
@@ -686,7 +686,7 @@ void AndorCameraSettingsControl::checkIfReady()
 	{
 		thrower ("ERROR: Please set the number of pictures per repetition to a positive non-zero value.");
 	}
-	if ( settings.andor.acquisitionMode == AndorRunModes::Kinetic )
+	if ( settings.andor.acquisitionMode == AndorRunModes::mode::Kinetic )
 	{
 		if ( settings.andor.kineticCycleTime == 0 && settings.andor.triggerMode == AndorTriggerMode::mode::Internal )
 		{
@@ -701,7 +701,7 @@ void AndorCameraSettingsControl::checkIfReady()
 			thrower ("ERROR: Please set the number of variations to a positive non-zero value.");
 		}
 	}
-	if ( settings.andor.acquisitionMode == AndorRunModes::Accumulate )
+	if ( settings.andor.acquisitionMode == AndorRunModes::mode::Accumulate )
 	{
 		if ( settings.andor.accumulationNumber <= 0 )
 		{

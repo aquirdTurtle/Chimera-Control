@@ -87,13 +87,13 @@ DioRows::which::A, 0,
 
 
 const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
-													1e6, "USB", "Intensity",
+													5e5, "USB", "Intensity",
 													IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
 													IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
 													IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
 													IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
 													DioRows::which::B, 6,
-													"INTENSITY_AGILENT_AWG",{ 0.00102751, -0.02149967 },
+													"INTENSITY_AGILENT_AWG", {1.71223989e-3, -0.18720763}, //{ 0.00102751, -0.02149967 },
 													{ "Trigger:Source external", "Trigger:Slope Positive", 
 													  "output1:load INF", "output2:load INF",
 													  "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }

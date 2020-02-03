@@ -33,11 +33,11 @@ a15
 0
 scouttrig
 0
-repumpshutter
+b1
 0
-motshutter
+opshutter
 0
-lsshutter
+totalramanrf
 0
 topPulseTrig
 0
@@ -45,9 +45,9 @@ probeflashing
 0
 tweezerintensitytrig
 0
-b7
+repumpShutter
 0
-b8
+sidemotShutter
 0
 ropshutter
 0
@@ -79,7 +79,7 @@ lsrf
 0
 sidemotflash
 0
-c8
+diagmotShutter
 0
 depumpingrf
 0
@@ -89,13 +89,13 @@ oscilloscopetrig
 0
 axialramanshutter
 0
-sidemotshutter
+c13
 0
 c14
 0
 acetrig
 0
-diagmotshutter
+d0
 0
 d1
 0
@@ -224,8 +224,8 @@ axpulselev
 0
 _
 33
-loadmottime 80
-andorimagetime 15
+loadmottime 100
+andorimagetime 10
 imagingpower 0.3
 fieldtheta 1.5708
 fieldphi 1.5708
@@ -233,48 +233,48 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__servo_value 0.0763251
-diagmot__servo_value 0.288542
+sidemot__servo_value 0.0771927
+diagmot__servo_value 0.268137
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__servo_value 0.091949
-sidemot_imaging__servo_value 0.168824
+sidemot_intrappgc__servo_value 0.0925145
+sidemot_imaging__servo_value 0.197952
 motimagingdetuning -0.32
 d1loadingfreq 112.5
 intraplgmcoolingfreq 99
-sidemot_d1__servo_value 0.270542
-diagmot_imaging__servo_value 0.107223
-diag_d1_load__servo_value -0.545008
-repump_load__servo_value 0.114553
-repump_imaging__servo_value 0.114194
-sigma_repump__servo_value 0.179253
+sidemot_d1__servo_value 0.199062
+diagmot_imaging__servo_value 0.104793
+diag_d1_load__servo_value -0.661778
+repump_load__servo_value 0.110072
+repump_imaging__servo_value 0.110482
+sigma_repump__servo_value 0.221553
 sigma_op__servo_value 0.199655
-pushout_probe__servo_value 0.318704
+pushout_probe__servo_value 0.290206
 top_raman__servo_value 0.0758206
-top_raman_carrier__servo_value 0.156059
-eo_raman__servo_value 0.207229
-ax_raman_spec__servo_value 0.179898
-top_raman_sideband_spec__servo_value 0.096956
-top_sbc_sideband_spec__servo_value 0.160538
-sbc_sigma_op__servo_value 0.0579565
+top_raman_carrier__servo_value 0.148886
+eo_raman__servo_value 0.386472
+ax_raman_spec__servo_value 0.141255
+top_raman_sideband_spec__servo_value 0.0900355
+top_sbc_sideband_spec__servo_value 0.235042
+sbc_sigma_op__servo_value 0.0522026
 0
-18Sidemot 6 22 1 1.88 1 a 5 0 0.01 0.02 0 100
-DiagMot 7 9 1 4.6 1 a 0 0 0.01 0.03 0 100
-sidemot_intrappgc 6 22 1 2.57 1 a 5 0 0.01 0.02 0 100
-sidemot_imaging 6 22 1 7.5 1 a 5 0 0.01 0.02 0 100
-sidemot_d1 6 8 1 1 2 b 10 c 10 2 18 -0.6 10 0.3 0.01 0.1 0 100
+18Sidemot 6 22 1 1.88 2 a 5 b 8 0 0.01 0.02 0 100
+DiagMot 7 9 1 4.6 2 a 0 c 8 0 0.01 0.03 0 100
+sidemot_intrappgc 6 22 1 2.57 2 a 5 b 8 0 0.01 0.02 0 100
+sidemot_imaging 6 22 1 10 2 a 5 b 8 0 0.01 0.02 0 100
+sidemot_d1 6 8 1 1 2 b 10 c 10 2 18 -0.6 10 0.3 0.01 0.03 0 100
 diag_d1_load 7 18 1 0.6 2 b 10 c 10 2 18 -0.6 10 0.3 0.01 -0.1 0 100
-repump_load 7 11 1 0.2 1 a 1 1 11 0.15 0.01 0.02 0 100
-diagmot_imaging 7 9 1 0.86 1 a 0 0 0.01 0.02 0 100
-repump_imaging 7 11 1 0.2 1 a 1 0 0.01 0.02 0 100
+repump_load 7 11 1 0.2 2 a 1 b 7 1 11 0.15 0.01 0.02 0 100
+diagmot_imaging 7 9 1 0.86 2 a 0 c 8 0 0.01 0.02 0 100
+repump_imaging 7 11 1 0.2 2 a 1 b 7 0 0.01 0.02 0 100
 sigma_repump 5 15 1 0.47 1 a 3 0 0.01 0.02 0 100
 sigma_op 5 13 0 4.3 1 a 4 0 0.01 0.02 0 100
 pushout_probe 5 19 1 1.4 2 d 12 d 13 0 0.02 0.02 0 100
-top_raman_carrier 2 16 1 0.165 1 a 10 0 0.01 0.02 0 100
-eo_raman 1 7 1 0.029 1 a 8 0 0.01 0.05 0 100
-ax_raman_spec 3 23 1 0.00655 3 a 11 b 12 c 12 0 0.01 0.02 0 100
-top_raman_sideband_spec 2 16 1 0.063 1 a 10 0 0.01 0.02 0 100
-top_sbc_sideband_spec 2 16 1 0.175 1 a 10 0 0.01 0.02 0 100
+top_raman_carrier 2 16 1 0.165 2 a 10 b 3 0 0.01 0.02 0 100
+eo_raman 1 7 1 0.029 2 a 8 b 3 0 0.01 0.05 0 100
+ax_raman_spec 3 23 1 0.00655 4 a 11 b 12 c 12 b 3 0 0.01 0.02 0 100
+top_raman_sideband_spec 2 16 1 0.063 2 a 10 b 3 0 0.01 0.02 0 100
+top_sbc_sideband_spec 2 16 1 0.4 2 a 10 b 3 0 0.01 0.02 0 100
 sbc_sigma_op 5 13 1 0.41 1 a 4 0 0.02 0.01 0 200
-240 335 2 229 246 2
+210 365 1 169 306 1
 0 0

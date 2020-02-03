@@ -773,8 +773,6 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 		{
 			// scale by a factor of 4.
 			std::vector<BYTE> finalDataArray ( dataWidth * dataHeight * 4, 255 );
-			//finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
-			//memset(finalDataArray, 255, dataWidth * dataHeight * 4);
 			for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
 			{
 				auto& data = dataArray[dataInc];

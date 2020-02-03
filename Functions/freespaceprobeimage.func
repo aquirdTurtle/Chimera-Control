@@ -14,15 +14,14 @@ def freeSpaceProbeImage():
   dacLinSpace: MotFreq defaultMotFreq image_detuning 1 10
   call zeroFields()
   t += 1
-  % turn the repump on a tiny bit early 
-  % to pump to the F=2 manifold.
-  %on: RepumpRf
-  %t += 0.2
   var freespacePower 0.2
   dac: SideMotPower freespacePower %0.3
   dac: probePower 0
   dac: RepumpPower 0.3
   dac: DiagMotPower 0
+  %on: repumpRf
+  %t += 1
+  off: repumpRf
   var waitTime 0.000
   var freeSpaceImageTime 0.01
   off: tweezerRf
@@ -57,8 +56,10 @@ def freeSpaceProbeImage():
   %t += 0.745
   t += 1
   off: andorTrig
-  t += 0.2
-
+  t += 10.2
+  % sometimes I remove the tweezerRf off above to take an image in the 
+  % tweezers, so this (usually redundant) command makes sure the tweezers 
+  % are always off at the end of this function.
   off: tweezerRf
 
   % note that the camera needs some time before it can take

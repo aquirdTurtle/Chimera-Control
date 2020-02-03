@@ -206,7 +206,7 @@ void RohdeSchwarz::programRsg( UINT variationNumber )
 	}
 	else
 	{
-		setPmSettings ( );
+		//setPmSettings ( );
 		if ( events[ variationNumber ].size ( ) == 1 )
 		{
 			gpibFlume.send ( "OUTPUT ON" );

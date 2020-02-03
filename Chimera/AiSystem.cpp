@@ -121,7 +121,7 @@ AiSettings AiSystem::getAiSettings ()
 	{
 		settings.continuousModeInterval = continuousInterval.getWindowTextAsDouble();
 	}
-	catch (Error & err) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
+	catch (Error &) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
 	try
 	{
 		settings.numberMeasurementsToAverage = avgNumberEdit.getWindowTextAsUINT ();
@@ -131,7 +131,7 @@ AiSettings AiSystem::getAiSettings ()
 			setAiSettings (settings);
 		}
 	}
-	catch (Error & err) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
+	catch (Error &) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
 	return settings;
 }
 
@@ -229,7 +229,7 @@ std::vector<float64> AiSystem::getSingleSnap( UINT n_to_avg )
 		}
 		return data;
 	}
-	catch (Error & err)
+	catch (Error &)
 	{
 		throwNested ("Error exception thrown while getting Ai system single snap!");
 	}

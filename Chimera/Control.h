@@ -165,7 +165,7 @@ void Control<ControlType>::rearrange( AndorRunModes::mode cameraMode, AndorTrigg
 	double extraHeight = 0;
 	// The last check here is that the mode is affected by the trigger and that the control in question gets drawn in this mode.
 	if ( trigMode == AndorTriggerMode::mode::External && triggerModeSensitive && ((cameraMode == AndorRunModes::mode::Kinetic && seriesPos.bottom != -1)
-															 || cameraMode == AndorRunModes::Video && amPos.bottom != -1) )
+															 || cameraMode == AndorRunModes::mode::Video && amPos.bottom != -1) )
 	{
 		extraHeight += -25;
 	}

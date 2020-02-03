@@ -1,6 +1,9 @@
 % Master-Script See the "?" for info on commands.
 def sbc():
-  rsg: (6.83103 + uw_cooling_mod_khz/1000000) 5
+  % expecting totalramanrf (b3) to be on a while ago in order
+  % to let the servo settle
+  var uw_cooling_mod_khz 65
+  rsg: (6.83103 + uw_cooling_mod_khz/1000000) -9.5
   off: probeRf
   off: repumpRf
   daclinspace: motFreq defaultMotFreq -0.5 1 10  
@@ -9,15 +12,14 @@ def sbc():
   dac: sigmaoppower sbc_sigma_op__servo_value
   dac: sigmarepumpPower sigma_repump__servo_value
   %dac: sigmarepumpPower sbc_sigma_repump
-  dac: topPulseLev top_raman_sideband_spec__servo_value
+  dac: topPulseLev top_sbc_sideband_spec__servo_value
   dac: axPulseLev ax_raman_spec__servo_value
   dac: eoPulseLev eo_raman__servo_value
-  dac: axPulseLev 0
   t += 1
   off: uw_mod_switch 
   var sbcOpCoolingPulseTime 0.012
-  var sbctoppulsetime 0.044
-  repeat: 40
+  var sbctoppulsetime 0.035
+  repeat: 50
     call axialRamanPulse(0.05) 
     call opPulse(sbcOpCoolingPulseTime)
     call topRamanPulse(sbctoppulsetime)
@@ -26,6 +28,13 @@ def sbc():
     %off: sigmaRepumpRf  
     call opPulse(sbcOpCoolingPulseTime) 
   end
+  call opPulse(0.012) 
+  dac: sigmaoppower 0
+  dac: sigmarepumpPower 0
+  %dac: sigmarepumpPower sbc_sigma_repump
+  dac: topPulseLev 0
+  dac: axPulseLev 0
+  dac: eoPulseLev 0
   % its important that you wait long enough after the rstrig for the rsg
   % to actually change its output, which I find takes about 0.15 s 
   % MOB Sep 11th 2019 

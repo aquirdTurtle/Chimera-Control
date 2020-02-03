@@ -4,7 +4,7 @@
 #include "my_str.h"
 #include <Windows.h>
 #include <string>
-
+#include <filesystem>
 
 // for mfc edits
 void appendText(std::string newText, CEdit& edit)
@@ -42,8 +42,9 @@ ULONG getNextFileIndex( std::string fileBase, std::string ext )
 	// The while condition here check if file exists. No idea how this actually works.
 	struct stat statBuffer;
 	// figure out the next file number
-	while ( (stat( cstr( fileBase + str( fileNum ) + ext ),
-				   &statBuffer ) == 0) )
+	//while ( (stat( ( fileBase + str( fileNum ) + ext ).c_str(),
+	//			   &statBuffer ) == 0) )
+	while (std::filesystem::exists((fileBase + str (fileNum) + ext).c_str ()))
 	{
 		fileNum++;
 	}

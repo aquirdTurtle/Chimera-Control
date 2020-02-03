@@ -460,7 +460,7 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 	{
 		if ( MasterThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
 		{}
-		if ( MasterThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
+		else if ( MasterThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
 		{}
 		else if ( isLogic( command ) )
 		{
@@ -2498,32 +2498,32 @@ void NiawgController::checkThatWaveformsAreSensible( std::string& warnings, Niaw
 				// It's not actually ramping.
 				if ( currSig.powerRampType != "nr" && (currSig.initPower == currSig.finPower) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " + str ( signalNum ) 
-						+ "is set to amplitude ramp, but the initial and final amplitudes are the same. This is not a"
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " signal # " + str ( signalNum ) 
+						+ " is set to amplitude ramp, but the initial and final amplitudes are the same. This is not a"
 						" ramp.\r\n";
 				}
 				// if there signal is ramping but the beginning and end frequencies are the same, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.freqRampType != "nr" && (currSig.freqInit == currSig.freqFin) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " 
-						+ str ( signalNum ) + "is set to frequency ramp, but the initial and final frequencies are"
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " signal # " 
+						+ str ( signalNum ) + " is set to frequency ramp, but the initial and final frequencies are"
 						" the same. This is not a ramp.\r\n";
 				}
 				// if there signal is not ramping but the beginning and end amplitudes are different, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.powerRampType == "nr" && (currSig.initPower != currSig.finPower) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " 
-						+ str ( signalNum ) + "is set to no amplitude ramp, but the initial and final amplitudes are "
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " signal # " 
+						+ str ( signalNum ) + " is set to no amplitude ramp, but the initial and final amplitudes are "
 						"the different. This is not a ramp, the initial value will be used.\r\n";
 				}
 				// if there signal is not ramping but the beginning and end frequencies are different, that's weird. 
 				// It's not actually ramping.
 				if ( currSig.freqRampType == "nr" && (currSig.freqInit != currSig.freqInit) )
 				{
-					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "signal # " 
-						+ str ( signalNum ) + "is set to no frequency ramp, but the initial and final frequencies are "
+					warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " signal # " 
+						+ str ( signalNum ) + " is set to no frequency ramp, but the initial and final frequencies are "
 						"different. This is not a ramp, the initial value will be used throughout.\r\n";
 				}
 				if ( output.waves[waveInc].core.chan[axis].phaseOption != 0 )

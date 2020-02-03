@@ -132,7 +132,7 @@ class AndorWindow : public CDialog
 	private:
 		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
-
+		UINT numExcessCounts = 0;
 		AndorCamera andor;
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;

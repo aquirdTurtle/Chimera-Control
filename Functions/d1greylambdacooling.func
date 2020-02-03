@@ -3,7 +3,7 @@
 def D1greyLambdaCooling():
   var D1twoToTwopPower -2
   var cooling_time 0.2
-  var rspow 2
+  var rspow -5 % 2
   % init systema
 
   var rsfreq -0.2

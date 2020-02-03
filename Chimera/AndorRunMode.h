@@ -6,7 +6,7 @@
 
 struct AndorRunModes
 {
-	enum mode
+	enum class mode
 	{
 		Video = 5,
 		Kinetic = 3,

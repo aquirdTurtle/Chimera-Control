@@ -400,7 +400,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					if ( stat == DRV_ACQUIRING )
 					{
 						Sleep ( 1000 );
-						expUpdate ( "Waiting for camera to finish...", comm, quiet );
+						expUpdate ( "Waiting for Andor camera to finish acquisition...", comm, quiet );
 						if (input->thisObj->isAborting) { thrower (abortString); }
 					}
 					else

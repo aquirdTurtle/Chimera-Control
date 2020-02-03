@@ -1,5 +1,6 @@
 % Master-Script See the "?" for info on commands. 
 t = 0.1
+off: eoramanrf
 on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
@@ -16,19 +17,27 @@ pulseon: dds_step 5
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1
 t += 0.1
+off: diagmotshutter
+off: sidemotshutter
+on: totalramanrf
 on: axialRamanShutter 
 on: axialRamanShutter2 
 call intrapgreymolasses()
 off: shutter795
 pulseon: tweezerIntensityTrig 0.1
+call send_uw_to_raman_eom()
 t += 1
 call pump2stretch() 
 call sbc()
-rsg: (6.83103 + uw_spec_mod_khz/1000000) 5
-var specPulseTime 0.08 % 0.07
+t += heatWaitTime
+%dac: motFreq 0.5
+%t += rsgwaittime
+rsg: (6.83103 + uw_spec_mod_khz/1000000) -9.5
+var specPulseTime 0.07 % 0.07
 on: a15
 dac: topPulseLev 0
-dac: axPulseLev 0.15
+dac: axPulseLev ax_raman_spec__servo_value
+dac: eoPulseLev eo_raman__servo_value
 call axialRamanPulse(specPulseTime)
 off: a15
 dac: topPulseLev 0
@@ -41,7 +50,7 @@ call pushout()
 pulseon: tweezerIntensityTrig 0.1
 t += 5
 pulseon: tweezerIntensityTrig 0.1
-t += 1
+t += 10
 %call zeroFields() 
 pulseon: rsTrig 0.1
 call pgcAtomFlashingImage()
