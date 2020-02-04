@@ -44,9 +44,10 @@ class DmControl
 		std::vector<double> getTableValues();
 		void writeCurrentFile(std::string out_file);
 		void initializeTable(int xPos, int yPos, int width, int height, CWnd* parent, UINT id);
-		DmCore getCore();
+		DmCore &getCore();
 		DMOutputForm getExpressionValues();
 		void openConfig();
+		void setCoreInfo(DMOutputForm form);
 
 	private:
 		

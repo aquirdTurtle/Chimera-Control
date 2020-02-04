@@ -418,7 +418,7 @@ void DmControl::add_Changes() {
 	loadProfile("currentLoadOut");
 }
 
-DmCore DmControl::getCore() {
+DmCore &DmControl::getCore() {
 	return defObject;
 }
 
@@ -457,8 +457,12 @@ void DmControl::openConfig() {
 	astigAngle.SetWindowTextA(cstr(Form.astigAng.expressionStr));
 	trefoilMag.SetWindowTextA(cstr(Form.trefoil.expressionStr));
 	trefoilAngle.SetWindowTextA(cstr(Form.trefoilAng.expressionStr));
-	Spherical.SetWindowTextA(cstr(Form.spherical.expressionStr));
+	sphereMag.SetWindowTextA(cstr(Form.spherical.expressionStr));
 	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", Form.base);
+}
+
+void DmControl::setCoreInfo(DMOutputForm form) {
+	defObject.setCurrentInfo(form);
 }
 
 

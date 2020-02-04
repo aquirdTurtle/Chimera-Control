@@ -160,7 +160,7 @@ void AuxiliaryWindow2::handleAbberations() {
 	DM.add_Changes();
 }
 
-DmCore AuxiliaryWindow2::GetCore() {
+DmCore &AuxiliaryWindow2::GetCore() {
 	return DM.getCore();
 }
 
@@ -172,7 +172,8 @@ void AuxiliaryWindow2::handleOpeningConfig(std::ifstream& configFile, Version ve
 	try {
 		if (ver >= Version("4.7"))
 		{
-			ProfileSystem::standardOpenConfig(configFile, DM.getCore().delimeter, &DM.getCore(), Version("4.5"));
+			DMOutputForm form = ProfileSystem::stdGetFromConfig(configFile, "DM", DmCore::handleGetConfig);;
+			DM.setCoreInfo(form);
 			DM.openConfig();
 		}
 	}

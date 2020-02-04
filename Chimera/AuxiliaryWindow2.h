@@ -43,7 +43,7 @@ class AuxiliaryWindow2 : public CDialog
 		void OnSize(UINT nType, int cx, int cy);
 		void OnPaint();
 		void passCommonCommand(UINT id);
-		DmCore GetCore();
+		DmCore &GetCore();
 
 		cToolTips toolTips;
 	

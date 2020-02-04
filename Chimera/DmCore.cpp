@@ -89,7 +89,6 @@ void DmCore::handleNewConfig(std::ofstream& newFile) {
 
 DMOutputForm DmCore::handleGetConfig(std::ifstream& configFile, Version ver) {
 	DMOutputForm Info;
-	configFile >> Info.base;
 	configFile.get();
 	std::getline(configFile, Info.coma.expressionStr);
 	std::getline(configFile, Info.comaAng.expressionStr);
@@ -98,20 +97,10 @@ DMOutputForm DmCore::handleGetConfig(std::ifstream& configFile, Version ver) {
 	std::getline(configFile, Info.trefoil.expressionStr);
 	std::getline(configFile, Info.trefoilAng.expressionStr);
 	std::getline(configFile, Info.spherical.expressionStr);
+	configFile >> Info.base;
 	return Info;
 }
 
-void DmCore::handleOpenConfig(std::ifstream &openFile, Version Ver) {
-	openFile.get();
-	std::getline(openFile, currentInfo.coma.expressionStr);
-	std::getline(openFile, currentInfo.comaAng.expressionStr);
-	std::getline(openFile, currentInfo.astig.expressionStr);
-	std::getline(openFile, currentInfo.astigAng.expressionStr);
-	std::getline(openFile, currentInfo.trefoil.expressionStr);
-	std::getline(openFile, currentInfo.trefoilAng.expressionStr);
-	std::getline(openFile, currentInfo.spherical.expressionStr);
-	openFile >> currentInfo.base;
-}
 
 void DmCore::handleSaveConfig(std::ofstream& saveFile, DMOutputForm out) {
 	currentInfo = out;
@@ -147,8 +136,13 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 	sequenceNumber = variables.size();
 	for (auto seqInc : range(sequenceNumber))
 	{
-		if (!DM_SAFEMODE)
-		{
+			DM.currentInfo.coma.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+			DM.currentInfo.comaAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+			DM.currentInfo.astig.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+			DM.currentInfo.astigAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+			DM.currentInfo.trefoil.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+			DM.currentInfo.trefoilAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+			DM.currentInfo.spherical.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 			DM.currentInfo.coma.internalEvaluate(variables[seqInc], variations);
 			DM.currentInfo.comaAng.internalEvaluate(variables[seqInc], variations);
 			DM.currentInfo.astig.internalEvaluate(variables[seqInc], variations);
@@ -156,7 +150,7 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 			DM.currentInfo.trefoil.internalEvaluate(variables[seqInc], variations);
 			DM.currentInfo.trefoilAng.internalEvaluate(variables[seqInc], variations);
 			DM.currentInfo.spherical.internalEvaluate(variables[seqInc], variations);
-		}
+		
 		
 	}
 }
@@ -173,4 +167,8 @@ void DmCore::ProgramNow(UINT variation) {
 
 DMOutputForm DmCore::getInfo() {
 	return currentInfo;
+}
+
+void DmCore::setCurrentInfo(DMOutputForm form) {
+	currentInfo = form;
 }

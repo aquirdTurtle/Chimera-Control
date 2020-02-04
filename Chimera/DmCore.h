@@ -24,9 +24,9 @@ class DmCore {
 		static DMOutputForm handleGetConfig(std::ifstream& configFile, Version ver);
 		static void interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore& DM);
 		void ProgramNow(UINT variation);
-		void handleOpenConfig(std::ifstream& openFile, Version Ver);
 		const std::string delimeter = "DM";
 		DMOutputForm getInfo();
+		void setCurrentInfo(DMOutputForm form);
 
 
 	private:
