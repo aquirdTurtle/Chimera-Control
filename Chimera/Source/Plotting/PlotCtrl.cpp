@@ -199,6 +199,8 @@ void PlotCtrl::getDataYLims ( std::vector<plotDataVec>& data )
 {
 	auto& miny = data_minmax.min_y;
 	auto& maxy = data_minmax.max_y;
+	maxy = -DBL_MAX;
+	miny = DBL_MAX;
 	for (auto line : data)
 	{
 		for (auto elem : line)

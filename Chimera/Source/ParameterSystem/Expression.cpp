@@ -456,10 +456,10 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 				if ( term == variable.name && (variable.parameterScope == expressionScope
 												|| variable.parameterScope == GLOBAL_PARAMETER_SCOPE))
 				{
-					//if ( variable.keyValues.size( ) == 0 )
-					//{
-					//	thrower ( "Attmepting to use key that hasn't been generated yet!" );
-					//}
+					if ( variable.keyValues.size( ) == 0 )
+					{
+						thrower ( "Attempting to use key that hasn't been generated yet!" );
+					}
 					term = str( variable.keyValues[variation], 12 );
 					// find the variable 
 					bool foundVariable = false;

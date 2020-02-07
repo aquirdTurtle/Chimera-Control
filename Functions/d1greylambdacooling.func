@@ -7,7 +7,7 @@ def D1greyLambdaCooling():
   % init systema
 
   var rsfreq -0.2
-  rsg: (6.834682 + rsfreq*0.001) rspow
+  %rsg: (6.834682 + rsfreq*0.001) rspow
   off: diagMotRf
   off: sideMotRf
   off: repumpRf
