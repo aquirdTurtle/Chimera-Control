@@ -11,7 +11,7 @@ def inTrapGreyMolasses():
   off: diagMotRf
   off: sideMotRf
   off: repumpRf
-  rsg: (6.834682 + rsfreq*0.001) rspow 
+  %rsg: (6.834682 + rsfreq*0.001) rspow 
   dac: power795 D1twoToTwopPower
   dac: side795pow D1SidemotPow
   dac: diag795pow 0.3

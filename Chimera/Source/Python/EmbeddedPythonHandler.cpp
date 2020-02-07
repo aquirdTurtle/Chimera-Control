@@ -29,14 +29,14 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 			"\t\tself.value = ''\n"
 			"\tdef write(self, txt):\n"
 			"\t\tself.value += txt\n"
-		"catchOutErr = CatchOutErr()\n"
-		"sys.stderr = catchOutErr\n";
-	//create main module
+		"errCatcher = CatchOutErr()\n"
+		"sys.stderr = errCatcher\n";
+	// create main module
 	mainModule = PyImport_AddModule( "__main__" );
-	//invoke code to redirect
+	// invoke code to redirect
 	PyRun_SimpleString( stdOutErr.c_str( ) );
-	//get our catchOutErr object (of type CatchOutErr) created above
-	errorCatcher = PyObject_GetAttrString( mainModule, "catchOutErr" );
+	// get our errCatcher object (of type CatchOutErr) created above
+	errorCatcher = PyObject_GetAttrString( mainModule, "errCatcher" );
 	// start using the run function.
 	try
 	{
@@ -101,7 +101,7 @@ void EmbeddedPythonHandler::flush()
 		return;
 	}
 	// this resets the value of the class object, meaning that it resets the error text inside it.
-	std::string flushMsg = "catchOutErr.__init__()";
+	std::string flushMsg = "errCatcher.__init__()";
 	run(flushMsg, true, false);
 }
 

@@ -3,7 +3,7 @@ def sbc():
   % expecting totalramanrf (b3) to be on a while ago in order
   % to let the servo settle
   var uw_cooling_mod_khz 65
-  rsg: (6.83103 + uw_cooling_mod_khz/1000000) -9.5
+  % rsg: (6.83103 + uw_cooling_mod_khz/1000000) -9.5
   off: probeRf
   off: repumpRf
   daclinspace: motFreq defaultMotFreq -0.5 1 10  

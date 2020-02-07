@@ -197,6 +197,11 @@
 
 
 #ifdef MASTER_COMPUTER
+	using MICROWAVE_FLUME = RsgFlume;
+	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
+	//constexpr char UW_SYSTEM_ADDRESS[] = "28";
+	constexpr short UW_SYSTEM_ADDRESS = 28;
+	constexpr bool UW_SYSTEM_SAFEMODE = false;
 	#define DIOFTDI_SAFEMODE false
 	#define DDS_SAFEMODE false
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
@@ -211,7 +216,7 @@
 	#endif
 	#define VIEWPOINT_SAFEMODE true
 	#define DAQMX_SAFEMODE false
-	#define RSG_SAFEMODE false
+	//#define RSG_SAFEMODE false
 	#define TOP_BOTTOM_TEK_SAFEMODE false
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
 	#define EO_AXIAL_TEK_SAFEMODE false
@@ -578,9 +583,6 @@ constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
 #define OSCILLOSCOPE_TRIGGER "C11"
 
 #define NULL_SEQUENCE "NULL_SEQUENCE"
-
-// in MILIWATTS
-#define RSG_ADDRESS 28
 
 // Don't change! Or only change if you really kow what you are doing. Changing this risks overloading our RF amplifiers 
 // and large-aperture AOMs. Current Value: 5

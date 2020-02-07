@@ -38,7 +38,6 @@ t += (-1 * shutterOffsetTime)
 off: axialRamanShutter  
 off: axialRamanShutter2  
 t += shutterOffsetTime
-%off: tweezerrf
 %pulseon: tweezerIntensityTrig 0.1
 %t += 15
 %t += 10

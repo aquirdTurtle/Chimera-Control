@@ -1,0 +1,8 @@
+hold loadingDepth 1 onceWaitTrig #
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig #  
+ramp lin imagingDepth RamanDepth 1 onceWaitTrig #
+ramp lin RamanDepth spectraDepth 1 onceWaitTrig #
+ramp lin spectraDepth pushoutDepth 1 onceWaitTrig #
+ramp lin pushoutDepth finImagingDepth 1 onceWaitTrig #
+ramp lin finImagingDepth loadingDepth 1 once #  
+
