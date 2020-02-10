@@ -48,6 +48,7 @@ class DataLogger
 		void initializeAiLogging ( UINT numSnapshots );
 
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
+		void assertCalibrationFilesExist();
 		void closeFile();
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );

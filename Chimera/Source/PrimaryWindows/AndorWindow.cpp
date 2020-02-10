@@ -12,6 +12,7 @@
 #include "ExcessDialogs/ErrDialog.h"
 #include "ATMCD32D.H"
 #include <numeric>
+#include <time.h>
 #include "PrimaryWindows/BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),
@@ -952,9 +953,42 @@ void AndorWindow::passSetTemperaturePress()
  */
 void AndorWindow::OnTimer(UINT_PTR id)
 {
-	auto temp = andor.getTemperature();
-	andorSettingsCtrl.changeTemperatureDisplay(temp);
-	OnPaint ();
+	if (id == 0) // temperature checking
+	{
+		auto temp = andor.getTemperature ();
+		andorSettingsCtrl.changeTemperatureDisplay (temp);
+		OnPaint ();
+	}
+	else if (id == 1) // auto run calibrations.
+	{
+		if (!mainWin->masterIsRunning ())
+		{
+			// check that it's past 5AM, don't want to interrupt late night progress. 
+			std::time_t time = std::time (0);
+			std::tm now; 
+			::localtime_s (&now, &time);
+			if (now.tm_hour > 5)
+			{
+				try
+				{
+					dataHandler.assertCalibrationFilesExist ();
+				}
+				catch (Error&)
+				{
+					// files don't exist, run calibration. 
+					try
+					{
+						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this, mainWin, scriptWin, this, auxWin,
+							basWin);
+					}
+					catch (Error& err)
+					{
+						mainWin->getComm ()->sendError ("Failed to automatically start calibrations!" + err.trace ());
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -1730,7 +1764,9 @@ BOOL AndorWindow::OnInitDialog ( )
 	andor.setSettings( andorSettingsCtrl.getSettings().andor );
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
-	SetTimer( NULL, 2000, NULL );
+	SetTimer( NULL, 5000, NULL );
+	// Calibration Check timer (every 15 minutes)
+	SetTimer (1, 15 * 60 * 1000, NULL);
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
