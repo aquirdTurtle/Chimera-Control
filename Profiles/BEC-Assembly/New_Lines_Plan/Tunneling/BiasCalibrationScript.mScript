@@ -1,24 +1,26 @@
-% Master-Script See the "?" for info on commands. 
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
 t = 0.1
-on: tweezerrf
-off: axialRamanShutter 
-off: probeShutter 
+off: axialRamanShutter
+on: tweezerRf %tweezers on
 on: shutter795
 pulseon: dds_reset 0.1
+%dac: piezomirror piezoval
 t += 1
 call turnonmot()
-t += loadMotTime
-call triggerScout()
+t += loadmottime
+pulseon: scoutTrig 0.1
+t += 2
 call D1GreyLambdaLoading()
-t += 20
-pulseon: tweezerIntensityTrig 0.1
-pulseon: dds_step 5
+t += 2
+pulseon: tweezerIntensityTrig 0.1 
+t += 1
 call pgcAtomFlashingImage()
+t += 1 
 on: totalramanrf  
-off: sidemotShutter
-off: diagmotShutter
+off: sidemotShutter 
+off: diagmotShutter 
 t += 20
-pulseon: tweezerIntensityTrig 0.1
 t += 0.1
 on: axialRamanShutter 
 on: axialRamanShutter2 
@@ -32,40 +34,31 @@ call sbc()
 % but this is only important if there is more microwave stuff immediately 
 % after, like in spectroscopy measurements, so I can subtract it here. 
 t += -0.16
-off: totalRamanRf 
-off: axialRamanShutter 
-off: axialRamanShutter2 
-% intensity ramp traps down
-pulseon: tweezerIntensityTrig 0.05
-t += 2.01
-
-% niawg ramp together & to new biases
-pulseon: a15 0.01
-pulseon: niawgTrig 0.05
-t += 2.12
-
-% intensity ramp to start tunneling
-pulseon: tweezerIntensityTrig 0.05
-t += 0.1
-
-% wait tunneling time
-var tunnelingTime 1
-t += tunnelingTime
-
-% intensity ramp to freeze
-pulseon: tweezerIntensityTrig 0.05
+off: totalramanrf
+off: axialRamanShutter  
+off: axialRamanShutter2  
+% drop extra atoms
+pulseon: tweezerIntensityTrig 0.1 % to move depth
+pulseon: niawgTrig 0.1 % to only 2 freqs
+t += 1.1
+% move to tunneling spacing
+pulseon: niawgTrig 0.1
+t += 1.1
+% initialize tunneling
+pulseon: tweezerIntensityTrig 0.1 % to tunnelingDepth
+t += 0.101
+t += tunnelingTime 
+% freeze tunneling
+pulseon: tweezerIntensityTrig 0.1 % to move depth
 t += 0.11
-
-% niawg ramp apart & to old biases
-pulseon: a15 0.01
-pulseon: niawgTrig 0.05
-t += 1.02
-
-% intensity ramp to imaging depth
-pulseon: tweezerIntensityTrig 0.05
-t += 10.01
-% imaging
+% separate atoms for imaging
+pulseon: niawgTrig 0.1
+t += 1.1
+pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+t += 1.1
 call pgcAtomFlashingImage()
-pulseon: tweezerIntensityTrig 0.05
-pulseon: niawgTrig 0.05
-t += 1.2
+t += 1
+pulseon: tweezerIntensityTrig 0.1
+pulseon: niawgTrig 0.1
+t += 1
+ 

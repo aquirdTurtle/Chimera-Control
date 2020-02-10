@@ -2,95 +2,79 @@
 % 
 %%--------------------------------------------------------------%%
 %%--------------------------------------------------------------%%
-var dropBias 0.0001
-var_v 11 initFreqs [ 22.5 33.2 43.9 54.6 65.3 76.0 86.7 97.4 108.1
-                     118.8 129.5 ]
-ar_v 11 initFreqs [ 22.5 33.2 43.9 54.6 65.3 76.0 86.7 97.4 108.1
-                     118.8 129.5 ]
+var dropBias 0
+var_v 11 freqs [ 22.5 33.2 43.9 54.6 65.3 76.0 86.7 97.4 108.1
+                 118.8 129.5 ]
 var_v 11 initAmps [ 0.2713981241673309 0.09072613769741242 0.07847745769086616
-	0.04659757380473037 0.06543435405527302 0.02935756685076464 
-	0.06287587394122254 0.0367271747178628 0.0769993883224057
-	0.06866790495218023 0.17273844379995124 ]
+0.04659757380473037 0.06543435405527302 0.02935756685076464 
+0.06287587394122254 0.0367271747178628 0.0769993883224057
+0.06866790495218023 0.17273844379995124 ]
 var_v 11 dropAmps [ dropBias dropBias dropBias dropBias
-	0.06543435405527302 0.02935756685076464 
-	dropBias dropBias dropBias dropBias dropBias ]
-var_v 11 tunnelingAmps[ dropBias dropBias dropBias dropBias
-				0.5 0.5
-				dropBias dropBias dropBias dropBias dropBias ]
+0.03 0.03
+dropBias dropBias dropBias dropBias dropBias ]
 var_v 11 phases [ 0.3550534427 0.3729561747 2.591875344 4.205774186 
-	3.775361594 6.253222519 4.75830296 6.266974382 5.089729223 
-	4.53322605 0 ]
-var_v 11 contPhases [ -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 ] 
+3.775361594 6.253222519 4.75830296 6.266974382 5.089729223 4.53322605 0 ]
 var_v 11 dropRamp [ lin lin lin lin nr nr lin lin lin lin lin ] 
-var_v 11 allRamp [ lin lin lin lin lin lin lin lin lin lin lin ]
 
+var_v 2 twoFreqs [ 65.3 76.0 ]
+var_v 2 twoamps [ 0.031 0.03 ] 
+var_v 2 twoPhases [ 3.775361594 6.253222519 ] 
+
+var_v 2 tunnelingFreqs [ 69.1 72.2 ]
+var_v 2 tunnelingAmps [ 0.5 tunnelBias ]
+var_v 2 dblRamp [ lin lin ] 
+var_v 2 phaseContinue [ -1 -1 ]
 
 repeatTilTrig
 gen11const_v Horizontal
-initFreqs initAmps phases #
+freqs initAmps phases # 
 gen1const Vertical
 75 1 0 #
 0.01 0
 endRepeat
 
 gen11ampRamp_v Horizontal
-initFreqs dropRamp initAmps dropAmps phases # 
+freqs dropRamp initAmps dropAmps phases # 
 gen1const Vertical
 75 1 0 #
 1 0
 
 repeatTilTrig
-gen11const_v Horizontal
-initFreqs dropAmps phases #
+gen2const_v Horizontal
+twoFreqs twoAmps twoPhases #
 gen1const Vertical
 75 1 0 #
 0.01 0
 endRepeat
 
-gen11ampRamp_v Horizontal
-initFreqs dropRamp dropAmps initAmps phases # 
+gen2freq&ampRamp_v Horizontal
+dblRamp twoFreqs tunnelingFreqs dblRamp twoAmps tunnelingAmps twoPhases # 
 gen1const Vertical
 75 1 0 #
 1 0
 
-% stage for raman cooling etc.
+%% TUNNELING
 repeatTilTrig
-gen11const_v Horizontal
-initFreqs initAmps phases #
+gen2const_v Horizontal
+tunnelingFreqs tunnelingAmps phaseContinue #
 gen1const Vertical
 75 1 0 #
 0.01 0
 endRepeat
 
-gen11freq&ampRamp_v Horizontal 
-allRamp initFreqs tunnelingFreqs allRamp initAmps tunnelingAmps phases #
-gen1const Vertical 
-75 1 0 # 
-1 0 
-
-% stage for tunneling 
-repeatTilTrig 
-gen11const_v Horizontal 
-tunnelingFreqs initAmps contPhases # 
-gen1const Vertical 
-75 1 0 # 
-0.01 0 
-endRepeat
- 
-gen11freq&ampRamp_v Horizontal 
-allRamp tunnelingFreqs initFreqs allRamp tunnelingAmps initAmps contPhases #
-gen1const Vertical 
-75 1 0 # 
-1 0 
+gen2freq&ampRamp_v Horizontal
+dblRamp tunnelingFreqs twoFreqs dblRamp tunnelingAmps twoAmps twoPhases # 
+gen1const Vertical
+75 1 0 #
+1 0
 
 repeatTilTrig
-gen11const_v Horizontal
-initFreqs initAmps contPhases #
+gen2const_v Horizontal
+twoFreqs twoAmps twoPhases #
 gen1const Vertical
 75 1 0 #
 0.01 0
 endRepeat
-
 
 
 
