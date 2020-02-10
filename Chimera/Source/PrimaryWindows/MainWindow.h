@@ -29,11 +29,10 @@ class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
 
-struct scopeRefreshInput
+struct scopeRefreshInput 
 {
 	ScopeViewer *masterRepumpScope, *motScope;
 };
-
 
 class MainWindow : public CDialog
 {
@@ -220,10 +219,11 @@ class MainWindow : public CDialog
 												  _In_ LPRECT lprcMonitor, _In_ LPARAM dwData );
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
-		// friends (try to minimize these)
-		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
-														  ScriptingWindow* scriptWin, AndorWindow* camWin,
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 		CDialog* appSplash;
+ 		// friends (try to minimize these)
+ 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
+ 														  ScriptingWindow* scriptWin, AndorWindow* camWin,
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
 };
+
 
