@@ -1895,7 +1895,7 @@ void NiawgController::readVectorizedSimpleWaveParams ( ScriptStream& script, std
 			}
 			break;
 		}
-		/// The case for "gen ?, resetFreq & amp ramp"
+		/// The case for "gen?Freq&ampRamp"
 		case 3:
 		{
 			vectorizedNiawgVals freqRampTypes, initFreqs, finFreqs, powerRampTypes, initPowers, finPowers, phases;
@@ -1911,14 +1911,29 @@ void NiawgController::readVectorizedSimpleWaveParams ( ScriptStream& script, std
 				if ( cv.name == finPowers.name ) { finPowers = cv; }
 				if ( cv.name == phases.name ) { phases = cv; }
 			}
-			if ( freqRampTypes.vals.size ( ) == 0 )
-			{
-				thrower ( "failed to find constant vector named "
-						  + freqRampTypes.name );
-			}
+			if ( freqRampTypes.vals.size ( ) == 0 )	{ thrower ( "failed to find constant vector named "
+													  + freqRampTypes.name ); }
 			if ( initFreqs.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + initFreqs.name ); }
 			if ( finFreqs.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + finFreqs.name ); }
 			if ( phases.vals.size ( ) == 0 ) { thrower ( "failed to find constant vector named " + phases.name ); }
+			auto signum = wave.chan[axis].signals.size ();
+			if (freqRampTypes.vals.size () != signum) 
+			{ 
+				thrower ("constant vector named " + freqRampTypes.name + " was found but is the wrong size!"); 
+			}
+			if (initFreqs.vals.size () != signum) 
+			{
+				thrower ("constant vector named " + initFreqs.name + " was found but is the wrong size!"); 
+			}
+			if (finFreqs.vals.size () != signum) 
+			{
+				thrower ("constant vector named " + finFreqs.name + " was found but is the wrong size!"); 
+			}
+			if (phases.vals.size () != signum) 
+			{ 
+				thrower ("constant vector named " + phases.name + " was found but is the wrong size!"); 
+			}
+
 			for ( auto signal : range ( wave.chan[ axis ].signals.size ( ) ) )
 			{
 				auto& sig = wave.chan[ axis ].signals[ signal ];

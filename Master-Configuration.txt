@@ -47,7 +47,7 @@ tweezerintensitytrig
 0
 repumpShutter
 0
-sidemotShutter
+sidemotshutter
 0
 ropshutter
 0
@@ -79,7 +79,7 @@ lsrf
 0
 sidemotflash
 0
-diagmotShutter
+diagmotshutter
 0
 depumpingrf
 0
@@ -234,7 +234,7 @@ intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
 sidemot__servo_value 0.0770447
-diagmot__servo_value 0.272985
+diagmot__servo_value 0.273814
 default795freq 0
 d1__servo_value 0.3
 sidemot_intrappgc__servo_value 0.0921742
@@ -243,19 +243,19 @@ motimagingdetuning -0.32
 d1loadingfreq 112.5
 intraplgmcoolingfreq 99
 sidemot_d1__servo_value 0.184964
-diagmot_imaging__servo_value 0.106286
-diag_d1_load__servo_value -0.819761
-repump_load__servo_value 0.110292
-repump_imaging__servo_value 0.110465
-sigma_repump__servo_value 0.227822
+diagmot_imaging__servo_value 0.10685
+diag_d1_load__servo_value -0.784151
+repump_load__servo_value 0.111549
+repump_imaging__servo_value 0.111835
+sigma_repump__servo_value 0.229313
 sigma_op__servo_value 0.199655
-pushout_probe__servo_value 0.304806
+pushout_probe__servo_value 0.304406
 top_raman__servo_value 0.0758206
-top_raman_carrier__servo_value 0.15485
-eo_raman__servo_value 0.237129
-ax_raman_spec__servo_value 0.140722
-top_raman_sideband_spec__servo_value 0.0971279
-top_sbc_sideband_spec__servo_value 0.270607
+top_raman_carrier__servo_value 0.137444
+eo_raman__servo_value 0.227279
+ax_raman_spec__servo_value 0.14588
+top_raman_sideband_spec__servo_value 0.0862077
+top_sbc_sideband_spec__servo_value 0.222463
 sbc_sigma_op__servo_value 0.0543531
 0
 18Sidemot 6 22 1 1.88 2 a 5 b 8 0 0.01 0.02 0 100
