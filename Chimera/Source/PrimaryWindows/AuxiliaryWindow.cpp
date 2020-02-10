@@ -510,8 +510,12 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 
 void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 {
-	if ( eventID == 2 )
+	if (eventID == 1) // paint update
 	{
+		OnPaint ();
+	}
+	else if ( eventID == 2 ) // analog input updeate
+	{		
 		// don't query while experiment is running and getting querying between variations, this may cause a 
 		// race condition.
 		if ( aiSys.wantsContinuousQuery( ) && (!mainWin->masterIsRunning( ) 
@@ -529,11 +533,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		KillTimer (2);
 		SetTimer (2, aiSys.getAiSettings().continuousModeInterval, NULL);
 	}
-	if ( eventID == 1 )
-	{
-		OnPaint( );
-	}
-	if ( eventID == 1000 && !mainWin->masterIsRunning() )
+	else if ( eventID == 1000 && !mainWin->masterIsRunning() ) // piezo display update
 	{
 		piezo1.updateCurrentValues ( );
 		piezo2.updateCurrentValues ( );
@@ -1726,8 +1726,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	SetTimer( 1, 10000, NULL );
 	SetTimer( 2, 1000, NULL );
 	// piezo 1 update
-	SetTimer ( 1000, 1000, NULL );
-
+	SetTimer ( 1000, 5000, NULL );
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
 	return TRUE;

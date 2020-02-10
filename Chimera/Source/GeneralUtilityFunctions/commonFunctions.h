@@ -17,14 +17,14 @@ namespace commonFunctions
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
 							 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
 	/// Run Menu
-	void calibrateCameraBackground( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
+	void calibrateCameraBackground ( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 									AuxiliaryWindow* auxWin );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runTtls, 
 							  bool runAndor, bool runBasler, bool startPlotThread );
-	void startExperimentThread(MainWindow* mainWin, AllExperimentInput& input);
+	void startExperimentThread ( MainWindow* mainWin, AllExperimentInput& input);
 	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, 
-					  std::string specialName="", bool needsCal=true );
+					  std::string specialName="", bool needsCal=false );
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);

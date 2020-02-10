@@ -99,6 +99,31 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 }
 
 
+void DataLogger::assertCalibrationFilesExist ()
+{
+	for (std::string fName : { "MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
+							   "GREY_MOLASSES_TEMPERATURE.h5" } )
+	{
+		std::string finalSaveFolder;
+		getDataLocation (dataFilesBaseLocation, todayFolder, finalSaveFolder);
+		FILE* calFile;
+		auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + fName;
+		fopen_s (&calFile, calDataLoc.c_str (), "r");
+		if (!calFile)
+		{
+			thrower ("ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
+				"location:" + calDataLoc + ". Please make sure that the mot is running okay and then "
+				"run F11 before starting an experiment.");
+		}
+		else
+		{
+			// all good.
+			fclose (calFile);
+		}
+	}
+}
+
+
 /*
 specialName: optional, the name of the data file. This is a unique name, it will not be incremented. This is used
 	for things like the mot size measurement or temperature measurements which are automated. The default is to use
@@ -130,24 +155,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 	/// check that the mot calibration files have been recorded.
 	if ( checkForCalibrationFiles )
 	{
-		for ( std::string fName : {"MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
-			  "GREY_MOLASSES_TEMPERATURE.h5"} )
-		{
-			FILE *calFile;
-			auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + fName;
-			fopen_s ( &calFile, calDataLoc.c_str ( ), "r" );
-			if ( !calFile )
-			{
-				thrower ( "ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
-						  "location:" + calDataLoc + ". Please make sure that the mot is running okay and then "
-						  "run F11 before starting an experiment." );
-			}
-			else
-			{
-				// all good.
-				fclose ( calFile );
-			}
-		}
+		assertCalibrationFilesExist ();
 	}
 
 	/// Get a filename appropriate for the data

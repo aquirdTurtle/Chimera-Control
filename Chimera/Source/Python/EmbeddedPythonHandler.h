@@ -9,8 +9,9 @@
 #include "python.h"
 #endif
 
-#include <string>
 #include "GeneralObjects/coordinate.h"
+#include <vector>
+#include <string>
 
 struct personInfo;
 
