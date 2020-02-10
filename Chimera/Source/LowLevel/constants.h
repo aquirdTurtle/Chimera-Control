@@ -20,8 +20,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -86,36 +86,36 @@
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
 	constexpr bool DIOFTDI_SAFEMODE = true;
-	#define DDS_SAFEMODE true
-	#define BASLER_SAFEMODE true
-	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
-	#define NIAWG_SAFEMODE true
-	#define ANDOR_SAFEMODE true
-	#define PYTHON_SAFEMODE true
-	#define VIEWPOINT_SAFEMODE true
-	#define ANALOG_OUT_SAFEMODE true
-	#define ANALOG_IN_SAFEMODE true
+	constexpr bool DDS_SAFEMODE = true;
+	constexpr bool BASLER_SAFEMODE = true;
+	constexpr auto PYTHON_HOME = L"C:\\ProgramData\\Anaconda3\\";
+	constexpr bool NIAWG_SAFEMODE = true;
+	constexpr bool ANDOR_SAFEMODE = true;
+	constexpr bool PYTHON_SAFEMODE = true;
+	constexpr bool VIEWPOINT_SAFEMODE = true;
+	constexpr bool ANALOG_OUT_SAFEMODE = true;
+	constexpr bool ANALOG_IN_SAFEMODE = true;
 	constexpr bool UW_SYSTEM_SAFEMODE = true;
-	#define TOP_BOTTOM_TEK_SAFEMODE true
-	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
-	#define EO_AXIAL_TEK_SAFEMODE true
-	#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
-	#define TOP_BOTTOM_AGILENT_SAFEMODE true
-	#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
-	#define AXIAL_AGILENT_SAFEMODE true
-	#define AXIAL_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52810615::0::INSTR"
-	#define INTENSITY_SAFEMODE true
-	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
-	#define FLASHING_SAFEMODE true
-	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-	#define UWAVE_SAFEMODE true
+	constexpr bool TOP_BOTTOM_TEK_SAFEMODE = true;
+	constexpr auto TOP_BOTTOM_TEK_USB_ADDRESS = "USB0::0x0699::0x0343::C021681::0::INSTR";
+	constexpr bool EO_AXIAL_TEK_SAFEMODE = true;
+	constexpr auto EO_AXIAL_TEK_USB_ADDRESS = "USB0::0x0699::0x034C::C010386::0::INSTR";
+	constexpr bool TOP_BOTTOM_AGILENT_SAFEMODE = true;
+	constexpr auto TOP_BOTTOM_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50002574::0::INSTR";
+	constexpr bool AXIAL_AGILENT_SAFEMODE = true;
+	constexpr auto AXIAL_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2C07::MY52810615::0::INSTR";
+	constexpr bool INTENSITY_SAFEMODE = true;
+	constexpr auto INTENSITY_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
+	constexpr bool FLASHING_SAFEMODE = true;
+	constexpr auto FLASHING_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50003003::0::INSTR";
+	constexpr bool UWAVE_SAFEMODE = true;
 	//#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define UWAVE_AGILENT_USB_ADDRESS "USB0::2391::11271::MY52801397::0::INSTR"
+	constexpr auto UWAVE_AGILENT_USB_ADDRESS = "USB0::2391::11271::MY52801397::0::INSTR";
 
-	#define MASTER_REPUMP_SCOPE_SAFEMODE true
-	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MOT_SCOPE_SAFEMODE true
-	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	constexpr bool MASTER_REPUMP_SCOPE_SAFEMODE = true;
+	constexpr auto MASTER_REPUMP_SCOPE_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
+	constexpr bool MOT_SCOPE_SAFEMODE = true;
+	constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Chimera";
@@ -202,44 +202,43 @@
 	//constexpr char UW_SYSTEM_ADDRESS[] = "28";
 	constexpr short UW_SYSTEM_ADDRESS = 28;
 	constexpr bool UW_SYSTEM_SAFEMODE = false;
-	#define DIOFTDI_SAFEMODE false
-	#define DDS_SAFEMODE false
+	constexpr bool DIOFTDI_SAFEMODE false;
+	constexpr bool DDS_SAFEMODE false;
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::B;
-	#define BASLER_SAFEMODE false
-	#define NIAWG_SAFEMODE false
-	#define ANDOR_SAFEMODE false
+	constexpr bool BASLER_SAFEMODE = false;
+	constexpr bool NIAWG_SAFEMODE = false;
+	constexpr bool ANDOR_SAFEMODE = false;
 	#ifdef _DEBUG
-		#define PYTHON_SAFEMODE true
+		constexpr bool PYTHON_SAFEMODE = true;
 	#else
-		#define PYTHON_SAFEMODE false
+		constexpr bool  PYTHON_SAFEMODE = false;
 	#endif
-	#define VIEWPOINT_SAFEMODE true
-	#define DAQMX_SAFEMODE false
-	//#define RSG_SAFEMODE false
-	#define TOP_BOTTOM_TEK_SAFEMODE false
-	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
-	#define EO_AXIAL_TEK_SAFEMODE false
-	#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
-	#define TOP_BOTTOM_AGILENT_SAFEMODE false
-	#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
-	#define AXIAL_AGILENT_SAFEMODE false
-	#define AXIAL_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52810615::0::INSTR"
-	#define INTENSITY_SAFEMODE false
-	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
-	#define FLASHING_SAFEMODE false
-	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-	#define UWAVE_SAFEMODE false
-	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE true
-	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0699::0x03B3::C011388::0::INSTR"
-	#define MOT_SCOPE_SAFEMODE			 false
-	#define MOT_SCOPE_ADDRESS			 "USB0::0x0699::0x0363::C100939::0::INSTR"
-	#define ANALOG_OUT_SAFEMODE false
-	#define ANALOG_IN_SAFEMODE false
-	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
+	constexpr bool VIEWPOINT_SAFEMODE = true;
+	constexpr bool DAQMX_SAFEMODE = false;
+	constexpr bool TOP_BOTTOM_TEK_SAFEMODE = false;
+	constexpr auto TOP_BOTTOM_TEK_USB_ADDRESS = "USB0::0x0699::0x0343::C021681::0::INSTR";
+	constexpr bool EO_AXIAL_TEK_SAFEMODE = false;
+	constexpr auto EO_AXIAL_TEK_USB_ADDRESS = "USB0::0x0699::0x034C::C010386::0::INSTR";
+	constexpr bool TOP_BOTTOM_AGILENT_SAFEMODE = false;
+	constexpr auto TOP_BOTTOM_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50002574::0::INSTR";
+	constexpr bool AXIAL_AGILENT_SAFEMODE = false;
+	constexpr auto AXIAL_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2C07::MY52810615::0::INSTR";
+	constexpr bool INTENSITY_SAFEMODE = false;
+	constexpr auto INTENSITY_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
+	constexpr bool FLASHING_SAFEMODE = false;
+	constexpr auto FLASHING_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50003003::0::INSTR";
+	constexpr bool UWAVE_SAFEMODE = false;
+	constexpr auto UWAVE_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
+	constexpr bool MASTER_REPUMP_SCOPE_SAFEMODE = true;
+	constexpr auto MASTER_REPUMP_SCOPE_ADDRESS = "USB0::0x0699::0x03B3::C011388::0::INSTR";
+	constexpr bool MOT_SCOPE_SAFEMODE = false;
+	constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0699::0x0363::C100939::0::INSTR";
+	constexpr bool ANALOG_OUT_SAFEMODE = false;
+	constexpr bool ANALOG_IN_SAFEMODE = false;
+	constexpr auto PYTHON_HOME = L"C:\\ProgramData\\Anaconda3\\";
 
-	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Code\\Chimera-Control"
+	constexpr auto CODE_ROOT = "C:\\Users\\Regal-Lab\\Code\\Chimera-Control";
 	const std::string PLOT_FILES_SAVE_LOCATION = str(CODE_ROOT) + "\\Plotting";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Code/Data_Analysis_Control";
 	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Regal-Lab/Code/Chimera-Control/Debug-Output/";
@@ -291,30 +290,30 @@
 
 
 // We calibrated this. // NIAWG_GAIN = 1.64.
-#define NIAWG_GAIN 1.64
+constexpr float NIAWG_GAIN = 1.64;
 // NIAWG_GAIN = 1.64.
 
-#define MAX_NIAWG_SIGNALS 32
+constexpr int MAX_NIAWG_SIGNALS = 32;
 
 // This is the minimum time (in seconds) that a correction waveform will be allowed to have. Without this, the algorithm might decide that the 1/2 of a period 
 // of a waveform might be enough, even though this would probably be far below the amount of time an individual waveform is allowed to have according to the 
 // NIAWG (the NIAWG has a minimum waveform size).
 // Initial Value: 0.00000025 (250 ns)
-#define MIN_CORRECTION_WAVEFORM_TIME 0.00000025
+constexpr double MIN_CORRECTION_WAVEFORM_TIME = 0.00000025;
 // this is a time in seconds.
-#define MAX_CORRECTION_WAVEFORM_TIME 0.001
+constexpr double MAX_CORRECTION_WAVEFORM_TIME = 0.001;
 // this is a phase in radians.
-#define CORRECTION_WAVEFORM_GOAL 0.001
+constexpr double CORRECTION_WAVEFORM_GOAL = 0.001;
 // this is a phase in radians.
-#define CORRECTION_WAVEFORM_ERROR_THRESHOLD 0.5
+constexpr double CORRECTION_WAVEFORM_ERROR_THRESHOLD = 0.5;
 // in hertz
-#define NIAWG_FILTER_FREQENCY 80000000
+constexpr double NIAWG_FILTER_FREQENCY = 80000000;
 
 //
-#define PICTURE_PALETTE_SIZE 256
-#define RAW_COUNTS "Raw Counts"
-#define CAMERA_PHOTONS "Camera Photons"
-#define ATOM_PHOTONS "Atom Photons"
+constexpr int PICTURE_PALETTE_SIZE = 256;
+constexpr auto RAW_COUNTS = "Raw Counts";
+constexpr auto CAMERA_PHOTONS = "Camera Photons";
+constexpr auto ATOM_PHOTONS = "Atom Photons";
 
 /// FELIX'S DIO PARAMETERS
 
@@ -324,17 +323,15 @@ const UINT DIO_MSGLENGTH = 7;
 const UINT DIO_WRITESPERDATAPT = 3;
 
 /// Agilent Parameters
-#define AGILENT_DEFAULT_POWER 40
+constexpr auto AGILENT_DEFAULT_POWER = 40;
 
-#define NUMBER_OF_LIBRARY_FILES MAX_NIAWG_SIGNALS*4
+constexpr auto NUMBER_OF_LIBRARY_FILES = MAX_NIAWG_SIGNALS * 4;
 
 /// Random other Constants
 // It's PI.
-#define PI 3.14159265358979323846264338327950288
-// This is the length of time waited before the code decides to update your syntax coloring after a change is made.
-#define SYNTAX_TIMER_LENGTH 1000
+constexpr double PI = 3.14159265358979323846264338327950288;
 
-#define NUMBER_AI_CHANNELS 8
+constexpr auto NUMBER_AI_CHANNELS = 8;
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 
@@ -355,10 +352,6 @@ const UINT NIAWG_SAMPLE_RATE = 320000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// This would probably cause the code to throw weird errors since the number of samples in the file wouldn't match what was needed at the 
 /// given sample rate.
 
-/// Old Communication Parameters for communication with the old master computer.
-#define DEFAULT_PORT "10010"
-const char * const SERVER_ADDRESS = "192.168.236.1";
-
 /// Control IDs ///
 // All of these #defines are specifically chosen to match the id's of corresponding controls that I need
 // to watch for input. Mostly this is for message maps for the various windows mentioned below. The exact value here
@@ -367,230 +360,214 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // you don't have to worry about these things so much.
 
 // Main Window
-#define IDC_MAIN_STATUS_BUTTON 11000
-#define IDC_ERROR_STATUS_BUTTON 11001
-#define IDC_DEBUG_STATUS_BUTTON 11002
-#define IDC_SELECT_CONFIG_COMBO 11006
-#define IDC_SEQUENCE_COMBO 11007
-#define IDC_MAIN_OPTIONS_RANGE_BEGIN 11008
-#define IDC_MAIN_OPTIONS_RANGE_END 11009
-#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 11010
-#define IDC_DEBUG_OPTIONS_RANGE_END 11018
-#define IDC_SHOW_TTLS 11019
-#define IDC_SHOW_DACS 11020
-#define IDC_SMS_TEXTING_LISTVIEW 10021
-#define IDC_CONFIGURATION_NOTES 10022
-#define IDC_REPETITION_EDIT 10023
-#define IDC_ENTER_EMAIL_INFO 10024
-#define IDC_RERNG_EXPERIMENT_BUTTON 10025
-#define ID_FORCE_EXIT 10026
+constexpr auto IDC_MAIN_STATUS_BUTTON = 11000;
+constexpr auto IDC_ERROR_STATUS_BUTTON = 11001;
+constexpr auto IDC_DEBUG_STATUS_BUTTON = 11002;
+constexpr auto IDC_SELECT_CONFIG_COMBO = 11006;
+constexpr auto IDC_SEQUENCE_COMBO = 11007;
+constexpr auto IDC_MAIN_OPTIONS_RANGE_BEGIN = 11008;
+constexpr auto IDC_MAIN_OPTIONS_RANGE_END = 11009;
+constexpr auto IDC_DEBUG_OPTIONS_RANGE_BEGIN = 11010;
+constexpr auto IDC_DEBUG_OPTIONS_RANGE_END = 11018;
+constexpr auto IDC_SHOW_TTLS = 11019;
+constexpr auto IDC_SHOW_DACS = 11020;
+constexpr auto IDC_SMS_TEXTING_LISTVIEW = 10021;
+constexpr auto IDC_CONFIGURATION_NOTES = 10022;
+constexpr auto IDC_REPETITION_EDIT = 10023;
+constexpr auto IDC_ENTER_EMAIL_INFO = 10024;
+constexpr auto IDC_RERNG_EXPERIMENT_BUTTON = 10025;
+constexpr auto ID_FORCE_EXIT = 10026;
 
 // Scripting Window
-#define IDC_NIAWG_FUNCTION_COMBO 12003
-#define IDC_NIAWG_EDIT 12004
+constexpr auto IDC_NIAWG_FUNCTION_COMBO = 12003;
+constexpr auto IDC_NIAWG_EDIT = 12004;
 
-#define IDC_INTENSITY_CHANNEL1_BUTTON 12005
-#define IDC_INTENSITY_CHANNEL2_BUTTON 12006
-#define IDC_INTENSITY_SYNC_BUTTON 12007
-#define IDC_INTENSITY_AGILENT_COMBO 12008
-#define IDC_INTENSITY_FUNCTION_COMBO 12009
-#define IDC_INTENSITY_EDIT 12010
-#define IDC_INTENSITY_PROGRAM 12011
+constexpr auto IDC_INTENSITY_CHANNEL1_BUTTON = 12005;
+constexpr auto IDC_INTENSITY_CHANNEL2_BUTTON = 12006;
+constexpr auto IDC_INTENSITY_SYNC_BUTTON = 12007;
+constexpr auto IDC_INTENSITY_AGILENT_COMBO = 12008;
+constexpr auto IDC_INTENSITY_FUNCTION_COMBO = 12009;
+constexpr auto IDC_INTENSITY_EDIT = 12010;
+constexpr auto IDC_INTENSITY_PROGRAM = 12011;
 
-#define IDC_MASTER_FUNCTION_COMBO 12012
-#define IDC_MASTER_EDIT 12013
-#define IDC_RERNG_MODE_COMBO 12014
+constexpr auto IDC_MASTER_FUNCTION_COMBO = 12012;
+constexpr auto IDC_MASTER_EDIT = 12013;
+constexpr auto IDC_RERNG_MODE_COMBO = 12014;
 
 // Camera Window
-#define IDC_ALERT_ON_NO_ATOMS 23001
-#define IDC_SET_ANALYSIS_LOCATIONS 23002
-#define IDC_SET_GRID_CORNER 23003
-#define IDC_PLOTTING_LISTVIEW 23004
-#define IDC_CAMERA_MODE_COMBO 23005
-#define IDC_SET_EM_GAIN_BUTTON 23006
-#define IDC_TRIGGER_COMBO 23007
-#define IDC_SET_TEMPERATURE_BUTTON 23008
-#define PICTURE_SETTINGS_ID_START 23009
-#define PICTURE_SETTINGS_ID_END 23034
-#define IDC_ATOM_GRID_COMBO 23035
-#define IDC_DEL_GRID_BUTTON 23036
-#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 23046
-#define IDC_SET_VARIATION_NUMBER 23047
-#define IDC_PICTURE_1_MIN_EDIT 23048
-#define IDC_PICTURE_1_MAX_EDIT 23049
-#define IDC_PICTURE_2_MIN_EDIT 23050
-#define IDC_PICTURE_2_MAX_EDIT 23051
-#define IDC_PICTURE_3_MIN_EDIT 23052
-#define IDC_PICTURE_3_MAX_EDIT 23053
-#define IDC_PICTURE_4_MIN_EDIT 23054
-#define IDC_PICTURE_4_MAX_EDIT 23055
-#define IDC_EM_GAIN_EDIT 23056
-#define IDC_IMAGE_DIMS_START 23056
-#define IDC_IMAGE_DIMS_END 23062
-#define IDC_CAMERA_CALIBRATION_BUTTON 23063
-#define IDC_PLOT_TIMER_EDIT 23064
-#define IDC_SOFTWARE_ACCUMULATE_ALL_OPTION 23065
-#define IDC_EM_GAIN_BTN 23066
+constexpr auto IDC_ALERT_ON_NO_ATOMS = 23001;
+constexpr auto IDC_SET_ANALYSIS_LOCATIONS = 23002;
+constexpr auto IDC_SET_GRID_CORNER = 23003;
+constexpr auto IDC_PLOTTING_LISTVIEW = 23004;
+constexpr auto IDC_CAMERA_MODE_COMBO = 23005;
+constexpr auto IDC_SET_EM_GAIN_BUTTON = 23006;
+constexpr auto IDC_TRIGGER_COMBO = 23007;
+constexpr auto IDC_SET_TEMPERATURE_BUTTON = 23008;
+constexpr auto PICTURE_SETTINGS_ID_START = 23009;
+constexpr auto PICTURE_SETTINGS_ID_END = 23034;
+constexpr auto IDC_ATOM_GRID_COMBO = 23035;
+constexpr auto IDC_DEL_GRID_BUTTON = 23036;
+constexpr auto IDC_SET_REPETITONS_PER_VARIATION_BUTTON = 23046;
+constexpr auto IDC_SET_VARIATION_NUMBER = 23047;
+constexpr auto IDC_PICTURE_1_MIN_EDIT = 23048;
+constexpr auto IDC_PICTURE_1_MAX_EDIT = 23049;
+constexpr auto IDC_PICTURE_2_MIN_EDIT = 23050;
+constexpr auto IDC_PICTURE_2_MAX_EDIT = 23051;
+constexpr auto IDC_PICTURE_3_MIN_EDIT = 23052;
+constexpr auto IDC_PICTURE_3_MAX_EDIT = 23053;
+constexpr auto IDC_PICTURE_4_MIN_EDIT = 23054;
+constexpr auto IDC_PICTURE_4_MAX_EDIT = 23055;
+constexpr auto IDC_EM_GAIN_EDIT = 23056;
+constexpr auto IDC_IMAGE_DIMS_START = 23056;
+constexpr auto IDC_IMAGE_DIMS_END = 23062;
+constexpr auto IDC_CAMERA_CALIBRATION_BUTTON = 23063;
+constexpr auto IDC_PLOT_TIMER_EDIT = 23064;
+constexpr auto IDC_SOFTWARE_ACCUMULATE_ALL_OPTION = 23065;
+constexpr auto IDC_EM_GAIN_BTN = 23066;
 //
-#define IDC_BEGINNING_DIALOG_RICH_EDIT 100
+constexpr auto IDC_BEGINNING_DIALOG_RICH_EDIT = 100;
 //
 
-#define SYNTAX_TIMER_ID 500
-#define SYNTAX_TIMER_LENGTH 1000
+constexpr auto SYNTAX_TIMER_ID = 500;
+constexpr auto SYNTAX_TIMER_LENGTH = 1000; 
 
 /// Auxiliary Window
-#define SET_REPETITION_ID 14001
-#define TTL_HOLD 14002
-#define IDC_ZERO_TTLS 14003
-#define IDC_SEQUENCE_DISPLAY 14004
-#define TTL_ID_BEGIN 14005
-#define TTL_ID_END 14069
-#define ID_DAC_SET_BUTTON 14070
-#define IDC_ZERO_DACS 14081
-#define ID_DAC_FIRST_EDIT 14072
-#define ID_DAC_LAST_EDIT 14096
+constexpr auto SET_REPETITION_ID = 14001;
+constexpr auto TTL_HOLD = 14002;
+constexpr auto IDC_ZERO_TTLS = 14003;
+constexpr auto IDC_SEQUENCE_DISPLAY = 14004;
+constexpr auto TTL_ID_BEGIN = 14005;
+constexpr auto TTL_ID_END = 14069;
+constexpr auto ID_DAC_SET_BUTTON = 14070;
+constexpr auto IDC_ZERO_DACS = 14081;
+constexpr auto ID_DAC_FIRST_EDIT = 14072;
+constexpr auto ID_DAC_LAST_EDIT = 14096;
 // TEKTRONICS STUFF
-#define TOP_BOTTOM_TEK_START 14200
-#define EO_AXIAL_TEK_START 14300
-/*
-#define TOP_BOTTOM_PROGRAM 14097
-#define TOP_CONTROL 14098
-#define TOP_ON_OFF 14099
-#define TOP_FSK 14100
-#define BOTTOM_CONTROL 14101
-#define BOTTOM_ON_OFF 14102
-#define BOTTOM_FSK 14103
-#define EO_AXIAL_PROGRAM 14104
-#define EO_CONTROL 14105
-#define EO_ON_OFF 14106
-#define EO_FSK 14107
-#define AXIAL_CONTROL 14108
-#define AXIAL_ON_OFF 14109
-#define AXIAL_FSK 14110
-*/
+constexpr auto TOP_BOTTOM_TEK_START = 14200;
+constexpr auto EO_AXIAL_TEK_START = 14300;
 // AGILENT STUFF
-#define IDC_TOP_BOTTOM_CHANNEL1_BUTTON 14111
-#define IDC_TOP_BOTTOM_CHANNEL2_BUTTON 14112
-#define IDC_TOP_BOTTOM_SYNC_BUTTON 14113
-#define IDC_TOP_BOTTOM_AGILENT_COMBO 14114
-#define IDC_TOP_BOTTOM_FUNCTION_COMBO 14115
-#define IDC_TOP_BOTTOM_EDIT 14116
-#define IDC_TOP_BOTTOM_PROGRAM 14117
-#define IDC_AXIAL_CHANNEL1_BUTTON 14118
-#define IDC_AXIAL_CHANNEL2_BUTTON 14119
-#define IDC_AXIAL_SYNC_BUTTON 14120
-#define IDC_AXIAL_AGILENT_COMBO 14121
-#define IDC_AXIAL_FUNCTION_COMBO 14122
-#define IDC_AXIAL_EDIT 14123
-#define IDC_AXIAL_PROGRAM 14124
-#define IDC_FLASHING_CHANNEL1_BUTTON 14125
-#define IDC_FLASHING_CHANNEL2_BUTTON 14126
-#define IDC_FLASHING_SYNC_BUTTON 14127
-#define IDC_FLASHING_AGILENT_COMBO 14128
-#define IDC_FLASHING_FUNCTION_COMBO 14129
-#define IDC_FLASHING_EDIT 14130
-#define IDC_FLASHING_PROGRAM 14131
-#define IDC_UWAVE_CHANNEL1_BUTTON 14132
-#define IDC_UWAVE_CHANNEL2_BUTTON 14133
-#define IDC_UWAVE_SYNC_BUTTON 14134
-#define IDC_UWAVE_AGILENT_COMBO 14135
-#define IDC_UWAVE_FUNCTION_COMBO 14136
-#define IDC_UWAVE_EDIT 14137
-#define IDC_UWAVE_PROGRAM 14138
+constexpr auto IDC_TOP_BOTTOM_CHANNEL1_BUTTON = 14111;
+constexpr auto IDC_TOP_BOTTOM_CHANNEL2_BUTTON = 14112;
+constexpr auto IDC_TOP_BOTTOM_SYNC_BUTTON = 14113;
+constexpr auto IDC_TOP_BOTTOM_AGILENT_COMBO = 14114;
+constexpr auto IDC_TOP_BOTTOM_FUNCTION_COMBO = 14115;
+constexpr auto IDC_TOP_BOTTOM_EDIT = 14116;
+constexpr auto IDC_TOP_BOTTOM_PROGRAM = 14117;
+constexpr auto IDC_AXIAL_CHANNEL1_BUTTON = 14118;
+constexpr auto IDC_AXIAL_CHANNEL2_BUTTON = 14119;
+constexpr auto IDC_AXIAL_SYNC_BUTTON = 14120;
+constexpr auto IDC_AXIAL_AGILENT_COMBO = 14121;
+constexpr auto IDC_AXIAL_FUNCTION_COMBO = 14122;
+constexpr auto IDC_AXIAL_EDIT = 14123;
+constexpr auto IDC_AXIAL_PROGRAM = 14124;
+constexpr auto IDC_FLASHING_CHANNEL1_BUTTON = 14125;
+constexpr auto IDC_FLASHING_CHANNEL2_BUTTON = 14126;
+constexpr auto IDC_FLASHING_SYNC_BUTTON = 14127;
+constexpr auto IDC_FLASHING_AGILENT_COMBO = 14128;
+constexpr auto IDC_FLASHING_FUNCTION_COMBO = 14129;
+constexpr auto IDC_FLASHING_EDIT = 14130;
+constexpr auto IDC_FLASHING_PROGRAM = 14131;
+constexpr auto IDC_UWAVE_CHANNEL1_BUTTON = 14132;
+constexpr auto IDC_UWAVE_CHANNEL2_BUTTON = 14133;
+constexpr auto IDC_UWAVE_SYNC_BUTTON = 14134;
+constexpr auto IDC_UWAVE_AGILENT_COMBO = 14135;
+constexpr auto IDC_UWAVE_FUNCTION_COMBO = 14136;
+constexpr auto IDC_UWAVE_EDIT = 14137;
+constexpr auto IDC_UWAVE_PROGRAM = 14138;
 //
-#define IDC_GLOBAL_VARS_LISTVIEW 14139
-#define IDC_CONFIG_VARS_LISTVIEW 14140
-#define IDC_TOP_BOTTOM_CALIBRATION_BUTTON 14141
-#define IDC_AXIAL_CALIBRATION_BUTTON 14142
-#define IDC_FLASHING_CALIBRATION_BUTTON 14143
-#define IDC_INTENSITY_CALIBRATION_BUTTON 14144
-#define IDC_UWAVE_CALIBRATION_BUTTON 14145
-#define ID_GET_ANALOG_IN_VALUES 14146
+constexpr auto IDC_GLOBAL_VARS_LISTVIEW = 14139;
+constexpr auto IDC_CONFIG_VARS_LISTVIEW = 14140;
+constexpr auto IDC_TOP_BOTTOM_CALIBRATION_BUTTON = 14141;
+constexpr auto IDC_AXIAL_CALIBRATION_BUTTON = 14142;
+constexpr auto IDC_FLASHING_CALIBRATION_BUTTON = 14143;
+constexpr auto IDC_INTENSITY_CALIBRATION_BUTTON = 14144;
+constexpr auto IDC_UWAVE_CALIBRATION_BUTTON = 14145;
+constexpr auto ID_GET_ANALOG_IN_VALUES = 14146;
 //
-#define IDC_SERVO_CAL 14147
-#define IDC_MACHINE_OPTIMIZE 14148
-#define ID_MACHINE_OPTIMIZATION 14149
-#define IDC_MACHINE_OPTIMIZE_LISTVIEW 14150
-#define IDC_SERVO_LISTVIEW 14151
+constexpr auto IDC_SERVO_CAL = 14147;
+constexpr auto IDC_MACHINE_OPTIMIZE = 14148;
+constexpr auto ID_MACHINE_OPTIMIZATION = 14149;
+constexpr auto IDC_MACHINE_OPTIMIZE_LISTVIEW = 14150;
+constexpr auto IDC_SERVO_LISTVIEW = 14151;
 
-#define IDC_DDS_LISTVIEW 14152
-#define IDC_DDS_PROGRAM_NOW 14153
-#define IDC_PIEZO1_PROGRAM_NOW 14154
-#define IDC_PIEZO2_PROGRAM_NOW 14155
-#define IDC_PIEZO1_CTRL 14156
-#define IDC_PIEZO2_CTRL 14157
+constexpr auto IDC_DDS_LISTVIEW = 14152;
+constexpr auto IDC_DDS_PROGRAM_NOW = 14153;
+constexpr auto IDC_PIEZO1_PROGRAM_NOW = 14154;
+constexpr auto IDC_PIEZO2_PROGRAM_NOW = 14155;
+constexpr auto IDC_PIEZO1_CTRL = 14156;
+constexpr auto IDC_PIEZO2_CTRL = 14157;
 constexpr UINT IDC_UW_SYSTEM_LISTVIEW = 14158;
 constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
 // BASLER WIN CONSTS
-#define IDC_MIN_BASLER_SLIDER_EDIT 15001
-#define IDC_MAX_BASLER_SLIDER_EDIT 15002
-#define IDC_BASLER_CAMERA_MODE_COMBO 15003
-#define IDC_BASLER_EXPOSURE_MODE_COMBO 15004
-#define IDC_BASLER_REPETITIONS_EDIT 15005
-#define IDC_BASLER_TRIGGER_MODE_COMBO 15006
-#define IDC_BASLER_SET_ANALYSIS_LOCATIONS 15007
-#define ID_BASLER_SOFTWARE_TRIGGER 15008
-#define ID_ARM_BASLER_CAMERA 15009
-#define ID_DISARM_BASLER_CAMERA 15010
-#define ID_SET_BASLER_ANALYSIS_LOCATIONS 15011
-#define ID_MOT_TEMP_CAL 15012
-#define ID_PGC_TEMP_CAL 15013
-#define ID_GREY_TEMP_CAL 15014
-#define IDC_MOT_LOADED_INDICATOR 15015
+constexpr auto IDC_MIN_BASLER_SLIDER_EDIT = 15001;
+constexpr auto IDC_MAX_BASLER_SLIDER_EDIT = 15002;
+constexpr auto IDC_BASLER_CAMERA_MODE_COMBO = 15003;
+constexpr auto IDC_BASLER_EXPOSURE_MODE_COMBO = 15004;
+constexpr auto IDC_BASLER_REPETITIONS_EDIT = 15005;
+constexpr auto IDC_BASLER_TRIGGER_MODE_COMBO = 15006;
+constexpr auto IDC_BASLER_SET_ANALYSIS_LOCATIONS = 15007;
+constexpr auto ID_BASLER_SOFTWARE_TRIGGER = 15008;
+constexpr auto ID_ARM_BASLER_CAMERA = 15009;
+constexpr auto ID_DISARM_BASLER_CAMERA = 15010;
+constexpr auto ID_SET_BASLER_ANALYSIS_LOCATIONS = 15011;
+constexpr auto ID_MOT_TEMP_CAL = 15012;
+constexpr auto ID_PGC_TEMP_CAL = 15013;
+constexpr auto ID_GREY_TEMP_CAL = 15014;
+constexpr auto IDC_MOT_LOADED_INDICATOR = 15015;
 
 // plot designer
-#define IDC_GENERAL_PLOT_TYPE 15008
-#define IDC_PLOT_CREATOR_DATASET_COMBO 15010
-#define IDC_PRC_PICTURE_NUMBER 15014
-#define IDC_PRC_PIXEL_NUMBER 15016
-#define IDC_PRC_ATOM 15017
-#define IDC_PRC_NOATOM 15018
-#define IDC_PRC_SHOW_ALL 15019
-#define IDC_PIXELS_PER_ANALYSIS_GROUP 15029
-#define IDC_PSC_CONDITION_NUMBER 15038
-#define IDC_PSC_PICTURE_NUMBER 15040
-#define IDC_PSC_PIXEL_NUMBER 15042
-#define IDC_PSC_ATOM 15043
-#define IDC_PSC_NOATOM 15044
-#define IDC_PSC_SHOW_ALL 15045
-#define IDC_PLOT_CREATOR_SAVE 15046
-#define IDC_PLOT_CREATOR_CANCEL 15047
+constexpr auto IDC_GENERAL_PLOT_TYPE = 15008;
+constexpr auto IDC_PLOT_CREATOR_DATASET_COMBO = 15010;
+constexpr auto IDC_PRC_PICTURE_NUMBER = 15014;
+constexpr auto IDC_PRC_PIXEL_NUMBER = 15016;
+constexpr auto IDC_PRC_ATOM = 15017;
+constexpr auto IDC_PRC_NOATOM = 15018;
+constexpr auto IDC_PRC_SHOW_ALL = 15019;
+constexpr auto IDC_PIXELS_PER_ANALYSIS_GROUP = 15029;
+constexpr auto IDC_PSC_CONDITION_NUMBER = 15038;
+constexpr auto IDC_PSC_PICTURE_NUMBER = 15040;
+constexpr auto IDC_PSC_PIXEL_NUMBER = 15042;
+constexpr auto IDC_PSC_ATOM = 15043;
+constexpr auto IDC_PSC_NOATOM = 15044;
+constexpr auto IDC_PSC_SHOW_ALL = 15045;
+constexpr auto IDC_PLOT_CREATOR_SAVE = 15046;
+constexpr auto IDC_PLOT_CREATOR_CANCEL = 15047;
 
-#define NO_FIT 16002
-#define REAL_TIME_FIT 16003
-#define FIT_AT_END 16004
-#define GAUSSIAN_FIT 16005
-#define LORENTZIAN_FIT 16006
-#define SINE_FIT 16007
+constexpr auto NO_FIT = 16002;
+constexpr auto REAL_TIME_FIT = 16003;
+constexpr auto FIT_AT_END = 16004;
+constexpr auto GAUSSIAN_FIT = 16005;
+constexpr auto LORENTZIAN_FIT = 16006;
+constexpr auto SINE_FIT = 16007;
 
 // 17xxx is reserved for plotting controls.
-#define ID_PLOT_POP_IDS_BEGIN 17000
-#define ID_MOT_SCOPE_VIEWER_POP_ID 17000
-#define ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID 17001
+constexpr auto ID_PLOT_POP_IDS_BEGIN = 17000;
+constexpr auto ID_MOT_SCOPE_VIEWER_POP_ID = 17000;
+constexpr auto ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID = 17001;
 // 17002 - 17008 are the dac / ttl plots on the aux window.
 // 17009-17014 are the andor window analysis plots
-#define ID_PLOT_POP_IDS_END 17015
+constexpr auto ID_PLOT_POP_IDS_END = 17015;
 
 
-#define MASTER_SCRIPT_EXTENSION "mScript"
-#define NIAWG_SCRIPT_EXTENSION "nScript"
-#define AGILENT_SCRIPT_EXTENSION "aScript"
-#define CONFIG_EXTENSION "Config"
-#define SEQUENCE_EXTENSION "sConfig"
-#define FUNCTION_EXTENSION "func"
-#define PLOTTING_EXTENSION "plot"
+constexpr auto MASTER_SCRIPT_EXTENSION = "mScript";
+constexpr auto NIAWG_SCRIPT_EXTENSION = "nScript";
+constexpr auto AGILENT_SCRIPT_EXTENSION = "aScript";
+constexpr auto CONFIG_EXTENSION = "Config";
+constexpr auto SEQUENCE_EXTENSION = "sConfig";
+constexpr auto FUNCTION_EXTENSION = "func";
+constexpr auto PLOTTING_EXTENSION = "plot";
 
-#define OSCILLOSCOPE_TRIGGER "C11"
+constexpr auto OSCILLOSCOPE_TRIGGER = "C11";
 
-#define NULL_SEQUENCE "NULL_SEQUENCE"
+constexpr auto NULL_SEQUENCE = "NULL_SEQUENCE";
 
 // Don't change! Or only change if you really kow what you are doing. Changing this risks overloading our RF amplifiers 
 // and large-aperture AOMs. Current Value: 5
-const float MAX_GAIN = 5.0; // Current Value: 5
+constexpr float MAX_GAIN = 5.0; // Current Value: 5
 							// Current Value: 5
 
 // help text
-const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
+constexpr char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
 "Accepted Commands (syntax for command is encased in <>)\n"
 "- hold <val> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
 "- ramp <type> <initVal> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
@@ -614,7 +591,7 @@ const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
 
 
 //
-const char SCRIPT_INFO_TEXT[] =
+constexpr char SCRIPT_INFO_TEXT[] =
 ">>> This is a script for programming the NI AWG 5451. <<<\n"
 "- the input format is referenced below using angled brackets <...>. Place the input on\n"
 " the line below the command in the format specified.\n"
@@ -647,7 +624,7 @@ const char SCRIPT_INFO_TEXT[] =
 "(j)Create marker event after last waveform\n"
 "\"markerEvent <samples after previous waveform to wait>\"\n";
 
-const char MASTER_HELP[] = "This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
+constexpr char MASTER_HELP[] = "This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
 "Acceptable Commands:\n"
 "-      t++\n"
 "-      t+= [number] (space between = and number required)\n"
