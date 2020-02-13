@@ -472,6 +472,7 @@ namespace commonFunctions
 				// F11 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput->quiet = true;
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -493,6 +494,7 @@ namespace commonFunctions
 				// F11 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput->quiet = true;
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -528,6 +530,7 @@ namespace commonFunctions
 				// F11 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput->quiet = true;
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->runMaster = true;
@@ -557,6 +560,7 @@ namespace commonFunctions
 				// F11 is the set of mot calibrations. Start with the mot size.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin );
+				input.masterInput->quiet = true;
 				input.masterInput->runNiawg = false;
 				input.masterInput->runAndor = false;
 				input.masterInput->logBaslerPics = true;
@@ -916,40 +920,7 @@ namespace commonFunctions
 			}
 			startMsg += "\r\n";
 		}
-		if ( runNiawg || runMaster )
-		{
-			if ( input.masterInput->parameters.size( ) == 0 )
-			{
-				startMsg += "Variable Names:.............. NO VARIABLES\r\n";
-			}
-			else
-			{
-				startMsg += "Variables:\r\n\t";
-				std::string constantsMsg="Constants:\r\n\t";
-				for ( auto& seq : input.masterInput->parameters )
-				{
-					for ( auto& var : seq )
-					{
-						if ( var.constant )
-						{
-							constantsMsg += var.name + "(" + str(var.constantValue) + "),   ";
-						}
-						else
-						{
-							startMsg += var.name + " (" + str(var.keyValues.size()) + " Values): ";
-							for ( auto val : var.keyValues ) 
-							{
-								startMsg += str( val ) + ",";
-							}
-							startMsg += "\r\n";
-						}
-					}
-				}
-				startMsg += "\r\n" + constantsMsg;
-				startMsg += "\r\n";
-			}
-		}
-		startMsg += "\r\n\r\nBegin Waveform Generation with these Settings?";
+		startMsg += "\r\n\r\nBegin Experiment with these Settings?";
 		StartDialog dlg( startMsg, IDD_BEGINNING_SETTINGS );
 		bool areYouSure = dlg.DoModal( );
 		if ( !areYouSure )

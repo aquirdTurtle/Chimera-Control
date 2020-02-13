@@ -60,7 +60,7 @@ class ParameterSystem
 		void saveParameter ( std::ofstream& saveFile, parameterType variable );
 		static void generateKey ( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
 								  ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> combineParametersForExperimentThread ( std::vector<parameterType>& masterVars,
+		static std::vector<parameterType> combineParamsForExpThread ( std::vector<parameterType>& masterVars,
 																				 std::vector<parameterType>& subVars );
 
 		void handleColumnClick ( NMHDR * pNotifyStruct, LRESULT* result );

@@ -72,23 +72,24 @@ struct ExperimentThreadInput
 	ScanRangeInfo variableRangeInfo;
 	// believe outer layer here is for sequence increment. 
 	// TODO: this should be loaded from config file, not gui thread.
-	std::vector<std::vector<parameterType>> parameters;
+	std::vector<parameterType> globalParameters;
+	//std::vector<std::vector<parameterType>> parameters;
 	MasterThreadManager* thisObj;
 	Communicator& comm;
 	MicrowaveCore& rsg;
-	debugInfo debugOptions;
+	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 	std::vector<Agilent*> agilents;
 	TektronixAfgControl& topBottomTek;
 	TektronixAfgControl& eoAxialTek;
 	ParameterSystem& globalControl;
 	NiawgController& niawg;
 	DataLogger& logger;
-	UINT intensityAgilentNumber;
+	UINT intensityAgilentNumber=-1;
 	UINT numVariations = 1;
 	bool quiet=false;
-	bool runNiawg;
+	bool runNiawg=true;
 	UINT numAiMeasurements=0;
-	bool runMaster;
+	bool runMaster=true;
 	bool runAndor;
 	bool logBaslerPics;
 	bool updatePlotterXVals=false;

@@ -53,11 +53,19 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	const auto& runNiawg = input->runNiawg;
 	const auto& piezos = input->piezoControllers;
 	mainOptions mainOpts;
+
+
+
+	std::vector<std::vector<parameterType>> expParams;
 	try
 	{
 		for ( auto& configInfo : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];
+			expParams.push_back (
+				ParameterSystem::combineParamsForExpThread ( 
+					ParameterSystem::getConfigParamsFromFile (configInfo.configFilePath ()),
+					input->globalParameters));
 			std::ifstream configFile (configInfo.configFilePath ());
 			if ( input->runMaster )
 			{
@@ -80,8 +88,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 																Repetitions::getRepsFromConfig );
 				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
 															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
-				ParameterSystem::generateKey ( input->parameters, mainOpts.randomizeVariations, input->variableRangeInfo );
-				auto variations = determineVariationNumber ( input->parameters[ seqNum ] );
+				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, input->variableRangeInfo );
+				auto variations = determineVariationNumber (expParams[ seqNum ] );
 			}
 			if (input->runAndor) 
 			{
@@ -135,7 +143,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	{
 		if ( input->expType != ExperimentType::LoadMot )
 		{
-			input->logger.logMasterRuntime ( repetitions, input->parameters );
+			input->logger.logMasterRuntime ( repetitions, expParams);
 		}
 		bool useAuxDevices = input->runMaster && ( input->expType == ExperimentType::MachineOptimization 
 												   || input->expType == ExperimentType::Normal );
@@ -153,7 +161,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		}
 		if ( input->updatePlotterXVals )
 		{
-			updatePlotX_vals ( input );
+			updatePlotX_vals ( input, expParams );
 		}
 		if ( runMaster )
 		{
@@ -172,7 +180,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		UINT variations;
 		for ( auto seqNum : range( input->seq.sequence.size() ) )
 		{
-			auto& seqVariables = input->parameters[seqNum];
+			auto& seqVariables = expParams[seqNum];
 			auto& seq = expSeq.sequence[ seqNum ];
 			if ( seqNum == 0 )
 			{
@@ -237,7 +245,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				boost::replace_all ( debugStr, "\n", "\r\n" );
 				comm.sendDebug ( debugStr );
 			}
-			for ( auto& seqVariables : input->parameters )
+			for ( auto& seqVariables : expParams)
 			{
 				input->niawg.writeStaticNiawg ( output, input->debugOptions, seqVariables );
 			}
@@ -252,9 +260,9 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 		{
 			ttls.shadeTTLs ( ttlShadeLocs );
 			aoSys.shadeDacs ( dacShadeLocs );
-			ttls.interpretKey( input->parameters );
+			ttls.interpretKey(expParams);
 			ttls.restructureCommands ( );
-			aoSys.interpretKey( input->parameters, warnings );
+			aoSys.interpretKey(expParams, warnings );
 		}
 		if ( useAuxDevices )
 		{
@@ -262,20 +270,20 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			{
 				if ( ctrlPztOptions[ piezoInc ][ 0 ] )
 				{
-					piezos[piezoInc]->evaluateVariations ( input->parameters, variations );
+					piezos[piezoInc]->evaluateVariations (expParams, variations );
 				}
 			}
-			dds.evaluateDdsInfo ( input->parameters );
+			dds.evaluateDdsInfo (expParams);
 			dds.generateFullExpInfo ( variations );
-			input->topBottomTek.interpretKey ( input->parameters );
-			input->eoAxialTek.interpretKey ( input->parameters );
+			input->topBottomTek.interpretKey (expParams);
+			input->eoAxialTek.interpretKey (expParams);
 		}
-		input->rsg.interpretKey (input->parameters, uwSettings);
+		input->rsg.interpretKey (expParams, uwSettings);
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
 		for ( auto seqInc : range( input->seq.sequence.size( ) ) )
 		{
-			auto& seqVariables = input->parameters[seqInc];
+			auto& seqVariables = expParams[seqInc];
 			for (auto variationInc : range(variations))
 			{
 				if ( input->thisObj->isAborting ) { thrower ( abortString ); }
@@ -316,8 +324,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			expUpdate( "Number of TTL Events in experiment: " + str( ttls.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
 			expUpdate( "Number of DAC Events in experiment: " + str( aoSys.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
 		}
-		input->globalControl.setUsages( input->parameters );
-		for ( auto& seqvars : input->parameters )
+		input->globalControl.setUsages(expParams);
+		for ( auto& seqvars : expParams)
 		{
 			for ( auto& var : seqvars )
 			{
@@ -327,7 +335,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				}
 			}
 		}
-		MasterThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings );
+		MasterThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, expParams );
 		/// finish up
 		if ( input->runMaster )
 		{
@@ -371,7 +379,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			}
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )
 			{
-				for (auto tempVariable : input->parameters[seqInc])
+				for (auto tempVariable : expParams[seqInc])
 				{
 					if (tempVariable.valuesVary)
 					{
@@ -416,7 +424,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			{
 				for ( auto& agilent : input->agilents )
 				{
-					agilent->setAgilent ( variationInc, input->parameters[ 0 ] );
+					agilent->setAgilent ( variationInc, expParams[ 0 ] );
 				}
 				for ( auto piezoInc : range(piezos.size()) )
 				{
@@ -430,7 +438,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 			if (input->runNiawg)
 			{
 				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-										   niawgMachineScript, input->rerngGuiForm, input->rerngGui );
+										   niawgMachineScript, input->rerngGuiForm, input->rerngGui, expParams );
 				input->niawg.turnOffRerng( );
 				input->conditionVariableForRerng->notify_all( );
 				input->niawg.waitForRerng( false );
@@ -1428,7 +1436,8 @@ UINT MasterThreadManager::determineVariationNumber( std::vector<parameterType> v
 
 
 void MasterThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
-												UINT variations, microwaveSettings settings )
+												UINT variations, microwaveSettings settings, 
+												std::vector<std::vector<parameterType>>& expParams)
 {
 	/// check all trigger numbers between the DIO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
@@ -1436,7 +1445,7 @@ void MasterThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bo
 	{
 		bool niawgMismatch = false, rsgMismatch=false;
 		std::vector<std::array<bool, 2>> agMismatchVec ( input->agilents.size ( ), { false,false } );
-		auto& seqVariables = input->parameters[ seqInc ];
+		auto& seqVariables = expParams[ seqInc ];
 		for ( auto variationInc : range ( variations ) )
 		{
 			if ( input->runMaster )
@@ -1591,10 +1600,11 @@ bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& st
 }
 
 
-void MasterThreadManager::updatePlotX_vals ( ExperimentThreadInput* input )
+void MasterThreadManager::updatePlotX_vals ( ExperimentThreadInput* input, 
+											 std::vector<std::vector<parameterType>>& expParams)
 {
 	// remove old plots that aren't trying to sustain.
-	input->plotterInput->key = ParameterSystem::getKeyValues ( input->parameters[ 0 ] );
+	input->plotterInput->key = ParameterSystem::getKeyValues ( expParams[ 0 ] );
 	auto& pltInput = input->plotterInput;
 	auto plotInc = 0;
 	for ( auto plotParams : pltInput->plotInfo )
