@@ -33,7 +33,8 @@ class MasterThreadManager
 		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript );
 		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
 		static void checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
-										  UINT variations, microwaveSettings settings);
+										  UINT variations, microwaveSettings settings,
+										  std::vector<std::vector<parameterType>>& expParams);
 		static void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
@@ -45,23 +46,23 @@ class MasterThreadManager
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
-		static bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+		static bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										std::string scope, timeType& operationTime);
-		static bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+		static bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 									   DioSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
 									   std::string scope, timeType& operationTime);
-		static bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+		static bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 									  AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum,
 									  std::string scope, timeType& operationTime);
-		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 										std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
 										std::string callingFunction, timeType& operationTime);
-		static void updatePlotX_vals (ExperimentThreadInput* input );
-		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+		static void updatePlotX_vals (ExperimentThreadInput* input, std::vector<std::vector<parameterType>>& expParams);
+		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 											   std::string scope, std::string& warnings );
-		static bool handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, std::vector<vectorizedNiawgVals>& 
-											   constVecs, std::string& warnings );
+		static bool handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
+												std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator& comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);

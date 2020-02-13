@@ -1476,8 +1476,8 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
  * "constants" objects. The "parameters" object includes everything, variables and otherwise. the "constants" object 
  * includes only parameters that don't vary. 
  */
-std::vector<parameterType> ParameterSystem::combineParametersForExperimentThread( std::vector<parameterType>& configParams, 
-																				  std::vector<parameterType>& globalParams )
+std::vector<parameterType> ParameterSystem::combineParamsForExpThread( std::vector<parameterType>& configParams, 
+																	   std::vector<parameterType>& globalParams )
 {
 	std::vector<parameterType> combinedParams;
 	combinedParams = configParams;

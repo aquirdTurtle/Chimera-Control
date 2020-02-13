@@ -973,7 +973,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
 				{
 					dataHandler.assertCalibrationFilesExist ();
 				}
-				catch (Error&)
+				catch ( Error& )
 				{
 					// files don't exist, run calibration. 
 					try
