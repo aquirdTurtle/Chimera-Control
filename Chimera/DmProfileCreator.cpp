@@ -35,7 +35,7 @@ std::vector<double> linspace(T start_in, T end_in, int num_in)
 	return linspaced;
 }
 
-DmProfileCreator::DmProfileCreator() : Mirror("0", true) {
+DmProfileCreator::DmProfileCreator() /*: Mirror("0", true)*/ {
 	currentAmps = linspace(0, 0, 45);
 }
 
@@ -192,6 +192,9 @@ void DmProfileCreator::myDmLookup(double &x_coordinate, double &y_coordinate, in
 void DmProfileCreator::readZernikeFile(std::string file) {
 
 	std::ifstream read_file(file);
+	if (!(read_file.is_open())){
+		thrower("could not read the baseline file when creating profile.");
+	}
 	double voltage;
 	std::string value;
 	int counter = 0;
@@ -216,7 +219,7 @@ void DmProfileCreator::writeZernikeFile(std::string out_file) {
 }
 
 void DmProfileCreator::makeIm() {
-	std::vector<double> alv = Mirror.getActuatorValues();
+	std::vector<double> alv = valArray;
 	int rowOff[] = { 4, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2, 4 };
 	int tc = 0;
 	int numInRow;
@@ -237,7 +240,6 @@ std::vector<double> DmProfileCreator::checkVals(std::vector<double> val) {
 		if (voltage >= 1) {
 			val[i] = 1;
 			//thrower("Error: voltage on piston " + str(i) + " is out of range");
-			break;
 		}
 		else if(voltage < 0){
 			val[i] = 0;
@@ -249,9 +251,7 @@ std::vector<double> DmProfileCreator::checkVals(std::vector<double> val) {
 
 void DmProfileCreator::addComa(double comaMag, double comaAngle) {
 		//Adds at a particular angle and magnitude to a list of zernike amplituders.
-	if (comaMag > 0.358) {
-		comaMag = 0.358;
-	}
+
 	double x;
 	double y;
 	toCartesian(comaMag, comaAngle, x, y);
@@ -332,14 +332,13 @@ std::vector<double> DmProfileCreator::createZernikeArray(std::vector<double> amp
 		if (!quiet) {
 			vals = checkVals(vals);
 		}
-
 		return vals;
 }
 
 void DmProfileCreator::generateProfile() {
 	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
 	readZernikeFile(location);
-	double mag = 0.2;
+	//double mag = 0.2;
 	//std::vector<double> amp = std::vector<double>(0.0, 45);
 	std::vector<double> vals_base = createZernikeArray(currentAmps, location, false);
 	addComa(0.2, M_PI / 6);

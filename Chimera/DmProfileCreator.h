@@ -1,6 +1,6 @@
 #pragma once
-#include "stdafx.h"
-#include "DmCore.h"
+#include <vector>
+#include <string>
 
 class DmProfileCreator {
 	public:
@@ -33,5 +33,4 @@ class DmProfileCreator {
 		std::vector<double> writeArray = std::vector<double>(137);
 		std::vector<double> currentAmps;
 		std::vector<std::vector<double>> temp;
-		DmCore Mirror;
 };

@@ -54,7 +54,7 @@
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
 	#define DM_SERIAL "25CW012#060"
-	#define DM_SAFEMODE true 
+	#define DM_SAFEMODE true
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\maxko\\Chimera-Control\\";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/maxko/Chimera-Control/Chimera";
@@ -75,7 +75,7 @@
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
-	const std::string DM_PROFILES_LOCATION = PROJECT_LOCATION + "\\DM-Library";
+	const std::string DM_PROFILES_LOCATION = PROJECT_LOCATION + "DM-Library";
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
 #endif

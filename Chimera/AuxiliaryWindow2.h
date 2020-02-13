@@ -8,6 +8,7 @@
 #include "DmControl.h"
 #include "PlotCtrl.h"
 #include "ParameterSystem.h"
+#include "Communicator.h"
 class MainWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
@@ -59,6 +60,7 @@ class AuxiliaryWindow2 : public CDialog
 
 		CMenu menu;
 		fontMap Aux2fonts;
+		Communicator comm;
 
 		ColorBox statusBox;
 		DmControl DM;

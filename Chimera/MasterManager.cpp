@@ -310,7 +310,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				}
 			}
 		}
-		/// output some timing information 
+		/// output some timing information
 		if (input->runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", comm, quiet );
@@ -336,6 +336,10 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n";
 				}
 			}
+		}
+		for (const UINT& variationInc : range(variations))
+		{
+			dm.initialCheck(variationInc, warnings);
 		}
 		MasterThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations );
 		/// finish up

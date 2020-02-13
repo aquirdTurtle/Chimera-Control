@@ -6,7 +6,8 @@
 #include "DmOutputForm.h"
 #include <iostream>
 
-DmCore::DmCore(std::string Number, bool safemodeOption) : DM(safemodeOption){
+DmCore::DmCore(std::string Number, bool safemodeOption) : DM(safemodeOption), 
+profile() {
 	serial = Number;
 	boolOfSerial = true;
 	valueArray = std::vector<double>(DM.getActuatorCount(), 0.0);
@@ -136,7 +137,7 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 	sequenceNumber = variables.size();
 	for (auto seqInc : range(sequenceNumber))
 	{
-			DM.currentInfo.coma.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
+ 			DM.currentInfo.coma.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 			DM.currentInfo.comaAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 			DM.currentInfo.astig.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 			DM.currentInfo.astigAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
@@ -156,12 +157,13 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 }
 
 void DmCore::ProgramNow(UINT variation) {
-    DmProfileCreator Profile;
-	Profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));
-	Profile.addAstigmatism(currentInfo.astig.getValue(variation), currentInfo.astigAng.getValue(variation));
-	Profile.addTrefoil(currentInfo.trefoil.getValue(variation), currentInfo.trefoilAng.getValue(variation));
-	Profile.addSpherical(currentInfo.spherical.getValue(variation));
-	std::vector<double> temp = Profile.createZernikeArray(Profile.getCurrAmps(), currentInfo.base, false);
+	std::string location  = DM_PROFILES_LOCATION + "\\" + currentInfo.base +".txt";
+	profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));
+	profile.addAstigmatism(currentInfo.astig.getValue(variation), currentInfo.astigAng.getValue(variation));
+	profile.addTrefoil(currentInfo.trefoil.getValue(variation), currentInfo.trefoilAng.getValue(variation));
+	profile.addSpherical(currentInfo.spherical.getValue(variation));
+	profile.readZernikeFile(location);
+	std::vector<double> temp = profile.createZernikeArray(profile.getCurrAmps(), currentInfo.base, false);
 	loadArray(temp.data());
 }
 
@@ -171,4 +173,20 @@ DMOutputForm DmCore::getInfo() {
 
 void DmCore::setCurrentInfo(DMOutputForm form) {
 	currentInfo = form;
+}
+
+void DmCore::initialCheck(UINT variation, std::string& warnings) {
+	std::string location = DM_PROFILES_LOCATION + "\\" + currentInfo.base + ".txt";
+	profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));
+	profile.addAstigmatism(currentInfo.astig.getValue(variation), currentInfo.astigAng.getValue(variation));
+	profile.addTrefoil(currentInfo.trefoil.getValue(variation), currentInfo.trefoilAng.getValue(variation));
+	profile.addSpherical(currentInfo.spherical.getValue(variation));
+	profile.readZernikeFile(location);
+	std::vector<double> temp = profile.createZernikeArray(profile.getCurrAmps(), currentInfo.base, true);
+	for (auto& element : temp) {
+		if (element < 0 || element > 1) {
+			warnings += "Caution, variation " + str(variation) + " will cause one or more pistons in the DM to rail.";
+			break;
+		}
+	}
 }

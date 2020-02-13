@@ -161,9 +161,9 @@ void DmControl::ProgramNow() {
 		}
 		
 	}
-	if (!DM_SAFEMODE) {
-		defObject.loadArray(values.data());
-	}
+
+	defObject.loadArray(values.data());
+
 	updateButtons();
 }
 
@@ -282,81 +282,45 @@ void DmControl::loadProfile()
 	int id = profileSelector.GetCurSel();
 	profileSelector.GetLBText(id,file);
 	std::string filename = str(file);
-	if (DM_SAFEMODE) {
-		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
-		if (!file.is_open()) {
-			thrower("File did not open");
-		}
-		std::string value;
-		double temp;
-		int count=0;
-		for (auto& pis : piston) {
-			std::getline(file, value);
-			try {
-				temp = boost::lexical_cast<double>(value);
-			}
-			catch (boost::bad_lexical_cast) {
-				temp = 0.0;
-			}
-			double rounded = (int)( temp * 100000.0) / 100000.0;
-			std::string s1 = boost::lexical_cast<std::string>(rounded);
-			pis.Voltage.SetWindowTextA(cstr(s1));
-			reColor(IDC_DM_EDIT_START + count);
-			count++;
-		}
+	//if (DM_SAFEMODE) {
+	std::ifstream in_file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
+	if (!in_file.is_open()) {
+		thrower("File did not open");
 	}
-	else {
-		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename);
-		std::string value;
-		int length = temp.size();
-		double voltage;
-		for (int counter = 0; counter < length; counter++) {
-			std::getline(file, value);
-			try {
-				voltage = boost::lexical_cast<double>(value);
-			}
-			catch (boost::bad_lexical_cast) {
-				voltage = 0.0;
-			}
-			temp[counter] = voltage;
-			
-			reColor(IDC_DM_EDIT_START + counter);
+	std::string value;
+	double voltage;
+	int count = 0;
+	for (auto& pis : piston) {
+		std::getline(in_file, value);
+		try {
+			voltage = boost::lexical_cast<double>(value);
 		}
-		setMirror(temp.data());
+		catch (boost::bad_lexical_cast) {
+			voltage = 0.0;
+		}
+		double rounded = (int)(voltage * 100000.0) / 100000.0;
+		std::string s1 = boost::lexical_cast<std::string>(rounded);
+		pis.Voltage.SetWindowTextA(cstr(s1));
+		temp[count] = voltage;
+		reColor(IDC_DM_PROFILE_COMBO + count);
+		count++;
+
 	}
+	setMirror(temp.data()); 
+	
 }
 
 void DmControl::loadProfile(std:: string filename)
 {
-	if (DM_SAFEMODE) {
+
 		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
 		if (!file.is_open()) {
 			thrower("File did not open");
 		}
 		std::string value;
-		double temp;
+		double voltage;
 		int count = 0;
 		for (auto& pis : piston) {
-			std::getline(file, value);
-			try {
-				temp = boost::lexical_cast<double>(value);
-			}
-			catch (boost::bad_lexical_cast) {
-				temp = 0.0;
-			}
-			double rounded = (int)(temp * 100000.0) / 100000.0;
-			std::string s1 = boost::lexical_cast<std::string>(rounded);
-			pis.Voltage.SetWindowTextA(cstr(s1));
-			reColor(IDC_DM_PROFILE_COMBO + count);
-			count++;
-		}
-	}
-	else {
-		std::ifstream file(DM_PROFILES_LOCATION + "\\" + filename);
-		std::string value;
-		int length = temp.size();
-		double voltage;
-		for (int counter = 0; counter < length; counter++) {
 			std::getline(file, value);
 			try {
 				voltage = boost::lexical_cast<double>(value);
@@ -364,11 +328,15 @@ void DmControl::loadProfile(std:: string filename)
 			catch (boost::bad_lexical_cast) {
 				voltage = 0.0;
 			}
-			temp[counter] = voltage;
-			reColor(IDC_DM_PROFILE_COMBO + counter);
-		}
+			double rounded = (int)(voltage * 100000.0) / 100000.0;
+			std::string s1 = boost::lexical_cast<std::string>(rounded);
+			pis.Voltage.SetWindowTextA(cstr(s1));
+			temp[count] = voltage;
+			reColor(IDC_DM_PROFILE_COMBO + count);
+			count++;
+			
+		}	
 		setMirror(temp.data());
-	}
 }
 
 void DmControl::writeCurrentFile(std::string out_file) {
@@ -398,7 +366,7 @@ std::vector<double> DmControl::getTableValues() {
 		try {
 			parameters[i] = boost::lexical_cast<double>(s2);
 		}
-		catch (Error&) {
+		catch (boost::bad_lexical_cast&) {
 			parameters[i] = 0.0;
 			thrower("Error:  bad lexical cast");
 		}
@@ -412,7 +380,11 @@ void DmControl::add_Changes() {
 	Profile.addAstigmatism(params[2], params[3]);
 	Profile.addTrefoil(params[4], params[5]);
 	Profile.addSpherical(params[6]);
-	std::string location = DM_PROFILES_LOCATION + "\\" + "25CW012#060_CLOSED_LOOP_COMMANDS.txt";
+	CString file;
+	int id = profileSelector.GetCurSel();
+	profileSelector.GetLBText(id, file);
+	std::string filename = str(file);
+	std::string location = DM_PROFILES_LOCATION + "\\" + filename + ".txt";
 	writeArray = Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
 	writeCurrentFile("currentLoadOut.txt");
 	loadProfile("currentLoadOut");

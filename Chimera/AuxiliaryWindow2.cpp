@@ -149,7 +149,12 @@ void AuxiliaryWindow2::handleProgramNow() {
 }
 
 void AuxiliaryWindow2::handleNewProfile() {
-	DM.loadProfile();
+	try {
+		DM.loadProfile();
+	}
+	catch(Error &err){
+		comm.sendError(err.trace());
+	}
 }
 
 void AuxiliaryWindow2::handlePistonChange(UINT id) {
@@ -157,7 +162,12 @@ void AuxiliaryWindow2::handlePistonChange(UINT id) {
 }
 
 void AuxiliaryWindow2::handleAbberations() {
-	DM.add_Changes();
+	try {
+		DM.add_Changes();
+	}
+	catch (Error & err) {
+		comm.sendError(err.trace());
+	}
 }
 
 DmCore &AuxiliaryWindow2::GetCore() {

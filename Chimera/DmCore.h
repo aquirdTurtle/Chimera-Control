@@ -3,7 +3,9 @@
 #include "Expression.h"
 #include "Version.h"
 #include "DmOutputForm.h"
+#include "DmProfileCreator.h"
 
+class DmProfileCreator;
 
 class DmCore {
 	public:
@@ -27,9 +29,11 @@ class DmCore {
 		const std::string delimeter = "DM";
 		DMOutputForm getInfo();
 		void setCurrentInfo(DMOutputForm form);
+		void initialCheck(UINT variation, std::string& warnings);
 
 
 	private:
+		DmProfileCreator profile;
 		DmFlume DM;
 		std::vector<unsigned int> map_lut = std::vector<unsigned int>(MAX_DM_SIZE, 0);
 		std::vector<double> valueArray;
