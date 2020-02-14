@@ -91,7 +91,7 @@ class NiawgController
 		void programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
 						   UINT totalVariations, std::vector<long>& variedMixedSize, 
 						   std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
-						   rerngGuiOptions& rerngGui );
+						   rerngGuiOptions& rerngGui, std::vector<std::vector<parameterType>>& expParams);
 		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();

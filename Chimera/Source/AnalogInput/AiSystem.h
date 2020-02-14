@@ -3,11 +3,10 @@
 #include "Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "LowLevel/constants.h"
-#include "AnalogInput/AiSettings.h";
+#include "AnalogInput/AiSettings.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "CustomMfcControlWrappers/UintEdit.h"
 #include "ConfigurationSystems/Version.h"
-#include "windows.h"
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>

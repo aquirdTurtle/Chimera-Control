@@ -50,6 +50,7 @@ class AndorWindow : public CDialog
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraCalProgress( WPARAM wParam, LPARAM lParam );
 		LRESULT onBaslerFinish( WPARAM wParam, LPARAM lParam );
+		LRESULT handlePrepareForAcq (WPARAM wparam, LPARAM lparam);
 		void handleDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewRClick( NMHDR* info, LRESULT* lResult );
 		void handleSpecialGreaterThanMaxSelection();
@@ -85,8 +86,8 @@ class AndorWindow : public CDialog
 		cToolTips getToolTips();
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
-		void prepareAndor( AllExperimentInput& input );
-		void armCameraWindow();
+		void armCameraWindow(AndorRunSettings* settings);
+		
 		std::string getStartMessage();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();

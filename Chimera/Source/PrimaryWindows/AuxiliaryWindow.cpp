@@ -63,7 +63,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 	ON_COMMAND( IDC_UW_SYSTEM_PROGRAM_NOW, &handleProgramUwSystemNow)
 
-	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
+	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &AuxiliaryWindow::handleTektronicsButtons )
@@ -115,7 +115,7 @@ std::vector<std::vector<parameterType>> AuxiliaryWindow::getUsableConstants ()
 	std::vector<parameterType> configParams = configParameters.getAllConstants ();
 	std::vector<parameterType> globals = globalParameters.getAllParams ();
 	std::vector<std::vector<parameterType>> params;
-	params.push_back (ParameterSystem::combineParametersForExperimentThread (configParams, globals));
+	params.push_back (ParameterSystem::combineParamsForExpThread (configParams, globals));
 	ScanRangeInfo constantRange;
 	constantRange.defaultInit ();
 	ParameterSystem::generateKey (params, false, constantRange);
@@ -341,12 +341,12 @@ void AuxiliaryWindow::autoOptimize ( )
 }
 
 
-void AuxiliaryWindow::updateOptimization ( AllExperimentInput input )
+void AuxiliaryWindow::updateOptimization ( AllExperimentInput& input )
 {
 	optimizer.verifyOptInput ( input );
 	dataPoint resultValue = camWin->getMainAnalysisResult ( );
 	auto params = optimizer.getOptParams ( );
-	optimizer.updateParams ( input, resultValue, camWin->getLogger() );
+	//optimizer.updateParams ( input, resultValue, camWin->getLogger() );
 	std::string msg = "Next Optimization: ";
 	for ( auto& param : params )
 	{
@@ -586,32 +586,6 @@ void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 	catch ( Error& err )
 	{
 		sendErr( err.trace( ) );
-	}
-}
-
-
-void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
-{
-	try
-	{
-		sendStatus( "Loading Camera-Cal Config...\r\n" );
-		input->quiet = true;
-		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-		// don't get configuration variables. This calibration shouldn't depend on config variables.
-		input->parameters.clear( );
-		input->parameters.push_back( globalParameters.getAllParams( ) );
-		input->variableRangeInfo = configParameters.getRangeInfo ( );
-		// Only do this once of course.
-		input->intensityAgilentNumber = -1;
-		input->runMaster = true;
-		input->runNiawg = false;
-		// Seems like I should just not initialize these or something...
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch ( Error& exception )
-	{
-		sendStatus( ": " + exception.trace( ) + " " + "\r\n" );
 	}
 }
 
@@ -1101,115 +1075,13 @@ DioSystem& AuxiliaryWindow::getTtlBoard ( )
 	return ttlBoard;
 }
 
-/// these three at the moment are identical. keeping for the moment in case I find I need to change something.
-void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
-{
-	try
-	{
-		input->quiet = true;
-		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-		/// variables.
-		std::vector<std::vector<parameterType>> experimentVars;
-		// load the variables. This little loop is for letting configuration variables overwrite the globals.
-		// the config variables are loaded directly from the file.
-		std::vector<parameterType> configVars;
-		try
-		{
-			configVars = ParameterSystem::getConfigParamsFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
-		}
-		catch ( Error& )
-		{
-			throwNested ( "Error seen while loading mot temperature settings" );
-		}
-		std::vector<parameterType> globals = globalParameters.getAllParams ( );
-		experimentVars.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
-		globalParameters.setUsages ( { globals } );
-		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
-		input->parameters = experimentVars;
-		///
-		// Only set it once, clearly.
-		input->intensityAgilentNumber = -1;
-		input->runMaster = true;
-		input->runNiawg = false;
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch ( Error& exception )
-	{
-		sendStatus ( "Failed to load temp settings." + exception.trace ( ) + "\r\n" );
-	}
-}
-
-
-void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
-{
-	try
-	{
-		sendStatus("Loading MOT Configuration...\r\n" );
-		input->quiet = true;
-		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->parameters.clear( );
-		input->parameters.push_back(globalParameters.getAllParams());
-		input->variableRangeInfo.defaultInit ( );
-		input->variableRangeInfo(0,0).variations = 1;
-		// Only set it once, clearly.
-		input->intensityAgilentNumber = -1;
-		input->runMaster = true;
-		input->runNiawg = false;
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch (Error& exception)
-	{
-		sendStatus("Failed to load mot settings.\n" + exception.trace() + "\r\n" );
-	}
-}
-
-// MESSAGE MAP FUNCTION
-// Gets called after alt-f4 or X button is pressed.
-void AuxiliaryWindow::OnCancel()
-{
-	passCommonCommand(ID_FILE_MY_EXIT);
-}
-
-
-AoSystem& AuxiliaryWindow::getAoSys ( )
-{
-	return aoSys;
-}
-
-AiSystem& AuxiliaryWindow::getAiSys ( )
-{
-	return aiSys;
-}
-
-DdsCore& AuxiliaryWindow::getDds ( )
-{
-	return dds.getCore();
-}
-
-
 void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	try
 	{
 		input->dacData = dacData;
 		input->ttlData = ttlData;
-		/// Parameters.
-		std::vector<std::vector<parameterType>> experimentParams;
-		for ( auto seqFile : input->seq.sequence )
-		{
-			// load the variables. This little loop is for letting configuration variables overwrite the globals.
-			// the config variables are loaded directly from the file.
-			std::vector<parameterType> configVars = ParameterSystem::getConfigParamsFromFile ( seqFile.configFilePath ( ) );
-			std::vector<parameterType> globals = globalParameters.getAllParams ( );
-			experimentParams.push_back ( ParameterSystem::combineParametersForExperimentThread ( configVars, globals ) );
-			globalParameters.setUsages ( { globals } );
-		}
-		input->variableRangeInfo.reset ( );
-		input->variableRangeInfo = configParameters.getRangeInfo ( );
-		input->parameters = experimentParams;
+		input->globalParameters = globalParameters.getAllParams ();
 		if (aiSys.wantsQueryBetweenVariations ())
 		{
 			input->numAiMeasurements = configParameters.getTotalVariationNumber ();
@@ -1227,6 +1099,28 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 	}
 }
 
+// MESSAGE MAP FUNCTION
+// Gets called after alt-f4 or X button is pressed.
+void AuxiliaryWindow::OnCancel ()
+{
+	passCommonCommand (ID_FILE_MY_EXIT);
+}
+
+
+AoSystem& AuxiliaryWindow::getAoSys ()
+{
+	return aoSys;
+}
+
+AiSystem& AuxiliaryWindow::getAiSys ()
+{
+	return aiSys;
+}
+
+DdsCore& AuxiliaryWindow::getDds ()
+{
+	return dds.getCore ();
+}
 
 
 void AuxiliaryWindow::changeBoxColor(systemInfo<char> colors)

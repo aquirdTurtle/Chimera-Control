@@ -6,7 +6,7 @@
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "NIAWG/NiawgController.h"
-#include "Andor/Andor.h"
+#include "Andor/AndorCameraCore.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/ScriptingWindow.h"

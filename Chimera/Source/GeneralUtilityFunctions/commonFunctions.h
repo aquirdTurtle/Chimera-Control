@@ -1,7 +1,8 @@
 // created by Mark O. Brown
 #pragma once
 #include "afxwin.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
+#include "ExperimentThread/AllExperimentInput.h"
 #include "AnalogInput/servoInfo.h"
 
 class MainWindow;
@@ -18,9 +19,9 @@ namespace commonFunctions
 							 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
 	/// Run Menu
 	void calibrateCameraBackground ( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-									AuxiliaryWindow* auxWin );
+									AuxiliaryWindow* auxWin, BaslerWindow* basWin );
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-							  AuxiliaryWindow* auxWin, AllExperimentInput& input, bool runNiawg, bool runTtls, 
+							  AuxiliaryWindow* auxWin, BaslerWindow* basWin, AllExperimentInput& input, bool runNiawg, bool runTtls,
 							  bool runAndor, bool runBasler, bool startPlotThread );
 	void startExperimentThread ( MainWindow* mainWin, AllExperimentInput& input);
 	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, 
