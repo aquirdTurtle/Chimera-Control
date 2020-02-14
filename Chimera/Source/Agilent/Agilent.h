@@ -12,7 +12,6 @@
 #include "DigitalOutput/DioRows.h"
 #include <vector>
 #include <array>
-#include "Windows.h"
 
 
 // A class for programming agilent machines.

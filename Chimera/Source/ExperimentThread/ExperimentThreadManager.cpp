@@ -1,6 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-#include "ExperimentThread/MasterThreadManager.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
 #include "DigitalOutput/DioSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "GeneralObjects/CodeTimer.h"
@@ -16,7 +16,7 @@
 #include <boost/algorithm/string.hpp>
 #include <regex>
 
-MasterThreadManager::MasterThreadManager() {}
+ExperimentThreadManager::ExperimentThreadManager() {}
 
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
@@ -24,7 +24,7 @@ MasterThreadManager::MasterThreadManager() {}
  * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
  * @return UINT: The return value is not used, i just return TRUE.
  */
-unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voidInput )
+unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void* voidInput )
 {
 	/// initialize various structures
 	// convert the input to the correct structure.
@@ -53,10 +53,8 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 	const auto& runNiawg = input->runNiawg;
 	const auto& piezos = input->piezoControllers;
 	mainOptions mainOpts;
-
-
-
 	std::vector<std::vector<parameterType>> expParams;
+	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
 	try
 	{
 		for ( auto& configInfo : input->seq.sequence )
@@ -88,7 +86,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 																Repetitions::getRepsFromConfig );
 				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
 															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
-				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, input->variableRangeInfo );
+				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, varRangeInfo);
 				auto variations = determineVariationNumber (expParams[ seqNum ] );
 			}
 			if (input->runAndor) 
@@ -290,7 +288,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				if ( input->runMaster )
 				{
 					double& currLoadSkipTime = input->thisObj->loadSkipTimes[seqInc][variationInc];
-					currLoadSkipTime = MasterThreadManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
+					currLoadSkipTime = ExperimentThreadManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
 																		   seqVariables, variationInc );
 				    // organize & format the ttl and dac commands
 					aoSys.organizeDacCommands( variationInc, seqInc );
@@ -335,7 +333,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 				}
 			}
 		}
-		MasterThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, expParams );
+		ExperimentThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, expParams );
 		/// finish up
 		if ( input->runMaster )
 		{
@@ -588,7 +586,7 @@ unsigned int __stdcall MasterThreadManager::experimentThreadProcedure( void* voi
 }
 
 
-void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
+void ExperimentThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
 												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
 												std::vector<parameterType>& vars, ScriptStream& currentMasterScript, 
 												UINT seqNum, bool expectsLoadSkip, std::string& warnings, 
@@ -694,7 +692,7 @@ void MasterThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys
 }
 
 
-void MasterThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
+void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
 											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
 											std::vector<UINT>& dacShades, 
 											std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
@@ -828,12 +826,12 @@ void MasterThreadManager::analyzeFunction ( std::string function, std::vector<st
 }
 
 
-bool MasterThreadManager::getAbortStatus ( )
+bool ExperimentThreadManager::getAbortStatus ( )
 {
 	return isAborting;
 }
 
-double MasterThreadManager::convertToTime( timeType time, std::vector<parameterType> variables, UINT variation )
+double ExperimentThreadManager::convertToTime( timeType time, std::vector<parameterType> variables, UINT variation )
 {
 	double variableTime = 0;
 	// add together current values for all variable times.
@@ -848,7 +846,7 @@ double MasterThreadManager::convertToTime( timeType time, std::vector<parameterT
 }
 
 
-void MasterThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DioSystem& ttls, AoSystem& aoSys,
+void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DioSystem& ttls, AoSystem& aoSys,
 									  std::vector<std::vector<pPlotDataVec>> ttlData, 
 									  std::vector<std::vector<pPlotDataVec>> dacData )
 {
@@ -868,7 +866,7 @@ void MasterThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator
 }
 
 
-bool MasterThreadManager::runningStatus()
+bool ExperimentThreadManager::runningStatus()
 {
 	return experimentIsRunning;
 }
@@ -878,7 +876,7 @@ bool MasterThreadManager::runningStatus()
  * this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
  * knows exactly where to look for the MOT profile. This is currently hard-coded.
  */
-void MasterThreadManager::loadMotSettings(ExperimentThreadInput* input)
+void ExperimentThreadManager::loadMotSettings(ExperimentThreadInput* input)
 {	
 	if ( experimentIsRunning )
 	{
@@ -887,11 +885,11 @@ void MasterThreadManager::loadMotSettings(ExperimentThreadInput* input)
 	}
 	input->thisObj = this;
 	//ParameterSystem::generateKey( input->parameters, false, input->variableRangeInfo );
-	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterThreadManager::experimentThreadProcedure, input, NULL, NULL );
+	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &ExperimentThreadManager::experimentThreadProcedure, input, NULL, NULL );
 }
 
 
-HANDLE MasterThreadManager::startExperimentThread(ExperimentThreadInput* input)
+HANDLE ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input)
 {
 	if ( !input )
 	{
@@ -904,19 +902,19 @@ HANDLE MasterThreadManager::startExperimentThread(ExperimentThreadInput* input)
 				 "running again." );
 	}
 	input->thisObj = this;
-	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterThreadManager::experimentThreadProcedure, input, NULL, NULL );
+	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &ExperimentThreadManager::experimentThreadProcedure, input, NULL, NULL );
 	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
 	return runningThread;
 }
 
 
-bool MasterThreadManager::getIsPaused()
+bool ExperimentThreadManager::getIsPaused()
 {
 	return isPaused;
 }
 
 
-void MasterThreadManager::pause()
+void ExperimentThreadManager::pause()
 {
 	if ( !experimentIsRunning )
 	{
@@ -928,7 +926,7 @@ void MasterThreadManager::pause()
 }
 
 
-void MasterThreadManager::unPause()
+void ExperimentThreadManager::unPause()
 {
 	if ( !experimentIsRunning )
 	{
@@ -940,7 +938,7 @@ void MasterThreadManager::unPause()
 }
 
 
-void MasterThreadManager::abort()
+void ExperimentThreadManager::abort()
 {
 	if ( !experimentIsRunning )
 	{
@@ -950,7 +948,7 @@ void MasterThreadManager::abort()
 	isAborting = true;
 }
 
-void MasterThreadManager::loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript )
+void ExperimentThreadManager::loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript )
 {
 	std::ifstream scriptFile ( scriptAddress );
 	if ( !scriptFile.is_open ( ) )
@@ -963,7 +961,7 @@ void MasterThreadManager::loadAgilentScript ( std::string scriptAddress, ScriptS
 }
 
 
-void MasterThreadManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript )
+void ExperimentThreadManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript )
 {
 	std::ifstream scriptFile;
 	// check if file address is good.
@@ -991,7 +989,7 @@ void MasterThreadManager::loadNiawgScript ( std::string scriptAddress, ScriptStr
 }
 
 
-void MasterThreadManager::loadMasterScript(std::string scriptAddress, ScriptStream& currentMasterScript )
+void ExperimentThreadManager::loadMasterScript(std::string scriptAddress, ScriptStream& currentMasterScript )
 {
 	std::ifstream scriptFile;
 	// check if file address is good.
@@ -1032,7 +1030,7 @@ void MasterThreadManager::loadMasterScript(std::string scriptAddress, ScriptStre
 
 
 // makes sure formatting is correct, returns the arguments and the function name from reading the firs real line of a function file.
-void MasterThreadManager::analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args)
+void ExperimentThreadManager::analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args)
 {
 	args.clear();
 	ScriptStream defStream(defLine);
@@ -1109,7 +1107,7 @@ void MasterThreadManager::analyzeFunctionDefinition(std::string defLine, std::st
 
 // at least right now, this doesn't support varying any of the values of the constant vector. this could probably
 // be sensibly changed at some point.
-bool MasterThreadManager::handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
+bool ExperimentThreadManager::handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
 															std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings )
 {
 	if ( word != "var_v" )
@@ -1162,7 +1160,7 @@ bool MasterThreadManager::handleVectorizedValsDeclaration ( std::string word, Sc
 }
 
 
-bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+bool ExperimentThreadManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 													 std::string scope, std::string& warnings )
 {
 	if ( word != "var" )
@@ -1225,7 +1223,7 @@ bool MasterThreadManager::handleVariableDeclaration( std::string word, ScriptStr
 
 
 // if it handled it, returns true, else returns false.
-bool MasterThreadManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
+bool ExperimentThreadManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
 											  std::string scope, timeType& operationTime )
 {
 	try
@@ -1284,7 +1282,7 @@ bool MasterThreadManager::handleTimeCommands( std::string word, ScriptStream& st
 }
 
 /* returns true if handles word, false otherwise. */
-bool MasterThreadManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+bool ExperimentThreadManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 									   DioSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
 									   std::string scope, timeType& operationTime )
 {
@@ -1310,7 +1308,7 @@ bool MasterThreadManager::handleDioCommands( std::string word, ScriptStream& str
 }
 
 /* returns true if handles word, false otherwise. */
-bool MasterThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum, 
 											std::string scope, timeType& operationTime )
 {
@@ -1390,13 +1388,13 @@ bool MasterThreadManager::handleAoCommands( std::string word, ScriptStream& stre
 	this function can be called directly from scripts. Insert things inside the function to make it do something
 	custom that's not possible inside the scripting language.
 */
-void MasterThreadManager::callCppCodeFunction()
+void ExperimentThreadManager::callCppCodeFunction()
 {
 	// not used at the moment
 }
 
 
-bool MasterThreadManager::isValidWord( std::string word )
+bool ExperimentThreadManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
 		 || word == "dac:" || word == "dacarange:" || word == "daclinspace:" || word == "call" 
@@ -1408,7 +1406,7 @@ bool MasterThreadManager::isValidWord( std::string word )
 }
  
 // just a simple wrapper so that I don't have if (!quiet){ everywhere in the main thread.
-void MasterThreadManager::expUpdate(std::string text, Communicator& comm, bool quiet)
+void ExperimentThreadManager::expUpdate(std::string text, Communicator& comm, bool quiet)
 {
 	if (!quiet)
 	{
@@ -1416,7 +1414,7 @@ void MasterThreadManager::expUpdate(std::string text, Communicator& comm, bool q
 	}
 }
 
-UINT MasterThreadManager::determineVariationNumber( std::vector<parameterType> variables )
+UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterType> variables )
 {
 	int variationNumber;
 	if ( variables.size() == 0)
@@ -1435,7 +1433,7 @@ UINT MasterThreadManager::determineVariationNumber( std::vector<parameterType> v
 }
 
 
-void MasterThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
+void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
 												UINT variations, microwaveSettings settings, 
 												std::vector<std::vector<parameterType>>& expParams)
 {
@@ -1544,7 +1542,7 @@ void MasterThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bo
 }
 
 
-bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 											  DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 											  std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
 											  std::string callingFunction, timeType& operationTime )
@@ -1600,7 +1598,7 @@ bool MasterThreadManager::handleFunctionCall( std::string word, ScriptStream& st
 }
 
 
-void MasterThreadManager::updatePlotX_vals ( ExperimentThreadInput* input, 
+void ExperimentThreadManager::updatePlotX_vals ( ExperimentThreadInput* input, 
 											 std::vector<std::vector<parameterType>>& expParams)
 {
 	// remove old plots that aren't trying to sustain.

@@ -135,10 +135,6 @@
     <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp">
       <Filter>PiezoControllers</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ExperimentThread\MasterThreadInput.cpp" />
-    <ClCompile Include="Source\ExperimentThread\MasterThreadManager.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ExcessDialogs\openWithExplorer.cpp">
       <Filter>Miscellaneous-Dialogs</Filter>
     </ClCompile>
@@ -312,6 +308,11 @@
     </ClCompile>
     <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
     <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
+    <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
+    <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
+    <ClCompile Include="Source\ExperimentThread\ExperimentThreadManager.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -479,12 +480,6 @@
     </ClInclude>
     <ClInclude Include="Source\Piezo\SerialPiezoFlume.h">
       <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ExperimentThread\MasterThreadInput.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ExperimentThread\MasterThreadManager.h">
-      <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\ExcessDialogs\ErrDialog.h">
@@ -731,6 +726,15 @@
     <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
     <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
     <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
+    <ClInclude Include="Source\Basler\BaslerWrapper.h" />
+    <ClInclude Include="Source\ExperimentThread\ExperimentThreadInput.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentThread\ExperimentThreadManager.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
+    <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

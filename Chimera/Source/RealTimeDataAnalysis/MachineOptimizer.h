@@ -1,7 +1,8 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "Control.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
+#include "ExperimentThread/AllExperimentInput.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "Plotting/dataPoint.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"

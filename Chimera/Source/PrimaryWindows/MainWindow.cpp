@@ -130,14 +130,14 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 
 	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
 	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
-	ON_MESSAGE ( RepProgressMessageID, &MainWindow::onRepProgress )
-	ON_MESSAGE ( StatusUpdateMessageID, &MainWindow::onStatusTextMessage )
-	ON_MESSAGE ( ErrorUpdateMessageID, &MainWindow::onErrorMessage )
-	ON_MESSAGE ( FatalErrorMessageID, &MainWindow::onFatalErrorMessage )
-	ON_MESSAGE ( DebugUpdateMessageID, &MainWindow::onDebugMessage )
-	ON_MESSAGE ( NoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
-	ON_MESSAGE ( NoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
-	ON_MESSAGE ( GeneralFinMsgID, &MainWindow::onFinish )
+	ON_MESSAGE ( CustomMessages::RepProgressMessageID, &MainWindow::onRepProgress )
+	ON_MESSAGE ( CustomMessages::StatusUpdateMessageID, &MainWindow::onStatusTextMessage )
+	ON_MESSAGE ( CustomMessages::ErrorUpdateMessageID, &MainWindow::onErrorMessage )
+	ON_MESSAGE ( CustomMessages::FatalErrorMessageID, &MainWindow::onFatalErrorMessage )
+	ON_MESSAGE ( CustomMessages::DebugUpdateMessageID, &MainWindow::onDebugMessage )
+	ON_MESSAGE ( CustomMessages::NoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
+	ON_MESSAGE ( CustomMessages::NoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
+	ON_MESSAGE ( CustomMessages::GeneralFinMsgID, &MainWindow::onFinish )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
@@ -152,7 +152,7 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
 	ON_COMMAND (IDC_SERVO_CAL, &runServos)
-	ON_MESSAGE (MainWindow::AutoServoMessage, &autoServo)
+	ON_MESSAGE ( CustomMessages::AutoServoMessage, &autoServo)
 	ON_COMMAND( IDC_RERNG_EXPERIMENT_BUTTON, &MainWindow::passExperimentRerngButton )
 	ON_CBN_SELENDOK ( IDC_RERNG_MODE_COMBO, &MainWindow::passRerngModeComboChange )
 	ON_WM_RBUTTONUP( )
@@ -320,7 +320,7 @@ BOOL MainWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 void MainWindow::OnPaint( )
 {
 	CDialog::OnPaint( );
-	if ( !masterThreadManager.runningStatus() )
+	if ( !expThreadManager.runningStatus() )
 	{
 		CRect size;
 		GetClientRect( &size );
@@ -404,7 +404,7 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 	{
 		if ( TheAndorWindow->wantsAutoPause ( ) )
 		{
-			masterThreadManager.pause ( );
+			expThreadManager.pause ( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox ( System::Master, 'Y' );
 		}
@@ -445,7 +445,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 	{	
 		if ( TheAndorWindow->wantsAutoPause( ) )
 		{
-			masterThreadManager.pause( );
+			expThreadManager.pause( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox( System::Master, 'Y' );
 		}
@@ -736,13 +736,13 @@ void MainWindow::setMenuCheck ( UINT menuItem, UINT itemState )
 
 void MainWindow::handlePause()
 {
-	if (masterThreadManager.runningStatus())
+	if (expThreadManager.runningStatus())
 	{
-		if (masterThreadManager.getIsPaused())
+		if (expThreadManager.getIsPaused())
 		{
 			// then it's currently paused, so unpause it.
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_UNCHECKED );
-			masterThreadManager.unPause();
+			expThreadManager.unPause();
 			comm.sendColorBox( System::Master, 'G' );
 		}
 		else
@@ -750,7 +750,7 @@ void MainWindow::handlePause()
 			// then not paused so pause it.
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox( System::Master, 'Y' );
-			masterThreadManager.pause();
+			expThreadManager.pause();
 		}
 	}
 	else
@@ -976,7 +976,7 @@ std::string MainWindow::getSystemStatusString()
 
 bool MainWindow::masterIsRunning()
 {
-	return masterThreadManager.runningStatus();
+	return expThreadManager.runningStatus();
 }
 
 
@@ -1055,7 +1055,7 @@ void MainWindow::passCommonCommand(UINT id)
 
 HANDLE MainWindow::startExperimentThread( ExperimentThreadInput* input )
 {
-	return masterThreadManager.startExperimentThread(input);
+	return expThreadManager.startExperimentThread(input);
 }
 
 
@@ -1101,11 +1101,9 @@ void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
 void MainWindow::fillTempInput ( ExperimentThreadInput* input )
 {
 	// the mot procedure doesn't need the NIAWG at all.
-	input->runNiawg = false;
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams ( );
 	input->rerngGuiForm.active = false;
-	input->runAndor = false;
 }
 
 
@@ -1391,9 +1389,9 @@ void MainWindow::changeBoxColor( systemInfo<char> colors )
 
 void MainWindow::abortMasterThread()
 {
-	if (masterThreadManager.runningStatus())
+	if (expThreadManager.runningStatus())
 	{
-		masterThreadManager.abort();
+		expThreadManager.abort();
 		autoF5_AfterFinish = false;
 	}
 	else
@@ -1404,7 +1402,7 @@ void MainWindow::abortMasterThread()
 
 bool MainWindow::experimentIsPaused( )
 {
-	return masterThreadManager.getIsPaused( );
+	return expThreadManager.getIsPaused( );
 }
 
 

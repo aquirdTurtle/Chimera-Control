@@ -11,7 +11,6 @@
 #include "Python/EmbeddedPythonHandler.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
-#include "ExperimentThread/MasterThreadManager.h"
 #include "DataLogging/DataLogger.h"
 #include "ConfigurationSystems/NoteSystem.h"
 #include "ConfigurationSystems/profileSettings.h"
@@ -19,6 +18,8 @@
 #include "Plotting/PlotDialog.h"
 #include "Plotting/OscilloscopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
+#include "CustomMessages.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
 
 #include <string>
 #include <vector>
@@ -156,24 +157,6 @@ class MainWindow : public CDialog
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (std::stringstream& configStream, Version version);
 
-		const static UINT 
-			StatusUpdateMessageID		= ( WM_APP + 1 ),
-			ErrorUpdateMessageID		= ( WM_APP + 2 ),
-			FatalErrorMessageID			= ( WM_APP + 3 ),
-			DebugUpdateMessageID		= ( WM_APP + 6 ),
-			AndorFinishMessageID		= ( WM_APP + 7 ),
-			AndorProgressMessageID		= ( WM_APP + 8 ),
-			RepProgressMessageID		= ( WM_APP + 9 ),
-			NoAtomsAlertMessageID		= ( WM_APP + 10 ),
-			LogVoltsMessageID			= ( WM_APP + 11 ),
-			AutoServoMessage			= ( WM_APP + 12 ),
-			AndorCalProgMessageID		= ( WM_APP + 13 ),
-			AndorCalFinMessageID		= ( WM_APP + 14 ),
-			BaslerProgressMessageID		= ( WM_APP + 15 ),
-			BaslerFinMessageID			= ( WM_APP + 18 ),
-			GeneralFinMsgID				= ( WM_APP + 19 ),
-			NoMotAlertMessageID			= ( WM_APP + 20 ),
-			experimentProcedureFinish	= ( WM_APP + 21 );
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
 		NiawgController& getNiawg ( );
@@ -207,7 +190,7 @@ class MainWindow : public CDialog
 		// auxiliary members
 		Communicator comm;
 		fontMap mainFonts;
-		MasterThreadManager masterThreadManager;
+		ExperimentThreadManager expThreadManager;
 		CMenu menu;
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;

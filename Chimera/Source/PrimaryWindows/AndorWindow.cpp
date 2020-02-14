@@ -8,7 +8,7 @@
 #include "AndorWindow.h"
 #include "MainWindow.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExcessDialogs/ErrDialog.h"
 #include "ATMCD32D.H"
 #include <numeric>
@@ -60,11 +60,11 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &AndorWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
 
-	ON_MESSAGE ( MainWindow::AndorFinishMessageID, &AndorWindow::onCameraFinish )
-	ON_MESSAGE ( MainWindow::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
-	ON_MESSAGE ( MainWindow::AndorProgressMessageID, &AndorWindow::onCameraProgress )
-	ON_MESSAGE ( MainWindow::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
-	ON_MESSAGE ( MainWindow::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
+	ON_MESSAGE ( CustomMessages::AndorFinishMessageID, &AndorWindow::onCameraFinish )
+	ON_MESSAGE (CustomMessages::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
+	ON_MESSAGE (CustomMessages::AndorProgressMessageID, &AndorWindow::onCameraProgress )
+	ON_MESSAGE (CustomMessages::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
+	ON_MESSAGE (CustomMessages::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
 
@@ -115,7 +115,7 @@ bool AndorWindow::wantsAutoCal( )
 
 void AndorWindow::calibrate( )
 {
-	commonFunctions::calibrateCameraBackground(scriptWin, mainWin, this, auxWin );
+	commonFunctions::calibrateCameraBackground(scriptWin, mainWin, this, auxWin, basWin);
 }
 
 

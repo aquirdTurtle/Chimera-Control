@@ -4,7 +4,7 @@
 #include <string>
 
 #include "LowLevel/constants.h"
-#include "ExperimentThread/MasterThreadManager.h" 
+#include "ExperimentThread/ExperimentThreadManager.h" 
 #include "Piezo/PiezoController.h"
 #include "DigitalOutput/DioSystem.h"
 #include "AnalogOutput/AoSystem.h"
@@ -25,7 +25,7 @@
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
 #include "ExperimentMonitoringAndStatus/colorbox.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "ConfigurationSystems/Version.h"
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
@@ -94,7 +94,7 @@ class AuxiliaryWindow : public CDialog
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getMicrowaveSystemStatus( );
-		void loadCameraCalSettings( ExperimentThreadInput* input );
+		//void loadCameraCalSettings( ExperimentThreadInput* input );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );
@@ -116,9 +116,6 @@ class AuxiliaryWindow : public CDialog
 		void zeroDacs();
 
 		void handleAgilentOptions( UINT id );
-
-		void loadMotSettings(ExperimentThreadInput* input);
-		void loadTempSettings ( ExperimentThreadInput* input );
 
 		void handleTektronicsButtons(UINT id);
 		void invalidateSaved ( UINT id );
