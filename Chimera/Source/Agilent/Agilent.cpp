@@ -5,7 +5,8 @@
 #include "ParameterSystem/ParameterSystem.h"
 #include "Scripts/ScriptStream.h"
 #include "ConfigurationSystems/ProfileSystem.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
+//#include "PrimaryWindows/AuxiliaryWindow.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
@@ -232,7 +233,7 @@ void Agilent::analyzeAgilentScript ( UINT chan, std::vector<parameterType>& vars
 void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
 {
 	ScriptStream stream;
-	MasterThreadManager::loadAgilentScript ( infoObj.fileAddress, stream );
+	ExperimentThreadManager::loadAgilentScript ( infoObj.fileAddress, stream );
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers( );
 	// Procedurally read lines into segment objects.

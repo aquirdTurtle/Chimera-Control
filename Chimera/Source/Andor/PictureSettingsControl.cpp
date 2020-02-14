@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "PictureSettingsControl.h"
-#include "Andor/Andor.h"
+#include "Andor/AndorCameraCore.h"
 #include "Andor/CameraSettingsControl.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "Commctrl.h"

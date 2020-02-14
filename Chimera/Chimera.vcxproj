@@ -186,6 +186,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -203,7 +204,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Basler\BaslerWrapper.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
+    <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
@@ -222,6 +225,7 @@
     <ClInclude Include="Source\Andor\AndorTemperatureStatus.h" />
     <ClInclude Include="Source\Andor\AndorTriggerModes.h" />
     <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
+    <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomGrid.h" />
     <ClInclude Include="Source\Basler\BaslerCamera.h" />
@@ -270,7 +274,7 @@
     <ClInclude Include="FTDI\ftd2xx.h" />
     <ClInclude Include="Source\GeneralFlumes\ftdiFlume.h" />
     <ClInclude Include="Source\CustomMfcControlWrappers\functionCombo.h" />
-    <ClInclude Include="Source\ExperimentThread\MasterThreadInput.h" />
+    <ClInclude Include="Source\ExperimentThread\ExperimentThreadInput.h" />
     <ClInclude Include="Source\GeneralObjects\Matrix.h" />
     <ClInclude Include="Source\GeneralImaging\memdc.h" />
     <ClInclude Include="Source\GeneralObjects\multiDimensionalKey.h" />
@@ -289,10 +293,10 @@
     <ClInclude Include="Source\GeneralImaging\imageParameters.h" />
     <ClInclude Include="longnam.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h" />
-    <ClInclude Include="Source\Andor\Andor.h" />
+    <ClInclude Include="Source\Andor\AndorCameraCore.h" />
     <ClInclude Include="Source\ConfigurationSystems\MasterConfiguration.h" />
     <ClInclude Include="Source\PrimaryWindows\AuxiliaryWindow.h" />
-    <ClInclude Include="Source\ExperimentThread\MasterThreadManager.h" />
+    <ClInclude Include="Source\ExperimentThread\ExperimentThreadManager.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\miscCommonFunctions.h" />
     <ClInclude Include="Source\LowLevel\ChimeraApp.h" />
     <ClInclude Include="Source\NIAWG\NiawgStructures.h" />
@@ -357,6 +361,7 @@
     <ClCompile Include="Source\Agilent\Agilent.cpp" />
     <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp" />
     <ClCompile Include="Source\AnalogInput\AiSystem.cpp" />
+    <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\AlertSystem.cpp" />
     <ClCompile Include="Source\AnalogOutput\AnalogOutput.cpp" />
     <ClCompile Include="Source\Andor\AndorFlume.cpp" />
@@ -379,7 +384,7 @@
     <ClCompile Include="Source\ExcessDialogs\ErrDialog.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
-    <ClCompile Include="Source\ExperimentThread\MasterThreadInput.cpp" />
+    <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgStructures.cpp" />
     <ClCompile Include="Source\Piezo\PiezoController.cpp" />
@@ -421,10 +426,10 @@
     <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp" />
     <ClCompile Include="Source\PrimaryWindows\MainWindow.cpp" />
-    <ClCompile Include="Source\Andor\Andor.cpp" />
+    <ClCompile Include="Source\Andor\AndorCameraCore.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\MasterConfiguration.cpp" />
     <ClCompile Include="Source\PrimaryWindows\AuxiliaryWindow.cpp" />
-    <ClCompile Include="Source\ExperimentThread\MasterThreadManager.cpp" />
+    <ClCompile Include="Source\ExperimentThread\ExperimentThreadManager.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp" />
     <ClCompile Include="Source\Andor\PictureSettingsControl.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp" />

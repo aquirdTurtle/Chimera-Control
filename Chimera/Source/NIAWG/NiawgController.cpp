@@ -3,10 +3,10 @@
 
 #include "NIAWG/NiawgController.h"
 #include "NIAWG/NiawgStructures.h"
-#include "ExperimentThread/MasterThreadManager.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
 #include "NIAWG/NiawgWaiter.h"
 
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "GeneralObjects/Matrix.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -184,10 +184,10 @@ niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> tar
 void NiawgController::programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings,
 									UINT variation, UINT totalVariations,  std::vector<long>& variedMixedSize, 
 									std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
-									rerngGuiOptions& rerngGui )
+									rerngGuiOptions& rerngGui, std::vector<std::vector<parameterType>>& expParams )
 {
 	input->comm.sendColorBox( System::Niawg, 'Y' );
-	input->niawg.handleVariations( output, input->parameters, variation, variedMixedSize, warnings, input->debugOptions,
+	input->niawg.handleVariations( output, expParams, variation, variedMixedSize, warnings, input->debugOptions,
 									totalVariations, rerngGuiForm, rerngGui );
 	if ( input->dontActuallyGenerate ) { return; }
 
@@ -458,9 +458,9 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 	std::vector<vectorizedNiawgVals> vectorizedVals;
 	while ( script.peek( ) != EOF )
 	{
-		if ( MasterThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		if ( ExperimentThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
 		{}
-		else if ( MasterThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
+		else if ( ExperimentThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
 		{}
 		else if ( isLogic( command ) )
 		{

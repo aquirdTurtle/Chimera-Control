@@ -1260,15 +1260,15 @@ std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> va
 
 std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string configFileName )
 {
-	std::ifstream f(configFileName);
+	std::ifstream file(configFileName);
 	Version ver;
 	std::vector<parameterType> configParams;
 	try
 	{
-		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
-		auto rInfo = getRangeInfoFromFile ( f, ver );
-		configParams = getParametersFromFile ( f, ver, rInfo );
-		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
+		ProfileSystem::initializeAtDelim (file, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
+		auto rInfo = getRangeInfoFromFile (file, ver );
+		configParams = getParametersFromFile (file, ver, rInfo );
+		ProfileSystem::checkDelimiterLine (file, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
 	{
@@ -1280,15 +1280,15 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 
 ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
-	std::ifstream f ( configFileName );
+	std::ifstream file ( configFileName );
 	Version ver;
 	ScanRangeInfo rInfo;
 	try
 	{
-		ProfileSystem::initializeAtDelim ( f, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
-		rInfo = getRangeInfoFromFile ( f, ver );
-		auto configVariables = getParametersFromFile ( f, ver, rInfo );
-		ProfileSystem::checkDelimiterLine ( f, "END_CONFIG_PARAMETERS" );
+		ProfileSystem::initializeAtDelim (file, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
+		rInfo = getRangeInfoFromFile (file, ver );
+		auto configVariables = getParametersFromFile (file, ver, rInfo );
+		ProfileSystem::checkDelimiterLine (file, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
 	{
@@ -1476,8 +1476,8 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
  * "constants" objects. The "parameters" object includes everything, variables and otherwise. the "constants" object 
  * includes only parameters that don't vary. 
  */
-std::vector<parameterType> ParameterSystem::combineParametersForExperimentThread( std::vector<parameterType>& configParams, 
-																				  std::vector<parameterType>& globalParams )
+std::vector<parameterType> ParameterSystem::combineParamsForExpThread( std::vector<parameterType>& configParams, 
+																	   std::vector<parameterType>& globalParams )
 {
 	std::vector<parameterType> combinedParams;
 	combinedParams = configParams;

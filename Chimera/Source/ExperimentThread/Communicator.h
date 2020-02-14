@@ -1,11 +1,14 @@
 // created by Mark O. Brown
 #pragma once
 #include "ExperimentMonitoringAndStatus/ColorBox.h"
+#include "Andor/AndorRunSettings.h"
+#include "Basler/baslerSettings.h"
 
 class MainWindow;
 class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
+class BaslerWindow;
 
 enum class System
 {
@@ -25,7 +28,7 @@ class Communicator
 	public:
 		void sendFinish ( ExperimentType type );
 		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin,
-						 AuxiliaryWindow* masterWindow);
+						 AuxiliaryWindow* masterWindow, BaslerWindow* basWin);
 
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
 		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
@@ -40,6 +43,9 @@ class Communicator
 		void sendCameraCalProgress ( long progress );
 		void sendRepProgress ( ULONG rep );
 		void sendLogVoltsMessage ( UINT variation );
+		
+		void sendPrepareAndor (AndorRunSettings& settingsToPrepare);
+		void sendPrepareBasler (baslerSettings& settingsToPrepare);
 
 		void sendCameraCalFin( );
 		void sendCameraFin();
@@ -53,8 +59,9 @@ class Communicator
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
-		AndorWindow* camWin;
+		AndorWindow* andorWin;
 		AuxiliaryWindow* auxWin;
+		BaslerWindow* basWin;
 		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
 };
 

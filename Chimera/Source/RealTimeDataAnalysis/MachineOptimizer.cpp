@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "DataLogging/DataLogger.h"
 #include "MachineOptimizer.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include <algorithm>
 #include <memory>
@@ -101,7 +101,9 @@ std::vector<std::shared_ptr<optParamSettings>> MachineOptimizer::getOptParams ( 
 /*
 	resultValue: the value of the metric that was measured in the last round.
  */
-void MachineOptimizer::updateParams ( AllExperimentInput input, dataPoint resultValue, DataLogger& logger )
+// TODO: FIX THIS SINCE MOVING PARAMS OUT OF INPUT
+/*
+void MachineOptimizer::updateParams ( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger )
 {
 	if ( optCount == 0 )
 	{
@@ -109,6 +111,7 @@ void MachineOptimizer::updateParams ( AllExperimentInput input, dataPoint result
 		// it's the first one.
 		isOptimizing = true;
 		// initialize the current values with the constant values from the main parameter controls
+		
 		for ( auto& optParam : optParams )
 		{
 			for ( auto& expParam : input.masterInput->parameters[0] )
@@ -169,7 +172,7 @@ void MachineOptimizer::updateParams ( AllExperimentInput input, dataPoint result
 	updateCurrentValueDisplays ( );
 	updateBestValueDisplays ( );
 }
-
+*/
 
 void MachineOptimizer::updateCurrentValueDisplays ( )
 {
@@ -199,7 +202,7 @@ bool MachineOptimizer::isInMiddleOfOptimizing ( )
 }
 
 
-void MachineOptimizer::hillClimbingUpdate ( AllExperimentInput input, dataPoint resultValue, DataLogger& logger )
+void MachineOptimizer::hillClimbingUpdate ( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger )
 {
 	// handle first value case, should only happen once in entire experiment.
 	auto& param = optStatus.currParam;
@@ -311,14 +314,14 @@ void MachineOptimizer::hillClimbingUpdate ( AllExperimentInput input, dataPoint 
 	optStatus.currParam->resultHist.push_back ( resultValue );
 	for ( auto& param : optParams )
 	{
-		for ( auto& expParam : input.masterInput->parameters[0] )	
+		/*for ( auto& expParam : input.masterInput->parameters[0] )	
 		{
 			if ( expParam.name == param->name )
 			{
 				// change value
 				expParam.constantValue = param->currentValue;
 			}
-		}
+		}*/
 	}
 }
 
@@ -498,12 +501,9 @@ void MachineOptimizer::reset ( )
 }
 
 
-void MachineOptimizer::verifyOptInput ( AllExperimentInput input )
+void MachineOptimizer::verifyOptInput ( AllExperimentInput& input )
 {
-	if ( !input.includesAndorRun )
-	{
-		thrower ( "Cannot optimize parameters if not taking camera data!" );
-	}
+
 	UINT count = 0;
 	for ( auto& info : input.masterInput->plotterInput->plotInfo )
 	{
@@ -517,6 +517,7 @@ void MachineOptimizer::verifyOptInput ( AllExperimentInput input )
 	for ( auto param : optParams )
 	{
 		bool found = false;
+		/*
 		for ( auto& expParam : input.masterInput->parameters[0] )
 		{
 			if ( expParam.name == param->name )
@@ -529,6 +530,7 @@ void MachineOptimizer::verifyOptInput ( AllExperimentInput input )
 				found = true;
 			}
 		}
+		*/
 		if ( !found )
 		{
 			thrower ( "A Parameter in the optimization control didn't match any constants in the actual "

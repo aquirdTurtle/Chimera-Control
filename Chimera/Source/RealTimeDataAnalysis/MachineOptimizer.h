@@ -1,7 +1,8 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "Control.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
+#include "ExperimentThread/AllExperimentInput.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "Plotting/dataPoint.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
@@ -79,10 +80,10 @@ class MachineOptimizer
 		void handleSaveConfig ( );
 		void handleNewConfig ( );
 		void reset ( );
-		void verifyOptInput ( AllExperimentInput input );
+		void verifyOptInput ( AllExperimentInput& input );
 		void rearrange ( UINT width, UINT height, fontMap fonts );
-		void updateParams( AllExperimentInput input, dataPoint resultValue, DataLogger& logger );
-		void hillClimbingUpdate ( AllExperimentInput input, dataPoint resultValue, DataLogger& logger);
+		//void updateParams( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger );
+		void hillClimbingUpdate ( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger);
 		void updateCurrentValueDisplays ( );
 		void handleListViewClick ( );
 		void deleteParam ( );

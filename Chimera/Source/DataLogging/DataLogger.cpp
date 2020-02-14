@@ -4,7 +4,7 @@
 #include "LowLevel/externals.h"
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
-#include "ExperimentThread/MasterThreadManager.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
 
 
 DataLogger::DataLogger(std::string systemLocation)
@@ -345,7 +345,7 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 			ScriptStream stream;
 			try
 			{
-				MasterThreadManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
+				ExperimentThreadManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
 				writeDataSet ( stream.str ( ), "Agilent-Script-Script", scriptedArbSettings );
 			}
 			catch ( Error& )
@@ -831,7 +831,7 @@ void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
 		{
 			std::string niawgAddr = ProfileSystem::getNiawgScriptAddrFromConfig( config );
 			ScriptStream niawgStream;
-			MasterThreadManager::loadNiawgScript ( niawgAddr, niawgStream );
+			ExperimentThreadManager::loadNiawgScript ( niawgAddr, niawgStream );
 			writeDataSet( niawgStream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
 			seqInc++;
 		}
