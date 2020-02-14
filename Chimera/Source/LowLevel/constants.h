@@ -20,8 +20,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP 
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -202,8 +202,8 @@
 	//constexpr char UW_SYSTEM_ADDRESS[] = "28";
 	constexpr short UW_SYSTEM_ADDRESS = 28;
 	constexpr bool UW_SYSTEM_SAFEMODE = false;
-	constexpr bool DIOFTDI_SAFEMODE false;
-	constexpr bool DDS_SAFEMODE false;
+	constexpr bool DIOFTDI_SAFEMODE = false;
+	constexpr bool DDS_SAFEMODE = false;
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::B;
 	constexpr bool BASLER_SAFEMODE = false;
@@ -323,7 +323,7 @@ const UINT DIO_MSGLENGTH = 7;
 const UINT DIO_WRITESPERDATAPT = 3;
 
 /// Agilent Parameters
-constexpr auto AGILENT_DEFAULT_POWER = 40;
+constexpr auto AGILENT_DEFAULT_POWER = 20;
 
 constexpr auto NUMBER_OF_LIBRARY_FILES = MAX_NIAWG_SIGNALS * 4;
 

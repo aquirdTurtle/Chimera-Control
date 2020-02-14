@@ -979,7 +979,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
 					try
 					{
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this, mainWin, scriptWin, this, auxWin,
-							basWin);
+															  basWin);
 					}
 					catch (Error& err)
 					{
