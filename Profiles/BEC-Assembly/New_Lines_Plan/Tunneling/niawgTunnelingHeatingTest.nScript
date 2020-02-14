@@ -20,14 +20,14 @@ var_v 2 twoFreqs [ 65.3 76.0 ]
 var_v 2 twoamps [ 0.031 0.03 ] 
 var_v 2 twoPhases [ 3.775361594 6.253222519 ] 
 
-var_v 2 tunnelingFreqs [ (65.3 + dfreq) (76 - dfreq) ]
-var_v 2 tunnelingAmps [ (0.5 + dBias) (0.5 - dBias) ]
+var_v 2 tunnelingFreqs [ 67.4 73.9 ]
+var_v 2 tunnelingAmps [ (0.5-dBias) (0.5+dBias) ]
 var_v 2 dblRamp [ lin lin ] 
 var_v 2 phaseContinue [ -1 -1 ]
 
 var_v 2 vertDumpFreqs [ 75 95 ] 
 var_v 2 vertInitAmps [ 1 0 ] 
-var_v 2 vertDumpAmps [ ( 0.5 - dumpBias ) ( 0.5 + dumpBias ) ] 
+var_v 2 vertDumpAmps [ 0.1 0.9 ] 
 var_v 2 vertInitPhases [ 0 0 ]
 
 repeatTilTrig
@@ -58,7 +58,7 @@ dblRamp twoFreqs tunnelingFreqs dblRamp twoAmps tunnelingAmps twoPhases #
 % 75 1 0 #
 gen2ampRamp_v Vertical
 vertDumpFreqs dblRamp vertInitAmps vertDumpAmps vertInitPhases #
-3 0
+1 0
 
 %% TUNNELING
 repeatTilTrig
@@ -78,7 +78,7 @@ dblRamp tunnelingFreqs twoFreqs dblRamp tunnelingAmps twoAmps twoPhases #
 %75 1 0 #
 gen2ampRamp_v Vertical
 vertDumpFreqs dblRamp vertDumpAmps vertInitAmps phaseContinue #
-3 0
+1 0
 
 repeatTilTrig
 gen2const_v Horizontal

@@ -34,16 +34,13 @@ call sbc()
 % but this is only important if there is more microwave stuff immediately 
 % after, like in spectroscopy measurements, so I can subtract it here. 
 t += -0.16
-off: totalramanrf
-off: axialRamanShutter  
-off: axialRamanShutter2  
 % drop extra atoms
 pulseon: tweezerIntensityTrig 0.1 % to move depth
 pulseon: niawgTrig 0.1 % to only 2 freqs
 t += 1.1
 % move to tunneling spacing
 pulseon: niawgTrig 0.1
-t += 3.1
+t += 1.1
 % initialize tunneling
 pulseon: tweezerIntensityTrig 0.1 % to tunnelingDepth
 t += 0.101
@@ -53,12 +50,34 @@ pulseon: tweezerIntensityTrig 0.1 % to move depth
 t += 0.11
 % separate atoms for imaging
 pulseon: niawgTrig 0.1
-t += 3.1
+t += 1.1
+pulseon: tweezerIntensityTrig 0.1 % to raman depth
+t += 1.01
+var specPulseTime 0.08 % 0.07
+on: a15
+dac: eoPulseLev eo_raman__servo_value
+dac: topPulseLev top_raman_sideband_spec__servo_value
+call topRamanPulse(specPulseTime)
+off: a15
+dac: topPulseLev 0
+dac: eoPulseLev 0
+off: axialRamanShutter  
+off: axialRamanShutter2  
+% t += 20
+t += 0.1 
+call pushout()
+pulseon: tweezerIntensityTrig 0.1 % to pushout depth
+t += 5
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
+t += 1
+off: totalramanrf
+off: axialRamanShutter  
+off: axialRamanShutter2  
 t += 1.1
 call pgcAtomFlashingImage()
 t += 1
 pulseon: tweezerIntensityTrig 0.1
 pulseon: niawgTrig 0.1
+pulseon: rsTrig 0.1
 t += 1
  
