@@ -8,7 +8,7 @@
 #include "ConfigurationSystems/profileSettings.h"
 #include "ExperimentThread/Communicator.h"
 #include "Agilent/Agilent.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 
 class MainWindow;
 class AndorWindow;

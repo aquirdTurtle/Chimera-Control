@@ -24,6 +24,7 @@
 #include "Basler/baslerSettings.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "Plotting/PlotDialog.h"
+#include "Basler/BaslerCamera.h"
 
 #include <chrono>
 #include <vector>
@@ -51,30 +52,29 @@ enum class ExperimentType
 	MachineOptimization
 };
 
-class MasterThreadManager;
+class ExperimentThreadManager;
 
 struct ExperimentThreadInput
 {
-	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin );
+	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, BaslerWindow* basWin );
 	realTimePlotterInput* plotterInput;
 
 	EmbeddedPythonHandler& python;
 	// for posting messages only!
-	// AuxiliaryWindow* auxWin;
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem& ttls;
 	AoSystem& aoSys;
 	AiSystem& aiSys;
 	AndorCameraCore& andorCamera;
+	BaslerCameraCore& basCamera;
 	DdsCore& dds;
 	std::vector<PiezoCore*> piezoControllers;
-	ScanRangeInfo variableRangeInfo;
+	//ScanRangeInfo variableRangeInfo;
 	// believe outer layer here is for sequence increment. 
 	// TODO: this should be loaded from config file, not gui thread.
 	std::vector<parameterType> globalParameters;
-	//std::vector<std::vector<parameterType>> parameters;
-	MasterThreadManager* thisObj;
+	ExperimentThreadManager* thisObj;
 	Communicator& comm;
 	MicrowaveCore& rsg;
 	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
@@ -91,7 +91,7 @@ struct ExperimentThreadInput
 	UINT numAiMeasurements=0;
 	bool runMaster=true;
 	bool runAndor;
-	bool logBaslerPics;
+	bool logBaslerPics=false;
 	bool updatePlotterXVals=false;
 	bool dontActuallyGenerate=false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
@@ -112,14 +112,3 @@ struct ExperimentThreadInput
 };
 
 
-struct AllExperimentInput
-{
-	AllExperimentInput::AllExperimentInput( ) :
-		includesAndorRun( false ), masterInput( NULL ), cruncherInput( NULL ) { }
-	ExperimentThreadInput* masterInput;
-	
-	atomCruncherInput* cruncherInput;
-	AndorRunSettings AndorSettings;
-	baslerSettings baslerRunSettings;
-	bool includesAndorRun;
-};

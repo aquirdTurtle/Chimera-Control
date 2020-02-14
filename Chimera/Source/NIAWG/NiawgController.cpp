@@ -3,10 +3,10 @@
 
 #include "NIAWG/NiawgController.h"
 #include "NIAWG/NiawgStructures.h"
-#include "ExperimentThread/MasterThreadManager.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
 #include "NIAWG/NiawgWaiter.h"
 
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "GeneralObjects/Matrix.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -458,9 +458,9 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 	std::vector<vectorizedNiawgVals> vectorizedVals;
 	while ( script.peek( ) != EOF )
 	{
-		if ( MasterThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		if ( ExperimentThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
 		{}
-		else if ( MasterThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
+		else if ( ExperimentThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
 		{}
 		else if ( isLogic( command ) )
 		{

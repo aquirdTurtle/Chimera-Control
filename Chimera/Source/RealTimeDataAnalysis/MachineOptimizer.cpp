@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "DataLogging/DataLogger.h"
 #include "MachineOptimizer.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include <algorithm>
 #include <memory>

@@ -5,7 +5,7 @@
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"					  
 #include "Andor/CameraImageDimensions.h"
 #include "Andor/AndorRunSettings.h"
-#include "ExperimentThread/MasterThreadInput.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
 #include "afxwin.h"
 #include "Basler/BaslerSettingsControl.h"
 #include "AnalogInput/ServoManager.h"

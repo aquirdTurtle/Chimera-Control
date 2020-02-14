@@ -55,6 +55,7 @@ class BaslerWindow : public CDialogEx
 		void startCamera ( );
 		baslerSettings getCurrentSettings ( );
 		void setMenuCheck ( UINT menuItem, UINT itemState );
+		BaslerCameraCore& getCore();
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		UINT loadMotConsecutiveFailures = 0;
@@ -62,7 +63,7 @@ class BaslerWindow : public CDialogEx
 		bool autoScaleBaslerPictureData = true;
 		PictureManager picManager;
 		BaslerSettingsControl settingsCtrl;
-		BaslerCameraCore* cameraController;
+		BaslerCameraCore* basCamCore;
 		PictureStats stats;
 		baslerSettings tempAcqSettings;
 		bool runningAutoAcq;

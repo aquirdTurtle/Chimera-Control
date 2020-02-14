@@ -3,28 +3,22 @@
 
 #include "DigitalOutput/DioSystem.h"
 #include "AnalogOutput/AoSystem.h"
-#include "Microwave/MicrowaveSystem.h"
-#include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
+#include "Microwave/MicrowaveSettings.h"
+#include "MiscellaneousExperimentOptions/debugInfo.h"
 #include "Scripts/ScriptStream.h"
 #include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"
-#include "Python/EmbeddedPythonHandler.h"
-#include "MasterThreadInput.h"
+#include "ExperimentThreadInput.h"
 #include "Communicator.h"
-#include "GeneralObjects/SmartDC.h"
 #include "ParameterSystem/ParameterSystemStructures.h"
-#include <fstream>
 #include <string>
 #include <vector>
-#include <sstream>
 #include <mutex>
 
-class MasterThreadManager;
-
-class MasterThreadManager
+class ExperimentThreadManager
 {
 	public:
-		MasterThreadManager();
+		ExperimentThreadManager();
 		void pause();
 		void unPause(); 
 		bool getIsPaused();

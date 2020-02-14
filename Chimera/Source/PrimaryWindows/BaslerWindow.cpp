@@ -33,7 +33,7 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 
-	ON_MESSAGE( MainWindow::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
+	ON_MESSAGE( CustomMessages::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
 	
 	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
 	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
@@ -43,6 +43,11 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_WM_RBUTTONUP()	
 END_MESSAGE_MAP()
 
+
+BaslerCameraCore& BaslerWindow::getCore ()
+{
+	return *basCamCore;
+}
 
 void BaslerWindow::handleBaslerAutoscaleSelection ( )
 {
@@ -79,7 +84,6 @@ void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWi
 	camWin = camWin_;
 	auxWin = auxWin_;
 }
-
 
 void BaslerWindow::passCommonCommand ( UINT id )
 {
@@ -146,7 +150,7 @@ void BaslerWindow::startTemporaryAcquisition ( baslerSettings motSizeSettings )
 		currentRepNumber = 0;
 		runningAutoAcq = true;
 		tempAcqSettings = motSizeSettings;
-		cameraController->setParameters ( motSizeSettings );
+		basCamCore->setParameters ( motSizeSettings );
 		picManager.setParameters ( motSizeSettings.dims );
 		triggerThreadInput* input = new triggerThreadInput;
 		input->width = motSizeSettings.dims.width ( );
@@ -154,7 +158,7 @@ void BaslerWindow::startTemporaryAcquisition ( baslerSettings motSizeSettings )
 		input->frameRate = motSizeSettings.frameRate;
 		input->parent = this;
 		input->runningFlag = &triggerThreadFlag;
-		cameraController->armCamera ( input );
+		basCamCore->armCamera ( input );
 	}
 	catch ( Error& )
 	{
@@ -239,7 +243,7 @@ void BaslerWindow::handleSoftwareTrigger()
 {
 	try
 	{
-		cameraController->softwareTrigger();
+		basCamCore->softwareTrigger();
 	}
 	catch (Pylon::TimeoutException&)
 	{
@@ -285,7 +289,7 @@ void BaslerWindow::handleDisarmPress()
 	try
 	{
 		mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
-		cameraController->disarm();
+		basCamCore->disarm();
 		triggerThreadFlag = false;
 		isRunning = false;
 		settingsCtrl.setStatus("Camera Status: Idle");
@@ -302,7 +306,7 @@ void BaslerWindow::startDefaultAcquisition ( )
 { 
 	try
 	{
-		if ( cameraController->isRunning ( ) )
+		if ( basCamCore->isRunning ( ) )
 		{
 			handleDisarmPress ( );
 		}
@@ -327,7 +331,7 @@ void BaslerWindow::startDefaultAcquisition ( )
 		#endif
 		tempSettings.rawGain = 260;
 
-		cameraController->setParameters ( tempSettings );
+		basCamCore->setParameters ( tempSettings );
 		picManager.setParameters ( tempSettings.dims );
 		SmartDC sdc (this);
 		picManager.drawBackgrounds ( sdc.get ());
@@ -344,7 +348,7 @@ void BaslerWindow::startDefaultAcquisition ( )
 		input->runningFlag = &triggerThreadFlag;
 		tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? 
 								tempSettings.repCount : SIZE_MAX;
-		cameraController->armCamera ( input );
+		basCamCore->armCamera ( input );
 		settingsCtrl.setStatus ( "Camera Status: Armed..." );
 		isRunning = true;
 	}
@@ -370,23 +374,23 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		picManager.drawDongles ( sdc.get(), { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)
 		{ 
-			settingsCtrl.updateExposure( cameraController->getCurrentExposure() );
+			settingsCtrl.updateExposure( basCamCore->getCurrentExposure() );
 		}
  		settingsCtrl.setStatus("Camera Status: Acquiring Pictures.");
  		if (currentRepNumber % 10 == 0)
  		{
  			settingsCtrl.handleFrameRate();
  		}
- 		if (!cameraController->isContinuous())
+ 		if (!basCamCore->isContinuous())
  		{
 			// don't write data if continuous, that's a recipe for disaster.
 			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix, 
-									runningAutoAcq ? tempAcqSettings.dims : settingsCtrl.getCurrentSettings ( ).dims );
+								runningAutoAcq ? tempAcqSettings.dims : settingsCtrl.getCurrentSettings ( ).dims );
  		}
- 		if (currentRepNumber == cameraController->getRepCounts())
+ 		if (currentRepNumber == basCamCore->getRepCounts())
  		{
 			// handle balser finish
- 			cameraController->disarm();
+ 			basCamCore->disarm();
  			isRunning = false;
 			runningAutoAcq = false;
 			triggerThreadFlag = false;
@@ -462,14 +466,14 @@ void BaslerWindow::ArmCamera()
 {
 	try
 	{
-		if ( cameraController->isRunning ( ) )
+		if ( basCamCore->isRunning ( ) )
 		{
 			handleDisarmPress ( );
 		}
 		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
 		baslerSettings tempSettings = settingsCtrl.loadCurrentSettings();
-		cameraController->setParameters( tempSettings );
+		basCamCore->setParameters( tempSettings );
 		imageParameters params;
 		picManager.setParameters( tempSettings.dims );
 		
@@ -487,7 +491,7 @@ void BaslerWindow::ArmCamera()
 		input->parent = this;
 		input->runningFlag = &triggerThreadFlag;
 
-		cameraController->armCamera( input );
+		basCamCore->armCamera( input );
 		settingsCtrl.setStatus("Camera Status: Armed...");
 		isRunning = true;
 	}
@@ -504,21 +508,21 @@ bool BaslerWindow::baslerCameraIsRunning ( )
 	{
 		return isRunning;
 	}
-	return cameraController->isRunning ( );
+	return basCamCore->isRunning ( );
 }
 
 
 bool BaslerWindow::baslerCameraIsContinuous ( )
 {
-	return cameraController->isContinuous ( );
+	return basCamCore->isContinuous ( );
 }
 
 
 void BaslerWindow::startCamera ( )
 { 
-	if ( cameraController->isRunning( ) )
+	if ( basCamCore->isRunning( ) )
 	{
-		cameraController->disarm ( );
+		basCamCore->disarm ( );
 	}
 	ArmCamera ( );
 }
@@ -678,22 +682,22 @@ void BaslerWindow::initializeControls()
 		SetWindowText("USB Basler Camera Control");
 	#endif
 
-	cameraController = new BaslerCameraCore( this );
-	if (!cameraController->isInitialized())
+	basCamCore = new BaslerCameraCore( this );
+	if (!basCamCore->isInitialized())
 	{
 		thrower ("ERROR: Camera not connected! Exiting program..." );
 	}
 	int id = 1000;
 	POINT pos = { 0,0 };
-	POINT cameraDims = cameraController->getCameraDimensions();
+	POINT cameraDims = basCamCore->getCameraDimensions();
 	settingsCtrl.initialize( pos, id, this, cameraDims.x, cameraDims.y, cameraDims);
-	settingsCtrl.setSettings( cameraController->getDefaultSettings() );
+	settingsCtrl.setSettings( basCamCore->getDefaultSettings() );
 	std::unordered_map<std::string, CFont*> fontDummy;
 	std::vector<CToolTipCtrl*> toolTipDummy;
 	stats.initialize( pos, this, id, toolTipDummy );
 
 	POINT picPos = { 365, 0 };
-	POINT dims = cameraController->getCameraDimensions();
+	POINT dims = basCamCore->getCameraDimensions();
 
 	// scale to fill the window (approximately).
 	dims.x *= 1.65;

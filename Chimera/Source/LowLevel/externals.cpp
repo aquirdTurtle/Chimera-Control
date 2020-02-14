@@ -3,7 +3,7 @@
 // without making it look like a normal variable.
 #include "stdafx.h"
 #include "externals.h"
-#include "Windows.h"
+#include "afxwin.h"
 #include "constants.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "ParameterSystem/ParameterSystem.h"

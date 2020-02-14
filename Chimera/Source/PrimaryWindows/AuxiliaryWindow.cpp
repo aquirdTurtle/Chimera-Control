@@ -63,7 +63,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 	ON_COMMAND( IDC_UW_SYSTEM_PROGRAM_NOW, &handleProgramUwSystemNow)
 
-	ON_MESSAGE ( MainWindow::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
+	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &AuxiliaryWindow::handleTektronicsButtons )
@@ -590,31 +590,6 @@ void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 }
 
 
-void AuxiliaryWindow::loadCameraCalSettings( ExperimentThreadInput* input )
-{
-	try
-	{
-		sendStatus( "Loading Camera-Cal Config...\r\n" );
-		input->quiet = true;
-		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-		// don't get configuration variables. This calibration shouldn't depend on config variables.
-		input->globalParameters = globalParameters.getAllParams ();
-		input->variableRangeInfo = configParameters.getRangeInfo ( );
-		// Only do this once of course.
-		input->intensityAgilentNumber = -1;
-		input->runMaster = true;
-		input->runNiawg = false;
-		// Seems like I should just not initialize these or something...
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch ( Error& exception )
-	{
-		sendStatus( ": " + exception.trace( ) + " " + "\r\n" );
-	}
-}
-
-
 ParameterSystem& AuxiliaryWindow::getGlobals ( )
 {
 	return globalParameters;
@@ -1100,52 +1075,12 @@ DioSystem& AuxiliaryWindow::getTtlBoard ( )
 	return ttlBoard;
 }
 
-/// these three at the moment are identical. keeping for the moment in case I find I need to change something.
-void AuxiliaryWindow::loadTempSettings ( ExperimentThreadInput* input )
-{
-	try
-	{
-		input->globalParameters = globalParameters.getAllParams ();
-		input->variableRangeInfo = ParameterSystem::getRangeInfoFromFile ( input->seq.sequence[ 0 ].configFilePath ( ) );
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch ( Error& exception )
-	{
-		sendStatus ( "Failed to load temp settings." + exception.trace ( ) + "\r\n" );
-	}
-}
-
-
-void AuxiliaryWindow::loadMotSettings(ExperimentThreadInput* input)
-{
-	try
-	{
-		sendStatus("Loading MOT Configuration...\r\n" );
-		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->globalParameters = globalParameters.getAllParams ();
-		input->variableRangeInfo.defaultInit ( );
-		input->variableRangeInfo(0,0).variations = 1;
-		// Only set it once, clearly.
-		input->intensityAgilentNumber = -1;
-		input->dacData = dacData;
-		input->ttlData = ttlData;
-	}
-	catch (Error& exception)
-	{
-		sendStatus("Failed to load mot settings.\n" + exception.trace() + "\r\n" );
-	}
-}
-
-
 void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	try
 	{
 		input->dacData = dacData;
 		input->ttlData = ttlData;
-		input->variableRangeInfo.reset ( );
-		input->variableRangeInfo = configParameters.getRangeInfo ( );
 		input->globalParameters = globalParameters.getAllParams ();
 		if (aiSys.wantsQueryBetweenVariations ())
 		{
