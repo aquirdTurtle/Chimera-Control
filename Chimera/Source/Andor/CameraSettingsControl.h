@@ -7,7 +7,7 @@
 #include "PictureSettingsControl.h"
 #include "CameraImageDimensions.h"
 #include "CameraCalibration.h"
-#include "Andor/Andor.h"
+#include "Andor/AndorCameraCore.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
 
 struct cameraPositions;

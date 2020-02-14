@@ -13,9 +13,6 @@
     <ClCompile Include="Source\AnalogOutput\AnalogOutput.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Andor\Andor.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Andor\AndorRunMode.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
@@ -313,6 +310,9 @@
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadManager.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Andor\AndorCameraCore.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -339,9 +339,6 @@
     </ClInclude>
     <ClInclude Include="Source\AnalogOutput\AnalogOutput.h">
       <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Andor\Andor.h">
-      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\Andor\AndorRunMode.h">
       <Filter>Andor Window\Structures</Filter>
@@ -735,6 +732,9 @@
     </ClInclude>
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
+    <ClInclude Include="Source\Andor\AndorCameraCore.h">
+      <Filter>Andor Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

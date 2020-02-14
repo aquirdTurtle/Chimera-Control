@@ -100,11 +100,11 @@ baslerSettings BaslerCameraCore::getDefaultSettings()
 // set the default parameters defined in the function above.
 void BaslerCameraCore::setDefaultParameters()
 {
-	setParameters( getDefaultSettings() );
+	setBaslserAcqParameters( getDefaultSettings() );
 }
 
 // general function you should use for setting camera settings based on the input.
-void BaslerCameraCore::setParameters( baslerSettings settings )
+void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 {
 	/// Set the AOI:
 
@@ -249,7 +249,7 @@ POINT BaslerCameraCore::getCameraDimensions()
 
 // get the camera "armed" (ready for aquisition). Actual start of camera taking pictures depends on things like the 
 // trigger mode.
-void BaslerCameraCore::armCamera( triggerThreadInput* input )
+void BaslerCameraCore::armCamera( double frameRate )
 {
 	Pylon::EGrabStrategy grabStrat;
 	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous )
@@ -260,7 +260,9 @@ void BaslerCameraCore::armCamera( triggerThreadInput* input )
 	{
 		grabStrat = Pylon::GrabStrategy_OneByOne;
 	}
+	triggerThreadInput* input = new triggerThreadInput;
 	input->camera = camera;
+	input->frameRate = frameRate;
 	camera->startGrabbing( runSettings.repCount, grabStrat );
 	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
 	{
@@ -293,7 +295,6 @@ bool BaslerCameraCore::isContinuous()
 	return runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous;
 }
 
-
 // this is the thread that programatically software-triggers the camera when triggering internally.
 void BaslerCameraCore::triggerThread( void* voidInput )
 {
@@ -304,7 +305,6 @@ void BaslerCameraCore::triggerThread( void* voidInput )
 		while (input->camera->isGrabbing())
 		{
 			// adjust for frame rate
-			
 			Sleep(int(1000.0 / input->frameRate));
 			try
 			{
@@ -318,31 +318,6 @@ void BaslerCameraCore::triggerThread( void* voidInput )
 			{
 				// continue... should be stopping grabbing.
 				break;
-			}
-
-			if (BASLER_SAFEMODE)
- 			{ 
-				if (!*input->runningFlag)
-				{
-					// aborting.
-					return;
-				}
- 				// simulate successful grab 
-				// need some way to communicate the width and height of the pic to this function... 
-				Matrix<long>* imageMatrix = new Matrix<long>(input->height, input->width ); 
-				UINT count = 0; 
-				UINT rowNum = 0; 
-				UINT colNum = 0; 
-				for ( auto row : range( imageMatrix->getRows( ) ) )
-				{
-					for ( auto col : range( imageMatrix->getCols( ) ) )
-					{
-						(*imageMatrix)(row, col) = 300 + rand( ) % 10
-							+ 300 * exp( -std::pow( (double( row ) - 100) / 10.0, 2 ) - std::pow( (double( col ) - 100) / 10.0, 2 ) )
-							+ 300 * exp( -std::pow( (double( row ) - 200) / 10.0, 2 ) - std::pow( (double( col ) - 100) / 10.0, 2 ) );
-					}
-				}
-				PostMessage(*input->parent, CustomMessages::BaslerProgressMessageID, 672 * 512, (LPARAM)imageMatrix);
 			}
 		}
 	}

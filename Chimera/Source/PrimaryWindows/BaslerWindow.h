@@ -28,11 +28,9 @@ class BaslerWindow : public CDialogEx
 		void passCommonCommand ( UINT id );
 		void startTemporaryAcquisition ( baslerSettings motSizeSettings );
 		void startDefaultAcquisition ( );
-		void setCameraForMotTempMeasurement ( );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-		HCURSOR OnQueryDragIcon();
 		void OnSize( UINT nType, int cx, int cy );
-		void ArmCamera();
+		void prepareWinForAcq(baslerSettings* settings);
 		void handleClose();
 		void handleDisarmPress();
 		void initializeControls();
@@ -40,8 +38,8 @@ class BaslerWindow : public CDialogEx
 		void passCameraMode();
 		bool baslerCameraIsRunning ( );
 		bool baslerCameraIsContinuous ( );
-		void fillMotSizeInput ( baslerSettings& settings);
 		LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
+		LRESULT handlePrepareRequest(WPARAM wParam, LPARAM lParam);
 		void fillTemperatureMeasurementInput ( baslerSettings& settings );
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
@@ -52,7 +50,6 @@ class BaslerWindow : public CDialogEx
 		void DoDataExchange( CDataExchange* pDX );
 		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ );
 		void handleSavingConfig ( std::ofstream& configFile );
-		void startCamera ( );
 		baslerSettings getCurrentSettings ( );
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BaslerCameraCore& getCore();
@@ -71,10 +68,8 @@ class BaslerWindow : public CDialogEx
 		unsigned int currentRepNumber;
 		BaslerAutoExposure::mode runExposureMode;
 		std::vector<std::vector<long>> images;
-		unsigned int imageWidth;
 		CMenu menu;
 		bool isRunning;
-		std::atomic<bool> triggerThreadFlag;
 		PlotCtrl *horGraph, *vertGraph;
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;

@@ -32,16 +32,26 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
-
-	ON_MESSAGE( CustomMessages::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
 	
+	ON_MESSAGE( CustomMessages::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
+	ON_MESSAGE( CustomMessages::prepareBaslerWinAcq, &BaslerWindow::handlePrepareRequest )
 	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
 	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
-	 
+	
 	ON_COMMAND( IDCANCEL, &BaslerWindow::handleClose )
 	 
 	ON_WM_RBUTTONUP()	
 END_MESSAGE_MAP()
+
+
+LRESULT BaslerWindow::handlePrepareRequest (WPARAM wParam, LPARAM lParam)
+{
+	ASSERT (InSendMessage ());
+	mainWin->getComm ()->sendStatus ("Preparing Basler Window for Acquisition...");
+	baslerSettings* settings = (baslerSettings*)lParam;
+	prepareWinForAcq (settings);
+	return 0;
+}
 
 
 BaslerCameraCore& BaslerWindow::getCore ()
@@ -99,24 +109,6 @@ void BaslerWindow::passCommonCommand ( UINT id )
 }
 
 
-void BaslerWindow::fillMotSizeInput ( baslerSettings& motSizeSettings )
-{
-	motSizeSettings.acquisitionMode = BaslerAcquisition::mode::Finite; 
-
-	motSizeSettings.dims.left = 250;
-	motSizeSettings.dims.right = 450;
-	motSizeSettings.dims.top = 390;
-	motSizeSettings.dims.bottom = 200;
-	motSizeSettings.dims.horizontalBinning = 1;
-	motSizeSettings.dims.verticalBinning = 1;
-	
-	motSizeSettings.exposureMode = BaslerAutoExposure::mode::Off; 
-	motSizeSettings.exposureTime = 100;
-	motSizeSettings.frameRate = 100;
-	motSizeSettings.rawGain = settingsCtrl.unityGainSetting; 
-	motSizeSettings.repCount = 100;
-	motSizeSettings.triggerMode = BaslerTrigger::mode::External; 
-}
 
 
 void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
@@ -142,23 +134,15 @@ void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
 /*
 Load the settings appropriate for the mot size measurement and then start the camera.
 */
-void BaslerWindow::startTemporaryAcquisition ( baslerSettings motSizeSettings )
+void BaslerWindow::startTemporaryAcquisition ( baslerSettings settings )
 {
 	try
 	{
 		handleDisarmPress ( );
 		currentRepNumber = 0;
 		runningAutoAcq = true;
-		tempAcqSettings = motSizeSettings;
-		basCamCore->setParameters ( motSizeSettings );
-		picManager.setParameters ( motSizeSettings.dims );
-		triggerThreadInput* input = new triggerThreadInput;
-		input->width = motSizeSettings.dims.width ( );
-		input->height = motSizeSettings.dims.height ( );
-		input->frameRate = motSizeSettings.frameRate;
-		input->parent = this;
-		input->runningFlag = &triggerThreadFlag;
-		basCamCore->armCamera ( input );
+		tempAcqSettings = settings;
+		picManager.setParameters ( settings.dims );
 	}
 	catch ( Error& )
 	{
@@ -167,25 +151,6 @@ void BaslerWindow::startTemporaryAcquisition ( baslerSettings motSizeSettings )
 }
 
 
-/*
-Load the settings appropriate for the mot temperature measurement and then start the camera.
-*/
-void BaslerWindow::setCameraForMotTempMeasurement ( )
-{
-	auto prevSettings = settingsCtrl.getCurrentSettings ( );
-	baslerSettings motTempSettings;
-	motTempSettings.acquisitionMode = BaslerAcquisition::mode::Finite;
-	motTempSettings.dims = settingsCtrl.ScoutFullResolution;
-	motTempSettings.exposureMode = BaslerAutoExposure::mode::Off;
-	motTempSettings.exposureTime = 100;
-	motTempSettings.frameRate = 100;
-	motTempSettings.rawGain = settingsCtrl.unityGainSetting;
-	motTempSettings.repCount = 100;
-	motTempSettings.triggerMode = BaslerTrigger::mode::External;
-	handleDisarmPress ( );
-	settingsCtrl.setSettings ( motTempSettings );
-	startCamera ( );
-}
 
 
 // I think I can get rid of this...
@@ -290,7 +255,6 @@ void BaslerWindow::handleDisarmPress()
 	{
 		mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
 		basCamCore->disarm();
-		triggerThreadFlag = false;
 		isRunning = false;
 		settingsCtrl.setStatus("Camera Status: Idle");
 	}
@@ -330,25 +294,13 @@ void BaslerWindow::startDefaultAcquisition ( )
 		tempSettings.frameRate = 10;
 		#endif
 		tempSettings.rawGain = 260;
-
-		basCamCore->setParameters ( tempSettings );
 		picManager.setParameters ( tempSettings.dims );
 		SmartDC sdc (this);
 		picManager.drawBackgrounds ( sdc.get ());
 		runExposureMode = tempSettings.exposureMode;
-		imageWidth = tempSettings.dims.width ( );
 		// only important in safemode
-		triggerThreadFlag = true;
-
-		triggerThreadInput* input = new triggerThreadInput;
-		input->width = tempSettings.dims.width ( );
-		input->height = tempSettings.dims.height ( );
-		input->frameRate = tempSettings.frameRate;
-		input->parent = this;
-		input->runningFlag = &triggerThreadFlag;
 		tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? 
 								tempSettings.repCount : SIZE_MAX;
-		basCamCore->armCamera ( input );
 		settingsCtrl.setStatus ( "Camera Status: Armed..." );
 		isRunning = true;
 	}
@@ -393,7 +345,6 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  			basCamCore->disarm();
  			isRunning = false;
 			runningAutoAcq = false;
-			triggerThreadFlag = false;
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
 			// tell the andor window that the basler camera finished so that the data file can be handled appropriately.
 			mainWin->getComm ( )->sendBaslerFin ( );
@@ -462,37 +413,17 @@ void BaslerWindow::passExposureMode()
 }
 
 
-void BaslerWindow::ArmCamera()
+void BaslerWindow::prepareWinForAcq(baslerSettings* settings)
 {
 	try
 	{
-		if ( basCamCore->isRunning ( ) )
-		{
-			handleDisarmPress ( );
-		}
 		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
-		baslerSettings tempSettings = settingsCtrl.loadCurrentSettings();
-		basCamCore->setParameters( tempSettings );
-		imageParameters params;
-		picManager.setParameters( tempSettings.dims );
-		
+		picManager.setParameters( settings->dims );
+
 		SmartDC sdc (this);
 		picManager.drawBackgrounds ( sdc.get ());
-		runExposureMode = tempSettings.exposureMode;
-		imageWidth = tempSettings.dims.width();
-		// only important in safemode
-		triggerThreadFlag = true;
-
-		triggerThreadInput* input = new triggerThreadInput;
-		input->width = tempSettings.dims.width();
-		input->height = tempSettings.dims.height();
-		input->frameRate = tempSettings.frameRate;
-		input->parent = this;
-		input->runningFlag = &triggerThreadFlag;
-
-		basCamCore->armCamera( input );
-		settingsCtrl.setStatus("Camera Status: Armed...");
+		runExposureMode = settings->exposureMode;
 		isRunning = true;
 	}
 	catch (Error& err)
@@ -515,16 +446,6 @@ bool BaslerWindow::baslerCameraIsRunning ( )
 bool BaslerWindow::baslerCameraIsContinuous ( )
 {
 	return basCamCore->isContinuous ( );
-}
-
-
-void BaslerWindow::startCamera ( )
-{ 
-	if ( basCamCore->isRunning( ) )
-	{
-		basCamCore->disarm ( );
-	}
-	ArmCamera ( );
 }
 
 void BaslerWindow::OnSize( UINT nType, int cx, int cy )
@@ -650,12 +571,6 @@ void BaslerWindow::OnPaint()
 	}
 }
 
-// The system calls this function to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR BaslerWindow::OnQueryDragIcon()
-{
-	return static_cast<HCURSOR>(m_hIcon);
-}
 
 
 void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
@@ -663,7 +578,7 @@ void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver 
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
 	settingsCtrl.setSettings ( 
 		ProfileSystem::stdGetFromConfig ( configFile, "BASLER_CAMERA_SETTINGS",
-											   &BaslerSettingsControl::getSettingsFromConfig, Version ( "4.0" ) ) );
+										  &BaslerSettingsControl::getSettingsFromConfig, Version ( "4.0" ) ) );
 }
 
 

@@ -503,10 +503,7 @@ void MachineOptimizer::reset ( )
 
 void MachineOptimizer::verifyOptInput ( AllExperimentInput& input )
 {
-	if ( !input.includesAndorRun )
-	{
-		thrower ( "Cannot optimize parameters if not taking camera data!" );
-	}
+
 	UINT count = 0;
 	for ( auto& info : input.masterInput->plotterInput->plotInfo )
 	{

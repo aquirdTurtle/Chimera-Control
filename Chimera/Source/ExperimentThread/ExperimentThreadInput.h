@@ -14,7 +14,7 @@
 #include "Tektronix/TektronixAfgControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Piezo/PiezoCore.h"
-#include "Andor/Andor.h"
+#include "Andor/AndorCameraCore.h"
  
 #include "Andor/AndorRunSettings.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
@@ -70,8 +70,6 @@ struct ExperimentThreadInput
 	BaslerCameraCore& basCamera;
 	DdsCore& dds;
 	std::vector<PiezoCore*> piezoControllers;
-	//ScanRangeInfo variableRangeInfo;
-	// believe outer layer here is for sequence increment. 
 	// TODO: this should be loaded from config file, not gui thread.
 	std::vector<parameterType> globalParameters;
 	ExperimentThreadManager* thisObj;
@@ -86,14 +84,14 @@ struct ExperimentThreadInput
 	DataLogger& logger;
 	UINT intensityAgilentNumber=-1;
 	UINT numVariations = 1;
-	bool quiet=false;
-	bool runNiawg=true;
+	bool quiet = false;
+	bool runNiawg = true;
 	UINT numAiMeasurements=0;
-	bool runMaster=true;
-	bool runAndor;
-	bool logBaslerPics=false;
-	bool updatePlotterXVals=false;
-	bool dontActuallyGenerate=false;
+	bool runMaster = true;
+	bool runAndor = true;
+	bool runBasler = true;
+	bool updatePlotterXVals = false;
+	bool dontActuallyGenerate = false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;
