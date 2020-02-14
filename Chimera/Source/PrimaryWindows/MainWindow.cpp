@@ -567,7 +567,7 @@ BOOL MainWindow::OnInitDialog( )
 		return -1;
 	}
 	/// initialize main window controls.
-	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
+	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );

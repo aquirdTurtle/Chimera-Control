@@ -83,7 +83,6 @@ public:
 				}
 				parent->PostMessageA (CustomMessages::BaslerProgressMessageID, grabResult->GetWidth () * grabResult->GetHeight (),
 					(LPARAM)imageMatrix);
-
 			}
 			else
 			{

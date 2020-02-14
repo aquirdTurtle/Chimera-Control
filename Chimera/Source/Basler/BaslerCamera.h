@@ -16,12 +16,12 @@ struct triggerThreadInput
 {
 	double frameRate;
 	BaslerWrapper* camera;
-	CWnd* parent;
+	//CWnd* parent;
 	// only actually needed for debug mode.
-	ULONG height;
-	ULONG width;
+	//ULONG height;
+	//ULONG width;
 	// only used in debug mode.
-	std::atomic<bool>* runningFlag;
+	//std::atomic<bool>* runningFlag;
 };
 
 // the object for an actual camera.  doesn't handle gui things itself, just the interface from my code to the camera object.
@@ -32,9 +32,9 @@ class BaslerCameraCore
 		BaslerCameraCore( CWnd* parent );
 		~BaslerCameraCore();
 		bool isRunning ( );
-		void setParameters( baslerSettings settings );
+		void setBaslserAcqParameters( baslerSettings settings );
 		void setDefaultParameters();
-		void armCamera( triggerThreadInput* input);
+		void armCamera( double frameRate );
 		void disarm();
 		static void triggerThread(void* input);
 		void softwareTrigger();

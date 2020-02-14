@@ -53,6 +53,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	const auto& runNiawg = input->runNiawg;
 	const auto& piezos = input->piezoControllers;
 	mainOptions mainOpts;
+	baslerSettings baslerCamSettings;
 	std::vector<std::vector<parameterType>> expParams;
 	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
 	try
@@ -96,6 +97,11 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				andorRunsettings[seqNum].imageSettings = ProfileSystem::stdGetFromConfig (configFile,
 					"CAMERA_IMAGE_DIMENSIONS",
 					AndorCameraSettingsControl::getImageDimSettingsFromConfig);
+			}
+			if (input->runBasler)
+			{
+				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
+					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
 			}
 			if ( input->runNiawg )
 			{
@@ -142,6 +148,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		if ( input->expType != ExperimentType::LoadMot )
 		{
 			input->logger.logMasterRuntime ( repetitions, expParams);
+			input->logger.logBaslerSettings ( baslerCamSettings, input->runBasler );
+			input->logger.logAndorSettings ( andorRunsettings[0], input->runAndor );
 		}
 		bool useAuxDevices = input->runMaster && ( input->expType == ExperimentType::MachineOptimization 
 												   || input->expType == ExperimentType::Normal );
@@ -411,10 +419,19 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						break;
 					}
 				} 
+				comm.sendPrepareAndor (andorRunsettings[0]);
 				input->andorCamera.setSettings ( andorRunsettings[ 0 ] );
 				double kinTime;
 				input->andorCamera.armCamera ( kinTime );
 			}
+			expUpdate ("Starting Basler Camera...", comm, quiet);
+			if (input->runBasler)
+			{
+				comm.sendPrepareBasler (baslerCamSettings);
+				input->basCamera.setBaslserAcqParameters (baslerCamSettings);
+				input->basCamera.armCamera (baslerCamSettings.frameRate);
+			}
+
 			expUpdate( "Programming Devices... ", comm, quiet );
 			input->rsg.programRsg (variationInc, uwSettings);
 			// program devices

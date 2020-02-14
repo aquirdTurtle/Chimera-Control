@@ -19,5 +19,8 @@ namespace CustomMessages
 		BaslerFinMessageID = (WM_APP + 18),
 		GeneralFinMsgID = (WM_APP + 19),
 		NoMotAlertMessageID = (WM_APP + 20),
-		experimentProcedureFinish = (WM_APP + 21);
+		experimentProcedureFinish = (WM_APP + 21),
+		prepareBaslerWinAcq = (WM_APP + 22),
+		prepareAndorWinAcq = (WM_APP + 23);
+		
 }

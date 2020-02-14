@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "ATMCD32D.h"
-#include "Andor/Andor.h"
+#include "Andor/AndorCameraCore.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "Andor/AndorTriggerModes.h"
 #include "Andor/AndorRunMode.h"

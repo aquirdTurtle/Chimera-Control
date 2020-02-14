@@ -3,12 +3,8 @@
 
 struct AllExperimentInput
 {
-	AllExperimentInput::AllExperimentInput () :
-		includesAndorRun (false), masterInput (NULL), cruncherInput (NULL) { }
+	AllExperimentInput::AllExperimentInput () : masterInput (NULL), cruncherInput (NULL) { }
 	ExperimentThreadInput* masterInput;
 	atomCruncherInput* cruncherInput;
-	AndorRunSettings AndorSettings;
-	baslerSettings baslerRunSettings;
-	bool includesAndorRun;
 };
 

@@ -61,10 +61,11 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
 
 	ON_MESSAGE ( CustomMessages::AndorFinishMessageID, &AndorWindow::onCameraFinish )
-	ON_MESSAGE (CustomMessages::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
-	ON_MESSAGE (CustomMessages::AndorProgressMessageID, &AndorWindow::onCameraProgress )
-	ON_MESSAGE (CustomMessages::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
-	ON_MESSAGE (CustomMessages::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
+	ON_MESSAGE ( CustomMessages::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
+	ON_MESSAGE ( CustomMessages::AndorProgressMessageID, &AndorWindow::onCameraProgress )
+	ON_MESSAGE ( CustomMessages::AndorCalProgMessageID, &AndorWindow::onCameraCalProgress )
+	ON_MESSAGE ( CustomMessages::BaslerFinMessageID, &AndorWindow::onBaslerFinish )
+	ON_MESSAGE ( CustomMessages::prepareAndorWinAcq, &AndorWindow::handlePrepareForAcq )
 	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONUP()
 
@@ -75,6 +76,16 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
+
+LRESULT AndorWindow::handlePrepareForAcq (WPARAM wparam, LPARAM lparam)
+{
+	ASSERT (InSendMessage ());
+	mainWin->getComm ()->sendStatus ("Preparing Andor Window for Acquisition...");
+	AndorRunSettings* settings = (AndorRunSettings*)lparam;
+	armCameraWindow (settings);
+	return 0;
+}
 
 
 void AndorWindow::handlePlotPop (UINT id)
@@ -831,17 +842,20 @@ atomGrid AndorWindow::getMainAtomGrid ( )
 }
 
 
-void AndorWindow::armCameraWindow()
+void AndorWindow::armCameraWindow(AndorRunSettings* settings)
 {
-	// expecting that settings have already been set...
-	mainWin->getComm()->sendColorBox( System::Camera, 'Y');
+	redrawPictures (false);
+	readImageParameters ();
+	pics.setNumberPicturesActive (settings->picsPerRepetition);
+	andorSettingsCtrl.setRepsPerVariation (settings->repetitionsPerVariation);
+	andorSettingsCtrl.setVariationNumber (settings->totalVariations);
+	pics.setSoftwareAccumulationOptions (andorSettingsCtrl.getSoftwareAccumulationOptions ());
 	// turn some buttons off.
 	andorSettingsCtrl.cameraIsOn( true );
 	SmartDC sdc (this);
 	pics.refreshBackgrounds( sdc.get ());
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
-	mainWin->getComm()->sendColorBox(System::Camera, 'G');
 }
 
 
@@ -1188,42 +1202,16 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	pics.setNumberPicturesActive( 1 );
 	// biggest check here, camera settings includes a lot of things.
 	andorSettingsCtrl.checkIfReady( );
-	input.AndorSettings = andorSettingsCtrl.getCalibrationSettings( ).andor;
 	// reset the image which is about to be calibrated.
 	avgBackground.clear( );
 	/// start the camera.
-	andor.setSettings( input.AndorSettings );
+	//andor.setSettings( input.AndorSettings );
 	andor.setCalibrating(true);
 }
 
 AndorCameraCore& AndorWindow::getCamera ( )
 {
 	return andor;
-}
-
-void AndorWindow::prepareAndor( AllExperimentInput& input )
-{
-	currentPictureNum = 0;
-	input.includesAndorRun = true;
-	redrawPictures( false );
-	checkCameraIdle( );
-	SmartDC sdc (this);
-	pics.refreshBackgrounds(sdc.get ());
-	readImageParameters( );
-	pics.setNumberPicturesActive( andorSettingsCtrl.getSettings().andor.picsPerRepetition );
-	// this is a bit awkward at the moment.
-	andorSettingsCtrl.setRepsPerVariation(mainWin->getRepNumber());
-	UINT varNumber = auxWin->getTotalVariationNumber();
-	if (varNumber == 0)
-	{
-		// this means that the user isn't varying anything, so effectively this should be 1.
-		varNumber = 1;
-	}
-	andorSettingsCtrl.setVariationNumber(varNumber);
-	// biggest check here, camera settings includes a lot of things.
-	andorSettingsCtrl.checkIfReady();
-	pics.setSoftwareAccumulationOptions ( andorSettingsCtrl.getSoftwareAccumulationOptions() );
-	input.AndorSettings = andorSettingsCtrl.getSettings().andor;
 }
 
 
@@ -1446,19 +1434,12 @@ void AndorWindow::startPlotterThread( AllExperimentInput& input )
 		}
 	}
 	UINT plottingThreadID;
-	if ((!gridHasBeenSet && pltInput->analysisLocations.size() == 0)
-		 || pltInput->plotInfo.size() == 0)
+	if ((!gridHasBeenSet && pltInput->analysisLocations.size() == 0) || pltInput->plotInfo.size() == 0)
 	{
 		plotThreadActive = false;
 	}
 	else
 	{
-		if ( input.AndorSettings.totalPicsInExperiment() * pltInput->analysisLocations.size()
-			 / pltInput->plottingFrequency > 1000 )
-		{
-			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
-					 " and the plotting period is fairly small. Consider increasing the plotting period. " );
-		}
 		// start the plotting thread
 		plotThreadActive = true;
 		plotThreadHandle = (HANDLE)_beginthreadex( 0, 0, DataAnalysisControl::plotterProcedure, (void*) pltInput,
