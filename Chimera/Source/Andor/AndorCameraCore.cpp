@@ -343,7 +343,7 @@ std::vector<std::vector<long>> AndorCameraCore::acquireImageData (Communicator* 
 			{
 				flume.getOldestImage(tempImage);
 			}
-			catch (Error & err)
+			catch (Error &)
 			{
 				// let the blank image roll through to keep the image numbers going sensibly.
 				//throwNested ("Error while calling getOldestImage.");
@@ -389,7 +389,7 @@ std::vector<std::vector<long>> AndorCameraCore::acquireImageData (Communicator* 
 		}
 		return imagesOfExperiment;
 	}
-	catch (Error & err)
+	catch (Error &)
 	{
 		throwNested ("Error Seen in acquireImageData.");
 	}

@@ -15,7 +15,7 @@
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Piezo/PiezoCore.h"
 #include "Andor/AndorCameraCore.h"
- 
+#include "expSystemRunList.h" 
 #include "Andor/AndorRunSettings.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "ConfigurationSystems/profileSettings.h"
@@ -25,6 +25,7 @@
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "Plotting/PlotDialog.h"
 #include "Basler/BaslerCamera.h"
+#include "ExperimentType.h"
 
 #include <chrono>
 #include <vector>
@@ -33,25 +34,6 @@
 class AuxiliaryWindow;
 class MainWindow;
 class DataLogger;
-
-enum class ExperimentType
-{
-	// normal experiments
-	Normal,
-	// simple load mot, F1
-	LoadMot,
-	// camera background calibration
-	CameraCal,
-	// Calibration for determining Mot # & temperature
-	MotSize,
-	MotTemperature,
-	PgcTemperature,
-	GreyTemperature,
-
-	// is part of machine optimization procedure
-	MachineOptimization
-};
-
 class ExperimentThreadManager;
 
 struct ExperimentThreadInput
@@ -85,11 +67,8 @@ struct ExperimentThreadInput
 	UINT intensityAgilentNumber=-1;
 	UINT numVariations = 1;
 	bool quiet = false;
-	bool runNiawg = true;
+	expSystemRunList runList;
 	UINT numAiMeasurements=0;
-	bool runMaster = true;
-	bool runAndor = true;
-	bool runBasler = true;
 	bool updatePlotterXVals = false;
 	bool dontActuallyGenerate = false;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
@@ -103,7 +82,7 @@ struct ExperimentThreadInput
 	std::condition_variable* conditionVariableForRerng;
 	rerngGuiOptionsForm rerngGuiForm;
 	rerngGuiOptions rerngGui;
-	std::atomic<bool>* skipNext;	
+	std::atomic<bool>* skipNext=NULL;
 	atomGrid analysisGrid;
 
 	ExperimentType expType = ExperimentType::Normal;

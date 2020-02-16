@@ -29,7 +29,7 @@ class DataLogger
 		void logError ( H5::Exception& err );
 		void initializeDataFiles( std::string specialName="", bool needsCal=true);
 		void writeAndorPic( std::vector<long> image, imageParameters dims );
-		void writeBaslerPic ( Matrix<long> image, imageParameters dims );
+		void writeBaslerPic ( Matrix<long> image );
 		void writeVolts ( UINT currentVoltNumber, std::vector<float64> data );
 
 		void logMasterInput( ExperimentThreadInput* input );

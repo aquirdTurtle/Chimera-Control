@@ -214,6 +214,7 @@
 	#else
 		constexpr bool  PYTHON_SAFEMODE = false;
 	#endif
+	constexpr bool AUTO_CALIBRATE = false;
 	constexpr bool VIEWPOINT_SAFEMODE = true;
 	constexpr bool DAQMX_SAFEMODE = false;
 	constexpr bool TOP_BOTTOM_TEK_SAFEMODE = false;
@@ -323,7 +324,7 @@ const UINT DIO_MSGLENGTH = 7;
 const UINT DIO_WRITESPERDATAPT = 3;
 
 /// Agilent Parameters
-constexpr auto AGILENT_DEFAULT_POWER = 20;
+constexpr auto AGILENT_DEFAULT_POWER = 10;
 
 constexpr auto NUMBER_OF_LIBRARY_FILES = MAX_NIAWG_SIGNALS * 4;
 
@@ -510,9 +511,6 @@ constexpr auto ID_BASLER_SOFTWARE_TRIGGER = 15008;
 constexpr auto ID_ARM_BASLER_CAMERA = 15009;
 constexpr auto ID_DISARM_BASLER_CAMERA = 15010;
 constexpr auto ID_SET_BASLER_ANALYSIS_LOCATIONS = 15011;
-constexpr auto ID_MOT_TEMP_CAL = 15012;
-constexpr auto ID_PGC_TEMP_CAL = 15013;
-constexpr auto ID_GREY_TEMP_CAL = 15014;
 constexpr auto IDC_MOT_LOADED_INDICATOR = 15015;
 
 // plot designer

@@ -16,6 +16,7 @@
 #include <boost/algorithm/string.hpp>
 #include <regex>
 
+
 ExperimentThreadManager::ExperimentThreadManager() {}
 
 /*
@@ -48,14 +49,16 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	auto& comm = input->comm;
 	auto& dds = input->dds;
 	auto quiet = input->quiet;
-	const auto& runMaster = input->runMaster;
-	const auto& runAndor = input->runAndor;
-	const auto& runNiawg = input->runNiawg;
+	const auto& runMaster = input->runList.master;
+	const auto& runAndor = input->runList.andor;
+	const auto& runNiawg = input->runList.niawg;
+	const auto& runBasler = input->runList.basler;
 	const auto& piezos = input->piezoControllers;
 	mainOptions mainOpts;
 	baslerSettings baslerCamSettings;
 	std::vector<std::vector<parameterType>> expParams;
 	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
+	UINT variations;
 	try
 	{
 		for ( auto& configInfo : input->seq.sequence )
@@ -66,7 +69,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					ParameterSystem::getConfigParamsFromFile (configInfo.configFilePath ()),
 					input->globalParameters));
 			std::ifstream configFile (configInfo.configFilePath ());
-			if ( input->runMaster )
+			if ( runMaster )
 			{
 				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
@@ -88,22 +91,23 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
 															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
 				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, varRangeInfo);
-				auto variations = determineVariationNumber (expParams[ seqNum ] );
+				variations = determineVariationNumber (expParams[ seqNum ] );
 			}
-			if (input->runAndor) 
+			if (runAndor) 
 			{
 				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS",
 					AndorCameraSettingsControl::getRunSettingsFromConfig);
 				andorRunsettings[seqNum].imageSettings = ProfileSystem::stdGetFromConfig (configFile,
-					"CAMERA_IMAGE_DIMENSIONS",
-					AndorCameraSettingsControl::getImageDimSettingsFromConfig);
+					"CAMERA_IMAGE_DIMENSIONS", AndorCameraSettingsControl::getImageDimSettingsFromConfig);
+				andorRunsettings[seqNum].repetitionsPerVariation = repetitions;
+				andorRunsettings[seqNum].totalVariations = variations;
 			}
-			if (input->runBasler)
+			if (runBasler)
 			{
 				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
 					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
 			}
-			if ( input->runNiawg )
+			if ( runNiawg )
 			{
 				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( configInfo );
 				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
@@ -115,6 +119,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					input->comm.sendDebug ( debugStr );
 				}
 			}
+
 			seqNum++;
 		}
 	}
@@ -148,11 +153,13 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		if ( input->expType != ExperimentType::LoadMot )
 		{
 			input->logger.logMasterRuntime ( repetitions, expParams);
-			input->logger.logBaslerSettings ( baslerCamSettings, input->runBasler );
-			input->logger.logAndorSettings ( andorRunsettings[0], input->runAndor );
+			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
+			input->logger.logAndorSettings ( andorRunsettings[0], runAndor );
 		}
-		bool useAuxDevices = input->runMaster && ( input->expType == ExperimentType::MachineOptimization 
-												   || input->expType == ExperimentType::Normal );
+		// should probably rethink this. devices should be individually set. 
+		bool useAuxDevices = runMaster && ( input->expType == ExperimentType::MachineOptimization 
+										  || input->expType == ExperimentType::Normal 
+										  || input->expType == ExperimentType::AutoCal );
 		if ( !useAuxDevices )
 		{
 			 expUpdate ( "Non-standard experiment type, so Tektronics, and Agilents will not be run.", comm, quiet );
@@ -217,7 +224,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				}
 			}
 			expUpdate( "Analyzing Master Script...", comm, quiet );
-			if ( input->runMaster ) 
+			if ( runMaster ) 
 			{
 				comm.sendColorBox ( System::Master, 'Y' );
 				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs,
@@ -262,7 +269,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
 		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
-		if ( input->runMaster )
+		if ( runMaster )
 		{
 			ttls.shadeTTLs ( ttlShadeLocs );
 			aoSys.shadeDacs ( dacShadeLocs );
@@ -293,7 +300,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			for (auto variationInc : range(variations))
 			{
 				if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-				if ( input->runMaster )
+				if ( runMaster )
 				{
 					double& currLoadSkipTime = input->thisObj->loadSkipTimes[seqInc][variationInc];
 					currLoadSkipTime = ExperimentThreadManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
@@ -315,7 +322,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 		}
 		/// output some timing information 
-		if (input->runMaster)
+		if (runMaster)
 		{
 			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", comm, quiet );
 			ULONGLONG totalTime = 0;
@@ -343,7 +350,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		}
 		ExperimentThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, expParams );
 		/// finish up
-		if ( input->runMaster )
+		if ( runMaster )
 		{
 			handleDebugPlots ( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
 		}
@@ -360,9 +367,21 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
 		/// /////////////////////////////
 		/// Begin experiment loop
-		if (input->runMaster)
+		if (runMaster)
 		{
 			comm.sendColorBox( System::Master, 'G' );
+		}
+		expUpdate ("Starting Basler Camera...", comm, quiet);
+		if (runBasler)
+		{
+			comm.sendPrepareBasler (baslerCamSettings);
+			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
+			input->basCamera.armCamera (baslerCamSettings.frameRate);
+		}
+		if (runAndor)
+		{
+			input->andorCamera.setSettings (andorRunsettings[0]);
+			comm.sendPrepareAndor (andorRunsettings[0]);
 		}
 		// shouldn't there be a sequence loop here?
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
@@ -419,19 +438,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						break;
 					}
 				} 
-				comm.sendPrepareAndor (andorRunsettings[0]);
-				input->andorCamera.setSettings ( andorRunsettings[ 0 ] );
 				double kinTime;
 				input->andorCamera.armCamera ( kinTime );
 			}
-			expUpdate ("Starting Basler Camera...", comm, quiet);
-			if (input->runBasler)
-			{
-				comm.sendPrepareBasler (baslerCamSettings);
-				input->basCamera.setBaslserAcqParameters (baslerCamSettings);
-				input->basCamera.armCamera (baslerCamSettings.frameRate);
-			}
-
 			expUpdate( "Programming Devices... ", comm, quiet );
 			input->rsg.programRsg (variationInc, uwSettings);
 			// program devices
@@ -450,14 +459,17 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				}
 				dds.writeExperiment ( 0, variationInc );
 			}
-			if (input->runNiawg)
+			if (runNiawg)
 			{
 				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
 										   niawgMachineScript, input->rerngGuiForm, input->rerngGui, expParams );
-				input->niawg.turnOffRerng( );
-				input->conditionVariableForRerng->notify_all( );
-				input->niawg.waitForRerng( false );
-				input->niawg.handleStartingRerng( input, output );
+				if (input->rerngGui.active)
+				{
+					input->niawg.turnOffRerng ();
+					input->conditionVariableForRerng->notify_all ();
+					input->niawg.waitForRerng (false);
+					input->niawg.handleStartingRerng (input, output);
+				}
 			}
 			comm.sendError( warnings );
 			if ( useAuxDevices )
@@ -469,7 +481,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
 
 			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
-			if (input->runMaster)
+			if (runMaster)
 			{
 				ttls.ftdi_write (0, variationInc, skipOption);
 			}
@@ -498,7 +510,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						expUpdate("Un-Paused!\r\n", comm, quiet);
 					}
 					comm.sendRepProgress(repInc + 1);
-					if (input->runMaster)
+					if (runMaster)
 					{
 						aoSys.stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
@@ -516,7 +528,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		/// conclude.
 		expUpdate( "\r\nExperiment Finished Normally.\r\n", comm, quiet );
 		comm.sendColorBox( System::Master, 'B' );
-		if (input->runMaster)
+		if (runMaster)
 		{
 			// stop is necessary else the dac system will still be running and won't allow updates through normal means.
 			aoSys.stopDacs();
@@ -530,10 +542,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
 		}
-		if (input->runNiawg)
+		if (runNiawg)
 		{
-			input->niawg.cleanupNiawg( input->profile, input->runMaster, output, comm, 
-									   mainOpts.dontActuallyGenerate );
+			input->niawg.cleanupNiawg( input->profile, runMaster, output, comm, mainOpts.dontActuallyGenerate );
 		}
 		input->thisObj->experimentIsRunning = false;
 		switch ( input->expType )
@@ -543,10 +554,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				break;
 			case ExperimentType::LoadMot:
 			case ExperimentType::MachineOptimization:
-			case ExperimentType::MotSize:
-			case ExperimentType::MotTemperature:
-			case ExperimentType::PgcTemperature:
-			case ExperimentType::GreyTemperature:
+			case ExperimentType::AutoCal:
 				comm.sendFinish ( input->expType );
 				break;
 			default:
@@ -555,7 +563,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	}
 	catch (Error& exception)
 	{
-		if (input->runNiawg)
+		if (runNiawg)
 		{
 			for (auto& wave : output.waves)
 			{
@@ -564,7 +572,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 		}
 		input->thisObj->experimentIsRunning = false;
-		if (input->runMaster)
+		if (runMaster)
 		{
 			input->ttls.unshadeTtls();
 			input->aoSys.unshadeDacs();
@@ -1463,7 +1471,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 		auto& seqVariables = expParams[ seqInc ];
 		for ( auto variationInc : range ( variations ) )
 		{
-			if ( input->runMaster )
+			if ( input->runList.master)
 			{
 				UINT actualTrigs = input->ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc );
 				UINT dacExpectedTrigs = input->aoSys.getNumberSnapshots ( variationInc, seqInc );
@@ -1481,7 +1489,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 					input->debugOptions.message += infoString + "\n";
 				}
 			}
-			if ( input->runNiawg && !niawgMismatch )
+			if ( input->runList.niawg && !niawgMismatch )
 			{
 				auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc, seqInc );
 				auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
@@ -1533,7 +1541,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 						{
 							continue;
 						}
-						UINT actualTrigs = input->runMaster ? input->ttls.countTriggers ( agilent->getTriggerLine ( ),
+						UINT actualTrigs = input->runList.master ? input->ttls.countTriggers ( agilent->getTriggerLine ( ),
 																				variationInc, seqInc ) : 0;
 						UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
 						std::string infoString = "Actual/Expected " + agilent->configDelim + " Triggers: " 

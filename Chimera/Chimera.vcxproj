@@ -207,6 +207,9 @@
     <ClInclude Include="Source\Basler\BaslerWrapper.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
+    <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
+    <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
+    <ClInclude Include="Source\ExperimentThread\expSystemRunList.h" />
     <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />

@@ -13,7 +13,8 @@
 #include "PrimaryWindows/ScriptingWindow.h"
 #include "PrimaryWindows/BaslerWindow.h"
 #include "LowLevel/externals.h"
-
+#include "ExperimentThread/ExperimentType.h"
+#include "ExperimentThread/autoCalConfigInfo.h"
 
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses or hotkeys
 namespace commonFunctions
@@ -118,15 +119,14 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
-					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, basWin, input, true, true, true, true,
-										 true );
+					prepareMasterThread( msgID, scriptWin, mainWin, andorWin, auxWin, basWin, input, true, true, 
+										 true, true, true );
 					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )
 					{
 						commonFunctions::getPermissionToStart ( andorWin, mainWin, scriptWin, auxWin, true, true, input );
 					}
 					mainWin->autoF5_AfterFinish = false;
-					input.masterInput->expType = ExperimentType::Normal;
 					andorWin->preparePlotter( input );
 					andorWin->prepareAtomCruncher( input );
 					logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo ());
@@ -156,15 +156,32 @@ namespace commonFunctions
 			case ID_FILE_ABORT_GENERATION:
 			{
 				std::string status;
-				if ( mainWin->experimentIsPaused( ) )
-				{
-					//mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
-					//break;
-				}
 				bool niawgAborted = false, andorAborted = false, masterAborted = false, baslerAborted = false;
 
 				mainWin->stopRearranger( );
 				andorWin->wakeRearranger( );
+				try
+				{
+					if (basWin->baslerCameraIsRunning ())
+					{
+						status = "Basler";
+						basWin->handleDisarmPress ();
+						baslerAborted = true;
+					}
+					mainWin->getComm ()->sendColorBox (System::Basler, 'B');
+				}
+				catch (Error & err)
+				{
+					mainWin->getComm ()->sendError ("error while aborting basler! Error Message: " + err.trace ());
+					if (status == "Basler")
+					{
+						mainWin->getComm ()->sendColorBox (System::Basler, 'R');
+					}
+					mainWin->getComm ()->sendStatus ("EXITED WITH ERROR!\r\n");
+					mainWin->getComm ()->sendTimer ("ERROR!");
+				}
+
+
 				try
 				{
 					if ( mainWin->expThreadManager.runningStatus( ) )
@@ -184,7 +201,6 @@ namespace commonFunctions
 					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
-
 				try
 				{
 					if ( andorWin->andor.isRunning( ) )
@@ -225,27 +241,6 @@ namespace commonFunctions
 					mainWin->getComm( )->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
-				try
-				{
-					if ( basWin->baslerCameraIsRunning() ) 
-					{
-						status = "Basler";
-						basWin->handleDisarmPress ( );
-						baslerAborted = true;
-					}
-					mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
-				}
-				catch ( Error& err )
-				{
-					mainWin->getComm ( )->sendError ( "error while aborting basler! Error Message: " + err.trace ( ) );
-					if ( status == "Basler" )
-					{
-						mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
-					}
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\n" );
-					mainWin->getComm ( )->sendTimer ( "ERROR!" );
-				}
-
 				if (!niawgAborted && !andorAborted && !masterAborted && !baslerAborted)
 				{
 					mainWin->getComm ( )->sendError ( "Andor camera, NIAWG, Master, and Basler camera were not running. "
@@ -446,8 +441,7 @@ namespace commonFunctions
 				mainWin->autoServo ( 0, 0 );
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL, basWin );
-				input.masterInput->runNiawg = false;
-				input.masterInput->runAndor = false;
+				input.masterInput->runList.niawg = input.masterInput->runList.andor = false;
 				input.masterInput->updatePlotterXVals = false;
 				auxWin->fillMasterThreadInput ( input.masterInput );
 				mainWin->fillMotInput ( input.masterInput );
@@ -457,98 +451,35 @@ namespace commonFunctions
 			}
 			case ID_ACCELERATOR_F11:
 			{
-				// F11 is the set of mot calibrations. Start with the mot size.
+				// F11 is the set of calibrations.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin );
 				input.masterInput->quiet = true;
-				input.masterInput->runNiawg = false;
-				input.masterInput->runAndor = false; 
-				mainWin->getComm ( )->sendStatus ( "Running Mot Fill Calibration...\r\n" );
-				auxWin->fillMasterThreadInput ( input.masterInput );
-				mainWin->fillMotSizeInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::MotSize;
-				logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "MOT_NUMBER", false );
-				mainWin->startExperimentThread ( input.masterInput );
-				break;
-			}
-			case ID_MOT_TEMP_CAL:
-			{
-				// F11 is the set of mot calibrations. Start with the mot size.
-				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin );
-				input.masterInput->quiet = true;
-				input.masterInput->runNiawg = false;
-				input.masterInput->runAndor = false;
-				mainWin->getComm ( )->sendStatus ( "Running Mot Temperature Calibration...\r\n" );
 				try
 				{
-					mainWin->fillMotTempProfile ( input.masterInput );
-					auxWin->fillMasterThreadInput ( input.masterInput );
-					mainWin->fillTempInput ( input.masterInput );
-					input.masterInput->expType = ExperimentType::MotTemperature;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "MOT_TEMPERATURE", false );
+					auxWin->fillMasterThreadInput (input.masterInput);
+					andorWin->fillMasterThreadInput (input.masterInput);
+					scriptWin->fillMasterThreadInput (input.masterInput);
+					auto calNum = mainWin->getAutoCalNumber ();
+					if (calNum == 0)
+					{
+						mainWin->autoServo (0, 0);
+					}
+					auto& calInfo = AUTO_CAL_LIST[calNum];
+					mainWin->getComm ()->sendStatus (calInfo.infoStr);
+					input.masterInput->profile = calInfo.prof;
+					input.masterInput->runList = calInfo.runList;
+					input.masterInput->seq.name = calInfo.seqName;
+					input.masterInput->seq.sequence.resize (1);
+					input.masterInput->seq.sequence[0] = input.masterInput->profile;
+					input.masterInput->expType = ExperimentType::AutoCal;
+					logStandard (input, andorWin->getLogger (), mainWin->getServoinfo (), calInfo.fileName, false);
+					startExperimentThread (mainWin, input);
 				}
-				catch ( Error& err )
+				catch (Error & err)
 				{
-					errBox ( "Failed to load MOT temperature calibration experiment settings!\n\n" + err.trace ( ) );
+					errBox ("Failed to start auto calibration experiment: " + err.trace());
 				}
-				try
-				{
-					mainWin->startExperimentThread ( input.masterInput );
-				}
-				catch ( Error& err )
-				{
-					errBox ( "Failed to start Mot Temperature calibration experiment:\n\n" + err.trace ( ) );
-				}
-				break;
-			}
-			case ID_PGC_TEMP_CAL:
-			{
-				// F11 is the set of mot calibrations. Start with the mot size.
-				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin);
-				input.masterInput->quiet = true;
-				input.masterInput->runNiawg = false;
-				input.masterInput->runAndor = false;
-				mainWin->getComm ( )->sendStatus ( "Running PGC Temperature Calibration...\r\n" );
-				try
-				{
-					mainWin->fillRedPgcTempProfile ( input.masterInput );
-					auxWin->fillMasterThreadInput ( input.masterInput );
-					mainWin->fillTempInput ( input.masterInput );
-					input.masterInput->expType = ExperimentType::PgcTemperature;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "RED_PGC_TEMPERATURE", false );
-				}
-				catch ( Error& err )
-				{
-					errBox ( "Failed to load PGC temperature calibration experiment settings!\n\n" + err.trace ( ) );
-				}
-				mainWin->startExperimentThread ( input.masterInput );
-				break;
-			}
-			case ID_GREY_TEMP_CAL:
-			{
-				// F11 is the set of mot calibrations. Start with the mot size.
-				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin);
-				input.masterInput->quiet = true;
-				input.masterInput->runNiawg = false;
-				input.masterInput->runAndor = false;
-				mainWin->getComm ( )->sendStatus ( "Running Grey Molasses Temperature Calibration...\r\n" );
-				try
-				{
-					mainWin->fillGreyPgcTempProfile ( input.masterInput );
-					auxWin->fillMasterThreadInput ( input.masterInput );
-					mainWin->fillTempInput ( input.masterInput );
-					input.masterInput->expType = ExperimentType::GreyTemperature;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "GREY_MOLASSES_TEMPERATURE", false );
-				}
-				catch ( Error& err )
-				{
-					errBox ( "Failed to load grey molasses temperature calibration experiment settings!\n\n" 
-						     + err.trace ( ) );
-				}
-				mainWin->startExperimentThread ( input.masterInput );
 				break;
 			}
 			// the rest of these are all one-liners. 
@@ -629,9 +560,7 @@ namespace commonFunctions
 		{
 			AllExperimentInput input;
 			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin );
-			input.masterInput->runNiawg = false;
-			input.masterInput->runAndor = true;
-			input.masterInput->runMaster = true;
+			input.masterInput->runList = { false, true, true, false };
 			auxWin->fillMasterThreadInput (input.masterInput);
 			andorWin->loadCameraCalSettings( input );
 			mainWin->loadCameraCalSettings( input.masterInput );
@@ -647,7 +576,6 @@ namespace commonFunctions
 							  AuxiliaryWindow* auxWin, BaslerWindow* basWin, AllExperimentInput& input, bool runNiawg,
 							  bool runMaster, bool runAndor, bool runBasler, bool updatePlotXVals )
 	{
-		profileSettings profile = mainWin->getProfileSettings();
 		seqSettings seq = mainWin->getSeqSettings( );
 		if (mainWin->niawgIsRunning())
 		{
@@ -665,18 +593,15 @@ namespace commonFunctions
 		scriptWin->checkScriptSaves( );
 		// Set the thread structure.
 		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin);
-		input.masterInput->runNiawg = runNiawg;
-		input.masterInput->runAndor = runAndor;
-		input.masterInput->runBasler = runBasler;
+		input.masterInput->runList = {runNiawg, runMaster, runAndor, runBasler};
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
-		input.masterInput->runMaster = runMaster;
 		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = auxWin->getTotalVariationNumber ( );
 		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be
 		// infinite.
 		input.masterInput->dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
-		input.masterInput->profile = profile;
+		input.masterInput->profile = mainWin->getProfileSettings ();;
 		if (runNiawg)
 		{
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();

@@ -166,9 +166,9 @@ void BaslerWrapper::setWidth (int width)
 		{
 			Width.SetValue (width);
 		}
-		catch (Pylon::GenericException&)
+		catch (Pylon::GenericException& err)
 		{
-			throwNested ("Failed to set width");
+			throwNested (str("Failed to set width: ") + err.what());
 		}
 	}
 }

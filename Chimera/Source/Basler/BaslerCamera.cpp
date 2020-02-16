@@ -126,8 +126,8 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 
 	// suppose you start real small. 16 1x1 pixels.  then, this always works:
 	// set x offset (no chance of pushing right because width is small)
-	// set width (no chance of pushing right off because of binning because binning is minimal so potential value for rightmost point is 
-	//		maximal.
+	// set width (no chance of pushing right off because of binning because binning is minimal so potential value 
+	// for rightmost point is maximal.
 	// set binning 
 	camera->setOffsetX(settings.dims.left);
 	camera->setWidth(settings.dims.horRawPixelNum());

@@ -7,6 +7,7 @@
 #include "BaslerWindow.h"
 #include <future>
 #include "LowLevel/externals.h"
+#include "ExperimentThread/autoCalConfigInfo.h"
 
 
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
@@ -213,23 +214,12 @@ LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
 	switch ( type )
 	{
 		case ExperimentType::Normal:
-		{
 			onNormalFinishMessage ( );
 			break;
-		}
 		case ExperimentType::LoadMot:
 			break;
-		case ExperimentType::MotSize:
-			onMotNumCalFin ( );
-			break;
-		case ExperimentType::MotTemperature:
-			onMotTempCalFin ( );
-			break;
-		case ExperimentType::PgcTemperature:
-			onPgcTempCalFin ( );
-			break;
-		case ExperimentType::GreyTemperature:
-			onGreyTempCalFin ( );
+		case ExperimentType::AutoCal:
+			onAutoCalFin ();
 			break;
 		case ExperimentType::MachineOptimization:
 			onMachineOptRoundFin ( );
@@ -239,24 +229,39 @@ LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
 }
 
 
-void MainWindow::onMotNumCalFin ( )
+UINT MainWindow::getAutoCalNumber ()
 {
-	commonFunctions::handleCommonMessage ( ID_MOT_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
-										   TheAuxiliaryWindow, TheBaslerWindow );
+	return autoCalNum;
 }
 
 
-void MainWindow::onMotTempCalFin ( )
+void MainWindow::onAutoCalFin ()
 {
-	commonFunctions::handleCommonMessage ( ID_PGC_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
-										   TheAuxiliaryWindow, TheBaslerWindow );
-}
+	try
+	{
+		niawg.restartDefault ();
+	}
+	catch (Error & except)
+	{
+		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
+			"following error: " + except.trace ());
+		comm.sendColorBox (System::Niawg, 'B');
+		comm.sendStatus ("ERROR!\r\n");
+	}
+	setNiawgRunningState (false);
 
-
-void MainWindow::onPgcTempCalFin ( )
-{
-	commonFunctions::handleCommonMessage ( ID_GREY_TEMP_CAL, this, this, TheScriptingWindow, TheAndorWindow,
-										   TheAuxiliaryWindow, TheBaslerWindow );
+	autoCalNum++;
+	if (autoCalNum >= AUTO_CAL_LIST.size ())
+	{
+		// then just finished the calibrations.
+		autoCalNum = 0;
+		infoBox ("Finished Automatic Calibrations.");
+	}
+	else
+	{
+		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F11, this, this, TheScriptingWindow, TheAndorWindow,
+											   TheAuxiliaryWindow, TheBaslerWindow );
+	}
 }
 
 
@@ -296,7 +301,6 @@ void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 	input->seq.sequence[0].configLocation = CAMERA_CAL_ROUTINE_ADDRESS;
 	input->seq.sequence[0].parentFolderName = "Camera";
 	// the calibration procedure doesn't need the NIAWG at all.
-	input->runNiawg = false;
 	input->skipNext = NULL;
 	input->rerngGuiForm = rearrangeControl.getParams( );
 	input->rerngGuiForm.active = false;
@@ -991,6 +995,7 @@ void MainWindow::restartNiawgDefaults()
 	niawg.restartDefault();
 }
 
+
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	auto result = profile.handleColoring ( pWnd->GetDlgCtrlID ( ), pDC );
@@ -1059,54 +1064,6 @@ HANDLE MainWindow::startExperimentThread( ExperimentThreadInput* input )
 }
 
 
-void MainWindow::fillRedPgcTempProfile ( ExperimentThreadInput* input )
-{
-	// this function needs to be called before aux fills.
-	input->seq.name = "pgcTemp";
-	input->seq.sequence.resize ( 1 );
-	input->profile.configuration = "Automated-PGC-Temperature-Measurement";
-	input->profile.configLocation = PGC_ROUTINES_ADDRESS;
-	input->profile.parentFolderName = "PGC";
-	input->seq.sequence[ 0 ] = input->profile;
-	input->runAndor = false;
-}
-
-
-void MainWindow::fillGreyPgcTempProfile ( ExperimentThreadInput* input )
-{
-	// this function needs to be called before aux fills.
-	input->seq.name = "greyPgcTemp";
-	input->seq.sequence.resize ( 1 );
-	input->profile.configuration = "Automated-Grey-PGC-Temperature-Measurement";
-	input->profile.configLocation = PGC_ROUTINES_ADDRESS;
-	input->profile.parentFolderName = "PGC";
-	input->seq.sequence[ 0 ] = input->profile;
-	input->runAndor = false;
-}
-
-
-void MainWindow::fillMotTempProfile ( ExperimentThreadInput* input )
-{
-	// this function needs to be called before aux fills.
-	input->seq.name = "motTemp";
-	input->seq.sequence.resize ( 1 );
-	input->profile.configuration = "Automated-MOT-Temperature-Measurement";
-	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
-	input->profile.parentFolderName = "MOT";
-	input->seq.sequence[ 0 ] = input->profile;
-	input->runAndor = false;
-}
-
-
-void MainWindow::fillTempInput ( ExperimentThreadInput* input )
-{
-	// the mot procedure doesn't need the NIAWG at all.
-	input->skipNext = NULL;
-	input->rerngGuiForm = rearrangeControl.getParams ( );
-	input->rerngGuiForm.active = false;
-}
-
-
 void MainWindow::fillMotInput( ExperimentThreadInput* input )
 {
 	input->profile.configuration = "Set MOT Settings";
@@ -1117,29 +1074,11 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
 
 	// the mot procedure doesn't need the NIAWG at all.
-	input->runNiawg = false;
+	input->runList.niawg = false;
  	input->skipNext = NULL;
  	input->rerngGuiForm = rearrangeControl.getParams( ); 
  	input->rerngGuiForm.active = false; 
-	input->runAndor = false;
-}
-
-
-void MainWindow::fillMotSizeInput ( ExperimentThreadInput* input )
-{
-	input->profile.configuration = "Mot_Size_Measurement";
-	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
-	input->profile.parentFolderName = "MOT";
-	input->seq.name = "loadMot";
-	input->seq.sequence.resize ( 1 );
-	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
-
-	// the mot procedure doesn't need the NIAWG at all.
-	input->runNiawg = false;
-	input->skipNext = NULL;
-	input->rerngGuiForm = rearrangeControl.getParams ( );
-	input->rerngGuiForm.active = false;
-	input->runAndor = false;
+	input->runList.andor = false;
 }
 
 
@@ -1212,7 +1151,6 @@ seqSettings MainWindow::getSeqSettings( )
 {
 	return profile.getSeqSettings( );
 }
-
 
 
 void MainWindow::checkProfileReady()
@@ -1625,7 +1563,7 @@ void MainWindow::runServos ()
 	{
 		updateConfigurationSavedStatus (false);
 		comm.sendStatus ("Running Servos...\r\n");
-		servos.runAll ();
+		servos.runAll (comm);
 	}
 	catch (Error & err)
 	{

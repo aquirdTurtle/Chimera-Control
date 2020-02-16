@@ -47,7 +47,6 @@ END_MESSAGE_MAP()
 LRESULT BaslerWindow::handlePrepareRequest (WPARAM wParam, LPARAM lParam)
 {
 	ASSERT (InSendMessage ());
-	mainWin->getComm ()->sendStatus ("Preparing Basler Window for Acquisition...");
 	baslerSettings* settings = (baslerSettings*)lParam;
 	prepareWinForAcq (settings);
 	return 0;
@@ -336,8 +335,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		if (!basCamCore->isContinuous())
  		{
 			// don't write data if continuous, that's a recipe for disaster.
-			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix, 
-								runningAutoAcq ? tempAcqSettings.dims : settingsCtrl.getCurrentSettings ( ).dims );
+			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix );
  		}
  		if (currentRepNumber == basCamCore->getRepCounts())
  		{
