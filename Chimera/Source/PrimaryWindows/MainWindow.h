@@ -71,12 +71,10 @@ class MainWindow : public CDialog
 		LRESULT onFinish ( WPARAM wp, LPARAM lp );
 		
 		void onNormalFinishMessage ( );
-		void onMotNumCalFin ( );
-		void onMotTempCalFin ( );
-		void onPgcTempCalFin ( );
 		void onGreyTempCalFin ( );
 		void onMachineOptRoundFin ( );
 		void handleThresholdAnalysis ( );
+		void onAutoCalFin ();
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( ExperimentThreadInput* input );
@@ -98,10 +96,6 @@ class MainWindow : public CDialog
 		void fillMasterThreadInput( ExperimentThreadInput* input );
 		void fillMasterThreadSequence( ExperimentThreadInput* input );
 		void fillMotInput( ExperimentThreadInput* input);
-		void fillTempInput ( ExperimentThreadInput* input );
-		void fillMotTempProfile ( ExperimentThreadInput* input );
-		void fillRedPgcTempProfile ( ExperimentThreadInput* input );
-		void fillGreyPgcTempProfile ( ExperimentThreadInput* input );
 
 		HANDLE startExperimentThread( ExperimentThreadInput* input );
 		
@@ -130,7 +124,6 @@ class MainWindow : public CDialog
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
-		void fillMotSizeInput ( ExperimentThreadInput* input );
 		bool niawgIsRunning();
 		bool masterIsRunning();
 		void setNiawgRunningState( bool newRunningState );
@@ -161,6 +154,8 @@ class MainWindow : public CDialog
 		EmbeddedPythonHandler& getPython ( );
 		NiawgController& getNiawg ( );
 		Communicator& getCommRef ( );
+		UINT getAutoCalNumber ();
+
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -207,6 +202,7 @@ class MainWindow : public CDialog
  		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
  														  ScriptingWindow* scriptWin, AndorWindow* camWin,
 														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
+		UINT autoCalNum = 0;
 };
 
 

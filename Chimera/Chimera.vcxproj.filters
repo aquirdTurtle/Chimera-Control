@@ -735,6 +735,9 @@
     <ClInclude Include="Source\Andor\AndorCameraCore.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ExperimentThread\expSystemRunList.h" />
+    <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
+    <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

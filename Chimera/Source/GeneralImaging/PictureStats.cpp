@@ -163,7 +163,16 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNum
 		// hopefully this helps with stupid imaging bug...
 		return { 0,0 };
 	}
-	long currentSelectedCount = image[selectedPixel.column-1 + (pictureHeight - selectedPixel.row) * pictureWidth];
+	long currentSelectedCount;
+	if (selectedPixel.column - 1 + (pictureHeight - selectedPixel.row) * pictureWidth >= image.size ())
+	{
+		currentSelectedCount = -1;
+	}
+	else
+	{
+		currentSelectedCount = image[selectedPixel.column - 1 + (pictureHeight - selectedPixel.row) * pictureWidth];
+	}
+
 
 	long currentMaxCount = 1;
 	long currentMinCount = 65536;

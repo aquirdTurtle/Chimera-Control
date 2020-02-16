@@ -71,7 +71,6 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 
 	ON_NOTIFY(NM_RCLICK, IDC_PLOTTING_LISTVIEW, &AndorWindow::listViewRClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &AndorWindow::handleDblClick)
-	//ON_EN_KILLFOCUS(IDC_EM_GAIN_EDIT, &AndorWindow::handleEmGainChange )
 	ON_COMMAND ( IDC_EM_GAIN_BTN, &AndorWindow::handleEmGainChange )
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
@@ -844,18 +843,31 @@ atomGrid AndorWindow::getMainAtomGrid ( )
 
 void AndorWindow::armCameraWindow(AndorRunSettings* settings)
 {
-	redrawPictures (false);
-	readImageParameters ();
+	//readImageParameters ();
 	pics.setNumberPicturesActive (settings->picsPerRepetition);
+	if (settings->picsPerRepetition == 1)
+	{
+		pics.setSinglePicture (this, settings->imageSettings);
+	}
+	else
+	{
+		pics.setMultiplePictures (this, settings->imageSettings, settings->picsPerRepetition);
+	}
+	pics.resetPictureStorage ();
+	//pics.setParameters (settings->imageSettings);
+	//redrawPictures (false);
 	andorSettingsCtrl.setRepsPerVariation (settings->repetitionsPerVariation);
 	andorSettingsCtrl.setVariationNumber (settings->totalVariations);
 	pics.setSoftwareAccumulationOptions (andorSettingsCtrl.getSoftwareAccumulationOptions ());
 	// turn some buttons off.
 	andorSettingsCtrl.cameraIsOn( true );
-	SmartDC sdc (this);
-	pics.refreshBackgrounds( sdc.get ());
+	//SmartDC sdc (this);
+	//pics.refreshBackgrounds( sdc.get ());
 	stats.reset();
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
+	CRect rect;
+	GetClientRect (&rect);
+	OnSize (0, rect.right - rect.left, rect.bottom - rect.top);
 }
 
 
@@ -975,7 +987,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
 	}
 	else if (id == 1) // auto run calibrations.
 	{
-		if (!mainWin->masterIsRunning ())
+		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ())
 		{
 			// check that it's past 5AM, don't want to interrupt late night progress. 
 			std::time_t time = std::time (0);
@@ -1135,7 +1147,8 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	try
 	{
 		SetRedraw ( false );
-		auto settings = andorSettingsCtrl.getSettings ( ).andor;
+		auto settings = andor.getAndorRunSettings ();
+		//auto settings = andorSettingsCtrl.getSettings ( ).andor;
 		andorSettingsCtrl.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
 		alerts.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
 		analysisHandler.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
@@ -1678,7 +1691,6 @@ void AndorWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 	input->grabTimes = &imageGrabTimes;
 	input->analysisGrid = analysisHandler.getAtomGrid( 0 );
 	input->conditionVariableForRerng = &rearrangerConditionVariable;
-	input->runAndor = true;
 }
 
 

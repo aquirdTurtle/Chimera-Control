@@ -3,6 +3,7 @@
 #include "ServoManager.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "boost/lexical_cast.hpp"
+#include "ExperimentThread/Communicator.h"
 
 void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -562,7 +563,7 @@ bool ServoManager::autoServo( )
 }
 
 
-void ServoManager::runAll( )
+void ServoManager::runAll( Communicator& comm)
 {
 	UINT count = 0;
 	// made this asynchronous to facilitate updating gui while 
@@ -574,7 +575,7 @@ void ServoManager::runAll( )
 		}
 		catch (Error & e) 
 		{
-			errBox (e.trace());
+			comm.sendError (e.trace ());
 			// but continue to try the other ones. 
 		}
 	}
@@ -690,16 +691,16 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	
 
 	s.servoed = (count < attemptLimit);
+	s.currentlyServoing = false;
 	if ( !s.servoed )
 	{
-		errBox( "" + s.servoName + " servo failed to servo!" );
+		thrower( "" + s.servoName + " servo failed to servo!" );
 		// and don't adjust the variable value with what is probably a bad value. 
 	}
 	else
 	{
 		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), dacVal );
 	}
-	s.currentlyServoing = false;
 }
 
 

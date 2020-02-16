@@ -3218,6 +3218,10 @@ std::vector<double> NiawgController::makeFullRerngWave( rerngScriptInfo& rerngSe
 void NiawgController::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rerngGuiOptions& data, 
 											      std::vector<parameterType>& variables, UINT variation )
 {
+	if (!form.active)
+	{
+		return;
+	}
 	try
 	{
 		data.active = form.active;

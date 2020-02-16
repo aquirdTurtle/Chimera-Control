@@ -181,8 +181,6 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 		file = H5::H5File( cstr( dataFilesBaseLocation + finalSaveFolder + finalSaveFileName ), H5F_ACC_TRUNC );
 		fileIsOpen = true;
 		H5::Group ttlsGroup( file.createGroup( "/TTLs" ) );
-		// initial settings
-		// list of commands
 	}
 	catch (H5::Exception err)
 	{
@@ -448,7 +446,6 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 		BaslerPicDataSpace = H5::DataSpace ( 3, picDims );
 		BaslerPictureDataset = baslerGroup.createDataSet ( "Pictures", H5::PredType::NATIVE_LONG, BaslerPicureSetDataSpace );
 		currentBaslerPicNumber = 0;
-
 		writeDataSet ( BaslerAcquisition::toStr ( settings.acquisitionMode ), "Camera-Mode", baslerGroup );
 		writeDataSet ( BaslerAutoExposure::toStr(settings.exposureMode), "Exposure-Mode", baslerGroup );
 		writeDataSet ( settings.exposureTime, "Exposure-Time", baslerGroup );
@@ -474,7 +471,7 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 
 
 
-void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
+void DataLogger::writeBaslerPic ( Matrix<long> image )
 {
 	if ( fileIsOpen == false )
 	{
@@ -482,7 +479,7 @@ void DataLogger::writeBaslerPic ( Matrix<long> image, imageParameters dims )
 	}
 	// starting coordinates of write area in the h5 file of the array of picture data points.
 	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
-	hsize_t slabdim[ 3 ] = { 1, dims.width ( ), dims.height ( ) };
+	hsize_t slabdim[3] = { 1, image.getCols (), image.getRows () };// dims.width (), dims.height ()};
 	try 
 	{    
 		BaslerPicureSetDataSpace.selectHyperslab ( H5S_SELECT_SET, slabdim, offset );
@@ -609,8 +606,8 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 			return;
 		}
 		H5::Group runParametersGroup( file.createGroup( "/Master-Input" ) );
-		writeDataSet( input->runMaster, "Run-Master", runParametersGroup );
-		if ( input->runMaster )
+		writeDataSet( input->runList.master, "Run-Master", runParametersGroup );
+		if ( input->runList.master)
 		{
 			std::ifstream masterScript( ProfileSystem::getMasterAddressFromConfig( input->profile ) );
 			if ( !masterScript.is_open( ) )
@@ -776,7 +773,6 @@ void DataLogger::closeFile()
 {
 	if (!fileIsOpen)
 	{
-		// wasn't open.
 		return;
 	}
 	try
@@ -794,7 +790,6 @@ void DataLogger::closeFile()
 	catch ( H5::Exception& err )
 	{
 		logError ( err );
-		errBox ( "Failed to write closing information (e.g. time of stop) to H5 File! Error was:\n\n" + str( err.getDetailMsg( ) ) + "\n" );
 	}
 	AndorPicureSetDataSpace.close();
 	AndorPictureDataset.close();
@@ -822,8 +817,8 @@ int DataLogger::getDataFileNumber()
 void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
 {
 	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
-	writeDataSet( input->runNiawg, "Run-NIAWG", niawgGroup );
-	if ( input->runNiawg )
+	writeDataSet( input->runList.niawg, "Run-NIAWG", niawgGroup );
+	if ( input->runList.niawg)
 	{
 		std::vector<std::fstream> intensityScriptFiles;
 		UINT seqInc = 0;

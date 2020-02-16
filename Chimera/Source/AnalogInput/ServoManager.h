@@ -8,7 +8,7 @@
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/Version.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
-
+#include "ExperimentThread/Communicator.h"
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
 gain, as this is all that's required for DC servoing. This is not designed to be run during the experiment, it's 
@@ -30,7 +30,7 @@ class ServoManager
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
 		void setChangeVal (UINT which, double change);
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		void runAll( );
+		void runAll (Communicator& comm);
 		void calibrate( servoInfo& s, UINT which );
 		bool autoServo( );
 		
