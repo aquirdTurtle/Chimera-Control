@@ -489,6 +489,8 @@
     <Image Include="icon1.ico" />
     <Image Include="Icon2.ico" />
     <Image Include="JILA.bmp" />
+    <Image Include="Source\LowLevel\Atom.ico" />
+    <Image Include="Source\LowLevel\JILA.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\LowLevel\Chimera.rc" />

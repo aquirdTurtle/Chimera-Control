@@ -765,6 +765,8 @@
     <Image Include="JILA.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="Source\LowLevel\Atom.ico" />
+    <Image Include="Source\LowLevel\JILA.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">

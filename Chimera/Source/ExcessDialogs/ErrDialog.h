@@ -2,6 +2,7 @@
 #pragma once
 #include "Windows.h"
 #include "CustomMfcControlWrappers/Control.h"
+#include "CustomMfcControlWrappers/myButton.h"
 #include "LowLevel/resource.h"
 
 
@@ -31,5 +32,6 @@ class ErrDialog : public CDialog
 		std::string descriptionText;
 		Control<CEdit> description;
 		Control<CEdit> header;
+		Control<CleanPush> okBtn;
 };
 
