@@ -123,9 +123,9 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 }
 
 
-AgilentCore* Agilent::getCore ()
+AgilentCore& Agilent::getCore ()
 {
-	return &core;
+	return core;
 }
 
 

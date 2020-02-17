@@ -642,11 +642,11 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 }
 
 
-std::vector<PiezoCore* > AuxiliaryWindow::getPiezoControllers ( )
+std::vector<std::reference_wrapper<PiezoCore> > AuxiliaryWindow::getPiezoControllers ( )
 {
-	std::vector<PiezoCore* > controllers;
-	controllers.push_back ( &piezo1.getCore( ) );
-	controllers.push_back ( &piezo2.getCore( ) );
+	std::vector<std::reference_wrapper<PiezoCore> > controllers;
+	controllers.push_back ( piezo1.getCore( ) );
+	controllers.push_back ( piezo2.getCore( ) );
 	return controllers;
 }
 
@@ -1701,7 +1701,7 @@ std::string AuxiliaryWindow::getVisaDeviceStatus( )
 	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
-		msg += agilent.getCore()->configDelim + ":\n\t" + agilent.getDeviceIdentity( );
+		msg += agilent.getCore().configDelim + ":\n\t" + agilent.getDeviceIdentity( );
 	}
 	return msg;
 }

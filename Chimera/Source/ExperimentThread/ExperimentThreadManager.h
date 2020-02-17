@@ -26,7 +26,7 @@ class ExperimentThreadManager
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
 		static void loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript );
 		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
-		static void checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
+		static void checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
 										  UINT variations, microwaveSettings settings,
 										  std::vector<std::vector<parameterType>>& expParams,
 										  std::vector<deviceOutputInfo>& agRunInfo);

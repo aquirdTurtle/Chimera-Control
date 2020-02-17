@@ -21,12 +21,6 @@
 /**/
 class AuxiliaryWindow;
 
-
-/*
- * The DioSystem class is based on the DIO64.bas module in the original VB6 code. It does use the dio64_32.dll system, 
- * but we always refer to these controls as the TTLs, so I call it that.
- * This should be converted to a constant class at some point.
- */
 class DioSystem
 {
 	public:
@@ -48,7 +42,7 @@ class DioSystem
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver );
-		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
+		void initialize(POINT& startLocation, cToolTips& toolTips, CWnd* master, int& id );
 		double getTotalTime(UINT variation, UINT seqNum );
 		void checkFinalFormatTimes( UINT variation, UINT seqNum );
 		int getNumberOfTTLRows();

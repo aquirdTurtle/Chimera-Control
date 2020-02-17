@@ -58,7 +58,7 @@ class Agilent
 		static deviceOutputInfo getOutputSettingsFromConfigFile (std::ifstream& file, Version ver);
 		void Agilent::setOutputSettings (deviceOutputInfo info);
 		void verifyScriptable ( );
-		AgilentCore* getCore ();
+		AgilentCore& getCore ();
 		void setDefault (UINT chan);
 	private:
 		AgilentCore core;

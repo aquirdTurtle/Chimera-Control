@@ -311,17 +311,17 @@ void DataLogger::logTektronicsSettings ( tektronixInfo& tekInfo, std::string del
 
 
 
-void DataLogger::logAgilentSettings( const std::vector<AgilentCore*>& agilents, 
+void DataLogger::logAgilentSettings( const std::vector<std::reference_wrapper<AgilentCore>>& agilents, 
 									 const std::vector<deviceOutputInfo>& agOutput )
 {
 	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
 	for ( auto agInc : range(agilents.size() ))
 	{
-		auto* agilent = agilents[agInc];
-		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->configDelim ) );
+		auto& agilent = agilents[agInc].get();
+		H5::Group singleAgilent( agilentsGroup.createGroup( agilent.configDelim ) );
 		deviceOutputInfo info = agOutput[agInc];
 		UINT channelCount = 1;
-		writeDataSet ( agilent->getStartupCommands(), "Startup-Commands", singleAgilent );
+		writeDataSet ( agilent.getStartupCommands(), "Startup-Commands", singleAgilent );
 		for ( auto& channel : info.channel )
 		{
 			H5::Group channelGroup( singleAgilent.createGroup( "Channel-" + str( channelCount ) ) );

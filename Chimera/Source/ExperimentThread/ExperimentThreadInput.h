@@ -28,6 +28,7 @@
 #include <chrono>
 #include <vector>
 #include <atomic>
+#include <functional>
 
 class AuxiliaryWindow;
 class MainWindow;
@@ -38,9 +39,7 @@ struct ExperimentThreadInput
 {
 	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, BaslerWindow* basWin );
 	realTimePlotterInput* plotterInput;
-
 	EmbeddedPythonHandler& python;
-	// for posting messages only!
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem& ttls;
@@ -49,14 +48,14 @@ struct ExperimentThreadInput
 	AndorCameraCore& andorCamera;
 	BaslerCameraCore& basCamera;
 	DdsCore& dds;
-	std::vector<PiezoCore*> piezoControllers;
+	std::vector<std::reference_wrapper<PiezoCore>> piezoControllers;
 	// TODO: this should be loaded from config file, not gui thread.
 	std::vector<parameterType> globalParameters;
 	ExperimentThreadManager* thisObj;
 	Communicator& comm;
 	MicrowaveCore& rsg;
 	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-	std::vector<AgilentCore*> agilents;
+	std::vector<std::reference_wrapper<AgilentCore>> agilents;
 	TekCore& topBottomTek;
 	TekCore& eoAxialTek;
 	ParameterSystem& globalControl;
@@ -69,6 +68,9 @@ struct ExperimentThreadInput
 	UINT numAiMeasurements=0;
 	bool updatePlotterXVals = false;
 	bool dontActuallyGenerate = false;
+	std::atomic<bool>* skipNext = NULL;
+	atomGrid analysisGrid;
+	ExperimentType expType = ExperimentType::Normal;
 	// outermost vector is for each dac or ttl plot. next level is for each line.
 	std::vector<std::vector<pPlotDataVec>> ttlData;
 	std::vector<std::vector<pPlotDataVec>> dacData;
@@ -80,10 +82,6 @@ struct ExperimentThreadInput
 	std::condition_variable* conditionVariableForRerng;
 	rerngGuiOptionsForm rerngGuiForm;
 	rerngGuiOptions rerngGui;
-	std::atomic<bool>* skipNext=NULL;
-	atomGrid analysisGrid;
-
-	ExperimentType expType = ExperimentType::Normal;
 };
 
 

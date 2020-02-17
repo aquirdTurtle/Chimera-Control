@@ -65,7 +65,7 @@ class AuxiliaryWindow : public CDialog
 		void OnPaint( );
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
-		std::vector<PiezoCore* > getPiezoControllers ( );
+		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		void handlePlotPop (UINT id);
