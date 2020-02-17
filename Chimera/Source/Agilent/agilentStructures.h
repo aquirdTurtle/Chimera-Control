@@ -48,14 +48,13 @@ struct minMaxDoublet
 struct generalAgilentOutputInfo
 {
 	//std::string load;
-	bool useCalibration = false;
+	bool useCal = false;
 };
 
 
 struct dcInfo : public generalAgilentOutputInfo
 {
-	Expression dcLevelInput;
-	double dcLevel = 0;
+	Expression dcLevel;
 };
 
 
@@ -68,26 +67,19 @@ struct scriptedArbInfo : public generalAgilentOutputInfo
 
 struct squareInfo : public generalAgilentOutputInfo
 {
-	Expression frequencyInput;
-	double frequency = 1;
-	Expression amplitudeInput;
-	double amplitude = 0;
-	Expression offsetInput;
-	double offset = 0;
-	// not used yet
-	Expression dutyCycleInput;
-	double dutyCycle = 0;
-	Expression phaseInput;
-	double phase = 0;
+	Expression frequency;
+	Expression amplitude;
+	Expression offset;
+	// not used yet // ?!?!
+	Expression dutyCycle;
+	Expression phase;
 };
 
 
 struct sineInfo : public generalAgilentOutputInfo
 {
-	Expression frequencyInput;
-	double frequency;
-	Expression amplitudeInput;
-	double amplitude;
+	Expression frequency;
+	Expression amplitude;
 };
 
 

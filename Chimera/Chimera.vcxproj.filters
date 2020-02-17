@@ -313,6 +313,7 @@
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -738,6 +739,7 @@
     <ClInclude Include="Source\ExperimentThread\expSystemRunList.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
+    <ClInclude Include="Source\Agilent\AgilentCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

@@ -10,6 +10,10 @@
 class GpibFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		GpibFlume& operator=(const GpibFlume&) = delete;
+		GpibFlume (const GpibFlume&) = delete;
+
 		GpibFlume(short deviceID, bool safemode);
 		std::string query( std::string query );
 		std::string queryIdentity();

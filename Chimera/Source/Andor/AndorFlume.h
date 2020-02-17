@@ -4,6 +4,10 @@
 class AndorFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		AndorFlume& operator=(const AndorFlume&) = delete;
+		AndorFlume (const AndorFlume&) = delete;
+
 		AndorFlume ( bool safemode_option );
 		void initialize ( );
 		void setBaselineClamp ( int clamp );

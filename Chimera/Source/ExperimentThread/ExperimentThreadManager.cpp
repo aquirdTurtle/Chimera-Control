@@ -54,10 +54,14 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	const auto& runNiawg = input->runList.niawg;
 	const auto& runBasler = input->runList.basler;
 	const auto& piezos = input->piezoControllers;
+	
+
+
 	mainOptions mainOpts;
 	baslerSettings baslerCamSettings;
 	std::vector<std::vector<parameterType>> expParams;
 	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
+	std::vector<deviceOutputInfo> agilentRunInfo(input->agilents.size());
 	UINT variations;
 	try
 	{
@@ -92,6 +96,11 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
 				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, varRangeInfo);
 				variations = determineVariationNumber (expParams[ seqNum ] );
+				for (auto agInc : range(input->agilents.size()))
+				{
+					agilentRunInfo[agInc] = ProfileSystem::stdGetFromConfig(configFile, 
+						input->agilents[agInc]->configDelim, Agilent::getOutputSettingsFromConfigFile);
+				}
 			}
 			if (runAndor) 
 			{
@@ -155,6 +164,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			input->logger.logMasterRuntime ( repetitions, expParams);
 			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
 			input->logger.logAndorSettings ( andorRunsettings[0], runAndor );
+			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
 		}
 		// should probably rethink this. devices should be individually set. 
 		bool useAuxDevices = runMaster && ( input->expType == ExperimentType::MachineOptimization 
@@ -213,13 +223,16 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			expUpdate( "Loading Agilent Info...", comm, quiet );
 			if ( useAuxDevices )
 			{
-				for ( auto& agilent : input->agilents )
+				for ( auto agInc: range(input->agilents.size()) )
 				{
-					RunInfo fixme;
-					agilent->handleInput ( input->profile.configLocation, fixme );
+					auto& agilent = input->agilents[agInc];
 					for ( auto channelInc : range ( 2 ) )
 					{
-						agilent->analyzeAgilentScript ( channelInc, seqVariables );
+						if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
+						{
+							agilent->analyzeAgilentScript (agilentRunInfo[agInc].channel[channelInc].scriptedArb,
+								seqVariables);
+						}
 					}
 				}
 			}
@@ -290,6 +303,11 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			dds.generateFullExpInfo ( variations );
 			input->topBottomTek.interpretKey (expParams);
 			input->eoAxialTek.interpretKey (expParams);
+			for (auto agInc : range (input->agilents.size ()))
+			{
+				input->agilents[agInc]->convertInputToFinalSettings (variations, 0, agilentRunInfo[agInc], expParams[0]);
+				input->agilents[agInc]->convertInputToFinalSettings (variations, 1, agilentRunInfo[agInc], expParams[0]);
+			}
 		}
 		input->rsg.interpretKey (expParams, uwSettings);
 		/// organize commands, prepping final forms of the data for each repetition.
@@ -307,7 +325,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 																		   seqVariables, variationInc );
 				    // organize & format the ttl and dac commands
 					aoSys.organizeDacCommands( variationInc, seqInc );
-					aoSys.setDacTriggerEvents( ttls, variationInc, seqInc, variations );
+					aoSys.setDacTriggerEvents( ttls, variationInc, seqInc );
 					aoSys.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
 					aoSys.makeFinalDataFormat( variationInc, seqInc ); 
 					ttls.organizeTtlCommands ( variationInc, seqInc );
@@ -348,7 +366,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				}
 			}
 		}
-		ExperimentThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, expParams );
+		ExperimentThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, 
+													   expParams, agilentRunInfo );
 		/// finish up
 		if ( runMaster )
 		{
@@ -446,9 +465,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			// program devices
 			if ( useAuxDevices )
 			{
-				for ( auto& agilent : input->agilents )
+				for ( auto agInc : range(input->agilents.size()) )
 				{
-					agilent->setAgilent ( variationInc, expParams[ 0 ] );
+					input->agilents[agInc]->setAgilent ( variationInc, expParams[ 0 ], agilentRunInfo[agInc] );
 				}
 				for ( auto piezoInc : range(piezos.size()) )
 				{
@@ -1460,7 +1479,8 @@ UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterTyp
 
 void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
 												UINT variations, microwaveSettings settings, 
-												std::vector<std::vector<parameterType>>& expParams)
+												std::vector<std::vector<parameterType>>& expParams, 
+												std::vector<deviceOutputInfo>& agRunInfo)
 {
 	/// check all trigger numbers between the DIO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
@@ -1536,7 +1556,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 					auto& agilent = input->agilents[ agInc ];
 					for ( auto chan : range ( 2 ) )
 					{
-						auto& agChan = agilent->getOutputInfo ( ).channel[ chan ];
+						auto& agChan = agRunInfo[agInc].channel[ chan ];
 						if ( agChan.option != AgilentChannelMode::which::Script || agMismatchVec[ agInc ][ chan ] )
 						{
 							continue;
@@ -1544,15 +1564,15 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 						UINT actualTrigs = input->runList.master ? input->ttls.countTriggers ( agilent->getTriggerLine ( ),
 																				variationInc, seqInc ) : 0;
 						UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
-						std::string infoString = "Actual/Expected " + agilent->configDelim + " Triggers: " 
+						std::string infoString = "Actual/Expected " + agilent->configDelim + " Triggers: "
 							+ str ( actualTrigs ) + "/" + str ( agilentExpectedTrigs ) + ".";
 						if ( actualTrigs != agilentExpectedTrigs )
 						{
 							warnings += "WARNING: Agilent " + agilent->configDelim + " is not getting "
 								"triggered by the ttl system the same number of times a trigger command "
 								"appears in the agilent channel " + str ( chan + 1 ) + " script. " + infoString 
-								+ " First seen in "
-								"sequence #" + str ( seqInc ) + ", variation #" + str ( variationInc ) + ".\r\n";
+								+ " First seen in sequence #" + str ( seqInc ) + ", variation #" + str ( variationInc ) 
+								+ ".\r\n";
 							agMismatchVec[ agInc ][ chan ] = true;
 						}
 						if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )

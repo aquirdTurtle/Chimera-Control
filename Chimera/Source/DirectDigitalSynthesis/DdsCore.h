@@ -19,6 +19,10 @@ from the core functionality and have a more minimal object passed into the main 
 class DdsCore
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		DdsCore& operator=(const DdsCore&) = delete;
+		DdsCore (const DdsCore&) = delete;
+
 		DdsCore ( bool safemode );
 		~DdsCore ( );
 		static std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file, Version ver );

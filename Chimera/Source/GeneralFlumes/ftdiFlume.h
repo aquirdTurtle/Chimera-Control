@@ -9,6 +9,10 @@
 class ftdiFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		ftdiFlume& operator=(const ftdiFlume&) = delete;
+		ftdiFlume (const ftdiFlume&) = delete;
+
 		ftdiFlume( bool safemode_option );
 		DWORD write( std::vector<unsigned char> dataBuffer, DWORD amountToWrite=NULL );
 		UINT getNumDevices( );

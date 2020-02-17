@@ -315,7 +315,7 @@ void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<d
 			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
 			// setPoint = a * power + b
 			//double newValue = -a * log(y * b);
-			double setPointinVolts = Agilent::convertPowerToSetPoint(power, useCal, calibCoeff );
+			double setPointinVolts = AgilentCore::convertPowerToSetPoint(power, useCal, calibCoeff );
 			waveformSegments[segmentInc].assignDataVal( dataConvertInc, setPointinVolts);
 		}
 	}

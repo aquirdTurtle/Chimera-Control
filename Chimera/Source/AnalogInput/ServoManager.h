@@ -25,6 +25,11 @@ The servo system interplays between three separate systems in the code.
 class ServoManager
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		ServoManager& operator=(const ServoManager&) = delete;
+		ServoManager (const ServoManager&) = delete;
+		ServoManager () = default;
+
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
 						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
@@ -41,6 +46,7 @@ class ServoManager
 		void deleteServo ( );
 		std::vector<servoInfo> getServoInfo ( );
 	private:
+
 		Control<CStatic> servosHeader;
 		Control<CleanPush> servoButton;
 		Control<CleanCheck> autoServoButton;

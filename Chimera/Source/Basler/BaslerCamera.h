@@ -28,6 +28,10 @@ struct triggerThreadInput
 class BaslerCameraCore
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		BaslerCameraCore& operator=(const BaslerCameraCore&) = delete;
+		BaslerCameraCore (const BaslerCameraCore&) = delete;
+
 		// important constructor to initialize camera
 		BaslerCameraCore( CWnd* parent );
 		~BaslerCameraCore();

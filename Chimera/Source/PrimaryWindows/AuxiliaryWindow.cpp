@@ -457,8 +457,8 @@ void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		agilents[name].handleInput( mainWin->getProfileSettings( ).configLocation,
-									mainWin->getRunInfo( ) );
+		agilents[name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+		agilents[name].readGuiSettings( );
 	}
 	catch ( Error& )
 	{
@@ -700,24 +700,11 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		ProfileSystem::standardOpenConfig ( configFile, "TTLS", &ttlBoard );
 		ProfileSystem::standardOpenConfig ( configFile, "DACS", &aoSys );
 		aoSys.updateEdits ( );
-		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::TopBottom ].configDelim, &agilents[ whichAg::TopBottom ],
-											Version ( "4.0" ) );
-		agilents[ whichAg::TopBottom ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
-															   mainWin->getRunInfo ( ) );
-		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Axial ].configDelim, &agilents[ whichAg::Axial ],
-											Version ( "4.0" ) );
-		agilents[ whichAg::Axial ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
-														   mainWin->getRunInfo ( ) );
-		ProfileSystem::standardOpenConfig ( configFile, agilents[ whichAg::Flashing ].configDelim, &agilents[ whichAg::Flashing ],
-											Version ( "4.0" ) );
-		agilents[ whichAg::Flashing ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
-															  mainWin->getRunInfo ( ) );
-		if ( ver > Version ( "2.6" ) )
+		for (auto& agilent : agilents)
 		{
-			ProfileSystem::standardOpenConfig ( configFile, agilents[whichAg::Microwave].configDelim,
-												&agilents[ whichAg::Microwave ], Version ( "4.0" ) );
-			agilents[ whichAg::Microwave ].updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
-																   mainWin->getRunInfo ( ) );
+			agilent.setOutputSettings (ProfileSystem::stdGetFromConfig (configFile, agilent.getConfigDelim (),
+															Agilent::getOutputSettingsFromConfigFile, Version ("4.0")));
+			agilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
 		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.configDelim, &topBottomTek, Version ( "4.0" ) );
 		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.configDelim, &eoAxialTek, Version ( "4.0" ) );
@@ -997,13 +984,13 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		// program now
 		try
 		{
-			agilent.handleInput( mainWin->getProfileSettings().configLocation, mainWin->getRunInfo() );
-			agilent.setAgilent();
-			sendStatus( "Programmed Agilent " + agilent.configDelim + ".\r\n" );
+			agilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+			agilent.programAgilentNow(getUsableConstants()[0]);
+			sendStatus( "Programmed Agilent " + agilent.getConfigDelim() + ".\r\n" );
 		}
 		catch (Error& err)
 		{
-			sendErr( "Error while programming agilent " + agilent.configDelim + ": " + err.trace() + "\r\n" );
+			sendErr( "Error while programming agilent " + agilent.getConfigDelim() + ": " + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -1016,7 +1003,8 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	Agilent& ag = whichAgilent( id );
 	try
 	{
-		ag.handleInput( mainWin->getProfileSettings( ).configLocation, mainWin->getRunInfo( ) );
+		ag.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+		ag.readGuiSettings(  );
 		ag.handleModeCombo( );
 		ag.updateSettingsDisplay( mainWin->getProfileSettings( ).configLocation, mainWin->getRunInfo( ) );
 	}
@@ -1088,7 +1076,7 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 		}
 		for ( auto& ag : agilents )
 		{
-			input->agilents.push_back ( &ag );
+			input->agilents.push_back ( ag.getCore() );
 		}
 		topBottomTek.getTekSettings ( );
 		eoAxialTek.getTekSettings ( );
@@ -1708,7 +1696,7 @@ std::string AuxiliaryWindow::getVisaDeviceStatus( )
 	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
-		msg += agilent.configDelim + ":\n\t" + agilent.getDeviceIdentity( );
+		msg += agilent.getCore()->configDelim + ":\n\t" + agilent.getDeviceIdentity( );
 	}
 	return msg;
 }

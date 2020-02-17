@@ -40,6 +40,10 @@ struct cameraThreadInput
 class AndorCameraCore
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		AndorCameraCore& operator=(const AndorCameraCore&) = delete;
+		AndorCameraCore (const AndorCameraCore&) = delete;
+
 		AndorCameraCore(bool safemode_opt);
 
 		AndorRunSettings getAndorRunSettings();
@@ -72,7 +76,6 @@ class AndorCameraCore
 		AndorTemperatureStatus getTemperature ( );
 
 	private:
-
 		void setAccumulationCycleTime ( );
 		void setAcquisitionMode ( );
 		void setFrameTransferMode ( );

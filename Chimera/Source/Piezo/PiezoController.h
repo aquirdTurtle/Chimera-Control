@@ -10,6 +10,10 @@
 class PiezoController
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		PiezoController& operator=(const PiezoController&) = delete;
+		PiezoController (const PiezoController&) = delete;
+
 		PiezoController ( PiezoType piezoControllerType, std::string sn, std::string delim);
 		void initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT buttonID,
 						  piezoChan<std::string> names, UINT ctrlButtonID );

@@ -30,6 +30,10 @@ class AuxiliaryWindow;
 class DioSystem
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		DioSystem& operator=(const DioSystem&) = delete;
+		DioSystem (const DioSystem&) = delete;
+
 		DioSystem ( bool ftSafemode, bool serialSafemode, bool viewpointSafemode );
 		~DioSystem();
 		/// Felix's Dio handling. Much originally in a class called "RC028".
@@ -39,10 +43,6 @@ class DioSystem
 		DWORD ftdi_write( UINT seqNum, UINT variation, bool loadSkipf );
 		DWORD ftdi_trigger( );
 		void standardNonExperimentStartDioSequence( );
-		// an "alias template". effectively a local "using std::vector;" declaration. makes these declarations much more
-		// readable. I very rarely use things like this.
-		//template<class T> using vec = std::vector<T>;
-
 		/// config handling
 		void initializeDataObjects( UINT seqNum, UINT cmdNum );
 		void handleNewConfig( std::ofstream& saveFile );
@@ -70,9 +70,9 @@ class DioSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		void ttlOn(UINT row, UINT column, timeType time, UINT seqNum );
-		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum, UINT totalVariations );
+		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum);
 		void ttlOff(UINT row, UINT column, timeType time, UINT seqNum );
-		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum, UINT totalVariations );
+		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum);
 		void forceTtl( DioRows::which row, int number, bool state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();

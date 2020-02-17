@@ -5,6 +5,10 @@
 class PiezoFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		PiezoFlume& operator=(const PiezoFlume&) = delete;
+		PiezoFlume (const PiezoFlume&) = delete;
+
 		PiezoFlume ( bool sMode, std::string sn);
 		std::string list (  );
 		std::string getDeviceInfo ( );

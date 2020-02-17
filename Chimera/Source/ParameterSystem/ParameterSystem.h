@@ -40,6 +40,10 @@ enum class ParameterSysType
 class ParameterSystem
 {
 	public:		
+		// THIS CLASS IS NOT COPYABLE.
+		ParameterSystem& operator=(const ParameterSystem&) = delete;
+		ParameterSystem (const ParameterSystem&) = delete;
+
 		ParameterSystem ( std::string configurationFileDelimiter );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );

@@ -19,6 +19,10 @@
 class AiSystem
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		AiSystem& operator=(const AiSystem&) = delete;
+		AiSystem (const AiSystem&) = delete;
+
 		AiSystem( );
 		AiSettings getAiSettings ();
 		void initDaqmx( );
