@@ -37,6 +37,10 @@ software reuse technologies."
 class VisaFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		VisaFlume& operator=(const VisaFlume&) = delete;
+		VisaFlume (const VisaFlume&) = delete;
+
 	    VisaFlume(bool safemode, std::string address);
 		void write( std::string message );
 		void close( );

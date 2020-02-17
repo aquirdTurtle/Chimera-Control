@@ -1,8 +1,9 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-#include "ConfigurationSystems/Version.h"
 
 #include "DioSystem.h"
+
+#include "ConfigurationSystems/Version.h"
 #include "LowLevel/constants.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "GeneralUtilityFunctions/range.h"
@@ -743,19 +744,17 @@ void DioSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 }
 
 
-void DioSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc, UINT totalVariations )
+void DioSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
 {
 	DioCommand command;
 	command.line = { row, column };
-	//command.timeVals.resize ( totalVariations );
-	//command.timeVals[ variation ] = time;
 	command.time = timev;
 	command.value = true;
 	ttlCommandList(seqInc, variation).push_back( command );
 }
 
 
-void DioSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc, UINT totalVariations )
+void DioSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
 {
 	DioCommand command;
 	command.line = { row, column };

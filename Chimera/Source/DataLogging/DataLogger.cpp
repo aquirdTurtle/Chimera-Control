@@ -312,13 +312,15 @@ void DataLogger::logTektronicsSettings ( TektronixAfgControl& tek )
 
 
 
-void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
+void DataLogger::logAgilentSettings( const std::vector<AgilentCore*>& agilents, 
+									 const std::vector<deviceOutputInfo>& agOutput )
 {
 	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
-	for ( auto& agilent : agilents )
+	for ( auto agInc : range(agilents.size() ))
 	{
+		auto* agilent = agilents[agInc];
 		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->configDelim ) );
-		deviceOutputInfo info = agilent->getOutputInfo( );
+		deviceOutputInfo info = agOutput[agInc];
 		UINT channelCount = 1;
 		writeDataSet ( agilent->getStartupCommands(), "Startup-Commands", singleAgilent );
 		for ( auto& channel : info.channel )
@@ -327,14 +329,14 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 			std::string outputModeName = AgilentChannelMode::toStr(channel.option);
 			writeDataSet( outputModeName, "Output-Mode", channelGroup );
 			H5::Group dcGroup( channelGroup.createGroup( "DC-Settings" ) );
-			writeDataSet( channel.dc.dcLevelInput.expressionStr, "DC-Level", dcGroup );
+			writeDataSet( channel.dc.dcLevel.expressionStr, "DC-Level", dcGroup );
 			H5::Group sineGroup( channelGroup.createGroup( "Sine-Settings" ) );
-			writeDataSet( channel.sine.frequencyInput.expressionStr, "Frequency", sineGroup );
-			writeDataSet( channel.sine.amplitudeInput.expressionStr, "Amplitude", sineGroup );
+			writeDataSet( channel.sine.frequency.expressionStr, "Frequency", sineGroup );
+			writeDataSet( channel.sine.amplitude.expressionStr, "Amplitude", sineGroup );
 			H5::Group squareGroup( channelGroup.createGroup( "Square-Settings" ) );
-			writeDataSet( channel.square.amplitudeInput.expressionStr, "Amplitude", squareGroup );
-			writeDataSet( channel.square.frequencyInput.expressionStr, "Frequency", squareGroup );
-			writeDataSet( channel.square.offsetInput.expressionStr, "Offset", squareGroup );
+			writeDataSet( channel.square.amplitude.expressionStr, "Amplitude", squareGroup );
+			writeDataSet( channel.square.frequency.expressionStr, "Frequency", squareGroup );
+			writeDataSet( channel.square.offset.expressionStr, "Offset", squareGroup );
 			H5::Group preloadedArbGroup( channelGroup.createGroup( "Preloaded-Arb-Settings" ) );
 			writeDataSet( channel.preloadedArb.address, "Address", preloadedArbGroup );
 			H5::Group scriptedArbSettings( channelGroup.createGroup( "Scripted-Arb-Settings" ) );
@@ -626,7 +628,6 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 		}
 		logFunctions( runParametersGroup );
 		logNiawgSettings( input );
-		logAgilentSettings( input->agilents );
 		logTektronicsSettings ( input->topBottomTek );
 		logTektronicsSettings ( input->eoAxialTek );
 		logAoSystemSettings ( input->aoSys );

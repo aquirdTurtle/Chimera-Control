@@ -20,8 +20,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -85,6 +85,7 @@
 	using MICROWAVE_FLUME = WindFreakFlume;
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
+	constexpr bool AUTO_CALIBRATE = false;
 	constexpr bool DIOFTDI_SAFEMODE = true;
 	constexpr bool DDS_SAFEMODE = true;
 	constexpr bool BASLER_SAFEMODE = true;

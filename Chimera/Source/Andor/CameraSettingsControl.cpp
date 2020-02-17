@@ -1,8 +1,12 @@
 // created by Mark O. Brown
 #include "stdafx.h"
+
 #include "CameraSettingsControl.h"
+
 #include "PrimaryWindows/AndorWindow.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
+#include "ConfigurationSystems/ProfileSystem.h"
+
 #include <boost/lexical_cast.hpp>
 
 

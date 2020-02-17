@@ -735,13 +735,13 @@ void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc, UINT totalVariations)
+void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc)
 {
 	for ( auto snapshot : dacSnapshots(seqInc,variation))
 	{
-		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc, totalVariations );
+		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc );
 		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation, 
-							seqInc, totalVariations );
+						  seqInc );
 	}
 }
 
@@ -808,8 +808,8 @@ void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT var
 	eventInfo.time = 10;
 	dacCommandList(seqNum,variation).push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the aoSys to change the output at the correct time.
-	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0, 1 );
-	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0, 1 );
+	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0);
+	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0 );
 }
 
 

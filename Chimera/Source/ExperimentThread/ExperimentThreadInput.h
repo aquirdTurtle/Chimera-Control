@@ -8,7 +8,7 @@
 #include "Microwave/MicrowaveCore.h"
 #include "GeneralFlumes/GpibFlume.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
-#include "Agilent/Agilent.h"
+#include "Agilent/AgilentCore.h"
 #include "NIAWG/NiawgController.h"
 #include "Python/EmbeddedPythonHandler.h"
 #include "Tektronix/TektronixAfgControl.h"
@@ -58,7 +58,7 @@ struct ExperimentThreadInput
 	Communicator& comm;
 	MicrowaveCore& rsg;
 	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
-	std::vector<Agilent*> agilents;
+	std::vector<AgilentCore*> agilents;
 	TektronixAfgControl& topBottomTek;
 	TektronixAfgControl& eoAxialTek;
 	ParameterSystem& globalControl;

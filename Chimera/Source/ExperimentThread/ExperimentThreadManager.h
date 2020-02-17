@@ -28,7 +28,8 @@ class ExperimentThreadManager
 		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
 		static void checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
 										  UINT variations, microwaveSettings settings,
-										  std::vector<std::vector<parameterType>>& expParams);
+										  std::vector<std::vector<parameterType>>& expParams,
+										  std::vector<deviceOutputInfo>& agRunInfo);
 		static void analyzeMasterScript( DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,

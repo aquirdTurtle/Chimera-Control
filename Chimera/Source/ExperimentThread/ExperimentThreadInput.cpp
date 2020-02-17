@@ -4,6 +4,7 @@
 #include "PrimaryWindows/MainWindow.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/BaslerWindow.h"
+
 ExperimentThreadInput::ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, 
 	BaslerWindow* basWin) :
 	ttls ( auxWin->getTtlBoard ( ) ), aoSys ( auxWin->getAoSys ( ) ), aiSys ( auxWin->getAiSys ( ) ),

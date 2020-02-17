@@ -26,6 +26,10 @@ class AuxiliaryWindow;
 class DdsSystem
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		DdsSystem& operator=(const DdsSystem&) = delete;
+		DdsSystem (const DdsSystem&) = delete;
+
 		DdsSystem(bool ftSafemode);
 		void redrawListview ( );
 		void handleSaveConfig ( std::ofstream& file );

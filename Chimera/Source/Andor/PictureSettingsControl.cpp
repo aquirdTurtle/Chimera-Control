@@ -2,12 +2,14 @@
 
 #include "stdafx.h"
 #include "PictureSettingsControl.h"
+
 #include "Andor/AndorCameraCore.h"
 #include "Andor/CameraSettingsControl.h"
 #include "PrimaryWindows/AndorWindow.h"
+#include "ConfigurationSystems/ProfileSystem.h"
+
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
-
 
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {

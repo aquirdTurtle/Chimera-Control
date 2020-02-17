@@ -11,6 +11,10 @@ implement all the serial communication myself.
 class SerialPiezoFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		SerialPiezoFlume& operator=(const SerialPiezoFlume&) = delete;
+		SerialPiezoFlume (const SerialPiezoFlume&) = delete;
+
 		SerialPiezoFlume ( bool sMode, std::string sn );
 		std::string getDeviceInfo ( );
 		void open ( );

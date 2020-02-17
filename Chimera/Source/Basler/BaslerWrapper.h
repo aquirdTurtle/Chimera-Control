@@ -9,9 +9,12 @@
 // wrapper class for modifying for safemode and to standardize error handling.
 class BaslerWrapper : public cameraType
 {
-
 	using cameraType::cameraType;
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		BaslerWrapper& operator=(const BaslerWrapper&) = delete;
+		BaslerWrapper (const BaslerWrapper&) = delete;
+
 		void init (CWnd* parent);
 
 		int getMinOffsetX ();

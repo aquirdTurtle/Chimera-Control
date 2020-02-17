@@ -139,7 +139,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -204,6 +204,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Agilent\AgilentCore.h" />
     <ClInclude Include="Source\Basler\BaslerWrapper.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
@@ -363,6 +364,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Agilent\Agilent.cpp" />
     <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp" />
+    <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
     <ClCompile Include="Source\AnalogInput\AiSystem.cpp" />
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\AlertSystem.cpp" />

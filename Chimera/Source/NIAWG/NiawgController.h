@@ -38,6 +38,10 @@ class NiawgWaiter;
 class NiawgController
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		NiawgController& operator=(const NiawgController&) = delete;
+		NiawgController (const NiawgController&) = delete;
+
 		NiawgController( DioRows::which trigRow, UINT trigNumber, bool safemode );
 		void initialize();
 		void cleanupNiawg( profileSettings profile, bool masterWasRunning, NiawgOutput& output, Communicator& comm, 

@@ -74,7 +74,8 @@ void ScriptingWindow::handleMasterFunctionChange( )
 
 void ScriptingWindow::handleIntensityCombo()
 {
-	intensityAgilent.handleInput( mainWin->getProfileSettings().configLocation, mainWin->getRunInfo() );
+	intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+	intensityAgilent.readGuiSettings(  );
 	intensityAgilent.handleModeCombo();
 	intensityAgilent.updateSettingsDisplay(mainWin->getProfileSettings().configLocation, mainWin->getRunInfo());
 }
@@ -105,13 +106,14 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 	{
 		try
 		{
-			intensityAgilent.handleInput(mainWin->getProfileSettings().configLocation, mainWin->getRunInfo());
-			intensityAgilent.setAgilent();
-			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.configDelim + ".\r\n" );
+			intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+			intensityAgilent.programAgilentNow(auxWin->getUsableConstants()[0]);
+			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getConfigDelim()+ ".\r\n" );
 		}
-		catch (Error&)
+		catch (Error& err)
 		{
-			comm()->sendError( "Error while programming agilent " + intensityAgilent.configDelim + "\r\n" );
+			comm()->sendError( "Error while programming agilent " + intensityAgilent.getConfigDelim() + ": " 
+							   + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -257,7 +259,7 @@ void ScriptingWindow::setMenuCheck ( UINT menuItem, UINT itemState )
 
 void ScriptingWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
-	input->agilents.push_back( &intensityAgilent );
+	input->agilents.push_back( intensityAgilent.getCore() );
 	input->intensityAgilentNumber = input->agilents.size() - 1;
 }
 
@@ -609,9 +611,9 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		getline ( configFile, niawgName );
 		getline ( configFile, masterName );
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
-		ProfileSystem::standardOpenConfig ( configFile, intensityAgilent.configDelim, &intensityAgilent, Version("4.0") );
-		intensityAgilent.updateSettingsDisplay ( 1, mainWin->getProfileSettings ( ).configLocation,
-												 mainWin->getRunInfo ( ) );
+		intensityAgilent.setOutputSettings (ProfileSystem::stdGetFromConfig (configFile, intensityAgilent.getConfigDelim (),
+			Agilent::getOutputSettingsFromConfigFile, Version ("4.0")));
+		intensityAgilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		try
 		{
 			openNiawgScript ( niawgName );

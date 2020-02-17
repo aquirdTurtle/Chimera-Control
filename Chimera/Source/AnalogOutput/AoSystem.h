@@ -26,6 +26,10 @@ class MainWindow;
 class AoSystem
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		AoSystem& operator=(const AoSystem&) = delete;
+		AoSystem (const AoSystem&) = delete;
+
 		AoSystem( bool aoSafemode );
 
 		// standard functions for gui elements
@@ -58,7 +62,7 @@ class AoSystem
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum, UINT totalVariations );
+		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,

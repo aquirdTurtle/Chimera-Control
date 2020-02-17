@@ -5,6 +5,10 @@
 class WinSerialFlume
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		WinSerialFlume& operator=(const WinSerialFlume&) = delete;
+		WinSerialFlume (const WinSerialFlume&) = delete;
+
 		WinSerialFlume( bool safemode_option, std::string portAddress );
 		void open ( std::string fileAddr );
 		void close( );

@@ -16,6 +16,10 @@ template <typename type> struct piezoChan
 class PiezoCore
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		PiezoCore& operator=(const PiezoCore&) = delete;
+		PiezoCore(const PiezoCore&) = delete;
+
 		PiezoCore ( PiezoType piezoControllerType, std::string sn, std::string delim );
 		void initialize (  );
 		std::string getDeviceInfo ( );
