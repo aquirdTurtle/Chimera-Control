@@ -1,6 +1,6 @@
 #pragma once
 
-struct tektronicsChannelOutputForm
+struct tektronixChannelOutput
 {
 	bool control;
 	bool on;
@@ -10,9 +10,9 @@ struct tektronicsChannelOutputForm
 	Expression fskFreq;
 };
 
-struct tektronicsInfo
+struct tektronixInfo
 {
 	// add any other settings for the whole machine here. 
-	std::array<tektronicsChannelOutputForm, 2> channels;
+	std::array<tektronixChannelOutput, 2> channels;
 	int machineAddress;
 };

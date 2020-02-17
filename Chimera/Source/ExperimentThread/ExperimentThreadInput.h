@@ -6,12 +6,11 @@
 #include "AnalogInput/AiSystem.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "Microwave/MicrowaveCore.h"
-#include "GeneralFlumes/GpibFlume.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "Agilent/AgilentCore.h"
 #include "NIAWG/NiawgController.h"
 #include "Python/EmbeddedPythonHandler.h"
-#include "Tektronix/TektronixAfgControl.h"
+#include "Tektronix/TekCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Piezo/PiezoCore.h"
 #include "Andor/AndorCameraCore.h"
@@ -22,11 +21,10 @@
 #include "RealTimeDataAnalysis/atomCruncherInput.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
 #include "Basler/baslerSettings.h"
-#include "DirectDigitalSynthesis/DdsSystem.h"
 #include "Plotting/PlotDialog.h"
 #include "Basler/BaslerCamera.h"
 #include "ExperimentType.h"
-
+#include "DirectDigitalSynthesis/DdsCore.h"
 #include <chrono>
 #include <vector>
 #include <atomic>
@@ -59,8 +57,8 @@ struct ExperimentThreadInput
 	MicrowaveCore& rsg;
 	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 	std::vector<AgilentCore*> agilents;
-	TektronixAfgControl& topBottomTek;
-	TektronixAfgControl& eoAxialTek;
+	TekCore& topBottomTek;
+	TekCore& eoAxialTek;
 	ParameterSystem& globalControl;
 	NiawgController& niawg;
 	DataLogger& logger;

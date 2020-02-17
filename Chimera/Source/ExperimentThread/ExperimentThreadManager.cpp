@@ -54,14 +54,15 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	const auto& runNiawg = input->runList.niawg;
 	const auto& runBasler = input->runList.basler;
 	const auto& piezos = input->piezoControllers;
-	
-
+	const UINT tbTek = 0;
+	const UINT aeTek = 1;
 
 	mainOptions mainOpts;
 	baslerSettings baslerCamSettings;
 	std::vector<std::vector<parameterType>> expParams;
 	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
 	std::vector<deviceOutputInfo> agilentRunInfo(input->agilents.size());
+	std::vector<tektronixInfo> tekInfo (2);
 	UINT variations;
 	try
 	{
@@ -94,6 +95,10 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 																Repetitions::getRepsFromConfig );
 				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
 															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
+				tekInfo[tbTek] = ProfileSystem::stdGetFromConfig (configFile, input->topBottomTek.configDelim,
+																  TektronixAfgControl::getTekInfo);
+				tekInfo[aeTek] = ProfileSystem::stdGetFromConfig (configFile, input->eoAxialTek.configDelim,
+																  TektronixAfgControl::getTekInfo);
 				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, varRangeInfo);
 				variations = determineVariationNumber (expParams[ seqNum ] );
 				for (auto agInc : range(input->agilents.size()))
@@ -165,6 +170,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
 			input->logger.logAndorSettings ( andorRunsettings[0], runAndor );
 			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
+			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
+			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
 		}
 		// should probably rethink this. devices should be individually set. 
 		bool useAuxDevices = runMaster && ( input->expType == ExperimentType::MachineOptimization 
@@ -301,8 +308,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 			dds.evaluateDdsInfo (expParams);
 			dds.generateFullExpInfo ( variations );
-			input->topBottomTek.interpretKey (expParams);
-			input->eoAxialTek.interpretKey (expParams);
+			input->topBottomTek.interpretKey (expParams, tekInfo[0]);
+			input->eoAxialTek.interpretKey (expParams, tekInfo[1]);
 			for (auto agInc : range (input->agilents.size ()))
 			{
 				input->agilents[agInc]->convertInputToFinalSettings (variations, 0, agilentRunInfo[agInc], expParams[0]);
@@ -493,8 +500,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			comm.sendError( warnings );
 			if ( useAuxDevices )
 			{
-				input->topBottomTek.programMachine ( variationInc );
-				input->eoAxialTek.programMachine ( variationInc );
+				input->topBottomTek.programMachine ( variationInc, tekInfo[0]);
+				input->eoAxialTek.programMachine ( variationInc, tekInfo[1]);
 			}
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );

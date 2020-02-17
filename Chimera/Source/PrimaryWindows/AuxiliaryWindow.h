@@ -154,8 +154,8 @@ class AuxiliaryWindow : public CDialog
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
 		MicrowaveCore& getRsg ( );
-		TektronixAfgControl& getTopBottomTek ( );
-		TektronixAfgControl& getEoAxialTek( );
+		TekCore& getTopBottomTek ( );
+		TekCore& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
 		DdsCore& getDds ( );
 		void handleProgramUwSystemNow ();

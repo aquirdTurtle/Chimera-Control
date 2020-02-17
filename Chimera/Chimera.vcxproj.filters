@@ -314,6 +314,7 @@
       <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
+    <ClCompile Include="Source\Tektronix\TekCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -740,6 +741,7 @@
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
     <ClInclude Include="Source\Agilent\AgilentCore.h" />
+    <ClInclude Include="Source\Tektronix\TekCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

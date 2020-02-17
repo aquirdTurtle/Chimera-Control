@@ -1,21 +1,22 @@
 // created by Mark O. Brown
 #pragma once
 
-
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"					  
 #include "Andor/CameraImageDimensions.h"
 #include "Andor/AndorRunSettings.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "afxwin.h"
 #include "Basler/BaslerSettingsControl.h"
 #include "AnalogInput/ServoManager.h"
+#include "AnalogInput/servoInfo.h"
+#include "Tektronix/TektronixStructures.h"
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
 #undef ssize_t
 #include <vector>
 #include <string>
-#include "AnalogInput/servoInfo.h"
+#include "afxwin.h"
+
 
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
@@ -43,7 +44,7 @@ class DataLogger
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DioSystem& doSys );
 		void logBaslerSettings ( baslerSettings settings, bool on );
-		void logTektronicsSettings( TektronixAfgControl& tek );
+		void DataLogger::logTektronicsSettings (tektronixInfo& tekInfo, std::string delim);
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
 		void logServoInfo ( std::vector<servoInfo> servos );
 		void initializeAiLogging ( UINT numSnapshots );

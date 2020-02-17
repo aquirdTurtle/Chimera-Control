@@ -337,6 +337,7 @@
     <ClInclude Include="Source\ExcessDialogs\splashDialog.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h" />
+    <ClInclude Include="Source\Tektronix\TekCore.h" />
     <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
     <ClInclude Include="Source\ExcessDialogs\TextPromptDialog.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\commonFunctions.h" />
@@ -455,6 +456,7 @@
     <ClCompile Include="Source\ExcessDialogs\splashDialog.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />
+    <ClCompile Include="Source\Tektronix\TekCore.cpp" />
     <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
     <ClCompile Include="Source\ExcessDialogs\TextPromptDialog.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp" />

@@ -7,8 +7,8 @@ class TektronixChannelControl
 {
 	public:
 		void initialize (POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, UINT control_id);
-		tektronicsChannelOutputForm getTekChannelSettings ();
-		void setSettings (tektronicsChannelOutputForm info);
+		tektronixChannelOutput getTekChannelSettings ();
+		void setSettings (tektronixChannelOutput info);
 		void rearrange (int width, int height, fontMap fonts);
 		void handleOnPress ();
 		void handleFskPress ();
@@ -21,5 +21,5 @@ class TektronixChannelControl
 		Control<CEdit> power;
 		Control<CEdit> mainFreq;
 		Control<CEdit> fskFreq;
-		tektronicsChannelOutputForm currentInfo;
+		tektronixChannelOutput currentInfo;
 };
