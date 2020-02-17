@@ -15,6 +15,7 @@
 #undef ssize_t
 #include <vector>
 #include <string>
+#include <functional>
 #include "afxwin.h"
 
 
@@ -37,7 +38,7 @@ class DataLogger
 		void logMiscellaneousStart();
 		void logAndorSettings( AndorRunSettings settings, bool on );
 		void logNiawgSettings( ExperimentThreadInput* input );
-		void logAgilentSettings (const std::vector<AgilentCore*>& agilents,
+		void logAgilentSettings (const std::vector<std::reference_wrapper<AgilentCore>>& agilents,
 								 const std::vector<deviceOutputInfo>& agOutput);
 		void logParameters( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
 		void logFunctions( H5::Group& group );

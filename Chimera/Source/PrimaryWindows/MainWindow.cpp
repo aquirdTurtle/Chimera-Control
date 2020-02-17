@@ -249,7 +249,7 @@ void MainWindow::onAutoCalFin ()
 		comm.sendStatus ("ERROR!\r\n");
 	}
 	setNiawgRunningState (false);
-
+	TheAndorWindow->cleanUpAfterExp ();
 	autoCalNum++;
 	if (autoCalNum >= AUTO_CAL_LIST.size ())
 	{
@@ -1006,15 +1006,9 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		{
 			int num = pWnd->GetDlgCtrlID();
 			CBrush* ret = shortStatus.handleColor(pWnd, pDC);
-			if (ret)
-			{
-				return *ret;
-			}
+			if (ret) { return *ret; }
 			ret = boxes.handleColoring( num, pDC );
-			if ( ret )
-			{
-				return *ret;
-			}
+			if ( ret ) { return *ret; }
 			else
 			{
 				pDC->SetTextColor(_myRGBs["Text"]);
@@ -1089,14 +1083,8 @@ unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 	ScopeViewer* input = (ScopeViewer*)voidInput;
 	while ( true )
 	{
-		try
-		{
-			input->refreshData ( );
-		}
-		catch ( Error&  )
-		{
-			// ???
-		}
+		try	{ input->refreshData ( ); }
+		catch ( Error&  ) { /* ??? */ }
 	}
 }
 
@@ -1107,16 +1095,9 @@ void MainWindow::fillMasterThreadSequence( ExperimentThreadInput* input )
 }
 
 
-NiawgController& MainWindow::getNiawg ( )
-{
-	return niawg;
-}
+NiawgController& MainWindow::getNiawg ( ) { return niawg; }
 
-
-Communicator& MainWindow::getCommRef ( )
-{
-	return comm;
-}
+Communicator& MainWindow::getCommRef ( ) { return comm; }
 
 
 void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
@@ -1332,10 +1313,7 @@ void MainWindow::abortMasterThread()
 		expThreadManager.abort();
 		autoF5_AfterFinish = false;
 	}
-	else
-	{
-		thrower ("Can't abort, experiment was not running.\r\n");
-	}
+	else { thrower ("Can't abort, experiment was not running.\r\n"); }
 }
 
 bool MainWindow::experimentIsPaused( )
@@ -1422,18 +1400,14 @@ void MainWindow::waitForRearranger( )
 void MainWindow::onNormalFinishMessage()
 {
 	TheScriptingWindow->setIntensityDefault();
-	std::string msgText = "Passively Outputting Default Waveform";
-	setShortStatus(msgText);
+	setShortStatus("Passively Outputting Default Waveform");
 	changeShortStatusColor("B");
 	stopRearranger( );
 	TheAndorWindow->wakeRearranger();
 	TheAndorWindow->cleanUpAfterExp ( );
 	handleFinish ( );
 	comm.sendColorBox( System::Niawg, 'B' );
-	try
-	{
-		niawg.restartDefault();
-	}
+	try	{ niawg.restartDefault(); }
 	catch ( Error& except )
 	{
 		comm.sendError( "The niawg finished normally, but upon restarting the default waveform, threw the "
@@ -1442,18 +1416,9 @@ void MainWindow::onNormalFinishMessage()
 		comm.sendStatus( "ERROR!\r\n" );
 	}
 	setNiawgRunningState( false );
-	try
-	{
-		waitForRearranger( );
-	}
-	catch ( Error& err )
-	{
-		comm.sendError( err.trace( ) );
-	}
-	if ( TheAndorWindow->wantsThresholdAnalysis ( ) ) 
-	{
-		handleThresholdAnalysis ( );
-	}
+	try { waitForRearranger (); }
+	catch ( Error& err ) { comm.sendError( err.trace( ) ); }
+	if (TheAndorWindow->wantsThresholdAnalysis ()) { handleThresholdAnalysis (); }
 	if ( autoF5_AfterFinish )
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,

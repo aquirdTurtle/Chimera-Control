@@ -14,7 +14,6 @@
 #include "nidaqmx2.h"
 #include <boost/lexical_cast.hpp>
 
-
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
 DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	
@@ -24,17 +23,8 @@ DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemo
 {
 	connectType = ftdiConnectionOption::Async;
 	//ftdi_connectasync("FT2E722BB");
-	for (auto& out : outputs)
-	{
-		out.set(0);
-	}
+	for (auto& out : outputs) { out.set(0); }
 }
-
-/*DioSystem::DioSystem() : ftFlume(DIOFTDI_SAFEMODE),vp_flume(true), winSerial(true)
-{
-	
-	connectType = ftdiConnectionOption::Async;
-}*/
 DioSystem::~DioSystem() { ftdi_disconnect(); }
 
 
@@ -441,25 +431,25 @@ std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
 }
 
 
-void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void DioSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
-	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_CENTER, ttlTitle.sPos, master, id++ );
+	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_CENTER, ttlTitle.sPos, parent, id++ );
 	ttlTitle.fontType = fontTypes::HeadingFont;
 	// all number numberLabels
 	loc.y += 25;
 	ttlHold.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
 	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
-					ttlHold.sPos, master, TTL_HOLD );
+					ttlHold.sPos, parent, TTL_HOLD );
 	ttlHold.setToolTip("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
 					   "ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
-					   "change.", toolTips, master);
+					   "change.", toolTips, parent);
 
 	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
-	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, 
+	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, parent, 
 					 IDC_ZERO_TTLS );
-	zeroTtls.setToolTip( "Press this button to set all ttls to their zero (false) state.", toolTips, master );
+	zeroTtls.setToolTip( "Press this button to set all ttls to their zero (false) state.", toolTips, parent );
 	loc.y += 20;
 
 	for (long ttlNumberInc = 0; ttlNumberInc < long(ttlNumberLabels.size()); ttlNumberInc++)
@@ -467,7 +457,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 		ttlNumberLabels[ttlNumberInc].sPos = { loc.x + 32 + ttlNumberInc * 28, loc.y,
 			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
 		ttlNumberLabels[ttlNumberInc].Create( cstr( ttlNumberInc ), WS_CHILD | WS_VISIBLE | SS_CENTER,
-											  ttlNumberLabels[ttlNumberInc].sPos, master, id++ );
+											  ttlNumberLabels[ttlNumberInc].sPos, parent, id++ );
 	}
 	loc.y += 20;
 	// all row numberLabels
@@ -475,7 +465,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	{
 		ttlRowLabels[ int(row) ].sPos = { loc.x, loc.y + int(row) * 28, loc.x + 32, loc.y + ( int(row) + 1 ) * 28 };
 		ttlRowLabels[ int(row) ].Create ( cstr ( DioRows::toStr(row) ), WS_CHILD | WS_VISIBLE | SS_CENTER,
-									 ttlRowLabels[ int(row) ].sPos, master, id++ );
+									 ttlRowLabels[ int(row) ].sPos, parent, id++ );
 	}
 	// all push buttons
 	UINT runningCount = 0;
@@ -485,7 +475,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 		loc.x = startX;
 		for (UINT number = 0; number < outputs.numColumns; number++)
 		{
-			outputs ( number, row ).initialize ( loc, master, TTL_ID_BEGIN + runningCount++, toolTips );
+			outputs ( number, row ).initialize ( loc, parent, TTL_ID_BEGIN + runningCount++, toolTips );
 			loc.x += 28;
 		}
 		loc.y += 28;

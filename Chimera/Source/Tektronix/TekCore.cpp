@@ -14,6 +14,10 @@ TekCore::TekCore (bool safemode, std::string address, std::string configurationF
 		errBox ("Failed to initialize tektronics visa connection! " + err.trace ());
 	}
 }
+TekCore::~TekCore ()
+{
+	visaFlume.close ();
+}
 
 void TekCore::programMachine (UINT variation, tektronixInfo& runInfo)
 {

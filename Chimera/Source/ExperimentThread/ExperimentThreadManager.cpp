@@ -83,7 +83,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				for ( auto piezoInc : range(input->piezoControllers.size()))
 				{
 					auto res = ProfileSystem::stdGetFromConfig (
-						configFile, input->piezoControllers[ piezoInc ]->configDelim, 
+						configFile, input->piezoControllers[ piezoInc ].get().configDelim, 
 						PiezoCore::getPiezoSettingsFromConfig );
 					piezoExpressions[ piezoInc ][ seqNum ] 
 						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
@@ -104,7 +104,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				for (auto agInc : range(input->agilents.size()))
 				{
 					agilentRunInfo[agInc] = ProfileSystem::stdGetFromConfig(configFile, 
-						input->agilents[agInc]->configDelim, Agilent::getOutputSettingsFromConfigFile);
+						input->agilents[agInc].get().configDelim, Agilent::getOutputSettingsFromConfigFile);
 				}
 			}
 			if (runAndor) 
@@ -173,26 +173,12 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
 			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
 		}
-		// should probably rethink this. devices should be individually set. 
-		bool useAuxDevices = runMaster && ( input->expType == ExperimentType::MachineOptimization 
-										  || input->expType == ExperimentType::Normal 
-										  || input->expType == ExperimentType::AutoCal );
-		if ( !useAuxDevices )
+		for ( auto piezoInc : range ( piezos.size ( ) ) )
 		{
-			 expUpdate ( "Non-standard experiment type, so Tektronics, and Agilents will not be run.", comm, quiet );
+			piezos[ piezoInc ].get().updateExprVals ( piezoExpressions[ piezoInc ] );
 		}
-		else
-		{
-			for ( auto piezoInc : range ( piezos.size ( ) ) )
-			{
-				piezos[ piezoInc ]->updateExprVals ( piezoExpressions[ piezoInc ] );
-			}
-			dds.updateRampLists ( ddsRampList );
-		}
-		if ( input->updatePlotterXVals )
-		{
-			updatePlotX_vals ( input, expParams );
-		}
+		dds.updateRampLists ( ddsRampList );
+		if ( input->updatePlotterXVals ) updatePlotX_vals ( input, expParams );
 		if ( runMaster )
 		{
 			aoSys.resetDacEvents ( );
@@ -228,18 +214,15 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 			/// Prep agilents
 			expUpdate( "Loading Agilent Info...", comm, quiet );
-			if ( useAuxDevices )
+			for ( auto agInc: range(input->agilents.size()) )
 			{
-				for ( auto agInc: range(input->agilents.size()) )
+				auto& agilent = input->agilents[agInc].get();
+				for ( auto channelInc : range ( 2 ) )
 				{
-					auto& agilent = input->agilents[agInc];
-					for ( auto channelInc : range ( 2 ) )
+					if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
 					{
-						if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
-						{
-							agilent->analyzeAgilentScript (agilentRunInfo[agInc].channel[channelInc].scriptedArb,
-								seqVariables);
-						}
+						agilent.analyzeAgilentScript (agilentRunInfo[agInc].channel[channelInc].scriptedArb,
+							seqVariables);
 					}
 				}
 			}
@@ -252,7 +235,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
 													 input->thisObj->operationTime, input->thisObj->loadSkipTime );
 			}
-			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
+			if ( input->thisObj->isAborting ) thrower ( abortString );
 			if ( runNiawg )	
 			{
 				comm.sendColorBox ( System::Niawg, 'Y' );
@@ -260,7 +243,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 												   warnings, input->rerngGuiForm, seqVariables );
 				workingNiawgScripts[ seqNum ] = output.niawgLanguageScript;
 			}
-			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
+			if ( input->thisObj->isAborting ) thrower ( abortString );
 			if ( runMaster )
 			{
 				input->thisObj->loadSkipTimes[ seqNum ].resize ( variations );
@@ -297,24 +280,21 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			ttls.restructureCommands ( );
 			aoSys.interpretKey(expParams, warnings );
 		}
-		if ( useAuxDevices )
+		for ( auto piezoInc : range(piezos.size()) )
 		{
-			for ( auto piezoInc : range(piezos.size()) )
+			if ( ctrlPztOptions[ piezoInc ][ 0 ] )
 			{
-				if ( ctrlPztOptions[ piezoInc ][ 0 ] )
-				{
-					piezos[piezoInc]->evaluateVariations (expParams, variations );
-				}
+				piezos[piezoInc].get().evaluateVariations (expParams, variations );
 			}
-			dds.evaluateDdsInfo (expParams);
-			dds.generateFullExpInfo ( variations );
-			input->topBottomTek.interpretKey (expParams, tekInfo[0]);
-			input->eoAxialTek.interpretKey (expParams, tekInfo[1]);
-			for (auto agInc : range (input->agilents.size ()))
-			{
-				input->agilents[agInc]->convertInputToFinalSettings (variations, 0, agilentRunInfo[agInc], expParams[0]);
-				input->agilents[agInc]->convertInputToFinalSettings (variations, 1, agilentRunInfo[agInc], expParams[0]);
-			}
+		}
+		dds.evaluateDdsInfo (expParams);
+		dds.generateFullExpInfo ( variations );
+		input->topBottomTek.interpretKey (expParams, tekInfo[0]);
+		input->eoAxialTek.interpretKey (expParams, tekInfo[1]);
+		for (auto agInc : range (input->agilents.size ()))
+		{
+			input->agilents[agInc].get().convertInputToFinalSettings (variations, 0, agilentRunInfo[agInc], expParams[0]);
+			input->agilents[agInc].get().convertInputToFinalSettings (variations, 1, agilentRunInfo[agInc], expParams[0]);
 		}
 		input->rsg.interpretKey (expParams, uwSettings);
 		/// organize commands, prepping final forms of the data for each repetition.
@@ -373,7 +353,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				}
 			}
 		}
-		ExperimentThreadManager::checkTriggerNumbers ( input, useAuxDevices, warnings, variations, uwSettings, 
+		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, 
 													   expParams, agilentRunInfo );
 		/// finish up
 		if ( runMaster )
@@ -470,21 +450,18 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			expUpdate( "Programming Devices... ", comm, quiet );
 			input->rsg.programRsg (variationInc, uwSettings);
 			// program devices
-			if ( useAuxDevices )
+			for ( auto agInc : range(input->agilents.size()) )
 			{
-				for ( auto agInc : range(input->agilents.size()) )
-				{
-					input->agilents[agInc]->setAgilent ( variationInc, expParams[ 0 ], agilentRunInfo[agInc] );
-				}
-				for ( auto piezoInc : range(piezos.size()) )
-				{
-					if ( ctrlPztOptions[ piezoInc ][ 0 ] )
-					{
-						piezos[piezoInc]->exprProgramPiezo ( 0, variationInc );
-					}
-				}
-				dds.writeExperiment ( 0, variationInc );
+				input->agilents[agInc].get().setAgilent ( variationInc, expParams[ 0 ], agilentRunInfo[agInc] );
 			}
+			for ( auto piezoInc : range(piezos.size()) )
+			{
+				if ( ctrlPztOptions[ piezoInc ][ 0 ] )
+				{
+					piezos[piezoInc].get().exprProgramPiezo ( 0, variationInc );
+				}
+			}
+			dds.writeExperiment ( 0, variationInc );
 			if (runNiawg)
 			{
 				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
@@ -497,12 +474,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					input->niawg.handleStartingRerng (input, output);
 				}
 			}
+			input->topBottomTek.programMachine (variationInc, tekInfo[0]);
+			input->eoAxialTek.programMachine (variationInc, tekInfo[1]);
 			comm.sendError( warnings );
-			if ( useAuxDevices )
-			{
-				input->topBottomTek.programMachine ( variationInc, tekInfo[0]);
-				input->eoAxialTek.programMachine ( variationInc, tekInfo[1]);
-			}
 			comm.sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", comm, quiet );
 
@@ -548,7 +522,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						ttls.ftdi_trigger();
 						ttls.FtdiWaitTillFinished(variationInc, seqInc);
 					}
-				}//}
+				}
 			}
 		}
 		/// conclude.
@@ -1484,7 +1458,7 @@ UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterTyp
 }
 
 
-void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, bool useAuxDevices, std::string& warnings,
+void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
 												UINT variations, microwaveSettings settings, 
 												std::vector<std::vector<parameterType>>& expParams, 
 												std::vector<deviceOutputInfo>& agRunInfo)
@@ -1535,32 +1509,29 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 					input->debugOptions.message += infoString + "\n";
 				}
 			}
-			if ( useAuxDevices )
+			/// check RSG
+			if ( !rsgMismatch )
 			{
-				/// check RSG
-				if ( !rsgMismatch )
+				auto actualTrigs = input->ttls.countTriggers ( input->rsg.getRsgTriggerLine ( ), variationInc, seqInc );
+				auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc, settings );
+				std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
+					+ str ( rsgExpectedTrigs ) + ".";
+				if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
 				{
-					auto actualTrigs = input->ttls.countTriggers ( input->rsg.getRsgTriggerLine ( ), variationInc, seqInc );
-					auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc, settings );
-					std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
-						+ str ( rsgExpectedTrigs ) + ".";
-					if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
-					{
-						warnings += "WARNING: the RSG is not getting triggered by the ttl system the same number"
-							" of times a trigger command appears in the master script. " + infoString + " First "
-							"instance seen sequence number " + str ( seqInc ) + " variation " + str ( variationInc )
-							+ ".\r\n";
-						rsgMismatch = true;
-					}
-					if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
-					{
-						input->debugOptions.message += infoString + "\n";
-					}
+					warnings += "WARNING: the RSG is not getting triggered by the ttl system the same number"
+						" of times a trigger command appears in the master script. " + infoString + " First "
+						"instance seen sequence number " + str ( seqInc ) + " variation " + str ( variationInc )
+						+ ".\r\n";
+					rsgMismatch = true;
+				}
+				if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
+				{
+					input->debugOptions.message += infoString + "\n";
 				}
 				/// check Agilents
 				for ( auto agInc : range ( input->agilents.size ( ) ) )
 				{
-					auto& agilent = input->agilents[ agInc ];
+					auto& agilent = input->agilents[ agInc ].get();
 					for ( auto chan : range ( 2 ) )
 					{
 						auto& agChan = agRunInfo[agInc].channel[ chan ];
@@ -1568,14 +1539,14 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 						{
 							continue;
 						}
-						UINT actualTrigs = input->runList.master ? input->ttls.countTriggers ( agilent->getTriggerLine ( ),
+						UINT actualTrigs = input->runList.master ? input->ttls.countTriggers ( agilent.getTriggerLine ( ),
 																				variationInc, seqInc ) : 0;
 						UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
-						std::string infoString = "Actual/Expected " + agilent->configDelim + " Triggers: "
+						std::string infoString = "Actual/Expected " + agilent.configDelim + " Triggers: "
 							+ str ( actualTrigs ) + "/" + str ( agilentExpectedTrigs ) + ".";
 						if ( actualTrigs != agilentExpectedTrigs )
 						{
-							warnings += "WARNING: Agilent " + agilent->configDelim + " is not getting "
+							warnings += "WARNING: Agilent " + agilent.configDelim + " is not getting "
 								"triggered by the ttl system the same number of times a trigger command "
 								"appears in the agilent channel " + str ( chan + 1 ) + " script. " + infoString 
 								+ " First seen in sequence #" + str ( seqInc ) + ", variation #" + str ( variationInc ) 
