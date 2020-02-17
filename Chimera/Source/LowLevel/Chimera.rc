@@ -101,9 +101,9 @@ BEGIN
     IDD_SPLASH, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 684
+        RIGHTMARGIN, 683
         TOPMARGIN, 7
-        BOTTOMMARGIN, 360
+        BOTTOMMARGIN, 361
     END
 
     IDD_PLOT_DIALOG, DIALOG
@@ -196,13 +196,13 @@ BEGIN
     PUSHBUTTON      "CANCEL",IDCANCEL,721,319,50,14
 END
 
-IDD_SPLASH DIALOGEX 5, 5, 691, 367
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_SYSMENU
+IDD_SPLASH DIALOGEX 0, 0, 690, 368
+STYLE DS_SETFONT | DS_SETFOREGROUND | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_BORDER
+EXSTYLE WS_EX_TOPMOST
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Chimera Control System\nCreated by Mark Brown",IDC_STATIC,587,28,82,20
-    LTEXT           "Loading..................",IDC_STATIC,587,50,64,8
-    CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,7,7,576,353
+    LTEXT           "Chimera Control System\nCreated by Mark O. Brown",IDC_STATIC,584,23,97,20
+    LTEXT           "Loading..................",IDC_STATIC,584,45,64,8
 END
 
 IDD_PLOT_DIALOG DIALOGEX 200, 200, 310, 179
@@ -496,6 +496,12 @@ END
 //
 
 IDB_JILA                BITMAP                  "JILA.bmp"
+
+IDB_BITMAP2             BITMAP                  "bitmap2.bmp"
+
+IDB_BITMAP3             BITMAP                  "bitmap3.bmp"
+
+IDB_BITMAP4             BITMAP                  "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\Chimera\\Source\\Shades_Of_Infrared.bmp"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
