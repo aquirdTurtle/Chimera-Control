@@ -11,53 +11,39 @@ TektronixAfgControl::TektronixAfgControl(bool safemode, std::string address, std
 	
 }
 
-void TektronixAfgControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
+void TektronixAfgControl::interpretKey(std::vector<std::vector<parameterType>>& parameters)
 {
 	UINT variations;
 	UINT sequenceNumber;
-	if ( variables.size( ) == 0 )
+	if ( parameters.size( ) == 0 )
 	{
 		thrower ( "ERROR: variables empty, no sequence fill!" );
 	}
-	else if ( variables.front( ).size( ) == 0 )
+	else if ( parameters.front( ).size( ) == 0 )
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = variables.front().front().keyValues.size();
+		variations = parameters.front().front().keyValues.size();
 	}
-	sequenceNumber = variables.size( );
-	/// imporantly, this sizes the relevant structures.
-	currentNums.clear();
-	currentNums.resize(variations);
+	sequenceNumber = parameters.size( );
 	for ( auto seqInc : range( sequenceNumber ) )
 	{
 		for ( UINT variationInc : range( variations ) )
 		{
-			/// deal with first channel.
-			if ( currentInfo.channels.first.on )
+			for (auto& channel : currentInfo.channels)
 			{
-				tektronicsChannelOutput& channel = currentNums[variationInc].channels.first;
-				channel.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variables[seqInc], variationInc );
-				channel.powerVal = currentInfo.channels.first.power.evaluate( variables[seqInc], variationInc );
-				// handle FSK options
-				if ( currentInfo.channels.first.fsk )
+				/// deal with first channel.
+				if (channel.on)
 				{
-					channel.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variables[seqInc], variationInc );
-				}
-			}
-			// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
-			/// handle second channel.
-			if ( currentInfo.channels.second.on )
-			{
-				tektronicsChannelOutput& channel = currentNums[variationInc].channels.second;
-				channel.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variables[seqInc], variationInc );
-				channel.powerVal = currentInfo.channels.second.power.evaluate( variables[seqInc], variationInc );
-				// handle FSK options
-				if ( currentInfo.channels.second.fsk )
-				{
-					channel.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variables[seqInc], variationInc );
+					channel.mainFreq.internalEvaluate (parameters[seqInc], variationInc);
+					channel.power.internalEvaluate (parameters[seqInc], variationInc);
+					// handle FSK options
+					if (channel.fsk)
+					{
+						channel.fskFreq.internalEvaluate (parameters[seqInc], variationInc);
+					}
 				}
 			}
 		}
@@ -97,15 +83,14 @@ void TektronixAfgControl::handleNewConfig( std::ofstream& newFile )
 void TektronixAfgControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << configDelim + "\n";
-	saveFile << "CHANNEL_1\n";
-	tektronicsInfo tekInfo = getTekSettings();
-	saveFile << tekInfo.channels.first.control << "\n" << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
-		<< tekInfo.channels.first.power.expressionStr << "\n" << tekInfo.channels.first.mainFreq.expressionStr << "\n"
-		<< tekInfo.channels.first.fskFreq.expressionStr << "\n";
-	saveFile << "CHANNEL_2\n";
-	saveFile << tekInfo.channels.second.control << "\n" << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
-		<< tekInfo.channels.second.power.expressionStr << "\n" << tekInfo.channels.second.mainFreq.expressionStr << "\n"
-		<< tekInfo.channels.second.fskFreq.expressionStr << "\n";
+	tektronicsInfo tekInfo = getTekSettings ();
+	for (auto chanInc : range (tekInfo.channels.size ()))
+	{
+		auto& channel = tekInfo.channels[chanInc];
+		saveFile << "CHANNEL_" + str(chanInc) + "\n";
+		saveFile << channel.control << "\n" << channel.on << "\n" << channel.fsk << "\n" << channel.power.expressionStr 
+			<< "\n" << channel.mainFreq.expressionStr << "\n" << channel.fskFreq.expressionStr << "\n";
+	}
 	saveFile << "END_" + configDelim + "\n";
 }
 
@@ -114,22 +99,16 @@ void TektronixAfgControl::handleOpenConfig(std::ifstream& configFile, Version ve
 {
 	std::string tempStr;
 	tektronicsInfo tekInfo;
-	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");	
-	configFile >> tekInfo.channels.first.control;
-	configFile >> tekInfo.channels.first.on;
-	configFile >> tekInfo.channels.first.fsk;
-	configFile.get();
-	std::getline(configFile, tekInfo.channels.first.power.expressionStr );
-	std::getline(configFile, tekInfo.channels.first.mainFreq.expressionStr );
-	std::getline(configFile, tekInfo.channels.first.fskFreq.expressionStr );
-	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_2");
-	configFile >> tekInfo.channels.second.control;
-	configFile >> tekInfo.channels.second.on;
-	configFile >> tekInfo.channels.second.fsk;
-	configFile.get();
-	std::getline(configFile, tekInfo.channels.second.power.expressionStr );
-	std::getline(configFile, tekInfo.channels.second.mainFreq.expressionStr );
-	std::getline(configFile, tekInfo.channels.second.fskFreq.expressionStr );
+	for (auto chanInc : range (tekInfo.channels.size ()))
+	{
+		ProfileSystem::checkDelimiterLine (configFile, "CHANNEL_" + str(chanInc));
+		auto& channel = tekInfo.channels[chanInc];
+		configFile >> channel.control >> channel.on >> channel.fsk;
+		configFile.get ();
+		std::getline (configFile, channel.power.expressionStr);
+		std::getline (configFile, channel.mainFreq.expressionStr);
+		std::getline (configFile, channel.fskFreq.expressionStr);
+	}
 	setSettings(tekInfo);
 }
 
@@ -137,7 +116,7 @@ void TektronixAfgControl::handleOpenConfig(std::ifstream& configFile, Version ve
 
 void TektronixAfgControl::programMachine(UINT variation)
 {
-	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
+	if ( currentInfo.channels[0].control || currentInfo.channels[1].control )
 	{
 		for ( auto i : range ( 5 ) )
 		{
@@ -151,56 +130,34 @@ void TektronixAfgControl::programMachine(UINT variation)
 				// seems to fail occasionally
 			}
 		}
-		if ( currentInfo.channels.first.control )
+		for (auto channelInc : range(currentInfo.channels.size()))
 		{
-			if ( currentInfo.channels.first.on )
+			auto& channel = currentInfo.channels[channelInc];
+			auto ch_s = str (channelInc);
+			if (channel.control)
 			{
-				visaFlume.write( "SOURCE1:FREQ " + str( currentNums[variation].channels.first.mainFreqVal ) );
-				visaFlume.write( "SOURCE1:VOLT:UNIT DBM" );
-				visaFlume.write( "SOURCE1:VOLT " + str( currentNums[variation].channels.first.powerVal ) );
-				visaFlume.write( "SOURCE1:VOLT:OFFS 0" );
-
-				if ( currentInfo.channels.first.fsk )
+				if (channel.on)
 				{
-					visaFlume.write( "SOURCE1:FSKey:STATe On" );
-					visaFlume.write( "SOURCE1:FSKey:FREQ " + str( currentNums[variation].channels.first.fskFreqVal ) );
-					visaFlume.write( "SOURCE1:FSKey:SOURce External" );
+					visaFlume.write ("SOURCE" + ch_s + ":FREQ " + str (channel.mainFreq.getValue(variation)));
+					visaFlume.write ("SOURCE" + ch_s + ":VOLT:UNIT DBM");
+					visaFlume.write ("SOURCE" + ch_s + ":VOLT " + str (channel.power.getValue(variation)));
+					visaFlume.write ("SOURCE" + ch_s + ":VOLT:OFFS 0");
+					if (channel.fsk)
+					{
+						visaFlume.write ("SOURCE" + ch_s + ":FSKey:STATe On");
+						visaFlume.write ("SOURCE" + ch_s + ":FSKey:FREQ " + str (channel.fskFreq.getValue(variation)));
+						visaFlume.write ("SOURCE" + ch_s + ":FSKey:SOURce External");
+					}
+					else
+					{
+						visaFlume.write ("SOURCE" + ch_s + ":FSKey:STATe Off");
+					}
+					visaFlume.write ("OUTput" + ch_s + ":STATe ON");
 				}
 				else
 				{
-					visaFlume.write( "SOURCE1:FSKey:STATe Off" );
+					visaFlume.write ("OUTput" + ch_s + ":STATe OFF");
 				}
-				visaFlume.write( "OUTput1:STATe ON" );
-			}
-			else
-			{
-				visaFlume.write( "OUTput1:STATe OFF" );
-			}
-		}
-		/// second channel
-		if ( currentInfo.channels.second.control )
-		{
-			if ( currentInfo.channels.second.on )
-			{
-				visaFlume.write( "SOURCE2:FREQ " + str( currentNums[variation].channels.second.mainFreqVal ) );
-				visaFlume.write( "SOURCE2:VOLT:UNIT DBM" );
-				visaFlume.write( "SOURCE2:VOLT " + str( currentNums[variation].channels.second.powerVal ) );
-				visaFlume.write( "SOURCE2:VOLT:OFFS 0" );
-				if ( currentInfo.channels.second.fsk )
-				{
-					visaFlume.write( "SOURCE2:FSKey:STATe On" );
-					visaFlume.write( "SOURCE2:FSKey:FREQ " + str( currentNums[variation].channels.second.fskFreqVal ) );
-					visaFlume.write( "SOURCE2:FSKey:SOURce External" );
-				}
-				else
-				{
-					visaFlume.write( "SOURCE2:FSKey:STATe Off" );
-				}
-				visaFlume.write( "OUTput2:STATe ON" );
-			}
-			else
-			{
-				visaFlume.write( "OUTput2:STATe OFF" );
 			}
 		}
 		visaFlume.close( );
@@ -211,30 +168,18 @@ void TektronixAfgControl::handleProgram()
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
-	// similar to the handling in interpret key except no key or variations, just try to reduce any raw math that the 
-	// user enters into the edits.
-	currentNums.clear();
-	currentNums.resize( 1 );
 	/// deal with first channel.
-	if (currentInfo.channels.first.on)
+	for (auto& channel : currentInfo.channels)
 	{
-		currentNums[0].channels.first.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate();
-		currentNums[0].channels.first.powerVal = currentInfo.channels.first.power.evaluate();
-		// handle FSK options
-		if (currentInfo.channels.first.fsk)
+		if (channel.on)
 		{
-			currentNums[0].channels.first.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate();
-		}
-	}
-	/// handle second channel.
-	if (currentInfo.channels.second.on)
-	{
-		currentNums[0].channels.second.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate(  );
-		currentNums[0].channels.second.powerVal = currentInfo.channels.second.power.evaluate();
-		// handle FSK options
-		if (currentInfo.channels.second.fsk)
-		{
-			currentNums[0].channels.second.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate();
+			channel.mainFreq.internalEvaluate ();
+			channel.power.internalEvaluate ();
+			// handle FSK options
+			if (channel.fsk)
+			{
+				channel.fskFreq.internalEvaluate ();
+			}
 		}
 	}
 	// and program just these settings.
@@ -311,8 +256,8 @@ void TektronixAfgControl::rearrange(int width, int height, fontMap fonts)
 
 tektronicsInfo TektronixAfgControl::getTekSettings()
 {
-	currentInfo.channels.first = channel1.getTekChannelSettings();
-	currentInfo.channels.second = channel2.getTekChannelSettings();
+	currentInfo.channels[0] = channel1.getTekChannelSettings();
+	currentInfo.channels[1] = channel2.getTekChannelSettings();
 	return currentInfo;
 }
 
@@ -320,8 +265,8 @@ tektronicsInfo TektronixAfgControl::getTekSettings()
 void TektronixAfgControl::setSettings(tektronicsInfo info)
 {
 	currentInfo.channels = info.channels;
-	channel1.setSettings(currentInfo.channels.first);
-	channel2.setSettings(currentInfo.channels.second);
+	channel1.setSettings(currentInfo.channels[0]);
+	channel2.setSettings(currentInfo.channels[1]);
 	// update the controls to reflect what is now selected.
 	channel1.handleOnPress();
 	channel1.handleFskPress();

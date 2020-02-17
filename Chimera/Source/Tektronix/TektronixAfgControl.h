@@ -43,6 +43,5 @@ class TektronixAfgControl
 		TektronixChannelControl channel2;
 
 		tektronicsInfo currentInfo;
-		std::vector<tektronicsNums> currentNums;
 };
 

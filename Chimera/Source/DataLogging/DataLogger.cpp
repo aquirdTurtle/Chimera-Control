@@ -292,15 +292,15 @@ void DataLogger::logTektronicsSettings ( TektronixAfgControl& tek )
 		H5::Group thisTek ( tektronicsGroup.createGroup ( tek.configDelim ) );
 		writeDataSet ( info.machineAddress, "Machine-Address", thisTek );
 		UINT channelCount = 1;
-		for ( auto c : { info.channels.first, info.channels.second } )
+		for ( auto& channel : info.channels )
 		{
 			H5::Group thisChannel ( thisTek.createGroup ( "Channel_" + str ( channelCount++ ) ) );
-			writeDataSet ( c.control, "Controlled_Option", thisChannel );
-			writeDataSet ( c.on, "Output_On", thisChannel ); 
-			writeDataSet ( c.power.expressionStr, "Power", thisChannel ); 
-			writeDataSet ( c.mainFreq.expressionStr, "Main_Frequency", thisChannel );
-			writeDataSet ( c.fsk, "FSK_Option", thisChannel );
-			writeDataSet ( c.fskFreq.expressionStr, "FSK_Frequency", thisChannel );
+			writeDataSet (channel.control, "Controlled_Option", thisChannel );
+			writeDataSet (channel.on, "Output_On", thisChannel );
+			writeDataSet (channel.power.expressionStr, "Power", thisChannel );
+			writeDataSet (channel.mainFreq.expressionStr, "Main_Frequency", thisChannel );
+			writeDataSet (channel.fsk, "FSK_Option", thisChannel );
+			writeDataSet (channel.fskFreq.expressionStr, "FSK_Frequency", thisChannel );
 		}
 	}
 	catch ( H5::Exception err)
