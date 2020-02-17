@@ -186,7 +186,7 @@ void BaslerWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 }
 
 
-void BaslerWindow::handleEnter( ) { errBox( "\-.-/" ); }
+void BaslerWindow::handleEnter( ) { errBox( "\\-.-/" ); }
 
 
 // this is suppose see where the mouse is at a given time so that if it is hovering over a pixel I can display the pixel count.
