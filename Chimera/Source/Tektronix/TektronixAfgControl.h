@@ -1,18 +1,24 @@
 // created by Mark O. Brown
 #pragma once
 
+#include "TekCore.h"
+#include "TektronixStructures.h"
+#include "TektronixChannelControl.h"
+
 #include "CustomMfcControlWrappers/Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralFlumes/VisaFlume.h"
 #include "ConfigurationSystems/Version.h"
 #include "ParameterSystem/Expression.h"
-#include "TektronixStructures.h"
-#include "TektronixChannelControl.h"
 
 
 class TektronixAfgControl
 {
 	public:
+		// THIS CLASS IS NOT COPYABLE.
+		TektronixAfgControl& operator=(const TektronixAfgControl&) = delete;
+		TektronixAfgControl (const TektronixAfgControl&) = delete;
+
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
@@ -20,15 +26,15 @@ class TektronixAfgControl
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();
-		tektronicsInfo getTekSettings();
-		void setSettings(tektronicsInfo info);
+		tektronixInfo getTekSettings();
+		void setSettings(tektronixInfo info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		void interpretKey(std::vector<std::vector<parameterType>>& variables);
-		void programMachine(UINT variation );
-		void handleProgram();
-		const std::string configDelim;
+		void handleProgram(std::vector<std::vector<parameterType>> constants);
+		std::string getDelim ();
+		TekCore& getCore ();
+		static tektronixInfo getTekInfo (std::ifstream& configFile, Version ver);
 	private:
 		Control<CStatic> header;
 		Control<CleanPush> programNow;
@@ -38,10 +44,9 @@ class TektronixAfgControl
 		Control<CStatic> mainPowerLabel;
 		Control<CStatic> mainFreqLabel;
 		Control<CStatic> fskFreqLabel;
-		VisaFlume visaFlume;
 		TektronixChannelControl channel1;
 		TektronixChannelControl channel2;
-
-		tektronicsInfo currentInfo;
+		TekCore core;
+		tektronixInfo currentInfo;
 };
 

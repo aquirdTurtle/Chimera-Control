@@ -596,15 +596,15 @@ ParameterSystem& AuxiliaryWindow::getGlobals ( )
 }
 
 
-TektronixAfgControl& AuxiliaryWindow::getTopBottomTek ( )
+TekCore& AuxiliaryWindow::getTopBottomTek ( )
 {
-	return topBottomTek;
+	return topBottomTek.getCore ();
 }
 
 
-TektronixAfgControl& AuxiliaryWindow::getEoAxialTek ( )
+TekCore& AuxiliaryWindow::getEoAxialTek ( )
 {
-	return eoAxialTek;
+	return eoAxialTek.getCore();
 }
 
 
@@ -618,12 +618,12 @@ void AuxiliaryWindow::passTopBottomTekProgram()
 {
 	try
 	{
-		topBottomTek.handleProgram();
+		topBottomTek.handleProgram(getUsableConstants());
 		sendStatus( "Programmed Top/Bottom Tektronics Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
+		sendErr( "Error while programing Top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -632,12 +632,12 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 {
 	try
 	{
-		eoAxialTek.handleProgram();
+		eoAxialTek.handleProgram(getUsableConstants());
 		sendStatus( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
+		sendErr( "Error while programing Raman E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -706,8 +706,13 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 															Agilent::getOutputSettingsFromConfigFile, Version ("4.0")));
 			agilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
-		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.configDelim, &topBottomTek, Version ( "4.0" ) );
-		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.configDelim, &eoAxialTek, Version ( "4.0" ) );
+		topBottomTek.setSettings (ProfileSystem::stdGetFromConfig (configFile, topBottomTek.getDelim (),
+								  TektronixAfgControl::getTekInfo));
+		eoAxialTek.setSettings (ProfileSystem::stdGetFromConfig (configFile, eoAxialTek.getDelim (),
+								TektronixAfgControl::getTekInfo));
+
+		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.getDelim(), &topBottomTek, Version ( "4.0" ) );
+		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ( "4.0" ) );
 		if ( ver >= Version ( "4.5" ) )
 		{
 			ProfileSystem::standardOpenConfig ( configFile, dds.getDelim(), &dds, Version ( "4.5" ) );

@@ -85,7 +85,7 @@ void TektronixChannelControl::handleFskPress ()
 
 
 // TODO: Gonna need to add a check if what gets returned is a double or a variable.
-tektronicsChannelOutputForm TektronixChannelControl::getTekChannelSettings ()
+tektronixChannelOutput TektronixChannelControl::getTekChannelSettings ()
 {
 	currentInfo.control = controlButton.GetCheck ();
 	currentInfo.on = onOffButton.GetCheck ();
@@ -104,7 +104,7 @@ tektronicsChannelOutputForm TektronixChannelControl::getTekChannelSettings ()
 	return currentInfo;
 }
 
-void TektronixChannelControl::setSettings (tektronicsChannelOutputForm info)
+void TektronixChannelControl::setSettings (tektronixChannelOutput info)
 {
 	currentInfo = info;
 	controlButton.SetCheck (currentInfo.control);

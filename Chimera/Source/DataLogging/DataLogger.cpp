@@ -274,9 +274,8 @@ void DataLogger::logDoSystemSettings ( DioSystem& doSys )
 
 
 
-void DataLogger::logTektronicsSettings ( TektronixAfgControl& tek )
+void DataLogger::logTektronicsSettings ( tektronixInfo& tekInfo, std::string delim )
 {
-	auto info = tek.getTekSettings ( );
 	try
 	{
 		H5::Group tektronicsGroup;
@@ -289,10 +288,10 @@ void DataLogger::logTektronicsSettings ( TektronixAfgControl& tek )
 			// probably has just already been created.
 			tektronicsGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
 		}
-		H5::Group thisTek ( tektronicsGroup.createGroup ( tek.configDelim ) );
-		writeDataSet ( info.machineAddress, "Machine-Address", thisTek );
+		H5::Group thisTek ( tektronicsGroup.createGroup (delim ) );
+		writeDataSet ( tekInfo.machineAddress, "Machine-Address", thisTek );
 		UINT channelCount = 1;
-		for ( auto& channel : info.channels )
+		for ( auto& channel : tekInfo.channels )
 		{
 			H5::Group thisChannel ( thisTek.createGroup ( "Channel_" + str ( channelCount++ ) ) );
 			writeDataSet (channel.control, "Controlled_Option", thisChannel );
@@ -628,8 +627,6 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 		}
 		logFunctions( runParametersGroup );
 		logNiawgSettings( input );
-		logTektronicsSettings ( input->topBottomTek );
-		logTektronicsSettings ( input->eoAxialTek );
 		logAoSystemSettings ( input->aoSys );
 		logDoSystemSettings ( input->ttls );
 	}
