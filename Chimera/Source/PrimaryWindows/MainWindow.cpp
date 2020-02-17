@@ -614,6 +614,8 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
+	// for some reason without this the main window was defaulting to topmost. 
+	SetWindowPos (&wndNoTopMost, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
 	TheAndorWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
