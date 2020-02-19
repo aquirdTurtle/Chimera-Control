@@ -384,7 +384,7 @@ void ProfileSystem::renameConfiguration()
 	}
 
 	std::string newConfigurationName;
-	TextPromptDialog dialog(&newConfigurationName, "Please enter new configuration name.");
+	TextPromptDialog dialog(&newConfigurationName, "Please enter new configuration name.", currentProfile.configuration);
 	dialog.DoModal();
 
 	if (newConfigurationName == "")
@@ -587,7 +587,7 @@ void ProfileSystem::saveSequence()
 	if ( currentSequence.name == "")
 	{
 		std::string result;
-		TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
+		TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
 		dialog.DoModal();
 
 		if (result == "")
@@ -619,7 +619,7 @@ void ProfileSystem::saveSequenceAs()
 {
 	// prompt for name
 	std::string result;
-	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
+	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
 	dialog.DoModal();
 	//
 	if (result == "")
@@ -658,7 +658,7 @@ void ProfileSystem::renameSequence()
 		thrower ( "Please select a sequence for renaming." );
 	}
 	std::string newSequenceName;
-	TextPromptDialog dialog(&newSequenceName, "Please enter a new name for this sequence.");
+	TextPromptDialog dialog(&newSequenceName, "Please enter a new name for this sequence.", currentSequence.name);
 	dialog.DoModal();
 	if (newSequenceName == "")
 	{
@@ -710,7 +710,7 @@ void ProfileSystem::newSequence(CWnd* parent)
 {
 	// prompt for name
 	std::string result;
-	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
+	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
 	dialog.DoModal();
 
 	if (result == "")
