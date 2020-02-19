@@ -100,7 +100,7 @@ void SmsTextingControl::updatePersonInfo()
 			/// person name
 			// prompt for a name
 			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter a name:");
+			TextPromptDialog dialog(&newName, "Please enter a name:", peopleToText[itemIndicator].name);
 			dialog.DoModal();
 			if ( newName == "" )
 			{
@@ -116,7 +116,7 @@ void SmsTextingControl::updatePersonInfo()
 			/// number
 			// Prompt for a phone number			
 			std::string phoneNumber;
-			TextPromptDialog dialog(&phoneNumber, "Please enter a phone number (numbers only!):");
+			TextPromptDialog dialog(&phoneNumber, "Please enter a phone number (numbers only!):", peopleToText[itemIndicator].number);
 			dialog.DoModal();
 			// test to see if it is a number like it should be (note: not sure if this catches a single decimal or not...)
 			try
@@ -138,7 +138,7 @@ void SmsTextingControl::updatePersonInfo()
 			std::string newProvider;
 			TextPromptDialog dialog(&newProvider, 
 									"Please enter provider (either \"verizon\", \"tmobile\", \"at&t\", or "
-									"\"googlefi\"):");
+									"\"googlefi\"):", peopleToText[itemIndicator].provider);
 			dialog.DoModal();
 			std::transform(newProvider.begin(), newProvider.end(), newProvider.begin(), ::tolower);
 			if (newProvider != "verizon" && newProvider != "tmobile" && newProvider != "at&t" && newProvider != "googlefi")

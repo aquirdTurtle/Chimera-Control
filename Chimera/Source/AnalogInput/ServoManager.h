@@ -29,7 +29,9 @@ class ServoManager
 		ServoManager& operator=(const ServoManager&) = delete;
 		ServoManager (const ServoManager&) = delete;
 		ServoManager () = default;
-
+		
+		static std::string servoTtlConfigToString (std::vector<std::pair<DioRows::which, UINT> > ttlConfig);
+		static std::string servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig);
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
 						 DioSystem* ttls_in, ParameterSystem* globals_in );
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
