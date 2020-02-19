@@ -37,9 +37,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	std::vector<std::vector<ddsIndvRampListInfo>> ddsRampList;
 	ddsRampList.resize( input->seq.sequence.size ( ) );
 	// outermost level is for each controller, 2nd level is for sequence number
-	std::vector<std::vector<piezoChan<Expression>>> piezoExpressions(input->piezoControllers.size(), 
+	std::vector<std::vector<piezoChan<Expression>>> piezoExpressions(input->piezoCores.size(), 
 												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
-	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoControllers.size ( ),
+	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoCores.size ( ),
 												   std::vector<bool> ( input->seq.sequence.size ( ) ));
 	std::vector<AndorRunSettings> andorRunsettings ( input->seq.sequence.size ( ) );
 	microwaveSettings uwSettings;
@@ -53,7 +53,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	const auto& runAndor = input->runList.andor;
 	const auto& runNiawg = input->runList.niawg;
 	const auto& runBasler = input->runList.basler;
-	const auto& piezos = input->piezoControllers;
+	const auto& piezos = input->piezoCores;
 	const UINT tbTek = 0;
 	const UINT aeTek = 1;
 
@@ -80,10 +80,10 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
 																			   DdsCore::getRampListFromConfig );
-				for ( auto piezoInc : range(input->piezoControllers.size()))
+				for ( auto piezoInc : range(input->piezoCores.size()))
 				{
 					auto res = ProfileSystem::stdGetFromConfig (
-						configFile, input->piezoControllers[ piezoInc ].get().configDelim, 
+						configFile, input->piezoCores[ piezoInc ].get().configDelim, 
 						PiezoCore::getPiezoSettingsFromConfig );
 					piezoExpressions[ piezoInc ][ seqNum ] 
 						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
