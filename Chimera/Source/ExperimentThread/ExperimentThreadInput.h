@@ -48,7 +48,7 @@ struct ExperimentThreadInput
 	AndorCameraCore& andorCamera;
 	BaslerCameraCore& basCamera;
 	DdsCore& dds;
-	std::vector<std::reference_wrapper<PiezoCore>> piezoControllers;
+	std::vector<std::reference_wrapper<PiezoCore>> piezoCores;
 	// TODO: this should be loaded from config file, not gui thread.
 	std::vector<parameterType> globalParameters;
 	ExperimentThreadManager* thisObj;

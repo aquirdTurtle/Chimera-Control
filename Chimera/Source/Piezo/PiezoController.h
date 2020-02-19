@@ -30,7 +30,7 @@ class PiezoController
 
 	private:
 		PiezoCore core;
-		Control<CButton> programNowButton;
+		Control<CleanPush> programNowButton;
 		Control<CleanCheck> ctrlButton;
 		piezoChan<Control<CStatic>> labels;
 		piezoChan<Control<CEdit>> edits;
