@@ -88,19 +88,13 @@ void TekCore::interpretKey ( std::vector<std::vector<parameterType>>& parameters
 	sequenceNumber = parameters.size ();
 	for (auto seqInc : range (sequenceNumber))
 	{
-		for (auto variationInc : range (variations))
+		for (auto& channel : runInfo.channels)
 		{
-			for (auto& channel : runInfo.channels)
+			if (channel.on)
 			{
-				if (channel.on)
-				{
-					channel.mainFreq.internalEvaluate (parameters[seqInc], variationInc);
-					channel.power.internalEvaluate (parameters[seqInc], variationInc);
-					if (channel.fsk)
-					{
-						channel.fskFreq.internalEvaluate (parameters[seqInc], variationInc);
-					}
-				}
+				channel.mainFreq.internalEvaluate (parameters[seqInc], variations);
+				channel.power.internalEvaluate (parameters[seqInc], variations);
+				if (channel.fsk) { channel.fskFreq.internalEvaluate (parameters[seqInc], variations); }
 			}
 		}
 	}

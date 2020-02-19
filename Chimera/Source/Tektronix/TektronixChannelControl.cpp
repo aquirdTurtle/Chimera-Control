@@ -18,15 +18,15 @@ void TektronixChannelControl::initialize (POINT loc, CWnd* parent, int& id, std:
 	fskButton.Create ("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, cid++);
 
 	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	power.Create (NORM_EDIT_OPTIONS, power.sPos, parent, cid++);
+	power.Create (NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, power.sPos, parent, cid++);
 	power.EnableWindow (0);
 
 	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	mainFreq.Create (NORM_EDIT_OPTIONS, mainFreq.sPos, parent, cid++);
+	mainFreq.Create (NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, mainFreq.sPos, parent, cid++);
 	mainFreq.EnableWindow (0);
 
 	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskFreq.Create (NORM_EDIT_OPTIONS, fskFreq.sPos, parent, cid++);
+	fskFreq.Create (NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, fskFreq.sPos, parent, cid++);
 	fskFreq.EnableWindow (0);
 }
 

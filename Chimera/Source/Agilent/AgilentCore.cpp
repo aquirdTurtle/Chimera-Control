@@ -127,7 +127,7 @@ void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, devi
 	}
 	catch (Error&)
 	{
-		errBox ("Failed to set agilent output synced?!");
+		//errBox ("Failed to set agilent output synced?!");
 	}
 	for (auto chan : range (UINT (2)))
 	{

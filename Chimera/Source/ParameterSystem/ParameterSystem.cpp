@@ -32,21 +32,20 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	parametersHeader.fontType = fontTypes::HeadingFont;
 	
 	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 200 };
-	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos,
-							  parent, listviewId );
+	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos, parent, listviewId );
 	
 	RECT r;
 	parametersListview.GetClientRect (&r);
 	auto width = r.right - r.left;
 	if ( paramSysType == ParameterSysType::global )
 	{
-		parametersListview.InsertColumn( 0, "Symbol", 0.5*width);
-		parametersListview.InsertColumn( 1, "Value", 0.3*width );
+		parametersListview.InsertColumn( 0, "Symbol", int (0.5*width));
+		parametersListview.InsertColumn( 1, "Value", int (0.3*width ));
 	}
 	else 
 	{
-		parametersListview.InsertColumn( 0, "Symbol", 0.2*width );
-		parametersListview.InsertColumn( 1, "Type", 0.1*width);
+		parametersListview.InsertColumn( 0, "Symbol", int (0.2*width));
+		parametersListview.InsertColumn( 1, "Type", int(0.1*width));
 		parametersListview.InsertColumn( 2, "Dim");
 		parametersListview.InsertColumn( 3, "Value");
 		parametersListview.InsertColumn ( 4, "Scope" );

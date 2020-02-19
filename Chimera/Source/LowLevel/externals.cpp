@@ -106,7 +106,7 @@ void initMyColors( )
 	_myBrushes[ "Interactable-Bkgd" ] = mainBrushes[ interactableBkgd ];
 	*/
 	/// Dark Theme
-	std::string coloredText = "Light Blue";
+	std::string coloredText = "Musky Red";//"Light Blue";
 	_myRGBs[ "Text" ] = _myRGBs[ "Near-White" ];
 	_myRGBs[ "Text-Emph" ] = _myRGBs[ coloredText ];
 	_myRGBs[ "Main-Bkgd" ] = _myRGBs[ "Dark Grey" ];

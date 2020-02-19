@@ -215,7 +215,7 @@
 	#else
 		constexpr bool  PYTHON_SAFEMODE = false;
 	#endif
-	constexpr bool AUTO_CALIBRATE = false;
+	constexpr bool AUTO_CALIBRATE = true;
 	constexpr bool VIEWPOINT_SAFEMODE = true;
 	constexpr bool DAQMX_SAFEMODE = false;
 	constexpr bool TOP_BOTTOM_TEK_SAFEMODE = false;
