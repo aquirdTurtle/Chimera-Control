@@ -11,6 +11,6 @@ ExperimentThreadInput::ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWind
 	python ( mainWin->getPython ( ) ), niawg ( mainWin->getNiawg ( ) ), comm ( mainWin->getCommRef ( ) ),
 	rsg ( auxWin->getRsg ( ) ), eoAxialTek ( auxWin->getEoAxialTek ( ) ), topBottomTek ( auxWin->getTopBottomTek ( ) ),
 	globalControl( auxWin->getGlobals() ), andorCamera( andorWin->getCamera() ), dds( auxWin->getDds() ), 
-	logger(andorWin->getLogger() ), piezoControllers( auxWin->getPiezoControllers() ), basCamera (basWin->getCore())
+	logger(andorWin->getLogger() ), piezoCores( auxWin->getPiezoControllers() ), basCamera (basWin->getCore())
 { };
 

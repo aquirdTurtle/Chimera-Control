@@ -759,7 +759,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 		{
 			/// person name
 			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter a name for the Parameter:");
+			TextPromptDialog dialog(&newName, "Please enter a name for the Parameter:", param.name);
 			dialog.DoModal();
 			newName = str ( newName, 13, false, true );
 			if (newName == "")
@@ -792,7 +792,8 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 				/// global value
 				std::string newValue;
 				TextPromptDialog dialog(&newValue, "Please enter a value for the global parameter "
-										+ param.name + ". Value will be formatted as a double.");
+										+ param.name + ". Value will be formatted as a double.", 
+					str(param.constantValue));
 				childDlgs.push_back( &dialog );
 				dialog.DoModal();
 				childDlgs.pop_back();
@@ -861,7 +862,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			}
 			std::string newValue;
 			TextPromptDialog dialog( &newValue, "Please enter an initial value for the variable "
-									 + param.name + ". Value will be formatted as a double." );
+									 + param.name + ". Value will be formatted as a double.", str(param.constantValue));
 			dialog.DoModal( );
 			if ( newValue == "" )
 			{
@@ -886,7 +887,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			std::string newScope;
 			TextPromptDialog dialog( &newScope, "Please enter a the scope for the variable: \""
 									 + param.name + "\". You may enter a function name, "
-									 "\"parent\", or \"global\"." );
+									 "\"parent\", or \"global\".", param.parameterScope );
 			dialog.DoModal( );
 			if ( newScope == "" )
 			{
@@ -908,7 +909,8 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			}
 			UINT rangeNum = (subitem - preRangeColumns) / 3;
 			std::string newValue;
-			TextPromptDialog dialog( &newValue, "Please enter a value for the variable " + param.name + "." );
+			auto& whichVal = (((subitem - preRangeColumns) % 3 == 0) ? param.ranges[rangeNum].initialValue : param.ranges[rangeNum].finalValue);
+			TextPromptDialog dialog( &newValue, "Please enter a value for the variable " + param.name + ".", str(whichVal) );
 			dialog.DoModal( );
 			if ( newValue == "" )
 			{
@@ -917,17 +919,15 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			}
 			if ((subitem - preRangeColumns) % 3 == 0 || (subitem - preRangeColumns) % 3 == 1)
 			{
-				double val;
 				try 
 				{
-					val = boost::lexical_cast<double>(newValue);
+					whichVal = boost::lexical_cast<double>(newValue);
 				}
 				catch ( boost::bad_lexical_cast&)
 				{
 					throwNested ("the value entered, " + newValue + ", failed to convert to a double! "
 							 "Check for invalid characters.");
 				}
-				(( ( subitem - preRangeColumns ) % 3 == 0) ? param.ranges[ rangeNum ].initialValue : param.ranges[ rangeNum ].finalValue) = val;
 				redrawListview ( );
 				break;
 			}

@@ -250,7 +250,7 @@ void ServoManager::handleListViewClick ( )
 		case 0:
 		{	/// person name
 			std::string newName;
-			TextPromptDialog dialog ( &newName, "Please enter a name for the servo." );
+			TextPromptDialog dialog ( &newName, "Please enter a name for the servo.", servo.servoName);
 			dialog.DoModal ( );
 			// make name lower case
 			std::transform ( newName.begin ( ), newName.end ( ), newName.begin ( ), ::tolower );
@@ -277,7 +277,7 @@ void ServoManager::handleListViewClick ( )
 		case 2:
 		{
 			std::string setPointTxt;
-			TextPromptDialog dialog ( &setPointTxt, "Please enter a set point for the servo." );
+			TextPromptDialog dialog ( &setPointTxt, "Please enter a set point for the servo.", str(servo.setPoint) );
 			dialog.DoModal ( );
 			try
 			{
@@ -298,7 +298,7 @@ void ServoManager::handleListViewClick ( )
 		case 7:
 		{	// ai
 			std::string aiTxt;
-			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at." );
+			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at.", str(servo.aiInputChannel) );
 			dialog.DoModal ( );
 			try
 			{
@@ -313,7 +313,7 @@ void ServoManager::handleListViewClick ( )
 		case 8:
 		{	// ao			
 			std::string aoTxt;
-			TextPromptDialog dialog ( &aoTxt, "Please enter a the analog-output for the servo to use for control." );
+			TextPromptDialog dialog ( &aoTxt, "Please enter a the analog-output for the servo to use for control.", str(servo.aoControlChannel) );
 			dialog.DoModal ( );
 			try
 			{
@@ -330,7 +330,8 @@ void ServoManager::handleListViewClick ( )
 			std::string doTxt;
 			TextPromptDialog dialog ( &doTxt, "Please enter the digital outputs that must be on for the calibration. "
 									  "Everthing else will be off. Please separate the row from the number with a "
-									  "space and each ttl with a space. E.g. \"A 1 D 0\"" );
+									  "space and each ttl with a space. E.g. \"A 1 D 0\"", 
+									  servoTtlConfigToString (servo.ttlConfig));
 			dialog.DoModal ( );
 			std::stringstream tmpStream(doTxt);
 			std::string rowTxt;
@@ -354,7 +355,7 @@ void ServoManager::handleListViewClick ( )
 		case 10:
 		{	// tolerance
 			std::string tolTxt;
-			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo." );
+			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo.", str(servo.tolerance) );
 			dialog.DoModal ( );
 			try
 			{
@@ -369,7 +370,7 @@ void ServoManager::handleListViewClick ( )
 		case 11:
 		{	// gain 
 			std::string gainTxt;
-			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo." );
+			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo.", str(servo.gain) );
 			dialog.DoModal ( );
 			try
 			{
@@ -391,7 +392,7 @@ void ServoManager::handleListViewClick ( )
 			std::string aoTxt;
 			TextPromptDialog dialog (&aoTxt, "Please enter the Analog outputs that must be on for the calibration. "
 				"Everthing else will be off. Please separate the dac identifier from the value with a space. "
-				"E.g. \"dac20 0.4 dac4 -10\"");
+				"E.g. \"dac20 0.4 dac4 -10\"", servoDacConfigToString (servo.aoConfig));
 			dialog.DoModal ();
 			std::stringstream tmpStream (aoTxt);
 			std::string dacIdTxt;
@@ -420,7 +421,7 @@ void ServoManager::handleListViewClick ( )
 		case 14:
 		{
 			std::string numAvgsTxt;
-			TextPromptDialog dialog (&numAvgsTxt, "Please enter a number (>1) of ai averages for the servo.");
+			TextPromptDialog dialog (&numAvgsTxt, "Please enter a number (>1) of ai averages for the servo.", str(servo.avgNum));
 			dialog.DoModal ();
 			try
 			{
@@ -509,36 +510,44 @@ void ServoManager::addServoToListview ( servoInfo& s, UINT which )
 	servoList.SetItem ( str ( s.setPoint ), which, 2 );
 	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.controlValue ), which, 3 );
 	servoList.SetItem ( (s.changeInCtrl < 0 ? "" : "+") + str (s.changeInCtrl*100), which, 4);
-	servoList.SetItem ( str ( s.mostRecentResult), which, 5);
+	servoList.SetItem ( str ( s.mostRecentResult ), which, 5);
 	servoList.SetItem ( str ( s.aiInputChannel ), which, 6 );
 	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.aoControlChannel ), which, 7 );
-	std::string digitalOutConfigString;
-	for ( auto val : s.ttlConfig )
-	{
-		digitalOutConfigString += DioRows::toStr( val.first ) + " " + str ( val.second ) + " ";
-	}
-	servoList.SetItem ( str ( digitalOutConfigString ), which, 8 );
+	servoList.SetItem (servoTtlConfigToString (s.ttlConfig), which, 8 );
 	servoList.SetItem ( str ( s.tolerance ), which, 9 );
 	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.gain ), which, 10 );
 	servoList.SetItem ( s.monitorOnly ? "Yes" : "No", which, 11 );
+	servoList.SetItem (servoDacConfigToString(s.aoConfig), which, 12);
+	servoList.SetItem (str (s.avgNum), which, 13);
+}
+
+std::string ServoManager::servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig)
+{
 	std::string aoString;
-	for (auto ao : s.aoConfig)
+	for (auto ao : aoConfig)
 	{
 		aoString += "dac" + str (ao.first) + " " + str (ao.second, 4) + " ";
 	}
-	servoList.SetItem (aoString, which, 12);
-	servoList.SetItem (str (s.avgNum), which, 13);
+	return aoString;
+}
+
+
+std::string ServoManager::servoTtlConfigToString (std::vector<std::pair<DioRows::which, UINT> > ttlConfig)
+{
+	std::string digitalOutConfigString;
+	for (auto val : ttlConfig)
+	{
+		digitalOutConfigString += DioRows::toStr (val.first) + " " + str (val.second) + " ";
+	}
+	return digitalOutConfigString;
 }
 
 
 void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo )
 {
 	configStream << servo.servoName << " " << servo.aiInputChannel << " " << servo.aoControlChannel << " "
-		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " ";
-	for ( auto& ttl : servo.ttlConfig )
-	{
-		configStream << DioRows::toStr(ttl.first) << " " << str(ttl.second) << " ";
-	}
+		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " " 
+		<< servoTtlConfigToString (servo.ttlConfig);
 	configStream << servo.aoConfig.size () << " ";
 	for (auto& dac : servo.aoConfig)
 	{

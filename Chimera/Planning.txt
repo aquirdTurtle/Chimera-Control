@@ -6,7 +6,6 @@ IMMEDIATE LIST:
 - fix attempts to set camera mode on config change.
 - get rs232 piezo controllers integrated
 - fix auto-thresholding
-- fix python
 - local copy of save file.
 
 FEATURES:
@@ -58,12 +57,10 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures, like basler.
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
-- refactor commonfunctions, it's a bit of a mess. 
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.
 - refactor rerngmove complexmove and simplemove names which are confusing... 
 - refactor master configuration to be more similar to normal configuration reading
-- reorganize .h and .cpp files in visual studio
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times, 
 	perhaps just grey'd out
 - reconsider how to handle initial dac and ttl values
@@ -73,6 +70,7 @@ Refactoring / Other:
 	work with vectors of these values? Not sure would actually require changes there. This should be able to work well
 	to simplify the form / eventual value structures which feel confusing and redundant, and potentially provide checks 
 	within the evaluate class itself, but is a very major refactor. 
+- remove viewpoint from diosystem
 
 Checks and Tests
 	- add check for flash that sum of indv move times is the total move time.
@@ -83,15 +81,11 @@ Checks and Tests
 - check number of basler triggers against basler total picture number
 
 BUGS:
-- global variable colors don't appear to always be correct; agilent variable issue probably?
-- seems like master configuration file can get corrupted if saving fails - should do something to safeguard this...
 - going from config with video to kinetic mode on andor fails because internal reps per var is too high
 - if taking pictures too fast code can freeze while pics getting handled.
 - err boxes don't grab focus of entire program - annoying to fix...
 - should be able to change basler image dimensions edits while running
 - constant beeping if no mot and continuous freezes things basler
 - figure out why figure update seems to cause main thread window thread to freak out
-- ttl display not accurate at end of exp, and in general not always accurate... e.g. on startup. 
-- image grid popping errors issue, seems related to different binning between f1 and config setting
-	- picture data didn't match grid size!
-- figure out why plot figure update seems to cause main thread window thread to freak out
+- ttl display not accurate at end of exp, and in general not always accurate... e.g. on startup.  should query board 
+  for status.

@@ -619,7 +619,8 @@ void Script::saveScript(std::string configPath, RunInfo info)
 	if ( scriptName == "" )
 	{
 		std::string newName;
-		TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
+		TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".", 
+							    scriptName);
 		dialog.DoModal();
 		if (newName == "")
 		{
@@ -745,7 +746,8 @@ void Script::checkSave(std::string configPath, RunInfo info, Communicator* comm)
 		else if (answer == IDYES)
 		{
 			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
+			TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".",
+					scriptName);
 			dialog.DoModal();
 			std::string path = configPath + newName + extension;
 			saveScriptAs(path, info);
@@ -780,7 +782,8 @@ void Script::renameScript(std::string configPath)
 		return;
 	}
 	std::string newName;
-	TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
+	TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".",
+		scriptName);
 	dialog.DoModal();
 	if (newName == "")
 	{

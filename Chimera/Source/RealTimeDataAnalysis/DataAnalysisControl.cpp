@@ -1161,7 +1161,8 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 		{
 			// which grid
 			std::string gridStr;
-			TextPromptDialog dialog( &gridStr, "Which # atom grid should this plot use?" );
+			TextPromptDialog dialog( &gridStr, "Which # atom grid should this plot use?",
+									str(allTinyPlots[itemIndicator].whichGrid));
 			dialog.DoModal( );
 			UINT gridNum;
 			try

@@ -95,7 +95,7 @@ void DdsSystem::handleRampClick (  )
 		case 0:
 		{
 			std::string newIndexStr;
-			TextPromptDialog dialog ( &newIndexStr, "Please enter a ramp index (0-255):" );
+			TextPromptDialog dialog ( &newIndexStr, "Please enter a ramp index (0-255):", str(ramp.index));
 			dialog.DoModal ( );
 			if ( newIndexStr == "" )
 			{
@@ -122,7 +122,7 @@ void DdsSystem::handleRampClick (  )
 		case 1:
 		{
 			std::string newChannelStr;
-			TextPromptDialog dialog ( &newChannelStr, "Please enter a channel number (0-7):" );
+			TextPromptDialog dialog ( &newChannelStr, "Please enter a channel number (0-7):", str(ramp.channel) );
 			dialog.DoModal ( );
 			if ( newChannelStr == "" )
 			{
@@ -150,7 +150,19 @@ void DdsSystem::handleRampClick (  )
 			if ( subitem < 7 )
 			{
 				std::string valStr;
-				TextPromptDialog dialog ( &valStr, "Please enter an Expression for this value:" );
+				Expression* expr = NULL;
+				switch (subitem)
+				{
+					case 2: expr = &ramp.freq1;		break;
+					case 3: expr = &ramp.amp1;		break;
+					case 4: expr = &ramp.freq2;		break;
+					case 5: expr = &ramp.amp2;		break;
+					case 6: expr = &ramp.rampTime;	break;
+					default:
+						thrower ("Bad Subitem in DDS system?!?!");
+				}
+
+				TextPromptDialog dialog ( &valStr, "Please enter an Expression for this value:", expr->expressionStr);
 				dialog.DoModal ( );
 				valStr = str (valStr, 13, false, true);
 				if ( valStr == "" )
@@ -158,14 +170,7 @@ void DdsSystem::handleRampClick (  )
 					// probably canceled.
 					break;
 				}
-				switch ( subitem )
-				{
-					case 2: ramp.freq1 = valStr;		break;
-					case 3: ramp.amp1 = valStr;			break;
-					case 4: ramp.freq2 = valStr;		break;
-					case 5: ramp.amp2 = valStr;			break;
-					case 6: ramp.rampTime = valStr;		break;
-				}
+				*expr = valStr;
 			}
 		}
 	}

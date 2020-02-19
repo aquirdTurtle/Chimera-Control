@@ -403,7 +403,8 @@ void MachineOptimizer::handleListViewClick ( )
 			/// person name
 			std::string newName;
 			TextPromptDialog dialog ( &newName, "Please enter a name for the Optimization Parameter. This should match"
-									  " the name of a parameter in either the global or config parameter systems." );
+									  " the name of a parameter in either the global or config parameter systems.", 
+									  param->name );
 			dialog.DoModal ( );
 			// make name lower case
 			std::transform ( newName.begin ( ), newName.end ( ), newName.begin ( ), ::tolower );
@@ -433,7 +434,7 @@ void MachineOptimizer::handleListViewClick ( )
 			// clicked left border.
 			std::string lowerLim;
 			TextPromptDialog dialog ( &lowerLim, "Please enter a value for the lower search limit for this "
-									  "optimization parameter." );
+									  "optimization parameter.", str(param->lowerLim));
 			dialog.DoModal ( );
 			try
 			{
@@ -451,7 +452,7 @@ void MachineOptimizer::handleListViewClick ( )
 			// clicked right border.
 			std::string upperLim;
 			TextPromptDialog dialog ( &upperLim, "Please enter a value for the upper search limit for this "
-									  "optimization parameter." );
+									  "optimization parameter.", str(param->upperLim ));
 			dialog.DoModal ( );
 			try
 			{
@@ -474,7 +475,7 @@ void MachineOptimizer::handleListViewClick ( )
 			// clicked Increment.
 			std::string inc_str;
 			TextPromptDialog dialog ( &inc_str, "Please enter a value for the increment for this "
-									  "optimization parameter." );
+									  "optimization parameter.", str(param->increment ));
 			dialog.DoModal ( );
 			try
 			{
