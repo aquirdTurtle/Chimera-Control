@@ -793,7 +793,7 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 		alerts.playSound();
 	}
 	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
-	mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
+	//mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	andorSettingsCtrl.cameraIsOn( false );
 	// rearranger thread handles these right now.
 	mainThreadStartTimes.clear();

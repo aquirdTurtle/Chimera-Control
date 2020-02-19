@@ -1,16 +1,10 @@
 hold loadingDepth 1 onceWaitTrig #   
 ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
 ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
-ramp lin intrapLGMDepth 2 1 once #
-ramp lin 2 0.4 1.5 once #
-ramp lin 0.4 dropDepth 10 onceWaitTrig #
-%ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
+ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
 %ramp lin ramanDepth waitDepth 1 onceWaitTrig #
 %ramp lin waitDepth ramanDepth 1 onceWaitTrig #
-%ramp lin ramanDepth dropDepth 1 onceWaitTrig #
-
-%ramp lin inTrapLGMDepth imagingDepth 1 onceWaitTrig #
-
+ramp lin ramanDepth dropDepth 1 onceWaitTrig #
 ramp lin dropDepth imagingDepth 1 onceWaitTrig #
 ramp lin imagingDepth loadingDepth 1 once # 
  

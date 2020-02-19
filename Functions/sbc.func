@@ -24,11 +24,11 @@ def sbc():
     call opPulse(sbcOpCoolingPulseTime)
     call topRamanPulse(sbctoppulsetime)
     %on: sigmaRepumpRf
-    %t += sbcOpCoolingPulseTime
+    %t += sbcOpCoolingPulseTime 
     %off: sigmaRepumpRf  
     call opPulse(sbcOpCoolingPulseTime) 
   end
-  call opPulse(0.012) 
+  call opPulse(0.024) 
   dac: sigmaoppower 0
   dac: sigmarepumpPower 0
   %dac: sigmarepumpPower sbc_sigma_repump
