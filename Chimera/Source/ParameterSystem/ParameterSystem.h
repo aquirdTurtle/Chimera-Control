@@ -17,7 +17,7 @@ class AuxiliaryWindow;
 class Script;
 class AuxiliaryWindow;
 class AoSystem;
-class DioSystem;
+class DoSystem;
 
 enum class ParameterSysType
 {
@@ -51,7 +51,7 @@ class ParameterSystem
 						 ParameterSysType type );
 		void handleSingleClick (  );
 		void handleDblClick ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-								   DioSystem* ttls, AoSystem* aoSys );
+								   DoSystem* ttls, AoSystem* aoSys );
 		void adjustVariableValue ( std::string paramName, double value );
 		void deleteVariable ( );
 		void addParameter( parameterType var );

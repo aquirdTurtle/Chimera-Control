@@ -43,7 +43,7 @@ class DataLogger
 		void logParameters( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );
 		void logFunctions( H5::Group& group );
 		void logAoSystemSettings ( AoSystem& aoSys);
-		void logDoSystemSettings ( DioSystem& doSys );
+		void logDoSystemSettings ( DoSystem& doSys );
 		void logBaslerSettings ( baslerSettings settings, bool on );
 		void DataLogger::logTektronicsSettings (tektronixInfo& tekInfo, std::string delim);
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );

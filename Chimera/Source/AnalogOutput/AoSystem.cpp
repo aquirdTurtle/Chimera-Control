@@ -82,7 +82,7 @@ void AoSystem::standardNonExperiemntStartDacsSequence( )
 }
 
 
-void AoSystem::forceDacs( DioSystem* ttls )
+void AoSystem::forceDacs( DoSystem* ttls )
 {
 	ttls->resetTtlEvents( );
 	resetDacEvents( );
@@ -92,7 +92,7 @@ void AoSystem::forceDacs( DioSystem* ttls )
 }
 
 
-void AoSystem::zeroDacs( DioSystem* ttls )
+void AoSystem::zeroDacs( DoSystem* ttls )
 {
 	resetDacEvents( );
 	ttls->resetTtlEvents( );
@@ -118,7 +118,7 @@ std::array<AoInfo, 24> AoSystem::getDacInfo( )
 }
 
 
-void AoSystem::setSingleDac( UINT dacNumber, double val, DioSystem* ttls )
+void AoSystem::setSingleDac( UINT dacNumber, double val, DoSystem* ttls )
 {
 	ttls->resetTtlEvents( );
 	resetDacEvents( );
@@ -306,7 +306,7 @@ void AoSystem::handleRoundToDac( MainWindow* mainWin )
  * get the text from every edit and prepare a change. If fails to get text from edit, if useDefalt this will set such
  * dacs to zero.
  */
-void AoSystem::handleSetDacsButtonPress( DioSystem* ttls, bool useDefault )
+void AoSystem::handleSetDacsButtonPress( DoSystem* ttls, bool useDefault )
 {
 	dacCommandFormList.clear( );
 	prepareForce( );
@@ -735,7 +735,7 @@ void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DioSystem& ttls, UINT variation, UINT seqInc)
+void AoSystem::setDacTriggerEvents(DoSystem& ttls, UINT variation, UINT seqInc)
 {
 	for ( auto snapshot : dacSnapshots(seqInc,variation))
 	{
@@ -753,7 +753,7 @@ std::string AoSystem::getSystemInfo( )
 
 
 // this is a function called in preparation for forcing a dac change. Remember, you need to call ___ to actually change things.
-void AoSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
+void AoSystem::prepareDacForceChange(int line, double voltage, DoSystem* ttls)
 {
 	// change parameters in the AoSystem object so that the object knows what the current settings are.
 	//std::string volt = str(roundToDacResolution(voltage));
@@ -789,7 +789,7 @@ void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum )
+void AoSystem::setForceDacEvent( int line, double val, DoSystem* ttls, UINT variation, UINT seqNum )
 {
 	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal )
 	{
@@ -944,7 +944,7 @@ void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 
 
 void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-										std::vector<parameterType>& vars, DioSystem& ttls, UINT seqNum )
+										std::vector<parameterType>& vars, DoSystem& ttls, UINT seqNum )
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{

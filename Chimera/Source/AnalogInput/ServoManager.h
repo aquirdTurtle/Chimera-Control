@@ -33,7 +33,7 @@ class ServoManager
 		static std::string servoTtlConfigToString (std::vector<std::pair<DioRows::which, UINT> > ttlConfig);
 		static std::string servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig);
 		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
-						 DioSystem* ttls_in, ParameterSystem* globals_in );
+						 DoSystem* ttls_in, ParameterSystem* globals_in );
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
 		void setChangeVal (UINT which, double change);
 		void rearrange( UINT width, UINT height, fontMap fonts );
@@ -65,7 +65,7 @@ class ServoManager
 		*/
 		AiSystem* ai;
 		AoSystem* ao;
-		DioSystem* ttls;
+		DoSystem* ttls;
 		ParameterSystem* globals;
 };
 

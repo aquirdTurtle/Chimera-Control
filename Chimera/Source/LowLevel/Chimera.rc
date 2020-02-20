@@ -493,12 +493,6 @@ END
 // Bitmap
 //
 
-IDB_JILA                BITMAP                  "JILA.bmp"
-
-IDB_BITMAP2             BITMAP                  "bitmap2.bmp"
-
-IDB_BITMAP3             BITMAP                  "bitmap3.bmp"
-
 IDB_BITMAP4             BITMAP                  "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\Chimera\\Source\\Shades_Of_Infrared.bmp"
 
 #endif    // English (United States) resources

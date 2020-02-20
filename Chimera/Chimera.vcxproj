@@ -482,13 +482,11 @@
     <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\JILA.bmp" />
     <Image Include="Atom.ico" />
     <Image Include="C:\Users\Regal Lab\Pictures\boseeinstein.ico" />
     <Image Include="Cold_Atoms_Icon.ico" />
     <Image Include="icon1.ico" />
     <Image Include="Icon2.ico" />
-    <Image Include="JILA.bmp" />
     <Image Include="Source\LowLevel\Atom.ico" />
     <Image Include="Source\LowLevel\bitmap2.bmp" />
     <Image Include="Source\LowLevel\bitmap3.bmp" />

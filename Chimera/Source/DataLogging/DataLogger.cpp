@@ -255,7 +255,7 @@ void DataLogger::logAoSystemSettings ( AoSystem& aoSys )
 	}
 }
 
-void DataLogger::logDoSystemSettings ( DioSystem& doSys )
+void DataLogger::logDoSystemSettings ( DoSystem& doSys )
 {
 	auto& doSysOutputs = doSys.getDigitalOutputs ( );
 	H5::Group DoSystemGroup ( file.createGroup ( "/Do_System" ) );

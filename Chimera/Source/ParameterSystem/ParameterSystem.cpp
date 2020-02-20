@@ -719,7 +719,7 @@ void ParameterSystem::handleSingleClick ()
 }
 
 void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										   DioSystem* ttls, AoSystem* aoSys )
+										   DoSystem* ttls, AoSystem* aoSys )
 {
 	if ( !controlActive )
 	{

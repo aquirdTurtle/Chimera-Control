@@ -50,6 +50,7 @@ FEATURES:
 - local vars agilent script
 
 Refactoring / Other:
+- Create DIO core and AO Core subsystems
 - change threads waiting on bools to waiting on condition_variables
 - refactor groups in plotinfo in real time plotting
 - change pointers to smart-ptrs where possible
