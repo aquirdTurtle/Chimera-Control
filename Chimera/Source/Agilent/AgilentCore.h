@@ -1,7 +1,7 @@
 #pragma once
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include "GeneralFlumes/VisaFlume.h"
-#include "DigitalOutput/DioRows.h"
+#include "DigitalOutput/DoRows.h"
 #include <vector>
 #include <string>
 
@@ -21,7 +21,7 @@ class AgilentCore
 		void prepAgilentSettings (UINT channel);
 		const std::string configDelim;
 		bool connected ();
-		std::pair<DioRows::which, UINT> getTriggerLine ();
+		std::pair<DoRows::which, UINT> getTriggerLine ();
 		std::string getDeviceIdentity ();
 		void convertInputToFinalSettings (UINT variation, UINT chan, deviceOutputInfo& info,
 											std::vector<parameterType>& variables = std::vector<parameterType> ());
@@ -45,7 +45,7 @@ class AgilentCore
 		const std::string memoryLoc;
 		const agilentSettings initSettings;
 		// not that important, just used to check that number of triggers in script matches number in agilent.
-		const DioRows::which triggerRow;
+		const DoRows::which triggerRow;
 		const UINT triggerNumber;
 		VisaFlume visaFlume;
 		bool isConnected;

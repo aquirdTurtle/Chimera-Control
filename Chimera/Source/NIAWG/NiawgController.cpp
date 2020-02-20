@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <random>
 
-NiawgController::NiawgController ( DioRows::which trigRow, UINT trigNumber, bool safemode ) :
+NiawgController::NiawgController ( DoRows::which trigRow, UINT trigNumber, bool safemode ) :
 	triggerRow ( trigRow ), triggerNumber ( trigNumber ), fgenConduit ( safemode )
 {
 	// Contains all of of the names of the files that hold actual data file names.	
@@ -143,7 +143,7 @@ UINT NiawgController::getNumberTrigsInScript( )
 }
 
 
-std::pair<DioRows::which, UINT> NiawgController::getTrigLines( )
+std::pair<DoRows::which, UINT> NiawgController::getTrigLines( )
 {
 	return { triggerRow, triggerNumber };
 }

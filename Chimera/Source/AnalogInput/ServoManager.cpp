@@ -340,8 +340,8 @@ void ServoManager::handleListViewClick ( )
 			{
 				try
 				{
-					std::pair<DioRows::which, UINT> ttl;
-					ttl.first = DioRows::fromStr ( rowTxt );
+					std::pair<DoRows::which, UINT> ttl;
+					ttl.first = DoRows::fromStr ( rowTxt );
 					tmpStream >> ttl.second;
 					servo.ttlConfig.push_back ( ttl );
 				}
@@ -460,7 +460,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 		{
 			std::string rowStr;
 			configStream >> rowStr >> ttl.second;
-			ttl.first = DioRows::fromStr ( rowStr );
+			ttl.first = DoRows::fromStr ( rowStr );
 		}
 	}
 	if (version > Version ("2.6")) 
@@ -532,12 +532,12 @@ std::string ServoManager::servoDacConfigToString (std::vector<std::pair<UINT, do
 }
 
 
-std::string ServoManager::servoTtlConfigToString (std::vector<std::pair<DioRows::which, UINT> > ttlConfig)
+std::string ServoManager::servoTtlConfigToString (std::vector<std::pair<DoRows::which, UINT> > ttlConfig)
 {
 	std::string digitalOutConfigString;
 	for (auto val : ttlConfig)
 	{
-		digitalOutConfigString += DioRows::toStr (val.first) + " " + str (val.second) + " ";
+		digitalOutConfigString += DoRows::toStr (val.first) + " " + str (val.second) + " ";
 	}
 	return digitalOutConfigString;
 }

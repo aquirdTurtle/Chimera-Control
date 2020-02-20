@@ -14,7 +14,7 @@ void DigitalOutput::updateStatus ( )
 }
 
 
-void DigitalOutput::initLoc ( UINT numIn, DioRows::which rowIn )
+void DigitalOutput::initLoc ( UINT numIn, DoRows::which rowIn )
 {
 	row = rowIn;
 	num = numIn;
@@ -34,7 +34,7 @@ bool DigitalOutput::getStatus ( )
 }
 
 
-std::pair<DioRows::which, UINT> DigitalOutput::getPosition ( )
+std::pair<DoRows::which, UINT> DigitalOutput::getPosition ( )
 {
 	return { row, num };
 }
@@ -146,14 +146,14 @@ void DigitalOutput::enable ( bool enabledStatus )
 }
 
 
-DigitalOutput& allDigitalOutputs::operator()( UINT num, DioRows::which row )
+DigitalOutput& allDigitalOutputs::operator()( UINT num, DoRows::which row )
 {
 	return core[ UINT ( row ) * 16 + num ];
 }
 
 allDigitalOutputs::allDigitalOutputs ( )
 {
-	for ( auto row : DioRows::allRows )
+	for ( auto row : DoRows::allRows )
 	{
 		for ( auto num : range ( numColumns ) )
 		{

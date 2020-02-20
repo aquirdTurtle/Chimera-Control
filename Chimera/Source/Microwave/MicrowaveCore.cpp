@@ -77,7 +77,7 @@ void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& param
 	}
 }
 
-std::pair<DioRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
+std::pair<DoRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 {
 	return rsgTriggerLine;
 }

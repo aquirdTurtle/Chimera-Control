@@ -5,7 +5,7 @@
 #include "GeneralObjects/commonTypes.h"
 
 // this struct keeps variable names.
-struct DioCommandForm
+struct DoCommandForm
 {
 	// the hardware location of this line
 	std::pair<unsigned short, unsigned short> line;
@@ -18,7 +18,7 @@ struct DioCommandForm
 };
 
 // no variables in this version. It's calculated each variation based on corresponding ComandForm structs.
-struct DioCommand
+struct DoCommand
 {
 	// the hardware location of this line
 	std::pair<unsigned short, unsigned short> line;
@@ -29,7 +29,7 @@ struct DioCommand
 };
 
 // an object constructed for having all info the ttls for a single time
-struct DioSnapshot
+struct DoSnapshot
 {
 	// the time of the snapshot
 	double time;

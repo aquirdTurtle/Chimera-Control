@@ -1,6 +1,6 @@
 // created by Mark O. Brown
 #pragma once
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "ConfigurationSystems/Version.h"
 #include <string>
 #include <array>

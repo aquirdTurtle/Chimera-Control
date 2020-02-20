@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "GeneralObjects/CodeTimer.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
@@ -642,7 +642,7 @@ void ExperimentThreadManager::analyzeMasterScript ( DoSystem& ttls, AoSystem& ao
 		}
 		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
 		{}
-		else if ( handleDioCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
+		else if ( handleDoCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
 		{}
 		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
 		{}
@@ -790,7 +790,7 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 	{
 		if (handleTimeCommands (word, functionStream, params, scope, operationTime)){ /* got handled*/ }
 		else if ( handleVariableDeclaration ( word, functionStream, params, scope, warnings ) ){}
-		else if ( handleDioCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
+		else if ( handleDoCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
 		else if ( handleAoCommands ( word, functionStream, params, aoSys, dacShades, ttls, seqNum, scope, operationTime) ){}
 		else if ( word == "callcppcode" )
 		{
@@ -1307,7 +1307,7 @@ bool ExperimentThreadManager::handleTimeCommands( std::string word, ScriptStream
 }
 
 /* returns true if handles word, false otherwise. */
-bool ExperimentThreadManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 									   DoSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
 									   std::string scope, timeType& operationTime )
 {
@@ -1463,7 +1463,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 												std::vector<std::vector<parameterType>>& expParams, 
 												std::vector<deviceOutputInfo>& agRunInfo)
 {
-	/// check all trigger numbers between the DIO system and the individual subsystems. These should almost always match,
+	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
 	for ( auto seqInc : range ( input->seq.sequence.size ( ) ) )
 	{
@@ -1474,7 +1474,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 		{
 			if ( input->runList.master)
 			{
-				UINT actualTrigs = input->ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc );
+				UINT actualTrigs = input->ttls.countTriggers ( { DoRows::which::D,15 }, variationInc, seqInc );
 				UINT dacExpectedTrigs = input->aoSys.getNumberSnapshots ( variationInc, seqInc );
 				std::string infoString = "Actual/Expected DAC Triggers: " + str ( actualTrigs ) + "/" 
 					+ str ( dacExpectedTrigs ) + ".";

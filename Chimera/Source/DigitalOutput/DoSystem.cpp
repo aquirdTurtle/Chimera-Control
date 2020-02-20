@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 
-#include "DioSystem.h"
+#include "DoSystem.h"
 
 #include "ConfigurationSystems/Version.h"
 #include "LowLevel/constants.h"
@@ -218,13 +218,13 @@ void DoSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > stat
 	{
 		for ( auto numInc : range(status[rowInc].size()) )
 		{
-			outputs ( numInc, DioRows::which ( rowInc ) ).set ( status[ rowInc ][ numInc ] );
+			outputs ( numInc, DoRows::which ( rowInc ) ).set ( status[ rowInc ][ numInc ] );
 		}
 	}
 }
 
 
-std::string DoSystem::getDioSystemInfo()
+std::string DoSystem::getDoSystemInfo()
 {
 	UINT numDev;
 	std::string msg = "";
@@ -259,7 +259,7 @@ void DoSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 	{
 		auto& row = shadeList[shadeInc].first;
 		auto& col = shadeList[shadeInc].second;
-		outputs ( col, DioRows::which ( row ) ).shade ( true );
+		outputs ( col, DoRows::which ( row ) ).shade ( true );
 	}
 	for (auto& out : outputs)
 	{
@@ -296,7 +296,7 @@ void DoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void DoSystem::updatePush( DioRows::which row, UINT number )
+void DoSystem::updatePush( DoRows::which row, UINT number )
 {
 	outputs ( number, row ).updateStatus ( );
 }
@@ -312,13 +312,13 @@ void DoSystem::handleInvert()
 }
 
 
-void DoSystem::updateDefaultTtl( DioRows::which row, UINT column, bool state)
+void DoSystem::updateDefaultTtl( DoRows::which row, UINT column, bool state)
 {
 	outputs ( column, row ).defaultStatus = state;
 }
 
 
-bool DoSystem::getDefaultTtl( DioRows::which row, UINT column)
+bool DoSystem::getDefaultTtl( DoRows::which row, UINT column)
 {
 	return outputs ( column, row ).defaultStatus;
 }
@@ -360,16 +360,16 @@ void DoSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& i
 	}
 	loc.y += 20;
 	// all row numberLabels
-	for ( auto row : DioRows::allRows )
+	for ( auto row : DoRows::allRows )
 	{
 		ttlRowLabels[ int(row) ].sPos = { loc.x, loc.y + int(row) * 28, loc.x + 32, loc.y + ( int(row) + 1 ) * 28 };
-		ttlRowLabels[ int(row) ].Create ( cstr ( DioRows::toStr(row) ), WS_CHILD | WS_VISIBLE | SS_CENTER,
+		ttlRowLabels[ int(row) ].Create ( cstr ( DoRows::toStr(row) ), WS_CHILD | WS_VISIBLE | SS_CENTER,
 									 ttlRowLabels[ int(row) ].sPos, parent, id++ );
 	}
 	// all push buttons
 	UINT runningCount = 0;
 	auto startX = loc.x + 32;
-	for (auto row : DioRows::allRows )
+	for (auto row : DoRows::allRows )
 	{
 		loc.x = startX;
 		for (UINT number = 0; number < outputs.numColumns; number++)
@@ -402,7 +402,7 @@ void DoSystem::handleTtlScriptCommand( std::string command, timeType time, std::
 	}
 	timeType pulseEndTime = time;
 	UINT collumn;
-	DioRows::which row;
+	DoRows::which row;
 	getNameIdentifier(name, row, collumn);
 	ttlShadeLocations.push_back({ int(row), collumn });
 	if (command == "on:")
@@ -438,7 +438,7 @@ void DoSystem::handleTtlScriptCommand( std::string command, timeType time, std::
 }
 
 
-void DoSystem::standardNonExperimentStartDioSequence( )
+void DoSystem::standardNonExperimentStartDoSequence( )
 {
 	/*
 	organizeTtlCommands( 0, 0 );
@@ -508,7 +508,7 @@ std::string DoSystem::testTTL() {
 	for (auto i : range(4))
 	{
 		for (auto j : range(16)) {
-			outputs(j, DioRows::which(i)).set(true);
+			outputs(j, DoRows::which(i)).set(true);
 		}
 	}//above loop turns all ttls on
 
@@ -613,7 +613,7 @@ HBRUSH DoSystem::handleColorMessage(CWnd* window, CDC* cDC)
 
 bool DoSystem::isValidTTLName( std::string name )
 {
-	DioRows::which row;
+	DoRows::which row;
 	UINT number;
 	return getNameIdentifier ( name, row, number ) != -1;
 }
@@ -633,7 +633,7 @@ void DoSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 
 void DoSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
 {
-	DioCommand command;
+	DoCommand command;
 	command.line = { row, column };
 	command.time = timev;
 	command.value = true;
@@ -643,7 +643,7 @@ void DoSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation,
 
 void DoSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
 {
-	DioCommand command;
+	DoCommand command;
 	command.line = { row, column };
 	command.time = timev;
 	command.value = false;
@@ -667,7 +667,7 @@ std::array< std::array<bool, 16>, 4 > DoSystem::getCurrentStatus( )
 }
 
 
-void DoSystem::setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void DoSystem::setName( DoRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
 {
 	if (name == "")
 	{
@@ -681,15 +681,15 @@ void DoSystem::setName( DioRows::which row, UINT number, std::string name, cTool
 /*
 Returns a single number which corresponds to the dio control with the name 
 */
-int DoSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& number)
+int DoSystem::getNameIdentifier(std::string name, DoRows::which& row, UINT& number)
 {
-	for ( auto rowInc : DioRows::allRows )
+	for ( auto rowInc : DoRows::allRows )
 	{
 		for (auto numberInc : range( outputs.numColumns ) )
 		{
 			std::string DioName = str(outputs ( numberInc, rowInc ).getName ( ), 13, false, true);
 			// second of the || is standard name which is always acceptable.
-			if ( DioName == name || name == DioRows::toStr ( rowInc ) + str ( numberInc ) )
+			if ( DioName == name || name == DoRows::toStr ( rowInc ) + str ( numberInc ) )
 			{
 				row = rowInc;
 				number = numberInc;
@@ -702,7 +702,7 @@ int DoSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& num
 }
 
 
-std::string DoSystem::getName( DioRows::which row, UINT number)
+std::string DoSystem::getName( DoRows::which row, UINT number)
 {
 	return outputs(number, row).getName();
 }
@@ -714,7 +714,7 @@ ULONG DoSystem::getNumberEvents(UINT variation, UINT seqNum )
 }
 
 
-bool DoSystem::getTtlStatus(DioRows::which row, int number)
+bool DoSystem::getTtlStatus(DoRows::which row, int number)
 {
 	return outputs ( number, row ).getStatus ( );
 }
@@ -843,7 +843,7 @@ void DoSystem::restructureCommands ( )
 		{
 			for ( auto& cmd : ttlCommandFormList[ seqInc ] )
 			{
-				DioCommand nCmd;
+				DoCommand nCmd;
 				nCmd.line = cmd.line;
 				nCmd.time = cmd.timeVals[ varInc ];
 				nCmd.value = cmd.value;
@@ -899,7 +899,7 @@ allDigitalOutputs& DoSystem::getDigitalOutputs ( )
 	return outputs;
 }
 
-ExpWrap<std::vector<DioSnapshot>> DoSystem::getTtlSnapshots ( )
+ExpWrap<std::vector<DoSnapshot>> DoSystem::getTtlSnapshots ( )
 {
 	/* used in the unit testing suite */
 	return ttlSnapshots;
@@ -920,10 +920,10 @@ void DoSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	std::vector<DioCommand> orderedCommandList ( ttlCommandList( seqNum , variation) );
+	std::vector<DoCommand> orderedCommandList ( ttlCommandList( seqNum , variation) );
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedCommandList.begin(), orderedCommandList.end(), 
-			   [variation](DioCommand a, DioCommand b) {return a.time < b.time; });
+			   [variation](DoCommand a, DoCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
 	for (auto commandInc : range( ttlCommandList(seqNum, variation).size ( ) ) )
 	{
@@ -1101,7 +1101,7 @@ void DoSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 }
 
 
-DWORD DoSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
+DWORD DoSystem::ftdi_ForceOutput( DoRows::which row, int number, int state )
 {
 	outputs ( number, row ).set( state );
 	resetTtlEvents( );
@@ -1127,7 +1127,7 @@ void DoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& v
 	{
 		if ( snaps[snapshotInc].time < time && snaps[snapshotInc+1].time >= time )
 		{
-			loadSkipSnaps = std::vector<DioSnapshot>( snaps.begin( ) + snapshotInc + 1, snaps.end( ) );
+			loadSkipSnaps = std::vector<DoSnapshot>( snaps.begin( ) + snapshotInc + 1, snaps.end( ) );
 			break;
 		}
 	}
@@ -1141,7 +1141,7 @@ void DoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& v
 
 // counts the number of triggers on a given line.
 // which.first = row, which.second = number.
-UINT DoSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum )
+UINT DoSystem::countTriggers( std::pair<DoRows::which, UINT> which, UINT variation, UINT seqNum )
 {
 	auto& snaps = ttlSnapshots(seqNum, variation);
 	UINT count = 0;

@@ -45,7 +45,7 @@ void AgilentCore::initialize ()
 
 }
 
-std::pair<DioRows::which, UINT> AgilentCore::getTriggerLine ()
+std::pair<DoRows::which, UINT> AgilentCore::getTriggerLine ()
 {
 	return { triggerRow, triggerNumber };
 }

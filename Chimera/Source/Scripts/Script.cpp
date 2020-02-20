@@ -9,7 +9,7 @@
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "GeneralObjects/RunInfo.h"
  
 #include <fstream>

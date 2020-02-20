@@ -3,8 +3,8 @@
 #include "AgilentChannelMode.h"
 
 /*
-A constant array which can be used to iterate through all values of DioRows. For example:
-for (auto row : DioRows::allRows)
+A constant array which can be used to iterate through all values of DoRows. For example:
+for (auto row : DoRows::allRows)
 {
 // ...
 }
