@@ -21,15 +21,15 @@
 /**/
 class AuxiliaryWindow;
 
-class DioSystem
+class DoSystem
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
-		DioSystem& operator=(const DioSystem&) = delete;
-		DioSystem (const DioSystem&) = delete;
+		DoSystem& operator=(const DoSystem&) = delete;
+		DoSystem (const DoSystem&) = delete;
 
-		DioSystem ( bool ftSafemode, bool serialSafemode, bool viewpointSafemode );
-		~DioSystem();
+		DoSystem ( bool ftSafemode, bool serialSafemode );
+		~DoSystem();
 		/// Felix's Dio handling. Much originally in a class called "RC028".
 		void ftdi_disconnect( );
 		void ftdi_connectasync( const char devSerial[] );
@@ -54,7 +54,6 @@ class DioSystem
 		void checkNotTooManyTimes( UINT variation, UINT seqNum );
 		void handleHoldPress();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		std::string getSystemInfo();
 		std::string getDioSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
@@ -67,13 +66,12 @@ class DioSystem
 		void ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum);
 		void ttlOff(UINT row, UINT column, timeType time, UINT seqNum );
 		void ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqNum);
-		void forceTtl( DioRows::which row, int number, bool state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
 
 		void setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName ( DioRows::which row, UINT number );
-		std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames();
+		std::array<std::array<std::string, 16>, 4> DoSystem::getAllNames();
 		// returns -1 if not a name.
 		int getNameIdentifier(std::string name, DioRows::which& row, UINT& number);
 		bool getTtlStatus ( DioRows::which row, int number );
@@ -84,16 +82,10 @@ class DioSystem
 									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
 									 std::vector<parameterType>& vars, UINT seqNum, std::string scope );
 		void organizeTtlCommands(UINT variation, UINT seqNum );
-		void convertToFinalViewpointFormat(UINT variation, UINT seqNum );
 		void convertToFtdiSnaps( UINT variation, UINT seqNum );
 		void convertToFinalFtdiFormat( UINT variation, UINT seqNum );
 		DWORD ftdi_ForceOutput( DioRows::which row, int number, int state );
 		void sizeDataStructures( UINT sequenceLength, UINT variations );
-		void writeTtlData( UINT variation, UINT seqNum, bool loadSkip );
-		void startBoard();
-		void stopBoard();
-		double getClockStatus();
-		void wait(double time);
 		void waitTillFinished( UINT variation, UINT seqNum, bool skipOption );
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
 		void unshadeTtls();
@@ -110,7 +102,6 @@ class DioSystem
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
 		void updatePush( DioRows::which row, UINT col );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
-		bool getViewpointSafemode ( );
 		bool getFtFlumeSafemode();
 		std::string testTTL();
 		allDigitalOutputs& getDigitalOutputs();
@@ -118,12 +109,10 @@ class DioSystem
 		void wait2(double time);
 		void FtdiWaitTillFinished( UINT variation, UINT seqNum );
 		ExpWrap<std::vector<DioSnapshot>> getTtlSnapshots ( );
-		ExpWrap<std::vector<WORD>> getFinalViewpointData ( );
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
 		ExpWrap<finBufInfo> getFinalFtdiData ( );
 		void restructureCommands ( );
 	private:
-		ViewpointFlume vp_flume;
 		/// stuff for felix's dio
 		ftdiConnectionOption connectType;
 		const UINT NUMPOINTS = 2048;
@@ -152,8 +141,6 @@ class DioSystem
 		ExpWrap<std::vector<DioCommand>> ttlCommandList;
 		ExpWrap<std::vector<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
 		ExpWrap<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
-		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		ExpWrap<std::vector<WORD>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
 		// ftdi equivalents...
 		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;
 		ExpWrap<finBufInfo> finFtdiBuffers;

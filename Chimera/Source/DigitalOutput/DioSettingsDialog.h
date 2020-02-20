@@ -6,7 +6,7 @@
 
 struct ttlInputStruct
 {
-	DioSystem* ttls;
+	DoSystem* ttls;
 	cToolTips toolTips;
 	AuxiliaryWindow* master;
 };

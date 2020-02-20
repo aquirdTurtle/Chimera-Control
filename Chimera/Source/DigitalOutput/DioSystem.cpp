@@ -16,19 +16,18 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DioSystem::DioSystem( bool ftSafemode, bool serialSafemode, bool viewpointSafemode ) : 	
+DoSystem::DoSystem( bool ftSafemode, bool serialSafemode ) : 	
 	ftFlume( ftSafemode ), 	
-	winSerial( serialSafemode, "" ),
-	vp_flume(viewpointSafemode)
+	winSerial( serialSafemode, "" )
 {
 	connectType = ftdiConnectionOption::Async;
 	//ftdi_connectasync("FT2E722BB");
 	for (auto& out : outputs) { out.set(0); }
 }
-DioSystem::~DioSystem() { ftdi_disconnect(); }
+DoSystem::~DoSystem() { ftdi_disconnect(); }
 
 
-void DioSystem::ftdi_connectasync( const char devSerial[] )
+void DoSystem::ftdi_connectasync( const char devSerial[] )
 {
 	if ( ftFlume.getNumDevices( ) <= 0 )
 	{
@@ -40,7 +39,7 @@ void DioSystem::ftdi_connectasync( const char devSerial[] )
 }
 
 
-DWORD DioSystem::ftdi_trigger( )
+DWORD DoSystem::ftdi_trigger( )
 {
 	std::vector<unsigned char> dataBuffer = { 161, 0, 0, 0, 0, 0, 1 };
 	if ( connectType == ftdiConnectionOption::Serial )
@@ -68,7 +67,7 @@ DWORD DioSystem::ftdi_trigger( )
 }
 
 
-void DioSystem::ftdi_disconnect( )
+void DoSystem::ftdi_disconnect( )
 {
 	if ( connectType == ftdiConnectionOption::Serial )
 	{
@@ -89,7 +88,7 @@ void DioSystem::ftdi_disconnect( )
 /*
 * Takes data from "mem" structure and writes to the dio board.
 */
-DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
+DWORD DoSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 {
 	if ( connectType == ftdiConnectionOption::Serial || connectType == ftdiConnectionOption::Async )
 	{
@@ -131,7 +130,7 @@ DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
 }
 
 
-void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt )
+void DoSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt )
 {
 	if ( offset + 20 >= dataBuffer.size( ) )
 	{
@@ -164,7 +163,7 @@ void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT
 }
 
 
-void DioSystem::handleNewConfig( std::ofstream& newFile )
+void DoSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "TTLS\n";
 	// nothing at the moment.
@@ -172,7 +171,7 @@ void DioSystem::handleNewConfig( std::ofstream& newFile )
 }
 
 
-void DioSystem::handleSaveConfig(std::ofstream& saveFile)
+void DoSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	/// ttl settings
 	saveFile << "TTLS\n";
@@ -181,7 +180,7 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
+void DoSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
 	if ( ver < Version ( "3.7" ) )
 	{
@@ -195,7 +194,7 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 }
 
 
-std::array< std::array<bool, 16>, 4 > DioSystem::getFinalSnapshot()
+std::array< std::array<bool, 16>, 4 > DoSystem::getFinalSnapshot()
 {
 	auto numSeq = ttlSnapshots.getNumSequences ( );
 	if ( numSeq > 0 )
@@ -213,7 +212,7 @@ std::array< std::array<bool, 16>, 4 > DioSystem::getFinalSnapshot()
 }
 
 
-void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
+void DoSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
 {
 	for ( auto rowInc : range(status.size()) )
 	{
@@ -225,98 +224,8 @@ void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > sta
 }
 
 
-
-
-std::string DioSystem::getSystemInfo()
+std::string DoSystem::getDioSystemInfo()
 {
-	DWORD answer = 1000;
-	std::string info = "Input Mode: ";
-	vp_flume.dioGetAttr( 0, 0, answer);
-	switch ( answer )
-	{
-		case 1100:
-			// didn't change from start; no board or system connected.
-			info += "no answer?";
-			break;
-			//return "";
-		case 0:
-			info += "Polled";
-			break;
-		case 1:
-			info += "Interrupt";
-			break;
-		case 2:
-			info += "Packet";
-			break;
-		case 3:
-			info += "Demand";
-			break;
-		default:
-			info += "UNKNOWN!";
-	}
-	vp_flume.dioGetAttr( 0, 1, answer );
-	info += "\n\tOutput Mode: ";
-	switch ( answer )
-	{
-		case 1000:
-			info += "no answer?";
-			break;
-		case 0:
-			info += "Polled";
-			break;
-		case 1:
-			info += "Interrupt";
-			break;
-		case 2:
-			info += "Packet";
-			break;
-		case 3:
-			info += "Demand";
-			break;
-		default:
-			info += "UNKNOWN!";
-	}
-	vp_flume.dioGetAttr( 0, 2, answer );
-	if (answer == 1000)
-	{
-		info += "\n\tInput Buffer Size: no answer?";
-	}
-	info += "\n\tInput Buffer Size: " + str( answer );
-	vp_flume.dioGetAttr( 0, 3, answer );
-	if (answer == 1000)
-	{
-		info += "\n\tOutput Buffer Size: no answer?";
-	}
-	info += "\n\tOutput Buffer Size: " + str( answer );
-	vp_flume.dioGetAttr( 0, 4, answer );
-	info += "\n\tMajor Clock Source: ";
-	switch ( answer )
-	{
-		case 1000:
-			info += "no answer?";
-			break;
-		case 0:
-			info += "Local 40 MHz Clock";
-			break;
-		case 1:
-			info += "External Clock";
-			break;
-		case 2:
-			info += "RTSI Clock / PXI chassis Clock";
-			break;
-		case 3:
-			info += "10 MHz Clock";
-			break;
-		default:
-			info += "UNKNOWN!";
-	}
-	// this is just a sampling... many more exist.
-	return info;
-}
-
-std::string DioSystem::getDioSystemInfo()
-{
-	
 	UINT numDev;
 	std::string msg = "";
 	try
@@ -333,7 +242,7 @@ std::string DioSystem::getDioSystemInfo()
 }
 
 
-std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames()
+std::array<std::array<std::string, 16>, 4> DoSystem::getAllNames()
 {
 	std::array<std::array<std::string, 16>, 4> ttlNames;
 	for ( auto& out : outputs )
@@ -344,17 +253,7 @@ std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames()
 }
 
 
-void DioSystem::startBoard()
-{
-	DIO64STAT status;
-	DWORD scansAvailable;
-	vp_flume.dioOutStatus( 0, scansAvailable, status );
-	// start the dio board!
-	vp_flume.dioOutStart( 0 );
-}
-
-
-void DioSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
+void DoSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 {
 	for (UINT shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
 	{
@@ -369,7 +268,7 @@ void DioSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 }
 
 
-void DioSystem::unshadeTtls()
+void DoSystem::unshadeTtls()
 {
 	for ( auto& out : outputs )
 	{
@@ -377,7 +276,7 @@ void DioSystem::unshadeTtls()
 	}
 }
 
-void DioSystem::rearrange(UINT width, UINT height, fontMap fonts)
+void DoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	ttlTitle.rearrange( width, height, fonts);
 	ttlHold.rearrange( width, height, fonts);
@@ -397,41 +296,41 @@ void DioSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void DioSystem::updatePush( DioRows::which row, UINT number )
+void DoSystem::updatePush( DioRows::which row, UINT number )
 {
 	outputs ( number, row ).updateStatus ( );
 }
 
 
-void DioSystem::handleInvert()
+void DoSystem::handleInvert()
 {
 	for ( auto& out : outputs )
 	{
-		forceTtl ( out.getPosition ( ).first, out.getPosition ( ).second, !out.getStatus ( ) );
+		ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, out.getStatus ());
 		out.updateStatus ( );
 	}
 }
 
 
-void DioSystem::updateDefaultTtl( DioRows::which row, UINT column, bool state)
+void DoSystem::updateDefaultTtl( DioRows::which row, UINT column, bool state)
 {
 	outputs ( column, row ).defaultStatus = state;
 }
 
 
-bool DioSystem::getDefaultTtl( DioRows::which row, UINT column)
+bool DoSystem::getDefaultTtl( DioRows::which row, UINT column)
 {
 	return outputs ( column, row ).defaultStatus;
 }
 
 
-std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
+std::pair<UINT, UINT> DoSystem::getTtlBoardSize()
 {
 	return { outputs.numRows, outputs.numColumns };
 }
 
 
-void DioSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id )
+void DoSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
@@ -484,7 +383,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& 
 }
 
 
-void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
+void DoSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
 										std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
 										std::vector<parameterType>& vars, UINT seqNum, std::string scope )
 {
@@ -493,7 +392,7 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 }
 
 
-void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name, Expression pulseLength, 
+void DoSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name, Expression pulseLength, 
 									    std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
 										std::vector<parameterType>& vars, UINT seqNum, std::string scope )
 {
@@ -539,7 +438,7 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 }
 
 
-void DioSystem::standardNonExperimentStartDioSequence( )
+void DoSystem::standardNonExperimentStartDioSequence( )
 {
 	/*
 	organizeTtlCommands( 0, 0 );
@@ -564,19 +463,19 @@ void DioSystem::standardNonExperimentStartDioSequence( )
 }
 
 
-int DioSystem::getNumberOfTTLRows()
+int DoSystem::getNumberOfTTLRows()
 {
 	return outputs.numRows;
 }
 
 
-int DioSystem::getNumberOfTTLsPerRow()
+int DoSystem::getNumberOfTTLsPerRow()
 {
 	return outputs.numColumns;
 }
 
 
-void DioSystem::handleTTLPress(int id)
+void DoSystem::handleTTLPress(int id)
 {
 	
 	for ( auto& out : outputs )
@@ -605,7 +504,7 @@ void DioSystem::handleTTLPress(int id)
 	}
 }
 
-std::string DioSystem::testTTL() {
+std::string DoSystem::testTTL() {
 	for (auto i : range(4))
 	{
 		for (auto j : range(16)) {
@@ -628,7 +527,7 @@ std::string DioSystem::testTTL() {
 
 
 // this function handles when the hold button is pressed.
-void DioSystem::handleHoldPress()
+void DoSystem::handleHoldPress()
 {
 	if (holdStatus == true)
 	{
@@ -638,7 +537,7 @@ void DioSystem::handleHoldPress()
 		for ( auto& out : outputs )
 		{
 			out.set ( out.holdStatus );
-			forceTtl ( out.getPosition ( ).first, out.getPosition ( ).second, out.getStatus ( ) );
+			ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, out.getStatus ());
 			out.updateStatus ( );
 		}
 	}
@@ -655,13 +554,13 @@ void DioSystem::handleHoldPress()
 template<class T> using vec = std::vector<T>;
 
 // prepares some structures for a simple force event. 
-void DioSystem::prepareForce( )
+void DoSystem::prepareForce( )
 {
 	initializeDataObjects( 1, 1 );
 }
 
 
-void DioSystem::initializeDataObjects( UINT seqNum, UINT variationNum )
+void DoSystem::initializeDataObjects( UINT seqNum, UINT variationNum )
 {
 	ttlCommandFormList.resize( seqNum );
 	ttlCommandList.uniformSizeReset ( seqNum, variationNum );
@@ -669,8 +568,6 @@ void DioSystem::initializeDataObjects( UINT seqNum, UINT variationNum )
 	loadSkipTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	formattedTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
 	loadSkipFormattedTtlSnapshots.uniformSizeReset ( seqNum, variationNum );
-	finalFormatViewpointData.uniformSizeReset ( seqNum, variationNum );
-	loadSkipFinalFormatViewpointData.uniformSizeReset ( seqNum, variationNum );
 	ftdiSnaps.uniformSizeReset ( seqNum, variationNum );
 	ftdiSnaps_loadSkip.uniformSizeReset ( seqNum, variationNum );
 	finFtdiBuffers.uniformSizeReset ( seqNum, variationNum );
@@ -678,13 +575,13 @@ void DioSystem::initializeDataObjects( UINT seqNum, UINT variationNum )
 }
 
 
-void DioSystem::resetTtlEvents( )
+void DoSystem::resetTtlEvents( )
 {
 	initializeDataObjects( 0, 0 );
 }
 
 
-HBRUSH DioSystem::handleColorMessage(CWnd* window, CDC* cDC)
+HBRUSH DoSystem::handleColorMessage(CWnd* window, CDC* cDC)
 {
 	int controlID = window->GetDlgCtrlID();
 	for ( auto& out : outputs )
@@ -714,7 +611,7 @@ HBRUSH DioSystem::handleColorMessage(CWnd* window, CDC* cDC)
 }
 
 
-bool DioSystem::isValidTTLName( std::string name )
+bool DoSystem::isValidTTLName( std::string name )
 {
 	DioRows::which row;
 	UINT number;
@@ -722,19 +619,19 @@ bool DioSystem::isValidTTLName( std::string name )
 }
 
 
-void DioSystem::ttlOn(UINT row, UINT column, timeType time, UINT seqNum )
+void DoSystem::ttlOn(UINT row, UINT column, timeType time, UINT seqNum )
 {
 	ttlCommandFormList[ seqNum ].push_back ( { {row, column}, time, {}, true } );
 }
 
 
-void DioSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
+void DoSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 {
 	ttlCommandFormList[ seqNum ].push_back ( { {row, column}, time, {}, false } );
 }
 
 
-void DioSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
+void DoSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
 {
 	DioCommand command;
 	command.line = { row, column };
@@ -744,7 +641,7 @@ void DioSystem::ttlOnDirect( UINT row, UINT column, double timev, UINT variation
 }
 
 
-void DioSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
+void DoSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variation, UINT seqInc )
 {
 	DioCommand command;
 	command.line = { row, column };
@@ -754,49 +651,12 @@ void DioSystem::ttlOffDirect( UINT row, UINT column, double timev, UINT variatio
 }
 
 
-void DioSystem::stopBoard()
-{
-	vp_flume.dioOutStop( 0 );
-}
-
-bool DioSystem::getViewpointSafemode ( )
-{
-	return vp_flume.getSafemodeSetting ( );
-}
-bool DioSystem::getFtFlumeSafemode()
+bool DoSystem::getFtFlumeSafemode()
 {
 	return ftFlume.getSafemodeSetting();
 }
 
-
-double DioSystem::getClockStatus()
-{
-	// initialize to zero so that in safemode goes directly to getting tick line.
-	int result = 0;
-	DIO64STAT stat;
-	DWORD availableScans;
-	try
-	{
-		vp_flume.dioOutStatus( 0, availableScans, stat );
-
-		if ( vp_flume.getSafemodeSetting ( ) )
-		{
-			thrower ( "!" );
-		}
-	}
-	catch ( Error&)
-	{
-		// get current time in ms...
-		// ***NOT SURE*** if this is what I want. The vb6 code used...
-		// return = Now * 24 * 60 * 60 * 1000
-		return GetTickCount64();
-	}
-	double timeInMilliSeconds = stat.time[0] + stat.time[1] * 65535;
-	return timeInMilliSeconds / 10000.0;
-	// assuming the clock runs at 10 MHz, return in ms.
-}
-
-std::array< std::array<bool, 16>, 4 > DioSystem::getCurrentStatus( )
+std::array< std::array<bool, 16>, 4 > DoSystem::getCurrentStatus( )
 {
 	std::array< std::array<bool, 16>, 4 > currentStatus;
 	for ( auto& out : outputs )
@@ -806,27 +666,8 @@ std::array< std::array<bool, 16>, 4 > DioSystem::getCurrentStatus( )
 	return currentStatus;
 }
 
-// forceTtl forces the actual ttl to a given value and changes the checkbox status to reflect that.
-void DioSystem::forceTtl( DioRows::which row, int number, bool state)
-{
-	outputs ( number, row ).set ( state );
-	// change the output.
-	int result = 0;
-	std::array<std::bitset<16>, 4> ttlBits;
-	for ( auto& out : outputs )
-	{
-		ttlBits[int(out.getPosition().first)].set(out.getPosition().second, out.getStatus ( ));
-	}
-	std::array<unsigned short, 4> tempCommand;
-	tempCommand[0] = static_cast <unsigned short>(ttlBits[0].to_ulong());
-	tempCommand[1] = static_cast <unsigned short>(ttlBits[1].to_ulong());
-	tempCommand[2] = static_cast <unsigned short>(ttlBits[2].to_ulong());
-	tempCommand[3] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-	vp_flume.dioForceOutput( 0, tempCommand.data(), 15 );
-}
 
-
-void DioSystem::setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void DoSystem::setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
 {
 	if (name == "")
 	{
@@ -840,7 +681,7 @@ void DioSystem::setName( DioRows::which row, UINT number, std::string name, cToo
 /*
 Returns a single number which corresponds to the dio control with the name 
 */
-int DioSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& number)
+int DoSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& number)
 {
 	for ( auto rowInc : DioRows::allRows )
 	{
@@ -861,78 +702,31 @@ int DioSystem::getNameIdentifier(std::string name, DioRows::which& row, UINT& nu
 }
 
 
-void DioSystem::writeTtlData(UINT variation, UINT seqNum, bool loadSkip)
-{
-	// all 64 outputs are used, so every bit in this should be 1. 
-	WORD outputMask[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
-	double scanRate = 10000000;
-	DWORD availableScans = 0;
-	DIO64STAT status;
-	status.AIControl = 0;
-	try
-	{
-		vp_flume.dioOutStop( 0 );
-	}
-	catch ( Error& ) { /* if fails it probably just wasn't running before */ } 
-
-	vp_flume.dioOutConfig( 0, 0, outputMask, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scanRate );
-	vp_flume.dioOutStatus( 0, availableScans, status );
-	if ( loadSkip )
-	{
-		vp_flume.dioOutWrite( 0, loadSkipFinalFormatViewpointData(seqNum,variation).data( ),
-					 loadSkipFormattedTtlSnapshots(seqNum,variation).size( ), status );
-	}
-	else
-	{
-		vp_flume.dioOutWrite( 0, finalFormatViewpointData(seqNum,variation).data( ), formattedTtlSnapshots(seqNum,variation).size( ), status );
-	}
-}
-
-
-std::string DioSystem::getName( DioRows::which row, UINT number)
+std::string DoSystem::getName( DioRows::which row, UINT number)
 {
 	return outputs(number, row).getName();
 }
 
 
-ULONG DioSystem::getNumberEvents(UINT variation, UINT seqNum )
+ULONG DoSystem::getNumberEvents(UINT variation, UINT seqNum )
 {
 	return ttlSnapshots(seqNum,variation).size();
 }
 
 
-bool DioSystem::getTtlStatus(DioRows::which row, int number)
+bool DoSystem::getTtlStatus(DioRows::which row, int number)
 {
 	return outputs ( number, row ).getStatus ( );
 }
 
 
-// waits a time in ms, using the DIO clock
-void DioSystem::wait(double time)
-{
-	double startTime;
-	//clockstatus function reads the DIO clock, units are ms
-	startTime = getClockStatus();
-	//errBox( "start time = " + str( startTime ) );
-	while (time - abs(getClockStatus() - startTime) > 110 /*&& getClockStatus() - startTime*/ != 0)
-	{
-		Sleep(100);
-	}
-	// check faster closer to the stop.
-	while (time - abs(getClockStatus() - startTime) > 0.1)
-	{
-		/*immediately check again*/
-	}
-	double finTime = getClockStatus();
-}
-
-void DioSystem::wait2(double time) {
+void DoSystem::wait2(double time) {
 	Sleep(time + 10);
 }
 
 
 // uses the last time of the ttl trigger to wait until the experiment is finished.
-void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
+void DoSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 {
 	double totalTime;
 	if (skipOption)
@@ -949,14 +743,14 @@ void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 	}
 	else
 	{
-		totalTime = (ftdiSnaps ( seqNum, variation ).back().time
+		totalTime = (ftdiSnaps ( seqNum, variation ).back().time 
 			+ 65535 * ftdiSnaps ( seqNum, variation ).back().time) / 10000.0 + 1;
 	}
 	wait2(totalTime);
 }
 
 
-void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum) {
+void DoSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum) {
 	auto time = getFtdiTotalTime (variation, seqNum);
 	wait2 (time);
 	/*
@@ -977,7 +771,7 @@ void DioSystem::FtdiWaitTillFinished(UINT variation, UINT seqNum) {
 }
 
 
-double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
+double DoSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 {
 	double time = -1;
 	bool proceed = true;
@@ -995,7 +789,7 @@ double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
 }
 
 
-double DioSystem::getTotalTime(UINT variation, UINT seqNum )
+double DoSystem::getTotalTime(UINT variation, UINT seqNum )
 {
 	// ??? there used to be a +1 at the end of this...
 	if (ftdiSnaps(seqNum,variation).empty()) { thrower("nothing in ftdi snaps vector"); }
@@ -1010,7 +804,7 @@ double DioSystem::getTotalTime(UINT variation, UINT seqNum )
 
 template<class T> using vec = std::vector<T>;
 
-void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
+void DoSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 {
 	/// imporantly, this sizes the relevant structures.
 	ttlSnapshots.uniformSizeReset ( sequenceLength, variations );
@@ -1018,9 +812,6 @@ void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 	loadSkipTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
 	formattedTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
 	loadSkipFormattedTtlSnapshots.uniformSizeReset ( sequenceLength, variations );
-	finalFormatViewpointData.uniformSizeReset ( sequenceLength, variations );
-	loadSkipFinalFormatViewpointData.uniformSizeReset ( sequenceLength, variations );
-
 	ftdiSnaps.uniformSizeReset ( sequenceLength, variations );
 	finFtdiBuffers.uniformSizeReset ( sequenceLength, variations );
 	ftdiSnaps_loadSkip.uniformSizeReset ( sequenceLength, variations );
@@ -1037,7 +828,7 @@ as [seq][variation][cmd].
 */
 
 
-void DioSystem::restructureCommands ( )
+void DoSystem::restructureCommands ( )
 {
 	/* this is to be done after key interpretation. */
 	ttlCommandList.resizeSeq ( ttlCommandFormList.size ( ) );
@@ -1066,7 +857,7 @@ void DioSystem::restructureCommands ( )
 /*
  * Read key values from variables and convert command form to the final commands.
  */
-void DioSystem::interpretKey(std::vector<std::vector<parameterType>>& params )
+void DoSystem::interpretKey(std::vector<std::vector<parameterType>>& params )
 {
 	UINT sequenceLength = params.size( );
 	UINT variations = params.front ().size () == 0 ? 1 : params.front ().front ().keyValues.size ();
@@ -1103,34 +894,28 @@ void DioSystem::interpretKey(std::vector<std::vector<parameterType>>& params )
 }
 
 
-allDigitalOutputs& DioSystem::getDigitalOutputs ( )
+allDigitalOutputs& DoSystem::getDigitalOutputs ( )
 {
 	return outputs;
 }
 
-ExpWrap<std::vector<DioSnapshot>> DioSystem::getTtlSnapshots ( )
+ExpWrap<std::vector<DioSnapshot>> DoSystem::getTtlSnapshots ( )
 {
 	/* used in the unit testing suite */
 	return ttlSnapshots;
 }
 
-ExpWrap<finBufInfo> DioSystem::getFinalFtdiData ( )
+ExpWrap<finBufInfo> DoSystem::getFinalFtdiData ( )
 {
 	return finFtdiBuffers;
 }
 
-ExpWrap<std::array<ftdiPt, 2048>> DioSystem::getFtdiSnaps ( )
+ExpWrap<std::array<ftdiPt, 2048>> DoSystem::getFtdiSnaps ( )
 {
 	return ftdiSnaps;
 }
 
-ExpWrap<std::vector<WORD>> DioSystem::getFinalViewpointData ( )
-{
-	return finalFormatViewpointData;
-}
-
-
-void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
+void DoSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
@@ -1220,7 +1005,7 @@ void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 }
 
 
-std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
+std::pair<USHORT, USHORT> DoSystem::calcDoubleShortTime( double time )
 {
 	USHORT lowordTime, hiwordTime;
 	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
@@ -1235,7 +1020,7 @@ std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
 }
 
 
-void DioSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
+void DoSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
 {
 	// formatting of these snaps is similar to the word formatting of the viewpoint dio64 card; the ttl on/off 
 	int snapIndex = 0;
@@ -1280,7 +1065,7 @@ void DioSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
 }
 
 
-void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
+void DoSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 {
 	for ( auto loadSkip : { false, true } )
 	{
@@ -1316,7 +1101,7 @@ void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
 }
 
 
-DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
+DWORD DoSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 {
 	outputs ( number, row ).set( state );
 	resetTtlEvents( );
@@ -1333,89 +1118,7 @@ DWORD DioSystem::ftdi_ForceOutput( DioRows::which row, int number, int state )
 
 }
 
-
-
-void DioSystem::convertToFinalViewpointFormat(UINT variation, UINT seqNum )
-{
-	// excessive but just in case.
-	auto& formattedSnaps = formattedTtlSnapshots(seqNum,variation);
-	auto& loadSkipFormattedSnaps = loadSkipFormattedTtlSnapshots(seqNum,variation);
-	auto& finalNormal = finalFormatViewpointData(seqNum,variation);
-	auto& finalLoadSkip = loadSkipFinalFormatViewpointData(seqNum,variation);
-	formattedSnaps.clear();
-	loadSkipFormattedSnaps.clear( );
-	finalNormal.clear( );
-	finalLoadSkip.clear( );
-
-	// do bit arithmetic.
-	for ( auto& snapshot : ttlSnapshots(seqNum,variation))
-	{
-		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
-		std::array<std::bitset<16>, 4> ttlBits;
-		for (UINT rowInc : range( 4 ) )
-		{
-			for (UINT numberInc : range( 16 ) )
-			{
-				ttlBits[rowInc].set( numberInc, snapshot.ttlStatus[rowInc][numberInc] );
-			}
-		}
-		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably 
-		// work just passing the address of the bitsets, but I'm sure this will work so whatever.)
-		std::array<USHORT, 6> tempCommand;
-		tempCommand[0] = calcDoubleShortTime( snapshot.time ).first;
-		tempCommand[1] = calcDoubleShortTime( snapshot.time ).second;
-		tempCommand[2] = static_cast <unsigned short>(ttlBits[0].to_ulong());
-		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
-		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
-		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-		formattedTtlSnapshots(seqNum,variation).push_back(tempCommand);
-	}
-	// same loop with the loadSkipSnapshots.
-	for ( auto& snapshot : loadSkipTtlSnapshots(seqNum,variation) )
-	{
-		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
-		std::array<std::bitset<16>, 4> ttlBits;
-		for ( UINT rowInc : range( 4 ) )
-		{
-			for ( UINT numberInc : range( 16 ) )
-			{
-				ttlBits[rowInc].set( numberInc, snapshot.ttlStatus[rowInc][numberInc] );
-			}
-		}
-		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably 
-		// work just passing the address of the bitsets, but I'm sure this will work so whatever.)
-		std::array<USHORT, 6> tempCommand;
-		tempCommand[0] = calcDoubleShortTime( snapshot.time ).first;
-		tempCommand[1] = calcDoubleShortTime( snapshot.time ).second;
-		tempCommand[2] = static_cast <unsigned short>(ttlBits[0].to_ulong( ));
-		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong( ));
-		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong( ));
-		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong( ));
-		loadSkipFormattedTtlSnapshots(seqNum,variation).push_back( tempCommand );
-	}
-
-	/// flatten the data.
-	finalFormatViewpointData(seqNum,variation).resize( formattedTtlSnapshots(seqNum,variation).size( ) * 6 );
-	int count = 0;
-	for ( auto& element : finalFormatViewpointData(seqNum,variation) )
-	{
-		// concatenate
-		element = formattedTtlSnapshots(seqNum,variation)[count / 6][count % 6];
-		count++;
-	}
-	// the arrays are usually not the same length and need to be dealt with separately.
-	loadSkipFinalFormatViewpointData(seqNum,variation).resize( loadSkipFormattedTtlSnapshots(seqNum,variation).size( ) * 6 );
-	count = 0;
-	for ( auto& element : loadSkipFinalFormatViewpointData(seqNum,variation) )
-	{
-		// concatenate
-		element = loadSkipFormattedTtlSnapshots(seqNum,variation)[count / 6][count % 6];
-		count++;
-	}
-}
-
-
-void DioSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
+void DoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = ttlSnapshots(seqNum,variation);
@@ -1438,7 +1141,7 @@ void DioSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& 
 
 // counts the number of triggers on a given line.
 // which.first = row, which.second = number.
-UINT DioSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum )
+UINT DoSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum )
 {
 	auto& snaps = ttlSnapshots(seqNum, variation);
 	UINT count = 0;
@@ -1462,7 +1165,7 @@ UINT DioSystem::countTriggers( std::pair<DioRows::which, UINT> which, UINT varia
 }
 
 
-void DioSystem::checkNotTooManyTimes( UINT variation, UINT seqNum )
+void DoSystem::checkNotTooManyTimes( UINT variation, UINT seqNum )
 {
 	if ( formattedTtlSnapshots(seqNum,variation).size( ) > 512 )
 	{
@@ -1473,7 +1176,7 @@ void DioSystem::checkNotTooManyTimes( UINT variation, UINT seqNum )
 }
 
 
-void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
+void DoSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 {
 	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
 	// of a bug when code first created.
@@ -1494,7 +1197,8 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 	}
 }
 
-void DioSystem::ftdiZeroBoard ( )
+
+void DoSystem::ftdiZeroBoard ( )
 {
 	for ( auto& out : outputs )
 	{
@@ -1504,17 +1208,17 @@ void DioSystem::ftdiZeroBoard ( )
 }
 
 
-void DioSystem::zeroBoard( )
+void DoSystem::zeroBoard( )
 {
 	for ( auto& out : outputs )
 	{
-		forceTtl ( out.getPosition ( ).first, out.getPosition ( ).second, 0 );
+		ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, 0);
 		out.updateStatus ( );
 	}
 }
 
 
-std::vector<std::vector<double>> DioSystem::getFinalTimes( )
+std::vector<std::vector<double>> DoSystem::getFinalTimes( )
 {
 	std::vector<std::vector<double>> finTimes(ttlSnapshots.getNumSequences());
 	for (auto seqNum : range(ttlSnapshots.getNumSequences()))
@@ -1529,7 +1233,7 @@ std::vector<std::vector<double>> DioSystem::getFinalTimes( )
 }
 
 
-void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData )
+void DoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData )
 {
 	std::string message;
 	for ( auto seqNum : range(ttlSnapshots.getNumSequences()) )
@@ -1558,9 +1262,8 @@ void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 	}
 }
 
-
 /// DIO64 Wrapper functions that I actually use
-std::string DioSystem::getTtlSequenceMessage(UINT variation, UINT seqNum )
+std::string DoSystem::getTtlSequenceMessage(UINT variation, UINT seqNum )
 {
 	std::string message;
 	

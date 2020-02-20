@@ -611,7 +611,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 }
 
 
-void ExperimentThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
+void ExperimentThreadManager::analyzeMasterScript ( DoSystem& ttls, AoSystem& aoSys,
 												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
 												std::vector<parameterType>& vars, ScriptStream& currentMasterScript, 
 												UINT seqNum, bool expectsLoadSkip, std::string& warnings, 
@@ -717,7 +717,7 @@ void ExperimentThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& a
 }
 
 
-void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
+void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DoSystem& ttls,
 											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
 											std::vector<UINT>& dacShades, 
 											std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
@@ -871,7 +871,7 @@ double ExperimentThreadManager::convertToTime( timeType time, std::vector<parame
 }
 
 
-void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DioSystem& ttls, AoSystem& aoSys,
+void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DoSystem& ttls, AoSystem& aoSys,
 									  std::vector<std::vector<pPlotDataVec>> ttlData, 
 									  std::vector<std::vector<pPlotDataVec>> dacData )
 {
@@ -1308,7 +1308,7 @@ bool ExperimentThreadManager::handleTimeCommands( std::string word, ScriptStream
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-									   DioSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
+									   DoSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
 									   std::string scope, timeType& operationTime )
 {
 	if ( word == "on:" || word == "off:" )
@@ -1334,7 +1334,7 @@ bool ExperimentThreadManager::handleDioCommands( std::string word, ScriptStream&
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum, 
+											AoSystem& aoSys, std::vector<UINT>& dacShades, DoSystem& ttls, UINT seqNum, 
 											std::string scope, timeType& operationTime )
 {
 	if ( word == "dac:" )
@@ -1566,7 +1566,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 
 
 bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											  DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+											  DoSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 											  std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
 											  std::string callingFunction, timeType& operationTime )
 {

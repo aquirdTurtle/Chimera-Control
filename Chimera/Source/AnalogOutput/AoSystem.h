@@ -41,8 +41,8 @@ class AoSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver);
 		// macros
-		void forceDacs( DioSystem* ttls );
-		void zeroDacs( DioSystem* ttls );
+		void forceDacs( DoSystem* ttls );
+		void zeroDacs( DoSystem* ttls );
 		// Setting system settings, mostly non-crucial functionality.
 		
 		void handleRoundToDac( MainWindow* menu );
@@ -58,15 +58,15 @@ class AoSystem
 						   std::vector<std::vector<double>> finTimes );
 		void handleEditChange( UINT dacNumber );
 		// processing to determine how dac's get set
-		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
+		void handleSetDacsButtonPress( DoSystem* ttls, bool useDefault=false );
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
 		void setDacStatusNoForceOut(std::array<double, 24> status);
-		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
-		void setDacTriggerEvents( DioSystem& ttls, UINT variation, UINT seqNum );
+		void prepareDacForceChange(int line, double voltage, DoSystem* ttls);
+		void setDacTriggerEvents( DoSystem& ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-									 std::vector<parameterType>& vars, DioSystem& ttls, UINT seqNum );
+									 std::vector<parameterType>& vars, DoSystem& ttls, UINT seqNum );
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
 		void makeFinalDataFormat( UINT variation, UINT seqNum );
@@ -78,7 +78,7 @@ class AoSystem
 		void initializeDataObjects( UINT sequenceNum, UINT cmdNum );
 		void prepareForce( );
 		void standardNonExperiemntStartDacsSequence( );		
-		void setSingleDac( UINT dacNumber, double val, DioSystem* ttls );
+		void setSingleDac( UINT dacNumber, double val, DoSystem* ttls );
 		// checks
 		void checkTimingsWork( UINT variation, UINT seqNum );
 		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
@@ -103,7 +103,7 @@ class AoSystem
 		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
 		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 	private:
-		void setForceDacEvent (int line, double val, DioSystem* ttls, UINT variation, UINT seqNum);
+		void setForceDacEvent (int line, double val, DoSystem* ttls, UINT variation, UINT seqNum);
 
 		Control<CStatic> dacTitle;
 		Control<CleanPush> dacSetButton;

@@ -85,7 +85,7 @@ void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
-							   AiSystem* ai_in, AoSystem* ao_in, DioSystem* ttls_in, ParameterSystem* globals_in )
+							   AiSystem* ai_in, AoSystem* ao_in, DoSystem* ttls_in, ParameterSystem* globals_in )
 {
 	servosHeader.sPos = {pos.x, pos.y, pos.x + 480, pos.y + 20};
 	servosHeader.Create( "SERVOS & MONITORS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
