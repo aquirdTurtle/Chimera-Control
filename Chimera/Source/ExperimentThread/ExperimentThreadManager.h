@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "Microwave/MicrowaveSettings.h"
 #include "MiscellaneousExperimentOptions/debugInfo.h"
@@ -43,7 +43,7 @@ class ExperimentThreadManager
 		bool getAbortStatus();
 		static bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										std::string scope, timeType& operationTime);
-		static bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
+		static bool handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 									   DoSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
 									   std::string scope, timeType& operationTime);
 		static bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,

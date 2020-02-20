@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "ParameterSystem.h"
 #include "Scripts/Script.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralObjects/multiDimensionalKey.h"

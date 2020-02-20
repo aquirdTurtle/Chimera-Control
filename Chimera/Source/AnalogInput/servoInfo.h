@@ -1,6 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "DigitalOutput/DioRows.h"
+#include "DigitalOutput/DoRows.h"
 
 
 struct servoInfo
@@ -20,7 +20,7 @@ struct servoInfo
 	double gain = 0.02;
 	bool servoed=false;
 	double mostRecentResult = 0;
-	std::vector<std::pair<DioRows::which, UINT> > ttlConfig;
+	std::vector<std::pair<DoRows::which, UINT> > ttlConfig;
 	std::vector<std::pair<UINT, double>> aoConfig;
 	bool currentlyServoing = false;
 	unsigned int avgNum=100;

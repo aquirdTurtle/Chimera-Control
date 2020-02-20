@@ -13,7 +13,7 @@
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
-	niawg( DioRows::which::B, 14, NIAWG_SAFEMODE ),
+	niawg( DoRows::which::B, 14, NIAWG_SAFEMODE ),
 	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope" ),
 	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope" )
 {
@@ -183,10 +183,7 @@ void MainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-void MainWindow::passRerngModeComboChange ( )
-{
-	rearrangeControl.updateActive ( );
-}
+void MainWindow::passRerngModeComboChange ( ) { rearrangeControl.updateActive ( ); }
 
 
 void MainWindow::handleThresholdAnalysis ()
@@ -229,10 +226,7 @@ LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
 }
 
 
-UINT MainWindow::getAutoCalNumber ()
-{
-	return autoCalNum;
-}
+UINT MainWindow::getAutoCalNumber () { return autoCalNum; }
 
 
 void MainWindow::onAutoCalFin ()
@@ -264,11 +258,7 @@ void MainWindow::onAutoCalFin ()
 	}
 }
 
-
-void MainWindow::onGreyTempCalFin ( )
-{
-	infoBox ( "Finished MOT Calibrations." );
-}
+void MainWindow::onGreyTempCalFin ( ) { infoBox ( "Finished MOT Calibrations." ); }
 
 void MainWindow::onMachineOptRoundFin (  )
 {
@@ -287,10 +277,7 @@ void MainWindow::passExperimentRerngButton( )
 	rearrangeControl.updateActive ( );
 }
 
-void MainWindow::OnTimer( UINT_PTR id )
-{
-	OnPaint( );
-}
+void MainWindow::OnTimer( UINT_PTR id ) { OnPaint( ); }
 
 
 void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
@@ -361,16 +348,8 @@ std::vector<Gdiplus::SolidBrush*> MainWindow::getBrightPlotBrushes( )
 }
 
 
-void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
-{
-	TheAndorWindow->stopSound( );
-}
-
-
-void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
-{
-	TheAndorWindow->stopSound( );
-}
+void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation ) { 	TheAndorWindow->stopSound( ); }
+void MainWindow::OnLButtonUp (UINT stuff, CPoint clickLocation) { TheAndorWindow->stopSound (); }
 
 
 void MainWindow::passConfigPress( )
@@ -690,11 +669,7 @@ void MainWindow::notifyConfigUpdate( )
 }
 
 
-void MainWindow::catchEnter( )
-{
-	// the default handling is to close the window, so I need to catch it.
-
-}
+void MainWindow::catchEnter( ){	/* the default handling is to close the window, so I need to catch it.*/ }
 
 
 BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC hdcMonitor,
@@ -841,13 +816,6 @@ void MainWindow::setNiawgRunningState( bool newRunningState )
 }
 
 
-bool MainWindow::niawgIsRunning()
-{
-	return niawg.niawgIsRunning();
-}
-
-
-
 BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
 {
 	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
@@ -858,16 +826,9 @@ BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
 }
 
 
-void MainWindow::setNiawgDefaults()
-{
-	niawg.setDefaultWaveforms(this);
-}
-
-
-fontMap MainWindow::getFonts()
-{
-	return mainFonts;
-}
+bool MainWindow::niawgIsRunning () { return niawg.niawgIsRunning (); }
+void MainWindow::setNiawgDefaults() { niawg.setDefaultWaveforms(this); }
+fontMap MainWindow::getFonts() { return mainFonts; }
 
 
 void MainWindow::passClear(UINT id)
@@ -902,25 +863,9 @@ void MainWindow::OnCancel()
 	passCommonCommand(ID_FILE_MY_EXIT);
 }
 
-
-void MainWindow::OnClose()
-{
-	passCommonCommand(WM_CLOSE);
-}
-
-
-void MainWindow::stopNiawg()
-{
-	niawg.turnOff();
-}
-
-
-UINT MainWindow::getRepNumber()
-{
-	return repetitionControl.getRepetitionNumber();
-}
-
-
+void MainWindow::OnClose() { passCommonCommand(WM_CLOSE); }
+void MainWindow::stopNiawg() { niawg.turnOff(); }
+UINT MainWindow::getRepNumber() { return repetitionControl.getRepetitionNumber(); }
 
 std::string MainWindow::getSystemStatusString()
 {
@@ -978,25 +923,6 @@ std::string MainWindow::getSystemStatusString()
 	}
 	return status;
 }
-
-
-bool MainWindow::masterIsRunning()
-{
-	return expThreadManager.runningStatus();
-}
-
-
-RunInfo MainWindow::getRunInfo()
-{
-	return systemRunningInfo;
-}
-
-
-void MainWindow::restartNiawgDefaults()
-{
-	niawg.restartDefault();
-}
-
 
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
@@ -1068,7 +994,6 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 	input->seq.name = "loadMot";
 	input->seq.sequence.resize( 1 );
 	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
-
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runList.niawg = false;
  	input->skipNext = NULL;
@@ -1080,8 +1005,7 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 
 unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 {
-	// this thread just continuously requests new info from the scopes. The input is just a pointer to the scope 
-	// object.
+	// this thread continuously requests new info from the scopes. The input is just a pointer to the scope object.
 	ScopeViewer* input = (ScopeViewer*)voidInput;
 	while ( true )
 	{
@@ -1096,10 +1020,27 @@ void MainWindow::fillMasterThreadSequence( ExperimentThreadInput* input )
 	input->seq = profile.getSeqSettings( );
 }
 
-
+bool MainWindow::masterIsRunning () { return expThreadManager.runningStatus (); }
+RunInfo MainWindow::getRunInfo () { return systemRunningInfo; }
+void MainWindow::restartNiawgDefaults () { niawg.restartDefault (); }
 NiawgController& MainWindow::getNiawg ( ) { return niawg; }
-
 Communicator& MainWindow::getCommRef ( ) { return comm; }
+EmbeddedPythonHandler& MainWindow::getPython () { return python; }
+profileSettings MainWindow::getProfileSettings () { return profile.getProfileSettings (); }
+seqSettings MainWindow::getSeqSettings () { return profile.getSeqSettings (); }
+std::string MainWindow::getNotes () { return notes.getConfigurationNotes (); }
+void MainWindow::setNotes (std::string newNotes) { notes.setConfigurationNotes (newNotes); }
+debugInfo MainWindow::getDebuggingOptions () { return debugger.getOptions (); }
+void MainWindow::setDebuggingOptions (debugInfo options) { debugger.setOptions (options); }
+mainOptions MainWindow::getMainOptions () { return mainOptsCtrl.getOptions (); }
+void MainWindow::setShortStatus (std::string text) { shortStatus.setText (text); }
+void MainWindow::changeShortStatusColor (std::string color) { shortStatus.setColor (color); }
+void MainWindow::passDebugPress (UINT id) { profile.updateConfigurationSavedStatus (false); }
+void MainWindow::passMainOptionsPress (UINT id) { profile.updateConfigurationSavedStatus (false); }
+bool MainWindow::experimentIsPaused () { return expThreadManager.getIsPaused (); }
+void MainWindow::stopRearranger () { niawg.turnOffRerng (); }
+void MainWindow::waitForRearranger () { niawg.waitForRerng (true); }
+Communicator* MainWindow::getComm () { return &comm; }
 
 
 void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
@@ -1111,28 +1052,10 @@ void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
 }
 
 
-EmbeddedPythonHandler& MainWindow::getPython ( )
-{
-	return python;
-}
-
-
 void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 {
 	logger->logMasterInput(input);
 	logger->logServoInfo ( getServoinfo ( ) );
-}
-
-
-profileSettings MainWindow::getProfileSettings()
-{
-	return profile.getProfileSettings();
-}
-
-
-seqSettings MainWindow::getSeqSettings( )
-{
-	return profile.getSeqSettings( );
 }
 
 
@@ -1151,36 +1074,6 @@ void MainWindow::checkProfileSave()
 void MainWindow::updateConfigurationSavedStatus(bool status)
 {
 	profile.updateConfigurationSavedStatus(status);
-}
-
-
-std::string MainWindow::getNotes()
-{
-	return notes.getConfigurationNotes();
-}
-
-
-void MainWindow::setNotes(std::string newNotes)
-{
-	notes.setConfigurationNotes(newNotes);
-}
-
-
-debugInfo MainWindow::getDebuggingOptions()
-{
-	return debugger.getOptions();
-}
-
-
-void MainWindow::setDebuggingOptions(debugInfo options)
-{
-	debugger.setOptions(options);
-}
-
-
-mainOptions MainWindow::getMainOptions()
-{
-	return mainOptsCtrl.getOptions();
 }
 
 
@@ -1228,30 +1121,6 @@ void MainWindow::addTimebar(std::string whichStatus)
 			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus + ". This"
 			"exception can be safely ignored.");
 	}
-}
-
-
-void MainWindow::setShortStatus(std::string text)
-{
-	shortStatus.setText(text);
-}
-
-
-void MainWindow::changeShortStatusColor(std::string color)
-{
-	shortStatus.setColor(color);
-}
-
-
-void MainWindow::passDebugPress(UINT id)
-{
-	profile.updateConfigurationSavedStatus( false );
-}
-
-
-void MainWindow::passMainOptionsPress(UINT id)
-{
-	profile.updateConfigurationSavedStatus( false );
 }
 
 
@@ -1318,13 +1187,6 @@ void MainWindow::abortMasterThread()
 	else { thrower ("Can't abort, experiment was not running.\r\n"); }
 }
 
-bool MainWindow::experimentIsPaused( )
-{
-	return expThreadManager.getIsPaused( );
-}
-
-
-
 LRESULT MainWindow::onStatusTextMessage(WPARAM wParam, LPARAM lParam)
 {
 	char* pointerToMessage = (char*)lParam;
@@ -1384,18 +1246,6 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
 	errBox ( statusMessage );
 	return 0;
-}
-
-
-void MainWindow::stopRearranger( )
-{
-	niawg.turnOffRerng( );
-}
-
-
-void MainWindow::waitForRearranger( )
-{
-	niawg.waitForRerng( true );
 }
 
 
@@ -1461,11 +1311,6 @@ void MainWindow::handleFinish()
 	}
 }
 
-
-Communicator* MainWindow::getComm()
-{
-	return &comm;
-}
 
 
 LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)

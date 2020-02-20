@@ -6,7 +6,7 @@
 #include "LowLevel/constants.h"
 #include "ExperimentThread/ExperimentThreadManager.h" 
 #include "Piezo/PiezoController.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "Scripts/Script.h"

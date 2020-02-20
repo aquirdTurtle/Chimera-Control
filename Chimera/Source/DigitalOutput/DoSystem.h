@@ -3,14 +3,13 @@
 #include "CustomMfcControlWrappers/Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
-#include "DigitalOutput/DioStructures.h"
+#include "DigitalOutput/DoStructures.h"
 #include "ParameterSystem/Expression.h"
 #include "Plotting/PlotCtrl.h"
 #include "GeneralFlumes/ftdiStructures.h"
 #include "GeneralFlumes/ftdiFlume.h"
 #include "GeneralFlumes/WinSerialFlume.h"
 #include "ConfigurationSystems/Version.h"
-#include "viewpointFlume.h"
 #include "DigitalOutput/DigitalOutput.h"
 #include "GeneralObjects/ExpWrap.h"
 #include <array>
@@ -30,13 +29,13 @@ class DoSystem
 
 		DoSystem ( bool ftSafemode, bool serialSafemode );
 		~DoSystem();
-		/// Felix's Dio handling. Much originally in a class called "RC028".
+		/// Felix's Do handling. Much originally in a class called "RC028".
 		void ftdi_disconnect( );
 		void ftdi_connectasync( const char devSerial[] );
 		void fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt );
 		DWORD ftdi_write( UINT seqNum, UINT variation, bool loadSkipf );
 		DWORD ftdi_trigger( );
-		void standardNonExperimentStartDioSequence( );
+		void standardNonExperimentStartDoSequence( );
 		/// config handling
 		void initializeDataObjects( UINT seqNum, UINT cmdNum );
 		void handleNewConfig( std::ofstream& saveFile );
@@ -54,7 +53,7 @@ class DoSystem
 		void checkNotTooManyTimes( UINT variation, UINT seqNum );
 		void handleHoldPress();
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		std::string getDioSystemInfo();
+		std::string getDoSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
@@ -69,12 +68,12 @@ class DoSystem
 
 		std::pair<UINT, UINT> getTtlBoardSize();
 
-		void setName( DioRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
-		std::string getName ( DioRows::which row, UINT number );
+		void setName( DoRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
+		std::string getName ( DoRows::which row, UINT number );
 		std::array<std::array<std::string, 16>, 4> DoSystem::getAllNames();
 		// returns -1 if not a name.
-		int getNameIdentifier(std::string name, DioRows::which& row, UINT& number);
-		bool getTtlStatus ( DioRows::which row, int number );
+		int getNameIdentifier(std::string name, DoRows::which& row, UINT& number);
+		bool getTtlStatus ( DoRows::which row, int number );
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
 									 std::vector<parameterType>& vars, UINT seqNum, std::string scope );
@@ -84,7 +83,7 @@ class DoSystem
 		void organizeTtlCommands(UINT variation, UINT seqNum );
 		void convertToFtdiSnaps( UINT variation, UINT seqNum );
 		void convertToFinalFtdiFormat( UINT variation, UINT seqNum );
-		DWORD ftdi_ForceOutput( DioRows::which row, int number, int state );
+		DWORD ftdi_ForceOutput( DoRows::which row, int number, int state );
 		void sizeDataStructures( UINT sequenceLength, UINT variations );
 		void waitTillFinished( UINT variation, UINT seqNum, bool skipOption );
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
@@ -92,15 +91,15 @@ class DoSystem
 		bool isValidTTLName(std::string name);
 		void resetTtlEvents();
 		void prepareForce();
-		void updateDefaultTtl( DioRows::which row, UINT column, bool state);
-		UINT countTriggers( std::pair<DioRows::which, UINT> which, UINT variation, UINT seqNum );
-		bool getDefaultTtl( DioRows::which row, UINT column);
+		void updateDefaultTtl( DoRows::which row, UINT column, bool state);
+		UINT countTriggers( std::pair<DoRows::which, UINT> which, UINT variation, UINT seqNum );
+		bool getDefaultTtl( DoRows::which row, UINT column);
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
 		std::vector<std::vector<double>> getFinalTimes( );
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
-		void updatePush( DioRows::which row, UINT col );
+		void updatePush( DoRows::which row, UINT col );
 		double getFtdiTotalTime( UINT variation, UINT seqNum );
 		bool getFtFlumeSafemode();
 		std::string testTTL();
@@ -108,12 +107,12 @@ class DoSystem
 		void interpretKey ( std::vector<std::vector<parameterType>>& params );
 		void wait2(double time);
 		void FtdiWaitTillFinished( UINT variation, UINT seqNum );
-		ExpWrap<std::vector<DioSnapshot>> getTtlSnapshots ( );
+		ExpWrap<std::vector<DoSnapshot>> getTtlSnapshots ( );
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ( );
 		ExpWrap<finBufInfo> getFinalFtdiData ( );
 		void restructureCommands ( );
 	private:
-		/// stuff for felix's dio
+		/// stuff for felix's do
 		ftdiConnectionOption connectType;
 		const UINT NUMPOINTS = 2048;
 		const unsigned int TIMEOFFS = unsigned int(0x0800);
@@ -137,9 +136,9 @@ class DoSystem
 		allDigitalOutputs outputs;
 		// tells whether the hold button is down or not.
 		bool holdStatus; 
-		std::vector<std::vector<DioCommandForm>> ttlCommandFormList;
-		ExpWrap<std::vector<DioCommand>> ttlCommandList;
-		ExpWrap<std::vector<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
+		std::vector<std::vector<DoCommandForm>> ttlCommandFormList;
+		ExpWrap<std::vector<DoCommand>> ttlCommandList;
+		ExpWrap<std::vector<DoSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
 		ExpWrap<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// ftdi equivalents...
 		ExpWrap<std::array<ftdiPt, 2048>> ftdiSnaps;

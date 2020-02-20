@@ -1,10 +1,10 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "AuxiliaryWindow.h"
-#include "DigitalOutput/DioSettingsDialog.h"
+#include "DigitalOutput/DoSettingsDialog.h"
 #include "AnalogOutput/AoSettingsDialog.h"
 #include "ExcessDialogs/TextPromptDialog.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/MainWindow.h"
 #include "CustomMfcControlWrappers/Control.h"
@@ -21,7 +21,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 	eoAxialTek ( EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 	agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 			   FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
-		ttlBoard ( DIOFTDI_SAFEMODE, true ),
+		ttlBoard ( DOFTDI_SAFEMODE, true ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
 	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM4", "PIEZO_CONTROLLER_2" )
@@ -1140,14 +1140,14 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
 	// save info
 	/// ttls
-	for (auto row : DioRows::allRows )
+	for (auto row : DoRows::allRows )
 	{
 		for (UINT ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
 		{
 			std::string name = ttlBoard.getName( row, ttlNumberInc);
 			if (name == "")
 			{
-				name = DioRows::toStr(row) + str(ttlNumberInc);
+				name = DoRows::toStr(row) + str(ttlNumberInc);
 			}
 			configStream << name << "\n";
 			configStream << ttlBoard.getDefaultTtl(row, ttlNumberInc) << "\n";
@@ -1188,7 +1188,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 	ttlBoard.prepareForce();
 	aoSys.resetDacEvents();
 	aoSys.prepareForce();
-	for (auto row : DioRows::allRows )
+	for (auto row : DoRows::allRows )
 	{
 		for (UINT ttlNumberInc : range( ttlBoard.getTtlBoardSize().second ) )
 		{
@@ -1624,12 +1624,12 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 {
 	// controls are done. Report the initialization defaultStatus...
 	std::string msg;
-	msg += "DIO System:\n";
+	msg += "DO System:\n";
 	if(!ttlBoard.getFtFlumeSafemode())
 	{
-		msg += "\tDio System is active!\n";
+		msg += "\tDO System is active!\n";
 		ttlBoard.ftdi_connectasync("FT2E722BB");
-		msg += "\t" + ttlBoard.getDioSystemInfo() + "\n";
+		msg += "\t" + ttlBoard.getDoSystemInfo() + "\n";
 		//ttlBoard.ftdi_disconnect();
 		msg += "\t Bites Written \n";// +ttlBoard.testTTL() + "\n";
 

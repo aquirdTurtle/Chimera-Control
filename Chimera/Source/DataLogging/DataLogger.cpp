@@ -215,7 +215,7 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 		std::string ttlConfigStr;
 		for ( auto ttl : servo.ttlConfig )
 		{
-			ttlConfigStr += DioRows::toStr(ttl.first) + str(ttl.second) + ", ";
+			ttlConfigStr += DoRows::toStr(ttl.first) + str(ttl.second) + ", ";
 		}
 		if ( ttlConfigStr.size ( ) > 2 )
 		{
@@ -263,7 +263,7 @@ void DataLogger::logDoSystemSettings ( DoSystem& doSys )
 	for ( auto& out : doSysOutputs )
 	{
 		auto pos = out.getPosition ( );
-		H5::Group indvOutput ( DoSystemGroup.createGroup ( DioRows::toStr( pos.first) + str(pos.second) ) );
+		H5::Group indvOutput ( DoSystemGroup.createGroup ( DoRows::toStr( pos.first) + str(pos.second) ) );
 		writeDataSet ( out.getName(), "Name", indvOutput );
 		writeDataSet ( out.defaultStatus, "Default_Status", indvOutput );
 		writeDataSet ( out.getStatus(), "Value_at_start", indvOutput );

@@ -7,7 +7,7 @@
 #include "CustomMfcControlWrappers/Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "ParameterSystem/ParameterSystem.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/DaqMxFlume.h"
 #include "AnalogOutput/AoStructures.h"
 #include "AnalogOutput/AnalogOutput.h"

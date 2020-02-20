@@ -14,7 +14,7 @@
 #include "Scripts/ScriptStream.h"
 #include "LowLevel/constants.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
-#include "DigitalOutput/DioRows.h"
+#include "DigitalOutput/DoRows.h"
 
 #include "Fgen.h"
 #include <algorithm>
@@ -42,7 +42,7 @@ class NiawgController
 		NiawgController& operator=(const NiawgController&) = delete;
 		NiawgController (const NiawgController&) = delete;
 
-		NiawgController( DioRows::which trigRow, UINT trigNumber, bool safemode );
+		NiawgController( DoRows::which trigRow, UINT trigNumber, bool safemode );
 		void initialize();
 		void cleanupNiawg( profileSettings profile, bool masterWasRunning, NiawgOutput& output, Communicator& comm, 
 						   bool dontGenerate );
@@ -101,7 +101,7 @@ class NiawgController
 		void turnOn();
 		// Other
 		void setRunningState( bool newRunningState );
-		std::pair<DioRows::which, UINT> getTrigLines( );
+		std::pair<DoRows::which, UINT> getTrigLines( );
 		UINT getNumberTrigsInScript( );
 		bool isOn( );
 		void streamWaveform( );
@@ -192,7 +192,7 @@ class NiawgController
 		// not used at the moment, but could revive the phase correction feature back later.
 		double calculateCorrectionTime( channelWave& wvData1, channelWave& wvData2, std::vector<double> startPhases, 
 										std::string order, double time, long sampleNum);
-		const DioRows::which triggerRow;
+		const DoRows::which triggerRow;
 		const UINT triggerNumber;
 		/// Rearrangement stuff
 		std::vector<rerngContainer<double>> moveBiasCalibrations;

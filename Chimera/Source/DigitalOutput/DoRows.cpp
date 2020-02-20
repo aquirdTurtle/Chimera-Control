@@ -1,21 +1,21 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
-#include "DioRows.h"
+#include "DoRows.h"
 
 /*
-A constant array which can be used to iterate through all values of DioRows. For example:
-for (auto row : DioRows::allRows)
+A constant array which can be used to iterate through all values of DoRows. For example:
+for (auto row : DoRows::allRows)
 {
 	// ...
 }
 */
-const std::array<DioRows::which, 4> DioRows::allRows = {which::A,which::B,which::C,which::D};
+const std::array<DoRows::which, 4> DoRows::allRows = {which::A,which::B,which::C,which::D};
 
 
 /*
 Note that this function is not case-sensitive - it will always convert the input string to lowercase before testing.
 */
-DioRows::which DioRows::fromStr ( std::string rowStr )
+DoRows::which DoRows::fromStr ( std::string rowStr )
 {
 	for ( auto w : allRows )
 	{
@@ -29,7 +29,7 @@ DioRows::which DioRows::fromStr ( std::string rowStr )
 }
 
 
-std::string DioRows::toStr ( which m )
+std::string DoRows::toStr ( which m )
 {
 	switch ( m )
 	{

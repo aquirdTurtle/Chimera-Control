@@ -88,7 +88,7 @@ void AoSystem::forceDacs( DoSystem* ttls )
 	resetDacEvents( );
 	handleSetDacsButtonPress( ttls );
 	standardNonExperiemntStartDacsSequence( );
-	ttls->standardNonExperimentStartDioSequence( );
+	ttls->standardNonExperimentStartDoSequence( );
 }
 
 
@@ -103,7 +103,7 @@ void AoSystem::zeroDacs( DoSystem* ttls )
 		prepareDacForceChange( dacInc, 0, ttls );
 	}
 	standardNonExperiemntStartDacsSequence( );
-	ttls->standardNonExperimentStartDioSequence( );
+	ttls->standardNonExperimentStartDoSequence( );
 }
 
 
@@ -130,7 +130,7 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoSystem* ttls )
 	checkValuesAgainstLimits( 0, 0 );
 	///
 	standardNonExperiemntStartDacsSequence( );
-	ttls->standardNonExperimentStartDioSequence( );
+	ttls->standardNonExperimentStartDoSequence( );
 	updateEdits( );
 }
 

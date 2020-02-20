@@ -243,7 +243,7 @@
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystem.h" />
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystemStructures.h" />
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h" />
-    <ClInclude Include="Source\DigitalOutput\DioRows.h" />
+    <ClInclude Include="Source\DigitalOutput\DoRows.h" />
     <ClInclude Include="Source\ExcessDialogs\ErrDialog.h" />
     <ClInclude Include="Source\GeneralObjects\ExpWrap.h" />
     <ClInclude Include="Source\CustomMfcControlWrappers\LongCSlider.h" />
@@ -347,16 +347,14 @@
     <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\LowLevel\targetver.h" />
-    <ClInclude Include="Source\DigitalOutput\DioSettingsDialog.h" />
-    <ClInclude Include="Source\DigitalOutput\DioSystem.h" />
+    <ClInclude Include="Source\DigitalOutput\DoSettingsDialog.h" />
+    <ClInclude Include="Source\DigitalOutput\DoSystem.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\Thrower.h" />
     <ClInclude Include="Source\Plotting\tinyPlotInfo.h" />
     <ClInclude Include="Source\CustomMfcControlWrappers\UintEdit.h" />
     <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h" />
     <ClInclude Include="Source\ParameterSystem\ParameterSystem.h" />
     <ClInclude Include="Source\ConfigurationSystems\Version.h" />
-    <ClInclude Include="Source\DigitalOutput\viewpointFlume.h" />
-    <ClInclude Include="Source\DigitalOutput\viewpointStructures.h" />
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h" />
     <ClInclude Include="Source\Microwave\WindFreakFlume.h" />
     <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
@@ -386,7 +384,7 @@
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystem.cpp" />
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystemStructures.cpp" />
     <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp" />
-    <ClCompile Include="Source\DigitalOutput\DioRows.cpp" />
+    <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
     <ClCompile Include="Source\ExcessDialogs\ErrDialog.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
@@ -465,8 +463,8 @@
     <ClCompile Include="Source\NIAWG\NiawgWaiter.cpp" />
     <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\miscCommonFunctions.cpp" />
-    <ClCompile Include="Source\DigitalOutput\DioSettingsDialog.cpp" />
-    <ClCompile Include="Source\DigitalOutput\DioSystem.cpp" />
+    <ClCompile Include="Source\DigitalOutput\DoSettingsDialog.cpp" />
+    <ClCompile Include="Source\DigitalOutput\DoSystem.cpp" />
     <ClCompile Include="Source\LowLevel\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -475,7 +473,6 @@
     </ClCompile>
     <ClCompile Include="Source\ParameterSystem\ParameterSystem.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\UintEdit.cpp" />
-    <ClCompile Include="Source\DigitalOutput\viewpointFlume.cpp" />
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp" />
     <ClCompile Include="Source\Microwave\WindFreakFlume.cpp" />
     <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp" />
@@ -502,7 +499,7 @@
   <ItemGroup>
     <None Include="Source\GeneralObjects\coordinate.h" />
     <None Include="Source\AnalogOutput\DaqMxFlume.h" />
-    <None Include="Source\DigitalOutput\DioStructures.h" />
+    <None Include="Source\DigitalOutput\DoStructures.h" />
     <None Include="Source\GeneralFlumes\ftdiStructures.h" />
     <None Include="Source\GeneralUtilityFunctions\my_str.h" />
     <None Include="Old_Intensity_Calibrations.txt" />

@@ -1,7 +1,7 @@
 ﻿// created by Mark O. Brown
 #pragma once
 
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "AnalogInput/AiSystem.h"
 #include "ParameterSystem/ParameterSystem.h"

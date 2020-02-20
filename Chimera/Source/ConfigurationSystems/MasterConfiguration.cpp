@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "MasterConfiguration.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include <sys/stat.h>
 #include "PrimaryWindows/AuxiliaryWindow.h"
