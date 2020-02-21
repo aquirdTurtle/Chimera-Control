@@ -136,8 +136,7 @@ std::string Script::getScriptText()
 
 
 COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
-								 bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<AoInfo, 24> dacInfo )
+								 bool& colorLine, Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	// convert word to lower case.
 	std::transform( word.begin(), word.end(), word.begin(), ::tolower );
@@ -258,9 +257,9 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				case 2: row = "c"; break;
 				case 3: row = "d"; break;
 			}
-			for (UINT numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
+			for (UINT numberInc = 0; numberInc < ttlNames.data[rowInc].size(); numberInc++)
 			{				
-				if (word == ttlNames[rowInc][numberInc])
+				if (word == ttlNames(rowInc,numberInc))
 				{
 					return _myRGBs["Solarized Cyan"];
 				}
@@ -327,8 +326,7 @@ bool Script::coloringIsNeeded()
 }
 
 
-void Script::handleTimerCall(std::vector<parameterType> vars,  
-							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacInfo )
+void Script::handleTimerCall(std::vector<parameterType> vars,  Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
 	{
@@ -381,16 +379,15 @@ void Script::handleEditChange()
 }
 
 
-void Script::colorEntireScript(std::vector<parameterType> vars, std::array<std::array<std::string, 16>, 4> ttlNames,
-							   std::array<AoInfo, 24> dacInfo )
+void Script::colorEntireScript( std::vector<parameterType> vars, Matrix<std::string> ttlNames, 
+								std::array<AoInfo, 24> dacInfo )
 {
 	colorScriptSection(0, ULONG_MAX, vars, ttlNames, dacInfo);
 }
 
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
-								 std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<AoInfo, 24> dacInfo )
+								 Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
 	{

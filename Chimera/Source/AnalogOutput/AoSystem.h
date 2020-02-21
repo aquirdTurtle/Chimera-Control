@@ -7,7 +7,7 @@
 #include "CustomMfcControlWrappers/Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "ParameterSystem/ParameterSystem.h"
-#include "DigitalOutput/DoSystem.h"
+#include "DigitalOutput/DoCore.h"
 #include "AnalogOutput/DaqMxFlume.h"
 #include "AnalogOutput/AoStructures.h"
 #include "AnalogOutput/AnalogOutput.h"
@@ -41,8 +41,8 @@ class AoSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver);
 		// macros
-		void forceDacs( DoSystem* ttls );
-		void zeroDacs( DoSystem* ttls );
+		void forceDacs( DoCore& ttls );
+		void zeroDacs( DoCore& ttls );
 		// Setting system settings, mostly non-crucial functionality.
 		
 		void handleRoundToDac( MainWindow* menu );
@@ -58,15 +58,15 @@ class AoSystem
 						   std::vector<std::vector<double>> finTimes );
 		void handleEditChange( UINT dacNumber );
 		// processing to determine how dac's get set
-		void handleSetDacsButtonPress( DoSystem* ttls, bool useDefault=false );
+		void handleSetDacsButtonPress( DoCore& ttls, bool useDefault=false );
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
 		void setDacStatusNoForceOut(std::array<double, 24> status);
-		void prepareDacForceChange(int line, double voltage, DoSystem* ttls);
-		void setDacTriggerEvents( DoSystem& ttls, UINT variation, UINT seqNum );
+		void prepareDacForceChange(int line, double voltage, DoCore& ttls);
+		void setDacTriggerEvents( DoCore& ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-									 std::vector<parameterType>& vars, DoSystem& ttls, UINT seqNum );
+									 std::vector<parameterType>& vars, DoCore& ttls, UINT seqNum );
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
 		void makeFinalDataFormat( UINT variation, UINT seqNum );
@@ -78,7 +78,7 @@ class AoSystem
 		void initializeDataObjects( UINT sequenceNum, UINT cmdNum );
 		void prepareForce( );
 		void standardNonExperiemntStartDacsSequence( );		
-		void setSingleDac( UINT dacNumber, double val, DoSystem* ttls );
+		void setSingleDac( UINT dacNumber, double val, DoCore& ttls );
 		// checks
 		void checkTimingsWork( UINT variation, UINT seqNum );
 		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
@@ -102,8 +102,9 @@ class AoSystem
 		bool handleArrow ( CWnd* focus, bool up );
 		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
 		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
+
 	private:
-		void setForceDacEvent (int line, double val, DoSystem* ttls, UINT variation, UINT seqNum);
+		void setForceDacEvent (int line, double val, DoCore& ttls, UINT variation, UINT seqNum);
 
 		Control<CStatic> dacTitle;
 		Control<CleanPush> dacSetButton;

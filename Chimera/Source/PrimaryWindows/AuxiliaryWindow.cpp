@@ -737,9 +737,9 @@ UINT AuxiliaryWindow::getNumberOfDacs()
 }
 
 
-std::array<std::array<std::string, 16>, 4> AuxiliaryWindow::getTtlNames()
+Matrix<std::string> AuxiliaryWindow::getTtlNames()
 {
-	return ttlBoard.getAllNames();
+	return ttlBoard.getCore ().getAllNames();
 }
 
 
@@ -1037,7 +1037,7 @@ void AuxiliaryWindow::zeroDacs( )
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		aoSys.zeroDacs( &ttlBoard );
+		aoSys.zeroDacs( ttlBoard.getCore() );
 		sendStatus( "Zero'd DACs.\r\n" );
 	}
 	catch ( Error& exception )
@@ -1053,7 +1053,7 @@ void AuxiliaryWindow::zeroTtls()
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		ttlBoard.ftdiZeroBoard();
+		ttlBoard.zeroBoard();
 		sendStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1063,9 +1063,14 @@ void AuxiliaryWindow::zeroTtls()
 	}
 }
 
-DoSystem& AuxiliaryWindow::getTtlBoard ( )
+DoSystem* AuxiliaryWindow::getTtlSystem ()
 {
-	return ttlBoard;
+	return &ttlBoard;
+}
+
+DoCore& AuxiliaryWindow::getTtlCore ( )
+{
+	return ttlBoard.getCore();
 }
 
 void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
@@ -1184,8 +1189,8 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 
 void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
 {
-	ttlBoard.resetTtlEvents();
-	ttlBoard.prepareForce();
+	ttlBoard.getCore().resetTtlEvents();
+	ttlBoard.getCore ().prepareForce();
 	aoSys.resetDacEvents();
 	aoSys.prepareForce();
 	for (auto row : DoRows::allRows )
@@ -1206,7 +1211,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 				throwNested("Failed to load one of the default ttl values!");
 			}
 			ttlBoard.setName(row, ttlNumberInc, name, toolTips, this);
-			ttlBoard.ftdi_ForceOutput (row, ttlNumberInc, defaultStatus);
+			//ttlBoard.ftdi_ForceOutput (row, ttlNumberInc, defaultStatus);
 			ttlBoard.updateDefaultTtl(row, ttlNumberInc, defaultStatus);
 		}
 	}
@@ -1259,7 +1264,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		aoSys.setName(dacInc, name, toolTips, this);
 		aoSys.setNote ( dacInc, noteString, toolTips, this );
 		aoSys.setMinMax(dacInc, min, max);
-		aoSys.prepareDacForceChange(dacInc, defaultValue, &ttlBoard);
+		aoSys.prepareDacForceChange(dacInc, defaultValue, ttlBoard.getCore());
 		aoSys.updateEdits( );
 		aoSys.setDefaultValue(dacInc, defaultValue);
 	}
@@ -1310,7 +1315,7 @@ void AuxiliaryWindow::SetDacs()
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		aoSys.forceDacs( &ttlBoard );
+		aoSys.forceDacs( ttlBoard.getCore() );
 		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1474,7 +1479,7 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 				mainWin->updateConfigurationSavedStatus ( false );
 				try
 				{
-					aoSys.forceDacs ( &ttlBoard );
+					aoSys.forceDacs ( ttlBoard.getCore() );
 				}
 				catch ( Error& err )
 				{
@@ -1628,10 +1633,9 @@ std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 	if(!ttlBoard.getFtFlumeSafemode())
 	{
 		msg += "\tDO System is active!\n";
-		ttlBoard.ftdi_connectasync("FT2E722BB");
 		msg += "\t" + ttlBoard.getDoSystemInfo() + "\n";
 		//ttlBoard.ftdi_disconnect();
-		msg += "\t Bites Written \n";// +ttlBoard.testTTL() + "\n";
+		msg += "\t Bites Written \n";
 
 	}
 	else

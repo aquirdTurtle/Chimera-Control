@@ -255,20 +255,15 @@ void DataLogger::logAoSystemSettings ( AoSystem& aoSys )
 	}
 }
 
-void DataLogger::logDoSystemSettings ( DoSystem& doSys )
+void DataLogger::logDoSystemSettings ( DoCore& doSys )
 {
-	auto& doSysOutputs = doSys.getDigitalOutputs ( );
+	auto names = doSys.getAllNames ( );
 	H5::Group DoSystemGroup ( file.createGroup ( "/Do_System" ) );
+	H5::Group namesG (DoSystemGroup.createGroup ("/Names"));
 	UINT count = 0;
-	for ( auto& out : doSysOutputs )
-	{
-		auto pos = out.getPosition ( );
-		H5::Group indvOutput ( DoSystemGroup.createGroup ( DoRows::toStr( pos.first) + str(pos.second) ) );
-		writeDataSet ( out.getName(), "Name", indvOutput );
-		writeDataSet ( out.defaultStatus, "Default_Status", indvOutput );
-		writeDataSet ( out.getStatus(), "Value_at_start", indvOutput );
-		// not sure it makes sense to report this but why not.
-		writeDataSet ( out.getShadeStatus(), "Shade_Status", indvOutput );
+	for ( auto& name : names )
+	{		
+		writeDataSet ( name, "Name", namesG);
 	}
 }
 

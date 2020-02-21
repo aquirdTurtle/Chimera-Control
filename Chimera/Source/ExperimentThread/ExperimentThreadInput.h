@@ -42,7 +42,7 @@ struct ExperimentThreadInput
 	EmbeddedPythonHandler& python;
 	profileSettings profile;
 	seqSettings seq;
-	DoSystem& ttls;
+	DoCore& ttls;
 	AoSystem& aoSys;
 	AiSystem& aiSys;
 	AndorCameraCore& andorCamera;

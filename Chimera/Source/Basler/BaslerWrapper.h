@@ -75,8 +75,8 @@ public:
 			if (grabResult->GrabSucceeded ())
 			{
 				const uint16_t* pImageBuffer = (uint16_t*)grabResult->GetBuffer ();
-				int width = grabResult->GetWidth ();
-				int vertBinNumber = grabResult->GetHeight ();
+				long width = grabResult->GetWidth ();
+				long vertBinNumber = grabResult->GetHeight ();
 				Matrix<long>* imageMatrix;
 				imageMatrix = new Matrix<long> (vertBinNumber, width,
 					std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));

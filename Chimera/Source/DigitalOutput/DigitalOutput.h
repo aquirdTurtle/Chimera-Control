@@ -17,7 +17,7 @@ class DigitalOutput
 		bool defaultStatus;
 		bool getShadeStatus ( );
 		bool getStatus ( );
-		std::string getName ( );
+		//std::string getName ( );
 		std::pair<DoRows::which, UINT> getPosition ( );
 
 		void set ( bool status );
@@ -33,7 +33,7 @@ class DigitalOutput
 		UINT num;
 		bool status;
 		bool shadeStatus;		
-		std::string name;
+		//std::string name;
 };
 
 

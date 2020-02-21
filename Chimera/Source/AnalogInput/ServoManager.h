@@ -4,6 +4,7 @@
 #include "CustomMfcControlWrappers/myButton.h"
 #include "AnalogInput/AiSystem.h"
 #include "AnalogOutput/AoSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/Version.h"

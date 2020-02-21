@@ -774,7 +774,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 					thrower ( "A parameter with name " + newName + " already exists!" );
 				}
 			}
-			if ( ttls->isValidTTLName( newName ) )
+			if ( ttls->getCore().isValidTTLName( newName ) )
 			{
 				thrower ( "the name " + newName + " is already a ttl Name!" );
 			}
