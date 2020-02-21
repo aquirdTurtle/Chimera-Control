@@ -469,7 +469,7 @@ namespace commonFunctions
 					mainWin->getComm ()->sendStatus (calInfo.infoStr);
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->runList = calInfo.runList;
-					input.masterInput->seq.name = calInfo.seqName;
+					input.masterInput->seq.name = calInfo.fileName;
 					input.masterInput->seq.sequence.resize (1);
 					input.masterInput->seq.sequence[0] = input.masterInput->profile;
 					input.masterInput->expType = ExperimentType::AutoCal;

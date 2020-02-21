@@ -120,6 +120,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			{
 				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
 					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
+				baslerCamSettings.repsPerVar = repetitions;
+				baslerCamSettings.variations = variations;
 			}
 			if ( runNiawg )
 			{
@@ -351,8 +353,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				}
 			}
 		}
-		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, 
-													   expParams, agilentRunInfo );
+		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, expParams, 
+													   agilentRunInfo );
 		/// finish up
 		if ( runMaster )
 		{
@@ -363,10 +365,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			comm.sendError ( warnings );
 			auto response = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
 								   + warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO );
-			if ( response == IDNO )
-			{
-				thrower ( abortString );
-			}
+			if ( response == IDNO ) { thrower ( abortString ); }
 		}
 		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
 		/// /////////////////////////////
@@ -380,7 +379,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			comm.sendPrepareBasler (baslerCamSettings);
 			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
-			input->basCamera.armCamera (baslerCamSettings.frameRate);
+			input->basCamera.armCamera ();
 		}
 		if (runAndor)
 		{
@@ -425,8 +424,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			expUpdate ( "Starting Andor Camera...", comm, quiet );
 			if ( runAndor )
 			{
-				andorRunsettings[ 0 ].repetitionsPerVariation = repetitions;
-				andorRunsettings[ 0 ].totalVariations = variations;
 				int stat = 0;
 				while ( true )
 				{

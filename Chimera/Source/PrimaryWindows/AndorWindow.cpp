@@ -586,11 +586,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			}
 		}
 	}
-	else
-	{
-		calPicData = rawPicData;
-	}
-
+	else { calPicData = rawPicData;	}
 
 	if ( picNum % 2 == 1 )
 	{
