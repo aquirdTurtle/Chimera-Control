@@ -590,7 +590,7 @@ void ServoManager::runAll( Communicator& comm)
 	}
 	refreshListview ();
 	ttls->zeroBoard ( );
-	ao->zeroDacs(ttls);
+	ao->zeroDacs(ttls->getCore ());
 }
 
 
@@ -604,15 +604,15 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	s.currentlyServoing = true;
 	// helps auto calibrate the servo for lower servo powers
 	ttls->zeroBoard ( );
-	ao->zeroDacs (ttls);
+	ao->zeroDacs (ttls->getCore ());
 	//ao->forceDacs (ttls);
 	for (auto dac : s.aoConfig)
 	{
-		ao->setSingleDac (dac.first, dac.second, ttls);
+		ao->setSingleDac (dac.first, dac.second, ttls->getCore ());
 	}
 	for ( auto ttl : s.ttlConfig )
 	{
-		ttls->ftdi_ForceOutput (ttl.first, ttl.second, 1);
+		ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, ttls->getCurrentStatus());
 	}
 	Sleep (20);
 	// give some time for the lasers to settle..
@@ -640,7 +640,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	s.controlValue = globals->getVariableValue (str (s.servoName + "__servo_value", 13, false, true));
 	// start the dac where it was last.
 	auto oldVal = s.controlValue;
-	ao->setSingleDac (aoNum, s.controlValue, ttls);
+	ao->setSingleDac (aoNum, s.controlValue, ttls->getCore ());
 	while ( count++ < attemptLimit )
 	{
 		double avgVal = ai->getSingleChannelValue(aiNum, s.avgNum);
@@ -659,7 +659,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 			s.controlValue += diff;
 			try
 			{
-				ao->setSingleDac( aoNum, s.controlValue, ttls );
+				ao->setSingleDac( aoNum, s.controlValue, ttls->getCore ());
 			}
 			catch ( Error& )
 			{
@@ -669,11 +669,11 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 				{
 					if ( s.controlValue < r.first )
 					{
-						ao->setSingleDac ( aoNum, r.first, ttls );
+						ao->setSingleDac ( aoNum, r.first, ttls->getCore ());
 					}
 					else if ( s.controlValue > r.second )
 					{
-						ao->setSingleDac ( aoNum, r.second, ttls );
+						ao->setSingleDac ( aoNum, r.second, ttls->getCore() );
 					}
 				}
 				catch ( Error& )

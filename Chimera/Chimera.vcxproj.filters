@@ -312,6 +312,7 @@
     <ClCompile Include="Source\DigitalOutput\DoSystem.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -733,6 +734,7 @@
     <ClInclude Include="Source\DigitalOutput\DoSystem.h">
       <Filter>DIO</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DigitalOutput\DoCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

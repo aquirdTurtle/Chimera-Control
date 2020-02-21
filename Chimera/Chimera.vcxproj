@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Agilent\AgilentCore.h" />
     <ClInclude Include="Source\Basler\BaslerWrapper.h" />
+    <ClInclude Include="Source\DigitalOutput\DoCore.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
@@ -366,6 +367,7 @@
     <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
     <ClCompile Include="Source\AnalogInput\AiSystem.cpp" />
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
+    <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\AlertSystem.cpp" />
     <ClCompile Include="Source\AnalogOutput\AnalogOutput.cpp" />
     <ClCompile Include="Source\Andor\AndorFlume.cpp" />

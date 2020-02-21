@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "DigitalOutput/DoSystem.h"
+#include "DigitalOutput/DoCore.h"
 #include "AnalogOutput/AoSystem.h"
 #include "Microwave/MicrowaveSettings.h"
 #include "MiscellaneousExperimentOptions/debugInfo.h"
@@ -30,7 +30,7 @@ class ExperimentThreadManager
 										  UINT variations, microwaveSettings settings,
 										  std::vector<std::vector<parameterType>>& expParams,
 										  std::vector<deviceOutputInfo>& agRunInfo);
-		static void analyzeMasterScript( DoSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+		static void analyzeMasterScript( DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
 								  std::string& warnings, timeType& operationTime, std::vector<timeType>& loadSkipTime);
@@ -44,13 +44,13 @@ class ExperimentThreadManager
 		static bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										std::string scope, timeType& operationTime);
 		static bool handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-									   DoSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
+									   DoCore& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
 									   std::string scope, timeType& operationTime);
 		static bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-									  AoSystem& aoSys, std::vector<UINT>& dacShades, DoSystem& ttls, UINT seqNum,
+									  AoSystem& aoSys, std::vector<UINT>& dacShades, DoCore& ttls, UINT seqNum,
 									  std::string scope, timeType& operationTime);
 		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-										DoSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+										DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 										std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
 										std::string callingFunction, timeType& operationTime);
 		static void updatePlotX_vals (ExperimentThreadInput* input, std::vector<std::vector<parameterType>>& expParams);
@@ -62,7 +62,7 @@ class ExperimentThreadManager
 		static void expUpdate(std::string text, Communicator& comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<parameterType> vars);
-		static void handleDebugPlots( debugInfo debugOptions, Communicator& comm, DoSystem& ttls, AoSystem& aoSys,
+		static void handleDebugPlots( debugInfo debugOptions, Communicator& comm, DoCore& ttls, AoSystem& aoSys,
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
@@ -74,7 +74,7 @@ class ExperimentThreadManager
 		// the master script file contents get dumped into this.
 		const std::string functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 		// called by analyzeMasterScript functions only.
-		static void analyzeFunction( std::string function, std::vector<std::string> args, DoSystem& ttls, AoSystem& aoSys,
+		static void analyzeFunction( std::string function, std::vector<std::string> args, DoCore& ttls, AoSystem& aoSys,
 									 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 									 std::vector<parameterType>& vars, UINT seqNum, std::string& warnings,
 									 timeType& operationTime, std::string callingScope);

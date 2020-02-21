@@ -31,18 +31,16 @@ class Script
 		void setScriptText( std::string text );
 		void functionChangeHandler( std::string configPath);
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		void colorEntireScript( std::vector<parameterType> vars, 
-								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
+		void colorEntireScript( std::vector<parameterType> vars, Matrix<std::string> ttlNames, 
+								std::array<AoInfo, 24> dacNames);
 		void colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
-								 std::array<std::array<std::string, 16>, 4> ttlNames,
+								 Matrix<std::string> ttlNames,
 								 std::array<AoInfo, 24> dacNames);
 		COLORREF getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables,
-								 bool& colorLine,
-								 std::array<std::array<std::string, 16>, 4> ttlNames,
-								 std::array<AoInfo, 24> dacInfo );
+								 bool& colorLine, Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo );
 		void handleEditChange();
-		void handleTimerCall( std::vector<parameterType> vars, 
-							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacNames);
+		void handleTimerCall( std::vector<parameterType> vars, Matrix<std::string> ttlNames, 
+							  std::array<AoInfo, 24> dacNames);
 		void changeView( std::string viewName, bool isFunction, std::string configPath);
 		void saveScript( std::string location, RunInfo info );
 		void saveScriptAs( std::string location, RunInfo info );

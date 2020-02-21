@@ -569,8 +569,9 @@ BOOL MainWindow::OnInitDialog( )
 								  ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID,	"Master/Repump" );
 	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), 
 						 ID_MOT_SCOPE_VIEWER_POP_ID, "MOT" );
-	servos.initialize (controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (),
-		&TheAuxiliaryWindow->getAoSys (), &TheAuxiliaryWindow->getTtlBoard (), &TheAuxiliaryWindow->getGlobals ());
+	servos.initialize ( controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (),
+						&TheAuxiliaryWindow->getAoSys (), TheAuxiliaryWindow->getTtlSystem(), 
+						&TheAuxiliaryWindow->getGlobals ());
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	mainOptsCtrl.initialize( id, controlLocation, this, tooltips );
