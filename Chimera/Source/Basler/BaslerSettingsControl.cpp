@@ -18,7 +18,7 @@ void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int 
 	statusText.Create ( "Camera Status: IDLE", WS_CHILD | WS_VISIBLE | WS_BORDER, statusText.sPos, parent, id++ );
 	////
 	repText.sPos = { pos.x, pos.y, pos.x + 200, pos.y + 25 };
-	repText.Create ( "Total Picture Number:", WS_CHILD | WS_VISIBLE, repText.sPos, parent, id++ );
+	repText.Create ( "Pics Per Rep:", WS_CHILD | WS_VISIBLE, repText.sPos, parent, id++ );
 	//
 	repEdit.sPos = { pos.x + 200, pos.y, pos.x + 300, pos.y += 25 };
 	repEdit.Create ( WS_CHILD | WS_VISIBLE, repEdit.sPos, parent, IDC_BASLER_REPETITIONS_EDIT );
@@ -163,6 +163,7 @@ void BaslerSettingsControl::initialize ( POINT& pos, int& id, CWnd* parent, int 
 
 	motLoadedColorbox.sPos = { pos.x + 275, pos.y, pos.x + 300, pos.y += 25 };
 	motLoadedColorbox.Create ( "", NORM_STATIC_OPTIONS, motLoadedColorbox.sPos, parent, IDC_MOT_LOADED_INDICATOR );
+	handleCameraMode ();
 }
 
 
@@ -320,8 +321,8 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 		try
 		{
 			repEdit.GetWindowTextA ( text );
-			currentSettings.repCount = boost::lexical_cast<int> ( std::string ( text ) );
-			if ( currentSettings.repCount == 0 )
+			currentSettings.picsPerRep = boost::lexical_cast<int> ( std::string ( text ) );
+			if ( currentSettings.picsPerRep == 0 )
 			{
 				thrower  ( "ERROR! Repetition count must be strictly positive." );
 			}
@@ -531,7 +532,7 @@ baslerSettings BaslerSettingsControl::getSettingsFromConfig ( std::ifstream& con
 	configFile >> newSettings.exposureTime;
 	configFile >> newSettings.frameRate;
 	configFile >> newSettings.rawGain;
-	configFile >> newSettings.repCount;
+	configFile >> newSettings.picsPerRep;
 	configFile >> txt;
 	newSettings.triggerMode = BaslerTrigger::fromStr ( txt );
 	return newSettings;
@@ -552,7 +553,7 @@ void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
 	configFile << currentSettings.exposureTime << "\n";
 	configFile << currentSettings.frameRate << "\n";
 	configFile << currentSettings.rawGain << "\n";
-	configFile << currentSettings.repCount << "\n";
+	configFile << currentSettings.picsPerRep << "\n";
 	configFile << BaslerTrigger::toStr(currentSettings.triggerMode) << "\n";
 	configFile << "END_BASLER_CAMERA_SETTINGS\n";
 }
@@ -573,7 +574,7 @@ void BaslerSettingsControl::setSettings ( baslerSettings newSettings )
 	exposureEdit.SetWindowTextA ( cstr ( currentSettings.exposureTime ) );
 	frameRateEdit.SetWindowTextA ( cstr ( currentSettings.frameRate ) );
 	gainEdit.SetWindowTextA ( cstr ( currentSettings.rawGain ) );
-	repEdit.SetWindowText ( cstr ( currentSettings.repCount ) );
+	repEdit.SetWindowText ( cstr ( currentSettings.picsPerRep) );
 	triggerCombo.SelectString ( 0, BaslerTrigger::toStr ( currentSettings.triggerMode ).c_str ( ) );
 }
 
