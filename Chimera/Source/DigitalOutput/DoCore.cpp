@@ -3,7 +3,7 @@
 #include "DoStructures.h"
 
 DoCore::DoCore (bool ftSafemode, bool serialSafemode) : ftFlume (ftSafemode),	winSerial (serialSafemode, ""), 
-														names(4,16)
+														names(4, 16)
 {
 	connectType = ftdiConnectionOption::Async;
 	ftdi_connectasync ("FT2E722BB");
@@ -714,7 +714,7 @@ int DoCore::getNameIdentifier (std::string name, DoRows::which& row, UINT& numbe
 	{
 		for (auto numberInc : range (names.getCols()))
 		{
-			std::string DioName = str (names (numberInc, rowInc), 13, false, true);
+			std::string DioName = str (names (rowInc, numberInc), 13, false, true);
 			// second of the || is standard name which is always acceptable.
 			if (DioName == name || name == DoRows::toStr (DoRows::which(rowInc)) + str (numberInc))
 			{

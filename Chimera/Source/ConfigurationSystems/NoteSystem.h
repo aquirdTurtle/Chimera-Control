@@ -18,4 +18,4 @@ class NoteSystem
 	private:
 		Control<CEdit> configNotes;
 		Control<CStatic> configNotesHeader;
-}
+};

@@ -4,16 +4,19 @@
 #include "Andor/CameraSettingsControl.h"
 #include "Plotting/PlotCtrl.h"
 #include "Plotting/PlottingInfo.h"
-#include "AuxiliaryWindow.h"
-#include "AndorWindow.h"
-#include "MainWindow.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExcessDialogs/ErrDialog.h"
+
+#include "BaslerWindow.h"
+#include "ScriptingWindow.h"
+#include "AuxiliaryWindow.h"
+#include "AndorWindow.h"
+#include "MainWindow.h"
+
 #include "ATMCD32D.H"
 #include <numeric>
 #include <time.h>
-#include "PrimaryWindows/BaslerWindow.h"
 
 AndorWindow::AndorWindow ( ) : CDialog ( ),
 							andorSettingsCtrl ( ),
@@ -796,7 +799,7 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	
 	crunchFinTimes.clear( );
 	crunchSeesTimes.clear( );
-	mainWin->stopRearranger( );
+	scriptWin->stopRearranger( );
 	wakeRearranger( );
 	{
 		std::lock_guard<std::mutex> lock ( activePlotMutex );

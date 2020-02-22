@@ -29,12 +29,13 @@ namespace commonFunctions
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);
-	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin );
+	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin, 
+		ScriptingWindow* scriptWin);
 	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin );
 	bool getPermissionToStart( AndorWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
 							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster, AllExperimentInput& input );
 	/// Scripting Menu
-	void reloadNIAWGDefaults( MainWindow* mainWin );
+	void reloadNIAWGDefaults( MainWindow* mainWin, ScriptingWindow* scriptWin);
 
 }
 

@@ -14,9 +14,10 @@
 #include "Agilent/Agilent.h"
 #include "Agilent/AgilentSettings.h"
 
-ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent( INTENSITY_AGILENT_SETTINGS )
+ScriptingWindow::ScriptingWindow() : CDialog(), 
+intensityAgilent( INTENSITY_AGILENT_SETTINGS ), 
+niawg (DoRows::which::B, 14, NIAWG_SAFEMODE)
 {}
-
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
@@ -25,25 +26,36 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
 
-	ON_EN_CHANGE(IDC_NIAWG_EDIT, &ScriptingWindow::niawgEditChange)
-	ON_EN_CHANGE(IDC_INTENSITY_EDIT, &ScriptingWindow::agilentEditChange)
-	ON_EN_CHANGE(IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
+	ON_EN_CHANGE( IDC_NIAWG_EDIT, &ScriptingWindow::niawgEditChange)
+	ON_EN_CHANGE( IDC_INTENSITY_EDIT, &ScriptingWindow::agilentEditChange)
+	ON_EN_CHANGE( IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
 
-	ON_COMMAND(IDOK, &ScriptingWindow::catchEnter)
+	ON_COMMAND( IDOK, &ScriptingWindow::catchEnter)
 
-	ON_COMMAND_RANGE(IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
+	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
 	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &ScriptingWindow::handleIntensityCombo )
 
-	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
+	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
 
-	ON_CBN_SELENDOK(IDC_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleNiawgScriptComboChange)
-	ON_CBN_SELENDOK(IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
+	ON_CBN_SELENDOK( IDC_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleNiawgScriptComboChange)
+	ON_CBN_SELENDOK( IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 	
 	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterFunctionChange )
+	ON_COMMAND (IDC_RERNG_EXPERIMENT_BUTTON, &ScriptingWindow::passExperimentRerngButton)
+	ON_CBN_SELENDOK (IDC_RERNG_MODE_COMBO, &ScriptingWindow::passRerngModeComboChange)
+
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
 END_MESSAGE_MAP()
+
+
+void ScriptingWindow::loadCameraCalSettings (ExperimentThreadInput* input)
+{
+	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
+	input->rerngGuiForm.active = false;
+}
+
 
 void ScriptingWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
@@ -147,19 +159,20 @@ void ScriptingWindow::catchEnter()
 
 void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 {
-	bool intSaved = intensityAgilent.getSavedStatus(), niawgSaved = niawgScript.savedStatus (), masterSaved = masterScript.savedStatus();
+	bool intSaved = intensityAgilent.getSavedStatus(), niawgSaved = niawg.niawgScript.savedStatus (), masterSaved = masterScript.savedStatus();
 	
 	SetRedraw( false );
-	niawgScript.rearrange(cx, cy, mainWin->getFonts());
+	niawg.niawgScript.rearrange(cx, cy, mainWin->getFonts());
 	intensityAgilent.rearrange( cx, cy, mainWin->getFonts() );
 	masterScript.rearrange(cx, cy, mainWin->getFonts());
 	statusBox.rearrange( cx, cy, mainWin->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWin->getFonts());
+	niawg.rearrangeCtrl.rearrange (cx, cy, mainWin->getFonts ());
 	recolorScripts ( );
 	SetRedraw( true );
 	RedrawWindow();
 	intensityAgilent.updateSavedStatus (intSaved);
-	niawgScript.updateSavedStatus (niawgSaved);
+	niawg.niawgScript.updateSavedStatus (niawgSaved);
 	masterScript.updateSavedStatus (masterSaved);
 }
 
@@ -168,7 +181,7 @@ BOOL ScriptingWindow::OnToolTipText( UINT id, NMHDR * pNMHDR, LRESULT * pResult 
 {
 	try
 	{
-		niawgScript.handleToolTip( pNMHDR , pResult);
+		niawg.niawgScript.handleToolTip( pNMHDR , pResult);
 		intensityAgilent.agilentScript.handleToolTip( pNMHDR, pResult );
 		masterScript.handleToolTip( pNMHDR, pResult );
 	}
@@ -217,13 +230,32 @@ BOOL ScriptingWindow::OnInitDialog()
 	SetRedraw( false );
 
 	int id = 2000;
-
+	/// initialize niawg.
+	try
+	{
+		niawg.core.initialize ();
+	}
+	catch (Error & except)
+	{
+		errBox ("NIAWG failed to Initialize! Error: " + except.trace ());
+	}
+	try
+	{
+		niawg.core.setDefaultWaveforms ();
+		// but the default starts in the horizontal configuration, so switch back and start in this config.
+		restartNiawgDefaults ();
+	}
+	catch (Error & exception)
+	{
+		errBox ( "Failed to start niawg default waveforms! Niawg gave the following error message: " 
+				 + exception.trace () );
+	}
 	POINT startLocation = { 0, 28 };
-	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG",
-							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
-							IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
-	niawgScript.setEnabled ( true, false );
-
+	niawg.rearrangeCtrl.initialize (id, startLocation, this, tooltips);
+	niawg.niawgScript.initialize( 640, 400, startLocation, tooltips, this,  id, "NIAWG",
+								  "NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
+								  IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
+	niawg.niawgScript.setEnabled ( true, false );
 	startLocation = { 640, 28 };
 	
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
@@ -256,25 +288,38 @@ void ScriptingWindow::setMenuCheck ( UINT menuItem, UINT itemState )
 	menu.CheckMenuItem ( menuItem, itemState );
 }
 
+void ScriptingWindow::fillMotInput (ExperimentThreadInput* input)
+{
+	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
+	input->rerngGuiForm.active = false;
+}
 
 void ScriptingWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
 	input->agilents.push_back( intensityAgilent.getCore() );
 	input->intensityAgilentNumber = input->agilents.size() - 1;
+	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
 }
 
 
 void ScriptingWindow::OnTimer(UINT_PTR eventID)
 {
-	intensityAgilent.agilentScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
-	niawgScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo());
-	masterScript.handleTimerCall(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	try
+	{
+		intensityAgilent.agilentScript.handleTimerCall (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		niawg.niawgScript.handleTimerCall (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		masterScript.handleTimerCall (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+	}
+	catch (Error & err)
+	{
+		comm ()->sendError (err.trace ());
+	}
 }
 
 
 void ScriptingWindow::checkScriptSaves()
 {
-	niawgScript.checkSave(getProfile().configLocation, mainWin->getRunInfo() );
+	niawg.niawgScript.checkSave(getProfile().configLocation, mainWin->getRunInfo() );
 	intensityAgilent.checkSave ( getProfile ( ).configLocation, mainWin->getRunInfo ( ) );
 	masterScript.checkSave( getProfile( ).configLocation, mainWin->getRunInfo( ), comm ( ) );
 }
@@ -282,7 +327,35 @@ void ScriptingWindow::checkScriptSaves()
 
 std::string ScriptingWindow::getSystemStatusString()
 {
-	return "Intensity Agilent:\n\t" + intensityAgilent.getDeviceIdentity();	
+	std::string status = "Intensity Agilent:\n\t" + intensityAgilent.getDeviceIdentity();	
+	status = "NIAWG:\n";
+	if (!NIAWG_SAFEMODE)
+	{
+		status += "\tCode System is Active!\n";
+		try
+		{
+			status += "\t" + niawg.core.fgenConduit.getDeviceInfo ();
+		}
+		catch (Error & err)
+		{
+			status += "\tFailed to get device info! Error: " + err.trace ();
+		}
+	}
+	else
+	{
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	return status;
+}
+
+void ScriptingWindow::sendNiawgSoftwareTrig ()
+{
+	niawg.core.fgenConduit.sendSoftwareTrigger ();
+}
+
+void ScriptingWindow::streamNiawgWaveform ()
+{
+	niawg.core.streamWaveform ();
 }
 
 
@@ -300,7 +373,7 @@ void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, Au
 scriptInfo<std::string> ScriptingWindow::getScriptNames()
 {
 	scriptInfo<std::string> names;
-	names.niawg = niawgScript.getScriptName();
+	names.niawg = niawg.niawgScript.getScriptName();
 	names.intensityAgilent = intensityAgilent.agilentScript.getScriptName();
 	names.master = masterScript.getScriptName( );
 	return names;
@@ -312,7 +385,7 @@ scriptInfo<std::string> ScriptingWindow::getScriptNames()
 scriptInfo<bool> ScriptingWindow::getScriptSavedStatuses()
 {
 	scriptInfo<bool> status;
-	status.niawg = niawgScript.savedStatus();
+	status.niawg = niawg.niawgScript.savedStatus();
 	status.intensityAgilent = intensityAgilent.agilentScript.savedStatus();
 	status.master = masterScript.savedStatus( );
 	return status;
@@ -324,7 +397,7 @@ scriptInfo<bool> ScriptingWindow::getScriptSavedStatuses()
 scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 {
 	scriptInfo<std::string> addresses;
-	addresses.niawg = niawgScript.getScriptPathAndName();
+	addresses.niawg = niawg.niawgScript.getScriptPathAndName();
 	addresses.intensityAgilent = intensityAgilent.agilentScript.getScriptPathAndName();
 	addresses.master = masterScript.getScriptPathAndName();
 	return addresses;
@@ -395,7 +468,7 @@ void ScriptingWindow::setIntensityDefault()
 
 void ScriptingWindow::niawgEditChange()
 {
-	niawgScript.handleEditChange( );
+	niawg.niawgScript.handleEditChange( );
 	SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
 }
 
@@ -504,11 +577,11 @@ void ScriptingWindow::newNiawgScript()
 {
 	try
 	{
-		niawgScript.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
-		niawgScript.newScript( );
+		niawg.niawgScript.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
+		niawg.niawgScript.newScript( );
 		updateConfigurationSavedStatus( false );
-		niawgScript.updateScriptNameText( getProfile().configLocation );
-		niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo () );
+		niawg.niawgScript.updateScriptNameText( getProfile().configLocation );
+		niawg.niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo () );
 	}
 	catch (Error& err)
 	{
@@ -521,12 +594,12 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 {
 	try
 	{
-		niawgScript.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
+		niawg.niawgScript.checkSave( getProfile().configLocation, mainWin->getRunInfo() );
 		std::string horizontalOpenName = openWithExplorer( parent, NIAWG_SCRIPT_EXTENSION );
-		niawgScript.openParentScript( horizontalOpenName, getProfile().configLocation, mainWin->getRunInfo() );
+		niawg.niawgScript.openParentScript( horizontalOpenName, getProfile().configLocation, mainWin->getRunInfo() );
 		updateConfigurationSavedStatus( false );
-		niawgScript.updateScriptNameText( getProfile().configLocation );
-		niawgScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+		niawg.niawgScript.updateScriptNameText( getProfile().configLocation );
+		niawg.niawgScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{
@@ -540,8 +613,8 @@ void ScriptingWindow::saveNiawgScript()
 {
 	try
 	{
-		niawgScript.saveScript( getProfile().configLocation, mainWin->getRunInfo() );
-		niawgScript.updateScriptNameText( getProfile().configLocation );
+		niawg.niawgScript.saveScript( getProfile().configLocation, mainWin->getRunInfo() );
+		niawg.niawgScript.updateScriptNameText( getProfile().configLocation );
 	}
 	catch (Error& err)
 	{
@@ -552,7 +625,7 @@ void ScriptingWindow::saveNiawgScript()
 
 void ScriptingWindow::saveNiawgScriptAs(CWnd* parent)
 {
-	std::string extensionNoPeriod = niawgScript.getExtension();
+	std::string extensionNoPeriod = niawg.niawgScript.getExtension();
 	if (extensionNoPeriod.size() == 0)
 	{
 		return;
@@ -560,23 +633,23 @@ void ScriptingWindow::saveNiawgScriptAs(CWnd* parent)
 	extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
 	std::string newScriptAddress = saveWithExplorer(parent, extensionNoPeriod, 
 														getProfileSettings());
-	niawgScript.saveScriptAs(newScriptAddress, mainWin->getRunInfo() );
+	niawg.niawgScript.saveScriptAs(newScriptAddress, mainWin->getRunInfo() );
 	updateConfigurationSavedStatus(false);
-	niawgScript.updateScriptNameText(getProfile().configLocation);
+	niawg.niawgScript.updateScriptNameText(getProfile().configLocation);
 }
 
 
 void ScriptingWindow::updateScriptNamesOnScreen()
 {
-	niawgScript.updateScriptNameText(getProfile().configLocation);
-	niawgScript.updateScriptNameText(getProfile().configLocation);
+	niawg.niawgScript.updateScriptNameText(getProfile().configLocation);
+	niawg.niawgScript.updateScriptNameText(getProfile().configLocation);
 	intensityAgilent.agilentScript.updateScriptNameText(getProfile().configLocation);
 }
 
 
 void ScriptingWindow::recolorScripts()
 {
-	niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
+	niawg.niawgScript.colorEntireScript( auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 	intensityAgilent.agilentScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
@@ -642,6 +715,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		}
 		considerScriptLocations ( );
 		recolorScripts ( );
+		ProfileSystem::standardOpenConfig (configFile, "REARRANGEMENT_INFORMATION", &niawg.rearrangeCtrl);
 	}
 	catch ( Error& e )
 	{
@@ -757,6 +831,7 @@ void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
 	saveFile << "END_SCRIPTS\n";
 	intensityAgilent.handleSavingConfig(saveFile, mainWin->getProfileSettings().configLocation, 
 										 mainWin->getRunInfo());
+	niawg.rearrangeCtrl.handleSaveConfig (saveFile);
 }
 
 
@@ -774,13 +849,13 @@ void ScriptingWindow::openMasterScript(std::string name)
 
 void ScriptingWindow::openNiawgScript(std::string name)
 {
-	niawgScript.openParentScript(name, getProfile().configLocation, mainWin->getRunInfo());
+	niawg.niawgScript.openParentScript(name, getProfile().configLocation, mainWin->getRunInfo());
 }
 
 
 void ScriptingWindow::considerScriptLocations()
 {
-	niawgScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
+	niawg.niawgScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
 	intensityAgilent.agilentScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
 }
 
@@ -816,3 +891,44 @@ void ScriptingWindow::updateConfigurationSavedStatus(bool status)
 	mainWin->updateConfigurationSavedStatus(status);
 }
 
+void ScriptingWindow::setNiawgRunningState (bool newRunningState)
+{
+	niawg.core.setRunningState (newRunningState);
+}
+
+bool ScriptingWindow::niawgIsRunning () { return niawg.core.niawgIsRunning (); }
+void ScriptingWindow::setNiawgDefaults () { niawg.core.setDefaultWaveforms (); }
+void ScriptingWindow::restartNiawgDefaults () { niawg.core.restartDefault (); }
+NiawgCore& ScriptingWindow::getNiawg () { return niawg.core; }
+void ScriptingWindow::stopRearranger () { niawg.core.turnOffRerng (); }
+void ScriptingWindow::waitForRearranger () { niawg.core.waitForRerng (true); }
+void ScriptingWindow::stopNiawg () { niawg.core.turnOff (); }
+
+void ScriptingWindow::passNiawgIsOnPress ()
+{
+	if (niawg.core.isOn ())
+	{
+		niawg.core.turnOff ();
+		mainWin->checkAllMenus (ID_NIAWG_NIAWGISON, MF_UNCHECKED);
+	}
+	else
+	{
+		niawg.core.turnOn ();
+		mainWin->checkAllMenus (ID_NIAWG_NIAWGISON, MF_CHECKED);
+	}
+}
+
+std::string ScriptingWindow::getNiawgErr ()
+{
+	return niawg.core.fgenConduit.getErrorMsg ();
+}
+
+void ScriptingWindow::passRerngModeComboChange () 
+{
+	niawg.rearrangeCtrl.updateActive (); 
+}
+
+void ScriptingWindow::passExperimentRerngButton ()
+{
+	niawg.rearrangeCtrl.updateActive ();
+}
