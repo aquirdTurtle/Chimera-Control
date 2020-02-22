@@ -14,8 +14,6 @@
 #define IDB_JILA                        126
 #define IDD_PLOT_DIALOG                 127
 #define IDR_MAINFRAME                   128
-#define IDB_BITMAP2                     130
-#define IDB_BITMAP3                     131
 #define IDB_BITMAP4                     132
 #define IDC_FOLDER_DIALOG_CANCEL        1002
 #define IDC_FOLDER_DIALOG_OK            1003

@@ -909,7 +909,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 			}
 			UINT rangeNum = (subitem - preRangeColumns) / 3;
 			std::string newValue;
-			auto& whichVal = (((subitem - preRangeColumns) % 3 == 0) ? param.ranges[rangeNum].initialValue : param.ranges[rangeNum].finalValue);
+			auto& whichVal = ((subitem - preRangeColumns) % 3 == 0) ? param.ranges[rangeNum].initialValue : param.ranges[rangeNum].finalValue;
 			TextPromptDialog dialog( &newValue, "Please enter a value for the variable " + param.name + ".", str(whichVal) );
 			dialog.DoModal( );
 			if ( newValue == "" )

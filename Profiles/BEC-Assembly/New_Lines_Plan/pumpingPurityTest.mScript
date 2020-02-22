@@ -22,6 +22,21 @@ pulseon: tweezerIntensityTrig 0.1
 t += 1.1
 call pump2f1()
 call pump2stretch()
+
+%call zeroFields()
+%t += 2
+var opfreq -0.5
+var finPumpFreq 0.5
+daclinspace: motFreq finPumpFreq opFreq 1 10  
+dac: sigmaoppower sbc_sigma_op__servo_value 
+t += 1.01
+on: sigmaOpRf
+off: sigmaRepumpRf
+t += opTime
+off: sigmaOpRf
+dac: sigmaoppower 0
+daclinspace: motFreq opFreq finPumpFreq 0.2 10   
+
 call pushout()
 pulseon: tweezerIntensityTrig 0.1
 t += 20

@@ -2,7 +2,7 @@
 def inTrapGreyMolasses():
   % settings
   var D1twoToTwopPower -1.8
-  var cooling_time 20
+  var cooling_time 15
   var D1SidemotPow 0.27
 
   % init system

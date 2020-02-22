@@ -177,11 +177,11 @@ void MicrowaveSystem::handleListviewDblClick ()
 			break;
 		}
 		case 1:
-		{	// power
+		{	// freq
 			std::string freqTxt;
 			TextPromptDialog dialog (&freqTxt, "Please enter a frequency in Hz for this list element.", listItem.frequency.expressionStr);
 			dialog.DoModal ();
-			listItem.frequency = freqTxt;
+			if (freqTxt != "") { listItem.frequency = freqTxt; }
 			break;
 		}
 		case 2:
@@ -189,7 +189,7 @@ void MicrowaveSystem::handleListviewDblClick ()
 			std::string powerTxt;
 			TextPromptDialog dialog (&powerTxt, "Please enter a power in dBm for this list element.", listItem.power.expressionStr);
 			dialog.DoModal ();
-			listItem.power = powerTxt;
+			if (powerTxt != "") { listItem.power = powerTxt; }
 			break;
 		}
 	}
