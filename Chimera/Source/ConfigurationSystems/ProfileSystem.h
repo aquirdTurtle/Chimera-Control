@@ -120,9 +120,9 @@ class ProfileSystem
 		// Version 4.8: Moved pics per rep and exposure times to the CameraSettingsControl part of the config.
 		// Version 4.9: added aisystem settings to config file.
 		// Version 4.10: Added Microwave system settings to config file.
-		// Version 4.11: Moved niawg system to script window, changing order of file. hopefully doesn't actually cause 
-		// any incompatability issues.
-		const Version version = Version( "4.11" );
+		// Version 4.11: Moved niawg system to script window, changing order of file.
+		// Version 4.12: Added "Control Niawg" option.
+		const Version version = Version( "4.12" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

@@ -441,7 +441,7 @@ namespace commonFunctions
 				mainWin->autoServo ( 0, 0 );
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL, basWin, scriptWin);
-				input.masterInput->runList.niawg = input.masterInput->runList.andor = false;
+				input.masterInput->runList.andor = false;
 				input.masterInput->updatePlotterXVals = false;
 				auxWin->fillMasterThreadInput ( input.masterInput );
 				mainWin->fillMotInput ( input.masterInput );
@@ -561,7 +561,7 @@ namespace commonFunctions
 		{
 			AllExperimentInput input;
 			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin, scriptWin);
-			input.masterInput->runList = { false, true, true, false };
+			input.masterInput->runList = { true, true, false };
 			auxWin->fillMasterThreadInput (input.masterInput);
 			andorWin->loadCameraCalSettings( input );
 			mainWin->loadCameraCalSettings( input.masterInput );
@@ -590,17 +590,14 @@ namespace commonFunctions
 			thrower ( "No configurations in current sequence! Please set some configurations to run in this "
 					  "sequence or set the null sequence.\r\n" );
 		}
-		// check config settings
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
 		// Set the thread structure.
 		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin, scriptWin);
-		input.masterInput->runList = {runNiawg, runMaster, runAndor, runBasler};
+		input.masterInput->runList = {runMaster, runAndor, runBasler};
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
 		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = auxWin->getTotalVariationNumber ( );
-		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be
-		// infinite.
 		input.masterInput->dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
 		input.masterInput->profile = mainWin->getProfileSettings ();;

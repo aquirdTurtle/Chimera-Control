@@ -907,7 +907,6 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 	input->seq.sequence.resize( 1 );
 	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
 	// the mot procedure doesn't need the NIAWG at all.
-	input->runList.niawg = false;
  	input->skipNext = NULL;
 	input->runList.andor = false;
 }
