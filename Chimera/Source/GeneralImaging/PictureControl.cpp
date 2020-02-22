@@ -168,14 +168,15 @@ void PictureControl::setSliderPositions(UINT min, UINT max)
 void PictureControl::setPictureArea( POINT loc, int width, int height )
 {
 	// this is important for the control to know where it should draw controls.
+	auto& sBA = scaledBackgroundArea;
 	unscaledBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height };
 	// reserve some area for the texts.
 	unscaledBackgroundArea.right -= 100;
-	scaledBackgroundArea = unscaledBackgroundArea;
-	scaledBackgroundArea.left *= width;
-	scaledBackgroundArea.right *= width;
-	scaledBackgroundArea.top *= height;
-	scaledBackgroundArea.bottom *= height;
+	sBA = unscaledBackgroundArea;
+	sBA.left *= width;
+	sBA.right *= width;
+	sBA.top *= height;
+	sBA.bottom *= height;
 	if ( horGraph )
 	{
 		//horGraph->setControlLocation ( { scaledBackgroundArea.left, scaledBackgroundArea.bottom }, 
@@ -188,25 +189,28 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	}
 	double widthPicScale;
 	double heightPicScale;
-	if (unofficialImageParameters.width() > unofficialImageParameters.height())
+	auto& uIP = unofficialImageParameters;
+	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
+	double sba_w = sBA.right - sBA.left;
+	double sba_h = sBA.bottom - sBA.top;
+	if (w_to_h_ratio > sba_w/sba_h)
 	{
 		widthPicScale = 1;
-		heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
+		heightPicScale = (1.0/ w_to_h_ratio) * (sba_w / sba_h);
 	}
 	else
 	{
 		heightPicScale = 1;
-		widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
+		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
-	ULONG picWidth = ULONG( (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale );
-	ULONG picHeight = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
-	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
-				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
+
+	ULONG picWidth = ULONG( (sBA.right - sBA.left)*widthPicScale );
+	ULONG picHeight = (sBA.bottom - sBA.top)*heightPicScale;
+	POINT mid = { (sBA.left + sBA.right) / 2, (sBA.top + sBA.bottom) / 2 };
 	pictureArea.left = mid.x - picWidth / 2;
 	pictureArea.right = mid.x + picWidth / 2;
 	pictureArea.top = mid.y - picHeight / 2;
 	pictureArea.bottom = mid.y + picHeight / 2;
-	horGraph;
 }
 
 
@@ -342,7 +346,7 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	unofficialImageParameters = newParameters;
 	double widthPicScale;
 	double heightPicScale;
-	if (unofficialImageParameters.width ()> unofficialImageParameters.height())
+	/*if (unofficialImageParameters.width ()> unofficialImageParameters.height())
 	{
 		widthPicScale = 1;
 		heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
@@ -351,7 +355,24 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	{
 		heightPicScale = 1;
 		widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
+	}*/
+	auto& uIP = unofficialImageParameters;
+	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
+	auto& sBA = scaledBackgroundArea;
+	double sba_w = sBA.right - sBA.left;
+	double sba_h = sBA.bottom - sBA.top;
+	if (w_to_h_ratio > sba_w / sba_h)
+	{
+		widthPicScale = 1;
+		heightPicScale = (1.0 / w_to_h_ratio) * (sba_w / sba_h);
 	}
+	else
+	{
+		heightPicScale = 1;
+		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
+	}
+
+
 	long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
 	long height = long((scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale);
 	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
@@ -1044,15 +1065,20 @@ void PictureControl::rearrange( int width, int height, fontMap fonts)
 		}
 		double widthPicScale;
 		double heightPicScale;
-		if (unofficialImageParameters.width() > unofficialImageParameters.height())
+		auto& uIP = unofficialImageParameters;
+		double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
+		auto& sBA = scaledBackgroundArea;
+		double sba_w = sBA.right - sBA.left;
+		double sba_h = sBA.bottom - sBA.top;
+		if (w_to_h_ratio > sba_w / sba_h)
 		{
 			widthPicScale = 1;
-			heightPicScale = double(unofficialImageParameters.height()) / unofficialImageParameters.width();
+			heightPicScale = (1.0 / w_to_h_ratio) * (sba_w / sba_h);
 		}
 		else
 		{
 			heightPicScale = 1;
-			widthPicScale = double(unofficialImageParameters.width()) / unofficialImageParameters.height();
+			widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 		}
 		long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
 		// why isn't this scaled???
