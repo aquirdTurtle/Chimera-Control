@@ -620,7 +620,6 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 			writeDataSet( "", "NA:Master-Script-File-Address", runParametersGroup );
 		}
 		logFunctions( runParametersGroup );
-		logNiawgSettings( input );
 		logAoSystemSettings ( input->aoSys );
 		logDoSystemSettings ( input->ttls );
 	}
@@ -806,13 +805,12 @@ int DataLogger::getDataFileNumber()
 } 
 
 
-void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
+void DataLogger::logNiawgSettings(ExperimentThreadInput* input, bool runNiawg)
 {
 	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
-	writeDataSet( input->runList.niawg, "Run-NIAWG", niawgGroup );
-	if ( input->runList.niawg)
+	writeDataSet( runNiawg, "Run-NIAWG", niawgGroup );
+	if (runNiawg)
 	{
-		std::vector<std::fstream> intensityScriptFiles;
 		UINT seqInc = 0;
 		for ( auto config : input->seq.sequence )
 		{

@@ -37,7 +37,7 @@ class DataLogger
 		void logMasterInput( ExperimentThreadInput* input );
 		void logMiscellaneousStart();
 		void logAndorSettings( AndorRunSettings settings, bool on );
-		void logNiawgSettings( ExperimentThreadInput* input );
+		void logNiawgSettings( ExperimentThreadInput* input, bool runNiawg);
 		void logAgilentSettings (const std::vector<std::reference_wrapper<AgilentCore>>& agilents,
 								 const std::vector<deviceOutputInfo>& agOutput);
 		void logParameters( const std::vector<parameterType>& variables, H5::Group& group, UINT seqInc );

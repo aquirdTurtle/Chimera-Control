@@ -29,7 +29,7 @@ class ExperimentThreadManager
 		static void checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
 										  UINT variations, microwaveSettings settings,
 										  std::vector<std::vector<parameterType>>& expParams,
-										  std::vector<deviceOutputInfo>& agRunInfo);
+										  std::vector<deviceOutputInfo>& agRunInfo, bool runNiawg);
 		static void analyzeMasterScript( DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
 								  std::vector<UINT>& dacShades, std::vector<parameterType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,

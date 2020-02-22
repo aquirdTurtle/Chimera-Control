@@ -162,12 +162,12 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	bool intSaved = intensityAgilent.getSavedStatus(), niawgSaved = niawg.niawgScript.savedStatus (), masterSaved = masterScript.savedStatus();
 	
 	SetRedraw( false );
-	niawg.niawgScript.rearrange(cx, cy, mainWin->getFonts());
+	
 	intensityAgilent.rearrange( cx, cy, mainWin->getFonts() );
 	masterScript.rearrange(cx, cy, mainWin->getFonts());
 	statusBox.rearrange( cx, cy, mainWin->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWin->getFonts());
-	niawg.rearrangeCtrl.rearrange (cx, cy, mainWin->getFonts ());
+	niawg.rearrange (cx, cy, mainWin->getFonts ());
 	recolorScripts ( );
 	SetRedraw( true );
 	RedrawWindow();
@@ -251,14 +251,11 @@ BOOL ScriptingWindow::OnInitDialog()
 				 + exception.trace () );
 	}
 	POINT startLocation = { 0, 28 };
-	niawg.rearrangeCtrl.initialize (id, startLocation, this, tooltips);
-	niawg.niawgScript.initialize( 640, 400, startLocation, tooltips, this,  id, "NIAWG",
-								  "NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
-								  IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
+	niawg.initialize (id, startLocation, this, tooltips);
 	niawg.niawgScript.setEnabled ( true, false );
 	startLocation = { 640, 28 };
 	
-	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
+	intensityAgilent.initialize( startLocation, tooltips, this, id, "Tweezer Intensity Agilent", 865, 
 								 _myRGBs["Interactable-Bkgd"], 640 );
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
@@ -715,7 +712,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		}
 		considerScriptLocations ( );
 		recolorScripts ( );
-		ProfileSystem::standardOpenConfig (configFile, "REARRANGEMENT_INFORMATION", &niawg.rearrangeCtrl);
+		niawg.handleOpenConfig (configFile, ver);
 	}
 	catch ( Error& e )
 	{
@@ -831,7 +828,7 @@ void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
 	saveFile << "END_SCRIPTS\n";
 	intensityAgilent.handleSavingConfig(saveFile, mainWin->getProfileSettings().configLocation, 
 										 mainWin->getRunInfo());
-	niawg.rearrangeCtrl.handleSaveConfig (saveFile);
+	niawg.handleSaveConfig (saveFile);
 }
 
 

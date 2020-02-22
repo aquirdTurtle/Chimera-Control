@@ -6,6 +6,7 @@
 #include "GeneralObjects/CodeTimer.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "NIAWG/NiawgWaiter.h"
+#include "NIAWG/NiawgSystem.h"
 #include "ParameterSystem/Expression.h"
 #include "PrimaryWindows/MainWindow.h"
 #include "nidaqmx2.h"
@@ -51,7 +52,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	auto quiet = input->quiet;
 	const auto& runMaster = input->runList.master;
 	const auto& runAndor = input->runList.andor;
-	const auto& runNiawg = input->runList.niawg;
+	bool runNiawg=true;
 	const auto& runBasler = input->runList.basler;
 	const auto& piezos = input->piezoCores;
 	const UINT tbTek = 0;
@@ -123,6 +124,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				baslerCamSettings.repsPerVar = repetitions;
 				baslerCamSettings.variations = variations;
 			}
+			runNiawg = ProfileSystem::stdGetFromConfig (configFile, "NIAWG_INFORMATION",
+				NiawgSystem::getControlNiawgFromConfig, Version ("4.12"));
 			if ( runNiawg )
 			{
 				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( configInfo );
@@ -174,6 +177,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
 			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
 			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
+			input->logger.logNiawgSettings (input, runNiawg);
 		}
 		for ( auto piezoInc : range ( piezos.size ( ) ) )
 		{
@@ -354,7 +358,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 		}
 		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, expParams, 
-													   agilentRunInfo );
+													   agilentRunInfo, runNiawg );
 		/// finish up
 		if ( runMaster )
 		{
@@ -1456,7 +1460,8 @@ UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterTyp
 void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
 												UINT variations, microwaveSettings settings, 
 												std::vector<std::vector<parameterType>>& expParams, 
-												std::vector<deviceOutputInfo>& agRunInfo)
+												std::vector<deviceOutputInfo>& agRunInfo, 
+												bool runNiawg)
 {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
@@ -1485,7 +1490,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 					input->debugOptions.message += infoString + "\n";
 				}
 			}
-			if ( input->runList.niawg && !niawgMismatch )
+			if ( runNiawg && !niawgMismatch )
 			{
 				auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc, seqInc );
 				auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
