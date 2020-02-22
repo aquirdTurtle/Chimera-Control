@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "DioRows.h"
+#include "DoRows.h"
 #include "Control.h"
 #include <array>
 
@@ -7,7 +7,7 @@ class DigitalOutput
 {
 	public:
 		void initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips );
-		void initLoc ( UINT num, DioRows::which row);
+		void initLoc ( UINT num, DoRows::which row);
 		void shade ( bool shadeStat );
 		
 		void enable ( bool enabledStatus );
@@ -17,8 +17,8 @@ class DigitalOutput
 		bool defaultStatus;
 		bool getShadeStatus ( );
 		bool getStatus ( );
-		std::string getName ( );
-		std::pair<DioRows::which, UINT> getPosition ( );
+		//std::string getName ( );
+		std::pair<DoRows::which, UINT> getPosition ( );
 
 		void set ( bool status );
 		void setName ( std::string nameStr, cToolTips& toolTips, CWnd* parent );
@@ -29,11 +29,11 @@ class DigitalOutput
 		void setHoldStatus ( bool stat );
 	private:
 		Control<CButton> check;
-		DioRows::which row;
+		DoRows::which row;
 		UINT num;
 		bool status;
 		bool shadeStatus;		
-		std::string name;
+		//std::string name;
 };
 
 
@@ -41,7 +41,7 @@ class allDigitalOutputs
 {
 	public:
 		allDigitalOutputs ( );
-		DigitalOutput & operator()( UINT num, DioRows::which row );
+		DigitalOutput & operator()( UINT num, DoRows::which row );
 		static const UINT numRows = 4;
 		static const UINT numColumns = 16;
 		// here, typename tells the compiler that the return will be a type.

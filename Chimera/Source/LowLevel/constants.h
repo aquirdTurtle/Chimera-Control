@@ -86,7 +86,7 @@
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
 	constexpr bool AUTO_CALIBRATE = false;
-	constexpr bool DIOFTDI_SAFEMODE = true;
+	constexpr bool DOFTDI_SAFEMODE = true;
 	constexpr bool DDS_SAFEMODE = true;
 	constexpr bool BASLER_SAFEMODE = true;
 	constexpr auto PYTHON_HOME = L"C:\\ProgramData\\Anaconda3\\";

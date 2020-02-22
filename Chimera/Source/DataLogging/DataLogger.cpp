@@ -215,7 +215,7 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 		std::string ttlConfigStr;
 		for ( auto ttl : servo.ttlConfig )
 		{
-			ttlConfigStr += DioRows::toStr(ttl.first) + str(ttl.second) + ", ";
+			ttlConfigStr += DoRows::toStr(ttl.first) + str(ttl.second) + ", ";
 		}
 		if ( ttlConfigStr.size ( ) > 2 )
 		{
@@ -255,20 +255,15 @@ void DataLogger::logAoSystemSettings ( AoSystem& aoSys )
 	}
 }
 
-void DataLogger::logDoSystemSettings ( DioSystem& doSys )
+void DataLogger::logDoSystemSettings ( DoCore& doSys )
 {
-	auto& doSysOutputs = doSys.getDigitalOutputs ( );
+	auto names = doSys.getAllNames ( );
 	H5::Group DoSystemGroup ( file.createGroup ( "/Do_System" ) );
+	H5::Group namesG (DoSystemGroup.createGroup ("Names"));
 	UINT count = 0;
-	for ( auto& out : doSysOutputs )
-	{
-		auto pos = out.getPosition ( );
-		H5::Group indvOutput ( DoSystemGroup.createGroup ( DioRows::toStr( pos.first) + str(pos.second) ) );
-		writeDataSet ( out.getName(), "Name", indvOutput );
-		writeDataSet ( out.defaultStatus, "Default_Status", indvOutput );
-		writeDataSet ( out.getStatus(), "Value_at_start", indvOutput );
-		// not sure it makes sense to report this but why not.
-		writeDataSet ( out.getShadeStatus(), "Shade_Status", indvOutput );
+	for ( auto& name : names )
+	{		
+		writeDataSet ( name, "Name_"+str(count++), namesG);
 	}
 }
 
@@ -439,9 +434,8 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 		H5::Group baslerGroup ( file.createGroup ( "/Basler" ) );
 		hsize_t rank1[ ] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
-		settings.repCount;
-		hsize_t setDims[ ] = { ULONGLONG ( settings.repCount ), settings.dims.width ( ),
-			settings.dims.height ( ) };
+		hsize_t setDims[ ] = { ULONGLONG ( settings.totalPictures() ), settings.dims.width ( ),
+							   settings.dims.height ( ) };
 		hsize_t picDims[ ] = { 1, settings.dims.width ( ), settings.dims.height ( ) };
 		BaslerPicureSetDataSpace = H5::DataSpace ( 3, setDims );
 		BaslerPicDataSpace = H5::DataSpace ( 3, picDims );
@@ -626,7 +620,6 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 			writeDataSet( "", "NA:Master-Script-File-Address", runParametersGroup );
 		}
 		logFunctions( runParametersGroup );
-		logNiawgSettings( input );
 		logAoSystemSettings ( input->aoSys );
 		logDoSystemSettings ( input->ttls );
 	}
@@ -812,13 +805,12 @@ int DataLogger::getDataFileNumber()
 } 
 
 
-void DataLogger::logNiawgSettings(ExperimentThreadInput* input)
+void DataLogger::logNiawgSettings(ExperimentThreadInput* input, bool runNiawg)
 {
 	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
-	writeDataSet( input->runList.niawg, "Run-NIAWG", niawgGroup );
-	if ( input->runList.niawg)
+	writeDataSet( runNiawg, "Run-NIAWG", niawgGroup );
+	if (runNiawg)
 	{
-		std::vector<std::fstream> intensityScriptFiles;
 		UINT seqInc = 0;
 		for ( auto config : input->seq.sequence )
 		{

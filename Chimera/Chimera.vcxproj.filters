@@ -45,20 +45,8 @@
     <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DigitalOutput\DioSystem.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DigitalOutput\DioSettingsDialog.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DigitalOutput\DioRows.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp">
       <Filter>National-Instruments</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\NIAWG\NiawgController.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
     <ClCompile Include="Source\NIAWG\NiawgStructures.cpp">
       <Filter>National-Instruments</Filter>
@@ -158,9 +146,6 @@
     </ClCompile>
     <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DigitalOutput\viewpointFlume.cpp">
-      <Filter>DIO</Filter>
     </ClCompile>
     <ClCompile Include="Source\Microwave\RsgFlume.cpp">
       <Filter>MicrowaveSystem</Filter>
@@ -315,6 +300,20 @@
     </ClCompile>
     <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
     <ClCompile Include="Source\Tektronix\TekCore.cpp" />
+    <ClCompile Include="Source\DigitalOutput\DoRows.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DigitalOutput\DoSettingsDialog.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DigitalOutput\DoSystem.cpp">
+      <Filter>DIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
+    <ClCompile Include="Source\NIAWG\NiawgSystem.cpp" />
+    <ClCompile Include="Source\NIAWG\NiawgCore.cpp">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -380,18 +379,6 @@
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystemStructures.h" />
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h">
       <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DigitalOutput\DioSystem.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DigitalOutput\DioSettingsDialog.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DigitalOutput\DioRows.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\NiawgController.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
     <ClInclude Include="Source\NIAWG\NiawgStructures.h">
       <Filter>Main Window\Structures</Filter>
@@ -510,12 +497,6 @@
     </ClInclude>
     <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DigitalOutput\viewpointStructures.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DigitalOutput\viewpointFlume.h">
-      <Filter>DIO</Filter>
     </ClInclude>
     <ClInclude Include="Source\Microwave\RsgFlume.h">
       <Filter>MicrowaveSystem</Filter>
@@ -742,6 +723,20 @@
     <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
     <ClInclude Include="Source\Agilent\AgilentCore.h" />
     <ClInclude Include="Source\Tektronix\TekCore.h" />
+    <ClInclude Include="Source\DigitalOutput\DoRows.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DigitalOutput\DoSettingsDialog.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DigitalOutput\DoSystem.h">
+      <Filter>DIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DigitalOutput\DoCore.h" />
+    <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
+    <ClInclude Include="Source\NIAWG\NiawgCore.h">
+      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -757,12 +752,6 @@
       <Filter>Resources</Filter>
     </Image>
     <Image Include="Atom.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="..\JILA.bmp">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="JILA.bmp">
       <Filter>Resources</Filter>
     </Image>
     <Image Include="Source\LowLevel\Atom.ico" />
@@ -847,9 +836,6 @@
     <None Include="Old_Intensity_Calibrations.txt">
       <Filter>National-Instruments</Filter>
     </None>
-    <None Include="Source\DigitalOutput\DioStructures.h">
-      <Filter>DIO</Filter>
-    </None>
     <None Include="Source\AnalogOutput\DaqMxFlume.h">
       <Filter>National-Instruments</Filter>
     </None>
@@ -870,6 +856,9 @@
     </None>
     <None Include="Source\Plotting\OscilloscopeViewer.h">
       <Filter>Plotting-And-Viewing</Filter>
+    </None>
+    <None Include="Source\DigitalOutput\DoStructures.h">
+      <Filter>DIO</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

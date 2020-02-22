@@ -6,7 +6,7 @@
 #include "LowLevel/constants.h"
 #include "ExperimentThread/ExperimentThreadManager.h" 
 #include "Piezo/PiezoController.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "Scripts/Script.h"
@@ -89,7 +89,8 @@ class AuxiliaryWindow : public CDialog
 		void loadFriends( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
 						  BaslerWindow* basWin_ );
 		std::string getOtherSystemStatusMsg();
-		std::array<std::array<std::string, 16>, 4> getTtlNames();
+		Matrix<std::string> getTtlNames();
+		DoSystem* getTtlSystem ();
 		std::array<AoInfo, 24> getDacInfo ( );
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
@@ -150,7 +151,7 @@ class AuxiliaryWindow : public CDialog
 		Agilent& whichAgilent( UINT id );
 		void handleAgilentCombo( UINT id );
 		void autoOptimize ( );
-		DioSystem& getTtlBoard ( );
+		DoCore& getTtlCore ( );
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
 		MicrowaveCore& getRsg ( );
@@ -182,7 +183,7 @@ class AuxiliaryWindow : public CDialog
 		UINT NUM_DAC_PLTS = 3;
 		UINT NUM_TTL_PLTS = 4;
 		
- 		DioSystem ttlBoard;
+ 		DoSystem ttlBoard;
  		AoSystem aoSys;
 		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };

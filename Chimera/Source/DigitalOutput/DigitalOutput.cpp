@@ -14,7 +14,7 @@ void DigitalOutput::updateStatus ( )
 }
 
 
-void DigitalOutput::initLoc ( UINT numIn, DioRows::which rowIn )
+void DigitalOutput::initLoc ( UINT numIn, DoRows::which rowIn )
 {
 	row = rowIn;
 	num = numIn;
@@ -34,7 +34,7 @@ bool DigitalOutput::getStatus ( )
 }
 
 
-std::pair<DioRows::which, UINT> DigitalOutput::getPosition ( )
+std::pair<DoRows::which, UINT> DigitalOutput::getPosition ( )
 {
 	return { row, num };
 }
@@ -73,16 +73,10 @@ HBRUSH DigitalOutput::handleColorMessage ( UINT controlID, CWnd* window, CDC* cD
 	return NULL;
 }
 
-std::string DigitalOutput::getName ( )
-{
-	return name;
-}
-
 
 void DigitalOutput::setName ( std::string nameStr, cToolTips& toolTips, CWnd* parent )
 {
-	name = nameStr;
-	check.setToolTip ( name, toolTips, parent );
+	check.setToolTip ( nameStr, toolTips, parent );
 }
 
 
@@ -110,7 +104,6 @@ void DigitalOutput::initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& t
 {
 	check.sPos = { long ( pos.x ), long ( pos.y  ), long ( pos.x + 28 ), long ( pos.y + 28 ) };
 	check.Create ( "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_RIGHT | BS_3STATE, check.sPos, parent, id );
-	check.setToolTip ( name, toolTips, parent );
 }
 
 
@@ -146,14 +139,14 @@ void DigitalOutput::enable ( bool enabledStatus )
 }
 
 
-DigitalOutput& allDigitalOutputs::operator()( UINT num, DioRows::which row )
+DigitalOutput& allDigitalOutputs::operator()( UINT num, DoRows::which row )
 {
-	return core[ UINT ( row ) * 16 + num ];
+	return core[ ULONG ( row ) * 16L + num ];
 }
 
 allDigitalOutputs::allDigitalOutputs ( )
 {
-	for ( auto row : DioRows::allRows )
+	for ( auto row : DoRows::allRows )
 	{
 		for ( auto num : range ( numColumns ) )
 		{

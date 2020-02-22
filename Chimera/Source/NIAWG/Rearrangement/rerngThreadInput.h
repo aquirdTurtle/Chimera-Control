@@ -11,7 +11,7 @@
 #include "GeneralObjects/Queues.h"
 #include "afxwin.h"
 
-class NiawgController;
+class NiawgCore;
 
 // rerng = rearrange
 struct rerngThreadInput
@@ -30,7 +30,7 @@ struct rerngThreadInput
 	// contains info from Niawg script about rearrangement, including the static wave. This is a pointer to avoid
 	// making an extra copy of the static waveform, which is in general pretty large.
 	waveInfo* rerngWave;
-	NiawgController* niawg;
+	NiawgCore* niawg;
 	Communicator& comm;
 	// stuff from the rearrangement input
 	rerngGuiOptions guiOptions;

@@ -75,14 +75,14 @@ public:
 			if (grabResult->GrabSucceeded ())
 			{
 				const uint16_t* pImageBuffer = (uint16_t*)grabResult->GetBuffer ();
-				int width = grabResult->GetWidth ();
-				int vertBinNumber = grabResult->GetHeight ();
+				long width = grabResult->GetWidth ();
+				long vertBinNumber = grabResult->GetHeight ();
 				Matrix<long>* imageMatrix;
 				imageMatrix = new Matrix<long> (vertBinNumber, width,
 					std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));
 				for (auto& elem : *imageMatrix)
 				{
-					elem *= 256.0 / 1024.0;
+					elem *= long(256.0 / 1024.0);
 				}
 				parent->PostMessageA (CustomMessages::BaslerProgressMessageID, grabResult->GetWidth () * grabResult->GetHeight (),
 					(LPARAM)imageMatrix);

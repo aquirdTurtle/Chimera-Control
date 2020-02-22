@@ -9,7 +9,7 @@
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "GeneralObjects/RunInfo.h"
  
 #include <fstream>
@@ -136,8 +136,7 @@ std::string Script::getScriptText()
 
 
 COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
-								 bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<AoInfo, 24> dacInfo )
+								 bool& colorLine, Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	// convert word to lower case.
 	std::transform( word.begin(), word.end(), word.begin(), ::tolower );
@@ -248,7 +247,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			return _myRGBs["White"];
 		}
-		for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
+		for (auto rowInc : range(ttlNames.getRows()))
 		{
 			std::string row;
 			switch (rowInc)
@@ -258,25 +257,17 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				case 2: row = "c"; break;
 				case 3: row = "d"; break;
 			}
-			for (UINT numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
+			for (UINT numberInc : range(ttlNames.data[rowInc].size()))
 			{				
-				if (word == ttlNames[rowInc][numberInc])
-				{
-					return _myRGBs["Solarized Cyan"];
-				}
-				if (word == row + str(numberInc))
-				{
-					return _myRGBs["Solarized Cyan"];
+				if (word == ttlNames(rowInc,numberInc) || word == row + str (numberInc)) 
+				{ 
+					return _myRGBs["Solarized Cyan"]; 
 				}
 			}
 		}
-		for (UINT dacInc = 0; dacInc < dacInfo.size(); dacInc++)
+		for (auto dacInc : range(dacInfo.size()))
 		{
-			if (word == dacInfo[dacInc].name)
-			{
-				return _myRGBs["Solarized Orange"];
-			}
-			if (word == "dac" + str(dacInc))
+			if (word == dacInfo[dacInc].name || word == "dac" + str (dacInc))
 			{
 				return _myRGBs["Solarized Orange"];
 			}
@@ -289,9 +280,9 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		return _myRGBs["Solarized Cyan"];
 	}
 
-	for (UINT varInc = 0; varInc < variables.size(); varInc++)
+	for (const auto& var : variables)
 	{
-		if (word == variables[varInc].name)
+		if (word == var.name)
 		{
 			return _myRGBs["Solarized Green"];
 		}
@@ -327,8 +318,7 @@ bool Script::coloringIsNeeded()
 }
 
 
-void Script::handleTimerCall(std::vector<parameterType> vars,  
-							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<AoInfo, 24> dacInfo )
+void Script::handleTimerCall(std::vector<parameterType> vars,  Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
 	{
@@ -348,7 +338,7 @@ void Script::handleTimerCall(std::vector<parameterType> vars,
 		edit.GetSel(charRange);
 		initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
-		colorScriptSection(editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo );
+		colorScriptSection (editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo);
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
@@ -381,16 +371,15 @@ void Script::handleEditChange()
 }
 
 
-void Script::colorEntireScript(std::vector<parameterType> vars, std::array<std::array<std::string, 16>, 4> ttlNames,
-							   std::array<AoInfo, 24> dacInfo )
+void Script::colorEntireScript( std::vector<parameterType> vars, Matrix<std::string> ttlNames, 
+								std::array<AoInfo, 24> dacInfo )
 {
 	colorScriptSection(0, ULONG_MAX, vars, ttlNames, dacInfo);
 }
 
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
-								 std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<AoInfo, 24> dacInfo )
+								 Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit)
 	{

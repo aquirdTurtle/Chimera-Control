@@ -38,7 +38,7 @@ class BaslerCameraCore
 		bool isRunning ( );
 		void setBaslserAcqParameters( baslerSettings settings );
 		void setDefaultParameters();
-		void armCamera( double frameRate );
+		void armCamera( );
 		void disarm();
 		static void triggerThread(void* input);
 		void softwareTrigger();
@@ -47,10 +47,11 @@ class BaslerCameraCore
 		std::string getCameraInfo();
 		baslerSettings getDefaultSettings();
 		double getCurrentExposure();
-		unsigned int getRepCounts();
+		unsigned int getPicsPerRep ();
 		bool isContinuous();
 		bool isInitialized();
 		HANDLE getCameraThreadObj ( );
+		baslerSettings getRunningSettings ();
 		// Adjust value so it complies with range and increment passed.
 		//
 		// The parameter's minimum and maximum are always considered as valid values.

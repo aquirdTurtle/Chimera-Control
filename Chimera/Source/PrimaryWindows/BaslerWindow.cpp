@@ -1,14 +1,17 @@
 // created by Mark O. Brown
 
 #include "stdafx.h"
+
+#include "LowLevel/constants.h"
+#include "GeneralObjects/SmartDC.h"
+
 #include "BaslerWindow.h"
 #include "AuxiliaryWindow.h"
 #include "MainWindow.h"
 #include "AndorWindow.h"
 #include "ScriptingWindow.h"
+
 #include "afxdialogex.h"
-#include "LowLevel/constants.h"
-#include "GeneralObjects/SmartDC.h"
 
 
 BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
@@ -105,28 +108,6 @@ void BaslerWindow::passCommonCommand ( UINT id )
 		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
 		errBox ( err.what ( ) );
 	}
-}
-
-
-
-
-void BaslerWindow::fillTemperatureMeasurementInput ( baslerSettings& settings )
-{
-	settings.acquisitionMode = BaslerAcquisition::mode::Finite;
-
-	settings.dims.left = 100;
-	settings.dims.right = 550;
-	settings.dims.top = 440;
-	settings.dims.bottom = 50;
-	settings.dims.horizontalBinning = 1;
-	settings.dims.verticalBinning = 1;
-
-	settings.exposureMode = BaslerAutoExposure::mode::Off;
-	settings.exposureTime = 50;
-	settings.frameRate = 100;
-	settings.rawGain = settingsCtrl.unityGainSetting;
-	settings.repCount = 150;
-	settings.triggerMode = BaslerTrigger::mode::External;
 }
 
 
@@ -298,8 +279,8 @@ void BaslerWindow::startDefaultAcquisition ( )
 		picManager.drawBackgrounds ( sdc.get ());
 		runExposureMode = tempSettings.exposureMode;
 		// only important in safemode
-		tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? 
-								tempSettings.repCount : SIZE_MAX;
+		//tempSettings.repCount = tempSettings.acquisitionMode == BaslerAcquisition::mode::Finite ? 
+		//						tempSettings.repCount : SIZE_MAX;
 		settingsCtrl.setStatus ( "Camera Status: Armed..." );
 		isRunning = true;
 	}
@@ -319,7 +300,8 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  	{
  		currentRepNumber++;
 		SmartDC sdc (this);
-		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, settingsCtrl.getCurrentSettings ( ).repCount );		
+		auto runSttngs = basCamCore->getRunningSettings ();
+		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, runSttngs.totalPictures() );
 		picManager.drawBitmap( sdc.get (), *imageMatrix, minMax );
  		picManager.updatePlotData ( );
  		picManager.drawDongles ( sdc.get(), { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
@@ -337,7 +319,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 			// don't write data if continuous, that's a recipe for disaster.
 			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix );
  		}
- 		if (currentRepNumber == basCamCore->getRepCounts())
+ 		if (currentRepNumber == runSttngs.totalPictures())
  		{
 			// handle balser finish
  			basCamCore->disarm();
@@ -512,10 +494,8 @@ HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 BOOL BaslerWindow::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
+	SetIcon(m_hIcon, TRUE);	
+	SetIcon(m_hIcon, FALSE);
 
 	ShowWindow( SW_SHOWMAXIMIZED );
 	try
@@ -605,7 +585,6 @@ void BaslerWindow::initializeControls()
 	POINT cameraDims = basCamCore->getCameraDimensions();
 	settingsCtrl.initialize( pos, id, this, cameraDims.x, cameraDims.y, cameraDims);
 	settingsCtrl.setSettings( basCamCore->getDefaultSettings() );
-	std::unordered_map<std::string, CFont*> fontDummy;
 	std::vector<CToolTipCtrl*> toolTipDummy;
 	stats.initialize( pos, this, id, toolTipDummy );
 
