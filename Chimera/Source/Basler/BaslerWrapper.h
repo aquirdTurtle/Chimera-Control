@@ -82,7 +82,7 @@ public:
 					std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));
 				for (auto& elem : *imageMatrix)
 				{
-					elem *= 256.0 / 1024.0;
+					elem *= long(256.0 / 1024.0);
 				}
 				parent->PostMessageA (CustomMessages::BaslerProgressMessageID, grabResult->GetWidth () * grabResult->GetHeight (),
 					(LPARAM)imageMatrix);

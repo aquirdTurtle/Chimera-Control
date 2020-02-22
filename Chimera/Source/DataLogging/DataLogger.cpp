@@ -259,11 +259,11 @@ void DataLogger::logDoSystemSettings ( DoCore& doSys )
 {
 	auto names = doSys.getAllNames ( );
 	H5::Group DoSystemGroup ( file.createGroup ( "/Do_System" ) );
-	H5::Group namesG (DoSystemGroup.createGroup ("/Names"));
+	H5::Group namesG (DoSystemGroup.createGroup ("Names"));
 	UINT count = 0;
 	for ( auto& name : names )
 	{		
-		writeDataSet ( name, "Name", namesG);
+		writeDataSet ( name, "Name_"+str(count++), namesG);
 	}
 }
 
@@ -435,7 +435,7 @@ void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
 		hsize_t rank1[ ] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
 		hsize_t setDims[ ] = { ULONGLONG ( settings.totalPictures() ), settings.dims.width ( ),
-			settings.dims.height ( ) };
+							   settings.dims.height ( ) };
 		hsize_t picDims[ ] = { 1, settings.dims.width ( ), settings.dims.height ( ) };
 		BaslerPicureSetDataSpace = H5::DataSpace ( 3, setDims );
 		BaslerPicDataSpace = H5::DataSpace ( 3, picDims );

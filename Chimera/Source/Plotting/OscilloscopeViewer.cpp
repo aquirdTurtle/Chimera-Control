@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "OscilloscopeViewer.h"
 
-
+;
 ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name ) :
 	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name )
 {

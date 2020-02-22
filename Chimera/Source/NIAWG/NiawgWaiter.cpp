@@ -84,7 +84,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 }
 
 
-void NiawgWaiter::startWaitThread( NiawgController* niawgPtr, profileSettings profile )
+void NiawgWaiter::startWaitThread( NiawgCore* niawgPtr, profileSettings profile )
 {
 	eWaitError = false;
 	// create the waiting thread.

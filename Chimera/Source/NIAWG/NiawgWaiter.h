@@ -7,13 +7,13 @@
 #include "niFgen.h"
 #include "LowLevel/constants.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "NIAWG/NiawgController.h"
+#include "NIAWG/NiawgCore.h"
 
 struct niawgIntensityThreadInput;
 struct ExperimentThreadInput;
 struct waitThreadInput
 {
-	NiawgController* niawg;
+	NiawgCore* niawg;
 	profileSettings profile;
 };
 
@@ -27,7 +27,7 @@ class NiawgWaiter
 	public:
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
-		void startWaitThread( NiawgController* niawgPtr, profileSettings profile );
+		void startWaitThread( NiawgCore* niawgPtr, profileSettings profile );
 		void wait( Communicator& comm );
 		void systemAbortCheck( Communicator& comm );
 };

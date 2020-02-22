@@ -247,7 +247,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			return _myRGBs["White"];
 		}
-		for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
+		for (auto rowInc : range(ttlNames.getRows()))
 		{
 			std::string row;
 			switch (rowInc)
@@ -257,25 +257,17 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				case 2: row = "c"; break;
 				case 3: row = "d"; break;
 			}
-			for (UINT numberInc = 0; numberInc < ttlNames.data[rowInc].size(); numberInc++)
+			for (UINT numberInc : range(ttlNames.data[rowInc].size()))
 			{				
-				if (word == ttlNames(rowInc,numberInc))
-				{
-					return _myRGBs["Solarized Cyan"];
-				}
-				if (word == row + str(numberInc))
-				{
-					return _myRGBs["Solarized Cyan"];
+				if (word == ttlNames(rowInc,numberInc) || word == row + str (numberInc)) 
+				{ 
+					return _myRGBs["Solarized Cyan"]; 
 				}
 			}
 		}
-		for (UINT dacInc = 0; dacInc < dacInfo.size(); dacInc++)
+		for (auto dacInc : range(dacInfo.size()))
 		{
-			if (word == dacInfo[dacInc].name)
-			{
-				return _myRGBs["Solarized Orange"];
-			}
-			if (word == "dac" + str(dacInc))
+			if (word == dacInfo[dacInc].name || word == "dac" + str (dacInc))
 			{
 				return _myRGBs["Solarized Orange"];
 			}
@@ -288,9 +280,9 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		return _myRGBs["Solarized Cyan"];
 	}
 
-	for (UINT varInc = 0; varInc < variables.size(); varInc++)
+	for (const auto& var : variables)
 	{
-		if (word == variables[varInc].name)
+		if (word == var.name)
 		{
 			return _myRGBs["Solarized Green"];
 		}
@@ -346,7 +338,7 @@ void Script::handleTimerCall(std::vector<parameterType> vars,  Matrix<std::strin
 		edit.GetSel(charRange);
 		initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
-		colorScriptSection(editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo );
+		colorScriptSection (editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo);
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;

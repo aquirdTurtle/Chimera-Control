@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Scripts/Script.h"
 #include "ExperimentMonitoringAndStatus/ColorBox.h"
+#include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "ExperimentThread/Communicator.h"
@@ -38,9 +39,10 @@ class ScriptingWindow : public CDialog
 		
 		BOOL OnInitDialog() override;
 		void OnTimer(UINT_PTR eventID);
-
+		void passRerngModeComboChange ();
+		void passExperimentRerngButton ();
 		void passCommonCommand(UINT id);
-
+		void fillMotInput (ExperimentThreadInput* input);
 		void checkScriptSaves();
 		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
 		void fillMasterThreadInput(ExperimentThreadInput* input);
@@ -105,6 +107,21 @@ class ScriptingWindow : public CDialog
 		profileSettings getProfile();
 		void setIntensityDefault();
 		void setMenuCheck ( UINT menuItem, UINT itemState );
+		
+		void passNiawgIsOnPress ();
+		void setNiawgRunningState (bool newRunningState);
+		void loadCameraCalSettings (ExperimentThreadInput* input);
+		bool niawgIsRunning ();
+		void stopRearranger ();
+		void waitForRearranger ();
+		void setNiawgDefaults ();
+		void restartNiawgDefaults ();
+		NiawgCore& getNiawg ();
+		void stopNiawg ();
+		void sendNiawgSoftwareTrig ();
+		void streamNiawgWaveform ();
+		std::string getNiawgErr ();
+
 	private:
 		DECLARE_MESSAGE_MAP();
 		
@@ -114,7 +131,8 @@ class ScriptingWindow : public CDialog
 		BaslerWindow* basWin;
 		//
 		cToolTips tooltips;
-		Script niawgScript, masterScript;
+		NiawgSystem niawg;
+		Script masterScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
 		CMenu menu;

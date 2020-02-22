@@ -5,7 +5,7 @@
 
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "ExcessDialogs/TextPromptDialog.h"
-#include "NIAWG/NiawgController.h"
+#include "NIAWG/NiawgCore.h"
 #include "Andor/AndorCameraCore.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "PrimaryWindows/AndorWindow.h"
@@ -123,7 +123,6 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 	scriptWin->handleNewConfig( newConfigFile );
 	camWin->handleNewConfig( newConfigFile );
 	auxWin->handleNewConfig( newConfigFile );
-	mainWin->handleNewConfig( newConfigFile );
 	//
 	newConfigFile.close( );
 }

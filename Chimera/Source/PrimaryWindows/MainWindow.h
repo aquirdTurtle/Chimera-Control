@@ -1,12 +1,10 @@
 // created by Mark O. Brown
 #pragma once
-#include "NIAWG/NiawgController.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
 #include "ExperimentMonitoringAndStatus/StatusIndicator.h"
-#include "ExperimentThread/Communicator.h"
 #include "Python/SmsTextingControl.h"
 #include "Python/EmbeddedPythonHandler.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
@@ -14,7 +12,6 @@
 #include "DataLogging/DataLogger.h"
 #include "ConfigurationSystems/NoteSystem.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "NIAWG/Rearrangement/rerngGuiControl.h"
 #include "Plotting/PlotDialog.h"
 #include "Plotting/OscilloscopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
@@ -78,8 +75,6 @@ class MainWindow : public CDialog
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( ExperimentThreadInput* input );
-		void stopRearranger( );
-		void waitForRearranger( );
 		void passCommonCommand( UINT id );
 		void handlePause();
 		void passDebugPress( UINT id );
@@ -88,11 +83,9 @@ class MainWindow : public CDialog
 		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void handleSequenceCombo();
 		void passClear( UINT id );
-		void passNiawgIsOnPress( );
 		CFont* getPlotFont( );
 		// auxiliary functions used by the window.
 		void setNotes(std::string notes);
-		void setNiawgDefaults();
 		void fillMasterThreadInput( ExperimentThreadInput* input );
 		void fillMasterThreadSequence( ExperimentThreadInput* input );
 		void fillMotInput( ExperimentThreadInput* input);
@@ -115,18 +108,13 @@ class MainWindow : public CDialog
 		void addTimebar(std::string whichStatus);
 		void setShortStatus(std::string text);
 		void changeShortStatusColor(std::string color);
-		void restartNiawgDefaults();
-		void stopNiawg();
 		void changeBoxColor(systemInfo<char> colors);
-		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
-		bool niawgIsRunning();
 		bool masterIsRunning();
-		void setNiawgRunningState( bool newRunningState );
 		RunInfo getRunInfo();
 		void handleFinish();
 		UINT getRepNumber();
@@ -134,13 +122,13 @@ class MainWindow : public CDialog
 		bool experimentIsPaused( );
 		void notifyConfigUpdate( );
 		void passConfigPress( );
-		void passExperimentRerngButton( );
+		
 		void OnTimer( UINT_PTR id );
 		std::vector<Gdiplus::Pen*> getPlotPens( );
 		std::vector<Gdiplus::Pen*> getBrightPlotPens( );
 		std::vector<Gdiplus::SolidBrush*> getPlotBrushes( );
 		std::vector<Gdiplus::SolidBrush*> getBrightPlotBrushes( );
-		void passRerngModeComboChange ( );
+		
 		void checkAllMenus ( UINT menuItem, UINT itemState );
 		void ServoRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void ServoDblClick (NMHDR* pNotifyStruct, LRESULT* result);
@@ -152,7 +140,6 @@ class MainWindow : public CDialog
 
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
-		NiawgController& getNiawg ( );
 		Communicator& getCommRef ( );
 		UINT getAutoCalNumber ();
 
@@ -178,8 +165,6 @@ class MainWindow : public CDialog
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
-		rerngGuiControl rearrangeControl;
-		NiawgController niawg;
 		ColorBox boxes;
 		ServoManager servos;
 		// auxiliary members

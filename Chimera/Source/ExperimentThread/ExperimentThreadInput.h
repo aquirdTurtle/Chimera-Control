@@ -8,7 +8,7 @@
 #include "Microwave/MicrowaveCore.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "Agilent/AgilentCore.h"
-#include "NIAWG/NiawgController.h"
+#include "NIAWG/NiawgCore.h"
 #include "Python/EmbeddedPythonHandler.h"
 #include "Tektronix/TekCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
@@ -33,11 +33,13 @@
 class AuxiliaryWindow;
 class MainWindow;
 class DataLogger;
+class ScriptingWindow;
 class ExperimentThreadManager;
 
 struct ExperimentThreadInput
 {
-	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, BaslerWindow* basWin );
+	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, BaslerWindow* basWin,
+							ScriptingWindow* scriptWin);
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
 	profileSettings profile;
@@ -59,7 +61,7 @@ struct ExperimentThreadInput
 	TekCore& topBottomTek;
 	TekCore& eoAxialTek;
 	ParameterSystem& globalControl;
-	NiawgController& niawg;
+	NiawgCore& niawg;
 	DataLogger& logger;
 	UINT intensityAgilentNumber=-1;
 	UINT numVariations = 1;
