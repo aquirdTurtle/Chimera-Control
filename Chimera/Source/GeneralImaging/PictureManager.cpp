@@ -299,15 +299,20 @@ void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imagePar
 	}
 
 	POINT loc = picturesLocation;
-	int picWidth = 550;
-	int picHeight = 420;
+	// Square: width = 550, height = 440
+	auto picWidth = 1100;
+	auto picHeight = 220;
+	//int picWidth = 550;
+	//int picHeight = 420;
 	pictures[0].setPictureArea( loc, picWidth, picHeight );
-	loc.x += 550;
+	//loc.x += 550;
+	loc.y += picHeight + 25;
 	pictures[1].setPictureArea( loc, picWidth, picHeight );
-	loc.x -= 550;
-	loc.y += 445;
+	//loc.x -= 550;
+	loc.y += picHeight + 25;
 	pictures[2].setPictureArea( loc, picWidth, picHeight );
-	loc.x += 550;
+	//loc.x += 550;
+	loc.y += picHeight + 25;
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
 	setParameters( imageParams );
 	setPictureSliders( parent );
@@ -344,21 +349,21 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 	picturesWidth = manWidth;
 	picturesHeight = manHeight;
 	gridBrush = defaultBrush;
-	//
-	pictures[0].initialize( loc, parent, id, 550, 440, { minMaxEdits[0], minMaxEdits[1] }, graphPens,
+	// Square: width = 550, height = 440
+	auto width = 1200;
+	auto height = 220;
+	pictures[0].initialize( loc, parent, id, width, height, { minMaxEdits[0], minMaxEdits[1] }, graphPens,
 							font, graphBrushes);
-	loc.x += 550;
-	pictures[1].initialize(loc, parent, id, 550, 440, { minMaxEdits[2], minMaxEdits[3] }, graphPens,
+	loc.y += height;
+	pictures[1].initialize( loc, parent, id, width, height, { minMaxEdits[2], minMaxEdits[3] }, graphPens,
 							font, graphBrushes );
-	loc.x -= 550;
-	loc.y += 445;
-	pictures[2].initialize(loc, parent, id, 550, 440, { minMaxEdits[4], minMaxEdits[5] }, graphPens,
+	loc.y += height;
+	pictures[2].initialize( loc, parent, id, width, height, { minMaxEdits[4], minMaxEdits[5] }, graphPens,
 							font, graphBrushes );
-	loc.x += 550;
-	pictures[3].initialize(loc, parent, id, 550, 440, { minMaxEdits[6], minMaxEdits[7] }, graphPens,
+	loc.y += height;
+	pictures[3].initialize( loc, parent, id, width, height, { minMaxEdits[6], minMaxEdits[7] }, graphPens,
 							font, graphBrushes );
-	loc.y += 440;
-	loc.x -= 550;
+	loc.y += height;
 	SmartDC sdc (parent);
 	createPalettes( sdc.get() );
 	for (auto& pic : pictures)
