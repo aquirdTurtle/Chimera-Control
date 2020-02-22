@@ -767,6 +767,10 @@
     </Image>
     <Image Include="Source\LowLevel\Atom.ico" />
     <Image Include="Source\LowLevel\JILA.bmp" />
+    <Image Include="Source\LowLevel\bitmap2.bmp" />
+    <Image Include="Source\LowLevel\bitmap3.bmp" />
+    <Image Include="Source\Shades_Of_Infrared.bmp" />
+    <Image Include="Source\LowLevel\Shades_Of_Infrared.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">

@@ -105,15 +105,14 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 	servoList.InsertColumn ( 3,  "Ctrl (V)");
 	servoList.InsertColumn ( 4,  "dCtrl (%)", 60);
 	servoList.InsertColumn ( 5,  "Res (V)", 50);
-	servoList.InsertColumn ( 6,  "dRes (%)", 60);
-	servoList.InsertColumn ( 7,  "Ai", 35 );
-	servoList.InsertColumn ( 8,  "Ao" );
-	servoList.InsertColumn ( 9,  "DO-Config", 90 );
-	servoList.InsertColumn ( 10,  "Tolerance", 70 );
-	servoList.InsertColumn ( 11,  "Gain", 45 );
-	servoList.InsertColumn ( 12,  "Monitor?", 70 );
-	servoList.InsertColumn ( 13, "AO-Config", 150);
-	servoList.InsertColumn ( 14, "Avgs", 50);
+	servoList.InsertColumn ( 6,  "Ai", 35 );
+	servoList.InsertColumn ( 7,  "Ao" );
+	servoList.InsertColumn ( 8,  "DO-Config", 90 );
+	servoList.InsertColumn ( 9,  "Tolerance", 70 );
+	servoList.InsertColumn ( 10,  "Gain", 45 );
+	servoList.InsertColumn ( 11,  "Monitor?", 70 );
+	servoList.InsertColumn ( 12, "AO-Config", 150);
+	servoList.InsertColumn ( 13, "Avgs", 50);
 
 	servoList.insertBlankRow ( );
 	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"

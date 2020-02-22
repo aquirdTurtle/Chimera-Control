@@ -16,12 +16,12 @@ def D1GreyInTrapPgcFields():
   var back_field 0.5523
 
   var dField 0
-  dac: leftCoilCurrent left_field 
-  dac: rightCoilCurrent right_field 
+  dac: leftCoilCurrent (left_field - dField)
+  dac: rightCoilCurrent (right_field + dField)
   dac: topCoilCurrent top_field 
   dac: bottomCoilCurrent bot_field 
-  dac: frontCoilCurrent (front_field - dField)
-  dac: backCoilCurrent (back_field + dField)
+  dac: frontCoilCurrent front_field 
+  dac: backCoilCurrent back_field 
   
   var greyLoadFieldTime 2.01
   t += greyLoadFieldTime 
