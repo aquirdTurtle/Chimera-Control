@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "ParameterSystem.h"
 #include "Scripts/Script.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralObjects/multiDimensionalKey.h"
@@ -718,7 +718,7 @@ void ParameterSystem::handleSingleClick ()
 }
 
 void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										   DioSystem* ttls, AoSystem* aoSys )
+										   DoSystem* ttls, AoSystem* aoSys )
 {
 	if ( !controlActive )
 	{
@@ -773,7 +773,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 					thrower ( "A parameter with name " + newName + " already exists!" );
 				}
 			}
-			if ( ttls->isValidTTLName( newName ) )
+			if ( ttls->getCore().isValidTTLName( newName ) )
 			{
 				thrower ( "the name " + newName + " is already a ttl Name!" );
 			}

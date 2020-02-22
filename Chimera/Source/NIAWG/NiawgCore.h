@@ -5,16 +5,17 @@
 
 #include "MiscellaneousExperimentOptions/debugInfo.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "NIAWG/NiawgStructures.h"
-#include "NIAWG/Rearrangement/rerngOptionStructures.h"
-#include "directions.h"
-#include "NIAWG/Rearrangement/rerngMoveStructures.h"
-#include "NIAWG/Rearrangement/rerngThreadInput.h"
 #include "GeneralObjects/Matrix.h"
 #include "Scripts/ScriptStream.h"
 #include "LowLevel/constants.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
-#include "DigitalOutput/DioRows.h"
+#include "DigitalOutput/DoRows.h"
+
+#include "directions.h"
+#include "NiawgStructures.h"
+#include "Rearrangement/rerngOptionStructures.h"
+#include "Rearrangement/rerngMoveStructures.h"
+#include "Rearrangement/rerngThreadInput.h"
 
 #include "Fgen.h"
 #include <algorithm>
@@ -35,14 +36,14 @@ class NiawgWaiter;
   * One of the biggest & most complicated classes in the code.
   * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
   */
-class NiawgController
+class NiawgCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
-		NiawgController& operator=(const NiawgController&) = delete;
-		NiawgController (const NiawgController&) = delete;
+		NiawgCore& operator=(const NiawgCore&) = delete;
+		NiawgCore (const NiawgCore&) = delete;
 
-		NiawgController( DioRows::which trigRow, UINT trigNumber, bool safemode );
+		NiawgCore( DoRows::which trigRow, UINT trigNumber, bool safemode );
 		void initialize();
 		void cleanupNiawg( profileSettings profile, bool masterWasRunning, NiawgOutput& output, Communicator& comm, 
 						   bool dontGenerate );
@@ -84,7 +85,7 @@ class NiawgController
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<parameterType>& variables, simpleWaveForm& wave,
 						   std::vector<vectorizedNiawgVals>& vectorizedVals );
-		void setDefaultWaveforms( MainWindow* mainWin );
+		void setDefaultWaveforms( );
 		//static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		// programming the device
@@ -101,7 +102,7 @@ class NiawgController
 		void turnOn();
 		// Other
 		void setRunningState( bool newRunningState );
-		std::pair<DioRows::which, UINT> getTrigLines( );
+		std::pair<DoRows::which, UINT> getTrigLines( );
 		UINT getNumberTrigsInScript( );
 		bool isOn( );
 		void streamWaveform( );
@@ -192,7 +193,7 @@ class NiawgController
 		// not used at the moment, but could revive the phase correction feature back later.
 		double calculateCorrectionTime( channelWave& wvData1, channelWave& wvData2, std::vector<double> startPhases, 
 										std::string order, double time, long sampleNum);
-		const DioRows::which triggerRow;
+		const DoRows::which triggerRow;
 		const UINT triggerNumber;
 		/// Rearrangement stuff
 		std::vector<rerngContainer<double>> moveBiasCalibrations;
@@ -224,7 +225,7 @@ class NiawgController
 		static void randomizeMoves(std::vector<simpleMove>& operationsList);
 		static void orderMoves ( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence,
 								 Matrix<bool> sourceMatrix );
-		static void NiawgController::calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos );
+		static void NiawgCore::calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos );
 		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos);
 		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, UINT rows, UINT cols );
 		static void sortByDistanceToTarget ( std::vector<simpleMove> &moveList );

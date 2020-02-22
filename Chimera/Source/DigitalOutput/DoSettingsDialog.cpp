@@ -2,10 +2,10 @@
 #pragma once
 
 #include "stdafx.h"
-#include "DioSettingsDialog.h"
+#include "DoSettingsDialog.h"
 #include "Control.h"
 #include <array>
-#include "DioSystem.h"
+#include "DoSystem.h"
 
 
 BEGIN_MESSAGE_MAP(TtlSettingsDialog, CDialog)
@@ -60,12 +60,12 @@ BOOL TtlSettingsDialog::OnInitDialog()
 		numberlabels[numberInc].Create( cstr(numberInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_CENTER |
 									   ES_AUTOHSCROLL | WS_TABSTOP, numberlabels[numberInc].sPos, this, id++);
 	}
-	for (auto row : DioRows::allRows )
+	for (auto row : DoRows::allRows )
 	{
 		pos.y += rowSize;
 		pos.x = 0;
 		rowLabels[int(row)].sPos = { pos.x, pos.y, pos.x += labelSize, pos.y + rowSize };
-		rowLabels[int(row)].Create(cstr(DioRows::toStr(row)), WS_CHILD | ES_CENTER | WS_VISIBLE , 
+		rowLabels[int(row)].Create(cstr(DoRows::toStr(row)), WS_CHILD | ES_CENTER | WS_VISIBLE , 
 									rowLabels[ int ( row ) ].sPos, this, id++);
 		for (UINT numberInc = 0; numberInc < edits[ int ( row ) ].size(); numberInc++)
 		{
@@ -81,7 +81,7 @@ BOOL TtlSettingsDialog::OnInitDialog()
 
 void TtlSettingsDialog::handleOk()
 {
-	for (auto row : DioRows::allRows )
+	for (auto row : DoRows::allRows )
 	{
 		for (UINT numberInc = 0; numberInc < edits[int(row)].size(); numberInc++)
 		{

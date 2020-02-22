@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
-#include "NIAWG/NiawgController.h"
+#include "NIAWG/NiawgCore.h"
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "ExcessDialogs/StartDialog.h"
 #include "ExcessDialogs/openWithExplorer.h"
@@ -158,7 +158,7 @@ namespace commonFunctions
 				std::string status;
 				bool niawgAborted = false, andorAborted = false, masterAborted = false, baslerAborted = false;
 
-				mainWin->stopRearranger( );
+				scriptWin->stopRearranger( );
 				andorWin->wakeRearranger( );
 				try
 				{
@@ -219,11 +219,11 @@ namespace commonFunctions
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
 				//
-				mainWin->waitForRearranger( );
+				scriptWin->waitForRearranger( );
 
 				try
 				{
-					if ( mainWin->niawg.niawgIsRunning( ) )
+					if ( scriptWin->niawgIsRunning() )
 					{
 						status = "NIAWG";
 						abortNiawg( scriptWin, mainWin );
@@ -417,7 +417,7 @@ namespace commonFunctions
 			{
 				try
 				{
-					if ( mainWin->niawg.niawgIsRunning ( ) )
+					if ( scriptWin->niawgIsRunning() )
 					{
 						commonFunctions::abortNiawg ( scriptWin, mainWin );
 					}
@@ -440,11 +440,12 @@ namespace commonFunctions
 			{
 				mainWin->autoServo ( 0, 0 );
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL, basWin );
-				input.masterInput->runList.niawg = input.masterInput->runList.andor = false;
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, NULL, basWin, scriptWin);
+				input.masterInput->runList.andor = false;
 				input.masterInput->updatePlotterXVals = false;
 				auxWin->fillMasterThreadInput ( input.masterInput );
 				mainWin->fillMotInput ( input.masterInput );
+				scriptWin->fillMotInput (input.masterInput);
 				input.masterInput->expType = ExperimentType::LoadMot;
 				mainWin->startExperimentThread ( input.masterInput );
 				break;
@@ -453,7 +454,7 @@ namespace commonFunctions
 			{
 				// F11 is the set of calibrations.
 				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin );
+				input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin, scriptWin );
 				input.masterInput->quiet = true;
 				try
 				{
@@ -469,7 +470,7 @@ namespace commonFunctions
 					mainWin->getComm ()->sendStatus (calInfo.infoStr);
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->runList = calInfo.runList;
-					input.masterInput->seq.name = calInfo.seqName;
+					input.masterInput->seq.name = calInfo.fileName;
 					input.masterInput->seq.sequence.resize (1);
 					input.masterInput->seq.sequence[0] = input.masterInput->profile;
 					input.masterInput->expType = ExperimentType::AutoCal;
@@ -521,21 +522,21 @@ namespace commonFunctions
 			case ID_SEQUENCE_NEW_SEQUENCE: { mainWin->profile.newSequence(parent); break; }
 			case ID_SEQUENCE_RESET_SEQUENCE: { mainWin->profile.loadNullSequence(); break; }
 			case ID_SEQUENCE_DELETE_SEQUENCE: { mainWin->profile.deleteSequence(); break; }
-			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin); break; }
+			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin, scriptWin); break; }
 			case ID_CONFIGURATION_NEW_CONFIGURATION: { mainWin->profile.newConfiguration(mainWin, auxWin, andorWin, scriptWin); break; }
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration(); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration(); break; }
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, andorWin, basWin); break; }
 			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, andorWin, basWin); break; }
-			case ID_NIAWG_SENDSOFTWARETRIGGER: { mainWin->niawg.fgenConduit.sendSoftwareTrigger(); break; }
-			case ID_NIAWG_STREAMWAVEFORM: { mainWin->niawg.streamWaveform(); break; }
-			case ID_NIAWG_GETNIAWGERROR: { errBox(mainWin->niawg.fgenConduit.getErrorMsg()); break; }
+			case ID_NIAWG_SENDSOFTWARETRIGGER: { scriptWin->sendNiawgSoftwareTrig(); break; }
+			case ID_NIAWG_STREAMWAVEFORM: { scriptWin->streamNiawgWaveform(); break; }
+			case ID_NIAWG_GETNIAWGERROR: { errBox(scriptWin->getNiawgErr()); break; }
 			case ID_PICTURES_AUTOSCALEPICTURES: { andorWin->handleAutoscaleSelection(); break; }
 			case ID_BASLER_AUTOSCALE: { basWin->handleBaslerAutoscaleSelection ( ); break; }
 			case ID_PICTURES_GREATER_THAN_MAX_SPECIAL: { andorWin->handleSpecialGreaterThanMaxSelection(); break; }
 			case ID_PICTURES_LESS_THAN_MIN_SPECIAL: { andorWin->handleSpecialLessThanMinSelection(); break; }
 			case ID_PICTURES_ALWAYSSHOWGRID: { andorWin->passAlwaysShowGrid(); break; }
-			case ID_NIAWG_NIAWGISON: { mainWin->passNiawgIsOnPress( ); break; }
+			case ID_NIAWG_NIAWGISON: { scriptWin->passNiawgIsOnPress( ); break; }
 			case ID_DATATYPE_PHOTONS_COLLECTED: { andorWin->setDataType( CAMERA_PHOTONS ); break; }
 			case ID_DATATYPE_PHOTONS_SCATTERED: { andorWin->setDataType( ATOM_PHOTONS ); break; }
 			case ID_DATATYPE_RAW_COUNTS: { andorWin->setDataType( RAW_COUNTS ); break; }
@@ -546,7 +547,7 @@ namespace commonFunctions
 			case ID_MASTER_VIEWORCHANGETTLNAMES: { auxWin->ViewOrChangeTTLNames(); break; }
 			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE: { mainWin->handlePause(); break; }
 			case ID_HELP_HARDWARESTATUS: { mainWin->showHardwareStatus ( ); break; }
-			case ID_FORCE_EXIT:	{ forceExit ( scriptWin, mainWin, andorWin, auxWin ); break; }
+			case ID_FORCE_EXIT:	{ forceExit ( scriptWin, mainWin, andorWin, auxWin, scriptWin); break; }
 			default:
 				errBox("Common message passed but not handled! The feature you're trying to use"\
 						" feature likely needs re-implementation / new handling.");
@@ -559,11 +560,12 @@ namespace commonFunctions
 		try 
 		{
 			AllExperimentInput input;
-			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin );
-			input.masterInput->runList = { false, true, true, false };
+			input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin, scriptWin);
+			input.masterInput->runList = { true, true, false };
 			auxWin->fillMasterThreadInput (input.masterInput);
 			andorWin->loadCameraCalSettings( input );
 			mainWin->loadCameraCalSettings( input.masterInput );
+			scriptWin->loadCameraCalSettings (input.masterInput);
 			mainWin->startExperimentThread( input.masterInput );
 		}
 		catch ( Error& err )
@@ -577,7 +579,7 @@ namespace commonFunctions
 							  bool runMaster, bool runAndor, bool runBasler, bool updatePlotXVals )
 	{
 		seqSettings seq = mainWin->getSeqSettings( );
-		if (mainWin->niawgIsRunning())
+		if (scriptWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
@@ -586,26 +588,23 @@ namespace commonFunctions
 		{
 			mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
 			thrower ( "No configurations in current sequence! Please set some configurations to run in this "
-					 "sequence or set the null sequence.\r\n" );
+					  "sequence or set the null sequence.\r\n" );
 		}
-		// check config settings
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
 		// Set the thread structure.
-		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin);
-		input.masterInput->runList = {runNiawg, runMaster, runAndor, runBasler};
+		input.masterInput = new ExperimentThreadInput ( auxWin, mainWin, andorWin, basWin, scriptWin);
+		input.masterInput->runList = {runMaster, runAndor, runBasler};
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
 		input.masterInput->skipNext = andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = auxWin->getTotalVariationNumber ( );
-		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be
-		// infinite.
 		input.masterInput->dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
 		input.masterInput->profile = mainWin->getProfileSettings ();;
 		if (runNiawg)
 		{
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
-			mainWin->setNiawgRunningState( true );
+			scriptWin->setNiawgRunningState( true );
 		}
 		// Start the programming thread. order is important.
 		mainWin->fillMasterThreadSequence( input.masterInput );
@@ -644,7 +643,7 @@ namespace commonFunctions
 		Communicator* comm = mainWin->getComm();
 		// set reset flag
 		eAbortNiawgFlag = true;
-		if (!mainWin->niawgIsRunning())
+		if (!scriptWin->niawgIsRunning())
 		{
 			std::string msgString = "Passively Outputting Default Waveform.";
 			comm->sendColorBox( System::Niawg, 'B' );
@@ -665,8 +664,8 @@ namespace commonFunctions
 		scriptWin->setIntensityDefault();
 		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );
 		comm->sendColorBox( System::Niawg, 'B' );
-		mainWin->restartNiawgDefaults();
-		mainWin->setNiawgRunningState( false );
+		scriptWin->restartNiawgDefaults();
+		scriptWin->setNiawgRunningState( false );
 	}
 
 
@@ -677,12 +676,12 @@ namespace commonFunctions
 	}
 
 
-	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
+	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin, ScriptingWindow* scriptWin)
 	{
 		/// Exiting. Close the NIAWG normally.
 		try
 		{
-			mainWin->stopNiawg ( );
+			scriptWin->stopNiawg ( );
 		}
 		catch ( Error& except )
 		{
@@ -696,9 +695,9 @@ namespace commonFunctions
 	}
 
 
-	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin )
+	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin)
 	{
-		if (mainWin->niawgIsRunning())
+		if (scriptWindow->niawgIsRunning())
 		{
 			thrower ( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
 					  "can stop normally." );
@@ -721,16 +720,16 @@ namespace commonFunctions
 		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
 		if (areYouSure == IDOK)
 		{
-			forceExit ( scriptWindow, mainWin, camWin, auxWin );
+			forceExit ( scriptWindow, mainWin, camWin, auxWin, scriptWindow);
 		}
 	}
 
 
-	void reloadNIAWGDefaults( MainWindow* mainWin )
+	void reloadNIAWGDefaults( MainWindow* mainWin, ScriptingWindow* scriptWin )
 	{
 		// this hasn't actually been used or tested in a long time... aug 29th 2019
 		profileSettings profile = mainWin->getProfileSettings();
-		if (mainWin->niawgIsRunning())
+		if (scriptWin->niawgIsRunning())
 		{
 			thrower ( "The system is currently running. You cannot reload the default waveforms while the system is "
 					  "running. Please restart the system before attempting to reload default waveforms." );
@@ -744,12 +743,12 @@ namespace commonFunctions
 		}
 		try
 		{
-			mainWin->setNiawgDefaults();
-			mainWin->restartNiawgDefaults();
+			scriptWin->setNiawgDefaults();
+			scriptWin->restartNiawgDefaults();
 		}
 		catch (Error&)
 		{
-			mainWin->restartNiawgDefaults();
+			scriptWin->restartNiawgDefaults();
 			throwNested( "failed to reload the niawg default waveforms!" );
 		}
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );

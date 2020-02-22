@@ -1,11 +1,12 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
-#include "DigitalOutput/DioSystem.h"
+#include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "GeneralObjects/CodeTimer.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "NIAWG/NiawgWaiter.h"
+#include "NIAWG/NiawgSystem.h"
 #include "ParameterSystem/Expression.h"
 #include "PrimaryWindows/MainWindow.h"
 #include "nidaqmx2.h"
@@ -51,7 +52,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	auto quiet = input->quiet;
 	const auto& runMaster = input->runList.master;
 	const auto& runAndor = input->runList.andor;
-	const auto& runNiawg = input->runList.niawg;
+	bool runNiawg=true;
 	const auto& runBasler = input->runList.basler;
 	const auto& piezos = input->piezoCores;
 	const UINT tbTek = 0;
@@ -120,7 +121,11 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			{
 				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
 					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
+				baslerCamSettings.repsPerVar = repetitions;
+				baslerCamSettings.variations = variations;
 			}
+			runNiawg = ProfileSystem::stdGetFromConfig (configFile, "NIAWG_INFORMATION",
+				NiawgSystem::getControlNiawgFromConfig, Version ("4.12"));
 			if ( runNiawg )
 			{
 				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( configInfo );
@@ -172,6 +177,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
 			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
 			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
+			input->logger.logNiawgSettings (input, runNiawg);
 		}
 		for ( auto piezoInc : range ( piezos.size ( ) ) )
 		{
@@ -274,7 +280,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
 		if ( runMaster )
 		{
-			ttls.shadeTTLs ( ttlShadeLocs );
+			//ttls.shadeTTLs ( ttlShadeLocs );
 			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey(expParams);
 			ttls.restructureCommands ( );
@@ -320,8 +326,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					ttls.convertToFtdiSnaps(variationInc, seqInc);
 					ttls.convertToFinalFtdiFormat( variationInc, seqInc );
 					// run a couple checks.
-					ttls.checkNotTooManyTimes( variationInc, seqInc );
-					ttls.checkFinalFormatTimes( variationInc, seqInc );
 					aoSys.checkTimingsWork( variationInc, seqInc );
 				}
 			}
@@ -353,8 +357,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				}
 			}
 		}
-		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, 
-													   expParams, agilentRunInfo );
+		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, expParams, 
+													   agilentRunInfo, runNiawg );
 		/// finish up
 		if ( runMaster )
 		{
@@ -365,10 +369,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			comm.sendError ( warnings );
 			auto response = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
 								   + warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO );
-			if ( response == IDNO )
-			{
-				thrower ( abortString );
-			}
+			if ( response == IDNO ) { thrower ( abortString ); }
 		}
 		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
 		/// /////////////////////////////
@@ -382,7 +383,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			comm.sendPrepareBasler (baslerCamSettings);
 			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
-			input->basCamera.armCamera (baslerCamSettings.frameRate);
+			input->basCamera.armCamera ();
 		}
 		if (runAndor)
 		{
@@ -427,8 +428,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			expUpdate ( "Starting Andor Camera...", comm, quiet );
 			if ( runAndor )
 			{
-				andorRunsettings[ 0 ].repetitionsPerVariation = repetitions;
-				andorRunsettings[ 0 ].totalVariations = variations;
 				int stat = 0;
 				while ( true )
 				{
@@ -537,8 +536,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			{
 				// make sure the display accurately displays the state that the experiment finished at.
 				aoSys.setDacStatusNoForceOut( aoSys.getFinalSnapshot( ) );
-				ttls.unshadeTtls( );
-				ttls.setTtlStatusNoForceOut( ttls.getFinalSnapshot( ) );
+				//ttls.unshadeTtls( );
+				//ttls.setTtlStatusNoForceOut( ttls.getFinalSnapshot( ) );
 			}
 			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
 		}
@@ -574,7 +573,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		input->thisObj->experimentIsRunning = false;
 		if (runMaster)
 		{
-			input->ttls.unshadeTtls();
+			//input->ttls.unshadeTtls();
 			input->aoSys.unshadeDacs();
 		}	
 		if ( input->thisObj->isAborting )
@@ -611,7 +610,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 }
 
 
-void ExperimentThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& aoSys,
+void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSys,
 												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
 												std::vector<parameterType>& vars, ScriptStream& currentMasterScript, 
 												UINT seqNum, bool expectsLoadSkip, std::string& warnings, 
@@ -642,7 +641,7 @@ void ExperimentThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& a
 		}
 		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
 		{}
-		else if ( handleDioCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
+		else if ( handleDoCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
 		{}
 		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
 		{}
@@ -717,11 +716,11 @@ void ExperimentThreadManager::analyzeMasterScript ( DioSystem& ttls, AoSystem& a
 }
 
 
-void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DioSystem& ttls,
-											AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-											std::vector<UINT>& dacShades, 
-											std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
-											timeType& operationTime, std::string callingScope )
+void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DoCore& ttls,
+												AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
+												std::vector<UINT>& dacShades, 
+												std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
+												timeType& operationTime, std::string callingScope )
 {	
 	/// load the file
 	std::fstream functionFile;
@@ -790,7 +789,7 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 	{
 		if (handleTimeCommands (word, functionStream, params, scope, operationTime)){ /* got handled*/ }
 		else if ( handleVariableDeclaration ( word, functionStream, params, scope, warnings ) ){}
-		else if ( handleDioCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
+		else if ( handleDoCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
 		else if ( handleAoCommands ( word, functionStream, params, aoSys, dacShades, ttls, seqNum, scope, operationTime) ){}
 		else if ( word == "callcppcode" )
 		{
@@ -871,7 +870,7 @@ double ExperimentThreadManager::convertToTime( timeType time, std::vector<parame
 }
 
 
-void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DioSystem& ttls, AoSystem& aoSys,
+void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DoCore& ttls, AoSystem& aoSys,
 									  std::vector<std::vector<pPlotDataVec>> ttlData, 
 									  std::vector<std::vector<pPlotDataVec>> dacData )
 {
@@ -1307,9 +1306,9 @@ bool ExperimentThreadManager::handleTimeCommands( std::string word, ScriptStream
 }
 
 /* returns true if handles word, false otherwise. */
-bool ExperimentThreadManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-									   DioSystem& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
-									   std::string scope, timeType& operationTime )
+bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+											    DoCore& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
+											    std::string scope, timeType& operationTime )
 {
 	if ( word == "on:" || word == "off:" )
 	{
@@ -1334,7 +1333,7 @@ bool ExperimentThreadManager::handleDioCommands( std::string word, ScriptStream&
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											AoSystem& aoSys, std::vector<UINT>& dacShades, DioSystem& ttls, UINT seqNum, 
+											AoSystem& aoSys, std::vector<UINT>& dacShades, DoCore& ttls, UINT seqNum, 
 											std::string scope, timeType& operationTime )
 {
 	if ( word == "dac:" )
@@ -1461,9 +1460,10 @@ UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterTyp
 void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
 												UINT variations, microwaveSettings settings, 
 												std::vector<std::vector<parameterType>>& expParams, 
-												std::vector<deviceOutputInfo>& agRunInfo)
+												std::vector<deviceOutputInfo>& agRunInfo, 
+												bool runNiawg)
 {
-	/// check all trigger numbers between the DIO system and the individual subsystems. These should almost always match,
+	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
 	for ( auto seqInc : range ( input->seq.sequence.size ( ) ) )
 	{
@@ -1474,7 +1474,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 		{
 			if ( input->runList.master)
 			{
-				UINT actualTrigs = input->ttls.countTriggers ( { DioRows::which::D,15 }, variationInc, seqInc );
+				UINT actualTrigs = input->ttls.countTriggers ( { DoRows::which::D,15 }, variationInc, seqInc );
 				UINT dacExpectedTrigs = input->aoSys.getNumberSnapshots ( variationInc, seqInc );
 				std::string infoString = "Actual/Expected DAC Triggers: " + str ( actualTrigs ) + "/" 
 					+ str ( dacExpectedTrigs ) + ".";
@@ -1490,7 +1490,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 					input->debugOptions.message += infoString + "\n";
 				}
 			}
-			if ( input->runList.niawg && !niawgMismatch )
+			if ( runNiawg && !niawgMismatch )
 			{
 				auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc, seqInc );
 				auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
@@ -1566,9 +1566,9 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 
 
 bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											  DioSystem& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-											  std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
-											  std::string callingFunction, timeType& operationTime )
+											      DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+											      std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
+											      std::string callingFunction, timeType& operationTime )
 {
 	if ( word != "call" )
 	{

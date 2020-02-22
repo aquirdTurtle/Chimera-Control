@@ -40,7 +40,6 @@ class BaslerWindow : public CDialogEx
 		bool baslerCameraIsContinuous ( );
 		LRESULT handleNewPics( WPARAM wParam, LPARAM lParam );
 		LRESULT handlePrepareRequest(WPARAM wParam, LPARAM lParam);
-		void fillTemperatureMeasurementInput ( baslerSettings& settings );
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void handleSoftwareTrigger();

@@ -2,7 +2,7 @@
 #pragma once
 #include "GeneralFlumes/VisaFlume.h"
 #include "Plotting/PlotCtrl.h"
-#include "GeneralObjects/SmartDC.h"
+
 /*
  * This is a wrapper around a PlotCtrl object and a VisaFlume object that facilitates autmatically retrieving data
  * from a tektronics oscilloscope and plotting it. Currently this just allows users to see the scope without moving 

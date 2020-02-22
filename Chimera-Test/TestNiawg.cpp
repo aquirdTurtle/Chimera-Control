@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "afxwin.h"
-#include "../Chimera/NiawgController.h"
+#include "../Chimera/NiawgCore.h"
 #include "../Chimera/miscCommonFunctions.h"
 #include "TestMacros.h"
 #include <string>
@@ -20,7 +20,7 @@ namespace TestNiawg
 			auto trigRow = DioRows::which::A;
 			UINT trigNum( 0 );
 			bool safemode( true );
-			NiawgController niawg( trigRow, trigNum, safemode );
+			NiawgCore niawg( trigRow, trigNum, safemode );
 			Matrix<bool> source( 6, 3 );
 			Matrix<bool> target( 6, 3 );
 

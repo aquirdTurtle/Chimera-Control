@@ -83,7 +83,7 @@ baslerSettings BaslerCameraCore::getDefaultSettings()
 {
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
-	defaultSettings.repCount = 100;
+	defaultSettings.picsPerRep = 1;
 	defaultSettings.dims.left = 1;
 	defaultSettings.dims.right = dim.x; 
 	defaultSettings.dims.horizontalBinning = 4;
@@ -145,7 +145,7 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 	
 	camera->setGainMode("Off");
 	camera->setGain( camera->getMinGain() );
-	//amera->AcquisitionFrameRateEnable.SetValue(true);
+	//camera->AcquisitionFrameRateEnable.SetValue(true);
 	//Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous
 	//camera->AcquisitionMode.SetValue(Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous);
 	//camera->AcquisitionFrameRate.SetValue(settings.frameRate);
@@ -170,11 +170,6 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 		camera->setExposureAuto( cameraParams::ExposureAuto_Once );
 	}
 
-	if (settings.acquisitionMode != BaslerAcquisition::mode::Finite)
-	{
-		settings.repCount = SIZE_MAX;
-	}
-
 	if (settings.triggerMode == BaslerTrigger::mode::External)
 	{
 		#ifdef FIREWIRE_CAMERA
@@ -194,6 +189,10 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 	runSettings = settings;
 }
 
+baslerSettings BaslerCameraCore::getRunningSettings ()
+{
+	return runSettings;
+}
 
 // I can potentially use this to reopen the camera if e.g. the user disconnects. Don't think this is really implemented
 // yet.
@@ -249,7 +248,7 @@ POINT BaslerCameraCore::getCameraDimensions()
 
 // get the camera "armed" (ready for aquisition). Actual start of camera taking pictures depends on things like the 
 // trigger mode.
-void BaslerCameraCore::armCamera( double frameRate )
+void BaslerCameraCore::armCamera( )
 {
 	Pylon::EGrabStrategy grabStrat;
 	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous )
@@ -262,8 +261,9 @@ void BaslerCameraCore::armCamera( double frameRate )
 	}
 	triggerThreadInput* input = new triggerThreadInput;
 	input->camera = camera;
-	input->frameRate = frameRate;
-	camera->startGrabbing( runSettings.repCount, grabStrat );
+	
+	input->frameRate = runSettings.frameRate;
+	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
 	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
 	{
 		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
@@ -284,9 +284,9 @@ double BaslerCameraCore::getCurrentExposure()
 }
 
 //
-unsigned int BaslerCameraCore::getRepCounts()
+unsigned int BaslerCameraCore::getPicsPerRep()
 {
-	return runSettings.repCount;
+	return runSettings.picsPerRep;
 }
 
 //

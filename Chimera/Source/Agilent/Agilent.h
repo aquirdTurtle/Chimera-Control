@@ -10,7 +10,7 @@
 #include "Agilent/agilentStructures.h"
 #include "Scripts/Script.h"
 #include "ParameterSystem/Expression.h"
-#include "DigitalOutput/DioRows.h"
+#include "DigitalOutput/DoRows.h"
 #include <vector>
 #include <array>
 
@@ -51,7 +51,7 @@ class Agilent
 									std::vector<parameterType>& variables );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
-		std::pair<DioRows::which, UINT> getTriggerLine( );
+		std::pair<DoRows::which, UINT> getTriggerLine( );
 		std::string getConfigDelim ();
 		void programAgilentNow (std::vector<parameterType> constants);
 		
