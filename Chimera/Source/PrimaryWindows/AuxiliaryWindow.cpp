@@ -1037,7 +1037,7 @@ void AuxiliaryWindow::zeroDacs( )
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		aoSys.zeroDacs( ttlBoard.getCore() );
+		aoSys.zeroDacs( ttlBoard.getCore(), { 0, ttlBoard.getCurrentStatus () });
 		sendStatus( "Zero'd DACs.\r\n" );
 	}
 	catch ( Error& exception )
@@ -1315,7 +1315,7 @@ void AuxiliaryWindow::SetDacs()
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
-		aoSys.forceDacs( ttlBoard.getCore() );
+		aoSys.forceDacs (ttlBoard.getCore (), { 0, ttlBoard.getCurrentStatus () });
 		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1325,7 +1325,6 @@ void AuxiliaryWindow::SetDacs()
 		sendErr( exception.trace() );
 	}
 }
-
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::DacEditChange(UINT id)
@@ -1479,7 +1478,7 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 				mainWin->updateConfigurationSavedStatus ( false );
 				try
 				{
-					aoSys.forceDacs ( ttlBoard.getCore() );
+					aoSys.forceDacs ( ttlBoard.getCore(), { 0, ttlBoard.getCurrentStatus () });
 				}
 				catch ( Error& err )
 				{

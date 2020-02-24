@@ -82,17 +82,18 @@ void AoSystem::standardNonExperiemntStartDacsSequence( )
 }
 
 
-void AoSystem::forceDacs( DoCore& ttls )
+void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap )
 {
 	ttls.resetTtlEvents( );
 	resetDacEvents( );
 	handleSetDacsButtonPress( ttls );
 	standardNonExperiemntStartDacsSequence( );
-	ttls.standardNonExperimentStartDoSequence( );
+	ttls.standardNonExperimentStartDoSequence(initSnap);
+	
 }
 
 
-void AoSystem::zeroDacs( DoCore& ttls )
+void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap)
 {
 	resetDacEvents( );
 	ttls.resetTtlEvents( );
@@ -103,7 +104,7 @@ void AoSystem::zeroDacs( DoCore& ttls )
 		prepareDacForceChange( dacInc, 0, ttls );
 	}
 	standardNonExperiemntStartDacsSequence( );
-	ttls.standardNonExperimentStartDoSequence( );
+	ttls.standardNonExperimentStartDoSequence( initSnap );
 }
 
 
@@ -118,7 +119,7 @@ std::array<AoInfo, 24> AoSystem::getDacInfo( )
 }
 
 
-void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls )
+void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap)
 {
 	ttls.resetTtlEvents( );
 	resetDacEvents( );
@@ -130,7 +131,7 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls )
 	checkValuesAgainstLimits( 0, 0 );
 	///
 	standardNonExperiemntStartDacsSequence( );
-	ttls.standardNonExperimentStartDoSequence( );
+	ttls.standardNonExperimentStartDoSequence( initSnap );
 	updateEdits( );
 }
 

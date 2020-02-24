@@ -41,8 +41,8 @@ class AoSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver);
 		// macros
-		void forceDacs( DoCore& ttls );
-		void zeroDacs( DoCore& ttls );
+		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
+		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);
 		// Setting system settings, mostly non-crucial functionality.
 		
 		void handleRoundToDac( MainWindow* menu );
@@ -78,7 +78,7 @@ class AoSystem
 		void initializeDataObjects( UINT sequenceNum, UINT cmdNum );
 		void prepareForce( );
 		void standardNonExperiemntStartDacsSequence( );		
-		void setSingleDac( UINT dacNumber, double val, DoCore& ttls );
+		void setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap);
 		// checks
 		void checkTimingsWork( UINT variation, UINT seqNum );
 		void checkValuesAgainstLimits(UINT variation, UINT seqNum );

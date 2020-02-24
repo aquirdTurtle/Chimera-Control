@@ -32,7 +32,7 @@ dac: eopulselev eo_raman__servo_value
 var pulsetime 0.12
 on: topRamanrf
 on: eoramanrf
-call send_uw_to_raman_eom()
+call send_uw_to_raman_eom() 
 t += pulsetime
 off: topRamanRf
 off: eoramanRF
