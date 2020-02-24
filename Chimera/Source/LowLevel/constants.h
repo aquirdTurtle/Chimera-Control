@@ -203,7 +203,7 @@
 	//constexpr char UW_SYSTEM_ADDRESS[] = "28";
 	constexpr short UW_SYSTEM_ADDRESS = 28;
 	constexpr bool UW_SYSTEM_SAFEMODE = false;
-	constexpr bool DIOFTDI_SAFEMODE = false;
+	constexpr bool DOFTDI_SAFEMODE = false;
 	constexpr bool DDS_SAFEMODE = false;
 	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
 	const PiezoType PIEZO_2_TYPE = PiezoType::B;
@@ -234,7 +234,7 @@
 	constexpr auto UWAVE_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 	constexpr bool MASTER_REPUMP_SCOPE_SAFEMODE = true;
 	constexpr auto MASTER_REPUMP_SCOPE_ADDRESS = "USB0::0x0699::0x03B3::C011388::0::INSTR";
-	constexpr bool MOT_SCOPE_SAFEMODE = false;
+	constexpr bool MOT_SCOPE_SAFEMODE = true;
 	constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0699::0x0363::C100939::0::INSTR";
 	constexpr bool ANALOG_OUT_SAFEMODE = false;
 	constexpr bool ANALOG_IN_SAFEMODE = false;

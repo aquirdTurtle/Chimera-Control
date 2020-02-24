@@ -127,8 +127,8 @@ void DoSystem::handleInvert()
 	for ( auto& out : outputs )
 	{
 		// seems like I need a ! here...
+		out.set (out.getStatus ()); 
 		core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, out.getStatus (), getCurrentStatus ());
-		out.set (out.getStatus ());
 	}
 }
 
@@ -230,8 +230,8 @@ void DoSystem::handleTTLPress(int id)
 			}
 			if ( holdStatus == false )
 			{
+				out.set (!out.getStatus ()); 
 				core.ftdi_ForceOutput(out.getPosition().first, out.getPosition().second, !out.getStatus(), getCurrentStatus ());
-				out.set (!out.getStatus ());
 			}
 			else
 			{
@@ -255,7 +255,6 @@ void DoSystem::handleHoldPress()
 		{
 			out.set ( out.holdStatus );
 			core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, out.getStatus (), getCurrentStatus());
-			out.set (out.holdStatus);
 		}
 	}
 	else
@@ -364,8 +363,8 @@ void DoSystem::zeroBoard( )
 {
 	for ( auto& out : outputs )
 	{
-		core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, 0, getCurrentStatus ());
-		out.set (0);
+		out.set (0); 
+		core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, 0, getCurrentStatus ());	
 	}
 }
 

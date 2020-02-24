@@ -27,7 +27,7 @@ class DoCore
 		DWORD ftdi_trigger ();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot ();
 		std::string getDoSystemInfo ();
-		void standardNonExperimentStartDoSequence ();
+		void standardNonExperimentStartDoSequence (DoSnapshot initSnap);
 		void restructureCommands ();
 
 		void initializeDataObjects (UINT seqNum, UINT variationNum);
@@ -45,7 +45,7 @@ class DoCore
 		// returns -1 if not a name.
 		bool isValidTTLName (std::string name);
 		int getNameIdentifier (std::string name, DoRows::which& row, UINT& number);
-		void organizeTtlCommands (UINT variation, UINT seqNum);
+		void organizeTtlCommands (UINT variation, UINT seqNum, DoSnapshot initSnap = { 0,0 });
 		bool getFtFlumeSafemode ();
 		ULONG getNumberEvents (UINT variation, UINT seqNum);
 		double getTotalTime (UINT variation, UINT seqNum);
@@ -70,10 +70,6 @@ class DoCore
 	private:
 		ftdiConnectionOption connectType;
 		ftdiFlume ftFlume;
-		// note: it doesn't look like felix's / Adam's programming actually facilitates the serial mode programming
-		// because this handle never gets initialized anywhere in the code. Probably not hard to set up, although I 
-		// think that the ftdi stuff is a superset of the normal serial communications so probably no reason to do 
-		// this? I don't know, there might be speed considerations.
 		WinSerialFlume winSerial;
 		/// stuff for felix's do
 		const UINT NUMPOINTS = 2048;

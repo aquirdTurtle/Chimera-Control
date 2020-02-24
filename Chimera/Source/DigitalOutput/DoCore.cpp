@@ -214,9 +214,10 @@ std::string DoCore::getDoSystemInfo ()
 	return msg;
 }
 
-void DoCore::standardNonExperimentStartDoSequence ()
+/* mostly if not entirely used for setting dacs */
+void DoCore::standardNonExperimentStartDoSequence (DoSnapshot initSnap)
 {
-	organizeTtlCommands (0, 0);
+	organizeTtlCommands (0, 0, initSnap);
 	findLoadSkipSnapshots (0, std::vector<parameterType> (), 0, 0);
 	convertToFtdiSnaps (0, 0);
 	convertToFinalFtdiFormat (0, 0);
@@ -560,7 +561,7 @@ ExpWrap<std::array<ftdiPt, 2048>> DoCore::getFtdiSnaps ()
 }
 
 
-void DoCore::organizeTtlCommands (UINT variation, UINT seqNum)
+void DoCore::organizeTtlCommands (UINT variation, UINT seqNum, DoSnapshot initSnap)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
@@ -598,14 +599,14 @@ void DoCore::organizeTtlCommands (UINT variation, UINT seqNum)
 	auto& snaps = ttlSnapshots (seqNum, variation);
 	snaps.clear ();
 	// start with the initial status.
-	snaps.push_back ({ 0, 0 });
+	snaps.push_back (initSnap);
 	///
 	if (timeOrganizer[0].first != 0)
 	{
 		// then there were no commands at time 0, so just set the initial state to be exactly the original state before
 		// the experiment started. I don't need to modify the first snapshot in this case, it's already set. Add a snapshot
 		// here so that the thing modified is the second snapshot not the first. 
-		snaps.push_back ({ 0, 0 });
+		snaps.push_back (initSnap);
 	}
 
 	// handle the zero case specially. This may or may not be the literal first snapshot.
