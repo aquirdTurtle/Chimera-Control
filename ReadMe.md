@@ -8,15 +8,14 @@
 Please feel free to contact me at any time with questions, bug reports, feature requests, or general support or for advice. I'm happy to help the project be as useful as possible to others who wish to use it. Contact me at 	Mark.O.Brown@colorado.edu with any such questions.
 
 ## Version
-This readme (probably not the code) was last updated on November 17th 2018.
+This readme (but not the code) was last updated on November 17th 2018. (lightly pruned on 2/23/2020 - still needs rework)
 
 # Installation
-- Important note: I've created this program as a 32-bit program because I only had the 32-bit version of the DIO64 dlls. in principle this can all be done in 64-bit mode (which might be faster for some things), but I haven't set this up yet. I will probably set this up soon when we move away from the DIO64 system.
+- Everything is 64 bit at this point.
 
 ## quick mandatory checklist:
-- Install Visual studio 2017
+- Install Visual studio 2019
 - Download all my code & included packages.
-- Unpack Boost & HDF5 & Python files to the correct locations.
 - Install NI-FGEN & NI-DAQmx
 - Install The Andor SOLIS SDK
 - set up a series of definitions in the "constants.h" file.
@@ -31,17 +30,11 @@ The github package includes all of my source code (\*.h and \*.cpp files), as we
 - HDF5 1.10.1 (zipped)
 - Python 3.6 core DLLs and libs.
 
-So, the first thing that you should do is unzip the HDF5 and boost files inside the packages/ folder inside the Chimera project file. I suggest you just unzip them right in those locations. Then, my code should be able to find them. Specifically, my code is set to look:
-- for boost, in $(PROJECT_DIR)/Packages/boost_1_64_0/ (watch out for accidentally making a boost_1_64_0/boost_1_64_0 chain).
-- for HDF5 in $(PROJECT_DIR)/Packages/32-Bit-Libs/Debug/HDF5-1.10.1-win32/ or slightly modified for 32 vs. 64 bit and debug vs release mode.
-- For Python in $(PROJECT_DIR)/Packages/32-Bit-Libs/Debug/Python or slightly modified for 32 vs. 64 bit and debug vs release mode. But these are small files so I didn't zip them.
-
 where, for example in my case $(PROJECT_DIR) = "C:\Users\Mark\Documents\Chimera-Control\Chimera".
 
-## Install Visual Studio Community Version. The most recent version that I've used is visual studio 2017.
-- Note that the VS version makes a big difference, some packages below would need to be recompiled if you used another version.
+## Install Visual Studio Community Version. The most recent version that I've used is visual studio 2019.
 - The extra options don't matter very much.
-- I suggest that you don't install the "Python compatibility" option and install that separately.
+- I suggest that you don't install the "Python compatibility" option and install python separately.
 - Once you try to open my project, visual studio should prompt you to install the MFC tools which you need.
 
 ## Download and install the latest version of DAQmx from national instruments. They have installers for this.
@@ -55,7 +48,8 @@ If it's not there, you may have to search around for this file.
 
 ## Install The Andor SOLIS SDK
 - This is necessary to get the API which I use to talk to the Andor camera.
-- I'm not including any installers or anything because this is not an open-source product, and I'd probably get in trouble if Andor found out I published something on github. If you have trouble with this requirement, let me know.
+- I'm not including any installers or anything because this is not an open-source product, and I'd probably get in 
+  trouble if Andor found out I published something on github. If you have trouble with this requirement, let me know.
 
 ## Code Setup
 - If all the above works properly, the code should build and start fine, and then immediately throw errors about finding files and initializing things at you before crashing.
@@ -75,11 +69,7 @@ If it's not there, you may have to search around for this file.
 - I've included the python36.lib/dll and python36_D.lib/dll files in both the 32-bit and 64-bit folders.
 - I suggest downloading the Anaconda Distribution (make sure to get the 32-bit version) for general python usage.
 - If you want or need more modern or different python versions, you can find the release files in the anaconda distribution filesystem (find the ".anaconda" folder), but anaconda doesn't include the debug distributions. You can compile these from source if you like, but you can also get them by downloading python directly from python.org, you just need to do a custom install and specify debug files and symbols during the install.
-## Boost (Optional)
-- Download and build the latest version of boost from boost.org. This is optional because I inlcude the version of boost I've been using in the repo. The build can take an hour or so. My quick instructions, which work well for me:
-	- Download & unzip the boost.7z file from boost.org.
-	- run the "b2" file.
-	- run the "bootstram.bat" file. Now wait, and it'll be installed.
+
 ## HDF5 (Optional)
 - I've included HDF5 packages that I compiled myself using visual studio 2017 (necessary for compatibility) as zipped files in the project under the packages\ folder. You should just need to un-zip them to the correct location and it should work fine. I've included both release and debug versions of the files. By default, my project will look for the files in "C:\Program Files(x86)\HDF_Group\HDF5\HDF5-1.10.1\Debug" or "...\Release".
 - IF you want to recompile the packages (otherwise skip this) (for example you want a newer HDF5 version), then there are some instructions on the HDF5 website, but I've also included my shortened version which worked for me.
@@ -98,12 +88,6 @@ or replace Release with Debug to get the debug version. HDF5 will now build, it 
 
 - After the build finishes, go into the new "build" folder and find the HDF5-XXX.zip file. This contains the include, lib, and dll files that you need. Unzip it to the desired location, make sure the visual studio project is pointed to it, and you're good to go.
 
-
-## DIO (Comments)
-- You shouldn't have to do anything for installation here, I'm including the DIO64 libraries, and they are searched for through their relative paths. I only have the 32-bit libraries, which causes everything here to be in 32-bit mode.
-- Even if you don't have dio libraries, the code should compile fine if you run it in dio_safemode
-- Importantly, if you're actually trying to use an old DIO64 card, this will be tricky with any modern operating system. You will need contact Viewpoint (or I can provide you with the documents they gave me) for some instructions on making such a card "compatible" with new systems. You will also need to make sure that you install an old version of NI-VISA (5.1.2 works), as their solution doesn't seem to work with newer versions.
-
 ## Setting up Visual Studio
 - If you follow the above directions carefully and are a bit lucky, my code my just compile after installing everything. However, some files may have shifted around to different locations during your install process, and you'll need to redirect my project to the proper locations for those files.
 - In order to compile, the following need to be set correctly (all of which can be found in the project properties seen by right-clicking on the project in visual studio & selecting properties):
@@ -116,10 +100,8 @@ or replace Release with Debug to get the debug version. HDF5 will now build, it 
 - If the code ever seems like it's having trouble finding some files, you can always look at the values set in these places to see exactly where visual studio is looking for various files.
 
 ## Some light suggestions
-		- I recommend using Git for file management and versioning. It's what I use, and while you don't need git to download my repository or use it, I think it's good solution to a variety of problems. If you like these types of things, also install a git gui client, my favorite is SmartGit. http://www.syntevo.com/smartgit/
-		- If you want to recompile some of the packages I've included, you'll likely want to install CMake. https://cmake.org/
-		- I suggest using powershell over cmd when it comes to windows command line prompts. It's built in to windows & great; really cmd is horribly outdated and everything should probably use powershell.
-		- You might like to install a better text editor than notepad. I suggest either "Atom" https://atom.io/ or "notepad++" https://notepad-plus-plus.org/
+- I recommend using Git for file management and versioning. It's what I use, and while you don't need git to download my repository or use it, I think it's good solution to a variety of problems. If you like these types of things, also install a git gui client, my favorite is SmartGit. http://www.syntevo.com/smartgit/
+- I suggest using powershell over cmd when it comes to windows command line prompts. It's built in to windows & great; really cmd is horribly outdated and everything should probably use powershell.
 
 # Main Systems Overview
 
@@ -185,18 +167,3 @@ This uses python to notify users of interesting events via text, for example it 
 ## "I want to plot something in real time from the program."
 - I've made the plotCtrl class for this. see example implementations of the dacs, ttls, oscilloscope views, and real time data analysis.
 - It is also not hard to do plotting through the embedded python handler.
-
-# C++
-		A short discussion
-## Benefits of C++
-		- Because there's so much legacy in C, C and C++ will effectively be around forever. There's effectively no chance of the core language being abandoned. Other languages like python are rising in popularity, but could fall	out of favor and support, who knows.
-		- C++ is a fast language. Not quite as fast as raw C, but faster for some coding tasks than interpreted languages like Python. This only matters for some things.
-		- C and C++ typically have very good API support. If a company doesn't provide an API for C, they
-		probably either only do it through labview or don't have APIs (only raw dll files) at all.
-		- It's not labview. This might strike some as vain, but for folks who dislike the data-flow programming paradigm (like me),	languages like C are a good alternative.
-		- C++ has great support in general. There's a lot of knowledge about how to do things floating around on the internet.
-		- Lots of people learn some C during undergraduate education.
-## Downsides
-		- C++ is old and has some baggage. There are an ever increasing number of ways to do even simple things, and it's often not clear to beginners what the proper modern way to do something is. However thankfully, if you're using this code base, you already have a lot to go off of, and you don't have to learn various techniques like I did from scratch.
-		- C++ and it's packages are missing some features generally important to scientific work, like plotting. I largely	bridge this gap where necessary by using an embedded python interpreter. However this is significant because it means that you probably don't want to use C++ for general data analysis, you probably want to use a 2nd language. I view this as	the biggest downside; if this was written in python you could use one language for everything.
-		- It's not labview. Research has shown that some people like data-flow programming. Who knew?
