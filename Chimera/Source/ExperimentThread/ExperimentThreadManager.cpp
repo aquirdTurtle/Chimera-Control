@@ -1038,7 +1038,6 @@ void ExperimentThreadManager::loadMasterScript(std::string scriptAddress, Script
 	// dump the file into the stringstream.
 	std::stringstream buf( std::ios_base::app | std::ios_base::out | std::ios_base::in );
 	// IMPORTANT!
-	// always pulses the oscilloscope trigger at the end!
 	buf << "\r\n t = 0.01 \r\n pulseon: " + str( OSCILLOSCOPE_TRIGGER ) + " 0.02\r\n t += 0.1\r\n";
 	buf << scriptFile.rdbuf();
 	// this is used to more easily deal some of the analysis of the script.

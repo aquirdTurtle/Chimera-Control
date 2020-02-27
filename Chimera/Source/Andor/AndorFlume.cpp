@@ -157,16 +157,6 @@ void AndorFlume::getOldestImage ( Matrix<long>& dataMatrix )
 }
 
 
-
-void AndorFlume::getOldestImage ( std::vector<long>& dataArray )
-{
-	if ( !safemode )
-	{
-		andorErrorChecker ( GetOldestImage ( dataArray.data ( ), dataArray.size ( ) ) );
-	}
-}
-
-
 void AndorFlume::setTriggerMode ( int mode )
 {
 	if ( !safemode )

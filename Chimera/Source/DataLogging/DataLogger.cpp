@@ -651,7 +651,7 @@ void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5
 
 
 
-void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
+void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims)
 {
 	if (fileIsOpen == false)
 	{
@@ -664,7 +664,7 @@ void DataLogger::writeAndorPic( std::vector<long> image, imageParameters dims)
 	try
 	{
 		AndorPicureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
-		AndorPictureDataset.write( image.data(), H5::PredType::NATIVE_LONG, AndorPicDataSpace, AndorPicureSetDataSpace );
+		AndorPictureDataset.write( image.data.data(), H5::PredType::NATIVE_LONG, AndorPicDataSpace, AndorPicureSetDataSpace );
 	}
 	catch (H5::Exception& err)
 	{

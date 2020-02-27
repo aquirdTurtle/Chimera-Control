@@ -28,6 +28,6 @@ class ScopeViewer
 		const bool safemode;
 		float yoffset, ymult;
 		VisaFlume visa;
-		PlotCtrl* viewPlot;
+		PlotCtrl* viewPlot = NULL;
 		std::vector<pPlotDataVec> scopeData;
 };

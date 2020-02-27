@@ -188,7 +188,7 @@ class AndorWindow : public CDialog
 		std::vector<PlotDialog*> activeDlgPlots;
 		UINT mostRecentPicNum = 0;
 		UINT currentPictureNum = 0;
-		std::vector<long> avgBackground;
+		Matrix<long> avgBackground;
 };
 
 

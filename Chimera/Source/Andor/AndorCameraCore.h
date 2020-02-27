@@ -50,7 +50,7 @@ class AndorCameraCore
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
 		void armCamera( double& minKineticCycleTime );
-		std::vector<std::vector<long>> acquireImageData(Communicator* comm);
+		std::vector<Matrix<long>> acquireImageData(Communicator* comm);
 		void setTemperature();
 		void setExposures();
 		void setImageParametersToCamera();
@@ -100,9 +100,7 @@ class AndorCameraCore
 		ULONGLONG currentRepetitionNumber;
 		std::timed_mutex camThreadMutex;
 		HANDLE plottingMutex;
-		std::vector<Matrix<long>> experimentImageMatrices;
-		std::vector<std::vector<long> > imagesOfExperiment;
-		std::vector<std::vector<long> > imageVecQueue;
+		std::vector<Matrix<long> > repImages;
 		UINT cameraThreadID = 0;
 
 		cameraThreadInput threadInput;

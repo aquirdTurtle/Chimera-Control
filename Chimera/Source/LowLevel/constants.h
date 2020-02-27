@@ -20,8 +20,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -395,6 +395,8 @@ constexpr auto IDC_INTENSITY_PROGRAM = 12011;
 constexpr auto IDC_MASTER_FUNCTION_COMBO = 12012;
 constexpr auto IDC_MASTER_EDIT = 12013;
 constexpr auto IDC_RERNG_MODE_COMBO = 12014;
+
+constexpr auto IDC_CONTROL_NIAWG_CHECK = 12015;
 
 // Camera Window
 constexpr auto IDC_ALERT_ON_NO_ATOMS = 23001;

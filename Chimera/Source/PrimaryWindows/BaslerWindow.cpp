@@ -302,7 +302,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		SmartDC sdc (this);
 		auto runSttngs = basCamCore->getRunningSettings ();
 		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, runSttngs.totalPictures() );
-		picManager.drawBitmap( sdc.get (), *imageMatrix, minMax );
+		picManager.drawBitmap( sdc.get (), *imageMatrix, minMax, 0 );
  		picManager.updatePlotData ( );
  		picManager.drawDongles ( sdc.get(), { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)

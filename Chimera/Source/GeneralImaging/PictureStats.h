@@ -64,9 +64,6 @@ class PictureStats
 		void rearrange( int width, int height, fontMap fonts );
 		std::pair<int, int> update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel,
 									 int currentRepetitionNumber, int totalRepetitionCount );
-		std::pair<int, int> update( std::vector<long> image, UINT imageNumber, coordinate selectedPixel,
-									int pictureWidth, int pictureHeight, int currentRepetitionNumbar,
-									int totalRepetitionCount );
 		void reset();
 		void updateType( std::string typeText );
 		statPoint getMostRecentStats ( );

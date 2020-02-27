@@ -443,15 +443,15 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		if ( input->needsCounts )
 		{
 			// this part of code hasn't been implemented properly in a while, trying to maintain for later fix. Feb 13th 2018
-			imageQueue tempImage( input->grids.size( ) );
+			PixListQueue tempPixList( input->grids.size( ) );
 			std::lock_guard<std::mutex> locker( *input->plotLock );
 			if ( input->imQueue->size( ) == 0 )
 			{
 				// strange... spurious wakeups or memory corruption happening here?
 				continue;
 			}
-			tempImage = input->imQueue->front( );
-			if ( tempImage.size( ) == 0 )
+			tempPixList = input->imQueue->front( );
+			if ( tempPixList.size( ) == 0 )
 			{
 				// strange... spurious wakeups or memory corruption happening here?
 				continue;
@@ -464,7 +464,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 				{
 					for ( auto column : range( input->grids[gridCount].height ) )
 					{
-						countData[gridCount][locIndex].push_back( tempImage[gridCount].image[locIndex] );
+						countData[gridCount][locIndex].push_back( tempPixList[gridCount].image[locIndex] );
 						locIndex++;
 					}
 				}
