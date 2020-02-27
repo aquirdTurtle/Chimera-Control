@@ -484,8 +484,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Atom.ico" />
-    <Image Include="C:\Users\Regal Lab\Pictures\boseeinstein.ico" />
-    <Image Include="Cold_Atoms_Icon.ico" />
     <Image Include="icon1.ico" />
     <Image Include="Icon2.ico" />
     <Image Include="Source\LowLevel\Atom.ico" />

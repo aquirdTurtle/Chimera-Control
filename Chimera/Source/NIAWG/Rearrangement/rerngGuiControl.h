@@ -21,6 +21,7 @@ class rerngGuiControl
 		void handleSaveConfig( std::ofstream& newFile );
 		void rearrange( int width, int height, fontMap fonts );
 		void updateActive ( );
+		void setEnabled (bool enabled);
 	private:
 		Control<CStatic> header;
 		Control<CleanCheck> experimentIncludesRerng;

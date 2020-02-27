@@ -29,13 +29,15 @@ void PictureManager::paint (CDC* cdc, CRect size, CBrush* bgdBrush )
 }
 
 
-void PictureManager::drawBitmap (CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax )
+void PictureManager::drawBitmap (CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl )
 {
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
-	for ( auto& pic : pictures )
+	pictures[whichPicCtrl].drawBitmap (deviceContext, picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax);
+	if (alwaysShowGrid)
 	{
-		pic.drawBitmap ( deviceContext, picData, autoScaleInfo );
+		pictures[whichPicCtrl].drawGrid (deviceContext, gridBrush);
 	}
+
 }
 
 void PictureManager::setPalletes(std::array<int, 4> palleteIds)
@@ -212,7 +214,7 @@ void PictureManager::setSpecialGreaterThanMax(bool option)
 	specialGreaterThanMax = option;
 }
 
-
+/*
 void PictureManager::drawPicture(CDC* deviceContext, int pictureNumber, std::vector<long> picData,
 								 std::pair<UINT, UINT> minMaxPair )
 {
@@ -223,7 +225,7 @@ void PictureManager::drawPicture(CDC* deviceContext, int pictureNumber, std::vec
 	{
 		pictures[pictureNumber].drawGrid(deviceContext, gridBrush);
 	}
-}
+}*/
 
 void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc)
 {

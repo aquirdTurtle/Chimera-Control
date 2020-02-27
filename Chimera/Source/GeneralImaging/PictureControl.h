@@ -25,8 +25,9 @@ class PictureControl
 		void drawPicNum(CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
-		void drawBitmap (CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo);
 		void setSliderControlLocs(CWnd* parent);
+		void drawBitmap (CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
+						 bool specialMin, bool specialMax);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData,
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
 		void setSliderPositions(UINT min, UINT max);
@@ -65,7 +66,6 @@ class PictureControl
 		bool mostRecentSpecialMaxSetting;
 		POINT mouseCoordinates;
 		// for replotting.
-		std::vector<long> mostRecentImage;
 		Matrix<long> mostRecentImage_m;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.

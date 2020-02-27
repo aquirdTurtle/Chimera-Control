@@ -110,6 +110,7 @@ class ScriptingWindow : public CDialog
 		
 		void passNiawgIsOnPress ();
 		void setNiawgRunningState (bool newRunningState);
+		void handleControlNiawgCheck ();
 		void loadCameraCalSettings (ExperimentThreadInput* input);
 		bool niawgIsRunning ();
 		void stopRearranger ();

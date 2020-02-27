@@ -491,7 +491,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	// need to call this before acquireImageData().
 	andor.updatePictureNumber( picNum );
 
-	std::vector<std::vector<long>> picData;
+	std::vector<Matrix<long>> picData;
 	try
 	{
 		picData = andor.acquireImageData(mainWin->getComm());
@@ -501,11 +501,8 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm( )->sendError( err.trace( ) );
 		return NULL;
 	}
-	avgBackground.resize( picData.back( ).size( ) );
-	for ( unsigned int i = 0; i < avgBackground.size( ); i++ )
-	{
-		avgBackground[i] += picData.back( )[i];
-	}
+	avgBackground = Matrix<long>( picData.back( ).getRows(), picData.back ().getCols () );
+	avgBackground = picData.back ();
 	SmartDC sdc (this);
 	try
 	{
@@ -515,10 +512,9 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 			for ( auto data : picData )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
-									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
+				minMax = stats.update( data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-				pics.drawPicture( sdc.get(), counter, data, minMax );
+				pics.drawBitmap( sdc.get(), data, minMax, counter );
 				pics.drawDongles( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs( ),
 								  analysisHandler.getGrids( ), picNum, false );
 				counter++;
@@ -564,11 +560,10 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			//								  "camera window record?!?!?!?!?" );
 		}
 	}
-
 	// need to call this before acquireImageData().
 	andor.updatePictureNumber( picNum );
 	
-	std::vector<std::vector<long>> rawPicData;
+	std::vector<Matrix<long>> rawPicData;
 	try
 	{
 		rawPicData = andor.acquireImageData(mainWin->getComm ());
@@ -578,14 +573,15 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm()->sendError( err.trace() );
 		return NULL;
 	}
-	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
+	std::vector<Matrix<long>> calPicData( rawPicData.size( ) );
 	if ( andorSettingsCtrl.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
 	{
-		for ( UINT picInc = 0; picInc < rawPicData.size(); picInc++ )
+		for (auto picInc : range(rawPicData.size()))
 		{
-			for ( UINT pixInc = 0; pixInc < rawPicData[picInc].size( ); pixInc++ )
+			calPicData[picInc] = Matrix<long> (rawPicData[picInc].getRows (), rawPicData[picInc].getCols (), 0);
+			for (auto pixInc : range(rawPicData[picInc].size ()))
 			{
-				calPicData[picInc].push_back( rawPicData[picInc][pixInc] - avgBackground[pixInc] );
+				calPicData[picInc].data[pixInc] = ( rawPicData[picInc].data[pixInc] - avgBackground.data[pixInc] );
 			}
 		}
 	}
@@ -609,10 +605,10 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
-								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
 								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-			pics.drawPicture( sdc.get (), picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
+			//pics.drawPicture( sdc.get (), picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
+			pics.drawBitmap(sdc.get (), picsToDraw.back (), minMax, picNum % curSettings.picsPerRepetition);
 
 			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
 						  curSettings.totalVariations, curSettings.picsPerRepetition );
@@ -623,8 +619,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			for ( auto data : picsToDraw )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update ( data, counter, selectedPixel, curSettings.imageSettings.width ( ),
-										curSettings.imageSettings.height ( ), picNum / curSettings.picsPerRepetition,
+				minMax = stats.update ( data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 										curSettings.totalPicsInExperiment ( ) / curSettings.picsPerRepetition );
 				if ( minMax.second > 50000 )
 				{
@@ -644,7 +639,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 				{
 					numExcessCounts = 0;
 				}
-				pics.drawPicture( sdc.get (), counter, data, minMax );
+				pics.drawBitmap( sdc.get (), data, minMax, counter );
 				pics.drawDongles( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs(),
 								  analysisHandler.getGrids(), picNum, analysisHandler.getDrawGridOption() );
 				counter++;
@@ -1215,9 +1210,8 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	// biggest check here, camera settings includes a lot of things.
 	andorSettingsCtrl.checkIfReady( );
 	// reset the image which is about to be calibrated.
-	avgBackground.clear( );
+	avgBackground = Matrix<long> (0, 0);
 	/// start the camera.
-	//andor.setSettings( input.AndorSettings );
 	andor.setCalibrating(true);
 }
 
@@ -1524,7 +1518,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 			input->catchPicTime->push_back( chronoClock::now( ) );
 		}
 		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
-		imageQueue tempImagePixels( gridSize );
+		PixListQueue tempImagePixels( gridSize );
 		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
 		atomQueue tempAtomArray( gridSize );
 		for (auto gridInc : range(gridSize))
@@ -1556,7 +1550,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 					}
 					else
 					{
-						tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
+						tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image.data[pixelIndex];
 					}
 				}
 			}

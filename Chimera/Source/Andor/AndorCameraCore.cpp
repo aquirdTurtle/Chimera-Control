@@ -314,7 +314,7 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime )
  * This function checks for new pictures, if they exist it gets them, and shapes them into the array which holds all of
  * the pictures for a given repetition.
  */
-std::vector<std::vector<long>> AndorCameraCore::acquireImageData (Communicator* comm)
+std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 {
 	try
 	{
@@ -332,11 +332,12 @@ std::vector<std::vector<long>> AndorCameraCore::acquireImageData (Communicator* 
 			: (((currentPictureNumber - 1) % runSettings.totalPicsInVariation ()) % runSettings.picsPerRepetition);
 		if (experimentPictureNumber == 0)
 		{
-			imagesOfExperiment.clear ();
-			imagesOfExperiment.resize (runSettings.showPicsInRealTime ? 1 : runSettings.picsPerRepetition);
+			repImages.clear ();
+			repImages.resize (runSettings.showPicsInRealTime ? 1 : runSettings.picsPerRepetition);
 		}
-		std::vector<long> tempImage(runSettings.imageSettings.size (),0);
-		imagesOfExperiment[experimentPictureNumber].resize (runSettings.imageSettings.size ());
+		auto& imSettings = runSettings.imageSettings;
+		Matrix<long> tempImage (imSettings.height (), imSettings.width (), 0);
+		repImages[experimentPictureNumber] = Matrix<long> (imSettings.height (), imSettings.width (), 0);
 		if (!safemode)
 		{
 			try
@@ -349,45 +350,50 @@ std::vector<std::vector<long>> AndorCameraCore::acquireImageData (Communicator* 
 				//throwNested ("Error while calling getOldestImage.");
 			}
 			// immediately rotate
-			for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size (); imageVecInc++)
+			for (auto imageVecInc : range(repImages[experimentPictureNumber].size ()))
 			{
-				imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc
-					% runSettings.imageSettings.width ()) + 1) * runSettings.imageSettings.height ()
-					- imageVecInc / runSettings.imageSettings.width () - 1];
+				repImages[experimentPictureNumber].data[imageVecInc] = tempImage.data[((imageVecInc
+					% imSettings.width ()) + 1) * imSettings.height () - imageVecInc / imSettings.width () - 1];
 			}
 		}
 		else
 		{
-			for (auto imageVecInc : range (imagesOfExperiment[experimentPictureNumber].size ()))
+			for (auto imageVecInc : range (repImages[experimentPictureNumber].size ()))
 			{
 				std::random_device rd;
 				std::mt19937 e2 (rd ());
 				std::normal_distribution<> dist (180, 20);
 				std::normal_distribution<> dist2 (350, 100);
-				tempImage[imageVecInc] = dist (e2) + 10;
-				if (((imageVecInc / runSettings.imageSettings.width ()) % 2 == 1)
-					&& ((imageVecInc % runSettings.imageSettings.width ()) % 2 == 1))
+				tempImage.data[imageVecInc] = dist (e2) + 10;
+				if (((imageVecInc / imSettings.width ()) % 2 == 1) && ((imageVecInc % imSettings.width ()) % 2 == 1))
 				{
 					// can have an atom here.
 					if (UINT (rand ()) % 300 > imageVecInc + 50)
 					{
 						// use the exposure time and em gain level 
-						tempImage[imageVecInc] += runSettings.exposureTimes[experimentPictureNumber] * 1e3 * dist2 (e2);
+						tempImage.data[imageVecInc] += runSettings.exposureTimes[experimentPictureNumber] * 1e3 * dist2 (e2);
 						if (runSettings.emGainModeIsOn)
 						{
-							tempImage[imageVecInc] *= runSettings.emGainLevel;
+							tempImage.data[imageVecInc] *= runSettings.emGainLevel;
 						}
 					}
 				}
 			}
-			for (auto imageVecInc : range (imagesOfExperiment[experimentPictureNumber].size ()))
+			// rotation matrix:
+			// R = [0, -1; 1, 0] -> R(x,y) => (-y, x)
+			// (x,y) => (h-x, x)
+			auto& ims = runSettings.imageSettings;
+			for (auto rowI : range (repImages[experimentPictureNumber].getRows ()))
 			{
-				auto& ims = runSettings.imageSettings;
-				imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % ims.width ()) + 1) * ims.height ()
-					- imageVecInc / ims.width () - 1];
+				for (auto colI : range (repImages[experimentPictureNumber].getCols ()))
+				{
+					repImages[experimentPictureNumber] (rowI, colI) = tempImage (tempImage.getRows()-colI, rowI);
+						//.data[((imageVecInc % ims.width ()) + 1) * ims.height ()
+						//- imageVecInc / ims.width () - 1];
+				}
 			}
 		}
-		return imagesOfExperiment;
+		return repImages;
 	}
 	catch (Error &)
 	{

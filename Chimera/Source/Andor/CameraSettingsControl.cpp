@@ -768,9 +768,9 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& con
 }
 
 
-std::vector<std::vector<long>> AndorCameraSettingsControl::getImagesToDraw ( const std::vector<std::vector<long>>& rawData )
+std::vector<Matrix<long>> AndorCameraSettingsControl::getImagesToDraw ( const std::vector<Matrix<long>>& rawData )
 {
-	std::vector<std::vector<long>> imagesToDraw ( rawData.size ( ) );
+	std::vector<Matrix<long>> imagesToDraw ( rawData.size ( ) );
 	auto options = picSettingsObj.getDisplayTypeOptions ( );
 	for ( auto picNum : range ( rawData.size ( ) ) )
 	{
@@ -787,10 +787,10 @@ std::vector<std::vector<long>> AndorCameraSettingsControl::getImagesToDraw ( con
 			}
 			else
 			{
-				imagesToDraw[ picNum ].resize ( rawData[ picNum ].size ( ) );
+				imagesToDraw[ picNum ] = Matrix<long>(rawData[picNum].getRows(), rawData[picNum].getCols(), 0);
 				for ( auto i : range ( rawData[ picNum ].size ( ) ) )
 				{
-					imagesToDraw[ picNum ][ i ] = rawData[ picNum ][ i ] - rawData[ options[ picNum ].whichPicForDif - 1 ][ i ];
+					imagesToDraw[ picNum ].data[ i ] = rawData[ picNum ].data[ i ] - rawData[ options[ picNum ].whichPicForDif - 1 ].data[ i ];
 				}
 			}
 		}

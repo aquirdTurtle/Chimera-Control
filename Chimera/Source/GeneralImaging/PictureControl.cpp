@@ -439,20 +439,16 @@ void PictureControl::redrawImage(CDC* easel, bool bkgd)
 	{
 		drawBackground ( easel );
 	}
-	if (active && mostRecentImage.size() != 0)
-	{
-		drawPicture(easel, mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
-					mostRecentSpecialMaxSetting );
-	}
 	if ( active && mostRecentImage_m.size ( ) != 0 )
 	{
-		drawBitmap( easel, mostRecentImage_m, mostRecentAutoscaleInfo );
+		drawBitmap( easel, mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
+			mostRecentSpecialMaxSetting);
 	}
 }
 
 void PictureControl::resetStorage()
 {
-	mostRecentImage = std::vector<long>{};
+	mostRecentImage_m = Matrix<long>(0,0);
 }
 
 
@@ -467,7 +463,8 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
-void PictureControl::drawBitmap (CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo )
+void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo,
+								  bool specialMin, bool specialMax )
 {
 	mostRecentImage_m = picData;
 	unsigned int minColor = sliderMin.getValue ( );
@@ -669,7 +666,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 		}
 		drawData = accumPicLongData;
 	}
-	mostRecentImage = drawData;
+	//mostRecentImage = drawData;
 	// first element containst whether autoscaling or not.
 	if (std::get<0>(autoScaleInfo))
 	{
@@ -816,11 +813,11 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 void PictureControl::setHoverValue( )
 {
 	int loc = (grid.size( ) - 1 - mouseCoordinates.x) * grid.size( ) + mouseCoordinates.y;
-	if ( loc >= mostRecentImage.size( ) )
+	if ( loc >= mostRecentImage_m.size( ) )
 	{
 		return;
 	}
-	valueDisp.SetWindowTextA( cstr( mostRecentImage[loc] ) );
+	valueDisp.SetWindowTextA( cstr( mostRecentImage_m.data[loc] ) );
 }
 
 
@@ -836,7 +833,7 @@ void PictureControl::handleMouse( CPoint p )
 			{
 				coordinatesDisp.SetWindowTextA( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
 				mouseCoordinates = { rowCount, colCount };
-				if ( mostRecentImage.size( ) != 0 && grid.size( ) != 0 )
+				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 )
 				{
 					setHoverValue( );
 				}

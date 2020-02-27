@@ -61,7 +61,7 @@ class AndorCameraSettingsControl
 		void handelSaveMasterConfig(std::stringstream& configFile);
 		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, AndorWindow* camWin);
 
-		std::vector<std::vector<long>> getImagesToDraw( const std::vector<std::vector<long>>& rawData  );
+		std::vector<Matrix<long>> getImagesToDraw( const std::vector<Matrix<long>>& rawData  );
 
 		const imageParameters fullResolution = { 1,512,1,512,1,1 };
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );

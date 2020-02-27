@@ -745,12 +745,6 @@
     <Image Include="icon1.ico">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="C:\Users\Regal Lab\Pictures\boseeinstein.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="Cold_Atoms_Icon.ico">
-      <Filter>Resources</Filter>
-    </Image>
     <Image Include="Atom.ico">
       <Filter>Resources</Filter>
     </Image>

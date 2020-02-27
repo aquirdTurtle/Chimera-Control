@@ -12,12 +12,20 @@ void NiawgSystem::initialize (int& id, POINT& loc, CWnd* parent, cToolTips& tool
 	niawgHeader.fontType = fontTypes::HeadingFont;
 
 	controlNiawg.sPos = { loc.x, loc.y, loc.x + 640, loc.y += 25 };
-	controlNiawg.Create ("Control System?", NORM_CHECK_OPTIONS, controlNiawg.sPos, parent, id++);
+	controlNiawg.Create ("Control System?", NORM_CHECK_OPTIONS, controlNiawg.sPos, parent, IDC_CONTROL_NIAWG_CHECK );
 	controlNiawg.SetCheck (true);
 
 	rearrangeCtrl.initialize (id, loc, parent, tooltips);
 	niawgScript.initialize (640, 400, loc, tooltips, parent, id, "NIAWG", "NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO,
 							IDC_NIAWG_EDIT }, _myRGBs["Interactable-Bkgd"]);
+}
+
+
+void NiawgSystem::updateWindowEnabled ()
+{
+	auto enabled = controlNiawg.GetCheck ();
+	niawgScript.setEnabled (enabled, enabled);
+	rearrangeCtrl.setEnabled (enabled);
 }
 
 

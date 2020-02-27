@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_EN_CHANGE( IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
 
 	ON_COMMAND( IDOK, &ScriptingWindow::catchEnter)
+	ON_COMMAND (IDC_CONTROL_NIAWG_CHECK, &handleControlNiawgCheck)
 
 	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
 	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &ScriptingWindow::handleIntensityCombo )
@@ -49,6 +50,11 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
 END_MESSAGE_MAP()
 
+
+void ScriptingWindow::handleControlNiawgCheck ()
+{
+	niawg.updateWindowEnabled ();
+}
 
 void ScriptingWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 {
@@ -713,6 +719,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		considerScriptLocations ( );
 		recolorScripts ( );
 		niawg.handleOpenConfig (configFile, ver);
+		niawg.updateWindowEnabled ();
 	}
 	catch ( Error& e )
 	{
