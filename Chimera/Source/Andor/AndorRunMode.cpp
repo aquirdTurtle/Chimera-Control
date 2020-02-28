@@ -17,7 +17,7 @@ std::string AndorRunModes::toStr ( AndorRunModes::mode mode )
 	}
 	else if ( mode == AndorRunModes::mode::Accumulate )
 	{
-		return "Accumulate-Mode";
+		return "Accumulation-Mode";
 	}
 	else
 	{

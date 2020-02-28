@@ -14,7 +14,7 @@ class ImageDimsControl
 {
 	public:
 		ImageDimsControl();
-		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
+		void initialize( POINT& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
 		imageParameters readImageParameters();
 		void setImageParametersFromInput( imageParameters param );
 		bool checkReady();
@@ -23,7 +23,7 @@ class ImageDimsControl
 		void handleOpen( std::ifstream& openFile, Version ver );
 		static imageParameters getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver );
 		imageParameters getImageParameters();
-		void rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts );
+		void rearrange( int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
 	private:
 		Control<CStatic> leftText;

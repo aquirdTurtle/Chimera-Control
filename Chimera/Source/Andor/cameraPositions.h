@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #pragma once
 #include "windows.h"
-
+/*
 struct cameraPositions
 {
 	POINT seriesPos;
@@ -9,3 +9,4 @@ struct cameraPositions
 	POINT videoPos;
 	POINT sPos;
 };
+*/
