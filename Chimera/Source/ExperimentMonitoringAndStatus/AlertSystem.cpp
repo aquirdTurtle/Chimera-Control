@@ -8,58 +8,35 @@
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
 #include <boost/lexical_cast.hpp>
 
-void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,
-							  cToolTips& tooltips )
+void AlertSystem::initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& tooltips )
 {
 	alertMessageID = RegisterWindowMessage( "ID_NOT_LOADING_ATOMS" );
-	/// Title
-	title.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	title.videoPos = { -1,-1,-1,-1 };
-	title.triggerModeSensitive = isTriggerModeSensitive;
-	title.Create( "ALERT SYSTEM", NORM_HEADER_OPTIONS, title.seriesPos, parent, id++ );
+
+	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	title.Create( "ALERT SYSTEM", NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
 	title.fontType = fontTypes::HeadingFont;
-	/// Use Alerts Checkbox
-	atomsAlertActiveCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
-	atomsAlertActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
-	atomsAlertActiveCheckBox.videoPos = { -1,-1,-1,-1 };
-	atomsAlertActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
-	atomsAlertActiveCheckBox.Create( "If No Atoms?", NORM_CHECK_OPTIONS, atomsAlertActiveCheckBox.seriesPos, parent, id++ );
+	
+	atomsAlertActiveCheckBox.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 20 };
+	atomsAlertActiveCheckBox.Create( "If No Atoms?", NORM_CHECK_OPTIONS, atomsAlertActiveCheckBox.sPos, parent, id++ );
 	atomsAlertActiveCheckBox.SetCheck( false );
-	//
-	motAlertActiveCheckBox.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 20 };
-	motAlertActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
-	motAlertActiveCheckBox.videoPos = { -1,-1,-1,-1 };
-	motAlertActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
-	motAlertActiveCheckBox.Create ( "If No MOT?", NORM_CHECK_OPTIONS, motAlertActiveCheckBox.seriesPos, parent, id++ );
+	
+	motAlertActiveCheckBox.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 20 };
+	motAlertActiveCheckBox.Create ( "If No MOT?", NORM_CHECK_OPTIONS, motAlertActiveCheckBox.sPos, parent, id++ );
 	motAlertActiveCheckBox.SetCheck ( true );
-	/// Alert threshold text
-	alertThresholdText.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 360, pos.seriesPos.y + 20 };
-	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
-	alertThresholdText.videoPos = { -1,-1,-1,-1 };
-	alertThresholdText.triggerModeSensitive = isTriggerModeSensitive;
-	alertThresholdText.Create( "Alert Threshold:", NORM_STATIC_OPTIONS, alertThresholdText.seriesPos, parent, id++ );
-	/// Alert threshold edit
-	alertThresholdEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
-	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
-	alertThresholdEdit.videoPos = { -1,-1,-1,-1 };
-	alertThresholdEdit.triggerModeSensitive = isTriggerModeSensitive;
-	alertThresholdEdit.Create( NORM_EDIT_OPTIONS, alertThresholdEdit.seriesPos, parent, id++ );
+	
+	alertThresholdText.sPos = { pos.x+240, pos.y, pos.x + 360, pos.y + 20 };
+	alertThresholdText.Create( "Alert Threshold:", NORM_STATIC_OPTIONS, alertThresholdText.sPos, parent, id++ );
+	
+	alertThresholdEdit.sPos = { pos.x + 320, pos.y, pos.x + 480, pos.y += 20 };
+	alertThresholdEdit.Create( NORM_EDIT_OPTIONS, alertThresholdEdit.sPos, parent, id++ );
 	alertThresholdEdit.SetWindowTextA( "10" );
 
-	autoPauseAtAlert.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 20 };
-	autoPauseAtAlert.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
-	autoPauseAtAlert.videoPos = { -1,-1,-1,-1 };
-	autoPauseAtAlert.triggerModeSensitive = isTriggerModeSensitive;
-	autoPauseAtAlert.Create( "Automatically Pause on alert?", NORM_CHECK_OPTIONS, autoPauseAtAlert.seriesPos, parent,
-							 id++ );
+	autoPauseAtAlert.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 20 };
+	autoPauseAtAlert.Create( "Automatically Pause on alert?", NORM_CHECK_OPTIONS, autoPauseAtAlert.sPos, parent, id++ );
 	autoPauseAtAlert.SetCheck( true );
 	/// Sound checkbox
-	soundAtFinshCheck.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
-	soundAtFinshCheck.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
-	soundAtFinshCheck.videoPos = { -1,-1,-1,-1 };
-	soundAtFinshCheck.triggerModeSensitive = isTriggerModeSensitive;
-	soundAtFinshCheck.Create( "Play Sound at Finish?", NORM_CHECK_OPTIONS, soundAtFinshCheck.seriesPos, parent, id++ );
+	soundAtFinishCheck.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 20 };
+	soundAtFinishCheck.Create( "Play Sound at Finish?", NORM_CHECK_OPTIONS, soundAtFinishCheck.sPos, parent, id++ );
 }
 
 
@@ -125,16 +102,15 @@ void AlertSystem::soundAlert()
 }
 
 
-void AlertSystem::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
-							 fontMap fonts)
+void AlertSystem::rearrange( int width, int height, fontMap fonts)
 {
-	autoPauseAtAlert.rearrange( cameraMode, triggerMode, width, height, fonts );
-	title.rearrange(cameraMode, triggerMode, width, height, fonts);
-	atomsAlertActiveCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
-	alertThresholdText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	alertThresholdEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	soundAtFinshCheck.rearrange(cameraMode, triggerMode, width, height, fonts);
-	motAlertActiveCheckBox.rearrange ( cameraMode, triggerMode, width, height, fonts );
+	autoPauseAtAlert.rearrange(  width, height, fonts );
+	title.rearrange(width, height, fonts);
+	atomsAlertActiveCheckBox.rearrange(width, height, fonts);
+	alertThresholdText.rearrange(width, height, fonts);
+	alertThresholdEdit.rearrange(width, height, fonts);
+	soundAtFinishCheck.rearrange(width, height, fonts);
+	motAlertActiveCheckBox.rearrange ( width, height, fonts );
 }
 
 
@@ -170,5 +146,5 @@ void AlertSystem::stopSound()
 
 bool AlertSystem::soundIsToBePlayed()
 {
-	return soundAtFinshCheck.GetCheck();
+	return soundAtFinishCheck.GetCheck();
 }

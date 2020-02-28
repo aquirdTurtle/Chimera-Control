@@ -1142,12 +1142,11 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	{
 		SetRedraw ( false );
 		auto settings = andor.getAndorRunSettings ();
-		//auto settings = andorSettingsCtrl.getSettings ( ).andor;
-		andorSettingsCtrl.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
-		alerts.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
-		analysisHandler.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		andorSettingsCtrl.rearrange ( cx, cy, mainWin->getFonts ( ) );
+		alerts.rearrange ( cx, cy, mainWin->getFonts ( ) );
+		analysisHandler.rearrange ( cx, cy, mainWin->getFonts ( ) );
 		pics.setParameters ( settings.imageSettings );
-		timer.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		timer.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	}
 	catch ( Error& err )
 	{
@@ -1718,17 +1717,15 @@ BOOL AndorWindow::OnInitDialog ( )
 	// don't redraw until the first OnSize.
 	SetRedraw ( false );
 	andor.initializeClass ( mainWin->getComm ( ), &imageTimes );
-	cameraPositions positions;
+	POINT position = { 0,0 };
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	positions.sPos = { 0, 0 };
-	box.initialize ( positions.sPos, id, this, 480, tooltips );
-	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
+	box.initialize (position, id, this, 480, tooltips );
 	alerts.alertMainThread ( 0 );
-	alerts.initialize ( positions, this, false, id, tooltips );
-	analysisHandler.initialize ( positions, id, this, tooltips, false );
-	andorSettingsCtrl.initialize ( positions, id, this, tooltips );
-	POINT position = { 480, 0 };
+	alerts.initialize (position, this, false, id, tooltips );
+	analysisHandler.initialize (position, id, this, tooltips );
+	andorSettingsCtrl.initialize (position, id, this, tooltips );
+	position = { 480, 0 };
 	stats.initialize ( position, this, id, tooltips );
 	for (auto pltInc : range (6))
 	{
@@ -1737,8 +1734,8 @@ BOOL AndorWindow::OnInitDialog ( )
 			mainWin->getPlotFont (), mainWin->getPlotBrushes (), { 0,0,0,0 }, "INACTIVE", false, false));
 		mainAnalysisPlots.back ()->init (position, 315, 130, this, plotIds++);
 	}
-	positions.sPos = { 797, 0 };
-	timer.initialize ( positions, this, false, id, tooltips );
+	position = { 797, 0 };
+	timer.initialize (position, this, false, id, tooltips );
 	position = { 797, 40 };
 	pics.initialize ( position, this, id, _myBrushes[ "Dark Green" ], 550 * 2, 460 * 2 + 5, 
 					 { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT,
