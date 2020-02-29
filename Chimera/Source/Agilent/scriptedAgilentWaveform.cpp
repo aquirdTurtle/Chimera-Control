@@ -3,6 +3,7 @@
 #include "Agilent/Agilent.h"
 #include "scriptedAgilentWaveform.h"
 #include "Scripts/ScriptStream.h"
+#include "ExperimentThread/ExperimentThreadManager.h"
 
 
 ScriptedAgilentWaveform::ScriptedAgilentWaveform()
@@ -23,79 +24,79 @@ void ScriptedAgilentWaveform::resetNumberOfTriggers( )
 * script: this is the object to be read from.
 */
 bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script, 
-														   std::vector<parameterType>& variables )
+														   std::vector<parameterType>& params,
+															std::string& warnings )
 {
-	std::string scope = NO_PARAMETER_SCOPE;
+	std::string scope = AGILENT_PARAMETER_SCOPE;
 	segmentInfoInput workingInput;
-	std::string intensityCommand;
+	std::string word;
 	if (script.peek() == EOF)
 	{
 		return true;
 	}
 	// Grab the command type (e.g. ramp, const). Looks for newline by default.
-	script >> intensityCommand;
+	script >> word;
 	try
 	{
-		if ( intensityCommand == "hold" )
+		if (ExperimentThreadManager::handleVariableDeclaration(word, script, params, scope, warnings))
 		{
-			waveformSegments.resize ( segNum + 1 );
-
+			return false;
+		}
+		else if ( word == "hold" )
+		{
 			workingInput.ramp.isRamp = false;
 			workingInput.pulse.isPulse = false;
 			workingInput.mod.modulationIsOn = false;
 
 			script >> workingInput.holdVal;
-			workingInput.holdVal.assertValid ( variables, scope );
+			workingInput.holdVal.assertValid ( params, scope );
 		}
-		else if ( intensityCommand == "ramp" )
+		else if ( word == "ramp" )
 		{
-			waveformSegments.resize ( segNum + 1 );
 			// this segment type means ramping.
 			workingInput.ramp.isRamp = true;
 			workingInput.pulse.isPulse = false;
 			workingInput.mod.modulationIsOn = false;
 			script >> workingInput.ramp.type;
 			script >> workingInput.ramp.start;
-			workingInput.ramp.start.assertValid ( variables, scope );
+			workingInput.ramp.start.assertValid ( params, scope );
 			script >> workingInput.ramp.end;
-			workingInput.ramp.end.assertValid ( variables, scope );
+			workingInput.ramp.end.assertValid ( params, scope );
 		}
-		else if ( intensityCommand == "pulse" )
+		else if ( word == "pulse" )
 		{
-			waveformSegments.resize ( segNum + 1 );
 			workingInput.ramp.isRamp = false;
 			workingInput.pulse.isPulse = true;
 			workingInput.mod.modulationIsOn = false;
 			script >> workingInput.pulse.type;
 			script >> workingInput.pulse.vOffset;
-			workingInput.pulse.vOffset.assertValid ( variables, scope );
+			workingInput.pulse.vOffset.assertValid ( params, scope );
 			script >> workingInput.pulse.amplitude;
-			workingInput.pulse.amplitude.assertValid ( variables, scope );
+			workingInput.pulse.amplitude.assertValid ( params, scope );
 			script >> workingInput.pulse.width;
-			workingInput.pulse.width.assertValid ( variables, scope );
+			workingInput.pulse.width.assertValid ( params, scope );
 			script >> workingInput.pulse.tOffset;
-			workingInput.pulse.tOffset.assertValid ( variables, scope );
+			workingInput.pulse.tOffset.assertValid ( params, scope );
 		}
-		else if ( intensityCommand == "modpulse" )
+		else if ( word == "modpulse" )
 		{
-			waveformSegments.resize ( segNum + 1 );
 			workingInput.ramp.isRamp = false;
 			workingInput.pulse.isPulse = true;
 			workingInput.mod.modulationIsOn = true;
 			script >> workingInput.pulse.type;
 			script >> workingInput.pulse.vOffset;
-			workingInput.pulse.vOffset.assertValid ( variables, scope );
+			workingInput.pulse.vOffset.assertValid ( params, scope );
 			script >> workingInput.pulse.amplitude;
-			workingInput.pulse.amplitude.assertValid ( variables, scope );
+			workingInput.pulse.amplitude.assertValid ( params, scope );
 			script >> workingInput.pulse.width;
-			workingInput.pulse.width.assertValid ( variables, scope );
+			workingInput.pulse.width.assertValid ( params, scope );
 			script >> workingInput.pulse.tOffset;
-			workingInput.pulse.tOffset.assertValid ( variables, scope );
+			workingInput.pulse.tOffset.assertValid ( params, scope );
 			// mod stuff
 			script >> workingInput.mod.frequency;
-			workingInput.mod.frequency.assertValid ( variables, scope );
+			workingInput.mod.frequency.assertValid ( params, scope );
 			script >> workingInput.mod.phase;
-			workingInput.mod.phase.assertValid ( variables, scope );
+			workingInput.mod.phase.assertValid ( params, scope );
 		}
 		else
 		{
@@ -103,7 +104,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			{
 				return true;
 			}
-			thrower ( "Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
+			thrower ( "Agilent Script command not recognized. The command was \"" + word + "\"" );
 		}
 	}
 	catch ( Error& )
@@ -111,7 +112,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		throwNested ("Error seen while analyzing scripted agilent waveform." );
 	}
 	script >> workingInput.time;
-	workingInput.time.assertValid( variables, scope );
+	workingInput.time.assertValid( params, scope );
 
 	std::string tempContinuationType;
 	script >> tempContinuationType;
@@ -119,7 +120,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	{
 		// There is an extra input in this case.
 		script >> workingInput.repeatNum;
-		workingInput.repeatNum.assertValid( variables, scope );
+		workingInput.repeatNum.assertValid( params, scope );
 	}
 	else
 	{
@@ -139,7 +140,8 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	}
 	workingInput.continuationType = SegmentEnd::fromStr ( tempContinuationType );
 	numberOfTriggers += SegmentEnd::invovlesTrig ( workingInput.continuationType );
-	waveformSegments[segNum].storeInput( workingInput );
+	waveformSegments.resize (waveformSegments.size () + 1);
+	waveformSegments.back().storeInput( workingInput );
 	return false;
 }
 

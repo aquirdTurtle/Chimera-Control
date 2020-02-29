@@ -398,7 +398,7 @@ constexpr auto IDC_RERNG_MODE_COMBO = 12014;
 
 constexpr auto IDC_CONTROL_NIAWG_CHECK = 12015;
 
-// Camera Window
+// Andor Window
 constexpr auto IDC_ALERT_ON_NO_ATOMS = 23001;
 constexpr auto IDC_SET_ANALYSIS_LOCATIONS = 23002;
 constexpr auto IDC_SET_GRID_CORNER = 23003;
