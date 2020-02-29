@@ -226,8 +226,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				{
 					if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
 					{
-						agilent.analyzeAgilentScript (agilentRunInfo[agInc].channel[channelInc].scriptedArb,
-							seqVariables);
+						agilent.analyzeAgilentScript ( agilentRunInfo[agInc].channel[channelInc].scriptedArb,
+													   seqVariables, warnings );
 					}
 				}
 			}
@@ -642,13 +642,11 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		{}
 		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
 		{}
-		/// callcppcode function
 		else if ( word == "callcppcode" )
 		{
 			// and that's it... 
 			callCppCodeFunction ( );
 		}
-		/// deal with ttl commands
 		else if ( word == "loadskipentrypoint!" )
 		{
 			loadSkipFound = true;
@@ -659,7 +657,6 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		{
 			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
-		/// deal with function calls.
 		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, seqNum,
 									   warnings, PARENT_PARAMETER_SCOPE, operationTime ) )
 		{ }

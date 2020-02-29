@@ -26,7 +26,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 		- DAC Values
 		- DAC Min/Max Values
 		- global Variables
-		- Camera View?
+		- Andor View?
 	*/
 	// make sure that file exists
 	FILE *file;

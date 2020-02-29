@@ -14,7 +14,7 @@ enum class System
 {
 	Niawg,
 	Master,
-	Camera,
+	Andor,
 	Basler
 };
 

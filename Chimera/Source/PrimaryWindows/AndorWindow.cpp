@@ -742,7 +742,7 @@ LRESULT AndorWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 	andor.pauseThread( );
 	andor.setCalibrating( false );
 	justCalibrated = true;
-	mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
+	mainWin->getComm( )->sendColorBox( System::Andor, 'B' );
 	andorSettingsCtrl.cameraIsOn( false );
 	// normalize.
 	for ( auto& p : avgBackground )
@@ -786,8 +786,8 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
-	//mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
+	mainWin->getComm()->sendColorBox( System::Andor, 'B' );
+	//mainWin->getComm()->sendStatus( "Andor has finished taking pictures and is no longer running.\r\n" );
 	andorSettingsCtrl.cameraIsOn( false );
 	// rearranger thread handles these right now.
 	mainThreadStartTimes.clear();
@@ -1872,7 +1872,7 @@ void AndorWindow::readImageParameters()
 	catch (Error& exception)
 	{
 		Communicator* comm = mainWin->getComm();
-		comm->sendColorBox( System::Camera, 'R' );
+		comm->sendColorBox( System::Andor, 'R' );
 		comm->sendError( exception.trace() + "\r\n" );
 	}
 	SmartDC sdc (this);
