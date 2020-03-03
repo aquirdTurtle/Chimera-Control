@@ -314,6 +314,11 @@
     <ClCompile Include="Source\NIAWG\NiawgCore.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
+    <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
+    <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
+    <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\DeformableMirrorWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -737,6 +742,12 @@
     <ClInclude Include="Source\NIAWG\NiawgCore.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DeformableMirror\DmControl.h" />
+    <ClInclude Include="Source\DeformableMirror\DmCore.h" />
+    <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
+    <ClInclude Include="Source\DeformableMirror\DmOutputForm.h" />
+    <ClInclude Include="Source\DeformableMirror\DmProfileCreator.h" />
+    <ClInclude Include="Source\PrimaryWindows\DeformableMirrorWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

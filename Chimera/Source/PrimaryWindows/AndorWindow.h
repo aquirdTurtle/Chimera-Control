@@ -21,6 +21,7 @@ class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class DeformableMirrorWindow;
 
 
 class AndorWindow : public CDialog
@@ -74,7 +75,7 @@ class AndorWindow : public CDialog
 		DataLogger& getLogger();
 		std::string getSystemStatusString();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
-						  BaslerWindow* basWin);
+						  BaslerWindow* basWin, DeformableMirrorWindow* dmWindow);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);
@@ -101,7 +102,7 @@ class AndorWindow : public CDialog
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
 														  ScriptingWindow* scriptWin, AndorWindow* camWin, 
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, DeformableMirrorWindow* dmWin );
 		void passAtomGridCombo( );
 		void passDelGrid( );
 		void startAtomCruncher(AllExperimentInput& input);
@@ -150,6 +151,7 @@ class AndorWindow : public CDialog
 		ScriptingWindow* scriptWin;
 		AuxiliaryWindow* auxWin;
 		BaslerWindow* basWin;
+		DeformableMirrorWindow* dmWin;
 
 		cToolTips tooltips;
 		coordinate selectedPixel = { 0,0 };

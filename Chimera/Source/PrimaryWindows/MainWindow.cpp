@@ -1,14 +1,18 @@
 #include "stdafx.h"
-#include "GeneralUtilityFunctions/commonFunctions.h"
+
 #include "MainWindow.h"
 #include "AndorWindow.h"
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
-#include <future>
+#include "DeformableMirrorWindow.h"
+
+#include "GeneralUtilityFunctions/commonFunctions.h"
 #include "LowLevel/externals.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
 #include "ExperimentThread/Communicator.h"
+
+#include <future>
 
 
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
@@ -66,7 +70,6 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainFonts["Very Larger Font Large"] = new CFont)
 		->CreateFontA( 60, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-
 	//
 	(mainFonts["Smaller Font Med"] = new CFont)
 		->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
@@ -249,7 +252,7 @@ void MainWindow::onAutoCalFin ()
 	else
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F11, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
 	}
 }
 
@@ -262,7 +265,7 @@ void MainWindow::onMachineOptRoundFin (  )
 	Sleep ( 1000 );
 	// then restart.
 	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, this, TheScriptingWindow, TheAndorWindow, 
-										   TheAuxiliaryWindow, TheBaslerWindow );
+										   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
 }
 
 
@@ -473,6 +476,8 @@ BOOL MainWindow::OnInitDialog( )
 		TheAuxiliaryWindow = new AuxiliaryWindow;
 		which = "Basler";
 		TheBaslerWindow = new BaslerWindow;
+		which = "DmWin";
+		TheDmWindow = new DeformableMirrorWindow;
 	}
 	catch ( Error& err )
 	{
@@ -480,10 +485,11 @@ BOOL MainWindow::OnInitDialog( )
 		forceExit ( );
 		return -1;
 	}
-	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
-	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow );
-	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow );
-	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
+	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
+	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
+	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow, TheDmWindow );
+	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheDmWindow );
+	TheDmWindow->loadFriends (this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
 	startupTimes.push_back(chronoClock::now());
 	try
 	{
@@ -492,6 +498,7 @@ BOOL MainWindow::OnInitDialog( )
 		TheAndorWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheBaslerWindow->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
+		TheDmWindow->Create (IDD_LARGE_TEMPLATE, GetDesktopWindow ());
 	}
 	catch ( Error& err )
 	{
@@ -544,12 +551,16 @@ BOOL MainWindow::OnInitDialog( )
 	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
 	// for some reason without this the main window was defaulting to topmost. 
-	SetWindowPos (&wndNoTopMost, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
+	SetWindowPos (&wndBottom, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
+	
 	TheAndorWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
 	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
-	std::vector<CDialog*> windows = { TheBaslerWindow, NULL, TheAndorWindow, this, TheScriptingWindow, TheAuxiliaryWindow };
+	TheDmWindow->ShowWindow (SW_MAXIMIZE);
+
+	std::vector<CDialog*> windows = { TheBaslerWindow, NULL, TheAndorWindow, this, TheScriptingWindow, 
+									  TheAuxiliaryWindow, TheDmWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
@@ -586,10 +597,10 @@ BOOL MainWindow::OnInitDialog( )
 	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL);
 	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
 	//
-
 	updateConfigurationSavedStatus( true );
 	return TRUE;
 }
+
 
 void MainWindow::showHardwareStatus ( )
 {
@@ -883,7 +894,7 @@ void MainWindow::passCommonCommand(UINT id)
 	try
 	{
 		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheAndorWindow, 
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
 	}
 	catch (Error& exception)
 	{
@@ -1178,7 +1189,7 @@ void MainWindow::onNormalFinishMessage()
 	if ( autoF5_AfterFinish )
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
 		autoF5_AfterFinish = false;
 	}
 }

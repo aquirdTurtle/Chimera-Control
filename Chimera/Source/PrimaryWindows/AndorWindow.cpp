@@ -324,12 +324,13 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 
 
 void AndorWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
-								BaslerWindow* basWin_)
+								BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	auxWin = auxWin_;
 	basWin = basWin_;
+	dmWin = dmWindow;
 }
 
 
@@ -631,7 +632,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 						// This can happen if a laser, particularly the axial raman laser, is left on during an image.
 						// cosmic rays may occasionally trip it as well.
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F2, this, mainWin, scriptWin, this,
-							auxWin, basWin);
+							auxWin, basWin, dmWin);
 						errBox ("EXCCESSIVE CAMERA COUNTS DETECTED!!!");
 					}
 				}
@@ -999,7 +1000,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
 					try
 					{
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this, mainWin, scriptWin, this, auxWin,
-															  basWin);
+															  basWin, dmWin);
 					}
 					catch (Error& err)
 					{
@@ -1841,7 +1842,7 @@ void AndorWindow::passCommonCommand(UINT id)
 {
 	try
 	{
-		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, auxWin, basWin );
+		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, auxWin, basWin, dmWin );
 	}
 	catch (Error& err)
 	{
