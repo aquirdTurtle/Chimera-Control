@@ -84,6 +84,8 @@
 #ifdef SPECTRE_LAPTOP
 	using MICROWAVE_FLUME = WindFreakFlume;
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
+	constexpr auto DM_SERIAL = "25CW012#060";
+	constexpr bool DM_SAFEMODE = true;
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
 	constexpr bool AUTO_CALIBRATE = false;
 	constexpr bool DOFTDI_SAFEMODE = true;
@@ -119,6 +121,8 @@
 	constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
+	const std::string DM_PROFILES_LOCATION = PROJECT_LOCATION + "DM-Library";
+	const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + +"\\25CW012#060_CLOSED_LOOP_COMMANDS.txt";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Chimera";
 	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Data_Analysis_Code\\";
 	// same as debug output location but with forward slashes for ease of use in python
@@ -548,6 +552,13 @@ constexpr auto ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID = 17001;
 // 17002 - 17008 are the dac / ttl plots on the aux window.
 // 17009-17014 are the andor window analysis plots
 constexpr auto ID_PLOT_POP_IDS_END = 17015;
+
+///Auxiliary Window 2
+constexpr auto IDC_DM_PROGRAMNOW = 18000;
+constexpr auto IDC_DM_EDIT_START = 18001;
+constexpr auto IDC_DM_EDIT_END = 18138;
+constexpr auto IDC_DM_PROFILE_COMBO = 18150;
+constexpr auto IDC_DM_ADD_ZERNIKE = 18160;
 
 
 constexpr auto MASTER_SCRIPT_EXTENSION = "mScript";

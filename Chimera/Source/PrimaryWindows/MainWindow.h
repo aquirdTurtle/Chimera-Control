@@ -26,6 +26,7 @@ class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class DeformableMirrorWindow;
 
 struct scopeRefreshInput 
 {
@@ -153,6 +154,7 @@ class MainWindow : public CDialog
 		AndorWindow* TheAndorWindow = NULL;
 		AuxiliaryWindow* TheAuxiliaryWindow = NULL;
 		BaslerWindow* TheBaslerWindow = NULL;
+		DeformableMirrorWindow* TheDmWindow = NULL;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -186,7 +188,8 @@ class MainWindow : public CDialog
  		// friends (try to minimize these)
  		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
  														  ScriptingWindow* scriptWin, AndorWindow* camWin,
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, 
+														  DeformableMirrorWindow* auxWin2);
 		UINT autoCalNum = 0;
 };
 

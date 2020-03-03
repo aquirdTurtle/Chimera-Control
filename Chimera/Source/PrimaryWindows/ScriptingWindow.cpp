@@ -362,12 +362,14 @@ void ScriptingWindow::streamNiawgWaveform ()
 }
 
 
-void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_)
+void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, 
+	BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
 {
 	mainWin = mainWin_;
 	camWin = camWin_;
 	auxWin = auxWin_;
 	basWin = basWin_;
+	dmWin = dmWindow;
 }
 
 /*
@@ -868,7 +870,7 @@ void ScriptingWindow::considerScriptLocations()
 void ScriptingWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin );
+	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin, dmWin );
 }
 
 

@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "AndorWindow.h"
 #include "ScriptingWindow.h"
+#include "DeformableMirrorWindow.h"
 
 #include "afxdialogex.h"
 
@@ -89,19 +90,20 @@ baslerSettings BaslerWindow::getCurrentSettings ( )
 
 
 void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								 AuxiliaryWindow* auxWin_ )
+								 AuxiliaryWindow* auxWin_, DeformableMirrorWindow* dmWindow )
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	camWin = camWin_;
 	auxWin = auxWin_;
+	dmWin = dmWindow;
 }
 
 void BaslerWindow::passCommonCommand ( UINT id )
 {
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this );
+		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this, dmWin );
 	}
 	catch ( Error& err )
 	{

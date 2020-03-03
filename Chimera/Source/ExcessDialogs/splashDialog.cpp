@@ -20,6 +20,7 @@ void splashDialog::OnPaint ()
 
 BOOL splashDialog::OnInitDialog ()
 {
+	SetWindowPos (&wndTop,0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
 	ShowWindow (SW_SHOWMAXIMIZED);
 	stretchBmp ();
 	return 0;
