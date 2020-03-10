@@ -203,7 +203,7 @@ void DataLogger::logServoInfo ( std::vector<servoInfo> servos )
 	{
 		H5::Group thisServo ( servoGroup.createGroup ( servo.servoName ) );
 		writeDataSet ( servo.active, "Servo_Active", thisServo );
-		writeDataSet ( servo.aiInputChannel, "AI_Input_Channel", thisServo );
+		writeDataSet ( servo.aiInChan, "AI_Input_Channel", thisServo );
 		writeDataSet ( servo.aoControlChannel, "AO_Control_Channel", thisServo );
 		writeDataSet ( servo.controlValue, "Control_Value", thisServo );
 		writeDataSet ( servo.gain, "Servo_Gain", thisServo );

@@ -138,7 +138,7 @@ class MainWindow : public CDialog
 		std::vector<servoInfo> getServoinfo ();
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (std::stringstream& configStream, Version version);
-
+		void handleServoUnitsComboChange ();
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
 		Communicator& getCommRef ( );

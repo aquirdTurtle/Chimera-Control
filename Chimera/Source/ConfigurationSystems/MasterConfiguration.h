@@ -24,6 +24,7 @@ class MasterConfiguration
 		// version 2.6: Added servo monitor-only option
 		// version 2.7: Added Servo Ao config
 		// version 2.8: Added servo avg num setting
-		const Version version = Version("2.8");
+		// version 2.9: Added Units Combo and experiment auto servo options to servo manager
+		const Version version = Version("2.9");
 };
 

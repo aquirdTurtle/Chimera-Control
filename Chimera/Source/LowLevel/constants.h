@@ -141,8 +141,8 @@
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
-	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
-	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
+	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::NONE, "COM5", "PIEZO_CONTROLLER_1" };
+	const piezoSetupInfo PIEZO_2_INFO = { PiezoType::NONE, "COM4", "PIEZO_CONTROLLER_2" };
 #endif
 	
 
@@ -269,6 +269,8 @@
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
+	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1" };
+	const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2" };
 #endif
 
 #define FIREWIRE_CAMERA
@@ -506,6 +508,7 @@ constexpr auto IDC_PIEZO1_CTRL = 14156;
 constexpr auto IDC_PIEZO2_CTRL = 14157;
 constexpr UINT IDC_UW_SYSTEM_LISTVIEW = 14158;
 constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
+constexpr auto IDC_SERVO_UNITS_COMBO = 14160;
 // BASLER WIN CONSTS
 constexpr auto IDC_MIN_BASLER_SLIDER_EDIT = 15001;
 constexpr auto IDC_MAX_BASLER_SLIDER_EDIT = 15002;
