@@ -10,6 +10,7 @@
 #include "PrimaryWindows/MainWindow.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
+#include "PrimaryWindows/DeformableMirrorWindow.h"
 #include "PrimaryWindows/ScriptingWindow.h"
 #include "PrimaryWindows/BaslerWindow.h"
 #include "LowLevel/externals.h"
@@ -22,7 +23,8 @@ namespace commonFunctions
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+							  AndorWindow* andorWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin, 
+							  DeformableMirrorWindow* dmWin )
 	{
 		switch (msgID)
 		{
@@ -62,7 +64,7 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.trace ( ) );
-					mainWin->getComm ( )->sendColorBox ( System::Camera, 'R' );
+					mainWin->getComm ( )->sendColorBox ( System::Andor, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 					andorWin->assertOff ( );
@@ -143,7 +145,7 @@ namespace commonFunctions
 						break;
 					}
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.trace());
-					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
+					mainWin->getComm()->sendColorBox( System::Andor, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 					andorWin->assertOff();
@@ -209,12 +211,12 @@ namespace commonFunctions
 						commonFunctions::abortCamera( andorWin, mainWin );
 						andorAborted = true;
 					}
-					mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
+					mainWin->getComm( )->sendColorBox( System::Andor, 'B' );
 				}
 				catch ( Error& err )
 				{
 					mainWin->getComm( )->sendError( "Andor Camera threw error while aborting! Error: " + err.trace( ) );
-					mainWin->getComm( )->sendColorBox( System::Camera, 'R' );
+					mainWin->getComm( )->sendColorBox( System::Andor, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
@@ -253,7 +255,7 @@ namespace commonFunctions
 				AllExperimentInput input;
 				try
 				{
-					mainWin->getComm ( )->sendColorBox ( System::Camera, 'Y' );
+					mainWin->getComm ( )->sendColorBox ( System::Andor, 'Y' );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, scriptWin, mainWin, andorWin, auxWin,
 														   basWin, input, false, false, true, false, true );
@@ -265,18 +267,18 @@ namespace commonFunctions
 					andorWin->startPlotterThread ( input );
 					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
 					commonFunctions::startExperimentThread ( mainWin, input );
-					mainWin->getComm()->sendColorBox( System::Camera, 'G' );
+					mainWin->getComm()->sendColorBox( System::Andor, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}
 				catch (Error& exception)
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
-						mainWin->getComm()->sendColorBox( System::Camera, 'B' );
+						mainWin->getComm()->sendColorBox( System::Andor, 'B' );
 						mainWin->getComm()->sendStatus("Camera is Not Running, User Canceled.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendColorBox( System::Camera, 'R' );
+					mainWin->getComm()->sendColorBox( System::Andor, 'R' );
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -401,13 +403,13 @@ namespace commonFunctions
 					{
 						mainWin->getComm ( )->sendError ( "Camera was not running. Can't Abort.\r\n" );
 					}
-					mainWin->getComm ( )->sendColorBox ( System::Camera, 'B' );
+					mainWin->getComm ( )->sendColorBox ( System::Andor, 'B' );
 					andorWin->assertOff ( );
 				}
 				catch ( Error& except )
 				{
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + except.trace ( ) );
-					mainWin->getComm ( )->sendColorBox ( System::Camera, 'R' );
+					mainWin->getComm ( )->sendColorBox ( System::Andor, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 				}

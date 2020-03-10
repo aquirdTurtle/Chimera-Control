@@ -26,6 +26,7 @@ class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class DeformableMirrorWindow;
 
 struct scopeRefreshInput 
 {
@@ -137,7 +138,7 @@ class MainWindow : public CDialog
 		std::vector<servoInfo> getServoinfo ();
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (std::stringstream& configStream, Version version);
-
+		void handleServoUnitsComboChange ();
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
 		Communicator& getCommRef ( );
@@ -153,6 +154,7 @@ class MainWindow : public CDialog
 		AndorWindow* TheAndorWindow = NULL;
 		AuxiliaryWindow* TheAuxiliaryWindow = NULL;
 		BaslerWindow* TheBaslerWindow = NULL;
+		DeformableMirrorWindow* TheDmWindow = NULL;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -186,7 +188,8 @@ class MainWindow : public CDialog
  		// friends (try to minimize these)
  		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
  														  ScriptingWindow* scriptWin, AndorWindow* camWin,
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin );
+														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, 
+														  DeformableMirrorWindow* auxWin2);
 		UINT autoCalNum = 0;
 };
 

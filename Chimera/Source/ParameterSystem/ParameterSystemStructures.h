@@ -13,6 +13,7 @@
 #define PIEZO_PARAMETER_SCOPE "piezo"
 #define DDS_PARAMETER_SCOPE "dds"
 #define NO_PARAMETER_SCOPE "__NO__"
+#define AGILENT_PARAMETER_SCOPE "agilent"
 
 // individual to a given parameter.
 struct indvParamRangeInfo

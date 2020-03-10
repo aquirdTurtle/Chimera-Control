@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_EN_CHANGE( IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
 
 	ON_COMMAND( IDOK, &ScriptingWindow::catchEnter)
+	ON_COMMAND (IDC_CONTROL_NIAWG_CHECK, &handleControlNiawgCheck)
 
 	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
 	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &ScriptingWindow::handleIntensityCombo )
@@ -49,6 +50,11 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
 END_MESSAGE_MAP()
 
+
+void ScriptingWindow::handleControlNiawgCheck ()
+{
+	niawg.updateWindowEnabled ();
+}
 
 void ScriptingWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 {
@@ -356,12 +362,14 @@ void ScriptingWindow::streamNiawgWaveform ()
 }
 
 
-void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_)
+void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, 
+	BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
 {
 	mainWin = mainWin_;
 	camWin = camWin_;
 	auxWin = auxWin_;
 	basWin = basWin_;
+	dmWin = dmWindow;
 }
 
 /*
@@ -676,7 +684,9 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		if ( ver.versionMajor < 3 )
 		{
 			std::string extraNiawgName;
-			getline ( configFile, extraNiawgName );
+			
+			
+			( configFile, extraNiawgName );
 		}
 		getline ( configFile, niawgName );
 		getline ( configFile, masterName );
@@ -713,6 +723,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		considerScriptLocations ( );
 		recolorScripts ( );
 		niawg.handleOpenConfig (configFile, ver);
+		niawg.updateWindowEnabled ();
 	}
 	catch ( Error& e )
 	{
@@ -861,7 +872,7 @@ void ScriptingWindow::considerScriptLocations()
 void ScriptingWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin );
+	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin, dmWin );
 }
 
 

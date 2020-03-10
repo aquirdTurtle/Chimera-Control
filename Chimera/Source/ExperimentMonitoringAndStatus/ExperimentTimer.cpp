@@ -6,21 +6,21 @@
 #include "PrimaryWindows/AndorWindow.h"
 
 
-void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
-								  cToolTips& toolTips )
+void ExperimentTimer::initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& toolTips )
 {
-	timeDisplay.sPos = { inputLoc.sPos.x, inputLoc.sPos.y, inputLoc.sPos.x + 168, inputLoc.sPos.y + 40 };
+
+	timeDisplay.sPos = { pos.x, pos.y, pos.x + 168, pos.y + 40 };
 	timeDisplay.Create("", NORM_STATIC_OPTIONS, timeDisplay.sPos, parent, id++ );
 	/// PROGRESS BARS
 	// subseries progress bar
 	LONG timerWidth = 550 * 2;
-	variationProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y, inputLoc.sPos.x + timerWidth, inputLoc.sPos.y + 15 };
+	variationProgress.sPos = { pos.x + 168, pos.y, pos.x + timerWidth, pos.y + 15 };
 	variationProgress.Create(NORM_CWND_OPTIONS | PBS_SMOOTH, variationProgress.sPos, parent, id++ );
 	variationProgress.SetBkColor(RGB(100, 110, 100));
 	variationProgress.SetBarColor(RGB(0, 100, 0));
 	variationProgress.SetRange32( 0, 10000 );
 	// series progress bar display
-	overallProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y + 15, inputLoc.sPos.x + timerWidth, inputLoc.sPos.y + 40 };
+	overallProgress.sPos = { pos.x + 168, pos.y + 15, pos.x + timerWidth, pos.y + 40 };
 	overallProgress.Create( NORM_CWND_OPTIONS | PBS_SMOOTH, overallProgress.sPos, parent, id++ );
 	overallProgress.SetBkColor(RGB(100, 110, 100));
 	overallProgress.SetBarColor(RGB(55, 55, 55));
@@ -98,12 +98,11 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 }
 
 
-void ExperimentTimer::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
-								 fontMap fonts )
+void ExperimentTimer::rearrange( int width, int height, fontMap fonts )
 {
-	timeDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
-	variationProgress.rearrange( cameraMode, triggerMode, width, height, fonts );
-	overallProgress.rearrange( cameraMode, triggerMode, width, height, fonts );
+	timeDisplay.rearrange( width, height, fonts );
+	variationProgress.rearrange( width, height, fonts );
+	overallProgress.rearrange( width, height, fonts );
 }
 
 

@@ -19,8 +19,8 @@ class Matrix
 		type & operator()( UINT row, UINT col );
 		type operator()( POINT p ) const;
 		type & operator()( POINT p );
-		UINT getRows( );
-		UINT getCols( );
+		UINT getRows () const;
+		UINT getCols () const;
 		UINT size ( ) const;
 		Matrix<type> submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
 		std::string print( );
@@ -144,7 +144,7 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D
 }
 
 template <class type>
-UINT Matrix<type>::getCols( )
+UINT Matrix<type>::getCols( ) const
 {
 	//updateString( );
 	return cols;
@@ -152,7 +152,7 @@ UINT Matrix<type>::getCols( )
 
 
 template <class type>
-UINT Matrix<type>::getRows( )
+UINT Matrix<type>::getRows( ) const
 {
 	//updateString( );
 	return rows;

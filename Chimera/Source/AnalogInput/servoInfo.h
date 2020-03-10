@@ -10,7 +10,7 @@ struct servoInfo
 	bool monitorOnly = false;
 	std::string servoName="";
 	bool active = false;
-	unsigned int aiInputChannel=0;
+	unsigned int aiInChan=0;
 	unsigned int aoControlChannel=0;
 	double setPoint=0;
 	double controlValue=0;

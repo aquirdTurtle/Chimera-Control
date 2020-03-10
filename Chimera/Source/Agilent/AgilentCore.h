@@ -32,8 +32,7 @@ class AgilentCore
 		void setSquare (int channel, squareInfo info, UINT variation);
 		void setSine (int channel, sineInfo info, UINT variation);
 		void outputOff (int channel);
-		void analyzeAgilentScript (scriptedArbInfo& infoObj, std::vector<parameterType>& vars);
-		//void analyzeAgilentScript (UINT chan, std::vector<parameterType>& vars);
+		void analyzeAgilentScript (scriptedArbInfo& infoObj, std::vector<parameterType>& vars, std::string& warnings);
 		void setDefault (int channel);
 		std::vector<std::string> getStartupCommands ();
 		void programSetupCommands ();

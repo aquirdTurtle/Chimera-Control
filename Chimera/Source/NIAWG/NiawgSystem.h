@@ -18,6 +18,7 @@ class NiawgSystem
 		void handleSaveConfig (std::ofstream& saveFile);
 		void handleOpenConfig (std::ifstream& openfile, Version ver);
 		static bool getControlNiawgFromConfig (std::ifstream& openfile, Version ver);
+		void updateWindowEnabled ();
 
 		Script niawgScript;
 		NiawgCore core;

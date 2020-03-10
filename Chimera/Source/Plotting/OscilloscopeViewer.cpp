@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "OscilloscopeViewer.h"
 
-;
 ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name ) :
 	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name )
 {
@@ -43,10 +42,7 @@ void ScopeViewer::refreshPlot(CDC* cdc, UINT width, UINT height, CBrush* backgro
 
 void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 {
-	if ( viewPlot )
-	{
-		viewPlot->rearrange ( width, height, fonts );
-	}
+	if ( viewPlot )	{ viewPlot->rearrange ( width, height, fonts );	}
 }
 
 
@@ -117,6 +113,7 @@ void ScopeViewer::refreshData( )
 		std::string temp( str( dataReadSize ) );
 		for ( auto& c : data.substr(0, data.size() - 1) )
 		{
+			// skip first 6 characters
 			if ( count++ < 6 )
 			{
 				continue;

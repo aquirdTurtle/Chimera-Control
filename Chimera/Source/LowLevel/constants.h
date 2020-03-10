@@ -20,8 +20,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -84,6 +84,8 @@
 #ifdef SPECTRE_LAPTOP
 	using MICROWAVE_FLUME = WindFreakFlume;
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
+	constexpr auto DM_SERIAL = "25CW012#060";
+	constexpr bool DM_SAFEMODE = true;
 	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
 	constexpr bool AUTO_CALIBRATE = false;
 	constexpr bool DOFTDI_SAFEMODE = true;
@@ -119,6 +121,8 @@
 	constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
+	const std::string DM_PROFILES_LOCATION = PROJECT_LOCATION + "DM-Library";
+	const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + +"\\25CW012#060_CLOSED_LOOP_COMMANDS.txt";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Code/Chimera-Control/Chimera";
 	const std::string DATA_ANALYSIS_CODE_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Data_Analysis_Code\\";
 	// same as debug output location but with forward slashes for ease of use in python
@@ -137,8 +141,8 @@
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
-	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
-	const PiezoType PIEZO_2_TYPE = PiezoType::NONE;
+	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::NONE, "COM5", "PIEZO_CONTROLLER_1" };
+	const piezoSetupInfo PIEZO_2_INFO = { PiezoType::NONE, "COM4", "PIEZO_CONTROLLER_2" };
 #endif
 	
 
@@ -265,6 +269,8 @@
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
+	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1" };
+	const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2" };
 #endif
 
 #define FIREWIRE_CAMERA
@@ -396,7 +402,9 @@ constexpr auto IDC_MASTER_FUNCTION_COMBO = 12012;
 constexpr auto IDC_MASTER_EDIT = 12013;
 constexpr auto IDC_RERNG_MODE_COMBO = 12014;
 
-// Camera Window
+constexpr auto IDC_CONTROL_NIAWG_CHECK = 12015;
+
+// Andor Window
 constexpr auto IDC_ALERT_ON_NO_ATOMS = 23001;
 constexpr auto IDC_SET_ANALYSIS_LOCATIONS = 23002;
 constexpr auto IDC_SET_GRID_CORNER = 23003;
@@ -500,6 +508,7 @@ constexpr auto IDC_PIEZO1_CTRL = 14156;
 constexpr auto IDC_PIEZO2_CTRL = 14157;
 constexpr UINT IDC_UW_SYSTEM_LISTVIEW = 14158;
 constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
+constexpr auto IDC_SERVO_UNITS_COMBO = 14160;
 // BASLER WIN CONSTS
 constexpr auto IDC_MIN_BASLER_SLIDER_EDIT = 15001;
 constexpr auto IDC_MAX_BASLER_SLIDER_EDIT = 15002;
@@ -546,6 +555,13 @@ constexpr auto ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID = 17001;
 // 17002 - 17008 are the dac / ttl plots on the aux window.
 // 17009-17014 are the andor window analysis plots
 constexpr auto ID_PLOT_POP_IDS_END = 17015;
+
+///Auxiliary Window 2
+constexpr auto IDC_DM_PROGRAMNOW = 18000;
+constexpr auto IDC_DM_EDIT_START = 18001;
+constexpr auto IDC_DM_EDIT_END = 18138;
+constexpr auto IDC_DM_PROFILE_COMBO = 18150;
+constexpr auto IDC_DM_ADD_ZERNIKE = 18160;
 
 
 constexpr auto MASTER_SCRIPT_EXTENSION = "mScript";

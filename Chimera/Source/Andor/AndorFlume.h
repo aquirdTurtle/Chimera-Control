@@ -25,7 +25,6 @@ class AndorFlume
 		void setHSSpeed ( int type, int index );
 		void checkForNewImages ( );
 		void getOldestImage ( Matrix<long>& dataMatrix );
-		void getOldestImage ( std::vector<long>& dataArray );
 		void setTriggerMode ( int mode );
 		void setAcquisitionMode ( int mode );
 		void setReadMode ( int mode );

@@ -1,5 +1,6 @@
 // created by Mark O. Brown
 #pragma once
+
 #include <vector>
 #include "afxwin.h"
 
@@ -13,11 +14,19 @@ struct AtomImage
 struct NormalImage
 {
 	UINT repNum;
+	Matrix<long> image;
+};
+
+struct PixList
+{
+	UINT repNum;
 	std::vector<long> image;
 };
 
 // imQueue[gridNum][queuePositions][pixelNum(flattened)]
 typedef std::vector<AtomImage> atomQueue;
 typedef std::vector<NormalImage> imageQueue;
-typedef std::vector<imageQueue> multiGridImageQueue;
+typedef std::vector<PixList> PixListQueue;
+//typedef std::vector<imageQueue> multiGridImageQueue;
+typedef std::vector<PixListQueue> multiGridImageQueue;
 typedef std::vector<atomQueue> multiGridAtomQueue;

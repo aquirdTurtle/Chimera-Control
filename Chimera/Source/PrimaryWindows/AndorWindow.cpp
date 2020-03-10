@@ -324,12 +324,13 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 
 
 void AndorWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
-								BaslerWindow* basWin_)
+								BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	auxWin = auxWin_;
 	basWin = basWin_;
+	dmWin = dmWindow;
 }
 
 
@@ -491,7 +492,7 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 	// need to call this before acquireImageData().
 	andor.updatePictureNumber( picNum );
 
-	std::vector<std::vector<long>> picData;
+	std::vector<Matrix<long>> picData;
 	try
 	{
 		picData = andor.acquireImageData(mainWin->getComm());
@@ -501,11 +502,8 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm( )->sendError( err.trace( ) );
 		return NULL;
 	}
-	avgBackground.resize( picData.back( ).size( ) );
-	for ( unsigned int i = 0; i < avgBackground.size( ); i++ )
-	{
-		avgBackground[i] += picData.back( )[i];
-	}
+	avgBackground = Matrix<long>( picData.back( ).getRows(), picData.back ().getCols () );
+	avgBackground = picData.back ();
 	SmartDC sdc (this);
 	try
 	{
@@ -515,10 +513,9 @@ LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 			for ( auto data : picData )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update( data, counter, selectedPixel, curSettings.imageSettings.width(),
-									   curSettings.imageSettings.height(), picNum / curSettings.picsPerRepetition,
+				minMax = stats.update( data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 									   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-				pics.drawPicture( sdc.get(), counter, data, minMax );
+				pics.drawBitmap( sdc.get(), data, minMax, counter );
 				pics.drawDongles( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs( ),
 								  analysisHandler.getGrids( ), picNum, false );
 				counter++;
@@ -564,11 +561,10 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			//								  "camera window record?!?!?!?!?" );
 		}
 	}
-
 	// need to call this before acquireImageData().
 	andor.updatePictureNumber( picNum );
 	
-	std::vector<std::vector<long>> rawPicData;
+	std::vector<Matrix<long>> rawPicData;
 	try
 	{
 		rawPicData = andor.acquireImageData(mainWin->getComm ());
@@ -578,14 +574,15 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm()->sendError( err.trace() );
 		return NULL;
 	}
-	std::vector<std::vector<long>> calPicData( rawPicData.size( ) );
+	std::vector<Matrix<long>> calPicData( rawPicData.size( ) );
 	if ( andorSettingsCtrl.getUseCal( ) && avgBackground.size() == rawPicData.front().size() )
 	{
-		for ( UINT picInc = 0; picInc < rawPicData.size(); picInc++ )
+		for (auto picInc : range(rawPicData.size()))
 		{
-			for ( UINT pixInc = 0; pixInc < rawPicData[picInc].size( ); pixInc++ )
+			calPicData[picInc] = Matrix<long> (rawPicData[picInc].getRows (), rawPicData[picInc].getCols (), 0);
+			for (auto pixInc : range(rawPicData[picInc].size ()))
 			{
-				calPicData[picInc].push_back( rawPicData[picInc][pixInc] - avgBackground[pixInc] );
+				calPicData[picInc].data[pixInc] = ( rawPicData[picInc].data[pixInc] - avgBackground.data[pixInc] );
 			}
 		}
 	}
@@ -609,10 +606,10 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
-								   curSettings.imageSettings.width(), curSettings.imageSettings.height(),
 								   picNum / curSettings.picsPerRepetition,
 								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-			pics.drawPicture( sdc.get (), picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
+			//pics.drawPicture( sdc.get (), picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
+			pics.drawBitmap(sdc.get (), picsToDraw.back (), minMax, picNum % curSettings.picsPerRepetition);
 
 			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
 						  curSettings.totalVariations, curSettings.picsPerRepetition );
@@ -623,8 +620,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			for ( auto data : picsToDraw )
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update ( data, counter, selectedPixel, curSettings.imageSettings.width ( ),
-										curSettings.imageSettings.height ( ), picNum / curSettings.picsPerRepetition,
+				minMax = stats.update ( data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 										curSettings.totalPicsInExperiment ( ) / curSettings.picsPerRepetition );
 				if ( minMax.second > 50000 )
 				{
@@ -636,7 +632,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 						// This can happen if a laser, particularly the axial raman laser, is left on during an image.
 						// cosmic rays may occasionally trip it as well.
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F2, this, mainWin, scriptWin, this,
-							auxWin, basWin);
+							auxWin, basWin, dmWin);
 						errBox ("EXCCESSIVE CAMERA COUNTS DETECTED!!!");
 					}
 				}
@@ -644,7 +640,7 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 				{
 					numExcessCounts = 0;
 				}
-				pics.drawPicture( sdc.get (), counter, data, minMax );
+				pics.drawBitmap( sdc.get (), data, minMax, counter );
 				pics.drawDongles( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs(),
 								  analysisHandler.getGrids(), picNum, analysisHandler.getDrawGridOption() );
 				counter++;
@@ -747,7 +743,7 @@ LRESULT AndorWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 	andor.pauseThread( );
 	andor.setCalibrating( false );
 	justCalibrated = true;
-	mainWin->getComm( )->sendColorBox( System::Camera, 'B' );
+	mainWin->getComm( )->sendColorBox( System::Andor, 'B' );
 	andorSettingsCtrl.cameraIsOn( false );
 	// normalize.
 	for ( auto& p : avgBackground )
@@ -791,8 +787,8 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-	mainWin->getComm()->sendColorBox( System::Camera, 'B' );
-	//mainWin->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
+	mainWin->getComm()->sendColorBox( System::Andor, 'B' );
+	//mainWin->getComm()->sendStatus( "Andor has finished taking pictures and is no longer running.\r\n" );
 	andorSettingsCtrl.cameraIsOn( false );
 	// rearranger thread handles these right now.
 	mainThreadStartTimes.clear();
@@ -1004,7 +1000,7 @@ void AndorWindow::OnTimer(UINT_PTR id)
 					try
 					{
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this, mainWin, scriptWin, this, auxWin,
-															  basWin);
+															  basWin, dmWin);
 					}
 					catch (Error& err)
 					{
@@ -1147,12 +1143,11 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	{
 		SetRedraw ( false );
 		auto settings = andor.getAndorRunSettings ();
-		//auto settings = andorSettingsCtrl.getSettings ( ).andor;
-		andorSettingsCtrl.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
-		alerts.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
-		analysisHandler.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		andorSettingsCtrl.rearrange ( cx, cy, mainWin->getFonts ( ) );
+		alerts.rearrange ( cx, cy, mainWin->getFonts ( ) );
+		analysisHandler.rearrange ( cx, cy, mainWin->getFonts ( ) );
 		pics.setParameters ( settings.imageSettings );
-		timer.rearrange ( settings.acquisitionMode, settings.triggerMode, cx, cy, mainWin->getFonts ( ) );
+		timer.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	}
 	catch ( Error& err )
 	{
@@ -1215,9 +1210,8 @@ void AndorWindow::loadCameraCalSettings( AllExperimentInput& input )
 	// biggest check here, camera settings includes a lot of things.
 	andorSettingsCtrl.checkIfReady( );
 	// reset the image which is about to be calibrated.
-	avgBackground.clear( );
+	avgBackground = Matrix<long> (0, 0);
 	/// start the camera.
-	//andor.setSettings( input.AndorSettings );
 	andor.setCalibrating(true);
 }
 
@@ -1524,7 +1518,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 			input->catchPicTime->push_back( chronoClock::now( ) );
 		}
 		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
-		imageQueue tempImagePixels( gridSize );
+		PixListQueue tempImagePixels( gridSize );
 		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
 		atomQueue tempAtomArray( gridSize );
 		for (auto gridInc : range(gridSize))
@@ -1556,7 +1550,7 @@ UINT __stdcall AndorWindow::atomCruncherProcedure(void* inputPtr)
 					}
 					else
 					{
-						tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image[pixelIndex];
+						tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image.data[pixelIndex];
 					}
 				}
 			}
@@ -1724,17 +1718,15 @@ BOOL AndorWindow::OnInitDialog ( )
 	// don't redraw until the first OnSize.
 	SetRedraw ( false );
 	andor.initializeClass ( mainWin->getComm ( ), &imageTimes );
-	cameraPositions positions;
+	POINT position = { 0,0 };
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	positions.sPos = { 0, 0 };
-	box.initialize ( positions.sPos, id, this, 480, tooltips );
-	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
+	box.initialize (position, id, this, 480, tooltips );
 	alerts.alertMainThread ( 0 );
-	alerts.initialize ( positions, this, false, id, tooltips );
-	analysisHandler.initialize ( positions, id, this, tooltips, false );
-	andorSettingsCtrl.initialize ( positions, id, this, tooltips );
-	POINT position = { 480, 0 };
+	alerts.initialize (position, this, false, id, tooltips );
+	analysisHandler.initialize (position, id, this, tooltips );
+	andorSettingsCtrl.initialize (position, id, this, tooltips );
+	position = { 480, 0 };
 	stats.initialize ( position, this, id, tooltips );
 	for (auto pltInc : range (6))
 	{
@@ -1743,8 +1735,8 @@ BOOL AndorWindow::OnInitDialog ( )
 			mainWin->getPlotFont (), mainWin->getPlotBrushes (), { 0,0,0,0 }, "INACTIVE", false, false));
 		mainAnalysisPlots.back ()->init (position, 315, 130, this, plotIds++);
 	}
-	positions.sPos = { 797, 0 };
-	timer.initialize ( positions, this, false, id, tooltips );
+	position = { 797, 0 };
+	timer.initialize (position, this, false, id, tooltips );
 	position = { 797, 40 };
 	pics.initialize ( position, this, id, _myBrushes[ "Dark Green" ], 550 * 2, 460 * 2 + 5, 
 					 { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT,
@@ -1850,7 +1842,7 @@ void AndorWindow::passCommonCommand(UINT id)
 {
 	try
 	{
-		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, auxWin, basWin );
+		commonFunctions::handleCommonMessage( id, this, mainWin, scriptWin, this, auxWin, basWin, dmWin );
 	}
 	catch (Error& err)
 	{
@@ -1881,7 +1873,7 @@ void AndorWindow::readImageParameters()
 	catch (Error& exception)
 	{
 		Communicator* comm = mainWin->getComm();
-		comm->sendColorBox( System::Camera, 'R' );
+		comm->sendColorBox( System::Andor, 'R' );
 		comm->sendError( exception.trace() + "\r\n" );
 	}
 	SmartDC sdc (this);

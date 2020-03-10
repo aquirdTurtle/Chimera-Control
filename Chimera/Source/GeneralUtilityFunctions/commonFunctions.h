@@ -8,6 +8,7 @@
 class MainWindow;
 class AndorWindow;
 class AuxiliaryWindow;
+class DeformableMirrorWindow;
 class ScriptingWindow;
 class BaslerWindow;
 class DataLogger;
@@ -16,7 +17,8 @@ namespace commonFunctions
 {
 	/// Call to direct message to appropriate function in this namespace
 	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
+							 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin, 
+							 DeformableMirrorWindow* auxWin2);
 	/// Run Menu
 	void calibrateCameraBackground ( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
 									AuxiliaryWindow* auxWin, BaslerWindow* basWin );

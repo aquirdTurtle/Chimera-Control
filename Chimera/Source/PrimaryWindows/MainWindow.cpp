@@ -1,14 +1,18 @@
 #include "stdafx.h"
-#include "GeneralUtilityFunctions/commonFunctions.h"
+
 #include "MainWindow.h"
 #include "AndorWindow.h"
 #include "AuxiliaryWindow.h"
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
-#include <future>
+#include "DeformableMirrorWindow.h"
+
+#include "GeneralUtilityFunctions/commonFunctions.h"
 #include "LowLevel/externals.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
 #include "ExperimentThread/Communicator.h"
+
+#include <future>
 
 
 MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
@@ -66,7 +70,6 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 	(mainFonts["Very Larger Font Large"] = new CFont)
 		->CreateFontA( 60, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-
 	//
 	(mainFonts["Smaller Font Med"] = new CFont)
 		->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
@@ -119,46 +122,53 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 
 IMPLEMENT_DYNAMIC( MainWindow, CDialog )
 
-BEGIN_MESSAGE_MAP( MainWindow, CDialog )
-	ON_WM_CTLCOLOR( )
-	ON_WM_SIZE( )
-	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
-	ON_NOTIFY( NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick )
-	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
-	ON_NOTIFY (NM_DBLCLK, IDC_SERVO_LISTVIEW, &MainWindow::ServoDblClick)
-	ON_NOTIFY (NM_RCLICK, IDC_SERVO_LISTVIEW, &MainWindow::ServoRClick)
-	ON_NOTIFY (NM_CUSTOMDRAW, IDC_SERVO_LISTVIEW, &MainWindow::drawServoListview)
+BEGIN_MESSAGE_MAP (MainWindow, CDialog)
+	ON_WM_CTLCOLOR ()
+	ON_WM_SIZE ()
+	ON_CBN_SELENDOK (IDC_SEQUENCE_COMBO, &handleSequenceCombo)
+	ON_NOTIFY (NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &handleDblClick)
+	ON_NOTIFY (NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &handleRClick)
+	ON_NOTIFY (NM_DBLCLK, IDC_SERVO_LISTVIEW, &ServoDblClick)
+	ON_NOTIFY (NM_RCLICK, IDC_SERVO_LISTVIEW, &ServoRClick)
+	ON_NOTIFY (NM_CUSTOMDRAW, IDC_SERVO_LISTVIEW, &drawServoListview)
 
-	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
-	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
-	ON_MESSAGE ( CustomMessages::RepProgressMessageID, &MainWindow::onRepProgress )
-	ON_MESSAGE ( CustomMessages::StatusUpdateMessageID, &MainWindow::onStatusTextMessage )
-	ON_MESSAGE ( CustomMessages::ErrorUpdateMessageID, &MainWindow::onErrorMessage )
-	ON_MESSAGE ( CustomMessages::FatalErrorMessageID, &MainWindow::onFatalErrorMessage )
-	ON_MESSAGE ( CustomMessages::DebugUpdateMessageID, &MainWindow::onDebugMessage )
-	ON_MESSAGE ( CustomMessages::NoAtomsAlertMessageID, &MainWindow::onNoAtomsAlertMessage )
-	ON_MESSAGE ( CustomMessages::NoMotAlertMessageID, &MainWindow::onNoMotAlertMessage )
-	ON_MESSAGE ( CustomMessages::GeneralFinMsgID, &MainWindow::onFinish )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
-	ON_COMMAND_RANGE( IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress )
-	ON_COMMAND_RANGE( IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear )
-	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
-	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
-	ON_COMMAND_RANGE( ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &MainWindow::handlePlotPop)
-	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
-	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
+	ON_EN_CHANGE (IDC_CONFIGURATION_NOTES, &notifyConfigUpdate)
+	ON_EN_CHANGE (IDC_REPETITION_EDIT, &notifyConfigUpdate)
+	ON_MESSAGE (CustomMessages::RepProgressMessageID, &onRepProgress)
+	ON_MESSAGE (CustomMessages::StatusUpdateMessageID, &onStatusTextMessage)
+	ON_MESSAGE (CustomMessages::ErrorUpdateMessageID, &onErrorMessage)
+	ON_MESSAGE (CustomMessages::FatalErrorMessageID, &onFatalErrorMessage)
+	ON_MESSAGE (CustomMessages::DebugUpdateMessageID, &onDebugMessage)
+	ON_MESSAGE (CustomMessages::NoAtomsAlertMessageID, &onNoAtomsAlertMessage)
+	ON_MESSAGE (CustomMessages::NoMotAlertMessageID, &onNoMotAlertMessage)
+	ON_MESSAGE (CustomMessages::GeneralFinMsgID, &onFinish)
+	ON_COMMAND_RANGE (ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &passCommonCommand)
+	ON_COMMAND_RANGE (ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &passCommonCommand)
+	ON_COMMAND_RANGE (ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &passCommonCommand)
+	ON_COMMAND_RANGE (ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &passCommonCommand)
+	ON_COMMAND_RANGE (MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &passCommonCommand)
+	ON_COMMAND_RANGE (IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &passDebugPress)
+	ON_COMMAND_RANGE (IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &passMainOptionsPress)
+	ON_COMMAND_RANGE (IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &passClear)
+	ON_COMMAND_RANGE (IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &passClear)
+	ON_COMMAND_RANGE (IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &passClear)
+	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &handlePlotPop)
+	ON_COMMAND (IDC_SELECT_CONFIG_COMBO, &passConfigPress)
+	ON_COMMAND (IDOK, &catchEnter)
 	ON_COMMAND (IDC_SERVO_CAL, &runServos)
+	ON_CBN_SELENDOK (IDC_SERVO_UNITS_COMBO, &handleServoUnitsComboChange)
 	ON_MESSAGE ( CustomMessages::AutoServoMessage, &autoServo)
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
+
+
+void MainWindow::handleServoUnitsComboChange ()
+{
+	servos.refreshListview ();
+}
 
 
 void MainWindow::handlePlotPop(UINT id)
@@ -249,7 +259,7 @@ void MainWindow::onAutoCalFin ()
 	else
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F11, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
 	}
 }
 
@@ -262,7 +272,7 @@ void MainWindow::onMachineOptRoundFin (  )
 	Sleep ( 1000 );
 	// then restart.
 	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, this, TheScriptingWindow, TheAndorWindow, 
-										   TheAuxiliaryWindow, TheBaslerWindow );
+										   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
 }
 
 
@@ -473,6 +483,8 @@ BOOL MainWindow::OnInitDialog( )
 		TheAuxiliaryWindow = new AuxiliaryWindow;
 		which = "Basler";
 		TheBaslerWindow = new BaslerWindow;
+		which = "DmWin";
+		TheDmWindow = new DeformableMirrorWindow;
 	}
 	catch ( Error& err )
 	{
@@ -480,10 +492,11 @@ BOOL MainWindow::OnInitDialog( )
 		forceExit ( );
 		return -1;
 	}
-	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
-	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow );
-	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow );
-	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow );
+	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
+	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
+	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow, TheDmWindow );
+	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheDmWindow );
+	TheDmWindow->loadFriends (this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
 	startupTimes.push_back(chronoClock::now());
 	try
 	{
@@ -492,6 +505,7 @@ BOOL MainWindow::OnInitDialog( )
 		TheAndorWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		TheBaslerWindow->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
+		TheDmWindow->Create (IDD_LARGE_TEMPLATE, GetDesktopWindow ());
 	}
 	catch ( Error& err )
 	{
@@ -544,12 +558,16 @@ BOOL MainWindow::OnInitDialog( )
 	startupTimes.push_back(chronoClock::now());
 	ShowWindow( SW_MAXIMIZE );
 	// for some reason without this the main window was defaulting to topmost. 
-	SetWindowPos (&wndNoTopMost, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
+	SetWindowPos (&wndBottom, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
+	
 	TheAndorWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
 	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
-	std::vector<CDialog*> windows = { TheBaslerWindow, NULL, TheAndorWindow, this, TheScriptingWindow, TheAuxiliaryWindow };
+	TheDmWindow->ShowWindow (SW_MAXIMIZE);
+
+	std::vector<CDialog*> windows = { TheBaslerWindow, NULL, TheAndorWindow, this, TheScriptingWindow, 
+									  TheAuxiliaryWindow, TheDmWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
@@ -586,10 +604,10 @@ BOOL MainWindow::OnInitDialog( )
 	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL);
 	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
 	//
-
 	updateConfigurationSavedStatus( true );
 	return TRUE;
 }
+
 
 void MainWindow::showHardwareStatus ( )
 {
@@ -883,7 +901,7 @@ void MainWindow::passCommonCommand(UINT id)
 	try
 	{
 		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheAndorWindow, 
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
 	}
 	catch (Error& exception)
 	{
@@ -1178,7 +1196,7 @@ void MainWindow::onNormalFinishMessage()
 	if ( autoF5_AfterFinish )
 	{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow );
+											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
 		autoF5_AfterFinish = false;
 	}
 }
@@ -1260,7 +1278,7 @@ LRESULT MainWindow::autoServo (WPARAM w, LPARAM l)
 	try
 	{
 		updateConfigurationSavedStatus (false);
-		if (servos.autoServo ())
+		if (servos.wantsCalAutoServo ())
 		{
 			runServos ();
 		}
