@@ -16,7 +16,7 @@ t += 20
 pulseon: tweezerIntensityTrig 0.1 % to imagingDepth 
 pulseon: dds_step 5
 call pgcAtomFlashingImage()
-t += 10.1
+t += 1.1
 pulseon: tweezerIntensityTrig 0.1 % to intraplgmDepth
 t += 1.1
 call intrapgreymolasses()
@@ -52,3 +52,4 @@ pulseon: tweezerIntensityTrig 0.1
 on: eoramanrf
 t += 0.2
 
+off: tweezerRf

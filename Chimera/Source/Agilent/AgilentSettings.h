@@ -93,7 +93,7 @@ const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSI
 													IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
 													IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON,
 													DoRows::which::B, 6,
-													"INTENSITY_AGILENT_AWG", {1.71223989e-3, -0.18720763}, //{ 0.00102751, -0.02149967 },
+													"INTENSITY_AGILENT_AWG", {-0.00071625, -0.17698902}, //{0.01124213, -0.15181633}, //{1.71223989e-3, -0.18720763}, //{ 0.00102751, -0.02149967 },
 													{ "Trigger:Source external", "Trigger:Slope Positive", 
 													  "output1:load INF", "output2:load INF",
 													  "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }

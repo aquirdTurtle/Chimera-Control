@@ -61,12 +61,12 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	mainOptions mainOpts;
 	baslerSettings baslerCamSettings;
 	std::vector<std::vector<parameterType>> expParams;
-	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
 	std::vector<deviceOutputInfo> agilentRunInfo(input->agilents.size());
 	std::vector<tektronixInfo> tekInfo (2);
 	UINT variations;
 	try
 	{
+		ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
 		for ( auto& configInfo : input->seq.sequence )
 		{
 			auto& seq = expSeq.sequence[seqNum];

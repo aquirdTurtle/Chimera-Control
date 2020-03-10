@@ -22,7 +22,7 @@ pulseon: tweezerIntensityTrig 0.1
 t += 1.1
 call pushout_all()
 pulseon: tweezerIntensityTrig 0.1
-t += 20
+t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1.1
 call pgcAtomFlashingImage()

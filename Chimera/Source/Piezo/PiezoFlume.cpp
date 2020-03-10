@@ -299,7 +299,7 @@ void PiezoFlume::setXAxisVoltage ( double val )
 		auto res = SetXAxisVoltage( deviceHandle, val );
 		if ( res != 0 )
 		{
-			thrower ( "Piezo Controller Set X Axis Voltage Failed! Error code was: " + str ( res ) + "." );
+			thrower ( "Piezo Controller Set X Axis Voltage Failed! (Is voltage in range?) Error code was: " + str ( res ) + "." );
 		}
 	}
 }
@@ -311,7 +311,7 @@ void PiezoFlume::setYAxisVoltage ( double val )
 		auto res = SetYAxisVoltage( deviceHandle, val );
 		if ( res != 0 )
 		{
-			thrower ( "Piezo Controller Set X Axis Voltage Failed! Error code was: " + str ( res ) + "." );
+			thrower ( "Piezo Controller Set Y Axis Voltage Failed! (Is voltage in range?) Error code was: " + str ( res ) + "." );
 		}
 	}
 }
@@ -323,7 +323,7 @@ void PiezoFlume::setZAxisVoltage ( double val )
 		auto res = SetZAxisVoltage( deviceHandle, val );
 		if ( res != 0 )
 		{
-			thrower ( "Piezo Controller Set X Axis Voltage Failed! Error code was: " + str ( res ) + "." );
+			thrower ( "Piezo Controller Set Z Axis Voltage Failed! (Is voltage in range?) Error code was: " + str ( res ) + "." );
 		}
 	}
 }

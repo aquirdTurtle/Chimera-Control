@@ -6,7 +6,8 @@ def sbc():
   % rsg: (6.83103 + uw_cooling_mod_khz/1000000) -9.5
   off: probeRf
   off: repumpRf
-  daclinspace: motFreq defaultMotFreq -0.5 1 10  
+  var opFreq -0.5
+  daclinspace: motFreq defaultMotFreq opFreq 1 10  
   dac: probePower 0
   dac: repumpfreq -1.5
   dac: sigmaoppower sbc_sigma_op__servo_value
@@ -17,18 +18,28 @@ def sbc():
   dac: eoPulseLev eo_raman__servo_value
   t += 1
   off: uw_mod_switch 
-  var sbcOpCoolingPulseTime 0.012
+  var sbc_op_pulsetime 0.012
   var sbctoppulsetime 0.035
-  repeat: 50
+  repeat: 40
     call axialRamanPulse(0.05) 
-    call opPulse(sbcOpCoolingPulseTime)
+    call opPulse(sbc_op_pulsetime)
     call topRamanPulse(sbctoppulsetime)
-    %on: sigmaRepumpRf
-    %t += sbcOpCoolingPulseTime 
-    %off: sigmaRepumpRf  
-    call opPulse(sbcOpCoolingPulseTime) 
+    call opPulse(sbc_op_pulsetime) 
   end
-  call opPulse(0.024) 
+  var top_raman_sbc2 0.13
+  var ax_raman_sbc2 0.12
+  dac: topPulseLev top_raman_sbc2
+  dac: axPulseLev ax_raman_sbc2
+  repeat: 3
+    call axialRamanPulse(0.08)
+    call opPulse(sbc_op_pulsetime)
+    call topRamanPulse(0.06)
+    call opPulse(sbc_op_pulsetime) 
+  end
+  var afterSbcOpPower 0.05
+  dac: sigmaoppower afterSbcOpPower
+  var afterSbcOpTime 0.09
+  call opPulse(afterSbcOpTime) 
   dac: sigmaoppower 0
   dac: sigmarepumpPower 0
   %dac: sigmarepumpPower sbc_sigma_repump

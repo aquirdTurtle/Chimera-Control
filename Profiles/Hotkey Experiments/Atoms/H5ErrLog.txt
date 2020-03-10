@@ -222,3 +222,2235 @@ HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
   #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
     major: File accessibilty
     minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 17:59:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:39 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:40 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:41 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:42 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:44 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:45 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:46 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:47 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:49 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 269 in H5Dwrite(): can't prepare for writing data
+    major: Dataset
+    minor: Write failed
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 345 in H5D__pre_write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #002: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dio.c line 791 in H5D__write(): can't write data
+    major: Dataset
+    minor: Write failed
+  #003: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 642 in H5D__contig_write(): contiguous write failed
+    major: Dataset
+    minor: Write failed
+  #004: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 309 in H5D__select_write(): write error
+    major: Dataspace
+    minor: Write failed
+  #005: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dselect.c line 220 in H5D__select_io(): write error
+    major: Dataspace
+    minor: Write failed
+  #006: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1267 in H5D__contig_writevv(): can't perform vectorized sieve buffer write
+    major: Dataset
+    minor: Can't operate on object
+  #007: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5VM.c line 1500 in H5VM_opvv(): can't perform operation
+    major: Internal error (too specific to document in detail)
+    minor: Can't operate on object
+  #008: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Dcontig.c line 1136 in H5D__contig_writevv_sieve_cb(): block write failed
+    major: Dataset
+    minor: Write failed
+  #009: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fio.c line 195 in H5F_block_write(): write through page buffer failed
+    major: Low-level I/O
+    minor: Write failed
+  #010: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5PB.c line 1041 in H5PB_write(): write through metadata accumulator failed
+    major: Page Buffering
+    minor: Write failed
+  #011: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Faccum.c line 834 in H5F__accum_write(): file write failed
+    major: Low-level I/O
+    minor: Write failed
+  #012: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDint.c line 308 in H5FD_write(): driver write request failed
+    major: Virtual File Layer
+    minor: Write failed
+  #013: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5FDsec2.c line 810 in H5FD_sec2_write(): file write failed: time = Mon Mar  2 18:09:49 2020
+, filename = 'J:\Data Repository\New Data Repository\2020\March\March 2\Raw Data\data_16.h5', file descriptor = 3, errno = 22, error message = 'Invalid argument', buf = 00000264EAC81018, total write size = 65536, bytes this sub-write = 65536, bytes actually written = 18446744073709551615, offset = 801522427
+    major: Low-level I/O
+    minor: Write failed
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file
+HDF5-DIAG: Error detected in HDF5 (1.10.1) thread 0:
+  #000: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5F.c line 491 in H5Fcreate(): unable to create file
+    major: File accessibilty
+    minor: Unable to open file
+  #001: C:\CMake-hdf5-1.10.1\hdf5-1.10.1\src\H5Fint.c line 1269 in H5F_open(): unable to truncate a file which is already open
+    major: File accessibilty
+    minor: Unable to open file

@@ -1130,6 +1130,16 @@ void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 	}
 	// update ranges
 	auto info = rangeInfo.dimensionInfo ( param.scanDimension );
+	if (param.ranges.size () != rangeInfo.numRanges(param.scanDimension))
+	{
+		errBox("New param doens't have right number of ranges?! Forcing parameter to have right number...");
+		param.ranges.resize (rangeInfo.numRanges (param.scanDimension));
+	}
+	if (currentParameters[item].ranges.size () != rangeInfo.numRanges (param.scanDimension))
+	{
+		errBox ("param in system doens't have right number of ranges?! Forcing parameter to have right number...");
+		currentParameters[item].ranges.resize (rangeInfo.numRanges (param.scanDimension));
+	}
 	for ( auto rangeInc : range ( param.ranges.size ( ) ) )
 	{
 		auto col = preRangeColumns + rangeInc * 3;
