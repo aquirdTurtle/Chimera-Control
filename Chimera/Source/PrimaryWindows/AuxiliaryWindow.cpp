@@ -24,7 +24,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 		ttlBoard ( DOFTDI_SAFEMODE, true ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
-	piezo1(PIEZO_1_TYPE, "COM6", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM4", "PIEZO_CONTROLLER_2" )
+	piezo1(PIEZO_1_INFO), piezo2 (PIEZO_2_INFO)
 {}
 
 

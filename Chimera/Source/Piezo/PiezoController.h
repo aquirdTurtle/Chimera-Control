@@ -14,7 +14,7 @@ class PiezoController
 		PiezoController& operator=(const PiezoController&) = delete;
 		PiezoController (const PiezoController&) = delete;
 
-		PiezoController ( PiezoType piezoControllerType, std::string sn, std::string delim);
+		PiezoController (piezoSetupInfo info);
 		void initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT buttonID,
 						  piezoChan<std::string> names, UINT ctrlButtonID );
 		std::string getDeviceInfo ( );

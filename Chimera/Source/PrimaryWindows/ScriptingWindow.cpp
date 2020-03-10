@@ -684,7 +684,9 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		if ( ver.versionMajor < 3 )
 		{
 			std::string extraNiawgName;
-			getline ( configFile, extraNiawgName );
+			
+			
+			( configFile, extraNiawgName );
 		}
 		getline ( configFile, niawgName );
 		getline ( configFile, masterName );

@@ -20,7 +20,7 @@ class PiezoCore
 		PiezoCore& operator=(const PiezoCore&) = delete;
 		PiezoCore(const PiezoCore&) = delete;
 
-		PiezoCore ( PiezoType piezoControllerType, std::string sn, std::string delim );
+		PiezoCore (piezoSetupInfo info);
 		void initialize (  );
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
@@ -38,12 +38,11 @@ class PiezoCore
 		void updateExprVals ( std::vector<piezoChan<Expression>> newVals );
 		void evaluateVariations ( std::vector<std::vector<parameterType>>& params, UINT totalVariations );
 		const std::string configDelim;
-		
 	private:
 		const PiezoType controllerType;
 		bool ctrlOption;
 		PiezoFlume flume;
 		SerialPiezoFlume serFlume;
 		std::vector<piezoChan<Expression>> experimentVals;
-
 };
+

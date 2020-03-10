@@ -319,6 +319,7 @@
     <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
     <ClCompile Include="Source\PrimaryWindows\DeformableMirrorWindow.cpp" />
+    <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -748,6 +749,8 @@
     <ClInclude Include="Source\DeformableMirror\DmOutputForm.h" />
     <ClInclude Include="Source\DeformableMirror\DmProfileCreator.h" />
     <ClInclude Include="Source\PrimaryWindows\DeformableMirrorWindow.h" />
+    <ClInclude Include="Source\AnalogInput\AiUnits.h" />
+    <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

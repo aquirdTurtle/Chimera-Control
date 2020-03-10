@@ -371,7 +371,6 @@ double AgilentCore::convertPowerToSetPoint ( double powerInMilliWatts, bool conv
 		{
 			setPointInVolts += coeff * std::pow (powerInMilliWatts, polyPower++);
 		}
-		//double setPointInVolts = slope * powerInMilliWatts + offset;
 		return setPointInVolts;
 	}
 	else

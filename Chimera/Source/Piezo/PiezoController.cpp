@@ -2,8 +2,8 @@
 #include "PiezoController.h"
 #include <boost/lexical_cast.hpp>
 
-PiezoController::PiezoController ( PiezoType piezoControllerType, std::string sn, std::string delim ) :
-	core( piezoControllerType, sn, delim )
+PiezoController::PiezoController (piezoSetupInfo info) :
+	core(info)
 {
 
 }
