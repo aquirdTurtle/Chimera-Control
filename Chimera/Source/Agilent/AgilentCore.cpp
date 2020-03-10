@@ -63,7 +63,8 @@ std::string AgilentCore::getDeviceInfo ()
 	return deviceInfo;
 }
 
-void AgilentCore::analyzeAgilentScript (scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
+void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<parameterType>& variables, 
+										 std::string& warnings )
 {
 	ScriptStream stream;
 	ExperimentThreadManager::loadAgilentScript (infoObj.fileAddress, stream);
@@ -75,7 +76,7 @@ void AgilentCore::analyzeAgilentScript (scriptedArbInfo& infoObj, std::vector<pa
 		int leaveTest;
 		try
 		{
-			leaveTest = infoObj.wave.analyzeAgilentScriptCommand (currentSegmentNumber, stream, variables);
+			leaveTest = infoObj.wave.analyzeAgilentScriptCommand (currentSegmentNumber, stream, variables, warnings);
 		}
 		catch (Error&)
 		{
@@ -370,7 +371,6 @@ double AgilentCore::convertPowerToSetPoint ( double powerInMilliWatts, bool conv
 		{
 			setPointInVolts += coeff * std::pow (powerInMilliWatts, polyPower++);
 		}
-		//double setPointInVolts = slope * powerInMilliWatts + offset;
 		return setPointInVolts;
 	}
 	else

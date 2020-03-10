@@ -14,6 +14,7 @@ extern CWnd* eMainWindowHwnd;
 extern std::unordered_map<std::string, COLORREF> _myRGBs;
 extern std::unordered_map<std::string, CBrush*> _myBrushes;
 void initMyColors ( );
+extern double infernoMap[256][3];
 /// some globals for niawg stuff, only for niawg stuff so I keep it here because...?
 extern const std::array<int, 2> AXES;
 // the following is used to receive the index of whatever axis is not your current axis.

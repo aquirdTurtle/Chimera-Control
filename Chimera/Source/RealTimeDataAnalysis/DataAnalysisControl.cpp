@@ -22,84 +22,80 @@ DataAnalysisControl::DataAnalysisControl( )
 }
 
 
-void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, 
-									  int isTriggerModeSensitive )
+void DataAnalysisControl::initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips )
 {
-	header.setPositions( pos, 0, 0, 480, 25, true, false, true );
-	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++);
+	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.sPos, parent, id++);
 	header.fontType = fontTypes::HeadingFont;
-	autoThresholdAnalysisButton.setPositions ( pos, 0, 0, 480, 25, true );
-	autoThresholdAnalysisButton.Create ( "Automatic Threshold Analysis", NORM_CHECK_OPTIONS, 
-										 autoThresholdAnalysisButton.seriesPos, parent, id++ );
-	autoThresholdAnalysisButton.setToolTip ( "At the end of an experiment, run some python code which will fit the "
-											 "data and determine good thresholds which can be outputted to a file to "
-											 "keep the thresholds used by the real-time analysis up-to-date.", 
-											 tooltips, parent );
-	currentDataSetNumberText.setPositions( pos, 0, 0, 350, 50 );
-	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, parent, 
-									 id++);
-	currentDataSetNumberDisp.setPositions( pos, 350, 0, 130, 50, true );
-	currentDataSetNumberDisp.Create("?", NORM_STATIC_OPTIONS, currentDataSetNumberDisp.seriesPos, parent, id++);
+
+	currentDataSetNumberText.sPos = { pos.x, pos.y, pos.x + 350, pos.y + 50 };
+	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS | SS_CENTERIMAGE, currentDataSetNumberText.sPos,  
+									parent, id++);
+	currentDataSetNumberDisp.sPos = { pos.x + 350, pos.y, pos.x + 480, pos.y += 50 };
+	currentDataSetNumberDisp.Create("?", NORM_STATIC_OPTIONS, currentDataSetNumberDisp.sPos, parent, id++);
 	currentDataSetNumberDisp.fontType = fontTypes::VeryLargeFont;
-	// Atom Grid Settings
-	gridHeader.setPositions( pos, 0, 0, 480, 25, true );
-	gridHeader.Create( "ATOM GRID SETTINGS", NORM_HEADER_OPTIONS, gridHeader.seriesPos, parent, id++ );
-	gridSelector.setPositions( pos, 0, 0, 50, 500 );
-	gridSelector.Create( NORM_COMBO_OPTIONS, gridSelector.seriesPos, parent, IDC_ATOM_GRID_COMBO );
+	gridSelector.sPos = { pos.x, pos.y, pos.x + 50, pos.y + 500 };
+	gridSelector.Create( NORM_COMBO_OPTIONS, gridSelector.sPos, parent, IDC_ATOM_GRID_COMBO );
 	gridSelector.AddString( "0" );
 	gridSelector.AddString( "New" );
 	gridSelector.SetCurSel( 0 );	
-	deleteGrid.setPositions( pos, 50, 0, 50, 25 );
-	deleteGrid.Create( "Del", NORM_PUSH_OPTIONS, deleteGrid.seriesPos, parent, IDC_DEL_GRID_BUTTON );	
-
-	setGridCorner.setPositions( pos, 100, 0, 200, 25 );
-	setGridCorner.Create( "Set Grid Top-Left Corner", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
-						  setGridCorner.seriesPos, parent, IDC_SET_GRID_CORNER );
-	gridSpacingText.setPositions( pos, 300, 0, 120, 25 );
-	gridSpacingText.Create("Pixel Spacing", NORM_STATIC_OPTIONS, gridSpacingText.seriesPos, parent, id++ );
-	gridSpacing.setPositions( pos, 420, 0, 60, 25, true );
-	gridSpacing.Create( NORM_EDIT_OPTIONS, gridSpacing.seriesPos, parent, id++ );
+	deleteGrid.sPos = { pos.x + 50, pos.y, pos.x + 100, pos.y + 25 };
+	deleteGrid.Create ("Del", NORM_PUSH_OPTIONS, deleteGrid.sPos, parent, IDC_DEL_GRID_BUTTON);
+	setGridCorner.sPos = { pos.x + 100, pos.y, pos.x + 200, pos.y + 25 };
+	setGridCorner.Create( "Set Grid T.L.", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX, setGridCorner.sPos,
+						  parent, IDC_SET_GRID_CORNER );
+	gridSpacingText.sPos = { pos.x + 200, pos.y, pos.x + 260, pos.y + 25 };
+	gridSpacingText.Create("Spacing", NORM_STATIC_OPTIONS, gridSpacingText.sPos, parent, id++ );
+	gridSpacing.sPos = { pos.x + 260, pos.y, pos.x + 290, pos.y + 25 };
+	gridSpacing.Create( NORM_EDIT_OPTIONS, gridSpacing.sPos, parent, id++ );
 	gridSpacing.SetWindowTextA( "0" );
-	gridWidthText.setPositions( pos, 0, 0, 120, 25 );
-	gridWidthText.Create( "Width", NORM_STATIC_OPTIONS, gridWidthText.seriesPos, parent, id++ );
-	gridWidth.setPositions( pos, 120, 0, 120, 25 );
-	gridWidth.Create( NORM_EDIT_OPTIONS, gridWidth.seriesPos, parent, id++ );
+	gridWidthText.sPos = { pos.x + 290, pos.y, pos.x + 350, pos.y + 25 };
+	gridWidthText.Create( "Width", NORM_STATIC_OPTIONS, gridWidthText.sPos, parent, id++ );
+	gridWidth.sPos = { pos.x + 350, pos.y, pos.x + 380, pos.y + 25 };
+	gridWidth.Create( NORM_EDIT_OPTIONS, gridWidth.sPos, parent, id++ );
 	gridWidth.SetWindowText( "0" );
-	gridHeightText.setPositions( pos, 240, 0, 120, 25 );
-	gridHeightText.Create( "Height", NORM_STATIC_OPTIONS, gridHeightText.seriesPos, parent, id++ );
-	gridHeight.setPositions( pos, 360, 0, 120, 25, true );
-	gridHeight.Create( NORM_EDIT_OPTIONS, gridHeight.seriesPos, parent, id++ );
+	gridHeightText.sPos = { pos.x + 380, pos.y, pos.x + 440, pos.y + 25 };
+	gridHeightText.Create( "Height", NORM_STATIC_OPTIONS, gridHeightText.sPos, parent, id++ );
+	gridHeight.sPos = { pos.x + 440, pos.y, pos.x + 480, pos.y += 25 };
+	gridHeight.Create( NORM_EDIT_OPTIONS, gridHeight.sPos, parent, id++ );
 	gridHeight.SetWindowTextA( "0" );
 	// 
-	manualSetAnalysisLocsButton.setPositions( pos, 0, 0, 240, 25, false );
-	manualSetAnalysisLocsButton.Create("Manual Analysis Points", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
-										manualSetAnalysisLocsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
+	manualSetAnalysisLocsButton.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
+	manualSetAnalysisLocsButton.Create("Manual Points?", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
+										manualSetAnalysisLocsButton.sPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
 
 	manualSetAnalysisLocsButton.EnableWindow( false );
-	displayGridBtn.setPositions ( pos, 240, 0, 240, 25, true );
-	displayGridBtn.Create ( "Display Grid?", NORM_CHECK_OPTIONS, displayGridBtn.seriesPos, parent, id++ );
+	displayGridBtn.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 25 };
+	displayGridBtn.Create ( "Display Grid?", NORM_CHECK_OPTIONS, displayGridBtn.sPos, parent, id++ );
 
 	/// PLOTTING FREQUENCY CONTROLS
-	updateFrequencyLabel1.setPositions( pos, 0, 0, 150, 25, false, false, true );
-	updateFrequencyLabel1.Create("Update plots every (", NORM_STATIC_OPTIONS | ES_CENTER | ES_RIGHT, 
-								  updateFrequencyLabel1.seriesPos, parent, id++);
-	updateFrequencyEdit.setPositions( pos, 150, 0, 50, 25, false, false, true );
-	updateFrequencyEdit.Create( NORM_EDIT_OPTIONS, updateFrequencyEdit.seriesPos, parent, id++);
+	updateFrequencyLabel1.sPos = { pos.x + 240, pos.y, pos.x + 390, pos.y + 25 };
+	updateFrequencyLabel1.Create("Update plots every (", NORM_STATIC_OPTIONS, updateFrequencyLabel1.sPos, parent, id++);
+
+	updateFrequencyEdit.sPos = { pos.x + 390, pos.y, pos.x + 420, pos.y + 25 };
+	updateFrequencyEdit.Create( NORM_EDIT_OPTIONS, updateFrequencyEdit.sPos, parent, id++);
 	updateFrequency = 5;
 	updateFrequencyEdit.SetWindowTextA("5");
-	updateFrequencyLabel2.setPositions( pos, 200, 0, 280, 25, true, false, true );
-	updateFrequencyLabel2.Create(") repetitions.", NORM_STATIC_OPTIONS | ES_CENTER | ES_LEFT,
-								  updateFrequencyLabel2.seriesPos, parent, id++);
+	updateFrequencyLabel2.sPos = { pos.x + 420, pos.y, pos.x + 480, pos.y += 25 };
+	updateFrequencyLabel2.Create(") reps.", NORM_STATIC_OPTIONS | ES_CENTER | ES_LEFT, updateFrequencyLabel2.sPos, 
+								  parent, id++);
 
-	plotTimerTxt.setPositions( pos, 0, 0, 360, 25 );
-	plotTimerTxt.Create( "Plot Update Timer Length (ms):", NORM_STATIC_OPTIONS, plotTimerTxt.seriesPos, parent, id++ );
-	plotTimerEdit.setPositions( pos, 360, 0, 120, 25, true );
-	plotTimerEdit.Create( NORM_EDIT_OPTIONS, plotTimerEdit.seriesPos, parent, IDC_PLOT_TIMER_EDIT );
+	plotTimerTxt.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
+	plotTimerTxt.Create( "Plot Update Timer (ms):", NORM_STATIC_OPTIONS, plotTimerTxt.sPos, parent, id++ );
+	plotTimerEdit.sPos = { pos.x + 180, pos.y, pos.x + 240, pos.y + 25 };
+	plotTimerEdit.Create( NORM_EDIT_OPTIONS, plotTimerEdit.sPos, parent, IDC_PLOT_TIMER_EDIT );
 	plotTimerEdit.SetWindowText( "5000" );
+	autoThresholdAnalysisButton.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
+	autoThresholdAnalysisButton.Create ("Auto Threshold Analysis?", NORM_CHECK_OPTIONS,
+		autoThresholdAnalysisButton.sPos, parent, id++);
+	autoThresholdAnalysisButton.setToolTip ("At the end of an experiment, run some python code which will fit the "
+		"data and determine good thresholds which can be outputted to a file to "
+		"keep the thresholds used by the real-time analysis up-to-date.",
+		tooltips, parent);
 
 	/// Initialize the listview
-	plotListview.setPositions( pos, 0, 0, 480, 150, true, false, true );
-	plotListview.Create( NORM_LISTVIEW_OPTIONS, plotListview.seriesPos, parent, IDC_PLOTTING_LISTVIEW );
+	plotListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 150 };
+	plotListview.Create( NORM_LISTVIEW_OPTIONS, plotListview.sPos, parent, IDC_PLOTTING_LISTVIEW );
 	RECT r;
 	parent->GetClientRect( &r );
 	// spacing is funny because initial window size is not full screen and the columns aren't autoscaled. This spacing
@@ -443,15 +439,15 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		if ( input->needsCounts )
 		{
 			// this part of code hasn't been implemented properly in a while, trying to maintain for later fix. Feb 13th 2018
-			imageQueue tempImage( input->grids.size( ) );
+			PixListQueue tempPixList( input->grids.size( ) );
 			std::lock_guard<std::mutex> locker( *input->plotLock );
 			if ( input->imQueue->size( ) == 0 )
 			{
 				// strange... spurious wakeups or memory corruption happening here?
 				continue;
 			}
-			tempImage = input->imQueue->front( );
-			if ( tempImage.size( ) == 0 )
+			tempPixList = input->imQueue->front( );
+			if ( tempPixList.size( ) == 0 )
 			{
 				// strange... spurious wakeups or memory corruption happening here?
 				continue;
@@ -464,7 +460,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 				{
 					for ( auto column : range( input->grids[gridCount].height ) )
 					{
-						countData[gridCount][locIndex].push_back( tempImage[gridCount].image[locIndex] );
+						countData[gridCount][locIndex].push_back( tempPixList[gridCount].image[locIndex] );
 						locIndex++;
 					}
 				}
@@ -871,31 +867,29 @@ std::vector<atomGrid> DataAnalysisControl::getGrids( )
 }
 
 
-void DataAnalysisControl::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height,
-									 fontMap fonts)
+void DataAnalysisControl::rearrange( int width, int height, fontMap fonts)
 {
-	updateFrequencyLabel1.rearrange(cameraMode, trigMode, width, height, fonts);
-	updateFrequencyLabel2.rearrange(cameraMode, trigMode, width, height, fonts);
-	autoThresholdAnalysisButton.rearrange ( cameraMode, trigMode, width, height, fonts );
-	updateFrequencyEdit.rearrange(cameraMode, trigMode, width, height, fonts);
-	header.rearrange(cameraMode, trigMode, width, height, fonts);
-	plotListview.rearrange(cameraMode, trigMode, width, height, fonts);
-	currentDataSetNumberDisp.rearrange( cameraMode, trigMode, width, height, fonts );
-	currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
-	manualSetAnalysisLocsButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridHeader.rearrange( cameraMode, trigMode, width, height, fonts );
-	setGridCorner.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridSpacingText.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridSpacing.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridWidthText.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridWidth.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridHeightText.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridHeight.rearrange( cameraMode, trigMode, width, height, fonts );
-	gridSelector.rearrange( cameraMode, trigMode, width, height, fonts );
-	deleteGrid.rearrange( cameraMode, trigMode, width, height, fonts );
-	plotTimerTxt.rearrange( cameraMode, trigMode, width, height, fonts );
-	plotTimerEdit.rearrange( cameraMode, trigMode, width, height, fonts );
-	displayGridBtn.rearrange ( cameraMode, trigMode, width, height, fonts );
+	updateFrequencyLabel1.rearrange(width, height, fonts);
+	updateFrequencyLabel2.rearrange(width, height, fonts);
+	autoThresholdAnalysisButton.rearrange ( width, height, fonts );
+	updateFrequencyEdit.rearrange(width, height, fonts);
+	header.rearrange(width, height, fonts);
+	plotListview.rearrange(width, height, fonts);
+	currentDataSetNumberDisp.rearrange( width, height, fonts );
+	currentDataSetNumberText.rearrange( width, height, fonts );
+	manualSetAnalysisLocsButton.rearrange( width, height, fonts );
+	setGridCorner.rearrange( width, height, fonts );
+	gridSpacingText.rearrange( width, height, fonts );
+	gridSpacing.rearrange( width, height, fonts );
+	gridWidthText.rearrange( width, height, fonts );
+	gridWidth.rearrange( width, height, fonts );
+	gridHeightText.rearrange( width, height, fonts );
+	gridHeight.rearrange( width, height, fonts );
+	gridSelector.rearrange( width, height, fonts );
+	deleteGrid.rearrange( width, height, fonts );
+	plotTimerTxt.rearrange( width, height, fonts );
+	plotTimerEdit.rearrange( width, height, fonts );
+	displayGridBtn.rearrange ( width, height, fonts );
 }
 
 

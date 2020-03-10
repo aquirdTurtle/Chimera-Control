@@ -11,7 +11,6 @@
 #include "ParameterSystem/ParameterSystem.h"
 #include "Scripts/Script.h"
 #include "GeneralObjects/RunInfo.h"
-//#include "RichEditControl.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "Microwave/MicrowaveSystem.h"
 #include "GeneralFlumes/GpibFlume.h"
@@ -43,7 +42,7 @@ struct whichAg
 
 
 class BaslerWindow;
-
+class DeformableMirrorWindow;
 
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
@@ -87,7 +86,7 @@ class AuxiliaryWindow : public CDialog
 		void Exit();
 		void passRoundToDac();
 		void loadFriends( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-						  BaslerWindow* basWin_ );
+						  BaslerWindow* basWin_, DeformableMirrorWindow* dmWin );
 		std::string getOtherSystemStatusMsg();
 		Matrix<std::string> getTtlNames();
 		DoSystem* getTtlSystem ();
@@ -169,6 +168,7 @@ class AuxiliaryWindow : public CDialog
 		ScriptingWindow* scriptWin;
 		AndorWindow* camWin;
 		BaslerWindow* basWin;
+		DeformableMirrorWindow* dmWin;
 		int plotIds = 17002;
 		CMenu menu;
 		std::string title;

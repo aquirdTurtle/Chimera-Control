@@ -24,7 +24,7 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
 		ttlBoard ( DOFTDI_SAFEMODE, true ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
-	piezo1(PIEZO_1_TYPE, "COM5", "PIEZO_CONTROLLER_1"), piezo2 ( PIEZO_2_TYPE, "COM4", "PIEZO_CONTROLLER_2" )
+	piezo1(PIEZO_1_INFO), piezo2 (PIEZO_2_INFO)
 {}
 
 
@@ -279,7 +279,7 @@ void AuxiliaryWindow::passCommonCommand ( UINT id )
 {
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, this, basWin );
+		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, this, basWin, dmWin );
 	}
 	catch ( Error& err )
 	{
@@ -331,7 +331,8 @@ void AuxiliaryWindow::autoOptimize ( )
 			return;
 		}
 		optimizer.reset ( );
-		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, mainWin, scriptWin, camWin, this, basWin );
+		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, mainWin, scriptWin, camWin, this, basWin, 
+											   dmWin );
 	}
 	catch ( Error& err )
 	{
@@ -877,12 +878,13 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value)
 
 
 void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								   BaslerWindow* basWin_)
+								   BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	camWin = camWin_;
 	basWin = basWin_;
+	dmWin = dmWindow;
 }
 
 

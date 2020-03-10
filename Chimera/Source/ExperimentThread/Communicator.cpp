@@ -124,7 +124,7 @@ void Communicator::sendColorBox( System sys, char code )
 		case System::Niawg:
 			colors = { code, '-', '-', '-' };
 			break;
-		case System::Camera:
+		case System::Andor:
 			colors = { '-', code, '-', '-' };
 			break;
 		case System::Master:

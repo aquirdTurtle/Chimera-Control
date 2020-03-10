@@ -4,6 +4,7 @@
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "boost/lexical_cast.hpp"
 #include "ExperimentThread/Communicator.h"
+#include "PhotodetectorCalibration.h"
 
 void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -87,16 +88,29 @@ void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
 							   AiSystem* ai_in, AoSystem* ao_in, DoSystem* ttls_in, ParameterSystem* globals_in )
 {
-	servosHeader.sPos = {pos.x, pos.y, pos.x + 480, pos.y + 20};
+	servosHeader.sPos = {pos.x, pos.y, pos.x += 280, pos.y + 20};
 	servosHeader.Create( "SERVOS & MONITORS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
- 	servoButton.sPos = { pos.x + 480, pos.y, pos.x + 780, pos.y + 20 };
+
+ 	servoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 20 };
 	servoButton.Create( "Servo-Once", NORM_PUSH_OPTIONS, servoButton.sPos, parent, IDC_SERVO_CAL );
 	servoButton.setToolTip ( "Force the servo to calibrate.", toolTips, parent );
+	
+	unitsCombo.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 100 };
+	unitsCombo.Create (NORM_COMBO_OPTIONS, unitsCombo.sPos, parent, IDC_SERVO_UNITS_COMBO);
+	for (auto unitsOpt : AiUnits::allOpts)
+	{
+		unitsCombo.AddString (AiUnits::toStr (unitsOpt).c_str ());
+	}
 
-	autoServoButton.sPos = { pos.x + 780, pos.y, pos.x + 960, pos.y += 20 };
-	autoServoButton.Create( "Auto-Servo", NORM_CHECK_OPTIONS, autoServoButton.sPos, parent, id++ );
-	autoServoButton.setToolTip ( "Automatically calibrate all servos after F1.", toolTips, parent );
+	expAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 20 };
+	expAutoServoButton.Create ("Exp. Auto-Servo?", NORM_CHECK_OPTIONS, expAutoServoButton.sPos, parent, id++);
+	expAutoServoButton.setToolTip ( "Automatically calibrate all servos before doing any experiment?", toolTips, parent);
 
+	calAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y += 20 };
+	calAutoServoButton.Create( "Cal. Auto-Servo?", NORM_CHECK_OPTIONS, calAutoServoButton.sPos, parent, id++ );
+	calAutoServoButton.setToolTip ( "Automatically calibrate all servos before doing standard calibration runs?", toolTips, parent );	
+
+	pos.x -= 960;
 	servoList.sPos = { pos.x, pos.y, pos.x + 960, pos.y += 340 };
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
 	servoList.InsertColumn ( 0,  "Name", 150 );
@@ -146,9 +160,21 @@ std::vector<servoInfo> ServoManager::getServoInfo ( )
 }
 
 
+AiUnits::which ServoManager::getUnitsOption()
+{
+	CString txt;
+	auto sel = unitsCombo.GetCurSel ();
+	sel = ((sel != -1) ? sel : 0);
+	unitsCombo.GetLBText (sel, txt);
+	return AiUnits::fromStr (str(txt));
+}
+
+
 void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 {
-	configStream << autoServoButton.GetCheck ( ) << "\n" << servos.size ( );
+
+	configStream << calAutoServoButton.GetCheck ( ) << "\n" << expAutoServoButton.GetCheck() << "\n" 
+		<< AiUnits::toStr(getUnitsOption()) << "\n" << servos.size ( ) << "\n";
 	for ( auto& servo : servos )
 	{
 		handleSaveMasterConfigIndvServo ( configStream, servo );
@@ -167,9 +193,18 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 		double tolerance;
 		configStream >> tolerance;
 	}
-	bool autoServo;
-	configStream >> autoServo;
-	autoServoButton.SetCheck( autoServo );
+	bool calAutoServo, expAutoServo;
+	configStream >> calAutoServo;
+	calAutoServoButton.SetCheck( calAutoServo );
+	if (version >= Version ("2.9"))
+	{
+		configStream >> expAutoServo;
+		expAutoServoButton.SetCheck (expAutoServo);
+		std::string units_txt;
+		configStream.get ();
+		getline (configStream, units_txt);
+		unitsCombo.SelectString (0, AiUnits::toStr(AiUnits::fromStr(units_txt)).c_str());
+	}
 	LONG numServosInFile;
 	configStream >> numServosInFile;
 	servos.clear ( );
@@ -276,7 +311,7 @@ void ServoManager::handleListViewClick ( )
 		case 2:
 		{
 			std::string setPointTxt;
-			TextPromptDialog dialog ( &setPointTxt, "Please enter a set point for the servo.", str(servo.setPoint) );
+			TextPromptDialog dialog ( &setPointTxt, "Please enter a set point for the servo (IN VOLTS).", str(servo.setPoint) );
 			dialog.DoModal ( );
 			try
 			{
@@ -297,11 +332,11 @@ void ServoManager::handleListViewClick ( )
 		case 7:
 		{	// ai
 			std::string aiTxt;
-			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at.", str(servo.aiInputChannel) );
+			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at.", str(servo.aiInChan) );
 			dialog.DoModal ( );
 			try
 			{
-				servo.aiInputChannel = boost::lexical_cast<UINT>( aiTxt );
+				servo.aiInChan = boost::lexical_cast<UINT>( aiTxt );
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
@@ -354,7 +389,7 @@ void ServoManager::handleListViewClick ( )
 		case 10:
 		{	// tolerance
 			std::string tolTxt;
-			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (V) for the servo.", str(servo.tolerance) );
+			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (%) for the servo.", str(servo.tolerance) );
 			dialog.DoModal ( );
 			try
 			{
@@ -443,11 +478,11 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 	configStream >> tmpInfo.servoName;
 	if ( version > Version ( "2.3" ) )
 	{
-		configStream >> tmpInfo.aiInputChannel >> tmpInfo.aoControlChannel;
+		configStream >> tmpInfo.aiInChan >> tmpInfo.aoControlChannel;
 	}
 	else
 	{
-		tmpInfo.aiInputChannel = tmpInfo.aoControlChannel = 0;
+		tmpInfo.aiInChan = tmpInfo.aoControlChannel = 0;
 	}
 	configStream >> tmpInfo.active >> tmpInfo.setPoint;
 	if ( version > Version ( "2.3" ) )
@@ -502,22 +537,23 @@ void ServoManager::refreshListview ( )
 }
 
 
-void ServoManager::addServoToListview ( servoInfo& s, UINT which )
+void ServoManager::addServoToListview ( servoInfo& si, UINT which )
 {
-	servoList.InsertItem ( s.servoName, which, 0 );
-	servoList.SetItem ( s.active ? "Yes" : "No", which, 1 );
-	servoList.SetItem ( str ( s.setPoint ), which, 2 );
-	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.controlValue ), which, 3 );
-	servoList.SetItem ( (s.changeInCtrl < 0 ? "" : "+") + str (s.changeInCtrl*100), which, 4);
-	servoList.SetItem ( str ( s.mostRecentResult ), which, 5);
-	servoList.SetItem ( str ( s.aiInputChannel ), which, 6 );
-	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.aoControlChannel ), which, 7 );
-	servoList.SetItem (servoTtlConfigToString (s.ttlConfig), which, 8 );
-	servoList.SetItem ( str ( s.tolerance ), which, 9 );
-	servoList.SetItem ( s.monitorOnly ? "--" : str ( s.gain ), which, 10 );
-	servoList.SetItem ( s.monitorOnly ? "Yes" : "No", which, 11 );
-	servoList.SetItem (servoDacConfigToString(s.aoConfig), which, 12);
-	servoList.SetItem (str (s.avgNum), which, 13);
+	auto ctp = [this, &si](double volt) {return convertToPower (volt, si); };
+	servoList.InsertItem (si.servoName, which, 0 );
+	servoList.SetItem (si.active ? "Yes" : "No", which, 1 );
+	servoList.SetItem ( str (ctp(si.setPoint) ), which, 2 );
+	servoList.SetItem (si.monitorOnly ? "--" : str (ctp(si.controlValue)), which, 3 );
+	servoList.SetItem ( (si.changeInCtrl < 0 ? "" : "+") + str (si.changeInCtrl*100), which, 4);
+	servoList.SetItem ( str (ctp(si.mostRecentResult) ), which, 5);
+	servoList.SetItem ( str (si.aiInChan ), which, 6 );
+	servoList.SetItem (si.monitorOnly ? "--" : str (si.aoControlChannel ), which, 7 );
+	servoList.SetItem (servoTtlConfigToString (si.ttlConfig), which, 8 );
+	servoList.SetItem ( str (si.tolerance ), which, 9 );
+	servoList.SetItem (si.monitorOnly ? "--" : str (si.gain ), which, 10 );
+	servoList.SetItem (si.monitorOnly ? "Yes" : "No", which, 11 );
+	servoList.SetItem (servoDacConfigToString(si.aoConfig), which, 12);
+	servoList.SetItem (str (si.avgNum), which, 13);
 }
 
 std::string ServoManager::servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig)
@@ -544,7 +580,7 @@ std::string ServoManager::servoTtlConfigToString (std::vector<std::pair<DoRows::
 
 void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo )
 {
-	configStream << servo.servoName << " " << servo.aiInputChannel << " " << servo.aoControlChannel << " "
+	configStream << servo.servoName << " " << servo.aiInChan << " " << servo.aoControlChannel << " "
 		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " " 
 		<< servoTtlConfigToString (servo.ttlConfig);
 	configStream << servo.aoConfig.size () << " ";
@@ -560,14 +596,20 @@ void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
 {
 	servosHeader.rearrange( width, height, fonts );
 	servoButton.rearrange( width, height, fonts );
-	autoServoButton.rearrange( width, height, fonts );
+	calAutoServoButton.rearrange( width, height, fonts );
+	expAutoServoButton.rearrange(width, height, fonts);
+	unitsCombo.rearrange (width, height, fonts);
 	servoList.rearrange ( width, height, fonts );
 }
 
-
-bool ServoManager::autoServo( )
+bool ServoManager::wantsCalAutoServo( )
 {
-	return autoServoButton.GetCheck( );
+	return calAutoServoButton.GetCheck( );
+}
+
+bool ServoManager::wantsExpAutoServo ()
+{
+	return expAutoServoButton.GetCheck ();
 }
 
 
@@ -592,6 +634,25 @@ void ServoManager::runAll( Communicator& comm)
 	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
 }
 
+/**
+ * expects the inputted power to be in -MILI-WATTS!
+ * returns set point in VOLTS
+ */
+double ServoManager::convertToPower (double volt, servoInfo& si)
+{
+	double power = 0;
+	// build the polynomial calibration.
+	UINT polyPower = 0;
+	auto opt = getUnitsOption ();
+	auto cc =  (opt == AiUnits::which::pdVolts ? std::vector<double> ({ 0,1 }) :
+				opt == AiUnits::which::atomsPower ? AI_SYSTEM_CAL[si.aiInChan].atAtomsCalCoeff 
+												  : AI_SYSTEM_CAL[si.aiInChan].atPdCalCoeff );
+	for (auto coeff : cc)
+	{
+		power += coeff * std::pow (volt, polyPower++);
+	}
+	return power;
+}
 
 void ServoManager::calibrate( servoInfo& s, UINT which )
 {
@@ -617,7 +678,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	Sleep (20); // give some time for the lasers to settle..
 	UINT attemptLimit = 100;
 	UINT count = 0;
-	UINT aiNum = s.aiInputChannel;
+	UINT aiNum = s.aiInChan;
 	UINT aoNum = s.aoControlChannel;
 	if ( s.monitorOnly )
 	{	// handle "servos" which are only monitoring values, not trying to change them. 
@@ -684,17 +745,16 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 			Sleep( 20 );
 			s.changeInCtrl = (s.controlValue - oldVal) / oldVal;
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
-			setResDisplay (which, s.mostRecentResult);
-			setChangeVal (which, s.changeInCtrl);
+			setResDisplay (which, convertToPower(s.mostRecentResult, s));
+			setChangeVal (which, convertToPower(s.changeInCtrl, s));
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
 	s.changeInCtrl = (s.controlValue - oldVal) / oldVal; 
 	setControlDisplay ( which, dacVal );
-	setResDisplay (which, s.mostRecentResult);
-	setChangeVal (which, s.changeInCtrl);
+	setResDisplay (which, convertToPower(s.mostRecentResult,s));
+	setChangeVal (which, convertToPower(s.changeInCtrl,s));
 	
-
 	s.servoed = (count < attemptLimit);
 	s.currentlyServoing = false;
 	if ( !s.servoed )

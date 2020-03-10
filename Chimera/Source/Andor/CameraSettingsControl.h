@@ -27,11 +27,12 @@ class AndorCameraSettingsControl
 		void setRepsPerVariation(UINT repsPerVar);
 		void updateRunSettingsFromPicSettings( );
 		CBrush* handleColor(int idNumber, CDC* colorer );
-		void initialize(cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips);
+		void initialize(POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain( bool currentlyOn, int currentEmGainLevel );
-		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
+		void rearrange(int width, int height, fontMap fonts);
+		void updateWindowEnabledStatus ();
 		void handlePictureSettings(UINT id);
 		void updateTriggerMode( );
 		void handleTriggerChange(AndorWindow* cameraWindow);
@@ -61,7 +62,7 @@ class AndorCameraSettingsControl
 		void handelSaveMasterConfig(std::stringstream& configFile);
 		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, AndorWindow* camWin);
 
-		std::vector<std::vector<long>> getImagesToDraw( const std::vector<std::vector<long>>& rawData  );
+		std::vector<Matrix<long>> getImagesToDraw( const std::vector<Matrix<long>>& rawData  );
 
 		const imageParameters fullResolution = { 1,512,1,512,1,1 };
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );

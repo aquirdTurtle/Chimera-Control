@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "AndorWindow.h"
 #include "ScriptingWindow.h"
+#include "DeformableMirrorWindow.h"
 
 #include "afxdialogex.h"
 
@@ -89,19 +90,20 @@ baslerSettings BaslerWindow::getCurrentSettings ( )
 
 
 void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								 AuxiliaryWindow* auxWin_ )
+								 AuxiliaryWindow* auxWin_, DeformableMirrorWindow* dmWindow )
 {
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	camWin = camWin_;
 	auxWin = auxWin_;
+	dmWin = dmWindow;
 }
 
 void BaslerWindow::passCommonCommand ( UINT id )
 {
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this );
+		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this, dmWin );
 	}
 	catch ( Error& err )
 	{
@@ -302,7 +304,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		SmartDC sdc (this);
 		auto runSttngs = basCamCore->getRunningSettings ();
 		auto minMax = stats.update ( *imageMatrix, 0, { 0,0 }, currentRepNumber, runSttngs.totalPictures() );
-		picManager.drawBitmap( sdc.get (), *imageMatrix, minMax );
+		picManager.drawBitmap( sdc.get (), *imageMatrix, minMax, 0 );
  		picManager.updatePlotData ( );
  		picManager.drawDongles ( sdc.get(), { 0,0 }, std::vector<coordinate>(), std::vector<atomGrid>(), 0 );
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous)

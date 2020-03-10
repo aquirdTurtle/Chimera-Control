@@ -11,72 +11,74 @@
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
 
-void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
+void PictureSettingsControl::initialize( POINT& pos, CWnd* parent, int& id )
 {
 	// introducing things row by row
 	/// Set Picture Options
 	UINT count = 0;
 	/// Picture Numbers
-	pictureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.seriesPos, parent, 
+	pictureLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
+	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.sPos, parent,
 						 PICTURE_SETTINGS_ID_START + count++ );
 	pictureLabel.fontType = fontTypes::SmallFont;
 
 	for ( auto picInc : range(4) )
 	{
-		pictureNumbers[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
-		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, pictureNumbers[picInc].seriesPos, 
+		pictureNumbers[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
+		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, pictureNumbers[picInc].sPos,
 									   parent, PICTURE_SETTINGS_ID_START + count++ );
 	}
-
+	pos.y += 20;
 	/// Total picture number
-	totalPicNumberLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.seriesPos, parent,
+	totalPicNumberLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
+	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.sPos, parent,
 								PICTURE_SETTINGS_ID_START + count++ );
 	totalPicNumberLabel.fontType = fontTypes::SmallFont;
 	for ( auto picInc : range ( 4 ) )
 	{
-		totalNumberChoice[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
+		totalNumberChoice[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
 		totalNumberChoice[ picInc ].Create ( "", ( picInc == 0 ) ? ( NORM_RADIO_OPTIONS | WS_GROUP ) : NORM_RADIO_OPTIONS,
-											 totalNumberChoice[ picInc ].seriesPos, parent, PICTURE_SETTINGS_ID_START + count++ );
+											 totalNumberChoice[ picInc ].sPos, parent, PICTURE_SETTINGS_ID_START + count++ );
 		totalNumberChoice[ picInc ].SetCheck ( picInc == 0 );
 	}
+	pos.y += 25;
 	/// Exposure Times
-	exposureLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.seriesPos, parent, 
+	exposureLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
+	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.sPos, parent,
 						  PICTURE_SETTINGS_ID_START + count++ );
 	exposureLabel.fontType = fontTypes::SmallFont;
-
 	for ( auto picInc : range(4) )
 	{
-		exposureEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
-		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].seriesPos, parent,
+		exposureEdits[picInc].sPos = { pos.x + 100 + 95 * picInc , pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
+		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].sPos, parent,
 									  PICTURE_SETTINGS_ID_START + count++ );
 	}
+	pos.y += 20;
 	setUnofficialExposures ( std::vector<float> ( 4, 10 / 1000.0f ) );
 
 	/// Thresholds
-	thresholdLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.seriesPos, parent,
+	thresholdLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
+	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.sPos, parent,
 						   PICTURE_SETTINGS_ID_START + count++ );
 	thresholdLabel.fontType = fontTypes::SmallFont;
 	for ( auto picInc : range(4) )
 	{
-		thresholdEdits[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 20, picInc == 3, false, true );
-		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, thresholdEdits[picInc].seriesPos, parent,
+		thresholdEdits[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
+		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, thresholdEdits[picInc].sPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
 		settings.thresholds[ picInc ] = { 100 };
 	}
+	pos.y += 20;
 	/// colormaps
-	colormapLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	colormapLabel.Create( "Colormap", NORM_STATIC_OPTIONS, colormapLabel.seriesPos, parent,
+	colormapLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 25 };
+	colormapLabel.Create( "Colormap", NORM_STATIC_OPTIONS, colormapLabel.sPos, parent,
 						  PICTURE_SETTINGS_ID_START + count++ );
 	colormapLabel.fontType = fontTypes::SmallFont;
 	for ( auto picInc : range(4) )
 	{
-		colormapCombos[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 100, false, false, true, false );
-		colormapCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].seriesPos, parent, 
+		colormapCombos[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 65 };
+		colormapCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].sPos, parent,
 									   PICTURE_SETTINGS_ID_START + count++ );
 		colormapCombos[picInc].fontType = fontTypes::SmallFont;
 		colormapCombos[picInc].AddString( "Dark Viridis" );
@@ -86,18 +88,16 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		colormapCombos[picInc].SetCurSel( 0 );
 		settings.colors[picInc] = 2;
 	}
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
+	pos.y += 25;
 	/// display types
-	displayTypeLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true);
-	displayTypeLabel.Create( "Display-Type:", NORM_STATIC_OPTIONS, displayTypeLabel.seriesPos, parent,
-						     PICTURE_SETTINGS_ID_START + count++ );
+	displayTypeLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 25 };
+	displayTypeLabel.Create( "Display-Type:", NORM_STATIC_OPTIONS, displayTypeLabel.sPos, parent,
+							  PICTURE_SETTINGS_ID_START + count++ );
 	displayTypeLabel.fontType = fontTypes::SmallFont;
 	for ( auto picInc : range ( 4 ) )
 	{
-		displayTypeCombos[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 95, 100, false, false, true, false );
-		displayTypeCombos[ picInc ].Create ( NORM_COMBO_OPTIONS, colormapCombos[ picInc ].seriesPos, parent,
+		displayTypeCombos[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 65 };
+		displayTypeCombos[ picInc ].Create ( NORM_COMBO_OPTIONS, colormapCombos[ picInc ].sPos, parent,
 											 PICTURE_SETTINGS_ID_START + count++ );
 		displayTypeCombos[ picInc ].fontType = fontTypes::SmallFont;
 		displayTypeCombos[ picInc ].AddString ( "Normal" );
@@ -108,29 +108,27 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		displayTypeCombos[ picInc ].SetCurSel ( 0 );
 		settings.colors[ picInc ] = 2;
 	}
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
-	pos.videoPos.y += 20;
+	pos.y += 25;
 
 	/// software accumulation mode	
-	softwareAccumulationLabel.setPositions ( pos, 0, 0, 100, 20, false, false, true );
-	softwareAccumulationLabel.Create ( "Software Accum:", NORM_STATIC_OPTIONS, softwareAccumulationLabel.seriesPos,
+	softwareAccumulationLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
+	softwareAccumulationLabel.Create ( "Software Accum:", NORM_STATIC_OPTIONS, softwareAccumulationLabel.sPos,
 									   parent, PICTURE_SETTINGS_ID_START + count++ );
 	softwareAccumulationLabel.fontType = fontTypes::SmallFont;
 	for ( auto picInc : range ( 4 ) )
 	{
-		softwareAccumulateAll[ picInc ].setPositions ( pos, 100 + 95 * picInc, 0, 65, 20, false, false, true );
-		softwareAccumulateAll[ picInc ].Create ( "All?", NORM_CHECK_OPTIONS, softwareAccumulateAll[ picInc ].seriesPos, parent,
+		softwareAccumulateAll[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * picInc+65, pos.y + 20 };
+		softwareAccumulateAll[ picInc ].Create ( "All?", NORM_CHECK_OPTIONS, softwareAccumulateAll[ picInc ].sPos, parent,
 												 PICTURE_SETTINGS_ID_START + count++ );
 		softwareAccumulateAll[ picInc ].SetCheck ( 0 );
 		softwareAccumulateAll[ picInc ].fontType = fontTypes::SmallFont;
-
-		softwareAccumulateNum[ picInc ].setPositions ( pos, 165 + 95 * picInc, 0, 30, 20, picInc==3, false, true );
-		softwareAccumulateNum[ picInc ].Create ( NORM_EDIT_OPTIONS, softwareAccumulateNum[ picInc ].seriesPos, parent,
+		softwareAccumulateNum[picInc].sPos = { pos.x + 165 + 95 * picInc, pos.y, pos.x + 195 + 95 * picInc, pos.y + 20 };
+		softwareAccumulateNum[ picInc ].Create ( NORM_EDIT_OPTIONS, softwareAccumulateNum[ picInc ].sPos, parent,
 												 PICTURE_SETTINGS_ID_START + count++ );
 		softwareAccumulateNum[ picInc ].SetWindowTextA ( "1" );
 		softwareAccumulateNum[ picInc ].fontType = fontTypes::SmallFont;
 	}
+	pos.y += 20;
 	//
 	setPictureControlEnabled (0, true);
 	setPictureControlEnabled (1, false);
@@ -495,10 +493,7 @@ void PictureSettingsControl::updateSettings( )
 			{
 				double indv_file_threshold;
 				thresholdFile >> indv_file_threshold;
-				if ( thresholdFile.eof ( ) )
-				{
-					break;
-				}
+				if ( thresholdFile.eof ( ) ) { break; }
 				picThresholds.push_back ( indv_file_threshold );
 			}
 		}
@@ -507,46 +502,45 @@ void PictureSettingsControl::updateSettings( )
 }
 
 
-void PictureSettingsControl::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, 
-										int height, fontMap fonts )
+void PictureSettingsControl::rearrange( int width, int height, fontMap fonts )
 {
-	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	pictureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	exposureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	thresholdLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	colormapLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	displayTypeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
-	softwareAccumulationLabel.rearrange ( cameraMode, triggerMode, width, height, fonts );
+	totalPicNumberLabel.rearrange(width, height, fonts);
+	pictureLabel.rearrange(width, height, fonts);
+	exposureLabel.rearrange(width, height, fonts);
+	thresholdLabel.rearrange(width, height, fonts);
+	colormapLabel.rearrange(width, height, fonts);
+	displayTypeLabel.rearrange(width, height, fonts );
+	softwareAccumulationLabel.rearrange (width, height, fonts );
 	for (auto& control : pictureNumbers)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : totalNumberChoice)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height, fonts);
+		control.rearrange( width, height, fonts);
 	}
 	for (auto& control : exposureEdits)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for (auto& control : thresholdEdits)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height, fonts);
+		control.rearrange(width, height, fonts);
 	}
 	for ( auto& control : colormapCombos )
 	{
-		control.rearrange( cameraMode, triggerMode, width, height, fonts );
+		control.rearrange(width, height, fonts );
 	}
 	for ( auto& control : displayTypeCombos )
 	{
-		control.rearrange( cameraMode, triggerMode, width, height, fonts );
+		control.rearrange(width, height, fonts );
 	}
 	for ( auto& control : softwareAccumulateAll )
 	{
-		control.rearrange ( cameraMode, triggerMode, width, height, fonts );
+		control.rearrange ( width, height, fonts );
 	}
 	for ( auto& control : softwareAccumulateNum )
 	{
-		control.rearrange ( cameraMode, triggerMode, width, height, fonts );
+		control.rearrange ( width, height, fonts );
 	}
 }

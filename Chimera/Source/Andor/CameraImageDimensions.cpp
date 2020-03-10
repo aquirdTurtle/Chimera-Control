@@ -12,76 +12,52 @@ ImageDimsControl::ImageDimsControl()
 }
 
 
-void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
+void ImageDimsControl::initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
+	leftText.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	leftText.Create( "Left", NORM_STATIC_OPTIONS, leftText.sPos, parent, id++);
 	//
-	leftText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
-	leftText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
-	leftText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftText.Create( "Left", NORM_STATIC_OPTIONS, leftText.seriesPos, parent, id++);
+	rightText.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	rightText.Create( "Right (/512)", NORM_STATIC_OPTIONS, rightText.sPos, parent, id++ );
 	//
-	rightText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
-	rightText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
-	rightText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightText.Create( "Right (/512)", NORM_STATIC_OPTIONS, rightText.seriesPos, parent, id++ );
+	horBinningText.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	horBinningText.Create( "H. Bin", NORM_STATIC_OPTIONS, horBinningText.sPos, parent, id++);
 	//
-	horBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	horBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	horBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horBinningText.Create( "H. Bin", NORM_STATIC_OPTIONS, horBinningText.seriesPos, parent, id++);
+	bottomLabel.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	bottomLabel.Create ("Bottom (/512)", NORM_STATIC_OPTIONS, bottomLabel.sPos, parent, id++);
 	//
-	leftEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
-	leftEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
-	leftEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, leftEdit.seriesPos, parent, IDC_IMAGE_DIMS_START );
+	topLabel.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	topLabel.Create ("Top", NORM_STATIC_OPTIONS, topLabel.sPos, parent, id++);
+	//
+	vertBinningText.sPos = { pos.x, pos.y, pos.x += 80, pos.y += 25 };
+	vertBinningText.Create ("V. Bin", NORM_STATIC_OPTIONS, vertBinningText.sPos, parent, id++);
+	pos.x -= 480;
+	//
+	leftEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	leftEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, leftEdit.sPos, parent, IDC_IMAGE_DIMS_START );
 	leftEdit.SetWindowTextA( "1" );
 	//
-	rightEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
-	rightEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
-	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, rightEdit.seriesPos, parent, IDC_IMAGE_DIMS_START+1);
+	rightEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	rightEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, rightEdit.sPos, parent, IDC_IMAGE_DIMS_START+1);
 	rightEdit.SetWindowTextA( "50" );
 	//
-	horBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	horBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	horBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, horBinningEdit.seriesPos, 
+	horBinningEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	horBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, horBinningEdit.sPos,
 						   parent, IDC_IMAGE_DIMS_START+2 );
 	horBinningEdit.SetWindowTextA( "1" );
 	//
-	bottomLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
-	bottomLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
-	bottomLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	bottomLabel.Create( "Bottom (/512)", NORM_STATIC_OPTIONS, bottomLabel.seriesPos, parent, id++);
-
-	//
-	topLabel.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
-	topLabel.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
-	topLabel.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	topLabel.Create( "Top", NORM_STATIC_OPTIONS, topLabel.seriesPos, parent, id++);
-	//
-	vertBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	vertBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	vertBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	vertBinningText.Create( "V. Bin", NORM_STATIC_OPTIONS, vertBinningText.seriesPos, parent, id++);
-	//
-	bottomEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
-	bottomEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
-	bottomEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	bottomEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, bottomEdit.seriesPos, parent, IDC_IMAGE_DIMS_START +3);
+	bottomEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	bottomEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, bottomEdit.sPos, parent, IDC_IMAGE_DIMS_START +3);
 	bottomEdit.SetWindowTextA( "1" );
 	//
-	topEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
-	topEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
-	topEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	topEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, topEdit.seriesPos, parent, IDC_IMAGE_DIMS_START + 4);
+	topEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
+	topEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, topEdit.sPos, parent, IDC_IMAGE_DIMS_START + 4);
 	topEdit.SetWindowTextA( "50" );
 	//
-	vertBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	vertBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	vertBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	vertBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, vertBinningEdit.seriesPos, parent, IDC_IMAGE_DIMS_START +5);
+	vertBinningEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y += 25 };
+	vertBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, vertBinningEdit.sPos, parent, IDC_IMAGE_DIMS_START +5);
 	vertBinningEdit.SetWindowTextA( "1" );
+	pos.x -= 480;
 }
 
 
@@ -503,20 +479,19 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 }
 
 
-void ImageDimsControl::rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height,
-								  fontMap fonts )
+void ImageDimsControl::rearrange( int width, int height, fontMap fonts )
 {
-	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	horBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	bottomLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
-	topLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
-	vertBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	leftEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	rightEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	horBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	bottomEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	topEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	vertBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	leftText.rearrange( width, height, fonts );
+	rightText.rearrange(width, height, fonts );
+	horBinningText.rearrange( width, height, fonts );
+	bottomLabel.rearrange( width, height, fonts );
+	topLabel.rearrange( width, height, fonts );
+	vertBinningText.rearrange( width, height, fonts );
+	leftEdit.rearrange( width, height, fonts );
+	rightEdit.rearrange( width, height, fonts );
+	horBinningEdit.rearrange( width, height, fonts );
+	bottomEdit.rearrange( width, height, fonts );
+	topEdit.rearrange( width, height, fonts );
+	vertBinningEdit.rearrange( width, height, fonts );
 }
 

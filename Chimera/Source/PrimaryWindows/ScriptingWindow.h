@@ -15,6 +15,7 @@ class MainWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
+class DeformableMirrorWindow;
 
 // a convenient structure for containing one object for each script. For example, the address of each script.
 template <typename type> struct scriptInfo
@@ -44,7 +45,8 @@ class ScriptingWindow : public CDialog
 		void passCommonCommand(UINT id);
 		void fillMotInput (ExperimentThreadInput* input);
 		void checkScriptSaves();
-		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_);
+		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_,
+			DeformableMirrorWindow* dmWindow);
 		void fillMasterThreadInput(ExperimentThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
 
@@ -110,6 +112,7 @@ class ScriptingWindow : public CDialog
 		
 		void passNiawgIsOnPress ();
 		void setNiawgRunningState (bool newRunningState);
+		void handleControlNiawgCheck ();
 		void loadCameraCalSettings (ExperimentThreadInput* input);
 		bool niawgIsRunning ();
 		void stopRearranger ();
@@ -129,6 +132,7 @@ class ScriptingWindow : public CDialog
 		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		BaslerWindow* basWin;
+		DeformableMirrorWindow* dmWin;
 		//
 		cToolTips tooltips;
 		NiawgSystem niawg;

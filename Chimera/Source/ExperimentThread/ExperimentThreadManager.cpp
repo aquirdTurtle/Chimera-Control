@@ -138,7 +138,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					input->comm.sendDebug ( debugStr );
 				}
 			}
-
 			seqNum++;
 		}
 	}
@@ -227,8 +226,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				{
 					if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
 					{
-						agilent.analyzeAgilentScript (agilentRunInfo[agInc].channel[channelInc].scriptedArb,
-							seqVariables);
+						agilent.analyzeAgilentScript ( agilentRunInfo[agInc].channel[channelInc].scriptedArb,
+													   seqVariables, warnings );
 					}
 				}
 			}
@@ -280,7 +279,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
 		if ( runMaster )
 		{
-			//ttls.shadeTTLs ( ttlShadeLocs );
 			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey(expParams);
 			ttls.restructureCommands ( );
@@ -383,6 +381,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			comm.sendPrepareBasler (baslerCamSettings);
 			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
+			comm.sendColorBox (System::Basler, 'G');
 			input->basCamera.armCamera ();
 		}
 		if (runAndor)
@@ -405,9 +404,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 			if ( input->debugOptions.sleepTime != 0 )
 			{
-				expUpdate ( "PAUSED!\r\n", comm, quiet );
 				Sleep ( input->debugOptions.sleepTime );
-				expUpdate ( "UNPAUSED!\r\n", comm, quiet );
 			}
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )
 			{
@@ -445,6 +442,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				} 
 				double kinTime;
 				input->andorCamera.armCamera ( kinTime );
+				comm.sendColorBox (System::Andor, 'G');
 			}
 			expUpdate( "Programming Devices... ", comm, quiet );
 			input->rsg.programRsg (variationInc, uwSettings);
@@ -499,14 +497,14 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					if (input->thisObj->isAborting) { thrower(abortString); }
 					else if (input->thisObj->isPaused)
 					{
-						expUpdate("Paused\r\n!", comm, quiet);
+						expUpdate("PAUSED\r\n!", comm, quiet);
 						while (input->thisObj->isPaused)
 						{
 							// this could be changed to be a bit smarter using a std::condition_variable
 							Sleep(100);
 							if (input->thisObj->isAborting) { thrower(abortString); }
 						}
-						expUpdate("Un-Paused!\r\n", comm, quiet);
+						expUpdate("UN-PAUSED!\r\n", comm, quiet);
 					}
 					comm.sendRepProgress(repInc + 1);
 					if (runMaster)
@@ -604,7 +602,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	expUpdate( "Experiment took " + str( int(exp_t) / 3600 )  + " hours, " + str(int(exp_t) % 3600 / 60) + " minutes, "
 			   + str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
 	input->thisObj->experimentIsRunning = false;
-	
 	delete input;
 	return false;
 }
@@ -645,13 +642,11 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		{}
 		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
 		{}
-		/// callcppcode function
 		else if ( word == "callcppcode" )
 		{
 			// and that's it... 
 			callCppCodeFunction ( );
 		}
-		/// deal with ttl commands
 		else if ( word == "loadskipentrypoint!" )
 		{
 			loadSkipFound = true;
@@ -662,7 +657,6 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		{
 			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
-		/// deal with function calls.
 		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, seqNum,
 									   warnings, PARENT_PARAMETER_SCOPE, operationTime ) )
 		{ }
@@ -1038,7 +1032,6 @@ void ExperimentThreadManager::loadMasterScript(std::string scriptAddress, Script
 	// dump the file into the stringstream.
 	std::stringstream buf( std::ios_base::app | std::ios_base::out | std::ios_base::in );
 	// IMPORTANT!
-	// always pulses the oscilloscope trigger at the end!
 	buf << "\r\n t = 0.01 \r\n pulseon: " + str( OSCILLOSCOPE_TRIGGER ) + " 0.02\r\n t += 0.1\r\n";
 	buf << scriptFile.rdbuf();
 	// this is used to more easily deal some of the analysis of the script.

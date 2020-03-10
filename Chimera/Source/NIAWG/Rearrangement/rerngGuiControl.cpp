@@ -79,6 +79,32 @@ void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips&
 }
 
 
+void rerngGuiControl::setEnabled (bool enabled)
+{
+	header.EnableWindow(enabled);
+	experimentIncludesRerng.EnableWindow (enabled);
+	flashingRateText.EnableWindow (enabled);
+	flashingRateEdit.EnableWindow (enabled);
+	moveSpeedText.EnableWindow (enabled);
+	moveSpeedEdit.EnableWindow (enabled);
+	movingBiasText.EnableWindow (enabled);
+	movingBiasEdit.EnableWindow (enabled);
+	deadTimeText.EnableWindow (enabled);
+	deadTimeEdit.EnableWindow (enabled);
+	staticMovingRatioText.EnableWindow (enabled);
+	staticMovingRatioEdit.EnableWindow (enabled);
+	preprogramMoves.EnableWindow (enabled);
+	useCalibration.EnableWindow (enabled);
+	outputRearrangeEvents.EnableWindow (enabled);
+	outputIndividualEvents.EnableWindow (enabled);
+	finalMoveTimeText.EnableWindow (enabled);
+	finalMoveTimeEdit.EnableWindow (enabled);
+	fastMoveTime.EnableWindow (enabled);
+	fastMoveTimeEdit.EnableWindow (enabled);
+	rerngModeCombo.EnableWindow (enabled);
+}
+
+
 rerngGuiOptionsForm rerngGuiControl::getParams( )
 {
 	rerngGuiOptionsForm tempParams;

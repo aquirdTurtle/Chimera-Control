@@ -2181,12 +2181,12 @@ typedef uInt32             CalHandle;
 //*** Value set StrainGageRosetteMeasurementType ***
 #define DAQmx_Val_PrincipalStrain1                                        15971 // Principal Strain 1
 #define DAQmx_Val_PrincipalStrain2                                        15972 // Principal Strain 2
-#define DAQmx_Val_PrincipalStrainAngle                                    15973 // Principal Strain Angle
+#define DAQmx_Val_PrincipalStrainAngle                                    15973 // Principal Strain angleLabel
 #define DAQmx_Val_CartesianStrainX                                        15974 // Cartesian Strain X
 #define DAQmx_Val_CartesianStrainY                                        15975 // Cartesian Strain Y
 #define DAQmx_Val_CartesianShearStrainXY                                  15976 // Cartesian Shear Strain XY
 #define DAQmx_Val_MaxShearStrain                                          15977 // Maximum Shear Strain
-#define DAQmx_Val_MaxShearStrainAngle                                     15978 // Maximum Shear Strain Angle
+#define DAQmx_Val_MaxShearStrainAngle                                     15978 // Maximum Shear Strain angleLabel
 
 //*** Values for DAQmx_AI_Strain_Units ***
 //*** Value set StrainUnits1 ***

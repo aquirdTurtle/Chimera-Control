@@ -314,6 +314,12 @@
     <ClCompile Include="Source\NIAWG\NiawgCore.cpp">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
+    <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
+    <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
+    <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\DeformableMirrorWindow.cpp" />
+    <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -737,18 +743,20 @@
     <ClInclude Include="Source\NIAWG\NiawgCore.h">
       <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DeformableMirror\DmControl.h" />
+    <ClInclude Include="Source\DeformableMirror\DmCore.h" />
+    <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
+    <ClInclude Include="Source\DeformableMirror\DmOutputForm.h" />
+    <ClInclude Include="Source\DeformableMirror\DmProfileCreator.h" />
+    <ClInclude Include="Source\PrimaryWindows\DeformableMirrorWindow.h" />
+    <ClInclude Include="Source\AnalogInput\AiUnits.h" />
+    <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
       <Filter>Resources</Filter>
     </Image>
     <Image Include="icon1.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="C:\Users\Regal Lab\Pictures\boseeinstein.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="Cold_Atoms_Icon.ico">
       <Filter>Resources</Filter>
     </Image>
     <Image Include="Atom.ico">

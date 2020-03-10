@@ -21,13 +21,14 @@ Agilent::Agilent( const agilentSettings& settings ) : core(settings),  initSetti
 void Agilent::programAgilentNow (std::vector<parameterType> constants)
 {
 	readGuiSettings ();
+	std::string warnings_;
 	if (currentGuiInfo.channel[0].scriptedArb.fileAddress != "")
 	{
-		core.analyzeAgilentScript (currentGuiInfo.channel[0].scriptedArb, constants);
+		core.analyzeAgilentScript (currentGuiInfo.channel[0].scriptedArb, constants, warnings_);
 	}
 	if (currentGuiInfo.channel[1].scriptedArb.fileAddress != "")
 	{
-		core.analyzeAgilentScript (currentGuiInfo.channel[1].scriptedArb, constants);
+		core.analyzeAgilentScript (currentGuiInfo.channel[1].scriptedArb, constants, warnings_);
 	}
 	core.convertInputToFinalSettings (1, 0, currentGuiInfo, constants);
 	core.convertInputToFinalSettings (1, 1, currentGuiInfo, constants);

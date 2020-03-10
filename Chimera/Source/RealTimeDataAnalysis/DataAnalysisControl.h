@@ -23,20 +23,19 @@ struct cameraPositions;
 typedef std::vector<std::vector<std::vector<double>>> variationData;
 typedef std::vector<std::vector<double>> avgData;
 
-
 class DataAnalysisControl
 {
 	public:
 		DataAnalysisControl( );
 		bool wantsThresholdAnalysis ( );
-		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, int isTriggerModeSensitive );
+		void initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		ULONG getPlotFreq( );
 		void handleOpenConfig( std::ifstream& file, Version ver );
 		void handleNewConfig( std::ofstream& file );
 		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
-		void rearrange( AndorRunModes::mode cameraMode, AndorTriggerMode::mode trigMode, int width, int height, fontMap fonts );
+		void rearrange( int width, int height, fontMap fonts );
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );
@@ -98,7 +97,6 @@ class DataAnalysisControl
 		Control<CleanPush> manualSetAnalysisLocsButton;
 
 		Control<CComboBox> gridSelector;
-		Control<CStatic> gridHeader;
 		Control<CleanPush> setGridCorner;
 		Control<CStatic> gridSpacingText;
 		Control<CEdit> gridSpacing;
@@ -109,7 +107,6 @@ class DataAnalysisControl
 
 		Control<CleanCheck> autoThresholdAnalysisButton;
 		Control<CleanCheck> displayGridBtn;
-
 
 		Control<CStatic> plotTimerTxt;
 		Control<CEdit> plotTimerEdit;

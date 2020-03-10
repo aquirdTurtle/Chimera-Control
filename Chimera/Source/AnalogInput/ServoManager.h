@@ -10,6 +10,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "ExperimentThread/Communicator.h"
+#include "AiUnits.h"
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
 gain, as this is all that's required for DC servoing. This is not designed to be run during the experiment, it's 
@@ -23,6 +24,8 @@ The servo system interplays between three separate systems in the code.
 
 - The options in an individual servo are saved in a Servo object.
 */
+
+
 class ServoManager
 {
 	public:
@@ -40,26 +43,30 @@ class ServoManager
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll (Communicator& comm);
 		void calibrate( servoInfo& s, UINT which );
-		bool autoServo( );
-		
+		bool wantsCalAutoServo( );
+		bool wantsExpAutoServo ();
+		double convertToPower (double volt, servoInfo& si);
 		void handleSaveMasterConfig( std::stringstream& configStream );
 		void handleOpenMasterConfig( std::stringstream& configStream, Version version );
 		void setControlDisplay ( UINT which, double value );
 		void handleListViewClick ( );
 		void deleteServo ( );
 		std::vector<servoInfo> getServoInfo ( );
+		AiUnits::which getUnitsOption ();
+		void refreshListview ();
 	private:
-
 		Control<CStatic> servosHeader;
 		Control<CleanPush> servoButton;
-		Control<CleanCheck> autoServoButton;
+		Control<CleanCheck> calAutoServoButton;
+		Control<CleanCheck> expAutoServoButton;
+		Control<CComboBox> unitsCombo;
 		void setResDisplay (UINT which, double value);
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
 		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
 		Control<MyListCtrl> servoList;
 		std::vector<servoInfo> servos;
-		void refreshListview ( );
 		void addServoToListview ( servoInfo& s, UINT which );
+		//{ {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0} };
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
 		to give to the ao system for changes.
@@ -69,4 +76,6 @@ class ServoManager
 		DoSystem* ttls;
 		ParameterSystem* globals;
 };
+
+
 

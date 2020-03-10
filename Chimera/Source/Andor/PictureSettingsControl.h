@@ -35,7 +35,7 @@ class PictureSettingsControl
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCameraCore* andor);
-		void initialize( cameraPositions& pos, CWnd* parent, int& id);
+		void initialize( POINT& pos, CWnd* parent, int& id);
 		void handleOptionChange( int id );
 		void setPictureControlEnabled (int pic, bool enabled);
 		void setUnofficialExposures ( std::vector<float> times );
@@ -46,7 +46,7 @@ class PictureSettingsControl
 		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
 		CBrush* colorControls(int idNumber, CDC* colorer );
 		void setThresholds( std::array<std::string, 4> thresholds);
-		void rearrange(AndorRunModes::mode cameraMode, AndorTriggerMode::mode triggerMode, int width, int height, fontMap fonts);
+		void rearrange(int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
 		void updateSettings( );
 		void updateColormaps ( std::array<int, 4> colorsIndexes );

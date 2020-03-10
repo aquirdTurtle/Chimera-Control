@@ -15,7 +15,7 @@ class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
 class BaslerWindow;
-
+class DeformableMirrorWindow;
 
 class BaslerWindow : public CDialogEx
 {
@@ -47,7 +47,8 @@ class BaslerWindow : public CDialogEx
 		void OnMouseMove(UINT flags, CPoint point );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void DoDataExchange( CDataExchange* pDX );
-		void loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_ );
+		void loadFriends (MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_,
+			DeformableMirrorWindow* dmWindow);
 		void handleSavingConfig ( std::ofstream& configFile );
 		baslerSettings getCurrentSettings ( );
 		void setMenuCheck ( UINT menuItem, UINT itemState );
@@ -77,6 +78,7 @@ class BaslerWindow : public CDialogEx
 		AndorWindow* camWin;
 		AuxiliaryWindow* auxWin;
 		ScriptingWindow* scriptWin;
+		DeformableMirrorWindow* dmWin;
 		coordinate selectedPixel = { 0,0 };
 	protected:
 		HICON m_hIcon;
