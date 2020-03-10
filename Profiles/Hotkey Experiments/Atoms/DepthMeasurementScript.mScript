@@ -15,6 +15,7 @@ t += 20
 pulseon: tweezerIntensityTrig 0.1 
 pulseon: dds_step 5
 call pgcAtomFlashingImage()
+t += 50
 pulseon: tweezerIntensityTrig 0.1
 t += 1
 call intrapgreymolasses()
@@ -22,7 +23,7 @@ pulseon: tweezerIntensityTrig 0.1
 t += 1.1
 call pushout_all()
 pulseon: tweezerIntensityTrig 0.1
-t += 20
+t += 5
 pulseon: tweezerIntensityTrig 0.1
 t += 1.1
 call pgcAtomFlashingImage()

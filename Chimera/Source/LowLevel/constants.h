@@ -202,10 +202,10 @@
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	//constexpr char UW_SYSTEM_ADDRESS[] = "28";
 	constexpr short UW_SYSTEM_ADDRESS = 28;
-	constexpr bool UW_SYSTEM_SAFEMODE = false;
+	constexpr bool UW_SYSTEM_SAFEMODE = true;
 	constexpr bool DOFTDI_SAFEMODE = false;
 	constexpr bool DDS_SAFEMODE = false;
-	const PiezoType PIEZO_1_TYPE = PiezoType::NONE;
+	const PiezoType PIEZO_1_TYPE = PiezoType::B;
 	const PiezoType PIEZO_2_TYPE = PiezoType::B;
 	constexpr bool BASLER_SAFEMODE = false;
 	constexpr bool NIAWG_SAFEMODE = false;
@@ -215,7 +215,7 @@
 	#else
 		constexpr bool  PYTHON_SAFEMODE = false;
 	#endif
-	constexpr bool AUTO_CALIBRATE = true;
+	constexpr bool AUTO_CALIBRATE = false;
 	constexpr bool VIEWPOINT_SAFEMODE = true;
 	constexpr bool DAQMX_SAFEMODE = false;
 	constexpr bool TOP_BOTTOM_TEK_SAFEMODE = false;
@@ -230,7 +230,7 @@
 	constexpr auto INTENSITY_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
 	constexpr bool FLASHING_SAFEMODE = false;
 	constexpr auto FLASHING_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50003003::0::INSTR";
-	constexpr bool UWAVE_SAFEMODE = false;
+	constexpr bool UWAVE_SAFEMODE = true;
 	constexpr auto UWAVE_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 	constexpr bool MASTER_REPUMP_SCOPE_SAFEMODE = true;
 	constexpr auto MASTER_REPUMP_SCOPE_ADDRESS = "USB0::0x0699::0x03B3::C011388::0::INSTR";

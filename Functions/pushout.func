@@ -2,7 +2,6 @@
 def pushout():
   off: sideMotRf
   off: repumpRf
-  
   % not pushing out F=1
   var pushoutfreq -0.5
   dac: motFreq pushoutFreq
