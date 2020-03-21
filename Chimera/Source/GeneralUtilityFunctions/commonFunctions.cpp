@@ -472,9 +472,6 @@ namespace commonFunctions
 					mainWin->getComm ()->sendStatus (calInfo.infoStr);
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->runList = calInfo.runList;
-					input.masterInput->seq.name = calInfo.fileName;
-					input.masterInput->seq.sequence.resize (1);
-					input.masterInput->seq.sequence[0] = input.masterInput->profile;
 					input.masterInput->expType = ExperimentType::AutoCal;
 					logStandard (input, andorWin->getLogger (), mainWin->getServoinfo (), calInfo.fileName, false);
 					startExperimentThread (mainWin, input);
@@ -609,7 +606,6 @@ namespace commonFunctions
 			scriptWin->setNiawgRunningState( true );
 		}
 		// Start the programming thread. order is important.
-		mainWin->fillMasterThreadSequence( input.masterInput );
 		auxWin->fillMasterThreadInput( input.masterInput );
 		mainWin->fillMasterThreadInput( input.masterInput );
 		andorWin->fillMasterThreadInput( input.masterInput );

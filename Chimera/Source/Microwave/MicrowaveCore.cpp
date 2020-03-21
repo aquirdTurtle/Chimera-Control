@@ -45,35 +45,26 @@ void MicrowaveCore::setPmSettings ()
 }
 
 
-void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& params, microwaveSettings& settings)
+void MicrowaveCore::interpretKey (std::vector<parameterType>& params, microwaveSettings& settings)
 {
 	if (!settings.control)
 	{
 		return;
 	}
 	UINT variations;
-	UINT sequencNumber;
 	if (params.size () == 0)
-	{
-		thrower ("ERROR: empty variables! no sequence size!");
-	}
-	else if (params[0].size () == 0)
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = params.front ().front ().keyValues.size ();
+		variations = params.front ().keyValues.size ();
 	}
-	sequencNumber = params.size ();
 	/// imporantly, this sizes the relevant structures.
-	for (auto seqNum : range (sequencNumber))
+	for (auto freqInc : range(settings.list.size()))
 	{
-		for (auto freqInc : range(settings.list.size()))
-		{
-			settings.list[freqInc].frequency.internalEvaluate (params[seqNum], variations);
-			settings.list[freqInc].power.internalEvaluate (params[seqNum], variations);
-		}
+		settings.list[freqInc].frequency.internalEvaluate (params, variations);
+		settings.list[freqInc].power.internalEvaluate (params, variations);
 	}
 }
 

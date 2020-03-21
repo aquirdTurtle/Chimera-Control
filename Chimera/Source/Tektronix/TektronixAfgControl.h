@@ -31,7 +31,7 @@ class TektronixAfgControl
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		void handleProgram(std::vector<std::vector<parameterType>> constants);
+		void handleProgram(std::vector<parameterType> constants);
 		std::string getDelim ();
 		TekCore& getCore ();
 		static tektronixInfo getTekInfo (std::ifstream& configFile, Version ver);

@@ -570,18 +570,13 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 /*
 This function is for logging things that are read from the configuration file and otherwise obtained inside the main experiment thread.
 */
-void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<std::vector<parameterType>> allParams)
+void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<parameterType> allParams)
 {
 	try
 	{
 		H5::Group runtimeGroup ( file.createGroup ( "/Master-Runtime" ) );
 		writeDataSet ( repNumber, "Repetitions", runtimeGroup );
-		UINT count = 0;
-		for ( auto& seqParams : allParams )
-		{
-			logParameters ( seqParams, runtimeGroup, count );
-			count++;
-		}
+		logParameters ( allParams, runtimeGroup );
 	}
 	catch ( H5::Exception& err )
 	{
@@ -631,9 +626,9 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 }
 
 
-void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5::Group& group, UINT seqInc )
+void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5::Group& group )
 {
-	H5::Group paramGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Parameters" );
+	H5::Group paramGroup = group.createGroup( "Parameters" );
 	for ( auto& param : parameters )
 	{
 		H5::DataSet varSet;
@@ -812,14 +807,11 @@ void DataLogger::logNiawgSettings(ExperimentThreadInput* input, bool runNiawg)
 	if (runNiawg)
 	{
 		UINT seqInc = 0;
-		for ( auto config : input->seq.sequence )
-		{
-			std::string niawgAddr = ProfileSystem::getNiawgScriptAddrFromConfig( config );
-			ScriptStream niawgStream;
-			ExperimentThreadManager::loadNiawgScript ( niawgAddr, niawgStream );
-			writeDataSet( niawgStream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
-			seqInc++;
-		}
+		std::string niawgAddr = ProfileSystem::getNiawgScriptAddrFromConfig( input->profile );
+		ScriptStream niawgStream;
+		ExperimentThreadManager::loadNiawgScript ( niawgAddr, niawgStream );
+		writeDataSet( niawgStream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
+		seqInc++;
 		writeDataSet( NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup );
 		writeDataSet( NIAWG_GAIN, "NIAWG-Gain", niawgGroup );
 	}

@@ -54,7 +54,7 @@ class NiawgCore
 		void handleStartingRerng( ExperimentThreadInput* input, NiawgOutput& output );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		
-		void handleVariations( NiawgOutput& output, std::vector<std::vector<parameterType>>& variables, UINT variation, 
+		void handleVariations( NiawgOutput& output, std::vector<parameterType>& variables, UINT variation, 
 							   std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
 							   UINT totalVariations, rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui );
 		void analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile,
@@ -96,7 +96,7 @@ class NiawgCore
 		void programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
 						   UINT totalVariations, std::vector<long>& variedMixedSize, 
 						   std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
-						   rerngGuiOptions& rerngGui, std::vector<std::vector<parameterType>>& expParams);
+						   rerngGuiOptions& rerngGui, std::vector<parameterType>& expParams);
 		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();
@@ -114,7 +114,7 @@ class NiawgCore
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source,
 								   std::vector<complexMove> &flashMoves, rerngGuiOptions options );
-		void finalizeScript ( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
+		void finalizeScript ( ULONGLONG repetitions, std::string name, std::string workingUserScripts,
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
 		static void generateWaveform ( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time,

@@ -281,11 +281,6 @@ void MainWindow::OnTimer( UINT_PTR id ) { OnPaint( ); }
 
 void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 {
-	input->seq.name = "CameraCal";
-	input->seq.sequence.resize( 1 );
-	input->seq.sequence[0].configuration = "Camera-Calibration";
-	input->seq.sequence[0].configLocation = CAMERA_CAL_ROUTINE_ADDRESS;
-	input->seq.sequence[0].parentFolderName = "Camera";
 	input->skipNext = NULL;
 	input->expType = ExperimentType::CameraCal;
 }
@@ -921,9 +916,6 @@ void MainWindow::fillMotInput( ExperimentThreadInput* input )
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
-	input->seq.name = "loadMot";
-	input->seq.sequence.resize( 1 );
-	input->seq.sequence[ 0 ] = input->seq.sequence[ 0 ] = input->profile;
 	// the mot procedure doesn't need the NIAWG at all.
  	input->skipNext = NULL;
 	input->runList.andor = false;
@@ -939,12 +931,6 @@ unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 		try	{ input->refreshData ( ); }
 		catch ( Error&  ) { /* ??? */ }
 	}
-}
-
-
-void MainWindow::fillMasterThreadSequence( ExperimentThreadInput* input )
-{
-	input->seq = profile.getSeqSettings( );
 }
 
 bool MainWindow::masterIsRunning () { return expThreadManager.runningStatus (); }
@@ -970,7 +956,6 @@ void MainWindow::fillMasterThreadInput(ExperimentThreadInput* input)
 {
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();
-	input->seq = profile.getSeqSettings( );
 }
 
 

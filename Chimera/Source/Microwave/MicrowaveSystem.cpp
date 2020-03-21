@@ -46,7 +46,7 @@ void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWind
 	pos.y += 100;
 }
 
-void MicrowaveSystem::programNow(std::vector<std::vector<parameterType>> constants)
+void MicrowaveSystem::programNow(std::vector<parameterType> constants)
 {
 	microwaveSettings settings;
 	// ignore the check if the user literally presses program now.

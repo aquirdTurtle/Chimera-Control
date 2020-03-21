@@ -62,7 +62,7 @@ class ParameterSystem
 		void checkScanDimensionConsistency ( );
 		void checkVariationRangeConsistency ( );
 		void saveParameter ( std::ofstream& saveFile, parameterType variable );
-		static void generateKey ( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
+		static void generateKey ( std::vector<parameterType>& variables, bool randomizeVariablesOption,
 								  ScanRangeInfo inputRangeInfo );
 		static std::vector<parameterType> combineParamsForExpThread ( std::vector<parameterType>& masterVars,
 																				 std::vector<parameterType>& subVars );
@@ -84,7 +84,7 @@ class ParameterSystem
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setParameterControlActive(bool active);
-		void setUsages(std::vector<std::vector<parameterType>> vars);
+		void setUsages(std::vector<parameterType> vars);
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
 		// file handling

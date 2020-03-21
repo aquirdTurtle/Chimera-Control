@@ -30,7 +30,7 @@ class MicrowaveSystem
 		static const std::string delim;
 		static microwaveSettings getMicrowaveSettingsFromConfig (std::ifstream& openFile, Version ver);
 		void setMicrowaveSettings (microwaveSettings settings);
-		void programNow (std::vector<std::vector<parameterType>> constants);
+		void programNow (std::vector<parameterType> constants);
 	private:
 		MicrowaveCore core;
 		Control<CStatic> header;
