@@ -12,6 +12,7 @@
 #include <array>
 #include "AnalogOutput/DaqMxFlume.h"
 
+
 /*
  * This is a interface for taking analog input data through an NI card that uses DAQmx. These cards are generally 
  * somewhat flexible, but right now I only use it to read and record voltage values from Analog inputs.

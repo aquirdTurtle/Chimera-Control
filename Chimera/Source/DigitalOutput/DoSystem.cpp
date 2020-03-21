@@ -71,31 +71,6 @@ Matrix<std::string> DoSystem::getAllNames()
 	return core.getAllNames ();
 }
 
-
-void DoSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
-{
-	for (UINT shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
-	{
-		auto& row = shadeList[shadeInc].first;
-		auto& col = shadeList[shadeInc].second;
-		outputs ( col, DoRows::which ( row ) ).shade ( true );
-	}
-	for (auto& out : outputs)
-	{
-		out.enable ( 0 );
-	}
-}
-
-
-void DoSystem::unshadeTtls()
-{
-	for ( auto& out : outputs )
-	{
-		out.shade ( false );
-	}
-}
-
-
 void DoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	ttlTitle.rearrange( width, height, fonts);
@@ -223,11 +198,6 @@ void DoSystem::handleTTLPress(int id)
 	{		
 		if ( out.getCheckID ( ) == id )
 		{
-			if ( out.getShadeStatus() )
-			{
-				// if indeterminante (i.e. shaded), you can't change it, but that's fine, just return.
-				return;
-			}
 			if ( holdStatus == false )
 			{
 				out.set (!out.getStatus ()); 
@@ -241,7 +211,6 @@ void DoSystem::handleTTLPress(int id)
 		}
 	}
 }
-
 
 // this function handles when the hold button is pressed.
 void DoSystem::handleHoldPress()

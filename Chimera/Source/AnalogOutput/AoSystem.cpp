@@ -944,24 +944,23 @@ void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-										std::vector<parameterType>& vars, DoCore& ttls, UINT seqNum )
+void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
+									   DoCore& ttls, UINT seqNum )
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{
 		thrower ( "dac commandName not recognized!" );
 	}
-	if (!isValidDACName( name))
+	if ( !isValidDACName( name ) )
 	{
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	// convert name to corresponding dac line.
-	command.line = getDacIdentifier(name);
+	command.line = getDacIdentifier( name );
 	if ( command.line == -1)
 	{
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
-	dacShadeLocations.push_back( command.line );
 	setDacCommandForm( command, seqNum );
 }
 
@@ -1067,24 +1066,4 @@ double AoSystem::getDacValue(int dacNumber)
 }
 
 
-void AoSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
-{
-	for ( auto shadeLoc : dacShadeLocations )
-	{
-		outputs[ shadeLoc ].shade ( );
-	}
-	for (auto& output : outputs)
-	{
-		output.disable ( );
-	}
-}
-
-
-void AoSystem::unshadeDacs()
-{
-	for (auto& output : outputs)
-	{
-		output.unshade ( );
-	}
-}
 

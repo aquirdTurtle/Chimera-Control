@@ -178,29 +178,10 @@ HBRUSH AnalogOutput::handleColorMessage ( int id, CWnd* window, CDC* cDC )
 	return NULL;
 }
 
-void AnalogOutput::shade ( )
-{
-	edit.colorState = -1;
-	edit.SetReadOnly ( true );
-	edit.InvalidateRect ( NULL );
-}
-
 void AnalogOutput::disable ( )
 {
 	edit.EnableWindow ( 0 );
 }
-
-void AnalogOutput::unshade ( )
-{
-	edit.EnableWindow ( );
-	if ( edit.colorState == -1 )
-	{
-		edit.colorState = 0;
-		edit.SetReadOnly ( false );
-		edit.RedrawWindow ( );
-	}
-}
-
 
 bool AnalogOutput::handleArrow ( CWnd* focus, bool up )
 {

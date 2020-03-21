@@ -53,8 +53,6 @@ class DoSystem
 		std::string getName ( DoRows::which row, UINT number );
 		Matrix<std::string> getAllNames ();
 		bool getTtlStatus ( DoRows::which row, int number );
-		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
-		void unshadeTtls();
 		void updateDefaultTtl( DoRows::which row, UINT column, bool state);
 		bool getDefaultTtl( DoRows::which row, UINT column);
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );

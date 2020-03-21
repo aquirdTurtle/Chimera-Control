@@ -731,8 +731,7 @@ int DoCore::getNameIdentifier (std::string name, DoRows::which& row, UINT& numbe
 
 
 void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::string name, Expression pulseLength,
-	std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-	std::vector<parameterType>& vars, UINT seqNum, std::string scope)
+									 std::vector<parameterType>& vars, UINT seqNum, std::string scope)
 {
 	if (!isValidTTLName (name))
 	{
@@ -742,7 +741,6 @@ void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::st
 	UINT collumn;
 	DoRows::which row;
 	getNameIdentifier (name, row, collumn);
-	ttlShadeLocations.push_back ({ int (row), collumn });
 	if (command == "on:")
 	{
 		ttlOn (int (row), collumn, time, seqNum);
@@ -775,10 +773,9 @@ void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::st
 	}
 }
 
-void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::string name,
-	std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
+void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::string name, 
 	std::vector<parameterType>& vars, UINT seqNum, std::string scope)
 {
 	// use an empty expression.
-	handleTtlScriptCommand (command, time, name, Expression (), ttlShadeLocations, vars, seqNum, scope);
+	handleTtlScriptCommand (command, time, name, Expression (), vars, seqNum, scope);
 }
