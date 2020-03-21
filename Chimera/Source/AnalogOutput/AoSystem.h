@@ -47,8 +47,6 @@ class AoSystem
 		
 		void handleRoundToDac( MainWindow* menu );
 		void updateEdits( );
-		void shadeDacs( std::vector<unsigned int>& dacShadeLocations );
-		void unshadeDacs( );
 		void setDefaultValue( UINT dacNum, double val );
 		void setName( int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master );
 		void setNote ( int dacNumber, std::string note, cToolTips& toolTips, AuxiliaryWindow* master );
@@ -65,8 +63,8 @@ class AoSystem
 		void setDacTriggerEvents( DoCore& ttls, UINT variation, UINT seqNum );
 		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands( UINT variation, UINT seqNum );
-		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-									 std::vector<parameterType>& vars, DoCore& ttls, UINT seqNum );
+		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
+									 DoCore& ttls, UINT seqNum );
 		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
 		void makeFinalDataFormat( UINT variation, UINT seqNum );

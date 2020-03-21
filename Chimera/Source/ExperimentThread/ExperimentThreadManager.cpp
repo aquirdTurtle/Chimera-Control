@@ -74,61 +74,56 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				ParameterSystem::combineParamsForExpThread ( 
 					ParameterSystem::getConfigParamsFromFile (configInfo.configFilePath ()),
 					input->globalParameters));
-			std::ifstream configFile (configInfo.configFilePath ());
+			std::ifstream cFile (configInfo.configFilePath ());
+			using PS = ProfileSystem;
 			if ( runMaster )
 			{
-				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
-				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
-				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
-																			   DdsCore::getRampListFromConfig );
+				seq.masterScript = PS::getMasterAddressFromConfig( configInfo );
+				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );				
+				ddsRampList[ seqNum ] = PS::stdGetFromConfig ( cFile, dds.configDelim,
+																		  DdsCore::getRampListFromConfig );
 				for ( auto piezoInc : range(input->piezoCores.size()))
 				{
-					auto res = ProfileSystem::stdGetFromConfig (
-						configFile, input->piezoCores[ piezoInc ].get().configDelim, 
-						PiezoCore::getPiezoSettingsFromConfig );
+					auto res = PS::stdGetFromConfig ( cFile, input->piezoCores[ piezoInc ].get().configDelim, 
+													  PiezoCore::getPiezoSettingsFromConfig );
 					piezoExpressions[ piezoInc ][ seqNum ] 
 						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
 					ctrlPztOptions[ piezoInc ][ seqNum ] = res.second;
 				}
-				mainOpts = ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
-																  MainOptionsControl::getMainOptionsFromConfig );
-				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
-																Repetitions::getRepsFromConfig );
-				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
-															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
-				tekInfo[tbTek] = ProfileSystem::stdGetFromConfig (configFile, input->topBottomTek.configDelim,
-																  TektronixAfgControl::getTekInfo);
-				tekInfo[aeTek] = ProfileSystem::stdGetFromConfig (configFile, input->eoAxialTek.configDelim,
-																  TektronixAfgControl::getTekInfo);
+				mainOpts = PS::stdGetFromConfig ( cFile, "MAIN_OPTIONS", MainOptionsControl::getMainOptionsFromConfig );
+				repetitions = PS::stdGetFromConfig ( cFile, "REPETITIONS",	Repetitions::getRepsFromConfig );
+				uwSettings = PS::stdGetFromConfig ( cFile, MicrowaveSystem::delim, MicrowaveSystem::getMicrowaveSettingsFromConfig);
+				tekInfo[tbTek] = PS::stdGetFromConfig (cFile, input->topBottomTek.configDelim, TektronixAfgControl::getTekInfo);
+				tekInfo[aeTek] = PS::stdGetFromConfig (cFile, input->eoAxialTek.configDelim, TektronixAfgControl::getTekInfo);
 				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, varRangeInfo);
 				variations = determineVariationNumber (expParams[ seqNum ] );
 				for (auto agInc : range(input->agilents.size()))
 				{
-					agilentRunInfo[agInc] = ProfileSystem::stdGetFromConfig(configFile, 
-						input->agilents[agInc].get().configDelim, Agilent::getOutputSettingsFromConfigFile);
+					agilentRunInfo[agInc] = PS::stdGetFromConfig( cFile, input->agilents[agInc].get().configDelim, 
+																  Agilent::getOutputSettingsFromConfigFile);
 				}
 			}
 			if (runAndor) 
 			{
-				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS",
-					AndorCameraSettingsControl::getRunSettingsFromConfig);
-				andorRunsettings[seqNum].imageSettings = ProfileSystem::stdGetFromConfig (configFile,
-					"CAMERA_IMAGE_DIMENSIONS", AndorCameraSettingsControl::getImageDimSettingsFromConfig);
+				andorRunsettings[seqNum] = PS::stdGetFromConfig (cFile, "CAMERA_SETTINGS", AndorCameraSettingsControl::getRunSettingsFromConfig);
+				andorRunsettings[seqNum].imageSettings = PS::stdGetFromConfig (cFile, "CAMERA_IMAGE_DIMENSIONS", 
+														AndorCameraSettingsControl::getImageDimSettingsFromConfig);
 				andorRunsettings[seqNum].repetitionsPerVariation = repetitions;
 				andorRunsettings[seqNum].totalVariations = variations;
 			}
 			if (runBasler)
 			{
-				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
-					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
+				baslerCamSettings = PS::stdGetFromConfig ( cFile, "BASLER_CAMERA_SETTINGS",
+														   &BaslerSettingsControl::getSettingsFromConfig, 
+														   Version ("4.0"));	
 				baslerCamSettings.repsPerVar = repetitions;
 				baslerCamSettings.variations = variations;
 			}
-			runNiawg = ProfileSystem::stdGetFromConfig (configFile, "NIAWG_INFORMATION",
-				NiawgSystem::getControlNiawgFromConfig, Version ("4.12"));
+			runNiawg = PS::stdGetFromConfig ( cFile, "NIAWG_INFORMATION", NiawgSystem::getControlNiawgFromConfig, 
+											  Version ("4.12"));
 			if ( runNiawg )
 			{
-				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( configInfo );
+				seq.niawgScript = PS::getNiawgScriptAddrFromConfig( configInfo );
 				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
 				if ( input->debugOptions.outputNiawgHumanScript )
 				{
@@ -161,8 +156,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
 	// now, but might cause slight breakages...
 	output.waves.resize( 2 );
-	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
-	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
 	/// ////////////////////////////
 	/// start analysis & experiment
@@ -198,7 +191,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			input->niawg.initForExperiment ( );
 		}
-		UINT variations;
+		UINT variations=0;
 		for ( auto seqNum : range( input->seq.sequence.size() ) )
 		{
 			auto& seqVariables = expParams[seqNum];
@@ -235,8 +228,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			if ( runMaster ) 
 			{
 				comm.sendColorBox ( System::Master, 'Y' );
-				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs,
-													 seqVariables, seq.masterStream, seqNum,
+				input->thisObj->analyzeMasterScript( ttls, aoSys, seqVariables, seq.masterStream, seqNum,
 													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
 													 input->thisObj->operationTime, input->thisObj->loadSkipTime );
 			}
@@ -279,7 +271,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
 		if ( runMaster )
 		{
-			aoSys.shadeDacs ( dacShadeLocs );
 			ttls.interpretKey(expParams);
 			ttls.restructureCommands ( );
 			aoSys.interpretKey(expParams, warnings );
@@ -529,12 +520,10 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			// stop is necessary else the dac system will still be running and won't allow updates through normal means.
 			aoSys.stopDacs();
-			aoSys.unshadeDacs();
 			try
 			{
 				// make sure the display accurately displays the state that the experiment finished at.
 				aoSys.setDacStatusNoForceOut( aoSys.getFinalSnapshot( ) );
-				//ttls.unshadeTtls( );
 				//ttls.setTtlStatusNoForceOut( ttls.getFinalSnapshot( ) );
 			}
 			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
@@ -569,11 +558,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 		}
 		input->thisObj->experimentIsRunning = false;
-		if (runMaster)
-		{
-			//input->ttls.unshadeTtls();
-			input->aoSys.unshadeDacs();
-		}	
 		if ( input->thisObj->isAborting )
 		{
 			expUpdate( abortString, comm, quiet );
@@ -607,11 +591,10 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 }
 
 
-void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSys,
-												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
-												std::vector<parameterType>& vars, ScriptStream& currentMasterScript, 
-												UINT seqNum, bool expectsLoadSkip, std::string& warnings, 
-												timeType& operationTime, std::vector<timeType>& loadSkipTime )
+void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSys, std::vector<parameterType>& vars, 
+													ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+													std::string& warnings, timeType& operationTime, 
+													std::vector<timeType>& loadSkipTime )
 {
 	std::string currentMasterScriptText = currentMasterScript.str ( );
 	loadSkipTime[ seqNum ].first.clear ( );
@@ -638,9 +621,9 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		}
 		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
 		{}
-		else if ( handleDoCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
+		else if ( handleDoCommands ( word, currentMasterScript, vars, ttls, seqNum, scope, operationTime) )
 		{}
-		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
+		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, ttls, seqNum, scope, operationTime) )
 		{}
 		else if ( word == "callcppcode" )
 		{
@@ -657,8 +640,8 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		{
 			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
-		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, seqNum,
-									   warnings, PARENT_PARAMETER_SCOPE, operationTime ) )
+		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, seqNum, warnings, 
+									   PARENT_PARAMETER_SCOPE, operationTime ) )
 		{ }
 		else if ( word == "repeat:" )
 		{
@@ -711,10 +694,8 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 
 
 void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DoCore& ttls,
-												AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-												std::vector<UINT>& dacShades, 
-												std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
-												timeType& operationTime, std::string callingScope )
+												AoSystem& aoSys, std::vector<parameterType>& params, UINT seqNum,
+												std::string& warnings,  timeType& operationTime, std::string callingScope )
 {	
 	/// load the file
 	std::fstream functionFile;
@@ -783,8 +764,8 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 	{
 		if (handleTimeCommands (word, functionStream, params, scope, operationTime)){ /* got handled*/ }
 		else if ( handleVariableDeclaration ( word, functionStream, params, scope, warnings ) ){}
-		else if ( handleDoCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
-		else if ( handleAoCommands ( word, functionStream, params, aoSys, dacShades, ttls, seqNum, scope, operationTime) ){}
+		else if ( handleDoCommands ( word, functionStream, params, ttls, seqNum, scope, operationTime) ){}
+		else if ( handleAoCommands ( word, functionStream, params, aoSys, ttls, seqNum, scope, operationTime) ){}
 		else if ( word == "callcppcode" )
 		{
 			// and that's it... 
@@ -796,8 +777,7 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
 		/// deal with function calls.
-		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, ttlShades, dacShades, seqNum,
-									   warnings, function, operationTime ) ) {}
+		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, seqNum, warnings, function, operationTime ) ) {}
 		else if ( word == "repeat:" )
 		{
 			std::string repeatStr;
@@ -1300,14 +1280,13 @@ bool ExperimentThreadManager::handleTimeCommands( std::string word, ScriptStream
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											    DoCore& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
-											    std::string scope, timeType& operationTime )
+											    DoCore& ttls, UINT seqNum, std::string scope, timeType& operationTime )
 {
 	if ( word == "on:" || word == "off:" )
 	{
 		std::string name;
 		stream >> name;
-		ttls.handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum, scope );
+		ttls.handleTtlScriptCommand( word, operationTime, name, vars, seqNum, scope );
 	}
 	else if ( word == "pulseon:" || word == "pulseoff:" )
 	{
@@ -1315,7 +1294,7 @@ bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& 
 		std::string name;
 		Expression pulseLength;
 		stream >> name >> pulseLength;
-		ttls.handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum, scope );
+		ttls.handleTtlScriptCommand( word, operationTime, name, pulseLength, vars, seqNum, scope );
 	}
 	else
 	{
@@ -1326,8 +1305,8 @@ bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& 
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											AoSystem& aoSys, std::vector<UINT>& dacShades, DoCore& ttls, UINT seqNum, 
-											std::string scope, timeType& operationTime )
+												AoSystem& aoSys, DoCore& ttls, UINT seqNum, std::string scope, 
+												timeType& operationTime )
 {
 	if ( word == "dac:" )
 	{
@@ -1341,7 +1320,7 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 		command.rampTime.expressionStr = command.rampInc.expressionStr = "__NONE__";
 		try
 		{
-			aoSys.handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+			aoSys.handleDacScriptCommand( command, name, vars, ttls, seqNum );
 		}
 		catch ( Error&  )
 		{
@@ -1364,7 +1343,7 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 		//
 		try
 		{
-			aoSys.handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+			aoSys.handleDacScriptCommand( command, name, vars, ttls, seqNum );
 		}
 		catch ( Error& )
 		{
@@ -1386,7 +1365,7 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 		command.numSteps.expressionStr = "__NONE__";
 		try
 		{
-			aoSys.handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+			aoSys.handleDacScriptCommand( command, name, vars, ttls, seqNum );
 		}
 		catch ( Error& )
 		{
@@ -1559,9 +1538,8 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 
 
 bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											      DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-											      std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
-											      std::string callingFunction, timeType& operationTime )
+											      DoCore& ttls, AoSystem& aoSys, UINT seqNum, std::string& warnings, 
+												  std::string callingFunction, timeType& operationTime )
 {
 	if ( word != "call" )
 	{
@@ -1603,8 +1581,7 @@ bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream
 	}
 	try
 	{
-		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, vars, seqNum, warnings, 
-			operationTime, callingFunction);
+		analyzeFunction( functionName, args, ttls, aoSys, vars, seqNum, warnings, operationTime, callingFunction);
 	}
 	catch ( Error& )
 	{

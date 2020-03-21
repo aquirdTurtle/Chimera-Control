@@ -60,10 +60,8 @@ class DoCore
 		ExpWrap<finBufInfo> getFinalFtdiData ();
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ();
 		void handleTtlScriptCommand (std::string command, timeType time, std::string name, Expression pulseLength,
-			std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
 			std::vector<parameterType>& vars, UINT seqNum, std::string scope);
 		void handleTtlScriptCommand (std::string command, timeType time, std::string name,
-			std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
 			std::vector<parameterType>& vars, UINT seqNum, std::string scope);
 		void setNames (Matrix<std::string> namesIn);
 		Matrix<std::string> getAllNames ();

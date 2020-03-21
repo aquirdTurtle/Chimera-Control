@@ -20,8 +20,6 @@ class AnalogOutput
 		void setEditColorState ( int state );
 		void setName ( std::string name, cToolTips& toolTips, CWnd* master );
 		HBRUSH handleColorMessage ( int id, CWnd* window, CDC* cDC );
-		void shade ( );
-		void unshade ( );
 		void disable ( );
 		bool handleArrow ( CWnd* focus, bool up );
 	private:

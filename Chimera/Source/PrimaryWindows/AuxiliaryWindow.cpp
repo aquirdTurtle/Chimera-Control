@@ -1131,8 +1131,6 @@ void AuxiliaryWindow::changeBoxColor(systemInfo<char> colors)
 
 void AuxiliaryWindow::handleAbort()
 {
-	ttlBoard.unshadeTtls();
-	aoSys.unshadeDacs();
 	if ( optimizer.isInMiddleOfOptimizing ( ) )
 	{
 		if ( promptBox ( "Save Optimization Data?", MB_YESNO ) == IDYES )

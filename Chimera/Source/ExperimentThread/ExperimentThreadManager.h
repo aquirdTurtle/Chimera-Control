@@ -30,10 +30,10 @@ class ExperimentThreadManager
 										  UINT variations, microwaveSettings settings,
 										  std::vector<std::vector<parameterType>>& expParams,
 										  std::vector<deviceOutputInfo>& agRunInfo, bool runNiawg);
-		static void analyzeMasterScript( DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-								  std::vector<UINT>& dacShades, std::vector<parameterType>& vars, 
-								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
-								  std::string& warnings, timeType& operationTime, std::vector<timeType>& loadSkipTime);
+		static void analyzeMasterScript( DoCore& ttls, AoSystem& aoSys, std::vector<parameterType>& vars, 
+										 ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+										 std::string& warnings, timeType& operationTime, 
+										 std::vector<timeType>& loadSkipTime);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		HANDLE startExperimentThread(ExperimentThreadInput* input);
@@ -44,15 +44,13 @@ class ExperimentThreadManager
 		static bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										std::string scope, timeType& operationTime);
 		static bool handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-									   DoCore& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum,
-									   std::string scope, timeType& operationTime);
+									   DoCore& ttls, UINT seqNum, std::string scope, timeType& operationTime);
 		static bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-									  AoSystem& aoSys, std::vector<UINT>& dacShades, DoCore& ttls, UINT seqNum,
-									  std::string scope, timeType& operationTime);
+									  AoSystem& aoSys, DoCore& ttls, UINT seqNum, std::string scope, 
+									  timeType& operationTime);
 		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-										DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-										std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
-										std::string callingFunction, timeType& operationTime);
+										DoCore& ttls, AoSystem& aoSys, UINT seqNum, 
+										std::string& warnings, std::string callingFunction, timeType& operationTime);
 		static void updatePlotX_vals (ExperimentThreadInput* input, std::vector<std::vector<parameterType>>& expParams);
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 											   std::string scope, std::string& warnings );
@@ -75,7 +73,6 @@ class ExperimentThreadManager
 		const std::string functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 		// called by analyzeMasterScript functions only.
 		static void analyzeFunction( std::string function, std::vector<std::string> args, DoCore& ttls, AoSystem& aoSys,
-									 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 									 std::vector<parameterType>& vars, UINT seqNum, std::string& warnings,
 									 timeType& operationTime, std::string callingScope);
 		timeType operationTime;

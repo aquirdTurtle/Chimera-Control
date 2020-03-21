@@ -8,16 +8,13 @@ class DigitalOutput
 	public:
 		void initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips );
 		void initLoc ( UINT num, DoRows::which row);
-		void shade ( bool shadeStat );
 		
 		void enable ( bool enabledStatus );
 		void rearrange ( int width, int height, fontMap fonts );
 		void updateStatus (  );
 
 		bool defaultStatus;
-		bool getShadeStatus ( );
 		bool getStatus ( );
-		//std::string getName ( );
 		std::pair<DoRows::which, UINT> getPosition ( );
 
 		void set ( bool status );
@@ -32,8 +29,6 @@ class DigitalOutput
 		DoRows::which row;
 		UINT num;
 		bool status;
-		bool shadeStatus;		
-		//std::string name;
 };
 
 
