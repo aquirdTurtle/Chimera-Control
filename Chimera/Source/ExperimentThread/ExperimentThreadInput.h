@@ -43,7 +43,7 @@ struct ExperimentThreadInput
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
 	profileSettings profile;
-	seqSettings seq;
+	//seqSettings seq;
 	DoCore& ttls;
 	AoSystem& aoSys;
 	AiSystem& aiSys;

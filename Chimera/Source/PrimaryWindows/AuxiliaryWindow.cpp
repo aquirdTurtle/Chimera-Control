@@ -107,15 +107,14 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
-std::vector<std::vector<parameterType>> AuxiliaryWindow::getUsableConstants ()
+std::vector<parameterType> AuxiliaryWindow::getUsableConstants ()
 {
 	// This generates a usable set of constants (mostly for "Program Now" commands") based on the current GUI settings.
 	// imporantly, when running the experiment proper, the saved config settings are what is used to determine 
 	// parameters, not the gui setttings.
 	std::vector<parameterType> configParams = configParameters.getAllConstants ();
 	std::vector<parameterType> globals = globalParameters.getAllParams ();
-	std::vector<std::vector<parameterType>> params;
-	params.push_back (ParameterSystem::combineParamsForExpThread (configParams, globals));
+	std::vector<parameterType> params = ParameterSystem::combineParamsForExpThread (configParams, globals);
 	ScanRangeInfo constantRange;
 	constantRange.defaultInit ();
 	ParameterSystem::generateKey (params, false, constantRange);
@@ -992,7 +991,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		try
 		{
 			agilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-			agilent.programAgilentNow(getUsableConstants()[0]);
+			agilent.programAgilentNow(getUsableConstants());
 			sendStatus( "Programmed Agilent " + agilent.getConfigDelim() + ".\r\n" );
 		}
 		catch (Error& err)

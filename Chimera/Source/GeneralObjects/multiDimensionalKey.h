@@ -15,9 +15,9 @@ class multiDimensionalKey
 {
 	public:
 		multiDimensionalKey( UINT nDimensions=1 );
-		void resize( std::vector<std::vector<UINT>> dimSizes );
-		void setValue( std::vector<UINT> indecies, UINT seqNum, double value );
-		std::vector<std::vector<TYPE>> values;
+		void resize( std::vector<UINT> dimSizes );
+		void setValue( std::vector<UINT> indecies, double value );
+		std::vector<TYPE> values;
 	private:
 		const UINT nDims;
 		std::vector<UINT> dimensionSizes;
@@ -30,7 +30,7 @@ multiDimensionalKey<TYPE>::multiDimensionalKey( UINT nDimensions ) : nDims( nDim
 }
 
 template <class TYPE>
-void multiDimensionalKey<TYPE>::resize( std::vector<std::vector<UINT>> allSizes )
+void multiDimensionalKey<TYPE>::resize( std::vector<UINT> allSizes )
 {
 	if ( nDims == 0 )
 	{
@@ -38,30 +38,25 @@ void multiDimensionalKey<TYPE>::resize( std::vector<std::vector<UINT>> allSizes 
 	}
 	values.clear( );
 	values.resize( allSizes.size( ) );
-	UINT seqInc = 0;
-	for ( auto& seqSizes : allSizes )
+	if ( allSizes.size( ) != nDims )
 	{
-		if ( seqSizes.size( ) != nDims )
-		{
-			thrower ( "Tried to resize with size vector of the wrong size!" );
-		}
-		dimensionSizes = seqSizes;
-		// since the dimensions are varied independently, I need to multiply the individual numbers together not add 
-		// them together to get the total number.
-		UINT totalVariationNumber = 1;
-		for ( auto dimInc : range( dimensionSizes.size( ) ) )
-		{
-			totalVariationNumber *= dimensionSizes[dimInc];
-		}
-		values[seqInc].clear( );
-		values[seqInc].resize( totalVariationNumber );
-		seqInc++;
+		thrower ( "Tried to resize with size vector of the wrong size!" );
 	}
+	dimensionSizes = allSizes;
+	// since the dimensions are varied independently, I need to multiply the individual numbers together not add 
+	// them together to get the total number.
+	UINT totalVariationNumber = 1;
+	for ( auto dimInc : range( dimensionSizes.size( ) ) )
+	{
+		totalVariationNumber *= dimensionSizes[dimInc];
+	}
+	values.clear( );
+	values.resize( totalVariationNumber );
 }
 
 
 template <class TYPE>
-void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, UINT seqNum, double value )
+void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, double value )
 {
 	if ( indecies.size( ) != nDims )
 	{
@@ -82,12 +77,12 @@ void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, UINT seqNu
 		overallIndex += indecies[dimInc + 1];
 	}
 
-	if ( overallIndex >= values[seqNum].size( ) )
+	if ( overallIndex >= values.size( ) )
 	{
 		thrower ( "Overall multidimensional key vector access index out of range!!! This shouldn't happen. The"
 				 " code should catch this earlier as one of the individual indecies must have been out of range or "
 				 "something got set incorrectly." );
 	}
-	values[seqNum][overallIndex] = value;
+	values[overallIndex] = value;
 }
 

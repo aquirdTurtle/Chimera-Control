@@ -2,68 +2,47 @@
 
 #include "afxwin.h"
 
-// a standardized wrapper for experiment data which usually needs a copy for each variation of each sequence. 
+// a standardized wrapper for experiment data which usually needs a copy of something for each variation. Used to be
+// used to handle sequences as well, although sequences were actually working, I just hoped to keep it alive until I 
+// didn't.  At this point this is little more than a weird interface to a vector, but could be used in similar spirits
+// as before so I'm at least keeping this for now.  - MOB March 20th 2020
 template <class type>
 class ExpWrap
 {
 	public:
-		type& operator() ( UINT sequenceNumber, UINT variationNumber )
+		type& operator() ( UINT variationNumber )
 		{ 
-			if (sequenceNumber >= data.size ())
-			{
-				thrower ("Tried to access experiment wrap structure sequence which doesn't exist!");
-			}
-			if (variationNumber >= data[sequenceNumber].size ())
+			if (variationNumber >= data.size ())
 			{
 				thrower ("Tried to access experiment wrap structure variation which doesn't exist!");
 			}
-			return data[ sequenceNumber ][ variationNumber ];
+			return data[ variationNumber ];
 		};
 
-		type operator() ( UINT sequenceNumber, UINT variationNumber ) const
+		type operator() ( UINT variationNumber ) const
 		{
-			if (sequenceNumber >= data.size ())
-			{
-				thrower ("Tried to access experiment wrap structure sequence which doesn't exist!");
-			}
-			if (variationNumber >= data[sequenceNumber].size ())
+			if (variationNumber >= data.size ())
 			{
 				thrower ("Tried to access experiment wrap structure variation which doesn't exist!");
 			}
-			return data[ sequenceNumber ][ variationNumber ];
+			return data[ variationNumber ];
 		};
 
-		UINT getNumSequences ( )
+		UINT getNumVariations(  )
 		{
-			return data.size ( );
+			return data.size();
 		}
-		UINT getNumVariations( UINT seqNum )
+		void resizeVariations ( UINT numVariations )
 		{
-			return data[seqNum].size();
+			data.resize ( numVariations );
 		}
-		void resizeSeq ( UINT numSeqs )
-		{ 
-			data.resize ( numSeqs );
-		}
-		void resizeVariations ( UINT whichSeq, UINT numVariations )
-		{
-			if ( whichSeq >= data.size ( ) )
-			{
-				thrower ( "Tried to access experiment sequence index of ExpWrap which does not exist!" );
-			}
-			data[ whichSeq ].resize ( numVariations );
-		}
-		void uniformSizeReset ( UINT numSeqs, UINT numVariations )
+		void uniformSizeReset ( UINT numVariations )
 		{
 			data.clear ( );
-			data.resize ( numSeqs );
-			for ( auto& seqData : data )
-			{
-				seqData.resize ( numVariations );
-			}
+			data.resize ( numVariations );
 		}
 
 	private:
-		std::vector<std::vector<type>> data;
+		std::vector<type> data;
 };
 

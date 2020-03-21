@@ -213,13 +213,12 @@ void DdsSystem::programNow ( )
 {
 	try
 	{
-		std::vector<std::vector<ddsIndvRampListInfo>> simpleExp;
-		simpleExp.resize( 1 );
-		simpleExp[0] = currentRamps;
+		std::vector<ddsIndvRampListInfo> simpleExp;
+		simpleExp = currentRamps;
 		core.updateRampLists ( simpleExp );
 		core.evaluateDdsInfo ( );
 		core.generateFullExpInfo ( 1 );
-		core.writeExperiment ( 0, 0 );
+		core.writeExperiment ( 0 );
 	}
 	catch ( Error& )
 	{

@@ -69,33 +69,25 @@ std::string TekCore::queryIdentity ()
 	}
 }
 
-void TekCore::interpretKey ( std::vector<std::vector<parameterType>>& parameters, tektronixInfo& runInfo )
+void TekCore::interpretKey ( std::vector<parameterType>& parameters, tektronixInfo& runInfo )
 {
 	UINT variations;
 	UINT sequenceNumber;
 	if (parameters.size () == 0)
 	{
-		thrower ("ERROR: variables empty, no sequence fill!");
-	}
-	else if (parameters.front ().size () == 0)
-	{
 		variations = 1;
 	}
 	else
 	{
-		variations = parameters.front ().front ().keyValues.size ();
+		variations = parameters.front ().keyValues.size ();
 	}
-	sequenceNumber = parameters.size ();
-	for (auto seqInc : range (sequenceNumber))
+	for (auto& channel : runInfo.channels)
 	{
-		for (auto& channel : runInfo.channels)
+		if (channel.on)
 		{
-			if (channel.on)
-			{
-				channel.mainFreq.internalEvaluate (parameters[seqInc], variations);
-				channel.power.internalEvaluate (parameters[seqInc], variations);
-				if (channel.fsk) { channel.fskFreq.internalEvaluate (parameters[seqInc], variations); }
-			}
+			channel.mainFreq.internalEvaluate (parameters, variations);
+			channel.power.internalEvaluate (parameters, variations);
+			if (channel.fsk) { channel.fskFreq.internalEvaluate (parameters, variations); }
 		}
 	}
 }

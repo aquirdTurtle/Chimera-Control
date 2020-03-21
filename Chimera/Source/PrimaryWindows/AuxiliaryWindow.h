@@ -160,7 +160,7 @@ class AuxiliaryWindow : public CDialog
 		DdsCore& getDds ( );
 		void handleProgramUwSystemNow ();
 		void programDds ( );
-		std::vector<std::vector<parameterType>> getUsableConstants ();
+		std::vector<parameterType> getUsableConstants ();
 	private:
 		DECLARE_MESSAGE_MAP();		
 

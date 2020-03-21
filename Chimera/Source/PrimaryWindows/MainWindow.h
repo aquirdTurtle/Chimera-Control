@@ -88,7 +88,6 @@ class MainWindow : public CDialog
 		// auxiliary functions used by the window.
 		void setNotes(std::string notes);
 		void fillMasterThreadInput( ExperimentThreadInput* input );
-		void fillMasterThreadSequence( ExperimentThreadInput* input );
 		void fillMotInput( ExperimentThreadInput* input);
 
 		HANDLE startExperimentThread( ExperimentThreadInput* input );

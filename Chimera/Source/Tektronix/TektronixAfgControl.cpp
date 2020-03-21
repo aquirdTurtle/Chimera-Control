@@ -75,7 +75,7 @@ tektronixInfo TektronixAfgControl::getTekInfo (std::ifstream& configFile, Versio
 }
 
 
-void TektronixAfgControl::handleProgram(std::vector<std::vector<parameterType>> constants)
+void TektronixAfgControl::handleProgram(std::vector<parameterType> constants)
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();

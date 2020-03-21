@@ -204,7 +204,7 @@ std::vector<parameterType> ParameterSystem::getParametersFromFile( std::ifstream
 
 void ParameterSystem::updateVariationNumber( )
 {
-	// if no variables, or all are constants, it will stay at 1. else, it will get set to the # of variations
+	// if no parameters, or all are constants, it will stay at 1. else, it will get set to the # of variations
 	// of the first variable that it finds.
 	std::vector<ULONG> dimVariations;
 	std::vector<bool> dimsSeen;
@@ -244,7 +244,7 @@ void ParameterSystem::updateVariationNumber( )
 void ParameterSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << configDelim + "\n";
-	// Number of functions with variables saved
+	// Number of functions with parameters saved
 	newFile << 0 << "\n";
 	newFile << "END_" + configDelim + "\n";
 }
@@ -432,7 +432,7 @@ void ParameterSystem::removeVariableDimension ( )
 	{
 		thrower  ( "Can't delete last variable scan dimension." );
 	}
-	// change all variables in the last dimension to be in the second-to-last dimension.
+	// change all parameters in the last dimension to be in the second-to-last dimension.
 	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
 	for ( auto& variable : currentParameters )
 	{
@@ -553,7 +553,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 		while (currentVariableRangeNumber < num)
 		{
 			/// add a range.
-			// edit all variables
+			// edit all parameters
 			rangeInfo.dimensionInfo ( dimNumber ).push_back ( defaultRangeInfo );
 			for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
 			{
@@ -573,7 +573,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 				// can't delete last range
 				return;
 			}
-			// edit all variables
+			// edit all parameters
 			for (auto& param : currentParameters )
 			{
 				param.ranges.pop_back();
@@ -939,7 +939,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 					{
 						if (!variable.constant)
 						{
-							// make sure all variables have the same number of variations.
+							// make sure all parameters have the same number of variations.
 							if ( variable.scanDimension != param.scanDimension )
 							{
 								continue;
@@ -1022,22 +1022,19 @@ UINT ParameterSystem::getCurrentNumberOfVariables()
 }
 
 
-// takes as input variables, but just looks at the name and usage stats. When it finds matches between the variables,
+// takes as input parameters, but just looks at the name and usage stats. When it finds matches between the parameters,
 // it takes the usage of the input and saves it as the usage of the real inputVar. 
-void ParameterSystem::setUsages(std::vector<std::vector<parameterType>> vars)
+void ParameterSystem::setUsages(std::vector<parameterType> vars)
 {
-	for ( auto& seqVars : vars )
+	for ( auto inputVar : vars )
 	{
-		for ( auto inputVar : seqVars )
+		for ( auto& realVar : currentParameters )
 		{
-			for ( auto& realVar : currentParameters )
+			if ( inputVar.name == realVar.name )
 			{
-				if ( inputVar.name == realVar.name )
-				{
-					realVar.overwritten = inputVar.overwritten;
-					realVar.active = inputVar.active;
-					break;
-				}
+				realVar.overwritten = inputVar.overwritten;
+				realVar.active = inputVar.active;
+				break;
 			}
 		}
 	}
@@ -1071,7 +1068,7 @@ std::vector<parameterType> ParameterSystem::getAllConstants()
 	return constants;
 }
 
-// this function returns the compliment of the variables that "getAllConstants" returns.
+// this function returns the compliment of the parameters that "getAllConstants" returns.
 std::vector<parameterType> ParameterSystem::getAllVariables()
 {
 	// opposite of get constants.
@@ -1216,7 +1213,7 @@ void ParameterSystem::reorderVariableDimensions( )
 			flattenNumber++;
 		}
 	}
-	/// reset variables ??? why?
+	/// reset parameters ??? why?
 	std::vector<parameterType> varCopy = currentParameters; 
 	clearParameters( );
 	for ( auto& variable : varCopy )
@@ -1252,7 +1249,7 @@ std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> va
 			return variable.keyValues;
 		}
 	}
-	// no varying variables found.
+	// no varying parameters found.
 	return std::vector<double>( 1, 0 );
 }
 
@@ -1297,64 +1294,55 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 }
 
 
-void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& variables, bool randomizeVariationsOption,
+void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool randomizeVariationsOption,
 								   ScanRangeInfo inputRangeInfo )
 {
-	for ( auto& seqVariables : variables )
+	for ( auto& variable : parameters )
 	{
-		for ( auto& variable : seqVariables )
-		{
-			variable.keyValues.clear( );
-		}
+		variable.keyValues.clear( );
 	}
 	// find the maximum scan dimension.
 	UINT maxDim = 0;
-	for ( auto seqVariables : variables )
+	for ( auto variable : parameters )
 	{
-		for ( auto variable : seqVariables )
-		{
-			maxDim = ( variable.scanDimension > maxDim ? variable.scanDimension : maxDim );
-		}
+		maxDim = ( variable.scanDimension > maxDim ? variable.scanDimension : maxDim );
 	}
 	// each element of the vector refers to the number of variations of a given range of a given scan dimension of a 
-	// given sequence element. i.e.: variations[seqNumber][dimNumber][rangeNumber]
-	std::vector<std::vector<std::vector<int>>> variationNums( variables.size( ), std::vector<std::vector<int>>(maxDim+1));
-	std::vector<std::vector<UINT>> totalSeqDimVariationsList ( variationNums.size ( ), std::vector<UINT> ( maxDim+1 ) );
+	// given sequence element. i.e.: variationNums[dimNumber][rangeNumber]
+	std::vector<std::vector<int>> variationNums( std::vector<std::vector<int>>(maxDim+1));
+	std::vector<UINT> totalSeqDimVariationsList ( std::vector<UINT> ( maxDim+1 ) );
 	// for randomizing...
-	std::vector<std::vector<int>> variableIndexes(variables.size());
-	for (auto seqInc : range(variables.size()) )
+	std::vector<int> variableIndexes;
+	for ( auto dimInc : range( maxDim+1 ) )
 	{
-		for ( auto dimInc : range( maxDim+1 ) )
+		variationNums[dimInc].resize( parameters.front( ).ranges.size( ) );
+		for ( auto paramInc : range( parameters.size() ) )
 		{
-			variationNums[seqInc][dimInc].resize( variables[seqInc].front( ).ranges.size( ) );
-			for ( auto paramInc : range(variables[seqInc].size() ) )
+			auto& parameter = parameters[paramInc];
+			// find a varying parameter in this scan dimension
+			if ( parameter.scanDimension != dimInc || parameter.constant )
 			{
-				auto& parameter = variables[seqInc][paramInc];
-				// find a varying parameter in this scan dimension
-				if ( parameter.scanDimension != dimInc || parameter.constant )
+				continue; 
+			}
+			variableIndexes.push_back( paramInc );
+			if ( variationNums[dimInc].size( ) != parameter.ranges.size( ) )
+			{
+				// if its zero its just the initial size on the initial variable. Else something has gone wrong.
+				if ( variationNums.size( ) != 0 )
 				{
-					continue; 
+					thrower ( "Not all variables seem to have the same number of ranges for their parameters!" );
 				}
-				variableIndexes[seqInc].push_back( paramInc );
-				if ( variationNums[seqInc][dimInc].size( ) != parameter.ranges.size( ) )
+				variationNums[dimInc].resize( parameter.ranges.size( ) );
+			}
+			totalSeqDimVariationsList[ dimInc ] = 0;
+			for ( auto rangeInc : range( variationNums[dimInc].size( ) ) )
+			{
+				variationNums[ dimInc ][ rangeInc ] = inputRangeInfo(dimInc, rangeInc).variations;
+				if ( variationNums[ dimInc ][ rangeInc ] == 1 )
 				{
-					// if its zero its just the initial size on the initial variable. Else something has gone wrong.
-					if ( variationNums[seqInc].size( ) != 0 )
-					{
-						thrower ( "Not all variables seem to have the same number of ranges for their parameters!" );
-					}
-					variationNums[seqInc][dimInc].resize( parameter.ranges.size( ) );
+					thrower ( "You need more than one variation in every range." );
 				}
-				totalSeqDimVariationsList[ seqInc ][ dimInc ] = 0;
-				for ( auto rangeInc : range( variationNums[seqInc][dimInc].size( ) ) )
-				{
-					variationNums[ seqInc ][ dimInc ][ rangeInc ] = inputRangeInfo(dimInc, rangeInc).variations;
-					if ( variationNums[ seqInc ][ dimInc ][ rangeInc ] == 1 )
-					{
-						thrower ( "You need more than one variation in every range." );
-					}
-					totalSeqDimVariationsList[ seqInc ][ dimInc ] += inputRangeInfo ( dimInc, rangeInc ).variations;
-				}
+				totalSeqDimVariationsList[ dimInc ] += inputRangeInfo ( dimInc, rangeInc ).variations;
 			}
 		}
 	}
@@ -1362,7 +1350,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 	multiDimensionalKey<int> randomizerMultiKey( maxDim+1 );
 	randomizerMultiKey.resize( totalSeqDimVariationsList );
 	UINT count = 0;
-	for ( auto& keyElem : randomizerMultiKey.values[0] )
+	for ( auto& keyElem : randomizerMultiKey.values )
 	{
 		keyElem = count++;
 	}
@@ -1370,101 +1358,95 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 	{
 		std::random_device rng;
 		std::mt19937 twister( rng( ) );
-		std::shuffle( randomizerMultiKey.values[0].begin( ), randomizerMultiKey.values[0].end( ), twister );
+		std::shuffle( randomizerMultiKey.values.begin( ), randomizerMultiKey.values.end( ), twister );
 	}
 	// initialize this to one so that constants always get at least one value.
 	int totalSize = 1;
-	for ( auto seqInc : range( variableIndexes.size( ) ) )
+	for ( auto variableInc : range( variableIndexes.size( ) ) )
 	{
-		for ( auto variableInc : range( variableIndexes[seqInc].size( ) ) )
+		auto& variable = parameters[ variableIndexes[ variableInc ] ];
+		// calculate all values for a given variable
+		multiDimensionalKey<double> tempKey( maxDim+1 ), tempKeyRandomized( maxDim+1 );
+		tempKey.resize( totalSeqDimVariationsList );
+		tempKeyRandomized.resize( totalSeqDimVariationsList );
+		/* Suppose you have a three dimensional scan with variation numbers 3, 2, and 3 in each dimension. Then, 
+		keyValueIndexes will take on the following sequence of values:
+		{0,0,0} -> {1,0,0} -> {2,0,0} ->
+		{0,1,0} -> {1,1,0} -> {2,1,0} ->
+		{0,0,1} -> {1,0,1} -> {2,0,1} ->
+		{0,1,1} -> {1,1,1} -> {2,1,1} ->
+		{0,0,2} -> {1,0,2} -> {2,0,2} ->
+		{0,1,2} -> {1,1,2} -> {2,1,2}.
+		at which point the while loop will notice that all values turn over at the same time and leave the loop.
+		*/
+		std::vector<UINT> keyValueIndexes( maxDim+1 );
+		while ( true )
 		{
-			auto& variable = variables[seqInc][ variableIndexes[ seqInc ][ variableInc ] ];
-			// calculate all values for a given variable
-			multiDimensionalKey<double> tempKey( maxDim+1 ), tempKeyRandomized( maxDim+1 );
-			tempKey.resize( totalSeqDimVariationsList );
-			tempKeyRandomized.resize( totalSeqDimVariationsList );
-			/* Suppose you have a three dimensional scan with variation numbers 3, 2, and 3 in each dimension. Then, 
-			keyValueIndexes will take on the following sequence of values:
-			{0,0,0} -> {1,0,0} -> {2,0,0} ->
-			{0,1,0} -> {1,1,0} -> {2,1,0} ->
-			{0,0,1} -> {1,0,1} -> {2,0,1} ->
-			{0,1,1} -> {1,1,1} -> {2,1,1} ->
-			{0,0,2} -> {1,0,2} -> {2,0,2} ->
-			{0,1,2} -> {1,1,2} -> {2,1,2}.
-			at which point the while loop will notice that all values turn over at the same time and leave the loop.
-			*/
-			std::vector<UINT> keyValueIndexes( maxDim+1 );
-			while ( true )
+			UINT rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[ varDim ],
+					rangeCount = 0, rangeOffset = 0;
+			// calculate which range it is and how many values have already been calculated for the variable 
+			// (i.e. the rangeOffset).
+			for ( auto range : inputRangeInfo.dimensionInfo( varDim ) )
 			{
-				UINT rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[ varDim ],
-					 rangeCount = 0, rangeOffset = 0;
-				// calculate which range it is and how many values have already been calculated for the variable 
-				// (i.e. the rangeOffset).
-				for ( auto range : inputRangeInfo.dimensionInfo( varDim ) )
+				if ( tempShrinkingIndex >= range.variations )
 				{
-					if ( tempShrinkingIndex >= range.variations )
-					{
-						// then should have already gone through all that range's variations
-						tempShrinkingIndex -= range.variations;
-						rangeOffset += range.variations;
-						rangeCount++;
-					}
-					else
-					{
-						rangeIndex = rangeCount;
-						break;
-					}
+					// then should have already gone through all that range's variations
+					tempShrinkingIndex -= range.variations;
+					rangeOffset += range.variations;
+					rangeCount++;
 				}
-				auto& currRange = variable.ranges[rangeIndex];
-				// calculate the parameters for the variation range
-				bool lIncl = inputRangeInfo(varDim, rangeIndex).leftInclusive, 
-					rIncl = inputRangeInfo(varDim, rangeIndex).rightInclusive;
-				int spacings = variationNums[ seqInc ][ varDim ][ rangeIndex ] + ( !lIncl && !rIncl ) - ( lIncl && rIncl );
-				double valueRange = ( currRange.finalValue - currRange.initialValue );
-				double initVal = ( lIncl ? currRange.initialValue : currRange.initialValue + valueRange / spacings);
-				double value = valueRange * ( keyValueIndexes[ varDim ] - rangeOffset) / spacings + initVal;
-				tempKey.setValue( keyValueIndexes, seqInc, value );
-				bool isAtEnd = true;
-				for ( auto indexInc : range( keyValueIndexes.size( ) ) )
+				else
 				{
-					// if at end of cycle for this index
-					if ( keyValueIndexes[indexInc] == totalSeqDimVariationsList[seqInc][indexInc] - 1 )
- 					{
-						keyValueIndexes[indexInc] = 0;
- 					}
-					else
-					{
-						keyValueIndexes[indexInc]++;
-						isAtEnd = false;
-						break;
-					}
-				}
-				if ( isAtEnd )
-				{
+					rangeIndex = rangeCount;
 					break;
 				}
 			}
-
-			for ( auto keyInc : range( randomizerMultiKey.values[seqInc].size( ) ) )
+			auto& currRange = variable.ranges[rangeIndex];
+			// calculate the parameters for the variation range
+			bool lIncl = inputRangeInfo(varDim, rangeIndex).leftInclusive, 
+				rIncl = inputRangeInfo(varDim, rangeIndex).rightInclusive;
+			int spacings = variationNums[ varDim ][ rangeIndex ] + ( !lIncl && !rIncl ) - ( lIncl && rIncl );
+			double valueRange = ( currRange.finalValue - currRange.initialValue );
+			double initVal = ( lIncl ? currRange.initialValue : currRange.initialValue + valueRange / spacings);
+			double value = valueRange * ( keyValueIndexes[ varDim ] - rangeOffset) / spacings + initVal;
+			tempKey.setValue( keyValueIndexes, value );
+			bool isAtEnd = true;
+			for ( auto indexInc : range( keyValueIndexes.size( ) ) )
 			{
-				tempKeyRandomized.values[seqInc][keyInc] = tempKey.values[seqInc][randomizerMultiKey.values[seqInc][keyInc]];
+				// if at end of cycle for this index
+				if ( keyValueIndexes[indexInc] == totalSeqDimVariationsList[indexInc] - 1 )
+ 				{
+					keyValueIndexes[indexInc] = 0;
+ 				}
+				else
+				{
+					keyValueIndexes[indexInc]++;
+					isAtEnd = false;
+					break;
+				}
 			}
-			variable.keyValues = tempKeyRandomized.values[seqInc];
-			variable.valuesVary = true;
-			totalSize = tempKeyRandomized.values[seqInc].size( );
+			if ( isAtEnd )
+			{
+				break;
+			}
 		}
+
+		for ( auto keyInc : range( randomizerMultiKey.values.size( ) ) )
+		{
+			tempKeyRandomized.values[keyInc] = tempKey.values[randomizerMultiKey.values[keyInc]];
+		}
+		variable.keyValues = tempKeyRandomized.values;
+		variable.valuesVary = true;
+		totalSize = tempKeyRandomized.values.size( );
 	}
 	// now add all constant objects.
-	for ( auto& seqParams: variables )
+	for ( parameterType& param : parameters)
 	{
-		for ( parameterType& param : seqParams)
+		if ( param.constant )
 		{
-			if ( param.constant )
-			{
-				param.keyValues.clear ( );
-				param.keyValues.resize( totalSize, param.constantValue );
-				param.valuesVary = false;
-			}
+			param.keyValues.clear ( );
+			param.keyValues.resize( totalSize, param.constantValue );
+			param.valuesVary = false;
 		}
 	}
 }
@@ -1472,7 +1454,7 @@ void ParameterSystem::generateKey( std::vector<std::vector<parameterType>>& vari
 
 /*
  * takes global params, config params, and function params, and reorganizes them to form a "parameters" object and a 
- * "constants" objects. The "parameters" object includes everything, variables and otherwise. the "constants" object 
+ * "constants" objects. The "parameters" object includes everything, parameters and otherwise. the "constants" object 
  * includes only parameters that don't vary. 
  */
 std::vector<parameterType> ParameterSystem::combineParamsForExpThread( std::vector<parameterType>& configParams, 
@@ -1499,7 +1481,7 @@ std::vector<parameterType> ParameterSystem::combineParamsForExpThread( std::vect
 	}
 	for ( auto& var : combinedParams )
 	{
-		// set the default scope for the variables set in the normal parameter listviews. There might be a better place
+		// set the default scope for the parameters set in the normal parameter listviews. There might be a better place
 		// to set this.
 		if ( var.parameterScope == "" )
 		{

@@ -28,12 +28,12 @@ class ExperimentThreadManager
 		static void loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript );
 		static void checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
 										  UINT variations, microwaveSettings settings,
-										  std::vector<std::vector<parameterType>>& expParams,
+										  std::vector<parameterType>& expParams,
 										  std::vector<deviceOutputInfo>& agRunInfo, bool runNiawg);
 		static void analyzeMasterScript( DoCore& ttls, AoSystem& aoSys, std::vector<parameterType>& vars, 
-										 ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+										 ScriptStream& currentMasterScript, bool expectsLoadSkip,
 										 std::string& warnings, timeType& operationTime, 
-										 std::vector<timeType>& loadSkipTime);
+										 timeType& loadSkipTime);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		HANDLE startExperimentThread(ExperimentThreadInput* input);
@@ -44,14 +44,14 @@ class ExperimentThreadManager
 		static bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										std::string scope, timeType& operationTime);
 		static bool handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-									   DoCore& ttls, UINT seqNum, std::string scope, timeType& operationTime);
+									   DoCore& ttls, std::string scope, timeType& operationTime);
 		static bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-									  AoSystem& aoSys, DoCore& ttls, UINT seqNum, std::string scope, 
+									  AoSystem& aoSys, DoCore& ttls, std::string scope, 
 									  timeType& operationTime);
 		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-										DoCore& ttls, AoSystem& aoSys, UINT seqNum, 
+										DoCore& ttls, AoSystem& aoSys, 
 										std::string& warnings, std::string callingFunction, timeType& operationTime);
-		static void updatePlotX_vals (ExperimentThreadInput* input, std::vector<std::vector<parameterType>>& expParams);
+		static void updatePlotX_vals (ExperimentThreadInput* input, std::vector<parameterType>& expParams);
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 											   std::string scope, std::string& warnings );
 		static bool handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
@@ -66,14 +66,14 @@ class ExperimentThreadManager
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
 	private:
 		// I've forgotten why there are two of these. 
-		std::vector<timeType> loadSkipTime;
-		std::vector<std::vector<double>> loadSkipTimes;
+		timeType loadSkipTime;
+		std::vector<double> loadSkipTimes;
 		static void callCppCodeFunction();
 		// the master script file contents get dumped into this.
 		const std::string functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 		// called by analyzeMasterScript functions only.
 		static void analyzeFunction( std::string function, std::vector<std::string> args, DoCore& ttls, AoSystem& aoSys,
-									 std::vector<parameterType>& vars, UINT seqNum, std::string& warnings,
+									 std::vector<parameterType>& vars, std::string& warnings,
 									 timeType& operationTime, std::string callingScope);
 		timeType operationTime;
 		bool experimentIsRunning = false;
@@ -100,9 +100,6 @@ struct indvSeqElem
 
 struct seqInfo
 {
-	seqInfo( UINT seqSize ) : sequence(seqSize)
-	{}
-	std::string seqName;
-	std::vector<indvSeqElem> sequence;
+	indvSeqElem sequence;
 };
 

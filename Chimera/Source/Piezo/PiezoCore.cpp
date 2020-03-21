@@ -10,7 +10,7 @@ PiezoCore::PiezoCore (piezoSetupInfo info) :
 	configDelim( info.name )
 {}
 
-void PiezoCore::updateExprVals ( std::vector<piezoChan<Expression>> newVals )
+void PiezoCore::updateExprVals ( piezoChan<Expression> newVals )
 {
 	experimentVals = newVals;
 }
@@ -22,15 +22,11 @@ void PiezoCore::programAll ( piezoChan<double> vals )
 	programZNow ( vals.z );
 }
 
-void PiezoCore::exprProgramPiezo ( UINT sequenceNumber, UINT variationNumber )
+void PiezoCore::exprProgramPiezo ( UINT variationNumber )
 {
-	if ( sequenceNumber >= experimentVals.size ( ) )
-	{
-		thrower ( "Tried to program piezo with sequence which doesn't seem to exist!" );
-	}
-	programXNow ( experimentVals[ sequenceNumber ].x.getValue ( variationNumber ) );
-	programYNow ( experimentVals[ sequenceNumber ].y.getValue ( variationNumber ) );
-	programZNow ( experimentVals[ sequenceNumber ].z.getValue ( variationNumber ) );
+	programXNow ( experimentVals.x.getValue ( variationNumber ) );
+	programYNow ( experimentVals.y.getValue ( variationNumber ) );
+	programZNow ( experimentVals.z.getValue ( variationNumber ) );
 }
 
 void PiezoCore::setCtrl ( bool ctrl )
@@ -43,19 +39,16 @@ bool PiezoCore::wantsCtrl ( )
 	return ctrlOption;
 }
 
-void PiezoCore::evaluateVariations (std::vector<std::vector<parameterType>>& params, UINT totalVariations )
+void PiezoCore::evaluateVariations (std::vector<parameterType>& params, UINT totalVariations )
 {
 	try
 	{
-		for ( auto seqNum : range ( params.size ( ) ) )
-		{
-			experimentVals[ seqNum ].x.assertValid ( params[ seqNum ], PIEZO_PARAMETER_SCOPE );
-			experimentVals[ seqNum ].y.assertValid ( params[ seqNum ], PIEZO_PARAMETER_SCOPE );
-			experimentVals[ seqNum ].z.assertValid ( params[ seqNum ], PIEZO_PARAMETER_SCOPE );
-			experimentVals[ seqNum ].x.internalEvaluate ( params[ seqNum ], totalVariations );
-			experimentVals[ seqNum ].y.internalEvaluate ( params[ seqNum ], totalVariations );
-			experimentVals[ seqNum ].z.internalEvaluate ( params[ seqNum ], totalVariations );
-		}
+		experimentVals.x.assertValid ( params, PIEZO_PARAMETER_SCOPE );
+		experimentVals.y.assertValid ( params, PIEZO_PARAMETER_SCOPE );
+		experimentVals.z.assertValid ( params, PIEZO_PARAMETER_SCOPE );
+		experimentVals.x.internalEvaluate ( params, totalVariations );
+		experimentVals.y.internalEvaluate ( params, totalVariations );
+		experimentVals.z.internalEvaluate ( params, totalVariations );
 	}
 	catch ( Error& )
 	{

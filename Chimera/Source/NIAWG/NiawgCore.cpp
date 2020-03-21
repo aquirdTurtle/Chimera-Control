@@ -184,7 +184,7 @@ niawgPair<ULONG> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> target )
 void NiawgCore::programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings,
 									UINT variation, UINT totalVariations,  std::vector<long>& variedMixedSize, 
 									std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
-									rerngGuiOptions& rerngGui, std::vector<std::vector<parameterType>>& expParams )
+									rerngGuiOptions& rerngGui, std::vector<parameterType>& expParams )
 {
 	input->comm.sendColorBox( System::Niawg, 'Y' );
 	input->niawg.handleVariations( output, expParams, variation, variedMixedSize, warnings, input->debugOptions,
@@ -930,54 +930,49 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, profileSettings prof
 }
 
 
-void NiawgCore::handleVariations( NiawgOutput& output, std::vector<std::vector<parameterType>>& variables, 
-										UINT variation, std::vector<long>& mixedWaveSizes, std::string& warnings, 
-										debugInfo& debugOptions, UINT totalVariations, rerngGuiOptionsForm& rerngGuiForm,
-										rerngGuiOptions& rerngGui )
+void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType>& variables, UINT variation, 
+								  std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
+								  UINT totalVariations, rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui )
 {
-	rerngGuiOptionsFormToFinal( rerngGuiForm, rerngGui, variables[0], variation );
+	rerngGuiOptionsFormToFinal( rerngGuiForm, rerngGui, variables, variation );
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
-	/// Why is the seqinc here a for loop??? I think this should be an input to the function...
-	for ( auto seqInc : range( variables.size( ) ) )
+	for ( auto waveInc : range( output.waveFormInfo.size( ) ) )
 	{
-		for ( auto waveInc : range( output.waveFormInfo.size( ) ) )
-		{
-			waveInfo& wave = output.waves[waveInc];
-			waveInfoForm& waveForm = output.waveFormInfo[waveInc];
+		waveInfo& wave = output.waves[waveInc];
+		waveInfoForm& waveForm = output.waveFormInfo[waveInc];
 
-			if ( waveForm.core.varies )
+		if ( waveForm.core.varies )
+		{
+			if ( waveForm.flash.isFlashing )
 			{
-				if ( waveForm.flash.isFlashing )
-				{
-					flashFormToOutput( waveForm, wave, variables[seqInc], variation );
-					writeFlashing( wave, debugOptions, variation );
-				}
-				else if ( waveForm.rearrange.isRearrangement )
-				{
-					rerngScriptInfoFormToOutput( waveForm, wave, variables[seqInc], variation );
-				}
-				else
-				{
-					simpleFormToOutput( waveForm.core, wave.core, variables[seqInc], variation );
-					if ( variation != 0 )
-					{
-						fgenConduit.deleteWaveform( cstr( wave.core.name ) );
-					}
-					if (waveInc != 0)
-					{
-						auto& prevWave = output.waves[waveInc - 1];
-						handleMinus1Phase(wave.core, prevWave.core);
-					}
-					writeStandardWave( wave.core, debugOptions, output.isDefault );
-					deleteWaveData( wave.core );
-				}
-				mixedWaveSizes.push_back( 2 * wave.core.sampleNum() );
-				mixedCount++;
+				flashFormToOutput( waveForm, wave, variables, variation );
+				writeFlashing( wave, debugOptions, variation );
 			}
-			waveInc++;
+			else if ( waveForm.rearrange.isRearrangement )
+			{
+				rerngScriptInfoFormToOutput( waveForm, wave, variables, variation );
+			}
+			else
+			{
+				simpleFormToOutput( waveForm.core, wave.core, variables, variation );
+				if ( variation != 0 )
+				{
+					fgenConduit.deleteWaveform( cstr( wave.core.name ) );
+				}
+				if (waveInc != 0)
+				{
+					auto& prevWave = output.waves[waveInc - 1];
+					handleMinus1Phase(wave.core, prevWave.core);
+				}
+				writeStandardWave( wave.core, debugOptions, output.isDefault );
+				deleteWaveData( wave.core );
+			}
+			mixedWaveSizes.push_back( 2 * wave.core.sampleNum() );
+			mixedCount++;
 		}
+		waveInc++;
 	}
 	checkThatWaveformsAreSensible( warnings, output );
 }
@@ -2146,18 +2141,15 @@ void NiawgCore::handleStandardWaveform( NiawgOutput& output, std::string cmd, Sc
 }
 
 
-void NiawgCore::finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
-									  std::vector<ViChar>& userScriptSubmit, bool repeatForever )
+void NiawgCore::finalizeScript( ULONGLONG repetitions, std::string name, std::string workingUserScripts,
+							    std::vector<ViChar>& userScriptSubmit, bool repeatForever )
 {
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
 	std::string finalUserScriptString = "script " + name + "\n";
 	if ( repeatForever )
 	{
 		finalUserScriptString += "repeat forever\n";
-		for ( UINT sequenceInc = 0; sequenceInc < workingUserScripts.size( ); sequenceInc++ )
-		{
-			finalUserScriptString += workingUserScripts[sequenceInc];
-		}
+		finalUserScriptString += workingUserScripts;
 		finalUserScriptString += "end repeat\n";
 	}
 	else
@@ -2165,10 +2157,7 @@ void NiawgCore::finalizeScript( ULONGLONG repetitions, std::string name, std::ve
 		// repeat the script once for every accumulation.
 		for ( UINT accumCount = 0; accumCount < repetitions; accumCount++ )
 		{
-			for ( UINT sequenceInc = 0; sequenceInc < workingUserScripts.size( ); sequenceInc++ )
-			{
-				finalUserScriptString += workingUserScripts[sequenceInc];
-			}
+			finalUserScriptString += workingUserScripts;
 		}
 	}
 	// the NIAWG requires that the script file must end with "end script".
@@ -3721,75 +3710,10 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 						count++;
 					}
 				}
-
-				/*
-				var ha1  0.12963300292295718
-				var ha2  0.0742082735526821
-				var ha3  0.06452232420354994
-				var ha4  0.08418962365512414
-				var ha5  0.061614540718750034
-				var ha6  0.08211462269426241
-				var ha7  0.052974803330588585 + 0.025
-				var ha8  0.052075585246253435
-				var ha9  0.08655332703068899
-				var ha10 0.3671138966451433
-
-				var va1  0.13605637851383134
-				var va2  0.08802408172039368
-				var va3  0.08773263291047297
-				var va4  0.07863546037570875
-				var va5  0.08000523681678881
-				var va6  0.08376969752900515
-				var va7  0.0650583321788129 + 0.035
-				var va8  0.06646226907922695
-				var va9  0.08150383299591347
-				var va10 0.23275207787984606
-				*/
 				input->niawg->finalizeStandardWave ( moveWave, debugInfo ( ) );
 				std::vector<double> vals_move ( moveWave.waveVals );
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end ( ), vals_move.begin ( ),
 													vals_move.end ( ) ); 
-				/*
-				/// ramp up unused traps
-				// use the final positions not the initial.
-				simpleWave rampDownWave;
-				rampDownWave.varies = false;
-				rampDownWave.name = "NA";
-				rampDownWave.chan[ Axes::Vertical ].signals.resize ( source.getRows ( ) );
-				rampDownWave.chan[ Axes::Horizontal ].signals.resize ( source.getCols ( ) );
-				rampDownWave.time = 0.1e-3;
-				//rampDownWave.sampleNum = waveformSizeCalc ( rampDownWave.time );
-				for ( auto axis : AXES )
-				{
-					UINT count = 0;
-					for ( auto sigInc : range ( rampDownWave.chan[ axis ].signals.size ( ) ) )
-					{
-						auto& sig = rampDownWave.chan[ axis ].signals[ sigInc ];
-						sig.freqInit = ( sigInc * info.freqPerPixel + info.lowestFreqs[ axis ] ) * 1e6;
-						sig.freqFin = sig.freqInit;
-						sig.freqRampType = "nr";
-						sig.initPower = 0;
-						sig.finPower = info.staticBiases[ axis ][ sigInc ];
-						sig.powerRampType = "lin";
-						for ( auto lp : lazyPositions[ axis ] )
-						{
-							auto lazyPos = axis == Axes::Horizontal ? lp : source.getRows ( ) - lp - 1;
-							if ( sigInc == lazyPos )
-							{
-								// then this was always on
-								sig.initPower = info.staticBiases[ axis ][ sigInc ];
-								sig.powerRampType = "nr";
-								break;
-							}
-						}
-						sig.initPhase = info.staticPhases[ axis ][ sigInc ];
-						count++;
-					}
-				}
-				input->niawg->finalizeStandardWave ( rampDownWave, debugInfo ( ) );
-				std::vector<double> vals_rd ( rampDownWave.waveVals );
-				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_rd.begin ( ), vals_rd.end ( ) );
-				*/
 				stopMoveCalc.push_back ( chronoClock::now ( ) );
 				finMoveCalc.push_back ( chronoClock::now ( ) );
 				
@@ -3882,7 +3806,6 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 			}
 			//input->niawg->writeToFile( input->niawg->rerngWaveVals );
 			input->niawg->rerngWaveVals.clear( );
-			//if ( complexMoveSequence.size( ) != 0 )
 			{
 				if ( input->guiOptions.outputIndv )
 				{
@@ -3917,21 +3840,6 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 					}
 					moveRecordFile << "\n";
 				}
-				/*
-				moveRecordFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
-				moveRecordFile << "Moves:\n";
-				UINT moveCount = 0;
-				for ( auto move : complexMoveSequence )
-				{
-					moveRecordFile << moveCount++ << " " << move.needsFlash << " " << int(move.moveDir) << " " <<
-						move.isInlineParallel << "\n";
-					for ( auto atom : move.locationsToMove )
-					{
-						moveRecordFile << atom.row << " " << atom.column << "\n";
-					}
-					moveRecordFile << "\n";
-				}
-				*/
 			}
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
@@ -4171,7 +4079,6 @@ niawgPair<double> NiawgCore::calculateTargetCOM ( Matrix<bool> target, niawgPair
 /// everything below here is primarily Kai-Niklas Schymik's work, with minor modifications. Some modifications are
 /// minor to improve style consistency with my code, some are renaming params so that I can make sense of what's 
 /// going on. I also had to change it to make it compatible with non-square input.
-
 int NiawgCore::sign( int x )
 {
 	if (x > 0)
@@ -4370,7 +4277,7 @@ void NiawgCore::randomizeMoves(std::vector<simpleMove>& operationsList)
 	this part was written by Mark O Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
 */
 void NiawgCore::orderMoves( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence, 
-								  Matrix<bool> sourceMatrix )
+						    Matrix<bool> sourceMatrix )
 {
 
 	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can

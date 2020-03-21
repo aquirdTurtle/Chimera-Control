@@ -73,11 +73,11 @@ bool AoSystem::handleArrow ( CWnd* focus, bool up )
 void AoSystem::standardNonExperiemntStartDacsSequence( )
 {
 	updateEdits( );
-	organizeDacCommands( 0, 0 );
-	makeFinalDataFormat( 0, 0 );
+	organizeDacCommands( 0 );
+	makeFinalDataFormat( 0 );
 	stopDacs( );
-	configureClocks( 0, false, 0 );
-	writeDacs( 0, false, 0 );
+	configureClocks( 0, false );
+	writeDacs( 0, false );
 	startDacs( );
 }
 
@@ -128,7 +128,7 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 	prepareForce( );
 	ttls.prepareForce( );
 	prepareDacForceChange( dacNumber, val, ttls );
-	checkValuesAgainstLimits( 0, 0 );
+	checkValuesAgainstLimits( 0 );
 	///
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
@@ -166,10 +166,10 @@ void AoSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-std::string AoSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
+std::string AoSystem::getDacSequenceMessage( UINT variation )
 {
 	std::string message;
-	for ( auto snap : dacSnapshots(seqNum,variation) )
+	for ( auto snap : dacSnapshots(variation) )
 	{
 		std::string time = str( snap.time, 12, true );
 		message += time + ":\r\n";
@@ -336,13 +336,13 @@ void AoSystem::updateEdits( )
 }
 
 
-void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
+void AoSystem::organizeDacCommands(UINT variation)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<AoCommand>>> timeOrganizer;
-	std::vector<AoCommand> tempEvents(dacCommandList(seqNum,variation));
+	std::vector<AoCommand> tempEvents(dacCommandList(variation));
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](AoCommand a, AoCommand b){ return a.time < b.time; });
@@ -370,7 +370,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 		// no commands, that's fine.
 		return;
 	}
-	auto& snap = dacSnapshots(seqNum,variation);
+	auto& snap = dacSnapshots(variation);
 	snap.clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
 	std::array<double, 24> dacValues;
@@ -394,11 +394,11 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
+void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
-	auto& snaps = dacSnapshots(seqNum,variation);
-	auto& loadSkipSnaps = loadSkipDacSnapshots(seqNum,variation);
+	auto& snaps = dacSnapshots(variation);
+	auto& loadSkipSnaps = loadSkipDacSnapshots(variation);
 	if ( snaps.size( ) == 0 )
 	{
 		return;
@@ -416,16 +416,12 @@ void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& v
 
 std::array<double, 24> AoSystem::getFinalSnapshot()
 {
-	auto numSeq = dacSnapshots.getNumSequences ( );
-	if (numSeq != 0)
+	auto numVar = dacSnapshots.getNumVariations ();
+	if (numVar != 0)
 	{
-		auto numVar = dacSnapshots.getNumVariations ( numSeq - 1 );
-		if (numVar != 0)
+		if ( dacSnapshots( numVar-1 ).size( ) != 0 )
 		{
-			if ( dacSnapshots( numSeq - 1, numVar-1 ).size( ) != 0 )
-			{
-				return dacSnapshots ( numSeq - 1, numVar - 1 ).back( ).dacValues;
-			}
+			return dacSnapshots ( numVar - 1 ).back( ).dacValues;
 		}
 	}
 	thrower ("No DAC Events");
@@ -452,8 +448,7 @@ void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 template <typename T> using vec = std::vector<T>;
 
 
-void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
-							  std::vector<std::vector<double>> finTimes )
+void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData )
 {
 	std::string message;
 	// each element of ttlData should be one ttl line.
@@ -463,22 +458,14 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 	{
 		auto& data = dacData[line / linesPerPlot][line % linesPerPlot];
 		data->clear( );
-		UINT seqInc = 0;
-		UINT runningSeqTime = 0;
-		for (auto seqNum : range(dacSnapshots.getNumSequences( ) ) )
-		//for ( auto& dacSeqInfo : dacSnapshots )
+		if ( dacSnapshots.getNumVariations() <= variation )
 		{
-			if ( dacSnapshots.getNumVariations(seqNum) <= variation )
-			{
-				thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
-						 "exist!" );
-			}
-			for ( auto& snap : dacSnapshots(seqNum, variation) )
-			{
-				data->push_back( { runningSeqTime + snap.time, double( snap.dacValues[line] ), 0 } );
-			}
-			runningSeqTime += finTimes[seqInc][variation];
-			seqInc++;
+			thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
+						"exist!" );
+		}
+		for ( auto& snap : dacSnapshots(variation) )
+		{
+			data->push_back( { snap.time, double( snap.dacValues[line] ), 0 } );
 		}
 	}
 }
@@ -488,207 +475,198 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings )
+void AoSystem::interpretKey( std::vector<parameterType>& params, std::string& warnings )
 {
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
-	UINT sequenceLength = variables.size( );
-	if ( sequenceLength == 0 )
-	{
-		sequenceLength = 1;
-	}
-	UINT variations = variables.front( ).size( ) == 0 ? 1 : variables.front().front( ).keyValues.size( );
+	UINT variations = params.size( ) == 0 ? 1 : params.front( ).keyValues.size( );
 	if (variations == 0)
 	{
 		variations = 1;
 	}
 	/// imporantly, this sizes the relevant structures.
-	dacCommandList.uniformSizeReset ( sequenceLength, variations );
-	dacSnapshots.uniformSizeReset ( sequenceLength, variations );
-	loadSkipDacSnapshots.uniformSizeReset ( sequenceLength, variations );
-	finalFormatDacData.uniformSizeReset ( sequenceLength, variations );
-	loadSkipDacFinalFormat.uniformSizeReset ( sequenceLength, variations );
+	dacCommandList.uniformSizeReset (  variations );
+	dacSnapshots.uniformSizeReset ( variations );
+	loadSkipDacSnapshots.uniformSizeReset ( variations );
+	finalFormatDacData.uniformSizeReset ( variations );
+	loadSkipDacFinalFormat.uniformSizeReset ( variations );
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
 	sTimer.tick ( "After-init" );
-	for ( auto seqInc : range( sequenceLength ) )
+	for (auto variationInc : range(variations) )
 	{
-		for (auto variationInc : range(variations) )
+		if ( variationInc == 0 )
 		{
+			sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
+		}
+		auto& cmdList = dacCommandList(variationInc);
+		for (auto eventInc : range( dacCommandFormList.size ( ) ) )
+		{
+			AoCommand tempEvent;
+			auto& formList = dacCommandFormList[eventInc];
+			tempEvent.line = formList.line;
+			// Deal with time.
+			if ( formList.time.first.size( ) == 0 )
+			{
+				// no variable portion of the time.
+				tempEvent.time = formList.time.second;
+			}
+			else
+			{
+				double varTime = 0;
+				for ( auto variableTimeString : formList.time.first )
+				{
+					varTime += variableTimeString.evaluate( params, variationInc );
+				}
+				tempEvent.time = varTime + formList.time.second;
+			}
 			if ( variationInc == 0 )
 			{
-				sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
+				sTimer.tick ( "Time-Handled" );
 			}
-			auto& seqVariables = variables[ seqInc ];
-			auto& cmdList = dacCommandList(seqInc, variationInc);
-			for (auto eventInc : range( dacCommandFormList[ seqInc ].size ( ) ) )
+			/// deal with command
+			if ( formList.commandName == "dac:" )
 			{
-				AoCommand tempEvent;
-				auto& formList = dacCommandFormList[seqInc][eventInc];
-				tempEvent.line = formList.line;
-				// Deal with time.
-				if ( formList.time.first.size( ) == 0 )
-				{
-					// no variable portion of the time.
-					tempEvent.time = formList.time.second;
-				}
-				else
-				{
-					double varTime = 0;
-					for ( auto variableTimeString : formList.time.first )
-					{
-						varTime += variableTimeString.evaluate( seqVariables, variationInc );
-					}
-					tempEvent.time = varTime + formList.time.second;
-				}
+				/// single point.
+				tempEvent.value = formList.finalVal.evaluate( params, variationInc );
 				if ( variationInc == 0 )
 				{
-					sTimer.tick ( "Time-Handled" );
+					sTimer.tick ( "val-evaluated" );
 				}
-				/// deal with command
-				if ( formList.commandName == "dac:" )
+				cmdList.push_back( tempEvent );
+				if ( variationInc == 0 )
 				{
-					/// single point.
-					tempEvent.value = formList.finalVal.evaluate( seqVariables, variationInc );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "val-evaluated" );
-					}
-					cmdList.push_back( tempEvent );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "Dac:-Handled" );
-					}
+					sTimer.tick ( "Dac:-Handled" );
 				}
-				else if ( formList.commandName == "dacarange:" )
+			}
+			else if ( formList.commandName == "dacarange:" )
+			{
+				// interpret ramp time command. I need to know whether it's ramping or not.
+				double rampTime = formList.rampTime.evaluate( params, variationInc );
+				/// many points to be made.
+				// convert initValue and finalValue to doubles to be used 
+				double initValue, finalValue, rampInc;
+				initValue = formList.initVal.evaluate( params, variationInc );
+				// deal with final value;
+				finalValue = formList.finalVal.evaluate( params, variationInc );
+				// deal with ramp inc
+				rampInc = formList.rampInc.evaluate( params, variationInc );
+				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 				{
-					// interpret ramp time command. I need to know whether it's ramping or not.
-					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
-					/// many points to be made.
-					// convert initValue and finalValue to doubles to be used 
-					double initValue, finalValue, rampInc;
-					initValue = formList.initVal.evaluate( seqVariables, variationInc );
-					// deal with final value;
-					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );
-					// deal with ramp inc
-					rampInc = formList.rampInc.evaluate( seqVariables, variationInc );
-					if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
-					{
-						resolutionWarningPosted = true;
-						warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " 
-							+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
-							+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
-					}
-					// This might be the first not i++ usage of a for loop I've ever done... XD
-					// calculate the time increment:
-					int steps = int( fabs( finalValue - initValue ) / rampInc + 0.5 );
-					double stepsFloat = fabs( finalValue - initValue ) / rampInc;
-					double diff = fabs( steps - fabs( finalValue - initValue ) / rampInc );
-					if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
-					{
-						nonIntegerWarningPosted = true;
-						warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
-							"of steps. The code will attempt to compensate by making a last step to the final value which"
-							" is not the same increment in voltage or time as the other steps to take the dac to the final"
-							" value at the right time.\r\n";
-					}
-					double timeInc = rampTime / steps;
-					double initTime = tempEvent.time;
-					double currentTime = tempEvent.time;
-					// handle the two directions seperately.
-					if ( initValue < finalValue )
-					{
-						for ( double dacValue = initValue; (dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc )
-						{
-							tempEvent.value = dacValue;
-							tempEvent.time = currentTime;
-							cmdList.push_back( tempEvent );
-							currentTime += timeInc;
-						}
-					}
-					else
-					{
-						for ( double dacValue = initValue; dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc )
-						{
-							tempEvent.value = dacValue;
-							tempEvent.time = currentTime;
-							cmdList.push_back( tempEvent );
-							currentTime += timeInc;
-						}
-					}
-					// and get the final value.
-					tempEvent.value = finalValue;
-					tempEvent.time = initTime + rampTime;
-					cmdList.push_back( tempEvent );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "dacarange:-Handled" );
-					}
+					resolutionWarningPosted = true;
+					warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " 
+						+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
+						+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
 				}
-				else if ( formList.commandName == "daclinspace:" )
+				// This might be the first not i++ usage of a for loop I've ever done... XD
+				// calculate the time increment:
+				int steps = int( fabs( finalValue - initValue ) / rampInc + 0.5 );
+				double stepsFloat = fabs( finalValue - initValue ) / rampInc;
+				double diff = fabs( steps - fabs( finalValue - initValue ) / rampInc );
+				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
 				{
-					// interpret ramp time command. I need to know whether it's ramping or not.
-					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
-					/// many points to be made.
-					double initValue, finalValue;
-					UINT numSteps;
-					initValue = formList.initVal.evaluate( seqVariables, variationInc );
-					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );
-					numSteps = formList.numSteps.evaluate( seqVariables, variationInc );
-					double rampInc = (finalValue - initValue) / numSteps;
-					if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
+					nonIntegerWarningPosted = true;
+					warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
+						"of steps. The code will attempt to compensate by making a last step to the final value which"
+						" is not the same increment in voltage or time as the other steps to take the dac to the final"
+						" value at the right time.\r\n";
+				}
+				double timeInc = rampTime / steps;
+				double initTime = tempEvent.time;
+				double currentTime = tempEvent.time;
+				// handle the two directions seperately.
+				if ( initValue < finalValue )
+				{
+					for ( double dacValue = initValue; (dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc )
 					{
-						resolutionWarningPosted = true;
-						warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
-							+ str( rampInc ) + " is below the resolution of the aoSys (which is 10/2^16 = "
-							+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
-							"calculate the ramp unnecessarily.\r\n";
-					}
-					// This might be the first not i++ usage of a for loop I've ever done... XD
-					// calculate the time increment:
-					double timeInc = rampTime / numSteps;
-					double initTime = tempEvent.time;
-					double currentTime = tempEvent.time;
-					double val = initValue;
-					// handle the two directions seperately.
-					for ( auto stepNum : range( numSteps ) )
-					{
-						tempEvent.value = val;
+						tempEvent.value = dacValue;
 						tempEvent.time = currentTime;
 						cmdList.push_back( tempEvent );
 						currentTime += timeInc;
-						val += rampInc;
-					}
-					// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
-					tempEvent.value = finalValue;
-					tempEvent.time = initTime + rampTime;
-					cmdList.push_back( tempEvent );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "daclinspace:-Handled" );
 					}
 				}
 				else
 				{
-					thrower ( "Unrecognized dac command name: " + formList.commandName );
+					for ( double dacValue = initValue; dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc )
+					{
+						tempEvent.value = dacValue;
+						tempEvent.time = currentTime;
+						cmdList.push_back( tempEvent );
+						currentTime += timeInc;
+					}
 				}
+				// and get the final value.
+				tempEvent.value = finalValue;
+				tempEvent.time = initTime + rampTime;
+				cmdList.push_back( tempEvent );
+				if ( variationInc == 0 )
+				{
+					sTimer.tick ( "dacarange:-Handled" );
+				}
+			}
+			else if ( formList.commandName == "daclinspace:" )
+			{
+				// interpret ramp time command. I need to know whether it's ramping or not.
+				double rampTime = formList.rampTime.evaluate( params, variationInc );
+				/// many points to be made.
+				double initValue, finalValue;
+				UINT numSteps;
+				initValue = formList.initVal.evaluate( params, variationInc );
+				finalValue = formList.finalVal.evaluate(params, variationInc );
+				numSteps = formList.numSteps.evaluate(params, variationInc );
+				double rampInc = (finalValue - initValue) / numSteps;
+				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
+				{
+					resolutionWarningPosted = true;
+					warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
+						+ str( rampInc ) + " is below the resolution of the aoSys (which is 10/2^16 = "
+						+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
+						"calculate the ramp unnecessarily.\r\n";
+				}
+				// This might be the first not i++ usage of a for loop I've ever done... XD
+				// calculate the time increment:
+				double timeInc = rampTime / numSteps;
+				double initTime = tempEvent.time;
+				double currentTime = tempEvent.time;
+				double val = initValue;
+				// handle the two directions seperately.
+				for ( auto stepNum : range( numSteps ) )
+				{
+					tempEvent.value = val;
+					tempEvent.time = currentTime;
+					cmdList.push_back( tempEvent );
+					currentTime += timeInc;
+					val += rampInc;
+				}
+				// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
+				tempEvent.value = finalValue;
+				tempEvent.time = initTime + rampTime;
+				cmdList.push_back( tempEvent );
+				if ( variationInc == 0 )
+				{
+					sTimer.tick ( "daclinspace:-Handled" );
+				}
+			}
+			else
+			{
+				thrower ( "Unrecognized dac command name: " + formList.commandName );
 			}
 		}
 	}
 }
 
 
-UINT AoSystem::getNumberSnapshots(UINT variation, UINT seqNum)
+UINT AoSystem::getNumberSnapshots(UINT variation)
 {
-	return dacSnapshots(seqNum,variation).size();
+	return dacSnapshots(variation).size();
 }
 
 
-void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
+void AoSystem::checkTimingsWork(UINT variation)
 {
 	std::vector<double> times;
 	// grab all the times.
-	for (auto snapshot : dacSnapshots(seqInc,variation))
+	for (auto snapshot : dacSnapshots(variation))
 	{
 		times.push_back(snapshot.time);
 	}
@@ -717,18 +695,18 @@ void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 	}
 }
 
-ULONG AoSystem::getNumberEvents(UINT variation, UINT seqInc)
+ULONG AoSystem::getNumberEvents(UINT variation)
 {
-	return dacSnapshots(seqInc,variation).size();
+	return dacSnapshots(variation).size();
 }
 
 
 // note that this is not directly tied to changing any "current" parameters in the AoSystem object (it of course changes a list parameter). The 
 // AoSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
 // with changing "currnet" parameters in the AoSystem object.
-void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
+void AoSystem::setDacCommandForm( AoCommandForm command)
 {
-	dacCommandFormList[seqNum].push_back( command );
+	dacCommandFormList.push_back( command );
 	// you need to set up a corresponding trigger to tell the aoSys to change the output at the correct time. 
 	// This is done later on interpretation of ramps etc.
 }
@@ -736,13 +714,12 @@ void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation, UINT seqInc)
+void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation)
 {
-	for ( auto snapshot : dacSnapshots(seqInc,variation))
+	for ( auto snapshot : dacSnapshots(variation))
 	{
-		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc );
-		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation, 
-						  seqInc );
+		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation );
+		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation );
 	}
 }
 
@@ -768,15 +745,15 @@ void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls)
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the aoSys
 	// for a foce out. I'm guessing it's possible to tell the DAC to just immediately change without waiting for a 
 	// trigger.
-	setForceDacEvent ( line, voltage, ttls, 0, 0 );
+	setForceDacEvent ( line, voltage, ttls, 0 );
 }
 
 
-void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
+void AoSystem::checkValuesAgainstLimits(UINT variation)
 {
 	for (auto line : range(outputs.size()))
 	{
-		for (auto snapshot : dacSnapshots(seqNum,variation))
+		for (auto snapshot : dacSnapshots(variation))
 		{
 			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )
 			{
@@ -790,7 +767,7 @@ void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation, UINT seqNum )
+void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation )
 {
 	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal )
 	{
@@ -803,14 +780,14 @@ void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variat
 	eventInfo.line = line;
 	eventInfo.time = 1;	
 	eventInfo.value = val;
-	dacCommandList(seqNum,variation).push_back( eventInfo );
+	dacCommandList(variation).push_back( eventInfo );
 	// important! need at least 2 states to run the dac board. can't just give it one value. This is how this was done in the VB code,
 	// there might be better ways of dealing with this. 
 	eventInfo.time = 10;
-	dacCommandList(seqNum,variation).push_back( eventInfo );
+	dacCommandList(variation).push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the aoSys to change the output at the correct time.
-	ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0);
-	ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0 );
+	ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0 );
+	ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0 );
 }
 
 
@@ -829,24 +806,24 @@ ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( )
 
 void AoSystem::prepareForce( )
 {
-	initializeDataObjects( 1, 1 );
+	initializeDataObjects( 1 );
 }
 
 
-void AoSystem::initializeDataObjects( UINT sequenceNum, UINT cmdNum )
+void AoSystem::initializeDataObjects( UINT cmdNum )
 {
-	dacCommandFormList = vec<vec<AoCommandForm>>( sequenceNum, vec<AoCommandForm>( cmdNum ) );
-	dacCommandList.uniformSizeReset ( sequenceNum, cmdNum );
-	dacSnapshots.uniformSizeReset ( sequenceNum, cmdNum );
-	loadSkipDacSnapshots.uniformSizeReset ( sequenceNum, cmdNum );
-	finalFormatDacData.uniformSizeReset ( sequenceNum, cmdNum );
-	loadSkipDacFinalFormat.uniformSizeReset ( sequenceNum, cmdNum );
+	dacCommandFormList = vec<AoCommandForm>( cmdNum );
+	dacCommandList.uniformSizeReset (  cmdNum );
+	dacSnapshots.uniformSizeReset ( cmdNum );
+	loadSkipDacSnapshots.uniformSizeReset ( cmdNum );
+	finalFormatDacData.uniformSizeReset ( cmdNum );
+	loadSkipDacFinalFormat.uniformSizeReset ( cmdNum );
 }
 
 
 void AoSystem::resetDacEvents()
 {
-	initializeDataObjects( 0, 0 );
+	initializeDataObjects( 0 );
 }
 
 
@@ -858,29 +835,31 @@ void AoSystem::stopDacs()
 }
 
 
-void AoSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
+void AoSystem::configureClocks(UINT variation, bool loadSkip)
 {
 	long sampleNumber;
 	if ( loadSkip )
 	{
-		sampleNumber = loadSkipDacSnapshots(seqNum,variation).size( );
+		sampleNumber = loadSkipDacSnapshots(variation).size( );
 	}
 	else
 	{
-		sampleNumber = dacSnapshots(seqNum,variation).size( );
+		sampleNumber = dacSnapshots(variation).size( );
 	}
-	daqmx.configSampleClkTiming( analogOutTask0, cstr("/" + board0Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqmx.configSampleClkTiming( analogOutTask1, cstr("/" + board1Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqmx.configSampleClkTiming( analogOutTask2, cstr("/" + board2Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask0, cstr("/" + board0Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
+								 DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask1, cstr("/" + board1Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
+								 DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask2, cstr("/" + board2Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
+								 DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
-void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
+void AoSystem::writeDacs(UINT variation, bool loadSkip)
 {
-	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(seqNum,variation) 
-												   : dacSnapshots(seqNum,variation);
-	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(seqNum,variation)
-															 : finalFormatDacData(seqNum,variation);
+	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(variation) : dacSnapshots(variation);
+	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(variation)
+															 : finalFormatDacData(variation);
 	if (snapshots.size() <= 1)
 	{
 		// need at least 2 events to run aoSys.
@@ -912,12 +891,12 @@ void AoSystem::startDacs()
 }
 
 
-void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
+void AoSystem::makeFinalDataFormat(UINT variation)
 {
-	auto& finalNormal = finalFormatDacData(seqNum,variation);
-	auto& finalLoadSkip = loadSkipDacFinalFormat(seqNum,variation);
-	auto& normSnapshots = dacSnapshots(seqNum,variation);
-	auto& loadSkipSnapshots = loadSkipDacSnapshots(seqNum,variation);
+	auto& finalNormal = finalFormatDacData(variation);
+	auto& finalLoadSkip = loadSkipDacFinalFormat(variation);
+	auto& normSnapshots = dacSnapshots(variation);
+	auto& loadSkipSnapshots = loadSkipDacSnapshots(variation);
 
 	for ( auto& data : finalNormal )
 	{
@@ -945,7 +924,7 @@ void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 
 
 void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
-									   DoCore& ttls, UINT seqNum )
+									   DoCore& ttls )
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{
@@ -961,7 +940,7 @@ void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, 
 	{
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
-	setDacCommandForm( command, seqNum );
+	setDacCommandForm( command );
 }
 
 

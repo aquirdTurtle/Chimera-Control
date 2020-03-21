@@ -125,7 +125,7 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 		try
 		{
 			intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-			intensityAgilent.programAgilentNow(auxWin->getUsableConstants()[0]);
+			intensityAgilent.programAgilentNow(auxWin->getUsableConstants());
 			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getConfigDelim()+ ".\r\n" );
 		}
 		catch (Error& err)

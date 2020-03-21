@@ -27,22 +27,21 @@ class DdsCore
 		~DdsCore ( );
 		static std::vector<ddsIndvRampListInfo> getRampListFromConfig ( std::ifstream& file, Version ver );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file );
-		void writeExperiment ( UINT sequenceNum, UINT variationNum );
+		void writeExperiment ( UINT variationNum );
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
 		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation );
 		void generateFullExpInfo ( UINT numVariations );
-		void assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params );
-		void evaluateDdsInfo ( std::vector<std::vector<parameterType>> params = std::vector<std::vector<parameterType>> ( 1 ) );
+		void assertDdsValuesValid ( std::vector<parameterType>& params );
+		void evaluateDdsInfo ( std::vector<parameterType> params= std::vector<parameterType>());
 		void forceRampsConsistent ( );
-		void updateRampLists ( std::vector<std::vector<ddsIndvRampListInfo>> rampList );
+		void updateRampLists ( std::vector<ddsIndvRampListInfo> rampList );
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
 		const std::string configDelim = "DDS_SYSTEM";
 	private:
-		// there is one list for every sequence. the same list is shared between variations of the sequence element.
-		std::vector<std::vector<ddsIndvRampListInfo>> rampLists;
+		std::vector<ddsIndvRampListInfo> rampLists;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
 		ddsConnectionType::type connType;
 		const UINT MSGLENGTH = 7;
