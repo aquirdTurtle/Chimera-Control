@@ -75,10 +75,7 @@ void AoSystem::standardNonExperiemntStartDacsSequence( )
 	updateEdits( );
 	organizeDacCommands( 0 );
 	makeFinalDataFormat( 0 );
-	stopDacs( );
-	configureClocks( 0, false );
-	writeDacs( 0, false );
-	startDacs( );
+	resetDacs (0, false);
 }
 
 
@@ -445,9 +442,18 @@ void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 }
 
 
+void AoSystem::resetDacs (UINT varInc, bool skipOption)
+{
+	stopDacs ();
+	// it's important to grab the skipoption from input->skipNext only once because in principle
+	// if the cruncher thread was running behind, it could change between writing and configuring the 
+	// aoSys and configuring the TTLs, resulting in some funny behavior;
+	configureClocks (varInc, skipOption);
+	writeDacs (varInc, skipOption);
+	startDacs ();
+}
+
 template <typename T> using vec = std::vector<T>;
-
-
 void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData )
 {
 	std::string message;

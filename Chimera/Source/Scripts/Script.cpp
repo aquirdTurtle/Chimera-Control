@@ -135,8 +135,9 @@ std::string Script::getScriptText()
 }
 
 
-COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
-								 bool& colorLine, Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
+COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> params, 
+								 std::vector<parameterType> localParams, bool& colorLine, Matrix<std::string> ttlNames,
+								 std::array<AoInfo, 24> dacInfo )
 {
 	// convert word to lower case.
 	std::transform( word.begin(), word.end(), word.begin(), ::tolower );
@@ -159,6 +160,38 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		}
 		return _myRGBs["Slate Grey"];
 	}
+	if (word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" ||
+		word == "sin" || word == "cos" || word == "tan" || word == "exp" || word == "ln" || word == "var")
+	{
+		return _myRGBs["Solarized Cyan"];
+	}
+
+	for (const auto& var : params)
+	{
+		if (word == var.name)
+		{
+			return _myRGBs["Solarized Green"];
+		}
+	}
+	for (const auto& var : localParams)
+	{
+		if (word == var.name)
+		{
+			return _myRGBs["Solarized Blue"];
+		}
+	}
+	// check delimiter
+	if (word == "#")
+	{
+		return _myRGBs["Light Grey 2"];
+	}
+	// see if it's a double.
+	try
+	{
+		boost::lexical_cast<double>(word);
+		return _myRGBs["White"];
+	}
+	catch (boost::bad_lexical_cast&) {}
 	// Check NIAWG-specific commands
 	if ( editType == "NIAWG")
 	{
@@ -192,7 +225,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			return _myRGBs["Solarized Green"];
 		}
 		// check variable
-		else if (word == "{" || word == "}")
+		else if (word == "{" || word == "}" || word == "[" || word == "]" || word == "var_v")
 		{
 			return _myRGBs["Solarized Cyan"];
 		}
@@ -233,7 +266,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			colorLine = true;
 			return _myRGBs["Solarized Blue"];
 		}
-		else if (word == "def" || word == "var")
+		else if (word == "def")
 		{
 			colorLine = true;
 			return _myRGBs["Solarized Blue"];
@@ -273,35 +306,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			}
 		}
 	}
-
-	if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" ||
-		 word == "sin" || word == "cos" || word == "tan" || word == "exp" || word == "ln")
-	{
-		return _myRGBs["Solarized Cyan"];
-	}
-
-	for (const auto& var : variables)
-	{
-		if (word == var.name)
-		{
-			return _myRGBs["Solarized Green"];
-		}
-	}
-	// check delimiter
-	if (word == "#")
-	{
-		return _myRGBs["Light Grey 2"];
-	}
-	// see if it's a double.
-	try
-	{
-		boost::lexical_cast<double>(word);
-		return _myRGBs["White"];
-	}
-	catch (boost::bad_lexical_cast &)
-	{
-		return _myRGBs["Solarized Red"];
-	}
+	return _myRGBs["Solarized Red"];
 }
 
 
@@ -385,6 +390,7 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 	{
 		return;
 	}
+	
 	edit.SetRedraw( false );
 	bool tempSaveStatus = isSaved;
 	long long beginingSigned = beginingOfChange, endSigned = endOfChange;
@@ -397,10 +403,11 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 	CHARFORMAT syntaxFormat = { 0 };
 	syntaxFormat.cbSize = sizeof(CHARFORMAT);
 	syntaxFormat.dwMask = CFM_COLOR;
-	//int relevantID = GetDlgCtrlID(edit.hwnd);
 	DWORD start = 0, end = 0;
 	std::size_t prev, pos;
-
+	// extra x are to make sure that "__end__" doesn't get eaten as part of the handling of some other script element.
+	ScriptStream ss (fileTextStream.str () + " x x x x x x x x x __end__");
+	auto localVars = ExperimentThreadManager::getLocalParameters (ss);
 	while (std::getline(fileTextStream, line))
 	{
 		DWORD lineStartCoordingate = start;
@@ -433,8 +440,8 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			// if comment is found, the rest of the line is green.
 			if (!colorLine)
 			{
-				// get all the variables
-				syntaxColor = getSyntaxColor(word, deviceType, vars, colorLine, ttlNames, dacInfo );
+				// get all the params
+				syntaxColor = getSyntaxColor(word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo );
 				if (syntaxColor != coloring)
 				{
 					coloring = syntaxColor;
@@ -461,8 +468,8 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			bool colorLine = false;
 			word = line.substr(prev, std::string::npos);
 			end = lineStartCoordingate + line.length();
-			// get all the variables together
-			syntaxColor = getSyntaxColor( word, deviceType, vars, colorLine, ttlNames, dacInfo );
+			// get all the params together
+			syntaxColor = getSyntaxColor( word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo );
 			if (!colorLine)
 			{
 				coloring = syntaxColor;
@@ -566,7 +573,7 @@ void Script::changeView(std::string viewName, bool isFunction, std::string confi
 		loadFile(configPath + viewName);
 	}
 
-	// colorEntireScript(variables, rgbs, ttlNames, dacNames);
+	// colorEntireScript(params, rgbs, ttlNames, dacNames);
 	// the view is fresh from a file, so it's saved.
 	updateSavedStatus(true);
 }

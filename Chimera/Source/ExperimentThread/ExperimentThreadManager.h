@@ -64,6 +64,7 @@ class ExperimentThreadManager
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
+		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);
 	private:
 		// I've forgotten why there are two of these. 
 		timeType loadSkipTime;

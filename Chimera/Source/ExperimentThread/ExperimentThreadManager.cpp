@@ -39,7 +39,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	// outermost level is for each controller, 2nd level is for sequence number
 	std::vector<piezoChan<Expression>> piezoExpressions(input->piezoCores.size() );
 	std::vector<bool> ctrlPztOptions( input->piezoCores.size ( ) );
-	AndorRunSettings andorRunsettings;
+	AndorRunSettings andorRunSettings;
 	microwaveSettings uwSettings;
 	// a couple aliases.
 	auto& ttls = input->ttls;
@@ -52,8 +52,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	bool runNiawg=true;
 	const auto& runBasler = input->runList.basler;
 	const auto& piezos = input->piezoCores;
-	const UINT tbTek = 0;
-	const UINT aeTek = 1;
+	const UINT tbTek = 0, aeTek=1;
 
 	mainOptions mainOpts;
 	baslerSettings baslerCamSettings;
@@ -65,7 +64,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	try
 	{
 		expParams = ParameterSystem::combineParamsForExpThread ( 
-						ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()),
+						ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), 
 						input->globalParameters);
 		std::ifstream cFile (input->profile.configFilePath ());
 		using PS = ProfileSystem;
@@ -98,12 +97,12 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		}
 		if (runAndor) 
 		{
-			andorRunsettings = PS::stdGetFromConfig (cFile, "CAMERA_SETTINGS", 
+			andorRunSettings = PS::stdGetFromConfig (cFile, "CAMERA_SETTINGS", 
 													 AndorCameraSettingsControl::getRunSettingsFromConfig);
-			andorRunsettings.imageSettings = PS::stdGetFromConfig (cFile, "CAMERA_IMAGE_DIMENSIONS", 
+			andorRunSettings.imageSettings = PS::stdGetFromConfig (cFile, "CAMERA_IMAGE_DIMENSIONS", 
 													AndorCameraSettingsControl::getImageDimSettingsFromConfig);
-			andorRunsettings.repetitionsPerVariation = repetitions;
-			andorRunsettings.totalVariations = variations;
+			andorRunSettings.repetitionsPerVariation = repetitions;
+			andorRunSettings.totalVariations = variations;
 		}
 		if (runBasler)
 		{
@@ -138,13 +137,11 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower () calls.
-	std::string warnings, abortString = "\r\nABORTED!\r\n";
+	std::string warnings;
+	const std::string abortString = "\r\nABORTED!\r\n";
 	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
-	std::vector<long> variedMixedSize;
 	NiawgOutput output;
 	std::vector<ViChar> niawgMachineScript;
-	std::string workingNiawgScripts;
-	output.isDefault = false;
 	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
 	// now, but might cause slight breakages...
 	output.waves.resize( 2 );
@@ -157,7 +154,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			input->logger.logMasterRuntime ( repetitions, expParams);
 			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
-			input->logger.logAndorSettings ( andorRunsettings, runAndor );
+			input->logger.logAndorSettings ( andorRunSettings, runAndor );
 			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
 			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
 			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
@@ -202,16 +199,15 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			comm.sendColorBox ( System::Master, 'Y' );
 			input->thisObj->analyzeMasterScript( ttls, aoSys, expParams, expSeq.masterStream,
-													mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
-													input->thisObj->operationTime, input->thisObj->loadSkipTime );
+												 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
+												 input->thisObj->operationTime, input->thisObj->loadSkipTime );
 		}
 		if ( input->thisObj->isAborting ) thrower ( abortString );
 		if ( runNiawg )	
 		{
 			comm.sendColorBox ( System::Niawg, 'Y' );
-			input->niawg.analyzeNiawgScript (expSeq.niawgStream, output, input->profile, input->debugOptions,
-												warnings, input->rerngGuiForm, expParams);
-			workingNiawgScripts = output.niawgLanguageScript;
+			input->niawg.analyzeNiawgScript ( expSeq.niawgStream, output, input->profile, input->debugOptions,
+											  warnings, input->rerngGuiForm, expParams );
 		}
 		if ( input->thisObj->isAborting ) thrower ( abortString );
 		if ( runMaster )
@@ -220,7 +216,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		}
 		if ( runNiawg )
 		{
-			input->niawg.finalizeScript ( repetitions, "experimentScript", workingNiawgScripts, niawgMachineScript,
+			input->niawg.finalizeScript ( repetitions, "experimentScript", output.niawgLanguageScript, niawgMachineScript,
 										   !input->niawg.outputVaries ( output ) );
 			if ( input->debugOptions.outputNiawgMachineScript )
 			{
@@ -311,6 +307,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		if ( runMaster )
 		{
 			handleDebugPlots ( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
+			comm.sendColorBox (System::Master, 'G');
 		}
 		if ( warnings != "" )
 		{
@@ -322,13 +319,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
 		/// /////////////////////////////
 		/// Begin experiment loop
-		if (runMaster)
-		{
-			comm.sendColorBox( System::Master, 'G' );
-		}
-		expUpdate ("Starting Basler Camera...", comm, quiet);
 		if (runBasler)
 		{
+			expUpdate ("Starting Basler Camera...", comm, quiet);
 			comm.sendPrepareBasler (baslerCamSettings);
 			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
 			comm.sendColorBox (System::Basler, 'G');
@@ -336,8 +329,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		}
 		if (runAndor)
 		{
-			input->andorCamera.setSettings (andorRunsettings);
-			comm.sendPrepareAndor (andorRunsettings);
+			input->andorCamera.setSettings (andorRunSettings);
+			comm.sendPrepareAndor (andorRunSettings);
 		}
 		// shouldn't there be a sequence loop here?
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
@@ -365,8 +358,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						thrower ( "Variable " + param.name + " varies, but has no values assigned to "
 									"it! (This shouldn't happen, it's a low-level bug...)" );
 					}
-					expUpdate( param.name + ": " + str( param.keyValues[variationInc], 12) + "\r\n", 
-								comm, quiet );
+					expUpdate( param.name + ": " + str( param.keyValues[variationInc], 12) + "\r\n", comm, quiet );
 				}
 			}
 			expUpdate ( "Starting Andor Camera...", comm, quiet );
@@ -408,8 +400,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			dds.writeExperiment ( variationInc );
 			if (runNiawg)
 			{
-				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-										   niawgMachineScript, input->rerngGuiForm, input->rerngGui, expParams );
+				input->niawg.programNiawg( input, output, warnings, variationInc, variations, niawgMachineScript, 
+										   input->rerngGuiForm, input->rerngGui, expParams );
 				if (input->rerngGui.active)
 				{
 					input->niawg.turnOffRerng ();
@@ -446,13 +438,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				comm.sendRepProgress(repInc + 1);
 				if (runMaster)
 				{
-					aoSys.stopDacs();
-					// it's important to grab the skipoption from input->skipNext only once because in principle
-					// if the cruncher thread was running behind, it could change between writing and configuring the 
-					// aoSys and configuring the TTLs, resulting in some funny behavior;
-					aoSys.configureClocks(variationInc, skipOption);
-					aoSys.writeDacs(variationInc, skipOption);
-					aoSys.startDacs();
+					aoSys.resetDacs (variationInc, skipOption);
 					ttls.ftdi_trigger();
 					ttls.FtdiWaitTillFinished(variationInc);
 				}
@@ -469,7 +455,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			{
 				// make sure the display accurately displays the state that the experiment finished at.
 				aoSys.setDacStatusNoForceOut( aoSys.getFinalSnapshot( ) );
-				//ttls.setTtlStatusNoForceOut( ttls.getFinalSnapshot( ) );
 			}
 			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
 		}
@@ -1101,6 +1086,40 @@ bool ExperimentThreadManager::handleVectorizedValsDeclaration ( std::string word
 	return true;
 }
 
+std::vector<parameterType> ExperimentThreadManager::getLocalParameters (ScriptStream& stream)
+{
+	std::string scriptText = stream.str ();
+	if (scriptText == "")
+	{
+		return {};
+	}
+	std::string word;
+	stream >> word;
+	// the analysis loop.
+	std::vector<parameterType> params;
+	std::vector<vectorizedNiawgVals> niawgParams;
+	std::string warnings="";
+	while (!(stream.peek () == EOF) || word != "__end__")
+	{
+		try
+		{
+			if (handleVariableDeclaration (word, stream, params, GLOBAL_PARAMETER_SCOPE, warnings))
+			{
+			}
+			else (handleVectorizedValsDeclaration (word, stream, niawgParams, warnings));
+		}
+		catch (Error & err) { /*Easy for this to happen. */}
+		word = "";
+		stream >> word;
+	}
+	for (auto& param : niawgParams)
+	{
+		parameterType temp;
+		temp.name = param.name;
+		params.push_back (temp);
+	}
+	return params;
+}
 
 bool ExperimentThreadManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 													 std::string scope, std::string& warnings )

@@ -94,9 +94,9 @@ class NiawgCore
 		void waitForRerng( bool andClearWvfm );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
 		void programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
-						   UINT totalVariations, std::vector<long>& variedMixedSize, 
-						   std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
-						   rerngGuiOptions& rerngGui, std::vector<parameterType>& expParams);
+						   UINT totalVariations, std::vector<ViChar>& userScriptSubmit, 
+						   rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui, 
+						   std::vector<parameterType>& expParams);
 		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();
