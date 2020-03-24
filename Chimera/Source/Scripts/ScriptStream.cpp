@@ -29,10 +29,10 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	// directly. I was having trouble calling the parent class version, not
 	// really sure why.
 	std::string text = str();
-	std::stringstream temp( text );
-	// make sure they are at the same place...
+	std::stringstream tempStream( text );
+	// make sure they are at the same place... // this is weird, don't know why I would need to do this. 
 	long long pos = tellg();
-	temp.seekg( pos );
+	tempStream.seekg( pos );
 	// get the word.
 	std::string tempStr;
 	
@@ -41,14 +41,16 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	int unclosedParentheses = 0;
 	do
 	{
-		temp >> tempStr;
+		tempStream >> tempStr;
+		auto peek_ = tempStream.peek ();
+		auto eof_ = tempStream.eof ();
 		if ( tempStr == "" )
 		{
 			break;
 		}
 		std::vector<std::string> tempTerms = Expression::splitString( tempStr );
 		for ( auto& term : tempTerms )
-		{
+		{ 
 			if ( term == "(" )
 			{
 				unclosedParentheses++;
@@ -75,9 +77,10 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 			}
 			outputString += term;
 		}
-	} while ( unclosedParentheses > 0 );
-
-	seekg( temp.tellg() );
+	} while ( unclosedParentheses > 0 && !tempStream.eof() );
+	auto posFin = tempStream.tellg ();
+	seekg(posFin);
+	auto peekpos = peek ();
 	return *this;
 }
 
@@ -203,13 +206,28 @@ void ScriptStream::eatComments()
 	std::string comment;
 	char currentChar = get();
 	// including the !file.eof() to avoid grabbing the null character at the end. 
-	while ((currentChar == ' ' && !eof()) || (currentChar == '\n' && !eof()) || (currentChar == '\r' && !eof())
-			|| (currentChar == '\t' && !eof()) || currentChar == '%' || (currentChar == ';' && !eof()))
+	while ((currentChar == ' ' || currentChar == '\n' || currentChar == '\r' || 
+			currentChar == '\t' || currentChar == '%' || currentChar == ';' || currentChar == '/') && !eof ())
 	{
 		// remove entire comments from the input
 		if (currentChar == '%')
 		{
-			std::getline( *this, comment , '\n' );
+			std::getline( *this, comment, '\n' );
+		}
+		if (currentChar == '/' && get() == '*')
+		{
+			// handle open-ended comments.
+	 		while (!eof())
+			{
+				if (currentChar == '*')
+				{
+					if (get () == '/')
+					{
+						break;
+					}
+				}
+				currentChar = get ();
+			}
 		}
 		// get the next char
 		currentChar = get();
