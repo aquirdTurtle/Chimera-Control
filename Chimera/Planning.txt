@@ -4,18 +4,13 @@ CODE PLANNING
 ===================
 IMMEDIATE LIST:
 - fix attempts to set camera mode on config change.
-- get rs232 piezo controllers integrated
 - fix auto-thresholding
 - local copy of save file.
 
 FEATURES:
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible.
-- finish implementing randomizing repetitions.
-	- Create per-repetitiong list of variation values to use
-	- Be able to randomize
-	- handle random case in plotting.
-	- be able to add more repetitions on the fly if randomizing reps. Requires some camera magic probably.
+- Implementing randomizing repetitions.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
 - proper syntax coloring for local variables
@@ -50,13 +45,11 @@ FEATURES:
 - local vars agilent script
 
 Refactoring / Other:
-- Create DIO core and AO Core subsystems
 - change threads waiting on bools to waiting on condition_variables
 - refactor groups in plotinfo in real time plotting
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
-- Andor system should use Matrix class for pictures, like basler.
 - reduce size of niawgcontroller file somehow, it's ungainly huge.
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.

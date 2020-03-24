@@ -1099,8 +1099,9 @@ std::vector<parameterType> ExperimentThreadManager::getLocalParameters (ScriptSt
 	std::vector<parameterType> params;
 	std::vector<vectorizedNiawgVals> niawgParams;
 	std::string warnings="";
-	while (!(stream.peek () == EOF) || word != "__end__")
+	while (!(stream.peek () == EOF) && !stream.eof() && word != "__end__")
 	{
+		auto peekpos = stream.peek ();
 		try
 		{
 			if (handleVariableDeclaration (word, stream, params, GLOBAL_PARAMETER_SCOPE, warnings))

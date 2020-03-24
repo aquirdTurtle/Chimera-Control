@@ -386,33 +386,26 @@ void Script::colorEntireScript( std::vector<parameterType> vars, Matrix<std::str
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
 								 Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
-	if (!edit)
-	{
-		return;
-	}
-	
+	if (!edit) { return; }
 	edit.SetRedraw( false );
 	bool tempSaveStatus = isSaved;
-	long long beginingSigned = beginingOfChange, endSigned = endOfChange;
 	CString text;
 	edit.GetWindowTextA(text);
-	std::vector<std::string> predefinedScripts;
-	std::string word, line, currentTextToAdd, tempColor, script ( text );
-	std::stringstream fileTextStream ( script );
+	std::string word, line;
+	std::stringstream fileTextStream = std::stringstream(std::string(text));
 	COLORREF syntaxColor, coloring;
-	CHARFORMAT syntaxFormat = { 0 };
-	syntaxFormat.cbSize = sizeof(CHARFORMAT);
-	syntaxFormat.dwMask = CFM_COLOR;
+	CHARFORMAT textFormat = { 0 };
+	textFormat.cbSize = sizeof(CHARFORMAT);
+	textFormat.dwMask = CFM_COLOR;
 	DWORD start = 0, end = 0;
 	std::size_t prev, pos;
-	// extra x are to make sure that "__end__" doesn't get eaten as part of the handling of some other script element.
-	ScriptStream ss (fileTextStream.str () + " x x x x x x x x x __end__");
+	ScriptStream ss (fileTextStream.str ());
 	auto localVars = ExperimentThreadManager::getLocalParameters (ss);
 	while (std::getline(fileTextStream, line))
 	{
 		DWORD lineStartCoordingate = start;
 		int endTest = end + line.size();
-		if (endTest < beginingSigned - 5 || start > endSigned)
+		if (endTest < long long(beginingOfChange) - 5 || start > long long(endOfChange))
 		{
 			// then skip to next line.
 			end = endTest;
@@ -426,7 +419,7 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 		{
 			if (pos == prev)
 			{
-				// then there was one of " \t\r\n+=" at the begging of the next string. check it.
+				// then there was one of " \t\r\n+=" at the begging of the next string.
 				pos++;
 			}
 			end = lineStartCoordingate + pos;
@@ -444,21 +437,18 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 				syntaxColor = getSyntaxColor(word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo );
 				if (syntaxColor != coloring)
 				{
+					// new color
 					coloring = syntaxColor;
-					syntaxFormat.crTextColor = coloring;
-					CHARRANGE charRange;
-					charRange.cpMin = start;
-					charRange.cpMax = end;
+					textFormat.crTextColor = coloring;
+					CHARRANGE charRange = { start, end };
 					edit.SetSel(charRange);
-					edit.SetSelectionCharFormat(syntaxFormat);
+					edit.SetSelectionCharFormat(textFormat);
 					start = end;
 				}
 			}
-			CHARRANGE charRange;
-			charRange.cpMin = start;
-			charRange.cpMax = end;
+			CHARRANGE charRange = { start, end };
 			edit.SetSel(charRange);
-			edit.SetSelectionCharFormat(syntaxFormat);
+			edit.SetSelectionCharFormat(textFormat);
 			start = end;
 			prev = pos;
 		}
@@ -473,19 +463,15 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			if (!colorLine)
 			{
 				coloring = syntaxColor;
-				syntaxFormat.crTextColor = coloring;
-				CHARRANGE charRange;
-				charRange.cpMin = start;
-				charRange.cpMax = end;
+				textFormat.crTextColor = coloring;
+				CHARRANGE charRange = { start, end };
 				edit.SetSel(charRange);
-				edit.SetSelectionCharFormat(syntaxFormat);
+				edit.SetSelectionCharFormat(textFormat);
 				start = end;
 			}
-			CHARRANGE charRange;
-			charRange.cpMin = start;
-			charRange.cpMax = end;
+			CHARRANGE charRange = { start, end };
 			edit.SetSel(charRange);
-			edit.SetSelectionCharFormat(syntaxFormat);
+			edit.SetSelectionCharFormat(textFormat);
 			start = end;
 		}
 	}
