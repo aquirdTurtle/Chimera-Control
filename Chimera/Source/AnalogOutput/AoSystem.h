@@ -44,7 +44,7 @@ class AoSystem
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);
 		// Setting system settings, mostly non-crucial functionality.
-		
+		void resetDacs (UINT varInc, bool skipOption);
 		void handleRoundToDac( MainWindow* menu );
 		void updateEdits( );
 		void setDefaultValue( UINT dacNum, double val );

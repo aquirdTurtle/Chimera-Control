@@ -182,10 +182,11 @@ niawgPair<ULONG> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> target )
 
 
 void NiawgCore::programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings,
-									UINT variation, UINT totalVariations,  std::vector<long>& variedMixedSize, 
-									std::vector<ViChar>& userScriptSubmit, rerngGuiOptionsForm& rerngGuiForm, 
-									rerngGuiOptions& rerngGui, std::vector<parameterType>& expParams )
+							  UINT variation, UINT totalVariations, std::vector<ViChar>& userScriptSubmit, 
+							  rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui, 
+							  std::vector<parameterType>& expParams )
 {
+	std::vector<long> variedMixedSize;
 	input->comm.sendColorBox( System::Niawg, 'Y' );
 	input->niawg.handleVariations( output, expParams, variation, variedMixedSize, warnings, input->debugOptions,
 									totalVariations, rerngGuiForm, rerngGui );
