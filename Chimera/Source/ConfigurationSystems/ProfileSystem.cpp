@@ -65,14 +65,15 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 std::string ProfileSystem::getNiawgScriptAddrFromConfig( profileSettings profile )
 {	
 	// open configuration file and grab the niawg script file address from it.
-	std::ifstream configFile( profile.configFilePath( ) );
+	std::ifstream tempFile( profile.configFilePath( ) );
+	ScriptStream configStream (tempFile);
 	std::string version;
 	std::string niawgScriptAddresses;
 	// first get version info:
-	std::getline( configFile, version );
-	checkDelimiterLine( configFile, "SCRIPTS" );
-	configFile.get( );
-	getline( configFile, niawgScriptAddresses );
+	std::getline(configStream, version );
+	checkDelimiterLine(configStream, "SCRIPTS" );
+	configStream.get( );
+	getline(configStream, niawgScriptAddresses );
 	return niawgScriptAddresses;
 }
 
@@ -128,28 +129,32 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 }
 
 
-void ProfileSystem::getVersionFromFile( std::ifstream& f, Version& ver )
+void ProfileSystem::getVersionFromFile( ScriptStream& file, Version& ver )
 {
-	f.clear ( );
-	f.seekg ( 0, std::ios::beg );
+	file.clear ( );
+	file.seekg ( 0, std::ios::beg );
 	std::string versionStr;
 	// Version is saved in format "Version: x.x"
 	// eat the "version" word"
-	f >> versionStr;
-	f >> versionStr;
+	file >> versionStr;
+	file >> versionStr;
 	ver = Version( versionStr );
 }
 
 
 void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-										AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+										AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
+										DeformableMirrorWindow* dmWin)
 {
-	std::ifstream configFile( pathToConfig );
+	std::ifstream configFileRaw( pathToConfig );
 	// check if opened correctly.
-	if ( !configFile.is_open( ) )
+	if ( !configFileRaw.is_open( ) )
 	{
 		thrower ( "Opening of Configuration File Failed!" );
 	}
+	ScriptStream configStream (configFileRaw);
+	configStream.setCase (false);
+	configFileRaw.close ();
 	int slashPos = pathToConfig.find_last_of( '\\' );
 	int extensionPos = pathToConfig.find_last_of( '.' );
 	currentProfile.configuration = pathToConfig.substr( slashPos + 1, extensionPos - slashPos - 1 );
@@ -163,14 +168,14 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	try
 	{
 		Version ver;
-		getVersionFromFile( configFile, ver );
-		scriptWin->handleOpenConfig( configFile, ver );
-		camWin->handleOpeningConfig( configFile, ver );
-		auxWin->handleOpeningConfig( configFile, ver );
-		mainWin->handleOpeningConfig( configFile, ver );
+		getVersionFromFile( configStream, ver );
+		scriptWin->windowOpenConfig(configStream, ver );
+		camWin->windowOpenConfig(configStream, ver );
+		auxWin->windowOpenConfig(configStream, ver );
+		mainWin->windowOpenConfig(configStream, ver );
 		if ( ver >= Version ( "3.4" ) )
 		{
-			basWin->handleOpeningConfig ( configFile, ver );
+			basWin->handleOpeningConfig (configStream, ver );
 		}
 	}
 	catch ( Error& err )
@@ -183,24 +188,21 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	auxWin->setVariablesActiveState( true );
 	// actually set this now
 	scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
-	configFile.close( );
 	updateConfigurationSavedStatus ( true );
 	reloadSequence( NULL_SEQUENCE );
 }
 
 
-void ProfileSystem::initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, Version minVer )
+void ProfileSystem::initializeAtDelim ( ScriptStream& configStream, std::string delimiter, Version& ver, Version minVer )
 {
-	openFile.clear ( );
-	openFile.seekg ( 0, std::ios::beg );
-	ProfileSystem::getVersionFromFile ( openFile, ver );
+	ProfileSystem::getVersionFromFile ( configStream, ver );
 	if ( ver < minVer )
 	{
 		thrower ( "Configuration version (" + ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
 	}
 	try
 	{
-		ProfileSystem::jumpToDelimiter ( openFile, delimiter );
+		ProfileSystem::jumpToDelimiter (configStream, delimiter );
 	}
 	catch ( Error& )
 	{
@@ -209,13 +211,13 @@ void ProfileSystem::initializeAtDelim ( std::ifstream& openFile, std::string del
 }
 
 
-void ProfileSystem::jumpToDelimiter ( std::ifstream& openFile, std::string delimiter )
+void ProfileSystem::jumpToDelimiter ( ScriptStream& configStream, std::string delimiter )
 {
-	while ( !openFile.eof() )
+	while ( !configStream.eof() )
 	{
 		try
 		{
-			checkDelimiterLine ( openFile, delimiter );
+			checkDelimiterLine (configStream, delimiter );
 			// if reaches this point it was successful. The file should now be pointing to just beyond the delimiter.
 			return;
 		}
@@ -230,7 +232,7 @@ void ProfileSystem::jumpToDelimiter ( std::ifstream& openFile, std::string delim
 
 
 // small convenience function that I use while opening a file.
-void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string delimiter)
+void ProfileSystem::checkDelimiterLine(ScriptStream& openFile, std::string delimiter)
 {
 	std::string checkStr;
 	openFile >> checkStr;
@@ -243,7 +245,7 @@ void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string deli
 
 // version with break condition. If returns true, calling function should break out of the loop which is checking the
 // line.
-bool ProfileSystem::checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition )
+bool ProfileSystem::checkDelimiterLine(ScriptStream& openFile, std::string delimiter, std::string breakCondition )
 {
 	std::string checkStr;
 	openFile >> checkStr;
@@ -485,7 +487,8 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow*
 
 
 void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-											  AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin )
+											  AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin, 
+											  DeformableMirrorWindow* dmWin )
 {	
 	if ( !configurationIsSaved )
 	{
@@ -497,7 +500,7 @@ void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scri
 		}
 	}
 	std::string fileaddress = openWithExplorer( parent, CONFIG_EXTENSION );
-	openConfigFromPath( fileaddress, scriptWindow, mainWin, camWin, auxWin, basWin );	
+	openConfigFromPath( fileaddress, scriptWindow, mainWin, camWin, auxWin, basWin, dmWin);
 }
 
 
@@ -838,24 +841,25 @@ std::string ProfileSystem::getSequenceNamesString()
 
 std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 {
-	std::ifstream configFile(profile.configFilePath());
-	if (!configFile.is_open())
+	std::ifstream configF(profile.configFilePath());
+	if (!configF.is_open())
 	{
 		thrower ("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
 				 + ", the config file failed to open!");
 	}
+	ScriptStream stream (configF);
 	std::string line, word, address;
 	Version ver;
-	getVersionFromFile( configFile, ver );
-	configFile.get( );
+	getVersionFromFile(stream, ver );
+	stream.get( );
 	if ( ver.versionMajor < 3 )
 	{
-		std::getline( configFile, line );
+		std::getline(stream, line );
 	}
-	std::getline(configFile, line);
-	std::getline(configFile, line);
+	std::getline(stream, line);
+	std::getline(stream, line);
 	std::string newPath;
-	getline(configFile, newPath);
+	getline(stream, newPath);
 	return newPath;
 }
 

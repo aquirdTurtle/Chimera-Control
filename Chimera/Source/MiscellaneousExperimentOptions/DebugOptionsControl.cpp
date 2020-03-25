@@ -132,7 +132,7 @@ void DebugOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
+void DebugOptionsControl::handleOpenConfig(ScriptStream& openFile, Version ver )
 {
 	openFile >> currentOptions.outputAgilentScript;
 	openFile >> currentOptions.outputExcessInfo;

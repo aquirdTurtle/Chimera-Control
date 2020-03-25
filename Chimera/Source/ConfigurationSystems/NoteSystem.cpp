@@ -28,7 +28,7 @@ void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void NoteSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
+void NoteSystem::handleOpenConfig(ScriptStream& openFile, Version ver )
 {
 	/// handle notes
 	std::string notes;

@@ -532,14 +532,15 @@ void PlottingInfo::savePlotInfo()
 
 void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 {
-	std::ifstream loadingFile(fileLocation);
-	if (!loadingFile.is_open())
+	std::ifstream loadFile(fileLocation);
+	if (!loadFile.is_open())
 	{
 		thrower ("ERROR: Couldn't open plot file!");
 	}
+	ScriptStream plotStream (loadFile);
 	// this string will hold headers in this file temporarily and check to make sure they are correct.
 	std::string versionStr;
-	loadingFile >> versionStr >> versionStr;
+	plotStream >> versionStr >> versionStr;
 	double version;
 	try
 	{
@@ -562,16 +563,16 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		tempDouble /= 10;
 	}
 	versionMinor = int(std::round( tempDouble ));
-	loadingFile.get( );
-	getline(loadingFile, title);
-	getline(loadingFile, generalPlotType);
-	getline(loadingFile, yLabel);
-	getline(loadingFile, xAxis);
-	getline(loadingFile, fileName);
+	plotStream.get( );
+	getline(plotStream, title);
+	getline(plotStream, generalPlotType);
+	getline(plotStream, yLabel);
+	getline(plotStream, xAxis);
+	getline(plotStream, fileName);
 
 	// Data Set Number
 	std::string testString;
-	getline(loadingFile, testString);
+	getline(plotStream, testString);
 	try
 	{
 		int tempDataSetNumber = boost::lexical_cast<int>(testString);
@@ -582,7 +583,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		throwNested ("ERROR: Couldn't read data set number from file. The data set string was " + testString);
 	}
 	// Condition Number
-	getline(loadingFile, testString);
+	getline(plotStream, testString);
 	try
 	{
 		currentConditionNumber = boost::lexical_cast<int>(testString);
@@ -593,10 +594,10 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		throwNested ("ERROR: Couldn't read post-selection number from file. The post-selection string was " + testString);
 	}
 	// Pixel Number
-	getline(loadingFile, testString);
+	getline(plotStream, testString);
 	// Picture Number
 	std::string testString2;
-	getline(loadingFile, testString2);
+	getline(plotStream, testString2);
 	try
 	{
 		numberOfPictures = boost::lexical_cast<int>(testString2);
@@ -616,20 +617,20 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		throwNested ("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
 	}
 	/// Analys pixels
-	ProfileSystem::checkDelimiterLine( loadingFile, "POSITIVE_RESULT_BEGIN" );
+	ProfileSystem::checkDelimiterLine(plotStream, "POSITIVE_RESULT_BEGIN" );
 	UINT dataSetCount = 0;
 	// data set loop
-	while (!ProfileSystem::checkDelimiterLine( loadingFile, "DATA_SET_BEGIN", "POSITIVE_RESULT_END" ) )
+	while (!ProfileSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", "POSITIVE_RESULT_END" ) )
 	{
 		// picture loop
 		int pictureCount = 0;
-		while ( !ProfileSystem::checkDelimiterLine( loadingFile, "PICTURE_BEGIN", "DATA_SET_END" ) )
+		while ( !ProfileSystem::checkDelimiterLine(plotStream, "PICTURE_BEGIN", "DATA_SET_END" ) )
 		{			
 			// pixel loop
 			int pixelCount = 0;
 			while (true)
 			{
-				loadingFile >> testString;
+				plotStream >> testString;
 				if (testString == "PICTURE_END")
 				{
 					break;
@@ -673,24 +674,24 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			     "reported earlier in the file.");
 	}
 
-	ProfileSystem::checkDelimiterLine( loadingFile, "POST_SELECTION_BEGIN" );	
+	ProfileSystem::checkDelimiterLine(plotStream, "POST_SELECTION_BEGIN" );
 	// condition loop
 	int conditionCount = 0;
-	while (!ProfileSystem::checkDelimiterLine( loadingFile, "CONDITION_BEGIN", "POST_SELECTION_END" ) )
+	while (!ProfileSystem::checkDelimiterLine(plotStream, "CONDITION_BEGIN", "POST_SELECTION_END" ) )
 	{
 		// data set loop
 		int dataSetCount = 0;
-		while ( !ProfileSystem::checkDelimiterLine( loadingFile, "DATA_SET_BEGIN", "CONDITION_END" ) )
+		while ( !ProfileSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", "CONDITION_END" ) )
 		{
 			// picture loop
 			int pictureCount = 0;
-			while ( !ProfileSystem::checkDelimiterLine( loadingFile, "PICTURE_BEGIN", "DATA_SET_END" ) )
+			while ( !ProfileSystem::checkDelimiterLine(plotStream, "PICTURE_BEGIN", "DATA_SET_END" ) )
 			{
 				// pixel loop
 				int pixelCount = 0;
 				while (true)
 				{
-					loadingFile >> testString;
+					plotStream >> testString;
 					if (testString == "PICTURE_END")
 					{
 						break;
@@ -741,12 +742,12 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	
 	// get legends
-	ProfileSystem::checkDelimiterLine( loadingFile, "LEGENDS_BEGIN" );
-	loadingFile.get( );
+	ProfileSystem::checkDelimiterLine(plotStream, "LEGENDS_BEGIN" );
+	plotStream.get( );
 	dataSetCount = 0;
 	while (true)
 	{
-		getline(loadingFile, testString);
+		getline(plotStream, testString);
 		if (testString == "LEGENDS_END")
 		{
 			break;
@@ -760,18 +761,18 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			   "reported earlier in the file.");
 	}
 	// get counts locations
-	ProfileSystem::checkDelimiterLine( loadingFile, "PLOT_COUNTS_LOCATIONS_BEGIN" );
+	ProfileSystem::checkDelimiterLine(plotStream, "PLOT_COUNTS_LOCATIONS_BEGIN" );
 	dataSetCount = 0;
 	while (true)
 	{
 		std::string pixelStr, pictureStr;
 		int pixel, picture;
-		loadingFile >> pixelStr;
+		plotStream >> pixelStr;
 		if ( pixelStr == "PLOT_COUNTS_LOCATIONS_END" )
 		{
 			break;
 		}
-		loadingFile >> pictureStr;
+		plotStream >> pictureStr;
 		try
 		{
 			pixel = boost::lexical_cast<int>(pixelStr);
@@ -808,12 +809,12 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 					" pixel count histograms or pixel counts.");
 		}
 	}
-	ProfileSystem::checkDelimiterLine( loadingFile, "FITTING_OPTIONS_BEGIN" );
-	loadingFile.get( );
+	ProfileSystem::checkDelimiterLine(plotStream, "FITTING_OPTIONS_BEGIN" );
+	plotStream.get( );
 	dataSetCount = 0;
 	while (true)
 	{
-		getline(loadingFile, testString);
+		getline(plotStream, testString);
 		if (testString == "FITTING_OPTIONS_END")
 		{
 			break;
@@ -850,10 +851,10 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		thrower ("ERROR: more fit options than data sets!");
 	}
 
-	ProfileSystem::checkDelimiterLine( loadingFile, "HIST_OPTIONS_BEGIN" );
-	loadingFile.get( );
+	ProfileSystem::checkDelimiterLine(plotStream, "HIST_OPTIONS_BEGIN" );
+	plotStream.get( );
 	std::string tmpStr;
-	loadingFile >> tmpStr;
+	plotStream >> tmpStr;
 	UINT dsetNum = 0;
 	try
 	{
@@ -869,7 +870,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	for ( auto& dset : dataSets )
 	{
-		loadingFile >> tmpStr;
+		plotStream >> tmpStr;
 		UINT width;
 		try
 		{
@@ -881,7 +882,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		dset.setHistBinWidth( width );
 	}
-	ProfileSystem::checkDelimiterLine( loadingFile, "HIST_OPTIONS_END" );
+	ProfileSystem::checkDelimiterLine(plotStream, "HIST_OPTIONS_END" );
 }
 
 

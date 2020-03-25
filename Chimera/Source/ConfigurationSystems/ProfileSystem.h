@@ -7,12 +7,14 @@
 #include <vector>
 #include <string>
 #include "Version.h"
+#include "Scripts/ScriptStream.h"
 
 class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
 class AndorWindow;
 class BaslerWindow;
+class DeformableMirrorWindow;
 
 /*
     This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the 
@@ -56,8 +58,9 @@ class ProfileSystem
 		void renameConfiguration();
 		void deleteConfiguration();
 		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin );
-		static void getVersionFromFile( std::ifstream& f, Version& ver );
+								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
+								 DeformableMirrorWindow* dmWin);
+		static void getVersionFromFile( ScriptStream& file, Version& ver );
 		static std::string getNiawgScriptAddrFromConfig(  profileSettings profile );
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
@@ -76,23 +79,24 @@ class ProfileSystem
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange( int width, int height, fontMap fonts );
 		void handleSelectConfigButton( CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-									   AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
+									   AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin,
+									   DeformableMirrorWindow* dmWin);
 		
 		template <class sysType>
-		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, std::string endDelim, 
+		static void standardOpenConfig ( ScriptStream& openFile, std::string delim, std::string endDelim, 
 										 sysType* this_in, Version minVer = Version("0.0"));
 		// an overload with the default end delimiter: "END_" + delim. Basically everything /should/ use the default.
 		template <class sysType>
-		static void standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, 
+		static void standardOpenConfig (ScriptStream& openFile, std::string delim, sysType* this_in,
 										 Version minVer = Version ( "0.0" ) );
 		template <class returnType>
-		static returnType stdGetFromConfig ( std::ifstream& openFile, std::string delim, 
-												  returnType ( *getter )( std::ifstream&, Version ),
+		static returnType stdGetFromConfig (ScriptStream& openFile, std::string delim,
+												  returnType ( *getter )(ScriptStream&, Version ),
 												  Version minVer = Version( "0.0" ) );
-		static void checkDelimiterLine ( std::ifstream& openFile, std::string keyword );
-		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
-		static void jumpToDelimiter ( std::ifstream& openFile, std::string delimiter );
-		static void initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, 
+		static void checkDelimiterLine (ScriptStream& openFile, std::string keyword );
+		static bool checkDelimiterLine(ScriptStream& openFile, std::string delimiter, std::string breakCondition );
+		static void jumpToDelimiter (ScriptStream& openFile, std::string delimiter );
+		static void initializeAtDelim (ScriptStream& openFile, std::string delimiter, Version& ver,
 										Version minVer=Version("0.0") );
 		CBrush* handleColoring ( int id, CDC* pDC );
 	private:
@@ -133,21 +137,21 @@ class ProfileSystem
 };
 
 template <class sysType>
-static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::string delim, sysType* this_in, Version minVer )
+static void ProfileSystem::standardOpenConfig (ScriptStream& openFile, std::string delim, sysType* this_in, Version minVer )
 {
 	ProfileSystem::standardOpenConfig ( openFile, delim, "END_" + delim, this_in, minVer );
 }
 
 template <class sysType>
-static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::string delim, std::string endDelim, sysType* this_in,
-												Version minVer)
+static void ProfileSystem::standardOpenConfig ( ScriptStream& configStream, std::string delim, std::string endDelim, 
+												sysType* this_in, Version minVer )
 {
 	// sysType must have a member function of the form
 	// void ( *sysType::openFunction )( std::ifstream& f, Version ver )
 	Version ver;
 	try
 	{
-		ProfileSystem::initializeAtDelim ( openFile, delim, ver, minVer );
+		ProfileSystem::initializeAtDelim ( configStream, delim, ver, minVer );
 	}
 	catch ( Error& e )
 	{
@@ -156,7 +160,7 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 	}
 	try
 	{
-		this_in->handleOpenConfig( openFile, ver );
+		this_in->handleOpenConfig( configStream, ver );
 	}
 	catch ( Error& e )
 	{
@@ -165,7 +169,7 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 	}
 	try
 	{
-		ProfileSystem::checkDelimiterLine ( openFile, endDelim );
+		ProfileSystem::checkDelimiterLine ( configStream, endDelim );
 	}
 	catch ( Error& e )
 	{
@@ -175,8 +179,8 @@ static void ProfileSystem::standardOpenConfig ( std::ifstream& openFile, std::st
 }
 
 template <class returnType>
-static returnType ProfileSystem::stdGetFromConfig ( std::ifstream& openFile, std::string delim, 
-													     returnType ( *getter )( std::ifstream&, Version ),
+static returnType ProfileSystem::stdGetFromConfig ( ScriptStream& configStream, std::string delim, 
+													returnType ( *getterFunc )(ScriptStream&, Version ),
 													     Version minVer )
 {
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
@@ -185,7 +189,7 @@ static returnType ProfileSystem::stdGetFromConfig ( std::ifstream& openFile, std
 	returnType res = returnType();
 	try
 	{
-		ProfileSystem::initializeAtDelim ( openFile, delim, ver, minVer );
+		ProfileSystem::initializeAtDelim ( configStream, delim, ver, minVer );
 	}
 	catch ( Error& e )
 	{
@@ -194,7 +198,7 @@ static returnType ProfileSystem::stdGetFromConfig ( std::ifstream& openFile, std
 	}
 	try
 	{
-		res = (*getter) ( openFile, ver );
+		res = (*getterFunc) ( configStream, ver );
 	}
 	catch ( Error& e )
 	{
@@ -203,7 +207,7 @@ static returnType ProfileSystem::stdGetFromConfig ( std::ifstream& openFile, std
 	}
 	try
 	{
-		ProfileSystem::checkDelimiterLine ( openFile, "END_" + delim );
+		ProfileSystem::checkDelimiterLine ( configStream, "END_" + delim );
 	}
 	catch ( Error& e )
 	{

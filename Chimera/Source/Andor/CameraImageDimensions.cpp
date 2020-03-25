@@ -80,7 +80,7 @@ void ImageDimsControl::handleNew( std::ofstream& newfile )
 	newfile << "END_CAMERA_IMAGE_DIMENSIONS\n";
 }
 
-imageParameters ImageDimsControl::getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver )
+imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ScriptStream& configFile, Version ver )
 {
 	imageParameters params;
 	configFile >> params.left;
@@ -92,7 +92,7 @@ imageParameters ImageDimsControl::getImageDimSettingsFromConfig ( std::ifstream&
 	return params;
 }
 
-void ImageDimsControl::handleOpen( std::ifstream& openFile, Version ver )
+void ImageDimsControl::handleOpen(ScriptStream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params = getImageDimSettingsFromConfig ( openFile, ver );

@@ -666,7 +666,7 @@ void ScriptingWindow::openIntensityScript(std::string name)
 }
 
 
-void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
+void ScriptingWindow::windowOpenConfig(ScriptStream& configFile, Version ver)
 {
 	try
 	{
@@ -684,9 +684,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, Version ver)
 		if ( ver.versionMajor < 3 )
 		{
 			std::string extraNiawgName;
-			
-			
-			( configFile, extraNiawgName );
+			getline( configFile, extraNiawgName );
 		}
 		getline ( configFile, niawgName );
 		getline ( configFile, masterName );

@@ -81,7 +81,7 @@ class AndorWindow : public CDialog
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(std::stringstream& configStream, Version version);
 		void handlePictureEditChange(UINT id);
-		void handleOpeningConfig(std::ifstream& configFile, Version ver );
+		void windowOpenConfig(ScriptStream& configFile, Version ver );
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( systemInfo<char> colors );
 		cToolTips getToolTips();

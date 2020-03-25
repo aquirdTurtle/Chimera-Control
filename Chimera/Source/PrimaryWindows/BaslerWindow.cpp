@@ -553,7 +553,7 @@ void BaslerWindow::OnPaint()
 
 
 
-void BaslerWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
+void BaslerWindow::handleOpeningConfig ( ScriptStream& configFile, Version ver )
 {
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
 	settingsCtrl.setSettings ( 

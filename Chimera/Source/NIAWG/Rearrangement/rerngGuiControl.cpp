@@ -224,7 +224,7 @@ void rerngGuiControl::updateActive ( )
 }
 
 
-void rerngGuiControl::handleOpenConfig( std::ifstream& openFile, Version ver )
+void rerngGuiControl::handleOpenConfig(ScriptStream& openFile, Version ver )
 {
 	rerngGuiOptionsForm info;
 	std::string tmpStr;

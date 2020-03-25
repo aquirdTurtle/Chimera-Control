@@ -104,7 +104,7 @@ class ScriptingWindow : public CDialog
 		void handleAgilentScriptComboChange();
 		void handleMasterFunctionChange( );
 		void handleIntensityCombo();
-		void handleOpenConfig(std::ifstream& configFile, Version ver );
+		void windowOpenConfig(ScriptStream& configFile, Version ver );
 		void catchEnter();
 		profileSettings getProfile();
 		void setIntensityDefault();

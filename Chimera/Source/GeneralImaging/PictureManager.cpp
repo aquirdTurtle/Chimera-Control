@@ -180,7 +180,7 @@ void PictureManager::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void PictureManager::handleOpenConfig(std::ifstream& configFile, Version ver )
+void PictureManager::handleOpenConfig(ScriptStream& configFile, Version ver )
 {
 	if ( ver < Version ( "4.0" ) )
 	{

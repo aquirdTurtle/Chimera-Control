@@ -34,7 +34,7 @@ class PictureSettingsControl
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCameraCore* andor);
+		void handleOpenConfig(ScriptStream& openFile, Version ver, AndorCameraCore* andor);
 		void initialize( POINT& pos, CWnd* parent, int& id);
 		void handleOptionChange( int id );
 		void setPictureControlEnabled (int pic, bool enabled);
@@ -54,7 +54,7 @@ class PictureSettingsControl
 		std::array<std::string, 4> getThresholdStrings();
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
-		static andorPicSettingsGroup getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static andorPicSettingsGroup getPictureSettingsFromConfig (ScriptStream& configFile, Version ver );
 	private:
 		// the internal memory of the settings here is somewhat redundant with the gui objects. It'd probably be better
 		// if this didn't exist and all the getters just converted straight from the gui objects, but that's a 

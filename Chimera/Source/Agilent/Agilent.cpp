@@ -470,13 +470,13 @@ void Agilent::setOutputSettings (deviceOutputInfo info)
 }
 
 
-void Agilent::handleOpenConfig( std::ifstream& file, Version ver )
+void Agilent::handleOpenConfig( ScriptStream& file, Version ver )
 {
 	setOutputSettings (getOutputSettingsFromConfigFile (file, ver));
 }
 
 
-deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (std::ifstream& file, Version ver)
+deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, Version ver)
 {
 	deviceOutputInfo tempSettings;
 	file >> tempSettings.synced;

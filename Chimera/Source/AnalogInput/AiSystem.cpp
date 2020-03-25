@@ -135,7 +135,7 @@ AiSettings AiSystem::getAiSettings ()
 	return settings;
 }
 
-AiSettings AiSystem::getAiSettingsFromConfig (std::ifstream& file, Version ver)
+AiSettings AiSystem::getAiSettingsFromConfig (ScriptStream& file, Version ver)
 {
 	AiSettings settings;
 	file >> settings.queryBtwnVariations;

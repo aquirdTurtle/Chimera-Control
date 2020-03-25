@@ -28,7 +28,7 @@ class MicrowaveSystem
 		MicrowaveCore& getCore ();
 		void handleSaveConfig (std::ofstream& saveFile);
 		static const std::string delim;
-		static microwaveSettings getMicrowaveSettingsFromConfig (std::ifstream& openFile, Version ver);
+		static microwaveSettings getMicrowaveSettingsFromConfig (ScriptStream& openFile, Version ver);
 		void setMicrowaveSettings (microwaveSettings settings);
 		void programNow (std::vector<parameterType> constants);
 	private:

@@ -19,7 +19,7 @@ class PiezoController
 						  piezoChan<std::string> names, UINT ctrlButtonID );
 		std::string getDeviceInfo ( );
 		void updateCurrentValues ( );
-		void handleOpenConfig ( std::ifstream& configFile, Version ver );
+		void handleOpenConfig (ScriptStream& configFile, Version ver );
 		void handleSaveConfig ( std::ofstream& configFile );
 		PiezoCore& getCore ( );
 		void updateCtrl ( );

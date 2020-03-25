@@ -692,7 +692,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	RohdeSchwarzGenerator.handleSaveConfig (saveFile);
 }
 
-void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
+void AuxiliaryWindow::windowOpenConfig(ScriptStream& configFile, Version ver )
 {
 	try
 	{
@@ -722,7 +722,7 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver
 		aiSys.setAiSettings ( ProfileSystem::stdGetFromConfig (configFile, aiSys.configDelim,
 							  AiSystem::getAiSettingsFromConfig, Version ("4.9")) );
 		RohdeSchwarzGenerator.setMicrowaveSettings (ProfileSystem::stdGetFromConfig (configFile,
-			RohdeSchwarzGenerator.delim, MicrowaveSystem::getMicrowaveSettingsFromConfig, Version ("4.10")));
+					RohdeSchwarzGenerator.delim, MicrowaveSystem::getMicrowaveSettingsFromConfig, Version ("4.10")));
 	}
 	catch ( Error& )
 	{

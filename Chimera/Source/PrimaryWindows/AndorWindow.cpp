@@ -248,13 +248,13 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
+void AndorWindow::windowOpenConfig ( ScriptStream& configFile, Version ver )
 {
 	AndorRunSettings camSettings;
 	try
 	{
 		camSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS", 
-															 AndorCameraSettingsControl::getRunSettingsFromConfig );
+														AndorCameraSettingsControl::getRunSettingsFromConfig );
 		andorSettingsCtrl.setRunSettings ( camSettings );
 	}
 	catch ( Error& err )
@@ -273,8 +273,8 @@ void AndorWindow::handleOpeningConfig ( std::ifstream& configFile, Version ver )
 	}
 	try
 	{
-		camSettings.imageSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS",
-																  AndorCameraSettingsControl::getImageDimSettingsFromConfig );
+		camSettings.imageSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
+																	  AndorCameraSettingsControl::getImageDimSettingsFromConfig );
 		andorSettingsCtrl.updateImageDimSettings ( camSettings.imageSettings );
 		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
 	}

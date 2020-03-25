@@ -182,7 +182,7 @@ ULONG DataAnalysisControl::getPlotFreq( )
 }
 
 
-void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
+void DataAnalysisControl::handleOpenConfig( ScriptStream& file, Version ver )
 {
 	UINT numGrids;
 	if ( ver > Version ( "4.0" ) )

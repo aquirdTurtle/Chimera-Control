@@ -27,7 +27,6 @@ class BaslerSettingsControl
 		void updateExposure( double exposure );
 		void rearrange(int width, int height, fontMap fonts);
 		void handleSavingConfig ( std::ofstream& configFile );
-		//void handleOpenConfig ( std::ifstream& configFile, Version ver );
 
 		/// TODO: fill in correct parameters here.
 		const imageParameters ScoutFullResolution = { 1,500,1,500,1,1 };
@@ -35,7 +34,7 @@ class BaslerSettingsControl
 		const UINT unityGainSetting = 260;
 		
 		double getMotThreshold ( );
-		static baslerSettings getSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static baslerSettings getSettingsFromConfig (ScriptStream& configFile, Version ver );
 
 	private:
 		ULONG lastTime;

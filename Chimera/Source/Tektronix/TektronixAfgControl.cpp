@@ -53,12 +53,12 @@ void TektronixAfgControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void TektronixAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
+void TektronixAfgControl::handleOpenConfig(ScriptStream& configFile, Version ver )
 {
 	setSettings(getTekInfo(configFile, ver));
 }
 
-tektronixInfo TektronixAfgControl::getTekInfo (std::ifstream& configFile, Version ver)
+tektronixInfo TektronixAfgControl::getTekInfo (ScriptStream& configFile, Version ver)
 {
 	tektronixInfo tekInfo;
 	for (auto chanInc : range (tekInfo.channels.size ()))

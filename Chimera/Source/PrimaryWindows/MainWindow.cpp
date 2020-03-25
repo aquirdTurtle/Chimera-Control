@@ -348,7 +348,7 @@ void MainWindow::passConfigPress( )
 	try
 	{
 		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, 
-										  TheBaslerWindow );
+										  TheBaslerWindow, TheDmWindow );
 	}
 	catch ( Error& err )
 	{
@@ -719,15 +719,15 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
+void MainWindow::windowOpenConfig(ScriptStream& configStream, Version ver )
 {
 	try
 	{
-		ProfileSystem::standardOpenConfig ( configFile, "CONFIGURATION_NOTES", &notes);
-		mainOptsCtrl.setOptions ( ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
+		ProfileSystem::standardOpenConfig ( configStream, "CONFIGURATION_NOTES", &notes);
+		mainOptsCtrl.setOptions ( ProfileSystem::stdGetFromConfig ( configStream, "MAIN_OPTIONS", 
 																		MainOptionsControl::getMainOptionsFromConfig ) );
-		ProfileSystem::standardOpenConfig ( configFile, "DEBUGGING_OPTIONS", &debugger );
-		repetitionControl.setRepetitions ( ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS", 
+		ProfileSystem::standardOpenConfig ( configStream, "DEBUGGING_OPTIONS", &debugger );
+		repetitionControl.setRepetitions ( ProfileSystem::stdGetFromConfig ( configStream, "REPETITIONS", 
 																				  Repetitions::getRepsFromConfig ));
 		
 	}

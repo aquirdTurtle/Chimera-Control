@@ -235,7 +235,7 @@ void DdsSystem::handleSaveConfig ( std::ofstream& file )
 }
 
 
-void DdsSystem::handleOpenConfig ( std::ifstream& file, Version ver )
+void DdsSystem::handleOpenConfig ( ScriptStream& file, Version ver )
 {
 	if ( ver >= Version ( "4.5" ) )
 	{

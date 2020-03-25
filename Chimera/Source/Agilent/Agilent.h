@@ -41,7 +41,7 @@ class Agilent
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig( std::ofstream& saveFile, std::string configPath, RunInfo info );
 		std::string getDeviceIdentity();
-		void handleOpenConfig( std::ifstream& file, Version ver );
+		void handleOpenConfig( ScriptStream& file, Version ver );
 		void updateSettingsDisplay( int chan, std::string configPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
@@ -55,7 +55,7 @@ class Agilent
 		std::string getConfigDelim ();
 		void programAgilentNow (std::vector<parameterType> constants);
 		
-		static deviceOutputInfo getOutputSettingsFromConfigFile (std::ifstream& file, Version ver);
+		static deviceOutputInfo getOutputSettingsFromConfigFile (ScriptStream& file, Version ver);
 		void Agilent::setOutputSettings (deviceOutputInfo info);
 		void verifyScriptable ( );
 		AgilentCore& getCore ();

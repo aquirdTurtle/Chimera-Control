@@ -57,7 +57,7 @@ class AuxiliaryWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
-		void handleOpeningConfig(std::ifstream& configFile, Version ver );
+		void windowOpenConfig(ScriptStream& configFile, Version ver );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);

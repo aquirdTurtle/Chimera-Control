@@ -7,10 +7,11 @@
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "CustomMfcControlWrappers/UintEdit.h"
 #include "ConfigurationSystems/Version.h"
+#include "Scripts/ScriptStream.h"
+#include "AnalogOutput/DaqMxFlume.h"
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>
-#include "AnalogOutput/DaqMxFlume.h"
 
 
 /*
@@ -41,7 +42,7 @@ class AiSystem
 		bool wantsContinuousQuery( );
 		std::string getSystemStatus( );
 		void setAiSettings (AiSettings settings);
-		static AiSettings getAiSettingsFromConfig (std::ifstream& file, Version ver);
+		static AiSettings getAiSettingsFromConfig (ScriptStream& file, Version ver);
 		void AiSystem::handleSaveConfig (std::ofstream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
 	private:

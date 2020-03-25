@@ -208,7 +208,7 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "END_PICTURE_SETTINGS\n";
 }
 
-andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver )
+andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ScriptStream& configFile, Version ver )
 {
 	UINT picsPerRep;
 	andorPicSettingsGroup fileSettings;
@@ -243,7 +243,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std
 	return fileSettings;
 }
 
-void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version ver, AndorCameraCore* andor)
+void PictureSettingsControl::handleOpenConfig(ScriptStream& openFile, Version ver, AndorCameraCore* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
 	auto settings = getPictureSettingsFromConfig ( openFile, ver );
