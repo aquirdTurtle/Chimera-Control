@@ -90,7 +90,7 @@ void ParameterSystem::setVariationRangeColumns ( int num, int width )
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::handleOpenConfig( std::ifstream& configFile, Version ver )
+void ParameterSystem::handleOpenConfig(ScriptStream& configFile, Version ver )
 {
 	clearParameters( );
 	/// 
@@ -142,7 +142,7 @@ void ParameterSystem::redrawListview ( )
 }
 
 
-ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile, Version ver )
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ScriptStream& configFile, Version ver )
 {
 	ScanRangeInfo rInfo;
 	UINT numRanges;
@@ -178,7 +178,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::ifstream& configFile,
 }
 
 
-std::vector<parameterType> ParameterSystem::getParametersFromFile( std::ifstream& configFile, Version ver, 
+std::vector<parameterType> ParameterSystem::getParametersFromFile( ScriptStream& configFile, Version ver, 
 																  ScanRangeInfo rangeInfo )
 {
 	UINT variableNumber;
@@ -295,7 +295,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadParameterFromFile( std::ifstream& openFile, Version ver, ScanRangeInfo rangeInfo )
+parameterType ParameterSystem::loadParameterFromFile(ScriptStream& openFile, Version ver, ScanRangeInfo rangeInfo )
 {
 	parameterType tempParam;
 	std::string paramName, typeText, valueString;
@@ -1257,14 +1257,19 @@ std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> va
 std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string configFileName )
 {
 	std::ifstream file(configFileName);
+	if (!file.is_open ())
+	{
+		thrower ("Failed to open file for config params!");
+	}
+	ScriptStream stream (file);
 	Version ver;
 	std::vector<parameterType> configParams;
 	try
 	{
-		ProfileSystem::initializeAtDelim (file, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
-		auto rInfo = getRangeInfoFromFile (file, ver );
-		configParams = getParametersFromFile (file, ver, rInfo );
-		ProfileSystem::checkDelimiterLine (file, "END_CONFIG_PARAMETERS" );
+		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
+		auto rInfo = getRangeInfoFromFile (stream, ver );
+		configParams = getParametersFromFile (stream, ver, rInfo );
+		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
 	{
@@ -1277,14 +1282,19 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
 	std::ifstream file ( configFileName );
+	if (file.is_open ())
+	{
+		thrower ("Failed to open file for range info!");
+	}
+	ScriptStream stream (file);
 	Version ver;
 	ScanRangeInfo rInfo;
 	try
 	{
-		ProfileSystem::initializeAtDelim (file, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
-		rInfo = getRangeInfoFromFile (file, ver );
-		auto configVariables = getParametersFromFile (file, ver, rInfo );
-		ProfileSystem::checkDelimiterLine (file, "END_CONFIG_PARAMETERS" );
+		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
+		rInfo = getRangeInfoFromFile (stream, ver );
+		auto configVariables = getParametersFromFile (stream, ver, rInfo );
+		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
 	{

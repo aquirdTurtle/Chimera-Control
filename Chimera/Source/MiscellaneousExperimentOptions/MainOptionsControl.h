@@ -21,7 +21,7 @@ class MainOptionsControl
 	public:
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		static mainOptions getMainOptionsFromConfig( std::ifstream& openFile, Version ver );
+		static mainOptions getMainOptionsFromConfig( ScriptStream& openFile, Version ver );
 		void setOptions ( mainOptions opts );
 		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		mainOptions getOptions();

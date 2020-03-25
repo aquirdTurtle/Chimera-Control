@@ -40,7 +40,7 @@ void DoSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DoSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
+void DoSystem::handleOpenConfig(ScriptStream& openFile, Version ver )
 {
 	if ( ver < Version ( "3.7" ) )
 	{

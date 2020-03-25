@@ -95,7 +95,7 @@ void DmCore::handleNewConfig(std::ofstream& newFile)
 	newFile << "END_DM\n";
 }
 
-DMOutputForm DmCore::handleGetConfig(std::ifstream& configFile, Version ver) 
+DMOutputForm DmCore::handleGetConfig(ScriptStream& configFile, Version ver) 
 {
 	DMOutputForm Info;
 	configFile.get();

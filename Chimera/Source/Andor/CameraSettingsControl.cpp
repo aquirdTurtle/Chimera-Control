@@ -457,7 +457,7 @@ void AndorCameraSettingsControl::updateImageDimSettings( imageParameters setting
 }
 
 
-void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
+void AndorCameraSettingsControl::handleOpenConfig(ScriptStream& configFile, Version ver)
 {
 	auto tempSettings = AndorCameraSettingsControl::getRunSettingsFromConfig ( configFile, ver );
  	setRunSettings(tempSettings);
@@ -476,19 +476,18 @@ void AndorCameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Ver
 }
 
 
-imageParameters AndorCameraSettingsControl::getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver )
+imageParameters AndorCameraSettingsControl::getImageDimSettingsFromConfig (ScriptStream& configFile, Version ver )
 {
 	return ImageDimsControl::getImageDimSettingsFromConfig ( configFile, ver );
 }
 
 
-andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver )
+andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (ScriptStream& configFile, Version ver )
 {
 	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile, ver );
 }
 
-
-AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( std::ifstream& configFile, Version ver )
+AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( ScriptStream& configFile, Version ver )
 {
 	AndorRunSettings tempSettings;
 	configFile.get ( );
@@ -524,6 +523,16 @@ AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( std::ifs
 	{
 		UINT numExposures = 0;
 		configFile >> numExposures;
+		/*std::string tempStr;
+		configFile >> tempStr;
+		try
+		{
+			numExposures = boost::lexical_cast<UINT>(tempStr);
+		}
+		catch (Error&e)
+		{
+			errBox (e.trace ());
+		}*/
 		tempSettings.exposureTimes.resize ( numExposures );
 		for ( auto& exp : tempSettings.exposureTimes )
 		{

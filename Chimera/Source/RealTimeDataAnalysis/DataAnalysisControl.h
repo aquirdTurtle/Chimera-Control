@@ -30,7 +30,7 @@ class DataAnalysisControl
 		bool wantsThresholdAnalysis ( );
 		void initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		ULONG getPlotFreq( );
-		void handleOpenConfig( std::ifstream& file, Version ver );
+		void handleOpenConfig(ScriptStream& file, Version ver );
 		void handleNewConfig( std::ofstream& file );
 		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );

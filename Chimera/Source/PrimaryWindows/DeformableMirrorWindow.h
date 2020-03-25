@@ -30,7 +30,7 @@ class DeformableMirrorWindow : public CDialog
 		void handleNewProfile();
 		void handleAbberations();
 		void handleNewConfig(std::ofstream& newFile);
-		void handleOpeningConfig(std::ifstream& configFile, Version ver);
+		void windowOpenConfig(ScriptStream& configFile, Version ver);
 		void handleSaveConfig(std::ofstream& newFile);
 	
 		BOOL OnInitDialog();
@@ -60,6 +60,6 @@ class DeformableMirrorWindow : public CDialog
 		Communicator comm;
 
 		ColorBox statusBox;
-		DmControl DM;
+		DmControl dm;
 		PlotCtrl *Mirror;
 };

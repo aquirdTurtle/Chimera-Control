@@ -19,7 +19,7 @@ BEGIN_MESSAGE_MAP (DeformableMirrorWindow, CDialog)
 END_MESSAGE_MAP ()
 
 
-DeformableMirrorWindow::DeformableMirrorWindow() : CDialog(), DM(DM_SERIAL, DM_SAFEMODE)
+DeformableMirrorWindow::DeformableMirrorWindow() : CDialog(), dm(DM_SERIAL, DM_SAFEMODE)
 {}
 
 BOOL DeformableMirrorWindow::OnInitDialog() 
@@ -29,7 +29,7 @@ BOOL DeformableMirrorWindow::OnInitDialog()
 	int id = 1000;
 	UINT ID = IDC_DM_PROGRAMNOW;
 	statusBox.initialize(pos, id, this, 480, toolTips);
-	DM.initialize(pos, this, DM.getActNum(), DM_SERIAL, 65, ID);
+	dm.initialize(pos, this, dm.getActNum(), DM_SERIAL, 65, ID);
 	return TRUE;
 }
 
@@ -47,7 +47,7 @@ void DeformableMirrorWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw(false);
 	statusBox.rearrange(cx, cy, mainWin->getFonts());
-	DM.rearrange(cx, cy, mainWin->getFonts());
+	dm.rearrange(cx, cy, mainWin->getFonts());
 	SetRedraw();
 	RedrawWindow();
 }
@@ -102,7 +102,7 @@ HBRUSH DeformableMirrorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	HBRUSH result;
 
 	
-	result = DM.handleColorMessage(pWnd, pDC);
+	result = dm.handleColorMessage(pWnd, pDC);
 	if (result != NULL)
 	{
 		return result;
@@ -139,12 +139,12 @@ HBRUSH DeformableMirrorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 }
 
 void DeformableMirrorWindow::handleProgramNow() {
-	DM.ProgramNow();
+	dm.ProgramNow();
 }
 
 void DeformableMirrorWindow::handleNewProfile() {
 	try {
-		DM.loadProfile();
+		dm.loadProfile();
 	}
 	catch(Error &err){
 		comm.sendError(err.trace());
@@ -152,13 +152,13 @@ void DeformableMirrorWindow::handleNewProfile() {
 }
 
 void DeformableMirrorWindow::handlePistonChange(UINT id) {
-	DM.reColor(id);
+	dm.reColor(id);
 }
 
 void DeformableMirrorWindow::handleAbberations() {
 	try 
 	{
-		DM.add_Changes();
+		dm.add_Changes();
 	}
 	catch (Error & err) 
 	{
@@ -167,20 +167,22 @@ void DeformableMirrorWindow::handleAbberations() {
 }
 
 DmCore &DeformableMirrorWindow::GetCore() {
-	return DM.getCore();
+	return dm.getCore();
 }
 
 void DeformableMirrorWindow::handleNewConfig(std::ofstream& newFile) {
-	DM.getCore().handleNewConfig( newFile );
+	dm.getCore().handleNewConfig( newFile );
 }
 
-void DeformableMirrorWindow::handleOpeningConfig(std::ifstream& configFile, Version ver) {
-	try {
+void DeformableMirrorWindow::windowOpenConfig(ScriptStream& configFile, Version ver) 
+{
+	try 
+	{
 		if (ver >= Version("4.7"))
 		{
-			DMOutputForm form = ProfileSystem::stdGetFromConfig(configFile, "DM", DmCore::handleGetConfig);;
-			DM.setCoreInfo(form);
-			DM.openConfig();
+			DMOutputForm form = ProfileSystem::stdGetFromConfig(configFile, "DM", DmCore::handleGetConfig);
+			dm.setCoreInfo(form);
+			dm.openConfig();
 		}
 	}
 	catch (Error&)
@@ -191,6 +193,6 @@ void DeformableMirrorWindow::handleOpeningConfig(std::ifstream& configFile, Vers
 
 
 void DeformableMirrorWindow::handleSaveConfig(std::ofstream& newFile) {
-	DM.handleSaveConfig(newFile);
+	dm.handleSaveConfig(newFile);
 }
 

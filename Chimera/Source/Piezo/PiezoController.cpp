@@ -48,7 +48,7 @@ void PiezoController::updateCurrentValues ( )
 	currentVals.z.SetWindowTextA ( cstr ( core.getCurrentZVolt ( ) ) );
 }
 
-void PiezoController::handleOpenConfig ( std::ifstream& configFile, Version ver )
+void PiezoController::handleOpenConfig ( ScriptStream& configFile, Version ver )
 {
 	if ( ver > Version ( "4.5" ) )
 	{

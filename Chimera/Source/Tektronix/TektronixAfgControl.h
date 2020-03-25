@@ -22,7 +22,7 @@ class TektronixAfgControl
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& configFile, Version ver );
+		void handleOpenConfig(ScriptStream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();
@@ -34,7 +34,7 @@ class TektronixAfgControl
 		void handleProgram(std::vector<parameterType> constants);
 		std::string getDelim ();
 		TekCore& getCore ();
-		static tektronixInfo getTekInfo (std::ifstream& configFile, Version ver);
+		static tektronixInfo getTekInfo (ScriptStream& configFile, Version ver);
 	private:
 		Control<CStatic> header;
 		Control<CleanPush> programNow;

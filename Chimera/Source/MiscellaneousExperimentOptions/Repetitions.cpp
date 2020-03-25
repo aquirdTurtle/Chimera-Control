@@ -14,7 +14,7 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-UINT Repetitions::getRepsFromConfig ( std::ifstream& openFile, Version ver )
+UINT Repetitions::getRepsFromConfig ( ScriptStream& openFile, Version ver )
 {
 	UINT repNum;
 	openFile >> repNum;

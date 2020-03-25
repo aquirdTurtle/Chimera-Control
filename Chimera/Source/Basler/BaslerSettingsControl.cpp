@@ -497,7 +497,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	return currentSettings;
 }
 
-baslerSettings BaslerSettingsControl::getSettingsFromConfig ( std::ifstream& configFile, Version ver )
+baslerSettings BaslerSettingsControl::getSettingsFromConfig (ScriptStream& configFile, Version ver )
 {
 	if ( ver < Version ( "4.0" ) )
 	{

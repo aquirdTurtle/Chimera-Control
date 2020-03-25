@@ -34,7 +34,7 @@ class DoSystem
 		std::string getDoSystemInfo ();
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
+		void handleOpenConfig(ScriptStream& openFile, Version ver );
 		void initialize(POINT& startLocation, cToolTips& toolTips, CWnd* master, int& id );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();

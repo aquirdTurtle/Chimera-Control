@@ -39,7 +39,7 @@ class AoSystem
 		// configs
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver);
+		void handleOpenConfig(ScriptStream& openFile, Version ver);
 		// macros
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);

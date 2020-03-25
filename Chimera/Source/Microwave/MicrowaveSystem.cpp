@@ -71,7 +71,7 @@ void MicrowaveSystem::handleSaveConfig (std::ofstream& saveFile)
 }
 
 
-microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (std::ifstream& openFile, Version ver)
+microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (ScriptStream& openFile, Version ver)
 {
 	microwaveSettings settings;
 	openFile >> settings.control;

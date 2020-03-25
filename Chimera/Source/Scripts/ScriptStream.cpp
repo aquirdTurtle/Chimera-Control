@@ -3,23 +3,14 @@
 #include "Scripts/ScriptStream.h"
 #include <algorithm>
 
-/*
-Notes on function args problem
-
-See tests for examples
-Possible solutions:
-- Decoration method
-	- need to parse expressions in analyzing function args to replace parts of expressions
-		- shouldn't need to change >> operator functionality
-	- replace variable names with decorated names which indicate scope
-	- effectively deals with name conflict issue
-- change scoping of expression
-	- add exceptions to expression, keeping existing structure.
-		- doesn't deal with name conflict issue
-	- expression core structure is vector of strings instead of single string
-		- add vector of scopes
-*/
-
+ScriptStream::ScriptStream (std::ifstream& file)
+{
+	std::stringstream tempStream;
+	tempStream << file.rdbuf ();
+	this->ScriptStream::ScriptStream (tempStream.str ());
+	// default for straight file read is to be case sensitive. This default is mostly just a convenience.
+	setCase (false);
+};
 
 ScriptStream & ScriptStream::operator>>( std::string& outputString )
 {
@@ -64,8 +55,10 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 				}
 				unclosedParentheses--;
 			}
-			// convert to lower-case
-			std::transform( term.begin( ), term.end( ), term.begin( ), ::tolower );
+			if (alwaysLowerCase)
+			{
+				std::transform (term.begin (), term.end (), term.begin (), ::tolower);
+			}
 			// replace any keywords
 			for ( auto repl : replacements )
 			{
@@ -117,8 +110,10 @@ std::string ScriptStream::getline(char delim)
 	eatComments();
 	std::string line;
 	std::getline( *this, line, delim );
-	// convert to lower-case
-	std::transform( line.begin(), line.end(), line.begin(), ::tolower );
+	if (alwaysLowerCase)
+	{
+		std::transform (line.begin (), line.end (), line.begin (), ::tolower);
+	}
 	// look for arg words. This is mostly important for replacements inside function definitions.
 	for (auto arg : replacements)
 	{
@@ -256,4 +251,9 @@ void ScriptStream::eatComments()
 	{
 		seekg( -1, SEEK_CUR );
 	}
+}
+
+void ScriptStream::setCase (bool alwaysLowerCase_)
+{
+	alwaysLowerCase = alwaysLowerCase_;
 }

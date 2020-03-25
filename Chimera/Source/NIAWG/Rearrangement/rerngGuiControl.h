@@ -16,7 +16,7 @@ class rerngGuiControl
 		rerngGuiOptionsForm getParams( );
 		void setParams( rerngGuiOptionsForm params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
-		void handleOpenConfig( std::ifstream& openFile, Version ver );
+		void handleOpenConfig(ScriptStream& openFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig( std::ofstream& newFile );
 		void rearrange( int width, int height, fontMap fonts );

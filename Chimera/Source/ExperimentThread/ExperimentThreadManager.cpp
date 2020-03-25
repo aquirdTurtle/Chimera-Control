@@ -11,6 +11,7 @@
 #include "PrimaryWindows/MainWindow.h"
 #include "nidaqmx2.h"
 #include "Andor/CameraSettingsControl.h"
+#include "Scripts/ScriptStream.h"
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -67,52 +68,52 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), 
 						input->globalParameters);
 		std::ifstream cFile (input->profile.configFilePath ());
+		ScriptStream cStream (cFile);
+
 		using PS = ProfileSystem;
 		if ( runMaster )
 		{
 			expSeq.masterScript = PS::getMasterAddressFromConfig(input->profile);
 			input->thisObj->loadMasterScript(expSeq.masterScript, expSeq.masterStream );
-			ddsRampList = PS::stdGetFromConfig ( cFile, dds.configDelim,
-																		DdsCore::getRampListFromConfig );
+			ddsRampList = PS::stdGetFromConfig (cStream, dds.configDelim, DdsCore::getRampListFromConfig );
 			for ( auto piezoInc : range(input->piezoCores.size()))
 			{
-				auto res = PS::stdGetFromConfig ( cFile, input->piezoCores[ piezoInc ].get().configDelim, 
+				auto res = PS::stdGetFromConfig (cStream, input->piezoCores[ piezoInc ].get().configDelim,
 													PiezoCore::getPiezoSettingsFromConfig );
 				piezoExpressions[ piezoInc ]
 					= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
 				ctrlPztOptions[ piezoInc ] = res.second;
 			}
-			mainOpts = PS::stdGetFromConfig ( cFile, "MAIN_OPTIONS", MainOptionsControl::getMainOptionsFromConfig );
-			repetitions = PS::stdGetFromConfig ( cFile, "REPETITIONS",	Repetitions::getRepsFromConfig );
-			uwSettings = PS::stdGetFromConfig ( cFile, MicrowaveSystem::delim, MicrowaveSystem::getMicrowaveSettingsFromConfig);
-			tekInfo[tbTek] = PS::stdGetFromConfig (cFile, input->topBottomTek.configDelim, TektronixAfgControl::getTekInfo);
-			tekInfo[aeTek] = PS::stdGetFromConfig (cFile, input->eoAxialTek.configDelim, TektronixAfgControl::getTekInfo);
+			mainOpts = PS::stdGetFromConfig (cStream, "MAIN_OPTIONS", MainOptionsControl::getMainOptionsFromConfig );
+			repetitions = PS::stdGetFromConfig (cStream, "REPETITIONS",	Repetitions::getRepsFromConfig );
+			uwSettings = PS::stdGetFromConfig (cStream, MicrowaveSystem::delim, MicrowaveSystem::getMicrowaveSettingsFromConfig);
+			tekInfo[tbTek] = PS::stdGetFromConfig (cStream, input->topBottomTek.configDelim, TektronixAfgControl::getTekInfo);
+			tekInfo[aeTek] = PS::stdGetFromConfig (cStream, input->eoAxialTek.configDelim, TektronixAfgControl::getTekInfo);
 			ParameterSystem::generateKey ( expParams, mainOpts.randomizeVariations, varRangeInfo);
 			variations = determineVariationNumber ( expParams );
 			for (auto agInc : range(input->agilents.size()))
 			{
-				agilentRunInfo[agInc] = PS::stdGetFromConfig( cFile, input->agilents[agInc].get().configDelim, 
+				agilentRunInfo[agInc] = PS::stdGetFromConfig(cStream, input->agilents[agInc].get().configDelim,
 																Agilent::getOutputSettingsFromConfigFile);
 			}
 		}
 		if (runAndor) 
 		{
-			andorRunSettings = PS::stdGetFromConfig (cFile, "CAMERA_SETTINGS", 
+			andorRunSettings = PS::stdGetFromConfig (cStream, "CAMERA_SETTINGS",
 													 AndorCameraSettingsControl::getRunSettingsFromConfig);
-			andorRunSettings.imageSettings = PS::stdGetFromConfig (cFile, "CAMERA_IMAGE_DIMENSIONS", 
+			andorRunSettings.imageSettings = PS::stdGetFromConfig (cStream, "CAMERA_IMAGE_DIMENSIONS",
 													AndorCameraSettingsControl::getImageDimSettingsFromConfig);
 			andorRunSettings.repetitionsPerVariation = repetitions;
 			andorRunSettings.totalVariations = variations;
 		}
 		if (runBasler)
 		{
-			baslerCamSettings = PS::stdGetFromConfig ( cFile, "BASLER_CAMERA_SETTINGS",
-														&BaslerSettingsControl::getSettingsFromConfig, 
-														Version ("4.0"));	
+			baslerCamSettings = PS::stdGetFromConfig ( cStream, "BASLER_CAMERA_SETTINGS",
+													   &BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));	
 			baslerCamSettings.repsPerVar = repetitions;
 			baslerCamSettings.variations = variations;
 		}
-		runNiawg = PS::stdGetFromConfig ( cFile, "NIAWG_INFORMATION", NiawgSystem::getControlNiawgFromConfig, 
+		runNiawg = PS::stdGetFromConfig (cStream, "NIAWG_INFORMATION", NiawgSystem::getControlNiawgFromConfig,
 											Version ("4.12"));
 		if ( runNiawg )
 		{
