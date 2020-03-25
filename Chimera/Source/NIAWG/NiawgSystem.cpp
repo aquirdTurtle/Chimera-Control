@@ -49,7 +49,14 @@ bool NiawgSystem::getControlNiawgFromConfig ( ScriptStream& openfile, Version ve
 {
 	if (ver < Version ("4.12")) { return true; }
 	bool opt;
-	openfile >> opt;
+	if (ver >= Version ("5.0")) {
+		openfile >> opt;
+	}
+	else
+	{
+		openfile.get ();
+		opt = bool(openfile.get ());
+	}
 	return opt;
 }
 

@@ -67,13 +67,9 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig( profileSettings profile
 	// open configuration file and grab the niawg script file address from it.
 	std::ifstream tempFile( profile.configFilePath( ) );
 	ScriptStream configStream (tempFile);
-	std::string version;
-	std::string niawgScriptAddresses;
-	// first get version info:
-	std::getline(configStream, version );
-	checkDelimiterLine(configStream, "SCRIPTS" );
-	configStream.get( );
-	getline(configStream, niawgScriptAddresses );
+	std::string version = configStream.getline();
+	checkDelimiterLine (configStream, "SCRIPTS");
+	std::string niawgScriptAddresses = configStream.getline();
 	return niawgScriptAddresses;
 }
 
@@ -851,15 +847,13 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 	std::string line, word, address;
 	Version ver;
 	getVersionFromFile(stream, ver );
-	stream.get( );
 	if ( ver.versionMajor < 3 )
 	{
-		std::getline(stream, line );
+		line = stream.getline ();
 	}
-	std::getline(stream, line);
-	std::getline(stream, line);
-	std::string newPath;
-	getline(stream, newPath);
+	line = stream.getline (); 
+	line = stream.getline ();
+	std::string newPath = stream.getline ();
 	return newPath;
 }
 

@@ -80,7 +80,12 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 
 ScriptStream & ScriptStream::operator>>( Expression& expression )
 {
-	return operator>>( expression.expressionStr );
+	operator>>(expression.expressionStr);
+	if (expression.expressionStr == "\"\"")
+	{
+		expression.expressionStr = "";
+	}
+	return *this;
 }
 
 

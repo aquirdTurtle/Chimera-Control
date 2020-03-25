@@ -98,14 +98,13 @@ void DmCore::handleNewConfig(std::ofstream& newFile)
 DMOutputForm DmCore::handleGetConfig(ScriptStream& configFile, Version ver) 
 {
 	DMOutputForm Info;
-	configFile.get();
-	std::getline(configFile, Info.coma.expressionStr);
-	std::getline(configFile, Info.comaAng.expressionStr);
-	std::getline(configFile, Info.astig.expressionStr);
-	std::getline(configFile, Info.astigAng.expressionStr);
-	std::getline(configFile, Info.trefoil.expressionStr);
-	std::getline(configFile, Info.trefoilAng.expressionStr);
-	std::getline(configFile, Info.spherical.expressionStr);
+	Info.coma.expressionStr = configFile.getline();
+	Info.comaAng.expressionStr = configFile.getline ();
+	Info.astig.expressionStr = configFile.getline ();
+	Info.astigAng.expressionStr = configFile.getline ();
+	Info.trefoil.expressionStr = configFile.getline ();
+	Info.trefoilAng.expressionStr = configFile.getline ();
+	Info.spherical.expressionStr = configFile.getline ();
 	configFile >> Info.base;
 	return Info;
 }

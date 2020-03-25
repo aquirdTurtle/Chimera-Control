@@ -62,33 +62,6 @@ NiawgCore::NiawgCore ( DoRows::which trigRow, UINT trigNumber, bool safemode ) :
 	moveBiasCalibrations.push_back ( moveBias3x6Cal );
 
 	rerngContainer<double> moveBias10x10Cal ( 10, 10, 0.2 );
-	std::ifstream biasFile;
-	/*
-	biasFile.open ( "J:/Code-Files/Bias-Cal.txt" );
-	if ( !biasFile.is_open ( ) )
-	{
-		thrower ( "NIAWG Bias calibration file failed to open!" );
-	}
-	std::string row, col, val, trash, direction;
-	int rowI, colI;
-	while ( true )
-	{
-		std::getline ( biasFile, trash, '[' );
-		std::getline ( biasFile, row, ',' );
-		std::getline ( biasFile, col, ']' );
-		std::getline ( biasFile, trash, ',' );
-		std::getline ( biasFile, direction, ':' );
-		std::getline ( biasFile, val );
-		if ( biasFile.eof ( ) )
-		{
-			break;
-		}
-		rowI = ( boost::lexical_cast<int> ( row ) - 2 ) / 2;
-		colI = ( boost::lexical_cast<int> ( col ) - 2 ) / 2;
-		moveBias10x10Cal ( rowI, colI, dir ( boost::lexical_cast<int>(direction) ) ) = boost::lexical_cast<double>(val);
-	}
-	moveBiasCalibrations.push_back ( moveBias10x10Cal );
-	*/
 }
 
 

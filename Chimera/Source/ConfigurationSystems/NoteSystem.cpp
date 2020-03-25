@@ -30,13 +30,9 @@ void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
 
 void NoteSystem::handleOpenConfig(ScriptStream& openFile, Version ver )
 {
-	/// handle notes
 	std::string notes;
-	std::string tempNote;
-	// no need to get a newline since this should be he first thing in the file.
-	openFile.get();
 	auto pos = openFile.tellg ( );
-	std::getline(openFile, tempNote);
+	std::string tempNote = openFile.getline();
 	if (tempNote != "END_CONFIGURATION_NOTES")
 	{
 		while (openFile && tempNote != "END_CONFIGURATION_NOTES")
