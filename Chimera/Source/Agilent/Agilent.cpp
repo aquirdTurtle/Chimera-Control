@@ -478,6 +478,15 @@ void Agilent::handleOpenConfig( ScriptStream& file, Version ver )
 
 deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, Version ver)
 {
+	std::function<void(ScriptStream&, std::string&)>  readFunc;
+	if (ver >= Version ("5.0"))
+	{
+		readFunc = [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
+	}
+	else
+	{
+		readFunc = [](ScriptStream& fid, std::string& expr) {std::getline (fid, expr);};
+	}
 	deviceOutputInfo tempSettings;
 	file >> tempSettings.synced;
 	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
@@ -488,7 +497,6 @@ deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, V
 		// the extra step in all of the following is to remove the , at the end of each input.
 		std::string input;
 		file >> input;
-		file.get ();
 		try
 		{
 			channel.option = ver < Version ("4.2") ?
@@ -499,83 +507,33 @@ deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, V
 			throwNested ("Bad channel " + str (chanInc + 1) + " option!");
 		}
 		std::string calibratedOption;
-		std::getline (file, channel.dc.dcLevel.expressionStr);
+		readFunc (file, channel.dc.dcLevel.expressionStr);
 		if (ver > Version ("2.3"))
 		{
-			std::getline (file, calibratedOption);
-			bool calOption;
-			try
-			{
-				calOption = bool (boost::lexical_cast<int>(calibratedOption));
-			}
-			catch (boost::bad_lexical_cast&)
-			{
-				calOption = false;
-			}
-			channel.dc.useCal = calOption;
+			file >> channel.dc.useCal;
 		}
-		std::getline (file, channel.sine.amplitude.expressionStr);
-		std::getline (file, channel.sine.frequency.expressionStr);
+		readFunc (file, channel.sine.amplitude.expressionStr);
+		readFunc (file, channel.sine.frequency.expressionStr);
 		if (ver > Version ("2.3"))
 		{
-			std::getline (file, calibratedOption);
-			bool calOption;
-			try
-			{
-				calOption = bool (boost::lexical_cast<int>(calibratedOption));
-			}
-			catch (boost::bad_lexical_cast&)
-			{
-				calOption = false;
-			}
-			channel.sine.useCal = calOption;
+			file >> channel.sine.useCal;
 		}
-		std::getline (file, channel.square.amplitude.expressionStr);
-		std::getline (file, channel.square.frequency.expressionStr);
-		std::getline (file, channel.square.offset.expressionStr);
+		readFunc (file, channel.square.amplitude.expressionStr);
+		readFunc (file, channel.square.frequency.expressionStr);
+		readFunc (file, channel.square.offset.expressionStr);
 		if (ver > Version ("2.3"))
 		{
-			std::getline (file, calibratedOption);
-			bool calOption;
-			try
-			{
-				calOption = bool (boost::lexical_cast<int>(calibratedOption));
-			}
-			catch (boost::bad_lexical_cast&)
-			{
-				calOption = false;
-			}
-			channel.square.useCal = calOption;
+			file >> channel.square.useCal;
 		}
-		std::getline (file, channel.preloadedArb.address);
+		readFunc (file, channel.preloadedArb.address);
 		if (ver > Version ("2.3"))
 		{
-			std::getline (file, calibratedOption);
-			bool calOption;
-			try
-			{
-				calOption = bool (boost::lexical_cast<int>(calibratedOption));
-			}
-			catch (boost::bad_lexical_cast&)
-			{
-				calOption = false;
-			}
-			channel.preloadedArb.useCal = calOption;
+			file >> channel.preloadedArb.useCal;
 		}
-		std::getline (file, channel.scriptedArb.fileAddress);
+		readFunc (file, channel.scriptedArb.fileAddress);
 		if (ver > Version ("2.3"))
 		{
-			std::getline (file, calibratedOption);
-			bool calOption;
-			try
-			{
-				calOption = bool (boost::lexical_cast<int>(calibratedOption));
-			}
-			catch (boost::bad_lexical_cast&)
-			{
-				calOption = false;
-			}
-			channel.scriptedArb.useCal = calOption;
+			file >> channel.scriptedArb.useCal;
 		}
 		chanInc++;
 	}

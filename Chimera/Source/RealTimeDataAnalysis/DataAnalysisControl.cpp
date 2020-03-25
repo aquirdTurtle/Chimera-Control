@@ -228,8 +228,7 @@ void DataAnalysisControl::handleOpenConfig( ScriptStream& file, Version ver )
 		vector<UINT> whichGrids;
 		for ( auto pltInc : range( numPlots ) )
 		{
-			std::string tmp;
-			std::getline( file, tmp );
+			std::string tmp = file.getline ();
 			activePlotNames.push_back( tmp );
 			if ( ver > Version( "3.0" ) )
 			{

@@ -1,8 +1,7 @@
 t = 1
 % rsg: 10000000 -5
-/* t += 5
 off: a5
-dac: dac0 1 */
+/* dac: dac0 1 */
 t += 1
 pulseon: rsTrig 0.1
 t += 1

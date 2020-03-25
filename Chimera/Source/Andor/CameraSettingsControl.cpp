@@ -491,13 +491,11 @@ AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( ScriptSt
 {
 	AndorRunSettings tempSettings;
 	configFile.get ( );
-	std::string txt;
-	std::getline ( configFile, txt );
+	std::string txt = configFile.getline ();
 	tempSettings.triggerMode = AndorTriggerMode::fromStr ( txt );
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
-	configFile.get ( );
-	std::getline ( configFile, txt );
+	txt = configFile.getline ();
 	if ( txt == AndorRunModes::toStr ( AndorRunModes::mode::Video ) || txt == "Video Mode" )
 	{
 		tempSettings.acquisitionMode = AndorRunModes::mode::Video;
@@ -572,19 +570,20 @@ void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 	updateSettings ( );
 	saveFile << "CAMERA_SETTINGS\n";
 	saveFile << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
-	saveFile << settings.andor.emGainModeIsOn << "\n";
-	saveFile << settings.andor.emGainLevel << "\n";
-	saveFile << AndorRunModes::toStr (settings.andor.acquisitionMode) << "\n";
-	saveFile << settings.andor.kineticCycleTime << "\n";
-	saveFile << settings.andor.accumulationTime << "\n";
-	saveFile << settings.andor.accumulationNumber << "\n";
-	saveFile << settings.andor.temperatureSetting << "\n";
-	saveFile << settings.andor.exposureTimes.size ( ) << "\n";
+	saveFile << "/*EM-Gain Is On:*/" << settings.andor.emGainModeIsOn << "\n";
+	saveFile << "/*EM-Gain Level:*/" << settings.andor.emGainLevel << "\n";
+	saveFile << "/*Acquisition Mode:*/" << AndorRunModes::toStr (settings.andor.acquisitionMode) << "\n";
+	saveFile << "/*Kinetic Cycle Time:*/" << settings.andor.kineticCycleTime << "\n";
+	saveFile << "/*Accumulation Time:*/" << settings.andor.accumulationTime << "\n";
+	saveFile << "/*Accumulation Number:*/" << settings.andor.accumulationNumber << "\n";
+	saveFile << "/*Camera Temperature Setting:*/" << settings.andor.temperatureSetting << "\n";
+	saveFile << "/*Number of Exposures:*/" << settings.andor.exposureTimes.size ( ) << "\n/*Exposure Times:*/";
+
 	for ( auto exposure : settings.andor.exposureTimes )
 	{
 		saveFile << exposure << " ";
 	}
-	saveFile << "\n" << settings.andor.picsPerRepetition << "\n";
+	saveFile << "\n/*Andor Pictures Per Repetition:*/" << settings.andor.picsPerRepetition << "\n";
 	saveFile << "END_CAMERA_SETTINGS\n";
 
 	picSettingsObj.handleSaveConfig(saveFile);
