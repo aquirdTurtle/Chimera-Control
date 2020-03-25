@@ -160,6 +160,10 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		}
 		return _myRGBs["Slate Grey"];
 	}
+	if (word == "/*" || word == "*/")
+	{
+		return _myRGBs["Slate Green"];
+	}
 	if (word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" ||
 		word == "sin" || word == "cos" || word == "tan" || word == "exp" || word == "ln" || word == "var")
 	{
@@ -343,7 +347,8 @@ void Script::handleTimerCall(std::vector<parameterType> vars,  Matrix<std::strin
 		edit.GetSel(charRange);
 		initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
-		colorScriptSection (editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo);
+		colorEntireScript (vars, ttlNames, dacInfo);
+		//colorScriptSection (editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo);
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
@@ -382,6 +387,35 @@ void Script::colorEntireScript( std::vector<parameterType> vars, Matrix<std::str
 	colorScriptSection(0, ULONG_MAX, vars, ttlNames, dacInfo);
 }
 
+bool Script::positionIsInComment (DWORD position) 
+{
+	CString text;
+	edit.GetWindowTextA (text);
+	std::stringstream stream = std::stringstream (std::string (text));
+	bool inComment = false;
+	while (stream)
+	{
+		if (stream.tellg () == position)
+		{
+			return inComment;
+		}
+		char nextChar = stream.get ();
+		if (nextChar == '/')
+		{
+			if (stream.get () == '*')
+			{
+				inComment = true;
+			}
+		}
+		if (nextChar == '*')
+		{
+			if (stream.get () == '/')
+			{
+				inComment = false;
+			}
+		}
+	}
+}
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 
 								 Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
@@ -397,82 +431,120 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 	CHARFORMAT textFormat = { 0 };
 	textFormat.cbSize = sizeof(CHARFORMAT);
 	textFormat.dwMask = CFM_COLOR;
-	DWORD start = 0, end = 0;
-	std::size_t prev, pos;
+	DWORD startOfWord = 0, endOfWord = 0;
+	std::size_t prev, endOfWordOffset;
 	ScriptStream ss (fileTextStream.str ());
 	auto localVars = ExperimentThreadManager::getLocalParameters (ss);
+	bool commenting = positionIsInComment(beginingOfChange);
+	if (commenting)
+	{
+		syntaxColor = _myRGBs["Slate Green"];
+	}
 	while (std::getline(fileTextStream, line))
 	{
-		DWORD lineStartCoordingate = start;
-		int endTest = end + line.size();
-		if (endTest < long long(beginingOfChange) - 5 || start > long long(endOfChange))
+		DWORD lineStartCoordingate = startOfWord;
+		int endTest = endOfWord + line.size();
+		if (endTest < long long(beginingOfChange) - 15 || startOfWord > long long(endOfChange) + 15)
 		{
-			// then skip to next line.
-			end = endTest;
-			start = end;
+			// not in a line close to the selected selection, so then skip to next line.
+			endOfWord = endTest;
+			startOfWord = endOfWord;
 			continue;
 		}
 		prev = 0;
 		coloring = 0;
 		bool colorLine = false;
-		while ((pos = line.find_first_of(" \t\r\n+=()-*/", prev)) != std::string::npos)
+		std::string wordEndIndicators = " \t\r\n+=()-*/";
+		while ((endOfWordOffset = line.find_first_of(wordEndIndicators, prev)) != std::string::npos)
 		{
-			if (pos == prev)
+			if (endOfWordOffset == prev)
 			{
 				// then there was one of " \t\r\n+=" at the begging of the next string.
-				pos++;
+				endOfWordOffset++;
 			}
-			end = lineStartCoordingate + pos;
-			word = line.substr(prev, pos - prev);
+			endOfWord = lineStartCoordingate + endOfWordOffset;
+			word = line.substr(prev, endOfWordOffset - prev);
 			if (word == " " || word == "\t" || word == "\r" || word == "\n")
 			{
-				start = end;
-				prev = pos;
+				// don't try to color whitespace.
+				startOfWord = endOfWord;
+				prev = endOfWordOffset;
 				continue;
+			}
+			if (word == "/")
+			{
+				auto nextChar = line.substr (endOfWordOffset, 1);
+				if (nextChar == "*")
+				{
+					word = "/*";
+					endOfWordOffset += 1;
+					endOfWord += 1;
+					// comment start!
+					commenting = true;
+					syntaxColor = _myRGBs["Slate Green"];
+				}
+			}
+			if (word == "*")
+			{
+				auto nextChar = line.substr (endOfWordOffset, 1);
+				if (nextChar == "/")
+				{
+					word = "*/";
+					endOfWordOffset += 1;
+					endOfWord += 1;
+					// comment end!
+					commenting = false;
+					syntaxColor = _myRGBs["Slate Green"];
+				}
 			}
 			// if comment is found, the rest of the line is green.
 			if (!colorLine)
 			{
-				// get all the params
-				syntaxColor = getSyntaxColor(word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo );
+				if (!commenting)
+				{
+					syntaxColor = getSyntaxColor (word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo);
+				}
 				if (syntaxColor != coloring)
 				{
 					// new color
 					coloring = syntaxColor;
 					textFormat.crTextColor = coloring;
-					CHARRANGE charRange = { start, end };
+					CHARRANGE charRange = { startOfWord, endOfWord };
 					edit.SetSel(charRange);
 					edit.SetSelectionCharFormat(textFormat);
-					start = end;
+					startOfWord = endOfWord;
 				}
 			}
-			CHARRANGE charRange = { start, end };
+			CHARRANGE charRange = { startOfWord, endOfWord };
 			edit.SetSel(charRange);
 			edit.SetSelectionCharFormat(textFormat);
-			start = end;
-			prev = pos;
+			startOfWord = endOfWord;
+			prev = endOfWordOffset;
 		}
-		// handle the end. above doesn't catch the end. There's probably a better way to do this.
+		// handle the endOfWord. above doesn't catch the endOfWord. There's probably a better way to do this.
 		if (prev < std::string::npos)
 		{
 			bool colorLine = false;
 			word = line.substr(prev, std::string::npos);
-			end = lineStartCoordingate + line.length();
+			endOfWord = lineStartCoordingate + line.length();
 			// get all the params together
-			syntaxColor = getSyntaxColor( word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo );
+			if (!commenting)
+			{
+				syntaxColor = getSyntaxColor (word, deviceType, vars, localVars, colorLine, ttlNames, dacInfo);
+			}
 			if (!colorLine)
 			{
 				coloring = syntaxColor;
 				textFormat.crTextColor = coloring;
-				CHARRANGE charRange = { start, end };
+				CHARRANGE charRange = { startOfWord, endOfWord };
 				edit.SetSel(charRange);
 				edit.SetSelectionCharFormat(textFormat);
-				start = end;
+				startOfWord = endOfWord;
 			}
-			CHARRANGE charRange = { start, end };
+			CHARRANGE charRange = { startOfWord, endOfWord };
 			edit.SetSel(charRange);
 			edit.SetSelectionCharFormat(textFormat);
-			start = end;
+			startOfWord = endOfWord;
 		}
 	}
 	edit.SetRedraw( true );
@@ -997,7 +1069,7 @@ std::string Script::getExtension()
 
 void Script::updateScriptNameText(std::string configPath)
 {
-	// there are some \\ on the end of the path by default.
+	// there are some \\ on the endOfWord of the path by default.
 	configPath = configPath.substr(0, configPath.size() - 1);
 	int sPos = configPath.find_last_of('\\');
 	if (sPos != -1)
