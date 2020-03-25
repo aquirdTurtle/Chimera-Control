@@ -39,6 +39,7 @@ class Script
 		COLORREF getSyntaxColor( std::string word, std::string editType, std::vector<parameterType> variables, 
 								 std::vector<parameterType> localParams, bool& colorLine, Matrix<std::string> ttlNames, 
 								 std::array<AoInfo, 24> dacInfo );
+		bool positionIsInComment (DWORD position);
 		void handleEditChange();
 		void handleTimerCall( std::vector<parameterType> vars, Matrix<std::string> ttlNames, 
 							  std::array<AoInfo, 24> dacNames);
