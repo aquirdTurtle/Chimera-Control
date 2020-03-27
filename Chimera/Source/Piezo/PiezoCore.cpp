@@ -2,6 +2,7 @@
 #include "Piezo/PiezoCore.h"
 #include "Piezo/PiezoType.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 
 PiezoCore::PiezoCore (piezoSetupInfo info) :
 	controllerType ( info.type),
@@ -56,13 +57,14 @@ void PiezoCore::evaluateVariations (std::vector<parameterType>& params, UINT tot
 	}
 }
 
-std::pair<piezoChan<std::string>, bool> PiezoCore::getPiezoSettingsFromConfig ( ScriptStream& file, Version ver )
+std::pair<piezoChan<std::string>, bool> PiezoCore::getPiezoSettingsFromConfig ( ConfigStream& file, Version ver )
 {
 	piezoChan<std::string> valVec;
+	auto getlineF = ProfileSystem::getGetlineFunc (ver);
 	file.get ( );
-	std::getline ( file, valVec.x );
-	std::getline ( file, valVec.y );
-	std::getline ( file, valVec.z );
+	getlineF ( file, valVec.x );
+	getlineF ( file, valVec.y );
+	getlineF ( file, valVec.z );
 	bool ctrlOption;
 	file >> ctrlOption;
 	file.get ( );

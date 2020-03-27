@@ -90,7 +90,7 @@ void ParameterSystem::setVariationRangeColumns ( int num, int width )
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::handleOpenConfig(ScriptStream& configFile, Version ver )
+void ParameterSystem::handleOpenConfig(ConfigStream& configFile, Version ver )
 {
 	clearParameters( );
 	/// 
@@ -142,7 +142,7 @@ void ParameterSystem::redrawListview ( )
 }
 
 
-ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ScriptStream& configFile, Version ver )
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile, Version ver )
 {
 	ScanRangeInfo rInfo;
 	UINT numRanges;
@@ -178,8 +178,8 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ScriptStream& configFile, V
 }
 
 
-std::vector<parameterType> ParameterSystem::getParametersFromFile( ScriptStream& configFile, Version ver, 
-																  ScanRangeInfo rangeInfo )
+std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream& configFile, Version ver, 
+																   ScanRangeInfo rangeInfo )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -241,14 +241,6 @@ void ParameterSystem::updateVariationNumber( )
 }
 
  
-void ParameterSystem::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << configDelim + "\n";
-	// Number of functions with parameters saved
-	newFile << 0 << "\n";
-	newFile << "END_" + configDelim + "\n";
-}
-
 double ParameterSystem::getVariableValue ( std::string paramName )
 {
 	if ( paramSysType != ParameterSysType::global )
@@ -295,7 +287,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadParameterFromFile(ScriptStream& openFile, Version ver, ScanRangeInfo rangeInfo )
+parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Version ver, ScanRangeInfo rangeInfo )
 {
 	parameterType tempParam;
 	std::string paramName, typeText, valueString;
@@ -383,39 +375,49 @@ parameterType ParameterSystem::loadParameterFromFile(ScriptStream& openFile, Ver
 }
 
 
-void ParameterSystem::saveParameter( std::ofstream& saveFile, parameterType parameter )
+void ParameterSystem::saveParameter(ConfigStream& saveFile, parameterType parameter )
 {
-	saveFile << parameter.name << " " << ( parameter.constant ? "Constant " : "Variable " ) << parameter.scanDimension << "\n";
+	saveFile << "\n/*Name:*/\t\t\t" << parameter.name 
+		     << "\n/*Scan-Type:*/\t\t" << ( parameter.constant ? "Constant " : "Variable " ) 
+			 << "\n/*Scan-Dimension:*/\t" << parameter.scanDimension;
 	for ( auto& range : parameter.ranges )
 	{
-		saveFile << range.initialValue << "\n" << range.finalValue << "\n";
+		saveFile << "\n/*Initial Value: */\t" << range.initialValue 
+				 << "\n/*Final Value: */\t" << range.finalValue;
 	}
-	saveFile << parameter.constantValue << "\n" << parameter.parameterScope << "\n";
+	saveFile << "\n/*Constant Value:*/\t" << parameter.constantValue 
+			 << "\n/*Scope:*/\t\t\t" << parameter.parameterScope << "\n";
 }
 
 
-void ParameterSystem::handleSaveConfig ( std::ofstream& saveFile )
+void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 {
 	checkScanDimensionConsistency ( ); 
 	checkVariationRangeConsistency ( );
 	
 	saveFile << configDelim + "\n";
 	saveFile << "RANGE-INFO\n";
-	saveFile << rangeInfo.numScanDimensions ( ) << "\n";
+	saveFile << "/*# Scan Dimensions:*/\t" << rangeInfo.numScanDimensions ( );
 	for ( auto dimNum : range(rangeInfo.numScanDimensions ( )) )
 	{
-		saveFile << rangeInfo.numRanges ( dimNum ) << "\n";
+		saveFile << "\n/*Dim #" + str (dimNum + 1) + ":*/ ";
+		saveFile << "\n/*Number of Ranges:*/\t" << rangeInfo.numRanges ( dimNum );
+		UINT count = 0;
 		for ( auto range : rangeInfo.dimensionInfo (dimNum) )
 		{
-			saveFile << range.leftInclusive << "\n" << range.rightInclusive << "\n" << range.variations << "\n";
+			saveFile << "\n/*Range #" + str(++count) + ":*/"
+					 << "\n/*Left-Inclusive?*/\t\t" << range.leftInclusive 
+					 << "\n/*Right-Inclusive?*/\t" << range.rightInclusive
+					 << "\n/*# Variations: */\t\t" << range.variations;
 		}
 	}
-	saveFile << getCurrentNumberOfVariables ( ) << "\n";
-	for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
+	saveFile << "\n/*# Variables: */ \t\t" << getCurrentNumberOfVariables ( ); 
+	for ( UINT varInc : range(getCurrentNumberOfVariables( )))
 	{
+		saveFile << "\n/*Variable #" + str (varInc) + "*/";
 		saveParameter(saveFile, getVariableInfo( varInc ));
 	}
-	saveFile << "END_" + configDelim + "\n";
+	saveFile << "\nEND_" + configDelim + "\n";
 }
 
 
@@ -1261,7 +1263,7 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 	{
 		thrower ("Failed to open file for config params!");
 	}
-	ScriptStream stream (file);
+	ConfigStream stream (file);
 	Version ver;
 	std::vector<parameterType> configParams;
 	try
@@ -1286,7 +1288,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 	{
 		thrower ("Failed to open file for range info!");
 	}
-	ScriptStream stream (file);
+	ConfigStream stream (file);
 	Version ver;
 	ScanRangeInfo rInfo;
 	try

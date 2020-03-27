@@ -60,8 +60,7 @@ class ScriptingWindow : public CDialog
 
 		void checkMasterSave();
 
-		void handleNewConfig( std::ofstream& saveFile );
-		void handleSavingConfig(std::ofstream& saveFile);
+		void handleSavingConfig(ConfigStream& saveFile);
 
 		void updateScriptNamesOnScreen();
 		void updateProfile(std::string text);
@@ -104,7 +103,7 @@ class ScriptingWindow : public CDialog
 		void handleAgilentScriptComboChange();
 		void handleMasterFunctionChange( );
 		void handleIntensityCombo();
-		void windowOpenConfig(ScriptStream& configFile, Version ver );
+		void windowOpenConfig(ConfigStream& configFile, Version ver );
 		void catchEnter();
 		profileSettings getProfile();
 		void setIntensityDefault();

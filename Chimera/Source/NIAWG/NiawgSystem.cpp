@@ -37,15 +37,15 @@ void NiawgSystem::rearrange (UINT width, UINT height, fontMap fonts)
 	rearrangeCtrl.rearrange (width, height, fonts);
 }
 
-void NiawgSystem::handleSaveConfig (std::ofstream& saveFile)
+void NiawgSystem::handleSaveConfig (ConfigStream& saveFile)
 {
 	saveFile << "NIAWG_INFORMATION\n";
-	saveFile << controlNiawg.GetCheck () << "\n";
+	saveFile << "/*Control Niawg:*/ "<< controlNiawg.GetCheck () << "\n";
 	saveFile << "END_NIAWG_INFORMATION\n";
 	rearrangeCtrl.handleSaveConfig (saveFile);
 }
 
-bool NiawgSystem::getControlNiawgFromConfig ( ScriptStream& openfile, Version ver )
+bool NiawgSystem::getControlNiawgFromConfig ( ConfigStream& openfile, Version ver )
 {
 	if (ver < Version ("4.12")) { return true; }
 	bool opt;
@@ -60,7 +60,7 @@ bool NiawgSystem::getControlNiawgFromConfig ( ScriptStream& openfile, Version ve
 	return opt;
 }
 
-void NiawgSystem::handleOpenConfig (ScriptStream& openfile, Version ver)
+void NiawgSystem::handleOpenConfig (ConfigStream& openfile, Version ver)
 {
 	controlNiawg.SetCheck ( ProfileSystem::stdGetFromConfig (openfile, "NIAWG_INFORMATION",
 							NiawgSystem::getControlNiawgFromConfig, Version ("4.12")) );

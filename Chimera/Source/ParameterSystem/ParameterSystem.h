@@ -8,6 +8,7 @@
 #include "afxcview.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -61,7 +62,7 @@ class ParameterSystem
 		void flattenScanDimensions ( );
 		void checkScanDimensionConsistency ( );
 		void checkVariationRangeConsistency ( );
-		void saveParameter ( std::ofstream& saveFile, parameterType variable );
+		void saveParameter (ConfigStream& saveFile, parameterType variable );
 		static void generateKey ( std::vector<parameterType>& variables, bool randomizeVariablesOption,
 								  ScanRangeInfo inputRangeInfo );
 		static std::vector<parameterType> combineParamsForExpThread ( std::vector<parameterType>& masterVars,
@@ -88,15 +89,15 @@ class ParameterSystem
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
 		// file handling
-		static parameterType loadParameterFromFile (ScriptStream& openFile, Version ver, ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> getParametersFromFile (ScriptStream& configFile, Version ver, ScanRangeInfo inputRangeInfo );
-		static ScanRangeInfo getRangeInfoFromFile (ScriptStream& configFile, Version ver );
+		static parameterType loadParameterFromFile (ConfigStream& openFile, Version ver, ScanRangeInfo inputRangeInfo );
+		static std::vector<parameterType> getParametersFromFile ( ConfigStream& configFile, Version ver, 
+																  ScanRangeInfo inputRangeInfo );
+		static ScanRangeInfo getRangeInfoFromFile (ConfigStream& configFile, Version ver );
 		static std::vector<parameterType> getConfigParamsFromFile ( std::string configFile );
 		static ScanRangeInfo getRangeInfoFromFile ( std::string configFileName );
 		// profile stuff
-		void handleNewConfig ( std::ofstream& newFile );
-		void handleSaveConfig ( std::ofstream& saveFile );
-		void handleOpenConfig (ScriptStream& openFile, Version ver );
+		void handleSaveConfig (ConfigStream& saveFile );
+		void handleOpenConfig (ConfigStream& openFile, Version ver );
 		
 		// public variables
 		const IndvRangeInfo defaultRangeInfo = { 2,false,true };

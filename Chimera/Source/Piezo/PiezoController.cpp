@@ -2,11 +2,7 @@
 #include "PiezoController.h"
 #include <boost/lexical_cast.hpp>
 
-PiezoController::PiezoController (piezoSetupInfo info) :
-	core(info)
-{
-
-}
+PiezoController::PiezoController (piezoSetupInfo info) : core(info) {}
 
 std::string PiezoController::getConfigDelim ( )
 {
@@ -48,7 +44,7 @@ void PiezoController::updateCurrentValues ( )
 	currentVals.z.SetWindowTextA ( cstr ( core.getCurrentZVolt ( ) ) );
 }
 
-void PiezoController::handleOpenConfig ( ScriptStream& configFile, Version ver )
+void PiezoController::handleOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	if ( ver > Version ( "4.5" ) )
 	{
@@ -61,19 +57,19 @@ void PiezoController::handleOpenConfig ( ScriptStream& configFile, Version ver )
 	}
 }
 
-void PiezoController::handleSaveConfig ( std::ofstream& configFile )
+void PiezoController::handleSaveConfig (ConfigStream& configFile )
 {
-	configFile << core.configDelim << "\n";
+	configFile << core.configDelim;
 	CString txt;
 	edits.x.GetWindowTextA ( txt );
-	configFile << txt << "\n";
+	configFile << "\n/*X-Value:*/ " << txt;
 	edits.y.GetWindowTextA ( txt );
-	configFile << txt << "\n";
+	configFile << "\n/*Y-Value:*/ " << txt;
 	edits.z.GetWindowTextA ( txt );
-	configFile << txt << "\n" << ctrlButton.GetCheck() << "\n";
-	configFile << "END_" + core.configDelim << "\n";
+	configFile << "\n/*Z-Value:*/ " << txt
+			   << "\n/*Control?*/ " << ctrlButton.GetCheck ()
+			   << "\nEND_" + core.configDelim << "\n";
 }
-
 
 std::string PiezoController::getDeviceInfo ( )
 {

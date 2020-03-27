@@ -32,8 +32,8 @@ class DdsSystem
 
 		DdsSystem(bool ftSafemode);
 		void redrawListview ( );
-		void handleSaveConfig ( std::ofstream& file );
-		void handleOpenConfig (ScriptStream& file, Version ver );
+		void handleSaveConfig (ConfigStream& file );
+		void handleOpenConfig (ConfigStream& file, Version ver );
 		void initialize(POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title );
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void handleRampClick();

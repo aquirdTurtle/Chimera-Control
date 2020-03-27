@@ -537,7 +537,8 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	{
 		thrower ("ERROR: Couldn't open plot file!");
 	}
-	ScriptStream plotStream (loadFile);
+	ConfigStream plotStream (loadFile);
+	loadFile.close ();
 	// this string will hold headers in this file temporarily and check to make sure they are correct.
 	std::string versionStr;
 	plotStream >> versionStr >> versionStr;

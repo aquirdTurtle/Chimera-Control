@@ -95,44 +95,25 @@ void DebugOptionsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-
-void DebugOptionsControl::handleNewConfig( std::ofstream& newFile )
+void DebugOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << "DEBUGGING_OPTIONS\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 1 << "\n";
-	newFile << 1 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << "END_DEBUGGING_OPTIONS\n";
+	saveFile << "DEBUGGING_OPTIONS"
+			 << "\n/*Output Agilent Script?*/\t\t\t" << currentOptions.outputAgilentScript
+			 << "\n/*Output Excess Info?*/\t\t\t\t" << currentOptions.outputExcessInfo
+			 << "\n/*Output Human Niawg Script?*/\t\t" << currentOptions.outputNiawgHumanScript
+			 << "\n/*Output Niawg Machine Script?*/\t" << currentOptions.outputNiawgMachineScript
+			 << "\n/*Show Correction Times?*/\t\t\t" << currentOptions.showCorrectionTimes
+			 << "\n/*Show Dacs?*/\t\t\t\t\t\t" << currentOptions.showDacs
+			 << "\n/*Show Ttls?*/\t\t\t\t\t\t" << currentOptions.showTtls
+			 << "\n/*Show Read Progress?*/\t\t\t\t" << currentOptions.showReadProgress
+			 << "\n/*Show Write Progress?*/\t\t\t" << currentOptions.showWriteProgress
+			 << "\n/*Sleep Time:*/\t\t\t\t\t\t" << currentOptions.sleepTime
+			 << "\n/*Output Niawg Waveforms to Text?*/\t" << currentOptions.outputNiawgWavesToText
+			 << "\nEND_DEBUGGING_OPTIONS\n";
 }
 
 
-void DebugOptionsControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << "DEBUGGING_OPTIONS\n";
-	saveFile << currentOptions.outputAgilentScript << "\n";
-	saveFile << currentOptions.outputExcessInfo << "\n";
-	saveFile << currentOptions.outputNiawgHumanScript << "\n";
-	saveFile << currentOptions.outputNiawgMachineScript << "\n";
-	saveFile << currentOptions.showCorrectionTimes << "\n";
-	saveFile << currentOptions.showDacs << "\n";
-	saveFile << currentOptions.showTtls << "\n";
-	saveFile << currentOptions.showReadProgress << "\n";
-	saveFile << currentOptions.showWriteProgress << "\n";
-	saveFile << currentOptions.sleepTime << "\n";
-	saveFile << currentOptions.outputNiawgWavesToText << "\n";
-	saveFile << "END_DEBUGGING_OPTIONS\n";
-}
-
-
-void DebugOptionsControl::handleOpenConfig(ScriptStream& openFile, Version ver )
+void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 {
 	openFile >> currentOptions.outputAgilentScript;
 	openFile >> currentOptions.outputExcessInfo;

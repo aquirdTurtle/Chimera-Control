@@ -666,7 +666,7 @@ void ScriptingWindow::openIntensityScript(std::string name)
 }
 
 
-void ScriptingWindow::windowOpenConfig(ScriptStream& configFile, Version ver)
+void ScriptingWindow::windowOpenConfig(ConfigStream& configFile, Version ver)
 {
 	try
 	{
@@ -680,14 +680,15 @@ void ScriptingWindow::windowOpenConfig(ScriptStream& configFile, Version ver)
 	try
 	{
 		configFile.get ( );
+		auto getlineFunc = ProfileSystem::getGetlineFunc (ver);
 		std::string niawgName, masterName;
 		if ( ver.versionMajor < 3 )
 		{
 			std::string extraNiawgName;
-			getline( configFile, extraNiawgName );
+			getlineFunc (configFile, extraNiawgName);
 		}
-		getline ( configFile, niawgName );
-		getline ( configFile, masterName );
+		getlineFunc (configFile, niawgName);
+		getlineFunc (configFile, masterName);
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
 		intensityAgilent.setOutputSettings (ProfileSystem::stdGetFromConfig (configFile, intensityAgilent.getConfigDelim (),
 			Agilent::getOutputSettingsFromConfigFile, Version ("4.0")));
@@ -816,27 +817,15 @@ void ScriptingWindow::deleteMasterFunction()
 }
 
 
-void ScriptingWindow::handleNewConfig( std::ofstream& saveFile )
-{
-	saveFile << "SCRIPTS\n";
-	saveFile << "NONE" << "\n";
-	saveFile << "NONE" << "\n";
-	saveFile << "NONE" << "\n";
-	saveFile << "END_SCRIPTS\n";
-	intensityAgilent.handleNewConfig( saveFile );
-}
-
-
-void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
+void ScriptingWindow::handleSavingConfig(ConfigStream& saveFile)
 {
 	scriptInfo<std::string> addresses = getScriptAddresses();
 	// order matters!
 	saveFile << "SCRIPTS\n";
-	saveFile << addresses.niawg << "\n";
-	saveFile << addresses.master << "\n";
+	saveFile << "/*NIAWG Script Address:*/ " << addresses.niawg << "\n";
+	saveFile << "/*Master Script Address:*/ " << addresses.master << "\n";
 	saveFile << "END_SCRIPTS\n";
-	intensityAgilent.handleSavingConfig(saveFile, mainWin->getProfileSettings().configLocation, 
-										 mainWin->getRunInfo());
+	intensityAgilent.handleSavingConfig(saveFile, mainWin->getProfileSettings().configLocation, mainWin->getRunInfo());
 	niawg.handleSaveConfig (saveFile);
 }
 

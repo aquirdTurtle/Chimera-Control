@@ -66,7 +66,7 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig( profileSettings profile
 {	
 	// open configuration file and grab the niawg script file address from it.
 	std::ifstream tempFile( profile.configFilePath( ) );
-	ScriptStream configStream (tempFile);
+	ConfigStream configStream (tempFile);
 	std::string version = configStream.getline();
 	checkDelimiterLine (configStream, "SCRIPTS");
 	std::string niawgScriptAddresses = configStream.getline();
@@ -99,33 +99,28 @@ void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWin
 	// passed all checks.
 }
 
-/// CONFIGURATION LEVEL HANDLING
-
-void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin, 
-									  ScriptingWindow* scriptWin )
+/*
+Before Version 5.0, if a string or expression was empty it would just output nothing to the config file, leading to 
+a lot of empty lines. That was fine, because std::getline would just return "" correctly. However, My ScriptStream 
+class and derivatives will eat those empty lines while eating comments, so I had to add an "empty-string" handling
+mechanism to the writing of the ConfigStream class. But this creates a back-wards compatibility issue with the older
+configurations. This function is a nice way to get around that - when getline is needed for reading strings, use this 
+function to get a different version of getline depending on which version the file is. Older versions will use the 
+std::getline version while new versions will use the comment-eating version.
+*/
+std::function<void (ScriptStream&, std::string&)> ProfileSystem::getGetlineFunc (Version& ver)
 {
-	std::string newConfigPath = openWithExplorer(mainWin, "Config");
-	if (newConfigPath == "")
+	if (ver >= Version ("5.0"))
 	{
-		// canceled
-		return;
+		return [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
 	}
-	std::ofstream newConfigFile(cstr(newConfigPath));
-	if (!newConfigFile.is_open())
+	else
 	{
-		thrower ( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
+		return [](ScriptStream& fid, std::string& expr) {std::getline (fid, expr); };
 	}
-	newConfigFile << "Version: " + version.str() +  "\n";
-	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWin->handleNewConfig( newConfigFile );
-	camWin->handleNewConfig( newConfigFile );
-	auxWin->handleNewConfig( newConfigFile );
-	//
-	newConfigFile.close( );
+
 }
-
-
-void ProfileSystem::getVersionFromFile( ScriptStream& file, Version& ver )
+void ProfileSystem::getVersionFromFile( ConfigStream& file, Version& ver )
 {
 	file.clear ( );
 	file.seekg ( 0, std::ios::beg );
@@ -148,8 +143,8 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	{
 		thrower ( "Opening of Configuration File Failed!" );
 	}
-	ScriptStream configStream (configFileRaw);
-	configStream.setCase (false);
+	ConfigStream cStream (configFileRaw);
+	cStream.setCase (false);
 	configFileRaw.close ();
 	int slashPos = pathToConfig.find_last_of( '\\' );
 	int extensionPos = pathToConfig.find_last_of( '.' );
@@ -164,14 +159,14 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	try
 	{
 		Version ver;
-		getVersionFromFile( configStream, ver );
-		scriptWin->windowOpenConfig(configStream, ver );
-		camWin->windowOpenConfig(configStream, ver );
-		auxWin->windowOpenConfig(configStream, ver );
-		mainWin->windowOpenConfig(configStream, ver );
+		getVersionFromFile(cStream, ver );
+		scriptWin->windowOpenConfig(cStream, ver );
+		camWin->windowOpenConfig(cStream, ver );
+		auxWin->windowOpenConfig(cStream, ver );
+		mainWin->windowOpenConfig(cStream, ver );
 		if ( ver >= Version ( "3.4" ) )
 		{
-			basWin->handleOpeningConfig (configStream, ver );
+			basWin->handleOpeningConfig (cStream, ver );
 		}
 	}
 	catch ( Error& err )
@@ -189,7 +184,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 }
 
 
-void ProfileSystem::initializeAtDelim ( ScriptStream& configStream, std::string delimiter, Version& ver, Version minVer )
+void ProfileSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version& ver, Version minVer )
 {
 	ProfileSystem::getVersionFromFile ( configStream, ver );
 	if ( ver < minVer )
@@ -207,7 +202,7 @@ void ProfileSystem::initializeAtDelim ( ScriptStream& configStream, std::string 
 }
 
 
-void ProfileSystem::jumpToDelimiter ( ScriptStream& configStream, std::string delimiter )
+void ProfileSystem::jumpToDelimiter ( ConfigStream& configStream, std::string delimiter )
 {
 	while ( !configStream.eof() )
 	{
@@ -228,7 +223,7 @@ void ProfileSystem::jumpToDelimiter ( ScriptStream& configStream, std::string de
 
 
 // small convenience function that I use while opening a file.
-void ProfileSystem::checkDelimiterLine(ScriptStream& openFile, std::string delimiter)
+void ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter)
 {
 	std::string checkStr;
 	openFile >> checkStr;
@@ -241,7 +236,7 @@ void ProfileSystem::checkDelimiterLine(ScriptStream& openFile, std::string delim
 
 // version with break condition. If returns true, calling function should break out of the loop which is checking the
 // line.
-bool ProfileSystem::checkDelimiterLine(ScriptStream& openFile, std::string delimiter, std::string breakCondition )
+bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition )
 {
 	std::string checkStr;
 	openFile >> checkStr;
@@ -284,24 +279,26 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 		}
 	}
 
-	std::ofstream configSaveFile(currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
-	if (!configSaveFile.is_open())
-	{
-		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
-			"everything seems right..." );
-	}
+	ConfigStream saveStream;
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfile.configuration = configNameToSave;
 	// version 2.0 started when the unified coding system (the chimera system) began, and the profile system underwent
 	// dramatic changes in order to 
-	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: " + version.str() + "\n";
+	saveStream << std::setprecision( 13 );
+	saveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->handleSavingConfig(configSaveFile);
-	camWin->handleSaveConfig(configSaveFile);
-	auxWin->handleSaveConfig(configSaveFile);
-	mainWin->handleSaveConfig(configSaveFile);
-	basWin->handleSavingConfig ( configSaveFile );
+	scriptWindow->handleSavingConfig(saveStream);
+	camWin->handleSaveConfig(saveStream);
+	auxWin->handleSaveConfig(saveStream);
+	mainWin->handleSaveConfig(saveStream);
+	basWin->handleSavingConfig (saveStream);
+	std::ofstream configSaveFile (currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
+	if (!configSaveFile.is_open ())
+	{
+		thrower ("Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+			"everything seems right...");
+	}
+	configSaveFile << saveStream.str ();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
@@ -338,13 +335,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 		// canceled
 		return;
 	}	
-	// check if file already exists
-	std::ofstream configSaveFile( configurationPathToSave);
-	if (!configSaveFile.is_open())
-	{
-		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
-				 "everything seems right..." );
-	}
+
 	int slashPos = configurationPathToSave.find_last_of( '\\' );
 	int extensionPos = configurationPathToSave.find_last_of( '.' );
 	currentProfile.configuration = configurationPathToSave.substr( slashPos + 1, extensionPos - slashPos - 1 );
@@ -353,16 +344,24 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
 																		  currentProfile.configLocation.size( ) );
 	currentProfile.configLocation += "\\";
+	ConfigStream configSaveStream;
 	// That's the last prompt the user gets, so the save is final now.
 	// Version info tells future code about formatting.
-	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: " + version.str() + "\n";
+	configSaveStream << std::setprecision( 13 );
+	configSaveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->handleSavingConfig( configSaveFile );
-	camWin->handleSaveConfig( configSaveFile );
-	auxWin->handleSaveConfig( configSaveFile );
-	mainWin->handleSaveConfig( configSaveFile );
-	basWin->handleSavingConfig ( configSaveFile );
+	scriptWindow->handleSavingConfig(configSaveStream);
+	camWin->handleSaveConfig(configSaveStream);
+	auxWin->handleSaveConfig(configSaveStream);
+	mainWin->handleSaveConfig(configSaveStream);
+	basWin->handleSavingConfig (configSaveStream);
+	// check if file already exists
+	std::ofstream configSaveFile (configurationPathToSave);
+	if (!configSaveFile.is_open ())
+	{
+		thrower ("Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+			"everything seems right...");
+	}
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
@@ -843,7 +842,7 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 		thrower ("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
 				 + ", the config file failed to open!");
 	}
-	ScriptStream stream (configF);
+	ConfigStream stream (configF);
 	std::string line, word, address;
 	Version ver;
 	getVersionFromFile(stream, ver );

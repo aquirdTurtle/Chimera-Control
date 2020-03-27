@@ -8,6 +8,7 @@
 #include "CameraImageDimensions.h"
 #include "CameraCalibration.h"
 #include "Andor/AndorCameraCore.h"
+#include "ConfigurationSystems/Version.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
 
 struct cameraPositions;
@@ -51,13 +52,12 @@ class AndorCameraSettingsControl
 		void updateImageDimSettings ( imageParameters settings );
 		void updatePicSettings ( andorPicSettingsGroup settings );
 
-		static AndorRunSettings getRunSettingsFromConfig ( ScriptStream& configFile, Version ver );
-		static andorPicSettingsGroup getPictureSettingsFromConfig (ScriptStream& configFile, Version ver );
-		static imageParameters getImageDimSettingsFromConfig (ScriptStream& configFile, Version ver );
+		static AndorRunSettings getRunSettingsFromConfig ( ConfigStream& configFile, Version ver );
+		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile, Version ver );
+		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver );
 
-		void handleOpenConfig(ScriptStream& configFile, Version ver );
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& configFile);
+		void handleOpenConfig(ConfigStream& configFile, Version ver );
+		void handleSaveConfig(ConfigStream& configFile);
 
 		void handelSaveMasterConfig(std::stringstream& configFile);
 		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, AndorWindow* camWin);

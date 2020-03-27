@@ -232,15 +232,7 @@ std::string AndorWindow::getSystemStatusString()
 }
 
 
-void AndorWindow::handleNewConfig( std::ofstream& newFile )
-{
-	andorSettingsCtrl.handleNewConfig( newFile );
-	pics.handleNewConfig( newFile );
-	analysisHandler.handleNewConfig( newFile );
-}
-
-
-void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
+void AndorWindow::handleSaveConfig(ConfigStream& saveFile)
 {
 	andorSettingsCtrl.handleSaveConfig(saveFile);
 	pics.handleSaveConfig(saveFile);
@@ -248,7 +240,7 @@ void AndorWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void AndorWindow::windowOpenConfig ( ScriptStream& configFile, Version ver )
+void AndorWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	AndorRunSettings camSettings;
 	try

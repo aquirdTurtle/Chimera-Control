@@ -13,14 +13,7 @@ void NoteSystem::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void NoteSystem::handleNewConfig( std::ofstream& saveFile )
-{
-	saveFile << "CONFIGURATION_NOTES\n";
-	saveFile << ">>>Enter configuration-level notes here<<<\n";
-	saveFile << "\nEND_CONFIGURATION_NOTES\n";
-}
-
-void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
+void NoteSystem::handleSaveConfig(ConfigStream& saveFile)
 {
 	saveFile << "CONFIGURATION_NOTES\n";
 	saveFile << getConfigurationNotes();
@@ -28,7 +21,7 @@ void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void NoteSystem::handleOpenConfig(ScriptStream& openFile, Version ver )
+void NoteSystem::handleOpenConfig(ConfigStream& openFile, Version ver )
 {
 	std::string notes;
 	auto pos = openFile.tellg ( );

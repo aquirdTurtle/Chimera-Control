@@ -224,7 +224,7 @@ void rerngGuiControl::updateActive ( )
 }
 
 
-void rerngGuiControl::handleOpenConfig(ScriptStream& openFile, Version ver )
+void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 {
 	rerngGuiOptionsForm info;
 	std::string tmpStr;
@@ -315,50 +315,25 @@ void rerngGuiControl::handleOpenConfig(ScriptStream& openFile, Version ver )
 }
 
 
-void rerngGuiControl::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "REARRANGEMENT_INFORMATION\n";
-	newFile << 0 << "\n";
-	newFile << 1 << "\n";
-	// move bias
-	newFile << 1e-3*0.3 << "\n";
-	// move speed
-	newFile << 1e-6 * 60 << "\n";
-	// dead time
-	newFile << 75e-9 << "\n";
-	newFile << "1\n";
-	newFile << "0\n";
-	newFile << "0\n";
-	// preprogram
-	newFile << "0\n";
-	// use calibration
-	newFile << "0\n";
-	// final move time.
-	newFile << "0.001\n"; 
-	newFile << rerngMode::toStr ( rerngMode::mode::Lazy ) << "\n";
-	// fastmovetime
-	newFile << "0\n";
-	newFile << "END_REARRANGEMENT_INFORMATION\n";
-}
-
-
-void rerngGuiControl::handleSaveConfig( std::ofstream& saveFile )
+void rerngGuiControl::handleSaveConfig( ConfigStream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
 	// conversions happen in getParams.
 	rerngGuiOptionsForm info = getParams( );
- 	saveFile << info.active << "\n";
- 	saveFile << info.flashingRate.expressionStr << "\n";
- 	saveFile << info.moveBias.expressionStr << "\n";
-	saveFile << info.moveSpeed.expressionStr << "\n";
-	saveFile << info.deadTime.expressionStr << "\n";
-	saveFile << info.staticMovingRatio.expressionStr << "\n";
-	saveFile << info.outputInfo << "\n";
-	saveFile << info.outputIndv << "\n";
-	saveFile << info.preprogram << "\n";
-	saveFile << info.useCalibration << "\n" << info.finalMoveTime.expressionStr << "\n";
-	saveFile << rerngMode::toStr ( info.rMode ) << "\n" << info.fastMoveTime.expressionStr << "\n";
-	saveFile << "END_REARRANGEMENT_INFORMATION\n";
+ 	saveFile << "/*Rearrangement Active?*/\t" << info.active 
+ 			 << "\n/*Flashing Rate:*/\t\t\t" << info.flashingRate 
+ 			 << "\n/*Move Bias:*/\t\t\t\t" << info.moveBias 
+			 << "\n/*Move Speed:*/\t\t\t\t" << info.moveSpeed 
+			 << "\n/*Dead Time:*/\t\t\t\t" << info.deadTime 
+			 << "\n/*Static to Moving Ratio:*/\t" << info.staticMovingRatio 
+			 << "\n/*Output Info?*/\t\t\t" << info.outputInfo 
+			 << "\n/*Output Indv?*/\t\t\t" << info.outputIndv 
+			 << "\n/*Preprogram?*/\t\t\t\t" << info.preprogram 
+			 << "\n/*Use Cal?*/\t\t\t\t" << info.useCalibration 
+			 << "\n/*Final Move Time:*/\t\t" << info.finalMoveTime 
+			 << "\n/*Rearrange Mode:*/\t\t\t" << rerngMode::toStr ( info.rMode ) 
+			 << "\n/*Fast Move Time:*/\t\t\t" << info.fastMoveTime
+			 << "\nEND_REARRANGEMENT_INFORMATION\n";
 }
 
 

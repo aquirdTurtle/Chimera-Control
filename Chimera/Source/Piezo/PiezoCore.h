@@ -4,6 +4,7 @@
 #include "SerialPiezoFlume.h"
 #include "ParameterSystem/Expression.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "Scripts/ScriptStream.h"
 
 /* a simple wrapper for parameters for which there is one value for each channel, e.g. a double or an expression.*/
@@ -26,7 +27,7 @@ class PiezoCore
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
 		void exprProgramPiezo ( UINT variationNumber );
-		static std::pair<piezoChan<std::string>, bool> getPiezoSettingsFromConfig (ScriptStream& file, Version ver );
+		static std::pair<piezoChan<std::string>, bool> getPiezoSettingsFromConfig (ConfigStream& file, Version ver );
 		void programAll ( piezoChan<double> vals );
 		void setCtrl ( bool ctrl );
 		bool wantsCtrl ( );

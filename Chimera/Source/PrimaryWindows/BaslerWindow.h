@@ -43,13 +43,13 @@ class BaslerWindow : public CDialogEx
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void handleSoftwareTrigger();
-		void handleOpeningConfig (ScriptStream& configFile, Version ver );
+		void handleOpeningConfig ( ConfigStream& configFile, Version ver );
 		void OnMouseMove(UINT flags, CPoint point );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void DoDataExchange( CDataExchange* pDX );
 		void loadFriends (MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_,
 			DeformableMirrorWindow* dmWindow);
-		void handleSavingConfig ( std::ofstream& configFile );
+		void handleSavingConfig ( ConfigStream& configFile );
 		baslerSettings getCurrentSettings ( );
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BaslerCameraCore& getCore();

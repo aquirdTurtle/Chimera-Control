@@ -57,7 +57,7 @@ class AuxiliaryWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
-		void windowOpenConfig(ScriptStream& configFile, Version ver );
+		void windowOpenConfig(ConfigStream& configFile, Version ver );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);
@@ -140,8 +140,7 @@ class AuxiliaryWindow : public CDialog
 		void OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result );
 
 		UINT getTotalVariationNumber();
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
+		void handleSaveConfig(ConfigStream& saveFile);
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
 		void setVariablesActiveState(bool active);

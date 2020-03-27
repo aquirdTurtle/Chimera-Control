@@ -38,30 +38,18 @@ void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
 	atomThresholdForSkipEdit.rearrange( width, height, fonts );
 }
 
-
-void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
+void MainOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << "MAIN_OPTIONS\n";
-	newFile << 0 << "\n";
-	// default is to randomize variations.
-	newFile << 1 << "\n"; 
-	newFile << -1 << "\n";
-	newFile << "END_MAIN_OPTIONS\n";
-}
-
-
-void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << "MAIN_OPTIONS\n";
-	saveFile << randomizeRepsButton.GetCheck() << "\n";
-	saveFile << randomizeVariationsButton.GetCheck() << "\n";
+	saveFile << "MAIN_OPTIONS"
+			 << "\n/*Randomize Reps?*/ " << randomizeRepsButton.GetCheck() 
+			 << "\n/*Randomize Variations?*/ " << randomizeVariationsButton.GetCheck();
 	CString txt;
 	atomThresholdForSkipEdit.GetWindowTextA( txt );
-	saveFile << txt << "\n";
-	saveFile << "END_MAIN_OPTIONS\n";
+	saveFile << "\n/*Atom Threshold for Load Skip*/ " << txt;
+	saveFile << "\nEND_MAIN_OPTIONS\n";
 }
 
-mainOptions MainOptionsControl::getMainOptionsFromConfig ( ScriptStream& openFile, Version ver )
+mainOptions MainOptionsControl::getMainOptionsFromConfig (ConfigStream& openFile, Version ver )
 {
 	mainOptions options;
 	if ( ver < Version ( "2.1" ) )

@@ -8,8 +8,8 @@ AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE )
 
 
 /*
-	We use a PCI card for analog input currently.
-*/
+ *	We use a PCI card for analog input currently.
+ */
 void AiSystem::initDaqmx( )
 {
 	daqmx.createTask( "Analog-Input", analogInTask0 );
@@ -66,8 +66,7 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 	continuousQueryCheck.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
 	continuousQueryCheck.Create( "Qry Cont.", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
 	queryBetweenVariations.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 25 };
-	queryBetweenVariations.Create( "Qry Btwn Vars", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
-								   parent, id++ );
+	queryBetweenVariations.Create( "Qry Btwn Vars", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, parent, id++ );
 	loc.x -= 480; 
 	continuousIntervalLabel.sPos = { loc.x, loc.y, loc.x + 160, loc.y + 20 };
 	continuousIntervalLabel.Create ("Cont. Interval:", NORM_STATIC_OPTIONS, continuousIntervalLabel.sPos, parent, id++);
@@ -135,7 +134,7 @@ AiSettings AiSystem::getAiSettings ()
 	return settings;
 }
 
-AiSettings AiSystem::getAiSettingsFromConfig (ScriptStream& file, Version ver)
+AiSettings AiSystem::getAiSettingsFromConfig (ConfigStream& file, Version ver)
 {
 	AiSettings settings;
 	file >> settings.queryBtwnVariations;
@@ -145,15 +144,15 @@ AiSettings AiSystem::getAiSettingsFromConfig (ScriptStream& file, Version ver)
 	return settings;
 }
 
-void AiSystem::handleSaveConfig (std::ofstream& file)
+void AiSystem::handleSaveConfig (ConfigStream& file)
 {
 	auto settings = getAiSettings ();
-	file << configDelim << "\n";
-	file << settings.queryBtwnVariations << "\n";
-	file << settings.queryContinuously << "\n";
-	file << settings.numberMeasurementsToAverage << "\n";
-	file << settings.continuousModeInterval << "\n";
-	file << "END_" + configDelim + "\n";
+	file << configDelim 
+		<< "\n/*Query Between Variations?*/ " << settings.queryBtwnVariations 
+		<< "\n/*Query Continuously?*/ " << settings.queryContinuously 
+		<< "\n/*Average Number:*/ " << settings.numberMeasurementsToAverage 
+		<< "\n/*Contiuous Mode Interval:*/ " << settings.continuousModeInterval 
+		<< "\nEND_" + configDelim + "\n";
 }
 
 void AiSystem::setAiSettings (AiSettings settings)

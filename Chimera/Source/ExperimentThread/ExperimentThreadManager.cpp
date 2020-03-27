@@ -68,7 +68,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 						ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), 
 						input->globalParameters);
 		std::ifstream cFile (input->profile.configFilePath ());
-		ScriptStream cStream (cFile);
+		ConfigStream cStream (cFile);
 
 		using PS = ProfileSystem;
 		if ( runMaster )
@@ -113,8 +113,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			baslerCamSettings.repsPerVar = repetitions;
 			baslerCamSettings.variations = variations;
 		}
-		runNiawg = PS::stdGetFromConfig (cStream, "NIAWG_INFORMATION", NiawgSystem::getControlNiawgFromConfig,
-											Version ("4.12"));
+		runNiawg = PS::stdGetFromConfig ( cStream, "NIAWG_INFORMATION", NiawgSystem::getControlNiawgFromConfig,
+										  Version ("4.12") );
 		if ( runNiawg )
 		{
 			expSeq.niawgScript = PS::getNiawgScriptAddrFromConfig(input->profile);
@@ -157,8 +157,8 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
 			input->logger.logAndorSettings ( andorRunSettings, runAndor );
 			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
-			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
-			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
+			input->logger.logTektronixSettings (tekInfo[0], input->topBottomTek.configDelim);
+			input->logger.logTektronixSettings (tekInfo[1], input->eoAxialTek.configDelim);
 			input->logger.logNiawgSettings (input, runNiawg);
 		}
 		for ( auto piezoInc : range ( piezos.size ( ) ) )
@@ -813,7 +813,6 @@ void ExperimentThreadManager::loadMotSettings(ExperimentThreadInput* input)
 		thrower ( "Experiment is Running! Please abort the current run before setting the MOT settings." );
 	}
 	input->thisObj = this;
-	//ParameterSystem::generateKey( input->parameters, false, input->variableRangeInfo );
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &ExperimentThreadManager::experimentThreadProcedure, input, NULL, NULL );
 }
 

@@ -155,21 +155,6 @@ std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( 
 	return options;
 }
 
-void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "PICTURE_SETTINGS\n";
-	for ( auto color : settings.colors )
-	{
-		newFile << 0 << " ";
-	}
-	newFile << "\n";
-	for ( auto threshold : settings.thresholds )
-	{
-		newFile << 200 << " ";
-	}
-	newFile << "\n";
-	newFile << "END_PICTURE_SETTINGS\n";
-}
 
 std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
 {
@@ -186,29 +171,27 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
 	return res;
 }
 
-void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
+void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	saveFile << "PICTURE_SETTINGS\n";
+	saveFile << "PICTURE_SETTINGS\n/*Color Options:*/ ";
 	for (auto color : settings.colors)
 	{
 		saveFile << color << " ";
 	}
-	saveFile << "\n";
+	saveFile << "\n/*Threshold Settings:*/ ";
 	for (auto threshold : getThresholdStrings() )
 	{
 		saveFile << threshold << " ";
 	}
-	saveFile << "\n";
+	saveFile << "\n/*Software Accumulation (accum all / Number)*/ ";
 	for ( auto saOpt : getSoftwareAccumulationOptions ( ) )
 	{
 		saveFile << saOpt.accumAll << " " << saOpt.accumNum << " ";
 	}
-	saveFile << "\n";
-
-	saveFile << "END_PICTURE_SETTINGS\n";
+	saveFile << "\nEND_PICTURE_SETTINGS\n";
 }
 
-andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ScriptStream& configFile, Version ver )
+andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile, Version ver )
 {
 	UINT picsPerRep;
 	andorPicSettingsGroup fileSettings;
@@ -243,7 +226,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Scri
 	return fileSettings;
 }
 
-void PictureSettingsControl::handleOpenConfig(ScriptStream& openFile, Version ver, AndorCameraCore* andor)
+void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, Version ver, AndorCameraCore* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
 	auto settings = getPictureSettingsFromConfig ( openFile, ver );

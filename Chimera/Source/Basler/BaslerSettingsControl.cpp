@@ -497,7 +497,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	return currentSettings;
 }
 
-baslerSettings BaslerSettingsControl::getSettingsFromConfig (ScriptStream& configFile, Version ver )
+baslerSettings BaslerSettingsControl::getSettingsFromConfig (ConfigStream& configFile, Version ver )
 {
 	if ( ver < Version ( "4.0" ) )
 	{
@@ -538,23 +538,24 @@ baslerSettings BaslerSettingsControl::getSettingsFromConfig (ScriptStream& confi
 	return newSettings;
 }
 
-void BaslerSettingsControl::handleSavingConfig ( std::ofstream& configFile )
+void BaslerSettingsControl::handleSavingConfig ( ConfigStream& configFile )
 { 
 	loadCurrentSettings( );
-	configFile << "BASLER_CAMERA_SETTINGS\n";
-	configFile << BaslerAcquisition::toStr(currentSettings.acquisitionMode) << "\n";
-	configFile << currentSettings.dims.left << "\n";
-	configFile << currentSettings.dims.top << "\n";
-	configFile << currentSettings.dims.right << "\n";
-	configFile << currentSettings.dims.bottom << "\n";
-	configFile << currentSettings.dims.horizontalBinning << "\n";
-	configFile << currentSettings.dims.verticalBinning << "\n";
-	configFile << BaslerAutoExposure::toStr(currentSettings.exposureMode) << "\n";
-	configFile << currentSettings.exposureTime << "\n";
-	configFile << currentSettings.frameRate << "\n";
-	configFile << currentSettings.rawGain << "\n";
-	configFile << currentSettings.picsPerRep << "\n";
-	configFile << BaslerTrigger::toStr(currentSettings.triggerMode) << "\n";
+	configFile  << "BASLER_CAMERA_SETTINGS\n";
+	configFile  << BaslerAcquisition::toStr(currentSettings.acquisitionMode) 
+				<< "\n/*Left:*/ " << currentSettings.dims.left 
+				<< "\n/*Top:*/ " << currentSettings.dims.top 
+				<< "\n/*Right:*/ " << currentSettings.dims.right 
+				<< "\n/*Bottom:*/ " << currentSettings.dims.bottom 
+				<< "\n/*H-Bin:*/ " << currentSettings.dims.horizontalBinning 
+				<< "\n/*V-Bin:*/ " << currentSettings.dims.verticalBinning 
+				<< "\n/*Exposure Mode:*/ " << BaslerAutoExposure::toStr(currentSettings.exposureMode) 
+				<< "\n/*Exposure Time:*/ " << currentSettings.exposureTime 
+				<< "\n/*Frame Rate:*/ " << currentSettings.frameRate 
+				<< "\n/*Raw Gain:*/ " << currentSettings.rawGain 
+				<< "\n/*Pics Per Rep:*/ " << currentSettings.picsPerRep 
+				<< "\n/*Trigger Mode:*/ " << BaslerTrigger::toStr(currentSettings.triggerMode) 
+				<< "\n";
 	configFile << "END_BASLER_CAMERA_SETTINGS\n";
 }
 

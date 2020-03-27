@@ -8,6 +8,7 @@
 #include "Plotting/PlotCtrl.h"
 #include "GeneralFlumes/ftdiStructures.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/ExpWrap.h"
 #include "GeneralObjects/Matrix.h"
 
@@ -32,9 +33,8 @@ class DoSystem
 		~DoSystem();
 		/// config handling
 		std::string getDoSystemInfo ();
-		void handleNewConfig( std::ofstream& saveFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(ScriptStream& openFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile, Version ver );
 		void initialize(POINT& startLocation, cToolTips& toolTips, CWnd* master, int& id );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();

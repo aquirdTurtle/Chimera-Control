@@ -147,40 +147,23 @@ void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
 }
 
 
-void PictureManager::handleNewConfig( std::ofstream& newFile )
+void PictureManager::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << configDelim + "\n";
-
-	for ( auto& pic : pictures )
-	{
-		std::pair<UINT, UINT> sliderLoc = { 0, 1000 };
-		newFile << sliderLoc.first << " " << sliderLoc.second << "\n";
-	}
-	newFile << 0 << " ";
-	newFile << 0 << " ";
-	newFile << 0 << " ";
-	newFile << 0 << " ";
-	newFile << "END_" + configDelim + "\n";
-}
-
-
-void PictureManager::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << configDelim + "\n";
+	saveFile << configDelim + "\n/*Slider Locs (Min/Max):*/\n";
 	for (auto& pic : pictures)
 	{
 		std::pair<UINT, UINT> sliderLoc = pic.getSliderLocations();
-		saveFile << sliderLoc.first << " " << sliderLoc.second << "\n";
+		saveFile << str(sliderLoc.first) << " " << sliderLoc.second << "\n";
 	}
-	saveFile << autoScalePictures << " ";
-	saveFile << specialGreaterThanMax << " ";
-	saveFile << specialLessThanMin << " ";
-	saveFile << alwaysShowGrid << " ";
-	saveFile << "END_" + configDelim + "\n";
+	saveFile << "/*Auto-Scale Pics?*/ " << autoScalePictures;
+	saveFile << "\n/*Special >Max Color?*/ " << specialGreaterThanMax;
+	saveFile << "\n/*Special <Min Color?*/ " << specialLessThanMin;
+	saveFile << "\n/*Always Show Grid?*/ " << alwaysShowGrid;
+	saveFile << "\nEND_" + configDelim + "\n";
 }
 
 
-void PictureManager::handleOpenConfig(ScriptStream& configFile, Version ver )
+void PictureManager::handleOpenConfig( ConfigStream& configFile, Version ver )
 {
 	if ( ver < Version ( "4.0" ) )
 	{

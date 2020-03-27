@@ -8,6 +8,7 @@
 #include "Microwave/MicrowaveSettings.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -26,9 +27,9 @@ class MicrowaveSystem
 		std::string getIdentity();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		MicrowaveCore& getCore ();
-		void handleSaveConfig (std::ofstream& saveFile);
+		void handleSaveConfig (ConfigStream& saveFile);
 		static const std::string delim;
-		static microwaveSettings getMicrowaveSettingsFromConfig (ScriptStream& openFile, Version ver);
+		static microwaveSettings getMicrowaveSettingsFromConfig (ConfigStream& openFile, Version ver);
 		void setMicrowaveSettings (microwaveSettings settings);
 		void programNow (std::vector<parameterType> constants);
 	private:

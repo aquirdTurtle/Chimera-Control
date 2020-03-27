@@ -23,15 +23,7 @@ DoSystem::DoSystem( bool ftSafemode, bool serialSafemode ) : core(ftSafemode, se
 DoSystem::~DoSystem() { }
 
 
-void DoSystem::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "TTLS\n";
-	// nothing at the moment.
-	newFile << "END_TTLS\n";
-}
-
-
-void DoSystem::handleSaveConfig(std::ofstream& saveFile)
+void DoSystem::handleSaveConfig(ConfigStream& saveFile)
 {
 	/// ttl settings
 	saveFile << "TTLS\n";
@@ -40,7 +32,7 @@ void DoSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DoSystem::handleOpenConfig(ScriptStream& openFile, Version ver )
+void DoSystem::handleOpenConfig(ConfigStream& openFile, Version ver )
 {
 	if ( ver < Version ( "3.7" ) )
 	{

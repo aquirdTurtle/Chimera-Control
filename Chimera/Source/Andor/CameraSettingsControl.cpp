@@ -457,7 +457,7 @@ void AndorCameraSettingsControl::updateImageDimSettings( imageParameters setting
 }
 
 
-void AndorCameraSettingsControl::handleOpenConfig(ScriptStream& configFile, Version ver)
+void AndorCameraSettingsControl::handleOpenConfig(ConfigStream& configFile, Version ver)
 {
 	auto tempSettings = AndorCameraSettingsControl::getRunSettingsFromConfig ( configFile, ver );
  	setRunSettings(tempSettings);
@@ -476,18 +476,18 @@ void AndorCameraSettingsControl::handleOpenConfig(ScriptStream& configFile, Vers
 }
 
 
-imageParameters AndorCameraSettingsControl::getImageDimSettingsFromConfig (ScriptStream& configFile, Version ver )
+imageParameters AndorCameraSettingsControl::getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver )
 {
 	return ImageDimsControl::getImageDimSettingsFromConfig ( configFile, ver );
 }
 
 
-andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (ScriptStream& configFile, Version ver )
+andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile, Version ver )
 {
 	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile, ver );
 }
 
-AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( ScriptStream& configFile, Version ver )
+AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( ConfigStream& configFile, Version ver )
 {
 	AndorRunSettings tempSettings;
 	configFile.get ( );
@@ -511,7 +511,7 @@ AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( ScriptSt
 	}
 	else
 	{
-		thrower ( "ERROR: Unrecognized camera mode!" );
+		thrower ( "ERROR: Unrecognized camera mode: " + txt );
 	}
 	configFile >> tempSettings.kineticCycleTime;
 	configFile >> tempSettings.accumulationTime;
@@ -548,44 +548,26 @@ AndorRunSettings AndorCameraSettingsControl::getRunSettingsFromConfig ( ScriptSt
 }
 
 
-void AndorCameraSettingsControl::handleNewConfig( std::ofstream& newFile )
+void AndorCameraSettingsControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << "CAMERA_SETTINGS\n";
-	newFile << "External-Trigger" << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << "Kinetic-Series-Mode" << "\n";
-	newFile << 1000 << "\n";
-	newFile << 1000 << "\n";
-	newFile << 2 << "\n";
-	newFile << 25 << "\n";
-	newFile << "END_CAMERA_SETTINGS\n";
-	picSettingsObj.handleNewConfig( newFile );
-	imageDimensionsObj.handleNew( newFile );
-}
-
-
-void AndorCameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	updateSettings ( );
+	updateSettings ( ); 
 	saveFile << "CAMERA_SETTINGS\n";
-	saveFile << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
-	saveFile << "/*EM-Gain Is On:*/" << settings.andor.emGainModeIsOn << "\n";
-	saveFile << "/*EM-Gain Level:*/" << settings.andor.emGainLevel << "\n";
-	saveFile << "/*Acquisition Mode:*/" << AndorRunModes::toStr (settings.andor.acquisitionMode) << "\n";
-	saveFile << "/*Kinetic Cycle Time:*/" << settings.andor.kineticCycleTime << "\n";
-	saveFile << "/*Accumulation Time:*/" << settings.andor.accumulationTime << "\n";
-	saveFile << "/*Accumulation Number:*/" << settings.andor.accumulationNumber << "\n";
-	saveFile << "/*Camera Temperature Setting:*/" << settings.andor.temperatureSetting << "\n";
-	saveFile << "/*Number of Exposures:*/" << settings.andor.exposureTimes.size ( ) << "\n/*Exposure Times:*/";
-
+	saveFile << "/*Trigger Mode:*/\t\t\t" << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
+	saveFile << "/*EM-Gain Is On:*/\t\t\t" << settings.andor.emGainModeIsOn << "\n";
+	saveFile << "/*EM-Gain Level:*/\t\t\t" << settings.andor.emGainLevel << "\n";
+	saveFile << "/*Acquisition Mode:*/\t\t" << AndorRunModes::toStr (settings.andor.acquisitionMode) << "\n";
+	saveFile << "/*Kinetic Cycle Time:*/\t\t" << settings.andor.kineticCycleTime << "\n";
+	saveFile << "/*Accumulation Time:*/\t\t" << settings.andor.accumulationTime << "\n";
+	saveFile << "/*Accumulation Number:*/\t" << settings.andor.accumulationNumber << "\n";
+	saveFile << "/*Camera Temperature:*/\t\t" << settings.andor.temperatureSetting << "\n";
+	saveFile << "/*Number of Exposures:*/\t" << settings.andor.exposureTimes.size ( ) 
+			 << "\n/*Exposure Times:*/\t\t\t";
 	for ( auto exposure : settings.andor.exposureTimes )
 	{
 		saveFile << exposure << " ";
 	}
-	saveFile << "\n/*Andor Pictures Per Repetition:*/" << settings.andor.picsPerRepetition << "\n";
+	saveFile << "\n/*Andor Pics Per Rep:*/\t\t" << settings.andor.picsPerRepetition << "\n";
 	saveFile << "END_CAMERA_SETTINGS\n";
-
 	picSettingsObj.handleSaveConfig(saveFile);
 	imageDimensionsObj.handleSave( saveFile );
 }

@@ -269,7 +269,7 @@ void DataLogger::logDoSystemSettings ( DoCore& doSys )
 
 
 
-void DataLogger::logTektronicsSettings ( tektronixInfo& tekInfo, std::string delim )
+void DataLogger::logTektronixSettings ( tektronixInfo& tekInfo, std::string delim )
 {
 	try
 	{

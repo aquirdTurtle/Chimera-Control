@@ -208,6 +208,7 @@
     <ClInclude Include="Source\AnalogInput\AiUnits.h" />
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\Basler\BaslerWrapper.h" />
+    <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
     <ClInclude Include="Source\DeformableMirror\DmControl.h" />
     <ClInclude Include="Source\DeformableMirror\DmCore.h" />
     <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
@@ -377,6 +378,7 @@
     <ClCompile Include="Source\AnalogInput\AiSystem.cpp" />
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
+    <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />

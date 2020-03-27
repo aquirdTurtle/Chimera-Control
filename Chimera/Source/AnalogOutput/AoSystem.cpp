@@ -133,7 +133,7 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 }
 
 
-void AoSystem::handleOpenConfig(ScriptStream& openFile, Version ver)
+void AoSystem::handleOpenConfig(ConfigStream& openFile, Version ver)
 {
 	UINT dacInc = 0;
 	if ( ver < Version ( "3.7" ) )
@@ -147,19 +147,9 @@ void AoSystem::handleOpenConfig(ScriptStream& openFile, Version ver)
 }
 
 
-void AoSystem::handleNewConfig( std::ofstream& newFile )
+void AoSystem::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << "DACS\n";
-	// nothing at the moment.
-	newFile << "\nEND_DACS\n";
-}
-
-
-void AoSystem::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << "DACS\n";
-	// nothing at the moment.
-	saveFile << "\nEND_DACS\n";
+	saveFile << "DACS\nEND_DACS\n";
 }
 
 

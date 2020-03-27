@@ -3,6 +3,7 @@
 #include "CustomMfcControlWrappers/myButton.h"
 #include "NIAWG/Rearrangement/rerngOptionStructures.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/Control.h"
 #include "Windows.h"
 #include "afxwin.h"
@@ -16,9 +17,8 @@ class rerngGuiControl
 		rerngGuiOptionsForm getParams( );
 		void setParams( rerngGuiOptionsForm params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
-		void handleOpenConfig(ScriptStream& openFile, Version ver );
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig( std::ofstream& newFile );
+		void handleOpenConfig( ConfigStream& openFile, Version ver );
+		void handleSaveConfig( ConfigStream& newFile );
 		void rearrange( int width, int height, fontMap fonts );
 		void updateActive ( );
 		void setEnabled (bool enabled);

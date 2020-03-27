@@ -170,11 +170,8 @@ DmCore &DeformableMirrorWindow::GetCore() {
 	return dm.getCore();
 }
 
-void DeformableMirrorWindow::handleNewConfig(std::ofstream& newFile) {
-	dm.getCore().handleNewConfig( newFile );
-}
 
-void DeformableMirrorWindow::windowOpenConfig(ScriptStream& configFile, Version ver) 
+void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile, Version ver) 
 {
 	try 
 	{
@@ -192,7 +189,8 @@ void DeformableMirrorWindow::windowOpenConfig(ScriptStream& configFile, Version 
 }
 
 
-void DeformableMirrorWindow::handleSaveConfig(std::ofstream& newFile) {
+void DeformableMirrorWindow::handleSaveConfig(ConfigStream& newFile) 
+{
 	dm.handleSaveConfig(newFile);
 }
 

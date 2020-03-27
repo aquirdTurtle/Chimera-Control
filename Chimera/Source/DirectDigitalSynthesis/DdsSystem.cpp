@@ -227,15 +227,15 @@ void DdsSystem::programNow ( )
 }
 
 
-void DdsSystem::handleSaveConfig ( std::ofstream& file )
+void DdsSystem::handleSaveConfig (ConfigStream& file )
 {
 	file << getDelim() << "\n";
 	core.writeRampListToConfig ( currentRamps, file );
-	file << "END_" + getDelim ( ) << "\n";
+	file << "\nEND_" + getDelim ( ) << "\n";
 }
 
 
-void DdsSystem::handleOpenConfig ( ScriptStream& file, Version ver )
+void DdsSystem::handleOpenConfig ( ConfigStream& file, Version ver )
 {
 	if ( ver >= Version ( "4.5" ) )
 	{

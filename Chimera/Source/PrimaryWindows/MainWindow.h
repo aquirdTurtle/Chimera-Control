@@ -109,8 +109,8 @@ class MainWindow : public CDialog
 		void setShortStatus(std::string text);
 		void changeShortStatusColor(std::string color);
 		void changeBoxColor(systemInfo<char> colors);
-		void handleSaveConfig(std::ofstream& saveFile);
-		void windowOpenConfig(ScriptStream& configFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void windowOpenConfig(ConfigStream& configFile, Version ver );
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();

@@ -3,14 +3,10 @@
 #include "Scripts/ScriptStream.h"
 #include <algorithm>
 
-ScriptStream::ScriptStream (std::ifstream& file)
+ScriptStream& ScriptStream::operator>>(Expression& expr)
 {
-	std::stringstream tempStream;
-	tempStream << file.rdbuf ();
-	this->ScriptStream::ScriptStream (tempStream.str ());
-	// default for straight file read is to be case sensitive. This default is mostly just a convenience.
-	setCase (false);
-};
+	return operator>>(expr.expressionStr);
+}
 
 ScriptStream & ScriptStream::operator>>( std::string& outputString )
 {
@@ -74,17 +70,6 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	auto posFin = tempStream.tellg ();
 	seekg(posFin);
 	auto peekpos = peek ();
-	return *this;
-}
-
-
-ScriptStream & ScriptStream::operator>>( Expression& expression )
-{
-	operator>>(expression.expressionStr);
-	if (expression.expressionStr == "\"\"")
-	{
-		expression.expressionStr = "";
-	}
 	return *this;
 }
 
@@ -221,12 +206,13 @@ void ScriptStream::eatComments()
 			{
 				if (currentChar == '*')
 				{
-					if (get () == '/')
-					{
-						break;
-					}
+					currentChar = get ();
+					comment += currentChar;
+					if (currentChar == '/') { break; }
+					else { continue; }
 				}
 				currentChar = get ();
+				comment += currentChar;
 			}
 		}
 		// get the next char

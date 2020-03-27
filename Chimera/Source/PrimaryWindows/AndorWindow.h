@@ -76,12 +76,11 @@ class AndorWindow : public CDialog
 		std::string getSystemStatusString();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
 						  BaslerWindow* basWin, DeformableMirrorWindow* dmWindow);
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
+		void handleSaveConfig(ConfigStream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(std::stringstream& configStream, Version version);
 		void handlePictureEditChange(UINT id);
-		void windowOpenConfig(ScriptStream& configFile, Version ver );
+		void windowOpenConfig(ConfigStream& configFile, Version ver );
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( systemInfo<char> colors );
 		cToolTips getToolTips();

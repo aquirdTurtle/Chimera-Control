@@ -9,6 +9,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "Scripts/ScriptStream.h"
 #include "AnalogOutput/DaqMxFlume.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>
@@ -42,8 +43,8 @@ class AiSystem
 		bool wantsContinuousQuery( );
 		std::string getSystemStatus( );
 		void setAiSettings (AiSettings settings);
-		static AiSettings getAiSettingsFromConfig (ScriptStream& file, Version ver);
-		void AiSystem::handleSaveConfig (std::ofstream& file);
+		static AiSettings getAiSettingsFromConfig (ConfigStream& file, Version ver);
+		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
 	private:
 		Control<CStatic> title;
