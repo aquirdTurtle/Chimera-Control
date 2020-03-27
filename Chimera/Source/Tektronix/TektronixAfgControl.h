@@ -9,6 +9,7 @@
 #include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralFlumes/VisaFlume.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "ParameterSystem/Expression.h"
 
 
@@ -20,9 +21,8 @@ class TektronixAfgControl
 		TektronixAfgControl (const TektronixAfgControl&) = delete;
 
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(ScriptStream& configFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();
@@ -34,7 +34,7 @@ class TektronixAfgControl
 		void handleProgram(std::vector<parameterType> constants);
 		std::string getDelim ();
 		TekCore& getCore ();
-		static tektronixInfo getTekInfo (ScriptStream& configFile, Version ver);
+		static tektronixInfo getTekInfo (ConfigStream& configFile, Version ver);
 	private:
 		Control<CStatic> header;
 		Control<CleanPush> programNow;

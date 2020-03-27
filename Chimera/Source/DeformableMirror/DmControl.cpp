@@ -425,9 +425,9 @@ DMOutputForm DmControl::getExpressionValues()
 	return output;
 }
 
-void DmControl::handleSaveConfig(std::ofstream& newFile) 
+void DmControl::handleSaveConfig(ConfigStream& saveStream) 
 {
-	defObject.handleSaveConfig(newFile, getExpressionValues());
+	defObject.handleSaveConfig(saveStream, getExpressionValues());
 }
 
 void DmControl::refreshAbberationDisplays ()

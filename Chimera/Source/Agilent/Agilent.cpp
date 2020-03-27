@@ -3,10 +3,8 @@
 
 #include "Agilent/Agilent.h"
 #include "ParameterSystem/ParameterSystem.h"
-#include "Scripts/ScriptStream.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
-//#include "PrimaryWindows/AuxiliaryWindow.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
@@ -203,7 +201,7 @@ void Agilent::readGuiSettings(int chan )
 	chan -= 1;
 	currentGuiInfo.synced = syncedButton.GetCheck( );
 	std::string textStr( agilentScript.getScriptText() );
-	ScriptStream stream;
+	ConfigStream stream;
 	stream << textStr;
 	stream.seekg( 0 );
 	switch (currentGuiInfo.channel[chan].option)
@@ -406,60 +404,37 @@ deviceOutputInfo Agilent::getOutputInfo()
 	return currentGuiInfo;
 }
 
-
-
-void Agilent::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << core.configDelim+"\n";
-	newFile << "0\n";
-	newFile << "CHANNEL_1\n";
-	newFile << "-2\n0\n0\n0\n1\n0\n0\n1\n0\n0\nNONE\n0\nNONE\n0\n";
-	newFile << "CHANNEL_2\n";
-	newFile << "-2\n0\n0\n0\n1\n0\n0\n1\n0\n0\nNONE\n0\nNONE\n0\n";
-	newFile << "END_" + core.configDelim + "\n";
-}
-
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
 */
-void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string configPath, RunInfo info)
+void Agilent::handleSavingConfig(ConfigStream& saveFile, std::string configPath, RunInfo info)
 {	
 	// make sure data is up to date.
-	readGuiSettings( currentChannel );
+	readGuiSettings (currentChannel);
 	// start outputting.
 	saveFile << core.configDelim+"\n";
-	saveFile << str(currentGuiInfo.synced) << "\n";
-	saveFile << "CHANNEL_1\n";
-	saveFile << AgilentChannelMode::toStr (currentGuiInfo.channel[0].option) + "\n";
-	saveFile << currentGuiInfo.channel[0].dc.dcLevel.expressionStr + "\n";
-	saveFile << int(currentGuiInfo.channel[0].dc.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[0].sine.amplitude.expressionStr + "\n";
-	saveFile << currentGuiInfo.channel[0].sine.frequency.expressionStr + "\n";
-	saveFile << int(currentGuiInfo.channel[0].sine.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[0].square.amplitude.expressionStr + "\n";
-	saveFile << currentGuiInfo.channel[0].square.frequency.expressionStr + "\n";
-	saveFile << currentGuiInfo.channel[0].square.offset.expressionStr + "\n";
-	saveFile << int(currentGuiInfo.channel[0].square.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[0].preloadedArb.address + "\n";
-	saveFile << int(currentGuiInfo.channel[0].preloadedArb.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[0].scriptedArb.fileAddress + "\n";
-	saveFile << int(currentGuiInfo.channel[0].scriptedArb.useCal) << "\n";
-	saveFile << "CHANNEL_2\n";
-	saveFile << AgilentChannelMode::toStr( currentGuiInfo.channel[1].option ) + "\n";
-	saveFile << currentGuiInfo.channel[1].dc.dcLevel.expressionStr + "\n";
-	saveFile << int(currentGuiInfo.channel[1].dc.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[1].sine.amplitude.expressionStr + "\n";
-	saveFile << currentGuiInfo.channel[1].sine.frequency.expressionStr + "\n";
-	saveFile << int(currentGuiInfo.channel[1].sine.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[1].square.amplitude.expressionStr + "\n";
-	saveFile << currentGuiInfo.channel[1].square.frequency.expressionStr + "\n";
-	saveFile << currentGuiInfo.channel[1].square.offset.expressionStr + "\n";
-	saveFile << int(currentGuiInfo.channel[1].square.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[1].preloadedArb.address + "\n";
-	saveFile << int(currentGuiInfo.channel[1].preloadedArb.useCal) << "\n";
-	saveFile << currentGuiInfo.channel[1].scriptedArb.fileAddress + "\n";
-	saveFile << int(currentGuiInfo.channel[1].scriptedArb.useCal) << "\n";
-	saveFile << "END_" + core.configDelim + "\n";
+	saveFile << "/*Synced Option:*/ " << str (currentGuiInfo.synced);
+	std::vector<std::string> channelStrings = { "\nCHANNEL_1", "\nCHANNEL_2" };
+	for (auto chanInc : range (2))
+	{
+		auto& channel = currentGuiInfo.channel[chanInc];
+		saveFile << channelStrings[chanInc];
+		saveFile << "\n/*Channel Mode:*/\t\t\t\t" << AgilentChannelMode::toStr (channel.option);
+		saveFile << "\n/*DC Level:*/\t\t\t\t\t" << channel.dc.dcLevel;
+		saveFile << "\n/*DC Calibrated:*/\t\t\t\t" << channel.dc.useCal;
+		saveFile << "\n/*Sine Amplitude:*/\t\t\t\t" << channel.sine.amplitude;
+		saveFile << "\n/*Sine Freq:*/\t\t\t\t\t" << channel.sine.frequency;
+		saveFile << "\n/*Sine Calibrated:*/\t\t\t" << channel.sine.useCal;
+		saveFile << "\n/*Square Amplitude:*/\t\t\t" << channel.square.amplitude;
+		saveFile << "\n/*Square Freq:*/\t\t\t\t" << channel.square.frequency;
+		saveFile << "\n/*Square Offset:*/\t\t\t\t" << channel.square.offset;
+		saveFile << "\n/*Square Calibrated:*/\t\t\t" << channel.square.useCal;
+		saveFile << "\n/*Preloaded Arb Address:*/\t\t" << channel.preloadedArb.address;
+		saveFile << "\n/*Preloaded Arb Calibrated:*/\t" << channel.preloadedArb.useCal;
+		saveFile << "\n/*Scripted Arb Address:*/\t\t" << channel.scriptedArb.fileAddress;
+		saveFile << "\n/*Scripted Arb Calibrated:*/\t" << channel.scriptedArb.useCal;
+	}
+	saveFile << "\nEND_" + core.configDelim + "\n";
 }
 
 void Agilent::setOutputSettings (deviceOutputInfo info)
@@ -470,23 +445,15 @@ void Agilent::setOutputSettings (deviceOutputInfo info)
 }
 
 
-void Agilent::handleOpenConfig( ScriptStream& file, Version ver )
+void Agilent::handleOpenConfig( ConfigStream& file, Version ver )
 {
 	setOutputSettings (getOutputSettingsFromConfigFile (file, ver));
 }
 
 
-deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, Version ver)
+deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ConfigStream& file, Version ver)
 {
-	std::function<void(ScriptStream&, std::string&)>  readFunc;
-	if (ver >= Version ("5.0"))
-	{
-		readFunc = [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
-	}
-	else
-	{
-		readFunc = [](ScriptStream& fid, std::string& expr) {std::getline (fid, expr);};
-	}
+	auto readFunc = ProfileSystem::getGetlineFunc(ver);
 	deviceOutputInfo tempSettings;
 	file >> tempSettings.synced;
 	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
@@ -507,16 +474,19 @@ deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, V
 			throwNested ("Bad channel " + str (chanInc + 1) + " option!");
 		}
 		std::string calibratedOption;
+		file.get ();
 		readFunc (file, channel.dc.dcLevel.expressionStr);
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.dc.useCal;
+			file.get ();
 		}
 		readFunc (file, channel.sine.amplitude.expressionStr);
 		readFunc (file, channel.sine.frequency.expressionStr);
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.sine.useCal;
+			file.get ();
 		}
 		readFunc (file, channel.square.amplitude.expressionStr);
 		readFunc (file, channel.square.frequency.expressionStr);
@@ -524,16 +494,19 @@ deviceOutputInfo Agilent::getOutputSettingsFromConfigFile (ScriptStream& file, V
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.square.useCal;
+			file.get ();
 		}
 		readFunc (file, channel.preloadedArb.address);
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.preloadedArb.useCal;
+			file.get ();
 		}
 		readFunc (file, channel.scriptedArb.fileAddress);
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.scriptedArb.useCal;
+			file.get ();
 		}
 		chanInc++;
 	}

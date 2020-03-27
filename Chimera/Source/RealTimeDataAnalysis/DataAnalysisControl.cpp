@@ -182,7 +182,7 @@ ULONG DataAnalysisControl::getPlotFreq( )
 }
 
 
-void DataAnalysisControl::handleOpenConfig( ScriptStream& file, Version ver )
+void DataAnalysisControl::handleOpenConfig( ConfigStream& file, Version ver )
 {
 	UINT numGrids;
 	if ( ver > Version ( "4.0" ) )
@@ -279,31 +279,22 @@ void DataAnalysisControl::handleOpenConfig( ScriptStream& file, Version ver )
 }
 
 
-void DataAnalysisControl::handleNewConfig( std::ofstream& file )
+void DataAnalysisControl::handleSaveConfig( ConfigStream& file )
 {
 	file << "DATA_ANALYSIS\n";
-	file << 0 << "\n";
-	file << 1 << "\n";
-	file << 0 << " " << 0 << "\n";
-	file << 0 << " " << 0 << " " << 0 << "\n";
-	file << "BEGIN_ACTIVE_PLOTS\n";
-	file << "0\n";
-	file << "END_ACTIVE_PLOTS\n";
-	file << "END_DATA_ANALYSIS\n";
-}
-
-
-void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
-{
-	file << "DATA_ANALYSIS\n";
-	file << autoThresholdAnalysisButton.GetCheck ( ) << "\n";
-	file << grids.size( ) << "\n";
+	file << "/*Auto-Threshold Analysis?*/\t" << autoThresholdAnalysisButton.GetCheck ( );
+	file << "\n/*Number of Analysis Grids: */\t" << grids.size ();
+	UINT count = 0;
 	for ( auto grid : grids )
 	{
-		file << grid.topLeftCorner.row << " " << grid.topLeftCorner.column << "\n";
-		file << grid.width << " " << grid.height << " " << grid.pixelSpacing << "\n";
+		file << "\n/*Grid #" + str (++count) << ":*/ "
+			<< "\n/*Top-Left Corner Row:*/\t\t" << grid.topLeftCorner.row
+			<< "\n/*Top-Left Corner Column:*/\t\t" << grid.topLeftCorner.column
+			<< "\n/*Grid Width:*/\t\t\t\t\t" << grid.width
+			<< "\n/*Grid Height:*/\t\t\t\t" << grid.height
+			<< "\n/*Pixel Spacing:*/\t\t\t\t" << grid.pixelSpacing;
 	}
-	file << "BEGIN_ACTIVE_PLOTS\n";
+	file << "\nBEGIN_ACTIVE_PLOTS\n";
 	UINT activeCount = 0;
 	for ( auto miniPlot : allTinyPlots )
 	{
@@ -312,17 +303,19 @@ void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 			activeCount++;
 		}
 	}
-	file << activeCount << "\n";
+	file << "/*Number of Active Plots:*/ " << activeCount;
+	count = 0;
 	for ( auto miniPlot : allTinyPlots )
 	{
 		if ( miniPlot.isActive )
 		{
-			file << miniPlot.name << "\n";
-			file << miniPlot.whichGrid << "\n";
+			file << "\n/*Active Plot #" + str (++count) + "*/";
+			file << "\n/*Plot Name:*/ " << miniPlot.name;
+			file << "\n/*Which Grid:*/ " << miniPlot.whichGrid;
 		}
 	}
-	file << "END_ACTIVE_PLOTS\n";
-	file << displayGridBtn.GetCheck ( ) << "\n";
+	file << "\nEND_ACTIVE_PLOTS\n";
+	file << "/*Display Grid?*/ " << displayGridBtn.GetCheck ( ) << "\n";
 	file << "END_DATA_ANALYSIS\n"; 
 }
 

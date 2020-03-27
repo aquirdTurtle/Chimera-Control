@@ -21,7 +21,7 @@ class Matrix
 		type & operator()( POINT p );
 		UINT getRows () const;
 		UINT getCols () const;
-		UINT size ( ) const;
+		size_t size ( ) const;
 		Matrix<type> submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
 		std::string print( );
 		void updateString( );
@@ -159,11 +159,10 @@ UINT Matrix<type>::getRows( ) const
 }
 
 template <class type>
-UINT Matrix<type>::size ( ) const
+size_t Matrix<type>::size ( ) const
 {
 	return data.size ( );
 }
-
 
 
 template<class type>

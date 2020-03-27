@@ -6,6 +6,7 @@
 #include "GeneralObjects/commonTypes.h"
 #include "GeneralImaging/imageParameters.h"
 #include "Basler/BaslerSettings.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include <string>
 #include <fstream>
@@ -26,7 +27,7 @@ class BaslerSettingsControl
 		void setSettings ( baslerSettings newSettings );
 		void updateExposure( double exposure );
 		void rearrange(int width, int height, fontMap fonts);
-		void handleSavingConfig ( std::ofstream& configFile );
+		void handleSavingConfig ( ConfigStream& configFile );
 
 		/// TODO: fill in correct parameters here.
 		const imageParameters ScoutFullResolution = { 1,500,1,500,1,1 };
@@ -34,7 +35,7 @@ class BaslerSettingsControl
 		const UINT unityGainSetting = 260;
 		
 		double getMotThreshold ( );
-		static baslerSettings getSettingsFromConfig (ScriptStream& configFile, Version ver );
+		static baslerSettings getSettingsFromConfig (ConfigStream& configFile, Version ver );
 
 	private:
 		ULONG lastTime;

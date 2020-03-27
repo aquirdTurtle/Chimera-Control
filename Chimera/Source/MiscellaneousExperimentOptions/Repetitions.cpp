@@ -14,7 +14,7 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-UINT Repetitions::getRepsFromConfig ( ScriptStream& openFile, Version ver )
+UINT Repetitions::getRepsFromConfig (ConfigStream& openFile, Version ver )
 {
 	UINT repNum;
 	openFile >> repNum;
@@ -22,18 +22,12 @@ UINT Repetitions::getRepsFromConfig ( ScriptStream& openFile, Version ver )
 }
 
 
-void Repetitions::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "REPETITIONS\n";
-	newFile << 100 << "\n";
-	newFile << "END_REPETITIONS\n";
-}
 
-void Repetitions::handleSaveConfig(std::ofstream& saveFile)
+void Repetitions::handleSaveConfig(ConfigStream& saveFile)
 {
 	saveFile << "REPETITIONS\n";
-	saveFile << getRepetitionNumber() << "\n";
-	saveFile << "END_REPETITIONS\n";
+	saveFile << "/*Reps:*/" << getRepetitionNumber ();
+	saveFile << "\nEND_REPETITIONS\n";
 }
 
 

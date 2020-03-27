@@ -6,6 +6,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "GeneralFlumes/ftdiFlume.h"
 #include "Scripts/ScriptStream.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <array>
 
@@ -26,8 +27,8 @@ class DdsCore
 
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		static std::vector<ddsIndvRampListInfo> getRampListFromConfig (ScriptStream& file, Version ver );
-		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file );
+		static std::vector<ddsIndvRampListInfo> getRampListFromConfig (ConfigStream& file, Version ver );
+		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file );
 		void writeExperiment ( UINT variationNum );
 		void connectasync ( );
 		void disconnect ( );

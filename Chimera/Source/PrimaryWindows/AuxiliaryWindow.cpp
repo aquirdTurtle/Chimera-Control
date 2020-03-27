@@ -657,22 +657,7 @@ std::pair<UINT, UINT> AuxiliaryWindow::getTtlBoardSize()
 }
 
 
-void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
-{
-	// order matters.
-	configParameters.handleNewConfig( newFile );
-	ttlBoard.handleNewConfig( newFile );
-	aoSys.handleNewConfig( newFile );
-	for ( auto& agilent : agilents )
-	{
-		agilent.handleNewConfig( newFile );
-	}
-	topBottomTek.handleNewConfig( newFile );
-	eoAxialTek.handleNewConfig( newFile );
-}
-
-
-void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
+void AuxiliaryWindow::handleSaveConfig(ConfigStream& saveFile )
 {
 	// order matters! Don't change the order here.
 	configParameters.handleSaveConfig( saveFile );
@@ -692,7 +677,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	RohdeSchwarzGenerator.handleSaveConfig (saveFile);
 }
 
-void AuxiliaryWindow::windowOpenConfig(ScriptStream& configFile, Version ver )
+void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
 {
 	try
 	{

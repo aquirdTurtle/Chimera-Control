@@ -27,39 +27,33 @@ HBRUSH TektronixAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
 }
 
 
-void TektronixAfgControl::handleNewConfig( std::ofstream& newFile )
+void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << core.configDelim + "\n";
-	newFile << "CHANNEL_1\n";
-	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "CHANNEL_2\n";
-	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "END_" + core.configDelim + "\n";
-}
-
-
-void TektronixAfgControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << core.configDelim + "\n";
+	saveFile << core.configDelim;
 	tektronixInfo tekInfo = getTekSettings ();
 	for (auto chanInc : range (tekInfo.channels.size ()))
 	{
 		auto& channel = tekInfo.channels[chanInc];
-		saveFile << "CHANNEL_" + str(chanInc+1) + "\n";
-		saveFile << channel.control << "\n" << channel.on << "\n" << channel.fsk << "\n" << channel.power.expressionStr 
-			<< "\n" << channel.mainFreq.expressionStr << "\n" << channel.fskFreq.expressionStr << "\n";
+		saveFile << "\nCHANNEL_" + str(chanInc+1);
+		saveFile << "\n/*Control?*/\t"<< channel.control 
+				 << "\n/*On?*/\t\t\t" << channel.on 
+			     << "\n/*Fsk?*/\t\t" << channel.fsk 
+			     << "\n/*Power:*/\t\t" << channel.power 
+				 << "\n/*Main Freq:*/\t" << channel.mainFreq 
+				 << "\n/*FSK Freq:*/\t" << channel.fskFreq;
 	}
-	saveFile << "END_" + core.configDelim + "\n";
+	saveFile << "\nEND_" + core.configDelim + "\n";
 }
 
 
-void TektronixAfgControl::handleOpenConfig(ScriptStream& configFile, Version ver )
+void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile, Version ver )
 {
 	setSettings(getTekInfo(configFile, ver));
 }
 
-tektronixInfo TektronixAfgControl::getTekInfo (ScriptStream& configFile, Version ver)
+tektronixInfo TektronixAfgControl::getTekInfo (ConfigStream& configFile, Version ver)
 {
+	auto getlineF = ProfileSystem::getGetlineFunc (ver);
 	tektronixInfo tekInfo;
 	for (auto chanInc : range (tekInfo.channels.size ()))
 	{
@@ -67,9 +61,9 @@ tektronixInfo TektronixAfgControl::getTekInfo (ScriptStream& configFile, Version
 		auto& channel = tekInfo.channels[chanInc];
 		configFile >> channel.control >> channel.on >> channel.fsk;
 		configFile.get ();
-		std::getline (configFile, channel.power.expressionStr);
-		std::getline (configFile, channel.mainFreq.expressionStr);
-		std::getline (configFile, channel.fskFreq.expressionStr);
+		getlineF (configFile, channel.power.expressionStr);
+		getlineF (configFile, channel.mainFreq.expressionStr);
+		getlineF (configFile, channel.fskFreq.expressionStr);
 	}
 	return tekInfo;
 }

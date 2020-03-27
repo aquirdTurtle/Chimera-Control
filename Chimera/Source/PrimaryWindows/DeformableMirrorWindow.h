@@ -29,9 +29,8 @@ class DeformableMirrorWindow : public CDialog
 		void handlePistonChange(UINT id);
 		void handleNewProfile();
 		void handleAbberations();
-		void handleNewConfig(std::ofstream& newFile);
-		void windowOpenConfig(ScriptStream& configFile, Version ver);
-		void handleSaveConfig(std::ofstream& newFile);
+		void windowOpenConfig(ConfigStream& configFile, Version ver);
+		void handleSaveConfig(ConfigStream& newFile);
 	
 		BOOL OnInitDialog();
 		void loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_,

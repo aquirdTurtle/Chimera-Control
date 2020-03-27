@@ -710,7 +710,7 @@ LRESULT MainWindow::onRepProgress(WPARAM wParam, LPARAM lParam)
 	return NULL;
 }
 
-void MainWindow::handleSaveConfig(std::ofstream& saveFile)
+void MainWindow::handleSaveConfig(ConfigStream& saveFile)
 {
 	notes.handleSaveConfig(saveFile);
 	mainOptsCtrl.handleSaveConfig(saveFile);
@@ -718,17 +718,16 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 	repetitionControl.handleSaveConfig(saveFile);
 }
 
-
-void MainWindow::windowOpenConfig(ScriptStream& configStream, Version ver )
+void MainWindow::windowOpenConfig(ConfigStream& configStream, Version ver )
 {
 	try
 	{
 		ProfileSystem::standardOpenConfig ( configStream, "CONFIGURATION_NOTES", &notes);
 		mainOptsCtrl.setOptions ( ProfileSystem::stdGetFromConfig ( configStream, "MAIN_OPTIONS", 
-																		MainOptionsControl::getMainOptionsFromConfig ) );
+																	MainOptionsControl::getMainOptionsFromConfig ) );
 		ProfileSystem::standardOpenConfig ( configStream, "DEBUGGING_OPTIONS", &debugger );
 		repetitionControl.setRepetitions ( ProfileSystem::stdGetFromConfig ( configStream, "REPETITIONS", 
-																				  Repetitions::getRepsFromConfig ));
+																			 Repetitions::getRepsFromConfig ));
 		
 	}
 	catch ( Error& )

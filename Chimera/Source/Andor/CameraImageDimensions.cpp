@@ -61,26 +61,20 @@ void ImageDimsControl::initialize( POINT& pos, CWnd* parent, bool isTriggerModeS
 }
 
 
-void ImageDimsControl::handleSave( std::ofstream& saveFile )
+void ImageDimsControl::handleSave(ConfigStream& saveFile )
 {
-	saveFile << "CAMERA_IMAGE_DIMENSIONS\n";
-	saveFile << currentImageParameters.left << " " << currentImageParameters.right << " "
-		<< currentImageParameters.horizontalBinning << "\n";
-	saveFile << currentImageParameters.bottom << " " << currentImageParameters.top << " "
-		<< currentImageParameters.verticalBinning << "\n";
-	saveFile << "END_CAMERA_IMAGE_DIMENSIONS\n";
+	saveFile << "CAMERA_IMAGE_DIMENSIONS"
+			 << "\n/*Left:*/ " << currentImageParameters.left
+			 << "\n/*Right:*/ " << currentImageParameters.right
+			 << "\n/*H-Bin:*/ " << currentImageParameters.horizontalBinning
+			 << "\n/*Bottom:*/ " << currentImageParameters.bottom
+			 << "\n/*Top:*/ " << currentImageParameters.top
+			 << "\n/*V-Bin:*/ " << currentImageParameters.verticalBinning
+			 << "\nEND_CAMERA_IMAGE_DIMENSIONS\n";
 }
 
 
-void ImageDimsControl::handleNew( std::ofstream& newfile )
-{
-	newfile << "CAMERA_IMAGE_DIMENSIONS\n";
-	newfile << "1 512 1\n";
-	newfile << "1 512 1\n";
-	newfile << "END_CAMERA_IMAGE_DIMENSIONS\n";
-}
-
-imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ScriptStream& configFile, Version ver )
+imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver )
 {
 	imageParameters params;
 	configFile >> params.left;
@@ -92,7 +86,7 @@ imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ScriptStream& c
 	return params;
 }
 
-void ImageDimsControl::handleOpen(ScriptStream& openFile, Version ver )
+void ImageDimsControl::handleOpen(ConfigStream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params = getImageDimSettingsFromConfig ( openFile, ver );

@@ -3,14 +3,14 @@
 #include "Control.h"
 #include <string>
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"
 
 class NoteSystem
 {
 	public:
-		void handleNewConfig( std::ofstream& saveFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(ScriptStream& openFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile, Version ver );
 		void setConfigurationNotes(std::string notes);
 		void initialize( POINT& topLeftPos, CWnd* parentWindow, int& id, cToolTips& tooltips );		
 		std::string getConfigurationNotes();

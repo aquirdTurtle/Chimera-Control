@@ -4,6 +4,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "Control.h"
 #include "GeneralObjects/commonTypes.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/myButton.h"
 
 
@@ -19,9 +20,8 @@ struct mainOptions
 class MainOptionsControl
 {
 	public:
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		static mainOptions getMainOptionsFromConfig( ScriptStream& openFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		static mainOptions getMainOptionsFromConfig(ConfigStream& openFile, Version ver );
 		void setOptions ( mainOptions opts );
 		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		mainOptions getOptions();

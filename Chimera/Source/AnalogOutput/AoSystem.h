@@ -37,9 +37,8 @@ class AoSystem
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		HBRUSH handleColorMessage( CWnd* hwnd, CDC* cDC );
 		// configs
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(ScriptStream& openFile, Version ver);
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile, Version ver);
 		// macros
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);

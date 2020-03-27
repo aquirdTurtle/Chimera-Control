@@ -5,6 +5,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "Scripts/ScriptStream.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralFlumes/VisaFlume.h"
 #include "GeneralObjects/commonTypes.h"
 #include "Agilent/agilentStructures.h"
@@ -38,24 +39,22 @@ class Agilent
 		bool getSavedStatus ();
 		void updateSavedStatus (bool isSaved);
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		void handleNewConfig( std::ofstream& saveFile );
-		void handleSavingConfig( std::ofstream& saveFile, std::string configPath, RunInfo info );
+		void handleSavingConfig( ConfigStream& saveFile, std::string configPath, RunInfo info );
 		std::string getDeviceIdentity();
-		void handleOpenConfig( ScriptStream& file, Version ver );
+		void handleOpenConfig(ConfigStream& file, Version ver );
 		void updateSettingsDisplay( int chan, std::string configPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
-
-		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
-									std::vector<parameterType>& variables );
+/*		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+									std::vector<parameterType>& variables );*/
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
 		std::pair<DoRows::which, UINT> getTriggerLine( );
 		std::string getConfigDelim ();
 		void programAgilentNow (std::vector<parameterType> constants);
 		
-		static deviceOutputInfo getOutputSettingsFromConfigFile (ScriptStream& file, Version ver);
+		static deviceOutputInfo getOutputSettingsFromConfigFile (ConfigStream& file, Version ver);
 		void Agilent::setOutputSettings (deviceOutputInfo info);
 		void verifyScriptable ( );
 		AgilentCore& getCore ();

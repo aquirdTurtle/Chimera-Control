@@ -3,6 +3,7 @@
 
 #include "Control.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralImaging/imageParameters.h"
 
 struct cameraPositions;
@@ -18,10 +19,9 @@ class ImageDimsControl
 		imageParameters readImageParameters();
 		void setImageParametersFromInput( imageParameters param );
 		bool checkReady();
-		void handleSave( std::ofstream& saveFile );
-		void handleNew( std::ofstream& newfile );
-		void handleOpen(ScriptStream& openFile, Version ver );
-		static imageParameters getImageDimSettingsFromConfig (ScriptStream& configFile, Version ver );
+		void handleSave(ConfigStream& saveFile );
+		void handleOpen(ConfigStream& openFile, Version ver );
+		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver );
 		imageParameters getImageParameters();
 		void rearrange( int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );

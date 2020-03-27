@@ -3,6 +3,8 @@
 #include "NiawgCore.h"
 #include "Scripts/Script.h"
 #include "Rearrangement/rerngGuiControl.h"
+#include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/myButton.h""
 
 class NiawgSystem
@@ -15,9 +17,9 @@ class NiawgSystem
 
 		void initialize (int& id, POINT& loc, CWnd* parent, cToolTips& tooltips);
 		void rearrange (UINT width, UINT height, fontMap fonts);
-		void handleSaveConfig (std::ofstream& saveFile);
-		void handleOpenConfig (ScriptStream& openfile, Version ver);
-		static bool getControlNiawgFromConfig (ScriptStream& openfile, Version ver);
+		void handleSaveConfig (ConfigStream& saveFile);
+		void handleOpenConfig (ConfigStream& openfile, Version ver);
+		static bool getControlNiawgFromConfig (ConfigStream& openfile, Version ver);
 		void updateWindowEnabled ();
 
 		Script niawgScript;

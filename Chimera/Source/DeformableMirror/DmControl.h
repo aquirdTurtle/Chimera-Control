@@ -3,6 +3,7 @@
 #include "Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "DmCore.h"
 #include "DmProfileCreator.h"
 
@@ -35,7 +36,7 @@ class DmControl
 		int getActNum();
 
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		void handleSaveConfig(std::ofstream& newFile);
+		void handleSaveConfig(ConfigStream& newFile);
 		void reColor(UINT id);
 		void rearrange(int width, int height, fontMap fonts);
 		bool isFloat(const std::string& someString);

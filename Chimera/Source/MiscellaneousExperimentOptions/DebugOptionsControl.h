@@ -3,6 +3,7 @@
 #include "Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"
 #include "debugInfo.h"
 
@@ -11,9 +12,8 @@ class MainWindow;
 class DebugOptionsControl
 {
 	public:
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(ScriptStream& openFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile, Version ver );
 		void initialize( int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		void handleEvent(UINT id, MainWindow* comm);
 		debugInfo getOptions();

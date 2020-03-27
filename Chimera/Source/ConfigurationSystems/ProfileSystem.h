@@ -4,10 +4,11 @@
 #include "GeneralObjects/commonTypes.h"
 #include "profileSettings.h"
 #include "NIAWG/NiawgStructures.h"
+#include "ConfigurationSystems/ConfigStream.h"
+#include "Scripts/ScriptStream.h"
 #include <vector>
 #include <string>
 #include "Version.h"
-#include "Scripts/ScriptStream.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -33,7 +34,7 @@ class ProfileSystem
 									 AndorWindow* camWin, BaslerWindow* basWin );
 		void allSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 									AndorWindow* camWin, BaslerWindow* basWin );
-
+		static std::function<void (ScriptStream&, std::string&)> getGetlineFunc (Version& ver);
 		void saveSequence();
 		void saveSequenceAs();
 		void renameSequence();
@@ -51,8 +52,6 @@ class ProfileSystem
 
 		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								    AndorWindow* camWin, BaslerWindow* basWin );
-		void newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin,
-							   ScriptingWindow* scriptWin );
 		void saveConfigurationAs( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								  AndorWindow* camWin, BaslerWindow* basWin );
 		void renameConfiguration();
@@ -60,7 +59,7 @@ class ProfileSystem
 		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
 								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
 								 DeformableMirrorWindow* dmWin);
-		static void getVersionFromFile( ScriptStream& file, Version& ver );
+		static void getVersionFromFile( ConfigStream& file, Version& ver );
 		static std::string getNiawgScriptAddrFromConfig(  profileSettings profile );
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
@@ -83,20 +82,20 @@ class ProfileSystem
 									   DeformableMirrorWindow* dmWin);
 		
 		template <class sysType>
-		static void standardOpenConfig ( ScriptStream& openFile, std::string delim, std::string endDelim, 
+		static void standardOpenConfig ( ConfigStream& openFile, std::string delim, std::string endDelim, 
 										 sysType* this_in, Version minVer = Version("0.0"));
 		// an overload with the default end delimiter: "END_" + delim. Basically everything /should/ use the default.
 		template <class sysType>
-		static void standardOpenConfig (ScriptStream& openFile, std::string delim, sysType* this_in,
+		static void standardOpenConfig (ConfigStream& openFile, std::string delim, sysType* this_in,
 										 Version minVer = Version ( "0.0" ) );
 		template <class returnType>
-		static returnType stdGetFromConfig (ScriptStream& openFile, std::string delim,
-												  returnType ( *getter )(ScriptStream&, Version ),
+		static returnType stdGetFromConfig (ConfigStream& openFile, std::string delim,
+												  returnType ( *getter )(ConfigStream&, Version ),
 												  Version minVer = Version( "0.0" ) );
-		static void checkDelimiterLine (ScriptStream& openFile, std::string keyword );
-		static bool checkDelimiterLine(ScriptStream& openFile, std::string delimiter, std::string breakCondition );
-		static void jumpToDelimiter (ScriptStream& openFile, std::string delimiter );
-		static void initializeAtDelim (ScriptStream& openFile, std::string delimiter, Version& ver,
+		static void checkDelimiterLine (ConfigStream& openFile, std::string keyword );
+		static bool checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition );
+		static void jumpToDelimiter (ConfigStream& openFile, std::string delimiter );
+		static void initializeAtDelim (ConfigStream& openFile, std::string delimiter, Version& ver,
 										Version minVer=Version("0.0") );
 		CBrush* handleColoring ( int id, CDC* pDC );
 	private:
@@ -126,7 +125,9 @@ class ProfileSystem
 		// Version 4.10: Added Microwave system settings to config file.
 		// Version 4.11: Moved niawg system to script window, changing order of file.
 		// Version 4.12: Added "Control Niawg" option.
-		const Version version = Version( "4.12" );
+		/// Version 5.0: Revamped reading and writing to the files to use Scriptstream, supporting comments. Includes
+		// a variety of minor formatting changes and a bunch of comments into the file.
+		const Version version = Version( "5.0" );
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
@@ -137,13 +138,13 @@ class ProfileSystem
 };
 
 template <class sysType>
-static void ProfileSystem::standardOpenConfig (ScriptStream& openFile, std::string delim, sysType* this_in, Version minVer )
+static void ProfileSystem::standardOpenConfig (ConfigStream& openFile, std::string delim, sysType* this_in, Version minVer )
 {
 	ProfileSystem::standardOpenConfig ( openFile, delim, "END_" + delim, this_in, minVer );
 }
 
 template <class sysType>
-static void ProfileSystem::standardOpenConfig ( ScriptStream& configStream, std::string delim, std::string endDelim, 
+static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std::string delim, std::string endDelim, 
 												sysType* this_in, Version minVer )
 {
 	// sysType must have a member function of the form
@@ -179,9 +180,9 @@ static void ProfileSystem::standardOpenConfig ( ScriptStream& configStream, std:
 }
 
 template <class returnType>
-static returnType ProfileSystem::stdGetFromConfig ( ScriptStream& configStream, std::string delim, 
-													returnType ( *getterFunc )(ScriptStream&, Version ),
-													     Version minVer )
+static returnType ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, std::string delim, 
+													returnType ( *getterFunc )(ConfigStream&, Version ),
+													Version minVer )
 {
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
 	Version ver;

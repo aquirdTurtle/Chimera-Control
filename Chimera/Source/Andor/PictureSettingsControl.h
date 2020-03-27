@@ -7,6 +7,7 @@
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "Andor/andorPicSettingsGroup.h"
 #include <array>
 #include <vector>
@@ -32,9 +33,8 @@ class PictureSettingsControl
 		// must have parent. Enforced partially because both are singletons.
 		// PictureSettingsControl( )
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(ScriptStream& openFile, Version ver, AndorCameraCore* andor);
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile, Version ver, AndorCameraCore* andor);
 		void initialize( POINT& pos, CWnd* parent, int& id);
 		void handleOptionChange( int id );
 		void setPictureControlEnabled (int pic, bool enabled);
@@ -54,7 +54,7 @@ class PictureSettingsControl
 		std::array<std::string, 4> getThresholdStrings();
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
-		static andorPicSettingsGroup getPictureSettingsFromConfig (ScriptStream& configFile, Version ver );
+		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile, Version ver );
 	private:
 		// the internal memory of the settings here is somewhat redundant with the gui objects. It'd probably be better
 		// if this didn't exist and all the getters just converted straight from the gui objects, but that's a 

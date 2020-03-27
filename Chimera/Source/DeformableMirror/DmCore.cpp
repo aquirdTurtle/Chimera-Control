@@ -88,14 +88,7 @@ std::vector<double> DmCore::getActuatorValues()
 	return valueArray;
 }
 
-void DmCore::handleNewConfig(std::ofstream& newFile) 
-{
-	newFile << "DM\n";
-	// nothing at the moment.
-	newFile << "END_DM\n";
-}
-
-DMOutputForm DmCore::handleGetConfig(ScriptStream& configFile, Version ver) 
+DMOutputForm DmCore::handleGetConfig(ConfigStream& configFile, Version ver) 
 {
 	DMOutputForm Info;
 	Info.coma.expressionStr = configFile.getline();
@@ -110,17 +103,18 @@ DMOutputForm DmCore::handleGetConfig(ScriptStream& configFile, Version ver)
 }
 
 
-void DmCore::handleSaveConfig(std::ofstream& saveFile, DMOutputForm out) {
+void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out) 
+{
 	currentInfo = out;
 	//add the new line for the delimeter
 	saveFile << delimeter + "\n";
-	saveFile << currentInfo.coma.expressionStr << "\n";
-	saveFile << currentInfo.comaAng.expressionStr << "\n";
-	saveFile << currentInfo.astig.expressionStr << "\n";
-	saveFile << currentInfo.astigAng.expressionStr << "\n";
-	saveFile << currentInfo.trefoil.expressionStr << "\n";
-	saveFile << currentInfo.trefoilAng.expressionStr << "\n";
-	saveFile << currentInfo.spherical.expressionStr << "\n";
+	saveFile << currentInfo.coma << "\n";
+	saveFile << currentInfo.comaAng << "\n";
+	saveFile << currentInfo.astig << "\n";
+	saveFile << currentInfo.astigAng << "\n";
+	saveFile << currentInfo.trefoil << "\n";
+	saveFile << currentInfo.trefoilAng << "\n";
+	saveFile << currentInfo.spherical << "\n";
 	saveFile << currentInfo.base << "\n";
 	saveFile << "END_" + delimeter + "\n";
 }

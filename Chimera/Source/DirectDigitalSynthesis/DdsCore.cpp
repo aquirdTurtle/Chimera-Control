@@ -414,7 +414,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 }
 
 
-std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( ScriptStream& file, Version ver )
+std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( ConfigStream& file, Version ver )
 {
 	UINT numRamps = 0;
 	file >> numRamps;
@@ -422,24 +422,26 @@ std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( ScriptStream& 
 	for ( auto& ramp : list )
 	{
 		file >> ramp.index >> ramp.channel >> ramp.freq1.expressionStr >> ramp.amp1.expressionStr
-			>> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
-		file.get ( ); // get newline.
+			 >> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
+		file.get ( );
 	}
 	return list;
 }
 
 
-void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file )
+void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file )
 {
-	file << list.size ( ) << "\n";
+	file << "/*Ramp List Size:*/ " << list.size ( );
+	UINT count = 0;
 	for ( auto& ramp : list )
 	{
-		file << ramp.index << " " << ramp.channel << " ";
-		// avoid outputing empty lines to the config file, 0 is a good default here. This prevents the user from saving
-		// empty expresssions, but empty expressions don't run anyways. 
-		for ( auto& val : { ramp.freq1, ramp.amp1, ramp.freq2, ramp.amp2, ramp.rampTime } )
-		{
-			file << ( val.expressionStr == "" ? 0 : val.expressionStr ) << "\n";
-		}
+		file << "\n/*Ramp List Element #" + str (++count) + "*/"
+			 << "\n/*Index:*/\t\t" << ramp.index
+			 << "\n/*Channel:*/\t" << ramp.channel
+			 << "\n/*Freq1:*/\t\t" << ramp.freq1
+			 << "\n/*Amp1:*/\t\t" << ramp.amp1
+			 << "\n/*Freq2:*/\t\t" << ramp.freq2
+			 << "\n/*Amp2:*/\t\t" << ramp.amp2
+			 << "\n/*Ramp-Time:*/\t" << ramp.rampTime;
 	}
 }

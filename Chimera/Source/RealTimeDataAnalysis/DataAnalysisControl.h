@@ -8,6 +8,7 @@
 #include "Python/EmbeddedPythonHandler.h"
 #include "ExperimentThread/Communicator.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "atomGrid.h"
 #include "Plotting/tinyPlotInfo.h"
 #include "ParameterSystem/Expression.h"
@@ -30,9 +31,8 @@ class DataAnalysisControl
 		bool wantsThresholdAnalysis ( );
 		void initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		ULONG getPlotFreq( );
-		void handleOpenConfig(ScriptStream& file, Version ver );
-		void handleNewConfig( std::ofstream& file );
-		void handleSaveConfig(std::ofstream& file );
+		void handleOpenConfig(ConfigStream& file, Version ver );
+		void handleSaveConfig(ConfigStream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
 		void rearrange( int width, int height, fontMap fonts );

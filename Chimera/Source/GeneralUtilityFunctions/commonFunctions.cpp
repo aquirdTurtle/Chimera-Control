@@ -522,7 +522,6 @@ namespace commonFunctions
 			case ID_SEQUENCE_RESET_SEQUENCE: { mainWin->profile.loadNullSequence(); break; }
 			case ID_SEQUENCE_DELETE_SEQUENCE: { mainWin->profile.deleteSequence(); break; }
 			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin, scriptWin); break; }
-			case ID_CONFIGURATION_NEW_CONFIGURATION: { mainWin->profile.newConfiguration(mainWin, auxWin, andorWin, scriptWin); break; }
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration(); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration(); break; }
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, andorWin, basWin); break; }

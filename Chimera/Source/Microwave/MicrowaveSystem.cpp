@@ -57,23 +57,24 @@ void MicrowaveSystem::programNow(std::vector<parameterType> constants)
 }
 
 
-void MicrowaveSystem::handleSaveConfig (std::ofstream& saveFile)
+void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile)
 {
-	saveFile << delim << "\n";
-	saveFile << controlOptionCheck.GetCheck () << "\n";
-	saveFile << currentList.size () << "\n";
+	saveFile << delim
+		<< "\n/*Control?*/ " << controlOptionCheck.GetCheck ()
+		<< "\n/*List Size:*/ " << currentList.size ();
 	for (auto listElem : currentList)
 	{
-		saveFile << listElem.frequency.expressionStr << "\n";
-		saveFile << listElem.power.expressionStr << "\n";
+		saveFile << "\n/*Freq:*/ " << listElem.frequency 
+				 << "\n/*Power:*/ " << listElem.power;
 	}
-	saveFile << "END_" << delim << "\n";
+	saveFile << "\nEND_" << delim << "\n";
 }
 
 
-microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (ScriptStream& openFile, Version ver)
+microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (ConfigStream& openFile, Version ver)
 {
 	microwaveSettings settings;
+	auto getlineF = ProfileSystem::getGetlineFunc (ver);
 	openFile >> settings.control;
 	UINT numInList = 0;
 	openFile >> numInList;
@@ -94,8 +95,8 @@ microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (ScriptStream&
 	}
 	for (auto num : range (numInList))
 	{
-		std::getline ( openFile, settings.list[num].frequency.expressionStr );
-		std::getline ( openFile, settings.list[num].power.expressionStr );
+		getlineF ( openFile, settings.list[num].frequency.expressionStr );
+		getlineF ( openFile, settings.list[num].power.expressionStr );
 	}
 	return settings;
 }
