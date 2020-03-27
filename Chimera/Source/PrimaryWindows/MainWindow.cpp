@@ -15,7 +15,7 @@
 #include <future>
 
 
-MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDialog( id ), profile( PROFILES_PATH ),
+MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : IChimeraWindow( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
 	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope" ),
@@ -120,9 +120,9 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : CDial
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 }
 
-IMPLEMENT_DYNAMIC( MainWindow, CDialog )
+IMPLEMENT_DYNAMIC( MainWindow, IChimeraWindow)
 
-BEGIN_MESSAGE_MAP (MainWindow, CDialog)
+BEGIN_MESSAGE_MAP (MainWindow, IChimeraWindow)
 	ON_WM_CTLCOLOR ()
 	ON_WM_SIZE ()
 	ON_CBN_SELENDOK (IDC_SEQUENCE_COMBO, &handleSequenceCombo)
@@ -142,11 +142,7 @@ BEGIN_MESSAGE_MAP (MainWindow, CDialog)
 	ON_MESSAGE (CustomMessages::NoAtomsAlertMessageID, &onNoAtomsAlertMessage)
 	ON_MESSAGE (CustomMessages::NoMotAlertMessageID, &onNoMotAlertMessage)
 	ON_MESSAGE (CustomMessages::GeneralFinMsgID, &onFinish)
-	ON_COMMAND_RANGE (ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &passCommonCommand)
-	ON_COMMAND_RANGE (ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &passCommonCommand)
-	ON_COMMAND_RANGE (ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &passCommonCommand)
-	ON_COMMAND_RANGE (ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &passCommonCommand)
-	ON_COMMAND_RANGE (MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &passCommonCommand)
+
 	ON_COMMAND_RANGE (IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &passDebugPress)
 	ON_COMMAND_RANGE (IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &passMainOptionsPress)
 	ON_COMMAND_RANGE (IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &passClear)
@@ -154,7 +150,6 @@ BEGIN_MESSAGE_MAP (MainWindow, CDialog)
 	ON_COMMAND_RANGE (IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &passClear)
 	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &handlePlotPop)
 	ON_COMMAND (IDC_SELECT_CONFIG_COMBO, &passConfigPress)
-	ON_COMMAND (IDOK, &catchEnter)
 	ON_COMMAND (IDC_SERVO_CAL, &runServos)
 	ON_CBN_SELENDOK (IDC_SERVO_UNITS_COMBO, &handleServoUnitsComboChange)
 	ON_MESSAGE ( CustomMessages::AutoServoMessage, &autoServo)
@@ -193,10 +188,10 @@ void MainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult)
 
 void MainWindow::handleThresholdAnalysis ()
 {
-	auto grid = TheAndorWindow->getMainAtomGrid ();
-	auto dateStr = TheAndorWindow->getMostRecentDateString ();
-	auto fid = TheAndorWindow->getMostRecentFid ();
-	auto ppr = TheAndorWindow->getPicsPerRep ();
+	auto grid = andorWin->getMainAtomGrid ();
+	auto dateStr = andorWin->getMostRecentDateString ();
+	auto fid = andorWin->getMostRecentFid ();
+	auto ppr = andorWin->getPicsPerRep ();
 	std::string gridString = "[" + str (grid.topLeftCorner.row - 1) + "," + str (grid.topLeftCorner.column - 1) + ","
 		+ str (grid.pixelSpacing) + "," + str (grid.width) + "," + str (grid.height) + "]";
 	try
@@ -238,7 +233,7 @@ void MainWindow::onAutoCalFin ()
 {
 	try
 	{
-		TheScriptingWindow->restartNiawgDefaults ();
+		scriptWin->restartNiawgDefaults ();
 	}
 	catch (Error & except)
 	{
@@ -247,8 +242,8 @@ void MainWindow::onAutoCalFin ()
 		comm.sendColorBox (System::Niawg, 'B');
 		comm.sendStatus ("ERROR!\r\n");
 	}
-	TheScriptingWindow->setNiawgRunningState (false);
-	TheAndorWindow->cleanUpAfterExp ();
+	scriptWin->setNiawgRunningState (false);
+	andorWin->cleanUpAfterExp ();
 	autoCalNum++;
 	if (autoCalNum >= AUTO_CAL_LIST.size ())
 	{
@@ -258,8 +253,7 @@ void MainWindow::onAutoCalFin ()
 	}
 	else
 	{
-		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F11, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
+		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F11, this );
 	}
 }
 
@@ -271,8 +265,7 @@ void MainWindow::onMachineOptRoundFin (  )
 	onNormalFinishMessage ( );
 	Sleep ( 1000 );
 	// then restart.
-	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, this, TheScriptingWindow, TheAndorWindow, 
-										   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
+	commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this );
 }
 
 
@@ -288,9 +281,9 @@ void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
 
 BOOL MainWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 {
-	if ( TheAuxiliaryWindow != NULL )
+	if ( auxWin != NULL )
 	{
-		return TheAuxiliaryWindow->handleAccelerators( m_haccel, lpMsg );
+		return auxWin->handleAccelerators( m_haccel, lpMsg );
 	}
 	else
 	{
@@ -339,16 +332,15 @@ std::vector<Gdiplus::SolidBrush*> MainWindow::getBrightPlotBrushes( )
 }
 
 
-void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation ) { 	TheAndorWindow->stopSound( ); }
-void MainWindow::OnLButtonUp (UINT stuff, CPoint clickLocation) { TheAndorWindow->stopSound (); }
+void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation ) { 	andorWin->stopSound( ); }
+void MainWindow::OnLButtonUp (UINT stuff, CPoint clickLocation) { andorWin->stopSound (); }
 
 
 void MainWindow::passConfigPress( )
 {	
 	try
 	{
-		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, 
-										  TheBaslerWindow, TheDmWindow );
+		profile.handleSelectConfigButton( this, scriptWin, this, auxWin, andorWin, basWin, dmWin );
 	}
 	catch ( Error& err )
 	{
@@ -361,7 +353,7 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 {
 	try
 	{
-		if ( TheAndorWindow->wantsAutoPause ( ) )
+		if ( andorWin->wantsAutoPause ( ) )
 		{
 			expThreadManager.pause ( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
@@ -402,7 +394,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 {
 	try
 	{	
-		if ( TheAndorWindow->wantsAutoPause( ) )
+		if ( andorWin->wantsAutoPause( ) )
 		{
 			expThreadManager.pause( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
@@ -446,7 +438,7 @@ CFont* MainWindow::getPlotFont( )
 
 BOOL MainWindow::OnInitDialog( )
 {
-	SetWindowText ( "Main Window" );
+	SetWindowTextA ( "Main Window" );
 
 	startupTimes.push_back(chronoClock::now());
 	eMainWindowHwnd = this;
@@ -470,16 +462,17 @@ BOOL MainWindow::OnInitDialog( )
 	std::string which = "";
 	try
 	{
+		mainWin = this;
 		which = "Scripting";
-		TheScriptingWindow = new ScriptingWindow;
+		scriptWin = new ScriptingWindow;
 		which = "Camera";
-		TheAndorWindow = new AndorWindow;
+		andorWin = new AndorWindow;
 		which = "Auxiliary";
-		TheAuxiliaryWindow = new AuxiliaryWindow;
+		auxWin = new AuxiliaryWindow;
 		which = "Basler";
-		TheBaslerWindow = new BaslerWindow;
+		basWin = new BaslerWindow;
 		which = "DmWin";
-		TheDmWindow = new DeformableMirrorWindow;
+		dmWin = new DeformableMirrorWindow;
 	}
 	catch ( Error& err )
 	{
@@ -487,20 +480,20 @@ BOOL MainWindow::OnInitDialog( )
 		forceExit ( );
 		return -1;
 	}
-	TheScriptingWindow->loadFriends( this, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
-	TheAndorWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
-	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheAndorWindow, TheBaslerWindow, TheDmWindow );
-	TheBaslerWindow->loadFriends ( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheDmWindow );
-	TheDmWindow->loadFriends (this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
+	scriptWin->loadFriends( this, scriptWin, auxWin, basWin, dmWin, andorWin );
+	andorWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
+	auxWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
+	basWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
+	dmWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	startupTimes.push_back(chronoClock::now());
 	try
 	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
-		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
-		TheAndorWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
-		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
-		TheBaslerWindow->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
-		TheDmWindow->Create (IDD_LARGE_TEMPLATE, GetDesktopWindow ());
+		scriptWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
+		andorWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
+		auxWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
+		basWin->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
+		dmWin->Create (IDD_LARGE_TEMPLATE, GetDesktopWindow ());
 	}
 	catch ( Error& err )
 	{
@@ -509,7 +502,7 @@ BOOL MainWindow::OnInitDialog( )
 		return -1;
 	}
 	/// initialize main window controls.
-	comm.initialize( this, TheScriptingWindow, TheAndorWindow, TheAuxiliaryWindow, TheBaslerWindow );
+	comm.initialize( this, scriptWin, andorWin, auxWin, basWin);
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
@@ -528,9 +521,8 @@ BOOL MainWindow::OnInitDialog( )
 								  ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID,	"Master/Repump" );
 	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), 
 						 ID_MOT_SCOPE_VIEWER_POP_ID, "MOT" );
-	servos.initialize ( controlLocation, tooltips, this, id, &TheAuxiliaryWindow->getAiSys (),
-						&TheAuxiliaryWindow->getAoSys (), TheAuxiliaryWindow->getTtlSystem(), 
-						&TheAuxiliaryWindow->getGlobals ());
+	servos.initialize ( controlLocation, tooltips, this, id, &auxWin->getAiSys (), &auxWin->getAoSys (), 
+						auxWin->getTtlSystem(), &auxWin->getGlobals ());
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	mainOptsCtrl.initialize( id, controlLocation, this, tooltips );
@@ -541,10 +533,10 @@ BOOL MainWindow::OnInitDialog( )
 	SetMenu( &menu );
 
 	// just initializes the rectangles.
-	TheAndorWindow->redrawPictures( true );
+	andorWin->redrawPictures( true );
 	try
 	{
-		masterConfig.load( this, TheAuxiliaryWindow, TheAndorWindow );
+		masterConfig.load( this, auxWin, andorWin);
 	}
 	catch ( Error& err )
 	{
@@ -555,14 +547,13 @@ BOOL MainWindow::OnInitDialog( )
 	// for some reason without this the main window was defaulting to topmost. 
 	SetWindowPos (&wndBottom, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
 	
-	TheAndorWindow->ShowWindow( SW_MAXIMIZE );
-	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
-	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
-	TheBaslerWindow->ShowWindow ( SW_MAXIMIZE );
-	TheDmWindow->ShowWindow (SW_MAXIMIZE);
+	andorWin->ShowWindow( SW_MAXIMIZE );
+	scriptWin->ShowWindow( SW_MAXIMIZE );
+	auxWin->ShowWindow( SW_MAXIMIZE );
+	basWin->ShowWindow ( SW_MAXIMIZE );
+	dmWin->ShowWindow (SW_MAXIMIZE);
 
-	std::vector<CDialog*> windows = { TheBaslerWindow, NULL, TheAndorWindow, this, TheScriptingWindow, 
-									  TheAuxiliaryWindow, TheDmWindow };
+	std::vector<CDialog*> windows = { basWin, NULL, andorWin, this, scriptWin, auxWin, dmWin };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
@@ -583,11 +574,11 @@ BOOL MainWindow::OnInitDialog( )
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
 		std::string initializationString;
 		initializationString += getSystemStatusString( );
-		initializationString += TheAuxiliaryWindow->getOtherSystemStatusMsg( );
-		initializationString += TheAndorWindow->getSystemStatusString( );
-		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus( );
-		initializationString += TheScriptingWindow->getSystemStatusString( );
-		initializationString += TheAuxiliaryWindow->getMicrowaveSystemStatus( );
+		initializationString += auxWin->getOtherSystemStatusMsg( );
+		initializationString += andorWin->getSystemStatusString( );
+		initializationString += auxWin->getVisaDeviceStatus( );
+		initializationString += scriptWin->getSystemStatusString( );
+		initializationString += auxWin->getMicrowaveSystemStatus( );
 		infoBox( initializationString );
 	}
 	catch ( Error& err )
@@ -611,11 +602,11 @@ void MainWindow::showHardwareStatus ( )
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
 		std::string initializationString;
 		initializationString += getSystemStatusString ( );
-		initializationString += TheAuxiliaryWindow->getOtherSystemStatusMsg ( );
-		initializationString += TheAndorWindow->getSystemStatusString ( );
-		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus ( );
-		initializationString += TheScriptingWindow->getSystemStatusString ( );
-		initializationString += TheAuxiliaryWindow->getMicrowaveSystemStatus ( );
+		initializationString += auxWin->getOtherSystemStatusMsg ( );
+		initializationString += andorWin->getSystemStatusString ( );
+		initializationString += auxWin->getVisaDeviceStatus ( );
+		initializationString += scriptWin->getSystemStatusString ( );
+		initializationString += auxWin->getMicrowaveSystemStatus ( );
 		infoBox ( initializationString );
 	}
 	catch ( Error& err )
@@ -630,9 +621,6 @@ void MainWindow::notifyConfigUpdate( )
 {
 	profile.updateConfigurationSavedStatus( false );
 }
-
-
-void MainWindow::catchEnter( ){	/* the default handling is to close the window, so I need to catch it.*/ }
 
 
 BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC hdcMonitor,
@@ -665,10 +653,10 @@ BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC 
 void MainWindow::checkAllMenus ( UINT menuItem, UINT itemState )
 {
 	setMenuCheck ( menuItem, itemState );
-	TheAuxiliaryWindow->setMenuCheck ( menuItem, itemState );
-	TheAndorWindow->setMenuCheck ( menuItem, itemState );
-	TheBaslerWindow->setMenuCheck ( menuItem, itemState );
-	TheScriptingWindow->setMenuCheck ( menuItem, itemState );
+	auxWin->setMenuCheck ( menuItem, itemState );
+	andorWin->setMenuCheck ( menuItem, itemState );
+	basWin->setMenuCheck ( menuItem, itemState );
+	scriptWin->setMenuCheck ( menuItem, itemState );
 }
 
 
@@ -710,7 +698,7 @@ LRESULT MainWindow::onRepProgress(WPARAM wParam, LPARAM lParam)
 	return NULL;
 }
 
-void MainWindow::handleSaveConfig(ConfigStream& saveFile)
+void MainWindow::windowSaveConfig(ConfigStream& saveFile)
 {
 	notes.handleSaveConfig(saveFile);
 	mainOptsCtrl.handleSaveConfig(saveFile);
@@ -797,15 +785,6 @@ void MainWindow::forceExit ( )
 	passCommonCommand ( ID_FORCE_EXIT );
 }
 
-
-void MainWindow::OnCancel()
-{
-	// the standard exit when e.g. the user hit's the X button. Prompts the user to save things and leave things in a 
-	// good state.
-	passCommonCommand(ID_FILE_MY_EXIT);
-}
-
-void MainWindow::OnClose() { passCommonCommand(WM_CLOSE); }
 UINT MainWindow::getRepNumber() { return repetitionControl.getRepetitionNumber(); }
 
 std::string MainWindow::getSystemStatusString()
@@ -889,21 +868,6 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 }
 
 
-void MainWindow::passCommonCommand(UINT id)
-{
-	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	try
-	{
-		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheAndorWindow, 
-											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
-	}
-	catch (Error& exception)
-	{
-		errBox ( exception.what () );
-	}
-}
-
-
 HANDLE MainWindow::startExperimentThread( ExperimentThreadInput* input )
 {
 	return expThreadManager.startExperimentThread(input);
@@ -967,13 +931,13 @@ void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow );
+	profile.allSettingsReadyCheck( scriptWin, this, auxWin, andorWin, basWin );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheAndorWindow, TheBaslerWindow );
+	profile.checkSaveEntireProfile( scriptWin, this, auxWin, andorWin, basWin);
 }
 
 
@@ -1131,13 +1095,13 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	delete[] pointerToMessage;
 	errorStatus.addStatusText(statusMessage);
 	// resetting things.
-	TheScriptingWindow->setIntensityDefault();
+	scriptWin->setIntensityDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
 	comm.sendColorBox( System::Niawg, 'R' );
 	try
 	{
-		TheScriptingWindow->restartNiawgDefaults ();
+		scriptWin->restartNiawgDefaults ();
 		comm.sendError("EXITED WITH ERROR!");
 		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
@@ -1148,7 +1112,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
-	TheScriptingWindow->setNiawgRunningState( false );
+	scriptWin->setNiawgRunningState( false );
 	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
 	errBox ( statusMessage );
 	return 0;
@@ -1157,15 +1121,15 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 
 void MainWindow::onNormalFinishMessage()
 {
-	TheScriptingWindow->setIntensityDefault();
+	scriptWin->setIntensityDefault();
 	setShortStatus("Passively Outputting Default Waveform");
 	changeShortStatusColor("B");
-	TheScriptingWindow->stopRearranger( );
-	TheAndorWindow->wakeRearranger();
-	TheAndorWindow->cleanUpAfterExp ( );
+	scriptWin->stopRearranger( );
+	andorWin->wakeRearranger();
+	andorWin->cleanUpAfterExp ( );
 	handleFinish ( );
 	comm.sendColorBox( System::Niawg, 'B' );
-	try	{ TheScriptingWindow->restartNiawgDefaults (); }
+	try	{ scriptWin->restartNiawgDefaults (); }
 	catch ( Error& except )
 	{
 		comm.sendError( "The niawg finished normally, but upon restarting the default waveform, threw the "
@@ -1173,14 +1137,13 @@ void MainWindow::onNormalFinishMessage()
 		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );
 	}
-	TheScriptingWindow->setNiawgRunningState( false );
-	try { TheScriptingWindow->waitForRearranger (); }
+	scriptWin->setNiawgRunningState( false );
+	try { scriptWin->waitForRearranger (); }
 	catch ( Error& err ) { comm.sendError( err.trace( ) ); }
-	if (TheAndorWindow->wantsThresholdAnalysis ()) { handleThresholdAnalysis (); }
+	if (andorWin->wantsThresholdAnalysis ()) { handleThresholdAnalysis (); }
 	if ( autoF5_AfterFinish )
 	{
-		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this, this, TheScriptingWindow, TheAndorWindow,
-											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow );
+		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F5, this);
 		autoF5_AfterFinish = false;
 	}
 }
@@ -1216,7 +1179,6 @@ void MainWindow::handleFinish()
 		comm.sendError(err.trace());
 	}
 }
-
 
 
 LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)

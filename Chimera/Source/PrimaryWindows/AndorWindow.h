@@ -14,6 +14,7 @@
 #include "Andor/cameraPositions.h"
 #include "GeneralObjects/commonTypes.h"
 #include "GeneralObjects/Queues.h"
+#include "IChimeraWindow.h"
 #include <bitset>
 
 
@@ -24,22 +25,20 @@ class BaslerWindow;
 class DeformableMirrorWindow;
 
 
-class AndorWindow : public CDialog
+class AndorWindow : public IChimeraWindow
 {
-	using CDialog::CDialog;
-	
 	DECLARE_DYNAMIC( AndorWindow )
-
 	public:
 		/// overrides
  		AndorWindow();
 		void OnPaint ();
  		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
+		void OnSize (UINT nType, int cx, int cy);
+
 		BOOL OnInitDialog() override;
 		void OnMouseMove( UINT thing, CPoint point );
 		BOOL PreTranslateMessage( MSG* pMsg );
-		void OnCancel() override;
-		void OnSize( UINT nType, int cx, int cy );
+		
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void OnTimer( UINT_PTR id );
 		void OnLButtonUp( UINT stuff, CPoint loc );
@@ -57,14 +56,12 @@ class AndorWindow : public CDialog
 		void handleSpecialGreaterThanMaxSelection();
 		void handleSpecialLessThanMinSelection();
 		void readImageParameters();
-		void passCommonCommand( UINT id );
 		void passTrigger();
 		void passCameraMode();
 		void passSetTemperaturePress();
 		void passAlwaysShowGrid();
 		void passManualSetAnalysisLocations();
 		void passSetGridCorner( );
-		void catchEnter();
 		void setDataType( std::string dataType );
 		/// auxiliary functions.
 		void calibrate ( );
@@ -74,13 +71,13 @@ class AndorWindow : public CDialog
 		void fillMasterThreadInput( ExperimentThreadInput* input );
 		DataLogger& getLogger();
 		std::string getSystemStatusString();
-		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* auxWin, 
-						  BaslerWindow* basWin, DeformableMirrorWindow* dmWindow);
-		void handleSaveConfig(ConfigStream& saveFile);
+		void windowSaveConfig(ConfigStream& saveFile);
+		void windowOpenConfig (ConfigStream& configFile, Version ver);
+
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(std::stringstream& configStream, Version version);
 		void handlePictureEditChange(UINT id);
-		void windowOpenConfig(ConfigStream& configFile, Version ver );
+
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( systemInfo<char> colors );
 		cToolTips getToolTips();
@@ -99,9 +96,7 @@ class AndorWindow : public CDialog
 		void preparePlotter( AllExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
-		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
-														  ScriptingWindow* scriptWin, AndorWindow* camWin, 
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, DeformableMirrorWindow* dmWin );
+		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindow* win);
 		void passAtomGridCombo( );
 		void passDelGrid( );
 		void startAtomCruncher(AllExperimentInput& input);
@@ -146,12 +141,6 @@ class AndorWindow : public CDialog
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;
 		std::vector<PlotCtrl*> mainAnalysisPlots;
-		MainWindow* mainWin;
-		ScriptingWindow* scriptWin;
-		AuxiliaryWindow* auxWin;
-		BaslerWindow* basWin;
-		DeformableMirrorWindow* dmWin;
-
 		cToolTips tooltips;
 		coordinate selectedPixel = { 0,0 };
 		CMenu menu;
@@ -191,6 +180,4 @@ class AndorWindow : public CDialog
 		UINT currentPictureNum = 0;
 		Matrix<long> avgBackground;
 };
-
-
 

@@ -321,6 +321,7 @@
     <ClCompile Include="Source\PrimaryWindows\DeformableMirrorWindow.cpp" />
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\IChimeraWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -753,6 +754,7 @@
     <ClInclude Include="Source\AnalogInput\AiUnits.h" />
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
+    <ClInclude Include="Source\PrimaryWindows\IChimeraWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

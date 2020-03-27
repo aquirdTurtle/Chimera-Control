@@ -10,6 +10,7 @@
 #include "ExperimentThread/Communicator.h"
 #include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
+#include "IChimeraWindow.h"
 
 class MainWindow;
 class AndorWindow;
@@ -26,9 +27,9 @@ template <typename type> struct scriptInfo
 };
 
 
-class ScriptingWindow : public CDialog
+class ScriptingWindow : public IChimeraWindow
 {
-	using CDialog::CDialog;
+	using IChimeraWindow::IChimeraWindow;
 	DECLARE_DYNAMIC(ScriptingWindow);
 
 	public:
@@ -36,17 +37,13 @@ class ScriptingWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 
-		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-		
+		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);		
 		BOOL OnInitDialog() override;
 		void OnTimer(UINT_PTR eventID);
 		void passRerngModeComboChange ();
 		void passExperimentRerngButton ();
-		void passCommonCommand(UINT id);
 		void fillMotInput (ExperimentThreadInput* input);
 		void checkScriptSaves();
-		void loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, BaslerWindow* basWin_,
-			DeformableMirrorWindow* dmWindow);
 		void fillMasterThreadInput(ExperimentThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
 
@@ -60,7 +57,8 @@ class ScriptingWindow : public CDialog
 
 		void checkMasterSave();
 
-		void handleSavingConfig(ConfigStream& saveFile);
+		void windowSaveConfig(ConfigStream& saveFile);
+		void windowOpenConfig (ConfigStream& configFile, Version ver);
 
 		void updateScriptNamesOnScreen();
 		void updateProfile(std::string text);
@@ -90,8 +88,6 @@ class ScriptingWindow : public CDialog
 		void saveMasterFunction();
 		void deleteMasterFunction();
 		void masterEditChange();
-		Communicator* comm();
-		//void openMasterScript(std::string name);
 
 		void changeBoxColor( systemInfo<char> colors );
 		void updateConfigurationSavedStatus(bool status);
@@ -103,8 +99,7 @@ class ScriptingWindow : public CDialog
 		void handleAgilentScriptComboChange();
 		void handleMasterFunctionChange( );
 		void handleIntensityCombo();
-		void windowOpenConfig(ConfigStream& configFile, Version ver );
-		void catchEnter();
+		
 		profileSettings getProfile();
 		void setIntensityDefault();
 		void setMenuCheck ( UINT menuItem, UINT itemState );
@@ -126,18 +121,12 @@ class ScriptingWindow : public CDialog
 
 	private:
 		DECLARE_MESSAGE_MAP();
-		
-		MainWindow* mainWin;
-		AndorWindow* camWin;
-		AuxiliaryWindow* auxWin;
-		BaslerWindow* basWin;
-		DeformableMirrorWindow* dmWin;
 		//
+		CMenu menu;
 		cToolTips tooltips;
 		NiawgSystem niawg;
 		Script masterScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
-		CMenu menu;
 		Agilent intensityAgilent;
 };

@@ -9,6 +9,7 @@
 #include "GeneralImaging/PictureStats.h"
 #include "GeneralObjects/commonTypes.h"
 #include "Plotting/PlotCtrl.h"
+#include "IChimeraWindow.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -17,15 +18,13 @@ class AuxiliaryWindow;
 class BaslerWindow;
 class DeformableMirrorWindow;
 
-class BaslerWindow : public CDialogEx
+class BaslerWindow : public IChimeraWindow
 {
  	public:
 		BaslerWindow( );
 		BOOL OnInitDialog();
-		void handleEnter();
 		void handleBaslerAutoscaleSelection ( );
 		void OnPaint();
-		void passCommonCommand ( UINT id );
 		void startTemporaryAcquisition ( baslerSettings motSizeSettings );
 		void startDefaultAcquisition ( );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -43,13 +42,10 @@ class BaslerWindow : public CDialogEx
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void handleSoftwareTrigger();
-		void handleOpeningConfig ( ConfigStream& configFile, Version ver );
+		void windowOpenConfig ( ConfigStream& configFile, Version ver );
 		void OnMouseMove(UINT flags, CPoint point );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
-		void DoDataExchange( CDataExchange* pDX );
-		void loadFriends (MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_,
-			DeformableMirrorWindow* dmWindow);
-		void handleSavingConfig ( ConfigStream& configFile );
+		void windowSaveConfig ( ConfigStream& configFile );
 		baslerSettings getCurrentSettings ( );
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BaslerCameraCore& getCore();
@@ -64,7 +60,6 @@ class BaslerWindow : public CDialogEx
 		PictureStats stats;
 		baslerSettings tempAcqSettings;
 		bool runningAutoAcq;
-		//PictureSaver saver;
 		unsigned int currentRepNumber;
 		BaslerAutoExposure::mode runExposureMode;
 		std::vector<std::vector<long>> images;
@@ -74,13 +69,7 @@ class BaslerWindow : public CDialogEx
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		CFont* plotfont;
-		MainWindow* mainWin;
-		AndorWindow* camWin;
-		AuxiliaryWindow* auxWin;
-		ScriptingWindow* scriptWin;
-		DeformableMirrorWindow* dmWin;
 		coordinate selectedPixel = { 0,0 };
-	protected:
 		HICON m_hIcon;
-	DECLARE_MESSAGE_MAP()
+		DECLARE_MESSAGE_MAP()
 };

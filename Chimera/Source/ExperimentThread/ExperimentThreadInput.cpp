@@ -5,13 +5,13 @@
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/BaslerWindow.h"
 #include "PrimaryWindows/ScriptingWindow.h"
+#include "PrimaryWindows/IChimeraWindow.h"
 
-ExperimentThreadInput::ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, 
-	BaslerWindow* basWin, ScriptingWindow* scriptWin) :
-	ttls ( auxWin->getTtlCore ( ) ), aoSys ( auxWin->getAoSys ( ) ), aiSys ( auxWin->getAiSys ( ) ),
-	python ( mainWin->getPython ( ) ), niawg ( scriptWin->getNiawg ( ) ), comm ( mainWin->getCommRef ( ) ),
-	rsg ( auxWin->getRsg ( ) ), eoAxialTek ( auxWin->getEoAxialTek ( ) ), topBottomTek ( auxWin->getTopBottomTek ( ) ),
-	globalControl( auxWin->getGlobals() ), andorCamera( andorWin->getCamera() ), dds( auxWin->getDds() ), 
-	logger(andorWin->getLogger() ), piezoCores( auxWin->getPiezoControllers() ), basCamera (basWin->getCore())
+ExperimentThreadInput::ExperimentThreadInput ( IChimeraWindow* win ) :
+	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ), aiSys (win->auxWin->getAiSys ( ) ),
+	python (win->mainWin->getPython ( ) ), niawg (win->scriptWin->getNiawg ( ) ), comm (win->mainWin->getCommRef ( ) ),
+	rsg (win->auxWin->getRsg ( ) ), eoAxialTek (win->auxWin->getEoAxialTek ( ) ), topBottomTek (win->auxWin->getTopBottomTek ( ) ),
+	globalControl(win->auxWin->getGlobals() ), andorCamera(win->andorWin->getCamera() ), dds(win->auxWin->getDds() ),
+	logger(win->andorWin->getLogger() ), piezoCores(win->auxWin->getPiezoControllers() ), basCamera (win->basWin->getCore())
 { };
 

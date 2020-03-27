@@ -33,13 +33,13 @@
 class AuxiliaryWindow;
 class MainWindow;
 class DataLogger;
+class IChimeraWindow;
 class ScriptingWindow;
 class ExperimentThreadManager;
 
 struct ExperimentThreadInput
 {
-	ExperimentThreadInput ( AuxiliaryWindow* auxWin, MainWindow* mainWin, AndorWindow* andorWin, BaslerWindow* basWin,
-							ScriptingWindow* scriptWin);
+	ExperimentThreadInput ( IChimeraWindow* win );
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
 	profileSettings profile;

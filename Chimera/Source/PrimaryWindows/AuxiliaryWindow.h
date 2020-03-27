@@ -26,6 +26,7 @@
 #include "ExperimentMonitoringAndStatus/colorbox.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ConfigurationSystems/Version.h"
+#include "IChimeraWindow.h"
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
@@ -46,7 +47,7 @@ class DeformableMirrorWindow;
 
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
-class AuxiliaryWindow : public CDialog
+class AuxiliaryWindow : public IChimeraWindow
 {
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 	public:
@@ -57,12 +58,9 @@ class AuxiliaryWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
-		void windowOpenConfig(ConfigStream& configFile, Version ver );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);
 		void OnPaint( );
-		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
 		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		// the master needs to handle tooltip stuff.
@@ -83,10 +81,7 @@ class AuxiliaryWindow : public CDialog
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
 		void ViewOrChangeDACNames();
-		void Exit();
 		void passRoundToDac();
-		void loadFriends( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-						  BaslerWindow* basWin_, DeformableMirrorWindow* dmWin );
 		std::string getOtherSystemStatusMsg();
 		Matrix<std::string> getTtlNames();
 		DoSystem* getTtlSystem ();
@@ -94,7 +89,6 @@ class AuxiliaryWindow : public CDialog
 		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getMicrowaveSystemStatus( );
-		//void loadCameraCalSettings( ExperimentThreadInput* input );
 
 		void updateAgilent( whichAg::agilentNames name );
 		void newAgilentScript( whichAg::agilentNames name );
@@ -103,7 +97,6 @@ class AuxiliaryWindow : public CDialog
 		void saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent );
 		void handleAgilentEditChange( UINT id );
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
-		void handleEnter();
 		void fillMasterThreadInput(ExperimentThreadInput* input);
 		void changeBoxColor(systemInfo<char> colors);
 		void DacEditChange(UINT id);
@@ -119,8 +112,6 @@ class AuxiliaryWindow : public CDialog
 
 		void handleTektronicsButtons(UINT id);
 		void invalidateSaved ( UINT id );
-		void sendErr(std::string msg);
-		void sendStatus(std::string msg);
 
 		std::vector<parameterType> getAllVariables();
 
@@ -140,7 +131,8 @@ class AuxiliaryWindow : public CDialog
 		void OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result );
 
 		UINT getTotalVariationNumber();
-		void handleSaveConfig(ConfigStream& saveFile);
+		void windowSaveConfig(ConfigStream& saveFile);
+		void windowOpenConfig (ConfigStream& configFile, Version ver);
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
 		void setVariablesActiveState(bool active);
@@ -163,11 +155,6 @@ class AuxiliaryWindow : public CDialog
 	private:
 		DECLARE_MESSAGE_MAP();		
 
-		MainWindow* mainWin;
-		ScriptingWindow* scriptWin;
-		AndorWindow* camWin;
-		BaslerWindow* basWin;
-		DeformableMirrorWindow* dmWin;
 		int plotIds = 17002;
 		CMenu menu;
 		std::string title;
