@@ -16,7 +16,7 @@
 #include <boost/lexical_cast.hpp>
 #include "Agilent/AgilentSettings.h"
 
-AuxiliaryWindow::AuxiliaryWindow ( ) : CDialog ( ),
+AuxiliaryWindow::AuxiliaryWindow ( ) : IChimeraWindow ( ),
 	topBottomTek ( TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG" ),
 	eoAxialTek ( EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG" ),
 	agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
@@ -43,15 +43,13 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_CTLCOLOR( )
 	ON_WM_SIZE( )
 
-	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AuxiliaryWindow::passCommonCommand )
-	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &AuxiliaryWindow::handleTtlPush )
-	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &AuxiliaryWindow::handlePlotPop)
+	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &handleTtlPush )
+	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &handlePlotPop)
 
 	ON_COMMAND( TTL_HOLD, &handlTtlHoldPush )
 	ON_COMMAND( ID_DAC_SET_BUTTON, &SetDacs )
 	ON_COMMAND( IDC_ZERO_TTLS, &zeroTtls )
 	ON_COMMAND( IDC_ZERO_DACS, &zeroDacs )
-	ON_COMMAND( IDOK, &handleEnter )
 	ON_COMMAND( TOP_BOTTOM_TEK_START, &passTopBottomTekProgram )
 	ON_COMMAND(	EO_AXIAL_TEK_START, &passEoAxialTekProgram )
 	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
@@ -63,43 +61,39 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 	ON_COMMAND( IDC_UW_SYSTEM_PROGRAM_NOW, &handleProgramUwSystemNow)
 
-	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
+	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &onLogVoltsMessage )
 
-	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
-	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &AuxiliaryWindow::handleTektronicsButtons )
+	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &handleAgilentOptions )
+	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &handleTektronicsButtons )
 	
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_TOP_BOTTOM_AGILENT_COMBO, IDC_TOP_BOTTOM_AGILENT_COMBO, 
-					  &AuxiliaryWindow::handleAgilentCombo )
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_AXIAL_AGILENT_COMBO, IDC_AXIAL_AGILENT_COMBO, 
-					  &AuxiliaryWindow::handleAgilentCombo )
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_AGILENT_COMBO, 
-					  &AuxiliaryWindow::handleAgilentCombo )
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, 
-					  &AuxiliaryWindow::handleAgilentCombo )
+	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_TOP_BOTTOM_AGILENT_COMBO, IDC_TOP_BOTTOM_AGILENT_COMBO, &handleAgilentCombo )
+	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_AXIAL_AGILENT_COMBO, IDC_AXIAL_AGILENT_COMBO, &handleAgilentCombo )
+	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_AGILENT_COMBO, &handleAgilentCombo )
+	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, &handleAgilentCombo )
 	
-	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
-	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
-	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
-	ON_NOTIFY( NM_CLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsSingleClick)
-	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
-	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
-	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
-	ON_NOTIFY( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamDblClick )
-	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &AuxiliaryWindow::OptParamRClick )
-	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsDblClick )
-	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &AuxiliaryWindow::DdsRClick )
-	ON_NOTIFY ( NM_DBLCLK, IDC_UW_SYSTEM_LISTVIEW, &AuxiliaryWindow::uwDblClick )
-	ON_NOTIFY ( NM_RCLICK, IDC_UW_SYSTEM_LISTVIEW, &AuxiliaryWindow::uwRClick)
+	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &DacEditChange )
+	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsColumnClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsDblClick )
+	ON_NOTIFY( NM_CLICK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsSingleClick)
+	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsRClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &GlobalVarDblClick )
+	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &GlobalVarRClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &OptParamDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_MACHINE_OPTIMIZE_LISTVIEW, &OptParamRClick )
+	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &DdsDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &DdsRClick )
+	ON_NOTIFY ( NM_DBLCLK, IDC_UW_SYSTEM_LISTVIEW, &uwDblClick )
+	ON_NOTIFY ( NM_RCLICK, IDC_UW_SYSTEM_LISTVIEW, &uwRClick)
 
-	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
-	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
+	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &drawVariables )
+	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &drawVariables )
 	// catches all the edits in the tektronics controls
-	ON_CONTROL_RANGE( EN_CHANGE, TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START + 99, &AuxiliaryWindow::invalidateSaved )
+	ON_CONTROL_RANGE( EN_CHANGE, TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START + 99, &invalidateSaved )
 
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_TOP_BOTTOM_EDIT, IDC_TOP_BOTTOM_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_FLASHING_EDIT, IDC_FLASHING_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_AXIAL_EDIT, IDC_AXIAL_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_UWAVE_EDIT, IDC_UWAVE_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_TOP_BOTTOM_EDIT, IDC_TOP_BOTTOM_EDIT, &handleAgilentEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_FLASHING_EDIT, IDC_FLASHING_EDIT, &handleAgilentEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_AXIAL_EDIT, IDC_AXIAL_EDIT, &handleAgilentEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_UWAVE_EDIT, IDC_UWAVE_EDIT, &handleAgilentEditChange )
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_WM_TIMER( )
@@ -130,7 +124,7 @@ void AuxiliaryWindow::handleProgramUwSystemNow ()
 	}
 	catch (Error & err)
 	{
-		sendErr ("Failed to program microwave system! " + err.trace ());
+		reportErr ("Failed to program microwave system! " + err.trace ());
 	}
 }
 
@@ -143,7 +137,7 @@ void AuxiliaryWindow::uwDblClick (NMHDR* pNotifyStruct, LRESULT* result)
 	}
 	catch (Error & err)
 	{
-		sendErr (err.trace ());
+		reportErr (err.trace ());
 	}
 }
 
@@ -155,7 +149,7 @@ void AuxiliaryWindow::uwRClick (NMHDR* pNotifyStruct, LRESULT* result)
 	}
 	catch (Error & err)
 	{
-		sendErr (err.trace ());
+		reportErr (err.trace ());
 	}
 }
 
@@ -182,7 +176,7 @@ void AuxiliaryWindow::handlePiezo1Ctrl ( )
 	}
 	catch ( Error& err)
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -195,7 +189,7 @@ void AuxiliaryWindow::handlePiezo2Ctrl ( )
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -207,7 +201,7 @@ void AuxiliaryWindow::programPiezo1 ( )
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 void AuxiliaryWindow::programPiezo2 ( )
@@ -218,7 +212,7 @@ void AuxiliaryWindow::programPiezo2 ( )
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -231,7 +225,7 @@ void AuxiliaryWindow::programDds ( )
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -244,7 +238,7 @@ void AuxiliaryWindow::DdsRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch (Error& err )
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -256,7 +250,7 @@ void AuxiliaryWindow::DdsDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& err )
 	{
-		sendErr ( err.trace ( ) );
+		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -272,21 +266,6 @@ void AuxiliaryWindow::setMenuCheck ( UINT menuItem, UINT itemState )
 	menu.CheckMenuItem ( menuItem, itemState );
 }
 
-
-
-void AuxiliaryWindow::passCommonCommand ( UINT id )
-{
-	try
-	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, this, basWin, dmWin );
-	}
-	catch ( Error& err )
-	{
-		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox ( err.what ( ) );
-	}
-}
-
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
@@ -297,7 +276,7 @@ void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Variables Double Click Handler : \n" + exception.trace ( ) + "\n" );
+		reportErr ( "Variables Double Click Handler : \n" + exception.trace ( ) + "\n" );
 	}
 }
 
@@ -313,7 +292,7 @@ void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Variables Right Click Handler : " + exception.trace ( ) + "\r\n" );
+		reportErr ( "Variables Right Click Handler : " + exception.trace ( ) + "\r\n" );
 	}
 	mainWin->updateConfigurationSavedStatus ( false );
 }
@@ -330,8 +309,7 @@ void AuxiliaryWindow::autoOptimize ( )
 			return;
 		}
 		optimizer.reset ( );
-		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this, mainWin, scriptWin, camWin, this, basWin, 
-											   dmWin );
+		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this); 
 	}
 	catch ( Error& err )
 	{
@@ -344,7 +322,7 @@ void AuxiliaryWindow::autoOptimize ( )
 void AuxiliaryWindow::updateOptimization ( AllExperimentInput& input )
 {
 	optimizer.verifyOptInput ( input );
-	dataPoint resultValue = camWin->getMainAnalysisResult ( );
+	dataPoint resultValue = andorWin->getMainAnalysisResult ( );
 	auto params = optimizer.getOptParams ( );
 	//optimizer.updateParams ( input, resultValue, camWin->getLogger() );
 	std::string msg = "Next Optimization: ";
@@ -353,7 +331,7 @@ void AuxiliaryWindow::updateOptimization ( AllExperimentInput& input )
 		msg += param->name + ": " + str ( param->currentValue ) + ";";
 	}
 	msg += "\r\n";
-	sendStatus ( msg );
+	reportStatus ( msg );
 }
 
 // MESSAGE MAP FUNCTION
@@ -361,7 +339,7 @@ LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
 	aiSys.refreshCurrentValues( );
 	aiSys.refreshDisplays( );
-	camWin->writeVolts( wp, aiSys.getCurrentValues() );
+	andorWin->writeVolts( wp, aiSys.getCurrentValues() );
 	return TRUE;
 }
 
@@ -403,12 +381,12 @@ void AuxiliaryWindow::OnPaint( )
 
 void AuxiliaryWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	camWin->stopSound( );
+	andorWin->stopSound( );
 }
 
 void AuxiliaryWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
-	camWin->stopSound( );
+	andorWin->stopSound( );
 }
 
 
@@ -425,7 +403,7 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.trace( ) );
+		reportErr( err.trace( ) );
 	}
 
 }
@@ -447,7 +425,7 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.trace( ) );
+		reportErr( err.trace( ) );
 	}
 }
 
@@ -479,7 +457,7 @@ void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.trace( ) );
+		reportErr( err.trace( ) );
 	}
 }
 
@@ -503,7 +481,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* par
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.trace( ) );
+		reportErr( err.trace( ) );
 	}
 }
 
@@ -527,7 +505,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 			}
 			catch (Error & err)
 			{
-				sendErr (err.trace ());
+				reportErr (err.trace ());
 			}
 		}
 		KillTimer (2);
@@ -585,7 +563,7 @@ void AuxiliaryWindow::handleAgilentEditChange( UINT id )
 	}
 	catch ( Error& err )
 	{
-		sendErr( err.trace( ) );
+		reportErr( err.trace( ) );
 	}
 }
 
@@ -619,11 +597,11 @@ void AuxiliaryWindow::passTopBottomTekProgram()
 	try
 	{
 		topBottomTek.handleProgram(getUsableConstants());
-		sendStatus( "Programmed Top/Bottom Tektronics Generator.\r\n" );
+		reportStatus( "Programmed Top/Bottom Tektronics Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing Top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
+		reportErr( "Error while programing Top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -633,11 +611,11 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 	try
 	{
 		eoAxialTek.handleProgram(getUsableConstants());
-		sendStatus( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
+		reportStatus( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		sendErr( "Error while programing Raman E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
+		reportErr( "Error while programing Raman E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -657,7 +635,7 @@ std::pair<UINT, UINT> AuxiliaryWindow::getTtlBoardSize()
 }
 
 
-void AuxiliaryWindow::handleSaveConfig(ConfigStream& saveFile )
+void AuxiliaryWindow::windowSaveConfig(ConfigStream& saveFile )
 {
 	// order matters! Don't change the order here.
 	configParameters.handleSaveConfig( saveFile );
@@ -754,7 +732,7 @@ void AuxiliaryWindow::ConfigVarsSingleClick ( NMHDR * pNotifyStruct, LRESULT * r
 	}
 	catch ( Error& exception )
 	{
-		sendErr ( "Config Parameters Single Click Handler : " + exception.trace ( ) + "\r\n" );
+		reportErr ( "Config Parameters Single Click Handler : " + exception.trace ( ) + "\r\n" );
 	}
 }
 
@@ -768,7 +746,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	}
 	catch (Error& exception)
 	{
-		sendErr("Config Parameters Double Click Handler : " + exception.trace() + "\r\n");
+		reportErr("Config Parameters Double Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
@@ -781,7 +759,7 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Config Parameters Right Click Handler : " + exception.trace() + "\r\n");
+		reportErr("Config Parameters Right Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
@@ -804,7 +782,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Global Variables Double Click Handler : " + exception.trace() + "\r\n");
+		reportErr("Global Variables Double Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
@@ -817,7 +795,7 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	catch (Error& exception)
 	{
-		sendErr("Global Variables Right Click Handler : " + exception.trace() + "\r\n");
+		reportErr("Global Variables Right Click Handler : " + exception.trace() + "\r\n");
 	}
 }
 
@@ -830,7 +808,7 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 	}
 	catch (Error& exception)
 	{
-		sendErr("Handling config variable listview click.\n" + exception.trace() + "\r\n");
+		reportErr("Handling config variable listview click.\n" + exception.trace() + "\r\n");
 	}
 }
 
@@ -860,18 +838,6 @@ void AuxiliaryWindow::addVariable(std::string name, bool constant, double value)
 	}
 }
 
-
-void AuxiliaryWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								   BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
-{
-	mainWin = mainWin_;
-	scriptWin = scriptWin_;
-	camWin = camWin_;
-	basWin = basWin_;
-	dmWin = dmWindow;
-}
-
-
 void AuxiliaryWindow::passRoundToDac()
 {
 	mainWin->updateConfigurationSavedStatus ( false );
@@ -884,12 +850,6 @@ void AuxiliaryWindow::handleTektronicsButtons(UINT id)
 	topBottomTek.handleButtons ( id );
 	eoAxialTek.handleButtons ( id );
 	mainWin->updateConfigurationSavedStatus(false);
-}
-
-
-void AuxiliaryWindow::handleEnter()
-{
-	errBox("Hello, there!");
 }
 
 
@@ -977,11 +937,11 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		{
 			agilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 			agilent.programAgilentNow(getUsableConstants());
-			sendStatus( "Programmed Agilent " + agilent.getConfigDelim() + ".\r\n" );
+			reportStatus( "Programmed Agilent " + agilent.getConfigDelim() + ".\r\n" );
 		}
 		catch (Error& err)
 		{
-			sendErr( "Error while programming agilent " + agilent.getConfigDelim() + ": " + err.trace() + "\r\n" );
+			reportErr( "Error while programming agilent " + agilent.getConfigDelim() + ": " + err.trace() + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -1001,21 +961,10 @@ void AuxiliaryWindow::handleAgilentCombo(UINT id)
 	}
 	catch ( Error& err )
 	{
-		sendErr( "Error while handling agilent combo change: " + err.trace( ) );
+		reportErr( "Error while handling agilent combo change: " + err.trace( ) );
 	}
 }
 
-
-void AuxiliaryWindow::sendErr(std::string msg)
-{
-	mainWin->getComm()->sendError(msg);
-}
-
-
-void AuxiliaryWindow::sendStatus(std::string msg)
-{
-	mainWin->getComm()->sendStatus(msg);
-}
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::zeroDacs( )
@@ -1024,12 +973,12 @@ void AuxiliaryWindow::zeroDacs( )
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
 		aoSys.zeroDacs( ttlBoard.getCore(), { 0, ttlBoard.getCurrentStatus () });
-		sendStatus( "Zero'd DACs.\r\n" );
+		reportStatus( "Zero'd DACs.\r\n" );
 	}
 	catch ( Error& exception )
 	{
-		sendStatus( "Failed to Zero DACs!!!\r\n" );
-		sendErr( exception.trace( ) );
+		reportStatus( "Failed to Zero DACs!!!\r\n" );
+		reportErr( exception.trace( ) );
 	}
 }
 
@@ -1040,12 +989,12 @@ void AuxiliaryWindow::zeroTtls()
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
 		ttlBoard.zeroBoard();
-		sendStatus( "Zero'd TTLs.\r\n" );
+		reportStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		sendStatus( "Failed to Zero TTLs!!!\r\n" );
-		sendErr( exception.trace() );
+		reportStatus( "Failed to Zero TTLs!!!\r\n" );
+		reportErr( exception.trace() );
 	}
 }
 
@@ -1082,14 +1031,6 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 		throwNested ( "Auxiliary window failed to fill master thread input." );
 	}
 }
-
-// MESSAGE MAP FUNCTION
-// Gets called after alt-f4 or X button is pressed.
-void AuxiliaryWindow::OnCancel ()
-{
-	passCommonCommand (ID_FILE_MY_EXIT);
-}
-
 
 AoSystem& AuxiliaryWindow::getAoSys ()
 {
@@ -1295,18 +1236,18 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 void AuxiliaryWindow::SetDacs()
 {
 	// have the dac values change
-	sendStatus( "----------------------\r\nSetting Dacs... " );
+	reportStatus( "----------------------\r\nSetting Dacs... " );
 	try
 	{
 		mainWin->updateConfigurationSavedStatus ( false );
 		aoSys.forceDacs (ttlBoard.getCore (), { 0, ttlBoard.getCurrentStatus () });
-		sendStatus( "Finished Setting Dacs.\r\n" );
+		reportStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
 	{
 		errBox( exception.trace() );
-		sendStatus( ": " + exception.trace() + "\r\n" );
-		sendErr( exception.trace() );
+		reportStatus( ": " + exception.trace() + "\r\n" );
+		reportErr( exception.trace() );
 	}
 }
 
@@ -1320,7 +1261,7 @@ void AuxiliaryWindow::DacEditChange(UINT id)
 	}
 	catch (Error& err)
 	{
-		sendErr(err.trace());
+		reportErr(err.trace());
 	}
 }
 
@@ -1334,7 +1275,7 @@ void AuxiliaryWindow::handleTtlPush(UINT id)
 	}
 	catch (Error& exception)
 	{
-		sendErr( "TTL Press Handler Failed.\n" + exception.trace() + "\r\n" );
+		reportErr( "TTL Press Handler Failed.\n" + exception.trace() + "\r\n" );
 	}
 }
 
@@ -1348,7 +1289,7 @@ void AuxiliaryWindow::handlTtlHoldPush()
 	}
 	catch (Error& exception)
 	{
-		sendErr( "TTL Hold Handler Failed: " + exception.trace() + "\r\n" );
+		reportErr( "TTL Hold Handler Failed: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -1372,12 +1313,6 @@ void AuxiliaryWindow::ViewOrChangeDACNames()
 	input.toolTips = toolTips;
 	AoSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
 	dialog.DoModal();
-}
-
-
-void AuxiliaryWindow::Exit()
-{
-	EndDialog(0);
 }
 
 
@@ -1466,7 +1401,7 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 				}
 				catch ( Error& err )
 				{
-					sendErr ( "Failed to change dacs - caught during quick change handling. " + err.trace ( ) + "\r\n" );
+					reportErr ( "Failed to change dacs - caught during quick change handling. " + err.trace ( ) + "\r\n" );
 				}
 				return TRUE;
 			}			

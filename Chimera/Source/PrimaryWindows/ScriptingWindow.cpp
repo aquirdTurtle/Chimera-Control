@@ -14,7 +14,7 @@
 #include "Agilent/Agilent.h"
 #include "Agilent/AgilentSettings.h"
 
-ScriptingWindow::ScriptingWindow() : CDialog(), 
+ScriptingWindow::ScriptingWindow() : IChimeraWindow(),
 intensityAgilent( INTENSITY_AGILENT_SETTINGS ), 
 niawg (DoRows::which::B, 14, NIAWG_SAFEMODE)
 {}
@@ -30,7 +30,6 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_EN_CHANGE( IDC_INTENSITY_EDIT, &ScriptingWindow::agilentEditChange)
 	ON_EN_CHANGE( IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
 
-	ON_COMMAND( IDOK, &ScriptingWindow::catchEnter)
 	ON_COMMAND (IDC_CONTROL_NIAWG_CHECK, &handleControlNiawgCheck)
 
 	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
@@ -65,12 +64,12 @@ void ScriptingWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 
 void ScriptingWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	camWin->stopSound( );
+	andorWin->stopSound( );
 }
 
 void ScriptingWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
-	camWin->stopSound( );
+	andorWin->stopSound( );
 }
 
 
@@ -126,12 +125,12 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 		{
 			intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 			intensityAgilent.programAgilentNow(auxWin->getUsableConstants());
-			comm()->sendStatus( "Programmed Agilent " + intensityAgilent.getConfigDelim()+ ".\r\n" );
+			reportStatus( "Programmed Agilent " + intensityAgilent.getConfigDelim()+ ".\r\n" );
 		}
 		catch (Error& err)
 		{
-			comm()->sendError( "Error while programming agilent " + intensityAgilent.getConfigDelim() + ": " 
-							   + err.trace() + "\r\n" );
+			reportErr( "Error while programming agilent " + intensityAgilent.getConfigDelim() + ": " + err.trace() 
+					   + "\r\n" );
 		}
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
@@ -147,19 +146,8 @@ void ScriptingWindow::masterEditChange()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError(err.trace());
+		reportErr(err.trace());
 	}
-}
-
-
-Communicator* ScriptingWindow::comm()
-{
-	return mainWin->getComm();
-}
-
-void ScriptingWindow::catchEnter()
-{
-	errBox("Secret Message!");
 }
 
 
@@ -270,7 +258,6 @@ BOOL ScriptingWindow::OnInitDialog()
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
 	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
 	
-	
 	menu.LoadMenu(IDR_MAIN_MENU);
 	SetMenu(&menu);
 	try
@@ -315,7 +302,7 @@ void ScriptingWindow::OnTimer(UINT_PTR eventID)
 	}
 	catch (Error & err)
 	{
-		comm ()->sendError (err.trace ());
+		reportErr(err.trace ());
 	}
 }
 
@@ -324,7 +311,7 @@ void ScriptingWindow::checkScriptSaves()
 {
 	niawg.niawgScript.checkSave(getProfile().configLocation, mainWin->getRunInfo() );
 	intensityAgilent.checkSave ( getProfile ( ).configLocation, mainWin->getRunInfo ( ) );
-	masterScript.checkSave( getProfile( ).configLocation, mainWin->getRunInfo( ), comm ( ) );
+	masterScript.checkSave( getProfile( ).configLocation, mainWin->getRunInfo( ), mainWin->getComm ( ) );
 }
 
 
@@ -361,16 +348,6 @@ void ScriptingWindow::streamNiawgWaveform ()
 	niawg.core.streamWaveform ();
 }
 
-
-void ScriptingWindow::loadFriends(MainWindow* mainWin_, AndorWindow* camWin_, AuxiliaryWindow* auxWin_, 
-	BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow)
-{
-	mainWin = mainWin_;
-	camWin = camWin_;
-	auxWin = auxWin_;
-	basWin = basWin_;
-	dmWin = dmWindow;
-}
 
 /*
 	This function retuns the names (just the names) of currently active scripts.
@@ -466,7 +443,7 @@ void ScriptingWindow::setIntensityDefault()
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( err.trace( ) );
+		reportErr( err.trace( ) );
 	}
 }
 
@@ -504,7 +481,7 @@ void ScriptingWindow::newIntensityScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 }
 
@@ -526,7 +503,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 }
 
@@ -543,7 +520,7 @@ void ScriptingWindow::saveIntensityScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 }
 
@@ -566,7 +543,7 @@ void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 } 
  
@@ -590,7 +567,7 @@ void ScriptingWindow::newNiawgScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 }
 
@@ -608,7 +585,7 @@ void ScriptingWindow::openNiawgScript(CWnd* parent)
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 
 }
@@ -623,7 +600,7 @@ void ScriptingWindow::saveNiawgScript()
 	}
 	catch (Error& err)
 	{
-		comm()->sendError( err.trace() );
+		reportErr( err.trace() );
 	}
 }
 
@@ -753,7 +730,7 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 	}
 	catch ( Error& err )
 	{
-		comm( )->sendError( "Open Master Script Failed: " + err.trace( ) + "\r\n" );
+		reportErr( "Open Master Script Failed: " + err.trace( ) + "\r\n" );
 	}
 }
 
@@ -762,7 +739,7 @@ void ScriptingWindow::saveMasterScript()
 {
 	if ( masterScript.isFunction ( ) )
 	{
-		masterScript.saveAsFunction ( comm () );
+		masterScript.saveAsFunction ( mainWin->getComm() );
 		return;
 	}
 	masterScript.saveScript(getProfile().configLocation, mainWin->getRunInfo());
@@ -793,7 +770,7 @@ void ScriptingWindow::newMasterFunction()
 	}
 	catch (Error& exception)
 	{
-		comm()->sendError("New Master function Failed: " + exception.trace() + "\r\n");
+		reportErr("New Master function Failed: " + exception.trace() + "\r\n");
 	}
 }
 
@@ -802,11 +779,11 @@ void ScriptingWindow::saveMasterFunction()
 {
 	try
 	{
-		masterScript.saveAsFunction(comm());
+		masterScript.saveAsFunction(mainWin->getComm());
 	}
 	catch (Error& exception)
 	{
-		comm()->sendError("Save Master Script Function Failed: " + exception.trace() + "\r\n");
+		reportErr("Save Master Script Function Failed: " + exception.trace() + "\r\n");
 	}
 }
 
@@ -817,7 +794,7 @@ void ScriptingWindow::deleteMasterFunction()
 }
 
 
-void ScriptingWindow::handleSavingConfig(ConfigStream& saveFile)
+void ScriptingWindow::windowSaveConfig(ConfigStream& saveFile)
 {
 	scriptInfo<std::string> addresses = getScriptAddresses();
 	// order matters!
@@ -852,14 +829,6 @@ void ScriptingWindow::considerScriptLocations()
 {
 	niawg.niawgScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
 	intensityAgilent.agilentScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
-}
-
-
-/// End common functions
-void ScriptingWindow::passCommonCommand(UINT id)
-{
-	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonFunctions::handleCommonMessage( id, this, mainWin, this, camWin, auxWin, basWin, dmWin );
 }
 
 

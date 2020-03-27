@@ -7,19 +7,18 @@
 #include "ExcessDialogs/saveWithExplorer.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 
+IMPLEMENT_DYNAMIC (DeformableMirrorWindow, CDialog)
+
 BEGIN_MESSAGE_MAP (DeformableMirrorWindow, CDialog)
 	ON_WM_SIZE ()
 	ON_WM_CTLCOLOR ()
 	ON_COMMAND (IDC_DM_PROGRAMNOW, &handleProgramNow)
 	ON_COMMAND (IDC_DM_ADD_ZERNIKE + 15, &handleAbberations)
 	ON_CBN_SELENDOK (IDC_DM_PROFILE_COMBO, &handleNewProfile)
-	ON_COMMAND_RANGE (MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &DeformableMirrorWindow::passCommonCommand)
-
 	ON_CONTROL_RANGE (EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &DeformableMirrorWindow::handlePistonChange)
 END_MESSAGE_MAP ()
 
-
-DeformableMirrorWindow::DeformableMirrorWindow() : CDialog(), dm(DM_SERIAL, DM_SAFEMODE)
+DeformableMirrorWindow::DeformableMirrorWindow() : IChimeraWindow(), dm(DM_SERIAL, DM_SAFEMODE)
 {}
 
 BOOL DeformableMirrorWindow::OnInitDialog() 
@@ -33,16 +32,6 @@ BOOL DeformableMirrorWindow::OnInitDialog()
 	return TRUE;
 }
 
-
-void DeformableMirrorWindow::loadFriends(MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_,
-						  AuxiliaryWindow* auxWin_, BaslerWindow* basWin_) {
-	mainWin = mainWin_;
-	scriptWin = scriptWin_;
-	camWin = camWin_;
-	basWin = basWin_;
-	auxWin = auxWin_;
-}
-
 void DeformableMirrorWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw(false);
@@ -50,30 +39,6 @@ void DeformableMirrorWindow::OnSize(UINT nType, int cx, int cy)
 	dm.rearrange(cx, cy, mainWin->getFonts());
 	SetRedraw();
 	RedrawWindow();
-}
-
-IMPLEMENT_DYNAMIC(DeformableMirrorWindow, CDialog)
-
-
-
-
-
-void DeformableMirrorWindow::passCommonCommand(UINT id)
-{
-	try
-	{
-		commonFunctions::handleCommonMessage(id, this, mainWin, scriptWin, camWin, auxWin, basWin, this);
-	}
-	catch (Error & err)
-	{
-		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox(err.what());
-	}
-}
-
-void DeformableMirrorWindow::OnCancel() 
-{
-	passCommonCommand(ID_FILE_MY_EXIT);
 }
 
 void DeformableMirrorWindow::OnPaint()
@@ -92,16 +57,13 @@ void DeformableMirrorWindow::OnPaint()
 		// for a single plot.
 		Mirror->setCurrentDims(width, height);
 		Mirror->drawPlot(cdc, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"]);
-		
 		ReleaseDC(cdc);
 	}
 }
 
 HBRUSH DeformableMirrorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	HBRUSH result;
-
-	
+	HBRUSH result;	
 	result = dm.handleColorMessage(pWnd, pDC);
 	if (result != NULL)
 	{
@@ -147,7 +109,7 @@ void DeformableMirrorWindow::handleNewProfile() {
 		dm.loadProfile();
 	}
 	catch(Error &err){
-		comm.sendError(err.trace());
+		reportErr(err.trace());
 	}
 }
 
@@ -162,7 +124,7 @@ void DeformableMirrorWindow::handleAbberations() {
 	}
 	catch (Error & err) 
 	{
-		comm.sendError(err.trace());
+		reportErr(err.trace());
 	}
 }
 
@@ -189,8 +151,7 @@ void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile, Version 
 }
 
 
-void DeformableMirrorWindow::handleSaveConfig(ConfigStream& newFile) 
+void DeformableMirrorWindow::windowSaveConfig(ConfigStream& newFile) 
 {
 	dm.handleSaveConfig(newFile);
 }
-

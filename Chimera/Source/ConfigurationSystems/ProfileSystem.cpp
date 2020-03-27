@@ -166,7 +166,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 		mainWin->windowOpenConfig(cStream, ver );
 		if ( ver >= Version ( "3.4" ) )
 		{
-			basWin->handleOpeningConfig (cStream, ver );
+			basWin->windowOpenConfig (cStream, ver );
 		}
 	}
 	catch ( Error& err )
@@ -287,11 +287,11 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	saveStream << std::setprecision( 13 );
 	saveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->handleSavingConfig(saveStream);
-	camWin->handleSaveConfig(saveStream);
-	auxWin->handleSaveConfig(saveStream);
-	mainWin->handleSaveConfig(saveStream);
-	basWin->handleSavingConfig (saveStream);
+	scriptWindow->windowSaveConfig(saveStream);
+	camWin->windowSaveConfig(saveStream);
+	auxWin->windowSaveConfig(saveStream);
+	mainWin->windowSaveConfig(saveStream);
+	basWin->windowSaveConfig (saveStream);
 	std::ofstream configSaveFile (currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
 	if (!configSaveFile.is_open ())
 	{
@@ -350,11 +350,11 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	configSaveStream << std::setprecision( 13 );
 	configSaveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->handleSavingConfig(configSaveStream);
-	camWin->handleSaveConfig(configSaveStream);
-	auxWin->handleSaveConfig(configSaveStream);
-	mainWin->handleSaveConfig(configSaveStream);
-	basWin->handleSavingConfig (configSaveStream);
+	scriptWindow->windowSaveConfig(configSaveStream);
+	camWin->windowSaveConfig(configSaveStream);
+	auxWin->windowSaveConfig(configSaveStream);
+	mainWin->windowSaveConfig(configSaveStream);
+	basWin->windowSaveConfig (configSaveStream);
 	// check if file already exists
 	std::ofstream configSaveFile (configurationPathToSave);
 	if (!configSaveFile.is_open ())

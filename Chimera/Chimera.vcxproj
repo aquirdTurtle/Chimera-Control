@@ -241,6 +241,7 @@
     <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
     <ClInclude Include="Source\PrimaryWindows\DeformableMirrorWindow.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
+    <ClInclude Include="Source\PrimaryWindows\IChimeraWindow.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomGrid.h" />
     <ClInclude Include="Source\Basler\BaslerCamera.h" />
@@ -407,6 +408,7 @@
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
     <ClCompile Include="Source\ExcessDialogs\ErrDialog.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\IChimeraWindow.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp" />

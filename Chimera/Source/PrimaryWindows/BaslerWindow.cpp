@@ -20,10 +20,7 @@ BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
 
 
 // the message map. Allows me to handle various events in the system using functions I write myself.
-BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
-	
-	ON_COMMAND_RANGE ( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &BaslerWindow::passCommonCommand )
-
+BEGIN_MESSAGE_MAP( BaslerWindow, IChimeraWindow )
 	ON_WM_CTLCOLOR()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
@@ -32,7 +29,6 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_WM_MOUSEMOVE()
 
 	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, BaslerWindow::handleSoftwareTrigger )
-	ON_COMMAND( IDOK, &BaslerWindow::handleEnter )
 
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
 	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
@@ -41,8 +37,6 @@ BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	ON_MESSAGE( CustomMessages::prepareBaslerWinAcq, &BaslerWindow::handlePrepareRequest )
 	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
 	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
-	
-	ON_COMMAND( IDCANCEL, &BaslerWindow::handleClose )
 	 
 	ON_WM_RBUTTONUP()	
 END_MESSAGE_MAP()
@@ -89,30 +83,6 @@ baslerSettings BaslerWindow::getCurrentSettings ( )
 }
 
 
-void BaslerWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AndorWindow* camWin_, 
-								 AuxiliaryWindow* auxWin_, DeformableMirrorWindow* dmWindow )
-{
-	mainWin = mainWin_;
-	scriptWin = scriptWin_;
-	camWin = camWin_;
-	auxWin = auxWin_;
-	dmWin = dmWindow;
-}
-
-void BaslerWindow::passCommonCommand ( UINT id )
-{
-	try
-	{
-		commonFunctions::handleCommonMessage ( id, this, mainWin, scriptWin, camWin, auxWin, this, dmWin );
-	}
-	catch ( Error& err )
-	{
-		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox ( err.what ( ) );
-	}
-}
-
-
 /*
 Load the settings appropriate for the mot size measurement and then start the camera.
 */
@@ -133,28 +103,6 @@ void BaslerWindow::startTemporaryAcquisition ( baslerSettings settings )
 }
 
 
-
-
-// I think I can get rid of this...
-void BaslerWindow::DoDataExchange( CDataExchange* pDX )
-{
-	CDialog::DoDataExchange( pDX );
-}
-
-
-void BaslerWindow::handleClose( )
-{
-	try
-	{
-		passCommonCommand ( ID_FILE_MY_EXIT );
-	}
-	catch ( Error& err )
-	{
-		errBox ( "Failed to close?!?!?\n" + err.trace() );
-	}
-}
-
-
 void BaslerWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
 	try
@@ -167,10 +115,6 @@ void BaslerWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 		errBox ( err.what ( ) );
 	}
 }
-
-
-void BaslerWindow::handleEnter( ) { errBox( "\\-.-/" ); }
-
 
 // this is suppose see where the mouse is at a given time so that if it is hovering over a pixel I can display the pixel count.
 void BaslerWindow::OnMouseMove( UINT flags, CPoint point )
@@ -319,7 +263,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		if (!basCamCore->isContinuous())
  		{
 			// don't write data if continuous, that's a recipe for disaster.
-			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix );
+			andorWin->getLogger ( ).writeBaslerPic ( *imageMatrix );
  		}
  		if (currentRepNumber == runSttngs.totalPictures())
  		{
@@ -331,10 +275,10 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 			// tell the andor window that the basler camera finished so that the data file can be handled appropriately.
 			mainWin->getComm ( )->sendBaslerFin ( );
 			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
-			if (!camWin->cameraIsRunning() )
+			if (!andorWin->cameraIsRunning() )
 			{
 				// else it will close when the basler camera finishes.
-				camWin->getLogger ( ).closeFile ( );
+				andorWin->getLogger ( ).closeFile ( );
 			}
 
  		}
@@ -342,9 +286,9 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 		{
 			motLoaded = false;
 			loadMotConsecutiveFailures++;
-			if ( camWin->wantsNoMotAlert ( ) )
+			if (andorWin->wantsNoMotAlert ( ) )
 			{
-				if ( loadMotConsecutiveFailures > camWin->getNoMotThreshold ( ) )
+				if ( loadMotConsecutiveFailures > andorWin->getNoMotThreshold ( ) )
 				{
 					mainWin->getComm ( )->sendNoMotAlert ( );
 				}
@@ -495,7 +439,7 @@ HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 BOOL BaslerWindow::OnInitDialog()
 {
-	CDialogEx::OnInitDialog();
+	IChimeraWindow::OnInitDialog();
 	SetIcon(m_hIcon, TRUE);	
 	SetIcon(m_hIcon, FALSE);
 
@@ -543,7 +487,7 @@ void BaslerWindow::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+		IChimeraWindow::OnPaint();
 		CRect size;
 		GetClientRect( &size );
 		SmartDC sdc (this);
@@ -553,7 +497,7 @@ void BaslerWindow::OnPaint()
 
 
 
-void BaslerWindow::handleOpeningConfig ( ConfigStream& configFile, Version ver )
+void BaslerWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
 	settingsCtrl.setSettings ( 
@@ -562,7 +506,7 @@ void BaslerWindow::handleOpeningConfig ( ConfigStream& configFile, Version ver )
 }
 
 
-void BaslerWindow::handleSavingConfig ( ConfigStream& configFile )
+void BaslerWindow::windowSaveConfig ( ConfigStream& configFile )
 {
 	picManager.handleSaveConfig ( configFile );
 	settingsCtrl.handleSavingConfig ( configFile );
@@ -592,11 +536,9 @@ void BaslerWindow::initializeControls()
 
 	POINT picPos = { 365, 0 };
 	POINT dims = basCamCore->getCameraDimensions();
-
 	// scale to fill the window (approximately).
 	dims.x *= 1.65;
 	dims.y *= 1.65;
-
 	picManager.initialize ( picPos, this, id, _myBrushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
 						   { IDC_MIN_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, NULL,NULL,NULL,NULL,NULL,NULL},
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );

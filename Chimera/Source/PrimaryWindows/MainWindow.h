@@ -17,7 +17,7 @@
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
-
+#include "IChimeraWindow.h"
 #include <string>
 #include <vector>
 #include "afxwin.h"
@@ -33,9 +33,9 @@ struct scopeRefreshInput
 	ScopeViewer *masterRepumpScope, *motScope;
 };
 
-class MainWindow : public CDialog
+class MainWindow : public IChimeraWindow
 {
-	using CDialog::CDialog;
+	using IChimeraWindow::IChimeraWindow;
 	DECLARE_DYNAMIC(MainWindow);
 	public:
 		void handlePlotPop (UINT id);
@@ -51,10 +51,7 @@ class MainWindow : public CDialog
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		BOOL PreTranslateMessage(MSG* pMsg); 
 		void OnSize(UINT nType, int cx, int cy);
-		void OnClose();
-		void catchEnter( );
 		void forceExit ( );
-		void OnCancel() override;
 		void setMenuCheck ( UINT menuItem, UINT itemState );
 
 		// stuff directly called (or 1 simple step removed) by message map.
@@ -76,7 +73,6 @@ class MainWindow : public CDialog
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void loadCameraCalSettings( ExperimentThreadInput* input );
-		void passCommonCommand( UINT id );
 		void handlePause();
 		void passDebugPress( UINT id );
 		void passMainOptionsPress( UINT id );
@@ -109,7 +105,7 @@ class MainWindow : public CDialog
 		void setShortStatus(std::string text);
 		void changeShortStatusColor(std::string color);
 		void changeBoxColor(systemInfo<char> colors);
-		void handleSaveConfig(ConfigStream& saveFile);
+		void windowSaveConfig(ConfigStream& saveFile);
 		void windowOpenConfig(ConfigStream& configFile, Version ver );
 		void abortMasterThread();
 		Communicator* getComm();
@@ -148,12 +144,6 @@ class MainWindow : public CDialog
 
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;
-
-		ScriptingWindow* TheScriptingWindow = NULL;
-		AndorWindow* TheAndorWindow = NULL;
-		AuxiliaryWindow* TheAuxiliaryWindow = NULL;
-		BaslerWindow* TheBaslerWindow = NULL;
-		DeformableMirrorWindow* TheDmWindow = NULL;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -184,11 +174,7 @@ class MainWindow : public CDialog
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		CDialog* appSplash;
- 		// friends (try to minimize these)
- 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
- 														  ScriptingWindow* scriptWin, AndorWindow* camWin,
-														  AuxiliaryWindow* masterWin, BaslerWindow* basWin, 
-														  DeformableMirrorWindow* auxWin2);
+ 		friend void commonFunctions::handleCommonMessage( int msgID, IChimeraWindow* win);
 		UINT autoCalNum = 0;
 };
 
