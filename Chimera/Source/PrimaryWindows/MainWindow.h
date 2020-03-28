@@ -49,7 +49,6 @@ class MainWindow : public IChimeraWindow
 		MainWindow(UINT id, CDialog* spash, chronoTime* initTime);
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-		BOOL PreTranslateMessage(MSG* pMsg); 
 		void OnSize(UINT nType, int cx, int cy);
 		void forceExit ( );
 		void setMenuCheck ( UINT menuItem, UINT itemState );
@@ -164,7 +163,6 @@ class MainWindow : public IChimeraWindow
 		ExperimentThreadManager expThreadManager;
 		CMenu menu;
 		RunInfo systemRunningInfo;
-		cToolTips tooltips;
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;
 		CFont* plotfont;

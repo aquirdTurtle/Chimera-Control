@@ -27,17 +27,17 @@ class ImageDimsControl
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
 	private:
 		Control<CStatic> leftText;
-		Control<CStatic>  rightText;
-		Control<CStatic>  horBinningText;
-		Control<CStatic>  bottomLabel;
-		Control<CStatic>  topLabel;
-		Control<CStatic>  vertBinningText;
-		Control<CEdit>  leftEdit;
-		Control<CEdit> rightEdit;
-		Control<CEdit> horBinningEdit;
-		Control<CEdit> bottomEdit;
-		Control<CEdit> topEdit;
-		Control<CEdit> vertBinningEdit;
+		Control<CStatic> rightText;
+		Control<CStatic> horBinningText;
+		Control<CStatic> bottomLabel;
+		Control<CStatic> topLabel;
+		Control<CStatic> vertBinningText;
+		Control<CEdit>   leftEdit;
+		Control<CEdit>   rightEdit;
+		Control<CEdit>   horBinningEdit;
+		Control<CEdit>   bottomEdit;
+		Control<CEdit>   topEdit;
+		Control<CEdit>   vertBinningEdit;
 		bool isReady;
 		imageParameters currentImageParameters;
 };

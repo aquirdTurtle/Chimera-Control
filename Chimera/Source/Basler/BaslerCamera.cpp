@@ -11,6 +11,46 @@
 #include <algorithm>
 #include <functional>
 
+baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile, Version ver)
+{
+	if (ver < Version ("4.0"))
+	{
+		thrower ("Basler settings requires version 4.0+ Configuration files");
+	}
+	baslerSettings newSettings;
+	std::string txt;
+
+	configFile >> txt;
+	newSettings.acquisitionMode = BaslerAcquisition::fromStr (txt);
+	std::string test;
+	try
+	{
+		configFile >> test;
+		newSettings.dims.left = boost::lexical_cast<int>(test);
+		configFile >> test;
+		newSettings.dims.top = boost::lexical_cast<int>(test);
+		configFile >> test;
+		newSettings.dims.right = boost::lexical_cast<int>(test);
+		configFile >> test;
+		newSettings.dims.bottom = boost::lexical_cast<int>(test);
+	}
+	catch (boost::bad_lexical_cast&)
+	{
+		throwNested ("Basler control failed to convert dimensions recorded in the config file "
+			"to integers");
+	}
+	configFile >> newSettings.dims.horizontalBinning;
+	configFile >> newSettings.dims.verticalBinning;
+	configFile >> txt;
+	newSettings.exposureMode = BaslerAutoExposure::fromStr (txt);
+	configFile >> newSettings.exposureTime;
+	configFile >> newSettings.frameRate;
+	configFile >> newSettings.rawGain;
+	configFile >> newSettings.picsPerRep;
+	configFile >> txt;
+	newSettings.triggerMode = BaslerTrigger::fromStr (txt);
+	return newSettings;
+}
 // important constructor;
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
 // work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 

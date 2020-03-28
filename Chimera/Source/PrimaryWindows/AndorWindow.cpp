@@ -228,48 +228,37 @@ std::string AndorWindow::getSystemStatusString()
 	return statusStr;
 }
 
-
-void AndorWindow::windowSaveConfig(ConfigStream& saveFile)
+void AndorWindow::windowSaveConfig (ConfigStream& saveFile)
 {
-	andorSettingsCtrl.handleSaveConfig(saveFile);
-	pics.handleSaveConfig(saveFile);
-	analysisHandler.handleSaveConfig( saveFile );
+	andorSettingsCtrl.handleSaveConfig (saveFile);
+	pics.handleSaveConfig (saveFile);
+	analysisHandler.handleSaveConfig (saveFile);
 }
-
 
 void AndorWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	AndorRunSettings camSettings;
 	try
 	{
-		camSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_SETTINGS", 
-														AndorCameraSettingsControl::getRunSettingsFromConfig );
-		andorSettingsCtrl.setRunSettings ( camSettings );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( "Failed to get Andor Camera Run settings from file! " + err.trace() );
-	}
-	try
-	{
-		auto picSettings = ProfileSystem::stdGetFromConfig ( configFile, "PICTURE_SETTINGS",
-															 AndorCameraSettingsControl::getPictureSettingsFromConfig );
-		andorSettingsCtrl.updatePicSettings ( picSettings );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( "Failed to get Andor Camera Picture settings from file! " + err.trace ( ) );
-	}
-	try
-	{
-		camSettings.imageSettings = ProfileSystem::stdGetFromConfig ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
-																	  AndorCameraSettingsControl::getImageDimSettingsFromConfig );
-		andorSettingsCtrl.updateImageDimSettings ( camSettings.imageSettings );
+		ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS", andor, camSettings);
+		andorSettingsCtrl.setRunSettings (camSettings);
+		andorSettingsCtrl.updateImageDimSettings (camSettings.imageSettings);
 		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
+
 	}
-	catch ( Error& err )
+	catch (Error & err)
 	{
-		reportErr ( "Failed to get Andor Image Dimension settings from file! " + err.trace ( ) );
+		reportErr ("Failed to get Andor Camera Run settings from file! " + err.trace ());
+	}
+	try
+	{
+		auto picSettings = ProfileSystem::stdConfigGetter (configFile, "PICTURE_SETTINGS",
+								AndorCameraSettingsControl::getPictureSettingsFromConfig);
+		andorSettingsCtrl.updatePicSettings (picSettings);
+	}
+	catch (Error & err)
+	{
+		reportErr ("Failed to get Andor Camera Picture settings from file! " + err.trace ());
 	}
 	try
 	{
@@ -289,26 +278,27 @@ void AndorWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 	}
 	try
 	{
-		if ( andorSettingsCtrl.getSettings ( ).andor.picsPerRepetition == 1 )
+		if (andorSettingsCtrl.getSettings ().andor.picsPerRepetition == 1)
 		{
-			pics.setSinglePicture ( this, andorSettingsCtrl.getSettings ( ).andor.imageSettings );
+			pics.setSinglePicture (this, andorSettingsCtrl.getSettings ().andor.imageSettings);
 		}
 		else
 		{
-			pics.setMultiplePictures ( this, andorSettingsCtrl.getSettings ( ).andor.imageSettings,
-									   andorSettingsCtrl.getSettings ( ).andor.picsPerRepetition );
+			pics.setMultiplePictures (this, andorSettingsCtrl.getSettings ().andor.imageSettings,
+				andorSettingsCtrl.getSettings ().andor.picsPerRepetition);
 		}
-		pics.resetPictureStorage ( );
-		std::array<int, 4> nums = andorSettingsCtrl.getSettings ( ).palleteNumbers;
-		pics.setPalletes ( nums );
+		pics.resetPictureStorage ();
+		std::array<int, 4> nums = andorSettingsCtrl.getSettings ().palleteNumbers;
+		pics.setPalletes (nums);
 		CRect rect;
-		GetWindowRect ( &rect );
-		OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
+		GetWindowRect (&rect);
+		OnSize (0, rect.right - rect.left, rect.bottom - rect.top);
 	}
-	catch ( Error& e )
+	catch (Error & e)
 	{
-		reportErr ( "Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace() );
+		reportErr ("Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace ());
 	}
+
 }
 
 
@@ -1074,16 +1064,6 @@ void AndorWindow::checkCameraIdle( )
 	}
 }
 
-
-BOOL AndorWindow::PreTranslateMessage(MSG* pMsg)
-{
-	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
-	{
-		tooltips[toolTipInc]->RelayEvent(pMsg);
-	}
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
 void AndorWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {
 	try
@@ -1661,12 +1641,6 @@ void AndorWindow::setTimerText( std::string timerText )
 }
 
 
-cToolTips AndorWindow::getToolTips()
-{
-	return tooltips;
-}
-
-
 BOOL AndorWindow::OnInitDialog ( )
 {
 	SetWindowText ( "Andor Camera Control" );
@@ -1676,13 +1650,13 @@ BOOL AndorWindow::OnInitDialog ( )
 	POINT position = { 0,0 };
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	box.initialize (position, id, this, 480, tooltips );
+	box.initialize (position, id, this, 480, toolTips );
 	alerts.alertMainThread ( 0 );
-	alerts.initialize (position, this, false, id, tooltips );
-	analysisHandler.initialize (position, id, this, tooltips );
-	andorSettingsCtrl.initialize (position, id, this, tooltips );
+	alerts.initialize (position, this, false, id, toolTips );
+	analysisHandler.initialize (position, id, this, toolTips );
+	andorSettingsCtrl.initialize (position, id, this, toolTips );
 	position = { 480, 0 };
-	stats.initialize ( position, this, id, tooltips );
+	stats.initialize ( position, this, id, toolTips );
 	for (auto pltInc : range (6))
 	{
 		std::vector<pPlotDataVec> nodata(0);
@@ -1691,7 +1665,7 @@ BOOL AndorWindow::OnInitDialog ( )
 		mainAnalysisPlots.back ()->init (position, 315, 130, this, plotIds++);
 	}
 	position = { 797, 0 };
-	timer.initialize (position, this, false, id, tooltips );
+	timer.initialize (position, this, false, id, toolTips);
 	position = { 797, 40 };
 	pics.initialize ( position, this, id, _myBrushes[ "Dark Green" ], 550 * 2, 460 * 2 + 5, 
 					 { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT,

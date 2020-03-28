@@ -49,7 +49,7 @@ void MainOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 	saveFile << "\nEND_MAIN_OPTIONS\n";
 }
 
-mainOptions MainOptionsControl::getMainOptionsFromConfig (ConfigStream& openFile, Version ver )
+mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile, Version ver )
 {
 	mainOptions options;
 	if ( ver < Version ( "2.1" ) )

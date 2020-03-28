@@ -64,7 +64,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &handleAgilentOptions )
-	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &handleTektronicsButtons )
+	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &handleTektronixButtons )
 	
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_TOP_BOTTOM_AGILENT_COMBO, IDC_TOP_BOTTOM_AGILENT_COMBO, &handleAgilentCombo )
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_AXIAL_AGILENT_COMBO, IDC_AXIAL_AGILENT_COMBO, &handleAgilentCombo )
@@ -87,7 +87,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &drawVariables )
-	// catches all the edits in the tektronics controls
+	// catches all the edits in the tektronix controls
 	ON_CONTROL_RANGE( EN_CHANGE, TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START + 99, &invalidateSaved )
 
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_TOP_BOTTOM_EDIT, IDC_TOP_BOTTOM_EDIT, &handleAgilentEditChange )
@@ -597,11 +597,11 @@ void AuxiliaryWindow::passTopBottomTekProgram()
 	try
 	{
 		topBottomTek.handleProgram(getUsableConstants());
-		reportStatus( "Programmed Top/Bottom Tektronics Generator.\r\n" );
+		reportStatus( "Programmed Top/Bottom Tektronix Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		reportErr( "Error while programing Top/Bottom Tektronics generator: " + exception.trace() + "\r\n" );
+		reportErr( "Error while programing Top/Bottom Tektronix generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -611,11 +611,11 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 	try
 	{
 		eoAxialTek.handleProgram(getUsableConstants());
-		reportStatus( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
+		reportStatus( "Programmed E.O.M / Axial Tektronix Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		reportErr( "Error while programing Raman E.O.M. / Axial Tektronics generator: " + exception.trace() + "\r\n" );
+		reportErr( "Error while programing Raman E.O.M. / Axial Tektronix generator: " + exception.trace() + "\r\n" );
 	}
 }
 
@@ -665,14 +665,16 @@ void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
 		aoSys.updateEdits ( );
 		for (auto& agilent : agilents)
 		{
-			agilent.setOutputSettings (ProfileSystem::stdGetFromConfig (configFile, agilent.getConfigDelim (),
-															Agilent::getOutputSettingsFromConfigFile, Version ("4.0")));
+			deviceOutputInfo info;
+			ProfileSystem::stdGetFromConfig (configFile, agilent.getConfigDelim (), agilent.getCore(), info, Version ("4.0"));
+			agilent.setOutputSettings (info);
 			agilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
-		topBottomTek.setSettings (ProfileSystem::stdGetFromConfig (configFile, topBottomTek.getDelim (),
-								  TektronixAfgControl::getTekInfo));
-		eoAxialTek.setSettings (ProfileSystem::stdGetFromConfig (configFile, eoAxialTek.getDelim (),
-								TektronixAfgControl::getTekInfo));
+		tektronixInfo info;
+		ProfileSystem::stdGetFromConfig (configFile, topBottomTek.getDelim (), topBottomTek.getCore(), info );
+		topBottomTek.setSettings (info);
+		ProfileSystem::stdGetFromConfig (configFile, eoAxialTek.getDelim (), eoAxialTek.getCore(), info);
+		eoAxialTek.setSettings (info);
 
 		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.getDelim(), &topBottomTek, Version ( "4.0" ) );
 		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ( "4.0" ) );
@@ -682,10 +684,13 @@ void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
 		}
 		ProfileSystem::standardOpenConfig ( configFile, piezo1.getConfigDelim( ), &piezo1, Version ( "4.6" ) );
 		ProfileSystem::standardOpenConfig ( configFile, piezo2.getConfigDelim ( ), &piezo2, Version ( "4.6" ) );
-		aiSys.setAiSettings ( ProfileSystem::stdGetFromConfig (configFile, aiSys.configDelim,
-							  AiSystem::getAiSettingsFromConfig, Version ("4.9")) );
-		RohdeSchwarzGenerator.setMicrowaveSettings (ProfileSystem::stdGetFromConfig (configFile,
-					RohdeSchwarzGenerator.delim, MicrowaveSystem::getMicrowaveSettingsFromConfig, Version ("4.10")));
+		AiSettings settings;
+		ProfileSystem::stdGetFromConfig (configFile, aiSys.configDelim, aiSys, settings, Version ("4.9"));
+		aiSys.setAiSettings ( settings );
+		microwaveSettings uwsettings;
+		ProfileSystem::stdGetFromConfig ( configFile, RohdeSchwarzGenerator.delim, RohdeSchwarzGenerator.getCore(), uwsettings, 
+										  Version ("4.10") );
+		RohdeSchwarzGenerator.setMicrowaveSettings (uwsettings);
 	}
 	catch ( Error& )
 	{
@@ -845,7 +850,7 @@ void AuxiliaryWindow::passRoundToDac()
 }
 
 // MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handleTektronicsButtons(UINT id)
+void AuxiliaryWindow::handleTektronixButtons(UINT id)
 {
 	topBottomTek.handleButtons ( id );
 	eoAxialTek.handleButtons ( id );
@@ -1382,10 +1387,6 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (UINT toolTipInc = 0; toolTipInc < toolTips.size(); toolTipInc++)
-	{
-		toolTips[toolTipInc]->RelayEvent(pMsg);
-	}
 	if ( pMsg->message == WM_KEYDOWN )
 	{
 		if ( pMsg->wParam == VK_UP || pMsg->wParam == VK_DOWN)
@@ -1407,7 +1408,7 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 			}			
 		}
 	}
-	return CDialog::PreTranslateMessage(pMsg);
+	return IChimeraWindow::PreTranslateMessage(pMsg);
 }
 
 
@@ -1607,8 +1608,8 @@ std::string AuxiliaryWindow::getVisaDeviceStatus( )
 {
 	std::string msg;
 	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
-	msg += "Tektronics 1:\n\t" + topBottomTek.queryIdentity( );
-	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
+	msg += "Tektronix 1:\n\t" + topBottomTek.queryIdentity( );
+	msg += "Tektronix 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
 		msg += agilent.getCore().configDelim + ":\n\t" + agilent.getDeviceIdentity( );

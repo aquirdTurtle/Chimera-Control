@@ -43,7 +43,7 @@ class AiSystem
 		bool wantsContinuousQuery( );
 		std::string getSystemStatus( );
 		void setAiSettings (AiSettings settings);
-		static AiSettings getAiSettingsFromConfig (ConfigStream& file, Version ver);
+		static AiSettings getSettingsFromConfig (ConfigStream& file, Version ver);
 		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
 	private:

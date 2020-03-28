@@ -11,20 +11,16 @@ FEATURES:
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible.
 - Implementing randomizing repetitions.
-- restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- proper syntax coloring for local variables
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in real time analysis plots
 - report most recent oscilloscope data to datalogger
-- report initial values of dacs and ttls to datalogger
 - report andor background data to datalogger if calibrating background out
 - improve delete file after abort functionality
 	- decorate name, delete after a while, or something similar?
-- Integrate Basler cameras into the experimentThreadProcedure to enable calibrations, etc. between variations, etc.
 - add reporting on how many atoms loaded via atomcruncher thread.
 	- accessible from main window, perhaps
 	- report to h5 file as well?
@@ -39,9 +35,6 @@ FEATURES:
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
 - make data analysis plotting listview smart about # of pictures
 - some sort of more real-time adjustment of parameters, need some sort of looping around starting configs... or some other solution
-- Implement custom configstream class - skip over decorated text which can be added freely as description text. Allows
-	easy adding of labeling of everything in config file, making it extra human-readable, without huge backwards 
-	compatibility challenges.
 - local vars agilent script
 
 Refactoring / Other:

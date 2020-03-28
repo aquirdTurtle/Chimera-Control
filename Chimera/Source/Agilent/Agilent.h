@@ -34,7 +34,7 @@ class Agilent
 		void handleModeCombo();
 
 		void readGuiSettings();
-		void Agilent::readGuiSettings (int chan);
+		void readGuiSettings (int chan);
 		bool scriptingModeIsSelected( );
 		bool getSavedStatus ();
 		void updateSavedStatus (bool isSaved);
@@ -54,8 +54,7 @@ class Agilent
 		std::string getConfigDelim ();
 		void programAgilentNow (std::vector<parameterType> constants);
 		
-		static deviceOutputInfo getOutputSettingsFromConfigFile (ConfigStream& file, Version ver);
-		void Agilent::setOutputSettings (deviceOutputInfo info);
+		void setOutputSettings (deviceOutputInfo info);
 		void verifyScriptable ( );
 		AgilentCore& getCore ();
 		void setDefault (UINT chan);

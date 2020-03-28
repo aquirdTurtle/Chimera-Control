@@ -34,7 +34,6 @@ class TektronixAfgControl
 		void handleProgram(std::vector<parameterType> constants);
 		std::string getDelim ();
 		TekCore& getCore ();
-		static tektronixInfo getTekInfo (ConfigStream& configFile, Version ver);
 	private:
 		Control<CStatic> header;
 		Control<CleanPush> programNow;

@@ -37,7 +37,6 @@ class AndorWindow : public IChimeraWindow
 
 		BOOL OnInitDialog() override;
 		void OnMouseMove( UINT thing, CPoint point );
-		BOOL PreTranslateMessage( MSG* pMsg );
 		
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void OnTimer( UINT_PTR id );
@@ -80,7 +79,6 @@ class AndorWindow : public IChimeraWindow
 
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( systemInfo<char> colors );
-		cToolTips getToolTips();
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
 		void armCameraWindow(AndorRunSettings* settings);
@@ -124,7 +122,7 @@ class AndorWindow : public IChimeraWindow
 		std::mutex& getActivePlotMutexRef ( );
 		void cleanUpAfterExp ( );
 		void handlePlotPop (UINT id);
-
+		void oldLoad (ConfigStream& configFile, Version ver);
 	private:
 		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
@@ -141,7 +139,6 @@ class AndorWindow : public IChimeraWindow
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;
 		std::vector<PlotCtrl*> mainAnalysisPlots;
-		cToolTips tooltips;
 		coordinate selectedPixel = { 0,0 };
 		CMenu menu;
 		// some picture menu options

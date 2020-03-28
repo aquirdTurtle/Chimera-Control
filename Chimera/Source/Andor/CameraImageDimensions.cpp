@@ -63,14 +63,13 @@ void ImageDimsControl::initialize( POINT& pos, CWnd* parent, bool isTriggerModeS
 
 void ImageDimsControl::handleSave(ConfigStream& saveFile )
 {
-	saveFile << "CAMERA_IMAGE_DIMENSIONS"
-			 << "\n/*Left:*/ " << currentImageParameters.left
+	saveFile << "\n/*Left:*/ " << currentImageParameters.left
 			 << "\n/*Right:*/ " << currentImageParameters.right
 			 << "\n/*H-Bin:*/ " << currentImageParameters.horizontalBinning
 			 << "\n/*Bottom:*/ " << currentImageParameters.bottom
 			 << "\n/*Top:*/ " << currentImageParameters.top
 			 << "\n/*V-Bin:*/ " << currentImageParameters.verticalBinning
-			 << "\nEND_CAMERA_IMAGE_DIMENSIONS\n";
+			 << "\n";
 }
 
 

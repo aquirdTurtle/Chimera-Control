@@ -63,12 +63,10 @@ class AuxiliaryWindow : public IChimeraWindow
 		void OnPaint( );
 		void OnTimer( UINT_PTR id );
 		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
-		// the master needs to handle tooltip stuff.
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		void handlePlotPop (UINT id);
 		void uwDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void uwRClick (NMHDR* pNotifyStruct, LRESULT* result);
-		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -110,7 +108,7 @@ class AuxiliaryWindow : public IChimeraWindow
 
 		void handleAgilentOptions( UINT id );
 
-		void handleTektronicsButtons(UINT id);
+		void handleTektronixButtons(UINT id);
 		void invalidateSaved ( UINT id );
 
 		std::vector<parameterType> getAllVariables();

@@ -79,6 +79,15 @@ void IChimeraWindow::OnCancel ()
 	}
 }
 
+BOOL IChimeraWindow::PreTranslateMessage (MSG* pMsg)
+{
+	for (auto& toolTip : toolTips)
+	{
+		toolTip->RelayEvent (pMsg);
+	}
+	return CDialog::PreTranslateMessage (pMsg);
+}
+
 void IChimeraWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
 								   BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow_, AndorWindow* andorWin_ )
 {

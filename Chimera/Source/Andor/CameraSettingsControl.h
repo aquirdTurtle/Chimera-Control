@@ -52,9 +52,9 @@ class AndorCameraSettingsControl
 		void updateImageDimSettings ( imageParameters settings );
 		void updatePicSettings ( andorPicSettingsGroup settings );
 
-		static AndorRunSettings getRunSettingsFromConfig ( ConfigStream& configFile, Version ver );
+		//static AndorRunSettings getSettingsFromConfig ( ConfigStream& configFile, Version ver );
 		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile, Version ver );
-		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver );
+		//static imageParameters getSettingsFromConfig (ConfigStream& configFile, Version ver );
 
 		void handleOpenConfig(ConfigStream& configFile, Version ver );
 		void handleSaveConfig(ConfigStream& configFile);

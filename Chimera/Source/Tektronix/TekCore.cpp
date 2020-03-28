@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 #include "TekCore.h"
 #include "TektronixStructures.h"
 
@@ -14,6 +15,7 @@ TekCore::TekCore (bool safemode, std::string address, std::string configurationF
 		errBox ("Failed to initialize tektronics visa connection! " + err.trace ());
 	}
 }
+
 TekCore::~TekCore ()
 {
 	visaFlume.close ();
@@ -90,4 +92,21 @@ void TekCore::interpretKey ( std::vector<parameterType>& parameters, tektronixIn
 			if (channel.fsk) { channel.fskFreq.internalEvaluate (parameters, variations); }
 		}
 	}
+}
+
+tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile, Version ver)
+{
+	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	tektronixInfo tekInfo;
+	for (auto chanInc : range (tekInfo.channels.size ()))
+	{
+		ProfileSystem::checkDelimiterLine (configFile, "CHANNEL_" + str (chanInc + 1));
+		auto& channel = tekInfo.channels[chanInc];
+		configFile >> channel.control >> channel.on >> channel.fsk;
+		configFile.get ();
+		getlineF (configFile, channel.power.expressionStr);
+		getlineF (configFile, channel.mainFreq.expressionStr);
+		getlineF (configFile, channel.fskFreq.expressionStr);
+	}
+	return tekInfo;
 }

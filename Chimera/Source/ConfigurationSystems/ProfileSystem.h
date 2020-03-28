@@ -88,16 +88,18 @@ class ProfileSystem
 		template <class sysType>
 		static void standardOpenConfig (ConfigStream& openFile, std::string delim, sysType* this_in,
 										 Version minVer = Version ( "0.0" ) );
-		template <class returnType>
-		static returnType stdGetFromConfig (ConfigStream& openFile, std::string delim,
-												  returnType ( *getter )(ConfigStream&, Version ),
-												  Version minVer = Version( "0.0" ) );
 		static void checkDelimiterLine (ConfigStream& openFile, std::string keyword );
 		static bool checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition );
 		static void jumpToDelimiter (ConfigStream& openFile, std::string delimiter );
-		static void initializeAtDelim (ConfigStream& openFile, std::string delimiter, Version& ver,
+		static void initializeAtDelim ( ConfigStream& openFile, std::string delimiter, Version& ver,
 										Version minVer=Version("0.0") );
-		CBrush* handleColoring ( int id, CDC* pDC );
+		template <class sysT, class returnT>
+		static void stdGetFromConfig ( ConfigStream& configStream, std::string delim, sysT& this_in, returnT& settings,
+									   Version minVer=Version("0.0"));
+		template <class returnType>
+		static returnType stdConfigGetter (ConfigStream& configStream, std::string delim,
+			returnType (*getterFunc)(ConfigStream&, Version), Version minVer=Version("0.0"));
+		CBrush* handleColoring (int id, CDC* pDC);
 	private:
 		profileSettings currentProfile; 
 		seqSettings currentSequence;
@@ -179,41 +181,75 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 	}
 }
 
+
 template <class returnType>
-static returnType ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, std::string delim, 
-													returnType ( *getterFunc )(ConfigStream&, Version ),
-													Version minVer )
+static returnType ProfileSystem::stdConfigGetter (ConfigStream& configStream, std::string delim,
+												  returnType (*getterFunc)(ConfigStream&, Version), Version minVer)
 {
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
 	Version ver;
 	// return type must have a default constructor so that the function knows what to do if fails.
-	returnType res = returnType();
+	returnType res = returnType ();
 	try
 	{
-		ProfileSystem::initializeAtDelim ( configStream, delim, ver, minVer );
+		ProfileSystem::initializeAtDelim (configStream, delim, ver, minVer);
 	}
-	catch ( Error& e )
+	catch (Error & e)
 	{
-		errBox ( "Failed to initialize config file for " + delim + "!\n\n" + e.trace ( ) );
+		errBox ("Failed to initialize config file for " + delim + "!\n\n" + e.trace ());
 		return res;
 	}
 	try
 	{
-		res = (*getterFunc) ( configStream, ver );
+		res = (*getterFunc) (configStream, ver);
 	}
-	catch ( Error& e )
+	catch (Error & e)
 	{
-		errBox ( "Failed to gather information from config file for " + delim + "!\n\n" + e.trace ( ) );
+		errBox ("Failed to gather information from config file for " + delim + "!\n\n" + e.trace ());
 		return res;
 	}
 	try
 	{
-		ProfileSystem::checkDelimiterLine ( configStream, "END_" + delim );
+		ProfileSystem::checkDelimiterLine (configStream, "END_" + delim);
 	}
-	catch ( Error& e )
+	catch (Error & e)
 	{
-		errBox ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
-				 "control did not initialize properly.\n\n" + e.trace ( ) );
+		errBox ("End delimiter for the " + delim + " control was not found. This might indicate that the "
+			"control did not initialize properly.\n\n" + e.trace ());
 	}
 	return res;
 }
+
+template <class sysT, class returnT>
+static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, std::string delim, sysT& this_in, 
+											  returnT& settings, Version minVer)
+{
+	// a template functor. The getter here should get whatever is wanted from the file and return it. 
+	Version ver;
+	try
+	{
+		ProfileSystem::initializeAtDelim (configStream, delim, ver, minVer);
+	}
+	catch (Error & e)
+	{
+		errBox ("Failed to initialize config file for " + delim + "!\n\n" + e.trace ());
+	}
+	try
+	{
+		settings = this_in.getSettingsFromConfig (configStream, ver);
+	}
+	catch (Error & e)
+	{
+		errBox ("Failed to gather information from config file for " + delim + "!\n\n" + e.trace ());
+	}
+	try
+	{
+		ProfileSystem::checkDelimiterLine (configStream, "END_" + delim);
+	}
+	catch (Error & e)
+	{
+		errBox ("End delimiter for the " + delim + " control was not found. This might indicate that the "
+				"control did not initialize properly.\n\n" + e.trace ());
+	}
+}
+

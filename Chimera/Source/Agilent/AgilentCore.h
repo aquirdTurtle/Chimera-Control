@@ -1,7 +1,10 @@
 #pragma once
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include "GeneralFlumes/VisaFlume.h"
+#include "ConfigurationSystems/Version.h"
 #include "DigitalOutput/DoRows.h"
+#include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>
 
@@ -37,8 +40,9 @@ class AgilentCore
 		std::vector<std::string> getStartupCommands ();
 		void programSetupCommands ();
 		std::string getDeviceInfo ();
-		void handleScriptVariation (UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
-			std::vector<parameterType>& params);
+		void handleScriptVariation ( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+									 std::vector<parameterType>& params);
+		static deviceOutputInfo getSettingsFromConfig (ConfigStream& file, Version ver);
 	private:
 		const double sampleRate;
 		const std::string memoryLoc;

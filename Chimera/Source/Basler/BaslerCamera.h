@@ -35,6 +35,7 @@ class BaslerCameraCore
 		// important constructor to initialize camera
 		BaslerCameraCore( CWnd* parent );
 		~BaslerCameraCore();
+		baslerSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
 		bool isRunning ( );
 		void setBaslserAcqParameters( baslerSettings settings );
 		void setDefaultParameters();

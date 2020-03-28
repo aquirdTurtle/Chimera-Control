@@ -12,9 +12,9 @@ IMPLEMENT_DYNAMIC (DeformableMirrorWindow, CDialog)
 BEGIN_MESSAGE_MAP (DeformableMirrorWindow, CDialog)
 	ON_WM_SIZE ()
 	ON_WM_CTLCOLOR ()
-	ON_COMMAND (IDC_DM_PROGRAMNOW, &handleProgramNow)
-	ON_COMMAND (IDC_DM_ADD_ZERNIKE + 15, &handleAbberations)
-	ON_CBN_SELENDOK (IDC_DM_PROFILE_COMBO, &handleNewProfile)
+	ON_COMMAND (IDC_DM_PROGRAMNOW, &handleProgramDmNow)
+	ON_COMMAND (IDC_DM_ADD_ZERNIKE + 15, &handleAddAbberations)
+	ON_CBN_SELENDOK (IDC_DM_PROFILE_COMBO, &handleNewDmProfile)
 	ON_CONTROL_RANGE (EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &DeformableMirrorWindow::handlePistonChange)
 END_MESSAGE_MAP ()
 
@@ -100,11 +100,11 @@ HBRUSH DeformableMirrorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 }
 
-void DeformableMirrorWindow::handleProgramNow() {
+void DeformableMirrorWindow::handleProgramDmNow() {
 	dm.ProgramNow();
 }
 
-void DeformableMirrorWindow::handleNewProfile() {
+void DeformableMirrorWindow::handleNewDmProfile() {
 	try {
 		dm.loadProfile();
 	}
@@ -117,7 +117,7 @@ void DeformableMirrorWindow::handlePistonChange(UINT id) {
 	dm.reColor(id);
 }
 
-void DeformableMirrorWindow::handleAbberations() {
+void DeformableMirrorWindow::handleAddAbberations() {
 	try 
 	{
 		dm.add_Changes();
@@ -139,7 +139,8 @@ void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile, Version 
 	{
 		if (ver >= Version("4.7"))
 		{
-			DMOutputForm form = ProfileSystem::stdGetFromConfig(configFile, "DM", DmCore::handleGetConfig);
+			DMOutputForm form;
+			ProfileSystem::stdGetFromConfig (configFile, "DM", dm.getCore(), form);
 			dm.setCoreInfo(form);
 			dm.openConfig();
 		}

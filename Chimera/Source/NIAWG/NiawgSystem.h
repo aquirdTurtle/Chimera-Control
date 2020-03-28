@@ -19,7 +19,7 @@ class NiawgSystem
 		void rearrange (UINT width, UINT height, fontMap fonts);
 		void handleSaveConfig (ConfigStream& saveFile);
 		void handleOpenConfig (ConfigStream& openfile, Version ver);
-		static bool getControlNiawgFromConfig (ConfigStream& openfile, Version ver);
+		static bool getSettingsFromConfig (ConfigStream& openfile, Version ver);
 		void updateWindowEnabled ();
 
 		Script niawgScript;

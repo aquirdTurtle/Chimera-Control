@@ -25,7 +25,7 @@ struct pistonButton {
 class DmControl
 {
 	public:
-		DmControl::DmControl(std::string serialNumber, bool safeMode);
+		DmControl(std::string serialNumber, bool safeMode);
 		void initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id);
 	    void handleOnPress(int i);
 		void ProgramNow();

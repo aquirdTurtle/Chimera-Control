@@ -5,13 +5,12 @@
 #include "PrimaryWindows/AndorWindow.h"
 #include "Andor/AndorTriggerModes.h"
 #include "Andor/AndorRunMode.h"
-
+#include "ConfigurationSystems/ProfileSystem.h"
 #include <chrono>
 #include <process.h>
 #include <algorithm>
 #include <numeric>
 #include <random>
-
 
 std::string AndorCameraCore::getSystemInfo()
 {
@@ -24,6 +23,59 @@ std::string AndorCameraCore::getSystemInfo()
 	flume.getSerialNumber(num);
 	info += "Camera Serial Number: " + str(num) + "\n";
 	return info;
+}
+
+AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFile, Version ver)
+{
+	AndorRunSettings tempSettings; 
+	tempSettings.imageSettings = ProfileSystem::stdConfigGetter (configFile, "CAMERA_IMAGE_DIMENSIONS", 
+		ImageDimsControl::getImageDimSettingsFromConfig);
+	ProfileSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS", ver);
+	configFile.get ();
+	std::string txt = configFile.getline ();
+	tempSettings.triggerMode = AndorTriggerMode::fromStr (txt);
+	configFile >> tempSettings.emGainModeIsOn;
+	configFile >> tempSettings.emGainLevel;
+	txt = configFile.getline ();
+	if (txt == AndorRunModes::toStr (AndorRunModes::mode::Video) || txt == "Video Mode")
+	{
+		tempSettings.acquisitionMode = AndorRunModes::mode::Video;
+		tempSettings.repetitionsPerVariation = INT_MAX;
+	}
+	else if (txt == AndorRunModes::toStr (AndorRunModes::mode::Kinetic) || txt == "Kinetic Series Mode")
+	{
+		tempSettings.acquisitionMode = AndorRunModes::mode::Kinetic;
+	}
+	else if (txt == AndorRunModes::toStr (AndorRunModes::mode::Accumulate) || txt == "Accumulate Mode")
+	{
+		tempSettings.acquisitionMode = AndorRunModes::mode::Accumulate;
+	}
+	else
+	{
+		thrower ("ERROR: Unrecognized camera mode: " + txt);
+	}
+	configFile >> tempSettings.kineticCycleTime;
+	configFile >> tempSettings.accumulationTime;
+	configFile >> tempSettings.accumulationNumber;
+	configFile >> tempSettings.temperatureSetting;
+	if (ver > Version ("4.7"))
+	{
+		UINT numExposures = 0;
+		configFile >> numExposures;
+		tempSettings.exposureTimes.resize (numExposures);
+		for (auto& exp : tempSettings.exposureTimes)
+		{
+			configFile >> exp;
+		}
+		configFile >> tempSettings.picsPerRepetition;
+	}
+	else
+	{
+		tempSettings.picsPerRepetition = 1;
+		tempSettings.exposureTimes.clear ();
+		tempSettings.exposureTimes.push_back (1e-3);
+	}
+	return tempSettings;
 }
 
 

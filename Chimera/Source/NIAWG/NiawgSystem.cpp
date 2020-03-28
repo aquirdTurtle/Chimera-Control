@@ -45,24 +45,11 @@ void NiawgSystem::handleSaveConfig (ConfigStream& saveFile)
 	rearrangeCtrl.handleSaveConfig (saveFile);
 }
 
-bool NiawgSystem::getControlNiawgFromConfig ( ConfigStream& openfile, Version ver )
-{
-	if (ver < Version ("4.12")) { return true; }
-	bool opt;
-	if (ver >= Version ("5.0")) {
-		openfile >> opt;
-	}
-	else
-	{
-		openfile.get ();
-		opt = bool(openfile.get ());
-	}
-	return opt;
-}
 
 void NiawgSystem::handleOpenConfig (ConfigStream& openfile, Version ver)
 {
-	controlNiawg.SetCheck ( ProfileSystem::stdGetFromConfig (openfile, "NIAWG_INFORMATION",
-							NiawgSystem::getControlNiawgFromConfig, Version ("4.12")) );
+	bool controlOpt;
+	ProfileSystem::stdGetFromConfig (openfile, "NIAWG_INFORMATION", core, controlOpt, Version ("4.12"));
+	controlNiawg.SetCheck ( controlOpt );
 	ProfileSystem::standardOpenConfig (openfile, "REARRANGEMENT_INFORMATION", &rearrangeCtrl);
 }

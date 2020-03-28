@@ -21,14 +21,12 @@ class ScriptingWindow;
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
 class DeformableMirrorWindow : public IChimeraWindow
 {
-	DECLARE_DYNAMIC(DeformableMirrorWindow);
 	public:
 		DeformableMirrorWindow();
-		BOOL handleAccelerators(HACCEL m_haccel, LPMSG lpMsg);
-		void handleProgramNow();
+		void handleProgramDmNow();
 		void handlePistonChange(UINT id);
-		void handleNewProfile();
-		void handleAbberations();
+		void handleNewDmProfile();
+		void handleAddAbberations();
 		void windowOpenConfig(ConfigStream& configFile, Version ver);
 		void windowSaveConfig(ConfigStream& newFile);
 		BOOL OnInitDialog();
@@ -36,10 +34,9 @@ class DeformableMirrorWindow : public IChimeraWindow
 		void OnSize(UINT nType, int cx, int cy);
 		void OnPaint();
 		DmCore &GetCore();
-		cToolTips toolTips;	
 	private:
+		DECLARE_DYNAMIC (DeformableMirrorWindow);
 		DECLARE_MESSAGE_MAP();
-
 		CMenu menu;
 		ColorBox statusBox;
 		DmControl dm;
