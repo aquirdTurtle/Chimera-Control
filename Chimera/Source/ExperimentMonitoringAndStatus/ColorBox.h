@@ -23,6 +23,7 @@ class ColorBox
 		void changeColor( systemInfo<char> color );
 		CBrush* handleColoring( int id, CDC* pDC );
 		void rearrange( int width, int height, fontMap fonts );
+		bool initialized = false;
 	private:
 		systemInfo<Control<CStatic>> boxes;
 		systemInfo<char> colors;

@@ -3,11 +3,12 @@
 #include "ExperimentMonitoringAndStatus/ColorBox.h"
 #include "Andor/AndorRunSettings.h"
 #include "Basler/baslerSettings.h"
-
+class IChimeraWindow;
 class MainWindow;
 class ScriptingWindow;
 class AndorWindow;
 class AuxiliaryWindow;
+class DeformableMirrorWindow;
 class BaslerWindow;
 
 enum class System
@@ -26,9 +27,8 @@ enum class ExperimentType;
 class Communicator
 {
 	public:
-		void sendFinish ( ExperimentType type );
-		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin,
-						 AuxiliaryWindow* masterWindow, BaslerWindow* basWin);
+		void sendFinish ( ExperimentType type ); 
+		void initialize (IChimeraWindow* win);
 
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
 		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
@@ -62,6 +62,7 @@ class Communicator
 		AndorWindow* andorWin;
 		AuxiliaryWindow* auxWin;
 		BaslerWindow* basWin;
+		DeformableMirrorWindow* dmWin;
 		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
 };
 

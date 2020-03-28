@@ -502,11 +502,11 @@ BOOL MainWindow::OnInitDialog( )
 		return -1;
 	}
 	/// initialize main window controls.
-	comm.initialize( this, scriptWin, andorWin, auxWin, basWin);
+	comm.initialize( this );
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), toolTips, IDC_MAIN_STATUS_BUTTON );
-	boxes.initialize ( controlLocation, id, this, 960, toolTips);
+	statBox.initialize ( controlLocation, id, this, 960, toolTips);
 	shortStatus.initialize (controlLocation, this, id, toolTips);
 	controlLocation = { 480, 0 };
 	errorStatus.initialize( controlLocation, this, id, 420, "ERROR STATUS", RGB( 100, 0, 0 ), toolTips,
@@ -591,7 +591,7 @@ BOOL MainWindow::OnInitDialog( )
 	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
 	//
 	updateConfigurationSavedStatus( true );
-	return TRUE;
+	return IChimeraWindow::OnInitDialog ();
 }
 
 
@@ -657,12 +657,7 @@ void MainWindow::checkAllMenus ( UINT menuItem, UINT itemState )
 	andorWin->setMenuCheck ( menuItem, itemState );
 	basWin->setMenuCheck ( menuItem, itemState );
 	scriptWin->setMenuCheck ( menuItem, itemState );
-}
-
-
-void MainWindow::setMenuCheck ( UINT menuItem, UINT itemState )
-{
-	menu.CheckMenuItem ( menuItem, itemState );
+	dmWin->setMenuCheck (menuItem, itemState);
 }
 
 
@@ -739,7 +734,7 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	errorStatus.rearrange(cx, cy, getFonts());
 	texter.rearrange(cx, cy, getFonts());
 	shortStatus.rearrange(cx, cy, getFonts());
-	boxes.rearrange( cx, cy, getFonts());
+	statBox.rearrange( cx, cy, getFonts());
 	repetitionControl.rearrange(cx, cy, getFonts());
 	servos.rearrange (cx, cy, getFonts ());
 	SetRedraw();
@@ -818,6 +813,7 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	auto result = profile.handleColoring ( pWnd->GetDlgCtrlID ( ), pDC );
 	if ( result ) { return *result; }
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
@@ -825,33 +821,9 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			int num = pWnd->GetDlgCtrlID();
 			CBrush* ret = shortStatus.handleColor(pWnd, pDC);
 			if (ret) { return *ret; }
-			ret = boxes.handleColoring( num, pDC );
-			if ( ret ) { return *ret; }
-			else
-			{
-				pDC->SetTextColor(_myRGBs["Text"]);
-				pDC->SetBkColor(_myRGBs["Static-Bkgd"]);
-				return *_myBrushes["Static-Bkgd"];
-			}
-		}
-		case CTLCOLOR_EDIT:
-		{
-			pDC->SetTextColor(_myRGBs[ "MainWin-Text" ]);
-			pDC->SetBkColor(_myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		case CTLCOLOR_LISTBOX:
-		{
-			pDC->SetTextColor(_myRGBs["Text"]);
-			pDC->SetBkColor(_myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		default:
-		{
-			return *_myBrushes["Main-Bkgd"];
 		}
 	}
-	return NULL;
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 }
 
 
@@ -1014,7 +986,7 @@ void MainWindow::handleSequenceCombo()
 
 void MainWindow::changeBoxColor( systemInfo<char> colors )
 {
-	boxes.changeColor( colors );
+	IChimeraWindow::changeBoxColor (colors);
 	if (colors.camera == 'R' || colors.niawg == 'R')
 	{
 		changeShortStatusColor("R");

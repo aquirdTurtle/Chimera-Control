@@ -641,12 +641,6 @@ void AndorWindow::wakeRearranger( )
 }
 
 
-void AndorWindow::setMenuCheck ( UINT menuItem, UINT itemState )
-{
-	menu.CheckMenuItem ( menuItem, itemState );
-}
-
-
 void AndorWindow::handleSpecialLessThanMinSelection()
 {
 	if (specialLessThanMin)
@@ -1085,7 +1079,7 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	{
 		plt->rearrange (cx, cy, mainWin->getFonts ());
 	}
-	box.rearrange ( cx, cy, mainWin->getFonts ( ) );
+	statBox.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	pics.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	try
 	{
@@ -1650,7 +1644,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	POINT position = { 0,0 };
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	box.initialize (position, id, this, 480, toolTips );
+	statBox.initialize (position, id, this, 480, toolTips );
 	alerts.alertMainThread ( 0 );
 	alerts.initialize (position, this, false, id, toolTips );
 	analysisHandler.initialize (position, id, this, toolTips );
@@ -1675,15 +1669,13 @@ BOOL AndorWindow::OnInitDialog ( )
 	// end of literal initialization calls
 	pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
 	andor.setSettings( andorSettingsCtrl.getSettings().andor );
-	menu.LoadMenu( IDR_MAIN_MENU );
-	SetMenu( &menu );
 	SetTimer( NULL, 5000, NULL );
 	// Calibration Check timer (every 15 minutes)
 	SetTimer (1, 15 * 60 * 1000, NULL);
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
-	return TRUE;
+	return IChimeraWindow::OnInitDialog();
 }
 
 void AndorWindow::setDataType( std::string dataType )
@@ -1715,43 +1707,10 @@ HBRUSH AndorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	CBrush * result;
 	int num = pWnd->GetDlgCtrlID();
-
 	result = andorSettingsCtrl.handleColor(num, pDC );
 	HBRUSH res = *result;
 	if (res) { return res; }
-	switch (nCtlColor)
-	{
-		case CTLCOLOR_STATIC:
-		{			
-			CBrush* result = box.handleColoring(num, pDC);
-			if (result)
-			{
-				return *result;
-			}
-			else
-			{
-				pDC->SetTextColor( _myRGBs["Text"] );
-				pDC->SetBkColor( _myRGBs["Static-Bkgd"] );
-				return *_myBrushes["Static-Bkgd"];
-			}
-		}
-		case CTLCOLOR_EDIT:
-		{
-			pDC->SetTextColor( _myRGBs["AndorWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		case CTLCOLOR_LISTBOX:
-		{
-			pDC->SetTextColor( _myRGBs["AndorWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		default:
-		{
-			return *_myBrushes["Main-Bkgd"];
-		}
-	}
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 }
 
 
@@ -1793,9 +1752,4 @@ void AndorWindow::readImageParameters()
 	}
 	SmartDC sdc (this);
 	pics.drawGrids(sdc.get ());
-}
-
-void AndorWindow::changeBoxColor(systemInfo<char> colors)
-{
-	box.changeColor(colors);
 }

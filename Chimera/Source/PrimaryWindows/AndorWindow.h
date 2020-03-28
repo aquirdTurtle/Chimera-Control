@@ -78,7 +78,6 @@ class AndorWindow : public IChimeraWindow
 		void handlePictureEditChange(UINT id);
 
 		void redrawPictures( bool andGrid );
-		void changeBoxColor( systemInfo<char> colors );
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
 		void armCameraWindow(AndorRunSettings* settings);
@@ -110,7 +109,6 @@ class AndorWindow : public IChimeraWindow
 		bool wantsAutoCal( );
 		bool wantsNoMotAlert ( );
 		UINT getNoMotThreshold ( );
-		void setMenuCheck ( UINT menuItem, UINT itemState );
 		atomGrid getMainAtomGrid( );
 		std::string getMostRecentDateString ( );
 		int getMostRecentFid ( );
@@ -122,7 +120,6 @@ class AndorWindow : public IChimeraWindow
 		std::mutex& getActivePlotMutexRef ( );
 		void cleanUpAfterExp ( );
 		void handlePlotPop (UINT id);
-		void oldLoad (ConfigStream& configFile, Version ver);
 	private:
 		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
@@ -131,7 +128,6 @@ class AndorWindow : public IChimeraWindow
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
 		int plotIds = 17009;
-		ColorBox box;
 		PictureStats stats;
 		AlertSystem alerts;
 		ExperimentTimer timer;		

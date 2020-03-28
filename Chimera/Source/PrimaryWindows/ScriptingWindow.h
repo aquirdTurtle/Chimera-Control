@@ -88,7 +88,6 @@ class ScriptingWindow : public IChimeraWindow
 		void deleteMasterFunction();
 		void masterEditChange();
 
-		void changeBoxColor( systemInfo<char> colors );
 		void updateConfigurationSavedStatus(bool status);
 		void OnCancel() override;
 		void OnSize(UINT nType, int cx, int cy);
@@ -100,9 +99,7 @@ class ScriptingWindow : public IChimeraWindow
 		void handleIntensityCombo();
 		
 		profileSettings getProfile();
-		void setIntensityDefault();
-		void setMenuCheck ( UINT menuItem, UINT itemState );
-		
+		void setIntensityDefault();		
 		void passNiawgIsOnPress ();
 		void setNiawgRunningState (bool newRunningState);
 		void handleControlNiawgCheck ();
@@ -124,7 +121,6 @@ class ScriptingWindow : public IChimeraWindow
 		CMenu menu;
 		NiawgSystem niawg;
 		Script masterScript;
-		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
 		Agilent intensityAgilent;
 };

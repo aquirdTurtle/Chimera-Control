@@ -1,10 +1,11 @@
 #pragma once
 
-#include "afxwin.h"
 #include "GeneralObjects/commonTypes.h"
-#include <array>
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ConfigurationSystems/Version.h"
+#include "ExperimentMonitoringAndStatus/colorbox.h"
+#include "afxwin.h"
+#include <array>
 
 class MainWindow;
 class ScriptingWindow;
@@ -29,10 +30,13 @@ class IChimeraWindow : public CDialog
 		virtual void windowOpenConfig (ConfigStream& configFile, Version ver)=0;
 		virtual void windowSaveConfig (ConfigStream& newFile)=0;
 
+		BOOL OnInitDialog ();
+
 		virtual HBRUSH OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 
 		virtual void OnCancel ();
 		virtual void OnEnter ();
+		void setMenuCheck (UINT menuItem, UINT itemState);
 
 		void passCommonCommand (UINT id);
 		void loadFriends (MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
@@ -49,6 +53,9 @@ class IChimeraWindow : public CDialog
 		DeformableMirrorWindow* dmWin = NULL;
 		static constexpr UINT numWindows = 6;
 		cToolTips toolTips;
+		ColorBox statBox;
+		virtual void changeBoxColor (systemInfo<char> colors);
 	private:
+		CMenu menu;
 		DECLARE_MESSAGE_MAP ();
 };

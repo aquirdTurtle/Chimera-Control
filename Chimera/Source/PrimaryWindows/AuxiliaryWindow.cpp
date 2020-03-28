@@ -260,12 +260,6 @@ void AuxiliaryWindow::invalidateSaved ( UINT id )
 	mainWin->updateConfigurationSavedStatus ( false );
 }
 
-
-void AuxiliaryWindow::setMenuCheck ( UINT menuItem, UINT itemState )
-{
-	menu.CheckMenuItem ( menuItem, itemState );
-}
-
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::OptParamDblClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
@@ -900,7 +894,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	globalParameters.rearrange( cx, cy, getFonts( ) );
 	optimizer.rearrange ( cx, cy, getFonts ( ) );
 
-	statusBox.rearrange( cx, cy, getFonts());
+	statBox.rearrange( cx, cy, getFonts());
 	piezo1.rearrange ( cx, cy, getFonts ( ) );
 	piezo2.rearrange ( cx, cy, getFonts ( ) );
 	SetRedraw();
@@ -1052,11 +1046,6 @@ DdsCore& AuxiliaryWindow::getDds ()
 	return dds.getCore ();
 }
 
-
-void AuxiliaryWindow::changeBoxColor(systemInfo<char> colors)
-{
-	statusBox.changeColor(colors);
-}
 
 
 void AuxiliaryWindow::handleAbort()
@@ -1352,36 +1341,7 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return result;
 	}
-	result = *statusBox.handleColoring(pWnd->GetDlgCtrlID(), pDC );
-	if (result != NULL)
-	{
-		return result;
-	}
-
-	// default colors
-	switch (nCtlColor)
-	{
-		case CTLCOLOR_STATIC:
-		{
-			pDC->SetTextColor(_myRGBs["Text"]);
-			pDC->SetBkColor( _myRGBs["Static-Bkgd"]);
-			return *_myBrushes["Static-Bkgd"];
-		}
-		case CTLCOLOR_EDIT:
-		{
-			pDC->SetTextColor( _myRGBs["AuxWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		case CTLCOLOR_LISTBOX:
-		{
-			pDC->SetTextColor( _myRGBs["AuxWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		default:
-			return *_myBrushes["Main-Bkgd"];
-	}
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 }
 
 
@@ -1422,7 +1382,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	POINT controlLocation{ 0, 0 };
 	try
 	{
-		statusBox.initialize( controlLocation, id, this, 480, toolTips );
+		statBox.initialize( controlLocation, id, this, 480, toolTips );
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
 		aoSys.initialize( controlLocation, toolTips, this, id );
 		aiSys.initialize( controlLocation, this, id );
@@ -1538,9 +1498,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	SetTimer( 2, 1000, NULL );
 	// piezo 1 update
 	SetTimer ( 1000, 5000, NULL );
-	menu.LoadMenu( IDR_MAIN_MENU );
-	SetMenu( &menu );
-	return TRUE;
+	return IChimeraWindow::OnInitDialog ();
 }
 
 

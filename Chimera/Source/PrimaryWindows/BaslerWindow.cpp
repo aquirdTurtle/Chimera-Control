@@ -71,11 +71,6 @@ void BaslerWindow::handleBaslerAutoscaleSelection ( )
 	picManager.setAutoScalePicturesOption ( autoScaleBaslerPictureData );
 }
 
-void BaslerWindow::setMenuCheck ( UINT menuItem, UINT itemState )
-{
-	menu.CheckMenuItem ( menuItem, itemState );
-}
-
 
 baslerSettings BaslerWindow::getCurrentSettings ( )
 {
@@ -280,7 +275,6 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 				// else it will close when the basler camera finishes.
 				andorWin->getLogger ( ).closeFile ( );
 			}
-
  		}
 		if ( stats.getMostRecentStats ( ).avgv < settingsCtrl.getMotThreshold ( ) )
 		{
@@ -379,6 +373,7 @@ void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 	auto fonts = mainWin->getFonts ( );
 	auto r = picManager.getPicArea ( );
 	InvalidateRect ( &r );
+	statBox.rearrange (cx, cy, fonts);
 	picManager.rearrange ( cx, cy, fonts );
 	settingsCtrl.rearrange(cx, cy, fonts);
 	stats.rearrange(cx, cy, fonts );
@@ -397,52 +392,30 @@ HBRUSH BaslerWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	switch (nCtlColor)
 	{
-		case CTLCOLOR_STATIC:
+	case CTLCOLOR_STATIC:
+	{
+		int num = pWnd->GetDlgCtrlID ();
+		if (num == IDC_MOT_LOADED_INDICATOR)
 		{
-			int num = pWnd->GetDlgCtrlID ( );
-			if ( num == IDC_MOT_LOADED_INDICATOR )
+			if (!motLoaded)
 			{
-				if ( !motLoaded )
-				{
-					pDC->SetBkColor ( _myRGBs[ "Red" ] );
-					return *_myBrushes[ "Red" ];
-				}
-				else
-				{
-					pDC->SetBkColor ( _myRGBs[ "Green" ] );
-					return *_myBrushes[ "Green" ];
-				}
+				pDC->SetBkColor (_myRGBs["Red"]);
+				return *_myBrushes["Red"];
 			}
-			pDC->SetTextColor ( _myRGBs[ "Text" ] );
-			pDC->SetBkColor ( _myRGBs[ "Static-Bkgd" ] );
-			return *_myBrushes[ "Static-Bkgd" ];
-		}
-		case CTLCOLOR_EDIT:
-		{
-			pDC->SetTextColor( _myRGBs["BasWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		case CTLCOLOR_LISTBOX:
-		{
-			pDC->SetTextColor( _myRGBs["BasWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		default:
-		{
-			return *_myBrushes["Main-Bkgd"];
+			else
+			{
+				pDC->SetBkColor (_myRGBs["Green"]);
+				return *_myBrushes["Green"];
+			}
 		}
 	}
+	}
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 }
 
 
 BOOL BaslerWindow::OnInitDialog()
 {
-	IChimeraWindow::OnInitDialog();
-	SetIcon(m_hIcon, TRUE);	
-	SetIcon(m_hIcon, FALSE);
-
 	ShowWindow( SW_SHOWMAXIMIZED );
 	try
 	{
@@ -457,44 +430,41 @@ BOOL BaslerWindow::OnInitDialog()
 	CRect rect;
 	GetWindowRect(&rect);
 	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
-	menu.LoadMenu ( IDR_MAIN_MENU );
-	SetMenu ( &menu );
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	return IChimeraWindow::OnInitDialog ();
 }
 
 
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
-void BaslerWindow::OnPaint()
+void BaslerWindow::OnPaint ()
 {
-	if (IsIconic())
+	if (IsIconic ())
 	{
-		CPaintDC dc(this); // device context for painting
+		CPaintDC dc (this); // device context for painting
 
-		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+		SendMessage (WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc ()), 0);
 
 		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
+		int cxIcon = GetSystemMetrics (SM_CXICON);
+		int cyIcon = GetSystemMetrics (SM_CYICON);
 		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
+		GetClientRect (&rect);
+		int x = (rect.Width () - cxIcon + 1) / 2;
+		int y = (rect.Height () - cyIcon + 1) / 2;
 
 		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
+		dc.DrawIcon (x, y, m_hIcon);
 	}
 	else
 	{
-		IChimeraWindow::OnPaint();
+		IChimeraWindow::OnPaint ();
 		CRect size;
-		GetClientRect( &size );
+		GetClientRect (&size);
 		SmartDC sdc (this);
-		picManager.paint ( sdc.get (), size, _myBrushes[ "Interactable-Bkgd" ] );
+		picManager.paint (sdc.get (), size, _myBrushes["Interactable-Bkgd"]);
 	}
 }
-
 
 
 void BaslerWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
@@ -520,7 +490,6 @@ void BaslerWindow::initializeControls()
 	#elif defined USB_CAMERA
 		SetWindowText("USB Basler Camera Control");
 	#endif
-
 	basCamCore = new BaslerCameraCore( this );
 	if (!basCamCore->isInitialized())
 	{
@@ -528,18 +497,18 @@ void BaslerWindow::initializeControls()
 	}
 	int id = 1000;
 	POINT pos = { 0,0 };
-	POINT cameraDims = basCamCore->getCameraDimensions();
-	settingsCtrl.initialize( pos, id, this, cameraDims.x, cameraDims.y, cameraDims);
+	POINT dims = basCamCore->getCameraDimensions ();
+	statBox.initialize (pos, id, this, 300, toolTips );
+	settingsCtrl.initialize( pos, id, this, dims.x, dims.y, dims);
 	settingsCtrl.setSettings( basCamCore->getDefaultSettings() );
 	std::vector<CToolTipCtrl*> toolTipDummy;
 	stats.initialize( pos, this, id, toolTipDummy );
 
-	POINT picPos = { 365, 0 };
-	POINT dims = basCamCore->getCameraDimensions();
+	pos = { 365, 0 };
 	// scale to fill the window (approximately).
 	dims.x *= 1.65;
 	dims.y *= 1.65;
-	picManager.initialize ( picPos, this, id, _myBrushes[ "Red" ], dims.x + picPos.x + 115, dims.y + picPos.y,
+	picManager.initialize (pos, this, id, _myBrushes[ "Red" ], dims.x + pos.x + 115, dims.y + pos.y,
 						   { IDC_MIN_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, NULL,NULL,NULL,NULL,NULL,NULL},
 							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );

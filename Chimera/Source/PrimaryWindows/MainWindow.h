@@ -51,7 +51,6 @@ class MainWindow : public IChimeraWindow
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnSize(UINT nType, int cx, int cy);
 		void forceExit ( );
-		void setMenuCheck ( UINT menuItem, UINT itemState );
 
 		// stuff directly called (or 1 simple step removed) by message map.
 		LRESULT onRepProgress(WPARAM wParam, LPARAM lParam);
@@ -155,7 +154,6 @@ class MainWindow : public IChimeraWindow
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
-		ColorBox boxes;
 		ServoManager servos;
 		// auxiliary members
 		Communicator comm;

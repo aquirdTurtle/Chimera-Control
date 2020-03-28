@@ -38,7 +38,6 @@ class DeformableMirrorWindow : public IChimeraWindow
 		DECLARE_DYNAMIC (DeformableMirrorWindow);
 		DECLARE_MESSAGE_MAP();
 		CMenu menu;
-		ColorBox statusBox;
 		DmControl dm;
 		PlotCtrl *Mirror;
 };

@@ -27,15 +27,15 @@ BOOL DeformableMirrorWindow::OnInitDialog()
 	POINT pos = { 0,0 };
 	int id = 1000;
 	UINT ID = IDC_DM_PROGRAMNOW;
-	statusBox.initialize(pos, id, this, 480, toolTips);
+	statBox.initialize(pos, id, this, 480, toolTips);
 	dm.initialize(pos, this, dm.getActNum(), DM_SERIAL, 65, ID);
-	return TRUE;
+	return IChimeraWindow::OnInitDialog ();
 }
 
 void DeformableMirrorWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw(false);
-	statusBox.rearrange(cx, cy, mainWin->getFonts());
+	statBox.rearrange(cx, cy, mainWin->getFonts());
 	dm.rearrange(cx, cy, mainWin->getFonts());
 	SetRedraw();
 	RedrawWindow();
@@ -69,35 +69,7 @@ HBRUSH DeformableMirrorWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return result;
 	}
-	result = *statusBox.handleColoring(pWnd->GetDlgCtrlID(), pDC);
-	if (result != NULL)
-	{
-		return result;
-	}
-	// default colors
-	switch (nCtlColor)
-	{
-		case CTLCOLOR_STATIC:
-		{
-			pDC->SetTextColor(_myRGBs["Text"]);
-			pDC->SetBkColor(_myRGBs["Static-Bkgd"]);
-			return *_myBrushes["Static-Bkgd"];
-		}
-		case CTLCOLOR_EDIT:
-		{
-			pDC->SetTextColor(_myRGBs["AuxWin-Text"]);
-			pDC->SetBkColor(_myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		case CTLCOLOR_LISTBOX:
-		{
-			pDC->SetTextColor(_myRGBs["AuxWin-Text"]);
-			pDC->SetBkColor(_myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		default:
-			return *_myBrushes["Main-Bkgd"];
-	}
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 }
 
 void DeformableMirrorWindow::handleProgramDmNow() {
@@ -150,7 +122,6 @@ void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile, Version 
 		throwNested("Auxiliary Window failed to read parameters from the configuration file.");
 	}
 }
-
 
 void DeformableMirrorWindow::windowSaveConfig(ConfigStream& newFile) 
 {

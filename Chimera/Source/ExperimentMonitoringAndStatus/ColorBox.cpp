@@ -28,6 +28,7 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, cToolTi
 	boxes.basler.fontType = fontTypes::CodeFont;
 
 	pos.y += 20;
+	initialized = true;
 }
 
 
@@ -41,6 +42,10 @@ void ColorBox::rearrange( int width, int height, fontMap fonts )
 
 CBrush* ColorBox::handleColoring( int id, CDC* pDC )
 {
+	if (!initialized)
+	{
+		return NULL;
+	}
 	char code;
 	if (id == boxes.niawg.GetDlgCtrlID())
 	{
