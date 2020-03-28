@@ -755,6 +755,8 @@
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
     <ClInclude Include="Source\PrimaryWindows\IChimeraWindow.h" />
+    <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
+    <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

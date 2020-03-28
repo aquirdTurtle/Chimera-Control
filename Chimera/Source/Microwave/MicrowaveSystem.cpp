@@ -70,38 +70,6 @@ void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile)
 	saveFile << "\nEND_" << delim << "\n";
 }
 
-
-microwaveSettings MicrowaveSystem::getMicrowaveSettingsFromConfig (ConfigStream& openFile, Version ver)
-{
-	microwaveSettings settings;
-	auto getlineF = ProfileSystem::getGetlineFunc (ver);
-	openFile >> settings.control;
-	UINT numInList = 0;
-	openFile >> numInList;
-	if (numInList > 100) 
-	{
-		auto res = promptBox ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
-			" was " + str(numInList) + ". Is this acceptable?", MB_YESNO );
-		if (!res)
-		{
-			thrower ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
-					" was " + str(numInList) + ".");
-		}
-	}
-	settings.list.resize (numInList);
-	if (numInList > 0)
-	{
-		openFile.get ();
-	}
-	for (auto num : range (numInList))
-	{
-		getlineF ( openFile, settings.list[num].frequency.expressionStr );
-		getlineF ( openFile, settings.list[num].power.expressionStr );
-	}
-	return settings;
-}
-
-
 void MicrowaveSystem::setMicrowaveSettings (microwaveSettings settings)
 {
 	controlOptionCheck.SetCheck (settings.control);

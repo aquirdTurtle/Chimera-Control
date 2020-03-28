@@ -27,7 +27,7 @@ class PiezoCore
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
 		void exprProgramPiezo ( UINT variationNumber );
-		static std::pair<piezoChan<std::string>, bool> getPiezoSettingsFromConfig (ConfigStream& file, Version ver );
+		static std::pair<piezoChan<std::string>, bool> getSettingsFromConfig (ConfigStream& file, Version ver );
 		void programAll ( piezoChan<double> vals );
 		void setCtrl ( bool ctrl );
 		bool wantsCtrl ( );

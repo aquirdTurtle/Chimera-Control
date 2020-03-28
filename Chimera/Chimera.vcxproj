@@ -223,6 +223,8 @@
     <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
+    <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
+    <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
     <ClInclude Include="Source\GeneralObjects\RunInfo.h" />
     <ClInclude Include="Source\Agilent\Agilent.h" />
     <ClInclude Include="Source\Agilent\AgilentChannelMode.h" />

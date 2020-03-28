@@ -23,7 +23,7 @@ class DmCore {
 		int getActCount();
 		std::vector<double> getActuatorValues();
 		void handleSaveConfig( ConfigStream& newFile, DMOutputForm out );
-		static DMOutputForm handleGetConfig(ConfigStream& configFile, Version ver);
+		static DMOutputForm getSettingsFromConfig(ConfigStream& configFile, Version ver);
 		static void interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore& DM);
 		void ProgramNow(UINT variation);
 		const std::string delimeter = "DM";

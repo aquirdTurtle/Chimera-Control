@@ -452,7 +452,7 @@ constexpr auto ID_DAC_SET_BUTTON = 14070;
 constexpr auto IDC_ZERO_DACS = 14081;
 constexpr auto ID_DAC_FIRST_EDIT = 14072;
 constexpr auto ID_DAC_LAST_EDIT = 14096;
-// TEKTRONICS STUFF
+// TEKTRONIX STUFF
 constexpr auto TOP_BOTTOM_TEK_START = 14200;
 constexpr auto EO_AXIAL_TEK_START = 14300;
 // AGILENT STUFF

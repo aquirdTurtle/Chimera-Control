@@ -500,9 +500,9 @@ void BaslerWindow::OnPaint()
 void BaslerWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
-	settingsCtrl.setSettings ( 
-		ProfileSystem::stdGetFromConfig ( configFile, "BASLER_CAMERA_SETTINGS",
-										  &BaslerSettingsControl::getSettingsFromConfig, Version ( "4.0" ) ) );
+	baslerSettings settings;
+	ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS", *basCamCore, settings, Version ("4.0"));
+	settingsCtrl.setSettings (settings);
 }
 
 

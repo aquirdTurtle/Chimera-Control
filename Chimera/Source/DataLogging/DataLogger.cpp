@@ -273,17 +273,17 @@ void DataLogger::logTektronixSettings ( tektronixInfo& tekInfo, std::string deli
 {
 	try
 	{
-		H5::Group tektronicsGroup;
+		H5::Group tektronixGroup;
 		try
 		{
-			tektronicsGroup = H5::Group( file.createGroup ( "/Tektronics" ) );
+			tektronixGroup = H5::Group( file.createGroup ( "/Tektronics" ) );
 		}
 		catch ( H5::Exception err )
 		{
 			// probably has just already been created.
-			tektronicsGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
+			tektronixGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
 		}
-		H5::Group thisTek ( tektronicsGroup.createGroup (delim ) );
+		H5::Group thisTek ( tektronixGroup.createGroup (delim ) );
 		writeDataSet ( tekInfo.machineAddress, "Machine-Address", thisTek );
 		UINT channelCount = 1;
 		for ( auto& channel : tekInfo.channels )

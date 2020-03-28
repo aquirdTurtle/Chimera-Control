@@ -5,6 +5,8 @@
 
 #include "MiscellaneousExperimentOptions/debugInfo.h"
 #include "ConfigurationSystems/profileSettings.h"
+#include "ConfigurationSystems/ConfigStream.h"
+#include "ConfigurationSystems/Version.h"
 #include "GeneralObjects/Matrix.h"
 #include "Scripts/ScriptStream.h"
 #include "LowLevel/constants.h"
@@ -62,6 +64,7 @@ class NiawgCore
 								 std::vector<parameterType>& variables );
 		void flashVaries( waveInfoForm& wave );
 		///
+		bool getSettingsFromConfig (ConfigStream& openfile, Version ver);
 		void rerngScriptInfoFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<parameterType>& varibles,
 								UINT variation );
 

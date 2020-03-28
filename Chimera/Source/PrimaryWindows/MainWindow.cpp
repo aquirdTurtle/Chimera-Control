@@ -505,29 +505,29 @@ BOOL MainWindow::OnInitDialog( )
 	comm.initialize( this, scriptWin, andorWin, auxWin, basWin);
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
-	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
-	boxes.initialize ( controlLocation, id, this, 960, tooltips);
-	shortStatus.initialize (controlLocation, this, id, tooltips);
+	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), toolTips, IDC_MAIN_STATUS_BUTTON );
+	boxes.initialize ( controlLocation, id, this, 960, toolTips);
+	shortStatus.initialize (controlLocation, this, id, toolTips);
 	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 420, "ERROR STATUS", RGB( 100, 0, 0 ), tooltips, 
+	errorStatus.initialize( controlLocation, this, id, 420, "ERROR STATUS", RGB( 100, 0, 0 ), toolTips,
 							IDC_ERROR_STATUS_BUTTON );
-	debugStatus.initialize( controlLocation, this, id, 420, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, 
+	debugStatus.initialize( controlLocation, this, id, 420, "DEBUG STATUS", RGB( 13, 152, 186 ), toolTips,
 							IDC_DEBUG_STATUS_BUTTON );
 	controlLocation = { 960, 0 };
-	profile.initialize( controlLocation, this, id, tooltips );
+	profile.initialize( controlLocation, this, id, toolTips);
 	controlLocation = { 960, 175 };
-	notes.initialize( controlLocation, this, id, tooltips);
+	notes.initialize( controlLocation, this, id, toolTips);
 	masterRepumpScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(),
 								  ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID,	"Master/Repump" );
 	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), 
 						 ID_MOT_SCOPE_VIEWER_POP_ID, "MOT" );
-	servos.initialize ( controlLocation, tooltips, this, id, &auxWin->getAiSys (), &auxWin->getAoSys (), 
+	servos.initialize ( controlLocation, toolTips, this, id, &auxWin->getAiSys (), &auxWin->getAoSys (),
 						auxWin->getTtlSystem(), &auxWin->getGlobals ());
 	controlLocation = { 1440, 50 };
-	repetitionControl.initialize( controlLocation, tooltips, this, id );
-	mainOptsCtrl.initialize( id, controlLocation, this, tooltips );
-	debugger.initialize( id, controlLocation, this, tooltips );
-	texter.initialize( controlLocation, this, id, tooltips );
+	repetitionControl.initialize( controlLocation, toolTips, this, id );
+	mainOptsCtrl.initialize( id, controlLocation, this, toolTips);
+	debugger.initialize( id, controlLocation, this, toolTips);
+	texter.initialize( controlLocation, this, id, toolTips);
 
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
@@ -711,11 +711,11 @@ void MainWindow::windowOpenConfig(ConfigStream& configStream, Version ver )
 	try
 	{
 		ProfileSystem::standardOpenConfig ( configStream, "CONFIGURATION_NOTES", &notes);
-		mainOptsCtrl.setOptions ( ProfileSystem::stdGetFromConfig ( configStream, "MAIN_OPTIONS", 
-																	MainOptionsControl::getMainOptionsFromConfig ) );
+		mainOptsCtrl.setOptions ( ProfileSystem::stdConfigGetter ( configStream, "MAIN_OPTIONS", 
+																	MainOptionsControl::getSettingsFromConfig ) );
 		ProfileSystem::standardOpenConfig ( configStream, "DEBUGGING_OPTIONS", &debugger );
-		repetitionControl.setRepetitions ( ProfileSystem::stdGetFromConfig ( configStream, "REPETITIONS", 
-																			 Repetitions::getRepsFromConfig ));
+		repetitionControl.setRepetitions ( ProfileSystem::stdConfigGetter ( configStream, "REPETITIONS", 
+																			 Repetitions::getSettingsFromConfig ));
 		
 	}
 	catch ( Error& )
@@ -746,20 +746,7 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	RedrawWindow();
 }
 
-
-
-
-BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
-{
-	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
-	{
-		tooltips[toolTipInc]->RelayEvent(pMsg);
-	}
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
 fontMap MainWindow::getFonts() { return mainFonts; }
-
 
 void MainWindow::passClear(UINT id)
 {

@@ -48,26 +48,8 @@ void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile)
 
 void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile, Version ver )
 {
-	setSettings(getTekInfo(configFile, ver));
+	setSettings(TekCore::getSettingsFromConfig(configFile, ver));
 }
-
-tektronixInfo TektronixAfgControl::getTekInfo (ConfigStream& configFile, Version ver)
-{
-	auto getlineF = ProfileSystem::getGetlineFunc (ver);
-	tektronixInfo tekInfo;
-	for (auto chanInc : range (tekInfo.channels.size ()))
-	{
-		ProfileSystem::checkDelimiterLine (configFile, "CHANNEL_" + str (chanInc+1));
-		auto& channel = tekInfo.channels[chanInc];
-		configFile >> channel.control >> channel.on >> channel.fsk;
-		configFile.get ();
-		getlineF (configFile, channel.power.expressionStr);
-		getlineF (configFile, channel.mainFreq.expressionStr);
-		getlineF (configFile, channel.fskFreq.expressionStr);
-	}
-	return tekInfo;
-}
-
 
 void TektronixAfgControl::handleProgram(std::vector<parameterType> constants)
 {

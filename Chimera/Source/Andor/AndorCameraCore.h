@@ -43,9 +43,8 @@ class AndorCameraCore
 		// THIS CLASS IS NOT COPYABLE.
 		AndorCameraCore& operator=(const AndorCameraCore&) = delete;
 		AndorCameraCore (const AndorCameraCore&) = delete;
-
 		AndorCameraCore(bool safemode_opt);
-
+		static AndorRunSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);

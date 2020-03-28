@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 #include "MicrowaveCore.h"
 
 
@@ -79,3 +81,32 @@ UINT MicrowaveCore::getNumTriggers (UINT variationNumber, microwaveSettings sett
 	return settings.list.size () == 1 ? 0 : settings.list.size ();
 }
 
+microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile, Version ver)
+{
+	microwaveSettings settings;
+	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	openFile >> settings.control;
+	UINT numInList = 0;
+	openFile >> numInList;
+	if (numInList > 100)
+	{
+		auto res = promptBox ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
+							  " was " + str (numInList) + ". Is this acceptable?", MB_YESNO);
+		if (!res)
+		{
+			thrower ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
+					 " was " + str (numInList) + ".");
+		}
+	}
+	settings.list.resize (numInList);
+	if (numInList > 0)
+	{
+		openFile.get ();
+	}
+	for (auto num : range (numInList))
+	{
+		getlineF (openFile, settings.list[num].frequency.expressionStr);
+		getlineF (openFile, settings.list[num].power.expressionStr);
+	}
+	return settings;
+}

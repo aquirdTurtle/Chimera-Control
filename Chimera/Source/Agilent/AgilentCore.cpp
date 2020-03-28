@@ -455,3 +455,65 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 		visaFlume.write ("SOURCE" + str (channel) + ":DATA:VOL:CLEAR");
 	}
 }
+
+deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file, Version ver)
+{
+	auto readFunc = ProfileSystem::getGetlineFunc (ver);
+	deviceOutputInfo tempSettings;
+	file >> tempSettings.synced;
+	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
+	UINT chanInc = 0;
+	for (auto& channel : tempSettings.channel)
+	{
+		ProfileSystem::checkDelimiterLine (file, channelNames[chanInc]);
+		// the extra step in all of the following is to remove the , at the end of each input.
+		std::string input;
+		file >> input;
+		try
+		{
+			channel.option = ver < Version ("4.2") ?
+				AgilentChannelMode::which (boost::lexical_cast<int>(input) + 2) : AgilentChannelMode::fromStr (input);
+		}
+		catch (boost::bad_lexical_cast&)
+		{
+			throwNested ("Bad channel " + str (chanInc + 1) + " option!");
+		}
+		std::string calibratedOption;
+		file.get ();
+		readFunc (file, channel.dc.dcLevel.expressionStr);
+		if (ver > Version ("2.3"))
+		{
+			file >> channel.dc.useCal;
+			file.get ();
+		}
+		readFunc (file, channel.sine.amplitude.expressionStr);
+		readFunc (file, channel.sine.frequency.expressionStr);
+		if (ver > Version ("2.3"))
+		{
+			file >> channel.sine.useCal;
+			file.get ();
+		}
+		readFunc (file, channel.square.amplitude.expressionStr);
+		readFunc (file, channel.square.frequency.expressionStr);
+		readFunc (file, channel.square.offset.expressionStr);
+		if (ver > Version ("2.3"))
+		{
+			file >> channel.square.useCal;
+			file.get ();
+		}
+		readFunc (file, channel.preloadedArb.address);
+		if (ver > Version ("2.3"))
+		{
+			file >> channel.preloadedArb.useCal;
+			file.get ();
+		}
+		readFunc (file, channel.scriptedArb.fileAddress);
+		if (ver > Version ("2.3"))
+		{
+			file >> channel.scriptedArb.useCal;
+			file.get ();
+		}
+		chanInc++;
+	}
+	return tempSettings;
+}

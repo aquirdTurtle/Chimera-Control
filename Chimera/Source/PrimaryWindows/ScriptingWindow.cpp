@@ -187,17 +187,6 @@ BOOL ScriptingWindow::OnToolTipText( UINT id, NMHDR * pNMHDR, LRESULT * pResult 
 	return FALSE;
 }
 
-
-BOOL ScriptingWindow::PreTranslateMessage(MSG* pMsg)
-{
-	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
-	{
-		 tooltips[toolTipInc]->RelayEvent(pMsg);
-	}
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
-
 void ScriptingWindow::handleNiawgScriptComboChange()
 {
 	//horizontalNiawgScript.childComboChangeHandler();
@@ -245,18 +234,18 @@ BOOL ScriptingWindow::OnInitDialog()
 				 + exception.trace () );
 	}
 	POINT startLocation = { 0, 28 };
-	niawg.initialize (id, startLocation, this, tooltips);
+	niawg.initialize (id, startLocation, this, toolTips);
 	niawg.niawgScript.setEnabled ( true, false );
 	startLocation = { 640, 28 };
 	
-	intensityAgilent.initialize( startLocation, tooltips, this, id, "Tweezer Intensity Agilent", 865, 
+	intensityAgilent.initialize( startLocation, toolTips, this, id, "Tweezer Intensity Agilent", 865,
 								 _myRGBs["Interactable-Bkgd"], 640 );
 	startLocation = { 2*640, 28 };
-	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
+	masterScript.initialize( 640, 900, startLocation, toolTips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
 	startLocation = { 1600, 3 };
-	statusBox.initialize(startLocation, id, this, 300, tooltips);
-	profileDisplay.initialize({ 0,3 }, id, this, tooltips);
+	statusBox.initialize(startLocation, id, this, 300, toolTips);
+	profileDisplay.initialize({ 0,3 }, id, this, toolTips);
 	
 	menu.LoadMenu(IDR_MAIN_MENU);
 	SetMenu(&menu);
@@ -667,8 +656,10 @@ void ScriptingWindow::windowOpenConfig(ConfigStream& configFile, Version ver)
 		getlineFunc (configFile, niawgName);
 		getlineFunc (configFile, masterName);
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
-		intensityAgilent.setOutputSettings (ProfileSystem::stdGetFromConfig (configFile, intensityAgilent.getConfigDelim (),
-			Agilent::getOutputSettingsFromConfigFile, Version ("4.0")));
+		deviceOutputInfo info;
+		ProfileSystem::stdGetFromConfig ( configFile, intensityAgilent.getConfigDelim (), intensityAgilent.getCore(), 
+										  info, Version ("4.0") );
+		intensityAgilent.setOutputSettings (info);
 		intensityAgilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		try
 		{

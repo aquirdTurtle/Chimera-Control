@@ -88,7 +88,7 @@ std::vector<double> DmCore::getActuatorValues()
 	return valueArray;
 }
 
-DMOutputForm DmCore::handleGetConfig(ConfigStream& configFile, Version ver) 
+DMOutputForm DmCore::getSettingsFromConfig(ConfigStream& configFile, Version ver) 
 {
 	DMOutputForm Info;
 	Info.coma.expressionStr = configFile.getline();

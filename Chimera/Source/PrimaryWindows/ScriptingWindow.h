@@ -53,7 +53,6 @@ class ScriptingWindow : public IChimeraWindow
 
 		profileSettings getProfileSettings();
 		std::string getSystemStatusString();
-		BOOL PreTranslateMessage(MSG* pMsg);
 
 		void checkMasterSave();
 
@@ -123,7 +122,6 @@ class ScriptingWindow : public IChimeraWindow
 		DECLARE_MESSAGE_MAP();
 		//
 		CMenu menu;
-		cToolTips tooltips;
 		NiawgSystem niawg;
 		Script masterScript;
 		ColorBox statusBox;

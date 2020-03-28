@@ -75,46 +75,42 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			expSeq.masterScript = PS::getMasterAddressFromConfig(input->profile);
 			input->thisObj->loadMasterScript(expSeq.masterScript, expSeq.masterStream );
-			ddsRampList = PS::stdGetFromConfig (cStream, dds.configDelim, DdsCore::getRampListFromConfig );
+			PS::stdGetFromConfig(cStream, std::string(dds.configDelim), dds, ddsRampList);
 			for ( auto piezoInc : range(input->piezoCores.size()))
 			{
-				auto res = PS::stdGetFromConfig (cStream, input->piezoCores[ piezoInc ].get().configDelim,
-													PiezoCore::getPiezoSettingsFromConfig );
+				std::pair<piezoChan<std::string>, bool> res;
+				PS::stdGetFromConfig ( cStream, input->piezoCores[ piezoInc ].get().configDelim, 
+									   input->piezoCores[piezoInc].get (), res);
 				piezoExpressions[ piezoInc ]
 					= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
 				ctrlPztOptions[ piezoInc ] = res.second;
 			}
-			mainOpts = PS::stdGetFromConfig (cStream, "MAIN_OPTIONS", MainOptionsControl::getMainOptionsFromConfig );
-			repetitions = PS::stdGetFromConfig (cStream, "REPETITIONS",	Repetitions::getRepsFromConfig );
-			uwSettings = PS::stdGetFromConfig (cStream, MicrowaveSystem::delim, MicrowaveSystem::getMicrowaveSettingsFromConfig);
-			tekInfo[tbTek] = PS::stdGetFromConfig (cStream, input->topBottomTek.configDelim, TektronixAfgControl::getTekInfo);
-			tekInfo[aeTek] = PS::stdGetFromConfig (cStream, input->eoAxialTek.configDelim, TektronixAfgControl::getTekInfo);
+			mainOpts = PS::stdConfigGetter (cStream, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig );
+			repetitions = PS::stdConfigGetter (cStream, "REPETITIONS",	Repetitions::getSettingsFromConfig ); 
+			PS::stdGetFromConfig (cStream, MicrowaveSystem::delim, input->rsg, uwSettings);
+			PS::stdGetFromConfig ( cStream, input->topBottomTek.configDelim, input->topBottomTek, tekInfo[tbTek]);
+			PS::stdGetFromConfig (cStream, input->eoAxialTek.configDelim, input->eoAxialTek, tekInfo[aeTek]);
 			ParameterSystem::generateKey ( expParams, mainOpts.randomizeVariations, varRangeInfo);
-			variations = determineVariationNumber ( expParams );
+			variations = determineVariationNumber ( expParams ); 
 			for (auto agInc : range(input->agilents.size()))
 			{
-				agilentRunInfo[agInc] = PS::stdGetFromConfig(cStream, input->agilents[agInc].get().configDelim,
-																Agilent::getOutputSettingsFromConfigFile);
+				PS::stdGetFromConfig ( cStream, input->agilents[agInc].get ().configDelim, input->agilents[agInc].get (), 
+									   agilentRunInfo[agInc] );
 			}
 		}
 		if (runAndor) 
 		{
-			andorRunSettings = PS::stdGetFromConfig (cStream, "CAMERA_SETTINGS",
-													 AndorCameraSettingsControl::getRunSettingsFromConfig);
-			andorRunSettings.imageSettings = PS::stdGetFromConfig (cStream, "CAMERA_IMAGE_DIMENSIONS",
-													AndorCameraSettingsControl::getImageDimSettingsFromConfig);
+			PS::stdGetFromConfig (cStream, "CAMERA_SETTINGS", input->andorCamera, andorRunSettings);
 			andorRunSettings.repetitionsPerVariation = repetitions;
 			andorRunSettings.totalVariations = variations;
 		}
 		if (runBasler)
 		{
-			baslerCamSettings = PS::stdGetFromConfig ( cStream, "BASLER_CAMERA_SETTINGS",
-													   &BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));	
+			PS::stdGetFromConfig (cStream, "BASLER_CAMERA_SETTINGS", input->basCamera, baslerCamSettings, Version ("4.0"));
 			baslerCamSettings.repsPerVar = repetitions;
 			baslerCamSettings.variations = variations;
 		}
-		runNiawg = PS::stdGetFromConfig ( cStream, "NIAWG_INFORMATION", NiawgSystem::getControlNiawgFromConfig,
-										  Version ("4.12") );
+		PS::stdGetFromConfig (cStream, "NIAWG_INFORMATION", input->niawg, runNiawg, Version ("4.12"));
 		if ( runNiawg )
 		{
 			expSeq.niawgScript = PS::getNiawgScriptAddrFromConfig(input->profile);
@@ -357,7 +353,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 					if (param.keyValues.size() == 0)
 					{
 						thrower ( "Variable " + param.name + " varies, but has no values assigned to "
-									"it! (This shouldn't happen, it's a low-level bug...)" );
+								  "it! (This shouldn't happen, it's a low-level bug...)" );
 					}
 					expUpdate( param.name + ": " + str( param.keyValues[variationInc], 12) + "\r\n", comm, quiet );
 				}

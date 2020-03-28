@@ -1,10 +1,10 @@
 #pragma once
 
 #include "afxwin.h"
+#include "GeneralObjects/commonTypes.h"
 #include <array>
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ConfigurationSystems/Version.h"
-
 
 class MainWindow;
 class ScriptingWindow;
@@ -22,8 +22,10 @@ class IChimeraWindow : public CDialog
 	public:
 		IChimeraWindow ();
 		using CDialog::CDialog;
+		virtual BOOL PreTranslateMessage (MSG* pMsg);
 		// any Chimera window should override OnSize to rearrange any controls on the window.
 		virtual void OnSize (UINT nType, int cx, int cy) = 0;
+		// any chimera window should override these functions in order to 
 		virtual void windowOpenConfig (ConfigStream& configFile, Version ver)=0;
 		virtual void windowSaveConfig (ConfigStream& newFile)=0;
 
@@ -46,6 +48,7 @@ class IChimeraWindow : public CDialog
 		BaslerWindow* basWin = NULL;
 		DeformableMirrorWindow* dmWin = NULL;
 		static constexpr UINT numWindows = 6;
+		cToolTips toolTips;
 	private:
 		DECLARE_MESSAGE_MAP ();
 };

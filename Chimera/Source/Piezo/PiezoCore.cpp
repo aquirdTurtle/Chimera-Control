@@ -57,7 +57,7 @@ void PiezoCore::evaluateVariations (std::vector<parameterType>& params, UINT tot
 	}
 }
 
-std::pair<piezoChan<std::string>, bool> PiezoCore::getPiezoSettingsFromConfig ( ConfigStream& file, Version ver )
+std::pair<piezoChan<std::string>, bool> PiezoCore::getSettingsFromConfig ( ConfigStream& file, Version ver )
 {
 	piezoChan<std::string> valVec;
 	auto getlineF = ProfileSystem::getGetlineFunc (ver);

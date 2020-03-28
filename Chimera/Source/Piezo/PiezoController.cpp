@@ -48,7 +48,7 @@ void PiezoController::handleOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	if ( ver > Version ( "4.5" ) )
 	{
-		auto configVals = core.getPiezoSettingsFromConfig ( configFile, ver );
+		auto configVals = core.getSettingsFromConfig ( configFile, ver );
 		edits.x.SetWindowTextA ( configVals.first.x.c_str ( ) );
 		edits.y.SetWindowTextA ( configVals.first.y.c_str ( ) );
 		edits.z.SetWindowTextA ( configVals.first.z.c_str ( ) );
