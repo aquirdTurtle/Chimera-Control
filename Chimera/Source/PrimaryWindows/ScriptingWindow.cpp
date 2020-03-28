@@ -35,8 +35,6 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
 	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &ScriptingWindow::handleIntensityCombo )
 
-	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
-
 	ON_CBN_SELENDOK( IDC_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleNiawgScriptComboChange)
 	ON_CBN_SELENDOK( IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 	
@@ -159,7 +157,7 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	
 	intensityAgilent.rearrange( cx, cy, mainWin->getFonts() );
 	masterScript.rearrange(cx, cy, mainWin->getFonts());
-	statusBox.rearrange( cx, cy, mainWin->getFonts());
+	statBox.rearrange( cx, cy, mainWin->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWin->getFonts());
 	niawg.rearrange (cx, cy, mainWin->getFonts ());
 	recolorScripts ( );
@@ -244,11 +242,8 @@ BOOL ScriptingWindow::OnInitDialog()
 	masterScript.initialize( 640, 900, startLocation, toolTips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
 	startLocation = { 1600, 3 };
-	statusBox.initialize(startLocation, id, this, 300, toolTips);
+	statBox.initialize(startLocation, id, this, 300, toolTips);
 	profileDisplay.initialize({ 0,3 }, id, this, toolTips);
-	
-	menu.LoadMenu(IDR_MAIN_MENU);
-	SetMenu(&menu);
 	try
 	{
 		// I only do this for the intensity agilent at the moment.
@@ -259,12 +254,7 @@ BOOL ScriptingWindow::OnInitDialog()
 		errBox( "ERROR: Failed to initialize intensity agilent: " + err.trace() );
 	}
 	SetRedraw( true );
-	return TRUE;
-}
-
-void ScriptingWindow::setMenuCheck ( UINT menuItem, UINT itemState )
-{
-	menu.CheckMenuItem ( menuItem, itemState );
+	return IChimeraWindow::OnInitDialog ();
 }
 
 void ScriptingWindow::fillMotInput (ExperimentThreadInput* input)
@@ -389,14 +379,6 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			{
 				return result;
 			}
-			CBrush* resultc = statusBox.handleColoring(num, pDC );
-			if ( resultc )
-			{
-				return *resultc;
-			}
-			pDC->SetTextColor( _myRGBs["Text"]);
-			pDC->SetBkColor( _myRGBs["Static-Bkgd"] );
-			return *_myBrushes["Static-Bkgd"];
 		}
 		case CTLCOLOR_EDIT:
 		{
@@ -405,22 +387,9 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			{
 				return result;
 			}
-			pDC->SetTextColor ( _myRGBs[ "ScriptWin-Text" ] );
-			pDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
-			return *_myBrushes[ "Interactable-Bkgd" ];
-		}
-
-		case CTLCOLOR_LISTBOX:
-		{
-			pDC->SetTextColor( _myRGBs["ScriptWin-Text"]);
-			pDC->SetBkColor( _myRGBs["Interactable-Bkgd"]);
-			return *_myBrushes["Interactable-Bkgd"];
-		}
-		default:
-		{
-			return *_myBrushes["Main-Bkgd"];
 		}
 	}
+	return IChimeraWindow::OnCtlColor (pDC, pWnd, nCtlColor);
 }
 
 
@@ -820,12 +789,6 @@ void ScriptingWindow::considerScriptLocations()
 {
 	niawg.niawgScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
 	intensityAgilent.agilentScript.considerCurrentLocation(getProfile().configLocation, mainWin->getRunInfo());
-}
-
-
-void ScriptingWindow::changeBoxColor( systemInfo<char> colors )
-{
-	statusBox.changeColor(colors);
 }
 
 

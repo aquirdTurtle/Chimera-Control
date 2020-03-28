@@ -27,23 +27,29 @@ END_MESSAGE_MAP ()
 HBRUSH IChimeraWindow::OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	// default colors
+	int num = pWnd->GetDlgCtrlID ();
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
+			CBrush* result = statBox.handleColoring (num, pDC);
+			if (result)
+			{
+				return *result;
+			}
 			pDC->SetTextColor (_myRGBs["Text"]);
 			pDC->SetBkColor (_myRGBs["Static-Bkgd"]);
 			return *_myBrushes["Static-Bkgd"];
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor (_myRGBs["Text"]);
+			pDC->SetTextColor (_myRGBs["Text-Emph"]);
 			pDC->SetBkColor (_myRGBs["Interactable-Bkgd"]);
 			return *_myBrushes["Interactable-Bkgd"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor (_myRGBs["Text"]);
+			pDC->SetTextColor (_myRGBs["Text-Emph"]);
 			pDC->SetBkColor (_myRGBs["Interactable-Bkgd"]);
 			return *_myBrushes["Interactable-Bkgd"];
 		}
@@ -103,4 +109,24 @@ void IChimeraWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* script
 void IChimeraWindow::OnEnter () 
 {
 	errBox ("The cake is a lie.");
+}
+
+BOOL IChimeraWindow::OnInitDialog ()
+{
+	menu.LoadMenu (IDR_MAIN_MENU);
+	SetMenu (&menu);
+	return FALSE;
+}
+
+void IChimeraWindow::changeBoxColor (systemInfo<char> colors)
+{
+	if (statBox.initialized)
+	{
+		statBox.changeColor (colors);
+	}
+}
+
+void IChimeraWindow::setMenuCheck (UINT menuItem, UINT itemState)
+{
+	menu.CheckMenuItem (menuItem, itemState);
 }

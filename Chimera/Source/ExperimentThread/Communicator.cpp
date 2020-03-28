@@ -7,20 +7,20 @@
 #include "PrimaryWindows/MainWindow.h"
 #include "PrimaryWindows/ScriptingWindow.h"
 #include "PrimaryWindows/BaslerWindow.h"
+#include "PrimaryWindows/DeformableMirrorWindow.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "LowLevel/externals.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
-void Communicator::initialize( MainWindow* mainWindow, ScriptingWindow* scriptingWin, AndorWindow* cameraWin, 
-							   AuxiliaryWindow* auxWindow, BaslerWindow* basWindow )
+void Communicator::initialize( IChimeraWindow* win )
 {
-	mainWin = mainWindow;
-	scriptWin = scriptingWin;
-	andorWin = cameraWin;
-	auxWin = auxWindow;
-	basWin = basWindow;
+	mainWin = win->mainWin;
+	scriptWin = win->scriptWin;
+	andorWin = win->andorWin;
+	auxWin = win->auxWin;
+	basWin = win->basWin;
+	dmWin = win->dmWin;
 }
-
 
 void Communicator::sendBaslerFin ( )
 {
@@ -144,6 +144,8 @@ void Communicator::sendColorBox( systemInfo<char> colors )
 	scriptWin->changeBoxColor( colors );
 	andorWin->changeBoxColor( colors );
 	auxWin->changeBoxColor( colors );
+	basWin->changeBoxColor (colors);
+	dmWin->changeBoxColor (colors);
 }
 
 void Communicator::sendStatus(std::string statusMsg)

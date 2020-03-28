@@ -47,7 +47,6 @@ class BaslerWindow : public IChimeraWindow
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void windowSaveConfig ( ConfigStream& configFile );
 		baslerSettings getCurrentSettings ( );
-		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BaslerCameraCore& getCore();
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
@@ -63,7 +62,6 @@ class BaslerWindow : public IChimeraWindow
 		unsigned int currentRepNumber;
 		BaslerAutoExposure::mode runExposureMode;
 		std::vector<std::vector<long>> images;
-		CMenu menu;
 		bool isRunning;
 		PlotCtrl *horGraph, *vertGraph;
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;

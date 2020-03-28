@@ -23,7 +23,6 @@
 #include "AnalogInput/ServoManager.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
-#include "ExperimentMonitoringAndStatus/colorbox.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ConfigurationSystems/Version.h"
 #include "IChimeraWindow.h"
@@ -52,7 +51,6 @@ class AuxiliaryWindow : public IChimeraWindow
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 	public:
 		AuxiliaryWindow();
-		void setMenuCheck ( UINT menuItem, UINT itemState );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void updateOptimization ( AllExperimentInput& input );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
@@ -96,7 +94,6 @@ class AuxiliaryWindow : public IChimeraWindow
 		void handleAgilentEditChange( UINT id );
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void fillMasterThreadInput(ExperimentThreadInput* input);
-		void changeBoxColor(systemInfo<char> colors);
 		void DacEditChange(UINT id);
 		void SetDacs();
 		
@@ -173,11 +170,8 @@ class AuxiliaryWindow : public IChimeraWindow
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronixAfgControl topBottomTek, eoAxialTek;
 		MachineOptimizer optimizer;
-		ColorBox boxes;
 		ParameterSystem configParameters, globalParameters;
 		DdsSystem dds;
 		
 		PiezoController piezo1, piezo2;
-
-		ColorBox statusBox;
 };
