@@ -28,7 +28,7 @@ class DdsCore : public IDeviceCore
 
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		std::vector<ddsIndvRampListInfo> getSettingsFromConfig (ConfigStream& file, Version ver );
+		std::vector<ddsIndvRampListInfo> getSettingsFromConfig (ConfigStream& file );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file );
 		void programVariation ( UINT variationNum, std::vector<parameterType>& params);
 		void connectasync ( );

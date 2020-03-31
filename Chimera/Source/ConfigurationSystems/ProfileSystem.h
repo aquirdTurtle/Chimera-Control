@@ -60,7 +60,7 @@ class ProfileSystem
 		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
 								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
 								 DeformableMirrorWindow* dmWin);
-		static void getVersionFromFile( ConfigStream& file, Version& ver );
+		static void getVersionFromFile( ConfigStream& file );
 		static std::string getNiawgScriptAddrFromConfig(ConfigStream& configStream);
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
@@ -92,14 +92,13 @@ class ProfileSystem
 		static void checkDelimiterLine (ConfigStream& openFile, std::string keyword );
 		static bool checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition );
 		static void jumpToDelimiter (ConfigStream& openFile, std::string delimiter );
-		static void initializeAtDelim ( ConfigStream& openFile, std::string delimiter, Version& ver,
-										Version minVer=Version("0.0") );
+		static void initializeAtDelim ( ConfigStream& openFile, std::string delimiter, Version minVer=Version("0.0") );
 		template <class coreType, class returnT>
 		static void stdGetFromConfig ( ConfigStream& configStream, coreType& sys, returnT& settings, 
 									   Version minVer=Version("0.0"));
 		template <class returnType>
 		static returnType stdConfigGetter (ConfigStream& configStream, std::string delim,
-			returnType (*getterFunc)(ConfigStream&, Version), Version minVer=Version("0.0"));
+			returnType (*getterFunc)(ConfigStream&), Version minVer=Version("0.0"));
 		CBrush* handleColoring (int id, CDC* pDC);
 	private:
 		profileSettings currentProfile; 
@@ -151,11 +150,10 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 												sysType* this_in, Version minVer )
 {
 	// sysType must have a member function of the form
-	// void ( *sysType::openFunction )( std::ifstream& f, Version ver )
-	Version ver;
+	// void ( *sysType::openFunction )( ConfigStream& f )
 	try
 	{
-		ProfileSystem::initializeAtDelim ( configStream, delim, ver, minVer );
+		ProfileSystem::initializeAtDelim ( configStream, delim, minVer );
 	}
 	catch ( Error& e )
 	{
@@ -164,7 +162,7 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 	}
 	try
 	{
-		this_in->handleOpenConfig( configStream, ver );
+		this_in->handleOpenConfig( configStream );
 	}
 	catch ( Error& e )
 	{
@@ -185,15 +183,14 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 
 template <class returnType>
 static returnType ProfileSystem::stdConfigGetter (ConfigStream& configStream, std::string delim,
-												  returnType (*getterFunc)(ConfigStream&, Version), Version minVer)
+												  returnType (*getterFunc)(ConfigStream&), Version minVer)
 {
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
-	Version ver;
 	// return type must have a default constructor so that the function knows what to do if fails.
 	returnType res = returnType ();
 	try
 	{
-		ProfileSystem::initializeAtDelim (configStream, delim, ver, minVer);
+		ProfileSystem::initializeAtDelim (configStream, delim, minVer);
 	}
 	catch (Error & e)
 	{
@@ -202,7 +199,7 @@ static returnType ProfileSystem::stdConfigGetter (ConfigStream& configStream, st
 	}
 	try
 	{
-		res = (*getterFunc) (configStream, ver);
+		res = (*getterFunc) (configStream);
 	}
 	catch (Error & e)
 	{
@@ -225,10 +222,9 @@ template <class coreType, class returnT>
 static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, coreType& core, returnT& settings, Version minVer)
 {
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
-	Version ver;
 	try
 	{
-		ProfileSystem::initializeAtDelim (configStream, core.getDelim (), ver, minVer);
+		ProfileSystem::initializeAtDelim (configStream, core.getDelim (), minVer);
 	}
 	catch (Error & e)
 	{
@@ -236,7 +232,7 @@ static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, coreTy
 	}
 	try
 	{
-		settings = core.getSettingsFromConfig (configStream, ver);
+		settings = core.getSettingsFromConfig (configStream);
 	}
 	catch (Error & e)
 	{

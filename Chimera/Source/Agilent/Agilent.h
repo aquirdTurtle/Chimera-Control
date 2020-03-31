@@ -41,7 +41,7 @@ class Agilent
 		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void handleSavingConfig( ConfigStream& saveFile, std::string configPath, RunInfo info );
 		std::string getDeviceIdentity();
-		void handleOpenConfig(ConfigStream& file, Version ver );
+		void handleOpenConfig(ConfigStream& file);
 		void updateSettingsDisplay( int chan, std::string configPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();

@@ -181,14 +181,14 @@ void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 	}
 }
 
-void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Version version )
+void ServoManager::handleOpenMasterConfig( ConfigStream& configStream )
 {
-	if ( version < Version( "2.1" ) )
+	if ( configStream.ver < Version( "2.1" ) )
 	{
 		// this was before the servo manager.
 		return;
 	}
-	if ( version < Version ( "2.5" ) )
+	if (configStream.ver< Version ( "2.5" ) )
 	{
 		double tolerance;
 		configStream >> tolerance;
@@ -196,7 +196,7 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 	bool calAutoServo, expAutoServo;
 	configStream >> calAutoServo;
 	calAutoServoButton.SetCheck( calAutoServo );
-	if (version >= Version ("2.9"))
+	if (configStream.ver >= Version ("2.9"))
 	{
 		configStream >> expAutoServo;
 		expAutoServoButton.SetCheck (expAutoServo);
@@ -210,7 +210,7 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 	servos.clear ( );
 	for ( auto servoNum : range ( numServosInFile ) )
 	{
-		servos.push_back ( handleOpenMasterConfigIndvServo ( configStream, version ) );
+		servos.push_back ( handleOpenMasterConfigIndvServo ( configStream ) );
 	}
 	refreshListview ( );
 }
@@ -472,11 +472,11 @@ void ServoManager::handleListViewClick ( )
 }
 
 
-servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version )
+servoInfo ServoManager::handleOpenMasterConfigIndvServo ( ConfigStream& configStream )
 {
 	servoInfo tmpInfo;
 	configStream >> tmpInfo.servoName;
-	if ( version > Version ( "2.3" ) )
+	if ( configStream.ver > Version ( "2.3" ) )
 	{
 		configStream >> tmpInfo.aiInChan >> tmpInfo.aoControlChannel;
 	}
@@ -485,7 +485,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 		tmpInfo.aiInChan = tmpInfo.aoControlChannel = 0;
 	}
 	configStream >> tmpInfo.active >> tmpInfo.setPoint;
-	if ( version > Version ( "2.3" ) )
+	if (configStream.ver > Version ( "2.3" ) )
 	{
 		UINT numSettings;
 		configStream >> numSettings;
@@ -497,7 +497,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 			ttl.first = DoRows::fromStr ( rowStr );
 		}
 	}
-	if (version > Version ("2.6")) 
+	if (configStream.ver > Version ("2.6"))
 	{
 		UINT numSettings;
 		configStream >> numSettings;
@@ -509,15 +509,15 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 			ao.first = dacID;
 		}
 	}
-	if ( version > Version ( "2.4" ) )
+	if (configStream.ver > Version ( "2.4" ) )
 	{
 		configStream >> tmpInfo.tolerance >> tmpInfo.gain;
 	}
-	if ( version > Version ( "2.5" ) )
+	if (configStream.ver > Version ( "2.5" ) )
 	{
 		configStream >> tmpInfo.monitorOnly;	
 	}
-	if (version > Version ("2.7"))
+	if (configStream.ver > Version ("2.7"))
 	{
 		configStream >> tmpInfo.avgNum;
 	}

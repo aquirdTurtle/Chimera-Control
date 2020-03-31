@@ -15,7 +15,7 @@ class PictureManager
 		void updatePlotData ( );
 		void handleMouse( CPoint point );
 		void handleSaveConfig(ConfigStream& saveFile);
-		void handleOpenConfig(ConfigStream& configFile, Version ver );
+		void handleOpenConfig(ConfigStream& configFile);
 		void initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultGridBrush, int manWidth, int manHeight,
 						 std::array<UINT, 8> minMaxEdits,
 						 std::vector<Gdiplus::Pen*> graphPens = std::vector<Gdiplus::Pen*> ( ), CFont* font = NULL,

@@ -21,7 +21,7 @@ class MainOptionsControl
 {
 	public:
 		void handleSaveConfig(ConfigStream& saveFile);
-		static mainOptions getSettingsFromConfig(ConfigStream& openFile, Version ver );
+		static mainOptions getSettingsFromConfig(ConfigStream& openFile );
 		void setOptions ( mainOptions opts );
 		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		mainOptions getOptions();

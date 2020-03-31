@@ -84,10 +84,10 @@ UINT MicrowaveCore::getNumTriggers (microwaveSettings settings)
 	return settings.list.size () == 1 ? 0 : settings.list.size ();
 }
 
-microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile, Version ver)
+microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile)
 {
 	microwaveSettings settings;
-	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	auto getlineF = ProfileSystem::getGetlineFunc (openFile.ver);
 	openFile >> settings.control;
 	UINT numInList = 0;
 	openFile >> numInList;

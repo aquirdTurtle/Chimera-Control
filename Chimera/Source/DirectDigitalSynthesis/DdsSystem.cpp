@@ -234,11 +234,11 @@ void DdsSystem::handleSaveConfig (ConfigStream& file )
 }
 
 
-void DdsSystem::handleOpenConfig ( ConfigStream& file, Version ver )
+void DdsSystem::handleOpenConfig ( ConfigStream& file )
 {
-	if ( ver >= Version ( "4.5" ) )
+	if ( file.ver >= Version ( "4.5" ) )
 	{
-		currentRamps = core.getSettingsFromConfig ( file, ver );
+		currentRamps = core.getSettingsFromConfig ( file );
 	}
 	redrawListview ( );
 }

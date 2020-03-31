@@ -11,6 +11,7 @@
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/ScriptingWindow.h"
 #include "PrimaryWindows/MainWindow.h"
+#include "PrimaryWindows/DeformableMirrorWindow.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
 
@@ -65,9 +66,8 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream)
 {	
 	// open configuration file and grab the niawg script file address from it.
-	Version ver;
-	initializeAtDelim (configStream, "SCRIPTS", ver);
-	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	initializeAtDelim (configStream, "SCRIPTS");
+	auto getlineF = ProfileSystem::getGetlineFunc (configStream.ver);
 	std::string niawgScriptAddresses;
 	getlineF (configStream, niawgScriptAddresses);
 	return niawgScriptAddresses;
@@ -120,7 +120,7 @@ std::function<void (ScriptStream&, std::string&)> ProfileSystem::getGetlineFunc 
 	}
 
 }
-void ProfileSystem::getVersionFromFile( ConfigStream& file, Version& ver )
+void ProfileSystem::getVersionFromFile( ConfigStream& file )
 {
 	file.clear ( );
 	file.seekg ( 0, std::ios::beg );
@@ -129,7 +129,7 @@ void ProfileSystem::getVersionFromFile( ConfigStream& file, Version& ver )
 	// eat the "version" word"
 	file >> versionStr;
 	file >> versionStr;
-	ver = Version( versionStr );
+	file.ver = Version( versionStr );
 }
 
 
@@ -158,15 +158,18 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	std::string versionStr;
 	try
 	{
-		Version ver;
-		getVersionFromFile(cStream, ver );
-		scriptWin->windowOpenConfig(cStream, ver );
-		camWin->windowOpenConfig(cStream, ver );
-		auxWin->windowOpenConfig(cStream, ver );
-		mainWin->windowOpenConfig(cStream, ver );
-		if ( ver >= Version ( "3.4" ) )
+		getVersionFromFile(cStream);
+		scriptWin->windowOpenConfig(cStream );
+		camWin->windowOpenConfig(cStream );
+		auxWin->windowOpenConfig(cStream );
+		mainWin->windowOpenConfig(cStream );
+		if (cStream.ver >= Version ( "3.4" ) )
 		{
-			basWin->windowOpenConfig (cStream, ver );
+			basWin->windowOpenConfig (cStream );
+		}
+		if (cStream.ver >= Version ("5.0"))
+		{
+			//dmWin->windowOpenConfig (cStream);
 		}
 	}
 	catch ( Error& err )
@@ -184,12 +187,12 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 }
 
 
-void ProfileSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version& ver, Version minVer )
+void ProfileSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version minVer )
 {
-	ProfileSystem::getVersionFromFile ( configStream, ver );
-	if ( ver < minVer )
+	ProfileSystem::getVersionFromFile ( configStream );
+	if ( configStream.ver < minVer )
 	{
-		thrower ( "Configuration version (" + ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
+		thrower ( "Configuration version (" + configStream.ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
 	}
 	try
 	{
@@ -844,9 +847,8 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 	}
 	ConfigStream stream (configF);
 	std::string line, word, address;
-	Version ver;
-	getVersionFromFile(stream, ver );
-	if ( ver.versionMajor < 3 )
+	getVersionFromFile(stream );
+	if ( stream.ver.versionMajor < 3 )
 	{
 		line = stream.getline ();
 	}

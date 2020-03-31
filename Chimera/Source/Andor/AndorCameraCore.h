@@ -45,7 +45,7 @@ class AndorCameraCore : public IDeviceCore
 		AndorCameraCore& operator=(const AndorCameraCore&) = delete;
 		AndorCameraCore (const AndorCameraCore&) = delete;
 		AndorCameraCore(bool safemode_opt);
-		AndorRunSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
+		AndorRunSettings getSettingsFromConfig (ConfigStream& configFile);
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);

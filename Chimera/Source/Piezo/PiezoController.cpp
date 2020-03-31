@@ -44,11 +44,11 @@ void PiezoController::updateCurrentValues ( )
 	currentVals.z.SetWindowTextA ( cstr ( core.getCurrentZVolt ( ) ) );
 }
 
-void PiezoController::handleOpenConfig ( ConfigStream& configFile, Version ver )
+void PiezoController::handleOpenConfig ( ConfigStream& configFile)
 {
-	if ( ver > Version ( "4.5" ) )
+	if ( configFile.ver > Version ( "4.5" ) )
 	{
-		auto configVals = core.getSettingsFromConfig ( configFile, ver );
+		auto configVals = core.getSettingsFromConfig ( configFile );
 		edits.x.SetWindowTextA ( configVals.pztValues.x.expressionStr.c_str ( ) );
 		edits.y.SetWindowTextA ( configVals.pztValues.y.expressionStr.c_str ( ) );
 		edits.z.SetWindowTextA ( configVals.pztValues.z.expressionStr.c_str ( ) );

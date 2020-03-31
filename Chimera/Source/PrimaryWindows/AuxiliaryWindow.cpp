@@ -649,7 +649,7 @@ void AuxiliaryWindow::windowSaveConfig(ConfigStream& saveFile )
 	RohdeSchwarzGenerator.handleSaveConfig (saveFile);
 }
 
-void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
+void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile)
 {
 	try
 	{
@@ -672,7 +672,7 @@ void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
 
 		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.getDelim(), &topBottomTek, Version ( "4.0" ) );
 		ProfileSystem::standardOpenConfig ( configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ( "4.0" ) );
-		if ( ver >= Version ( "4.5" ) )
+		if ( configFile.ver >= Version ( "4.5" ) )
 		{
 			ProfileSystem::standardOpenConfig ( configFile, dds.getDelim(), &dds, Version ( "4.5" ) );
 		}
@@ -1105,7 +1105,7 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 }
 
 
-void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
+void AuxiliaryWindow::handleMasterConfigOpen(ConfigStream& configStream)
 {
 	ttlBoard.getCore().resetTtlEvents();
 	ttlBoard.getCore ().prepareForce();
@@ -1140,7 +1140,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		double defaultValue, min, max;
 
 		configStream >> name;
-		if (version >= Version("1.2"))
+		if (configStream.ver >= Version("1.2"))
 		{
 			std::string trash;
 			configStream >> minString >> trash;
@@ -1155,7 +1155,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		try
 		{
 			defaultValue = boost::lexical_cast<double>(defaultValueString);
-			if (version >= Version( "1.2"))
+			if (configStream.ver >= Version( "1.2"))
 			{
 				min = boost::lexical_cast<double>(minString);
 				max = boost::lexical_cast<double>(maxString);
@@ -1173,7 +1173,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 
 		std::string noteString = "";
 
-		if ( version >= Version ( "2.3" ) )
+		if (configStream.ver >= Version ( "2.3" ) )
 		{
 			std::string trash;
 			configStream >> noteString;
@@ -1187,7 +1187,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, Ve
 		aoSys.setDefaultValue(dacInc, defaultValue);
 	}
 	// variables.
-	if (version >= Version( "1.1" ))
+	if (configStream.ver >= Version( "1.1" ))
 	{
 		int varNum;
 		configStream >> varNum;

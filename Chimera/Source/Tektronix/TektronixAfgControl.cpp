@@ -46,9 +46,9 @@ void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile)
 }
 
 
-void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile, Version ver )
+void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile )
 {
-	setSettings(core.getSettingsFromConfig(configFile, ver));
+	setSettings(core.getSettingsFromConfig(configFile));
 }
 
 void TektronixAfgControl::handleProgram(std::vector<parameterType> constants)

@@ -14,7 +14,7 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-UINT Repetitions::getSettingsFromConfig (ConfigStream& openFile, Version ver )
+UINT Repetitions::getSettingsFromConfig (ConfigStream& openFile )
 {
 	UINT repNum;
 	openFile >> repNum;

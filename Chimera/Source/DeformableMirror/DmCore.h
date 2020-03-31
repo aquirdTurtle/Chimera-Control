@@ -26,7 +26,7 @@ class DmCore : public IDeviceCore
 		std::string getDelim () { return configDelim; }
 		std::vector<double> getActuatorValues();
 		void handleSaveConfig( ConfigStream& newFile, DMOutputForm out );
-		DMOutputForm getSettingsFromConfig(ConfigStream& configFile, Version ver);
+		DMOutputForm getSettingsFromConfig(ConfigStream& configFile);
 		static void interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore& DM);
 		void ProgramNow(UINT variation);
 		DMOutputForm getInfo();

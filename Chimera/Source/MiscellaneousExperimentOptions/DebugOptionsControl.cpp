@@ -113,7 +113,7 @@ void DebugOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 }
 
 
-void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile, Version ver )
+void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile )
 {
 	openFile >> currentOptions.outputAgilentScript;
 	openFile >> currentOptions.outputExcessInfo;
@@ -134,7 +134,7 @@ void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 	{
 		currentOptions.sleepTime = 0;
 	}
-	if (ver > Version("2.8" ) )
+	if (openFile.ver > Version("2.8" ) )
 	{
 		openFile >> currentOptions.outputNiawgWavesToText;
 	}

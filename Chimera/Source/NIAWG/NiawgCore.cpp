@@ -4720,11 +4720,11 @@ UINT NiawgCore::getMaxMoves( Matrix<bool> targetmatrix )
 	return sumlength;
 }
 
-bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile, Version ver)
+bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile)
 {
-	if (ver < Version ("4.12")) { return true; }
+	if (openfile.ver < Version ("4.12")) { return true; }
 	bool opt;
-	if (ver >= Version ("5.0")) {
+	if (openfile.ver >= Version ("5.0")) {
 		openfile >> opt;
 	}
 	else

@@ -14,7 +14,7 @@ class Repetitions
 		void initialize(POINT& pos, cToolTips& toolTips, CWnd* mainWin, int& id );
 		void setRepetitions(UINT number);
 		unsigned int getRepetitionNumber();
-		static UINT getSettingsFromConfig (ConfigStream& openFile, Version ver );
+		static UINT getSettingsFromConfig (ConfigStream& openFile );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void updateNumber(long repNumber);

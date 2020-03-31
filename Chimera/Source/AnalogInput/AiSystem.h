@@ -45,7 +45,7 @@ class AiSystem : public IDeviceCore
 		bool wantsContinuousQuery( );
 		std::string getSystemStatus( );
 		void setAiSettings (AiSettings settings);
-		AiSettings getSettingsFromConfig (ConfigStream& file, Version ver);
+		AiSettings getSettingsFromConfig (ConfigStream& file);
 		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
 		std::string getDelim () { return configDelim; }

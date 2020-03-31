@@ -133,10 +133,10 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 }
 
 
-void AoSystem::handleOpenConfig(ConfigStream& openFile, Version ver)
+void AoSystem::handleOpenConfig(ConfigStream& openFile)
 {
 	UINT dacInc = 0;
-	if ( ver < Version ( "3.7" ) )
+	if ( openFile.ver < Version ( "3.7" ) )
 	{
 		for ( auto i : range ( 24 ) )
 		{

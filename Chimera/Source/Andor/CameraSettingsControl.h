@@ -52,15 +52,12 @@ class AndorCameraSettingsControl
 		void updateImageDimSettings ( imageParameters settings );
 		void updatePicSettings ( andorPicSettingsGroup settings );
 
-		//static AndorRunSettings getSettingsFromConfig ( ConfigStream& configFile, Version ver );
-		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile, Version ver );
-		//static imageParameters getSettingsFromConfig (ConfigStream& configFile, Version ver );
+		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile);
 
-		//void handleOpenConfig(ConfigStream& configFile, Version ver );
 		void handleSaveConfig(ConfigStream& configFile);
 
 		void handelSaveMasterConfig(std::stringstream& configFile);
-		void handleOpenMasterConfig(std::stringstream& configFile, Version ver, AndorWindow* camWin);
+		void handleOpenMasterConfig(ConfigStream& configFile, AndorWindow* camWin);
 
 		std::vector<Matrix<long>> getImagesToDraw( const std::vector<Matrix<long>>& rawData  );
 

@@ -42,7 +42,7 @@ class BaslerWindow : public IChimeraWindow
 		void pictureRangeEditChange( UINT id );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void handleSoftwareTrigger();
-		void windowOpenConfig ( ConfigStream& configFile, Version ver );
+		void windowOpenConfig ( ConfigStream& configFile );
 		void OnMouseMove(UINT flags, CPoint point );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void windowSaveConfig ( ConfigStream& configFile );

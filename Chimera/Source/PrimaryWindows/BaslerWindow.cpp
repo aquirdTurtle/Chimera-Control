@@ -467,7 +467,7 @@ void BaslerWindow::OnPaint ()
 }
 
 
-void BaslerWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
+void BaslerWindow::windowOpenConfig ( ConfigStream& configFile)
 {
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
 	baslerSettings settings;

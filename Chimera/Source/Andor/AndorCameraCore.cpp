@@ -26,12 +26,12 @@ std::string AndorCameraCore::getSystemInfo()
 	return info;
 }
 
-AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFile, Version ver)
+AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFile)
 {
 	AndorRunSettings tempSettings; 
-	tempSettings.imageSettings = ProfileSystem::stdConfigGetter (configFile, "CAMERA_IMAGE_DIMENSIONS", 
-		ImageDimsControl::getImageDimSettingsFromConfig);
-	ProfileSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS", ver);
+	tempSettings.imageSettings = ProfileSystem::stdConfigGetter ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
+																  ImageDimsControl::getImageDimSettingsFromConfig);
+	ProfileSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS");
 	configFile.get ();
 	std::string txt = configFile.getline ();
 	tempSettings.triggerMode = AndorTriggerMode::fromStr (txt);
@@ -59,7 +59,7 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 	configFile >> tempSettings.accumulationTime;
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
-	if (ver > Version ("4.7"))
+	if (configFile.ver > Version ("4.7"))
 	{
 		UINT numExposures = 0;
 		configFile >> numExposures;

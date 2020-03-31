@@ -20,8 +20,8 @@ class ImageDimsControl
 		void setImageParametersFromInput( imageParameters param );
 		bool checkReady();
 		void handleSave(ConfigStream& saveFile );
-		void handleOpen(ConfigStream& openFile, Version ver );
-		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver );
+		void handleOpen(ConfigStream& openFile );
+		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile );
 		imageParameters getImageParameters();
 		void rearrange( int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );

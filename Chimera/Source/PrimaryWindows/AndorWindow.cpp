@@ -235,7 +235,7 @@ void AndorWindow::windowSaveConfig (ConfigStream& saveFile)
 	analysisHandler.handleSaveConfig (saveFile);
 }
 
-void AndorWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
+void AndorWindow::windowOpenConfig ( ConfigStream& configFile)
 {
 	AndorRunSettings camSettings;
 	try
@@ -1116,11 +1116,11 @@ void AndorWindow::handleMasterConfigSave(std::stringstream& configStream)
 }
 
 
-void AndorWindow::handleMasterConfigOpen(std::stringstream& configStream, Version version)
+void AndorWindow::handleMasterConfigOpen(ConfigStream& configStream)
 {
 	mainWin->updateConfigurationSavedStatus( false );
 	selectedPixel = { 0,0 }; 
-	andorSettingsCtrl.handleOpenMasterConfig(configStream, version, this);
+	andorSettingsCtrl.handleOpenMasterConfig(configStream, this);
 	pics.setParameters(andorSettingsCtrl.getSettings().andor.imageSettings);
 	redrawPictures(true);
 }

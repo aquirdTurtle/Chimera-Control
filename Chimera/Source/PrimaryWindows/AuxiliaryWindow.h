@@ -66,7 +66,7 @@ class AuxiliaryWindow : public IChimeraWindow
 		void uwDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void uwRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void handleMasterConfigSave( std::stringstream& configStream );
-		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
+		void handleMasterConfigOpen(ConfigStream& configStream);
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
 		void programPiezo1 ( );
@@ -127,7 +127,7 @@ class AuxiliaryWindow : public IChimeraWindow
 
 		UINT getTotalVariationNumber();
 		void windowSaveConfig(ConfigStream& saveFile);
-		void windowOpenConfig (ConfigStream& configFile, Version ver);
+		void windowOpenConfig (ConfigStream& configFile);
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
 		void setVariablesActiveState(bool active);

@@ -105,11 +105,11 @@ DmCore &DeformableMirrorWindow::GetCore() {
 }
 
 
-void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile, Version ver) 
+void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile) 
 {
 	try 
 	{
-		if (ver >= Version("4.7"))
+		if (configFile.ver >= Version("4.7"))
 		{
 			DMOutputForm form;
 			ProfileSystem::stdGetFromConfig (configFile, dm.getCore(), form);

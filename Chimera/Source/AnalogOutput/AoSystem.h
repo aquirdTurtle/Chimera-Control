@@ -40,7 +40,7 @@ class AoSystem
 									 double currLoadSkipTime);
 		// configs
 		void handleSaveConfig(ConfigStream& saveFile);
-		void handleOpenConfig(ConfigStream& openFile, Version ver);
+		void handleOpenConfig(ConfigStream& openFile);
 		// macros
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);

@@ -456,9 +456,9 @@ void AndorCameraSettingsControl::updateImageDimSettings( imageParameters setting
 	imageDimensionsObj.setImageParametersFromInput ( settings );
 }
 
-andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile, Version ver )
+andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile )
 {
-	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile, ver );
+	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile );
 }
 
 
@@ -615,7 +615,7 @@ void AndorCameraSettingsControl::handelSaveMasterConfig ( std::stringstream& con
 }
 
 
-void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& configStream, Version ver, AndorWindow* camWin )
+void AndorCameraSettingsControl::handleOpenMasterConfig ( ConfigStream& configStream, AndorWindow* camWin )
 {
 	imageParameters settings = getSettings ( ).andor.imageSettings;
 	std::string tempStr;
@@ -642,7 +642,7 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( std::stringstream& con
 	}
 
 	bool autoCal, useCal;
-	if ( ver > Version ( "2.1" ) )
+	if ( configStream.ver > Version ( "2.1" ) )
 	{
 		configStream >> autoCal >> useCal;
 		calControl.setAutoCal ( autoCal );

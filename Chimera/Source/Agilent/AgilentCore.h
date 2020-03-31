@@ -46,8 +46,7 @@ class AgilentCore : public IDeviceCore
 		std::string getDeviceInfo ();
 		void handleScriptVariation ( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
 									 std::vector<parameterType>& params);
-		//virtual DeviceSettings  getSettingsFromConfig (ConfigStream& file, Version ver) = 0;
-		deviceOutputInfo getSettingsFromConfig (ConfigStream& file, Version ver);
+		deviceOutputInfo getSettingsFromConfig (ConfigStream& file);
 		void loadExpSettings (ConfigStream& script);
 		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
 		void programVariation (UINT variation, std::vector<parameterType>& params);

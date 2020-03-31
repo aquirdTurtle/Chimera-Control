@@ -17,7 +17,7 @@ class TekCore : public IDeviceCore
 		~TekCore ();
 		std::string queryIdentity ();
 		void calculateVariations (std::vector<parameterType>& parameters, Communicator& comm);
-		tektronixInfo getSettingsFromConfig (ConfigStream& configFile, Version ver);
+		tektronixInfo getSettingsFromConfig (ConfigStream& configFile);
 		void programVariation (UINT variation, std::vector<parameterType>& params);
 		const std::string configDelim;
 		std::string getDelim () { return configDelim; }
