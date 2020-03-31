@@ -600,11 +600,11 @@ void ScriptingWindow::openIntensityScript(std::string name)
 }
 
 
-void ScriptingWindow::windowOpenConfig(ConfigStream& configFile, Version ver)
+void ScriptingWindow::windowOpenConfig(ConfigStream& configFile)
 {
 	try
 	{
-		ProfileSystem::initializeAtDelim ( configFile, "SCRIPTS", ver );
+		ProfileSystem::initializeAtDelim ( configFile, "SCRIPTS");
 	}
 	catch ( Error&)
 	{
@@ -614,9 +614,9 @@ void ScriptingWindow::windowOpenConfig(ConfigStream& configFile, Version ver)
 	try
 	{
 		configFile.get ( );
-		auto getlineFunc = ProfileSystem::getGetlineFunc (ver);
+		auto getlineFunc = ProfileSystem::getGetlineFunc (configFile.ver);
 		std::string niawgName, masterName;
-		if ( ver.versionMajor < 3 )
+		if ( configFile.ver.versionMajor < 3 )
 		{
 			std::string extraNiawgName;
 			getlineFunc (configFile, extraNiawgName);
@@ -656,7 +656,7 @@ void ScriptingWindow::windowOpenConfig(ConfigStream& configFile, Version ver)
 		}
 		considerScriptLocations ( );
 		recolorScripts ( );
-		niawg.handleOpenConfig (configFile, ver);
+		niawg.handleOpenConfig (configFile);
 		niawg.updateWindowEnabled ();
 	}
 	catch ( Error& e )

@@ -71,10 +71,10 @@ class AndorWindow : public IChimeraWindow
 		DataLogger& getLogger();
 		std::string getSystemStatusString();
 		void windowSaveConfig(ConfigStream& saveFile);
-		void windowOpenConfig (ConfigStream& configFile, Version ver);
+		void windowOpenConfig (ConfigStream& configFile);
 
 		void handleMasterConfigSave(std::stringstream& configStream);
-		void handleMasterConfigOpen(std::stringstream& configStream, Version version);
+		void handleMasterConfigOpen(ConfigStream& configStream);
 		void handlePictureEditChange(UINT id);
 
 		void redrawPictures( bool andGrid );

@@ -701,7 +701,7 @@ void MainWindow::windowSaveConfig(ConfigStream& saveFile)
 	repetitionControl.handleSaveConfig(saveFile);
 }
 
-void MainWindow::windowOpenConfig(ConfigStream& configStream, Version ver )
+void MainWindow::windowOpenConfig(ConfigStream& configStream )
 {
 	try
 	{
@@ -1215,9 +1215,9 @@ std::vector<servoInfo> MainWindow::getServoinfo ()
 	return servos.getServoInfo ();
 }
 
-void MainWindow::handleMasterConfigOpen (std::stringstream& configStream, Version version)
+void MainWindow::handleMasterConfigOpen (ConfigStream& configStream)
 {
-	servos.handleOpenMasterConfig (configStream, version);
+	servos.handleOpenMasterConfig (configStream);
 }
 
 void MainWindow::handleMasterConfigSave (std::stringstream& configStream)

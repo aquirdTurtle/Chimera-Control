@@ -18,7 +18,7 @@ class MicrowaveCore : public IDeviceCore
 		void calculateVariations (std::vector<parameterType>& params);
 		std::pair<DoRows::which, UINT> getRsgTriggerLine ();
 		UINT getNumTriggers (microwaveSettings settings);
-		microwaveSettings getSettingsFromConfig (ConfigStream& openFile, Version ver);
+		microwaveSettings getSettingsFromConfig (ConfigStream& openFile);
 		std::string configDelim = "MICROWAVE_SYSTEM";
 		std::string getDelim () { return configDelim; }
 		void logSettings (DataLogger& log);

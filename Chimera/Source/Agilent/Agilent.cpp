@@ -445,9 +445,9 @@ void Agilent::setOutputSettings (deviceOutputInfo info)
 }
 
 
-void Agilent::handleOpenConfig( ConfigStream& file, Version ver )
+void Agilent::handleOpenConfig( ConfigStream& file )
 {
-	setOutputSettings (core.getSettingsFromConfig (file, ver));
+	setOutputSettings (core.getSettingsFromConfig (file));
 }
 
 

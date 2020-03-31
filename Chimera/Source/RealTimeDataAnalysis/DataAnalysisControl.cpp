@@ -182,10 +182,10 @@ ULONG DataAnalysisControl::getPlotFreq( )
 }
 
 
-void DataAnalysisControl::handleOpenConfig( ConfigStream& file, Version ver )
+void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 {
 	UINT numGrids;
-	if ( ver > Version ( "4.0" ) )
+	if ( file.ver > Version ( "4.0" ) )
 	{
 		bool autoThresholdAnalysisOption;
 		file >> autoThresholdAnalysisOption;
@@ -195,7 +195,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file, Version ver )
 	{
 		autoThresholdAnalysisButton.SetCheck ( 0 );
 	}
-	if ( ver > Version( "3.0" ) )
+	if (file.ver > Version( "3.0" ) )
 	{
 		file >> numGrids;
 	}
@@ -218,7 +218,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file, Version ver )
 	// load the grid parameters for that selection.
 	loadGridParams( grids[0] );
 	selectedGrid = 0;
-	if ( ver > Version( "2.7" ) )
+	if (file.ver > Version( "2.7" ) )
 	{
 		ProfileSystem::checkDelimiterLine( file, "BEGIN_ACTIVE_PLOTS" );
 		UINT numPlots = 0;
@@ -230,7 +230,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file, Version ver )
 		{
 			std::string tmp = file.getline ();
 			activePlotNames.push_back( tmp );
-			if ( ver > Version( "3.0" ) )
+			if (file.ver > Version( "3.0" ) )
 			{
 				UINT which;
 				file >> which;
@@ -269,7 +269,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file, Version ver )
 		}
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
 	}
-	if ( ver >= Version ( "4.7" ) )
+	if (file.ver >= Version ( "4.7" ) )
 	{
 		bool option;
 		file.get ( );

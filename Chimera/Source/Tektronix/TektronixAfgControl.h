@@ -22,7 +22,7 @@ class TektronixAfgControl
 
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleSaveConfig(ConfigStream& saveFile);
-		void handleOpenConfig(ConfigStream& configFile, Version ver );
+		void handleOpenConfig(ConfigStream& configFile);
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, UINT id_ );
 		std::string queryIdentity();

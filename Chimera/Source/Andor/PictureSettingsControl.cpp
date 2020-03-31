@@ -191,11 +191,11 @@ void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile)
 	saveFile << "\nEND_PICTURE_SETTINGS\n";
 }
 
-andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile, Version ver )
+andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile )
 {
 	UINT picsPerRep;
 	andorPicSettingsGroup fileSettings;
-	if ( ver <= Version ( "4.7" ) )
+	if ( configFile.ver <= Version ( "4.7" ) )
 	{
 		int oldPicsPerRepTrash = 0;
 		configFile >> oldPicsPerRepTrash;
@@ -204,7 +204,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Conf
 	{
 		configFile >> color;
 	}
-	if ( ver <= Version ( "4.7" ) )
+	if (configFile.ver <= Version ( "4.7" ) )
 	{
 		std::vector<float> oldExposureTimeTrash(4);
 		for ( auto& exposure : oldExposureTimeTrash )
@@ -216,7 +216,7 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Conf
 	{
 		configFile >> threshold;
 	}
-	if ( ver > Version ( "4.3" ) )
+	if (configFile.ver > Version ( "4.3" ) )
 	{
 		for ( auto& opt : fileSettings.saOpts )
 		{
@@ -226,10 +226,10 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Conf
 	return fileSettings;
 }
 
-void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, Version ver, AndorCameraCore* andor)
+void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
-	auto settings = getPictureSettingsFromConfig ( openFile, ver );
+	auto settings = getPictureSettingsFromConfig ( openFile );
 	updateAllSettings ( settings );
 	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }

@@ -49,10 +49,10 @@ void PiezoCore::calculateVariations (std::vector<parameterType>& params, Communi
 	}
 }
 
-piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file, Version ver )
+piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file )
 {
 	piezoSettings tempSettings;
-	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	auto getlineF = ProfileSystem::getGetlineFunc (file.ver);
 	file.get ( );
 	getlineF ( file, tempSettings.pztValues.x.expressionStr );
 	getlineF ( file, tempSettings.pztValues.y.expressionStr);

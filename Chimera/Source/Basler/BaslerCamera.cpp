@@ -13,9 +13,9 @@
 #include <algorithm>
 #include <functional>
 
-baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile, Version ver)
+baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile)
 {
-	if (ver < Version ("4.0"))
+	if (configFile.ver < Version ("4.0"))
 	{
 		thrower ("Basler settings requires version 4.0+ Configuration files");
 	}

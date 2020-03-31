@@ -46,7 +46,7 @@ void NiawgSystem::handleSaveConfig (ConfigStream& saveFile)
 }
 
 
-void NiawgSystem::handleOpenConfig (ConfigStream& openfile, Version ver)
+void NiawgSystem::handleOpenConfig (ConfigStream& openfile)
 {
 	bool controlOpt;
 	ProfileSystem::stdGetFromConfig (openfile, core, controlOpt, Version ("4.12"));

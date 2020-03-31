@@ -63,7 +63,7 @@ class NiawgCore : public IDeviceCore
 								  std::vector<parameterType>& variables);
 		void flashVaries( waveInfoForm& wave );
 		///
-		bool getSettingsFromConfig (ConfigStream& openfile, Version ver);
+		bool getSettingsFromConfig (ConfigStream& openfile);
 		void rerngScriptInfoFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<parameterType>& varibles,
 								UINT variation );
 		std::string configDelim = "NIAWG_INFORMATION";

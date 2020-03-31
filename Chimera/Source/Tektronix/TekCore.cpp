@@ -96,9 +96,9 @@ void TekCore::calculateVariations (std::vector<parameterType>& parameters)
 	}
 }
 
-tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile, Version ver)
+tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile)
 {
-	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	auto getlineF = ProfileSystem::getGetlineFunc (configFile.ver);
 	tektronixInfo tekInfo;
 	for (auto chanInc : range (tekInfo.channels.size ()))
 	{

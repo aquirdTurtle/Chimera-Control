@@ -21,7 +21,7 @@ void NoteSystem::handleSaveConfig(ConfigStream& saveFile)
 }
 
 
-void NoteSystem::handleOpenConfig(ConfigStream& openFile, Version ver )
+void NoteSystem::handleOpenConfig(ConfigStream& openFile)
 {
 	std::string notes;
 	auto pos = openFile.tellg ( );

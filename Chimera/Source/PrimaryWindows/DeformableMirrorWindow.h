@@ -27,7 +27,7 @@ class DeformableMirrorWindow : public IChimeraWindow
 		void handlePistonChange(UINT id);
 		void handleNewDmProfile();
 		void handleAddAbberations();
-		void windowOpenConfig(ConfigStream& configFile, Version ver);
+		void windowOpenConfig(ConfigStream& configFile);
 		void windowSaveConfig(ConfigStream& newFile);
 		BOOL OnInitDialog();
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);

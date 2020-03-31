@@ -134,7 +134,7 @@ AiSettings AiSystem::getAiSettings ()
 	return settings;
 }
 
-AiSettings AiSystem::getSettingsFromConfig (ConfigStream& file, Version ver)
+AiSettings AiSystem::getSettingsFromConfig (ConfigStream& file)
 {
 	AiSettings settings;
 	file >> settings.queryBtwnVariations;

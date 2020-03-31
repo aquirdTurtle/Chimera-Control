@@ -89,15 +89,14 @@ class ParameterSystem
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
 		// file handling
-		static parameterType loadParameterFromFile (ConfigStream& openFile, Version ver, ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> getParametersFromFile ( ConfigStream& configFile, Version ver, 
-																  ScanRangeInfo inputRangeInfo );
-		static ScanRangeInfo getRangeInfoFromFile (ConfigStream& configFile, Version ver );
+		static parameterType loadParameterFromFile (ConfigStream& openFile, ScanRangeInfo inputRangeInfo );
+		static std::vector<parameterType> getParametersFromFile ( ConfigStream& configFile, ScanRangeInfo inputRangeInfo );
+		static ScanRangeInfo getRangeInfoFromFile (ConfigStream& configFile);
 		static std::vector<parameterType> getConfigParamsFromFile ( std::string configFile );
 		static ScanRangeInfo getRangeInfoFromFile ( std::string configFileName );
 		// profile stuff
 		void handleSaveConfig (ConfigStream& saveFile );
-		void handleOpenConfig (ConfigStream& openFile, Version ver );
+		void handleOpenConfig (ConfigStream& openFile );
 		
 		// public variables
 		const IndvRangeInfo defaultRangeInfo = { 2,false,true };

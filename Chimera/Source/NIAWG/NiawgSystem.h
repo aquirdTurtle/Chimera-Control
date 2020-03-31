@@ -18,8 +18,8 @@ class NiawgSystem
 		void initialize (int& id, POINT& loc, CWnd* parent, cToolTips& tooltips);
 		void rearrange (UINT width, UINT height, fontMap fonts);
 		void handleSaveConfig (ConfigStream& saveFile);
-		void handleOpenConfig (ConfigStream& openfile, Version ver);
-		static bool getSettingsFromConfig (ConfigStream& openfile, Version ver);
+		void handleOpenConfig (ConfigStream& openfile);
+		static bool getSettingsFromConfig (ConfigStream& openfile);
 		void updateWindowEnabled ();
 
 		Script niawgScript;

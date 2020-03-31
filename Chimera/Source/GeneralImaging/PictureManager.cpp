@@ -163,9 +163,9 @@ void PictureManager::handleSaveConfig(ConfigStream& saveFile)
 }
 
 
-void PictureManager::handleOpenConfig( ConfigStream& configFile, Version ver )
+void PictureManager::handleOpenConfig( ConfigStream& configFile )
 {
-	if ( ver < Version ( "4.0" ) )
+	if ( configFile.ver < Version ( "4.0" ) )
 	{
 		thrower ( "Picture Manager requires configuration file version 4.0+." );
 	}

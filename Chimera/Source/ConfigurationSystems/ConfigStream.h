@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "ParameterSystem/Expression.h"
+#include "Version.h"
 #include "Scripts/ScriptStream.h"
 
 /* a small wrapper to handle some special things for configuration files, like handling empty strings.*/
@@ -10,7 +11,6 @@ class ConfigStream : public ScriptStream
 		ConfigStream () {};
 		explicit ConfigStream(std::ifstream& file);
 		explicit ConfigStream (std::string, bool isAddress=false);
-		//~ConfigStream () {};
 		ConfigStream& operator>>(std::string& outputString);
 		ConfigStream& operator>>(Expression& expression);
 		template<typename type>
@@ -18,6 +18,7 @@ class ConfigStream : public ScriptStream
 		std::string getline ();
 		std::string getline (char delim);
 		static std::string emptyStringTxt;
+		Version ver;
 private:
 		std::string streamText;
 };

@@ -27,7 +27,7 @@ class IChimeraWindow : public CDialog
 		// any Chimera window should override OnSize to rearrange any controls on the window.
 		virtual void OnSize (UINT nType, int cx, int cy) = 0;
 		// any chimera window should override these functions in order to 
-		virtual void windowOpenConfig (ConfigStream& configFile, Version ver)=0;
+		virtual void windowOpenConfig (ConfigStream& configFile)=0;
 		virtual void windowSaveConfig (ConfigStream& newFile)=0;
 
 		BOOL OnInitDialog ();

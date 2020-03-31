@@ -104,7 +104,7 @@ class MainWindow : public IChimeraWindow
 		void changeShortStatusColor(std::string color);
 		void changeBoxColor(systemInfo<char> colors);
 		void windowSaveConfig(ConfigStream& saveFile);
-		void windowOpenConfig(ConfigStream& configFile, Version ver );
+		void windowOpenConfig(ConfigStream& configFile);
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
@@ -130,7 +130,7 @@ class MainWindow : public IChimeraWindow
 		void runServos ();
 		std::vector<servoInfo> getServoinfo ();
 		void handleMasterConfigSave (std::stringstream& configStream);
-		void handleMasterConfigOpen (std::stringstream& configStream, Version version);
+		void handleMasterConfigOpen (ConfigStream& configStream);
 		void handleServoUnitsComboChange ();
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );

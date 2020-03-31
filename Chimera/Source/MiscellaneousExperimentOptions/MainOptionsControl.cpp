@@ -49,10 +49,10 @@ void MainOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 	saveFile << "\nEND_MAIN_OPTIONS\n";
 }
 
-mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile, Version ver )
+mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile )
 {
 	mainOptions options;
-	if ( ver < Version ( "2.1" ) )
+	if ( openFile.ver < Version ( "2.1" ) )
 	{
 		// rearrange option used to be stored here.
 		std::string garbage;
@@ -60,7 +60,7 @@ mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile, V
 	}
 	openFile >> options.randomizeReps;
 	openFile >> options.randomizeVariations;
-	if ( ver > Version ( "2.9" ) )
+	if (openFile.ver > Version ( "2.9" ) )
 	{
 		std::string txt;
 		openFile >> txt;

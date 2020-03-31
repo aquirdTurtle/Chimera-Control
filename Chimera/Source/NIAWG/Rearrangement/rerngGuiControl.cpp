@@ -224,7 +224,7 @@ void rerngGuiControl::updateActive ( )
 }
 
 
-void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
+void rerngGuiControl::handleOpenConfig(ConfigStream& openFile)
 {
 	rerngGuiOptionsForm info;
 	std::string tmpStr;
@@ -235,13 +235,13 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 	info.moveBias = tmpStr;
 	openFile >> tmpStr;
 	info.moveSpeed = tmpStr;
-	if ( ver < Version ( "2.3" ) )
+	if (openFile.ver < Version ( "2.3" ) )
 	{
 		std::string garbage;
 		openFile >> garbage;
 		openFile >> garbage;
 	}
-	if ( ver > Version ( "2.2" ) )
+	if (openFile.ver > Version ( "2.2" ) )
 	{
 		openFile >> tmpStr;
 		info.deadTime = tmpStr;
@@ -253,7 +253,7 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 		info.deadTime = str ( "0" );
 		info.staticMovingRatio = str ( "1" );
 	}
-	if ( ver > Version ( "2.5" ) )
+	if (openFile.ver > Version ( "2.5" ) )
 	{
 		openFile >> info.outputInfo;
 	}
@@ -261,7 +261,7 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 	{
 		info.outputInfo = false;
 	}
-	if ( ver > Version ( "2.10" ) )
+	if (openFile.ver > Version ( "2.10" ) )
 	{
 		openFile >> info.outputIndv;
 	}
@@ -269,7 +269,7 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 	{
 		info.outputIndv = false;
 	}
-	if ( ver > Version ( "2.11" ) )
+	if (openFile.ver > Version ( "2.11" ) )
 	{
 		openFile >> info.preprogram;
 		openFile >> info.useCalibration;
@@ -279,7 +279,7 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 		info.preprogram = false;
 		info.useCalibration = false;
 	}
-	if ( ver > Version ( "2.12" ) )
+	if (openFile.ver > Version ( "2.12" ) )
 	{
 		openFile >> tmpStr;
 		info.finalMoveTime = tmpStr;
@@ -288,17 +288,17 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 	{
 		info.finalMoveTime = str ( 1e-3 );
 	}
-	if ( ver > Version ( "3.1" ) && ver < Version ( "3.6" ) )
+	if (openFile.ver > Version ( "3.1" ) && openFile.ver < Version ( "3.6" ) )
 	{
 		openFile >> tmpStr;
 	}
-	if ( ver >= Version ( "3.6" ) )
+	if (openFile.ver >= Version ( "3.6" ) )
 	{
 		openFile >> tmpStr;
 		info.rMode = rerngMode::fromStr ( tmpStr );
 	}
 
-	if ( ver > Version ( "3.1" ) )
+	if (openFile.ver > Version ( "3.1" ) )
 	{
 		openFile >> tmpStr;
 		info.fastMoveTime = tmpStr;
@@ -307,7 +307,7 @@ void rerngGuiControl::handleOpenConfig(ConfigStream& openFile, Version ver )
 	{
 		info.fastMoveTime = str ( 1e-6 );
 	}
-	if ( ver < Version ( "3.6" ) && ver >= Version ( "3.4" ) )
+	if (openFile.ver < Version ( "3.6" ) && openFile.ver >= Version ( "3.4" ) )
 	{
 		openFile >> tmpStr;
 	}

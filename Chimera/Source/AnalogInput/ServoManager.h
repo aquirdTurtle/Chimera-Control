@@ -47,7 +47,7 @@ class ServoManager
 		bool wantsExpAutoServo ();
 		double convertToPower (double volt, servoInfo& si);
 		void handleSaveMasterConfig( std::stringstream& configStream );
-		void handleOpenMasterConfig( std::stringstream& configStream, Version version );
+		void handleOpenMasterConfig( ConfigStream& configStream );
 		void setControlDisplay ( UINT which, double value );
 		void handleListViewClick ( );
 		void deleteServo ( );
@@ -62,7 +62,7 @@ class ServoManager
 		Control<CComboBox> unitsCombo;
 		void setResDisplay (UINT which, double value);
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
-		servoInfo handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version );
+		servoInfo handleOpenMasterConfigIndvServo ( ConfigStream& configStream );
 		Control<MyListCtrl> servoList;
 		std::vector<servoInfo> servos;
 		void addServoToListview ( servoInfo& s, UINT which );

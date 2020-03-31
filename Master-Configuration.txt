@@ -261,7 +261,8 @@ axramanoffset 86500
 intraplgmrepumpfreq 0.066
 intraplgmrepumppower 0
 1
-17Sidemot 6 22 1 1.88 2 a 5 b 8 0 0.01 0.02 0 100
+17
+Sidemot 6 22 1 1.88 2 a 5 b 8 0 0.01 0.02 0 100
 DiagMot 7 9 1 4.6 2 a 0 c 8 0 0.01 0.03 0 100
 sidemot_intrappgc 6 22 1 2.57 2 a 5 b 8 0 0.01 0.02 0 100
 sidemot_imaging 6 22 1 10 2 a 5 b 8 0 0.01 0.02 0 100

@@ -34,7 +34,7 @@ class BaslerCameraCore : public IDeviceCore
 		BaslerCameraCore( CWnd* parent );
 		~BaslerCameraCore();
 		void logSettings (DataLogger& logger);
-		baslerSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
+		baslerSettings getSettingsFromConfig (ConfigStream& configFile);
 		bool isRunning ( );
 		void setBaslserAcqParameters( baslerSettings settings );
 		void setDefaultParameters();

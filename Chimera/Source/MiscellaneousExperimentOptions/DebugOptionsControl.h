@@ -13,7 +13,7 @@ class DebugOptionsControl
 {
 	public:
 		void handleSaveConfig(ConfigStream& saveFile);
-		void handleOpenConfig(ConfigStream& openFile, Version ver );
+		void handleOpenConfig(ConfigStream& openFile );
 		void initialize( int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		void handleEvent(UINT id, MainWindow* comm);
 		debugInfo getOptions();

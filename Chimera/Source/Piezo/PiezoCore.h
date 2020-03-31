@@ -34,7 +34,7 @@ class PiezoCore : public IDeviceCore
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
 		void programVariation ( UINT variationNumber, std::vector<parameterType>& params);
-		piezoSettings getSettingsFromConfig (ConfigStream& file, Version ver );
+		piezoSettings getSettingsFromConfig (ConfigStream& file );
 		void programAll ( piezoChan<double> vals );
 		double getCurrentXVolt ( );
 		void programXNow ( double val );

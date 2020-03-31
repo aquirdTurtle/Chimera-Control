@@ -32,9 +32,9 @@ void DoSystem::handleSaveConfig(ConfigStream& saveFile)
 }
 
 
-void DoSystem::handleOpenConfig(ConfigStream& openFile, Version ver )
+void DoSystem::handleOpenConfig(ConfigStream& openFile)
 {
-	if ( ver < Version ( "3.7" ) )
+	if ( openFile.ver < Version ( "3.7" ) )
 	{
 		for ( auto i : range ( 64 ) )
 		{

@@ -90,15 +90,15 @@ void ParameterSystem::setVariationRangeColumns ( int num, int width )
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::handleOpenConfig(ConfigStream& configFile, Version ver )
+void ParameterSystem::handleOpenConfig(ConfigStream& configFile )
 {
 	clearParameters( );
 	/// 
-	rangeInfo = getRangeInfoFromFile ( configFile, ver );
+	rangeInfo = getRangeInfoFromFile ( configFile );
 	std::vector<parameterType> fileParams;
 	try
 	{
-		fileParams = getParametersFromFile( configFile, ver, rangeInfo );
+		fileParams = getParametersFromFile( configFile, rangeInfo );
 	}
 	catch ( Error& )
 	{/*??? Shouldn't I handle something here?*/}
@@ -142,15 +142,15 @@ void ParameterSystem::redrawListview ( )
 }
 
 
-ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile, Version ver )
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile )
 {
 	ScanRangeInfo rInfo;
 	UINT numRanges;
-	if ( ver > Version ( "3.4" ) )
+	if ( configFile.ver > Version ( "3.4" ) )
 	{
 		ProfileSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
 		UINT numDimensions;
-		if ( ver > Version ( "4.2" ) )
+		if (configFile.ver > Version ( "4.2" ) )
 		{
 			configFile >> numDimensions;
 		}
@@ -178,8 +178,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile, V
 }
 
 
-std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream& configFile, Version ver, 
-																   ScanRangeInfo rangeInfo )
+std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream& configFile, ScanRangeInfo rangeInfo )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -196,7 +195,7 @@ std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream&
 	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadParameterFromFile( configFile, ver, rangeInfo ) );
+		tempVariables.push_back( loadParameterFromFile( configFile, rangeInfo ) );
 	}
 	return tempVariables;
 }
@@ -287,7 +286,7 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 }
 
 
-parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Version ver, ScanRangeInfo rangeInfo )
+parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, ScanRangeInfo rangeInfo )
 {
 	parameterType tempParam;
 	std::string paramName, typeText, valueString;
@@ -307,10 +306,10 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Ver
 		thrower ( "unknown parameter type option: \"" + typeText + "\" for parameter \"" + paramName 
 				 + "\". Check the formatting of the configuration file." );
 	}
-	if (ver > Version("2.7" ) )
+	if (openFile.ver > Version("2.7" ) )
 	{
 		openFile >> tempParam.scanDimension;
-		if ( ver < Version ( "4.2" ) )
+		if (openFile.ver < Version ( "4.2" ) )
 		{
 			if ( tempParam.scanDimension > 0 )
 			{
@@ -323,7 +322,7 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Ver
 		tempParam.scanDimension = 0;
 	}
 	
-	if ( ver <= Version ( "3.4" ) )
+	if (openFile.ver <= Version ( "3.4" ) )
 	{
 		UINT rangeNumber = 1;
 		openFile >> rangeNumber;
@@ -342,7 +341,7 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Ver
 		unsigned int variations = 0;
 		bool leftInclusive = 0, rightInclusive = 0;
 		openFile >> initValue >> finValue;
-		if ( ver <= Version ( "3.4" ) )
+		if (openFile.ver <= Version ( "3.4" ) )
 		{
 			openFile >> variations >> leftInclusive >> rightInclusive;
 		}		
@@ -355,7 +354,7 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Ver
 		// make sure it has at least one entry.
 		tempParam.ranges.push_back ( { 0,0 } );
 	}
-	if (ver >= Version("2.14") )
+	if (openFile.ver >= Version("2.14") )
 	{
 		openFile >> tempParam.constantValue;
 	}
@@ -363,7 +362,7 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Ver
 	{
 		tempParam.constantValue = tempParam.ranges[0].initialValue;
 	}
-	if (ver > Version("3.2"))
+	if (openFile.ver > Version("3.2"))
 	{
 		openFile >> tempParam.parameterScope;
 	}
@@ -1264,13 +1263,12 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 		thrower ("Failed to open file for config params!");
 	}
 	ConfigStream stream (file);
-	Version ver;
 	std::vector<parameterType> configParams;
 	try
 	{
-		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
-		auto rInfo = getRangeInfoFromFile (stream, ver );
-		configParams = getParametersFromFile (stream, ver, rInfo );
+		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
+		auto rInfo = getRangeInfoFromFile (stream);
+		configParams = getParametersFromFile (stream, rInfo );
 		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )
@@ -1284,13 +1282,12 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
 	ConfigStream stream (configFileName, true);
-	Version ver;
 	ScanRangeInfo rInfo;
 	try
 	{
-		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", ver, Version ( "4.0" ) );
-		rInfo = getRangeInfoFromFile (stream, ver );
-		auto configVariables = getParametersFromFile (stream, ver, rInfo );
+		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
+		rInfo = getRangeInfoFromFile (stream);
+		auto configVariables = getParametersFromFile (stream, rInfo );
 		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( Error& )

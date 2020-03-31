@@ -74,7 +74,7 @@ void ImageDimsControl::handleSave(ConfigStream& saveFile )
 }
 
 
-imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& configFile, Version ver )
+imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& configFile)
 {
 	imageParameters params;
 	configFile >> params.left;
@@ -86,10 +86,10 @@ imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& c
 	return params;
 }
 
-void ImageDimsControl::handleOpen(ConfigStream& openFile, Version ver )
+void ImageDimsControl::handleOpen(ConfigStream& openFile)
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
-	imageParameters params = getImageDimSettingsFromConfig ( openFile, ver );
+	imageParameters params = getImageDimSettingsFromConfig ( openFile );
 	setImageParametersFromInput( params );
 }
 

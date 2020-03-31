@@ -57,7 +57,7 @@ class ScriptingWindow : public IChimeraWindow
 		void checkMasterSave();
 
 		void windowSaveConfig(ConfigStream& saveFile);
-		void windowOpenConfig (ConfigStream& configFile, Version ver);
+		void windowOpenConfig (ConfigStream& configFile);
 
 		void updateScriptNamesOnScreen();
 		void updateProfile(std::string text);

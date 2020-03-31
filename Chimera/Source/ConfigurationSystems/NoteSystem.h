@@ -10,7 +10,7 @@ class NoteSystem
 {
 	public:
 		void handleSaveConfig(ConfigStream& saveFile);
-		void handleOpenConfig(ConfigStream& openFile, Version ver );
+		void handleOpenConfig(ConfigStream& openFile );
 		void setConfigurationNotes(std::string notes);
 		void initialize( POINT& topLeftPos, CWnd* parentWindow, int& id, cToolTips& tooltips );		
 		std::string getConfigurationNotes();
