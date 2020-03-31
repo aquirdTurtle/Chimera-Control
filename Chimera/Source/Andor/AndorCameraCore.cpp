@@ -6,6 +6,7 @@
 #include "Andor/AndorTriggerModes.h"
 #include "Andor/AndorRunMode.h"
 #include "ConfigurationSystems/ProfileSystem.h"
+#include "MiscellaneousExperimentOptions/Repetitions.h"
 #include <chrono>
 #include <process.h>
 #include <algorithm>
@@ -431,17 +432,12 @@ std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 					}
 				}
 			}
-			// rotation matrix:
-			// R = [0, -1; 1, 0] -> R(x,y) => (-y, x)
-			// (x,y) => (h-x, x)
 			auto& ims = runSettings.imageSettings;
 			for (auto rowI : range (repImages[experimentPictureNumber].getRows ()))
 			{
 				for (auto colI : range (repImages[experimentPictureNumber].getCols ()))
 				{
-					repImages[experimentPictureNumber] (rowI, colI) = tempImage (tempImage.getRows()-colI, rowI);
-						//.data[((imageVecInc % ims.width ()) + 1) * ims.height ()
-						//- imageVecInc / ims.width () - 1];
+					repImages[experimentPictureNumber] (rowI, colI) = tempImage (tempImage.getRows()-colI-1, rowI);
 				}
 			}
 		}
@@ -794,4 +790,111 @@ void AndorCameraCore::setIsRunningState ( bool state )
 void AndorCameraCore::abortAcquisition ( )
 {
 	flume.abortAcquisition ( );
+}
+
+void AndorCameraCore::logSettings (DataLogger& log)
+{
+	try
+	{
+		if (!expRunSettings.on)
+		{
+			H5::Group andorGroup (log.file.createGroup ("/Andor:Off"));
+			return;
+		}
+		// in principle there are some other low level settings or things that aren't used very often which I could include 
+		// here. I'm gonna leave this for now though.
+		H5::Group andorGroup (log.file.createGroup ("/Andor"));
+		hsize_t rank1[] = { 1 };
+		// pictures. These are permanent members of the class for speed during the writing process.	
+		if (expRunSettings.acquisitionMode == AndorRunModes::mode::Kinetic) {
+			hsize_t setDims[] = { ULONGLONG (expRunSettings.totalPicsInExperiment ()), expRunSettings.imageSettings.width (),
+				expRunSettings.imageSettings.height () };
+			hsize_t picDims[] = { 1, expRunSettings.imageSettings.width (), expRunSettings.imageSettings.height () };
+			log.AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
+			log.AndorPicDataSpace = H5::DataSpace (3, picDims);
+			log.AndorPictureDataset = andorGroup.createDataSet ( "Pictures", H5::PredType::NATIVE_LONG, 
+																 log.AndorPicureSetDataSpace);
+			log.currentAndorPicNumber = 0;
+		}
+		else
+		{
+			/*
+			hsize_t setDims[] = { 0, settings.imageSettings.width (), settings.imageSettings.height () };
+			hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
+			AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
+			AndorPicDataSpace = H5::DataSpace (3, picDims);
+			AndorPictureDataset = andorGroup.createDataSet ("Pictures: N/A", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
+			*/
+		}
+		log.writeDataSet (int (expRunSettings.acquisitionMode), "Camera-Mode", andorGroup);
+		log.writeDataSet (expRunSettings.exposureTimes, "Exposure-Times", andorGroup);
+		log.writeDataSet (AndorTriggerMode::toStr (expRunSettings.triggerMode), "Trigger-Mode", andorGroup);
+		log.writeDataSet (expRunSettings.emGainModeIsOn, "EM-Gain-Mode-On", andorGroup);
+		if (expRunSettings.emGainModeIsOn)
+		{
+			log.writeDataSet (expRunSettings.emGainLevel, "EM-Gain-Level", andorGroup);
+		}
+		else
+		{
+			log.writeDataSet (-1, "NA:EM-Gain-Level", andorGroup);
+		}
+		// image settings
+		H5::Group imageDims = andorGroup.createGroup ("Image-Dimensions");
+		log.writeDataSet (expRunSettings.imageSettings.top, "Top", andorGroup);
+		log.writeDataSet (expRunSettings.imageSettings.bottom, "Bottom", andorGroup);
+		log.writeDataSet (expRunSettings.imageSettings.left, "Left", andorGroup);
+		log.writeDataSet (expRunSettings.imageSettings.right, "Right", andorGroup);
+		log.writeDataSet (expRunSettings.imageSettings.horizontalBinning, "Horizontal-Binning", andorGroup);
+		log.writeDataSet (expRunSettings.imageSettings.verticalBinning, "Vertical-Binning", andorGroup);
+		log.writeDataSet (expRunSettings.temperatureSetting, "Temperature-Setting", andorGroup);
+		log.writeDataSet (expRunSettings.picsPerRepetition, "Pictures-Per-Repetition", andorGroup);
+		log.writeDataSet (expRunSettings.repetitionsPerVariation, "Repetitions-Per-Variation", andorGroup);
+		log.writeDataSet (expRunSettings.totalVariations, "Total-Variation-Number", andorGroup);
+	}
+	catch (H5::Exception err)
+	{
+		log.logError (err);
+		throwNested ("ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg ());
+	}
+}
+
+void AndorCameraCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings);
+	expRunSettings.repetitionsPerVariation = ProfileSystem::stdConfigGetter (stream, "REPETITIONS", 
+																			 Repetitions::getSettingsFromConfig);
+}
+
+void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+{
+	expRunSettings.totalVariations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());;
+	if (experimentActive)
+	{
+		setSettings (expRunSettings);
+		comm.sendPrepareAndor (expRunSettings);
+	}
+}
+
+void AndorCameraCore::programVariation (UINT variationInc, std::vector<parameterType>& params)
+{
+	if (experimentActive)
+	{
+		double kinTime;
+		armCamera (kinTime);
+	}
+}
+
+void AndorCameraCore::normalFinish ()
+{
+
+}
+
+void AndorCameraCore::errorFinish ()
+{
+
+	try
+	{
+		abortAcquisition ();
+	}
+	catch (Error & err) { /*Probably just idle.*/ }
 }

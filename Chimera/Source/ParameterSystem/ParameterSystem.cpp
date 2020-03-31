@@ -1283,12 +1283,7 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 
 ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
 {
-	std::ifstream file ( configFileName );
-	if (file.is_open ())
-	{
-		thrower ("Failed to open file for range info!");
-	}
-	ConfigStream stream (file);
+	ConfigStream stream (configFileName, true);
 	Version ver;
 	ScanRangeInfo rInfo;
 	try
@@ -1469,7 +1464,7 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
  * "constants" objects. The "parameters" object includes everything, parameters and otherwise. the "constants" object 
  * includes only parameters that don't vary. 
  */
-std::vector<parameterType> ParameterSystem::combineParamsForExpThread( std::vector<parameterType>& configParams, 
+std::vector<parameterType> ParameterSystem::combineParams( std::vector<parameterType>& configParams, 
 																	   std::vector<parameterType>& globalParams )
 {
 	std::vector<parameterType> combinedParams;

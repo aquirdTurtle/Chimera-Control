@@ -10,6 +10,7 @@
 // of these settings should be possibly modified by the user of the UI.
 struct AndorRunSettings
 {
+	bool on;
 	imageParameters imageSettings;
 	//
 	bool emGainModeIsOn = false;

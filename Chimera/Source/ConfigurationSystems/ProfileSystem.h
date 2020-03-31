@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include "Version.h"
+#include "GeneralObjects/IDeviceCore.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -60,7 +61,7 @@ class ProfileSystem
 								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
 								 DeformableMirrorWindow* dmWin);
 		static void getVersionFromFile( ConfigStream& file, Version& ver );
-		static std::string getNiawgScriptAddrFromConfig(  profileSettings profile );
+		static std::string getNiawgScriptAddrFromConfig(ConfigStream& configStream);
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
@@ -93,8 +94,8 @@ class ProfileSystem
 		static void jumpToDelimiter (ConfigStream& openFile, std::string delimiter );
 		static void initializeAtDelim ( ConfigStream& openFile, std::string delimiter, Version& ver,
 										Version minVer=Version("0.0") );
-		template <class sysT, class returnT>
-		static void stdGetFromConfig ( ConfigStream& configStream, std::string delim, sysT& this_in, returnT& settings,
+		template <class coreType, class returnT>
+		static void stdGetFromConfig ( ConfigStream& configStream, coreType& sys, returnT& settings, 
 									   Version minVer=Version("0.0"));
 		template <class returnType>
 		static returnType stdConfigGetter (ConfigStream& configStream, std::string delim,
@@ -220,35 +221,34 @@ static returnType ProfileSystem::stdConfigGetter (ConfigStream& configStream, st
 	return res;
 }
 
-template <class sysT, class returnT>
-static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, std::string delim, sysT& this_in, 
-											  returnT& settings, Version minVer)
+template <class coreType, class returnT>
+static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, coreType& core, returnT& settings, Version minVer)
 {
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
 	Version ver;
 	try
 	{
-		ProfileSystem::initializeAtDelim (configStream, delim, ver, minVer);
+		ProfileSystem::initializeAtDelim (configStream, core.getDelim (), ver, minVer);
 	}
 	catch (Error & e)
 	{
-		errBox ("Failed to initialize config file for " + delim + "!\n\n" + e.trace ());
+		errBox ("Failed to initialize config file for " + core.getDelim () + "!\n\n" + e.trace ());
 	}
 	try
 	{
-		settings = this_in.getSettingsFromConfig (configStream, ver);
+		settings = core.getSettingsFromConfig (configStream, ver);
 	}
 	catch (Error & e)
 	{
-		errBox ("Failed to gather information from config file for " + delim + "!\n\n" + e.trace ());
+		errBox ("Failed to gather information from config file for " + core.getDelim() + "!\n\n" + e.trace ());
 	}
 	try
 	{
-		ProfileSystem::checkDelimiterLine (configStream, "END_" + delim);
+		ProfileSystem::checkDelimiterLine (configStream, "END_" + core.getDelim ());
 	}
 	catch (Error & e)
 	{
-		errBox ("End delimiter for the " + delim + " control was not found. This might indicate that the "
+		errBox ("End delimiter for the " + core.getDelim () + " control was not found. This might indicate that the "
 				"control did not initialize properly.\n\n" + e.trace ());
 	}
 }

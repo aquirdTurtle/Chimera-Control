@@ -471,7 +471,7 @@ void BaslerWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 {
 	ProfileSystem::standardOpenConfig ( configFile, picManager.configDelim, &picManager, Version ( "4.0" ) );
 	baslerSettings settings;
-	ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS", *basCamCore, settings, Version ("4.0"));
+	ProfileSystem::stdGetFromConfig (configFile, *basCamCore, settings, Version ("4.0"));
 	settingsCtrl.setSettings (settings);
 }
 

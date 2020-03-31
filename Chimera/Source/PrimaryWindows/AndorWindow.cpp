@@ -80,7 +80,7 @@ END_MESSAGE_MAP()
 LRESULT AndorWindow::handlePrepareForAcq (WPARAM wparam, LPARAM lparam)
 {
 	ASSERT (InSendMessage ());
-	mainWin->getComm ()->sendStatus ("Preparing Andor Window for Acquisition...");
+	mainWin->getComm ()->sendStatus ("Preparing Andor Window for Acquisition...\n");
 	AndorRunSettings* settings = (AndorRunSettings*)lparam;
 	armCameraWindow (settings);
 	return 0;
@@ -240,7 +240,7 @@ void AndorWindow::windowOpenConfig ( ConfigStream& configFile, Version ver )
 	AndorRunSettings camSettings;
 	try
 	{
-		ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS", andor, camSettings);
+		ProfileSystem::stdGetFromConfig (configFile, andor, camSettings);
 		andorSettingsCtrl.setRunSettings (camSettings);
 		andorSettingsCtrl.updateImageDimSettings (camSettings.imageSettings);
 		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
@@ -1200,7 +1200,7 @@ void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 	input.cruncherInput->picsPerRep = andorSettingsCtrl.getSettings().andor.picsPerRepetition;	
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
 	input.cruncherInput->finTime = &crunchFinTimes;
-	input.cruncherInput->atomThresholdForSkip = mainWin->getMainOptions( ).atomThresholdForSkip;
+	input.cruncherInput->atomThresholdForSkip = mainWin->getMainOptions( ).atomSkipThreshold;
 	input.cruncherInput->rearrangerConditionWatcher = &rearrangerConditionVariable;
 }
 

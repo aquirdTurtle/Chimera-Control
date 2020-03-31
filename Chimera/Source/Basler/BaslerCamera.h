@@ -1,31 +1,29 @@
 // created by Mark O. Brown
 #pragma once
 
+#include "BaslerSettingsControl.h"
+#include "BaslerWrapper.h"
+#include "BaslerSettings.h"
+
 #include "GeneralImaging/PictureControl.h"
+#include "DataLogging/DataLogger.h"
+#include "GeneralObjects/IDeviceCore.h"
+
 #include <pylon/PylonIncludes.h>
 #include <pylon/PylonGUI.h>
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
-#include "BaslerSettingsControl.h"
-//#include "PrimaryWindows/MainWindow.h"
-#include "BaslerWrapper.h"
-#include "LowLevel/constants.h"
+
 #include <atomic>
 
 struct triggerThreadInput
 {
 	double frameRate;
 	BaslerWrapper* camera;
-	//CWnd* parent;
-	// only actually needed for debug mode.
-	//ULONG height;
-	//ULONG width;
-	// only used in debug mode.
-	//std::atomic<bool>* runningFlag;
 };
 
 // the object for an actual camera.  doesn't handle gui things itself, just the interface from my code to the camera object.
-class BaslerCameraCore
+class BaslerCameraCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -35,6 +33,7 @@ class BaslerCameraCore
 		// important constructor to initialize camera
 		BaslerCameraCore( CWnd* parent );
 		~BaslerCameraCore();
+		void logSettings (DataLogger& logger);
 		baslerSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
 		bool isRunning ( );
 		void setBaslserAcqParameters( baslerSettings settings );
@@ -53,6 +52,14 @@ class BaslerCameraCore
 		bool isInitialized();
 		HANDLE getCameraThreadObj ( );
 		baslerSettings getRunningSettings ();
+		std::string configDelim = "BASLER_CAMERA_SETTINGS";
+		std::string getDelim () { return configDelim; }
+		void loadExpSettings (ConfigStream& stream);
+		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void errorFinish () {};
+		void normalFinish () {};
+
 		// Adjust value so it complies with range and increment passed.
 		//
 		// The parameter's minimum and maximum are always considered as valid values.
@@ -63,6 +70,7 @@ class BaslerCameraCore
 		BaslerWrapper* camera;
 		// official copy.
 		baslerSettings runSettings;
+		baslerSettings expRunSettings;
 		HANDLE cameraTrigThread;
 		bool cameraInitialized;
 };

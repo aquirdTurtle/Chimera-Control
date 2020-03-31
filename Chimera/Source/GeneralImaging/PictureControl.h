@@ -1,11 +1,10 @@
 // created by Mark O. Brown
 #pragma once
 #include "Control.h"
-#include "Andor/CameraImageDimensions.h"
+#include "GeneralImaging/imageParameters.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "Plotting/PlotCtrl.h"
 #include "CustomMfcControlWrappers/LongCSlider.h"
-#include "GeneralObjects/SmartDC.h"
 #include "softwareAccumulationOption.h"
 
 /*

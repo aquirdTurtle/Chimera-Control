@@ -253,3 +253,7 @@ std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( UINT n_to_
 	return retData;
 }
 
+void AiSystem::logSettings (DataLogger& log)
+{
+
+}

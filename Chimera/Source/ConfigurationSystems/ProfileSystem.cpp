@@ -62,14 +62,14 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 }
 
 
-std::string ProfileSystem::getNiawgScriptAddrFromConfig( profileSettings profile )
+std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream)
 {	
 	// open configuration file and grab the niawg script file address from it.
-	std::ifstream tempFile( profile.configFilePath( ) );
-	ConfigStream configStream (tempFile);
-	std::string version = configStream.getline();
-	checkDelimiterLine (configStream, "SCRIPTS");
-	std::string niawgScriptAddresses = configStream.getline();
+	Version ver;
+	initializeAtDelim (configStream, "SCRIPTS", ver);
+	auto getlineF = ProfileSystem::getGetlineFunc (ver);
+	std::string niawgScriptAddresses;
+	getlineF (configStream, niawgScriptAddresses);
 	return niawgScriptAddresses;
 }
 

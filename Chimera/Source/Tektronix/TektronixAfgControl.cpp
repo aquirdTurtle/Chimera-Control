@@ -48,15 +48,15 @@ void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile)
 
 void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile, Version ver )
 {
-	setSettings(TekCore::getSettingsFromConfig(configFile, ver));
+	setSettings(core.getSettingsFromConfig(configFile, ver));
 }
 
 void TektronixAfgControl::handleProgram(std::vector<parameterType> constants)
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
-	core.interpretKey (constants, currentInfo);
-	core.programMachine( 0, currentInfo );
+	core.calculateVariations (constants);
+	core.programVariation( 0, constants );
 }
 
 std::string TektronixAfgControl::getDelim ()

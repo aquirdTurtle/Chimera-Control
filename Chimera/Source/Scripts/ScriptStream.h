@@ -24,13 +24,15 @@ class ScriptStream : public std::stringstream
 		void loadReplacements (std::vector<std::pair<std::string, std::string>> args, std::vector<parameterType>& params,
 			std::string paramDecoration, std::string replCallScope, std::string funcScope);
 		void clearReplacements();
-		std::string getline();
-		std::string getline(char delim);
+		virtual std::string getline();
+		virtual std::string getline(char delim);
 	private:
 		void eatComments();
 		bool isNotPartOfName( char test );
 		std::vector<std::pair<std::string, std::string>> replacements;
 		bool alwaysLowerCase=true;
+		std::string lastComment;
+		std::string lastOutput;
 };
 
 /*

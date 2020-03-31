@@ -19,9 +19,9 @@ intensityAgilent( INTENSITY_AGILENT_SETTINGS ),
 niawg (DoRows::which::B, 14, NIAWG_SAFEMODE)
 {}
 
-IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
+IMPLEMENT_DYNAMIC(ScriptingWindow, IChimeraWindow)
 
-BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
+BEGIN_MESSAGE_MAP(ScriptingWindow, IChimeraWindow)
 	ON_WM_CTLCOLOR()
 	ON_WM_TIMER()
 	ON_WM_SIZE()
@@ -194,7 +194,6 @@ void ScriptingWindow::handleAgilentScriptComboChange()
 {
 	//intensityAgilent.agilentScript.childComboChangeHandler( mainWindowFriend, auxWindowFriend);
 }
-
 
 // this gets called when closing. The purpose here is to redirect the default, very abrupt close that would normally happen.
 void ScriptingWindow::OnCancel()
@@ -626,8 +625,7 @@ void ScriptingWindow::windowOpenConfig(ConfigStream& configFile, Version ver)
 		getlineFunc (configFile, masterName);
 		ProfileSystem::checkDelimiterLine ( configFile, "END_SCRIPTS" );
 		deviceOutputInfo info;
-		ProfileSystem::stdGetFromConfig ( configFile, intensityAgilent.getConfigDelim (), intensityAgilent.getCore(), 
-										  info, Version ("4.0") );
+		ProfileSystem::stdGetFromConfig ( configFile, intensityAgilent.getCore(), info, Version ("4.0") );
 		intensityAgilent.setOutputSettings (info);
 		intensityAgilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		try

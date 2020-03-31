@@ -50,7 +50,6 @@ class DmControl
 		void openConfig();
 		void setCoreInfo(DMOutputForm form);
 		void refreshAbberationDisplays ();
-
 	private:		
 		DmInfo theDMInfo;
 		DmCore defObject;

@@ -38,7 +38,7 @@ class DdsSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void handleRampClick();
 		void deleteRampVariable();
-		void programNow ( );
+		void programNow (std::vector<parameterType>& constants);
 		std::string getSystemInfo ( );
 		std::string getDelim ( );
 		DdsCore& getCore ( );

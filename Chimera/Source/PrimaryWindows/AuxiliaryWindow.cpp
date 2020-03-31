@@ -34,10 +34,10 @@ BOOL AuxiliaryWindow::handleAccelerators ( HACCEL m_haccel, LPMSG lpMsg )
 }
 
 
-IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
+IMPLEMENT_DYNAMIC( AuxiliaryWindow, IChimeraWindow )
 
 
-BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
+BEGIN_MESSAGE_MAP( AuxiliaryWindow, IChimeraWindow)
 	ON_WM_TIMER( )
 
 	ON_WM_CTLCOLOR( )
@@ -108,7 +108,7 @@ std::vector<parameterType> AuxiliaryWindow::getUsableConstants ()
 	// parameters, not the gui setttings.
 	std::vector<parameterType> configParams = configParameters.getAllConstants ();
 	std::vector<parameterType> globals = globalParameters.getAllParams ();
-	std::vector<parameterType> params = ParameterSystem::combineParamsForExpThread (configParams, globals);
+	std::vector<parameterType> params = ParameterSystem::combineParams (configParams, globals);
 	ScanRangeInfo constantRange;
 	constantRange.defaultInit ();
 	ParameterSystem::generateKey (params, false, constantRange);
@@ -221,7 +221,7 @@ void AuxiliaryWindow::programDds ( )
 {
 	try
 	{
-		dds.programNow ( );
+		dds.programNow ( getUsableConstants() );
 	}
 	catch ( Error& err )
 	{
@@ -660,14 +660,14 @@ void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
 		for (auto& agilent : agilents)
 		{
 			deviceOutputInfo info;
-			ProfileSystem::stdGetFromConfig (configFile, agilent.getConfigDelim (), agilent.getCore(), info, Version ("4.0"));
+			ProfileSystem::stdGetFromConfig (configFile, agilent.getCore(), info, Version ("4.0"));
 			agilent.setOutputSettings (info);
 			agilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
 		tektronixInfo info;
-		ProfileSystem::stdGetFromConfig (configFile, topBottomTek.getDelim (), topBottomTek.getCore(), info );
+		ProfileSystem::stdGetFromConfig (configFile, topBottomTek.getCore(), info );
 		topBottomTek.setSettings (info);
-		ProfileSystem::stdGetFromConfig (configFile, eoAxialTek.getDelim (), eoAxialTek.getCore(), info);
+		ProfileSystem::stdGetFromConfig (configFile, eoAxialTek.getCore(), info);
 		eoAxialTek.setSettings (info);
 
 		ProfileSystem::standardOpenConfig ( configFile, topBottomTek.getDelim(), &topBottomTek, Version ( "4.0" ) );
@@ -679,11 +679,10 @@ void AuxiliaryWindow::windowOpenConfig(ConfigStream& configFile, Version ver )
 		ProfileSystem::standardOpenConfig ( configFile, piezo1.getConfigDelim( ), &piezo1, Version ( "4.6" ) );
 		ProfileSystem::standardOpenConfig ( configFile, piezo2.getConfigDelim ( ), &piezo2, Version ( "4.6" ) );
 		AiSettings settings;
-		ProfileSystem::stdGetFromConfig (configFile, aiSys.configDelim, aiSys, settings, Version ("4.9"));
+		ProfileSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
 		aiSys.setAiSettings ( settings );
 		microwaveSettings uwsettings;
-		ProfileSystem::stdGetFromConfig ( configFile, RohdeSchwarzGenerator.delim, RohdeSchwarzGenerator.getCore(), uwsettings, 
-										  Version ("4.10") );
+		ProfileSystem::stdGetFromConfig ( configFile, RohdeSchwarzGenerator.getCore(), uwsettings, Version ("4.10") );
 		RohdeSchwarzGenerator.setMicrowaveSettings (uwsettings);
 	}
 	catch ( Error& )

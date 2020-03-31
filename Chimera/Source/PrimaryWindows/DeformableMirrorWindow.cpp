@@ -7,9 +7,9 @@
 #include "ExcessDialogs/saveWithExplorer.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 
-IMPLEMENT_DYNAMIC (DeformableMirrorWindow, CDialog)
+IMPLEMENT_DYNAMIC (DeformableMirrorWindow, IChimeraWindow)
 
-BEGIN_MESSAGE_MAP (DeformableMirrorWindow, CDialog)
+BEGIN_MESSAGE_MAP (DeformableMirrorWindow, IChimeraWindow)
 	ON_WM_SIZE ()
 	ON_WM_CTLCOLOR ()
 	ON_COMMAND (IDC_DM_PROGRAMNOW, &handleProgramDmNow)
@@ -112,7 +112,7 @@ void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile, Version 
 		if (ver >= Version("4.7"))
 		{
 			DMOutputForm form;
-			ProfileSystem::stdGetFromConfig (configFile, "DM", dm.getCore(), form);
+			ProfileSystem::stdGetFromConfig (configFile, dm.getCore(), form);
 			dm.setCoreInfo(form);
 			dm.openConfig();
 		}

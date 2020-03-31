@@ -84,13 +84,12 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 }
 
 
-void NiawgWaiter::startWaitThread( NiawgCore* niawgPtr, profileSettings profile )
+void NiawgWaiter::startWaitThread( NiawgCore* niawgPtr )
 {
 	eWaitError = false;
 	// create the waiting thread.
 	waitThreadInput* waitInput = new waitThreadInput;
 	waitInput->niawg = niawgPtr;
-	waitInput->profile = profile;
 	UINT NIAWGThreadID;
 	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgWaiter::niawgWaitThread, waitInput, 0, &NIAWGThreadID );
 }

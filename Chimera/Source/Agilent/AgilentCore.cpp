@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "AgilentCore.h"
+#include "DigitalOutput/DoCore.h"
 #include "Scripts/ScriptStream.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
 
@@ -49,14 +50,6 @@ std::pair<DoRows::which, UINT> AgilentCore::getTriggerLine ()
 {
 	return { triggerRow, triggerNumber };
 }
-/*
-void AgilentCore::analyzeAgilentScript (UINT chan, std::vector<parameterType>& vars)
-{
-	if (settings.channel[chan].option == AgilentChannelMode::which::Script)
-	{
-		analyzeAgilentScript (settings.channel[chan].scriptedArb, vars);
-	}
-}*/
 
 std::string AgilentCore::getDeviceInfo ()
 {
@@ -67,7 +60,7 @@ void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<p
 										 std::string& warnings )
 {
 	ScriptStream stream;
-	ExperimentThreadManager::loadAgilentScript (infoObj.fileAddress, stream);
+	ExperimentThreadManager::loadAgilentScript (infoObj.fileAddress.expressionStr, stream);
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers ();
 	// Procedurally read lines into segment objects.
@@ -262,11 +255,11 @@ void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info)
 	auto sStr = "SOURCE" + str (channel);
 	visaFlume.write (sStr + ":DATA:VOL:CLEAR");
 	// Load sequence that was previously loaded.
-	visaFlume.write ("MMEM:LOAD:DATA \"" + info.address + "\"");
+	visaFlume.write ("MMEM:LOAD:DATA \"" + info.address.expressionStr + "\"");
 	// tell it that it's outputting something arbitrary (not sure if necessary)
 	visaFlume.write (sStr + ":FUNC ARB");
 	// tell it what arb it's outputting.
-	visaFlume.write (sStr + ":FUNC:ARB \"" + memoryLoc + ":\\" + info.address + "\"");
+	visaFlume.write (sStr + ":FUNC:ARB \"" + memoryLoc + ":\\" + info.address.expressionStr + "\"");
 	// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
 	visaFlume.write (sStr + ":BURST::MODE TRIGGERED");
 	visaFlume.write (sStr + ":BURST::NCYCLES 1");
@@ -300,10 +293,9 @@ void AgilentCore::setSine (int channel, sineInfo info, UINT var)
 }
 
 
-void AgilentCore::convertInputToFinalSettings (UINT totalVariations, UINT chan, deviceOutputInfo& info,
-												std::vector<parameterType>& variables)
+void AgilentCore::convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, std::vector<parameterType>& params)
 {
-	// iterate between 0 and 1...
+	UINT totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
 	channelInfo& channel = info.channel[chan];
 	try
 	{
@@ -313,16 +305,16 @@ void AgilentCore::convertInputToFinalSettings (UINT totalVariations, UINT chan, 
 		case AgilentChannelMode::which::Output_Off:
 			break;
 		case AgilentChannelMode::which::DC:
-			channel.dc.dcLevel.internalEvaluate (variables, totalVariations);
+			channel.dc.dcLevel.internalEvaluate (params, totalVariations);
 			break;
 		case AgilentChannelMode::which::Sine:
-			channel.sine.frequency.internalEvaluate (variables, totalVariations);
-			channel.sine.amplitude.internalEvaluate (variables, totalVariations);
+			channel.sine.frequency.internalEvaluate (params, totalVariations);
+			channel.sine.amplitude.internalEvaluate (params, totalVariations);
 			break;
 		case AgilentChannelMode::which::Square:
-			channel.square.frequency.internalEvaluate (variables, totalVariations);
-			channel.square.amplitude.internalEvaluate (variables, totalVariations);
-			channel.square.offset.internalEvaluate (variables, totalVariations);
+			channel.square.frequency.internalEvaluate (params, totalVariations);
+			channel.square.amplitude.internalEvaluate (params, totalVariations);
+			channel.square.offset.internalEvaluate (params, totalVariations);
 			break;
 		case AgilentChannelMode::which::Preloaded:
 			break;
@@ -501,13 +493,13 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file, Version
 			file >> channel.square.useCal;
 			file.get ();
 		}
-		readFunc (file, channel.preloadedArb.address);
+		file >> channel.preloadedArb.address;
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.preloadedArb.useCal;
 			file.get ();
 		}
-		readFunc (file, channel.scriptedArb.fileAddress);
+		file >> channel.scriptedArb.fileAddress;
 		if (ver > Version ("2.3"))
 		{
 			file >> channel.scriptedArb.useCal;
@@ -516,4 +508,114 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file, Version
 		chanInc++;
 	}
 	return tempSettings;
+}
+
+
+void AgilentCore::logSettings (DataLogger& log)
+{
+	try
+	{
+		H5::Group agilentsGroup;
+		try
+		{
+			agilentsGroup = log.file.createGroup ("/Agilents");
+		}
+		catch (H5::Exception&)
+		{
+			agilentsGroup = log.file.openGroup ("/Agilents");
+		}
+		
+		H5::Group singleAgilent (agilentsGroup.createGroup (getDelim()));
+		UINT channelCount = 1;
+		log.writeDataSet (getStartupCommands (), "Startup-Commands", singleAgilent);
+		for (auto& channel : expRunSettings.channel)
+		{
+			H5::Group channelGroup (singleAgilent.createGroup ("Channel-" + str (channelCount)));
+			std::string outputModeName = AgilentChannelMode::toStr (channel.option);
+			log.writeDataSet (outputModeName, "Output-Mode", channelGroup);
+			H5::Group dcGroup (channelGroup.createGroup ("DC-Settings"));
+			log.writeDataSet (channel.dc.dcLevel.expressionStr, "DC-Level", dcGroup);
+			H5::Group sineGroup (channelGroup.createGroup ("Sine-Settings"));
+			log.writeDataSet (channel.sine.frequency.expressionStr, "Frequency", sineGroup);
+			log.writeDataSet (channel.sine.amplitude.expressionStr, "Amplitude", sineGroup);
+			H5::Group squareGroup (channelGroup.createGroup ("Square-Settings"));
+			log.writeDataSet (channel.square.amplitude.expressionStr, "Amplitude", squareGroup);
+			log.writeDataSet (channel.square.frequency.expressionStr, "Frequency", squareGroup);
+			log.writeDataSet (channel.square.offset.expressionStr, "Offset", squareGroup);
+			H5::Group preloadedArbGroup (channelGroup.createGroup ("Preloaded-Arb-Settings"));
+			log.writeDataSet (channel.preloadedArb.address.expressionStr, "Address", preloadedArbGroup); 
+			H5::Group scriptedArbSettings (channelGroup.createGroup ("Scripted-Arb-Settings"));
+			log.writeDataSet (channel.scriptedArb.fileAddress.expressionStr, "Script-File-Address", scriptedArbSettings);
+			// TODO: load script file itself
+			ScriptStream stream;
+			try
+			{
+				ExperimentThreadManager::loadAgilentScript (channel.scriptedArb.fileAddress.expressionStr, stream);
+				log.writeDataSet (stream.str (), "Agilent-Script-Script", scriptedArbSettings);
+			}
+			catch (Error&)
+			{
+				// failed to open, that's probably fine, 
+				log.writeDataSet ("Script Failed to load.", "Agilent-Script-Script", scriptedArbSettings);
+			}
+			channelCount++;
+		}
+	}
+	catch (H5::Exception err)
+	{
+		log.logError (err);
+		throwNested ("ERROR: Failed to log Agilent parameters in HDF5 file: " + err.getDetailMsg ());
+	}
+}
+
+void AgilentCore::loadExpSettings (ConfigStream& script)
+{
+	ProfileSystem::stdGetFromConfig (script, *this, expRunSettings);
+}
+
+void AgilentCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+{
+	for (auto channelInc : range (2))
+	{
+		if (expRunSettings.channel[channelInc].scriptedArb.fileAddress.expressionStr != "")
+		{
+			analyzeAgilentScript (expRunSettings.channel[channelInc].scriptedArb, params, comm.warnings);
+		}
+	}
+	convertInputToFinalSettings (0, expRunSettings, params);
+	convertInputToFinalSettings (1, expRunSettings, params);
+}
+
+
+void AgilentCore::programVariation (UINT variation, std::vector<parameterType>& params)
+{
+	setAgilent (variation, params, expRunSettings);
+}
+
+void AgilentCore::checkTriggers (UINT variationInc, DoCore& ttls, Communicator& comm, bool excessInfo)
+{
+	std::array<bool, 2> agMismatchVec = { false, false };
+	for (auto chan : range (2))
+	{
+		auto& agChan = expRunSettings.channel[chan];
+		if (agChan.option != AgilentChannelMode::which::Script || agMismatchVec[chan])
+		{
+			continue;
+		}
+		UINT actualTrigs = experimentActive ? ttls.countTriggers (getTriggerLine (), variationInc) : 0;
+		UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ();
+		std::string infoString = "Actual/Expected " + getDelim() + " Triggers: "
+			+ str (actualTrigs) + "/" + str (agilentExpectedTrigs) + ".";
+		if (actualTrigs != agilentExpectedTrigs)
+		{
+			comm.warnings += "WARNING: Agilent " + getDelim() + " is not getting triggered by the ttl system the same "
+				"number of times a trigger command appears in the agilent channel " + str (chan + 1) + " script. " 
+				+ infoString + " First seen in variation #" + str (variationInc) + ".\r\n";
+			agMismatchVec[chan] = true;
+		}
+		if (variationInc == 0 && excessInfo)
+		{
+			comm.debugStr += infoString + "\n";
+		}
+	}
 }

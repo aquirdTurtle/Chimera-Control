@@ -415,6 +415,7 @@ bool Script::positionIsInComment (DWORD position)
 			}
 		}
 	}
+	return inComment;
 }
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 

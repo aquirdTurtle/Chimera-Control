@@ -159,7 +159,7 @@ class MainWindow : public IChimeraWindow
 		Communicator comm;
 		fontMap mainFonts;
 		ExperimentThreadManager expThreadManager;
-		CMenu menu;
+		//CMenu menu;
 		RunInfo systemRunningInfo;
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;

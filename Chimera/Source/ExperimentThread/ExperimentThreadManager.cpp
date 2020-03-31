@@ -1,5 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
+
 #include "ExperimentThread/ExperimentThreadManager.h"
 #include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
@@ -9,15 +10,19 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ParameterSystem/Expression.h"
 #include "PrimaryWindows/MainWindow.h"
-#include "nidaqmx2.h"
 #include "Andor/CameraSettingsControl.h"
 #include "Scripts/ScriptStream.h"
-#include <fstream>
+
+#include "nidaqmx2.h"
+
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <regex>
 
+#include <fstream>
+#include <regex>
+  
+std::string ExperimentThreadManager::abortString = "\r\nABORTED!\r\n";
 
 ExperimentThreadManager::ExperimentThreadManager() {}
 
@@ -25,495 +30,98 @@ ExperimentThreadManager::ExperimentThreadManager() {}
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
  * configuration settings to determine how to program and run the experiment.
  * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
- * @return UINT: The return value is not used, i just return TRUE.
+ * @return unsigned int: unused.
  */
 unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void* voidInput )
 {
-	/// initialize various structures
-	// convert the input to the correct structure.
-	ExperimentThreadInput* input = (ExperimentThreadInput*)voidInput;
-	// change the status of the parent object to reflect that the thread is running.
+	auto startTime = chronoClock::now ();
+	std::unique_ptr< ExperimentThreadInput > input ((ExperimentThreadInput*)voidInput);
 	input->thisObj->experimentIsRunning = true;
+	input->comm.expQuiet = input->quiet;
+	input->comm.expUpdate ("Starting Experiment Thread Procedure...\n");
 	indvSeqElem expSeq;
 	UINT repetitions = 1;
-	std::vector<ddsIndvRampListInfo> ddsRampList;
-	// outermost level is for each controller, 2nd level is for sequence number
-	std::vector<piezoChan<Expression>> piezoExpressions(input->piezoCores.size() );
-	std::vector<bool> ctrlPztOptions( input->piezoCores.size ( ) );
-	AndorRunSettings andorRunSettings;
-	microwaveSettings uwSettings;
-	// a couple aliases.
-	auto& ttls = input->ttls;
-	auto& aoSys = input->aoSys;
-	auto& comm = input->comm;
-	auto& dds = input->dds;
-	auto quiet = input->quiet;
-	const auto& runMaster = input->runList.master;
-	const auto& runAndor = input->runList.andor;
-	bool runNiawg=true;
-	const auto& runBasler = input->runList.basler;
-	const auto& piezos = input->piezoCores;
-	const UINT tbTek = 0, aeTek=1;
-
 	mainOptions mainOpts;
-	baslerSettings baslerCamSettings;
-	std::vector<parameterType> expParams;
-	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());
-	std::vector<deviceOutputInfo> agilentRunInfo(input->agilents.size());
-	std::vector<tektronixInfo> tekInfo (2);
-	UINT variations;
-	try
-	{
-		expParams = ParameterSystem::combineParamsForExpThread ( 
-						ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), 
-						input->globalParameters);
-		std::ifstream cFile (input->profile.configFilePath ());
-		ConfigStream cStream (cFile);
+	input->andorCamera.experimentActive = input->runList.andor;
+	input->basCamera.experimentActive = input->runList.basler;
+	input->niawg.expRerngGui = input->rerngGuiForm;
+	std::vector<std::reference_wrapper<IDeviceCore>> deviceList = { input->topBottomTek, input->eoAxialTek,
+					input->andorCamera, input->basCamera, input->niawg, input->dds, input->rsg, input->aiSys };
+	for (auto& ag : input->agilents) { deviceList.push_back (ag.get ()); }
+	for (auto& pzt : input->piezoCores) { deviceList.push_back (pzt.get ()); }
 
-		using PS = ProfileSystem;
-		if ( runMaster )
-		{
-			expSeq.masterScript = PS::getMasterAddressFromConfig(input->profile);
-			input->thisObj->loadMasterScript(expSeq.masterScript, expSeq.masterStream );
-			PS::stdGetFromConfig(cStream, std::string(dds.configDelim), dds, ddsRampList);
-			for ( auto piezoInc : range(input->piezoCores.size()))
-			{
-				std::pair<piezoChan<std::string>, bool> res;
-				PS::stdGetFromConfig ( cStream, input->piezoCores[ piezoInc ].get().configDelim, 
-									   input->piezoCores[piezoInc].get (), res);
-				piezoExpressions[ piezoInc ]
-					= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
-				ctrlPztOptions[ piezoInc ] = res.second;
-			}
-			mainOpts = PS::stdConfigGetter (cStream, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig );
-			repetitions = PS::stdConfigGetter (cStream, "REPETITIONS",	Repetitions::getSettingsFromConfig ); 
-			PS::stdGetFromConfig (cStream, MicrowaveSystem::delim, input->rsg, uwSettings);
-			PS::stdGetFromConfig ( cStream, input->topBottomTek.configDelim, input->topBottomTek, tekInfo[tbTek]);
-			PS::stdGetFromConfig (cStream, input->eoAxialTek.configDelim, input->eoAxialTek, tekInfo[aeTek]);
-			ParameterSystem::generateKey ( expParams, mainOpts.randomizeVariations, varRangeInfo);
-			variations = determineVariationNumber ( expParams ); 
-			for (auto agInc : range(input->agilents.size()))
-			{
-				PS::stdGetFromConfig ( cStream, input->agilents[agInc].get ().configDelim, input->agilents[agInc].get (), 
-									   agilentRunInfo[agInc] );
-			}
-		}
-		if (runAndor) 
-		{
-			PS::stdGetFromConfig (cStream, "CAMERA_SETTINGS", input->andorCamera, andorRunSettings);
-			andorRunSettings.repetitionsPerVariation = repetitions;
-			andorRunSettings.totalVariations = variations;
-		}
-		if (runBasler)
-		{
-			PS::stdGetFromConfig (cStream, "BASLER_CAMERA_SETTINGS", input->basCamera, baslerCamSettings, Version ("4.0"));
-			baslerCamSettings.repsPerVar = repetitions;
-			baslerCamSettings.variations = variations;
-		}
-		PS::stdGetFromConfig (cStream, "NIAWG_INFORMATION", input->niawg, runNiawg, Version ("4.12"));
-		if ( runNiawg )
-		{
-			expSeq.niawgScript = PS::getNiawgScriptAddrFromConfig(input->profile);
-			input->thisObj->loadNiawgScript (expSeq.niawgScript, expSeq.niawgStream );
-			if ( input->debugOptions.outputNiawgHumanScript )
-			{
-				std::string debugStr = "Human Script: " + expSeq.niawgStream.str ( ) + "\n\n";
-				debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
-				boost::replace_all ( debugStr, "\n", "\r\n" );
-				input->comm.sendDebug ( debugStr );
-			}
-		}
-	}
-	catch ( Error& err)
-	{
-		errBox( "Failed to load experiment configuration files!  \n" + err.trace() );
-		input->thisObj->experimentIsRunning = false;
-		delete voidInput;
-		return -1;
-	}
-	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
-	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
-	// by thrower () calls.
-	std::string warnings;
-	const std::string abortString = "\r\nABORTED!\r\n";
-	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
-	NiawgOutput output;
-	std::vector<ViChar> niawgMachineScript;
-	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
-	// now, but might cause slight breakages...
-	output.waves.resize( 2 );
-	bool foundRearrangement = false;
-	/// ////////////////////////////
-	/// start analysis & experiment
 	try
 	{
-		if ( input->expType != ExperimentType::LoadMot )
+		input->comm.expUpdate ("Loading Experiment Settings...\n");
+		auto expParams = ParameterSystem::combineParams ( 
+										ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), 
+										input->globalParameters );
+		ConfigStream cStream (input->profile.configFilePath (), true);
+		ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());
+		input->thisObj->loadMasterScript (ProfileSystem::getMasterAddressFromConfig (input->profile), expSeq.masterStream);
+		mainOpts = ProfileSystem::stdConfigGetter (cStream, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig );
+		repetitions = ProfileSystem::stdConfigGetter (cStream, "REPETITIONS", Repetitions::getSettingsFromConfig );
+		ParameterSystem::generateKey ( expParams, mainOpts.randomizeVariations, varRangeInfo);
+		for (auto& device : deviceList)
 		{
-			input->logger.logMasterRuntime ( repetitions, expParams);
-			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
-			input->logger.logAndorSettings ( andorRunSettings, runAndor );
-			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
-			input->logger.logTektronixSettings (tekInfo[0], input->topBottomTek.configDelim);
-			input->logger.logTektronixSettings (tekInfo[1], input->eoAxialTek.configDelim);
-			input->logger.logNiawgSettings (input, runNiawg);
+			device.get ().loadExpSettings (cStream);
 		}
-		for ( auto piezoInc : range ( piezos.size ( ) ) )
-		{
-			piezos[ piezoInc ].get().updateExprVals ( piezoExpressions[ piezoInc ] );
-		}
-		dds.updateRampLists ( ddsRampList );
 		if ( input->updatePlotterXVals ) updatePlotX_vals ( input, expParams );
-		if ( runMaster )
-		{
-			aoSys.resetDacEvents ( );
-			ttls.resetTtlEvents ( );
-			aoSys.initializeDataObjects ( 0 );
-			ttls.initializeDataObjects ( 0 );
-			input->thisObj->loadSkipTimes.clear ( );
+		/// The Variation Calculation Step.
+		input->comm.expUpdate ("Calculating All Variation Data...\r\n");
+		for (auto& device : deviceList) {
+			if (device.get ().experimentActive) {
+				device.get ().calculateVariations (expParams, input->comm);
+				if (input->thisObj->isAborting) thrower (abortString);
+			}
 		}
-		if ( runNiawg )
+		calculateAdoVariations ( input, expParams, repetitions, expSeq.masterStream, mainOpts.atomSkipThreshold );
+		runConsistencyChecks (input, expParams);
+		/// log experiment parameters
+		if (input->expType != ExperimentType::LoadMot)
 		{
-			input->niawg.initForExperiment ( );
-		}
-		UINT variations=0;
-		variations = determineVariationNumber( expParams );
-		/// Prep agilents
-		expUpdate( "Loading Agilent Info...", comm, quiet );
-		for ( auto agInc: range(input->agilents.size()) )
-		{
-			auto& agilent = input->agilents[agInc].get();
-			for ( auto channelInc : range ( 2 ) )
-			{
-				if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
-				{
-					agilent.analyzeAgilentScript ( agilentRunInfo[agInc].channel[channelInc].scriptedArb,
-						expParams, warnings );
+			input->logger.logMasterRuntime (repetitions, expParams);
+			for (auto& device : deviceList) {
+				if (device.get ().experimentActive) {
+					device.get ().logSettings (input->logger);
 				}
 			}
 		}
-		expUpdate( "Analyzing Master Script...", comm, quiet );
-		if ( runMaster ) 
+		/// Begin experiment 
+		for (const auto& variationInc : range(determineVariationNumber (expParams)))
 		{
-			comm.sendColorBox ( System::Master, 'Y' );
-			input->thisObj->analyzeMasterScript( ttls, aoSys, expParams, expSeq.masterStream,
-												 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
-												 input->thisObj->operationTime, input->thisObj->loadSkipTime );
-		}
-		if ( input->thisObj->isAborting ) thrower ( abortString );
-		if ( runNiawg )	
-		{
-			comm.sendColorBox ( System::Niawg, 'Y' );
-			input->niawg.analyzeNiawgScript ( expSeq.niawgStream, output, input->profile, input->debugOptions,
-											  warnings, input->rerngGuiForm, expParams );
-		}
-		if ( input->thisObj->isAborting ) thrower ( abortString );
-		if ( runMaster )
-		{
-			input->thisObj->loadSkipTimes.resize ( variations );
-		}
-		if ( runNiawg )
-		{
-			input->niawg.finalizeScript ( repetitions, "experimentScript", output.niawgLanguageScript, niawgMachineScript,
-										   !input->niawg.outputVaries ( output ) );
-			if ( input->debugOptions.outputNiawgMachineScript )
-			{
-				std::string debugStr = "NIAWG Machine Script:\n"
-					+ std::string ( niawgMachineScript.begin ( ), niawgMachineScript.end ( ) ) + "\n\n";
-				debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
-				boost::replace_all ( debugStr, "\n", "\r\n" );
-				comm.sendDebug ( debugStr );
-			}
-			input->niawg.writeStaticNiawg ( output, input->debugOptions, expParams);
-			expUpdate("Constant NIAWG Waveform Preparation Completed...\r\n", comm, input->quiet );
-		}
-		if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-		/// The Key Interpretation step.
-		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
-		// it needs for each variation of the experiment. All these calculations happen at this step.
-		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
-		if ( runMaster )
-		{
-			ttls.interpretKey(expParams);
-			ttls.restructureCommands ( );
-			aoSys.interpretKey(expParams, warnings );
-		}
-		for ( auto piezoInc : range(piezos.size()) )
-		{
-			if ( ctrlPztOptions[ piezoInc ] )
-			{
-				piezos[piezoInc].get().evaluateVariations (expParams, variations );
-			}
-		}
-		dds.evaluateDdsInfo (expParams);
-		dds.generateFullExpInfo ( variations );
-		input->topBottomTek.interpretKey (expParams, tekInfo[0]);
-		input->eoAxialTek.interpretKey (expParams, tekInfo[1]);
-		for (auto agInc : range (input->agilents.size ()))
-		{
-			input->agilents[agInc].get().convertInputToFinalSettings (variations, 0, agilentRunInfo[agInc], expParams);
-			input->agilents[agInc].get().convertInputToFinalSettings (variations, 1, agilentRunInfo[agInc], expParams);
-		}
-		input->rsg.interpretKey (expParams, uwSettings);
-		/// organize commands, prepping final forms of the data for each repetition.
-		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
-		for (auto variationInc : range(variations))
-		{
-			if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-			if ( runMaster )
-			{
-				double& currLoadSkipTime = input->thisObj->loadSkipTimes[variationInc];
-				currLoadSkipTime = ExperimentThreadManager::convertToTime( input->thisObj->loadSkipTime, expParams, 
-																		   variationInc );
-				// organize & format the ttl and dac commands
-				aoSys.organizeDacCommands( variationInc );
-				aoSys.setDacTriggerEvents( ttls, variationInc );
-				aoSys.findLoadSkipSnapshots( currLoadSkipTime, expParams, variationInc );
-				aoSys.makeFinalDataFormat( variationInc ); 
-				ttls.organizeTtlCommands ( variationInc );
-				ttls.findLoadSkipSnapshots( currLoadSkipTime, expParams, variationInc );
-				ttls.convertToFtdiSnaps(variationInc);
-				ttls.convertToFinalFtdiFormat( variationInc );
-				// run a couple checks.
-				aoSys.checkTimingsWork( variationInc );
-			}
-		}
-		/// output some timing information 
-		if (runMaster)
-		{
-			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0 ) ) + "\r\n", comm, quiet );
-			ULONGLONG totalTime = 0;
-			for ( auto variationNumber : range(variations) )
-			{
-				totalTime += ULONGLONG( ttls.getTotalTime( variationNumber ) * repetitions );
-			}
-			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", comm, quiet );
-			expUpdate( "Number of TTL Events in experiment: " + str( ttls.getNumberEvents( 0 ) ) + "\r\n", comm, quiet );
-			expUpdate( "Number of DAC Events in experiment: " + str( aoSys.getNumberEvents( 0 ) ) + "\r\n", comm, quiet );
-		}
-		input->globalControl.setUsages(expParams);
-		for ( auto& var : expParams )
-		{
-			if ( !var.constant && !var.active )
-			{
-				warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n";
-			}
-		}
-		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, expParams, 
-													   agilentRunInfo, runNiawg );
-		/// finish up
-		if ( runMaster )
-		{
-			handleDebugPlots ( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
-			comm.sendColorBox (System::Master, 'G');
-		}
-		if ( warnings != "" )
-		{
-			comm.sendError ( warnings );
-			auto response = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
-								   + warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO );
-			if ( response == IDNO ) { thrower ( abortString ); }
-		}
-		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
-		/// /////////////////////////////
-		/// Begin experiment loop
-		if (runBasler)
-		{
-			expUpdate ("Starting Basler Camera...", comm, quiet);
-			comm.sendPrepareBasler (baslerCamSettings);
-			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
-			comm.sendColorBox (System::Basler, 'G');
-			input->basCamera.armCamera ();
-		}
-		if (runAndor)
-		{
-			input->andorCamera.setSettings (andorRunSettings);
-			comm.sendPrepareAndor (andorRunSettings);
-		}
-		// shouldn't there be a sequence loop here?
-		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
-		// shouldn't there be a sequence loop here?
-		for (const UINT& variationInc : range( variations ))
-		{
-			expUpdate( "Variation #" + str( variationInc + 1 ) + "/" + str(variations) + ": ", comm, quiet );
-			if ( input->aiSys.wantsQueryBetweenVariations( ) )
-			{
-				// I'm writing data which is handled by the main gui thread, so I just let the main gui thread do the 
-				// whole measurement here. 
-				expUpdate( "Querying Voltages...\r\n", comm, quiet );
-				comm.sendLogVoltsMessage ( variationInc );
-			}
-			if ( input->debugOptions.sleepTime != 0 )
-			{
-				Sleep ( input->debugOptions.sleepTime );
-			}
-			for (auto param : expParams)
-			{
-				if (param.valuesVary)
-				{
-					if (param.keyValues.size() == 0)
-					{
-						thrower ( "Variable " + param.name + " varies, but has no values assigned to "
-								  "it! (This shouldn't happen, it's a low-level bug...)" );
-					}
-					expUpdate( param.name + ": " + str( param.keyValues[variationInc], 12) + "\r\n", comm, quiet );
+			initVariation ( input, variationInc, expParams);
+			input->comm.expUpdate ("Programming Devices for Variation... ");
+			for (auto& device : deviceList) {
+				if (device.get ().experimentActive) {
+					device.get ().programVariation (variationInc, expParams);
 				}
 			}
-			expUpdate ( "Starting Andor Camera...", comm, quiet );
-			if ( runAndor )
-			{
-				int stat = 0;
-				while ( true )
-				{
-					stat = input->andorCamera.queryStatus ( );
-					if ( stat == DRV_ACQUIRING )
-					{
-						Sleep ( 1000 );
-						expUpdate ( "Waiting for Andor camera to finish acquisition...", comm, quiet );
-						if (input->thisObj->isAborting) { thrower (abortString); }
-					}
-					else
-					{
-						break;
-					}
-				} 
-				double kinTime;
-				input->andorCamera.armCamera ( kinTime );
-				comm.sendColorBox (System::Andor, 'G');
-			}
-			expUpdate( "Programming Devices... ", comm, quiet );
-			input->rsg.programRsg (variationInc, uwSettings);
-			// program devices
-			for ( auto agInc : range(input->agilents.size()) )
-			{
-				input->agilents[agInc].get().setAgilent ( variationInc, expParams, agilentRunInfo[agInc] );
-			}
-			for ( auto piezoInc : range(piezos.size()) )
-			{
-				if ( ctrlPztOptions[ piezoInc ] )
-				{
-					piezos[piezoInc].get().exprProgramPiezo ( variationInc );
-				}
-			}
-			dds.writeExperiment ( variationInc );
-			if (runNiawg)
-			{
-				input->niawg.programNiawg( input, output, warnings, variationInc, variations, niawgMachineScript, 
-										   input->rerngGuiForm, input->rerngGui, expParams );
-				if (input->rerngGui.active)
-				{
-					input->niawg.turnOffRerng ();
-					input->conditionVariableForRerng->notify_all ();
-					input->niawg.waitForRerng (false);
-					input->niawg.handleStartingRerng (input, output);
-				}
-			}
-			input->topBottomTek.programMachine (variationInc, tekInfo[0]);
-			input->eoAxialTek.programMachine (variationInc, tekInfo[1]);
-			comm.sendError( warnings );
-			comm.sendRepProgress( 0 );
-			expUpdate( "Running Experiment.\r\n", comm, quiet );
-
 			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
-			if (runMaster)
+			if (input->runList.master){ input->ttls.ftdi_write (variationInc, skipOption); }
+			input->comm.expUpdate ("Running Experiment.\r\n");
+			for (const auto& repInc : range(repetitions))
 			{
-				ttls.ftdi_write (variationInc, skipOption);
-			}
-			for (auto repInc : range(repetitions))
-			{
-				if (input->thisObj->isAborting) { thrower(abortString); }
-				else if (input->thisObj->isPaused)
-				{
-					expUpdate("PAUSED\r\n!", comm, quiet);
-					while (input->thisObj->isPaused)
-					{
-						// this could be changed to be a bit smarter using a std::condition_variable
-						Sleep(100);
-						if (input->thisObj->isAborting) { thrower(abortString); }
-					}
-					expUpdate("UN-PAUSED!\r\n", comm, quiet);
-				}
-				comm.sendRepProgress(repInc + 1);
-				if (runMaster)
-				{
-					aoSys.resetDacs (variationInc, skipOption);
-					ttls.ftdi_trigger();
-					ttls.FtdiWaitTillFinished(variationInc);
-				}
+				handlePause (input->comm, input->thisObj->isPaused, input->thisObj->isAborting);
+				adoStart (input, repInc, variationInc, skipOption);
 			}
 		}
-		/// conclude.
-		expUpdate( "\r\nExperiment Finished Normally.\r\n", comm, quiet );
-		comm.sendColorBox( System::Master, 'B' );
-		if (runMaster)
-		{
-			// stop is necessary else the dac system will still be running and won't allow updates through normal means.
-			aoSys.stopDacs();
-			try
-			{
-				// make sure the display accurately displays the state that the experiment finished at.
-				aoSys.setDacStatusNoForceOut( aoSys.getFinalSnapshot( ) );
+		for (auto& device : deviceList){
+			if (device.get ().experimentActive){
+				device.get ().normalFinish ();
 			}
-			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
 		}
-		if (runNiawg)
-		{
-			input->niawg.cleanupNiawg( input->profile, runMaster, output, comm, mainOpts.dontActuallyGenerate );
-		}
-		input->thisObj->experimentIsRunning = false;
-		switch ( input->expType )
-		{
-			case ExperimentType::CameraCal:
-				comm.sendCameraCalFin ( );
-				break;
-			case ExperimentType::LoadMot:
-			case ExperimentType::MachineOptimization:
-			case ExperimentType::AutoCal:
-				comm.sendFinish ( input->expType );
-				break;
-			default:
-				comm.sendFinish ( ExperimentType::Normal );
-		}
+		normalFinish (input->comm, input->expType, input->runList.master, startTime, input->aoSys );
 	}
-	catch (Error& exception)
-	{
-		if (runNiawg)
-		{
-			for (auto& wave : output.waves)
-			{
-				wave.core.waveVals.clear();
-				wave.core.waveVals.shrink_to_fit();
+	catch (Error& exception){
+		for (auto& device : deviceList){
+			if (device.get ().experimentActive) {
+				device.get ().errorFinish ();
 			}
 		}
-		input->thisObj->experimentIsRunning = false;
-		if ( input->thisObj->isAborting )
-		{
-			expUpdate( abortString, comm, quiet );
-			comm.sendColorBox( System::Master, 'B' );
-		}
-		else
-		{
-			comm.sendColorBox( System::Master, 'R' );
-			comm.sendStatus( "Bad Exit!\r\n" );
-			auto txt = "Exited main experiment thread abnormally." + exception.trace ( );
-			comm.sendFatalError( txt );
-		}	
-		try
-		{
-			input->andorCamera.abortAcquisition ();
-		}
-		catch (Error & err) 
-		{ /*Probably just idle.*/ }
-		{
-			std::lock_guard<std::mutex> locker ( input->thisObj->abortLock );
-			input->thisObj->isAborting = false;
-		}
+		errorFinish (input->comm, input->thisObj->isAborting, exception, startTime);
 	}
-	// finish up.
-	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>( ( chronoClock::now ( ) - startTime ) ).count ( );
-	expUpdate( "Experiment took " + str( int(exp_t) / 3600 )  + " hours, " + str(int(exp_t) % 3600 / 60) + " minutes, "
-			   + str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
 	input->thisObj->experimentIsRunning = false;
-	delete input;
 	return false;
 }
 
@@ -844,8 +452,6 @@ void ExperimentThreadManager::pause()
 	{
 		thrower ( "Can't pause the experiment if the experiment isn't running!" );
 	}
-	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
-	std::lock_guard<std::mutex> locker( pauseLock );
 	isPaused = true;
 }
 
@@ -856,8 +462,6 @@ void ExperimentThreadManager::unPause()
 	{
 		thrower ( "Can't unpause the experiment if the experiment isn't running!" );
 	}
-	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
-	std::lock_guard<std::mutex> locker( pauseLock );
 	isPaused = false;
 }
 
@@ -868,7 +472,6 @@ void ExperimentThreadManager::abort()
 	{
 		thrower ( "Can't abort the experiment if the experiment isn't running!" );
 	}
-	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
 }
 
@@ -1360,15 +963,6 @@ bool ExperimentThreadManager::isValidWord( std::string word )
 	}
 	return false;
 }
- 
-// just a simple wrapper so that I don't have if (!quiet){ everywhere in the main thread.
-void ExperimentThreadManager::expUpdate(std::string text, Communicator& comm, bool quiet)
-{
-	if (!quiet)
-	{
-		comm.sendStatus(text);
-	}
-}
 
 UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterType> variables )
 {
@@ -1389,17 +983,14 @@ UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterTyp
 }
 
 
-void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
-												UINT variations, microwaveSettings settings, 
-												std::vector<parameterType>& expParams, 
-												std::vector<deviceOutputInfo>& agRunInfo, 
-												bool runNiawg)
+void ExperimentThreadManager::checkTriggerNumbers ( std::unique_ptr<ExperimentThreadInput>& input, 
+													std::vector<parameterType>& expParams )
 {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
 	bool niawgMismatch = false, rsgMismatch=false;
 	std::vector<std::array<bool, 2>> agMismatchVec ( input->agilents.size ( ), { false,false } );
-	for ( auto variationInc : range ( variations ) )
+	for ( auto variationInc : range ( determineVariationNumber(expParams) ) )
 	{
 		if ( input->runList.master)
 		{
@@ -1419,7 +1010,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 				input->debugOptions.message += infoString + "\n";
 			}
 		}
-		if ( runNiawg && !niawgMismatch )
+		if (input->niawg.experimentActive && !niawgMismatch )
 		{
 			auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc );
 			auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
@@ -1427,7 +1018,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 				+ str ( niawgExpectedTrigs ) + ".";
 			if ( actualTrigs != niawgExpectedTrigs )
 			{
-				warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
+				input->comm.warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
 					" of times a trigger command appears in the NIAWG script. " + infoString + " First "
 					"instance seen variation " + str ( variationInc ) 
 					+ ".\r\n";
@@ -1442,12 +1033,12 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 		if ( !rsgMismatch )
 		{
 			auto actualTrigs = input->ttls.countTriggers ( input->rsg.getRsgTriggerLine ( ), variationInc );
-			auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc, settings );
+			auto rsgExpectedTrigs = input->rsg.getNumTriggers ( input->rsg.experimentSettings );
 			std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
 				+ str ( rsgExpectedTrigs ) + ".";
 			if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
 			{
-				warnings += "WARNING: the RSG is not getting triggered by the ttl system the same number"
+				input->comm.warnings += "WARNING: the RSG is not getting triggered by the ttl system the same number"
 					" of times a trigger command appears in the master script. " + infoString + " First "
 					"instance seen variation " + str ( variationInc )
 					+ ".\r\n";
@@ -1458,34 +1049,9 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 				input->debugOptions.message += infoString + "\n";
 			}
 			/// check Agilents
-			for ( auto agInc : range ( input->agilents.size ( ) ) )
+			for ( auto& agilent : input->agilents )
 			{
-				auto& agilent = input->agilents[ agInc ].get();
-				for ( auto chan : range ( 2 ) )
-				{
-					auto& agChan = agRunInfo[agInc].channel[ chan ];
-					if ( agChan.option != AgilentChannelMode::which::Script || agMismatchVec[ agInc ][ chan ] )
-					{
-						continue;
-					}
-					UINT actualTrigs = input->runList.master ? input->ttls.countTriggers ( agilent.getTriggerLine ( ),
-																			variationInc ) : 0;
-					UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
-					std::string infoString = "Actual/Expected " + agilent.configDelim + " Triggers: "
-						+ str ( actualTrigs ) + "/" + str ( agilentExpectedTrigs ) + ".";
-					if ( actualTrigs != agilentExpectedTrigs )
-					{
-						warnings += "WARNING: Agilent " + agilent.configDelim + " is not getting "
-							"triggered by the ttl system the same number of times a trigger command "
-							"appears in the agilent channel " + str ( chan + 1 ) + " script. " + infoString 
-							+ " First seen in variation #" + str ( variationInc ) + ".\r\n";
-						agMismatchVec[ agInc ][ chan ] = true;
-					}
-					if ( variationInc == 0 && input->debugOptions.outputExcessInfo )
-					{
-						input->debugOptions.message += infoString + "\n";
-					}
-				}
+				agilent.get().checkTriggers ( variationInc, input->ttls, input->comm, input->debugOptions.outputExcessInfo );
 			}
 		}
 	}
@@ -1506,7 +1072,6 @@ bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream
 	boost::erase_all ( functionCall, "\r" );
 	int pos = functionCall.find_first_of( "(" ) + 1;
 	int finalpos = functionCall.find_last_of( ")" );
-
 	functionName = functionCall.substr( 0, pos - 1 );
 	functionArgs = functionCall.substr( pos, finalpos - pos );
 	std::string arg;
@@ -1546,7 +1111,7 @@ bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream
 }
 
 
-void ExperimentThreadManager::updatePlotX_vals ( ExperimentThreadInput* input, std::vector<parameterType>& expParams)
+void ExperimentThreadManager::updatePlotX_vals ( std::unique_ptr<ExperimentThreadInput>& input, std::vector<parameterType>& expParams)
 {
 	// remove old plots that aren't trying to sustain.
 	input->plotterInput->key = ParameterSystem::getKeyValues ( expParams );
@@ -1570,5 +1135,188 @@ void ExperimentThreadManager::updatePlotX_vals ( ExperimentThreadInput* input, s
 			}
 		}
 		plotInc++;
+	}
+}
+
+void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<ExperimentThreadInput>& input, 
+													   std::vector<parameterType>& expParams, UINT repetitions, 
+													   ScriptStream& masterStream, UINT skipThreshold )
+{
+	if (input->runList.master)
+	{
+		auto variations = determineVariationNumber (expParams);
+		input->aoSys.resetDacEvents ();
+		input->ttls.resetTtlEvents ();
+		input->aoSys.initializeDataObjects (0);
+		input->ttls.initializeDataObjects (0);
+		input->thisObj->loadSkipTimes = std::vector<double> (variations);
+		input->comm.expUpdate ("Analyzing Master Script...\n");
+		input->comm.sendColorBox (System::Master, 'Y');
+		input->thisObj->analyzeMasterScript (input->ttls, input->aoSys, expParams, masterStream,
+			skipThreshold != UINT_MAX, input->comm.warnings, input->thisObj->operationTime, 
+			input->thisObj->loadSkipTime);
+		input->ttls.calculateVariations (expParams, input->comm);
+		input->aoSys.calculateVariations (expParams,input->comm);
+		for (auto variationInc : range (variations))
+		{
+			if (input->thisObj->isAborting) { thrower (abortString); }
+			double& currLoadSkipTime = input->thisObj->loadSkipTimes[variationInc];
+			currLoadSkipTime = ExperimentThreadManager::convertToTime (input->thisObj->loadSkipTime, expParams,
+				variationInc);
+			input->aoSys.standardExperimentPrep (variationInc, input->ttls, expParams, currLoadSkipTime);
+			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, expParams);
+			input->aoSys.checkTimingsWork (variationInc);
+		}
+		input->comm.expUpdate ("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n");
+		ULONGLONG totalTime = 0;
+		for (auto variationNumber : range (variations))
+		{
+			totalTime += ULONGLONG (input->ttls.getTotalTime (variationNumber) * repetitions);
+		}
+		input->comm.expUpdate ("Programmed Total Experiment time: " + str (totalTime) + "\r\n");
+		input->comm.expUpdate ("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n");
+		input->comm.expUpdate ("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n");
+		handleDebugPlots (input->debugOptions, input->comm, input->ttls, input->aoSys, input->ttlData, input->dacData);
+		input->comm.sendColorBox (System::Master, 'G');
+	}
+}
+
+void ExperimentThreadManager::runConsistencyChecks ( std::unique_ptr<ExperimentThreadInput>& input, 
+													 std::vector<parameterType> expParams )
+{
+	input->globalControl.setUsages (expParams);
+	for (auto& var : expParams)
+	{
+		if (!var.constant && !var.active)
+		{
+			input->comm.warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n";
+		}
+	}
+	ExperimentThreadManager::checkTriggerNumbers (input, expParams);
+	if (input->comm.warnings != "")
+	{
+		input->comm.sendError (input->comm.warnings);
+		auto response = promptBox ("WARNING: The following warnings were reported while preparing the experiment:\r\n"
+			+ input->comm.warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO);
+		if (response == IDNO) { thrower (abortString); }
+	}
+	input->comm.warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
+}
+
+
+void ExperimentThreadManager::handlePause (Communicator& comm, std::atomic<bool>& isPaused, std::atomic<bool>& isAborting)
+{
+	if (isAborting) { thrower (abortString); }
+	if (isPaused)
+	{
+		comm.expUpdate ("PAUSED\r\n!");
+		while (isPaused)
+		{
+			Sleep (100);
+			if (isAborting) { thrower (abortString); }
+		}
+		comm.expUpdate ("UN-PAUSED!\r\n");
+	}
+}
+
+void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadInput>& input, UINT variationInc, 
+											  std::vector<parameterType> expParams)
+{
+	auto variations = determineVariationNumber (expParams);
+	input->comm.expUpdate ("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ");
+	if (input->aiSys.wantsQueryBetweenVariations())
+	{
+		// the main gui thread does the whole measurement here. This probably makes less sense now. 
+		input->comm.expUpdate ("Querying Voltages...\r\n");
+		input->comm.sendLogVoltsMessage (variationInc);
+	}
+	if (input->debugOptions.sleepTime != 0) { Sleep (input->debugOptions.sleepTime); }
+	for (auto param : expParams)
+	{
+		if (param.valuesVary)
+		{
+			if (param.keyValues.size () == 0)
+			{
+				thrower ("Variable " + param.name + " varies, but has no values assigned to "
+					"it! (This shouldn't happen, it's a low-level bug...)");
+			}
+			input->comm.expUpdate (param.name + ": " + str (param.keyValues[variationInc], 12) + "\r\n");
+		}
+	}
+	while (true)
+	{
+		if (input->andorCamera.queryStatus () == DRV_ACQUIRING)
+		{
+			Sleep (1000);
+			input->comm.expUpdate ("Waiting for Andor camera to finish acquisition...");
+			if (input->thisObj->isAborting) { thrower (abortString); }
+		}
+		else { break; }
+	}
+	input->comm.sendError (input->comm.warnings);
+	input->comm.sendRepProgress (0);
+}
+
+void ExperimentThreadManager::errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
+											std::chrono::time_point<chronoClock> startTime)
+{
+	if (isAborting)
+	{
+		comm.expUpdate (abortString);
+		comm.sendColorBox (System::Master, 'B');
+	}
+	else
+	{
+		comm.sendColorBox (System::Master, 'R');
+		comm.sendStatus ("Bad Exit!\r\n");
+		auto txt = "Exited main experiment thread abnormally." + exception.trace ();
+		comm.sendFatalError (txt);
+	}
+	{
+		isAborting = false;
+	}
+	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
+	comm.expUpdate ( "Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
+					 + str (int (exp_t) % 60) + " seconds.\r\n");
+}
+
+void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType& expType, bool runMaster, 
+											 std::chrono::time_point<chronoClock> startTime, AoSystem& aoSys)
+{
+	if (runMaster) {
+		try {
+			aoSys.stopDacs ();
+			aoSys.setDacStatusNoForceOut (aoSys.getFinalSnapshot ());
+		}
+		catch (Error&) { /* this gets thrown if no dac events. just continue.*/ }
+	}
+	switch (expType)
+	{
+		case ExperimentType::CameraCal:
+			comm.sendCameraCalFin ();
+			break;
+		case ExperimentType::LoadMot:
+		case ExperimentType::MachineOptimization:
+		case ExperimentType::AutoCal:
+			comm.sendFinish (expType);
+			break;
+		default:
+			comm.sendFinish (ExperimentType::Normal);
+	}
+	comm.expUpdate ("\r\nExperiment Finished Normally.\r\n");
+	comm.sendColorBox (System::Master, 'B');
+	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
+	comm.expUpdate ( "Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
+					 + str (int (exp_t) % 60) + " seconds.\r\n");
+}
+
+void ExperimentThreadManager::adoStart (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip)
+{
+	if (input->runList.master)
+	{
+		input->comm.sendRepProgress (repInc + 1);
+		input->aoSys.resetDacs (variationInc, skip);
+		input->ttls.ftdi_trigger ();
+		input->ttls.FtdiWaitTillFinished (variationInc);
 	}
 }

@@ -8,8 +8,6 @@
 
 MicrowaveSystem::MicrowaveSystem() {}
 
-const std::string MicrowaveSystem::delim = "MICROWAVE_SYSTEM";
-
 std::string MicrowaveSystem::getIdentity()
 { 
 	return core.queryIdentity();
@@ -52,14 +50,15 @@ void MicrowaveSystem::programNow(std::vector<parameterType> constants)
 	// ignore the check if the user literally presses program now.
 	settings.control = true;
 	settings.list = currentList;
-	core.interpretKey (constants, settings);
-	core.programRsg (0, settings);
+	std::string warnings;
+	core.calculateVariations (constants);
+	core.programVariation (0, constants);
 }
 
 
 void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile)
 {
-	saveFile << delim
+	saveFile << core.configDelim
 		<< "\n/*Control?*/ " << controlOptionCheck.GetCheck ()
 		<< "\n/*List Size:*/ " << currentList.size ();
 	for (auto listElem : currentList)
@@ -67,7 +66,7 @@ void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile)
 		saveFile << "\n/*Freq:*/ " << listElem.frequency 
 				 << "\n/*Power:*/ " << listElem.power;
 	}
-	saveFile << "\nEND_" << delim << "\n";
+	saveFile << "\nEND_" << core.configDelim << "\n";
 }
 
 void MicrowaveSystem::setMicrowaveSettings (microwaveSettings settings)

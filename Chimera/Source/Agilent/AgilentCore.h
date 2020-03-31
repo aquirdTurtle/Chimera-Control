@@ -3,13 +3,15 @@
 #include "GeneralFlumes/VisaFlume.h"
 #include "ConfigurationSystems/Version.h"
 #include "DigitalOutput/DoRows.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>
 
+class DoCore;
 
-class AgilentCore
+class AgilentCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -22,12 +24,14 @@ class AgilentCore
 		void setAgilent (UINT variation, std::vector<parameterType>& params, deviceOutputInfo runSettings);
 		//void setAgilent (deviceOutputInfo runSettings);
 		void prepAgilentSettings (UINT channel);
+		std::string getDelim () { return configDelim; }
 		const std::string configDelim;
 		bool connected ();
 		std::pair<DoRows::which, UINT> getTriggerLine ();
 		std::string getDeviceIdentity ();
-		void convertInputToFinalSettings (UINT variation, UINT chan, deviceOutputInfo& info,
-											std::vector<parameterType>& variables = std::vector<parameterType> ());
+		void logSettings (DataLogger& log);
+		void convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, 
+										  std::vector<parameterType>& variables = std::vector<parameterType> ());
 		static double convertPowerToSetPoint (double power, bool conversionOption, std::vector<double> calibCoeff);
 		void setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT channel);
 		void setDC (int channel, dcInfo info, UINT variation);
@@ -42,8 +46,16 @@ class AgilentCore
 		std::string getDeviceInfo ();
 		void handleScriptVariation ( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
 									 std::vector<parameterType>& params);
-		static deviceOutputInfo getSettingsFromConfig (ConfigStream& file, Version ver);
+		//virtual DeviceSettings  getSettingsFromConfig (ConfigStream& file, Version ver) = 0;
+		deviceOutputInfo getSettingsFromConfig (ConfigStream& file, Version ver);
+		void loadExpSettings (ConfigStream& script);
+		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void programVariation (UINT variation, std::vector<parameterType>& params);
+		void checkTriggers (UINT variationInc, DoCore& ttls, Communicator& comm, bool excessInfo);
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
+		deviceOutputInfo expRunSettings;
 		const double sampleRate;
 		const std::string memoryLoc;
 		const agilentSettings initSettings;

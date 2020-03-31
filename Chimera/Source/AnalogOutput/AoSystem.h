@@ -36,6 +36,8 @@ class AoSystem
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		HBRUSH handleColorMessage( CWnd* hwnd, CDC* cDC );
+		void standardExperimentPrep (UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
+									 double currLoadSkipTime);
 		// configs
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile, Version ver);
@@ -59,7 +61,7 @@ class AoSystem
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DoCore& ttls);
 		void setDacTriggerEvents( DoCore& ttls, UINT variation );
-		void interpretKey( std::vector<parameterType>& variables, std::string& warnings );
+		void calculateVariations( std::vector<parameterType>& variables, Communicator& comm);
 		void organizeDacCommands( UINT variation );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
 									 DoCore& ttls );

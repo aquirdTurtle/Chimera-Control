@@ -49,10 +49,10 @@ void PiezoController::handleOpenConfig ( ConfigStream& configFile, Version ver )
 	if ( ver > Version ( "4.5" ) )
 	{
 		auto configVals = core.getSettingsFromConfig ( configFile, ver );
-		edits.x.SetWindowTextA ( configVals.first.x.c_str ( ) );
-		edits.y.SetWindowTextA ( configVals.first.y.c_str ( ) );
-		edits.z.SetWindowTextA ( configVals.first.z.c_str ( ) );
-		ctrlButton.SetCheck ( configVals.second );
+		edits.x.SetWindowTextA ( configVals.pztValues.x.expressionStr.c_str ( ) );
+		edits.y.SetWindowTextA ( configVals.pztValues.y.expressionStr.c_str ( ) );
+		edits.z.SetWindowTextA ( configVals.pztValues.z.expressionStr.c_str ( ) );
+		ctrlButton.SetCheck ( configVals.ctrlPzt);
 		updateCtrl ( );
 	}
 }
@@ -84,7 +84,7 @@ std::string PiezoController::getPiezoDeviceList ( )
 void PiezoController::updateCtrl ( )
 {
 	auto ctrl = ctrlButton.GetCheck ( );
-	core.setCtrl ( ctrl );
+	core.experimentActive = ctrl;
 	edits.x.EnableWindow ( ctrl );
 	edits.y.EnableWindow ( ctrl );
 	edits.z.EnableWindow ( ctrl );

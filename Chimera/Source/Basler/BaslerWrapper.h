@@ -1,10 +1,11 @@
 #pragma once
+
+#include "PrimaryWindows/CustomMessages.h"
+
 #include <pylon/PylonIncludes.h>
 #include <pylon/PylonGUI.h>
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
-#include "PrimaryWindows/CustomMessages.h"
-#include "LowLevel/constants.h"
 
 // wrapper class for modifying for safemode and to standardize error handling.
 class BaslerWrapper : public cameraType

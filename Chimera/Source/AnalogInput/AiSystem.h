@@ -4,12 +4,14 @@
 #include "CustomMfcControlWrappers/myButton.h"
 #include "LowLevel/constants.h"
 #include "AnalogInput/AiSettings.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "CustomMfcControlWrappers/UintEdit.h"
 #include "ConfigurationSystems/Version.h"
 #include "Scripts/ScriptStream.h"
 #include "AnalogOutput/DaqMxFlume.h"
 #include "ConfigurationSystems/ConfigStream.h"
+
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>
@@ -19,7 +21,7 @@
  * This is a interface for taking analog input data through an NI card that uses DAQmx. These cards are generally 
  * somewhat flexible, but right now I only use it to read and record voltage values from Analog inputs.
  */
-class AiSystem
+class AiSystem : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -43,9 +45,17 @@ class AiSystem
 		bool wantsContinuousQuery( );
 		std::string getSystemStatus( );
 		void setAiSettings (AiSettings settings);
-		static AiSettings getSettingsFromConfig (ConfigStream& file, Version ver);
+		AiSettings getSettingsFromConfig (ConfigStream& file, Version ver);
 		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
+		std::string getDelim () { return configDelim; }
+		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void calculateVariations (std::vector<parameterType>& params, Communicator& comm) {};
+		void loadExpSettings (ConfigStream& stream) {};
+
+		void logSettings (DataLogger& log);
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
 		Control<CStatic> title;
 		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;

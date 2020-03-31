@@ -1,12 +1,14 @@
 // created by Mark O. Brown
 #include "stdafx.h"
+
 #include "BaslerCamera.h"
 #include "BaslerWrapper.h"
-#include "GeneralImaging/PictureControl.h"
-#include "stdint.h"
-#include "LowLevel/constants.h"
-#include "PrimaryWindows/MainWindow.h"
 
+#include "GeneralImaging/PictureControl.h"
+#include "ConfigurationSystems/ProfileSystem.h"
+#include "MiscellaneousExperimentOptions/Repetitions.h"
+
+#include "stdint.h"
 #include <cmath>
 #include <algorithm>
 #include <functional>
@@ -427,4 +429,64 @@ int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum,
 	}
 }
 
+void BaslerCameraCore::logSettings (DataLogger& log)
+{
+	try
+	{
+		if (!experimentActive)
+		{
+			H5::Group baslerGroup (log.file.createGroup ("/Basler:Off"));
+			return;
+		}
+		H5::Group baslerGroup (log.file.createGroup ("/Basler"));
+		hsize_t rank1[] = { 1 };
+		// pictures. These are permanent members of the class for speed during the writing process.	
+		hsize_t setDims[] = { ULONGLONG (expRunSettings.totalPictures ()), expRunSettings.dims.width (),
+							   expRunSettings.dims.height () };
+		hsize_t picDims[] = { 1, expRunSettings.dims.width (), expRunSettings.dims.height () };
+		log.BaslerPicureSetDataSpace = H5::DataSpace (3, setDims);
+		log.BaslerPicDataSpace = H5::DataSpace (3, picDims);
+		log.BaslerPictureDataset = baslerGroup.createDataSet ("Pictures", H5::PredType::NATIVE_LONG, 
+															  log.BaslerPicureSetDataSpace);
+		log.currentBaslerPicNumber = 0;
+		log.writeDataSet (BaslerAcquisition::toStr (expRunSettings.acquisitionMode), "Camera-Mode", baslerGroup);
+		log.writeDataSet (BaslerAutoExposure::toStr (expRunSettings.exposureMode), "Exposure-Mode", baslerGroup);
+		log.writeDataSet (expRunSettings.exposureTime, "Exposure-Time", baslerGroup);
+		log.writeDataSet (BaslerTrigger::toStr (expRunSettings.triggerMode), "Trigger-Mode", baslerGroup);
+		// image settings
+		H5::Group imageDims = baslerGroup.createGroup ("Image-Dimensions");
+		log.writeDataSet (expRunSettings.dims.top, "Top", imageDims);
+		log.writeDataSet (expRunSettings.dims.bottom, "Bottom", imageDims);
+		log.writeDataSet (expRunSettings.dims.left, "Left", imageDims);
+		log.writeDataSet (expRunSettings.dims.right, "Right", imageDims);
+		log.writeDataSet (expRunSettings.dims.horizontalBinning, "Horizontal-Binning", imageDims);
+		log.writeDataSet (expRunSettings.dims.verticalBinning, "Vertical-Binning", imageDims);
+		log.writeDataSet (expRunSettings.frameRate, "Frame-Rate", baslerGroup);
+		log.writeDataSet (expRunSettings.rawGain, "Raw-Gain", baslerGroup);
+	}
+	catch (H5::Exception err)
+	{
+		log.logError (err);
+		throwNested ("ERROR: Failed to log basler parameters in HDF5 file: " + err.getDetailMsg ());
+	}
+}
+
+void BaslerCameraCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings, Version ("4.0"));
+	expRunSettings.repsPerVar = ProfileSystem::stdConfigGetter ( stream, "REPETITIONS", 
+																 Repetitions::getSettingsFromConfig);
+}
+
+void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+{
+	expRunSettings.variations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());
+	if (experimentActive)
+	{
+		comm.sendPrepareBasler (expRunSettings);
+		comm.sendColorBox (System::Basler, 'G');
+		setBaslserAcqParameters (expRunSettings);
+		armCamera ();
+	}
+}
 

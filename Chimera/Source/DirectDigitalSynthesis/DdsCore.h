@@ -3,6 +3,7 @@
 
 #include "DdsSystemStructures.h"
 #include "GeneralObjects/ExpWrap.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "ConfigurationSystems/Version.h"
 #include "GeneralFlumes/ftdiFlume.h"
 #include "Scripts/ScriptStream.h"
@@ -18,7 +19,7 @@ user programms the dds immediately without running an experiment. It is also the
 needs to be passed to the main experiment thread. This is part of a new attempt to better divide the gui functionality
 from the core functionality and have a more minimal object passed into the main experiment thread.
 */
-class DdsCore
+class DdsCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -27,9 +28,9 @@ class DdsCore
 
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		static std::vector<ddsIndvRampListInfo> getSettingsFromConfig (ConfigStream& file, Version ver );
+		std::vector<ddsIndvRampListInfo> getSettingsFromConfig (ConfigStream& file, Version ver );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file );
-		void writeExperiment ( UINT variationNum );
+		void programVariation ( UINT variationNum, std::vector<parameterType>& params);
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
@@ -38,12 +39,17 @@ class DdsCore
 		void assertDdsValuesValid ( std::vector<parameterType>& params );
 		void evaluateDdsInfo ( std::vector<parameterType> params= std::vector<parameterType>());
 		void forceRampsConsistent ( );
-		void updateRampLists ( std::vector<ddsIndvRampListInfo> rampList );
+		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
 		const std::string configDelim = "DDS_SYSTEM";
+		std::string getDelim () { return configDelim; }
+		void logSettings (DataLogger& log);
+		void loadExpSettings (ConfigStream& stream);
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
-		std::vector<ddsIndvRampListInfo> rampLists;
+		std::vector<ddsIndvRampListInfo> expRampList;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
 		ddsConnectionType::type connType;
 		const UINT MSGLENGTH = 7;

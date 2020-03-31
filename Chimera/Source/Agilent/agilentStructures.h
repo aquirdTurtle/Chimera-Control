@@ -47,7 +47,6 @@ struct minMaxDoublet
 
 struct generalAgilentOutputInfo
 {
-	//std::string load;
 	bool useCal = false;
 };
 
@@ -60,7 +59,7 @@ struct dcInfo : public generalAgilentOutputInfo
 
 struct scriptedArbInfo : public generalAgilentOutputInfo
 {
-	std::string fileAddress = "";
+	Expression fileAddress = "";
 	ScriptedAgilentWaveform wave;
 };
 
@@ -85,8 +84,9 @@ struct sineInfo : public generalAgilentOutputInfo
 
 struct preloadedArbInfo : public generalAgilentOutputInfo
 {
-	std::string address = "";
-	// could add burst settings options, impedance options, etc.
+	// The only reason at this time to make this an expression instead of a normal string is to make sure it gets 
+	// outputted to the config file correctly in case it's empty. 
+	Expression address = "";
 };
 
 

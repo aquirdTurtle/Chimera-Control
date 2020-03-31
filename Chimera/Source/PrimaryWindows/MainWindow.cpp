@@ -529,8 +529,8 @@ BOOL MainWindow::OnInitDialog( )
 	debugger.initialize( id, controlLocation, this, toolTips);
 	texter.initialize( controlLocation, this, id, toolTips);
 
-	menu.LoadMenu( IDR_MAIN_MENU );
-	SetMenu( &menu );
+	//menu.LoadMenu( IDR_MAIN_MENU );
+	//SetMenu( &menu );
 
 	// just initializes the rectangles.
 	andorWin->redrawPictures( true );

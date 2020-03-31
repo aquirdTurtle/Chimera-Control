@@ -42,6 +42,7 @@ struct BaslerAcquisition
 
 struct baslerSettings
 {
+	bool on;
 	unsigned int rawGain;
 	BaslerAutoExposure::mode exposureMode;
 	double exposureTime;

@@ -28,7 +28,6 @@ class MicrowaveSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		MicrowaveCore& getCore ();
 		void handleSaveConfig (ConfigStream& saveFile);
-		static const std::string delim;
 		void setMicrowaveSettings (microwaveSettings settings);
 		void programNow (std::vector<parameterType> constants);
 	private:
