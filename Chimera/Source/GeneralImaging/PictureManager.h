@@ -3,6 +3,7 @@
 #include "PictureControl.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "GeneralObjects/SmartDC.h"
+#include "ConfigurationSystems/Version.h"
 #include <array>
 #include <fstream>
 

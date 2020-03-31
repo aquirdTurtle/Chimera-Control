@@ -18,7 +18,14 @@ struct profileSettings
 	std::string configLocation;
 	std::string configFilePath( )
 	{
-		return configLocation + "\\" + configuration + "." + CONFIG_EXTENSION;
+		if (configLocation[configLocation.size () - 1] == '\\')
+		{
+			return configLocation + configuration + "." + CONFIG_EXTENSION;
+		}
+		else
+		{
+			return configLocation + "\\" + configuration + "." + CONFIG_EXTENSION;
+		}
 	}
 };
 

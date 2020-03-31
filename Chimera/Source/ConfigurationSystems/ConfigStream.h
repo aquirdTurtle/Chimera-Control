@@ -9,30 +9,17 @@ class ConfigStream : public ScriptStream
 	public:
 		ConfigStream () {};
 		explicit ConfigStream(std::ifstream& file);
-		~ConfigStream () {};
+		explicit ConfigStream (std::string, bool isAddress=false);
+		//~ConfigStream () {};
 		ConfigStream& operator>>(std::string& outputString);
 		ConfigStream& operator>>(Expression& expression);
 		template<typename type>
 		ConfigStream& operator>> (type& output);
-		/*
-		ConfigStream& operator<<(std::string& outputString);
-		ConfigStream& operator<<(Expression& expression);
-		template<typename type>
-		ConfigStream& operator<< (type& output);
-		*/
-		/*
-		ConfigStream& operator>>(Expression& expr);
-		ConfigStream& operator<<(Expression& expr);
-		ConfigStream& operator>>(std::string& txt);
-		ConfigStream& operator<<(std::string& txt);
-		template<typename type>
-		ConfigStream& operator>> (type& output);
-		//template<typename type>
-		//ConfigStream& operator<< (type& input);
-		using std::stringstream::operator<<;
-		*/
-	private:
-		//std::string emptyStringText = "\"!#EMPTY_STRING#!\"";
+		std::string getline ();
+		std::string getline (char delim);
+		static std::string emptyStringTxt;
+private:
+		std::string streamText;
 };
 
 template<typename type>

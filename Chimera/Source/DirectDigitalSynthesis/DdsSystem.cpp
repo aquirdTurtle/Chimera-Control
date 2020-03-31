@@ -209,16 +209,15 @@ void DdsSystem::deleteRampVariable ( )
 }
 
 
-void DdsSystem::programNow ( )
+void DdsSystem::programNow ( std::vector<parameterType>& constants )
 {
 	try
 	{
 		std::vector<ddsIndvRampListInfo> simpleExp;
 		simpleExp = currentRamps;
-		core.updateRampLists ( simpleExp );
 		core.evaluateDdsInfo ( );
 		core.generateFullExpInfo ( 1 );
-		core.writeExperiment ( 0 );
+		core.programVariation ( 0, constants);
 	}
 	catch ( Error& )
 	{

@@ -306,7 +306,7 @@ void DoCore::sizeDataStructures (UINT variations)
 /*
  * Read key values from variables and convert command form to the final commands.
  */
-void DoCore::interpretKey (std::vector<parameterType>& params)
+void DoCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
 {
 	UINT variations = params.size () == 0 ? 1 : params.front ().keyValues.size ();
 	if (variations == 0)
@@ -335,6 +335,7 @@ void DoCore::interpretKey (std::vector<parameterType>& params)
 			dioCommandForm.timeVals[variationNum] = variableTime + dioCommandForm.time.second;
 		}
 	}
+	restructureCommands ();
 }
 
 std::vector<double> DoCore::getFinalTimes ()
@@ -755,4 +756,12 @@ void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::st
 {
 	// use an empty expression.
 	handleTtlScriptCommand (command, time, name, Expression (), vars, scope);
+}
+
+void DoCore::standardExperimentPrep (UINT variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams)
+{
+	organizeTtlCommands (variationInc);
+	findLoadSkipSnapshots (currLoadSkipTime, expParams, variationInc);
+	convertToFtdiSnaps (variationInc);
+	convertToFinalFtdiFormat (variationInc);
 }

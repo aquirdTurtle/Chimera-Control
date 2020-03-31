@@ -1,12 +1,14 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "CustomMfcControlWrappers/myButton.h"
+
 #include "Plotting/dataPoint.h"
-#include <vector>
-#include <memory>
 #include "GeneralImaging/memdc.h"
 #include "gdiplus.h"
+
 #include <mutex>
+#include <vector>
+#include <memory>
 
 enum class plotStyle
 {

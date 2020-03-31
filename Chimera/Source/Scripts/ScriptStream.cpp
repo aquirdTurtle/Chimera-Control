@@ -70,6 +70,7 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	auto posFin = tempStream.tellg ();
 	seekg(posFin);
 	auto peekpos = peek ();
+	lastOutput = outputString;
 	return *this;
 }
 
@@ -130,6 +131,7 @@ std::string ScriptStream::getline(char delim)
 			pos = line.find( arg.first );
 		}
 	}
+	lastOutput = line;
 	return line;
 }
 
@@ -242,6 +244,7 @@ void ScriptStream::eatComments()
 	{
 		seekg( -1, SEEK_CUR );
 	}
+	lastComment = comment;
 }
 
 void ScriptStream::setCase (bool alwaysLowerCase_)

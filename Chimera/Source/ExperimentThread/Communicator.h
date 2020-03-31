@@ -56,6 +56,11 @@ class Communicator
 		void sendExperimentProcedureFinish ( );
 
 		void sendAutoServo( );
+		bool expQuiet=false;
+
+		void expUpdate (std::string updateTxt);
+		std::string warnings;
+		std::string debugStr;
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;

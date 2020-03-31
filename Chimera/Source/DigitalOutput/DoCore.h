@@ -2,6 +2,7 @@
 #include "GeneralFlumes/ftdiFlume.h"
 #include "GeneralFlumes/WinSerialFlume.h"
 #include "GeneralFlumes/ftdiStructures.h"
+#include "ExperimentThread/Communicator.h"
 #include "GeneralObjects/ExpWrap.h"
 #include "Plotting/PlotCtrl.h"
 
@@ -36,7 +37,7 @@ class DoCore
 		void ttlOnDirect (UINT row, UINT column, double timev, UINT variation);
 		void ttlOffDirect (UINT row, UINT column, double timev, UINT variation);
 		void sizeDataStructures (UINT variations);
-		void interpretKey (std::vector<parameterType>& params);
+		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
 		void fillPlotData (UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData);
 		std::string getTtlSequenceMessage (UINT variation);
 		std::vector<double> getFinalTimes ();
@@ -65,6 +66,7 @@ class DoCore
 			std::vector<parameterType>& vars, std::string scope);
 		void setNames (Matrix<std::string> namesIn);
 		Matrix<std::string> getAllNames ();
+		void standardExperimentPrep (UINT variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams);
 	private:
 		ftdiConnectionOption connectType;
 		ftdiFlume ftFlume;

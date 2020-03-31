@@ -5,7 +5,7 @@
 #include "NIAWG/NiawgStructures.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
 #include "NIAWG/NiawgWaiter.h"
-
+#include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "GeneralObjects/Matrix.h"
 #include <boost/algorithm/string/replace.hpp>
@@ -154,33 +154,25 @@ niawgPair<ULONG> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> target )
 }
 
 
-void NiawgCore::programNiawg( ExperimentThreadInput* input, NiawgOutput& output, std::string& warnings,
-							  UINT variation, UINT totalVariations, std::vector<ViChar>& userScriptSubmit, 
-							  rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui, 
+void NiawgCore::programNiawg( std::string& warnings, UINT variation, rerngGuiOptionsForm& rerngGuiForm, 
 							  std::vector<parameterType>& expParams )
 {
 	std::vector<long> variedMixedSize;
-	input->comm.sendColorBox( System::Niawg, 'Y' );
-	input->niawg.handleVariations( output, expParams, variation, variedMixedSize, warnings, input->debugOptions,
-									totalVariations, rerngGuiForm, rerngGui );
-	if ( input->dontActuallyGenerate ) { return; }
-
+	handleVariations( expOutput, expParams, variation, variedMixedSize, warnings, rerngGuiForm );
 	// Restart Waveform
-	input->niawg.turnOff( );
-	input->niawg.programVariations( variation, variedMixedSize, output );
-	//input->niawg->finalizeScript ( );
-	input->niawg.fgenConduit.writeScript( userScriptSubmit );
-	input->niawg.fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
+	turnOff( );
+	programVariations( variation, variedMixedSize, expOutput );
+	fgenConduit.writeScript( niawgMachineScript );
+	fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
 	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
 	// initial waveform until the master sends it a trigger.
-	input->niawg.turnOn( );
-	for ( UINT waveInc = 2; waveInc < output.waves.size( ); waveInc++ )
+	turnOn( );
+	for ( UINT waveInc = 2; waveInc < expOutput.waves.size( ); waveInc++ )
 	{
-		output.waves[waveInc].core.waveVals.clear( );
-		output.waves[waveInc].core.waveVals.shrink_to_fit( );
+		expOutput.waves[waveInc].core.waveVals.clear( );
+		expOutput.waves[waveInc].core.waveVals.shrink_to_fit( );
 	}
 	variedMixedSize.clear( );
-	input->comm.sendColorBox( System::Niawg, 'G' );
 }
 
 
@@ -203,11 +195,11 @@ void NiawgCore::initForExperiment ( )
 }
 
 // this function checks if should be rearranging and if so starts the thread.
-void NiawgCore::handleStartingRerng( ExperimentThreadInput* input, NiawgOutput& output )
+void NiawgCore::handleStartingRerng( ExperimentThreadInput* input)
 {
 	bool foundRearrangement = false;
 	// check if any waveforms are rearrangement instructions.
-	for ( auto& wave : output.waves )
+	for ( auto& wave : expOutput.waves )
 	{
 		if ( wave.rearrange.isRearrangement )
 		{
@@ -221,14 +213,14 @@ void NiawgCore::handleStartingRerng( ExperimentThreadInput* input, NiawgOutput& 
 			// start rearrangement thread. Give the thread the queue.
 			input->niawg.startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
 											input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
-											input->rerngGui, input->analysisGrid );
+											expRerngGui, input->analysisGrid );
 		}
 	}
-	if ( input->rerngGui.active && !foundRearrangement )
+	if (expRerngGui.active && !foundRearrangement )
 	{
 		thrower ( "system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 	}
-	else if ( !input->rerngGui.active && foundRearrangement )
+	else if ( !expRerngGui.active && foundRearrangement )
 	{
 		thrower ( "System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
 	}
@@ -268,17 +260,15 @@ void NiawgCore::setDefaultWaveforms( )
 	NiawgOutput output;
 	output.isDefault = true;
 	///	Load Default Waveforms
-	debugInfo debug;
 	std::string warnings;
-	profileSettings profile;
 	try
 	{
-		ScriptStream script;
-		script << configFile.rdbuf( );
+		expNiawgStream.clear ();
+		expNiawgStream << configFile.rdbuf( );
 		rerngGuiOptionsForm rInfoDummy;
 		rInfoDummy.moveSpeed.expressionStr = str(0.00006);
-		analyzeNiawgScript( script, output, profile, debug, warnings, rInfoDummy, std::vector<parameterType>() );
-		writeStaticNiawg( output, debug, std::vector<parameterType>( ) );
+		analyzeNiawgScript (output, warnings, rInfoDummy, std::vector<parameterType> ()); 
+		writeStaticNiawg( output, std::vector<parameterType>( ) );
 		output.niawgLanguageScript.insert ( 0, "script DefaultConfigScript\n" );
 		output.niawgLanguageScript += "end Script";
 		// Convert script string to ViConstString. +1 for a null character on the end.
@@ -293,22 +283,21 @@ void NiawgCore::setDefaultWaveforms( )
 	{
 		errBox( "Warnings detected during initial default waveform script analysis: " + warnings );
 	}
-	if (debug.message != "")
+	if (debugMsg != "")
 	{
-		errBox( "Debug messages detected during initial default waveform script analysis: " + debug.message );
+		errBox( "Debug messages detected during initial default waveform script analysis: " + debugMsg );
 	}
 }
 
 
 // this is to be run at the end of the experiment procedure.
-void NiawgCore::cleanupNiawg( profileSettings profile, bool masterWasRunning, 
-									NiawgOutput& output, Communicator& comm, bool dontGenerate )
+void NiawgCore::cleanupNiawg( bool masterWasRunning, Communicator& comm)
 {
 	if ( !masterWasRunning )
 	{
 		// this has got to be overkill...
 		NiawgWaiter waiter;
-		waiter.startWaitThread( this, profile );
+		waiter.startWaitThread( this );
 		waiter.wait( comm );
 	}
 	else
@@ -319,22 +308,17 @@ void NiawgCore::cleanupNiawg( profileSettings profile, bool masterWasRunning,
 		}
 		catch ( Error& ) {}
 	}
-	// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
-	// haven't tested in a long time but has never been an issue.))
-	for ( UINT waveformInc = 2; waveformInc < output.waves.size( ); waveformInc++ )
+	for ( UINT waveformInc = 2; waveformInc < expOutput.waves.size( ); waveformInc++ )
 	{
 		// wave name is set by size of waves vector, size is not zero-indexed.
 		// name can be empty for some special cases like re-arrangement waves.
-		if ( output.waves[waveformInc].core.name != "" )
+		if (expOutput.waves[waveformInc].core.name != "" )
 		{
-			fgenConduit.deleteWaveform( cstr( output.waves[waveformInc].core.name ) );
+			fgenConduit.deleteWaveform( cstr(expOutput.waves[waveformInc].core.name ) );
 		}
 	}
-	if ( !dontGenerate )
-	{
-		fgenConduit.deleteScript( "experimentScript" );
-	}
-	for ( auto& wave : output.waves )
+	fgenConduit.deleteScript( "experimentScript" );
+	for ( auto& wave : expOutput.waves )
 	{
 		wave.core.waveVals.clear( );
 		wave.core.waveVals.shrink_to_fit( );
@@ -415,42 +399,38 @@ void NiawgCore::programVariations( UINT variation, std::vector<long>& variedMixe
 	}
 }
 
-
-
-void NiawgCore::analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile, 
-										  debugInfo& options, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo, 
-										  std::vector<parameterType>& variables )
+void NiawgCore::analyzeNiawgScript( NiawgOutput& output, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo, 
+									std::vector<parameterType>& variables )
 {
 	/// Preparation
-	currentScript = script.str( );
-	script.clear();
-	script.seekg( 0, std::ios::beg );
+	currentScript = expNiawgStream.str( );
+	expNiawgStream.clear();
+	expNiawgStream.seekg( 0, std::ios::beg );
 	std::string command;
-	// get the first command
-	script >> command;
 	/// Analyze!
+	expNiawgStream >> command;
 	std::vector<vectorizedNiawgVals> vectorizedVals;
-	while ( script.peek( ) != EOF )
+	while (expNiawgStream.peek( ) != EOF )
 	{
-		if ( ExperimentThreadManager::handleVariableDeclaration ( command, script, variables, "niawg", warnings ) )
+		if ( ExperimentThreadManager::handleVariableDeclaration ( command, expNiawgStream, variables, "niawg", warnings ) )
 		{}
-		else if ( ExperimentThreadManager::handleVectorizedValsDeclaration( command, script, vectorizedVals, warnings ) )
+		else if ( ExperimentThreadManager::handleVectorizedValsDeclaration( command, expNiawgStream, vectorizedVals, warnings ) )
 		{}
 		else if ( isLogic( command ) )
 		{
-			handleLogic( script, command, output.niawgLanguageScript );
+			handleLogic(expNiawgStream, command, output.niawgLanguageScript );
 		}
 		else if ( isSpecialCommand( command ) )
 		{
-			handleSpecial( script, output, command, profile, options, warnings );
+			handleSpecial(expNiawgStream, output, command);
 		}
 		else if ( isStandardWaveform( command ) )
 		{
-			handleStandardWaveform( output, command, script, variables, vectorizedVals );
+			handleStandardWaveform( output, command, expNiawgStream, variables, vectorizedVals );
 		}
 		else if ( isSpecialWaveform( command ) )
 		{
-			handleSpecialWaveform( output, profile, command, script, options, rerngGuiInfo, variables, vectorizedVals );
+			handleSpecialWaveform( output, command, expNiawgStream, rerngGuiInfo, variables, vectorizedVals );
 		}
 		else
 		{
@@ -459,14 +439,14 @@ void NiawgCore::analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, p
 					 "The inputted command is: \"" + command + "\" for waveform #" 
 					 + str( output.waveFormInfo.size( ) - 1 ) + "!" );
 		}
-		script >> command;
+		expNiawgStream >> command;
 	}
 	output.waves.resize( output.waveFormInfo.size( ) );
 }
 
 
-void NiawgCore::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<parameterType>& constants,
-										bool deleteWaveAfterWrite, niawgLibOption::mode libOption )
+void NiawgCore::writeStaticNiawg( NiawgOutput& output, std::vector<parameterType>& constants,
+								  bool deleteWaveAfterWrite, niawgLibOption::mode libOption )
 {
 	for ( auto waveInc : range( output.waveFormInfo.size()) )
 	{
@@ -484,7 +464,7 @@ void NiawgCore::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::
 			if ( !waveForm.core.varies )
 			{
 				flashFormToOutput( waveForm, wave, constants, 0 );
-				writeFlashing( wave, options, 0 );
+				writeFlashing( wave, 0 );
 			}
 		}
 		else if ( waveForm.rearrange.isRearrangement )
@@ -496,8 +476,8 @@ void NiawgCore::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::
 			{
 				rerngScriptInfoFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
-				finalizeStandardWave( wave.rearrange.staticWave, options );
-				finalizeStandardWave( wave.rearrange.fillerWave, options );
+				finalizeStandardWave( wave.rearrange.staticWave);
+				finalizeStandardWave( wave.rearrange.fillerWave);
 			}
 			else
 			{
@@ -512,7 +492,7 @@ void NiawgCore::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::
 			{
 				simpleFormToOutput( waveForm.core, wave.core, constants, 0 );
 				handleMinus1Phase( wave.core, prevWave.core );
-				writeStandardWave( wave.core, options, output.isDefault, libOption );
+				writeStandardWave( wave.core, output.isDefault, libOption );
 				if ( deleteWaveAfterWrite )
 				{
 					deleteWaveData( wave.core );
@@ -608,12 +588,12 @@ void NiawgCore::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave,
 }
 
 
-void NiawgCore::writeStandardWave(simpleWave& wave, debugInfo& options, bool isDefault, niawgLibOption::mode libOption )
+void NiawgCore::writeStandardWave(simpleWave& wave, bool isDefault, niawgLibOption::mode libOption )
 {
 	// prepare the waveforms
 	niawgWaveCalcOptions opts;
 	opts.libOpt = libOption;
-	finalizeStandardWave( wave, options, opts );
+	finalizeStandardWave( wave, opts );
 	// allocate waveform into the device memory
 	fgenConduit.allocateNamedWaveform( cstr( wave.name ), wave.waveVals.size( ) / 2 );
 	// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
@@ -627,9 +607,9 @@ void NiawgCore::writeStandardWave(simpleWave& wave, debugInfo& options, bool isD
 }
 
 
-void NiawgCore::handleSpecialWaveform( NiawgOutput& output, profileSettings profile, std::string cmd,
-													   ScriptStream& script, debugInfo& options, rerngGuiOptionsForm rerngGuiInfo,
-													   std::vector<parameterType>& variables, std::vector<vectorizedNiawgVals>& vectorizedVals )
+void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script, 
+									   rerngGuiOptionsForm rerngGuiInfo, std::vector<parameterType>& variables, 
+									   std::vector<vectorizedNiawgVals>& vectorizedVals )
 {
 	if ( cmd == "flash" )
 	{
@@ -905,10 +885,11 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, profileSettings prof
 
 
 void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType>& variables, UINT variation, 
-								  std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
-								  UINT totalVariations, rerngGuiOptionsForm& rerngGuiForm, rerngGuiOptions& rerngGui )
+								  std::vector<long>& mixedWaveSizes, std::string& warnings, 
+								  rerngGuiOptionsForm& rerngGuiForm )
 {
-	rerngGuiOptionsFormToFinal( rerngGuiForm, rerngGui, variables, variation );
+	UINT totalVaraitions = ExperimentThreadManager::determineVariationNumber (variables);
+	rerngGuiOptionsFormToFinal( rerngGuiForm, variables, totalVaraitions);
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
@@ -922,7 +903,7 @@ void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType
 			if ( waveForm.flash.isFlashing )
 			{
 				flashFormToOutput( waveForm, wave, variables, variation );
-				writeFlashing( wave, debugOptions, variation );
+				writeFlashing( wave, variation );
 			}
 			else if ( waveForm.rearrange.isRearrangement )
 			{
@@ -940,7 +921,7 @@ void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType
 					auto& prevWave = output.waves[waveInc - 1];
 					handleMinus1Phase(wave.core, prevWave.core);
 				}
-				writeStandardWave( wave.core, debugOptions, output.isDefault );
+				writeStandardWave( wave.core, output.isDefault );
 				deleteWaveData( wave.core );
 			}
 			mixedWaveSizes.push_back( 2 * wave.core.sampleNum() );
@@ -1052,16 +1033,15 @@ void NiawgCore::openWaveformFiles()
  * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
  * it is written to a new file.
  */
-void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
-										 niawgWaveCalcOptions calcOpts )
+void NiawgCore::generateWaveform ( channelWave & chanWave, long int sampleNum, double waveTime, niawgWaveCalcOptions calcOpts )
 {
-	generateWaveform ( chanWave, options, sampleNum, waveTime, this->waveLibrary, calcOpts );
+	generateWaveform ( chanWave, sampleNum, waveTime, this->waveLibrary, calcOpts );
 };
 
 
-void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptions, long int sampleNum, double waveTime,
-										 std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
-										 niawgWaveCalcOptions calcOpts )
+void NiawgCore::generateWaveform ( channelWave & chanWave, long int sampleNum, double waveTime,
+								   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+								   niawgWaveCalcOptions calcOpts )
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
@@ -1120,11 +1100,11 @@ void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptio
 				// make sure the large amount of memory is deallocated.
 				readData.shrink_to_fit ( );
 				waveformFileRead.close ( );
-				if ( debugOptions.showReadProgress )
+				if ( outputReadTimes )
 				{
 					std::chrono::time_point<chronoClock> time2 ( chronoClock::now ( ) );
 					double ellapsedTime ( std::chrono::duration<double> ( ( time2 - time1 ) ).count ( ) );
-					debugOptions.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
+					debugMsg += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
 				}
 				// if the file got read, I don't need to do any writing, so go ahead and return.
 				return;
@@ -1189,11 +1169,11 @@ void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptio
 			libNameFile.write ( cstr ( waveformFileSpecs ), waveformFileSpecs.size ( ) );
 			libNameFile.close ( );
 		}
-		if ( debugOptions.showWriteProgress )
+		if (outputWriteTimes)
 		{
 			std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
 			double ellapsedTime = std::chrono::duration<double>( time2 - time1 ).count( );
-			debugOptions.message += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
+			debugMsg += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
 		}
 	}
 }
@@ -1282,8 +1262,7 @@ void NiawgCore::handleLogic( ScriptStream& script, std::string cmd, std::string 
 }
 
 
-void NiawgCore::handleSpecial( ScriptStream& script, NiawgOutput& output, std::string cmd, 
-											   profileSettings profile, debugInfo& options, std::string& warnings )
+void NiawgCore::handleSpecial( ScriptStream& script, NiawgOutput& output, std::string cmd)
 {
 	// work with marker events
 	if ( cmd == "create marker event" )
@@ -2196,7 +2175,7 @@ void NiawgCore::flashVaries( waveInfoForm& wave )
 }
 
 
-void NiawgCore::writeFlashing( waveInfo& wave, debugInfo& options, UINT variation )
+void NiawgCore::writeFlashing( waveInfo& wave, UINT variation )
 {
 	/// get waveforms to flash.
 	/// load these waveforms into the flashing info	
@@ -2205,7 +2184,7 @@ void NiawgCore::writeFlashing( waveInfo& wave, debugInfo& options, UINT variatio
 	{
 		wave.core.time += flashWave.time;
 	}
-	createFlashingWave( wave, options );
+	createFlashingWave( wave );
 	if ( variation != 0 )
 	{
 		fgenConduit.deleteWaveform( cstr( wave.core.name ) );
@@ -2240,12 +2219,12 @@ void NiawgCore::streamRerng()
 
 
 // calculates the data, mixes it, and cleans up the calculated data.
-void NiawgCore::finalizeStandardWave( simpleWave& wave, debugInfo& options, niawgWaveCalcOptions calcOpts )
+void NiawgCore::finalizeStandardWave( simpleWave& wave, niawgWaveCalcOptions calcOpts )
 {
 	// prepare each channel
-	generateWaveform ( wave.chan[ Axes::Horizontal ], options, wave.sampleNum(), wave.time, calcOpts );
-	generateWaveform ( wave.chan[ Axes::Vertical ], options, wave.sampleNum(), wave.time, calcOpts );
-	mixWaveforms( wave, options.outputNiawgWavesToText );
+	generateWaveform ( wave.chan[ Axes::Horizontal ], wave.sampleNum(), wave.time, calcOpts );
+	generateWaveform ( wave.chan[ Axes::Vertical ], wave.sampleNum(), wave.time, calcOpts );
+	mixWaveforms( wave, outputAsText);
 	// clear channel data, no longer needed.
 	wave.chan[Axes::Vertical].wave.clear( );
 	// not sure if shrink_to_fit is necessary, but might help with mem management.
@@ -2262,7 +2241,7 @@ void NiawgCore::setDefaultWaveformScript( )
 }
 
 
-void NiawgCore::createFlashingWave( waveInfo& wave, debugInfo& options )
+void NiawgCore::createFlashingWave( waveInfo& wave )
 {
 	/// quick check
 	if ( !wave.flash.isFlashing )
@@ -2273,7 +2252,7 @@ void NiawgCore::createFlashingWave( waveInfo& wave, debugInfo& options )
 	/// create the data for each wave that's gonna be flashed between.
 	for ( UINT waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++ )
 	{
-		finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
+		finalizeStandardWave( wave.flash.flashWaves[waveInc] );
 	}
 	double staticMovingRatio = 1;
 	if ( wave.flash.flashWaves.size( ) <= 2 )
@@ -2753,10 +2732,10 @@ void NiawgCore::preWriteRerngWaveforms( rerngThreadInput* input )
 			rerngMove flashMove, noFlashMove;
 			flashMove.col = col;
 			flashMove.row = row;
-			flashMove.staticMovingRatio = input->guiOptions.staticMovingRatio;
-			flashMove.deadTime = input->guiOptions.deadTime;
-			flashMove.moveTime = input->guiOptions.moveSpeed;
-			flashMove.moveBias = input->guiOptions.moveBias;
+			flashMove.staticMovingRatio = input->guiOptions.staticMovingRatio.getValue(0);
+			flashMove.deadTime = input->guiOptions.deadTime.getValue (0);
+			flashMove.moveTime = input->guiOptions.moveSpeed.getValue (0);
+			flashMove.moveBias = input->guiOptions.moveBias.getValue (0);
 			noFlashMove = flashMove;
 			complexMove flashMoveInfo;
 			flashMoveInfo.locationsToMove.resize( 1 );
@@ -2822,7 +2801,7 @@ void NiawgCore::preWriteRerngWaveforms( rerngThreadInput* input )
 	Has not been updated with the off-grid dump functionality.
 */
 std::vector<double> NiawgCore::makeFastRerngWave( rerngScriptInfo& rerngSettings, UINT sourceRows, UINT sourceCols,
-														complexMove moveInfo, rerngGuiOptions options, double moveBias )
+												  complexMove moveInfo, rerngGuiOptionsForm options, double moveBias )
 {
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
@@ -2838,7 +2817,7 @@ std::vector<double> NiawgCore::makeFastRerngWave( rerngScriptInfo& rerngSettings
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
 	// needs to match correctly the static waveform.
-	moveWave.time = options.fastMoveTime;
+	moveWave.time = options.fastMoveTime.getValue(0);
 	//moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 
 	double movingFrac = moveBias;
@@ -2996,10 +2975,10 @@ std::vector<double> NiawgCore::makeFastRerngWave( rerngScriptInfo& rerngSettings
 				sig.initPower = fin;
 			}
 		}
-		finalizeStandardWave( initRampWave, debugInfo( ));
-		finalizeStandardWave( finRampWave, debugInfo( ));
+		finalizeStandardWave( initRampWave);
+		finalizeStandardWave( finRampWave);
 	}
-	finalizeStandardWave( moveWave, debugInfo( ) );
+	finalizeStandardWave( moveWave);
 	/// Combine waves. 4 parts.
 	// if the amp ramp is turned off above (if (false)) then the ramp vectors are empty and inserting them causes no harm.
 	auto waveVals = initRampWave.waveVals;
@@ -3143,7 +3122,7 @@ simpleWave NiawgCore::makeRerngWaveMovePart ( rerngScriptInfo& rerngSettings, do
 		}
 	}
 	/// finalize info & calculate things
-	finalizeStandardWave ( moveWave, debugInfo ( ) );
+	finalizeStandardWave ( moveWave );
 	return moveWave;
 }
 
@@ -3177,41 +3156,35 @@ std::vector<double> NiawgCore::makeFullRerngWave( rerngScriptInfo& rerngSettings
 	return flashMove.core.waveVals;
 }
 
-
-void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, rerngGuiOptions& data, 
-											      std::vector<parameterType>& variables, UINT variation )
+void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form,
+											std::vector<parameterType>& variables, UINT variation )
 {
+	auto variations = ExperimentThreadManager::determineVariationNumber (variables);
 	if (!form.active)
 	{
 		return;
 	}
 	try
 	{
-		data.active = form.active;
-		data.deadTime = form.deadTime.evaluate ( variables, variation ) * 1e-9;
-		data.flashingRate = form.flashingRate.evaluate ( variables, variation ) * 1e6;
-		data.moveBias = form.moveBias.evaluate ( variables, variation );
-		data.moveSpeed = form.moveSpeed.evaluate ( variables, variation ) * 1e-3;
-		data.staticMovingRatio = form.staticMovingRatio.evaluate ( variables, variation );
-		data.finalMoveTime = form.finalMoveTime.evaluate ( variables, variation ) * 1e-3;
+		form.active;
+		form.deadTime.internalEvaluate (variables, variations);// * 1e-9;
+		form.flashingRate.internalEvaluate (variables, variations);// * 1e6;
+		form.moveBias.internalEvaluate ( variables, variations);
+		form.moveSpeed.internalEvaluate (variables, variations);// *1e-3;
+		form.staticMovingRatio.internalEvaluate ( variables, variations);//
+		form.finalMoveTime.internalEvaluate (variables, variations);// *1e-3;
 	}
 	catch ( Error& )
 	{
 		throwNested ( "Error seen while trying to evaluate the rearrangement gui option forms" );
 	}
-	//
-	data.outputIndv = form.outputIndv;
-	data.outputInfo = form.outputInfo;
-	data.preprogram = form.preprogram;
-	data.useCalibration = form.useCalibration;
-	data.rMode = form.rMode;
 }
 
 
 void NiawgCore::startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator& comm, 
-										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
-										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
-										rerngGuiOptions guiOptions, atomGrid grid )
+								  std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
+								  chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
+								  rerngGuiOptionsForm guiOptions, atomGrid grid )
 {
 	threadStateSignal = true;
 	rerngThreadInput* input = new rerngThreadInput( grid.height, grid.width, comm);
@@ -3307,8 +3280,8 @@ std::vector<double> NiawgCore::calcFinalPositionMove( niawgPair<ULONG> targetPos
 			count++;
 		}
 	}
-	finalizeStandardWave( moveWave, debugInfo( ) );
-	finalizeStandardWave ( waitWave, debugInfo ( ) );
+	finalizeStandardWave( moveWave );
+	finalizeStandardWave ( waitWave );
 	std::vector<double> vals ( waitWave.waveVals );
 	vals.insert ( vals.end ( ), moveWave.waveVals.begin ( ), moveWave.waveVals.end ( ) );
 	return vals;
@@ -3501,8 +3474,8 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 			}
 			startCalc.push_back ( chronoClock::now ( ) );
 			rerngScriptInfo& info = input->rerngWave->rearrange;
-			info.timePerMove = input->guiOptions.moveSpeed;
-			info.flashingFreq = input->guiOptions.flashingRate;
+			info.timePerMove = input->guiOptions.moveSpeed.getValue (0);
+			info.flashingFreq = input->guiOptions.flashingRate.getValue (0);
 
 			Matrix<bool> source ( input->sourceRows, input->sourceCols, 0 );
 			UINT count = 0;
@@ -3595,7 +3568,7 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 						count++;
 					}
 				}
-				input->niawg->finalizeStandardWave ( rampUpWave, debugInfo ( ) );
+				input->niawg->finalizeStandardWave ( rampUpWave );
 				std::vector<double> vals_ru ( rampUpWave.waveVals );
 				input->niawg->rerngWaveVals.insert ( input->niawg->rerngWaveVals.end ( ), vals_ru.begin ( ), vals_ru.end ( ) );
 				
@@ -3625,7 +3598,7 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 						count++;
 					}
 				}
-				input->niawg->finalizeStandardWave ( holdWave, debugInfo ( ) );
+				input->niawg->finalizeStandardWave ( holdWave );
 				std::vector<double> vals_hold ( holdWave.waveVals );
 				for ( auto i : range ( 50 ) )
 				{
@@ -3684,7 +3657,7 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 						count++;
 					}
 				}
-				input->niawg->finalizeStandardWave ( moveWave, debugInfo ( ) );
+				input->niawg->finalizeStandardWave ( moveWave );
 				std::vector<double> vals_move ( moveWave.waveVals );
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end ( ), vals_move.begin ( ),
 													vals_move.end ( ) ); 
@@ -3717,7 +3690,7 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 					else
 					{
 						double bias = input->guiOptions.useCalibration ?
-							calBias ( row, col, move.moveDir ) : input->guiOptions.moveBias;
+							calBias ( row, col, move.moveDir ) : input->guiOptions.moveBias.getValue (0);
 						if ( move.needsFlash )
 						{
 							bias *= move.locationsToMove.size ( );
@@ -3733,8 +3706,8 @@ UINT __stdcall NiawgCore::rerngThreadProcedure( void* voidInput )
 						}
 						else
 						{
-							vals = input->niawg->makeFullRerngWave ( info, input->guiOptions.staticMovingRatio, bias,
-																	 input->guiOptions.deadTime, input->sourceRows,
+							vals = input->niawg->makeFullRerngWave ( info, input->guiOptions.staticMovingRatio.getValue (0), bias,
+																	 input->guiOptions.deadTime.getValue (0), input->sourceRows,
 																	 input->sourceCols, move );
 						}
 					}
@@ -3892,8 +3865,9 @@ Matrix<bool> NiawgCore::calculateFinalTarget ( Matrix<bool> target, niawgPair<UL
 
 
 void NiawgCore::smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
-												    niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveSequence, 
-												    rerngGuiOptions options, bool randomize, bool orderMovesByProximityToTarget )
+											  niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveSequence, 
+											  rerngGuiOptionsForm options, bool randomize, 
+											  bool orderMovesByProximityToTarget )
 {
 	std::vector<simpleMove> moveList;
 	Matrix<bool> finTarget(source.getRows(), source.getCols(), 0);
@@ -4458,7 +4432,7 @@ std::vector<std::string> NiawgCore::evolveSource( Matrix<bool> source, std::vect
 	Handles parallelizing moves and determining if flashing is necessary for moves or not. The parallelizing part of this is very tricky.
 */
 void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> origSource, 
-									 std::vector<complexMove> &flashMoves, rerngGuiOptions options )
+							   std::vector<complexMove> &flashMoves, rerngGuiOptionsForm options )
 {
 	Matrix<bool> runningSource = origSource;
 	// convert all single moves into complex moves.
@@ -4760,3 +4734,101 @@ bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile, Version ver)
 	}
 	return opt;
 }
+
+void NiawgCore::logSettings (DataLogger& log)
+{
+	H5::Group niawgGroup (log.file.createGroup ("/NIAWG"));
+	log.writeDataSet (experimentActive, "Run-NIAWG", niawgGroup);
+	if (experimentActive)
+	{
+		UINT seqInc = 0;
+		log.writeDataSet (expNiawgStream.str (), "Seq. " + str (seqInc + 1) + " NIAWG-Script", niawgGroup);
+		seqInc++;
+		log.writeDataSet (NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup);
+		log.writeDataSet (NIAWG_GAIN, "NIAWG-Gain", niawgGroup);
+	}
+	else
+	{
+		log.writeDataSet ("", "NA:NIAWG-Script", niawgGroup);
+		log.writeDataSet (-1, "NA:NIAWG-Sample-Rate", niawgGroup);
+		log.writeDataSet (-1, "NA:NIAWG-Gain", niawgGroup);
+	}
+}
+
+void NiawgCore::loadExpSettings (ConfigStream& stream)
+{
+	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
+	// now, but might cause slight breakages...
+	expOutput.waves.resize (2);
+	ProfileSystem::stdGetFromConfig (stream, *this, experimentActive, Version ("4.12"));	
+	if (experimentActive)
+	{
+		expNiawgScript = ProfileSystem::getNiawgScriptAddrFromConfig (stream);
+		ExperimentThreadManager::loadNiawgScript (expNiawgScript, expNiawgStream);
+		initForExperiment ();
+	}
+	niawgMachineScript = std::vector<ViChar>();
+	expRepetitions = ProfileSystem::stdConfigGetter (stream, "REPETITIONS", Repetitions::getSettingsFromConfig);
+}
+
+void NiawgCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+{
+	if (experimentActive)
+	{
+		analyzeNiawgScript (expOutput, comm.warnings, expRerngGui, params);
+		finalizeScript (expRepetitions, "experimentScript", expOutput.niawgLanguageScript, niawgMachineScript,
+						 !outputVaries (expOutput) );
+		if (outputNiawgMachineScript)
+		{
+			std::string debugStr = "NIAWG Machine Script:\n"
+				+ std::string (niawgMachineScript.begin (), niawgMachineScript.end ()) + "\n\n";
+			debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
+			boost::replace_all (debugStr, "\n", "\r\n");
+			comm.sendDebug (debugStr);
+		}		
+		if (outputNiawgHumanScript)
+		{
+			std::string debugStr = "Human Script: " + expNiawgStream.str () + "\n\n";
+			debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
+			boost::replace_all (debugStr, "\n", "\r\n");
+			comm.sendDebug (debugStr);
+		}
+		writeStaticNiawg (expOutput, params); 
+	}
+}
+
+void NiawgCore::programVariation (UINT varInc, std::vector<parameterType>& params)
+{
+	std::string TODO_WARNINGS;
+	if (experimentActive)
+	{
+		programNiawg (TODO_WARNINGS, varInc, expRerngGui, params);
+		if (expRerngGui.active)
+		{
+			turnOffRerng ();
+			//input->conditionVariableForRerng->notify_all ();
+			waitForRerng (false);
+			//handleStartingRerng (input);
+		}
+	}
+}
+
+void NiawgCore::normalFinish () 
+{
+	if (experimentActive)
+	{
+		//cleanupNiawg (runMaster, comm);
+	}
+};
+
+void NiawgCore::errorFinish () 
+{
+	if (experimentActive)
+	{
+		for (auto& wave : expOutput.waves)
+		{
+			wave.core.waveVals.clear ();
+			wave.core.waveVals.shrink_to_fit ();
+		}
+	}
+};

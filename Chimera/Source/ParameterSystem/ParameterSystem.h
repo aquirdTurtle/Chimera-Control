@@ -65,7 +65,7 @@ class ParameterSystem
 		void saveParameter (ConfigStream& saveFile, parameterType variable );
 		static void generateKey ( std::vector<parameterType>& variables, bool randomizeVariablesOption,
 								  ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> combineParamsForExpThread ( std::vector<parameterType>& masterVars,
+		static std::vector<parameterType> combineParams ( std::vector<parameterType>& masterVars,
 																				 std::vector<parameterType>& subVars );
 
 		void handleColumnClick ( NMHDR * pNotifyStruct, LRESULT* result );

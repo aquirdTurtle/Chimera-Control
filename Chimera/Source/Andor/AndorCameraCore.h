@@ -6,6 +6,7 @@
 #include "AndorRunSettings.h"
 #include "AndorFlume.h"
 #include "GeneralObjects/Matrix.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "AndorTemperatureStatus.h"
 #include <string>
 #include <process.h>
@@ -37,14 +38,14 @@ struct cameraThreadInput
 };
 
 /// the important camera class.
-class AndorCameraCore
+class AndorCameraCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AndorCameraCore& operator=(const AndorCameraCore&) = delete;
 		AndorCameraCore (const AndorCameraCore&) = delete;
 		AndorCameraCore(bool safemode_opt);
-		static AndorRunSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
+		AndorRunSettings getSettingsFromConfig (ConfigStream& configFile, Version ver);
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
@@ -73,6 +74,14 @@ class AndorCameraCore
 		void abortAcquisition ( );
 		int queryStatus (  );
 		AndorTemperatureStatus getTemperature ( );
+		std::string configDelim = "CAMERA_SETTINGS";
+		std::string getDelim () { return configDelim; }
+		void logSettings (DataLogger& log);
+		void loadExpSettings (ConfigStream& stream);
+		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void normalFinish ();
+		void errorFinish ();
+		void programVariation (UINT variationInc, std::vector<parameterType>& params);
 
 	private:
 		void setAccumulationCycleTime ( );
@@ -86,6 +95,7 @@ class AndorCameraCore
 		/// settings are stored in smaller classes.
 		// If the experiment is running, these settings hold the options that the experiment is using.
 		AndorRunSettings runSettings;
+		AndorRunSettings expRunSettings;
 
 		AndorFlume flume;
 		const bool safemode;

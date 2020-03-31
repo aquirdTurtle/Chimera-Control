@@ -456,26 +456,6 @@ void AndorCameraSettingsControl::updateImageDimSettings( imageParameters setting
 	imageDimensionsObj.setImageParametersFromInput ( settings );
 }
 
-
-void AndorCameraSettingsControl::handleOpenConfig(ConfigStream& configFile, Version ver)
-{
-	auto tempSettings = AndorCameraCore::getSettingsFromConfig ( configFile, ver );
- 	setRunSettings(tempSettings);
- 	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
-	ProfileSystem::checkDelimiterLine( configFile, "PICTURE_SETTINGS" );
-	auto settings = getPictureSettingsFromConfig ( configFile, ver );
-	picSettingsObj.updateAllSettings ( settings );
-	ProfileSystem::checkDelimiterLine ( configFile, "END_PICTURE_SETTINGS" );
-	if ( ver > Version ( "2.4" ) )
-	{
-		ProfileSystem::checkDelimiterLine ( configFile, "CAMERA_IMAGE_DIMENSIONS" );
-		auto params = AndorCameraCore::getSettingsFromConfig ( configFile, ver );
-		imageDimensionsObj.setImageParametersFromInput ( params.imageSettings );
-	}
-	updateRunSettingsFromPicSettings( );
-}
-
-
 andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile, Version ver )
 {
 	return PictureSettingsControl::getPictureSettingsFromConfig ( configFile, ver );
@@ -501,9 +481,9 @@ void AndorCameraSettingsControl::handleSaveConfig(ConfigStream& saveFile)
 		saveFile << exposure << " ";
 	}
 	saveFile << "\n/*Andor Pics Per Rep:*/\t\t" << settings.andor.picsPerRepetition << "\n";
-	imageDimensionsObj.handleSave (saveFile);
 	saveFile << "END_CAMERA_SETTINGS\n";
 	picSettingsObj.handleSaveConfig(saveFile);
+	imageDimensionsObj.handleSave (saveFile);
 }
 
 

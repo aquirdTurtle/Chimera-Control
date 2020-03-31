@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 #include "DdsCore.h"
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
@@ -12,16 +13,11 @@ DdsCore::~DdsCore ( )
 	disconnect ( );
 }
 
-void DdsCore::updateRampLists ( std::vector<ddsIndvRampListInfo> newList )
-{
-	rampLists = newList;
-}
-
 
 void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 {
 	UINT variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
-	for (auto& ramp : rampLists)
+	for (auto& ramp : expRampList)
 	{
 		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
 		ramp.freq1.assertValid (params, GLOBAL_PARAMETER_SCOPE);
@@ -32,13 +28,19 @@ void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 	}
 }
 
+void DdsCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+{
+	evaluateDdsInfo (params);
+	UINT variations = ((params.size ()) == 0) ? 1 : params.front ().keyValues.size ();
+	generateFullExpInfo (variations);
+}
 // this probably needs an overload with a default value for the empty parameters case...
 void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 {
 	UINT variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
 	for ( auto variationNumber : range ( variations ) )
 	{
-		for ( auto& ramp : rampLists )
+		for ( auto& ramp : expRampList)
 		{
 			ramp.rampTime.internalEvaluate (params, variations );
 			ramp.freq1.internalEvaluate (params, variations );
@@ -51,7 +53,7 @@ void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 }
 
 
-void DdsCore::writeExperiment ( UINT variationNum )
+void DdsCore::programVariation ( UINT variationNum, std::vector<parameterType>& params)
 {
 	clearDdsRampMemory ( );
 	auto& thisExpFullRampList = fullExpInfo ( variationNum );
@@ -98,7 +100,7 @@ void DdsCore::generateFullExpInfo (UINT numVariations)
 	fullExpInfo.resizeVariations (numVariations);
 	for (auto varInc : range (numVariations))
 	{
-		fullExpInfo (varInc) = analyzeRampList (rampLists, varInc);
+		fullExpInfo (varInc) = analyzeRampList (expRampList, varInc);
 	}
 }
 
@@ -444,4 +446,15 @@ void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, Con
 			 << "\n/*Amp2:*/\t\t" << ramp.amp2
 			 << "\n/*Ramp-Time:*/\t" << ramp.rampTime;
 	}
+}
+
+void DdsCore::logSettings (DataLogger& log)
+{
+
+}
+
+void DdsCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expRampList);
+	// todo: add control!
 }

@@ -49,7 +49,7 @@ void NiawgSystem::handleSaveConfig (ConfigStream& saveFile)
 void NiawgSystem::handleOpenConfig (ConfigStream& openfile, Version ver)
 {
 	bool controlOpt;
-	ProfileSystem::stdGetFromConfig (openfile, "NIAWG_INFORMATION", core, controlOpt, Version ("4.12"));
+	ProfileSystem::stdGetFromConfig (openfile, core, controlOpt, Version ("4.12"));
 	controlNiawg.SetCheck ( controlOpt );
 	ProfileSystem::standardOpenConfig (openfile, "REARRANGEMENT_INFORMATION", &rearrangeCtrl);
 }

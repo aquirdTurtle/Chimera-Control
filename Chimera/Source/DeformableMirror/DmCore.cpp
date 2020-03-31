@@ -107,7 +107,7 @@ void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out)
 {
 	currentInfo = out;
 	//add the new line for the delimeter
-	saveFile << delimeter + "\n";
+	saveFile << getDelim() + "\n";
 	saveFile << currentInfo.coma << "\n";
 	saveFile << currentInfo.comaAng << "\n";
 	saveFile << currentInfo.astig << "\n";
@@ -116,7 +116,7 @@ void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out)
 	saveFile << currentInfo.trefoilAng << "\n";
 	saveFile << currentInfo.spherical << "\n";
 	saveFile << currentInfo.base << "\n";
-	saveFile << "END_" + delimeter + "\n";
+	saveFile << "END_" + getDelim () + "\n";
 }
 
 void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore &DM)
@@ -184,10 +184,17 @@ void DmCore::initialCheck(UINT variation, std::string& warnings)
 	profile.addSpherical(currentInfo.spherical.getValue(variation));
 	profile.readZernikeFile(location);
 	std::vector<double> temp = profile.createZernikeArray(profile.getCurrAmps(), currentInfo.base, true);
-	for (auto& element : temp) {
-		if (element < 0 || element > 1) {
+	for (auto& element : temp) 
+	{
+		if (element < 0 || element > 1) 
+		{
 			warnings += "Caution, variation " + str(variation) + " will cause one or more pistons in the DM to rail.";
 			break;
 		}
 	}
+}
+
+void DmCore::logSettings (DMOutputForm settings, DataLogger& log)
+{
+
 }

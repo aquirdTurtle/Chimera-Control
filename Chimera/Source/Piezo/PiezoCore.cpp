@@ -11,11 +11,6 @@ PiezoCore::PiezoCore (piezoSetupInfo info) :
 	configDelim( info.name )
 {}
 
-void PiezoCore::updateExprVals ( piezoChan<Expression> newVals )
-{
-	experimentVals = newVals;
-}
-
 void PiezoCore::programAll ( piezoChan<double> vals )
 {
 	programXNow ( vals.x );
@@ -23,52 +18,48 @@ void PiezoCore::programAll ( piezoChan<double> vals )
 	programZNow ( vals.z );
 }
 
-void PiezoCore::exprProgramPiezo ( UINT variationNumber )
+void PiezoCore::programVariation ( UINT variationNumber, std::vector<parameterType>& params)
 {
-	programXNow ( experimentVals.x.getValue ( variationNumber ) );
-	programYNow ( experimentVals.y.getValue ( variationNumber ) );
-	programZNow ( experimentVals.z.getValue ( variationNumber ) );
-}
-
-void PiezoCore::setCtrl ( bool ctrl )
-{
-	ctrlOption = ctrl;
-}
-
-bool PiezoCore::wantsCtrl ( )
-{
-	return ctrlOption;
-}
-
-void PiezoCore::evaluateVariations (std::vector<parameterType>& params, UINT totalVariations )
-{
-	try
+	if (experimentActive)
 	{
-		experimentVals.x.assertValid ( params, PIEZO_PARAMETER_SCOPE );
-		experimentVals.y.assertValid ( params, PIEZO_PARAMETER_SCOPE );
-		experimentVals.z.assertValid ( params, PIEZO_PARAMETER_SCOPE );
-		experimentVals.x.internalEvaluate ( params, totalVariations );
-		experimentVals.y.internalEvaluate ( params, totalVariations );
-		experimentVals.z.internalEvaluate ( params, totalVariations );
-	}
-	catch ( Error& )
-	{
-		throwNested ( "Failed to evaluate piezo expression varations!" );
+		programXNow (expSettings.pztValues.x.getValue (variationNumber));
+		programYNow (expSettings.pztValues.y.getValue (variationNumber));
+		programZNow (expSettings.pztValues.z.getValue (variationNumber));
 	}
 }
 
-std::pair<piezoChan<std::string>, bool> PiezoCore::getSettingsFromConfig ( ConfigStream& file, Version ver )
+void PiezoCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
 {
-	piezoChan<std::string> valVec;
+	UINT totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
+	if (experimentActive)
+	{
+		try
+		{
+			expSettings.pztValues.x.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.y.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.z.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.x.internalEvaluate (params, totalVariations);
+			expSettings.pztValues.y.internalEvaluate (params, totalVariations);
+			expSettings.pztValues.z.internalEvaluate (params, totalVariations);
+		}
+		catch (Error&)
+		{
+			throwNested ("Failed to evaluate piezo expression varations!");
+		}
+	}
+}
+
+piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file, Version ver )
+{
+	piezoSettings tempSettings;
 	auto getlineF = ProfileSystem::getGetlineFunc (ver);
 	file.get ( );
-	getlineF ( file, valVec.x );
-	getlineF ( file, valVec.y );
-	getlineF ( file, valVec.z );
-	bool ctrlOption;
-	file >> ctrlOption;
+	getlineF ( file, tempSettings.pztValues.x.expressionStr );
+	getlineF ( file, tempSettings.pztValues.y.expressionStr);
+	getlineF ( file, tempSettings.pztValues.z.expressionStr);
+	file >> tempSettings.ctrlPzt;
 	file.get ( );
-	return { valVec, ctrlOption };
+	return tempSettings;
 }
 
 void PiezoCore::initialize ( )
@@ -158,8 +149,19 @@ std::string PiezoCore::getDeviceInfo ( )
 	}
 }
 
-
 std::string PiezoCore::getDeviceList ( )
 {
 	return flume.list ( );
 }
+
+void PiezoCore::logSettings (DataLogger& log)
+{
+
+}
+
+void PiezoCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expSettings);
+	experimentActive = expSettings.ctrlPzt;
+}
+

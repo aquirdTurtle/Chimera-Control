@@ -20,16 +20,16 @@ void Agilent::programAgilentNow (std::vector<parameterType> constants)
 {
 	readGuiSettings ();
 	std::string warnings_;
-	if (currentGuiInfo.channel[0].scriptedArb.fileAddress != "")
+	if (currentGuiInfo.channel[0].scriptedArb.fileAddress.expressionStr != "")
 	{
 		core.analyzeAgilentScript (currentGuiInfo.channel[0].scriptedArb, constants, warnings_);
 	}
-	if (currentGuiInfo.channel[1].scriptedArb.fileAddress != "")
+	if (currentGuiInfo.channel[1].scriptedArb.fileAddress.expressionStr != "")
 	{
 		core.analyzeAgilentScript (currentGuiInfo.channel[1].scriptedArb, constants, warnings_);
 	}
-	core.convertInputToFinalSettings (1, 0, currentGuiInfo, constants);
-	core.convertInputToFinalSettings (1, 1, currentGuiInfo, constants);
+	core.convertInputToFinalSettings (0, currentGuiInfo, constants);
+	core.convertInputToFinalSettings (1, currentGuiInfo, constants);
 	core.setAgilent (0, constants, currentGuiInfo);
 }
 
@@ -314,7 +314,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 			break;
 		case AgilentChannelMode::which::Preloaded:
 			agilentScript.reset ( );
-			agilentScript.setScriptText(currentGuiInfo.channel[chan].preloadedArb.address);
+			agilentScript.setScriptText(currentGuiInfo.channel[chan].preloadedArb.address.expressionStr);
 			settingCombo.SetCurSel( 5 );
 			calibratedButton.SetCheck( currentGuiInfo.channel[chan].preloadedArb.useCal );
 			agilentScript.setEnabled ( true, false );
@@ -323,7 +323,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 			settingCombo.SetCurSel( 6 );
 			// clear it in case the file fails to open.
 			agilentScript.setScriptText( "" );
-			agilentScript.openParentScript( currentGuiInfo.channel[chan].scriptedArb.fileAddress, configPath,
+			agilentScript.openParentScript( currentGuiInfo.channel[chan].scriptedArb.fileAddress.expressionStr, configPath,
 											currentRunInfo );
 			calibratedButton.SetCheck( currentGuiInfo.channel[chan].scriptedArb.useCal );
 			agilentScript.setEnabled ( true, false );
@@ -447,7 +447,7 @@ void Agilent::setOutputSettings (deviceOutputInfo info)
 
 void Agilent::handleOpenConfig( ConfigStream& file, Version ver )
 {
-	setOutputSettings (AgilentCore::getSettingsFromConfig (file, ver));
+	setOutputSettings (core.getSettingsFromConfig (file, ver));
 }
 
 

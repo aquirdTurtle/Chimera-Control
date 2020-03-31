@@ -147,6 +147,16 @@ void AoSystem::handleOpenConfig(ConfigStream& openFile, Version ver)
 }
 
 
+void AoSystem::standardExperimentPrep ( UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
+										double currLoadSkipTime )
+{
+	organizeDacCommands (variationInc);
+	setDacTriggerEvents (ttls, variationInc);
+	findLoadSkipSnapshots (currLoadSkipTime, expParams, variationInc);
+	makeFinalDataFormat (variationInc);
+}
+
+
 void AoSystem::handleSaveConfig(ConfigStream& saveFile)
 {
 	saveFile << "DACS\nEND_DACS\n";
@@ -471,7 +481,7 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::interpretKey( std::vector<parameterType>& params, std::string& warnings )
+void AoSystem::calculateVariations( std::vector<parameterType>& params, Communicator& comm)
 {
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
@@ -550,7 +560,7 @@ void AoSystem::interpretKey( std::vector<parameterType>& params, std::string& wa
 				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
-					warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " 
+					comm.warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number "
 						+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
 						+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
 				}
@@ -562,7 +572,7 @@ void AoSystem::interpretKey( std::vector<parameterType>& params, std::string& wa
 				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
 				{
 					nonIntegerWarningPosted = true;
-					warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
+					comm.warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
 						"of steps. The code will attempt to compensate by making a last step to the final value which"
 						" is not the same increment in voltage or time as the other steps to take the dac to the final"
 						" value at the right time.\r\n";
@@ -614,7 +624,7 @@ void AoSystem::interpretKey( std::vector<parameterType>& params, std::string& wa
 				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
-					warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
+					comm.warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
 						+ str( rampInc ) + " is below the resolution of the aoSys (which is 10/2^16 = "
 						+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
 						"calculate the ramp unnecessarily.\r\n";

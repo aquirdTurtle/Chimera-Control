@@ -4,29 +4,30 @@
 #include "MicrowaveCore.h"
 
 
-MicrowaveCore::MicrowaveCore() :
-	uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE)
-//	rsgFlume (RSG_ADDRESS, MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::RohdeSchwarzGenerator),
-//	wfFlume(MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::WindFreak, WIND_FREAK_ADDR)
-{
-}
+MicrowaveCore::MicrowaveCore() : uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE){}
 
-void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings)
+void MicrowaveCore::programVariation (UINT variationNumber, std::vector<parameterType>& params)
 {
-	if (!settings.control || settings.list.size () == 0)
+	if (!experimentActive) { return; }
+	if (!experimentSettings.control || experimentSettings.list.size () == 0)
 	{
 		// Nothing to program.
 		return;
 	}
 	setPmSettings ();
-	if (settings.list.size () == 1)
+	if (experimentSettings.list.size () == 1)
 	{
-		uwFlume.programSingleSetting (settings.list[0], variationNumber);
+		uwFlume.programSingleSetting (experimentSettings.list[0], variationNumber);
 	}
 	else
 	{
-		uwFlume.programList (settings.list, variationNumber);
+		uwFlume.programList (experimentSettings.list, variationNumber);
 	}
+}
+
+void MicrowaveCore::logSettings (DataLogger& log)
+{
+
 }
 
 std::string MicrowaveCore::queryIdentity ()
@@ -46,10 +47,13 @@ void MicrowaveCore::setPmSettings ()
 	uwFlume.setPmSettings ();
 }
 
-
-void MicrowaveCore::interpretKey (std::vector<parameterType>& params, microwaveSettings& settings)
+void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
 {
-	if (!settings.control)
+	calculateVariations (params);
+}
+void MicrowaveCore::calculateVariations (std::vector<parameterType>& params)
+{
+	if (!experimentSettings.control)
 	{
 		return;
 	}
@@ -62,11 +66,10 @@ void MicrowaveCore::interpretKey (std::vector<parameterType>& params, microwaveS
 	{
 		variations = params.front ().keyValues.size ();
 	}
-	/// imporantly, this sizes the relevant structures.
-	for (auto freqInc : range(settings.list.size()))
+	for (auto freqInc : range(experimentSettings.list.size()))
 	{
-		settings.list[freqInc].frequency.internalEvaluate (params, variations);
-		settings.list[freqInc].power.internalEvaluate (params, variations);
+		experimentSettings.list[freqInc].frequency.internalEvaluate (params, variations);
+		experimentSettings.list[freqInc].power.internalEvaluate (params, variations);
 	}
 }
 
@@ -76,7 +79,7 @@ std::pair<DoRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 }
 
 
-UINT MicrowaveCore::getNumTriggers (UINT variationNumber, microwaveSettings settings)
+UINT MicrowaveCore::getNumTriggers (microwaveSettings settings)
 {
 	return settings.list.size () == 1 ? 0 : settings.list.size ();
 }
@@ -109,4 +112,10 @@ microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile, 
 		getlineF (openFile, settings.list[num].power.expressionStr);
 	}
 	return settings;
+}
+
+void MicrowaveCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, experimentSettings);
+	experimentActive = experimentSettings.control;
 }

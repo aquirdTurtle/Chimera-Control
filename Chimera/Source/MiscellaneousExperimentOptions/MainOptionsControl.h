@@ -13,7 +13,7 @@ struct mainOptions
 	bool dontActuallyGenerate=false;
 	bool randomizeVariations=false;
 	bool randomizeReps=false;
-	UINT atomThresholdForSkip=UINT_MAX;
+	UINT atomSkipThreshold=UINT_MAX;
 };
 
 // this got whittled down recently, but keeping so that I can put more stuff in later.

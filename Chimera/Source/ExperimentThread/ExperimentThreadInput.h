@@ -20,11 +20,12 @@
 #include "ConfigurationSystems/profileSettings.h"
 #include "RealTimeDataAnalysis/atomCruncherInput.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
+#include "Basler/BaslerCamera.h"
 #include "Basler/baslerSettings.h"
 #include "Plotting/PlotDialog.h"
-#include "Basler/BaslerCamera.h"
 #include "ExperimentType.h"
 #include "DirectDigitalSynthesis/DdsCore.h"
+
 #include <chrono>
 #include <vector>
 #include <atomic>
@@ -43,25 +44,28 @@ struct ExperimentThreadInput
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
 	profileSettings profile;
-	//seqSettings seq;
+
 	DoCore& ttls;
 	AoSystem& aoSys;
+
+	/* IDeviceCore Objects */
 	AiSystem& aiSys;
 	AndorCameraCore& andorCamera;
 	BaslerCameraCore& basCamera;
 	DdsCore& dds;
 	std::vector<std::reference_wrapper<PiezoCore>> piezoCores;
-	// TODO: this should be loaded from config file, not gui thread.
-	std::vector<parameterType> globalParameters;
-	ExperimentThreadManager* thisObj;
-	Communicator& comm;
 	MicrowaveCore& rsg;
-	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 	std::vector<std::reference_wrapper<AgilentCore>> agilents;
 	TekCore& topBottomTek;
 	TekCore& eoAxialTek;
-	ParameterSystem& globalControl;
 	NiawgCore& niawg;
+
+	std::vector<parameterType> globalParameters;
+	ExperimentThreadManager* thisObj;
+	Communicator& comm;
+	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
+	ParameterSystem& globalControl;
+
 	DataLogger& logger;
 	UINT intensityAgilentNumber=-1;
 	UINT numVariations = 1;
@@ -83,7 +87,7 @@ struct ExperimentThreadInput
 	chronoTimes* grabTimes;
 	std::condition_variable* conditionVariableForRerng;
 	rerngGuiOptionsForm rerngGuiForm;
-	rerngGuiOptions rerngGui;
+	//rerngGuiOptions rerngGui;
 };
 
 

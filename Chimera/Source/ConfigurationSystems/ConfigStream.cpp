@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "ConfigStream.h"
 
+std::string ConfigStream::emptyStringTxt= "\"!#EMPTY_STRING#!\"";
+
 std::ostream& operator<<(std::ostream& os, const Expression& expr)
 {
 	if (expr.expressionStr == "")
 	{
-		os << "\"!#EMPTY_STRING#!\"";
+		os << ConfigStream::emptyStringTxt;
 	}
 	else
 	{
@@ -16,18 +18,37 @@ std::ostream& operator<<(std::ostream& os, const Expression& expr)
 
 ConfigStream::ConfigStream(std::ifstream& file)
 {
-	std::stringstream tempStream;
-	tempStream << file.rdbuf ();
-	this->ScriptStream::ScriptStream (tempStream.str ());
+	ScriptStream::operator<<(file.rdbuf ());
 	// config streams are case-sensitive.
 	setCase (false);
 };
 
+ConfigStream::ConfigStream (std::string txt, bool isAddr)
+{
+	if (isAddr)
+	{
+		std::ifstream cFile (txt);
+		if (!cFile.is_open ())
+		{
+			thrower ("Failed to open file for initializing config stream!");
+		}
+		ScriptStream::operator<<(cFile.rdbuf ());
+		// config streams are case-sensitive.
+		setCase (false);
+		cFile.close ();
+		streamText = this->str ();
+	}
+	else
+	{
+		ScriptStream::ScriptStream (txt);
+		streamText = this->str ();
+	}
+};
 
 ConfigStream& ConfigStream::operator>>(Expression& expression)
 {
 	ScriptStream::operator>>(expression.expressionStr);
-	if (expression.expressionStr == "\"!#EMPTY_STRING#!\"")
+	if (expression.expressionStr == emptyStringTxt)
 	{
 		expression.expressionStr = "";
 	}
@@ -37,22 +58,20 @@ ConfigStream& ConfigStream::operator>>(Expression& expression)
 ConfigStream& ConfigStream::operator>>(std::string& txt)
 {
 	ScriptStream::operator>>(txt);
-	if (txt == "\"!#EMPTY_STRING#!\"")
+	if (txt == emptyStringTxt)
 	{
 		txt = "";
 	}
 	return *this;
 }
-/*
-ConfigStream& ConfigStream::operator<<(Expression& expr)
+
+std::string ConfigStream::getline ()
 {
-	std::stringstream::operator<<(expr.expressionStr == "" ? "\"!#EMPTY_STRING#!\"" : expr.expressionStr.c_str());
-	return *this;
+	return ConfigStream::getline ('\n');
 }
 
-ConfigStream& ConfigStream::operator<<(std::string& txt)
+std::string ConfigStream::getline (char delim)
 {
-	std::stringstream::operator<<( txt == "" ? "\"!#EMPTY_STRING#!\"" : txt.c_str() );
-	return *this;
+	auto txt = ScriptStream::getline (delim);
+	return txt == ConfigStream::emptyStringTxt ? "" : txt;
 }
-*/

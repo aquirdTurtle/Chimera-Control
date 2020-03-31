@@ -179,3 +179,11 @@ void Communicator::postMyString( CWnd* window, UINT messageTypeID, std::string m
 	sprintf_s( messageChars, message.size() + 1, "%s", cstr(message));
 	window->PostMessageA( messageTypeID, 0, (LPARAM)messageChars );
 }
+
+void Communicator::expUpdate (std::string updateTxt)
+{
+	if (!expQuiet)
+	{
+		sendStatus (updateTxt);
+	}
+}

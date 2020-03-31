@@ -2,6 +2,7 @@
 
 #include "PiezoFlume.h"
 #include "SerialPiezoFlume.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "ParameterSystem/Expression.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
@@ -15,7 +16,13 @@ template <typename type> struct piezoChan
 	type z;
 };
 
-class PiezoCore
+struct piezoSettings
+{
+	piezoChan<Expression> pztValues;
+	bool ctrlPzt;
+};
+
+class PiezoCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -26,25 +33,26 @@ class PiezoCore
 		void initialize (  );
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
-		void exprProgramPiezo ( UINT variationNumber );
-		static std::pair<piezoChan<std::string>, bool> getSettingsFromConfig (ConfigStream& file, Version ver );
+		void programVariation ( UINT variationNumber, std::vector<parameterType>& params);
+		piezoSettings getSettingsFromConfig (ConfigStream& file, Version ver );
 		void programAll ( piezoChan<double> vals );
-		void setCtrl ( bool ctrl );
-		bool wantsCtrl ( );
 		double getCurrentXVolt ( );
 		void programXNow ( double val );
 		double getCurrentYVolt ( );
 		void programYNow ( double val );
 		double getCurrentZVolt ( );
 		void programZNow ( double val );
-		void updateExprVals ( piezoChan<Expression> newVals );
-		void evaluateVariations ( std::vector<parameterType>& params, UINT totalVariations );
+		void calculateVariations ( std::vector<parameterType>& params, Communicator& comm);
 		const std::string configDelim;
+		std::string getDelim () { return configDelim; }
+		void logSettings (DataLogger& log);
+		void loadExpSettings (ConfigStream& stream);
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
 		const PiezoType controllerType;
-		bool ctrlOption;
 		PiezoFlume flume;
 		SerialPiezoFlume serFlume;
-		piezoChan<Expression> experimentVals;
+		piezoSettings expSettings;
 };
 

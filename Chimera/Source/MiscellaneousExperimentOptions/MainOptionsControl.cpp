@@ -66,18 +66,18 @@ mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile, V
 		openFile >> txt;
 		try
 		{
-			options.atomThresholdForSkip = boost::lexical_cast<unsigned long>( txt );
+			options.atomSkipThreshold = boost::lexical_cast<unsigned long>( txt );
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
 			errBox ( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
 					 "the threshold to the maximum threshold." );
-			options.atomThresholdForSkip = -1;
+			options.atomSkipThreshold = -1;
 		}
 	}
 	else
 	{
-		options.atomThresholdForSkip = UINT_MAX;
+		options.atomSkipThreshold = UINT_MAX;
 	}
 	return options;
 }
@@ -88,7 +88,7 @@ void MainOptionsControl::setOptions ( mainOptions opts )
 	currentOptions = opts;
 	randomizeRepsButton.SetCheck ( currentOptions.randomizeReps );
 	randomizeVariationsButton.SetCheck ( currentOptions.randomizeVariations );
-	atomThresholdForSkipEdit.SetWindowTextA ( cstr ( currentOptions.atomThresholdForSkip ) );
+	atomThresholdForSkipEdit.SetWindowTextA ( cstr ( currentOptions.atomSkipThreshold ) );
 }
 
 
@@ -100,7 +100,7 @@ mainOptions MainOptionsControl::getOptions()
 	atomThresholdForSkipEdit.GetWindowTextA( txt );
 	try
 	{
-		currentOptions.atomThresholdForSkip = boost::lexical_cast<unsigned long>( str( txt ) );
+		currentOptions.atomSkipThreshold = boost::lexical_cast<unsigned long>( str( txt ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{

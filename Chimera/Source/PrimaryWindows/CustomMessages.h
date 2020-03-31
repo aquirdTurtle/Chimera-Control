@@ -1,5 +1,6 @@
 #pragma once
 #include "afxwin.h"
+
 namespace CustomMessages
 {
 	const static UINT

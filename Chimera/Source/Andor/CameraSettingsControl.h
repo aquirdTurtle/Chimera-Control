@@ -56,7 +56,7 @@ class AndorCameraSettingsControl
 		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile, Version ver );
 		//static imageParameters getSettingsFromConfig (ConfigStream& configFile, Version ver );
 
-		void handleOpenConfig(ConfigStream& configFile, Version ver );
+		//void handleOpenConfig(ConfigStream& configFile, Version ver );
 		void handleSaveConfig(ConfigStream& configFile);
 
 		void handelSaveMasterConfig(std::stringstream& configFile);
