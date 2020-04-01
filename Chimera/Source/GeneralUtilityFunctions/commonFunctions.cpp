@@ -515,12 +515,6 @@ namespace commonFunctions
 			case ID_MASTERSCRIPT_OPENSCRIPT: { scriptWin->openMasterScript(win); break; }
 			case ID_MASTERSCRIPT_NEWFUNCTION: { scriptWin->newMasterFunction();	break; }
 			case ID_MASTERSCRIPT_SAVEFUNCTION: { scriptWin->saveMasterFunction(); break; }
-			case ID_SEQUENCE_RENAMESEQUENCE: { mainWin->profile.renameSequence(); break; }
-			case ID_SEQUENCE_ADD_TO_SEQUENCE: { mainWin->profile.addToSequence(win); break; }
-			case ID_SEQUENCE_SAVE_SEQUENCE: { mainWin->profile.saveSequence(); break; }
-			case ID_SEQUENCE_NEW_SEQUENCE: { mainWin->profile.newSequence(win); break; }
-			case ID_SEQUENCE_RESET_SEQUENCE: { mainWin->profile.loadNullSequence(); break; }
-			case ID_SEQUENCE_DELETE_SEQUENCE: { mainWin->profile.deleteSequence(); break; }
 			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin, scriptWin); break; }
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration(); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration(); break; }
@@ -574,17 +568,10 @@ namespace commonFunctions
 	void prepareMasterThread( int msgID, IChimeraWindow* win, AllExperimentInput& input, bool runNiawg,
 							  bool runMaster, bool runAndor, bool runBasler, bool updatePlotXVals )
 	{
-		seqSettings seq = win->mainWin->getSeqSettings( );
 		if (win->scriptWin->niawgIsRunning())
 		{
 			win->mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
-		}
-		if (seq.sequence.size() == 0)
-		{
-			win->mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
-			thrower ( "No configurations in current sequence! Please set some configurations to run in this "
-					  "sequence or set the null sequence.\r\n" );
 		}
 		win->mainWin->checkProfileReady();
 		win->scriptWin->checkScriptSaves( );

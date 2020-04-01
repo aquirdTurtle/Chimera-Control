@@ -125,7 +125,6 @@ IMPLEMENT_DYNAMIC( MainWindow, IChimeraWindow)
 BEGIN_MESSAGE_MAP (MainWindow, IChimeraWindow)
 	ON_WM_CTLCOLOR ()
 	ON_WM_SIZE ()
-	ON_CBN_SELENDOK (IDC_SEQUENCE_COMBO, &handleSequenceCombo)
 	ON_NOTIFY (NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &handleDblClick)
 	ON_NOTIFY (NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &handleRClick)
 	ON_NOTIFY (NM_DBLCLK, IDC_SERVO_LISTVIEW, &ServoDblClick)
@@ -860,7 +859,6 @@ RunInfo MainWindow::getRunInfo () { return systemRunningInfo; }
 Communicator& MainWindow::getCommRef ( ) { return comm; }
 EmbeddedPythonHandler& MainWindow::getPython () { return python; }
 profileSettings MainWindow::getProfileSettings () { return profile.getProfileSettings (); }
-seqSettings MainWindow::getSeqSettings () { return profile.getSeqSettings (); }
 std::string MainWindow::getNotes () { return notes.getConfigurationNotes (); }
 void MainWindow::setNotes (std::string newNotes) { notes.setConfigurationNotes (newNotes); }
 debugInfo MainWindow::getDebuggingOptions () { return debugger.getOptions (); }
@@ -968,19 +966,6 @@ void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	texter.deletePersonInfo();
 	profile.updateConfigurationSavedStatus(false);
-}
-
-
-void MainWindow::handleSequenceCombo()
-{
-	try
-	{
-		profile.sequenceChangeHandler();
-	}
-	catch (Error& err)
-	{
-		getComm()->sendError(err.trace());
-	}
 }
 
 

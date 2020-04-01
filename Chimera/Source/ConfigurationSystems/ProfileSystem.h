@@ -33,20 +33,6 @@ class ProfileSystem
 		void checkSaveEntireProfile(IChimeraWindow* win);
 		void allSettingsReadyCheck(IChimeraWindow* win);
 		static std::function<void (ScriptStream&, std::string&)> getGetlineFunc (Version& ver);
-		void saveSequence();
-		void saveSequenceAs();
-		void renameSequence();
-		void deleteSequence();
-		void newSequence(CWnd* parent);
-		void openSequence(std::string sequenceName);
-		void updateSequenceSavedStatus(bool isSaved);
-		bool sequenceSettingsReadyCheck();
-		bool checkSequenceSave(std::string prompt);
-		void sequenceChangeHandler();
-		std::string getSequenceNamesString();
-		void loadNullSequence();
-		void addToSequence(CWnd* parent);
-		void reloadSequence(std::string sequenceToReload);
 
 		void saveConfigurationOnly(IChimeraWindow* win);
 		void saveConfigurationAs(IChimeraWindow* win);
@@ -60,7 +46,6 @@ class ProfileSystem
 		bool configurationSettingsReadyCheck(IChimeraWindow* win);
 		bool checkConfigurationSave(std::string prompt, IChimeraWindow* win);
 		profileSettings getProfileSettings();
-		seqSettings getSeqSettings( );
 
 		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
 		static void reloadCombo ( HWND comboToReload, std::string locationToLook, std::string extension,
@@ -91,10 +76,8 @@ class ProfileSystem
 		CBrush* handleColoring (int id, CDC* pDC);
 	private:
 		profileSettings currentProfile; 
-		seqSettings currentSequence;
 		std::string FILE_SYSTEM_PATH;
 		bool configurationIsSaved;
-		bool sequenceIsSaved;
 		// version = str(versionMain) + "." + str(versionSub)
 		// I try to use version sub changes for small changes and version main for big formatting (sometimes backwards 
 		// incompatible) changes
@@ -119,10 +102,6 @@ class ProfileSystem
 		/// Version 5.0: Revamped reading and writing to the files to use Scriptstream, supporting comments. Includes
 		// a variety of minor formatting changes and a bunch of comments into the file.
 		const Version version = Version( "5.0" );
-		Control<CStatic> sequenceLabel;
-		Control<CComboBox> sequenceCombo;
-		Control<CEdit> sequenceInfoDisplay;
-		Control<CButton> sequenceSavedIndicator;
 		Control<CButton> configurationSavedIndicator;
 		Control<CButton> selectConfigButton;
 		Control<CStatic> configDisplay;
