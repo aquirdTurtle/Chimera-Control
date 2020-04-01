@@ -352,7 +352,7 @@ namespace commonFunctions
 					auxWin->updateAgilent( whichAg::Axial );
 					auxWin->updateAgilent( whichAg::Flashing );
 					auxWin->updateAgilent( whichAg::Microwave );
-					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, andorWin, basWin );
+					mainWin->profile.saveEntireProfile( win );
 					mainWin->masterConfig.save( mainWin, auxWin, andorWin );
 					
 				}
@@ -468,7 +468,7 @@ namespace commonFunctions
 					{
 						mainWin->autoServo (0, 0);
 					}
-					auto& calInfo = AUTO_CAL_LIST[calNum];
+					auto& calInfo = AUTO_CAL_LIST[calNum]; 
 					mainWin->getComm ()->sendStatus (calInfo.infoStr);
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->runList = calInfo.runList;
@@ -483,7 +483,7 @@ namespace commonFunctions
 				break;
 			}
 			// the rest of these are all one-liners. 
-			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile ( scriptWin, mainWin, auxWin, andorWin, basWin ); break; }
+			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile (win); break; }
 			case ID_PLOTTING_STOPPLOTTER: { andorWin->stopPlotter( ); break; }
 			case ID_FILE_MY_INTENSITY_NEW: { scriptWin->newIntensityScript(); break; }
 			case ID_FILE_MY_INTENSITY_OPEN: { scriptWin->openIntensityScript(win); break; }
@@ -524,8 +524,8 @@ namespace commonFunctions
 			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin, scriptWin); break; }
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration(); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration(); break; }
-			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, andorWin, basWin); break; }
-			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, auxWin, andorWin, basWin); break; }
+			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(win); break; }
+			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly(win); break; }
 			case ID_NIAWG_SENDSOFTWARETRIGGER: { scriptWin->sendNiawgSoftwareTrig(); break; }
 			case ID_NIAWG_STREAMWAVEFORM: { scriptWin->streamNiawgWaveform(); break; }
 			case ID_NIAWG_GETNIAWGERROR: { errBox(scriptWin->getNiawgErr()); break; }
