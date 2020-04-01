@@ -35,7 +35,6 @@ FEATURES:
 - make plot update rate be changeable in real-time to help deal with slowness in long runs.
 - make data analysis plotting listview smart about # of pictures
 - some sort of more real-time adjustment of parameters, need some sort of looping around starting configs... or some other solution
-- local vars agilent script
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on condition_variables
@@ -47,17 +46,10 @@ Refactoring / Other:
 - Make config parameter system aware of whether it is giving a constant or variable run so that the range stuff can be 
 	accurate.
 - refactor rerngmove complexmove and simplemove names which are confusing... 
-- refactor master configuration to be more similar to normal configuration reading
 - remove the complicated rearrangement that happens on the camera window, all functions available at all times, 
 	perhaps just grey'd out
-- reconsider how to handle initial dac and ttl values
 - seems that there's still auto fitting stuff in the data analysis but I don't think this is supported anymore?
 - either only put the "overwriting function definition" when actually uses the save or remove this
-- consider refactoring expression to include the evaluated value in the object itself. Need to examine how this would
-	work with vectors of these values? Not sure would actually require changes there. This should be able to work well
-	to simplify the form / eventual value structures which feel confusing and redundant, and potentially provide checks 
-	within the evaluate class itself, but is a very major refactor. 
-- remove viewpoint from diosystem
 
 Checks and Tests
 	- add check for flash that sum of indv move times is the total move time.
