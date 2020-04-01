@@ -1753,3 +1753,10 @@ void AndorWindow::readImageParameters()
 	SmartDC sdc (this);
 	pics.drawGrids(sdc.get ());
 }
+
+
+void AndorWindow::fillExpDeviceList (DeviceList& list)
+{
+	list.list.push_back (andor);
+}
+

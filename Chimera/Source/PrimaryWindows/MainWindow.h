@@ -51,7 +51,7 @@ class MainWindow : public IChimeraWindow
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnSize(UINT nType, int cx, int cy);
 		void forceExit ( );
-
+		void fillExpDeviceList (DeviceList& list);
 		// stuff directly called (or 1 simple step removed) by message map.
 		LRESULT onRepProgress(WPARAM wParam, LPARAM lParam);
 		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);

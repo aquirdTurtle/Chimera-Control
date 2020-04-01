@@ -4,6 +4,7 @@
 #include "GeneralImaging/PictureManager.h"
 #include "GeneralImaging/PictureControl.h"
 #include "Control.h"
+#include "IChimeraWindow.h"
 #include "Basler/BaslerSettingsControl.h"
 #include "Basler/BaslerCamera.h"
 #include "GeneralImaging/PictureStats.h"
@@ -30,7 +31,6 @@ class BaslerWindow : public IChimeraWindow
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnSize( UINT nType, int cx, int cy );
 		void prepareWinForAcq(baslerSettings* settings);
-		void handleClose();
 		void handleDisarmPress();
 		void initializeControls();
 		void passExposureMode();
@@ -47,7 +47,7 @@ class BaslerWindow : public IChimeraWindow
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void windowSaveConfig ( ConfigStream& configFile );
 		baslerSettings getCurrentSettings ( );
-		BaslerCameraCore& getCore();
+		void fillExpDeviceList (DeviceList& list);
 	private:
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		UINT loadMotConsecutiveFailures = 0;

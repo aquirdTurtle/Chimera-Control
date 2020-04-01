@@ -211,9 +211,9 @@ void NiawgCore::handleStartingRerng( ExperimentThreadInput* input)
 			}
 			foundRearrangement = true;
 			// start rearrangement thread. Give the thread the queue.
-			input->niawg.startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
-											input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
-											expRerngGui, input->analysisGrid );
+			startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
+							  input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
+							  expRerngGui, input->analysisGrid );
 		}
 	}
 	if (expRerngGui.active && !foundRearrangement )

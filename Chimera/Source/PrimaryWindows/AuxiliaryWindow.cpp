@@ -1017,12 +1017,6 @@ void AuxiliaryWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 		{
 			input->numAiMeasurements = configParameters.getTotalVariationNumber ();
 		}
-		for ( auto& ag : agilents )
-		{
-			input->agilents.push_back ( ag.getCore() );
-		}
-		topBottomTek.getTekSettings ( );
-		eoAxialTek.getTekSettings ( );
 	}
 	catch ( Error& )
 	{
@@ -1592,4 +1586,18 @@ std::string AuxiliaryWindow::getMicrowaveSystemStatus( )
 	return msg;
 }
 
+void AuxiliaryWindow::fillExpDeviceList (DeviceList& list)
+{
+	list.list.push_back (topBottomTek.getCore());
+	list.list.push_back (eoAxialTek.getCore ());
+	list.list.push_back (RohdeSchwarzGenerator.getCore ());
+	for (auto& ag : agilents)
+	{
+		list.list.push_back (ag.getCore ());
+	}
+	list.list.push_back (aiSys);
+	list.list.push_back (dds.getCore());
+	list.list.push_back (piezo1.getCore ());
+	list.list.push_back (piezo2.getCore ());
+}
 

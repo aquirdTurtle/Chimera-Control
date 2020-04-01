@@ -120,6 +120,9 @@ class AndorWindow : public IChimeraWindow
 		std::mutex& getActivePlotMutexRef ( );
 		void cleanUpAfterExp ( );
 		void handlePlotPop (UINT id);
+
+		void fillExpDeviceList (DeviceList& list);
+
 	private:
 		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();

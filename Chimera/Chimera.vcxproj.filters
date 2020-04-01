@@ -757,6 +757,7 @@
     <ClInclude Include="Source\PrimaryWindows\IChimeraWindow.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
+    <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

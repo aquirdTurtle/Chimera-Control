@@ -28,17 +28,17 @@ BEGIN_MESSAGE_MAP( BaslerWindow, IChimeraWindow )
 	ON_WM_VSCROLL()
 	ON_WM_MOUSEMOVE()
 
-	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, BaslerWindow::handleSoftwareTrigger )
+	ON_COMMAND( ID_BASLER_SOFTWARE_TRIGGER, handleSoftwareTrigger )
 
-	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
-	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &BaslerWindow::pictureRangeEditChange)
+	ON_CONTROL_RANGE(EN_CHANGE, IDC_MIN_BASLER_SLIDER_EDIT, IDC_MIN_BASLER_SLIDER_EDIT, &pictureRangeEditChange)
+	ON_CONTROL_RANGE(EN_CHANGE, IDC_MAX_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, &pictureRangeEditChange)
 	
-	ON_MESSAGE( CustomMessages::BaslerProgressMessageID, &BaslerWindow::handleNewPics )
-	ON_MESSAGE( CustomMessages::prepareBaslerWinAcq, &BaslerWindow::handlePrepareRequest )
-	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, BaslerWindow::passExposureMode )
-	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, BaslerWindow::passCameraMode)
-	 
-	ON_WM_RBUTTONUP()	
+	ON_MESSAGE( CustomMessages::BaslerProgressMessageID, &handleNewPics )
+	ON_MESSAGE( CustomMessages::prepareBaslerWinAcq, &handlePrepareRequest )
+	ON_CBN_SELENDOK( IDC_BASLER_EXPOSURE_MODE_COMBO, passExposureMode )
+	ON_CBN_SELENDOK( IDC_BASLER_CAMERA_MODE_COMBO, passCameraMode)
+	
+	ON_WM_RBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -48,12 +48,6 @@ LRESULT BaslerWindow::handlePrepareRequest (WPARAM wParam, LPARAM lParam)
 	baslerSettings* settings = (baslerSettings*)lParam;
 	prepareWinForAcq (settings);
 	return 0;
-}
-
-
-BaslerCameraCore& BaslerWindow::getCore ()
-{
-	return *basCamCore;
 }
 
 void BaslerWindow::handleBaslerAutoscaleSelection ( )
@@ -518,3 +512,7 @@ void BaslerWindow::initializeControls()
 	picManager.drawBackgrounds( sdc.get ());
 }
 
+void BaslerWindow::fillExpDeviceList (DeviceList& list)
+{
+	list.list.push_back (*basCamCore);
+}

@@ -36,7 +36,7 @@ class ScriptingWindow : public IChimeraWindow
 		ScriptingWindow();
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
-
+		void fillExpDeviceList (DeviceList& list);
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);		
 		BOOL OnInitDialog() override;
 		void OnTimer(UINT_PTR eventID);
