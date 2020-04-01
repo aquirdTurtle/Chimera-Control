@@ -130,3 +130,9 @@ void IChimeraWindow::setMenuCheck (UINT menuItem, UINT itemState)
 {
 	menu.CheckMenuItem (menuItem, itemState);
 }
+
+std::vector<IChimeraWindow*> IChimeraWindow::winList ()
+{
+	std::vector<IChimeraWindow*> list = { mainWin, scriptWin, andorWin, auxWin, basWin, dmWin };
+	return list;
+}

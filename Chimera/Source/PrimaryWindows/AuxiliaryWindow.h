@@ -147,6 +147,7 @@ class AuxiliaryWindow : public IChimeraWindow
 		void handleProgramUwSystemNow ();
 		void programDds ( );
 		std::vector<parameterType> getUsableConstants ();
+		void fillExpDeviceList (DeviceList& list);
 	private:
 		DECLARE_MESSAGE_MAP();		
 
@@ -157,13 +158,6 @@ class AuxiliaryWindow : public IChimeraWindow
 		/// control system classes
 		MicrowaveSystem RohdeSchwarzGenerator;
 		std::array<Agilent, 4> agilents;
-
-		std::vector<PlotCtrl*> aoPlots;
-		std::vector<PlotCtrl*> ttlPlots;
-		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
-		UINT NUM_DAC_PLTS = 3;
-		UINT NUM_TTL_PLTS = 4;
-		
  		DoSystem ttlBoard;
  		AoSystem aoSys;
 		AiSystem aiSys;
@@ -172,6 +166,11 @@ class AuxiliaryWindow : public IChimeraWindow
 		MachineOptimizer optimizer;
 		ParameterSystem configParameters, globalParameters;
 		DdsSystem dds;
-		
 		PiezoController piezo1, piezo2;
+
+		std::vector<PlotCtrl*> aoPlots;
+		std::vector<PlotCtrl*> ttlPlots;
+		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
+		UINT NUM_DAC_PLTS = 3;
+		UINT NUM_TTL_PLTS = 4;
 };

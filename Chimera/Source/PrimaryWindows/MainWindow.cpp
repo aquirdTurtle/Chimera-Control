@@ -1224,3 +1224,6 @@ void MainWindow::handleMasterConfigSave (std::stringstream& configStream)
 {
 	servos.handleSaveMasterConfig (configStream);
 }
+
+
+void MainWindow::fillExpDeviceList (DeviceList& list){}

@@ -33,7 +33,7 @@ class DeformableMirrorWindow : public IChimeraWindow
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnSize(UINT nType, int cx, int cy);
 		void OnPaint();
-		DmCore &GetCore();
+		void fillExpDeviceList (DeviceList& list);
 	private:
 		DECLARE_DYNAMIC (DeformableMirrorWindow);
 		DECLARE_MESSAGE_MAP();

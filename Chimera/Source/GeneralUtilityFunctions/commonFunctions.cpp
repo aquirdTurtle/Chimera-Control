@@ -442,6 +442,7 @@ namespace commonFunctions
 				mainWin->autoServo ( 0, 0 );
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( win );
+
 				input.masterInput->runList.andor = false;
 				input.masterInput->updatePlotterXVals = false;
 				auxWin->fillMasterThreadInput ( input.masterInput );

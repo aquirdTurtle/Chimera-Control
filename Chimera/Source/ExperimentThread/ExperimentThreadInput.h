@@ -24,6 +24,7 @@
 #include "Basler/baslerSettings.h"
 #include "Plotting/PlotDialog.h"
 #include "ExperimentType.h"
+#include "DeviceList.h"
 #include "DirectDigitalSynthesis/DdsCore.h"
 
 #include <chrono>
@@ -48,7 +49,15 @@ struct ExperimentThreadInput
 	DoCore& ttls;
 	AoSystem& aoSys;
 
+	DeviceList devices;
+	//std::vector<std::reference_wrapper<IDeviceCore>> deviceList;
+	/* = { input->topBottomTek, input->eoAxialTek,
+					input->andorCamera, input->basCamera, input->niawg, input->dds, input->rsg, input->aiSys }; */
+	/*	for (auto& ag : input->agilents) { deviceList.push_back (ag.get ()); }
+	for (auto& pzt : input->piezoCores) { deviceList.push_back (pzt.get ()); }
+*/
 	/* IDeviceCore Objects */
+	/*
 	AiSystem& aiSys;
 	AndorCameraCore& andorCamera;
 	BaslerCameraCore& basCamera;
@@ -58,7 +67,7 @@ struct ExperimentThreadInput
 	std::vector<std::reference_wrapper<AgilentCore>> agilents;
 	TekCore& topBottomTek;
 	TekCore& eoAxialTek;
-	NiawgCore& niawg;
+	NiawgCore& niawg;*/
 
 	std::vector<parameterType> globalParameters;
 	ExperimentThreadManager* thisObj;
@@ -67,7 +76,6 @@ struct ExperimentThreadInput
 	ParameterSystem& globalControl;
 
 	DataLogger& logger;
-	UINT intensityAgilentNumber=-1;
 	UINT numVariations = 1;
 	bool quiet = false;
 	expSystemRunList runList;

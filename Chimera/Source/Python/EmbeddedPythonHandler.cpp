@@ -20,7 +20,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	{
 		return;
 	}
-	Py_SetPythonHome( PYTHON_HOME );
+	Py_SetPythonHome( (wchar_t*)PYTHON_HOME );
 	Py_Initialize( );
 	std::string stdOutErr = 
 		"import sys\n"

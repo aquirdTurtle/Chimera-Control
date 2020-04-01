@@ -26,25 +26,25 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, IChimeraWindow)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
 
-	ON_EN_CHANGE( IDC_NIAWG_EDIT, &ScriptingWindow::niawgEditChange)
-	ON_EN_CHANGE( IDC_INTENSITY_EDIT, &ScriptingWindow::agilentEditChange)
-	ON_EN_CHANGE( IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
+	ON_EN_CHANGE( IDC_NIAWG_EDIT, &niawgEditChange)
+	ON_EN_CHANGE( IDC_INTENSITY_EDIT, &agilentEditChange)
+	ON_EN_CHANGE( IDC_MASTER_EDIT, &masterEditChange)
 
 	ON_COMMAND (IDC_CONTROL_NIAWG_CHECK, &handleControlNiawgCheck)
 
-	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
-	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &ScriptingWindow::handleIntensityCombo )
+	ON_COMMAND_RANGE( IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &handleIntensityButtons)
+	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &handleIntensityCombo )
 
-	ON_CBN_SELENDOK( IDC_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleNiawgScriptComboChange)
-	ON_CBN_SELENDOK( IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
+	ON_CBN_SELENDOK( IDC_NIAWG_FUNCTION_COMBO, &handleNiawgScriptComboChange)
+	ON_CBN_SELENDOK( IDC_INTENSITY_FUNCTION_COMBO, &handleAgilentScriptComboChange)
 	
-	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterFunctionChange )
-	ON_COMMAND (IDC_RERNG_EXPERIMENT_BUTTON, &ScriptingWindow::passExperimentRerngButton)
-	ON_CBN_SELENDOK (IDC_RERNG_MODE_COMBO, &ScriptingWindow::passRerngModeComboChange)
+	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &handleMasterFunctionChange )
+	ON_COMMAND (IDC_RERNG_EXPERIMENT_BUTTON, &passExperimentRerngButton)
+	ON_CBN_SELENDOK (IDC_RERNG_MODE_COMBO, &passRerngModeComboChange)
 
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
-	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
+	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipText )
 END_MESSAGE_MAP()
 
 
@@ -264,8 +264,6 @@ void ScriptingWindow::fillMotInput (ExperimentThreadInput* input)
 
 void ScriptingWindow::fillMasterThreadInput( ExperimentThreadInput* input )
 {
-	input->agilents.push_back( intensityAgilent.getCore() );
-	input->intensityAgilentNumber = input->agilents.size() - 1;
 	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
 }
 
@@ -847,4 +845,10 @@ void ScriptingWindow::passRerngModeComboChange ()
 void ScriptingWindow::passExperimentRerngButton ()
 {
 	niawg.rearrangeCtrl.updateActive ();
+}
+
+void ScriptingWindow::fillExpDeviceList (DeviceList& list)
+{
+	list.list.push_back (niawg.core);
+	list.list.push_back (intensityAgilent.getCore ());
 }

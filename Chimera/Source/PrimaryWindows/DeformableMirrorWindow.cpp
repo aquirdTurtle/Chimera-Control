@@ -100,11 +100,6 @@ void DeformableMirrorWindow::handleAddAbberations() {
 	}
 }
 
-DmCore &DeformableMirrorWindow::GetCore() {
-	return dm.getCore();
-}
-
-
 void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile) 
 {
 	try 
@@ -126,4 +121,9 @@ void DeformableMirrorWindow::windowOpenConfig(ConfigStream& configFile)
 void DeformableMirrorWindow::windowSaveConfig(ConfigStream& newFile) 
 {
 	dm.handleSaveConfig(newFile);
+}
+
+void DeformableMirrorWindow::fillExpDeviceList (DeviceList& list)
+{
+	list.list.push_back (dm.getCore());
 }

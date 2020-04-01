@@ -20,9 +20,12 @@
 #include <boost/algorithm/string.hpp>
 
 #include <fstream>
-#include <regex>
   
 std::string ExperimentThreadManager::abortString = "\r\nABORTED!\r\n";
+
+/* deviceList class:
+get by type
+*/
 
 ExperimentThreadManager::ExperimentThreadManager() {}
 
@@ -42,14 +45,9 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	indvSeqElem expSeq;
 	UINT repetitions = 1;
 	mainOptions mainOpts;
-	input->andorCamera.experimentActive = input->runList.andor;
-	input->basCamera.experimentActive = input->runList.basler;
-	input->niawg.expRerngGui = input->rerngGuiForm;
-	std::vector<std::reference_wrapper<IDeviceCore>> deviceList = { input->topBottomTek, input->eoAxialTek,
-					input->andorCamera, input->basCamera, input->niawg, input->dds, input->rsg, input->aiSys };
-	for (auto& ag : input->agilents) { deviceList.push_back (ag.get ()); }
-	for (auto& pzt : input->piezoCores) { deviceList.push_back (pzt.get ()); }
-
+	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
+	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
+	input->devices.getSingleDevice<NiawgCore> ().expRerngGui = input->rerngGuiForm;
 	try
 	{
 		input->comm.expUpdate ("Loading Experiment Settings...\n");
@@ -62,14 +60,14 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		mainOpts = ProfileSystem::stdConfigGetter (cStream, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig );
 		repetitions = ProfileSystem::stdConfigGetter (cStream, "REPETITIONS", Repetitions::getSettingsFromConfig );
 		ParameterSystem::generateKey ( expParams, mainOpts.randomizeVariations, varRangeInfo);
-		for (auto& device : deviceList)
+		for (auto& device : input->devices.list)
 		{
 			device.get ().loadExpSettings (cStream);
 		}
 		if ( input->updatePlotterXVals ) updatePlotX_vals ( input, expParams );
 		/// The Variation Calculation Step.
 		input->comm.expUpdate ("Calculating All Variation Data...\r\n");
-		for (auto& device : deviceList) {
+		for (auto& device : input->devices.list) {
 			if (device.get ().experimentActive) {
 				device.get ().calculateVariations (expParams, input->comm);
 				if (input->thisObj->isAborting) thrower (abortString);
@@ -81,7 +79,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		if (input->expType != ExperimentType::LoadMot)
 		{
 			input->logger.logMasterRuntime (repetitions, expParams);
-			for (auto& device : deviceList) {
+			for (auto& device : input->devices.list) {
 				if (device.get ().experimentActive) {
 					device.get ().logSettings (input->logger);
 				}
@@ -92,7 +90,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		{
 			initVariation ( input, variationInc, expParams);
 			input->comm.expUpdate ("Programming Devices for Variation... ");
-			for (auto& device : deviceList) {
+			for (auto& device : input->devices.list) {
 				if (device.get ().experimentActive) {
 					device.get ().programVariation (variationInc, expParams);
 				}
@@ -106,7 +104,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 				adoStart (input, repInc, variationInc, skipOption);
 			}
 		}
-		for (auto& device : deviceList){
+		for (auto& device : input->devices.list){
 			if (device.get ().experimentActive){
 				device.get ().normalFinish ();
 			}
@@ -114,7 +112,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		normalFinish (input->comm, input->expType, input->runList.master, startTime, input->aoSys );
 	}
 	catch (Error& exception){
-		for (auto& device : deviceList){
+		for (auto& device : input->devices.list){
 			if (device.get ().experimentActive) {
 				device.get ().errorFinish ();
 			}
@@ -989,7 +987,6 @@ void ExperimentThreadManager::checkTriggerNumbers ( std::unique_ptr<ExperimentTh
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
 	bool niawgMismatch = false, rsgMismatch=false;
-	std::vector<std::array<bool, 2>> agMismatchVec ( input->agilents.size ( ), { false,false } );
 	for ( auto variationInc : range ( determineVariationNumber(expParams) ) )
 	{
 		if ( input->runList.master)
@@ -1010,10 +1007,11 @@ void ExperimentThreadManager::checkTriggerNumbers ( std::unique_ptr<ExperimentTh
 				input->debugOptions.message += infoString + "\n";
 			}
 		}
-		if (input->niawg.experimentActive && !niawgMismatch )
+		auto& niawg = input->devices.getSingleDevice<NiawgCore> ();
+		if (niawg.experimentActive && !niawgMismatch )
 		{
-			auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc );
-			auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
+			auto actualTrigs = input->ttls.countTriggers ( niawg.getTrigLines ( ), variationInc );
+			auto niawgExpectedTrigs = niawg.getNumberTrigsInScript ( );
 			std::string infoString = "Actual/Expected NIAWG Triggers: " + str ( actualTrigs ) + "/" 
 				+ str ( niawgExpectedTrigs ) + ".";
 			if ( actualTrigs != niawgExpectedTrigs )
@@ -1030,10 +1028,11 @@ void ExperimentThreadManager::checkTriggerNumbers ( std::unique_ptr<ExperimentTh
 			}
 		}
 		/// check RSG
+		auto& rsg = input->devices.getSingleDevice< MicrowaveCore > ();
 		if ( !rsgMismatch )
 		{
-			auto actualTrigs = input->ttls.countTriggers ( input->rsg.getRsgTriggerLine ( ), variationInc );
-			auto rsgExpectedTrigs = input->rsg.getNumTriggers ( input->rsg.experimentSettings );
+			auto actualTrigs = input->ttls.countTriggers ( rsg.getRsgTriggerLine ( ), variationInc );
+			auto rsgExpectedTrigs = rsg.getNumTriggers ( rsg.experimentSettings );
 			std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
 				+ str ( rsgExpectedTrigs ) + ".";
 			if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
@@ -1049,7 +1048,7 @@ void ExperimentThreadManager::checkTriggerNumbers ( std::unique_ptr<ExperimentTh
 				input->debugOptions.message += infoString + "\n";
 			}
 			/// check Agilents
-			for ( auto& agilent : input->agilents )
+			for ( auto& agilent : input->devices.getDevicesByClass<AgilentCore>() )
 			{
 				agilent.get().checkTriggers ( variationInc, input->ttls, input->comm, input->debugOptions.outputExcessInfo );
 			}
@@ -1224,7 +1223,9 @@ void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadIn
 {
 	auto variations = determineVariationNumber (expParams);
 	input->comm.expUpdate ("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ");
-	if (input->aiSys.wantsQueryBetweenVariations())
+	auto& aiSys = input->devices.getSingleDevice<AiSystem> ();
+	auto& andorCamera = input->devices.getSingleDevice<AndorCameraCore> ();
+	if (aiSys.wantsQueryBetweenVariations())
 	{
 		// the main gui thread does the whole measurement here. This probably makes less sense now. 
 		input->comm.expUpdate ("Querying Voltages...\r\n");
@@ -1245,7 +1246,7 @@ void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadIn
 	}
 	while (true)
 	{
-		if (input->andorCamera.queryStatus () == DRV_ACQUIRING)
+		if (andorCamera.queryStatus () == DRV_ACQUIRING)
 		{
 			Sleep (1000);
 			input->comm.expUpdate ("Waiting for Andor camera to finish acquisition...");

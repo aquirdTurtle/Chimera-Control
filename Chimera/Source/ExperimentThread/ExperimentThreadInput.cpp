@@ -8,10 +8,12 @@
 #include "PrimaryWindows/IChimeraWindow.h"
 
 ExperimentThreadInput::ExperimentThreadInput ( IChimeraWindow* win ) :
-	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ), aiSys (win->auxWin->getAiSys ( ) ),
-	python (win->mainWin->getPython ( ) ), niawg (win->scriptWin->getNiawg ( ) ), comm (win->mainWin->getCommRef ( ) ),
-	rsg (win->auxWin->getRsg ( ) ), eoAxialTek (win->auxWin->getEoAxialTek ( ) ), topBottomTek (win->auxWin->getTopBottomTek ( ) ),
-	globalControl(win->auxWin->getGlobals() ), andorCamera(win->andorWin->getCamera() ), dds(win->auxWin->getDds() ),
-	logger(win->andorWin->getLogger() ), piezoCores(win->auxWin->getPiezoControllers() ), basCamera (win->basWin->getCore())
-{ };
+	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ),
+	python (win->mainWin->getPython ( ) ), comm (win->mainWin->getCommRef ( ) ), 
+	globalControl(win->auxWin->getGlobals() ), logger(win->andorWin->getLogger() )
+{
+	for (auto win_ : win->winList ()) {
+		win_->fillExpDeviceList (devices);
+	}
+};
 

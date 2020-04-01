@@ -218,6 +218,7 @@
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
+    <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
     <ClInclude Include="Source\ExperimentThread\expSystemRunList.h" />
     <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
