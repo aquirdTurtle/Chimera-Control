@@ -74,29 +74,24 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStre
 }
 
 
-void ProfileSystem::saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWindow,
-									   AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::saveEntireProfile(IChimeraWindow* win)
 {
-	saveConfigurationOnly( scriptWindow, mainWin, auxWindow, camWin, basWin );
+	saveConfigurationOnly( win );
 	saveSequence();		
 }
 
 
-void ProfileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-											AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::checkSaveEntireProfile(IChimeraWindow* win)
 {
-	checkConfigurationSave( "Save Configuration Settings?", scriptWindow, mainWin, auxWin, camWin, basWin );
+	checkConfigurationSave( "Save Configuration Settings?", win );
 	checkSequenceSave( "Save Sequence Settings?" );
 }
 
 
-void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-										   AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::allSettingsReadyCheck(IChimeraWindow* win)
 {
-	// check all components of this class.
-	configurationSettingsReadyCheck( scriptWindow, mainWin, auxWin, camWin, basWin);
+	configurationSettingsReadyCheck( win );
 	sequenceSettingsReadyCheck();
-	// passed all checks.
 }
 
 /*
@@ -133,9 +128,7 @@ void ProfileSystem::getVersionFromFile( ConfigStream& file )
 }
 
 
-void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-										AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
-										DeformableMirrorWindow* dmWin)
+void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindow* win)
 {
 	std::ifstream configFileRaw( pathToConfig );
 	// check if opened correctly.
@@ -158,13 +151,13 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	try
 	{
 		getVersionFromFile(cStream);
-		scriptWin->windowOpenConfig(cStream );
-		camWin->windowOpenConfig(cStream );
-		auxWin->windowOpenConfig(cStream );
-		mainWin->windowOpenConfig(cStream );
+		win->scriptWin->windowOpenConfig(cStream );
+		win->andorWin->windowOpenConfig(cStream );
+		win->auxWin->windowOpenConfig(cStream );
+		win->mainWin->windowOpenConfig(cStream );
 		if (cStream.ver >= Version ( "3.4" ) )
 		{
-			basWin->windowOpenConfig (cStream );
+			win->basWin->windowOpenConfig (cStream );
 		}
 		if (cStream.ver >= Version ("5.0"))
 		{
@@ -178,9 +171,9 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}
 	/// finish up
-	auxWin->setVariablesActiveState( true );
+	win->auxWin->setVariablesActiveState( true );
 	// actually set this now
-	scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
+	win->scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
 	updateConfigurationSavedStatus ( true );
 	reloadSequence( NULL_SEQUENCE );
 }
@@ -260,8 +253,7 @@ bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delim
 ]- is not a Normal Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns 
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
-void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-										   AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::saveConfigurationOnly(IChimeraWindow* win)
 {
 	std::string configNameToSave = currentProfile.configuration;
 	// check to make sure that this is a name.
@@ -289,11 +281,11 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	saveStream << std::setprecision( 13 );
 	saveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->windowSaveConfig(saveStream);
-	camWin->windowSaveConfig(saveStream);
-	auxWin->windowSaveConfig(saveStream);
-	mainWin->windowSaveConfig(saveStream);
-	basWin->windowSaveConfig (saveStream);
+	win->scriptWin->windowSaveConfig(saveStream);
+	win->andorWin->windowSaveConfig(saveStream);
+	win->auxWin->windowSaveConfig(saveStream);
+	win->mainWin->windowSaveConfig(saveStream);
+	win->basWin->windowSaveConfig (saveStream);
 	std::ofstream configSaveFile (currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
 	if (!configSaveFile.is_open ())
 	{
@@ -328,10 +320,9 @@ CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::saveConfigurationAs(IChimeraWindow* win)
 {
-	std::string configurationPathToSave = saveWithExplorer( mainWin, CONFIG_EXTENSION, currentProfile );
+	std::string configurationPathToSave = saveWithExplorer(win, CONFIG_EXTENSION, currentProfile );
 	if ( configurationPathToSave == "")
 	{
 		// canceled
@@ -352,11 +343,11 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	configSaveStream << std::setprecision( 13 );
 	configSaveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->windowSaveConfig(configSaveStream);
-	camWin->windowSaveConfig(configSaveStream);
-	auxWin->windowSaveConfig(configSaveStream);
-	mainWin->windowSaveConfig(configSaveStream);
-	basWin->windowSaveConfig (configSaveStream);
+	win->scriptWin->windowSaveConfig(configSaveStream);
+	win->andorWin->windowSaveConfig(configSaveStream);
+	win->auxWin->windowSaveConfig(configSaveStream);
+	win->mainWin->windowSaveConfig(configSaveStream);
+	win->basWin->windowSaveConfig (configSaveStream);
 	// check if file already exists
 	std::ofstream configSaveFile (configurationPathToSave);
 	if (!configSaveFile.is_open ())
@@ -448,13 +439,11 @@ void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 }
 
 
-bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-													 AuxiliaryWindow* auxWin, AndorWindow* camWin, 
-													 BaslerWindow* basWin )
+bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindow* win)
 {
 	// prompt for save.
 	if (checkConfigurationSave( "There are unsaved configuration settings. Would you like to save the current "
-								"configuration before starting?", scriptWindow, mainWin, auxWin, camWin, basWin))
+								"configuration before starting?", win))
 	{
 		// canceled
 		return true;
@@ -463,15 +452,14 @@ bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWind
 }
 
 
-bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-											AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin )
+bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindow* win)
 {
 	if (!configurationIsSaved)
 	{
 		int answer = promptBox(prompt, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
-			saveConfigurationOnly(scriptWindow, mainWin, auxWin, camWin, basWin );
+			saveConfigurationOnly( win );
 		}
 		else if (answer == IDCANCEL)
 		{
@@ -482,22 +470,19 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow*
 }
 
 
-
-void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-											  AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin, 
-											  DeformableMirrorWindow* dmWin )
+void ProfileSystem::handleSelectConfigButton(IChimeraWindow* win)
 {	
 	if ( !configurationIsSaved )
 	{
 		if ( checkConfigurationSave( "The current configuration is unsaved. Save current configuration before changing?",
-									 scriptWindow, mainWin, auxWin, camWin, basWin ) )
+									 win ) )
 		{
 			// TODO
 			return;
 		}
 	}
-	std::string fileaddress = openWithExplorer( parent, CONFIG_EXTENSION );
-	openConfigFromPath( fileaddress, scriptWindow, mainWin, camWin, auxWin, basWin, dmWin);
+	std::string fileaddress = openWithExplorer( win, CONFIG_EXTENSION );
+	openConfigFromPath( fileaddress, win);
 }
 
 

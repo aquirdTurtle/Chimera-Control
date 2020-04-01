@@ -29,12 +29,9 @@ class ProfileSystem
 	public:
 		ProfileSystem(std::string fileSystemPath);
 
-		void saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-								AndorWindow* camWin, BaslerWindow* basWin );
-		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-									 AndorWindow* camWin, BaslerWindow* basWin );
-		void allSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-									AndorWindow* camWin, BaslerWindow* basWin );
+		void saveEntireProfile( IChimeraWindow* win );
+		void checkSaveEntireProfile(IChimeraWindow* win);
+		void allSettingsReadyCheck(IChimeraWindow* win);
 		static std::function<void (ScriptStream&, std::string&)> getGetlineFunc (Version& ver);
 		void saveSequence();
 		void saveSequenceAs();
@@ -51,23 +48,17 @@ class ProfileSystem
 		void addToSequence(CWnd* parent);
 		void reloadSequence(std::string sequenceToReload);
 
-		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-								    AndorWindow* camWin, BaslerWindow* basWin );
-		void saveConfigurationAs( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-								  AndorWindow* camWin, BaslerWindow* basWin );
+		void saveConfigurationOnly(IChimeraWindow* win);
+		void saveConfigurationAs(IChimeraWindow* win);
 		void renameConfiguration();
 		void deleteConfiguration();
-		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-								 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin,
-								 DeformableMirrorWindow* dmWin);
+		void openConfigFromPath( std::string pathToConfig, IChimeraWindow* win);
 		static void getVersionFromFile( ConfigStream& file );
 		static std::string getNiawgScriptAddrFromConfig(ConfigStream& configStream);
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
-		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-											 AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
-		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-									AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin );
+		bool configurationSettingsReadyCheck(IChimeraWindow* win);
+		bool checkConfigurationSave(std::string prompt, IChimeraWindow* win);
 		profileSettings getProfileSettings();
 		seqSettings getSeqSettings( );
 
@@ -78,9 +69,7 @@ class ProfileSystem
 		void fullyDeleteFolder ( std::string folderToDelete );
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange( int width, int height, fontMap fonts );
-		void handleSelectConfigButton( CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-									   AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin,
-									   DeformableMirrorWindow* dmWin);
+		void handleSelectConfigButton( IChimeraWindow* win);
 		
 		template <class sysType>
 		static void standardOpenConfig ( ConfigStream& openFile, std::string delim, std::string endDelim, 

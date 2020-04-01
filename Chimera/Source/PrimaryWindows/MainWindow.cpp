@@ -340,7 +340,7 @@ void MainWindow::passConfigPress( )
 {	
 	try
 	{
-		profile.handleSelectConfigButton( this, scriptWin, this, auxWin, andorWin, basWin, dmWin );
+		profile.handleSelectConfigButton( this );
 	}
 	catch ( Error& err )
 	{
@@ -890,13 +890,13 @@ void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( scriptWin, this, auxWin, andorWin, basWin );
+	profile.allSettingsReadyCheck( this );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( scriptWin, this, auxWin, andorWin, basWin);
+	profile.checkSaveEntireProfile( this );
 }
 
 
