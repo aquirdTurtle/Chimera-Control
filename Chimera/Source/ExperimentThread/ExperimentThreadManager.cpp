@@ -47,7 +47,6 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	mainOptions mainOpts;
 	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
-	input->devices.getSingleDevice<NiawgCore> ().expRerngGui = input->rerngGuiForm;
 	try
 	{
 		input->comm.expUpdate ("Loading Experiment Settings...\n");

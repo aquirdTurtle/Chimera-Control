@@ -1177,7 +1177,8 @@ void AndorWindow::prepareAtomCruncher( AllExperimentInput& input )
 	// options
 	if ( input.masterInput )
 	{
-		input.cruncherInput->rearrangerActive = input.masterInput->rerngGuiForm.active;
+		auto& niawg = input.masterInput->devices.getSingleDevice< NiawgCore > ();
+		input.cruncherInput->rearrangerActive = niawg.expRerngOptions.active;
 	}
 	else
 	{

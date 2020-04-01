@@ -33,7 +33,7 @@ struct rerngThreadInput
 	NiawgCore* niawg;
 	Communicator& comm;
 	// stuff from the rearrangement input
-	rerngGuiOptionsForm guiOptions;
+	rerngGuiOptions guiOptions;
 	rerngContainer<rerngMove> flashMoves;
 	rerngContainer<rerngMove> noFlashMoves;
 	Matrix < std::vector<double> > indvDimMoves;

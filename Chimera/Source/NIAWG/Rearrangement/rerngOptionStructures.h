@@ -84,7 +84,7 @@ struct rerngGuiOptions
 };
 */
 
-struct rerngGuiOptionsForm
+struct rerngGuiOptions
 {
 	bool active = false;
 	Expression moveSpeed = "60e-6";

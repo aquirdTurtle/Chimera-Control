@@ -105,9 +105,9 @@ void rerngGuiControl::setEnabled (bool enabled)
 }
 
 
-rerngGuiOptionsForm rerngGuiControl::getParams( )
+rerngGuiOptions rerngGuiControl::getParams( )
 {
-	rerngGuiOptionsForm tempParams;
+	rerngGuiOptions tempParams;
 	tempParams.active = experimentIncludesRerng.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
@@ -224,94 +224,89 @@ void rerngGuiControl::updateActive ( )
 }
 
 
-void rerngGuiControl::handleOpenConfig(ConfigStream& openFile)
+rerngGuiOptions rerngGuiControl::getSettingsFromConfig (ConfigStream& config)
 {
-	rerngGuiOptionsForm info;
+	rerngGuiOptions info;
 	std::string tmpStr;
-	openFile >> info.active;
-	openFile >> tmpStr;
-	info.flashingRate = tmpStr;
-	openFile >> tmpStr;
-	info.moveBias = tmpStr;
-	openFile >> tmpStr;
-	info.moveSpeed = tmpStr;
-	if (openFile.ver < Version ( "2.3" ) )
+	config >> info.active >> info.flashingRate >> info.moveBias >> info.moveSpeed;
+	if (config.ver < Version ("2.3"))
 	{
 		std::string garbage;
-		openFile >> garbage;
-		openFile >> garbage;
+		config >> garbage >> garbage;
 	}
-	if (openFile.ver > Version ( "2.2" ) )
+	if (config.ver > Version ("2.2"))
 	{
-		openFile >> tmpStr;
-		info.deadTime = tmpStr;
-		openFile >> tmpStr;
-		info.staticMovingRatio = tmpStr;
+		config >> info.deadTime >> info.staticMovingRatio;
 	}
 	else
 	{
-		info.deadTime = str ( "0" );
-		info.staticMovingRatio = str ( "1" );
+		info.deadTime = str ("0");
+		info.staticMovingRatio = str ("1");
 	}
-	if (openFile.ver > Version ( "2.5" ) )
+	if (config.ver > Version ("2.5"))
 	{
-		openFile >> info.outputInfo;
+		config >> info.outputInfo;
 	}
 	else
 	{
 		info.outputInfo = false;
 	}
-	if (openFile.ver > Version ( "2.10" ) )
+	if (config.ver > Version ("2.10"))
 	{
-		openFile >> info.outputIndv;
+		config >> info.outputIndv;
 	}
 	else
 	{
 		info.outputIndv = false;
 	}
-	if (openFile.ver > Version ( "2.11" ) )
+	if (config.ver > Version ("2.11"))
 	{
-		openFile >> info.preprogram;
-		openFile >> info.useCalibration;
+		config >> info.preprogram >> info.useCalibration;
 	}
 	else
 	{
 		info.preprogram = false;
 		info.useCalibration = false;
 	}
-	if (openFile.ver > Version ( "2.12" ) )
+	if (config.ver > Version ("2.12"))
 	{
-		openFile >> tmpStr;
+		config >> tmpStr;
 		info.finalMoveTime = tmpStr;
 	}
 	else
 	{
-		info.finalMoveTime = str ( 1e-3 );
+		info.finalMoveTime = str (1e-3);
 	}
-	if (openFile.ver > Version ( "3.1" ) && openFile.ver < Version ( "3.6" ) )
+	if (config.ver > Version ("3.1") && config.ver < Version ("3.6"))
 	{
-		openFile >> tmpStr;
+		config >> tmpStr;
 	}
-	if (openFile.ver >= Version ( "3.6" ) )
+	if (config.ver >= Version ("3.6"))
 	{
-		openFile >> tmpStr;
-		info.rMode = rerngMode::fromStr ( tmpStr );
+		config >> tmpStr;
+		info.rMode = rerngMode::fromStr (tmpStr);
 	}
-
-	if (openFile.ver > Version ( "3.1" ) )
+	if (config.ver > Version ("3.1"))
 	{
-		openFile >> tmpStr;
+		config >> tmpStr;
 		info.fastMoveTime = tmpStr;
 	}
 	else
 	{
-		info.fastMoveTime = str ( 1e-6 );
+		info.fastMoveTime = str (1e-6);
 	}
-	if (openFile.ver < Version ( "3.6" ) && openFile.ver >= Version ( "3.4" ) )
+	if (config.ver < Version ("3.6") && config.ver >= Version ("3.4"))
 	{
-		openFile >> tmpStr;
+		config >> tmpStr;
 	}
-	setParams ( info );
+	return info;
+}
+
+
+void rerngGuiControl::handleOpenConfig(ConfigStream& openFile)
+{
+	
+	setParams (getSettingsFromConfig (openFile));
 }
 
 
@@ -319,7 +314,7 @@ void rerngGuiControl::handleSaveConfig( ConfigStream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
 	// conversions happen in getParams.
-	rerngGuiOptionsForm info = getParams( );
+	rerngGuiOptions info = getParams( );
  	saveFile << "/*Rearrangement Active?*/\t" << info.active 
  			 << "\n/*Flashing Rate:*/\t\t\t" << info.flashingRate 
  			 << "\n/*Move Bias:*/\t\t\t\t" << info.moveBias 
@@ -337,7 +332,7 @@ void rerngGuiControl::handleSaveConfig( ConfigStream& saveFile )
 }
 
 
-void rerngGuiControl::setParams( rerngGuiOptionsForm params )
+void rerngGuiControl::setParams( rerngGuiOptions params )
 {
 	experimentIncludesRerng.SetCheck( params.active );
 	// convert back to MHz from Hz

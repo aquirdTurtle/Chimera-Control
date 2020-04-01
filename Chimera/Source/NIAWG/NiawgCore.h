@@ -21,6 +21,9 @@
 #include "Rearrangement/rerngThreadInput.h"
 
 #include "Fgen.h"
+
+#include <boost/container/vector.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <cmath>
@@ -29,7 +32,6 @@
 #include <vector>
 #include <array>
 
-#include <boost/container/vector.hpp>
 
 struct ExperimentThreadInput;
 struct seqInfo;
@@ -58,8 +60,8 @@ class NiawgCore : public IDeviceCore
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		
 		void handleVariations( NiawgOutput& output, std::vector<parameterType>& variables, UINT variation, 
-							   std::vector<long>& mixedWaveSizes, std::string& warnings, rerngGuiOptionsForm& rerngGuiForm );
-		void analyzeNiawgScript ( NiawgOutput& output, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo,
+							   std::vector<long>& mixedWaveSizes, std::string& warnings, rerngGuiOptions& rerngGuiForm );
+		void analyzeNiawgScript ( NiawgOutput& output, std::string& warnings, rerngGuiOptions rerngGuiInfo,
 								  std::vector<parameterType>& variables);
 		void flashVaries( waveInfoForm& wave );
 		///
@@ -95,7 +97,7 @@ class NiawgCore : public IDeviceCore
 		void turnOffRerng( );
 		void waitForRerng( bool andClearWvfm );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
-		void programNiawg( std::string& warnings, UINT variation, rerngGuiOptionsForm& rerngGuiForm, 
+		void programNiawg( std::string& warnings, UINT variation, rerngGuiOptions& rerngGuiForm, 
 						   std::vector<parameterType>& expParams );
 		void setDefaultWaveformScript( );
 		void turnOff();
@@ -109,11 +111,11 @@ class NiawgCore : public IDeviceCore
 		FgenFlume fgenConduit;
 		static void smartTargettingRearrangement ( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
 												   niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
-												   rerngGuiOptionsForm options, bool randomize = true,
+												   rerngGuiOptions options, bool randomize = true,
 												   bool orderMovesByProximityToTarget = false );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source,
-								   std::vector<complexMove> &flashMoves, rerngGuiOptionsForm options );
+								   std::vector<complexMove> &flashMoves, rerngGuiOptions options );
 		void finalizeScript ( ULONGLONG repetitions, std::string name, std::string workingUserScripts,
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
@@ -131,7 +133,7 @@ class NiawgCore : public IDeviceCore
 		bool outputReadTimes = false;
 		bool outputAsText = false;
 		UINT expRepetitions = 0;
-		rerngGuiOptionsForm expRerngGui;
+		rerngGuiOptions expRerngOptions;
 		std::vector<ViChar> niawgMachineScript;
 		std::string debugMsg = "";
 		NiawgOutput expOutput;
@@ -143,7 +145,7 @@ class NiawgCore : public IDeviceCore
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		static void writeToFile( std::vector<double> waveVals );
 		///
-		void rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form, std::vector<parameterType>& variables, UINT var );
+		void rerngGuiOptionsFormToFinal( rerngGuiOptions& form, std::vector<parameterType>& variables, UINT var );
 		///
 
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
@@ -161,7 +163,7 @@ class NiawgCore : public IDeviceCore
 		void deleteRerngWave( );
 		void startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator& comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-							   std::condition_variable* rerngConditionWatcher, rerngGuiOptionsForm guiInfo, atomGrid grid );
+							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWave& wave, bool isDefault, 
 								niawgLibOption::mode libOption = niawgLibOption::defaultMode);
@@ -179,7 +181,7 @@ class NiawgCore : public IDeviceCore
 		void handleLogic( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveform( NiawgOutput& output, std::string cmd, ScriptStream& scripts, 
-									rerngGuiOptionsForm guiInfo, std::vector<parameterType>& variables, 
+									rerngGuiOptions guiInfo, std::vector<parameterType>& variables, 
 									std::vector<vectorizedNiawgVals>& vectorizedVals );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
@@ -226,7 +228,7 @@ class NiawgCore : public IDeviceCore
 		std::vector<double> makeFullRerngWave( rerngScriptInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
 										       UINT sourceRows, UINT sourceCols, complexMove move );
 		std::vector<double> makeFastRerngWave( rerngScriptInfo& rerngSettings, UINT sourceRows, UINT sourceCols, 
-											   complexMove moveInfo, rerngGuiOptionsForm options, double moveBias );
+											   complexMove moveInfo, rerngGuiOptions options, double moveBias );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 

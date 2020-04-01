@@ -75,8 +75,6 @@ struct ExperimentThreadInput
 	chronoTimes* andorsImageTimes;
 	chronoTimes* grabTimes;
 	std::condition_variable* conditionVariableForRerng;
-	rerngGuiOptionsForm rerngGuiForm;
-	//rerngGuiOptions rerngGui;
 };
 
 

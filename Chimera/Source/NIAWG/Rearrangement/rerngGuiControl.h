@@ -14,9 +14,10 @@
 class rerngGuiControl
 {
 	public:
-		rerngGuiOptionsForm getParams( );
-		void setParams( rerngGuiOptionsForm params );
+		rerngGuiOptions getParams( );
+		void setParams( rerngGuiOptions params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
+		static rerngGuiOptions getSettingsFromConfig (ConfigStream& config);
 		void handleOpenConfig( ConfigStream& openFile);
 		void handleSaveConfig( ConfigStream& newFile );
 		void rearrange( int width, int height, fontMap fonts );
