@@ -155,7 +155,6 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 																		  currentProfile.configLocation.size( ) );
 	currentProfile.configLocation += "\\";
 	configDisplay.SetWindowTextA( cstr( currentProfile.configuration + ": " + pathToConfig ) );
-	std::string versionStr;
 	try
 	{
 		getVersionFromFile(cStream);
