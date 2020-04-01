@@ -22,7 +22,6 @@
 ProfileSystem::ProfileSystem(std::string fileSystemPath)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
-	currentSequence.name = NULL_SEQUENCE;
 }
 
 
@@ -39,27 +38,6 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	selectConfigButton.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 25 };
 	selectConfigButton.Create( "Open Configuration", NORM_PUSH_OPTIONS, selectConfigButton.sPos, parent, 
 							   IDC_SELECT_CONFIG_COMBO );
-	/// SEQUENCE
-	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 380, pos.y + 25 };
-	sequenceLabel.Create( "SEQUENCE", NORM_STATIC_OPTIONS, sequenceLabel.sPos, parent, id++ );
-	sequenceLabel.fontType = fontTypes::HeadingFont;
-	sequenceSavedIndicator.sPos = { pos.x + 380, pos.y, pos.x + 470, pos.y += 25 };
-	sequenceSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
-								   sequenceSavedIndicator.sPos, parent, id++ );
-	sequenceSavedIndicator.SetCheck( BST_CHECKED );
-	updateSequenceSavedStatus( true );
-	// combo
-	sequenceCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
-	sequenceCombo.Create( NORM_COMBO_OPTIONS, sequenceCombo.sPos, parent, IDC_SEQUENCE_COMBO);
-	sequenceCombo.AddString( "NULL SEQUENCE" );
-	sequenceCombo.SetCurSel( 0 );
-	sequenceCombo.SetItemHeight( 0, 50 );
-	pos.y += 25;
-	// display
-	sequenceInfoDisplay.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
-	sequenceInfoDisplay.Create( NORM_STATIC_OPTIONS | ES_CENTER | ES_MULTILINE | ES_AUTOVSCROLL,
-								sequenceInfoDisplay.sPos, parent, id++ );
-	sequenceInfoDisplay.SetWindowTextA( "Sequence of Configurations to Run:\r\n" );
 }
 
 
@@ -77,21 +55,18 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStre
 void ProfileSystem::saveEntireProfile(IChimeraWindow* win)
 {
 	saveConfigurationOnly( win );
-	saveSequence();		
 }
 
 
 void ProfileSystem::checkSaveEntireProfile(IChimeraWindow* win)
 {
 	checkConfigurationSave( "Save Configuration Settings?", win );
-	checkSequenceSave( "Save Sequence Settings?" );
 }
 
 
 void ProfileSystem::allSettingsReadyCheck(IChimeraWindow* win)
 {
 	configurationSettingsReadyCheck( win );
-	sequenceSettingsReadyCheck();
 }
 
 /*
@@ -175,7 +150,6 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindow
 	// actually set this now
 	win->scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
 	updateConfigurationSavedStatus ( true );
-	reloadSequence( NULL_SEQUENCE );
 }
 
 
@@ -485,342 +459,6 @@ void ProfileSystem::handleSelectConfigButton(IChimeraWindow* win)
 	openConfigFromPath( fileaddress, win);
 }
 
-
-void ProfileSystem::loadNullSequence()
-{
-	currentSequence.name = NULL_SEQUENCE;
-	// only current configuration loaded
-	currentSequence.sequence.clear();
-	if (currentProfile.configuration != "")
-	{
-		currentSequence.sequence.push_back(currentProfile);
-		// change edit
-		sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
-		appendText(("1. " + currentSequence.sequence[0].configuration + "\r\n"), sequenceInfoDisplay);
-	}
-	else
-	{
-		sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
-		appendText("No Configuration Loaded\r\n", sequenceInfoDisplay);
-	}
-	sequenceCombo.SelectString(0, NULL_SEQUENCE);
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::addToSequence(CWnd* parent)
-{
-	if (currentProfile.configuration == "")
-	{
-		// nothing to add.
-		return;
-	}
-	currentSequence.sequence.push_back(currentProfile);
-	appendText( str( currentSequence.sequence.size() ) + ". "
-				+ currentSequence.sequence.back().configuration + "\r\n", sequenceInfoDisplay );
-	updateSequenceSavedStatus(false);
-}
-
-/// SEQUENCE HANDLING
-void ProfileSystem::sequenceChangeHandler()
-{
-	// get the name
-	long long itemIndex = sequenceCombo.GetCurSel(); 
-	TCHAR sequenceName[256];
-	sequenceCombo.GetLBText(int(itemIndex), sequenceName);
-	if (itemIndex == -1)
-	{
-		// This means that the oreintation combo was set before the Configuration list combo was set so that the 
-		// configuration list combo is blank. just break out, this is fine.
-		return;
-	}
-	if (str(sequenceName) == NULL_SEQUENCE)
-	{
-		loadNullSequence();
-		return;
-	}
-	else
-	{
-		openSequence(sequenceName);
-	}
-	// else not null_sequence.
-	reloadSequence( currentSequence.name );
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::reloadSequence(std::string sequenceToReload)
-{
-	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfile.configLocation, str("*") + "." + SEQUENCE_EXTENSION, sequenceToReload);
-	sequenceCombo.AddString(NULL_SEQUENCE);
-	if (sequenceToReload == NULL_SEQUENCE)
-	{
-		loadNullSequence();
-	}
-}
-
-
-void ProfileSystem::saveSequence()
-{
-	if ( currentSequence.name == NULL_SEQUENCE)
-	{
-		// nothing to save;
-		return;
-	}
-	// if not saved...
-	if ( currentSequence.name == "")
-	{
-		std::string result;
-		TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
-		dialog.DoModal();
-
-		if (result == "")
-		{
-			return;
-		}
-		currentSequence.name = result;
-	}
-	std::fstream sequenceSaveFile( currentProfile.configLocation + "\\" + currentSequence.name + "."
-								   + SEQUENCE_EXTENSION, std::fstream::out);
-	if (!sequenceSaveFile.is_open())
-	{
-		thrower ( "ERROR: Couldn't open sequence file for saving!" );
-	}
-	sequenceSaveFile << "Version: 1.0\n";
-	for (auto& seq : currentSequence.sequence)
-	{
-		sequenceSaveFile << seq.configuration + "\n";
-		sequenceSaveFile << seq.configLocation + "\n";
-		sequenceSaveFile << seq.parentFolderName + "\n";
-	}
-	sequenceSaveFile.close();
-	reloadSequence( currentSequence.name );
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::saveSequenceAs()
-{
-	// prompt for name
-	std::string result;
-	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
-	dialog.DoModal();
-	//
-	if (result == "")
-	{
-		// user canceled or entered nothing
-		return;
-	}
-	if (str(result) == NULL_SEQUENCE)
-	{
-		// nothing to save;
-		return;
-	}
-	// if not saved...
-	std::fstream sequenceSaveFile(currentProfile.configLocation + "\\" + str(result) + "." + SEQUENCE_EXTENSION, 
-								   std::fstream::out);
-	if (!sequenceSaveFile.is_open())
-	{
-		thrower ( "ERROR: Couldn't open sequence file for saving!" );
-	}
-	currentSequence.name = str(result);
-	sequenceSaveFile << "Version: 1.0\n";
-	for (UINT sequenceInc = 0; sequenceInc < currentSequence.sequence.size(); sequenceInc++)
-	{
-		sequenceSaveFile << currentSequence.sequence[sequenceInc].configuration + "\n";
-	}
-	sequenceSaveFile.close();
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::renameSequence()
-{
-	// check if configuration has been set yet.
-	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
-	{
-		thrower ( "Please select a sequence for renaming." );
-	}
-	std::string newSequenceName;
-	TextPromptDialog dialog(&newSequenceName, "Please enter a new name for this sequence.", currentSequence.name);
-	dialog.DoModal();
-	if (newSequenceName == "")
-	{
-		// canceled
-		return;
-	}
-	int result = MoveFile( cstr(currentProfile.configLocation + currentSequence.name + "." + SEQUENCE_EXTENSION),
-						   cstr(currentProfile.configLocation + newSequenceName + "." + SEQUENCE_EXTENSION) );
-	if (result == 0)
-	{
-		thrower ( "Renaming of the sequence file Failed! Ask Mark about bugs" );
-	}
-	currentSequence.name = newSequenceName;
-	reloadSequence( currentSequence.name );
-	updateSequenceSavedStatus( true );
-}
-
-
-void ProfileSystem::deleteSequence()
-{
-	// check if configuration has been set yet.
-	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
-	{
-		thrower ("Please select a sequence for deleting.");
-	}
-	int answer = promptBox("Are you sure you want to delete the current sequence: " + currentSequence.name,
-							 MB_YESNO);
-	if (answer == IDNO)
-	{
-		return;
-	}
-	std::string currentSequenceLocation = currentProfile.configLocation + currentSequence.name + "."
-		+ SEQUENCE_EXTENSION;
-	int result = DeleteFile(cstr(currentSequenceLocation));
-	if (result == 0)
-	{
-		thrower ( "ERROR: Deleteing the configuration file failed!" );
-	}
-	// since the sequence this (may have been) was saved to is gone, no saved version of current code.
-	updateSequenceSavedStatus(false);
-	// just deleted the current configuration
-	currentSequence.name = "";
-	// reset combo since the files have now changed after delete
-	reloadSequence("__NONE__");
-}
-
-
-void ProfileSystem::newSequence(CWnd* parent)
-{
-	// prompt for name
-	std::string result;
-	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
-	dialog.DoModal();
-
-	if (result == "")
-	{
-		// user canceled or entered nothing
-		return;
-	}
-	// try to open the file.
-	std::fstream sequenceFile(currentProfile.configLocation + "\\" + result + "." + SEQUENCE_EXTENSION, 
-							   std::fstream::out);
-	if (!sequenceFile.is_open())
-	{
-		thrower ( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your "
-				 "name." );
-	}
-	std::string newSequenceName = str(result);
-	sequenceFile << newSequenceName + "\n";
-	// output current configuration
-	if (newSequenceName == "")
-	{
-		return;
-	}
-	// reload combo.
-	reloadSequence( currentSequence.name );
-}
-
-
-void ProfileSystem::openSequence(std::string sequenceName)
-{
-	// try to open the file
-	std::fstream sequenceFile(currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION);
-	if (!sequenceFile.is_open())
-	{
-		thrower ( "ERROR: sequence file failed to open! Make sure the sequence with address ..." 
-				 + currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
-	}
-	currentSequence.name = str(sequenceName);
-	// read the file
-	std::string version;
-	std::getline(sequenceFile, version);
-	currentSequence.sequence.clear();
-	while (sequenceFile)
-	{
-		profileSettings tempSettings;
-		getline( sequenceFile, tempSettings.configuration );
-		getline( sequenceFile, tempSettings.configLocation );
-		getline( sequenceFile, tempSettings.parentFolderName );
-		if ( !sequenceFile )
-		{
-			break;
-		}
-		currentSequence.sequence.push_back(tempSettings);
-	}
-	// update the edit
-	sequenceInfoDisplay.SetWindowTextA("Configuration Sequence:\r\n");
-	for (auto sequenceInc : range(currentSequence.sequence.size()))
-	{
-		appendText( str( sequenceInc + 1 ) + ". " + currentSequence.sequence[sequenceInc].configuration + "\r\n",
-					sequenceInfoDisplay );
-	}
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::updateSequenceSavedStatus(bool isSaved)
-{
-	sequenceIsSaved = isSaved;
-	if (isSaved)
-	{
-		sequenceSavedIndicator.SetCheck(BST_CHECKED);
-	}
-	else
-	{
-		sequenceSavedIndicator.SetCheck(BST_UNCHECKED);
-	}
-}
-
-
-bool ProfileSystem::sequenceSettingsReadyCheck()
-{
-	if (!sequenceIsSaved)
-	{
-		if (checkSequenceSave("There are unsaved sequence settings. Would you like to save the current sequence before"
-							   " starting?"))
-		{
-			// canceled
-			return true;
-		}
-	}
-	return false;
-}
-
-
-bool ProfileSystem::checkSequenceSave(std::string prompt)
-{
-	if (!sequenceIsSaved)
-	{
-		int answer = promptBox(prompt, MB_YESNOCANCEL);
-		if (answer == IDYES)
-		{
-			saveSequence();
-		}
-		else if (answer == IDCANCEL)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-
-std::string ProfileSystem::getSequenceNamesString()
-{
-	std::string namesString = "";
-	if ( currentSequence.name != "NO SEQUENCE")
-	{
-		namesString += "Sequence:\r\n";
-		for (UINT sequenceInc = 0; sequenceInc < currentSequence.sequence.size(); sequenceInc++)
-		{
-			namesString += "\t" + str(sequenceInc) + ": " + currentSequence.sequence[sequenceInc].configuration + "\r\n";
-		}
-	}
-	return namesString;
-}
-
-
 std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 {
 	std::ifstream configF(profile.configFilePath());
@@ -845,10 +483,6 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 
 void ProfileSystem::rearrange(int width, int height, fontMap fonts)
 {
-	sequenceLabel.rearrange( width, height, fonts);
-	sequenceCombo.rearrange( width, height, fonts);
-	sequenceInfoDisplay.rearrange( width, height, fonts);
-	sequenceSavedIndicator.rearrange( width, height, fonts);
 	configurationSavedIndicator.rearrange( width, height, fonts);
 	configDisplay.rearrange( width, height, fonts );
 	selectConfigButton.rearrange( width, height, fonts );
@@ -970,9 +604,4 @@ void ProfileSystem::fullyDeleteFolder(std::string folderToDelete)
 profileSettings ProfileSystem::getProfileSettings()
 {
 	return currentProfile;
-}
-
-seqSettings ProfileSystem::getSeqSettings( )
-{
-	return currentSequence;
 }

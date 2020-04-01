@@ -76,7 +76,6 @@ class MainWindow : public IChimeraWindow
 		void passMainOptionsPress( UINT id );
 		void handleDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
-		void handleSequenceCombo();
 		void passClear( UINT id );
 		CFont* getPlotFont( );
 		// auxiliary functions used by the window.
@@ -89,7 +88,6 @@ class MainWindow : public IChimeraWindow
 		std::string getNotes( );
 		fontMap getFonts();
 		profileSettings getProfileSettings();
-		seqSettings getSeqSettings( );
 		debugInfo getDebuggingOptions();
 		mainOptions getMainOptions();
 
