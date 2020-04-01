@@ -50,24 +50,6 @@ struct ExperimentThreadInput
 	AoSystem& aoSys;
 
 	DeviceList devices;
-	//std::vector<std::reference_wrapper<IDeviceCore>> deviceList;
-	/* = { input->topBottomTek, input->eoAxialTek,
-					input->andorCamera, input->basCamera, input->niawg, input->dds, input->rsg, input->aiSys }; */
-	/*	for (auto& ag : input->agilents) { deviceList.push_back (ag.get ()); }
-	for (auto& pzt : input->piezoCores) { deviceList.push_back (pzt.get ()); }
-*/
-	/* IDeviceCore Objects */
-	/*
-	AiSystem& aiSys;
-	AndorCameraCore& andorCamera;
-	BaslerCameraCore& basCamera;
-	DdsCore& dds;
-	std::vector<std::reference_wrapper<PiezoCore>> piezoCores;
-	MicrowaveCore& rsg;
-	std::vector<std::reference_wrapper<AgilentCore>> agilents;
-	TekCore& topBottomTek;
-	TekCore& eoAxialTek;
-	NiawgCore& niawg;*/
 
 	std::vector<parameterType> globalParameters;
 	ExperimentThreadManager* thisObj;
@@ -81,7 +63,6 @@ struct ExperimentThreadInput
 	expSystemRunList runList;
 	UINT numAiMeasurements=0;
 	bool updatePlotterXVals = false;
-	bool dontActuallyGenerate = false;
 	std::atomic<bool>* skipNext = NULL;
 	atomGrid analysisGrid;
 	ExperimentType expType = ExperimentType::Normal;
