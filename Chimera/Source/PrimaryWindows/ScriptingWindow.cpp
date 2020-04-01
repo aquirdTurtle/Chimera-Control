@@ -55,8 +55,6 @@ void ScriptingWindow::handleControlNiawgCheck ()
 
 void ScriptingWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 {
-	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
-	input->rerngGuiForm.active = false;
 }
 
 
@@ -256,16 +254,8 @@ BOOL ScriptingWindow::OnInitDialog()
 	return IChimeraWindow::OnInitDialog ();
 }
 
-void ScriptingWindow::fillMotInput (ExperimentThreadInput* input)
-{
-	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
-	input->rerngGuiForm.active = false;
-}
-
-void ScriptingWindow::fillMasterThreadInput( ExperimentThreadInput* input )
-{
-	input->rerngGuiForm = niawg.rearrangeCtrl.getParams ();
-}
+void ScriptingWindow::fillMotInput (ExperimentThreadInput* input){}
+void ScriptingWindow::fillMasterThreadInput( ExperimentThreadInput* input ){}
 
 
 void ScriptingWindow::OnTimer(UINT_PTR eventID)

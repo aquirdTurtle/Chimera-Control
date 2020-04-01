@@ -8,6 +8,7 @@
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "GeneralObjects/Matrix.h"
+#include "Rearrangement/rerngGuiControl.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <chrono>
@@ -154,7 +155,7 @@ niawgPair<ULONG> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> target )
 }
 
 
-void NiawgCore::programNiawg( std::string& warnings, UINT variation, rerngGuiOptionsForm& rerngGuiForm, 
+void NiawgCore::programNiawg( std::string& warnings, UINT variation, rerngGuiOptions& rerngGuiForm, 
 							  std::vector<parameterType>& expParams )
 {
 	std::vector<long> variedMixedSize;
@@ -213,14 +214,14 @@ void NiawgCore::handleStartingRerng( ExperimentThreadInput* input)
 			// start rearrangement thread. Give the thread the queue.
 			startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
 							  input->andorsImageTimes, input->grabTimes, input->conditionVariableForRerng,
-							  expRerngGui, input->analysisGrid );
+							  expRerngOptions, input->analysisGrid );
 		}
 	}
-	if (expRerngGui.active && !foundRearrangement )
+	if (expRerngOptions.active && !foundRearrangement )
 	{
 		thrower ( "system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 	}
-	else if ( !expRerngGui.active && foundRearrangement )
+	else if ( !expRerngOptions.active && foundRearrangement )
 	{
 		thrower ( "System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
 	}
@@ -265,7 +266,7 @@ void NiawgCore::setDefaultWaveforms( )
 	{
 		expNiawgStream.clear ();
 		expNiawgStream << configFile.rdbuf( );
-		rerngGuiOptionsForm rInfoDummy;
+		rerngGuiOptions rInfoDummy;
 		rInfoDummy.moveSpeed.expressionStr = str(0.00006);
 		analyzeNiawgScript (output, warnings, rInfoDummy, std::vector<parameterType> ()); 
 		writeStaticNiawg( output, std::vector<parameterType>( ) );
@@ -399,7 +400,7 @@ void NiawgCore::programVariations( UINT variation, std::vector<long>& variedMixe
 	}
 }
 
-void NiawgCore::analyzeNiawgScript( NiawgOutput& output, std::string& warnings, rerngGuiOptionsForm rerngGuiInfo, 
+void NiawgCore::analyzeNiawgScript( NiawgOutput& output, std::string& warnings, rerngGuiOptions rerngGuiInfo, 
 									std::vector<parameterType>& variables )
 {
 	/// Preparation
@@ -608,7 +609,7 @@ void NiawgCore::writeStandardWave(simpleWave& wave, bool isDefault, niawgLibOpti
 
 
 void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, ScriptStream& script, 
-									   rerngGuiOptionsForm rerngGuiInfo, std::vector<parameterType>& variables, 
+									   rerngGuiOptions rerngGuiInfo, std::vector<parameterType>& variables, 
 									   std::vector<vectorizedNiawgVals>& vectorizedVals )
 {
 	if ( cmd == "flash" )
@@ -886,7 +887,7 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, Scr
 
 void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType>& variables, UINT variation, 
 								  std::vector<long>& mixedWaveSizes, std::string& warnings, 
-								  rerngGuiOptionsForm& rerngGuiForm )
+								  rerngGuiOptions& rerngGuiForm )
 {
 	UINT totalVaraitions = ExperimentThreadManager::determineVariationNumber (variables);
 	rerngGuiOptionsFormToFinal( rerngGuiForm, variables, totalVaraitions);
@@ -2801,7 +2802,7 @@ void NiawgCore::preWriteRerngWaveforms( rerngThreadInput* input )
 	Has not been updated with the off-grid dump functionality.
 */
 std::vector<double> NiawgCore::makeFastRerngWave( rerngScriptInfo& rerngSettings, UINT sourceRows, UINT sourceCols,
-												  complexMove moveInfo, rerngGuiOptionsForm options, double moveBias )
+												  complexMove moveInfo, rerngGuiOptions options, double moveBias )
 {
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
@@ -3156,7 +3157,7 @@ std::vector<double> NiawgCore::makeFullRerngWave( rerngScriptInfo& rerngSettings
 	return flashMove.core.waveVals;
 }
 
-void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form,
+void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptions& form,
 											std::vector<parameterType>& variables, UINT variation )
 {
 	auto variations = ExperimentThreadManager::determineVariationNumber (variables);
@@ -3184,7 +3185,7 @@ void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptionsForm& form,
 void NiawgCore::startRerngThread( atomQueue* atomQueue, waveInfo& wave, Communicator& comm, 
 								  std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 								  chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
-								  rerngGuiOptionsForm guiOptions, atomGrid grid )
+								  rerngGuiOptions guiOptions, atomGrid grid )
 {
 	threadStateSignal = true;
 	rerngThreadInput* input = new rerngThreadInput( grid.height, grid.width, comm);
@@ -3866,7 +3867,7 @@ Matrix<bool> NiawgCore::calculateFinalTarget ( Matrix<bool> target, niawgPair<UL
 
 void NiawgCore::smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
 											  niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveSequence, 
-											  rerngGuiOptionsForm options, bool randomize, 
+											  rerngGuiOptions options, bool randomize, 
 											  bool orderMovesByProximityToTarget )
 {
 	std::vector<simpleMove> moveList;
@@ -4432,7 +4433,7 @@ std::vector<std::string> NiawgCore::evolveSource( Matrix<bool> source, std::vect
 	Handles parallelizing moves and determining if flashing is necessary for moves or not. The parallelizing part of this is very tricky.
 */
 void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> origSource, 
-							   std::vector<complexMove> &flashMoves, rerngGuiOptionsForm options )
+							   std::vector<complexMove> &flashMoves, rerngGuiOptions options )
 {
 	Matrix<bool> runningSource = origSource;
 	// convert all single moves into complex moves.
@@ -4769,13 +4770,15 @@ void NiawgCore::loadExpSettings (ConfigStream& stream)
 	}
 	niawgMachineScript = std::vector<ViChar>();
 	expRepetitions = ProfileSystem::stdConfigGetter (stream, "REPETITIONS", Repetitions::getSettingsFromConfig);
+	expRerngOptions = ProfileSystem::stdConfigGetter (stream, "REARRANGEMENT_INFORMATION", 
+												  rerngGuiControl::getSettingsFromConfig);
 }
 
 void NiawgCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
 {
 	if (experimentActive)
 	{
-		analyzeNiawgScript (expOutput, comm.warnings, expRerngGui, params);
+		analyzeNiawgScript (expOutput, comm.warnings, expRerngOptions, params);
 		finalizeScript (expRepetitions, "experimentScript", expOutput.niawgLanguageScript, niawgMachineScript,
 						 !outputVaries (expOutput) );
 		if (outputNiawgMachineScript)
@@ -4802,8 +4805,8 @@ void NiawgCore::programVariation (UINT varInc, std::vector<parameterType>& param
 	std::string TODO_WARNINGS;
 	if (experimentActive)
 	{
-		programNiawg (TODO_WARNINGS, varInc, expRerngGui, params);
-		if (expRerngGui.active)
+		programNiawg (TODO_WARNINGS, varInc, expRerngOptions, params);
+		if (expRerngOptions.active)
 		{
 			turnOffRerng ();
 			//input->conditionVariableForRerng->notify_all ();
