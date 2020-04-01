@@ -594,7 +594,6 @@ namespace commonFunctions
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
 		input.masterInput->skipNext = win->andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = win->auxWin->getTotalVariationNumber ( );
-		input.masterInput->dontActuallyGenerate = ( msgID == ID_FILE_MY_WRITE_WAVEFORMS );
 		input.masterInput->debugOptions = win->mainWin->getDebuggingOptions();
 		input.masterInput->profile = win->mainWin->getProfileSettings ();;
 		if (runNiawg)
