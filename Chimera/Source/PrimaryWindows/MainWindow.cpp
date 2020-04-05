@@ -159,6 +159,8 @@ BEGIN_MESSAGE_MAP (MainWindow, IChimeraWindow)
 END_MESSAGE_MAP()
 
 
+
+
 void MainWindow::handleServoUnitsComboChange ()
 {
 	servos.refreshListview ();
@@ -238,7 +240,6 @@ void MainWindow::onAutoCalFin ()
 	{
 		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.trace ());
-		comm.sendColorBox (System::Niawg, 'B');
 		comm.sendStatus ("ERROR!\r\n");
 	}
 	scriptWin->setNiawgRunningState (false);
@@ -356,9 +357,8 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 		{
 			expThreadManager.pause ( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
-			comm.sendColorBox ( System::Master, 'Y' );
 		}
-		auto async
+		beepFuture
 			= std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
 		time_t t = time ( 0 );
 		struct tm now;
@@ -397,9 +397,8 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 		{
 			expThreadManager.pause( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
-			comm.sendColorBox( System::Master, 'Y' );
 		}
-		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
+		beepFuture = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
 		time_t t = time( 0 );
 		struct tm now;
 		localtime_s( &now, &t );
@@ -505,7 +504,7 @@ BOOL MainWindow::OnInitDialog( )
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), toolTips, IDC_MAIN_STATUS_BUTTON );
-	statBox.initialize ( controlLocation, id, this, 960, toolTips);
+	statBox.initialize ( controlLocation, id, this, 960, toolTips, getDevices());
 	shortStatus.initialize (controlLocation, this, id, toolTips);
 	controlLocation = { 480, 0 };
 	errorStatus.initialize( controlLocation, this, id, 420, "ERROR STATUS", RGB( 100, 0, 0 ), toolTips,
@@ -669,13 +668,11 @@ void MainWindow::handlePause()
 			// then it's currently paused, so unpause it.
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_UNCHECKED );
 			expThreadManager.unPause();
-			comm.sendColorBox( System::Master, 'G' );
 		}
 		else
 		{
 			// then not paused so pause it.
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
-			comm.sendColorBox( System::Master, 'Y' );
 			expThreadManager.pause();
 		}
 	}
@@ -968,28 +965,11 @@ void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	profile.updateConfigurationSavedStatus(false);
 }
 
-
-void MainWindow::changeBoxColor( systemInfo<char> colors )
+void MainWindow::changeBoxColor(std::string sysDelim, char color)
 {
-	IChimeraWindow::changeBoxColor (colors);
-	if (colors.camera == 'R' || colors.niawg == 'R')
-	{
-		changeShortStatusColor("R");
-	}
-	else if (colors.camera == 'Y' || colors.niawg == 'Y')
-	{
-		changeShortStatusColor("Y");
-	}
-	else if (colors.camera == 'G' || colors.niawg == 'G')
-	{
-		changeShortStatusColor("G");
-	}
-	else
-	{
-		changeShortStatusColor("B");
-	}
+	IChimeraWindow::changeBoxColor (sysDelim, color);
+	changeShortStatusColor (std::string(1, color));
 }
-
 
 void MainWindow::abortMasterThread()
 {
@@ -1024,7 +1004,7 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	else if ( statusMessage != "" )
 	{
 		errorStatus.addStatusText( statusMessage );
-		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
+		beepFuture = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
 	}
 	return 0;
 }
@@ -1042,22 +1022,19 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	scriptWin->setIntensityDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
-	comm.sendColorBox( System::Niawg, 'R' );
 	try
 	{
 		scriptWin->restartNiawgDefaults ();
 		comm.sendError("EXITED WITH ERROR!");
-		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
 	catch (Error& except)
 	{
-		comm.sendError("EXITED WITH ERROR! " + except.trace());
-		comm.sendColorBox( System::Niawg, 'R' );
-		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
+		comm.sendError ("EXITED WITH ERROR! " + except.trace ());
+		comm.sendStatus ("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	scriptWin->setNiawgRunningState( false );
-	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
+	beepFuture = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
 	errBox ( statusMessage );
 	return 0;
 }
@@ -1072,13 +1049,11 @@ void MainWindow::onNormalFinishMessage()
 	andorWin->wakeRearranger();
 	andorWin->cleanUpAfterExp ( );
 	handleFinish ( );
-	comm.sendColorBox( System::Niawg, 'B' );
 	try	{ scriptWin->restartNiawgDefaults (); }
 	catch ( Error& except )
 	{
 		comm.sendError( "The niawg finished normally, but upon restarting the default waveform, threw the "
 						"following error: " + except.trace( ) );
-		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );
 	}
 	scriptWin->setNiawgRunningState( false );
@@ -1212,3 +1187,12 @@ void MainWindow::handleMasterConfigSave (std::stringstream& configStream)
 
 
 void MainWindow::fillExpDeviceList (DeviceList& list){}
+
+DeviceList MainWindow::getDevices ()
+{
+	DeviceList list;
+	for (auto win_ : winList ()) {
+		win_->fillExpDeviceList (list);
+	}
+	return list;
+}

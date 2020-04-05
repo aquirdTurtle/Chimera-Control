@@ -239,7 +239,7 @@ BOOL ScriptingWindow::OnInitDialog()
 	masterScript.initialize( 640, 900, startLocation, toolTips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
 	startLocation = { 1600, 3 };
-	statBox.initialize(startLocation, id, this, 300, toolTips);
+	statBox.initialize(startLocation, id, this, 300, toolTips, mainWin->getDevices ());
 	profileDisplay.initialize({ 0,3 }, id, this, toolTips);
 	try
 	{

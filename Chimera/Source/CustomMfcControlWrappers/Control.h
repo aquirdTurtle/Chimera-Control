@@ -5,6 +5,7 @@
 #include "Andor/cameraPositions.h"
 #include "Andor/AndorRunMode.h"
 #include "Andor/AndorTriggerModes.h"
+#include "GeneralUtilityFunctions/Thrower.h"
 #include "afxwin.h"
 #include "afxcmn.h"
 #include <unordered_map>
@@ -103,6 +104,7 @@ void Control<ControlType>::rearrange( int width, int height, fontMap fonts)
 	{
 		case fontTypes::NormalFont: SetFont (fonts["Normal Font " + fontSize]); break;
 		case fontTypes::CodeFont: SetFont (fonts["Code Font " + fontSize]); break;
+		case fontTypes::SmallCodeFont: SetFont (fonts["Small Code Font " + fontSize]); break;
 		case fontTypes::HeadingFont: SetFont (fonts["Heading Font " + fontSize]); break;
 		case fontTypes::LargeFont: SetFont (fonts["Larger Font " + fontSize]); break;
 		case fontTypes::VeryLargeFont: SetFont (fonts["Very Larger Font " + fontSize]); break;
@@ -119,7 +121,11 @@ template <class ControlType> void Control<ControlType>::setToolTip(std::string t
 	{
 		toolTipID = tooltips.size();
 		tooltips.push_back(new CToolTipCtrl);
-		tooltips.back()->Create(parent, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON);
+		auto res = tooltips.back()->Create(parent, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON);
+		if (res != 0)
+		{
+			//errBox ("ERROR: Failed to create tooltip!");
+		}
 		tooltips.back()->SetMaxTipWidth(1200);
 		tooltips.back()->SetTipBkColor(0x000000);
 		tooltips.back()->SetTipTextColor(0xe0e0d0);

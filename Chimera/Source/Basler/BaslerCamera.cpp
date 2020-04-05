@@ -481,10 +481,8 @@ void BaslerCameraCore::loadExpSettings (ConfigStream& stream)
 void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
 {
 	expRunSettings.variations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());
-	if (experimentActive)
-	{
+	if (experimentActive){
 		comm.sendPrepareBasler (expRunSettings);
-		comm.sendColorBox (System::Basler, 'G');
 		setBaslserAcqParameters (expRunSettings);
 		armCamera ();
 	}

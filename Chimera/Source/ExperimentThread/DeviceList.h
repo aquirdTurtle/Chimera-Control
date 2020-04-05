@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GeneralObjects/IDeviceCore.h"
+#include <type_traits>
+#include <vector>
 #include <functional>
 
 /*

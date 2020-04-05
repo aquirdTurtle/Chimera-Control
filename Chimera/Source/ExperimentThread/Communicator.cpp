@@ -9,6 +9,7 @@
 #include "PrimaryWindows/BaslerWindow.h"
 #include "PrimaryWindows/DeformableMirrorWindow.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
+#include "ExperimentMonitoringAndStatus/ColorBox.h"
 #include "LowLevel/externals.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
@@ -116,36 +117,14 @@ void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, in
 }
 
 
-void Communicator::sendColorBox( System sys, char code )
+void Communicator::sendColorBox( std::string sysDelim, char color )
 {
-	systemInfo<char> colors;
-	switch ( sys )
-	{
-		case System::Niawg:
-			colors = { code, '-', '-', '-' };
-			break;
-		case System::Andor:
-			colors = { '-', code, '-', '-' };
-			break;
-		case System::Master:
-			colors = { '-', '-', code, '-' };
-			break;
-		case System::Basler:
-			colors = { '-','-','-',code };
-			break;
-	}
-	sendColorBox( colors );
-}
-
-
-void Communicator::sendColorBox( systemInfo<char> colors )
-{
-	mainWin->changeBoxColor( colors );
-	scriptWin->changeBoxColor( colors );
-	andorWin->changeBoxColor( colors );
-	auxWin->changeBoxColor( colors );
-	basWin->changeBoxColor (colors);
-	dmWin->changeBoxColor (colors);
+	mainWin->changeBoxColor( sysDelim, color );
+	scriptWin->changeBoxColor(sysDelim, color);
+	andorWin->changeBoxColor(sysDelim, color);
+	auxWin->changeBoxColor(sysDelim, color);
+	basWin->changeBoxColor (sysDelim, color);
+	dmWin->changeBoxColor (sysDelim, color);
 }
 
 void Communicator::sendStatus(std::string statusMsg)

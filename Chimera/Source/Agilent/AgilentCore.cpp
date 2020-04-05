@@ -571,6 +571,8 @@ void AgilentCore::logSettings (DataLogger& log)
 void AgilentCore::loadExpSettings (ConfigStream& script)
 {
 	ProfileSystem::stdGetFromConfig (script, *this, expRunSettings);
+	experimentActive = (expRunSettings.channel[0].option != AgilentChannelMode::which::No_Control
+						|| expRunSettings.channel[1].option != AgilentChannelMode::which::No_Control);
 }
 
 void AgilentCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)

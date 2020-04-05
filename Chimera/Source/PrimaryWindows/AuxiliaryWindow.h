@@ -154,7 +154,6 @@ class AuxiliaryWindow : public IChimeraWindow
 		int plotIds = 17002;
 		CMenu menu;
 		std::string title;
-		toolTipTextMap toolTipText;
 		/// control system classes
 		MicrowaveSystem RohdeSchwarzGenerator;
 		std::array<Agilent, 4> agilents;

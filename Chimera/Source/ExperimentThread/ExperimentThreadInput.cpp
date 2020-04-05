@@ -12,8 +12,6 @@ ExperimentThreadInput::ExperimentThreadInput ( IChimeraWindow* win ) :
 	python (win->mainWin->getPython ( ) ), comm (win->mainWin->getCommRef ( ) ), 
 	globalControl(win->auxWin->getGlobals() ), logger(win->andorWin->getLogger() )
 {
-	for (auto win_ : win->winList ()) {
-		win_->fillExpDeviceList (devices);
-	}
+	devices = win->mainWin->getDevices ();
 };
 

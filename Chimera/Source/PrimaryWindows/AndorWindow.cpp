@@ -696,7 +696,6 @@ LRESULT AndorWindow::onCameraCalFinish( WPARAM wParam, LPARAM lParam )
 	andor.pauseThread( );
 	andor.setCalibrating( false );
 	justCalibrated = true;
-	mainWin->getComm( )->sendColorBox( System::Andor, 'B' );
 	andorSettingsCtrl.cameraIsOn( false );
 	// normalize.
 	for ( auto& p : avgBackground )
@@ -740,7 +739,6 @@ LRESULT AndorWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-	mainWin->getComm()->sendColorBox( System::Andor, 'B' );
 	//mainWin->getComm()->sendStatus( "Andor has finished taking pictures and is no longer running.\r\n" );
 	andorSettingsCtrl.cameraIsOn( false );
 	// rearranger thread handles these right now.
@@ -1645,7 +1643,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	POINT position = { 0,0 };
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	statBox.initialize (position, id, this, 480, toolTips );
+	statBox.initialize (position, id, this, 480, toolTips, mainWin->getDevices ());
 	alerts.alertMainThread ( 0 );
 	alerts.initialize (position, this, false, id, toolTips );
 	analysisHandler.initialize (position, id, this, toolTips );
@@ -1748,7 +1746,6 @@ void AndorWindow::readImageParameters()
 	catch (Error& exception)
 	{
 		Communicator* comm = mainWin->getComm();
-		comm->sendColorBox( System::Andor, 'R' );
 		reportErr ( exception.trace() + "\r\n" );
 	}
 	SmartDC sdc (this);

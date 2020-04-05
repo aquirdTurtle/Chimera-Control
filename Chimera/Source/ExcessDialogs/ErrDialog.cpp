@@ -22,7 +22,7 @@ BOOL ErrDialog::OnInitDialog ( )
 									CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT ( "Old Sans Black" ) );
 	if ( dlgType == type::error )
 	{
-		auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 500, 500 ); } );
+		beepFuture = std::async ( std::launch::async, [] { Beep ( 500, 500 ); } );
 	}
 	// replace instances of \n alone with \r\n.
 	descriptionText.erase ( std::remove ( descriptionText.begin ( ), descriptionText.end ( ), '\r' ), descriptionText.end ( ) );

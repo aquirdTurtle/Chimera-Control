@@ -27,7 +27,7 @@ BOOL DeformableMirrorWindow::OnInitDialog()
 	POINT pos = { 0,0 };
 	int id = 1000;
 	UINT ID = IDC_DM_PROGRAMNOW;
-	statBox.initialize(pos, id, this, 480, toolTips);
+	statBox.initialize(pos, id, this, 480, toolTips, mainWin->getDevices ());
 	dm.initialize(pos, this, dm.getActNum(), DM_SERIAL, 65, ID);
 	return IChimeraWindow::OnInitDialog ();
 }

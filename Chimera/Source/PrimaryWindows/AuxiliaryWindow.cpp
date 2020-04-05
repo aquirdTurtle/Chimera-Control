@@ -1123,7 +1123,6 @@ void AuxiliaryWindow::handleMasterConfigOpen(ConfigStream& configStream)
 				throwNested("Failed to load one of the default ttl values!");
 			}
 			ttlBoard.setName(row, ttlNumberInc, name, toolTips, this);
-			//ttlBoard.ftdi_ForceOutput (row, ttlNumberInc, defaultStatus);
 			ttlBoard.updateDefaultTtl(row, ttlNumberInc, defaultStatus);
 		}
 	}
@@ -1375,7 +1374,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	POINT controlLocation{ 0, 0 };
 	try
 	{
-		statBox.initialize( controlLocation, id, this, 480, toolTips );
+		statBox.initialize( controlLocation, id, this, 480, toolTips, mainWin->getDevices ());
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
 		aoSys.initialize( controlLocation, toolTips, this, id );
 		aiSys.initialize( controlLocation, this, id );

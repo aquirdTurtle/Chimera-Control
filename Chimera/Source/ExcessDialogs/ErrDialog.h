@@ -4,6 +4,7 @@
 #include "CustomMfcControlWrappers/Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "LowLevel/resource.h"
+#include <future>
 
 
 
@@ -33,5 +34,6 @@ class ErrDialog : public CDialog
 		Control<CEdit> description;
 		Control<CEdit> header;
 		Control<CleanPush> okBtn;
+		std::future<void> beepFuture;
 };
 

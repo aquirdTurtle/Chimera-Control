@@ -20,6 +20,7 @@
 #include "IChimeraWindow.h"
 #include <string>
 #include <vector>
+#include <future>
 #include "afxwin.h"
 
 class ScriptingWindow;
@@ -77,6 +78,7 @@ class MainWindow : public IChimeraWindow
 		void handleDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void passClear( UINT id );
+		DeviceList getDevices ();
 		CFont* getPlotFont( );
 		// auxiliary functions used by the window.
 		void setNotes(std::string notes);
@@ -100,7 +102,7 @@ class MainWindow : public IChimeraWindow
 		void addTimebar(std::string whichStatus);
 		void setShortStatus(std::string text);
 		void changeShortStatusColor(std::string color);
-		void changeBoxColor(systemInfo<char> colors);
+		void changeBoxColor (std::string sysDelim, char color);
 		void windowSaveConfig(ConfigStream& saveFile);
 		void windowOpenConfig(ConfigStream& configFile);
 		void abortMasterThread();
@@ -137,6 +139,7 @@ class MainWindow : public IChimeraWindow
 
 	private:
 		DECLARE_MESSAGE_MAP();
+		std::future<void> beepFuture;
 
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;

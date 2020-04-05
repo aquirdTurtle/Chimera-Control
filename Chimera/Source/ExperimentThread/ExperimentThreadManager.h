@@ -15,6 +15,14 @@
 #include <vector>
 #include <mutex>
 
+struct ExpRuntimeData
+{
+	UINT repetitions = 1;
+	mainOptions mainOpts;
+	ScriptStream masterScript;
+	std::vector<parameterType> expParams;
+};
+
 class ExperimentThreadManager
 {
 	public:
@@ -61,8 +69,7 @@ class ExperimentThreadManager
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
-		static void calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input, 
-			std::vector<parameterType>& expParams, UINT repetitions, ScriptStream& masterStream, UINT skipThreshold);
+		static void calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input, ExpRuntimeData& runtime);
 		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);
 		static void runConsistencyChecks (std::unique_ptr<ExperimentThreadInput>& input, std::vector<parameterType> expParams );
 		static void handlePause (Communicator& comm, std::atomic<bool>& isPaused, std::atomic<bool>& isAborting);
@@ -72,9 +79,19 @@ class ExperimentThreadManager
 								   std::chrono::time_point<chronoClock> startTime, AoSystem& aoSys);
 		static void errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
 								  std::chrono::time_point<chronoClock> startTime );
-		static void adoStart (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip);
+		static void startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip);
+		static std::string abortString; 
+		static void loadExperimentRuntime ( ConfigStream& config, ExpRuntimeData& runtime, 
+											std::unique_ptr<ExperimentThreadInput>& input );
 		
-		static std::string abortString;
+		/* IDeviceCore functionality wrappers */
+		static void deviceLoadExpSettings (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input, ConfigStream& cStream);
+		static void deviceProgramVariation ( IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
+									         std::vector<parameterType>& expParams, UINT variationInc);
+		static void deviceCalculateVariations (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
+											   std::vector<parameterType>& expParams);
+		static void deviceNormalFinish (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input);
+		
 	private:
 		// I've forgotten why there are two of these. 
 		timeType loadSkipTime;
@@ -92,20 +109,3 @@ class ExperimentThreadManager
 		std::atomic<bool> isPaused = false;
 		std::atomic<bool> isAborting = false;
 };
-
-
-struct indvSeqElem
-{
-	std::string config;
-	std::string niawgScript;
-	ScriptStream niawgStream;
-	ScriptStream masterStream;
-	std::string agilentScript;
-};
-
-
-struct seqInfo
-{
-	indvSeqElem sequence;
-};
-

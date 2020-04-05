@@ -1,8 +1,9 @@
 // created by Mark O. Brown
 #pragma once
-#include "ExperimentMonitoringAndStatus/ColorBox.h"
+
 #include "Andor/AndorRunSettings.h"
 #include "Basler/baslerSettings.h"
+
 class IChimeraWindow;
 class MainWindow;
 class ScriptingWindow;
@@ -11,13 +12,6 @@ class AuxiliaryWindow;
 class DeformableMirrorWindow;
 class BaslerWindow;
 
-enum class System
-{
-	Niawg,
-	Master,
-	Andor,
-	Basler
-};
 
 enum class ExperimentType;
 /*
@@ -36,8 +30,7 @@ class Communicator
 		void sendStatus( std::string statusMsg );
 		void sendDebug( std::string statusMsg );
 		void sendTimer( std::string timerMsg );
-		void sendColorBox( System sys, char code ); 
-		void sendColorBox( systemInfo<char> colors );
+		void sendColorBox(std::string sysDelim, char color);
 
 		void sendCameraProgress ( long prog );
 		void sendCameraCalProgress ( long progress );
