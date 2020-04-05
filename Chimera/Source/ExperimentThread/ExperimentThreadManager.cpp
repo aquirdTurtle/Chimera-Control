@@ -42,42 +42,27 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	input->thisObj->experimentIsRunning = true;
 	input->comm.expQuiet = input->quiet;
 	input->comm.expUpdate ("Starting Experiment Thread Procedure...\n");
-	indvSeqElem expSeq;
-	UINT repetitions = 1;
-	mainOptions mainOpts;
+	ExpRuntimeData expRuntime;
 	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
 	try
 	{
-		input->comm.expUpdate ("Loading Experiment Settings...\n");
-		auto expParams = ParameterSystem::combineParams ( 
-										ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), 
-										input->globalParameters );
+		input->comm.expUpdate ("Loading Experiment Settings...\n"); 
 		ConfigStream cStream (input->profile.configFilePath (), true);
-		ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());
-		input->thisObj->loadMasterScript (ProfileSystem::getMasterAddressFromConfig (input->profile), expSeq.masterStream);
-		mainOpts = ProfileSystem::stdConfigGetter (cStream, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig );
-		repetitions = ProfileSystem::stdConfigGetter (cStream, "REPETITIONS", Repetitions::getSettingsFromConfig );
-		ParameterSystem::generateKey ( expParams, mainOpts.randomizeVariations, varRangeInfo);
-		for (auto& device : input->devices.list)
-		{
-			device.get ().loadExpSettings (cStream);
+		loadExperimentRuntime (cStream, expRuntime, input);
+		for (auto& device : input->devices.list){
+			deviceLoadExpSettings (device, input, cStream);
 		}
-		if ( input->updatePlotterXVals ) updatePlotX_vals ( input, expParams );
 		/// The Variation Calculation Step.
 		input->comm.expUpdate ("Calculating All Variation Data...\r\n");
 		for (auto& device : input->devices.list) {
-			if (device.get ().experimentActive) {
-				device.get ().calculateVariations (expParams, input->comm);
-				if (input->thisObj->isAborting) thrower (abortString);
-			}
+			deviceCalculateVariations (device, input, expRuntime.expParams);
 		}
-		calculateAdoVariations ( input, expParams, repetitions, expSeq.masterStream, mainOpts.atomSkipThreshold );
-		runConsistencyChecks (input, expParams);
-		/// log experiment parameters
+		calculateAdoVariations ( input, expRuntime );
+		runConsistencyChecks (input, expRuntime.expParams);
 		if (input->expType != ExperimentType::LoadMot)
 		{
-			input->logger.logMasterRuntime (repetitions, expParams);
+			input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
 			for (auto& device : input->devices.list) {
 				if (device.get ().experimentActive) {
 					device.get ().logSettings (input->logger);
@@ -85,33 +70,27 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			}
 		}
 		/// Begin experiment 
-		for (const auto& variationInc : range(determineVariationNumber (expParams)))
+		for (const auto& variationInc : range(determineVariationNumber (expRuntime.expParams)))
 		{
-			initVariation ( input, variationInc, expParams);
+			initVariation ( input, variationInc, expRuntime.expParams);
 			input->comm.expUpdate ("Programming Devices for Variation... ");
 			for (auto& device : input->devices.list) {
-				if (device.get ().experimentActive) {
-					device.get ().programVariation (variationInc, expParams);
-				}
+				deviceProgramVariation (device, input, expRuntime.expParams, variationInc);
 			}
-			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
-			if (input->runList.master){ input->ttls.ftdi_write (variationInc, skipOption); }
 			input->comm.expUpdate ("Running Experiment.\r\n");
-			for (const auto& repInc : range(repetitions))
-			{
-				handlePause (input->comm, input->thisObj->isPaused, input->thisObj->isAborting);
-				adoStart (input, repInc, variationInc, skipOption);
+			for (const auto& repInc : range(expRuntime.repetitions)) {
+				handlePause ( input->comm, input->thisObj->isPaused, input->thisObj->isAborting);
+				startRep (input, repInc, variationInc, input->skipNext == NULL ? false : input->skipNext->load ());
 			}
 		}
-		for (auto& device : input->devices.list){
-			if (device.get ().experimentActive){
-				device.get ().normalFinish ();
-			}
+		for (auto& device : input->devices.list) { 
+			deviceNormalFinish (device, input);
 		}
 		normalFinish (input->comm, input->expType, input->runList.master, startTime, input->aoSys );
 	}
 	catch (Error& exception){
 		for (auto& device : input->devices.list){
+			// don't change the colors, the colors should reflect the end state before the error. 
 			if (device.get ().experimentActive) {
 				device.get ().errorFinish ();
 			}
@@ -1137,51 +1116,49 @@ void ExperimentThreadManager::updatePlotX_vals ( std::unique_ptr<ExperimentThrea
 }
 
 void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<ExperimentThreadInput>& input, 
-													   std::vector<parameterType>& expParams, UINT repetitions, 
-													   ScriptStream& masterStream, UINT skipThreshold )
+													   ExpRuntimeData& runtime )
 {
 	if (input->runList.master)
 	{
-		auto variations = determineVariationNumber (expParams);
+		auto variations = determineVariationNumber (runtime.expParams);
 		input->aoSys.resetDacEvents ();
 		input->ttls.resetTtlEvents ();
 		input->aoSys.initializeDataObjects (0);
 		input->ttls.initializeDataObjects (0);
 		input->thisObj->loadSkipTimes = std::vector<double> (variations);
 		input->comm.expUpdate ("Analyzing Master Script...\n");
-		input->comm.sendColorBox (System::Master, 'Y');
-		input->thisObj->analyzeMasterScript (input->ttls, input->aoSys, expParams, masterStream,
-			skipThreshold != UINT_MAX, input->comm.warnings, input->thisObj->operationTime, 
+		input->thisObj->analyzeMasterScript (input->ttls, input->aoSys, runtime.expParams, runtime.masterScript,
+			runtime.mainOpts.atomSkipThreshold != UINT_MAX, input->comm.warnings, input->thisObj->operationTime,
 			input->thisObj->loadSkipTime);
-		input->ttls.calculateVariations (expParams, input->comm);
-		input->aoSys.calculateVariations (expParams,input->comm);
+		input->ttls.calculateVariations (runtime.expParams, input->comm);
+		input->aoSys.calculateVariations (runtime.expParams,input->comm);
 		for (auto variationInc : range (variations))
 		{
 			if (input->thisObj->isAborting) { thrower (abortString); }
 			double& currLoadSkipTime = input->thisObj->loadSkipTimes[variationInc];
-			currLoadSkipTime = ExperimentThreadManager::convertToTime (input->thisObj->loadSkipTime, expParams,
+			currLoadSkipTime = ExperimentThreadManager::convertToTime (input->thisObj->loadSkipTime, runtime.expParams,
 				variationInc);
-			input->aoSys.standardExperimentPrep (variationInc, input->ttls, expParams, currLoadSkipTime);
-			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, expParams);
+			input->aoSys.standardExperimentPrep (variationInc, input->ttls, runtime.expParams, currLoadSkipTime);
+			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, runtime.expParams);
 			input->aoSys.checkTimingsWork (variationInc);
 		}
 		input->comm.expUpdate ("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n");
 		ULONGLONG totalTime = 0;
 		for (auto variationNumber : range (variations))
 		{
-			totalTime += ULONGLONG (input->ttls.getTotalTime (variationNumber) * repetitions);
+			totalTime += ULONGLONG (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
 		}
 		input->comm.expUpdate ("Programmed Total Experiment time: " + str (totalTime) + "\r\n");
 		input->comm.expUpdate ("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n");
 		input->comm.expUpdate ("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n");
 		handleDebugPlots (input->debugOptions, input->comm, input->ttls, input->aoSys, input->ttlData, input->dacData);
-		input->comm.sendColorBox (System::Master, 'G');
 	}
 }
 
 void ExperimentThreadManager::runConsistencyChecks ( std::unique_ptr<ExperimentThreadInput>& input, 
 													 std::vector<parameterType> expParams )
 {
+	if (input->updatePlotterXVals) { updatePlotX_vals (input, expParams); };
 	input->globalControl.setUsages (expParams);
 	for (auto& var : expParams)
 	{
@@ -1255,6 +1232,8 @@ void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadIn
 	}
 	input->comm.sendError (input->comm.warnings);
 	input->comm.sendRepProgress (0);
+	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
+	if (input->runList.master) { input->ttls.ftdi_write (variationInc, skipOption); }
 }
 
 void ExperimentThreadManager::errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
@@ -1263,11 +1242,9 @@ void ExperimentThreadManager::errorFinish ( Communicator& comm, std::atomic<bool
 	if (isAborting)
 	{
 		comm.expUpdate (abortString);
-		comm.sendColorBox (System::Master, 'B');
 	}
 	else
 	{
-		comm.sendColorBox (System::Master, 'R');
 		comm.sendStatus ("Bad Exit!\r\n");
 		auto txt = "Exited main experiment thread abnormally." + exception.trace ();
 		comm.sendFatalError (txt);
@@ -1304,13 +1281,12 @@ void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType&
 			comm.sendFinish (ExperimentType::Normal);
 	}
 	comm.expUpdate ("\r\nExperiment Finished Normally.\r\n");
-	comm.sendColorBox (System::Master, 'B');
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
 	comm.expUpdate ( "Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
 					 + str (int (exp_t) % 60) + " seconds.\r\n");
 }
 
-void ExperimentThreadManager::adoStart (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip)
+void ExperimentThreadManager::startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip)
 {
 	if (input->runList.master)
 	{
@@ -1319,4 +1295,73 @@ void ExperimentThreadManager::adoStart (std::unique_ptr<ExperimentThreadInput>& 
 		input->ttls.ftdi_trigger ();
 		input->ttls.FtdiWaitTillFinished (variationInc);
 	}
+}
+
+void ExperimentThreadManager::deviceLoadExpSettings ( IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input, 
+											  ConfigStream& cStream )
+{
+	try {
+		input->comm.sendColorBox (device.getDelim (), 'W');
+		device.loadExpSettings (cStream);
+	}
+	catch (Error& err) {
+		input->comm.sendColorBox (device.getDelim (), 'R');
+		throwNested ("Error seen while loading experiment settings for system: " + device.getDelim ());
+	}
+}
+
+void ExperimentThreadManager::deviceProgramVariation (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
+													  std::vector<parameterType>& expParams, UINT variationInc)
+{
+	if (device.experimentActive) {
+		try
+		{
+			device.programVariation (variationInc, expParams);
+			input->comm.sendColorBox (device.getDelim (), 'G');
+		}
+		catch (Error& err) {
+			input->comm.sendColorBox (device.getDelim (), 'R');
+			throwNested ("Error seen while programming variation for system: " + device.getDelim ());
+		}
+	}
+
+}
+
+void ExperimentThreadManager::deviceCalculateVariations (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
+														std::vector<parameterType>& expParams )
+{
+	if (device.experimentActive) {
+		try {
+			input->comm.sendColorBox (device.getDelim (), 'Y');
+			device.calculateVariations (expParams, input->comm);
+		}
+		catch (Error& err) {
+			input->comm.sendColorBox (device.getDelim (), 'R');
+			throwNested ("Error Seen while calculating variations for system: " + device.getDelim ());
+		}
+		if (input->thisObj->isAborting) thrower (abortString);
+	}
+}
+
+void ExperimentThreadManager::deviceNormalFinish ( IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input )
+{
+	if (device.experimentActive) {
+		input->comm.sendColorBox (device.getDelim (), 'B');
+		device.normalFinish ();
+	}
+	else {
+		input->comm.sendColorBox (device.getDelim (), 'X');
+	}
+}
+
+void ExperimentThreadManager::loadExperimentRuntime ( ConfigStream& config, ExpRuntimeData& runtime, 
+													  std::unique_ptr<ExperimentThreadInput>& input )
+{
+	runtime.expParams = ParameterSystem::combineParams (
+		ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), input->globalParameters);
+	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());
+	input->thisObj->loadMasterScript (ProfileSystem::getMasterAddressFromConfig (input->profile), runtime.masterScript);
+	runtime.mainOpts = ProfileSystem::stdConfigGetter (config, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig);
+	runtime.repetitions = ProfileSystem::stdConfigGetter (config, "REPETITIONS", Repetitions::getSettingsFromConfig);
+	ParameterSystem::generateKey (runtime.expParams, runtime.mainOpts.randomizeVariations, varRangeInfo);
 }

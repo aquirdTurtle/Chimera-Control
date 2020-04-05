@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "DataLogging/DataLogger.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ParameterSystem/ParameterSystemStructures.h"

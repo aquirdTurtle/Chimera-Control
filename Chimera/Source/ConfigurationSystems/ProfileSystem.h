@@ -6,6 +6,7 @@
 #include "NIAWG/NiawgStructures.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "Scripts/ScriptStream.h"
+#include "PrimaryWindows/IChimeraWindow.h"
 #include <vector>
 #include <string>
 #include "Version.h"

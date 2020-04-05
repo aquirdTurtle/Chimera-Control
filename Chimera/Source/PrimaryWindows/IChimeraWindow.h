@@ -60,7 +60,7 @@ class IChimeraWindow : public CDialog
 		static constexpr UINT numWindows = 6;
 		cToolTips toolTips;
 		ColorBox statBox;
-		virtual void changeBoxColor (systemInfo<char> colors);
+		virtual void changeBoxColor (std::string sysDelim, char color);
 	private:
 		CMenu menu;
 		DECLARE_MESSAGE_MAP ();

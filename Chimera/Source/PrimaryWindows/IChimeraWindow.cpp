@@ -118,11 +118,11 @@ BOOL IChimeraWindow::OnInitDialog ()
 	return FALSE;
 }
 
-void IChimeraWindow::changeBoxColor (systemInfo<char> colors)
+void IChimeraWindow::changeBoxColor (std::string sysDelim, char color)
 {
 	if (statBox.initialized)
 	{
-		statBox.changeColor (colors);
+		statBox.changeColor (sysDelim, color);
 	}
 }
 

@@ -64,11 +64,9 @@ namespace commonFunctions
 					if ( err.whatBare ( ) == "CANCEL" )
 					{
 						mainWin->getComm ( )->sendStatus ( "Canceled camera initialization.\r\n" );
-						mainWin->getComm ( )->sendColorBox ( System::Niawg, 'B' );
 						break;
 					}
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.trace ( ) );
-					mainWin->getComm ( )->sendColorBox ( System::Andor, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 					andorWin->assertOff ( );
@@ -91,8 +89,6 @@ namespace commonFunctions
 				catch ( Error& err )
 				{
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n " + err.trace ( ) );
-					mainWin->getComm ( )->sendColorBox ( System::Basler, 'R' );
-					mainWin->getComm ( )->sendColorBox ( System::Master, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 					andorWin->assertOff ( );
@@ -143,11 +139,9 @@ namespace commonFunctions
 					if (err.whatBare() == "CANCEL")
 					{
 						mainWin->getComm()->sendStatus("Canceled camera initialization.\r\n");
-						mainWin->getComm()->sendColorBox( System::Niawg, 'B' );
 						break;
 					}
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.trace());
-					mainWin->getComm()->sendColorBox( System::Andor, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 					andorWin->assertOff();
@@ -172,14 +166,12 @@ namespace commonFunctions
 						basWin->handleDisarmPress ();
 						baslerAborted = true;
 					}
-					mainWin->getComm ()->sendColorBox (System::Basler, 'B');
 				}
 				catch (Error & err)
 				{
 					mainWin->getComm ()->sendError ("error while aborting basler! Error Message: " + err.trace ());
 					if (status == "Basler")
 					{
-						mainWin->getComm ()->sendColorBox (System::Basler, 'R');
 					}
 					mainWin->getComm ()->sendStatus ("EXITED WITH ERROR!\r\n");
 					mainWin->getComm ()->sendTimer ("ERROR!");
@@ -194,14 +186,12 @@ namespace commonFunctions
 						commonFunctions::abortMaster( win );
 						masterAborted = true;
 					}
-					mainWin->getComm( )->sendColorBox( System::Master, 'B' );
 					andorWin->assertOff( );
 				}
 				catch ( Error& err )
 				{
 					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " 
 													+ err.trace( ) );
-					mainWin->getComm( )->sendColorBox( System::Master, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
@@ -213,12 +203,10 @@ namespace commonFunctions
 						commonFunctions::abortCamera( win );
 						andorAborted = true;
 					}
-					mainWin->getComm( )->sendColorBox( System::Andor, 'B' );
 				}
 				catch ( Error& err )
 				{
 					mainWin->getComm( )->sendError( "Andor Camera threw error while aborting! Error: " + err.trace( ) );
-					mainWin->getComm( )->sendColorBox( System::Andor, 'R' );
 					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
 				}
@@ -233,14 +221,12 @@ namespace commonFunctions
 						abortNiawg( win );
 						niawgAborted = true;
 					}
-					mainWin->getComm( )->sendColorBox( System::Niawg, 'B' );
 				}
 				catch ( Error& err )
 				{
 					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.trace( ) );
 					if ( status == "NIAWG" )
 					{
-						mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
 					}
 					mainWin->getComm( )->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm( )->sendTimer( "ERROR!" );
@@ -257,7 +243,6 @@ namespace commonFunctions
 				AllExperimentInput input;
 				try
 				{
-					mainWin->getComm ( )->sendColorBox ( System::Andor, 'Y' );
 					mainWin->getComm ( )->sendTimer ( "Starting..." );
 					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, win, input, false, false, true, false, true );
 					input.masterInput->expType = ExperimentType::Normal;
@@ -268,18 +253,15 @@ namespace commonFunctions
 					andorWin->startPlotterThread ( input );
 					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
 					commonFunctions::startExperimentThread ( mainWin, input );
-					mainWin->getComm()->sendColorBox( System::Andor, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}
 				catch (Error& exception)
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
-						mainWin->getComm()->sendColorBox( System::Andor, 'B' );
 						mainWin->getComm()->sendStatus("Camera is Not Running, User Canceled.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendColorBox( System::Andor, 'R' );
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -300,7 +282,6 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendColorBox( System::Niawg, 'R' );
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 				}
@@ -323,7 +304,6 @@ namespace commonFunctions
 					{
 						break;
 					}
-					mainWin->getComm()->sendColorBox( System::Master, 'R' );
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
 				}
@@ -402,13 +382,11 @@ namespace commonFunctions
 					{
 						mainWin->getComm ( )->sendError ( "Camera was not running. Can't Abort.\r\n" );
 					}
-					mainWin->getComm ( )->sendColorBox ( System::Andor, 'B' );
 					andorWin->assertOff ( );
 				}
 				catch ( Error& except )
 				{
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + except.trace ( ) );
-					mainWin->getComm ( )->sendColorBox ( System::Andor, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 				}
@@ -426,12 +404,10 @@ namespace commonFunctions
 					{
 						mainWin->getComm ( )->sendError ( "NIAWG was not running. Can't Abort.\r\n" );
 					}
-					mainWin->getComm ( )->sendColorBox ( System::Niawg, 'B' );
 				}
 				catch ( Error& except )
 				{
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + except.trace ( ) );
-					mainWin->getComm ( )->sendColorBox ( System::Niawg, 'R' );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 				}
@@ -569,7 +545,6 @@ namespace commonFunctions
 	{
 		if (win->scriptWin->niawgIsRunning())
 		{
-			win->mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
 		win->mainWin->checkProfileReady();
@@ -607,7 +582,6 @@ namespace commonFunctions
 	{
 		if (!win->andorWin->cameraIsRunning())
 		{
-			win->mainWin->getComm()->sendColorBox( System::Niawg, 'B' );
 			win->mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
@@ -626,7 +600,6 @@ namespace commonFunctions
 		if (!win->scriptWin->niawgIsRunning())
 		{
 			std::string msgString = "Passively Outputting Default Waveform.";
-			comm->sendColorBox( System::Niawg, 'B' );
 			comm->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
@@ -643,7 +616,6 @@ namespace commonFunctions
 		// abort the generation on the NIAWG.
 		win->scriptWin->setIntensityDefault();
 		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );
-		comm->sendColorBox( System::Niawg, 'B' );
 		win->scriptWin->restartNiawgDefaults();
 		win->scriptWin->setNiawgRunningState( false );
 	}

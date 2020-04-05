@@ -16,7 +16,13 @@
 
 
 BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
-{}
+{
+	basCamCore = new BaslerCameraCore (this);
+	if (!basCamCore->isInitialized ())
+	{
+		thrower ("ERROR: Camera not connected! Exiting program...");
+	}
+}
 
 
 // the message map. Allows me to handle various events in the system using functions I write myself.
@@ -168,7 +174,6 @@ void BaslerWindow::handleDisarmPress()
 {
 	try
 	{
-		mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
 		basCamCore->disarm();
 		isRunning = false;
 		settingsCtrl.setStatus("Camera Status: Idle");
@@ -189,7 +194,6 @@ void BaslerWindow::startDefaultAcquisition ( )
 		{
 			handleDisarmPress ( );
 		}
-		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
 		baslerSettings tempSettings;
 		tempSettings.acquisitionMode = BaslerAcquisition::mode::Continuous;
@@ -229,7 +233,6 @@ void BaslerWindow::startDefaultAcquisition ( )
 LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
 {
 	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
- 	mainWin->getComm ( )->sendColorBox ( System::Basler, 'G' );
  	long size = long( wParam );
   	try
  	{
@@ -263,7 +266,6 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  			settingsCtrl.setStatus("Camera Status: Finished finite acquisition.");
 			// tell the andor window that the basler camera finished so that the data file can be handled appropriately.
 			mainWin->getComm ( )->sendBaslerFin ( );
-			mainWin->getComm ( )->sendColorBox ( System::Basler, 'B' );
 			if (!andorWin->cameraIsRunning() )
 			{
 				// else it will close when the basler camera finishes.
@@ -331,7 +333,6 @@ void BaslerWindow::prepareWinForAcq(baslerSettings* settings)
 {
 	try
 	{
-		mainWin->getComm ( )->sendColorBox ( System::Basler, 'Y' );
 		currentRepNumber = 0;
 		picManager.setParameters( settings->dims );
 
@@ -484,15 +485,10 @@ void BaslerWindow::initializeControls()
 	#elif defined USB_CAMERA
 		SetWindowText("USB Basler Camera Control");
 	#endif
-	basCamCore = new BaslerCameraCore( this );
-	if (!basCamCore->isInitialized())
-	{
-		thrower ("ERROR: Camera not connected! Exiting program..." );
-	}
 	int id = 1000;
 	POINT pos = { 0,0 };
 	POINT dims = basCamCore->getCameraDimensions ();
-	statBox.initialize (pos, id, this, 300, toolTips );
+	statBox.initialize (pos, id, this, 300, toolTips, mainWin->getDevices() );
 	settingsCtrl.initialize( pos, id, this, dims.x, dims.y, dims);
 	settingsCtrl.setSettings( basCamCore->getDefaultSettings() );
 	std::vector<CToolTipCtrl*> toolTipDummy;
