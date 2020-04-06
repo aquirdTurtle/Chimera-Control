@@ -12,6 +12,8 @@
 #include "ExperimentThread/autoCalConfigInfo.h"
 #include "ExperimentThread/Communicator.h"
 
+#include <QFile>
+
 #include <future>
 
 
@@ -514,7 +516,14 @@ BOOL MainWindow::OnInitDialog( )
 	controlLocation = { 960, 0 };
 	profile.initialize( controlLocation, this, id, toolTips);
 	controlLocation = { 960, 175 };
-	notes.initialize( controlLocation, this, id, toolTips);
+	widget = new QWinWidget ((CWnd*)this);
+	QFile File ("stylesheet.css");
+	File.open (QFile::ReadOnly);
+	QString stylesheet = QLatin1String (File.readAll ());
+	widget->setStyleSheet (stylesheet);
+	widget->move (0, 0);
+	notes.initialize( controlLocation, widget, id, toolTips);
+	widget->show ();
 	masterRepumpScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(),
 								  ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID,	"Master/Repump" );
 	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), 

@@ -39,6 +39,8 @@
 #include <boost/filesystem.hpp>
 #include "ChimeraApp.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
+#include "qmfcapp.h"
+
 // This is used to tell the compiler that this specific library is needed.
 // I don't remember why this specific library is needed though. 
 #pragma comment(lib, "Ws2_32.lib")
@@ -94,6 +96,8 @@ BOOL ChimeraApp::InitInstance()
 	}
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	
+	QMfcApp::instance (this);
+
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
 	std::chrono::high_resolution_clock::now();
@@ -113,3 +117,7 @@ BOOL ChimeraApp::ExitInstance( )
 // https://www.codeproject.com/Articles/1672/MFC-under-the-hood
 ChimeraApp app;
 
+BOOL ChimeraApp::Run ()
+{
+	return QMfcApp::run (this);
+}

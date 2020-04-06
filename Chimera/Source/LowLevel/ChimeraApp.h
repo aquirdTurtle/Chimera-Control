@@ -19,6 +19,8 @@ class ChimeraApp : CWinAppEx
 		BOOL ExitInstance( );
 		BOOL PreTranslateMessage(MSG* pMsg);
 		virtual BOOL ProcessMessageFilter(int code, LPMSG lpMsg);
+
+		virtual BOOL Run ();
 	private:
 		ULONG_PTR gdip_token;
 		HACCEL m_haccel;

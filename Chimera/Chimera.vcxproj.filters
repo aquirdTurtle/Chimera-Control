@@ -322,6 +322,11 @@
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraWindow.cpp" />
+    <ClCompile Include="3rd_Party\QtMfcMigrate\qmfcapp.cpp" />
+    <ClCompile Include="MOC\moc_qmfcapp.cpp" />
+    <ClCompile Include="MOC\moc_qwinhost.cpp" />
+    <ClCompile Include="3rd_Party\QtMfcMigrate\qwinwidget.cpp" />
+    <ClCompile Include="MOC\moc_qwinwidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -758,6 +763,7 @@
     <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
     <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
+    <ClInclude Include="MOC\moc_predefs.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -875,10 +881,16 @@
     <None Include="Source\DigitalOutput\DoStructures.h">
       <Filter>DIO</Filter>
     </None>
+    <None Include="MOC\moc_predefs.h.cbt" />
+    <None Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\LowLevel\Chimera.rc">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="3rd_Party\QtMfcMigrate\qmfcapp.h" />
+    <CustomBuild Include="3rd_Party\QtMfcMigrate\qwinwidget.h" />
   </ItemGroup>
 </Project>

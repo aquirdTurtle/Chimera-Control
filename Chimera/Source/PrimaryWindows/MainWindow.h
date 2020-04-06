@@ -173,6 +173,9 @@ class MainWindow : public IChimeraWindow
 		CDialog* appSplash;
  		friend void commonFunctions::handleCommonMessage( int msgID, IChimeraWindow* win);
 		UINT autoCalNum = 0;
+		// for adding qt widgets to the mfc window.
+		QWinWidget* widget;
+
 };
 
 

@@ -5,12 +5,11 @@
 #include "NoteSystem.h"
 #include "LowLevel/constants.h"
 #include "ConfigurationSystems/ProfileSystem.h"
+#include <QBoxLayout>
+#include <QFile>
 
-void NoteSystem::rearrange(int width, int height, fontMap fonts)
-{
-	configNotes.rearrange( width, height, fonts);
-	configNotesHeader.rearrange( width, height, fonts);
-}
+
+void NoteSystem::rearrange(int width, int height, fontMap fonts) { } 
 
 
 void NoteSystem::handleSaveConfig(ConfigStream& saveFile)
@@ -50,30 +49,26 @@ void NoteSystem::handleOpenConfig(ConfigStream& openFile)
 }
 
 
-void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToolTips& tooltips)
+void NoteSystem::initialize(POINT& topLeftPos, QWinWidget* parent, int& id, cToolTips& tooltips)
 {
-	/// CONFIGURATION LEVEL
-	// Configuration Notes Title
-	configNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 25 };
-	configNotesHeader.Create( "CONFIGURATION NOTES", NORM_HEADER_OPTIONS, configNotesHeader.sPos, parentWindow, id++);
-	configNotesHeader.fontType = fontTypes::HeadingFont;
+	header = new QLabel ("CONFIGURATION NOTES",parent);
+	header->setFixedSize (QSize (480, 25));		
+	header->move (topLeftPos.x, topLeftPos.y);
 	topLeftPos.y += 25;
-	//  Configuration Notes edit
-	configNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 195 };
-	configNotes.Create( NORM_EDIT_OPTIONS | ES_AUTOVSCROLL | ES_WANTRETURN, configNotes.sPos, parentWindow, 
-						IDC_CONFIGURATION_NOTES );
+	edit = new QTextEdit (parent);
+	edit->setFixedSize (480, 195);
+	edit->move (topLeftPos.x, topLeftPos.y);
 	topLeftPos.y += 195;
 }
 
 void NoteSystem::setConfigurationNotes(std::string notes)
 {
-	configNotes.SetWindowTextA(cstr(notes));
+	edit->setText (cstr(notes));
 }
 
 std::string NoteSystem::getConfigurationNotes()
 {
 	CString rawText;
-	configNotes.GetWindowTextA(rawText);
-	std::string text(rawText);
+	std::string text(str(edit->toPlainText ().data()));
 	return text;
 }
