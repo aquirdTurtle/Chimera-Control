@@ -125,7 +125,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;NO_WARN_MBCS_MFC_DEPRECATION;_DEBUG;_CONSOLE;_LIB;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -204,6 +204,19 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CustomBuild Include="3rd_Party\QtMfcMigrate\qmfcapp.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\3rd_Party\QtMfcMigrate\qmfcapp.h -o MOC\moc_qmfcapp.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC qmfcapp.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_qmfcapp.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\3rd_Party\QtMfcMigrate\qmfcapp.h;MOC\moc_predefs.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="3rd_Party\QtMfcMigrate\qwinwidget.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\3rd_Party\QtMfcMigrate\qwinwidget.h -o MOC\moc_qwinwidget.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC qwinwidget.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_qwinwidget.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\3rd_Party\QtMfcMigrate\qwinwidget.h;MOC\moc_predefs.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <ClInclude Include="MOC\moc_predefs.h" />
     <ClInclude Include="Source\Agilent\AgilentCore.h" />
     <ClInclude Include="Source\AnalogInput\AiUnits.h" />
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
@@ -376,6 +389,11 @@
     <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="3rd_Party\QtMfcMigrate\qmfcapp.cpp" />
+    <ClCompile Include="3rd_Party\QtMfcMigrate\qwinwidget.cpp" />
+    <ClCompile Include="MOC\moc_qmfcapp.cpp" />
+    <ClCompile Include="MOC\moc_qwinhost.cpp" />
+    <ClCompile Include="MOC\moc_qwinwidget.cpp" />
     <ClCompile Include="Source\Agilent\Agilent.cpp" />
     <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp" />
     <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
@@ -521,6 +539,7 @@
     <Text Include="Planning.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MOC\moc_predefs.h.cbt" />
     <None Include="Source\GeneralObjects\coordinate.h" />
     <None Include="Source\AnalogOutput\DaqMxFlume.h" />
     <None Include="Source\DigitalOutput\DoStructures.h" />
@@ -530,6 +549,7 @@
     <None Include="Source\Plotting\OscilloscopeViewer.h" />
     <None Include="Source\Plotting\PlotCtrl.h" />
     <None Include="Source\GeneralFlumes\WinSerialFlume.h" />
+    <None Include="stylesheet.css" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
