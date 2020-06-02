@@ -2,117 +2,66 @@
 #include "DigitalOutput.h"
 
 
-void DigitalOutput::updateStatus ( )
-{
-	if ( check.m_hWnd == NULL )
+void DigitalOutput::updateStatus ( ){
+	if ( check == NULL )
 	{
 		return;
 	}
-	check.SetCheck ( status );
-	check.colorState = 0;
-	check.RedrawWindow ( );
+	if (check->isChecked () != status)
+	{
+		check->setChecked (status);
+	}
 }
 
 
-void DigitalOutput::initLoc ( UINT numIn, DoRows::which rowIn )
-{
+void DigitalOutput::initLoc ( UINT numIn, DoRows::which rowIn ){
 	row = rowIn;
 	num = numIn;
 }
 
 
-void DigitalOutput::set ( bool stat )
-{
+void DigitalOutput::set ( bool stat ){
 	status = stat;
 	updateStatus ( );
 }
 
 
-bool DigitalOutput::getStatus ( )
-{
+bool DigitalOutput::getStatus ( ){
 	return status;
 }
 
 
-std::pair<DoRows::which, UINT> DigitalOutput::getPosition ( )
-{
+std::pair<DoRows::which, UINT> DigitalOutput::getPosition ( ){
 	return { row, num };
 }
 
-void DigitalOutput::rearrange ( int width, int height, fontMap fonts )
-{
-	check.rearrange ( width, height, fonts );
+
+void DigitalOutput::setName ( std::string nameStr ){
+	check->setToolTip ( nameStr.c_str());
 }
 
-
-HBRUSH DigitalOutput::handleColorMessage ( UINT controlID, CWnd* window, CDC* cDC )
-{
-	if ( controlID == check.GetDlgCtrlID ( ) )
-	{
-		if ( check.colorState == -1 )
-		{
-			cDC->SetBkColor ( _myRGBs[ "Red" ] );
-			return *_myBrushes[ "Red" ];
-		}
-		else if ( check.colorState == 1 )
-		{
-			cDC->SetBkColor ( _myRGBs[ "Green" ] );
-			return *_myBrushes[ "Green" ];
-		}
-		else if ( check.colorState == 2 )
-		{
-			cDC->SetBkColor ( _myRGBs[ "White" ] );
-			return *_myBrushes[ "White" ];
-		}
-		else
-		{
-			cDC->SetBkColor ( _myRGBs[ "Medium Grey" ] );
-			return *_myBrushes[ "Medium Grey" ];
-		}
-	}
-	return NULL;
-}
-
-
-void DigitalOutput::setName ( std::string nameStr, cToolTips& toolTips, CWnd* parent )
-{
-	check.setToolTip ( nameStr, toolTips, parent );
-}
-
-
-int DigitalOutput::getCheckID ( )
-{
-	return check.GetDlgCtrlID ( );
-}
-
-
-void DigitalOutput::setHoldStatus ( bool stat )
-{
+void DigitalOutput::setHoldStatus ( bool stat ){
 	holdStatus = stat;
-	check.colorState = stat ? 1 : -1;
-	check.RedrawWindow ( );
 }
 
-void DigitalOutput::initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips )
+void DigitalOutput::initialize ( POINT& pos, IChimeraWindowWidget* parent )
 {
-	check.sPos = { long ( pos.x ), long ( pos.y  ), long ( pos.x + 28 ), long ( pos.y + 28 ) };
-	check.Create ( "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_RIGHT | BS_3STATE, check.sPos, parent, id );
-}
-
-
-void DigitalOutput::enable ( bool enabledStatus )
-{
-	check.EnableWindow ( enabledStatus );
+	check = new CQCheckBox ("", parent);
+	check->setGeometry ({ QPoint{ long (pos.x), long (pos.y) }, QPoint{ long (pos.x + 28), long (pos.y + 28) } });
+	//check->setStyleSheet ("QCheckBox::indicator{ width: 140px; height: 140px;}");
 }
 
 
-DigitalOutput& allDigitalOutputs::operator()( UINT num, DoRows::which row )
-{
+void DigitalOutput::enable ( bool enabledStatus ){
+	check->setEnabled( enabledStatus );
+}
+
+
+DigitalOutput& allDigitalOutputs::operator()( UINT num, DoRows::which row ){
 	return core[ ULONG ( row ) * 16L + num ];
 }
 
-allDigitalOutputs::allDigitalOutputs ( )
-{
+allDigitalOutputs::allDigitalOutputs ( ){
 	for ( auto row : DoRows::allRows )
 	{
 		for ( auto num : range ( numColumns ) )

@@ -28,7 +28,7 @@ class ExpWrap
 			return data[ variationNumber ];
 		};
 
-		UINT getNumVariations(  )
+		size_t getNumVariations(  )
 		{
 			return data.size();
 		}

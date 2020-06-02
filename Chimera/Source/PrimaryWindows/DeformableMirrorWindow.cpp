@@ -18,8 +18,9 @@ BEGIN_MESSAGE_MAP (DeformableMirrorWindow, IChimeraWindow)
 	ON_CONTROL_RANGE (EN_CHANGE, IDC_DM_EDIT_START, IDC_DM_EDIT_END, &DeformableMirrorWindow::handlePistonChange)
 END_MESSAGE_MAP ()
 
-DeformableMirrorWindow::DeformableMirrorWindow() : IChimeraWindow(), dm(DM_SERIAL, DM_SAFEMODE)
-{}
+DeformableMirrorWindow::DeformableMirrorWindow() : IChimeraWindow(), dm(DM_SERIAL, DM_SAFEMODE){
+	statBox = new ColorBox();
+}
 
 BOOL DeformableMirrorWindow::OnInitDialog() 
 {
@@ -27,15 +28,19 @@ BOOL DeformableMirrorWindow::OnInitDialog()
 	POINT pos = { 0,0 };
 	int id = 1000;
 	UINT ID = IDC_DM_PROGRAMNOW;
-	statBox.initialize(pos, id, this, 480, toolTips, mainWin->getDevices ());
-	dm.initialize(pos, this, dm.getActNum(), DM_SERIAL, 65, ID);
+	qtp = new QWinWidget ((CWnd*)this);
+	qtp->setStyleSheet (mainWin->getStyleSheet ());
+	qtp->move (0, 0);
+	//statBox->initialize(pos, this, 480, mainWin->getDevices ());
+	//dm.initialize(pos, this, dm.getActNum(), DM_SERIAL, 65);
+	qtp->show ();
 	return IChimeraWindow::OnInitDialog ();
 }
 
 void DeformableMirrorWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw(false);
-	statBox.rearrange(cx, cy, mainWin->getFonts());
+	statBox->rearrange(cx, cy, mainWin->getFonts());
 	dm.rearrange(cx, cy, mainWin->getFonts());
 	SetRedraw();
 	RedrawWindow();
@@ -55,8 +60,7 @@ void DeformableMirrorWindow::OnPaint()
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
 		// for a single plot.
-		Mirror->setCurrentDims(width, height);
-		Mirror->drawPlot(cdc, _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"]);
+		//Mirror->refreshData ();
 		ReleaseDC(cdc);
 	}
 }

@@ -4,134 +4,123 @@
 #include "ConfigurationSystems/ProfileSystem.h"
 #include <boost/lexical_cast.hpp>
 
-void rerngGuiControl::initialize ( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
+void rerngGuiControl::initialize (POINT& loc, QWidget* parent )
 {
-	header.sPos = { loc.x, loc.y, loc.x + 640, loc.y += 25 };
-	header.Create ( "REARRANGEMENT OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = fontTypes::HeadingFont;
-	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 320, loc.y += 25 };
-	experimentIncludesRerng.Create ( "Experiment has Rerng?", NORM_CHECK_OPTIONS,
-									 experimentIncludesRerng.sPos, parent, IDC_RERNG_EXPERIMENT_BUTTON );
-	flashingRateText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
-	flashingRateText.Create ( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
-	flashingRateEdit.sPos = { loc.x + 200, loc.y, loc.x + 320, loc.y += 25 };
-	flashingRateEdit.Create ( NORM_EDIT_OPTIONS, flashingRateEdit.sPos, parent, id++ );
-	flashingRateEdit.SetWindowTextA ( "1" );
+	header = new QLabel ("REARRANGEMENT OPTIONS", parent);
+	header->setGeometry (loc.x, loc.y, 640, 25);
+	experimentIncludesRerng = new QCheckBox ("Experiment Has Rerng?", parent);
+	experimentIncludesRerng->setGeometry (loc.x, loc.y += 25, 320, 25);
+	parent->connect (experimentIncludesRerng, &QCheckBox::stateChanged, [this]() {updateActive (); });
 
-	moveSpeedText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
-	moveSpeedText.Create ( "Move Speed (ms)", NORM_STATIC_OPTIONS, moveSpeedText.sPos, parent, id++ );
-	moveSpeedEdit.sPos = { loc.x + 200, loc.y, loc.x + 320, loc.y += 25 };
-	moveSpeedEdit.Create ( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, moveSpeedEdit.sPos, parent, id++ );
-	moveSpeedEdit.SetWindowTextA ( "0.06" );
+	flashingRateText = new QLabel ("Flashing Rate (MHz)", parent);
+	flashingRateText->setGeometry (loc.x, loc.y+=25, 200, 25);
+	flashingRateEdit = new QLineEdit ("1", parent);
+	flashingRateEdit->setGeometry (loc.x + 200, loc.y, 120, 25);
+
+	moveSpeedText = new QLabel ("Move Speed (ms)", parent);
+	moveSpeedText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	moveSpeedEdit = new QLineEdit ("0.06", parent);
+	moveSpeedEdit->setGeometry (loc.x+200, loc.y, 120, 25);
 
 	loc.y -= 75;
 	loc.x += 320;
+	movingBiasText = new QLabel ("Moving Tweezer Bias (/1)", parent);
+	movingBiasText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	movingBiasEdit = new QLineEdit ("0.3", parent);
+	movingBiasEdit->setGeometry (loc.x+200, loc.y, 120, 25);
 
-	movingBiasText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
-	movingBiasText.Create ( "Moving Tweezer Bias (/1)", NORM_STATIC_OPTIONS, movingBiasText.sPos, parent, id++ );
-	movingBiasEdit.sPos = { loc.x + 200, loc.y, loc.x + 320, loc.y += 25 };
-	movingBiasEdit.Create ( NORM_EDIT_OPTIONS, movingBiasEdit.sPos, parent, id++ );
-	movingBiasEdit.SetWindowTextA ( "0.3" );
+	deadTimeText = new QLabel ("Dead Time (ns)", parent);
+	deadTimeText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	deadTimeEdit = new QLineEdit ("0", parent);
+	deadTimeEdit->setGeometry (loc.x+200, loc.y, 120, 25);
 
-	deadTimeText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
-	deadTimeText.Create ( "Dead Time (ns)", NORM_STATIC_OPTIONS, deadTimeText.sPos, parent, id++ );
-	deadTimeEdit.sPos = { loc.x + 200, loc.y, loc.x + 320, loc.y += 25 };
-	deadTimeEdit.Create ( NORM_EDIT_OPTIONS, deadTimeEdit.sPos, parent, id++ );
-	deadTimeEdit.SetWindowTextA ( "0" );
-	staticMovingRatioText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
-	staticMovingRatioText.Create ( "Static/Moving Ratio", NORM_STATIC_OPTIONS, staticMovingRatioText.sPos, parent, id++ );
-	staticMovingRatioEdit.sPos = { loc.x + 200, loc.y, loc.x + 320, loc.y += 25 };
-	staticMovingRatioEdit.Create ( NORM_EDIT_OPTIONS, staticMovingRatioEdit.sPos, parent, id++ );
-	staticMovingRatioEdit.SetWindowTextA ( "1" );
+	staticMovingRatioText = new QLabel ("Static/Moving Ratio", parent);
+	staticMovingRatioText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	staticMovingRatioEdit = new QLineEdit ("1", parent);
+	staticMovingRatioEdit->setGeometry (loc.x+200, loc.y, 120, 25);
 	loc.x -= 320;
-	outputRearrangeEvents.sPos = { loc.x, loc.y, loc.x + 320, loc.y += 25 };
-	outputRearrangeEvents.Create ( "Output Event Info", NORM_CHECK_OPTIONS, outputRearrangeEvents.sPos, parent, id++ );
-	outputIndividualEvents.sPos = { loc.x, loc.y, loc.x + 320, loc.y += 25 };
-	outputIndividualEvents.Create ( "Output Individual Event Info?", NORM_CHECK_OPTIONS, outputIndividualEvents.sPos,
-									parent, id++ );
+	outputRearrangeEvents = new QCheckBox ("Output Event Info?", parent);
+	outputRearrangeEvents->setGeometry (loc.x, loc.y+=25, 320, 25);
+	outputIndividualEvents = new QCheckBox ("Output Individual Event Info?", parent);
+	outputIndividualEvents->setGeometry (loc.x, loc.y+=25, 320, 25);
 	loc.y -= 50;
-	preprogramMoves.sPos = { loc.x + 320, loc.y, loc.x + 640, loc.y += 25 };
-	preprogramMoves.Create ( "Preprogram Moves?", NORM_CHECK_OPTIONS, preprogramMoves.sPos, parent, id++ );
-	useCalibration.sPos = { loc.x + 320, loc.y, loc.x + 640, loc.y += 25 };
-	useCalibration.Create ( "Use Calibration?", NORM_CHECK_OPTIONS, useCalibration.sPos, parent, id++ );
+	preprogramMoves = new QCheckBox ("Preprogram Moves?", parent);
+	preprogramMoves->setGeometry (loc.x + 320, loc.y+=25, 320, 25);
+	useCalibration = new QCheckBox ("Use Calibration?", parent);
+	useCalibration->setGeometry (loc.x + 320, loc.y += 25, 320, 25);
 
-	finalMoveTimeText.sPos = { loc.x, loc.y, loc.x + 320, loc.y + 25 };
-	finalMoveTimeText.Create ( "Final-Move-Time (ms): ", NORM_STATIC_OPTIONS, finalMoveTimeText.sPos, parent, id++ );
-	finalMoveTimeEdit.sPos = { loc.x + 320, loc.y, loc.x + 640, loc.y += 25 };
-	finalMoveTimeEdit.Create ( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
-	finalMoveTimeEdit.SetWindowTextA ( "1" );
+	finalMoveTimeText = new QLabel ("Final-Move-Time (ms): ", parent);
+	finalMoveTimeText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	finalMoveTimeEdit = new QLineEdit ("1", parent);
+	finalMoveTimeEdit->setGeometry (loc.x+200, loc.y, 120, 25);
 
-	rerngModeCombo.sPos = { loc.x, loc.y, loc.x + 320, loc.y + 500 };
-	rerngModeCombo.Create ( NORM_COMBO_OPTIONS, rerngModeCombo.sPos, parent, IDC_RERNG_MODE_COMBO );
+	rerngModeCombo = new QComboBox (parent);
+	rerngModeCombo->setGeometry (loc.x, loc.y += 25, 320, 25);
 	for ( auto m : rerngMode::allModes )
 	{
-		rerngModeCombo.AddString ( rerngMode::toStr ( m ).c_str() );
+		rerngModeCombo->addItem (rerngMode::toStr (m).c_str ());
 	}
-	rerngModeCombo.SelectString ( 0, rerngMode::toStr ( rerngMode::mode::Lazy ).c_str ( ) );
+	rerngModeCombo->setCurrentIndex (0);
 
- 	fastMoveTime.sPos = { loc.x + 320, loc.y, loc.x + 560, loc.y + 25 };
- 	fastMoveTime.Create ( "Fast-Move (us):", NORM_STATIC_OPTIONS, fastMoveTime.sPos, parent, id++ );
- 	fastMoveTimeEdit.sPos = { loc.x + 560, loc.y, loc.x + 640, loc.y += 25 };
- 	fastMoveTimeEdit.Create ( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
-	fastMoveTimeEdit.SetWindowTextA ( "2" );
+	fastMoveTime = new QLabel ("Fast-Move (us):", parent);
+	fastMoveTime->setGeometry (loc.x+320, loc.y, 200, 25);
+	fastMoveTimeEdit = new QLineEdit ("2", parent);
+	fastMoveTimeEdit->setGeometry (loc.x+520, loc.y, 120, 25);
+	loc.y += 25;
 
-	updateActive ( );
+	//updateActive ( );
 }
 
 
 void rerngGuiControl::setEnabled (bool enabled)
 {
-	header.EnableWindow(enabled);
-	experimentIncludesRerng.EnableWindow (enabled);
-	flashingRateText.EnableWindow (enabled);
-	flashingRateEdit.EnableWindow (enabled);
-	moveSpeedText.EnableWindow (enabled);
-	moveSpeedEdit.EnableWindow (enabled);
-	movingBiasText.EnableWindow (enabled);
-	movingBiasEdit.EnableWindow (enabled);
-	deadTimeText.EnableWindow (enabled);
-	deadTimeEdit.EnableWindow (enabled);
-	staticMovingRatioText.EnableWindow (enabled);
-	staticMovingRatioEdit.EnableWindow (enabled);
-	preprogramMoves.EnableWindow (enabled);
-	useCalibration.EnableWindow (enabled);
-	outputRearrangeEvents.EnableWindow (enabled);
-	outputIndividualEvents.EnableWindow (enabled);
-	finalMoveTimeText.EnableWindow (enabled);
-	finalMoveTimeEdit.EnableWindow (enabled);
-	fastMoveTime.EnableWindow (enabled);
-	fastMoveTimeEdit.EnableWindow (enabled);
-	rerngModeCombo.EnableWindow (enabled);
+	experimentIncludesRerng->setEnabled (enabled);
+	if (enabled)
+	{
+		updateActive ();
+		return;
+	}
+	flashingRateText->setEnabled (enabled);
+	flashingRateEdit->setEnabled (enabled);
+	moveSpeedText->setEnabled (enabled);
+	moveSpeedEdit->setEnabled (enabled);
+	movingBiasText->setEnabled (enabled);
+	movingBiasEdit->setEnabled (enabled);
+	deadTimeText->setEnabled (enabled);
+	deadTimeEdit->setEnabled (enabled);
+	staticMovingRatioText->setEnabled (enabled);
+	staticMovingRatioEdit->setEnabled (enabled);
+	preprogramMoves->setEnabled (enabled);
+	useCalibration->setEnabled (enabled);
+	outputRearrangeEvents->setEnabled (enabled);
+	outputIndividualEvents->setEnabled (enabled);
+	finalMoveTimeText->setEnabled (enabled);
+	finalMoveTimeEdit->setEnabled (enabled);
+	fastMoveTime->setEnabled (enabled);
+	fastMoveTimeEdit->setEnabled (enabled);
+	rerngModeCombo->setEnabled (enabled);
 }
 
 
 rerngGuiOptions rerngGuiControl::getParams( )
 {
 	rerngGuiOptions tempParams;
-	tempParams.active = experimentIncludesRerng.GetCheck( );
-	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
-	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
-	tempParams.preprogram = preprogramMoves.GetCheck( );
-	tempParams.useCalibration = useCalibration.GetCheck( );
+	tempParams.active = experimentIncludesRerng->isChecked( );
+	tempParams.outputInfo = outputRearrangeEvents->isChecked ( );
+	tempParams.outputIndv = outputIndividualEvents->isChecked ( );
+	tempParams.preprogram = preprogramMoves->isChecked ( );
+	tempParams.useCalibration = useCalibration->isChecked( );
 	CString tempTxt;
 	try
 	{
-		flashingRateEdit.GetWindowTextA ( tempTxt );
-		tempParams.flashingRate = str ( tempTxt );
-		moveSpeedEdit.GetWindowTextA ( tempTxt );
-		tempParams.moveSpeed = str ( tempTxt );
-		movingBiasEdit.GetWindowTextA ( tempTxt );
-		tempParams.moveBias = str ( tempTxt );
-		deadTimeEdit.GetWindowTextA ( tempTxt );
-		tempParams.deadTime = str ( tempTxt );
-		staticMovingRatioEdit.GetWindowTextA ( tempTxt );
-		tempParams.staticMovingRatio = str ( tempTxt );
-		finalMoveTimeEdit.GetWindowTextA ( tempTxt );
-		tempParams.finalMoveTime = str ( tempTxt );
-		fastMoveTimeEdit.GetWindowTextA ( tempTxt );
-		tempParams.fastMoveTime = str ( tempTxt );
-		rerngModeCombo.GetLBText ( rerngModeCombo.GetCurSel ( ), tempTxt );
-		tempParams.rMode = rerngMode::fromStr ( str ( tempTxt ) );
+		tempParams.flashingRate = str (flashingRateEdit->text ());
+		tempParams.moveSpeed = str (moveSpeedEdit->text () );
+		tempParams.moveBias = str (movingBiasEdit->text ());
+		tempParams.deadTime = str (deadTimeEdit->text () );
+		tempParams.staticMovingRatio = str (staticMovingRatioEdit->text () );
+		tempParams.finalMoveTime = str (finalMoveTimeEdit->text () );
+		tempParams.fastMoveTime = str (fastMoveTimeEdit->text () );
+		tempParams.rMode = rerngMode::fromStr ( str (rerngModeCombo->currentText () ) );
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
@@ -144,50 +133,28 @@ rerngGuiOptions rerngGuiControl::getParams( )
 
 void rerngGuiControl::rearrange( int width, int height, fontMap fonts )
 {
-	preprogramMoves.rearrange( width, height, fonts );
-	useCalibration.rearrange( width, height, fonts );
-	header.rearrange(width, height, fonts);
-	experimentIncludesRerng.rearrange( width, height, fonts );
-	flashingRateText.rearrange( width, height, fonts );
-	flashingRateEdit.rearrange( width, height, fonts );
-	moveSpeedText.rearrange( width, height, fonts );
-	moveSpeedEdit.rearrange( width, height, fonts );
-	movingBiasText.rearrange( width, height, fonts );
-	movingBiasEdit.rearrange( width, height, fonts );
-	deadTimeText.rearrange( width, height, fonts );
-	deadTimeEdit.rearrange( width, height, fonts );
-	staticMovingRatioEdit.rearrange( width, height, fonts );
-	staticMovingRatioText.rearrange( width, height, fonts );
-	outputRearrangeEvents.rearrange( width, height, fonts );
-	outputIndividualEvents.rearrange( width, height, fonts );
-	finalMoveTimeText.rearrange( width, height, fonts );
-	finalMoveTimeEdit.rearrange( width, height, fonts );
-	fastMoveTime.rearrange( width, height, fonts );
-	fastMoveTimeEdit.rearrange( width, height, fonts );
-	rerngModeCombo.rearrange ( width, height, fonts );
 }
-
 
 void rerngGuiControl::updateActive ( )
 {
 	auto params = getParams ( );
-	flashingRateEdit.EnableWindow ( 0 );
-	moveSpeedEdit.EnableWindow ( 0 );
-	movingBiasEdit.EnableWindow ( 0 );
-	deadTimeEdit.EnableWindow ( 0 );
-	staticMovingRatioEdit.EnableWindow ( 0 );
-	preprogramMoves.EnableWindow ( 0 );
-	useCalibration.EnableWindow ( 0 );
-	outputRearrangeEvents.EnableWindow ( 0 );
-	outputIndividualEvents.EnableWindow ( 0 );
-	finalMoveTimeEdit.EnableWindow ( 0 );
-	fastMoveTimeEdit.EnableWindow ( 0 );
-	rerngModeCombo.EnableWindow ( 0 );
+	flashingRateEdit->setEnabled ( 0 );
+	moveSpeedEdit->setEnabled ( 0 );
+	movingBiasEdit->setEnabled ( 0 );
+	deadTimeEdit->setEnabled ( 0 );
+	staticMovingRatioEdit->setEnabled ( 0 );
+	preprogramMoves->setEnabled ( 0 );
+	useCalibration->setEnabled ( 0 );
+	outputRearrangeEvents->setEnabled ( 0 );
+	outputIndividualEvents->setEnabled ( 0 );
+	finalMoveTimeEdit->setEnabled ( 0 );
+	fastMoveTimeEdit->setEnabled ( 0 );
+	rerngModeCombo->setEnabled ( 0 );
 	if ( params.active )
 	{
-		outputRearrangeEvents.EnableWindow ( 1 );
-		outputIndividualEvents.EnableWindow ( 1 );
-		rerngModeCombo.EnableWindow ( 1 );
+		outputRearrangeEvents->setEnabled ( 1 );
+		outputIndividualEvents->setEnabled ( 1 );
+		rerngModeCombo->setEnabled ( 1 );
 		switch ( params.rMode )
 		{
 			case rerngMode::mode::Lazy:
@@ -200,23 +167,23 @@ void rerngGuiControl::updateActive ( )
 			}
 			case rerngMode::mode::StandardFlashing:
 			{
-				flashingRateEdit.EnableWindow ( 1 );
-				moveSpeedEdit.EnableWindow ( 1 );
-				movingBiasEdit.EnableWindow ( 1 );
-				deadTimeEdit.EnableWindow ( 1 );
-				staticMovingRatioEdit.EnableWindow ( 1 );
-				preprogramMoves.EnableWindow ( 1 );
-				useCalibration.EnableWindow ( 1 );
-				finalMoveTimeEdit.EnableWindow ( 1 );
+				flashingRateEdit->setEnabled ( 1 );
+				moveSpeedEdit->setEnabled ( 1 );
+				movingBiasEdit->setEnabled ( 1 );
+				deadTimeEdit->setEnabled ( 1 );
+				staticMovingRatioEdit->setEnabled ( 1 );
+				preprogramMoves->setEnabled ( 1 );
+				useCalibration->setEnabled ( 1 );
+				finalMoveTimeEdit->setEnabled ( 1 );
 				break;
 			}
 			case rerngMode::mode::Ultrafast:
 			{
-				movingBiasEdit.EnableWindow ( 1 );
-				deadTimeEdit.EnableWindow ( 1 );
-				preprogramMoves.EnableWindow ( 1 );
-				useCalibration.EnableWindow ( 1 );
-				fastMoveTimeEdit.EnableWindow ( 1 );
+				movingBiasEdit->setEnabled ( 1 );
+				deadTimeEdit->setEnabled ( 1 );
+				preprogramMoves->setEnabled ( 1 );
+				useCalibration->setEnabled ( 1 );
+				fastMoveTimeEdit->setEnabled ( 1 );
 				break;
 			}
 		}
@@ -334,27 +301,28 @@ void rerngGuiControl::handleSaveConfig( ConfigStream& saveFile )
 
 void rerngGuiControl::setParams( rerngGuiOptions params )
 {
-	experimentIncludesRerng.SetCheck( params.active );
+	experimentIncludesRerng->setChecked( params.active );
 	// convert back to MHz from Hz
-	flashingRateEdit.SetWindowTextA( cstr(params.flashingRate.expressionStr) );
-	movingBiasEdit.SetWindowTextA( cstr( params.moveBias.expressionStr ) );
+	flashingRateEdit->setText( cstr(params.flashingRate.expressionStr) );
+	movingBiasEdit->setText ( cstr( params.moveBias.expressionStr ) );
 	// convert back to ms from s
-	moveSpeedEdit.SetWindowTextA( cstr( params.moveSpeed.expressionStr ) );
-	outputRearrangeEvents.SetCheck( params.outputInfo );
+	moveSpeedEdit->setText ( cstr( params.moveSpeed.expressionStr ) );
+	outputRearrangeEvents->setChecked ( params.outputInfo );
 	// convert back to ns
-	deadTimeEdit.SetWindowTextA( cstr( params.deadTime.expressionStr ) );
-	staticMovingRatioEdit.SetWindowTextA( cstr( params.staticMovingRatio.expressionStr ) );
+	deadTimeEdit->setText ( cstr( params.deadTime.expressionStr ) );
+	staticMovingRatioEdit->setText ( cstr( params.staticMovingRatio.expressionStr ) );
 	
-	outputRearrangeEvents.SetCheck( params.outputInfo );
-	outputIndividualEvents.SetCheck( params.outputIndv );
+	outputRearrangeEvents->setChecked ( params.outputInfo );
+	outputIndividualEvents->setChecked ( params.outputIndv );
 
-	useCalibration.SetCheck( params.useCalibration );
-	preprogramMoves.SetCheck( params.preprogram );
+	useCalibration->setChecked ( params.useCalibration );
+	preprogramMoves->setChecked ( params.preprogram );
 	// convert back to ms
-	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime.expressionStr ) );
-	rerngModeCombo.SelectString ( 0, rerngMode::toStr ( params.rMode ).c_str ( ) );
+	finalMoveTimeEdit->setText ( cstr( params.finalMoveTime.expressionStr ) );
+	auto index = rerngModeCombo->findData (rerngMode::toStr (params.rMode).c_str ());
+	rerngModeCombo->setCurrentIndex (index);
 	// these are displayed in us.
-	fastMoveTimeEdit.SetWindowTextA( cstr( params.fastMoveTime.expressionStr ) );
+	fastMoveTimeEdit->setText ( cstr( params.fastMoveTime.expressionStr ) );
 }
 
 

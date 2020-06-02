@@ -17,14 +17,16 @@
 #include <string>
 #include <vector>
 #include <array>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 class Script
 {
 	public:
 		Script();
-		void initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, CWnd* scriptWin, int& id,
-						 std::string deviceTypeInput, std::string scriptHeader, std::array<UINT, 2> ids, 
-						 COLORREF backgroundColor );
+		void initialize( int width, int height, POINT& startingLocation, IChimeraWindowWidget* scriptWin,
+ 						 std::string deviceTypeInput, std::string scriptHeader );
 		bool isFunction ( );
 		void handleToolTip( NMHDR * pNMHDR, LRESULT * pResult );
 		std::string getScriptText();
@@ -63,25 +65,21 @@ class Script
 		void updateSavedStatus( bool isSaved );
 		bool coloringIsNeeded();
 		void updateScriptNameText( std::string path );
-		HBRUSH handleColorMessage ( CWnd* window, CDC* cDC );
 		void reset();
 		bool savedStatus();
-
-		INT_PTR handleColorMessage( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes );
 
 		void saveAsFunction( Communicator* comm );
 		void loadFunctions();
 
-		void setEnabled (bool enabled, bool functionsEnabled );
-
+		void setEnabled ( bool enabled, bool functionsEnabled );
 	private:
 		CWnd syntaxTimer;
-		Control<CRichEditCtrl> edit;
-		Control<CStatic> title;
-		Control<CleanCheck>  savedIndicator;
-		Control<CEdit> fileNameText;
+		CQTextEdit* edit;
+		QLabel* title;
+		CQCheckBox*  savedIndicator;
+		QLabel* fileNameText;
 		functionCombo availableFunctionsCombo;
-		Control<CEdit> help;
+		QLabel* help;
 
 		std::string scriptName;
 		std::string scriptPath;

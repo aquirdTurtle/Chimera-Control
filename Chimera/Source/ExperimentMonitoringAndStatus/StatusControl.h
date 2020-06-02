@@ -2,23 +2,24 @@
 #pragma once
 #include "CustomMfcControlWrappers/myButton.h"
 #include "Control.h"
+#include <QLabel>
+#include <QTextEdit>
+#include <QPushButton>
+#include <PrimaryWindows/IChimeraWindow.h>
 
 class StatusControl
 {
 	public:
-		void initialize(POINT &topLeftCorner, CWnd* parent, int& id, long size, std::string headerText, 
-						COLORREF textColor, cToolTips& tooltips, UINT clearId );
-		void setDefaultColor(COLORREF color);
+		void initialize(POINT &topLeftCorner, IChimeraWindowWidget* parent, long size, std::string headerText, std::string textColor );
+		void setDefaultColor(std::string color);
 		void addStatusText(std::string text);
-		void addStatusText(std::string text, bool noColor);
+		void addStatusText (std::string text, std::string color);
 		void clear();
-		void setColor();
-		void setColor(COLORREF color);
 		void appendTimebar();
-		void rearrange(int width, int height, fontMap fonts);
 	private:
-		Control<CStatic> header;
-		Control<CRichEditCtrl> edit;
-		Control<CleanPush> clearButton;
-		COLORREF defaultColor;
+		QLabel* header;
+		QTextEdit* edit;
+		QPushButton* clearBtn;
+		
+		std::string defaultColor;
 };

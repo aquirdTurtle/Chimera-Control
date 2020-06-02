@@ -5,7 +5,10 @@
 #include "Rearrangement/rerngGuiControl.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include "CustomMfcControlWrappers/myButton.h""
+#include "CustomMfcControlWrappers/myButton.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qcheckbox.h>
 
 class NiawgSystem
 {
@@ -15,7 +18,7 @@ class NiawgSystem
 		NiawgSystem (const NiawgSystem&) = delete;
 		NiawgSystem (DoRows::which trigRow, UINT trigNumber, bool safemode);
 
-		void initialize (int& id, POINT& loc, CWnd* parent, cToolTips& tooltips);
+		void initialize (POINT& loc, IChimeraWindowWidget* qtp);
 		void rearrange (UINT width, UINT height, fontMap fonts);
 		void handleSaveConfig (ConfigStream& saveFile);
 		void handleOpenConfig (ConfigStream& openfile);
@@ -25,6 +28,6 @@ class NiawgSystem
 		Script niawgScript;
 		NiawgCore core;
 		rerngGuiControl rearrangeCtrl;		
-		Control<CStatic> niawgHeader;
-		Control<CleanCheck> controlNiawg;
+		QLabel* niawgHeader;
+		QCheckBox* controlNiawg;
 };

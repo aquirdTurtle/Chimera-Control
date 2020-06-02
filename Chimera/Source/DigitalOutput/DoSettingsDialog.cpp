@@ -92,7 +92,7 @@ void TtlSettingsDialog::handleOk()
 				errBox("ERROR: " + str(name) + " is an invalid name; names cannot start with numbers.");
 				return;
 			}
-			input->ttls->setName(row, numberInc, str(name), input->toolTips, input->master);
+			input->ttls->setName(row, numberInc, str(name));
 		}
 	}
 	EndDialog((WPARAM)&input);

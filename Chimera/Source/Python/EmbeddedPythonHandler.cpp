@@ -1,6 +1,11 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 // main header.
+// conflict between qt slots and python slots. 
+#include "Python/EmbeddedPythonHandler.h"
+// for personInfo structure.
+#include "Python/SMSTextingControl.h"
+
 #ifdef _DEBUG
 #undef _DEBUG
 #include "python.h"
@@ -8,16 +13,11 @@
 #else
 #include "python.h"
 #endif
-#include "Python/EmbeddedPythonHandler.h"
-// for personInfo structure.
-#include "Python/SMSTextingControl.h"
-
 
 // python constructor is important.
 EmbeddedPythonHandler::EmbeddedPythonHandler( )
 {
-	if ( PYTHON_SAFEMODE )
-	{
+	if ( PYTHON_SAFEMODE ) {
 		return;
 	}
 	Py_SetPythonHome( (wchar_t*)PYTHON_HOME );

@@ -10,6 +10,8 @@
 #include <numeric>
 #include <fstream>
 #include "GeneralUtilityFunctions/range.h"
+#include <PrimaryWindows/QtMainWindow.h>
+#include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include "boost/lexical_cast.hpp"
 
 
@@ -54,68 +56,83 @@ void Agilent::updateSavedStatus (bool isSaved)
 	agilentScript.updateSavedStatus (isSaved);
 }
 
-
-void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
-						  UINT editHeight, COLORREF color, UINT width )
+void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, IChimeraWindowWidget* win, UINT width )
 {
 	LONG w = LONG( width );
 	core.initialize ();
 	auto deviceInfo = core.getDeviceInfo ();
-	header.sPos = { loc.x, loc.y, loc.x + w, loc.y += 25 };
-	header.Create( cstr( headerText ), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = fontTypes::HeadingFont;
+	header = new QLabel (cstr (headerText), win);
+	header->setGeometry (loc.x, loc.y, w, 25);
+	loc.y += 25;
+	deviceInfoDisplay = new QLabel (cstr (deviceInfo), win);
+	deviceInfoDisplay->setGeometry (loc.x, loc.y, w, 20);
 
-	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + w, loc.y += 20 };
-	deviceInfoDisplay.Create( cstr( deviceInfo ), NORM_STATIC_OPTIONS, deviceInfoDisplay.sPos, parent, id++ );
-	deviceInfoDisplay.fontType = fontTypes::SmallFont;
+	channel1Button = new CQRadioButton ("Channel 1 - No Control", win);
+	channel1Button->setGeometry (loc.x, loc.y+=20, w / 2, 20);
+	channel1Button->setChecked( true );
+	win->connect (channel1Button, &QRadioButton::toggled, [win, this]() {
+		auto channel = (channel2Button->isChecked () ? 2 : 1);
+		handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+		});
 
-	channel1Button.sPos = { loc.x, loc.y, loc.x += w/2, loc.y + 20 };
-	channel1Button.Create( "Channel 1 - No Control", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, 
-						   channel1Button.sPos, parent, initSettings.chan1ButtonId );
-	channel1Button.SetCheck( true );
+	channel2Button = new CQRadioButton ("Channel 2 - No Control", win);
+	channel2Button->setGeometry (loc.x+w/2, loc.y, w / 2, 20);
+	channel2Button->setChecked (false);
+	win->connect (channel2Button, &QRadioButton::toggled, [win, this]() {
+		auto channel = (channel2Button->isChecked () ? 2 : 1);
+		handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+	});
 
-	channel2Button.sPos = { loc.x, loc.y, loc.x += w/2, loc.y += 20 };
-	channel2Button.Create( "Channel 2 - No Control", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, 
-						   parent, initSettings.chan2ButtonId );
-	loc.x -= w;
+	syncedButton = new CQCheckBox ("Synced?", win);
+	syncedButton->setGeometry (loc.x, loc.y+=20, w / 3, 20);
 
-	syncedButton.sPos = { loc.x, loc.y, loc.x += w/3, loc.y + 20 };
-	syncedButton.Create( "Synced?", NORM_CHECK_OPTIONS | BS_RIGHT, syncedButton.sPos, parent,
-						 initSettings.syncButtonId );
+	calibratedButton = new CQCheckBox ("Use Cal?", win);
+	calibratedButton->setGeometry (loc.x + w / 3, loc.y, w / 3, 20);
+	calibratedButton->setChecked( true );
 
-	calibratedButton.sPos = { loc.x, loc.y, loc.x += w/3, loc.y + 20 };
-	calibratedButton.Create( "Use Cal?", NORM_CHECK_OPTIONS | BS_RIGHT, calibratedButton.sPos,
-							 parent, initSettings.calibrationButtonId );
-	calibratedButton.SetCheck( true );
-	
-	programNow.sPos = { loc.x, loc.y, loc.x += w/3, loc.y += 20 };
-	programNow.Create( "Program", NORM_PUSH_OPTIONS, programNow.sPos, parent, 
-					   initSettings.programButtonId );
-	programNow.SetFaceColor( _myRGBs["Dark Grey"], true );
-	programNow.SetTextColor( _myRGBs["Solarized Base1"] );
-	loc.x -= w;
+	programNow = new CQPushButton ("Program", win);
+	programNow->setGeometry (loc.x + 2 * w / 3, loc.y, w / 3, 20);
+	win->connect (programNow, &QPushButton::released, [win, this]() {
+		try	{ 
+			checkSave (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ()); 
+			programAgilentNow (win->auxWin->getUsableConstants ()); 
+			win->reportStatus ("Programmed Agilent " + getConfigDelim () + ".\r\n"); 
+		}
+		catch (Error& err) {
+			win->reportErr ("Error while programming agilent " + getConfigDelim () + ": " + err.trace () + "\r\n");
+		}
+	});
 
-	settingCombo.sPos = { loc.x, loc.y, loc.x += w/4, loc.y + 200 };
-	settingCombo.Create( NORM_COMBO_OPTIONS, settingCombo.sPos, parent, initSettings.agilentComboId );
-	settingCombo.AddString( "No Control" );
-	settingCombo.AddString( "Output Off" );
-	settingCombo.AddString( "DC" );
-	settingCombo.AddString( "Sine" );
-	settingCombo.AddString( "Square" );
-	settingCombo.AddString( "Preloaded" );
-	settingCombo.AddString( "Scripted" );
-	settingCombo.SetCurSel( 0 );
+	settingCombo = new CQComboBox (win);
+	settingCombo->setGeometry (loc.x, loc.y += 20, w / 4, 25);
+	win->connect ( settingCombo, qOverload<int> (&QComboBox::currentIndexChanged), [win, this](int) {
+		try	{
+			checkSave (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+			readGuiSettings ();
+			handleModeCombo ();
+			updateSettingsDisplay (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
+		}
+		catch (Error& err)
+		{
+			win->reportErr ("Error while handling agilent combo change: " + err.trace ());
+		}
+	} );
+	settingCombo->addItem ("No Control");
+	settingCombo->addItem ("Output Off");
+	settingCombo->addItem ("DC");
+	settingCombo->addItem ("Sine");
+	settingCombo->addItem ("Square");
+	settingCombo->addItem ("Preloaded");
+	settingCombo->addItem ("Scripted");
+	settingCombo->setCurrentIndex (0);
 
-	optionsFormat.sPos = { loc.x, loc.y, loc.x += 3* w/4, loc.y += 25 };
-	optionsFormat.Create( "---", NORM_STATIC_OPTIONS, optionsFormat.sPos, parent, id++ );
-	loc.x -= w;
-
-	agilentScript.initialize( width, editHeight, loc, toolTips, parent, id, "Agilent", "",
-							  { initSettings.functionComboId, initSettings.editId }, color );
+	optionsFormat = new QLabel ("---", win);
+	optionsFormat->setGeometry (loc.x + w / 4, loc.y, 3 * w / 4, 25);
+	loc.y += 25;
+	agilentScript.initialize( width, editHeight, loc, win, "Agilent", "" );
 
 	currentGuiInfo.channel[0].option = AgilentChannelMode::which::No_Control;
 	currentGuiInfo.channel[1].option = AgilentChannelMode::which::No_Control;
-	currentChannel = 1;
 	agilentScript.setEnabled ( false, false );
 
 	core.programSetupCommands ( );
@@ -145,46 +162,6 @@ void Agilent::verifyScriptable ( )
 	}
 }
 
-
-void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
-{
-	header.rearrange(width, height, fonts);
-	deviceInfoDisplay.rearrange(width, height, fonts);
-	channel1Button.rearrange(width, height, fonts);
-	channel2Button.rearrange(width, height, fonts);
-	syncedButton.rearrange(width, height, fonts);
-	settingCombo.rearrange(width, height, fonts);
-	optionsFormat.rearrange(width, height, fonts);
-	agilentScript.rearrange(width, height, fonts);
-	programNow.rearrange( width, height, fonts );
-	calibratedButton.rearrange( width, height, fonts );
-}
-
-
-HBRUSH Agilent::handleColorMessage(CWnd* window, CDC* cDC)
-{
-
-	DWORD id = window->GetDlgCtrlID();
-	if ( id == deviceInfoDisplay.GetDlgCtrlID() || id == channel1Button.GetDlgCtrlID()  
-		 || id == channel2Button.GetDlgCtrlID() || id == syncedButton.GetDlgCtrlID() 
-		 || id == settingCombo.GetDlgCtrlID() || id == optionsFormat.GetDlgCtrlID() )
-	{
-		cDC->SetTextColor( _myRGBs["Text"]);
-		cDC->SetBkColor	( _myRGBs[ "Static-Bkgd" ] );
-		return *_myBrushes["Static-Bkgd"];
-	}
-	auto res = agilentScript.handleColorMessage ( window, cDC );
-	if ( res )
-	{
-		return res;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-
 void Agilent::setDefault (UINT chan)
 {
 	core.setDefault (chan);
@@ -199,7 +176,7 @@ void Agilent::readGuiSettings(int chan )
 	}
 	// convert to zero-indexed
 	chan -= 1;
-	currentGuiInfo.synced = syncedButton.GetCheck( );
+	currentGuiInfo.synced = syncedButton->isChecked( );
 	std::string textStr( agilentScript.getScriptText() );
 	ConfigStream stream;
 	stream << textStr;
@@ -211,26 +188,26 @@ void Agilent::readGuiSettings(int chan )
 			break;
 		case AgilentChannelMode::which::DC:
 			stream >> currentGuiInfo.channel[chan].dc.dcLevel;
-			currentGuiInfo.channel[chan].dc.useCal = calibratedButton.GetCheck( );
+			currentGuiInfo.channel[chan].dc.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Sine:
 			stream >> currentGuiInfo.channel[chan].sine.frequency;
 			stream >> currentGuiInfo.channel[chan].sine.amplitude;
-			currentGuiInfo.channel[chan].sine.useCal = calibratedButton.GetCheck( );
+			currentGuiInfo.channel[chan].sine.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Square:
 			stream >> currentGuiInfo.channel[chan].square.frequency;
 			stream >> currentGuiInfo.channel[chan].square.amplitude;
 			stream >> currentGuiInfo.channel[chan].square.offset;
-			currentGuiInfo.channel[chan].square.useCal = calibratedButton.GetCheck( );
+			currentGuiInfo.channel[chan].square.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Preloaded:
 			stream >> currentGuiInfo.channel[chan].preloadedArb.address;
-			currentGuiInfo.channel[chan].preloadedArb.useCal = calibratedButton.GetCheck( );
+			currentGuiInfo.channel[chan].preloadedArb.useCal = calibratedButton->isChecked ( );
 			break;
 		case AgilentChannelMode::which::Script:
 			currentGuiInfo.channel[chan].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
-			currentGuiInfo.channel[chan].scriptedArb.useCal = calibratedButton.GetCheck( );
+			currentGuiInfo.channel[chan].scriptedArb.useCal = calibratedButton->isChecked ( );
 			break;
 		default:
 			thrower ( "unknown agilent option" );
@@ -243,13 +220,13 @@ void Agilent::readGuiSettings(  )
 {
 	// true -> 0 + 1 = 1
 	// false -> 1 + 1 = 2
-	readGuiSettings( (!channel1Button.GetCheck()) + 1 );
+	readGuiSettings( (!channel1Button->isChecked ()) + 1 );
 }
 
 
 void Agilent::updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo )
 {
-	updateSettingsDisplay( (!channel1Button.GetCheck()) + 1, configPath, currentRunInfo );
+	updateSettingsDisplay( (!channel1Button->isChecked ()) + 1, configPath, currentRunInfo );
 }
 
 
@@ -260,11 +237,11 @@ void Agilent::updateButtonDisplay( int chan )
 	channelText += AgilentChannelMode::toStr ( currentGuiInfo.channel[ chan - 1 ].option );
 	if ( chan == 1 )
 	{
-		channel1Button.SetWindowTextA( cstr(channelText) );
+		channel1Button->setText ( cstr(channelText) );
 	}
 	else
 	{
-		channel2Button.SetWindowTextA( cstr( channelText ) );
+		channel2Button->setText ( cstr( channelText ) );
 	}
 }
 
@@ -280,27 +257,27 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false, false );
-			settingCombo.SetCurSel( 0 );
+			settingCombo->setCurrentIndex( 0 );
 			break;
 		case AgilentChannelMode::which::Output_Off:
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
 			agilentScript.setEnabled ( false, false );
-			settingCombo.SetCurSel( 1 );
+			settingCombo->setCurrentIndex ( 1 );
 			break;
 		case AgilentChannelMode::which::DC:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(currentGuiInfo.channel[chan].dc.dcLevel.expressionStr);
-			settingCombo.SetCurSel( 2 );
-			calibratedButton.SetCheck( currentGuiInfo.channel[chan].dc.useCal );
+			settingCombo->setCurrentIndex ( 2 );
+			calibratedButton->setChecked( currentGuiInfo.channel[chan].dc.useCal );
 			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Sine:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(currentGuiInfo.channel[chan].sine.frequency.expressionStr + " " 
 										 + currentGuiInfo.channel[chan].sine.amplitude.expressionStr);
-			settingCombo.SetCurSel( 3 );
-			calibratedButton.SetCheck( currentGuiInfo.channel[chan].sine.useCal );
+			settingCombo->setCurrentIndex ( 3 );
+			calibratedButton->setChecked( currentGuiInfo.channel[chan].sine.useCal );
 			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Square:
@@ -308,40 +285,30 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 			agilentScript.setScriptText( currentGuiInfo.channel[chan].square.frequency.expressionStr + " " 
 										 + currentGuiInfo.channel[chan].square.amplitude.expressionStr + " " 
 										 + currentGuiInfo.channel[chan].square.offset.expressionStr );
-			settingCombo.SetCurSel( 4 );
-			calibratedButton.SetCheck( currentGuiInfo.channel[chan].square.useCal );
+			settingCombo->setCurrentIndex ( 4 );
+			calibratedButton->setChecked( currentGuiInfo.channel[chan].square.useCal );
 			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Preloaded:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(currentGuiInfo.channel[chan].preloadedArb.address.expressionStr);
-			settingCombo.SetCurSel( 5 );
-			calibratedButton.SetCheck( currentGuiInfo.channel[chan].preloadedArb.useCal );
+			settingCombo->setCurrentIndex ( 5 );
+			calibratedButton->setChecked( currentGuiInfo.channel[chan].preloadedArb.useCal );
 			agilentScript.setEnabled ( true, false );
 			break;
 		case AgilentChannelMode::which::Script:
-			settingCombo.SetCurSel( 6 );
+			settingCombo->setCurrentIndex ( 6 );
 			// clear it in case the file fails to open.
 			agilentScript.setScriptText( "" );
 			agilentScript.openParentScript( currentGuiInfo.channel[chan].scriptedArb.fileAddress.expressionStr, configPath,
 											currentRunInfo );
-			calibratedButton.SetCheck( currentGuiInfo.channel[chan].scriptedArb.useCal );
+			calibratedButton->setChecked( currentGuiInfo.channel[chan].scriptedArb.useCal );
 			agilentScript.setEnabled ( true, false );
 			break;
 		default:
 			thrower ( "unrecognized agilent setting: " + AgilentChannelMode::toStr(currentGuiInfo.channel[chan].option));
 	}
 	currentChannel = chan+1;
-	if ( currentChannel == 1 )
-	{
-		channel1Button.SetCheck( true );
-		channel2Button.SetCheck( false );
-	} 
-	else
-	{
-		channel1Button.SetCheck( false );
-		channel2Button.SetCheck( true );
-	}	
 }
 
 
@@ -350,48 +317,51 @@ void Agilent::handleChannelPress( int chan, std::string configPath, RunInfo curr
 	// convert from channel 1/2 to 0/1 to access the right array entr
 	readGuiSettings( currentChannel );
 	updateSettingsDisplay( chan, configPath, currentRunInfo );
-	currentChannel = channel1Button.GetCheck ( ) ? 1 : 2;
+	currentChannel = channel1Button->isChecked( ) ? 1 : 2;
 }
 
 
 void Agilent::handleModeCombo()
 {
-	int selection = settingCombo.GetCurSel();
-	int selectedChannel = int( !channel1Button.GetCheck() );
+	if (!optionsFormat) {
+		return;
+	}
+	int selection = settingCombo->currentIndex();
+	int selectedChannel = int( !channel1Button->isChecked() );
 	switch (selection)
 	{
 		case 0:
-			optionsFormat.SetWindowTextA( "---" );
+			optionsFormat->setText( "---" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::No_Control;
 			agilentScript.setEnabled ( false, false );
 			break;
 		case 1:
-			optionsFormat.SetWindowTextA( "---" );
+			optionsFormat->setText ( "---" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::Output_Off;
 			agilentScript.setEnabled ( false, false );
 			break;
 		case 2:
-			optionsFormat.SetWindowTextA( "[DC Level]" );
+			optionsFormat->setText ( "[DC Level]" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::DC;
 			agilentScript.setEnabled ( true, false );
 			break;
 		case 3:
-			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)]" );
+			optionsFormat->setText ( "[Frequency(Hz)] [Amplitude(Vpp)]" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::Sine;
 			agilentScript.setEnabled ( true, false );
 			break;
 		case 4:
-			optionsFormat.SetWindowTextA( "[Frequency(Hz)] [Amplitude(Vpp)] [Offset(V)]" );
+			optionsFormat->setText ( "[Frequency(Hz)] [Amplitude(Vpp)] [Offset(V)]" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::Square;
 			agilentScript.setEnabled ( true, false );
 			break;
 		case 5:
-			optionsFormat.SetWindowTextA( "[File Address]" );
+			optionsFormat->setText ( "[File Address]" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::Preloaded;
 			agilentScript.setEnabled ( true, false );
 			break;
 		case 6:
-			optionsFormat.SetWindowTextA( "Hover over \"?\"" );
+			optionsFormat->setText ( "Hover over \"?\"" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::Script;
 			agilentScript.setEnabled ( true, false );
 			break;

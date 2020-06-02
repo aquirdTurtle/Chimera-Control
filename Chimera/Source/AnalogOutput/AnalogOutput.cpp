@@ -2,44 +2,31 @@
 #include "stdafx.h"
 #include "AnalogOutput.h"
 #include "boost\lexical_cast.hpp"
+#include <QlineEdit>
 
-AnalogOutput::AnalogOutput( )
-{
+AnalogOutput::AnalogOutput( ){}
 
-}
+void AnalogOutput::initialize ( POINT& pos, IChimeraWindowWidget* parent, int whichDac) {
+	label = new QLabel (cstr (whichDac), parent);
+	label->setGeometry (QRect{ QPoint{pos.x, pos.y}, QPoint{pos.x + 20, pos.y + 20} });
+	label->setToolTip ( (info.name + "\n" + info.note).c_str() );
 
-
-void AnalogOutput::initialize ( POINT& pos, CWnd* parent, int id, cToolTips& toolTips, int whichDac)
-{
-	// create label
-	label.sPos = { pos.x, pos.y, pos.x + 20, pos.y + 20 };
-	label.Create ( cstr(whichDac), WS_CHILD | WS_VISIBLE | SS_CENTER,
-								 label.sPos, parent, id++ );
-	label.setToolTip ( info.name + "\r\n" + info.note, toolTips, parent );
-	// create edit
-	edit.sPos = { pos.x + 20, pos.y, pos.x + 160, pos.y += 20 };
-	edit.colorState = 0;
-	edit.Create ( WS_CHILD | WS_VISIBLE | WS_BORDER, edit.sPos, parent, ID_DAC_FIRST_EDIT + whichDac );
-	edit.SetWindowText ( "0" );
-	edit.setToolTip ( info.name + "\r\n" + info.note, toolTips, parent );
-
-}
-
-
-void AnalogOutput::setEditColorState ( int state )
-{
-	edit.colorState = state;
-	edit.RedrawWindow ( );
+	edit = new CQLineEdit ("0", parent);
+	edit->setGeometry ({ QPoint{pos.x + 20, pos.y},QPoint{pos.x + 160, pos.y += 20} });
+	edit->setToolTip ( (info.name + "\r\n" + info.note).c_str() );
+	parent->connect (edit, &QLineEdit::textChanged, 		
+		[this, parent]() {
+			handleEdit ();
+		});
+	edit->setStyleSheet ("QLineEdit { border: none }");
 }
 
 double AnalogOutput::getVal ( bool useDefault )
 {
-	CString text;
-	edit.GetWindowTextA ( text );
 	double val;
 	try
 	{
-		val = boost::lexical_cast<double>( str ( text ) );
+		val = boost::lexical_cast<double>( str (edit->text () ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -49,17 +36,11 @@ double AnalogOutput::getVal ( bool useDefault )
 		}
 		else
 		{
-			throwNested ( "value entered in DAC #" + str ( dacNum ) + " (" + text.GetString ( )
+			throwNested ( "value entered in DAC #" + str ( dacNum ) + " (" + str(edit->text())
 						  + ") failed to convert to a double!" );
 		}
 	}
 	return val;
-}
-
-void AnalogOutput::rearrange ( UINT width, UINT height, fontMap fonts )
-{
-	edit.rearrange ( width, height, fonts );
-	label.rearrange ( width, height, fonts );
 }
 
 
@@ -67,15 +48,10 @@ void AnalogOutput::updateEdit ( bool roundToDacPrecision )
 {
 	std::string valStr = roundToDacPrecision ? str ( roundToDacResolution ( info.currVal ), 13, true, false, true )
 		: str ( info.currVal, 5, false, false, true );
-	int sel, sel_end;
-	// preserve the selection location, especially important for quick changes.
-	edit.GetSel ( sel, sel_end );
-	edit.SetWindowTextA ( cstr ( valStr ) );
-	edit.SetSel ( sel, sel );
-	edit.colorState = 0;
+	edit->setText (cstr (valStr));
 }
 
-void AnalogOutput::setName ( std::string name, cToolTips& toolTips, CWnd* master )
+void AnalogOutput::setName ( std::string name )
 {
 	if ( name == "" )
 	{
@@ -84,46 +60,32 @@ void AnalogOutput::setName ( std::string name, cToolTips& toolTips, CWnd* master
 	}
 	std::transform ( name.begin ( ), name.end ( ), name.begin ( ), ::tolower );
 	info.name = name;
-	edit.setToolTip ( info.name + "\r\n" + info.note, toolTips, master );
+	edit->setToolTip ( cstr(info.name + "\r\n" + info.note));
 }
 
 
 void AnalogOutput::handleEdit ( bool roundToDacPrecision )
 {
-	CString text;
-	edit.GetWindowTextA ( text );
 	bool matches = false;
-	std::string textStr ( text );
 	try
 	{
 		if ( roundToDacPrecision )
 		{
 			double roundNum = roundToDacResolution ( info.currVal );
-			if ( fabs ( roundToDacResolution ( info.currVal ) - boost::lexical_cast<double>( textStr ) ) < 1e-8 )
+			if ( fabs ( roundToDacResolution ( info.currVal ) - boost::lexical_cast<double>( str(edit->text()) ) ) < 1e-8 )
 			{
 				matches = true;
 			}
 		}
 		else
 		{
-			if ( fabs ( info.currVal - boost::lexical_cast<double>( str ( text ) ) ) < 1e-8 )
+			if ( fabs ( info.currVal - boost::lexical_cast<double>( str (edit->text ()) ) ) < 1e-8 )
 			{
 				matches = true;
 			}
 		}
 	}
 	catch ( boost::bad_lexical_cast& ) { /* failed to convert to double. Effectively, doesn't match. */ }
-	if ( matches )
-	{
-		// mark this to change color.
-		edit.colorState = 0;
-		edit.RedrawWindow ( );
-	}
-	else
-	{
-		edit.colorState = 1;
-		edit.RedrawWindow ( );
-	}
 }
 
 double AnalogOutput::roundToDacResolution ( double num )
@@ -133,58 +95,20 @@ double AnalogOutput::roundToDacResolution ( double num )
 }
 
 
-void AnalogOutput::setNote ( std::string note, cToolTips& toolTips, CWnd* master )
+void AnalogOutput::setNote ( std::string note )
 {
 	info.note = note;
-	edit.setToolTip ( info.name + "\r\n" + info.note, toolTips, master );
-}
-
-HBRUSH AnalogOutput::handleColorMessage ( int id, CWnd* window, CDC* cDC )
-{
-	if ( id == label.GetDlgCtrlID ( ))
-	{ 
-		cDC->SetBkColor ( _myRGBs[ "Static-Bkgd" ] );
-		cDC->SetTextColor ( _myRGBs[ "Text" ] );
-		return *_myBrushes[ "Static-Bkgd" ];
-	}
-	else if ( id == edit.GetDlgCtrlID ( ) )
-	{
-		if ( edit.colorState == 0 )
-		{
-			// default.
-			cDC->SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
-			cDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
-			return *_myBrushes[ "Interactable-Bkgd" ];
-		}
-		else if ( edit.colorState == 1 )
-		{
-			// in this case, the actuall setting hasn't been changed despite the edit being updated.
-			cDC->SetTextColor ( _myRGBs[ "White" ] );
-			cDC->SetBkColor ( _myRGBs[ "Red" ] );
-			return *_myBrushes[ "Red" ];
-		}
-		else if ( edit.colorState == -1 )
-		{
-			// in use during experiment.
-			cDC->SetTextColor ( _myRGBs[ "Black" ] );
-			cDC->SetBkColor ( _myRGBs[ "White" ] );
-			return *_myBrushes[ "White" ];
-		}
-		else
-		{
-			thrower ( "Unknown color state for AO system edit???" );
-		}
-	}
-	return NULL;
+	edit->setToolTip ( (info.name + "\r\n" + info.note).c_str());
 }
 
 void AnalogOutput::disable ( )
 {
-	edit.EnableWindow ( 0 );
+	edit->setEnabled (false);
 }
 
 bool AnalogOutput::handleArrow ( CWnd* focus, bool up )
 {
+	/*
 	if ( focus == &edit )
 	{
 		CString ctxt;
@@ -238,6 +162,6 @@ bool AnalogOutput::handleArrow ( CWnd* focus, bool up )
 			edit.SetSel ( cursorPos - 1, cursorPos - 1 );
 		}
 		return true;
-	}
+	}*/
 	return false;
 }

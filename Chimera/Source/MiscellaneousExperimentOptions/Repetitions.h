@@ -2,26 +2,25 @@
 
 #pragma once
 
-#include "Control.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include <Windows.h>
 #include <unordered_map>
+#include <QLabel>
+#include <PrimaryWindows/IChimeraWindow.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 class Repetitions
 {
 	public:
-		void initialize(POINT& pos, cToolTips& toolTips, CWnd* mainWin, int& id );
+		void initialize(POINT& pos, IChimeraWindowWidget* mainWin );
 		void setRepetitions(UINT number);
 		unsigned int getRepetitionNumber();
 		static UINT getSettingsFromConfig (ConfigStream& openFile );
-		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
-		void rearrange(UINT width, UINT height, fontMap fonts);
 		void updateNumber(long repNumber);
 		void handleSaveConfig(ConfigStream& saveFile);
 	private:
 		UINT repetitionNumber;
-		Control<CEdit> repetitionEdit;
-		Control<CEdit> repetitionDisp;
-		Control<CStatic> repetitionText;
+		CQLineEdit* repetitionEdit;
+		QLabel* repetitionDisp;
+		QLabel* repetitionText;
 };

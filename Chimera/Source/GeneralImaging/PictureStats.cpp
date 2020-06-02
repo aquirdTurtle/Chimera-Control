@@ -6,148 +6,89 @@
 
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
+void PictureStats::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
 	LONG size = 315;
-	pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + size, pos.y + 25 };
-	pictureStatsHeader.Create( "Raw Counts", NORM_STATIC_OPTIONS, pictureStatsHeader.sPos, parent, id++ );
-	pos.y += 25;
-	repetitionIndicator.sPos = { pos.x, pos.y, pos.x + size, pos.y + 25 };
-	repetitionIndicator.Create( "Repetition ?/?", NORM_STATIC_OPTIONS, repetitionIndicator.sPos, parent, id++ );
-	pos.y += 25;
+	pictureStatsHeader = new QLabel ("Raw Counts", parent);
+	pictureStatsHeader->setGeometry (pos.x, pos.y, size, 25);
+	repetitionIndicator = new QLabel ("Repetition ?/?", parent);
+	repetitionIndicator->setGeometry (pos.x, pos.y+=25, size, 25);
 	/// Picture labels ////////////////////////////////////////////////////////////
-	collumnHeaders[0].sPos = { pos.x, pos.y, pos.x + LONG (size/5), pos.y + 25 };
-	collumnHeaders[0].Create( "Pic:", NORM_STATIC_OPTIONS, collumnHeaders[0].sPos, parent, id++ );
-	collumnHeaders[0].fontType = fontTypes::SmallFont;
-	pos.y += 25;
+	collumnHeaders[0] = new QLabel ("Pic:", parent);
+	collumnHeaders[0]->setGeometry (pos.x, pos.y += 25, size / 5, 25);
 	int inc = 0;
 	for (auto& control : picNumberIndicators)
 	{
 		inc++;
-		control.sPos = { pos.x, pos.y, pos.x + LONG (size / 5), pos.y + 25 };
-		control.Create( cstr("#" + str( inc ) + ":"), NORM_STATIC_OPTIONS, control.sPos, parent, id++);
-		control.fontType = fontTypes::SmallFont;
-		pos.y += 25;
+		control = new QLabel (cstr ("#" + str (inc) + ":"), parent);
+		control->setGeometry (pos.x, pos.y+=25, size / 5, 25);
 	}
-	pos.y -= 125;
-
-	/// Max Count Edits
-	// Max Count Display 742 - 480 )/2 = 131 
-	collumnHeaders[1].sPos = { pos.x + LONG (size / 5), pos.y, pos.x + LONG (2*size / 5), pos.y + 25 };
-	collumnHeaders[1].Create( "Max:", NORM_STATIC_OPTIONS, collumnHeaders[1].sPos, parent, id++ );
-	collumnHeaders[1].fontType = fontTypes::SmallFont;
-	pos.y += 25;
-	// #1
-	for (auto& control : maxCounts)
-	{
-		control.sPos = { pos.x + LONG (size / 5), pos.y, pos.x + LONG (2 * size / 5), pos.y + 25 };
-		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = fontTypes::SmallFont;
-		pos.y += 25;
+	/// Max Count 
+	pos.y -= 100;
+	pos.x += size / 5;
+	collumnHeaders[1] = new QLabel ("Max:", parent);
+	collumnHeaders[1]->setGeometry (pos.x, pos.y, size / 5,25);
+	for (auto& control : maxCounts) {
+		control = new QLabel ("-", parent);
+		control->setGeometry (pos.x, pos.y += 25, size / 5, 25);
 	}
-	// back to top.
-	pos.y -= 125;
 	/// Min Counts
-	// Min Count Display	
-	collumnHeaders[2].sPos = { pos.x + LONG (2*size / 5), pos.y, pos.x + LONG (3*size / 5), pos.y + 25 };
-	collumnHeaders[2].Create( "Min:", NORM_STATIC_OPTIONS, collumnHeaders[2].sPos, parent, id++ );
-	collumnHeaders[2].fontType = fontTypes::SmallFont;
-	pos.y += 25;
-
-	for (auto& control : minCounts)
-	{
-		control.sPos = { pos.x + LONG (2*size / 5), pos.y, pos.x + LONG (3*size / 5), pos.y + 25 };
-		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = fontTypes::SmallFont;
-		pos.y += 25;
+	pos.y -= 100;
+	pos.x += size / 5;
+	collumnHeaders[2] = new QLabel ("Min:", parent);
+	collumnHeaders[2]->setGeometry (pos.x, pos.y, size / 5, 25);
+	for (auto& control : minCounts) {
+		control = new QLabel ("-", parent);
+		control->setGeometry (pos.x, pos.y += 25, size / 5, 25);
 	}
-	pos.y -= 125;
 	/// Average Counts
-	collumnHeaders[3].sPos = { pos.x + LONG (3*size / 5), pos.y, pos.x + LONG (4*size / 5), pos.y + 25 };
-	collumnHeaders[3].Create( "Avg:", NORM_STATIC_OPTIONS, collumnHeaders[3].sPos, parent, id++ );
-	collumnHeaders[3].fontType = fontTypes::SmallFont;
-	pos.y += 25;
-	// 
-	for (auto& control : avgCounts)
-	{
-		control.sPos = { pos.x + LONG (3*size / 5), pos.y, pos.x + LONG (4*size / 5), pos.y + 25 };
-		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = fontTypes::NormalFont;
-		pos.y += 25;
+	pos.y -= 100;
+	pos.x += size / 5;
+	collumnHeaders[3] = new QLabel ("Avg:", parent);
+	collumnHeaders[3]->setGeometry (pos.x, pos.y, size / 5, 25);
+	for (auto& control : avgCounts) {
+		control = new QLabel ("-", parent);
+		control->setGeometry (pos.x, pos.y += 25, size / 5, 25);
 	}
-
-	pos.y -= 125;
 	/// Selection Counts
-	collumnHeaders[4].sPos = { pos.x + LONG (4*size / 5), pos.y, pos.x + size, pos.y + 25 };
-	collumnHeaders[4].Create( "Sel:", NORM_STATIC_OPTIONS, collumnHeaders[4].sPos, parent, id++ );
-	collumnHeaders[4].fontType = fontTypes::SmallFont;
-	pos.y += 25;
-	// #1
-	for (auto& control : selCounts)
-	{
-		control.sPos = { pos.x + LONG (4*size / 5), pos.y, pos.x + size, pos.y += 25 };
-		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = fontTypes::SmallFont;
+	pos.y -= 100;
+	pos.x += size / 5;
+	collumnHeaders[4] = new QLabel ("Avg:", parent);
+	collumnHeaders[4]->setGeometry (pos.x, pos.y, size / 5, 25);
+	for (auto& control : selCounts) {
+		control = new QLabel ("-", parent);
+		control->setGeometry (pos.x, pos.y += 25, size / 5, 25);
 	}
 }
 
-void PictureStats::rearrange(int width, int height, fontMap fonts)
-{
-	pictureStatsHeader.rearrange(width, height, fonts);
-	repetitionIndicator.rearrange(width, height, fonts);
-	for (auto& control : collumnHeaders)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : maxCounts)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : minCounts)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : picNumberIndicators)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : selCounts)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : avgCounts)
-	{
-		control.rearrange(width, height, fonts);
-	}
-}
-
+void PictureStats::rearrange (int width, int height, fontMap fonts) {}
 
 void PictureStats::reset()
 {
 	for (auto& control : maxCounts)
 	{
-		control.SetWindowText("-");
+		control->setText("-");
 	}
 	for (auto& control : minCounts)
 	{
-		control.SetWindowText("-");
+		control->setText ("-");
 	}
 	for (auto& control : avgCounts)
 	{
-		control.SetWindowText("-");
+		control->setText ("-");
 	}
 	for (auto& control : selCounts)
 	{
-		control.SetWindowText("-");
+		control->setText ("-");
 	}
-	repetitionIndicator.SetWindowTextA( "Repetition ---/---" );
+	repetitionIndicator->setText ( "Repetition ---/---" );
 }
 
 
 void PictureStats::updateType(std::string typeText)
 {
 	displayDataType = typeText;
-	pictureStatsHeader.SetWindowText(cstr(typeText));
+	pictureStatsHeader->setText (cstr(typeText));
 }
 
 
@@ -160,7 +101,7 @@ statPoint PictureStats::getMostRecentStats ( )
 std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel, 
 										   int currentRepetitionNumber, int totalRepetitionCount )
 {
-	repetitionIndicator.SetWindowTextA ( cstr ( "Repetition " + str ( currentRepetitionNumber ) + "/"
+	repetitionIndicator->setText ( cstr ( "Repetition " + str ( currentRepetitionNumber ) + "/"
 												+ str ( totalRepetitionCount ) ) );
 	if ( image.size ( ) == 0 )
 	{
@@ -198,10 +139,10 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 
 	if ( displayDataType == RAW_COUNTS )
 	{
-		maxCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.maxv ) );
-		minCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.minv ) );
-		selCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.selv ) );
-		avgCounts[ imageNumber ].SetWindowTextA ( cstr ( currentStatPoint.avgv, 5 ) );
+		maxCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.maxv ) );
+		minCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.minv ) );
+		selCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.selv ) );
+		avgCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.avgv, 5 ) );
 		mostRecentStat = currentStatPoint;
 	}
 	else if ( displayDataType == CAMERA_PHOTONS )
@@ -217,10 +158,10 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 		{
 			camPoint = ( currentStatPoint - convs.conventionalBackgroundCount ) * convs.countToCameraPhoton;
 		}
-		maxCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.maxv, 1 ) );
-		minCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.minv, 1 ) );
-		selCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.selv, 1 ) );
-		avgCounts[ imageNumber ].SetWindowTextA ( cstr ( camPoint.avgv, 1 ) );
+		maxCounts[ imageNumber ]->setText ( cstr ( camPoint.maxv, 1 ) );
+		minCounts[ imageNumber ]->setText ( cstr ( camPoint.minv, 1 ) );
+		selCounts[ imageNumber ]->setText ( cstr ( camPoint.selv, 1 ) );
+		avgCounts[ imageNumber ]->setText ( cstr ( camPoint.avgv, 1 ) );
 		mostRecentStat = camPoint;
 	}
 	else if ( displayDataType == ATOM_PHOTONS )
@@ -235,10 +176,10 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 		{
 			atomPoint = ( currentStatPoint - convs.conventionalBackgroundCount ) * convs.countToScatteredPhoton;
 		}
-		maxCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.maxv, 1 ) );
-		minCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.minv, 1 ) );
-		selCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.selv, 1 ) );
-		avgCounts[ imageNumber ].SetWindowTextA ( cstr ( atomPoint.avgv, 1 ) );
+		maxCounts[ imageNumber ]->setText ( cstr ( atomPoint.maxv, 1 ) );
+		minCounts[ imageNumber ]->setText ( cstr ( atomPoint.minv, 1 ) );
+		selCounts[ imageNumber ]->setText ( cstr ( atomPoint.selv, 1 ) );
+		avgCounts[ imageNumber ]->setText ( cstr ( atomPoint.avgv, 1 ) );
 		mostRecentStat = atomPoint;
 	}
 	

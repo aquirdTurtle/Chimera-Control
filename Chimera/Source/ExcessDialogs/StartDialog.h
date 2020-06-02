@@ -2,7 +2,7 @@
 #pragma once
 #include "afxwin.h"
 #include "CustomMfcControlWrappers/myButton.h"
-#include "Control.h"
+#include <CustomMfcControlWrappers/Control.h>
 #include <string>
 
 class StartDialog : public CDialog

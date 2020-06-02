@@ -17,6 +17,7 @@
 
 BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
 {
+	statBox = new ColorBox ();
 	basCamCore = new BaslerCameraCore (this);
 	if (!basCamCore->isInitialized ())
 	{
@@ -368,7 +369,7 @@ void BaslerWindow::OnSize( UINT nType, int cx, int cy )
 	auto fonts = mainWin->getFonts ( );
 	auto r = picManager.getPicArea ( );
 	InvalidateRect ( &r );
-	statBox.rearrange (cx, cy, fonts);
+	statBox->rearrange (cx, cy, fonts);
 	picManager.rearrange ( cx, cy, fonts );
 	settingsCtrl.rearrange(cx, cy, fonts);
 	stats.rearrange(cx, cy, fonts );
@@ -485,27 +486,28 @@ void BaslerWindow::initializeControls()
 	#elif defined USB_CAMERA
 		SetWindowText("USB Basler Camera Control");
 	#endif
-	int id = 1000;
+	qtp = new QWinWidget ((CWnd*)this);
+	qtp->setStyleSheet (mainWin->getStyleSheet ());
+	qtp->move (0, 0);
 	POINT pos = { 0,0 };
 	POINT dims = basCamCore->getCameraDimensions ();
-	statBox.initialize (pos, id, this, 300, toolTips, mainWin->getDevices() );
-	settingsCtrl.initialize( pos, id, this, dims.x, dims.y, dims);
+	statBox->initialize (pos, this, 300, mainWin->getDevices() );
+	settingsCtrl.initialize( pos, dims.x, dims.y, dims, this);
 	settingsCtrl.setSettings( basCamCore->getDefaultSettings() );
-	std::vector<CToolTipCtrl*> toolTipDummy;
-	stats.initialize( pos, this, id, toolTipDummy );
+	stats.initialize( pos, this);
 
 	pos = { 365, 0 };
 	// scale to fill the window (approximately).
 	dims.x *= 1.65;
 	dims.y *= 1.65;
-	picManager.initialize (pos, this, id, _myBrushes[ "Red" ], dims.x + pos.x + 115, dims.y + pos.y,
-						   { IDC_MIN_BASLER_SLIDER_EDIT, IDC_MAX_BASLER_SLIDER_EDIT, NULL,NULL,NULL,NULL,NULL,NULL},
-							mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
+	picManager.initialize (pos, _myBrushes[ "Red" ], dims.x + pos.x + 115, dims.y + pos.y,
+		this, mainWin->getBrightPlotPens(), mainWin->getPlotFont(), mainWin->getPlotBrushes() );
 	picManager.setSinglePicture ( this, settingsCtrl.getCurrentSettings().dims );
 	picManager.setPalletes ( { 1,1,1,1 } );
 	this->RedrawWindow ( );
 	SmartDC sdc (this);
 	picManager.drawBackgrounds( sdc.get ());
+	qtp->show ();
 }
 
 void BaslerWindow::fillExpDeviceList (DeviceList& list)

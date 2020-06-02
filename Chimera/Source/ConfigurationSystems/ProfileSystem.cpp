@@ -7,11 +7,12 @@
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "NIAWG/NiawgCore.h"
 #include "Andor/AndorCameraCore.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/AndorWindow.h"
-#include "PrimaryWindows/ScriptingWindow.h"
-#include "PrimaryWindows/MainWindow.h"
-#include "PrimaryWindows/DeformableMirrorWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
+#include "PrimaryWindows/QtScriptWindow.h"
+#include "PrimaryWindows/QtBaslerWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
+#include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
 
@@ -25,19 +26,18 @@ ProfileSystem::ProfileSystem(std::string fileSystemPath)
 }
 
 
-void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
+void ProfileSystem::initialize( POINT& pos, IChimeraWindowWidget* win)
 {
-	configDisplay.sPos = { pos.x, pos.y, pos.x + 860, pos.y + 25 };
-	configDisplay.Create( "No Configuration Selected!", NORM_STATIC_OPTIONS, configDisplay.sPos, parent, id++ );
-	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y += 25 };
-	configurationSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
-										configurationSavedIndicator.sPos, parent, id++ );
-	configurationSavedIndicator.SetCheck( BST_CHECKED );
-	//configurationSavedIndicator.uncheckedRed = true;
+	configDisplay = new QLabel ("No Configuruation Selected!", win);
+	configDisplay->setGeometry (QRect (pos.x, pos.y, 660, 25));
+	configurationSavedIndicator = new QCheckBox ("Saved?", win);
+	configurationSavedIndicator->setGeometry (QRect (pos.x + 860, pos.y, 100, 25));
+	configurationSavedIndicator->setChecked (true);
+	selectConfigButton = new QPushButton ("Open Config.", win);
+	selectConfigButton->setGeometry (QRect (pos.x + 660, pos.y, 200, 25));
+	win->connect (selectConfigButton, &QPushButton::released, [this, win]() { handleSelectConfigButton (win); });
+	pos.y += 25;
 	updateConfigurationSavedStatus( true );
-	selectConfigButton.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 25 };
-	selectConfigButton.Create( "Open Configuration", NORM_PUSH_OPTIONS, selectConfigButton.sPos, parent, 
-							   IDC_SELECT_CONFIG_COMBO );
 }
 
 
@@ -52,19 +52,19 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStre
 }
 
 
-void ProfileSystem::saveEntireProfile(IChimeraWindow* win)
+void ProfileSystem::saveEntireProfile(IChimeraWindowWidget* win)
 {
 	saveConfigurationOnly( win );
 }
 
 
-void ProfileSystem::checkSaveEntireProfile(IChimeraWindow* win)
+void ProfileSystem::checkSaveEntireProfile(IChimeraWindowWidget* win)
 {
 	checkConfigurationSave( "Save Configuration Settings?", win );
 }
 
 
-void ProfileSystem::allSettingsReadyCheck(IChimeraWindow* win)
+void ProfileSystem::allSettingsReadyCheck(IChimeraWindowWidget* win)
 {
 	configurationSettingsReadyCheck( win );
 }
@@ -103,26 +103,26 @@ void ProfileSystem::getVersionFromFile( ConfigStream& file )
 }
 
 
-void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindow* win)
+void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindowWidget* win)
 {
 	std::ifstream configFileRaw( pathToConfig );
 	// check if opened correctly.
 	if ( !configFileRaw.is_open( ) )
 	{
-		thrower ( "Opening of Configuration File Failed!" );
+		errBox ( "Opening of Configuration File Failed!" );
 	}
 	ConfigStream cStream (configFileRaw);
 	cStream.setCase (false);
 	configFileRaw.close ();
-	int slashPos = pathToConfig.find_last_of( '\\' );
+	int slashPos = pathToConfig.find_last_of( '/' );
 	int extensionPos = pathToConfig.find_last_of( '.' );
 	currentProfile.configuration = pathToConfig.substr( slashPos + 1, extensionPos - slashPos - 1 );
 	currentProfile.configLocation = pathToConfig.substr( 0, slashPos);
-	slashPos = currentProfile.configLocation.find_last_of( '\\' );
+	slashPos = currentProfile.configLocation.find_last_of( '/' );
 	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
 																		  currentProfile.configLocation.size( ) );
-	currentProfile.configLocation += "\\";
-	configDisplay.SetWindowTextA( cstr( currentProfile.configuration + ": " + pathToConfig ) );
+	currentProfile.configLocation += "/";
+	configDisplay->setText (cstr (currentProfile.configuration + ": " + pathToConfig));
 	try
 	{
 		getVersionFromFile(cStream);
@@ -146,9 +146,9 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindow
 		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}
 	/// finish up
-	win->auxWin->setVariablesActiveState( true );
+	//win->auxWin->setVariablesActiveState( true );
 	// actually set this now
-	win->scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
+	//win->scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
 	updateConfigurationSavedStatus ( true );
 }
 
@@ -227,7 +227,7 @@ bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delim
 ]- is not a Normal Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns 
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
-void ProfileSystem::saveConfigurationOnly(IChimeraWindow* win)
+void ProfileSystem::saveConfigurationOnly(IChimeraWindowWidget* win)
 {
 	std::string configNameToSave = currentProfile.configuration;
 	// check to make sure that this is a name.
@@ -275,6 +275,7 @@ void ProfileSystem::saveConfigurationOnly(IChimeraWindow* win)
 CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 {
 	static std::string txt;
+	/*
 	auto id_ = configurationSavedIndicator.GetDlgCtrlID ( );
 	txt += str ( id ) + ", ";
 	if ( id == id_ )
@@ -287,6 +288,7 @@ CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 			return _myBrushes[ "Red" ];
 		}
 	}
+	*/
 	return NULL;
 }
 
@@ -294,23 +296,23 @@ CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-void ProfileSystem::saveConfigurationAs(IChimeraWindow* win)
+void ProfileSystem::saveConfigurationAs(IChimeraWindowWidget* win)
 {
-	std::string configurationPathToSave = saveWithExplorer(win, CONFIG_EXTENSION, currentProfile );
+	std::string configurationPathToSave = saveWithExplorer (win, CONFIG_EXTENSION, currentProfile);
 	if ( configurationPathToSave == "")
 	{
 		// canceled
 		return;
 	}	
 
-	int slashPos = configurationPathToSave.find_last_of( '\\' );
+	int slashPos = configurationPathToSave.find_last_of( '/' );
 	int extensionPos = configurationPathToSave.find_last_of( '.' );
 	currentProfile.configuration = configurationPathToSave.substr( slashPos + 1, extensionPos - slashPos - 1 );
 	currentProfile.configLocation = configurationPathToSave.substr( 0, slashPos );
-	slashPos = currentProfile.configLocation.find_last_of( '\\' );
+	slashPos = currentProfile.configLocation.find_last_of( '/' );
 	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
 																		  currentProfile.configLocation.size( ) );
-	currentProfile.configLocation += "\\";
+	currentProfile.configLocation += "/";
 	ConfigStream configSaveStream;
 	// That's the last prompt the user gets, so the save is final now.
 	// Version info tells future code about formatting.
@@ -402,18 +404,16 @@ void ProfileSystem::deleteConfiguration()
 */
 void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 {
-	if ( configurationSavedIndicator.m_hWnd == NULL )
+	if ( configurationSavedIndicator == NULL )
 	{
 		return;
 	}
 	configurationIsSaved = isSaved;
-	configurationSavedIndicator.SetCheck ( isSaved );
-	configurationSavedIndicator.Invalidate ( true );
-	configurationSavedIndicator.RedrawWindow ( );
+	configurationSavedIndicator->setChecked (isSaved);
 }
 
 
-bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindow* win)
+bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindowWidget* win)
 {
 	// prompt for save.
 	if (checkConfigurationSave( "There are unsaved configuration settings. Would you like to save the current "
@@ -426,7 +426,7 @@ bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindow* win)
 }
 
 
-bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindow* win)
+bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindowWidget* win)
 {
 	if (!configurationIsSaved)
 	{
@@ -444,7 +444,7 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindow* 
 }
 
 
-void ProfileSystem::handleSelectConfigButton(IChimeraWindow* win)
+void ProfileSystem::handleSelectConfigButton(IChimeraWindowWidget* win)
 {	
 	if ( !configurationIsSaved )
 	{
@@ -481,12 +481,7 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 }
 
 
-void ProfileSystem::rearrange(int width, int height, fontMap fonts)
-{
-	configurationSavedIndicator.rearrange( width, height, fonts);
-	configDisplay.rearrange( width, height, fonts );
-	selectConfigButton.rearrange( width, height, fonts );
-}
+void ProfileSystem::rearrange(int width, int height, fontMap fonts){}
 
 
 std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSearch, std::string extensions )
@@ -550,24 +545,24 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 
 
 // I had issues writing an MFC version of this with a Control<CComboBox> argument, so this is still written in Win32.
-void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension,
+void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, std::string extension,
 								 std::string nameToLoad )
 {
 	std::vector<std::string> names;
 	names = searchForFiles( locationToLook, extension );
 	/// Get current selection
-	long long itemIndex = SendMessage( comboToReload, CB_GETCURSEL, 0, 0 );
-	TCHAR experimentConfigToOpen[256];
+	auto itemIndex = combo->currentIndex ();
+	QString experimentConfigToOpen;
 	std::string currentSelection;
 	int currentInc = -1;
 	if (itemIndex != -1)
 	{
+		experimentConfigToOpen = combo->itemText (itemIndex);
 		// Send CB_GETLBTEXT message to get the item.
-		SendMessage( comboToReload, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)experimentConfigToOpen );
-		currentSelection = experimentConfigToOpen;
+		currentSelection = str(experimentConfigToOpen);
 	}
 	/// Reset stuffs
-	SendMessage( comboToReload, CB_RESETCONTENT, 0, 0 );
+	combo->clear ();
 	// Send list to object
 	for (auto comboInc : range(names.size()))
 	{
@@ -575,10 +570,10 @@ void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook,
 		{
 			currentInc = comboInc;
 		}
-		SendMessage( comboToReload, CB_ADDSTRING, 0, (LPARAM)cstr(names[comboInc]));
+		combo->addItem (0, cstr (names[comboInc]));
 	}
 	// Set initial value
-	SendMessage( comboToReload, CB_SETCURSEL, currentInc, 0 );
+	combo->setCurrentIndex (currentInc);
 }
 
 

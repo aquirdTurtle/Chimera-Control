@@ -7,55 +7,78 @@
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralObjects/multiDimensionalKey.h"
 #include "GeneralUtilityFunctions/cleanString.h"
-
+#include <QHeaderView.h>
 #include <iomanip>
 #include <unordered_map>
 #include <random>
 #include "afxcmn.h"
 #include <boost/lexical_cast.hpp>
+#include <qmenu.h>
+#include <GeneralObjects/ChimeraStyleSheets.h>
 
 ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter )
 { }
 
+void ParameterSystem::handleContextMenu (const QPoint& pos)
+{
+	QTableWidgetItem* item = parametersListview->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete This Item", parametersListview);
+	parametersListview->connect (deleteAction, &QAction::triggered, [this, item]() {parametersListview->removeRow (item->row ()); });
+	auto* newPerson = new QAction ("New Item", parametersListview);
+	parametersListview->connect (newPerson, &QAction::triggered, 
+		[this]() {
+			currentParameters.push_back (parameterType (rangeInfo.dimensionInfo (0).size ()));
+			redrawListview (); 
+		});
+	if (item) { menu.addAction (deleteAction); }
+	menu.addAction (newPerson);
+	menu.exec (parametersListview->mapToGlobal (pos));
+}
 
-void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title,
-								  UINT listviewId, ParameterSysType type )
+
+void ParameterSystem::initialize (POINT& pos, IChimeraWindowWidget* parent, std::string title, ParameterSysType type)
 {
 	paramSysType = type;
 	scanDimensions = 1;
-	rangeInfo.defaultInit ( );
-	rangeInfo.setNumScanDimensions ( 1 );
-	rangeInfo.setNumRanges ( 0, 1 );
+	rangeInfo.defaultInit ();
+	rangeInfo.setNumScanDimensions (1);
+	rangeInfo.setNumRanges (0, 1);
 
-	parametersHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	parametersHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, parametersHeader.sPos, parent, id++ );
-	parametersHeader.fontType = fontTypes::HeadingFont;
-	
-	parametersListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 200 };
-	parametersListview.Create( NORM_LISTVIEW_OPTIONS, parametersListview.sPos, parent, listviewId );
-	
-	RECT r;
-	parametersListview.GetClientRect (&r);
-	auto width = r.right - r.left;
-	if ( paramSysType == ParameterSysType::global )
-	{
-		parametersListview.InsertColumn( 0, "Symbol", int (0.5*width));
-		parametersListview.InsertColumn( 1, "Value", int (0.3*width ));
+	parametersHeader = new QLabel (cstr (title), parent);
+	parametersHeader->setGeometry (pos.x, pos.y, 480, 25);
+	parametersListview = new QTableWidget (parent);
+	parametersListview->setGeometry (pos.x, pos.y += 25, 480, 200);
+
+	parametersListview->horizontalHeader ()->setFixedHeight (30);
+	parametersListview->verticalHeader ()->setFixedWidth (40);
+	parametersListview->verticalHeader ()->setDefaultSectionSize (22);
+
+	parametersListview->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (parametersListview, &QTableWidget::customContextMenuRequested,
+		[this](const QPoint& pos) {handleContextMenu (pos); });
+	parametersListview->setShowGrid (true);
+
+	if ( paramSysType == ParameterSysType::global ){
+		parametersListview->setColumnCount (2);
+		QStringList labels;
+		labels << "Symbol" << "Value";
+		parametersListview->setHorizontalHeaderLabels (labels);
 	}
-	else 
-	{
-		parametersListview.InsertColumn( 0, "Symbol", int (0.2*width));
-		parametersListview.InsertColumn( 1, "Type", int(0.1*width));
-		parametersListview.InsertColumn( 2, "Dim");
-		parametersListview.InsertColumn( 3, "Value");
-		parametersListview.InsertColumn ( 4, "Scope" );
-		setVariationRangeColumns ( 1, 0.05*width );
+	else {
+		parametersListview->setColumnCount (5);
+		baseLabels << " Symbol " << " Type " << " Dim " << " Value " << " Scope ";
+		parametersListview->setHorizontalHeaderLabels (baseLabels);
+		setVariationRangeColumns ( 1, 0.05 );
+		parametersListview->connect (parametersListview, &QTableWidget::cellDoubleClicked, [this](int clRow, int clCol) {
+			if (clCol == 1) {
+				auto* item = new QTableWidgetItem (parametersListview->item (clRow, clCol)->text () == "Constant" ? "Variable" : "Constant");
+				item->setFlags (item->flags () & ~Qt::ItemIsEditable);
+				parametersListview->setItem (clRow, clCol, item);
+			}});
+
 	}
-	parametersListview.insertBlankRow ( );
-	parametersListview.fontType = fontTypes::SmallCodeFont;
-	parametersListview.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
-	parametersListview.SetTextColor ( _myRGBs["AuxWin-Text"] );
-	parametersListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
 	pos.y += 200;
 }
 
@@ -66,24 +89,24 @@ void ParameterSystem::setVariationRangeColumns ( int num, int width )
 	{
 		return;
 	}
-	auto nrange = int ( parametersListview.GetHeaderCtrl ( )->GetItemCount ( ) ) - int ( preRangeColumns );
+	auto nrange = int (parametersListview->columnCount()) - int ( preRangeColumns );
 	if ( nrange < 0 )
 	{
 		thrower ( "Somehow control thinks there are a negative number of range columns" );
 	}
 	for ( auto col : range ( nrange ) )
 	{
-		parametersListview.DeleteColumn ( preRangeColumns );
+		parametersListview->removeColumn (preRangeColumns);
 	}
 	auto cInc = 5;
+	QStringList labels = baseLabels;
 	for ( auto rInc : range ( (num==-1) ? currentParameters.front ( ).ranges.size ( ) : num) )
 	{
-		parametersListview.InsertColumn ( cInc++, str(rInc+1) + ". {", width );
-		parametersListview.InsertColumn ( cInc++, "}", width );
-		parametersListview.InsertColumn ( cInc++, "#", width );
+		labels << "{" << "}" << "#";
 	}
-	parametersListview.InsertColumn ( cInc++, "+{}", width );
-	parametersListview.InsertColumn ( cInc++, "-{}", width );
+	labels << "+{}" << "-{}";
+	parametersListview->setColumnCount (labels.size());
+	parametersListview->setHorizontalHeaderLabels (labels);
 }
 
 
@@ -110,16 +133,13 @@ void ParameterSystem::handleOpenConfig(ConfigStream& configFile )
 
 void ParameterSystem::redrawListview ( )
 {
-	if ( parametersListview.m_hWnd == NULL )
-	{
+	if ( parametersListview == NULL ) {
 		return;
 	}
-	parametersListview.DeleteAllItems ( );
+	parametersListview->setRowCount(0);
 	if ( paramSysType == ParameterSysType::config )
 	{
-		RECT r;
-		parametersListview.GetClientRect (&r);
-		setVariationRangeColumns (-1, 0.08*(r.right - r.left ));
+		setVariationRangeColumns (-1, 0.03);
 		if ( currentParameters.size ( ) != 0 )
 		{
 			UINT varInc = 0;
@@ -137,8 +157,11 @@ void ParameterSystem::redrawListview ( )
 			addParamToListview ( param, varInc++ );
 		}
 	}
-	parametersListview.insertBlankRow ( );
-	updateVariationNumber ( );
+	updateVariationNumber ( ); 
+	parametersListview->horizontalHeader ()->setSectionResizeMode (QHeaderView::Stretch);
+	parametersListview->horizontalHeader ()->setStretchLastSection (true);
+	parametersListview->resizeColumnsToContents ();
+	parametersListview->horizontalHeader ()->resizeContentsPrecision ();
 }
 
 
@@ -150,12 +173,10 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile )
 	{
 		ProfileSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
 		UINT numDimensions;
-		if (configFile.ver > Version ( "4.2" ) )
-		{
+		if (configFile.ver > Version ( "4.2" ) ){
 			configFile >> numDimensions;
 		}
-		else
-		{
+		else{
 			numDimensions = 1;
 		}
 		rInfo.setNumScanDimensions ( numDimensions );
@@ -259,6 +280,7 @@ double ParameterSystem::getVariableValue ( std::string paramName )
 	{
 		thrower ( "variable \"" + paramName + "\" not found in global varable control!" );
 	}
+	return 0;
 }
 
 
@@ -420,11 +442,7 @@ void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 }
 
 
-void ParameterSystem::rearrange ( UINT width, UINT height, fontMap fonts )
-{
-	parametersHeader.rearrange ( width, height, fonts );
-	parametersListview.rearrange ( width, height, fonts );
-}
+void ParameterSystem::rearrange ( UINT width, UINT height, fontMap fonts ){}
 
 
 void ParameterSystem::removeVariableDimension ( )
@@ -518,7 +536,7 @@ void ParameterSystem::checkVariationRangeConsistency ( )
 
 void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 {
-	auto columnCount = parametersListview.GetHeaderCtrl ( )->GetItemCount ( );
+	auto columnCount = parametersListview->columnCount();
 	// -2 for the two +- columns
 	int currentVariableRangeNumber = ( columnCount - preRangeColumns - 2 ) / 3;
 	checkScanDimensionConsistency ( );
@@ -589,6 +607,7 @@ void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
 
 void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
+	/*
 	if ( mostRecentlySelectedParam == -1 || currentParameters.size() <= mostRecentlySelectedParam )
 	{
 		// must have selected an item in order to determine which scan dimension to change.
@@ -632,6 +651,7 @@ void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 		setRangeInclusivity( rangeNum, dimNum,  false, !rangeInfo ( 0, rangeNum ).rightInclusive);
 	}
 	redrawListview ( );
+	*/
 }
 
 
@@ -706,6 +726,7 @@ BOOL ParameterSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 
 void ParameterSystem::handleSingleClick ()
 {
+	/*
 	if ( !controlActive )
 	{
 		return;
@@ -716,11 +737,13 @@ void ParameterSystem::handleSingleClick ()
 	parametersListview.ScreenToClient ( &myItemInfo.pt );
 	parametersListview.SubItemHitTest ( &myItemInfo );
 	mostRecentlySelectedParam = myItemInfo.iItem;
+	*/
 }
 
 void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										   DoSystem* ttls, AoSystem* aoSys )
 {
+	/*
 	if ( !controlActive )
 	{
 		return;
@@ -960,6 +983,7 @@ void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* 
 		}
 	}
 	updateVariationNumber( );
+	*/
 }
 
 
@@ -971,6 +995,7 @@ void ParameterSystem::setParameterControlActive(bool active)
 
 void ParameterSystem::deleteVariable()
 {
+	/*
 	if ( !controlActive )
 	{
 		return;
@@ -1007,7 +1032,7 @@ void ParameterSystem::deleteVariable()
 			redrawListview ( );
 		}
 	}
-	updateVariationNumber( );
+	updateVariationNumber( );*/
 }
 
 
@@ -1039,7 +1064,6 @@ void ParameterSystem::setUsages(std::vector<parameterType> vars)
 			}
 		}
 	}
-	parametersListview.RedrawWindow();
 }
 
 
@@ -1088,38 +1112,34 @@ std::vector<parameterType> ParameterSystem::getAllVariables()
 void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 {
 	// only to be called by redrawListview
+	if (parametersListview == NULL)
+	{
+		return;
+	}
 	if ( param.name == "" )
 	{
-		parametersListview.insertBlankRow ( );
-		parametersListview.RedrawWindow ( );
-		return;
+		param.name = "X_X";
 	}
-	/// else...
-	if ( parametersListview.m_hWnd == NULL )
-	{
-		return;
-	}
-
-	parametersListview.InsertItem ( param.name, item, 0 );
+	parametersListview->insertRow (item);
+	parametersListview->setItem (item, 0, new QTableWidgetItem (cstr (param.name)));
 	if ( paramSysType == ParameterSysType::global )
 	{
-		parametersListview.SetItem ( str ( param.constantValue ), item, 1 );
-		parametersListview.RedrawWindow ( );
+		parametersListview->setItem (item, 1, new QTableWidgetItem (cstr (param.constantValue)));
 		return;
 	}
 	// else config system...
 	if ( param.constant )
 	{
-		parametersListview.SetItem ( "Constant", item, 1 );
-		parametersListview.SetItem ( str ( param.constantValue ), item, 3 );
+		parametersListview->setItem (item, 1, new QTableWidgetItem ("Constant"));
+		parametersListview->setItem (item, 3, new QTableWidgetItem (cstr(param.constantValue)));
 	}
 	else
 	{
-		parametersListview.SetItem ( "Variable", item, 1 );
-		parametersListview.SetItem ( "---", item, 3 );
+		parametersListview->setItem (item, 1, new QTableWidgetItem ("Variable"));
+		parametersListview->setItem (item, 3, new QTableWidgetItem ("---"));
 	}
-	parametersListview.SetItem ( str ( char ( 'A' + param.scanDimension ) ), item, 2 );
-	parametersListview.SetItem ( param.parameterScope, item, 4 );
+	parametersListview->setItem (item, 2, new QTableWidgetItem (cstr (char ('A' + param.scanDimension))));
+	parametersListview->setItem (item, 4, new QTableWidgetItem (cstr (param.parameterScope)));
 	// make sure there are enough ranges.
 	UINT currentRanges = currentParameters.front ( ).ranges.size ( );
 	if ( param.ranges.size ( ) < currentRanges )
@@ -1132,13 +1152,13 @@ void ParameterSystem::addParamToListview ( parameterType param, UINT item )
 	{
 		auto col = preRangeColumns + rangeInc * 3;
 		auto& range = currentParameters[ item ].ranges[ rangeInc ];
-		parametersListview.SetItem ( param.constant ? "---" : ( info[ rangeInc ].leftInclusive ? "[ " : "( " )
-									 + str ( range.initialValue, 13, true ), item, col++ );
-		parametersListview.SetItem ( param.constant ? "---" : str ( range.finalValue, 13, true ) 
-									 + ( info[ rangeInc ].rightInclusive ? " ]" : " )" ), item, col++ );
-		parametersListview.SetItem ( param.constant ? "---" : str ( info[rangeInc].variations, 13, true ), item, col );
+		parametersListview->setItem (item, col++, new QTableWidgetItem (cstr (param.constant ? "---" :
+								(info[rangeInc].leftInclusive ? "[ " : "( ") + str (range.initialValue, 13, true))));
+		parametersListview->setItem (item, col++, new QTableWidgetItem (cstr (param.constant ? "---" :
+			str (range.finalValue, 13, true) + (info[rangeInc].rightInclusive ? " ]" : " )"))));
+		parametersListview->setItem (item, col, new QTableWidgetItem (cstr (param.constant ? "---" 
+			: str (info[rangeInc].variations, 13, true))));
 	}
-	parametersListview.RedrawWindow ( );
 	updateVariationNumber ( );
 }
 
@@ -1222,22 +1242,6 @@ void ParameterSystem::reorderVariableDimensions( )
 		addParameter( variable);
 	}
 	addParameter( {} );
-}
-
-
-INT_PTR ParameterSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
-{
-	HDC hdcStatic = (HDC)wParam;
-	if ( GetDlgCtrlID( (HWND)lParam ) == parametersHeader.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, _myRGBs["AuxWin-Text"]);
-		SetBkColor(hdcStatic, _myRGBs[ "Interactable-Text" ] );
-		return (LRESULT)_myBrushes["Interactable-Text"];
-	}
-	else
-	{
-		return NULL;
-	}
 }
 
 
@@ -1366,14 +1370,14 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 	}
 	// initialize this to one so that constants always get at least one value.
 	int totalSize = 1;
-	for ( auto variableInc : range( variableIndexes.size( ) ) )
+	for (auto variableInc : range (variableIndexes.size ()))
 	{
-		auto& variable = parameters[ variableIndexes[ variableInc ] ];
+		auto& variable = parameters[variableIndexes[variableInc]];
 		// calculate all values for a given variable
-		multiDimensionalKey<double> tempKey( maxDim+1 ), tempKeyRandomized( maxDim+1 );
-		tempKey.resize( totalSeqDimVariationsList );
-		tempKeyRandomized.resize( totalSeqDimVariationsList );
-		/* Suppose you have a three dimensional scan with variation numbers 3, 2, and 3 in each dimension. Then, 
+		multiDimensionalKey<double> tempKey (maxDim + 1), tempKeyRandomized (maxDim + 1);
+		tempKey.resize (totalSeqDimVariationsList);
+		tempKeyRandomized.resize (totalSeqDimVariationsList);
+		/* Suppose you have a three dimensional scan with variation numbers 3, 2, and 3 in each dimension. Then,
 		keyValueIndexes will take on the following sequence of values:
 		{0,0,0} -> {1,0,0} -> {2,0,0} ->
 		{0,1,0} -> {1,1,0} -> {2,1,0} ->
@@ -1383,16 +1387,16 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 		{0,1,2} -> {1,1,2} -> {2,1,2}.
 		at which point the while loop will notice that all values turn over at the same time and leave the loop.
 		*/
-		std::vector<UINT> keyValueIndexes( maxDim+1 );
-		while ( true )
+		std::vector<UINT> keyValueIndexes (maxDim + 1);
+		while (true)
 		{
-			UINT rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[ varDim ],
-					rangeCount = 0, rangeOffset = 0;
+			UINT rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[varDim],
+				rangeCount = 0, rangeOffset = 0;
 			// calculate which range it is and how many values have already been calculated for the variable 
 			// (i.e. the rangeOffset).
-			for ( auto range : inputRangeInfo.dimensionInfo( varDim ) )
+			for (auto range : inputRangeInfo.dimensionInfo (varDim))
 			{
-				if ( tempShrinkingIndex >= range.variations )
+				if (tempShrinkingIndex >= range.variations)
 				{
 					// then should have already gone through all that range's variations
 					tempShrinkingIndex -= range.variations;
@@ -1407,21 +1411,21 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 			}
 			auto& currRange = variable.ranges[rangeIndex];
 			// calculate the parameters for the variation range
-			bool lIncl = inputRangeInfo(varDim, rangeIndex).leftInclusive, 
-				rIncl = inputRangeInfo(varDim, rangeIndex).rightInclusive;
-			int spacings = variationNums[ varDim ][ rangeIndex ] + ( !lIncl && !rIncl ) - ( lIncl && rIncl );
-			double valueRange = ( currRange.finalValue - currRange.initialValue );
-			double initVal = ( lIncl ? currRange.initialValue : currRange.initialValue + valueRange / spacings);
-			double value = valueRange * ( keyValueIndexes[ varDim ] - rangeOffset) / spacings + initVal;
-			tempKey.setValue( keyValueIndexes, value );
+			bool lIncl = inputRangeInfo (varDim, rangeIndex).leftInclusive,
+				rIncl = inputRangeInfo (varDim, rangeIndex).rightInclusive;
+			int spacings = variationNums[varDim][rangeIndex] + (!lIncl && !rIncl) - (lIncl && rIncl);
+			double valueRange = (currRange.finalValue - currRange.initialValue);
+			double initVal = (lIncl ? currRange.initialValue : currRange.initialValue + valueRange / spacings);
+			double value = valueRange * (keyValueIndexes[varDim] - rangeOffset) / spacings + initVal;
+			tempKey.setValue (keyValueIndexes, value);
 			bool isAtEnd = true;
-			for ( auto indexInc : range( keyValueIndexes.size( ) ) )
+			for (auto indexInc : range (keyValueIndexes.size ()))
 			{
 				// if at end of cycle for this index
-				if ( keyValueIndexes[indexInc] == totalSeqDimVariationsList[indexInc] - 1 )
- 				{
+				if (keyValueIndexes[indexInc] == totalSeqDimVariationsList[indexInc] - 1)
+				{
 					keyValueIndexes[indexInc] = 0;
- 				}
+				}
 				else
 				{
 					keyValueIndexes[indexInc]++;
@@ -1429,19 +1433,19 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 					break;
 				}
 			}
-			if ( isAtEnd )
+			if (isAtEnd)
 			{
 				break;
 			}
 		}
 
-		for ( auto keyInc : range( randomizerMultiKey.values.size( ) ) )
+		for (auto keyInc : range (randomizerMultiKey.values.size ()))
 		{
 			tempKeyRandomized.values[keyInc] = tempKey.values[randomizerMultiKey.values[keyInc]];
 		}
 		variable.keyValues = tempKeyRandomized.values;
 		variable.valuesVary = true;
-		totalSize = tempKeyRandomized.values.size( );
+		totalSize = tempKeyRandomized.values.size ();
 	}
 	// now add all constant objects.
 	for ( parameterType& param : parameters)

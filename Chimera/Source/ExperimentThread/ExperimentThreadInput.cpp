@@ -1,13 +1,13 @@
 ﻿#include "stdafx.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/MainWindow.h"
-#include "PrimaryWindows/AndorWindow.h"
-#include "PrimaryWindows/BaslerWindow.h"
-#include "PrimaryWindows/ScriptingWindow.h"
-#include "PrimaryWindows/IChimeraWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
+#include "PrimaryWindows/QtBaslerWindow.h"
+#include "PrimaryWindows/QtScriptWindow.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
 
-ExperimentThreadInput::ExperimentThreadInput ( IChimeraWindow* win ) :
+ExperimentThreadInput::ExperimentThreadInput ( IChimeraWindowWidget* win ) :
 	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ),
 	python (win->mainWin->getPython ( ) ), comm (win->mainWin->getCommRef ( ) ), 
 	globalControl(win->auxWin->getGlobals() ), logger(win->andorWin->getLogger() )

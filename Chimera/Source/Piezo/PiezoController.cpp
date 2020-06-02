@@ -8,7 +8,7 @@ std::string PiezoController::getConfigDelim ( )
 {
 	return core.configDelim;
 }
-
+ 
 PiezoCore& PiezoController::getCore ( )
 {
 	return core;
@@ -19,13 +19,9 @@ void PiezoController::handleProgramNowPress ( )
 	double xval, yval, zval;
 	try
 	{
-		CString txt;
-		edits.x.GetWindowTextA ( txt );
-		xval = boost::lexical_cast<double>( txt );
-		edits.y.GetWindowTextA ( txt );
-		yval = boost::lexical_cast<double>( txt );
-		edits.z.GetWindowTextA ( txt );
-		zval = boost::lexical_cast<double>( txt );
+		xval = boost::lexical_cast<double>(str(edits.x->text()));
+		yval = boost::lexical_cast<double>(str (edits.y->text ()));
+		zval = boost::lexical_cast<double>(str (edits.z->text ()));
 	}
 	catch( boost::bad_lexical_cast& )
 	{
@@ -39,9 +35,9 @@ void PiezoController::handleProgramNowPress ( )
 
 void PiezoController::updateCurrentValues ( )
 {
-	currentVals.x.SetWindowTextA ( cstr ( core.getCurrentXVolt ( ) ) );
-	currentVals.y.SetWindowTextA ( cstr ( core.getCurrentYVolt ( ) ) );
-	currentVals.z.SetWindowTextA ( cstr ( core.getCurrentZVolt ( ) ) );
+	currentVals.x->setText ( cstr ( core.getCurrentXVolt ( ) ) );
+	currentVals.y->setText ( cstr ( core.getCurrentYVolt ( ) ) );
+	currentVals.z->setText ( cstr ( core.getCurrentZVolt ( ) ) );
 }
 
 void PiezoController::handleOpenConfig ( ConfigStream& configFile)
@@ -49,10 +45,10 @@ void PiezoController::handleOpenConfig ( ConfigStream& configFile)
 	if ( configFile.ver > Version ( "4.5" ) )
 	{
 		auto configVals = core.getSettingsFromConfig ( configFile );
-		edits.x.SetWindowTextA ( configVals.pztValues.x.expressionStr.c_str ( ) );
-		edits.y.SetWindowTextA ( configVals.pztValues.y.expressionStr.c_str ( ) );
-		edits.z.SetWindowTextA ( configVals.pztValues.z.expressionStr.c_str ( ) );
-		ctrlButton.SetCheck ( configVals.ctrlPzt);
+		edits.x->setText ( configVals.pztValues.x.expressionStr.c_str ( ) );
+		edits.y->setText ( configVals.pztValues.y.expressionStr.c_str ( ) );
+		edits.z->setText ( configVals.pztValues.z.expressionStr.c_str ( ) );
+		ctrlButton->setChecked( configVals.ctrlPzt);
 		updateCtrl ( );
 	}
 }
@@ -60,14 +56,10 @@ void PiezoController::handleOpenConfig ( ConfigStream& configFile)
 void PiezoController::handleSaveConfig (ConfigStream& configFile )
 {
 	configFile << core.configDelim;
-	CString txt;
-	edits.x.GetWindowTextA ( txt );
-	configFile << "\n/*X-Value:*/ " << txt;
-	edits.y.GetWindowTextA ( txt );
-	configFile << "\n/*Y-Value:*/ " << txt;
-	edits.z.GetWindowTextA ( txt );
-	configFile << "\n/*Z-Value:*/ " << txt
-			   << "\n/*Control?*/ " << ctrlButton.GetCheck ()
+	configFile << "\n/*X-Value:*/ " << str(edits.x->text());
+	configFile << "\n/*Y-Value:*/ " << str(edits.y->text());
+	configFile << "\n/*Z-Value:*/ " << str (edits.z->text ())
+			   << "\n/*Control?*/ " << ctrlButton->isChecked()
 			   << "\nEND_" + core.configDelim << "\n";
 }
 
@@ -83,59 +75,67 @@ std::string PiezoController::getPiezoDeviceList ( )
 
 void PiezoController::updateCtrl ( )
 {
-	auto ctrl = ctrlButton.GetCheck ( );
+	auto ctrl = ctrlButton->isChecked ( );
 	core.experimentActive = ctrl;
-	edits.x.EnableWindow ( ctrl );
-	edits.y.EnableWindow ( ctrl );
-	edits.z.EnableWindow ( ctrl );
+	edits.x->setEnabled( ctrl );
+	edits.y->setEnabled ( ctrl );
+	edits.z->setEnabled ( ctrl );
 }
 
 void PiezoController::rearrange ( UINT width, UINT height, fontMap fonts )
-{
-	programNowButton.rearrange ( width, height, fonts );
-	ctrlButton.rearrange ( width, height, fonts );
-	edits.x.rearrange ( width, height, fonts );
-	edits.y.rearrange ( width, height, fonts );
-	edits.z.rearrange ( width, height, fonts );
-	currentVals.x.rearrange ( width, height, fonts );
-	currentVals.y.rearrange ( width, height, fonts );
-	currentVals.z.rearrange ( width, height, fonts );
-	labels.x.rearrange ( width, height, fonts );
-	labels.y.rearrange ( width, height, fonts );
-	labels.z.rearrange ( width, height, fonts );
-}
+{}
 
 
-void PiezoController::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT programButtonID, 
-								   piezoChan<std::string> names, UINT ctrlButtonID )
+void PiezoController::initialize ( POINT& pos, IChimeraWindowWidget* parent, LONG width, piezoChan<std::string> names )
 {
 	core.initialize ( );
-	programNowButton.sPos = {pos.x, pos.y, pos.x + 6*width/8, pos.y + 25};
-	programNowButton.Create ( "Program Pzt Now", NORM_PUSH_OPTIONS, programNowButton.sPos, parent, 
-							  programButtonID );
-	ctrlButton.sPos = { pos.x + 6*width / 8, pos.y, pos.x + width, pos.y += 25 };
-	ctrlButton.Create ( "Ctrl?", NORM_CHECK_OPTIONS, ctrlButton.sPos, parent, ctrlButtonID );
-	ctrlButton.SetCheck ( true );
 
-	labels.x.sPos = { pos.x, pos.y, pos.x + width / 3, pos.y + 20 };
-	labels.x.Create ( names.x.c_str(), NORM_STATIC_OPTIONS | WS_BORDER, labels.x.sPos, parent, id++ );
-	labels.y.sPos = { pos.x + width / 3, pos.y, pos.x + 2 * width / 3, pos.y + 20 };
-	labels.y.Create ( names.y.c_str ( ), NORM_STATIC_OPTIONS | WS_BORDER, labels.y.sPos, parent, id++ );
-	labels.z.sPos = { pos.x + 2 * width / 3, pos.y, pos.x + width, pos.y += 20 };
-	labels.z.Create ( names.z.c_str ( ), NORM_STATIC_OPTIONS | WS_BORDER, labels.z.sPos, parent, id++ );
+	programNowButton = new QPushButton ("Program Pzt Now", parent);
+	programNowButton->setGeometry (pos.x, pos.y, 6 * width / 8, 25);
+	parent->connect (ctrlButton, &QPushButton::released, [this, parent]() {
+		try	{
+			handleProgramNowPress ();
+		}
+		catch (Error& err) {
+			parent->reportErr (err.trace ());
+		}
+	});
+	ctrlButton = new QCheckBox ("Ctrl?", parent);
+	ctrlButton->setGeometry (pos.x + 3*width/4, pos.y, width/4, 25);
+	ctrlButton->setChecked (true);
+	parent->connect (ctrlButton, &QCheckBox::stateChanged, [this, parent]() {
+		try	{
+			updateCtrl ();
+			parent->configUpdated ();
+		}
+		catch (Error& err) {
+			parent->reportErr (err.trace ());
+		}
+	});
 
-	edits.x.sPos = { pos.x, pos.y, pos.x + width/3, pos.y + 20 };
-	edits.x.Create ( NORM_EDIT_OPTIONS | WS_BORDER, edits.x.sPos, parent, id++ );
-	edits.y.sPos = { pos.x+ width/3, pos.y, pos.x + 2*width/3, pos.y + 20 };
-	edits.y.Create ( NORM_EDIT_OPTIONS | WS_BORDER, edits.y.sPos, parent, id++ );
-	edits.z.sPos = { pos.x+ 2*width/3, pos.y, pos.x + width, pos.y += 20 };
-	edits.z.Create ( NORM_EDIT_OPTIONS | WS_BORDER, edits.z.sPos, parent, id++ );
+	labels.x = new QLabel (names.x.c_str (), parent);
+	labels.x->setGeometry (pos.x, pos.y += 25, width / 3, 20);
+	labels.y = new QLabel (names.y.c_str (), parent);
+	labels.y->setGeometry (pos.x + width/3, pos.y, width / 3, 20);
+	labels.z = new QLabel (names.z.c_str (), parent);
+	labels.z->setGeometry (pos.x+ 2*width / 3, pos.y, width / 3, 20);
 
-	currentVals.x.sPos = { pos.x, pos.y, pos.x + width/3, pos.y + 20 };
-	currentVals.x.Create ( "", NORM_STATIC_OPTIONS | WS_BORDER, currentVals.x.sPos, parent, id++ );
-	currentVals.y.sPos = { pos.x + width/3, pos.y, pos.x + 2*width/3, pos.y + 20 };
-	currentVals.y.Create ( "", NORM_STATIC_OPTIONS | WS_BORDER, currentVals.y.sPos, parent, id++ );
-	currentVals.z.sPos = { pos.x + 2*width/3, pos.y, pos.x + width, pos.y += 20 };
-	currentVals.z.Create ( "", NORM_STATIC_OPTIONS | WS_BORDER, currentVals.z.sPos, parent, id++ );
+	edits.x = new QLineEdit (parent);
+	edits.x->setGeometry (pos.x, pos.y += 20, width / 3, 20);
+	parent->connect (edits.x, &QLineEdit::textChanged, [parent]() { parent->configUpdated (); });
+	edits.y = new QLineEdit (parent);
+	edits.y->setGeometry (pos.x + width / 3, pos.y, width / 3, 20);
+	parent->connect (edits.y, &QLineEdit::textChanged, [parent]() { parent->configUpdated (); });
+	edits.z = new QLineEdit (parent);
+	edits.z->setGeometry (pos.x + 2 * width / 3, pos.y, width / 3, 20);
+	parent->connect (edits.z, &QLineEdit::textChanged, [parent]() { parent->configUpdated (); });
+
+	currentVals.x = new QLabel (parent);
+	currentVals.x->setGeometry (pos.x, pos.y += 20, width / 3, 20);
+	currentVals.y = new QLabel (parent);
+	currentVals.y->setGeometry (pos.x + width / 3, pos.y, width / 3, 20);
+	currentVals.z = new QLabel (parent);
+	currentVals.z->setGeometry (pos.x + 2 * width / 3, pos.y, width / 3, 20);
+	pos.y += 20;
 	updateCurrentValues ( );
 }

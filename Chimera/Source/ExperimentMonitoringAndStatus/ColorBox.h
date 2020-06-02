@@ -4,24 +4,25 @@
 #include "Control.h"
 #include "ExperimentThread/DeviceList.h"
 #include "GeneralObjects/commonTypes.h"
-
+#include <PrimaryWindows/IChimeraWindow.h>
+#include <qlabel.h>
 /*
  * I put one of these controls on every window. It shows the colors for every system running.
  */
 struct boxInfo
 {
-	std::unique_ptr<Control<CEdit>> ctrl;
-	char color;
+	QLabel* ctrl;
+	//std::unique_ptr<Control<CEdit>> ctrl;
+	std::string color;
 	std::string delim;
 };
 
 class ColorBox
 {
 	public:
-		void initialize( POINT& pos, int& id, CWnd* parent, int length, cToolTips& tooltips, DeviceList devices );
-		void changeColor (std::string delim, char color);
+		void initialize( POINT& pos, IChimeraWindowWidget* parent, int length, DeviceList devices );
+		void changeColor (std::string delim, std::string color);
 		CBrush* handleColoring( int id, CDC* pDC );
-		void rearrange( int width, int height, fontMap fonts );
 		bool initialized = false;
 	private:
 		std::vector<boxInfo> boxes;

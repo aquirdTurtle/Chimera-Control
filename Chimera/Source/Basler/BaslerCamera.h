@@ -8,6 +8,7 @@
 #include "GeneralImaging/PictureControl.h"
 #include "DataLogging/DataLogger.h"
 #include "GeneralObjects/IDeviceCore.h"
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 #include <pylon/PylonIncludes.h>
 #include <pylon/PylonGUI.h>
@@ -31,7 +32,7 @@ class BaslerCameraCore : public IDeviceCore
 		BaslerCameraCore (const BaslerCameraCore&) = delete;
 
 		// important constructor to initialize camera
-		BaslerCameraCore( CWnd* parent );
+		BaslerCameraCore( IChimeraWindowWidget* parent );
 		~BaslerCameraCore();
 		void logSettings (DataLogger& logger);
 		baslerSettings getSettingsFromConfig (ConfigStream& configFile);
@@ -43,7 +44,7 @@ class BaslerCameraCore : public IDeviceCore
 		static void triggerThread(void* input);
 		void softwareTrigger();
 		POINT getCameraDimensions();
-		void reOpenCamera( CWnd* parent );
+		void reOpenCamera(IChimeraWindowWidget* parent );
 		std::string getCameraInfo();
 		baslerSettings getDefaultSettings();
 		double getCurrentExposure();

@@ -4,64 +4,68 @@
 #include "boost/lexical_cast.hpp"
 
 
-void LongCSlider::reposition ( POINT loc, LONG collumnWidth, LONG blockHeight, LONG totalHeight )
+void LongCSlider::reposition (POINT loc, LONG totalHeight)
 {
-	header.sPos = { loc.x, loc.y, loc.x + collumnWidth , loc.y + blockHeight };
-	// minimum number text
-	edit.sPos = { loc.x, loc.y + blockHeight, loc.x + collumnWidth , loc.y + 2 * blockHeight };
-	// minimum slider
-	slider.sPos = { loc.x, loc.y + 2 * blockHeight, loc.x + collumnWidth ,
-		long ( loc.y + totalHeight) };
+	if (!header || !edit || !slider){
+		return;
+	}
+	header->setGeometry (loc.x, loc.y, 25, 20);
+	header->raise ();
+	edit->setGeometry (loc.x, loc.y + 20, 25, 20);
+	edit->raise ();
+	slider->setGeometry (loc.x, loc.y + 40, 25, totalHeight - 40);
+	slider->raise ();
 }
 
-void LongCSlider::hide ( int hideornot )
-{
-	header.ShowWindow ( hideornot );
-	edit.ShowWindow ( hideornot );
-	slider.ShowWindow ( hideornot );
+void LongCSlider::hide ( int hideornot ) {
+	if (!header || !edit || !slider)
+	{
+		return;
+	}
+	header->setVisible (hideornot);
+	edit->setVisible (hideornot);
+	slider->setVisible (hideornot);
 }
-
 
 UINT LongCSlider::getEditId ( )
 {
-	if ( edit.m_hWnd == NULL )
-	{
-		return NULL;
-	}
-	return edit.GetDlgCtrlID ( );
+	return NULL;
 }
 
-void LongCSlider::initialize ( POINT& loc, CWnd* parent, int& id, int width, int height, int editID, std::string headerText )
+void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int width, int height, std::string headerText )
 {
-	header.sPos = { loc.x + 25, loc.y, loc.x + 50, loc.y += 20 };
-	header.Create ( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER, header.sPos, parent, id++ );
-	header.fontType = fontTypes::SmallFont;
+	header = new  QLabel (headerText.c_str (), parent);
+	header->setGeometry (loc.x, loc.y, 25, 20);
 
-	edit.sPos = { loc.x, loc.y, loc.x + 25, loc.y += 20 };
-	edit.Create ( WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, edit.sPos, parent, editID );
-	edit.fontType = fontTypes::SmallFont;
+	edit = new QLineEdit (parent);
+	edit->setGeometry (loc.x, loc.y+20, 25, 20);
+	parent->connect (edit, &QLineEdit::textChanged, 
+		[this, parent]() {
+			try {
+				handleEdit ();
+				parent->configUpdated ();
+			}
+			catch (Error& err) {
+				parent->reportErr (err.trace ());
+			} 
+		});
 
 	if ( height < 40 )
 	{
 		thrower ( "ERROR: Must initialize LongCSLider with a height greater than 40 to have room for edit and header controls!" );
 	}
-	slider.sPos = { loc.x, loc.y, loc.x + 25, loc.y += (height-40) };
-	slider.Create ( WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, slider.sPos, parent, id++ );
-	slider.SetRange ( 0, 1024 );
-	slider.SetPageSize ( 0 );
+	slider = new QSlider (parent);
+	slider->setGeometry (loc.x, loc.y + 40, 25, height - 40);
+	slider->setRange ( 0, 1024 );
+	slider->setSingleStep (1);
 }
 
 int LongCSlider::getSliderId ( )
 {
-	return slider.GetDlgCtrlID ( );
+	return NULL;
 }
 
-void LongCSlider::rearrange ( int width, int height, fontMap fonts )
-{
-	edit.rearrange ( width, height, fonts );
-	slider.rearrange (width, height, fonts );
-	header.rearrange ( width, height, fonts );
-}
+void LongCSlider::rearrange ( int width, int height, fontMap fonts ) {}
 
 double LongCSlider::getValue ( )
 {
@@ -81,22 +85,20 @@ void LongCSlider::setValue ( double value, bool updateEdit )
 	currentValue = value; 
 	if ( updateEdit )
 	{
-		edit.SetWindowText ( cstr ( value ) );
+		edit->setText ( cstr ( value ) );
 	}
 	double p = ( value - minVal ) / ( maxVal - minVal );
 	int setP = int(p * 1024);
-	slider.SetPos ( setP );
+	slider->setSliderPosition ( setP );
 	
 }
 
 void LongCSlider::handleEdit ()
 {
 	int val;
-	CString txt;
-	edit.GetWindowTextA ( txt );
 	try
 	{
-		val = int(boost::lexical_cast<double>( std::string ( txt ) ));
+		val = int(boost::lexical_cast<double>( str ( edit->text() ) ));
 	}
 	catch ( boost::bad_lexical_cast& )
 	{

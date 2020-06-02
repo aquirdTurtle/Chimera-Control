@@ -57,7 +57,7 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
 // work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 
 // once.
-BaslerCameraCore::BaslerCameraCore(CWnd* parent)
+BaslerCameraCore::BaslerCameraCore(IChimeraWindowWidget* parent )
 {
 	Pylon::PylonInitialize();
 	Pylon::CDeviceInfo info;
@@ -238,7 +238,7 @@ baslerSettings BaslerCameraCore::getRunningSettings ()
 
 // I can potentially use this to reopen the camera if e.g. the user disconnects. Don't think this is really implemented
 // yet.
-void BaslerCameraCore::reOpenCamera(CWnd* parent)
+void BaslerCameraCore::reOpenCamera(IChimeraWindowWidget* parent )
 {
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
@@ -249,7 +249,7 @@ void BaslerCameraCore::reOpenCamera(CWnd* parent)
 		temp = new cameraType( Pylon::CTlFactory::GetInstance().CreateFirstDevice( info ) );
 		camera = dynamic_cast<BaslerWrapper*>(temp);
 	}
-	camera->init(parent);
+	camera->init( parent );
 }
 
 // get the dimensions of the camera. This is tricky because while I can get info about each parameter easily through

@@ -644,6 +644,7 @@ double DoCore::getFtdiTotalTime (UINT variation)
 		time = snap.time;
 		counter++;
 	}
+	return 0;
 }
 
 

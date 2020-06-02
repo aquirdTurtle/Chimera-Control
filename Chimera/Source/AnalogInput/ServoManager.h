@@ -11,6 +11,11 @@
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "ExperimentThread/Communicator.h"
 #include "AiUnits.h"
+#include <QLabel>
+#include <QTableWidget>
+#include <QPushButton>
+#include <CustomQtControls/AutoNotifyCtrls.h>
+#include <PrimaryWindows/IChimeraWindow.h>
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
 gain, as this is all that's required for DC servoing. This is not designed to be run during the experiment, it's 
@@ -33,11 +38,11 @@ class ServoManager
 		ServoManager& operator=(const ServoManager&) = delete;
 		ServoManager (const ServoManager&) = delete;
 		ServoManager () = default;
-		
+		void handleContextMenu (const QPoint& pos);
 		static std::string servoTtlConfigToString (std::vector<std::pair<DoRows::which, UINT> > ttlConfig);
 		static std::string servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig);
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, AiSystem* ai, AoSystem* ao, 
-						 DoSystem* ttls_in, ParameterSystem* globals_in );
+		void initialize( POINT& pos, IChimeraWindowWidget* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
+						 ParameterSystem* globals_in);
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
 		void setChangeVal (UINT which, double change);
 		void rearrange( UINT width, UINT height, fontMap fonts );
@@ -55,21 +60,22 @@ class ServoManager
 		AiUnits::which getUnitsOption ();
 		void refreshListview ();
 	private:
-		Control<CStatic> servosHeader;
-		Control<CleanPush> servoButton;
-		Control<CleanCheck> calAutoServoButton;
-		Control<CleanCheck> expAutoServoButton;
-		Control<CComboBox> unitsCombo;
+		QLabel* servosHeader;
+		CQPushButton* servoButton;
+		CQCheckBox* calAutoServoButton;
+		CQCheckBox* expAutoServoButton;
+		CQComboBox* unitsCombo;
+		QTableWidget* servoList;
+
 		void setResDisplay (UINT which, double value);
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
 		servoInfo handleOpenMasterConfigIndvServo ( ConfigStream& configStream );
-		Control<MyListCtrl> servoList;
+		
 		std::vector<servoInfo> servos;
-		void addServoToListview ( servoInfo& s, UINT which );
-		//{ {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0} };
+		void addServoToListview ( servoInfo& s );
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
-		to give to the ao system for changes.
+		to give to the ao system for changes. Probably should be a better way of doing this. 
 		*/
 		AiSystem* ai;
 		AoSystem* ao;

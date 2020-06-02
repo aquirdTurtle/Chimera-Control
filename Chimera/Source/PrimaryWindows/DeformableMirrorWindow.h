@@ -5,11 +5,12 @@
 #include <string>
 #include "afxwin.h"
 #include "ExperimentMonitoringAndStatus/ColorBox.h"
-#include "DeformableMirror/DmControl.h"
 #include "Plotting/PlotCtrl.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "ExperimentThread/Communicator.h"
+#include <DeformableMirror/DmControl.h>
 #include "IChimeraWindow.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
 
 class MainWindow;
 class AuxiliaryWindow;
@@ -39,5 +40,5 @@ class DeformableMirrorWindow : public IChimeraWindow
 		DECLARE_MESSAGE_MAP();
 		CMenu menu;
 		DmControl dm;
-		PlotCtrl *Mirror;
+		//PlotCtrl *Mirror;
 };

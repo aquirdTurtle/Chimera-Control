@@ -3,109 +3,114 @@
 
 #include "CameraSettingsControl.h"
 
-#include "PrimaryWindows/AndorWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 
 #include <boost/lexical_cast.hpp>
 
 
-AndorCameraSettingsControl::AndorCameraSettingsControl() 
+AndorCameraSettingsControl::AndorCameraSettingsControl() : imageDimensionsObj("andor")
 {
 	AndorRunSettings& andorSettings = settings.andor;
 }
 
 
-void AndorCameraSettingsControl::initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips )
+void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraWindowWidget* parent)
 {
-	/// Header
-	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	header.Create( "CAMERA SETTINGS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = fontTypes::HeadingFont;
+	header = new QLabel ("CAMERA SETTINGS", parent);
+	header->setGeometry (pos.x, pos.y, 480, 25);
 
-	/// camera mode
-	cameraModeCombo.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 100 };
-	cameraModeCombo.Create( NORM_COMBO_OPTIONS, cameraModeCombo.sPos, parent, IDC_CAMERA_MODE_COMBO );
-	cameraModeCombo.AddString( "Kinetic-Series-Mode" );
-	cameraModeCombo.AddString( "Accumulation-Mode" );
-	cameraModeCombo.AddString( "Video-Mode" );
-	cameraModeCombo.SelectString( 0, "Kinetic-Series-Mode" );
+	cameraModeCombo = new QComboBox (parent);
+	cameraModeCombo->addItem ("Kinetic-Series-Mode");
+	cameraModeCombo->addItem ("Accumulation-Mode");
+	cameraModeCombo->addItem ("Video-Mode");
+	cameraModeCombo->setGeometry (pos.x, pos.y += 25, 240, 25);
+	cameraModeCombo->setCurrentIndex (0);
+	parent->connect (cameraModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
+		[this, parent]() {
+			updateCameraMode ();
+			updateWindowEnabledStatus ();
+			parent->configUpdated ();
+		});
 	settings.andor.acquisitionMode = AndorRunModes::mode::Kinetic;
-	// trigger combo
-	triggerCombo.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y + 800 };
-	triggerCombo.Create (NORM_COMBO_OPTIONS, triggerCombo.sPos, parent, IDC_TRIGGER_COMBO);
-	triggerCombo.AddString ("Internal-Trigger");
-	triggerCombo.AddString ("External-Trigger");
-	triggerCombo.AddString ("Start-On-Trigger");
-	// Select default trigger
-	triggerCombo.SelectString (0, "External-Trigger");
-	pos.y += 25;
+	triggerCombo = new QComboBox (parent);
+	triggerCombo->setGeometry (pos.x + 240, pos.y, 240, 25);
+	triggerCombo->addItems ({ "Internal-Trigger", "External-Trigger","Start-On-Trigger" });
+	triggerCombo->setCurrentIndex (0);
+	parent->connect (triggerCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
+		[this, parent]() {
+			updateTriggerMode ();
+			updateWindowEnabledStatus ();
+			parent->configUpdated ();
+		});
 	settings.andor.triggerMode = AndorTriggerMode::mode::External;
-
-	/// EM Gain
-	emGainBtn.sPos = { pos.x, pos.y, pos.x + 160, pos.y + 20 };
-	emGainBtn.Create ( "Set EM Gain (-1=OFF)", NORM_PUSH_OPTIONS, emGainBtn.sPos, parent, IDC_EM_GAIN_BTN );
-	emGainEdit.sPos = { pos.x+160, pos.y, pos.x + 320, pos.y + 20 };
-	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.sPos, parent, IDC_EM_GAIN_EDIT );
-	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
+	emGainBtn = new QPushButton ("Set EM Gain (-1=OFF)", parent);
+	emGainBtn->setGeometry (pos.x, pos.y += 25, 160, 20);
+	parent->connect (emGainBtn, &QPushButton::released, [parent]() {
+			parent->andorWin->handleEmGainChange ();
+			parent->configUpdated ();
+		});
+	emGainEdit = new CQLineEdit ("-1", parent);
+	emGainEdit->setGeometry (pos.x + 160, pos.y, 160, 20);
+	emGainEdit->setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 						   " mode off. The program will immediately change the state of the camera after changing this"
-						   " edit.", tooltips, parent );
+						   " edit." );
 	//
-	emGainDisplay.sPos = {pos.x + 320, pos.y, pos.x + 480, pos.y += 20};
-	emGainDisplay.Create( "OFF", NORM_STATIC_OPTIONS, emGainDisplay.sPos, parent, id++ );
+	emGainDisplay = new QLabel ("OFF", parent);
+	emGainDisplay->setGeometry (pos.x + 320, pos.y, 160, 20);
 	// initialize settings.
 	settings.andor.emGainLevel = 0;
 	settings.andor.emGainModeIsOn = false;
+	setTemperatureButton = new QPushButton ("Set Camera Temperature (C)", parent);
+	setTemperatureButton->setGeometry (pos.x, pos.y+=20, 270, 25);
+	parent->connect (setTemperatureButton, &QPushButton::released, 
+		[parent]() {
+			parent->andorWin->passSetTemperaturePress ();
+		});
 
-	setTemperatureButton.sPos = { pos.x, pos.y, pos.x + 270, pos.y + 25 };
-	setTemperatureButton.Create( "Set Camera Temperature (C)", NORM_PUSH_OPTIONS, setTemperatureButton.sPos,
-								 parent, IDC_SET_TEMPERATURE_BUTTON );
-	temperatureEdit.sPos = { pos.x + 270, pos.y, pos.x + 80, pos.y + 25 };
-	temperatureEdit.Create( NORM_EDIT_OPTIONS, temperatureEdit.sPos, parent, id++ );
-	temperatureEdit.SetWindowTextA( "0" );
-	temperatureDisplay.sPos = { pos.x + 350, pos.y, pos.x + 430, pos.y + 25 };
-	temperatureDisplay.Create( "", NORM_STATIC_OPTIONS, temperatureDisplay.sPos, parent, id++ );
-	temperatureOffButton.sPos = { pos.x + 430, pos.y, pos.x + 480, pos.y += 25 };
-	temperatureOffButton.Create( "OFF", NORM_PUSH_OPTIONS, temperatureOffButton.sPos, parent, id++ );
-	temperatureMsg.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 50 };
-	temperatureMsg.Create( "Temperature control is disabled", NORM_STATIC_OPTIONS, //| SS_ENDELLIPSIS | ES_MULTILINE, 
-						   temperatureMsg.sPos, parent, id++ );	
+	temperatureEdit = new CQLineEdit ("0", parent);
+	temperatureEdit->setGeometry (pos.x + 270, pos.y, 80, 25);
+
+	temperatureDisplay = new QLabel ("", parent);
+	temperatureDisplay->setGeometry (pos.x + 350, pos.y, 80, 25);
+	temperatureOffButton = new QPushButton("OFF", parent);
+	temperatureOffButton->setGeometry (pos.x + 430, pos.y, 50, 25);
+	temperatureMsg = new QLabel ("Temperature control is disabled",parent);
+	temperatureMsg->setGeometry (pos.x, pos.y+=25, 480, 50);
+	pos.y += 50;
 	//
-	picSettingsObj.initialize( pos, parent, id );
-	imageDimensionsObj.initialize( pos, parent, false, id );
+	picSettingsObj.initialize( pos, parent );
+	imageDimensionsObj.initialize( pos, parent, 1, 480 );
 
 	// Accumulation Time
-	accumulationCycleTimeLabel.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25 };
-	accumulationCycleTimeLabel.Create( "Accumulation Cycle Time", NORM_STATIC_OPTIONS,
-									   accumulationCycleTimeLabel.sPos, parent, id++ );
-	accumulationCycleTimeEdit.sPos = { pos.x+240, pos.y, pos.x + 480, pos.y += 25 };
-	accumulationCycleTimeEdit.Create( NORM_EDIT_OPTIONS, accumulationCycleTimeEdit.sPos, parent, id++ );
-	accumulationCycleTimeEdit.SetWindowTextA( "0.1" );
+	accumulationCycleTimeLabel = new QLabel ("Accumulation Cycle Time", parent);
+	accumulationCycleTimeLabel->setGeometry (pos.x, pos.y, 240, 25);
+
+	accumulationCycleTimeEdit = new CQLineEdit ("0.1", parent);
+	accumulationCycleTimeEdit->setGeometry (pos.x + 240, pos.y, 240, 25);
 
 	// Accumulation Number
-	accumulationNumberLabel.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25 };
-	accumulationNumberLabel.Create( "Accumulation #", NORM_STATIC_OPTIONS, accumulationNumberLabel.sPos, parent, id++ );
-	accumulationNumberEdit.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
-	accumulationNumberEdit.Create( NORM_EDIT_OPTIONS, accumulationNumberEdit.sPos, parent, id++ );
-	accumulationNumberEdit.SetWindowTextA( "1" );
+	accumulationNumberLabel = new QLabel ("Accumulation #", parent);
+	accumulationNumberLabel->setGeometry (pos.x, pos.y+=25, 240, 25);
+	accumulationNumberEdit = new CQLineEdit ("1", parent);
+	accumulationNumberEdit->setGeometry (pos.x + 240, pos.y, 240, 25);
 
 	// minimum kinetic cycle time (determined by camera)
-	minKineticCycleTimeLabel.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25 };
-	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, 
-									 minKineticCycleTimeLabel.sPos, parent, id++ );
-	minKineticCycleTimeDisp.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
-	minKineticCycleTimeDisp.Create( NORM_STATIC_OPTIONS, minKineticCycleTimeDisp.sPos, parent, id++ );
-	minKineticCycleTimeDisp.SetWindowTextA( "" );
+	minKineticCycleTimeLabel = new QLabel ("Minimum Kinetic Cycle Time (s)", parent);
+	minKineticCycleTimeLabel->setGeometry (pos.x, pos.y+=25, 240, 25);
+	minKineticCycleTimeDisp = new QLabel ("---", parent);
+	minKineticCycleTimeDisp->setGeometry (pos.x + 240, pos.y, 240, 25);
 
 	/// Kinetic Cycle Time
-	kineticCycleTimeLabel.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25 };
-	kineticCycleTimeLabel.Create( "Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, kineticCycleTimeLabel.sPos, parent, id++ );
+	kineticCycleTimeLabel = new QLabel ("Kinetic Cycle Time (s)", parent);
+	kineticCycleTimeLabel->setGeometry (pos.x, pos.y+=25, 240, 25);
 
-	kineticCycleTimeEdit.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
-	kineticCycleTimeEdit.Create( NORM_EDIT_OPTIONS, kineticCycleTimeEdit.sPos, parent, id++ );
-	kineticCycleTimeEdit.SetWindowTextA( "0.1" );
+	kineticCycleTimeEdit = new CQLineEdit ("0.1", parent);
+	kineticCycleTimeEdit->setGeometry (pos.x+240, pos.y, 240, 25);
+	pos.y += 25;
 	//
-	calControl.initialize( pos, id, parent, tooltips );
+	calControl.initialize( pos, parent );
 	updateWindowEnabledStatus ();
 }
 
@@ -115,9 +120,9 @@ void AndorCameraSettingsControl::initialize( POINT& pos, int& id, CWnd* parent, 
 void AndorCameraSettingsControl::cameraIsOn(bool state)
 {
 	// Can't change em gain mode or camera settings once started.
-	emGainEdit.EnableWindow( !state );
-	setTemperatureButton.EnableWindow( !state );
-	temperatureOffButton.EnableWindow( !state );
+	emGainEdit->setEnabled( !state );
+	setTemperatureButton->setEnabled ( !state );
+	temperatureOffButton->setEnabled ( !state );
 }
 
 
@@ -127,10 +132,16 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
 	picSettingsObj.setUnofficialPicsPerRep ( inputSettings.picsPerRepetition );
 	///
-	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
-	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime));
-	cameraModeCombo.SelectString ( 0, AndorRunModes::toStr ( inputSettings.acquisitionMode ).c_str() );// cstr ( inputSettings.cameraMode ));
-	triggerCombo.SelectString (0, AndorTriggerMode::toStr (inputSettings.triggerMode).c_str ());
+	kineticCycleTimeEdit->setText(cstr(inputSettings.kineticCycleTime));
+	accumulationCycleTimeEdit->setText (cstr(inputSettings.accumulationTime));
+	int ind = cameraModeCombo->findData (AndorRunModes::toStr (inputSettings.acquisitionMode).c_str ());
+	if (ind != -1) {
+		cameraModeCombo->setCurrentIndex (ind);
+	}
+	ind = triggerCombo->findData (AndorTriggerMode::toStr (inputSettings.triggerMode).c_str ());
+	if (ind != -1) {
+		triggerCombo->setCurrentIndex (ind);
+	}
 	if ( inputSettings.acquisitionMode == AndorRunModes::mode::Video )
 	{
 		inputSettings.repetitionsPerVariation = INT_MAX;
@@ -147,21 +158,19 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 	{
 		thrower ( "ERROR: unrecognized camera mode: " + AndorRunModes::toStr(inputSettings.acquisitionMode) );
 	}
-	kineticCycleTimeEdit.SetWindowTextA(cstr(inputSettings.kineticCycleTime));
-	accumulationCycleTimeEdit.SetWindowTextA(cstr(inputSettings.accumulationTime * 1000.0));
-	accumulationNumberEdit.SetWindowTextA(cstr(inputSettings.accumulationNumber));
-	temperatureEdit.SetWindowTextA(cstr(inputSettings.temperatureSetting));
+	kineticCycleTimeEdit->setText (cstr(inputSettings.kineticCycleTime));
+	accumulationCycleTimeEdit->setText (cstr(inputSettings.accumulationTime * 1000.0));
+	accumulationNumberEdit->setText (cstr(inputSettings.accumulationNumber));
+	temperatureEdit->setText (cstr(inputSettings.temperatureSetting));
 }
 
 
 void AndorCameraSettingsControl::handleSetTemperaturePress()
 {
-	CString text;
-	temperatureEdit.GetWindowTextA(text);
 	int temp;
 	try
 	{
-		temp = boost::lexical_cast<int>(str(text));
+		temp = boost::lexical_cast<int>(str(temperatureEdit->text ()));
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
@@ -173,23 +182,12 @@ void AndorCameraSettingsControl::handleSetTemperaturePress()
 
 void AndorCameraSettingsControl::updateTriggerMode( )
 {
-	CString triggerMode;
-	int itemIndex = triggerCombo.GetCurSel( );
+	int itemIndex = triggerCombo->currentIndex( );
 	if ( itemIndex == -1 )
 	{
 		return;
 	}
-	triggerCombo.GetLBText( itemIndex, triggerMode );
-	settings.andor.triggerMode = AndorTriggerMode::fromStr(std::string(triggerMode));
-}
-
-
-void AndorCameraSettingsControl::handleTriggerChange(AndorWindow* cameraWindow)
-{
-	updateTriggerMode( );
-	CRect rect;
-	cameraWindow->GetWindowRect(&rect);
-	cameraWindow->OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
+	settings.andor.triggerMode = AndorTriggerMode::fromStr(str(triggerCombo->currentText ()));
 }
 
 
@@ -233,7 +231,7 @@ AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( )
 	calSettings.andor.exposureTimes = { float(10e-3) };
 	// want to calibrate the image area to be used in the experiment, so...
 	calSettings.andor.imageSettings = imageDimensionsObj.getImageParameters( );
-	calSettings.andor.kineticCycleTime = 10e-3;
+	calSettings.andor.kineticCycleTime = 10e-3f;
 	calSettings.andor.picsPerRepetition = 1;
 	calSettings.andor.readMode = 4;
 	calSettings.andor.repetitionsPerVariation = 100;
@@ -261,33 +259,13 @@ void AndorCameraSettingsControl::rearrange( int width, int height, fontMap fonts
 {
 	imageDimensionsObj.rearrange( width, height, fonts );
 	picSettingsObj.rearrange( width, height, fonts );
-	header.rearrange( width, height, fonts );
-	cameraModeCombo.rearrange( width, height, fonts );
-	emGainDisplay.rearrange( width, height, fonts );
-	emGainEdit.rearrange( width, height, fonts );
-	triggerCombo.rearrange( width, height, fonts );
-	setTemperatureButton.rearrange( width, height, fonts );
-	temperatureOffButton.rearrange( width, height, fonts );
-	temperatureEdit.rearrange( width, height, fonts );
-	temperatureDisplay.rearrange( width, height, fonts );
-	temperatureMsg.rearrange( width, height, fonts );
-	kineticCycleTimeEdit.rearrange( width, height, fonts );
-	kineticCycleTimeLabel.rearrange( width, height, fonts );
-	accumulationCycleTimeEdit.rearrange(width, height, fonts);
-	accumulationCycleTimeLabel.rearrange(width, height, fonts);
-	accumulationNumberEdit.rearrange(width, height, fonts);
-	accumulationNumberLabel.rearrange(width, height, fonts);
-	minKineticCycleTimeLabel.rearrange( width, height, fonts );
-	minKineticCycleTimeDisp.rearrange( width, height, fonts );
-	emGainBtn.rearrange ( width, height, fonts );
 	calControl.rearrange (width, height, fonts);
 }
 
 
 void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentEmGainLevel )
 {
-	CString emGainText;
-	emGainEdit.GetWindowTextA(emGainText);
+	auto emGainText = emGainEdit->text();
 	if ( emGainText == "" )
 	{
 		// set to off.
@@ -307,13 +285,13 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 	{
 		settings.andor.emGainModeIsOn = false;
 		settings.andor.emGainLevel = 0;
-		emGainDisplay.SetWindowTextA("OFF");
+		emGainDisplay->setText("OFF");
 	}
 	else
 	{
 		settings.andor.emGainModeIsOn = true;
 		settings.andor.emGainLevel = emGain;
-		emGainDisplay.SetWindowTextA(cstr("Gain: X" + str(settings.andor.emGainLevel)));
+		emGainDisplay->setText(cstr("Gain: X" + str(settings.andor.emGainLevel)));
 	}
 	// Change the andor settings.
 	std::string promptMsg = "";
@@ -338,7 +316,6 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 			thrower ( "Aborting camera settings update at EM Gain update!" );
 		}
 	}
-	emGainEdit.RedrawWindow();
 }
 
 
@@ -366,8 +343,8 @@ void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 
 void AndorCameraSettingsControl::changeTemperatureDisplay( AndorTemperatureStatus stat )
 {
-	temperatureDisplay.SetWindowTextA ( cstr ( stat.temperatureSetting ) );
-	temperatureMsg.SetWindowTextA ( cstr ( stat.msg ) );
+	temperatureDisplay->setText ( cstr ( stat.temperatureSetting ) );
+	temperatureMsg->setText ( cstr ( stat.msg ) );
 }
 
 
@@ -382,26 +359,27 @@ void AndorCameraSettingsControl::updateRunSettingsFromPicSettings( )
 }
 
 
-void AndorCameraSettingsControl::handlePictureSettings(UINT id)
+void AndorCameraSettingsControl::handlePictureSettings()
 {
-	picSettingsObj.handleOptionChange(id);
+	picSettingsObj.handleOptionChange();
 	updateRunSettingsFromPicSettings( );
 }
 
 
 double AndorCameraSettingsControl::getKineticCycleTime( )
 {
-	CString text;
-	kineticCycleTimeEdit.GetWindowTextA( text );
+	if (!kineticCycleTimeEdit) {
+		return 0;
+	}
 	try
 	{
-		settings.andor.kineticCycleTime = boost::lexical_cast<float>( str( text ) );
-		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
+		settings.andor.kineticCycleTime = boost::lexical_cast<float>( str(kineticCycleTimeEdit->text ()) );
+		kineticCycleTimeEdit->setText( cstr( settings.andor.kineticCycleTime ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
 		settings.andor.kineticCycleTime = 0.1f;
-		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
+		kineticCycleTimeEdit->setText ( cstr( settings.andor.kineticCycleTime ) );
 		throwNested( "Please enter a valid float for the kinetic cycle time." );
 	}
 	return settings.andor.kineticCycleTime;
@@ -411,16 +389,18 @@ double AndorCameraSettingsControl::getKineticCycleTime( )
 double AndorCameraSettingsControl::getAccumulationCycleTime( )
 {
 	CString text;
-	accumulationCycleTimeEdit.GetWindowTextA( text );
-	try
+	if (!accumulationCycleTimeEdit)
 	{
-		settings.andor.accumulationTime = boost::lexical_cast<float>( str( text ) );
-		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
+		return 0;
+	}
+	try	{
+		settings.andor.accumulationTime = boost::lexical_cast<float>( str(accumulationCycleTimeEdit->text ()) );
+		accumulationCycleTimeEdit->setText( cstr( settings.andor.accumulationTime ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
 		settings.andor.accumulationTime = 0.1f;
-		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
+		accumulationCycleTimeEdit->setText( cstr( settings.andor.accumulationTime ) );
 		throwNested( "Please enter a valid float for the accumulation cycle time." );
 	}
 	return settings.andor.accumulationTime;
@@ -429,17 +409,19 @@ double AndorCameraSettingsControl::getAccumulationCycleTime( )
 
 UINT AndorCameraSettingsControl::getAccumulationNumber( )
 {
-	CString text;
-	accumulationNumberEdit.GetWindowTextA( text );
+	if (!accumulationNumberEdit)
+	{
+		return 0;
+	}
 	try
 	{
-		settings.andor.accumulationNumber = boost::lexical_cast<long>( str( text ) );
-		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
+		settings.andor.accumulationNumber = boost::lexical_cast<long>( str(accumulationNumberEdit->text ()) );
+		accumulationNumberEdit->setText( cstr( settings.andor.accumulationNumber ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
 		settings.andor.accumulationNumber = 1;
-		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
+		accumulationNumberEdit->setText( cstr( settings.andor.accumulationNumber ) );
 		throwNested( "Please enter a valid float for the Accumulation number." );
 	}
 	return settings.andor.accumulationNumber;
@@ -493,14 +475,12 @@ void AndorCameraSettingsControl::updateCameraMode( )
 		updates settings.andor.cameraMode based on combo selection, then updates 
 		settings.andor.acquisitionMode and other settings depending on the mode.
 	*/
-	int sel = cameraModeCombo.GetCurSel( );
+	int sel = cameraModeCombo->currentIndex( );
 	if ( sel == -1 )
 	{
 		return;
 	}
-	CString mode;
-	cameraModeCombo.GetLBText( sel, mode );
-	std::string txt ( mode );
+	std::string txt (str(cameraModeCombo->currentText ()));
 	if ( txt == AndorRunModes::toStr (AndorRunModes::mode::Video) || txt == "Video Mode" )
 	{
 		settings.andor.acquisitionMode = AndorRunModes::mode::Video;
@@ -525,22 +505,14 @@ void AndorCameraSettingsControl::updateCameraMode( )
 void AndorCameraSettingsControl::updateWindowEnabledStatus ()
 {
 	auto settings = getSettings ();
-	accumulationCycleTimeEdit.EnableWindow (settings.andor.acquisitionMode == AndorRunModes::mode::Accumulate);
-	accumulationNumberEdit.EnableWindow (settings.andor.acquisitionMode == AndorRunModes::mode::Accumulate);
-	kineticCycleTimeEdit.EnableWindow (settings.andor.acquisitionMode == AndorRunModes::mode::Video);
+	accumulationCycleTimeEdit->setEnabled(settings.andor.acquisitionMode == AndorRunModes::mode::Accumulate);
+	accumulationNumberEdit->setEnabled (settings.andor.acquisitionMode == AndorRunModes::mode::Accumulate);
+	kineticCycleTimeEdit->setEnabled (settings.andor.acquisitionMode == AndorRunModes::mode::Video);
 }
-
-
-void AndorCameraSettingsControl::handleModeChange( AndorWindow* cameraWindow )
-{
-	updateCameraMode( );
-	updateWindowEnabledStatus ();
-}
-
 
 void AndorCameraSettingsControl::updateMinKineticCycleTime( double time )
 {
-	minKineticCycleTimeDisp.SetWindowTextA( cstr( time ) );
+	minKineticCycleTimeDisp->setText( cstr( time ) );
 }
 
 
@@ -615,7 +587,7 @@ void AndorCameraSettingsControl::handelSaveMasterConfig ( std::stringstream& con
 }
 
 
-void AndorCameraSettingsControl::handleOpenMasterConfig ( ConfigStream& configStream, AndorWindow* camWin )
+void AndorCameraSettingsControl::handleOpenMasterConfig ( ConfigStream& configStream, QtAndorWindow* camWin )
 {
 	imageParameters settings = getSettings ( ).andor.imageSettings;
 	std::string tempStr;

@@ -3,17 +3,18 @@
 
 #include "Control.h"
 #include "GeneralObjects/commonTypes.h"
-
+#include <PrimaryWindows/IChimeraWindow.h>
+#include <qlabel.h>
 
 class StatusIndicator
 {
 	public:
-		void initialize(POINT &loc, CWnd* parent, int& id, cToolTips& tooltips);
+		void initialize(POINT &loc, IChimeraWindowWidget* parent );
 		void setText(std::string text);
 		void setColor(std::string color);
 		CBrush* handleColor(CWnd* window, CDC* pDC );
 		void rearrange(int width, int height, fontMap fonts);
 	private:
-		Control<CStatic> status;
+		QLabel* status;
 		std::string currentColor;
 };

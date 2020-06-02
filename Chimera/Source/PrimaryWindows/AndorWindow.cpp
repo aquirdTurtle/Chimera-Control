@@ -6,7 +6,6 @@
 #include "Plotting/PlottingInfo.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "ExcessDialogs/ErrDialog.h"
 
 #include "BaslerWindow.h"
 #include "ScriptingWindow.h"
@@ -23,8 +22,9 @@ AndorWindow::AndorWindow ( ) : IChimeraWindow( ),
 							   dataHandler ( DATA_SAVE_LOCATION ),
 							   andor ( ANDOR_SAFEMODE ),
 							   pics ( false, "ANDOR_PICTURE_MANAGER", false )
-{};
-
+{
+	statBox = new ColorBox ();
+};
 
 IMPLEMENT_DYNAMIC( AndorWindow, CDialog )
 
@@ -35,31 +35,7 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_WM_VSCROLL ( )
 	ON_WM_MOUSEMOVE ( )
 	ON_WM_PAINT()
-
-	ON_COMMAND_RANGE ( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &AndorWindow::passPictureSettings )
-	ON_CONTROL_RANGE ( CBN_SELENDOK, PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END,
-					   &AndorWindow::passPictureSettings )
-	ON_CBN_SELENDOK ( IDC_ATOM_GRID_COMBO, &AndorWindow::passAtomGridCombo )
-	// these ids all go to the same function.
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_3_MAX_EDIT, IDC_PICTURE_3_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &AndorWindow::handlePictureEditChange )
-	ON_CONTROL_RANGE ( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &AndorWindow::handlePictureEditChange )
-	// 
-	ON_EN_CHANGE( IDC_PLOT_TIMER_EDIT, &AndorWindow::handlePlotTimerEdit )
-	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &AndorWindow::passSetTemperaturePress)
-	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &AndorWindow::passManualSetAnalysisLocations)
-	ON_COMMAND( IDC_SET_GRID_CORNER, &AndorWindow::passSetGridCorner)
-	ON_COMMAND( IDC_DEL_GRID_BUTTON, &AndorWindow::passDelGrid)
-	ON_COMMAND( IDC_CAMERA_CALIBRATION_BUTTON, &AndorWindow::calibrate)
-	ON_COMMAND_RANGE(ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &AndorWindow::handlePlotPop)
-	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &AndorWindow::passTrigger )
-	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
-
+	
 	ON_MESSAGE ( CustomMessages::AndorFinishMessageID, &AndorWindow::onCameraFinish )
 	ON_MESSAGE ( CustomMessages::AndorCalFinMessageID, &AndorWindow::onCameraCalFinish )
 	ON_MESSAGE ( CustomMessages::AndorProgressMessageID, &AndorWindow::onCameraProgress )
@@ -71,8 +47,6 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 
 	ON_NOTIFY(NM_RCLICK, IDC_PLOTTING_LISTVIEW, &AndorWindow::listViewRClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &AndorWindow::handleDblClick)
-	ON_COMMAND ( IDC_EM_GAIN_BTN, &AndorWindow::handleEmGainChange )
-	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &AndorWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
 
@@ -91,14 +65,7 @@ void AndorWindow::handlePlotPop (UINT id)
 {
 	for (auto& plt : mainAnalysisPlots)
 	{
-		if (plt->handlePop (id, this)) { return; }
 	}
-}
-
-
-void AndorWindow::handlePlotTimerEdit ( )
-{
-	analysisHandler.updatePlotTime ( );
 }
 
 LRESULT AndorWindow::onBaslerFinish ( WPARAM wParam, LPARAM lParam )
@@ -121,26 +88,6 @@ bool AndorWindow::wantsAutoCal( )
 {
 	return andorSettingsCtrl.getAutoCal( );
 }
-
-
-void AndorWindow::calibrate( )
-{
-	commonFunctions::calibrateCameraBackground(this);
-}
-
-
-void AndorWindow::passDelGrid( )
-{
-	try
-	{
-		analysisHandler.handleDeleteGrid( );
-	}
-	catch ( Error& err )
-	{
-		reportErr( err.trace( ) );
-	}
-}
-
 
 void AndorWindow::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 {
@@ -168,10 +115,9 @@ void AndorWindow::OnMouseMove( UINT thing, CPoint point )
 }
 
 
-void AndorWindow::handleImageDimsEdit( UINT id )
+void AndorWindow::handleImageDimsEdit( )
 {
-	try
-	{
+	try	{
 		SmartDC sdc (this);
 		pics.setParameters (andorSettingsCtrl.getSettings ().andor.imageSettings);
 		pics.redrawPictures( sdc.get (), selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true,
@@ -186,8 +132,7 @@ void AndorWindow::handleImageDimsEdit( UINT id )
 
 void AndorWindow::handleEmGainChange()
 {
-	try
-	{
+	try	{
 		auto runSettings = andor.getAndorRunSettings ( ); 
 		andorSettingsCtrl.setEmGain(runSettings.emGainModeIsOn, runSettings.emGainLevel );
 		auto settings = andorSettingsCtrl.getSettings ( );
@@ -264,7 +209,7 @@ void AndorWindow::windowOpenConfig ( ConfigStream& configFile)
 	{
 		ProfileSystem::standardOpenConfig (configFile, pics.configDelim, &pics, Version ("4.0"));
 	}
-	catch (Error & err)
+	catch (Error & )
 	{
 		reportErr ("Failed to load picture settings from config!");
 	}
@@ -272,7 +217,7 @@ void AndorWindow::windowOpenConfig ( ConfigStream& configFile)
 	{
 		ProfileSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler, Version ("4.0"));
 	}
-	catch (Error & err)
+	catch (Error & )
 	{
 		reportErr ("Failed to load Data Analysis settings from config!");
 	}
@@ -298,21 +243,6 @@ void AndorWindow::windowOpenConfig ( ConfigStream& configFile)
 	{
 		reportErr ("Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace ());
 	}
-
-}
-
-
-void AndorWindow::passManualSetAnalysisLocations()
-{
-	analysisHandler.onManualButtonPushed();
-	mainWin->updateConfigurationSavedStatus( false );
-}
-
-
-void AndorWindow::passSetGridCorner( )
-{
-	analysisHandler.onCornerButtonPushed( );
-	mainWin->updateConfigurationSavedStatus( false );
 }
 
 void AndorWindow::passAlwaysShowGrid()
@@ -331,17 +261,6 @@ void AndorWindow::passAlwaysShowGrid()
 	pics.setAlwaysShowGrid(alwaysShowGrid, sdc.get ());
 	pics.setSpecialGreaterThanMax(specialGreaterThanMax);
 }
-
-
-void AndorWindow::passCameraMode()
-{
-	andorSettingsCtrl.handleModeChange(this);
-	CRect rect;
-	GetClientRect ( &rect );
-	OnSize ( 0, rect.right - rect.left, rect.bottom - rect.top );
-	mainWin->updateConfigurationSavedStatus( false );
-}
-
 
 void AndorWindow::abortCameraRun()
 {
@@ -419,21 +338,6 @@ bool AndorWindow::cameraIsRunning()
 {
 	return andor.isRunning();
 }
-
-
-void AndorWindow::handlePictureEditChange( UINT id )
-{
-	try
-	{
-		pics.handleEditChange(id);
-	}
-	catch (Error& err)
-	{
-		// these errors seem more deserving of an error box.
-		reportErr (err.trace());
-	}
-}
-
 
 LRESULT AndorWindow::onCameraCalProgress( WPARAM wParam, LPARAM lParam )
 {
@@ -568,7 +472,6 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			minMax = stats.update( picsToDraw.back(), picNum % curSettings.picsPerRepetition, selectedPixel,
 								   picNum / curSettings.picsPerRepetition,
 								   curSettings.totalPicsInExperiment() / curSettings.picsPerRepetition );
-			//pics.drawPicture( sdc.get (), picNum % curSettings.picsPerRepetition, picsToDraw.back(), minMax );
 			pics.drawBitmap(sdc.get (), picsToDraw.back (), minMax, picNum % curSettings.picsPerRepetition);
 
 			timer.update( picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
@@ -962,50 +865,10 @@ void AndorWindow::OnTimer(UINT_PTR id)
 	}
 }
 
-
-/*
- *
- */
-void AndorWindow::passTrigger()
-{
-	andorSettingsCtrl.handleTriggerChange(this);
-	mainWin->updateConfigurationSavedStatus( false );
-}
-
-
-void AndorWindow::passAtomGridCombo( )
-{
-	try
-	{
-		analysisHandler.handleAtomGridCombo( );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( err.trace( ) );
-	}
-}
-
-/*
-	This func doesn't make much sense...
-*/
-void AndorWindow::passPictureSettings( UINT id )
-{
-	try
-	{
-		handlePictureSettings ( id );
-		mainWin->updateConfigurationSavedStatus ( false );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( "Failed to handle picture Settings!\n" + err.trace ( ) );
-	}
-}
-
-
-void AndorWindow::handlePictureSettings(UINT id)
+void AndorWindow::handlePictureSettings()
 {
 	selectedPixel = { 0,0 };
-	andorSettingsCtrl.handlePictureSettings(id);
+	andorSettingsCtrl.handlePictureSettings();
 	if (andorSettingsCtrl.getSettings().andor.picsPerRepetition == 1)
 	{
 		pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
@@ -1018,11 +881,6 @@ void AndorWindow::handlePictureSettings(UINT id)
 	pics.resetPictureStorage();
 	std::array<int, 4> nums = andorSettingsCtrl.getSettings( ).palleteNumbers;
 	pics.setPalletes(nums);
-
-	CRect rect;
-	GetClientRect(&rect);
-	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
-	mainWin->updateConfigurationSavedStatus( false );
 }
 
 /*
@@ -1077,7 +935,7 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 	{
 		plt->rearrange (cx, cy, mainWin->getFonts ());
 	}
-	statBox.rearrange ( cx, cy, mainWin->getFonts ( ) );
+	statBox->rearrange ( cx, cy, mainWin->getFonts ( ) );
 	pics.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	try
 	{
@@ -1239,7 +1097,7 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 	pltInput->plotPens = mainWin->getPlotPens ( );
 	pltInput->plotBrushes = mainWin->getPlotBrushes ( );
 	pltInput->plotFont = mainWin->getPlotFont ( );
-	pltInput->plotParentWindow = this;
+	//pltInput->plotParentWindow = this;
 	pltInput->cameraSettings = andorSettingsCtrl.getSettings ( );
 	pltInput->aborting = &plotThreadAborting;
 	pltInput->active = &plotThreadActive;
@@ -1310,12 +1168,6 @@ void AndorWindow::preparePlotter( AllExperimentInput& input )
 				usedDlg = true;
 				break;
 			}
-			if (mainAnalysisPlots[mainPlotInc]->wantsSustain ())
-			{
-				// skip this one then.
-				mainPlotInc++;
-				continue;
-			}
 			break;
 		}
 		if (!usedDlg && mainPlotInc < 6)
@@ -1344,8 +1196,7 @@ void AndorWindow::OnPaint ()
 	// for a single plot.
 	for (auto& plt : mainAnalysisPlots)
 	{
-		plt->setCurrentDims (width, height);
-		plt->drawPlot (sdc.get (), _myBrushes["Main-Bkgd"], _myBrushes["Interactable-Bkgd"]);
+		plt->refreshData ();
 	}
 }
 
@@ -1636,35 +1487,32 @@ void AndorWindow::setTimerText( std::string timerText )
 
 BOOL AndorWindow::OnInitDialog ( )
 {
+	qtp = new QWinWidget ((CWnd*)this);
+	qtp->setStyleSheet (mainWin->getStyleSheet ());
+	qtp->move (0, 0);
+
 	SetWindowText ( "Andor Camera Control" );
-	// don't redraw until the first OnSize.
 	SetRedraw ( false );
 	andor.initializeClass ( mainWin->getComm ( ), &imageTimes );
 	POINT position = { 0,0 };
-	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
-	int id = 3000;
-	statBox.initialize (position, id, this, 480, toolTips, mainWin->getDevices ());
+	statBox->initialize (position, this, 480, mainWin->getDevices ());
 	alerts.alertMainThread ( 0 );
-	alerts.initialize (position, this, false, id, toolTips );
-	analysisHandler.initialize (position, id, this, toolTips );
-	andorSettingsCtrl.initialize (position, id, this, toolTips );
+	alerts.initialize (position, this);
+	analysisHandler.initialize (position, this);
+	andorSettingsCtrl.initialize (position, this);
 	position = { 480, 0 };
-	stats.initialize ( position, this, id, toolTips );
+	stats.initialize ( position, this);
 	for (auto pltInc : range (6))
 	{
 		std::vector<pPlotDataVec> nodata(0);
 		mainAnalysisPlots.push_back (new PlotCtrl (nodata, plotStyle::ErrorPlot, mainWin->getPlotPens (),
 			mainWin->getPlotFont (), mainWin->getPlotBrushes (), { 0,0,0,0 }, "INACTIVE", false, false));
-		mainAnalysisPlots.back ()->init (position, 315, 130, this, plotIds++);
+		mainAnalysisPlots.back ()->init (position, 315, 130, this);
 	}
 	position = { 797, 0 };
-	timer.initialize (position, this, false, id, toolTips);
+	timer.initialize (position, this);
 	position = { 797, 40 };
-	pics.initialize ( position, this, id, _myBrushes[ "Dark Green" ], 550 * 2, 460 * 2 + 5, 
-					 { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT,
-					   IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT,
-					   IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT, 
-					   IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
+	pics.initialize ( position, _myBrushes[ "Dark Green" ], 530 * 2, 460 * 2 + 5, this);
 	// end of literal initialization calls
 	pics.setSinglePicture( this, andorSettingsCtrl.getSettings( ).andor.imageSettings );
 	andor.setSettings( andorSettingsCtrl.getSettings().andor );
@@ -1674,6 +1522,7 @@ BOOL AndorWindow::OnInitDialog ( )
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
+	qtp->show ();
 	return IChimeraWindow::OnInitDialog();
 }
 

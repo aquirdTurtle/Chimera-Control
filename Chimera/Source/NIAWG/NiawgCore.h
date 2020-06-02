@@ -19,6 +19,7 @@
 #include "Rearrangement/rerngOptionStructures.h"
 #include "Rearrangement/rerngMoveStructures.h"
 #include "Rearrangement/rerngThreadInput.h"
+#include <GeneralObjects/commonTypes.h>
 
 #include "Fgen.h"
 

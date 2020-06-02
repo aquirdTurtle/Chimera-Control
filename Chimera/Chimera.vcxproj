@@ -125,7 +125,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;NO_WARN_MBCS_MFC_DEPRECATION;_DEBUG;_CONSOLE;_LIB;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -208,13 +208,13 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\3rd_Party\QtMfcMigrate\qmfcapp.h -o MOC\moc_qmfcapp.cpp</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC qmfcapp.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_qmfcapp.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\3rd_Party\QtMfcMigrate\qmfcapp.h;MOC\moc_predefs.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\3rd_Party\QtMfcMigrate\qmfcapp.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="3rd_Party\QtMfcMigrate\qwinwidget.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\3rd_Party\QtMfcMigrate\qwinwidget.h -o MOC\moc_qwinwidget.cpp</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC qwinwidget.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_qwinwidget.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\3rd_Party\QtMfcMigrate\qwinwidget.h;MOC\moc_predefs.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\3rd_Party\QtMfcMigrate\qwinwidget.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <ClInclude Include="MOC\moc_predefs.h" />
     <ClInclude Include="Source\Agilent\AgilentCore.h" />
@@ -222,6 +222,7 @@
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\Basler\BaslerWrapper.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
+    <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
     <ClInclude Include="Source\DeformableMirror\DmControl.h" />
     <ClInclude Include="Source\DeformableMirror\DmCore.h" />
     <ClInclude Include="Source\DeformableMirror\dmFlume.h" />
@@ -234,9 +235,16 @@
     <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentType.h" />
     <ClInclude Include="Source\ExperimentThread\expSystemRunList.h" />
+    <CustomBuild Include="Source\ExperimentThread\ExpThreadWorker.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\ExperimentThread\ExpThreadWorker.h -o MOC\moc_ExpThreadWorker.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC ExpThreadWorker.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_ExpThreadWorker.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\ExperimentThread\ExpThreadWorker.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
     <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
+    <ClInclude Include="Source\GeneralObjects\ChimeraStyleSheets.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
     <ClInclude Include="Source\GeneralObjects\RunInfo.h" />
@@ -255,15 +263,54 @@
     <ClInclude Include="Source\Andor\AndorTriggerModes.h" />
     <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
     <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
-    <ClInclude Include="Source\PrimaryWindows\DeformableMirrorWindow.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
-    <ClInclude Include="Source\PrimaryWindows\IChimeraWindow.h" />
+    <CustomBuild Include="Source\PrimaryWindows\QtScriptWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtScriptWindow.h -o MOC\moc_QtScriptWindow.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtScriptWindow.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtScriptWindow.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtScriptWindow.h;MOC\moc_predefs.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\PrimaryWindows\QtAndorWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtAndorWindow.h -o MOC\moc_QtAndorWindow.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtAndorWindow.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtAndorWindow.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtAndorWindow.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\PrimaryWindows\QtBaslerWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtBaslerWindow.h -o MOC\moc_QtBaslerWindow.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtBaslerWindow.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtBaslerWindow.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtBaslerWindow.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\PrimaryWindows\QtDeformableMirrorWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtDeformableMirrorWindow.h -o MOC\moc_QtDeformableMirrorWindow.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtDeformableMirrorWindow.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtDeformableMirrorWindow.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtDeformableMirrorWindow.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\PrimaryWindows\QtMainWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtMainWindow.h -o MOC\moc_QtMainWindow.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtMainWindow.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtMainWindow.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtMainWindow.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\PrimaryWindows\IChimeraWindowWidget.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\IChimeraWindowWidget.h -o MOC\moc_IChimeraWindowWidget.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC IChimeraWindowWidget.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_IChimeraWindowWidget.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\IChimeraWindowWidget.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\PrimaryWindows\QtAuxiliaryWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtAuxiliaryWindow.h -o MOC\moc_QtAuxiliaryWindow.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC QtAuxiliaryWindow.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_QtAuxiliaryWindow.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtAuxiliaryWindow.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
     <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomGrid.h" />
     <ClInclude Include="Source\Basler\BaslerCamera.h" />
     <ClInclude Include="Source\Basler\BaslerSettings.h" />
     <ClInclude Include="Source\Basler\BaslerSettingsControl.h" />
-    <ClInclude Include="Source\PrimaryWindows\BaslerWindow.h" />
     <ClInclude Include="Source\Piezo\CmdLibrary.h" />
     <ClInclude Include="Source\GeneralObjects\CodeTimer.h" />
     <ClInclude Include="Source\Plotting\dataPoint.h" />
@@ -272,7 +319,6 @@
     <ClInclude Include="Source\DirectDigitalSynthesis\DdsSystemStructures.h" />
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h" />
     <ClInclude Include="Source\DigitalOutput\DoRows.h" />
-    <ClInclude Include="Source\ExcessDialogs\ErrDialog.h" />
     <ClInclude Include="Source\GeneralObjects\ExpWrap.h" />
     <ClInclude Include="Source\CustomMfcControlWrappers\LongCSlider.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h" />
@@ -293,7 +339,6 @@
     <ClInclude Include="Source\Andor\CameraImageDimensions.h" />
     <ClInclude Include="Source\Andor\cameraPositions.h" />
     <ClInclude Include="Source\Andor\CameraSettingsControl.h" />
-    <ClInclude Include="Source\PrimaryWindows\AndorWindow.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\cleanString.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ColorBox.h" />
     <ClInclude Include="Source\GeneralObjects\commonTypes.h" />
@@ -327,7 +372,6 @@
     <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h" />
     <ClInclude Include="Source\Andor\AndorCameraCore.h" />
     <ClInclude Include="Source\ConfigurationSystems\MasterConfiguration.h" />
-    <ClInclude Include="Source\PrimaryWindows\AuxiliaryWindow.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentThreadManager.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\miscCommonFunctions.h" />
     <ClInclude Include="Source\LowLevel\ChimeraApp.h" />
@@ -341,7 +385,6 @@
     <ClInclude Include="Source\CustomMfcControlWrappers\Control.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.h" />
     <ClInclude Include="Source\LowLevel\externals.h" />
-    <ClInclude Include="Source\PrimaryWindows\MainWindow.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\range.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\realTimePlotterInput.h" />
     <ClInclude Include="Source\NIAWG\Rearrangement\rerngContainer.h" />
@@ -355,7 +398,6 @@
     <ClInclude Include="Source\Andor\AndorRunMode.h" />
     <ClInclude Include="Source\Scripts\Script.h" />
     <ClInclude Include="Source\Agilent\scriptedAgilentWaveform.h" />
-    <ClInclude Include="Source\PrimaryWindows\ScriptingWindow.h" />
     <ClInclude Include="Source\Scripts\ScriptStream.h" />
     <ClInclude Include="Source\Agilent\Segment.h" />
     <ClInclude Include="Source\Agilent\segmentStructs.h" />
@@ -389,11 +431,57 @@
     <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="3rd_Party\QtMfcMigrate\qmfcapp.cpp" />
-    <ClCompile Include="3rd_Party\QtMfcMigrate\qwinwidget.cpp" />
-    <ClCompile Include="MOC\moc_qmfcapp.cpp" />
-    <ClCompile Include="MOC\moc_qwinhost.cpp" />
-    <ClCompile Include="MOC\moc_qwinwidget.cpp" />
+    <ClCompile Include="3rd_Party\QtMfcMigrate\qmfcapp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="3rd_Party\QtMfcMigrate\qwinwidget.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_ExpThreadWorker.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_IChimeraWindowWidget.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_qmfcapp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_QtAndorWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_QtAuxiliaryWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_QtBaslerWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_QtDeformableMirrorWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_QtMainWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_QtScriptWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_qwinhost.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_qwinwidget.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Agilent\Agilent.cpp" />
     <ClCompile Include="Source\Agilent\AgilentChannelMode.cpp" />
     <ClCompile Include="Source\Agilent\AgilentCore.cpp" />
@@ -401,6 +489,7 @@
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
+    <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
@@ -414,12 +503,13 @@
     <ClCompile Include="Source\Basler\BaslerCamera.cpp" />
     <ClCompile Include="Source\Basler\BaslerSettings.cpp" />
     <ClCompile Include="Source\Basler\BaslerSettingsControl.cpp" />
+    <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureControl.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureStats.cpp" />
+    <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
+    <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgSystem.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\DeformableMirrorWindow.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\BaslerWindow.cpp" />
     <ClCompile Include="Source\GeneralObjects\CodeTimer.cpp" />
     <ClCompile Include="Source\Andor\AndorRunMode.cpp" />
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsCore.cpp" />
@@ -427,9 +517,14 @@
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystemStructures.cpp" />
     <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
-    <ClCompile Include="Source\ExcessDialogs\ErrDialog.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\IChimeraWindow.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\IChimeraWindowWidget.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\QtDeformableMirrorWindow.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp" />
@@ -446,7 +541,6 @@
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp" />
     <ClCompile Include="Source\Andor\CameraSettingsControl.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\AndorWindow.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\cleanString.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ColorBox.cpp" />
     <ClCompile Include="Source\ExperimentThread\Communicator.cpp" />
@@ -472,10 +566,8 @@
     <ClCompile Include="Source\NIAWG\Fgen.cpp" />
     <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\MainWindow.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\MasterConfiguration.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\AuxiliaryWindow.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadManager.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp" />
     <ClCompile Include="Source\Andor\PictureSettingsControl.cpp" />
@@ -489,7 +581,6 @@
     <ClCompile Include="Source\Microwave\MicrowaveSystem.cpp" />
     <ClCompile Include="Source\Scripts\Script.cpp" />
     <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\ScriptingWindow.cpp" />
     <ClCompile Include="Source\Scripts\ScriptStream.cpp" />
     <ClCompile Include="Source\Agilent\Segment.cpp" />
     <ClCompile Include="Source\AnalogInput\ServoManager.cpp" />

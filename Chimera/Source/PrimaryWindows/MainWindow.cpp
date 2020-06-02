@@ -6,6 +6,7 @@
 #include "ScriptingWindow.h"
 #include "BaslerWindow.h"
 #include "DeformableMirrorWindow.h"
+#include "QtScriptWindow.h"
 
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "LowLevel/externals.h"
@@ -23,11 +24,12 @@ MainWindow::MainWindow( UINT id, CDialog* splash, chronoTime* startTime) : IChim
 	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope" ),
 	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope" )
 {
+	statBox = new ColorBox ();
 	programStartTime = startTime;
 	startupTimes.push_back(chronoClock::now());
 
 	/// the following are all equivalent to:
-	// mainFonts["Font name"] = new CFont;
+	// mainFonts["Font name"] = new CFont;x
 	// mainFonts["Font name"].CreateFontA(...);
 	(mainFonts["Smaller Font Max"] = new CFont)
 		->CreateFontA(27, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
@@ -127,32 +129,16 @@ IMPLEMENT_DYNAMIC( MainWindow, IChimeraWindow)
 BEGIN_MESSAGE_MAP (MainWindow, IChimeraWindow)
 	ON_WM_CTLCOLOR ()
 	ON_WM_SIZE ()
-	ON_NOTIFY (NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &handleDblClick)
-	ON_NOTIFY (NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &handleRClick)
-	ON_NOTIFY (NM_DBLCLK, IDC_SERVO_LISTVIEW, &ServoDblClick)
-	ON_NOTIFY (NM_RCLICK, IDC_SERVO_LISTVIEW, &ServoRClick)
-	ON_NOTIFY (NM_CUSTOMDRAW, IDC_SERVO_LISTVIEW, &drawServoListview)
 
-	ON_EN_CHANGE (IDC_CONFIGURATION_NOTES, &notifyConfigUpdate)
-	ON_EN_CHANGE (IDC_REPETITION_EDIT, &notifyConfigUpdate)
-	ON_MESSAGE (CustomMessages::RepProgressMessageID, &onRepProgress)
-	ON_MESSAGE (CustomMessages::StatusUpdateMessageID, &onStatusTextMessage)
-	ON_MESSAGE (CustomMessages::ErrorUpdateMessageID, &onErrorMessage)
-	ON_MESSAGE (CustomMessages::FatalErrorMessageID, &onFatalErrorMessage)
-	ON_MESSAGE (CustomMessages::DebugUpdateMessageID, &onDebugMessage)
-	ON_MESSAGE (CustomMessages::NoAtomsAlertMessageID, &onNoAtomsAlertMessage)
-	ON_MESSAGE (CustomMessages::NoMotAlertMessageID, &onNoMotAlertMessage)
-	ON_MESSAGE (CustomMessages::GeneralFinMsgID, &onFinish)
-
-	ON_COMMAND_RANGE (IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &passDebugPress)
-	ON_COMMAND_RANGE (IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &passMainOptionsPress)
-	ON_COMMAND_RANGE (IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &passClear)
-	ON_COMMAND_RANGE (IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &passClear)
-	ON_COMMAND_RANGE (IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &passClear)
-	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &handlePlotPop)
-	ON_COMMAND (IDC_SELECT_CONFIG_COMBO, &passConfigPress)
-	ON_COMMAND (IDC_SERVO_CAL, &runServos)
-	ON_CBN_SELENDOK (IDC_SERVO_UNITS_COMBO, &handleServoUnitsComboChange)
+	ON_MESSAGE ( CustomMessages::RepProgressMessageID, &onRepProgress)
+	ON_MESSAGE ( CustomMessages::StatusUpdateMessageID, &onStatusTextMessage)
+	ON_MESSAGE ( CustomMessages::ErrorUpdateMessageID, &onErrorMessage)
+	ON_MESSAGE ( CustomMessages::FatalErrorMessageID, &onFatalErrorMessage)
+	ON_MESSAGE ( CustomMessages::DebugUpdateMessageID, &onDebugMessage)
+	ON_MESSAGE ( CustomMessages::NoAtomsAlertMessageID, &onNoAtomsAlertMessage)
+	ON_MESSAGE ( CustomMessages::NoMotAlertMessageID, &onNoMotAlertMessage)
+	ON_MESSAGE ( CustomMessages::GeneralFinMsgID, &onFinish)
+	ON_MESSAGE ( CustomMessages::colorStatBoxes, &handleColorboxUpdate)
 	ON_MESSAGE ( CustomMessages::AutoServoMessage, &autoServo)
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
@@ -160,30 +146,11 @@ BEGIN_MESSAGE_MAP (MainWindow, IChimeraWindow)
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
 
-
-
-
-void MainWindow::handleServoUnitsComboChange ()
-{
-	servos.refreshListview ();
-}
-
-
-void MainWindow::handlePlotPop(UINT id)
-{
-	masterRepumpScope.handlePlotPop (id, this); 
-	motScope.handlePlotPop (id, this);
-}
-
-
-void MainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult)
-{
-	try
-	{
+void MainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult){
+	try	{
 		servos.handleDraw (pNMHDR, pResult);
 	}
-	catch (Error & err)
-	{
+	catch (Error & err)	{
 		comm.sendError (err.trace ());
 	}
 }
@@ -271,7 +238,17 @@ void MainWindow::onMachineOptRoundFin (  )
 }
 
 
-void MainWindow::OnTimer( UINT_PTR id ) { OnPaint( ); }
+void MainWindow::OnTimer( UINT_PTR id ) { 
+	if (id == 10)
+	{
+		motScope.refreshData ();
+		masterRepumpScope.refreshData ();
+	}
+	else
+	{
+		OnPaint ();
+	}
+}
 
 
 void MainWindow::loadCameraCalSettings( ExperimentThreadInput* input )
@@ -337,20 +314,6 @@ std::vector<Gdiplus::SolidBrush*> MainWindow::getBrightPlotBrushes( )
 void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation ) { 	andorWin->stopSound( ); }
 void MainWindow::OnLButtonUp (UINT stuff, CPoint clickLocation) { andorWin->stopSound (); }
 
-
-void MainWindow::passConfigPress( )
-{	
-	try
-	{
-		profile.handleSelectConfigButton( this );
-	}
-	catch ( Error& err )
-	{
-		comm.sendError( err.trace( ) );
-	}
-}
-
-
 LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 {
 	try
@@ -360,8 +323,8 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 			expThreadManager.pause ( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 		}
-		beepFuture
-			= std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
+		//beepFuture
+		//	= std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
 		time_t t = time ( 0 );
 		struct tm now;
 		localtime_s ( &now, &t );
@@ -400,7 +363,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 			expThreadManager.pause( );
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 		}
-		beepFuture = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
+		//beepFuture = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
 		time_t t = time( 0 );
 		struct tm now;
 		localtime_s( &now, &t );
@@ -480,64 +443,53 @@ BOOL MainWindow::OnInitDialog( )
 		forceExit ( );
 		return -1;
 	}
-	scriptWin->loadFriends( this, scriptWin, auxWin, basWin, dmWin, andorWin );
+	//scriptWin->loadFriends( this, scriptWin, auxWin, basWin, dmWin, andorWin );
 	andorWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	auxWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	basWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	dmWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	startupTimes.push_back(chronoClock::now());
-	try
-	{
+	qtp = new QWinWidget (this);
+	qtp->setStyleSheet (getStyleSheet ());
+	qtp->move (0, 0);
+	try	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
-		scriptWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
+		//scriptWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
 		andorWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		auxWin->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 		basWin->Create ( IDD_LARGE_TEMPLATE, GetDesktopWindow ( ) );
 		dmWin->Create (IDD_LARGE_TEMPLATE, GetDesktopWindow ());
 	}
-	catch ( Error& err )
-	{
+	catch ( Error& err ){
 		errBox( "FATAL ERROR: Failed to create window! " + err.trace( ) );
 		forceExit ( );
 		return -1;
 	}
+	/*
 	/// initialize main window controls.
 	comm.initialize( this );
-	int id = 1000;
 	POINT controlLocation = { 0,0 };
-	mainStatus.initialize( controlLocation, this, id, 870, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), toolTips, IDC_MAIN_STATUS_BUTTON );
-	statBox.initialize ( controlLocation, id, this, 960, toolTips, getDevices());
-	shortStatus.initialize (controlLocation, this, id, toolTips);
+	mainStatus.initialize( controlLocation, this, 870, "EXPERIMENT STATUS", "#6464FF" );
+	statBox->initialize ( controlLocation, this, 960, getDevices());
+	shortStatus.initialize (controlLocation, this);
 	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 420, "ERROR STATUS", RGB( 100, 0, 0 ), toolTips,
-							IDC_ERROR_STATUS_BUTTON );
-	debugStatus.initialize( controlLocation, this, id, 420, "DEBUG STATUS", RGB( 13, 152, 186 ), toolTips,
-							IDC_DEBUG_STATUS_BUTTON );
+	errorStatus.initialize( controlLocation, this, 420, "ERROR STATUS", "#640000" );
+	debugStatus.initialize( controlLocation, this, 425, "DEBUG STATUS", "#0d98ba" );
 	controlLocation = { 960, 0 };
-	profile.initialize( controlLocation, this, id, toolTips);
-	controlLocation = { 960, 175 };
-	widget = new QWinWidget ((CWnd*)this);
-	QFile File ("stylesheet.css");
-	File.open (QFile::ReadOnly);
-	QString stylesheet = QLatin1String (File.readAll ());
-	widget->setStyleSheet (stylesheet);
-	widget->move (0, 0);
-	notes.initialize( controlLocation, widget, id, toolTips);
-	widget->show ();
+	profile.initialize( controlLocation, this);
+	controlLocation = { 960, 25 };
+	notes.initialize( controlLocation, this);
 	masterRepumpScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(),
-								  ID_MASTER_REPUMP_SCOPE_VIEWER_POP_ID,	"Master/Repump" );
-	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), 
-						 ID_MOT_SCOPE_VIEWER_POP_ID, "MOT" );
-	servos.initialize ( controlLocation, toolTips, this, id, &auxWin->getAiSys (), &auxWin->getAoSys (),
+								  "Master/Repump" );
+	motScope.initialize( controlLocation, 480, 130, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
+	servos.initialize ( controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (),
 						auxWin->getTtlSystem(), &auxWin->getGlobals ());
-	controlLocation = { 1440, 50 };
-	repetitionControl.initialize( controlLocation, toolTips, this, id );
-	mainOptsCtrl.initialize( id, controlLocation, this, toolTips);
-	debugger.initialize( id, controlLocation, this, toolTips);
-	texter.initialize( controlLocation, this, id, toolTips);
-
-	//menu.LoadMenu( IDR_MAIN_MENU );
-	//SetMenu( &menu );
+	controlLocation = { 1440, 25 };
+	repetitionControl.initialize( controlLocation, this );
+	mainOptsCtrl.initialize( controlLocation, this);
+	debugger.initialize( controlLocation, this);
+	texter.initialize( controlLocation, this);*/
+	qtp->show ();
 
 	// just initializes the rectangles.
 	andorWin->redrawPictures( true );
@@ -555,13 +507,13 @@ BOOL MainWindow::OnInitDialog( )
 	SetWindowPos (&wndBottom, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE );
 	
 	andorWin->ShowWindow( SW_MAXIMIZE );
-	scriptWin->ShowWindow( SW_MAXIMIZE );
+	//scriptWin->ShowWindow( SW_MAXIMIZE );
 	auxWin->ShowWindow( SW_MAXIMIZE );
 	basWin->ShowWindow ( SW_MAXIMIZE );
 	dmWin->ShowWindow (SW_MAXIMIZE);
 
 	std::vector<CDialog*> windows = { basWin, NULL, andorWin, this, scriptWin, auxWin, dmWin };
-	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
+	//EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows) );
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
 	startupTimes.push_back(chronoClock::now());
@@ -584,7 +536,7 @@ BOOL MainWindow::OnInitDialog( )
 		initializationString += auxWin->getOtherSystemStatusMsg( );
 		initializationString += andorWin->getSystemStatusString( );
 		initializationString += auxWin->getVisaDeviceStatus( );
-		initializationString += scriptWin->getSystemStatusString( );
+		//initializationString += scriptWin->getSystemStatusString( );
 		initializationString += auxWin->getMicrowaveSystemStatus( );
 		infoBox( initializationString );
 	}
@@ -592,10 +544,12 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.trace( ) );
 	}
-	SetTimer( 1, 10000, NULL );
+	SetTimer ( 1, 10000, NULL );
+	SetTimer (10, 10000, NULL );
+	OnTimer ( 10 );
 	// set up the threads that update the scope data.
-	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL);
-	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
+	//_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL);
+	//_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
 	//
 	updateConfigurationSavedStatus( true );
 	return IChimeraWindow::OnInitDialog ();
@@ -612,7 +566,7 @@ void MainWindow::showHardwareStatus ( )
 		initializationString += auxWin->getOtherSystemStatusMsg ( );
 		initializationString += andorWin->getSystemStatusString ( );
 		initializationString += auxWin->getVisaDeviceStatus ( );
-		initializationString += scriptWin->getSystemStatusString ( );
+		//initializationString += scriptWin->getSystemStatusString ( );
 		initializationString += auxWin->getMicrowaveSystemStatus ( );
 		infoBox ( initializationString );
 	}
@@ -739,7 +693,7 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	errorStatus.rearrange(cx, cy, getFonts());
 	texter.rearrange(cx, cy, getFonts());
 	shortStatus.rearrange(cx, cy, getFonts());
-	statBox.rearrange( cx, cy, getFonts());
+	statBox->rearrange( cx, cy, getFonts());
 	repetitionControl.rearrange(cx, cy, getFonts());
 	servos.rearrange (cx, cy, getFonts ());
 	SetRedraw();
@@ -747,23 +701,6 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 }
 
 fontMap MainWindow::getFonts() { return mainFonts; }
-
-void MainWindow::passClear(UINT id)
-{
-	if (id == IDC_MAIN_STATUS_BUTTON)
-	{
-		mainStatus.clear();
-	}
-	else if (id == IDC_ERROR_STATUS_BUTTON)
-	{
-		errorStatus.clear();
-	}
-	else if (id == IDC_DEBUG_STATUS_BUTTON)
-	{
-		debugStatus.clear();
-	}
-}
-
 
 void MainWindow::forceExit ( )
 {
@@ -872,8 +809,6 @@ void MainWindow::setDebuggingOptions (debugInfo options) { debugger.setOptions (
 mainOptions MainWindow::getMainOptions () { return mainOptsCtrl.getOptions (); }
 void MainWindow::setShortStatus (std::string text) { shortStatus.setText (text); }
 void MainWindow::changeShortStatusColor (std::string color) { shortStatus.setColor (color); }
-void MainWindow::passDebugPress (UINT id) { profile.updateConfigurationSavedStatus (false); }
-void MainWindow::passMainOptionsPress (UINT id) { profile.updateConfigurationSavedStatus (false); }
 bool MainWindow::experimentIsPaused () { return expThreadManager.getIsPaused (); }
 Communicator* MainWindow::getComm () { return &comm; }
 
@@ -894,13 +829,13 @@ void MainWindow::logParams(DataLogger* logger, ExperimentThreadInput* input)
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( this );
+	//profile.allSettingsReadyCheck( this );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( this );
+	//profile.checkSaveEntireProfile( this );
 }
 
 
@@ -956,28 +891,10 @@ void MainWindow::addTimebar(std::string whichStatus)
 	}
 }
 
-
-void MainWindow::handleDblClick(NMHDR * pNotifyStruct, LRESULT * result)
-{
-	// effectively disable this control in the case of safemode.
-	if ( !PYTHON_SAFEMODE )
-	{
-		texter.updatePersonInfo( );
-		profile.updateConfigurationSavedStatus( false );
-	}
-}
-
-
-void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
-{
-	texter.deletePersonInfo();
-	profile.updateConfigurationSavedStatus(false);
-}
-
-void MainWindow::changeBoxColor(std::string sysDelim, char color)
+void MainWindow::changeBoxColor(std::string sysDelim, std::string color)
 {
 	IChimeraWindow::changeBoxColor (sysDelim, color);
-	changeShortStatusColor (std::string(1, color));
+	changeShortStatusColor (color);
 }
 
 void MainWindow::abortMasterThread()
@@ -1013,7 +930,7 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	else if ( statusMessage != "" )
 	{
 		errorStatus.addStatusText( statusMessage );
-		beepFuture = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
+		//beepFuture = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
 	}
 	return 0;
 }
@@ -1029,21 +946,21 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	errorStatus.addStatusText(statusMessage);
 	// resetting things.
 	scriptWin->setIntensityDefault();
-	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
+	std::string msgText = "Exited with Error!\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
 	try
 	{
 		scriptWin->restartNiawgDefaults ();
-		comm.sendError("EXITED WITH ERROR!");
-		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+		comm.sendError("EXITED WITH ERROR!\n");
+		comm.sendStatus("EXITED WITH ERROR!\nInitialized Default Waveform\r\n");
 	}
 	catch (Error& except)
 	{
 		comm.sendError ("EXITED WITH ERROR! " + except.trace ());
-		comm.sendStatus ("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
+		comm.sendStatus ("EXITED WITH ERROR!\nNIAWG RESTART FAILED!\r\n");
 	}
 	scriptWin->setNiawgRunningState( false );
-	beepFuture = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
+	//beepFuture = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
 	errBox ( statusMessage );
 	return 0;
 }
@@ -1119,34 +1036,6 @@ LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)
 }
 
 // MESSAGE MAP FUNCTION
-void MainWindow::ServoRClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		updateConfigurationSavedStatus (false);
-		servos.deleteServo ();
-	}
-	catch (Error & err)
-	{
-		comm.sendError ("Servo Right-Click Handler Failed.\n" + err.trace ());
-	}
-}
-
-// MESSAGE MAP FUNCTION
-void MainWindow::ServoDblClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		updateConfigurationSavedStatus (false);
-		servos.handleListViewClick ();
-	}
-	catch (Error & err)
-	{
-		comm.sendError ("Servo Double-Click handler failed." + err.trace ());
-	}
-}
-
-// MESSAGE MAP FUNCTION
 LRESULT MainWindow::autoServo (WPARAM w, LPARAM l)
 {
 	try
@@ -1204,4 +1093,29 @@ DeviceList MainWindow::getDevices ()
 		win_->fillExpDeviceList (list);
 	}
 	return list;
+}
+
+QString MainWindow::getStyleSheet ()
+{
+	QFile File ("stylesheet.css");
+	File.open (QFile::ReadOnly);
+	QString stylesheet = QLatin1String (File.readAll ());
+	return stylesheet;
+}
+
+LRESULT MainWindow::handleColorboxUpdate (WPARAM wp, LPARAM lp)
+{
+	char* pointerToMessage = (char*)lp;
+	std::string systemDelim (pointerToMessage);
+	delete[] pointerToMessage;
+	pointerToMessage = (char*)wp;
+	std::string color (pointerToMessage);
+	delete pointerToMessage;
+	mainWin->changeBoxColor (systemDelim, color);
+	scriptWin->changeBoxColor (systemDelim, color);
+	andorWin->changeBoxColor (systemDelim, color);
+	auxWin->changeBoxColor (systemDelim, color);
+	basWin->changeBoxColor (systemDelim, color);
+	dmWin->changeBoxColor (systemDelim, color);
+	return 0;
 }

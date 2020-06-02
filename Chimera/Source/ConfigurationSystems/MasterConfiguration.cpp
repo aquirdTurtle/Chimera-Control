@@ -4,9 +4,9 @@
 #include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include <sys/stat.h>
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/AndorWindow.h"
-#include "PrimaryWindows/MainWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
 #include <string>
 #include <fstream>
 
@@ -16,7 +16,7 @@ MasterConfiguration::MasterConfiguration(std::string address) : configurationFil
 {}
 
 
-void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin) 
+void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin) 
 {
 	/*
 		information to save:
@@ -58,7 +58,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 }
 
 
-void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin)
+void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin)
 {
 	// make sure that file exists	
 	FILE *file;

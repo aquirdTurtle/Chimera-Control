@@ -6,6 +6,10 @@
 #include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"
 #include "debugInfo.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <QCheckBox>
+#include <QLabel>
+#include <QLineEdit>
 
 class MainWindow;
 
@@ -14,26 +18,27 @@ class DebugOptionsControl
 	public:
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile );
-		void initialize( int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
+		void initialize( POINT& loc, IChimeraWindowWidget* parent );
 		void handleEvent(UINT id, MainWindow* comm);
 		debugInfo getOptions();
 		void setOptions(debugInfo options);
 		void rearrange(int width, int height, fontMap fonts);
 
 	private:
-		Control<CStatic> header;
-		Control<CleanCheck> readProgress;
-		Control<CleanCheck> writeProgress;
-		Control<CleanCheck> correctionTimes;
-		Control<CleanCheck> niawgScript;
-		Control<CleanCheck> outputAgilentScript;
-		Control<CleanCheck> niawgMachineScript;
-		Control<CleanCheck> excessInfo;
-		Control<CleanCheck> showTtlsButton;
-		Control<CleanCheck> showDacsButton;
-		Control<CleanCheck> outputNiawgWavesToText;
-		Control<CStatic> pauseText;
-		Control<CEdit> pauseEdit;
+
+		QLabel* header;
+		QCheckBox* readProgress;
+		QCheckBox* writeProgress;
+		QCheckBox* correctionTimes;
+		QCheckBox* niawgScript;
+		QCheckBox* outputAgilentScript;
+		QCheckBox* niawgMachineScript;
+		QCheckBox* excessInfo;
+		QCheckBox* showTtlsButton;
+		QCheckBox* showDacsButton;
+		QCheckBox* outputNiawgWavesToText;
+		QLabel* pauseText;
+		QLineEdit* pauseEdit;
 
 		debugInfo currentOptions;
 };

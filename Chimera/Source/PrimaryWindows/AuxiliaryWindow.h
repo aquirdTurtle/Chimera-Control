@@ -62,19 +62,12 @@ class AuxiliaryWindow : public IChimeraWindow
 		void OnTimer( UINT_PTR id );
 		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
-		void handlePlotPop (UINT id);
 		void uwDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void uwRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void handleMasterConfigSave( std::stringstream& configStream );
 		void handleMasterConfigOpen(ConfigStream& configStream);
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
-		void programPiezo1 ( );
-		void programPiezo2 ( );
-		void handlePiezo1Ctrl ( );
-		void handlePiezo2Ctrl ( );
-		void handleTtlPush(UINT id);
-		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
 		void ViewOrChangeDACNames();
 		void passRoundToDac();
@@ -82,7 +75,6 @@ class AuxiliaryWindow : public IChimeraWindow
 		Matrix<std::string> getTtlNames();
 		DoSystem* getTtlSystem ();
 		std::array<AoInfo, 24> getDacInfo ( );
-		void GetAnalogInSnapshot( );
 		std::string getVisaDeviceStatus( );
 		std::string getMicrowaveSystemStatus( );
 
@@ -91,21 +83,14 @@ class AuxiliaryWindow : public IChimeraWindow
 		void openAgilentScript( whichAg::agilentNames name, CWnd* parent );
 		void saveAgilentScript( whichAg::agilentNames name );
 		void saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent );
-		void handleAgilentEditChange( UINT id );
-		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void fillMasterThreadInput(ExperimentThreadInput* input);
-		void DacEditChange(UINT id);
 		void SetDacs();
 		
 		fontMap getFonts();
 
 		void handleAbort();
-		void zeroTtls();
 		void zeroDacs();
 
-		void handleAgilentOptions( UINT id );
-
-		void handleTektronixButtons(UINT id);
 		void invalidateSaved ( UINT id );
 
 		std::vector<parameterType> getAllVariables();
@@ -131,25 +116,15 @@ class AuxiliaryWindow : public IChimeraWindow
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
 		void setVariablesActiveState(bool active);
-		void passTopBottomTekProgram();
-		void passEoAxialTekProgram();
 		Agilent& whichAgilent( UINT id );
-		void handleAgilentCombo( UINT id );
-		void autoOptimize ( );
 		DoCore& getTtlCore ( );
 		AoSystem& getAoSys ( );
 		AiSystem& getAiSys ( );
-		MicrowaveCore& getRsg ( );
-		TekCore& getTopBottomTek ( );
-		TekCore& getEoAxialTek( );
 		ParameterSystem& getGlobals ( );
-		DdsCore& getDds ( );
-		void handleProgramUwSystemNow ();
-		void programDds ( );
 		std::vector<parameterType> getUsableConstants ();
 		void fillExpDeviceList (DeviceList& list);
 	private:
-		DECLARE_MESSAGE_MAP();		
+		DECLARE_MESSAGE_MAP();
 
 		int plotIds = 17002;
 		CMenu menu;

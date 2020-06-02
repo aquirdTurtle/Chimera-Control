@@ -5,8 +5,8 @@
 
 void functionCombo::loadFunctions( )
 {
-	ProfileSystem::reloadCombo( GetSafeHwnd( ), functionLocation, str( "*." )
+	ProfileSystem::reloadCombo( combo, functionLocation, str( "*." )
 								+ FUNCTION_EXTENSION, "__NONE__" );
-	InsertString( 0, "Parent Script" );
+	combo->insertItem (0, "Parent Script");
 }
 

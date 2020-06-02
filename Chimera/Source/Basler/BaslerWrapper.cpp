@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "BaslerWrapper.h"
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 // initialize the camera using the fundamental settings I use for all cameras. 
-void BaslerWrapper::init (CWnd* parent)
+void BaslerWrapper::init (IChimeraWindowWidget* parent )
 {
 	if (!BASLER_SAFEMODE)
 	{
@@ -10,7 +11,7 @@ void BaslerWrapper::init (CWnd* parent)
 		{
 			Open ();
 			// prepare the image event handler
-			RegisterImageEventHandler (new ImageEventHandler (parent), Pylon::RegistrationMode_ReplaceAll,
+			RegisterImageEventHandler (new ImageEventHandler ( parent ), Pylon::RegistrationMode_ReplaceAll,
 				Pylon::Cleanup_Delete);
 			TriggerMode.SetValue (cameraParams::TriggerMode_On);
 		}
@@ -21,7 +22,7 @@ void BaslerWrapper::init (CWnd* parent)
 	}
 }
 
-
+	
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 ///					Pylon Wrappers

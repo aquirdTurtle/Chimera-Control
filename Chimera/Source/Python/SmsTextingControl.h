@@ -6,31 +6,35 @@
 #include "Python/EmbeddedPythonHandler.h"
 #include "GeneralObjects/commonTypes.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
-
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <QLabel>
+#include <QTableWidget>
 
 struct personInfo
 {
-	std::string name;
-	std::string number;
-	std::string provider;
-	bool textWhenComplete;
-	bool textIfLoadingStops;
+	std::string name="";
+	std::string number="";
+	std::string provider="";
+	bool textWhenComplete=false;
+	bool textIfLoadingStops=false;
 };
 
 
 class SmsTextingControl
 {
 	public:
-		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips );
+		void initialize( POINT& pos, IChimeraWindowWidget* parent );
+		void handleContextMenu (const QPoint& pos);
 		void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
 		void addPerson( personInfo person );
-		void updatePersonInfo();
-		void deletePersonInfo();
+		void deletePersonInfo(QTableWidgetItem* item);
 		void rearrange( int width, int height, fontMap fonts );
 	private:
+
 		const std::string emailAddress = "quantumGasAssemblyControl@gmail.com";
 		const std::string password = "theLaughingGoatHasBetterCoffee";
-		Control<MyListCtrl> peopleListView;
-		Control<CStatic> title;
-		std::vector<personInfo> peopleToText;
+		std::vector<personInfo> getPeopleFromListview ();
+		QLabel* title;
+		QTableWidget* peopleListView;
+		//std::vector<personInfo> peopleToText;
 };

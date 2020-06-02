@@ -16,7 +16,7 @@
 #include "GeneralObjects/Queues.h"
 #include "IChimeraWindow.h"
 #include <bitset>
-
+#include "PrimaryWindows/IChimeraWindowWidget.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -55,12 +55,9 @@ class AndorWindow : public IChimeraWindow
 		void handleSpecialGreaterThanMaxSelection();
 		void handleSpecialLessThanMinSelection();
 		void readImageParameters();
-		void passTrigger();
-		void passCameraMode();
 		void passSetTemperaturePress();
 		void passAlwaysShowGrid();
-		void passManualSetAnalysisLocations();
-		void passSetGridCorner( );
+
 		void setDataType( std::string dataType );
 		/// auxiliary functions.
 		void calibrate ( );
@@ -75,7 +72,6 @@ class AndorWindow : public IChimeraWindow
 
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(ConfigStream& configStream);
-		void handlePictureEditChange(UINT id);
 
 		void redrawPictures( bool andGrid );
 		bool getCameraStatus();
@@ -83,7 +79,7 @@ class AndorWindow : public IChimeraWindow
 		void armCameraWindow(AndorRunSettings* settings);
 		
 		std::string getStartMessage();
-		void handlePictureSettings( UINT id );
+		void handlePictureSettings( );
 		bool cameraIsRunning();
 		void abortCameraRun();
 		void handleAutoscaleSelection();
@@ -93,17 +89,14 @@ class AndorWindow : public IChimeraWindow
 		void preparePlotter( AllExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
 		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
-		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindow* win);
-		void passAtomGridCombo( );
-		void passDelGrid( );
+		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindowWidget* win);
 		void startAtomCruncher(AllExperimentInput& input);
 		void startPlotterThread( AllExperimentInput& input );
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();
-		void handlePlotTimerEdit ( );
 		void stopPlotter( );
 		void stopSound( );
-		void handleImageDimsEdit(UINT id );
+		void handleImageDimsEdit();
 		void loadCameraCalSettings( AllExperimentInput& input );
 		bool wasJustCalibrated( );
 		bool wantsAutoCal( );

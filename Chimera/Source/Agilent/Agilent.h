@@ -14,7 +14,9 @@
 #include "DigitalOutput/DoRows.h"
 #include <vector>
 #include <array>
-
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 // A class for programming agilent arbitrary waveform generators.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. 
@@ -26,8 +28,8 @@ class Agilent
 		Agilent (const Agilent&) = delete;
 
 		Agilent( const agilentSettings & settings );
-		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
-						 std::string header, UINT editHeight, COLORREF color, UINT width = 480);
+		void initialize( POINT& loc, std::string header, UINT editHeight, IChimeraWindowWidget* qtp,
+			UINT width = 480);
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string configPath, RunInfo info );
 		void handleChannelPress( int chan, std::string configPath, RunInfo currentRunInfo );
@@ -38,14 +40,12 @@ class Agilent
 		bool scriptingModeIsSelected( );
 		bool getSavedStatus ();
 		void updateSavedStatus (bool isSaved);
-		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void handleSavingConfig( ConfigStream& saveFile, std::string configPath, RunInfo info );
 		std::string getDeviceIdentity();
 		void handleOpenConfig(ConfigStream& file);
 		void updateSettingsDisplay( int chan, std::string configPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
-		void rearrange(UINT width, UINT height, fontMap fonts);
 /*		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
 									std::vector<parameterType>& variables );*/
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
@@ -64,19 +64,20 @@ class Agilent
 		const agilentSettings initSettings;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
-		int currentChannel;
+		int currentChannel=1;
 		std::vector<minMaxDoublet> ranges;
 		deviceOutputInfo currentGuiInfo;
 		// GUI ELEMENTS
-		Control<CStatic> header;
-		Control<CStatic> deviceInfoDisplay;
-		Control<CButton> channel1Button;
-		Control<CButton> channel2Button;
-		Control<CleanCheck> syncedButton;
-		Control<CleanCheck> calibratedButton;
-		Control<CComboBox> settingCombo;
-		Control<CStatic> optionsFormat;
-		Control<CleanPush> programNow;
+		
+		QLabel* header;
+		QLabel* deviceInfoDisplay;
+		CQRadioButton* channel1Button;
+		CQRadioButton* channel2Button;
+		CQCheckBox* syncedButton;
+		CQCheckBox* calibratedButton;
+		CQComboBox* settingCombo;
+		QLabel* optionsFormat;
+		CQPushButton* programNow;
 };
 
 

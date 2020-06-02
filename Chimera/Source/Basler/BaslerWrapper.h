@@ -6,6 +6,7 @@
 #include <pylon/PylonGUI.h>
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 // wrapper class for modifying for safemode and to standardize error handling.
 class BaslerWrapper : public cameraType
@@ -16,7 +17,7 @@ class BaslerWrapper : public cameraType
 		BaslerWrapper& operator=(const BaslerWrapper&) = delete;
 		BaslerWrapper (const BaslerWrapper&) = delete;
 
-		void init (CWnd* parent);
+		void init (IChimeraWindowWidget* parent );
 
 		int getMinOffsetX ();
 		int getCurrentOffsetX ();
@@ -63,7 +64,7 @@ class BaslerWrapper : public cameraType
 class ImageEventHandler : public Pylon::CImageEventHandler
 {
 public:
-	ImageEventHandler (CWnd* parentHandle) : Pylon::CImageEventHandler ()
+	ImageEventHandler (IChimeraWindowWidget* parentHandle) : Pylon::CImageEventHandler ()
 	{
 		parent = parentHandle;
 	}
@@ -85,8 +86,8 @@ public:
 				{
 					elem *= long(256.0 / 1024.0);
 				}
-				parent->PostMessageA (CustomMessages::BaslerProgressMessageID, grabResult->GetWidth () * grabResult->GetHeight (),
-					(LPARAM)imageMatrix);
+				//parent->PostMessageA (CustomMessages::BaslerProgressMessageID, grabResult->GetWidth () * grabResult->GetHeight (),
+				//	(LPARAM)imageMatrix);
 			}
 			else
 			{
@@ -100,5 +101,5 @@ public:
 		}
 	}
 private:
-	CWnd* parent;
+	IChimeraWindowWidget* parent;
 };

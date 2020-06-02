@@ -3,93 +3,109 @@
 #include "DataLogging/DataLogger.h"
 #include "MachineOptimizer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include <algorithm>
 #include <memory>
 #include "afxwin.h"
 #include <boost/lexical_cast.hpp>
+#include <qheaderview.h>
+#include <qmenu.h>
+#include <PrimaryWindows/QtMainWindow.h>
 
-
-void MachineOptimizer::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id )
+void MachineOptimizer::handleContextMenu (const QPoint& pos)
 {
-	header.sPos = { pos.x, pos.y, pos.x + 300, pos.y + 25 };
-	header.Create ( "AUTO-OPTIMIZATION-CONTROL", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	optimizeButton.sPos = { pos.x + 300, pos.y, pos.x + 480, pos.y += 25 };
-	optimizeButton.Create ( "Optimize", NORM_PUSH_OPTIONS, optimizeButton.sPos, parent, IDC_MACHINE_OPTIMIZE );
+	QTableWidgetItem* item = optParamsListview->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete This Item", optParamsListview);
+	optParamsListview->connect (deleteAction, &QAction::triggered, [this, item]() {
+		optParams.erase (optParams.begin () + item->row ());
+		});
+	auto* newPerson = new QAction ("New Item", optParamsListview);
+	optParamsListview->connect (newPerson, &QAction::triggered,
+		[this]() {
+			optParams.push_back (std::make_shared<optParamSettings> ());
+		});
+	if (item) { menu.addAction (deleteAction); }
+	menu.addAction (newPerson);
+	menu.exec (optParamsListview->mapToGlobal (pos));
+}
 
-	maxRoundsTxt.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
-	maxRoundsTxt.Create ( "Max Rounds:", NORM_STATIC_OPTIONS, maxRoundsTxt.sPos, parent, id++ );
-	
-	maxRoundsEdit.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 25 };
-	maxRoundsEdit.Create ( NORM_EDIT_OPTIONS, maxRoundsEdit.sPos, parent, id++ );
+void MachineOptimizer::initialize ( POINT& pos, IChimeraWindowWidget* parent )
+{
+	header = new QLabel ("AUTO-OPTIMIZATION-CONTROL", parent);
+	header->setGeometry (pos.x, pos.y, 300, 25);
 
-	currRoundTxt.sPos = { pos.x + 240, pos.y, pos.x + 400, pos.y + 25 };
-	currRoundTxt.Create ( "Current Round:", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
+	optimizeButton = new QPushButton ("Optimize", parent);
+	optimizeButton->setGeometry (pos.x + 300, pos.y, 180, 25);
+	parent->connect (optimizeButton, &QPushButton::released, 
+		[this, parent]() {
+			try	{
+				auto res = promptBox ("Start Machine optimization using the currently selected configuration parameters?",
+									  MB_YESNO );
+				if (res == IDNO) {
+					return;
+				}
+				reset ();
+				commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, parent);
+			}
+			catch (Error& err) {
+				// catch any extra errors that handleCommonMessage doesn't explicitly handle.
+				parent->reportErr(err.trace ());
+			}
+		});
 
-	currRoundDisp.sPos = { pos.x + 400, pos.y, pos.x + 480, pos.y += 25 };
-	currRoundDisp.Create ( "", NORM_STATIC_OPTIONS, currRoundTxt.sPos, parent, id++ );
+	maxRoundsTxt = new QLabel ("Max Rounds:", parent);
+	maxRoundsTxt->setGeometry (pos.x, pos.y += 25, 120, 25);
 
-	//algorithmsHeader.sPos = { pos.x, pos.y, pos.x + 80, pos.y + 25 };
-	//algorithmsHeader.Create ( "Algorithm:", NORM_STATIC_OPTIONS, algorithmsHeader.sPos, parent, id++ );
-	//algorithmRadios;
+	maxRoundsEdit = new QLineEdit ("", parent);
+	maxRoundsEdit->setGeometry (pos.x + 120, pos.y, 120, 25);
 
-	bestResultTxt.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
-	bestResultTxt.Create ( "Best Result:", NORM_STATIC_OPTIONS, bestResultTxt.sPos, parent, id++);
-	bestResultVal.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 25 };
-	bestResultVal.Create ( "---", NORM_STATIC_OPTIONS, bestResultVal.sPos, parent, id++ );
-	bestResultErr.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 25 };
-	bestResultErr.Create ( "---", NORM_STATIC_OPTIONS, bestResultErr.sPos, parent, id++ );
+	currRoundTxt = new QLabel ("Current Round:", parent);
+	currRoundTxt->setGeometry (pos.x+240, pos.y, 160, 25);
 
-	pos.y += 25;
+	currRoundDisp = new QLabel ("", parent);
+	currRoundDisp->setGeometry (pos.x + 400, pos.y, 80, 25);
 
-	optParamsHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	optParamsHeader.Create ( "Optimization Parameters:", NORM_STATIC_OPTIONS, optParamsHeader.sPos, parent, id++ );
+	bestResultTxt = new QLabel ("Best Result:", parent);
+	bestResultTxt->setGeometry (pos.x, pos.y+=25, 180, 25);
+	bestResultVal = new QLabel ("---", parent);
+	bestResultVal->setGeometry (pos.x + 180, pos.y, 150, 25);
+	bestResultErr = new QLabel ("---", parent);
+	bestResultErr->setGeometry (pos.x + 330, pos.y, 150, 25);
+	optParamsHeader = new QLabel ("Optimization Parameters:", parent);
+	optParamsHeader->setGeometry (pos.x, pos.y+=25, 480, 25);
+	optParamsListview = new QTableWidget (parent);
+	optParamsListview->setGeometry (pos.x, pos.y += 25, 480, 100);
+	pos.y += 160;
+	optParamsListview->horizontalHeader ()->setFixedHeight (30);
+	optParamsListview->verticalHeader ()->setFixedWidth (40);
+	optParamsListview->verticalHeader ()->setDefaultSectionSize (22);
 
-	optParamsListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
-	optParamsListview.Create ( NORM_LISTVIEW_OPTIONS, optParamsListview.sPos, parent, IDC_MACHINE_OPTIMIZE_LISTVIEW );
-	optParamsListview.fontType = fontTypes::SmallFont;
-	optParamsListview.SetBkColor ( RGB ( 15, 15, 15 ) );
-	optParamsListview.SetTextBkColor ( RGB ( 15, 15, 15 ) );
-	optParamsListview.SetTextColor ( RGB ( 150, 150, 150 ) );
-	optParamsListview.InsertColumn ( 0, "Name", 100 );
-	optParamsListview.InsertColumn ( 1, "Current-Val.", 100 );
-	optParamsListview.InsertColumn ( 2, "[", 50 );
-	optParamsListview.InsertColumn ( 3, "]", 50 );
-	optParamsListview.InsertColumn ( 4, "Best-Val.", 100 );
-	optParamsListview.InsertColumn (5, "Incr.", 50);
-	optParamsListview.insertBlankRow ( );
+	optParamsListview->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (optParamsListview, &QTableWidget::customContextMenuRequested,
+		[this](const QPoint& pos) {handleContextMenu (pos); });
+	optParamsListview->setShowGrid (true);
+
+	QStringList labels;
+	labels << "Name" << "Current-Val." << "[" << "]" << "Best-Val" << "Incr.";
+	optParamsListview->setColumnCount (labels.size ());
+	optParamsListview->setHorizontalHeaderLabels (labels);
 }
 
 
 void MachineOptimizer::updateCurrRoundDisplay ( std::string round )
 {
-	currRoundDisp.SetWindowText ( round.c_str ( ) );
+	currRoundDisp->setText ( round.c_str ( ) );
 }
 
 
 void MachineOptimizer::updateBestResult ( std::string val, std::string err )
 {
-	bestResultVal.SetWindowText ( val.c_str ( ) );
-	bestResultErr.SetWindowText ( err.c_str ( ) );
+	bestResultVal->setText ( val.c_str ( ) );
+	bestResultErr->setText ( err.c_str ( ) );
 }
 
-void MachineOptimizer::rearrange ( UINT width, UINT height, fontMap fonts )
-{
-	header.rearrange ( width, height, fonts );
-	optimizeButton.rearrange ( width, height, fonts );
-	//algorithmsHeader.rearrange ( width, height, fonts );
-	maxRoundsTxt.rearrange ( width, height, fonts );
-	maxRoundsEdit.rearrange ( width, height, fonts );
-	currRoundTxt.rearrange ( width, height, fonts );
-	currRoundDisp.rearrange ( width, height, fonts );
-	
-	bestResultTxt.rearrange ( width, height, fonts );
-	bestResultVal.rearrange ( width, height, fonts );
-	bestResultErr.rearrange ( width, height, fonts );
-	optParamsListview.rearrange ( width, height, fonts );
-	optParamsHeader.rearrange ( width, height, fonts );
-
-}
+void MachineOptimizer::rearrange ( UINT width, UINT height, fontMap fonts ) {}
 
 
 std::vector<std::shared_ptr<optParamSettings>> MachineOptimizer::getOptParams ( )
@@ -179,7 +195,7 @@ void MachineOptimizer::updateCurrentValueDisplays ( )
 	UINT count = 0;
 	for ( auto& param : optParams )
 	{
-		optParamsListview.SetItem (str(param->currentValue), count, 1 );
+		optParamsListview->setItem (count, 1, new QTableWidgetItem( cstr(param->currentValue) ));
 		count++;
 	}	
 }
@@ -190,7 +206,7 @@ void MachineOptimizer::updateBestValueDisplays ( )
 	UINT count = 0;
 	for ( auto& param : optParams )
 	{
-		optParamsListview.SetItem ( str ( param->bestResult.x), count, 4 );
+		optParamsListview->setItem ( count, 4, new QTableWidgetItem(cstr ( param->bestResult.x)) );
 		count++;
 	}
 }
@@ -334,6 +350,7 @@ void MachineOptimizer::onFinOpt ( )
 
 void MachineOptimizer::deleteParam ( )
 {
+	/*
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos ( &cursorPos );
@@ -368,11 +385,13 @@ void MachineOptimizer::deleteParam ( )
 			optParamsListview.DeleteItem ( itemIndicator );
 		}
 	}
+	*/
 }
 
 
 void MachineOptimizer::handleListViewClick ( )
 {
+	/*
 	LVHITTESTINFO myItemInfo = { 0 };
 	GetCursorPos ( &myItemInfo.pt );
 	optParamsListview.ScreenToClient ( &myItemInfo.pt );
@@ -489,6 +508,7 @@ void MachineOptimizer::handleListViewClick ( )
 			break;
 		}
 	}
+	*/
 }
 
 
@@ -540,15 +560,13 @@ void MachineOptimizer::verifyOptInput ( AllExperimentInput& input )
 	}
 	updateBestResult ( "---", "---" );
 }
-
+    
 UINT MachineOptimizer::getMaxRoundNum ( )
 {
 	UINT res;
-	CString txt;
-	maxRoundsEdit.GetWindowText ( txt);
 	try
 	{
-		res = boost::lexical_cast<UINT>(str ( txt ));
+		res = boost::lexical_cast<UINT>(str(maxRoundsEdit->text()));
 	}
 	catch (boost::bad_lexical_cast& )
 	{

@@ -18,6 +18,10 @@
 #include <array>
 #include <string>
 #include <unordered_map>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qtablewidget.h>
+#include <qpushbutton.h>
 
 class Script;
 class MainWindow;
@@ -34,7 +38,8 @@ class DdsSystem
 		void redrawListview ( );
 		void handleSaveConfig (ConfigStream& file );
 		void handleOpenConfig (ConfigStream& file );
-		void initialize(POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title );
+		void handleContextMenu (const QPoint& pos);
+		void initialize(POINT& pos, IChimeraWindowWidget* master, std::string title );
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void handleRampClick();
 		void deleteRampVariable();
@@ -45,9 +50,9 @@ class DdsSystem
 		
 	private:
 		
-		Control<CStatic> ddsHeader;
-		Control<MyListCtrl> rampListview;
-		Control<CleanPush> programNowButton;
+		QLabel* ddsHeader;
+		QTableWidget* rampListview;
+		QPushButton* programNowButton;
 		bool controlActive = true;
 		std::vector<ddsIndvRampListInfo> currentRamps;
 		DdsCore core;

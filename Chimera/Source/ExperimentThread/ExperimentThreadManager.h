@@ -42,8 +42,7 @@ class ExperimentThreadManager
 										 timeType& loadSkipTime);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
-		HANDLE startExperimentThread(ExperimentThreadInput* input);
-		void loadMotSettings(ExperimentThreadInput* input);
+		void startExperimentThread(ExperimentThreadInput* input, IChimeraWindowWidget* parent);
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
@@ -72,13 +71,13 @@ class ExperimentThreadManager
 		static void calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input, ExpRuntimeData& runtime);
 		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);
 		static void runConsistencyChecks (std::unique_ptr<ExperimentThreadInput>& input, std::vector<parameterType> expParams );
-		static void handlePause (Communicator& comm, std::atomic<bool>& isPaused, std::atomic<bool>& isAborting);
+		static void handlePause (Communicator& comm, std::atomic<bool>& isPaused, std::atomic<bool>& isAborting, ExpThreadWorker* worker);
 		static void initVariation ( std::unique_ptr<ExperimentThreadInput>& input, UINT variationInc, 
 									std::vector<parameterType> expParams );
 		static void normalFinish ( Communicator& comm, ExperimentType& expType, bool runMaster,
-								   std::chrono::time_point<chronoClock> startTime, AoSystem& aoSys);
+								   std::chrono::time_point<chronoClock> startTime, AoSystem& aoSys, ExpThreadWorker* worker);
 		static void errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
-								  std::chrono::time_point<chronoClock> startTime );
+								  std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker);
 		static void startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip);
 		static std::string abortString; 
 		static void loadExperimentRuntime ( ConfigStream& config, ExpRuntimeData& runtime, 
@@ -92,7 +91,7 @@ class ExperimentThreadManager
 											   std::vector<parameterType>& expParams);
 		static void deviceNormalFinish (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input);
 		
-	private:
+	//private:
 		// I've forgotten why there are two of these. 
 		timeType loadSkipTime;
 		std::vector<double> loadSkipTimes;

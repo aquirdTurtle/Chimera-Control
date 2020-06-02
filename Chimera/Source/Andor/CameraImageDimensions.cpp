@@ -4,60 +4,75 @@
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/MainWindow.h"
 #include "CameraSettingsControl.h"
+#include <PrimaryWindows/QtAndorWindow.h>
 #include <boost/lexical_cast.hpp>
 
-ImageDimsControl::ImageDimsControl()
-{
+ImageDimsControl::ImageDimsControl (std::string whichCam) : camType (whichCam) {
 	isReady = false;
 }
 
 
-void ImageDimsControl::initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
-{
-	leftText.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	leftText.Create( "Left", NORM_STATIC_OPTIONS, leftText.sPos, parent, id++);
-	//
-	rightText.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	rightText.Create( "Right (/512)", NORM_STATIC_OPTIONS, rightText.sPos, parent, id++ );
-	//
-	horBinningText.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	horBinningText.Create( "H. Bin", NORM_STATIC_OPTIONS, horBinningText.sPos, parent, id++);
-	//
-	bottomLabel.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	bottomLabel.Create ("Bottom (/512)", NORM_STATIC_OPTIONS, bottomLabel.sPos, parent, id++);
-	//
-	topLabel.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	topLabel.Create ("Top", NORM_STATIC_OPTIONS, topLabel.sPos, parent, id++);
-	//
-	vertBinningText.sPos = { pos.x, pos.y, pos.x += 80, pos.y += 25 };
-	vertBinningText.Create ("V. Bin", NORM_STATIC_OPTIONS, vertBinningText.sPos, parent, id++);
-	pos.x -= 480;
-	//
-	leftEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	leftEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, leftEdit.sPos, parent, IDC_IMAGE_DIMS_START );
-	leftEdit.SetWindowTextA( "1" );
-	//
-	rightEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	rightEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, rightEdit.sPos, parent, IDC_IMAGE_DIMS_START+1);
-	rightEdit.SetWindowTextA( "50" );
-	//
-	horBinningEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	horBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, horBinningEdit.sPos,
-						   parent, IDC_IMAGE_DIMS_START+2 );
-	horBinningEdit.SetWindowTextA( "1" );
-	//
-	bottomEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	bottomEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, bottomEdit.sPos, parent, IDC_IMAGE_DIMS_START +3);
-	bottomEdit.SetWindowTextA( "1" );
-	//
-	topEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y + 25 };
-	topEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, topEdit.sPos, parent, IDC_IMAGE_DIMS_START + 4);
-	topEdit.SetWindowTextA( "50" );
-	//
-	vertBinningEdit.sPos = { pos.x, pos.y, pos.x += 80, pos.y += 25 };
-	vertBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, vertBinningEdit.sPos, parent, IDC_IMAGE_DIMS_START +5);
-	vertBinningEdit.SetWindowTextA( "1" );
-	pos.x -= 480;
+void ImageDimsControl::initialize( POINT& pos, IChimeraWindowWidget* parent, int numRows, int width ) {
+	auto wi = width * numRows / 6;
+	leftText = new QLabel ("Left", parent);
+	leftText->setGeometry (pos.x, pos.y, wi, 25);
+
+	rightText = new QLabel ("Right (/512)", parent);
+	rightText->setGeometry (pos.x+ wi, pos.y, wi, 25);
+
+	horBinningText = new QLabel ("H. Bin", parent);
+	horBinningText->setGeometry (pos.x + 2 * wi, pos.y, wi, 25);
+	if (numRows == 1) {
+		pos.x += width/2;
+	}
+	else {
+		pos.y += 50;
+	}
+	bottomLabel = new QLabel ("Bottom (/512)", parent);
+	bottomLabel->setGeometry (pos.x, pos.y, wi, 25);
+
+	topLabel = new QLabel ("Top", parent);
+	topLabel->setGeometry (pos.x + wi, pos.y, wi, 25);
+
+	vertBinningText = new QLabel ("V. Bin", parent);
+	vertBinningText->setGeometry (pos.x + 2*wi, pos.y, wi, 25);
+	
+	if (numRows == 1) {
+		pos.x -= width / 2;
+	}
+	else {
+		pos.y -= 50;
+	}
+	leftEdit = new CQLineEdit ("1", parent);
+	leftEdit->setGeometry (pos.x, pos.y+=25, wi, 25);
+	parent->connect (leftEdit, &QLineEdit::textChanged, [this, parent]() {
+			parent->andorWin->handleImageDimsEdit ();
+		});
+
+	rightEdit = new CQLineEdit ("5", parent);
+	rightEdit->setGeometry (pos.x + wi, pos.y, wi, 25);
+
+	horBinningEdit = new CQLineEdit ("1", parent);
+	horBinningEdit->setGeometry (pos.x + 2* wi, pos.y, wi, 25);
+	if (numRows == 1) {
+		pos.x += width / 2;
+	}
+	else {
+		pos.y += 50;
+	}
+	bottomEdit = new CQLineEdit ("1", parent);
+	bottomEdit->setGeometry (pos.x, pos.y, wi, 25);
+
+	topEdit = new CQLineEdit ("5", parent);
+	topEdit->setGeometry (pos.x + wi, pos.y, wi, 25);
+
+	vertBinningEdit = new CQLineEdit ("1", parent);
+	vertBinningEdit->setGeometry (pos.x + 2* wi, pos.y, wi, 25);
+	if (numRows == 1)
+	{
+		pos.x -= width / 2;
+	}
+	pos.y += 25;
 }
 
 
@@ -97,85 +112,57 @@ void ImageDimsControl::handleOpen(ConfigStream& openFile)
 imageParameters ImageDimsControl::readImageParameters()
 {
 	// in case called before initialized
-	if (!leftEdit)
-	{
+	if (!leftEdit)	{
 		return currentImageParameters;
 	}
 	// set all of the image parameters
-	CString tempStr;
-	leftEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentImageParameters.left = boost::lexical_cast<int>( str( tempStr ) );
+	try	{
+		currentImageParameters.left = boost::lexical_cast<int>( str(leftEdit->text ()) );
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Left border argument not an integer!\r\n" );
 	}
-	leftEdit.RedrawWindow();
-	rightEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentImageParameters.right = boost::lexical_cast<int>( str( tempStr ) );
+	try	{
+		currentImageParameters.right = boost::lexical_cast<int>( str(rightEdit->text()) );
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Right border argument not an integer!\r\n" );
 	}
-	rightEdit.RedrawWindow();
 	//
-	bottomEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentImageParameters.bottom = boost::lexical_cast<int>( str( tempStr ) );
+	try	{
+		currentImageParameters.bottom = boost::lexical_cast<int>( str(bottomEdit->text()) );
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Top border argument not an integer!\r\n" );
 	}
-	bottomEdit.RedrawWindow();
 	//
-	topEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentImageParameters.top = boost::lexical_cast<int>( str( tempStr ) );
+	try	{
+		currentImageParameters.top = boost::lexical_cast<int>( str(topEdit->text()) );
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Bottom border argument not an integer!\r\n" );
 	}
-	topEdit.RedrawWindow();
-	horBinningEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentImageParameters.horizontalBinning = boost::lexical_cast<int>( str( tempStr ) );
+	try	{
+		currentImageParameters.horizontalBinning = boost::lexical_cast<int>( str(horBinningEdit->text()) );
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Horizontal binning argument not an integer!\r\n" );
 	}
-	horBinningEdit.RedrawWindow();
-	vertBinningEdit.GetWindowTextA( tempStr );
-	try
-	{
-		currentImageParameters.verticalBinning = boost::lexical_cast<int>( str( tempStr ) );
+	try	{
+		currentImageParameters.verticalBinning = boost::lexical_cast<int>( str(vertBinningEdit->text()) );
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Vertical binning argument not an integer!\r\n" );
 	}
-	vertBinningEdit.RedrawWindow();
-
 	// Check Image parameters
-	try
-	{
-		currentImageParameters.checkConsistency ( );
+	try	{
+		currentImageParameters.checkConsistency ( camType );
 	}
 	catch ( Error& )
 	{
@@ -196,21 +183,21 @@ void ImageDimsControl::setImageParametersFromInput( imageParameters param )
 {
 	// set all of the image parameters
 	currentImageParameters.left = param.left;
-	leftEdit.SetWindowText( cstr( currentImageParameters.left ) );
+	leftEdit->setText( cstr( currentImageParameters.left ) );
 	currentImageParameters.right = param.right;
-	rightEdit.SetWindowText( cstr( currentImageParameters.right ) );
+	rightEdit->setText ( cstr( currentImageParameters.right ) );
 	currentImageParameters.bottom = param.bottom;
-	bottomEdit.SetWindowText( cstr( currentImageParameters.bottom ) );
+	bottomEdit->setText ( cstr( currentImageParameters.bottom ) );
 	currentImageParameters.top = param.top;
-	topEdit.SetWindowText( cstr( currentImageParameters.top ) );
+	topEdit->setText ( cstr( currentImageParameters.top ) );
 	currentImageParameters.horizontalBinning = param.horizontalBinning;
-	horBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
+	horBinningEdit->setText ( cstr( currentImageParameters.horizontalBinning ) );
 	currentImageParameters.verticalBinning = param.verticalBinning;
-	vertBinningEdit.SetWindowText( cstr( currentImageParameters.verticalBinning ) );
+	vertBinningEdit->setText ( cstr( currentImageParameters.verticalBinning ) );
 	// Check Image parameters
 	try
 	{
-		currentImageParameters.checkConsistency( );
+		currentImageParameters.checkConsistency(camType);
 	}
 	catch ( Error )
 	{
@@ -246,7 +233,7 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 	DWORD controlID = GetDlgCtrlID( (HWND)lParam );
 	HDC hdcStatic = (HDC)wParam;
 	imageParameters currentImageParameters = { 0,0,0,0,0,0 };
-
+	/*
 	if (controlID == topEdit.GetDlgCtrlID())
 	{
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
@@ -468,24 +455,10 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 			horBinningEdit.RedrawWindow();
 		}
 		return *_myBrushes["Grey Red"];
-	}
+	}*/
 	return FALSE;
 }
 
 
-void ImageDimsControl::rearrange( int width, int height, fontMap fonts )
-{
-	leftText.rearrange( width, height, fonts );
-	rightText.rearrange(width, height, fonts );
-	horBinningText.rearrange( width, height, fonts );
-	bottomLabel.rearrange( width, height, fonts );
-	topLabel.rearrange( width, height, fonts );
-	vertBinningText.rearrange( width, height, fonts );
-	leftEdit.rearrange( width, height, fonts );
-	rightEdit.rearrange( width, height, fonts );
-	horBinningEdit.rearrange( width, height, fonts );
-	bottomEdit.rearrange( width, height, fonts );
-	topEdit.rearrange( width, height, fonts );
-	vertBinningEdit.rearrange( width, height, fonts );
-}
+void ImageDimsControl::rearrange( int width, int height, fontMap fonts ) {}
 

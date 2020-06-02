@@ -1,7 +1,8 @@
 // created by Mark O. Brown
 #pragma once
-#include "Windows.h"
-#include "Control.h"
+#include "afxwin.h"
+#include <CustomMfcControlWrappers/Control.h>
+#include <CustomMfcControlWrappers/myButton.h>
 
 class TextPromptDialog : public CDialog
 {
@@ -24,7 +25,7 @@ class TextPromptDialog : public CDialog
 		void catchOk();
 		void catchCancel();
 		HBRUSH OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-
+		
 
 	private:	
 		DECLARE_MESSAGE_MAP();

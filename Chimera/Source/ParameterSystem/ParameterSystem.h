@@ -12,6 +12,10 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qtablewidget.h>
+#include <qlabel.h>
+
 
 class MainWindow;
 class AuxiliaryWindow;
@@ -48,8 +52,8 @@ class ParameterSystem
 		ParameterSystem ( std::string configurationFileDelimiter );
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, UINT listviewId, 
-						 ParameterSysType type );
+		void handleContextMenu (const QPoint& pos);
+		void initialize( POINT& pos, IChimeraWindowWidget* master, std::string title, ParameterSysType type );
 		void handleSingleClick (  );
 		void handleDblClick ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								   DoSystem* ttls, AoSystem* aoSys );
@@ -81,7 +85,6 @@ class ParameterSystem
 		static std::vector<double> getKeyValues ( std::vector<parameterType> variables );
 		ScanRangeInfo getRangeInfo ( );
 		// setters
-		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setParameterControlActive(bool active);
@@ -103,6 +106,7 @@ class ParameterSystem
 		const std::string configDelim;
 
 	private:
+		QStringList baseLabels;
 		void addParamToListview ( parameterType param, UINT item );
 		void setVariationRangeColumns ( int num = -1, int width = -1 );
 		bool controlActive = true;
@@ -110,9 +114,8 @@ class ParameterSystem
 		int mostRecentlySelectedParam = -1;
 		// name, constant/variable, dim, constantValue, scope
 		USHORT preRangeColumns = 5;
-		// Only 2 gui elements.
-		Control<CStatic> parametersHeader;
-		Control<MyListCtrl> parametersListview;
+		QLabel* parametersHeader;
+		QTableWidget* parametersListview;
 		// most important member, holds the settings for all current variables. 
 		std::vector<parameterType> currentParameters;
 		// number of variations that the variables will go through.

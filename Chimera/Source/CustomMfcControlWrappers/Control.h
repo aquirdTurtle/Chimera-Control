@@ -115,11 +115,11 @@ void Control<ControlType>::rearrange( int width, int height, fontMap fonts)
 /// template function for the class control system
 // This sets a tooltip text to the inputted text. note that parent is the parent window, e.g. the MainWindow, not the 
 // control handle which is accessed incide this function via this.
-template <class ControlType> void Control<ControlType>::setToolTip(std::string text, cToolTips& tooltips, CWnd* parent)
+template <class ControlType> void Control<ControlType>::setToolTip(std::string text, cToolTips& tooltips, CWnd* parent )
 {
 	if (!toolTipIsSet)
 	{
-		toolTipID = tooltips.size();
+		toolTipID = int(tooltips.size());
 		tooltips.push_back(new CToolTipCtrl);
 		auto res = tooltips.back()->Create(parent, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON);
 		if (res != 0)

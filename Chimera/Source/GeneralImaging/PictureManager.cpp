@@ -20,22 +20,22 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 }
 
 
-void PictureManager::paint (CDC* cdc, CRect size, CBrush* bgdBrush )
+void PictureManager::paint ( CRect size, CBrush* bgdBrush )
 {
 	for ( auto& pic : pictures )
 	{
-		pic.paint ( cdc, size, bgdBrush );
+		pic.paint ( size, bgdBrush );
 	}
 }
 
 
-void PictureManager::drawBitmap (CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl )
+void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl )
 {
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
-	pictures[whichPicCtrl].drawBitmap (deviceContext, picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax);
+	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax);
 	if (alwaysShowGrid)
 	{
-		pictures[whichPicCtrl].drawGrid (deviceContext, gridBrush);
+		pictures[whichPicCtrl].drawGrid (gridBrush);
 	}
 
 }
@@ -61,63 +61,63 @@ void PictureManager::handleMouse( CPoint point )
 	}
 }
 
-void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
+void PictureManager::setAlwaysShowGrid(bool showOption)
 {
 	alwaysShowGrid = showOption;
 	if (alwaysShowGrid)
 	{
 		if (!pictures[1].isActive())
 		{
-			pictures[0].drawGrid(easel, gridBrush);
+			pictures[0].drawGrid( gridBrush);
 			return;
 		}
 		for (auto& pic : pictures)
 		{
-			pic.drawGrid(easel, gridBrush);
+			pic.drawGrid( gridBrush);
 		}
 	}
 }
 
 
-void PictureManager::redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
+void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 									 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber )
 {
 	if (!pictures[1].isActive())
 	{
-		pictures[0].redrawImage(easel);
+		pictures[0].redrawImage();
 		if (alwaysShowGrid || forceGrid )
 		{
-			pictures[0].drawGrid(easel, gridBrush);
+			pictures[0].drawGrid(gridBrush);
 		}
-		drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
+		drawDongles(selectedLocation, analysisLocs, gridInfo, picNumber );
 		return;
 	}
 	for (auto& pic : pictures)
 	{
-		pic.redrawImage(easel);
+		pic.redrawImage();
 		if (alwaysShowGrid || forceGrid )
 		{
-			pic.drawGrid(easel, gridBrush);
+			pic.drawGrid(gridBrush);
 		}
 	}
-	drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
+	drawDongles(selectedLocation, analysisLocs, gridInfo, picNumber );
 }
 
 /*
  *
  */
-void PictureManager::drawDongles(CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
+void PictureManager::drawDongles(coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 								  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers )
 {
 	UINT count = 1;
 	for (auto& pic : pictures)
 	{
-		pic.drawCircle( dc, selectedLocation);
+		pic.drawCircle( selectedLocation);
 		if ( includingAnalysisMarkers )
 		{
-			pic.drawAnalysisMarkers ( dc, analysisLocs, grids );
+			pic.drawAnalysisMarkers (  analysisLocs, grids );
 		}
-		pic.drawPicNum( dc, pictureNumber - getNumberActive() + count++ );
+		pic.drawPicNum( pictureNumber - getNumberActive() + count++ );
 	}
 }
 
@@ -197,20 +197,7 @@ void PictureManager::setSpecialGreaterThanMax(bool option)
 	specialGreaterThanMax = option;
 }
 
-/*
-void PictureManager::drawPicture(CDC* deviceContext, int pictureNumber, std::vector<long> picData,
-								 std::pair<UINT, UINT> minMaxPair )
-{
-	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple(autoScalePictures, minMaxPair.first, minMaxPair.second);
-	pictures[pictureNumber].drawPicture( deviceContext, picData, autoScaleInfo, specialLessThanMin, 
-										specialGreaterThanMax);
-	if (alwaysShowGrid)
-	{
-		pictures[pictureNumber].drawGrid(deviceContext, gridBrush);
-	}
-}*/
-
-void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc)
+void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {
 	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
 	{
@@ -218,7 +205,7 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 		for (auto& control : pictures)
 		{
 			control.handleScroll ( id, nPos );
-			control.redrawImage ( cdc, false );
+			control.redrawImage ( false );
 		}
 	}
 }
@@ -254,7 +241,8 @@ void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams
 		}
 	}
 	pictures.front( ).setPictureArea( picturesLocation, picturesWidth, picturesHeight);
-	pictures.front( ).setSliderControlLocs( parent );
+	picturesLocation.x += picturesWidth;
+	pictures.front( ).setSliderControlLocs( picturesLocation, picturesHeight);
 	pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );	
 }
@@ -290,17 +278,20 @@ void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imagePar
 	//int picWidth = 550;
 	//int picHeight = 420;
 	pictures[0].setPictureArea( loc, picWidth, picHeight );
+	pictures[0].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	//loc.x += 550;
 	loc.y += picHeight + 25;
 	pictures[1].setPictureArea( loc, picWidth, picHeight );
+	pictures[1].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	//loc.x -= 550;
 	loc.y += picHeight + 25;
 	pictures[2].setPictureArea( loc, picWidth, picHeight );
+	pictures[2].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	//loc.x += 550;
 	loc.y += picHeight + 25;
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
+	pictures[3].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	setParameters( imageParams );
-	setPictureSliders( parent );
 	for ( auto& pic : pictures )
 	{
 		pic.setCursorValueLocations( parent );
@@ -308,27 +299,17 @@ void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imagePar
 }
 
 
-void PictureManager::setPictureSliders(CWnd* parent)
+void PictureManager::drawBackgrounds()
 {
 	for (auto& pic : pictures)
 	{
-		pic.setSliderControlLocs(parent);
+		pic.drawBackground();
 	}
 }
 
 
-void PictureManager::drawBackgrounds(CDC* easel)
-{
-	for (auto& pic : pictures)
-	{
-		pic.drawBackground(easel);
-	}
-}
-
-
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush, int manWidth, int manHeight,
-								 std::array<UINT, 8> minMaxEdits, std::vector<Gdiplus::Pen*> graphPens, CFont* font,
-								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
+void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth, int manHeight,
+								 IChimeraWindowWidget* widget )
 {
 	picturesLocation = loc;
 	picturesWidth = manWidth;
@@ -337,20 +318,14 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 	// Square: width = 550, height = 440
 	auto width = 1200;
 	auto height = 220;
-	pictures[0].initialize( loc, parent, id, width, height, { minMaxEdits[0], minMaxEdits[1] }, graphPens,
-							font, graphBrushes);
+	pictures[0].initialize( loc, width, height, widget);
 	loc.y += height;
-	pictures[1].initialize( loc, parent, id, width, height, { minMaxEdits[2], minMaxEdits[3] }, graphPens,
-							font, graphBrushes );
+	pictures[1].initialize( loc, width, height, widget );
 	loc.y += height;
-	pictures[2].initialize( loc, parent, id, width, height, { minMaxEdits[4], minMaxEdits[5] }, graphPens,
-							font, graphBrushes );
+	pictures[2].initialize( loc, width, height, widget );
 	loc.y += height;
-	pictures[3].initialize( loc, parent, id, width, height, { minMaxEdits[6], minMaxEdits[7] }, graphPens,
-							font, graphBrushes );
+	pictures[3].initialize( loc, width, height, widget );
 	loc.y += height;
-	SmartDC sdc (parent);
-	createPalettes( sdc.get() );
 	for (auto& pic : pictures)
 	{
 		pic.updatePalette( palettes[2] );
@@ -370,17 +345,17 @@ void PictureManager::updatePlotData ( )
 }
 
 
-void PictureManager::refreshBackgrounds(CDC* easel)
+void PictureManager::refreshBackgrounds()
 {
 	if (!pictures[1].isActive())
 	{
-		pictures[0].drawBackground( easel );
+		pictures[0].drawBackground(  );
 	}
 	else
 	{
 		for (auto& picture : pictures)
 		{
-			picture.drawBackground( easel );
+			picture.drawBackground(  );
 		}
 	}
 }
@@ -399,11 +374,11 @@ UINT PictureManager::getNumberActive( )
 	return count;
 }
 
-void PictureManager::drawGrids(CDC* easel)
+void PictureManager::drawGrids()
 {
 	for (auto& picture : pictures)
 	{
-		picture.drawGrid(easel, gridBrush );
+		picture.drawGrid(gridBrush );
 	}
 }
 
@@ -437,8 +412,9 @@ void PictureManager::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void PictureManager::createPalettes(CDC* dc )
+void PictureManager::createPalettes( )
 {
+	/*
 	struct
 	{
 		WORD Version;
@@ -1038,6 +1014,6 @@ void PictureManager::createPalettes(CDC* dc )
 		Palette.aEntries[paletteValueInc].peFlags = PC_RESERVED;
 	}
 	palettes[3] = CreatePalette( (LOGPALETTE *)&Palette );
-
+	*/
 }
 

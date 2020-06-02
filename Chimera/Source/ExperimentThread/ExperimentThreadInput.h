@@ -32,16 +32,17 @@
 #include <atomic>
 #include <functional>
 
-class AuxiliaryWindow;
 class MainWindow;
 class DataLogger;
-class IChimeraWindow;
-class ScriptingWindow;
+class IChimeraWindowWidget;
 class ExperimentThreadManager;
+class ExpThreadWorker;
 
 struct ExperimentThreadInput
 {
-	ExperimentThreadInput ( IChimeraWindow* win );
+	ExpThreadWorker* workerThread;
+
+	ExperimentThreadInput ( IChimeraWindowWidget* win );
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
 	profileSettings profile;

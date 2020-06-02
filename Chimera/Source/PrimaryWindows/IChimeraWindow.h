@@ -3,10 +3,12 @@
 #include "GeneralObjects/commonTypes.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ConfigurationSystems/Version.h"
-#include "ExperimentMonitoringAndStatus/colorbox.h"
 #include "ExperimentThread/DeviceList.h"
 #include "afxwin.h"
 #include <array>
+#include "QWinWidget.h"
+
+class ColorBox;
 
 class MainWindow;
 class ScriptingWindow;
@@ -15,16 +17,12 @@ class BaslerWindow;
 class DeformableMirrorWindow;
 class AndorWindow;
 
-/*
-* This isn't a pure abstract class.
-*/
 class IChimeraWindow : public CDialog
 {
 	DECLARE_DYNAMIC (IChimeraWindow)
 	public:
 		IChimeraWindow ();
 		using CDialog::CDialog;
-		virtual BOOL PreTranslateMessage (MSG* pMsg);
 		// any Chimera window should override OnSize to rearrange any controls on the window.						   
 		virtual void OnSize (UINT nType, int cx, int cy) = 0;
 		// any chimera window should override these functions in order to 
@@ -42,14 +40,13 @@ class IChimeraWindow : public CDialog
 		virtual void OnEnter ();
 		void setMenuCheck (UINT menuItem, UINT itemState);
 
-		
-
 		void passCommonCommand (UINT id);
 		void loadFriends (MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
 						  BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow_, AndorWindow* andorWin_);
 		
 		void reportErr (std::string errStr);
 		void reportStatus (std::string statusStr);
+		void configUpdated ();
 		std::vector<IChimeraWindow*> winList();
 		MainWindow* mainWin = NULL;
 		ScriptingWindow* scriptWin = NULL;
@@ -58,9 +55,10 @@ class IChimeraWindow : public CDialog
 		BaslerWindow* basWin = NULL;
 		DeformableMirrorWindow* dmWin = NULL;
 		static constexpr UINT numWindows = 6;
-		cToolTips toolTips;
-		ColorBox statBox;
-		virtual void changeBoxColor (std::string sysDelim, char color);
+		ColorBox* statBox;
+		virtual void changeBoxColor (std::string sysDelim, std::string color);
+		//"qt parent"
+		QWinWidget* qtp;
 	private:
 		CMenu menu;
 		DECLARE_MESSAGE_MAP ();

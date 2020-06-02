@@ -6,7 +6,8 @@
 #include "Plotting/PlotCtrl.h"
 #include "CustomMfcControlWrappers/LongCSlider.h"
 #include "softwareAccumulationOption.h"
-
+#include "QPixmap.h"
+#include <qlabel.h>
 /*
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
  * picture. Unlike many classes in my program, this is /not/ built to be a singleton. Instead, there should be one 
@@ -17,31 +18,27 @@ class PictureControl
 {
 	public:
 		PictureControl ( bool histogramOption );
-		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds,
-						 std::vector<Gdiplus::Pen*> graphPens= std::vector<Gdiplus::Pen*>(), CFont* font=NULL,
-						 std::vector<Gdiplus::SolidBrush*> graphBrushes= std::vector<Gdiplus::SolidBrush*>() );
+		void initialize( POINT loc, int width, int height, IChimeraWindowWidget* widget);
 		void handleMouse( CPoint p );
-		void drawPicNum(CDC* dc, UINT picNum );
+		void drawPicNum(UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
-		void setSliderControlLocs(CWnd* parent);
-		void drawBitmap (CDC* dc, const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
+		void setSliderControlLocs(POINT pos, int height);
+		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
 						 bool specialMin, bool specialMax);
-		void drawPicture(CDC* deviceContext, std::vector<long> picData,
-						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
 		void setSliderPositions(UINT min, UINT max);
-		void drawBackground(CDC* easel);
-		void drawGrid(CDC* easel, CBrush* brush);
-		void drawCircle(CDC* dc, coordinate selectedLocation );
+		void drawBackground();
+		void drawGrid(CBrush* brush);
+		void drawCircle(coordinate selectedLocation );
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
-		void drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
+		void drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
 		void setCursorValueLocations( CWnd* parent );
-		void drawRectangle(CDC* dc, RECT pixelRect );
+		void drawRectangle( RECT pixelRect );
 		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
 		void updatePalette( HPALETTE pallete );
-		void redrawImage(CDC* easel, bool bkgd=true );
+		void redrawImage( bool bkgd=true );
 		void setActive( bool activeState );
 		bool isActive();
 		std::pair<UINT, UINT> getSliderLocations();
@@ -49,7 +46,7 @@ class PictureControl
 		void resetStorage();
 		void setHoverValue( );
 		void updatePlotData ( );
-		void paint (CDC* cdc, CRect size, CBrush* bgdBrush );
+		void paint ( CRect size, CBrush* bgdBrush );
 	private:
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
@@ -79,17 +76,19 @@ class PictureControl
 		RECT scaledBackgroundArea;
 		// scaled for the dimensions of the picture
 		RECT pictureArea;
-
 		int colorIndicator;
 		HPALETTE imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<RECT>> grid;
+		QLabel* pictureObject;
+		QPixmap* pixmap;
 
 		LongCSlider sliderMax;
 		LongCSlider sliderMin;
 
-		Control<CStatic> coordinatesText;
-		Control<CStatic> coordinatesDisp;
-		Control<CStatic> valueText;
-		Control<CStatic> valueDisp;
+		//Control<CPushButton> myButton;
+		QLabel* coordinatesText;
+		QLabel* coordinatesDisp;
+		QLabel* valueText;
+		QLabel* valueDisp;
 };

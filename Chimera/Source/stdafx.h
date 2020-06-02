@@ -14,8 +14,8 @@
 #define VC_EXTRALEAN            
 #endif
 // MFC core and standard components
-#include <afx.h>
-#include <afxwin.h>         
+//#include <afx.h>
+//#include <afxwin.h>
 // MFC extensions
 #include <afxext.h>         
 // MFC support for Internet Explorer 4 Common Controls

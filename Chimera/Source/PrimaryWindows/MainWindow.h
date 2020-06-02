@@ -1,5 +1,6 @@
 // created by Mark O. Brown
 #pragma once
+
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
@@ -63,6 +64,8 @@ class MainWindow : public IChimeraWindow
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
 		LRESULT onNoMotAlertMessage ( WPARAM wp, LPARAM lp );
 		LRESULT onFinish ( WPARAM wp, LPARAM lp );
+		LRESULT handleColorboxUpdate (WPARAM wp, LPARAM lp);
+		
 		
 		void onNormalFinishMessage ( );
 		void onGreyTempCalFin ( );
@@ -75,8 +78,6 @@ class MainWindow : public IChimeraWindow
 		void handlePause();
 		void passDebugPress( UINT id );
 		void passMainOptionsPress( UINT id );
-		void handleDblClick( NMHDR * pNotifyStruct, LRESULT * result );
-		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void passClear( UINT id );
 		DeviceList getDevices ();
 		CFont* getPlotFont( );
@@ -102,7 +103,7 @@ class MainWindow : public IChimeraWindow
 		void addTimebar(std::string whichStatus);
 		void setShortStatus(std::string text);
 		void changeShortStatusColor(std::string color);
-		void changeBoxColor (std::string sysDelim, char color);
+		void changeBoxColor (std::string sysDelim, std::string color);
 		void windowSaveConfig(ConfigStream& saveFile);
 		void windowOpenConfig(ConfigStream& configFile);
 		void abortMasterThread();
@@ -124,18 +125,17 @@ class MainWindow : public IChimeraWindow
 		std::vector<Gdiplus::SolidBrush*> getBrightPlotBrushes( );
 		
 		void checkAllMenus ( UINT menuItem, UINT itemState );
-		void ServoRClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void ServoDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 		LRESULT autoServo (WPARAM w, LPARAM l);
 		void runServos ();
 		std::vector<servoInfo> getServoinfo ();
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
-		void handleServoUnitsComboChange ();
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
 		Communicator& getCommRef ( );
 		UINT getAutoCalNumber ();
+
+		static QString getStyleSheet ();
 
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -160,7 +160,6 @@ class MainWindow : public IChimeraWindow
 		Communicator comm;
 		fontMap mainFonts;
 		ExperimentThreadManager expThreadManager;
-		//CMenu menu;
 		RunInfo systemRunningInfo;
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;
@@ -171,11 +170,8 @@ class MainWindow : public IChimeraWindow
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		CDialog* appSplash;
- 		friend void commonFunctions::handleCommonMessage( int msgID, IChimeraWindow* win);
+ 		friend void commonFunctions::handleCommonMessage( int msgID, IChimeraWindowWidget* win);
 		UINT autoCalNum = 0;
-		// for adding qt widgets to the mfc window.
-		QWinWidget* widget;
-
 };
 
 

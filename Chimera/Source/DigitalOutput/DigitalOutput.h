@@ -2,11 +2,13 @@
 #include "DoRows.h"
 #include "Control.h"
 #include <array>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 class DigitalOutput
 {
 	public:
-		void initialize ( POINT& pos, CWnd* parent, UINT id, cToolTips& toolTips );
+		void initialize ( POINT& pos, IChimeraWindowWidget* parent );
 		void initLoc ( UINT num, DoRows::which row);
 		
 		void enable ( bool enabledStatus );
@@ -18,14 +20,13 @@ class DigitalOutput
 		std::pair<DoRows::which, UINT> getPosition ( );
 
 		void set ( bool status );
-		void setName ( std::string nameStr, cToolTips& toolTips, CWnd* parent );
+		void setName ( std::string nameStr );
 		
-		HBRUSH handleColorMessage ( UINT controlID, CWnd* window, CDC* cDC );
-		int getCheckID ( );
 		bool holdStatus;
 		void setHoldStatus ( bool stat );
+		CQCheckBox* check;
+
 	private:
-		Control<CButton> check;
 		DoRows::which row;
 		UINT num;
 		bool status;
