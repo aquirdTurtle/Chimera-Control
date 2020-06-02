@@ -5,6 +5,7 @@
 #include "NoteSystem.h"
 #include "LowLevel/constants.h"
 #include "ConfigurationSystems/ProfileSystem.h"
+#include <PrimaryWindows/QtMainWindow.h>
 #include <QBoxLayout>
 #include <QFile>
 
@@ -49,13 +50,13 @@ void NoteSystem::handleOpenConfig(ConfigStream& openFile)
 }
 
 
-void NoteSystem::initialize(POINT& topLeftPos, QWinWidget* parent, int& id, cToolTips& tooltips)
+void NoteSystem::initialize(POINT& topLeftPos, IChimeraWindowWidget* win)
 {
-	header = new QLabel ("CONFIGURATION NOTES",parent);
-	header->setFixedSize (QSize (480, 25));		
+	header = new QLabel ("CONFIGURATION NOTES", win);
+	header->setFixedSize (QSize (480, 25));
 	header->move (topLeftPos.x, topLeftPos.y);
 	topLeftPos.y += 25;
-	edit = new QTextEdit (parent);
+	edit = new CQTextEdit (win);
 	edit->setFixedSize (480, 195);
 	edit->move (topLeftPos.x, topLeftPos.y);
 	topLeftPos.y += 195;
@@ -68,7 +69,6 @@ void NoteSystem::setConfigurationNotes(std::string notes)
 
 std::string NoteSystem::getConfigurationNotes()
 {
-	CString rawText;
-	std::string text(str(edit->toPlainText ().data()));
+	std::string text = edit->toPlainText().toStdString();
 	return text;
 }

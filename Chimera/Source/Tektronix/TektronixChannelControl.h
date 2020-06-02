@@ -2,24 +2,26 @@
 #include "TektronixStructures.h"
 #include "afxwin.h"
 #include "CustomMfcControlWrappers/myButton.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qcheckbox.h>
+#include <qlineedit.h>
 
 class TektronixChannelControl
 {
 	public:
-		void initialize (POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, UINT control_id);
+		void initialize (POINT loc, IChimeraWindowWidget* parent, std::string channel1Text, LONG width);
 		tektronixChannelOutput getTekChannelSettings ();
 		void setSettings (tektronixChannelOutput info);
 		void rearrange (int width, int height, fontMap fonts);
-		void handleOnPress ();
-		void handleFskPress ();
-		void handleButton (UINT indicator);
+		void handleEnabledStatus ();
 	private:
-		Control<CStatic> channelLabel;
-		Control<CleanCheck> controlButton;
-		Control<CleanCheck> onOffButton;
-		Control<CleanCheck> fskButton;
-		Control<CEdit> power;
-		Control<CEdit> mainFreq;
-		Control<CEdit> fskFreq;
+		QLabel* channelLabel;
+		QCheckBox* controlButton;
+		QCheckBox* onOffButton;
+		QCheckBox* fskButton;
+		QLineEdit* power;
+		QLineEdit* mainFreq;
+		QLineEdit* fskFreq;
 		tektronixChannelOutput currentInfo;
 };

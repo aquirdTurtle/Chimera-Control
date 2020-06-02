@@ -11,6 +11,13 @@
 #include "Andor/andorPicSettingsGroup.h"
 #include <array>
 #include <vector>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qradiobutton.h>
+#include <qcheckbox.h>
+#include <qpushbutton.h>
+#include <qcombobox.h>
 
 class AndorCameraCore;
 class AndorCameraSettingsControl;
@@ -35,8 +42,8 @@ class PictureSettingsControl
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor);
-		void initialize( POINT& pos, CWnd* parent, int& id);
-		void handleOptionChange( int id );
+		void initialize( POINT& pos, IChimeraWindowWidget* parent );
+		void handleOptionChange( );
 		void setPictureControlEnabled (int pic, bool enabled);
 		void setUnofficialExposures ( std::vector<float> times );
 		std::array<int, 4> getPictureColors ( );
@@ -61,22 +68,22 @@ class PictureSettingsControl
 		// refactoring for another time.
 		andorPicSettingsGroup settings;
 		/// Grid of PictureOptions
-		Control<CStatic> totalPicNumberLabel;
-		Control<CStatic> pictureLabel;
-		Control<CStatic> exposureLabel;
-		Control<CStatic> thresholdLabel;
-		Control<CStatic> colormapLabel;
-		Control<CStatic> displayTypeLabel;
-		Control<CStatic> softwareAccumulationLabel;
+		QLabel* totalPicNumberLabel;
+		QLabel* pictureLabel;
+		QLabel* exposureLabel;
+		QLabel* thresholdLabel;
+		QLabel* colormapLabel;
+		QLabel* displayTypeLabel;
+		QLabel* softwareAccumulationLabel;
 		// 
-		std::array<Control<CButton>, 4> totalNumberChoice;
-		std::array<Control<CStatic>, 4> pictureNumbers;
-		std::array<Control<DoubleEdit>, 4> exposureEdits;
-		std::array<Control<DoubleEdit>, 4> thresholdEdits;
-		std::array<Control<CComboBox>, 4> colormapCombos;
-		std::array<Control<CComboBox>, 4> displayTypeCombos;
-		std::array<Control<CleanCheck>, 4> softwareAccumulateAll;
-		std::array<Control<CEdit>, 4> softwareAccumulateNum;
+		std::array<QRadioButton*, 4> totalNumberChoice;
+		std::array<QLabel*, 4> pictureNumbers;
+		std::array<QLineEdit*, 4> exposureEdits;
+		std::array<QLineEdit*, 4> thresholdEdits;
+		std::array<QComboBox*, 4> colormapCombos;
+		std::array<QComboBox*, 4> displayTypeCombos;
+		std::array<QCheckBox*, 4> softwareAccumulateAll;
+		std::array<QLineEdit*, 4> softwareAccumulateNum;
 };
 
 

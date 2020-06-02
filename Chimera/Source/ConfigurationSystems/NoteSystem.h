@@ -5,10 +5,10 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"
-#include "QWinWidget.h"
 #include <QLabel>
 #include <QTextEdit>
-
+#include <PrimaryWindows/IChimeraWindow.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
  
 class NoteSystem
 {
@@ -16,12 +16,10 @@ class NoteSystem
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile );
 		void setConfigurationNotes(std::string notes);
-		void initialize( POINT& topLeftPos, QWinWidget* parent, int& id, cToolTips& tooltips );
+		void initialize( POINT& topLeftPos, IChimeraWindowWidget* parent );
 		std::string getConfigurationNotes();
 		void rearrange(int width, int height, fontMap fonts);
 	private:
-		//Control<CEdit> configNotes;
-		//Control<CStatic> configNotesHeader;
 		QLabel* header;
-		QTextEdit* edit;
+		CQTextEdit* edit;
 };

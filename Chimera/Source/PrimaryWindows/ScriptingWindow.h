@@ -65,24 +65,24 @@ class ScriptingWindow : public IChimeraWindow
 		void recolorScripts();
 
 		void newIntensityScript();
-		void openIntensityScript(CWnd* parent);
+		void openIntensityScript(CWnd* parent );
 		void openIntensityScript(std::string name);
 		void saveIntensityScript();
-		void saveIntensityScriptAs(CWnd* parent);
+		void saveIntensityScriptAs(CWnd* parent );
 		void agilentEditChange();
 
 		void newNiawgScript();
-		void openNiawgScript(CWnd* parent);
+		void openNiawgScript(CWnd* parent );
 		void openNiawgScript(std::string name);
 		void saveNiawgScript();
-		void saveNiawgScriptAs(CWnd* parent);
+		void saveNiawgScriptAs(CWnd* parent );
 		void niawgEditChange();
 
 		void newMasterScript();
-		void openMasterScript(CWnd* parent);
+		void openMasterScript(CWnd* parent );
 		void openMasterScript(std::string name);
 		void saveMasterScript();
-		void saveMasterScriptAs(CWnd* parent);
+		void saveMasterScriptAs(CWnd* parent );
 		void newMasterFunction();
 		void saveMasterFunction();
 		void deleteMasterFunction();

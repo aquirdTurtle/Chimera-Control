@@ -1,6 +1,8 @@
 // created by Mark O. Brown
 #pragma once
-#include "Windows.h"
+#include "afxwin.h"
+#include <GeneralUtilityFunctions/my_str.h>
+#include <GeneralUtilityFunctions/Thrower.h>
 
 struct imageParameters
 {

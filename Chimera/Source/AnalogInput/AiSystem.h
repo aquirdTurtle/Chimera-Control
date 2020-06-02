@@ -11,7 +11,9 @@
 #include "Scripts/ScriptStream.h"
 #include "AnalogOutput/DaqMxFlume.h"
 #include "ConfigurationSystems/ConfigStream.h"
-
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <QLabel.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>
@@ -31,7 +33,7 @@ class AiSystem : public IDeviceCore
 		AiSystem( );
 		AiSettings getAiSettings ();
 		void initDaqmx( );
-		void initialize( POINT& loc, CWnd* parent, int& id );
+		void initialize( POINT& loc, IChimeraWindowWidget* parent );
 		void refreshDisplays( );
 		void rearrange( int width, int height, fontMap fonts );
 		void refreshCurrentValues( );
@@ -57,18 +59,18 @@ class AiSystem : public IDeviceCore
 		void normalFinish () {};
 		void errorFinish () {};
 	private:
-		Control<CStatic> title;
-		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;
-		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> dacLabels;
-		Control<CleanPush> getValuesButton;
-		Control<CleanCheck> continuousQueryCheck;
-		Control<CleanCheck> queryBetweenVariations;
+		QLabel* title;
+		std::array<QLabel*, NUMBER_AI_CHANNELS> voltDisplays;
+		std::array<QLabel*, NUMBER_AI_CHANNELS> dacLabels;
+		CQPushButton* getValuesButton;
+		CQCheckBox* continuousQueryCheck;
+		CQCheckBox* queryBetweenVariations;
 
-		Control<DoubleEdit> continuousInterval;
-		Control<CStatic> continuousIntervalLabel;
+		CQLineEdit* continuousInterval;
+		QLabel* continuousIntervalLabel;
 
-		Control<UintEdit> avgNumberEdit;
-		Control<CStatic> avgNumberLabel;
+		CQLineEdit* avgNumberEdit;
+		QLabel* avgNumberLabel;
 		// float64 should just be a double type.
 		std::array<float64, NUMBER_AI_CHANNELS> currentValues;
 		std::vector<float64> aquisitionData;

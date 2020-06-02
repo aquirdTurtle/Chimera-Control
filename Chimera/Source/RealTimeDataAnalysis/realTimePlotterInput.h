@@ -17,7 +17,7 @@ struct realTimePlotterInput
 	std::vector<Gdiplus::SolidBrush*> plotBrushes;
 	std::atomic<UINT>& plotTime;
 	AndorCameraSettings cameraSettings;
-	CWnd* plotParentWindow;
+	IChimeraWindowWidget* plotParentWindow;
 
 	std::vector<tinyPlotInfo> plotInfo;
 	std::vector<coordinate> analysisLocations;

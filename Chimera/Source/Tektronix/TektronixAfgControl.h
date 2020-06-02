@@ -11,6 +11,9 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ParameterSystem/Expression.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <QLabel.h>
+#include "QPushButton.h"
 
 
 class TektronixAfgControl
@@ -23,26 +26,24 @@ class TektronixAfgControl
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
-		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-						 std::string channel2Text, LONG width, UINT id_ );
+		void initialize( POINT& loc, IChimeraWindowWidget* parent, std::string headerText, std::string channel1Text,
+						 std::string channel2Text, LONG width);
 		std::string queryIdentity();
 		tektronixInfo getTekSettings();
 		void setSettings(tektronixInfo info);
 		void rearrange(int width, int height, fontMap fonts);
-		void handleButtons(UINT indicator);
-		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void handleProgram(std::vector<parameterType> constants);
 		std::string getDelim ();
 		TekCore& getCore ();
 	private:
-		Control<CStatic> header;
-		Control<CleanPush> programNow;
-		Control<CStatic> onOffLabel;
-		Control<CStatic> controlLabel;
-		Control<CStatic> fskLabel;
-		Control<CStatic> mainPowerLabel;
-		Control<CStatic> mainFreqLabel;
-		Control<CStatic> fskFreqLabel;
+		QLabel* header;
+		QPushButton* programNow;
+		QLabel* onOffLabel;
+		QLabel* controlLabel;
+		QLabel* fskLabel;
+		QLabel* mainPowerLabel;
+		QLabel* mainFreqLabel;
+		QLabel* fskFreqLabel;
 		TektronixChannelControl channel1;
 		TektronixChannelControl channel2;
 		TekCore core;

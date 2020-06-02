@@ -15,6 +15,12 @@
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include <deque>
 #include <map>
+#include"QWinWidget.h"
+#include <qlabel.h>
+#include <qpushbutton.h>
+#include <qcheckbox.h>
+#include <qtableWidget.h>
+#include <qcombobox.h>
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -29,7 +35,7 @@ class DataAnalysisControl
 	public:
 		DataAnalysisControl( );
 		bool wantsThresholdAnalysis ( );
-		void initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
+		void initialize( POINT& pos, IChimeraWindowWidget* parent );
 		ULONG getPlotFreq( );
 		void handleOpenConfig(ConfigStream& file );
 		void handleSaveConfig(ConfigStream& file );
@@ -82,39 +88,38 @@ class DataAnalysisControl
 	private:
 		// real time plotting
 		ULONG updateFrequency;
-		Control<CStatic> updateFrequencyLabel1;
-		Control<CStatic> updateFrequencyLabel2;
-		Control<CEdit> updateFrequencyEdit;
+		QLabel* updateFrequencyLabel1;
+		QLabel* updateFrequencyLabel2;
+		QLineEdit* updateFrequencyEdit;
 
-		Control<CStatic> header;
-		Control<MyListCtrl> plotListview;
+		QLabel* header;
+		QTableWidget* plotListview;
 		std::vector<tinyPlotInfo> allTinyPlots;
 		// other data analysis
 		bool currentlySettingGridCorner;
 		bool currentlySettingAnalysisLocations;
-		Control<CStatic> currentDataSetNumberText;
-		Control<CStatic> currentDataSetNumberDisp;
-		Control<CleanPush> manualSetAnalysisLocsButton;
+		QLabel* currentDataSetNumberText;
+		QLabel* currentDataSetNumberDisp;
 
-		Control<CComboBox> gridSelector;
-		Control<CleanPush> setGridCorner;
-		Control<CStatic> gridSpacingText;
-		Control<CEdit> gridSpacing;
-		Control<CStatic> gridWidthText;
-		Control<CEdit> gridWidth;
-		Control<CStatic> gridHeightText;
-		Control<CEdit> gridHeight;
+		QComboBox* gridSelector;
+		QPushButton* setGridCorner;
+		QLabel* gridSpacingText;
+		QLineEdit* gridSpacing;
+		QLabel* gridWidthText;
+		QLineEdit* gridWidth;
+		QLabel* gridHeightText;
+		QLineEdit* gridHeight;
 
-		Control<CleanCheck> autoThresholdAnalysisButton;
-		Control<CleanCheck> displayGridBtn;
+		QCheckBox* autoThresholdAnalysisButton;
+		QCheckBox* displayGridBtn;
 
-		Control<CStatic> plotTimerTxt;
-		Control<CEdit> plotTimerEdit;
+		QLabel* plotTimerTxt;
+		QLineEdit* plotTimerEdit;
 		std::atomic<UINT> plotTime=5000;
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
-		Control<CleanPush> deleteGrid;
+		QPushButton* deleteGrid;
 
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;

@@ -3,7 +3,6 @@
 #include "AuxiliaryWindow.h"
 #include "DigitalOutput/DoSettingsDialog.h"
 #include "AnalogOutput/AoSettingsDialog.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "DigitalOutput/DoSystem.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/MainWindow.h"
@@ -25,7 +24,9 @@ AuxiliaryWindow::AuxiliaryWindow ( ) : IChimeraWindow ( ),
 		aoSys ( ANALOG_OUT_SAFEMODE ), configParameters ( "CONFIG_PARAMETERS" ),
 		globalParameters ( "GLOBAL_PARAMETERS" ), dds ( DDS_SAFEMODE ), 
 	piezo1(PIEZO_1_INFO), piezo2 (PIEZO_2_INFO)
-{}
+{
+	statBox = new ColorBox ();
+}
 
 
 BOOL AuxiliaryWindow::handleAccelerators ( HACCEL m_haccel, LPMSG lpMsg )
@@ -33,9 +34,7 @@ BOOL AuxiliaryWindow::handleAccelerators ( HACCEL m_haccel, LPMSG lpMsg )
 	return globalParameters.handleAccelerators ( m_haccel, lpMsg );
 }
 
-
 IMPLEMENT_DYNAMIC( AuxiliaryWindow, IChimeraWindow )
-
 
 BEGIN_MESSAGE_MAP( AuxiliaryWindow, IChimeraWindow)
 	ON_WM_TIMER( )
@@ -43,35 +42,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, IChimeraWindow)
 	ON_WM_CTLCOLOR( )
 	ON_WM_SIZE( )
 
-	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &handleTtlPush )
-	ON_COMMAND_RANGE (ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &handlePlotPop)
-
-	ON_COMMAND( TTL_HOLD, &handlTtlHoldPush )
-	ON_COMMAND( ID_DAC_SET_BUTTON, &SetDacs )
-	ON_COMMAND( IDC_ZERO_TTLS, &zeroTtls )
-	ON_COMMAND( IDC_ZERO_DACS, &zeroDacs )
-	ON_COMMAND( TOP_BOTTOM_TEK_START, &passTopBottomTekProgram )
-	ON_COMMAND(	EO_AXIAL_TEK_START, &passEoAxialTekProgram )
-	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
-	ON_COMMAND( IDC_MACHINE_OPTIMIZE, &autoOptimize )
-	ON_COMMAND( IDC_DDS_PROGRAM_NOW, &programDds )
-	ON_COMMAND( IDC_PIEZO1_PROGRAM_NOW, &programPiezo1 )
-	ON_COMMAND( IDC_PIEZO2_PROGRAM_NOW, &programPiezo2 )
-	ON_COMMAND ( IDC_PIEZO1_CTRL, &handlePiezo1Ctrl )
-	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
-	ON_COMMAND( IDC_UW_SYSTEM_PROGRAM_NOW, &handleProgramUwSystemNow)
-
 	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &onLogVoltsMessage )
-
-	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &handleAgilentOptions )
-	ON_COMMAND_RANGE( TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START+99, &handleTektronixButtons )
 	
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_TOP_BOTTOM_AGILENT_COMBO, IDC_TOP_BOTTOM_AGILENT_COMBO, &handleAgilentCombo )
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_AXIAL_AGILENT_COMBO, IDC_AXIAL_AGILENT_COMBO, &handleAgilentCombo )
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_AGILENT_COMBO, &handleAgilentCombo )
-	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, &handleAgilentCombo )
-	
-	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsColumnClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsDblClick )
 	ON_NOTIFY( NM_CLICK, IDC_CONFIG_VARS_LISTVIEW, &ConfigVarsSingleClick)
@@ -83,17 +55,8 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, IChimeraWindow)
 	ON_NOTIFY ( NM_DBLCLK, IDC_DDS_LISTVIEW, &DdsDblClick )
 	ON_NOTIFY ( NM_RCLICK, IDC_DDS_LISTVIEW, &DdsRClick )
 	ON_NOTIFY ( NM_DBLCLK, IDC_UW_SYSTEM_LISTVIEW, &uwDblClick )
-	ON_NOTIFY ( NM_RCLICK, IDC_UW_SYSTEM_LISTVIEW, &uwRClick)
+	ON_NOTIFY ( NM_RCLICK, IDC_UW_SYSTEM_LISTVIEW, &uwRClick)                                     
 
-	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &drawVariables )
-	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &drawVariables )
-	// catches all the edits in the tektronix controls
-	ON_CONTROL_RANGE( EN_CHANGE, TOP_BOTTOM_TEK_START, EO_AXIAL_TEK_START + 99, &invalidateSaved )
-
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_TOP_BOTTOM_EDIT, IDC_TOP_BOTTOM_EDIT, &handleAgilentEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_FLASHING_EDIT, IDC_FLASHING_EDIT, &handleAgilentEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_AXIAL_EDIT, IDC_AXIAL_EDIT, &handleAgilentEditChange )
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_UWAVE_EDIT, IDC_UWAVE_EDIT, &handleAgilentEditChange )
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_WM_TIMER( )
@@ -114,20 +77,6 @@ std::vector<parameterType> AuxiliaryWindow::getUsableConstants ()
 	ParameterSystem::generateKey (params, false, constantRange);
 	return params;
 }
-
-
-void AuxiliaryWindow::handleProgramUwSystemNow ()
-{
-	try
-	{
-		RohdeSchwarzGenerator.programNow (getUsableConstants ());
-	}
-	catch (Error & err)
-	{
-		reportErr ("Failed to program microwave system! " + err.trace ());
-	}
-}
-
 
 void AuxiliaryWindow::uwDblClick (NMHDR* pNotifyStruct, LRESULT* result) 
 {
@@ -150,82 +99,6 @@ void AuxiliaryWindow::uwRClick (NMHDR* pNotifyStruct, LRESULT* result)
 	catch (Error & err)
 	{
 		reportErr (err.trace ());
-	}
-}
-
-
-
-void AuxiliaryWindow::handlePlotPop (UINT id)
-{
-	for (auto& dacPlot : aoPlots)
-	{
-		if (dacPlot->handlePop (id, this)) { return; }
-	}
-	for (auto& doPlot : ttlPlots)
-	{
-		if (doPlot->handlePop (id, this)) { return; }
-	}
-}
-
-
-void AuxiliaryWindow::handlePiezo1Ctrl ( )
-{
-	try
-	{
-		piezo1.updateCtrl ( );
-	}
-	catch ( Error& err)
-	{
-		reportErr ( err.trace ( ) );
-	}
-}
-
-
-void AuxiliaryWindow::handlePiezo2Ctrl ( )
-{
-	try
-	{
-		piezo2.updateCtrl ( );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( err.trace ( ) );
-	}
-}
-
-void AuxiliaryWindow::programPiezo1 ( )
-{
-	try
-	{
-		piezo1.handleProgramNowPress ( );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( err.trace ( ) );
-	}
-}
-void AuxiliaryWindow::programPiezo2 ( )
-{
-	try
-	{
-		piezo2.handleProgramNowPress ( );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( err.trace ( ) );
-	}
-}
-
-
-void AuxiliaryWindow::programDds ( )
-{
-	try
-	{
-		dds.programNow ( getUsableConstants() );
-	}
-	catch ( Error& err )
-	{
-		reportErr ( err.trace ( ) );
 	}
 }
 
@@ -291,28 +164,6 @@ void AuxiliaryWindow::OptParamRClick ( NMHDR * pNotifyStruct, LRESULT * result )
 	mainWin->updateConfigurationSavedStatus ( false );
 }
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::autoOptimize ( )
-{
-	try
-	{
-		auto res = promptBox ( "Start Machine optimization using the currently selected configuration parameters?", 
-							   MB_YESNO );
-		if ( res == IDNO )
-		{
-			return;
-		}
-		optimizer.reset ( );
-		commonFunctions::handleCommonMessage ( ID_MACHINE_OPTIMIZATION, this); 
-	}
-	catch ( Error& err )
-	{
-		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-		errBox ( err.what ( ) );
-	}
-}
-
-
 void AuxiliaryWindow::updateOptimization ( AllExperimentInput& input )
 {
 	optimizer.verifyOptInput ( input );
@@ -337,13 +188,6 @@ LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 	return TRUE;
 }
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::GetAnalogInSnapshot( )
-{
-	aiSys.refreshCurrentValues( );
-	aiSys.refreshDisplays( );
-}
-
 
 void AuxiliaryWindow::OnPaint( )
 {
@@ -361,17 +205,14 @@ void AuxiliaryWindow::OnPaint( )
 		// for a single plot.
 		for ( auto& ttlPlt : ttlPlots )
 		{
-			ttlPlt->setCurrentDims( width, height );
-			ttlPlt->drawPlot ( sdc.get (), _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
+			ttlPlt->refreshData ( );
 		}
 		for ( auto& dacPlt : aoPlots )
 		{
-			dacPlt->setCurrentDims( width, height );
-			dacPlt->drawPlot ( sdc.get (), _myBrushes[ "Main-Bkgd" ], _myBrushes[ "Interactable-Bkgd" ] );
+			dacPlt->refreshData ( );
 		}
 	}
 }
-
 
 void AuxiliaryWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
@@ -382,7 +223,6 @@ void AuxiliaryWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
 	andorWin->stopSound( );
 }
-
 
 void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 {
@@ -399,11 +239,9 @@ void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 	{
 		reportErr( err.trace( ) );
 	}
-
 }
 
-
-void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* parent)
+void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* parent )
 {
 	try
 	{
@@ -495,7 +333,7 @@ void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 		{
 			try
 			{
-				GetAnalogInSnapshot ();
+				//GetAnalogInSnapshot ();
 			}
 			catch (Error & err)
 			{
@@ -545,72 +383,10 @@ Agilent& AuxiliaryWindow::whichAgilent( UINT id )
 	thrower ( "id seen in \"whichAgilent\" handler does not belong to any agilent!" );
 }
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handleAgilentEditChange( UINT id )
-{
-	Agilent& agilent = whichAgilent( id );
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		agilent.agilentScript.handleEditChange( );
-		SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
-	}
-	catch ( Error& err )
-	{
-		reportErr( err.trace( ) );
-	}
-}
-
 
 ParameterSystem& AuxiliaryWindow::getGlobals ( )
 {
 	return globalParameters;
-}
-
-
-TekCore& AuxiliaryWindow::getTopBottomTek ( )
-{
-	return topBottomTek.getCore ();
-}
-
-
-TekCore& AuxiliaryWindow::getEoAxialTek ( )
-{
-	return eoAxialTek.getCore();
-}
-
-
-MicrowaveCore& AuxiliaryWindow::getRsg ( )
-{
-	return RohdeSchwarzGenerator.getCore();
-}
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::passTopBottomTekProgram()
-{
-	try
-	{
-		topBottomTek.handleProgram(getUsableConstants());
-		reportStatus( "Programmed Top/Bottom Tektronix Generator.\r\n" );
-	}
-	catch (Error& exception)
-	{
-		reportErr( "Error while programing Top/Bottom Tektronix generator: " + exception.trace() + "\r\n" );
-	}
-}
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::passEoAxialTekProgram()
-{
-	try
-	{
-		eoAxialTek.handleProgram(getUsableConstants());
-		reportStatus( "Programmed E.O.M / Axial Tektronix Generator.\r\n" );
-	}
-	catch (Error& exception)
-	{
-		reportErr( "Error while programing Raman E.O.M. / Axial Tektronix generator: " + exception.trace() + "\r\n" );
-	}
 }
 
 
@@ -708,19 +484,6 @@ std::array<AoInfo, 24> AuxiliaryWindow::getDacInfo()
 {
 	return aoSys.getDacInfo();
 }
-
-void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
-{
-	if (id == IDC_GLOBAL_VARS_LISTVIEW)
-	{
-		globalParameters.handleDraw(pNMHDR, pResult );
-	}
-	else
-	{
-		configParameters.handleDraw(pNMHDR, pResult );
-	}
-}
-
 
 void AuxiliaryWindow::ConfigVarsSingleClick ( NMHDR * pNotifyStruct, LRESULT * result )
 {
@@ -842,14 +605,6 @@ void AuxiliaryWindow::passRoundToDac()
 	aoSys.handleRoundToDac(mainWin);
 }
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handleTektronixButtons(UINT id)
-{
-	topBottomTek.handleButtons ( id );
-	eoAxialTek.handleButtons ( id );
-	mainWin->updateConfigurationSavedStatus(false);
-}
-
 
 void AuxiliaryWindow::setVariablesActiveState(bool activeState)
 {
@@ -893,7 +648,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	globalParameters.rearrange( cx, cy, getFonts( ) );
 	optimizer.rearrange ( cx, cy, getFonts ( ) );
 
-	statBox.rearrange( cx, cy, getFonts());
+	statBox->rearrange( cx, cy, getFonts());
 	piezo1.rearrange ( cx, cy, getFonts ( ) );
 	piezo2.rearrange ( cx, cy, getFonts ( ) );
 	SetRedraw();
@@ -905,64 +660,6 @@ fontMap AuxiliaryWindow::getFonts()
 {
 	return mainWin->getFonts();
 }
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handleAgilentOptions( UINT id )
-{
-	Agilent& agilent = whichAgilent( id );
-	// zero the id.
-	id -= IDC_TOP_BOTTOM_CHANNEL1_BUTTON;
-	int agilentNum = id / 7;
-	// figure out which box it was.	
-	// call the correct function.
-	if (id % 7 == 0)
-	{
-		// channel 1
-		agilent.handleChannelPress( 1, mainWin->getProfileSettings().configLocation, 
-									 mainWin->getRunInfo() );
-	}
-	else if (id % 7 == 1)
-	{
-		// channel 2
-		agilent.handleChannelPress( 2, mainWin->getProfileSettings().configLocation, 
-									 mainWin->getRunInfo() );
-	}
-	// sync is just a check, no handling needed.
-	else if (id % 7 == 6)
-	{
-		// program now
-		try
-		{
-			agilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-			agilent.programAgilentNow(getUsableConstants());
-			reportStatus( "Programmed Agilent " + agilent.getConfigDelim() + ".\r\n" );
-		}
-		catch (Error& err)
-		{
-			reportErr( "Error while programming agilent " + agilent.getConfigDelim() + ": " + err.trace() + "\r\n" );
-		}
-	}
-	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
-	mainWin->updateConfigurationSavedStatus( false );
-}
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handleAgilentCombo(UINT id)
-{
-	Agilent& ag = whichAgilent( id );
-	try
-	{
-		ag.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		ag.readGuiSettings(  );
-		ag.handleModeCombo( );
-		ag.updateSettingsDisplay( mainWin->getProfileSettings( ).configLocation, mainWin->getRunInfo( ) );
-	}
-	catch ( Error& err )
-	{
-		reportErr( "Error while handling agilent combo change: " + err.trace( ) );
-	}
-}
-
 
 // MESSAGE MAP FUNCTION
 void AuxiliaryWindow::zeroDacs( )
@@ -977,22 +674,6 @@ void AuxiliaryWindow::zeroDacs( )
 	{
 		reportStatus( "Failed to Zero DACs!!!\r\n" );
 		reportErr( exception.trace( ) );
-	}
-}
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::zeroTtls()
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		ttlBoard.zeroBoard();
-		reportStatus( "Zero'd TTLs.\r\n" );
-	}
-	catch (Error& exception)
-	{
-		reportStatus( "Failed to Zero TTLs!!!\r\n" );
-		reportErr( exception.trace() );
 	}
 }
 
@@ -1034,13 +715,6 @@ AiSystem& AuxiliaryWindow::getAiSys ()
 	return aiSys;
 }
 
-DdsCore& AuxiliaryWindow::getDds ()
-{
-	return dds.getCore ();
-}
-
-
-
 void AuxiliaryWindow::handleAbort()
 {
 	if ( optimizer.isInMiddleOfOptimizing ( ) )
@@ -1052,10 +726,8 @@ void AuxiliaryWindow::handleAbort()
 	}
 }
 
-
 void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
-	// save info
 	/// ttls
 	for (auto row : DoRows::allRows )
 	{
@@ -1113,8 +785,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(ConfigStream& configStream)
 			std::string defaultStatusString;
 			bool defaultStatus;
 			configStream >> name >> defaultStatusString;
-			try
-			{
+			try	{
 				// In file the booleans are stored as "0" or "1".
 				defaultStatus = boost::lexical_cast<int>(defaultStatusString);
 			}
@@ -1122,7 +793,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(ConfigStream& configStream)
 			{
 				throwNested("Failed to load one of the default ttl values!");
 			}
-			ttlBoard.setName(row, ttlNumberInc, name, toolTips, this);
+			ttlBoard.setName(row, ttlNumberInc, name, this);
 			ttlBoard.updateDefaultTtl(row, ttlNumberInc, defaultStatus);
 		}
 	}
@@ -1172,8 +843,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(ConfigStream& configStream)
 			configStream >> noteString;
 		}
 
-		aoSys.setName(dacInc, name, toolTips, this);
-		aoSys.setNote ( dacInc, noteString, toolTips, this );
+		aoSys.setName(dacInc, name );
+		aoSys.setNote ( dacInc, noteString );
 		aoSys.setMinMax(dacInc, min, max);
 		aoSys.prepareDacForceChange(dacInc, defaultValue, ttlBoard.getCore());
 		aoSys.updateEdits( );
@@ -1237,55 +908,12 @@ void AuxiliaryWindow::SetDacs()
 	}
 }
 
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::DacEditChange(UINT id)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus( false );
-		aoSys.handleEditChange(id - ID_DAC_FIRST_EDIT);
-	}
-	catch (Error& err)
-	{
-		reportErr(err.trace());
-	}
-}
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handleTtlPush(UINT id)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus( false );
-		ttlBoard.handleTTLPress( id );
-	}
-	catch (Error& exception)
-	{
-		reportErr( "TTL Press Handler Failed.\n" + exception.trace() + "\r\n" );
-	}
-}
-
-// MESSAGE MAP FUNCTION
-void AuxiliaryWindow::handlTtlHoldPush()
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus ( false );
-		ttlBoard.handleHoldPress();
-	}
-	catch (Error& exception)
-	{
-		reportErr( "TTL Hold Handler Failed: " + exception.trace() + "\r\n" );
-	}
-}
-
 
 void AuxiliaryWindow::ViewOrChangeTTLNames()
 {
 	mainWin->updateConfigurationSavedStatus( false );
 	ttlInputStruct input;
 	input.ttls = &ttlBoard;
-	input.toolTips = toolTips;
 	TtlSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_TTL_NAMES);
 	dialog.DoModal();
 }
@@ -1296,7 +924,6 @@ void AuxiliaryWindow::ViewOrChangeDACNames()
 	mainWin->updateConfigurationSavedStatus( false );
 	aoInputStruct input;
 	input.aoSys = &aoSys;
-	input.toolTips = toolTips;
 	AoSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
 	dialog.DoModal();
 }
@@ -1348,8 +975,7 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 			if ( aoSys.handleArrow ( win, up ) )
 			{
 				mainWin->updateConfigurationSavedStatus ( false );
-				try
-				{
+				try	{
 					aoSys.forceDacs ( ttlBoard.getCore(), { 0, ttlBoard.getCurrentStatus () });
 				}
 				catch ( Error& err )
@@ -1370,43 +996,37 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
 
-	int id = 4000;
-	POINT controlLocation{ 0, 0 };
+	POINT loc{ 0, 0 };
 	try
 	{
-		statBox.initialize( controlLocation, id, this, 480, toolTips, mainWin->getDevices ());
-		ttlBoard.initialize( controlLocation, toolTips, this, id );
-		aoSys.initialize( controlLocation, toolTips, this, id );
-		aiSys.initialize( controlLocation, this, id );
-		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480, TOP_BOTTOM_TEK_START);
-		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, EO_AXIAL_TEK_START );
-		RohdeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
-		controlLocation = POINT{ 480, 0 };
+		qtp = new QWinWidget ((CWnd*)this);
+		qtp->setStyleSheet (mainWin->getStyleSheet ());
+		qtp->move (0, 0);
+		statBox->initialize( loc, this, 480, mainWin->getDevices ());
+		ttlBoard.initialize( loc, this);
+		aoSys.initialize( loc, this);
+		aiSys.initialize( loc, this);
+		topBottomTek.initialize( loc, this, "Top-Bottom-Tek", "Top", "Bottom", 480);
+		eoAxialTek.initialize( loc, this, "EO / Axial", "EO", "Axial", 480);
+		RohdeSchwarzGenerator.initialize( loc, this);
+		loc = POINT{ 480, 0 };
 		
-		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,	   
-												 _myRGBs["Interactable-Bkgd"] );
-		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
-											 _myRGBs["Interactable-Bkgd"] );
-		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id, "Flashing-Agilent", 100, 
-												_myRGBs["Interactable-Bkgd"] );
-		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,		   
-												 _myRGBs["Interactable-Bkgd"] );
-		controlLocation = POINT{ 1440, 0 };
-		globalParameters.initialize( controlLocation, toolTips, this, id, "GLOBAL PARAMETERS",
-									IDC_GLOBAL_VARS_LISTVIEW, ParameterSysType::global );
-		configParameters.initialize( controlLocation, toolTips, this, id, "CONFIGURATION PARAMETERS",
-									IDC_CONFIG_VARS_LISTVIEW, ParameterSysType::config );
-		dds.initialize ( controlLocation, toolTips, this, id, "DDS SYSTEM" );
-		piezo1.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO1_PROGRAM_NOW, 
-			{ "Top-x", "Top-y", "Axial-y" }, IDC_PIEZO1_CTRL );
-		controlLocation.x += 240;
-		controlLocation.y -= 85;
-		piezo2.initialize ( controlLocation, toolTips, this, id, 240, IDC_PIEZO2_PROGRAM_NOW, 
-		{ "EO-x", "EO-y", "Axial-x" }, IDC_PIEZO2_CTRL );
+		agilents[whichAg::TopBottom].initialize( loc, "Top-Bottom-Agilent", 100, this);
+		agilents[whichAg::Axial].initialize( loc, "Microwave-Axial-Agilent", 100, this);
+		agilents[whichAg::Flashing].initialize( loc, "Flashing-Agilent", 100, this);
+		agilents[whichAg::Microwave].initialize( loc, "Microwave-Agilent", 100, this);
+		loc = POINT{ 1440, 0 };
+		globalParameters.initialize( loc, this, "GLOBAL PARAMETERS", ParameterSysType::global );
+		configParameters.initialize( loc, this, "CONFIGURATION PARAMETERS",	ParameterSysType::config );
+		dds.initialize ( loc, this, "DDS SYSTEM" );
+		piezo1.initialize ( loc, this, 240, { "Top-x", "Top-y", "Axial-y" } );
+		loc.x += 240;
+		loc.y -= 85;
+		piezo2.initialize ( loc, this, 240, { "EO-x", "EO-y", "Axial-x" } );
 		configParameters.setParameterControlActive( false );
-		controlLocation.x -= 240;
-		optimizer.initialize ( controlLocation, toolTips, this, id );
-		controlLocation = POINT{ 960, 0 };
+		loc.x -= 240;
+		optimizer.initialize ( loc, this);
+		loc = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
 		dacData.resize( NUM_DAC_PLTS );
 		UINT linesPerDacPlot = 24 / dacData.size( );
@@ -1439,8 +1059,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			aoPlots[ dacPltCount ] = new PlotCtrl ( dacData[ dacPltCount ], plotStyle::DacPlot, mainWin->getBrightPlotPens ( ),
 													mainWin->getPlotFont ( ), mainWin->getBrightPlotBrushes ( ), 
 													std::vector<int>(), titleTxt );
-			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this, plotIds++ );
-			//controlLocation.y += dacPlotSize;
+			aoPlots[dacPltCount]->init( loc, 480, dacPlotSize, this);
 		}
 		// ttl plots are similar to aoSys.
 		ttlPlots.resize( NUM_TTL_PLTS );
@@ -1477,7 +1096,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWin->getBrightPlotPens( ),
 												  mainWin->getPlotFont( ), mainWin->getBrightPlotBrushes( ), 
 												  std::vector<int>(), titleTxt );
-			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this, plotIds++);
+			ttlPlots[ttlPltCount]->init( loc, 480, ttlPlotSize, this);
 			//controlLocation.y += ttlPlotSize;
 		}
 	}
@@ -1490,6 +1109,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	SetTimer( 2, 1000, NULL );
 	// piezo 1 update
 	SetTimer ( 1000, 5000, NULL );
+	qtp->show ();
 	return IChimeraWindow::OnInitDialog ();
 }
 

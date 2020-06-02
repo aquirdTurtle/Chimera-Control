@@ -52,10 +52,8 @@ std::string BaslerTrigger::toStr( BaslerTrigger::mode m )
 
 BaslerTrigger::mode BaslerTrigger::fromStr ( std::string txt )
 {
-	for ( auto m : { mode::External, mode::ManualSoftware, mode::AutomaticSoftware } )
-	{
-		if ( txt == toStr ( m ) )
-		{
+	for ( auto m : { mode::External, mode::ManualSoftware, mode::AutomaticSoftware } ){
+		if ( txt == toStr ( m ) ){
 			return m;
 		}
 	}
@@ -68,10 +66,8 @@ BaslerTrigger::mode BaslerTrigger::fromStr ( std::string txt )
 
 BaslerAcquisition::mode BaslerAcquisition::fromStr ( std::string txt )
 {
-	for ( auto m : { mode::Continuous, mode::Finite } )
-	{
-		if ( txt == toStr ( m ) )
-		{
+	for ( auto m : { mode::Continuous, mode::Finite } )	{
+		if ( txt == toStr ( m ) ) {
 			return m;
 		}
 	}

@@ -1,10 +1,13 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "Microwave/MicrowaveSystem.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralFlumes/GpibFlume.h"
 #include "LowLevel/constants.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include <qheaderview.h>
+#include <qmenu.h>
+#include "PrimaryWindows/QtMainWindow.h"
+#include <QTableWidget.h>
 
 MicrowaveSystem::MicrowaveSystem() {}
 
@@ -13,33 +16,62 @@ std::string MicrowaveSystem::getIdentity()
 	return core.queryIdentity();
 }
 
+void MicrowaveSystem::handleContextMenu (const QPoint& pos)
+{
+	QTableWidgetItem* item = uwListListview->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete This Item", uwListListview);
+	uwListListview->connect (deleteAction, &QAction::triggered, [this, item]() {uwListListview->removeRow (item->row ()); });
+	auto* newPerson = new QAction ("New Item", uwListListview);
+	uwListListview->connect (newPerson, &QAction::triggered,
+		[this]() {currentList.push_back (microwaveListEntry ()); refreshListview (); });
+	if (item) { menu.addAction (deleteAction); }
+	menu.addAction (newPerson);
+	menu.exec (uwListListview->mapToGlobal (pos));
+}
+
 /*
  * The controls in this class only display information about what get's programmed to the RSG. They do not
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void MicrowaveSystem::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
 	// controls
-	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	header.Create( "Microwave System", NORM_HEADER_OPTIONS, header.sPos, master, id++ );
-	header.fontType = fontTypes::HeadingFont;
+	header = new QLabel ("MICROWAVE SYSTEM", parent);
+	header->setGeometry (pos.x, pos.y, 480, 25);
+	
+	controlOptionCheck = new QCheckBox ("Control?", parent);
+	controlOptionCheck->setGeometry (pos.x, pos.y += 25, 240, 20);
 
-	controlOptionCheck.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 20 };
-	controlOptionCheck.Create ("Control?", NORM_CHECK_OPTIONS, controlOptionCheck.sPos, master, id++);
+	programNowPush = new QPushButton ("Program Now", parent);
+	programNowPush->setGeometry (pos.x + 240, pos.y, 240, 20);
+	parent->connect (programNowPush, &QPushButton::released, [this, parent]() {
+		try	{
+			programNow (parent->auxWin->getUsableConstants ());
+		}
+		catch (Error& err) {
+			parent->reportErr ("Failed to program microwave system! " + err.trace ());
+		}
+	});
 
-	programNowPush.sPos = { pos.x+240, pos.y, pos.x + 480, pos.y += 20 };
-	programNowPush.Create ("Program Now", NORM_PUSH_OPTIONS, controlOptionCheck.sPos, master, IDC_UW_SYSTEM_PROGRAM_NOW);
-
-	uwListListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
-	uwListListview.Create( NORM_LISTVIEW_OPTIONS, uwListListview.sPos, master, IDC_UW_SYSTEM_LISTVIEW );
-	uwListListview.fontType = fontTypes::SmallFont;
-	uwListListview.SetBkColor( RGB( 15, 15, 15 ) );
-	uwListListview.SetTextBkColor( RGB( 15, 15, 15 ) );
-	uwListListview.SetTextColor( RGB( 255, 255, 255 ) );
-	uwListListview.InsertColumn (0, "#", 80);
-	uwListListview.InsertColumn (1, "Frequency (GHz)", 200);
-	uwListListview.InsertColumn (2, "Power (dBm)", 180);
+	uwListListview = new QTableWidget (parent);
+	uwListListview->setGeometry (pos.x, pos.y += 20, 480, 100);
+	uwListListview->setColumnCount (3);
+	QStringList labels;
+	labels << "#" << "Frequency (GHz)" << "Power (dBm)";
+	uwListListview->setHorizontalHeaderLabels (labels);
+	uwListListview->horizontalHeader ()->setFixedHeight (25);
+	uwListListview->verticalHeader ()->setFixedWidth (25);
+	uwListListview->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (uwListListview, &QTableWidget::customContextMenuRequested,
+		[this](const QPoint& pos) {this->handleContextMenu (pos); });
+	uwListListview->setGeometry (pos.x, pos.y, 480, 205);
+	uwListListview->setColumnWidth (0, 80);
+	uwListListview->setColumnWidth (1, 200);
+	uwListListview->setColumnWidth (2, 180);
+	uwListListview->setShowGrid (true);
 	refreshListview ();
 	pos.y += 100;
 }
@@ -59,7 +91,7 @@ void MicrowaveSystem::programNow(std::vector<parameterType> constants)
 void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile)
 {
 	saveFile << core.configDelim
-		<< "\n/*Control?*/ " << controlOptionCheck.GetCheck ()
+		<< "\n/*Control?*/ " << controlOptionCheck->isChecked ()
 		<< "\n/*List Size:*/ " << currentList.size ();
 	for (auto listElem : currentList)
 	{
@@ -71,7 +103,7 @@ void MicrowaveSystem::handleSaveConfig (ConfigStream& saveFile)
 
 void MicrowaveSystem::setMicrowaveSettings (microwaveSettings settings)
 {
-	controlOptionCheck.SetCheck (settings.control);
+	controlOptionCheck->setChecked (settings.control);
 	currentList = settings.list;
 	refreshListview ();
 }
@@ -79,6 +111,7 @@ void MicrowaveSystem::setMicrowaveSettings (microwaveSettings settings)
 
 void MicrowaveSystem::handleListviewRClick ()
 {
+	/*
 	POINT cursorPos;
 	GetCursorPos (&cursorPos);
 	uwListListview.ScreenToClient (&cursorPos);
@@ -112,12 +145,14 @@ void MicrowaveSystem::handleListviewRClick ()
 			uwListListview.DeleteItem (itemIndicator);
 		}
 	}
+	*/
 	refreshListview ();
 }
 
 
 void MicrowaveSystem::handleListviewDblClick ()
 {
+	/*
 	LVHITTESTINFO myItemInfo = { 0 };
 	GetCursorPos (&myItemInfo.pt);
 	uwListListview.ScreenToClient (&myItemInfo.pt);
@@ -162,29 +197,28 @@ void MicrowaveSystem::handleListviewDblClick ()
 		}
 	}
 	refreshListview ();
+	*/
 }
 
 void MicrowaveSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	header.rearrange( width, height, fonts);
-	controlOptionCheck.rearrange (width, height, fonts);
-	programNowPush.rearrange (width, height, fonts);
-	uwListListview.rearrange( width, height, fonts);
 }
 
 
 void MicrowaveSystem::refreshListview ()
 {
 	UINT count = 0;
-	uwListListview.DeleteAllItems ();
+	uwListListview->setRowCount (0);
 	for (auto listElem : currentList)
 	{
-		uwListListview.InsertItem (str (count + 1), count, 0);
-		uwListListview.SetItem (listElem.frequency.expressionStr, count, 1);
-		uwListListview.SetItem (listElem.power.expressionStr, count, 2);
+		auto ind = uwListListview->rowCount ();
+		uwListListview->insertRow (ind);
+		uwListListview->setItem (ind, 0, new QTableWidgetItem (cstr(count)));
+		uwListListview->item (ind, 0)->setFlags (uwListListview->item (ind, 0)->flags () ^ Qt::ItemIsEnabled);
+		uwListListview->setItem (ind, 1, new QTableWidgetItem (cstr (listElem.frequency.expressionStr)));
+		uwListListview->setItem (ind, 2, new QTableWidgetItem (cstr (listElem.power.expressionStr)));
 		count++;
 	}
-	uwListListview.insertBlankRow ();
 }
 
 

@@ -22,7 +22,6 @@
 #include <Windows.h>
 
 // Some headers used for communication protocols.
-#include <winsock2.h>
 #include <ws2tcpip.h>
 
 // Some general use headers.
@@ -37,6 +36,7 @@
 #include "boost/math/common_factor.hpp"
 // contains stuff I use for file IO.
 #include <boost/filesystem.hpp>
+#include <PrimaryWindows/QtMainWindow.h>
 #include "ChimeraApp.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "qmfcapp.h"
@@ -51,7 +51,7 @@ BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
 	{
 		if (pMsg->wParam == VK_ESCAPE)
 		{
-			theMainApplicationWindow.passCommonCommand(ID_ACCELERATOR_ESC);
+			//theMainApplicationWindow.passCommonCommand(ID_ACCELERATOR_ESC);
 			// Do not process further
 			return TRUE;
 		}
@@ -59,28 +59,9 @@ BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
 	return CWinApp::PreTranslateMessage(pMsg);
 }
 
-
-
-BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
-{
-	if (code >= 0 && theMainApplicationWindow && m_haccel)
-	{
-		if ( theMainApplicationWindow.handleAccelerators( m_haccel, lpMsg ) )
-		{
-			return (TRUE);
-		}
-		if (::TranslateAcceleratorA( this->theMainApplicationWindow.m_hWnd, m_haccel, lpMsg ))
-		{
-			return(TRUE);
-		}
-	}
-	return CWinApp::ProcessMessageFilter(code, lpMsg);
-}
-
-
 BOOL ChimeraApp::InitInstance()
 {
-	initTime = chronoClock::now();
+	chronoTime initTime = chronoClock::now();
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
 	/// initialize some stuff
@@ -94,14 +75,16 @@ BOOL ChimeraApp::InitInstance()
 				"experiment!\r\n" );
 		return -10000;
 	}
- 	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	
-	QMfcApp::instance (this);
+	auto inst = QMfcApp::instance (this);
 
-	INT_PTR returnVal = theMainApplicationWindow.DoModal();
+	QtMainWindow* mainWinQt = new QtMainWindow((CDialog*)splash, &initTime);
+	mainWinQt->show ();
+	inst->exec ();
+	
 	// end of program.
 	std::chrono::high_resolution_clock::now();
-	return int(returnVal);
+	return int(0);
 }
 
 

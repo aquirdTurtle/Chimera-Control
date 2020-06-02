@@ -232,7 +232,7 @@ unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
 		else // safemode
 		{
 			// simulate an actual wait.
-			Sleep( 200 );
+			Sleep( 500 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
@@ -896,5 +896,5 @@ void AndorCameraCore::errorFinish ()
 	{
 		abortAcquisition ();
 	}
-	catch (Error & err) { /*Probably just idle.*/ }
+	catch (Error &) { /*Probably just idle.*/ }
 }

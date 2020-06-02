@@ -4,110 +4,91 @@
 #include "Scripts/Script.h"
 
 #include "GeneralUtilityFunctions/cleanString.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "Richedit.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "DigitalOutput/DoSystem.h"
 #include "GeneralObjects/RunInfo.h"
- 
+#include <PrimaryWindows/QtMainWindow.h>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
 #include "boost/lexical_cast.hpp"
+#include <qcombobox.h>
+#include <QInputDialog>
 
-
-void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips, CWnd* parent, int& id,
-						 std::string deviceTypeInput, std::string scriptHeader, std::array<UINT, 2> ids, 
-						 COLORREF backgroundColor)
+void Script::initialize (int width, int height, POINT& loc, IChimeraWindowWidget* parent,
+	std::string deviceTypeInput, std::string scriptHeader)
 {
-	AfxInitRichEdit();
-	InitCommonControls();
-	LoadLibrary( TEXT( "Msftedit.dll" ) );
 	deviceType = deviceTypeInput;
-	if (deviceTypeInput == "NIAWG")
-	{
-		extension = str( "." ) + NIAWG_SCRIPT_EXTENSION;
+	if (deviceTypeInput == "NIAWG") {
+		extension = str (".") + NIAWG_SCRIPT_EXTENSION;
 	}
-	else if (deviceTypeInput == "Agilent")
-	{
-		extension = str( "." ) + AGILENT_SCRIPT_EXTENSION;
+	else if (deviceTypeInput == "Agilent") {
+		extension = str (".") + AGILENT_SCRIPT_EXTENSION;
 	}
-	else if (deviceTypeInput == "Master")
-	{
-		extension = str( "." ) + MASTER_SCRIPT_EXTENSION;
+	else if (deviceTypeInput == "Master") {
+		extension = str (".") + MASTER_SCRIPT_EXTENSION;
 	}
-	else
-	{
-		thrower ( ": Device input type not recognized during construction of script control.  (A low level bug, "
-				 "this shouldn't happen)" );
+	else {
+		thrower (": Device input type not recognized during construction of script control.  (A low level bug, "
+			"this shouldn't happen)");
 	}
-	CHARFORMAT myCharFormat = { 0 };
-	myCharFormat.cbSize = sizeof( CHARFORMAT );
-	myCharFormat.dwMask = CFM_COLOR;
-	myCharFormat.crTextColor = RGB( 255, 255, 255 );
 	// title
 	if (scriptHeader != "")
 	{
-		// user has option to not have a header if scriptheader is "".
-		title.sPos = { loc.x, loc.y, loc.x + width, loc.y + 25 };
-		title.Create( cstr( scriptHeader ), NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
-		title.fontType = fontTypes::HeadingFont;
+		title = new QLabel (cstr (scriptHeader), parent);
+		title->setGeometry (loc.x, loc.y, width, 25);
 		loc.y += 25;
 	}
-	savedIndicator.sPos = { loc.x, loc.y, loc.x + 80, loc.y + 20 };
-	savedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, parent, id++ );
-	savedIndicator.SetCheck( true );
-	fileNameText.sPos = { loc.x + 80, loc.y, loc.x + width - 20, loc.y + 20 };
-	fileNameText.Create( NORM_STATIC_OPTIONS, fileNameText.sPos, parent, id++ );
+	savedIndicator = new CQCheckBox ("Saved?", parent);
+	savedIndicator->setGeometry (loc.x, loc.y, 80, 20);
+	savedIndicator->setChecked (true);
+	savedIndicator->setEnabled (false);
+	fileNameText = new QLabel ("", parent);
+	fileNameText->setGeometry (loc.x + 80, loc.y, width - 100, 20);
 	isSaved = true;
-	help.sPos = { loc.x + width - 20, loc.y, loc.x + width, loc.y + 20 };
-	help.Create( NORM_STATIC_OPTIONS, help.sPos, parent, id++ );
-	help.SetWindowTextA( "?" );
+	help = new QLabel ("?", parent);
+	help->setGeometry (loc.x + width - 20, loc.y, 20, 20);
 	// don't want this for the scripting window, hence the extra check.
-	if (deviceType == "Agilent" && ids[0] != IDC_INTENSITY_FUNCTION_COMBO)
+	if (deviceType == "Agilent")
 	{
-		help.setToolTip( AGILENT_INFO_TEXT, toolTips, parent );
+		help->setToolTip (AGILENT_INFO_TEXT);
 	}
 	loc.y += 20;
-	availableFunctionsCombo.sPos = { loc.x, loc.y, loc.x + width, loc.y + 800 };
-	availableFunctionsCombo.Create( NORM_COMBO_OPTIONS, availableFunctionsCombo.sPos, parent, ids[0] );
-	loadFunctions( );
-	// select "parent script".
-	availableFunctionsCombo.SetCurSel( 0 );
+	availableFunctionsCombo.combo = new CQComboBox (parent);
+	availableFunctionsCombo.combo->setGeometry (loc.x, loc.y, width, 25);
+	loadFunctions ();
+	availableFunctionsCombo.combo->setCurrentIndex (0);
 	loc.y += 25;
-	// Edit
-	edit.sPos = { loc.x, loc.y, loc.x + width, loc.y += height };
-	edit.Create( NORM_EDIT_OPTIONS | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL, edit.sPos, parent, ids[1] );
-	edit.fontType = fontTypes::CodeFont;
-	edit.SetBackgroundColor( FALSE, backgroundColor );
-	edit.SetEventMask( ENM_CHANGE );
-	edit.SetDefaultCharFormat( myCharFormat );
 
-	syntaxTimer.Create( 0, NULL, 0, { 0,0,0,0 }, parent, 0 );
+	edit = new CQTextEdit ("", parent);
+	edit->setGeometry (loc.x, loc.y, width, height);
+	parent->connect (edit, &QTextEdit::textChanged, [parent, this]() {
+			try {
+				handleEditChange ();
+			}
+			catch (Error& err) {
+				parent->reportErr (err.trace ());
+			}
+		});
+	loc.y += height;
 }
-
 
 void Script::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	edit.rearrange( width, height, fonts);
-	title.rearrange( width, height, fonts);
-	savedIndicator.rearrange( width, height, fonts);
-	fileNameText.rearrange( width, height, fonts);
-	availableFunctionsCombo.rearrange( width, height, fonts);
-	help.rearrange( width, height, fonts);
 }
 
 
 void Script::functionChangeHandler(std::string configPath)
 {
-	int selection = availableFunctionsCombo.GetCurSel( );
+	int selection = availableFunctionsCombo.combo->currentIndex( );
 	if ( selection != -1 )
 	{
 		CString text;
-		availableFunctionsCombo.GetLBText( selection, text );
+		availableFunctionsCombo.combo->currentText();
 		std::string textStr( text.GetBuffer( ) );
 		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
 		changeView( textStr, true, configPath );
@@ -129,9 +110,11 @@ std::string Script::getScriptPath()
 
 std::string Script::getScriptText()
 {
-	CString text;
-	edit.GetWindowText(text);
-	return str(text);
+	if (!edit)
+	{
+		return "";
+	}
+	return str(edit->toPlainText());
 }
 
 
@@ -317,7 +300,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 void Script::updateSavedStatus(bool scriptIsSaved)
 {
 	isSaved = scriptIsSaved;
-	savedIndicator.SetCheck ( scriptIsSaved );
+	savedIndicator->setChecked ( scriptIsSaved );
 }
 
 
@@ -344,17 +327,17 @@ void Script::handleTimerCall(std::vector<parameterType> vars,  Matrix<std::strin
 		DWORD x1 = 1, x2 = 1;
 		int initScrollPos, finScrollPos;
 		CHARRANGE charRange;
-		edit.GetSel(charRange);
-		initScrollPos = edit.GetScrollPos(SB_VERT);
+		//edit.GetSel(charRange);
+		//initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
 		colorEntireScript (vars, ttlNames, dacInfo);
 		//colorScriptSection (editChangeBegin, editChangeEnd, vars, ttlNames, dacInfo);
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
-		edit.SetSel(charRange);
-		finScrollPos = edit.GetScrollPos(SB_VERT);
-		edit.LineScroll(-(finScrollPos - initScrollPos));
+		//edit.SetSel(charRange);
+		//finScrollPos = edit.GetScrollPos(SB_VERT);
+		//edit.LineScroll(-(finScrollPos - initScrollPos));
 		updateSavedStatus(tempSaved);
 	}
 }
@@ -367,7 +350,8 @@ void Script::handleEditChange()
 		return;
 	}
 	CHARRANGE charRange;
-	edit.GetSel(charRange);
+	//edit.GetSel(charRange);
+	/*
 	if (charRange.cpMin < editChangeBegin)
 	{
 		editChangeBegin = charRange.cpMin;
@@ -375,7 +359,7 @@ void Script::handleEditChange()
 	if (charRange.cpMax > editChangeEnd)
 	{
 		editChangeEnd = charRange.cpMax;
-	}
+	}*/
 	syntaxColoringIsCurrent = false;
 	updateSavedStatus(false);
 }
@@ -389,9 +373,8 @@ void Script::colorEntireScript( std::vector<parameterType> vars, Matrix<std::str
 
 bool Script::positionIsInComment (DWORD position) 
 {
-	CString text;
-	edit.GetWindowTextA (text);
-	std::stringstream stream = std::stringstream (std::string (text));
+	auto text = edit->toPlainText ();
+	std::stringstream stream = std::stringstream (str (text));
 	bool inComment = false;
 	while (stream)
 	{
@@ -422,12 +405,11 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 								 Matrix<std::string> ttlNames, std::array<AoInfo, 24> dacInfo )
 {
 	if (!edit) { return; }
-	edit.SetRedraw( false );
+	//edit.SetRedraw( false );
 	bool tempSaveStatus = isSaved;
-	CString text;
-	edit.GetWindowTextA(text);
+	auto text = edit->toPlainText();
 	std::string word, line;
-	std::stringstream fileTextStream = std::stringstream(std::string(text));
+	std::stringstream fileTextStream = std::stringstream(str(text));
 	COLORREF syntaxColor, coloring;
 	CHARFORMAT textFormat = { 0 };
 	textFormat.cbSize = sizeof(CHARFORMAT);
@@ -511,14 +493,14 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 					coloring = syntaxColor;
 					textFormat.crTextColor = coloring;
 					CHARRANGE charRange = { startOfWord, endOfWord };
-					edit.SetSel(charRange);
-					edit.SetSelectionCharFormat(textFormat);
+					//edit.SetSel(charRange);
+					//edit.SetSelectionCharFormat(textFormat);
 					startOfWord = endOfWord;
 				}
 			}
 			CHARRANGE charRange = { startOfWord, endOfWord };
-			edit.SetSel(charRange);
-			edit.SetSelectionCharFormat(textFormat);
+			//edit.SetSel(charRange);
+			//edit.SetSelectionCharFormat(textFormat);
 			startOfWord = endOfWord;
 			prev = endOfWordOffset;
 		}
@@ -538,24 +520,25 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 				coloring = syntaxColor;
 				textFormat.crTextColor = coloring;
 				CHARRANGE charRange = { startOfWord, endOfWord };
-				edit.SetSel(charRange);
-				edit.SetSelectionCharFormat(textFormat);
+				//edit.SetSel(charRange);
+				//edit.SetSelectionCharFormat(textFormat);
 				startOfWord = endOfWord;
 			}
 			CHARRANGE charRange = { startOfWord, endOfWord };
-			edit.SetSel(charRange);
-			edit.SetSelectionCharFormat(textFormat);
+			//edit.SetSel(charRange);
+			//edit.SetSelectionCharFormat(textFormat);
 			startOfWord = endOfWord;
 		}
 	}
-	edit.SetRedraw( true );
-	edit.RedrawWindow();
+	//edit.SetRedraw( true );
+	//edit.RedrawWindow();
 	updateSavedStatus( tempSaveStatus );
 }
 
 
 void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
 {
+	/*
 	TOOLTIPTEXT *pTTT = (TOOLTIPTEXT *)pNMHDR;
 	UINT nID = pNMHDR->idFrom;
 	if (pTTT->uFlags & TTF_IDISHWND)
@@ -586,34 +569,9 @@ void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
 		}
 		*pResult = 0;
 		thrower ( "Worked." );
-	}
+	}*/
 	// else it's another window, just return and let them try.
 }
-
-HBRUSH Script::handleColorMessage ( CWnd* window, CDC* cDC )
-{
-	DWORD id = window->GetDlgCtrlID ( );
-	if ( id == edit.GetDlgCtrlID ( ) )
-	{
-		//cDC->SetTextColor ( _myRGBs[ "Text" ] );
-		if ( !edit.IsWindowEnabled ( ) )
-		{
-			cDC->SetBkColor ( _myRGBs[ "Disabled-Bkgd" ] );
-			return *_myBrushes[ "Disabled-Bkgd" ];
-		}
-		else
-		{
-			cDC->SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
-			return *_myBrushes[ "Interactable-Bkgd" ];
-		}
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-
 
 void Script::changeView(std::string viewName, bool isFunction, std::string configPath)
 {
@@ -640,11 +598,11 @@ void Script::changeView(std::string viewName, bool isFunction, std::string confi
 
 bool Script::isFunction ( )
 {
-	int sel = availableFunctionsCombo.GetCurSel ( );
-	CString text;
+	int sel = availableFunctionsCombo.combo->currentIndex();
+	QString text;
 	if ( sel != -1 )
 	{
-		availableFunctionsCombo.GetLBText ( sel, text );
+		text = availableFunctionsCombo.combo->currentText();
 	}
 	else
 	{
@@ -674,11 +632,9 @@ void Script::saveScript(std::string configPath, RunInfo info)
 	if ( scriptName == "" )
 	{
 		std::string newName;
-		TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".", 
-							    scriptName);
-		dialog.DoModal();
-		if (newName == "")
-		{
+		newName = str(QInputDialog::getText (edit, "New Script Name", ("Please enter new name for the " + deviceType + " script " + scriptName + ".",
+											 scriptName).c_str()));
+		if (newName == ""){
 			// canceled
 			return;
 		}
@@ -696,14 +652,13 @@ void Script::saveScript(std::string configPath, RunInfo info)
 			}
 		}
 	}
-	CString text;
-	edit.GetWindowTextA(text);
+	auto text = edit->toPlainText();
 	std::fstream saveFile(configPath + scriptName + extension, std::fstream::out);
 	if (!saveFile.is_open())
 	{
 		thrower ("Failed to open script file: " + configPath + scriptName + extension);
 	}
-	saveFile << text;
+	saveFile << str(text);
 	saveFile.close();
 	scriptFullAddress = configPath + scriptName + extension;
 	scriptPath = configPath;
@@ -729,14 +684,13 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 			}
 		}
 	}
-	CString text;
-	edit.GetWindowTextA(text);
+	auto text = edit->toPlainText();
 	std::fstream saveFile(location, std::fstream::out);
 	if (!saveFile.is_open())
 	{
 		thrower ("Failed to open script file: " + location);
 	}
-	saveFile << text;
+	saveFile << str(text);
 	char fileChars[_MAX_FNAME];
 	char dirChars[_MAX_FNAME];
 	char pathChars[_MAX_FNAME];
@@ -759,10 +713,9 @@ void Script::checkSave(std::string configPath, RunInfo info, Communicator* comm)
 		return;
 	}
 	// test first non-commented word of text to see if this looks like a function or not.
-	CString text;
-	edit.GetWindowTextA(text);
+	auto text = edit->toPlainText();
 	ScriptStream tempStream;
-	tempStream << text;
+	tempStream << str(text);
 	std::string word;
 	tempStream >> word;
 	if (word == "def")
@@ -801,9 +754,8 @@ void Script::checkSave(std::string configPath, RunInfo info, Communicator* comm)
 		else if (answer == IDYES)
 		{
 			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".",
-					scriptName);
-			dialog.DoModal();
+			newName = str (QInputDialog::getText (edit, "New Script Name", ("Please enter new name for the " + deviceType + " script " + scriptName + ".",
+				scriptName).c_str ()));
 			std::string path = configPath + newName + extension;
 			saveScriptAs(path, info);
 			return;
@@ -837,9 +789,8 @@ void Script::renameScript(std::string configPath)
 		return;
 	}
 	std::string newName;
-	TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".",
-		scriptName);
-	dialog.DoModal();
+	newName = str (QInputDialog::getText (edit, "New Script Name", ("Please enter new name for the " + deviceType + " script " + scriptName + ".",
+		scriptName).c_str ()));
 	if (newName == "")
 	{
 		// canceled
@@ -899,7 +850,7 @@ void Script::newFunction()
 				 " currently.");
 	}
 	loadFile(tempName);
-	availableFunctionsCombo.SetCurSel (-1);
+	availableFunctionsCombo.combo->setCurrentIndex (-1);
 }
 
 //
@@ -983,7 +934,10 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 		}
 	}
 	updateScriptNameText( configPath );
-	availableFunctionsCombo.SelectString(0, "Parent Script");
+	int index = availableFunctionsCombo.combo->findData ("Parent Script");
+	if (index != -1) { // -1 for not found
+		availableFunctionsCombo.combo->setCurrentIndex (index);
+	}
 }
 
 /*
@@ -1007,20 +961,26 @@ void Script::loadFile(std::string pathToFile)
 		fileText += tempLine;
 	}
 	// put the default into the new control.
-	edit.SetWindowTextA(cstr(fileText));
+	edit->setText(cstr(fileText));
 	openFile.close();
 }
 
 
 void Script::reset()
 {
-	availableFunctionsCombo.SelectString(0, "Parent Script");
+	if (!availableFunctionsCombo.combo) {
+		return;
+	}
+	int index = availableFunctionsCombo.combo->findData ("Parent Script");
+	if (index != -1) { // -1 for not found
+		availableFunctionsCombo.combo->setCurrentIndex (index);
+	}
 	scriptName = "";
 	scriptPath = "";
 	scriptFullAddress = "";
 	updateSavedStatus(false);
-	fileNameText.SetWindowTextA("");
-	edit.SetWindowTextA("");
+	fileNameText->setText("");
+	edit->setText("");
 }
 
 
@@ -1077,7 +1037,7 @@ void Script::updateScriptNameText(std::string configPath)
 	{
 		std::string parentFolder = configPath.substr(sPos + 1, configPath.size());
 		std::string text = parentFolder + "->" + scriptName;
-		fileNameText.SetWindowTextA(cstr(text));
+		fileNameText->setText(cstr(text));
 	}
 	else
 	{
@@ -1090,48 +1050,25 @@ void Script::updateScriptNameText(std::string configPath)
 		{
 			text += scriptName;
 		}
-		fileNameText.SetWindowTextA(cstr(text));
+		fileNameText->setText(cstr(text));
 	}
 }
 
 
 void Script::setScriptText(std::string text)
 {
-	edit.SetWindowText( cstr( text ) );
+	if (!edit) {
+		return;
+	}
+	edit->setText( cstr( text ) );
 }
-
-
-INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
-{
-	DWORD controlID = GetDlgCtrlID((HWND)lParam);
-	HDC hdcStatic = (HDC)wParam;
-	if (controlID == edit.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(15, 15, 15));
-		return (LRESULT)brushes["Dark Grey"];
-	}
-	else if (controlID == title.GetDlgCtrlID() || controlID == savedIndicator.GetDlgCtrlID() 
-			 || controlID == fileNameText.GetDlgCtrlID() || controlID == availableFunctionsCombo.GetDlgCtrlID())
-	{
-		SetTextColor(hdcStatic, RGB(218, 165, 32));
-		SetBkColor(hdcStatic, RGB(25, 25, 25));
-		return (LRESULT)brushes["Medium Grey"];
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
 
 void Script::saveAsFunction(Communicator* comm)
 {
 	// check to make sure that the current script is defined like a function
-	CString text;
-	edit.GetWindowTextA(text);
+	auto text = edit->toPlainText();
 	ScriptStream stream;
-	stream << text.GetBuffer();
+	stream << str(text);
 	std::string word;
 	stream >> word;
 	if (word != "def")
@@ -1168,20 +1105,25 @@ void Script::saveAsFunction(Communicator* comm)
 	{
 		thrower ("the function file failed to open!");
 	}
-	functionFile << text.GetBuffer();
+	functionFile << str(text);
 	functionFile.close();
 	// refresh this.
 	loadFunctions();
-	availableFunctionsCombo.SelectString( 0, cstr(functionName) );
+	int index = availableFunctionsCombo.combo->findData (cstr (functionName));
+	if (index != -1) { // -1 for not found
+		availableFunctionsCombo.combo->setCurrentIndex (index);
+	}
 	updateSavedStatus( true );
 }
 
 
 void Script::setEnabled ( bool enabled, bool functionsEnabled )
 {
-	edit.SetReadOnly( !enabled );
-	edit.SetBackgroundColor ( false, enabled ? _myRGBs["Interactable-Bkgd"] : _myRGBs[ "Disabled-Bkgd" ] );
-	availableFunctionsCombo.EnableWindow ( functionsEnabled );
+	if (!availableFunctionsCombo.combo || !edit ) {
+		return;
+	}
+	edit->setReadOnly (!enabled);
+	availableFunctionsCombo.combo->setEnabled( functionsEnabled );
 }
 
 

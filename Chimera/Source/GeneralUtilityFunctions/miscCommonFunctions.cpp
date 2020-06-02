@@ -6,6 +6,7 @@
 #include <string>
 #include <filesystem>
 
+/*
 // for mfc edits
 void appendText(std::string newText, CEdit& edit)
 {
@@ -33,7 +34,7 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	edit.SetSel(nLength, nLength);
 	//	edit.LineScroll(INT_MAX);
 }
-
+*/
 
 ULONG getNextFileIndex( std::string fileBase, std::string ext )
 {

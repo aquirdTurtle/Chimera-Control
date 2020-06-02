@@ -14,58 +14,56 @@ DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serial
 	Profile.readZernikeFile(location);
 }
 
-void DmControl::initializeTable(POINT& pos, int width, int height, CWnd* parent, UINT id) 
+void DmControl::initializeTable(POINT& pos, int width, int height, IChimeraWindowWidget* parent) 
 {
+	magLabel = new QLabel ("Mag.", parent);
+	magLabel->setGeometry (pos.x, pos.y, width, height);
+	angleLabel = new QLabel ("Angle", parent);
+	angleLabel->setGeometry (pos.x+width, pos.y+height, width, height);
 
-	magLabel.sPos = { pos.x, pos.y, pos.x + width, pos.y + height };
-	magLabel.Create(cstr("Mag."), NORM_STATIC_OPTIONS, magLabel.sPos, parent, id + 1);
-	angleLabel.sPos = { pos.x + width, pos.y, pos.x + 2*width, pos.y += height};
-	angleLabel.Create(cstr("Angle"), NORM_STATIC_OPTIONS, angleLabel.sPos, parent, id + 2);
+	comaMag = new QLineEdit (parent);
+	comaMag->setGeometry (pos.x, pos.y+= height, width, height);
+	comaAngle = new QLineEdit (parent);
+	comaAngle->setGeometry (pos.x + width, pos.y, width, height);
+	comaLabel = new QLabel ("Coma", parent);
+	comaLabel->setGeometry (pos.x + 2*width, pos.y, width, height);
 
-	comaMag.sPos = { pos.x, pos.y, pos.x + width, pos.y + height };
-	comaMag.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, comaMag.sPos, parent, id + 7);
-	comaAngle.sPos = { pos.x + width, pos.y, pos.x + width + width, pos.y + height };
-	comaAngle.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, comaAngle.sPos, parent, id + 8);
-	comaLabel.sPos = { pos.x + 2*width, pos.y, pos.x + 2 * width +90, pos.y += height };
-	comaLabel.Create(cstr("Coma"), NORM_STATIC_OPTIONS, comaLabel.sPos, parent, id + 3);
+	astigMag = new QLineEdit (parent);
+	astigMag->setGeometry (pos.x, pos.y += height, width, height);
+	astigAngle = new QLineEdit (parent);
+	astigAngle->setGeometry (pos.x + width, pos.y, width, height);
+	astigmatismLabel = new QLabel ("Astigmatism", parent);
+	astigmatismLabel->setGeometry (pos.x + 2 * width, pos.y, width, height);
 
-	astigMag.sPos = { pos.x, pos.y, pos.x + width, pos.y + height };
-	astigMag.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, astigMag.sPos, parent, id + 9);
-	astigAngle.sPos = { pos.x + width, pos.y, pos.x + width + width, pos.y + height };
-	astigAngle.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, astigAngle.sPos, parent, id + 10); 
-	astigmatismLabel.sPos = { pos.x + 2 * width, pos.y, pos.x + 2 * width + 90, pos.y += height};
-	astigmatismLabel.Create(cstr("Astigmatism"), NORM_STATIC_OPTIONS, astigmatismLabel.sPos, parent, id + 4);
-	
-	trefoilMag.sPos = { pos.x, pos.y, pos.x + width, pos.y + height };
-	trefoilMag.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, trefoilMag.sPos, parent, id + 11);
-	trefoilAngle.sPos = { pos.x + width, pos.y, pos.x + width + width, pos.y + height };
-	trefoilAngle.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, trefoilAngle.sPos, parent, id + 12); 
-	trefoilLabel.sPos = { pos.x + 2 * width, pos.y, pos.x + 2 * width + 90, pos.y += height };
-	trefoilLabel.Create(cstr("Trefoil"), NORM_STATIC_OPTIONS, trefoilLabel.sPos, parent, id + 5);
-	
-	sphereMag.sPos = { pos.x, pos.y , pos.x + width, pos.y + height };
-	sphereMag.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, sphereMag.sPos, parent, id + 13);
-	sphereAngle.sPos = { pos.x + width, pos.y , pos.x + width + width, pos.y + height };
-	sphereAngle.Create (NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER, sphereAngle.sPos, parent, id + 14); 
-	sphereAngle.EnableWindow ( false );
-	sphericalLabel.sPos = { pos.x + 2 * width, pos.y, pos.x + 2 * width + 90, pos.y += height };
-	sphericalLabel.Create(cstr("Spherical"), NORM_STATIC_OPTIONS, sphericalLabel.sPos, parent, id + 6);
+	trefoilMag = new QLineEdit (parent);
+	trefoilMag->setGeometry (pos.x, pos.y += height, width, height);
+	trefoilAngle = new QLineEdit (parent);
+	trefoilAngle->setGeometry (pos.x + width, pos.y, width, height);
+	trefoilLabel = new QLabel ("Trefoil", parent);
+	trefoilLabel->setGeometry (pos.x + 2 * width, pos.y, width, height);
 
-	applyCorrections.sPos = { pos.x, pos.y, pos.x + 2 * width + 90, pos.y + height };
-	applyCorrections.Create("Apply Corrections", NORM_PUSH_OPTIONS, applyCorrections.sPos, parent, id + 15);
+	sphereMag = new QLineEdit (parent);
+	sphereMag->setGeometry (pos.x, pos.y += height, width, height);
+	sphereAngle = new QLineEdit (parent);
+	sphereAngle->setGeometry (pos.x + width, pos.y, width, height);
+	sphericalLabel = new QLabel ("Trefoil", parent);
+	sphericalLabel->setGeometry (pos.x + 2 * width, pos.y, width, height);
+
+	applyCorrections = new QPushButton ("Apply Corrections", parent);
+	applyCorrections->setGeometry (pos.x, pos.y += height, 2 * width + 90, height);
 }
 
-void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id) 
+void DmControl::initialize( POINT loc, IChimeraWindowWidget* win, int count, std::string serialNumber, LONG width ) 
 {
-	programNow.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
-	programNow.Create ("Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, IDC_DM_PROGRAMNOW);
-	profileSelector.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 500 };
+	programNow = new QPushButton ("Program Now", win);
+	programNow->setGeometry (loc.x, loc.y, 240, 25);
+	profileSelector = new QComboBox (win);
+	profileSelector->setGeometry (loc.x, loc.y+=25, 240, 25);
 	loc.y -= 25;
-	profileSelector.Create (NORM_COMBO_OPTIONS, profileSelector.sPos, parent, IDC_DM_PROFILE_COMBO);
 
 	theDMInfo.ActuatorCount = count;
 	theDMInfo.serialNumber = serialNumber;
-	piston = std::vector<pistonButton>(count);
+	piston = std::vector<QLineEdit*>(count);
 	POINT B[137];
 	loc.x += 4 * width;
 	POINT A[13] = { {loc}, 
@@ -101,20 +99,19 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 	{
 		for (int i = 0; i < 137; i++) 
 		{
-			piston[i].Voltage.sPos = { B[i].x, B[i].y, B[i].x + width, B[i].y + width };
-			piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN | WS_EX_STATICEDGE
-										| ES_MULTILINE, piston[i].Voltage.sPos, parent, IDC_DM_EDIT_START + i);
+			piston[i] = new QLineEdit (win);
+			piston[i]->setGeometry (B[i].x, B[i].y, width, width);
 		}
 	}
-	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
-	initializeTable(loc, 50, 25, parent, IDC_DM_ADD_ZERNIKE);
+	ProfileSystem::reloadCombo(profileSelector, DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
+	initializeTable(loc, 50, 25, win);
 	loadProfile ("flatProfile");
 	refreshAbberationDisplays ();
 }
 
 void DmControl::handleOnPress(int i) 
 {
-	piston[i].Voltage.EnableWindow();
+	piston[i]->setEnabled(true);
 }
 
 void DmControl::updateButtons() 
@@ -125,7 +122,7 @@ void DmControl::updateButtons()
 	{
 		value = temp[i];
 		auto editTxt = str (value, 5);
-		piston[i].Voltage.SetWindowTextA(editTxt.c_str ());
+		piston[i]->setText(editTxt.c_str ());
 	}
 }
 
@@ -134,9 +131,7 @@ void DmControl::ProgramNow()
 	std::vector<double> values;
 	for (int i = 0; i < 137; i++) 
 	{
-		CString s1;
-		piston[i].Voltage.GetWindowTextA(s1);
-		std::string s2 = str(s1, 4, false, true);
+		std::string s2 = str(piston[i]->text(), 4, false, true);
 		try{
 			double s3 = boost::lexical_cast<double>(s2);
 			if (s3 < 0 || s3 > 1) 
@@ -184,104 +179,11 @@ bool DmControl::isFloat(const std::string& someString) //put in class
 	return true;
 }
 
-HBRUSH DmControl::handleColorMessage(CWnd* window, CDC* cDC)
-{
-	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == programNow.GetDlgCtrlID()) {
-		cDC->SetBkColor(_myRGBs["Slate Grey"]);
-		cDC->SetTextColor(_myRGBs["Text"]);
-		return *_myBrushes["Static-Bkgd"];
-	}
-	if (controlID == profileSelector.GetDlgCtrlID()) {
-		cDC->SetBkColor(_myRGBs["Slate Grey"]);
-		cDC->SetTextColor(_myRGBs["Text"]);
-		return *_myBrushes["Static-Bkgd"];
-	}
-	for (auto& pis : piston) 
-	{
-		if (controlID == pis.Voltage.GetDlgCtrlID()) 
-		{
-			CString s1;
-			double s3 = 0;
-			pis.Voltage.GetWindowTextA(s1);
-			std::string s2 = str(s1, 4, false, true);
-			try {
-				if (isFloat(s2) )
-				{
-					s2.erase(std::remove(s2.begin(), s2.end(), '\n'), s2.end());
-					s3 = boost::lexical_cast<double>(s2);
-					if (s3 < 0 || s3 > 1)
-					{
-						return *_myBrushes["DmColor1"];
-					}
-				}
-			}
-			catch (Error&) {
-				return *_myBrushes["DmColor1"];
-			}
-			int value = int(254 * s3) + 1;
-			std::string name = "DmColor" + str(value);
-			cDC->SetBkColor(_myRGBs[name]);
-			if (s3 >= 0.75) 
-			{
-				cDC->SetTextColor(_myRGBs["Black"]);
-			}
-			else 
-			{
-				cDC->SetTextColor(_myRGBs["Text"]);
-			}
-			return *_myBrushes[name];
-		}
-	}
-	
-	return NULL;
-}
-
-void DmControl::reColor(UINT id) 
-{
-	for (auto& pis : piston) 
-	{
-		if (id == pis.Voltage.GetDlgCtrlID()) 
-		{
-			pis.Voltage.RedrawWindow();
-		}
-	}
-}
-
-void DmControl::rearrange(int width, int height, fontMap fonts)
-{
-	programNow.rearrange(width, height, fonts);
-	comaMag.rearrange(width, height, fonts);
-	trefoilMag.rearrange(width, height, fonts);;
-	astigMag.rearrange(width, height, fonts);
-	sphereMag.rearrange(width, height, fonts);
-	comaAngle.rearrange(width, height, fonts);
-	trefoilAngle.rearrange(width, height, fonts);
-	astigAngle.rearrange(width, height, fonts);
-	sphereAngle.rearrange(width, height, fonts);
-	applyCorrections.rearrange(width, height, fonts);
-	angleLabel.rearrange(width, height, fonts);
-	magLabel.rearrange(width, height, fonts);
-	astigmatismLabel.rearrange(width, height, fonts);
-	sphericalLabel.rearrange(width, height, fonts);
-	trefoilLabel.rearrange(width, height, fonts);
-	comaLabel.rearrange(width, height, fonts);
-	programNow.rearrange(width, height, fonts);
-	profileSelector.rearrange(width, height, fonts);
-	for (auto& pis : piston) 
-	{
-		pis.Voltage.rearrange(width, height, fonts);
-	}
-	
-}
-
 void DmControl::loadProfile()
 {
-	CString file;
-	int id = profileSelector.GetCurSel();
-	profileSelector.GetLBText(id,file);
+	int id = profileSelector->currentIndex();
+	auto file = profileSelector->itemText(id);
 	std::string filename = str(file);
-	//if (DM_SAFEMODE) {
 	std::ifstream in_file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
 	if (!in_file.is_open()) {
 		thrower("File did not open");
@@ -300,9 +202,8 @@ void DmControl::loadProfile()
 			voltage = 0.0;
 		}
 		auto editTxt = str (voltage, 5);
-		pis.Voltage.SetWindowTextA(editTxt.c_str());
+		pis->setText(editTxt.c_str());
 		temp[count] = voltage;
-		reColor(IDC_DM_PROFILE_COMBO + count);
 		count++;
 	}
 	setMirror(temp.data()); 	
@@ -330,9 +231,8 @@ void DmControl::loadProfile(std:: string filename)
 				voltage = 0.0;
 			}
 			auto editTxt = str (voltage, 5);
-			pis.Voltage.SetWindowTextA(editTxt.c_str ());
+			pis->setText(editTxt.c_str ());
 			temp[count] = voltage;
-			reColor(IDC_DM_PROFILE_COMBO + count);
 			count++;
 		}	
 		setMirror(temp.data());
@@ -349,15 +249,15 @@ void DmControl::writeCurrentFile(std::string out_file)
 
 std::vector<double> DmControl::getTableValues() 
 {
-	CString s[8];
-	comaMag.GetWindowTextA(s[0]);
-	comaAngle.GetWindowTextA(s[1]);
-	astigMag.GetWindowTextA(s[2]);
-	astigAngle.GetWindowTextA(s[3]);
-	trefoilMag.GetWindowTextA(s[4]);
-	trefoilAngle.GetWindowTextA(s[5]);
-	sphereMag.GetWindowTextA(s[6]);
-	sphereAngle.GetWindowTextA(s[7]);
+	std::string s[8];
+	s[0] = str (comaMag->text());
+	s[1] = str (comaAngle->text());
+	s[2] = str (astigMag->text ());
+	s[3] = str (astigAngle->text ());
+	s[4] = str (trefoilMag->text ());
+	s[5] = str (trefoilAngle->text ());
+	s[6] = str (sphereMag->text ());
+	s[7] = str (sphereAngle->text ());
 	std::string s2;
 	std::vector<double> parameters(8);
 	for (int i = 0; i < 8; i++) 
@@ -386,9 +286,8 @@ void DmControl::add_Changes()
 	Profile.addAstigmatism(params[2], params[3]);
 	Profile.addTrefoil(params[4], params[5]);
 	Profile.addSpherical(params[6]);
-	CString file;
-	int id = profileSelector.GetCurSel();
-	profileSelector.GetLBText(id, file);
+	int id = profileSelector->currentIndex();
+	auto file = profileSelector->itemText(id);
 	std::string filename = str(file);
 	std::string location = DM_PROFILES_LOCATION + "\\" + filename + ".txt";
 	writeArray = Profile.createZernikeArray(Profile.getCurrAmps(), location, false);
@@ -404,15 +303,15 @@ DmCore &DmControl::getCore()
 DMOutputForm DmControl::getExpressionValues() 
 {
 	DMOutputForm output;
-	CString s[8];
-	comaMag.GetWindowTextA(s[0]);
-	comaAngle.GetWindowTextA(s[1]);
-	astigMag.GetWindowTextA(s[2]);
-	astigAngle.GetWindowTextA(s[3]);
-	trefoilMag.GetWindowTextA(s[4]);
-	trefoilAngle.GetWindowTextA(s[5]);
-	sphereMag.GetWindowTextA(s[6]);
-	profileSelector.GetWindowTextA(s[7]);
+	std::string s[8];
+	s[0] = str(comaMag->text());
+	s[1] = str (comaAngle->text ());
+	s[2] = str (astigMag->text ());
+	s[3] = str (astigAngle->text ());
+	s[4] = str (trefoilMag->text ());
+	s[5] = str (trefoilAngle->text ());
+	s[6] = str (sphereMag->text ());
+	s[7] = cstr(profileSelector->currentText ());
 
 	output.coma = str(s[0]);
 	output.comaAng = str(s[1]);
@@ -432,14 +331,14 @@ void DmControl::handleSaveConfig(ConfigStream& saveStream)
 
 void DmControl::refreshAbberationDisplays ()
 {
-	comaMag.SetWindowTextA (cstr (currentValues.coma.expressionStr));
-	comaAngle.SetWindowTextA (cstr (currentValues.comaAng.expressionStr));
-	astigMag.SetWindowTextA (cstr (currentValues.astig.expressionStr));
-	astigAngle.SetWindowTextA (cstr (currentValues.astigAng.expressionStr));
-	trefoilMag.SetWindowTextA (cstr (currentValues.trefoil.expressionStr));
-	trefoilAngle.SetWindowTextA (cstr (currentValues.trefoilAng.expressionStr));
-	sphereMag.SetWindowTextA (cstr (currentValues.spherical.expressionStr));
-	ProfileSystem::reloadCombo (profileSelector.GetSafeHwnd (), DM_PROFILES_LOCATION, str ("*") + "txt",
+	comaMag->setText(cstr (currentValues.coma.expressionStr));
+	comaAngle->setText (cstr (currentValues.comaAng.expressionStr));
+	astigMag->setText (cstr (currentValues.astig.expressionStr));
+	astigAngle->setText (cstr (currentValues.astigAng.expressionStr));
+	trefoilMag->setText (cstr (currentValues.trefoil.expressionStr));
+	trefoilAngle->setText (cstr (currentValues.trefoilAng.expressionStr));
+	sphereMag->setText (cstr (currentValues.spherical.expressionStr));
+	ProfileSystem::reloadCombo (profileSelector, DM_PROFILES_LOCATION, str ("*") + "txt",
 		currentValues.base);
 }
 

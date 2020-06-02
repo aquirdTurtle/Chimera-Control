@@ -10,6 +10,11 @@
 #include "Andor/AndorCameraCore.h"
 #include "ConfigurationSystems/Version.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qcheckbox>
+#include <qcombobox.h>
+#include <qlineedit.h>
 
 struct cameraPositions;
 
@@ -28,20 +33,19 @@ class AndorCameraSettingsControl
 		void setRepsPerVariation(UINT repsPerVar);
 		void updateRunSettingsFromPicSettings( );
 		CBrush* handleColor(int idNumber, CDC* colorer );
-		void initialize(POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
+		void initialize(POINT& pos, IChimeraWindowWidget* parent );
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain( bool currentlyOn, int currentEmGainLevel );
 		void rearrange(int width, int height, fontMap fonts);
 		void updateWindowEnabledStatus ();
-		void handlePictureSettings(UINT id);
+		void handlePictureSettings();
 		void updateTriggerMode( );
-		void handleTriggerChange(AndorWindow* cameraWindow);
 		void handleSetTemperaturePress();
 		void changeTemperatureDisplay( AndorTemperatureStatus stat );
 		void checkIfReady();
 		void cameraIsOn( bool state );
-		void handleModeChange( AndorWindow* cameraWindow );
+		void handleModeChange( );
 		void updateCameraMode( );
 		AndorCameraSettings getSettings();
 		AndorCameraSettings getCalibrationSettings( );
@@ -57,7 +61,7 @@ class AndorCameraSettingsControl
 		void handleSaveConfig(ConfigStream& configFile);
 
 		void handelSaveMasterConfig(std::stringstream& configFile);
-		void handleOpenMasterConfig(ConfigStream& configFile, AndorWindow* camWin);
+		void handleOpenMasterConfig(ConfigStream& configFile, QtAndorWindow* camWin);
 
 		std::vector<Matrix<long>> getImagesToDraw( const std::vector<Matrix<long>>& rawData  );
 
@@ -68,31 +72,31 @@ class AndorCameraSettingsControl
 		double getAccumulationCycleTime( );
 		UINT getAccumulationNumber( );
 		imageParameters getImageParameters( );
-		Control<CStatic> header;
+		QLabel* header;
 		// Hardware Accumulation Parameters
-		Control<CStatic> accumulationCycleTimeLabel;
-		Control<CEdit> accumulationCycleTimeEdit;
-		Control<CStatic> accumulationNumberLabel;
-		Control<CEdit> accumulationNumberEdit;
+		QLabel* accumulationCycleTimeLabel;
+		CQLineEdit* accumulationCycleTimeEdit;
+		QLabel* accumulationNumberLabel;
+		CQLineEdit* accumulationNumberEdit;
 
-		Control<CComboBox> cameraModeCombo;
-		Control<CStatic> emGainLabel;
-		Control<CEdit> emGainEdit;
-		Control<CleanPush> emGainBtn;
-		Control<CStatic> emGainDisplay;
-		Control<CComboBox> triggerCombo;
+		QComboBox* cameraModeCombo;
+		QLabel* emGainLabel;
+		CQLineEdit* emGainEdit;
+		QPushButton* emGainBtn;
+		QLabel* emGainDisplay;
+		QComboBox* triggerCombo;
 		// Temperature
-		Control<CleanPush> setTemperatureButton;
-		Control<CleanPush> temperatureOffButton;
-		Control<CEdit> temperatureEdit;
-		Control<CStatic> temperatureDisplay;
-		Control<CStatic> temperatureMsg;
+		QPushButton* setTemperatureButton;
+		QPushButton* temperatureOffButton;
+		CQLineEdit* temperatureEdit;
+		QLabel* temperatureDisplay;
+		QLabel* temperatureMsg;
 
 		// Kinetic Cycle Time
-		Control<CEdit> kineticCycleTimeEdit;
-		Control<CStatic> kineticCycleTimeLabel;
-		Control<CEdit> minKineticCycleTimeDisp;
-		Control<CStatic> minKineticCycleTimeLabel;
+		CQLineEdit* kineticCycleTimeEdit;
+		QLabel* kineticCycleTimeLabel;
+		QLabel* minKineticCycleTimeDisp;
+		QLabel* minKineticCycleTimeLabel;
 		// two subclassed groups.
 		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;

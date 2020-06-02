@@ -33,8 +33,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		}
 		else
 		{
-			try
-			{
+			try	{
 				isDone = input->niawg->fgenConduit.isDone();
 			}
 			catch (Error&)

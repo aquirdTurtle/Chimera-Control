@@ -11,8 +11,8 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/lexical_cast.hpp>
 #include <map>
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralUtilityFunctions/range.h"
+#include <qheaderview.h>
 
 using std::vector;
 
@@ -21,116 +21,130 @@ DataAnalysisControl::DataAnalysisControl( )
 	grids.resize( 1 );
 }
 
-
-void DataAnalysisControl::initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips )
+void DataAnalysisControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
-	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.sPos, parent, id++);
-	header.fontType = fontTypes::HeadingFont;
+	header = new QLabel ("DATA ANALYSIS", parent);
+	header->setGeometry (pos.x, pos.y, 480, 25);
 
-	currentDataSetNumberText.sPos = { pos.x, pos.y, pos.x + 350, pos.y + 50 };
-	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS | SS_CENTERIMAGE, currentDataSetNumberText.sPos,  
-									parent, id++);
-	currentDataSetNumberDisp.sPos = { pos.x + 350, pos.y, pos.x + 480, pos.y += 50 };
-	currentDataSetNumberDisp.Create("?", NORM_STATIC_OPTIONS, currentDataSetNumberDisp.sPos, parent, id++);
-	currentDataSetNumberDisp.fontType = fontTypes::VeryLargeFont;
-	gridSelector.sPos = { pos.x, pos.y, pos.x + 50, pos.y + 500 };
-	gridSelector.Create( NORM_COMBO_OPTIONS, gridSelector.sPos, parent, IDC_ATOM_GRID_COMBO );
-	gridSelector.AddString( "0" );
-	gridSelector.AddString( "New" );
-	gridSelector.SetCurSel( 0 );	
-	deleteGrid.sPos = { pos.x + 50, pos.y, pos.x + 100, pos.y + 25 };
-	deleteGrid.Create ("Del", NORM_PUSH_OPTIONS, deleteGrid.sPos, parent, IDC_DEL_GRID_BUTTON);
-	setGridCorner.sPos = { pos.x + 100, pos.y, pos.x + 200, pos.y + 25 };
-	setGridCorner.Create( "Set Grid T.L.", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX, setGridCorner.sPos,
-						  parent, IDC_SET_GRID_CORNER );
-	gridSpacingText.sPos = { pos.x + 200, pos.y, pos.x + 260, pos.y + 25 };
-	gridSpacingText.Create("Spacing", NORM_STATIC_OPTIONS, gridSpacingText.sPos, parent, id++ );
-	gridSpacing.sPos = { pos.x + 260, pos.y, pos.x + 290, pos.y + 25 };
-	gridSpacing.Create( NORM_EDIT_OPTIONS, gridSpacing.sPos, parent, id++ );
-	gridSpacing.SetWindowTextA( "0" );
-	gridWidthText.sPos = { pos.x + 290, pos.y, pos.x + 350, pos.y + 25 };
-	gridWidthText.Create( "Width", NORM_STATIC_OPTIONS, gridWidthText.sPos, parent, id++ );
-	gridWidth.sPos = { pos.x + 350, pos.y, pos.x + 380, pos.y + 25 };
-	gridWidth.Create( NORM_EDIT_OPTIONS, gridWidth.sPos, parent, id++ );
-	gridWidth.SetWindowText( "0" );
-	gridHeightText.sPos = { pos.x + 380, pos.y, pos.x + 440, pos.y + 25 };
-	gridHeightText.Create( "Height", NORM_STATIC_OPTIONS, gridHeightText.sPos, parent, id++ );
-	gridHeight.sPos = { pos.x + 440, pos.y, pos.x + 480, pos.y += 25 };
-	gridHeight.Create( NORM_EDIT_OPTIONS, gridHeight.sPos, parent, id++ );
-	gridHeight.SetWindowTextA( "0" );
+	currentDataSetNumberText = new QLabel ("Data Set #", parent);
+	currentDataSetNumberText->setGeometry (pos.x, pos.y+=25, 350, 50);
+	currentDataSetNumberDisp = new QLabel ("?", parent);
+	currentDataSetNumberDisp->setGeometry (pos.x + 350, pos.y, 130, 50);
+	gridSelector = new QComboBox (parent);
+	gridSelector->setGeometry (pos.x, pos.y, 50, 25);
+	parent->connect (gridSelector, qOverload<int>(&QComboBox::currentIndexChanged), 
+		[this, parent]() {
+			try
+			{
+				handleAtomGridCombo ();
+			}
+			catch (Error& err)
+			{
+				parent->reportErr (err.trace ());
+			}
+		});
+	gridSelector->addItem ("0");
+	gridSelector->addItem ("New");
+	gridSelector->setCurrentIndex( 0 );	
+
+	deleteGrid = new QPushButton ("Del", parent);
+	deleteGrid->setGeometry (pos.x + 50, pos.y, 50, 25);
+	parent->connect (deleteGrid, &QPushButton::released, [this, parent]() {
+			try
+			{
+				handleDeleteGrid ();
+			}
+			catch (Error& err)
+			{
+				parent->reportErr (err.trace ());
+			}
+		});
+
+	setGridCorner = new QPushButton ("Set Grid T.L.", parent);
+	setGridCorner->setGeometry (pos.x + 100, pos.y, 100, 25);
+	setGridCorner->setCheckable (true);
+	parent->connect (setGridCorner, &QPushButton::released, 
+		[this, parent]() {
+			onCornerButtonPushed (); 
+			parent->configUpdated ();
+		});
+	gridSpacingText = new QLabel ("Spacing", parent);
+	gridSpacingText->setGeometry (pos.x+200, pos.y, 60, 25);
+	gridSpacing = new QLineEdit ("0", parent);
+	gridSpacing->setGeometry (pos.x + 260, pos.y, 30, 25);
+
+	gridWidthText = new QLabel ("Width", parent);
+	gridWidthText->setGeometry (pos.x + 290, pos.y, 60, 25);
+
+	gridWidth = new QLineEdit ("0", parent);
+	gridWidth->setGeometry (pos.x + 350, pos.y, 30, 25);
+
+	gridHeightText = new QLabel ("Height", parent);
+	gridHeightText->setGeometry (pos.x + 380, pos.y, 60, 25);
+
+	gridHeight = new QLineEdit ("0", parent);
+	gridHeight->setGeometry (pos.x + 440, pos.y, 40, 25);
 	// 
-	manualSetAnalysisLocsButton.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
-	manualSetAnalysisLocsButton.Create("Manual Points?", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
-										manualSetAnalysisLocsButton.sPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
-
-	manualSetAnalysisLocsButton.EnableWindow( false );
-	displayGridBtn.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 25 };
-	displayGridBtn.Create ( "Display Grid?", NORM_CHECK_OPTIONS, displayGridBtn.sPos, parent, id++ );
+	displayGridBtn = new QCheckBox ("Display Grid?", parent);
+	displayGridBtn->setGeometry (pos.x, pos.y += 25, 240, 25);
 
 	/// PLOTTING FREQUENCY CONTROLS
-	updateFrequencyLabel1.sPos = { pos.x + 240, pos.y, pos.x + 390, pos.y + 25 };
-	updateFrequencyLabel1.Create("Update plots every (", NORM_STATIC_OPTIONS, updateFrequencyLabel1.sPos, parent, id++);
+	updateFrequencyLabel1 = new QLabel ("Update plots every", parent);
+	updateFrequencyLabel1->setGeometry (pos.x + 240, pos.y, 140, 25);
 
-	updateFrequencyEdit.sPos = { pos.x + 390, pos.y, pos.x + 420, pos.y + 25 };
-	updateFrequencyEdit.Create( NORM_EDIT_OPTIONS, updateFrequencyEdit.sPos, parent, id++);
+	updateFrequencyEdit = new QLineEdit ("5", parent);
+	updateFrequencyEdit->setGeometry (pos.x + 390, pos.y, 30, 25);
 	updateFrequency = 5;
-	updateFrequencyEdit.SetWindowTextA("5");
-	updateFrequencyLabel2.sPos = { pos.x + 420, pos.y, pos.x + 480, pos.y += 25 };
-	updateFrequencyLabel2.Create(") reps.", NORM_STATIC_OPTIONS | ES_CENTER | ES_LEFT, updateFrequencyLabel2.sPos, 
-								  parent, id++);
+	
+	updateFrequencyLabel2 = new QLabel (") reps.", parent);
+	updateFrequencyLabel2->setGeometry (pos.x + 420, pos.y, 60, 25);
 
-	plotTimerTxt.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 25 };
-	plotTimerTxt.Create( "Plot Update Timer (ms):", NORM_STATIC_OPTIONS, plotTimerTxt.sPos, parent, id++ );
-	plotTimerEdit.sPos = { pos.x + 180, pos.y, pos.x + 240, pos.y + 25 };
-	plotTimerEdit.Create( NORM_EDIT_OPTIONS, plotTimerEdit.sPos, parent, IDC_PLOT_TIMER_EDIT );
-	plotTimerEdit.SetWindowText( "5000" );
-	autoThresholdAnalysisButton.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
-	autoThresholdAnalysisButton.Create ("Auto Threshold Analysis?", NORM_CHECK_OPTIONS,
-		autoThresholdAnalysisButton.sPos, parent, id++);
-	autoThresholdAnalysisButton.setToolTip ("At the end of an experiment, run some python code which will fit the "
+	plotTimerTxt = new QLabel ("Plot Update Timer (ms):", parent);
+	plotTimerTxt->setGeometry (pos.x, pos.y += 25, 180, 25);
+	
+
+	plotTimerEdit = new QLineEdit ("5000", parent);
+	plotTimerEdit->setGeometry (pos.x + 180, pos.y, 60, 25);
+	autoThresholdAnalysisButton = new QCheckBox ("Auto Threshold Analysis", parent);
+	autoThresholdAnalysisButton->setGeometry (pos.x + 240, pos.y, 240, 25);
+	parent->connect (plotTimerEdit, &QLineEdit::textChanged, [this]() {updatePlotTime (); });
+	autoThresholdAnalysisButton->setToolTip ("At the end of an experiment, run some python code which will fit the "
 		"data and determine good thresholds which can be outputted to a file to "
-		"keep the thresholds used by the real-time analysis up-to-date.",
-		tooltips, parent);
-
+		"keep the thresholds used by the real-time analysis up-to-date.");
 	/// Initialize the listview
-	plotListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 150 };
-	plotListview.Create( NORM_LISTVIEW_OPTIONS, plotListview.sPos, parent, IDC_PLOTTING_LISTVIEW );
-	RECT r;
-	parent->GetClientRect( &r );
-	// spacing is funny because initial window size is not full screen and the columns aren't autoscaled. This spacing
-	// just works out.
-	plotListview.InsertColumn ( 0, "Name", r.right / 3 );
-	for ( auto txt : { "Active", "Details", "Edit", "Grid#" } )
-	{
-		plotListview.InsertColumn( 1, txt, r.right / 9 );
-	}
-	plotListview.SetBkColor( _myRGBs["Interactable-Bkgd"] );
-	plotListview.SetTextBkColor( _myRGBs["Interactable-Bkgd"] );
-	plotListview.SetTextColor( _myRGBs["AndorWin-Text"] );
-	//
+	plotListview = new QTableWidget (parent);
+	plotListview->setGeometry (pos.x, pos.y+=25, 480, 150);
+	pos.y += 150;
+	QStringList labels;
+	labels << " Active " << " Details " << " Edit " << " Grid # ";
+	plotListview->setContextMenuPolicy (Qt::CustomContextMenu);
+	/*parent->connect (plotListview, &QTableWidget::customContextMenuRequested,
+		[this](const QPoint& pos) {this->handleContextMenu (pos); });*/
+	plotListview->setColumnCount (labels.size ());
+	plotListview->setHorizontalHeaderLabels (labels);
+	plotListview->horizontalHeader ()->setFixedHeight (25);
+	plotListview->resizeColumnsToContents ();
+	plotListview->verticalHeader ()->setSectionResizeMode (QHeaderView::Fixed);
+	plotListview->verticalHeader ()->setDefaultSectionSize (22);
+	plotListview->verticalHeader ()->setFixedWidth (40);
 	reloadListView();
 }
 
 bool DataAnalysisControl::getDrawGridOption ( )
 {
-	return displayGridBtn.GetCheck ( );
+	return displayGridBtn->isChecked ( );
 }
 
 bool DataAnalysisControl::wantsThresholdAnalysis ( )
 {
-	return autoThresholdAnalysisButton.GetCheck ( );
+	return autoThresholdAnalysisButton->isChecked( );
 }
 
 
 void DataAnalysisControl::updatePlotTime ( )
 {
-	CString txt;
-	plotTimerEdit.GetWindowText ( txt );
-	std::string tmpStr ( txt );
-	try
-	{
-		plotTime = boost::lexical_cast<unsigned long>( tmpStr );
+	try	{
+		plotTime = boost::lexical_cast<unsigned long>(str(plotTimerEdit->text()));
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -152,15 +166,15 @@ void DataAnalysisControl::handleDeleteGrid( )
 		thrower ( "ERROR: You are not allowed to delete the last grid for data analysis!" );
 	}
 	grids.erase( grids.begin( ) + selectedGrid );
-	gridSelector.ResetContent( );
+	gridSelector->clear ();
 	UINT count = 0;
 	for ( auto grid : grids )
 	{
 		std::string txt( str( count++ ) );
-		gridSelector.AddString( cstr( txt ) );
+		gridSelector->addItem( cstr( txt ) );
 	}
-	gridSelector.AddString( "New" );
-	gridSelector.SetCurSel( 0 );
+	gridSelector->addItem( "New" );
+	gridSelector->setCurrentIndex( 0 );
 	selectedGrid = 0;
 	loadGridParams( grids[0] );
 }
@@ -168,15 +182,14 @@ void DataAnalysisControl::handleDeleteGrid( )
 
 ULONG DataAnalysisControl::getPlotFreq( )
 {
-	CString txt;
-	updateFrequencyEdit.GetWindowText(txt);
 	try
 	{
-		updateFrequency = boost::lexical_cast<long>( str( txt ) );
+		updateFrequency = boost::lexical_cast<long>( str(updateFrequencyEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
-		throwNested ( "ERROR: Failed to convert plotting update frequency to an integer! text was: " + str( txt ) );
+		throwNested ( "ERROR: Failed to convert plotting update frequency to an integer! text was: " 
+			+ str(updateFrequencyEdit->text ()) );
 	}
 	return updateFrequency;
 }
@@ -189,11 +202,11 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 	{
 		bool autoThresholdAnalysisOption;
 		file >> autoThresholdAnalysisOption;
-		autoThresholdAnalysisButton.SetCheck ( autoThresholdAnalysisOption );
+		autoThresholdAnalysisButton->setChecked ( autoThresholdAnalysisOption );
 	}
 	else
 	{
-		autoThresholdAnalysisButton.SetCheck ( 0 );
+		autoThresholdAnalysisButton->setChecked ( 0 );
 	}
 	if (file.ver > Version( "3.0" ) )
 	{
@@ -214,7 +227,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 		file >> grid.topLeftCorner.row >> grid.topLeftCorner.column >> grid.width >> grid.height >> grid.pixelSpacing;
 	}
 	reloadGridCombo( grids.size( ) );
-	gridSelector.SetCurSel( 0 );
+	gridSelector->setCurrentIndex( 0 );
 	// load the grid parameters for that selection.
 	loadGridParams( grids[0] );
 	selectedGrid = 0;
@@ -254,8 +267,8 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 				{
 					pltInfo.isActive = true;
 					pltInfo.whichGrid = whichGrids[activeCounter];
-					plotListview.SetItem( "YES", counter, 4 );
-					plotListview.SetItem( str(pltInfo.whichGrid), counter, 1);
+					//plotListview->setItem( "YES", counter, 4 );
+					//plotListview.SetItem( str(pltInfo.whichGrid), counter, 1);
 					found = true;
 					break;
 				}
@@ -263,7 +276,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 			if ( !found )
 			{
 				pltInfo.isActive = false;
-				plotListview.SetItem( "NO", counter, 4 );
+				//plotListview.SetItem( "NO", counter, 4 );
 			}
 			counter++;
 		}
@@ -274,7 +287,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 		bool option;
 		file.get ( );
 		file >> option;
-		displayGridBtn.SetCheck ( option );
+		displayGridBtn->setChecked ( option );
 	}
 }
 
@@ -282,7 +295,7 @@ void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
 void DataAnalysisControl::handleSaveConfig( ConfigStream& file )
 {
 	file << "DATA_ANALYSIS\n";
-	file << "/*Auto-Threshold Analysis?*/\t" << autoThresholdAnalysisButton.GetCheck ( );
+	file << "/*Auto-Threshold Analysis?*/\t" << autoThresholdAnalysisButton->isChecked( );
 	file << "\n/*Number of Analysis Grids: */\t" << grids.size ();
 	UINT count = 0;
 	for ( auto grid : grids )
@@ -315,7 +328,7 @@ void DataAnalysisControl::handleSaveConfig( ConfigStream& file )
 		}
 	}
 	file << "\nEND_ACTIVE_PLOTS\n";
-	file << "/*Display Grid?*/ " << displayGridBtn.GetCheck ( ) << "\n";
+	file << "/*Display Grid?*/ " << displayGridBtn->isChecked ( ) << "\n";
 	file << "END_DATA_ANALYSIS\n"; 
 }
 
@@ -810,12 +823,9 @@ atomGrid DataAnalysisControl::getAtomGrid( UINT which )
 	try
 	{
 		CString txt;
-		gridSpacing.GetWindowTextA( txt );
-		grids[which].pixelSpacing = boost::lexical_cast<long>( str( txt ) );
-		gridWidth.GetWindowTextA( txt );
-		grids[which].width = boost::lexical_cast<long>( str( txt ) );
-		gridHeight.GetWindowTextA( txt );
-		grids[which].height = boost::lexical_cast<long>( str( txt ) );
+		grids[which].pixelSpacing = boost::lexical_cast<long>( str(gridSpacing->text()) );
+		grids[which].width = boost::lexical_cast<long>( str(gridWidth->text()) );
+		grids[which].height = boost::lexical_cast<long>( str(gridHeight->text()) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -860,35 +870,13 @@ std::vector<atomGrid> DataAnalysisControl::getGrids( )
 
 
 void DataAnalysisControl::rearrange( int width, int height, fontMap fonts)
-{
-	updateFrequencyLabel1.rearrange(width, height, fonts);
-	updateFrequencyLabel2.rearrange(width, height, fonts);
-	autoThresholdAnalysisButton.rearrange ( width, height, fonts );
-	updateFrequencyEdit.rearrange(width, height, fonts);
-	header.rearrange(width, height, fonts);
-	plotListview.rearrange(width, height, fonts);
-	currentDataSetNumberDisp.rearrange( width, height, fonts );
-	currentDataSetNumberText.rearrange( width, height, fonts );
-	manualSetAnalysisLocsButton.rearrange( width, height, fonts );
-	setGridCorner.rearrange( width, height, fonts );
-	gridSpacingText.rearrange( width, height, fonts );
-	gridSpacing.rearrange( width, height, fonts );
-	gridWidthText.rearrange( width, height, fonts );
-	gridWidth.rearrange( width, height, fonts );
-	gridHeightText.rearrange( width, height, fonts );
-	gridHeight.rearrange( width, height, fonts );
-	gridSelector.rearrange( width, height, fonts );
-	deleteGrid.rearrange( width, height, fonts );
-	plotTimerTxt.rearrange( width, height, fonts );
-	plotTimerEdit.rearrange( width, height, fonts );
-	displayGridBtn.rearrange ( width, height, fonts );
-}
+{}
 
 
 void DataAnalysisControl::handleAtomGridCombo( )
 {
 	saveGridParams( );
-	int sel = gridSelector.GetCurSel( );
+	int sel = gridSelector->currentIndex( );
 	if ( sel == -1 )
 	{
 		return;
@@ -901,7 +889,7 @@ void DataAnalysisControl::handleAtomGridCombo( )
 	{
 		thrower ( "ERROR: Bad value for atom grid combobox selection???  (A low level bug, this shouldn't happen)" );
 	}
-	gridSelector.SetCurSel( sel );
+	gridSelector->setCurrentIndex( sel );
 	// load the grid parameters for that selection.
 	loadGridParams( grids[sel] );
 	selectedGrid = sel;
@@ -911,39 +899,42 @@ void DataAnalysisControl::handleAtomGridCombo( )
 void DataAnalysisControl::reloadGridCombo( UINT num )
 {
 	grids.resize( num );
-	gridSelector.ResetContent( );
+	gridSelector->clear( );
 	UINT count = 0;
 	for ( auto grid : grids )
 	{
 		std::string txt( str( count++ ) );
-		gridSelector.AddString( cstr( txt ) );
+		gridSelector->addItem( cstr( txt ) );
 	}
-	gridSelector.AddString( "New" );
+	gridSelector->addItem( "New" );
 }
 
 
 void DataAnalysisControl::loadGridParams( atomGrid grid )
 {
+	if (!gridSpacing || !gridHeight || !gridWidth) {
+		return;
+	}
 	std::string txt = str( grid.pixelSpacing );
-	gridSpacing.SetWindowText(cstr(txt));
+	gridSpacing->setText(cstr(txt));
 	txt = str( grid.width );
-	gridWidth.SetWindowText(cstr(txt));
+	gridWidth->setText(cstr(txt));
 	txt = str( grid.height );
-	gridHeight.SetWindowText( cstr( txt ) );
+	gridHeight->setText ( cstr( txt ) );
 }
 
 
 void DataAnalysisControl::saveGridParams( )
 {
+	if (!gridSpacing || !gridHeight || !gridWidth) {
+		return;
+	}
 	CString txt;
 	try
 	{
-		gridSpacing.GetWindowText( txt );
-		grids[selectedGrid].pixelSpacing = boost::lexical_cast<long>( str(txt) );
-		gridHeight.GetWindowText( txt );
-		grids[selectedGrid].height = boost::lexical_cast<long>( str( txt ) );
-		gridWidth.GetWindowText( txt );
-		grids[selectedGrid].width = boost::lexical_cast<long>( str( txt ) );
+		grids[selectedGrid].pixelSpacing = boost::lexical_cast<long>( str(gridSpacing->text()) );
+		grids[selectedGrid].height = boost::lexical_cast<long>( str( gridHeight->text() ) );
+		grids[selectedGrid].width = boost::lexical_cast<long>( str( gridWidth->text()) );
 	}
 	catch ( boost::bad_lexical_cast&)
 	{
@@ -977,11 +968,11 @@ void DataAnalysisControl::updateDataSetNumberEdit( int number )
 {
 	if ( number > 0 )
 	{
-		currentDataSetNumberDisp.SetWindowTextA( cstr( number ) );
+		currentDataSetNumberDisp->setText( cstr( number ) );
 	}
 	else
 	{
-		currentDataSetNumberDisp.SetWindowTextA( "None" );
+		currentDataSetNumberDisp->setText ( "None" );
 	}
 }
 
@@ -997,18 +988,18 @@ void DataAnalysisControl::analyze( std::string date, long runNumber, long accumu
 
 bool DataAnalysisControl::buttonClicked()
 {
-	return (manualSetAnalysisLocsButton.GetCheck() || setGridCorner.GetCheck());
+	return (setGridCorner->isChecked());
 
 }
 
 
 void DataAnalysisControl::onCornerButtonPushed( )
 {
-	if ( setGridCorner.GetCheck( ) )
+	if ( setGridCorner->isChecked ( ) )
 	{
 		// if pressed currently, then upress it.
-		setGridCorner.SetCheck( 0 );
-		setGridCorner.SetWindowTextA( "Set Grid Top-Left Corner" );
+		setGridCorner->setChecked( 0 );
+		setGridCorner->setText( "Set Grid Top-Left Corner" );
 		currentlySettingGridCorner = false;
 	}
 	else
@@ -1016,32 +1007,9 @@ void DataAnalysisControl::onCornerButtonPushed( )
 		// else press it.
 		atomLocations.clear( );
 		grids[0].topLeftCorner = { 0,0 };
-		setGridCorner.SetCheck( 1 );
-		setGridCorner.SetWindowTextA( "Right-Click Top-Left Corner of New Grid Location" );
+		setGridCorner->setChecked( 1 );
+		setGridCorner->setText( "Right-Click Top-Left Corner of New Grid Location" );
 		currentlySettingGridCorner = true;
-	}
-}
-
-
-// handles the pressing of the analysis points button.
-// TODO: handle different cases where single locations or pairs of locations are being analyzed. 
-void DataAnalysisControl::onManualButtonPushed()
-{	
-	if ( manualSetAnalysisLocsButton.GetCheck() )
-	{
-		// if pressed currently, then upress it.
-		manualSetAnalysisLocsButton.SetCheck(0);
-		manualSetAnalysisLocsButton.SetWindowTextA( "Set Analysis Points" );
-		currentlySettingAnalysisLocations = false;
-	}
-	else
-	{
-		// else press it.
-		atomLocations.clear();
-		grids[0].topLeftCorner = { 0,0 };
-		manualSetAnalysisLocsButton.SetCheck( 1 );
-		manualSetAnalysisLocsButton.SetWindowTextA( "Right-Click Relevant Points and Reclick" );
-		currentlySettingAnalysisLocations = true;
 	}
 }
 
@@ -1060,25 +1028,10 @@ atomGrid DataAnalysisControl::getCurrentGrid( )
 
 void DataAnalysisControl::handlePictureClick( coordinate location )
 {
-	if ( setGridCorner.GetCheck( ) )
+	if (setGridCorner->isChecked ())
 	{
 		grids[selectedGrid].topLeftCorner = location;
-		onCornerButtonPushed( );
-	}
-	else if ( manualSetAnalysisLocsButton.GetCheck( ) )
-	{
-		bool exists = false;
-		for ( UINT locInc = 0; locInc < atomLocations.size( ); locInc++ )
-		{
-			if ( location.row == atomLocations[locInc].row && location.column == atomLocations[locInc].column )
-			{
-				exists = true;
-			}
-		}
-		if ( !exists )
-		{
-			atomLocations.push_back( location );
-		}
+		onCornerButtonPushed ();
 	}
 }
 
@@ -1100,6 +1053,7 @@ void DataAnalysisControl::clearAtomLocations()
  */
 void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerRepetition)
 {
+	/*
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	plotListview.ScreenToClient(&cursorPos);
@@ -1204,12 +1158,13 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			plotListview.SetItem( allTinyPlots[ itemIndicator ].isActive ? "YES" : "NO", itemIndicator, subitemIndicator );
 			break;
 		}
-	}
+	}*/
 }
 
 
 void DataAnalysisControl::reloadListView()
 {
+	/*
 	vector<std::string> names = ProfileSystem::searchForFiles(PLOT_FILES_SAVE_LOCATION, str("*.") + PLOTTING_EXTENSION);
 	plotListview.DeleteAllItems();
 	allTinyPlots.clear();
@@ -1229,12 +1184,13 @@ void DataAnalysisControl::reloadListView()
 		allTinyPlots.push_back(tempInfo);
 	}
 	plotListview.insertBlankRow ( );
-
+	*/
 }
 
 
 void DataAnalysisControl::handleRClick()
 {
+	/*
 	// delete...
 	/// get the item and subitem
 	POINT cursorPos;
@@ -1262,6 +1218,6 @@ void DataAnalysisControl::handleRClick()
 		}
 		plotListview.DeleteItem(itemIndicator);
 		allTinyPlots.erase(allTinyPlots.begin() + itemIndicator);
-	}
+	}*/
 }
 

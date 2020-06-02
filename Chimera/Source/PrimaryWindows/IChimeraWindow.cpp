@@ -6,7 +6,7 @@
 #include "BaslerWindow.h"
 #include "DeformableMirrorWindow.h"
 #include "ScriptingWindow.h"
-
+#include "ExperimentMonitoringAndStatus/colorbox.h"
 #include "GeneralUtilityFunctions/CommonFunctions.h"
 
 IChimeraWindow::IChimeraWindow () : CDialog () {}
@@ -32,11 +32,6 @@ HBRUSH IChimeraWindow::OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			CBrush* result = statBox.handleColoring (num, pDC);
-			if (result)
-			{
-				return *result;
-			}
 			pDC->SetTextColor (_myRGBs["Text"]);
 			pDC->SetBkColor (_myRGBs["Static-Bkgd"]);
 			return *_myBrushes["Static-Bkgd"];
@@ -85,14 +80,6 @@ void IChimeraWindow::OnCancel ()
 	}
 }
 
-BOOL IChimeraWindow::PreTranslateMessage (MSG* pMsg)
-{
-	for (auto& toolTip : toolTips)
-	{
-		toolTip->RelayEvent (pMsg);
-	}
-	return CDialog::PreTranslateMessage (pMsg);
-}
 
 void IChimeraWindow::loadFriends ( MainWindow* mainWin_, ScriptingWindow* scriptWin_, AuxiliaryWindow* auxWin_,
 								   BaslerWindow* basWin_, DeformableMirrorWindow* dmWindow_, AndorWindow* andorWin_ )
@@ -118,11 +105,11 @@ BOOL IChimeraWindow::OnInitDialog ()
 	return FALSE;
 }
 
-void IChimeraWindow::changeBoxColor (std::string sysDelim, char color)
+void IChimeraWindow::changeBoxColor (std::string sysDelim, std::string color)
 {
-	if (statBox.initialized)
+	if (statBox->initialized)
 	{
-		statBox.changeColor (sysDelim, color);
+		statBox->changeColor (sysDelim, color);
 	}
 }
 
@@ -135,4 +122,8 @@ std::vector<IChimeraWindow*> IChimeraWindow::winList ()
 {
 	std::vector<IChimeraWindow*> list = { mainWin, scriptWin, andorWin, auxWin, basWin, dmWin };
 	return list;
+}
+
+void IChimeraWindow::configUpdated () {
+	mainWin->notifyConfigUpdate ();
 }

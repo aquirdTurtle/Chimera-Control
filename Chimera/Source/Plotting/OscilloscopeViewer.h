@@ -2,7 +2,11 @@
 #pragma once
 #include "GeneralFlumes/VisaFlume.h"
 #include "Plotting/PlotCtrl.h"
-
+#include <QChart>
+#include <QChartView>
+#include "QChartView.h"
+#include <QtCharts/QChartView>
+#include <PrimaryWindows/IChimeraWindow.h>
 /*
  * This is a wrapper around a PlotCtrl object and a VisaFlume object that facilitates autmatically retrieving data
  * from a tektronics oscilloscope and plotting it. Currently this just allows users to see the scope without moving 
@@ -12,14 +16,10 @@ class ScopeViewer
 {
 	public:
 		ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name );
-		void initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent, std::vector<Gdiplus::Pen*> plotPens, 
-						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, int pltPopId,
+		void initialize( POINT& topLeftLoc, UINT width, UINT height, IChimeraWindowWidget* parent, 
 						 std::string title="Scope!");
 		void refreshData( );
-		void refreshPlot(CDC* sdc, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush );
-		void rearrange( int width, int height, fontMap fonts );
 		std::string getScopeInfo( );
-		bool handlePlotPop (UINT id, CWnd* parent);
 	private:
 		const std::string usbAddress;
 		const std::string scopeName;
@@ -28,6 +28,8 @@ class ScopeViewer
 		const bool safemode;
 		float yoffset, ymult;
 		VisaFlume visa;
-		PlotCtrl* viewPlot = NULL;
-		std::vector<pPlotDataVec> scopeData;
+		//PlotCtrl* viewPlot = NULL;
+		QtCharts::QChartView* viewPlot;
+		std::vector<QtCharts::QLineSeries*> data_t;
+		QtCharts::QChart* chart;		
 };

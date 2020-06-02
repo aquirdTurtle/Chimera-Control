@@ -1,8 +1,8 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "AnalogOutput/AoSystem.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/MainWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
 #include "ConfigurationSystems/Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
@@ -56,7 +56,7 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 
 bool AoSystem::handleArrow ( CWnd* focus, bool up )
 {
-	if ( quickChange.GetCheck ( ) )
+	if ( quickChange->isChecked( ) )
 	{
 		for ( auto& output : outputs )
 		{
@@ -219,14 +219,6 @@ bool AoSystem::isValidDACName(std::string name)
 
 void AoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	dacTitle.rearrange( width, height, fonts);
-	dacSetButton.rearrange( width, height, fonts);
-	zeroDacsButton.rearrange( width, height, fonts);
-	quickChange.rearrange ( width, height, fonts );
-	for ( auto& out : outputs )
-	{
-		out.rearrange ( width, height, fonts );
-	}
 }
 
 
@@ -243,28 +235,26 @@ double AoSystem::getDefaultValue(UINT dacNum)
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent )
 {
 	// title
-	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_CENTER, dacTitle.sPos, master, id++);
-	dacTitle.fontType = fontTypes::HeadingFont;
-	// 
-	dacSetButton.sPos = { pos.x, pos.y, pos.x + 160, pos.y + 25};
-	dacSetButton.Create( "Set New DAC Values", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 
-						 dacSetButton.sPos, master, ID_DAC_SET_BUTTON );
-	dacSetButton.setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
-							 " edits below.", toolTips, master);
-	//
-	zeroDacsButton.sPos = { pos.x + 160, pos.y, pos.x + 320, pos.y + 25 };
-	zeroDacsButton.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacsButton.sPos, master, IDC_ZERO_DACS );
-	zeroDacsButton.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
+	dacTitle = new QLabel ("DACS", parent);
+	dacTitle->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+480, pos.y += 25} });
 
+	dacSetButton = new CQPushButton ("Set New DAC Values", parent);
+	dacSetButton->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+160, pos.y+25} });
+	dacSetButton->setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
+							 " edits below.");
+	parent->connect (dacSetButton, &QPushButton::released, [parent]() {parent->auxWin->SetDacs (); });
+	zeroDacsButton = new CQPushButton ("Zero DACs", parent);
+	zeroDacsButton->setGeometry ({ QPoint{pos.x+160, pos.y},QPoint{pos.x+320, pos.y+25} });
+	zeroDacsButton->setToolTip( "Press this button to set all dac values to zero." );
+	parent->connect (zeroDacsButton, &QPushButton::released, [parent]() { parent->auxWin->zeroDacs(); });
 	// 
-	quickChange.sPos = { pos.x + 320, pos.y, pos.x + 480, pos.y += 25 };
-	quickChange.Create ( "Quick-Change", NORM_CHECK_OPTIONS, quickChange.sPos, master, id++ );
-	quickChange.setToolTip ( "With this checked, you can quickly change a DAC's value by using the arrow keys while "
-							 "having the cursor before the desired digit selected in the DAC's edit.", toolTips, master );
+	quickChange = new CQCheckBox ("Quick-Change", parent);
+	quickChange->setGeometry ({ QPoint{pos.x + 320, pos.y},QPoint{pos.x + 480, pos.y += 25} });
+	quickChange->setToolTip ( "With this checked, you can quickly change a DAC's value by using the arrow keys while "
+							 "having the cursor before the desired digit selected in the DAC's edit.");
 
 	int collumnInc = 0;
 	
@@ -278,24 +268,23 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 			pos.y -= 20 * outputs.size ( ) / 3;
 			pos.x += 160;
 		}
-		out.initialize ( pos, master, id, toolTips, dacInc );
+		out.initialize ( pos, parent, dacInc );
 		dacInc++;
 	}
 	pos.x -= 320;
 }
 
-
-void AoSystem::handleRoundToDac( MainWindow* mainWin )
+void AoSystem::handleRoundToDac( )
 {
 	if ( roundToDacPrecision )
 	{
 		roundToDacPrecision = false;
-		mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
+		//mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
 	}
 	else
 	{
 		roundToDacPrecision = true;
-		mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
+		//mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
 	}
 }
 
@@ -319,7 +308,6 @@ void AoSystem::handleSetDacsButtonPress(DoCore& ttls, bool useDefault )
 	for ( auto outputNum : range ( outputs.size() ) )
 	{
 		outputs[ outputNum ].info.currVal = vals[ outputNum ];
-		outputs[ outputNum ].setEditColorState ( 0 );
 	}
 }
 
@@ -1000,9 +988,9 @@ std::pair<double, double> AoSystem::getDacRange(int dacNumber)
 }
 
 
-void AoSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void AoSystem::setName(int dacNumber, std::string name)
 {
-	outputs[ dacNumber ].setName ( name, toolTips, master );
+	outputs[ dacNumber ].setName ( name );
 }
 
 
@@ -1012,30 +1000,15 @@ std::string AoSystem::getNote ( int dacNumber )
 }
 
 
-void AoSystem::setNote( int dacNum, std::string note, cToolTips& toolTips, AuxiliaryWindow* master )
+void AoSystem::setNote( int dacNum, std::string note )
 {
-	outputs[ dacNum ].setNote ( note, toolTips, master );
+	outputs[ dacNum ].setNote ( note );
 }
 
 
 std::string AoSystem::getName(int dacNumber)
 {
 	return outputs[dacNumber].info.name;
-}
-
-
-HBRUSH AoSystem::handleColorMessage( CWnd* window, CDC* cDC)
-{
-	int controlID = GetDlgCtrlID(*window);
-	for ( auto& out : outputs )
-	{
-		auto res = out.handleColorMessage ( controlID, window, cDC );
-		if ( res != NULL )
-		{
-			return res;
-		}
-	}
-	return NULL;
 }
 
 

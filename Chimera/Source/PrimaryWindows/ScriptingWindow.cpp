@@ -5,7 +5,6 @@
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
-#include "ExcessDialogs/textPromptDialog.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
 #include "PrimaryWindows/AndorWindow.h"
 #include "PrimaryWindows/ScriptingWindow.h"
@@ -17,7 +16,9 @@
 ScriptingWindow::ScriptingWindow() : IChimeraWindow(),
 intensityAgilent( INTENSITY_AGILENT_SETTINGS ), 
 niawg (DoRows::which::B, 14, NIAWG_SAFEMODE)
-{}
+{
+	statBox = new ColorBox ();
+}
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, IChimeraWindow)
 
@@ -155,7 +156,7 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	
 	intensityAgilent.rearrange( cx, cy, mainWin->getFonts() );
 	masterScript.rearrange(cx, cy, mainWin->getFonts());
-	statBox.rearrange( cx, cy, mainWin->getFonts());
+	statBox->rearrange( cx, cy, mainWin->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWin->getFonts());
 	niawg.rearrange (cx, cy, mainWin->getFonts ());
 	recolorScripts ( );
@@ -203,44 +204,39 @@ void ScriptingWindow::OnCancel()
 BOOL ScriptingWindow::OnInitDialog()
 {
 	SetWindowText ( "Scripting Window" );
-	EnableToolTips( TRUE );
 	// don't redraw until the first OnSize.
-	SetRedraw( false );
-
+	qtp = new QWinWidget ((CWnd*)this);
+	qtp->setStyleSheet (mainWin->getStyleSheet ());
+	qtp->move (0, 0);
 	int id = 2000;
 	/// initialize niawg.
-	try
-	{
+	try	{
 		niawg.core.initialize ();
 	}
-	catch (Error & except)
-	{
+	catch (Error & except)	{
 		errBox ("NIAWG failed to Initialize! Error: " + except.trace ());
 	}
-	try
-	{
+	try	{
 		niawg.core.setDefaultWaveforms ();
 		// but the default starts in the horizontal configuration, so switch back and start in this config.
 		restartNiawgDefaults ();
 	}
-	catch (Error & exception)
-	{
+	catch (Error & exception)	{
 		errBox ( "Failed to start niawg default waveforms! Niawg gave the following error message: " 
 				 + exception.trace () );
 	}
-	POINT startLocation = { 0, 28 };
-	niawg.initialize (id, startLocation, this, toolTips);
+	POINT startLocation = { 0, 25 };
+	//niawg.initialize (startLocation, this);
 	niawg.niawgScript.setEnabled ( true, false );
-	startLocation = { 640, 28 };
+	startLocation = { 640, 25 };
 	
-	intensityAgilent.initialize( startLocation, toolTips, this, id, "Tweezer Intensity Agilent", 865,
-								 _myRGBs["Interactable-Bkgd"], 640 );
-	startLocation = { 2*640, 28 };
-	masterScript.initialize( 640, 900, startLocation, toolTips, this, id, "Master", "Master Script",
-	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, _myRGBs["Interactable-Bkgd"] );
-	startLocation = { 1600, 3 };
-	statBox.initialize(startLocation, id, this, 300, toolTips, mainWin->getDevices ());
-	profileDisplay.initialize({ 0,3 }, id, this, toolTips);
+	intensityAgilent.initialize( startLocation, "Tweezer Intensity Agilent", 865, this, 640 );
+	startLocation = { 2*640, 25 };
+	masterScript.initialize( 640, 900, startLocation, this, "Master", "Master Script" );
+	startLocation = { 1200, 3 };
+	statBox->initialize(startLocation, this, 700, mainWin->getDevices ());
+	//profileDisplay.initialize({ 0,3 }, this);
+	qtp->show ();
 	try
 	{
 		// I only do this for the intensity agilent at the moment.
@@ -470,7 +466,7 @@ void ScriptingWindow::saveIntensityScript()
 }
 
 
-void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
+void ScriptingWindow::saveIntensityScriptAs(CWnd* parent )
 {
 	try
 	{
@@ -517,7 +513,7 @@ void ScriptingWindow::newNiawgScript()
 }
 
 
-void ScriptingWindow::openNiawgScript(CWnd* parent)
+void ScriptingWindow::openNiawgScript(CWnd* parent )
 {
 	try
 	{
@@ -550,7 +546,7 @@ void ScriptingWindow::saveNiawgScript()
 }
 
 
-void ScriptingWindow::saveNiawgScriptAs(CWnd* parent)
+void ScriptingWindow::saveNiawgScriptAs(CWnd* parent )
 {
 	std::string extensionNoPeriod = niawg.niawgScript.getExtension();
 	if (extensionNoPeriod.size() == 0)
@@ -663,7 +659,7 @@ void ScriptingWindow::newMasterScript()
 	masterScript.colorEntireScript(auxWin->getAllVariables(), auxWin->getTtlNames(), auxWin->getDacInfo ());
 }
 
-void ScriptingWindow::openMasterScript(CWnd* parent)
+void ScriptingWindow::openMasterScript(CWnd* parent )
 {
 	try
 	{
@@ -693,7 +689,7 @@ void ScriptingWindow::saveMasterScript()
 }
 
 
-void ScriptingWindow::saveMasterScriptAs(CWnd* parent)
+void ScriptingWindow::saveMasterScriptAs(CWnd* parent )
 {
 	std::string extensionNoPeriod = masterScript.getExtension();
 	if (extensionNoPeriod.size() == 0)

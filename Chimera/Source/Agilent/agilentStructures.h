@@ -15,7 +15,7 @@ struct agilentSettings
 {
 	bool safemode;
 	std::string address;
-	UINT sampleRate;
+	ULONG sampleRate;
 	// "INT" or "USB"
 	std::string memoryLocation;
 	std::string deviceName;

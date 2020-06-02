@@ -14,16 +14,14 @@ chronoTime initTime;
 class ChimeraApp : CWinAppEx
 	{
 	public:
-		ChimeraApp() : CWinAppEx(), splash(new splashDialog), theMainApplicationWindow(IDD_LARGE_TEMPLATE, splash, &initTime){	}
+		ChimeraApp() : CWinAppEx(), splash(new splashDialog){	}
 		BOOL InitInstance( );
 		BOOL ExitInstance( );
 		BOOL PreTranslateMessage(MSG* pMsg);
-		virtual BOOL ProcessMessageFilter(int code, LPMSG lpMsg);
-
 		virtual BOOL Run ();
 	private:
 		ULONG_PTR gdip_token;
 		HACCEL m_haccel;
 		splashDialog* splash;
-		MainWindow theMainApplicationWindow;
+		//MainWindow theMainApplicationWindow;
 };

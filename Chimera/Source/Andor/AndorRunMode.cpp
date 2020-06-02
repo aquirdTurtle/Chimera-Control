@@ -34,5 +34,7 @@ AndorRunModes::mode AndorRunModes::fromStr ( std::string txt )
 			return m;
 		}
 	}
+	thrower ("Failed to convert to andor mode from string!");
+	return mode::Kinetic;
 }
 

@@ -3,15 +3,16 @@
 
 #include "Control.h"
 #include "Windows.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
 
-class ProfileIndicator
-{
+class ProfileIndicator {
 	public:
-		void initialize(POINT position, int& id, CWnd* parent, cToolTips& tooltips);
+		void initialize(POINT position, QWidget* parent );
 		void update(std::string text);
 		void rearrange(int width, int height, fontMap fonts);
 	private:
-		Control<CStatic> header;
-		Control<CStatic> indicator;
+		QLabel* header;
+		QLabel* indicator;
 };
 

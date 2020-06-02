@@ -13,6 +13,11 @@
 #include "AnalogOutput/AnalogOutput.h"
 
 #include "ConfigurationSystems/Version.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "Qlabel.h"
+#include <qpushbutton.h>
+#include <qcheckbox.h>
+#include <qlineedit.h>
 
 class MainWindow;
 
@@ -33,9 +38,8 @@ class AoSystem
 		AoSystem( bool aoSafemode );
 
 		// standard functions for gui elements
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
+		void initialize( POINT& pos, IChimeraWindowWidget* master);
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		HBRUSH handleColorMessage( CWnd* hwnd, CDC* cDC );
 		void standardExperimentPrep (UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
 									 double currLoadSkipTime);
 		// configs
@@ -46,11 +50,11 @@ class AoSystem
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);
 		// Setting system settings, mostly non-crucial functionality.
 		void resetDacs (UINT varInc, bool skipOption);
-		void handleRoundToDac( MainWindow* menu );
+		void handleRoundToDac( );
 		void updateEdits( );
 		void setDefaultValue( UINT dacNum, double val );
-		void setName( int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master );
-		void setNote ( int dacNumber, std::string note, cToolTips& toolTips, AuxiliaryWindow* master );
+		void setName( int dacNumber, std::string name );
+		void setNote ( int dacNumber, std::string note );
 		bool isValidDACName( std::string name );
 		void setMinMax( int dacNumber, double min, double max );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData );
@@ -104,10 +108,10 @@ class AoSystem
 	private:
 		void setForceDacEvent (int line, double val, DoCore& ttls, UINT variation);
 
-		Control<CStatic> dacTitle;
-		Control<CleanPush> dacSetButton;
-		Control<CleanPush> zeroDacsButton;
-		Control<CleanCheck> quickChange;
+		QLabel* dacTitle;
+		CQPushButton* dacSetButton;
+		CQPushButton* zeroDacsButton;
+		CQCheckBox* quickChange;
 		std::array<AnalogOutput, 24> outputs;
 
 		std::vector<AoCommandForm> dacCommandFormList;

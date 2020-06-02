@@ -103,11 +103,11 @@ class ScanRangeInfo
 			}
 			return data[ scanDimIndex ][ rangeIndex ];
 		}
-		UINT numScanDimensions ( )
+		size_t numScanDimensions ( )
 		{
 			return data.size ( );
 		}
-		UINT numRanges ( UINT scanDimIndex )
+		size_t numRanges ( UINT scanDimIndex )
 		{
 			if ( scanDimIndex >= data.size ( ) )
 			{
@@ -117,7 +117,7 @@ class ScanRangeInfo
 		}
 		void setNumScanDimensions ( UINT numDimensions )
 		{
-			UINT initSize = data.size ( );
+			auto initSize = data.size ( );
 			data.resize ( numDimensions );
 			if ( data.size ( ) > initSize )
 			{
@@ -153,6 +153,14 @@ struct vectorizedNiawgVals
 
 struct parameterType
 {
+	parameterType () { };
+	parameterType (int rangeSize)
+	{
+		for (auto rangeVariations : range(rangeSize))
+		{
+			ranges.push_back ({ 0, 0 });
+		}
+	}
 	std::string name;
 	// whether this variable is constant or varies.
 	bool constant;

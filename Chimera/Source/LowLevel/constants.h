@@ -364,7 +364,7 @@ const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2"
 
 
 // We calibrated this. // NIAWG_GAIN = 1.64.
-constexpr float NIAWG_GAIN = 1.64;
+constexpr float NIAWG_GAIN = float(1.64);
 // NIAWG_GAIN = 1.64.
 
 constexpr int MAX_NIAWG_SIGNALS = 32;

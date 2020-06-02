@@ -2,18 +2,17 @@
 #include "stdafx.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "NIAWG/NiawgCore.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "ExcessDialogs/StartDialog.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "PrimaryWindows/MainWindow.h"
-#include "PrimaryWindows/AndorWindow.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/DeformableMirrorWindow.h"
-#include "PrimaryWindows/ScriptingWindow.h"
-#include "PrimaryWindows/BaslerWindow.h"
-#include "PrimaryWindows/IChimeraWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtDeformableMirrorWindow.h"
+#include "PrimaryWindows/QtScriptWindow.h"
+#include "PrimaryWindows/QtBaslerWindow.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
 #include "LowLevel/externals.h"
 #include "ExperimentThread/ExperimentType.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
@@ -23,7 +22,7 @@ namespace commonFunctions
 {
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
-	void handleCommonMessage( int msgID, IChimeraWindow* win )
+	void handleCommonMessage( int msgID, IChimeraWindowWidget* win )
 	{
 		auto* mainWin = win->mainWin; 
 		auto* andorWin = win->andorWin;
@@ -38,7 +37,7 @@ namespace commonFunctions
 				// this is mostly prepared like F5.
 				if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) )
 				{
-					andorWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
+					//andorWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
 				AllExperimentInput input;
@@ -66,8 +65,8 @@ namespace commonFunctions
 						mainWin->getComm ( )->sendStatus ( "Canceled camera initialization.\r\n" );
 						break;
 					}
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + err.trace ( ) );
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					mainWin->getComm ( )->sendError ( "Exited with Error!\n" + err.trace ( ) );
+					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 					andorWin->assertOff ( );
 					break;
@@ -89,7 +88,7 @@ namespace commonFunctions
 				catch ( Error& err )
 				{
 					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n " + err.trace ( ) );
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 					andorWin->assertOff ( );
 					break;
@@ -102,7 +101,7 @@ namespace commonFunctions
 			{
 				if ( andorWin->wantsAutoCal( ) && !andorWin->wasJustCalibrated( ) )
 				{
-					andorWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
+					//andorWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
 				AllExperimentInput input;
@@ -141,7 +140,7 @@ namespace commonFunctions
 						mainWin->getComm()->sendStatus("Canceled camera initialization.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.trace());
+					mainWin->getComm()->sendError("EXITED WITH ERROR!\n " + err.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 					andorWin->assertOff();
@@ -262,7 +261,7 @@ namespace commonFunctions
 						mainWin->getComm()->sendStatus("Camera is Not Running, User Canceled.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.trace());
+					mainWin->getComm()->sendError("EXITED WITH ERROR!\n " + exception.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 					andorWin->assertOff();
@@ -282,7 +281,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.trace());
+					mainWin->getComm()->sendError("EXITED WITH ERROR!\n " + except.trace());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 				}
 				break;
@@ -304,7 +303,7 @@ namespace commonFunctions
 					{
 						break;
 					}
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.trace() );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR!\n " + err.trace() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
 				}
 				break;
@@ -386,7 +385,7 @@ namespace commonFunctions
 				}
 				catch ( Error& except )
 				{
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + except.trace ( ) );
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n" + except.trace ( ) );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 				}
@@ -407,7 +406,7 @@ namespace commonFunctions
 				}
 				catch ( Error& except )
 				{
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR! " + except.trace ( ) );
+					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!" + except.trace ( ) );
 					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm ( )->sendTimer ( "ERROR!" );
 				}
@@ -458,6 +457,7 @@ namespace commonFunctions
 				break;
 			}
 			// the rest of these are all one-liners. 
+			/*
 			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile (win); break; }
 			case ID_PLOTTING_STOPPLOTTER: { andorWin->stopPlotter( ); break; }
 			case ID_FILE_MY_INTENSITY_NEW: { scriptWin->newIntensityScript(); break; }
@@ -515,13 +515,14 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE: { mainWin->handlePause(); break; }
 			case ID_HELP_HARDWARESTATUS: { mainWin->showHardwareStatus ( ); break; }
 			case ID_FORCE_EXIT:	{ forceExit ( win ); break; }
+			*/
 			default:
 				errBox("Common message passed but not handled! The feature you're trying to use"\
 						" feature likely needs re-implementation / new handling.");
 		}
 	}
 
-	void calibrateCameraBackground(IChimeraWindow* win)
+	void calibrateCameraBackground(IChimeraWindowWidget* win)
 	{
 		try 
 		{
@@ -540,7 +541,7 @@ namespace commonFunctions
 		}
 	}	 
 
-	void prepareMasterThread( int msgID, IChimeraWindow* win, AllExperimentInput& input, bool runNiawg,
+	void prepareMasterThread( int msgID, IChimeraWindowWidget* win, AllExperimentInput& input, bool runNiawg,
 							  bool runMaster, bool runAndor, bool runBasler, bool updatePlotXVals )
 	{
 		if (win->scriptWin->niawgIsRunning())
@@ -570,7 +571,7 @@ namespace commonFunctions
 	}
 
 
-	void startExperimentThread(IChimeraWindow* win, AllExperimentInput& input)
+	void startExperimentThread(IChimeraWindowWidget* win, AllExperimentInput& input)
 	{
 		win->mainWin->addTimebar( "main" );
 		win->mainWin->addTimebar( "error" );
@@ -578,7 +579,7 @@ namespace commonFunctions
 		win->mainWin->startExperimentThread( input.masterInput );
 	}
 
-	void abortCamera(IChimeraWindow* win)
+	void abortCamera(IChimeraWindowWidget* win)
 	{
 		if (!win->andorWin->cameraIsRunning())
 		{
@@ -592,7 +593,7 @@ namespace commonFunctions
 	}
 
 
-	void abortNiawg(IChimeraWindow* win)
+	void abortNiawg(IChimeraWindowWidget* win)
 	{
 		Communicator* comm = win->mainWin->getComm();
 		// set reset flag
@@ -609,7 +610,7 @@ namespace commonFunctions
 		if (result == WAIT_TIMEOUT)
 		{
 			// try again. Hopefully gives the main thread to handle other messages first if this happens.
-			win->mainWin->PostMessageA( WM_COMMAND, MAKEWPARAM( ID_FILE_ABORT_GENERATION, 0 ) );
+			//win->mainWin->PostMessageA( WM_COMMAND, MAKEWPARAM( ID_FILE_ABORT_GENERATION, 0 ) );
 			return;
 		}
 		eAbortNiawgFlag = false;
@@ -621,14 +622,14 @@ namespace commonFunctions
 	}
 
 
-	void abortMaster( IChimeraWindow* win )
+	void abortMaster( IChimeraWindowWidget* win )
 	{
 		win->mainWin->abortMasterThread();
 		win->auxWin->handleAbort();
 	}
 
 
-	void forceExit (IChimeraWindow* win)
+	void forceExit (IChimeraWindowWidget* win)
 	{
 		/// Exiting. Close the NIAWG normally.
 		try
@@ -639,15 +640,11 @@ namespace commonFunctions
 		{
 			errBox ( "The NIAWG did not exit smoothly: " + except.trace ( ) );
 		}
-		win->auxWin->EndDialog ( 0 );
-		win->andorWin->EndDialog ( 0 );
-		win->scriptWin->EndDialog ( 0 );
-		win->mainWin->EndDialog ( 0 );
 		PostQuitMessage ( 1 );
 	}
 
 
-	void exitProgram(IChimeraWindow* win)
+	void exitProgram(IChimeraWindowWidget* win)
 	{
 		if (win->scriptWin->niawgIsRunning())
 		{
@@ -677,7 +674,7 @@ namespace commonFunctions
 	}
 
 
-	void reloadNIAWGDefaults( MainWindow* mainWin, ScriptingWindow* scriptWin )
+	void reloadNIAWGDefaults( QtMainWindow* mainWin, QtScriptWindow* scriptWin )
 	{
 		// this hasn't actually been used or tested in a long time... aug 29th 2019
 		profileSettings profile = mainWin->getProfileSettings();
@@ -718,7 +715,7 @@ namespace commonFunctions
 	}
 
 
-	bool getPermissionToStart( IChimeraWindow* win, bool runNiawg, bool runMaster, AllExperimentInput& input )
+	bool getPermissionToStart( IChimeraWindowWidget* win, bool runNiawg, bool runMaster, AllExperimentInput& input )
 	{
 		std::string startMsg = "Current Settings:\r\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\r\n";
 		startMsg = win->andorWin->getStartMessage( );

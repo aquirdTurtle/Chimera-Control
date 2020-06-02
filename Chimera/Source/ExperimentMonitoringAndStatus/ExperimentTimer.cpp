@@ -4,27 +4,23 @@
 #include "Uxtheme.h"
 #include "ExperimentTimer.h"
 #include "PrimaryWindows/AndorWindow.h"
+#include <qprogressbar.h>
 
 
-void ExperimentTimer::initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& toolTips )
+void ExperimentTimer::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
-
-	timeDisplay.sPos = { pos.x, pos.y, pos.x + 168, pos.y + 40 };
-	timeDisplay.Create("", NORM_STATIC_OPTIONS, timeDisplay.sPos, parent, id++ );
+	timeDisplay = new QLabel ("", parent);
+	timeDisplay->setGeometry (pos.x, pos.y, 168, 40);
 	/// PROGRESS BARS
 	// subseries progress bar
 	LONG timerWidth = 550 * 2;
-	variationProgress.sPos = { pos.x + 168, pos.y, pos.x + timerWidth, pos.y + 15 };
-	variationProgress.Create(NORM_CWND_OPTIONS | PBS_SMOOTH, variationProgress.sPos, parent, id++ );
-	variationProgress.SetBkColor(RGB(100, 110, 100));
-	variationProgress.SetBarColor(RGB(0, 100, 0));
-	variationProgress.SetRange32( 0, 10000 );
+	variationProgress = new QProgressBar (parent);
+	variationProgress->setGeometry (pos.x + 168, pos.y, timerWidth - 168,15);
+	variationProgress->setRange (0, 10000);
 	// series progress bar display
-	overallProgress.sPos = { pos.x + 168, pos.y + 15, pos.x + timerWidth, pos.y + 40 };
-	overallProgress.Create( NORM_CWND_OPTIONS | PBS_SMOOTH, overallProgress.sPos, parent, id++ );
-	overallProgress.SetBkColor(RGB(100, 110, 100));
-	overallProgress.SetBarColor(RGB(55, 55, 55));
-	overallProgress.SetRange32( 0, 10000 );
+	overallProgress = new QProgressBar (parent);
+	overallProgress->setGeometry (pos.x + 168, pos.y+15, timerWidth - 168, 25);
+	overallProgress->setRange (0, 10000);
 }
 
 void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, UINT picsPerRep)
@@ -33,22 +29,15 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 	int minAverageNumber = 10;
 	int variationPosition = int((currentRepNumber % repsPerVariation) * 10000.0 / repsPerVariation);
 	int overallPosition = int( currentRepNumber / (double)totalRepetitions * 10000.0 );
-	variationProgress.SetPos ( variationPosition );
-	overallProgress.SetPos( overallPosition );
+	variationProgress->setValue(variationPosition);
+	overallProgress->setValue( overallPosition );
 	if (currentRepNumber == 1)
 	{
 		firstTime = GetTickCount64();
-		timeDisplay.fontType = fontTypes::NormalFont;
-		timeDisplay.SetWindowTextA( "Estimating Time..." );
-		timeDisplay.RedrawWindow();
+		timeDisplay->setText( "Estimating Time..." );
 	}
 	else if (currentRepNumber < totalRepetitions)
 	{
-		if (currentRepNumber == minAverageNumber)
-		{
-			timeDisplay.fontType = fontTypes::LargeFont;
-			timeDisplay.RedrawWindow();
-		}
 		long long thisTime = GetTickCount64();
 		if (currentRepNumber % picsPerRep == 0)
 		{
@@ -87,26 +76,21 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 					timeString += ":" + str(seconds);
 				}
 			}
-			timeDisplay.SetWindowTextA( cstr(timeString) );
+			timeDisplay->setText( cstr(timeString) );
 		}
 	}
 	else
 	{
-		timeDisplay.SetWindowTextA( "FIN!" );
-		timeDisplay.RedrawWindow();
+		timeDisplay->setText( "FIN!" );
 	}
 }
 
 
 void ExperimentTimer::rearrange( int width, int height, fontMap fonts )
-{
-	timeDisplay.rearrange( width, height, fonts );
-	variationProgress.rearrange( width, height, fonts );
-	overallProgress.rearrange( width, height, fonts );
-}
+{}
 
 
 void ExperimentTimer::setTimerDisplay(std::string newText)
 {
-	timeDisplay.SetWindowTextA( cstr(newText) );
+	timeDisplay->setText( cstr(newText) );
 }
