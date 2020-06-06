@@ -326,6 +326,8 @@
     <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
     <ClCompile Include="MOC\moc_ExpThreadWorker.cpp" />
+    <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
+    <ClCompile Include="MOC\moc_ParameterModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -745,7 +747,6 @@
     <ClInclude Include="MOC\moc_predefs.h" />
     <ClInclude Include="Source\GeneralObjects\ChimeraStyleSheets.h" />
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
-    <ClInclude Include="Source\ExperimentThread\ExpThreadWorker.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -881,5 +882,7 @@
     <CustomBuild Include="Source\PrimaryWindows\QtAndorWindow.h" />
     <CustomBuild Include="Source\PrimaryWindows\IChimeraWindowWidget.h" />
     <CustomBuild Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
+    <CustomBuild Include="Source\ExperimentThread\ExpThreadWorker.h" />
+    <CustomBuild Include="Source\ParameterSystem\ParameterModel.h" />
   </ItemGroup>
 </Project>

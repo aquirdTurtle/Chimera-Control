@@ -47,9 +47,9 @@ class ScanRangeInfo
 	This class is basically a wrapper around a 2d vector
 	*/
 	private:
-	std::vector<std::vector<IndvRangeInfo>> data;
 	const IndvRangeInfo defaultRangeInfo = { 2,false,true };
 	public:
+		std::vector<std::vector<IndvRangeInfo>> data;
 		void removeDim ( UINT which )
 		{
 			data.erase ( data.begin ( ) + which );
@@ -161,7 +161,7 @@ struct parameterType
 			ranges.push_back ({ 0, 0 });
 		}
 	}
-	std::string name;
+	std::string name="x";
 	// whether this variable is constant or varies.
 	bool constant;
 	double constantValue = 0;

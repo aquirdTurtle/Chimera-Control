@@ -49,7 +49,6 @@ class QtMainWindow : public IChimeraWindowWidget
 
 		void showHardwareStatus ();
 		void drawServoListview (NMHDR* pNMHDR, LRESULT* pResult);
-		BOOL handleAccelerators (HACCEL m_haccel, LPMSG lpMsg);
 		// overrides
 		void forceExit ();
 		void fillExpDeviceList (DeviceList& list);
@@ -67,13 +66,11 @@ class QtMainWindow : public IChimeraWindowWidget
 		void onMachineOptRoundFin ();
 		void handleThresholdAnalysis ();
 		void onAutoCalFin ();
+		void setStyleSheets ();
 		//
 		static unsigned int __stdcall scopeRefreshProcedure (void* voidInput);
 		void loadCameraCalSettings (ExperimentThreadInput* input);
 		void handlePause ();
-		void passDebugPress (UINT id);
-		void passMainOptionsPress (UINT id);
-		void passClear (UINT id);
 		DeviceList getDevices ();
 		CFont* getPlotFont ();
 		// auxiliary functions used by the window.
@@ -111,7 +108,6 @@ class QtMainWindow : public IChimeraWindowWidget
 		void logParams (DataLogger* logger, ExperimentThreadInput* input);
 		bool experimentIsPaused ();
 		void notifyConfigUpdate ();
-		void passConfigPress ();
 
 		void OnTimer (UINT_PTR id);
 

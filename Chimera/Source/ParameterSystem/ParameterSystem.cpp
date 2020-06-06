@@ -16,99 +16,113 @@
 #include <qmenu.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
 
-ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter )
+ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter ),
+paramModel(configurationFileDelimiter=="GLOBAL_PARAMETERS")
 { }
 
 void ParameterSystem::handleContextMenu (const QPoint& pos)
 {
-	QTableWidgetItem* item = parametersListview->itemAt (pos);
+	auto index = parametersView->indexAt (pos);
 	QMenu menu;
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
-	auto* deleteAction = new QAction ("Delete This Item", parametersListview);
-	parametersListview->connect (deleteAction, &QAction::triggered, [this, item]() {parametersListview->removeRow (item->row ()); });
-	auto* newPerson = new QAction ("New Item", parametersListview);
-	parametersListview->connect (newPerson, &QAction::triggered, 
-		[this]() {
-			currentParameters.push_back (parameterType (rangeInfo.dimensionInfo (0).size ()));
-			redrawListview (); 
+	auto* deleteAction = new QAction ("Delete This Parameter", parametersView);
+	parametersView->connect (deleteAction, &QAction::triggered,
+		[this, index]() {
+			auto params = this->paramModel.getParams ();
+			params.erase (params.begin () + index.row ());
+			paramModel.setParams (params);
 		});
-	if (item) { menu.addAction (deleteAction); }
-	menu.addAction (newPerson);
-	menu.exec (parametersListview->mapToGlobal (pos));
+	auto* newParam = new QAction ("New Parameter", parametersView);
+	parametersView->connect (newParam, &QAction::triggered,
+		[this]() {
+			auto params = paramModel.getParams ();
+			params.push_back (parameterType (paramModel.getRangeInfo ().dimensionInfo (0).size ()));
+			paramModel.setParams (params);
+		});
+
+	auto* toggleInclusivity = new QAction ("Toggle Inclusivity", parametersView);
+	parametersView->connect (toggleInclusivity, &QAction::triggered,
+		[this, index]() {
+			auto rangeInfo = paramModel.getRangeInfo ();
+			int whichRange = (index.column () - paramModel.preRangeColumns) / 3;
+			auto& range = rangeInfo (paramModel.getParams ()[index.row ()].scanDimension, whichRange);
+			switch ((index.column () - paramModel.preRangeColumns) % 3) {
+			case 0:
+				range.leftInclusive = !range.leftInclusive;
+				break;
+			case 1:
+				range.rightInclusive = !range.rightInclusive;
+				break;
+			}
+			paramModel.setRangeInfo (rangeInfo);
+		});
+
+	auto* addRange = new QAction ("Add Range", parametersView);
+	parametersView->connect (addRange, &QAction::triggered, [this, index]() {
+		auto rangeInfo = paramModel.getRangeInfo ();
+		auto scanDim = paramModel.getParams ()[index.row ()].scanDimension;
+		paramModel.setVariationRangeNumber (rangeInfo.numRanges (scanDim) + 1, scanDim);
+		});
+	auto* rmRange = new QAction ("Remove Range", parametersView);
+	parametersView->connect (rmRange, &QAction::triggered, [this, index]() {
+		auto rangeInfo = paramModel.getRangeInfo ();
+		auto scanDim = paramModel.getParams ()[index.row ()].scanDimension;
+		paramModel.setVariationRangeNumber (rangeInfo.numRanges (scanDim) - 1, scanDim);
+		});
+	for (auto* action : {addRange, rmRange, deleteAction, toggleInclusivity, newParam}){
+		parametersView->connect (action, &QAction::triggered, 
+								 (IChimeraWindowWidget*)parametersView->parentWidget(), &IChimeraWindowWidget::configUpdated);
+	}
+
+	if (index.row() < paramModel.getParams().size()) { 
+		menu.addAction (deleteAction);
+		if (!paramModel.isGlobal){
+			menu.addAction (addRange);
+			menu.addAction (rmRange);
+			if (index.column () >= paramModel.preRangeColumns && (index.column () - paramModel.preRangeColumns) % 3 != 2) {
+				menu.addAction (toggleInclusivity);
+			}
+		}
+	}
+	menu.addAction (newParam);
+	menu.exec (parametersView->mapToGlobal (pos));
 }
 
 
 void ParameterSystem::initialize (POINT& pos, IChimeraWindowWidget* parent, std::string title, ParameterSysType type)
 {
 	paramSysType = type;
-	scanDimensions = 1;
-	rangeInfo.defaultInit ();
-	rangeInfo.setNumScanDimensions (1);
-	rangeInfo.setNumRanges (0, 1);
 
 	parametersHeader = new QLabel (cstr (title), parent);
 	parametersHeader->setGeometry (pos.x, pos.y, 480, 25);
-	parametersListview = new QTableWidget (parent);
-	parametersListview->setGeometry (pos.x, pos.y += 25, 480, 200);
+	parametersView = new QTableView (parent);
+	parametersView->setGeometry (pos.x, pos.y += 25, 480, 200);
+	parametersView->setModel (&paramModel);
+	parametersView->show ();
+	
+	parametersView->horizontalHeader ()->setFixedHeight (25);
+	parametersView->verticalHeader ()->setFixedWidth (40);
+	parametersView->verticalHeader ()->setDefaultSectionSize (22);
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::Stretch);
 
-	parametersListview->horizontalHeader ()->setFixedHeight (30);
-	parametersListview->verticalHeader ()->setFixedWidth (40);
-	parametersListview->verticalHeader ()->setDefaultSectionSize (22);
-
-	parametersListview->setContextMenuPolicy (Qt::CustomContextMenu);
-	parent->connect (parametersListview, &QTableWidget::customContextMenuRequested,
+	parametersView->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (parametersView, &QTableView::doubleClicked, parent, &IChimeraWindowWidget::configUpdated);
+	parent->connect (parametersView, &QTableView::customContextMenuRequested,
 		[this](const QPoint& pos) {handleContextMenu (pos); });
-	parametersListview->setShowGrid (true);
+	parametersView->setShowGrid (true);
 
 	if ( paramSysType == ParameterSysType::global ){
-		parametersListview->setColumnCount (2);
-		QStringList labels;
-		labels << "Symbol" << "Value";
-		parametersListview->setHorizontalHeaderLabels (labels);
 	}
 	else {
-		parametersListview->setColumnCount (5);
-		baseLabels << " Symbol " << " Type " << " Dim " << " Value " << " Scope ";
-		parametersListview->setHorizontalHeaderLabels (baseLabels);
-		setVariationRangeColumns ( 1, 0.05 );
-		parametersListview->connect (parametersListview, &QTableWidget::cellDoubleClicked, [this](int clRow, int clCol) {
-			if (clCol == 1) {
-				auto* item = new QTableWidgetItem (parametersListview->item (clRow, clCol)->text () == "Constant" ? "Variable" : "Constant");
-				item->setFlags (item->flags () & ~Qt::ItemIsEditable);
-				parametersListview->setItem (clRow, clCol, item);
+		parametersView->connect (parametersView, &QTableView::doubleClicked, [this](const QModelIndex& index) {
+			if (index.column() == 1) {
+				auto params = paramModel.getParams ();
+				params[index.row ()].constant = !params[index.row ()].constant;
+				paramModel.setParams (params);
 			}});
-
 	}
 	pos.y += 200;
 }
-
-
-void ParameterSystem::setVariationRangeColumns ( int num, int width )
-{
-	if ( currentParameters.size ( ) == 0 )
-	{
-		return;
-	}
-	auto nrange = int (parametersListview->columnCount()) - int ( preRangeColumns );
-	if ( nrange < 0 )
-	{
-		thrower ( "Somehow control thinks there are a negative number of range columns" );
-	}
-	for ( auto col : range ( nrange ) )
-	{
-		parametersListview->removeColumn (preRangeColumns);
-	}
-	auto cInc = 5;
-	QStringList labels = baseLabels;
-	for ( auto rInc : range ( (num==-1) ? currentParameters.front ( ).ranges.size ( ) : num) )
-	{
-		labels << "{" << "}" << "#";
-	}
-	labels << "+{}" << "-{}";
-	parametersListview->setColumnCount (labels.size());
-	parametersListview->setHorizontalHeaderLabels (labels);
-}
-
 
 /*
  * The "normal" function, used for config and global variable systems.
@@ -117,51 +131,16 @@ void ParameterSystem::handleOpenConfig(ConfigStream& configFile )
 {
 	clearParameters( );
 	/// 
-	rangeInfo = getRangeInfoFromFile ( configFile );
+	paramModel.setRangeInfo (getRangeInfoFromFile (configFile));
 	std::vector<parameterType> fileParams;
 	try
 	{
-		fileParams = getParametersFromFile( configFile, rangeInfo );
+		fileParams = getParametersFromFile( configFile, paramModel.getRangeInfo() );
 	}
 	catch ( Error& )
 	{/*??? Shouldn't I handle something here?*/}
-	currentParameters = fileParams;
+	paramModel.setParams (fileParams);
 	flattenScanDimensions ( );	
-	redrawListview ( );
-}
-
-
-void ParameterSystem::redrawListview ( )
-{
-	if ( parametersListview == NULL ) {
-		return;
-	}
-	parametersListview->setRowCount(0);
-	if ( paramSysType == ParameterSysType::config )
-	{
-		setVariationRangeColumns (-1, 0.03);
-		if ( currentParameters.size ( ) != 0 )
-		{
-			UINT varInc = 0;
-			for ( auto param : currentParameters )
-			{
-				addParamToListview ( param, varInc++ );
-			}
-		}
-	}
-	else
-	{
-		UINT varInc = 0;
-		for ( auto param : currentParameters )
-		{
-			addParamToListview ( param, varInc++ );
-		}
-	}
-	updateVariationNumber ( ); 
-	parametersListview->horizontalHeader ()->setSectionResizeMode (QHeaderView::Stretch);
-	parametersListview->horizontalHeader ()->setStretchLastSection (true);
-	parametersListview->resizeColumnsToContents ();
-	parametersListview->horizontalHeader ()->resizeContentsPrecision ();
 }
 
 
@@ -228,34 +207,29 @@ void ParameterSystem::updateVariationNumber( )
 	// of the first variable that it finds.
 	std::vector<ULONG> dimVariations;
 	std::vector<bool> dimsSeen;
-	for ( auto tempParam : currentParameters )
+	for ( auto tempParam : paramModel.getParams() )
 	{
 		if ( !tempParam.constant )
 		{
-			if ( dimsSeen.size( ) <= tempParam.scanDimension )
-			{
+			if ( dimsSeen.size( ) <= tempParam.scanDimension ){
 				dimVariations.resize( tempParam.scanDimension+1, 0 );
 				dimsSeen.resize( tempParam.scanDimension+1, false );
 			}
-			if ( dimsSeen[tempParam.scanDimension] )
-			{
+			if ( dimsSeen[tempParam.scanDimension] ){
 				// already seen.
 				continue;
 			}
-			else
-			{
+			else{
 				// now it's been seen, don't add it again.
 				dimsSeen[tempParam.scanDimension] = true;
 			}
-			for ( auto range : rangeInfo.dimensionInfo(tempParam.scanDimension) )
-			{
+			for ( auto range : paramModel.getRangeInfo().dimensionInfo(tempParam.scanDimension) ){
 				dimVariations[ tempParam.scanDimension ] += range.variations;
 			}
 		}
 	}
 	currentVariations = 1;
-	for ( auto val : dimVariations )
-	{
+	for ( auto val : dimVariations ) {
 		currentVariations *= val;
 	}
 }
@@ -263,84 +237,65 @@ void ParameterSystem::updateVariationNumber( )
  
 double ParameterSystem::getVariableValue ( std::string paramName )
 {
-	if ( paramSysType != ParameterSysType::global )
-	{
+	if ( paramSysType != ParameterSysType::global )	{
 		thrower ( "adjusting variable values in the code like this is only meant to be used with global variables!" );
 	}
-
 	bool found = false;
-	for ( auto& param : currentParameters )
-	{
-		if ( param.name == paramName )
-		{
+	for ( auto param : paramModel.getParams() ){
+		if ( param.name == paramName ){
 			return param.constantValue;
 		}
 	}
-	if ( !found )
-	{
+	if ( !found ){
 		thrower ( "variable \"" + paramName + "\" not found in global varable control!" );
 	}
 	return 0;
 }
 
 
-void ParameterSystem::adjustVariableValue( std::string paramName, double value )
-{
-	if ( paramSysType != ParameterSysType::global )
-	{
+void ParameterSystem::adjustVariableValue( std::string paramName, double value ){
+	if ( paramSysType != ParameterSysType::global ){
 		thrower ( "adjusting variable values in the code like this is only meant to be used with global variables!" );
 	}
 	bool found = false;
-	for ( auto& param : currentParameters )
-	{
-		if ( param.name == paramName )
-		{
+	for ( auto& param : paramModel.getParams ()){
+		if ( param.name == paramName ){
 			param.constantValue = value;
 			found = true;
 			break;
 		}
 	}
-	if ( !found )
-	{
+	if ( !found ){
 		thrower ( "variable \"" + paramName + "\" not found in global varable control!" );
 	}
-	redrawListview ( );
 }
 
 
-parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, ScanRangeInfo rangeInfo )
-{
+parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, ScanRangeInfo rangeInfo ){
 	parameterType tempParam;
 	std::string paramName, typeText, valueString;
 	openFile >> paramName >> typeText;
 	std::transform( paramName.begin( ), paramName.end( ), paramName.begin( ), ::tolower );
 	tempParam.name = paramName;
-	if ( typeText == "Constant" )
-	{
+	if ( typeText == "Constant" ){
 		tempParam.constant = true;
 	}
-	else if ( typeText == "Variable" )
-	{
+	else if ( typeText == "Variable" ){
 		tempParam.constant = false;
 	}
-	else
-	{
+	else{
 		thrower ( "unknown parameter type option: \"" + typeText + "\" for parameter \"" + paramName 
 				 + "\". Check the formatting of the configuration file." );
 	}
-	if (openFile.ver > Version("2.7" ) )
-	{
+	if (openFile.ver > Version("2.7" ) ){
 		openFile >> tempParam.scanDimension;
-		if (openFile.ver < Version ( "4.2" ) )
-		{
-			if ( tempParam.scanDimension > 0 )
-			{
+		if (openFile.ver < Version ( "4.2" ) ){
+			if ( tempParam.scanDimension > 0 ){
 				tempParam.scanDimension--;
 			}
 		}
 	}
-	else
-	{
+	else {
 		tempParam.scanDimension = 0;
 	}
 	
@@ -349,47 +304,39 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Sca
 		UINT rangeNumber = 1;
 		openFile >> rangeNumber;
 		// I think it's unlikely to ever need more than 2 or 3 ranges.
-		if ( rangeNumber < 1 || rangeNumber > 100 )
-		{
+		if ( rangeNumber < 1 || rangeNumber > 100 )	{
 			errBox ( "Bad range number! setting it to 1, but found " + str ( rangeNumber ) + " in the file." );
 			rangeNumber = 1;
 		}
 		rangeInfo.setNumRanges ( tempParam.scanDimension, rangeNumber );
 	}
 	UINT totalVariations = 0;
-	for ( auto rangeInc : range( rangeInfo.numRanges(tempParam.scanDimension ) ))
-	{
+	for ( auto rangeInc : range( rangeInfo.numRanges(tempParam.scanDimension ) )){
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
 		bool leftInclusive = 0, rightInclusive = 0;
 		openFile >> initValue >> finValue;
-		if (openFile.ver <= Version ( "3.4" ) )
-		{
+		if (openFile.ver <= Version ( "3.4" ) )	{
 			openFile >> variations >> leftInclusive >> rightInclusive;
 		}		
 		totalVariations += variations;
 		tempParam.ranges.push_back ( { initValue, finValue } );
 	}
 	// shouldn't be because of 1 forcing earlier.
-	if ( tempParam.ranges.size( ) == 0 )
-	{
+	if ( tempParam.ranges.size( ) == 0 ){
 		// make sure it has at least one entry.
 		tempParam.ranges.push_back ( { 0,0 } );
 	}
-	if (openFile.ver >= Version("2.14") )
-	{
+	if (openFile.ver >= Version("2.14") ){
 		openFile >> tempParam.constantValue;
 	}
-	else
-	{
+	else{
 		tempParam.constantValue = tempParam.ranges[0].initialValue;
 	}
-	if (openFile.ver > Version("3.2"))
-	{
+	if (openFile.ver > Version("3.2")){
 		openFile >> tempParam.parameterScope;
 	}
-	else
-	{
+	else{
 		tempParam.parameterScope = GLOBAL_PARAMETER_SCOPE;
 	}
 	return tempParam;
@@ -401,8 +348,7 @@ void ParameterSystem::saveParameter(ConfigStream& saveFile, parameterType parame
 	saveFile << "\n/*Name:*/\t\t\t" << parameter.name 
 		     << "\n/*Scan-Type:*/\t\t" << ( parameter.constant ? "Constant " : "Variable " ) 
 			 << "\n/*Scan-Dimension:*/\t" << parameter.scanDimension;
-	for ( auto& range : parameter.ranges )
-	{
+	for ( auto& range : parameter.ranges )	{
 		saveFile << "\n/*Initial Value: */\t" << range.initialValue 
 				 << "\n/*Final Value: */\t" << range.finalValue;
 	}
@@ -413,19 +359,18 @@ void ParameterSystem::saveParameter(ConfigStream& saveFile, parameterType parame
 
 void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 {
-	checkScanDimensionConsistency ( ); 
-	checkVariationRangeConsistency ( );
+	paramModel.checkScanDimensionConsistency ( );
+	paramModel.checkVariationRangeConsistency ( );
 	
 	saveFile << configDelim + "\n";
 	saveFile << "RANGE-INFO\n";
-	saveFile << "/*# Scan Dimensions:*/\t" << rangeInfo.numScanDimensions ( );
-	for ( auto dimNum : range(rangeInfo.numScanDimensions ( )) )
-	{
+	saveFile << "/*# Scan Dimensions:*/\t" << paramModel.getRangeInfo ().numScanDimensions ( );
+	for ( auto dimNum : range(paramModel.getRangeInfo ().numScanDimensions ( ))){
 		saveFile << "\n/*Dim #" + str (dimNum + 1) + ":*/ ";
-		saveFile << "\n/*Number of Ranges:*/\t" << rangeInfo.numRanges ( dimNum );
+		saveFile << "\n/*Number of Ranges:*/\t" << paramModel.getRangeInfo ().numRanges ( dimNum );
 		UINT count = 0;
-		for ( auto range : rangeInfo.dimensionInfo (dimNum) )
-		{
+		auto dimInfo = paramModel.getRangeInfo ().dimensionInfo (dimNum);
+		for ( auto range : dimInfo )	{
 			saveFile << "\n/*Range #" + str(++count) + ":*/"
 					 << "\n/*Left-Inclusive?*/\t\t" << range.leftInclusive 
 					 << "\n/*Right-Inclusive?*/\t" << range.rightInclusive
@@ -433,8 +378,7 @@ void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 		}
 	}
 	saveFile << "\n/*# Variables: */ \t\t" << getCurrentNumberOfVariables ( ); 
-	for ( UINT varInc : range(getCurrentNumberOfVariables( )))
-	{
+	for ( UINT varInc : range(getCurrentNumberOfVariables( )))	{
 		saveFile << "\n/*Variable #" + str (varInc) + "*/";
 		saveParameter(saveFile, getVariableInfo( varInc ));
 	}
@@ -442,54 +386,23 @@ void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 }
 
 
-void ParameterSystem::rearrange ( UINT width, UINT height, fontMap fonts ){}
-
-
-void ParameterSystem::removeVariableDimension ( )
-{
-	if ( scanDimensions == 1 )
-	{
-		thrower  ( "Can't delete last variable scan dimension." );
-	}
-	// change all parameters in the last dimension to be in the second-to-last dimension.
-	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
-	for ( auto& variable : currentParameters )
-	{
-		if ( variable.scanDimension == scanDimensions-2 )
-		{
-			variable.scanDimension--;
-		}
-	}
-	scanDimensions--;
-	redrawListview ( );
-}
-
-
 void ParameterSystem::flattenScanDimensions ( )
 {
-	while ( true )
-	{
+	while ( true ){
 		UINT maxDim = 0;
-		for ( auto& var : currentParameters )
-		{
+		for ( auto var : paramModel.getParams() ){
 			maxDim = var.scanDimension > maxDim ? var.scanDimension : maxDim;
 		}
-		for ( auto dim : range ( maxDim ) )
-		{
+		for ( auto dim : range ( maxDim ) ){
 			bool found = false;
-			for ( auto param : currentParameters )
-			{
-				if ( param.scanDimension == dim )
-				{
+			for ( auto param : paramModel.getParams ()){
+				if ( param.scanDimension == dim ){
 					found = true;
 				}
 			}
-			if ( !found )
-			{
-				for ( auto& param : currentParameters )
-				{
-					if ( param.scanDimension > dim )
-					{
+			if ( !found ){
+				for ( auto& param : paramModel.getParams ()){
+					if ( param.scanDimension > dim ){
 						param.scanDimension--;
 					}
 				}
@@ -501,593 +414,66 @@ void ParameterSystem::flattenScanDimensions ( )
 	}
 }
 
-void ParameterSystem::checkScanDimensionConsistency( )
-{
-	rangeInfo.numScanDimensions ( );
-	for ( auto& param : currentParameters )
-	{
-		if ( param.scanDimension >= rangeInfo.numScanDimensions ( ) )
-		{
-			param.scanDimension = 0;
-		}
-	}
-}
 
-
-void ParameterSystem::checkVariationRangeConsistency ( )
-{
-	UINT dum = 0;
-	for ( auto& var : currentParameters )
-	{
-		if ( var.ranges.size ( ) != rangeInfo.numRanges(var.scanDimension) )
-		{
-			if ( dum == 0 )
-			{
-				errBox ( "The number of variation ranges of a parameter, " + var.name +
-						 ", (and perhaps others) did not match the official number. The code will force the parameter "
-						 "to match the official number." );
-				dum++; // only dislpay the error message once.
-			}
-			var.ranges.resize ( rangeInfo.numRanges ( var.scanDimension ) );
-		}
-	}
-}
-
-
-void ParameterSystem::setVariationRangeNumber ( int num, USHORT dimNumber )
-{
-	auto columnCount = parametersListview->columnCount();
-	// -2 for the two +- columns
-	int currentVariableRangeNumber = ( columnCount - preRangeColumns - 2 ) / 3;
-	checkScanDimensionConsistency ( );
-	checkVariationRangeConsistency ( );
-	if ( rangeInfo.numRanges(dimNumber) != currentVariableRangeNumber )
-	{
-		errBox ( "somehow, the number of ranges the ParameterSystem object thinks there are and the actual number "
-				 "displayed are off! The numbers are " + str ( rangeInfo.numRanges ( dimNumber ) ) + " and "
-				 + str ( currentVariableRangeNumber ) + " respectively. The program will attempt to fix this, but "
-				 "data may be lost." );
-		while ( rangeInfo.numRanges ( dimNumber ) != currentVariableRangeNumber )
-		{
-			if ( rangeInfo.numRanges ( dimNumber ) > currentVariableRangeNumber )
-			{
-				rangeInfo.dimensionInfo ( dimNumber ).pop_back ( );
-				for ( auto& param : currentParameters )
-				{
-					param.ranges.pop_back( );
-				}
-			}
-			else
-			{
-				rangeInfo.dimensionInfo ( dimNumber ).push_back ( defaultRangeInfo );
-				for ( auto& param : currentParameters )
-				{
-					param.ranges.pop_back ( );
-				}
-			}
-		}
-	}
-	if (currentVariableRangeNumber < num)
-	{
-		while (currentVariableRangeNumber < num)
-		{
-			/// add a range.
-			// edit all parameters
-			rangeInfo.dimensionInfo ( dimNumber ).push_back ( defaultRangeInfo );
-			for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
-			{
-				indvParamRangeInfo tempInfo{ 0,0 };
-				currentParameters[varInc].ranges.push_back( tempInfo );
-			}
-			currentVariableRangeNumber++;
-		}
-	}
-	else if (currentVariableRangeNumber > num)
-	{
-		while (currentVariableRangeNumber > num)
-		{
-			// delete a range.
-			if ( rangeInfo.dimensionInfo ( dimNumber ).size() == 1)
-			{
-				// can't delete last range
-				return;
-			}
-			// edit all parameters
-			for (auto& param : currentParameters )
-			{
-				param.ranges.pop_back();
-			}
-			rangeInfo.dimensionInfo ( dimNumber ).pop_back ( );
-			currentVariableRangeNumber--;
-		}
-	}
-	redrawListview ( );
-}
-
-
-void ParameterSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
-{
-	/*
-	if ( mostRecentlySelectedParam == -1 || currentParameters.size() <= mostRecentlySelectedParam )
-	{
-		// must have selected an item in order to determine which scan dimension to change.
-		return;
-	}
-	auto dimNum = currentParameters[ mostRecentlySelectedParam ].scanDimension;
-	POINT cursorPos;
-	GetCursorPos(&cursorPos);
-	parametersListview.ScreenToClient(&cursorPos);
-	LVHITTESTINFO myItemInfo = { 0 };
-	myItemInfo.pt = cursorPos;
-	parametersListview.SubItemHitTest(&myItemInfo);
-	if (myItemInfo.iSubItem == preRangeColumns + 3 * rangeInfo.numRanges(0))
-	{
-		// add a range.
-		setVariationRangeNumber( rangeInfo.numRanges ( 0 ) + 1, 0);
-	}
-	else if (myItemInfo.iSubItem == preRangeColumns + 1 + 3 * rangeInfo.numRanges ( 0 ) )
-	{
-		// delete a range.
-		setVariationRangeNumber( rangeInfo.numRanges ( 0 ) - 1, 0);
-	}
-	else if (myItemInfo.iSubItem >= preRangeColumns && (myItemInfo.iSubItem - preRangeColumns) % 3 == 0)
-	{
-		// switch between [ and (
-		if ( currentParameters.size( ) == 0 )
-		{
-			return;
-		}
-		UINT rangeNum = (myItemInfo.iSubItem - preRangeColumns) / 3;
-		setRangeInclusivity( rangeNum, dimNum, true, !rangeInfo(0,rangeNum).leftInclusive);
-	}
-	else if (myItemInfo.iSubItem >= preRangeColumns && (myItemInfo.iSubItem- preRangeColumns) % 3 == 1)
-	{
-		// switch between ] and )
-		if ( currentParameters.size( ) == 0 )
-		{
-			return;
-		}
-		UINT rangeNum = (myItemInfo.iSubItem - preRangeColumns) / 3;
-		setRangeInclusivity( rangeNum, dimNum,  false, !rangeInfo ( 0, rangeNum ).rightInclusive);
-	}
-	redrawListview ( );
-	*/
-}
-
-
-void ParameterSystem::setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive )
-{
-	if ( rangeNum >= rangeInfo.numRanges(0) )
-	{
+void ParameterSystem::setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive ){
+	if ( rangeNum >= paramModel.getRangeInfo ().numRanges(0) )	{
 		thrower  ( "tried to set the border inclusivity of a range that does not exist!" );
 	}
-	( isLeft ? rangeInfo ( dimNum, rangeNum ).leftInclusive : rangeInfo ( dimNum, rangeNum ).rightInclusive ) = inclusive;
+	( isLeft ? paramModel.getRangeInfo () ( dimNum, rangeNum ).leftInclusive 
+		: paramModel.getRangeInfo () ( dimNum, rangeNum ).rightInclusive ) = inclusive;
 }
 
-
-void ParameterSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult )
-{
-	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
-	*pResult = CDRF_DODEFAULT;
-	// First thing - check the draw stage. If it's the control's prepaint
-	// stage, then tell Windows we want messages for every item.
-	if (CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage)
-	{
-		*pResult = CDRF_NOTIFYITEMDRAW;
-	}
-	else if (CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage)
-	{
-		int item = pLVCD->nmcd.dwItemSpec;
-		if (item < 0)
-		{
-			return;
-		}
-		if (item >= currentParameters.size())
-		{
-			pLVCD->clrText = _myRGBs["AuxWin-Text"];
-			pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
-		}
-		else
-		{
-			if (currentParameters[item].active)
-			{
-				pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
-			}
-			else
-			{
-				pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
-			}
-			if (currentParameters[item].overwritten)
-			{
-				pLVCD->clrText = _myRGBs["Solarized Red"];
-			}
-			else
-			{
-				pLVCD->clrText = _myRGBs["Text"];
-			}
-		}
-		// Tell Windows to paint the control itself.
-		*pResult = CDRF_DODEFAULT;
-	}
-}
-
-BOOL ParameterSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
-{
-	for ( auto& dlg : childDlgs )
-	{
-		if ( ::TranslateAccelerator( dlg->m_hWnd, m_haccel, lpMsg ) )
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-
-void ParameterSystem::handleSingleClick ()
-{
-	/*
-	if ( !controlActive )
-	{
-		return;
-	}
-	/// get the item and subitem
-	LVHITTESTINFO myItemInfo = { 0 };
-	GetCursorPos ( &myItemInfo.pt );
-	parametersListview.ScreenToClient ( &myItemInfo.pt );
-	parametersListview.SubItemHitTest ( &myItemInfo );
-	mostRecentlySelectedParam = myItemInfo.iItem;
-	*/
-}
-
-void ParameterSystem::handleDblClick( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										   DoSystem* ttls, AoSystem* aoSys )
-{
-	/*
-	if ( !controlActive )
-	{
-		return;
-	}
-	/// get the item and subitem
-	LVHITTESTINFO myItemInfo = { 0 };
-	GetCursorPos(&myItemInfo.pt);
-	parametersListview.ScreenToClient(&myItemInfo.pt);
-	parametersListview.SubItemHitTest(&myItemInfo);
-	int subitem = myItemInfo.iSubItem, itemIndicator = mostRecentlySelectedParam = myItemInfo.iItem;
-	if (itemIndicator == -1)
-	{
-		return;
-	}
-	/// check if adding new parameter
-	CString text = parametersListview.GetItemText(itemIndicator, 0);
-	if (text == "___")
-	{
-		// add a parameter
-		currentParameters.resize(currentParameters.size() + 1);
-		currentParameters.back().name = "";
-		currentParameters.back().constant = true;
-		currentParameters.back().active = false;
-		currentParameters.back().overwritten = false;
-		currentParameters.back().scanDimension = 0;
-		for ( auto rangeVariations : rangeInfo.dimensionInfo( 0 ))
-		{
-			currentParameters.back ( ).ranges.push_back ( { 0, 0 } );
-		}
-		redrawListview ( );
-	}
-	auto& param = currentParameters[ itemIndicator ];
-	/// Handle different subitem clicks
-	switch (subitem)
-	{
-		case 0:
-		{
-			/// person name
-			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter a name for the Parameter:", param.name);
-			dialog.DoModal();
-			newName = str ( newName, 13, false, true );
-			if (newName == "")
-			{
-				break; // probably canceled.
-			}
-			for (auto param : currentParameters)
-			{
-				if (param.name == newName)
-				{
-					thrower ( "A parameter with name " + newName + " already exists!" );
-				}
-			}
-			if ( ttls->getCore().isValidTTLName( newName ) )
-			{
-				thrower ( "the name " + newName + " is already a ttl Name!" );
-			}
-			if ( aoSys->isValidDACName( newName ) )
-			{
-				thrower ( "the name " + newName + " is already a dac name!" );
-			}
-			param.name = newName;
-			redrawListview ( );
-			break;
-		}
-		case 1:
-		{
-			if ( paramSysType == ParameterSysType::global )
-			{
-				/// global value
-				std::string newValue;
-				TextPromptDialog dialog(&newValue, "Please enter a value for the global parameter "
-										+ param.name + ". Value will be formatted as a double.", 
-					str(param.constantValue));
-				childDlgs.push_back( &dialog );
-				dialog.DoModal();
-				childDlgs.pop_back();
-				if (newValue == "")
-				{
-					// probably canceled.
-					break;
-				}
-				try
-				{
-					param.constantValue = boost::lexical_cast<double>( newValue );
-				}
-				catch ( boost::bad_lexical_cast&)
-				{
-					throwNested ( "the value entered, " + newValue + ", failed to convert to a double! "
-							      "Check for invalid characters." );
-				}
-				redrawListview ( );
-				break;
-			}
-			else
-			{
-				/// constant or variable?
-				param.constant = !param.constant;
-				redrawListview ( );
-			}
-			break;
-		}
-		case 2:
-		{
-			/// variable scan dimension
-			if ( param.constant )
-			{
-				break;
-			}
-			UINT maxDim = 0;
-			for ( auto& variable : currentParameters )
-			{
-				if ( variable.name == param.name || variable.constant )
-				{
-					// don't count the one being changed.
-					continue;
-				}
-				if ( variable.scanDimension > maxDim )
-				{
-					maxDim = variable.scanDimension;
-				}
-			}
-			param.scanDimension++;
-			// handle "wrapping" of the dimension.
-			if ( param.scanDimension > maxDim+1 )
-			{
-				param.scanDimension = 0;
-			}
-			reorderVariableDimensions( );
-			redrawListview ( );
-			break;
-		}
-		case 3:
-		{
-			/// constant value
-			if ( !param.constant )
-			{
-				// In this case the extra boxes are unresponsive.
-				break;
-			}
-			std::string newValue;
-			TextPromptDialog dialog( &newValue, "Please enter an initial value for the variable "
-									 + param.name + ". Value will be formatted as a double.", str(param.constantValue));
-			dialog.DoModal( );
-			if ( newValue == "" )
-			{
-				// probably canceled.
-				break;
-			}
-			try
-			{
-				param.constantValue = boost::lexical_cast<double>( newValue );
-			}
-			catch ( boost::bad_lexical_cast& )
-			{
-				throwNested ( "the value entered, " + newValue + ", failed to convert to a double! "
-						 "Check for invalid characters." );
-			}
-			redrawListview ( );
-			break;
-		}
-		case 4:
-		{
-			/// scope
-			std::string newScope;
-			TextPromptDialog dialog( &newScope, "Please enter a the scope for the variable: \""
-									 + param.name + "\". You may enter a function name, "
-									 "\"parent\", or \"global\".", param.parameterScope );
-			dialog.DoModal( );
-			if ( newScope == "" )
-			{
-				// probably canceled.
-				break;
-			}
-			newScope = str ( newScope, 13, false, true );
-			param.parameterScope = newScope;
-			redrawListview ( );
-			break;
-		}
-		default:
-		{
-			// if it's a constant, you can only set the first range initial value.
-			if ( param.constant )
-			{
-				// then no final value to be set. In this case the extra boxes are unresponsive.
-				break;
-			}
-			UINT rangeNum = (subitem - preRangeColumns) / 3;
-			std::string newValue;
-			auto& whichVal = ((subitem - preRangeColumns) % 3 == 0) ? param.ranges[rangeNum].initialValue : param.ranges[rangeNum].finalValue;
-			TextPromptDialog dialog( &newValue, "Please enter a value for the variable " + param.name + ".", str(whichVal) );
-			dialog.DoModal( );
-			if ( newValue == "" )
-			{
-				// probably canceled.
-				break;
-			}
-			if ((subitem - preRangeColumns) % 3 == 0 || (subitem - preRangeColumns) % 3 == 1)
-			{
-				try 
-				{
-					whichVal = boost::lexical_cast<double>(newValue);
-				}
-				catch ( boost::bad_lexical_cast&)
-				{
-					throwNested ("the value entered, " + newValue + ", failed to convert to a double! "
-							 "Check for invalid characters.");
-				}
-				redrawListview ( );
-				break;
-			}
-			else if((subitem - preRangeColumns) % 3 == 2)
-			{
-				try
-				{
-					for (auto& variable : currentParameters)
-					{
-						if (!variable.constant)
-						{
-							// make sure all parameters have the same number of variations.
-							if ( variable.scanDimension != param.scanDimension )
-							{
-								continue;
-							}
-							rangeInfo(variable.scanDimension,rangeNum).variations = boost::lexical_cast<int> ( newValue );
-						}
-					}
-				}
-				catch ( boost::bad_lexical_cast&)
-				{
-					throwNested ("the value entered, " + newValue + ", failed to convert to a double! Check "
-									"for invalid characters.");
-				}
-				redrawListview ( );
-				break;
-			}
-		}
-	}
-	updateVariationNumber( );
-	*/
-}
-
-
-void ParameterSystem::setParameterControlActive(bool active)
-{
+void ParameterSystem::setParameterControlActive(bool active){
 	controlActive = active;
 }
 
-
-void ParameterSystem::deleteVariable()
-{
-	/*
-	if ( !controlActive )
-	{
-		return;
-	}
-	/// get the item and subitem
-	POINT cursorPos;
-	GetCursorPos(&cursorPos);
-	parametersListview.ScreenToClient(&cursorPos);
-	int subitemIndicator = parametersListview.HitTest(cursorPos);
-	LVHITTESTINFO myItemInfo = { 0 };
-	myItemInfo.pt = cursorPos;
-	int itemIndicator = parametersListview.SubItemHitTest(&myItemInfo);
-	if (itemIndicator == -1 || itemIndicator == currentParameters.size())
-	{
-		// user didn't click in a deletable item.
-		return;
-	}
-	int answer;
-	if (UINT(itemIndicator) < currentParameters.size())
-	{
-		answer = promptBox("Delete variable " + currentParameters[itemIndicator].name + "?", MB_YESNO);
-		if (answer == IDYES)
-		{
-			currentParameters.erase(currentParameters.begin() + itemIndicator);
-			redrawListview ( );
-		}
-	}
-	else if (UINT(itemIndicator) > currentParameters.size())
-	{
-		answer = promptBox("You appear to have found a bug with the listview control... there are too many lines "
-							 "in this control. Clear this line?", MB_YESNO);
-		if (answer == IDYES)
-		{
-			redrawListview ( );
-		}
-	}
-	updateVariationNumber( );*/
+parameterType ParameterSystem::getVariableInfo(int varNumber){
+	return paramModel.getParams ()[varNumber];
 }
 
-
-parameterType ParameterSystem::getVariableInfo(int varNumber)
-{
-	return currentParameters[varNumber];
+UINT ParameterSystem::getCurrentNumberOfVariables(){
+	return paramModel.getParams ().size();
 }
-
-
-UINT ParameterSystem::getCurrentNumberOfVariables()
-{
-	return currentParameters.size();
-}
-
 
 // takes as input parameters, but just looks at the name and usage stats. When it finds matches between the parameters,
 // it takes the usage of the input and saves it as the usage of the real inputVar. 
 void ParameterSystem::setUsages(std::vector<parameterType> vars)
 {
-	for ( auto inputVar : vars )
-	{
-		for ( auto& realVar : currentParameters )
-		{
-			if ( inputVar.name == realVar.name )
-			{
+	auto params = paramModel.getParams ();
+	for ( auto inputVar : vars ){
+		for ( auto& realVar : params ){
+			if ( inputVar.name == realVar.name ){
 				realVar.overwritten = inputVar.overwritten;
 				realVar.active = inputVar.active;
 				break;
 			}
 		}
 	}
+	paramModel.setParams (params);
 }
 
 
-void ParameterSystem::clearParameters()
-{
-	currentParameters.clear();
-	redrawListview ( );
+void ParameterSystem::clearParameters(){
+	auto params = paramModel.getParams ();
+	params.clear ();
+	paramModel.setParams (params);
 }
 
 
 std::vector<parameterType> ParameterSystem::getAllParams()
 {
-	return currentParameters;
+	return paramModel.getParams ();
 }
 
 
 std::vector<parameterType> ParameterSystem::getAllConstants()
 {
 	std::vector<parameterType> constants;
-	for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
+	for (UINT varInc = 0; varInc < paramModel.getParams ().size(); varInc++)
 	{
-		if (currentParameters[varInc].constant)
+		if (paramModel.getParams ()[varInc].constant)
 		{
-			constants.push_back(currentParameters[varInc]);
+			constants.push_back(paramModel.getParams ()[varInc]);
 		}
 	}
 	return constants;
@@ -1098,156 +484,52 @@ std::vector<parameterType> ParameterSystem::getAllVariables()
 {
 	// opposite of get constants.
 	std::vector<parameterType> varyingParameters;
-	for (UINT varInc = 0; varInc < currentParameters.size(); varInc++)
+	for (UINT varInc = 0; varInc < paramModel.getParams ().size(); varInc++)
 	{
-		if (!currentParameters[varInc].constant)
+		if (!paramModel.getParams ()[varInc].constant)
 		{
-			varyingParameters.push_back(currentParameters[varInc]);
+			varyingParameters.push_back(paramModel.getParams ()[varInc]);
 		}
 	}
 	return varyingParameters;
 }
 
-
-void ParameterSystem::addParamToListview ( parameterType param, UINT item )
-{
-	// only to be called by redrawListview
-	if (parametersListview == NULL)
-	{
-		return;
-	}
-	if ( param.name == "" )
-	{
-		param.name = "X_X";
-	}
-	parametersListview->insertRow (item);
-	parametersListview->setItem (item, 0, new QTableWidgetItem (cstr (param.name)));
-	if ( paramSysType == ParameterSysType::global )
-	{
-		parametersListview->setItem (item, 1, new QTableWidgetItem (cstr (param.constantValue)));
-		return;
-	}
-	// else config system...
-	if ( param.constant )
-	{
-		parametersListview->setItem (item, 1, new QTableWidgetItem ("Constant"));
-		parametersListview->setItem (item, 3, new QTableWidgetItem (cstr(param.constantValue)));
-	}
-	else
-	{
-		parametersListview->setItem (item, 1, new QTableWidgetItem ("Variable"));
-		parametersListview->setItem (item, 3, new QTableWidgetItem ("---"));
-	}
-	parametersListview->setItem (item, 2, new QTableWidgetItem (cstr (char ('A' + param.scanDimension))));
-	parametersListview->setItem (item, 4, new QTableWidgetItem (cstr (param.parameterScope)));
-	// make sure there are enough ranges.
-	UINT currentRanges = currentParameters.front ( ).ranges.size ( );
-	if ( param.ranges.size ( ) < currentRanges )
-	{
-		param.ranges.resize ( currentRanges );
-	}
-	// update ranges
-	auto info = rangeInfo.dimensionInfo ( param.scanDimension );
-	for ( auto rangeInc : range ( param.ranges.size ( ) ) )
-	{
-		auto col = preRangeColumns + rangeInc * 3;
-		auto& range = currentParameters[ item ].ranges[ rangeInc ];
-		parametersListview->setItem (item, col++, new QTableWidgetItem (cstr (param.constant ? "---" :
-								(info[rangeInc].leftInclusive ? "[ " : "( ") + str (range.initialValue, 13, true))));
-		parametersListview->setItem (item, col++, new QTableWidgetItem (cstr (param.constant ? "---" :
-			str (range.finalValue, 13, true) + (info[rangeInc].rightInclusive ? " ]" : " )"))));
-		parametersListview->setItem (item, col, new QTableWidgetItem (cstr (param.constant ? "---" 
-			: str (info[rangeInc].variations, 13, true))));
-	}
-	updateVariationNumber ( );
-}
-
-
 void ParameterSystem::addParameter(parameterType variableToAdd)
 {
 	// make name lower case.
 	std::transform(variableToAdd.name.begin(), variableToAdd.name.end(), variableToAdd.name.begin(), ::tolower);
-	if (isdigit(variableToAdd.name[0]))
-	{
+	if (isdigit(variableToAdd.name[0]))	{
 		thrower ("" + variableToAdd.name + " is an invalid name; names cannot start with numbers.");
 	}
 	// check for forbidden (math) characters
-	if (variableToAdd.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
-	{
+	if (variableToAdd.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos){
 		thrower ("Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
-	if (variableToAdd.name == "" )
-	{
+	if (variableToAdd.name == "" ){
 		return;
 	}
 	/// else...
-	for (auto currentVar : currentParameters)
-	{
-		if (currentVar.name == variableToAdd.name)
-		{
+	for (auto currentVar : paramModel.getParams ()){
+		if (currentVar.name == variableToAdd.name){
 			thrower ("A variable with the name " + variableToAdd.name + " already exists!");
 		}
 	}
-	currentParameters.push_back(variableToAdd);
-	redrawListview ( );
+	auto params = paramModel.getParams ();
+	params.push_back (variableToAdd);
+	paramModel.setParams (params);
 }
 
 
 ScanRangeInfo ParameterSystem::getRangeInfo ( )
 {
-	return rangeInfo;
+	return paramModel.getRangeInfo ();
 }
 
 
-void ParameterSystem::reorderVariableDimensions( )
+std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> params )
 {
-	/// find the maximum dimension
-	UINT maxDim = 0;
-	for ( auto& variable : currentParameters )
-	{
-		if ( variable.scanDimension > maxDim )
-		{
-			maxDim = variable.scanDimension;
-		}
-	}
-	if ( rangeInfo.numScanDimensions ( ) != maxDim+1 )
-	{
-		rangeInfo.setNumScanDimensions ( maxDim+1 );
-	}
-	/// flatten the dimension numbers.
-	UINT flattenNumber = 0;
-	for ( auto dimInc : range( maxDim+1 ) )
-	{
-		bool found = false;
-		for ( auto& variable : currentParameters )
-		{
-			if ( variable.scanDimension == dimInc )
-			{
-				variable.scanDimension = dimInc - flattenNumber;
-				found = true;
-			}
-		}
-		if ( !found )
-		{
-			rangeInfo.removeDim ( dimInc );
-			flattenNumber++;
-		}
-	}
-	/// reset parameters ??? why?
-	std::vector<parameterType> varCopy = currentParameters; 
-	clearParameters( );
-	for ( auto& variable : varCopy )
-	{
-		addParameter( variable);
-	}
-	addParameter( {} );
-}
-
-
-std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> variables )
-{
-	for ( auto variable : variables )
+	for ( auto variable : params)
 	{
 		if ( variable.valuesVary )
 		{
@@ -1333,21 +615,17 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 				continue; 
 			}
 			variableIndexes.push_back( paramInc );
-			if ( variationNums[dimInc].size( ) != parameter.ranges.size( ) )
-			{
+			if ( variationNums[dimInc].size( ) != parameter.ranges.size( ) ){
 				// if its zero its just the initial size on the initial variable. Else something has gone wrong.
-				if ( variationNums.size( ) != 0 )
-				{
+				if ( variationNums.size( ) != 0 )	{
 					thrower ( "Not all variables seem to have the same number of ranges for their parameters!" );
 				}
 				variationNums[dimInc].resize( parameter.ranges.size( ) );
 			}
 			totalSeqDimVariationsList[ dimInc ] = 0;
-			for ( auto rangeInc : range( variationNums[dimInc].size( ) ) )
-			{
+			for ( auto rangeInc : range( variationNums[dimInc].size( ) ) )	{
 				variationNums[ dimInc ][ rangeInc ] = inputRangeInfo(dimInc, rangeInc).variations;
-				if ( variationNums[ dimInc ][ rangeInc ] == 1 )
-				{
+				if ( variationNums[ dimInc ][ rangeInc ] == 1 )	{
 					thrower ( "You need more than one variation in every range." );
 				}
 				totalSeqDimVariationsList[ dimInc ] += inputRangeInfo ( dimInc, rangeInc ).variations;
@@ -1358,12 +636,10 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 	multiDimensionalKey<int> randomizerMultiKey( maxDim+1 );
 	randomizerMultiKey.resize( totalSeqDimVariationsList );
 	UINT count = 0;
-	for ( auto& keyElem : randomizerMultiKey.values )
-	{
+	for ( auto& keyElem : randomizerMultiKey.values ){
 		keyElem = count++;
 	}
-	if ( randomizeVariationsOption )
-	{
+	if ( randomizeVariationsOption ){
 		std::random_device rng;
 		std::mt19937 twister( rng( ) );
 		std::shuffle( randomizerMultiKey.values.begin( ), randomizerMultiKey.values.end( ), twister );
@@ -1394,17 +670,14 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 				rangeCount = 0, rangeOffset = 0;
 			// calculate which range it is and how many values have already been calculated for the variable 
 			// (i.e. the rangeOffset).
-			for (auto range : inputRangeInfo.dimensionInfo (varDim))
-			{
-				if (tempShrinkingIndex >= range.variations)
-				{
+			for (auto range : inputRangeInfo.dimensionInfo (varDim)){
+				if (tempShrinkingIndex >= range.variations)	{
 					// then should have already gone through all that range's variations
 					tempShrinkingIndex -= range.variations;
 					rangeOffset += range.variations;
 					rangeCount++;
 				}
-				else
-				{
+				else{
 					rangeIndex = rangeCount;
 					break;
 				}
@@ -1419,28 +692,23 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 			double value = valueRange * (keyValueIndexes[varDim] - rangeOffset) / spacings + initVal;
 			tempKey.setValue (keyValueIndexes, value);
 			bool isAtEnd = true;
-			for (auto indexInc : range (keyValueIndexes.size ()))
-			{
+			for (auto indexInc : range (keyValueIndexes.size ())){
 				// if at end of cycle for this index
-				if (keyValueIndexes[indexInc] == totalSeqDimVariationsList[indexInc] - 1)
-				{
+				if (keyValueIndexes[indexInc] == totalSeqDimVariationsList[indexInc] - 1){
 					keyValueIndexes[indexInc] = 0;
 				}
-				else
-				{
+				else{
 					keyValueIndexes[indexInc]++;
 					isAtEnd = false;
 					break;
 				}
 			}
-			if (isAtEnd)
-			{
+			if (isAtEnd){
 				break;
 			}
 		}
 
-		for (auto keyInc : range (randomizerMultiKey.values.size ()))
-		{
+		for (auto keyInc : range (randomizerMultiKey.values.size ())){
 			tempKeyRandomized.values[keyInc] = tempKey.values[randomizerMultiKey.values[keyInc]];
 		}
 		variable.keyValues = tempKeyRandomized.values;
@@ -1448,10 +716,8 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 		totalSize = tempKeyRandomized.values.size ();
 	}
 	// now add all constant objects.
-	for ( parameterType& param : parameters)
-	{
-		if ( param.constant )
-		{
+	for ( parameterType& param : parameters){
+		if ( param.constant ){
 			param.keyValues.clear ( );
 			param.keyValues.resize( totalSize, param.constantValue );
 			param.valuesVary = false;
@@ -1470,38 +736,29 @@ std::vector<parameterType> ParameterSystem::combineParams( std::vector<parameter
 {
 	std::vector<parameterType> combinedParams;
 	combinedParams = configParams;
-	for ( auto& sub : globalParams )
-	{
+	for ( auto& sub : globalParams ){
 		sub.overwritten = false;
 		bool nameExists = false;
-		for ( auto& var : combinedParams )
-		{
-			if ( var.name == sub.name )
-			{
+		for ( auto& var : combinedParams ){
+			if ( var.name == sub.name )	{
 				sub.overwritten = true;
 				var.overwritten = true;
 			}
 		}
-		if ( !sub.overwritten )
-		{
+		if ( !sub.overwritten )	{
 			combinedParams.push_back( sub );
 		}
 	}
-	for ( auto& var : combinedParams )
-	{
+	for ( auto& var : combinedParams ){
 		// set the default scope for the parameters set in the normal parameter listviews. There might be a better place
 		// to set this.
-		if ( var.parameterScope == "" )
-		{
+		if ( var.parameterScope == "" )	{
 			var.parameterScope = GLOBAL_PARAMETER_SCOPE;
 		}
 	}
 	return combinedParams;
 }
 
-
-UINT ParameterSystem::getTotalVariationNumber( )
-{
+UINT ParameterSystem::getTotalVariationNumber( ){
 	return currentVariations;
 }
-

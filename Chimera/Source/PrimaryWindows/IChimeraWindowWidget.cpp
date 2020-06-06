@@ -13,18 +13,11 @@
 
 IChimeraWindowWidget::IChimeraWindowWidget (QWidget* parent) : QMainWindow(parent) {}
 
-void IChimeraWindowWidget::passCommonCommand (UINT id)
-{
-	//commonFunctions::handleCommonMessage (id, this);
-}
-
-void IChimeraWindowWidget::reportErr (std::string errStr)
-{
+void IChimeraWindowWidget::reportErr (std::string errStr){
 	mainWin->getComm ()->sendError (errStr);
 }
 
-void IChimeraWindowWidget::reportStatus (std::string statusStr)
-{
+void IChimeraWindowWidget::reportStatus (std::string statusStr){
 	mainWin->getComm ()->sendStatus (statusStr);
 }
 
@@ -176,6 +169,10 @@ void IChimeraWindowWidget::initializeMenu ()
 	helpM->addAction ("General Information_X");
 	helpM->addAction ("About_X");
 	helpM->addAction ("Hardware Status_X");
+	auto prefM = menubar->addMenu ("Preferences");
+	auto* reloadStylesheets = new QAction ("Reload Stylesheet", this);
+	connect (reloadStylesheets, &QAction::triggered, [this, cmnMsg]() {this->mainWin->setStyleSheets ();});
+	prefM->addAction (reloadStylesheets);
 	auto baslerM = menubar->addMenu ("Basler");
 	baslerM->addAction ("Autoscale Pictures_X");
 }

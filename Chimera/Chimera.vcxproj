@@ -263,6 +263,12 @@
     <ClInclude Include="Source\Andor\AndorTriggerModes.h" />
     <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
     <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
+    <CustomBuild Include="Source\ParameterSystem\ParameterModel.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\ParameterSystem\ParameterModel.h -o MOC\moc_ParameterModel.cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC ParameterModel.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_ParameterModel.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\ParameterModel.h;D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <CustomBuild Include="Source\PrimaryWindows\QtScriptWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Programs\Qt\5.9.9\msvc2017_64\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include MOC/moc_predefs.h -ID:/Programs/Qt/5.9.9/msvc2017_64/mkspecs/win32-msvc -IC:\Users\Mark-Brown\Code\Chimera-Control\Chimera -ID:/Programs/Qt/5.9.9/msvc2017_64/include -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtWidgets -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui/5.9.9/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtGui -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtANGLE -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9 -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore/5.9.9/QtCore -ID:/Programs/Qt/5.9.9/msvc2017_64/include/QtCore .\Source\PrimaryWindows\QtScriptWindow.h -o MOC\moc_QtScriptWindow.cpp</Command>
@@ -446,6 +452,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="MOC\moc_ParameterModel.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="MOC\moc_qmfcapp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -518,6 +527,7 @@
     <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
+    <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraWindowWidget.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />

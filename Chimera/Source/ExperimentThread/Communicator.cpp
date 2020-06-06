@@ -113,7 +113,7 @@ void Communicator::sendErrorEx( std::string statusMsg, const char *file, int lin
 * Don't use this function directly, it was designed to be used with the macro in the header file.
 */
 void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, int line){
-	mainWin->onFatalErrorMessage (statusMsg);
+	//mainWin->onFatalErrorMessage (statusMsg);
 }
 
 
@@ -149,27 +149,6 @@ void Communicator::sendPrepareBasler (baslerSettings& settingsToPrepare)
 void Communicator::sendPrepareAndor (AndorRunSettings& settingsToPrepare)
 {
 	//andorWin->SendMessage (CustomMessages::prepareAndorWinAcq, 0, LPARAM (&settingsToPrepare));
-}
-
-void Communicator::postMyString( CWnd* window, UINT messageTypeID, std::string message )
-{
-	// The window recieving this message is responsible for deleting this pointer.
-	if (!window) {
-		return;
-	}
-	char* messageChars = new char[message.size() + 1];
-	sprintf_s( messageChars, message.size() + 1, "%s", cstr(message));
-	window->PostMessageA( messageTypeID, 0, (LPARAM)messageChars );
-}
-
-void Communicator::postDoubleString (CWnd* window, UINT messageTypeID, std::string message, std::string msg2)
-{
-	// The window recieving this message is responsible for deleting this pointer.
-	char* messageChars = new char[message.size () + 1];
-	sprintf_s (messageChars, message.size () + 1, "%s", cstr (message));
-	char* message2Chars = new char[msg2.size () + 1];
-	sprintf_s (message2Chars, msg2.size () + 1, "%s", cstr (msg2));
-	window->PostMessageA (messageTypeID, (WPARAM)message2Chars, (LPARAM)messageChars);
 }
 
 void Communicator::expUpdate (std::string updateTxt)

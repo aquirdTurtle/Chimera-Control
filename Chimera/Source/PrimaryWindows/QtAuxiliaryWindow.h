@@ -60,7 +60,6 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 
 		void initializeWidgets ();
 
-		BOOL handleAccelerators (HACCEL m_haccel, LPMSG lpMsg);
 		void updateOptimization (AllExperimentInput& input);
 		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		LRESULT onLogVoltsMessage (WPARAM wp, LPARAM lp);
@@ -68,7 +67,6 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 		void uwRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
-		BOOL PreTranslateMessage (MSG* pMsg);
 		/// Message Map Functions
 		void ViewOrChangeTTLNames ();
 		void ViewOrChangeDACNames ();
