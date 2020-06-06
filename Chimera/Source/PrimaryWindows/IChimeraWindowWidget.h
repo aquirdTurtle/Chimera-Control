@@ -38,14 +38,11 @@ class IChimeraWindowWidget : public QMainWindow
 		virtual void initializeWidgets () = 0;
 		void initializeShortcuts ();
 		void initializeMenu ();
-		void setMenuCheck (UINT menuItem, UINT itemState);
-
-		void passCommonCommand (UINT id);
 		void loadFriends (QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
 						  QtBaslerWindow* basWin_, QtDeformableMirrorWindow* dmWindow_, QtAndorWindow* andorWin_);
 		void reportErr (std::string errStr);
 		void reportStatus (std::string statusStr);
-		void configUpdated ();
+		
 		std::vector<IChimeraWindowWidget*> winList();
 		QtMainWindow* mainWin = NULL;
 		QtScriptWindow* scriptWin = NULL;
@@ -58,4 +55,6 @@ class IChimeraWindowWidget : public QMainWindow
 		virtual void changeBoxColor (std::string sysDelim, std::string color);
 	private:
 		Ui::IChimeraWindowWidget* ui;
+	public Q_SLOTS:
+		void configUpdated ();
 };

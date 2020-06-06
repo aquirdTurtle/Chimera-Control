@@ -21,16 +21,12 @@ agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 	aoSys (ANALOG_OUT_SAFEMODE), configParameters ("CONFIG_PARAMETERS"),
 	globalParameters ("GLOBAL_PARAMETERS"), dds (DDS_SAFEMODE),
 	piezo1 (PIEZO_1_INFO), piezo2 (PIEZO_2_INFO)
-
 {	
 	statBox = new ColorBox ();
 	setWindowTitle ("Auxiliary Window");
 }
 
-QtAuxiliaryWindow::~QtAuxiliaryWindow ()
-{
-
-}
+QtAuxiliaryWindow::~QtAuxiliaryWindow () {}
 
 void QtAuxiliaryWindow::initializeWidgets ()
 {
@@ -135,12 +131,6 @@ void QtAuxiliaryWindow::initializeWidgets ()
 	{
 		throwNested ("FATAL ERROR: Failed to initialize Auxiliary window properly!");
 	}
-}
-
-
-BOOL QtAuxiliaryWindow::handleAccelerators (HACCEL m_haccel, LPMSG lpMsg)
-{
-	return globalParameters.handleAccelerators (m_haccel, lpMsg);
 }
 
 std::vector<parameterType> QtAuxiliaryWindow::getUsableConstants ()
@@ -488,46 +478,6 @@ std::array<AoInfo, 24> QtAuxiliaryWindow::getDacInfo ()
 	return aoSys.getDacInfo ();
 }
 
-void QtAuxiliaryWindow::ConfigVarsSingleClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		configParameters.handleSingleClick ();
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Config Parameters Single Click Handler : " + exception.trace () + "\r\n");
-	}
-}
-
-void QtAuxiliaryWindow::ConfigVarsDblClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	std::vector<Script*> scriptList;
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		//configParameters.handleDblClick (scriptList, mainWin, this, &ttlBoard, &aoSys);
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Config Parameters Double Click Handler : " + exception.trace () + "\r\n");
-	}
-}
-
-void QtAuxiliaryWindow::ConfigVarsRClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		configParameters.deleteVariable ();
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Config Parameters Right Click Handler : " + exception.trace () + "\r\n");
-	}
-}
-
-
 std::vector<parameterType> QtAuxiliaryWindow::getAllVariables ()
 {
 	std::vector<parameterType> vars = configParameters.getAllParams ();
@@ -549,33 +499,6 @@ void QtAuxiliaryWindow::GlobalVarDblClick (NMHDR* pNotifyStruct, LRESULT* result
 		reportErr ("Global Variables Double Click Handler : " + exception.trace () + "\r\n");
 	}
 }
-
-void QtAuxiliaryWindow::GlobalVarRClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		globalParameters.deleteVariable ();
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Global Variables Right Click Handler : " + exception.trace () + "\r\n");
-	}
-}
-
-void QtAuxiliaryWindow::ConfigVarsColumnClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		configParameters.handleColumnClick (pNotifyStruct, result);
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Handling config variable listview click.\n" + exception.trace () + "\r\n");
-	}
-}
-
 
 void QtAuxiliaryWindow::clearVariables ()
 {
@@ -893,34 +816,6 @@ void QtAuxiliaryWindow::ViewOrChangeDACNames ()
 	input.aoSys = &aoSys;
 	AoSettingsDialog dialog (&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
 	dialog.DoModal ();*/
-}
-
-
-BOOL QtAuxiliaryWindow::PreTranslateMessage (MSG* pMsg)
-{
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		if (pMsg->wParam == VK_UP || pMsg->wParam == VK_DOWN)
-		{
-			auto win = GetFocus ();
-			bool up = pMsg->wParam == VK_UP;
-			/*
-			if (aoSys.handleArrow (win, up))
-			{
-				mainWin->updateConfigurationSavedStatus (false);
-				try {
-					aoSys.forceDacs (ttlBoard.getCore (), { 0, ttlBoard.getCurrentStatus () });
-				}
-				catch (Error& err)
-				{
-					reportErr ("Failed to change dacs - caught during quick change handling. " + err.trace () + "\r\n");
-				}
-				return TRUE;
-			}*/
-		}
-	}
-	//return IChimeraWindow::PreTranslateMessage (pMsg);
-	return 0;
 }
 
 std::string QtAuxiliaryWindow::getOtherSystemStatusMsg ()

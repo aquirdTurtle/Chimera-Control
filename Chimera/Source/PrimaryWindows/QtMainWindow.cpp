@@ -97,8 +97,8 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 		window->initializeShortcuts ();
 		window->initializeMenu ();
 	}
+	setStyleSheets ();
 	for (auto* window : winList ()) {
-		window->setStyleSheet (chimeraStyleSheets::stdStyleSheet());
 		window->resize (QDesktopWidget ().availableGeometry (this).size ());
 		window->setWindowState ((windowState () & ~Qt::WindowMinimized) | Qt::WindowActive);
 		window->activateWindow ();
@@ -120,6 +120,13 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 }
 
 QtMainWindow::~QtMainWindow (){}
+
+void QtMainWindow::setStyleSheets ()
+{
+	for (auto* window : winList ()) {
+		window->setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	}
+}
 
 void QtMainWindow::initializeWidgets ()
 {
@@ -253,20 +260,6 @@ void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 	input->skipNext = NULL;
 	input->expType = ExperimentType::CameraCal;
 }
-
-
-BOOL QtMainWindow::handleAccelerators (HACCEL m_haccel, LPMSG lpMsg)
-{
-	if (auxWin != NULL)
-	{
-		return auxWin->handleAccelerators (m_haccel, lpMsg);
-	}
-	else
-	{
-		return FALSE;
-	}
-}
-
 
 LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp)
 {
@@ -466,12 +459,6 @@ void QtMainWindow::windowOpenConfig (ConfigStream& configStream)
 
 fontMap QtMainWindow::getFonts () { return mainFonts; }
 
-void QtMainWindow::forceExit ()
-{
-	// this closes the program without prompting the user for saving things. Most used for a failed program 
-	// initialization.
-	passCommonCommand (ID_FORCE_EXIT);
-}
 
 UINT QtMainWindow::getRepNumber () { return repetitionControl.getRepetitionNumber (); }
 
@@ -690,7 +677,7 @@ void QtMainWindow::onFatalErrorMessage (std::string statusMessage)
 		comm.sendStatus ("EXITED WITH ERROR!\nNIAWG RESTART FAILED!\r\n");
 	}
 	scriptWin->setNiawgRunningState (false);
-	errBox (statusMessage);
+	//errBox (statusMessage);
 }
 
 

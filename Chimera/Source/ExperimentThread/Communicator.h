@@ -58,7 +58,6 @@ class Communicator
 		void expUpdate (std::string updateTxt);
 		std::string warnings;
 		std::string debugStr;
-		void postDoubleString (CWnd* window, UINT messageTypeID, std::string message, std::string msg2);
 	private:
 		QtMainWindow* mainWin;
 		QtScriptWindow* scriptWin;
@@ -66,7 +65,6 @@ class Communicator
 		QtAuxiliaryWindow* auxWin;
 		QtBaslerWindow* basWin;
 		QtDeformableMirrorWindow* dmWin;
-		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
 };
 
 // macros to include file and line info in error messages. Use these, not the associated functions directly.
