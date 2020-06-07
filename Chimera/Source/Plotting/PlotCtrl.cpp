@@ -6,69 +6,72 @@
 #include <qgraphicslayout.h>
 
 
-PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<int> thresholds_in,
+PlotCtrl::PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds_in,
 					std::string titleIn, bool narrowOpt, bool plotHistOption ) :
-
-	data( dataHolder ), style( inStyle ), dataMutexes( dataHolder.size( ) ), narrow(narrowOpt )
-{
+	qtData( numTraces ), style( inStyle ), narrow(narrowOpt ), title(titleIn){
 }
 
 
-PlotCtrl::~PlotCtrl ( )
-{
+PlotCtrl::~PlotCtrl ( ){
 }
 
 
-dataPoint PlotCtrl::getMainAnalysisResult ( )
-{
+dataPoint PlotCtrl::getMainAnalysisResult ( ){
 	// get the average data. If not only a single data point, as this is currently ment to be used, then I'm not 
 	// positive what value this is grabbing... maybe the last point of the average?
-	return data.back ( )->back();
+	return dataPoint();
 }
 
 
-std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( )
-{
-	return data;
+std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( ){
+	return std::vector<pPlotDataVec>();
 }
 
 
-void PlotCtrl::setData (std::vector<pPlotDataVec> newData)
-{
-	for (auto& dvec : data)
-	{
-		dvec.reset ();
+void PlotCtrl::setData (std::vector<plotDataVec> newData){
+	assert (newData.size () == qtData.size ());
+	double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
+	double ;
+	for (auto traceNum : range(newData.size())){
+		auto* line = qtData[traceNum];
+		view->chart ()->removeSeries (line);
+		line->clear ();
+		auto& newLine = newData[traceNum];
+		for (auto count : range (newLine.size ())) {
+			xmin = newLine[count].x < xmin ? newLine[count].x : xmin;
+			xmax = newLine[count].x > xmax ? newLine[count].x : xmax;
+			ymin = newLine[count].y < ymin ? newLine[count].y : ymin;
+			ymax = newLine[count].y > ymax ? newLine[count].y : ymax;
+			*line << QPointF (newLine[count].x, newLine[count].y);
+		}
+		view->chart ()->addSeries (line);
 	}
-	data.clear ();
-	data = newData;
+	view->chart ()->axisX ()->setRange (xmin - (xmax-xmin)/20, xmax + (xmax - xmin) / 20);
+	view->chart ()->axisY ()->setRange (ymin - (ymax - ymin) / 20, ymax + (ymax - ymin) / 20);
+	//viewPlot->chart ()->axisX ()->setMin (xmin);
+	//viewPlot->chart ()->axisX ()->setMax (xmax);
+	//viewPlot->chart ()->axisY ()->setMin (ymin);
+	//viewPlot->chart ()->axisY ()->setMax (ymax);
 }
 
-void PlotCtrl::setTitle (std::string newTitle)
-{
+void PlotCtrl::setTitle (std::string newTitle){
 	title = newTitle;
 }
 
-void PlotCtrl::setThresholds (std::vector<int> newThresholds)
-{
+void PlotCtrl::setThresholds (std::vector<int> newThresholds){
 	thresholds = newThresholds;
 }
 
-void PlotCtrl::setStyle (plotStyle newStyle)
-{
+void PlotCtrl::setStyle (plotStyle newStyle){
 	style = newStyle;
 }
 
-void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraWindowWidget* parent )
-{ 
+void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraWindowWidget* parent ){ 
 	chart = new QtCharts::QChart ();
 	chart->legend ()->hide ();
-	for (auto datanum : range (data.size()))
-	{
-		qtData.push_back (new QtCharts::QLineSeries (chart));
-		chart->addSeries (qtData.back ());
-		auto pen = qtData.back ()->pen ();
-		pen.setWidth (1);
-		qtData.back ()->setPen (pen);
+	for (auto datanum : range (qtData.size())){
+		qtData[datanum] = new QtCharts::QLineSeries (chart);
+		chart->addSeries (qtData[datanum]);
 	}
 	chart->createDefaultAxes ();
 	chart->setTitle (title.c_str ());
@@ -76,8 +79,7 @@ void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraWindowWidget* 
 	chart->setBackgroundRoundness (0);
 	chart->setBackgroundBrush (QBrush (QColor (20, 20, 20)));
 	chart->setMargins (QMargins (0, 0, 0, 0));
-	if (chart->axisX ())
-	{
+	if (chart->axisX ()){
 		auto pen = chart->axisX ()->gridLinePen ();
 		pen.setColor (QColor (255, 255, 255, 50));
 		chart->axisX ()->setGridLinePen (pen);
@@ -87,18 +89,14 @@ void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraWindowWidget* 
 	view->setRenderHint (QPainter::Antialiasing);
 	view->setGeometry (pos.x, pos.y, width, height);
 	pos.y += height;
-} 
- 
-void PlotCtrl::rearrange( int width, int height, fontMap fonts )
-{
 }
-
 
 void PlotCtrl::refreshData ()
 {
+	/*
 	chart->removeAllSeries ();
 	qtData.clear ();
-	for (auto dataInc : range(data.size()))
+	for (auto dataInc : range(qtData.size()))
 	{
 		qtData.push_back (new QtCharts::QLineSeries ());
 		std::unique_lock<std::mutex> lock (dataMutexes[dataInc]);
@@ -108,6 +106,7 @@ void PlotCtrl::refreshData ()
 		}
 		chart->addSeries (qtData.back ());
 	}
+	*/
 }
 
 

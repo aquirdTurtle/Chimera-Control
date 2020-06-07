@@ -2,7 +2,6 @@
 #pragma once
 
 #include "segmentStructs.h"
-#include "windows.h"
 #include <string>
 #include "ParameterSystem/ParameterSystemStructures.h"
 

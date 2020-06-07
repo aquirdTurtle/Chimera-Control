@@ -37,8 +37,8 @@ class DoCore
 		void ttlOnDirect (UINT row, UINT column, double timev, UINT variation);
 		void ttlOffDirect (UINT row, UINT column, double timev, UINT variation);
 		void sizeDataStructures (UINT variations);
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
-		void fillPlotData (UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
+		std::vector<std::vector<plotDataVec>> getPlotData (UINT variation );
 		std::string getTtlSequenceMessage (UINT variation);
 		std::vector<double> getFinalTimes ();
 		UINT countTriggers (std::pair<DoRows::which, UINT> which, UINT variation);

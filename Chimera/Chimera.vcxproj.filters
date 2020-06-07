@@ -225,9 +225,6 @@
     <ClCompile Include="Source\GeneralUtilityFunctions\miscCommonFunctions.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Plotting\OscilloscopeViewer.cpp">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralUtilityFunctions\range.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
@@ -328,6 +325,14 @@
     <ClCompile Include="MOC\moc_ExpThreadWorker.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
     <ClCompile Include="MOC\moc_ParameterModel.cpp" />
+    <ClCompile Include="Source\Andor\AndorCameraThreadWorker.cpp" />
+    <ClCompile Include="MOC\moc_AndorCameraThreadWorker.cpp" />
+    <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
+    <ClCompile Include="MOC\moc_ScopeThreadWorker.cpp" />
+    <ClCompile Include="Source\Plotting\ScopeViewer.cpp">
+      <Filter>Plotting-And-Viewing</Filter>
+    </ClCompile>
+    <ClCompile Include="MOC\moc_ScopeViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -747,6 +752,8 @@
     <ClInclude Include="MOC\moc_predefs.h" />
     <ClInclude Include="Source\GeneralObjects\ChimeraStyleSheets.h" />
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
+    <ClInclude Include="Source\Andor\cameraThreadInput.h" />
+    <ClInclude Include="Source\Agilent\whichAg.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -858,9 +865,6 @@
     <None Include="Source\GeneralUtilityFunctions\my_str.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </None>
-    <None Include="Source\Plotting\OscilloscopeViewer.h">
-      <Filter>Plotting-And-Viewing</Filter>
-    </None>
     <None Include="Source\DigitalOutput\DoStructures.h">
       <Filter>DIO</Filter>
     </None>
@@ -884,5 +888,10 @@
     <CustomBuild Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
     <CustomBuild Include="Source\ExperimentThread\ExpThreadWorker.h" />
     <CustomBuild Include="Source\ParameterSystem\ParameterModel.h" />
+    <CustomBuild Include="Source\Andor\AndorCameraThreadWorker.h" />
+    <CustomBuild Include="Source\Plotting\ScopeThreadWorker.h" />
+    <CustomBuild Include="Source\Plotting\ScopeViewer.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

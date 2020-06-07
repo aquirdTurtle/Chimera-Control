@@ -59,6 +59,7 @@ void PictureStats::initialize( POINT& pos, IChimeraWindowWidget* parent )
 		control = new QLabel ("-", parent);
 		control->setGeometry (pos.x, pos.y += 25, size / 5, 25);
 	}
+	pos.x -= 4./5*size;
 }
 
 void PictureStats::rearrange (int width, int height, fontMap fonts) {}

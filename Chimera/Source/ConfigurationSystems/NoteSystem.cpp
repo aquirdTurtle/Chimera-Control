@@ -1,6 +1,5 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-#include "Windows.h"
 #include <string>
 #include "NoteSystem.h"
 #include "LowLevel/constants.h"

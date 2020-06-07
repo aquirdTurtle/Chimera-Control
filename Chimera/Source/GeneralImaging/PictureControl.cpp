@@ -105,12 +105,12 @@ void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindo
 	maxHeight = height;
 	if ( histOption ){
 		POINT pt{ 300,0 };
-		vertGraph = new PlotCtrl ( vertData, plotStyle::VertHist, std::vector<int>(), "", true );
+		vertGraph = new PlotCtrl ( 1, plotStyle::VertHist, std::vector<int>(), "", true );
 		vertGraph->init (pt, 65, 860, parent );
 		loc.x += 65;
 	}
 	if ( histOption ){
-		horGraph = new PlotCtrl ( horData, plotStyle::HistPlot, std::vector<int> ( ), "", true );
+		horGraph = new PlotCtrl ( 1, plotStyle::HistPlot, std::vector<int> ( ), "", true );
 		POINT pt{ 365, LONG (860) };
 		horGraph->init ( pt, 1565 - 50, 65, parent );
 	}
@@ -259,15 +259,12 @@ void PictureControl::setCursorValueLocations( CWnd* parent )
 coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 {
 	CPoint test;
-	for (UINT colInc = 0; colInc < grid.size(); colInc++)
-	{
-		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++)
-		{
+	for (UINT colInc = 0; colInc < grid.size(); colInc++){
+		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			RECT relevantRect = grid[colInc][rowInc];
 			// check if inside box
 			if (clickLocation.x <= relevantRect.right && clickLocation.x >= relevantRect.left
-				 && clickLocation.y <= relevantRect.bottom && clickLocation.y >= relevantRect.top)
-			{
+				 && clickLocation.y <= relevantRect.bottom && clickLocation.y >= relevantRect.top){
 				// returns row x column
 				coordinate location;
 				location.row = rowInc+1;
@@ -285,8 +282,7 @@ coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 /*
  * change the colormap used for a given picture.
  */
-void PictureControl::updatePalette( HPALETTE palette )
-{
+void PictureControl::updatePalette( HPALETTE palette ){
 	imagePalette = palette;
 }
 
@@ -294,8 +290,7 @@ void PictureControl::updatePalette( HPALETTE palette )
 /*
  * called when the user changes either the min or max edit.
  */
-void PictureControl::handleEditChange( int id )
-{
+void PictureControl::handleEditChange( int id ){
 	if ( id == sliderMax.getEditId() )
 	{
 		sliderMax.handleEdit ( );
@@ -307,9 +302,7 @@ void PictureControl::handleEditChange( int id )
 }
 
 
-std::pair<UINT, UINT> PictureControl::getSliderLocations()
-{
-	
+std::pair<UINT, UINT> PictureControl::getSliderLocations(){
 	return { sliderMin.getValue (), sliderMax.getValue() };
 }
 
@@ -317,14 +310,11 @@ std::pair<UINT, UINT> PictureControl::getSliderLocations()
 /*
  * called when the user drags the scroll bar.
  */
-void PictureControl::handleScroll(int id, UINT nPos)
-{
-	if ( id == sliderMax.getSliderId ( ) )
-	{
+void PictureControl::handleScroll(int id, UINT nPos){
+	if ( id == sliderMax.getSliderId ( ) ){
 		sliderMax.handleSlider ( nPos );
 	}
-	if ( id == sliderMin.getSliderId ( ) )
-	{
+	if ( id == sliderMin.getSliderId ( ) ){
 		sliderMin.handleSlider ( nPos );
 	}
 }
@@ -380,11 +370,9 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	//
 
 	grid.resize(newParameters.width());
-	for (UINT colInc = 0; colInc < grid.size(); colInc++)
-	{
+	for (UINT colInc = 0; colInc < grid.size(); colInc++){
 		grid[colInc].resize(newParameters.height());
-		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++)
-		{
+		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			// for all 4 pictures...
 			grid[colInc][rowInc].left = int(pictureArea.left
 											 + (double)colInc * (pictureArea.right - pictureArea.left) 
@@ -404,13 +392,11 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
  */
 void PictureControl::setActive( bool activeState )
 {
-	if (!coordinatesText || !coordinatesDisp)
-	{
+	if (!coordinatesText || !coordinatesDisp)	{
 		return;
 	}
 	active = activeState;
-	if (!active)
-	{
+	if (!active){
 		sliderMax.hide ( SW_HIDE );
 		sliderMin.hide ( SW_HIDE );
 		//
@@ -419,8 +405,7 @@ void PictureControl::setActive( bool activeState )
 		valueText->hide( );
 		valueDisp->hide(  );
 	}
-	else
-	{
+	else{
 		sliderMax.hide ( SW_SHOW );
 		sliderMin.hide ( SW_SHOW );
 		coordinatesText->show();
@@ -433,27 +418,22 @@ void PictureControl::setActive( bool activeState )
 /*
  * redraws the background and image. 
  */
-void PictureControl::redrawImage(bool bkgd)
-{
-	if ( bkgd )
-	{
+void PictureControl::redrawImage(bool bkgd){
+	if ( bkgd ){
 		drawBackground (  );
 	}
-	if ( active && mostRecentImage_m.size ( ) != 0 )
-	{
+	if ( active && mostRecentImage_m.size ( ) != 0 ){
 		drawBitmap( mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 			mostRecentSpecialMaxSetting);
 	}
 }
 
-void PictureControl::resetStorage()
-{
+void PictureControl::resetStorage(){
 	mostRecentImage_m = Matrix<long>(0,0);
 }
 
 
-void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption opt )
-{
+void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption opt ){
 	saOption = opt;
 	accumPicData.clear ( );
 	accumNum = 0;
@@ -475,63 +455,52 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	int dataWidth = grid.size ( );
 	// first element containst whether autoscaling or not.
 	long colorRange;
-	if ( std::get<0> ( autoScaleInfo ) )
-	{
+	if ( std::get<0> ( autoScaleInfo ) ){
 		// third element contains max, second contains min.
 		colorRange = std::get<2> ( autoScaleInfo ) - std::get<1> ( autoScaleInfo );
 		minColor = std::get<1> ( autoScaleInfo );
 	}
-	else
-	{
+	else{
 		colorRange = sliderMax.getValue ( ); - sliderMin.getValue ( );
 		minColor = sliderMin.getValue ( );
 	}
 	// assumes non-zero size...
-	if ( grid.size ( ) == 0 )
-	{
+	if ( grid.size ( ) == 0 ){
 		thrower  ( "Tried to draw bitmap without setting grid size!" );
 	}
 	int dataHeight = grid[ 0 ].size ( );
 	int totalGridSize = dataWidth * dataHeight;
-	if ( picData.size ( ) != totalGridSize )
-	{
+	if ( picData.size ( ) != totalGridSize ){
 		thrower  ( "Picture data didn't match grid size!" );
 	}
 	
 	pixmap = new QPixmap (dataWidth, dataHeight);
 
 	// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
-	if ( pixelsAreaWidth % 4 )
-	{
+	if ( pixelsAreaWidth % 4 ){
 		pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
 	}
 	float yscale = ( 256.0f ) / (float) colorRange;
 	WORD argbq[ PICTURE_PALETTE_SIZE ];
-	for ( int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++ )
-	{
+	for ( int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++ ){
 		argbq[ paletteIndex ] = (WORD) paletteIndex;
 	}
 	std::vector<uchar> dataArray2 ( dataWidth * dataHeight, 255 );
 	std::vector<QRgb> rgbArray (dataWidth * dataHeight, 255);
 	int iTemp;
 	double dTemp = 1;
-	for (int heightInc = 0; heightInc < dataHeight; heightInc++)
-	{
-		for (int widthInc = 0; widthInc < dataWidth; widthInc++)
-		{
+	for (int heightInc = 0; heightInc < dataHeight; heightInc++){
+		for (int widthInc = 0; widthInc < dataWidth; widthInc++){
 			dTemp = ceil (yscale * (picData (heightInc, widthInc) - minColor));
-			if (dTemp <= 0)
-			{
+			if (dTemp <= 0)	{
 				// raise value to zero which is the floor of values this parameter can take.
 				iTemp = 1;
 			}
-			else if (dTemp >= PICTURE_PALETTE_SIZE - 1)
-			{
+			else if (dTemp >= PICTURE_PALETTE_SIZE - 1)	{
 				// round to maximum value.
 				iTemp = PICTURE_PALETTE_SIZE - 2;
 			}
-			else
-			{
+			else{
 				// no rounding or flooring to min or max needed.
 				iTemp = (int)dTemp;
 			}
@@ -544,8 +513,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	QImage* pixmap = new QImage (dataWidth, dataHeight, QImage::Format_Grayscale8 );
 	pixmap->fill (0);
 	auto ct = 0;
-	for (int y = 0; y < pixmap->height (); y++)
-	{
+	for (int y = 0; y < pixmap->height (); y++)	{
 		memcpy (pixmap->scanLine (y), dataArray2.data() + y * dataWidth, pixmap->bytesPerLine ());
 	}
 	if (pictureObject->width () > pictureObject->height ())	{
@@ -563,8 +531,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 void PictureControl::setHoverValue( )
 {
 	int loc = (grid.size( ) - 1 - mouseCoordinates.x) * grid.size( ) + mouseCoordinates.y;
-	if ( loc >= mostRecentImage_m.size( ) )
-	{
+	if ( loc >= mostRecentImage_m.size( ) )	{
 		return;
 	}
 	valueDisp->setText( cstr( mostRecentImage_m.data[loc] ) );
@@ -575,16 +542,13 @@ void PictureControl::handleMouse( CPoint p )
 {
 	int rowCount = 0;
 	int colCount = 0;
-	for ( auto col : grid )
-	{
-		for ( auto box : col )
-		{
+	for ( auto col : grid ){
+		for ( auto box : col ){
 			if ( p.x < box.right && p.x > box.left && p.y > box.top && p.y < box.bottom )
 			{
 				coordinatesDisp->setText( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
 				mouseCoordinates = { rowCount, colCount };
-				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 )
-				{
+				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 ){
 					setHoverValue( );
 				}
 			}
@@ -599,8 +563,7 @@ void PictureControl::handleMouse( CPoint p )
 /*
  * recolor the background box, clearing last run.
  */
-void PictureControl::drawBackground ()
-{
+void PictureControl::drawBackground (){
 	return;
 }
 
@@ -774,53 +737,3 @@ void PictureControl::drawRectangle(RECT pixelRect )
 	dc->LineTo( pixelRect.left, pixelRect.top );*/
 }
 
-
-/*
- * re-arrange the controls associated with this picture. Neccessary e.g. when the window is resized. 
- */
-void PictureControl::rearrange( int width, int height, fontMap fonts)
-{
-	if (active)
-	{
-		sliderMax.rearrange(width, height, fonts);
-		sliderMin.rearrange(width, height, fonts);
-		scaledBackgroundArea.bottom = long(unscaledBackgroundArea.bottom * height / 997.0);
-		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
-		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);
-		scaledBackgroundArea.right = long(unscaledBackgroundArea.right * width / 1920.0);
-		if ( vertGraph )
-		{
-			vertGraph->rearrange ( width, height, fonts );
-		}
-		if ( horGraph )
-		{
-			horGraph->rearrange ( width, height, fonts );
-		}
-		double widthPicScale;
-		double heightPicScale;
-		auto& uIP = unofficialImageParameters;
-		double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
-		auto& sBA = scaledBackgroundArea;
-		double sba_w = sBA.right - sBA.left;
-		double sba_h = sBA.bottom - sBA.top;
-		if (w_to_h_ratio > sba_w / sba_h) {
-			widthPicScale = 1;
-			heightPicScale = (1.0 / w_to_h_ratio) * (sba_w / sba_h);
-		}
-		else
-		{
-			heightPicScale = 1;
-			widthPicScale = w_to_h_ratio / (sba_w / sba_h);
-		}
-		long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
-		// why isn't this scaled???
-		long height = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
-		POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
-			(scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
-		pictureArea.left = mid.x - width / 2;
-		pictureArea.right = mid.x + width / 2;
-		pictureArea.top = mid.y - height / 2;
-		pictureArea.bottom = mid.y + height / 2;
-
-	}	
-}

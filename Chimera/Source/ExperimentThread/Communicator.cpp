@@ -15,8 +15,7 @@
 
 
 // pass all the windows so that the object can (in principle) send messages to any window.
-void Communicator::initialize(IChimeraWindowWidget* win )
-{
+void Communicator::initialize(IChimeraWindowWidget* win ){
 	mainWin = win->mainWin;
 	scriptWin = win->scriptWin;
 	andorWin = win->andorWin;
@@ -25,79 +24,65 @@ void Communicator::initialize(IChimeraWindowWidget* win )
 	dmWin = win->dmWin;
 }
 
-void Communicator::sendBaslerFin ( )
-{
+void Communicator::sendBaslerFin ( ){
 	//andorWin->PostMessage ( CustomMessages::BaslerFinMessageID, 0, 0 );
 }
 
 
-void Communicator::sendNoMotAlert ( )
-{
+void Communicator::sendNoMotAlert ( ){
 	//mainWin->PostMessage (CustomMessages::NoMotAlertMessageID, 0, 0 );
 }
 
 
 
-void Communicator::sendNoAtomsAlert ( )
-{
+void Communicator::sendNoAtomsAlert ( ){
 	//mainWin->PostMessage (CustomMessages::NoAtomsAlertMessageID, 0, 0 );
 }
 
 
-void Communicator::sendFinish ( ExperimentType type )
-{
+void Communicator::sendFinish ( ExperimentType type ){
 	//mainWin->PostMessage (CustomMessages::GeneralFinMsgID, int ( type ), 0 );
 }
 
 
 // the two camera messages go straight to the camera window.
-void Communicator::sendCameraFin()
-{
+void Communicator::sendCameraFin(){
 	//andorWin->PostMessage(CustomMessages::AndorFinishMessageID, 0, 0 );
 }
 
-void Communicator::sendExperimentProcedureFinish ( )
-{
+void Communicator::sendExperimentProcedureFinish ( ){
 	//mainWin->PostMessageA (CustomMessages::experimentProcedureFinish, 0, 0 );
 }
 
-void Communicator::sendCameraCalFin( )
-{
+void Communicator::sendCameraCalFin( ){
 	//andorWin->PostMessage(CustomMessages::AndorCalFinMessageID, 0, 0 );
 }
 
 
-void Communicator::sendAutoServo( )
-{
+void Communicator::sendAutoServo( ){
 	//auxWin->PostMessage(CustomMessages::AutoServoMessage, 0, 0 );
 }
 
 
-void Communicator::sendCameraProgress(long progress)
-{
+void Communicator::sendCameraProgress(long progress){
 	//andorWin->PostMessage(CustomMessages::AndorProgressMessageID, 0, (LPARAM)progress );
 }
 
-void Communicator::sendCameraCalProgress( long progress )
-{
+void Communicator::sendCameraCalProgress( long progress ){
 	//andorWin->PostMessage(CustomMessages::AndorCalProgMessageID, 0, (LPARAM)progress );
 }
 
-void Communicator::sendLogVoltsMessage ( UINT variation )
-{
+void Communicator::sendLogVoltsMessage ( UINT variation ){
 	//auxWin->PostMessage (CustomMessages::LogVoltsMessageID, variation );
 }
 
 
-void Communicator::sendRepProgress(ULONG rep)
-{
+void Communicator::sendRepProgress(ULONG rep){
 	//mainWin->PostMessage(CustomMessages::RepProgressMessageID, 0, LPARAM(rep));
 }
 
-void Communicator::sendTimer( std::string timerMsg )
-{
-	if ( timerMsg != "" )
-	{
+void Communicator::sendTimer( std::string timerMsg ){
+	if ( timerMsg != "" ){
 		//andorWin->setTimerText( timerMsg );
 	}
 }
@@ -106,7 +91,7 @@ void Communicator::sendTimer( std::string timerMsg )
  * Don't use this function directly, it was designed to be used with the macro in the header file.
  */
 void Communicator::sendErrorEx( std::string statusMsg, const char *file, int line){
-	mainWin->onErrorMessage (statusMsg);
+	mainWin->onErrorMessage (cstr(statusMsg));
 }
 
 /*
@@ -119,42 +104,22 @@ void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, in
 
 void Communicator::sendColorBox( std::string sysDelim, std::string color, ExpThreadWorker* threadManager ){
 	emit threadManager->updateBoxColor (color.c_str(), sysDelim.c_str ());
-	// mainWin->handleColorboxUpdate (color, sysDelim);
-	// postDoubleString (mainWin, CustomMessages::colorStatBoxes, sysDelim, color);
 }
-
-/*void Communicator::sendColorBox (std::string sysDelim, std::string color) {
-	mainWin->handleColorboxUpdate (color, sysDelim);
-	//postDoubleString (mainWin, CustomMessages::colorStatBoxes, sysDelim, color);
-}*/
 
 void Communicator::sendStatus(std::string statusMsg){
 	//mainWin->onStatusTextMessage (statusMsg);
 	//mainWin->setShortStatus (statusMsg);
 }
 
-void Communicator::sendDebug(std::string statusMsg)
-{
-	if (statusMsg != "")
-	{
+void Communicator::sendDebug(std::string statusMsg){
+	if (statusMsg != ""){
 		//postMyString(mainWin, CustomMessages::DebugUpdateMessageID, statusMsg);
 	}
 }
 
-void Communicator::sendPrepareBasler (baslerSettings& settingsToPrepare)
-{
-	//basWin->SendMessage(CustomMessages::prepareBaslerWinAcq, 0, LPARAM (&settingsToPrepare));
-}
 
-void Communicator::sendPrepareAndor (AndorRunSettings& settingsToPrepare)
-{
-	//andorWin->SendMessage (CustomMessages::prepareAndorWinAcq, 0, LPARAM (&settingsToPrepare));
-}
-
-void Communicator::expUpdate (std::string updateTxt)
-{
-	if (!expQuiet)
-	{
+void Communicator::expUpdate (std::string updateTxt){
+	if (!expQuiet) {
 		sendStatus (updateTxt);
 	}
 }

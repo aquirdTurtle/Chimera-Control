@@ -28,7 +28,7 @@ void PiezoCore::programVariation ( UINT variationNumber, std::vector<parameterTy
 	}
 }
 
-void PiezoCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	size_t totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
 	if (experimentActive)

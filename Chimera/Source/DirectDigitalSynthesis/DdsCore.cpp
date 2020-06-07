@@ -28,7 +28,7 @@ void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 	}
 }
 
-void DdsCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+void DdsCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	evaluateDdsInfo (params);
 	UINT variations = ((params.size ()) == 0) ? 1 : params.front ().keyValues.size ();

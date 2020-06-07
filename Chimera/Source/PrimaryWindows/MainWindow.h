@@ -14,7 +14,7 @@
 #include "ConfigurationSystems/NoteSystem.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "Plotting/PlotDialog.h"
-#include "Plotting/OscilloscopeViewer.h"
+#include "Plotting/ScopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
 #include "ExperimentThread/ExperimentThreadManager.h"

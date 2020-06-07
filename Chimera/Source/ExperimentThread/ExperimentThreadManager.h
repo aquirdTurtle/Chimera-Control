@@ -64,9 +64,8 @@ class ExperimentThreadManager
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<parameterType> vars);
-		static void handleDebugPlots( debugInfo debugOptions, Communicator& comm, DoCore& ttls, AoSystem& aoSys,
-									  std::vector<std::vector<pPlotDataVec>> ttlData,
-									  std::vector<std::vector<pPlotDataVec>> dacData );
+		static void handleDebugPlots( debugInfo debugOptions, ExpThreadWorker* worker, DoCore& ttls, AoSystem& aoSys,
+									  unsigned variation);
 		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
 		static void calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input, ExpRuntimeData& runtime);
 		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);

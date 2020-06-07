@@ -6,46 +6,34 @@
 
 PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 
 	: pictures{ { histOption, false, false, false } }, configDelim ( configurationFileDelimiter ), 
-	autoScalePictures (autoscaleDefault )
-{
-
+	autoScalePictures (autoscaleDefault ){
 }
 
-void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts )
-{
-	for ( auto picInc : range ( 4 ) )
-	{
+void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts ){
+	for ( auto picInc : range ( 4 ) ){
 		pictures[ picInc ].setSoftwareAccumulationOption ( opts[ picInc ] );
 	}
 }
 
 
-void PictureManager::paint ( CRect size, CBrush* bgdBrush )
-{
-	for ( auto& pic : pictures )
-	{
+void PictureManager::paint ( CRect size, CBrush* bgdBrush ){
+	for ( auto& pic : pictures ){
 		pic.paint ( size, bgdBrush );
 	}
 }
 
 
-void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl )
-{
+void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl ){
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
 	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax);
-	if (alwaysShowGrid)
-	{
+	if (alwaysShowGrid)	{
 		pictures[whichPicCtrl].drawGrid (gridBrush);
 	}
-
 }
 
-void PictureManager::setPalletes(std::array<int, 4> palleteIds)
-{
-	for (int picInc = 0; picInc < 4; picInc++)
-	{
-		if ( palleteIds[ picInc ] > 3 )
-		{
+void PictureManager::setPalletes(std::array<int, 4> palleteIds){
+	for (int picInc = 0; picInc < 4; picInc++){
+		if ( palleteIds[ picInc ] > 3 ){
 			errBox ( "Image Pallete ID out of range! Forcing to 0." );
 			palleteIds[ picInc ] = 0;
 		}
@@ -53,26 +41,20 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 	}
 }
 
-void PictureManager::handleMouse( CPoint point )
-{
-	for ( auto& pic : pictures )
-	{
+void PictureManager::handleMouse( CPoint point ){
+	for ( auto& pic : pictures ){
 		pic.handleMouse( point );
 	}
 }
 
-void PictureManager::setAlwaysShowGrid(bool showOption)
-{
+void PictureManager::setAlwaysShowGrid(bool showOption){
 	alwaysShowGrid = showOption;
-	if (alwaysShowGrid)
-	{
-		if (!pictures[1].isActive())
-		{
+	if (alwaysShowGrid){
+		if (!pictures[1].isActive()){
 			pictures[0].drawGrid( gridBrush);
 			return;
 		}
-		for (auto& pic : pictures)
-		{
+		for (auto& pic : pictures){
 			pic.drawGrid( gridBrush);
 		}
 	}
@@ -80,23 +62,18 @@ void PictureManager::setAlwaysShowGrid(bool showOption)
 
 
 void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-									 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber )
-{
-	if (!pictures[1].isActive())
-	{
+	std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber ){
+	if (!pictures[1].isActive()){
 		pictures[0].redrawImage();
-		if (alwaysShowGrid || forceGrid )
-		{
+		if (alwaysShowGrid || forceGrid ){
 			pictures[0].drawGrid(gridBrush);
 		}
 		drawDongles(selectedLocation, analysisLocs, gridInfo, picNumber );
 		return;
 	}
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.redrawImage();
-		if (alwaysShowGrid || forceGrid )
-		{
+		if (alwaysShowGrid || forceGrid ){
 			pic.drawGrid(gridBrush);
 		}
 	}
@@ -110,11 +87,9 @@ void PictureManager::drawDongles(coordinate selectedLocation, std::vector<coordi
 								  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers )
 {
 	UINT count = 1;
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.drawCircle( selectedLocation);
-		if ( includingAnalysisMarkers )
-		{
+		if ( includingAnalysisMarkers )	{
 			pic.drawAnalysisMarkers (  analysisLocs, grids );
 		}
 		pic.drawPicNum( pictureNumber - getNumberActive() + count++ );
@@ -122,36 +97,29 @@ void PictureManager::drawDongles(coordinate selectedLocation, std::vector<coordi
 }
 
 
-void PictureManager::setNumberPicturesActive( int numberActive )
-{
+void PictureManager::setNumberPicturesActive( int numberActive ){
 	int count = 1;
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.setActive( count <= numberActive );
 		count++;
 	}
 }
 
-void PictureManager::handleEditChange( UINT id )
-{
-	for (auto& pic : pictures)
-	{
+void PictureManager::handleEditChange( UINT id ){
+	for (auto& pic : pictures){
 		pic.handleEditChange( id );
 	}
 }
 
 
-void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
-{
+void PictureManager::setAutoScalePicturesOption(bool autoScaleOption){
 	autoScalePictures = autoScaleOption;
 }
 
 
-void PictureManager::handleSaveConfig(ConfigStream& saveFile)
-{
+void PictureManager::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << configDelim + "\n/*Slider Locs (Min/Max):*/\n";
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		std::pair<UINT, UINT> sliderLoc = pic.getSliderLocations();
 		saveFile << str(sliderLoc.first) << " " << sliderLoc.second << "\n";
 	}
@@ -163,22 +131,18 @@ void PictureManager::handleSaveConfig(ConfigStream& saveFile)
 }
 
 
-void PictureManager::handleOpenConfig( ConfigStream& configFile )
-{
-	if ( configFile.ver < Version ( "4.0" ) )
-	{
+void PictureManager::handleOpenConfig( ConfigStream& configFile ){
+	if ( configFile.ver < Version ( "4.0" ) ){
 		thrower ( "Picture Manager requires configuration file version 4.0+." );
 	}
 	std::array<int, 4> maxes, mins;
-	for (int sliderInc = 0; sliderInc < 4; sliderInc++)
-	{
+	for (int sliderInc = 0; sliderInc < 4; sliderInc++)	{
 		configFile >> mins[sliderInc];
 		configFile >> maxes[sliderInc];
 	}
 	configFile >> autoScalePictures >> specialGreaterThanMax >> specialLessThanMin >> alwaysShowGrid;
 	UINT count = 0;
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.setSliderPositions(mins[count], maxes[count]);
 		count++;
 	}
@@ -186,37 +150,29 @@ void PictureManager::handleOpenConfig( ConfigStream& configFile )
 }
 
 
-void PictureManager::setSpecialLessThanMin(bool option)
-{
+void PictureManager::setSpecialLessThanMin(bool option){
 	specialLessThanMin = option;
 }
 
 
-void PictureManager::setSpecialGreaterThanMax(bool option)
-{
+void PictureManager::setSpecialGreaterThanMax(bool option){
 	specialGreaterThanMax = option;
 }
 
-void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
-{
-	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
-	{
+void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar){
+	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK){
 		int id = scrollbar->GetDlgCtrlID();
-		for (auto& control : pictures)
-		{
+		for (auto& control : pictures){
 			control.handleScroll ( id, nPos );
 			control.redrawImage ( false );
 		}
 	}
 }
 
-coordinate PictureManager::getClickLocation( CPoint clickLocation )
-{
+coordinate PictureManager::getClickLocation( CPoint clickLocation ){
 	coordinate location;
-	for (auto& pic : pictures)
-	{
-		try
-		{
+	for (auto& pic : pictures){
+		try{
 			location = pic.checkClickLocation( clickLocation );
 			return location;
 		}
@@ -227,46 +183,37 @@ coordinate PictureManager::getClickLocation( CPoint clickLocation )
 }
 
 
-void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams)
-{
-	for (UINT picNum = 0; picNum < 4; picNum++)
-	{
-		if (picNum < 1)
-		{
+void PictureManager::setSinglePicture( imageParameters imageParams){
+	for (UINT picNum = 0; picNum < 4; picNum++){
+		if (picNum < 1){
 			pictures[picNum].setActive(true);
 		}
-		else
-		{
+		else{
 			pictures[picNum].setActive(false);
 		}
 	}
 	pictures.front( ).setPictureArea( picturesLocation, picturesWidth, picturesHeight);
 	picturesLocation.x += picturesWidth;
 	pictures.front( ).setSliderControlLocs( picturesLocation, picturesHeight);
-	pictures.front( ).setCursorValueLocations( parent );
-	setParameters( imageParams );	
+	//pictures.front( ).setCursorValueLocations( parent );
+	setParameters( imageParams );
 }
 
 
-void PictureManager::resetPictureStorage()
-{
-	for (auto& pic : pictures)
-	{
+void PictureManager::resetPictureStorage(){
+	for (auto& pic : pictures){
 		pic.resetStorage();
 	}
 }
 
 
-void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imageParams, UINT numberActivePics )
+void PictureManager::setMultiplePictures( imageParameters imageParams, UINT numberActivePics )
 {
-	for (UINT picNum = 0; picNum < 4; picNum++)
-	{
-		if (picNum < numberActivePics)
-		{
+	for (UINT picNum = 0; picNum < 4; picNum++){
+		if (picNum < numberActivePics){
 			pictures[picNum].setActive(true);
 		}
-		else
-		{
+		else{
 			pictures[picNum].setActive(false);
 		}
 	}
@@ -292,25 +239,21 @@ void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imagePar
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
 	pictures[3].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	setParameters( imageParams );
-	for ( auto& pic : pictures )
-	{
-		pic.setCursorValueLocations( parent );
+	for ( auto& pic : pictures ){
+		//pic.setCursorValueLocations( parent );
 	}
 }
 
 
-void PictureManager::drawBackgrounds()
-{
-	for (auto& pic : pictures)
-	{
+void PictureManager::drawBackgrounds(){
+	for (auto& pic : pictures){
 		pic.drawBackground();
 	}
 }
 
 
 void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth, int manHeight,
-								 IChimeraWindowWidget* widget )
-{
+								 IChimeraWindowWidget* widget ){
 	picturesLocation = loc;
 	picturesWidth = manWidth;
 	picturesHeight = manHeight;
@@ -326,74 +269,58 @@ void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth,
 	loc.y += height;
 	pictures[3].initialize( loc, width, height, widget );
 	loc.y += height;
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.updatePalette( palettes[2] );
 	}
 	// initialize to one. This matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
-	
 }
 
 
-void PictureManager::updatePlotData ( )
-{
-	for ( auto& pic : pictures )
-	{
+void PictureManager::updatePlotData ( ){
+	for ( auto& pic : pictures ){
 		pic.updatePlotData ( );
 	}
 }
 
 
-void PictureManager::refreshBackgrounds()
-{
-	if (!pictures[1].isActive())
-	{
+void PictureManager::refreshBackgrounds(){
+	if (!pictures[1].isActive()){
 		pictures[0].drawBackground(  );
 	}
-	else
-	{
-		for (auto& picture : pictures)
-		{
+	else{
+		for (auto& picture : pictures){
 			picture.drawBackground(  );
 		}
 	}
 }
 
 
-UINT PictureManager::getNumberActive( )
-{
+UINT PictureManager::getNumberActive( ){
 	UINT count = 0;
-	for ( auto& pic : pictures )
-	{
-		if ( pic.isActive( ) )
-		{
+	for ( auto& pic : pictures ){
+		if ( pic.isActive( ) ){
 			count++;
 		}
 	}
 	return count;
 }
 
-void PictureManager::drawGrids()
-{
-	for (auto& picture : pictures)
-	{
+void PictureManager::drawGrids(){
+	for (auto& picture : pictures){
 		picture.drawGrid(gridBrush );
 	}
 }
 
 
-void PictureManager::setParameters(imageParameters parameters)
-{
-	for (auto& picture : pictures)
-	{
+void PictureManager::setParameters(imageParameters parameters){
+	for (auto& picture : pictures){
 		picture.recalculateGrid(parameters);
 	}
 }
 
 
-RECT PictureManager::getPicArea ( )
-{
+RECT PictureManager::getPicArea ( ){
 	RECT r;
 	r.left = picturesLocation.x;
 	r.top = picturesLocation.y;
@@ -403,17 +330,7 @@ RECT PictureManager::getPicArea ( )
 }
 
 
-void PictureManager::rearrange(int width, int height, fontMap fonts)
-{
-	for (auto& control : pictures)
-	{
-		control.rearrange(width, height, fonts);
-	}
-}
-
-
-void PictureManager::createPalettes( )
-{
+void PictureManager::createPalettes( ){
 	/*
 	struct
 	{

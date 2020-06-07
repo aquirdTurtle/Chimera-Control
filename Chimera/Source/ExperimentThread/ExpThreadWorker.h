@@ -18,7 +18,13 @@ class ExpThreadWorker : public QObject {
         //void error (QString err);
         void updateBoxColor (QString, QString);
         void notify (QString);
+        void warn (QString);
+        void debugInfo (QString);
         void repUpdate (unsigned int);
+        void prepareAndor (void*);
+        void prepareBasler ();
+        void doAoData (const std::vector<std::vector<plotDataVec>>& doData,
+                       const std::vector<std::vector<plotDataVec>>& aoData);
     private:
         // add your variables here
         ExperimentThreadInput* inputr;

@@ -327,10 +327,10 @@ namespace commonFunctions
 					scriptWin->saveNiawgScript( );
 					scriptWin->saveIntensityScript( );
 					scriptWin->saveMasterScript( );
-					auxWin->updateAgilent( whichAg::TopBottom );
-					auxWin->updateAgilent( whichAg::Axial );
-					auxWin->updateAgilent( whichAg::Flashing );
-					auxWin->updateAgilent( whichAg::Microwave );
+					auxWin->updateAgilent(whichAgTy::TopBottom );
+					auxWin->updateAgilent(whichAgTy::Axial );
+					auxWin->updateAgilent(whichAgTy::Flashing );
+					auxWin->updateAgilent(whichAgTy::Microwave );
 					mainWin->profile.saveEntireProfile( win );
 					mainWin->masterConfig.save( mainWin, auxWin, andorWin );
 					

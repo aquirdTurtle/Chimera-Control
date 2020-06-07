@@ -9,6 +9,7 @@
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralObjects/CodeTimer.h"
 #include <boost/lexical_cast.hpp>
+#include <ExperimentThread/ExpThreadWorker.h>
 
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 {
@@ -441,27 +442,27 @@ void AoSystem::resetDacs (UINT varInc, bool skipOption)
 	startDacs ();
 }
 
-template <typename T> using vec = std::vector<T>;
-void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData )
-{
+std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( UINT var ){
+	std::vector<std::vector<plotDataVec>> dacData(3, std::vector<plotDataVec>(8));
 	std::string message;
-	// each element of ttlData should be one ttl line.
-	UINT linesPerPlot = 24 / dacData.size( );
+	// each element of dacData should be one ttl line.
+	UINT linesPerPlot = 24 / 3;
 
-	for ( auto line : range( 24 ) )
-	{
+	for ( auto line : range( 24 ) )	{
 		auto& data = dacData[line / linesPerPlot][line % linesPerPlot];
-		data->clear( );
-		if ( dacSnapshots.getNumVariations() <= variation )
-		{
-			thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
-						"exist!" );
+		data.clear( );
+		if ( dacSnapshots.getNumVariations() <= var ){
+			thrower ( "Attempted to use dac data from variation " + str( var ) + ", which does not exist!" );
 		}
-		for ( auto& snap : dacSnapshots(variation) )
-		{
-			data->push_back( { snap.time, double( snap.dacValues[line] ), 0 } );
+
+		for ( auto snapn : range(dacSnapshots(var).size()) ){
+			if (snapn != 0) {
+				data.push_back ({ dacSnapshots (var)[snapn].time, double (dacSnapshots (var)[snapn-1].dacValues[line]), 0 });
+			}
+			data.push_back ({ dacSnapshots (var)[snapn].time, double (dacSnapshots (var)[snapn].dacValues[line]), 0 });
 		}
 	}
+	return dacData;
 }
 
 
@@ -469,7 +470,7 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::calculateVariations( std::vector<parameterType>& params, Communicator& comm)
+void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
@@ -548,9 +549,9 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, Communic
 				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
-					comm.warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number "
-						+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
-						+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
+					emit threadworker->warn (cstr("Warning: ramp increment of " + str (rampInc) + " in dac command number "
+						+ str (eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
+						+ str (10.0 / pow (2, 16)) + "). These ramp points are unnecessary.\r\n"));
 				}
 				// This might be the first not i++ usage of a for loop I've ever done... XD
 				// calculate the time increment:
@@ -560,10 +561,10 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, Communic
 				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
 				{
 					nonIntegerWarningPosted = true;
-					comm.warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
+					emit threadworker->warn (cstr ("Warning: Ideally your spacings for a dacArange would result in a non-integer number "
 						"of steps. The code will attempt to compensate by making a last step to the final value which"
 						" is not the same increment in voltage or time as the other steps to take the dac to the final"
-						" value at the right time.\r\n";
+						" value at the right time.\r\n"));
 				}
 				double timeInc = rampTime / steps;
 				double initTime = tempEvent.time;
@@ -612,10 +613,10 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, Communic
 				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
-					comm.warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
-						+ str( rampInc ) + " is below the resolution of the aoSys (which is 10/2^16 = "
-						+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
-						"calculate the ramp unnecessarily.\r\n";
+					emit threadworker->warn (cstr ("Warning: numPoints of " + str (numSteps) + " results in a ramp increment of "
+						+ str (rampInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
+						+ str (10.0 / pow (2, 16)) + "). It's likely taxing the system to "
+						"calculate the ramp unnecessarily.\r\n"));
 				}
 				// This might be the first not i++ usage of a for loop I've ever done... XD
 				// calculate the time increment:

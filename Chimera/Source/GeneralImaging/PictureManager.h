@@ -22,7 +22,6 @@ class PictureManager
 		void drawGrids();
 		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );
-		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar);
 		void drawBackgrounds();
 		void setPalletes(std::array<int, 4> palleteIds);
@@ -38,8 +37,8 @@ class PictureManager
 							 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber );
 		void setNumberPicturesActive( int numberActive );
 		coordinate getClickLocation(CPoint clickLocation);
-		void setSinglePicture( CWnd* parent, imageParameters imageParams );
-		void setMultiplePictures( CWnd* parent, imageParameters imageParams, UINT numberActivePics );
+		void setSinglePicture( imageParameters imageParams );
+		void setMultiplePictures( imageParameters imageParams, UINT numberActivePics );
 		void setAutoScalePicturesOption(bool autoScaleOption);
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);

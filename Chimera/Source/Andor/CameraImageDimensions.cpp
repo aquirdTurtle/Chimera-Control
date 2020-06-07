@@ -45,9 +45,6 @@ void ImageDimsControl::initialize( POINT& pos, IChimeraWindowWidget* parent, int
 	}
 	leftEdit = new CQLineEdit ("1", parent);
 	leftEdit->setGeometry (pos.x, pos.y+=25, wi, 25);
-	parent->connect (leftEdit, &QLineEdit::textChanged, [this, parent]() {
-			parent->andorWin->handleImageDimsEdit ();
-		});
 
 	rightEdit = new CQLineEdit ("5", parent);
 	rightEdit->setGeometry (pos.x + wi, pos.y, wi, 25);

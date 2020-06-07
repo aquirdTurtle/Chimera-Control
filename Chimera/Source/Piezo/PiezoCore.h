@@ -42,7 +42,7 @@ class PiezoCore : public IDeviceCore
 		void programYNow ( double val );
 		double getCurrentZVolt ( );
 		void programZNow ( double val );
-		void calculateVariations ( std::vector<parameterType>& params, Communicator& comm);
+		void calculateVariations ( std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		const std::string configDelim;
 		std::string getDelim () { return configDelim; }
 		void logSettings (DataLogger& log);

@@ -42,10 +42,10 @@ void QtAuxiliaryWindow::initializeWidgets ()
 		RohdeSchwarzGenerator.initialize (loc, this);
 		loc = POINT{ 480, 25 };
 
-		agilents[whichAg::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
-		agilents[whichAg::Axial].initialize (loc, "Microwave-Axial-Agilent", 100, this);
-		agilents[whichAg::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
-		agilents[whichAg::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
+		agilents[whichAgTy::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
+		agilents[whichAgTy::Axial].initialize (loc, "Microwave-Axial-Agilent", 100, this);
+		agilents[whichAgTy::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
+		agilents[whichAgTy::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
 		loc = POINT{ 1440, 25 };
 		globalParameters.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global);
 		configParameters.initialize (loc, this, "CONFIGURATION PARAMETERS", ParameterSysType::config);
@@ -87,7 +87,7 @@ void QtAuxiliaryWindow::initializeWidgets ()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl (dacData[dacPltCount], plotStyle::DacPlot, std::vector<int> (), titleTxt);
+			aoPlots[dacPltCount] = new PlotCtrl (8, plotStyle::DacPlot, std::vector<int> (), titleTxt);
 			aoPlots[dacPltCount]->init (loc, 480, dacPlotSize, this);
 		}
 		// ttl plots are similar to aoSys.
@@ -122,14 +122,23 @@ void QtAuxiliaryWindow::initializeWidgets ()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl (ttlData[ttlPltCount], plotStyle::TtlPlot, std::vector<int> (), titleTxt);
+			ttlPlots[ttlPltCount] = new PlotCtrl (16, plotStyle::TtlPlot, std::vector<int> (), titleTxt);
 			ttlPlots[ttlPltCount]->init (loc, 480, ttlPlotSize, this);
-			//controlLocation.y += ttlPlotSize;
 		}
 	}
 	catch (Error&)
 	{
 		throwNested ("FATAL ERROR: Failed to initialize Auxiliary window properly!");
+	}
+}
+
+void QtAuxiliaryWindow::handleDoAoPlotData (const std::vector<std::vector<plotDataVec>>& doData,
+											const std::vector<std::vector<plotDataVec>>& aoData){
+	for (auto ttlPlotNum: range(ttlPlots.size())){
+		ttlPlots[ttlPlotNum]->setData (doData[ttlPlotNum]);
+	}
+	for (auto aoPlotNum : range (aoPlots.size ())) {
+		aoPlots[aoPlotNum]->setData (aoData[aoPlotNum]);
 	}
 }
 
@@ -258,7 +267,7 @@ LRESULT QtAuxiliaryWindow::onLogVoltsMessage (WPARAM wp, LPARAM lp)
 }
 
 
-void QtAuxiliaryWindow::newAgilentScript (whichAg::agilentNames name)
+void QtAuxiliaryWindow::newAgilentScript (whichAgTy::agilentNames name)
 {
 	try
 	{
@@ -275,7 +284,7 @@ void QtAuxiliaryWindow::newAgilentScript (whichAg::agilentNames name)
 	}
 }
 
-void QtAuxiliaryWindow::openAgilentScript (whichAg::agilentNames name, IChimeraWindowWidget* parent)
+void QtAuxiliaryWindow::openAgilentScript (whichAgTy::agilentNames name, IChimeraWindowWidget* parent)
 {
 	try
 	{
@@ -295,7 +304,7 @@ void QtAuxiliaryWindow::openAgilentScript (whichAg::agilentNames name, IChimeraW
 }
 
 
-void QtAuxiliaryWindow::updateAgilent (whichAg::agilentNames name)
+void QtAuxiliaryWindow::updateAgilent (whichAgTy::agilentNames name)
 {
 	try
 	{
@@ -310,7 +319,7 @@ void QtAuxiliaryWindow::updateAgilent (whichAg::agilentNames name)
 }
 
 
-void QtAuxiliaryWindow::saveAgilentScript (whichAg::agilentNames name)
+void QtAuxiliaryWindow::saveAgilentScript (whichAgTy::agilentNames name)
 {
 	try
 	{
@@ -327,7 +336,7 @@ void QtAuxiliaryWindow::saveAgilentScript (whichAg::agilentNames name)
 }
 
 
-void QtAuxiliaryWindow::saveAgilentScriptAs (whichAg::agilentNames name, IChimeraWindowWidget* parent)
+void QtAuxiliaryWindow::saveAgilentScriptAs (whichAgTy::agilentNames name, IChimeraWindowWidget* parent)
 {
 	try
 	{
@@ -356,22 +365,22 @@ Agilent& QtAuxiliaryWindow::whichAgilent (UINT id)
 	if (id >= IDC_TOP_BOTTOM_CHANNEL1_BUTTON && id <= IDC_TOP_BOTTOM_PROGRAM
 		|| id == IDC_TOP_BOTTOM_CALIBRATION_BUTTON)
 	{
-		return agilents[whichAg::TopBottom];
+		return agilents[whichAgTy::TopBottom];
 	}
 	else if (id >= IDC_AXIAL_CHANNEL1_BUTTON && id <= IDC_AXIAL_PROGRAM
 		|| id == IDC_AXIAL_CALIBRATION_BUTTON)
 	{
-		return agilents[whichAg::Axial];
+		return agilents[whichAgTy::Axial];
 	}
 	else if (id >= IDC_FLASHING_CHANNEL1_BUTTON && id <= IDC_FLASHING_PROGRAM
 		|| id == IDC_FLASHING_CALIBRATION_BUTTON)
 	{
-		return agilents[whichAg::Flashing];
+		return agilents[whichAgTy::Flashing];
 	}
 	else if (id >= IDC_UWAVE_CHANNEL1_BUTTON && id <= IDC_UWAVE_PROGRAM
 		|| id == IDC_UWAVE_CALIBRATION_BUTTON)
 	{
-		return agilents[whichAg::Microwave];
+		return agilents[whichAgTy::Microwave];
 	}
 	thrower ("id seen in \"whichAgilent\" handler does not belong to any agilent!");
 }
@@ -486,19 +495,6 @@ std::vector<parameterType> QtAuxiliaryWindow::getAllVariables ()
 	return vars;
 }
 
-void QtAuxiliaryWindow::GlobalVarDblClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	std::vector<Script*> scriptList;
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		//globalParameters.handleDblClick (scriptList, mainWin, this, &ttlBoard, &aoSys);
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Global Variables Double Click Handler : " + exception.trace () + "\r\n");
-	}
-}
 
 void QtAuxiliaryWindow::clearVariables ()
 {

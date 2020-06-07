@@ -1,6 +1,6 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
-#include "OscilloscopeViewer.h"
+#include "ScopeViewer.h"
 #include <PrimaryWindows/IChimeraWindowWidget.h>
 #include <QLineSeries>
 #include <QGraphicsLayout>
@@ -63,19 +63,34 @@ void ScopeViewer::initialize( POINT& pos, UINT width, UINT height, IChimeraWindo
 	pos.y += height;
 }
 
+void ScopeViewer::updateData(const QVector<double>& xdata, double xmin, double xmax, 
+							 const QVector<double>& ydata, double ymin, double ymax, 
+							 int traceNum){
+	if (safemode) {
+		auto* line = data_t[traceNum];
+		viewPlot->chart ()->removeSeries (line);
+		line->clear ();
+		for (auto count : range (xdata.size())) {
+			*line << QPointF (xdata[count], ((ydata[count] - yoffset) * ymult));
+		}
+		viewPlot->chart ()->addSeries (line);
+		viewPlot->chart ()->axisX ()->setMin (xmin);
+		viewPlot->chart ()->axisX ()->setMax (xmax);
+		viewPlot->chart ()->axisY ()->setMin (ymin);
+		viewPlot->chart ()->axisY ()->setMax (ymax);
+	}
+}
+
 
 void ScopeViewer::refreshData( )
 {
-	if ( safemode )
-	{
+	if ( safemode )	{
 		Sleep( 50000 );
 		double xminv=DBL_MAX, xmaxv=-DBL_MAX, yminv = DBL_MAX, ymaxv = -DBL_MAX;
-		for (auto* line : data_t)
-		{
+		for (auto* line : data_t){
 			line->clear ();
 			double count = 0;
-			for (auto count : range (250))
-			{
+			for (auto count : range (250)){
 				auto val = double(rand () % 1000) / 1e3;
 				auto qval = QPointF (double (count - 7), ((double (val) - yoffset) * ymult));
 				if (qval.x() > xmaxv){
@@ -103,23 +118,18 @@ void ScopeViewer::refreshData( )
 	for ( auto line : range( numTraces ) )
 	{
 		std::string data;
-		try
-		{
+		try	{
 			visa.write( "DATa:SOUrce CH" + str( line + 1 ) );
 		}
-		catch ( Error&)
-		{
+		catch ( Error&)	{
 			//errBox( err.what( ) );
 		}
-		try
-		{
+		try	{
 			visa.query( "Curve?\n", data );
 		}
-		catch ( Error& )
-		{
+		catch ( Error& ) {
 			continue;
 		}
-		     
 		double count = 0;
 		//std::lock_guard<std::mutex> lock( viewPlot->dataMutexes[line] );
 		//scopeData[line]->clear( );

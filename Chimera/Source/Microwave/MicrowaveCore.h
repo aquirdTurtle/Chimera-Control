@@ -14,7 +14,7 @@ class MicrowaveCore : public IDeviceCore
 		void setFmSettings ();
 		void setPmSettings ();
 		void programVariation (UINT variationNumber, std::vector<parameterType>& params);
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void calculateVariations (std::vector<parameterType>& params);
 		std::pair<DoRows::which, UINT> getRsgTriggerLine ();
 		UINT getNumTriggers (microwaveSettings settings);

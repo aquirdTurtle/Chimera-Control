@@ -34,6 +34,10 @@ enum class plotStyle
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 typedef std::shared_ptr<QtCharts::QLineSeries> pQtPlotDataVec;
+Q_DECLARE_METATYPE (dataPoint)
+Q_DECLARE_METATYPE (std::vector<dataPoint>)
+Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
+Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
 
 struct plotMinMax
 {
@@ -48,20 +52,20 @@ struct plotMinMax
 class PlotCtrl
 {
 	public:
-		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<int> thresholds,
+		PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds,
 				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );
-		void rearrange( int width, int height, fontMap fonts );
 		void init( POINT& topLeftLoc, LONG width, LONG height, IChimeraWindowWidget* parent );
 		dataPoint getMainAnalysisResult ( );
 		std::vector<pPlotDataVec> getCurrentData ( );
 
 		std::vector<std::mutex> dataMutexes;
 		void setStyle (plotStyle newStyle);
-		void setData (std::vector<pPlotDataVec> newData);
+		void setData (std::vector<plotDataVec> newData);
 		void setTitle (std::string newTitle);
 		void setThresholds (std::vector<int> newThresholds);
 		void refreshData ();
+
 	private:
 		const bool narrow;
 		std::vector<int> thresholds;
@@ -71,7 +75,7 @@ class PlotCtrl
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.
 		std::string title;
-		std::vector<pPlotDataVec> data;
+		//std::vector<pPlotDataVec> data;
 		std::vector<QtCharts::QLineSeries*> qtData;
 };
 

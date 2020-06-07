@@ -478,11 +478,11 @@ void BaslerCameraCore::loadExpSettings (ConfigStream& stream)
 																 Repetitions::getSettingsFromConfig);
 }
 
-void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	expRunSettings.variations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());
 	if (experimentActive){
-		comm.sendPrepareBasler (expRunSettings);
+		//comm.sendPrepareBasler (expRunSettings);
 		setBaslserAcqParameters (expRunSettings);
 		armCamera ();
 	}

@@ -57,7 +57,7 @@ class AoSystem
 		void setNote ( int dacNumber, std::string note );
 		bool isValidDACName( std::string name );
 		void setMinMax( int dacNumber, double min, double max );
-		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData );
+		std::vector<std::vector<plotDataVec>> getPlotData (UINT variation);
 		void handleEditChange( UINT dacNumber );
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DoCore& ttls, bool useDefault=false );
@@ -65,7 +65,7 @@ class AoSystem
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DoCore& ttls);
 		void setDacTriggerEvents( DoCore& ttls, UINT variation );
-		void calculateVariations( std::vector<parameterType>& variables, Communicator& comm);
+		void calculateVariations( std::vector<parameterType>& variables, ExpThreadWorker* threadworker);
 		void organizeDacCommands( UINT variation );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
 									 DoCore& ttls );

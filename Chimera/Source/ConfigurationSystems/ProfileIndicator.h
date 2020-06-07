@@ -2,7 +2,6 @@
 #pragma once
 
 #include "Control.h"
-#include "Windows.h"
 #include "PrimaryWindows/IChimeraWindowWidget.h"
 #include <qlabel.h>
 

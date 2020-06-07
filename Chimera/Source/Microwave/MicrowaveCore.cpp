@@ -47,7 +47,7 @@ void MicrowaveCore::setPmSettings ()
 	uwFlume.setPmSettings ();
 }
 
-void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	calculateVariations (params);
 }

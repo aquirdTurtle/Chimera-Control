@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "miscCommonFunctions.h"
 #include "my_str.h"
-#include <Windows.h>
 #include <string>
 #include <filesystem>
 

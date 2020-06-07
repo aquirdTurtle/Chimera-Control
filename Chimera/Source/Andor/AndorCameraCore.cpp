@@ -7,11 +7,16 @@
 #include "Andor/AndorRunMode.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
+#include <Andor/AndorCameraThreadWorker.h>
+#include <qthread.h>
 #include <chrono>
 #include <process.h>
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <PrimaryWindows/QtMainWindow.h>
+#include <PrimaryWindows/QtAndorWindow.h>
+#include <ExperimentThread/ExpThreadWorker.h>
 
 std::string AndorCameraCore::getSystemInfo()
 {
@@ -82,15 +87,26 @@ AndorCameraCore::AndorCameraCore( bool safemode_opt ) : safemode( safemode_opt )
 	flume.setDMAParameters( 1, 0.0001f );
 }
 
-void AndorCameraCore::initializeClass(Communicator* comm, chronoTimes* imageTimes){
-	threadInput.comm = comm;
+void AndorCameraCore::initializeClass(IChimeraWindowWidget* parent, chronoTimes* imageTimes){
 	threadInput.imageTimes = imageTimes;
 	threadInput.Andor = this;
 	threadInput.expectingAcquisition = false;
 	threadInput.safemode = safemode;
 	threadInput.runMutex = &camThreadMutex;
 	// begin the camera wait thread.
-	_beginthreadex(NULL, 0, &AndorCameraCore::cameraThread, &threadInput, 0, &cameraThreadID);
+	AndorCameraThreadWorker* worker = new AndorCameraThreadWorker (&threadInput);
+	QThread* thread = new QThread;
+	worker->moveToThread (thread);
+	parent->mainWin->connect (worker, &AndorCameraThreadWorker::notify,
+							  parent->mainWin, &QtMainWindow::handleExpNotification);
+
+	parent->andorWin->connect (worker, &AndorCameraThreadWorker::pictureTaken,
+							   parent->andorWin, &QtAndorWindow::onCameraProgress);
+
+	parent->mainWin->connect (thread, SIGNAL (started ()), worker, SLOT (process ()));
+	parent->mainWin->connect (thread, SIGNAL (finished ()), thread, SLOT (deleteLater ()));
+	thread->start (QThread::TimeCriticalPriority);
+
 }
 
 void AndorCameraCore::updatePictureNumber( ULONGLONG newNumber ){
@@ -130,6 +146,7 @@ bool AndorCameraCore::isCalibrating( ){
  */
 unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
 {
+	/*
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
 	//... I'm not sure what this lock is doing here... why not inside while loop?
 	int safeModeCount = 0;
@@ -151,7 +168,7 @@ unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
 		 * called spurious wakeups, which are weird and appear to relate to some optimization things from the quick
 		 * search I did. Regardless, I don't fully understand why spurious wakeups occur, but this protects against
 		 * them.
-		 */
+		 *//*
 		// Also, anytime this gets locked, the count should be reset.
 		//input->signaler.wait( lock, [input]() { return input->expectingAcquisition; } );
 		while (!input->expectingAcquisition) {
@@ -245,6 +262,7 @@ unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
 			}
 		}
 	}
+	*/
 	return 0;
 }
 
@@ -343,7 +361,7 @@ std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 			repImages.resize (runSettings.showPicsInRealTime ? 1 : runSettings.picsPerRepetition);
 		}
 		auto& imSettings = runSettings.imageSettings;
-		Matrix<long> tempImage (imSettings.height (), imSettings.width (), 0);
+		Matrix<long> tempImage (imSettings.width (), imSettings.height (), 0);
 		repImages[experimentPictureNumber] = Matrix<long> (imSettings.height (), imSettings.width (), 0);
 		if (!safemode){
 			try	{
@@ -752,11 +770,12 @@ void AndorCameraCore::loadExpSettings (ConfigStream& stream){
 																			 Repetitions::getSettingsFromConfig);
 }
 
-void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm){
+void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	expRunSettings.totalVariations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());;
 	if (experimentActive){
 		setSettings (expRunSettings);
-		comm.sendPrepareAndor (expRunSettings);
+		emit threadworker->prepareAndor (&expRunSettings);
+		//comm.sendPrepareAndor (expRunSettings);
 	}
 }
 

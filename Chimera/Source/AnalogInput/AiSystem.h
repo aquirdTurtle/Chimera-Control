@@ -52,7 +52,7 @@ class AiSystem : public IDeviceCore
 		const std::string configDelim{ "AI-SYSTEM" };
 		std::string getDelim () { return configDelim; }
 		void programVariation (UINT variation, std::vector<parameterType>& params) {};
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm) {};
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void loadExpSettings (ConfigStream& stream) {};
 
 		void logSettings (DataLogger& log);

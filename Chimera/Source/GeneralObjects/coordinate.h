@@ -1,7 +1,5 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "windows.h"
-
 
 struct int_coordinate
 {

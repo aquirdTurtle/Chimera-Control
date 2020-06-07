@@ -10,7 +10,9 @@
 #include <PrimaryWindows/QtDeformableMirrorWindow.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
+#include <Plotting/ScopeThreadWorker.h>
 #include <qshortcut.h>
+#include <QThread.h>
 
 QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) : 
 	profile (PROFILES_PATH),
@@ -89,9 +91,7 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 	{
 		errBox (err.trace ());
 	}
-	//SetTimer (1, 10000, NULL);
-	//SetTimer (10, 10000, NULL);
-	//OnTimer (10);
+
 	for (auto* window : winList ()) {
 		window->initializeWidgets ();
 		window->initializeShortcuts ();
@@ -113,9 +113,25 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 		errBox (err.trace ());
 	}
 	setWindowTitle ("Main Window");
-	// set up the threads that update the scope data.
-	_beginthreadex (NULL, NULL, &QtMainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL);
-	_beginthreadex (NULL, NULL, &QtMainWindow::scopeRefreshProcedure, &motScope, NULL, NULL);
+
+	QThread* motThread = new QThread;
+	QThread* masterRepumpThread = new QThread;
+	ScopeThreadWorker* motWorker = new ScopeThreadWorker (&motScope);
+	ScopeThreadWorker* masterRepumpWorker = new ScopeThreadWorker (&motScope);
+
+	motWorker->moveToThread (motThread);
+	masterRepumpWorker->moveToThread (masterRepumpThread);
+
+	connect (motThread, SIGNAL (started ()), motWorker, SLOT (process ()));
+	connect (motWorker, &ScopeThreadWorker::newData, &motScope, &ScopeViewer::updateData);
+	connect (motThread, SIGNAL (finished ()), motThread, SLOT (deleteLater ()));
+	motThread->start ();
+
+	connect (masterRepumpThread, SIGNAL (started ()), masterRepumpWorker, SLOT (process ()));
+	connect (masterRepumpWorker, &ScopeThreadWorker::newData, &masterRepumpScope, &ScopeViewer::updateData);
+	connect (masterRepumpThread, SIGNAL (finished ()), masterRepumpThread, SLOT (deleteLater ()));
+	masterRepumpThread->start ();
+
 	updateConfigurationSavedStatus (true);
 }
 
@@ -153,16 +169,6 @@ void QtMainWindow::initializeWidgets ()
 	debugger.initialize (controlLocation, this);
 	texter.initialize (controlLocation, this);
 }
-
-void QtMainWindow::drawServoListview (NMHDR* pNMHDR, LRESULT* pResult) {
-	try {
-		servos.handleDraw (pNMHDR, pResult);
-	}
-	catch (Error& err) {
-		comm.sendError (err.trace ());
-	}
-}
-
 
 void QtMainWindow::handleThresholdAnalysis ()
 {
@@ -247,8 +253,7 @@ void QtMainWindow::onMachineOptRoundFin ()
 
 
 void QtMainWindow::OnTimer (UINT_PTR id) {
-	if (id == 10)
-	{
+	if (id == 10){
 		motScope.refreshData ();
 		masterRepumpScope.refreshData ();
 	}
@@ -303,10 +308,8 @@ LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp)
 
 LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp)
 {
-	try
-	{
-		if (andorWin->wantsAutoPause ())
-		{
+	try	{
+		if (andorWin->wantsAutoPause ()){
 			expThreadManager.pause ();
 			//checkAllMenus (ID_RUNMENU_PAUSE, MF_CHECKED);
 		}
@@ -315,42 +318,35 @@ LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp)
 		struct tm now;
 		localtime_s (&now, &t);
 		std::string message = "Experiment Stopped loading atoms at ";
-		if (now.tm_hour < 10)
-		{
+		if (now.tm_hour < 10){
 			message += "0";
 		}
 		message += str (now.tm_hour) + ":";
-		if (now.tm_min < 10)
-		{
+		if (now.tm_min < 10){
 			message += "0";
 		}
 		message += str (now.tm_min) + ":";
-		if (now.tm_sec < 10)
-		{
+		if (now.tm_sec < 10){
 			message += "0";
 		}
 		message += str (now.tm_sec);
 		texter.sendMessage (message, &python, "Loading");
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		comm.sendError (err.trace ());
 	}
 	return 0;
 }
 
 
-CFont* QtMainWindow::getPlotFont ()
-{
+CFont* QtMainWindow::getPlotFont (){
 	return plotfont;
 }
 
 
 
-void QtMainWindow::showHardwareStatus ()
-{
-	try
-	{
+void QtMainWindow::showHardwareStatus (){
+	try	{
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
 		std::string initializationString;
 		initializationString += getSystemStatusString ();
@@ -359,42 +355,34 @@ void QtMainWindow::showHardwareStatus ()
 		initializationString += auxWin->getVisaDeviceStatus ();
 		initializationString += scriptWin->getSystemStatusString ( );
 		initializationString += auxWin->getMicrowaveSystemStatus ();
-
 		infoBox (initializationString);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err)	{
 		errBox (err.trace ());
 	}
 }
 
 
 // just notifies the profile object that the configuration is no longer saved.
-void QtMainWindow::notifyConfigUpdate ()
-{
+void QtMainWindow::notifyConfigUpdate (){
 	profile.updateConfigurationSavedStatus (false);
 }
 
 
 BOOL CALLBACK QtMainWindow::monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HDC hdcMonitor,
-	_In_ LPRECT lprcMonitor, _In_ LPARAM dwData)
-{
+	_In_ LPRECT lprcMonitor, _In_ LPARAM dwData){
 	static UINT count = 0;
 	std::vector<CDialog*>* windows = reinterpret_cast<std::vector<CDialog*>*>(dwData);
-	if (count == 1)
-	{
+	if (count == 1)	{
 		// skip the tall monitor.
 		count++;
 		return TRUE;
 	}
-	if (count < 6)
-	{
-		if (windows->at (count) != NULL)
-		{
+	if (count < 6){
+		if (windows->at (count) != NULL){
 			windows->at (count)->MoveWindow (lprcMonitor);
 		}
-		else
-		{
+		else{
 			errBox ("Error in monitorHandlingProc! Tried to move \"NULL\" Window to monitor.");
 		}
 	}
@@ -403,25 +391,20 @@ BOOL CALLBACK QtMainWindow::monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HD
 }
 
 
-void QtMainWindow::handlePause ()
-{
-	if (expThreadManager.runningStatus ())
-	{
-		if (expThreadManager.getIsPaused ())
-		{
+void QtMainWindow::handlePause (){
+	if (expThreadManager.runningStatus ()){
+		if (expThreadManager.getIsPaused ()){
 			// then it's currently paused, so unpause it.
 			//checkAllMenus (ID_RUNMENU_PAUSE, MF_UNCHECKED);
 			expThreadManager.unPause ();
 		}
-		else
-		{
+		else{
 			// then not paused so pause it.
 			//checkAllMenus (ID_RUNMENU_PAUSE, MF_CHECKED);
 			expThreadManager.pause ();
 		}
 	}
-	else
-	{
+	else{
 		comm.sendStatus ("Can't pause, experiment was not running.\r\n");
 	}
 }
@@ -431,16 +414,14 @@ void QtMainWindow::onRepProgress (unsigned int repNum){
 	repetitionControl.updateNumber (repNum);
 }
 
-void QtMainWindow::windowSaveConfig (ConfigStream& saveFile)
-{
+void QtMainWindow::windowSaveConfig (ConfigStream& saveFile){
 	notes.handleSaveConfig (saveFile);
 	mainOptsCtrl.handleSaveConfig (saveFile);
 	debugger.handleSaveConfig (saveFile);
 	repetitionControl.handleSaveConfig (saveFile);
 }
 
-void QtMainWindow::windowOpenConfig (ConfigStream& configStream)
-{
+void QtMainWindow::windowOpenConfig (ConfigStream& configStream){
 	try	{
 		ProfileSystem::standardOpenConfig (configStream, "CONFIGURATION_NOTES", &notes);
 		mainOptsCtrl.setOptions (ProfileSystem::stdConfigGetter (configStream, "MAIN_OPTIONS",
@@ -450,8 +431,7 @@ void QtMainWindow::windowOpenConfig (ConfigStream& configStream)
 			Repetitions::getSettingsFromConfig));
 
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		throwNested ("Main Window failed to read parameters from the configuration file.");
 	}
 }
@@ -466,69 +446,47 @@ std::string QtMainWindow::getSystemStatusString ()
 {
 	std::string status;
 	status += "\nMOT Scope:\n";
-	if (!MOT_SCOPE_SAFEMODE)
-	{
+	if (!MOT_SCOPE_SAFEMODE){
 		status += "\tCode System is Active!\n";
-		try
-		{
+		try{
 			status += "\t" + motScope.getScopeInfo ();
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			status += "\tFailed to get device info! Error: " + err.trace ();
 		}
 	}
-	else
-	{
+	else{
 		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	status += "Master/Repump Scope:\n";
-	if (!MASTER_REPUMP_SCOPE_SAFEMODE)
-	{
+	if (!MASTER_REPUMP_SCOPE_SAFEMODE){
 		status += "\tCode System is Active!\n";
-		try
-		{
+		try	{
 			status += "\t" + masterRepumpScope.getScopeInfo ();
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			status += "\tFailed to get device info! Error: " + err.trace ();
 		}
 	}
-	else
-	{
+	else{
 		status += "\tCode System is disabled! Enable in \"constants.h\"\r\n";
 	}
 	return status;
 }
 
 
-void QtMainWindow::startExperimentThread (ExperimentThreadInput* input)
-{
+void QtMainWindow::startExperimentThread (ExperimentThreadInput* input){
 	expThreadManager.startExperimentThread (input, this);
 }
 
 
-void QtMainWindow::fillMotInput (ExperimentThreadInput* input)
-{
+void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.configuration = "Set MOT Settings";
 	input->profile.configLocation = MOT_ROUTINES_ADDRESS;
 	input->profile.parentFolderName = "MOT";
 	// the mot procedure doesn't need the NIAWG at all.
 	input->skipNext = NULL;
 	input->runList.andor = false;
-}
-
-
-unsigned int __stdcall QtMainWindow::scopeRefreshProcedure (void* voidInput)
-{
-	// this thread continuously requests new info from the scopes. The input is just a pointer to the scope object.
-	ScopeViewer* input = (ScopeViewer*)voidInput;
-	while (true)
-	{
-		try { input->refreshData (); }
-		catch (Error&) { /* ??? */ }
-	}
 }
 
 bool QtMainWindow::masterIsRunning () { return expThreadManager.runningStatus (); }
@@ -642,16 +600,10 @@ void QtMainWindow::abortMasterThread ()
 }
 
 
-void QtMainWindow::onErrorMessage (std::string statusMessage)
+void QtMainWindow::onErrorMessage (QString errMessage)
 {
-	// for simple warnings, it just posts the message.
-	if (statusMessage == "Andor camera, NIAWG, Master, and Basler camera were not running. Can't Abort.\r\n")
-	{
-		errorStatus.addStatusText (statusMessage);
-	}
-	else if (statusMessage != "")
-	{
-		errorStatus.addStatusText (statusMessage);
+	if (str(errMessage) != ""){
+		errorStatus.addStatusText (str(errMessage));
 	}
 }
 
