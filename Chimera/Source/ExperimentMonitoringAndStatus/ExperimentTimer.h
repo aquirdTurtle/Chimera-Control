@@ -2,7 +2,6 @@
 #pragma once
 #include "Andor/cameraPositions.h"
 #include <vector>
-#include "Windows.h"
 #include "Control.h"
 #include <qWinWidget.h>
 #include <qlabel>

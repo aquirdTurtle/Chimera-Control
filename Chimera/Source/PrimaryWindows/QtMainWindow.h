@@ -23,7 +23,7 @@
 #include "ConfigurationSystems/NoteSystem.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "Plotting/PlotDialog.h"
-#include "Plotting/OscilloscopeViewer.h"
+#include "Plotting/ScopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
@@ -48,12 +48,10 @@ class QtMainWindow : public IChimeraWindowWidget
 		void initializeWidgets ();
 
 		void showHardwareStatus ();
-		void drawServoListview (NMHDR* pNMHDR, LRESULT* pResult);
-		// overrides
-		void forceExit ();
+
 		void fillExpDeviceList (DeviceList& list);
 		// stuff directly called (or 1 simple step removed) by message map.
-		void onErrorMessage (std::string statusMessage);
+		//void onErrorMessage (std::string statusMessage);
 		void onFatalErrorMessage (std::string statusMessage);
 
 		void onDebugMessage (std::string msg);
@@ -68,7 +66,6 @@ class QtMainWindow : public IChimeraWindowWidget
 		void onAutoCalFin ();
 		void setStyleSheets ();
 		//
-		static unsigned int __stdcall scopeRefreshProcedure (void* voidInput);
 		void loadCameraCalSettings (ExperimentThreadInput* input);
 		void handlePause ();
 		DeviceList getDevices ();
@@ -125,6 +122,7 @@ class QtMainWindow : public IChimeraWindowWidget
 		void handleColorboxUpdate (QString color, QString systemDelim);
 		void handleExpNotification (QString txt);
 		void onRepProgress (unsigned int repNum);
+		void onErrorMessage (QString errMessage);
 
     private:
         Ui::QtMainWindow* ui;

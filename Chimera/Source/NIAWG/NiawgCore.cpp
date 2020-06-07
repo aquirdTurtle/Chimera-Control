@@ -4774,11 +4774,12 @@ void NiawgCore::loadExpSettings (ConfigStream& stream)
 												  rerngGuiControl::getSettingsFromConfig);
 }
 
-void NiawgCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
+void NiawgCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
+	std::string tempWarnings; // todo - fix this
 	if (experimentActive)
 	{
-		analyzeNiawgScript (expOutput, comm.warnings, expRerngOptions, params);
+		analyzeNiawgScript (expOutput, tempWarnings, expRerngOptions, params);
 		finalizeScript (expRepetitions, "experimentScript", expOutput.niawgLanguageScript, niawgMachineScript,
 						 !outputVaries (expOutput) );
 		if (outputNiawgMachineScript)
@@ -4787,14 +4788,14 @@ void NiawgCore::calculateVariations (std::vector<parameterType>& params, Communi
 				+ std::string (niawgMachineScript.begin (), niawgMachineScript.end ()) + "\n\n";
 			debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
 			boost::replace_all (debugStr, "\n", "\r\n");
-			comm.sendDebug (debugStr);
+			//comm.sendDebug (debugStr);
 		}		
 		if (outputNiawgHumanScript)
 		{
 			std::string debugStr = "Human Script: " + expNiawgStream.str () + "\n\n";
 			debugStr.erase (std::remove (debugStr.begin (), debugStr.end (), '\r'), debugStr.end ());
 			boost::replace_all (debugStr, "\n", "\r\n");
-			comm.sendDebug (debugStr);
+			//comm.sendDebug (debugStr);
 		}
 		writeStaticNiawg (expOutput, params); 
 	}

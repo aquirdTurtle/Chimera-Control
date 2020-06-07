@@ -16,7 +16,7 @@ class TekCore : public IDeviceCore
 		TekCore (bool safemode, std::string address, std::string configurationFileDelimiter);
 		~TekCore ();
 		std::string queryIdentity ();
-		void calculateVariations (std::vector<parameterType>& parameters, Communicator& comm);
+		void calculateVariations (std::vector<parameterType>& parameters, ExpThreadWorker* threadworker);
 		tektronixInfo getSettingsFromConfig (ConfigStream& configFile);
 		void programVariation (UINT variation, std::vector<parameterType>& params);
 		const std::string configDelim;

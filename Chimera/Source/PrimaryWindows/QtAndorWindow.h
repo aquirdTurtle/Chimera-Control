@@ -44,12 +44,6 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void OnTimer (UINT_PTR id);
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger ();
-		LRESULT onCameraFinish (WPARAM wParam, LPARAM lParam);
-		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
-		LRESULT onCameraProgress (WPARAM wParam, LPARAM lParam);
-		LRESULT onCameraCalProgress (WPARAM wParam, LPARAM lParam);
-		LRESULT onBaslerFinish (WPARAM wParam, LPARAM lParam);
-		LRESULT handlePrepareForAcq (WPARAM wparam, LPARAM lparam);
 		void handleDblClick (NMHDR* info, LRESULT* lResult);
 		void listViewRClick (NMHDR* info, LRESULT* lResult);
 		void handleSpecialGreaterThanMaxSelection ();
@@ -169,5 +163,15 @@ class QtAndorWindow : public IChimeraWindowWidget
 		UINT mostRecentPicNum = 0;
 		UINT currentPictureNum = 0;
 		Matrix<long> avgBackground;
+
+	public Q_SLOTS:
+		void onCameraProgress (int picNum);
+
+		LRESULT onCameraFinish (WPARAM wParam, LPARAM lParam);
+		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
+		LRESULT onCameraCalProgress (WPARAM wParam, LPARAM lParam);
+		LRESULT onBaslerFinish (WPARAM wParam, LPARAM lParam);
+		void handlePrepareForAcq (void* lparam);
+
 };
 

@@ -35,7 +35,7 @@ class DmCore : public IDeviceCore
 		void logSettings (DMOutputForm settings, DataLogger& log);
 		std::string configDelim = "DM";
 		void programVariation (UINT variation, std::vector<parameterType>& params) {};
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm) {};
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void logSettings (DataLogger& logger) {};
 		void loadExpSettings (ConfigStream& stream) {};
 		void normalFinish () {};

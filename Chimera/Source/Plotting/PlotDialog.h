@@ -1,6 +1,5 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "windows.h"
 #include "PlotCtrl.h"
 #include <vector>
 #include <atomic>

@@ -18,14 +18,11 @@ pics (false, "ANDOR_PICTURE_MANAGER", false){
 	setWindowTitle ("Andor Window");
 }
 
-QtAndorWindow::~QtAndorWindow ()
-{
-
+QtAndorWindow::~QtAndorWindow (){
 }
 
-void QtAndorWindow::initializeWidgets ()
-{
-	andor.initializeClass (mainWin->getComm (), &imageTimes);
+void QtAndorWindow::initializeWidgets (){
+	andor.initializeClass (this, &imageTimes);
 	POINT position = { 0,25 };
 	statBox->initialize (position, this, 480, mainWin->getDevices ());
 	alerts.alertMainThread (0);
@@ -34,89 +31,72 @@ void QtAndorWindow::initializeWidgets ()
 	andorSettingsCtrl.initialize (position, this);
 	position = { 480, 25 };
 	stats.initialize (position, this);
-	for (auto pltInc : range (6))
-	{
+	for (auto pltInc : range (6)){
 		std::vector<pPlotDataVec> nodata (0);
-		//mainAnalysisPlots.push_back (new PlotCtrl (nodata, plotStyle::ErrorPlot, mainWin->getPlotPens (),
-		//	mainWin->getPlotFont (), mainWin->getPlotBrushes (), { 0,0,0,0 }, "INACTIVE", false, false));
-		//mainAnalysisPlots.back ()->init (position, 315, 130, this);
+		mainAnalysisPlots.push_back (new PlotCtrl (0, plotStyle::ErrorPlot, { 0,0,0,0 }, "INACTIVE", false, false));
+		mainAnalysisPlots.back ()->init (position, 315, 130, this);
 	}
 	position = { 797, 25 };
 	timer.initialize (position, this);
 	position = { 797, 65 };
 	pics.initialize (position, _myBrushes["Dark Green"], 530 * 2, 460 * 2 + 5, this);
 	// end of literal initialization calls
-	//pics.setSinglePicture (this, andorSettingsCtrl.getSettings ().andor.imageSettings);
+	pics.setSinglePicture (andorSettingsCtrl.getSettings ().andor.imageSettings);
 	andor.setSettings (andorSettingsCtrl.getSettings ().andor);
 }
 
-LRESULT QtAndorWindow::handlePrepareForAcq (WPARAM wparam, LPARAM lparam)
-{
-	ASSERT (InSendMessage ());
+void QtAndorWindow::handlePrepareForAcq (void* lparam){
 	mainWin->getComm ()->sendStatus ("Preparing Andor Window for Acquisition...\n");
 	AndorRunSettings* settings = (AndorRunSettings*)lparam;
 	armCameraWindow (settings);
-	return 0;
 }
 
 
-void QtAndorWindow::handlePlotPop (UINT id)
-{
-	for (auto& plt : mainAnalysisPlots)
-	{
+void QtAndorWindow::handlePlotPop (UINT id){
+	for (auto& plt : mainAnalysisPlots)	{
 	}
 }
 
-LRESULT QtAndorWindow::onBaslerFinish (WPARAM wParam, LPARAM lParam)
-{
-	if (!cameraIsRunning ())
-	{
+LRESULT QtAndorWindow::onBaslerFinish (WPARAM wParam, LPARAM lParam){
+	if (!cameraIsRunning ()){
 		dataHandler.closeFile ();
 	}
 	return 0;
 }
 
 
-bool QtAndorWindow::wasJustCalibrated ()
-{
+bool QtAndorWindow::wasJustCalibrated (){
 	return justCalibrated;
 }
 
 
-bool QtAndorWindow::wantsAutoCal ()
-{
+bool QtAndorWindow::wantsAutoCal (){
 	return andorSettingsCtrl.getAutoCal ();
 }
 
-void QtAndorWindow::writeVolts (UINT currentVoltNumber, std::vector<float64> data)
-{
-	try
-	{
+void QtAndorWindow::writeVolts (UINT currentVoltNumber, std::vector<float64> data){
+	try	{
 		dataHandler.writeVolts (currentVoltNumber, data);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtAndorWindow::handleImageDimsEdit ()
-{
+void QtAndorWindow::handleImageDimsEdit (){
 	try {
 		pics.setParameters (andorSettingsCtrl.getSettings ().andor.imageSettings);
 		pics.redrawPictures (selectedPixel, analysisHandler.getAnalysisLocs (), analysisHandler.getGrids (), true,
 			mostRecentPicNum);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtAndorWindow::handleEmGainChange ()
-{
+void QtAndorWindow::handleEmGainChange (){
 	try {
 		auto runSettings = andor.getAndorRunSettings ();
 		andorSettingsCtrl.setEmGain (runSettings.emGainModeIsOn, runSettings.emGainLevel);
@@ -125,41 +105,34 @@ void QtAndorWindow::handleEmGainChange ()
 		runSettings.emGainLevel = settings.andor.emGainLevel;
 		andor.setSettings (runSettings);
 		// and immediately change the EM gain mode.
-		try
-		{
+		try	{
 			andor.setGainMode ();
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			// this can happen e.g. if the camera is aquiring.
 			reportErr (err.trace ());
 		}
 	}
-	catch (Error err)
-	{
+	catch (Error err){
 		reportErr (err.trace ());
 	}
 }
 
 
-std::string QtAndorWindow::getSystemStatusString ()
-{
+std::string QtAndorWindow::getSystemStatusString (){
 	std::string statusStr;
 	statusStr = "\nAndor Camera:\n";
-	if (!ANDOR_SAFEMODE)
-	{
+	if (!ANDOR_SAFEMODE){
 		statusStr += "\tCode System is Active!\n";
 		statusStr += "\t" + andor.getSystemInfo ();
 	}
-	else
-	{
+	else{
 		statusStr += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	return statusStr;
 }
 
-void QtAndorWindow::windowSaveConfig (ConfigStream& saveFile)
-{
+void QtAndorWindow::windowSaveConfig (ConfigStream& saveFile){
 	andorSettingsCtrl.handleSaveConfig (saveFile);
 	pics.handleSaveConfig (saveFile);
 	analysisHandler.handleSaveConfig (saveFile);
@@ -168,52 +141,41 @@ void QtAndorWindow::windowSaveConfig (ConfigStream& saveFile)
 void QtAndorWindow::windowOpenConfig (ConfigStream& configFile)
 {
 	AndorRunSettings camSettings;
-	try
-	{
+	try	{
 		ProfileSystem::stdGetFromConfig (configFile, andor, camSettings);
 		andorSettingsCtrl.setRunSettings (camSettings);
 		andorSettingsCtrl.updateImageDimSettings (camSettings.imageSettings);
 		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
 
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr ("Failed to get Andor Camera Run settings from file! " + err.trace ());
 	}
-	try
-	{
+	try	{
 		auto picSettings = ProfileSystem::stdConfigGetter (configFile, "PICTURE_SETTINGS",
 			AndorCameraSettingsControl::getPictureSettingsFromConfig);
 		andorSettingsCtrl.updatePicSettings (picSettings);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err)	{
 		reportErr ("Failed to get Andor Camera Picture settings from file! " + err.trace ());
 	}
-	try
-	{
+	try	{
 		ProfileSystem::standardOpenConfig (configFile, pics.configDelim, &pics, Version ("4.0"));
 	}
-	catch (Error&)
-	{
+	catch (Error&)	{
 		reportErr ("Failed to load picture settings from config!");
 	}
-	try
-	{
+	try	{
 		ProfileSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler, Version ("4.0"));
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		reportErr ("Failed to load Data Analysis settings from config!");
 	}
-	try
-	{
-		if (andorSettingsCtrl.getSettings ().andor.picsPerRepetition == 1)
-		{
+	try	{
+		if (andorSettingsCtrl.getSettings ().andor.picsPerRepetition == 1){
 			//pics.setSinglePicture (this, andorSettingsCtrl.getSettings ().andor.imageSettings);
 		}
-		else
-		{
+		else{
 			//pics.setMultiplePictures (this, andorSettingsCtrl.getSettings ().andor.imageSettings,
 			//	andorSettingsCtrl.getSettings ().andor.picsPerRepetition);
 		}
@@ -221,21 +183,18 @@ void QtAndorWindow::windowOpenConfig (ConfigStream& configFile)
 		std::array<int, 4> nums = andorSettingsCtrl.getSettings ().palleteNumbers;
 		pics.setPalletes (nums);
 	}
-	catch (Error& e)
-	{
+	catch (Error& e){
 		reportErr ("Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace ());
 	}
 }
 
 void QtAndorWindow::passAlwaysShowGrid ()
 {
-	if (alwaysShowGrid)
-	{
+	if (alwaysShowGrid)	{
 		alwaysShowGrid = false;
 		//mainWin->checkAllMenus (ID_PICTURES_ALWAYSSHOWGRID, MF_UNCHECKED);
 	}
-	else
-	{
+	else{
 		alwaysShowGrid = true;
 		//mainWin->checkAllMenus (ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED);
 	}
@@ -247,13 +206,11 @@ void QtAndorWindow::passAlwaysShowGrid ()
 void QtAndorWindow::abortCameraRun ()
 {
 	int status = andor.queryStatus ();
-	if (ANDOR_SAFEMODE)
-	{
+	if (ANDOR_SAFEMODE)	{
 		// simulate as if you needed to abort.
 		status = DRV_ACQUIRING;
 	}
-	if (status == DRV_ACQUIRING)
-	{
+	if (status == DRV_ACQUIRING){
 		andor.abortAcquisition ();
 		timer.setTimerDisplay ("Aborted");
 		andor.setIsRunningState (false);
@@ -262,76 +219,61 @@ void QtAndorWindow::abortCameraRun ()
 		plotThreadActive = false;
 		atomCrunchThreadActive = false;
 		// Wait until plotting thread is complete.
-		while (true)
-		{
+		while (true){
 			auto res = WaitForSingleObject (plotThreadHandle, 2e3);
-			if (res == WAIT_TIMEOUT)
-			{
+			if (res == WAIT_TIMEOUT){
 				auto ans = promptBox ("The real time plotting thread is taking a while to close. Continue waiting?",
 					MB_YESNO);
-				if (ans == IDNO)
-				{
+				if (ans == IDNO){
 					// This might indicate something about the code is gonna crash...
 					break;
 				}
 			}
-			else
-			{
+			else{
 				break;
 			}
 		}
 		plotThreadAborting = false;
 		// camera is no longer running.
-		try
-		{
+		try	{
 			dataHandler.closeFile ();
 		}
-		catch (Error& err)
-		{
+		catch (Error& err)	{
 			reportErr (err.trace ());
 		}
-
 
 		if (andor.getAndorRunSettings ().acquisitionMode != AndorRunModes::mode::Video)
 		{
 			int answer = promptBox ("Acquisition Aborted. Delete Data file (data_" + str (dataHandler.getDataFileNumber ())
 				+ ".h5) for this run?", MB_YESNO);
-			if (answer == IDYES)
-			{
-				try
-				{
+			if (answer == IDYES){
+				try	{
 					dataHandler.deleteFile (mainWin->getComm ());
 				}
-				catch (Error& err)
-				{
+				catch (Error& err)	{
 					reportErr (err.trace ());
 				}
 			}
 		}
 	}
-	else if (status == DRV_IDLE)
-	{
+	else if (status == DRV_IDLE){
 		andor.setIsRunningState (false);
 	}
 }
 
-
-bool QtAndorWindow::cameraIsRunning ()
-{
+bool QtAndorWindow::cameraIsRunning (){
 	return andor.isRunning ();
 }
 
 LRESULT QtAndorWindow::onCameraCalProgress (WPARAM wParam, LPARAM lParam)
 {
 	UINT picNum = lParam;
-	if (lParam == 0)
-	{
+	if (lParam == 0){
 		// ???
 		return NULL;
 	}
 	AndorRunSettings curSettings = andor.getAndorRunSettings ();
-	if (lParam == -1)
-	{
+	if (lParam == -1){
 		// last picture.
 		picNum = curSettings.totalPicsInExperiment ();
 	}
@@ -339,24 +281,19 @@ LRESULT QtAndorWindow::onCameraCalProgress (WPARAM wParam, LPARAM lParam)
 	andor.updatePictureNumber (picNum);
 
 	std::vector<Matrix<long>> picData;
-	try
-	{
+	try	{
 		picData = andor.acquireImageData (mainWin->getComm ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err)	{
 		reportErr (err.trace ());
 		return NULL;
 	}
 	avgBackground = Matrix<long> (picData.back ().getRows (), picData.back ().getCols ());
 	avgBackground = picData.back ();
-	try
-	{
-		if (picNum % curSettings.picsPerRepetition == 0)
-		{
+	try	{
+		if (picNum % curSettings.picsPerRepetition == 0){
 			int counter = 0;
-			for (auto data : picData)
-			{
+			for (auto data : picData){
 				std::pair<int, int> minMax;
 				minMax = stats.update (data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
@@ -369,39 +306,31 @@ LRESULT QtAndorWindow::onCameraCalProgress (WPARAM wParam, LPARAM lParam)
 				curSettings.totalVariations, curSettings.picsPerRepetition);
 		}
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 	mostRecentPicNum = picNum;
 	return 0;
 }
 
-
-
-LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
+void QtAndorWindow::onCameraProgress (int picNumReported)
 {
 	currentPictureNum++;
 	UINT picNum = currentPictureNum;
-	if (picNum % 2 == 1)
-	{
+	if (picNum % 2 == 1){
 		mainThreadStartTimes.push_back (std::chrono::high_resolution_clock::now ());
 	}
-	if (lParam == 0)
-	{
+	if (picNumReported == 0){
 		// ???
 		//return NULL;
 	}
 	AndorRunSettings curSettings = andor.getAndorRunSettings ();
-	if (lParam == -1)
-	{
+	if (picNumReported == -1){
 		// last picture.
 		//picNum = curSettings.totalPicsInExperiment();
 	}
-	if (lParam != currentPictureNum && lParam != -1)
-	{
-		if (curSettings.acquisitionMode != AndorRunModes::mode::Video)
-		{
+	if (picNumReported != currentPictureNum && picNumReported != -1){
+		if (curSettings.acquisitionMode != AndorRunModes::mode::Video){
 			//reportErr ( "WARNING: picture number reported by andor isn't matching the"
 			//								  "camera window record?!?!?!?!?" );
 		}
@@ -410,20 +339,16 @@ LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
 	andor.updatePictureNumber (picNum);
 
 	std::vector<Matrix<long>> rawPicData;
-	try
-	{
+	try	{
 		rawPicData = andor.acquireImageData (mainWin->getComm ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
-		return NULL;
+		return;
 	}
 	std::vector<Matrix<long>> calPicData (rawPicData.size ());
-	if (andorSettingsCtrl.getUseCal () && avgBackground.size () == rawPicData.front ().size ())
-	{
-		for (auto picInc : range (rawPicData.size ()))
-		{
+	if (andorSettingsCtrl.getUseCal () && avgBackground.size () == rawPicData.front ().size ()){
+		for (auto picInc : range (rawPicData.size ())){
 			calPicData[picInc] = Matrix<long> (rawPicData[picInc].getRows (), rawPicData[picInc].getCols (), 0);
 			for (auto pixInc : range (rawPicData[picInc].size ()))
 			{
@@ -433,8 +358,7 @@ LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
 	}
 	else { calPicData = rawPicData; }
 
-	if (picNum % 2 == 1)
-	{
+	if (picNum % 2 == 1){
 		imageGrabTimes.push_back (std::chrono::high_resolution_clock::now ());
 	}
 	{
@@ -445,8 +369,7 @@ LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
 	auto picsToDraw = andorSettingsCtrl.getImagesToDraw (calPicData);
 	try
 	{
-		if (realTimePic)
-		{
+		if (realTimePic){
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
 			minMax = stats.update (picsToDraw.back (), picNum % curSettings.picsPerRepetition, selectedPixel,
@@ -457,19 +380,15 @@ LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
 			timer.update (picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
 				curSettings.totalVariations, curSettings.picsPerRepetition);
 		}
-		else if (picNum % curSettings.picsPerRepetition == 0)
-		{
+		else if (picNum % curSettings.picsPerRepetition == 0){
 			int counter = 0;
-			for (auto data : picsToDraw)
-			{
+			for (auto data : picsToDraw){
 				std::pair<int, int> minMax;
 				minMax = stats.update (data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
-				if (minMax.second > 50000)
-				{
+				if (minMax.second > 50000){
 					numExcessCounts++;
-					if (numExcessCounts > 2)
-					{
+					if (numExcessCounts > 2){
 						// POTENTIALLY DANGEROUS TO CAMERA.
 						// AUTO PAUSE THE EXPERIMENT. 
 						// This can happen if a laser, particularly the axial raman laser, is left on during an image.
@@ -478,8 +397,7 @@ LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
 						errBox ("EXCCESSIVE CAMERA COUNTS DETECTED!!!");
 					}
 				}
-				else
-				{
+				else{
 					numExcessCounts = 0;
 				}
 				pics.drawBitmap (data, minMax, counter);
@@ -491,48 +409,39 @@ LRESULT QtAndorWindow::onCameraProgress (WPARAM wParam, LPARAM lParam)
 				curSettings.totalVariations, curSettings.picsPerRepetition);
 		}
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 
 	// write the data to the file.
-	if (curSettings.acquisitionMode != AndorRunModes::mode::Video)
-	{
-		try
-		{
+	if (curSettings.acquisitionMode != AndorRunModes::mode::Video){
+		try	{
 			// important! write the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
 			// pictures, which can have the background subtracted.
 			dataHandler.writeAndorPic (rawPicData[(picNum - 1) % curSettings.picsPerRepetition],
 				curSettings.imageSettings);
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			reportErr (err.trace ());
 			mainWin->handlePause ();
 		}
 	}
 	mostRecentPicNum = picNum;
-	return 0;
 }
 
 
-void QtAndorWindow::wakeRearranger ()
-{
+void QtAndorWindow::wakeRearranger (){
 	std::unique_lock<std::mutex> lock (rearrangerLock);
 	rearrangerConditionVariable.notify_all ();
 }
 
 
-void QtAndorWindow::handleSpecialLessThanMinSelection ()
-{
-	if (specialLessThanMin)
-	{
+void QtAndorWindow::handleSpecialLessThanMinSelection (){
+	if (specialLessThanMin)	{
 		specialLessThanMin = false;
 		//mainWin->checkAllMenus (ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED);
 	}
-	else
-	{
+	else{
 		specialLessThanMin = true;
 		//mainWin->checkAllMenus (ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED);
 	}
@@ -542,13 +451,11 @@ void QtAndorWindow::handleSpecialLessThanMinSelection ()
 
 void QtAndorWindow::handleSpecialGreaterThanMaxSelection ()
 {
-	if (specialGreaterThanMax)
-	{
+	if (specialGreaterThanMax){
 		specialGreaterThanMax = false;
 		//mainWin->checkAllMenus (ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_UNCHECKED);
 	}
-	else
-	{
+	else{
 		specialGreaterThanMax = true;
 		//mainWin->checkAllMenus (ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_CHECKED);
 	}
@@ -558,13 +465,11 @@ void QtAndorWindow::handleSpecialGreaterThanMaxSelection ()
 
 void QtAndorWindow::handleAutoscaleSelection ()
 {
-	if (autoScalePictureData)
-	{
+	if (autoScalePictureData){
 		autoScalePictureData = false;
 		//mainWin->checkAllMenus (ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED);
 	}
-	else
-	{
+	else{
 		autoScalePictureData = true;
 		//mainWin->checkAllMenus (ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED);
 	}
@@ -581,45 +486,35 @@ LRESULT QtAndorWindow::onCameraCalFinish (WPARAM wParam, LPARAM lParam)
 	justCalibrated = true;
 	andorSettingsCtrl.cameraIsOn (false);
 	// normalize.
-	for (auto& p : avgBackground)
-	{
+	for (auto& p : avgBackground){
 		p /= 100.0;
 	}
 	// if auto cal is selected, always assume that the user was trying to start with F5.
-	if (andorSettingsCtrl.getAutoCal ())
-	{
+	if (andorSettingsCtrl.getAutoCal ()){
 		//PostMessageA (WM_COMMAND, MAKEWPARAM (ID_ACCELERATOR_F5, 0));
 	}
 	return 0;
 }
 
-
-dataPoint QtAndorWindow::getMainAnalysisResult ()
-{
+dataPoint QtAndorWindow::getMainAnalysisResult (){
 	return mostRecentAnalysisResult;
 }
 
-std::mutex& QtAndorWindow::getActivePlotMutexRef ()
-{
+std::mutex& QtAndorWindow::getActivePlotMutexRef (){
 	return activePlotMutex;
 }
 
-
-void QtAndorWindow::cleanUpAfterExp ()
-{
+void QtAndorWindow::cleanUpAfterExp (){
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
 	dataHandler.closeFile ();
 }
 
-
-LRESULT QtAndorWindow::onCameraFinish (WPARAM wParam, LPARAM lParam)
-{
+LRESULT QtAndorWindow::onCameraFinish (WPARAM wParam, LPARAM lParam){
 	// notify the andor object that it is done.
 	andor.onFinish ();
 	//andor.pauseThread();
-	if (alerts.soundIsToBePlayed ())
-	{
+	if (alerts.soundIsToBePlayed ()){
 		alerts.playSound ();
 	}
 	//mainWin->getComm()->sendStatus( "Andor has finished taking pictures and is no longer running.\r\n" );
@@ -633,8 +528,7 @@ LRESULT QtAndorWindow::onCameraFinish (WPARAM wParam, LPARAM lParam)
 	wakeRearranger ();
 	{
 		std::lock_guard<std::mutex> lock (activePlotMutex);
-		if (activeDlgPlots.size () != 0)
-		{
+		if (activeDlgPlots.size () != 0){
 			mostRecentAnalysisResult = activeDlgPlots.back ()->getMainAnalysisResult ();
 		}
 	}
@@ -642,49 +536,41 @@ LRESULT QtAndorWindow::onCameraFinish (WPARAM wParam, LPARAM lParam)
 }
 
 
-int QtAndorWindow::getMostRecentFid ()
-{
+int QtAndorWindow::getMostRecentFid (){
 	return dataHandler.getDataFileNumber ();
 
 }
 
-int QtAndorWindow::getPicsPerRep ()
-{
+int QtAndorWindow::getPicsPerRep (){
 	return andorSettingsCtrl.getSettings ().andor.picsPerRepetition;
 }
 
-std::string QtAndorWindow::getMostRecentDateString ()
-{
+std::string QtAndorWindow::getMostRecentDateString (){
 	return dataHandler.getMostRecentDateString ();
 }
 
 
-bool QtAndorWindow::wantsThresholdAnalysis ()
-{
+bool QtAndorWindow::wantsThresholdAnalysis (){
 	return analysisHandler.wantsThresholdAnalysis ();
 }
 
-atomGrid QtAndorWindow::getMainAtomGrid ()
-{
+atomGrid QtAndorWindow::getMainAtomGrid (){
 	return analysisHandler.getAtomGrid (0);
 }
 
 
-void QtAndorWindow::armCameraWindow (AndorRunSettings* settings)
-{
+void QtAndorWindow::armCameraWindow (AndorRunSettings* settings){
 	//readImageParameters ();
 	pics.setNumberPicturesActive (settings->picsPerRepetition);
-	if (settings->picsPerRepetition == 1)
-	{
-		//pics.setSinglePicture (this, settings->imageSettings);
+	if (settings->picsPerRepetition == 1){
+		pics.setSinglePicture (settings->imageSettings);
 	}
-	else
-	{
-		//pics.setMultiplePictures (this, settings->imageSettings, settings->picsPerRepetition);
+	else{
+		pics.setMultiplePictures (settings->imageSettings, settings->picsPerRepetition);
 	}
 	pics.resetPictureStorage ();
-	//pics.setParameters (settings->imageSettings);
-	//redrawPictures (false);
+	pics.setParameters (settings->imageSettings);
+	redrawPictures (false);
 	andorSettingsCtrl.setRepsPerVariation (settings->repetitionsPerVariation);
 	andorSettingsCtrl.setVariationNumber (settings->totalVariations);
 	pics.setSoftwareAccumulationOptions (andorSettingsCtrl.getSoftwareAccumulationOptions ());
@@ -697,34 +583,29 @@ void QtAndorWindow::armCameraWindow (AndorRunSettings* settings)
 }
 
 
-bool QtAndorWindow::getCameraStatus ()
-{
+bool QtAndorWindow::getCameraStatus (){
 	return andor.isRunning ();
 }
 
 
 void QtAndorWindow::handleDblClick (NMHDR* info, LRESULT* lResult)
 {
-	try
-	{
+	try{
 		analysisHandler.handleDoubleClick (&mainWin->getFonts (), andorSettingsCtrl.getSettings ().andor.picsPerRepetition);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 	mainWin->updateConfigurationSavedStatus (false);
 }
 
 
-void QtAndorWindow::listViewRClick (NMHDR* info, LRESULT* lResult)
-{
+void QtAndorWindow::listViewRClick (NMHDR* info, LRESULT* lResult){
 	analysisHandler.handleRClick ();
 	mainWin->updateConfigurationSavedStatus (false);
 }
 
-void QtAndorWindow::stopSound ()
-{
+void QtAndorWindow::stopSound (){
 	alerts.stopSound ();
 }
 
@@ -734,10 +615,8 @@ void QtAndorWindow::stopSound ()
  */
 void QtAndorWindow::passSetTemperaturePress ()
 {
-	try
-	{
-		if (andor.isRunning ())
-		{
+	try{
+		if (andor.isRunning ()){
 			thrower ("ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
 				"operation.");
 		}
@@ -746,8 +625,7 @@ void QtAndorWindow::passSetTemperaturePress ()
 		andor.setSettings (settings.andor);
 		andor.setTemperature ();
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 	mainWin->updateConfigurationSavedStatus (false);
@@ -1050,7 +928,7 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input)
 		if (!usedDlg && mainPlotInc < 6)
 		{
 			mainAnalysisPlots[mainPlotInc]->setStyle (style);
-			mainAnalysisPlots[mainPlotInc]->setData (data);
+			//mainAnalysisPlots[mainPlotInc]->setData (data);
 			mainAnalysisPlots[mainPlotInc]->setThresholds (andorSettingsCtrl.getSettings ().thresholds[0]);
 			mainAnalysisPlots[mainPlotInc]->setTitle (plotParams.name);
 			pltInput->dataArrays.push_back (data);

@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include <array>
-#include "windows.h"
 #include "GeneralObjects/commonTypes.h"
 
 // this struct keeps variable names.

@@ -3,7 +3,6 @@
 #include "ParameterSystem/Expression.h"
 #include "Agilent/SegmentEnd.h"
 #include <string>
-#include "windows.h"
 
 
 struct rampFormat

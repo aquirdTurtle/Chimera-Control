@@ -138,7 +138,7 @@ class NiawgCore : public IDeviceCore
 		std::vector<ViChar> niawgMachineScript;
 		std::string debugMsg = "";
 		NiawgOutput expOutput;
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void programVariation (UINT varInc, std::vector<parameterType>& params);
 		void normalFinish ();
 		void errorFinish ();

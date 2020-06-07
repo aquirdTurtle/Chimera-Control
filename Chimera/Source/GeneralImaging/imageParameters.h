@@ -84,45 +84,34 @@ struct imageParameters
 	void checkConsistency ( std::string cam="andor" )
 	{
 		std::string errstr = "ERROR: inside " + cam + " camera settings, ";
-		if ( left > right )
-		{
+		if ( left > right )	{
 			thrower ( errstr + "left > right." + currValues ( ) );
 		}
-		if (top < bottom )
-		{
+		if (top < bottom ){
 			thrower ( errstr  + "top < bottom" + currValues ( ) );
 		}
-		if ( horizontalBinning == 0 )
-		{
+		if ( horizontalBinning == 0 ){
 			thrower ( errstr + "horizontalBinning == 0" + currValues ( ) );
 		}
-		if ( verticalBinning == 0 )
-		{
+		if ( verticalBinning == 0 ){
 			thrower ( errstr + "verticalBinning == 0" + currValues ( ) );
 		}
-		if ( left <= 0 )
-		{
+		if ( left <= 0 ){
 			thrower ( errstr + "left <= 0" + currValues ( ) );
 		}
-		if ( top <= 0 )
-		{
+		if ( top <= 0 ){
 			thrower ( errstr + "top <= 0" + currValues ( ) );
 		}
-		if ( cam == "andor" )
-		{
-			if ( right > 512 )
-			{
+		if ( cam == "andor" ){
+			if ( right > 512 ){
 				thrower ( errstr + "right > 512" + currValues ( ) );
 			}
-			if ( bottom > 512 )
-			{
+			if ( bottom > 512 ){
 				thrower ( errstr + "bottom > 512" + currValues ( ) );
 			}
 		}
-		if ( cam == "ace" )
-		{
-			if ( horRawPixelNum() % 16 != 0 || vertRawPixelNum() % 16 != 0 )
-			{
+		if ( cam == "ace" ){
+			if ( horRawPixelNum() % 16 != 0 || vertRawPixelNum() % 16 != 0 ){
 				thrower ( "ERROR: In the ace camera, the number of pixels in each dimension must be a multiple "
 						  "of 16!\r\n" + currValues());
 			}

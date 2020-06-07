@@ -9,21 +9,13 @@
 #include "stdafx.h"
 // Contains some user-defined global parameters and options used throughout the code.
 #include "constants.h"
-// an namespace for agilent functions.
-
 // Contains functions and types used by the NIAWG.
 #include "niFgen.h"
-
 // Contains information the API uses for dialogues.
 #include "resource.h"
 #include "externals.h"
-
-// Used to get a precise (milisecond-level) time from the computer. Also for windows API functions & declarations
-#include <Windows.h>
-
 // Some headers used for communication protocols.
 #include <ws2tcpip.h>
-
 // Some general use headers.
 #include <stdio.h>
 #include <iostream>
@@ -45,22 +37,7 @@
 // I don't remember why this specific library is needed though. 
 #pragma comment(lib, "Ws2_32.lib")
 
-BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
-{
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		if (pMsg->wParam == VK_ESCAPE)
-		{
-			//theMainApplicationWindow.passCommonCommand(ID_ACCELERATOR_ESC);
-			// Do not process further
-			return TRUE;
-		}
-	}
-	return CWinApp::PreTranslateMessage(pMsg);
-}
-
-BOOL ChimeraApp::InitInstance()
-{
+BOOL ChimeraApp::InitInstance(){
 	chronoTime initTime = chronoClock::now();
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
@@ -69,14 +46,15 @@ BOOL ChimeraApp::InitInstance()
 	Gdiplus::GdiplusStartupInput input;
 	Gdiplus::GdiplusStartup( &gdip_token, &input, NULL );
 	// Check to make sure that the gain hasn't been defined to be too high.
-	if (NIAWG_GAIN > MAX_GAIN)
-	{
+	if (NIAWG_GAIN > MAX_GAIN){
 		errBox( "FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the "
 				"experiment!\r\n" );
 		return -10000;
 	}
 	
 	auto inst = QMfcApp::instance (this);
+	qRegisterMetaType<QVector<double>> ();
+	qRegisterMetaType<std::vector<std::vector<plotDataVec>>> ();
 
 	QtMainWindow* mainWinQt = new QtMainWindow((CDialog*)splash, &initTime);
 	mainWinQt->show ();
@@ -88,8 +66,7 @@ BOOL ChimeraApp::InitInstance()
 }
 
 
-BOOL ChimeraApp::ExitInstance( )
-{
+BOOL ChimeraApp::ExitInstance( ){
 	Gdiplus::GdiplusShutdown( gdip_token );
 	return CWinAppEx::ExitInstance( );
 }

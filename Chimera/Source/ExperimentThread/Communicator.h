@@ -54,10 +54,9 @@ class Communicator
 
 		void sendAutoServo( );
 		bool expQuiet=false;
-
+	
 		void expUpdate (std::string updateTxt);
-		std::string warnings;
-		std::string debugStr;
+
 	private:
 		QtMainWindow* mainWin;
 		QtScriptWindow* scriptWin;

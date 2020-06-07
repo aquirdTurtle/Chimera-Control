@@ -34,7 +34,6 @@ class PictureControl
 		void drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
 		void setCursorValueLocations( CWnd* parent );
 		void drawRectangle( RECT pixelRect );
-		void rearrange( int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
 		void updatePalette( HPALETTE pallete );

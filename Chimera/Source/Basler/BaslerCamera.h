@@ -56,7 +56,7 @@ class BaslerCameraCore : public IDeviceCore
 		std::string configDelim = "BASLER_CAMERA_SETTINGS";
 		std::string getDelim () { return configDelim; }
 		void loadExpSettings (ConfigStream& stream);
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void programVariation (UINT variation, std::vector<parameterType>& params) {};
 		void errorFinish () {};
 		void normalFinish () {};

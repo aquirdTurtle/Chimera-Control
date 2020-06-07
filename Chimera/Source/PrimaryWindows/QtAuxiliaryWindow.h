@@ -32,19 +32,7 @@
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ConfigurationSystems/Version.h"
-
-struct whichAg
-{
-	enum agilentNames
-	{
-		TopBottom,
-		Axial,
-		Flashing,
-		Microwave
-	};
-};
-
-
+#include <Agilent/whichAg.h>
 
 namespace Ui {
     class QtAuxiliaryWindow;
@@ -78,11 +66,11 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 		std::string getVisaDeviceStatus ();
 		std::string getMicrowaveSystemStatus ();
 
-		void updateAgilent (whichAg::agilentNames name);
-		void newAgilentScript (whichAg::agilentNames name);
-		void openAgilentScript (whichAg::agilentNames name, IChimeraWindowWidget* parent);
-		void saveAgilentScript (whichAg::agilentNames name);
-		void saveAgilentScriptAs (whichAg::agilentNames name, IChimeraWindowWidget* parent);
+		void updateAgilent (whichAgTy::agilentNames name);
+		void newAgilentScript (whichAgTy::agilentNames name);
+		void openAgilentScript (whichAgTy::agilentNames name, IChimeraWindowWidget* parent);
+		void saveAgilentScript (whichAgTy::agilentNames name);
+		void saveAgilentScriptAs (whichAgTy::agilentNames name, IChimeraWindowWidget* parent);
 		void fillMasterThreadInput (ExperimentThreadInput* input);
 		void SetDacs ();
 
@@ -95,17 +83,10 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 
 		std::vector<parameterType> getAllVariables ();
 
-		void GlobalVarDblClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void GlobalVarRClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void ConfigVarsColumnClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void clearVariables ();
 		void addVariable (std::string name, bool constant, double value);
-		void ConfigVarsDblClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void ConfigVarsSingleClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void ConfigVarsRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void DdsRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void DdsDblClick (NMHDR* pNotifyStruct, LRESULT* result);
-
 
 		void OptParamDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void OptParamRClick (NMHDR* pNotifyStruct, LRESULT* result);
@@ -148,5 +129,9 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
 		UINT NUM_DAC_PLTS = 3;
 		UINT NUM_TTL_PLTS = 4;
+
+	public Q_SLOTS:
+		void handleDoAoPlotData (const std::vector<std::vector<plotDataVec>>& doData,
+							     const std::vector<std::vector<plotDataVec>>& aoData);
 };
 

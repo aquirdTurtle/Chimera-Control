@@ -39,7 +39,7 @@ class DdsCore : public IDeviceCore
 		void assertDdsValuesValid ( std::vector<parameterType>& params );
 		void evaluateDdsInfo ( std::vector<parameterType> params= std::vector<parameterType>());
 		void forceRampsConsistent ( );
-		void calculateVariations (std::vector<parameterType>& params, Communicator& comm);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
 		const std::string configDelim = "DDS_SYSTEM";

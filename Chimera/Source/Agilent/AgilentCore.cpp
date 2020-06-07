@@ -3,6 +3,7 @@
 #include "DigitalOutput/DoCore.h"
 #include "Scripts/ScriptStream.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
+#include <ExperimentThread/ExpThreadWorker.h>
 
 AgilentCore::AgilentCore (const agilentSettings& settings) : 
 	visaFlume (settings.safemode, settings.address),
@@ -516,20 +517,17 @@ void AgilentCore::logSettings (DataLogger& log)
 	try
 	{
 		H5::Group agilentsGroup;
-		try
-		{
+		try{
 			agilentsGroup = log.file.createGroup ("/Agilents");
 		}
-		catch (H5::Exception&)
-		{
+		catch (H5::Exception&){
 			agilentsGroup = log.file.openGroup ("/Agilents");
 		}
 		
 		H5::Group singleAgilent (agilentsGroup.createGroup (getDelim()));
 		UINT channelCount = 1;
 		log.writeDataSet (getStartupCommands (), "Startup-Commands", singleAgilent);
-		for (auto& channel : expRunSettings.channel)
-		{
+		for (auto& channel : expRunSettings.channel){
 			H5::Group channelGroup (singleAgilent.createGroup ("Channel-" + str (channelCount)));
 			std::string outputModeName = AgilentChannelMode::toStr (channel.option);
 			log.writeDataSet (outputModeName, "Output-Mode", channelGroup);
@@ -548,76 +546,64 @@ void AgilentCore::logSettings (DataLogger& log)
 			log.writeDataSet (channel.scriptedArb.fileAddress.expressionStr, "Script-File-Address", scriptedArbSettings);
 			// TODO: load script file itself
 			ScriptStream stream;
-			try
-			{
+			try{
 				ExperimentThreadManager::loadAgilentScript (channel.scriptedArb.fileAddress.expressionStr, stream);
 				log.writeDataSet (stream.str (), "Agilent-Script-Script", scriptedArbSettings);
 			}
-			catch (Error&)
-			{
+			catch (Error&){
 				// failed to open, that's probably fine, 
 				log.writeDataSet ("Script Failed to load.", "Agilent-Script-Script", scriptedArbSettings);
 			}
 			channelCount++;
 		}
 	}
-	catch (H5::Exception err)
-	{
+	catch (H5::Exception err){
 		log.logError (err);
 		throwNested ("ERROR: Failed to log Agilent parameters in HDF5 file: " + err.getDetailMsg ());
 	}
 }
 
-void AgilentCore::loadExpSettings (ConfigStream& script)
-{
+void AgilentCore::loadExpSettings (ConfigStream& script){
 	ProfileSystem::stdGetFromConfig (script, *this, expRunSettings);
 	experimentActive = (expRunSettings.channel[0].option != AgilentChannelMode::which::No_Control
 						|| expRunSettings.channel[1].option != AgilentChannelMode::which::No_Control);
 }
 
-void AgilentCore::calculateVariations (std::vector<parameterType>& params, Communicator& comm)
-{
-	for (auto channelInc : range (2))
-	{
-		if (expRunSettings.channel[channelInc].scriptedArb.fileAddress.expressionStr != "")
-		{
-			analyzeAgilentScript (expRunSettings.channel[channelInc].scriptedArb, params, comm.warnings);
+void AgilentCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadWorker){
+	std::string commwarnings;
+	for (auto channelInc : range (2)){
+		if (expRunSettings.channel[channelInc].scriptedArb.fileAddress.expressionStr != ""){
+			analyzeAgilentScript (expRunSettings.channel[channelInc].scriptedArb, params, commwarnings);
 		}
 	}
 	convertInputToFinalSettings (0, expRunSettings, params);
 	convertInputToFinalSettings (1, expRunSettings, params);
 }
 
-
-void AgilentCore::programVariation (UINT variation, std::vector<parameterType>& params)
-{
+void AgilentCore::programVariation (UINT variation, std::vector<parameterType>& params){
 	setAgilent (variation, params, expRunSettings);
 }
 
-void AgilentCore::checkTriggers (UINT variationInc, DoCore& ttls, Communicator& comm, bool excessInfo)
-{
+void AgilentCore::checkTriggers (UINT variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo){
 	std::array<bool, 2> agMismatchVec = { false, false };
-	for (auto chan : range (2))
-	{
+	for (auto chan : range (2)){
 		auto& agChan = expRunSettings.channel[chan];
-		if (agChan.option != AgilentChannelMode::which::Script || agMismatchVec[chan])
-		{
+		if (agChan.option != AgilentChannelMode::which::Script || agMismatchVec[chan]){
 			continue;
 		}
 		UINT actualTrigs = experimentActive ? ttls.countTriggers (getTriggerLine (), variationInc) : 0;
 		UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ();
 		std::string infoString = "Actual/Expected " + getDelim() + " Triggers: "
 			+ str (actualTrigs) + "/" + str (agilentExpectedTrigs) + ".";
-		if (actualTrigs != agilentExpectedTrigs)
-		{
-			comm.warnings += "WARNING: Agilent " + getDelim() + " is not getting triggered by the ttl system the same "
-				"number of times a trigger command appears in the agilent channel " + str (chan + 1) + " script. " 
-				+ infoString + " First seen in variation #" + str (variationInc) + ".\r\n";
+		if (actualTrigs != agilentExpectedTrigs){
+			emit threadWorker->warn (cstr (
+				"WARNING: Agilent " + getDelim () + " is not getting triggered by the ttl system the same "
+				"number of times a trigger command appears in the agilent channel " + str (chan + 1) + " script. "
+				+ infoString + " First seen in variation #" + str (variationInc) + ".\r\n"));
 			agMismatchVec[chan] = true;
 		}
-		if (variationInc == 0 && excessInfo)
-		{
-			comm.debugStr += infoString + "\n";
+		if (variationInc == 0 && excessInfo){
+			emit threadWorker->debugInfo (cstr(infoString));
 		}
 	}
 }

@@ -74,7 +74,7 @@ std::string TekCore::queryIdentity ()
 	}
 }
 
-void TekCore::calculateVariations (std::vector<parameterType>& parameters, Communicator& comm)
+void TekCore::calculateVariations (std::vector<parameterType>& parameters, ExpThreadWorker* threadworker)
 {
 	calculateVariations (parameters);
 }

@@ -2,7 +2,6 @@
 #pragma once
 
 #include "rerngMoveStructures.h"
-#include "windows.h"
 #include <vector>
 
 /*
