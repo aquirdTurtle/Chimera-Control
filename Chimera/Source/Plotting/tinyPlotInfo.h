@@ -4,11 +4,10 @@
 #include <string>
 
 // "Tiny" because it only contains a little info right now.
-struct tinyPlotInfo
-{
+struct tinyPlotInfo{
 	bool isActive;
 	std::string name;
-	bool isHist;
-	UINT whichGrid;
+	bool isHist=false;
+	unsigned whichGrid=0;
 };
 

@@ -10,8 +10,7 @@
 #include <QLabel>
 #include <QTableWidget>
 
-struct personInfo
-{
+struct personInfo{
 	std::string name="";
 	std::string number="";
 	std::string provider="";
@@ -20,17 +19,14 @@ struct personInfo
 };
 
 
-class SmsTextingControl
-{
+class SmsTextingControl{
 	public:
 		void initialize( POINT& pos, IChimeraWindowWidget* parent );
 		void handleContextMenu (const QPoint& pos);
 		void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
 		void addPerson( personInfo person );
 		void deletePersonInfo(QTableWidgetItem* item);
-		void rearrange( int width, int height, fontMap fonts );
 	private:
-
 		const std::string emailAddress = "quantumGasAssemblyControl@gmail.com";
 		const std::string password = "theLaughingGoatHasBetterCoffee";
 		std::vector<personInfo> getPeopleFromListview ();

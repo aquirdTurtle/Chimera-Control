@@ -1,12 +1,9 @@
 #pragma once
 
-#include <QMainWindow>
-#include <QTimer>
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
 #include "ExperimentThread/Communicator.h"
-#include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraWindowWidget.h"
 
@@ -31,15 +28,16 @@
 #include "DirectDigitalSynthesis/DdsSystem.h"
 #include "RealTimeDataAnalysis/MachineOptimizer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "ConfigurationSystems/Version.h"
 #include <Agilent/whichAg.h>
+
+#include <QMainWindow>
+#include <QTimer>
 
 namespace Ui {
     class QtAuxiliaryWindow;
 }
 
-class QtAuxiliaryWindow : public IChimeraWindowWidget
-{
+class QtAuxiliaryWindow : public IChimeraWindowWidget{
     Q_OBJECT
 
     public:
@@ -51,8 +49,6 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 		void updateOptimization (AllExperimentInput& input);
 		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		LRESULT onLogVoltsMessage (WPARAM wp, LPARAM lp);
-		void uwDblClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void uwRClick (NMHDR* pNotifyStruct, LRESULT* result);
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
 		/// Message Map Functions
@@ -81,15 +77,11 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 
 		void invalidateSaved (UINT id);
 
-		std::vector<parameterType> getAllVariables ();
+		std::vector<parameterType> getAllParams ();
 
 		void clearVariables ();
 		void addVariable (std::string name, bool constant, double value);
-		void DdsRClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void DdsDblClick (NMHDR* pNotifyStruct, LRESULT* result);
 
-		void OptParamDblClick (NMHDR* pNotifyStruct, LRESULT* result);
-		void OptParamRClick (NMHDR* pNotifyStruct, LRESULT* result);
 
 		UINT getTotalVariationNumber ();
 		void windowSaveConfig (ConfigStream& saveFile);
@@ -104,6 +96,9 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget
 		ParameterSystem& getGlobals ();
 		std::vector<parameterType> getUsableConstants ();
 		void fillExpDeviceList (DeviceList& list);
+
+	protected:
+		bool eventFilter (QObject* obj, QEvent* event);
 
     private:
         Ui::QtAuxiliaryWindow* ui;

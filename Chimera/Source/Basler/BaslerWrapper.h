@@ -2,6 +2,8 @@
 
 #include "PrimaryWindows/CustomMessages.h"
 
+#include <Basler/BaslerGrabThreadWorker.h>
+
 #include <pylon/PylonIncludes.h>
 #include <pylon/PylonGUI.h>
 #include <pylon/usb/BaslerUsbInstantCamera.h>
@@ -63,43 +65,38 @@ class BaslerWrapper : public cameraType
 
 class ImageEventHandler : public Pylon::CImageEventHandler
 {
-public:
-	ImageEventHandler (IChimeraWindowWidget* parentHandle) : Pylon::CImageEventHandler ()
-	{
-		parent = parentHandle;
-	}
+	public:
+		ImageEventHandler (IChimeraWindowWidget* parentHandle, BaslerGrabThreadWorker* threadWorker) : Pylon::CImageEventHandler (){
+			parent = parentHandle;
+		}
 
-	virtual void OnImageGrabbed (Pylon::CInstantCamera& camera, const Pylon::CGrabResultPtr& grabResult)
-	{
-		try
-		{
-			// Image grabbed successfully?
-			if (grabResult->GrabSucceeded ())
-			{
-				const uint16_t* pImageBuffer = (uint16_t*)grabResult->GetBuffer ();
-				long width = grabResult->GetWidth ();
-				long vertBinNumber = grabResult->GetHeight ();
-				Matrix<long>* imageMatrix;
-				imageMatrix = new Matrix<long> (vertBinNumber, width,
-					std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));
-				for (auto& elem : *imageMatrix)
-				{
-					elem *= long(256.0 / 1024.0);
+		virtual void OnImageGrabbed (Pylon::CInstantCamera& camera, const Pylon::CGrabResultPtr& grabResult){
+			try	{
+				// Image grabbed successfully?
+				if (grabResult->GrabSucceeded ()){
+					const uint16_t* pImageBuffer = (uint16_t*)grabResult->GetBuffer ();
+					long width = grabResult->GetWidth ();
+					long vertBinNumber = grabResult->GetHeight ();
+					Matrix<long>* imageMatrix;
+					imageMatrix = new Matrix<long> (vertBinNumber, width,
+						std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));
+					for (auto& elem : *imageMatrix)	{
+						elem *= long(256.0 / 1024.0);
+					}
+					emit worker->newBaslerImage ();
+					//emit stuff;
+					//parent->PostMessageA (CustomMessages::, grabResult->GetWidth () * grabResult->GetHeight (),
+					//	(LPARAM)imageMatrix);
 				}
-				//parent->PostMessageA (CustomMessages::BaslerProgressMessageID, grabResult->GetWidth () * grabResult->GetHeight (),
-				//	(LPARAM)imageMatrix);
+				else{
+					thrower ("" + str (grabResult->GetErrorCode ()) + " "+ std::string (grabResult->GetErrorDescription ().c_str ()));
+				}
 			}
-			else
-			{
-				thrower ("" + str (grabResult->GetErrorCode ()) + " "
-					+ std::string (grabResult->GetErrorDescription ().c_str ()));
+			catch (Pylon::RuntimeException&){
+				throwNested ("Error! Failed to handle image grabbing");
 			}
 		}
-		catch (Pylon::RuntimeException&)
-		{
-			throwNested ("Error! Failed to handle image grabbing");
-		}
-	}
-private:
-	IChimeraWindowWidget* parent;
+	private:
+		IChimeraWindowWidget* parent;
+		BaslerGrabThreadWorker* worker;
 };

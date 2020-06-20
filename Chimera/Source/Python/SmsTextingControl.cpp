@@ -18,7 +18,7 @@ void SmsTextingControl::handleContextMenu (const QPoint& pos)
 	auto* deleteAction = new QAction ("Delete This Item", peopleListView);
 	peopleListView->connect (deleteAction, &QAction::triggered, [this, item]() {peopleListView->removeRow (item->row ());});
 	auto* newPerson = new QAction ("New Item", peopleListView);
-	peopleListView->connect (newPerson, &QAction::triggered, [this]() {this->addPerson (personInfo ()); });
+	peopleListView->connect (newPerson, &QAction::triggered, [this]() {addPerson (personInfo ()); });
 	menu.addAction (deleteAction);
 	menu.addAction (newPerson);
 	menu.exec (peopleListView->mapToGlobal (pos));
@@ -61,8 +61,6 @@ void SmsTextingControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 	me.textWhenComplete = false;
 	addPerson (me);
 }
-
-void SmsTextingControl::rearrange(int width, int height, fontMap fonts){}
 
 void SmsTextingControl::addPerson( personInfo person )
 {

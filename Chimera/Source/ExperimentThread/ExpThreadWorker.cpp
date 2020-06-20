@@ -12,4 +12,5 @@ ExpThreadWorker::~ExpThreadWorker () {
 void ExpThreadWorker::process (){
 	inputr->workerThread = this;
 	ExperimentThreadManager::experimentThreadProcedure((void*)inputr);
+	emit mainProcessFinish ();
 }

@@ -37,8 +37,7 @@ namespace Ui {
 }
 
 
-class QtMainWindow : public IChimeraWindowWidget
-{
+class QtMainWindow : public IChimeraWindowWidget{
     Q_OBJECT
 
     public:
@@ -46,21 +45,17 @@ class QtMainWindow : public IChimeraWindowWidget
         ~QtMainWindow ();
 
 		void initializeWidgets ();
-
 		void showHardwareStatus ();
 
 		void fillExpDeviceList (DeviceList& list);
 		// stuff directly called (or 1 simple step removed) by message map.
 		//void onErrorMessage (std::string statusMessage);
-		void onFatalErrorMessage (std::string statusMessage);
 
 		void onDebugMessage (std::string msg);
 		LRESULT onNoAtomsAlertMessage (WPARAM wp, LPARAM lp);
 		LRESULT onNoMotAlertMessage (WPARAM wp, LPARAM lp);
 		LRESULT onFinish (WPARAM wp, LPARAM lp);
 
-		void onNormalFinishMessage ();
-		void onGreyTempCalFin ();
 		void onMachineOptRoundFin ();
 		void handleThresholdAnalysis ();
 		void onAutoCalFin ();
@@ -69,7 +64,6 @@ class QtMainWindow : public IChimeraWindowWidget
 		void loadCameraCalSettings (ExperimentThreadInput* input);
 		void handlePause ();
 		DeviceList getDevices ();
-		CFont* getPlotFont ();
 		// auxiliary functions used by the window.
 		void setNotes (std::string notes);
 		void fillMasterThreadInput (ExperimentThreadInput* input);
@@ -101,7 +95,7 @@ class QtMainWindow : public IChimeraWindowWidget
 		bool masterIsRunning ();
 		RunInfo getRunInfo ();
 		void handleFinish ();
-		UINT getRepNumber ();
+		unsigned getRepNumber ();
 		void logParams (DataLogger* logger, ExperimentThreadInput* input);
 		bool experimentIsPaused ();
 		void notifyConfigUpdate ();
@@ -116,13 +110,15 @@ class QtMainWindow : public IChimeraWindowWidget
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ();
 		Communicator& getCommRef ();
-		UINT getAutoCalNumber ();
+		unsigned getAutoCalNumber ();
 
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
 		void handleExpNotification (QString txt);
 		void onRepProgress (unsigned int repNum);
 		void onErrorMessage (QString errMessage);
+		void onNormalFinish ();
+		void onFatalError ();
 
     private:
         Ui::QtMainWindow* ui;
@@ -153,8 +149,6 @@ class QtMainWindow : public IChimeraWindowWidget
 		//
 		static BOOL CALLBACK monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 			_In_ LPRECT lprcMonitor, _In_ LPARAM dwData);
-		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
-		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		CDialog* appSplash;
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindowWidget* win);
 		UINT autoCalNum = 0;

@@ -9,13 +9,11 @@
 #include <mutex>
 #include <condition_variable>
 #include "GeneralObjects/Queues.h"
-#include "afxwin.h"
 
 class NiawgCore;
 
 // rerng = rearrange
-struct rerngThreadInput
-{
+struct rerngThreadInput{
 	rerngThreadInput( UINT gridRows, UINT gridCols, Communicator& commInput ) : flashMoves( gridRows, gridCols ), 
 		noFlashMoves(gridRows, gridCols), comm( commInput ) {}
 	UINT sourceRows = 0;

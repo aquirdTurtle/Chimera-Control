@@ -8,6 +8,9 @@
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtBaslerWindow.h>
 #include <PrimaryWindows/QtDeformableMirrorWindow.h>
+#include <RealTimeDataAnalysis/AnalysisThreadWorker.h>
+#include <RealTimeDataAnalysis/AtomCruncherWorker.h>
+#include <QThread.h>
 
 QtAndorWindow::QtAndorWindow (QWidget* parent) : IChimeraWindowWidget (parent),
 andorSettingsCtrl (),
@@ -33,7 +36,7 @@ void QtAndorWindow::initializeWidgets (){
 	stats.initialize (position, this);
 	for (auto pltInc : range (6)){
 		std::vector<pPlotDataVec> nodata (0);
-		mainAnalysisPlots.push_back (new PlotCtrl (0, plotStyle::ErrorPlot, { 0,0,0,0 }, "INACTIVE", false, false));
+		mainAnalysisPlots.push_back (new PlotCtrl (1, plotStyle::ErrorPlot, { 0,0,0,0 }, "INACTIVE", false, false));
 		mainAnalysisPlots.back ()->init (position, 315, 130, this);
 	}
 	position = { 797, 25 };
@@ -87,8 +90,9 @@ void QtAndorWindow::writeVolts (UINT currentVoltNumber, std::vector<float64> dat
 void QtAndorWindow::handleImageDimsEdit (){
 	try {
 		pics.setParameters (andorSettingsCtrl.getSettings ().andor.imageSettings);
+		QPainter painter (this);
 		pics.redrawPictures (selectedPixel, analysisHandler.getAnalysisLocs (), analysisHandler.getGrids (), true,
-			mostRecentPicNum);
+			mostRecentPicNum, painter);
 	}
 	catch (Error& err){
 		reportErr (err.trace ());
@@ -297,9 +301,8 @@ LRESULT QtAndorWindow::onCameraCalProgress (WPARAM wParam, LPARAM lParam)
 				std::pair<int, int> minMax;
 				minMax = stats.update (data, counter, selectedPixel, picNum / curSettings.picsPerRepetition,
 					curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
-				pics.drawBitmap ( data, minMax, counter);
-				pics.drawDongles ( selectedPixel, analysisHandler.getAnalysisLocs (),
-					analysisHandler.getGrids (), picNum, false);
+				pics.drawBitmap ( data, minMax, counter, analysisHandler.getAnalysisLocs (),
+					analysisHandler.getGrids (), picNum + counter, false);
 				counter++;
 			}
 			timer.update (picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
@@ -362,8 +365,9 @@ void QtAndorWindow::onCameraProgress (int picNumReported)
 		imageGrabTimes.push_back (std::chrono::high_resolution_clock::now ());
 	}
 	{
-		std::lock_guard<std::mutex> locker (imageQueueLock);
-		imQueue.push_back ({ picNum, calPicData[(picNum - 1) % curSettings.picsPerRepetition] });
+		emit newImage ({ picNum, calPicData[(picNum - 1) % curSettings.picsPerRepetition] }); 
+		//std::lock_guard<std::mutex> locker (imageQueueLock);
+		//imQueue.push_back ({ picNum, calPicData[(picNum - 1) % curSettings.picsPerRepetition] });
 	}
 
 	auto picsToDraw = andorSettingsCtrl.getImagesToDraw (calPicData);
@@ -375,7 +379,9 @@ void QtAndorWindow::onCameraProgress (int picNumReported)
 			minMax = stats.update (picsToDraw.back (), picNum % curSettings.picsPerRepetition, selectedPixel,
 				picNum / curSettings.picsPerRepetition,
 				curSettings.totalPicsInExperiment () / curSettings.picsPerRepetition);
-			pics.drawBitmap (picsToDraw.back (), minMax, picNum % curSettings.picsPerRepetition);
+			pics.drawBitmap (picsToDraw.back (), minMax, picNum % curSettings.picsPerRepetition,
+				analysisHandler.getAnalysisLocs (), analysisHandler.getGrids (), picNum, 
+				analysisHandler.getDrawGridOption ());
 
 			timer.update (picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
 				curSettings.totalVariations, curSettings.picsPerRepetition);
@@ -400,9 +406,8 @@ void QtAndorWindow::onCameraProgress (int picNumReported)
 				else{
 					numExcessCounts = 0;
 				}
-				pics.drawBitmap (data, minMax, counter);
-				pics.drawDongles (selectedPixel, analysisHandler.getAnalysisLocs (),
-					analysisHandler.getGrids (), picNum, analysisHandler.getDrawGridOption ());
+				pics.drawBitmap (data, minMax, counter, analysisHandler.getAnalysisLocs (),
+								 analysisHandler.getGrids (), picNum+counter, analysisHandler.getDrawGridOption ());
 				counter++;
 			}
 			timer.update (picNum / curSettings.picsPerRepetition, curSettings.repetitionsPerVariation,
@@ -429,6 +434,10 @@ void QtAndorWindow::onCameraProgress (int picNumReported)
 	mostRecentPicNum = picNum;
 }
 
+void QtAndorWindow::handleSetAnalysisPress (){
+	analysisHandler.setGridCornerLocation (pics.getSelLocation ());
+	analysisHandler.saveGridParams ();
+}
 
 void QtAndorWindow::wakeRearranger (){
 	std::unique_lock<std::mutex> lock (rearrangerLock);
@@ -588,33 +597,14 @@ bool QtAndorWindow::getCameraStatus (){
 }
 
 
-void QtAndorWindow::handleDblClick (NMHDR* info, LRESULT* lResult)
-{
-	try{
-		analysisHandler.handleDoubleClick (&mainWin->getFonts (), andorSettingsCtrl.getSettings ().andor.picsPerRepetition);
-	}
-	catch (Error& err){
-		reportErr (err.trace ());
-	}
-	mainWin->updateConfigurationSavedStatus (false);
-}
-
-
-void QtAndorWindow::listViewRClick (NMHDR* info, LRESULT* lResult){
-	analysisHandler.handleRClick ();
-	mainWin->updateConfigurationSavedStatus (false);
-}
-
 void QtAndorWindow::stopSound (){
 	alerts.stopSound ();
 }
 
-
 /*
  *
  */
-void QtAndorWindow::passSetTemperaturePress ()
-{
+void QtAndorWindow::passSetTemperaturePress (){
 	try{
 		if (andor.isRunning ()){
 			thrower ("ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
@@ -635,36 +625,29 @@ void QtAndorWindow::passSetTemperaturePress ()
 /*
  *
  */
-void QtAndorWindow::OnTimer (UINT_PTR id)
-{
-	if (id == 0) // temperature checking
-	{
+void QtAndorWindow::OnTimer (UINT_PTR id){
+	// temperature checking
+	if (id == 0) {
 		auto temp = andor.getTemperature ();
 		andorSettingsCtrl.changeTemperatureDisplay (temp);
 	}
-	else if (id == 1) // auto run calibrations.
-	{
-		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ())
-		{
+	else if (id == 1){
+		// auto run calibrations.
+		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ()){
 			// check that it's past 5AM, don't want to interrupt late night progress. 
 			std::time_t time = std::time (0);
 			std::tm now;
 			::localtime_s (&now, &time);
-			if (now.tm_hour > 5)
-			{
-				try
-				{
+			if (now.tm_hour > 5){
+				try{
 					dataHandler.assertCalibrationFilesExist ();
 				}
-				catch (Error&)
-				{
+				catch (Error&) {
 					// files don't exist, run calibration. 
-					try
-					{
+					try	{
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
 					}
-					catch (Error& err)
-					{
+					catch (Error& err){
 						reportErr ("Failed to automatically start calibrations!" + err.trace ());
 					}
 				}
@@ -673,18 +656,15 @@ void QtAndorWindow::OnTimer (UINT_PTR id)
 	}
 }
 
-void QtAndorWindow::handlePictureSettings ()
-{
+void QtAndorWindow::handlePictureSettings (){
 	selectedPixel = { 0,0 };
 	andorSettingsCtrl.handlePictureSettings ();
-	if (andorSettingsCtrl.getSettings ().andor.picsPerRepetition == 1)
-	{
-		//pics.setSinglePicture (this, andorSettingsCtrl.getSettings ().andor.imageSettings);
+	if (andorSettingsCtrl.getSettings ().andor.picsPerRepetition == 1){
+		pics.setSinglePicture (andorSettingsCtrl.getSettings ().andor.imageSettings);
 	}
-	else
-	{
-		//pics.setMultiplePictures (this, andorSettingsCtrl.getSettings ().andor.imageSettings,
-		//	andorSettingsCtrl.getSettings ().andor.picsPerRepetition);
+	else{
+		pics.setMultiplePictures (andorSettingsCtrl.getSettings ().andor.imageSettings,
+								  andorSettingsCtrl.getSettings ().andor.picsPerRepetition);
 	}
 	pics.resetPictureStorage ();
 	std::array<int, 4> nums = andorSettingsCtrl.getSettings ().palleteNumbers;
@@ -694,42 +674,33 @@ void QtAndorWindow::handlePictureSettings ()
 /*
 Check that the camera is idle, or not aquiring pictures. Also checks that the data analysis handler isn't active.
 */
-void QtAndorWindow::checkCameraIdle ()
-{
-	if (andor.isRunning ())
-	{
+void QtAndorWindow::checkCameraIdle (){
+	if (andor.isRunning ()){
 		thrower ("Camera is already running! Please Abort to restart.\r\n");
 	}
-	if (analysisHandler.getLocationSettingStatus ())
-	{
+	if (analysisHandler.getLocationSettingStatus ()){
 		thrower ("Please finish selecting analysis points before starting the camera!\r\n");
 	}
 	// make sure it's idle.
-	try
-	{
+	try{
 		andor.queryStatus ();
-		if (ANDOR_SAFEMODE)
-		{
+		if (ANDOR_SAFEMODE){
 			thrower ("DRV_IDLE");
 		}
 	}
-	catch (Error& exception)
-	{
-		if (exception.whatBare () != "DRV_IDLE")
-		{
+	catch (Error& exception){
+		if (exception.whatBare () != "DRV_IDLE"){
 			throwNested (" while querying andor status to check if idle.");
 		}
 	}
 }
 
-void QtAndorWindow::handleMasterConfigSave (std::stringstream& configStream)
-{
+void QtAndorWindow::handleMasterConfigSave (std::stringstream& configStream){
 	andorSettingsCtrl.handelSaveMasterConfig (configStream);
 }
 
 
-void QtAndorWindow::handleMasterConfigOpen (ConfigStream& configStream)
-{
+void QtAndorWindow::handleMasterConfigOpen (ConfigStream& configStream){
 	mainWin->updateConfigurationSavedStatus (false);
 	selectedPixel = { 0,0 };
 	andorSettingsCtrl.handleOpenMasterConfig (configStream, this);
@@ -738,24 +709,19 @@ void QtAndorWindow::handleMasterConfigOpen (ConfigStream& configStream)
 }
 
 
-DataLogger& QtAndorWindow::getLogger ()
-{
+DataLogger& QtAndorWindow::getLogger (){
 	return dataHandler;
 }
 
 
-void QtAndorWindow::loadCameraCalSettings (AllExperimentInput& input)
-{
+void QtAndorWindow::loadCameraCalSettings (AllExperimentInput& input){
 	redrawPictures (false);
-	try
-	{
+	try{
 		checkCameraIdle ();
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
-	pics.refreshBackgrounds ();
 	// I used to mandate use of a button to change image parameters. Now I don't have the button and just always 
 	// update at this point.
 	readImageParameters ();
@@ -768,14 +734,12 @@ void QtAndorWindow::loadCameraCalSettings (AllExperimentInput& input)
 	andor.setCalibrating (true);
 }
 
-AndorCameraCore& QtAndorWindow::getCamera ()
-{
+AndorCameraCore& QtAndorWindow::getCamera (){
 	return andor;
 }
 
 
-void QtAndorWindow::prepareAtomCruncher (AllExperimentInput& input)
-{
+void QtAndorWindow::prepareAtomCruncher (AllExperimentInput& input){
 	input.cruncherInput = new atomCruncherInput;
 	input.cruncherInput->plotterActive = plotThreadActive;
 	input.cruncherInput->imageDims = andorSettingsCtrl.getSettings ().andor.imageSettings;
@@ -784,30 +748,28 @@ void QtAndorWindow::prepareAtomCruncher (AllExperimentInput& input)
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
 	skipNext = false;
 	input.cruncherInput->skipNext = &skipNext;
-	input.cruncherInput->imQueue = &imQueue;
+	//input.cruncherInput->imQueue = &imQueue;
 	// options
-	if (input.masterInput)
-	{
+	if (input.masterInput){
 		auto& niawg = input.masterInput->devices.getSingleDevice< NiawgCore > ();
 		input.cruncherInput->rearrangerActive = niawg.expRerngOptions.active;
 	}
-	else
-	{
+	else{
 		input.cruncherInput->rearrangerActive = false;
 	}
 	// locks
-	input.cruncherInput->imageQueueLock = &imageQueueLock;
-	input.cruncherInput->plotLock = &plotLock;
-	input.cruncherInput->rearrangerLock = &rearrangerLock;
+	//input.cruncherInput->imageQueueLock = &imageQueueLock;
+	//input.cruncherInput->plotLock = &plotLock;
+	//input.cruncherInput->rearrangerLock = &rearrangerLock;
 	// what the thread fills.
 	input.cruncherInput->grids = analysisHandler.getGrids ();
 	// reinitialize
-	plotterPictureQueue.clear ();
-	plotterAtomQueue.clear ();
-	input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
-	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
-	rearrangerAtomQueue.clear ();
-	input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
+	//plotterPictureQueue.clear ();
+	//plotterAtomQueue.clear ();
+	//input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
+	//input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
+	//rearrangerAtomQueue.clear ();
+	//input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
 	input.cruncherInput->thresholds = andorSettingsCtrl.getSettings ().thresholds;
 	input.cruncherInput->picsPerRep = andorSettingsCtrl.getSettings ().andor.picsPerRepetition;
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
@@ -817,46 +779,44 @@ void QtAndorWindow::prepareAtomCruncher (AllExperimentInput& input)
 }
 
 
-void QtAndorWindow::startAtomCruncher (AllExperimentInput& input)
-{
-	UINT atomCruncherID;
-	atomCruncherThreadHandle = (HANDLE)_beginthreadex (0, 0, QtAndorWindow::atomCruncherProcedure,
-		(void*)input.cruncherInput, 0, &atomCruncherID);
+void QtAndorWindow::startAtomCruncher (AllExperimentInput& input){
+	atomCruncherWorker = new CruncherThreadWorker (input.cruncherInput);
+	QThread* thread = new QThread;
+	atomCruncherWorker->moveToThread (thread);
+	connect (thread, &QThread::started, atomCruncherWorker, &CruncherThreadWorker::init);
+	connect (thread, &QThread::finished, thread, &CruncherThreadWorker::deleteLater);
+	connect (this, &QtAndorWindow::newImage, atomCruncherWorker, &CruncherThreadWorker::handleImage);
+
+
+	thread->start ();
 }
 
 
-bool QtAndorWindow::wantsAutoPause ()
-{
+bool QtAndorWindow::wantsAutoPause (){
 	return alerts.wantsAutoPause ();
 }
 
-std::atomic<bool>& QtAndorWindow::getPlotThreadActiveRef ()
-{
+std::atomic<bool>& QtAndorWindow::getPlotThreadActiveRef (){
 	return plotThreadActive;
 }
 
-std::atomic<HANDLE>& QtAndorWindow::getPlotThreadHandleRef ()
-{
+std::atomic<HANDLE>& QtAndorWindow::getPlotThreadHandleRef (){
 	return plotThreadHandle;
 }
 
-void QtAndorWindow::preparePlotter (AllExperimentInput& input)
-{
+void QtAndorWindow::preparePlotter (AllExperimentInput& input){
 	/// start the plotting thread.
 	plotThreadActive = true;
 	plotThreadAborting = false;
-	imQueue.clear ();
-	plotterAtomQueue.clear ();
+	//imQueue.clear ();
+	//plotterAtomQueue.clear ();
 	input.masterInput->plotterInput = new realTimePlotterInput (analysisHandler.getPlotTime ());
 	auto& pltInput = input.masterInput->plotterInput;
-	//pltInput->plotPens = mainWin->getPlotPens ();
-	//pltInput->plotBrushes = mainWin->getPlotBrushes ();
-	pltInput->plotFont = mainWin->getPlotFont ();
 	pltInput->plotParentWindow = this;
 	pltInput->cameraSettings = andorSettingsCtrl.getSettings ();
 	pltInput->aborting = &plotThreadAborting;
 	pltInput->active = &plotThreadActive;
-	pltInput->imQueue = &plotterPictureQueue;
+	//pltInput->imQueue = &plotterPictureQueue;
 	pltInput->imageShape = andorSettingsCtrl.getSettings ().andor.imageSettings;
 	pltInput->picsPerVariation = mainWin->getRepNumber () * andorSettingsCtrl.getSettings ().andor.picsPerRepetition;
 	pltInput->variations = auxWin->getTotalVariationNumber ();
@@ -864,10 +824,10 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input)
 	pltInput->alertThreshold = alerts.getAlertThreshold ();
 	pltInput->wantAtomAlerts = alerts.wantsAtomAlerts ();
 	pltInput->comm = mainWin->getComm ();
-	pltInput->plotLock = &plotLock;
+	//pltInput->plotLock = &plotLock;
 	pltInput->numberOfRunsToAverage = 5;
 	pltInput->plottingFrequency = analysisHandler.getPlotFreq ();
-	pltInput->atomQueue = &plotterAtomQueue;
+	//pltInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput (pltInput);
 
 	// remove old plots that aren't trying to sustain.
@@ -877,13 +837,11 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input)
 	dummyKey.resize (input.masterInput->numVariations);
 	pltInput->key = dummyKey;
 	UINT count = 0;
-	for (auto& e : pltInput->key)
-	{
+	for (auto& e : pltInput->key){
 		e = count++;
 	}
 	UINT mainPlotInc = 0;
-	for (auto plotParams : pltInput->plotInfo)
-	{
+	for (auto plotParams : pltInput->plotInfo){
 		// Create vector of data to be shared between plotter and data analysis handler. 
 		std::vector<pPlotDataVec> data;
 		// assume 1 data set...
@@ -892,23 +850,19 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input)
 		UINT numLines = numDataSets * (pltInput->grids[plotParams.whichGrid].height
 			* pltInput->grids[plotParams.whichGrid].width + 1);
 		data.resize (numLines);
-		for (auto& line : data)
-		{
+		for (auto& line : data){
 			line = pPlotDataVec (new plotDataVec (pltInput->key.size (), { 0, -1, 0 }));
 			line->resize (pltInput->key.size ());
 			// initialize x axis for all data sets.
 			UINT count = 0;
-			for (auto& keyItem : pltInput->key)
-			{
+			for (auto& keyItem : pltInput->key)	{
 				line->at (count++).x = keyItem;
 			}
 		}
 		bool usedDlg = false;
 		plotStyle style = plotParams.isHist ? plotStyle::HistPlot : plotStyle::ErrorPlot;
-		while (true)
-		{
-			if (mainPlotInc >= 6)
-			{
+		while (true){
+			if (mainPlotInc >= 6){
 				// put extra plots in dialogs.
 				// start a PlotDialog dialog
 				/*PlotDialog* plot = new PlotDialog (data, style, mainWin->getPlotPens (),
@@ -919,239 +873,79 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input)
 				//plot->Create (IDD_PLOT_DIALOG, this);
 				plot->ShowWindow (SW_SHOW);
 				activeDlgPlots.push_back (plot);*/
-				pltInput->dataArrays.push_back (data);
+				//pltInput->dataArrays.push_back (data);
 				usedDlg = true;
 				break;
 			}
 			break;
 		}
-		if (!usedDlg && mainPlotInc < 6)
-		{
+		if (!usedDlg && mainPlotInc < 6){
 			mainAnalysisPlots[mainPlotInc]->setStyle (style);
-			//mainAnalysisPlots[mainPlotInc]->setData (data);
+			// mainAnalysisPlots[mainPlotInc]->setData (data);
 			mainAnalysisPlots[mainPlotInc]->setThresholds (andorSettingsCtrl.getSettings ().thresholds[0]);
 			mainAnalysisPlots[mainPlotInc]->setTitle (plotParams.name);
-			pltInput->dataArrays.push_back (data);
+			//pltInput->dataArrays.push_back (data);
 			mainPlotInc++;
 		}
 	}
 }
 
-bool QtAndorWindow::wantsNoMotAlert ()
-{
-	if (cameraIsRunning ())
-	{
+bool QtAndorWindow::wantsNoMotAlert (){
+	if (cameraIsRunning ()){
 		return alerts.wantsMotAlerts ();
 	}
-	else
-	{
+	else{
 		return false;
 	}
 }
 
 
-UINT QtAndorWindow::getNoMotThreshold ()
-{
+UINT QtAndorWindow::getNoMotThreshold (){
 	return alerts.getAlertThreshold ();
 }
 
-void QtAndorWindow::startPlotterThread (AllExperimentInput& input)
-{
+void QtAndorWindow::startPlotterThread (AllExperimentInput& input){
 	bool gridHasBeenSet = false;
 	auto& pltInput = input.masterInput->plotterInput;
-	for (auto gridInfo : pltInput->grids)
-	{
-		if (!(gridInfo.topLeftCorner == coordinate (0, 0)))
-		{
+	for (auto gridInfo : pltInput->grids){
+		if (!(gridInfo.topLeftCorner == coordinate (0, 0))){
 			gridHasBeenSet = true;
 			break;
 		}
 	}
 	UINT plottingThreadID;
-	if ((!gridHasBeenSet && pltInput->analysisLocations.size () == 0) || pltInput->plotInfo.size () == 0)
-	{
+	if ((!gridHasBeenSet && pltInput->analysisLocations.size () == 0) || pltInput->plotInfo.size () == 0){
 		plotThreadActive = false;
 	}
-	else
-	{
+	else{
 		// start the plotting thread
 		plotThreadActive = true;
-		plotThreadHandle = (HANDLE)_beginthreadex (0, 0, DataAnalysisControl::plotterProcedure, (void*)pltInput,
-			0, &plottingThreadID);
+		analysisThreadWorker = new AnalysisThreadWorker (pltInput);
+		QThread* thread = new QThread;
+		analysisThreadWorker->moveToThread (thread);
+		connect (thread, &QThread::started, analysisThreadWorker, &AnalysisThreadWorker::init);
+		connect (thread, &QThread::finished, thread, &AnalysisThreadWorker::deleteLater);
+		connect (analysisThreadWorker, &AnalysisThreadWorker::newPlotData, this, 
+			[this](std::vector<std::vector<dataPoint>> data, int plotNum) {mainAnalysisPlots[plotNum]->setData (data); });
+		if (atomCruncherWorker) {
+			connect (atomCruncherWorker, &CruncherThreadWorker::atomArray, 
+				     analysisThreadWorker, &AnalysisThreadWorker::handleNewPic);
+			connect (atomCruncherWorker, &CruncherThreadWorker::pixArray,
+				analysisThreadWorker, &AnalysisThreadWorker::handleNewPix);
+		}
+		thread->start ();
 	}
 }
 
-// this thread has one purpose: watch the image vector thread for new images, determine where atoms are 
-// (the atom crunching part), and pass them to the threads waiting on atom info.
-// should consider modifying so that it can use an array of locations. At the moment doesn't.
-// "Crunching" here is meant to be reminiscent of number-crunching. It's super-repeatative.
-UINT __stdcall QtAndorWindow::atomCruncherProcedure (void* inputPtr)
-{
-	atomCruncherInput* input = (atomCruncherInput*)inputPtr;
-	auto gridSize = input->grids.size ();
-	if (input->grids[0].topLeftCorner == coordinate (0, 0) || gridSize == 0)
-	{
-		return 0;
-	}
-	std::vector<std::vector<long>> monitoredPixelIndecies (gridSize);
-	// preparing for the crunching
-	for (auto gridInc : range (gridSize))
-	{
-		auto& grid = input->grids[gridInc];
-		for (auto columnInc : range (grid.width))
-		{
-			for (auto rowInc : range (grid.height))
-			{
-				ULONG pixelRow = (grid.topLeftCorner.row - 1) + rowInc * grid.pixelSpacing;
-				ULONG pixelColumn = (grid.topLeftCorner.column - 1) + columnInc * grid.pixelSpacing;
-				if (pixelRow >= input->imageDims.height () || pixelColumn >= input->imageDims.width ())
-				{
-					errBox ("atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
-						"cruncher thread");
-					return 0;
-				}
-				int index = ((input->imageDims.height () - 1 - pixelRow) * input->imageDims.width () + pixelColumn);
-				if (index >= input->imageDims.width () * input->imageDims.height ())
-				{
-					// shouldn't happen after I finish debugging.
-					errBox ("Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
-						" is larger than the image is!  (A low level bug, this shouldn't happen)");
-					return 0;
-				}
-				monitoredPixelIndecies[gridInc].push_back (index);
-			}
-		}
-	}
-	for (auto picThresholds : input->thresholds)
-	{
-		if (picThresholds.size () != 1 && picThresholds.size () != input->grids[0].numAtoms ())
-		{
-			errBox ("the list of thresholds isn't size 1 (constant) or the size of the number of atoms in the "
-				"first grid! Size is " + str (picThresholds.size ()) + "and grid size is " +
-				str (input->grids[0].numAtoms ()));
-			return 0;
-		}
-	}
-	UINT imageCount = 0;
-	// loop watching the image queue.
-	while (*input->cruncherThreadActive || input->imQueue->size () != 0)
-	{
-		// if no images wait until images. Should probably change to be event based, but want this to be fast...
-		if (input->imQueue->size () == 0)
-		{
-			continue;
-		}
-		if (imageCount % 2 == 0)
-		{
-			input->catchPicTime->push_back (chronoClock::now ());
-		}
-		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
-		PixListQueue tempImagePixels (gridSize);
-		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
-		atomQueue tempAtomArray (gridSize);
-		for (auto gridInc : range (gridSize))
-		{
-			tempAtomArray[gridInc].image = std::vector<bool> (monitoredPixelIndecies[gridInc].size ());
-			tempImagePixels[gridInc].image = std::vector<long> (monitoredPixelIndecies[gridInc].size ());
-		}
-		for (auto gridInc : range (gridSize))
-		{
-			UINT count = 0;
-			{
-				// if no images wait until images. Should probably change to be event based, but want this to be fast...
-				std::lock_guard<std::mutex> locker (*input->imageQueueLock);
-				if (input->imQueue->size () == 0)
-				{
-					continue;
-				}
-				// scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
-				tempImagePixels[gridInc].repNum = (*input->imQueue)[0].repNum;
-				tempAtomArray[gridInc].repNum = (*input->imQueue)[0].repNum;
-				///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the 
-				/// load-skip both of which are very time-sensitive.
-				for (auto pixelIndex : monitoredPixelIndecies[gridInc])
-				{
-					if (pixelIndex > (*input->imQueue)[0].image.size ())
-					{
-						/*errBox ("Monitored pixel indecies included pixel out of image?!?! pixel: " + str(pixelIndex)
-							+ ", size: " + str((*input->imQueue)[0].image.size()) );*/
-					}
-					else
-					{
-						tempImagePixels[gridInc].image[count++] = (*input->imQueue)[0].image.data[pixelIndex];
-					}
-				}
-			}
-			count = 0;
-			for (auto& pix : tempImagePixels[gridInc].image)
-			{
-				auto& picThresholds = input->thresholds[imageCount % input->picsPerRep];
-				if (pix >= picThresholds[count % picThresholds.size ()])
-				{
-					tempAtomArray[gridInc].image[count] = true;
-				}
-				count++;
-			}
-			// explicitly deal with the rearranger thread and load skip as soon as possible, these are time-critical.
-			if (gridInc == 0)
-			{
-				if (input->rearrangerActive) ///
-				{
-					// copies the array if first pic of rep. Only looks at first picture because its rearranging. Could change
-					// if we need to do funny experiments, just need to change rearranger handling.
-					if (imageCount % input->picsPerRep == 0)
-					{
-						{
-							std::lock_guard<std::mutex> locker (*input->rearrangerLock);
-							(*input->rearrangerAtomQueue).push_back (tempAtomArray[0]);
-							input->rearrangerConditionWatcher->notify_all ();
-						}
-						input->finTime->push_back (chronoClock::now ());
-					}
-				}
-				// if last picture of repetition, check for loadskip condition.
-				if (imageCount % input->picsPerRep == input->picsPerRep - 1) ///
-				{
-					UINT numAtoms = std::accumulate (tempAtomArray[0].image.begin (), tempAtomArray[0].image.end (), 0);
-					*input->skipNext = (numAtoms >= input->atomThresholdForSkip);
-				}
-			}
-		}
-		if (input->plotterActive)
-		{
-			// copies the array. Right now I'm assuming that the thread always needs atoms, which is not a good 
-			// assumption potentially...
-			std::lock_guard<std::mutex> locker (*input->plotLock);
-			(*input->plotterAtomQueue).push_back (tempAtomArray);
-			if (input->plotterNeedsImages)
-			{
-				(*input->plotterImageQueue).push_back (tempImagePixels);
-			}
-		}
-		imageCount++;
-		std::lock_guard<std::mutex> locker (*input->imageQueueLock);
-		// if no images wait until images. Should probably change to be event based, but want this to be fast...
-		if (input->imQueue->size () != 0)
-		{
-			(*input->imQueue).erase ((*input->imQueue).begin ());
-		}
-	}
-	return 0;
-}
-
-
-std::string QtAndorWindow::getStartMessage ()
-{
+std::string QtAndorWindow::getStartMessage (){
 	// get selected plots
 	auto andrSttngs = andorSettingsCtrl.getSettings ().andor;
 	std::vector<std::string> plots = analysisHandler.getActivePlotList ();
 	imageParameters currentImageParameters = andrSttngs.imageSettings;
 	bool errCheck = false;
-	for (UINT plotInc = 0; plotInc < plots.size (); plotInc++)
-	{
+	for (UINT plotInc = 0; plotInc < plots.size (); plotInc++){
 		PlottingInfo tempInfoCheck (PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
-		if (tempInfoCheck.getPicNumber () != andrSttngs.picsPerRepetition)
-		{
+		if (tempInfoCheck.getPicNumber () != andrSttngs.picsPerRepetition){
 			thrower (": one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 				"selected number of pictures per experiment. Please revise either the current setting or the plot"
 				" file.");
@@ -1164,8 +958,7 @@ std::string QtAndorWindow::getStartMessage ()
 	dialogMsg += "Current Camera Temperature Setting:\r\n\t" + str (
 		andrSttngs.temperatureSetting) + "\r\n";
 	dialogMsg += "Exposure Times: ";
-	for (auto& time : andrSttngs.exposureTimes)
-	{
+	for (auto& time : andrSttngs.exposureTimes){
 		dialogMsg += str (time * 1000) + ", ";
 	}
 	dialogMsg += "\r\n";
@@ -1180,11 +973,9 @@ std::string QtAndorWindow::getStartMessage ()
 
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 	UINT count = 0;
-	for (auto& picThresholds : andorSettingsCtrl.getSettings ().thresholds)
-	{
+	for (auto& picThresholds : andorSettingsCtrl.getSettings ().thresholds){
 		dialogMsg += "Pic " + str (count) + " thresholds: ";
-		for (auto thresh : picThresholds)
-		{
+		for (auto thresh : picThresholds){
 			dialogMsg += str (thresh) + ", ";
 		}
 		dialogMsg += "\r\n";
@@ -1192,8 +983,7 @@ std::string QtAndorWindow::getStartMessage ()
 	}
 
 	dialogMsg += "\r\nReal-Time Plots:\r\n";
-	for (UINT plotInc = 0; plotInc < plots.size (); plotInc++)
-	{
+	for (UINT plotInc = 0; plotInc < plots.size (); plotInc++){
 		dialogMsg += "\t" + plots[plotInc] + "\r\n";
 	}
 
@@ -1201,12 +991,11 @@ std::string QtAndorWindow::getStartMessage ()
 }
 
 
-void QtAndorWindow::fillMasterThreadInput (ExperimentThreadInput* input)
-{
+void QtAndorWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	currentPictureNum = 0;
 	// starting a not-calibration, so reset this.
 	justCalibrated = false;
-	input->atomQueueForRearrangement = &rearrangerAtomQueue;
+	//input->atomQueueForRearrangement = &rearrangerAtomQueue;
 	input->rearrangerLock = &rearrangerLock;
 	input->andorsImageTimes = &imageTimes;
 	input->grabTimes = &imageGrabTimes;
@@ -1215,67 +1004,54 @@ void QtAndorWindow::fillMasterThreadInput (ExperimentThreadInput* input)
 }
 
 
-void QtAndorWindow::setTimerText (std::string timerText)
-{
+void QtAndorWindow::setTimerText (std::string timerText){
 	timer.setTimerDisplay (timerText);
 }
 
-void QtAndorWindow::setDataType (std::string dataType)
-{
+void QtAndorWindow::setDataType (std::string dataType){
 	stats.updateType (dataType);
 }
 
 
-void QtAndorWindow::redrawPictures (bool andGrid)
-{
-	try
-	{
-		pics.refreshBackgrounds ();
-		if (andGrid)
-		{
+void QtAndorWindow::redrawPictures (bool andGrid){
+	try	{
+		if (andGrid){
 			pics.drawGrids ();
 		}
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 	// currently don't attempt to redraw previous picture data.
 }
 
 
-std::atomic<bool>* QtAndorWindow::getSkipNextAtomic ()
-{
+std::atomic<bool>* QtAndorWindow::getSkipNextAtomic (){
 	return &skipNext;
 }
 
 
-void QtAndorWindow::stopPlotter ()
-{
+void QtAndorWindow::stopPlotter (){
 	plotThreadAborting = true;
 }
 
 
 // this is typically a little redundant to call, but can use to make sure things are set to off.
-void QtAndorWindow::assertOff ()
-{
+void QtAndorWindow::assertOff (){
 	andorSettingsCtrl.cameraIsOn (false);
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
 }
 
 
-void QtAndorWindow::readImageParameters ()
-{
+void QtAndorWindow::readImageParameters (){
 	selectedPixel = { 0,0 };
-	try
-	{
+	try	{
 		redrawPictures (false);
 		imageParameters parameters = andorSettingsCtrl.getSettings ().andor.imageSettings;
 		pics.setParameters (parameters);
 	}
-	catch (Error& exception)
-	{
+	catch (Error& exception){
 		Communicator* comm = mainWin->getComm ();
 		reportErr (exception.trace () + "\r\n");
 	}
@@ -1283,9 +1059,28 @@ void QtAndorWindow::readImageParameters ()
 }
 
 
-void QtAndorWindow::fillExpDeviceList (DeviceList& list)
-{
+void QtAndorWindow::fillExpDeviceList (DeviceList& list){
 	list.list.push_back (andor);
 }
 
-
+void QtAndorWindow::handleNewPlotData (std::vector<std::vector<dataPoint>> newData, PlottingInfo info) {
+	info.getTitle ();
+	mainAnalysisPlots[0]->setData (newData);
+	//void ScopeViewer::updateData (const QVector<double> & xdata, double xmin, double xmax,
+	//	const QVector<double> & ydata, double ymin, double ymax,
+	//	int traceNum) {
+	//	if (safemode) {
+	//		auto* line = data_t[traceNum];
+	//		viewPlot->chart ()->removeSeries (line);
+	//		line->clear ();
+	//		for (auto count : range (xdata.size ())) {
+	//			*line << QPointF (xdata[count], ((ydata[count] - yoffset) * ymult));
+	//		}
+	//		viewPlot->chart ()->addSeries (line);
+	//		viewPlot->chart ()->axisX ()->setMin (xmin);
+	//		viewPlot->chart ()->axisX ()->setMax (xmax);
+	//		viewPlot->chart ()->axisY ()->setMin (ymin);
+	//		viewPlot->chart ()->axisY ()->setMax (ymax);
+	//	}
+	//}
+}

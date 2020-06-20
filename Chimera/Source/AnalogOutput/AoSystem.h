@@ -42,6 +42,7 @@ class AoSystem
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void standardExperimentPrep (UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
 									 double currLoadSkipTime);
+		bool eventFilter (QObject* obj, QEvent* event);
 		// configs
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile);

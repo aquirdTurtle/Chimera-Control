@@ -3,6 +3,7 @@
 #include "AnalogOutput.h"
 #include "boost\lexical_cast.hpp"
 #include <QlineEdit>
+#include <QKeyEvent>
 
 AnalogOutput::AnalogOutput( ){}
 
@@ -14,6 +15,7 @@ void AnalogOutput::initialize ( POINT& pos, IChimeraWindowWidget* parent, int wh
 	edit = new CQLineEdit ("0", parent);
 	edit->setGeometry ({ QPoint{pos.x + 20, pos.y},QPoint{pos.x + 160, pos.y += 20} });
 	edit->setToolTip ( (info.name + "\r\n" + info.note).c_str() );
+	edit->installEventFilter (parent);
 	parent->connect (edit, &QLineEdit::textChanged, 		
 		[this, parent]() {
 			handleEdit ();
@@ -21,21 +23,75 @@ void AnalogOutput::initialize ( POINT& pos, IChimeraWindowWidget* parent, int wh
 	edit->setStyleSheet ("QLineEdit { border: none }");
 }
 
+bool AnalogOutput::eventFilter (QObject* obj, QEvent* event) {
+	if (obj == edit) {
+		if (event->type () == QEvent::KeyPress)
+		{
+			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+			bool up = true;
+			if (keyEvent->key () == Qt::Key_Up){
+				up = true;
+			}
+			else if (keyEvent->key () == Qt::Key_Down){
+				up = false;
+			}
+			else {
+				return false;
+			}
+			auto txt = edit->text ();
+			// make sure value in edit matches current value, else unclear what this functionality should do.
+			double val;
+			try	{
+				val = boost::lexical_cast<double>(str(txt));
+			}
+			catch (boost::bad_lexical_cast)	{
+				return true;
+			}
+			if (fabs (val - info.currVal) > 1e-12){
+				return true;
+			}
+			auto decimalPos = txt.indexOf (".");
+			auto cursorPos = edit->cursorPosition ();
+			if (decimalPos == -1){
+				// value is an integer, decimal is effectively at end.
+				decimalPos = txt.size ();
+			}
+			// the order of the first digit
+			double size = pow (10, decimalPos - 1);
+			// handle the extra decimal character with the ternary operator here. 
+			int editPlace = (cursorPos > decimalPos ? cursorPos - 1 : cursorPos);
+			double inc = size / pow (10, editPlace);
+			info.currVal += up ? inc : -inc;
+			updateEdit (false);
+			auto newTxt = edit->text (); 
+			if (txt.indexOf ("-") == -1 && newTxt.indexOf("-") != -1){
+				// then need to shift cursor to account for the negative.
+				edit->setCursorPosition (cursorPos+1);
+			}
+			else if (txt.indexOf("-") != std::string::npos && newTxt.indexOf ("-") == std::string::npos){
+				edit->setCursorPosition (cursorPos-1);
+			}
+			else {
+				edit->setCursorPosition (cursorPos);
+			}
+			return true;
+		}
+		return false;
+	}
+	return false;
+}
+
 double AnalogOutput::getVal ( bool useDefault )
 {
 	double val;
-	try
-	{
+	try	{
 		val = boost::lexical_cast<double>( str (edit->text () ) );
 	}
-	catch ( boost::bad_lexical_cast& )
-	{
-		if ( useDefault )
-		{
+	catch ( boost::bad_lexical_cast& ){
+		if ( useDefault ){
 			val = 0;
 		}
-		else
-		{
+		else{
 			throwNested ( "value entered in DAC #" + str ( dacNum ) + " (" + str(edit->text())
 						  + ") failed to convert to a double!" );
 		}
@@ -44,17 +100,14 @@ double AnalogOutput::getVal ( bool useDefault )
 }
 
 
-void AnalogOutput::updateEdit ( bool roundToDacPrecision )
-{
+void AnalogOutput::updateEdit ( bool roundToDacPrecision ){
 	std::string valStr = roundToDacPrecision ? str ( roundToDacResolution ( info.currVal ), 13, true, false, true )
 		: str ( info.currVal, 5, false, false, true );
 	edit->setText (cstr (valStr));
 }
 
-void AnalogOutput::setName ( std::string name )
-{
-	if ( name == "" )
-	{
+void AnalogOutput::setName ( std::string name ){
+	if ( name == "" ){
 		// no empty names allowed.
 		return;
 	}
@@ -64,23 +117,17 @@ void AnalogOutput::setName ( std::string name )
 }
 
 
-void AnalogOutput::handleEdit ( bool roundToDacPrecision )
-{
+void AnalogOutput::handleEdit ( bool roundToDacPrecision ){
 	bool matches = false;
-	try
-	{
-		if ( roundToDacPrecision )
-		{
+	try{
+		if ( roundToDacPrecision ){
 			double roundNum = roundToDacResolution ( info.currVal );
-			if ( fabs ( roundToDacResolution ( info.currVal ) - boost::lexical_cast<double>( str(edit->text()) ) ) < 1e-8 )
-			{
+			if ( fabs ( roundToDacResolution ( info.currVal ) - boost::lexical_cast<double>( str(edit->text()) ) ) < 1e-8 )	{
 				matches = true;
 			}
 		}
-		else
-		{
-			if ( fabs ( info.currVal - boost::lexical_cast<double>( str (edit->text ()) ) ) < 1e-8 )
-			{
+		else{
+			if ( fabs ( info.currVal - boost::lexical_cast<double>( str (edit->text ()) ) ) < 1e-8 ){
 				matches = true;
 			}
 		}
@@ -88,26 +135,22 @@ void AnalogOutput::handleEdit ( bool roundToDacPrecision )
 	catch ( boost::bad_lexical_cast& ) { /* failed to convert to double. Effectively, doesn't match. */ }
 }
 
-double AnalogOutput::roundToDacResolution ( double num )
-{
+double AnalogOutput::roundToDacResolution ( double num ){
 	double dacResolution = 10.0 / pow ( 2, 16 );
 	return long ( ( num + dacResolution / 2 ) / dacResolution ) * dacResolution;
 }
 
 
-void AnalogOutput::setNote ( std::string note )
-{
+void AnalogOutput::setNote ( std::string note ){
 	info.note = note;
 	edit->setToolTip ( (info.name + "\r\n" + info.note).c_str());
 }
 
-void AnalogOutput::disable ( )
-{
+void AnalogOutput::disable ( ){
 	edit->setEnabled (false);
 }
 
-bool AnalogOutput::handleArrow ( CWnd* focus, bool up )
-{
+bool AnalogOutput::handleArrow ( CWnd* focus, bool up ){
 	/*
 	if ( focus == &edit )
 	{

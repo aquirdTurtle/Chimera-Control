@@ -10,9 +10,15 @@
 // this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
 template <typename T> std::string str( T input, const int precision = 13, bool eatZeros = false, bool toLower = false,
-									   bool zeroPad = false )
+									   bool zeroPad = false, bool useScientificNotation=false )
 {
 	std::ostringstream out;
+	if (useScientificNotation) {
+		out << std::scientific;
+	}
+	else {
+		out << std::fixed;
+	}
 	out << std::setprecision(precision) << input;
 	std::string outStr = out.str();
 	if ( zeroPad )
@@ -53,7 +59,8 @@ template <typename T> std::string str( T input, const int precision = 13, bool e
 	return outStr;
 }
 
-template <> std::string str<QString> (QString input, const int precision, bool eatZeros, bool toLower, bool zeroPad);
+template <> std::string str<QString> (QString input, const int precision, bool eatZeros, bool toLower, bool zeroPad, 
+	bool useScientificNotation);
 
 template <typename T> std::wstring w_str( T input, const int precision = 13, bool eatZeros = false, bool toLower = false )
 {

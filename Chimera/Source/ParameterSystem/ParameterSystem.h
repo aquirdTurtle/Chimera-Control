@@ -43,8 +43,7 @@ enum class ParameterSysType
  * - Function Variables
  * That being said, there should only ever be 3 instances of this class active, one for each gui element.
  */
-class ParameterSystem
-{
+class ParameterSystem {
 	public:		
 		// THIS CLASS IS NOT COPYABLE.
 		ParameterSystem& operator=(const ParameterSystem&) = delete;

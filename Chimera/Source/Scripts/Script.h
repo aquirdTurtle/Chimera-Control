@@ -1,28 +1,26 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralObjects/RunInfo.h"
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include "AnalogOutput/AoStructures.h"
-//#include "Combo.h"
+#include <Scripts/SyntaxHighlighter.h>
+#include <Scripts/ScriptableDevices.h>
 #include "CustomMfcControlWrappers/functionCombo.h"
 #include "ExperimentThread/Communicator.h"
-#include "stdafx.h"
-#include "Scripts/Script.h"
 
 #include <string>
 #include <unordered_map>
 #include <string>
 #include <vector>
 #include <array>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+
 #include <qlabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 
-class Script
-{
+class IChimeraWindowWidget;
+
+class Script{
 	public:
 		Script();
 		void initialize( int width, int height, POINT& startingLocation, IChimeraWindowWidget* scriptWin,
@@ -68,10 +66,14 @@ class Script
 		void reset();
 		bool savedStatus();
 
+		std::vector<parameterType> getLocalParams ();
+
 		void saveAsFunction( Communicator* comm );
 		void loadFunctions();
 
 		void setEnabled ( bool enabled, bool functionsEnabled );
+		SyntaxHighlighter* highlighter;
+
 	private:
 		CWnd syntaxTimer;
 		CQTextEdit* edit;
@@ -80,7 +82,6 @@ class Script
 		QLabel* fileNameText;
 		functionCombo availableFunctionsCombo;
 		QLabel* help;
-
 		std::string scriptName;
 		std::string scriptPath;
 		std::string scriptFullAddress;

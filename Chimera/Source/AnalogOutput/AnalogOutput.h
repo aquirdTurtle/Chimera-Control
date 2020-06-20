@@ -16,7 +16,7 @@ class AnalogOutput
 		void updateEdit ( bool roundToDacPrecision );
 		static double roundToDacResolution ( double num );
 		double getVal ( bool useDefault );
-		double setVal ( );
+		bool eventFilter (QObject* obj, QEvent* event);
 		void setNote ( std::string note );
 		AoInfo info;
 		void setName ( std::string name );

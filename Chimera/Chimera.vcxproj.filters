@@ -333,6 +333,17 @@
       <Filter>Plotting-And-Viewing</Filter>
     </ClCompile>
     <ClCompile Include="MOC\moc_ScopeViewer.cpp" />
+    <ClCompile Include="MOC\moc_PictureControl.cpp" />
+    <ClCompile Include="Source\GeneralImaging\ImageLabel.cpp" />
+    <ClCompile Include="MOC\moc_ImageLabel.cpp" />
+    <ClCompile Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.cpp" />
+    <ClCompile Include="MOC\moc_AnalysisThreadWorker.cpp" />
+    <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
+    <ClCompile Include="MOC\moc_AtomCruncherWorker.cpp" />
+    <ClCompile Include="MOC\moc_PlotCtrl.cpp" />
+    <ClCompile Include="Source\Scripts\SyntaxHighlighter.cpp" />
+    <ClCompile Include="MOC\moc_SyntaxHighlighter.cpp" />
+    <ClCompile Include="MOC\moc_BaslerGrabThreadWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -583,7 +594,6 @@
     <ClInclude Include="Source\GeneralImaging\imageParameters.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GeneralImaging\PictureControl.h" />
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
     <ClInclude Include="Source\Andor\PictureSettingsControl.h">
@@ -754,6 +764,7 @@
     <ClInclude Include="Source\CustomQtControls\AutoNotifyCtrls.h" />
     <ClInclude Include="Source\Andor\cameraThreadInput.h" />
     <ClInclude Include="Source\Agilent\whichAg.h" />
+    <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -850,9 +861,6 @@
     <None Include="Source\AnalogOutput\DaqMxFlume.h">
       <Filter>National-Instruments</Filter>
     </None>
-    <None Include="Source\Plotting\PlotCtrl.h">
-      <Filter>Plotting-And-Viewing</Filter>
-    </None>
     <None Include="Source\GeneralFlumes\WinSerialFlume.h">
       <Filter>DIO</Filter>
     </None>
@@ -893,5 +901,14 @@
     <CustomBuild Include="Source\Plotting\ScopeViewer.h">
       <Filter>Plotting-And-Viewing</Filter>
     </CustomBuild>
+    <CustomBuild Include="Source\GeneralImaging\PictureControl.h" />
+    <CustomBuild Include="Source\GeneralImaging\ImageLabel.h" />
+    <CustomBuild Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.h" />
+    <CustomBuild Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.h" />
+    <CustomBuild Include="Source\Plotting\PlotCtrl.h">
+      <Filter>Plotting-And-Viewing</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Scripts\SyntaxHighlighter.h" />
+    <CustomBuild Include="Source\Basler\BaslerGrabThreadWorker.h" />
   </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@ struct int_coordinate
 
 struct coordinate
 {
-	coordinate::coordinate( ULONG r, ULONG c )
+	coordinate::coordinate( unsigned long r, unsigned long c )
 	{
 		row = r;
 		column = c;
@@ -44,8 +44,8 @@ struct coordinate
 		return row == coordinate2.row && column == coordinate2.column;
 	}
 
-	ULONG row;
-	ULONG column;
+	unsigned long row;
+	unsigned long column;
 };
 
 struct double_coordinate

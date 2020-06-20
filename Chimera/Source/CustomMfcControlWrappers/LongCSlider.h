@@ -6,17 +6,16 @@
 #include "PrimaryWindows/IChimeraWindowWidget.h"
 #include <qlabel.h>
 #include <qlineedit.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 #include <qslider.h>
 
-// a CSliderCtrl customized to handle large numbers. Integrates an edit to display the current number and a header for 
-// some text.
+// a QSlider integrated with an edit to display the current number and a header for some text.
 
-class LongCSlider
-{
+class LongCSlider{
 	public:
 		void initialize ( POINT& loc, IChimeraWindowWidget* parent, int width, int height, std::string headerText );
 		void rearrange ( int width, int height, fontMap fonts );
-		void handleSlider( UINT nPos );
+		void handleSlider( int nPos );
 		void handleEdit();
 		double getValue ( );
 		void setValue (double value, bool updateEdit=true );
@@ -24,11 +23,11 @@ class LongCSlider
 		void reposition ( POINT loc, LONG totalheight );
 		UINT getEditId ( );
 		void hide ( int hideornot );
-	private:
 		QSlider* slider;
-		QLineEdit* edit;
+		CQLineEdit* edit;
 		QLabel* header;
+	private:
 		double currentValue;
-		const double maxVal = 65535;
-		const double minVal = -65535;
+		const double maxVal = 10000;
+		const double minVal = 0;
 };
