@@ -20,8 +20,8 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP 
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER
 //#define TEST_PC
 
@@ -119,7 +119,6 @@
 	constexpr auto MASTER_REPUMP_SCOPE_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 	constexpr bool MOT_SCOPE_SAFEMODE = true;
 	constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
-
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Code\\Chimera-Control\\";
 	const std::string DM_PROFILES_LOCATION = PROJECT_LOCATION + "DM-Library";
 	const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + +"\\25CW012#060_CLOSED_LOOP_COMMANDS.txt";
@@ -202,11 +201,12 @@
 
 
 #ifdef MASTER_COMPUTER
-	using MICROWAVE_FLUME = RsgFlume;
+	using MICROWAVE_FLUME = WindFreakFlume;
+	//using MICROWAVE_FLUME = RsgFlume;
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
-	//constexpr char UW_SYSTEM_ADDRESS[] = "28";
-	constexpr short UW_SYSTEM_ADDRESS = 28;
-	constexpr bool UW_SYSTEM_SAFEMODE = true;
+	constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
+	//constexpr short UW_SYSTEM_ADDRESS = 28;
+	constexpr bool UW_SYSTEM_SAFEMODE = false;
 	constexpr bool DOFTDI_SAFEMODE = false;
 	constexpr bool DDS_SAFEMODE = false;
 	const PiezoType PIEZO_1_TYPE = PiezoType::B;
@@ -219,7 +219,7 @@
 	#else
 		constexpr bool  PYTHON_SAFEMODE = false;
 	#endif
-	constexpr bool AUTO_CALIBRATE = false;
+	constexpr bool AUTO_CALIBRATE = true;
 	constexpr bool VIEWPOINT_SAFEMODE = true;
 	constexpr bool DAQMX_SAFEMODE = false;
 	constexpr bool TOP_BOTTOM_TEK_SAFEMODE = false;
@@ -271,6 +271,11 @@
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 	const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1" };
 	const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2" };
+	const piezoSetupInfo CAMERA_PIEZO_INFO = { PiezoType::NONE, "COM6", "CAMERA_PIEZO" };
+	const std::string DM_PROFILES_LOCATION = str(CODE_ROOT) + "\\DM-Library";
+	const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + "\\25CW012#060_CLOSED_LOOP_COMMANDS.txt";
+	constexpr auto DM_SERIAL = "25CW012#060";
+	constexpr bool DM_SAFEMODE = true;
 #endif
 
 #define FIREWIRE_CAMERA
@@ -287,7 +292,6 @@
 	namespace cameraParams = Basler_UsbCameraParams;
 	const std::string mainColor = "Dark Indigo";
 #endif
-
 //const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
 
 #ifdef FIREWIRE_CAMERA
@@ -434,6 +438,8 @@ constexpr auto IDC_CAMERA_CALIBRATION_BUTTON = 23063;
 constexpr auto IDC_PLOT_TIMER_EDIT = 23064;
 constexpr auto IDC_SOFTWARE_ACCUMULATE_ALL_OPTION = 23065;
 constexpr auto IDC_EM_GAIN_BTN = 23066;
+constexpr auto IDC_ANDOR_PIEZO_CTRL = 23067;
+constexpr auto IDC_ANDOR_PIEZO_PROG = 23068;
 //
 constexpr auto IDC_BEGINNING_DIALOG_RICH_EDIT = 100;
 //
@@ -509,6 +515,9 @@ constexpr auto IDC_PIEZO2_CTRL = 14157;
 constexpr UINT IDC_UW_SYSTEM_LISTVIEW = 14158;
 constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
 constexpr auto IDC_SERVO_UNITS_COMBO = 14160;
+constexpr UINT IDC_UW_SYSTEM_READ = 14161;
+constexpr UINT IDC_UW_SYSTEM_WRITE = 14162;
+constexpr UINT IDC_UW_SYSTEM_QUERY = 14163;
 // BASLER WIN CONSTS
 constexpr auto IDC_MIN_BASLER_SLIDER_EDIT = 15001;
 constexpr auto IDC_MAX_BASLER_SLIDER_EDIT = 15002;
@@ -562,7 +571,6 @@ constexpr auto IDC_DM_EDIT_START = 18001;
 constexpr auto IDC_DM_EDIT_END = 18138;
 constexpr auto IDC_DM_PROFILE_COMBO = 18150;
 constexpr auto IDC_DM_ADD_ZERNIKE = 18160;
-
 
 constexpr auto MASTER_SCRIPT_EXTENSION = "mScript";
 constexpr auto NIAWG_SCRIPT_EXTENSION = "nScript";

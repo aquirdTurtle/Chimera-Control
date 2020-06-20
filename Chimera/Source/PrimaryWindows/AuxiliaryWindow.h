@@ -75,6 +75,10 @@ class AuxiliaryWindow : public CDialog
 		void handleMasterConfigOpen( std::stringstream& configStream, Version version );
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
+		void handleUwWrite ();
+		void handleUwRead ();
+		void handleUwQuery ();
+
 		void programPiezo1 ( );
 		void programPiezo2 ( );
 		void handlePiezo1Ctrl ( );

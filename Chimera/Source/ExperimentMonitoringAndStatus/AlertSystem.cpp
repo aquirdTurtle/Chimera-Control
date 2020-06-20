@@ -96,9 +96,9 @@ void AlertSystem::alertMainThread(int runsWithoutAtoms)
 
 void AlertSystem::soundAlert()
 {
-	Beep(523, 100);
-	Beep(523, 100);
-	Beep(523, 100);
+	//Beep(523, 100);
+	//Beep(523, 100);
+	//Beep(523, 100);
 }
 
 

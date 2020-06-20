@@ -11,16 +11,17 @@
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "ExperimentThread/Communicator.h"
 #include "AiUnits.h"
+
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
 gain, as this is all that's required for DC servoing. This is not designed to be run during the experiment, it's 
 designed to run in between experiments in order to maintain 
 
 The servo system interplays between three separate systems in the code.
-- It uses the analog input system in order to read a power level.
+- It uses the analog input system in order to readbtn a power level.
 - It uses the analog output system, adjusting one of the dacs, in order to change the power level. In order to use the 
 	AoSystem, it also uses the DioSystem.
-- (TODO) It saves the result in a parameter in the global parameterSystem that can be used in scripts.
+- It saves the result in a parameter in the global parameterSystem that can be used in scripts.
 
 - The options in an individual servo are saved in a Servo object.
 */
@@ -66,7 +67,6 @@ class ServoManager
 		Control<MyListCtrl> servoList;
 		std::vector<servoInfo> servos;
 		void addServoToListview ( servoInfo& s, UINT which );
-		//{ {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0} };
 		/*
 		The manager gets pointers to the ai and ao system for hanndling the calibration process. It only gets the ttls
 		to give to the ao system for changes.

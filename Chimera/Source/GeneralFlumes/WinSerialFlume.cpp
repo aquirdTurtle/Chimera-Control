@@ -2,20 +2,22 @@
 #include "stdafx.h"
 #include "WinSerialFlume.h"
 
-WinSerialFlume::WinSerialFlume( bool safemode_option, std::string portAddress ) : safemode(safemode_option )
+WinSerialFlume::WinSerialFlume( bool safemode_option, std::string portAddr ) : safemode(safemode_option ), portAddress(portAddr)
 {
 	open ( portAddress );
 }
 
-void WinSerialFlume::open ( std::string fileAddr )
-{
-	if ( !safemode )
-	{
+void WinSerialFlume::resetConnection (){
+	close ();
+	open (portAddress);
+}
+
+void WinSerialFlume::open ( std::string fileAddr ){
+	if ( !safemode )	{
 		serialPortHandle = CreateFile ( fileAddr.c_str ( ), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 
 										NULL );
-		if ( serialPortHandle == INVALID_HANDLE_VALUE )
-		{
-			thrower ( "Failed to initialize open serial port!" );
+		if ( serialPortHandle == INVALID_HANDLE_VALUE ) {
+			thrower ( "Failed to initialize open serial port " + portAddress + "!" );
 		}
 		DCB dcbSettings = { 0 };
 		dcbSettings.DCBlength = sizeof ( dcbSettings );
@@ -45,54 +47,45 @@ void WinSerialFlume::open ( std::string fileAddr )
 	}
 }
 
-void WinSerialFlume::write( std::string msg )
-{
+void WinSerialFlume::write( std::string msg ){
 	unsigned long numberOfBytesWritten;
 	std::vector<unsigned char> buffer ( msg.begin ( ), msg.end ( ) );
-	if ( buffer.size ( ) == 0 )
-	{
+	if ( buffer.size ( ) == 0 ){
 		thrower ( "Trying to write empty serial message?" );
 	}
-	if ( !safemode )
-	{
-		if ( serialPortHandle == INVALID_HANDLE_VALUE )
-		{
+	if ( !safemode ){
+		if ( serialPortHandle == INVALID_HANDLE_VALUE ){
 			thrower ( "Tried to write serial without a valid handle! did flume initailize properly?" );
 		}
-		if ( WriteFile ( serialPortHandle, &buffer[ 0 ], buffer.size(), &numberOfBytesWritten, NULL ) != 0 )
-		{
-			if ( numberOfBytesWritten != buffer.size() )
-			{
+		if ( WriteFile ( serialPortHandle, &buffer[ 0 ], buffer.size(), &numberOfBytesWritten, NULL ) != 0 ){
+			if ( numberOfBytesWritten != buffer.size() ){
 				thrower ( "Bad value for numberOfBytesWritten: " + str ( numberOfBytesWritten ) );
 			}
 		}
-		else
-		{
-			thrower ( "WriteFile failed inside WinSerialFlume! (failed to write command on serial port)" );
+		else {
+			thrower ( "WriteFile failed inside WinSerialFlume! (failed to write command on serial port). "
+					  "Message was: \"" + msg + "\". Windows error code was " + str (GetLastError ()) );
 		}
 	}
 }
 
 std::string WinSerialFlume::read ( )
 {
-	char buf[ 256 ] = { 0 };
+	std::vector<char> buf;
 	DWORD numBytesRead;
-	if ( !safemode )
-	{
+	if ( !safemode ) {
 		int err;
 		char readChar;
 		int totalCount = 0;
-		do
-		{
+		do {
 			err = ReadFile ( serialPortHandle, &readChar, sizeof ( readChar ), &numBytesRead, 0 );
-			if ( err == 0 )
-			{
+			if ( err == 0 ) {
 				thrower ( "ReadFile Failed?!" );
 			}
-			buf[ totalCount++ ] = readChar;
+			buf.push_back(readChar);
 		} while ( numBytesRead > 0 );
 	}
-	return str ( buf );
+	return std::string ( buf.begin(), buf.end() );
 }
 
 

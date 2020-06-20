@@ -104,6 +104,7 @@ void DmControl::initialize(POINT loc, CWnd* parent, int count, std::string seria
 			piston[i].Voltage.sPos = { B[i].x, B[i].y, B[i].x + width, B[i].y + width };
 			piston[i].Voltage.Create(NORM_EDIT_OPTIONS | WS_BORDER | ES_CENTER | ES_WANTRETURN | WS_EX_STATICEDGE
 										| ES_MULTILINE, piston[i].Voltage.sPos, parent, IDC_DM_EDIT_START + i);
+			piston[i].Voltage.fontType = fontTypes::SmallCodeFont;
 		}
 	}
 	ProfileSystem::reloadCombo(profileSelector.GetSafeHwnd(), DM_PROFILES_LOCATION, str("*") + "txt", "flatProfile");
@@ -284,7 +285,7 @@ void DmControl::loadProfile()
 	//if (DM_SAFEMODE) {
 	std::ifstream in_file(DM_PROFILES_LOCATION + "\\" + filename + ".txt");
 	if (!in_file.is_open()) {
-		thrower("File did not open");
+		thrower("DM profile fails to open!");
 	}
 	std::string value;
 	double voltage;

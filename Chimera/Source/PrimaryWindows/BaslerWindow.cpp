@@ -19,7 +19,7 @@ BaslerWindow::BaslerWindow( ) : picManager(true, "BASLER_PICTURE_MANAGER", true)
 {}
 
 
-// the message map. Allows me to handle various events in the system using functions I write myself.
+// the message map. Allows me to handle various events in the system using functions I writebtn myself.
 BEGIN_MESSAGE_MAP( BaslerWindow, CDialogEx )
 	
 	ON_COMMAND_RANGE ( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &BaslerWindow::passCommonCommand )
@@ -318,7 +318,7 @@ LRESULT BaslerWindow::handleNewPics( WPARAM wParam, LPARAM lParam )
  		}
  		if (!basCamCore->isContinuous())
  		{
-			// don't write data if continuous, that's a recipe for disaster.
+			// don't writebtn data if continuous, that's a recipe for disaster.
 			camWin->getLogger ( ).writeBaslerPic ( *imageMatrix );
  		}
  		if (currentRepNumber == runSttngs.totalPictures())

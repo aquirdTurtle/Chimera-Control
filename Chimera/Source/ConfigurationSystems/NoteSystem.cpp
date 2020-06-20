@@ -55,7 +55,7 @@ void NoteSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 	{
 		setConfigurationNotes("");
 	}
-	// for consistency with other open functions, the end delimiter will be read outside this function, so go back one 
+	// for consistency with other open functions, the end delimiter will be readbtn outside this function, so go back one 
 	// line
 	openFile.seekg ( pos );
 }

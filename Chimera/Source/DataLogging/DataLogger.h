@@ -49,7 +49,7 @@ class DataLogger
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
 		void logServoInfo ( std::vector<servoInfo> servos );
 		void initializeAiLogging ( UINT numSnapshots );
-
+		int getCalibrationFileIndex ();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void assertCalibrationFilesExist();
 		void closeFile();

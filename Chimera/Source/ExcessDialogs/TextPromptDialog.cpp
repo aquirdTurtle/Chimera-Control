@@ -37,7 +37,7 @@ HBRUSH TextPromptDialog::OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 BOOL TextPromptDialog::OnInitDialog()
 {
-	DWORD options = WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER;
+	DWORD options = WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER | ES_AUTOHSCROLL;
 	if (passwordOption)
 	{
 		options |= ES_PASSWORD;

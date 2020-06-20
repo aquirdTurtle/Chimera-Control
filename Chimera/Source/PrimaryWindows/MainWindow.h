@@ -142,7 +142,6 @@ class MainWindow : public CDialog
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ( );
 		Communicator& getCommRef ( );
-		UINT getAutoCalNumber ();
 
 	private:
 		DECLARE_MESSAGE_MAP();

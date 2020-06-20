@@ -52,7 +52,7 @@ COMMANDLIB_API int Close(int hdl);
 /// <p>SIGN(limit) == 1 : wait RX event until time out value expired;</p>
 /// <p>SIGN(limit) == -1: INFINITE wait event untill RX has data;</p>
 /// </param>
-/// <returns>non-negative number: size of actual read data in byte; negative number: failed.</returns>
+/// <returns>non-negative number: size of actual readbtn data in byte; negative number: failed.</returns>
 COMMANDLIB_API int Read(int hdl, unsigned char *b, int limit);
 
 /// <summary>
@@ -98,7 +98,7 @@ COMMANDLIB_API int Set(int hdl, unsigned char *c, int size);
 COMMANDLIB_API int Get(int hdl, unsigned char *c, char *d);
 
 /// <summary>
-/// set time out value for read or write process.
+/// set time out value for readbtn or writebtn process.
 /// </summary>
 /// <param name="hdl">handle of port.</param>
 /// <param name="time">time out value</param>

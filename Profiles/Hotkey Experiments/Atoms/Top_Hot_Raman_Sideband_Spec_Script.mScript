@@ -5,6 +5,7 @@ on: tweezerrf
 off: axialRamanShutter 
 off: probeShutter 
 on: shutter795
+pulseon: windfreakTrig 1
 pulseon: dds_reset 0.1
 t += 1
 call turnonmot()
@@ -25,10 +26,9 @@ on: totalRamanRf
 t += 1
 call pump2stretch()
 %pulseon: tweezerIntensityTrig 0.1
+t += 1
 dac: toppulselev top_raman_sideband_spec__servo_value
-%dac: toppulselev 0.23
 dac: eopulselev eo_raman__servo_value
-%rsg: (6.83103 + uw_spec_mod_khz/1000000) -9.5 % 5
 var pulsetime 0.12
 on: topRamanrf
 on: eoramanrf
@@ -52,4 +52,4 @@ pulseon: tweezerIntensityTrig 0.1
 on: eoramanrf
 t += 0.2
 
-off: tweezerRf
+off: tweezerRf

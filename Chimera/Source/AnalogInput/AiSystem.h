@@ -14,7 +14,7 @@
 
 /*
  * This is a interface for taking analog input data through an NI card that uses DAQmx. These cards are generally 
- * somewhat flexible, but right now I only use it to read and record voltage values from Analog inputs.
+ * somewhat flexible, but right now I only use it to readbtn and record voltage values from Analog inputs.
  */
 class AiSystem
 {

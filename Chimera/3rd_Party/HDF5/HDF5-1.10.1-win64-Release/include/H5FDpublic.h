@@ -163,20 +163,20 @@ typedef enum H5F_mem_t	H5FD_mem_t;
      * Defining H5FD_FEAT_ACCUMULATE_METADATA for a VFL driver means that
      * the library will attempt to cache metadata as it is written to the file
      * and build up a larger block of metadata to eventually pass to the VFL
-     * 'write' routine.
+     * 'writebtn' routine.
      *
      * Distinguish between updating the metadata accumulator on writes and
      * reads.  This is particularly (perhaps only, even) important for MPI-I/O
      * where we guarantee that writes are collective, but reads may not be.
      * If we were to allow the metadata accumulator to be written during a
-     * read operation, the application would hang.
+     * readbtn operation, the application would hang.
      */
 #define H5FD_FEAT_ACCUMULATE_METADATA_WRITE     0x00000002
 #define H5FD_FEAT_ACCUMULATE_METADATA_READ      0x00000004
 #define H5FD_FEAT_ACCUMULATE_METADATA   (H5FD_FEAT_ACCUMULATE_METADATA_WRITE|H5FD_FEAT_ACCUMULATE_METADATA_READ)
     /*
      * Defining H5FD_FEAT_DATA_SIEVE for a VFL driver means that
-     * the library will attempt to cache raw data as it is read from/written to
+     * the library will attempt to cache raw data as it is readbtn from/written to
      * a file in a "data seive" buffer.  See Rajeev Thakur's papers:
      *  http://www.mcs.anl.gov/~thakur/papers/romio-coll.ps.gz
      *  http://www.mcs.anl.gov/~thakur/papers/mpio-high-perf.ps.gz

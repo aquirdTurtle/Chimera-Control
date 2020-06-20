@@ -5,8 +5,9 @@ off: axialRamanShutter
 on: shutter795 
 off: probeShutter 
 pulseon: dds_reset 1.1
+pulseon: windfreakTrig 1
 t += 1
-call turnonmot()
+call turnonmot() 
 t += loadmottime
 pulseon: scoutTrig 0.1
 t += 2

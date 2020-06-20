@@ -231,17 +231,12 @@ LRESULT MainWindow::onFinish ( WPARAM wp, LPARAM lp )
 }
 
 
-UINT MainWindow::getAutoCalNumber () { return autoCalNum; }
-
-
 void MainWindow::onAutoCalFin ()
 {
-	try
-	{
+	try	{
 		TheScriptingWindow->restartNiawgDefaults ();
 	}
-	catch (Error & except)
-	{
+	catch (Error & except){
 		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.trace ());
 		comm.sendColorBox (System::Niawg, 'B');
@@ -250,14 +245,12 @@ void MainWindow::onAutoCalFin ()
 	TheScriptingWindow->setNiawgRunningState (false);
 	TheAndorWindow->cleanUpAfterExp ();
 	autoCalNum++;
-	if (autoCalNum >= AUTO_CAL_LIST.size ())
-	{
+	if (autoCalNum >= AUTO_CAL_LIST.size ()){
 		// then just finished the calibrations.
 		autoCalNum = 0;
 		infoBox ("Finished Automatic Calibrations.");
 	}
-	else
-	{
+	else{
 		commonFunctions::handleCommonMessage ( ID_ACCELERATOR_F11, this, this, TheScriptingWindow, TheAndorWindow,
 											   TheAuxiliaryWindow, TheBaslerWindow, TheDmWindow);
 	}
@@ -265,8 +258,7 @@ void MainWindow::onAutoCalFin ()
 
 void MainWindow::onGreyTempCalFin ( ) { infoBox ( "Finished MOT Calibrations." ); }
 
-void MainWindow::onMachineOptRoundFin (  )
-{
+void MainWindow::onMachineOptRoundFin (  ){
 	// do normal finish
 	onNormalFinishMessage ( );
 	Sleep ( 1000 );
@@ -372,8 +364,7 @@ LRESULT MainWindow::onNoMotAlertMessage( WPARAM wp, LPARAM lp )
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox ( System::Master, 'Y' );
 		}
-		auto async
-			= std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
+		//auto async = std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
 		time_t t = time ( 0 );
 		struct tm now;
 		localtime_s ( &now, &t );
@@ -413,7 +404,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 			checkAllMenus ( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox( System::Master, 'Y' );
 		}
-		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
+		//auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
 		time_t t = time( 0 );
 		struct tm now;
 		localtime_s( &now, &t );
@@ -1132,7 +1123,7 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	else if ( statusMessage != "" )
 	{
 		errorStatus.addStatusText( statusMessage );
-		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
+		//auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 1000 ); } );
 	}
 	return 0;
 }
@@ -1165,7 +1156,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	TheScriptingWindow->setNiawgRunningState( false );
-	auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
+	//auto asyncbeep = std::async ( std::launch::async, [] { Beep ( 800, 50 ); } );
 	errBox ( statusMessage );
 	return 0;
 }

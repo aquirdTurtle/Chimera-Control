@@ -408,7 +408,7 @@ std::array<UINT8, 4> DdsCore::intTo4Bytes ( int i_ )
 	return res;
 }
 
-// a low level write wrapper around the ftFlume write
+// a low level writebtn wrapper around the ftFlume writebtn
 void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, std::array<UINT8, 4> data )
 {
 	writeDDS ( DEVICE, ADDRESS, data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ] );

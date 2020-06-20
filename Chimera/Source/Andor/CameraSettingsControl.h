@@ -77,7 +77,7 @@ class AndorCameraSettingsControl
 		Control<CEdit> accumulationCycleTimeEdit;
 		Control<CStatic> accumulationNumberLabel;
 		Control<CEdit> accumulationNumberEdit;
-
+		// 
 		Control<CComboBox> cameraModeCombo;
 		Control<CStatic> emGainLabel;
 		Control<CEdit> emGainEdit;
@@ -90,7 +90,6 @@ class AndorCameraSettingsControl
 		Control<CEdit> temperatureEdit;
 		Control<CStatic> temperatureDisplay;
 		Control<CStatic> temperatureMsg;
-
 		// Kinetic Cycle Time
 		Control<CEdit> kineticCycleTimeEdit;
 		Control<CStatic> kineticCycleTimeLabel;

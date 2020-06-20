@@ -5,8 +5,15 @@
 DoCore::DoCore (bool ftSafemode, bool serialSafemode) : ftFlume (ftSafemode),	winSerial (serialSafemode, ""), 
 														names(4, 16)
 {
-	connectType = ftdiConnectionOption::Async;
-	ftdi_connectasync ("FT2E722BB");
+	try
+	{
+		connectType = ftdiConnectionOption::Async;
+		ftdi_connectasync ("FT2E722BB");
+	}
+	catch (Error & err)
+	{
+		throwNested ("Failed to initialize DO Core!?!");
+	}
 }
 
 DoCore::~DoCore () { ftdi_disconnect (); }

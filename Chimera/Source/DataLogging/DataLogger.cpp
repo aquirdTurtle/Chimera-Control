@@ -5,7 +5,7 @@
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
-
+#include <ExperimentThread/autoCalConfigInfo.h>
 
 DataLogger::DataLogger(std::string systemLocation)
 {
@@ -99,18 +99,36 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 }
 
 
-void DataLogger::assertCalibrationFilesExist ()
-{
-	for (std::string fName : { "MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
-							   "GREY_MOLASSES_TEMPERATURE.h5" } )
-	{
+int DataLogger::getCalibrationFileIndex () {
+	unsigned count = 0;
+	for (auto cal : AUTO_CAL_LIST) {
 		std::string finalSaveFolder;
 		getDataLocation (dataFilesBaseLocation, todayFolder, finalSaveFolder);
 		FILE* calFile;
-		auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + fName;
+		auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + cal.fileName + ".h5";
 		fopen_s (&calFile, calDataLoc.c_str (), "r");
-		if (!calFile)
-		{
+		if (!calFile) {
+			return count;
+		}
+		else {
+			// all good.
+			fclose (calFile);
+			count++;
+		}
+	}
+	return -1; // all exist...
+}
+
+
+void DataLogger::assertCalibrationFilesExist ()
+{
+	for (auto cal : AUTO_CAL_LIST) {
+		std::string finalSaveFolder;
+		getDataLocation (dataFilesBaseLocation, todayFolder, finalSaveFolder);
+		FILE* calFile;
+		auto calDataLoc = dataFilesBaseLocation + finalSaveFolder + cal.fileName;
+		fopen_s (&calFile, calDataLoc.c_str (), "r");
+		if (!calFile) {
 			thrower ("ERROR: The Data logger doesn't see the MOT calibration data for today in the data folder, "
 				"location:" + calDataLoc + ". Please make sure that the mot is running okay and then "
 				"run F11 before starting an experiment.");
@@ -153,8 +171,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 		fclose ( temperatureFile );
 	}
 	/// check that the mot calibration files have been recorded.
-	if ( checkForCalibrationFiles )
-	{
+	if ( checkForCalibrationFiles )	{
 		assertCalibrationFilesExist ();
 	}
 
@@ -472,7 +489,7 @@ void DataLogger::writeBaslerPic ( Matrix<long> image )
 	{
 		thrower ( "Tried to write to h5 file (for basler pic), but the file is closed!\r\n" );
 	}
-	// starting coordinates of write area in the h5 file of the array of picture data points.
+	// starting coordinates of writebtn area in the h5 file of the array of picture data points.
 	hsize_t offset[ ] = { currentBaslerPicNumber++, 0, 0 };
 	hsize_t slabdim[3] = { 1, image.getCols (), image.getRows () };// dims.width (), dims.height ()};
 	try 
@@ -568,7 +585,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 }
 
 /*
-This function is for logging things that are read from the configuration file and otherwise obtained inside the main experiment thread.
+This function is for logging things that are readbtn from the configuration file and otherwise obtained inside the main experiment thread.
 */
 void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<std::vector<parameterType>> allParams)
 {
@@ -658,7 +675,7 @@ void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims)
 		thrower ("Tried to write to h5 file (for andor pic), but the file is closed!\r\n");
 	}
 	// MUST initialize status
-	// starting coordinates of write area in the h5 file of the array of picture data points.
+	// starting coordinates of writebtn area in the h5 file of the array of picture data points.
 	hsize_t offset[] = { currentAndorPicNumber++, 0, 0 };
 	hsize_t slabdim[3] = { 1, dims.width(), dims.height() };
 	try
@@ -700,7 +717,7 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 	{
 		thrower ( "Tried to write to h5 file, but the file is closed!\r\n" );
 	}
-	// starting coordinates of write area in the h5 file of the array of picture data points.
+	// starting coordinates of writebtn area in the h5 file of the array of picture data points.
 	hsize_t offset[2] = { currentVoltNumber, 0 };
 	hsize_t slabdim[2] = { 1, data.size() };
 	try

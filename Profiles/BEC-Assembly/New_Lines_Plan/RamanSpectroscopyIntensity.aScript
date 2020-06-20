@@ -1,3 +1,6 @@
+var loadingDepth 20
+var imagingDepth 20
+
 hold loadingDepth 1 onceWaitTrig #   
 ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
 ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #

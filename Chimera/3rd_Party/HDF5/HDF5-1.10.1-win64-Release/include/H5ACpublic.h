@@ -360,7 +360,7 @@ extern "C" {
  * In PHDF5, all operations that modify metadata must be executed collectively.
  *
  * We used to think that this was enough to ensure consistency across the
- * metadata caches, but since we allow processes to read metadata individually,
+ * metadata caches, but since we allow processes to readbtn metadata individually,
  * the order of dirty entries in the LRU list can vary across processes,
  * which can result in inconsistencies between the caches.
  *
@@ -371,9 +371,9 @@ extern "C" {
  * and then running a "sync point" whenever this count exceeds a user 
  * specified threshold (see dirty_bytes_threshold below).
  *
- * The current metadata write strategy is indicated by the 
+ * The current metadata writebtn strategy is indicated by the 
  * metadata_write_strategy field.  The possible values of this field, along
- * with the associated metadata write strategies are discussed below.
+ * with the associated metadata writebtn strategies are discussed below.
  *
  * dirty_bytes_threshold:  Threshold of dirty byte creation used to
  * 	synchronize updates between caches. (See above for outline and
@@ -384,14 +384,14 @@ extern "C" {
  *	parallel.
  *
  * metadata_write_strategy: Integer field containing a code indicating the
- *	desired metadata write strategy.  The valid values of this field
+ *	desired metadata writebtn strategy.  The valid values of this field
  *	are enumerated and discussed below:
  *
  *
  *	H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY:
  *
  *	When metadata_write_strategy is set to this value, only process 
- *	zero is allowed to write dirty metadata to disk.  All other 
+ *	zero is allowed to writebtn dirty metadata to disk.  All other 
  *	processes must retain dirty metadata until they are informed at
  *	a sync point that the dirty metadata in question has been written
  *	to disk.
@@ -409,7 +409,7 @@ extern "C" {
  *
  *	H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED:
  *
- *	In the distributed metadata write strategy, process zero still makes
+ *	In the distributed metadata writebtn strategy, process zero still makes
  *	the decisions as to what entries should be flushed, but the actual 
  *	flushes are distributed across the processes in the computation to 
  *	the extent possible.
