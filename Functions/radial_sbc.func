@@ -1,5 +1,5 @@
 % Master-Script See the "?" for info on commands.
-def sbc():
+def radial_sbc():
   % expecting totalramanrf (b3) to be on a while ago in order
   % to let the servo settle
   off: probeRf
@@ -20,10 +20,8 @@ def sbc():
   var sbc_op_pulsetime 0.015
   var sbctoppulsetime 0.0125
   repeat: 40
-    call axialRamanPulse(0.05) 
-    call opPulse(sbc_op_pulsetime)
-    call topRamanPulse(sbctoppulsetime)
-    call opPulse(sbc_op_pulsetime) 
+    %call axialRamanPulse(0.05) 
+    %call opPulse(sbc_op_pulsetime)
     call topRamanPulse(sbctoppulsetime)
     call opPulse(sbc_op_pulsetime) 
   end
@@ -33,13 +31,11 @@ def sbc():
   dac: axPulseLev ax_raman_sbc2
   var sbc2_topTime 0.025
   repeat: 5
-    call axialRamanPulse(0.08)
-    call opPulse(sbc_op_pulsetime)
+    %call axialRamanPulse(0.08)
+    %call opPulse(sbc_op_pulsetime)
     call topRamanPulse(sbc2_topTime)
     call opPulse(sbc_op_pulsetime) 
-    call topRamanPulse(sbc2_topTime)
-    call opPulse(sbc_op_pulsetime) 
-  %end
+  end
   %var afterSbcOpPower 0.05
   %dac: sigmaoppower afterSbcOpPower
   var afterSbcOpTime 0.02

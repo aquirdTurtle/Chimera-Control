@@ -121,7 +121,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 			{
 				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
 					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
-				baslerCamSettings.repsPerVar = repetitions;
+				baslerCamSettings.repsPerVar = baslerCamSettings.acquisitionMode == BaslerAcquisition::mode::Continuous ? UINT_MAX : repetitions ;
 				baslerCamSettings.variations = variations;
 			}
 			runNiawg = ProfileSystem::stdGetFromConfig (configFile, "NIAWG_INFORMATION",

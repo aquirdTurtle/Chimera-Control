@@ -13,9 +13,11 @@ class WinSerialFlume
 		void open ( std::string fileAddr );
 		void close( );
 		void write ( std::string msg );
+		void resetConnection ();
 		std::string read (  );
 		std::string query ( std::string msg );
 	private:
 		const bool safemode;
 		HANDLE serialPortHandle;
+		std::string portAddress;
 };

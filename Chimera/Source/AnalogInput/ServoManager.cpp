@@ -88,10 +88,10 @@ void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
 void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
 							   AiSystem* ai_in, AoSystem* ao_in, DoSystem* ttls_in, ParameterSystem* globals_in )
 {
-	servosHeader.sPos = {pos.x, pos.y, pos.x += 280, pos.y + 20};
+	servosHeader.sPos = {pos.x, pos.y, pos.x += 260, pos.y + 25};
 	servosHeader.Create( "SERVOS & MONITORS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
 
- 	servoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 20 };
+ 	servoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 25 };
 	servoButton.Create( "Servo-Once", NORM_PUSH_OPTIONS, servoButton.sPos, parent, IDC_SERVO_CAL );
 	servoButton.setToolTip ( "Force the servo to calibrate.", toolTips, parent );
 	
@@ -102,23 +102,23 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 		unitsCombo.AddString (AiUnits::toStr (unitsOpt).c_str ());
 	}
 
-	expAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 20 };
+	expAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 25 };
 	expAutoServoButton.Create ("Exp. Auto-Servo?", NORM_CHECK_OPTIONS, expAutoServoButton.sPos, parent, id++);
 	expAutoServoButton.setToolTip ( "Automatically calibrate all servos before doing any experiment?", toolTips, parent);
 
-	calAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y += 20 };
+	calAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y += 25 };
 	calAutoServoButton.Create( "Cal. Auto-Servo?", NORM_CHECK_OPTIONS, calAutoServoButton.sPos, parent, id++ );
 	calAutoServoButton.setToolTip ( "Automatically calibrate all servos before doing standard calibration runs?", toolTips, parent );	
 
 	pos.x -= 960;
-	servoList.sPos = { pos.x, pos.y, pos.x + 960, pos.y += 340 };
+	servoList.sPos = { pos.x, pos.y, pos.x + 960, pos.y += 325 };
 	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
 	servoList.InsertColumn ( 0,  "Name", 150 );
 	servoList.InsertColumn ( 1,  "Active?", 50 );
-	servoList.InsertColumn ( 2,  "Set (V)" );
+	servoList.InsertColumn ( 2,  "Set (V/mW)", 80 );
 	servoList.InsertColumn ( 3,  "Ctrl (V)");
 	servoList.InsertColumn ( 4,  "dCtrl (%)", 60);
-	servoList.InsertColumn ( 5,  "Res (V)", 50);
+	servoList.InsertColumn ( 5,  "Res (V/mW)", 80);
 	servoList.InsertColumn ( 6,  "Ai", 35 );
 	servoList.InsertColumn ( 7,  "Ao" );
 	servoList.InsertColumn ( 8,  "DO-Config", 90 );
@@ -528,6 +528,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 void ServoManager::refreshListview ( )
 {
 	servoList.DeleteAllItems ( );
+	
 	UINT count = 0;
 	for ( auto& servo : servos )
 	{
@@ -543,7 +544,7 @@ void ServoManager::addServoToListview ( servoInfo& si, UINT which )
 	servoList.InsertItem (si.servoName, which, 0 );
 	servoList.SetItem (si.active ? "Yes" : "No", which, 1 );
 	servoList.SetItem ( str (ctp(si.setPoint) ), which, 2 );
-	servoList.SetItem (si.monitorOnly ? "--" : str (ctp(si.controlValue)), which, 3 );
+	servoList.SetItem (si.monitorOnly ? "--" : str (si.controlValue), which, 3 );
 	servoList.SetItem ( (si.changeInCtrl < 0 ? "" : "+") + str (si.changeInCtrl*100), which, 4);
 	servoList.SetItem ( str (ctp(si.mostRecentResult) ), which, 5);
 	servoList.SetItem ( str (si.aiInChan ), which, 6 );

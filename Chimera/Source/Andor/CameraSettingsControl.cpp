@@ -60,9 +60,11 @@ void AndorCameraSettingsControl::initialize( POINT& pos, int& id, CWnd* parent, 
 	setTemperatureButton.sPos = { pos.x, pos.y, pos.x + 270, pos.y + 25 };
 	setTemperatureButton.Create( "Set Camera Temperature (C)", NORM_PUSH_OPTIONS, setTemperatureButton.sPos,
 								 parent, IDC_SET_TEMPERATURE_BUTTON );
-	temperatureEdit.sPos = { pos.x + 270, pos.y, pos.x + 80, pos.y + 25 };
+	setTemperatureButton.EnableWindow (true);
+	temperatureEdit.sPos = { pos.x + 270, pos.y, pos.x + 350, pos.y + 25 };
 	temperatureEdit.Create( NORM_EDIT_OPTIONS, temperatureEdit.sPos, parent, id++ );
 	temperatureEdit.SetWindowTextA( "0" );
+	temperatureEdit.EnableWindow (true);
 	temperatureDisplay.sPos = { pos.x + 350, pos.y, pos.x + 430, pos.y + 25 };
 	temperatureDisplay.Create( "", NORM_STATIC_OPTIONS, temperatureDisplay.sPos, parent, id++ );
 	temperatureOffButton.sPos = { pos.x + 430, pos.y, pos.x + 480, pos.y += 25 };

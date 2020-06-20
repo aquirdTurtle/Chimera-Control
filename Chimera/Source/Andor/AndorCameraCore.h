@@ -17,7 +17,7 @@
 /// /////////////////////////////////////////////////////
 
 // This class is designed to facilitate interaction with the andor camera and
-// is based around the andor SDK. I did not write the Andor SDK, this was obtained from andor. I did write everything
+// is based around the andor SDK. I did not writebtn the Andor SDK, this was obtained from andor. I did writebtn everything
 // else in this class.
 
 // This is a "Core"-like class. there's no gui associated with this. 

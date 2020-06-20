@@ -280,7 +280,7 @@ void PlottingInfo::removeAnalysisSet()
 
 UINT PlottingInfo::getPicNumberFromFile(std::string fileAddress)
 {
-	// load the file completely then read the picture number.
+	// load the file completely then readbtn the picture number.
 	PlottingInfo temp(fileAddress);
 	return temp.getPicNumber();
 }

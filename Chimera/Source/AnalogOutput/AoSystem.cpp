@@ -36,7 +36,7 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 		daqmx.createAoVoltageChan(analogOutTask1, cstr(board1Name + "/ao0:7"), "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "");
 		// SLOT 5
 		daqmx.createAoVoltageChan(analogOutTask2, cstr(board2Name + "/ao0:7"), "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "");
-		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
+		// This creates a task to readbtn in a digital input from DAC 0 on port 0 line 0
 		daqmx.createTask("", digitalDac_0_00);
 		daqmx.createTask("", digitalDac_0_01);
 		/// unused at the moment.

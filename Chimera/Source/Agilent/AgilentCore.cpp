@@ -70,7 +70,7 @@ void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<p
 	ExperimentThreadManager::loadAgilentScript (infoObj.fileAddress, stream);
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers ();
-	// Procedurally read lines into segment objects.
+	// Procedurally readbtn lines into segment objects.
 	while (!stream.eof ())
 	{
 		int leaveTest;
@@ -89,7 +89,7 @@ void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<p
 		}
 		if (leaveTest == 1)
 		{
-			// read function is telling this function to stop reading the file because it's at its end.
+			// readbtn function is telling this function to stop reading the file because it's at its end.
 			break;
 		}
 		currentSegmentNumber++;
@@ -415,7 +415,7 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 		// Loop through all segments
 		for (auto segNumInc : range(totalSegmentNumber))
 		{
-			// Use that information to write the data.
+			// Use that information to writebtn the data.
 			try
 			{
 				scriptInfo.wave.writeData (segNumInc, sampleRate);
@@ -427,7 +427,7 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 			}
 		}
 		// order matters.
-		// loop through again and calc/normalize/write values.
+		// loop through again and calc/normalize/writebtn values.
 		scriptInfo.wave.convertPowersToVoltages (scriptInfo.useCal, calibrationCoefficients);
 		scriptInfo.wave.calcMinMax ();
 		scriptInfo.wave.minsAndMaxes.resize (variation + 1);

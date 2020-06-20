@@ -72,7 +72,7 @@ void EmbeddedPythonHandler::thresholdAnalysis (std::string dateString, int fid, 
 	// numpy and H5Py (seems related to precompiled libraries that numpy and H5Py use). So instead I'm brute-forcing 
 	// it at the momnet. This probably isn't the fastest way to accomplish this, hopefully it's fast enough for this 
 	// purpose. The analyis function reads a file to figure out what the settings of the current experiment 
-	// are instead of taking inputs. So the code needs to write the file and then let the python analysis use it
+	// are instead of taking inputs. So the code needs to writebtn the file and then let the python analysis use it
 	// to figure out how to analyze the recent data.
 
 	std::ofstream thresholdInfoFile ( DATA_ANALYSIS_CODE_LOCATION + "ThresholdAnalysisInfo.txt", std::ios::out | std::ios::trunc );

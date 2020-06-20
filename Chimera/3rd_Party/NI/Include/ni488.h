@@ -94,7 +94,7 @@ extern "C" {
 
 #define BIN  (1<<12) /* Eight bit compare                   */
 #define XEOS (1<<11) /* Send END with EOS byte              */
-#define REOS (1<<10) /* Terminate read on EOS               */
+#define REOS (1<<10) /* Terminate readbtn on EOS               */
 
 /* Timeout values and meanings                              */
 

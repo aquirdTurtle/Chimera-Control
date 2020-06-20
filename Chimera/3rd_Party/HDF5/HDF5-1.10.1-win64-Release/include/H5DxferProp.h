@@ -85,10 +85,10 @@ class H5_DLLCPP DSetMemXferPropList : public PropList {
         // Returns the current small data block size setting.
         hsize_t getSmallDataBlockSize() const;
 
-        // Sets number of I/O vectors to be read/written in hyperslab I/O.
+        // Sets number of I/O vectors to be readbtn/written in hyperslab I/O.
         void setHyperVectorSize(size_t vector_size) const;
 
-        // Returns the number of I/O vectors to be read/written in
+        // Returns the number of I/O vectors to be readbtn/written in
         // hyperslab I/O.
         size_t getHyperVectorSize() const;
 

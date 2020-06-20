@@ -90,3 +90,5 @@ BUGS:
 - figure out why figure update seems to cause main thread window thread to freak out
 - ttl display not accurate at end of exp, and in general not always accurate... e.g. on startup.  should query board 
   for status.
+
+

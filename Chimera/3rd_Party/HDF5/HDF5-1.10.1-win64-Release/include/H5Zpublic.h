@@ -60,8 +60,8 @@ typedef int H5Z_filter_t;
 
 /* Additional flags for filter invocation (not stored) */
 #define H5Z_FLAG_INVMASK	0xff00	/*invocation flag mask		*/
-#define H5Z_FLAG_REVERSE	0x0100	/*reverse direction; read	*/
-#define H5Z_FLAG_SKIP_EDC	0x0200	/*skip EDC filters for read	*/
+#define H5Z_FLAG_REVERSE	0x0100	/*reverse direction; readbtn	*/
+#define H5Z_FLAG_SKIP_EDC	0x0200	/*skip EDC filters for readbtn	*/
 
 /* Special parameters for szip compression */
 /* [These are aliases for the similar definitions in szlib.h, which we can't

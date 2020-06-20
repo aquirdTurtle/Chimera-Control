@@ -3,7 +3,8 @@
 
 
 MicrowaveCore::MicrowaveCore() :
-	uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE)
+	//uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE)
+	uwFlume (UW_SYSTEM_ADDRESS,UW_SYSTEM_SAFEMODE)
 //	rsgFlume (RSG_ADDRESS, MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::RohdeSchwarzGenerator),
 //	wfFlume(MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::WindFreak, WIND_FREAK_ADDR)
 {
@@ -16,14 +17,44 @@ void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings
 		// Nothing to program.
 		return;
 	}
-	setPmSettings ();
-	if (settings.list.size () == 1)
+	//setPmSettings ();
+	try
 	{
-		uwFlume.programSingleSetting (settings.list[0], variationNumber);
+		if (settings.list.size () == 1)	{
+			uwFlume.programSingleSetting (settings.list[0], variationNumber);
+		}
+		else{
+			uwFlume.programList (settings.list, variationNumber);
+		}
 	}
-	else
+	catch (Error&)
 	{
-		uwFlume.programList (settings.list, variationNumber);
+		//should probably emit a warning here. 
+		//errBox ("First attempt to program uw system failed! Will try again. Uw system says: " + uwFlume.read ());
+		try	{
+			// something in the windfreak seems to need flushing at this point.
+			try {
+				uwFlume.query ("?");
+			}
+			catch (Error & err) {}
+			try {
+				uwFlume.query ("?");
+			}
+			catch (Error & err) {}
+			try {
+				uwFlume.query ("?");
+			}
+			catch (Error & err) {}
+			if (settings.list.size () == 1) {
+				uwFlume.programSingleSetting (settings.list[0], variationNumber);
+			}
+			else {
+				uwFlume.programList (settings.list, variationNumber);
+			}
+		}
+		catch (Error & err){
+			throwNested ("Failed to program Windfreak!");
+		}
 	}
 }
 

@@ -747,7 +747,7 @@ void ProfileSystem::openSequence(std::string sequenceName)
 				 + currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
 	}
 	currentSequence.name = str(sequenceName);
-	// read the file
+	// readbtn the file
 	std::string version;
 	std::getline(sequenceFile, version);
 	currentSequence.sequence.clear();

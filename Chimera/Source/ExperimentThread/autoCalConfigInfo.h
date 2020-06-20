@@ -69,4 +69,16 @@ const std::vector<autoCalConfigInfo> AUTO_CAL_LIST
 		/*filename*/ "3DSBC_RADIAL_SIDEBAND_RAMAN_SPECTROSCOPY",
 		/*infostr*/ "Running 3DSBC Radial Raman Sideband Spectroscopy...\r\n"
 	},
+	{
+		/*prof*/ { "Depth_Measurement_Deep", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
+		/*runlist*/ { true, true, false },
+		/*filename*/ "DEPTH_MEASUREMENT_DEEP",
+		/*infostr*/ "Running Deep Depth Measurement...\r\n"
+	},
+	{
+		/*prof*/ { "Depth_Measurement_Shallow", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
+		/*runlist*/ { true, true, false },
+		/*filename*/ "DEPTH_MEASUREMENT_SHALLOW",
+		/*infostr*/ "Running Shallow Depth Measurement...\r\n"
+	}
 };

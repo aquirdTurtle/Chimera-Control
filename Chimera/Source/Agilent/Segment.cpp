@@ -174,7 +174,7 @@ void Segment::calcData( ULONG sampleRate )
 	int numDataPoints = (int)round( numDataPointsf );
 	// resize to zero. This is a complete reset of the data points in the class.
 	dataArray.resize( 0 );
-	// write the data points. These are all in powers. These are converted to voltages later.
+	// writebtn the data points. These are all in powers. These are converted to voltages later.
 	for ( int dataInc = 0; dataInc < numDataPoints; dataInc++ )
 	{
 		double point;

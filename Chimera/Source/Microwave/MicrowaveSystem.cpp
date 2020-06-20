@@ -33,6 +33,18 @@ void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWind
 	programNowPush.sPos = { pos.x+240, pos.y, pos.x + 480, pos.y += 20 };
 	programNowPush.Create ("Program Now", NORM_PUSH_OPTIONS, controlOptionCheck.sPos, master, IDC_UW_SYSTEM_PROGRAM_NOW);
 
+	readbtn.sPos = { pos.x, pos.y, pos.x + 80, pos.y + 20 };
+	readbtn.Create ("Read", NORM_PUSH_OPTIONS, readbtn.sPos, master, IDC_UW_SYSTEM_READ);
+	writebtn.sPos = { pos.x+80, pos.y, pos.x + 160, pos.y + 20 };
+	writebtn.Create ("Write", NORM_PUSH_OPTIONS, writebtn.sPos, master, IDC_UW_SYSTEM_WRITE);
+	queryBtn.sPos = { pos.x + 160, pos.y, pos.x + 240, pos.y + 20 }; 
+	queryBtn.Create ("Query", NORM_PUSH_OPTIONS, writebtn.sPos, master, IDC_UW_SYSTEM_QUERY);
+
+	writeTxt.sPos = { pos.x+240, pos.y, pos.x + 360, pos.y + 20 };
+	writeTxt.Create (NORM_EDIT_OPTIONS, writeTxt.sPos, master, id++);
+	readTxt.sPos = { pos.x+360, pos.y, pos.x + 480, pos.y += 20 };
+	readTxt.Create ("", NORM_STATIC_OPTIONS, readTxt.sPos, master, id++);
+
 	uwListListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
 	uwListListview.Create( NORM_LISTVIEW_OPTIONS, uwListListview.sPos, master, IDC_UW_SYSTEM_LISTVIEW );
 	uwListListview.fontType = fontTypes::SmallFont;
@@ -45,6 +57,21 @@ void MicrowaveSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWind
 	refreshListview ();
 	pos.y += 100;
 }
+
+void MicrowaveSystem::handleReadPress ()
+{
+	auto res = core.uwFlume.read ();
+	readTxt.SetWindowText (res.c_str ());
+	errBox (res);
+}
+
+void MicrowaveSystem::handleWritePress ()
+{
+	CString txt;
+	writeTxt.GetWindowTextA (txt);
+	core.uwFlume.write(str(txt));
+}
+
 
 void MicrowaveSystem::programNow(std::vector<std::vector<parameterType>> constants)
 {
@@ -202,6 +229,11 @@ void MicrowaveSystem::rearrange(UINT width, UINT height, fontMap fonts)
 	controlOptionCheck.rearrange (width, height, fonts);
 	programNowPush.rearrange (width, height, fonts);
 	uwListListview.rearrange( width, height, fonts);
+	readTxt.rearrange (width, height, fonts);
+	writeTxt.rearrange (width, height, fonts);
+	readbtn.rearrange (width, height, fonts);
+	writebtn.rearrange (width, height, fonts);
+	queryBtn.rearrange (width, height, fonts);
 }
 
 
@@ -209,8 +241,7 @@ void MicrowaveSystem::refreshListview ()
 {
 	UINT count = 0;
 	uwListListview.DeleteAllItems ();
-	for (auto listElem : currentList)
-	{
+	for (auto listElem : currentList){
 		uwListListview.InsertItem (str (count + 1), count, 0);
 		uwListListview.SetItem (listElem.frequency.expressionStr, count, 1);
 		uwListListview.SetItem (listElem.power.expressionStr, count, 2);

@@ -30,8 +30,9 @@ def inTrapGreyMolasses():
   dac: power795 0.1
 
   pulseon: rsTrig 0.1
+  pulseon: windfreakTrig 1 
   pulseon: a15 0.1 
-  t += 0.1
+  t += 1.1
 
 
 

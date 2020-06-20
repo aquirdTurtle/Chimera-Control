@@ -14,6 +14,7 @@
 #include "Andor/cameraPositions.h"
 #include "GeneralObjects/commonTypes.h"
 #include "GeneralObjects/Queues.h"
+#include "Piezo/PiezoController.h"
 #include <bitset>
 
 
@@ -88,7 +89,7 @@ class AndorWindow : public CDialog
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
 		void armCameraWindow(AndorRunSettings* settings);
-		
+		void handlePiezoProg ();
 		std::string getStartMessage();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();
@@ -130,7 +131,7 @@ class AndorWindow : public CDialog
 		std::mutex& getActivePlotMutexRef ( );
 		void cleanUpAfterExp ( );
 		void handlePlotPop (UINT id);
-
+		int getDataCalNum ();
 	private:
 		bool justCalibrated = false;
 		DECLARE_MESSAGE_MAP();
@@ -142,7 +143,8 @@ class AndorWindow : public CDialog
 		ColorBox box;
 		PictureStats stats;
 		AlertSystem alerts;
-		ExperimentTimer timer;		
+		ExperimentTimer timer; 
+		PiezoController cameraPiezo;
 		
 		DataAnalysisControl analysisHandler;
 		DataLogger dataHandler;

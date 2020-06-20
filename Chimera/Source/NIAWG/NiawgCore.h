@@ -217,7 +217,7 @@ class NiawgCore
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 
 		// http://cs.stanford.edu/group/acm/SLPC/notebook.pdf
-		// You have to give it the cost matrix, and to empty vectors, in which it will write
+		// You have to give it the cost matrix, and to empty vectors, in which it will writebtn
 		static double minCostMatching( Matrix<double> cost, std::vector<int> & Lmate, std::vector<int> & Rmate );
 		// returns a list of single elementary (left,right,up,down) moves. Size is 4 x n_moves: Initialx,Initialy,Finalx,Finaly
 		static double rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,

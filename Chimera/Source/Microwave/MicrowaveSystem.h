@@ -31,14 +31,24 @@ class MicrowaveSystem
 		static microwaveSettings getMicrowaveSettingsFromConfig (std::ifstream& openFile, Version ver);
 		void setMicrowaveSettings (microwaveSettings settings);
 		void programNow (std::vector<std::vector<parameterType>> constants);
+		void handleReadPress ();
+		void handleWritePress ();
 	private:
 		MicrowaveCore core;
 		Control<CStatic> header;
-		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.
+		// this is a readbtn-only control that shows the user how the RSG actually gets programmed in the end.
 		Control<MyListCtrl> uwListListview;
 		Control<CleanCheck> controlOptionCheck;
 		Control<CleanPush> programNowPush;
+
+		Control<CleanPush> readbtn;
+		Control<CleanPush> writebtn;
+		Control<CleanPush> queryBtn;
+		Control<CEdit> writeTxt;
+		Control<CStatic> readTxt;
+
 		std::vector<microwaveListEntry> currentList;
+
 		void refreshListview ();
 };
 

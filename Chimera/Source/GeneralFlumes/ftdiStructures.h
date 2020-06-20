@@ -37,7 +37,7 @@ struct finBufInfo
 	FORMATTING NOTES:
 	this is the final buffer that is sent to the fpga. Each snapshot of the sequence of dio configurations is organized
 	3 groups of 7 characters. Each group starts with a character value of 161. The second and third character of each
-	group are the address to write the next four characters to. Then the last four characters are the data to write.
+	group are the address to writebtn the next four characters to. Then the last four characters are the data to writebtn.
 	The first group is the time of the snapshot.
 	The second group is the first 4 bytes of the dio configuration.
 	The third group is the second 4 bytes of the dio configuration.

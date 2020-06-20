@@ -258,8 +258,8 @@ enum {
 #define FT_232R_CBUS_CLK12					0x08	//	12MHz clock
 #define FT_232R_CBUS_CLK6					0x09	//	6MHz clock
 #define FT_232R_CBUS_IOMODE					0x0A	//	IO Mode for CBUS bit-bang
-#define FT_232R_CBUS_BITBANG_WR				0x0B	//	Bit-bang write strobe
-#define FT_232R_CBUS_BITBANG_RD				0x0C	//	Bit-bang read strobe
+#define FT_232R_CBUS_BITBANG_WR				0x0B	//	Bit-bang writebtn strobe
+#define FT_232R_CBUS_BITBANG_RD				0x0C	//	Bit-bang readbtn strobe
 
 //
 // FT232H CBUS Options EEPROM values
@@ -301,8 +301,8 @@ enum {
 #define FT_X_SERIES_CBUS_I2C_TXE			0x0F	//	I2C Tx empty
 #define FT_X_SERIES_CBUS_I2C_RXF			0x10	//	I2C Rx full
 #define FT_X_SERIES_CBUS_VBUS_SENSE			0x11	//	Detect VBUS
-#define FT_X_SERIES_CBUS_BITBANG_WR			0x12	//	Bit-bang write strobe
-#define FT_X_SERIES_CBUS_BITBANG_RD			0x13	//	Bit-bang read strobe
+#define FT_X_SERIES_CBUS_BITBANG_WR			0x12	//	Bit-bang writebtn strobe
+#define FT_X_SERIES_CBUS_BITBANG_RD			0x13	//	Bit-bang readbtn strobe
 #define FT_X_SERIES_CBUS_TIMESTAMP			0x14	//	Toggle output when a USB SOF token is received
 #define FT_X_SERIES_CBUS_KEEP_AWAKE			0x15	//	
 
@@ -1191,7 +1191,7 @@ extern "C" {
 	} FTDCB, *LPFTDCB;
 
 	typedef struct _FTTIMEOUTS {
-		DWORD ReadIntervalTimeout;			/* Maximum time between read chars.	*/
+		DWORD ReadIntervalTimeout;			/* Maximum time between readbtn chars.	*/
 		DWORD ReadTotalTimeoutMultiplier;	/* Multiplier of characters.		*/
 		DWORD ReadTotalTimeoutConstant;		/* Constant in milliseconds.		*/
 		DWORD WriteTotalTimeoutMultiplier;	/* Multiplier of characters.		*/

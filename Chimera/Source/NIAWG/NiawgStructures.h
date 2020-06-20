@@ -98,7 +98,7 @@ struct waveSignal
 	std::string powerRampType;
 
 	double initPhase;
-	// Asssigned only after a waveform is calculated or read.
+	// Asssigned only after a waveform is calculated or readbtn.
 	double finPhase;
 };;
 

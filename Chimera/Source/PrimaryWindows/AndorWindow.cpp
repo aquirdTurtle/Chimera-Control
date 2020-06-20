@@ -22,7 +22,8 @@ AndorWindow::AndorWindow ( ) : CDialog ( ),
 							andorSettingsCtrl ( ),
 							dataHandler ( DATA_SAVE_LOCATION ),
 							andor ( ANDOR_SAFEMODE ),
-							pics ( false, "ANDOR_PICTURE_MANAGER", false )
+							pics ( false, "ANDOR_PICTURE_MANAGER", false ),
+	cameraPiezo(CAMERA_PIEZO_INFO)
 {};
 
 
@@ -59,6 +60,7 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 	ON_COMMAND( IDC_SET_GRID_CORNER, &AndorWindow::passSetGridCorner)
 	ON_COMMAND( IDC_DEL_GRID_BUTTON, &AndorWindow::passDelGrid)
 	ON_COMMAND( IDC_CAMERA_CALIBRATION_BUTTON, &AndorWindow::calibrate)
+	ON_COMMAND(IDC_ANDOR_PIEZO_PROG, &handlePiezoProg)
 	ON_COMMAND_RANGE(ID_PLOT_POP_IDS_BEGIN, ID_PLOT_POP_IDS_END, &AndorWindow::handlePlotPop)
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &AndorWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &AndorWindow::passCameraMode )
@@ -79,6 +81,17 @@ BEGIN_MESSAGE_MAP ( AndorWindow, CDialog )
 
 END_MESSAGE_MAP()
 
+void AndorWindow::handlePiezoProg ()
+{
+	try
+	{
+		cameraPiezo.handleProgramNowPress ();
+	}
+	catch (Error & err)
+	{
+		mainWin->getComm ()->sendError (err.trace ());
+	}
+}
 
 LRESULT AndorWindow::handlePrepareForAcq (WPARAM wparam, LPARAM lparam)
 {
@@ -654,12 +667,12 @@ LRESULT AndorWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWin->getComm()->sendError( err.trace() );
 	}
 
-	// write the data to the file.
+	// writebtn the data to the file.
 	if (curSettings.acquisitionMode != AndorRunModes::mode::Video)
 	{
 		try
 		{
-			// important! write the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
+			// important! writebtn the original data, not the pic-to-draw, which can be a difference pic, or the calibrated
 			// pictures, which can have the background subtracted.
 			dataHandler.writeAndorPic( rawPicData[(picNum - 1) % curSettings.picsPerRepetition], 
 									   curSettings.imageSettings );
@@ -980,39 +993,38 @@ void AndorWindow::OnTimer(UINT_PTR id)
 		andorSettingsCtrl.changeTemperatureDisplay (temp);
 		OnPaint ();
 	}
-	else if (id == 1) // auto run calibrations.
-	{
-		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ())
-		{
+	else if (id == 1){ // auto run calibrations.
+		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ()) {
 			// check that it's past 5AM, don't want to interrupt late night progress. 
 			std::time_t time = std::time (0);
 			std::tm now; 
 			::localtime_s (&now, &time);
 			if (now.tm_hour > 5)
 			{
-				try
-				{
+				try	{
 					dataHandler.assertCalibrationFilesExist ();
 				}
-				catch ( Error& )
-				{
+				catch ( Error& ){
 					// files don't exist, run calibration. 
-					try
-					{
+					try {
 						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this, mainWin, scriptWin, this, auxWin,
 															  basWin, dmWin);
 					}
-					catch (Error& err)
-					{
+					catch (Error& err) {
 						mainWin->getComm ()->sendError ("Failed to automatically start calibrations!" + err.trace ());
 					}
 				}
 			}
 		}
 	}
+	else if (id == 1000){
+		cameraPiezo.updateCurrentValues ();
+	}
 }
 
-
+int AndorWindow::getDataCalNum () {
+	return dataHandler.getCalibrationFileIndex ();
+}
 /*
  *
  */
@@ -1147,12 +1159,13 @@ void AndorWindow::OnSize( UINT nType, int cx, int cy )
 		alerts.rearrange ( cx, cy, mainWin->getFonts ( ) );
 		analysisHandler.rearrange ( cx, cy, mainWin->getFonts ( ) );
 		pics.setParameters ( settings.imageSettings );
-		timer.rearrange ( cx, cy, mainWin->getFonts ( ) );
 	}
 	catch ( Error& err )
 	{
 		mainWin->getComm ( )->sendError ( "Error while getting Andor Camera settings for OnSize!" + err.trace() );
 	}
+	timer.rearrange (cx, cy, mainWin->getFonts ());
+	cameraPiezo.rearrange (cx, cy, mainWin->getFonts ());
 	try
 	{
 		SmartDC sdc (this);
@@ -1726,6 +1739,8 @@ BOOL AndorWindow::OnInitDialog ( )
 	alerts.initialize (position, this, false, id, tooltips );
 	analysisHandler.initialize (position, id, this, tooltips );
 	andorSettingsCtrl.initialize (position, id, this, tooltips );
+	cameraPiezo.initialize ( position, tooltips, this, id, 480, IDC_ANDOR_PIEZO_PROG, {"X", "N/A", "Y"}, 
+							 IDC_ANDOR_PIEZO_CTRL );
 	position = { 480, 0 };
 	stats.initialize ( position, this, id, tooltips );
 	for (auto pltInc : range (6))
@@ -1751,6 +1766,8 @@ BOOL AndorWindow::OnInitDialog ( )
 	SetTimer( NULL, 5000, NULL );
 	// Calibration Check timer (every 15 minutes)
 	SetTimer (1, 15 * 60 * 1000, NULL);
+	// piezo val update timer
+	SetTimer (1000, 5000, NULL);
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );

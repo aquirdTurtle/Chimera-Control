@@ -5,7 +5,7 @@
 #include "Microwave/microwaveSettings.h"
 
 // this is a small wrapper around a serial flume to introduce microwave-specific commands.
-class WindFreakFlume : private WinSerialFlume
+class WindFreakFlume : public WinSerialFlume
 {
 	public:
 		WindFreakFlume (std::string portAddress, bool safemode);

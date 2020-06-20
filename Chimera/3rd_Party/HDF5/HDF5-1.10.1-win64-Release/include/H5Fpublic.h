@@ -48,7 +48,7 @@
  * session.
  */
 #define H5F_ACC_RDONLY	(H5CHECK H5OPEN 0x0000u)	/*absence of rdwr => rd-only */
-#define H5F_ACC_RDWR	(H5CHECK H5OPEN 0x0001u)	/*open for read and write    */
+#define H5F_ACC_RDWR	(H5CHECK H5OPEN 0x0001u)	/*open for readbtn and writebtn    */
 #define H5F_ACC_TRUNC	(H5CHECK H5OPEN 0x0002u)	/*overwrite existing files   */
 #define H5F_ACC_EXCL	(H5CHECK H5OPEN 0x0004u)	/*fail if file already exists*/
 /* NOTE: 0x0008u was H5F_ACC_DEBUG, now deprecated */
@@ -201,7 +201,7 @@ typedef enum H5F_file_space_type_t {
     H5F_FILE_SPACE_NTYPES	    /* must be last */
 } H5F_file_space_type_t;
 
-/* Data structure to report the collection of read retries for metadata items with checksum */
+/* Data structure to report the collection of readbtn retries for metadata items with checksum */
 /* Used by public routine H5Fget_metadata_read_retry_info() */
 #define H5F_NUM_METADATA_READ_RETRY_TYPES	21
 typedef struct H5F_retry_info_t {

@@ -50,16 +50,13 @@ void loadBools( Matrix<type>& matrix, std::vector<bool> init )
 	{
 		matrix.data[count++] = val;
 	}
-	//matrix.updateString( );
 }
 
 
 template <class type>
 void Matrix<type>::updateString( )
 {
-#ifdef _DEBUG
 	currMatrix = print( );
-#endif
 	return;
 }
 
@@ -80,7 +77,6 @@ Matrix<type> Matrix<type>::submatrix( UINT rowOffset, UINT rowSubSpan, UINT colO
 	}
 	subM.rows = rowSubSpan;
 	subM.cols = colSubSpan;
-	//updateString( );
 	return subM;
 }
 
@@ -98,16 +94,6 @@ std::string Matrix<type>::print( )
 		}
 		printStr += ";\n";
 	}
-	/*
-	for ( auto elem : *this )
-	{
-		printStr += str( elem ) + ", ";
-		if ( ++counter % cols == 0 )
-		{
-			printStr += ";\n"; 
-		}
-	}
-	*/
 	return printStr;
 }
 
@@ -146,7 +132,6 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D
 template <class type>
 UINT Matrix<type>::getCols( ) const
 {
-	//updateString( );
 	return cols;
 }
 
@@ -154,7 +139,6 @@ UINT Matrix<type>::getCols( ) const
 template <class type>
 UINT Matrix<type>::getRows( ) const
 {
-	//updateString( );
 	return rows;
 }
 
@@ -196,7 +180,6 @@ type & Matrix<type>::operator()( POINT p )
 	}
 	UINT rowOffset ( p.y * cols );
 	UINT index = rowOffset + p.x;
-	//updateString ( );
 	return data[ index ];
 }
 
@@ -229,6 +212,5 @@ type & Matrix<type>::operator()( UINT row, UINT col )
 	}
 	UINT rowOffset ( row * cols );
 	UINT index = rowOffset + col;
-	//updateString ( );
 	return data[ index ];
 }

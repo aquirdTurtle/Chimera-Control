@@ -441,6 +441,7 @@ void PictureControl::redrawImage(CDC* easel, bool bkgd)
 	}
 	if ( active && mostRecentImage_m.size ( ) != 0 )
 	{
+		mostRecentImage_m.updateString ();
 		drawBitmap( easel, mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 			mostRecentSpecialMaxSetting);
 	}
@@ -467,8 +468,8 @@ void PictureControl::drawBitmap ( CDC* dc, const Matrix<long>& picData, std::tup
 								  bool specialMin, bool specialMax )
 {
 	mostRecentImage_m = picData;
-	unsigned int minColor = sliderMin.getValue ( );
-	unsigned int maxColor = sliderMax.getValue ( );
+	long minColor = sliderMin.getValue ( );
+	long maxColor = sliderMax.getValue ( );
 	mostRecentAutoscaleInfo = autoScaleInfo;
 	dc->SelectPalette ( CPalette::FromHandle ( imagePalette ), true );
 	dc->RealizePalette ( );

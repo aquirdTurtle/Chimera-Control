@@ -63,6 +63,10 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND ( IDC_PIEZO2_CTRL, &handlePiezo2Ctrl )
 	ON_COMMAND( IDC_UW_SYSTEM_PROGRAM_NOW, &handleProgramUwSystemNow)
 
+	ON_COMMAND (IDC_UW_SYSTEM_READ, &handleUwRead)
+	ON_COMMAND (IDC_UW_SYSTEM_WRITE, &handleUwWrite)
+	ON_COMMAND (IDC_UW_SYSTEM_QUERY, &handleUwQuery)
+
 	ON_MESSAGE ( CustomMessages::LogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
@@ -106,6 +110,29 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_WM_PAINT( )
 END_MESSAGE_MAP()
 
+void AuxiliaryWindow::handleUwWrite (){
+	try	{
+		RohdeSchwarzGenerator.handleWritePress ();
+	}
+	catch (Error & err) {
+		sendErr (err.trace());
+	}
+}
+
+void AuxiliaryWindow::handleUwRead (){
+	try {
+		RohdeSchwarzGenerator.handleReadPress ();
+	}
+	catch (Error & err) {
+		sendErr (err.trace ());
+	}
+}
+
+void AuxiliaryWindow::handleUwQuery ()
+{
+	handleUwWrite ();
+	handleUwRead ();
+}
 
 std::vector<std::vector<parameterType>> AuxiliaryWindow::getUsableConstants ()
 {

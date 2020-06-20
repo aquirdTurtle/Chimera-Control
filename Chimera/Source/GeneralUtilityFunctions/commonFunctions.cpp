@@ -463,7 +463,10 @@ namespace commonFunctions
 					auxWin->fillMasterThreadInput (input.masterInput);
 					andorWin->fillMasterThreadInput (input.masterInput);
 					scriptWin->fillMasterThreadInput (input.masterInput);
-					auto calNum = mainWin->getAutoCalNumber ();
+					auto calNum = andorWin->getDataCalNum();
+					if (calNum == -1) {
+						return;
+					}
 					if (calNum == 0)
 					{
 						mainWin->autoServo (0, 0);

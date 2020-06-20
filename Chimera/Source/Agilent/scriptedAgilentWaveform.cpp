@@ -21,7 +21,7 @@ void ScriptedAgilentWaveform::resetNumberOfTriggers( )
 
 /** This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 * segNum: This tells the function what the next segment # is.
-* script: this is the object to be read from.
+* script: this is the object to be readbtn from.
 */
 bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script, 
 														   std::vector<parameterType>& params,
@@ -148,7 +148,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 
 /*
  * This function takes the data points (that have already been converted and normalized) and puts them into a string
- * for the agilent to read. segNum: this is the segment number that this data is for
+ * for the agilent to readbtn. segNum: this is the segment number that this data is for
  * varNum: This is the variation number for this segment (matters for naming the segments)
  * totalSegNum: This is the number of segments in the waveform (also matters for naming)
  */

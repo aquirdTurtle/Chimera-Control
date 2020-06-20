@@ -31,7 +31,7 @@
 #define H5FD_LOG_LOC_WRITE  0x00000004
 #define H5FD_LOG_LOC_SEEK   0x00000008
 #define H5FD_LOG_LOC_IO     (H5FD_LOG_LOC_READ|H5FD_LOG_LOC_WRITE|H5FD_LOG_LOC_SEEK)
-/* Flags for tracking number of times each byte is read/written */
+/* Flags for tracking number of times each byte is readbtn/written */
 #define H5FD_LOG_FILE_READ  0x00000010
 #define H5FD_LOG_FILE_WRITE 0x00000020
 #define H5FD_LOG_FILE_IO    (H5FD_LOG_FILE_READ|H5FD_LOG_FILE_WRITE)
@@ -43,7 +43,7 @@
 #define H5FD_LOG_NUM_SEEK   0x00000200
 #define H5FD_LOG_NUM_TRUNCATE 0x00000400
 #define H5FD_LOG_NUM_IO     (H5FD_LOG_NUM_READ|H5FD_LOG_NUM_WRITE|H5FD_LOG_NUM_SEEK|H5FD_LOG_NUM_TRUNCATE)
-/* Flags for tracking time spent in open/stat/read/write/seek/truncate/close */
+/* Flags for tracking time spent in open/stat/readbtn/writebtn/seek/truncate/close */
 #define H5FD_LOG_TIME_OPEN  0x00000800
 #define H5FD_LOG_TIME_STAT  0x00001000
 #define H5FD_LOG_TIME_READ  0x00002000

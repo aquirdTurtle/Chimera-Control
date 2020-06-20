@@ -7,15 +7,14 @@ def pushout_all():
   dac: RepumpPower 0.1
   daclinspace: motFreq defaultMotFreq pushoutfreq 5 10
   t += 5.01  
-  var pushouttime 0.003 
+  var pushouttime 0.3
   t += (-8)
   on: probeshutter
   t += 8
-  dac: probePower depthMeasurementProbe__servo_value
+  dac: probePower 0 %depthMeasurementProbe__servo_value
   on: probeRf
   t += pushouttime 
   off: probeRf
-  t += 5
   off: probeShutter
   daclinspace: motFreq pushoutfreq -1 5 10
   t += 5.001

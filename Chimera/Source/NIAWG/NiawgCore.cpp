@@ -432,7 +432,7 @@ void NiawgCore::programVariations( UINT variation, std::vector<long>& variedMixe
 			{
 				fgenConduit.deleteWaveform( cstr( variedWaveformName ) );
 			}
-			// And write the new one.
+			// And writebtn the new one.
 			fgenConduit.allocateNamedWaveform( cstr( variedWaveformName ), variedMixedSize[mixedWriteCount] / 2 );
 			fgenConduit.writeNamedWaveform( cstr( variedWaveformName ), variedMixedSize[mixedWriteCount],
 											output.waves[waveInc].core.waveVals.data( ) );
@@ -505,7 +505,7 @@ void NiawgCore::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::
 		}
 		if ( waveForm.flash.isFlashing )
 		{
-			// write static flashing
+			// writebtn static flashing
 			flashVaries( waveForm );
 			if ( !waveForm.core.varies )
 			{
@@ -517,7 +517,7 @@ void NiawgCore::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::
 		{
 			simpleFormVaries( waveForm.rearrange.staticWave );
 			simpleFormVaries( waveForm.rearrange.fillerWave );
-			// write static rearrangement
+			// writebtn static rearrangement
 			if ( !wave.rearrange.staticWave.varies && !waveForm.rearrange.fillerWave.varies )
 			{
 				rerngScriptInfoFormToOutput( waveForm, wave, constants, 0 );
@@ -642,7 +642,7 @@ void NiawgCore::writeStandardWave(simpleWave& wave, debugInfo& options, bool isD
 	finalizeStandardWave( wave, options, opts );
 	// allocate waveform into the device memory
 	fgenConduit.allocateNamedWaveform( cstr( wave.name ), wave.waveVals.size( ) / 2 );
-	// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
+	// writebtn named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
 	fgenConduit.writeNamedWaveform( cstr( wave.name ), wave.waveVals.size( ), wave.waveVals.data( ) );
 	// avoid memory leaks, but only if not default...
 	if ( isDefault )
@@ -1055,13 +1055,13 @@ void NiawgCore::openWaveformFiles()
 		}
 		else
 		{
-			// read all of the waveforms into waveLibrary
+			// readbtn all of the waveforms into waveLibrary
 			int waveInfoInc = 0;
 			// if not empty, the first line will just have a newline on it, so there is no harm in getting rid of it.
 			std::getline( libNameFile, tempStr, '\n' );
 			while (!libNameFile.eof())
 			{
-				// read waveform names...
+				// readbtn waveform names...
 				std::getline( libNameFile, tempStr, '\n' );
 				// put them into the array...
 				waveLibrary[folderInc].push_back( tempStr );
@@ -1080,7 +1080,7 @@ void NiawgCore::openWaveformFiles()
  * the waveform has previously been generated, and if it has, it reads the waveform data from a binary file. If it
  * hasn't been created before, it writes a file containing all of the waveform data. Appended to the end of the
  * waveform data files is the final phase of each of the signals involved in the file. This must be stripped off of the
- * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
+ * voltage data that populates the rest of the file as it's being readbtn, and must be appended to the voltage data before
  * it is written to a new file.
  */
 void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime,
@@ -1157,7 +1157,7 @@ void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptio
 					double ellapsedTime ( std::chrono::duration<double> ( ( time2 - time1 ) ).count ( ) );
 					debugOptions.message += "Finished Reading Waveform. Ellapsed Time: " + str ( ellapsedTime ) + " seconds.\r\n";
 				}
-				// if the file got read, I don't need to do any writing, so go ahead and return.
+				// if the file got readbtn, I don't need to do any writing, so go ahead and return.
 				return;
 			}
 		}
@@ -1166,8 +1166,8 @@ void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptio
 			thrower ( "Generating waveform using the \"forced\" mode on the library, but couldn't find library file!" );
 		}
 
-		// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
-		// and write it. 
+		// if the code reaches this point, it could not find a file to readbtn, and so will now create the data from scratch 
+		// and writebtn it. 
 		waveformFileName = ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] + str ( chanWave.initType ) + "_"
 								+ str ( waveLibrary[ chanWave.initType - 1 ].size ( ) ) + ".txt" );
 		// open file for writing.
@@ -1189,7 +1189,7 @@ void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptio
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
 		calcWaveData( chanWave, readData, sampleNum, waveTime, calcOpts.powerOpt );
-		// Write the data, with phases, to the write file.
+		// Write the data, with phases, to the writebtn file.
 		if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 		{
 			waveformFileWrite.write ( (const char *) readData.data ( ), ( sampleNum + chanWave.signals.size ( ) ) * sizeof ( ViReal64 ) );
@@ -1200,11 +1200,11 @@ void NiawgCore::generateWaveform ( channelWave & chanWave, debugInfo& debugOptio
 		readData.clear( );
 		// make sure the large amount of memory is deallocated.
 		readData.shrink_to_fit( );
-		// write the newly written waveform's name to the library file.
+		// writebtn the newly written waveform's name to the library file.
 		std::fstream libNameFile;
 		if ( calcOpts.libOpt != niawgLibOption::mode::banned )
 		{
-			// write the name of the wave into the list of names for indexing.
+			// writebtn the name of the wave into the list of names for indexing.
 			libNameFile.open ( LIB_PATH + WAVEFORM_TYPE_FOLDERS[ chanWave.initType-1 ] 
 							   + WAVEFORM_NAME_FILES[ chanWave.initType-1 ],
 							   std::ios::binary | std::ios::out | std::ios::app );
@@ -1359,7 +1359,7 @@ void NiawgCore::calcWaveData( channelWave& inputData, std::vector<ViReal64>& rea
 	std::fstream powerRampFile, freqRampFile;
 	std::string tempStr;
 
-	/// deal with ramp calibration files. check all signals for files and read if yes.
+	/// deal with ramp calibration files. check all signals for files and readbtn if yes.
 	for ( auto signal : range( inputData.signals.size( ) ) )
 	{
 		if ( inputData.signals[signal].initPhase < 0 )
@@ -2248,7 +2248,7 @@ void NiawgCore::writeFlashing( waveInfo& wave, debugInfo& options, UINT variatio
 		fgenConduit.deleteWaveform( cstr( wave.core.name ) );
 	}
 	fgenConduit.allocateNamedWaveform( cstr( wave.core.name ), long( wave.core.waveVals.size( ) / 2 ) );
-	// write named waveform on the device. Now the device knows what "waveform0" refers to when it sees it in 
+	// writebtn named waveform on the device. Now the device knows what "waveform0" refers to when it sees it in 
 	// the script. 
 	fgenConduit.writeNamedWaveform( cstr( wave.core.name ), long( wave.core.waveVals.size( ) ),
 									wave.core.waveVals.data( ) );

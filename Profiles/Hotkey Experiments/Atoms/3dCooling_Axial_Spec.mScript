@@ -6,6 +6,7 @@ off: axialRamanShutter
 off: probeShutter 
 on: shutter795
 pulseon: dds_reset 0.1
+pulseon: windfreakTrig 1 
 t += 1
 call turnonmot()
 t += loadMotTime
@@ -29,6 +30,7 @@ call send_uw_to_raman_eom()
 t += 1
 call pump2stretch() 
 call sbc()
+t += 2
 %dac: motFreq 0.5
 %t += rsgwaittime
 %rsg: (6.83103 + uw_spec_mod_khz/1000000) -9.5
