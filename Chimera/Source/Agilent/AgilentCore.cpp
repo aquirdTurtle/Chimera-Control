@@ -4,6 +4,7 @@
 #include "Scripts/ScriptStream.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
 #include <ExperimentThread/ExpThreadWorker.h>
+#include <ConfigurationSystems/ProfileSystem.h>
 
 AgilentCore::AgilentCore (const agilentSettings& settings) : 
 	visaFlume (settings.safemode, settings.address),

@@ -20,19 +20,38 @@ agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 	ttlBoard (DOFTDI_SAFEMODE, true),
 	aoSys (ANALOG_OUT_SAFEMODE), configParameters ("CONFIG_PARAMETERS"),
 	globalParameters ("GLOBAL_PARAMETERS"), dds (DDS_SAFEMODE),
-	piezo1 (PIEZO_1_INFO), piezo2 (PIEZO_2_INFO)
-{	
+	piezo1 (PIEZO_1_INFO), piezo2 (PIEZO_2_INFO){	
 	statBox = new ColorBox ();
 	setWindowTitle ("Auxiliary Window");
 }
 
 QtAuxiliaryWindow::~QtAuxiliaryWindow () {}
 
-void QtAuxiliaryWindow::initializeWidgets ()
-{
+bool QtAuxiliaryWindow::eventFilter (QObject* obj, QEvent* event){
+	if (aoSys.eventFilter (obj, event)) {
+		return true;
+	}
+	return QMainWindow::eventFilter (obj, event);
+	//if (obj == ui->lineEdit){
+	//	if (event->type () == QEvent::KeyPress) {
+	//		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	//		if (keyEvent->key () == Qt::Key_Up) {
+	//			qDebug () << "lineEdit -> Qt::Key_Up";
+	//			return true;
+	//		}
+	//		else if (keyEvent->key () == Qt::Key_Down) {
+	//			qDebug () << "lineEdit -> Qt::Key_Down";
+	//			return true;
+	//		}
+	//	}
+	//	return false;
+	//}
+	//return 
+}
+
+void QtAuxiliaryWindow::initializeWidgets (){
 	POINT loc{ 0, 25 };
-	try
-	{
+	try{
 		statBox->initialize (loc, this, 480, mainWin->getDevices ());
 		ttlBoard.initialize (loc, this);
 		aoSys.initialize (loc, this);
@@ -62,21 +81,17 @@ void QtAuxiliaryWindow::initializeWidgets ()
 		dacData.resize (NUM_DAC_PLTS);
 		UINT linesPerDacPlot = 24 / dacData.size ();
 		// initialize data structures.
-		for (auto& dacPlotData : dacData)
-		{
+		for (auto& dacPlotData : dacData){
 			dacPlotData = std::vector<pPlotDataVec> (linesPerDacPlot);
-			for (auto& d : dacPlotData)
-			{
+			for (auto& d : dacPlotData){
 				d = pPlotDataVec (new plotDataVec (100, { 0,0,0 }));
 			}
 		}
 		// initialize plot controls.
 		UINT dacPlotSize = 500 / NUM_DAC_PLTS;
-		for (auto dacPltCount : range (aoPlots.size ()))
-		{
+		for (auto dacPltCount : range (aoPlots.size ())){
 			std::string titleTxt;
-			switch (dacPltCount)
-			{
+			switch (dacPltCount){
 			case 0:
 				titleTxt = "DACs: 0-7";
 				break;
@@ -94,21 +109,17 @@ void QtAuxiliaryWindow::initializeWidgets ()
 		ttlPlots.resize (NUM_TTL_PLTS);
 		ttlData.resize (NUM_TTL_PLTS);
 		UINT linesPerTtlPlot = 64 / ttlData.size ();
-		for (auto& ttlPlotData : ttlData)
-		{
+		for (auto& ttlPlotData : ttlData){
 			ttlPlotData = std::vector<pPlotDataVec> (linesPerTtlPlot);
-			for (auto& d : ttlPlotData)
-			{
+			for (auto& d : ttlPlotData){
 				d = pPlotDataVec (new plotDataVec (100, { 0,0,0 }));
 			}
 		}
 		UINT ttlPlotSize = 500 / NUM_TTL_PLTS;
-		for (auto ttlPltCount : range (ttlPlots.size ()))
-		{
+		for (auto ttlPltCount : range (ttlPlots.size ())){
 			// currently assuming 4 ttl plots...
 			std::string titleTxt;
-			switch (ttlPltCount)
-			{
+			switch (ttlPltCount){
 			case 0:
 				titleTxt = "Ttls: Row A";
 				break;
@@ -126,8 +137,7 @@ void QtAuxiliaryWindow::initializeWidgets ()
 			ttlPlots[ttlPltCount]->init (loc, 480, ttlPlotSize, this);
 		}
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		throwNested ("FATAL ERROR: Failed to initialize Auxiliary window properly!");
 	}
 }
@@ -142,8 +152,7 @@ void QtAuxiliaryWindow::handleDoAoPlotData (const std::vector<std::vector<plotDa
 	}
 }
 
-std::vector<parameterType> QtAuxiliaryWindow::getUsableConstants ()
-{
+std::vector<parameterType> QtAuxiliaryWindow::getUsableConstants (){
 	// This generates a usable set of constants (mostly for "Program Now" commands") based on the current GUI settings.
 	// imporantly, when running the experiment proper, the saved config settings are what is used to determine 
 	// parameters, not the gui setttings.
@@ -156,91 +165,10 @@ std::vector<parameterType> QtAuxiliaryWindow::getUsableConstants ()
 	return params;
 }
 
-void QtAuxiliaryWindow::uwDblClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		RohdeSchwarzGenerator.handleListviewDblClick ();
-	}
-	catch (Error& err)
-	{
-		reportErr (err.trace ());
-	}
-}
-
-void QtAuxiliaryWindow::uwRClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		RohdeSchwarzGenerator.handleListviewRClick ();
-	}
-	catch (Error& err)
-	{
-		reportErr (err.trace ());
-	}
-}
-
-
-void QtAuxiliaryWindow::DdsRClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		dds.deleteRampVariable ();
-	}
-	catch (Error& err)
-	{
-		reportErr (err.trace ());
-	}
-}
-
-void QtAuxiliaryWindow::DdsDblClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		dds.handleRampClick ();
-	}
-	catch (Error& err)
-	{
-		reportErr (err.trace ());
-	}
-}
-
-
-void QtAuxiliaryWindow::invalidateSaved (UINT id)
-{
+void QtAuxiliaryWindow::invalidateSaved (UINT id){
 	mainWin->updateConfigurationSavedStatus (false);
 }
 
-// MESSAGE MAP FUNCTION
-void QtAuxiliaryWindow::OptParamDblClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		optimizer.handleListViewClick ();
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Variables Double Click Handler : \n" + exception.trace () + "\n");
-	}
-}
-
-
-
-// MESSAGE MAP FUNCTION
-void QtAuxiliaryWindow::OptParamRClick (NMHDR* pNotifyStruct, LRESULT* result)
-{
-	try
-	{
-		mainWin->updateConfigurationSavedStatus (false);
-		optimizer.deleteParam ();
-	}
-	catch (Error& exception)
-	{
-		reportErr ("Variables Right Click Handler : " + exception.trace () + "\r\n");
-	}
-	mainWin->updateConfigurationSavedStatus (false);
-}
 
 void QtAuxiliaryWindow::updateOptimization (AllExperimentInput& input)
 {
@@ -276,7 +204,7 @@ void QtAuxiliaryWindow::newAgilentScript (whichAgTy::agilentNames name)
 		agilents[name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		agilents[name].agilentScript.newScript ();
 		agilents[name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
-		agilents[name].agilentScript.colorEntireScript (getAllVariables (), getTtlNames (), getDacInfo ());
+		agilents[name].agilentScript.colorEntireScript (getAllParams (), getTtlNames (), getDacInfo ());
 	}
 	catch (Error& err)
 	{
@@ -386,14 +314,12 @@ Agilent& QtAuxiliaryWindow::whichAgilent (UINT id)
 }
 
 
-ParameterSystem& QtAuxiliaryWindow::getGlobals ()
-{
+ParameterSystem& QtAuxiliaryWindow::getGlobals (){
 	return globalParameters;
 }
 
 
-std::vector<std::reference_wrapper<PiezoCore> > QtAuxiliaryWindow::getPiezoControllers ()
-{
+std::vector<std::reference_wrapper<PiezoCore> > QtAuxiliaryWindow::getPiezoControllers (){
 	std::vector<std::reference_wrapper<PiezoCore> > controllers;
 	controllers.push_back (piezo1.getCore ());
 	controllers.push_back (piezo2.getCore ());
@@ -401,20 +327,17 @@ std::vector<std::reference_wrapper<PiezoCore> > QtAuxiliaryWindow::getPiezoContr
 }
 
 
-std::pair<UINT, UINT> QtAuxiliaryWindow::getTtlBoardSize ()
-{
+std::pair<UINT, UINT> QtAuxiliaryWindow::getTtlBoardSize (){
 	return ttlBoard.getTtlBoardSize ();
 }
 
 
-void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile)
-{
+void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 	// order matters! Don't change the order here.
 	configParameters.handleSaveConfig (saveFile);
 	ttlBoard.handleSaveConfig (saveFile);
 	aoSys.handleSaveConfig (saveFile);
-	for (auto& agilent : agilents)
-	{
+	for (auto& agilent : agilents){
 		agilent.handleSavingConfig (saveFile, mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
 	}
@@ -427,16 +350,13 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile)
 	RohdeSchwarzGenerator.handleSaveConfig (saveFile);
 }
 
-void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile)
-{
-	try
-	{
+void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
+	try{
 		ProfileSystem::standardOpenConfig (configFile, configParameters.configDelim, &configParameters, Version ("4.0"));
 		ProfileSystem::standardOpenConfig (configFile, "TTLS", &ttlBoard);
 		ProfileSystem::standardOpenConfig (configFile, "DACS", &aoSys);
 		aoSys.updateEdits ();
-		for (auto& agilent : agilents)
-		{
+		for (auto& agilent : agilents){
 			deviceOutputInfo info;
 			ProfileSystem::stdGetFromConfig (configFile, agilent.getCore (), info, Version ("4.0"));
 			agilent.setOutputSettings (info);
@@ -450,8 +370,7 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile)
 
 		ProfileSystem::standardOpenConfig (configFile, topBottomTek.getDelim (), &topBottomTek, Version ("4.0"));
 		ProfileSystem::standardOpenConfig (configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ("4.0"));
-		if (configFile.ver >= Version ("4.5"))
-		{
+		if (configFile.ver >= Version ("4.5")) {
 			ProfileSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
 		}
 		ProfileSystem::standardOpenConfig (configFile, piezo1.getConfigDelim (), &piezo1, Version ("4.6"));
@@ -463,32 +382,27 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile)
 		ProfileSystem::stdGetFromConfig (configFile, RohdeSchwarzGenerator.getCore (), uwsettings, Version ("4.10"));
 		RohdeSchwarzGenerator.setMicrowaveSettings (uwsettings);
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		throwNested ("Auxiliary Window failed to read parameters from the configuration file.");
 	}
 }
 
 
-UINT QtAuxiliaryWindow::getNumberOfDacs ()
-{
+UINT QtAuxiliaryWindow::getNumberOfDacs (){
 	return aoSys.getNumberOfDacs ();
 }
 
 
-Matrix<std::string> QtAuxiliaryWindow::getTtlNames ()
-{
+Matrix<std::string> QtAuxiliaryWindow::getTtlNames (){
 	return ttlBoard.getCore ().getAllNames ();
 }
 
 
-std::array<AoInfo, 24> QtAuxiliaryWindow::getDacInfo ()
-{
+std::array<AoInfo, 24> QtAuxiliaryWindow::getDacInfo (){
 	return aoSys.getDacInfo ();
 }
 
-std::vector<parameterType> QtAuxiliaryWindow::getAllVariables ()
-{
+std::vector<parameterType> QtAuxiliaryWindow::getAllParams (){
 	std::vector<parameterType> vars = configParameters.getAllParams ();
 	std::vector<parameterType> vars2 = globalParameters.getAllParams ();
 	vars.insert (vars.end (), vars2.begin (), vars2.end ());

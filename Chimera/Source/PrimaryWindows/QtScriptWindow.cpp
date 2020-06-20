@@ -18,9 +18,7 @@ niawg (DoRows::which::B, 14, NIAWG_SAFEMODE){
 	setWindowTitle ("Script Window");
 }
 
-QtScriptWindow::~QtScriptWindow ()
-{
-
+QtScriptWindow::~QtScriptWindow (){
 }
 
 void QtScriptWindow::initializeWidgets ()
@@ -53,15 +51,41 @@ void QtScriptWindow::initializeWidgets ()
 	startLocation = { 1200, 25 };
 	statBox->initialize (startLocation, this, 700, mainWin->getDevices ());
 	profileDisplay.initialize ({ 0,25 }, this);
-	try
-	{
+	
+	try{
 		// I only do this for the intensity agilent at the moment.
 		intensityAgilent.setDefault (1);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		errBox ("ERROR: Failed to initialize intensity agilent: " + err.trace ());
 	}
+	updateDoAoNames ();
+	updateVarNames ();
+}
+
+void QtScriptWindow::updateVarNames() {
+	auto params = auxWin->getAllParams ();
+	masterScript.highlighter->setOtherParams (params);
+	masterScript.highlighter->setLocalParams (masterScript.getLocalParams ());
+	intensityAgilent.agilentScript.highlighter->setOtherParams (params);
+	intensityAgilent.agilentScript.highlighter->setLocalParams (intensityAgilent.agilentScript.getLocalParams ());
+	niawg.niawgScript.highlighter->setOtherParams (params);
+	niawg.niawgScript.highlighter->setLocalParams (niawg.niawgScript.getLocalParams ());
+}
+
+void QtScriptWindow::updateDoAoNames () {
+	auto doNames = auxWin->getTtlNames ();
+	auto aoInfo = auxWin->getDacInfo ();
+	std::vector<std::string> aoNames;
+	for (auto dacInfo : aoInfo) {
+		aoNames.push_back (dacInfo.name);
+	}
+	masterScript.highlighter->setTtlNames (doNames);
+	masterScript.highlighter->setDacNames (aoNames);
+	intensityAgilent.agilentScript.highlighter->setTtlNames (doNames);
+	intensityAgilent.agilentScript.highlighter->setDacNames (aoNames);
+	niawg.niawgScript.highlighter->setTtlNames (doNames);
+	niawg.niawgScript.highlighter->setDacNames (aoNames);
 }
 
 void QtScriptWindow::handleControlNiawgCheck ()
@@ -76,21 +100,18 @@ void QtScriptWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 
 void QtScriptWindow::handleMasterFunctionChange ()
 {
-	try
-	{
+	try{
 		masterScript.functionChangeHandler (mainWin->getProfileSettings ().configLocation);
-		masterScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		masterScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 		masterScript.updateSavedStatus (true);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		errBox (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::handleIntensityCombo ()
-{
+void QtScriptWindow::handleIntensityCombo (){
 	intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 	intensityAgilent.readGuiSettings ();
 	intensityAgilent.handleModeCombo ();
@@ -98,37 +119,30 @@ void QtScriptWindow::handleIntensityCombo ()
 }
 
 
-void QtScriptWindow::handleIntensityButtons (UINT id)
-{
+void QtScriptWindow::handleIntensityButtons (UINT id){
 	id -= IDC_INTENSITY_CHANNEL1_BUTTON;
-	if (id % 7 == 0)
-	{
+	if (id % 7 == 0){
 		// channel 1
 		intensityAgilent.handleChannelPress (1, mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
 	}
-	else if (id % 7 == 1)
-	{
+	else if (id % 7 == 1){
 		// channel 2
 		intensityAgilent.handleChannelPress (2, mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
 	}
-	else if (id % 7 == 3)
-	{
+	else if (id % 7 == 3){
 		// TODO:
 		// handle sync 
 		//agilent->handleSync();
 	}
-	else if (id % 7 == 6)
-	{
-		try
-		{
+	else if (id % 7 == 6){
+		try{
 			intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 			intensityAgilent.programAgilentNow (auxWin->getUsableConstants ());
 			reportStatus ("Programmed Agilent " + intensityAgilent.getConfigDelim () + ".\r\n");
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			reportErr ("Error while programming agilent " + intensityAgilent.getConfigDelim () + ": " + err.trace ()
 				+ "\r\n");
 		}
@@ -137,27 +151,11 @@ void QtScriptWindow::handleIntensityButtons (UINT id)
 }
 
 
-void QtScriptWindow::masterEditChange ()
-{
-	try
-	{
-		masterScript.handleEditChange ();
-		//SetTimer (SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
-	}
-	catch (Error& err)
-	{
-		reportErr (err.trace ());
-	}
-}
-
-
-void QtScriptWindow::handleNiawgScriptComboChange ()
-{
+void QtScriptWindow::handleNiawgScriptComboChange (){
 	//horizontalNiawgScript.childComboChangeHandler();
 }
 
-void QtScriptWindow::handleAgilentScriptComboChange ()
-{
+void QtScriptWindow::handleAgilentScriptComboChange (){
 	//intensityAgilent.agilentScript.childComboChangeHandler( mainWindowFriend, auxWindowFriend);
 }
 
@@ -166,59 +164,48 @@ void QtScriptWindow::fillMotInput (ExperimentThreadInput* input) {}
 void QtScriptWindow::fillMasterThreadInput (ExperimentThreadInput* input) {}
 
 
-void QtScriptWindow::OnTimer (UINT_PTR eventID)
-{
-	try
-	{
-		intensityAgilent.agilentScript.handleTimerCall (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
-		niawg.niawgScript.handleTimerCall (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
-		masterScript.handleTimerCall (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+void QtScriptWindow::OnTimer (UINT_PTR eventID){
+	try{
+		intensityAgilent.agilentScript.handleTimerCall (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		niawg.niawgScript.handleTimerCall (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		masterScript.handleTimerCall (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::checkScriptSaves ()
-{
+void QtScriptWindow::checkScriptSaves (){
 	niawg.niawgScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 	intensityAgilent.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 	masterScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo (), mainWin->getComm ());
 }
 
 
-std::string QtScriptWindow::getSystemStatusString ()
-{
+std::string QtScriptWindow::getSystemStatusString (){
 	std::string status = "Intensity Agilent:\n\t" + intensityAgilent.getDeviceIdentity ();
 	status = "NIAWG:\n";
-	if (!NIAWG_SAFEMODE)
-	{
+	if (!NIAWG_SAFEMODE){
 		status += "\tCode System is Active!\n";
-		try
-		{
+		try{
 			status += "\t" + niawg.core.fgenConduit.getDeviceInfo ();
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			status += "\tFailed to get device info! Error: " + err.trace ();
 		}
 	}
-	else
-	{
+	else{
 		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	return status;
 }
 
-void QtScriptWindow::sendNiawgSoftwareTrig ()
-{
+void QtScriptWindow::sendNiawgSoftwareTrig (){
 	niawg.core.fgenConduit.sendSoftwareTrigger ();
 }
 
-void QtScriptWindow::streamNiawgWaveform ()
-{
+void QtScriptWindow::streamNiawgWaveform (){
 	niawg.core.streamWaveform ();
 }
 
@@ -226,8 +213,7 @@ void QtScriptWindow::streamNiawgWaveform ()
 /*
 	This function retuns the names (just the names) of currently active scripts.
 */
-scriptInfo<std::string> QtScriptWindow::getScriptNames ()
-{
+scriptInfo<std::string> QtScriptWindow::getScriptNames (){
 	scriptInfo<std::string> names;
 	names.niawg = niawg.niawgScript.getScriptName ();
 	names.intensityAgilent = intensityAgilent.agilentScript.getScriptName ();
@@ -238,8 +224,7 @@ scriptInfo<std::string> QtScriptWindow::getScriptNames ()
 /*
 	This function returns indicators of whether a given script has been saved or not.
 */
-scriptInfo<bool> QtScriptWindow::getScriptSavedStatuses ()
-{
+scriptInfo<bool> QtScriptWindow::getScriptSavedStatuses (){
 	scriptInfo<bool> status;
 	status.niawg = niawg.niawgScript.savedStatus ();
 	status.intensityAgilent = intensityAgilent.agilentScript.savedStatus ();
@@ -250,8 +235,7 @@ scriptInfo<bool> QtScriptWindow::getScriptSavedStatuses ()
 /*
 	This function returns the current addresses of all files in all scripts.
 */
-scriptInfo<std::string> QtScriptWindow::getScriptAddresses ()
-{
+scriptInfo<std::string> QtScriptWindow::getScriptAddresses (){
 	scriptInfo<std::string> addresses;
 	addresses.niawg = niawg.niawgScript.getScriptPathAndName ();
 	addresses.intensityAgilent = intensityAgilent.agilentScript.getScriptPathAndName ();
@@ -260,27 +244,22 @@ scriptInfo<std::string> QtScriptWindow::getScriptAddresses ()
 }
 
 
-void QtScriptWindow::setIntensityDefault ()
-{
-	try
-	{
+void QtScriptWindow::setIntensityDefault (){
+	try{
 		intensityAgilent.setDefault (1);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::niawgEditChange ()
-{
+void QtScriptWindow::niawgEditChange (){
 	niawg.niawgScript.handleEditChange ();
 	//SetTimer (SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
 }
 
-void QtScriptWindow::agilentEditChange ()
-{
+void QtScriptWindow::agilentEditChange (){
 	intensityAgilent.agilentScript.handleEditChange ();
 	//SetTimer (SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
 }
@@ -292,29 +271,24 @@ void QtScriptWindow::agilentEditChange ()
 	window objects because they are associated with the menu at the top of each screen
 */
 /// 
-void QtScriptWindow::newIntensityScript ()
-{
-	try
-	{
+void QtScriptWindow::newIntensityScript (){
+	try{
 		intensityAgilent.verifyScriptable ();
 		intensityAgilent.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 		intensityAgilent.agilentScript.newScript ();
 		updateConfigurationSavedStatus (false);
 		intensityAgilent.agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
-		intensityAgilent.agilentScript.colorEntireScript (auxWin->getAllVariables (),
+		intensityAgilent.agilentScript.colorEntireScript (auxWin->getAllParams (),
 			auxWin->getTtlNames (), auxWin->getDacInfo ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::openIntensityScript (IChimeraWindowWidget* parent)
-{
-	try
-	{
+void QtScriptWindow::openIntensityScript (IChimeraWindowWidget* parent){
+	try{
 		intensityAgilent.verifyScriptable ();
 		intensityAgilent.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 		std::string intensityOpenName = openWithExplorer (parent, AGILENT_SCRIPT_EXTENSION);
@@ -322,42 +296,34 @@ void QtScriptWindow::openIntensityScript (IChimeraWindowWidget* parent)
 			mainWin->getRunInfo ());
 		updateConfigurationSavedStatus (false);
 		intensityAgilent.agilentScript.updateScriptNameText (getProfile ().configLocation);
-		intensityAgilent.agilentScript.colorEntireScript (auxWin->getAllVariables (),
+		intensityAgilent.agilentScript.colorEntireScript (auxWin->getAllParams (),
 			auxWin->getTtlNames (),
 			auxWin->getDacInfo ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
-void QtScriptWindow::saveIntensityScript ()
-{
-	try
-	{
+void QtScriptWindow::saveIntensityScript (){
+	try{
 		// channel 0 is the intensity channel, the 4th option is the scripting option.
-		if (intensityAgilent.getOutputInfo ().channel[0].option == AgilentChannelMode::which::Script)
-		{
+		if (intensityAgilent.getOutputInfo ().channel[0].option == AgilentChannelMode::which::Script){
 			intensityAgilent.agilentScript.saveScript (getProfile ().configLocation, mainWin->getRunInfo ());
 			intensityAgilent.agilentScript.updateScriptNameText (getProfile ().configLocation);
 		}
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::saveIntensityScriptAs (IChimeraWindowWidget* parent)
-{
-	try
-	{
+void QtScriptWindow::saveIntensityScriptAs (IChimeraWindowWidget* parent){
+	try{
 		intensityAgilent.verifyScriptable ();
 		std::string extensionNoPeriod = intensityAgilent.agilentScript.getExtension ();
-		if (extensionNoPeriod.size () == 0)
-		{
+		if (extensionNoPeriod.size () == 0){
 			return;
 		}
 		extensionNoPeriod = extensionNoPeriod.substr (1, extensionNoPeriod.size ());
@@ -366,75 +332,61 @@ void QtScriptWindow::saveIntensityScriptAs (IChimeraWindowWidget* parent)
 		updateConfigurationSavedStatus (false);
 		intensityAgilent.agilentScript.updateScriptNameText (getProfile ().configLocation);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
 // just a quick shortcut.
-profileSettings QtScriptWindow::getProfile ()
-{
+profileSettings QtScriptWindow::getProfile (){
 	return mainWin->getProfileSettings ();
 }
 
 
-void QtScriptWindow::newNiawgScript ()
-{
-	try
-	{
+void QtScriptWindow::newNiawgScript (){
+	try	{
 		niawg.niawgScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 		niawg.niawgScript.newScript ();
 		updateConfigurationSavedStatus (false);
 		niawg.niawgScript.updateScriptNameText (getProfile ().configLocation);
-		niawg.niawgScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		niawg.niawgScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::openNiawgScript (IChimeraWindowWidget* parent)
-{
-	try
-	{
+void QtScriptWindow::openNiawgScript (IChimeraWindowWidget* parent){
+	try{
 		niawg.niawgScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 		std::string horizontalOpenName = openWithExplorer (parent, NIAWG_SCRIPT_EXTENSION);
 		niawg.niawgScript.openParentScript (horizontalOpenName, getProfile ().configLocation, mainWin->getRunInfo ());
 		updateConfigurationSavedStatus (false);
 		niawg.niawgScript.updateScriptNameText (getProfile ().configLocation);
-		niawg.niawgScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		niawg.niawgScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
-
 }
 
 
-void QtScriptWindow::saveNiawgScript ()
-{
-	try
-	{
+void QtScriptWindow::saveNiawgScript (){
+	try{
 		niawg.niawgScript.saveScript (getProfile ().configLocation, mainWin->getRunInfo ());
 		niawg.niawgScript.updateScriptNameText (getProfile ().configLocation);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		reportErr (err.trace ());
 	}
 }
 
 
-void QtScriptWindow::saveNiawgScriptAs (IChimeraWindowWidget* parent)
-{
+void QtScriptWindow::saveNiawgScriptAs (IChimeraWindowWidget* parent){
 	std::string extensionNoPeriod = niawg.niawgScript.getExtension ();
-	if (extensionNoPeriod.size () == 0)
-	{
+	if (extensionNoPeriod.size () == 0){
 		return;
 	}
 	extensionNoPeriod = extensionNoPeriod.substr (1, extensionNoPeriod.size ());
@@ -445,46 +397,38 @@ void QtScriptWindow::saveNiawgScriptAs (IChimeraWindowWidget* parent)
 }
 
 
-void QtScriptWindow::updateScriptNamesOnScreen ()
-{
+void QtScriptWindow::updateScriptNamesOnScreen (){
 	niawg.niawgScript.updateScriptNameText (getProfile ().configLocation);
 	niawg.niawgScript.updateScriptNameText (getProfile ().configLocation);
 	intensityAgilent.agilentScript.updateScriptNameText (getProfile ().configLocation);
 }
 
 
-void QtScriptWindow::recolorScripts ()
-{
-	niawg.niawgScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
-	intensityAgilent.agilentScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
-	masterScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+void QtScriptWindow::recolorScripts (){
+	niawg.niawgScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+	intensityAgilent.agilentScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+	masterScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 }
 
 
-void QtScriptWindow::openIntensityScript (std::string name)
-{
+void QtScriptWindow::openIntensityScript (std::string name){
 	intensityAgilent.agilentScript.openParentScript (name, getProfile ().configLocation, mainWin->getRunInfo ());
 }
 
 
-void QtScriptWindow::windowOpenConfig (ConfigStream& configFile)
-{
-	try
-	{
+void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
+	try{
 		ProfileSystem::initializeAtDelim (configFile, "SCRIPTS");
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		errBox ("Failed to initialize configuration file at scripting window entry point \"SCRIPTS\".");
 		return;
 	}
-	try
-	{
+	try{
 		configFile.get ();
 		auto getlineFunc = ProfileSystem::getGetlineFunc (configFile.ver);
 		std::string niawgName, masterName;
-		if (configFile.ver.versionMajor < 3)
-		{
+		if (configFile.ver.versionMajor < 3){
 			std::string extraNiawgName;
 			getlineFunc (configFile, extraNiawgName);
 		}
@@ -495,29 +439,23 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile)
 		ProfileSystem::stdGetFromConfig (configFile, intensityAgilent.getCore (), info, Version ("4.0"));
 		intensityAgilent.setOutputSettings (info);
 		intensityAgilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		try
-		{
+		try{
 			openNiawgScript (niawgName);
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			int answer = promptBox ("ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
 				+ err.trace () + "\r\nAttempt to find file yourself?", MB_YESNO);
-			if (answer == IDYES)
-			{
+			if (answer == IDYES){
 				openNiawgScript (openWithExplorer (NULL, "nScript"));
 			}
 		}
-		try
-		{
+		try{
 			openMasterScript (masterName);
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			int answer = promptBox ("ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
 				+ err.trace () + "\r\nAttempt to find file yourself?", MB_YESNO);
-			if (answer == IDYES)
-			{
+			if (answer == IDYES){
 				openMasterScript (openWithExplorer (NULL, "mScript"));
 			}
 		}
@@ -539,7 +477,7 @@ void QtScriptWindow::newMasterScript ()
 	masterScript.newScript ();
 	updateConfigurationSavedStatus (false);
 	masterScript.updateScriptNameText (getProfile ().configLocation);
-	masterScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+	masterScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 }
 
 void QtScriptWindow::openMasterScript (IChimeraWindowWidget* parent)
@@ -551,7 +489,7 @@ void QtScriptWindow::openMasterScript (IChimeraWindowWidget* parent)
 		masterScript.openParentScript (openName, getProfile ().configLocation, mainWin->getRunInfo ());
 		updateConfigurationSavedStatus (false);
 		masterScript.updateScriptNameText (getProfile ().configLocation);
-		masterScript.colorEntireScript (auxWin->getAllVariables (), auxWin->getTtlNames (), auxWin->getDacInfo ());
+		masterScript.colorEntireScript (auxWin->getAllParams (), auxWin->getTtlNames (), auxWin->getDacInfo ());
 	}
 	catch (Error& err)
 	{

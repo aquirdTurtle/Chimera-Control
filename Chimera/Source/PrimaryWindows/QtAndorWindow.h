@@ -26,6 +26,7 @@
 #include "IChimeraWindow.h"
 #include <bitset>
 #include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <RealTimeDataAnalysis/AtomCruncherWorker.h>
 
 namespace Ui {
     class QtAndorWindow;
@@ -44,8 +45,6 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void OnTimer (UINT_PTR id);
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger ();
-		void handleDblClick (NMHDR* info, LRESULT* lResult);
-		void listViewRClick (NMHDR* info, LRESULT* lResult);
 		void handleSpecialGreaterThanMaxSelection ();
 		void handleSpecialLessThanMinSelection ();
 		void readImageParameters ();
@@ -54,7 +53,6 @@ class QtAndorWindow : public IChimeraWindowWidget
 
 		void setDataType (std::string dataType);
 		/// auxiliary functions.
-		void calibrate ();
 		dataPoint getMainAnalysisResult ();
 		void checkCameraIdle ();
 		void handleEmGainChange ();
@@ -78,7 +76,6 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void abortCameraRun ();
 		void handleAutoscaleSelection ();
 		void assertOff ();
-		void passPictureSettings (UINT id);
 		void prepareAtomCruncher (AllExperimentInput& input);
 		void preparePlotter (AllExperimentInput& input);
 		static UINT __stdcall atomCruncherProcedure (void* input);
@@ -109,7 +106,10 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void handlePlotPop (UINT id);
 
 		void fillExpDeviceList (DeviceList& list);
+		void handleSetAnalysisPress ();
 
+		CruncherThreadWorker* atomCruncherWorker;
+		AnalysisThreadWorker* analysisThreadWorker;
 	private:
         Ui::QtAndorWindow* ui;
 
@@ -136,15 +136,15 @@ class QtAndorWindow : public IChimeraWindowWidget
 		bool realTimePic;
 		// plotting stuff;
 		std::atomic<HANDLE> plotThreadHandle;
-		imageQueue imQueue;
-		std::mutex imageQueueLock;
+		//imageQueue imQueue;
+		//std::mutex imageQueueLock;
 		std::condition_variable rearrangerConditionVariable;
 		// the following two queues and locks aren't directly used by the camera window, but the camera window
 		// distributes them to the threads that do use them.
 
-		multiGridAtomQueue plotterAtomQueue;
-		multiGridImageQueue plotterPictureQueue;
-		atomQueue rearrangerAtomQueue;
+		//multiGridAtomQueue plotterAtomQueue;
+		//multiGridImageQueue plotterPictureQueue;
+		//atomQueue rearrangerAtomQueue;
 		std::mutex plotLock;
 		std::mutex rearrangerLock;
 
@@ -163,10 +163,12 @@ class QtAndorWindow : public IChimeraWindowWidget
 		UINT mostRecentPicNum = 0;
 		UINT currentPictureNum = 0;
 		Matrix<long> avgBackground;
+	Q_SIGNALS:
+		void newImage (NormalImage);
 
 	public Q_SLOTS:
 		void onCameraProgress (int picNum);
-
+		void handleNewPlotData (std::vector<std::vector<dataPoint>>, PlottingInfo);
 		LRESULT onCameraFinish (WPARAM wParam, LPARAM lParam);
 		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
 		LRESULT onCameraCalProgress (WPARAM wParam, LPARAM lParam);

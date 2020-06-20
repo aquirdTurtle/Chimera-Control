@@ -236,8 +236,7 @@ double AoSystem::getDefaultValue(UINT dacNum)
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent )
-{
+void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent ){
 	// title
 	dacTitle = new QLabel ("DACS", parent);
 	dacTitle->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+480, pos.y += 25} });
@@ -273,6 +272,15 @@ void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent )
 		dacInc++;
 	}
 	pos.x -= 320;
+}
+
+bool AoSystem::eventFilter (QObject* obj, QEvent* event){
+	for (auto& out : outputs) {
+		if (out.eventFilter (obj, event)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void AoSystem::handleRoundToDac( )
@@ -470,13 +478,11 @@ std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( UINT var ){
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker)
-{
+void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
 	UINT variations = params.size( ) == 0 ? 1 : params.front( ).keyValues.size( );
-	if (variations == 0)
-	{
+	if (variations == 0){
 		variations = 1;
 	}
 	/// imporantly, this sizes the relevant structures.
@@ -488,54 +494,43 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
 	sTimer.tick ( "After-init" );
-	for (auto variationInc : range(variations) )
-	{
-		if ( variationInc == 0 )
-		{
+	for (auto variationInc : range(variations) ){
+		if ( variationInc == 0 ){
 			sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
 		}
 		auto& cmdList = dacCommandList(variationInc);
-		for (auto eventInc : range( dacCommandFormList.size ( ) ) )
-		{
+		for (auto eventInc : range( dacCommandFormList.size ( ) ) )	{
 			AoCommand tempEvent;
 			auto& formList = dacCommandFormList[eventInc];
 			tempEvent.line = formList.line;
 			// Deal with time.
-			if ( formList.time.first.size( ) == 0 )
-			{
+			if ( formList.time.first.size( ) == 0 )	{
 				// no variable portion of the time.
 				tempEvent.time = formList.time.second;
 			}
-			else
-			{
+			else{
 				double varTime = 0;
-				for ( auto variableTimeString : formList.time.first )
-				{
+				for ( auto variableTimeString : formList.time.first ){
 					varTime += variableTimeString.evaluate( params, variationInc );
 				}
 				tempEvent.time = varTime + formList.time.second;
 			}
-			if ( variationInc == 0 )
-			{
+			if ( variationInc == 0 ){
 				sTimer.tick ( "Time-Handled" );
 			}
 			/// deal with command
-			if ( formList.commandName == "dac:" )
-			{
+			if ( formList.commandName == "dac:" ){
 				/// single point.
 				tempEvent.value = formList.finalVal.evaluate( params, variationInc );
-				if ( variationInc == 0 )
-				{
+				if ( variationInc == 0 ){
 					sTimer.tick ( "val-evaluated" );
 				}
 				cmdList.push_back( tempEvent );
-				if ( variationInc == 0 )
-				{
+				if ( variationInc == 0 ){
 					sTimer.tick ( "Dac:-Handled" );
 				}
 			}
-			else if ( formList.commandName == "dacarange:" )
-			{
+			else if ( formList.commandName == "dacarange:" ){
 				// interpret ramp time command. I need to know whether it's ramping or not.
 				double rampTime = formList.rampTime.evaluate( params, variationInc );
 				/// many points to be made.
@@ -546,8 +541,7 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				finalValue = formList.finalVal.evaluate( params, variationInc );
 				// deal with ramp inc
 				rampInc = formList.rampInc.evaluate( params, variationInc );
-				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
-				{
+				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )	{
 					resolutionWarningPosted = true;
 					emit threadworker->warn (cstr("Warning: ramp increment of " + str (rampInc) + " in dac command number "
 						+ str (eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
@@ -558,8 +552,7 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				int steps = int( fabs( finalValue - initValue ) / rampInc + 0.5 );
 				double stepsFloat = fabs( finalValue - initValue ) / rampInc;
 				double diff = fabs( steps - fabs( finalValue - initValue ) / rampInc );
-				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
-				{
+				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted ){
 					nonIntegerWarningPosted = true;
 					emit threadworker->warn (cstr ("Warning: Ideally your spacings for a dacArange would result in a non-integer number "
 						"of steps. The code will attempt to compensate by making a last step to the final value which"
@@ -570,10 +563,9 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				double initTime = tempEvent.time;
 				double currentTime = tempEvent.time;
 				// handle the two directions seperately.
-				if ( initValue < finalValue )
-				{
-					for ( double dacValue = initValue; (dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc )
-					{
+				if ( initValue < finalValue ){
+					for ( double dacValue = initValue; 
+						(dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc ){
 						tempEvent.value = dacValue;
 						tempEvent.time = currentTime;
 						cmdList.push_back( tempEvent );
@@ -582,8 +574,8 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				}
 				else
 				{
-					for ( double dacValue = initValue; dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc )
-					{
+					for ( double dacValue = initValue; 
+						dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc ){
 						tempEvent.value = dacValue;
 						tempEvent.time = currentTime;
 						cmdList.push_back( tempEvent );
@@ -594,13 +586,11 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				tempEvent.value = finalValue;
 				tempEvent.time = initTime + rampTime;
 				cmdList.push_back( tempEvent );
-				if ( variationInc == 0 )
-				{
+				if ( variationInc == 0 ){
 					sTimer.tick ( "dacarange:-Handled" );
 				}
 			}
-			else if ( formList.commandName == "daclinspace:" )
-			{
+			else if ( formList.commandName == "daclinspace:" ){
 				// interpret ramp time command. I need to know whether it's ramping or not.
 				double rampTime = formList.rampTime.evaluate( params, variationInc );
 				/// many points to be made.
@@ -610,8 +600,7 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				finalValue = formList.finalVal.evaluate(params, variationInc );
 				numSteps = formList.numSteps.evaluate(params, variationInc );
 				double rampInc = (finalValue - initValue) / numSteps;
-				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
-				{
+				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted ){
 					resolutionWarningPosted = true;
 					emit threadworker->warn (cstr ("Warning: numPoints of " + str (numSteps) + " results in a ramp increment of "
 						+ str (rampInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
@@ -625,8 +614,7 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				double currentTime = tempEvent.time;
 				double val = initValue;
 				// handle the two directions seperately.
-				for ( auto stepNum : range( numSteps ) )
-				{
+				for ( auto stepNum : range( numSteps ) ){
 					tempEvent.value = val;
 					tempEvent.time = currentTime;
 					cmdList.push_back( tempEvent );
@@ -637,13 +625,11 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				tempEvent.value = finalValue;
 				tempEvent.time = initTime + rampTime;
 				cmdList.push_back( tempEvent );
-				if ( variationInc == 0 )
-				{
+				if ( variationInc == 0 ){
 					sTimer.tick ( "daclinspace:-Handled" );
 				}
 			}
-			else
-			{
+			else{
 				thrower ( "Unrecognized dac command name: " + formList.commandName );
 			}
 		}
@@ -651,36 +637,29 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 }
 
 
-UINT AoSystem::getNumberSnapshots(UINT variation)
-{
+UINT AoSystem::getNumberSnapshots(UINT variation){
 	return dacSnapshots(variation).size();
 }
 
 
-void AoSystem::checkTimingsWork(UINT variation)
-{
+void AoSystem::checkTimingsWork(UINT variation){
 	std::vector<double> times;
 	// grab all the times.
-	for (auto snapshot : dacSnapshots(variation))
-	{
+	for (auto snapshot : dacSnapshots(variation)){
 		times.push_back(snapshot.time);
 	}
 
 	int count = 0;
-	for (auto time : times)
-	{
+	for (auto time : times){
 		int countInner = 0;
-		for (auto secondTime : times)
-		{
+		for (auto secondTime : times){
 			// don't check against itself.
-			if (count == countInner)
-			{
+			if (count == countInner){
 				countInner++;
 				continue;
 			}
 			// can't trigger faster than the trigger time.
-			if (fabs(time - secondTime) < dacTriggerTime)
-			{
+			if (fabs(time - secondTime) < dacTriggerTime){
 				thrower ("timings are such that the dac system would have to get triggered too fast to follow the"
 						" programming! ");
 			}
@@ -690,8 +669,7 @@ void AoSystem::checkTimingsWork(UINT variation)
 	}
 }
 
-ULONG AoSystem::getNumberEvents(UINT variation)
-{
+ULONG AoSystem::getNumberEvents(UINT variation){
 	return dacSnapshots(variation).size();
 }
 
@@ -699,8 +677,7 @@ ULONG AoSystem::getNumberEvents(UINT variation)
 // note that this is not directly tied to changing any "current" parameters in the AoSystem object (it of course changes a list parameter). The 
 // AoSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
 // with changing "currnet" parameters in the AoSystem object.
-void AoSystem::setDacCommandForm( AoCommandForm command)
-{
+void AoSystem::setDacCommandForm( AoCommandForm command){
 	dacCommandFormList.push_back( command );
 	// you need to set up a corresponding trigger to tell the aoSys to change the output at the correct time. 
 	// This is done later on interpretation of ramps etc.
@@ -709,30 +686,25 @@ void AoSystem::setDacCommandForm( AoCommandForm command)
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation)
-{
-	for ( auto snapshot : dacSnapshots(variation))
-	{
+void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation){
+	for ( auto snapshot : dacSnapshots(variation)){
 		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation );
 		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation );
 	}
 }
 
 
-std::string AoSystem::getSystemInfo( )
-{
+std::string AoSystem::getSystemInfo( ){
 	return daqmx.getDacSystemInfo ({ board0Name, board1Name, board2Name } );
 }
 
 
 // this is a function called in preparation for forcing a dac change. Remember, you need to call ___ to actually change things.
-void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls)
-{
+void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls){
 	// change parameters in the AoSystem object so that the object knows what the current settings are.
 	//std::string volt = str(roundToDacResolution(voltage));
 	std::string valStr = roundToDacPrecision? str ( AnalogOutput::roundToDacResolution ( voltage ), 13 ) : str ( voltage, 13 );
-	if (valStr.find(".") != std::string::npos)
-	{
+	if (valStr.find(".") != std::string::npos)	{
 		// then it's a double. kill extra zeros on the end.
 		valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
 	}
@@ -744,14 +716,10 @@ void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls)
 }
 
 
-void AoSystem::checkValuesAgainstLimits(UINT variation)
-{
-	for (auto line : range(outputs.size()))
-	{
-		for (auto snapshot : dacSnapshots(variation))
-		{
-			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )
-			{
+void AoSystem::checkValuesAgainstLimits(UINT variation){
+	for (auto line : range(outputs.size())){
+		for (auto snapshot : dacSnapshots(variation)){
+			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )	{
 				thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 						"value was " + str(snapshot.dacValues[line]) + ", while the minimum accepted value is " +
 						str( outputs[ line ].info.minVal) + " and the maximum value is " + str( outputs[ line ].info.maxVal ) + ". "
@@ -762,10 +730,8 @@ void AoSystem::checkValuesAgainstLimits(UINT variation)
 }
 
 
-void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation )
-{
-	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal )
-	{
+void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation ){
+	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal ){
 		thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 				"value was " + str(val) + ", while the minimum accepted value is " +
 				str( outputs[ line ].info.minVal ) + " and the maximum value is " + str( outputs[ line ].info.maxVal ) + ". "
@@ -786,27 +752,23 @@ void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variat
 }
 
 
-ExpWrap<std::vector<AoSnapshot>> AoSystem::getSnapshots ( )
-{
+ExpWrap<std::vector<AoSnapshot>> AoSystem::getSnapshots ( ){
 	/* used by the unit testing suite. */
 	return dacSnapshots;
 }
 
-ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( )
-{
+ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( ){
 	/* used by the unit testing suite. */
 	return finalFormatDacData;
 }
 
 
-void AoSystem::prepareForce( )
-{
+void AoSystem::prepareForce( ){
 	initializeDataObjects( 1 );
 }
 
 
-void AoSystem::initializeDataObjects( UINT cmdNum )
-{
+void AoSystem::initializeDataObjects( UINT cmdNum ){
 	dacCommandFormList = vec<AoCommandForm>( cmdNum );
 	dacCommandList.uniformSizeReset (  cmdNum );
 	dacSnapshots.uniformSizeReset ( cmdNum );
@@ -816,29 +778,24 @@ void AoSystem::initializeDataObjects( UINT cmdNum )
 }
 
 
-void AoSystem::resetDacEvents()
-{
+void AoSystem::resetDacEvents(){
 	initializeDataObjects( 0 );
 }
 
 
-void AoSystem::stopDacs()
-{
+void AoSystem::stopDacs(){
 	daqmx.stopTask( analogOutTask0 );
 	daqmx.stopTask( analogOutTask1 );
 	daqmx.stopTask( analogOutTask2 );
 }
 
 
-void AoSystem::configureClocks(UINT variation, bool loadSkip)
-{
+void AoSystem::configureClocks(UINT variation, bool loadSkip){
 	long sampleNumber;
-	if ( loadSkip )
-	{
+	if ( loadSkip ){
 		sampleNumber = loadSkipDacSnapshots(variation).size( );
 	}
-	else
-	{
+	else{
 		sampleNumber = dacSnapshots(variation).size( );
 	}
 	daqmx.configSampleClkTiming( analogOutTask0, cstr("/" + board0Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
@@ -850,20 +807,17 @@ void AoSystem::configureClocks(UINT variation, bool loadSkip)
 }
 
 
-void AoSystem::writeDacs(UINT variation, bool loadSkip)
-{
+void AoSystem::writeDacs(UINT variation, bool loadSkip){
 	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(variation) : dacSnapshots(variation);
 	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(variation)
 															 : finalFormatDacData(variation);
-	if (snapshots.size() <= 1)
-	{
+	if (snapshots.size() <= 1){
 		// need at least 2 events to run aoSys.
 		return;
 	}
 	if (finalData[0].size() != 8 * snapshots.size() 
 		 || finalData[1].size() != 8 * snapshots.size()
-		 || finalData[2].size() != 8 * snapshots.size())
-	{
+		 || finalData[2].size() != 8 * snapshots.size()){
 		thrower ( "Data array size doesn't match the number of time slices in the experiment!" );
 	}
 	// Should probably run a check on samples written.
@@ -878,40 +832,32 @@ void AoSystem::writeDacs(UINT variation, bool loadSkip)
 }
 
 
-void AoSystem::startDacs()
-{
+void AoSystem::startDacs(){
 	daqmx.startTask( analogOutTask0 );
 	daqmx.startTask( analogOutTask1 );
 	daqmx.startTask( analogOutTask2 );
 }
 
 
-void AoSystem::makeFinalDataFormat(UINT variation)
-{
+void AoSystem::makeFinalDataFormat(UINT variation){
 	auto& finalNormal = finalFormatDacData(variation);
 	auto& finalLoadSkip = loadSkipDacFinalFormat(variation);
 	auto& normSnapshots = dacSnapshots(variation);
 	auto& loadSkipSnapshots = loadSkipDacSnapshots(variation);
 
-	for ( auto& data : finalNormal )
-	{
+	for ( auto& data : finalNormal ){
 		data.clear( );
 	}
-	for ( auto& data : finalLoadSkip )
-	{
+	for ( auto& data : finalLoadSkip ){
 		data.clear( );
 	}
-	for (AoSnapshot snapshot : normSnapshots)
-	{
-		for ( auto dacInc : range( 24 ) )
-		{
+	for (AoSnapshot snapshot : normSnapshots){
+		for ( auto dacInc : range( 24 ) ){
 			finalNormal[dacInc / 8].push_back( snapshot.dacValues[dacInc] );
 		}
 	}
-	for ( AoSnapshot snapshot : loadSkipSnapshots )
-	{
-		for ( auto dacInc : range( 24 ) )
-		{
+	for ( AoSnapshot snapshot : loadSkipSnapshots ){
+		for ( auto dacInc : range( 24 ) ){
 			finalLoadSkip[dacInc/8].push_back( snapshot.dacValues[dacInc] );
 		}
 	}
@@ -919,34 +865,27 @@ void AoSystem::makeFinalDataFormat(UINT variation)
 
 
 void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
-									   DoCore& ttls )
-{
-	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
-	{
+									   DoCore& ttls ){
+	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" ){
 		thrower ( "dac commandName not recognized!" );
 	}
-	if ( !isValidDACName( name ) )
-	{
+	if ( !isValidDACName( name ) ){
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	// convert name to corresponding dac line.
 	command.line = getDacIdentifier( name );
-	if ( command.line == -1)
-	{
+	if ( command.line == -1){
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	setDacCommandForm( command );
 }
 
 
-int AoSystem::getDacIdentifier(std::string name)
-{
-	for (auto dacInc : range(outputs.size()))
-	{
+int AoSystem::getDacIdentifier(std::string name){
+	for (auto dacInc : range(outputs.size())){
 		auto& dacName = str(outputs[ dacInc ].info.name,13,false,true);
 		// check names set by user and check standard names which are always acceptable
-		if (name == dacName || name == "dac" + str ( dacInc ) )
-		{
+		if (name == dacName || name == "dac" + str ( dacInc ) ){
 			return dacInc;
 		}
 	}
@@ -955,12 +894,9 @@ int AoSystem::getDacIdentifier(std::string name)
 }
 
 /* only handles basic names like dac5.*/
-int AoSystem::getBasicDacIdentifier (std::string name)
-{
-	for (auto dacInc : range (24))
-	{
-		if (name == "dac" + str (dacInc))
-		{
+int AoSystem::getBasicDacIdentifier (std::string name){
+	for (auto dacInc : range (24)){
+		if (name == "dac" + str (dacInc)){
 			return dacInc;
 		}
 	}
@@ -968,14 +904,11 @@ int AoSystem::getBasicDacIdentifier (std::string name)
 	return -1;
 }
 
-void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
-{
-	if (!(minv <= maxv))
-	{
+void AoSystem::setMinMax(int dacNumber, double minv, double maxv){
+	if (!(minv <= maxv)){
 		thrower ("Min dac value must be less than max dac value.");
 	}
-	if (minv < -10 || minv > 10 || maxv < -10 || maxv > 10)
-	{
+	if (minv < -10 || minv > 10 || maxv < -10 || maxv > 10)	{
 		thrower ("Min and max dac values must be withing [-10,10].");
 	}
 	outputs[dacNumber].info.minVal = minv;
@@ -983,44 +916,37 @@ void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
 }
 
 
-std::pair<double, double> AoSystem::getDacRange(int dacNumber)
-{
+std::pair<double, double> AoSystem::getDacRange(int dacNumber){
 	return { outputs[ dacNumber ].info.minVal, outputs[ dacNumber ].info.maxVal };
 }
 
 
-void AoSystem::setName(int dacNumber, std::string name)
-{
+void AoSystem::setName(int dacNumber, std::string name){
 	outputs[ dacNumber ].setName ( name );
 }
 
 
-std::string AoSystem::getNote ( int dacNumber )
-{
+std::string AoSystem::getNote ( int dacNumber ){
 	return outputs[dacNumber].info.note;
 }
 
 
-void AoSystem::setNote( int dacNum, std::string note )
-{
+void AoSystem::setNote( int dacNum, std::string note ){
 	outputs[ dacNum ].setNote ( note );
 }
 
 
-std::string AoSystem::getName(int dacNumber)
-{
+std::string AoSystem::getName(int dacNumber){
 	return outputs[dacNumber].info.name;
 }
 
 
-UINT AoSystem::getNumberOfDacs()
-{
+UINT AoSystem::getNumberOfDacs(){
 	return outputs.size ( );
 }
 
 
-double AoSystem::getDacValue(int dacNumber)
-{
+double AoSystem::getDacValue(int dacNumber){
 	return outputs[dacNumber].info.currVal;
 }
 

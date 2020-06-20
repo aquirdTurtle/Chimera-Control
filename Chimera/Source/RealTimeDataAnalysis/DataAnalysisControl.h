@@ -21,6 +21,7 @@
 #include <qcheckbox.h>
 #include <qtableWidget.h>
 #include <qcombobox.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -39,15 +40,11 @@ class DataAnalysisControl
 		ULONG getPlotFreq( );
 		void handleOpenConfig(ConfigStream& file );
 		void handleSaveConfig(ConfigStream& file );
-		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
-		void rearrange( int width, int height, fontMap fonts );
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );
-		void onManualButtonPushed( );
-		void onCornerButtonPushed( );
-		void handlePictureClick( coordinate location );
+		void setGridCornerLocation (coordinate loc);
 		std::vector<coordinate> getAnalysisLocs( );
 		atomGrid getAtomGrid( UINT which );
 		std::vector<atomGrid> getGrids( );
@@ -71,26 +68,26 @@ class DataAnalysisControl
 		// readable. I very rarely use things like this.
 		template<class T> using vector = std::vector<T>;
 		// subroutine for handling atom & count plots
-		static void handlePlotAtoms( 
+		static std::vector<std::vector<dataPoint>> handlePlotAtoms(
 			PlottingInfo plotInfo, UINT repNum, vector<vector<std::pair<double, ULONG>> >& finData, 
-			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataContainers, 
+			std::vector<std::vector<dataPoint>>& dataContainers, 
 			UINT variationNumber, vector<vector<bool>>& pscSatisfied, 
 			int plotNumberCount, vector<vector<int> > atomPresent, UINT plottingFrequency, UINT groupNum, 
 			UINT picsPerVariation );
-		static void handlePlotHist( 
+		static std::vector<std::vector<dataPoint>> handlePlotHist(
 			PlottingInfo plotInfo, vector<vector<long>> countData,  
 			vector<vector<std::deque<double>>>& finData, vector<vector<bool>>pscSatisfied, 
 			vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
-			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays, UINT groupNum );
+			std::vector<std::vector<dataPoint>>& dataContainers, UINT groupNum );
 		static void determineWhichPscsSatisfied(
 			PlottingInfo& info, UINT groupSize, vector<vector<int>> atomPresentData, vector<vector<bool>>& pscSatisfied );
 		bool getDrawGridOption ( );
 	private:
 		// real time plotting
-		ULONG updateFrequency;
+		unsigned long updateFrequency;
 		QLabel* updateFrequencyLabel1;
 		QLabel* updateFrequencyLabel2;
-		QLineEdit* updateFrequencyEdit;
+		CQLineEdit* updateFrequencyEdit;
 
 		QLabel* header;
 		QTableWidget* plotListview;
@@ -101,8 +98,8 @@ class DataAnalysisControl
 		QLabel* currentDataSetNumberText;
 		QLabel* currentDataSetNumberDisp;
 
-		QComboBox* gridSelector;
-		QPushButton* setGridCorner;
+		CQComboBox* gridSelector;
+		CQPushButton* setGridCorner;
 		QLabel* gridSpacingText;
 		QLineEdit* gridSpacing;
 		QLabel* gridWidthText;
@@ -110,16 +107,16 @@ class DataAnalysisControl
 		QLabel* gridHeightText;
 		QLineEdit* gridHeight;
 
-		QCheckBox* autoThresholdAnalysisButton;
-		QCheckBox* displayGridBtn;
+		CQCheckBox* autoThresholdAnalysisButton;
+		CQCheckBox* displayGridBtn;
 
 		QLabel* plotTimerTxt;
-		QLineEdit* plotTimerEdit;
+		CQLineEdit* plotTimerEdit;
 		std::atomic<UINT> plotTime=5000;
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
-		QPushButton* deleteGrid;
+		CQPushButton* deleteGrid;
 
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;

@@ -19,7 +19,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	auto handleChange = [this, parent]() {
 		try {
 			if (parent->andorWin) {
-				//parent->andorWin->handlePictureSettings ();
+				parent->andorWin->handlePictureSettings ();
 			}
 		}
 		catch (Error& err)
@@ -39,7 +39,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	totalPicNumberLabel = new QLabel ("Total Picture #", parent);
 	totalPicNumberLabel->setGeometry (pos.x, pos.y, 100, 20);
 	for (auto picInc : range (4)) {
-		totalNumberChoice[picInc] = new QRadioButton ("", parent);
+		totalNumberChoice[picInc] = new CQRadioButton ("", parent);
 		totalNumberChoice[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
 		totalNumberChoice[picInc]->setChecked (picInc == 0);
 		parent->connect (totalNumberChoice[picInc], &QRadioButton::toggled, handleChange);
@@ -48,7 +48,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	exposureLabel = new QLabel ("Exposure (ms):", parent);
 	exposureLabel->setGeometry (pos.x, pos.y+=20, 100, 20);
 	for ( auto picInc : range(4) ) {
-		exposureEdits[picInc] = new QLineEdit (parent);
+		exposureEdits[picInc] = new CQLineEdit (parent);
 		exposureEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
 		parent->connect (exposureEdits[picInc], &QLineEdit::textChanged, handleChange);
 	}
@@ -58,7 +58,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	thresholdLabel = new QLabel ("Threshold (cts)", parent);
 	thresholdLabel->setGeometry (pos.x, pos.y += 20, 100, 20);
 	for ( auto picInc : range(4) ) {
-		thresholdEdits[picInc] = new QLineEdit ("100", parent);
+		thresholdEdits[picInc] = new CQLineEdit ("100", parent);
 		thresholdEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
 		parent->connect (thresholdEdits[picInc], &QLineEdit::textChanged, handleChange);
 
@@ -69,7 +69,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	colormapLabel->setGeometry (pos.x, pos.y += 20,100, 25);
 	for ( auto picInc : range(4) )
 	{
-		colormapCombos[picInc] = new QComboBox (parent);
+		colormapCombos[picInc] = new CQComboBox (parent);
 		colormapCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
 		colormapCombos[picInc]->addItems ({ "Dark Viridis","Inferno","Black & White", "Red-Black-Blue" });
 		parent->connect (colormapCombos[picInc], qOverload<int>(&QComboBox::currentIndexChanged), handleChange);
@@ -81,7 +81,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	displayTypeLabel = new QLabel ("Display-Type:", parent);
 	displayTypeLabel->setGeometry (pos.x, pos.y += 25, 100, 25);
 	for ( auto picInc : range ( 4 ) ) {
-		displayTypeCombos[picInc] = new QComboBox (parent);
+		displayTypeCombos[picInc] = new CQComboBox (parent);
 		displayTypeCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
 		displayTypeCombos[picInc]->addItems ({"Normal","Dif: 1", "Dif: 2", "Dif: 3", "Dif: 4"});
 		parent->connect (displayTypeCombos[picInc], qOverload<int> (&QComboBox::currentIndexChanged), handleChange);
@@ -92,15 +92,14 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 	softwareAccumulationLabel = new QLabel ("Software Accum:", parent);
 	softwareAccumulationLabel->setGeometry (pos.x, pos.y += 25, 100, 20);
 	for ( auto picInc : range ( 4 ) ) {
-		softwareAccumulateAll[picInc] = new QCheckBox("All?", parent);
+		softwareAccumulateAll[picInc] = new CQCheckBox("All?", parent);
 		softwareAccumulateAll[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 65, 20);
 		softwareAccumulateAll[ picInc ]->setChecked( 0 );
 		parent->connect (softwareAccumulateAll[picInc], &QCheckBox::stateChanged, handleChange);
 
-		softwareAccumulateNum[picInc] = new QLineEdit ("1", parent);
+		softwareAccumulateNum[picInc] = new CQLineEdit ("1", parent);
 		softwareAccumulateNum[picInc]->setGeometry (pos.x + 165 + 95 * picInc, pos.y, 30, 20);
 		parent->connect (softwareAccumulateNum[picInc], &QLineEdit::textChanged, handleChange);
-
 	}
 	//
 	setPictureControlEnabled (0, true);
@@ -110,15 +109,12 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 }
 
 
-std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( )
-{
+std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( ){
 	std::array<displayTypeOption, 4> options;
 	UINT counter = 0;
-	for ( auto& combo : displayTypeCombos )
-	{
+	for ( auto& combo : displayTypeCombos ){
 		auto sel = combo->currentIndex( );
-		if ( sel < 0 || sel > 4 )
-		{
+		if ( sel < 0 || sel > 4 ){
 			thrower ( "Invalid selection in display type combo???" );
 		}
 		options[counter].isDiff = sel != 0;
@@ -129,12 +125,10 @@ std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( 
 }
 
 
-std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
-{
+std::array<std::string, 4> PictureSettingsControl::getThresholdStrings(){
 	std::array<std::string, 4> res;
 	// grab the thresholds
-	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
-	{
+	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ ){
 		auto& picThresholds = settings.thresholds[ thresholdInc ];
 		picThresholds.resize ( 1 );
 		res[ thresholdInc ] = str(thresholdEdits[thresholdInc]->text ());
@@ -142,99 +136,83 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
 	return res;
 }
 
-void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile)
-{
+void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "PICTURE_SETTINGS\n/*Color Options:*/ ";
-	for (auto color : settings.colors)
-	{
+	for (auto color : settings.colors){
 		saveFile << color << " ";
 	}
 	saveFile << "\n/*Threshold Settings:*/ ";
-	for (auto threshold : getThresholdStrings() )
-	{
+	for (auto threshold : getThresholdStrings() ){
 		saveFile << threshold << " ";
 	}
 	saveFile << "\n/*Software Accumulation (accum all / Number)*/ ";
-	for ( auto saOpt : getSoftwareAccumulationOptions ( ) )
-	{
+	for ( auto saOpt : getSoftwareAccumulationOptions ( ) ){
 		saveFile << saOpt.accumAll << " " << saOpt.accumNum << " ";
 	}
 	saveFile << "\nEND_PICTURE_SETTINGS\n";
 }
 
-andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile )
-{
+andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile ){
 	andorPicSettingsGroup fileSettings;
-	if ( configFile.ver <= Version ( "4.7" ) )
-	{
+	if ( configFile.ver <= Version ( "4.7" ) ){
 		int oldPicsPerRepTrash = 0;
 		configFile >> oldPicsPerRepTrash;
 	}
-	for ( auto& color : fileSettings.colors )
-	{
+	for ( auto& color : fileSettings.colors ){
 		configFile >> color;
 	}
-	if (configFile.ver <= Version ( "4.7" ) )
-	{
+	if (configFile.ver <= Version ( "4.7" ) ){
 		std::vector<float> oldExposureTimeTrash(4);
-		for ( auto& exposure : oldExposureTimeTrash )
-		{
+		for ( auto& exposure : oldExposureTimeTrash ){
 			configFile >> exposure;
 		}
 	}
-	for ( auto& threshold : fileSettings.thresholdStrs )
-	{
+	for ( auto& threshold : fileSettings.thresholdStrs ){
 		configFile >> threshold;
 	}
-	if (configFile.ver > Version ( "4.3" ) )
-	{
-		for ( auto& opt : fileSettings.saOpts )
-		{
+	if (configFile.ver > Version ( "4.3" ) ){
+		for ( auto& opt : fileSettings.saOpts ){
 			configFile >> opt.accumAll >> opt.accumNum;
 		}
 	}
 	return fileSettings;
 }
 
-void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor)
-{
+void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor){
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
 	auto settings = getPictureSettingsFromConfig ( openFile );
 	updateAllSettings ( settings );
 	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }
 
-void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts )
-{
+void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts ){
 	for ( auto picInc : range ( 4 ) ) {
 		softwareAccumulateAll[ picInc ]->setChecked ( opts[ picInc ].accumAll );
 		softwareAccumulateNum[ picInc ]->setText ( cstr ( opts[ picInc ].accumNum ) );
 	}
 }
 
-std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( )
-{
+std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( ){
 	std::array<softwareAccumulationOption, 4> opts;
-	for ( auto picInc : range(4))
-	{
+	for ( auto picInc : range(4)){
 		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ]->isChecked ( );
 		CString numTxt;
-		try
-		{
+		try{
 			opts[ picInc ].accumNum  = boost::lexical_cast<UINT>( str(softwareAccumulateNum[picInc]->text ()) );
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			thrower ( "Failed to convert software accumulation number to an unsigned integer!" );
 		}
 	}
 	return opts;
 }
 
-void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled)
-{
-	if (pic > 3)
-	{
+void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled){
+	if (pic > 3){
+		return;
+	}
+	if (!exposureEdits[pic] || !thresholdEdits[pic] || !colormapCombos[pic] || !displayTypeCombos[pic] 
+		|| !softwareAccumulateAll[pic] || !softwareAccumulateNum[pic]) {
 		return;
 	}
 	exposureEdits[pic]->setEnabled(enabled);
@@ -246,67 +224,25 @@ void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled)
 }
 
 
-CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
-{
-	/*
-	/// Exposures
-	if (id >= exposureEdits.front().GetDlgCtrlID() && id <= exposureEdits.back().GetDlgCtrlID())
-	{
-		int picNum = id - exposureEdits.front().GetDlgCtrlID();
-		if (!exposureEdits[picNum].IsWindowEnabled())
-		{
-			return NULL;
-		}
-		colorer->SetTextColor( _myRGBs["AndorWin-Text"]);
-		colorer->SetBkColor (_myRGBs["Interactable-Bkgd"]);
-		return _myBrushes["Interactable-Bkgd"];
-	}
-	/// Thresholds
-	else if (id >= thresholdEdits.front().GetDlgCtrlID() && id <= thresholdEdits.back().GetDlgCtrlID())
-	{
-		int picNum = id - thresholdEdits.front ().GetDlgCtrlID ();
-		if (!thresholdEdits[picNum].IsWindowEnabled ())
-		{
-			return NULL;
-		}
-		colorer->SetTextColor (_myRGBs["AndorWin-Text"]);
-		colorer->SetBkColor (_myRGBs["Interactable-Bkgd"]);
-		return _myBrushes["Interactable-Bkgd"];
-	}
-	else
-	{
-		return NULL;
-	}
-	*/
-	return NULL;
-}
-
-
-UINT PictureSettingsControl::getPicsPerRepetition()
-{
+UINT PictureSettingsControl::getPicsPerRepetition(){
 	UINT which = 0, count=0;
-	for ( auto& ctrl : totalNumberChoice )
-	{
+	for ( auto& ctrl : totalNumberChoice ){
 		count++;		
 		which = ctrl->isChecked ( ) ? count : which;
 	}
-	if ( which == 0 )
-	{
+	if ( which == 0 ){
 		thrower ( "ERROR: failed to get pics per repetition?!?" );
 	}
 	return which;
 }
 
 
-void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum )
-{
-	if ( picNum < 1 || picNum > 4 )
-	{
+void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum ){
+	if ( picNum < 1 || picNum > 4 ){
 		thrower ( "Tried to set bad number of pics per rep: " + str ( picNum ) );
 	}
 	UINT count = 0;
-	for (auto& totalNumRadio : totalNumberChoice)
-	{
+	for (auto& totalNumRadio : totalNumberChoice){
 		count++;
 		totalNumRadio->setChecked (count == picNum);
 		setPictureControlEnabled (count-1, count <= picNum);
@@ -314,26 +250,12 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum )
 }
 
 
-void PictureSettingsControl::handleOptionChange( )
-{
-	/*
-	if (id >= totalNumberChoice.front().GetDlgCtrlID() && id <= totalNumberChoice.back().GetDlgCtrlID())
-	{
-		int picNum = id - totalNumberChoice.front().GetDlgCtrlID();
-		// this message can weirdly get set after a configuration opens as well, it only means to set the number if the 
-		// relevant button is now checked.
-		if ( totalNumberChoice[picNum].GetCheck( ) )
-		{
-			setUnofficialPicsPerRep( picNum + 1 );
+void PictureSettingsControl::handleOptionChange( ){
+	for (auto radioInc : range(totalNumberChoice.size())){
+		if (totalNumberChoice[radioInc]->isChecked()){
+			setUnofficialPicsPerRep( radioInc + 1 );
 		}
 	}
-	else if (id >= colormapCombos[0].GetDlgCtrlID() && id <= colormapCombos[3].GetDlgCtrlID())
-	{
-		id -= colormapCombos[0].GetDlgCtrlID();
-		int color = colormapCombos[id].GetCurSel( );
-		settings.colors[id] = color;
-	}
-	*/
 }
 
 
@@ -365,17 +287,14 @@ std::vector<float> PictureSettingsControl::getUsedExposureTimes() {
 	return usedTimes;
 }
 
-void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds)
-{
-	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++)
-	{
+void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds){
+	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++){
 		thresholdEdits[thresholdInc]->setText(newThresholds[thresholdInc].c_str());
 	}
 }
 
 
-std::array<int, 4> PictureSettingsControl::getPictureColors()
-{
+std::array<int, 4> PictureSettingsControl::getPictureColors(){
 	updateSettings ( );
 	return settings.colors;
 }
@@ -417,8 +336,7 @@ std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds ( )
 void PictureSettingsControl::updateSettings( )
 {
 	// grab the thresholds
-	for (auto thresholdInc : range(4) )
-	{
+	for (auto thresholdInc : range(4) ){
 		if (!thresholdEdits[thresholdInc]) {
 			return;
 		}
@@ -426,76 +344,29 @@ void PictureSettingsControl::updateSettings( )
 		picThresholds.resize ( 1 );
 		int threshold;
 		
-		try
-		{
+		try{
 			QString txt = thresholdEdits[thresholdInc]->text ();						
 			threshold = txt.toInt ();
 			picThresholds[0] = threshold;
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			picThresholds.clear ( );
 			// assume it's a file location.
 			std::ifstream thresholdFile;
 			thresholdFile.open ( str(thresholdEdits[thresholdInc]->text ()).c_str() );
-			if ( !thresholdFile.is_open ( ) )
-			{
+			if ( !thresholdFile.is_open ( ) ){
 				thrower  ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
 						 "and it wasn't the address of a threshold-file." );  
 			}
-			while ( true )
-			{
+			while ( true ){
 				double indv_file_threshold;
 				thresholdFile >> indv_file_threshold;
 				if ( thresholdFile.eof ( ) ) { break; }
 				picThresholds.push_back ( indv_file_threshold );
 			}
 		}
-		//thresholdEdits[thresholdInc].RedrawWindow( );
 	}
-}
-
-
-void PictureSettingsControl::rearrange( int width, int height, fontMap fonts )
-{
-	/*
-	totalPicNumberLabel.rearrange(width, height, fonts);
-	pictureLabel.rearrange(width, height, fonts);
-	exposureLabel.rearrange(width, height, fonts);
-	thresholdLabel.rearrange(width, height, fonts);
-	colormapLabel.rearrange(width, height, fonts);
-	displayTypeLabel.rearrange(width, height, fonts );
-	softwareAccumulationLabel.rearrange (width, height, fonts );
-	for (auto& control : pictureNumbers)
-	{
-		control.rearrange(width, height, fonts);
+	for (auto colorInc : range (4)) {
+		settings.colors[colorInc] = colormapCombos[colorInc]->currentIndex();
 	}
-	for (auto& control : totalNumberChoice)
-	{
-		control.rearrange( width, height, fonts);
-	}
-	for (auto& control : exposureEdits)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : thresholdEdits)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for ( auto& control : colormapCombos )
-	{
-		control.rearrange(width, height, fonts );
-	}
-	for ( auto& control : displayTypeCombos )
-	{
-		control.rearrange(width, height, fonts );
-	}
-	for ( auto& control : softwareAccumulateAll )
-	{
-		control.rearrange ( width, height, fonts );
-	}
-	for ( auto& control : softwareAccumulateNum )
-	{
-		control.rearrange ( width, height, fonts );
-	}*/
 }

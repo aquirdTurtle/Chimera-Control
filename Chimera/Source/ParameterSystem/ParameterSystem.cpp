@@ -3,10 +3,11 @@
 #include "ParameterSystem.h"
 #include "Scripts/Script.h"
 #include "DigitalOutput/DoSystem.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
+#include <PrimaryWindows/QtScriptWindow.h>
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralObjects/multiDimensionalKey.h"
 #include "GeneralUtilityFunctions/cleanString.h"
+#include <ConfigurationSystems/ProfileSystem.h>
 #include <QHeaderView.h>
 #include <iomanip>
 #include <unordered_map>
@@ -15,6 +16,7 @@
 #include <boost/lexical_cast.hpp>
 #include <qmenu.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
+
 
 ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter ),
 paramModel(configurationFileDelimiter=="GLOBAL_PARAMETERS")
@@ -121,6 +123,8 @@ void ParameterSystem::initialize (POINT& pos, IChimeraWindowWidget* parent, std:
 				paramModel.setParams (params);
 			}});
 	}
+	parametersView->connect (&paramModel, &ParameterModel::paramsChanged, 
+							 parent->scriptWin, &QtScriptWindow::updateVarNames);
 	pos.y += 200;
 }
 

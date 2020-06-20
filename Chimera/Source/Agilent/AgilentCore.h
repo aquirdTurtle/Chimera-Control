@@ -1,10 +1,8 @@
 #pragma once
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include "GeneralFlumes/VisaFlume.h"
-#include "ConfigurationSystems/Version.h"
 #include "DigitalOutput/DoRows.h"
 #include "GeneralObjects/IDeviceCore.h"
-#include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>

@@ -85,15 +85,12 @@ void TektronixAfgControl::initialize( POINT& loc, IChimeraWindowWidget* parent, 
 
 	fskFreqLabel = new QLabel ("FSK Freq:", parent);
 	fskFreqLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+	loc.y += 20;
 }
 
 
 std::string TektronixAfgControl::queryIdentity() {
 	return core.queryIdentity ();
-}
-
-
-void TektronixAfgControl::rearrange(int width, int height, fontMap fonts){
 }
 
 

@@ -32,12 +32,10 @@ class AndorCameraSettingsControl
 		void setVariationNumber(UINT varNumber);
 		void setRepsPerVariation(UINT repsPerVar);
 		void updateRunSettingsFromPicSettings( );
-		CBrush* handleColor(int idNumber, CDC* colorer );
 		void initialize(POINT& pos, IChimeraWindowWidget* parent );
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain( bool currentlyOn, int currentEmGainLevel );
-		void rearrange(int width, int height, fontMap fonts);
 		void updateWindowEnabledStatus ();
 		void handlePictureSettings();
 		void updateTriggerMode( );
@@ -79,15 +77,15 @@ class AndorCameraSettingsControl
 		QLabel* accumulationNumberLabel;
 		CQLineEdit* accumulationNumberEdit;
 
-		QComboBox* cameraModeCombo;
+		CQComboBox* cameraModeCombo;
 		QLabel* emGainLabel;
 		CQLineEdit* emGainEdit;
-		QPushButton* emGainBtn;
+		CQPushButton* emGainBtn;
 		QLabel* emGainDisplay;
-		QComboBox* triggerCombo;
+		CQComboBox* triggerCombo;
 		// Temperature
-		QPushButton* setTemperatureButton;
-		QPushButton* temperatureOffButton;
+		CQPushButton* setTemperatureButton;
+		CQPushButton* temperatureOffButton;
 		CQLineEdit* temperatureEdit;
 		QLabel* temperatureDisplay;
 		QLabel* temperatureMsg;

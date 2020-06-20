@@ -24,30 +24,10 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 	statBox = new ColorBox ();
 	programStartTime = startTime;
 	startupTimes.push_back (chronoClock::now ());
-
-	// old on init dialog start
-	//SetWindowTextA ("Main Window");
-
-	startupTimes.push_back (chronoClock::now ());
-	for (auto elem : GIST_RAINBOW_RGB)
-	{
-		Gdiplus::Color c (50, BYTE (elem[0]), BYTE (elem[1]), BYTE (elem[2]));
-		Gdiplus::SolidBrush* b = new Gdiplus::SolidBrush (c);
-		Gdiplus::Pen* p = new Gdiplus::Pen (b);
-		Gdiplus::Color c_bright (255, BYTE (elem[0]), BYTE (elem[1]), BYTE (elem[2]));
-		Gdiplus::SolidBrush* b_bright = new Gdiplus::SolidBrush (c_bright);
-		Gdiplus::Pen* p_bright = new Gdiplus::Pen (b_bright);
-		plotBrushes.push_back (b);
-		plotPens.push_back (p);
-		brightPlotBrushes.push_back (b_bright);
-		brightPlotPens.push_back (p_bright);
-	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
 	std::string which = "";
-	try
-	{
-		
+	try	{
 		mainWin = this;
 		which = "Scripting";
 		scriptWin = new QtScriptWindow;
@@ -60,8 +40,7 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 		which = "DmWin";
 		dmWin = new QtDeformableMirrorWindow;
 	}
-	catch (Error& err)
-	{
+	catch (Error& err) {
 		errBox ("FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace ());
 		//forceExit ();
 		//return -1;
@@ -74,8 +53,7 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 	startupTimes.push_back (chronoClock::now ());
 	startupTimes.push_back (chronoClock::now ());
 	/// summarize system status.
-	try
-	{
+	try	{
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
 		std::string initializationString;
 		initializationString += getSystemStatusString ();
@@ -85,10 +63,8 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 		initializationString += scriptWin->getSystemStatusString( );
 		initializationString += auxWin->getMicrowaveSystemStatus ();
 		infoBox (initializationString);
-		
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){ 
 		errBox (err.trace ());
 	}
 
@@ -117,7 +93,7 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 	QThread* motThread = new QThread;
 	QThread* masterRepumpThread = new QThread;
 	ScopeThreadWorker* motWorker = new ScopeThreadWorker (&motScope);
-	ScopeThreadWorker* masterRepumpWorker = new ScopeThreadWorker (&motScope);
+	ScopeThreadWorker* masterRepumpWorker = new ScopeThreadWorker (&masterRepumpScope);
 
 	motWorker->moveToThread (motThread);
 	masterRepumpWorker->moveToThread (masterRepumpThread);
@@ -195,7 +171,7 @@ LRESULT QtMainWindow::onFinish (WPARAM wp, LPARAM lp)
 	switch (type)
 	{
 	case ExperimentType::Normal:
-		onNormalFinishMessage ();
+		onNormalFinish ();
 		break;
 	case ExperimentType::LoadMot:
 		break;
@@ -213,14 +189,11 @@ LRESULT QtMainWindow::onFinish (WPARAM wp, LPARAM lp)
 UINT QtMainWindow::getAutoCalNumber () { return autoCalNum; }
 
 
-void QtMainWindow::onAutoCalFin ()
-{
-	try
-	{
+void QtMainWindow::onAutoCalFin (){
+	try	{
 		scriptWin->restartNiawgDefaults ();
 	}
-	catch (Error& except)
-	{
+	catch (Error& except)	{
 		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.trace ());
 		comm.sendStatus ("ERROR!\r\n");
@@ -228,24 +201,19 @@ void QtMainWindow::onAutoCalFin ()
 	scriptWin->setNiawgRunningState (false);
 	andorWin->cleanUpAfterExp ();
 	autoCalNum++;
-	if (autoCalNum >= AUTO_CAL_LIST.size ())
-	{
+	if (autoCalNum >= AUTO_CAL_LIST.size ())	{
 		// then just finished the calibrations.
 		autoCalNum = 0;
 		infoBox ("Finished Automatic Calibrations.");
 	}
-	else
-	{
+	else{
 		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
 	}
 }
 
-void QtMainWindow::onGreyTempCalFin () { infoBox ("Finished MOT Calibrations."); }
-
-void QtMainWindow::onMachineOptRoundFin ()
-{
+void QtMainWindow::onMachineOptRoundFin (){
 	// do normal finish
-	onNormalFinishMessage ();
+	onNormalFinish ();
 	Sleep (1000);
 	// then restart.
 	commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
@@ -266,12 +234,9 @@ void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 	input->expType = ExperimentType::CameraCal;
 }
 
-LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp)
-{
-	try
-	{
-		if (andorWin->wantsAutoPause ())
-		{
+LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp){
+	try	{
+		if (andorWin->wantsAutoPause ()){
 			expThreadManager.pause ();
 			//checkAllMenus (ID_RUNMENU_PAUSE, MF_CHECKED);
 		}
@@ -281,25 +246,21 @@ LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp)
 		struct tm now;
 		localtime_s (&now, &t);
 		std::string message = "Experiment Stopped loading the MOT at ";
-		if (now.tm_hour < 10)
-		{
+		if (now.tm_hour < 10){
 			message += "0";
 		}
 		message += str (now.tm_hour) + ":";
-		if (now.tm_min < 10)
-		{
+		if (now.tm_min < 10){
 			message += "0";
 		}
 		message += str (now.tm_min) + ":";
-		if (now.tm_sec < 10)
-		{
+		if (now.tm_sec < 10){
 			message += "0";
 		}
 		message += str (now.tm_sec);
 		texter.sendMessage (message, &python, "Mot");
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		comm.sendError (err.what ());
 	}
 	return 0;
@@ -339,12 +300,6 @@ LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp)
 }
 
 
-CFont* QtMainWindow::getPlotFont (){
-	return plotfont;
-}
-
-
-
 void QtMainWindow::showHardwareStatus (){
 	try	{
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
@@ -367,7 +322,6 @@ void QtMainWindow::showHardwareStatus (){
 void QtMainWindow::notifyConfigUpdate (){
 	profile.updateConfigurationSavedStatus (false);
 }
-
 
 BOOL CALLBACK QtMainWindow::monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HDC hdcMonitor,
 	_In_ LPRECT lprcMonitor, _In_ LPARAM dwData){
@@ -442,8 +396,7 @@ fontMap QtMainWindow::getFonts () { return mainFonts; }
 
 UINT QtMainWindow::getRepNumber () { return repetitionControl.getRepetitionNumber (); }
 
-std::string QtMainWindow::getSystemStatusString ()
-{
+std::string QtMainWindow::getSystemStatusString (){
 	std::string status;
 	status += "\nMOT Scope:\n";
 	if (!MOT_SCOPE_SAFEMODE){
@@ -505,55 +458,45 @@ bool QtMainWindow::experimentIsPaused () { return expThreadManager.getIsPaused (
 Communicator* QtMainWindow::getComm () { return &comm; }
 
 
-void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input)
-{
+void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	input->debugOptions = debugger.getOptions ();
 	input->profile = profile.getProfileSettings ();
 }
 
 
-void QtMainWindow::logParams (DataLogger* logger, ExperimentThreadInput* input)
-{
+void QtMainWindow::logParams (DataLogger* logger, ExperimentThreadInput* input){
 	logger->logMasterInput (input);
 	logger->logServoInfo (getServoinfo ());
 }
 
 
-void QtMainWindow::checkProfileReady ()
-{
+void QtMainWindow::checkProfileReady (){
 	//profile.allSettingsReadyCheck( this );
 }
 
 
-void QtMainWindow::checkProfileSave ()
-{
+void QtMainWindow::checkProfileSave (){
 	//profile.checkSaveEntireProfile( this );
 }
 
 
-void QtMainWindow::updateConfigurationSavedStatus (bool status)
-{
+void QtMainWindow::updateConfigurationSavedStatus (bool status){
 	profile.updateConfigurationSavedStatus (status);
 }
 
 
-void QtMainWindow::updateStatusText (std::string whichStatus, std::string text)
-{
+void QtMainWindow::updateStatusText (std::string whichStatus, std::string text){
 	std::transform (whichStatus.begin (), whichStatus.end (), whichStatus.begin (), ::tolower);
-	if (whichStatus == "error")
-	{
+	if (whichStatus == "error")	{
 		errorStatus.addStatusText (text);
 	}
-	else if (whichStatus == "debug")
-	{
+	else if (whichStatus == "debug")	{
 		debugStatus.addStatusText (text);
 	}
-	else if (whichStatus == "main")
-	{
+	else if (whichStatus == "main")	{
 		mainStatus.addStatusText (text);
 	}
-	else
-	{
+	else{
 		thrower ("Main Window's updateStatusText function recieved a bad argument for which status"
 			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus);
 	}
@@ -563,36 +506,29 @@ void QtMainWindow::updateStatusText (std::string whichStatus, std::string text)
 void QtMainWindow::addTimebar (std::string whichStatus)
 {
 	std::transform (whichStatus.begin (), whichStatus.end (), whichStatus.begin (), ::tolower);
-	if (whichStatus == "error")
-	{
+	if (whichStatus == "error")	{
 		errorStatus.appendTimebar ();
 	}
-	else if (whichStatus == "debug")
-	{
+	else if (whichStatus == "debug"){
 		debugStatus.appendTimebar ();
 	}
-	else if (whichStatus == "main")
-	{
+	else if (whichStatus == "main")	{
 		mainStatus.appendTimebar ();
 	}
-	else
-	{
+	else{
 		thrower ("Main Window's addTimebar function recieved a bad argument for which status"
 			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus + ". This"
 			"exception can be safely ignored.");
 	}
 }
 
-void QtMainWindow::changeBoxColor (std::string sysDelim, std::string color)
-{
+void QtMainWindow::changeBoxColor (std::string sysDelim, std::string color){
 	IChimeraWindowWidget::changeBoxColor (sysDelim, color);
 	changeShortStatusColor (color);
 }
 
-void QtMainWindow::abortMasterThread ()
-{
-	if (expThreadManager.runningStatus ())
-	{
+void QtMainWindow::abortMasterThread (){
+	if (expThreadManager.runningStatus ()){
 		expThreadManager.abort ();
 		autoF5_AfterFinish = false;
 	}
@@ -600,41 +536,35 @@ void QtMainWindow::abortMasterThread ()
 }
 
 
-void QtMainWindow::onErrorMessage (QString errMessage)
-{
+void QtMainWindow::onErrorMessage (QString errMessage){
 	if (str(errMessage) != ""){
 		errorStatus.addStatusText (str(errMessage));
 	}
 }
 
 
-void QtMainWindow::onFatalErrorMessage (std::string statusMessage)
-{
+void QtMainWindow::onFatalError (){
 	autoF5_AfterFinish = false;
 	// normal msg stuff
-	errorStatus.addStatusText (statusMessage);
+	//errorStatus.addStatusText (statusMessage);
 	// resetting things.
 	scriptWin->setIntensityDefault ();
 	std::string msgText = "Exited with Error!\nPassively Outputting Default Waveform.";
 	changeShortStatusColor ("R");
-	try
-	{
+	try{
 		scriptWin->restartNiawgDefaults ();
 		comm.sendError ("EXITED WITH ERROR!\n");
 		comm.sendStatus ("EXITED WITH ERROR!\nInitialized Default Waveform\r\n");
 	}
-	catch (Error& except)
-	{
+	catch (Error& except){
 		comm.sendError ("EXITED WITH ERROR! " + except.trace ());
 		comm.sendStatus ("EXITED WITH ERROR!\nNIAWG RESTART FAILED!\r\n");
 	}
 	scriptWin->setNiawgRunningState (false);
-	//errBox (statusMessage);
 }
 
 
-void QtMainWindow::onNormalFinishMessage () 
-{ 
+void QtMainWindow::onNormalFinish () { 
 	scriptWin->setIntensityDefault ();
 	setShortStatus ("Passively Outputting Default Waveform");
 	changeShortStatusColor ("B");
@@ -643,8 +573,7 @@ void QtMainWindow::onNormalFinishMessage ()
 	andorWin->cleanUpAfterExp ();
 	handleFinish ();
 	try { scriptWin->restartNiawgDefaults (); }
-	catch (Error& except)
-	{
+	catch (Error& except){
 		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.trace ());
 		comm.sendStatus ("ERROR!\r\n");
@@ -653,104 +582,85 @@ void QtMainWindow::onNormalFinishMessage ()
 	try { scriptWin->waitForRearranger (); }
 	catch (Error& err) { comm.sendError (err.trace ()); }
 	if (andorWin->wantsThresholdAnalysis ()) { handleThresholdAnalysis (); }
-	if (autoF5_AfterFinish)
-	{
+	if (autoF5_AfterFinish)	{
 		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F5, this);
 		autoF5_AfterFinish = false;
 	}
 }
 
 
-void QtMainWindow::handleFinish ()
-{
+void QtMainWindow::handleFinish (){
 	time_t t = time (0);
 	struct tm now;
 	localtime_s (&now, &t);
 	std::string message = "Experiment Completed at ";
-	if (now.tm_hour < 10)
-	{
+	if (now.tm_hour < 10){
 		message += "0";
 	}
 	message += str (now.tm_hour) + ":";
-	if (now.tm_min < 10)
-	{
+	if (now.tm_min < 10){
 		message += "0";
 	}
 	message += str (now.tm_min) + ":";
-	if (now.tm_sec < 10)
-	{
+	if (now.tm_sec < 10){
 		message += "0";
 	}
 	message += str (now.tm_sec);
-	try
-	{
+	try{
 		texter.sendMessage (message, &python, "Finished");
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		comm.sendError (err.trace ());
 	}
 }
 
 
-void QtMainWindow::onDebugMessage (std::string msg)
-{
+void QtMainWindow::onDebugMessage (std::string msg){
 	debugStatus.addStatusText (msg);
 }
 
 // MESSAGE MAP FUNCTION
-LRESULT QtMainWindow::autoServo (WPARAM w, LPARAM l)
-{
-	try
-	{
+LRESULT QtMainWindow::autoServo (WPARAM w, LPARAM l){
+	try	{
 		updateConfigurationSavedStatus (false);
-		if (servos.wantsCalAutoServo ())
-		{
+		if (servos.wantsCalAutoServo ()){
 			runServos ();
 		}
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		comm.sendError ("Auto-Servo Failed.\n" + err.trace ());
 	}
 	return TRUE;
 }
 
 // MESSAGE MAP FUNCTION
-void QtMainWindow::runServos ()
-{
-	try
-	{
+void QtMainWindow::runServos (){
+	try{
 		updateConfigurationSavedStatus (false);
 		comm.sendStatus ("Running Servos...\r\n");
 		servos.runAll (comm);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		comm.sendError ("Running Servos failed.\n" + err.trace ());
 	}
 }
 
-std::vector<servoInfo> QtMainWindow::getServoinfo ()
-{
+std::vector<servoInfo> QtMainWindow::getServoinfo (){
 	return servos.getServoInfo ();
 }
 
-void QtMainWindow::handleMasterConfigOpen (ConfigStream& configStream)
-{
+void QtMainWindow::handleMasterConfigOpen (ConfigStream& configStream){
 	servos.handleOpenMasterConfig (configStream);
 }
 
-void QtMainWindow::handleMasterConfigSave (std::stringstream& configStream)
-{
+void QtMainWindow::handleMasterConfigSave (std::stringstream& configStream){
 	servos.handleSaveMasterConfig (configStream);
 }
 
 
 void QtMainWindow::fillExpDeviceList (DeviceList& list) {}
 
-DeviceList QtMainWindow::getDevices ()
-{
+DeviceList QtMainWindow::getDevices (){
 	DeviceList list;
 	for (auto win_ : winList ()) {
 		win_->fillExpDeviceList (list);

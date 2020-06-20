@@ -1,43 +1,48 @@
 // created by Mark O. Brown
 #pragma once
-#include "Control.h"
 #include "GeneralImaging/imageParameters.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "Plotting/PlotCtrl.h"
 #include "CustomMfcControlWrappers/LongCSlider.h"
 #include "softwareAccumulationOption.h"
+#include <GeneralObjects/Matrix.h>
 #include "QPixmap.h"
 #include <qlabel.h>
+#include "ImageLabel.h"
+
 /*
  * This class manages a single picture displayed on the camera window and the controls associated with that single 
  * picture. Unlike many classes in my program, this is /not/ built to be a singleton. Instead, there should be one 
  * such control for every picture that needs to be displayed on the screen at a given time. 
  */
 ;
-class PictureControl
-{
+namespace Ui {
+	class PictureControl;
+}
+class PictureControl : public QWidget{
+	Q_OBJECT
 	public:
 		PictureControl ( bool histogramOption );
 		void initialize( POINT loc, int width, int height, IChimeraWindowWidget* widget);
-		void handleMouse( CPoint p );
-		void drawPicNum(UINT picNum );
+		void handleMouse( QMouseEvent* event );
+		void drawPicNum(UINT picNum, QPainter& painter);
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
 		void setSliderControlLocs(POINT pos, int height);
 		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
-						 bool specialMin, bool specialMax);
+						 bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
+			std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers);
 		void setSliderPositions(UINT min, UINT max);
-		void drawBackground();
 		void drawGrid(CBrush* brush);
-		void drawCircle(coordinate selectedLocation );
+		void drawCircle(coordinate selectedLocation, QPainter& painter);
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
-		void drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
+		void drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo,
+								  QPainter& painter);
 		void setCursorValueLocations( CWnd* parent );
-		void drawRectangle( RECT pixelRect );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
-		void updatePalette( HPALETTE pallete );
-		void redrawImage( bool bkgd=true );
+		void updatePalette(QVector<QRgb> pallete );
+		void redrawImage();
 		void setActive( bool activeState );
 		bool isActive();
 		std::pair<UINT, UINT> getSliderLocations();
@@ -45,8 +50,12 @@ class PictureControl
 		void resetStorage();
 		void setHoverValue( );
 		void updatePlotData ( );
-		void paint ( CRect size, CBrush* bgdBrush );
+		void drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
+						  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers=true);
+		coordinate selectedLocation;
 	private:
+		Ui::PictureControl* ui;
+		const int picScaleFactor = 50;
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
 		UINT accumNum;
@@ -59,14 +68,16 @@ class PictureControl
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
-		POINT mouseCoordinates;
 		// for replotting.
 		Matrix<long> mostRecentImage_m;
+		int mostRecentPicNum;
+		std::vector<coordinate> mostRecentAnalysisLocs;
+		std::vector<atomGrid> mostRecentGrids;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.
 		UINT maxWidth, maxHeight;
 		bool active;
-
+		
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.
 		imageParameters unofficialImageParameters;
 		// Arguably I should make these static controls instead of keeping track explicitly of these things. 
@@ -76,10 +87,10 @@ class PictureControl
 		// scaled for the dimensions of the picture
 		RECT pictureArea;
 		int colorIndicator;
-		HPALETTE imagePalette;
+		QVector<QRgb> imagePalette;
 		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<RECT>> grid;
-		QLabel* pictureObject;
+		ImageLabel* pictureObject;
 		QPixmap* pixmap;
 
 		LongCSlider sliderMax;

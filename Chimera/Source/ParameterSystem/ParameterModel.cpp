@@ -30,8 +30,7 @@ QVariant ParameterModel::data (const QModelIndex& index, int role) const
     int row = index.row ();
     int col = index.column ();
     auto param = parameters[row];
-    try
-    {
+    try {
         switch (role) {
         case Qt::EditRole:
             if (!isGlobal && col >= 5) {
@@ -179,6 +178,7 @@ bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, i
         catch (boost::bad_lexical_cast&) {
             // hmm
         }
+        emit paramsChanged ();
         return true;
     }
     return false;
@@ -188,6 +188,7 @@ void ParameterModel::setParams (std::vector<parameterType> newParams) {
     beginResetModel ();
     parameters = newParams;
     endResetModel();
+    emit paramsChanged ();
 }
 
 std::vector<parameterType> ParameterModel::getParams () {

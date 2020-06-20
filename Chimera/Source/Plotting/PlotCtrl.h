@@ -11,6 +11,8 @@
 #include <qchart.h>
 #include <qchartview.h>
 #include <qlineseries.h>
+#include <qscatterseries.h>
+#include <qobject.h>
 
 #include <mutex>
 #include <vector>
@@ -34,13 +36,8 @@ enum class plotStyle
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 typedef std::shared_ptr<QtCharts::QLineSeries> pQtPlotDataVec;
-Q_DECLARE_METATYPE (dataPoint)
-Q_DECLARE_METATYPE (std::vector<dataPoint>)
-Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
-Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
 
-struct plotMinMax
-{
+struct plotMinMax {
 	double min_x, min_y, max_x, max_y;
 };
 /*
@@ -49,8 +46,8 @@ struct plotMinMax
 * real-time, but this custom plotter, while it took some work (it was fun though) allows me to embed plots in the
 * main windows and have a little more direct control over the data being plotted.
 */
-class PlotCtrl
-{
+class PlotCtrl : public QObject {
+	Q_OBJECT;
 	public:
 		PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds,
 				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
@@ -58,10 +55,9 @@ class PlotCtrl
 		void init( POINT& topLeftLoc, LONG width, LONG height, IChimeraWindowWidget* parent );
 		dataPoint getMainAnalysisResult ( );
 		std::vector<pPlotDataVec> getCurrentData ( );
-
+		void resetChart ();
 		std::vector<std::mutex> dataMutexes;
 		void setStyle (plotStyle newStyle);
-		void setData (std::vector<plotDataVec> newData);
 		void setTitle (std::string newTitle);
 		void setThresholds (std::vector<int> newThresholds);
 		void refreshData ();
@@ -76,6 +72,11 @@ class PlotCtrl
 		// points within the line.
 		std::string title;
 		//std::vector<pPlotDataVec> data;
-		std::vector<QtCharts::QLineSeries*> qtData;
+		std::vector<QtCharts::QLineSeries*> qtLineData;
+		std::vector<QtCharts::QScatterSeries*> qtScatterData;
+
+	public Q_SLOTS:
+		void setData (std::vector<plotDataVec> newData);
+
 };
 

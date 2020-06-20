@@ -1,27 +1,22 @@
 // created by Mark O. Brown
 #pragma once
 #include "AgilentCore.h"
-#include "CustomMfcControlWrappers/myButton.h"
-#include "ConfigurationSystems/Version.h"
-#include "ConfigurationSystems/ProfileSystem.h"
 #include "Scripts/ScriptStream.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralFlumes/VisaFlume.h"
-#include "GeneralObjects/commonTypes.h"
 #include "Agilent/agilentStructures.h"
 #include "Scripts/Script.h"
-#include "ParameterSystem/Expression.h"
 #include "DigitalOutput/DoRows.h"
 #include <vector>
 #include <array>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
 #include <qlabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 
+class IChimeraWindowWidget;
+
 // A class for programming agilent arbitrary waveform generators.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. 
-class Agilent
-{
+class Agilent {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		Agilent& operator=(const Agilent&) = delete;

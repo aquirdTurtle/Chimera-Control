@@ -13,11 +13,9 @@ void ScopeThreadWorker::process (){
 			Sleep (5000);
 			if (true /*safemode*/){
 				for (auto traceNum : range (input->numTraces)) {
-					unsigned numPts = 5000;
+					unsigned numPts = 500;
 					QVector<double> xData(numPts);
 					QVector<double> yData (numPts);
-					//std::vector<double>* xdata  = new std::vector<double> (numPts);
-					//std::vector<double>* ydata = new std::vector<double> (numPts);
 					auto min = DBL_MAX;
 					auto max = -DBL_MAX;
 					unsigned count = 0;

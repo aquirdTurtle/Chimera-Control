@@ -46,9 +46,9 @@ class QtScriptWindow : public IChimeraWindowWidget
 
 		profileSettings getProfileSettings ();
 		std::string getSystemStatusString ();
-
+		void updateDoAoNames ();
 		void checkMasterSave ();
-
+		
 		void windowSaveConfig (ConfigStream& saveFile);
 		void windowOpenConfig (ConfigStream& configFile);
 
@@ -79,7 +79,6 @@ class QtScriptWindow : public IChimeraWindowWidget
 		void newMasterFunction ();
 		void saveMasterFunction ();
 		void deleteMasterFunction ();
-		void masterEditChange ();
 
 		void updateConfigurationSavedStatus (bool status);
 
@@ -111,5 +110,7 @@ class QtScriptWindow : public IChimeraWindowWidget
         Script masterScript;
         ProfileIndicator profileDisplay;
         Agilent intensityAgilent;
+	public Q_SLOTS:
+		void updateVarNames ();
 };
 

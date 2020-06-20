@@ -3,8 +3,8 @@
 
 #include "Scripts/Script.h"
 
+#include "PrimaryWindows/IChimeraWindowWidget.h"
 #include "GeneralUtilityFunctions/cleanString.h"
-#include "Richedit.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "PrimaryWindows/AuxiliaryWindow.h"
@@ -20,16 +20,19 @@
 #include <QInputDialog>
 
 void Script::initialize (int width, int height, POINT& loc, IChimeraWindowWidget* parent,
-	std::string deviceTypeInput, std::string scriptHeader)
-{
+	std::string deviceTypeInput, std::string scriptHeader){
 	deviceType = deviceTypeInput;
+	ScriptableDevice devenum;
 	if (deviceTypeInput == "NIAWG") {
+		devenum = ScriptableDevice::NIAWG;
 		extension = str (".") + NIAWG_SCRIPT_EXTENSION;
 	}
 	else if (deviceTypeInput == "Agilent") {
+		devenum = ScriptableDevice::Agilent;
 		extension = str (".") + AGILENT_SCRIPT_EXTENSION;
 	}
 	else if (deviceTypeInput == "Master") {
+		devenum = ScriptableDevice::Master;
 		extension = str (".") + MASTER_SCRIPT_EXTENSION;
 	}
 	else {
@@ -37,8 +40,7 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraWindowWidget
 			"this shouldn't happen)");
 	}
 	// title
-	if (scriptHeader != "")
-	{
+	if (scriptHeader != "")	{
 		title = new QLabel (cstr (scriptHeader), parent);
 		title->setGeometry (loc.x, loc.y, width, 25);
 		loc.y += 25;
@@ -53,8 +55,7 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraWindowWidget
 	help = new QLabel ("?", parent);
 	help->setGeometry (loc.x + width - 20, loc.y, 20, 20);
 	// don't want this for the scripting window, hence the extra check.
-	if (deviceType == "Agilent")
-	{
+	if (deviceType == "Agilent"){
 		help->setToolTip (AGILENT_INFO_TEXT);
 	}
 	loc.y += 20;
@@ -66,6 +67,7 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraWindowWidget
 
 	edit = new CQTextEdit ("", parent);
 	edit->setGeometry (loc.x, loc.y, width, height);
+	edit->setStyleSheet ("font: bold 11pt \"Courier New\"");
 	parent->connect (edit, &QTextEdit::textChanged, [parent, this]() {
 			try {
 				handleEditChange ();
@@ -74,6 +76,7 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraWindowWidget
 				parent->reportErr (err.trace ());
 			}
 		});
+	highlighter = new SyntaxHighlighter (devenum, edit->document ());
 	loc.y += height;
 }
 
@@ -366,8 +369,7 @@ void Script::handleEditChange()
 
 
 void Script::colorEntireScript( std::vector<parameterType> vars, Matrix<std::string> ttlNames, 
-								std::array<AoInfo, 24> dacInfo )
-{
+								std::array<AoInfo, 24> dacInfo ){
 	colorScriptSection(0, ULONG_MAX, vars, ttlNames, dacInfo);
 }
 
@@ -399,6 +401,15 @@ bool Script::positionIsInComment (DWORD position)
 		}
 	}
 	return inComment;
+}
+
+std::vector<parameterType> Script::getLocalParams () {
+	if (!edit) { return{}; }
+	auto text = edit->toPlainText ();
+	std::stringstream fileTextStream = std::stringstream (str (text));
+	ScriptStream ss (fileTextStream.str ());
+	auto localVars = ExperimentThreadManager::getLocalParameters (ss);
+	return localVars;
 }
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<parameterType> vars, 

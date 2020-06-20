@@ -22,7 +22,6 @@ class TektronixAfgControl
 		// THIS CLASS IS NOT COPYABLE.
 		TektronixAfgControl& operator=(const TektronixAfgControl&) = delete;
 		TektronixAfgControl (const TektronixAfgControl&) = delete;
-
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);

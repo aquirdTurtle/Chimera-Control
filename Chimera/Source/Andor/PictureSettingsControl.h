@@ -13,11 +13,7 @@
 #include <vector>
 #include "PrimaryWindows/IChimeraWindowWidget.h"
 #include <qlabel.h>
-#include <qlineedit.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qpushbutton.h>
-#include <qcombobox.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 class AndorCameraCore;
 class AndorCameraSettingsControl;
@@ -51,9 +47,7 @@ class PictureSettingsControl
 		std::vector<float> getUsedExposureTimes();
 		std::array<std::vector<int>, 4> getThresholds();
 		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
-		CBrush* colorControls(int idNumber, CDC* colorer );
 		void setThresholds( std::array<std::string, 4> thresholds);
-		void rearrange(int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
 		void updateSettings( );
 		void updateColormaps ( std::array<int, 4> colorsIndexes );
@@ -76,14 +70,14 @@ class PictureSettingsControl
 		QLabel* displayTypeLabel;
 		QLabel* softwareAccumulationLabel;
 		// 
-		std::array<QRadioButton*, 4> totalNumberChoice;
+		std::array<CQRadioButton*, 4> totalNumberChoice;
 		std::array<QLabel*, 4> pictureNumbers;
-		std::array<QLineEdit*, 4> exposureEdits;
-		std::array<QLineEdit*, 4> thresholdEdits;
-		std::array<QComboBox*, 4> colormapCombos;
-		std::array<QComboBox*, 4> displayTypeCombos;
-		std::array<QCheckBox*, 4> softwareAccumulateAll;
-		std::array<QLineEdit*, 4> softwareAccumulateNum;
+		std::array<CQLineEdit*, 4> exposureEdits;
+		std::array<CQLineEdit*, 4> thresholdEdits;
+		std::array<CQComboBox*, 4> colormapCombos;
+		std::array<CQComboBox*, 4> displayTypeCombos;
+		std::array<CQCheckBox*, 4> softwareAccumulateAll;
+		std::array<CQLineEdit*, 4> softwareAccumulateNum;
 };
 
 

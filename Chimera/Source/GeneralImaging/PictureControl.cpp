@@ -5,39 +5,20 @@
 #include <numeric>
 #include <boost/lexical_cast.hpp>
 
-PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramOption )
-{
+PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramOption ), QWidget (){
 	active = true;
-	if ( histOption )
-	{
+	if ( histOption ){
 		horData.resize ( 1 );
 		horData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
 		vertData.resize ( 1 );
 		vertData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
 		updatePlotData ( );
 	}
+	repaint ();
 }
 
-
-void PictureControl::paint (CRect size, CBrush* bgdBrush )
-{
-	return;
-	if ( !active )
-	{
-		return;
-	}
-	long width = size.right - size.left, height = size.bottom - size.top;
-	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
-	// for a single plot.
-	horGraph->refreshData ();
-	vertGraph->refreshData ();
-}
-
-
-void PictureControl::updatePlotData ( )
-{
-	if ( !histOption )
-	{
+void PictureControl::updatePlotData ( ){
+	if ( !histOption ){
 		return;
 	}
 	horData[ 0 ]->resize ( mostRecentImage_m.getCols ( ) );
@@ -45,13 +26,11 @@ void PictureControl::updatePlotData ( )
 	UINT count = 0;
 
 	std::vector<long> dataRow;
-	for ( auto& data : *horData[ 0 ] )
-	{
+	for ( auto& data : *horData[ 0 ] ){
 		data.x = count;
 		// integrate the column
 		double p = 0.0;
-		for ( auto row : range ( mostRecentImage_m.getRows ( ) ) )
-		{
+		for ( auto row : range ( mostRecentImage_m.getRows ( ) ) ){
 			p += mostRecentImage_m ( row, count );
 		}
 		count++;
@@ -59,19 +38,16 @@ void PictureControl::updatePlotData ( )
 	}
 	count = 0;
 	auto avg = std::accumulate ( dataRow.begin ( ), dataRow.end ( ), 0.0 ) / dataRow.size ( );
-	for ( auto& data : *horData[ 0 ] )
-	{
+	for ( auto& data : *horData[ 0 ] ){
 		data.y = dataRow[ count++ ] - avg;
 	}
 	count = 0;
 	std::vector<long> dataCol;
-	for ( auto& data : *vertData[ 0 ] )
-	{
+	for ( auto& data : *vertData[ 0 ] ){
 		data.x = count;
 		// integrate the row
 		double p = 0.0;
-		for ( auto col : range ( mostRecentImage_m.getCols ( ) ) )
-		{
+		for ( auto col : range ( mostRecentImage_m.getCols ( ) ) ){
 			p += mostRecentImage_m ( count, col );
 		}
 		count++;
@@ -79,8 +55,7 @@ void PictureControl::updatePlotData ( )
 	}
 	count = 0;
 	auto avgCol = std::accumulate ( dataCol.begin ( ), dataCol.end ( ), 0.0 ) / dataCol.size ( );
-	for ( auto& data : *vertData[ 0 ] )
-	{
+	for ( auto& data : *vertData[ 0 ] ){
 		data.y = dataCol[ count++ ] - avgCol;
 	}
 }
@@ -89,15 +64,12 @@ void PictureControl::updatePlotData ( )
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindowWidget* parent)
-{
-	if ( width < 100 )
-	{
+void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindowWidget* parent){
+	if ( width < 100 ){
 		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
 									 "controls." );
 	}
-	if ( height < 100 )
-	{
+	if ( height < 100 ){
 		thrower ( "Pictures must be greater than 100 in height because this is the minimum height "
 									 "of the max/min controls." );
 	}
@@ -114,22 +86,24 @@ void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindo
 		POINT pt{ 365, LONG (860) };
 		horGraph->init ( pt, 1565 - 50, 65, parent );
 	}
-	pictureObject = new QLabel (parent);
+	pictureObject = new ImageLabel (parent);
 	pictureObject->setGeometry (loc.x, loc.y, width, height);
+	parent->connect (pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse (event); });
 	setPictureArea (loc, maxWidth, maxHeight);
 
 	std::vector<unsigned char> data (20000);
-	for (auto& pt : data)
-	{
+	for (auto& pt : data){
 		pt = rand () % 255;
 	}
 	
 	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	sliderMin.initialize(loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MIN" );
 	sliderMin.setValue ( 0 );
+	parent->connect (sliderMin.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
 	loc.x += 25;
 	sliderMax.initialize ( loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MAX" );
 	sliderMax.setValue ( 300 );
+	parent->connect (sliderMax.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
 	// reset this.
 	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	
@@ -147,25 +121,21 @@ void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindo
 
 
 
-bool PictureControl::isActive()
-{
+bool PictureControl::isActive(){
 	return active;
 }
 
 
-void PictureControl::setSliderPositions(UINT min, UINT max)
-{
+void PictureControl::setSliderPositions(UINT min, UINT max){
 	sliderMin.setValue ( min );
 	sliderMax.setValue ( max );
 }
-
 
 /*
  * Used during initialization & when used when transitioning between 1 and >1 pictures per repetition. 
  * Sets the unscaled background area and the scaled area.
  */
-void PictureControl::setPictureArea( POINT loc, int width, int height )
-{
+void PictureControl::setPictureArea( POINT loc, int width, int height ){
 	// this is important for the control to know where it should draw controls.
 	auto& sBA = scaledBackgroundArea;
 	unscaledBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height };
@@ -177,13 +147,11 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	sBA.right *= width;
 	sBA.top *= height;
 	sBA.bottom *= height;*/
-	if ( horGraph )
-	{
+	if ( horGraph ){
 		//horGraph->setControlLocation ( { scaledBackgroundArea.left, scaledBackgroundArea.bottom }, 
 		//							   scaledBackgroundArea.right - scaledBackgroundArea.left, 65 );
 	}
-	if ( vertGraph )
-	{
+	if ( vertGraph ){
 		//vertGraph->setControlLocation ( { scaledBackgroundArea.left - 65, scaledBackgroundArea.bottom },
 		//							      65, scaledBackgroundArea.bottom - scaledBackgroundArea.top );
 	}
@@ -193,13 +161,11 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	double w_to_h_ratio = double (uIP.width ()) / uIP.height ();
 	double sba_w = sBA.right - sBA.left;
 	double sba_h = sBA.bottom - sBA.top;
-	if (w_to_h_ratio > sba_w/sba_h)
-	{
+	if (w_to_h_ratio > sba_w/sba_h){
 		widthPicScale = 1;
 		heightPicScale = (1.0/ w_to_h_ratio) * (sba_w / sba_h);
 	}
-	else
-	{
+	else{
 		heightPicScale = 1;
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
@@ -212,8 +178,7 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	pictureArea.top = mid.y - picHeight / 2;
 	pictureArea.bottom = mid.y + picHeight / 2;
 	
-	if (pictureObject)
-	{
+	if (pictureObject){
 		pictureObject->setGeometry (loc.x, loc.y, width, height);
 		pictureObject->raise ();
 	}
@@ -223,8 +188,7 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make 
  * sure to change the background size before using this.
  * ********/
-void PictureControl::setSliderControlLocs (POINT pos, int height)
-{
+void PictureControl::setSliderControlLocs (POINT pos, int height){
 	sliderMin.reposition ( pos, height);
 	pos.x += 25;
 	sliderMax.reposition ( pos, height );
@@ -233,8 +197,7 @@ void PictureControl::setSliderControlLocs (POINT pos, int height)
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make
 * sure to change the background size before using this.
 * ********/
-void PictureControl::setCursorValueLocations( CWnd* parent )
-{
+void PictureControl::setCursorValueLocations( CWnd* parent ){
 	if (!coordinatesText || !coordinatesDisp) {
 		return;
 	}
@@ -282,7 +245,7 @@ coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 /*
  * change the colormap used for a given picture.
  */
-void PictureControl::updatePalette( HPALETTE palette ){
+void PictureControl::updatePalette( QVector<QRgb> palette ){
 	imagePalette = palette;
 }
 
@@ -291,12 +254,10 @@ void PictureControl::updatePalette( HPALETTE palette ){
  * called when the user changes either the min or max edit.
  */
 void PictureControl::handleEditChange( int id ){
-	if ( id == sliderMax.getEditId() )
-	{
+	if ( id == sliderMax.getEditId() ){
 		sliderMax.handleEdit ( );
 	}
-	if ( id == sliderMin.getEditId() )
-	{
+	if ( id == sliderMin.getEditId() ){
 		sliderMin.handleEdit ( );
 	}
 }
@@ -347,13 +308,11 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	auto& sBA = scaledBackgroundArea;
 	double sba_w = sBA.right - sBA.left;
 	double sba_h = sBA.bottom - sBA.top;
-	if (w_to_h_ratio > sba_w / sba_h)
-	{
+	if (w_to_h_ratio > sba_w / sba_h){
 		widthPicScale = 1;
 		heightPicScale = (1.0 / w_to_h_ratio) * (sba_w / sba_h);
 	}
-	else
-	{
+	else{
 		heightPicScale = 1;
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
@@ -375,10 +334,10 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			// for all 4 pictures...
 			grid[colInc][rowInc].left = int(pictureArea.left
-											 + (double)colInc * (pictureArea.right - pictureArea.left) 
+											 + (double)(colInc+1) * (pictureArea.right - pictureArea.left) 
 											 / (double)grid.size( ) + 2);
 			grid[colInc][rowInc].right = int(pictureArea.left
-				+ (double)(colInc + 1) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
+				+ (double)(colInc + 2) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
 			grid[colInc][rowInc].top = int(pictureArea.top
 				+ (double)(rowInc)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
 			grid[colInc][rowInc].bottom = int(pictureArea.top
@@ -418,13 +377,10 @@ void PictureControl::setActive( bool activeState )
 /*
  * redraws the background and image. 
  */
-void PictureControl::redrawImage(bool bkgd){
-	if ( bkgd ){
-		drawBackground (  );
-	}
+void PictureControl::redrawImage(){
 	if ( active && mostRecentImage_m.size ( ) != 0 ){
-		drawBitmap( mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
-			mostRecentSpecialMaxSetting);
+		drawBitmap (mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
+			mostRecentSpecialMaxSetting, mostRecentAnalysisLocs, mostRecentGrids, mostRecentPicNum, true);
 	}
 }
 
@@ -432,23 +388,26 @@ void PictureControl::resetStorage(){
 	mostRecentImage_m = Matrix<long>(0,0);
 }
 
-
 void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption opt ){
 	saOption = opt;
 	accumPicData.clear ( );
 	accumNum = 0;
 }
 
-
 /* 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
 void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo, 
-	bool specialMin, bool specialMax )
+	bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
+	std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers)
 {
 	mostRecentImage_m = picData;
-	unsigned int minColor = sliderMin.getValue ( );
-	unsigned int maxColor = sliderMax.getValue ( );
+	mostRecentPicNum = pictureNumber;
+	mostRecentAnalysisLocs = analysisLocs;
+	mostRecentGrids = grids;
+
+	auto minColor = sliderMin.getValue ( );
+	auto maxColor = sliderMax.getValue ( );
 	mostRecentAutoscaleInfo = autoScaleInfo;
 	int pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
 	int pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
@@ -474,8 +433,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 		thrower  ( "Picture data didn't match grid size!" );
 	}
 	
-	pixmap = new QPixmap (dataWidth, dataHeight);
-
+	//pixmap = new QPixmap (dataWidth, dataHeight);
 	// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
 	if ( pixelsAreaWidth % 4 ){
 		pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
@@ -491,7 +449,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	double dTemp = 1;
 	for (int heightInc = 0; heightInc < dataHeight; heightInc++){
 		for (int widthInc = 0; widthInc < dataWidth; widthInc++){
-			dTemp = ceil (yscale * (picData (heightInc, widthInc) - minColor));
+			dTemp = ceil (yscale * double(picData (heightInc, widthInc) - minColor));
 			if (dTemp <= 0)	{
 				// raise value to zero which is the floor of values this parameter can take.
 				iTemp = 1;
@@ -505,49 +463,59 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 				iTemp = (int)dTemp;
 			}
 			// store the value.
-			QColor color (iTemp, iTemp, iTemp);
 			dataArray2[widthInc + heightInc * dataWidth] = (unsigned char)iTemp;
-			rgbArray[widthInc + heightInc * dataWidth] = color.rgb();
 		}
 	}
-	QImage* pixmap = new QImage (dataWidth, dataHeight, QImage::Format_Grayscale8 );
-	pixmap->fill (0);
+	int sf = picScaleFactor;
+	QImage img (sf * dataWidth, sf * dataHeight, QImage::Format_Indexed8);
+	img.setColorTable (imagePalette);
+	img.fill (0);
 	auto ct = 0;
-	for (int y = 0; y < pixmap->height (); y++)	{
-		memcpy (pixmap->scanLine (y), dataArray2.data() + y * dataWidth, pixmap->bytesPerLine ());
+	for (auto rowInc : range(dataHeight)){
+		std::vector<uchar> singleRow (sf * dataWidth);
+		for (auto val : range (dataWidth)){
+			for (auto rep : range (sf)) {
+				singleRow[sf * val + rep] = dataArray2[rowInc * dataWidth + val];
+			}
+		}
+		for (auto repRow : range (sf)){
+			memcpy (img.scanLine (rowInc * sf + repRow), singleRow.data(), img.bytesPerLine ());
+		}
 	}
+	// need to convert to an rgb format in order to draw on top. drawing on top using qpainter isn't supported with the 
+	// indexed format. 
+	img = img.convertToFormat (QImage::Format_RGB888);
+	QPainter painter;
+	painter.begin (&img);
+	drawDongles (painter, analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
+	painter.end ();	
 	if (pictureObject->width () > pictureObject->height ())	{
-		pictureObject->setPixmap (QPixmap::fromImage (*pixmap).scaledToHeight (pictureObject->height ()));
+		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToHeight (pictureObject->height ()));
 	}
 	else {
-		pictureObject->setPixmap (QPixmap::fromImage (*pixmap).scaledToWidth (pictureObject->width()));
+		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToWidth (pictureObject->width()));
 	}
 	// update this with the new picture.
 	setHoverValue ( );
 }
 
-
-
-void PictureControl::setHoverValue( )
-{
-	int loc = (grid.size( ) - 1 - mouseCoordinates.x) * grid.size( ) + mouseCoordinates.y;
+void PictureControl::setHoverValue( ){
+	int loc = (grid.size( ) - 1 - selectedLocation.column) * grid.size( ) + selectedLocation.row;
 	if ( loc >= mostRecentImage_m.size( ) )	{
 		return;
 	}
 	valueDisp->setText( cstr( mostRecentImage_m.data[loc] ) );
 }
 
-
-void PictureControl::handleMouse( CPoint p )
-{
-	int rowCount = 0;
-	int colCount = 0;
+void PictureControl::handleMouse (QMouseEvent* event){
+	auto loc = event->windowPos ();
+	unsigned rowCount = 0;
+	unsigned colCount = 0;
 	for ( auto col : grid ){
 		for ( auto box : col ){
-			if ( p.x < box.right && p.x > box.left && p.y > box.top && p.y < box.bottom )
-			{
+			if (loc.x() < box.right && loc.x() > box.left && loc.y() > box.top && loc.y() < box.bottom ) {
 				coordinatesDisp->setText( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
-				mouseCoordinates = { rowCount, colCount };
+				selectedLocation = { rowCount, colCount };
 				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 ){
 					setHoverValue( );
 				}
@@ -557,16 +525,8 @@ void PictureControl::handleMouse( CPoint p )
 		colCount += 1;
 		rowCount = 0;
 	}
+	redrawImage ();
 }
-
-
-/*
- * recolor the background box, clearing last run.
- */
-void PictureControl::drawBackground (){
-	return;
-}
-
 
 /* 
  * draw the grid which outlines where each pixel is.  Especially needs to be done when selecting pixels and no picture
@@ -606,134 +566,69 @@ void PictureControl::drawGrid(CBrush* brush)
 /*
  * draws the circle which denotes the selected pixel that the user wants to know the counts for. 
  */
-void PictureControl::drawCircle(coordinate selectedLocation)
+void PictureControl::drawCircle(coordinate selectedLocation, QPainter& painter)
 {
-	if (grid.size() == 0)
-	{
+	if (grid.size() == 0){
 		// this hasn't been set yet, presumably this got called by the camera window as the camera window
 		// was drawing itself before the control was initialized.
 		return;
 	}
-	if (!active)
-	{
+	if (!active){
 		// don't draw anything if the window isn't active.
 		return;
 	}
-
-	if ( selectedLocation.column > grid.size( ) || selectedLocation.row > grid[0].size() 
-		 || selectedLocation.row <=0 || selectedLocation.column <= 0 )
-	{
-		// quietly don't try to draw.
-		return;
-	}
-	RECT smallRect;
-	RECT relevantRect = grid[selectedLocation.column-1][selectedLocation.row-1];
-	smallRect.left = relevantRect.left + long(7.0 * (relevantRect.right - relevantRect.left) / 16.0);
-	smallRect.right = relevantRect.left + long( 9.0 * (relevantRect.right - relevantRect.left) / 16.0);
-	smallRect.top = relevantRect.top + long( 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
-	smallRect.bottom = relevantRect.top + long( 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
-	// get appropriate brush and pen
-	/*
-	dc->SelectObject( GetStockObject( HOLLOW_BRUSH ) );
-	dc->SelectObject( GetStockObject( DC_PEN ) );
-	
-	if (colorIndicator == 0 || colorIndicator == 2)
-	{
-		dc->SetDCPenColor( RGB( 255, 0, 0 ) );
-		dc->Ellipse( relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom );
-		dc->SelectObject( GetStockObject( DC_BRUSH ) );
-		dc->SetDCBrushColor( RGB( 255, 0, 0 ) );
-	}
-	else
-	{
-		dc->SetDCPenColor( RGB( 0, 255, 0 ) );
-		dc->Ellipse( relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom );
-		dc->SelectObject( GetStockObject( DC_BRUSH ) );
-		dc->SetDCBrushColor( RGB( 0, 255, 0 ) );
-	}
-	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );*/
+	QRect smallRect(selectedLocation.column * picScaleFactor, selectedLocation.row * picScaleFactor, 
+					picScaleFactor-1, picScaleFactor-1);
+	painter.drawEllipse (smallRect);
 }
 
-
-void PictureControl::drawPicNum( UINT picNum )
-{
-	//HPEN textPen = CreatePen( 0, 1, RGB(100, 100, 120) );
-	//dc->SelectObject( textPen );
-	RECT rect = grid[0][0];
-	rect.right += 50;
-	//dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
-	//		DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-	//DeleteObject( textPen );
+void PictureControl::drawPicNum( UINT picNum, QPainter& painter ){
+	QFont font = painter.font ();
+	// I think this is the font height in pixels on the pixmap basically. 
+	font.setPointSize (20);
+	painter.setFont (font);
+	painter.drawText (QPoint ( int(picScaleFactor)/5, picScaleFactor), cstr (picNum));
 }
 
-
-void PictureControl::drawAnalysisMarkers(std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo )
-{
-	if ( !active )
-	{
+void PictureControl::drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo,
+										  QPainter& painter ){
+	if ( !active ){
 		return;
 	}
-	HPEN markerPen;
-	std::vector<COLORREF> colors = { RGB( 100, 100, 100 ), RGB( 0, 100, 0 ), RGB( 0, 0, 100), RGB( 100, 0, 0 ) };
+	//std::vector<COLORREF> colors = { RGB( 100, 100, 100 ), RGB( 0, 100, 0 ), RGB( 0, 0, 100), RGB( 100, 0, 0 ) };
 	UINT gridCount = 0;
-	for ( auto atomGrid : gridInfo )
-	{
-		markerPen = CreatePen( 0, 1, colors[gridCount % 4] );
-		//dc->SelectObject( markerPen );
-
-		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) )
-		{
+	for ( auto atomGrid : gridInfo ){
+		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) ){
 			// atom grid is empty, not to be used.
 			UINT count = 1;
-			DeleteObject( markerPen );
 		}
-		else
-		{
+		else {
 			// use the atom grid.
 			UINT count = 1;
-			for ( auto columnInc : range( atomGrid.width ) )
-			{
-				for ( auto rowInc : range( atomGrid.height ) )
-				{
-					UINT pixelRow = atomGrid.topLeftCorner.row - 1 + rowInc * atomGrid.pixelSpacing;
-					UINT pixelColumn = atomGrid.topLeftCorner.column - 1 + columnInc * atomGrid.pixelSpacing;
-					if ( pixelColumn >= grid.size( ) || pixelRow >= grid[0].size( ) )
-					{
-						// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
-						// want to deal with this yet.
-						continue;
-					}
-					RECT drawGrid, origGrid = grid[pixelColumn][pixelRow];
-					drawGrid.left = origGrid.left + (origGrid.right - origGrid.left) * gridCount / 10;
-					drawGrid.right = origGrid.right - (origGrid.right - origGrid.left) * gridCount / 10;
-					drawGrid.top = origGrid.top + (origGrid.bottom - origGrid.top) * gridCount / 10;
-					drawGrid.bottom = origGrid.bottom - (origGrid.bottom - origGrid.top) * gridCount / 10;
-
-					drawRectangle( drawGrid );
-					//dc->SetTextColor( colors[gridCount % 4] );
-					//dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), 
-					//				&drawGrid, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-					count++;
+			for ( auto columnInc : range( atomGrid.width ) ){
+				for ( auto rowInc : range( atomGrid.height ) ){
+					UINT pixelRow = picScaleFactor*(atomGrid.topLeftCorner.row + rowInc * atomGrid.pixelSpacing);
+					UINT pixelColumn = picScaleFactor * (atomGrid.topLeftCorner.column 
+														 + columnInc * atomGrid.pixelSpacing);
+					QRect rect = QRect (QPoint(pixelColumn, pixelRow), 
+										QPoint (pixelColumn+picScaleFactor-2, pixelRow + picScaleFactor - 2));
+					painter.drawRect (rect);
+					painter.drawText (rect, Qt::AlignCenter, cstr(count++));
 				}
 			}
 		}
-		DeleteObject( markerPen );
 		gridCount++;
 	}
 }
 
-
-void PictureControl::drawRectangle(RECT pixelRect )
-{
-	/*
-	dc->MoveTo( { pixelRect.left, pixelRect.top } );
-
-	dc->SetBkMode( TRANSPARENT );
-	dc->SetTextColor( RGB( 200, 200, 200 ) );
-
-	dc->LineTo( pixelRect.right, pixelRect.top );
-	dc->LineTo( pixelRect.right, pixelRect.bottom );
-	dc->LineTo( pixelRect.left, pixelRect.bottom );
-	dc->LineTo( pixelRect.left, pixelRect.top );*/
+void PictureControl::drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
+	std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers){
+	drawPicNum (pictureNumber, painter);
+	if (includingAnalysisMarkers) {
+		drawAnalysisMarkers (  analysisLocs, grids, painter );
+	}
+	painter.setPen (Qt::red);
+	drawCircle (selectedLocation, painter);
 }
+
 

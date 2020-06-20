@@ -9,14 +9,16 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "GeneralObjects/Matrix.h"
 #include "Rearrangement/rerngGuiControl.h"
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/lexical_cast.hpp>
-#include <chrono>
-#include <numeric>
+
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralObjects/Queues.h"
 #include "LowLevel/externals.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/lexical_cast.hpp>
+#include <chrono>
+#include <numeric>
+#include <ConfigurationSystems/ProfileSystem.h>
 #include <algorithm>
 #include <random>
 

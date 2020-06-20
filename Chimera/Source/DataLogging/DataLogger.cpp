@@ -6,24 +6,22 @@
 #include "Andor/CameraImageDimensions.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
+#include <ConfigurationSystems/ProfileSystem.h>
 
-DataLogger::DataLogger(std::string systemLocation)
-{
+DataLogger::DataLogger(std::string systemLocation){
 	// initialize this to false.
 	fileIsOpen = false;
 	dataFilesBaseLocation = systemLocation;
 }
 
 
-DataLogger::~DataLogger( )
-{
+DataLogger::~DataLogger( ){
 	// try to close before finishing.
 	closeFile( );
 }
 
 // this file assumes that h5 is the data_#.h5 file. User should check if incDataSet is on before calling. ???
-void DataLogger::deleteFile(Communicator* comm)
-{
+void DataLogger::deleteFile(Communicator* comm){
 	if (fileIsOpen)
 	{
 		// I'm not actually sure if this should be a prob with h5.
@@ -43,8 +41,7 @@ void DataLogger::deleteFile(Communicator* comm)
 }
 
 
-void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath )
-{
+void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath ){
 	time_t timeInt = time ( 0 );
 	struct tm timeStruct;
 	localtime_s ( &timeStruct, &timeInt );
@@ -74,24 +71,20 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 	int result = 1;
 	struct stat info;
 	int resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
-	if ( resultStat != 0 )
-	{
+	if ( resultStat != 0 ){
 		result = CreateDirectory ( cstr ( base + finalSaveFolder ), 0 );
 	}
-	if ( !result )
-	{
+	if ( !result ){
 		thrower ( "ERROR: Failed to create save location for data at location " + base + finalSaveFolder +
 				  ". Make sure you have access to the jilafile or change the save location. Error: " + str ( GetLastError ( ) )
 				  + "\r\n" );
 	}
 	finalSaveFolder += "\\Raw Data";
 	resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
-	if ( resultStat != 0 )
-	{
+	if ( resultStat != 0 ){
 		result = CreateDirectory ( cstr ( base + finalSaveFolder ), 0 );
 	}
-	if ( !result )
-	{
+	if ( !result ){
 		thrower ( "ERROR: Failed to create save location for data! Error: " + str ( GetLastError ( ) ) + "\r\n" );
 	}
 	finalSaveFolder += "\\";
@@ -99,8 +92,7 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 }
 
 
-void DataLogger::assertCalibrationFilesExist ()
-{
+void DataLogger::assertCalibrationFilesExist (){
 	for (std::string fName : { "MOT_NUMBER.h5", "MOT_TEMPERATURE.h5", "RED_PGC_TEMPERATURE.h5",
 							   "GREY_MOLASSES_TEMPERATURE.h5" } )
 	{

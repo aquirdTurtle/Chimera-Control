@@ -9,64 +9,65 @@ void TektronixChannelControl::initialize (POINT loc, IChimeraWindowWidget* paren
 	channelLabel = new QLabel (cstr (channelText), parent);
 	channelLabel->setGeometry (loc.x, loc.y, width, 20);
 	
-	controlButton = new QCheckBox ("", parent);
+	controlButton = new CQCheckBox ("", parent);
 	controlButton->setGeometry (loc.x, loc.y+=20, width, 20);
 	parent->connect (controlButton, &QCheckBox::stateChanged, [parent]() {parent->configUpdated (); });
 	parent->connect (controlButton, &QCheckBox::stateChanged, [this]() {handleEnabledStatus (); });
 
-	onOffButton = new QCheckBox ("", parent);
+	onOffButton = new CQCheckBox ("", parent);
 	onOffButton->setGeometry (loc.x, loc.y += 20, width, 20);
 	parent->connect (onOffButton, &QCheckBox::stateChanged, [parent]() {parent->configUpdated (); });
 	parent->connect (onOffButton, &QCheckBox::stateChanged, [this]() {handleEnabledStatus (); });
 
-	fskButton = new QCheckBox ("", parent);
+	fskButton = new CQCheckBox ("", parent);
 	fskButton->setGeometry (loc.x, loc.y += 20, width, 20);
 	parent->connect (fskButton, &QCheckBox::stateChanged, [parent]() {parent->configUpdated (); });
 	parent->connect (fskButton, &QCheckBox::stateChanged, [this]() {handleEnabledStatus (); });
 
-	power = new QLineEdit ("", parent);
+	power = new CQLineEdit ("", parent);
 	power->setGeometry (loc.x, loc.y += 20, width, 20);
 	parent->connect (power, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	power->setEnabled (false);
 
-	mainFreq = new QLineEdit ("", parent);
+	mainFreq = new CQLineEdit ("", parent);
 	mainFreq->setGeometry (loc.x, loc.y += 20, width, 20);
 	parent->connect (mainFreq, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	mainFreq->setEnabled (false);
 
-	fskFreq = new QLineEdit ("", parent);
+	fskFreq = new CQLineEdit ("", parent);
 	fskFreq->setGeometry (loc.x, loc.y += 20, width, 20);
 	parent->connect (fskFreq, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	fskFreq->setEnabled (false);
+	loc.y += 20;
+	handleEnabledStatus ();
 }
 
 
 void TektronixChannelControl::handleEnabledStatus ()
 {
-	if (controlButton->isChecked ())
-	{
+	if (!controlButton->isChecked ()){
 		onOffButton->setEnabled (false);
 		fskButton->setEnabled (false);
 		power->setEnabled (false);
 		mainFreq->setEnabled (false);
 		fskFreq->setEnabled (false);
+		return;
 	}
-	if (onOffButton->isChecked ())
-	{
+	else{
+		onOffButton->setEnabled (true);
+	}
+	if (onOffButton->isChecked ()){
 		fskButton->setEnabled (true);
 		power->setEnabled (true);
 		mainFreq->setEnabled (true);
-		if (fskButton->isChecked())
-		{
+		if (fskButton->isChecked()){
 			fskFreq->setEnabled (true);
 		}
-		else
-		{
+		else{
 			fskFreq->setEnabled (false);
 		}
 	}
-	else
-	{
+	else{
 		fskButton->setEnabled (false);
 		power->setEnabled (false);
 		mainFreq->setEnabled (false);
@@ -95,5 +96,3 @@ void TektronixChannelControl::setSettings (tektronixChannelOutput info)
 	mainFreq->setText (cstr (currentInfo.mainFreq.expressionStr));
 	fskFreq->setText (cstr (currentInfo.fskFreq.expressionStr));
 }
-
-void TektronixChannelControl::rearrange (int width, int height, fontMap fonts){}

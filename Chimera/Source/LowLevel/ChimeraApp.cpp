@@ -54,8 +54,13 @@ BOOL ChimeraApp::InitInstance(){
 	
 	auto inst = QMfcApp::instance (this);
 	qRegisterMetaType<QVector<double>> ();
+	qRegisterMetaType<std::vector<double>> ();
 	qRegisterMetaType<std::vector<std::vector<plotDataVec>>> ();
-
+	qRegisterMetaType<NormalImage> ();
+	qRegisterMetaType<atomQueue> ();
+	qRegisterMetaType<std::vector<std::vector<dataPoint> >> ();
+	qRegisterMetaType<PlottingInfo> ();
+	qRegisterMetaType<PixListQueue> ();
 	QtMainWindow* mainWinQt = new QtMainWindow((CDialog*)splash, &initTime);
 	mainWinQt->show ();
 	inst->exec ();
@@ -64,6 +69,12 @@ BOOL ChimeraApp::InitInstance(){
 	std::chrono::high_resolution_clock::now();
 	return int(0);
 }
+
+Q_DECLARE_METATYPE (dataPoint)
+Q_DECLARE_METATYPE (std::vector<dataPoint>)
+Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
+Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
+Q_DECLARE_METATYPE (PlottingInfo)
 
 
 BOOL ChimeraApp::ExitInstance( ){

@@ -18,7 +18,7 @@
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include <qthread.h>
-
+#include <RealTimeDataAnalysis/AnalysisThreadWorker.h>
 #include "nidaqmx2.h"
 
 #include <boost/algorithm/string/replace.hpp>
@@ -47,20 +47,20 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 	std::unique_ptr< ExperimentThreadInput > input ((ExperimentThreadInput*)voidInput);
 	input->thisObj->experimentIsRunning = true;
 	input->comm.expQuiet = input->quiet;
-	emit input->workerThread->notify ("Starting Experiment Thread Procedure...\n");
+	emit input->workerThread->notification ("Starting Experiment Thread Procedure...\n");
 	ExpRuntimeData expRuntime;
 	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
 	try
 	{
-		emit input->workerThread->notify ("Loading Experiment Settings...\n");
+		emit input->workerThread->notification ("Loading Experiment Settings...\n");
 		ConfigStream cStream (input->profile.configFilePath (), true);
 		loadExperimentRuntime (cStream, expRuntime, input);
 		for (auto& device : input->devices.list){
 			deviceLoadExpSettings (device, input, cStream);
 		}
 		/// The Variation Calculation Step.
-		emit input->workerThread->notify ("Calculating All Variation Data...\r\n");
+		emit input->workerThread->notification ("Calculating All Variation Data...\r\n");
 		for (auto& device : input->devices.list) {
 			deviceCalculateVariations (device, input, expRuntime.expParams);
 		}
@@ -77,11 +77,11 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		/// Begin experiment 
 		for (const auto& variationInc : range(determineVariationNumber (expRuntime.expParams))){
 			initVariation ( input, variationInc, expRuntime.expParams);
-			emit input->workerThread->notify ("Programming Devices for Variation... ");
+			emit input->workerThread->notification ("Programming Devices for Variation... ");
 			for (auto& device : input->devices.list) {
 				deviceProgramVariation (device, input, expRuntime.expParams, variationInc);
 			}
-			emit input->workerThread->notify ("Running Experiment.\r\n");
+			emit input->workerThread->notification ("Running Experiment.\r\n");
 			for (const auto& repInc : range(expRuntime.repetitions)) {
 				handlePause ( input->comm, input->thisObj->isPaused, input->thisObj->isAborting, input->workerThread);
 				startRep (input, repInc, variationInc, input->skipNext == NULL ? false : input->skipNext->load ());
@@ -371,21 +371,22 @@ void ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input
 	ExpThreadWorker* worker = new ExpThreadWorker (input);
 	QThread* thread = new QThread;
 	worker->moveToThread (thread);
-	parent->mainWin->connect (worker, &ExpThreadWorker::updateBoxColor,
-							  parent->mainWin, &QtMainWindow::handleColorboxUpdate);
-	parent->andorWin->connect (worker, &ExpThreadWorker::prepareAndor,
-							   parent->andorWin, &QtAndorWindow::handlePrepareForAcq);
-	parent->mainWin->connect (worker, &ExpThreadWorker::notify,
-							  parent->mainWin, & QtMainWindow::handleExpNotification);
-	parent->mainWin->connect (worker, &ExpThreadWorker::warn,
-							  parent->mainWin, &QtMainWindow::onErrorMessage);
-	parent->auxWin->connect (worker, &ExpThreadWorker::doAoData,
-							 parent->auxWin, &QtAuxiliaryWindow::handleDoAoPlotData);
+	parent->connect (worker, &ExpThreadWorker::updateBoxColor, parent->mainWin, &QtMainWindow::handleColorboxUpdate);
+	parent->connect (worker, &ExpThreadWorker::prepareAndor, parent->andorWin, &QtAndorWindow::handlePrepareForAcq);
+	parent->connect (worker, &ExpThreadWorker::notification, parent->mainWin, & QtMainWindow::handleExpNotification);
+	parent->connect (worker, &ExpThreadWorker::warn, parent->mainWin, &QtMainWindow::onErrorMessage);
+	parent->connect (worker, &ExpThreadWorker::doAoData, parent->auxWin, &QtAuxiliaryWindow::handleDoAoPlotData);
+	parent->connect (worker, &ExpThreadWorker::repUpdate, parent->mainWin, &QtMainWindow::onRepProgress);
+	parent->connect (worker, &ExpThreadWorker::mainProcessFinish, thread, &QThread::quit);
+	parent->connect (worker, &ExpThreadWorker::plot_Xvals_determined,  parent->andorWin->analysisThreadWorker, &AnalysisThreadWorker::setXpts);
+	parent->connect (worker, &ExpThreadWorker::normalExperimentFinish, parent->mainWin, &QtMainWindow::onNormalFinish);
+	parent->connect (worker, &ExpThreadWorker::errorExperimentFinish, parent->mainWin, &QtMainWindow::onFatalError);
 
-	parent->mainWin->connect (worker, &ExpThreadWorker::repUpdate,
-							  parent->mainWin, &QtMainWindow::onRepProgress);
-	parent->mainWin->connect (thread, SIGNAL (started ()), worker, SLOT (process ()));
-	parent->mainWin->connect (thread, SIGNAL (finished ()), thread, SLOT (deleteLater ()));
+	parent->connect (thread, &QThread::started, worker, &ExpThreadWorker::process);
+	parent->connect (thread, &QThread::finished, thread, &QObject::deleteLater );
+	parent->connect (thread, &QThread::finished, worker, &QObject::deleteLater);
+	parent->connect (thread, &QThread::finished, parent->andorWin->analysisThreadWorker, &QObject::deleteLater);
+	parent->connect (thread, &QThread::finished, parent->andorWin->atomCruncherWorker, &QObject::deleteLater);
 	thread->start (QThread::TimeCriticalPriority);
 }
 
@@ -1019,9 +1020,11 @@ void ExperimentThreadManager::updatePlotX_vals ( std::unique_ptr<ExperimentThrea
 	std::vector<parameterType>& expParams){
 	// remove old plots that aren't trying to sustain.
 	input->plotterInput->key = ParameterSystem::getKeyValues ( expParams );
+	emit input->workerThread->plot_Xvals_determined (input->plotterInput->key);
 	auto& pltInput = input->plotterInput;
 	auto plotInc = 0;
 	for ( auto plotParams : pltInput->plotInfo ){
+		/*
 		int which = pltInput->dataArrays.size () - pltInput->plotInfo.size () + plotInc;
 		if (which < 0 || which >= pltInput->dataArrays.size ()){
 			thrower ("Plotter data array access out of range?!");
@@ -1035,6 +1038,7 @@ void ExperimentThreadManager::updatePlotX_vals ( std::unique_ptr<ExperimentThrea
 			}
 		}
 		plotInc++;
+		*/
 	}
 }
 
@@ -1048,7 +1052,7 @@ void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<Experimen
 		input->aoSys.initializeDataObjects (0);
 		input->ttls.initializeDataObjects (0);
 		input->thisObj->loadSkipTimes = std::vector<double> (variations);
-		emit input->workerThread->notify ("Analyzing Master Script...\n");
+		emit input->workerThread->notification ("Analyzing Master Script...\n");
 		std::string warnings;
 		input->thisObj->analyzeMasterScript (input->ttls, input->aoSys, runtime.expParams, runtime.masterScript,
 			runtime.mainOpts.atomSkipThreshold != UINT_MAX, warnings, input->thisObj->operationTime,
@@ -1056,8 +1060,7 @@ void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<Experimen
 		emit input->workerThread->warn (cstr (warnings));
 		input->ttls.calculateVariations (runtime.expParams, input->workerThread);
 		input->aoSys.calculateVariations (runtime.expParams, input->workerThread);
-		for (auto variationInc : range (variations))
-		{
+		for (auto variationInc : range (variations)){
 			if (input->thisObj->isAborting) { thrower (abortString); }
 			double& currLoadSkipTime = input->thisObj->loadSkipTimes[variationInc];
 			currLoadSkipTime = ExperimentThreadManager::convertToTime (input->thisObj->loadSkipTime, runtime.expParams,
@@ -1066,21 +1069,19 @@ void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<Experimen
 			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, runtime.expParams);
 			input->aoSys.checkTimingsWork (variationInc);
 		}
-		emit input->workerThread->notify (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str());
+		emit input->workerThread->notification (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str());
 		ULONGLONG totalTime = 0;
-		for (auto variationNumber : range (variations))
-		{
+		for (auto variationNumber : range (variations))	{
 			totalTime += ULONGLONG (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
 		}
-		emit input->workerThread->notify (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str ());
-		emit input->workerThread->notify (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str ());
-		emit input->workerThread->notify (("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n").c_str ());
+		emit input->workerThread->notification (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str ());
+		emit input->workerThread->notification (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str ());
+		emit input->workerThread->notification (("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n").c_str ());
 	}
 }
 
 void ExperimentThreadManager::runConsistencyChecks ( std::unique_ptr<ExperimentThreadInput>& input, 
-													 std::vector<parameterType> expParams )
-{
+													 std::vector<parameterType> expParams ){
 	if (input->updatePlotterXVals) { updatePlotX_vals (input, expParams); };
 	input->globalControl.setUsages (expParams);
 	for (auto& var : expParams)	{
@@ -1097,24 +1098,24 @@ void ExperimentThreadManager::handlePause ( Communicator& comm, std::atomic<bool
 {
 	if (isAborting) { thrower (abortString); }
 	if (isPaused){
-		emit worker->notify ("PAUSED\r\n!");
+		emit worker->notification ("PAUSED\r\n!");
 		while (isPaused){
 			Sleep (100);
 			if (isAborting) { thrower (abortString); }
 		}
-		emit worker->notify ("UN-PAUSED!\r\n");
+		emit worker->notification ("UN-PAUSED!\r\n");
 	}
 }
 
 void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadInput>& input, UINT variationInc, 
 											  std::vector<parameterType> expParams){
 	auto variations = determineVariationNumber (expParams);
-	emit input->workerThread->notify (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
+	emit input->workerThread->notification (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
 	auto& aiSys = input->devices.getSingleDevice<AiSystem> ();
 	auto& andorCamera = input->devices.getSingleDevice<AndorCameraCore> ();
 	if (aiSys.wantsQueryBetweenVariations()){
 		// the main gui thread does the whole measurement here. This probably makes less sense now. 
-		emit input->workerThread->notify ("Querying Voltages...\r\n");
+		emit input->workerThread->notification ("Querying Voltages...\r\n");
 		input->comm.sendLogVoltsMessage (variationInc);
 	}
 	if (input->debugOptions.sleepTime != 0) { Sleep (input->debugOptions.sleepTime); }
@@ -1124,13 +1125,13 @@ void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadIn
 				thrower ("Variable " + param.name + " varies, but has no values assigned to "
 					"it! (This shouldn't happen, it's a low-level bug...)");
 			}
-			emit input->workerThread->notify ((param.name + ": " + str (param.keyValues[variationInc], 12) + "\r\n").c_str ());
+			emit input->workerThread->notification ((param.name + ": " + str (param.keyValues[variationInc], 12) + "\r\n").c_str ());
 		}
 	}
 	while (true){
 		if (andorCamera.queryStatus () == DRV_ACQUIRING){
 			Sleep (1000);
-			emit input->workerThread->notify ("Waiting for Andor camera to finish acquisition...");
+			emit input->workerThread->notification ("Waiting for Andor camera to finish acquisition...");
 			if (input->thisObj->isAborting) { thrower (abortString); }
 		}
 		else { break; }
@@ -1145,18 +1146,19 @@ void ExperimentThreadManager::errorFinish ( Communicator& comm, std::atomic<bool
 											std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker)
 {
 	if (isAborting)	{
-		emit worker->notify (ExperimentThreadManager::abortString.c_str());
+		emit worker->notification (ExperimentThreadManager::abortString.c_str());
 	}
 	else{
-		emit worker->notify ("Bad Exit!\r\n");
+		emit worker->notification ("Bad Exit!\r\n");
 		comm.sendFatalError ("Exited main experiment thread abnormally." + exception.trace ());
 	}
 	{
 		isAborting = false;
 	}
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
-	emit worker->notify (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
+	emit worker->notification (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
 		+ str (int (exp_t) % 60) + " seconds.\r\n").c_str ());
+	emit worker->errorExperimentFinish ();
 }
 
 void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType& expType, bool runMaster, 
@@ -1181,10 +1183,11 @@ void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType&
 		default:
 			comm.sendFinish (ExperimentType::Normal);
 	}
-	emit worker->notify ("\r\nExperiment Finished Normally.\r\n");
+	emit worker->notification ("\r\nExperiment Finished Normally.\r\n");
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
-	emit worker->notify (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) 
+	emit worker->notification (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) 
 		+ " minutes, " + str (int (exp_t) % 60) + " seconds.\r\n").c_str ());
+	emit worker->normalExperimentFinish ();
 }
 
 void ExperimentThreadManager::startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip)

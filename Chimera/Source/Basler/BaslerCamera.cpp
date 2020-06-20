@@ -192,58 +192,48 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 	//camera->AcquisitionMode.SetValue(Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous);
 	//camera->AcquisitionFrameRate.SetValue(settings.frameRate);
 	// exposure mode
-	if (settings.exposureMode == BaslerAutoExposure::mode::Continuous)
-	{
+	if (settings.exposureMode == BaslerAutoExposure::mode::Continuous){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Continuous );
 	}
-	else if (settings.exposureMode == BaslerAutoExposure::mode::Off)
-	{
+	else if (settings.exposureMode == BaslerAutoExposure::mode::Off){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Off );
 
-		if (!(settings.exposureTime >= camera->getExposureMin() && settings.exposureTime <= camera->getExposureMax()))
-		{
+		if (!(settings.exposureTime >= camera->getExposureMin() && settings.exposureTime <= camera->getExposureMax())){
 			thrower ( "exposure time must be between " + str( camera->getExposureMin() ) + " and " 
 					 + str( camera->getExposureMax()) );
 		}
 		camera->setExposure( settings.exposureTime );
 	}
-	else if (settings.exposureMode == BaslerAutoExposure::mode::Once)
-	{
+	else if (settings.exposureMode == BaslerAutoExposure::mode::Once){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Once );
 	}
 
-	if (settings.triggerMode == BaslerTrigger::mode::External)
-	{
+	if (settings.triggerMode == BaslerTrigger::mode::External){
 		#ifdef FIREWIRE_CAMERA
 			camera->setTriggerSource(cameraParams::TriggerSource_Line1);
 		#elif defined USB_CAMERA
 			camera->setTriggerSource(cameraParams::TriggerSource_Line3);
 		#endif
 	}
-	else if (settings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
-	{
+	else if (settings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
 	}
-	else if (settings.triggerMode == BaslerTrigger::mode::ManualSoftware )
-	{
+	else if (settings.triggerMode == BaslerTrigger::mode::ManualSoftware ){
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
 	}
 	runSettings = settings;
 }
 
-baslerSettings BaslerCameraCore::getRunningSettings ()
-{
+baslerSettings BaslerCameraCore::getRunningSettings (){
 	return runSettings;
 }
 
 // I can potentially use this to reopen the camera if e.g. the user disconnects. Don't think this is really implemented
 // yet.
-void BaslerCameraCore::reOpenCamera(IChimeraWindowWidget* parent )
-{
+void BaslerCameraCore::reOpenCamera(IChimeraWindowWidget* parent ){
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
-	if (!BASLER_SAFEMODE)
-	{
+	if (!BASLER_SAFEMODE){
 		delete camera;
 		cameraType* temp;
 		temp = new cameraType( Pylon::CTlFactory::GetInstance().CreateFirstDevice( info ) );
@@ -255,10 +245,8 @@ void BaslerCameraCore::reOpenCamera(IChimeraWindowWidget* parent )
 // get the dimensions of the camera. This is tricky because while I can get info about each parameter easily through
 // pylon, several of the parameters, such as the width, are context-sensitive and return the max values as possible 
 // given other camera settings at the moment (e.g. the binning).
-POINT BaslerCameraCore::getCameraDimensions()
-{
-	if (BASLER_SAFEMODE)
-	{
+POINT BaslerCameraCore::getCameraDimensions(){
+	if (BASLER_SAFEMODE){
 		return { 672, 512 };
 	}
 	POINT dim;
@@ -290,15 +278,12 @@ POINT BaslerCameraCore::getCameraDimensions()
 
 // get the camera "armed" (ready for aquisition). Actual start of camera taking pictures depends on things like the 
 // trigger mode.
-void BaslerCameraCore::armCamera( )
-{
+void BaslerCameraCore::armCamera( ){
 	Pylon::EGrabStrategy grabStrat;
-	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous )
-	{
+	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous ){
 		grabStrat = Pylon::GrabStrategy_LatestImageOnly;
 	}
-	else
-	{
+	else{
 		grabStrat = Pylon::GrabStrategy_OneByOne;
 	}
 	triggerThreadInput* input = new triggerThreadInput;
@@ -306,69 +291,57 @@ void BaslerCameraCore::armCamera( )
 	
 	input->frameRate = runSettings.frameRate;
 	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
-	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
-	{
+	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
 		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
 	}
 }
 
 
-HANDLE BaslerCameraCore::getCameraThreadObj ( )
-{
+HANDLE BaslerCameraCore::getCameraThreadObj ( ){
 	return cameraTrigThread;
 }
 
 
 // 
-double BaslerCameraCore::getCurrentExposure()
-{
+double BaslerCameraCore::getCurrentExposure(){
 	return camera->getCurrentExposure();
 }
 
 //
-unsigned int BaslerCameraCore::getPicsPerRep()
-{
+unsigned int BaslerCameraCore::getPicsPerRep(){
 	return runSettings.picsPerRep;
 }
 
 //
-bool BaslerCameraCore::isContinuous()
-{
+bool BaslerCameraCore::isContinuous(){
 	return runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous;
 }
 
 // this is the thread that programatically software-triggers the camera when triggering internally.
-void BaslerCameraCore::triggerThread( void* voidInput )
-{
+void BaslerCameraCore::triggerThread( void* voidInput ){
 	int count = 0;
 	triggerThreadInput* input = (triggerThreadInput*)voidInput;
-	try
-	{
-		while (input->camera->isGrabbing())
-		{
+	try{
+		while (input->camera->isGrabbing())	{
 			// adjust for frame rate
 			Sleep(int(1000.0 / input->frameRate));
-			try
-			{
+			try	{
 				// Execute the software trigger. The call waits up to 100 ms for the camera
 				// to be ready to be triggered.
 				input->camera->waitForFrameTriggerReady(1000);
 				input->camera->executeSoftwareTrigger();			
 				count++;
 			}
-			catch (Error&)
-			{
+			catch (Error&)	{
 				// continue... should be stopping grabbing.
 				break;
 			}
 		}
 	}
-	catch (Pylon::TimeoutException& timeoutErr)
-	{
+	catch (Pylon::TimeoutException& timeoutErr){
 		errBox( "Trigger Thread Timeout Error!" + std::string(timeoutErr.what()) );
 	}
-	catch (Pylon::RuntimeException&)
-	{
+	catch (Pylon::RuntimeException&){
 		// aborted, that's fine. return.
 	}
 }
