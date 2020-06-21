@@ -4,55 +4,53 @@
 #include <Mmsystem.h>
 #include <mciapi.h>
 #pragma comment(lib, "Winmm.lib")
-#include "PrimaryWindows/AndorWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
 #include <boost/lexical_cast.hpp>
 
-void AlertSystem::initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& tooltips )
+
+void AlertSystem::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
 	alertMessageID = RegisterWindowMessage( "ID_NOT_LOADING_ATOMS" );
 
-	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	title.Create( "ALERT SYSTEM", NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
-	title.fontType = fontTypes::HeadingFont;
+	title = new QLabel ("ALERT SYSTEM", parent);
+	title->setGeometry (pos.x, pos.y, 480, 25);
 	
-	atomsAlertActiveCheckBox.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 20 };
-	atomsAlertActiveCheckBox.Create( "If No Atoms?", NORM_CHECK_OPTIONS, atomsAlertActiveCheckBox.sPos, parent, id++ );
-	atomsAlertActiveCheckBox.SetCheck( false );
+	atomsAlertActiveCheckBox = new QCheckBox ("If No Atoms?", parent);
+	atomsAlertActiveCheckBox->setGeometry (pos.x, pos.y+=25, 120, 20);
+	atomsAlertActiveCheckBox->setChecked( false );
 	
-	motAlertActiveCheckBox.sPos = { pos.x + 120, pos.y, pos.x + 240, pos.y + 20 };
-	motAlertActiveCheckBox.Create ( "If No MOT?", NORM_CHECK_OPTIONS, motAlertActiveCheckBox.sPos, parent, id++ );
-	motAlertActiveCheckBox.SetCheck ( true );
+	motAlertActiveCheckBox = new QCheckBox ("If No MOT?", parent);
+	motAlertActiveCheckBox->setGeometry (pos.x + 120, pos.y, 120, 20);
+	motAlertActiveCheckBox->setChecked ( true );
 	
-	alertThresholdText.sPos = { pos.x+240, pos.y, pos.x + 360, pos.y + 20 };
-	alertThresholdText.Create( "Alert Threshold:", NORM_STATIC_OPTIONS, alertThresholdText.sPos, parent, id++ );
+	alertThresholdText = new QLabel ("Alert Threshold:", parent);
+	alertThresholdText->setGeometry (pos.x + 240, pos.y, 120, 20);
 	
-	alertThresholdEdit.sPos = { pos.x + 320, pos.y, pos.x + 480, pos.y += 20 };
-	alertThresholdEdit.Create( NORM_EDIT_OPTIONS, alertThresholdEdit.sPos, parent, id++ );
-	alertThresholdEdit.SetWindowTextA( "10" );
+	alertThresholdEdit = new QLineEdit ("10", parent);
+	alertThresholdEdit->setGeometry (pos.x + 360, pos.y, 120, 20);
 
-	autoPauseAtAlert.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 20 };
-	autoPauseAtAlert.Create( "Automatically Pause on alert?", NORM_CHECK_OPTIONS, autoPauseAtAlert.sPos, parent, id++ );
-	autoPauseAtAlert.SetCheck( true );
+	autoPauseAtAlert = new QCheckBox ("Automatically Pause on Alert?", parent);
+	autoPauseAtAlert->setGeometry (pos.x, pos.y += 20, 240, 20);
+	autoPauseAtAlert->setChecked ( true );
 	/// Sound checkbox
-	soundAtFinishCheck.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 20 };
-	soundAtFinishCheck.Create( "Play Sound at Finish?", NORM_CHECK_OPTIONS, soundAtFinishCheck.sPos, parent, id++ );
+	soundAtFinishCheck = new QCheckBox ("Play Sound at Finish?", parent);
+	soundAtFinishCheck->setGeometry (pos.x + 240, pos.y, 240, 20);
+	pos.y += 20;
 }
 
 
 bool AlertSystem::wantsAutoPause( )
 {
-	return autoPauseAtAlert.GetCheck( );
+	return autoPauseAtAlert->isChecked( );
 }
 
 
 UINT AlertSystem::getAlertThreshold()
 {
-	CString txt;
-	alertThresholdEdit.GetWindowTextA( txt );
 	try
 	{
-		alertThreshold = boost::lexical_cast<unsigned long>( str(txt) );
+		alertThreshold = boost::lexical_cast<unsigned long>( str(alertThresholdEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -64,11 +62,9 @@ UINT AlertSystem::getAlertThreshold()
 
 void AlertSystem::setAlertThreshold()
 {
-	CString text;
-	alertThresholdEdit.GetWindowTextA( text );
 	try
 	{
-		alertThreshold = boost::lexical_cast<int>( str( text ) );
+		alertThreshold = boost::lexical_cast<int>( str(alertThresholdEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -102,16 +98,7 @@ void AlertSystem::soundAlert()
 }
 
 
-void AlertSystem::rearrange( int width, int height, fontMap fonts)
-{
-	autoPauseAtAlert.rearrange(  width, height, fonts );
-	title.rearrange(width, height, fonts);
-	atomsAlertActiveCheckBox.rearrange(width, height, fonts);
-	alertThresholdText.rearrange(width, height, fonts);
-	alertThresholdEdit.rearrange(width, height, fonts);
-	soundAtFinishCheck.rearrange(width, height, fonts);
-	motAlertActiveCheckBox.rearrange ( width, height, fonts );
-}
+void AlertSystem::rearrange( int width, int height, fontMap fonts){}
 
 
 UINT AlertSystem::getAlertMessageID()
@@ -122,13 +109,13 @@ UINT AlertSystem::getAlertMessageID()
 
 bool AlertSystem::wantsAtomAlerts()
 {
-	return atomsAlertActiveCheckBox.GetCheck();
+	return atomsAlertActiveCheckBox->isChecked();
 }
 
 
 bool AlertSystem::wantsMotAlerts ( )
 {
-	return motAlertActiveCheckBox.GetCheck ( );
+	return motAlertActiveCheckBox->isChecked();
 }
 
 
@@ -146,5 +133,5 @@ void AlertSystem::stopSound()
 
 bool AlertSystem::soundIsToBePlayed()
 {
-	return soundAtFinishCheck.GetCheck();
+	return soundAtFinishCheck->isChecked();
 }

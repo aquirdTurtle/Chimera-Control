@@ -1,5 +1,6 @@
 #pragma once
 #include "afxwin.h"
+
 namespace CustomMessages
 {
 	const static UINT
@@ -21,6 +22,6 @@ namespace CustomMessages
 		NoMotAlertMessageID = (WM_APP + 20),
 		experimentProcedureFinish = (WM_APP + 21),
 		prepareBaslerWinAcq = (WM_APP + 22),
-		prepareAndorWinAcq = (WM_APP + 23);
-		
+		prepareAndorWinAcq = (WM_APP + 23),
+		colorStatBoxes = (WM_APP + 24);
 }

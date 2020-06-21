@@ -69,7 +69,7 @@ std::string VisaFlume::identityQuery()
 	}
 	else
 	{
-		return "Device is in Safemode. Change this in the constants.h file.\r\n";
+		return "Device is in Safemode. Change this in the constants.h file.";
 	}
 	return buf;
 }

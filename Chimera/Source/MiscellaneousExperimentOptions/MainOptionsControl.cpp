@@ -4,67 +4,52 @@
 #include "MainOptionsControl.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include <boost/lexical_cast.hpp>
+#include "PrimaryWindows/QtMainWindow.h"
 
-void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
+void MainOptionsControl::initialize( POINT& loc, IChimeraWindowWidget* parent )
 {
-	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	header.Create( "MAIN OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = fontTypes::HeadingFont;
-	randomizeRepsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
-	randomizeRepsButton.Create( "Randomize Repetitions?", NORM_CHECK_OPTIONS, randomizeRepsButton.sPos, parent, id++ );
-	randomizeRepsButton.EnableWindow( false );
+	header = new QLabel ("MAIN OPTIONS", parent);
+	header->setGeometry (QRect (loc.x, loc.y, 480, 20));
+	loc.y += 20;
+	
+	randomizeRepsButton = new QCheckBox ("Randomize Repetitions?", parent);
+	randomizeRepsButton->setGeometry (QRect (loc.x, loc.y, 480, 20));
+	randomizeRepsButton->setEnabled (false);
+	auto configUpdate = [parent]() {parent->configUpdated (); };
+	parent->connect (randomizeRepsButton, &QCheckBox::stateChanged, configUpdate);
+	loc.y += 20;
 
-	randomizeVariationsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
-	randomizeVariationsButton.Create( "Randomize Variations?", NORM_CHECK_OPTIONS, randomizeVariationsButton.sPos, 
-									  parent, id++ );
+	randomizeVariationsButton = new QCheckBox ("Randomize Variations?", parent);
+	randomizeVariationsButton->setGeometry (QRect (loc.x, loc.y, 480, 20));
+	parent->connect (randomizeVariationsButton, &QCheckBox::stateChanged, configUpdate);
+	loc.y += 20;
 
-	atomThresholdForSkipText.sPos = { loc.x, loc.y, loc.x + 240 , loc.y + 25 };
-	atomThresholdForSkipText.Create("Atom Threshold for load-skip:", NORM_STATIC_OPTIONS, atomThresholdForSkipText.sPos,
-									 parent, id++ );
-	atomThresholdForSkipEdit.sPos = { loc.x + 240, loc.y, loc.x + 480 , loc.y += 25 };
-	atomThresholdForSkipEdit.Create( NORM_EDIT_OPTIONS, atomThresholdForSkipEdit.sPos, parent, id++ );
-	atomThresholdForSkipEdit.SetWindowText("-1");
+	atomThresholdForSkipText = new QLabel ("Atom Threshold for Load Skip:", parent);
+	atomThresholdForSkipText->setGeometry (loc.x, loc.y, 240, 25);
+	atomThresholdForSkipEdit = new QLineEdit ("-1", parent);
+	atomThresholdForSkipEdit->setGeometry (loc.x+240, loc.y, 240, 25);
+	parent->connect (atomThresholdForSkipEdit, &QLineEdit::textChanged, configUpdate);
 
+	loc.y += 25;
 	currentOptions.randomizeReps = false;
 	currentOptions.randomizeVariations = true;
 }
 
-void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
+void MainOptionsControl::rearrange( int width, int height, fontMap fonts ){}
+
+void MainOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	header.rearrange( width, height, fonts );
-	randomizeRepsButton.rearrange( width, height, fonts );
-	randomizeVariationsButton.rearrange( width, height, fonts );
-	atomThresholdForSkipText.rearrange( width, height, fonts );
-	atomThresholdForSkipEdit.rearrange( width, height, fonts );
+	saveFile << "MAIN_OPTIONS"
+			 << "\n/*Randomize Reps?*/ " << randomizeRepsButton->isChecked ()
+			 << "\n/*Randomize Variations?*/ " << randomizeVariationsButton->isChecked()
+			 << "\n/*Atom Threshold for Load Skip*/ " << str(atomThresholdForSkipEdit->text());
+	saveFile << "\nEND_MAIN_OPTIONS\n";
 }
 
-
-void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "MAIN_OPTIONS\n";
-	newFile << 0 << "\n";
-	// default is to randomize variations.
-	newFile << 1 << "\n"; 
-	newFile << -1 << "\n";
-	newFile << "END_MAIN_OPTIONS\n";
-}
-
-
-void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << "MAIN_OPTIONS\n";
-	saveFile << randomizeRepsButton.GetCheck() << "\n";
-	saveFile << randomizeVariationsButton.GetCheck() << "\n";
-	CString txt;
-	atomThresholdForSkipEdit.GetWindowTextA( txt );
-	saveFile << txt << "\n";
-	saveFile << "END_MAIN_OPTIONS\n";
-}
-
-mainOptions MainOptionsControl::getMainOptionsFromConfig ( std::ifstream& openFile, Version ver )
+mainOptions MainOptionsControl::getSettingsFromConfig (ConfigStream& openFile )
 {
 	mainOptions options;
-	if ( ver < Version ( "2.1" ) )
+	if ( openFile.ver < Version ( "2.1" ) )
 	{
 		// rearrange option used to be stored here.
 		std::string garbage;
@@ -72,24 +57,24 @@ mainOptions MainOptionsControl::getMainOptionsFromConfig ( std::ifstream& openFi
 	}
 	openFile >> options.randomizeReps;
 	openFile >> options.randomizeVariations;
-	if ( ver > Version ( "2.9" ) )
+	if (openFile.ver > Version ( "2.9" ) )
 	{
 		std::string txt;
 		openFile >> txt;
 		try
 		{
-			options.atomThresholdForSkip = boost::lexical_cast<unsigned long>( txt );
+			options.atomSkipThreshold = boost::lexical_cast<unsigned long>( txt );
 		}
 		catch ( boost::bad_lexical_cast& )
 		{
 			errBox ( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
 					 "the threshold to the maximum threshold." );
-			options.atomThresholdForSkip = -1;
+			options.atomSkipThreshold = -1;
 		}
 	}
 	else
 	{
-		options.atomThresholdForSkip = UINT_MAX;
+		options.atomSkipThreshold = UINT_MAX;
 	}
 	return options;
 }
@@ -98,56 +83,19 @@ mainOptions MainOptionsControl::getMainOptionsFromConfig ( std::ifstream& openFi
 void MainOptionsControl::setOptions ( mainOptions opts )
 {
 	currentOptions = opts;
-	randomizeRepsButton.SetCheck ( currentOptions.randomizeReps );
-	randomizeVariationsButton.SetCheck ( currentOptions.randomizeVariations );
-	atomThresholdForSkipEdit.SetWindowTextA ( cstr ( currentOptions.atomThresholdForSkip ) );
+	randomizeRepsButton->setChecked (currentOptions.randomizeReps);
+	randomizeVariationsButton->setChecked( currentOptions.randomizeVariations );
+	atomThresholdForSkipEdit->setText( cstr ( currentOptions.atomSkipThreshold ) );
 }
 
-/*
-void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
-{
-	if (ver < Version("2.1") )
-	{
-		// rearrange option used to be stored here.
-		std::string garbage;
-		openFile >> garbage;
-	}
-	openFile >> currentOptions.randomizeReps;
-	randomizeRepsButton.SetCheck( currentOptions.randomizeReps );
-	openFile >> currentOptions.randomizeVariations;
-	randomizeVariationsButton.SetCheck( currentOptions.randomizeVariations );
-	if (ver > Version("2.9" ) )
-	{
-		std::string txt;
-		openFile >> txt;
-		try
-		{
-			currentOptions.atomThresholdForSkip = boost::lexical_cast<unsigned long>( txt );
-		}
-		catch ( boost::bad_lexical_cast& )
-		{
-			errBox( "atom threshold for load skip failed to convert to an unsigned long! The code will force "
-					   "the threshold to the maximum threshold." );
-			currentOptions.atomThresholdForSkip = -1;
-		}
-		atomThresholdForSkipEdit.SetWindowTextA( cstr(txt) );
-	}
-	else
-	{
-		currentOptions.atomThresholdForSkip = UINT_MAX;
-	}
-}
-*/
 
 mainOptions MainOptionsControl::getOptions()
 {
-	currentOptions.randomizeReps = randomizeRepsButton.GetCheck();
-	currentOptions.randomizeVariations = randomizeVariationsButton.GetCheck();
-	CString txt;
-	atomThresholdForSkipEdit.GetWindowTextA( txt );
+	currentOptions.randomizeReps = randomizeRepsButton->isChecked();
+	currentOptions.randomizeVariations = randomizeVariationsButton->isChecked();
 	try
 	{
-		currentOptions.atomThresholdForSkip = boost::lexical_cast<unsigned long>( str( txt ) );
+		currentOptions.atomSkipThreshold = boost::lexical_cast<unsigned long>( str( atomThresholdForSkipEdit->text() ) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{

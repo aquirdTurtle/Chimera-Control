@@ -4,9 +4,9 @@
 #include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include <sys/stat.h>
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/AndorWindow.h"
-#include "PrimaryWindows/MainWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
 #include <string>
 #include <fstream>
 
@@ -16,7 +16,7 @@ MasterConfiguration::MasterConfiguration(std::string address) : configurationFil
 {}
 
 
-void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin) 
+void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin) 
 {
 	/*
 		information to save:
@@ -58,7 +58,7 @@ void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 }
 
 
-void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin)
+void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin)
 {
 	// make sure that file exists	
 	FILE *file;
@@ -71,29 +71,10 @@ void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, And
 	{
 		fclose( file );
 	}
-	// open file
-	std::fstream configFile;
-	configFile.open(cstr(configurationFileAddress), std::ios::in);
-	if (!configFile.is_open())
-	{
-		thrower ("Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
-	}
-	std::stringstream configStream;
-	configStream << configFile.rdbuf();
-	// output version
-	std::string versionStr;
-	// actually want to do this twice just to eat first word, which is "version".
-	configStream >> versionStr;
-	configStream >> versionStr;
-	Version ver( versionStr );
-	// Initialize ttl, dac, and servo structures.
-	auxWin->handleMasterConfigOpen( configStream, ver );
-	mainWin->handleMasterConfigOpen (configStream, ver);
-	// servos.handleOpenMasterConfig (configStream, version);
-
-	// initialize camera window
-	camWin->handleMasterConfigOpen( configStream, ver);
-
-	configFile.close();
+	ConfigStream configFile (configurationFileAddress, true);
+	ProfileSystem::getVersionFromFile (configFile);
+	auxWin->handleMasterConfigOpen(configFile);
+	mainWin->handleMasterConfigOpen (configFile);
+	camWin->handleMasterConfigOpen(configFile);
 }
 

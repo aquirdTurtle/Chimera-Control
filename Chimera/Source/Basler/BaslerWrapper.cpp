@@ -1,27 +1,25 @@
 #include "stdafx.h"
 #include "BaslerWrapper.h"
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 // initialize the camera using the fundamental settings I use for all cameras. 
-void BaslerWrapper::init (CWnd* parent)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::init (IChimeraWindowWidget* parent ){
+	if (!BASLER_SAFEMODE){
+		try	{
 			Open ();
 			// prepare the image event handler
-			RegisterImageEventHandler (new ImageEventHandler (parent), Pylon::RegistrationMode_ReplaceAll,
+			BaslerGrabThreadWorker* worker = new BaslerGrabThreadWorker;
+			RegisterImageEventHandler (new ImageEventHandler ( parent, worker ), Pylon::RegistrationMode_ReplaceAll,
 				Pylon::Cleanup_Delete);
 			TriggerMode.SetValue (cameraParams::TriggerMode_On);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to register event handler and set trigger mode.");
 		}
 	}
 }
 
-
+	
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 ///					Pylon Wrappers
@@ -42,132 +40,99 @@ void BaslerWrapper::init (CWnd* parent)
  */
 
 
-int BaslerWrapper::getMinOffsetX ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getMinOffsetX (){
+	if (BASLER_SAFEMODE){
 		return 0;
 	}
-	try
-	{
+	try	{
 		return OffsetX.GetMin ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get min x offset.");
 	}
 }
 
-int BaslerWrapper::getMinOffsetY ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getMinOffsetY (){
+	if (BASLER_SAFEMODE){
 		return 0;
 	}
-	try
-	{
+	try	{
 		return OffsetY.GetMin ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get y min offset");
 	}
 }
 
-int BaslerWrapper::getMaxWidth ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getMaxWidth (){
+	if (BASLER_SAFEMODE){
 		return 672;
 	}
-	try
-	{
+	try	{
 		return OffsetX.GetMax ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("failed to Get maximum width");
 	}
 }
 
-int BaslerWrapper::getMaxHeight ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getMaxHeight (){
+	if (BASLER_SAFEMODE){
 		return 512;
 	}
-	try
-	{
+	try	{
 		return OffsetY.GetMin ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get maximum height");
 	}
 }
 
-int BaslerWrapper::getMinGain ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getMinGain (){
+	if (BASLER_SAFEMODE){
 		return 260;
 	}
-	try
-	{
+	try	{
 #ifdef USB_CAMERA
 		return Gain.GetMin ();
 #elif defined FIREWIRE_CAMERA
 		return GainRaw.GetMin ();
 #endif
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get Minimum gain");
 	}
 }
 
 
-void BaslerWrapper::setOffsetX (int offset)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setOffsetX (int offset){
+	if (!BASLER_SAFEMODE){
+		try	{
 			OffsetX.SetValue (offset);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to set x offset");
 		}
-
 	}
 }
 
-void BaslerWrapper::setOffsetY (int offset)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setOffsetY (int offset){
+	if (!BASLER_SAFEMODE){
+		try{
 			OffsetY.SetValue (offset);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to Set Y Offset");
 		}
 	}
 }
 
-void BaslerWrapper::setWidth (int width)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setWidth (int width){
+	if (!BASLER_SAFEMODE){
+		try	{
 			Width.SetValue (width);
 		}
-		catch (Pylon::GenericException& err)
-		{
+		catch (Pylon::GenericException& err){
 			throwNested (str("Failed to set width: ") + err.what());
 		}
 	}

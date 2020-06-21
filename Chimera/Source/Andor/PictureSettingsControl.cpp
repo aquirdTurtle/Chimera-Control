@@ -5,130 +5,102 @@
 
 #include "Andor/AndorCameraCore.h"
 #include "Andor/CameraSettingsControl.h"
-#include "PrimaryWindows/AndorWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
 
-void PictureSettingsControl::initialize( POINT& pos, CWnd* parent, int& id )
+void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
 	// introducing things row by row
 	/// Set Picture Options
 	UINT count = 0;
+	auto handleChange = [this, parent]() {
+		try {
+			if (parent->andorWin) {
+				parent->andorWin->handlePictureSettings ();
+			}
+		}
+		catch (Error& err)
+		{
+			parent->reportErr (err.trace());
+		}
+	};
 	/// Picture Numbers
-	pictureLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
-	pictureLabel.Create( "Picture #:", NORM_STATIC_OPTIONS, pictureLabel.sPos, parent,
-						 PICTURE_SETTINGS_ID_START + count++ );
-	pictureLabel.fontType = fontTypes::SmallFont;
-
-	for ( auto picInc : range(4) )
-	{
-		pictureNumbers[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
-		pictureNumbers[picInc].Create( cstr( picInc + 1 ), NORM_STATIC_OPTIONS, pictureNumbers[picInc].sPos,
-									   parent, PICTURE_SETTINGS_ID_START + count++ );
+	pictureLabel = new QLabel ("Picture #:", parent);
+	pictureLabel->setGeometry (pos.x, pos.y, 100, 20);
+	for ( auto picInc : range(4) ) {
+		pictureNumbers[picInc] = new QLabel (cstr (picInc + 1), parent);
+		pictureNumbers[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
 	}
 	pos.y += 20;
 	/// Total picture number
-	totalPicNumberLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
-	totalPicNumberLabel.Create( "Total Picture #", NORM_STATIC_OPTIONS, totalPicNumberLabel.sPos, parent,
-								PICTURE_SETTINGS_ID_START + count++ );
-	totalPicNumberLabel.fontType = fontTypes::SmallFont;
-	for ( auto picInc : range ( 4 ) )
-	{
-		totalNumberChoice[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
-		totalNumberChoice[ picInc ].Create ( "", ( picInc == 0 ) ? ( NORM_RADIO_OPTIONS | WS_GROUP ) : NORM_RADIO_OPTIONS,
-											 totalNumberChoice[ picInc ].sPos, parent, PICTURE_SETTINGS_ID_START + count++ );
-		totalNumberChoice[ picInc ].SetCheck ( picInc == 0 );
+	totalPicNumberLabel = new QLabel ("Total Picture #", parent);
+	totalPicNumberLabel->setGeometry (pos.x, pos.y, 100, 20);
+	for (auto picInc : range (4)) {
+		totalNumberChoice[picInc] = new CQRadioButton ("", parent);
+		totalNumberChoice[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		totalNumberChoice[picInc]->setChecked (picInc == 0);
+		parent->connect (totalNumberChoice[picInc], &QRadioButton::toggled, handleChange);
 	}
-	pos.y += 25;
 	/// Exposure Times
-	exposureLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
-	exposureLabel.Create( "Exposure (ms):", NORM_STATIC_OPTIONS, exposureLabel.sPos, parent,
-						  PICTURE_SETTINGS_ID_START + count++ );
-	exposureLabel.fontType = fontTypes::SmallFont;
-	for ( auto picInc : range(4) )
-	{
-		exposureEdits[picInc].sPos = { pos.x + 100 + 95 * picInc , pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
-		exposureEdits[picInc].Create( NORM_EDIT_OPTIONS, exposureEdits[picInc].sPos, parent,
-									  PICTURE_SETTINGS_ID_START + count++ );
+	exposureLabel = new QLabel ("Exposure (ms):", parent);
+	exposureLabel->setGeometry (pos.x, pos.y+=20, 100, 20);
+	for ( auto picInc : range(4) ) {
+		exposureEdits[picInc] = new CQLineEdit (parent);
+		exposureEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		parent->connect (exposureEdits[picInc], &QLineEdit::textChanged, handleChange);
 	}
-	pos.y += 20;
 	setUnofficialExposures ( std::vector<float> ( 4, 10 / 1000.0f ) );
 
 	/// Thresholds
-	thresholdLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
-	thresholdLabel.Create( "Threshold (cts)", NORM_STATIC_OPTIONS, thresholdLabel.sPos, parent,
-						   PICTURE_SETTINGS_ID_START + count++ );
-	thresholdLabel.fontType = fontTypes::SmallFont;
-	for ( auto picInc : range(4) )
-	{
-		thresholdEdits[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 20 };
-		thresholdEdits[picInc].Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, thresholdEdits[picInc].sPos, parent,
-									   PICTURE_SETTINGS_ID_START + count++ );
-		thresholdEdits[picInc].SetWindowTextA( "100" );
+	thresholdLabel = new QLabel ("Threshold (cts)", parent);
+	thresholdLabel->setGeometry (pos.x, pos.y += 20, 100, 20);
+	for ( auto picInc : range(4) ) {
+		thresholdEdits[picInc] = new CQLineEdit ("100", parent);
+		thresholdEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		parent->connect (thresholdEdits[picInc], &QLineEdit::textChanged, handleChange);
+
 		settings.thresholds[ picInc ] = { 100 };
 	}
-	pos.y += 20;
 	/// colormaps
-	colormapLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 25 };
-	colormapLabel.Create( "Colormap", NORM_STATIC_OPTIONS, colormapLabel.sPos, parent,
-						  PICTURE_SETTINGS_ID_START + count++ );
-	colormapLabel.fontType = fontTypes::SmallFont;
+	colormapLabel = new QLabel ("Colormap", parent);
+	colormapLabel->setGeometry (pos.x, pos.y += 20,100, 25);
 	for ( auto picInc : range(4) )
 	{
-		colormapCombos[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 65 };
-		colormapCombos[picInc].Create( NORM_COMBO_OPTIONS, colormapCombos[picInc].sPos, parent,
-									   PICTURE_SETTINGS_ID_START + count++ );
-		colormapCombos[picInc].fontType = fontTypes::SmallFont;
-		colormapCombos[picInc].AddString( "Dark Viridis" );
-		colormapCombos[picInc].AddString( "Inferno" );
-		colormapCombos[picInc].AddString( "Black & White" );
-		colormapCombos[picInc].AddString( "Red-Black-Blue" );
-		colormapCombos[picInc].SetCurSel( 0 );
-		settings.colors[picInc] = 2;
-	}
-	pos.y += 25;
-	/// display types
-	displayTypeLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 25 };
-	displayTypeLabel.Create( "Display-Type:", NORM_STATIC_OPTIONS, displayTypeLabel.sPos, parent,
-							  PICTURE_SETTINGS_ID_START + count++ );
-	displayTypeLabel.fontType = fontTypes::SmallFont;
-	for ( auto picInc : range ( 4 ) )
-	{
-		displayTypeCombos[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * (picInc + 1), pos.y + 65 };
-		displayTypeCombos[ picInc ].Create ( NORM_COMBO_OPTIONS, colormapCombos[ picInc ].sPos, parent,
-											 PICTURE_SETTINGS_ID_START + count++ );
-		displayTypeCombos[ picInc ].fontType = fontTypes::SmallFont;
-		displayTypeCombos[ picInc ].AddString ( "Normal" );
-		displayTypeCombos[ picInc ].AddString ( "Dif: 1" );
-		displayTypeCombos[ picInc ].AddString ( "Dif: 2" );
-		displayTypeCombos[ picInc ].AddString ( "Dif: 3" );
-		displayTypeCombos[ picInc ].AddString ( "Dif: 4" );
-		displayTypeCombos[ picInc ].SetCurSel ( 0 );
-		settings.colors[ picInc ] = 2;
-	}
-	pos.y += 25;
+		colormapCombos[picInc] = new CQComboBox (parent);
+		colormapCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
+		colormapCombos[picInc]->addItems ({ "Dark Viridis","Inferno","Black & White", "Red-Black-Blue" });
+		parent->connect (colormapCombos[picInc], qOverload<int>(&QComboBox::currentIndexChanged), handleChange);
 
-	/// software accumulation mode	
-	softwareAccumulationLabel.sPos = { pos.x, pos.y, pos.x + 100, pos.y + 20 };
-	softwareAccumulationLabel.Create ( "Software Accum:", NORM_STATIC_OPTIONS, softwareAccumulationLabel.sPos,
-									   parent, PICTURE_SETTINGS_ID_START + count++ );
-	softwareAccumulationLabel.fontType = fontTypes::SmallFont;
-	for ( auto picInc : range ( 4 ) )
-	{
-		softwareAccumulateAll[picInc].sPos = { pos.x + 100 + 95 * picInc, pos.y, pos.x + 100 + 95 * picInc+65, pos.y + 20 };
-		softwareAccumulateAll[ picInc ].Create ( "All?", NORM_CHECK_OPTIONS, softwareAccumulateAll[ picInc ].sPos, parent,
-												 PICTURE_SETTINGS_ID_START + count++ );
-		softwareAccumulateAll[ picInc ].SetCheck ( 0 );
-		softwareAccumulateAll[ picInc ].fontType = fontTypes::SmallFont;
-		softwareAccumulateNum[picInc].sPos = { pos.x + 165 + 95 * picInc, pos.y, pos.x + 195 + 95 * picInc, pos.y + 20 };
-		softwareAccumulateNum[ picInc ].Create ( NORM_EDIT_OPTIONS, softwareAccumulateNum[ picInc ].sPos, parent,
-												 PICTURE_SETTINGS_ID_START + count++ );
-		softwareAccumulateNum[ picInc ].SetWindowTextA ( "1" );
-		softwareAccumulateNum[ picInc ].fontType = fontTypes::SmallFont;
+		colormapCombos[picInc]->setCurrentIndex( 0 );
+		settings.colors[picInc] = 0;
 	}
-	pos.y += 20;
+	/// display types
+	displayTypeLabel = new QLabel ("Display-Type:", parent);
+	displayTypeLabel->setGeometry (pos.x, pos.y += 25, 100, 25);
+	for ( auto picInc : range ( 4 ) ) {
+		displayTypeCombos[picInc] = new CQComboBox (parent);
+		displayTypeCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
+		displayTypeCombos[picInc]->addItems ({"Normal","Dif: 1", "Dif: 2", "Dif: 3", "Dif: 4"});
+		parent->connect (displayTypeCombos[picInc], qOverload<int> (&QComboBox::currentIndexChanged), handleChange);
+		displayTypeCombos[ picInc ]->setCurrentIndex ( 0 );
+		settings.colors[ picInc ] = 0;
+	}
+	/// software accumulation mode
+	softwareAccumulationLabel = new QLabel ("Software Accum:", parent);
+	softwareAccumulationLabel->setGeometry (pos.x, pos.y += 25, 100, 20);
+	for ( auto picInc : range ( 4 ) ) {
+		softwareAccumulateAll[picInc] = new CQCheckBox("All?", parent);
+		softwareAccumulateAll[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 65, 20);
+		softwareAccumulateAll[ picInc ]->setChecked( 0 );
+		parent->connect (softwareAccumulateAll[picInc], &QCheckBox::stateChanged, handleChange);
+
+		softwareAccumulateNum[picInc] = new CQLineEdit ("1", parent);
+		softwareAccumulateNum[picInc]->setGeometry (pos.x + 165 + 95 * picInc, pos.y, 30, 20);
+		parent->connect (softwareAccumulateNum[picInc], &QLineEdit::textChanged, handleChange);
+	}
 	//
 	setPictureControlEnabled (0, true);
 	setPictureControlEnabled (1, false);
@@ -137,15 +109,12 @@ void PictureSettingsControl::initialize( POINT& pos, CWnd* parent, int& id )
 }
 
 
-std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( )
-{
+std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( ){
 	std::array<displayTypeOption, 4> options;
 	UINT counter = 0;
-	for ( auto& combo : displayTypeCombos )
-	{
-		auto sel = combo.GetCurSel( );
-		if ( sel < 0 || sel > 4 )
-		{
+	for ( auto& combo : displayTypeCombos ){
+		auto sel = combo->currentIndex( );
+		if ( sel < 0 || sel > 4 ){
 			thrower ( "Invalid selection in display type combo???" );
 		}
 		options[counter].isDiff = sel != 0;
@@ -155,228 +124,137 @@ std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( 
 	return options;
 }
 
-void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "PICTURE_SETTINGS\n";
-	for ( auto color : settings.colors )
-	{
-		newFile << 0 << " ";
-	}
-	newFile << "\n";
-	for ( auto threshold : settings.thresholds )
-	{
-		newFile << 200 << " ";
-	}
-	newFile << "\n";
-	newFile << "END_PICTURE_SETTINGS\n";
-}
 
-std::array<std::string, 4> PictureSettingsControl::getThresholdStrings()
-{
+std::array<std::string, 4> PictureSettingsControl::getThresholdStrings(){
 	std::array<std::string, 4> res;
 	// grab the thresholds
-	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
-	{
+	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ ){
 		auto& picThresholds = settings.thresholds[ thresholdInc ];
 		picThresholds.resize ( 1 );
-		CString textEdit;
-		thresholdEdits[ thresholdInc ].GetWindowTextA ( textEdit );
-		res[ thresholdInc ] = textEdit;
+		res[ thresholdInc ] = str(thresholdEdits[thresholdInc]->text ());
 	}
 	return res;
 }
 
-void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << "PICTURE_SETTINGS\n";
-	for (auto color : settings.colors)
-	{
+void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
+	saveFile << "PICTURE_SETTINGS\n/*Color Options:*/ ";
+	for (auto color : settings.colors){
 		saveFile << color << " ";
 	}
-	saveFile << "\n";
-	for (auto threshold : getThresholdStrings() )
-	{
+	saveFile << "\n/*Threshold Settings:*/ ";
+	for (auto threshold : getThresholdStrings() ){
 		saveFile << threshold << " ";
 	}
-	saveFile << "\n";
-	for ( auto saOpt : getSoftwareAccumulationOptions ( ) )
-	{
+	saveFile << "\n/*Software Accumulation (accum all / Number)*/ ";
+	for ( auto saOpt : getSoftwareAccumulationOptions ( ) ){
 		saveFile << saOpt.accumAll << " " << saOpt.accumNum << " ";
 	}
-	saveFile << "\n";
-
-	saveFile << "END_PICTURE_SETTINGS\n";
+	saveFile << "\nEND_PICTURE_SETTINGS\n";
 }
 
-andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig ( std::ifstream& configFile, Version ver )
-{
-	UINT picsPerRep;
+andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile ){
 	andorPicSettingsGroup fileSettings;
-	if ( ver <= Version ( "4.7" ) )
-	{
+	if ( configFile.ver <= Version ( "4.7" ) ){
 		int oldPicsPerRepTrash = 0;
 		configFile >> oldPicsPerRepTrash;
 	}
-	for ( auto& color : fileSettings.colors )
-	{
+	for ( auto& color : fileSettings.colors ){
 		configFile >> color;
 	}
-	if ( ver <= Version ( "4.7" ) )
-	{
+	if (configFile.ver <= Version ( "4.7" ) ){
 		std::vector<float> oldExposureTimeTrash(4);
-		for ( auto& exposure : oldExposureTimeTrash )
-		{
+		for ( auto& exposure : oldExposureTimeTrash ){
 			configFile >> exposure;
 		}
 	}
-	for ( auto& threshold : fileSettings.thresholdStrs )
-	{
+	for ( auto& threshold : fileSettings.thresholdStrs ){
 		configFile >> threshold;
 	}
-	if ( ver > Version ( "4.3" ) )
-	{
-		for ( auto& opt : fileSettings.saOpts )
-		{
+	if (configFile.ver > Version ( "4.3" ) ){
+		for ( auto& opt : fileSettings.saOpts ){
 			configFile >> opt.accumAll >> opt.accumNum;
 		}
 	}
 	return fileSettings;
 }
 
-void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, Version ver, AndorCameraCore* andor)
-{
+void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor){
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
-	auto settings = getPictureSettingsFromConfig ( openFile, ver );
+	auto settings = getPictureSettingsFromConfig ( openFile );
 	updateAllSettings ( settings );
 	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }
 
-void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts )
-{
-	for ( auto picInc : range ( 4 ) )
-	{
-		softwareAccumulateAll[ picInc ].SetCheck ( opts[ picInc ].accumAll );
-		softwareAccumulateNum[ picInc ].SetWindowTextA ( cstr ( opts[ picInc ].accumNum ) );
+void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts ){
+	for ( auto picInc : range ( 4 ) ) {
+		softwareAccumulateAll[ picInc ]->setChecked ( opts[ picInc ].accumAll );
+		softwareAccumulateNum[ picInc ]->setText ( cstr ( opts[ picInc ].accumNum ) );
 	}
 }
 
-std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( )
-{
+std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAccumulationOptions ( ){
 	std::array<softwareAccumulationOption, 4> opts;
-	for ( auto picInc : range(4))
-	{
-		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ].GetCheck ( );
+	for ( auto picInc : range(4)){
+		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ]->isChecked ( );
 		CString numTxt;
-		softwareAccumulateNum[ picInc ].GetWindowTextA ( numTxt );
-		try
-		{
-			opts[ picInc ].accumNum  = boost::lexical_cast<UINT>( numTxt );
+		try{
+			opts[ picInc ].accumNum  = boost::lexical_cast<UINT>( str(softwareAccumulateNum[picInc]->text ()) );
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			thrower ( "Failed to convert software accumulation number to an unsigned integer!" );
 		}
 	}
 	return opts;
 }
 
-void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled)
-{
-	if (pic > 3)
-	{
+void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled){
+	if (pic > 3){
 		return;
 	}
-	exposureEdits[pic].EnableWindow (enabled);
-	thresholdEdits[pic].EnableWindow (enabled);
-	colormapCombos[pic].EnableWindow (enabled);
-	displayTypeCombos[pic].EnableWindow (enabled);
-	softwareAccumulateAll[pic].EnableWindow (enabled);
-	softwareAccumulateNum[pic].EnableWindow (enabled);
+	if (!exposureEdits[pic] || !thresholdEdits[pic] || !colormapCombos[pic] || !displayTypeCombos[pic] 
+		|| !softwareAccumulateAll[pic] || !softwareAccumulateNum[pic]) {
+		return;
+	}
+	exposureEdits[pic]->setEnabled(enabled);
+	thresholdEdits[pic]->setEnabled (enabled);
+	colormapCombos[pic]->setEnabled (enabled);
+	displayTypeCombos[pic]->setEnabled (enabled);
+	softwareAccumulateAll[pic]->setEnabled (enabled);
+	softwareAccumulateNum[pic]->setEnabled (enabled);
 }
 
 
-CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer )
-{
-	/// Exposures
-	if (id >= exposureEdits.front().GetDlgCtrlID() && id <= exposureEdits.back().GetDlgCtrlID())
-	{
-		int picNum = id - exposureEdits.front().GetDlgCtrlID();
-		if (!exposureEdits[picNum].IsWindowEnabled())
-		{
-			return NULL;
-		}
-		colorer->SetTextColor( _myRGBs["AndorWin-Text"]);
-		colorer->SetBkColor (_myRGBs["Interactable-Bkgd"]);
-		return _myBrushes["Interactable-Bkgd"];
-	}
-	/// Thresholds
-	else if (id >= thresholdEdits.front().GetDlgCtrlID() && id <= thresholdEdits.back().GetDlgCtrlID())
-	{
-		int picNum = id - thresholdEdits.front ().GetDlgCtrlID ();
-		if (!thresholdEdits[picNum].IsWindowEnabled ())
-		{
-			return NULL;
-		}
-		colorer->SetTextColor (_myRGBs["AndorWin-Text"]);
-		colorer->SetBkColor (_myRGBs["Interactable-Bkgd"]);
-		return _myBrushes["Interactable-Bkgd"];
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-
-UINT PictureSettingsControl::getPicsPerRepetition()
-{
+UINT PictureSettingsControl::getPicsPerRepetition(){
 	UINT which = 0, count=0;
-	for ( auto& ctrl : totalNumberChoice )
-	{
+	for ( auto& ctrl : totalNumberChoice ){
 		count++;		
-		which = ctrl.GetCheck ( ) ? count : which;
+		which = ctrl->isChecked ( ) ? count : which;
 	}
-	if ( which == 0 )
-	{
+	if ( which == 0 ){
 		thrower ( "ERROR: failed to get pics per repetition?!?" );
 	}
 	return which;
 }
 
 
-void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum )
-{
-	if ( picNum < 1 || picNum > 4 )
-	{
+void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum ){
+	if ( picNum < 1 || picNum > 4 ){
 		thrower ( "Tried to set bad number of pics per rep: " + str ( picNum ) );
 	}
-	int count = 0;
-	for (auto& totalNumRadio : totalNumberChoice)
-	{
+	UINT count = 0;
+	for (auto& totalNumRadio : totalNumberChoice){
 		count++;
-		totalNumRadio.SetCheck (count == picNum);
+		totalNumRadio->setChecked (count == picNum);
 		setPictureControlEnabled (count-1, count <= picNum);
 	}
 }
 
 
-void PictureSettingsControl::handleOptionChange( int id )
-{
-	if (id >= totalNumberChoice.front().GetDlgCtrlID() && id <= totalNumberChoice.back().GetDlgCtrlID())
-	{
-		int picNum = id - totalNumberChoice.front().GetDlgCtrlID();
-		// this message can weirdly get set after a configuration opens as well, it only means to set the number if the 
-		// relevant button is now checked.
-		if ( totalNumberChoice[picNum].GetCheck( ) )
-		{
-			setUnofficialPicsPerRep( picNum + 1 );
+void PictureSettingsControl::handleOptionChange( ){
+	for (auto radioInc : range(totalNumberChoice.size())){
+		if (totalNumberChoice[radioInc]->isChecked()){
+			setUnofficialPicsPerRep( radioInc + 1 );
 		}
-	}
-	else if (id >= colormapCombos[0].GetDlgCtrlID() && id <= colormapCombos[3].GetDlgCtrlID())
-	{
-		id -= colormapCombos[0].GetDlgCtrlID();
-		int color = colormapCombos[id].GetCurSel( );
-		settings.colors[id] = color;
 	}
 }
 
@@ -384,16 +262,16 @@ void PictureSettingsControl::handleOptionChange( int id )
 std::array<float, 4> PictureSettingsControl::getExposureTimes ( )
 {
 	std::array<float, 4> times;
-	for ( auto ctrlNum : range(exposureEdits.size()) )
-	{
+	for ( auto ctrlNum : range(exposureEdits.size()) ){
 		auto& ctrl = exposureEdits[ ctrlNum ];
-		CString txt;
-		ctrl.GetWindowTextA ( txt );
-		try
-		{
-			times[ ctrlNum ] = boost::lexical_cast<double>( txt ) * 1e-3;
+		if (!ctrl) {
+			return times;
 		}
-		catch ( boost::bad_lexical_cast )
+		try	{
+			times[ctrlNum] = ctrl->text ().toDouble ()*1e-3;
+			//times[ ctrlNum ] = boost::lexical_cast<double>( str(ctrl->text ()) ) * 1e-3;
+		}
+		catch ( boost::bad_lexical_cast& )
 		{
 			thrower ( "Failed to convert exposure time to a float!" );
 		}
@@ -401,9 +279,7 @@ std::array<float, 4> PictureSettingsControl::getExposureTimes ( )
 	return times;
 }
 
-
-std::vector<float> PictureSettingsControl::getUsedExposureTimes()
-{
+std::vector<float> PictureSettingsControl::getUsedExposureTimes() {
 	updateSettings( );
 	auto allTimes = getExposureTimes();
 	std::vector<float> usedTimes(std::begin(allTimes), std::end(allTimes));
@@ -411,18 +287,14 @@ std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 	return usedTimes;
 }
 
-
-void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds)
-{
-	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++)
-	{
-		thresholdEdits[thresholdInc].SetWindowTextA(newThresholds[thresholdInc].c_str());
+void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds){
+	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++){
+		thresholdEdits[thresholdInc]->setText(newThresholds[thresholdInc].c_str());
 	}
 }
 
 
-std::array<int, 4> PictureSettingsControl::getPictureColors()
-{
+std::array<int, 4> PictureSettingsControl::getPictureColors(){
 	updateSettings ( );
 	return settings.colors;
 }
@@ -431,9 +303,8 @@ std::array<int, 4> PictureSettingsControl::getPictureColors()
 void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes )
 {
 	settings.colors = colorIndexes;
-	for ( auto picInc : range(4) )
-	{
-		colormapCombos[ picInc ].SetCurSel ( settings.colors[ picInc ] );
+	for ( auto picInc : range(4) )	{
+		colormapCombos[ picInc ]->setCurrentIndex ( settings.colors[ picInc ] );
 	}
 }
 
@@ -443,13 +314,12 @@ void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
 	UINT count = 0;
 	for ( auto ti : times )
 	{
-		exposureEdits[ count++ ].SetWindowTextA ( cstr ( ti*1e3 ) );
+		exposureEdits[ count++ ]->setText ( cstr ( ti*1e3 ) );
 	}
 }
 
 
-void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSettings )
-{
+void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSettings ) {
 	updateColormaps ( inputSettings.colors );
 	setThresholds ( inputSettings.thresholdStrs );
 	setSoftwareAccumulationOptions (inputSettings.saOpts);
@@ -466,81 +336,37 @@ std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds ( )
 void PictureSettingsControl::updateSettings( )
 {
 	// grab the thresholds
-	for (auto thresholdInc : range(4) )
-	{
+	for (auto thresholdInc : range(4) ){
+		if (!thresholdEdits[thresholdInc]) {
+			return;
+		}
 		auto& picThresholds = settings.thresholds[ thresholdInc ];
 		picThresholds.resize ( 1 );
-		CString textEdit;
-		thresholdEdits[thresholdInc].GetWindowTextA( textEdit );
 		int threshold;
-		try
-		{
-			threshold = boost::lexical_cast<int>( str( textEdit ) );
-			picThresholds[ 0 ] = threshold;
+		
+		try{
+			QString txt = thresholdEdits[thresholdInc]->text ();						
+			threshold = txt.toInt ();
+			picThresholds[0] = threshold;
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			picThresholds.clear ( );
 			// assume it's a file location.
 			std::ifstream thresholdFile;
-			thresholdFile.open ( str(textEdit).c_str() );
-			if ( !thresholdFile.is_open ( ) )
-			{
+			thresholdFile.open ( str(thresholdEdits[thresholdInc]->text ()).c_str() );
+			if ( !thresholdFile.is_open ( ) ){
 				thrower  ( "ERROR: failed to convert threshold number " + str ( thresholdInc + 1 ) + " to an integer, "
 						 "and it wasn't the address of a threshold-file." );  
 			}
-			while ( true )
-			{
+			while ( true ){
 				double indv_file_threshold;
 				thresholdFile >> indv_file_threshold;
 				if ( thresholdFile.eof ( ) ) { break; }
 				picThresholds.push_back ( indv_file_threshold );
 			}
 		}
-		thresholdEdits[thresholdInc].RedrawWindow( );
 	}
-}
-
-
-void PictureSettingsControl::rearrange( int width, int height, fontMap fonts )
-{
-	totalPicNumberLabel.rearrange(width, height, fonts);
-	pictureLabel.rearrange(width, height, fonts);
-	exposureLabel.rearrange(width, height, fonts);
-	thresholdLabel.rearrange(width, height, fonts);
-	colormapLabel.rearrange(width, height, fonts);
-	displayTypeLabel.rearrange(width, height, fonts );
-	softwareAccumulationLabel.rearrange (width, height, fonts );
-	for (auto& control : pictureNumbers)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : totalNumberChoice)
-	{
-		control.rearrange( width, height, fonts);
-	}
-	for (auto& control : exposureEdits)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for (auto& control : thresholdEdits)
-	{
-		control.rearrange(width, height, fonts);
-	}
-	for ( auto& control : colormapCombos )
-	{
-		control.rearrange(width, height, fonts );
-	}
-	for ( auto& control : displayTypeCombos )
-	{
-		control.rearrange(width, height, fonts );
-	}
-	for ( auto& control : softwareAccumulateAll )
-	{
-		control.rearrange ( width, height, fonts );
-	}
-	for ( auto& control : softwareAccumulateNum )
-	{
-		control.rearrange ( width, height, fonts );
+	for (auto colorInc : range (4)) {
+		settings.colors[colorInc] = colormapCombos[colorInc]->currentIndex();
 	}
 }

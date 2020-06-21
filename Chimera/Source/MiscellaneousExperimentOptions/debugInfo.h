@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include <string>
-#include "windows.h"
 
 struct debugInfo
 {

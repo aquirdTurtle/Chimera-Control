@@ -2,11 +2,14 @@
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include "GeneralFlumes/VisaFlume.h"
 #include "DigitalOutput/DoRows.h"
+#include "GeneralObjects/IDeviceCore.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include <vector>
 #include <string>
 
+class DoCore;
 
-class AgilentCore
+class AgilentCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -19,12 +22,14 @@ class AgilentCore
 		void setAgilent (UINT variation, std::vector<parameterType>& params, deviceOutputInfo runSettings);
 		//void setAgilent (deviceOutputInfo runSettings);
 		void prepAgilentSettings (UINT channel);
+		std::string getDelim () { return configDelim; }
 		const std::string configDelim;
 		bool connected ();
 		std::pair<DoRows::which, UINT> getTriggerLine ();
 		std::string getDeviceIdentity ();
-		void convertInputToFinalSettings (UINT variation, UINT chan, deviceOutputInfo& info,
-											std::vector<parameterType>& variables = std::vector<parameterType> ());
+		void logSettings (DataLogger& log);
+		void convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, 
+										  std::vector<parameterType>& variables = std::vector<parameterType> ());
 		static double convertPowerToSetPoint (double power, bool conversionOption, std::vector<double> calibCoeff);
 		void setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT channel);
 		void setDC (int channel, dcInfo info, UINT variation);
@@ -37,10 +42,18 @@ class AgilentCore
 		std::vector<std::string> getStartupCommands ();
 		void programSetupCommands ();
 		std::string getDeviceInfo ();
-		void handleScriptVariation (UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
-			std::vector<parameterType>& params);
+		void handleScriptVariation ( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+									 std::vector<parameterType>& params);
+		deviceOutputInfo getSettingsFromConfig (ConfigStream& file);
+		void loadExpSettings (ConfigStream& script);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
+		void programVariation (UINT variation, std::vector<parameterType>& params);
+		void checkTriggers (UINT variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo);
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
-		const double sampleRate;
+		deviceOutputInfo expRunSettings;
+		const ULONG sampleRate;
 		const std::string memoryLoc;
 		const agilentSettings initSettings;
 		// not that important, just used to check that number of triggers in script matches number in agilent.

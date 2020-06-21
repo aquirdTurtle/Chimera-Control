@@ -2,22 +2,26 @@
 #pragma once
 #include "Control.h"
 #include "CustomMfcControlWrappers/myButton.h"
-
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qcheckbox.h>
+#include <qpushbutton.h>
 /*
 Home of gui options for the camera calibration.
 */
 class CameraCalibration
 {
 	public:
-		void initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips );
+		void initialize( POINT& pos, IChimeraWindowWidget* parent );
 		bool autoCal( );
 		void rearrange( int width, int height, fontMap fonts );
 		bool use( );
 		void setAutoCal(bool option);
 		void setUse(bool option);
 	private:
-		Control<CStatic> header;
-		Control<CleanPush> calButton;
-		Control<CleanCheck> autoCalButton;
-		Control<CleanCheck> useButton;
+		QLabel* header;
+		QPushButton* calButton;
+		QCheckBox* autoCalButton;
+		QCheckBox* useButton;
 };

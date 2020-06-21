@@ -2,24 +2,22 @@
 #pragma once
 
 #include <vector>
-#include "afxwin.h"
+#include <GeneralObjects/Matrix.h>
+#include <qobject.h>
 
 // basically just a little nicer than a std::pair
-struct AtomImage
-{
-	UINT repNum;
+struct AtomImage{
+	unsigned repNum;
 	std::vector<bool> image;
 };
 
-struct NormalImage
-{
-	UINT repNum;
+struct NormalImage{
+	unsigned repNum;
 	Matrix<long> image;
 };
 
-struct PixList
-{
-	UINT repNum;
+struct PixList{
+	unsigned repNum;
 	std::vector<long> image;
 };
 
@@ -30,3 +28,7 @@ typedef std::vector<PixList> PixListQueue;
 //typedef std::vector<imageQueue> multiGridImageQueue;
 typedef std::vector<PixListQueue> multiGridImageQueue;
 typedef std::vector<atomQueue> multiGridAtomQueue;
+
+Q_DECLARE_METATYPE (NormalImage)
+Q_DECLARE_METATYPE (atomQueue)
+Q_DECLARE_METATYPE (PixListQueue)

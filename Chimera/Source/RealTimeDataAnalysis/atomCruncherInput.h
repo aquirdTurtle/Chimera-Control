@@ -21,7 +21,7 @@ struct atomCruncherInput
 	// the thread watches this to know when to quit.
 	std::atomic<bool>* cruncherThreadActive;
 	// imQueue[queuePositions][pixelNum(flattened)]
-	imageQueue* imQueue;
+	//imageQueue* imQueue;
 	// options
 	bool plotterActive;
 	bool plotterNeedsImages;
@@ -32,13 +32,13 @@ struct atomCruncherInput
 	std::array<std::vector<int>, 4> thresholds;
 	imageParameters imageDims;
 	// locks
-	std::mutex* imageQueueLock;
-	std::mutex* plotLock;
-	std::mutex* rearrangerLock;
+	//std::mutex* imageQueueLock;
+	//std::mutex* plotLock;
+	//std::mutex* rearrangerLock;
 	std::condition_variable* rearrangerConditionWatcher;
 	// what the thread fills.
-	multiGridImageQueue* plotterImageQueue;
-	multiGridAtomQueue* plotterAtomQueue;
-	atomQueue* rearrangerAtomQueue;
+	//multiGridImageQueue* plotterImageQueue;
+	//multiGridAtomQueue* plotterAtomQueue;
+	//atomQueue* rearrangerAtomQueue;
 	std::atomic<bool>* skipNext;
 };

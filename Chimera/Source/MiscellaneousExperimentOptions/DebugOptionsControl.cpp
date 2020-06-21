@@ -3,136 +3,115 @@
 #include "DebugOptionsControl.h"
 #include "ExperimentThread/Communicator.h"
 #include "ConfigurationSystems/ProfileSystem.h"
-#include "PrimaryWindows/MainWindow.h"
 #include <boost/lexical_cast.hpp>
 
-void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
+void DebugOptionsControl::initialize( POINT& loc, IChimeraWindowWidget* parent )
 {
 	// Debugging Options Title
-	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	header.Create( "DEBUGGING OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = fontTypes::HeadingFont;
+	header = new QLabel ("DEBUGGING OPTIONS", parent);
+	header->setGeometry (loc.x, loc.y, 480, 25);
+	loc.y += 25;
 	UINT count = 0;
-	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	niawgMachineScript.Create( "Show Machine NIAWG Script?", NORM_CHECK_OPTIONS, niawgMachineScript.sPos, parent, 
-							   IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	niawgMachineScript.SetCheck( BST_CHECKED );
-
+	niawgMachineScript = new QCheckBox ("Show Machine NIAWG Script?", parent);
+	niawgMachineScript->setGeometry (loc.x, loc.y, 240, 20);
+	niawgMachineScript->setChecked( true );
+	auto configUpdate = [parent]() {parent->configUpdated (); };
+	parent->connect (niawgMachineScript, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputNiawgMachineScript = true;
-	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	outputAgilentScript.Create( "Show Agilent Script?", NORM_CHECK_OPTIONS, outputAgilentScript.sPos, parent, 
-								IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	outputAgilentScript.SetCheck( BST_CHECKED );
+	loc.y += 20;
+	outputAgilentScript = new QCheckBox ("Show Agilent Script?", parent);
+	outputAgilentScript->setGeometry (loc.x, loc.y, 240, 20);
+	outputAgilentScript->setChecked( true );
+	parent->connect (outputAgilentScript, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputAgilentScript = true;
+	loc.y += 20;
 	///
-	niawgScript.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	niawgScript.Create( "Show Human NIAWG Script?", NORM_CHECK_OPTIONS, niawgScript.sPos, parent, 
-						IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	niawgScript.SetCheck( BST_CHECKED );
+	niawgScript = new QCheckBox ("Show Human NIAWG Script", parent);
+	niawgScript->setChecked( true );
+	niawgScript->setGeometry (loc.x, loc.y, 240, 20);
+	parent->connect (niawgScript, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputNiawgHumanScript = true;
-
+	loc.y += 20;
 	///
-	readProgress.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	readProgress.Create( "Show Wvfm Read Progress?", NORM_CHECK_OPTIONS, readProgress.sPos, parent, 
-						 IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	readProgress.SetCheck( BST_CHECKED );
+	readProgress = new QCheckBox ("Show Wvfm Read Progress?", parent);
+	readProgress->setGeometry (loc.x, loc.y, 240, 20);
+	readProgress->setChecked( true );
+	parent->connect (readProgress, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.showReadProgress = true;
+	loc.y += 20;
 	///
-	writeProgress.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	writeProgress.Create( "Show Wvfm Write Progress?", NORM_CHECK_OPTIONS, writeProgress.sPos, parent, 
-						  IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	writeProgress.SetCheck( BST_CHECKED );
+	writeProgress = new QCheckBox ("Show Wvfm Write Progress", parent);
+	writeProgress->setGeometry (loc.x, loc.y, 240, 20);
+	writeProgress->setChecked( true );
+	parent->connect (writeProgress, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.showWriteProgress = true;
-	loc.y += -100;
+	loc.y += -80;
 	///
-	correctionTimes.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	correctionTimes.Create( "Show Phase Correction Wvfm Times?", NORM_CHECK_OPTIONS, correctionTimes.sPos,
-							parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	correctionTimes.SetCheck( BST_CHECKED );
-	correctionTimes.fontType = fontTypes::SmallFont;
+	correctionTimes = new QCheckBox ("Show Phase Correction Wvfm Times?", parent);
+	correctionTimes->setGeometry (loc.x+240, loc.y, 240, 20);
+	correctionTimes->setChecked( true );
+	parent->connect (correctionTimes, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.showCorrectionTimes = true;
+	loc.y += 20;
 	///
-	excessInfo.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	excessInfo.Create( "Show Excess Run Info?", NORM_CHECK_OPTIONS, correctionTimes.sPos, parent, 
-					   IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
-	excessInfo.SetCheck( BST_CHECKED );
+	excessInfo = new QCheckBox ("Show Excess Run Info?", parent);
+	excessInfo->setGeometry (loc.x + 240, loc.y, 240, 20);
+	excessInfo->setChecked( true );
+	parent->connect (excessInfo, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputExcessInfo = true;
+	loc.y += 20;
 
-	outputNiawgWavesToText.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	outputNiawgWavesToText.Create( "Output Niawg Wvfms to .txt?", NORM_CHECK_OPTIONS, outputNiawgWavesToText.sPos, 
-								   parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + count++ );
+	outputNiawgWavesToText = new QCheckBox ("Output Niawg Wvfms to .txt?", parent);
+	outputNiawgWavesToText->setGeometry (loc.x + 240, loc.y, 240, 20);
+	parent->connect (outputNiawgWavesToText, &QCheckBox::stateChanged, configUpdate);
 
-	showTtlsButton.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	showTtlsButton.Create( "Show All TTL Events", NORM_CHECK_OPTIONS, showTtlsButton.sPos, parent, IDC_SHOW_TTLS );
+	loc.y += 20;
+	showTtlsButton = new QCheckBox ("Show All TTL Events?", parent);
+	showTtlsButton->setGeometry (loc.x + 240, loc.y, 240, 20);
+	parent->connect (showTtlsButton, &QCheckBox::stateChanged, configUpdate);
 
-	showDacsButton.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 20 };
-	showDacsButton.Create( "Show All Dac Events", NORM_CHECK_OPTIONS, showDacsButton.sPos, parent, IDC_SHOW_DACS );
+	loc.y += 20;
+	showDacsButton = new QCheckBox ("Show all DAC Events?", parent);
+	showDacsButton->setGeometry (loc.x + 240, loc.y, 240, 20);
+	parent->connect (showDacsButton, &QCheckBox::stateChanged, configUpdate);
 
-	pauseText.sPos = { loc.x + 200, loc.y, loc.x + 480, loc.y + 20 };
-	pauseText.Create( "Pause Btwn Variations (ms)", NORM_STATIC_OPTIONS, pauseText.sPos, parent, id++ );
+	loc.y += 20;
+	pauseText = new QLabel ("Pause Btwn Variations (ms):", parent);
+	pauseText->setGeometry (loc.x, loc.y, 280, 20);
 
-	pauseEdit.sPos = { loc.x, loc.y, loc.x + 200, loc.y += 20 };
-	pauseEdit.Create( NORM_EDIT_OPTIONS, pauseEdit.sPos, parent, id++ );
-	pauseEdit.SetWindowTextA( "0" );
+	pauseEdit = new QLineEdit ("0", parent);
+	pauseEdit->setGeometry (loc.x + 280, loc.y, 200, 20);
+	parent->connect (pauseEdit, &QLineEdit::textChanged, configUpdate);
+
+	loc.y += 20;
 }
 
 
 void DebugOptionsControl::rearrange(int width, int height, fontMap fonts)
 {
-	header.rearrange(width, height, fonts);
-	readProgress.rearrange(width, height, fonts);
-	writeProgress.rearrange(width, height, fonts);
-	correctionTimes.rearrange(width, height, fonts);
-	niawgScript.rearrange(width, height, fonts);
-	outputAgilentScript.rearrange(width, height, fonts);
-	niawgMachineScript.rearrange(width, height, fonts);
-	excessInfo.rearrange(width, height, fonts);
-	showTtlsButton.rearrange(width, height, fonts);
-	showDacsButton.rearrange(width, height, fonts);
-	pauseText.rearrange(width, height, fonts);
-	pauseEdit.rearrange(width, height, fonts);
-	outputNiawgWavesToText.rearrange( width, height, fonts );
+
 }
 
 
-
-void DebugOptionsControl::handleNewConfig( std::ofstream& newFile )
+void DebugOptionsControl::handleSaveConfig(ConfigStream& saveFile)
 {
-	newFile << "DEBUGGING_OPTIONS\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 1 << "\n";
-	newFile << 1 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << 0 << "\n";
-	newFile << "END_DEBUGGING_OPTIONS\n";
+	saveFile << "DEBUGGING_OPTIONS"
+			 << "\n/*Output Agilent Script?*/\t\t\t" << currentOptions.outputAgilentScript
+			 << "\n/*Output Excess Info?*/\t\t\t\t" << currentOptions.outputExcessInfo
+			 << "\n/*Output Human Niawg Script?*/\t\t" << currentOptions.outputNiawgHumanScript
+			 << "\n/*Output Niawg Machine Script?*/\t" << currentOptions.outputNiawgMachineScript
+			 << "\n/*Show Correction Times?*/\t\t\t" << currentOptions.showCorrectionTimes
+			 << "\n/*Show Dacs?*/\t\t\t\t\t\t" << currentOptions.showDacs
+			 << "\n/*Show Ttls?*/\t\t\t\t\t\t" << currentOptions.showTtls
+			 << "\n/*Show Read Progress?*/\t\t\t\t" << currentOptions.showReadProgress
+			 << "\n/*Show Write Progress?*/\t\t\t" << currentOptions.showWriteProgress
+			 << "\n/*Sleep Time:*/\t\t\t\t\t\t" << currentOptions.sleepTime
+			 << "\n/*Output Niawg Waveforms to Text?*/\t" << currentOptions.outputNiawgWavesToText
+			 << "\nEND_DEBUGGING_OPTIONS\n";
 }
 
 
-void DebugOptionsControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << "DEBUGGING_OPTIONS\n";
-	saveFile << currentOptions.outputAgilentScript << "\n";
-	saveFile << currentOptions.outputExcessInfo << "\n";
-	saveFile << currentOptions.outputNiawgHumanScript << "\n";
-	saveFile << currentOptions.outputNiawgMachineScript << "\n";
-	saveFile << currentOptions.showCorrectionTimes << "\n";
-	saveFile << currentOptions.showDacs << "\n";
-	saveFile << currentOptions.showTtls << "\n";
-	saveFile << currentOptions.showReadProgress << "\n";
-	saveFile << currentOptions.showWriteProgress << "\n";
-	saveFile << currentOptions.sleepTime << "\n";
-	saveFile << currentOptions.outputNiawgWavesToText << "\n";
-	saveFile << "END_DEBUGGING_OPTIONS\n";
-}
-
-
-void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
+void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile )
 {
 	openFile >> currentOptions.outputAgilentScript;
 	openFile >> currentOptions.outputExcessInfo;
@@ -153,7 +132,7 @@ void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver 
 	{
 		currentOptions.sleepTime = 0;
 	}
-	if (ver > Version("2.8" ) )
+	if (openFile.ver > Version("2.8" ) )
 	{
 		openFile >> currentOptions.outputNiawgWavesToText;
 	}
@@ -163,6 +142,7 @@ void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver 
 
 void DebugOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
+	/*
 	if (id == niawgMachineScript.GetDlgCtrlID())
 	{
 		BOOL checked = niawgMachineScript.GetCheck();
@@ -302,25 +282,24 @@ void DebugOptionsControl::handleEvent(UINT id, MainWindow* comm)
 	{
 		comm->updateConfigurationSavedStatus(false);
 	}
+	*/
 }
 
 
 debugInfo DebugOptionsControl::getOptions()
 {
-	currentOptions.outputNiawgMachineScript = niawgMachineScript.GetCheck();
-	currentOptions.outputNiawgHumanScript = niawgScript.GetCheck();
-	currentOptions.outputAgilentScript = outputAgilentScript.GetCheck();
-	currentOptions.showReadProgress = readProgress.GetCheck();
-	currentOptions.showWriteProgress = writeProgress.GetCheck();
-	currentOptions.showCorrectionTimes = correctionTimes.GetCheck();
-	currentOptions.showTtls = showTtlsButton.GetCheck();
-	currentOptions.showDacs = showDacsButton.GetCheck();
-	currentOptions.outputNiawgWavesToText = outputNiawgWavesToText.GetCheck( );
-	CString text;
-	pauseEdit.GetWindowTextA(text);
+	currentOptions.outputNiawgMachineScript = niawgMachineScript->isChecked();
+	currentOptions.outputNiawgHumanScript = niawgScript->isChecked ();
+	currentOptions.outputAgilentScript = outputAgilentScript->isChecked ();
+	currentOptions.showReadProgress = readProgress->isChecked ();
+	currentOptions.showWriteProgress = writeProgress->isChecked ();
+	currentOptions.showCorrectionTimes = correctionTimes->isChecked ();
+	currentOptions.showTtls = showTtlsButton->isChecked ();
+	currentOptions.showDacs = showDacsButton->isChecked ();
+	currentOptions.outputNiawgWavesToText = outputNiawgWavesToText->isChecked ();
 	try
 	{
-		currentOptions.sleepTime = boost::lexical_cast<long>( str ( text ) );
+		currentOptions.sleepTime = boost::lexical_cast<long>( str ( pauseEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast& )
 	{
@@ -333,15 +312,15 @@ debugInfo DebugOptionsControl::getOptions()
 void DebugOptionsControl::setOptions(debugInfo options)
 {
 	currentOptions = options;
-	readProgress.SetCheck( currentOptions.showReadProgress );
-	writeProgress.SetCheck( currentOptions.showWriteProgress );
-	correctionTimes.SetCheck(currentOptions.showCorrectionTimes);
-	niawgScript.SetCheck(currentOptions.outputNiawgHumanScript);
-	outputAgilentScript.SetCheck( currentOptions.outputAgilentScript );
-	niawgMachineScript.SetCheck( currentOptions.outputNiawgMachineScript);
-	excessInfo.SetCheck( currentOptions.outputExcessInfo);
-	showTtlsButton.SetCheck( currentOptions.showTtls);
-	showDacsButton.SetCheck( currentOptions.showDacs);
-	pauseEdit.SetWindowTextA( cstr( currentOptions.sleepTime ) );
-	outputNiawgWavesToText.SetCheck( currentOptions.outputNiawgWavesToText );
+	readProgress->setChecked( currentOptions.showReadProgress );
+	writeProgress->setChecked ( currentOptions.showWriteProgress );
+	correctionTimes->setChecked (currentOptions.showCorrectionTimes);
+	niawgScript->setChecked (currentOptions.outputNiawgHumanScript);
+	outputAgilentScript->setChecked ( currentOptions.outputAgilentScript );
+	niawgMachineScript->setChecked ( currentOptions.outputNiawgMachineScript);
+	excessInfo->setChecked ( currentOptions.outputExcessInfo);
+	showTtlsButton->setChecked ( currentOptions.showTtls);
+	showDacsButton->setChecked ( currentOptions.showDacs);
+	pauseEdit->setText( cstr( currentOptions.sleepTime ) );
+	outputNiawgWavesToText->setChecked ( currentOptions.outputNiawgWavesToText );
 }

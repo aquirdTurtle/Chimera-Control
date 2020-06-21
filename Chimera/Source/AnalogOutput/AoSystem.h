@@ -13,6 +13,11 @@
 #include "AnalogOutput/AnalogOutput.h"
 
 #include "ConfigurationSystems/Version.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "Qlabel.h"
+#include <qpushbutton.h>
+#include <qcheckbox.h>
+#include <qlineedit.h>
 
 class MainWindow;
 
@@ -33,64 +38,62 @@ class AoSystem
 		AoSystem( bool aoSafemode );
 
 		// standard functions for gui elements
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
+		void initialize( POINT& pos, IChimeraWindowWidget* master);
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		HBRUSH handleColorMessage( CWnd* hwnd, CDC* cDC );
+		void standardExperimentPrep (UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
+									 double currLoadSkipTime);
+		bool eventFilter (QObject* obj, QEvent* event);
 		// configs
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver);
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile);
 		// macros
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);
 		// Setting system settings, mostly non-crucial functionality.
-		
-		void handleRoundToDac( MainWindow* menu );
+		void resetDacs (UINT varInc, bool skipOption);
+		void handleRoundToDac( );
 		void updateEdits( );
-		void shadeDacs( std::vector<unsigned int>& dacShadeLocations );
-		void unshadeDacs( );
 		void setDefaultValue( UINT dacNum, double val );
-		void setName( int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master );
-		void setNote ( int dacNumber, std::string note, cToolTips& toolTips, AuxiliaryWindow* master );
+		void setName( int dacNumber, std::string name );
+		void setNote ( int dacNumber, std::string note );
 		bool isValidDACName( std::string name );
 		void setMinMax( int dacNumber, double min, double max );
-		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData,
-						   std::vector<std::vector<double>> finTimes );
+		std::vector<std::vector<plotDataVec>> getPlotData (UINT variation);
 		void handleEditChange( UINT dacNumber );
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DoCore& ttls, bool useDefault=false );
-		void setDacCommandForm( AoCommandForm command, UINT seqNum );
+		void setDacCommandForm( AoCommandForm command );
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DoCore& ttls);
-		void setDacTriggerEvents( DoCore& ttls, UINT variation, UINT seqNum );
-		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
-		void organizeDacCommands( UINT variation, UINT seqNum );
-		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-									 std::vector<parameterType>& vars, DoCore& ttls, UINT seqNum );
-		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
+		void setDacTriggerEvents( DoCore& ttls, UINT variation );
+		void calculateVariations( std::vector<parameterType>& variables, ExpThreadWorker* threadworker);
+		void organizeDacCommands( UINT variation );
+		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
+									 DoCore& ttls );
+		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
-		void makeFinalDataFormat( UINT variation, UINT seqNum );
-		void writeDacs( UINT variation, UINT seqNum, bool loadSkip );
+		void makeFinalDataFormat( UINT variation);
+		void writeDacs( UINT variation, bool loadSkip );
 		void startDacs( );
-		void configureClocks( UINT variation, UINT seqNum, bool loadSkip );
+		void configureClocks( UINT variation, bool loadSkip );
 		void stopDacs();
 		void resetDacEvents( );
-		void initializeDataObjects( UINT sequenceNum, UINT cmdNum );
+		void initializeDataObjects( UINT cmdNum );
 		void prepareForce( );
 		void standardNonExperiemntStartDacsSequence( );		
 		void setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap);
 		// checks
-		void checkTimingsWork( UINT variation, UINT seqNum );
-		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
+		void checkTimingsWork( UINT variation );
+		void checkValuesAgainstLimits(UINT variation );
 		// ask for info
 		std::string getSystemInfo( );
-		std::string getDacSequenceMessage( UINT variation, UINT seqNum );
+		std::string getDacSequenceMessage( UINT variation );
 		// getters
 		double getDefaultValue( UINT dacNum );
-		unsigned int getNumberSnapshots( UINT variation, UINT seqNum );
+		unsigned int getNumberSnapshots( UINT variation );
 		std::string getName( int dacNumber );
 		std::string getNote ( int dacNumber );
-		ULONG getNumberEvents( UINT variation, UINT seqNum );
+		ULONG getNumberEvents( UINT variation );
 		int getDacIdentifier( std::string name );
 		static int getBasicDacIdentifier (std::string name);
 
@@ -104,16 +107,15 @@ class AoSystem
 		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 
 	private:
-		void setForceDacEvent (int line, double val, DoCore& ttls, UINT variation, UINT seqNum);
+		void setForceDacEvent (int line, double val, DoCore& ttls, UINT variation);
 
-		Control<CStatic> dacTitle;
-		Control<CleanPush> dacSetButton;
-		Control<CleanPush> zeroDacsButton;
-		Control<CleanCheck> quickChange;
+		QLabel* dacTitle;
+		CQPushButton* dacSetButton;
+		CQPushButton* zeroDacsButton;
+		CQCheckBox* quickChange;
 		std::array<AnalogOutput, 24> outputs;
 
-		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
-		// first = sequence, 2nd = variation
+		std::vector<AoCommandForm> dacCommandFormList;
 		ExpWrap<std::vector<AoCommand>> dacCommandList;
 		ExpWrap<std::vector<AoSnapshot>> dacSnapshots, loadSkipDacSnapshots;
 		ExpWrap<std::array<std::vector<double>, 3>> finalFormatDacData, loadSkipDacFinalFormat;

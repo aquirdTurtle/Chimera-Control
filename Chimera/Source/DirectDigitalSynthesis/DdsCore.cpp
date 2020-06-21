@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 #include "DdsCore.h"
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
@@ -12,65 +13,50 @@ DdsCore::~DdsCore ( )
 	disconnect ( );
 }
 
-void DdsCore::updateRampLists ( std::vector<std::vector<ddsIndvRampListInfo>> newList )
-{
-	rampLists = newList;
-}
 
-
-void DdsCore::assertDdsValuesValid ( std::vector<std::vector<parameterType>>& params )
+void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 {
-	if ( params.size ( ) == 0 )
+	UINT variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
+	for (auto& ramp : expRampList)
 	{
-		thrower ( "ERROR: empty variables! Sequence size is zero?!" );
-	}
-	UINT variations = ( ( params[ 0 ].size ( ) ) == 0 ) ? 1 : params.front ( ).front ( ).keyValues.size ( );
-	for ( auto sequenceNumber : range ( params.size ( ) ) )
-	{
-		auto& seqParams = params[ sequenceNumber ];
-		for ( auto& ramp : rampLists[ sequenceNumber ] )
-		{
-			ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.freq1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.freq2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.amp1.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.amp2.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-			ramp.rampTime.assertValid ( seqParams, GLOBAL_PARAMETER_SCOPE );
-		}
+		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
+		ramp.freq1.assertValid (params, GLOBAL_PARAMETER_SCOPE);
+		ramp.freq2.assertValid (params, GLOBAL_PARAMETER_SCOPE);
+		ramp.amp1.assertValid (params, GLOBAL_PARAMETER_SCOPE);
+		ramp.amp2.assertValid (params, GLOBAL_PARAMETER_SCOPE);
+		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
 	}
 }
 
+void DdsCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
+{
+	evaluateDdsInfo (params);
+	UINT variations = ((params.size ()) == 0) ? 1 : params.front ().keyValues.size ();
+	generateFullExpInfo (variations);
+}
 // this probably needs an overload with a default value for the empty parameters case...
-void DdsCore::evaluateDdsInfo ( std::vector<std::vector<parameterType>> params )
+void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 {
-	if ( params.size ( ) == 0 )
+	UINT variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
+	for ( auto variationNumber : range ( variations ) )
 	{
-		thrower ( "ERROR: empty variables! Sequence size is zero?!" );
-	}
-	UINT variations = ( ( params[ 0 ].size ( ) ) == 0 ) ? 1 : params.front ( ).front ( ).keyValues.size ( );
-	for ( auto sequenceNumber : range ( params.size ( ) ) )
-	{
-		auto& seqParams = params[ sequenceNumber ];
-		for ( auto variationNumber : range ( variations ) )
+		for ( auto& ramp : expRampList)
 		{
-			for ( auto& ramp : rampLists[ sequenceNumber ] )
-			{
-				ramp.rampTime.internalEvaluate ( seqParams, variations );
-				ramp.freq1.internalEvaluate ( seqParams, variations );
-				ramp.freq2.internalEvaluate ( seqParams, variations );
-				ramp.amp1.internalEvaluate ( seqParams, variations );
-				ramp.amp2.internalEvaluate ( seqParams, variations );
-				ramp.rampTime.internalEvaluate ( seqParams, variations );
-			}
+			ramp.rampTime.internalEvaluate (params, variations );
+			ramp.freq1.internalEvaluate (params, variations );
+			ramp.freq2.internalEvaluate (params, variations );
+			ramp.amp1.internalEvaluate (params, variations );
+			ramp.amp2.internalEvaluate (params, variations );
+			ramp.rampTime.internalEvaluate (params, variations );
 		}
 	}
 }
 
 
-void DdsCore::writeExperiment ( UINT sequenceNum, UINT variationNum )
+void DdsCore::programVariation ( UINT variationNum, std::vector<parameterType>& params)
 {
 	clearDdsRampMemory ( );
-	auto& thisExpFullRampList = fullExpInfo ( sequenceNum, variationNum );
+	auto& thisExpFullRampList = fullExpInfo ( variationNum );
 	if ( thisExpFullRampList.size ( ) == 0 )
 	{
 		return;
@@ -109,16 +95,12 @@ void DdsCore::writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex )
 	}
 }
 
-void DdsCore::generateFullExpInfo ( UINT numVariations )
+void DdsCore::generateFullExpInfo (UINT numVariations)
 {
-	fullExpInfo.resizeSeq ( rampLists.size ( ) );
-	for ( auto seqInc : range ( rampLists.size ( ) ) )
+	fullExpInfo.resizeVariations (numVariations);
+	for (auto varInc : range (numVariations))
 	{
-		fullExpInfo.resizeVariations ( seqInc, numVariations );
-		for ( auto varInc : range ( numVariations ) )
-		{
-			fullExpInfo ( seqInc, varInc ) = analyzeRampList ( rampLists[ seqInc ], varInc );
-		}
+		fullExpInfo (varInc) = analyzeRampList (expRampList, varInc);
 	}
 }
 
@@ -162,63 +144,60 @@ std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRa
 
 void DdsCore::forceRampsConsistent ( )
 {
-	for ( auto seqInc : range ( fullExpInfo.getNumSequences ( ) ) )
+	for ( auto varInc : range ( fullExpInfo.getNumVariations ( ) ) )
 	{
-		for ( auto varInc : range ( fullExpInfo.getNumSequences ( ) ) )
+		if ( fullExpInfo ( varInc ).size ( ) == 0 ) continue;
+		if ( fullExpInfo ( varInc ).size ( ) == 1 ) continue; // no consistency to check if only 1. 
+		auto& thisExpRampList = fullExpInfo ( varInc );
+		for ( auto boardInc : range ( thisExpRampList.front ( ).rampParams.numBoards ( ) ) )
 		{
-			if ( fullExpInfo ( seqInc, varInc ).size ( ) == 0 ) continue;
-			if ( fullExpInfo ( seqInc, varInc ).size ( ) == 1 ) continue; // no consistency to check if only 1. 
-			auto& thisExpRampList = fullExpInfo ( seqInc, varInc );
-			for ( auto boardInc : range ( thisExpRampList.front ( ).rampParams.numBoards ( ) ) )
+			for ( auto channelInc : range ( thisExpRampList.front ( ).rampParams.numChannels ( ) ) )
 			{
-				for ( auto channelInc : range ( thisExpRampList.front ( ).rampParams.numChannels ( ) ) )
+				// find the initial values
+				double currentDefaultFreq, currentDefaultAmp;
+				bool used = false;
+				for ( auto rampInc : range ( thisExpRampList.size ( ) ) )
 				{
-					// find the initial values
-					double currentDefaultFreq, currentDefaultAmp;
-					bool used = false;
-					for ( auto rampInc : range ( thisExpRampList.size ( ) ) )
+					if ( thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc ).explicitlySet )
 					{
-						if ( thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc ).explicitlySet )
-						{
-							currentDefaultFreq = thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc ).freq1;
-							currentDefaultAmp = thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc ).amp1;
-							used = true;
-							break;
-						}
+						currentDefaultFreq = thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc ).freq1;
+						currentDefaultAmp = thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc ).amp1;
+						used = true;
+						break;
 					}
-					if ( !used )
+				}
+				if ( !used )
+				{
+					currentDefaultFreq = defaultFreq;
+					currentDefaultAmp = defaultAmp;
+				}
+				for ( auto rampInc : range ( thisExpRampList.size ( ) - 1 ) )
+				{
+					auto& thisRamp = thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc );
+					auto& nextRamp = thisExpRampList[ rampInc + 1 ].rampParams ( boardInc, channelInc );
+					bool bothExplicit = ( thisRamp.explicitlySet && nextRamp.explicitlySet );
+
+					// this first if clause is basically just to handle the special case of the first ramp.
+					if ( thisRamp.explicitlySet == false )
 					{
-						currentDefaultFreq = defaultFreq;
-						currentDefaultAmp = defaultAmp;
+						thisRamp.freq1 = thisRamp.freq2 = currentDefaultFreq;
+						thisRamp.amp1 = thisRamp.amp2 = currentDefaultAmp;
+						thisRamp.explicitlySet = true;
 					}
-					for ( auto rampInc : range ( thisExpRampList.size ( ) - 1 ) )
+					currentDefaultFreq = thisRamp.freq2;
+					currentDefaultAmp = thisRamp.amp2;
+
+					if ( nextRamp.explicitlySet == false )
 					{
-						auto& thisRamp = thisExpRampList[ rampInc ].rampParams ( boardInc, channelInc );
-						auto& nextRamp = thisExpRampList[ rampInc + 1 ].rampParams ( boardInc, channelInc );
-						bool bothExplicit = ( thisRamp.explicitlySet && nextRamp.explicitlySet );
-
-						// this first if clause is basically just to handle the special case of the first ramp.
-						if ( thisRamp.explicitlySet == false )
-						{
-							thisRamp.freq1 = thisRamp.freq2 = currentDefaultFreq;
-							thisRamp.amp1 = thisRamp.amp2 = currentDefaultAmp;
-							thisRamp.explicitlySet = true;
-						}
-						currentDefaultFreq = thisRamp.freq2;
-						currentDefaultAmp = thisRamp.amp2;
-
-						if ( nextRamp.explicitlySet == false )
-						{
-							thisRamp.freq1 = thisRamp.freq2 = currentDefaultFreq;
-							thisRamp.amp1 = thisRamp.amp2 = currentDefaultAmp;
-							nextRamp.explicitlySet = true;
-						}
-						// then a new ramp that the user set explicitly has been reached, and I need to check that
-						// the parameters match up.
-						if ( thisRamp.freq2 != nextRamp.freq1 || thisRamp.amp2 != nextRamp.amp1 )
-						{
-							thrower ( "Incompatible explicitly set ramps!" );
-						}
+						thisRamp.freq1 = thisRamp.freq2 = currentDefaultFreq;
+						thisRamp.amp1 = thisRamp.amp2 = currentDefaultAmp;
+						nextRamp.explicitlySet = true;
+					}
+					// then a new ramp that the user set explicitly has been reached, and I need to check that
+					// the parameters match up.
+					if ( thisRamp.freq2 != nextRamp.freq1 || thisRamp.amp2 != nextRamp.amp1 )
+					{
+						thrower ( "Incompatible explicitly set ramps!" );
 					}
 				}
 			}
@@ -437,7 +416,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 }
 
 
-std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream& file, Version ver )
+std::vector<ddsIndvRampListInfo> DdsCore::getSettingsFromConfig ( ConfigStream& file )
 {
 	UINT numRamps = 0;
 	file >> numRamps;
@@ -445,24 +424,37 @@ std::vector<ddsIndvRampListInfo> DdsCore::getRampListFromConfig ( std::ifstream&
 	for ( auto& ramp : list )
 	{
 		file >> ramp.index >> ramp.channel >> ramp.freq1.expressionStr >> ramp.amp1.expressionStr
-			>> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
-		file.get ( ); // get newline.
+			 >> ramp.freq2.expressionStr >> ramp.amp2.expressionStr >> ramp.rampTime.expressionStr;
+		file.get ( );
 	}
 	return list;
 }
 
 
-void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, std::ofstream& file )
+void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file )
 {
-	file << list.size ( ) << "\n";
+	file << "/*Ramp List Size:*/ " << list.size ( );
+	UINT count = 0;
 	for ( auto& ramp : list )
 	{
-		file << ramp.index << " " << ramp.channel << " ";
-		// avoid outputing empty lines to the config file, 0 is a good default here. This prevents the user from saving
-		// empty expresssions, but empty expressions don't run anyways. 
-		for ( auto& val : { ramp.freq1, ramp.amp1, ramp.freq2, ramp.amp2, ramp.rampTime } )
-		{
-			file << ( val.expressionStr == "" ? 0 : val.expressionStr ) << "\n";
-		}
+		file << "\n/*Ramp List Element #" + str (++count) + "*/"
+			 << "\n/*Index:*/\t\t" << ramp.index
+			 << "\n/*Channel:*/\t" << ramp.channel
+			 << "\n/*Freq1:*/\t\t" << ramp.freq1
+			 << "\n/*Amp1:*/\t\t" << ramp.amp1
+			 << "\n/*Freq2:*/\t\t" << ramp.freq2
+			 << "\n/*Amp2:*/\t\t" << ramp.amp2
+			 << "\n/*Ramp-Time:*/\t" << ramp.rampTime;
 	}
+}
+
+void DdsCore::logSettings (DataLogger& log)
+{
+
+}
+
+void DdsCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expRampList);
+	// todo: add control!
 }

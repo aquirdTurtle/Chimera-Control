@@ -68,7 +68,14 @@ void DaqMxFlume::readAnalogF64( TaskHandle taskHandle, std::vector<float64> &rea
 		if ( result )
 		{
 			thrower ( "daqCreateAiVoltageChan Failed! (" + str( result ) + "): "
-					 + getErrorMessage( result ) );
+					  + getErrorMessage( result ) );
+		}
+	}
+	else
+	{
+		for (auto& dp : readData)
+		{
+			dp = double(rand ()) / RAND_MAX;
 		}
 	}
 }

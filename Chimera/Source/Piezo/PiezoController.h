@@ -6,6 +6,12 @@
 #include <fstream>
 #include "CustomMfcControlWrappers/myButton.h"
 #include "Piezo/PiezoType.h"
+#include <QWinWidget.h>
+#include <qlineedit.h>
+#include <qlabel.h>
+#include <qpushbutton.h>
+#include <QCheckBox.h>
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 class PiezoController
 {
@@ -15,12 +21,11 @@ class PiezoController
 		PiezoController (const PiezoController&) = delete;
 
 		PiezoController (piezoSetupInfo info);
-		void initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, LONG width, UINT buttonID,
-						  piezoChan<std::string> names, UINT ctrlButtonID );
+		void initialize ( POINT& pos, IChimeraWindowWidget* parent, LONG width, piezoChan<std::string> names );
 		std::string getDeviceInfo ( );
 		void updateCurrentValues ( );
-		void handleOpenConfig ( std::ifstream& configFile, Version ver );
-		void handleSaveConfig ( std::ofstream& configFile );
+		void handleOpenConfig (ConfigStream& configFile);
+		void handleSaveConfig (ConfigStream& configFile );
 		PiezoCore& getCore ( );
 		void updateCtrl ( );
 		std::string getPiezoDeviceList ( );
@@ -30,9 +35,9 @@ class PiezoController
 
 	private:
 		PiezoCore core;
-		Control<CleanPush> programNowButton;
-		Control<CleanCheck> ctrlButton;
-		piezoChan<Control<CStatic>> labels;
-		piezoChan<Control<CEdit>> edits;
-		piezoChan<Control<CStatic>> currentVals;		
+		QPushButton* programNowButton;
+		QCheckBox* ctrlButton;
+		piezoChan<QLabel*> labels;
+		piezoChan<QLineEdit*> edits;
+		piezoChan<QLabel*> currentVals;		
 };

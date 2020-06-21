@@ -8,12 +8,20 @@
 #include "Python/EmbeddedPythonHandler.h"
 #include "ExperimentThread/Communicator.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "atomGrid.h"
 #include "Plotting/tinyPlotInfo.h"
 #include "ParameterSystem/Expression.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include <deque>
 #include <map>
+#include"QWinWidget.h"
+#include <qlabel.h>
+#include <qpushbutton.h>
+#include <qcheckbox.h>
+#include <qtableWidget.h>
+#include <qcombobox.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -28,20 +36,15 @@ class DataAnalysisControl
 	public:
 		DataAnalysisControl( );
 		bool wantsThresholdAnalysis ( );
-		void initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips);
+		void initialize( POINT& pos, IChimeraWindowWidget* parent );
 		ULONG getPlotFreq( );
-		void handleOpenConfig( std::ifstream& file, Version ver );
-		void handleNewConfig( std::ofstream& file );
-		void handleSaveConfig(std::ofstream& file );
-		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
+		void handleOpenConfig(ConfigStream& file );
+		void handleSaveConfig(ConfigStream& file );
 		void handleRClick( );
-		void rearrange( int width, int height, fontMap fonts );
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );
-		void onManualButtonPushed( );
-		void onCornerButtonPushed( );
-		void handlePictureClick( coordinate location );
+		void setGridCornerLocation (coordinate loc);
 		std::vector<coordinate> getAnalysisLocs( );
 		atomGrid getAtomGrid( UINT which );
 		std::vector<atomGrid> getGrids( );
@@ -65,56 +68,55 @@ class DataAnalysisControl
 		// readable. I very rarely use things like this.
 		template<class T> using vector = std::vector<T>;
 		// subroutine for handling atom & count plots
-		static void handlePlotAtoms( 
+		static std::vector<std::vector<dataPoint>> handlePlotAtoms(
 			PlottingInfo plotInfo, UINT repNum, vector<vector<std::pair<double, ULONG>> >& finData, 
-			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataContainers, 
+			std::vector<std::vector<dataPoint>>& dataContainers, 
 			UINT variationNumber, vector<vector<bool>>& pscSatisfied, 
 			int plotNumberCount, vector<vector<int> > atomPresent, UINT plottingFrequency, UINT groupNum, 
 			UINT picsPerVariation );
-		static void handlePlotHist( 
+		static std::vector<std::vector<dataPoint>> handlePlotHist(
 			PlottingInfo plotInfo, vector<vector<long>> countData,  
 			vector<vector<std::deque<double>>>& finData, vector<vector<bool>>pscSatisfied, 
 			vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
-			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays, UINT groupNum );
+			std::vector<std::vector<dataPoint>>& dataContainers, UINT groupNum );
 		static void determineWhichPscsSatisfied(
 			PlottingInfo& info, UINT groupSize, vector<vector<int>> atomPresentData, vector<vector<bool>>& pscSatisfied );
 		bool getDrawGridOption ( );
 	private:
 		// real time plotting
-		ULONG updateFrequency;
-		Control<CStatic> updateFrequencyLabel1;
-		Control<CStatic> updateFrequencyLabel2;
-		Control<CEdit> updateFrequencyEdit;
+		unsigned long updateFrequency;
+		QLabel* updateFrequencyLabel1;
+		QLabel* updateFrequencyLabel2;
+		CQLineEdit* updateFrequencyEdit;
 
-		Control<CStatic> header;
-		Control<MyListCtrl> plotListview;
+		QLabel* header;
+		QTableWidget* plotListview;
 		std::vector<tinyPlotInfo> allTinyPlots;
 		// other data analysis
 		bool currentlySettingGridCorner;
 		bool currentlySettingAnalysisLocations;
-		Control<CStatic> currentDataSetNumberText;
-		Control<CStatic> currentDataSetNumberDisp;
-		Control<CleanPush> manualSetAnalysisLocsButton;
+		QLabel* currentDataSetNumberText;
+		QLabel* currentDataSetNumberDisp;
 
-		Control<CComboBox> gridSelector;
-		Control<CleanPush> setGridCorner;
-		Control<CStatic> gridSpacingText;
-		Control<CEdit> gridSpacing;
-		Control<CStatic> gridWidthText;
-		Control<CEdit> gridWidth;
-		Control<CStatic> gridHeightText;
-		Control<CEdit> gridHeight;
+		CQComboBox* gridSelector;
+		CQPushButton* setGridCorner;
+		QLabel* gridSpacingText;
+		QLineEdit* gridSpacing;
+		QLabel* gridWidthText;
+		QLineEdit* gridWidth;
+		QLabel* gridHeightText;
+		QLineEdit* gridHeight;
 
-		Control<CleanCheck> autoThresholdAnalysisButton;
-		Control<CleanCheck> displayGridBtn;
+		CQCheckBox* autoThresholdAnalysisButton;
+		CQCheckBox* displayGridBtn;
 
-		Control<CStatic> plotTimerTxt;
-		Control<CEdit> plotTimerEdit;
+		QLabel* plotTimerTxt;
+		CQLineEdit* plotTimerEdit;
 		std::atomic<UINT> plotTime=5000;
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
-		Control<CleanPush> deleteGrid;
+		CQPushButton* deleteGrid;
 
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;

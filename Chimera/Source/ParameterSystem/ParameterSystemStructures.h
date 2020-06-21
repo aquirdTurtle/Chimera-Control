@@ -47,9 +47,9 @@ class ScanRangeInfo
 	This class is basically a wrapper around a 2d vector
 	*/
 	private:
-	std::vector<std::vector<IndvRangeInfo>> data;
 	const IndvRangeInfo defaultRangeInfo = { 2,false,true };
 	public:
+		std::vector<std::vector<IndvRangeInfo>> data;
 		void removeDim ( UINT which )
 		{
 			data.erase ( data.begin ( ) + which );
@@ -103,11 +103,11 @@ class ScanRangeInfo
 			}
 			return data[ scanDimIndex ][ rangeIndex ];
 		}
-		UINT numScanDimensions ( )
+		size_t numScanDimensions ( )
 		{
 			return data.size ( );
 		}
-		UINT numRanges ( UINT scanDimIndex )
+		size_t numRanges ( UINT scanDimIndex )
 		{
 			if ( scanDimIndex >= data.size ( ) )
 			{
@@ -117,7 +117,7 @@ class ScanRangeInfo
 		}
 		void setNumScanDimensions ( UINT numDimensions )
 		{
-			UINT initSize = data.size ( );
+			auto initSize = data.size ( );
 			data.resize ( numDimensions );
 			if ( data.size ( ) > initSize )
 			{
@@ -153,7 +153,15 @@ struct vectorizedNiawgVals
 
 struct parameterType
 {
-	std::string name;
+	parameterType () { };
+	parameterType (int rangeSize)
+	{
+		for (auto rangeVariations : range(rangeSize))
+		{
+			ranges.push_back ({ 0, 0 });
+		}
+	}
+	std::string name="x";
 	// whether this variable is constant or varies.
 	bool constant;
 	double constantValue = 0;

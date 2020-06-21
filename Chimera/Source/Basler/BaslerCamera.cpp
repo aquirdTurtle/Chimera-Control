@@ -1,21 +1,63 @@
 // created by Mark O. Brown
 #include "stdafx.h"
+
 #include "BaslerCamera.h"
 #include "BaslerWrapper.h"
-#include "GeneralImaging/PictureControl.h"
-#include "stdint.h"
-#include "LowLevel/constants.h"
-#include "PrimaryWindows/MainWindow.h"
 
+#include "GeneralImaging/PictureControl.h"
+#include "ConfigurationSystems/ProfileSystem.h"
+#include "MiscellaneousExperimentOptions/Repetitions.h"
+
+#include "stdint.h"
 #include <cmath>
 #include <algorithm>
 #include <functional>
 
+baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile)
+{
+	if (configFile.ver < Version ("4.0"))
+	{
+		thrower ("Basler settings requires version 4.0+ Configuration files");
+	}
+	baslerSettings newSettings;
+	std::string txt;
+
+	configFile >> txt;
+	newSettings.acquisitionMode = BaslerAcquisition::fromStr (txt);
+	std::string test;
+	try
+	{
+		configFile >> test;
+		newSettings.dims.left = boost::lexical_cast<int>(test);
+		configFile >> test;
+		newSettings.dims.top = boost::lexical_cast<int>(test);
+		configFile >> test;
+		newSettings.dims.right = boost::lexical_cast<int>(test);
+		configFile >> test;
+		newSettings.dims.bottom = boost::lexical_cast<int>(test);
+	}
+	catch (boost::bad_lexical_cast&)
+	{
+		throwNested ("Basler control failed to convert dimensions recorded in the config file "
+			"to integers");
+	}
+	configFile >> newSettings.dims.horizontalBinning;
+	configFile >> newSettings.dims.verticalBinning;
+	configFile >> txt;
+	newSettings.exposureMode = BaslerAutoExposure::fromStr (txt);
+	configFile >> newSettings.exposureTime;
+	configFile >> newSettings.frameRate;
+	configFile >> newSettings.rawGain;
+	configFile >> newSettings.picsPerRep;
+	configFile >> txt;
+	newSettings.triggerMode = BaslerTrigger::fromStr (txt);
+	return newSettings;
+}
 // important constructor;
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
 // work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 
 // once.
-BaslerCameraCore::BaslerCameraCore(CWnd* parent)
+BaslerCameraCore::BaslerCameraCore(IChimeraWindowWidget* parent )
 {
 	Pylon::PylonInitialize();
 	Pylon::CDeviceInfo info;
@@ -150,73 +192,61 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 	//camera->AcquisitionMode.SetValue(Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous);
 	//camera->AcquisitionFrameRate.SetValue(settings.frameRate);
 	// exposure mode
-	if (settings.exposureMode == BaslerAutoExposure::mode::Continuous)
-	{
+	if (settings.exposureMode == BaslerAutoExposure::mode::Continuous){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Continuous );
 	}
-	else if (settings.exposureMode == BaslerAutoExposure::mode::Off)
-	{
+	else if (settings.exposureMode == BaslerAutoExposure::mode::Off){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Off );
 
-		if (!(settings.exposureTime >= camera->getExposureMin() && settings.exposureTime <= camera->getExposureMax()))
-		{
+		if (!(settings.exposureTime >= camera->getExposureMin() && settings.exposureTime <= camera->getExposureMax())){
 			thrower ( "exposure time must be between " + str( camera->getExposureMin() ) + " and " 
 					 + str( camera->getExposureMax()) );
 		}
 		camera->setExposure( settings.exposureTime );
 	}
-	else if (settings.exposureMode == BaslerAutoExposure::mode::Once)
-	{
+	else if (settings.exposureMode == BaslerAutoExposure::mode::Once){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Once );
 	}
 
-	if (settings.triggerMode == BaslerTrigger::mode::External)
-	{
+	if (settings.triggerMode == BaslerTrigger::mode::External){
 		#ifdef FIREWIRE_CAMERA
 			camera->setTriggerSource(cameraParams::TriggerSource_Line1);
 		#elif defined USB_CAMERA
 			camera->setTriggerSource(cameraParams::TriggerSource_Line3);
 		#endif
 	}
-	else if (settings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
-	{
+	else if (settings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
 	}
-	else if (settings.triggerMode == BaslerTrigger::mode::ManualSoftware )
-	{
+	else if (settings.triggerMode == BaslerTrigger::mode::ManualSoftware ){
 		camera->setTriggerSource( cameraParams::TriggerSource_Software );
 	}
 	runSettings = settings;
 }
 
-baslerSettings BaslerCameraCore::getRunningSettings ()
-{
+baslerSettings BaslerCameraCore::getRunningSettings (){
 	return runSettings;
 }
 
 // I can potentially use this to reopen the camera if e.g. the user disconnects. Don't think this is really implemented
 // yet.
-void BaslerCameraCore::reOpenCamera(CWnd* parent)
-{
+void BaslerCameraCore::reOpenCamera(IChimeraWindowWidget* parent ){
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
-	if (!BASLER_SAFEMODE)
-	{
+	if (!BASLER_SAFEMODE){
 		delete camera;
 		cameraType* temp;
 		temp = new cameraType( Pylon::CTlFactory::GetInstance().CreateFirstDevice( info ) );
 		camera = dynamic_cast<BaslerWrapper*>(temp);
 	}
-	camera->init(parent);
+	camera->init( parent );
 }
 
 // get the dimensions of the camera. This is tricky because while I can get info about each parameter easily through
 // pylon, several of the parameters, such as the width, are context-sensitive and return the max values as possible 
 // given other camera settings at the moment (e.g. the binning).
-POINT BaslerCameraCore::getCameraDimensions()
-{
-	if (BASLER_SAFEMODE)
-	{
+POINT BaslerCameraCore::getCameraDimensions(){
+	if (BASLER_SAFEMODE){
 		return { 672, 512 };
 	}
 	POINT dim;
@@ -248,15 +278,12 @@ POINT BaslerCameraCore::getCameraDimensions()
 
 // get the camera "armed" (ready for aquisition). Actual start of camera taking pictures depends on things like the 
 // trigger mode.
-void BaslerCameraCore::armCamera( )
-{
+void BaslerCameraCore::armCamera( ){
 	Pylon::EGrabStrategy grabStrat;
-	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous )
-	{
+	if (runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous ){
 		grabStrat = Pylon::GrabStrategy_LatestImageOnly;
 	}
-	else
-	{
+	else{
 		grabStrat = Pylon::GrabStrategy_OneByOne;
 	}
 	triggerThreadInput* input = new triggerThreadInput;
@@ -264,69 +291,57 @@ void BaslerCameraCore::armCamera( )
 	
 	input->frameRate = runSettings.frameRate;
 	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
-	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware )
-	{
+	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
 		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
 	}
 }
 
 
-HANDLE BaslerCameraCore::getCameraThreadObj ( )
-{
+HANDLE BaslerCameraCore::getCameraThreadObj ( ){
 	return cameraTrigThread;
 }
 
 
 // 
-double BaslerCameraCore::getCurrentExposure()
-{
+double BaslerCameraCore::getCurrentExposure(){
 	return camera->getCurrentExposure();
 }
 
 //
-unsigned int BaslerCameraCore::getPicsPerRep()
-{
+unsigned int BaslerCameraCore::getPicsPerRep(){
 	return runSettings.picsPerRep;
 }
 
 //
-bool BaslerCameraCore::isContinuous()
-{
+bool BaslerCameraCore::isContinuous(){
 	return runSettings.acquisitionMode == BaslerAcquisition::mode::Continuous;
 }
 
 // this is the thread that programatically software-triggers the camera when triggering internally.
-void BaslerCameraCore::triggerThread( void* voidInput )
-{
+void BaslerCameraCore::triggerThread( void* voidInput ){
 	int count = 0;
 	triggerThreadInput* input = (triggerThreadInput*)voidInput;
-	try
-	{
-		while (input->camera->isGrabbing())
-		{
+	try{
+		while (input->camera->isGrabbing())	{
 			// adjust for frame rate
 			Sleep(int(1000.0 / input->frameRate));
-			try
-			{
+			try	{
 				// Execute the software trigger. The call waits up to 100 ms for the camera
 				// to be ready to be triggered.
 				input->camera->waitForFrameTriggerReady(1000);
 				input->camera->executeSoftwareTrigger();			
 				count++;
 			}
-			catch (Error&)
-			{
+			catch (Error&)	{
 				// continue... should be stopping grabbing.
 				break;
 			}
 		}
 	}
-	catch (Pylon::TimeoutException& timeoutErr)
-	{
+	catch (Pylon::TimeoutException& timeoutErr){
 		errBox( "Trigger Thread Timeout Error!" + std::string(timeoutErr.what()) );
 	}
-	catch (Pylon::RuntimeException&)
-	{
+	catch (Pylon::RuntimeException&){
 		// aborted, that's fine. return.
 	}
 }
@@ -387,4 +402,62 @@ int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum,
 	}
 }
 
+void BaslerCameraCore::logSettings (DataLogger& log)
+{
+	try
+	{
+		if (!experimentActive)
+		{
+			H5::Group baslerGroup (log.file.createGroup ("/Basler:Off"));
+			return;
+		}
+		H5::Group baslerGroup (log.file.createGroup ("/Basler"));
+		hsize_t rank1[] = { 1 };
+		// pictures. These are permanent members of the class for speed during the writing process.	
+		hsize_t setDims[] = { ULONGLONG (expRunSettings.totalPictures ()), expRunSettings.dims.width (),
+							   expRunSettings.dims.height () };
+		hsize_t picDims[] = { 1, expRunSettings.dims.width (), expRunSettings.dims.height () };
+		log.BaslerPicureSetDataSpace = H5::DataSpace (3, setDims);
+		log.BaslerPicDataSpace = H5::DataSpace (3, picDims);
+		log.BaslerPictureDataset = baslerGroup.createDataSet ("Pictures", H5::PredType::NATIVE_LONG, 
+															  log.BaslerPicureSetDataSpace);
+		log.currentBaslerPicNumber = 0;
+		log.writeDataSet (BaslerAcquisition::toStr (expRunSettings.acquisitionMode), "Camera-Mode", baslerGroup);
+		log.writeDataSet (BaslerAutoExposure::toStr (expRunSettings.exposureMode), "Exposure-Mode", baslerGroup);
+		log.writeDataSet (expRunSettings.exposureTime, "Exposure-Time", baslerGroup);
+		log.writeDataSet (BaslerTrigger::toStr (expRunSettings.triggerMode), "Trigger-Mode", baslerGroup);
+		// image settings
+		H5::Group imageDims = baslerGroup.createGroup ("Image-Dimensions");
+		log.writeDataSet (expRunSettings.dims.top, "Top", imageDims);
+		log.writeDataSet (expRunSettings.dims.bottom, "Bottom", imageDims);
+		log.writeDataSet (expRunSettings.dims.left, "Left", imageDims);
+		log.writeDataSet (expRunSettings.dims.right, "Right", imageDims);
+		log.writeDataSet (expRunSettings.dims.horizontalBinning, "Horizontal-Binning", imageDims);
+		log.writeDataSet (expRunSettings.dims.verticalBinning, "Vertical-Binning", imageDims);
+		log.writeDataSet (expRunSettings.frameRate, "Frame-Rate", baslerGroup);
+		log.writeDataSet (expRunSettings.rawGain, "Raw-Gain", baslerGroup);
+	}
+	catch (H5::Exception err)
+	{
+		log.logError (err);
+		throwNested ("ERROR: Failed to log basler parameters in HDF5 file: " + err.getDetailMsg ());
+	}
+}
+
+void BaslerCameraCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings, Version ("4.0"));
+	expRunSettings.repsPerVar = ProfileSystem::stdConfigGetter ( stream, "REPETITIONS", 
+																 Repetitions::getSettingsFromConfig);
+}
+
+void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
+{
+	expRunSettings.variations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());
+	if (experimentActive){
+		//comm.sendPrepareBasler (expRunSettings);
+		setBaslserAcqParameters (expRunSettings);
+		armCamera ();
+	}
+}
 

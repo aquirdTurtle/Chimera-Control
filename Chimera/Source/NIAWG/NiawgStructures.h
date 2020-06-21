@@ -105,7 +105,7 @@ struct waveSignal
 
 struct channelWaveForm
 {
-	std::vector<waveSignalForm> signals;
+	std::vector<waveSignalForm> waveSigs;
 	// should be 0 until this option is re-implemented!
 	int phaseOption = 0;
 	int initType = 0;
@@ -124,7 +124,7 @@ struct channelWaveForm
 * */
 struct channelWave
 {
-	std::vector<waveSignal> signals;
+	std::vector<waveSignal> waveSigs;
 	// should be 0 until this option is re-implemented!
 	int phaseOption = 0;
 	int initType = 0;

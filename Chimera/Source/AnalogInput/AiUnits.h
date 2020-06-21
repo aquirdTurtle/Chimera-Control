@@ -34,5 +34,6 @@ struct AiUnits
 			}
 		}
 		thrower ("Failed to convert string to AiUnits option!");
+		return which::pdVolts;
 	}
 };

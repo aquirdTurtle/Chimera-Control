@@ -4,33 +4,37 @@
 #include "ConfigurationSystems/Version.h"
 #include "Control.h"
 #include "GeneralObjects/commonTypes.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/myButton.h"
-
+#include <QLabel>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 struct mainOptions
 {
 	bool dontActuallyGenerate=false;
 	bool randomizeVariations=false;
 	bool randomizeReps=false;
-	UINT atomThresholdForSkip=UINT_MAX;
+	UINT atomSkipThreshold=UINT_MAX;
 };
 
 // this got whittled down recently, but keeping so that I can put more stuff in later.
 class MainOptionsControl
 {
 	public:
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		static mainOptions getMainOptionsFromConfig( std::ifstream& openFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		static mainOptions getSettingsFromConfig(ConfigStream& openFile );
 		void setOptions ( mainOptions opts );
-		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
+		void initialize(POINT& loc, IChimeraWindowWidget* parent );
 		mainOptions getOptions();
 		void rearrange(int width, int height, fontMap fonts);
 	private:
-		Control<CStatic> header;
-		Control<CleanCheck> randomizeVariationsButton;
-		Control<CleanCheck> randomizeRepsButton;
-		Control<CStatic> atomThresholdForSkipText;
-		Control<CEdit> atomThresholdForSkipEdit;
+
+		QLabel* header;
+		QCheckBox* randomizeVariationsButton;
+		QCheckBox* randomizeRepsButton;
+		QLabel* atomThresholdForSkipText;
+		QLineEdit* atomThresholdForSkipEdit;
 		mainOptions currentOptions;
 };

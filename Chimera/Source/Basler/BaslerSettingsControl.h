@@ -6,15 +6,23 @@
 #include "GeneralObjects/commonTypes.h"
 #include "GeneralImaging/imageParameters.h"
 #include "Basler/BaslerSettings.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include <string>
 #include <fstream>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <Andor/CameraImageDimensions.h>
+#include <qlabel.h>
+#include <qcheckbox.h>
+#include <qpushbutton.h>
+#include <qlineedit.h>
+#include <qcombobox.h>
 
 class BaslerSettingsControl
 {
 	public:
 		BaslerSettingsControl ( );
-		void initialize(POINT& pos, int& id, CWnd* parent, int picWidth, int picHeight, POINT cameraDims);
+		void initialize( POINT& pos, int picWidth, int picHeight, POINT cameraDims, IChimeraWindowWidget* qtp );
 		void redrawMotIndicator ( );
 		void handleGain();
 		void setStatus(std::string status);
@@ -26,8 +34,7 @@ class BaslerSettingsControl
 		void setSettings ( baslerSettings newSettings );
 		void updateExposure( double exposure );
 		void rearrange(int width, int height, fontMap fonts);
-		void handleSavingConfig ( std::ofstream& configFile );
-		//void handleOpenConfig ( std::ifstream& configFile, Version ver );
+		void handleSavingConfig ( ConfigStream& configFile );
 
 		/// TODO: fill in correct parameters here.
 		const imageParameters ScoutFullResolution = { 1,500,1,500,1,1 };
@@ -35,55 +42,42 @@ class BaslerSettingsControl
 		const UINT unityGainSetting = 260;
 		
 		double getMotThreshold ( );
-		static baslerSettings getSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		static baslerSettings getSettingsFromConfig (ConfigStream& configFile, Version ver );
 
 	private:
 		ULONG lastTime;
 		baslerSettings currentSettings;
-		Control<CStatic> statusText;
+		QLabel* statusText;
 		// exposure
-		Control<CStatic> exposureText;
-		Control<CComboBox> exposureModeCombo;
-		Control<CEdit> exposureEdit;
-		Control<CButton> setExposure;
+		QLabel* exposureText;
+		QComboBox* exposureModeCombo;
+		QLineEdit* exposureEdit;
+		QPushButton* setExposure;
 		// trigger
-		Control<CComboBox> triggerCombo;
-		// Dimensions & Binning
-		Control<CStatic> leftText;
-		Control<CStatic>  rightText;
-		Control<CStatic>  horizontalBinningText;
-		Control<CStatic>  topText;
-		Control<CStatic>  bottomText;
-		Control<CStatic>  verticalBinningText;
-		Control<CEdit>  leftEdit;
-		Control<CEdit> rightEdit;
-		Control<CEdit> horizontalBinningEdit;
-		Control<CEdit> topEdit;
-		Control<CEdit> bottomEdit;
-		Control<CEdit> verticalBinningEdit;
-
+		QComboBox* triggerCombo;
+		ImageDimsControl dims;
 		// camera mode: continuous or set #
-		Control<CComboBox> cameraMode;
-		Control<CStatic> repText;
-		Control<CEdit> repEdit;
+		QComboBox* cameraMode;
+		QLabel* repText;
+		QLineEdit* repEdit;
 
-		Control<CStatic> frameRateText;
-		Control<CEdit> frameRateEdit;
-		Control<CStatic> realFrameRate;
+		QLabel* frameRateText;
+		QLineEdit* frameRateEdit;
+		QLabel* realFrameRate;
 
-		Control<CStatic> gainText;
-		Control<CComboBox> gainCombo;
-		Control<CEdit> gainEdit;
-		Control<CStatic> realGainText;
-		Control<CStatic> realGainStatus;
+		QLabel* gainText;
+		QComboBox* gainCombo;
+		QLineEdit* gainEdit;
+		QLabel* realGainText;
+		QLabel* realGainStatus;
 
-		Control<CButton> linkToMain;
-		Control<CStatic> picsPerRepTxt;
-		Control<CEdit> picsPerRepEdit;
+		QPushButton* linkToMain;
+		QLabel* picsPerRepTxt;
+		QLineEdit* picsPerRepEdit;
 
-		Control<CStatic> motThreshold;
-		Control<DoubleEdit> motThresholdEdit;
-		Control<CStatic> motLoadedColorbox;
+		QLabel* motThreshold;
+		QLineEdit* motThresholdEdit;
+		QLabel* motLoadedColorbox;
 
 		bool motLoaded;
 

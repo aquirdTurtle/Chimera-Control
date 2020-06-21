@@ -4,176 +4,108 @@
 #include "Tektronix/TektronixAfgControl.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "GeneralUtilityFunctions/range.h"
-
+#include <PrimaryWindows/QtMainWindow.h>
+#include <PrimaryWindows/QtAuxiliaryWindow.h>
 TektronixAfgControl::TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter ) 
 	: core(safemode, address, configurationFileDelimiter ) {}
 
-
-HBRUSH TektronixAfgControl::handleColorMessage(CWnd* window, CDC* cDC)
-{
-	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == onOffLabel.GetDlgCtrlID() || controlID == fskLabel.GetDlgCtrlID() 
-		|| controlID == mainPowerLabel.GetDlgCtrlID() || controlID == mainFreqLabel.GetDlgCtrlID() 
-		|| controlID == fskFreqLabel.GetDlgCtrlID())
-	{
-		cDC->SetBkColor(_myRGBs["Static-Bkgd"]);
-		cDC->SetTextColor( _myRGBs["Text"]);
-		return *_myBrushes["Static-Bkgd"];
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-
-void TektronixAfgControl::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << core.configDelim + "\n";
-	newFile << "CHANNEL_1\n";
-	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "CHANNEL_2\n";
-	newFile << 0 << "\n" << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
-	newFile << "END_" + core.configDelim + "\n";
-}
-
-
-void TektronixAfgControl::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << core.configDelim + "\n";
+void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile){
+	saveFile << core.configDelim;
 	tektronixInfo tekInfo = getTekSettings ();
 	for (auto chanInc : range (tekInfo.channels.size ()))
 	{
 		auto& channel = tekInfo.channels[chanInc];
-		saveFile << "CHANNEL_" + str(chanInc+1) + "\n";
-		saveFile << channel.control << "\n" << channel.on << "\n" << channel.fsk << "\n" << channel.power.expressionStr 
-			<< "\n" << channel.mainFreq.expressionStr << "\n" << channel.fskFreq.expressionStr << "\n";
+		saveFile << "\nCHANNEL_" + str(chanInc+1);
+		saveFile << "\n/*Control?*/\t"<< channel.control 
+				 << "\n/*On?*/\t\t\t" << channel.on 
+			     << "\n/*Fsk?*/\t\t" << channel.fsk 
+			     << "\n/*Power:*/\t\t" << channel.power 
+				 << "\n/*Main Freq:*/\t" << channel.mainFreq 
+				 << "\n/*FSK Freq:*/\t" << channel.fskFreq;
 	}
-	saveFile << "END_" + core.configDelim + "\n";
+	saveFile << "\nEND_" + core.configDelim + "\n";
 }
 
 
-void TektronixAfgControl::handleOpenConfig(std::ifstream& configFile, Version ver )
-{
-	setSettings(getTekInfo(configFile, ver));
+void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile ){
+	setSettings(core.getSettingsFromConfig(configFile));
 }
 
-tektronixInfo TektronixAfgControl::getTekInfo (std::ifstream& configFile, Version ver)
-{
-	tektronixInfo tekInfo;
-	for (auto chanInc : range (tekInfo.channels.size ()))
-	{
-		ProfileSystem::checkDelimiterLine (configFile, "CHANNEL_" + str (chanInc+1));
-		auto& channel = tekInfo.channels[chanInc];
-		configFile >> channel.control >> channel.on >> channel.fsk;
-		configFile.get ();
-		std::getline (configFile, channel.power.expressionStr);
-		std::getline (configFile, channel.mainFreq.expressionStr);
-		std::getline (configFile, channel.fskFreq.expressionStr);
-	}
-	return tekInfo;
-}
-
-
-void TektronixAfgControl::handleProgram(std::vector<std::vector<parameterType>> constants)
-{
+void TektronixAfgControl::handleProgram(std::vector<parameterType> constants){
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
-	core.interpretKey (constants, currentInfo);
-	core.programMachine( 0, currentInfo );
+	core.calculateVariations (constants);
+	core.programVariation( 0, constants );
 }
 
-std::string TektronixAfgControl::getDelim ()
-{
+std::string TektronixAfgControl::getDelim (){
 	return core.configDelim;
 }
 
-TekCore& TektronixAfgControl::getCore ()
-{
+TekCore& TektronixAfgControl::getCore (){
 	return core;
 }
 
 
-void TektronixAfgControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width, UINT control_id )
+void TektronixAfgControl::initialize( POINT& loc, IChimeraWindowWidget* parent, std::string headerText, 
+									  std::string channel1Text, std::string channel2Text, LONG width)
 {
-	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
-	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = fontTypes::HeadingFont;
-	
-	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
-	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, control_id );
+	header = new QLabel (("Tektronixs " + headerText).c_str(), parent);
+	header->setGeometry (loc.x, loc.y, width, 25);
+	loc.y += 25;
 
-	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, "Channel 1:" + channel1Text, width / 3, 
-						 control_id+1 );
-	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, "Channel 2:" + channel2Text, width / 3, 
-						 control_id+50 );
+	programNow = new QPushButton ("Program Now", parent);
+	programNow->setGeometry (loc.x, loc.y, width/3, 20);
+	parent->connect (programNow, &QPushButton::released, [this, parent]() {
+		try	{
+			handleProgram (parent->auxWin->getUsableConstants ());
+			parent->reportStatus ("Programmed Top/Bottom Tektronix Generator.\r\n");
+		}
+		catch (Error& exception) {
+			parent->reportErr("Error while programing Top/Bottom Tektronix generator: " + exception.trace () + "\r\n");
+		}});
 
+	channel1.initialize( { loc.x + width / 3, loc.y }, parent, "Channel 1:" + channel1Text, width / 3 );
+	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, "Channel 2:" + channel2Text, width / 3 );
+
+	controlLabel = new QLabel ("Control:", parent);
+	controlLabel->setGeometry (loc.x, loc.y+=20, width / 3, 20);
+
+	onOffLabel = new QLabel ("On:", parent);
+	onOffLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+
+	fskLabel = new QLabel ("FSK:", parent);
+	fskLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+
+	mainPowerLabel = new QLabel ("Power:", parent);
+	mainPowerLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+
+	mainFreqLabel = new QLabel ("Main Freq:", parent);
+	mainFreqLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+
+	fskFreqLabel = new QLabel ("FSK Freq:", parent);
+	fskFreqLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
 	loc.y += 20;
-	controlLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	controlLabel.Create( "Control:", NORM_STATIC_OPTIONS, onOffLabel.sPos, parent, id++ );
-
-	onOffLabel.sPos = { loc.x, loc.y, loc.x + width/3, loc.y += 20 };
-	onOffLabel.Create("On:", NORM_STATIC_OPTIONS, onOffLabel.sPos, parent, id++);
-
-	fskLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	fskLabel.Create("FSK:", NORM_STATIC_OPTIONS, fskLabel.sPos, parent, id++);
-
-	mainPowerLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	mainPowerLabel.Create("Power", NORM_STATIC_OPTIONS, mainPowerLabel.sPos, parent, id++);
-
-	mainFreqLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	mainFreqLabel.Create("Main Freq.", NORM_STATIC_OPTIONS, mainFreqLabel.sPos, parent, id++);
-
-	fskFreqLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	fskFreqLabel.Create("FSK Freq.", NORM_STATIC_OPTIONS, fskFreqLabel.sPos, parent, id++);
 }
 
 
-std::string TektronixAfgControl::queryIdentity()
-{
+std::string TektronixAfgControl::queryIdentity() {
 	return core.queryIdentity ();
 }
 
 
-void TektronixAfgControl::rearrange(int width, int height, fontMap fonts)
-{
-	header.rearrange( width, height, fonts);
-	controlLabel.rearrange( width, height, fonts );
-	onOffLabel.rearrange( width, height, fonts);
-	fskLabel.rearrange( width, height, fonts);
-	mainPowerLabel.rearrange( width, height, fonts);
-	mainFreqLabel.rearrange( width, height, fonts);
-	fskFreqLabel.rearrange(width, height, fonts);
-	channel1.rearrange(width, height, fonts);
-	channel2.rearrange(width, height, fonts);
-	programNow.rearrange( width, height, fonts );
-}
-
-
-tektronixInfo TektronixAfgControl::getTekSettings()
-{
+tektronixInfo TektronixAfgControl::getTekSettings(){
 	currentInfo.channels[0] = channel1.getTekChannelSettings();
 	currentInfo.channels[1] = channel2.getTekChannelSettings();
 	return currentInfo;
 }
 
 // does not set the address, that's permanent.
-void TektronixAfgControl::setSettings(tektronixInfo info)
-{
+void TektronixAfgControl::setSettings(tektronixInfo info){
 	currentInfo.channels = info.channels;
 	channel1.setSettings(currentInfo.channels[0]);
 	channel2.setSettings(currentInfo.channels[1]);
 	// update the controls to reflect what is now selected.
-	channel1.handleOnPress();
-	channel1.handleFskPress();
-	channel2.handleOnPress();
-	channel2.handleFskPress();
-}
-
-
-void TektronixAfgControl::handleButtons(UINT indicator)
-{
-	channel1.handleButton ( indicator );
-	channel2.handleButton ( indicator );
+	channel1.handleEnabledStatus ();
+	channel2.handleEnabledStatus ();
 }

@@ -9,7 +9,7 @@
 PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
 						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<UINT>& timerTime, 
 						std::vector<int> thresholds, int pltIds, std::string title ) :
-	plot( dataHolder, styleIn, inPens, font, plotBrushes, thresholds, title ), dynamicTimerLength( timerTime ), 
+	plot( 1, styleIn, thresholds, title ), dynamicTimerLength( timerTime ), 
 	dynamicTimer(true), staticTimer(0), plotPopId (pltIds)
 {
 	backgroundBrush.CreateSolidBrush ( _myRGBs[ "Main-Bkgd" ] );
@@ -20,7 +20,7 @@ PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn,
 PlotDialog::PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
 						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
 						 std::vector<int> thresholds, int pltIds, std::string title ) :
-	plot ( dataHolder, styleIn, inPens, font, plotBrushes, thresholds, title ),
+	plot ( 1, styleIn, thresholds, title ),
 	dynamicTimerLength ( std::atomic<UINT> ( 0 ) ), dynamicTimer ( false ), staticTimer ( timerTime ), plotPopId (pltIds)
 {
 	backgroundBrush.CreateSolidBrush ( _myRGBs[ "Main-Bkgd" ] );
@@ -71,7 +71,7 @@ bool PlotDialog::removeQuery( PlotDialog* plt )
 
 bool PlotDialog::wantsSustain( )
 {
-	return plot.wantsSustain();
+	return false;// plot.wantsSustain ();
 }
 
 
@@ -97,7 +97,6 @@ void PlotDialog::OnSize( UINT s, int cx, int cy)
 
 void PlotDialog::OnCancel( )
 {
-	plot.clear( );
 	DestroyWindow( );
 }
 
@@ -117,7 +116,7 @@ HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
 BOOL PlotDialog::OnInitDialog( )
 {
 	POINT pt = { 0,0 };
-	plot.init( pt, 1920, 997, this, plotPopId);
+	//plot.init( pt, 1920, 997, this, plotPopId);
 	if ( dynamicTimer )
 	{
 		SetTimer ( 1, dynamicTimerLength, NULL );
@@ -137,8 +136,6 @@ void PlotDialog::OnPaint( )
 		GetClientRect( &size );
 		SmartDC sdc (this);
 		memDC dc (sdc.get ());
-		plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
-		plot.drawPlot ( dc, &backgroundBrush, &plotAreaBrush );
 		CDialog::OnPaint( );
 	}
 }

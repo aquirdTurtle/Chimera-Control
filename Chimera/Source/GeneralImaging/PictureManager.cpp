@@ -6,46 +6,30 @@
 
 PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 
 	: pictures{ { histOption, false, false, false } }, configDelim ( configurationFileDelimiter ), 
-	autoScalePictures (autoscaleDefault )
-{
-
+	autoScalePictures (autoscaleDefault ){
 }
 
-void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts )
-{
-	for ( auto picInc : range ( 4 ) )
-	{
+void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts ){
+	for ( auto picInc : range ( 4 ) ){
 		pictures[ picInc ].setSoftwareAccumulationOption ( opts[ picInc ] );
 	}
 }
 
 
-void PictureManager::paint (CDC* cdc, CRect size, CBrush* bgdBrush )
-{
-	for ( auto& pic : pictures )
-	{
-		pic.paint ( cdc, size, bgdBrush );
-	}
-}
-
-
-void PictureManager::drawBitmap (CDC* deviceContext, Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl )
-{
+void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl,
+	std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, UINT pictureNumber, 
+	bool includingAnalysisMarkers){
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
-	pictures[whichPicCtrl].drawBitmap (deviceContext, picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax);
-	if (alwaysShowGrid)
-	{
-		pictures[whichPicCtrl].drawGrid (deviceContext, gridBrush);
+	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax,
+		analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
+	if (alwaysShowGrid)	{
+		pictures[whichPicCtrl].drawGrid (gridBrush);
 	}
-
 }
 
-void PictureManager::setPalletes(std::array<int, 4> palleteIds)
-{
-	for (int picInc = 0; picInc < 4; picInc++)
-	{
-		if ( palleteIds[ picInc ] > 3 )
-		{
+void PictureManager::setPalletes(std::array<int, 4> palleteIds){
+	for (int picInc = 0; picInc < 4; picInc++){
+		if ( palleteIds[ picInc ] >= 3 ){
 			errBox ( "Image Pallete ID out of range! Forcing to 0." );
 			palleteIds[ picInc ] = 0;
 		}
@@ -53,149 +37,88 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 	}
 }
 
-void PictureManager::handleMouse( CPoint point )
-{
-	for ( auto& pic : pictures )
-	{
-		pic.handleMouse( point );
-	}
-}
 
-void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
-{
+void PictureManager::setAlwaysShowGrid(bool showOption){
 	alwaysShowGrid = showOption;
-	if (alwaysShowGrid)
-	{
-		if (!pictures[1].isActive())
-		{
-			pictures[0].drawGrid(easel, gridBrush);
+	if (alwaysShowGrid){
+		if (!pictures[1].isActive()){
+			pictures[0].drawGrid( gridBrush);
 			return;
 		}
-		for (auto& pic : pictures)
-		{
-			pic.drawGrid(easel, gridBrush);
+		for (auto& pic : pictures){
+			pic.drawGrid( gridBrush);
 		}
 	}
 }
 
+coordinate PictureManager::getSelLocation (){
+	return pictures[0].selectedLocation;
+}
 
-void PictureManager::redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-									 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber )
-{
-	if (!pictures[1].isActive())
-	{
-		pictures[0].redrawImage(easel);
-		if (alwaysShowGrid || forceGrid )
-		{
-			pictures[0].drawGrid(easel, gridBrush);
+void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<coordinate> analysisLocs,
+	std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber, QPainter& painter ){
+	if (!pictures[1].isActive()){
+		pictures[0].redrawImage();
+		if (alwaysShowGrid || forceGrid ){
+			pictures[0].drawGrid(gridBrush);
 		}
-		drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
 		return;
 	}
-	for (auto& pic : pictures)
-	{
-		pic.redrawImage(easel);
-		if (alwaysShowGrid || forceGrid )
-		{
-			pic.drawGrid(easel, gridBrush);
+	for (auto& pic : pictures){
+		pic.redrawImage();
+		if (alwaysShowGrid || forceGrid ){
+			pic.drawGrid(gridBrush);
 		}
-	}
-	drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
-}
-
-/*
- *
- */
-void PictureManager::drawDongles(CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-								  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers )
-{
-	UINT count = 1;
-	for (auto& pic : pictures)
-	{
-		pic.drawCircle( dc, selectedLocation);
-		if ( includingAnalysisMarkers )
-		{
-			pic.drawAnalysisMarkers ( dc, analysisLocs, grids );
-		}
-		pic.drawPicNum( dc, pictureNumber - getNumberActive() + count++ );
 	}
 }
 
 
-void PictureManager::setNumberPicturesActive( int numberActive )
-{
+void PictureManager::setNumberPicturesActive( int numberActive ){
 	int count = 1;
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.setActive( count <= numberActive );
 		count++;
 	}
 }
 
-void PictureManager::handleEditChange( UINT id )
-{
-	for (auto& pic : pictures)
-	{
+void PictureManager::handleEditChange( UINT id ){
+	for (auto& pic : pictures){
 		pic.handleEditChange( id );
 	}
 }
 
 
-void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
-{
+void PictureManager::setAutoScalePicturesOption(bool autoScaleOption){
 	autoScalePictures = autoScaleOption;
 }
 
 
-void PictureManager::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << configDelim + "\n";
-
-	for ( auto& pic : pictures )
-	{
-		std::pair<UINT, UINT> sliderLoc = { 0, 1000 };
-		newFile << sliderLoc.first << " " << sliderLoc.second << "\n";
-	}
-	newFile << 0 << " ";
-	newFile << 0 << " ";
-	newFile << 0 << " ";
-	newFile << 0 << " ";
-	newFile << "END_" + configDelim + "\n";
-}
-
-
-void PictureManager::handleSaveConfig(std::ofstream& saveFile)
-{
-	saveFile << configDelim + "\n";
-	for (auto& pic : pictures)
-	{
+void PictureManager::handleSaveConfig(ConfigStream& saveFile){
+	saveFile << configDelim + "\n/*Slider Locs (Min/Max):*/\n";
+	for (auto& pic : pictures){
 		std::pair<UINT, UINT> sliderLoc = pic.getSliderLocations();
-		saveFile << sliderLoc.first << " " << sliderLoc.second << "\n";
+		saveFile << str(sliderLoc.first) << " " << sliderLoc.second << "\n";
 	}
-	saveFile << autoScalePictures << " ";
-	saveFile << specialGreaterThanMax << " ";
-	saveFile << specialLessThanMin << " ";
-	saveFile << alwaysShowGrid << " ";
-	saveFile << "END_" + configDelim + "\n";
+	saveFile << "/*Auto-Scale Pics?*/ " << autoScalePictures;
+	saveFile << "\n/*Special >Max Color?*/ " << specialGreaterThanMax;
+	saveFile << "\n/*Special <Min Color?*/ " << specialLessThanMin;
+	saveFile << "\n/*Always Show Grid?*/ " << alwaysShowGrid;
+	saveFile << "\nEND_" + configDelim + "\n";
 }
 
 
-void PictureManager::handleOpenConfig(std::ifstream& configFile, Version ver )
-{
-	if ( ver < Version ( "4.0" ) )
-	{
+void PictureManager::handleOpenConfig( ConfigStream& configFile ){
+	if ( configFile.ver < Version ( "4.0" ) ){
 		thrower ( "Picture Manager requires configuration file version 4.0+." );
 	}
 	std::array<int, 4> maxes, mins;
-	for (int sliderInc = 0; sliderInc < 4; sliderInc++)
-	{
+	for (int sliderInc = 0; sliderInc < 4; sliderInc++)	{
 		configFile >> mins[sliderInc];
 		configFile >> maxes[sliderInc];
 	}
 	configFile >> autoScalePictures >> specialGreaterThanMax >> specialLessThanMin >> alwaysShowGrid;
 	UINT count = 0;
-	for (auto& pic : pictures)
-	{
+	for (auto& pic : pictures){
 		pic.setSliderPositions(mins[count], maxes[count]);
 		count++;
 	}
@@ -203,150 +126,90 @@ void PictureManager::handleOpenConfig(std::ifstream& configFile, Version ver )
 }
 
 
-void PictureManager::setSpecialLessThanMin(bool option)
-{
+void PictureManager::setSpecialLessThanMin(bool option){
 	specialLessThanMin = option;
 }
 
 
-void PictureManager::setSpecialGreaterThanMax(bool option)
-{
+void PictureManager::setSpecialGreaterThanMax(bool option){
 	specialGreaterThanMax = option;
 }
 
-/*
-void PictureManager::drawPicture(CDC* deviceContext, int pictureNumber, std::vector<long> picData,
-								 std::pair<UINT, UINT> minMaxPair )
-{
-	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple(autoScalePictures, minMaxPair.first, minMaxPair.second);
-	pictures[pictureNumber].drawPicture( deviceContext, picData, autoScaleInfo, specialLessThanMin, 
-										specialGreaterThanMax);
-	if (alwaysShowGrid)
-	{
-		pictures[pictureNumber].drawGrid(deviceContext, gridBrush);
-	}
-}*/
-
-void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar, CDC* cdc)
-{
-	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
-	{
+void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar){
+	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK){
 		int id = scrollbar->GetDlgCtrlID();
-		for (auto& control : pictures)
-		{
+		for (auto& control : pictures){
 			control.handleScroll ( id, nPos );
-			control.redrawImage ( cdc, false );
+			control.redrawImage ();
 		}
 	}
 }
 
-coordinate PictureManager::getClickLocation( CPoint clickLocation )
-{
-	coordinate location;
-	for (auto& pic : pictures)
-	{
-		try
-		{
-			location = pic.checkClickLocation( clickLocation );
-			return location;
-		}
-		catch(Error&){}
-		// checkClickLocation throws if not found. Continue looking.
-	}
-	thrower ( "click location not found" );
-}
-
-
-void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams)
-{
-	for (UINT picNum = 0; picNum < 4; picNum++)
-	{
-		if (picNum < 1)
-		{
+void PictureManager::setSinglePicture( imageParameters imageParams){
+	for (UINT picNum = 0; picNum < 4; picNum++){
+		if (picNum < 1){
 			pictures[picNum].setActive(true);
 		}
-		else
-		{
+		else{
 			pictures[picNum].setActive(false);
 		}
 	}
 	pictures.front( ).setPictureArea( picturesLocation, picturesWidth, picturesHeight);
-	pictures.front( ).setSliderControlLocs( parent );
-	pictures.front( ).setCursorValueLocations( parent );
-	setParameters( imageParams );	
+	auto sliderLoc = picturesLocation;
+	sliderLoc.x += picturesWidth;
+	pictures.front( ).setSliderControlLocs(sliderLoc, picturesHeight);
+	//pictures.front( ).setCursorValueLocations( parent );
+	setParameters( imageParams );
 }
 
 
-void PictureManager::resetPictureStorage()
-{
-	for (auto& pic : pictures)
-	{
+void PictureManager::resetPictureStorage(){
+	for (auto& pic : pictures){
 		pic.resetStorage();
 	}
 }
 
 
-void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imageParams, UINT numberActivePics )
+void PictureManager::setMultiplePictures( imageParameters imageParams, UINT numberActivePics )
 {
-	for (UINT picNum = 0; picNum < 4; picNum++)
-	{
-		if (picNum < numberActivePics)
-		{
+	for (UINT picNum = 0; picNum < 4; picNum++){
+		if (picNum < numberActivePics){
 			pictures[picNum].setActive(true);
 		}
-		else
-		{
+		else{
 			pictures[picNum].setActive(false);
 		}
 	}
 
 	POINT loc = picturesLocation;
 	// Square: width = 550, height = 440
-	auto picWidth = 1100;
+	auto picWidth = 1050;
 	auto picHeight = 220;
 	//int picWidth = 550;
 	//int picHeight = 420;
 	pictures[0].setPictureArea( loc, picWidth, picHeight );
+	pictures[0].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	//loc.x += 550;
 	loc.y += picHeight + 25;
 	pictures[1].setPictureArea( loc, picWidth, picHeight );
+	pictures[1].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	//loc.x -= 550;
 	loc.y += picHeight + 25;
 	pictures[2].setPictureArea( loc, picWidth, picHeight );
+	pictures[2].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	//loc.x += 550;
 	loc.y += picHeight + 25;
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
+	pictures[3].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
 	setParameters( imageParams );
-	setPictureSliders( parent );
-	for ( auto& pic : pictures )
-	{
-		pic.setCursorValueLocations( parent );
+	for ( auto& pic : pictures ){
+		//pic.setCursorValueLocations( parent );
 	}
+	setPalletes ({ 0,0,0,0 });
 }
 
-
-void PictureManager::setPictureSliders(CWnd* parent)
-{
-	for (auto& pic : pictures)
-	{
-		pic.setSliderControlLocs(parent);
-	}
-}
-
-
-void PictureManager::drawBackgrounds(CDC* easel)
-{
-	for (auto& pic : pictures)
-	{
-		pic.drawBackground(easel);
-	}
-}
-
-
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defaultBrush, int manWidth, int manHeight,
-								 std::array<UINT, 8> minMaxEdits, std::vector<Gdiplus::Pen*> graphPens, CFont* font,
-								 std::vector<Gdiplus::SolidBrush*> graphBrushes )
-{
+void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth, int manHeight,
+								 IChimeraWindowWidget* widget ){
 	picturesLocation = loc;
 	picturesWidth = manWidth;
 	picturesHeight = manHeight;
@@ -354,88 +217,54 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, CBrush* defa
 	// Square: width = 550, height = 440
 	auto width = 1200;
 	auto height = 220;
-	pictures[0].initialize( loc, parent, id, width, height, { minMaxEdits[0], minMaxEdits[1] }, graphPens,
-							font, graphBrushes);
+	pictures[0].initialize( loc, width, height, widget);
 	loc.y += height;
-	pictures[1].initialize( loc, parent, id, width, height, { minMaxEdits[2], minMaxEdits[3] }, graphPens,
-							font, graphBrushes );
+	pictures[1].initialize( loc, width, height, widget );
 	loc.y += height;
-	pictures[2].initialize( loc, parent, id, width, height, { minMaxEdits[4], minMaxEdits[5] }, graphPens,
-							font, graphBrushes );
+	pictures[2].initialize( loc, width, height, widget );
 	loc.y += height;
-	pictures[3].initialize( loc, parent, id, width, height, { minMaxEdits[6], minMaxEdits[7] }, graphPens,
-							font, graphBrushes );
+	pictures[3].initialize( loc, width, height, widget );
 	loc.y += height;
-	SmartDC sdc (parent);
-	createPalettes( sdc.get() );
-	for (auto& pic : pictures)
-	{
-		pic.updatePalette( palettes[2] );
+	createPalettes ();
+	for (auto& pic : pictures){
+		pic.updatePalette( inferno );
 	}
 	// initialize to one. This matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
-	
 }
 
 
-void PictureManager::updatePlotData ( )
-{
-	for ( auto& pic : pictures )
-	{
+void PictureManager::updatePlotData ( ){
+	for ( auto& pic : pictures ){
 		pic.updatePlotData ( );
 	}
 }
 
-
-void PictureManager::refreshBackgrounds(CDC* easel)
-{
-	if (!pictures[1].isActive())
-	{
-		pictures[0].drawBackground( easel );
-	}
-	else
-	{
-		for (auto& picture : pictures)
-		{
-			picture.drawBackground( easel );
-		}
-	}
-}
-
-
-UINT PictureManager::getNumberActive( )
-{
+UINT PictureManager::getNumberActive( ){
 	UINT count = 0;
-	for ( auto& pic : pictures )
-	{
-		if ( pic.isActive( ) )
-		{
+	for ( auto& pic : pictures ){
+		if ( pic.isActive( ) ){
 			count++;
 		}
 	}
 	return count;
 }
 
-void PictureManager::drawGrids(CDC* easel)
-{
-	for (auto& picture : pictures)
-	{
-		picture.drawGrid(easel, gridBrush );
+void PictureManager::drawGrids(){
+	for (auto& picture : pictures){
+		picture.drawGrid(gridBrush );
 	}
 }
 
 
-void PictureManager::setParameters(imageParameters parameters)
-{
-	for (auto& picture : pictures)
-	{
+void PictureManager::setParameters(imageParameters parameters){
+	for (auto& picture : pictures){
 		picture.recalculateGrid(parameters);
 	}
 }
 
 
-RECT PictureManager::getPicArea ( )
-{
+RECT PictureManager::getPicArea ( ){
 	RECT r;
 	r.left = picturesLocation.x;
 	r.top = picturesLocation.y;
@@ -445,290 +274,783 @@ RECT PictureManager::getPicArea ( )
 }
 
 
-void PictureManager::rearrange(int width, int height, fontMap fonts)
-{
-	for (auto& control : pictures)
-	{
-		control.rearrange(width, height, fonts);
-	}
-}
-
-
-void PictureManager::createPalettes(CDC* dc )
-{
-	struct
-	{
-		WORD Version;
-		WORD NumberEntries;
-		PALETTEENTRY aEntries[256];
-	} Palette = { 0x300, 256 };
-
-	GetSystemPaletteEntries( *dc, 0, 256, Palette.aEntries );
-	// this is the parula colormap from matlab. It looks nice :D
-	double dark_viridis[256][3] =
-	{
-		// special entry
-		{ 0 , 0 , 1 },
-		//
-		{ 0.26851 , 0.009605 , 0.335427 },
-		{ 0.269944 , 0.014625 , 0.341379 },
-		{ 0.271305 , 0.019942 , 0.347269 },
-		{ 0.272594 , 0.025563 , 0.353093 },
-		{ 0.273809 , 0.031497 , 0.358853 },
-		{ 0.274952 , 0.037752 , 0.364543 },
-		{ 0.276022 , 0.044167 , 0.370164 },
-		{ 0.277018 , 0.050344 , 0.375715 },
-		{ 0.277941 , 0.056324 , 0.381191 },
-		{ 0.278791 , 0.062145 , 0.386592 },
-		{ 0.279566 , 0.067836 , 0.391917 },
-		{ 0.280267 , 0.073417 , 0.397163 },
-		{ 0.280894 , 0.078907 , 0.402329 },
-		{ 0.281446 , 0.08432 , 0.407414 },
-		{ 0.281924 , 0.089666 , 0.412415 },
-		{ 0.282327 , 0.094955 , 0.417331 },
-		{ 0.282656 , 0.100196 , 0.42216 },
-		{ 0.28291 , 0.105393 , 0.426902 },
-		{ 0.283091 , 0.110553 , 0.431554 },
-		{ 0.283197 , 0.11568 , 0.436115 },
-		{ 0.283229 , 0.120777 , 0.440584 },
-		{ 0.283187 , 0.125848 , 0.44496 },
-		{ 0.283072 , 0.130895 , 0.449241 },
-		{ 0.282884 , 0.13592 , 0.453427 },
-		{ 0.282623 , 0.140926 , 0.457517 },
-		{ 0.28229 , 0.145912 , 0.46151 },
-		{ 0.281887 , 0.150881 , 0.465405 },
-		{ 0.281412 , 0.155834 , 0.469201 },
-		{ 0.280868 , 0.160771 , 0.472899 },
-		{ 0.280255 , 0.165693 , 0.476498 },
-		{ 0.279574 , 0.170599 , 0.479997 },
-		{ 0.278826 , 0.17549 , 0.483397 },
-		{ 0.278012 , 0.180367 , 0.486697 },
-		{ 0.277134 , 0.185228 , 0.489898 },
-		{ 0.276194 , 0.190074 , 0.493001 },
-		{ 0.275191 , 0.194905 , 0.496005 },
-		{ 0.274128 , 0.199721 , 0.498911 },
-		{ 0.273006 , 0.20452 , 0.501721 },
-		{ 0.271828 , 0.209303 , 0.504434 },
-		{ 0.270595 , 0.214069 , 0.507052 },
-		{ 0.269308 , 0.218818 , 0.509577 },
-		{ 0.267968 , 0.223549 , 0.512008 },
-		{ 0.26658 , 0.228262 , 0.514349 },
-		{ 0.265145 , 0.232956 , 0.516599 },
-		{ 0.263663 , 0.237631 , 0.518762 },
-		{ 0.262138 , 0.242286 , 0.520837 },
-		{ 0.260571 , 0.246922 , 0.522828 },
-		{ 0.258965 , 0.251537 , 0.524736 },
-		{ 0.257322 , 0.25613 , 0.526563 },
-		{ 0.255645 , 0.260703 , 0.528312 },
-		{ 0.253935 , 0.265254 , 0.529983 },
-		{ 0.252194 , 0.269783 , 0.531579 },
-		{ 0.250425 , 0.27429 , 0.533103 },
-		{ 0.248629 , 0.278775 , 0.534556 },
-		{ 0.246811 , 0.283237 , 0.535941 },
-		{ 0.244972 , 0.287675 , 0.53726 },
-		{ 0.243113 , 0.292092 , 0.538516 },
-		{ 0.241237 , 0.296485 , 0.539709 },
-		{ 0.239346 , 0.300855 , 0.540844 },
-		{ 0.237441 , 0.305202 , 0.541921 },
-		{ 0.235526 , 0.309527 , 0.542944 },
-		{ 0.233603 , 0.313828 , 0.543914 },
-		{ 0.231674 , 0.318106 , 0.544834 },
-		{ 0.229739 , 0.322361 , 0.545706 },
-		{ 0.227802 , 0.326594 , 0.546532 },
-		{ 0.225863 , 0.330805 , 0.547314 },
-		{ 0.223925 , 0.334994 , 0.548053 },
-		{ 0.221989 , 0.339161 , 0.548752 },
-		{ 0.220057 , 0.343307 , 0.549413 },
-		{ 0.21813 , 0.347432 , 0.550038 },
-		{ 0.21621 , 0.351535 , 0.550627 },
-		{ 0.214298 , 0.355619 , 0.551184 },
-		{ 0.212395 , 0.359683 , 0.55171 },
-		{ 0.210503 , 0.363727 , 0.552206 },
-		{ 0.208623 , 0.367752 , 0.552675 },
-		{ 0.206756 , 0.371758 , 0.553117 },
-		{ 0.204903 , 0.375746 , 0.553533 },
-		{ 0.203063 , 0.379716 , 0.553925 },
-		{ 0.201239 , 0.38367 , 0.554294 },
-		{ 0.19943 , 0.387607 , 0.554642 },
-		{ 0.197636 , 0.391528 , 0.554969 },
-		{ 0.19586 , 0.395433 , 0.555276 },
-		{ 0.1941 , 0.399323 , 0.555565 },
-		{ 0.192357 , 0.403199 , 0.555836 },
-		{ 0.190631 , 0.407061 , 0.556089 },
-		{ 0.188923 , 0.41091 , 0.556326 },
-		{ 0.187231 , 0.414746 , 0.556547 },
-		{ 0.185556 , 0.41857 , 0.556753 },
-		{ 0.183898 , 0.422383 , 0.556944 },
-		{ 0.182256 , 0.426184 , 0.55712 },
-		{ 0.180629 , 0.429975 , 0.557282 },
-		{ 0.179019 , 0.433756 , 0.55743 },
-		{ 0.177423 , 0.437527 , 0.557565 },
-		{ 0.175841 , 0.44129 , 0.557685 },
-		{ 0.174274 , 0.445044 , 0.557792 },
-		{ 0.172719 , 0.448791 , 0.557885 },
-		{ 0.171176 , 0.45253 , 0.557965 },
-		{ 0.169646 , 0.456262 , 0.55803 },
-		{ 0.168126 , 0.459988 , 0.558082 },
-		{ 0.166617 , 0.463708 , 0.558119 },
-		{ 0.165117 , 0.467423 , 0.558141 },
-		{ 0.163625 , 0.471133 , 0.558148 },
-		{ 0.162142 , 0.474838 , 0.55814 },
-		{ 0.160665 , 0.47854 , 0.558115 },
-		{ 0.159194 , 0.482237 , 0.558073 },
-		{ 0.157729 , 0.485932 , 0.558013 },
-		{ 0.15627 , 0.489624 , 0.557936 },
-		{ 0.154815 , 0.493313 , 0.55784 },
-		{ 0.153364 , 0.497 , 0.557724 },
-		{ 0.151918 , 0.500685 , 0.557587 },
-		{ 0.150476 , 0.504369 , 0.55743 },
-		{ 0.149039 , 0.508051 , 0.55725 },
-		{ 0.147607 , 0.511733 , 0.557049 },
-		{ 0.14618 , 0.515413 , 0.556823 },
-		{ 0.144759 , 0.519093 , 0.556572 },
-		{ 0.143343 , 0.522773 , 0.556295 },
-		{ 0.141935 , 0.526453 , 0.555991 },
-		{ 0.140536 , 0.530132 , 0.555659 },
-		{ 0.139147 , 0.533812 , 0.555298 },
-		{ 0.13777 , 0.537492 , 0.554906 },
-		{ 0.136408 , 0.541173 , 0.554483 },
-		{ 0.135066 , 0.544853 , 0.554029 },
-		{ 0.133743 , 0.548535 , 0.553541 },
-		{ 0.132444 , 0.552216 , 0.553018 },
-		{ 0.131172 , 0.555899 , 0.552459 },
-		{ 0.129933 , 0.559582 , 0.551864 },
-		{ 0.128729 , 0.563265 , 0.551229 },
-		{ 0.127568 , 0.566949 , 0.550556 },
-		{ 0.126453 , 0.570633 , 0.549841 },
-		{ 0.125394 , 0.574318 , 0.549086 },
-		{ 0.124395 , 0.578002 , 0.548287 },
-		{ 0.123463 , 0.581687 , 0.547445 },
-		{ 0.122606 , 0.585371 , 0.546557 },
-		{ 0.121831 , 0.589055 , 0.545623 },
-		{ 0.121148 , 0.592739 , 0.544641 },
-		{ 0.120565 , 0.596422 , 0.543611 },
-		{ 0.120092 , 0.600104 , 0.54253 },
-		{ 0.119738 , 0.603785 , 0.5414 },
-		{ 0.119512 , 0.607464 , 0.540218 },
-		{ 0.119423 , 0.611141 , 0.538982 },
-		{ 0.119483 , 0.614817 , 0.537692 },
-		{ 0.119699 , 0.61849 , 0.536347 },
-		{ 0.120081 , 0.622161 , 0.534946 },
-		{ 0.120638 , 0.625828 , 0.533488 },
-		{ 0.12138 , 0.629492 , 0.531973 },
-		{ 0.122312 , 0.633153 , 0.530398 },
-		{ 0.123444 , 0.636809 , 0.528763 },
-		{ 0.12478 , 0.640461 , 0.527068 },
-		{ 0.126326 , 0.644107 , 0.525311 },
-		{ 0.128087 , 0.647749 , 0.523491 },
-		{ 0.130067 , 0.651384 , 0.521608 },
-		{ 0.132268 , 0.655014 , 0.519661 },
-		{ 0.134692 , 0.658636 , 0.517649 },
-		{ 0.137339 , 0.662252 , 0.515571 },
-		{ 0.14021 , 0.665859 , 0.513427 },
-		{ 0.143303 , 0.669459 , 0.511215 },
-		{ 0.146616 , 0.67305 , 0.508936 },
-		{ 0.150148 , 0.676631 , 0.506589 },
-		{ 0.153894 , 0.680203 , 0.504172 },
-		{ 0.157851 , 0.683765 , 0.501686 },
-		{ 0.162016 , 0.687316 , 0.499129 },
-		{ 0.166383 , 0.690856 , 0.496502 },
-		{ 0.170948 , 0.694384 , 0.493803 },
-		{ 0.175707 , 0.6979 , 0.491033 },
-		{ 0.180653 , 0.701402 , 0.488189 },
-		{ 0.185783 , 0.704891 , 0.485273 },
-		{ 0.19109 , 0.708366 , 0.482284 },
-		{ 0.196571 , 0.711827 , 0.479221 },
-		{ 0.202219 , 0.715272 , 0.476084 },
-		{ 0.20803 , 0.718701 , 0.472873 },
-		{ 0.214 , 0.722114 , 0.469588 },
-		{ 0.220124 , 0.725509 , 0.466226 },
-		{ 0.226397 , 0.728888 , 0.462789 },
-		{ 0.232815 , 0.732247 , 0.459277 },
-		{ 0.239374 , 0.735588 , 0.455688 },
-		{ 0.24607 , 0.73891 , 0.452024 },
-		{ 0.252899 , 0.742211 , 0.448284 },
-		{ 0.259857 , 0.745492 , 0.444467 },
-		{ 0.266941 , 0.748751 , 0.440573 },
-		{ 0.274149 , 0.751988 , 0.436601 },
-		{ 0.281477 , 0.755203 , 0.432552 },
-		{ 0.288921 , 0.758394 , 0.428426 },
-		{ 0.296479 , 0.761561 , 0.424223 },
-		{ 0.304148 , 0.764704 , 0.419943 },
-		{ 0.311925 , 0.767822 , 0.415586 },
-		{ 0.319809 , 0.770914 , 0.411152 },
-		{ 0.327796 , 0.77398 , 0.40664 },
-		{ 0.335885 , 0.777018 , 0.402049 },
-		{ 0.344074 , 0.780029 , 0.397381 },
-		{ 0.35236 , 0.783011 , 0.392636 },
-		{ 0.360741 , 0.785964 , 0.387814 },
-		{ 0.369214 , 0.788888 , 0.382914 },
-		{ 0.377779 , 0.791781 , 0.377939 },
-		{ 0.386433 , 0.794644 , 0.372886 },
-		{ 0.395174 , 0.797475 , 0.367757 },
-		{ 0.404001 , 0.800275 , 0.362552 },
-		{ 0.412913 , 0.803041 , 0.357269 },
-		{ 0.421908 , 0.805774 , 0.35191 },
-		{ 0.430983 , 0.808473 , 0.346476 },
-		{ 0.440137 , 0.811138 , 0.340967 },
-		{ 0.449368 , 0.813768 , 0.335384 },
-		{ 0.458674 , 0.816363 , 0.329727 },
-		{ 0.468053 , 0.818921 , 0.323998 },
-		{ 0.477504 , 0.821444 , 0.318195 },
-		{ 0.487026 , 0.823929 , 0.312321 },
-		{ 0.496615 , 0.826376 , 0.306377 },
-		{ 0.506271 , 0.828786 , 0.300362 },
-		{ 0.515992 , 0.831158 , 0.294279 },
-		{ 0.525776 , 0.833491 , 0.288127 },
-		{ 0.535621 , 0.835785 , 0.281908 },
-		{ 0.545524 , 0.838039 , 0.275626 },
-		{ 0.555484 , 0.840254 , 0.269281 },
-		{ 0.565498 , 0.84243 , 0.262877 },
-		{ 0.575563 , 0.844566 , 0.256415 },
-		{ 0.585678 , 0.846661 , 0.249897 },
-		{ 0.595839 , 0.848717 , 0.243329 },
-		{ 0.606045 , 0.850733 , 0.236712 },
-		{ 0.616293 , 0.852709 , 0.230052 },
-		{ 0.626579 , 0.854645 , 0.223353 },
-		{ 0.636902 , 0.856542 , 0.21662 },
-		{ 0.647257 , 0.8584 , 0.209861 },
-		{ 0.657642 , 0.860219 , 0.203082 },
-		{ 0.668054 , 0.861999 , 0.196293 },
-		{ 0.678489 , 0.863742 , 0.189503 },
-		{ 0.688944 , 0.865448 , 0.182725 },
-		{ 0.699415 , 0.867117 , 0.175971 },
-		{ 0.709898 , 0.868751 , 0.169257 },
-		{ 0.720391 , 0.87035 , 0.162603 },
-		{ 0.730889 , 0.871916 , 0.156029 },
-		{ 0.741388 , 0.873449 , 0.149561 },
-		{ 0.751884 , 0.874951 , 0.143228 },
-		{ 0.762373 , 0.876424 , 0.137064 },
-		{ 0.772852 , 0.877868 , 0.131109 },
-		{ 0.783315 , 0.879285 , 0.125405 },
-		{ 0.79376 , 0.880678 , 0.120005 },
-		{ 0.804182 , 0.882046 , 0.114965 },
-		{ 0.814576 , 0.883393 , 0.110347 },
-		{ 0.82494 , 0.88472 , 0.106217 },
-		{ 0.83527 , 0.886029 , 0.102646 },
-		{ 0.845561 , 0.887322 , 0.099702 },
-		{ 0.85581 , 0.888601 , 0.097452 },
-		{ 0.866013 , 0.889868 , 0.095953 },
-		{ 0.876168 , 0.891125 , 0.09525 },
-		{ 0.886271 , 0.892374 , 0.095374 },
-		{ 0.89632 , 0.893616 , 0.096335 },
-		{ 0.906311 , 0.894855 , 0.098125 },
-		{ 0.916242 , 0.896091 , 0.100717 },
-		{ 0.926106 , 0.89733 , 0.104071 },
-		{ 0.935904 , 0.89857 , 0.108131 },
-		{ 0.945636 , 0.899815 , 0.112838 },
-		{ 0.9553 , 0.901065 , 0.118128 },
-		{ 0.964894 , 0.902323 , 0.123941 },
-		{ 0.974417 , 0.90359 , 0.130215 },
-		{ 0.983868 , 0.904867 , 0.136897 },
-		// special value
-		{ 1 , 0 , 0 },
-		//
+void PictureManager::createPalettes( ){
+	// greys
+	palettes[2] = QVector<QRgb>{
+		qRgb (255 , 255 , 255),
+		qRgb (254 , 254 , 254),
+		qRgb (254 , 254 , 254),
+		qRgb (253 , 253 , 253),
+		qRgb (253 , 253 , 253),
+		qRgb (252 , 252 , 252),
+		qRgb (252 , 252 , 252),
+		qRgb (251 , 251 , 251),
+		qRgb (251 , 251 , 251),
+		qRgb (250 , 250 , 250),
+		qRgb (250 , 250 , 250),
+		qRgb (249 , 249 , 249),
+		qRgb (249 , 249 , 249),
+		qRgb (248 , 248 , 248),
+		qRgb (248 , 248 , 248),
+		qRgb (247 , 247 , 247),
+		qRgb (247 , 247 , 247),
+		qRgb (247 , 247 , 247),
+		qRgb (246 , 246 , 246),
+		qRgb (246 , 246 , 246),
+		qRgb (245 , 245 , 245),
+		qRgb (245 , 245 , 245),
+		qRgb (244 , 244 , 244),
+		qRgb (244 , 244 , 244),
+		qRgb (243 , 243 , 243),
+		qRgb (243 , 243 , 243),
+		qRgb (242 , 242 , 242),
+		qRgb (242 , 242 , 242),
+		qRgb (241 , 241 , 241),
+		qRgb (241 , 241 , 241),
+		qRgb (240 , 240 , 240),
+		qRgb (240 , 240 , 240),
+		qRgb (239 , 239 , 239),
+		qRgb (239 , 239 , 239),
+		qRgb (238 , 238 , 238),
+		qRgb (237 , 237 , 237),
+		qRgb (237 , 237 , 237),
+		qRgb (236 , 236 , 236),
+		qRgb (235 , 235 , 235),
+		qRgb (234 , 234 , 234),
+		qRgb (234 , 234 , 234),
+		qRgb (233 , 233 , 233),
+		qRgb (232 , 232 , 232),
+		qRgb (231 , 231 , 231),
+		qRgb (231 , 231 , 231),
+		qRgb (230 , 230 , 230),
+		qRgb (229 , 229 , 229),
+		qRgb (229 , 229 , 229),
+		qRgb (228 , 228 , 228),
+		qRgb (227 , 227 , 227),
+		qRgb (226 , 226 , 226),
+		qRgb (226 , 226 , 226),
+		qRgb (225 , 225 , 225),
+		qRgb (224 , 224 , 224),
+		qRgb (224 , 224 , 224),
+		qRgb (223 , 223 , 223),
+		qRgb (222 , 222 , 222),
+		qRgb (221 , 221 , 221),
+		qRgb (221 , 221 , 221),
+		qRgb (220 , 220 , 220),
+		qRgb (219 , 219 , 219),
+		qRgb (218 , 218 , 218),
+		qRgb (218 , 218 , 218),
+		qRgb (217 , 217 , 217),
+		qRgb (216 , 216 , 216),
+		qRgb (215 , 215 , 215),
+		qRgb (215 , 215 , 215),
+		qRgb (214 , 214 , 214),
+		qRgb (213 , 213 , 213),
+		qRgb (212 , 212 , 212),
+		qRgb (211 , 211 , 211),
+		qRgb (210 , 210 , 210),
+		qRgb (209 , 209 , 209),
+		qRgb (208 , 208 , 208),
+		qRgb (207 , 207 , 207),
+		qRgb (207 , 207 , 207),
+		qRgb (206 , 206 , 206),
+		qRgb (205 , 205 , 205),
+		qRgb (204 , 204 , 204),
+		qRgb (203 , 203 , 203),
+		qRgb (202 , 202 , 202),
+		qRgb (201 , 201 , 201),
+		qRgb (200 , 200 , 200),
+		qRgb (200 , 200 , 200),
+		qRgb (199 , 199 , 199),
+		qRgb (198 , 198 , 198),
+		qRgb (197 , 197 , 197),
+		qRgb (196 , 196 , 196),
+		qRgb (195 , 195 , 195),
+		qRgb (194 , 194 , 194),
+		qRgb (193 , 193 , 193),
+		qRgb (193 , 193 , 193),
+		qRgb (192 , 192 , 192),
+		qRgb (191 , 191 , 191),
+		qRgb (190 , 190 , 190),
+		qRgb (189 , 189 , 189),
+		qRgb (188 , 188 , 188),
+		qRgb (187 , 187 , 187),
+		qRgb (186 , 186 , 186),
+		qRgb (184 , 184 , 184),
+		qRgb (183 , 183 , 183),
+		qRgb (182 , 182 , 182),
+		qRgb (181 , 181 , 181),
+		qRgb (179 , 179 , 179),
+		qRgb (178 , 178 , 178),
+		qRgb (177 , 177 , 177),
+		qRgb (176 , 176 , 176),
+		qRgb (175 , 175 , 175),
+		qRgb (173 , 173 , 173),
+		qRgb (172 , 172 , 172),
+		qRgb (171 , 171 , 171),
+		qRgb (170 , 170 , 170),
+		qRgb (168 , 168 , 168),
+		qRgb (167 , 167 , 167),
+		qRgb (166 , 166 , 166),
+		qRgb (165 , 165 , 165),
+		qRgb (164 , 164 , 164),
+		qRgb (162 , 162 , 162),
+		qRgb (161 , 161 , 161),
+		qRgb (160 , 160 , 160),
+		qRgb (159 , 159 , 159),
+		qRgb (157 , 157 , 157),
+		qRgb (156 , 156 , 156),
+		qRgb (155 , 155 , 155),
+		qRgb (154 , 154 , 154),
+		qRgb (153 , 153 , 153),
+		qRgb (151 , 151 , 151),
+		qRgb (150 , 150 , 150),
+		qRgb (149 , 149 , 149),
+		qRgb (148 , 148 , 148),
+		qRgb (147 , 147 , 147),
+		qRgb (146 , 146 , 146),
+		qRgb (145 , 145 , 145),
+		qRgb (143 , 143 , 143),
+		qRgb (142 , 142 , 142),
+		qRgb (141 , 141 , 141),
+		qRgb (140 , 140 , 140),
+		qRgb (139 , 139 , 139),
+		qRgb (138 , 138 , 138),
+		qRgb (137 , 137 , 137),
+		qRgb (136 , 136 , 136),
+		qRgb (135 , 135 , 135),
+		qRgb (134 , 134 , 134),
+		qRgb (132 , 132 , 132),
+		qRgb (131 , 131 , 131),
+		qRgb (130 , 130 , 130),
+		qRgb (129 , 129 , 129),
+		qRgb (128 , 128 , 128),
+		qRgb (127 , 127 , 127),
+		qRgb (126 , 126 , 126),
+		qRgb (125 , 125 , 125),
+		qRgb (124 , 124 , 124),
+		qRgb (123 , 123 , 123),
+		qRgb (122 , 122 , 122),
+		qRgb (120 , 120 , 120),
+		qRgb (119 , 119 , 119),
+		qRgb (118 , 118 , 118),
+		qRgb (117 , 117 , 117),
+		qRgb (116 , 116 , 116),
+		qRgb (115 , 115 , 115),
+		qRgb (114 , 114 , 114),
+		qRgb (113 , 113 , 113),
+		qRgb (112 , 112 , 112),
+		qRgb (111 , 111 , 111),
+		qRgb (110 , 110 , 110),
+		qRgb (109 , 109 , 109),
+		qRgb (108 , 108 , 108),
+		qRgb (107 , 107 , 107),
+		qRgb (106 , 106 , 106),
+		qRgb (105 , 105 , 105),
+		qRgb (104 , 104 , 104),
+		qRgb (102 , 102 , 102),
+		qRgb (101 , 101 , 101),
+		qRgb (100 , 100 , 100),
+		qRgb (99 , 99 , 99),
+		qRgb (98 , 98 , 98),
+		qRgb (97 , 97 , 97),
+		qRgb (96 , 96 , 96),
+		qRgb (95 , 95 , 95),
+		qRgb (94 , 94 , 94),
+		qRgb (93 , 93 , 93),
+		qRgb (92 , 92 , 92),
+		qRgb (91 , 91 , 91),
+		qRgb (90 , 90 , 90),
+		qRgb (89 , 89 , 89),
+		qRgb (88 , 88 , 88),
+		qRgb (87 , 87 , 87),
+		qRgb (86 , 86 , 86),
+		qRgb (85 , 85 , 85),
+		qRgb (84 , 84 , 84),
+		qRgb (83 , 83 , 83),
+		qRgb (82 , 82 , 82),
+		qRgb (80 , 80 , 80),
+		qRgb (79 , 79 , 79),
+		qRgb (78 , 78 , 78),
+		qRgb (76 , 76 , 76),
+		qRgb (75 , 75 , 75),
+		qRgb (73 , 73 , 73),
+		qRgb (72 , 72 , 72),
+		qRgb (71 , 71 , 71),
+		qRgb (69 , 69 , 69),
+		qRgb (68 , 68 , 68),
+		qRgb (66 , 66 , 66),
+		qRgb (65 , 65 , 65),
+		qRgb (64 , 64 , 64),
+		qRgb (62 , 62 , 62),
+		qRgb (61 , 61 , 61),
+		qRgb (59 , 59 , 59),
+		qRgb (58 , 58 , 58),
+		qRgb (56 , 56 , 56),
+		qRgb (55 , 55 , 55),
+		qRgb (54 , 54 , 54),
+		qRgb (52 , 52 , 52),
+		qRgb (51 , 51 , 51),
+		qRgb (49 , 49 , 49),
+		qRgb (48 , 48 , 48),
+		qRgb (47 , 47 , 47),
+		qRgb (45 , 45 , 45),
+		qRgb (44 , 44 , 44),
+		qRgb (42 , 42 , 42),
+		qRgb (41 , 41 , 41),
+		qRgb (40 , 40 , 40),
+		qRgb (38 , 38 , 38),
+		qRgb (37 , 37 , 37),
+		qRgb (35 , 35 , 35),
+		qRgb (34 , 34 , 34),
+		qRgb (33 , 33 , 33),
+		qRgb (32 , 32 , 32),
+		qRgb (31 , 31 , 31),
+		qRgb (30 , 30 , 30),
+		qRgb (29 , 29 , 29),
+		qRgb (27 , 27 , 27),
+		qRgb (26 , 26 , 26),
+		qRgb (25 , 25 , 25),
+		qRgb (24 , 24 , 24),
+		qRgb (23 , 23 , 23),
+		qRgb (22 , 22 , 22),
+		qRgb (20 , 20 , 20),
+		qRgb (19 , 19 , 19),
+		qRgb (18 , 18 , 18),
+		qRgb (17 , 17 , 17),
+		qRgb (16 , 16 , 16),
+		qRgb (15 , 15 , 15),
+		qRgb (13 , 13 , 13),
+		qRgb (12 , 12 , 12),
+		qRgb (11 , 11 , 11),
+		qRgb (10 , 10 , 10),
+		qRgb (9 , 9 , 9),
+		qRgb (8 , 8 , 8),
+		qRgb (6 , 6 , 6),
+		qRgb (5 , 5 , 5),
+		qRgb (4 , 4 , 4),
+		qRgb (3 , 3 , 3),
+		qRgb (2 , 2 , 2),
+		qRgb (1 , 1 , 1),
+		qRgb (0 , 0 , 0),
 	};
-
+	palettes[1] = QVector<QRgb>{
+		qRgb (0 , 0 , 3),
+		qRgb (0 , 0 , 4),
+		qRgb (0 , 0 , 6),
+		qRgb (1 , 0 , 7),
+		qRgb (1 , 1 , 9),
+		qRgb (1 , 1 , 11),
+		qRgb (2 , 1 , 14),
+		qRgb (2 , 2 , 16),
+		qRgb (3 , 2 , 18),
+		qRgb (4 , 3 , 20),
+		qRgb (4 , 3 , 22),
+		qRgb (5 , 4 , 24),
+		qRgb (6 , 4 , 27),
+		qRgb (7 , 5 , 29),
+		qRgb (8 , 6 , 31),
+		qRgb (9 , 6 , 33),
+		qRgb (10 , 7 , 35),
+		qRgb (11 , 7 , 38),
+		qRgb (13 , 8 , 40),
+		qRgb (14 , 8 , 42),
+		qRgb (15 , 9 , 45),
+		qRgb (16 , 9 , 47),
+		qRgb (18 , 10 , 50),
+		qRgb (19 , 10 , 52),
+		qRgb (20 , 11 , 54),
+		qRgb (22 , 11 , 57),
+		qRgb (23 , 11 , 59),
+		qRgb (25 , 11 , 62),
+		qRgb (26 , 11 , 64),
+		qRgb (28 , 12 , 67),
+		qRgb (29 , 12 , 69),
+		qRgb (31 , 12 , 71),
+		qRgb (32 , 12 , 74),
+		qRgb (34 , 11 , 76),
+		qRgb (36 , 11 , 78),
+		qRgb (38 , 11 , 80),
+		qRgb (39 , 11 , 82),
+		qRgb (41 , 11 , 84),
+		qRgb (43 , 10 , 86),
+		qRgb (45 , 10 , 88),
+		qRgb (46 , 10 , 90),
+		qRgb (48 , 10 , 92),
+		qRgb (50 , 9 , 93),
+		qRgb (52 , 9 , 95),
+		qRgb (53 , 9 , 96),
+		qRgb (55 , 9 , 97),
+		qRgb (57 , 9 , 98),
+		qRgb (59 , 9 , 100),
+		qRgb (60 , 9 , 101),
+		qRgb (62 , 9 , 102),
+		qRgb (64 , 9 , 102),
+		qRgb (65 , 9 , 103),
+		qRgb (67 , 10 , 104),
+		qRgb (69 , 10 , 105),
+		qRgb (70 , 10 , 105),
+		qRgb (72 , 11 , 106),
+		qRgb (74 , 11 , 106),
+		qRgb (75 , 12 , 107),
+		qRgb (77 , 12 , 107),
+		qRgb (79 , 13 , 108),
+		qRgb (80 , 13 , 108),
+		qRgb (82 , 14 , 108),
+		qRgb (83 , 14 , 109),
+		qRgb (85 , 15 , 109),
+		qRgb (87 , 15 , 109),
+		qRgb (88 , 16 , 109),
+		qRgb (90 , 17 , 109),
+		qRgb (91 , 17 , 110),
+		qRgb (93 , 18 , 110),
+		qRgb (95 , 18 , 110),
+		qRgb (96 , 19 , 110),
+		qRgb (98 , 20 , 110),
+		qRgb (99 , 20 , 110),
+		qRgb (101 , 21 , 110),
+		qRgb (102 , 21 , 110),
+		qRgb (104 , 22 , 110),
+		qRgb (106 , 23 , 110),
+		qRgb (107 , 23 , 110),
+		qRgb (109 , 24 , 110),
+		qRgb (110 , 24 , 110),
+		qRgb (112 , 25 , 110),
+		qRgb (114 , 25 , 109),
+		qRgb (115 , 26 , 109),
+		qRgb (117 , 27 , 109),
+		qRgb (118 , 27 , 109),
+		qRgb (120 , 28 , 109),
+		qRgb (122 , 28 , 109),
+		qRgb (123 , 29 , 108),
+		qRgb (125 , 29 , 108),
+		qRgb (126 , 30 , 108),
+		qRgb (128 , 31 , 107),
+		qRgb (129 , 31 , 107),
+		qRgb (131 , 32 , 107),
+		qRgb (133 , 32 , 106),
+		qRgb (134 , 33 , 106),
+		qRgb (136 , 33 , 106),
+		qRgb (137 , 34 , 105),
+		qRgb (139 , 34 , 105),
+		qRgb (141 , 35 , 105),
+		qRgb (142 , 36 , 104),
+		qRgb (144 , 36 , 104),
+		qRgb (145 , 37 , 103),
+		qRgb (147 , 37 , 103),
+		qRgb (149 , 38 , 102),
+		qRgb (150 , 38 , 102),
+		qRgb (152 , 39 , 101),
+		qRgb (153 , 40 , 100),
+		qRgb (155 , 40 , 100),
+		qRgb (156 , 41 , 99),
+		qRgb (158 , 41 , 99),
+		qRgb (160 , 42 , 98),
+		qRgb (161 , 43 , 97),
+		qRgb (163 , 43 , 97),
+		qRgb (164 , 44 , 96),
+		qRgb (166 , 44 , 95),
+		qRgb (167 , 45 , 95),
+		qRgb (169 , 46 , 94),
+		qRgb (171 , 46 , 93),
+		qRgb (172 , 47 , 92),
+		qRgb (174 , 48 , 91),
+		qRgb (175 , 49 , 91),
+		qRgb (177 , 49 , 90),
+		qRgb (178 , 50 , 89),
+		qRgb (180 , 51 , 88),
+		qRgb (181 , 51 , 87),
+		qRgb (183 , 52 , 86),
+		qRgb (184 , 53 , 86),
+		qRgb (186 , 54 , 85),
+		qRgb (187 , 55 , 84),
+		qRgb (189 , 55 , 83),
+		qRgb (190 , 56 , 82),
+		qRgb (191 , 57 , 81),
+		qRgb (193 , 58 , 80),
+		qRgb (194 , 59 , 79),
+		qRgb (196 , 60 , 78),
+		qRgb (197 , 61 , 77),
+		qRgb (199 , 62 , 76),
+		qRgb (200 , 62 , 75),
+		qRgb (201 , 63 , 74),
+		qRgb (203 , 64 , 73),
+		qRgb (204 , 65 , 72),
+		qRgb (205 , 66 , 71),
+		qRgb (207 , 68 , 70),
+		qRgb (208 , 69 , 68),
+		qRgb (209 , 70 , 67),
+		qRgb (210 , 71 , 66),
+		qRgb (212 , 72 , 65),
+		qRgb (213 , 73 , 64),
+		qRgb (214 , 74 , 63),
+		qRgb (215 , 75 , 62),
+		qRgb (217 , 77 , 61),
+		qRgb (218 , 78 , 59),
+		qRgb (219 , 79 , 58),
+		qRgb (220 , 80 , 57),
+		qRgb (221 , 82 , 56),
+		qRgb (222 , 83 , 55),
+		qRgb (223 , 84 , 54),
+		qRgb (224 , 86 , 52),
+		qRgb (226 , 87 , 51),
+		qRgb (227 , 88 , 50),
+		qRgb (228 , 90 , 49),
+		qRgb (229 , 91 , 48),
+		qRgb (230 , 92 , 46),
+		qRgb (230 , 94 , 45),
+		qRgb (231 , 95 , 44),
+		qRgb (232 , 97 , 43),
+		qRgb (233 , 98 , 42),
+		qRgb (234 , 100 , 40),
+		qRgb (235 , 101 , 39),
+		qRgb (236 , 103 , 38),
+		qRgb (237 , 104 , 37),
+		qRgb (237 , 106 , 35),
+		qRgb (238 , 108 , 34),
+		qRgb (239 , 109 , 33),
+		qRgb (240 , 111 , 31),
+		qRgb (240 , 112 , 30),
+		qRgb (241 , 114 , 29),
+		qRgb (242 , 116 , 28),
+		qRgb (242 , 117 , 26),
+		qRgb (243 , 119 , 25),
+		qRgb (243 , 121 , 24),
+		qRgb (244 , 122 , 22),
+		qRgb (245 , 124 , 21),
+		qRgb (245 , 126 , 20),
+		qRgb (246 , 128 , 18),
+		qRgb (246 , 129 , 17),
+		qRgb (247 , 131 , 16),
+		qRgb (247 , 133 , 14),
+		qRgb (248 , 135 , 13),
+		qRgb (248 , 136 , 12),
+		qRgb (248 , 138 , 11),
+		qRgb (249 , 140 , 9),
+		qRgb (249 , 142 , 8),
+		qRgb (249 , 144 , 8),
+		qRgb (250 , 145 , 7),
+		qRgb (250 , 147 , 6),
+		qRgb (250 , 149 , 6),
+		qRgb (250 , 151 , 6),
+		qRgb (251 , 153 , 6),
+		qRgb (251 , 155 , 6),
+		qRgb (251 , 157 , 6),
+		qRgb (251 , 158 , 7),
+		qRgb (251 , 160 , 7),
+		qRgb (251 , 162 , 8),
+		qRgb (251 , 164 , 10),
+		qRgb (251 , 166 , 11),
+		qRgb (251 , 168 , 13),
+		qRgb (251 , 170 , 14),
+		qRgb (251 , 172 , 16),
+		qRgb (251 , 174 , 18),
+		qRgb (251 , 176 , 20),
+		qRgb (251 , 177 , 22),
+		qRgb (251 , 179 , 24),
+		qRgb (251 , 181 , 26),
+		qRgb (251 , 183 , 28),
+		qRgb (251 , 185 , 30),
+		qRgb (250 , 187 , 33),
+		qRgb (250 , 189 , 35),
+		qRgb (250 , 191 , 37),
+		qRgb (250 , 193 , 40),
+		qRgb (249 , 195 , 42),
+		qRgb (249 , 197 , 44),
+		qRgb (249 , 199 , 47),
+		qRgb (248 , 201 , 49),
+		qRgb (248 , 203 , 52),
+		qRgb (248 , 205 , 55),
+		qRgb (247 , 207 , 58),
+		qRgb (247 , 209 , 60),
+		qRgb (246 , 211 , 63),
+		qRgb (246 , 213 , 66),
+		qRgb (245 , 215 , 69),
+		qRgb (245 , 217 , 72),
+		qRgb (244 , 219 , 75),
+		qRgb (244 , 220 , 79),
+		qRgb (243 , 222 , 82),
+		qRgb (243 , 224 , 86),
+		qRgb (243 , 226 , 89),
+		qRgb (242 , 228 , 93),
+		qRgb (242 , 230 , 96),
+		qRgb (241 , 232 , 100),
+		qRgb (241 , 233 , 104),
+		qRgb (241 , 235 , 108),
+		qRgb (241 , 237 , 112),
+		qRgb (241 , 238 , 116),
+		qRgb (241 , 240 , 121),
+		qRgb (241 , 242 , 125),
+		qRgb (242 , 243 , 129),
+		qRgb (242 , 244 , 133),
+		qRgb (243 , 246 , 137),
+		qRgb (244 , 247 , 141),
+		qRgb (245 , 248 , 145),
+		qRgb (246 , 250 , 149),
+		qRgb (247 , 251 , 153),
+		qRgb (249 , 252 , 157),
+		qRgb (250 , 253 , 160),
+		qRgb (252 , 254 , 164)
+	};
+	palettes[0] = QVector<QRgb>{
+		qRgb (10 , 0 , 12),
+		qRgb (10 , 0 , 13),
+		qRgb (10 , 0 , 13),
+		qRgb (11 , 0 , 14),
+		qRgb (11 , 1 , 14),
+		qRgb (11 , 1 , 15),
+		qRgb (11 , 1 , 15),
+		qRgb (12 , 1 , 16),
+		qRgb (12 , 2 , 16),
+		qRgb (12 , 2 , 17),
+		qRgb (13 , 2 , 18),
+		qRgb (13 , 3 , 18),
+		qRgb (13 , 3 , 19),
+		qRgb (13 , 3 , 19),
+		qRgb (14 , 4 , 20),
+		qRgb (14 , 4 , 21),
+		qRgb (14 , 4 , 21),
+		qRgb (14 , 5 , 22),
+		qRgb (15 , 5 , 22),
+		qRgb (15 , 6 , 23),
+		qRgb (15 , 6 , 24),
+		qRgb (15 , 6 , 24),
+		qRgb (16 , 7 , 25),
+		qRgb (16 , 7 , 25),
+		qRgb (16 , 7 , 26),
+		qRgb (16 , 8 , 27),
+		qRgb (17 , 8 , 27),
+		qRgb (17 , 9 , 28),
+		qRgb (17 , 9 , 29),
+		qRgb (17 , 10 , 29),
+		qRgb (17 , 10 , 30),
+		qRgb (18 , 11 , 31),
+		qRgb (18 , 11 , 31),
+		qRgb (18 , 11 , 32),
+		qRgb (18 , 12 , 32),
+		qRgb (18 , 12 , 33),
+		qRgb (18 , 13 , 34),
+		qRgb (19 , 13 , 34),
+		qRgb (19 , 14 , 35),
+		qRgb (19 , 14 , 36),
+		qRgb (19 , 15 , 36),
+		qRgb (19 , 15 , 37),
+		qRgb (19 , 16 , 37),
+		qRgb (19 , 17 , 38),
+		qRgb (20 , 17 , 39),
+		qRgb (20 , 18 , 39),
+		qRgb (20 , 18 , 40),
+		qRgb (20 , 19 , 40),
+		qRgb (20 , 19 , 41),
+		qRgb (20 , 20 , 42),
+		qRgb (20 , 21 , 42),
+		qRgb (20 , 21 , 43),
+		qRgb (20 , 22 , 43),
+		qRgb (20 , 22 , 44),
+		qRgb (20 , 23 , 44),
+		qRgb (20 , 24 , 45),
+		qRgb (21 , 24 , 46),
+		qRgb (21 , 25 , 46),
+		qRgb (21 , 25 , 47),
+		qRgb (21 , 26 , 47),
+		qRgb (21 , 27 , 48),
+		qRgb (21 , 27 , 48),
+		qRgb (21 , 28 , 49),
+		qRgb (21 , 29 , 50),
+		qRgb (21 , 29 , 50),
+		qRgb (21 , 30 , 51),
+		qRgb (21 , 31 , 51),
+		qRgb (21 , 31 , 52),
+		qRgb (21 , 32 , 52),
+		qRgb (21 , 33 , 53),
+		qRgb (21 , 33 , 53),
+		qRgb (21 , 34 , 54),
+		qRgb (21 , 35 , 54),
+		qRgb (21 , 36 , 55),
+		qRgb (21 , 36 , 55),
+		qRgb (21 , 37 , 56),
+		qRgb (21 , 38 , 56),
+		qRgb (21 , 38 , 57),
+		qRgb (21 , 39 , 57),
+		qRgb (21 , 40 , 58),
+		qRgb (21 , 41 , 58),
+		qRgb (21 , 41 , 59),
+		qRgb (21 , 42 , 59),
+		qRgb (21 , 43 , 60),
+		qRgb (21 , 44 , 60),
+		qRgb (21 , 44 , 61),
+		qRgb (21 , 45 , 61),
+		qRgb (21 , 46 , 62),
+		qRgb (20 , 47 , 62),
+		qRgb (20 , 48 , 63),
+		qRgb (20 , 48 , 63),
+		qRgb (20 , 49 , 64),
+		qRgb (20 , 50 , 64),
+		qRgb (20 , 51 , 65),
+		qRgb (20 , 52 , 65),
+		qRgb (20 , 52 , 66),
+		qRgb (20 , 53 , 66),
+		qRgb (20 , 54 , 67),
+		qRgb (20 , 55 , 67),
+		qRgb (20 , 56 , 68),
+		qRgb (20 , 57 , 68),
+		qRgb (20 , 58 , 69),
+		qRgb (20 , 58 , 69),
+		qRgb (20 , 59 , 70),
+		qRgb (20 , 60 , 70),
+		qRgb (20 , 61 , 71),
+		qRgb (20 , 62 , 71),
+		qRgb (20 , 63 , 72),
+		qRgb (20 , 64 , 72),
+		qRgb (20 , 65 , 73),
+		qRgb (20 , 65 , 73),
+		qRgb (19 , 66 , 73),
+		qRgb (19 , 67 , 74),
+		qRgb (19 , 68 , 74),
+		qRgb (19 , 69 , 75),
+		qRgb (19 , 70 , 75),
+		qRgb (19 , 71 , 76),
+		qRgb (19 , 72 , 76),
+		qRgb (19 , 73 , 76),
+		qRgb (19 , 74 , 77),
+		qRgb (19 , 75 , 77),
+		qRgb (19 , 76 , 78),
+		qRgb (19 , 77 , 78),
+		qRgb (19 , 78 , 79),
+		qRgb (19 , 79 , 79),
+		qRgb (18 , 80 , 79),
+		qRgb (18 , 81 , 80),
+		qRgb (18 , 82 , 80),
+		qRgb (18 , 83 , 80),
+		qRgb (18 , 84 , 81),
+		qRgb (18 , 85 , 81),
+		qRgb (18 , 86 , 82),
+		qRgb (18 , 87 , 82),
+		qRgb (18 , 88 , 82),
+		qRgb (18 , 89 , 83),
+		qRgb (18 , 90 , 83),
+		qRgb (18 , 91 , 83),
+		qRgb (18 , 92 , 83),
+		qRgb (18 , 93 , 84),
+		qRgb (18 , 95 , 84),
+		qRgb (18 , 96 , 84),
+		qRgb (18 , 97 , 85),
+		qRgb (19 , 98 , 85),
+		qRgb (19 , 99 , 85),
+		qRgb (19 , 100 , 85),
+		qRgb (19 , 101 , 85),
+		qRgb (19 , 102 , 86),
+		qRgb (20 , 103 , 86),
+		qRgb (20 , 105 , 86),
+		qRgb (20 , 106 , 86),
+		qRgb (21 , 107 , 86),
+		qRgb (21 , 108 , 86),
+		qRgb (22 , 109 , 87),
+		qRgb (22 , 110 , 87),
+		qRgb (23 , 112 , 87),
+		qRgb (23 , 113 , 87),
+		qRgb (24 , 114 , 87),
+		qRgb (25 , 115 , 87),
+		qRgb (25 , 116 , 87),
+		qRgb (26 , 117 , 87),
+		qRgb (27 , 119 , 87),
+		qRgb (28 , 120 , 87),
+		qRgb (29 , 121 , 87),
+		qRgb (30 , 122 , 87),
+		qRgb (31 , 123 , 87),
+		qRgb (32 , 125 , 87),
+		qRgb (33 , 126 , 87),
+		qRgb (34 , 127 , 86),
+		qRgb (35 , 128 , 86),
+		qRgb (36 , 130 , 86),
+		qRgb (38 , 131 , 86),
+		qRgb (39 , 132 , 86),
+		qRgb (40 , 133 , 85),
+		qRgb (41 , 135 , 85),
+		qRgb (43 , 136 , 85),
+		qRgb (44 , 137 , 85),
+		qRgb (46 , 138 , 84),
+		qRgb (47 , 140 , 84),
+		qRgb (49 , 141 , 84),
+		qRgb (50 , 142 , 83),
+		qRgb (52 , 143 , 83),
+		qRgb (54 , 145 , 83),
+		qRgb (55 , 146 , 82),
+		qRgb (57 , 147 , 82),
+		qRgb (59 , 148 , 81),
+		qRgb (60 , 150 , 81),
+		qRgb (62 , 151 , 80),
+		qRgb (64 , 152 , 80),
+		qRgb (66 , 153 , 79),
+		qRgb (68 , 155 , 79),
+		qRgb (70 , 156 , 78),
+		qRgb (72 , 157 , 77),
+		qRgb (74 , 158 , 77),
+		qRgb (76 , 160 , 76),
+		qRgb (78 , 161 , 75),
+		qRgb (80 , 162 , 75),
+		qRgb (82 , 163 , 74),
+		qRgb (84 , 165 , 73),
+		qRgb (87 , 166 , 72),
+		qRgb (89 , 167 , 71),
+		qRgb (91 , 168 , 71),
+		qRgb (93 , 170 , 70),
+		qRgb (96 , 171 , 69),
+		qRgb (98 , 172 , 68),
+		qRgb (101 , 173 , 67),
+		qRgb (103 , 175 , 66),
+		qRgb (105 , 176 , 65),
+		qRgb (108 , 177 , 64),
+		qRgb (110 , 178 , 63),
+		qRgb (113 , 179 , 62),
+		qRgb (116 , 181 , 61),
+		qRgb (118 , 182 , 59),
+		qRgb (121 , 183 , 58),
+		qRgb (124 , 184 , 57),
+		qRgb (126 , 185 , 56),
+		qRgb (129 , 187 , 55),
+		qRgb (132 , 188 , 53),
+		qRgb (134 , 189 , 52),
+		qRgb (137 , 190 , 51),
+		qRgb (140 , 191 , 50),
+		qRgb (143 , 192 , 48),
+		qRgb (146 , 194 , 47),
+		qRgb (149 , 195 , 46),
+		qRgb (152 , 196 , 44),
+		qRgb (155 , 197 , 43),
+		qRgb (158 , 198 , 41),
+		qRgb (161 , 199 , 40),
+		qRgb (164 , 200 , 39),
+		qRgb (167 , 201 , 37),
+		qRgb (170 , 203 , 36),
+		qRgb (173 , 204 , 34),
+		qRgb (176 , 205 , 33),
+		qRgb (179 , 206 , 32),
+		qRgb (182 , 207 , 30),
+		qRgb (185 , 208 , 29),
+		qRgb (188 , 209 , 28),
+		qRgb (192 , 210 , 27),
+		qRgb (195 , 211 , 26),
+		qRgb (198 , 212 , 25),
+		qRgb (201 , 213 , 24),
+		qRgb (204 , 214 , 24),
+		qRgb (208 , 216 , 23),
+		qRgb (211 , 217 , 23),
+		qRgb (214 , 218 , 23),
+		qRgb (217 , 219 , 23),
+		qRgb (220 , 220 , 23),
+		qRgb (224 , 221 , 24),
+		qRgb (227 , 222 , 24),
+		qRgb (230 , 223 , 25),
+		qRgb (233 , 224 , 27),
+		qRgb (237 , 225 , 28),
+		qRgb (240 , 226 , 29),
+		qRgb (243 , 227 , 31),
+		qRgb (246 , 228 , 32),
+		qRgb (250 , 229 , 34),
+		qRgb (253 , 231 , 36)
+	};
+	/*
 	UCHAR r, g, b;
 	for ( UINT paletteInc : range ( PICTURE_PALETTE_SIZE ) )
 	{
@@ -1055,6 +1377,5 @@ void PictureManager::createPalettes(CDC* dc )
 		Palette.aEntries[paletteValueInc].peFlags = PC_RESERVED;
 	}
 	palettes[3] = CreatePalette( (LOGPALETTE *)&Palette );
-
+	*/
 }
-

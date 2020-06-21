@@ -5,131 +5,75 @@
 #include "boost/lexical_cast.hpp"
 #include "ExperimentThread/Communicator.h"
 #include "PhotodetectorCalibration.h"
+#include <QHeaderView>
+#include <QMenu>
+#include "GeneralObjects/ChimeraStyleSheets.h"
+#include <PrimaryWindows/QtMainWindow.h>
 
-void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult)
+void ServoManager::handleContextMenu (const QPoint& pos)
 {
-	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
-	*pResult = CDRF_DODEFAULT;
-	// First thing - check the draw stage. If it's the control's prepaint
-	// stage, then tell Windows we want messages for every item.
-	switch (pLVCD->nmcd.dwDrawStage)
-	{
-		case CDDS_PREPAINT:
-			*pResult = CDRF_NOTIFYITEMDRAW;
-			break;
-		case CDDS_ITEMPREPAINT:
-		{
-			int item = pLVCD->nmcd.dwItemSpec;
-			if (item < 0)
-			{
-				return;
-			}
-			if (item >= servos.size ())
-			{
-				pLVCD->clrText = _myRGBs["AuxWin-Text"];
-				pLVCD->clrTextBk = _myRGBs["Interactable-Bkgd"];
-			}
-			else
-			{
-				if (servos[item].currentlyServoing)
-				{
-					pLVCD->clrTextBk = _myRGBs["Solarized Orange"];
-				}
-				else
-				{
-					pLVCD->clrTextBk = _myRGBs[servos[item].servoed ? "Interactable-Bkgd" : "Red"];
-				}
-				pLVCD->clrText = _myRGBs["Text"];
-			}
-			// Tell Windows to paint the control itself.
-			*pResult = CDRF_NOTIFYSUBITEMDRAW;
+	QTableWidgetItem* item = servoList->itemAt (pos);
+	if (!item) { return; }
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete This Item", servoList);
+	servoList->connect (deleteAction, &QAction::triggered, 
+		[this, item]() {servos.erase (servos.begin () + item->row ()); refreshListview (); });
+	auto* newServo = new QAction ("New Item", servoList);
+	servoList->connect ( newServo, &QAction::triggered, [this]() {servos.push_back (servoInfo ()); refreshListview (); });
+	auto* calibrateThisServo = new QAction ("Calibrate This Servo", servoList);
+	servoList->connect (calibrateThisServo, &QAction::triggered, [this, item]() {
+		try	{
+			calibrate (servos[item->row ()], item->row ());
 		}
-		case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-		{	// handle subitem stuff...
-			switch (pLVCD->iSubItem)
-			{
-				case 3:
-				case 5: 
-					pLVCD->clrText = _myRGBs["Text"];
-					break;
-				case 4:
-				{
-					auto servoInfos = getServoInfo ();
-					if (pLVCD->nmcd.dwItemSpec < 0 || pLVCD->nmcd.dwItemSpec >= servoInfos.size ())
-					{
-						// at least happens on the new item row
-						pLVCD->clrText = _myRGBs["AuxWin-Text"];
-						break;
-					}
-					auto chng = fabs(servoInfos [pLVCD->nmcd.dwItemSpec].changeInCtrl);
-					// these ranges are arbitrary and you should feel free to change them as seems reasonable.
-					if (chng < 0.01)
-					{	// "Stable" reading.
-						pLVCD->clrText = _myRGBs["Green"];
-					}
-					else if (chng < 0.05)
-					{	// "Warning" - Value changed significantly
-						pLVCD->clrText = _myRGBs["Orange"];
-					}
-					else
-					{	// "Stronger Warning" - Value changed a lot
-						pLVCD->clrText = _myRGBs["Red"];
-					}
-					break;
-				}
-				default:
-					pLVCD->clrText = _myRGBs["AuxWin-Text"];
-					break;
-			}
-		}
-	}
+		catch (Error& err){
+			errBox (err.trace ());
+		}; });
+
+	menu.addAction (deleteAction);
+	menu.addAction (newServo);
+	menu.addAction (calibrateThisServo);
+	menu.exec (servoList->mapToGlobal (pos));
 }
 
-void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id,
-							   AiSystem* ai_in, AoSystem* ao_in, DoSystem* ttls_in, ParameterSystem* globals_in )
+void ServoManager::handleDraw (NMHDR* pNMHDR, LRESULT* pResult){}
+
+void ServoManager::initialize( POINT& pos, IChimeraWindowWidget* parent, AiSystem* ai_in, AoSystem* ao_in, DoSystem* ttls_in, 
+							   ParameterSystem* globals_in)
 {
-	servosHeader.sPos = {pos.x, pos.y, pos.x += 260, pos.y + 25};
-	servosHeader.Create( "SERVOS & MONITORS", NORM_HEADER_OPTIONS, servosHeader.sPos, parent, id++ );
-
- 	servoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 25 };
-	servoButton.Create( "Servo-Once", NORM_PUSH_OPTIONS, servoButton.sPos, parent, IDC_SERVO_CAL );
-	servoButton.setToolTip ( "Force the servo to calibrate.", toolTips, parent );
-	
-	unitsCombo.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 100 };
-	unitsCombo.Create (NORM_COMBO_OPTIONS, unitsCombo.sPos, parent, IDC_SERVO_UNITS_COMBO);
-	for (auto unitsOpt : AiUnits::allOpts)
-	{
-		unitsCombo.AddString (AiUnits::toStr (unitsOpt).c_str ());
+	servosHeader = new QLabel ("SERVO MANAGER", parent);
+	servosHeader->setGeometry (pos.x, pos.y, 280, 20);
+	servoButton = new CQPushButton ("Servo Once", parent);
+	servoButton->setGeometry (pos.x + 280, pos.y, 175, 20);
+	servoButton->setToolTip ("Force the servo to calibrate.");
+	parent->connect (servoButton, &QPushButton::released, [this, parent]() {runAll (*parent->mainWin->getComm()); });
+	unitsCombo = new CQComboBox (parent);
+	unitsCombo->setGeometry (pos.x + 280 + 175, pos.y, 100, 20);
+	for (auto unitsOpt : AiUnits::allOpts) {
+		unitsCombo->addItem (AiUnits::toStr (unitsOpt).c_str ());
 	}
+	parent->connect (unitsCombo, qOverload<int> (&QComboBox::currentIndexChanged), [this](int) {refreshListview (); });
 
-	expAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y + 25 };
-	expAutoServoButton.Create ("Exp. Auto-Servo?", NORM_CHECK_OPTIONS, expAutoServoButton.sPos, parent, id++);
-	expAutoServoButton.setToolTip ( "Automatically calibrate all servos before doing any experiment?", toolTips, parent);
+	expAutoServoButton = new CQCheckBox ("Exp. Auto-Servo?", parent);
+	expAutoServoButton->setGeometry (pos.x + 380 + 175, pos.y, 175, 20);
+	expAutoServoButton->setToolTip ("Automatically calibrate all servos before doing any experiment?");
 
-	calAutoServoButton.sPos = { pos.x, pos.y, pos.x += 175, pos.y += 25 };
-	calAutoServoButton.Create( "Cal. Auto-Servo?", NORM_CHECK_OPTIONS, calAutoServoButton.sPos, parent, id++ );
-	calAutoServoButton.setToolTip ( "Automatically calibrate all servos before doing standard calibration runs?", toolTips, parent );	
-
-	pos.x -= 960;
-	servoList.sPos = { pos.x, pos.y, pos.x + 960, pos.y += 325 };
-	servoList.Create ( NORM_LISTVIEW_OPTIONS, servoList.sPos, parent, IDC_SERVO_LISTVIEW );
-	servoList.InsertColumn ( 0,  "Name", 150 );
-	servoList.InsertColumn ( 1,  "Active?", 50 );
-	servoList.InsertColumn ( 2,  "Set (V/mW)", 80 );
-	servoList.InsertColumn ( 3,  "Ctrl (V)");
-	servoList.InsertColumn ( 4,  "dCtrl (%)", 60);
-	servoList.InsertColumn ( 5,  "Res (V/mW)", 80);
-	servoList.InsertColumn ( 6,  "Ai", 35 );
-	servoList.InsertColumn ( 7,  "Ao" );
-	servoList.InsertColumn ( 8,  "DO-Config", 90 );
-	servoList.InsertColumn ( 9,  "Tolerance", 70 );
-	servoList.InsertColumn ( 10,  "Gain", 45 );
-	servoList.InsertColumn ( 11,  "Monitor?", 70 );
-	servoList.InsertColumn ( 12, "AO-Config", 150);
-	servoList.InsertColumn ( 13, "Avgs", 50);
-
-	servoList.insertBlankRow ( );
-	servoList.setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
+	calAutoServoButton = new CQCheckBox ("Exp. Auto-Servo?", parent);
+	calAutoServoButton->setGeometry (pos.x + 380 + 350, pos.y, 175, 20);
+	calAutoServoButton->setToolTip ("Automatically calibrate all servos before doing standard calibration runs?");
+	pos.y += 20;
+	servoList = new QTableWidget (parent);
+	QStringList labels;
+	labels << "Name" << " Active? " << " Set (V) " << " Ctrl (V) " << " dCtrl (%) " << " Res (V) " << "Ai" << "Ao" << " DO-Config " << " Tolerance "
+		   << " Gain " << " Monitor? " << " AO-Config " << "Avgs";
+	servoList->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (servoList, &QTableWidget::customContextMenuRequested,
+		[this](const QPoint& pos) {this->handleContextMenu (pos); });
+	servoList->setColumnCount (labels.size());
+	servoList->setHorizontalHeaderLabels (labels);
+	servoList->horizontalHeader ()->setFixedHeight (25);
+	servoList->setGeometry (pos.x, pos.y, 960, 450);
+	servoList->setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
 						   "Set-Point: The servo\'s set point, in volts.\n"
 						   "Control-Value: The current control value (in volts) which was found to make the input match the set-point\n"
@@ -141,11 +85,17 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 						   "Gain: The gain of the servo loop.\n"
 						   "Monitor: If monitoring, the servo only checks that the value is within the tolerance of the set point and raises a warning if not.\n"
 						   "AO-Config: The digital output configuration the sevo will set before servoing. If a ao is "
-								"not listed here, it will be zero\'d.\n", toolTips, parent );
-	servoList.fontType = fontTypes::SmallCodeFont;
-	servoList.SetTextBkColor ( _myRGBs["Interactable-Bkgd"] );
-	servoList.SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
-	servoList.SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
+								"not listed here, it will be zero\'d.\n");
+	servoList->resizeColumnsToContents ();
+	servoList->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
+	servoList->verticalHeader ()->setDefaultSectionSize (22);
+	servoList->verticalHeader ()->setFixedWidth (40);
+	servoList->connect (servoList, &QTableWidget::cellDoubleClicked, [this](int clRow, int clCol) {
+		if (clCol == 1 || clCol == 11) {
+			auto* item = new QTableWidgetItem (servoList->item (clRow, clCol)->text () == "No" ? "Yes" : "No");
+			item->setFlags (item->flags () & ~Qt::ItemIsEditable);
+			servoList->setItem (clRow, clCol, item);
+		}});
 
 	ai = ai_in;
 	ao = ao_in;
@@ -154,26 +104,20 @@ void ServoManager::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, in
 }
 
 
-std::vector<servoInfo> ServoManager::getServoInfo ( )
-{
+std::vector<servoInfo> ServoManager::getServoInfo ( ){
 	return servos;
 }
 
 
-AiUnits::which ServoManager::getUnitsOption()
-{
-	CString txt;
-	auto sel = unitsCombo.GetCurSel ();
-	sel = ((sel != -1) ? sel : 0);
-	unitsCombo.GetLBText (sel, txt);
-	return AiUnits::fromStr (str(txt));
+AiUnits::which ServoManager::getUnitsOption(){
+	return AiUnits::fromStr (str(unitsCombo->currentText ()));
 }
 
 
 void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 {
 
-	configStream << calAutoServoButton.GetCheck ( ) << "\n" << expAutoServoButton.GetCheck() << "\n" 
+	configStream << calAutoServoButton->isChecked () << "\n" << expAutoServoButton->isChecked() << "\n"
 		<< AiUnits::toStr(getUnitsOption()) << "\n" << servos.size ( ) << "\n";
 	for ( auto& servo : servos )
 	{
@@ -181,36 +125,39 @@ void ServoManager::handleSaveMasterConfig( std::stringstream& configStream )
 	}
 }
 
-void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Version version )
+void ServoManager::handleOpenMasterConfig( ConfigStream& configStream )
 {
-	if ( version < Version( "2.1" ) )
+	if ( configStream.ver < Version( "2.1" ) )
 	{
 		// this was before the servo manager.
 		return;
 	}
-	if ( version < Version ( "2.5" ) )
+	if (configStream.ver< Version ( "2.5" ) )
 	{
 		double tolerance;
 		configStream >> tolerance;
 	}
 	bool calAutoServo, expAutoServo;
 	configStream >> calAutoServo;
-	calAutoServoButton.SetCheck( calAutoServo );
-	if (version >= Version ("2.9"))
+	calAutoServoButton->setChecked( calAutoServo );
+	if (configStream.ver >= Version ("2.9"))
 	{
 		configStream >> expAutoServo;
-		expAutoServoButton.SetCheck (expAutoServo);
+		expAutoServoButton->setChecked (expAutoServo);
 		std::string units_txt;
 		configStream.get ();
 		getline (configStream, units_txt);
-		unitsCombo.SelectString (0, AiUnits::toStr(AiUnits::fromStr(units_txt)).c_str());
+		int index = unitsCombo->findData (QString(units_txt.c_str()));
+		if (index != -1) { // -1 for not found
+			unitsCombo->setCurrentIndex (index);
+		}
 	}
 	LONG numServosInFile;
 	configStream >> numServosInFile;
 	servos.clear ( );
 	for ( auto servoNum : range ( numServosInFile ) )
 	{
-		servos.push_back ( handleOpenMasterConfigIndvServo ( configStream, version ) );
+		servos.push_back ( handleOpenMasterConfigIndvServo ( configStream ) );
 	}
 	refreshListview ( );
 }
@@ -218,6 +165,7 @@ void ServoManager::handleOpenMasterConfig( std::stringstream& configStream, Vers
 
 void ServoManager::deleteServo ( )
 {
+	/*
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos ( &cursorPos );
@@ -252,11 +200,13 @@ void ServoManager::deleteServo ( )
 			servoList.DeleteItem ( itemIndicator );
 		}
 	}
+	*/
 }
 
 
 void ServoManager::handleListViewClick ( )
 {
+	/*
 	LVHITTESTINFO myItemInfo = { 0 };
 	GetCursorPos ( &myItemInfo.pt );
 	servoList.ScreenToClient ( &myItemInfo.pt );
@@ -469,14 +419,15 @@ void ServoManager::handleListViewClick ( )
 		}
 	}
  	refreshListview ( );
+	*/
 }
 
 
-servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& configStream, Version version )
+servoInfo ServoManager::handleOpenMasterConfigIndvServo ( ConfigStream& configStream )
 {
 	servoInfo tmpInfo;
 	configStream >> tmpInfo.servoName;
-	if ( version > Version ( "2.3" ) )
+	if ( configStream.ver > Version ( "2.3" ) )
 	{
 		configStream >> tmpInfo.aiInChan >> tmpInfo.aoControlChannel;
 	}
@@ -485,7 +436,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 		tmpInfo.aiInChan = tmpInfo.aoControlChannel = 0;
 	}
 	configStream >> tmpInfo.active >> tmpInfo.setPoint;
-	if ( version > Version ( "2.3" ) )
+	if (configStream.ver > Version ( "2.3" ) )
 	{
 		UINT numSettings;
 		configStream >> numSettings;
@@ -497,7 +448,7 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 			ttl.first = DoRows::fromStr ( rowStr );
 		}
 	}
-	if (version > Version ("2.6")) 
+	if (configStream.ver > Version ("2.6"))
 	{
 		UINT numSettings;
 		configStream >> numSettings;
@@ -509,15 +460,15 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 			ao.first = dacID;
 		}
 	}
-	if ( version > Version ( "2.4" ) )
+	if (configStream.ver > Version ( "2.4" ) )
 	{
 		configStream >> tmpInfo.tolerance >> tmpInfo.gain;
 	}
-	if ( version > Version ( "2.5" ) )
+	if (configStream.ver > Version ( "2.5" ) )
 	{
 		configStream >> tmpInfo.monitorOnly;	
 	}
-	if (version > Version ("2.7"))
+	if (configStream.ver > Version ("2.7"))
 	{
 		configStream >> tmpInfo.avgNum;
 	}
@@ -527,34 +478,42 @@ servoInfo ServoManager::handleOpenMasterConfigIndvServo ( std::stringstream& con
 
 void ServoManager::refreshListview ( )
 {
-	servoList.DeleteAllItems ( );
-	
-	UINT count = 0;
+	servoList->setRowCount (0);
 	for ( auto& servo : servos )
 	{
-		addServoToListview ( servo, count++ );
+		addServoToListview ( servo );
 	}
-	servoList.insertBlankRow ( );
+	servoList->resizeColumnsToContents ();
 }
 
 
-void ServoManager::addServoToListview ( servoInfo& si, UINT which )
+void ServoManager::addServoToListview ( servoInfo& si )
 {
+	int row = servoList->rowCount ();
 	auto ctp = [this, &si](double volt) {return convertToPower (volt, si); };
-	servoList.InsertItem (si.servoName, which, 0 );
-	servoList.SetItem (si.active ? "Yes" : "No", which, 1 );
-	servoList.SetItem ( str (ctp(si.setPoint) ), which, 2 );
-	servoList.SetItem (si.monitorOnly ? "--" : str (si.controlValue), which, 3 );
-	servoList.SetItem ( (si.changeInCtrl < 0 ? "" : "+") + str (si.changeInCtrl*100), which, 4);
-	servoList.SetItem ( str (ctp(si.mostRecentResult) ), which, 5);
-	servoList.SetItem ( str (si.aiInChan ), which, 6 );
-	servoList.SetItem (si.monitorOnly ? "--" : str (si.aoControlChannel ), which, 7 );
-	servoList.SetItem (servoTtlConfigToString (si.ttlConfig), which, 8 );
-	servoList.SetItem ( str (si.tolerance ), which, 9 );
-	servoList.SetItem (si.monitorOnly ? "--" : str (si.gain ), which, 10 );
-	servoList.SetItem (si.monitorOnly ? "Yes" : "No", which, 11 );
-	servoList.SetItem (servoDacConfigToString(si.aoConfig), which, 12);
-	servoList.SetItem (str (si.avgNum), which, 13);
+	servoList->insertRow (row);
+	servoList->setItem (row, 0, new QTableWidgetItem ( si.servoName.c_str ()));
+	servoList->setItem (row, 1, new QTableWidgetItem ( si.active? "Yes" : "No"));
+	servoList->setItem (row, 2, new QTableWidgetItem ( cstr(ctp(si.setPoint))));
+	servoList->setItem (row, 3, new QTableWidgetItem (si.monitorOnly ? "--" : str (ctp(si.controlValue)).c_str()));
+	//servoList->item (row, 3)->setBackground (Qt::black);
+	servoList->item (row, 3)->setFlags (servoList->item (row, 3)->flags () ^ Qt::ItemIsEnabled);
+	servoList->setItem (row, 4, new QTableWidgetItem (((si.changeInCtrl < 0 ? "" : "+") + str (si.changeInCtrl*100)).c_str ()));
+	//servoList->item(row, 4)->setBackground (Qt::black);
+	servoList->item (row, 4)->setFlags (servoList->item (row, 4)->flags () ^ Qt::ItemIsEnabled);
+	servoList->setItem (row, 5, new QTableWidgetItem (cstr (ctp(si.mostRecentResult) )));
+	//servoList->item (row, 5)->setBackground (Qt::black);
+	servoList->item (row, 5)->setFlags (servoList->item (row, 5)->flags () ^ Qt::ItemIsEnabled);
+	//servoList->item (row, 5)->setFlags (servoList->item (row, 5)->flags () ^ Qt::ItemIsEditable);
+	servoList->setItem (row, 6, new QTableWidgetItem (cstr (si.aiInChan )));
+	servoList->setItem (row, 7, new QTableWidgetItem ((si.monitorOnly ? "--" : str (si.aoControlChannel )).c_str()));
+	servoList->setItem (row, 8, new QTableWidgetItem (servoTtlConfigToString (si.ttlConfig).c_str()));
+	servoList->setItem (row, 9, new QTableWidgetItem (cstr (si.tolerance )));
+	servoList->setItem (row, 10, new QTableWidgetItem ((si.monitorOnly ? "--" : str (si.gain )).c_str()));
+	servoList->setItem (row, 11, new QTableWidgetItem (cstr(si.monitorOnly ? "Yes" : "No") ));
+	servoList->setItem (row, 12, new QTableWidgetItem (servoDacConfigToString(si.aoConfig).c_str()));
+	servoList->setItem (row, 13, new QTableWidgetItem (cstr (si.avgNum)));
+	//servoList->setStyleSheet (servoList->styleSheet ());
 }
 
 std::string ServoManager::servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig)
@@ -592,25 +551,14 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << " " << servo.avgNum << "\n";
 }
 
-
-void ServoManager::rearrange( UINT width, UINT height, fontMap fonts )
-{
-	servosHeader.rearrange( width, height, fonts );
-	servoButton.rearrange( width, height, fonts );
-	calAutoServoButton.rearrange( width, height, fonts );
-	expAutoServoButton.rearrange(width, height, fonts);
-	unitsCombo.rearrange (width, height, fonts);
-	servoList.rearrange ( width, height, fonts );
-}
-
 bool ServoManager::wantsCalAutoServo( )
 {
-	return calAutoServoButton.GetCheck( );
+	return calAutoServoButton->isChecked( );
 }
 
 bool ServoManager::wantsExpAutoServo ()
 {
-	return expAutoServoButton.GetCheck ();
+	return expAutoServoButton->isChecked ();
 }
 
 
@@ -620,15 +568,19 @@ void ServoManager::runAll( Communicator& comm)
 	// made this asynchronous to facilitate updating gui while 
 	for ( auto& servo : servos )
 	{
+		auto origColor = servoList->item (count, 0)->background ();
+		servoList->item (count, 0)->setBackground (Qt::red);
 		try
 		{
-			ServoManager::calibrate (servo, count++);
+			ServoManager::calibrate (servo, count);
 		}
 		catch (Error & e) 
 		{
 			comm.sendError (e.trace ());
 			// but continue to try the other ones. 
 		}
+		servoList->item (count, 0)->setBackground(origColor);
+		count++;
 	}
 	refreshListview ();
 	ttls->zeroBoard ( );
@@ -663,7 +615,6 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	}
 	double sp = s.setPoint;
 	s.currentlyServoing = true;
-	// helps auto calibrate the servo for lower servo powers
 	ttls->zeroBoard ( );
 	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
 	for (auto dac : s.aoConfig)
@@ -673,6 +624,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	for ( auto ttl : s.ttlConfig )
 	{
 		auto& outputs = ttls->getDigitalOutputs ();
+		outputs (ttl.second, ttl.first).check->setChecked (true);
 		outputs(ttl.second, ttl.first).set (1);
 		ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, ttls->getCurrentStatus());
 	}
@@ -748,6 +700,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
 			setResDisplay (which, convertToPower(s.mostRecentResult, s));
 			setChangeVal (which, convertToPower(s.changeInCtrl, s));
+			qApp->processEvents ();
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
@@ -767,25 +720,19 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	{
 		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), dacVal );
 	}
+	servoList->repaint ();
 }
 
-
-void ServoManager::setChangeVal(UINT which, double change)
-{
-	servoList.SetItem ((change < 0 ? "" : "+") + str (change*100), which, 4);
-	servoList.RedrawWindow ();
+void ServoManager::setChangeVal(UINT which, double change){
+	servoList->setItem (which, 4, new QTableWidgetItem(((change < 0 ? "" : "+") + str (change*100)).c_str()));
 }
 
-void ServoManager::setControlDisplay (UINT which, double value )
-{
-	servoList.SetItem ( str ( value ), which, 3 );
-	servoList.RedrawWindow ( );
+void ServoManager::setControlDisplay (UINT which, double value ){
+	servoList->item (which, 3)->setText (cstr (value));
 }
 
-void ServoManager::setResDisplay (UINT which, double value)
-{
-	servoList.SetItem (str (value), which, 5);
-	servoList.RedrawWindow ();
+void ServoManager::setResDisplay (UINT which, double value){
+	servoList->item (which,5)->setText (cstr (value));
 }
 
 

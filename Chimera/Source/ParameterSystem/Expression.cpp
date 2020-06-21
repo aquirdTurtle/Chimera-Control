@@ -1,6 +1,7 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "Expression.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iomanip>

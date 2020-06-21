@@ -3,7 +3,12 @@
 
 #include "Control.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralImaging/imageParameters.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 struct cameraPositions;
 class AndorWindow;
@@ -13,32 +18,31 @@ class MainWindow;
 class ImageDimsControl
 {
 	public:
-		ImageDimsControl();
-		void initialize( POINT& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
+		ImageDimsControl(std::string whichCam);
+		void initialize( POINT& pos, IChimeraWindowWidget* parentWindow, int numRows, int width);
 		imageParameters readImageParameters();
 		void setImageParametersFromInput( imageParameters param );
 		bool checkReady();
-		void handleSave( std::ofstream& saveFile );
-		void handleNew( std::ofstream& newfile );
-		void handleOpen( std::ifstream& openFile, Version ver );
-		static imageParameters getImageDimSettingsFromConfig ( std::ifstream& configFile, Version ver );
+		void handleSave(ConfigStream& saveFile );
+		void handleOpen(ConfigStream& openFile );
+		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile );
 		imageParameters getImageParameters();
 		void rearrange( int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
+		const std::string camType;
 	private:
-		Control<CStatic> leftText;
-		Control<CStatic>  rightText;
-		Control<CStatic>  horBinningText;
-		Control<CStatic>  bottomLabel;
-		Control<CStatic>  topLabel;
-		Control<CStatic>  vertBinningText;
-		Control<CEdit>  leftEdit;
-		Control<CEdit> rightEdit;
-		Control<CEdit> horBinningEdit;
-		Control<CEdit> bottomEdit;
-		Control<CEdit> topEdit;
-		Control<CEdit> vertBinningEdit;
+		QLabel* leftText;
+		QLabel* rightText;
+		QLabel* horBinningText;
+		QLabel* bottomLabel;
+		QLabel* topLabel;
+		QLabel* vertBinningText;
+		CQLineEdit* leftEdit;
+		CQLineEdit* rightEdit;
+		CQLineEdit* horBinningEdit;
+		CQLineEdit* bottomEdit;
+		CQLineEdit* topEdit;
+		CQLineEdit* vertBinningEdit;
 		bool isReady;
 		imageParameters currentImageParameters;
 };
-;

@@ -1,10 +1,14 @@
 //Created by Max Kolanz
 #pragma once
-#include "Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "DmCore.h"
 #include "DmProfileCreator.h"
+#include <qcombobox.h>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qpushbutton.h>
 
 struct DmInfo
 {
@@ -17,15 +21,11 @@ struct pistonInfo {
 	int Value;
 };
 
-struct pistonButton {		
-		Control<CEdit> Voltage;
-};
-
 class DmControl
 {
 	public:
-		DmControl::DmControl(std::string serialNumber, bool safeMode);
-		void initialize(POINT loc, CWnd* parent, int count, std::string serialNumber, LONG width, UINT &control_id);
+		DmControl(std::string serialNumber, bool safeMode);
+		void initialize( POINT loc, IChimeraWindowWidget* parent, int count, std::string serialNumber, LONG width );
 	    void handleOnPress(int i);
 		void ProgramNow();
 		void setMirror(double *A);
@@ -34,45 +34,41 @@ class DmControl
 		void updateButtons();
 		int getActNum();
 
-		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
-		void handleSaveConfig(std::ofstream& newFile);
-		void reColor(UINT id);
-		void rearrange(int width, int height, fontMap fonts);
+		void handleSaveConfig(ConfigStream& newFile);
 		bool isFloat(const std::string& someString);
 		void add_Changes();
 		std::vector<double> getTableValues();
 		void writeCurrentFile(std::string out_file);
-		void initializeTable(POINT& pos, int width, int height, CWnd* parent, UINT id);
+		void initializeTable(POINT& pos, int width, int height, IChimeraWindowWidget* parent);
 
 		DmCore &getCore();
 		DMOutputForm getExpressionValues();
 		void openConfig();
 		void setCoreInfo(DMOutputForm form);
 		void refreshAbberationDisplays ();
-
 	private:		
 		DmInfo theDMInfo;
 		DmCore defObject;
 		DmProfileCreator Profile;
 		DMOutputForm currentValues;
-		std::vector<pistonButton> piston;
-		Control<CEdit> comaMag;
-		Control<CEdit> trefoilMag;
-		Control<CEdit> astigMag;
-		Control<CEdit> sphereMag;
-		Control<CEdit> comaAngle;
-		Control<CEdit> trefoilAngle;
-		Control<CEdit> astigAngle;
-		Control<CEdit> sphereAngle;
-		Control<CleanPush> applyCorrections;
-		Control<CStatic> angleLabel;
-		Control<CStatic> magLabel;
-		Control<CStatic> astigmatismLabel;
-		Control<CStatic> sphericalLabel;
-		Control<CStatic> trefoilLabel;
-		Control<CStatic> comaLabel;
-		Control<CleanPush> programNow;
-		Control<CComboBox> profileSelector;
+		std::vector<QLineEdit*> piston;
+		QLineEdit* comaMag;
+		QLineEdit* trefoilMag;
+		QLineEdit* astigMag;
+		QLineEdit* sphereMag;
+		QLineEdit* comaAngle;
+		QLineEdit* trefoilAngle;
+		QLineEdit* astigAngle;
+		QLineEdit* sphereAngle;
+		QPushButton* applyCorrections;
+		QLabel* angleLabel;
+		QLabel* magLabel;
+		QLabel* astigmatismLabel;
+		QLabel* sphericalLabel;
+		QLabel* trefoilLabel;
+		QLabel* comaLabel;
+		QPushButton* programNow;
+		QComboBox* profileSelector;
 		std::vector<double> temp;
 		std::vector<double> writeArray;
 };

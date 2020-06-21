@@ -6,12 +6,13 @@
 #include "AndorRunSettings.h"
 #include "AndorFlume.h"
 #include "GeneralObjects/Matrix.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "AndorTemperatureStatus.h"
 #include <string>
 #include <process.h>
 #include <mutex>
 #include <condition_variable>
-
+#include <Andor/cameraThreadInput.h>
 /// /////////////////////////////////////////////////////
 ///			The Andor Class
 /// /////////////////////////////////////////////////////
@@ -24,28 +25,15 @@
 
 class AndorCameraCore;
 
-struct cameraThreadInput
-{
-	bool expectingAcquisition;
-	std::timed_mutex* runMutex;
-	std::condition_variable_any signaler;
-	Communicator* comm;
-	// Andor is set to this in the constructor of the andor camera.
-	AndorCameraCore* Andor;
-	bool safemode;
-	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes;
-};
-
 /// the important camera class.
-class AndorCameraCore
+class AndorCameraCore : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AndorCameraCore& operator=(const AndorCameraCore&) = delete;
 		AndorCameraCore (const AndorCameraCore&) = delete;
-
 		AndorCameraCore(bool safemode_opt);
-
+		AndorRunSettings getSettingsFromConfig (ConfigStream& configFile);
 		AndorRunSettings getAndorRunSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
@@ -68,12 +56,20 @@ class AndorCameraCore
 
 		static UINT __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
-		void initializeClass( Communicator* comm, chronoTimes* imageTimes );
+		void initializeClass(IChimeraWindowWidget* parent, chronoTimes* imageTimes );
 		void setCalibrating( bool cal );
 		bool isCalibrating( );
 		void abortAcquisition ( );
 		int queryStatus (  );
 		AndorTemperatureStatus getTemperature ( );
+		std::string configDelim = "CAMERA_SETTINGS";
+		std::string getDelim () { return configDelim; }
+		void logSettings (DataLogger& log);
+		void loadExpSettings (ConfigStream& stream);
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
+		void normalFinish ();
+		void errorFinish ();
+		void programVariation (UINT variationInc, std::vector<parameterType>& params);
 
 	private:
 		void setAccumulationCycleTime ( );
@@ -87,6 +83,7 @@ class AndorCameraCore
 		/// settings are stored in smaller classes.
 		// If the experiment is running, these settings hold the options that the experiment is using.
 		AndorRunSettings runSettings;
+		AndorRunSettings expRunSettings;
 
 		AndorFlume flume;
 		const bool safemode;
@@ -104,4 +101,6 @@ class AndorCameraCore
 		UINT cameraThreadID = 0;
 
 		cameraThreadInput threadInput;
+
+		friend class AndorCameraThreadWorker;
 };

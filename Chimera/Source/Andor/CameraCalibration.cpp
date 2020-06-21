@@ -1,48 +1,48 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "CameraCalibration.h"
+#include <GeneralUtilityFunctions/commonFunctions.h>
 
-void CameraCalibration::initialize( POINT& pos, int& id, CWnd* parent, cToolTips& tooltips )
+void CameraCalibration::initialize( POINT& pos, IChimeraWindowWidget* parent )
 {
-	header.sPos = { pos.x, pos.y, pos.x + 140, pos.y + 20 };
-	header.Create( "Camera-Bkgd:", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	calButton.sPos = { pos.x + 140, pos.y, pos.x + 240, pos.y + 20 };
-	calButton.Create( "Calibrate", NORM_PUSH_OPTIONS, calButton.sPos, parent, IDC_CAMERA_CALIBRATION_BUTTON );
-	autoCalButton.sPos = { pos.x + 240, pos.y, pos.x + 360, pos.y + 20 };
-	autoCalButton.Create( "Auto-Cal", NORM_CHECK_OPTIONS, autoCalButton.sPos, parent, id++ );
-	useButton.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y += 20 };
-	useButton.Create( "Use-Cal", NORM_CHECK_OPTIONS, useButton.sPos, parent, id++ );
+	header = new QLabel ("Camera-Bkgd:", parent);
+	header->setGeometry (pos.x, pos.y, 140, 20);
+	calButton = new QPushButton ("Calibrate", parent);
+	calButton->setGeometry (pos.x+140, pos.y, 100, 20);
+	parent->connect (calButton, &QPushButton::released, [parent]() {
+		commonFunctions::calibrateCameraBackground (parent); });
+
+	autoCalButton = new QCheckBox ("Auto-Cal", parent);
+	autoCalButton->setGeometry (pos.x+240, pos.y, 120, 20);
+	useButton = new QCheckBox ("Use-Cal", parent);
+	useButton->setGeometry (pos.x + 360, pos.y, 120, 20);
 }
 
 
 void CameraCalibration::setAutoCal(bool option)
 {
-	autoCalButton.SetCheck(option);
+	autoCalButton->setChecked(option);
 }
 
 
 void CameraCalibration::setUse(bool option)
 {
-	useButton.SetCheck(option);
+	useButton->setChecked(option);
 }
 
 
-void CameraCalibration::rearrange( int width, int height, fontMap fonts )
-{
-	header.rearrange( width, height, fonts );
-	calButton.rearrange( width, height, fonts );
-	autoCalButton.rearrange( width, height, fonts );
-	useButton.rearrange( width, height, fonts );
+void CameraCalibration::rearrange( int width, int height, fontMap fonts ){
 }
 
 
 bool CameraCalibration::use( )
 {
-	return useButton.GetCheck( );
+	return useButton->isChecked( );
 }
 
 
 bool CameraCalibration::autoCal( )
 {
-	return autoCalButton.GetCheck( );
+	return autoCalButton->isChecked ( );
 }
+

@@ -1,14 +1,15 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "AnalogOutput/AoSystem.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/MainWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
 #include "ConfigurationSystems/Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralObjects/CodeTimer.h"
 #include <boost/lexical_cast.hpp>
+#include <ExperimentThread/ExpThreadWorker.h>
 
 AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 {
@@ -56,7 +57,7 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 
 bool AoSystem::handleArrow ( CWnd* focus, bool up )
 {
-	if ( quickChange.GetCheck ( ) )
+	if ( quickChange->isChecked( ) )
 	{
 		for ( auto& output : outputs )
 		{
@@ -73,12 +74,9 @@ bool AoSystem::handleArrow ( CWnd* focus, bool up )
 void AoSystem::standardNonExperiemntStartDacsSequence( )
 {
 	updateEdits( );
-	organizeDacCommands( 0, 0 );
-	makeFinalDataFormat( 0, 0 );
-	stopDacs( );
-	configureClocks( 0, false, 0 );
-	writeDacs( 0, false, 0 );
-	startDacs( );
+	organizeDacCommands( 0 );
+	makeFinalDataFormat( 0 );
+	resetDacs (0, false);
 }
 
 
@@ -128,7 +126,7 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 	prepareForce( );
 	ttls.prepareForce( );
 	prepareDacForceChange( dacNumber, val, ttls );
-	checkValuesAgainstLimits( 0, 0 );
+	checkValuesAgainstLimits( 0 );
 	///
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
@@ -136,10 +134,10 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 }
 
 
-void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver)
+void AoSystem::handleOpenConfig(ConfigStream& openFile)
 {
 	UINT dacInc = 0;
-	if ( ver < Version ( "3.7" ) )
+	if ( openFile.ver < Version ( "3.7" ) )
 	{
 		for ( auto i : range ( 24 ) )
 		{
@@ -150,26 +148,26 @@ void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver)
 }
 
 
-void AoSystem::handleNewConfig( std::ofstream& newFile )
+void AoSystem::standardExperimentPrep ( UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
+										double currLoadSkipTime )
 {
-	newFile << "DACS\n";
-	// nothing at the moment.
-	newFile << "\nEND_DACS\n";
+	organizeDacCommands (variationInc);
+	setDacTriggerEvents (ttls, variationInc);
+	findLoadSkipSnapshots (currLoadSkipTime, expParams, variationInc);
+	makeFinalDataFormat (variationInc);
 }
 
 
-void AoSystem::handleSaveConfig(std::ofstream& saveFile)
+void AoSystem::handleSaveConfig(ConfigStream& saveFile)
 {
-	saveFile << "DACS\n";
-	// nothing at the moment.
-	saveFile << "\nEND_DACS\n";
+	saveFile << "DACS\nEND_DACS\n";
 }
 
 
-std::string AoSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
+std::string AoSystem::getDacSequenceMessage( UINT variation )
 {
 	std::string message;
-	for ( auto snap : dacSnapshots(seqNum,variation) )
+	for ( auto snap : dacSnapshots(variation) )
 	{
 		std::string time = str( snap.time, 12, true );
 		message += time + ":\r\n";
@@ -222,14 +220,6 @@ bool AoSystem::isValidDACName(std::string name)
 
 void AoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	dacTitle.rearrange( width, height, fonts);
-	dacSetButton.rearrange( width, height, fonts);
-	zeroDacsButton.rearrange( width, height, fonts);
-	quickChange.rearrange ( width, height, fonts );
-	for ( auto& out : outputs )
-	{
-		out.rearrange ( width, height, fonts );
-	}
 }
 
 
@@ -246,28 +236,25 @@ double AoSystem::getDefaultValue(UINT dacNum)
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
-{
+void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent ){
 	// title
-	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_CENTER, dacTitle.sPos, master, id++);
-	dacTitle.fontType = fontTypes::HeadingFont;
-	// 
-	dacSetButton.sPos = { pos.x, pos.y, pos.x + 160, pos.y + 25};
-	dacSetButton.Create( "Set New DAC Values", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 
-						 dacSetButton.sPos, master, ID_DAC_SET_BUTTON );
-	dacSetButton.setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
-							 " edits below.", toolTips, master);
-	//
-	zeroDacsButton.sPos = { pos.x + 160, pos.y, pos.x + 320, pos.y + 25 };
-	zeroDacsButton.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacsButton.sPos, master, IDC_ZERO_DACS );
-	zeroDacsButton.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
+	dacTitle = new QLabel ("DACS", parent);
+	dacTitle->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+480, pos.y += 25} });
 
+	dacSetButton = new CQPushButton ("Set New DAC Values", parent);
+	dacSetButton->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+160, pos.y+25} });
+	dacSetButton->setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
+							 " edits below.");
+	parent->connect (dacSetButton, &QPushButton::released, [parent]() {parent->auxWin->SetDacs (); });
+	zeroDacsButton = new CQPushButton ("Zero DACs", parent);
+	zeroDacsButton->setGeometry ({ QPoint{pos.x+160, pos.y},QPoint{pos.x+320, pos.y+25} });
+	zeroDacsButton->setToolTip( "Press this button to set all dac values to zero." );
+	parent->connect (zeroDacsButton, &QPushButton::released, [parent]() { parent->auxWin->zeroDacs(); });
 	// 
-	quickChange.sPos = { pos.x + 320, pos.y, pos.x + 480, pos.y += 25 };
-	quickChange.Create ( "Quick-Change", NORM_CHECK_OPTIONS, quickChange.sPos, master, id++ );
-	quickChange.setToolTip ( "With this checked, you can quickly change a DAC's value by using the arrow keys while "
-							 "having the cursor before the desired digit selected in the DAC's edit.", toolTips, master );
+	quickChange = new CQCheckBox ("Quick-Change", parent);
+	quickChange->setGeometry ({ QPoint{pos.x + 320, pos.y},QPoint{pos.x + 480, pos.y += 25} });
+	quickChange->setToolTip ( "With this checked, you can quickly change a DAC's value by using the arrow keys while "
+							 "having the cursor before the desired digit selected in the DAC's edit.");
 
 	int collumnInc = 0;
 	
@@ -281,24 +268,32 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 			pos.y -= 20 * outputs.size ( ) / 3;
 			pos.x += 160;
 		}
-		out.initialize ( pos, master, id, toolTips, dacInc );
+		out.initialize ( pos, parent, dacInc );
 		dacInc++;
 	}
 	pos.x -= 320;
 }
 
+bool AoSystem::eventFilter (QObject* obj, QEvent* event){
+	for (auto& out : outputs) {
+		if (out.eventFilter (obj, event)) {
+			return true;
+		}
+	}
+	return false;
+}
 
-void AoSystem::handleRoundToDac( MainWindow* mainWin )
+void AoSystem::handleRoundToDac( )
 {
 	if ( roundToDacPrecision )
 	{
 		roundToDacPrecision = false;
-		mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
+		//mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_UNCHECKED );
 	}
 	else
 	{
 		roundToDacPrecision = true;
-		mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
+		//mainWin->checkAllMenus ( ID_MASTER_ROUNDDACVALUESTODACPRECISION, MF_CHECKED );
 	}
 }
 
@@ -322,7 +317,6 @@ void AoSystem::handleSetDacsButtonPress(DoCore& ttls, bool useDefault )
 	for ( auto outputNum : range ( outputs.size() ) )
 	{
 		outputs[ outputNum ].info.currVal = vals[ outputNum ];
-		outputs[ outputNum ].setEditColorState ( 0 );
 	}
 }
 
@@ -336,13 +330,13 @@ void AoSystem::updateEdits( )
 }
 
 
-void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
+void AoSystem::organizeDacCommands(UINT variation)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<AoCommand>>> timeOrganizer;
-	std::vector<AoCommand> tempEvents(dacCommandList(seqNum,variation));
+	std::vector<AoCommand> tempEvents(dacCommandList(variation));
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](AoCommand a, AoCommand b){ return a.time < b.time; });
@@ -370,7 +364,7 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 		// no commands, that's fine.
 		return;
 	}
-	auto& snap = dacSnapshots(seqNum,variation);
+	auto& snap = dacSnapshots(variation);
 	snap.clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
 	std::array<double, 24> dacValues;
@@ -394,11 +388,11 @@ void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
+void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
-	auto& snaps = dacSnapshots(seqNum,variation);
-	auto& loadSkipSnaps = loadSkipDacSnapshots(seqNum,variation);
+	auto& snaps = dacSnapshots(variation);
+	auto& loadSkipSnaps = loadSkipDacSnapshots(variation);
 	if ( snaps.size( ) == 0 )
 	{
 		return;
@@ -416,16 +410,12 @@ void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& v
 
 std::array<double, 24> AoSystem::getFinalSnapshot()
 {
-	auto numSeq = dacSnapshots.getNumSequences ( );
-	if (numSeq != 0)
+	auto numVar = dacSnapshots.getNumVariations ();
+	if (numVar != 0)
 	{
-		auto numVar = dacSnapshots.getNumVariations ( numSeq - 1 );
-		if (numVar != 0)
+		if ( dacSnapshots( numVar-1 ).size( ) != 0 )
 		{
-			if ( dacSnapshots( numSeq - 1, numVar-1 ).size( ) != 0 )
-			{
-				return dacSnapshots ( numSeq - 1, numVar - 1 ).back( ).dacValues;
-			}
+			return dacSnapshots ( numVar - 1 ).back( ).dacValues;
 		}
 	}
 	thrower ("No DAC Events");
@@ -449,38 +439,38 @@ void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 }
 
 
-template <typename T> using vec = std::vector<T>;
-
-
-void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
-							  std::vector<std::vector<double>> finTimes )
+void AoSystem::resetDacs (UINT varInc, bool skipOption)
 {
-	std::string message;
-	// each element of ttlData should be one ttl line.
-	UINT linesPerPlot = 24 / dacData.size( );
+	stopDacs ();
+	// it's important to grab the skipoption from input->skipNext only once because in principle
+	// if the cruncher thread was running behind, it could change between writing and configuring the 
+	// aoSys and configuring the TTLs, resulting in some funny behavior;
+	configureClocks (varInc, skipOption);
+	writeDacs (varInc, skipOption);
+	startDacs ();
+}
 
-	for ( auto line : range( 24 ) )
-	{
+std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( UINT var ){
+	std::vector<std::vector<plotDataVec>> dacData(3, std::vector<plotDataVec>(8));
+	std::string message;
+	// each element of dacData should be one ttl line.
+	UINT linesPerPlot = 24 / 3;
+
+	for ( auto line : range( 24 ) )	{
 		auto& data = dacData[line / linesPerPlot][line % linesPerPlot];
-		data->clear( );
-		UINT seqInc = 0;
-		UINT runningSeqTime = 0;
-		for (auto seqNum : range(dacSnapshots.getNumSequences( ) ) )
-		//for ( auto& dacSeqInfo : dacSnapshots )
-		{
-			if ( dacSnapshots.getNumVariations(seqNum) <= variation )
-			{
-				thrower ( "Attempted to use dac data from variation " + str( variation ) + ", which does not "
-						 "exist!" );
+		data.clear( );
+		if ( dacSnapshots.getNumVariations() <= var ){
+			thrower ( "Attempted to use dac data from variation " + str( var ) + ", which does not exist!" );
+		}
+
+		for ( auto snapn : range(dacSnapshots(var).size()) ){
+			if (snapn != 0) {
+				data.push_back ({ dacSnapshots (var)[snapn].time, double (dacSnapshots (var)[snapn-1].dacValues[line]), 0 });
 			}
-			for ( auto& snap : dacSnapshots(seqNum, variation) )
-			{
-				data->push_back( { runningSeqTime + snap.time, double( snap.dacValues[line] ), 0 } );
-			}
-			runningSeqTime += finTimes[seqInc][variation];
-			seqInc++;
+			data.push_back ({ dacSnapshots (var)[snapn].time, double (dacSnapshots (var)[snapn].dacValues[line]), 0 });
 		}
 	}
+	return dacData;
 }
 
 
@@ -488,226 +478,188 @@ void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVe
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void AoSystem::interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings )
-{
+void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
-	UINT sequenceLength = variables.size( );
-	if ( sequenceLength == 0 )
-	{
-		sequenceLength = 1;
-	}
-	UINT variations = variables.front( ).size( ) == 0 ? 1 : variables.front().front( ).keyValues.size( );
-	if (variations == 0)
-	{
+	UINT variations = params.size( ) == 0 ? 1 : params.front( ).keyValues.size( );
+	if (variations == 0){
 		variations = 1;
 	}
 	/// imporantly, this sizes the relevant structures.
-	dacCommandList.uniformSizeReset ( sequenceLength, variations );
-	dacSnapshots.uniformSizeReset ( sequenceLength, variations );
-	loadSkipDacSnapshots.uniformSizeReset ( sequenceLength, variations );
-	finalFormatDacData.uniformSizeReset ( sequenceLength, variations );
-	loadSkipDacFinalFormat.uniformSizeReset ( sequenceLength, variations );
+	dacCommandList.uniformSizeReset (  variations );
+	dacSnapshots.uniformSizeReset ( variations );
+	loadSkipDacSnapshots.uniformSizeReset ( variations );
+	finalFormatDacData.uniformSizeReset ( variations );
+	loadSkipDacFinalFormat.uniformSizeReset ( variations );
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
 	sTimer.tick ( "After-init" );
-	for ( auto seqInc : range( sequenceLength ) )
-	{
-		for (auto variationInc : range(variations) )
-		{
-			if ( variationInc == 0 )
-			{
-				sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
+	for (auto variationInc : range(variations) ){
+		if ( variationInc == 0 ){
+			sTimer.tick ( "Variation-" + str ( variationInc ) + "-Start" );
+		}
+		auto& cmdList = dacCommandList(variationInc);
+		for (auto eventInc : range( dacCommandFormList.size ( ) ) )	{
+			AoCommand tempEvent;
+			auto& formList = dacCommandFormList[eventInc];
+			tempEvent.line = formList.line;
+			// Deal with time.
+			if ( formList.time.first.size( ) == 0 )	{
+				// no variable portion of the time.
+				tempEvent.time = formList.time.second;
 			}
-			auto& seqVariables = variables[ seqInc ];
-			auto& cmdList = dacCommandList(seqInc, variationInc);
-			for (auto eventInc : range( dacCommandFormList[ seqInc ].size ( ) ) )
-			{
-				AoCommand tempEvent;
-				auto& formList = dacCommandFormList[seqInc][eventInc];
-				tempEvent.line = formList.line;
-				// Deal with time.
-				if ( formList.time.first.size( ) == 0 )
-				{
-					// no variable portion of the time.
-					tempEvent.time = formList.time.second;
+			else{
+				double varTime = 0;
+				for ( auto variableTimeString : formList.time.first ){
+					varTime += variableTimeString.evaluate( params, variationInc );
 				}
-				else
-				{
-					double varTime = 0;
-					for ( auto variableTimeString : formList.time.first )
-					{
-						varTime += variableTimeString.evaluate( seqVariables, variationInc );
-					}
-					tempEvent.time = varTime + formList.time.second;
+				tempEvent.time = varTime + formList.time.second;
+			}
+			if ( variationInc == 0 ){
+				sTimer.tick ( "Time-Handled" );
+			}
+			/// deal with command
+			if ( formList.commandName == "dac:" ){
+				/// single point.
+				tempEvent.value = formList.finalVal.evaluate( params, variationInc );
+				if ( variationInc == 0 ){
+					sTimer.tick ( "val-evaluated" );
 				}
-				if ( variationInc == 0 )
-				{
-					sTimer.tick ( "Time-Handled" );
+				cmdList.push_back( tempEvent );
+				if ( variationInc == 0 ){
+					sTimer.tick ( "Dac:-Handled" );
 				}
-				/// deal with command
-				if ( formList.commandName == "dac:" )
-				{
-					/// single point.
-					tempEvent.value = formList.finalVal.evaluate( seqVariables, variationInc );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "val-evaluated" );
-					}
-					cmdList.push_back( tempEvent );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "Dac:-Handled" );
-					}
+			}
+			else if ( formList.commandName == "dacarange:" ){
+				// interpret ramp time command. I need to know whether it's ramping or not.
+				double rampTime = formList.rampTime.evaluate( params, variationInc );
+				/// many points to be made.
+				// convert initValue and finalValue to doubles to be used 
+				double initValue, finalValue, rampInc;
+				initValue = formList.initVal.evaluate( params, variationInc );
+				// deal with final value;
+				finalValue = formList.finalVal.evaluate( params, variationInc );
+				// deal with ramp inc
+				rampInc = formList.rampInc.evaluate( params, variationInc );
+				if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )	{
+					resolutionWarningPosted = true;
+					emit threadworker->warn (cstr("Warning: ramp increment of " + str (rampInc) + " in dac command number "
+						+ str (eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
+						+ str (10.0 / pow (2, 16)) + "). These ramp points are unnecessary.\r\n"));
 				}
-				else if ( formList.commandName == "dacarange:" )
-				{
-					// interpret ramp time command. I need to know whether it's ramping or not.
-					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
-					/// many points to be made.
-					// convert initValue and finalValue to doubles to be used 
-					double initValue, finalValue, rampInc;
-					initValue = formList.initVal.evaluate( seqVariables, variationInc );
-					// deal with final value;
-					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );
-					// deal with ramp inc
-					rampInc = formList.rampInc.evaluate( seqVariables, variationInc );
-					if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
-					{
-						resolutionWarningPosted = true;
-						warnings += "Warning: ramp increment of " + str( rampInc ) + " in dac command number " 
-							+ str(eventInc) + " is below the resolution of the aoSys (which is 10/2^16 = " 
-							+ str( 10.0 / pow( 2, 16 ) ) + "). These ramp points are unnecessary.\r\n";
-					}
-					// This might be the first not i++ usage of a for loop I've ever done... XD
-					// calculate the time increment:
-					int steps = int( fabs( finalValue - initValue ) / rampInc + 0.5 );
-					double stepsFloat = fabs( finalValue - initValue ) / rampInc;
-					double diff = fabs( steps - fabs( finalValue - initValue ) / rampInc );
-					if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
-					{
-						nonIntegerWarningPosted = true;
-						warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
-							"of steps. The code will attempt to compensate by making a last step to the final value which"
-							" is not the same increment in voltage or time as the other steps to take the dac to the final"
-							" value at the right time.\r\n";
-					}
-					double timeInc = rampTime / steps;
-					double initTime = tempEvent.time;
-					double currentTime = tempEvent.time;
-					// handle the two directions seperately.
-					if ( initValue < finalValue )
-					{
-						for ( double dacValue = initValue; (dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc )
-						{
-							tempEvent.value = dacValue;
-							tempEvent.time = currentTime;
-							cmdList.push_back( tempEvent );
-							currentTime += timeInc;
-						}
-					}
-					else
-					{
-						for ( double dacValue = initValue; dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc )
-						{
-							tempEvent.value = dacValue;
-							tempEvent.time = currentTime;
-							cmdList.push_back( tempEvent );
-							currentTime += timeInc;
-						}
-					}
-					// and get the final value.
-					tempEvent.value = finalValue;
-					tempEvent.time = initTime + rampTime;
-					cmdList.push_back( tempEvent );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "dacarange:-Handled" );
-					}
+				// This might be the first not i++ usage of a for loop I've ever done... XD
+				// calculate the time increment:
+				int steps = int( fabs( finalValue - initValue ) / rampInc + 0.5 );
+				double stepsFloat = fabs( finalValue - initValue ) / rampInc;
+				double diff = fabs( steps - fabs( finalValue - initValue ) / rampInc );
+				if ( diff > 100 * DBL_EPSILON && nonIntegerWarningPosted ){
+					nonIntegerWarningPosted = true;
+					emit threadworker->warn (cstr ("Warning: Ideally your spacings for a dacArange would result in a non-integer number "
+						"of steps. The code will attempt to compensate by making a last step to the final value which"
+						" is not the same increment in voltage or time as the other steps to take the dac to the final"
+						" value at the right time.\r\n"));
 				}
-				else if ( formList.commandName == "daclinspace:" )
-				{
-					// interpret ramp time command. I need to know whether it's ramping or not.
-					double rampTime = formList.rampTime.evaluate( seqVariables, variationInc );
-					/// many points to be made.
-					double initValue, finalValue;
-					UINT numSteps;
-					initValue = formList.initVal.evaluate( seqVariables, variationInc );
-					finalValue = formList.finalVal.evaluate( seqVariables, variationInc );
-					numSteps = formList.numSteps.evaluate( seqVariables, variationInc );
-					double rampInc = (finalValue - initValue) / numSteps;
-					if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
-					{
-						resolutionWarningPosted = true;
-						warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
-							+ str( rampInc ) + " is below the resolution of the aoSys (which is 10/2^16 = "
-							+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
-							"calculate the ramp unnecessarily.\r\n";
-					}
-					// This might be the first not i++ usage of a for loop I've ever done... XD
-					// calculate the time increment:
-					double timeInc = rampTime / numSteps;
-					double initTime = tempEvent.time;
-					double currentTime = tempEvent.time;
-					double val = initValue;
-					// handle the two directions seperately.
-					for ( auto stepNum : range( numSteps ) )
-					{
-						tempEvent.value = val;
+				double timeInc = rampTime / steps;
+				double initTime = tempEvent.time;
+				double currentTime = tempEvent.time;
+				// handle the two directions seperately.
+				if ( initValue < finalValue ){
+					for ( double dacValue = initValue; 
+						(dacValue - finalValue) < -steps * 2 * DBL_EPSILON; dacValue += rampInc ){
+						tempEvent.value = dacValue;
 						tempEvent.time = currentTime;
 						cmdList.push_back( tempEvent );
 						currentTime += timeInc;
-						val += rampInc;
-					}
-					// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
-					tempEvent.value = finalValue;
-					tempEvent.time = initTime + rampTime;
-					cmdList.push_back( tempEvent );
-					if ( variationInc == 0 )
-					{
-						sTimer.tick ( "daclinspace:-Handled" );
 					}
 				}
 				else
 				{
-					thrower ( "Unrecognized dac command name: " + formList.commandName );
+					for ( double dacValue = initValue; 
+						dacValue - finalValue > 100 * DBL_EPSILON; dacValue -= rampInc ){
+						tempEvent.value = dacValue;
+						tempEvent.time = currentTime;
+						cmdList.push_back( tempEvent );
+						currentTime += timeInc;
+					}
 				}
+				// and get the final value.
+				tempEvent.value = finalValue;
+				tempEvent.time = initTime + rampTime;
+				cmdList.push_back( tempEvent );
+				if ( variationInc == 0 ){
+					sTimer.tick ( "dacarange:-Handled" );
+				}
+			}
+			else if ( formList.commandName == "daclinspace:" ){
+				// interpret ramp time command. I need to know whether it's ramping or not.
+				double rampTime = formList.rampTime.evaluate( params, variationInc );
+				/// many points to be made.
+				double initValue, finalValue;
+				UINT numSteps;
+				initValue = formList.initVal.evaluate( params, variationInc );
+				finalValue = formList.finalVal.evaluate(params, variationInc );
+				numSteps = formList.numSteps.evaluate(params, variationInc );
+				double rampInc = (finalValue - initValue) / numSteps;
+				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted ){
+					resolutionWarningPosted = true;
+					emit threadworker->warn (cstr ("Warning: numPoints of " + str (numSteps) + " results in a ramp increment of "
+						+ str (rampInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
+						+ str (10.0 / pow (2, 16)) + "). It's likely taxing the system to "
+						"calculate the ramp unnecessarily.\r\n"));
+				}
+				// This might be the first not i++ usage of a for loop I've ever done... XD
+				// calculate the time increment:
+				double timeInc = rampTime / numSteps;
+				double initTime = tempEvent.time;
+				double currentTime = tempEvent.time;
+				double val = initValue;
+				// handle the two directions seperately.
+				for ( auto stepNum : range( numSteps ) ){
+					tempEvent.value = val;
+					tempEvent.time = currentTime;
+					cmdList.push_back( tempEvent );
+					currentTime += timeInc;
+					val += rampInc;
+				}
+				// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
+				tempEvent.value = finalValue;
+				tempEvent.time = initTime + rampTime;
+				cmdList.push_back( tempEvent );
+				if ( variationInc == 0 ){
+					sTimer.tick ( "daclinspace:-Handled" );
+				}
+			}
+			else{
+				thrower ( "Unrecognized dac command name: " + formList.commandName );
 			}
 		}
 	}
 }
 
 
-UINT AoSystem::getNumberSnapshots(UINT variation, UINT seqNum)
-{
-	return dacSnapshots(seqNum,variation).size();
+UINT AoSystem::getNumberSnapshots(UINT variation){
+	return dacSnapshots(variation).size();
 }
 
 
-void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
-{
+void AoSystem::checkTimingsWork(UINT variation){
 	std::vector<double> times;
 	// grab all the times.
-	for (auto snapshot : dacSnapshots(seqInc,variation))
-	{
+	for (auto snapshot : dacSnapshots(variation)){
 		times.push_back(snapshot.time);
 	}
 
 	int count = 0;
-	for (auto time : times)
-	{
+	for (auto time : times){
 		int countInner = 0;
-		for (auto secondTime : times)
-		{
+		for (auto secondTime : times){
 			// don't check against itself.
-			if (count == countInner)
-			{
+			if (count == countInner){
 				countInner++;
 				continue;
 			}
 			// can't trigger faster than the trigger time.
-			if (fabs(time - secondTime) < dacTriggerTime)
-			{
+			if (fabs(time - secondTime) < dacTriggerTime){
 				thrower ("timings are such that the dac system would have to get triggered too fast to follow the"
 						" programming! ");
 			}
@@ -717,18 +669,16 @@ void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 	}
 }
 
-ULONG AoSystem::getNumberEvents(UINT variation, UINT seqInc)
-{
-	return dacSnapshots(seqInc,variation).size();
+ULONG AoSystem::getNumberEvents(UINT variation){
+	return dacSnapshots(variation).size();
 }
 
 
 // note that this is not directly tied to changing any "current" parameters in the AoSystem object (it of course changes a list parameter). The 
 // AoSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
 // with changing "currnet" parameters in the AoSystem object.
-void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
-{
-	dacCommandFormList[seqNum].push_back( command );
+void AoSystem::setDacCommandForm( AoCommandForm command){
+	dacCommandFormList.push_back( command );
 	// you need to set up a corresponding trigger to tell the aoSys to change the output at the correct time. 
 	// This is done later on interpretation of ramps etc.
 }
@@ -736,31 +686,25 @@ void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation, UINT seqInc)
-{
-	for ( auto snapshot : dacSnapshots(seqInc,variation))
-	{
-		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation, seqInc );
-		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation, 
-						  seqInc );
+void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation){
+	for ( auto snapshot : dacSnapshots(variation)){
+		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation );
+		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation );
 	}
 }
 
 
-std::string AoSystem::getSystemInfo( )
-{
+std::string AoSystem::getSystemInfo( ){
 	return daqmx.getDacSystemInfo ({ board0Name, board1Name, board2Name } );
 }
 
 
 // this is a function called in preparation for forcing a dac change. Remember, you need to call ___ to actually change things.
-void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls)
-{
+void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls){
 	// change parameters in the AoSystem object so that the object knows what the current settings are.
 	//std::string volt = str(roundToDacResolution(voltage));
 	std::string valStr = roundToDacPrecision? str ( AnalogOutput::roundToDacResolution ( voltage ), 13 ) : str ( voltage, 13 );
-	if (valStr.find(".") != std::string::npos)
-	{
+	if (valStr.find(".") != std::string::npos)	{
 		// then it's a double. kill extra zeros on the end.
 		valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
 	}
@@ -768,18 +712,14 @@ void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls)
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the aoSys
 	// for a foce out. I'm guessing it's possible to tell the DAC to just immediately change without waiting for a 
 	// trigger.
-	setForceDacEvent ( line, voltage, ttls, 0, 0 );
+	setForceDacEvent ( line, voltage, ttls, 0 );
 }
 
 
-void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
-{
-	for (auto line : range(outputs.size()))
-	{
-		for (auto snapshot : dacSnapshots(seqNum,variation))
-		{
-			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )
-			{
+void AoSystem::checkValuesAgainstLimits(UINT variation){
+	for (auto line : range(outputs.size())){
+		for (auto snapshot : dacSnapshots(variation)){
+			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )	{
 				thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 						"value was " + str(snapshot.dacValues[line]) + ", while the minimum accepted value is " +
 						str( outputs[ line ].info.minVal) + " and the maximum value is " + str( outputs[ line ].info.maxVal ) + ". "
@@ -790,10 +730,8 @@ void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 }
 
 
-void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation, UINT seqNum )
-{
-	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal )
-	{
+void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation ){
+	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal ){
 		thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 				"value was " + str(val) + ", while the minimum accepted value is " +
 				str( outputs[ line ].info.minVal ) + " and the maximum value is " + str( outputs[ line ].info.maxVal ) + ". "
@@ -803,93 +741,83 @@ void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variat
 	eventInfo.line = line;
 	eventInfo.time = 1;	
 	eventInfo.value = val;
-	dacCommandList(seqNum,variation).push_back( eventInfo );
+	dacCommandList(variation).push_back( eventInfo );
 	// important! need at least 2 states to run the dac board. can't just give it one value. This is how this was done in the VB code,
 	// there might be better ways of dealing with this. 
 	eventInfo.time = 10;
-	dacCommandList(seqNum,variation).push_back( eventInfo );
+	dacCommandList(variation).push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the aoSys to change the output at the correct time.
-	ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0);
-	ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0 );
+	ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0 );
+	ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0 );
 }
 
 
-ExpWrap<std::vector<AoSnapshot>> AoSystem::getSnapshots ( )
-{
+ExpWrap<std::vector<AoSnapshot>> AoSystem::getSnapshots ( ){
 	/* used by the unit testing suite. */
 	return dacSnapshots;
 }
 
-ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( )
-{
+ExpWrap<std::array<std::vector<double>, 3>> AoSystem::getFinData ( ){
 	/* used by the unit testing suite. */
 	return finalFormatDacData;
 }
 
 
-void AoSystem::prepareForce( )
-{
-	initializeDataObjects( 1, 1 );
+void AoSystem::prepareForce( ){
+	initializeDataObjects( 1 );
 }
 
 
-void AoSystem::initializeDataObjects( UINT sequenceNum, UINT cmdNum )
-{
-	dacCommandFormList = vec<vec<AoCommandForm>>( sequenceNum, vec<AoCommandForm>( cmdNum ) );
-	dacCommandList.uniformSizeReset ( sequenceNum, cmdNum );
-	dacSnapshots.uniformSizeReset ( sequenceNum, cmdNum );
-	loadSkipDacSnapshots.uniformSizeReset ( sequenceNum, cmdNum );
-	finalFormatDacData.uniformSizeReset ( sequenceNum, cmdNum );
-	loadSkipDacFinalFormat.uniformSizeReset ( sequenceNum, cmdNum );
+void AoSystem::initializeDataObjects( UINT cmdNum ){
+	dacCommandFormList = vec<AoCommandForm>( cmdNum );
+	dacCommandList.uniformSizeReset (  cmdNum );
+	dacSnapshots.uniformSizeReset ( cmdNum );
+	loadSkipDacSnapshots.uniformSizeReset ( cmdNum );
+	finalFormatDacData.uniformSizeReset ( cmdNum );
+	loadSkipDacFinalFormat.uniformSizeReset ( cmdNum );
 }
 
 
-void AoSystem::resetDacEvents()
-{
-	initializeDataObjects( 0, 0 );
+void AoSystem::resetDacEvents(){
+	initializeDataObjects( 0 );
 }
 
 
-void AoSystem::stopDacs()
-{
+void AoSystem::stopDacs(){
 	daqmx.stopTask( analogOutTask0 );
 	daqmx.stopTask( analogOutTask1 );
 	daqmx.stopTask( analogOutTask2 );
 }
 
 
-void AoSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
-{
+void AoSystem::configureClocks(UINT variation, bool loadSkip){
 	long sampleNumber;
-	if ( loadSkip )
-	{
-		sampleNumber = loadSkipDacSnapshots(seqNum,variation).size( );
+	if ( loadSkip ){
+		sampleNumber = loadSkipDacSnapshots(variation).size( );
 	}
-	else
-	{
-		sampleNumber = dacSnapshots(seqNum,variation).size( );
+	else{
+		sampleNumber = dacSnapshots(variation).size( );
 	}
-	daqmx.configSampleClkTiming( analogOutTask0, cstr("/" + board0Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqmx.configSampleClkTiming( analogOutTask1, cstr("/" + board1Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqmx.configSampleClkTiming( analogOutTask2, cstr("/" + board2Name + "/PFI0"), 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask0, cstr("/" + board0Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
+								 DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask1, cstr("/" + board1Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
+								 DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask2, cstr("/" + board2Name + "/PFI0"), 1000000, DAQmx_Val_Rising, 
+								 DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
-void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
-{
-	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(seqNum,variation) 
-												   : dacSnapshots(seqNum,variation);
-	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(seqNum,variation)
-															 : finalFormatDacData(seqNum,variation);
-	if (snapshots.size() <= 1)
-	{
+void AoSystem::writeDacs(UINT variation, bool loadSkip){
+	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(variation) : dacSnapshots(variation);
+	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(variation)
+															 : finalFormatDacData(variation);
+	if (snapshots.size() <= 1){
 		// need at least 2 events to run aoSys.
 		return;
 	}
 	if (finalData[0].size() != 8 * snapshots.size() 
 		 || finalData[1].size() != 8 * snapshots.size()
-		 || finalData[2].size() != 8 * snapshots.size())
-	{
+		 || finalData[2].size() != 8 * snapshots.size()){
 		thrower ( "Data array size doesn't match the number of time slices in the experiment!" );
 	}
 	// Should probably run a check on samples written.
@@ -904,76 +832,60 @@ void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
 }
 
 
-void AoSystem::startDacs()
-{
+void AoSystem::startDacs(){
 	daqmx.startTask( analogOutTask0 );
 	daqmx.startTask( analogOutTask1 );
 	daqmx.startTask( analogOutTask2 );
 }
 
 
-void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
-{
-	auto& finalNormal = finalFormatDacData(seqNum,variation);
-	auto& finalLoadSkip = loadSkipDacFinalFormat(seqNum,variation);
-	auto& normSnapshots = dacSnapshots(seqNum,variation);
-	auto& loadSkipSnapshots = loadSkipDacSnapshots(seqNum,variation);
+void AoSystem::makeFinalDataFormat(UINT variation){
+	auto& finalNormal = finalFormatDacData(variation);
+	auto& finalLoadSkip = loadSkipDacFinalFormat(variation);
+	auto& normSnapshots = dacSnapshots(variation);
+	auto& loadSkipSnapshots = loadSkipDacSnapshots(variation);
 
-	for ( auto& data : finalNormal )
-	{
+	for ( auto& data : finalNormal ){
 		data.clear( );
 	}
-	for ( auto& data : finalLoadSkip )
-	{
+	for ( auto& data : finalLoadSkip ){
 		data.clear( );
 	}
-	for (AoSnapshot snapshot : normSnapshots)
-	{
-		for ( auto dacInc : range( 24 ) )
-		{
+	for (AoSnapshot snapshot : normSnapshots){
+		for ( auto dacInc : range( 24 ) ){
 			finalNormal[dacInc / 8].push_back( snapshot.dacValues[dacInc] );
 		}
 	}
-	for ( AoSnapshot snapshot : loadSkipSnapshots )
-	{
-		for ( auto dacInc : range( 24 ) )
-		{
+	for ( AoSnapshot snapshot : loadSkipSnapshots ){
+		for ( auto dacInc : range( 24 ) ){
 			finalLoadSkip[dacInc/8].push_back( snapshot.dacValues[dacInc] );
 		}
 	}
 }
 
 
-void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-										std::vector<parameterType>& vars, DoCore& ttls, UINT seqNum )
-{
-	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
-	{
+void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
+									   DoCore& ttls ){
+	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" ){
 		thrower ( "dac commandName not recognized!" );
 	}
-	if (!isValidDACName( name))
-	{
+	if ( !isValidDACName( name ) ){
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
 	// convert name to corresponding dac line.
-	command.line = getDacIdentifier(name);
-	if ( command.line == -1)
-	{
+	command.line = getDacIdentifier( name );
+	if ( command.line == -1){
 		thrower ("the name " + name + " is not the name of a dac!");
 	}
-	dacShadeLocations.push_back( command.line );
-	setDacCommandForm( command, seqNum );
+	setDacCommandForm( command );
 }
 
 
-int AoSystem::getDacIdentifier(std::string name)
-{
-	for (auto dacInc : range(outputs.size()))
-	{
+int AoSystem::getDacIdentifier(std::string name){
+	for (auto dacInc : range(outputs.size())){
 		auto& dacName = str(outputs[ dacInc ].info.name,13,false,true);
 		// check names set by user and check standard names which are always acceptable
-		if (name == dacName || name == "dac" + str ( dacInc ) )
-		{
+		if (name == dacName || name == "dac" + str ( dacInc ) ){
 			return dacInc;
 		}
 	}
@@ -982,12 +894,9 @@ int AoSystem::getDacIdentifier(std::string name)
 }
 
 /* only handles basic names like dac5.*/
-int AoSystem::getBasicDacIdentifier (std::string name)
-{
-	for (auto dacInc : range (24))
-	{
-		if (name == "dac" + str (dacInc))
-		{
+int AoSystem::getBasicDacIdentifier (std::string name){
+	for (auto dacInc : range (24)){
+		if (name == "dac" + str (dacInc)){
 			return dacInc;
 		}
 	}
@@ -995,14 +904,11 @@ int AoSystem::getBasicDacIdentifier (std::string name)
 	return -1;
 }
 
-void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
-{
-	if (!(minv <= maxv))
-	{
+void AoSystem::setMinMax(int dacNumber, double minv, double maxv){
+	if (!(minv <= maxv)){
 		thrower ("Min dac value must be less than max dac value.");
 	}
-	if (minv < -10 || minv > 10 || maxv < -10 || maxv > 10)
-	{
+	if (minv < -10 || minv > 10 || maxv < -10 || maxv > 10)	{
 		thrower ("Min and max dac values must be withing [-10,10].");
 	}
 	outputs[dacNumber].info.minVal = minv;
@@ -1010,81 +916,39 @@ void AoSystem::setMinMax(int dacNumber, double minv, double maxv)
 }
 
 
-std::pair<double, double> AoSystem::getDacRange(int dacNumber)
-{
+std::pair<double, double> AoSystem::getDacRange(int dacNumber){
 	return { outputs[ dacNumber ].info.minVal, outputs[ dacNumber ].info.maxVal };
 }
 
 
-void AoSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
-{
-	outputs[ dacNumber ].setName ( name, toolTips, master );
+void AoSystem::setName(int dacNumber, std::string name){
+	outputs[ dacNumber ].setName ( name );
 }
 
 
-std::string AoSystem::getNote ( int dacNumber )
-{
+std::string AoSystem::getNote ( int dacNumber ){
 	return outputs[dacNumber].info.note;
 }
 
 
-void AoSystem::setNote( int dacNum, std::string note, cToolTips& toolTips, AuxiliaryWindow* master )
-{
-	outputs[ dacNum ].setNote ( note, toolTips, master );
+void AoSystem::setNote( int dacNum, std::string note ){
+	outputs[ dacNum ].setNote ( note );
 }
 
 
-std::string AoSystem::getName(int dacNumber)
-{
+std::string AoSystem::getName(int dacNumber){
 	return outputs[dacNumber].info.name;
 }
 
 
-HBRUSH AoSystem::handleColorMessage( CWnd* window, CDC* cDC)
-{
-	int controlID = GetDlgCtrlID(*window);
-	for ( auto& out : outputs )
-	{
-		auto res = out.handleColorMessage ( controlID, window, cDC );
-		if ( res != NULL )
-		{
-			return res;
-		}
-	}
-	return NULL;
-}
-
-
-UINT AoSystem::getNumberOfDacs()
-{
+UINT AoSystem::getNumberOfDacs(){
 	return outputs.size ( );
 }
 
 
-double AoSystem::getDacValue(int dacNumber)
-{
+double AoSystem::getDacValue(int dacNumber){
 	return outputs[dacNumber].info.currVal;
 }
 
 
-void AoSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
-{
-	for ( auto shadeLoc : dacShadeLocations )
-	{
-		outputs[ shadeLoc ].shade ( );
-	}
-	for (auto& output : outputs)
-	{
-		output.disable ( );
-	}
-}
-
-
-void AoSystem::unshadeDacs()
-{
-	for (auto& output : outputs)
-	{
-		output.unshade ( );
-	}
-}
 

@@ -3,23 +3,10 @@
 #include "Scripts/ScriptStream.h"
 #include <algorithm>
 
-/*
-Notes on function args problem
-
-See tests for examples
-Possible solutions:
-- Decoration method
-	- need to parse expressions in analyzing function args to replace parts of expressions
-		- shouldn't need to change >> operator functionality
-	- replace variable names with decorated names which indicate scope
-	- effectively deals with name conflict issue
-- change scoping of expression
-	- add exceptions to expression, keeping existing structure.
-		- doesn't deal with name conflict issue
-	- expression core structure is vector of strings instead of single string
-		- add vector of scopes
-*/
-
+ScriptStream& ScriptStream::operator>>(Expression& expr)
+{
+	return operator>>(expr.expressionStr);
+}
 
 ScriptStream & ScriptStream::operator>>( std::string& outputString )
 {
@@ -29,10 +16,10 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	// directly. I was having trouble calling the parent class version, not
 	// really sure why.
 	std::string text = str();
-	std::stringstream temp( text );
-	// make sure they are at the same place...
+	std::stringstream tempStream( text );
+	// make sure they are at the same place... // this is weird, don't know why I would need to do this. 
 	long long pos = tellg();
-	temp.seekg( pos );
+	tempStream.seekg( pos );
 	// get the word.
 	std::string tempStr;
 	
@@ -41,14 +28,16 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	int unclosedParentheses = 0;
 	do
 	{
-		temp >> tempStr;
+		tempStream >> tempStr;
+		auto peek_ = tempStream.peek ();
+		auto eof_ = tempStream.eof ();
 		if ( tempStr == "" )
 		{
 			break;
 		}
 		std::vector<std::string> tempTerms = Expression::splitString( tempStr );
 		for ( auto& term : tempTerms )
-		{
+		{ 
 			if ( term == "(" )
 			{
 				unclosedParentheses++;
@@ -62,8 +51,10 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 				}
 				unclosedParentheses--;
 			}
-			// convert to lower-case
-			std::transform( term.begin( ), term.end( ), term.begin( ), ::tolower );
+			if (alwaysLowerCase)
+			{
+				std::transform (term.begin (), term.end (), term.begin (), ::tolower);
+			}
 			// replace any keywords
 			for ( auto repl : replacements )
 			{
@@ -75,16 +66,12 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 			}
 			outputString += term;
 		}
-	} while ( unclosedParentheses > 0 );
-
-	seekg( temp.tellg() );
+	} while ( unclosedParentheses > 0 && !tempStream.eof() );
+	auto posFin = tempStream.tellg ();
+	seekg(posFin);
+	auto peekpos = peek ();
+	lastOutput = outputString;
 	return *this;
-}
-
-
-ScriptStream & ScriptStream::operator>>( Expression& expression )
-{
-	return operator>>( expression.expressionStr );
 }
 
 
@@ -114,8 +101,10 @@ std::string ScriptStream::getline(char delim)
 	eatComments();
 	std::string line;
 	std::getline( *this, line, delim );
-	// convert to lower-case
-	std::transform( line.begin(), line.end(), line.begin(), ::tolower );
+	if (alwaysLowerCase)
+	{
+		std::transform (line.begin (), line.end (), line.begin (), ::tolower);
+	}
 	// look for arg words. This is mostly important for replacements inside function definitions.
 	for (auto arg : replacements)
 	{
@@ -142,6 +131,7 @@ std::string ScriptStream::getline(char delim)
 			pos = line.find( arg.first );
 		}
 	}
+	lastOutput = line;
 	return line;
 }
 
@@ -203,13 +193,29 @@ void ScriptStream::eatComments()
 	std::string comment;
 	char currentChar = get();
 	// including the !file.eof() to avoid grabbing the null character at the end. 
-	while ((currentChar == ' ' && !eof()) || (currentChar == '\n' && !eof()) || (currentChar == '\r' && !eof())
-			|| (currentChar == '\t' && !eof()) || currentChar == '%' || (currentChar == ';' && !eof()))
+	while ((currentChar == ' ' || currentChar == '\n' || currentChar == '\r' || 
+			currentChar == '\t' || currentChar == '%' || currentChar == ';' || currentChar == '/') && !eof ())
 	{
 		// remove entire comments from the input
 		if (currentChar == '%')
 		{
-			std::getline( *this, comment , '\n' );
+			std::getline( *this, comment, '\n' );
+		}
+		if (currentChar == '/' && get() == '*')
+		{
+			// handle open-ended comments.
+	 		while (!eof())
+			{
+				if (currentChar == '*')
+				{
+					currentChar = get ();
+					comment += currentChar;
+					if (currentChar == '/') { break; }
+					else { continue; }
+				}
+				currentChar = get ();
+				comment += currentChar;
+			}
 		}
 		// get the next char
 		currentChar = get();
@@ -238,4 +244,10 @@ void ScriptStream::eatComments()
 	{
 		seekg( -1, SEEK_CUR );
 	}
+	lastComment = comment;
+}
+
+void ScriptStream::setCase (bool alwaysLowerCase_)
+{
+	alwaysLowerCase = alwaysLowerCase_;
 }

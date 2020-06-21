@@ -1,15 +1,18 @@
 #pragma once
 #include "DmFlume.h"
 #include "ParameterSystem/Expression.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "DmOutputForm.h"
 #include "DmProfileCreator.h"
 
 class DmProfileCreator;
 
-class DmCore {
+class DmCore : public IDeviceCore
+{
 	public:
-	    DmCore::DmCore(std::string Number, bool safemodeOption);
+	    DmCore(std::string Number, bool safemodeOption);
 		std::string getDeviceInfo();
 		void setSerial(std::string Number);
 		void initialize();
@@ -20,18 +23,23 @@ class DmCore {
 		void testMirror();
 		void loadArray(double *A);
 		int getActCount();
+		std::string getDelim () { return configDelim; }
 		std::vector<double> getActuatorValues();
-		void handleNewConfig(std::ofstream& newFile);
-		void handleSaveConfig(std::ofstream& newFile, DMOutputForm out);
-		static DMOutputForm handleGetConfig(std::ifstream& configFile, Version ver);
+		void handleSaveConfig( ConfigStream& newFile, DMOutputForm out );
+		DMOutputForm getSettingsFromConfig(ConfigStream& configFile);
 		static void interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore& DM);
 		void ProgramNow(UINT variation);
-		const std::string delimeter = "DM";
 		DMOutputForm getInfo();
 		void setCurrentInfo(DMOutputForm form);
 		void initialCheck(UINT variation, std::string& warnings);
-
-
+		void logSettings (DMOutputForm settings, DataLogger& log);
+		std::string configDelim = "DM";
+		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
+		void logSettings (DataLogger& logger) {};
+		void loadExpSettings (ConfigStream& stream) {};
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
 		DmProfileCreator profile;
 		DmFlume DM;
