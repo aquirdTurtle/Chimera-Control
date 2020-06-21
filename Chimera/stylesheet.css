@@ -1,0 +1,90 @@
+QWidget {
+    background: rgba( 0, 0, 0, 0 );
+    color: red;
+}
+
+QLabel {
+    background: rgb( 25, 25, 25 );
+    color: rgba(200, 200, 200, 255);
+    qproperty-alignment: AlignCenter;
+    font: bold 11pt;
+}
+
+QTextEdit[readOnly="true"], QTextEdit:disabled {
+    background: rgb( 25, 25, 25 );
+    color: rgba( 191, 97, 106, 255 );
+}
+QTextEdit {
+    background: rgb( 40, 40, 40 );
+    font: normal 11pt;
+}
+
+QLineEdit {
+    background: rgb( 40, 40, 40 );
+    font: normal 11pt;
+    color: rgba( 191, 97, 106, 255 );
+}
+
+QLineEdit:disabled, QCheckBox:disabled, QComboBox:disabled, QRadioButton:disabled {
+    background: rgb( 25, 25, 25 );
+    color: rgba(200, 200, 200, 255);
+}
+
+
+QChartView, QComboBox, QRadioButton, QCheckBox, QPushButton {
+    background: rgb( 40, 40, 40 );
+    color: rgba( 191, 97, 106, 255 );
+    font: bold 11pt;
+}
+
+QTableView::item:selected:!active, QTableView {
+    background: rgb( 40, 40, 40 );
+    color: rgba( 191, 97, 106, 255 );
+    font: normal 8pt "Courier New";
+}
+
+QTableView::item:selected {
+    background: rgb( 60, 40, 40 );
+    color: rgba( 201, 97, 106, 255 );
+    font: bold 8pt "Courier New";
+}
+
+QTableView::item:!enabled {
+    background: rgba(20,20,20);
+}
+
+QTableCornerButton::section, QHeaderView::section {
+    background: rgb( 25, 25, 25 );
+    color: rgba(200, 200, 200, 255);
+    qproperty-alignment: AlignCenter;
+    font: bold 11pt "Courier New";
+}
+
+QMenuBar {
+    background-color: rgb( 40, 40, 40 );
+    color: rgb(255, 255, 255);
+    font: bold 11pt;
+}
+
+QMenu, QMenu::item {
+    background-color: rgb( 40, 40, 40 );
+    color: rgba( 191, 97, 106, 255 );
+    font: 10pt;
+}
+
+QMenu::item:selected { 
+    background-color: #000000;
+}
+
+
+QCheckBox::indicator {
+}
+
+QToolTip {
+    border: 1px solid white;
+    background-color: black;
+    border-radius: 4px;
+    color: white;
+}
+
+
