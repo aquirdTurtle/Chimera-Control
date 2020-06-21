@@ -52,21 +52,7 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 	dmWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	startupTimes.push_back (chronoClock::now ());
 	startupTimes.push_back (chronoClock::now ());
-	/// summarize system status.
-	try	{
-		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
-		std::string initializationString;
-		initializationString += getSystemStatusString ();
-		initializationString += auxWin->getOtherSystemStatusMsg ();
-		initializationString += andorWin->getSystemStatusString ();
-		initializationString += auxWin->getVisaDeviceStatus ();
-		initializationString += scriptWin->getSystemStatusString( );
-		initializationString += auxWin->getMicrowaveSystemStatus ();
-		infoBox (initializationString);
-	}
-	catch (Error& err){ 
-		errBox (err.trace ());
-	}
+
 
 	for (auto* window : winList ()) {
 		window->initializeWidgets ();
@@ -109,6 +95,22 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 	masterRepumpThread->start ();
 
 	updateConfigurationSavedStatus (true);
+
+	/// summarize system status.
+	try {
+		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
+		std::string initializationString;
+		initializationString += getSystemStatusString ();
+		initializationString += auxWin->getOtherSystemStatusMsg ();
+		initializationString += andorWin->getSystemStatusString ();
+		initializationString += auxWin->getVisaDeviceStatus ();
+		initializationString += scriptWin->getSystemStatusString ();
+		initializationString += auxWin->getMicrowaveSystemStatus ();
+		infoBox (initializationString);
+	}
+	catch (Error & err) {
+		errBox (err.trace ());
+	}
 }
 
 QtMainWindow::~QtMainWindow (){}

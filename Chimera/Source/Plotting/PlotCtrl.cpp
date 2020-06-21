@@ -107,24 +107,24 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		}
 	}
 	resetChart ();
-	if (!view->chart ()->axisX ()) {
+	if (!view->chart ()->axes (Qt::Horizontal)[0]) {
 		return;
 	}
 	if (xmax == xmin) {
-		view->chart ()->axisX ()->setRange (xmin - 1, xmin + 1);
+		view->chart ()->axes (Qt::Horizontal)[0]->setRange (xmin - 1, xmin + 1);
 	}
 	else {
-		view->chart ()->axisX ()->setRange (xmin - (xmax - xmin) / 20, xmax + (xmax - xmin) / 20);
+		view->chart ()->axes (Qt::Horizontal)[0]->setRange (xmin - (xmax - xmin) / 20, xmax + (xmax - xmin) / 20);
 	}
 	if (style == plotStyle::ErrorPlot) {
-		view->chart ()->axisY ()->setRange (0, 1);
+		view->chart ()->axes (Qt::Vertical)[0]->setRange (0, 1);
 	}
 	else {
 		if (ymax == ymin) {
-			view->chart ()->axisY ()->setRange (ymin - 1, ymin + 1);
+			view->chart ()->axes (Qt::Vertical)[0]->setRange (ymin - 1, ymin + 1);
 		}
 		else {
-			view->chart ()->axisY ()->setRange (ymin - (ymax - ymin) / 20, ymax + (ymax - ymin) / 20);
+			view->chart ()->axes (Qt::Vertical)[0]->setRange (ymin - (ymax - ymin) / 20, ymax + (ymax - ymin) / 20);
 		}
 	}
 }
@@ -150,11 +150,11 @@ void PlotCtrl::resetChart () {
 	view->chart ()->setBackgroundRoundness (0);
 	view->chart ()->setBackgroundBrush (QBrush (QColor (20, 20, 20)));
 	view->chart ()->setMargins (QMargins (0, 0, 0, 0));
-	if (view->chart ()->axisX ()) {
-		auto pen = view->chart ()->axisX ()->gridLinePen ();
+	if (view->chart ()->axes (Qt::Horizontal)[0]) {
+		auto pen = view->chart ()->axes (Qt::Horizontal)[0]->gridLinePen ();
 		pen.setColor (QColor (255, 255, 255, 50));
-		view->chart ()->axisX ()->setGridLinePen (pen);
-		view->chart ()->axisY ()->setGridLinePen (pen);
+		view->chart ()->axes (Qt::Horizontal)[0]->setGridLinePen (pen);
+		view->chart ()->axes (Qt::Vertical)[0]->setGridLinePen (pen);
 	}
 }
 

@@ -22,8 +22,7 @@ void IChimeraWindowWidget::reportStatus (std::string statusStr){
 }
 
 void IChimeraWindowWidget::loadFriends ( QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
-										 QtBaslerWindow* basWin_, QtDeformableMirrorWindow* dmWindow_, QtAndorWindow* andorWin_ )
-{
+										 QtBaslerWindow* basWin_, QtDeformableMirrorWindow* dmWindow_, QtAndorWindow* andorWin_ ){
 	mainWin = mainWin_;
 	scriptWin = scriptWin_;
 	auxWin = auxWin_;

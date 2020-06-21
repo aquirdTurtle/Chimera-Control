@@ -441,8 +441,7 @@ namespace commonFunctions
 					if (calNum == -1) {
 						return;
 					}
-					if (calNum == 0)
-					{
+					if (calNum == 0){
 						mainWin->autoServo (0, 0);
 					}
 					auto& calInfo = AUTO_CAL_LIST[calNum]; 

@@ -188,14 +188,11 @@ void DmProfileCreator::myDmLookup(double &x_coordinate, double &y_coordinate, in
 		rowNum++;
 	}
 	thrower("ERROR: Somehow made it to the end of the loop depsite passing the initial value range check...");
-
 }
 
-void DmProfileCreator::readZernikeFile(std::string file) 
-{
-	std::ifstream read_file(file);
-	if (!(read_file.is_open()))
-	{
+void DmProfileCreator::readZernikeFile(std::string file) {
+	std::ifstream read_file(file.c_str());
+	if (!(read_file.is_open())){
 		thrower("could not read the baseline file when creating profile.");
 	}
 	double voltage;

@@ -24,6 +24,10 @@ pics (false, "ANDOR_PICTURE_MANAGER", false){
 QtAndorWindow::~QtAndorWindow (){
 }
 
+int QtAndorWindow::getDataCalNum () {
+	return dataHandler.getCalibrationFileIndex ();
+}
+
 void QtAndorWindow::initializeWidgets (){
 	andor.initializeClass (this, &imageTimes);
 	POINT position = { 0,25 };
