@@ -69,7 +69,7 @@ class QtAndorWindow : public IChimeraWindowWidget
 		bool getCameraStatus ();
 		void setTimerText (std::string timerText);
 		void armCameraWindow (AndorRunSettings* settings);
-
+		int getDataCalNum ();
 		std::string getStartMessage ();
 		void handlePictureSettings ();
 		bool cameraIsRunning ();

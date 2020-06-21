@@ -20,17 +20,19 @@
 // camera system for a picture). It can be used to build and debug other aspects of the program, such as the gui, 
 // coding logic, etc.
  
-//#define MASTER_COMPUTER
+#define MASTER_COMPUTER
 //#define SPECTRE_LAPTOP 
 //#define ANALYSIS_COMPUTER 
-#define HOME_DESKTOP
+//#define HOME_DESKTOP
 //#define TEST_PC
 
 #ifdef MASTER_COMPUTER
 using MICROWAVE_FLUME = RsgFlume;
 constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
-//constexpr char UW_SYSTEM_ADDRESS[] = "28";
-constexpr short UW_SYSTEM_ADDRESS = 28;
+constexpr auto DM_SERIAL = "25CW012#060";
+constexpr bool DM_SAFEMODE = true;
+constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
+//constexpr short UW_SYSTEM_ADDRESS = 28;
 constexpr bool UW_SYSTEM_SAFEMODE = false;
 constexpr bool DOFTDI_SAFEMODE = false;
 constexpr bool DDS_SAFEMODE = false;
@@ -47,7 +49,7 @@ constexpr bool  PYTHON_SAFEMODE = false;
 constexpr bool AUTO_CALIBRATE = true;
 constexpr bool VIEWPOINT_SAFEMODE = true;
 constexpr bool DAQMX_SAFEMODE = false;
-constexpr bool TOP_BOTTOM_TEK_SAFEMODE = false;
+constexpr bool TOP_BOTTOM_TEK_SAFEMODE = true;
 constexpr auto TOP_BOTTOM_TEK_USB_ADDRESS = "USB0::0x0699::0x0343::C021681::0::INSTR";
 constexpr bool EO_AXIAL_TEK_SAFEMODE = false;
 constexpr auto EO_AXIAL_TEK_USB_ADDRESS = "USB0::0x0699::0x034C::C010386::0::INSTR";
@@ -59,7 +61,7 @@ constexpr bool INTENSITY_SAFEMODE = false;
 constexpr auto INTENSITY_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
 constexpr bool FLASHING_SAFEMODE = false;
 constexpr auto FLASHING_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2307::MY50003003::0::INSTR";
-constexpr bool UWAVE_SAFEMODE = false;
+constexpr bool UWAVE_SAFEMODE = true;
 constexpr auto UWAVE_AGILENT_USB_ADDRESS = "USB0::0x0957::0x2C07::MY52801397::0::INSTR";
 constexpr bool MASTER_REPUMP_SCOPE_SAFEMODE = true;
 constexpr auto MASTER_REPUMP_SCOPE_ADDRESS = "USB0::0x0699::0x03B3::C011388::0::INSTR";
@@ -96,6 +98,8 @@ const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\Septemb
 const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1" };
 const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2" };
+const std::string DM_PROFILES_LOCATION = str(CODE_ROOT) + "\\DM-Library";
+const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + "\\flatProfile.txt";
 #endif
 
 /// File Locations and safemode options
