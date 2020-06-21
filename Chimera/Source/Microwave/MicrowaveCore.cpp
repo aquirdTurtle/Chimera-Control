@@ -1,34 +1,27 @@
 #include "stdafx.h"
+#include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 #include "MicrowaveCore.h"
 
 
-MicrowaveCore::MicrowaveCore() :
-	//uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE)
-	uwFlume (UW_SYSTEM_ADDRESS,UW_SYSTEM_SAFEMODE)
-//	rsgFlume (RSG_ADDRESS, MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::RohdeSchwarzGenerator),
-//	wfFlume(MICROWAVE_SYSTEM_DEVICE_TYPE != microwaveDevice::WindFreak, WIND_FREAK_ADDR)
-{
-}
+MicrowaveCore::MicrowaveCore() : uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE){}
 
-void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings)
-{
-	if (!settings.control || settings.list.size () == 0)
-	{
+void MicrowaveCore::programVariation (UINT variationNumber, std::vector<parameterType>& params){
+	if (!experimentActive) { return; }
+	if (!experimentSettings.control || experimentSettings.list.size () == 0)	{
 		// Nothing to program.
 		return;
 	}
 	//setPmSettings ();
-	try
-	{
-		if (settings.list.size () == 1)	{
-			uwFlume.programSingleSetting (settings.list[0], variationNumber);
+	try	{
+		if (experimentSettings.list.size () == 1)	{
+			uwFlume.programSingleSetting (experimentSettings.list[0], variationNumber);
 		}
 		else{
-			uwFlume.programList (settings.list, variationNumber);
+			uwFlume.programList (experimentSettings.list, variationNumber);
 		}
 	}
-	catch (Error&)
-	{
+	catch (Error&)	{
 		//should probably emit a warning here. 
 		//errBox ("First attempt to program uw system failed! Will try again. Uw system says: " + uwFlume.read ());
 		try	{
@@ -45,17 +38,22 @@ void MicrowaveCore::programRsg (UINT variationNumber, microwaveSettings settings
 				uwFlume.query ("?");
 			}
 			catch (Error & err) {}
-			if (settings.list.size () == 1) {
-				uwFlume.programSingleSetting (settings.list[0], variationNumber);
+			if (experimentSettings.list.size () == 1) {
+				uwFlume.programSingleSetting (experimentSettings.list[0], variationNumber);
 			}
 			else {
-				uwFlume.programList (settings.list, variationNumber);
+				uwFlume.programList (experimentSettings.list, variationNumber);
 			}
 		}
 		catch (Error & err){
 			throwNested ("Failed to program Windfreak!");
 		}
 	}
+}
+
+void MicrowaveCore::logSettings (DataLogger& log)
+{
+
 }
 
 std::string MicrowaveCore::queryIdentity ()
@@ -75,36 +73,30 @@ void MicrowaveCore::setPmSettings ()
 	uwFlume.setPmSettings ();
 }
 
-
-void MicrowaveCore::interpretKey (std::vector<std::vector<parameterType>>& params, microwaveSettings& settings)
+void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
-	if (!settings.control)
+	calculateVariations (params);
+}
+
+void MicrowaveCore::calculateVariations (std::vector<parameterType>& params)
+{
+	if (!experimentSettings.control)
 	{
 		return;
 	}
 	UINT variations;
-	UINT sequencNumber;
 	if (params.size () == 0)
-	{
-		thrower ("ERROR: empty variables! no sequence size!");
-	}
-	else if (params[0].size () == 0)
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = params.front ().front ().keyValues.size ();
+		variations = params.front ().keyValues.size ();
 	}
-	sequencNumber = params.size ();
-	/// imporantly, this sizes the relevant structures.
-	for (auto seqNum : range (sequencNumber))
+	for (auto freqInc : range(experimentSettings.list.size()))
 	{
-		for (auto freqInc : range(settings.list.size()))
-		{
-			settings.list[freqInc].frequency.internalEvaluate (params[seqNum], variations);
-			settings.list[freqInc].power.internalEvaluate (params[seqNum], variations);
-		}
+		experimentSettings.list[freqInc].frequency.internalEvaluate (params, variations);
+		experimentSettings.list[freqInc].power.internalEvaluate (params, variations);
 	}
 }
 
@@ -114,8 +106,43 @@ std::pair<DoRows::which, UINT> MicrowaveCore::getRsgTriggerLine ()
 }
 
 
-UINT MicrowaveCore::getNumTriggers (UINT variationNumber, microwaveSettings settings)
+UINT MicrowaveCore::getNumTriggers (microwaveSettings settings)
 {
 	return settings.list.size () == 1 ? 0 : settings.list.size ();
 }
 
+microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile)
+{
+	microwaveSettings settings;
+	auto getlineF = ProfileSystem::getGetlineFunc (openFile.ver);
+	openFile >> settings.control;
+	UINT numInList = 0;
+	openFile >> numInList;
+	if (numInList > 100)
+	{
+		auto res = promptBox ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
+							  " was " + str (numInList) + ". Is this acceptable?", MB_YESNO);
+		if (!res)
+		{
+			thrower ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
+					 " was " + str (numInList) + ".");
+		}
+	}
+	settings.list.resize (numInList);
+	if (numInList > 0)
+	{
+		openFile.get ();
+	}
+	for (auto num : range (numInList))
+	{
+		getlineF (openFile, settings.list[num].frequency.expressionStr);
+		getlineF (openFile, settings.list[num].power.expressionStr);
+	}
+	return settings;
+}
+
+void MicrowaveCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, experimentSettings);
+	experimentActive = experimentSettings.control;
+}

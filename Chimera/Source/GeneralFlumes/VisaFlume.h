@@ -2,7 +2,6 @@
 #pragma once
 #include <string>
 #include "visa.h"
-#include "Windows.h"
 
 /// 
 /* 
@@ -62,6 +61,6 @@ class VisaFlume
 		const bool deviceSafemode;
 		const std::string usbAddress;
 	private:
-		ULONG instrument, defaultResourceManager;
+		unsigned long instrument, defaultResourceManager;
 
 };

@@ -9,22 +9,13 @@
 #include "stdafx.h"
 // Contains some user-defined global parameters and options used throughout the code.
 #include "constants.h"
-// an namespace for agilent functions.
-
 // Contains functions and types used by the NIAWG.
 #include "niFgen.h"
-
 // Contains information the API uses for dialogues.
 #include "resource.h"
 #include "externals.h"
-
-// Used to get a precise (milisecond-level) time from the computer. Also for windows API functions & declarations
-#include <Windows.h>
-
 // Some headers used for communication protocols.
-#include <winsock2.h>
 #include <ws2tcpip.h>
-
 // Some general use headers.
 #include <stdio.h>
 #include <iostream>
@@ -37,48 +28,17 @@
 #include "boost/math/common_factor.hpp"
 // contains stuff I use for file IO.
 #include <boost/filesystem.hpp>
+#include <PrimaryWindows/QtMainWindow.h>
 #include "ChimeraApp.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
+#include "qmfcapp.h"
+
 // This is used to tell the compiler that this specific library is needed.
 // I don't remember why this specific library is needed though. 
 #pragma comment(lib, "Ws2_32.lib")
 
-BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
-{
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		if (pMsg->wParam == VK_ESCAPE)
-		{
-			theMainApplicationWindow.passCommonCommand(ID_ACCELERATOR_ESC);
-			// Do not process further
-			return TRUE;
-		}
-	}
-	return CWinApp::PreTranslateMessage(pMsg);
-}
-
-
-
-BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
-{
-	if (code >= 0 && theMainApplicationWindow && m_haccel)
-	{
-		if ( theMainApplicationWindow.handleAccelerators( m_haccel, lpMsg ) )
-		{
-			return (TRUE);
-		}
-		if (::TranslateAcceleratorA( this->theMainApplicationWindow.m_hWnd, m_haccel, lpMsg ))
-		{
-			return(TRUE);
-		}
-	}
-	return CWinApp::ProcessMessageFilter(code, lpMsg);
-}
-
-
-BOOL ChimeraApp::InitInstance()
-{
-	initTime = chronoClock::now();
+BOOL ChimeraApp::InitInstance(){
+	chronoTime initTime = chronoClock::now();
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
 	/// initialize some stuff
@@ -86,23 +46,38 @@ BOOL ChimeraApp::InitInstance()
 	Gdiplus::GdiplusStartupInput input;
 	Gdiplus::GdiplusStartup( &gdip_token, &input, NULL );
 	// Check to make sure that the gain hasn't been defined to be too high.
-	if (NIAWG_GAIN > MAX_GAIN)
-	{
+	if (NIAWG_GAIN > MAX_GAIN){
 		errBox( "FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the "
 				"experiment!\r\n" );
 		return -10000;
 	}
- 	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	
-	INT_PTR returnVal = theMainApplicationWindow.DoModal();
+	auto inst = QMfcApp::instance (this);
+	qRegisterMetaType<QVector<double>> ();
+	qRegisterMetaType<std::vector<double>> ();
+	qRegisterMetaType<std::vector<std::vector<plotDataVec>>> ();
+	qRegisterMetaType<NormalImage> ();
+	qRegisterMetaType<atomQueue> ();
+	qRegisterMetaType<std::vector<std::vector<dataPoint> >> ();
+	qRegisterMetaType<PlottingInfo> ();
+	qRegisterMetaType<PixListQueue> ();
+	QtMainWindow* mainWinQt = new QtMainWindow((CDialog*)splash, &initTime);
+	mainWinQt->show ();
+	inst->exec ();
+	
 	// end of program.
 	std::chrono::high_resolution_clock::now();
-	return int(returnVal);
+	return int(0);
 }
 
+Q_DECLARE_METATYPE (dataPoint)
+Q_DECLARE_METATYPE (std::vector<dataPoint>)
+Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
+Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
+Q_DECLARE_METATYPE (PlottingInfo)
 
-BOOL ChimeraApp::ExitInstance( )
-{
+
+BOOL ChimeraApp::ExitInstance( ){
 	Gdiplus::GdiplusShutdown( gdip_token );
 	return CWinAppEx::ExitInstance( );
 }
@@ -113,3 +88,7 @@ BOOL ChimeraApp::ExitInstance( )
 // https://www.codeproject.com/Articles/1672/MFC-under-the-hood
 ChimeraApp app;
 
+BOOL ChimeraApp::Run ()
+{
+	return QMfcApp::run (this);
+}

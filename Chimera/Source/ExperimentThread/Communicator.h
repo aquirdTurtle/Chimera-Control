@@ -1,22 +1,20 @@
 // created by Mark O. Brown
 #pragma once
-#include "ExperimentMonitoringAndStatus/ColorBox.h"
+
 #include "Andor/AndorRunSettings.h"
 #include "Basler/baslerSettings.h"
+#include "afxwin.h"
+//#include <ExperimentThread/ExpThreadWorker.h>
+//#include <PrimaryWindows/IChimeraWindowWidget.h>
 
-class MainWindow;
-class ScriptingWindow;
-class AndorWindow;
-class AuxiliaryWindow;
-class BaslerWindow;
-
-enum class System
-{
-	Niawg,
-	Master,
-	Andor,
-	Basler
-};
+class IChimeraWindowWidget;
+class QtMainWindow;
+class QtScriptWindow;
+class QtAndorWindow;
+class QtAuxiliaryWindow;
+class QtDeformableMirrorWindow;
+class QtBaslerWindow;
+class ExpThreadWorker;
 
 enum class ExperimentType;
 /*
@@ -26,9 +24,8 @@ enum class ExperimentType;
 class Communicator
 {
 	public:
-		void sendFinish ( ExperimentType type );
-		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, AndorWindow* cameraWin,
-						 AuxiliaryWindow* masterWindow, BaslerWindow* basWin);
+		void sendFinish ( ExperimentType type ); 
+		void initialize ( IChimeraWindowWidget* win);
 
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
 		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
@@ -36,8 +33,8 @@ class Communicator
 		void sendStatus( std::string statusMsg );
 		void sendDebug( std::string statusMsg );
 		void sendTimer( std::string timerMsg );
-		void sendColorBox( System sys, char code ); 
-		void sendColorBox( systemInfo<char> colors );
+		//void sendColorBox( std::string sysDelim, std::string color);
+		void sendColorBox (std::string sysDelim, std::string color, ExpThreadWorker* threadManager);
 
 		void sendCameraProgress ( long prog );
 		void sendCameraCalProgress ( long progress );
@@ -46,7 +43,7 @@ class Communicator
 		
 		void sendPrepareAndor (AndorRunSettings& settingsToPrepare);
 		void sendPrepareBasler (baslerSettings& settingsToPrepare);
-
+		
 		void sendCameraCalFin( );
 		void sendCameraFin();
 		void sendBaslerFin ( );
@@ -56,13 +53,17 @@ class Communicator
 		void sendExperimentProcedureFinish ( );
 
 		void sendAutoServo( );
+		bool expQuiet=false;
+	
+		void expUpdate (std::string updateTxt);
+
 	private:
-		MainWindow* mainWin;
-		ScriptingWindow* scriptWin;
-		AndorWindow* andorWin;
-		AuxiliaryWindow* auxWin;
-		BaslerWindow* basWin;
-		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
+		QtMainWindow* mainWin;
+		QtScriptWindow* scriptWin;
+		QtAndorWindow* andorWin;
+		QtAuxiliaryWindow* auxWin;
+		QtBaslerWindow* basWin;
+		QtDeformableMirrorWindow* dmWin;
 };
 
 // macros to include file and line info in error messages. Use these, not the associated functions directly.

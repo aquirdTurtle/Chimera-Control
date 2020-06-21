@@ -9,6 +9,10 @@
 #include <array>
 #include <memory>
 #include "DataLogging/DataLogger.h"
+#include <qlabel.h>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlineedit.h>
+#include <qtablewidget.h>
 
 struct optimizationAlgorithm
 {
@@ -75,19 +79,16 @@ struct HillClimbingInfo
 class MachineOptimizer
 {
 	public:
-		void initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id);
-		void handleOpenConfig ( );
-		void handleSaveConfig ( );
-		void handleNewConfig ( );
+		void initialize ( POINT& pos, IChimeraWindowWidget* parent );
 		void reset ( );
 		void verifyOptInput ( AllExperimentInput& input );
 		void rearrange ( UINT width, UINT height, fontMap fonts );
-		//void updateParams( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger );
 		void hillClimbingUpdate ( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger);
 		void updateCurrentValueDisplays ( );
 		void handleListViewClick ( );
 		void deleteParam ( );
 		void onFinOpt ( );
+		void handleContextMenu (const QPoint& pos);
 		void updateBestResult ( std::string val, std::string err );
 		//void updateBestValueListview ( UINT item, double bestVal );
 		void MachineOptimizer::updateBestValueDisplays ( );
@@ -97,23 +98,22 @@ class MachineOptimizer
 		void updateCurrRoundDisplay ( std::string roundtxt );
 	private:
 		// controls
-		Control<CStatic> header;
-		Control<CButton> optimizeButton;
+		QLabel* header;
+		QPushButton* optimizeButton;
 		// optimization settings
-		Control<CStatic> algorithmsHeader;
-		Control<CStatic> optParamsHeader;
-		Control<CStatic> bestResultTxt;
-		Control<CStatic> bestResultVal;
-		Control<CStatic> bestResultErr;
+		QLabel* algorithmsHeader;
+		QLabel* optParamsHeader;
+		QLabel* bestResultTxt;
+		QLabel* bestResultVal;
+		QLabel* bestResultErr;
 
-		Control<CStatic> maxRoundsTxt;
-		Control<CEdit> maxRoundsEdit;
-		Control<CStatic> currRoundTxt;
-		Control<CStatic> currRoundDisp;
+		QLabel* maxRoundsTxt;
+		QLineEdit* maxRoundsEdit;
+		QLabel* currRoundTxt;
+		QLabel* currRoundDisp;
 
-
-		Control<MyListCtrl> optParamsListview;
-		std::array<Control<CButton>, 4> algorithmRadios;
+		QTableWidget* optParamsListview;
+		std::array<QPushButton*, 4> algorithmRadios;
 		bool isOptimizing = false;
 		UINT optCount = 0;
 		UINT roundCount = 0;

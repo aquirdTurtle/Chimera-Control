@@ -1,22 +1,37 @@
 // created by Mark O. Brown
 #include "stdafx.h"
+
 #include "ExperimentThread/ExperimentThreadManager.h"
 #include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "GeneralObjects/CodeTimer.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "NIAWG/NiawgWaiter.h"
 #include "NIAWG/NiawgSystem.h"
 #include "ParameterSystem/Expression.h"
-#include "PrimaryWindows/MainWindow.h"
-#include "nidaqmx2.h"
+#include "PrimaryWindows/QtMainWindow.h"
 #include "Andor/CameraSettingsControl.h"
-#include <fstream>
+#include "Scripts/ScriptStream.h"
+#include <ExperimentThread/ExpThreadWorker.h>
+#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/QtMainWindow.h>
+#include <PrimaryWindows/QtAndorWindow.h>
+#include <PrimaryWindows/QtAuxiliaryWindow.h>
+#include <qthread.h>
+#include <RealTimeDataAnalysis/AnalysisThreadWorker.h>
+#include "nidaqmx2.h"
+
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <regex>
 
+#include <fstream>
+  
+std::string ExperimentThreadManager::abortString = "\r\nABORTED!\r\n";
+
+/* deviceList class:
+get by type
+*/
 
 ExperimentThreadManager::ExperimentThreadManager() {}
 
@@ -24,598 +39,81 @@ ExperimentThreadManager::ExperimentThreadManager() {}
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
  * configuration settings to determine how to program and run the experiment.
  * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
- * @return UINT: The return value is not used, i just return TRUE.
+ * @return unsigned int: unused.
  */
 unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void* voidInput )
 {
-	/// initialize various structures
-	// convert the input to the correct structure.
-	ExperimentThreadInput* input = (ExperimentThreadInput*)voidInput;
-	// change the status of the parent object to reflect that the thread is running.
+	auto startTime = chronoClock::now ();
+	std::unique_ptr< ExperimentThreadInput > input ((ExperimentThreadInput*)voidInput);
 	input->thisObj->experimentIsRunning = true;
-	seqInfo expSeq( input->seq.sequence.size( ) );
-	UINT seqNum = 0, repetitions = 1;
-	std::vector<std::vector<ddsIndvRampListInfo>> ddsRampList;
-	ddsRampList.resize( input->seq.sequence.size ( ) );
-	// outermost level is for each controller, 2nd level is for sequence number
-	std::vector<std::vector<piezoChan<Expression>>> piezoExpressions(input->piezoCores.size(), 
-												std::vector<piezoChan<Expression>>( input->seq.sequence.size ( )) );
-	std::vector<std::vector<bool>> ctrlPztOptions( input->piezoCores.size ( ),
-												   std::vector<bool> ( input->seq.sequence.size ( ) ));
-	std::vector<AndorRunSettings> andorRunsettings ( input->seq.sequence.size ( ) );
-	microwaveSettings uwSettings;
-	// a couple aliases.
-	auto& ttls = input->ttls;
-	auto& aoSys = input->aoSys;
-	auto& comm = input->comm;
-	auto& dds = input->dds;
-	auto quiet = input->quiet;
-	const auto& runMaster = input->runList.master;
-	const auto& runAndor = input->runList.andor;
-	bool runNiawg=true;
-	const auto& runBasler = input->runList.basler;
-	const auto& piezos = input->piezoCores;
-	const UINT tbTek = 0;
-	const UINT aeTek = 1;
-
-	mainOptions mainOpts;
-	baslerSettings baslerCamSettings;
-	std::vector<std::vector<parameterType>> expParams;
-	std::vector<deviceOutputInfo> agilentRunInfo(input->agilents.size());
-	std::vector<tektronixInfo> tekInfo (2);
-	UINT variations;
+	input->comm.expQuiet = input->quiet;
+	emit input->workerThread->notification ("Starting Experiment Thread Procedure...\n");
+	ExpRuntimeData expRuntime;
+	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
+	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
 	try
 	{
-		ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->seq.sequence[0].configFilePath ());
-		for ( auto& configInfo : input->seq.sequence )
-		{
-			auto& seq = expSeq.sequence[seqNum];
-			expParams.push_back (
-				ParameterSystem::combineParamsForExpThread ( 
-					ParameterSystem::getConfigParamsFromFile (configInfo.configFilePath ()),
-					input->globalParameters));
-			std::ifstream configFile (configInfo.configFilePath ());
-			if ( runMaster )
-			{
-				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( configInfo );
-				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
-				ddsRampList[ seqNum ] = ProfileSystem::stdGetFromConfig ( configFile, dds.configDelim,
-																			   DdsCore::getRampListFromConfig );
-				for ( auto piezoInc : range(input->piezoCores.size()))
-				{
-					auto res = ProfileSystem::stdGetFromConfig (
-						configFile, input->piezoCores[ piezoInc ].get().configDelim, 
-						PiezoCore::getPiezoSettingsFromConfig );
-					piezoExpressions[ piezoInc ][ seqNum ] 
-						= { Expression ( res.first.x ), Expression ( res.first.y ), Expression ( res.first.z ) };
-					ctrlPztOptions[ piezoInc ][ seqNum ] = res.second;
-				}
-				mainOpts = ProfileSystem::stdGetFromConfig ( configFile, "MAIN_OPTIONS", 
-																  MainOptionsControl::getMainOptionsFromConfig );
-				repetitions = ProfileSystem::stdGetFromConfig ( configFile, "REPETITIONS",
-																Repetitions::getRepsFromConfig );
-				uwSettings = ProfileSystem::stdGetFromConfig ( configFile, MicrowaveSystem::delim,
-															   MicrowaveSystem::getMicrowaveSettingsFromConfig);
-				tekInfo[tbTek] = ProfileSystem::stdGetFromConfig (configFile, input->topBottomTek.configDelim,
-																  TektronixAfgControl::getTekInfo);
-				tekInfo[aeTek] = ProfileSystem::stdGetFromConfig (configFile, input->eoAxialTek.configDelim,
-																  TektronixAfgControl::getTekInfo);
-				ParameterSystem::generateKey (expParams, mainOpts.randomizeVariations, varRangeInfo);
-				variations = determineVariationNumber (expParams[ seqNum ] );
-				for (auto agInc : range(input->agilents.size()))
-				{
-					agilentRunInfo[agInc] = ProfileSystem::stdGetFromConfig(configFile, 
-						input->agilents[agInc].get().configDelim, Agilent::getOutputSettingsFromConfigFile);
-				}
-			}
-			if (runAndor) 
-			{
-				andorRunsettings[seqNum] = ProfileSystem::stdGetFromConfig (configFile, "CAMERA_SETTINGS",
-					AndorCameraSettingsControl::getRunSettingsFromConfig);
-				andorRunsettings[seqNum].imageSettings = ProfileSystem::stdGetFromConfig (configFile,
-					"CAMERA_IMAGE_DIMENSIONS", AndorCameraSettingsControl::getImageDimSettingsFromConfig);
-				andorRunsettings[seqNum].repetitionsPerVariation = repetitions;
-				andorRunsettings[seqNum].totalVariations = variations;
-			}
-			if (runBasler)
-			{
-				baslerCamSettings = ProfileSystem::stdGetFromConfig (configFile, "BASLER_CAMERA_SETTINGS",
-					&BaslerSettingsControl::getSettingsFromConfig, Version ("4.0"));
-				baslerCamSettings.repsPerVar = baslerCamSettings.acquisitionMode == BaslerAcquisition::mode::Continuous ? UINT_MAX : repetitions ;
-				baslerCamSettings.variations = variations;
-			}
-			runNiawg = ProfileSystem::stdGetFromConfig (configFile, "NIAWG_INFORMATION",
-				NiawgSystem::getControlNiawgFromConfig, Version ("4.12"));
-			if ( runNiawg )
-			{
-				seq.niawgScript = ProfileSystem::getNiawgScriptAddrFromConfig( configInfo );
-				input->thisObj->loadNiawgScript ( seq.niawgScript, seq.niawgStream );
-				if ( input->debugOptions.outputNiawgHumanScript )
-				{
-					std::string debugStr = "Human Script: " + seq.niawgStream.str ( ) + "\n\n";
-					debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
-					boost::replace_all ( debugStr, "\n", "\r\n" );
-					input->comm.sendDebug ( debugStr );
-				}
-			}
-			seqNum++;
+		emit input->workerThread->notification ("Loading Experiment Settings...\n");
+		ConfigStream cStream (input->profile.configFilePath (), true);
+		loadExperimentRuntime (cStream, expRuntime, input);
+		for (auto& device : input->devices.list){
+			deviceLoadExpSettings (device, input, cStream);
 		}
+		/// The Variation Calculation Step.
+		emit input->workerThread->notification ("Calculating All Variation Data...\r\n");
+		for (auto& device : input->devices.list) {
+			deviceCalculateVariations (device, input, expRuntime.expParams);
+		}
+		calculateAdoVariations ( input, expRuntime );
+		runConsistencyChecks (input, expRuntime.expParams);
+		if (input->expType != ExperimentType::LoadMot){
+			input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
+			for (auto& device : input->devices.list) {
+				if (device.get ().experimentActive) {
+					device.get ().logSettings (input->logger);
+				}
+			}
+		}
+		/// Begin experiment 
+		for (const auto& variationInc : range(determineVariationNumber (expRuntime.expParams))){
+			initVariation ( input, variationInc, expRuntime.expParams);
+			emit input->workerThread->notification ("Programming Devices for Variation... ");
+			for (auto& device : input->devices.list) {
+				deviceProgramVariation (device, input, expRuntime.expParams, variationInc);
+			}
+			emit input->workerThread->notification ("Running Experiment.\r\n");
+			for (const auto& repInc : range(expRuntime.repetitions)) {
+				handlePause ( input->comm, input->thisObj->isPaused, input->thisObj->isAborting, input->workerThread);
+				startRep (input, repInc, variationInc, input->skipNext == NULL ? false : input->skipNext->load ());
+			}
+		}
+		for (auto& device : input->devices.list) { 
+			deviceNormalFinish (device, input);
+		}
+		normalFinish (input->comm, input->expType, input->runList.master, startTime, input->aoSys, input->workerThread);
 	}
-	catch ( Error& err)
-	{
-		errBox( "Failed to load experiment sequence / configuration files!  \n" + err.trace() );
-		input->thisObj->experimentIsRunning = false;
-		delete voidInput;
-		return -1;
+	catch (Error& exception){
+		for (auto& device : input->devices.list){
+			// don't change the colors, the colors should reflect the end state before the error. 
+			if (device.get ().experimentActive) {
+				device.get ().errorFinish ();
+			}
+		}
+		errorFinish (input->comm, input->thisObj->isAborting, exception, startTime, input->workerThread);
 	}
-	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
-	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
-	// by thrower () calls.
-	std::string warnings, abortString = "\r\nABORTED!\r\n";
-	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
-	std::vector<long> variedMixedSize;
-	NiawgOutput output;
-	std::vector<ViChar> niawgMachineScript;
-	std::vector<std::string> workingNiawgScripts( input->seq.sequence.size( ) );
-	output.isDefault = false;
-	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
-	// now, but might cause slight breakages...
-	output.waves.resize( 2 );
-	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
-	std::vector<UINT> dacShadeLocs;
-	bool foundRearrangement = false;
-	/// ////////////////////////////
-	/// start analysis & experiment
-	try
-	{
-		if ( input->expType != ExperimentType::LoadMot )
-		{
-			input->logger.logMasterRuntime ( repetitions, expParams);
-			input->logger.logBaslerSettings ( baslerCamSettings, runBasler );
-			input->logger.logAndorSettings ( andorRunsettings[0], runAndor );
-			input->logger.logAgilentSettings (input->agilents, agilentRunInfo);
-			input->logger.logTektronicsSettings (tekInfo[0], input->topBottomTek.configDelim);
-			input->logger.logTektronicsSettings (tekInfo[1], input->eoAxialTek.configDelim);
-			input->logger.logNiawgSettings (input, runNiawg);
-		}
-		for ( auto piezoInc : range ( piezos.size ( ) ) )
-		{
-			piezos[ piezoInc ].get().updateExprVals ( piezoExpressions[ piezoInc ] );
-		}
-		dds.updateRampLists ( ddsRampList );
-		if ( input->updatePlotterXVals ) updatePlotX_vals ( input, expParams );
-		if ( runMaster )
-		{
-			aoSys.resetDacEvents ( );
-			ttls.resetTtlEvents ( );
-			aoSys.initializeDataObjects ( input->seq.sequence.size ( ), 0 );
-			ttls.initializeDataObjects ( input->seq.sequence.size ( ), 0 );
-			input->thisObj->loadSkipTimes.clear ( );
-			input->thisObj->loadSkipTimes.resize ( input->seq.sequence.size ( ) );
-			input->thisObj->loadSkipTime.resize ( input->seq.sequence.size ( ) );
-		}
-		if ( runNiawg )
-		{
-			input->niawg.initForExperiment ( );
-		}
-		UINT variations;
-		for ( auto seqNum : range( input->seq.sequence.size() ) )
-		{
-			auto& seqVariables = expParams[seqNum];
-			auto& seq = expSeq.sequence[ seqNum ];
-			if ( seqNum == 0 )
-			{
-				variations = determineVariationNumber( seqVariables );
-			}
-			else
-			{
-				if ( variations != determineVariationNumber( seqVariables ) )
-				{
-					// the sequences are always interwoven sequence right now, so variations need to match or else
-					// this doesn't make sense.
-					thrower ( "Variation number changes between sequences! the number of variations must match"
-							  " between sequences.  (A low level bug, this shouldn't happen)" );
-				}
-			}
-			/// Prep agilents
-			expUpdate( "Loading Agilent Info...", comm, quiet );
-			for ( auto agInc: range(input->agilents.size()) )
-			{
-				auto& agilent = input->agilents[agInc].get();
-				for ( auto channelInc : range ( 2 ) )
-				{
-					if (agilentRunInfo[agInc].channel[channelInc].scriptedArb.fileAddress != "")
-					{
-						agilent.analyzeAgilentScript ( agilentRunInfo[agInc].channel[channelInc].scriptedArb,
-													   seqVariables, warnings );
-					}
-				}
-			}
-			expUpdate( "Analyzing Master Script...", comm, quiet );
-			if ( runMaster ) 
-			{
-				comm.sendColorBox ( System::Master, 'Y' );
-				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs,
-													 seqVariables, seq.masterStream, seqNum,
-													 mainOpts.atomThresholdForSkip != UINT_MAX, warnings, 
-													 input->thisObj->operationTime, input->thisObj->loadSkipTime );
-			}
-			if ( input->thisObj->isAborting ) thrower ( abortString );
-			if ( runNiawg )	
-			{
-				comm.sendColorBox ( System::Niawg, 'Y' );
-				input->niawg.analyzeNiawgScript ( seq.niawgStream, output, input->profile, input->debugOptions, 
-												   warnings, input->rerngGuiForm, seqVariables );
-				workingNiawgScripts[ seqNum ] = output.niawgLanguageScript;
-			}
-			if ( input->thisObj->isAborting ) thrower ( abortString );
-			if ( runMaster )
-			{
-				input->thisObj->loadSkipTimes[ seqNum ].resize ( variations );
-			}
-		}
-		if ( runNiawg )
-		{
-			input->niawg.finalizeScript ( repetitions, "experimentScript", workingNiawgScripts, niawgMachineScript,
-										   !input->niawg.outputVaries ( output ) );
-			if ( input->debugOptions.outputNiawgMachineScript )
-			{
-				std::string debugStr = "NIAWG Machine Script:\n"
-					+ std::string ( niawgMachineScript.begin ( ), niawgMachineScript.end ( ) ) + "\n\n";
-				debugStr.erase ( std::remove ( debugStr.begin ( ), debugStr.end ( ), '\r' ), debugStr.end ( ) );
-				boost::replace_all ( debugStr, "\n", "\r\n" );
-				comm.sendDebug ( debugStr );
-			}
-			for ( auto& seqVariables : expParams)
-			{
-				input->niawg.writeStaticNiawg ( output, input->debugOptions, seqVariables );
-			}
-			expUpdate("Constant NIAWG Waveform Preparation Completed...\r\n", comm, input->quiet );
-		}
-		if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-		/// The Key Interpretation step.
-		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
-		// it needs for each variation of the experiment. All these calculations happen at this step.
-		expUpdate( "Programming All Variation Data...\r\n", comm, quiet );
-		if ( runMaster )
-		{
-			aoSys.shadeDacs ( dacShadeLocs );
-			ttls.interpretKey(expParams);
-			ttls.restructureCommands ( );
-			aoSys.interpretKey(expParams, warnings );
-		}
-		for ( auto piezoInc : range(piezos.size()) )
-		{
-			if ( ctrlPztOptions[ piezoInc ][ 0 ] )
-			{
-				piezos[piezoInc].get().evaluateVariations (expParams, variations );
-			}
-		}
-		dds.evaluateDdsInfo (expParams);
-		dds.generateFullExpInfo ( variations );
-		input->topBottomTek.interpretKey (expParams, tekInfo[0]);
-		input->eoAxialTek.interpretKey (expParams, tekInfo[1]);
-		for (auto agInc : range (input->agilents.size ()))
-		{
-			input->agilents[agInc].get().convertInputToFinalSettings (variations, 0, agilentRunInfo[agInc], expParams[0]);
-			input->agilents[agInc].get().convertInputToFinalSettings (variations, 1, agilentRunInfo[agInc], expParams[0]);
-		}
-		input->rsg.interpretKey (expParams, uwSettings);
-		/// organize commands, prepping final forms of the data for each repetition.
-		// This must be done after the "interpret key" step; before that commands don't have times attached to them.
-		for ( auto seqInc : range( input->seq.sequence.size( ) ) )
-		{
-			auto& seqVariables = expParams[seqInc];
-			for (auto variationInc : range(variations))
-			{
-				if ( input->thisObj->isAborting ) { thrower ( abortString ); }
-				if ( runMaster )
-				{
-					double& currLoadSkipTime = input->thisObj->loadSkipTimes[seqInc][variationInc];
-					currLoadSkipTime = ExperimentThreadManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
-																		   seqVariables, variationInc );
-				    // organize & format the ttl and dac commands
-					aoSys.organizeDacCommands( variationInc, seqInc );
-					aoSys.setDacTriggerEvents( ttls, variationInc, seqInc );
-					aoSys.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					aoSys.makeFinalDataFormat( variationInc, seqInc ); 
-					ttls.organizeTtlCommands ( variationInc, seqInc );
-					ttls.findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					ttls.convertToFtdiSnaps(variationInc, seqInc);
-					ttls.convertToFinalFtdiFormat( variationInc, seqInc );
-					// run a couple checks.
-					aoSys.checkTimingsWork( variationInc, seqInc );
-				}
-			}
-		}
-		/// output some timing information 
-		if (runMaster)
-		{
-			expUpdate( "Programmed time per repetition: " + str( ttls.getTotalTime( 0, 0 ) ) + "\r\n", comm, quiet );
-			ULONGLONG totalTime = 0;
-			for ( auto seqInc : range( input->seq.sequence.size()) )
-			{
-				for ( auto variationNumber : range(variations) )
-				{
-					totalTime += ULONGLONG( ttls.getTotalTime( variationNumber, seqInc ) * repetitions );
-				}
-			}
-			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", comm, quiet );
-			expUpdate( "Number of TTL Events in experiment: " + str( ttls.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
-			expUpdate( "Number of DAC Events in experiment: " + str( aoSys.getNumberEvents( 0, 0 ) ) + "\r\n", comm, quiet );
-		}
-		input->globalControl.setUsages(expParams);
-		for ( auto& seqvars : expParams)
-		{
-			for ( auto& var : seqvars )
-			{
-				if ( !var.constant && !var.active )
-				{
-					warnings += "WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n";
-				}
-			}
-		}
-		ExperimentThreadManager::checkTriggerNumbers ( input, warnings, variations, uwSettings, expParams, 
-													   agilentRunInfo, runNiawg );
-		/// finish up
-		if ( runMaster )
-		{
-			handleDebugPlots ( input->debugOptions, comm, ttls, aoSys, input->ttlData, input->dacData );
-		}
-		if ( warnings != "" )
-		{
-			comm.sendError ( warnings );
-			auto response = promptBox ( "WARNING: The following warnings were reported while preparing the experiment:\r\n"
-								   + warnings + "\r\nIs this acceptable? (press no to abort)", MB_YESNO );
-			if ( response == IDNO ) { thrower ( abortString ); }
-		}
-		warnings = ""; // then reset so as to not mindlessly repeat warnings from the experiment loop.
-		/// /////////////////////////////
-		/// Begin experiment loop
-		if (runMaster)
-		{
-			comm.sendColorBox( System::Master, 'G' );
-		}
-		expUpdate ("Starting Basler Camera...", comm, quiet);
-		if (runBasler)
-		{
-			comm.sendPrepareBasler (baslerCamSettings);
-			input->basCamera.setBaslserAcqParameters (baslerCamSettings);
-			comm.sendColorBox (System::Basler, 'G');
-			input->basCamera.armCamera ();
-		}
-		if (runAndor)
-		{
-			input->andorCamera.setSettings (andorRunsettings[0]);
-			comm.sendPrepareAndor (andorRunsettings[0]);
-		}
-		// shouldn't there be a sequence loop here?
-		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
-		// shouldn't there be a sequence loop here?
-		for (const UINT& variationInc : range( variations ))
-		{
-			expUpdate( "Variation #" + str( variationInc + 1 ) + "/" + str(variations) + ": ", comm, quiet );
-			if ( input->aiSys.wantsQueryBetweenVariations( ) )
-			{
-				// I'm writing data which is handled by the main gui thread, so I just let the main gui thread do the 
-				// whole measurement here. 
-				expUpdate( "Querying Voltages...\r\n", comm, quiet );
-				comm.sendLogVoltsMessage ( variationInc );
-			}
-			if ( input->debugOptions.sleepTime != 0 )
-			{
-				Sleep ( input->debugOptions.sleepTime );
-			}
-			for ( auto seqInc : range(input->seq.sequence.size( ) ) )
-			{
-				for (auto tempVariable : expParams[seqInc])
-				{
-					if (tempVariable.valuesVary)
-					{
-						if (tempVariable.keyValues.size() == 0)
-						{
-							thrower ( "Variable " + tempVariable.name + " varies, but has no values assigned to "
-									  "it! (This shouldn't happen, it's a low-level bug...)" );
-						}
-						expUpdate( tempVariable.name + ": " + str( tempVariable.keyValues[variationInc], 12) + "\r\n", 
-								   comm, quiet );
-					}
-				}
-			}
-			expUpdate ( "Starting Andor Camera...", comm, quiet );
-			if ( runAndor )
-			{
-				int stat = 0;
-				while ( true )
-				{
-					stat = input->andorCamera.queryStatus ( );
-					if ( stat == DRV_ACQUIRING )
-					{
-						Sleep ( 1000 );
-						expUpdate ( "Waiting for Andor camera to finish acquisition...", comm, quiet );
-						if (input->thisObj->isAborting) { thrower (abortString); }
-					}
-					else
-					{
-						break;
-					}
-				} 
-				double kinTime;
-				input->andorCamera.armCamera ( kinTime );
-				comm.sendColorBox (System::Andor, 'G');
-			}
-			expUpdate( "Programming Devices... ", comm, quiet );
-			input->rsg.programRsg (variationInc, uwSettings);
-			// program devices
-			for ( auto agInc : range(input->agilents.size()) )
-			{
-				input->agilents[agInc].get().setAgilent ( variationInc, expParams[ 0 ], agilentRunInfo[agInc] );
-			}
-			for ( auto piezoInc : range(piezos.size()) )
-			{
-				if ( ctrlPztOptions[ piezoInc ][ 0 ] )
-				{
-					piezos[piezoInc].get().exprProgramPiezo ( 0, variationInc );
-				}
-			}
-			dds.writeExperiment ( 0, variationInc );
-			if (runNiawg)
-			{
-				input->niawg.programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-										   niawgMachineScript, input->rerngGuiForm, input->rerngGui, expParams );
-				if (input->rerngGui.active)
-				{
-					input->niawg.turnOffRerng ();
-					input->conditionVariableForRerng->notify_all ();
-					input->niawg.waitForRerng (false);
-					input->niawg.handleStartingRerng (input, output);
-				}
-			}
-			input->topBottomTek.programMachine (variationInc, tekInfo[0]);
-			input->eoAxialTek.programMachine (variationInc, tekInfo[1]);
-			comm.sendError( warnings );
-			comm.sendRepProgress( 0 );
-			expUpdate( "Running Experiment.\r\n", comm, quiet );
-
-			bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
-			if (runMaster)
-			{
-				ttls.ftdi_write (0, variationInc, skipOption);
-			}
-			for (auto repInc : range(repetitions))
-			{
-				
-				/*for (auto seqInc : range(input->seq.sequence.size()))
-				{*///this was the original structure for handleing diffferent sequences across repetitions
-				if (input->seq.sequence.size() > 1) 
-				{
-					thrower("error the number of sequences should be zero");
-				}
-				else 
-				{
-					UINT seqInc = 0;
-					if (input->thisObj->isAborting) { thrower(abortString); }
-					else if (input->thisObj->isPaused)
-					{
-						expUpdate("PAUSED\r\n!", comm, quiet);
-						while (input->thisObj->isPaused)
-						{
-							// this could be changed to be a bit smarter using a std::condition_variable
-							Sleep(100);
-							if (input->thisObj->isAborting) { thrower(abortString); }
-						}
-						expUpdate("UN-PAUSED!\r\n", comm, quiet);
-					}
-					comm.sendRepProgress(repInc + 1);
-					if (runMaster)
-					{
-						aoSys.stopDacs();
-						// it's important to grab the skipoption from input->skipNext only once because in principle
-						// if the cruncher thread was running behind, it could change between writing and configuring the 
-						// aoSys and configuring the TTLs, resulting in some funny behavior;
-						aoSys.configureClocks(variationInc, seqInc, skipOption);
-						aoSys.writeDacs(variationInc, seqInc, skipOption);
-						aoSys.startDacs();
-						ttls.ftdi_trigger();
-						ttls.FtdiWaitTillFinished(variationInc, seqInc);
-					}
-				}
-			}
-		}
-		/// conclude.
-		expUpdate( "\r\nExperiment Finished Normally.\r\n", comm, quiet );
-		comm.sendColorBox( System::Master, 'B' );
-		if (runMaster)
-		{
-			// stop is necessary else the dac system will still be running and won't allow updates through normal means.
-			aoSys.stopDacs();
-			aoSys.unshadeDacs();
-			try
-			{
-				// make sure the display accurately displays the state that the experiment finished at.
-				aoSys.setDacStatusNoForceOut( aoSys.getFinalSnapshot( ) );
-				//ttls.unshadeTtls( );
-				//ttls.setTtlStatusNoForceOut( ttls.getFinalSnapshot( ) );
-			}
-			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
-		}
-		if (runNiawg)
-		{
-			input->niawg.cleanupNiawg( input->profile, runMaster, output, comm, mainOpts.dontActuallyGenerate );
-		}
-		input->thisObj->experimentIsRunning = false;
-		switch ( input->expType )
-		{
-			case ExperimentType::CameraCal:
-				comm.sendCameraCalFin ( );
-				break;
-			case ExperimentType::LoadMot:
-			case ExperimentType::MachineOptimization:
-			case ExperimentType::AutoCal:
-				comm.sendFinish ( input->expType );
-				break;
-			default:
-				comm.sendFinish ( ExperimentType::Normal );
-		}
-	}
-	catch (Error& exception)
-	{
-		if (runNiawg)
-		{
-			for (auto& wave : output.waves)
-			{
-				wave.core.waveVals.clear();
-				wave.core.waveVals.shrink_to_fit();
-			}
-		}
-		input->thisObj->experimentIsRunning = false;
-		if (runMaster)
-		{
-			//input->ttls.unshadeTtls();
-			input->aoSys.unshadeDacs();
-		}	
-		if ( input->thisObj->isAborting )
-		{
-			expUpdate( abortString, comm, quiet );
-			comm.sendColorBox( System::Master, 'B' );
-		}
-		else
-		{
-			comm.sendColorBox( System::Master, 'R' );
-			comm.sendStatus( "Bad Exit!\r\n" );
-			auto txt = "Exited main experiment thread abnormally." + exception.trace ( );
-			comm.sendFatalError( txt );
-		}	
-		try
-		{
-			input->andorCamera.abortAcquisition ();
-		}
-		catch (Error & err) 
-		{ /*Probably just idle.*/ }
-		{
-			std::lock_guard<std::mutex> locker ( input->thisObj->abortLock );
-			input->thisObj->isAborting = false;
-		}
-	}
-	// finish up.
-	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>( ( chronoClock::now ( ) - startTime ) ).count ( );
-	expUpdate( "Experiment took " + str( int(exp_t) / 3600 )  + " hours, " + str(int(exp_t) % 3600 / 60) + " minutes, "
-			   + str( int ( exp_t ) % 60) +  " seconds.\r\n", comm, quiet );
 	input->thisObj->experimentIsRunning = false;
-	delete input;
 	return false;
 }
 
 
-void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSys,
-												std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades,
-												std::vector<parameterType>& vars, ScriptStream& currentMasterScript, 
-												UINT seqNum, bool expectsLoadSkip, std::string& warnings, 
-												timeType& operationTime, std::vector<timeType>& loadSkipTime )
+void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSys, std::vector<parameterType>& vars, 
+													ScriptStream& currentMasterScript, bool expectsLoadSkip,
+													std::string& warnings, timeType& operationTime, 
+													timeType& loadSkipTime )
 {
 	std::string currentMasterScriptText = currentMasterScript.str ( );
-	loadSkipTime[ seqNum ].first.clear ( );
-	loadSkipTime[ seqNum ].second = 0;
+	loadSkipTime.first.clear ( );
+	loadSkipTime.second = 0;
 	// starts at 0.1 if not initialized by the user.
 	operationTime.second = 0.1;
 	operationTime.first.clear ( );
@@ -638,9 +136,9 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		}
 		else if ( handleVariableDeclaration ( word, currentMasterScript, vars, scope, warnings ) )
 		{}
-		else if ( handleDoCommands ( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope, operationTime) )
+		else if ( handleDoCommands ( word, currentMasterScript, vars, ttls, scope, operationTime) )
 		{}
-		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope, operationTime) )
+		else if ( handleAoCommands ( word, currentMasterScript, vars, aoSys, ttls, scope, operationTime) )
 		{}
 		else if ( word == "callcppcode" )
 		{
@@ -650,15 +148,15 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 		else if ( word == "loadskipentrypoint!" )
 		{
 			loadSkipFound = true;
-			loadSkipTime[ seqNum ] = operationTime;
+			loadSkipTime = operationTime;
 		}
 		/// Deal with RSG calls
 		else if ( word == "rsg:" )
 		{
 			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
-		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, ttlShades, dacShades, seqNum,
-									   warnings, PARENT_PARAMETER_SCOPE, operationTime ) )
+		else if ( handleFunctionCall ( word, currentMasterScript, vars, ttls, aoSys, warnings, 
+									   PARENT_PARAMETER_SCOPE, operationTime ) )
 		{ }
 		else if ( word == "repeat:" )
 		{
@@ -711,10 +209,8 @@ void ExperimentThreadManager::analyzeMasterScript ( DoCore& ttls, AoSystem& aoSy
 
 
 void ExperimentThreadManager::analyzeFunction ( std::string function, std::vector<std::string> args, DoCore& ttls,
-												AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-												std::vector<UINT>& dacShades, 
-												std::vector<parameterType>& params, UINT seqNum, std::string& warnings, 
-												timeType& operationTime, std::string callingScope )
+												AoSystem& aoSys, std::vector<parameterType>& params, 
+												std::string& warnings,  timeType& operationTime, std::string callingScope )
 {	
 	/// load the file
 	std::fstream functionFile;
@@ -779,55 +275,44 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 	std::string currentFunctionText = functionStream.str ( );
 	///
 	functionStream >> word;
-	while ( !( functionStream.peek ( ) == EOF ) || word != "__end__" )
-	{
+	while ( !( functionStream.peek ( ) == EOF ) || word != "__end__" ){
 		if (handleTimeCommands (word, functionStream, params, scope, operationTime)){ /* got handled*/ }
 		else if ( handleVariableDeclaration ( word, functionStream, params, scope, warnings ) ){}
-		else if ( handleDoCommands ( word, functionStream, params, ttls, ttlShades, seqNum, scope, operationTime) ){}
-		else if ( handleAoCommands ( word, functionStream, params, aoSys, dacShades, ttls, seqNum, scope, operationTime) ){}
-		else if ( word == "callcppcode" )
-		{
+		else if ( handleDoCommands ( word, functionStream, params, ttls, scope, operationTime) ){}
+		else if ( handleAoCommands ( word, functionStream, params, aoSys, ttls, scope, operationTime) ){}
+		else if ( word == "callcppcode" ){
 			// and that's it... 
 			callCppCodeFunction ( );
 		}
 		/// Handle RSG calls.
-		else if ( word == "rsg:" )
-		{
+		else if ( word == "rsg:" ){
 			thrower ("\"rsg:\" command is deprecated! Please use the microwave system listview instead.");
 		}
 		/// deal with function calls.
-		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, ttlShades, dacShades, seqNum,
-									   warnings, function, operationTime ) ) {}
-		else if ( word == "repeat:" )
-		{
+		else if ( handleFunctionCall ( word, functionStream, params, ttls, aoSys, warnings, function, operationTime ) ) {}
+		else if ( word == "repeat:" ){
 			std::string repeatStr;
 			functionStream >> repeatStr;
-			try
-			{
+			try{
 				totalRepeatNum.push_back ( boost::lexical_cast<int> ( repeatStr ) );
 			}
-			catch ( boost::bad_lexical_cast& )
-			{
+			catch ( boost::bad_lexical_cast& ){
 				throwNested ( "the repeat number for a repeat structure inside the master script failed to convert "
 						  "to an integer! Note that the repeat number can not currently be a variable." );
 			}
 			repeatPos.push_back ( functionStream.tellg ( ) );
 			currentRepeatNum.push_back ( 1 );
 		}
-		else if ( word == "end" )
-		{
-			if ( currentRepeatNum.size ( ) == 0 )
-			{
+		else if ( word == "end" ){
+			if ( currentRepeatNum.size ( ) == 0 ){
 				thrower ( "mismatched \"end\" command for repeat structure in master script! there were more "
 						  "\"end\" commands than \"repeat\" commands." );
 			}
-			if ( currentRepeatNum.back ( ) < totalRepeatNum.back ( ) )
-			{
+			if ( currentRepeatNum.back ( ) < totalRepeatNum.back ( ) ){
 				functionStream.seekg ( repeatPos.back ( ) );
 				currentRepeatNum.back ( )++;
 			}
-			else
-			{
+			else{
 				// remove the entries corresponding to this repeat loop.
 				currentRepeatNum.pop_back ( );
 				repeatPos.pop_back ( );
@@ -835,8 +320,7 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 				// and continue (no seekg)
 			}
 		}
-		else
-		{
+		else{
 			thrower ( "unrecognized master script command inside function analysis: " + word );
 		}
 		functionStream >> word;
@@ -844,43 +328,27 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 }
 
 
-bool ExperimentThreadManager::getAbortStatus ( )
-{
+bool ExperimentThreadManager::getAbortStatus ( ){
 	return isAborting;
 }
 
-double ExperimentThreadManager::convertToTime( timeType time, std::vector<parameterType> variables, UINT variation )
-{
+double ExperimentThreadManager::convertToTime( timeType time, std::vector<parameterType> variables, UINT variation ){
 	double variableTime = 0;
 	// add together current values for all variable times.
-	if ( time.first.size( ) != 0 )
-	{
-		for ( auto varTime : time.first )
-		{
+	if ( time.first.size( ) != 0 ){
+		for ( auto varTime : time.first ){
 			variableTime += varTime.evaluate( variables, variation );
 		}
 	}
 	return variableTime + time.second;
 }
 
-
-void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, Communicator& comm, DoCore& ttls, AoSystem& aoSys,
-									  std::vector<std::vector<pPlotDataVec>> ttlData, 
-									  std::vector<std::vector<pPlotDataVec>> dacData )
-{
-	// handle on-screen plots.
-	ttls.fillPlotData( 0, ttlData );
-	aoSys.fillPlotData( 0, dacData, ttls.getFinalTimes() );
-	if ( debugOptions.showTtls )
-	{
-		comm.sendDebug( ttls.getTtlSequenceMessage( 0, 0 ) );
-	}
-	if ( debugOptions.showDacs )
-	{
-		comm.sendDebug( aoSys.getDacSequenceMessage( 0, 0 ) );
-	}
-	// no quiet on warnings or debug messages.
-	comm.sendDebug( debugOptions.message );
+void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, ExpThreadWorker* worker, 
+											    DoCore& ttls, AoSystem& aoSys, unsigned variation ){
+	emit worker->doAoData (ttls.getPlotData (variation), aoSys.getPlotData (variation));
+	emit worker->debugInfo (cstr (ttls.getTtlSequenceMessage (variation)));
+	emit worker->debugInfo (cstr (aoSys.getDacSequenceMessage (variation)));
+	emit worker->debugInfo (cstr (debugOptions.message));
 }
 
 
@@ -889,40 +357,37 @@ bool ExperimentThreadManager::runningStatus()
 	return experimentIsRunning;
 }
 
-
-/***
- * this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
- * knows exactly where to look for the MOT profile. This is currently hard-coded.
- */
-void ExperimentThreadManager::loadMotSettings(ExperimentThreadInput* input)
-{	
-	if ( experimentIsRunning )
-	{
-		delete input;
-		thrower ( "Experiment is Running! Please abort the current run before setting the MOT settings." );
-	}
-	input->thisObj = this;
-	//ParameterSystem::generateKey( input->parameters, false, input->variableRangeInfo );
-	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &ExperimentThreadManager::experimentThreadProcedure, input, NULL, NULL );
-}
-
-
-HANDLE ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input)
+void ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input, IChimeraWindowWidget* parent)
 {
-	if ( !input )
-	{
+	if ( !input ){
 		thrower ( "Input to start experiment thread was null?!?!? (a Low level bug, this shouldn't happen)." );
 	}
-	if ( experimentIsRunning )
-	{
+	if ( experimentIsRunning ){
 		delete input;
 		thrower ( "Experiment is already Running! You can only run one experiment at a time! Please abort before "
 				 "running again." );
 	}
 	input->thisObj = this;
-	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &ExperimentThreadManager::experimentThreadProcedure, input, NULL, NULL );
-	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
-	return runningThread;
+	ExpThreadWorker* worker = new ExpThreadWorker (input);
+	QThread* thread = new QThread;
+	worker->moveToThread (thread);
+	parent->connect (worker, &ExpThreadWorker::updateBoxColor, parent->mainWin, &QtMainWindow::handleColorboxUpdate);
+	parent->connect (worker, &ExpThreadWorker::prepareAndor, parent->andorWin, &QtAndorWindow::handlePrepareForAcq);
+	parent->connect (worker, &ExpThreadWorker::notification, parent->mainWin, & QtMainWindow::handleExpNotification);
+	parent->connect (worker, &ExpThreadWorker::warn, parent->mainWin, &QtMainWindow::onErrorMessage);
+	parent->connect (worker, &ExpThreadWorker::doAoData, parent->auxWin, &QtAuxiliaryWindow::handleDoAoPlotData);
+	parent->connect (worker, &ExpThreadWorker::repUpdate, parent->mainWin, &QtMainWindow::onRepProgress);
+	parent->connect (worker, &ExpThreadWorker::mainProcessFinish, thread, &QThread::quit);
+	parent->connect (worker, &ExpThreadWorker::plot_Xvals_determined,  parent->andorWin->analysisThreadWorker, &AnalysisThreadWorker::setXpts);
+	parent->connect (worker, &ExpThreadWorker::normalExperimentFinish, parent->mainWin, &QtMainWindow::onNormalFinish);
+	parent->connect (worker, &ExpThreadWorker::errorExperimentFinish, parent->mainWin, &QtMainWindow::onFatalError);
+
+	parent->connect (thread, &QThread::started, worker, &ExpThreadWorker::process);
+	parent->connect (thread, &QThread::finished, thread, &QObject::deleteLater );
+	parent->connect (thread, &QThread::finished, worker, &QObject::deleteLater);
+	parent->connect (thread, &QThread::finished, parent->andorWin->analysisThreadWorker, &QObject::deleteLater);
+	parent->connect (thread, &QThread::finished, parent->andorWin->atomCruncherWorker, &QObject::deleteLater);
+	thread->start (QThread::TimeCriticalPriority);
 }
 
 
@@ -938,8 +403,6 @@ void ExperimentThreadManager::pause()
 	{
 		thrower ( "Can't pause the experiment if the experiment isn't running!" );
 	}
-	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
-	std::lock_guard<std::mutex> locker( pauseLock );
 	isPaused = true;
 }
 
@@ -950,8 +413,6 @@ void ExperimentThreadManager::unPause()
 	{
 		thrower ( "Can't unpause the experiment if the experiment isn't running!" );
 	}
-	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
-	std::lock_guard<std::mutex> locker( pauseLock );
 	isPaused = false;
 }
 
@@ -962,7 +423,6 @@ void ExperimentThreadManager::abort()
 	{
 		thrower ( "Can't abort the experiment if the experiment isn't running!" );
 	}
-	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
 }
 
@@ -1176,6 +636,41 @@ bool ExperimentThreadManager::handleVectorizedValsDeclaration ( std::string word
 	return true;
 }
 
+std::vector<parameterType> ExperimentThreadManager::getLocalParameters (ScriptStream& stream)
+{
+	std::string scriptText = stream.str ();
+	if (scriptText == "")
+	{
+		return {};
+	}
+	std::string word;
+	stream >> word;
+	// the analysis loop.
+	std::vector<parameterType> params;
+	std::vector<vectorizedNiawgVals> niawgParams;
+	std::string warnings="";
+	while (!(stream.peek () == EOF) && !stream.eof() && word != "__end__")
+	{
+		auto peekpos = stream.peek ();
+		try
+		{
+			if (handleVariableDeclaration (word, stream, params, GLOBAL_PARAMETER_SCOPE, warnings))
+			{
+			}
+			else (handleVectorizedValsDeclaration (word, stream, niawgParams, warnings));
+		}
+		catch (Error &) { /*Easy for this to happen. */}
+		word = "";
+		stream >> word;
+	}
+	for (auto& param : niawgParams)
+	{
+		parameterType temp;
+		temp.name = param.name;
+		params.push_back (temp);
+	}
+	return params;
+}
 
 bool ExperimentThreadManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
 													 std::string scope, std::string& warnings )
@@ -1191,12 +686,9 @@ bool ExperimentThreadManager::handleVariableDeclaration( std::string word, Scrip
 	tmpVariable.constant = true;
 	std::transform( name.begin( ), name.end( ), name.begin( ), ::tolower );
 	tmpVariable.name = name;
-	for ( auto var : vars )
-	{
-		if ( var.name == tmpVariable.name )
-		{
-			if ( var.parameterScope == GLOBAL_PARAMETER_SCOPE )
-			{
+	for ( auto var : vars ){
+		if ( var.name == tmpVariable.name ){
+			if ( var.parameterScope == GLOBAL_PARAMETER_SCOPE ){
 				warnings += "Warning: local variable \"" + tmpVariable.name + "\" with scope \"" 
 					+ scope + "\"is being overwritten by a parameter with the same name and "
 					"global parameter scope. It is generally recommended to use the appropriate local scope when "
@@ -1204,8 +696,7 @@ bool ExperimentThreadManager::handleVariableDeclaration( std::string word, Scrip
 				// this variable is being overwritten, so don't add this variable vector
 				return true;
 			}
-			else if ( str( var.parameterScope, 13, false, true ) == str( scope, 13, false, true ) )
-			{
+			else if ( str( var.parameterScope, 13, false, true ) == str( scope, 13, false, true ) ){
 				// being overwritten so don't add, but the variable was specific, so this must be fine.
 				return true;
 			}
@@ -1245,80 +736,66 @@ bool ExperimentThreadManager::handleTimeCommands( std::string word, ScriptStream
 {
 	try
 	{
-		if (word == "t")
-		{
+		if (word == "t"){
 			std::string command;
 			stream >> command;
 			word += command;
 		}
 		//
-		if (word == "t++")
-		{
+		if (word == "t++"){
 			operationTime.second++;
 		}
-		else if (word == "t+=")
-		{
+		else if (word == "t+=")	{
 			Expression time;
 			stream >> time;
-			try
-			{
+			try	{
 				operationTime.second += time.evaluate ();
 			}
-			catch (Error&)
-			{
+			catch (Error&){
 				time.assertValid (vars, scope);
 				operationTime.first.push_back (time);
 			}
 		}
-		else if (word == "t=")
-		{
+		else if (word == "t="){
 			Expression time;
 			stream >> time;
-			try
-			{
+			try	{
 				operationTime.second = time.evaluate ();
 			}
-			catch (Error&)
-			{
+			catch (Error&){
 				time.assertValid (vars, scope);
 				operationTime.first.push_back (time);
 				// because it's equals. There shouldn't be any extra terms added to this now.
 				operationTime.second = 0;
 			}
 		}
-		else
-		{
+		else{
 			return false;
 		}
 		return true;
 	}
-	catch (Error & err)
-	{
+	catch (Error &){
 		throwNested ("Error seen while handling time commands. Word was \"" + word + "\"");
 	}
 }
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											    DoCore& ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
-											    std::string scope, timeType& operationTime )
+											    DoCore& ttls, std::string scope, timeType& operationTime )
 {
-	if ( word == "on:" || word == "off:" )
-	{
+	if ( word == "on:" || word == "off:" ){
 		std::string name;
 		stream >> name;
-		ttls.handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum, scope );
+		ttls.handleTtlScriptCommand( word, operationTime, name, vars, scope );
 	}
-	else if ( word == "pulseon:" || word == "pulseoff:" )
-	{
+	else if ( word == "pulseon:" || word == "pulseoff:" ){
 		// this requires handling time as it is handled above.
 		std::string name;
 		Expression pulseLength;
 		stream >> name >> pulseLength;
-		ttls.handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum, scope );
+		ttls.handleTtlScriptCommand( word, operationTime, name, pulseLength, vars, scope );
 	}
-	else
-	{
+	else{
 		return false;
 	}
 	return true;
@@ -1326,11 +803,9 @@ bool ExperimentThreadManager::handleDoCommands( std::string word, ScriptStream& 
 
 /* returns true if handles word, false otherwise. */
 bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											AoSystem& aoSys, std::vector<UINT>& dacShades, DoCore& ttls, UINT seqNum, 
-											std::string scope, timeType& operationTime )
+												AoSystem& aoSys, DoCore& ttls, std::string scope, timeType& operationTime )
 {
-	if ( word == "dac:" )
-	{
+	if ( word == "dac:" ){
 		AoCommandForm command;
 		std::string name;
 		stream >> name >> command.finalVal;
@@ -1339,12 +814,10 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 		command.commandName = "dac:";
 		command.numSteps.expressionStr = command.initVal.expressionStr = "__NONE__";
 		command.rampTime.expressionStr = command.rampInc.expressionStr = "__NONE__";
-		try
-		{
-			aoSys.handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+		try{
+			aoSys.handleDacScriptCommand( command, name, vars, ttls );
 		}
-		catch ( Error&  )
-		{
+		catch ( Error&  ){
 			throwNested( "Error handling \"dac:\" command." );
 		}
 	}
@@ -1362,12 +835,10 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 		// not used here.
 		command.rampInc.expressionStr = "__NONE__";
 		//
-		try
-		{
-			aoSys.handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+		try{
+			aoSys.handleDacScriptCommand( command, name, vars, ttls );
 		}
-		catch ( Error& )
-		{
+		catch ( Error& ){
 			throwNested(  "Error handling \"dacLinSpace:\" command." );
 		}
 	}
@@ -1384,12 +855,10 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 		command.commandName = "dacarange:";
 		// not used here.
 		command.numSteps.expressionStr = "__NONE__";
-		try
-		{
-			aoSys.handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+		try	{
+			aoSys.handleDacScriptCommand( command, name, vars, ttls );
 		}
-		catch ( Error& )
-		{
+		catch ( Error& ){
 			throwNested("Error handling \"dacArange:\" command." );
 		}
 	}
@@ -1405,44 +874,28 @@ bool ExperimentThreadManager::handleAoCommands( std::string word, ScriptStream& 
 	this function can be called directly from scripts. Insert things inside the function to make it do something
 	custom that's not possible inside the scripting language.
 */
-void ExperimentThreadManager::callCppCodeFunction()
-{
+void ExperimentThreadManager::callCppCodeFunction(){
 	// not used at the moment
 }
 
 
-bool ExperimentThreadManager::isValidWord( std::string word )
-{
+bool ExperimentThreadManager::isValidWord( std::string word ){
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
 		 || word == "dac:" || word == "dacarange:" || word == "daclinspace:" || word == "call" 
-		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
-	{
+		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode"){
 		return true;
 	}
 	return false;
 }
- 
-// just a simple wrapper so that I don't have if (!quiet){ everywhere in the main thread.
-void ExperimentThreadManager::expUpdate(std::string text, Communicator& comm, bool quiet)
-{
-	if (!quiet)
-	{
-		comm.sendStatus(text);
-	}
-}
 
-UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterType> variables )
-{
+UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterType> variables ){
 	int variationNumber;
-	if ( variables.size() == 0)
-	{
+	if ( variables.size() == 0){
 		variationNumber = 1;
 	}
-	else
-	{
+	else{
 		variationNumber = variables.front().keyValues.size();
-		if (variationNumber == 0)
-		{
+		if (variationNumber == 0){
 			variationNumber = 1;
 		}
 	}
@@ -1450,108 +903,67 @@ UINT ExperimentThreadManager::determineVariationNumber( std::vector<parameterTyp
 }
 
 
-void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input, std::string& warnings,
-												UINT variations, microwaveSettings settings, 
-												std::vector<std::vector<parameterType>>& expParams, 
-												std::vector<deviceOutputInfo>& agRunInfo, 
-												bool runNiawg)
+void ExperimentThreadManager::checkTriggerNumbers ( std::unique_ptr<ExperimentThreadInput>& input, 
+													std::vector<parameterType>& expParams )
 {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
-	for ( auto seqInc : range ( input->seq.sequence.size ( ) ) )
-	{
-		bool niawgMismatch = false, rsgMismatch=false;
-		std::vector<std::array<bool, 2>> agMismatchVec ( input->agilents.size ( ), { false,false } );
-		auto& seqVariables = expParams[ seqInc ];
-		for ( auto variationInc : range ( variations ) )
+	bool niawgMismatch = false, rsgMismatch=false;
+	for ( auto variationInc : range ( determineVariationNumber(expParams) ) ){
+		if ( input->runList.master)	{
+			UINT actualTrigs = input->ttls.countTriggers ( { DoRows::which::D,15 }, variationInc );
+			UINT dacExpectedTrigs = input->aoSys.getNumberSnapshots ( variationInc );
+			std::string infoString = "Actual/Expected DAC Triggers: " + str ( actualTrigs ) + "/" 
+				+ str ( dacExpectedTrigs ) + ".";
+			if ( actualTrigs != dacExpectedTrigs ){
+				// this is a serious low level error. throw, don't warn.
+				thrower ( "the number of dac triggers that the ttl system sends to the dac line does not "
+						  "match the number of dac snapshots! " + infoString + ", seen in variation #" 
+						  + str ( variationInc ) + "\r\n" );
+			}
+			if ( variationInc == 0 && input->debugOptions.outputExcessInfo ){
+				input->debugOptions.message += infoString + "\n";
+			}
+		}
+		auto& niawg = input->devices.getSingleDevice<NiawgCore> ();
+		if (niawg.experimentActive && !niawgMismatch ){
+			auto actualTrigs = input->ttls.countTriggers ( niawg.getTrigLines ( ), variationInc );
+			auto niawgExpectedTrigs = niawg.getNumberTrigsInScript ( );
+			std::string infoString = "Actual/Expected NIAWG Triggers: " + str ( actualTrigs ) + "/" 
+				+ str ( niawgExpectedTrigs ) + ".";
+			if ( actualTrigs != niawgExpectedTrigs )
+			{
+				emit input->workerThread->warn (
+					cstr("WARNING: the NIAWG is not getting triggered by the ttl system the same number"
+					" of times a trigger command appears in the NIAWG script. " + infoString + " First "
+					"instance seen variation " + str (variationInc) + ".\r\n"));
+				niawgMismatch = true;
+			}
+			if ( variationInc == 0 && input->debugOptions.outputExcessInfo ){
+				input->debugOptions.message += infoString + "\n";
+			}
+		}
+		/// check RSG
+		auto& rsg = input->devices.getSingleDevice< MicrowaveCore > ();
+		if ( !rsgMismatch )
 		{
-			if ( input->runList.master)
-			{
-				UINT actualTrigs = input->ttls.countTriggers ( { DoRows::which::D,15 }, variationInc, seqInc );
-				UINT dacExpectedTrigs = input->aoSys.getNumberSnapshots ( variationInc, seqInc );
-				std::string infoString = "Actual/Expected DAC Triggers: " + str ( actualTrigs ) + "/" 
-					+ str ( dacExpectedTrigs ) + ".";
-				if ( actualTrigs != dacExpectedTrigs )
-				{
-					// this is a serious low level error. throw, don't warn.
-					thrower ( "the number of dac triggers that the ttl system sends to the dac line does not "
-								"match the number of dac snapshots! " + infoString + ", seen in sequence #"
-								+ str ( seqInc ) + " variation #" + str ( variationInc ) + "\r\n" );
-				}
-				if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
-				{
-					input->debugOptions.message += infoString + "\n";
-				}
+			auto actualTrigs = input->ttls.countTriggers ( rsg.getRsgTriggerLine ( ), variationInc );
+			auto rsgExpectedTrigs = rsg.getNumTriggers ( rsg.experimentSettings );
+			std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
+				+ str ( rsgExpectedTrigs ) + ".";
+			if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 ){
+				emit input->workerThread->warn (cstr (
+					"WARNING: the RSG is not getting triggered by the ttl system the same number"
+					" of times a trigger command appears in the master script. " + infoString + " First "
+					"instance seen variation " + str (variationInc) + ".\r\n"));
+				rsgMismatch = true;
 			}
-			if ( runNiawg && !niawgMismatch )
-			{
-				auto actualTrigs = input->ttls.countTriggers ( input->niawg.getTrigLines ( ), variationInc, seqInc );
-				auto niawgExpectedTrigs = input->niawg.getNumberTrigsInScript ( );
-				std::string infoString = "Actual/Expected NIAWG Triggers: " + str ( actualTrigs ) + "/" 
-					+ str ( niawgExpectedTrigs ) + ".";
-				if ( actualTrigs != niawgExpectedTrigs )
-				{
-					warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
-						" of times a trigger command appears in the NIAWG script. " + infoString + " First "
-						"instance seen sequence number " + str ( seqInc ) + " variation " + str ( variationInc ) 
-						+ ".\r\n";
-					niawgMismatch = true;
-				}
-				if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
-				{
-					input->debugOptions.message += infoString + "\n";
-				}
+			if ( variationInc == 0 && input->debugOptions.outputExcessInfo ){
+				input->debugOptions.message += infoString + "\n";
 			}
-			/// check RSG
-			if ( !rsgMismatch )
-			{
-				auto actualTrigs = input->ttls.countTriggers ( input->rsg.getRsgTriggerLine ( ), variationInc, seqInc );
-				auto rsgExpectedTrigs = input->rsg.getNumTriggers ( variationInc, settings );
-				std::string infoString = "Actual/Expected RSG Triggers: " + str ( actualTrigs ) + "/"
-					+ str ( rsgExpectedTrigs ) + ".";
-				if ( actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1 )
-				{
-					warnings += "WARNING: the RSG is not getting triggered by the ttl system the same number"
-						" of times a trigger command appears in the master script. " + infoString + " First "
-						"instance seen sequence number " + str ( seqInc ) + " variation " + str ( variationInc )
-						+ ".\r\n";
-					rsgMismatch = true;
-				}
-				if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
-				{
-					input->debugOptions.message += infoString + "\n";
-				}
-				/// check Agilents
-				for ( auto agInc : range ( input->agilents.size ( ) ) )
-				{
-					auto& agilent = input->agilents[ agInc ].get();
-					for ( auto chan : range ( 2 ) )
-					{
-						auto& agChan = agRunInfo[agInc].channel[ chan ];
-						if ( agChan.option != AgilentChannelMode::which::Script || agMismatchVec[ agInc ][ chan ] )
-						{
-							continue;
-						}
-						UINT actualTrigs = input->runList.master ? input->ttls.countTriggers ( agilent.getTriggerLine ( ),
-																				variationInc, seqInc ) : 0;
-						UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ( );
-						std::string infoString = "Actual/Expected " + agilent.configDelim + " Triggers: "
-							+ str ( actualTrigs ) + "/" + str ( agilentExpectedTrigs ) + ".";
-						if ( actualTrigs != agilentExpectedTrigs )
-						{
-							warnings += "WARNING: Agilent " + agilent.configDelim + " is not getting "
-								"triggered by the ttl system the same number of times a trigger command "
-								"appears in the agilent channel " + str ( chan + 1 ) + " script. " + infoString 
-								+ " First seen in sequence #" + str ( seqInc ) + ", variation #" + str ( variationInc ) 
-								+ ".\r\n";
-							agMismatchVec[ agInc ][ chan ] = true;
-						}
-						if ( seqInc == 0 && variationInc == 0 && input->debugOptions.outputExcessInfo )
-						{
-							input->debugOptions.message += infoString + "\n";
-						}
-					}
-				}
+			/// check Agilents
+			for ( auto& agilent : input->devices.getDevicesByClass<AgilentCore>() ){
+				agilent.get().checkTriggers ( variationInc, input->ttls, input->workerThread, input->debugOptions.outputExcessInfo );
 			}
 		}
 	}
@@ -1559,12 +971,10 @@ void ExperimentThreadManager::checkTriggerNumbers ( ExperimentThreadInput* input
 
 
 bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
-											      DoCore& ttls, AoSystem& aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
-											      std::vector<UINT>& dacShades, UINT seqNum, std::string& warnings,
-											      std::string callingFunction, timeType& operationTime )
+											      DoCore& ttls, AoSystem& aoSys, std::string& warnings, 
+												  std::string callingFunction, timeType& operationTime )
 {
-	if ( word != "call" )
-	{
+	if ( word != "call" ){
 		return false;
 	}
 	// calling a user-defined function. Get the name and the arguments to pass to the function handler.
@@ -1573,19 +983,15 @@ bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream
 	boost::erase_all ( functionCall, "\r" );
 	int pos = functionCall.find_first_of( "(" ) + 1;
 	int finalpos = functionCall.find_last_of( ")" );
-
 	functionName = functionCall.substr( 0, pos - 1 );
 	functionArgs = functionCall.substr( pos, finalpos - pos );
 	std::string arg;
 	std::vector<std::string> args;
-	while ( true )
-	{
+	while ( true ){
 		pos = functionArgs.find_first_of( ',' );
-		if ( pos == std::string::npos )
-		{
+		if ( pos == std::string::npos )	{
 			arg = functionArgs.substr( 0, functionArgs.size( ) );
-			if ( arg != "" )
-			{
+			if ( arg != "" ){
 				args.push_back( arg );
 			}
 			break;
@@ -1595,49 +1001,270 @@ bool ExperimentThreadManager::handleFunctionCall( std::string word, ScriptStream
 		// cut oinputut that argument off the string.
 		functionArgs = functionArgs.substr( pos + 1, functionArgs.size( ) );
 	}
-	if ( functionName == callingFunction )
-	{
+	if ( functionName == callingFunction ){
 		thrower ( "Recursive function call detected! " + callingFunction + " called itself! This is not allowed."
 				 " There is no way to end a function call conditionally so this will necessarily result in an"
 				 " infinite recursion\r\n" );
 	}
-	try
-	{
-		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, vars, seqNum, warnings, 
-			operationTime, callingFunction);
+	try	{
+		analyzeFunction( functionName, args, ttls, aoSys, vars, warnings, operationTime, callingFunction);
 	}
-	catch ( Error& )
-	{
+	catch ( Error& ){
 		throwNested( "Error handling Function call to function " + functionName + "." );
 	}
 	return true;
 }
 
 
-void ExperimentThreadManager::updatePlotX_vals ( ExperimentThreadInput* input, 
-											 std::vector<std::vector<parameterType>>& expParams)
-{
+void ExperimentThreadManager::updatePlotX_vals ( std::unique_ptr<ExperimentThreadInput>& input, 
+	std::vector<parameterType>& expParams){
 	// remove old plots that aren't trying to sustain.
-	input->plotterInput->key = ParameterSystem::getKeyValues ( expParams[ 0 ] );
+	input->plotterInput->key = ParameterSystem::getKeyValues ( expParams );
+	emit input->workerThread->plot_Xvals_determined (input->plotterInput->key);
 	auto& pltInput = input->plotterInput;
 	auto plotInc = 0;
-	for ( auto plotParams : pltInput->plotInfo )
-	{
+	for ( auto plotParams : pltInput->plotInfo ){
+		/*
 		int which = pltInput->dataArrays.size () - pltInput->plotInfo.size () + plotInc;
-		if (which < 0 || which >= pltInput->dataArrays.size ())
-		{
+		if (which < 0 || which >= pltInput->dataArrays.size ()){
 			thrower ("Plotter data array access out of range?!");
 		}
 		auto& data = pltInput->dataArrays[which];
-		for ( auto& line : data )
-		{
+		for ( auto& line : data ){
 			// initialize x axis for all data sets.
 			UINT count = 0;
-			for ( auto& keyItem : pltInput->key )
-			{
+			for ( auto& keyItem : pltInput->key ){
 				line->at ( count++ ).x = keyItem;
 			}
 		}
 		plotInc++;
+		*/
 	}
+}
+
+void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<ExperimentThreadInput>& input, 
+													   ExpRuntimeData& runtime ){
+	if (input->runList.master)
+	{
+		auto variations = determineVariationNumber (runtime.expParams);
+		input->aoSys.resetDacEvents ();
+		input->ttls.resetTtlEvents ();
+		input->aoSys.initializeDataObjects (0);
+		input->ttls.initializeDataObjects (0);
+		input->thisObj->loadSkipTimes = std::vector<double> (variations);
+		emit input->workerThread->notification ("Analyzing Master Script...\n");
+		std::string warnings;
+		input->thisObj->analyzeMasterScript (input->ttls, input->aoSys, runtime.expParams, runtime.masterScript,
+			runtime.mainOpts.atomSkipThreshold != UINT_MAX, warnings, input->thisObj->operationTime,
+			input->thisObj->loadSkipTime);
+		emit input->workerThread->warn (cstr (warnings));
+		input->ttls.calculateVariations (runtime.expParams, input->workerThread);
+		input->aoSys.calculateVariations (runtime.expParams, input->workerThread);
+		for (auto variationInc : range (variations)){
+			if (input->thisObj->isAborting) { thrower (abortString); }
+			double& currLoadSkipTime = input->thisObj->loadSkipTimes[variationInc];
+			currLoadSkipTime = ExperimentThreadManager::convertToTime (input->thisObj->loadSkipTime, runtime.expParams,
+				variationInc);
+			input->aoSys.standardExperimentPrep (variationInc, input->ttls, runtime.expParams, currLoadSkipTime);
+			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, runtime.expParams);
+			input->aoSys.checkTimingsWork (variationInc);
+		}
+		emit input->workerThread->notification (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str());
+		ULONGLONG totalTime = 0;
+		for (auto variationNumber : range (variations))	{
+			totalTime += ULONGLONG (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
+		}
+		emit input->workerThread->notification (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str ());
+		emit input->workerThread->notification (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str ());
+		emit input->workerThread->notification (("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n").c_str ());
+	}
+}
+
+void ExperimentThreadManager::runConsistencyChecks ( std::unique_ptr<ExperimentThreadInput>& input, 
+													 std::vector<parameterType> expParams ){
+	if (input->updatePlotterXVals) { updatePlotX_vals (input, expParams); };
+	input->globalControl.setUsages (expParams);
+	for (auto& var : expParams)	{
+		if (!var.constant && !var.active){
+			emit input->workerThread->warn (cstr ("WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n"));
+		}
+	}
+	ExperimentThreadManager::checkTriggerNumbers (input, expParams);
+}
+
+
+void ExperimentThreadManager::handlePause ( Communicator& comm, std::atomic<bool>& isPaused, 
+											std::atomic<bool>& isAborting, ExpThreadWorker* worker)
+{
+	if (isAborting) { thrower (abortString); }
+	if (isPaused){
+		emit worker->notification ("PAUSED\r\n!");
+		while (isPaused){
+			Sleep (100);
+			if (isAborting) { thrower (abortString); }
+		}
+		emit worker->notification ("UN-PAUSED!\r\n");
+	}
+}
+
+void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadInput>& input, UINT variationInc, 
+											  std::vector<parameterType> expParams){
+	auto variations = determineVariationNumber (expParams);
+	emit input->workerThread->notification (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
+	auto& aiSys = input->devices.getSingleDevice<AiSystem> ();
+	auto& andorCamera = input->devices.getSingleDevice<AndorCameraCore> ();
+	if (aiSys.wantsQueryBetweenVariations()){
+		// the main gui thread does the whole measurement here. This probably makes less sense now. 
+		emit input->workerThread->notification ("Querying Voltages...\r\n");
+		input->comm.sendLogVoltsMessage (variationInc);
+	}
+	if (input->debugOptions.sleepTime != 0) { Sleep (input->debugOptions.sleepTime); }
+	for (auto param : expParams){
+		if (param.valuesVary){
+			if (param.keyValues.size () == 0){
+				thrower ("Variable " + param.name + " varies, but has no values assigned to "
+					"it! (This shouldn't happen, it's a low-level bug...)");
+			}
+			emit input->workerThread->notification ((param.name + ": " + str (param.keyValues[variationInc], 12) + "\r\n").c_str ());
+		}
+	}
+	while (true){
+		if (andorCamera.queryStatus () == DRV_ACQUIRING){
+			Sleep (1000);
+			emit input->workerThread->notification ("Waiting for Andor camera to finish acquisition...");
+			if (input->thisObj->isAborting) { thrower (abortString); }
+		}
+		else { break; }
+	}
+	input->comm.sendRepProgress (0);
+	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
+	if (input->runList.master) { input->ttls.ftdi_write (variationInc, skipOption); }
+	handleDebugPlots (input->debugOptions, input->workerThread, input->ttls, input->aoSys, variationInc);
+}
+
+void ExperimentThreadManager::errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
+											std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker)
+{
+	if (isAborting)	{
+		emit worker->notification (ExperimentThreadManager::abortString.c_str());
+	}
+	else{
+		emit worker->notification ("Bad Exit!\r\n");
+		comm.sendFatalError ("Exited main experiment thread abnormally." + exception.trace ());
+	}
+	{
+		isAborting = false;
+	}
+	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
+	emit worker->notification (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
+		+ str (int (exp_t) % 60) + " seconds.\r\n").c_str ());
+	emit worker->errorExperimentFinish ();
+}
+
+void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType& expType, bool runMaster, 
+											 std::chrono::time_point<chronoClock> startTime, AoSystem& aoSys, 
+											 ExpThreadWorker* worker){
+	if (runMaster) {
+		try {
+			aoSys.stopDacs ();
+			aoSys.setDacStatusNoForceOut (aoSys.getFinalSnapshot ());
+		}
+		catch (Error&) { /* this gets thrown if no dac events. just continue.*/ } 
+	}
+	switch (expType){
+		case ExperimentType::CameraCal:
+			comm.sendCameraCalFin ();
+			break;
+		case ExperimentType::LoadMot:
+		case ExperimentType::MachineOptimization:
+		case ExperimentType::AutoCal:
+			comm.sendFinish (expType);
+			break;
+		default:
+			comm.sendFinish (ExperimentType::Normal);
+	}
+	emit worker->notification ("\r\nExperiment Finished Normally.\r\n");
+	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
+	emit worker->notification (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) 
+		+ " minutes, " + str (int (exp_t) % 60) + " seconds.\r\n").c_str ());
+	emit worker->normalExperimentFinish ();
+}
+
+void ExperimentThreadManager::startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip)
+{
+	if (input->runList.master){
+		emit input->workerThread->repUpdate (repInc + 1); 
+		input->aoSys.resetDacs (variationInc, skip);
+		input->ttls.ftdi_trigger ();
+		input->ttls.FtdiWaitTillFinished (variationInc);
+	}
+}
+
+void ExperimentThreadManager::deviceLoadExpSettings ( IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input, 
+											  ConfigStream& cStream )
+{
+	try {
+		emit input->workerThread->updateBoxColor ("White", device.getDelim().c_str());
+		device.loadExpSettings (cStream);
+	}
+	catch (Error& ) {
+		emit input->workerThread->updateBoxColor ("Red", device.getDelim ().c_str ());
+		throwNested ("Error seen while loading experiment settings for system: " + device.getDelim ());
+	}
+}
+
+void ExperimentThreadManager::deviceProgramVariation (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
+													  std::vector<parameterType>& expParams, UINT variationInc)
+{
+	if (device.experimentActive) {
+		try
+		{
+			device.programVariation (variationInc, expParams);
+			emit input->workerThread->updateBoxColor ("Green", device.getDelim ().c_str ());
+		}
+		catch (Error& ) {
+			emit input->workerThread->updateBoxColor ("Red", device.getDelim ().c_str ());
+			throwNested ("Error seen while programming variation for system: " + device.getDelim ());
+		}
+	}
+
+}
+
+void ExperimentThreadManager::deviceCalculateVariations (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
+														std::vector<parameterType>& expParams )
+{
+	if (device.experimentActive) {
+		try {
+			emit input->workerThread->updateBoxColor ("Yellow", device.getDelim ().c_str ());
+			device.calculateVariations (expParams, input->workerThread);
+		}
+		catch (Error& ) {
+			emit input->workerThread->updateBoxColor ("Red", device.getDelim ().c_str ());
+			throwNested ("Error Seen while calculating variations for system: " + device.getDelim ());
+		}
+		if (input->thisObj->isAborting) thrower (abortString);
+	}
+}
+
+void ExperimentThreadManager::deviceNormalFinish ( IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input )
+{
+	if (device.experimentActive) {
+		emit input->workerThread->updateBoxColor ("Blue", device.getDelim ().c_str ());
+		device.normalFinish ();
+	}
+	else {
+		emit input->workerThread->updateBoxColor ("Black", device.getDelim ().c_str ());
+	}
+}
+
+void ExperimentThreadManager::loadExperimentRuntime ( ConfigStream& config, ExpRuntimeData& runtime, 
+													  std::unique_ptr<ExperimentThreadInput>& input )
+{
+	runtime.expParams = ParameterSystem::combineParams (
+		ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), input->globalParameters);
+	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());
+	input->thisObj->loadMasterScript (ProfileSystem::getMasterAddressFromConfig (input->profile), runtime.masterScript);
+	runtime.mainOpts = ProfileSystem::stdConfigGetter (config, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig);
+	runtime.repetitions = ProfileSystem::stdConfigGetter (config, "REPETITIONS", Repetitions::getSettingsFromConfig);
+	ParameterSystem::generateKey (runtime.expParams, runtime.mainOpts.randomizeVariations, varRangeInfo);
 }

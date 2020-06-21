@@ -23,9 +23,9 @@ void AoSettingsDialog::handleOk()
 			errBox("ERROR: " + str(text) + " is an invalid name; names cannot start with numbers.");
 			return;
 		}
-		input->aoSys->setName(dacInc, str(text), input->toolTips, input->master);
+		input->aoSys->setName(dacInc, str(text));
 		noteEdits[ dacInc ].GetWindowTextA ( text );
-		input->aoSys->setNote ( dacInc, str ( text ), input->toolTips, input->master );
+		input->aoSys->setNote ( dacInc, str ( text ) );
 		double min, max;
 		try
 		{

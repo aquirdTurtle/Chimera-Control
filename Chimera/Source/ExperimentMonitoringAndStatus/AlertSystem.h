@@ -5,6 +5,11 @@
 #include <Mmsystem.h>
 #include <mciapi.h>
 #include "Andor/cameraPositions.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qcheckbox.h>
+#include <qlineedit.h>
+
 #pragma comment(lib, "Winmm.lib")
 
 class AlertSystem
@@ -16,8 +21,7 @@ class AlertSystem
 			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
 		}
 		~AlertSystem() { mciSendString( "close mp3", NULL, 0, NULL ); }
-		void initialize( POINT& positions, CWnd* parent, bool isTriggerModeSensitive, int& id,
-						 cToolTips& tooltips );
+		void initialize( POINT& positions, IChimeraWindowWidget* parent );
 		void alertMainThread( int level );
 		void soundAlert();
 		void rearrange( int width, int height, fontMap fonts );
@@ -31,13 +35,13 @@ class AlertSystem
 		void stopSound();
 		bool wantsAutoPause( );
 	private:
-		Control<CStatic> title;
-		Control<CleanCheck> atomsAlertActiveCheckBox;
-		Control<CleanCheck> motAlertActiveCheckBox;
-		Control<CStatic> alertThresholdText;
-		Control<CEdit> alertThresholdEdit;
-		Control<CleanCheck> soundAtFinishCheck;
-		Control<CleanCheck> autoPauseAtAlert;
+		QLabel* title;
+		QCheckBox* atomsAlertActiveCheckBox;
+		QCheckBox* motAlertActiveCheckBox;
+		QLabel* alertThresholdText;
+		QLineEdit* alertThresholdEdit;
+		QCheckBox* soundAtFinishCheck;
+		QCheckBox* autoPauseAtAlert;
 		int alertThreshold=-1;
 		bool useAlerts=false;
 		bool autoPause=false;

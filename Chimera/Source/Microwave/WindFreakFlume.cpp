@@ -2,8 +2,8 @@
 #include "WindFreakFlume.h"
 
 WindFreakFlume::WindFreakFlume (std::string portAddress, bool safemode)
-	: WinSerialFlume::WinSerialFlume(safemode, portAddress){
-}
+	: WinSerialFlume::WinSerialFlume(safemode, portAddress)
+{}
 
 std::string WindFreakFlume::queryIdentity (){
 	auto model = query ("+");
@@ -13,9 +13,11 @@ std::string WindFreakFlume::queryIdentity (){
 void WindFreakFlume::setPmSettings (){
 	write ("C0");
 }
+
 void WindFreakFlume::setFmSettings (){
 	write ("C0");
 }
+
 void WindFreakFlume::programSingleSetting (microwaveListEntry setting, UINT varNumber){
 	write ("C0");
 	// lock the pll

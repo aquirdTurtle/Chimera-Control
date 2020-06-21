@@ -2,6 +2,7 @@
 #include "Piezo/PiezoCore.h"
 #include "Piezo/PiezoType.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ProfileSystem.h"
 
 PiezoCore::PiezoCore (piezoSetupInfo info) :
 	controllerType ( info.type),
@@ -10,11 +11,6 @@ PiezoCore::PiezoCore (piezoSetupInfo info) :
 	configDelim( info.name )
 {}
 
-void PiezoCore::updateExprVals ( std::vector<piezoChan<Expression>> newVals )
-{
-	experimentVals = newVals;
-}
-
 void PiezoCore::programAll ( piezoChan<double> vals )
 {
 	programXNow ( vals.x );
@@ -22,58 +18,48 @@ void PiezoCore::programAll ( piezoChan<double> vals )
 	programZNow ( vals.z );
 }
 
-void PiezoCore::exprProgramPiezo ( UINT sequenceNumber, UINT variationNumber )
+void PiezoCore::programVariation ( UINT variationNumber, std::vector<parameterType>& params)
 {
-	if ( sequenceNumber >= experimentVals.size ( ) )
+	if (experimentActive)
 	{
-		thrower ( "Tried to program piezo with sequence which doesn't seem to exist!" );
+		programXNow (expSettings.pztValues.x.getValue (variationNumber));
+		programYNow (expSettings.pztValues.y.getValue (variationNumber));
+		programZNow (expSettings.pztValues.z.getValue (variationNumber));
 	}
-	programXNow ( experimentVals[ sequenceNumber ].x.getValue ( variationNumber ) );
-	programYNow ( experimentVals[ sequenceNumber ].y.getValue ( variationNumber ) );
-	programZNow ( experimentVals[ sequenceNumber ].z.getValue ( variationNumber ) );
 }
 
-void PiezoCore::setCtrl ( bool ctrl )
+void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
-	ctrlOption = ctrl;
-}
-
-bool PiezoCore::wantsCtrl ( )
-{
-	return ctrlOption;
-}
-
-void PiezoCore::evaluateVariations (std::vector<std::vector<parameterType>>& params, UINT totalVariations )
-{
-	try
+	size_t totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
+	if (experimentActive)
 	{
-		for ( auto seqNum : range ( params.size ( ) ) )
+		try
 		{
-			experimentVals[ seqNum ].x.assertValid ( params[ seqNum ], PIEZO_PARAMETER_SCOPE );
-			experimentVals[ seqNum ].y.assertValid ( params[ seqNum ], PIEZO_PARAMETER_SCOPE );
-			experimentVals[ seqNum ].z.assertValid ( params[ seqNum ], PIEZO_PARAMETER_SCOPE );
-			experimentVals[ seqNum ].x.internalEvaluate ( params[ seqNum ], totalVariations );
-			experimentVals[ seqNum ].y.internalEvaluate ( params[ seqNum ], totalVariations );
-			experimentVals[ seqNum ].z.internalEvaluate ( params[ seqNum ], totalVariations );
+			expSettings.pztValues.x.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.y.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.z.assertValid (params, PIEZO_PARAMETER_SCOPE);
+			expSettings.pztValues.x.internalEvaluate (params, totalVariations);
+			expSettings.pztValues.y.internalEvaluate (params, totalVariations);
+			expSettings.pztValues.z.internalEvaluate (params, totalVariations);
+		}
+		catch (Error&)
+		{
+			throwNested ("Failed to evaluate piezo expression varations!");
 		}
 	}
-	catch ( Error& )
-	{
-		throwNested ( "Failed to evaluate piezo expression varations!" );
-	}
 }
 
-std::pair<piezoChan<std::string>, bool> PiezoCore::getPiezoSettingsFromConfig ( std::ifstream& file, Version ver )
+piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file )
 {
-	piezoChan<std::string> valVec;
+	piezoSettings tempSettings;
+	auto getlineF = ProfileSystem::getGetlineFunc (file.ver);
 	file.get ( );
-	std::getline ( file, valVec.x );
-	std::getline ( file, valVec.y );
-	std::getline ( file, valVec.z );
-	bool ctrlOption;
-	file >> ctrlOption;
+	getlineF ( file, tempSettings.pztValues.x.expressionStr );
+	getlineF ( file, tempSettings.pztValues.y.expressionStr);
+	getlineF ( file, tempSettings.pztValues.z.expressionStr);
+	file >> tempSettings.ctrlPzt;
 	file.get ( );
-	return { valVec, ctrlOption };
+	return tempSettings;
 }
 
 void PiezoCore::initialize ( )
@@ -163,8 +149,19 @@ std::string PiezoCore::getDeviceInfo ( )
 	}
 }
 
-
 std::string PiezoCore::getDeviceList ( )
 {
 	return flume.list ( );
 }
+
+void PiezoCore::logSettings (DataLogger& log)
+{
+
+}
+
+void PiezoCore::loadExpSettings (ConfigStream& stream)
+{
+	ProfileSystem::stdGetFromConfig (stream, *this, expSettings);
+	experimentActive = expSettings.ctrlPzt;
+}
+

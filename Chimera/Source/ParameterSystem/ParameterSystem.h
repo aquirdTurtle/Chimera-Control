@@ -8,9 +8,15 @@
 #include "afxcview.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
+#include "ParameterModel.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qtablewidget.h>
+#include <qlabel.h>
+
 
 class MainWindow;
 class AuxiliaryWindow;
@@ -37,38 +43,25 @@ enum class ParameterSysType
  * - Function Variables
  * That being said, there should only ever be 3 instances of this class active, one for each gui element.
  */
-class ParameterSystem
-{
+class ParameterSystem {
 	public:		
 		// THIS CLASS IS NOT COPYABLE.
 		ParameterSystem& operator=(const ParameterSystem&) = delete;
 		ParameterSystem (const ParameterSystem&) = delete;
 
 		ParameterSystem ( std::string configurationFileDelimiter );
-		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
-		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult );
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, UINT listviewId, 
-						 ParameterSysType type );
-		void handleSingleClick (  );
-		void handleDblClick ( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-								   DoSystem* ttls, AoSystem* aoSys );
+		void handleContextMenu (const QPoint& pos);
+		void initialize( POINT& pos, IChimeraWindowWidget* master, std::string title, ParameterSysType type );
 		void adjustVariableValue ( std::string paramName, double value );
-		void deleteVariable ( );
 		void addParameter( parameterType var );
-		void reorderVariableDimensions ( );
-		void removeVariableDimension();
 		void clearParameters ( );
 		void flattenScanDimensions ( );
-		void checkScanDimensionConsistency ( );
-		void checkVariationRangeConsistency ( );
-		void saveParameter ( std::ofstream& saveFile, parameterType variable );
-		static void generateKey ( std::vector<std::vector<parameterType>>& variables, bool randomizeVariablesOption,
+		void saveParameter (ConfigStream& saveFile, parameterType variable );
+		static void generateKey ( std::vector<parameterType>& variables, bool randomizeVariablesOption,
 								  ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> combineParamsForExpThread ( std::vector<parameterType>& masterVars,
-																				 std::vector<parameterType>& subVars );
+		static std::vector<parameterType> combineParams ( std::vector<parameterType>& masterVars, 
+														  std::vector<parameterType>& subVars );
 
-		void handleColumnClick ( NMHDR * pNotifyStruct, LRESULT* result );
-		void redrawListview ( );
 		// getters
 		parameterType getVariableInfo(int varNumber);
 		std::vector<parameterType> getAllConstants();
@@ -80,47 +73,36 @@ class ParameterSystem
 		static std::vector<double> getKeyValues ( std::vector<parameterType> variables );
 		ScanRangeInfo getRangeInfo ( );
 		// setters
-		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
-		void setVariationRangeNumber(int num, USHORT dimNumber);
-		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setParameterControlActive(bool active);
-		void setUsages(std::vector<std::vector<parameterType>> vars);
+		void setUsages(std::vector<parameterType> vars);
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
 		// file handling
-		static parameterType loadParameterFromFile ( std::ifstream& openFile, Version ver, ScanRangeInfo inputRangeInfo );
-		static std::vector<parameterType> getParametersFromFile ( std::ifstream& configFile, Version ver, ScanRangeInfo inputRangeInfo );
-		static ScanRangeInfo getRangeInfoFromFile ( std::ifstream& configFile, Version ver );
+		static parameterType loadParameterFromFile (ConfigStream& openFile, ScanRangeInfo inputRangeInfo );
+		static std::vector<parameterType> getParametersFromFile ( ConfigStream& configFile, ScanRangeInfo inputRangeInfo );
+		static ScanRangeInfo getRangeInfoFromFile (ConfigStream& configFile);
 		static std::vector<parameterType> getConfigParamsFromFile ( std::string configFile );
 		static ScanRangeInfo getRangeInfoFromFile ( std::string configFileName );
 		// profile stuff
-		void handleNewConfig ( std::ofstream& newFile );
-		void handleSaveConfig ( std::ofstream& saveFile );
-		void handleOpenConfig ( std::ifstream& openFile, Version ver );		
+		void handleSaveConfig (ConfigStream& saveFile );
+		void handleOpenConfig (ConfigStream& openFile );
 		
 		// public variables
-		const IndvRangeInfo defaultRangeInfo = { 2,false,true };
 		const std::string configDelim;
 
 	private:
-		void addParamToListview ( parameterType param, UINT item );
-		void setVariationRangeColumns ( int num = -1, int width = -1 );
+		QStringList baseLabels;
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
-		int mostRecentlySelectedParam = -1;
+
 		// name, constant/variable, dim, constantValue, scope
-		USHORT preRangeColumns = 5;
-		// Only 2 gui elements.
-		Control<CStatic> parametersHeader;
-		Control<MyListCtrl> parametersListview;
-		// most important member, holds the settings for all current variables. 
-		std::vector<parameterType> currentParameters;
+		QLabel* parametersHeader;
+		//QTableWidget* parametersListview;
+		QTableView* parametersView;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
-		// A global parameter, the "official" version. 
-		ScanRangeInfo rangeInfo;
+
 		ParameterSysType paramSysType;
-		// number of dimensions to the variable scans. Unusual to do more than 2.
-		USHORT scanDimensions;
+		ParameterModel paramModel;
 };
 

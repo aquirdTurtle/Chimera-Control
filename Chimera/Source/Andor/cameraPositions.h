@@ -1,6 +1,6 @@
 // created by Mark O. Brown
 #pragma once
-#include "windows.h"
+
 /*
 struct cameraPositions
 {

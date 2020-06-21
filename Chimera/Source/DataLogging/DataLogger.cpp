@@ -5,25 +5,24 @@
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
+#include "ExperimentThread/ExperimentThreadInput.h"
+#include <ConfigurationSystems/ProfileSystem.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 
-DataLogger::DataLogger(std::string systemLocation)
-{
+DataLogger::DataLogger(std::string systemLocation){
 	// initialize this to false.
 	fileIsOpen = false;
 	dataFilesBaseLocation = systemLocation;
 }
 
 
-DataLogger::~DataLogger( )
-{
+DataLogger::~DataLogger( ){
 	// try to close before finishing.
 	closeFile( );
 }
 
 // this file assumes that h5 is the data_#.h5 file. User should check if incDataSet is on before calling. ???
-void DataLogger::deleteFile(Communicator* comm)
-{
+void DataLogger::deleteFile(Communicator* comm){
 	if (fileIsOpen)
 	{
 		// I'm not actually sure if this should be a prob with h5.
@@ -43,8 +42,7 @@ void DataLogger::deleteFile(Communicator* comm)
 }
 
 
-void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath )
-{
+void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath ){
 	time_t timeInt = time ( 0 );
 	struct tm timeStruct;
 	localtime_s ( &timeStruct, &timeInt );
@@ -74,24 +72,20 @@ void DataLogger::getDataLocation ( std::string base, std::string& todayFolder, s
 	int result = 1;
 	struct stat info;
 	int resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
-	if ( resultStat != 0 )
-	{
+	if ( resultStat != 0 ){
 		result = CreateDirectory ( cstr ( base + finalSaveFolder ), 0 );
 	}
-	if ( !result )
-	{
+	if ( !result ){
 		thrower ( "ERROR: Failed to create save location for data at location " + base + finalSaveFolder +
 				  ". Make sure you have access to the jilafile or change the save location. Error: " + str ( GetLastError ( ) )
 				  + "\r\n" );
 	}
 	finalSaveFolder += "\\Raw Data";
 	resultStat = stat ( cstr ( base + finalSaveFolder ), &info );
-	if ( resultStat != 0 )
-	{
+	if ( resultStat != 0 ){
 		result = CreateDirectory ( cstr ( base + finalSaveFolder ), 0 );
 	}
-	if ( !result )
-	{
+	if ( !result ){
 		thrower ( "ERROR: Failed to create save location for data! Error: " + str ( GetLastError ( ) ) + "\r\n" );
 	}
 	finalSaveFolder += "\\";
@@ -284,92 +278,6 @@ void DataLogger::logDoSystemSettings ( DoCore& doSys )
 	}
 }
 
-
-
-void DataLogger::logTektronicsSettings ( tektronixInfo& tekInfo, std::string delim )
-{
-	try
-	{
-		H5::Group tektronicsGroup;
-		try
-		{
-			tektronicsGroup = H5::Group( file.createGroup ( "/Tektronics" ) );
-		}
-		catch ( H5::Exception err )
-		{
-			// probably has just already been created.
-			tektronicsGroup = H5::Group ( file.openGroup ( "/Tektronics" ) );
-		}
-		H5::Group thisTek ( tektronicsGroup.createGroup (delim ) );
-		writeDataSet ( tekInfo.machineAddress, "Machine-Address", thisTek );
-		UINT channelCount = 1;
-		for ( auto& channel : tekInfo.channels )
-		{
-			H5::Group thisChannel ( thisTek.createGroup ( "Channel_" + str ( channelCount++ ) ) );
-			writeDataSet (channel.control, "Controlled_Option", thisChannel );
-			writeDataSet (channel.on, "Output_On", thisChannel );
-			writeDataSet (channel.power.expressionStr, "Power", thisChannel );
-			writeDataSet (channel.mainFreq.expressionStr, "Main_Frequency", thisChannel );
-			writeDataSet (channel.fsk, "FSK_Option", thisChannel );
-			writeDataSet (channel.fskFreq.expressionStr, "FSK_Frequency", thisChannel );
-		}
-	}
-	catch ( H5::Exception err)
-	{
-		logError ( err );
-		throwNested ( "Failed to write tektronics settings to the HDF5 data file!" );
-	}
-}
-
-
-
-void DataLogger::logAgilentSettings( const std::vector<std::reference_wrapper<AgilentCore>>& agilents, 
-									 const std::vector<deviceOutputInfo>& agOutput )
-{
-	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
-	for ( auto agInc : range(agilents.size() ))
-	{
-		auto& agilent = agilents[agInc].get();
-		H5::Group singleAgilent( agilentsGroup.createGroup( agilent.configDelim ) );
-		deviceOutputInfo info = agOutput[agInc];
-		UINT channelCount = 1;
-		writeDataSet ( agilent.getStartupCommands(), "Startup-Commands", singleAgilent );
-		for ( auto& channel : info.channel )
-		{
-			H5::Group channelGroup( singleAgilent.createGroup( "Channel-" + str( channelCount ) ) );
-			std::string outputModeName = AgilentChannelMode::toStr(channel.option);
-			writeDataSet( outputModeName, "Output-Mode", channelGroup );
-			H5::Group dcGroup( channelGroup.createGroup( "DC-Settings" ) );
-			writeDataSet( channel.dc.dcLevel.expressionStr, "DC-Level", dcGroup );
-			H5::Group sineGroup( channelGroup.createGroup( "Sine-Settings" ) );
-			writeDataSet( channel.sine.frequency.expressionStr, "Frequency", sineGroup );
-			writeDataSet( channel.sine.amplitude.expressionStr, "Amplitude", sineGroup );
-			H5::Group squareGroup( channelGroup.createGroup( "Square-Settings" ) );
-			writeDataSet( channel.square.amplitude.expressionStr, "Amplitude", squareGroup );
-			writeDataSet( channel.square.frequency.expressionStr, "Frequency", squareGroup );
-			writeDataSet( channel.square.offset.expressionStr, "Offset", squareGroup );
-			H5::Group preloadedArbGroup( channelGroup.createGroup( "Preloaded-Arb-Settings" ) );
-			writeDataSet( channel.preloadedArb.address, "Address", preloadedArbGroup );
-			H5::Group scriptedArbSettings( channelGroup.createGroup( "Scripted-Arb-Settings" ) );
-			writeDataSet( channel.scriptedArb.fileAddress, "Script-File-Address", scriptedArbSettings );
-			// TODO: load script file itself
-			ScriptStream stream;
-			try
-			{
-				ExperimentThreadManager::loadAgilentScript ( channel.scriptedArb.fileAddress, stream );
-				writeDataSet ( stream.str ( ), "Agilent-Script-Script", scriptedArbSettings );
-			}
-			catch ( Error& )
-			{
-				// failed to open, that's probably fine, 
-				writeDataSet ( "Script Failed to load.", "Agilent-Script-Script", scriptedArbSettings );
-			}
-			channelCount++;
-		}
-	}
-}
-
-
 void DataLogger::logFunctions( H5::Group& group )
 {
 	H5::Group funcGroup( group.createGroup( "Functions" ) );
@@ -432,56 +340,10 @@ void DataLogger::updateOptimizationFile ( std::string appendTxt )
 	optFile << appendTxt;
 }
 
-
 void DataLogger::finOptimizationFile ( )
 {
 	optFile.close ( );
 }
-
-
-void DataLogger::logBaslerSettings ( baslerSettings settings, bool on )
-{
-	try
-	{
-		if ( !on )
-		{
-			H5::Group baslerGroup( file.createGroup ( "/Basler:Off" ) );
-			return;
-		}
-		H5::Group baslerGroup ( file.createGroup ( "/Basler" ) );
-		hsize_t rank1[ ] = { 1 };
-		// pictures. These are permanent members of the class for speed during the writing process.	
-		hsize_t setDims[ ] = { ULONGLONG ( settings.totalPictures() ), settings.dims.width ( ),
-							   settings.dims.height ( ) };
-		hsize_t picDims[ ] = { 1, settings.dims.width ( ), settings.dims.height ( ) };
-		BaslerPicureSetDataSpace = H5::DataSpace ( 3, setDims );
-		BaslerPicDataSpace = H5::DataSpace ( 3, picDims );
-		BaslerPictureDataset = baslerGroup.createDataSet ( "Pictures", H5::PredType::NATIVE_LONG, BaslerPicureSetDataSpace );
-		currentBaslerPicNumber = 0;
-		writeDataSet ( BaslerAcquisition::toStr ( settings.acquisitionMode ), "Camera-Mode", baslerGroup );
-		writeDataSet ( BaslerAutoExposure::toStr(settings.exposureMode), "Exposure-Mode", baslerGroup );
-		writeDataSet ( settings.exposureTime, "Exposure-Time", baslerGroup );
-		writeDataSet ( BaslerTrigger::toStr( settings.triggerMode ), "Trigger-Mode", baslerGroup );
-		// image settings
-		H5::Group imageDims = baslerGroup.createGroup ( "Image-Dimensions" );
-		writeDataSet ( settings.dims.top, "Top", imageDims );
-		writeDataSet ( settings.dims.bottom, "Bottom", imageDims );
-		writeDataSet ( settings.dims.left, "Left", imageDims );
-		writeDataSet ( settings.dims.right, "Right", imageDims );
-		writeDataSet ( settings.dims.horizontalBinning, "Horizontal-Binning", imageDims );
-		writeDataSet ( settings.dims.verticalBinning, "Vertical-Binning", imageDims );
-
-		writeDataSet ( settings.frameRate, "Frame-Rate", baslerGroup );
-		writeDataSet ( settings.rawGain, "Raw-Gain", baslerGroup );
-	}
-	catch ( H5::Exception err )
-	{
-		logError ( err );
-		throwNested ( "ERROR: Failed to log basler parameters in HDF5 file: " + err.getDetailMsg ( ) );
-	}
-}
-
-
 
 void DataLogger::writeBaslerPic ( Matrix<long> image )
 {
@@ -518,87 +380,16 @@ void DataLogger::logError ( H5::Exception& err )
 }
 
 
-void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
-{
-	try
-	{
-		if ( !on )
-		{
-			H5::Group andorGroup( file.createGroup( "/Andor:Off" ) );
-			return;
-		}
-		// in principle there are some other low level settings or things that aren't used very often which I could include 
-		// here. I'm gonna leave this for now though.
-		H5::Group andorGroup( file.createGroup( "/Andor" ) );
-		hsize_t rank1[] = { 1 };
-		// pictures. These are permanent members of the class for speed during the writing process.	
-		if (settings.acquisitionMode == AndorRunModes::mode::Kinetic) {
-			hsize_t setDims[] = { ULONGLONG (settings.totalPicsInExperiment ()), settings.imageSettings.width (),
-				settings.imageSettings.height () };
-			hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
-			AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
-			AndorPicDataSpace = H5::DataSpace (3, picDims);
-			AndorPictureDataset = andorGroup.createDataSet ("Pictures", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
-			currentAndorPicNumber = 0;
-		}
-		else
-		{
-			/*
-			hsize_t setDims[] = { 0, settings.imageSettings.width (), settings.imageSettings.height () };
-			hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
-			AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
-			AndorPicDataSpace = H5::DataSpace (3, picDims);
-			AndorPictureDataset = andorGroup.createDataSet ("Pictures: N/A", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
-			*/
-		}
-		writeDataSet( int(settings.acquisitionMode), "Camera-Mode", andorGroup );
-		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
-		writeDataSet( AndorTriggerMode::toStr(settings.triggerMode), "Trigger-Mode", andorGroup );
-		writeDataSet( settings.emGainModeIsOn, "EM-Gain-Mode-On", andorGroup );
-		if ( settings.emGainModeIsOn )
-		{
-			writeDataSet( settings.emGainLevel, "EM-Gain-Level", andorGroup );
-		}
-		else
-		{
-			writeDataSet( -1, "NA:EM-Gain-Level", andorGroup );
-		}
-		// image settings
-		H5::Group imageDims = andorGroup.createGroup( "Image-Dimensions" );
-		writeDataSet( settings.imageSettings.top, "Top", andorGroup );
-		writeDataSet( settings.imageSettings.bottom, "Bottom", andorGroup );
-		writeDataSet( settings.imageSettings.left, "Left", andorGroup );
-		writeDataSet( settings.imageSettings.right, "Right", andorGroup );
-		writeDataSet( settings.imageSettings.horizontalBinning, "Horizontal-Binning", andorGroup );
-		writeDataSet( settings.imageSettings.verticalBinning, "Vertical-Binning", andorGroup );
-		writeDataSet( settings.temperatureSetting, "Temperature-Setting", andorGroup );
-		writeDataSet( settings.picsPerRepetition, "Pictures-Per-Repetition", andorGroup );
-		writeDataSet( settings.repetitionsPerVariation, "Repetitions-Per-Variation", andorGroup );
-		writeDataSet( settings.totalVariations, "Total-Variation-Number", andorGroup );
-	}
-	catch ( H5::Exception err )
-	{
-		logError ( err );
-
-		throwNested ( "ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg( ) );
-	}
-}
-
 /*
 This function is for logging things that are readbtn from the configuration file and otherwise obtained inside the main experiment thread.
 */
-void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<std::vector<parameterType>> allParams)
+void DataLogger::logMasterRuntime ( UINT repNumber,  std::vector<parameterType> allParams)
 {
 	try
 	{
 		H5::Group runtimeGroup ( file.createGroup ( "/Master-Runtime" ) );
 		writeDataSet ( repNumber, "Repetitions", runtimeGroup );
-		UINT count = 0;
-		for ( auto& seqParams : allParams )
-		{
-			logParameters ( seqParams, runtimeGroup, count );
-			count++;
-		}
+		logParameters ( allParams, runtimeGroup );
 	}
 	catch ( H5::Exception& err )
 	{
@@ -648,9 +439,9 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input )
 }
 
 
-void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5::Group& group, UINT seqInc )
+void DataLogger::logParameters( const std::vector<parameterType>& parameters, H5::Group& group )
 {
-	H5::Group paramGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Parameters" );
+	H5::Group paramGroup = group.createGroup( "Parameters" );
 	for ( auto& param : parameters )
 	{
 		H5::DataSet varSet;
@@ -821,37 +612,7 @@ int DataLogger::getDataFileNumber()
 	return currentDataFileNumber;
 } 
 
-
-void DataLogger::logNiawgSettings(ExperimentThreadInput* input, bool runNiawg)
-{
-	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
-	writeDataSet( runNiawg, "Run-NIAWG", niawgGroup );
-	if (runNiawg)
-	{
-		UINT seqInc = 0;
-		for ( auto config : input->seq.sequence )
-		{
-			std::string niawgAddr = ProfileSystem::getNiawgScriptAddrFromConfig( config );
-			ScriptStream niawgStream;
-			ExperimentThreadManager::loadNiawgScript ( niawgAddr, niawgStream );
-			writeDataSet( niawgStream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
-			seqInc++;
-		}
-		writeDataSet( NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup );
-		writeDataSet( NIAWG_GAIN, "NIAWG-Gain", niawgGroup );
-	}
-	else
-	{
-		writeDataSet( "", "NA:NIAWG-Script", niawgGroup );
-		writeDataSet( -1, "NA:NIAWG-Sample-Rate", niawgGroup );
-		writeDataSet( -1, "NA:NIAWG-Gain", niawgGroup );
-	}
-}
-
-
 /// simple wrappers for writing data sets
-
-
 H5::DataSet DataLogger::writeDataSet( bool data, std::string name, H5::Group& group )
 {
 	try

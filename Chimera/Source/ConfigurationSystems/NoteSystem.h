@@ -3,19 +3,23 @@
 #include "Control.h"
 #include <string>
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"
-
+#include <QLabel>
+#include <QTextEdit>
+#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
+ 
 class NoteSystem
 {
 	public:
-		void handleNewConfig( std::ofstream& saveFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile );
 		void setConfigurationNotes(std::string notes);
-		void initialize( POINT& topLeftPos, CWnd* parentWindow, int& id, cToolTips& tooltips );		
+		void initialize( POINT& topLeftPos, IChimeraWindowWidget* parent );
 		std::string getConfigurationNotes();
 		void rearrange(int width, int height, fontMap fonts);
 	private:
-		Control<CEdit> configNotes;
-		Control<CStatic> configNotesHeader;
+		QLabel* header;
+		CQTextEdit* edit;
 };

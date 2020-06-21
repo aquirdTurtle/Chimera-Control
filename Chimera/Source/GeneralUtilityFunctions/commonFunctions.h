@@ -11,34 +11,28 @@ class AuxiliaryWindow;
 class DeformableMirrorWindow;
 class ScriptingWindow;
 class BaslerWindow;
+class IChimeraWindow;
 class DataLogger;
 
 namespace commonFunctions
 {
 	/// Call to direct message to appropriate function in this namespace
-	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							 AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin, 
-							 DeformableMirrorWindow* auxWin2);
+	void handleCommonMessage( int msgID, IChimeraWindowWidget* win);
 	/// Run Menu
-	void calibrateCameraBackground ( ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-									AuxiliaryWindow* auxWin, BaslerWindow* basWin );
-	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, AndorWindow* camWin,
-							  AuxiliaryWindow* auxWin, BaslerWindow* basWin, AllExperimentInput& input, bool runNiawg, bool runTtls,
+	void calibrateCameraBackground (IChimeraWindowWidget* win);
+	void prepareMasterThread( int msgID, IChimeraWindowWidget* win, AllExperimentInput& input, bool runNiawg, bool runTtls,
 							  bool runAndor, bool runBasler, bool startPlotThread );
-	void startExperimentThread ( MainWindow* mainWin, AllExperimentInput& input);
+	void startExperimentThread (IChimeraWindowWidget* win, AllExperimentInput& input);
 	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, 
 					  std::string specialName="", bool needsCal=false );
-	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
-	void abortCamera( AndorWindow* camWin, MainWindow* mainWin );
-	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);
-	void forceExit ( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin, 
-		ScriptingWindow* scriptWin);
-	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, AndorWindow* camWin, AuxiliaryWindow* auxWin );
-	bool getPermissionToStart( AndorWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
-							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster, AllExperimentInput& input );
+	void abortNiawg(IChimeraWindowWidget* win);
+	void abortCamera(IChimeraWindowWidget* win);
+	void abortMaster(IChimeraWindowWidget* win);
+	void forceExit (IChimeraWindowWidget* win);
+	void exitProgram(IChimeraWindowWidget* win);
+	bool getPermissionToStart(IChimeraWindowWidget* win, bool runNiawg, bool runMaster, AllExperimentInput& input );
 	/// Scripting Menu
-	void reloadNIAWGDefaults( MainWindow* mainWin, ScriptingWindow* scriptWin);
-
+	void reloadNIAWGDefaults( QtMainWindow* mainWin, QtScriptWindow* scriptWin);
 }
 
 

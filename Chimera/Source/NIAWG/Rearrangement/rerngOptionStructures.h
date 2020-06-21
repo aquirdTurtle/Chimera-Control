@@ -19,29 +19,6 @@ struct rerngMode
 	static mode fromStr ( std::string txt );
 };
 
-
-struct rerngGuiOptionsForm
-{
-	bool active = false;
-	Expression moveSpeed;
-	Expression flashingRate;
-	Expression moveBias;
-	Expression deadTime;
-	// the static / moving time ratio, i.e. if 2 this might imply out of a total 60us move, the static part takes up
-	// 40us and the moving part takes up 20us.
-	Expression staticMovingRatio;
-	Expression finalMoveTime;
-	Expression fastMoveTime;
-	//
-	bool outputInfo = false;
-	bool outputIndv = false;
-	bool preprogram = false;
-	bool useCalibration = false;
-
-	rerngMode::mode rMode;
-};
-
-
 enum class smartRerngOption
 {
 	// none places target in center.
@@ -76,7 +53,7 @@ enum class parallelMoveOption
 	full
 };
 
-
+/*
 struct rerngGuiOptions
 {
 	bool active = false;
@@ -105,3 +82,29 @@ struct rerngGuiOptions
 
 	rerngMode::mode rMode;
 };
+*/
+
+struct rerngGuiOptions
+{
+	bool active = false;
+	Expression moveSpeed = "60e-6";
+	Expression flashingRate = "1e6";
+	Expression moveBias = "1";
+	Expression deadTime = "0";
+	// the static / moving time ratio, i.e. if 2 this might imply out of a total 60us move, the static part takes up
+	// 40us and the moving part takes up 20us.
+	Expression staticMovingRatio = "1";
+	Expression finalMoveTime = "1e-3";
+	Expression fastMoveTime = "2e-6";
+	//
+	bool outputInfo = false;
+	bool outputIndv = false;
+	bool preprogram = false;
+	bool useCalibration = false;
+	rerngMode::mode rMode;
+	// hard set right now.
+	nonFlashingOption noFlashOption = nonFlashingOption::cautious;
+	parallelMoveOption parallel = parallelMoveOption::none;
+	smartRerngOption smartOption = smartRerngOption::full;
+};
+

@@ -8,6 +8,7 @@
 #include "Plotting/PlotCtrl.h"
 #include "GeneralFlumes/ftdiStructures.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/ExpWrap.h"
 #include "GeneralObjects/Matrix.h"
 
@@ -17,6 +18,9 @@
 #include <array>
 #include <sstream>
 #include <unordered_map>
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qpushbutton.h>
 
 /**/
 class AuxiliaryWindow;
@@ -32,16 +36,14 @@ class DoSystem
 		~DoSystem();
 		/// config handling
 		std::string getDoSystemInfo ();
-		void handleNewConfig( std::ofstream& saveFile );
-		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, Version ver );
-		void initialize(POINT& startLocation, cToolTips& toolTips, CWnd* master, int& id );
+		void handleSaveConfig(ConfigStream& saveFile);
+		void handleOpenConfig(ConfigStream& openFile);
+		void initialize(POINT& startLocation, IChimeraWindowWidget* master );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
 		void zeroBoard();
-		void handleTTLPress(int id);
+		void handleTTLPress (DigitalOutput& out);
 		void handleHoldPress();
-		HBRUSH handleColorMessage(CWnd* window, CDC* cDC);
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 		bool getFtFlumeSafemode ();
 
@@ -49,12 +51,10 @@ class DoSystem
 
 		std::pair<UINT, UINT> getTtlBoardSize();
 
-		void setName( DoRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
+		void setName( DoRows::which row, UINT number, std::string name);
 		std::string getName ( DoRows::which row, UINT number );
 		Matrix<std::string> getAllNames ();
 		bool getTtlStatus ( DoRows::which row, int number );
-		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
-		void unshadeTtls();
 		void updateDefaultTtl( DoRows::which row, UINT column, bool state);
 		bool getDefaultTtl( DoRows::which row, UINT column);
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
@@ -67,11 +67,11 @@ class DoSystem
 		/// other.
 		void handleInvert( );
 		// one control for each TTL
-		Control<CStatic> ttlTitle;
-		Control<CleanPush> ttlHold;
-		Control<CleanPush> zeroTtls;
-		std::array< Control<CStatic>, 16 > ttlNumberLabels;
-		std::array< Control<CStatic>, 4 > ttlRowLabels;
+		QLabel* ttlTitle;
+		CQPushButton* ttlHold;
+		CQPushButton* zeroTtls;
+		std::array< QLabel*, 16 > ttlNumberLabels;
+		std::array< QLabel*, 16 > ttlRowLabels;
 		allDigitalOutputs outputs;
 
 		// tells whether the hold button is down or not.

@@ -6,10 +6,9 @@ AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE )
 {
 }
 
-
 /*
-	We use a PCI card for analog input currently.
-*/
+ *	We use a PCI card for analog input currently.
+ */
 void AiSystem::initDaqmx( )
 {
 	daqmx.createTask( "Analog-Input", analogInTask0 );
@@ -29,58 +28,41 @@ void AiSystem::refreshDisplays( )
 {
 	for ( auto dispInc : range(voltDisplays.size()))
 	{
-		voltDisplays[dispInc].SetWindowTextA( str(currentValues[dispInc], 4).c_str() );
+		voltDisplays[dispInc]->setText( str(currentValues[dispInc], 4).c_str() );
 	}
 }
 
 
-void AiSystem::rearrange( int width, int height, fontMap fonts )
-{
-	title.rearrange(width, height, fonts);
-	for ( auto& label : dacLabels )
-	{
-		label.rearrange( width, height, fonts );
-	}
-	for ( auto& disp : voltDisplays )
-	{
-		disp.rearrange( width, height, fonts );
-	}
-	getValuesButton.rearrange( width, height, fonts );
-	continuousQueryCheck.rearrange( width, height, fonts );
-	queryBetweenVariations.rearrange( width, height, fonts );
-	continuousInterval.rearrange (width, height, fonts);
-	continuousIntervalLabel.rearrange( width, height, fonts );
-	avgNumberEdit.rearrange (width, height, fonts);
-	avgNumberLabel.rearrange (width, height, fonts);
-}
+void AiSystem::rearrange( int width, int height, fontMap fonts ) {}
 
 
-void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
-{
+void AiSystem::initialize( POINT& loc, IChimeraWindowWidget* parent ) {
 	initDaqmx( );
-	title.sPos = {loc.x, loc.y, loc.x + 480, loc.y += 25};
-	title.Create( "ANALOG-INPUT", NORM_HEADER_OPTIONS, title.sPos, parent, id );
-	title.fontType = fontTypes::HeadingFont;
-	getValuesButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
-	getValuesButton.Create( "Get Values", NORM_PUSH_OPTIONS, getValuesButton.sPos, parent, ID_GET_ANALOG_IN_VALUES );
-	continuousQueryCheck.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
-	continuousQueryCheck.Create( "Qry Cont.", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
-	queryBetweenVariations.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 25 };
-	queryBetweenVariations.Create( "Qry Btwn Vars", NORM_CHECK_OPTIONS, queryBetweenVariations.sPos, 
-								   parent, id++ );
-	loc.x -= 480; 
-	continuousIntervalLabel.sPos = { loc.x, loc.y, loc.x + 160, loc.y + 20 };
-	continuousIntervalLabel.Create ("Cont. Interval:", NORM_STATIC_OPTIONS, continuousIntervalLabel.sPos, parent, id++);
-	continuousInterval.sPos = { loc.x + 160, loc.y, loc.x + 240, loc.y + 20 };
-	continuousInterval.Create (NORM_EDIT_OPTIONS, continuousInterval.sPos, parent, id++);
-	continuousInterval.SetWindowText (cstr (AiSettings ().continuousModeInterval));
+	title = new QLabel ("ANALOG-INPUT", parent);
+	title->setGeometry ({ QPoint{loc.x, loc.y}, QPoint{loc.x + 480, loc.y += 25} });
 
-	avgNumberLabel.sPos = { loc.x + 240, loc.y, loc.x + 400, loc.y + 20 };
-	avgNumberLabel.Create ("# To Avg:", NORM_STATIC_OPTIONS, avgNumberLabel.sPos, parent, id++);
-	avgNumberEdit.sPos = { loc.x + 400, loc.y, loc.x + 480, loc.y += 20 };
-	avgNumberEdit.Create (NORM_EDIT_OPTIONS, avgNumberEdit.sPos, parent, id++);
-	avgNumberEdit.SetWindowText (cstr (AiSettings ().numberMeasurementsToAverage));
-	
+	getValuesButton = new CQPushButton ("Get Values", parent);
+	getValuesButton->setGeometry (loc.x, loc.y, 160, 25);
+	parent->connect (getValuesButton, &QPushButton::released, [this]() { refreshCurrentValues (); refreshDisplays (); });
+	loc.x += 160;
+	continuousQueryCheck = new CQCheckBox ("Qry Cont.", parent);
+	continuousQueryCheck->setGeometry (loc.x, loc.y, 160, 25);
+	loc.x += 160;
+	queryBetweenVariations = new CQCheckBox ("Qry Btwn Vars", parent);
+	queryBetweenVariations->setGeometry (loc.x, loc.y, 160, 25);
+	loc.y += 25;
+	loc.x -= 320; 
+	continuousIntervalLabel = new QLabel ("Cont. Interval:", parent);
+	continuousIntervalLabel->setGeometry (loc.x, loc.y, 160, 20);
+	continuousInterval = new CQLineEdit (cstr (AiSettings ().continuousModeInterval), parent);
+	continuousInterval->setGeometry (loc.x + 160, loc.y, 80, 20);
+
+	avgNumberLabel = new QLabel ("# To Avg:", parent);
+	avgNumberLabel->setGeometry (loc.x + 240, loc.y, 160, 20);
+
+	avgNumberEdit = new CQLineEdit (cstr (AiSettings ().numberMeasurementsToAverage), parent);
+	avgNumberEdit->setGeometry (loc.x + 400, loc.y, 80, 20);
+	loc.y += 20;
 	// there's a single label first, hence the +1.
 	long dacInc = 0, collumnInc = 0, numCols=4;
 	LONG colSize = LONG(480 / numCols);
@@ -91,13 +73,13 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 			collumnInc++;
 			loc.y -= 20 * NUMBER_AI_CHANNELS / numCols;
 		}
-		disp.sPos = { loc.x + 20 + collumnInc * colSize, loc.y, loc.x + (collumnInc + 1) * colSize, loc.y += 20 };
-		disp.colorState = 0;
-		disp.Create( "0", NORM_STATIC_OPTIONS, disp.sPos, parent, id++ );
+		disp = new QLabel ("0", parent);
+		disp->setGeometry (loc.x + 20 + collumnInc * colSize, loc.y, colSize-20, 20);
+		loc.y += 20;
 		dacInc++;
 	}
 	collumnInc = 0;
-	loc.y -= 20 * voltDisplays.size( ) / numCols;
+	loc.y -= LONG (20 * voltDisplays.size( ) / numCols);
 
 	for ( auto dacInc : range( NUMBER_AI_CHANNELS ) )
 	{
@@ -107,24 +89,25 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 			collumnInc++;
 			loc.y -= 20 * NUMBER_AI_CHANNELS / numCols;
 		}
-		label.sPos = { loc.x + collumnInc * colSize, loc.y, loc.x + 20 + collumnInc * colSize, loc.y += 20 };
-		label.Create( cstr( dacInc ), WS_CHILD | WS_VISIBLE | SS_CENTER, dacLabels[dacInc].sPos, parent, ID_DAC_FIRST_EDIT + dacInc );
+		label = new QLabel (cstr (dacInc), parent);
+		label->setGeometry (loc.x + collumnInc * colSize, loc.y, 20, 20);
+		loc.y += 20;
 	}
 }
 
 AiSettings AiSystem::getAiSettings ()
 {
 	AiSettings settings;
-	settings.queryBtwnVariations = queryBetweenVariations.GetCheck ();
-	settings.queryContinuously = continuousQueryCheck.GetCheck ();
+	settings.queryBtwnVariations = queryBetweenVariations->isChecked ();
+	settings.queryContinuously = continuousQueryCheck->isChecked ();
 	try
 	{
-		settings.continuousModeInterval = continuousInterval.getWindowTextAsDouble();
+		settings.continuousModeInterval = boost::lexical_cast<double>(str(continuousInterval->text()));
 	}
 	catch (Error &) { errBox ("Failed to convert ai-system number of measurements to average string to uint!"); };
 	try
 	{
-		settings.numberMeasurementsToAverage = avgNumberEdit.getWindowTextAsUINT ();
+		settings.numberMeasurementsToAverage = boost::lexical_cast<double>(str(avgNumberEdit->text()));
 		if (settings.numberMeasurementsToAverage < 2)
 		{
 			settings.numberMeasurementsToAverage = 2;
@@ -135,7 +118,7 @@ AiSettings AiSystem::getAiSettings ()
 	return settings;
 }
 
-AiSettings AiSystem::getAiSettingsFromConfig (std::ifstream& file, Version ver)
+AiSettings AiSystem::getSettingsFromConfig (ConfigStream& file)
 {
 	AiSettings settings;
 	file >> settings.queryBtwnVariations;
@@ -145,29 +128,29 @@ AiSettings AiSystem::getAiSettingsFromConfig (std::ifstream& file, Version ver)
 	return settings;
 }
 
-void AiSystem::handleSaveConfig (std::ofstream& file)
+void AiSystem::handleSaveConfig (ConfigStream& file)
 {
 	auto settings = getAiSettings ();
-	file << configDelim << "\n";
-	file << settings.queryBtwnVariations << "\n";
-	file << settings.queryContinuously << "\n";
-	file << settings.numberMeasurementsToAverage << "\n";
-	file << settings.continuousModeInterval << "\n";
-	file << "END_" + configDelim + "\n";
+	file << configDelim 
+		<< "\n/*Query Between Variations?*/ " << settings.queryBtwnVariations 
+		<< "\n/*Query Continuously?*/ " << settings.queryContinuously 
+		<< "\n/*Average Number:*/ " << settings.numberMeasurementsToAverage 
+		<< "\n/*Contiuous Mode Interval:*/ " << settings.continuousModeInterval 
+		<< "\nEND_" + configDelim + "\n";
 }
 
 void AiSystem::setAiSettings (AiSettings settings)
 {
-	queryBetweenVariations.SetCheck (settings.queryBtwnVariations);
-	continuousQueryCheck.SetCheck (settings.queryContinuously);
-	avgNumberEdit.SetWindowText (cstr(settings.numberMeasurementsToAverage));
-	continuousInterval.SetWindowText (cstr (settings.continuousModeInterval));
+	queryBetweenVariations->setChecked (settings.queryBtwnVariations);
+	continuousQueryCheck->setChecked (settings.queryContinuously);
+	avgNumberEdit->setText (cstr(settings.numberMeasurementsToAverage));
+	continuousInterval->setText (cstr (settings.continuousModeInterval));
 }
 
 
 bool AiSystem::wantsContinuousQuery( )
 {
-	return continuousQueryCheck.GetCheck( );
+	return continuousQueryCheck->isChecked( );
 }
 
 
@@ -201,7 +184,7 @@ void AiSystem::getAquisitionData( )
 
 bool AiSystem::wantsQueryBetweenVariations( )
 {
-	return queryBetweenVariations.GetCheck( );
+	return queryBetweenVariations->isChecked( );
 }
 
 
@@ -254,3 +237,7 @@ std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( UINT n_to_
 	return retData;
 }
 
+void AiSystem::logSettings (DataLogger& log)
+{
+
+}

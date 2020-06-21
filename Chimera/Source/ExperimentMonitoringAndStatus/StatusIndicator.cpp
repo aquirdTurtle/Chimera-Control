@@ -1,37 +1,38 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "StatusIndicator.h"
+#include <PrimaryWindows/IChimeraWindowWidget.h>
 
 void StatusIndicator::rearrange(int width, int height, fontMap fonts)
 {
-	status.rearrange( width, height, fonts);
+	//status.rearrange( width, height, fonts);
 }
 
 
-void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, cToolTips& tooltips)
+void StatusIndicator::initialize(POINT &loc, IChimeraWindowWidget* parent )
 {
-	status.sPos = { loc.x, loc.y, loc.x + 960, loc.y + 100 };
-	status.Create("Passively Outputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER, status.sPos, parent, id++);
-	status.fontType = fontTypes::LargeFont;
+	status = new QLabel ("Passively Outputing Default Waveform", parent);
+	status->setGeometry (loc.x, loc.y, 960, 100);
+	status->setStyleSheet ("QLabel {font: bold 30pt;}");
 }
 
 
 void StatusIndicator::setText(std::string text)
 {
-	status.SetWindowText(cstr(text));
+	status->setText (cstr (text));
 }
 
 
 void StatusIndicator::setColor(std::string color)
 {
 	currentColor = color;
-	status.RedrawWindow();
 }
 
 
 CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC )
 {
 	DWORD controlID = GetDlgCtrlID(window->GetSafeHwnd());
+	/*
 	if (controlID == status.GetDlgCtrlID())
 	{
 		pDC->SetTextColor(_myRGBs["White"]);
@@ -61,5 +62,7 @@ CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC )
 	{
 		return NULL;
 	}
+	*/
+	return NULL;
 }
 

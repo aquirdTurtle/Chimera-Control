@@ -3,52 +3,55 @@
 #include "CustomMfcControlWrappers/myButton.h"
 #include "NIAWG/Rearrangement/rerngOptionStructures.h"
 #include "ConfigurationSystems/Version.h"
+#include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/Control.h"
-#include "Windows.h"
-#include "afxwin.h"
-;
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qcheckbox.h>
+#include <qcombobox.h>
 /*
  * A class for a gui end control for setting various rearrangement parameters
  */
 class rerngGuiControl
 {
 	public:
-		rerngGuiOptionsForm getParams( );
-		void setParams( rerngGuiOptionsForm params );
-		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
-		void handleOpenConfig( std::ifstream& openFile, Version ver );
-		void handleNewConfig( std::ofstream& newFile );
-		void handleSaveConfig( std::ofstream& newFile );
+		rerngGuiOptions getParams( );
+		void setParams( rerngGuiOptions params );
+		void initialize( POINT& loc, QWidget* parent );
+		static rerngGuiOptions getSettingsFromConfig (ConfigStream& config);
+		void handleOpenConfig( ConfigStream& openFile);
+		void handleSaveConfig( ConfigStream& newFile );
 		void rearrange( int width, int height, fontMap fonts );
 		void updateActive ( );
 		void setEnabled (bool enabled);
 	private:
-		Control<CStatic> header;
-		Control<CleanCheck> experimentIncludesRerng;
-		Control<CStatic> flashingRateText;
-		Control<CEdit> flashingRateEdit;
-		Control<CStatic> moveSpeedText;
-		Control<CEdit> moveSpeedEdit;
-		Control<CStatic> movingBiasText;
-		Control<CEdit> movingBiasEdit;
+		QLabel* header;
+		QCheckBox* experimentIncludesRerng;
+		QLabel* flashingRateText;
+		QLineEdit* flashingRateEdit;
+		QLabel* moveSpeedText;
+		QLineEdit* moveSpeedEdit;
+		QLabel* movingBiasText;
+		QLineEdit* movingBiasEdit;
 
-		Control<CStatic> deadTimeText;
-		Control<CEdit> deadTimeEdit;
+		QLabel* deadTimeText;
+		QLineEdit* deadTimeEdit;
 
-		Control<CStatic> staticMovingRatioText;
-		Control<CEdit> staticMovingRatioEdit;
+		QLabel* staticMovingRatioText;
+		QLineEdit* staticMovingRatioEdit;
 
-		Control<CleanCheck> preprogramMoves;
-		Control<CleanCheck> useCalibration;
+		QCheckBox* preprogramMoves;
+		QCheckBox* useCalibration;
 
-		Control<CleanCheck> outputRearrangeEvents;
-		Control<CleanCheck> outputIndividualEvents;
+		QCheckBox* outputRearrangeEvents;
+		QCheckBox* outputIndividualEvents;
 
-		Control<CStatic> finalMoveTimeText;
-		Control<CEdit> finalMoveTimeEdit;
+		QLabel* finalMoveTimeText;
+		QLineEdit* finalMoveTimeEdit;
 
-		Control<CStatic> fastMoveTime;
-		Control<CEdit> fastMoveTimeEdit;
+		QLabel* fastMoveTime;
+		QLineEdit* fastMoveTimeEdit;
 
-		Control<CComboBox> rerngModeCombo;
+		QComboBox* rerngModeCombo;
 };

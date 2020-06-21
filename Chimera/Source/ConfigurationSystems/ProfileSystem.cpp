@@ -7,170 +7,135 @@
 #include "ExcessDialogs/TextPromptDialog.h"
 #include "NIAWG/NiawgCore.h"
 #include "Andor/AndorCameraCore.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "PrimaryWindows/AndorWindow.h"
-#include "PrimaryWindows/ScriptingWindow.h"
-#include "PrimaryWindows/MainWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
+#include "PrimaryWindows/QtAndorWindow.h"
+#include "PrimaryWindows/QtScriptWindow.h"
+#include "PrimaryWindows/QtBaslerWindow.h"
+#include "PrimaryWindows/QtMainWindow.h"
+#include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
 
 #include "Commctrl.h"
-#include "PrimaryWindows/BaslerWindow.h"
 
 
 ProfileSystem::ProfileSystem(std::string fileSystemPath)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
-	currentSequence.name = NULL_SEQUENCE;
 }
 
 
-void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
+void ProfileSystem::initialize( POINT& pos, IChimeraWindowWidget* win)
 {
-	configDisplay.sPos = { pos.x, pos.y, pos.x + 860, pos.y + 25 };
-	configDisplay.Create( "No Configuration Selected!", NORM_STATIC_OPTIONS, configDisplay.sPos, parent, id++ );
-	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y += 25 };
-	configurationSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
-										configurationSavedIndicator.sPos, parent, id++ );
-	configurationSavedIndicator.SetCheck( BST_CHECKED );
-	//configurationSavedIndicator.uncheckedRed = true;
-	updateConfigurationSavedStatus( true );
-	selectConfigButton.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 25 };
-	selectConfigButton.Create( "Open Configuration", NORM_PUSH_OPTIONS, selectConfigButton.sPos, parent, 
-							   IDC_SELECT_CONFIG_COMBO );
-	/// SEQUENCE
-	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 380, pos.y + 25 };
-	sequenceLabel.Create( "SEQUENCE", NORM_STATIC_OPTIONS, sequenceLabel.sPos, parent, id++ );
-	sequenceLabel.fontType = fontTypes::HeadingFont;
-	sequenceSavedIndicator.sPos = { pos.x + 380, pos.y, pos.x + 470, pos.y += 25 };
-	sequenceSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
-								   sequenceSavedIndicator.sPos, parent, id++ );
-	sequenceSavedIndicator.SetCheck( BST_CHECKED );
-	updateSequenceSavedStatus( true );
-	// combo
-	sequenceCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
-	sequenceCombo.Create( NORM_COMBO_OPTIONS, sequenceCombo.sPos, parent, IDC_SEQUENCE_COMBO);
-	sequenceCombo.AddString( "NULL SEQUENCE" );
-	sequenceCombo.SetCurSel( 0 );
-	sequenceCombo.SetItemHeight( 0, 50 );
+	configDisplay = new QLabel ("No Configuruation Selected!", win);
+	configDisplay->setGeometry (QRect (pos.x, pos.y, 660, 25));
+	configurationSavedIndicator = new QCheckBox ("Saved?", win);
+	configurationSavedIndicator->setGeometry (QRect (pos.x + 860, pos.y, 100, 25));
+	configurationSavedIndicator->setChecked (true);
+	selectConfigButton = new QPushButton ("Open Config.", win);
+	selectConfigButton->setGeometry (QRect (pos.x + 660, pos.y, 200, 25));
+	win->connect (selectConfigButton, &QPushButton::released, [this, win]() { handleSelectConfigButton (win); });
 	pos.y += 25;
-	// display
-	sequenceInfoDisplay.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
-	sequenceInfoDisplay.Create( NORM_STATIC_OPTIONS | ES_CENTER | ES_MULTILINE | ES_AUTOVSCROLL,
-								sequenceInfoDisplay.sPos, parent, id++ );
-	sequenceInfoDisplay.SetWindowTextA( "Sequence of Configurations to Run:\r\n" );
+	updateConfigurationSavedStatus( true );
 }
 
 
-std::string ProfileSystem::getNiawgScriptAddrFromConfig( profileSettings profile )
+std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream)
 {	
 	// open configuration file and grab the niawg script file address from it.
-	std::ifstream configFile( profile.configFilePath( ) );
-	std::string version;
+	initializeAtDelim (configStream, "SCRIPTS");
+	auto getlineF = ProfileSystem::getGetlineFunc (configStream.ver);
 	std::string niawgScriptAddresses;
-	// first get version info:
-	std::getline( configFile, version );
-	checkDelimiterLine( configFile, "SCRIPTS" );
-	configFile.get( );
-	getline( configFile, niawgScriptAddresses );
+	getlineF (configStream, niawgScriptAddresses);
 	return niawgScriptAddresses;
 }
 
 
-void ProfileSystem::saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWindow,
-									   AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::saveEntireProfile(IChimeraWindowWidget* win)
 {
-	saveConfigurationOnly( scriptWindow, mainWin, auxWindow, camWin, basWin );
-	saveSequence();		
+	saveConfigurationOnly( win );
 }
 
 
-void ProfileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-											AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::checkSaveEntireProfile(IChimeraWindowWidget* win)
 {
-	checkConfigurationSave( "Save Configuration Settings?", scriptWindow, mainWin, auxWin, camWin, basWin );
-	checkSequenceSave( "Save Sequence Settings?" );
+	checkConfigurationSave( "Save Configuration Settings?", win );
 }
 
 
-void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-										   AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::allSettingsReadyCheck(IChimeraWindowWidget* win)
 {
-	// check all components of this class.
-	configurationSettingsReadyCheck( scriptWindow, mainWin, auxWin, camWin, basWin);
-	sequenceSettingsReadyCheck();
-	// passed all checks.
+	configurationSettingsReadyCheck( win );
 }
 
-/// CONFIGURATION LEVEL HANDLING
-
-void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, AndorWindow* camWin, 
-									  ScriptingWindow* scriptWin )
+/*
+Before Version 5.0, if a string or expression was empty it would just output nothing to the config file, leading to 
+a lot of empty lines. That was fine, because std::getline would just return "" correctly. However, My ScriptStream 
+class and derivatives will eat those empty lines while eating comments, so I had to add an "empty-string" handling
+mechanism to the writing of the ConfigStream class. But this creates a back-wards compatibility issue with the older
+configurations. This function is a nice way to get around that - when getline is needed for reading strings, use this 
+function to get a different version of getline depending on which version the file is. Older versions will use the 
+std::getline version while new versions will use the comment-eating version.
+*/
+std::function<void (ScriptStream&, std::string&)> ProfileSystem::getGetlineFunc (Version& ver)
 {
-	std::string newConfigPath = openWithExplorer(mainWin, "Config");
-	if (newConfigPath == "")
+	if (ver >= Version ("5.0"))
 	{
-		// canceled
-		return;
+		return [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
 	}
-	std::ofstream newConfigFile(cstr(newConfigPath));
-	if (!newConfigFile.is_open())
+	else
 	{
-		thrower ( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
+		return [](ScriptStream& fid, std::string& expr) {std::getline (fid, expr); };
 	}
-	newConfigFile << "Version: " + version.str() +  "\n";
-	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWin->handleNewConfig( newConfigFile );
-	camWin->handleNewConfig( newConfigFile );
-	auxWin->handleNewConfig( newConfigFile );
-	//
-	newConfigFile.close( );
+
 }
-
-
-void ProfileSystem::getVersionFromFile( std::ifstream& f, Version& ver )
+void ProfileSystem::getVersionFromFile( ConfigStream& file )
 {
-	f.clear ( );
-	f.seekg ( 0, std::ios::beg );
+	file.clear ( );
+	file.seekg ( 0, std::ios::beg );
 	std::string versionStr;
 	// Version is saved in format "Version: x.x"
 	// eat the "version" word"
-	f >> versionStr;
-	f >> versionStr;
-	ver = Version( versionStr );
+	file >> versionStr;
+	file >> versionStr;
+	file.ver = Version( versionStr );
 }
 
 
-void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
-										AndorWindow* camWin, AuxiliaryWindow* auxWin, BaslerWindow* basWin )
+void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindowWidget* win)
 {
-	std::ifstream configFile( pathToConfig );
+	std::ifstream configFileRaw( pathToConfig );
 	// check if opened correctly.
-	if ( !configFile.is_open( ) )
+	if ( !configFileRaw.is_open( ) )
 	{
-		thrower ( "Opening of Configuration File Failed!" );
+		errBox ( "Opening of Configuration File Failed!" );
 	}
-	int slashPos = pathToConfig.find_last_of( '\\' );
+	ConfigStream cStream (configFileRaw);
+	cStream.setCase (false);
+	configFileRaw.close ();
+	int slashPos = pathToConfig.find_last_of( '/' );
 	int extensionPos = pathToConfig.find_last_of( '.' );
 	currentProfile.configuration = pathToConfig.substr( slashPos + 1, extensionPos - slashPos - 1 );
 	currentProfile.configLocation = pathToConfig.substr( 0, slashPos);
-	slashPos = currentProfile.configLocation.find_last_of( '\\' );
+	slashPos = currentProfile.configLocation.find_last_of( '/' );
 	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
 																		  currentProfile.configLocation.size( ) );
-	currentProfile.configLocation += "\\";
-	configDisplay.SetWindowTextA( cstr( currentProfile.configuration + ": " + pathToConfig ) );
-	std::string versionStr;
+	currentProfile.configLocation += "/";
+	configDisplay->setText (cstr (currentProfile.configuration + ": " + pathToConfig));
 	try
 	{
-		Version ver;
-		getVersionFromFile( configFile, ver );
-		scriptWin->handleOpenConfig( configFile, ver );
-		camWin->handleOpeningConfig( configFile, ver );
-		auxWin->handleOpeningConfig( configFile, ver );
-		mainWin->handleOpeningConfig( configFile, ver );
-		if ( ver >= Version ( "3.4" ) )
+		getVersionFromFile(cStream);
+		win->scriptWin->windowOpenConfig(cStream );
+		win->andorWin->windowOpenConfig(cStream );
+		win->auxWin->windowOpenConfig(cStream );
+		win->mainWin->windowOpenConfig(cStream );
+		if (cStream.ver >= Version ( "3.4" ) )
 		{
-			basWin->handleOpeningConfig ( configFile, ver );
+			win->basWin->windowOpenConfig (cStream );
+		}
+		if (cStream.ver >= Version ("5.0"))
+		{
+			//dmWin->windowOpenConfig (cStream);
 		}
 	}
 	catch ( Error& err )
@@ -180,27 +145,23 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}
 	/// finish up
-	auxWin->setVariablesActiveState( true );
+	//win->auxWin->setVariablesActiveState( true );
 	// actually set this now
-	scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
-	configFile.close( );
+	//win->scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
 	updateConfigurationSavedStatus ( true );
-	reloadSequence( NULL_SEQUENCE );
 }
 
 
-void ProfileSystem::initializeAtDelim ( std::ifstream& openFile, std::string delimiter, Version& ver, Version minVer )
+void ProfileSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version minVer )
 {
-	openFile.clear ( );
-	openFile.seekg ( 0, std::ios::beg );
-	ProfileSystem::getVersionFromFile ( openFile, ver );
-	if ( ver < minVer )
+	ProfileSystem::getVersionFromFile ( configStream );
+	if ( configStream.ver < minVer )
 	{
-		thrower ( "Configuration version (" + ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
+		thrower ( "Configuration version (" + configStream.ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
 	}
 	try
 	{
-		ProfileSystem::jumpToDelimiter ( openFile, delimiter );
+		ProfileSystem::jumpToDelimiter (configStream, delimiter );
 	}
 	catch ( Error& )
 	{
@@ -209,13 +170,13 @@ void ProfileSystem::initializeAtDelim ( std::ifstream& openFile, std::string del
 }
 
 
-void ProfileSystem::jumpToDelimiter ( std::ifstream& openFile, std::string delimiter )
+void ProfileSystem::jumpToDelimiter ( ConfigStream& configStream, std::string delimiter )
 {
-	while ( !openFile.eof() )
+	while ( !configStream.eof() )
 	{
 		try
 		{
-			checkDelimiterLine ( openFile, delimiter );
+			checkDelimiterLine (configStream, delimiter );
 			// if reaches this point it was successful. The file should now be pointing to just beyond the delimiter.
 			return;
 		}
@@ -230,7 +191,7 @@ void ProfileSystem::jumpToDelimiter ( std::ifstream& openFile, std::string delim
 
 
 // small convenience function that I use while opening a file.
-void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string delimiter)
+void ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter)
 {
 	std::string checkStr;
 	openFile >> checkStr;
@@ -243,7 +204,7 @@ void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string deli
 
 // version with break condition. If returns true, calling function should break out of the loop which is checking the
 // line.
-bool ProfileSystem::checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition )
+bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition )
 {
 	std::string checkStr;
 	openFile >> checkStr;
@@ -265,8 +226,7 @@ bool ProfileSystem::checkDelimiterLine( std::ifstream& openFile, std::string del
 ]- is not a Normal Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns 
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
-void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-										   AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::saveConfigurationOnly(IChimeraWindowWidget* win)
 {
 	std::string configNameToSave = currentProfile.configuration;
 	// check to make sure that this is a name.
@@ -286,24 +246,26 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 		}
 	}
 
-	std::ofstream configSaveFile(currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
-	if (!configSaveFile.is_open())
-	{
-		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
-			"everything seems right..." );
-	}
+	ConfigStream saveStream;
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfile.configuration = configNameToSave;
 	// version 2.0 started when the unified coding system (the chimera system) began, and the profile system underwent
 	// dramatic changes in order to 
-	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: " + version.str() + "\n";
+	saveStream << std::setprecision( 13 );
+	saveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->handleSavingConfig(configSaveFile);
-	camWin->handleSaveConfig(configSaveFile);
-	auxWin->handleSaveConfig(configSaveFile);
-	mainWin->handleSaveConfig(configSaveFile);
-	basWin->handleSavingConfig ( configSaveFile );
+	win->scriptWin->windowSaveConfig(saveStream);
+	win->andorWin->windowSaveConfig(saveStream);
+	win->auxWin->windowSaveConfig(saveStream);
+	win->mainWin->windowSaveConfig(saveStream);
+	win->basWin->windowSaveConfig (saveStream);
+	std::ofstream configSaveFile (currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
+	if (!configSaveFile.is_open ())
+	{
+		thrower ("Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+			"everything seems right...");
+	}
+	configSaveFile << saveStream.str ();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
@@ -312,6 +274,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 {
 	static std::string txt;
+	/*
 	auto id_ = configurationSavedIndicator.GetDlgCtrlID ( );
 	txt += str ( id ) + ", ";
 	if ( id == id_ )
@@ -324,6 +287,7 @@ CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 			return _myBrushes[ "Red" ];
 		}
 	}
+	*/
 	return NULL;
 }
 
@@ -331,40 +295,41 @@ CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::saveConfigurationAs(IChimeraWindowWidget* win)
 {
-	std::string configurationPathToSave = saveWithExplorer( mainWin, CONFIG_EXTENSION, currentProfile );
+	std::string configurationPathToSave = saveWithExplorer (win, CONFIG_EXTENSION, currentProfile);
 	if ( configurationPathToSave == "")
 	{
 		// canceled
 		return;
 	}	
-	// check if file already exists
-	std::ofstream configSaveFile( configurationPathToSave);
-	if (!configSaveFile.is_open())
-	{
-		thrower ( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
-				 "everything seems right..." );
-	}
-	int slashPos = configurationPathToSave.find_last_of( '\\' );
+
+	int slashPos = configurationPathToSave.find_last_of( '/' );
 	int extensionPos = configurationPathToSave.find_last_of( '.' );
 	currentProfile.configuration = configurationPathToSave.substr( slashPos + 1, extensionPos - slashPos - 1 );
 	currentProfile.configLocation = configurationPathToSave.substr( 0, slashPos );
-	slashPos = currentProfile.configLocation.find_last_of( '\\' );
+	slashPos = currentProfile.configLocation.find_last_of( '/' );
 	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
 																		  currentProfile.configLocation.size( ) );
-	currentProfile.configLocation += "\\";
+	currentProfile.configLocation += "/";
+	ConfigStream configSaveStream;
 	// That's the last prompt the user gets, so the save is final now.
 	// Version info tells future code about formatting.
-	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: " + version.str() + "\n";
+	configSaveStream << std::setprecision( 13 );
+	configSaveStream << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
-	scriptWindow->handleSavingConfig( configSaveFile );
-	camWin->handleSaveConfig( configSaveFile );
-	auxWin->handleSaveConfig( configSaveFile );
-	mainWin->handleSaveConfig( configSaveFile );
-	basWin->handleSavingConfig ( configSaveFile );
+	win->scriptWin->windowSaveConfig(configSaveStream);
+	win->andorWin->windowSaveConfig(configSaveStream);
+	win->auxWin->windowSaveConfig(configSaveStream);
+	win->mainWin->windowSaveConfig(configSaveStream);
+	win->basWin->windowSaveConfig (configSaveStream);
+	// check if file already exists
+	std::ofstream configSaveFile (configurationPathToSave);
+	if (!configSaveFile.is_open ())
+	{
+		thrower ("Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+			"everything seems right...");
+	}
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
@@ -438,24 +403,20 @@ void ProfileSystem::deleteConfiguration()
 */
 void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 {
-	if ( configurationSavedIndicator.m_hWnd == NULL )
+	if ( configurationSavedIndicator == NULL )
 	{
 		return;
 	}
 	configurationIsSaved = isSaved;
-	configurationSavedIndicator.SetCheck ( isSaved );
-	configurationSavedIndicator.Invalidate ( true );
-	configurationSavedIndicator.RedrawWindow ( );
+	configurationSavedIndicator->setChecked (isSaved);
 }
 
 
-bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-													 AuxiliaryWindow* auxWin, AndorWindow* camWin, 
-													 BaslerWindow* basWin )
+bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindowWidget* win)
 {
 	// prompt for save.
 	if (checkConfigurationSave( "There are unsaved configuration settings. Would you like to save the current "
-								"configuration before starting?", scriptWindow, mainWin, auxWin, camWin, basWin))
+								"configuration before starting?", win))
 	{
 		// canceled
 		return true;
@@ -464,15 +425,14 @@ bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWind
 }
 
 
-bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-											AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin )
+bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindowWidget* win)
 {
 	if (!configurationIsSaved)
 	{
 		int answer = promptBox(prompt, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
-			saveConfigurationOnly(scriptWindow, mainWin, auxWin, camWin, basWin );
+			saveConfigurationOnly( win );
 		}
 		else if (answer == IDCANCEL)
 		{
@@ -483,393 +443,44 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, ScriptingWindow*
 }
 
 
-
-void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
-											  AuxiliaryWindow* auxWin, AndorWindow* camWin, BaslerWindow* basWin )
+void ProfileSystem::handleSelectConfigButton(IChimeraWindowWidget* win)
 {	
 	if ( !configurationIsSaved )
 	{
 		if ( checkConfigurationSave( "The current configuration is unsaved. Save current configuration before changing?",
-									 scriptWindow, mainWin, auxWin, camWin, basWin ) )
+									 win ) )
 		{
 			// TODO
 			return;
 		}
 	}
-	std::string fileaddress = openWithExplorer( parent, CONFIG_EXTENSION );
-	openConfigFromPath( fileaddress, scriptWindow, mainWin, camWin, auxWin, basWin );	
+	std::string fileaddress = openWithExplorer( win, CONFIG_EXTENSION );
+	openConfigFromPath( fileaddress, win);
 }
-
-
-void ProfileSystem::loadNullSequence()
-{
-	currentSequence.name = NULL_SEQUENCE;
-	// only current configuration loaded
-	currentSequence.sequence.clear();
-	if (currentProfile.configuration != "")
-	{
-		currentSequence.sequence.push_back(currentProfile);
-		// change edit
-		sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
-		appendText(("1. " + currentSequence.sequence[0].configuration + "\r\n"), sequenceInfoDisplay);
-	}
-	else
-	{
-		sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
-		appendText("No Configuration Loaded\r\n", sequenceInfoDisplay);
-	}
-	sequenceCombo.SelectString(0, NULL_SEQUENCE);
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::addToSequence(CWnd* parent)
-{
-	if (currentProfile.configuration == "")
-	{
-		// nothing to add.
-		return;
-	}
-	currentSequence.sequence.push_back(currentProfile);
-	appendText( str( currentSequence.sequence.size() ) + ". "
-				+ currentSequence.sequence.back().configuration + "\r\n", sequenceInfoDisplay );
-	updateSequenceSavedStatus(false);
-}
-
-/// SEQUENCE HANDLING
-void ProfileSystem::sequenceChangeHandler()
-{
-	// get the name
-	long long itemIndex = sequenceCombo.GetCurSel(); 
-	TCHAR sequenceName[256];
-	sequenceCombo.GetLBText(int(itemIndex), sequenceName);
-	if (itemIndex == -1)
-	{
-		// This means that the oreintation combo was set before the Configuration list combo was set so that the 
-		// configuration list combo is blank. just break out, this is fine.
-		return;
-	}
-	if (str(sequenceName) == NULL_SEQUENCE)
-	{
-		loadNullSequence();
-		return;
-	}
-	else
-	{
-		openSequence(sequenceName);
-	}
-	// else not null_sequence.
-	reloadSequence( currentSequence.name );
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::reloadSequence(std::string sequenceToReload)
-{
-	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfile.configLocation, str("*") + "." + SEQUENCE_EXTENSION, sequenceToReload);
-	sequenceCombo.AddString(NULL_SEQUENCE);
-	if (sequenceToReload == NULL_SEQUENCE)
-	{
-		loadNullSequence();
-	}
-}
-
-
-void ProfileSystem::saveSequence()
-{
-	if ( currentSequence.name == NULL_SEQUENCE)
-	{
-		// nothing to save;
-		return;
-	}
-	// if not saved...
-	if ( currentSequence.name == "")
-	{
-		std::string result;
-		TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
-		dialog.DoModal();
-
-		if (result == "")
-		{
-			return;
-		}
-		currentSequence.name = result;
-	}
-	std::fstream sequenceSaveFile( currentProfile.configLocation + "\\" + currentSequence.name + "."
-								   + SEQUENCE_EXTENSION, std::fstream::out);
-	if (!sequenceSaveFile.is_open())
-	{
-		thrower ( "ERROR: Couldn't open sequence file for saving!" );
-	}
-	sequenceSaveFile << "Version: 1.0\n";
-	for (auto& seq : currentSequence.sequence)
-	{
-		sequenceSaveFile << seq.configuration + "\n";
-		sequenceSaveFile << seq.configLocation + "\n";
-		sequenceSaveFile << seq.parentFolderName + "\n";
-	}
-	sequenceSaveFile.close();
-	reloadSequence( currentSequence.name );
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::saveSequenceAs()
-{
-	// prompt for name
-	std::string result;
-	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
-	dialog.DoModal();
-	//
-	if (result == "")
-	{
-		// user canceled or entered nothing
-		return;
-	}
-	if (str(result) == NULL_SEQUENCE)
-	{
-		// nothing to save;
-		return;
-	}
-	// if not saved...
-	std::fstream sequenceSaveFile(currentProfile.configLocation + "\\" + str(result) + "." + SEQUENCE_EXTENSION, 
-								   std::fstream::out);
-	if (!sequenceSaveFile.is_open())
-	{
-		thrower ( "ERROR: Couldn't open sequence file for saving!" );
-	}
-	currentSequence.name = str(result);
-	sequenceSaveFile << "Version: 1.0\n";
-	for (UINT sequenceInc = 0; sequenceInc < currentSequence.sequence.size(); sequenceInc++)
-	{
-		sequenceSaveFile << currentSequence.sequence[sequenceInc].configuration + "\n";
-	}
-	sequenceSaveFile.close();
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::renameSequence()
-{
-	// check if configuration has been set yet.
-	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
-	{
-		thrower ( "Please select a sequence for renaming." );
-	}
-	std::string newSequenceName;
-	TextPromptDialog dialog(&newSequenceName, "Please enter a new name for this sequence.", currentSequence.name);
-	dialog.DoModal();
-	if (newSequenceName == "")
-	{
-		// canceled
-		return;
-	}
-	int result = MoveFile( cstr(currentProfile.configLocation + currentSequence.name + "." + SEQUENCE_EXTENSION),
-						   cstr(currentProfile.configLocation + newSequenceName + "." + SEQUENCE_EXTENSION) );
-	if (result == 0)
-	{
-		thrower ( "Renaming of the sequence file Failed! Ask Mark about bugs" );
-	}
-	currentSequence.name = newSequenceName;
-	reloadSequence( currentSequence.name );
-	updateSequenceSavedStatus( true );
-}
-
-
-void ProfileSystem::deleteSequence()
-{
-	// check if configuration has been set yet.
-	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
-	{
-		thrower ("Please select a sequence for deleting.");
-	}
-	int answer = promptBox("Are you sure you want to delete the current sequence: " + currentSequence.name,
-							 MB_YESNO);
-	if (answer == IDNO)
-	{
-		return;
-	}
-	std::string currentSequenceLocation = currentProfile.configLocation + currentSequence.name + "."
-		+ SEQUENCE_EXTENSION;
-	int result = DeleteFile(cstr(currentSequenceLocation));
-	if (result == 0)
-	{
-		thrower ( "ERROR: Deleteing the configuration file failed!" );
-	}
-	// since the sequence this (may have been) was saved to is gone, no saved version of current code.
-	updateSequenceSavedStatus(false);
-	// just deleted the current configuration
-	currentSequence.name = "";
-	// reset combo since the files have now changed after delete
-	reloadSequence("__NONE__");
-}
-
-
-void ProfileSystem::newSequence(CWnd* parent)
-{
-	// prompt for name
-	std::string result;
-	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.", currentSequence.name);
-	dialog.DoModal();
-
-	if (result == "")
-	{
-		// user canceled or entered nothing
-		return;
-	}
-	// try to open the file.
-	std::fstream sequenceFile(currentProfile.configLocation + "\\" + result + "." + SEQUENCE_EXTENSION, 
-							   std::fstream::out);
-	if (!sequenceFile.is_open())
-	{
-		thrower ( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your "
-				 "name." );
-	}
-	std::string newSequenceName = str(result);
-	sequenceFile << newSequenceName + "\n";
-	// output current configuration
-	if (newSequenceName == "")
-	{
-		return;
-	}
-	// reload combo.
-	reloadSequence( currentSequence.name );
-}
-
-
-void ProfileSystem::openSequence(std::string sequenceName)
-{
-	// try to open the file
-	std::fstream sequenceFile(currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION);
-	if (!sequenceFile.is_open())
-	{
-		thrower ( "ERROR: sequence file failed to open! Make sure the sequence with address ..." 
-				 + currentProfile.configLocation + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
-	}
-	currentSequence.name = str(sequenceName);
-	// readbtn the file
-	std::string version;
-	std::getline(sequenceFile, version);
-	currentSequence.sequence.clear();
-	while (sequenceFile)
-	{
-		profileSettings tempSettings;
-		getline( sequenceFile, tempSettings.configuration );
-		getline( sequenceFile, tempSettings.configLocation );
-		getline( sequenceFile, tempSettings.parentFolderName );
-		if ( !sequenceFile )
-		{
-			break;
-		}
-		currentSequence.sequence.push_back(tempSettings);
-	}
-	// update the edit
-	sequenceInfoDisplay.SetWindowTextA("Configuration Sequence:\r\n");
-	for (auto sequenceInc : range(currentSequence.sequence.size()))
-	{
-		appendText( str( sequenceInc + 1 ) + ". " + currentSequence.sequence[sequenceInc].configuration + "\r\n",
-					sequenceInfoDisplay );
-	}
-	updateSequenceSavedStatus(true);
-}
-
-
-void ProfileSystem::updateSequenceSavedStatus(bool isSaved)
-{
-	sequenceIsSaved = isSaved;
-	if (isSaved)
-	{
-		sequenceSavedIndicator.SetCheck(BST_CHECKED);
-	}
-	else
-	{
-		sequenceSavedIndicator.SetCheck(BST_UNCHECKED);
-	}
-}
-
-
-bool ProfileSystem::sequenceSettingsReadyCheck()
-{
-	if (!sequenceIsSaved)
-	{
-		if (checkSequenceSave("There are unsaved sequence settings. Would you like to save the current sequence before"
-							   " starting?"))
-		{
-			// canceled
-			return true;
-		}
-	}
-	return false;
-}
-
-
-bool ProfileSystem::checkSequenceSave(std::string prompt)
-{
-	if (!sequenceIsSaved)
-	{
-		int answer = promptBox(prompt, MB_YESNOCANCEL);
-		if (answer == IDYES)
-		{
-			saveSequence();
-		}
-		else if (answer == IDCANCEL)
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-
-std::string ProfileSystem::getSequenceNamesString()
-{
-	std::string namesString = "";
-	if ( currentSequence.name != "NO SEQUENCE")
-	{
-		namesString += "Sequence:\r\n";
-		for (UINT sequenceInc = 0; sequenceInc < currentSequence.sequence.size(); sequenceInc++)
-		{
-			namesString += "\t" + str(sequenceInc) + ": " + currentSequence.sequence[sequenceInc].configuration + "\r\n";
-		}
-	}
-	return namesString;
-}
-
 
 std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 {
-	std::ifstream configFile(profile.configFilePath());
-	if (!configFile.is_open())
+	std::ifstream configF(profile.configFilePath());
+	if (!configF.is_open())
 	{
 		thrower ("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
 				 + ", the config file failed to open!");
 	}
+	ConfigStream stream (configF);
 	std::string line, word, address;
-	Version ver;
-	getVersionFromFile( configFile, ver );
-	configFile.get( );
-	if ( ver.versionMajor < 3 )
+	getVersionFromFile(stream );
+	if ( stream.ver.versionMajor < 3 )
 	{
-		std::getline( configFile, line );
+		line = stream.getline ();
 	}
-	std::getline(configFile, line);
-	std::getline(configFile, line);
-	std::string newPath;
-	getline(configFile, newPath);
+	line = stream.getline (); 
+	line = stream.getline ();
+	std::string newPath = stream.getline ();
 	return newPath;
 }
 
 
-void ProfileSystem::rearrange(int width, int height, fontMap fonts)
-{
-	sequenceLabel.rearrange( width, height, fonts);
-	sequenceCombo.rearrange( width, height, fonts);
-	sequenceInfoDisplay.rearrange( width, height, fonts);
-	sequenceSavedIndicator.rearrange( width, height, fonts);
-	configurationSavedIndicator.rearrange( width, height, fonts);
-	configDisplay.rearrange( width, height, fonts );
-	selectConfigButton.rearrange( width, height, fonts );
-}
+void ProfileSystem::rearrange(int width, int height, fontMap fonts){}
 
 
 std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSearch, std::string extensions )
@@ -933,24 +544,24 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 
 
 // I had issues writing an MFC version of this with a Control<CComboBox> argument, so this is still written in Win32.
-void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension,
+void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, std::string extension,
 								 std::string nameToLoad )
 {
 	std::vector<std::string> names;
 	names = searchForFiles( locationToLook, extension );
 	/// Get current selection
-	long long itemIndex = SendMessage( comboToReload, CB_GETCURSEL, 0, 0 );
-	TCHAR experimentConfigToOpen[256];
+	auto itemIndex = combo->currentIndex ();
+	QString experimentConfigToOpen;
 	std::string currentSelection;
 	int currentInc = -1;
 	if (itemIndex != -1)
 	{
+		experimentConfigToOpen = combo->itemText (itemIndex);
 		// Send CB_GETLBTEXT message to get the item.
-		SendMessage( comboToReload, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)experimentConfigToOpen );
-		currentSelection = experimentConfigToOpen;
+		currentSelection = str(experimentConfigToOpen);
 	}
 	/// Reset stuffs
-	SendMessage( comboToReload, CB_RESETCONTENT, 0, 0 );
+	combo->clear ();
 	// Send list to object
 	for (auto comboInc : range(names.size()))
 	{
@@ -958,10 +569,10 @@ void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook,
 		{
 			currentInc = comboInc;
 		}
-		SendMessage( comboToReload, CB_ADDSTRING, 0, (LPARAM)cstr(names[comboInc]));
+		combo->addItem (0, cstr (names[comboInc]));
 	}
 	// Set initial value
-	SendMessage( comboToReload, CB_SETCURSEL, currentInc, 0 );
+	combo->setCurrentIndex (currentInc);
 }
 
 
@@ -987,9 +598,4 @@ void ProfileSystem::fullyDeleteFolder(std::string folderToDelete)
 profileSettings ProfileSystem::getProfileSettings()
 {
 	return currentProfile;
-}
-
-seqSettings ProfileSystem::getSeqSettings( )
-{
-	return currentSequence;
 }

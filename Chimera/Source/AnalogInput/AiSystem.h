@@ -4,19 +4,26 @@
 #include "CustomMfcControlWrappers/myButton.h"
 #include "LowLevel/constants.h"
 #include "AnalogInput/AiSettings.h"
+#include "GeneralObjects/IDeviceCore.h"
 #include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "CustomMfcControlWrappers/UintEdit.h"
 #include "ConfigurationSystems/Version.h"
+#include "Scripts/ScriptStream.h"
+#include "AnalogOutput/DaqMxFlume.h"
+#include "ConfigurationSystems/ConfigStream.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <QLabel.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>
-#include "AnalogOutput/DaqMxFlume.h"
+
 
 /*
  * This is a interface for taking analog input data through an NI card that uses DAQmx. These cards are generally 
  * somewhat flexible, but right now I only use it to readbtn and record voltage values from Analog inputs.
  */
-class AiSystem
+class AiSystem : public IDeviceCore
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
@@ -26,7 +33,7 @@ class AiSystem
 		AiSystem( );
 		AiSettings getAiSettings ();
 		void initDaqmx( );
-		void initialize( POINT& loc, CWnd* parent, int& id );
+		void initialize( POINT& loc, IChimeraWindowWidget* parent );
 		void refreshDisplays( );
 		void rearrange( int width, int height, fontMap fonts );
 		void refreshCurrentValues( );
@@ -40,22 +47,30 @@ class AiSystem
 		bool wantsContinuousQuery( );
 		std::string getSystemStatus( );
 		void setAiSettings (AiSettings settings);
-		static AiSettings getAiSettingsFromConfig (std::ifstream& file, Version ver);
-		void AiSystem::handleSaveConfig (std::ofstream& file);
+		AiSettings getSettingsFromConfig (ConfigStream& file);
+		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
+		std::string getDelim () { return configDelim; }
+		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
+		void loadExpSettings (ConfigStream& stream) {};
+
+		void logSettings (DataLogger& log);
+		void normalFinish () {};
+		void errorFinish () {};
 	private:
-		Control<CStatic> title;
-		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;
-		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> dacLabels;
-		Control<CleanPush> getValuesButton;
-		Control<CleanCheck> continuousQueryCheck;
-		Control<CleanCheck> queryBetweenVariations;
+		QLabel* title;
+		std::array<QLabel*, NUMBER_AI_CHANNELS> voltDisplays;
+		std::array<QLabel*, NUMBER_AI_CHANNELS> dacLabels;
+		CQPushButton* getValuesButton;
+		CQCheckBox* continuousQueryCheck;
+		CQCheckBox* queryBetweenVariations;
 
-		Control<DoubleEdit> continuousInterval;
-		Control<CStatic> continuousIntervalLabel;
+		CQLineEdit* continuousInterval;
+		QLabel* continuousIntervalLabel;
 
-		Control<UintEdit> avgNumberEdit;
-		Control<CStatic> avgNumberLabel;
+		CQLineEdit* avgNumberEdit;
+		QLabel* avgNumberLabel;
 		// float64 should just be a double type.
 		std::array<float64, NUMBER_AI_CHANNELS> currentValues;
 		std::vector<float64> aquisitionData;

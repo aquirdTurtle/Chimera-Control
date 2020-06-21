@@ -9,6 +9,8 @@
 #include <string>
 #include <array>
 #include "LowLevel/constants.h"
+#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include <qlabel.h>
 
 // contains experimentally calibrated conversion factors. See the onenote section on the camera
 // for more conversion factors and notes on the calibration.
@@ -60,7 +62,7 @@ class PictureStats
 		{
 			displayDataType = RAW_COUNTS;
 		}
-		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips );
+		void initialize( POINT& pos, IChimeraWindowWidget* parent );
 		void rearrange( int width, int height, fontMap fonts );
 		std::pair<int, int> update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel,
 									 int currentRepetitionNumber, int totalRepetitionCount );
@@ -71,15 +73,15 @@ class PictureStats
 		statPoint mostRecentStat;
 		std::string displayDataType;
 		conversions convs;
-		Control<CStatic> pictureStatsHeader;
-		Control<CStatic> repetitionIndicator;
-		std::array<Control<CStatic>, 5> collumnHeaders;
-		std::array<Control<CStatic>, 4> picNumberIndicators;
-		std::array<Control<CStatic>, 4> maxCounts;
-		std::array<Control<CStatic>, 4> minCounts;
+		QLabel* pictureStatsHeader;
+		QLabel* repetitionIndicator;
+		std::array<QLabel*, 5> collumnHeaders;
+		std::array<QLabel*, 4> picNumberIndicators;
+		std::array<QLabel*, 4> maxCounts;
+		std::array<QLabel*, 4> minCounts;
 		// average counts in the picture.
-		std::array<Control<CStatic>, 4> avgCounts;
-		std::array<Control<CStatic>, 4> selCounts;
+		std::array<QLabel*, 4> avgCounts;
+		std::array<QLabel*, 4> selCounts;
 }
 ;
 

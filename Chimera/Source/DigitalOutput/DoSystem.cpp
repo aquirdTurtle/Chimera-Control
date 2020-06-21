@@ -5,7 +5,7 @@
 
 #include "ConfigurationSystems/Version.h"
 #include "LowLevel/constants.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "GeneralUtilityFunctions/range.h"
 
 #include <sstream>
@@ -23,15 +23,7 @@ DoSystem::DoSystem( bool ftSafemode, bool serialSafemode ) : core(ftSafemode, se
 DoSystem::~DoSystem() { }
 
 
-void DoSystem::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "TTLS\n";
-	// nothing at the moment.
-	newFile << "END_TTLS\n";
-}
-
-
-void DoSystem::handleSaveConfig(std::ofstream& saveFile)
+void DoSystem::handleSaveConfig(ConfigStream& saveFile)
 {
 	/// ttl settings
 	saveFile << "TTLS\n";
@@ -40,9 +32,9 @@ void DoSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DoSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
+void DoSystem::handleOpenConfig(ConfigStream& openFile)
 {
-	if ( ver < Version ( "3.7" ) )
+	if ( openFile.ver < Version ( "3.7" ) )
 	{
 		for ( auto i : range ( 64 ) )
 		{
@@ -71,33 +63,9 @@ Matrix<std::string> DoSystem::getAllNames()
 	return core.getAllNames ();
 }
 
-
-void DoSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
-{
-	for (UINT shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
-	{
-		auto& row = shadeList[shadeInc].first;
-		auto& col = shadeList[shadeInc].second;
-		outputs ( col, DoRows::which ( row ) ).shade ( true );
-	}
-	for (auto& out : outputs)
-	{
-		out.enable ( 0 );
-	}
-}
-
-
-void DoSystem::unshadeTtls()
-{
-	for ( auto& out : outputs )
-	{
-		out.shade ( false );
-	}
-}
-
-
 void DoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
+	/*
 	ttlTitle.rearrange( width, height, fonts);
 	ttlHold.rearrange( width, height, fonts);
 	zeroTtls.rearrange( width, height, fonts);
@@ -112,7 +80,7 @@ void DoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 	for (auto& control : ttlRowLabels)
 	{
 		control.rearrange( width, height, fonts);
-	}
+	}*/
 }
 
 
@@ -151,41 +119,58 @@ std::pair<UINT, UINT> DoSystem::getTtlBoardSize()
 }
 
 
-void DoSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id )
+void DoSystem::initialize( POINT& loc, IChimeraWindowWidget* parent )
 {
 	// title
-	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
-	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_CENTER, ttlTitle.sPos, parent, id++ );
-	ttlTitle.fontType = fontTypes::HeadingFont;
-	// all number numberLabels
+	ttlTitle = new QLabel ("TTLS", parent);
+	ttlTitle->setGeometry (loc.x, loc.y, 480, 25);
 	loc.y += 25;
-	ttlHold.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
-	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
-					ttlHold.sPos, parent, TTL_HOLD );
-	ttlHold.setToolTip("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
-					   "ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
-					   "change.", toolTips, parent);
+	// all number numberLabels
+	ttlHold = new CQPushButton ("Hold Current Values", parent);
+	ttlHold->setGeometry (loc.x, loc.y, 240, 20);
+	ttlHold->setToolTip ("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
+		"ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
+		"change.");
+	parent->connect (ttlHold, &QPushButton::released, [parent, this]() {
+		try
+		{
+			parent->configUpdated ();
+			handleHoldPress ();
+		}
+		catch (Error& exception)
+		{
+			parent->reportErr ("TTL Hold Handler Failed: " + exception.trace () + "\r\n");
+		}
+	});
+	ttlHold->setCheckable (true);
 
-	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
-	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, parent, 
-					 IDC_ZERO_TTLS );
-	zeroTtls.setToolTip( "Press this button to set all ttls to their zero (false) state.", toolTips, parent );
+	zeroTtls = new CQPushButton ("Zero TTLs", parent);
+	zeroTtls->setGeometry (loc.x + 240, loc.y, 240, 20);
+	zeroTtls->setToolTip( "Press this button to set all ttls to their zero (false) state." );
+	parent->connect (zeroTtls, &QPushButton::released, [parent, this]() {
+		try	{
+			zeroBoard ();
+			parent->configUpdated();
+			parent->reportStatus ("Zero'd TTLs.\r\n");
+		}
+		catch (Error& exception) {
+			parent->reportStatus ("Failed to Zero TTLs!!!\r\n");
+			parent->reportErr (exception.trace ());
+		}
+	});
 	loc.y += 20;
 
-	for (long ttlNumberInc = 0; ttlNumberInc < long(ttlNumberLabels.size()); ttlNumberInc++)
-	{
-		ttlNumberLabels[ttlNumberInc].sPos = { loc.x + 32 + ttlNumberInc * 28, loc.y,
-			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
-		ttlNumberLabels[ttlNumberInc].Create( cstr( ttlNumberInc ), WS_CHILD | WS_VISIBLE | SS_CENTER,
-											  ttlNumberLabels[ttlNumberInc].sPos, parent, id++ );
+	for (long ttlNumberInc : range (ttlNumberLabels.size ())) {
+		ttlNumberLabels[ttlNumberInc] = new QLabel (cstr (ttlNumberInc), parent);
+		ttlNumberLabels[ttlNumberInc]->setGeometry ({ QPoint (loc.x + 32 + ttlNumberInc * 28, loc.y),
+													  QPoint (loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20) });
 	}
 	loc.y += 20;
 	// all row numberLabels
 	for ( auto row : DoRows::allRows )
 	{
-		ttlRowLabels[ int(row) ].sPos = { loc.x, loc.y + int(row) * 28, loc.x + 32, loc.y + ( int(row) + 1 ) * 28 };
-		ttlRowLabels[ int(row) ].Create ( cstr ( DoRows::toStr(row) ), WS_CHILD | WS_VISIBLE | SS_CENTER,
-									 ttlRowLabels[ int(row) ].sPos, parent, id++ );
+		ttlRowLabels[int (row)] = new QLabel ((DoRows::toStr (row)).c_str(), parent);
+		ttlRowLabels[int (row)]->setGeometry (loc.x, loc.y + int (row) * 28, 32, 28);
 	}
 	// all push buttons
 	UINT runningCount = 0;
@@ -195,7 +180,18 @@ void DoSystem::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& i
 		loc.x = startX;
 		for (UINT number = 0; number < outputs.numColumns; number++)
 		{
-			outputs ( number, row ).initialize ( loc, parent, TTL_ID_BEGIN + runningCount++, toolTips );
+			auto& out = outputs (number, row);
+			out.initialize ( loc, parent );
+			parent->connect ( out.check, &QCheckBox::stateChanged, [this, &out, parent]() {
+				try {
+					handleTTLPress (out);
+					parent->configUpdated ();
+				}
+				catch (Error& exception)
+				{
+					parent->reportErr ("TTL Press Handler Failed.\n" + exception.trace () + "\r\n");
+				}
+			});
 			loc.x += 28;
 		}
 		loc.y += 28;
@@ -216,32 +212,19 @@ int DoSystem::getNumberOfTTLsPerRow()
 }
 
 
-void DoSystem::handleTTLPress(int id)
+void DoSystem::handleTTLPress(DigitalOutput& out)
 {
-	
-	for ( auto& out : outputs )
-	{		
-		if ( out.getCheckID ( ) == id )
-		{
-			if ( out.getShadeStatus() )
-			{
-				// if indeterminante (i.e. shaded), you can't change it, but that's fine, just return.
-				return;
-			}
-			if ( holdStatus == false )
-			{
-				out.set (!out.getStatus ()); 
-				core.ftdi_ForceOutput(out.getPosition().first, out.getPosition().second, !out.getStatus(), getCurrentStatus ());
-			}
-			else
-			{
-				out.setHoldStatus ( !out.holdStatus );
-			}
-			break;
-		}
+	if ( holdStatus == false )
+	{
+		//out.set (!out.getStatus ());
+		out.set (out.check->isChecked ());
+		core.ftdi_ForceOutput(out.getPosition().first, out.getPosition().second, !out.getStatus(), getCurrentStatus ());
+	}
+	else
+	{
+		out.setHoldStatus ( !out.holdStatus );
 	}
 }
-
 
 // this function handles when the hold button is pressed.
 void DoSystem::handleHoldPress()
@@ -268,36 +251,6 @@ void DoSystem::handleHoldPress()
 }
 
 
-HBRUSH DoSystem::handleColorMessage(CWnd* window, CDC* cDC)
-{
-	int controlID = window->GetDlgCtrlID();
-	for ( auto& out : outputs )
-	{
-		auto res = out.handleColorMessage ( controlID, window, cDC );
-		if ( res != NULL )
-		{
-			return res;
-		}
-	}
-	if (controlID >= ttlRowLabels.front().GetDlgCtrlID() && controlID <= ttlRowLabels.back().GetDlgCtrlID())
-	{
-		cDC->SetBkColor( _myRGBs["Static-Bkgd"]);
-		cDC->SetTextColor( _myRGBs["Text"]);
-		return *_myBrushes["Static-Bkgd"];
-	}
-	else if (controlID >= ttlNumberLabels.front().GetDlgCtrlID() && controlID <= ttlNumberLabels.back().GetDlgCtrlID())
-	{
-		cDC->SetBkColor( _myRGBs["Static-Bkgd"]);
-		cDC->SetTextColor( _myRGBs["Text"]);
-		return *_myBrushes["Static-Bkgd"];
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-
 std::array< std::array<bool, 16>, 4 > DoSystem::getCurrentStatus( )
 {
 	std::array< std::array<bool, 16>, 4 > currentStatus;
@@ -309,14 +262,14 @@ std::array< std::array<bool, 16>, 4 > DoSystem::getCurrentStatus( )
 }
 
 
-void DoSystem::setName( DoRows::which row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void DoSystem::setName( DoRows::which row, UINT number, std::string name)
 {
 	if (name == "")
 	{
 		// no empty names allowed.
 		return;
 	}
-	outputs ( number, row ).setName ( name, toolTips, master );
+	outputs ( number, row ).setName ( name );
 	auto names = core.getAllNames ();
 	names (UINT(row), number) = name;
 	core.setNames (names);

@@ -3,18 +3,11 @@
 #include "Repetitions.h"
 #include <unordered_map>
 #include "LowLevel/constants.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include <boost/lexical_cast.hpp>
+#include "PrimaryWindows/QtMainWindow.h"
 
-void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
-{
-	repetitionEdit.rearrange(width, height, fonts);
-	repetitionDisp.rearrange(width, height, fonts);
-	repetitionText.rearrange(width, height, fonts);
-}
-
-
-UINT Repetitions::getRepsFromConfig ( std::ifstream& openFile, Version ver )
+UINT Repetitions::getSettingsFromConfig (ConfigStream& openFile )
 {
 	UINT repNum;
 	openFile >> repNum;
@@ -22,74 +15,46 @@ UINT Repetitions::getRepsFromConfig ( std::ifstream& openFile, Version ver )
 }
 
 
-void Repetitions::handleNewConfig( std::ofstream& newFile )
-{
-	newFile << "REPETITIONS\n";
-	newFile << 100 << "\n";
-	newFile << "END_REPETITIONS\n";
-}
 
-void Repetitions::handleSaveConfig(std::ofstream& saveFile)
+void Repetitions::handleSaveConfig(ConfigStream& saveFile)
 {
 	saveFile << "REPETITIONS\n";
-	saveFile << getRepetitionNumber() << "\n";
-	saveFile << "END_REPETITIONS\n";
-}
-
-
-HBRUSH Repetitions::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
-{
-	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == repetitionDisp.GetDlgCtrlID() || controlID == repetitionEdit.GetDlgCtrlID())
-	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["White"]);
-		return *brushes["Medium Grey"];
-	}
-	else
-	{
-		return NULL;
-	}
-
+	saveFile << "/*Reps:*/" << getRepetitionNumber ();
+	saveFile << "\nEND_REPETITIONS\n";
 }
 
 void Repetitions::updateNumber(long repNumber)
 {
-	repetitionDisp.SetWindowText(cstr(repNumber));
+	repetitionDisp->setText (cstr (repNumber));
 }
 
 
-void Repetitions::initialize(POINT& pos, cToolTips& toolTips, CWnd* parent, int& id)
+void Repetitions::initialize(POINT& pos, IChimeraWindowWidget* parent )
 {
 	repetitionNumber = 100;
-
 	// title
-	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
-	repetitionText.Create("Repetition #", NORM_STATIC_OPTIONS, repetitionText.sPos, parent, id++);
-	
-	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
-	repetitionEdit.Create( NORM_EDIT_OPTIONS, repetitionEdit.sPos, parent, IDC_REPETITION_EDIT );
-	repetitionEdit.SetWindowText(cstr(repetitionNumber));
-
-	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y += 20 };
-	repetitionDisp.Create( NORM_STATIC_OPTIONS | SS_SUNKEN , repetitionDisp.sPos,
-						  parent, id++);
-	repetitionDisp.SetWindowText("-");
+	repetitionText = new QLabel ("Repetition #", parent);
+	repetitionText->setGeometry (QRect (pos.x, pos.y, 180, 20));
+	repetitionEdit = new CQLineEdit (cstr (repetitionNumber), parent);
+	repetitionEdit->setGeometry (QRect (pos.x + 180, pos.y, 150, 20));
+	parent->connect (repetitionEdit, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
+	repetitionDisp = new QLabel ("-", parent);
+	repetitionDisp->setGeometry (QRect (pos.x + 330, pos.y, 150, 20));
+	pos.y += 20;
 }
 
 
 void Repetitions::setRepetitions(UINT number)
 {
 	repetitionNumber = number;
-	repetitionEdit.SetWindowTextA(cstr(number));
-	repetitionDisp.SetWindowTextA("---");
+	repetitionEdit->setText (cstr (number));
+	repetitionDisp->setText("---");
 }
 
 
 UINT Repetitions::getRepetitionNumber()
 {
-	CString text;
-	repetitionEdit.GetWindowText(text);
+	auto text = repetitionEdit->text ();
 	try
 	{
 		repetitionNumber = boost::lexical_cast<int>(str(text));

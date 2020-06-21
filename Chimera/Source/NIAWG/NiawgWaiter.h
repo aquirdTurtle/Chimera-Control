@@ -14,7 +14,6 @@ struct ExperimentThreadInput;
 struct waitThreadInput
 {
 	NiawgCore* niawg;
-	profileSettings profile;
 };
 
 /*
@@ -27,7 +26,7 @@ class NiawgWaiter
 	public:
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
-		void startWaitThread( NiawgCore* niawgPtr, profileSettings profile );
+		void startWaitThread( NiawgCore* niawgPtr );
 		void wait( Communicator& comm );
 		void systemAbortCheck( Communicator& comm );
 };

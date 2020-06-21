@@ -1,6 +1,9 @@
 // created by Mark O. Brown
 #pragma once
 
+#ifdef slots
+#undef slots
+#endif
 #ifdef _DEBUG
 #undef _DEBUG
 #include "python.h"

@@ -17,7 +17,7 @@ struct analysisGroupLocation
 class PlottingInfo
 {
 	public:
-		PlottingInfo(UINT picNumber);
+		PlottingInfo(UINT picNumber=1);
 		PlottingInfo(std::string fileName);
 		void changeTitle(std::string newTitle);
 		std::string getTitle();

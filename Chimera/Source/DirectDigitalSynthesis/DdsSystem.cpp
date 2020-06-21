@@ -1,70 +1,94 @@
 #include "stdafx.h"
 #include "ftd2xx.h"
 #include "DirectDigitalSynthesis/DdsSystem.h"
-#include "PrimaryWindows/AuxiliaryWindow.h"
-#include "ExcessDialogs/TextPromptDialog.h"
+#include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "GeneralObjects/multiDimensionalKey.h"
 #include "afxcmn.h"
 #include <boost/lexical_cast.hpp>
+#include <qheaderview.h>
+#include <qmenu.h>
+#include <PrimaryWindows/QtMainWindow.h>
 
 DdsSystem::DdsSystem ( bool ftSafemode ) : core( ftSafemode ) { }
 
-void DdsSystem::initialize ( POINT& pos, cToolTips& toolTips, CWnd* parent, int& id, std::string title )
+void DdsSystem::handleContextMenu (const QPoint& pos)
 {
-	ddsHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	ddsHeader.fontType = fontTypes::HeadingFont; 
-	ddsHeader.Create ( cstr ( title ), NORM_HEADER_OPTIONS, ddsHeader.sPos, parent, id++ );
-
-	programNowButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	programNowButton.fontType = fontTypes::NormalFont;
-	programNowButton.Create ( "Program Now", NORM_PUSH_OPTIONS, programNowButton.sPos, parent, IDC_DDS_PROGRAM_NOW );
-
-	RECT r1;
-	parent->GetClientRect ( &r1 );
-	rampListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 160 };
-	rampListview.fontType = fontTypes::SmallCodeFont; 
-	rampListview.Create ( NORM_LISTVIEW_OPTIONS, rampListview.sPos, parent, IDC_DDS_LISTVIEW );
-	rampListview.SetTextBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
-	rampListview.SetTextColor ( _myRGBs[ "AuxWin-Text" ] );
-	rampListview.SetBkColor ( _myRGBs[ "Interactable-Bkgd" ] );
-
-	rampListview.InsertColumn ( 0, "Index", r1.right / 12 );
-	rampListview.InsertColumn ( 1, "Channel", r1.right / 8 );
-	rampListview.InsertColumn ( 2, "Freq 1", r1.right / 8 );
-	rampListview.InsertColumn ( 3, "Amp 1" );
-	rampListview.InsertColumn ( 4, "Freq 2" );
-	rampListview.InsertColumn ( 5, "Amp 2" );
-	rampListview.InsertColumn ( 6, "Time" );
-
-	rampListview.insertBlankRow ( );
+	QTableWidgetItem* item = rampListview->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete This Item", rampListview);
+	rampListview->connect (deleteAction, &QAction::triggered, [this, item]() {
+		currentRamps.erase(currentRamps.begin()+item->row());
+		redrawListview ();
+		});
+	auto* newPerson = new QAction ("New Item", rampListview);
+	rampListview->connect (newPerson, &QAction::triggered,
+		[this]() {
+			currentRamps.push_back (ddsIndvRampListInfo ());
+			redrawListview ();
+		});
+	if (item) { menu.addAction (deleteAction); }
+	menu.addAction (newPerson);
+	menu.exec (rampListview->mapToGlobal (pos));
 }
 
-void DdsSystem::rearrange ( UINT width, UINT height, fontMap fonts )
-{ 
-	rampListview.rearrange ( width, height, fonts );
-	ddsHeader.rearrange ( width, height, fonts );
-	programNowButton.rearrange ( width, height, fonts );
+void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::string title )
+{
+	ddsHeader = new QLabel (cstr (title), parent);
+	ddsHeader->setGeometry (pos.x, pos.y, 480, 25);
+
+	programNowButton = new QPushButton ("Program Now", parent);
+	programNowButton->setGeometry (pos.x, pos.y += 25, 480, 25);
+	parent->connect (programNowButton, &QPushButton::released, [this, parent]() {
+		try	{
+			programNow (parent->auxWin->getUsableConstants ());
+		}
+		catch (Error& err) {
+			parent->reportErr (err.trace ());
+		}
+	});
+
+	rampListview = new QTableWidget (parent);
+	rampListview->setGeometry (pos.x, pos.y+= 25, 480, 160);
+	pos.y += 160;
+	rampListview->horizontalHeader ()->setFixedHeight (30);
+	rampListview->verticalHeader ()->setFixedWidth (40);
+	rampListview->verticalHeader ()->setDefaultSectionSize (22);
+
+	rampListview->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (rampListview, &QTableWidget::customContextMenuRequested,
+		[this](const QPoint& pos) {handleContextMenu (pos); });
+	rampListview->setShowGrid (true);
+
+	QStringList labels;
+	labels << "Index" << "Channel" << "Freq 1" << "Amp 1" << "Freq 2" << "Amp 2" << "Time";
+	rampListview->setColumnCount (labels.size());
+	rampListview->setHorizontalHeaderLabels (labels);
 }
+
+void DdsSystem::rearrange ( UINT width, UINT height, fontMap fonts ){ }
 
 void DdsSystem::redrawListview ( )
 {
-	rampListview.DeleteAllItems ( );
-	for ( auto rampInc : range(currentRamps.size()) )
+	rampListview->setRowCount (0);
+	for (auto rampInc : range (currentRamps.size ()))
 	{
-		auto& ramp = currentRamps[ rampInc ];
-		rampListview.InsertItem ( str ( ramp.index ), rampInc, 0 );
-		rampListview.SetItem ( str ( ramp.channel ), rampInc, 1 );
-		rampListview.SetItem ( str ( ramp.freq1.expressionStr ), rampInc, 2 );
-		rampListview.SetItem ( str ( ramp.amp1.expressionStr ), rampInc, 3 );
-		rampListview.SetItem ( str ( ramp.freq2.expressionStr ), rampInc, 4 );
-		rampListview.SetItem ( str ( ramp.amp2.expressionStr ), rampInc, 5 );
-		rampListview.SetItem ( str ( ramp.rampTime.expressionStr ), rampInc, 6 );
+		rampListview->insertRow (rampListview->rowCount ());
+		auto rowN = rampListview->rowCount ();
+		auto& ramp = currentRamps[rampInc];
+		rampListview->setItem (rowN, 0, new QTableWidgetItem (cstr (ramp.index)));
+		rampListview->setItem (rowN, 1, new QTableWidgetItem (cstr (ramp.channel)));
+		rampListview->setItem (rowN, 2, new QTableWidgetItem (cstr (ramp.freq1.expressionStr)));
+		rampListview->setItem (rowN, 3, new QTableWidgetItem (cstr (ramp.amp1.expressionStr)));
+		rampListview->setItem (rowN, 4, new QTableWidgetItem (cstr (ramp.freq2.expressionStr)));
+		rampListview->setItem (rowN, 5, new QTableWidgetItem (cstr (ramp.amp2.expressionStr)));
+		rampListview->setItem (rowN, 6, new QTableWidgetItem (cstr (ramp.rampTime.expressionStr)));
 	}
-	rampListview.insertBlankRow ( );
 }
 
 void DdsSystem::handleRampClick (  )
 {
+	/*
 	if ( !controlActive )
 	{
 		return;
@@ -175,10 +199,12 @@ void DdsSystem::handleRampClick (  )
 		}
 	}
 	redrawListview ( );
+	*/
 }
 
 void DdsSystem::deleteRampVariable ( )
 {
+	/*
 	if ( !controlActive )
 	{
 		return;
@@ -206,20 +232,19 @@ void DdsSystem::deleteRampVariable ( )
 		}
 	}
 	redrawListview ( );
+	*/
 }
 
 
-void DdsSystem::programNow ( )
+void DdsSystem::programNow ( std::vector<parameterType>& constants )
 {
 	try
 	{
-		std::vector<std::vector<ddsIndvRampListInfo>> simpleExp;
-		simpleExp.resize( 1 );
-		simpleExp[0] = currentRamps;
-		core.updateRampLists ( simpleExp );
+		std::vector<ddsIndvRampListInfo> simpleExp;
+		simpleExp = currentRamps;
 		core.evaluateDdsInfo ( );
 		core.generateFullExpInfo ( 1 );
-		core.writeExperiment ( 0, 0 );
+		core.programVariation ( 0, constants);
 	}
 	catch ( Error& )
 	{
@@ -228,19 +253,19 @@ void DdsSystem::programNow ( )
 }
 
 
-void DdsSystem::handleSaveConfig ( std::ofstream& file )
+void DdsSystem::handleSaveConfig (ConfigStream& file )
 {
 	file << getDelim() << "\n";
 	core.writeRampListToConfig ( currentRamps, file );
-	file << "END_" + getDelim ( ) << "\n";
+	file << "\nEND_" + getDelim ( ) << "\n";
 }
 
 
-void DdsSystem::handleOpenConfig ( std::ifstream& file, Version ver )
+void DdsSystem::handleOpenConfig ( ConfigStream& file )
 {
-	if ( ver >= Version ( "4.5" ) )
+	if ( file.ver >= Version ( "4.5" ) )
 	{
-		currentRamps = core.getRampListFromConfig ( file, ver );
+		currentRamps = core.getSettingsFromConfig ( file );
 	}
 	redrawListview ( );
 }
