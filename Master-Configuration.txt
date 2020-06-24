@@ -271,7 +271,7 @@ ax_sbc_raman__servo_value 0.1
 top_sbc_sideband__servo_value 0.232192
 sbc_cooling_mod 125
 radial_carrier_freq 6.83096
-1
+0
 0
 pdVolts
 19
@@ -294,5 +294,5 @@ top_sbc_sideband_spec 2 16 1 5.939 2 a 10 b 3 0 0.01 0.1 0 100
 sbc_sigma_op 5 13 1 0.41 1 a 4 0 0.02 0.01 0 200
 depthmeasurementprobe 5 19 1 0.11 2 d 12 d 13 0 0.01 0.01 0 100
 top_sbc_sideband 2 16 1 6.13 2 a 10 b 3 0 0.02 0.02 0 100
-216 313 2 229 246 2
+216 311 2 229 246 2
 0 0

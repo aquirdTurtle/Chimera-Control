@@ -18,8 +18,7 @@
 #include <vector>
 #include <memory>
 
-enum class plotStyle
-{
+enum class plotStyle{
 	// ttl and dac plot use steps.
 	TtlPlot,
 	DacPlot,
@@ -36,8 +35,9 @@ enum class plotStyle
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 typedef std::shared_ptr<QtCharts::QLineSeries> pQtPlotDataVec;
+Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
 
-struct plotMinMax {
+struct plotMinMax { 
 	double min_x, min_y, max_x, max_y;
 };
 /*
@@ -48,7 +48,7 @@ struct plotMinMax {
 */
 class PlotCtrl : public QObject {
 	Q_OBJECT;
-	public:
+	public: 
 		PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds,
 				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );

@@ -24,13 +24,11 @@ void LongCSlider::hide ( int hideornot ) {
 	slider->setVisible (hideornot);
 }
 
-UINT LongCSlider::getEditId ( )
-{
+UINT LongCSlider::getEditId ( ){
 	return NULL;
 }
 
-void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int width, int height, std::string headerText )
-{
+void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int width, int height, std::string headerText ){
 	header = new  QLabel (headerText.c_str (), parent);
 	header->setGeometry (loc.x, loc.y, 25, 20);
 
@@ -60,19 +58,17 @@ void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int wid
 		});
 }
 
-int LongCSlider::getSliderId ( )
-{
+int LongCSlider::getSliderId ( ){
 	return NULL;
 }
 
 void LongCSlider::rearrange ( int width, int height, fontMap fonts ) {}
 
-double LongCSlider::getValue ( )
-{
+double LongCSlider::getValue ( ){
 	return currentValue;
 }
 
-void LongCSlider::setValue ( double value, bool updateEdit ){
+void LongCSlider::setValue ( int value, bool updateEdit ){
 	if ( value < minVal ){
 		thrower ( "Tried to set slider value below minimum value of " + str ( minVal ) + "!" );
 	}
@@ -89,7 +85,7 @@ void LongCSlider::setValue ( double value, bool updateEdit ){
 void LongCSlider::handleEdit (){
 	int val;
 	try	{
-		val = int(boost::lexical_cast<double>( str ( edit->text() ) ));
+		val = int(boost::lexical_cast<int>( str ( edit->text() ) ));
 	}
 	catch ( boost::bad_lexical_cast& ){
 		thrower( "Please enter a number." );

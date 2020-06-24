@@ -31,17 +31,15 @@
 #include <vector>
 #include <future>
 
-
 namespace Ui {
     class QtMainWindow;
-}
-
+} 
 
 class QtMainWindow : public IChimeraWindowWidget{
     Q_OBJECT
-
+		 
     public:
-		explicit QtMainWindow (CDialog* splash, chronoTime* startTime);
+		explicit QtMainWindow ();
         ~QtMainWindow ();
 
 		void initializeWidgets ();
@@ -117,8 +115,8 @@ class QtMainWindow : public IChimeraWindowWidget{
 		void handleExpNotification (QString txt);
 		void onRepProgress (unsigned int repNum);
 		void onErrorMessage (QString errMessage);
-		void onNormalFinish ();
-		void onFatalError ();
+		void onNormalFinish (QString finMsg);
+		void onFatalError (QString finMsg);
 
     private:
         Ui::QtMainWindow* ui;
@@ -145,11 +143,9 @@ class QtMainWindow : public IChimeraWindowWidget{
 		RunInfo systemRunningInfo;
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;
-		CFont* plotfont;
 		//
 		static BOOL CALLBACK monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 			_In_ LPRECT lprcMonitor, _In_ LPARAM dwData);
-		CDialog* appSplash;
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindowWidget* win);
 		UINT autoCalNum = 0;
 

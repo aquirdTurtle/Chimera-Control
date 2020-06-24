@@ -9,14 +9,14 @@
 
 class AnalysisThreadWorker : public QObject {
     Q_OBJECT
-
+		 
     public:
         AnalysisThreadWorker (realTimePlotterInput* input_);
         ~AnalysisThreadWorker ();
 
     public Q_SLOTS:
         void init ();
-        void handleNewPic (atomQueue);
+        void handleNewPic (atomQueue); 
         void handleNewPix (PixListQueue pixlist);
         void setXpts (std::vector<double>);
     Q_SIGNALS:

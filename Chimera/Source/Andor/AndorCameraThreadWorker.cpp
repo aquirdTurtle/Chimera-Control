@@ -49,11 +49,8 @@ void AndorCameraThreadWorker::process (){
 						armed = false;
 					}
 					else {
-						emit pictureTaken (-1);
+						//emit pictureTaken (-1);
 						emit acquisitionFinished ();
-						//input->comm->sendCameraProgress( -1 );
-						// signal the end to the main thread.
-						//input->comm->sendCameraFin ();
 						// make sure the thread waits when it hits the condition variable.
 						//input->expectingAcquisition = false;
 						armed = false;

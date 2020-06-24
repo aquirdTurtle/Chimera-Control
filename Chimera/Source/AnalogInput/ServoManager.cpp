@@ -9,6 +9,7 @@
 #include <QMenu>
 #include "GeneralObjects/ChimeraStyleSheets.h"
 #include <PrimaryWindows/QtMainWindow.h>
+#include <qapplication.h>
 
 void ServoManager::handleContextMenu (const QPoint& pos)
 {
@@ -163,419 +164,136 @@ void ServoManager::handleOpenMasterConfig( ConfigStream& configStream )
 }
 
 
-void ServoManager::deleteServo ( )
-{
-	/*
-	/// get the item and subitem
-	POINT cursorPos;
-	GetCursorPos ( &cursorPos );
-	servoList.ScreenToClient ( &cursorPos );
-	int subitemIndicator = servoList.HitTest ( cursorPos );
-	LVHITTESTINFO myItemInfo;
-	memset ( &myItemInfo, 0, sizeof ( LVHITTESTINFO ) );
-	myItemInfo.pt = cursorPos;
-	int itemIndicator = servoList.SubItemHitTest ( &myItemInfo );
-	if ( itemIndicator == -1 || itemIndicator == servos.size ( ) )
-	{
-		// user didn't click in a deletable item.
-		return;
-	}
-	int answer;
-	if ( UINT ( itemIndicator ) < servos.size ( ) )
-	{
-		answer = promptBox ( "Delete Servo " + servos[ itemIndicator ].servoName + "?", MB_YESNO );
-		if ( answer == IDYES )
-		{
-			servoList.DeleteItem ( itemIndicator );
-			servos.erase ( servos.begin ( ) + itemIndicator );
-		}
 
-	}
-	else if ( UINT ( itemIndicator ) > servos.size ( ) )
-	{
-		answer = promptBox ( "You appear to have found a bug with the listview control... there are too many lines "
-							 "in this control. Clear this line?", MB_YESNO );
-		if ( answer == IDYES )
-		{
-			servoList.DeleteItem ( itemIndicator );
-		}
-	}
-	*/
-}
-
-
-void ServoManager::handleListViewClick ( )
-{
-	/*
-	LVHITTESTINFO myItemInfo = { 0 };
-	GetCursorPos ( &myItemInfo.pt );
-	servoList.ScreenToClient ( &myItemInfo.pt );
-	servoList.SubItemHitTest ( &myItemInfo );
-	int subitem, itemIndicator;
-	itemIndicator = myItemInfo.iItem;
-	if ( itemIndicator == -1 )
-	{
-		return;
-	}
-	CString text = servoList.GetItemText ( itemIndicator, 0 );
-	if ( text == "___" )
-	{	// add a variable		
-		servos.resize ( servos.size ( ) + 1 );
-		servos.back ( ).servoName = "noname";
-		// make a new "new" row.
-		servoList.InsertItem ( "noname", itemIndicator, 0 );
-		servoList.SetItem ( "-", itemIndicator, 1 );
-	}
-	auto& servo = servos[ itemIndicator ];
-	subitem = myItemInfo.iSubItem;
-	/// Handle different subitem clicks
-	switch ( subitem )
-	{
-		case 0:
-		{	/// person name
-			std::string newName;
-			TextPromptDialog dialog ( &newName, "Please enter a name for the servo.", servo.servoName);
-			dialog.DoModal ( );
-			// make name lower case
-			std::transform ( newName.begin ( ), newName.end ( ), newName.begin ( ), ::tolower );
-			if ( newName == "" )
-			{
-				// probably canceled.
-				break;
-			}
-			for ( auto s : servos )
-			{
-				if ( s.servoName == newName )
-				{
-					thrower ( "An servo with name " + newName + " already exists!" );
-				}
-			}
-			servo.servoName = newName;
-			break;
-		}
-		case 1:
-		{	// active, toggles.			
-			servo.active = !servo.active;
-			break;
-		}
-		case 2:
-		{
-			std::string setPointTxt;
-			TextPromptDialog dialog ( &setPointTxt, "Please enter a set point for the servo (IN VOLTS).", str(servo.setPoint) );
-			dialog.DoModal ( );
-			try
-			{
-				servo.setPoint = boost::lexical_cast<double>( setPointTxt );
-			}
-			catch ( boost::bad_lexical_cast& )
-			{
-				throwNested ( "Failed to convert text to a double!" );
-			}
-			// set point
-			break;
-		}
-		case 3: // control value, unresponsive
-		case 4: // control change, unresponsive
-		case 5: // result value, unresponsive
-		case 6: // result change, unresponsive
-			break;
-		case 7:
-		{	// ai
-			std::string aiTxt;
-			TextPromptDialog dialog ( &aiTxt, "Please enter the analog-input for the servo to look at.", str(servo.aiInChan) );
-			dialog.DoModal ( );
-			try
-			{
-				servo.aiInChan = boost::lexical_cast<UINT>( aiTxt );
-			}
-			catch ( boost::bad_lexical_cast& )
-			{
-				throwNested ( "Failed to convert text to an unsigned int!" );
-			}
-			break;
-		}
-		case 8:
-		{	// ao			
-			std::string aoTxt;
-			TextPromptDialog dialog ( &aoTxt, "Please enter a the analog-output for the servo to use for control.", str(servo.aoControlChannel) );
-			dialog.DoModal ( );
-			try
-			{
-				servo.aoControlChannel = boost::lexical_cast<UINT>( aoTxt );
-			}
-			catch ( boost::bad_lexical_cast& )
-			{
-				throwNested ( "Failed to convert text to an unsigned int!" );
-			}
-			break;
-		}
-		case 9:
-		{	// Digital-output config
-			std::string doTxt;
-			TextPromptDialog dialog ( &doTxt, "Please enter the digital outputs that must be on for the calibration. "
-									  "Everthing else will be off. Please separate the row from the number with a "
-									  "space and each ttl with a space. E.g. \"A 1 D 0\"", 
-									  servoTtlConfigToString (servo.ttlConfig));
-			dialog.DoModal ( );
-			std::stringstream tmpStream(doTxt);
-			std::string rowTxt;
-			servo.ttlConfig.clear ( );
-			while ( tmpStream >> rowTxt )
-			{
-				try
-				{
-					std::pair<DoRows::which, UINT> ttl;
-					ttl.first = DoRows::fromStr ( rowTxt );
-					tmpStream >> ttl.second;
-					servo.ttlConfig.push_back ( ttl );
-				}
-				catch ( Error& )
-				{
-					throwNested ( "Error In trying to set the servo ttl config!" );
-				}
-			}
-			break;
- 		}
-		case 10:
-		{	// tolerance
-			std::string tolTxt;
-			TextPromptDialog dialog ( &tolTxt, "Please enter a tolerance (%) for the servo.", str(servo.tolerance) );
-			dialog.DoModal ( );
-			try
-			{
-				servo.tolerance = boost::lexical_cast<double>( tolTxt );
-			}
-			catch ( boost::bad_lexical_cast& )
-			{
-				throwNested ( "Failed to convert text to a double!" );
-			}
-			break;
-		}
-		case 11:
-		{	// gain 
-			std::string gainTxt;
-			TextPromptDialog dialog ( &gainTxt, "Please enter a gain factor for the servo.", str(servo.gain) );
-			dialog.DoModal ( );
-			try
-			{
-				servo.gain = boost::lexical_cast<double>( gainTxt );
-			}
-			catch ( boost::bad_lexical_cast& )
-			{
-				throwNested ( "Failed to convert text to a double!" );
-			}
-			break;
-		}
-		case 12:
-		{	// monitor only toggle
-			servo.monitorOnly = !servo.monitorOnly;
-			break;
-		}
-		case 13:
-		{	// Analog-output config
-			std::string aoTxt;
-			TextPromptDialog dialog (&aoTxt, "Please enter the Analog outputs that must be on for the calibration. "
-				"Everthing else will be off. Please separate the dac identifier from the value with a space. "
-				"E.g. \"dac20 0.4 dac4 -10\"", servoDacConfigToString (servo.aoConfig));
-			dialog.DoModal ();
-			std::stringstream tmpStream (aoTxt);
-			std::string dacIdTxt;
-			servo.aoConfig.clear ();
-			while (tmpStream >> dacIdTxt)
-			{
-				try
-				{
-					auto id = AoSystem::getBasicDacIdentifier (dacIdTxt);
-					if (id == -1)
-					{
-						thrower ("Dac Identifier \"" + dacIdTxt + "\" failed to convert to a basic dac id!");
-					}
-					std::pair<UINT, double> dacSetting;
-					dacSetting.first = id;
-					tmpStream >> dacSetting.second;
-					servo.aoConfig.push_back (dacSetting);
-				}
-				catch (Error&)
-				{
-					throwNested ("Error In trying to set the servo dac config!");
-				}
-			}
-			break;
-		}
-		case 14:
-		{
-			std::string numAvgsTxt;
-			TextPromptDialog dialog (&numAvgsTxt, "Please enter a number (>1) of ai averages for the servo.", str(servo.avgNum));
-			dialog.DoModal ();
-			try
-			{
-				servo.avgNum = boost::lexical_cast<UINT>(numAvgsTxt);
-			}
-			catch (boost::bad_lexical_cast&)
-			{
-				throwNested ("Failed to convert text to a double!");
-			}
-			break;
-		}
-	}
- 	refreshListview ( );
-	*/
-}
-
-
-servoInfo ServoManager::handleOpenMasterConfigIndvServo ( ConfigStream& configStream )
-{
+servoInfo ServoManager::handleOpenMasterConfigIndvServo ( ConfigStream& configStream ){
 	servoInfo tmpInfo;
 	configStream >> tmpInfo.servoName;
-	if ( configStream.ver > Version ( "2.3" ) )
-	{
+	if ( configStream.ver > Version ( "2.3" ) ){
 		configStream >> tmpInfo.aiInChan >> tmpInfo.aoControlChannel;
 	}
-	else
-	{
+	else{
 		tmpInfo.aiInChan = tmpInfo.aoControlChannel = 0;
 	}
 	configStream >> tmpInfo.active >> tmpInfo.setPoint;
-	if (configStream.ver > Version ( "2.3" ) )
-	{
+	if (configStream.ver > Version ( "2.3" ) ){
 		UINT numSettings;
 		configStream >> numSettings;
 		tmpInfo.ttlConfig.resize ( numSettings );
-		for ( auto& ttl : tmpInfo.ttlConfig )
-		{
+		for ( auto& ttl : tmpInfo.ttlConfig ){
 			std::string rowStr;
 			configStream >> rowStr >> ttl.second;
 			ttl.first = DoRows::fromStr ( rowStr );
 		}
 	}
-	if (configStream.ver > Version ("2.6"))
-	{
+	if (configStream.ver > Version ("2.6")){
 		UINT numSettings;
 		configStream >> numSettings;
 		tmpInfo.aoConfig.resize (numSettings);
-		for (auto& ao : tmpInfo.aoConfig)
-		{
+		for (auto& ao : tmpInfo.aoConfig){
 			UINT dacID;
 			configStream >> dacID >> ao.second;
 			ao.first = dacID;
 		}
 	}
-	if (configStream.ver > Version ( "2.4" ) )
-	{
+	if (configStream.ver > Version ( "2.4" ) ){
 		configStream >> tmpInfo.tolerance >> tmpInfo.gain;
 	}
-	if (configStream.ver > Version ( "2.5" ) )
-	{
+	if (configStream.ver > Version ( "2.5" ) ){
 		configStream >> tmpInfo.monitorOnly;	
 	}
-	if (configStream.ver > Version ("2.7"))
-	{
+	if (configStream.ver > Version ("2.7")){
 		configStream >> tmpInfo.avgNum;
 	}
 	return tmpInfo;
 }
 
 
-void ServoManager::refreshListview ( )
-{
+void ServoManager::refreshListview ( ){
 	servoList->setRowCount (0);
-	for ( auto& servo : servos )
-	{
+	for ( auto& servo : servos ){
 		addServoToListview ( servo );
 	}
 	servoList->resizeColumnsToContents ();
 }
 
 
-void ServoManager::addServoToListview ( servoInfo& si )
-{
+void ServoManager::addServoToListview ( servoInfo& si ){
 	int row = servoList->rowCount ();
 	auto ctp = [this, &si](double volt) {return convertToPower (volt, si); };
+	int precision = 5;
 	servoList->insertRow (row);
 	servoList->setItem (row, 0, new QTableWidgetItem ( si.servoName.c_str ()));
 	servoList->setItem (row, 1, new QTableWidgetItem ( si.active? "Yes" : "No"));
-	servoList->setItem (row, 2, new QTableWidgetItem ( cstr(ctp(si.setPoint))));
-	servoList->setItem (row, 3, new QTableWidgetItem (si.monitorOnly ? "--" : str (ctp(si.controlValue)).c_str()));
+	servoList->setItem (row, 2, new QTableWidgetItem ( cstr(ctp(si.setPoint), precision)));
+	servoList->setItem (row, 3, new QTableWidgetItem (si.monitorOnly ? "--" : str (ctp(si.controlValue), precision).c_str()));
 	//servoList->item (row, 3)->setBackground (Qt::black);
 	servoList->item (row, 3)->setFlags (servoList->item (row, 3)->flags () ^ Qt::ItemIsEnabled);
-	servoList->setItem (row, 4, new QTableWidgetItem (((si.changeInCtrl < 0 ? "" : "+") + str (si.changeInCtrl*100)).c_str ()));
+	servoList->setItem (row, 4, new QTableWidgetItem (((si.changeInCtrl < 0 ? "" : "+") + str (si.changeInCtrl*100, precision)).c_str ()));
 	//servoList->item(row, 4)->setBackground (Qt::black);
 	servoList->item (row, 4)->setFlags (servoList->item (row, 4)->flags () ^ Qt::ItemIsEnabled);
-	servoList->setItem (row, 5, new QTableWidgetItem (cstr (ctp(si.mostRecentResult) )));
+	servoList->setItem (row, 5, new QTableWidgetItem (cstr (ctp(si.mostRecentResult), precision)));
 	//servoList->item (row, 5)->setBackground (Qt::black);
 	servoList->item (row, 5)->setFlags (servoList->item (row, 5)->flags () ^ Qt::ItemIsEnabled);
 	//servoList->item (row, 5)->setFlags (servoList->item (row, 5)->flags () ^ Qt::ItemIsEditable);
-	servoList->setItem (row, 6, new QTableWidgetItem (cstr (si.aiInChan )));
+	servoList->setItem (row, 6, new QTableWidgetItem (cstr (si.aiInChan, precision)));
 	servoList->setItem (row, 7, new QTableWidgetItem ((si.monitorOnly ? "--" : str (si.aoControlChannel )).c_str()));
 	servoList->setItem (row, 8, new QTableWidgetItem (servoTtlConfigToString (si.ttlConfig).c_str()));
-	servoList->setItem (row, 9, new QTableWidgetItem (cstr (si.tolerance )));
+	servoList->setItem (row, 9, new QTableWidgetItem (cstr (si.tolerance, precision)));
 	servoList->setItem (row, 10, new QTableWidgetItem ((si.monitorOnly ? "--" : str (si.gain )).c_str()));
 	servoList->setItem (row, 11, new QTableWidgetItem (cstr(si.monitorOnly ? "Yes" : "No") ));
 	servoList->setItem (row, 12, new QTableWidgetItem (servoDacConfigToString(si.aoConfig).c_str()));
-	servoList->setItem (row, 13, new QTableWidgetItem (cstr (si.avgNum)));
+	servoList->setItem (row, 13, new QTableWidgetItem (cstr (si.avgNum, precision)));
 	//servoList->setStyleSheet (servoList->styleSheet ());
 }
 
-std::string ServoManager::servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig)
-{
+std::string ServoManager::servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig){
 	std::string aoString;
-	for (auto ao : aoConfig)
-	{
+	for (auto ao : aoConfig){
 		aoString += "dac" + str (ao.first) + " " + str (ao.second, 4) + " ";
 	}
 	return aoString;
 }
 
 
-std::string ServoManager::servoTtlConfigToString (std::vector<std::pair<DoRows::which, UINT> > ttlConfig)
-{
+std::string ServoManager::servoTtlConfigToString (std::vector<std::pair<DoRows::which, UINT> > ttlConfig){
 	std::string digitalOutConfigString;
-	for (auto val : ttlConfig)
-	{
+	for (auto val : ttlConfig){
 		digitalOutConfigString += DoRows::toStr (val.first) + " " + str (val.second) + " ";
 	}
 	return digitalOutConfigString;
 }
 
 
-void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo )
-{
+void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo ){
 	configStream << servo.servoName << " " << servo.aiInChan << " " << servo.aoControlChannel << " "
 		<< servo.active << " " << servo.setPoint << " " << servo.ttlConfig.size ( ) << " " 
 		<< servoTtlConfigToString (servo.ttlConfig);
 	configStream << servo.aoConfig.size () << " ";
-	for (auto& dac : servo.aoConfig)
-	{
+	for (auto& dac : servo.aoConfig){
 		configStream << dac.first << " " << dac.second << " ";
 	}
 	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << " " << servo.avgNum << "\n";
 }
 
-bool ServoManager::wantsCalAutoServo( )
-{
+bool ServoManager::wantsCalAutoServo( ){
 	return calAutoServoButton->isChecked( );
 }
 
-bool ServoManager::wantsExpAutoServo ()
-{
+bool ServoManager::wantsExpAutoServo (){
 	return expAutoServoButton->isChecked ();
 }
 
 
-void ServoManager::runAll( Communicator& comm)
-{
+void ServoManager::runAll( Communicator& comm){
 	UINT count = 0;
 	// made this asynchronous to facilitate updating gui while 
-	for ( auto& servo : servos )
-	{
+	for ( auto& servo : servos ){
 		auto origColor = servoList->item (count, 0)->background ();
 		servoList->item (count, 0)->setBackground (Qt::red);
-		try
-		{
+		try{
 			ServoManager::calibrate (servo, count);
 		}
-		catch (Error & e) 
-		{
+		catch (Error & e) {
 			comm.sendError (e.trace ());
 			// but continue to try the other ones. 
 		}
@@ -591,8 +309,7 @@ void ServoManager::runAll( Communicator& comm)
  * expects the inputted power to be in -MILI-WATTS!
  * returns set point in VOLTS
  */
-double ServoManager::convertToPower (double volt, servoInfo& si)
-{
+double ServoManager::convertToPower (double volt, servoInfo& si){
 	double power = 0;
 	// build the polynomial calibration.
 	UINT polyPower = 0;
@@ -600,29 +317,24 @@ double ServoManager::convertToPower (double volt, servoInfo& si)
 	auto cc =  (opt == AiUnits::which::pdVolts ? std::vector<double> ({ 0,1 }) :
 				opt == AiUnits::which::atomsPower ? AI_SYSTEM_CAL[si.aiInChan].atAtomsCalCoeff 
 												  : AI_SYSTEM_CAL[si.aiInChan].atPdCalCoeff );
-	for (auto coeff : cc)
-	{
+	for (auto coeff : cc){
 		power += coeff * std::pow (volt, polyPower++);
 	}
 	return power;
 }
 
-void ServoManager::calibrate( servoInfo& s, UINT which )
-{
-	if ( !s.active )
-	{
+void ServoManager::calibrate( servoInfo& s, UINT which ){
+	if ( !s.active ){
 		return;
 	}
 	double sp = s.setPoint;
 	s.currentlyServoing = true;
 	ttls->zeroBoard ( );
 	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
-	for (auto dac : s.aoConfig)
-	{
+	for (auto dac : s.aoConfig){
 		ao->setSingleDac (dac.first, dac.second, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 	}
-	for ( auto ttl : s.ttlConfig )
-	{
+	for ( auto ttl : s.ttlConfig ){
 		auto& outputs = ttls->getDigitalOutputs ();
 		outputs (ttl.second, ttl.first).check->setChecked (true);
 		outputs(ttl.second, ttl.first).set (1);
@@ -633,8 +345,7 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	UINT count = 0;
 	UINT aiNum = s.aiInChan;
 	UINT aoNum = s.aoControlChannel;
-	if ( s.monitorOnly )
-	{	// handle "servos" which are only monitoring values, not trying to change them. 
+	if ( s.monitorOnly ){	// handle "servos" which are only monitoring values, not trying to change them. 
 		double avgVal = ai->getSingleChannelValue ( aiNum, s.avgNum );
 		s.mostRecentResult = avgVal;
 		double percentDif = ( sp - avgVal) / sp;
@@ -651,43 +362,34 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	// start the dac where it was last.
 	auto oldVal = s.controlValue;
 	ao->setSingleDac (aoNum, s.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
-	while ( count++ < attemptLimit )
-	{
+	while ( count++ < attemptLimit ){
 		double avgVal = ai->getSingleChannelValue(aiNum, s.avgNum);
 		s.mostRecentResult = avgVal;
 		double percentDif = (sp - avgVal) / sp;
-		if ( fabs(percentDif)  < s.tolerance )
-		{
+		if ( fabs(percentDif)  < s.tolerance ){
 			// found a good value.
 			break;
 		}
-		else
-		{
+		else{
 			// modify dac value.
 			s.controlValue = ao->getDacValue( aoNum );
 			double diff = s.gain * percentDif > 0.05 ? 0.05 : s.gain * percentDif;
 			s.controlValue += diff;
-			try
-			{
+			try{
 				ao->setSingleDac( aoNum, s.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 			}
-			catch ( Error& )
-			{
+			catch ( Error& ){
 				// happens if servo value gives result out of range of dacs.
 				auto r = ao->getDacRange ( aoNum );
-				try
-				{
-					if ( s.controlValue < r.first )
-					{
+				try	{
+					if ( s.controlValue < r.first ){
 						ao->setSingleDac ( aoNum, r.first, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 					}
-					else if ( s.controlValue > r.second )
-					{
+					else if ( s.controlValue > r.second ){
 						ao->setSingleDac ( aoNum, r.second, ttls->getCore(), { 0, ttls->getCurrentStatus () });
 					}
 				}
-				catch ( Error& )
-				{
+				catch ( Error& ){
 					// something went wrong...
 					count = attemptLimit;
 					break;
@@ -711,28 +413,27 @@ void ServoManager::calibrate( servoInfo& s, UINT which )
 	
 	s.servoed = (count < attemptLimit);
 	s.currentlyServoing = false;
-	if ( !s.servoed )
-	{
+	if ( !s.servoed ){
 		thrower( "" + s.servoName + " servo failed to servo!" );
 		// and don't adjust the variable value with what is probably a bad value. 
 	}
-	else
-	{
+	else{
 		globals->adjustVariableValue( str(s.servoName + "__servo_value",13, false, true), dacVal );
 	}
 	servoList->repaint ();
 }
 
 void ServoManager::setChangeVal(UINT which, double change){
-	servoList->setItem (which, 4, new QTableWidgetItem(((change < 0 ? "" : "+") + str (change*100)).c_str()));
+	servoList->setItem (which, 4, new QTableWidgetItem(((change < 0 ? "" : "+") + str (change*100,5)).c_str()));
+	servoList->item(which, 4)->setFlags(servoList->item (which, 4)->flags () ^ Qt::ItemIsEnabled);
 }
 
 void ServoManager::setControlDisplay (UINT which, double value ){
-	servoList->item (which, 3)->setText (cstr (value));
+	servoList->item (which, 3)->setText (cstr (value,5));
 }
 
 void ServoManager::setResDisplay (UINT which, double value){
-	servoList->item (which,5)->setText (cstr (value));
+	servoList->item (which,5)->setText (cstr (value,5));
 }
 
 

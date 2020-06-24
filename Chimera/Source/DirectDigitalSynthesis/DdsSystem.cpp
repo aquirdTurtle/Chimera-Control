@@ -11,19 +11,20 @@
 
 DdsSystem::DdsSystem ( bool ftSafemode ) : core( ftSafemode ) { }
 
-void DdsSystem::handleContextMenu (const QPoint& pos)
-{
+void DdsSystem::handleContextMenu (const QPoint& pos){
 	QTableWidgetItem* item = rampListview->itemAt (pos);
 	QMenu menu;
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
 	auto* deleteAction = new QAction ("Delete This Item", rampListview);
 	rampListview->connect (deleteAction, &QAction::triggered, [this, item]() {
+		getDataFromTable ();
 		currentRamps.erase(currentRamps.begin()+item->row());
 		redrawListview ();
 		});
 	auto* newPerson = new QAction ("New Item", rampListview);
 	rampListview->connect (newPerson, &QAction::triggered,
 		[this]() {
+			getDataFromTable ();
 			currentRamps.push_back (ddsIndvRampListInfo ());
 			redrawListview ();
 		});
@@ -32,13 +33,12 @@ void DdsSystem::handleContextMenu (const QPoint& pos)
 	menu.exec (rampListview->mapToGlobal (pos));
 }
 
-void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::string title )
-{
+void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::string title ){
 	ddsHeader = new QLabel (cstr (title), parent);
 	ddsHeader->setGeometry (pos.x, pos.y, 480, 25);
 
 	programNowButton = new QPushButton ("Program Now", parent);
-	programNowButton->setGeometry (pos.x, pos.y += 25, 480, 25);
+	programNowButton->setGeometry (pos.x, pos.y + 25, 360, 25);
 	parent->connect (programNowButton, &QPushButton::released, [this, parent]() {
 		try	{
 			programNow (parent->auxWin->getUsableConstants ());
@@ -47,13 +47,21 @@ void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::stri
 			parent->reportErr (err.trace ());
 		}
 	});
+	controlCheck = new CQCheckBox ("Control?", parent);
+	controlCheck->setGeometry (pos.x + 360, pos.y += 25, 120, 25);
 
 	rampListview = new QTableWidget (parent);
 	rampListview->setGeometry (pos.x, pos.y+= 25, 480, 160);
 	pos.y += 160;
 	rampListview->horizontalHeader ()->setFixedHeight (30);
-	rampListview->verticalHeader ()->setFixedWidth (40);
-	rampListview->verticalHeader ()->setDefaultSectionSize (22);
+	rampListview->setColumnWidth (0, 60);
+	rampListview->setColumnWidth (1, 60);
+	rampListview->setColumnWidth (2, 60);
+	rampListview->setColumnWidth (3, 60);
+	rampListview->setColumnWidth (4, 60);
+	rampListview->setColumnWidth (5, 60);
+	rampListview->setColumnWidth (6, 120);
+	//rampListview->verticalHeader ()->setDefaultSectionSize (60);
 
 	rampListview->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (rampListview, &QTableWidget::customContextMenuRequested,
@@ -66,15 +74,12 @@ void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::stri
 	rampListview->setHorizontalHeaderLabels (labels);
 }
 
-void DdsSystem::rearrange ( UINT width, UINT height, fontMap fonts ){ }
-
-void DdsSystem::redrawListview ( )
-{
+void DdsSystem::redrawListview ( ){
 	rampListview->setRowCount (0);
 	for (auto rampInc : range (currentRamps.size ()))
 	{
 		rampListview->insertRow (rampListview->rowCount ());
-		auto rowN = rampListview->rowCount ();
+		auto rowN = rampListview->rowCount ()-1;
 		auto& ramp = currentRamps[rampInc];
 		rampListview->setItem (rowN, 0, new QTableWidgetItem (cstr (ramp.index)));
 		rampListview->setItem (rowN, 1, new QTableWidgetItem (cstr (ramp.channel)));
@@ -236,53 +241,65 @@ void DdsSystem::deleteRampVariable ( )
 }
 
 
-void DdsSystem::programNow ( std::vector<parameterType>& constants )
-{
-	try
-	{
+void DdsSystem::programNow ( std::vector<parameterType>& constants ){
+	try{
 		std::vector<ddsIndvRampListInfo> simpleExp;
 		simpleExp = currentRamps;
 		core.evaluateDdsInfo ( );
 		core.generateFullExpInfo ( 1 );
 		core.programVariation ( 0, constants);
 	}
-	catch ( Error& )
-	{
+	catch ( Error& ){
 		throwNested ( "Error seen while programming DDS system via Program Now Button." );
 	}
 }
 
 
-void DdsSystem::handleSaveConfig (ConfigStream& file )
-{
+void DdsSystem::handleSaveConfig (ConfigStream& file ){
+	getDataFromTable ();
 	file << getDelim() << "\n";
+	file << "/*Control?*/ " << controlCheck->isChecked () << "\n";
 	core.writeRampListToConfig ( currentRamps, file );
 	file << "\nEND_" + getDelim ( ) << "\n";
 }
 
 
-void DdsSystem::handleOpenConfig ( ConfigStream& file )
-{
-	if ( file.ver >= Version ( "4.5" ) )
-	{
-		currentRamps = core.getSettingsFromConfig ( file );
+void DdsSystem::handleOpenConfig ( ConfigStream& file ){
+	if ( file.ver >= Version ( "4.5" ) ){
+		auto res = core.getSettingsFromConfig (file);
+		currentRamps = res.ramplist;
 	}
 	redrawListview ( );
 }
 
 
-std::string DdsSystem::getSystemInfo ( )
-{
+std::string DdsSystem::getSystemInfo ( ){
 	return core.getSystemInfo();
 }
 
 
-std::string DdsSystem::getDelim ( )
-{
+std::string DdsSystem::getDelim ( ){
 	return core.configDelim;
 }
 
-DdsCore& DdsSystem::getCore ( )
-{
+DdsCore& DdsSystem::getCore ( ){
 	return core;
+}
+
+void DdsSystem::getDataFromTable () {
+	currentRamps.resize (rampListview->rowCount ());
+	for (auto rowI : range(rampListview->rowCount ())) {
+		try {
+			currentRamps[rowI].index = boost::lexical_cast<int>(cstr(rampListview->item (rowI, 0)->text ()));
+			currentRamps[rowI].channel = boost::lexical_cast<int>(cstr (rampListview->item (rowI, 1)->text ()));
+			currentRamps[rowI].freq1 = str (rampListview->item (rowI, 2)->text ());
+			currentRamps[rowI].amp1 = str(rampListview->item (rowI, 3)->text ());
+			currentRamps[rowI].freq2 = str(rampListview->item (rowI, 4)->text ());
+			currentRamps[rowI].amp2 = str(rampListview->item (rowI, 5)->text ());
+			currentRamps[rowI].rampTime = str(rampListview->item (rowI, 6)->text ());
+		}
+		catch (Error & err) {
+			thrower ("Failed to convert dds table data to ramp structure!");
+		}
+	}
 }

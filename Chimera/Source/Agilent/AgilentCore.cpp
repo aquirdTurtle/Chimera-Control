@@ -16,74 +16,59 @@ AgilentCore::AgilentCore (const agilentSettings& settings) :
 	configDelim (settings.configurationFileDelimiter),
 	calibrationCoefficients (settings.calibrationCoeff),
 	agilentName (settings.deviceName),
-	setupCommands (settings.setupCommands)
-{
-	try
-	{
+	setupCommands (settings.setupCommands){
+	try{
 		visaFlume.open ();
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		throwNested ("Error seen while initializing " + agilentName + " Agilent");
 	}
 }
 
-AgilentCore::~AgilentCore ()
-{
+AgilentCore::~AgilentCore (){
 	visaFlume.close ();
 }
 
-void AgilentCore::initialize ()
-{
-	try
-	{
+void AgilentCore::initialize (){
+	try{
 		deviceInfo = visaFlume.identityQuery ();
 		isConnected = true;
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		deviceInfo = "Disconnected";
 		isConnected = false;
 	}
 
 }
 
-std::pair<DoRows::which, UINT> AgilentCore::getTriggerLine ()
-{
+std::pair<DoRows::which, UINT> AgilentCore::getTriggerLine (){
 	return { triggerRow, triggerNumber };
 }
 
-std::string AgilentCore::getDeviceInfo ()
-{
+std::string AgilentCore::getDeviceInfo (){
 	return deviceInfo;
 }
 
 void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<parameterType>& variables, 
-										 std::string& warnings )
-{
+										 std::string& warnings ){
 	ScriptStream stream;
 	ExperimentThreadManager::loadAgilentScript (infoObj.fileAddress.expressionStr, stream);
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers ();
 	// Procedurally readbtn lines into segment objects.
-	while (!stream.eof ())
-	{
+	while (!stream.eof ()){
 		int leaveTest;
-		try
-		{
+		try	{
 			leaveTest = infoObj.wave.analyzeAgilentScriptCommand (currentSegmentNumber, stream, variables, warnings);
 		}
-		catch (Error&)
-		{
+		catch (Error&){
 			throwNested ("Error seen while analyzing agilent script command for agilent " + this->configDelim);
 		}
-		if (leaveTest < 0)
-		{
+		if (leaveTest < 0){
 			thrower ("IntensityWaveform.analyzeAgilentScriptCommand threw an error! Error occurred in segment #"
 				+ str (currentSegmentNumber) + ".");
 		}
-		if (leaveTest == 1)
-		{
+		if (leaveTest == 1){
 			// readbtn function is telling this function to stop reading the file because it's at its end.
 			break;
 		}
@@ -92,37 +77,29 @@ void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<p
 }
 
 
-std::string AgilentCore::getDeviceIdentity ()
-{
+std::string AgilentCore::getDeviceIdentity (){
 	std::string msg;
-	try
-	{
+	try{
 		msg = visaFlume.identityQuery ();
 	}
-	catch (Error & err)
-	{
+	catch (Error & err){
 		msg == err.trace ();
 	}
-	if (msg == "")
-	{
+	if (msg == ""){
 		msg = "Disconnected...\n";
 	}
 	return msg;
 }
 
 
-void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, deviceOutputInfo runSettings)
-{
-	if (!connected ())
-	{
+void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, deviceOutputInfo runSettings){
+	if (!connected ()){
 		return;
 	}
-	try
-	{
+	try{
 		visaFlume.write ("OUTPut:SYNC " + str (runSettings.synced));
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		//errBox ("Failed to set agilent output synced?!");
 	}
 	for (auto chan : range (UINT (2)))
@@ -158,8 +135,7 @@ void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, devi
 						+ AgilentChannelMode::toStr (channel.option));
 			}
 		}
-		catch (Error & err)
-		{
+		catch (Error & err){
 			throwNested ("Error seen while programming agilent output for " + configDelim + " agilent channel "
 				+ str (chan + 1) + ": " + err.whatBare ());
 		}
@@ -168,10 +144,8 @@ void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, devi
 
 
 // stuff that only has to be done once.
-void AgilentCore::prepAgilentSettings (UINT channel)
-{
-	if (channel != 1 && channel != 2)
-	{
+void AgilentCore::prepAgilentSettings (UINT channel){
+	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel in prepAgilentSettings!");
 	}
 	// Set timout, sample rate, filter parameters, trigger settings.
@@ -183,27 +157,22 @@ void AgilentCore::prepAgilentSettings (UINT channel)
 /*
  * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
  */
-void AgilentCore::setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT chan)
-{
-	if (scriptInfo.wave.isVaried () || varNum == 0)
-	{
+void AgilentCore::setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT chan){
+	if (scriptInfo.wave.isVaried () || varNum == 0){
 		prepAgilentSettings (chan);
 		// check if effectively dc
-		if (scriptInfo.wave.minsAndMaxes.size () == 0)
-		{
+		if (scriptInfo.wave.minsAndMaxes.size () == 0){
 			thrower ("script wave min max size is zero???");
 		}
 		auto& minMaxs = scriptInfo.wave.minsAndMaxes[varNum];
-		if (fabs (minMaxs.first - minMaxs.second) < 1e-6)
-		{
+		if (fabs (minMaxs.first - minMaxs.second) < 1e-6){
 			dcInfo tempDc;
 			tempDc.dcLevel = str(minMaxs.first);
 			tempDc.dcLevel.internalEvaluate (std::vector<parameterType>(), 1);
 			tempDc.useCal = scriptInfo.useCal;
 			setDC (chan, tempDc, 0);
 		}
-		else
-		{
+		else{
 			auto schan = "SOURCE" + str (chan);
 			// Load sequence that was previously loaded.
 			visaFlume.write ("MMEM:LOAD:DATA" + str (chan) + " \"" + memoryLoc + ":\\sequence" + str (varNum) + ".seq\"");
@@ -220,10 +189,8 @@ void AgilentCore::setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT
 }
 
 
-void AgilentCore::outputOff (int channel)
-{
-	if (channel != 1 && channel != 2)
-	{
+void AgilentCore::outputOff (int channel){
+	if (channel != 1 && channel != 2){
 		thrower ("bad value for channel inside outputOff!");
 	}
 	channel++;
@@ -231,16 +198,13 @@ void AgilentCore::outputOff (int channel)
 }
 
 
-bool AgilentCore::connected ()
-{
+bool AgilentCore::connected (){
 	return isConnected;
 }
 
 
-void AgilentCore::setDC (int channel, dcInfo info, UINT var)
-{
-	if (channel != 1 && channel != 2)
-	{
+void AgilentCore::setDC (int channel, dcInfo info, UINT var){
+	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel inside setDC!");
 	}
 	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, "
@@ -248,10 +212,8 @@ void AgilentCore::setDC (int channel, dcInfo info, UINT var)
 }
 
 
-void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info)
-{
-	if (channel != 1 && channel != 2)
-	{
+void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info){
+	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel in setExistingWaveform!");
 	}
 	auto sStr = "SOURCE" + str (channel);
@@ -272,10 +234,8 @@ void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info)
 
 
 // set the agilent to output a square wave.
-void AgilentCore::setSquare (int channel, squareInfo info, UINT var)
-{
-	if (channel != 1 && channel != 2)
-	{
+void AgilentCore::setSquare (int channel, squareInfo info, UINT var){
+	if (channel != 1 && channel != 2){
 		thrower ("Bad Value for Channel in setSquare!");
 	}
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SQUARE " + str (info.frequency.getValue(var)) + " KHZ, "
@@ -284,10 +244,8 @@ void AgilentCore::setSquare (int channel, squareInfo info, UINT var)
 }
 
 
-void AgilentCore::setSine (int channel, sineInfo info, UINT var)
-{
-	if (channel != 1 && channel != 2)
-	{
+void AgilentCore::setSine (int channel, sineInfo info, UINT var){
+	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel in setSine");
 	}
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SINUSOID " + str (info.frequency.getValue(var)) + " KHZ, "
@@ -295,8 +253,7 @@ void AgilentCore::setSine (int channel, sineInfo info, UINT var)
 }
 
 
-void AgilentCore::convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, std::vector<parameterType>& params)
-{
+void AgilentCore::convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, std::vector<parameterType>& params){
 	UINT totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
 	channelInfo& channel = info.channel[chan];
 	try
@@ -330,8 +287,7 @@ void AgilentCore::convertInputToFinalSettings (UINT chan, deviceOutputInfo& info
 			thrower ("Unrecognized Agilent Setting: " + AgilentChannelMode::toStr (channel.option));
 		}
 	}
-	catch ( std::out_of_range& )
-	{
+	catch ( std::out_of_range& ){
 		throwNested ("unrecognized variable!");
 	}
 }
@@ -339,8 +295,7 @@ void AgilentCore::convertInputToFinalSettings (UINT chan, deviceOutputInfo& info
 /**
  * This function tells the agilent to put out the DC default waveform.
  */
-void AgilentCore::setDefault (int channel)
-{
+void AgilentCore::setDefault (int channel){
 	// turn it to the default voltage...
 	std::string setPointString = str (convertPowerToSetPoint (AGILENT_DEFAULT_POWER, true, calibrationCoefficients));
 	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, " + setPointString + " V");
@@ -350,72 +305,56 @@ void AgilentCore::setDefault (int channel)
  * returns set point in VOLTS
  */
 double AgilentCore::convertPowerToSetPoint ( double powerInMilliWatts, bool conversionOption, 
-											 std::vector<double> calibCoeff)
-{
-	if (conversionOption)
-	{
+											 std::vector<double> calibCoeff){
+	if (conversionOption){
 		double setPointInVolts = 0;
-		if (calibCoeff.size () == 0)
-		{
+		if (calibCoeff.size () == 0){
 			thrower ("Wanted agilent calibration but no calibration given to conversion function!");
 		}
 		// build the polynomial calibration.
 		UINT polyPower = 0;
-		for (auto coeff : calibCoeff)
-		{
+		for (auto coeff : calibCoeff){
 			setPointInVolts += coeff * std::pow (powerInMilliWatts, polyPower++);
 		}
 		return setPointInVolts;
 	}
-	else
-	{
+	else{
 		// no conversion
 		return powerInMilliWatts;
 	}
 }
 
 
-
-std::vector<std::string> AgilentCore::getStartupCommands ()
-{
+std::vector<std::string> AgilentCore::getStartupCommands (){
 	return setupCommands;
 }
 
-void AgilentCore::programSetupCommands ()
-{
-	try
-	{
-		for (auto cmd : setupCommands)
-		{
+void AgilentCore::programSetupCommands (){
+	try{
+		for (auto cmd : setupCommands){
 			visaFlume.write (cmd);
 		}
 	}
-	catch (Error&)
-	{
+	catch (Error&){
 		throwNested ("Failed to program setup commands for " + agilentName + " Agilent!");
 	}
 }
 
 
 void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& scriptInfo, UINT channel,
-										 std::vector<parameterType>& params)
-{
+										 std::vector<parameterType>& params){
 	prepAgilentSettings (channel);
 	programSetupCommands ();
-	if (scriptInfo.wave.isVaried () || variation == 0)
-	{
+	if (scriptInfo.wave.isVaried () || variation == 0){
 		UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber ();
 		scriptInfo.wave.replaceVarValues (variation, params);
 		// Loop through all segments
-		for (auto segNumInc : range(totalSegmentNumber))
-		{
+		for (auto segNumInc : range(totalSegmentNumber)){
 			// Use that information to writebtn the data.
-			try
-			{
+			try{
 				scriptInfo.wave.writeData (segNumInc, sampleRate);
 			}
-			catch (Error&)
-			{
+			catch (Error&){
 				throwNested ("IntensityWaveform.writeData threw an error! Error occurred in segment #"
 					+ str (totalSegmentNumber));
 			}
@@ -430,8 +369,7 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 		scriptInfo.wave.normalizeVoltages ();
 		visaFlume.write ("SOURCE" + str (channel) + ":DATA:VOL:CLEAR");
 		prepAgilentSettings (channel);
-		for (UINT segNumInc : range (totalSegmentNumber))
-		{
+		for (UINT segNumInc : range (totalSegmentNumber)){
 			visaFlume.write (scriptInfo.wave.compileAndReturnDataSendString (segNumInc, variation,
 				totalSegmentNumber, channel));
 			// Save the segment
@@ -450,60 +388,51 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 	}
 }
 
-deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file)
-{
+deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
 	auto readFunc = ProfileSystem::getGetlineFunc (file.ver);
 	deviceOutputInfo tempSettings;
 	file >> tempSettings.synced;
 	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
 	UINT chanInc = 0;
-	for (auto& channel : tempSettings.channel)
-	{
+	for (auto& channel : tempSettings.channel){
 		ProfileSystem::checkDelimiterLine (file, channelNames[chanInc]);
 		// the extra step in all of the following is to remove the , at the end of each input.
 		std::string input;
 		file >> input;
-		try
-		{
+		try{
 			channel.option = file.ver < Version ("4.2") ?
 				AgilentChannelMode::which (boost::lexical_cast<int>(input) + 2) : AgilentChannelMode::fromStr (input);
 		}
-		catch (boost::bad_lexical_cast&)
-		{
+		catch (boost::bad_lexical_cast&){
 			throwNested ("Bad channel " + str (chanInc + 1) + " option!");
 		}
 		std::string calibratedOption;
 		file.get ();
 		readFunc (file, channel.dc.dcLevel.expressionStr);
-		if (file.ver > Version ("2.3"))
-		{
+		if (file.ver > Version ("2.3")){
 			file >> channel.dc.useCal;
 			file.get ();
 		}
 		readFunc (file, channel.sine.amplitude.expressionStr);
 		readFunc (file, channel.sine.frequency.expressionStr);
-		if (file.ver > Version ("2.3"))
-		{
+		if (file.ver > Version ("2.3")){
 			file >> channel.sine.useCal;
 			file.get ();
 		}
 		readFunc (file, channel.square.amplitude.expressionStr);
 		readFunc (file, channel.square.frequency.expressionStr);
 		readFunc (file, channel.square.offset.expressionStr);
-		if (file.ver > Version ("2.3"))
-		{
+		if (file.ver > Version ("2.3")){
 			file >> channel.square.useCal;
 			file.get ();
 		}
-		file >> channel.preloadedArb.address;
-		if (file.ver > Version ("2.3"))
-		{
+		readFunc (file, channel.preloadedArb.address.expressionStr);
+		if (file.ver > Version ("2.3")){
 			file >> channel.preloadedArb.useCal;
 			file.get ();
 		}
-		file >> channel.scriptedArb.fileAddress;
-		if (file.ver > Version ("2.3"))
-		{
+		readFunc (file, channel.scriptedArb.fileAddress.expressionStr);
+		if (file.ver > Version ("2.3")){
 			file >> channel.scriptedArb.useCal;
 			file.get ();
 		}
@@ -513,10 +442,8 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file)
 }
 
 
-void AgilentCore::logSettings (DataLogger& log)
-{
-	try
-	{
+void AgilentCore::logSettings (DataLogger& log){
+	try	{
 		H5::Group agilentsGroup;
 		try{
 			agilentsGroup = log.file.createGroup ("/Agilents");

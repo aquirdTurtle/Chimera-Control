@@ -61,8 +61,8 @@ BOOL ChimeraApp::InitInstance(){
 	qRegisterMetaType<std::vector<std::vector<dataPoint> >> ();
 	qRegisterMetaType<PlottingInfo> ();
 	qRegisterMetaType<PixListQueue> ();
-	QtMainWindow* mainWinQt = new QtMainWindow((CDialog*)splash, &initTime);
-	mainWinQt->show ();
+	//QtMainWindow* mainWinQt = new QtMainWindow((CDialog*)splash, &initTime);
+	//mainWinQt->show ();
 	inst->exec ();
 	
 	// end of program.
@@ -70,11 +70,11 @@ BOOL ChimeraApp::InitInstance(){
 	return int(0);
 }
 
-Q_DECLARE_METATYPE (dataPoint)
-Q_DECLARE_METATYPE (std::vector<dataPoint>)
-Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
-Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
-Q_DECLARE_METATYPE (PlottingInfo)
+//Q_DECLARE_METATYPE (dataPoint)
+//Q_DECLARE_METATYPE (std::vector<dataPoint>)
+//Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
+//Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
+//Q_DECLARE_METATYPE (PlottingInfo)
 
 
 BOOL ChimeraApp::ExitInstance( ){

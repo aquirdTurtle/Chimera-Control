@@ -3,6 +3,8 @@
 #include "ParameterSystem/Expression.h"
 #include "Version.h"
 #include "Scripts/ScriptStream.h"
+#include <type_traits>
+#include <typeinfo>
 
 /* a small wrapper to handle some special things for configuration files, like handling empty strings.*/
 class ConfigStream : public ScriptStream
@@ -34,7 +36,8 @@ ConfigStream& ConfigStream::operator>> (type& output)
 	}
 	catch (boost::bad_lexical_cast)
 	{
-		throwNested ("Scriptstream Failed to convert the text\"" + tempString + "\" to the requested type!");
+		throwNested ("Scriptstream Failed to convert the text\"" + tempString + "\" to the requested type! Requested "
+			"type was \"" + typeid(output).name () + "\".");
 	}
 	return *this;
 }

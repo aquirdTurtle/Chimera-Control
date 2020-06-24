@@ -10,7 +10,7 @@ CruncherThreadWorker::~CruncherThreadWorker () {
 
 void CruncherThreadWorker::init () {
 	auto gridSize = input->grids.size ();
-	if (input->grids[0].topLeftCorner == coordinate (0, 0) || gridSize == 0) {
+	if (gridSize == 0) {
 		return;
 	}
 	monitoredPixelIndecies.resize(gridSize);

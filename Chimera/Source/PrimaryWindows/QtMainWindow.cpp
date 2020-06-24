@@ -11,18 +11,19 @@
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
 #include <Plotting/ScopeThreadWorker.h>
-#include <qshortcut.h>
 #include <QThread.h>
+#include <qapplication.h>
+#include <qwidget.h>
+#include <qwindow.h>
+#include <qscreen.h>
 
-QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) : 
+QtMainWindow::QtMainWindow () : 
 	profile (PROFILES_PATH),
 	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS),
-	appSplash (splash),
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
-	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope")
-{
+	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"){
 	statBox = new ColorBox ();
-	programStartTime = startTime;
+	//programStartTime = startTime;
 	startupTimes.push_back (chronoClock::now ());
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
@@ -60,14 +61,23 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 		window->initializeMenu ();
 	}
 	setStyleSheets ();
-	for (auto* window : winList ()) {
-		window->resize (QDesktopWidget ().availableGeometry (this).size ());
+	auto numMonitors = qApp->screens ().size ();
+	auto screens = qApp->screens ();
+	unsigned winCount = 0;
+	std::vector<unsigned> monitorNum = { 4,3,5,1,2,0 };
+	/*	scriptWin, andorWin, auxWin, basWin, dmWin, mainWin;
+		*/
+	for (auto* window : winList ()) { 
+		auto screen = qApp->screens ()[monitorNum[winCount++] % numMonitors];
 		window->setWindowState ((windowState () & ~Qt::WindowMinimized) | Qt::WindowActive);
 		window->activateWindow ();
-		window->show ();
+		window->show (); 
+		window->move (screen->availableGeometry ().topLeft());
+		window->resize (screen->availableGeometry ().width (), screen->availableGeometry().height());
+
 	}
 	// hide the splash just before the first window requiring input pops up.
-	appSplash->ShowWindow (SW_HIDE);
+	// appSplash->ShowWindow (SW_HIDE);
 	try	{
 		masterConfig.load (this, auxWin, andorWin);
 	}
@@ -115,15 +125,13 @@ QtMainWindow::QtMainWindow (CDialog* splash, chronoTime* startTime) :
 
 QtMainWindow::~QtMainWindow (){}
 
-void QtMainWindow::setStyleSheets ()
-{
+void QtMainWindow::setStyleSheets (){
 	for (auto* window : winList ()) {
 		window->setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
 	}
 }
 
-void QtMainWindow::initializeWidgets ()
-{
+void QtMainWindow::initializeWidgets (){
 	/// initialize main window controls.
 	comm.initialize (this);
 	POINT controlLocation = { 0, 25 };
@@ -148,32 +156,28 @@ void QtMainWindow::initializeWidgets ()
 	texter.initialize (controlLocation, this);
 }
 
-void QtMainWindow::handleThresholdAnalysis ()
-{
+void QtMainWindow::handleThresholdAnalysis (){
 	auto grid = andorWin->getMainAtomGrid ();
 	auto dateStr = andorWin->getMostRecentDateString ();
 	auto fid = andorWin->getMostRecentFid ();
 	auto ppr = andorWin->getPicsPerRep ();
 	std::string gridString = "[" + str (grid.topLeftCorner.row - 1) + "," + str (grid.topLeftCorner.column - 1) + ","
 		+ str (grid.pixelSpacing) + "," + str (grid.width) + "," + str (grid.height) + "]";
-	try
-	{
+	try{
 		python.thresholdAnalysis (dateStr, fid, gridString, ppr);
 	}
-	catch (Error& err)
-	{
+	catch (Error& err){
 		comm.sendError ("Threshold Analysis Failed! " + err.trace ());
 	}
 }
 
 
-LRESULT QtMainWindow::onFinish (WPARAM wp, LPARAM lp)
-{
+LRESULT QtMainWindow::onFinish (WPARAM wp, LPARAM lp){
 	ExperimentType type = static_cast<ExperimentType>(wp);
 	switch (type)
 	{
 	case ExperimentType::Normal:
-		onNormalFinish ();
+		onNormalFinish ("");
 		break;
 	case ExperimentType::LoadMot:
 		break;
@@ -185,11 +189,9 @@ LRESULT QtMainWindow::onFinish (WPARAM wp, LPARAM lp)
 		break;
 	}
 	return 0;
-}
-
-
+} 
+ 
 UINT QtMainWindow::getAutoCalNumber () { return autoCalNum; }
-
 
 void QtMainWindow::onAutoCalFin (){
 	try	{
@@ -215,7 +217,7 @@ void QtMainWindow::onAutoCalFin (){
 
 void QtMainWindow::onMachineOptRoundFin (){
 	// do normal finish
-	onNormalFinish ();
+	onNormalFinish ("");
 	Sleep (1000);
 	// then restart.
 	commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
@@ -545,10 +547,9 @@ void QtMainWindow::onErrorMessage (QString errMessage){
 }
 
 
-void QtMainWindow::onFatalError (){
+void QtMainWindow::onFatalError (QString finMsg){
+	onErrorMessage (finMsg);
 	autoF5_AfterFinish = false;
-	// normal msg stuff
-	//errorStatus.addStatusText (statusMessage);
 	// resetting things.
 	scriptWin->setIntensityDefault ();
 	std::string msgText = "Exited with Error!\nPassively Outputting Default Waveform.";
@@ -566,7 +567,8 @@ void QtMainWindow::onFatalError (){
 }
 
 
-void QtMainWindow::onNormalFinish () { 
+void QtMainWindow::onNormalFinish (QString finMsg) { 
+	handleExpNotification (finMsg);
 	scriptWin->setIntensityDefault ();
 	setShortStatus ("Passively Outputting Default Waveform");
 	changeShortStatusColor ("B");

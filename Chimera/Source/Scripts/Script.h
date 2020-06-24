@@ -18,7 +18,7 @@
 #include <qlabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 
-class IChimeraWindowWidget;
+class IChimeraWindowWidget; 
 
 class Script{
 	public:

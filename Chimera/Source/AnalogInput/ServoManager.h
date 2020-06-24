@@ -45,7 +45,6 @@ class ServoManager
 						 ParameterSystem* globals_in);
 		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
 		void setChangeVal (UINT which, double change);
-		void rearrange( UINT width, UINT height, fontMap fonts );
 		void runAll (Communicator& comm);
 		void calibrate( servoInfo& s, UINT which );
 		bool wantsCalAutoServo( );
@@ -54,8 +53,6 @@ class ServoManager
 		void handleSaveMasterConfig( std::stringstream& configStream );
 		void handleOpenMasterConfig( ConfigStream& configStream );
 		void setControlDisplay ( UINT which, double value );
-		void handleListViewClick ( );
-		void deleteServo ( );
 		std::vector<servoInfo> getServoInfo ( );
 		AiUnits::which getUnitsOption ();
 		void refreshListview ();

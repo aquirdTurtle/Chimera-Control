@@ -40,10 +40,10 @@ void ProfileSystem::initialize( POINT& pos, IChimeraWindowWidget* win)
 }
 
 
-std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream)
-{	
+std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream){	
 	// open configuration file and grab the niawg script file address from it.
 	initializeAtDelim (configStream, "SCRIPTS");
+	configStream.get ();
 	auto getlineF = ProfileSystem::getGetlineFunc (configStream.ver);
 	std::string niawgScriptAddresses;
 	getlineF (configStream, niawgScriptAddresses);

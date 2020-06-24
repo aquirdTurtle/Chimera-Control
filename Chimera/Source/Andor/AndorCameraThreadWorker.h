@@ -20,4 +20,4 @@ class AndorCameraThreadWorker : public QObject {
         void pictureTaken (int);
         void acquisitionFinished ();
 };
-
+ 

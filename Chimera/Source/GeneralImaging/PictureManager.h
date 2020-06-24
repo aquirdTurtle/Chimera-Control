@@ -16,7 +16,8 @@ class PictureManager
 		void updatePlotData ( );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
-		void initialize( POINT& loc, CBrush* defaultGridBrush, int manWidth, int manHeight, IChimeraWindowWidget* widget);
+		void initialize( POINT& loc, CBrush* defaultGridBrush, int manWidth, int manHeight, IChimeraWindowWidget* widget, 
+						 int scaleFactor=50);
 		void drawGrids();
 		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );

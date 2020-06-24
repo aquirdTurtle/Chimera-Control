@@ -7,16 +7,16 @@
 #include "GeneralImaging/PictureControl.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
+#include <ExperimentThread/ExpThreadWorker.h>
 
 #include "stdint.h"
 #include <cmath>
 #include <algorithm>
 #include <functional>
+#include <qdebug.h>
 
-baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile)
-{
-	if (configFile.ver < Version ("4.0"))
-	{
+baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile){
+	if (configFile.ver < Version ("4.0")){
 		thrower ("Basler settings requires version 4.0+ Configuration files");
 	}
 	baslerSettings newSettings;
@@ -25,8 +25,7 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 	configFile >> txt;
 	newSettings.acquisitionMode = BaslerAcquisition::fromStr (txt);
 	std::string test;
-	try
-	{
+	try{
 		configFile >> test;
 		newSettings.dims.left = boost::lexical_cast<int>(test);
 		configFile >> test;
@@ -36,8 +35,7 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 		configFile >> test;
 		newSettings.dims.bottom = boost::lexical_cast<int>(test);
 	}
-	catch (boost::bad_lexical_cast&)
-	{
+	catch (boost::bad_lexical_cast&){
 		throwNested ("Basler control failed to convert dimensions recorded in the config file "
 			"to integers");
 	}
@@ -57,62 +55,52 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
 // work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 
 // once.
-BaslerCameraCore::BaslerCameraCore(IChimeraWindowWidget* parent )
-{
+BaslerCameraCore::BaslerCameraCore(IChimeraWindowWidget* parent ){
 	Pylon::PylonInitialize();
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+	if (!BASLER_SAFEMODE){
+		try{
 			cameraType* temp;
 			temp = new BaslerWrapper(Pylon::CTlFactory::GetInstance().CreateFirstDevice(info));
 			camera = dynamic_cast<BaslerWrapper*>(temp);
 			camera->init( parent );
 			cameraInitialized = true;
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			cameraInitialized = false;
 		}
 	}
-	else
-	{
+	else{
 		camera->init( parent );
 		cameraInitialized = true;
 	}
 }
 
-bool BaslerCameraCore::isRunning ( )
-{ 
+bool BaslerCameraCore::isRunning ( ){ 
 	return camera->isGrabbing ( );
 }
 
-bool BaslerCameraCore::isInitialized()
-{
+bool BaslerCameraCore::isInitialized(){
 	return cameraInitialized;
 }
 
 // send a software trigger to the camera after waiting to make sure it's ready to recieve said trigger.
-void BaslerCameraCore::softwareTrigger()
-{
+void BaslerCameraCore::softwareTrigger(){
 	camera->waitForFrameTriggerReady( 5000 );
 	camera->executeSoftwareTrigger();
 }
 
 
 // important deconstructor.
-BaslerCameraCore::~BaslerCameraCore()
-{
+BaslerCameraCore::~BaslerCameraCore(){
 	Pylon::PylonTerminate();
 	delete camera;
 }
 
 
 // get some information about the camera from the camera itself through pylon.
-std::string BaslerCameraCore::getCameraInfo()
-{
+std::string BaslerCameraCore::getCameraInfo(){
 	// Get camera device information.
 	return "Camera Device Information\n=========================\nVendor           : " + std::string( camera->DeviceVendorName.GetValue() )
 			+ "\nModel            : " + std::string( camera->DeviceModelName.GetValue() ) + "\nFirmware version : "
@@ -121,8 +109,7 @@ std::string BaslerCameraCore::getCameraInfo()
 
 
 // Can change this for nicer defaults.
-baslerSettings BaslerCameraCore::getDefaultSettings()
-{
+baslerSettings BaslerCameraCore::getDefaultSettings(){
 	baslerSettings defaultSettings;
 	POINT dim = getCameraDimensions();
 	defaultSettings.picsPerRep = 1;
@@ -140,17 +127,15 @@ baslerSettings BaslerCameraCore::getDefaultSettings()
 }
 
 // set the default parameters defined in the function above.
-void BaslerCameraCore::setDefaultParameters()
-{
+void BaslerCameraCore::setDefaultParameters(){
 	setBaslserAcqParameters( getDefaultSettings() );
 }
 
 // general function you should use for setting camera settings based on the input.
-void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
-{
+void BaslerCameraCore::setBaslserAcqParameters (baslerSettings settings) {
 	/// Set the AOI:
 
-	/* 
+	/*
 		there is never a problem making things smaller. the danger is over-reaching the maximum whose bounds change dynamically.
 		the basler API is very picky about the order of these things. Ways for this to crash:
 		- Setting offset large (before making width smaller) pushes the right border past max width
@@ -159,39 +144,42 @@ void BaslerCameraCore::setBaslserAcqParameters( baslerSettings settings )
 	*/
 
 	// start from a safe place.
-	camera->setOffsetX(0);
-	camera->setWidth(16);
-	camera->setHorBin(1);
-	camera->setOffsetY(0);
-	camera->setHeight(16);
-	camera->setVertBin(1);
+	camera->setOffsetX (0);
+	camera->setWidth (16);
+	camera->setHorBin (1);
+	camera->setOffsetY (0);
+	camera->setHeight (16);
+	camera->setVertBin (1);
 
 	// suppose you start real small. 16 1x1 pixels.  then, this always works:
 	// set x offset (no chance of pushing right because width is small)
 	// set width (no chance of pushing right off because of binning because binning is minimal so potential value 
 	// for rightmost point is maximal.
 	// set binning 
-	camera->setOffsetX(settings.dims.left);
-	camera->setWidth(settings.dims.horRawPixelNum());
-	camera->setHorBin(settings.dims.horizontalBinning);
-	camera->setOffsetY(settings.dims.bottom);
-	camera->setHeight(settings.dims.vertRawPixelNum());
-	camera->setVertBin(settings.dims.verticalBinning);
-	
+	camera->setOffsetX (settings.dims.left);
+	camera->setWidth (settings.dims.horRawPixelNum ());
+	camera->setHorBin (settings.dims.horizontalBinning);
+	camera->setOffsetY (settings.dims.bottom);
+	camera->setHeight (settings.dims.vertRawPixelNum ());
+	camera->setVertBin (settings.dims.verticalBinning);
+
 	/// set other parameters
-	#ifdef USB_CAMERA
-		camera->setPixelFormat( cameraParams::PixelFormat_Mono10 );
-	#elif defined FIREWIRE_CAMERA
-		camera->setPixelFormat( cameraParams::PixelFormat_Mono16 );
-	#endif
-	
-	camera->setGainMode("Off");
-	camera->setGain( camera->getMinGain() );
+#ifdef USB_CAMERA
+	camera->setPixelFormat (cameraParams::PixelFormat_Mono10);
+#elif defined FIREWIRE_CAMERA
+	camera->setPixelFormat (cameraParams::PixelFormat_Mono16);
+#endif
+
+	camera->setGainMode ("Off");
+	camera->setGain (camera->getMinGain ());
 	//camera->AcquisitionFrameRateEnable.SetValue(true);
 	//Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous
 	//camera->AcquisitionMode.SetValue(Basler_UsbCameraParams::AcquisitionModeEnums::AcquisitionMode_Continuous);
 	//camera->AcquisitionFrameRate.SetValue(settings.frameRate);
 	// exposure mode
+	if (settings.acquisitionMode == BaslerAcquisition::mode::Continuous) {
+		settings.picsPerRep = UINT_MAX;
+	}
 	if (settings.exposureMode == BaslerAutoExposure::mode::Continuous){
 		camera->setExposureAuto( cameraParams::ExposureAuto_Continuous );
 	}
@@ -288,7 +276,6 @@ void BaslerCameraCore::armCamera( ){
 	}
 	triggerThreadInput* input = new triggerThreadInput;
 	input->camera = camera;
-	
 	input->frameRate = runSettings.frameRate;
 	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
 	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
@@ -332,24 +319,24 @@ void BaslerCameraCore::triggerThread( void* voidInput ){
 				input->camera->executeSoftwareTrigger();			
 				count++;
 			}
-			catch (Error&)	{
+			catch (Error& err){
+				qDebug () << cstr(err.trace ());
 				// continue... should be stopping grabbing.
 				break;
 			}
 		}
 	}
 	catch (Pylon::TimeoutException& timeoutErr){
-		errBox( "Trigger Thread Timeout Error!" + std::string(timeoutErr.what()) );
+		qDebug () << cstr("Trigger Thread Timeout Error!" + std::string (timeoutErr.what ()));
 	}
 	catch (Pylon::RuntimeException&){
-		// aborted, that's fine. return.
+		// probably aborted, that's fine. return.
 	}
 }
 
 
 // stop the camera from taking any pictures, even if triggered afterwards.
-void BaslerCameraCore::disarm()
-{
+void BaslerCameraCore::disarm(){
 	camera->stopGrabbing();
 }
 
@@ -362,11 +349,9 @@ void BaslerCameraCore::disarm()
 
  * this function comes from basler example code. Not sure if I'm using it right now.
  */
-int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum, int64_t inc )
-{
+int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum, int64_t inc ){
 	// Check the input parameters.
-	if (inc <= 0)
-	{
+	if (inc <= 0){
 		// Negative increments are invalid.
 		throw LOGICAL_ERROR_EXCEPTION( "Unexpected increment %d", inc );
 	}
@@ -376,38 +361,29 @@ int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum,
 		throw LOGICAL_ERROR_EXCEPTION( "minimum bigger than maximum." );
 	}
 
-	// Check the lower bound.
-	if (val < minimum)
-	{
+	if (val < minimum){
 		return minimum;
 	}
 
-	// Check the upper bound.
-	if (val > maximum)
-	{
+	if (val > maximum){
 		return maximum;
 	}
 
 	// Check the increment.
-	if (inc == 1)
-	{
+	if (inc == 1){
 		// Special case: all values are valid.
 		return val;
 	}
-	else
-	{
+	else{
 		// The value must be min + (n * inc).
 		// Due to the integer division, the value will be rounded down.
 		return minimum + (((val - minimum) / inc) * inc);
 	}
 }
 
-void BaslerCameraCore::logSettings (DataLogger& log)
-{
-	try
-	{
-		if (!experimentActive)
-		{
+void BaslerCameraCore::logSettings (DataLogger& log){
+	try{
+		if (!experimentActive){
 			H5::Group baslerGroup (log.file.createGroup ("/Basler:Off"));
 			return;
 		}
@@ -437,25 +413,23 @@ void BaslerCameraCore::logSettings (DataLogger& log)
 		log.writeDataSet (expRunSettings.frameRate, "Frame-Rate", baslerGroup);
 		log.writeDataSet (expRunSettings.rawGain, "Raw-Gain", baslerGroup);
 	}
-	catch (H5::Exception err)
-	{
+	catch (H5::Exception err){
 		log.logError (err);
 		throwNested ("ERROR: Failed to log basler parameters in HDF5 file: " + err.getDetailMsg ());
 	}
 }
 
-void BaslerCameraCore::loadExpSettings (ConfigStream& stream)
-{
+void BaslerCameraCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings, Version ("4.0"));
 	expRunSettings.repsPerVar = ProfileSystem::stdConfigGetter ( stream, "REPETITIONS", 
 																 Repetitions::getSettingsFromConfig);
 }
 
-void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
-{
+void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	expRunSettings.variations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());
 	if (experimentActive){
-		//comm.sendPrepareBasler (expRunSettings);
+		emit threadworker->prepareBasler (&expRunSettings);
+		//omm.sendPrepareBasler (expRunSettings);
 		setBaslserAcqParameters (expRunSettings);
 		armCamera ();
 	}

@@ -15,10 +15,12 @@
 #include "Control.h"
 #include "IChimeraWindowWidget.h"
 #include "Basler/BaslerSettingsControl.h"
-#include "Basler/BaslerCamera.h"
+
 #include "GeneralImaging/PictureStats.h"
 #include "GeneralObjects/commonTypes.h"
 #include "Plotting/PlotCtrl.h"
+
+class BaslerCameraCore;
 
 namespace Ui {
     class QtBaslerWindow;
@@ -42,8 +44,7 @@ class QtBaslerWindow : public IChimeraWindowWidget
 		void passCameraMode ();
 		bool baslerCameraIsRunning ();
 		bool baslerCameraIsContinuous ();
-		LRESULT handleNewPics (WPARAM wParam, LPARAM lParam);
-		LRESULT handlePrepareRequest (WPARAM wParam, LPARAM lParam);
+		void handlePrepareRequest (baslerSettings* settings);
 		void pictureRangeEditChange (UINT id);
 		void handleSoftwareTrigger ();
 		void windowOpenConfig (ConfigStream& configFile);
@@ -53,7 +54,7 @@ class QtBaslerWindow : public IChimeraWindowWidget
 
     private:
         Ui::QtBaslerWindow* ui;
-
+		baslerSettings runSettings;
 		// for the basler window, this is typically only one picture, but I include this here anyways.
 		UINT loadMotConsecutiveFailures = 0;
 		bool motLoaded = false;
@@ -71,8 +72,9 @@ class QtBaslerWindow : public IChimeraWindowWidget
 		PlotCtrl* horGraph, * vertGraph;
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
-		CFont* plotfont;
 		coordinate selectedPixel = { 0,0 };
 		HICON m_hIcon;
+	public Q_SLOTS:
+		void handleNewPics (Matrix<long> imageMatrix);
 };
 

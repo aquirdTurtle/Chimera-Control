@@ -67,11 +67,9 @@ std::unordered_map<std::string, COLORREF> _myRGBs = {
 
 std::unordered_map<std::string, CBrush*> _myBrushes;
 
-void initMyColors( )
-{
+void initMyColors( ){
 	static bool __initBrushesFlag = false;
-	if ( __initBrushesFlag )
-	{
+	if ( __initBrushesFlag ){
 		return;
 	}
 	/// Light Solarized Theme

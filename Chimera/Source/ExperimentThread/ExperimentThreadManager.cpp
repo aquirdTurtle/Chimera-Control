@@ -17,8 +17,10 @@
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
+#include <PrimaryWindows/QtBaslerWindow.h>
 #include <qthread.h>
 #include <RealTimeDataAnalysis/AnalysisThreadWorker.h>
+#include <RealTimeDataAnalysis/AtomCruncherWorker.h>
 #include "nidaqmx2.h"
 
 #include <boost/algorithm/string/replace.hpp>
@@ -41,21 +43,25 @@ ExperimentThreadManager::ExperimentThreadManager() {}
  * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
  * @return unsigned int: unused.
  */
-unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void* voidInput )
-{
+unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void* voidInput ){
 	auto startTime = chronoClock::now ();
 	std::unique_ptr< ExperimentThreadInput > input ((ExperimentThreadInput*)voidInput);
 	input->thisObj->experimentIsRunning = true;
 	input->comm.expQuiet = input->quiet;
-	emit input->workerThread->notification ("Starting Experiment Thread Procedure...\n");
+	emit input->workerThread->notification (cstr("Starting Experiment " + input->profile.configuration + "...\n"));
 	ExpRuntimeData expRuntime;
 	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
-	try
-	{
+	try{
+		for (auto& device : input->devices.list) {
+			emit input->workerThread->updateBoxColor ("Black", device.get().getDelim ().c_str ());
+		}
 		emit input->workerThread->notification ("Loading Experiment Settings...\n");
 		ConfigStream cStream (input->profile.configFilePath (), true);
 		loadExperimentRuntime (cStream, expRuntime, input);
+		if (input->expType != ExperimentType::LoadMot) {
+			input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
+		}
 		for (auto& device : input->devices.list){
 			deviceLoadExpSettings (device, input, cStream);
 		}
@@ -67,7 +73,7 @@ unsigned int __stdcall ExperimentThreadManager::experimentThreadProcedure( void*
 		calculateAdoVariations ( input, expRuntime );
 		runConsistencyChecks (input, expRuntime.expParams);
 		if (input->expType != ExperimentType::LoadMot){
-			input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
+			//input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
 			for (auto& device : input->devices.list) {
 				if (device.get ().experimentActive) {
 					device.get ().logSettings (input->logger);
@@ -352,13 +358,11 @@ void ExperimentThreadManager::handleDebugPlots( debugInfo debugOptions, ExpThrea
 }
 
 
-bool ExperimentThreadManager::runningStatus()
-{
+bool ExperimentThreadManager::runningStatus(){
 	return experimentIsRunning;
 }
 
-void ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input, IChimeraWindowWidget* parent)
-{
+void ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input, IChimeraWindowWidget* parent){
 	if ( !input ){
 		thrower ( "Input to start experiment thread was null?!?!? (a Low level bug, this shouldn't happen)." );
 	}
@@ -373,12 +377,14 @@ void ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input
 	worker->moveToThread (thread);
 	parent->connect (worker, &ExpThreadWorker::updateBoxColor, parent->mainWin, &QtMainWindow::handleColorboxUpdate);
 	parent->connect (worker, &ExpThreadWorker::prepareAndor, parent->andorWin, &QtAndorWindow::handlePrepareForAcq);
+	parent->connect (worker, &ExpThreadWorker::prepareBasler, parent->basWin, &QtBaslerWindow::prepareWinForAcq);
 	parent->connect (worker, &ExpThreadWorker::notification, parent->mainWin, & QtMainWindow::handleExpNotification);
 	parent->connect (worker, &ExpThreadWorker::warn, parent->mainWin, &QtMainWindow::onErrorMessage);
 	parent->connect (worker, &ExpThreadWorker::doAoData, parent->auxWin, &QtAuxiliaryWindow::handleDoAoPlotData);
 	parent->connect (worker, &ExpThreadWorker::repUpdate, parent->mainWin, &QtMainWindow::onRepProgress);
 	parent->connect (worker, &ExpThreadWorker::mainProcessFinish, thread, &QThread::quit);
-	parent->connect (worker, &ExpThreadWorker::plot_Xvals_determined,  parent->andorWin->analysisThreadWorker, &AnalysisThreadWorker::setXpts);
+	parent->connect (worker, &ExpThreadWorker::plot_Xvals_determined, 
+		parent->andorWin->analysisThreadWorker, &AnalysisThreadWorker::setXpts);
 	parent->connect (worker, &ExpThreadWorker::normalExperimentFinish, parent->mainWin, &QtMainWindow::onNormalFinish);
 	parent->connect (worker, &ExpThreadWorker::errorExperimentFinish, parent->mainWin, &QtMainWindow::onFatalError);
 
@@ -391,46 +397,37 @@ void ExperimentThreadManager::startExperimentThread(ExperimentThreadInput* input
 }
 
 
-bool ExperimentThreadManager::getIsPaused()
-{
+bool ExperimentThreadManager::getIsPaused(){
 	return isPaused;
 }
 
 
-void ExperimentThreadManager::pause()
-{
-	if ( !experimentIsRunning )
-	{
+void ExperimentThreadManager::pause(){
+	if ( !experimentIsRunning ){
 		thrower ( "Can't pause the experiment if the experiment isn't running!" );
 	}
 	isPaused = true;
 }
 
 
-void ExperimentThreadManager::unPause()
-{
-	if ( !experimentIsRunning )
-	{
+void ExperimentThreadManager::unPause(){
+	if ( !experimentIsRunning ){
 		thrower ( "Can't unpause the experiment if the experiment isn't running!" );
 	}
 	isPaused = false;
 }
 
 
-void ExperimentThreadManager::abort()
-{
-	if ( !experimentIsRunning )
-	{
+void ExperimentThreadManager::abort(){
+	if ( !experimentIsRunning ){
 		thrower ( "Can't abort the experiment if the experiment isn't running!" );
 	}
 	isAborting = true;
 }
 
-void ExperimentThreadManager::loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript )
-{
+void ExperimentThreadManager::loadAgilentScript ( std::string scriptAddress, ScriptStream& agilentScript ){
 	std::ifstream scriptFile ( scriptAddress );
-	if ( !scriptFile.is_open ( ) )
-	{
+	if ( !scriptFile.is_open ( ) ){
 		thrower ( "Scripted Agilent File \"" + scriptAddress + "\" failed to open!" );
 	}
 	agilentScript << scriptFile.rdbuf ( );
@@ -439,53 +436,49 @@ void ExperimentThreadManager::loadAgilentScript ( std::string scriptAddress, Scr
 }
 
 
-void ExperimentThreadManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript )
-{
+void ExperimentThreadManager::loadNiawgScript ( std::string scriptAddress, ScriptStream& niawgScript ){
 	std::ifstream scriptFile;
 	// check if file address is good.
 	FILE *file;
 	fopen_s ( &file, cstr ( scriptAddress ), "r" );
-	if ( !file )
-	{
-		thrower ( "The Niawg Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
+	if ( !file ){
+		thrower ( "The Niawg Script File \"" + scriptAddress + "\" does not exist! The Master-Manager tried to "
 				  "open this file before starting the script analysis." );
 	}
-	else
-	{
+	else{
 		fclose ( file );
 	}
 	scriptFile.open ( cstr ( scriptAddress ) );
 	// check opened correctly
-	if ( !scriptFile.is_open ( ) )
-	{
+	if ( !scriptFile.is_open ( ) ){
 		thrower ( "File passed test making sure the file exists, but it still failed to open?!?! "
 				  "(A low level-bug, this shouldn't happen.)" );
 	}
 	// dump the file into the stringstream.
-	niawgScript << scriptFile.rdbuf ( );
+	
+	niawgScript.str ("");
+	niawgScript.clear ();
+	niawgScript << scriptFile.rdbuf ();
+	niawgScript.seekg (0);
 	scriptFile.close ( );
 }
 
 
-void ExperimentThreadManager::loadMasterScript(std::string scriptAddress, ScriptStream& currentMasterScript )
-{
+void ExperimentThreadManager::loadMasterScript(std::string scriptAddress, ScriptStream& currentMasterScript ){
 	std::ifstream scriptFile;
 	// check if file address is good.
 	FILE *file;
 	fopen_s( &file, cstr(scriptAddress), "r" );
-	if ( !file )
-	{
+	if ( !file ){
 		thrower ("The Master Script File " + scriptAddress + " does not exist! The Master-Manager tried to "
 				 "open this file before starting the script analysis.");
 	}
-	else
-	{
+	else{
 		fclose( file );
 	}
 	scriptFile.open(cstr(scriptAddress));
 	// check opened correctly
-	if (!scriptFile.is_open())
-	{
+	if (!scriptFile.is_open()){
 		thrower ("File passed test making sure the file exists, but it still failed to open?!?! "
 				 "(A low level-bug, this shouldn't happen.)");
 	}
@@ -507,18 +500,16 @@ void ExperimentThreadManager::loadMasterScript(std::string scriptAddress, Script
 
 
 // makes sure formatting is correct, returns the arguments and the function name from reading the firs real line of a function file.
-void ExperimentThreadManager::analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args)
-{
+void ExperimentThreadManager::analyzeFunctionDefinition(std::string defLine, std::string& functionName, 
+	std::vector<std::string>& args){
 	args.clear();
 	ScriptStream defStream(defLine);
 	std::string word;
 	defStream >> word;
-	if (word == "")
-	{
+	if (word == ""){
 		defStream >> word;
 	}
-	if (word != "def")
-	{
+	if (word != "def"){
 		thrower ("Function file (extenion \".func\") in functions folder was not a function because it did not"
 				 " start with \"def\"! Functions must start with this. Instead it started with \"" + word + "\".");
 	}
@@ -527,19 +518,16 @@ void ExperimentThreadManager::analyzeFunctionDefinition(std::string defLine, std
 	int initNamePos = defLine.find_first_not_of(" \t");
 	functionName = functionDeclaration.substr(initNamePos, functionDeclaration.find_first_of("(") - initNamePos);
 
-	if (functionName.find_first_of(" ") != std::string::npos)
-	{
+	if (functionName.find_first_of(" ") != std::string::npos){
 		thrower ("Function name included a space!");
 	}
 	int initPos = functionDeclaration.find_first_of("(");
-	if (initPos == std::string::npos)
-	{
+	if (initPos == std::string::npos){
 		thrower ("No starting parenthesis \"(\" in function definition. Use \"()\" if no arguments.");
 	}
 	initPos++;
 	int endPos = functionDeclaration.find_last_of(")");
-	if (endPos == std::string::npos)
-	{
+	if (endPos == std::string::npos){
 		thrower ("No ending parenthesis \")\" in function definition. Use \"()\" if no arguments.");
 	}
 	functionArgumentList = functionDeclaration.substr(initPos, endPos - initPos);
@@ -547,16 +535,13 @@ void ExperimentThreadManager::analyzeFunctionDefinition(std::string defLine, std
 	initPos = functionArgumentList.find_first_not_of(" \t");
 	bool good = true;
 	// fill out args.
-	while (initPos != std::string::npos)
-	{
+	while (initPos != std::string::npos){
 		// get initial argument
 		std::string tempArg = functionArgumentList.substr(initPos, endPos - initPos);
-		if (endPos == std::string::npos)
-		{
+		if (endPos == std::string::npos){
 			functionArgumentList = "";
 		}
-		else
-		{
+		else{
 			functionArgumentList.erase(0, endPos + 1);
 		}
 		// clean up any spaces on beginning and end.
@@ -1145,20 +1130,21 @@ void ExperimentThreadManager::initVariation ( std::unique_ptr<ExperimentThreadIn
 void ExperimentThreadManager::errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
 											std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker)
 {
+	std::string finMsg;
 	if (isAborting)	{
-		emit worker->notification (ExperimentThreadManager::abortString.c_str());
+		finMsg = ExperimentThreadManager::abortString.c_str ();
 	}
 	else{
-		emit worker->notification ("Bad Exit!\r\n");
-		comm.sendFatalError ("Exited main experiment thread abnormally." + exception.trace ());
+		finMsg = "Bad Exit!\r\nExited main experiment thread abnormally." + exception.trace ();
 	}
 	{
+		// ??
 		isAborting = false;
 	}
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
-	emit worker->notification (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) + " minutes, "
+	emit worker->errorExperimentFinish ((finMsg + "\r\nExperiment took " + str (int (exp_t) / 3600) + " hours, "
+		+ str (int (exp_t) % 3600 / 60) + " minutes, "
 		+ str (int (exp_t) % 60) + " seconds.\r\n").c_str ());
-	emit worker->errorExperimentFinish ();
 }
 
 void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType& expType, bool runMaster, 
@@ -1183,11 +1169,11 @@ void ExperimentThreadManager::normalFinish ( Communicator& comm, ExperimentType&
 		default:
 			comm.sendFinish (ExperimentType::Normal);
 	}
-	emit worker->notification ("\r\nExperiment Finished Normally.\r\n");
+	Sleep (2000);
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
-	emit worker->notification (("Experiment took " + str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60) 
+	emit worker->normalExperimentFinish (("\r\nExperiment Finished Normally.\r\nExperiment took " 
+		+ str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60)
 		+ " minutes, " + str (int (exp_t) % 60) + " seconds.\r\n").c_str ());
-	emit worker->normalExperimentFinish ();
 }
 
 void ExperimentThreadManager::startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip)
@@ -1214,11 +1200,9 @@ void ExperimentThreadManager::deviceLoadExpSettings ( IDeviceCore& device, std::
 }
 
 void ExperimentThreadManager::deviceProgramVariation (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-													  std::vector<parameterType>& expParams, UINT variationInc)
-{
+													  std::vector<parameterType>& expParams, UINT variationInc){
 	if (device.experimentActive) {
-		try
-		{
+		try	{
 			device.programVariation (variationInc, expParams);
 			emit input->workerThread->updateBoxColor ("Green", device.getDelim ().c_str ());
 		}

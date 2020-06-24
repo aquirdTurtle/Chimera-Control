@@ -6,7 +6,6 @@
 #include <fstream>
 #include "CustomMfcControlWrappers/myButton.h"
 #include "Piezo/PiezoType.h"
-#include <QWinWidget.h>
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qpushbutton.h>

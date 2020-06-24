@@ -56,9 +56,9 @@ void PiezoController::handleOpenConfig ( ConfigStream& configFile)
 void PiezoController::handleSaveConfig (ConfigStream& configFile )
 {
 	configFile << core.configDelim;
-	configFile << "\n/*X-Value:*/ " << str(edits.x->text());
-	configFile << "\n/*Y-Value:*/ " << str(edits.y->text());
-	configFile << "\n/*Z-Value:*/ " << str (edits.z->text ())
+	configFile << "\n/*X-Value:*/ " << Expression(str(edits.x->text()));
+	configFile << "\n/*Y-Value:*/ " << Expression(str(edits.y->text()));
+	configFile << "\n/*Z-Value:*/ " << Expression (str (edits.z->text ()))
 			   << "\n/*Control?*/ " << ctrlButton->isChecked()
 			   << "\nEND_" + core.configDelim << "\n";
 }

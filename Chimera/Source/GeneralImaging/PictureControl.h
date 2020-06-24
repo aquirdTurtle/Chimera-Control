@@ -15,7 +15,7 @@
  * picture. Unlike many classes in my program, this is /not/ built to be a singleton. Instead, there should be one 
  * such control for every picture that needs to be displayed on the screen at a given time. 
  */
-;
+; 
 namespace Ui {
 	class PictureControl;
 }
@@ -23,7 +23,7 @@ class PictureControl : public QWidget{
 	Q_OBJECT
 	public:
 		PictureControl ( bool histogramOption );
-		void initialize( POINT loc, int width, int height, IChimeraWindowWidget* widget);
+		void initialize( POINT loc, int width, int height, IChimeraWindowWidget* widget, int picScaleFactorIn=50);
 		void handleMouse( QMouseEvent* event );
 		void drawPicNum(UINT picNum, QPainter& painter);
 		void recalculateGrid( imageParameters newParameters );
@@ -55,7 +55,7 @@ class PictureControl : public QWidget{
 		coordinate selectedLocation;
 	private:
 		Ui::PictureControl* ui;
-		const int picScaleFactor = 50;
+		int picScaleFactor;
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
 		UINT accumNum;

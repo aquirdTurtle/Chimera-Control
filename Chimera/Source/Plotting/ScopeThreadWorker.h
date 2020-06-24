@@ -13,7 +13,7 @@ class ScopeThreadWorker : public QObject {
     private:
         ScopeViewer* input;
     public Q_SLOTS:
-        void process ();
+        void process (); 
     Q_SIGNALS:
         void notify (QString);
         void newData (const QVector<double>& xdata, double xmin, double xmax, const QVector<double>& ydata, double ymin, double ymax, int traceNum);

@@ -25,8 +25,7 @@ struct cameraPositions;
  * the camera and some base settings that the user does not change. Because of the close contact between this and the
  * andor class, this object is initialized with a pointer to the andor object.
  ***********************************************************************************************************************/
-class AndorCameraSettingsControl
-{
+class AndorCameraSettingsControl{
 	public:
 		AndorCameraSettingsControl();
 		void setVariationNumber(UINT varNumber);

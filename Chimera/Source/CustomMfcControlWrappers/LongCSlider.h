@@ -18,7 +18,7 @@ class LongCSlider{
 		void handleSlider( int nPos );
 		void handleEdit();
 		double getValue ( );
-		void setValue (double value, bool updateEdit=true );
+		void setValue (int value, bool updateEdit=true );
 		int getSliderId ( );
 		void reposition ( POINT loc, LONG totalheight );
 		UINT getEditId ( );
@@ -28,6 +28,6 @@ class LongCSlider{
 		QLabel* header;
 	private:
 		double currentValue;
-		const double maxVal = 10000;
+		const double maxVal = 1000;
 		const double minVal = 0;
 };

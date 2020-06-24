@@ -101,13 +101,11 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 		softwareAccumulateNum[picInc]->setGeometry (pos.x + 165 + 95 * picInc, pos.y, 30, 20);
 		parent->connect (softwareAccumulateNum[picInc], &QLineEdit::textChanged, handleChange);
 	}
-	//
 	setPictureControlEnabled (0, true);
 	setPictureControlEnabled (1, false);
 	setPictureControlEnabled (2, false);
 	setPictureControlEnabled (3, false);
 }
-
 
 std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( ){
 	std::array<displayTypeOption, 4> options;
@@ -259,8 +257,7 @@ void PictureSettingsControl::handleOptionChange( ){
 }
 
 
-std::array<float, 4> PictureSettingsControl::getExposureTimes ( )
-{
+std::array<float, 4> PictureSettingsControl::getExposureTimes ( ){
 	std::array<float, 4> times;
 	for ( auto ctrlNum : range(exposureEdits.size()) ){
 		auto& ctrl = exposureEdits[ ctrlNum ];
@@ -271,8 +268,7 @@ std::array<float, 4> PictureSettingsControl::getExposureTimes ( )
 			times[ctrlNum] = ctrl->text ().toDouble ()*1e-3;
 			//times[ ctrlNum ] = boost::lexical_cast<double>( str(ctrl->text ()) ) * 1e-3;
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			thrower ( "Failed to convert exposure time to a float!" );
 		}
 	}
@@ -300,21 +296,18 @@ std::array<int, 4> PictureSettingsControl::getPictureColors(){
 }
 
 
-void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes )
-{
+void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes ){
 	settings.colors = colorIndexes;
-	for ( auto picInc : range(4) )	{
+	for ( auto picInc : range(4) ){
 		colormapCombos[ picInc ]->setCurrentIndex ( settings.colors[ picInc ] );
 	}
 }
 
 
-void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
-{
+void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times ){
 	UINT count = 0;
-	for ( auto ti : times )
-	{
-		exposureEdits[ count++ ]->setText ( cstr ( ti*1e3 ) );
+	for ( auto ti : times ){
+		exposureEdits[ count++ ]->setText ( cstr ( ti*1e3,5) );
 	}
 }
 
@@ -322,9 +315,8 @@ void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
 void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSettings ) {
 	updateColormaps ( inputSettings.colors );
 	setThresholds ( inputSettings.thresholdStrs );
-	setSoftwareAccumulationOptions (inputSettings.saOpts);
+	setSoftwareAccumulationOptions ( inputSettings.saOpts );
 }
-
 
 /**/
 std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds ( )

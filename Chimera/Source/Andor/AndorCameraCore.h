@@ -26,8 +26,7 @@
 class AndorCameraCore;
 
 /// the important camera class.
-class AndorCameraCore : public IDeviceCore
-{
+class AndorCameraCore : public IDeviceCore{
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AndorCameraCore& operator=(const AndorCameraCore&) = delete;
@@ -77,6 +76,7 @@ class AndorCameraCore : public IDeviceCore
 		void setFrameTransferMode ( );
 		void setKineticCycleTime ( );
 		void setReadMode ( );
+		int mostRecentTemp=20;
 
 		bool calInProgress = false;
 		/// These are official settings and are the final say on what the camera does. Some unofficial 

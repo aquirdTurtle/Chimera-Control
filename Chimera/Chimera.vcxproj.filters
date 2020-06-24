@@ -207,9 +207,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\LowLevel\ChimeraApp.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\LowLevel\stdafx.cpp">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClCompile>
@@ -299,51 +296,33 @@
     <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
     <ClCompile Include="Source\AnalogInput\AiUnits.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
-    <ClCompile Include="3rd_Party\QtMfcMigrate\qmfcapp.cpp" />
-    <ClCompile Include="MOC\moc_qmfcapp.cpp" />
-    <ClCompile Include="MOC\moc_qwinhost.cpp" />
-    <ClCompile Include="3rd_Party\QtMfcMigrate\qwinwidget.cpp" />
-    <ClCompile Include="MOC\moc_qwinwidget.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
-    <ClCompile Include="MOC\moc_QtScriptWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtDeformableMirrorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
-    <ClCompile Include="MOC\moc_QtAndorWindow.cpp" />
-    <ClCompile Include="MOC\moc_QtBaslerWindow.cpp" />
-    <ClCompile Include="MOC\moc_QtDeformableMirrorWindow.cpp" />
-    <ClCompile Include="MOC\moc_QtMainWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraWindowWidget.cpp" />
-    <ClCompile Include="MOC\moc_IChimeraWindowWidget.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
-    <ClCompile Include="MOC\moc_QtAuxiliaryWindow.cpp" />
     <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
     <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
-    <ClCompile Include="MOC\moc_ExpThreadWorker.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
-    <ClCompile Include="MOC\moc_ParameterModel.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraThreadWorker.cpp" />
-    <ClCompile Include="MOC\moc_AndorCameraThreadWorker.cpp" />
     <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
-    <ClCompile Include="MOC\moc_ScopeThreadWorker.cpp" />
     <ClCompile Include="Source\Plotting\ScopeViewer.cpp">
       <Filter>Plotting-And-Viewing</Filter>
     </ClCompile>
-    <ClCompile Include="MOC\moc_ScopeViewer.cpp" />
-    <ClCompile Include="MOC\moc_PictureControl.cpp" />
     <ClCompile Include="Source\GeneralImaging\ImageLabel.cpp" />
-    <ClCompile Include="MOC\moc_ImageLabel.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.cpp" />
-    <ClCompile Include="MOC\moc_AnalysisThreadWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
-    <ClCompile Include="MOC\moc_AtomCruncherWorker.cpp" />
-    <ClCompile Include="MOC\moc_PlotCtrl.cpp" />
     <ClCompile Include="Source\Scripts\SyntaxHighlighter.cpp" />
-    <ClCompile Include="MOC\moc_SyntaxHighlighter.cpp" />
-    <ClCompile Include="MOC\moc_BaslerGrabThreadWorker.cpp" />
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Basler\ImageEventHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -621,9 +600,6 @@
     <ClInclude Include="Source\Plotting\tinyPlotInfo.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Source\LowLevel\ChimeraApp.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\LowLevel\targetver.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
@@ -765,6 +741,9 @@
     <ClInclude Include="Source\Andor\cameraThreadInput.h" />
     <ClInclude Include="Source\Agilent\whichAg.h" />
     <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
+    <ClInclude Include="Source\Basler\ImageEventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -850,6 +829,16 @@
     <Filter Include="MicrowaveSystem">
       <UniqueIdentifier>{e757d9d7-2044-4078-b3e8-9df8e98eec09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
@@ -885,30 +874,28 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="3rd_Party\QtMfcMigrate\qmfcapp.h" />
-    <CustomBuild Include="3rd_Party\QtMfcMigrate\qwinwidget.h" />
-    <CustomBuild Include="Source\PrimaryWindows\QtScriptWindow.h" />
-    <CustomBuild Include="Source\PrimaryWindows\QtMainWindow.h" />
-    <CustomBuild Include="Source\PrimaryWindows\QtDeformableMirrorWindow.h" />
-    <CustomBuild Include="Source\PrimaryWindows\QtBaslerWindow.h" />
-    <CustomBuild Include="Source\PrimaryWindows\QtAndorWindow.h" />
-    <CustomBuild Include="Source\PrimaryWindows\IChimeraWindowWidget.h" />
-    <CustomBuild Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
-    <CustomBuild Include="Source\ExperimentThread\ExpThreadWorker.h" />
-    <CustomBuild Include="Source\ParameterSystem\ParameterModel.h" />
-    <CustomBuild Include="Source\Andor\AndorCameraThreadWorker.h" />
-    <CustomBuild Include="Source\Plotting\ScopeThreadWorker.h" />
-    <CustomBuild Include="Source\Plotting\ScopeViewer.h">
+    <QtMoc Include="Source\ExperimentThread\ExpThreadWorker.h" />
+    <QtMoc Include="Source\PrimaryWindows\IChimeraWindowWidget.h" />
+    <QtMoc Include="Source\PrimaryWindows\QtAndorWindow.h" />
+    <QtMoc Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
+    <QtMoc Include="Source\PrimaryWindows\QtBaslerWindow.h" />
+    <QtMoc Include="Source\PrimaryWindows\QtDeformableMirrorWindow.h" />
+    <QtMoc Include="Source\PrimaryWindows\QtMainWindow.h" />
+    <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h" />
+    <QtMoc Include="Source\Basler\BaslerGrabThreadWorker.h" />
+    <QtMoc Include="Source\GeneralImaging\ImageLabel.h" />
+    <QtMoc Include="Source\GeneralImaging\PictureControl.h" />
+    <QtMoc Include="Source\Scripts\SyntaxHighlighter.h" />
+    <QtMoc Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.h" />
+    <QtMoc Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.h" />
+    <QtMoc Include="Source\ParameterSystem\ParameterModel.h" />
+    <QtMoc Include="Source\Plotting\ScopeThreadWorker.h" />
+    <QtMoc Include="Source\Plotting\ScopeViewer.h">
       <Filter>Plotting-And-Viewing</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Source\GeneralImaging\PictureControl.h" />
-    <CustomBuild Include="Source\GeneralImaging\ImageLabel.h" />
-    <CustomBuild Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.h" />
-    <CustomBuild Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.h" />
-    <CustomBuild Include="Source\Plotting\PlotCtrl.h">
+    </QtMoc>
+    <QtMoc Include="Source\Plotting\PlotCtrl.h">
       <Filter>Plotting-And-Viewing</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Source\Scripts\SyntaxHighlighter.h" />
-    <CustomBuild Include="Source\Basler\BaslerGrabThreadWorker.h" />
+    </QtMoc>
+    <QtMoc Include="Source\Andor\AndorCameraThreadWorker.h" />
   </ItemGroup>
 </Project>

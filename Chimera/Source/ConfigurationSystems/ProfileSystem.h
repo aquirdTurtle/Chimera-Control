@@ -29,8 +29,7 @@ class DeformableMirrorWindow;
 	that can be checked to determine if the user should be prompted to save at a given point, and all of the functions 
 	for saving, renaming, deleting, and creating new levels within the code. 
 */
-class ProfileSystem
-{
+class ProfileSystem{
 	public:
 		ProfileSystem(std::string fileSystemPath);
 
@@ -106,7 +105,8 @@ class ProfileSystem
 		// Version 4.12: Added "Control Niawg" option.
 		/// Version 5.0: Revamped reading and writing to the files to use Scriptstream, supporting comments. Includes
 		// a variety of minor formatting changes and a bunch of comments into the file.
-		const Version version = Version( "5.0" );
+		// Verion 5.1: Added control option for dds system
+		const Version version = Version( "5.1" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;
@@ -157,69 +157,56 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 
 template <class returnType>
 static returnType ProfileSystem::stdConfigGetter (ConfigStream& configStream, std::string delim,
-												  returnType (*getterFunc)(ConfigStream&), Version minVer)
-{
+												  returnType (*getterFunc)(ConfigStream&), Version minVer){
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
 	// return type must have a default constructor so that the function knows what to do if fails.
 	returnType res = returnType ();
-	try
-	{
+	try{
 		ProfileSystem::initializeAtDelim (configStream, delim, minVer);
 	}
-	catch (Error & e)
-	{
-		errBox ("Failed to initialize config file for " + delim + "!\n\n" + e.trace ());
+	catch (Error & e){
+		throwNested ("Failed to initialize config file for " + delim + "!\n\n" + e.trace ());
 		return res;
 	}
-	try
-	{
+	try{
 		res = (*getterFunc) (configStream);
 	}
-	catch (Error & e)
-	{
-		errBox ("Failed to gather information from config file for " + delim + "!\n\n" + e.trace ());
+	catch (Error & e){
+		throwNested ("Failed to gather information from config file for " + delim + "!\n\n" + e.trace ());
 		return res;
 	}
-	try
-	{
+	try{
 		ProfileSystem::checkDelimiterLine (configStream, "END_" + delim);
 	}
-	catch (Error & e)
-	{
-		errBox ("End delimiter for the " + delim + " control was not found. This might indicate that the "
-			"control did not initialize properly.\n\n" + e.trace ());
+	catch (Error & e){
+		throwNested ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
+					  "control did not initialize properly.\n\n" + e.trace ());
 	}
 	return res;
 }
 
 template <class coreType, class returnT>
-static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, coreType& core, returnT& settings, Version minVer)
-{
+static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, coreType& core, returnT& settings, 
+	Version minVer){
 	// a template functor. The getter here should get whatever is wanted from the file and return it. 
-	try
-	{
+	try{
 		ProfileSystem::initializeAtDelim (configStream, core.getDelim (), minVer);
 	}
-	catch (Error & e)
-	{
-		errBox ("Failed to initialize config file for " + core.getDelim () + "!\n\n" + e.trace ());
+	catch (Error & e){
+		throwNested ("Failed to initialize config file for " + core.getDelim () + "!\n\n" + e.trace ());
 	}
-	try
-	{
+	try{
 		settings = core.getSettingsFromConfig (configStream);
 	}
-	catch (Error & e)
-	{
-		errBox ("Failed to gather information from config file for " + core.getDelim() + "!\n\n" + e.trace ());
+	catch (Error & e){
+		throwNested ("Failed to gather information from config file for " + core.getDelim() + "!\n\n" + e.trace ());
 	}
-	try
-	{
+	try{
 		ProfileSystem::checkDelimiterLine (configStream, "END_" + core.getDelim ());
 	}
-	catch (Error & e)
-	{
-		errBox ("End delimiter for the " + core.getDelim () + " control was not found. This might indicate that the "
-				"control did not initialize properly.\n\n" + e.trace ());
+	catch (Error & e){
+		throwNested ("End delimiter for the " + core.getDelim () + " control was not found. This might indicate that the "
+					 "control did not initialize properly.\n\n" + e.trace ());
 	}
 }
 

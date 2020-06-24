@@ -176,7 +176,6 @@ void DmProfileCreator::myDmLookup(double &x_coordinate, double &y_coordinate, in
 	//int pn = pixNum;
 	double rowNum = 0;
 	double pn = pixNum;
-	POINT PIXEL;
 	for (auto& num : numInRow) {
 		pn -= num;
 		if (pn < 0) {

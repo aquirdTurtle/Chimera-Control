@@ -14,7 +14,7 @@ class ParameterModel : public QAbstractTableModel
         QVariant headerData (int section, Qt::Orientation orientation, int role) const;
         Qt::ItemFlags flags (const QModelIndex& index) const override;
         bool setData (const QModelIndex& index, const QVariant& value, int role);
-        void setParams (std::vector<parameterType> newParams);
+        void setParams (std::vector<parameterType> newParams); 
         std::vector<parameterType> getParams ();
         ScanRangeInfo getRangeInfo ();
         void setRangeInfo (ScanRangeInfo info);

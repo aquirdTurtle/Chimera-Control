@@ -8,7 +8,7 @@
 #include <ParameterSystem/ParameterSystemStructures.h>
 
 class SyntaxHighlighter : public QSyntaxHighlighter {
-    Q_OBJECT
+    Q_OBJECT 
 
     public:
         SyntaxHighlighter (ScriptableDevice device, QTextDocument* parent = 0);
