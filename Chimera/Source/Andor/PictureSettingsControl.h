@@ -18,9 +18,7 @@
 class AndorCameraCore;
 class AndorCameraSettingsControl;
 
-
-struct displayTypeOption
-{
+struct displayTypeOption{
 	bool isDiff = false;
 	// zero-indexed.
 	UINT whichPicForDif = 0;

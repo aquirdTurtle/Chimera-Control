@@ -97,7 +97,7 @@ void BaslerSettingsControl::handleFrameRate()
 		// avoid dividing by 0.
 		timePerPic++;
 	}
-	realFrameRate->setText(cstr(1000.0 / timePerPic));
+	realFrameRate->setText(cstr(1000.0 / timePerPic,5));
 	lastTime = currentTime;
 }
 
@@ -123,7 +123,7 @@ void BaslerSettingsControl::setStatus(std::string status)
 
 void BaslerSettingsControl::updateExposure( double exposure )
 {
-	exposureEdit->setText( cstr( exposure ) );
+	exposureEdit->setText( cstr( exposure,5 ) );
 }
 
 
@@ -248,9 +248,9 @@ void BaslerSettingsControl::setSettings ( baslerSettings newSettings )
 	cameraMode->setCurrentIndex (int(currentSettings.acquisitionMode));
 	dims.setImageParametersFromInput (currentSettings.dims);
 	exposureModeCombo->setCurrentIndex (int(currentSettings.exposureMode));
-	exposureEdit->setText( cstr ( currentSettings.exposureTime ) );
-	frameRateEdit->setText ( cstr ( currentSettings.frameRate ) );
-	gainEdit->setText ( cstr ( currentSettings.rawGain ) );
+	exposureEdit->setText( cstr ( currentSettings.exposureTime,6 ) );
+	frameRateEdit->setText ( cstr ( currentSettings.frameRate,6 ) );
+	gainEdit->setText ( cstr ( currentSettings.rawGain,6 ) );
 	repEdit->setText ( cstr ( currentSettings.picsPerRep) );
 	triggerCombo->setCurrentIndex (int (currentSettings.triggerMode));
 }

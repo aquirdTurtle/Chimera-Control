@@ -183,7 +183,7 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, UINT numb
 
 	POINT loc = picturesLocation;
 	// Square: width = 550, height = 440
-	auto picWidth = 1050;
+	auto picWidth = 950;
 	auto picHeight = 220;
 	//int picWidth = 550;
 	//int picHeight = 420;
@@ -209,7 +209,7 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, UINT numb
 }
 
 void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth, int manHeight,
-								 IChimeraWindowWidget* widget ){
+								 IChimeraWindowWidget* widget, int scaleFactor){
 	picturesLocation = loc;
 	picturesWidth = manWidth;
 	picturesHeight = manHeight;
@@ -217,13 +217,13 @@ void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth,
 	// Square: width = 550, height = 440
 	auto width = 1200;
 	auto height = 220;
-	pictures[0].initialize( loc, width, height, widget);
+	pictures[0].initialize( loc, width, height, widget, scaleFactor);
 	loc.y += height;
-	pictures[1].initialize( loc, width, height, widget );
+	pictures[1].initialize( loc, width, height, widget, scaleFactor);
 	loc.y += height;
-	pictures[2].initialize( loc, width, height, widget );
+	pictures[2].initialize( loc, width, height, widget, scaleFactor);
 	loc.y += height;
-	pictures[3].initialize( loc, width, height, widget );
+	pictures[3].initialize( loc, width, height, widget, scaleFactor);
 	loc.y += height;
 	createPalettes ();
 	for (auto& pic : pictures){

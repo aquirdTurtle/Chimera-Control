@@ -111,7 +111,9 @@ void IChimeraWindowWidget::initializeMenu ()
 	runMenuM->addAction ("Abort NIAWG_X");
 	runMenuM->addAction ("Abort Master_X");
 	runMenuM->addAction ("Abort Basler_X");
-	runMenuM->addAction ("Pause_X");
+	auto* pause = new QAction ("Pause Experiment\tF2", this);
+	connect (pause, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_RUNMENU_PAUSE, this); });
+	runMenuM->addAction (pause);
 	auto profileM = menubar->addMenu ("Profile");
 	auto mc_p_m = profileM->addMenu ("Master Configuration");
 	mc_p_m->addAction ("Save Master Configuration_X");
@@ -132,16 +134,29 @@ void IChimeraWindowWidget::initializeMenu ()
 	auto axM = otherAg->addMenu ("Axial");
 	auto flashingM = otherAg->addMenu ("Flashing");
 	auto uwM = otherAg->addMenu ("Microwave");
-	std::vector<QMenu*> scriptMenus = { niawgScM, intM, masterSc, tbM, axM, flashingM, uwM };
-	std::vector<QString> scriptNames = { "NIAWG", "Intensity", "Master", "Top / Bottom", "Axial", "Flashing", "Microwave" };
+	std::vector<QMenu*> scriptMenus = { niawgScM, masterSc, tbM, axM, flashingM, uwM };
+	std::vector<QString> scriptNames = { "NIAWG", "Master", "Top / Bottom", "Axial", "Flashing", "Microwave" };
 	for (auto num : range (scriptMenus.size())) {
 		auto menu = scriptMenus[num];
 		auto name = scriptNames[num];
-		masterSc->addAction ("New " + name + " Script_X");
-		masterSc->addAction ("Open " + name + " Script_X");
-		masterSc->addAction ("Save " + name + " Script_X");
-		masterSc->addAction ("Save " + name + "Script As_X");
+		menu->addAction ("New " + name + " Script_X");
+		menu->addAction ("Open " + name + " Script_X");
+		menu->addAction ("Save " + name + " Script_X");
+		menu->addAction ("Save " + name + " Script As_X");
 	}
+	auto* newInt = new QAction ("New Intensity Agilent Script", this);
+	connect (newInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_NEW, this); });
+	intM->addAction (newInt);
+	auto* openInt = new QAction ("Open Intensity Agilent Script", this);
+	connect (openInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_OPEN, this); });
+	intM->addAction (openInt);
+	auto* saveInt = new QAction ("Save Intensity Agilent Script", this);
+	connect (saveInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_SAVE, this); });
+	intM->addAction (saveInt);
+	auto* saveasInt = new QAction ("Save Intensity Agilent Script As", this);
+	connect (saveasInt, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_FILE_MY_INTENSITY_SAVEAS, this); });
+	intM->addAction (saveasInt);
+
 	auto niawgM = menubar->addMenu ("NIAWG");
 	niawgM->addAction ("Reload Default Waveforms_X");
 	niawgM->addAction ("Send Software Trigger_X");

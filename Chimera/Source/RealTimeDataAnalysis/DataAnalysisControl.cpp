@@ -677,9 +677,11 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotHist( Plottin
 				for ( auto picI : range( plotInfo.getPicNumber( ) ) ){
 					// check if there is a condition at all
 					if ( plotInfo.getResultCondition( dataSetI, pixelI, picI ) ){
-						int index = -int (plotInfo.getPicNumber ()) + int (picI+1);
-						int binNum = std::round( double( countData[groupI].end( )[index] ) / binWidth );
-
+						int index = -int (plotInfo.getPicNumber ()) + int (picI);
+						if (int(countData[groupI].size ()) + index < 0) {
+							return {}; // not enough pictures yet
+						}
+						int binNum = std::round( double( countData[groupI][countData[groupI].size()+index] ) / binWidth );
 						if ( histData[dataSetI][groupI].find( binNum ) == histData[dataSetI][groupI].end( ) ){
 							// if bin doesn't exist
 							histData[dataSetI][groupI][binNum] = { binNum * binWidth, 1 };

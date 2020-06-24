@@ -6,6 +6,7 @@
 #include "afxwin.h"
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralUtilityFunctions/my_str.h"
+#include <qmetatype.h>
 
 // a wrapper around a 1D matrix that allows for 2D (row/collum) access styles. Mostly used to represent images.
 template <class type>
@@ -213,3 +214,5 @@ type & Matrix<type>::operator()( UINT row, UINT col )
 	UINT index = rowOffset + col;
 	return data[ index ];
 }
+
+Q_DECLARE_METATYPE(Matrix<long>)

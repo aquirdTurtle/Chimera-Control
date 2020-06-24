@@ -19,8 +19,12 @@ user programms the dds immediately without running an experiment. It is also the
 needs to be passed to the main experiment thread. This is part of a new attempt to better divide the gui functionality
 from the core functionality and have a more minimal object passed into the main experiment thread.
 */
-class DdsCore : public IDeviceCore
-{
+struct ddsExpSettings {
+	bool control;
+	std::vector< ddsIndvRampListInfo> ramplist;
+};
+
+class DdsCore : public IDeviceCore{
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		DdsCore& operator=(const DdsCore&) = delete;
@@ -28,7 +32,7 @@ class DdsCore : public IDeviceCore
 
 		DdsCore ( bool safemode );
 		~DdsCore ( );
-		std::vector<ddsIndvRampListInfo> getSettingsFromConfig (ConfigStream& file );
+		ddsExpSettings getSettingsFromConfig (ConfigStream& file );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file );
 		void programVariation ( UINT variationNum, std::vector<parameterType>& params);
 		void connectasync ( );

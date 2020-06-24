@@ -6,12 +6,10 @@
 #include "ExperimentThread/DeviceList.h"
 #include "afxwin.h"
 #include <array>
-#include "QWinWidget.h"
 #include <QMainWindow>
-#include <ExperimentMonitoringAndStatus/ColorBox.h>
+
 
 class ColorBox;
-
 class QtMainWindow;
 class QtScriptWindow;
 class QtAuxiliaryWindow;

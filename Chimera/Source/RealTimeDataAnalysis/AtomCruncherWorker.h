@@ -15,7 +15,7 @@ class CruncherThreadWorker : public QObject {
     public Q_SLOTS:
         void init ();
         void handleImage (NormalImage);
-
+		 
     Q_SIGNALS:
         void error (QString errstr);
         void atomArray (atomQueue aqueue);

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "QtBaslerWindow.h"
+#include "Basler/BaslerCamera.h"
 #include "Agilent/AgilentSettings.h"
 #include <qdesktopwidget.h>
 #include <PrimaryWindows/QtScriptWindow.h>
@@ -14,8 +15,7 @@ QtBaslerWindow::QtBaslerWindow (QWidget* parent) : IChimeraWindowWidget (parent)
 												   picManager (true, "BASLER_PICTURE_MANAGER", true){
 	statBox = new ColorBox ();
 	basCamCore = new BaslerCameraCore (this);
-	if (!basCamCore->isInitialized ())
-	{
+	if (!basCamCore->isInitialized ()){
 		thrower ("ERROR: Camera not connected! Exiting program...");
 	}
 	setWindowTitle ("Basler Window");
@@ -35,11 +35,9 @@ void QtBaslerWindow::initializeWidgets (){
 	}
 }
 
-LRESULT QtBaslerWindow::handlePrepareRequest (WPARAM wParam, LPARAM lParam){
-	ASSERT (InSendMessage ());
-	baslerSettings* settings = (baslerSettings*)lParam;
+void QtBaslerWindow::handlePrepareRequest (baslerSettings* settings){
 	prepareWinForAcq (settings);
-	return 0;
+	runSettings = *settings;
 }
 
 void QtBaslerWindow::handleBaslerAutoscaleSelection (){
@@ -83,7 +81,6 @@ void QtBaslerWindow::handleSoftwareTrigger (){
 	}
 }
 
-
 void QtBaslerWindow::pictureRangeEditChange (UINT id){
 	try{
 		mainWin->updateConfigurationSavedStatus (false);
@@ -94,7 +91,6 @@ void QtBaslerWindow::pictureRangeEditChange (UINT id){
 		errBox ("Error! " + err.trace ());
 	}
 }
-
 
 void QtBaslerWindow::handleDisarmPress (){
 	try{
@@ -108,11 +104,8 @@ void QtBaslerWindow::handleDisarmPress (){
 	}
 }
 
-
-void QtBaslerWindow::startDefaultAcquisition ()
-{
-	try
-	{
+void QtBaslerWindow::startDefaultAcquisition (){
+	try	{
 		if (basCamCore->isRunning ()){
 			handleDisarmPress ();
 		}
@@ -148,17 +141,12 @@ void QtBaslerWindow::startDefaultAcquisition ()
 	}
 }
 
-
-LRESULT QtBaslerWindow::handleNewPics (WPARAM wParam, LPARAM lParam)
-{
-	Matrix<long>* imageMatrix = (Matrix<long>*)lParam;
-	long size = long (wParam);
-	try
-	{
+void QtBaslerWindow::handleNewPics (Matrix<long> imageMatrix){
+	try	{
 		currentRepNumber++;
-		auto runSttngs = basCamCore->getRunningSettings ();
-		auto minMax = stats.update (*imageMatrix, 0, { 0,0 }, currentRepNumber, runSttngs.totalPictures ());
-		picManager.drawBitmap (*imageMatrix, minMax, 0, std::vector<coordinate> (), std::vector<atomGrid> (), 0, false);
+		//auto runSettings = basCamCore->getRunningSettings ();
+		auto minMax = stats.update (imageMatrix, 0, { 0,0 }, currentRepNumber, runSettings.totalPictures ());
+		picManager.drawBitmap (imageMatrix, minMax, 0, std::vector<coordinate> (), std::vector<atomGrid> (), 0, false);
 		picManager.updatePlotData ();
 		//picManager.drawDongles ({ 0,0 }, std::vector<coordinate> (), std::vector<atomGrid> (), 0);
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous){
@@ -170,9 +158,9 @@ LRESULT QtBaslerWindow::handleNewPics (WPARAM wParam, LPARAM lParam)
 		}
 		if (!basCamCore->isContinuous ()){
 			// don't write data if continuous, that's a recipe for disaster.
-			andorWin->getLogger ().writeBaslerPic (*imageMatrix);
+			andorWin->getLogger ().writeBaslerPic (imageMatrix);
 		}
-		if (currentRepNumber == runSttngs.totalPictures ()){
+		if (currentRepNumber == runSettings.totalPictures ()){
 			// handle balser finish
 			basCamCore->disarm ();
 			isRunning = false;
@@ -182,7 +170,7 @@ LRESULT QtBaslerWindow::handleNewPics (WPARAM wParam, LPARAM lParam)
 			mainWin->getComm ()->sendBaslerFin ();
 			if (!andorWin->cameraIsRunning ()){
 				// else it will close when the basler camera finishes.
-				andorWin->getLogger ().closeFile ();
+				andorWin->getLogger ().normalCloseFile ();
 			}
 		}
 		if (stats.getMostRecentStats ().avgv < settingsCtrl.getMotThreshold ()){
@@ -204,9 +192,6 @@ LRESULT QtBaslerWindow::handleNewPics (WPARAM wParam, LPARAM lParam)
 		errBox (err.trace ());
 		settingsCtrl.setStatus ("Camera Status: ERROR?!?!?");
 	}
-	// always delete
-	delete imageMatrix;
-	return 0;
 }
 
 
@@ -219,7 +204,6 @@ void QtBaslerWindow::passCameraMode (){
 	}
 }
 
-
 void QtBaslerWindow::passExposureMode (){
 	try{
 		settingsCtrl.handleExposureMode ();
@@ -228,7 +212,6 @@ void QtBaslerWindow::passExposureMode (){
 		errBox ("Error! " + err.trace ());
 	}
 }
-
 
 void QtBaslerWindow::prepareWinForAcq (baslerSettings* settings){
 	try{
@@ -243,14 +226,12 @@ void QtBaslerWindow::prepareWinForAcq (baslerSettings* settings){
 	}
 }
 
-
 bool QtBaslerWindow::baslerCameraIsRunning (){
 	if (BASLER_SAFEMODE){
 		return isRunning;
 	}
 	return basCamCore->isRunning ();
 }
-
 
 bool QtBaslerWindow::baslerCameraIsContinuous (){
 	return basCamCore->isContinuous ();
@@ -263,12 +244,10 @@ void QtBaslerWindow::windowOpenConfig (ConfigStream& configFile){
 	settingsCtrl.setSettings (settings);
 }
 
-
 void QtBaslerWindow::windowSaveConfig (ConfigStream& configFile){
 	picManager.handleSaveConfig (configFile);
 	settingsCtrl.handleSavingConfig (configFile);
 }
-  
 
 void QtBaslerWindow::initializeControls (){
 	POINT pos = { 0,25 };
@@ -280,10 +259,10 @@ void QtBaslerWindow::initializeControls (){
 
 	pos = { 365, 25 };
 	// scale to fill the window (approximately).
-	dims.x *= 1.65;
-	dims.y *= 1.65;
+	dims.x *= 1.55;
+	dims.y *= 1.55;
 	picManager.initialize (pos, _myBrushes["Red"], dims.x + pos.x + 115, dims.y + pos.y,
-		this);
+							this, 1);
 	picManager.setSinglePicture (settingsCtrl.getCurrentSettings ().dims);
 	picManager.setPalletes ({ 1,1,1,1 });
 }

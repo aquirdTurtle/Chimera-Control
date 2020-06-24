@@ -32,7 +32,8 @@ class DataLogger
 		void writeAndorPic( Matrix<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image );
 		void writeVolts ( UINT currentVoltNumber, std::vector<float64> data );
-
+		void assertCalibrationFilesExist ();
+		void logServoInfo (std::vector<servoInfo> servos);
 		void logMasterInput( ExperimentThreadInput* input );
 		void logMiscellaneousStart();
 		void logParameters( const std::vector<parameterType>& variables, H5::Group& group );
@@ -40,15 +41,13 @@ class DataLogger
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DoCore& doSys );
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
-		void logServoInfo ( std::vector<servoInfo> servos );
 		void initializeAiLogging ( UINT numSnapshots );
 		int getCalibrationFileIndex ();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
-		void assertCalibrationFilesExist();
-		void closeFile();
+		void normalCloseFile();
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
-		
+		void assertClosed ();
 
 		void initOptimizationFile ( );
 		void updateOptimizationFile ( std::string appendTxt );

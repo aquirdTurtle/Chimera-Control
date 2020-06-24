@@ -127,3 +127,5 @@ class PlottingInfo
 		// three options here.
 		std::string generalPlotType;
 };
+
+Q_DECLARE_METATYPE (PlottingInfo)

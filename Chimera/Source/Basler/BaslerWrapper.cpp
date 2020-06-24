@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "BaslerWrapper.h"
 #include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/QtBaslerWindow.h>
+#include <Basler/ImageEventHandler.h>
 
 // initialize the camera using the fundamental settings I use for all cameras. 
 void BaslerWrapper::init (IChimeraWindowWidget* parent ){
@@ -8,9 +10,9 @@ void BaslerWrapper::init (IChimeraWindowWidget* parent ){
 		try	{
 			Open ();
 			// prepare the image event handler
-			BaslerGrabThreadWorker* worker = new BaslerGrabThreadWorker;
-			RegisterImageEventHandler (new ImageEventHandler ( parent, worker ), Pylon::RegistrationMode_ReplaceAll,
-				Pylon::Cleanup_Delete);
+			RegisterImageEventHandler ( new ImageEventHandler ( parent ), Pylon::RegistrationMode_ReplaceAll,
+										Pylon::Cleanup_Delete );
+
 			TriggerMode.SetValue (cameraParams::TriggerMode_On);
 		}
 		catch (Pylon::GenericException&){
@@ -171,59 +173,45 @@ void BaslerWrapper::setHorBin (int binning)
 }
 
 
-void BaslerWrapper::setVertBin (int binning)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setVertBin (int binning){
+	if (!BASLER_SAFEMODE){
+		try{
 			BinningVertical.SetValue (binning);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to set vertical binning.");
 		}
 	}
 }
 
-void BaslerWrapper::stopGrabbing ()
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::stopGrabbing (){
+	if (!BASLER_SAFEMODE){
+		try{
 			StopGrabbing ();
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to stop grabbing.");
 		}
 	}
 }
 
-bool BaslerWrapper::isGrabbing ()
-{
-	if (BASLER_SAFEMODE)
-	{
+bool BaslerWrapper::isGrabbing (){
+	if (BASLER_SAFEMODE){
 		return true;
 	}
-	try
-	{
+	try{
 		return IsGrabbing ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to query if grabbing.");
 	}
 }
 
 // not being used???
-std::vector<long> BaslerWrapper::retrieveResult (unsigned int timeout)
-{
+std::vector<long> BaslerWrapper::retrieveResult (unsigned int timeout){
 	Pylon::CGrabResultPtr resultPtr;
 	RetrieveResult (timeout, resultPtr, Pylon::TimeoutHandling_ThrowException);
-	if (!resultPtr->GrabSucceeded ())
-	{
+	if (!resultPtr->GrabSucceeded ()){
 		thrower ("" + str (resultPtr->GetErrorCode ()) + " " + std::string (resultPtr->GetErrorDescription ().c_str ()));
 	}
 	const uint16_t* pImageBuffer = (uint16_t*)resultPtr->GetBuffer ();
@@ -234,202 +222,148 @@ std::vector<long> BaslerWrapper::retrieveResult (unsigned int timeout)
 }
 
 
-int BaslerWrapper::getCurrentHeight ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getCurrentHeight (){
+	if (BASLER_SAFEMODE){
 		return 512;
 	}
-	try
-	{
+	try{
 		return Height.GetValue ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get current height");
 	}
 }
 
 
-int BaslerWrapper::getCurrentWidth ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getCurrentWidth (){
+	if (BASLER_SAFEMODE){
 		return 672;
 	}
-	try
-	{
+	try{
 		return Width.GetValue ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get current width");
 	}
 }
 
-
-int BaslerWrapper::getCurrentOffsetX ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getCurrentOffsetX (){
+	if (BASLER_SAFEMODE){
 		return 0;
 	}
-	try
-	{
+	try{
 		return OffsetX.GetValue ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get current x offset");
 	}
 }
 
-
-int BaslerWrapper::getCurrentOffsetY ()
-{
-	if (BASLER_SAFEMODE)
-	{
+int BaslerWrapper::getCurrentOffsetY (){
+	if (BASLER_SAFEMODE){
 		return 0;
 	}
-	try
-	{
+	try{
 		return OffsetY.GetValue ();
 	}
-	catch (Pylon::GenericException&)
-	{
+	catch (Pylon::GenericException&){
 		throwNested ("Failed to get current y offset.");
 	}
 }
 
-
-void BaslerWrapper::setPixelFormat (cameraParams::PixelFormatEnums pixelFormat)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setPixelFormat (cameraParams::PixelFormatEnums pixelFormat){
+	if (!BASLER_SAFEMODE){
+		try	{
 			PixelFormat.SetValue (pixelFormat);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to set pixel format.");
 		}
 	}
 }
 
-void BaslerWrapper::setGainMode (std::string mode)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setGainMode (std::string mode){
+	if (!BASLER_SAFEMODE){
+		try	{
 			GainAuto.FromString (mode.c_str ());
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to set gain mode.");
 		}
 	}
 }
 
-void BaslerWrapper::setGain (int gainValue)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setGain (int gainValue){
+	if (!BASLER_SAFEMODE){
+		try	{
 #ifdef USB_CAMERA
 			Gain.SetValue (gainValue);
 #elif defined FIREWIRE_CAMERA
 			GainRaw.SetValue (gainValue);
 #endif
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to set gain.");
 		}
 	}
 }
 
 
-void BaslerWrapper::waitForFrameTriggerReady (unsigned int timeout)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::waitForFrameTriggerReady (unsigned int timeout){
+	if (!BASLER_SAFEMODE){
+		try{
 			WaitForFrameTriggerReady (timeout, Pylon::TimeoutHandling_ThrowException);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to wait for frame trigger to be ready.");
 		}
 	}
 }
 
-
-
-void BaslerWrapper::executeSoftwareTrigger ()
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::executeSoftwareTrigger (){
+	if (!BASLER_SAFEMODE){
+		try{
 			ExecuteSoftwareTrigger ();
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to execute software trigger.");
 		}
 	}
 }
 
-
-void BaslerWrapper::setTriggerSource (cameraParams::TriggerSourceEnums mode)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::setTriggerSource (cameraParams::TriggerSourceEnums mode){
+	if (!BASLER_SAFEMODE){
+		try{
 			TriggerSource.SetValue (mode);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to set trigger source.");
 		}
 	}
 }
 
-void BaslerWrapper::startGrabbing (unsigned int picturesToGrab, Pylon::EGrabStrategy grabStrat)
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+void BaslerWrapper::startGrabbing (unsigned int picturesToGrab, Pylon::EGrabStrategy grabStrat){
+	if (!BASLER_SAFEMODE){
+		try{
 			StartGrabbing (picturesToGrab, grabStrat, Pylon::GrabLoop_ProvidedByInstantCamera);
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to start grabbing.");
 		}
 	}
 }
 
 // returns in us
-double BaslerWrapper::getExposureMax ()
-{
-	if (!BASLER_SAFEMODE)
-	{
-		try
-		{
+double BaslerWrapper::getExposureMax (){
+	if (!BASLER_SAFEMODE){
+		try	{
 #ifdef USB_CAMERA
 			return ExposureTime.GetMax ();
 #elif defined FIREWIRE_CAMERA
 			return ExposureTimeRaw.GetMax ();
 #endif
 		}
-		catch (Pylon::GenericException&)
-		{
+		catch (Pylon::GenericException&){
 			throwNested ("Failed to get max exposure.");
 		}
 	}

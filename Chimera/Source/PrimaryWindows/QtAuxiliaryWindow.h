@@ -76,7 +76,7 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget{
 		void zeroDacs ();
 
 		void invalidateSaved (UINT id);
-
+		 
 		std::vector<parameterType> getAllParams ();
 
 		void clearVariables ();

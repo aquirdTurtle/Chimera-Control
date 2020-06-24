@@ -65,8 +65,11 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		}
 		qtLineData.clear ();
 		qtLineData.resize (newData.size ());
+		unsigned lineCount=0;
 		for (auto& line : qtLineData) {
 			line = new QtCharts::QLineSeries (view->chart ());
+			auto color = GIST_RAINBOW_RGB[(lineCount++)* GIST_RAINBOW_RGB.size()/qtLineData.size()];
+			line->setColor (QColor (color[0], color[1], color[2]));
 		}
 		for (auto traceNum : range (newData.size ())) {
 			auto* line = qtLineData[traceNum];

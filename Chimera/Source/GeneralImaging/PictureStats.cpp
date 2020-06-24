@@ -100,12 +100,10 @@ statPoint PictureStats::getMostRecentStats ( )
 
 
 std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel, 
-										   int currentRepetitionNumber, int totalRepetitionCount )
-{
+										   int currentRepetitionNumber, int totalRepetitionCount ){
 	repetitionIndicator->setText ( cstr ( "Repetition " + str ( currentRepetitionNumber ) + "/"
 												+ str ( totalRepetitionCount ) ) );
-	if ( image.size ( ) == 0 )
-	{
+	if ( image.size ( ) == 0 ){
 		// hopefully this helps with stupid imaging bug...
 		return { 0,0 };
 	}
@@ -114,21 +112,16 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 	currentStatPoint.minv = 65536;
 	currentStatPoint.maxv = 1;
 	// for all pixels... find the max and min of the picture.
-	for (auto pixel : image)
-	{
-		try
-		{
-			if ( pixel > currentStatPoint.maxv )
-			{
+	for (auto pixel : image)	{
+		try	{
+			if ( pixel > currentStatPoint.maxv ){
 				currentStatPoint.maxv = pixel;
 			}
-			if ( pixel < currentStatPoint.minv )
-			{
+			if ( pixel < currentStatPoint.minv ){
 				currentStatPoint.minv = pixel;
 			}
 		}
-		catch ( std::out_of_range& )
-		{
+		catch ( std::out_of_range& ){
 			// I haven't seen this error in a while, but it was a mystery when we did.
 			errBox ( "ERROR: caught std::out_of_range while updating picture statistics! experimentImagesInc = "
 					 + str ( imageNumber ) + ", pixelInc = " + str ( "NA" ) + ", image.size() = " + str ( image.size ( ) )
@@ -138,25 +131,21 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 	}
 	currentStatPoint.avgv = std::accumulate ( image.data.begin ( ), image.data.end ( ), 0.0 ) / image.size ( );
 
-	if ( displayDataType == RAW_COUNTS )
-	{
-		maxCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.maxv ) );
-		minCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.minv ) );
-		selCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.selv ) );
+	if ( displayDataType == RAW_COUNTS ){
+		maxCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.maxv, 1 ) );
+		minCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.minv, 1 ) );
+		selCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.selv, 1 ) );
 		avgCounts[ imageNumber ]->setText ( cstr ( currentStatPoint.avgv, 5 ) );
 		mostRecentStat = currentStatPoint;
 	}
-	else if ( displayDataType == CAMERA_PHOTONS )
-	{
+	else if ( displayDataType == CAMERA_PHOTONS ){
 		statPoint camPoint;
 		//double selPhotons, maxPhotons, minPhotons, avgPhotons;
 		//if (eEMGainMode)
-		if ( false )
-		{
+		if ( false ){
 			camPoint = (currentStatPoint - convs.EMGain200BackgroundCount ) * convs.countToCameraPhotonEM200;
 		}
-		else
-		{
+		else{
 			camPoint = ( currentStatPoint - convs.conventionalBackgroundCount ) * convs.countToCameraPhoton;
 		}
 		maxCounts[ imageNumber ]->setText ( cstr ( camPoint.maxv, 1 ) );
@@ -165,16 +154,13 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 		avgCounts[ imageNumber ]->setText ( cstr ( camPoint.avgv, 1 ) );
 		mostRecentStat = camPoint;
 	}
-	else if ( displayDataType == ATOM_PHOTONS )
-	{
+	else if ( displayDataType == ATOM_PHOTONS ){
 		statPoint atomPoint;
 		//if (eEMGainMode)
-		if ( false )
-		{
+		if ( false ){
 			atomPoint = ( currentStatPoint - convs.EMGain200BackgroundCount ) * convs.countToScatteredPhotonEM200;
 		}
-		else
-		{
+		else{
 			atomPoint = ( currentStatPoint - convs.conventionalBackgroundCount ) * convs.countToScatteredPhoton;
 		}
 		maxCounts[ imageNumber ]->setText ( cstr ( atomPoint.maxv, 1 ) );
@@ -182,7 +168,6 @@ std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber,
 		selCounts[ imageNumber ]->setText ( cstr ( atomPoint.selv, 1 ) );
 		avgCounts[ imageNumber ]->setText ( cstr ( atomPoint.avgv, 1 ) );
 		mostRecentStat = atomPoint;
-	}
-	
+	}	
 	return { currentStatPoint.minv, currentStatPoint.maxv };
 }

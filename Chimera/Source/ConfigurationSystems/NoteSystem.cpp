@@ -12,35 +12,29 @@
 void NoteSystem::rearrange(int width, int height, fontMap fonts) { } 
 
 
-void NoteSystem::handleSaveConfig(ConfigStream& saveFile)
-{
+void NoteSystem::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "CONFIGURATION_NOTES\n";
 	saveFile << getConfigurationNotes();
 	saveFile << "\nEND_CONFIGURATION_NOTES\n";
 }
 
 
-void NoteSystem::handleOpenConfig(ConfigStream& openFile)
-{
+void NoteSystem::handleOpenConfig(ConfigStream& openFile){
 	std::string notes;
 	auto pos = openFile.tellg ( );
 	std::string tempNote = openFile.getline();
-	if (tempNote != "END_CONFIGURATION_NOTES")
-	{
-		while (openFile && tempNote != "END_CONFIGURATION_NOTES")
-		{
+	if (tempNote != "END_CONFIGURATION_NOTES"){
+		while (openFile && tempNote != "END_CONFIGURATION_NOTES"){
 			notes += tempNote + "\r\n";
 			pos = openFile.tellg ( );
 			std::getline(openFile, tempNote);
 		}
-		if (notes.size() > 2)
-		{
+		if (notes.size() > 2){
 			notes = notes.substr(0, notes.size() - 2);
 		}
 		setConfigurationNotes(notes);
 	}
-	else
-	{
+	else{
 		setConfigurationNotes("");
 	}
 	// for consistency with other open functions, the end delimiter will be readbtn outside this function, so go back one 
@@ -49,8 +43,7 @@ void NoteSystem::handleOpenConfig(ConfigStream& openFile)
 }
 
 
-void NoteSystem::initialize(POINT& topLeftPos, IChimeraWindowWidget* win)
-{
+void NoteSystem::initialize(POINT& topLeftPos, IChimeraWindowWidget* win){
 	header = new QLabel ("CONFIGURATION NOTES", win);
 	header->setFixedSize (QSize (480, 25));
 	header->move (topLeftPos.x, topLeftPos.y);
@@ -61,13 +54,11 @@ void NoteSystem::initialize(POINT& topLeftPos, IChimeraWindowWidget* win)
 	topLeftPos.y += 195;
 }
 
-void NoteSystem::setConfigurationNotes(std::string notes)
-{
+void NoteSystem::setConfigurationNotes(std::string notes){
 	edit->setText (cstr(notes));
 }
 
-std::string NoteSystem::getConfigurationNotes()
-{
-	std::string text = edit->toPlainText().toStdString();
+std::string NoteSystem::getConfigurationNotes(){
+	std::string text = str(edit->toPlainText());
 	return text;
 }

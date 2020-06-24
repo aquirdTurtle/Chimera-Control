@@ -122,6 +122,7 @@ void AndorCameraSettingsControl::cameraIsOn(bool state){
 
 void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings){
 	// try to set this time.
+	inputSettings.triggerMode;
 	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
 	picSettingsObj.setUnofficialPicsPerRep ( inputSettings.picsPerRepetition );
 	///
@@ -131,7 +132,7 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings){
 	if (ind != -1) {
 		cameraModeCombo->setCurrentIndex (ind);
 	}
-	ind = triggerCombo->findData (AndorTriggerMode::toStr (inputSettings.triggerMode).c_str ());
+	ind = triggerCombo->findText (AndorTriggerMode::toStr (inputSettings.triggerMode).c_str ());
 	if (ind != -1) {
 		triggerCombo->setCurrentIndex (ind);
 	}

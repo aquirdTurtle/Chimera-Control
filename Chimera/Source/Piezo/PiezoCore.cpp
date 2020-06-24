@@ -11,30 +11,24 @@ PiezoCore::PiezoCore (piezoSetupInfo info) :
 	configDelim( info.name )
 {}
 
-void PiezoCore::programAll ( piezoChan<double> vals )
-{
+void PiezoCore::programAll ( piezoChan<double> vals ){
 	programXNow ( vals.x );
 	programYNow ( vals.y );
 	programZNow ( vals.z );
 }
 
-void PiezoCore::programVariation ( UINT variationNumber, std::vector<parameterType>& params)
-{
-	if (experimentActive)
-	{
+void PiezoCore::programVariation ( UINT variationNumber, std::vector<parameterType>& params){
+	if (experimentActive){
 		programXNow (expSettings.pztValues.x.getValue (variationNumber));
 		programYNow (expSettings.pztValues.y.getValue (variationNumber));
 		programZNow (expSettings.pztValues.z.getValue (variationNumber));
 	}
 }
 
-void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
-{
+void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	size_t totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
-	if (experimentActive)
-	{
-		try
-		{
+	if (experimentActive){
+		try{
 			expSettings.pztValues.x.assertValid (params, PIEZO_PARAMETER_SCOPE);
 			expSettings.pztValues.y.assertValid (params, PIEZO_PARAMETER_SCOPE);
 			expSettings.pztValues.z.assertValid (params, PIEZO_PARAMETER_SCOPE);
@@ -42,15 +36,13 @@ void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 			expSettings.pztValues.y.internalEvaluate (params, totalVariations);
 			expSettings.pztValues.z.internalEvaluate (params, totalVariations);
 		}
-		catch (Error&)
-		{
+		catch (Error&){
 			throwNested ("Failed to evaluate piezo expression varations!");
 		}
 	}
 }
 
-piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file )
-{
+piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file ){
 	piezoSettings tempSettings;
 	auto getlineF = ProfileSystem::getGetlineFunc (file.ver);
 	file.get ( );
@@ -62,10 +54,8 @@ piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file )
 	return tempSettings;
 }
 
-void PiezoCore::initialize ( )
-{
-	switch ( controllerType )
-	{
+void PiezoCore::initialize ( ){
+	switch ( controllerType ){
 		case PiezoType::A:
 			serFlume.open ( );
 			break;
@@ -74,10 +64,8 @@ void PiezoCore::initialize ( )
 	}
 }
 
-double PiezoCore::getCurrentXVolt ( )
-{
-	switch (controllerType)
-	{
+double PiezoCore::getCurrentXVolt ( ){
+	switch (controllerType){
 		case PiezoType::A:
 			return serFlume.getXAxisVoltage ();
 		case PiezoType::B:
@@ -85,10 +73,9 @@ double PiezoCore::getCurrentXVolt ( )
 	}
 	return 0;
 }
-double PiezoCore::getCurrentYVolt ()
-{
-	switch (controllerType)
-	{
+
+double PiezoCore::getCurrentYVolt (){
+	switch (controllerType){
 	case PiezoType::A:
 		return serFlume.getYAxisVoltage ();
 	case PiezoType::B:
@@ -97,47 +84,37 @@ double PiezoCore::getCurrentYVolt ()
 	return 0;
 }
 
-double PiezoCore::getCurrentZVolt ()
-{
-	switch (controllerType)
-	{
+double PiezoCore::getCurrentZVolt (){
+	switch (controllerType){
 		case PiezoType::A: return serFlume.getZAxisVoltage (); break;
 		case PiezoType::B: return flume.getZAxisVoltage (); break;
 	}
 	return 0;
 }
 
-void PiezoCore::programXNow ( double val )
-{
-	switch (controllerType)
-	{
+void PiezoCore::programXNow ( double val ){
+	switch (controllerType){
 		case PiezoType::A: serFlume.setXAxisVoltage (val); break;
 		case PiezoType::B: flume.setXAxisVoltage (val); break;
 	}
 } 
  
-void PiezoCore::programYNow ( double val )
-{
-	switch (controllerType)
-	{
+void PiezoCore::programYNow ( double val ){
+	switch (controllerType){
 		case PiezoType::A: serFlume.setYAxisVoltage (val); break;
 		case PiezoType::B: flume.setYAxisVoltage (val); break;
 	}
 }
 
-void PiezoCore::programZNow ( double val )
-{
-	switch (controllerType)
-	{
+void PiezoCore::programZNow ( double val ){
+	switch (controllerType){
 		case PiezoType::A: serFlume.setZAxisVoltage (val); break;
 		case PiezoType::B: flume.setZAxisVoltage (val); break;
 	}
 }
 
-std::string PiezoCore::getDeviceInfo ( )
-{
-	switch ( controllerType )
-	{
+std::string PiezoCore::getDeviceInfo ( ){
+	switch ( controllerType ){
 		case PiezoType::A:
 			return serFlume.getDeviceInfo ( );
 		case PiezoType::B:
@@ -149,18 +126,14 @@ std::string PiezoCore::getDeviceInfo ( )
 	}
 }
 
-std::string PiezoCore::getDeviceList ( )
-{
+std::string PiezoCore::getDeviceList ( ){
 	return flume.list ( );
 }
 
-void PiezoCore::logSettings (DataLogger& log)
-{
-
+void PiezoCore::logSettings (DataLogger& log){
 }
 
-void PiezoCore::loadExpSettings (ConfigStream& stream)
-{
+void PiezoCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, expSettings);
 	experimentActive = expSettings.ctrlPzt;
 }

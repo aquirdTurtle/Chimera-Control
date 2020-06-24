@@ -643,6 +643,9 @@ AndorTemperatureStatus AndorCameraCore::getTemperature ( )
 	}
 	catch ( Error& exception ){
 		// if not stable this won't get changed.
+		if (exception.whatBare () != "DRV_ACQUIRING") {
+			mostRecentTemp = stat.temperature;
+		}
 		if ( exception.whatBare ( ) == "DRV_TEMPERATURE_STABILIZED" ){
 			stat.msg = "Temperature has stabilized at " + str ( stat.temperature ) + " (C)\r\n";
 		}
@@ -663,14 +666,14 @@ AndorTemperatureStatus AndorCameraCore::getTemperature ( )
 			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
 			// completely stabilize or not.
 			stat.msg = "Camera is Acquiring data. No updates are available. \r\nMost recent temperature: "
-				+ str ( stat.temperature );
+				+ str (mostRecentTemp);
 		}
 		else if ( exception.whatBare ( ) == "SAFEMODE" ){
-			stat.msg = "Application is running in Safemode... No Real Temperature Data is available.";
+			stat.msg = "Device is running in Safemode... No Real Temperature Data is available.";
 		}
 		else{
 			stat.msg = "Unexpected Temperature Code: " + exception.whatBare ( ) + ". Temperature: "
-												   + str ( stat.temperature );
+												   + str (stat.temperature);
 		}
 	}
 	return stat;

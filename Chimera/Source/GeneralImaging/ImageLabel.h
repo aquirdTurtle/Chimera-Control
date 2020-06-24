@@ -4,7 +4,7 @@
 #include <GeneralObjects/coordinate.h>
 #include "afxwin.h"
 
-class ImageLabel : public QLabel{
+class ImageLabel : public QLabel{ 
 	Q_OBJECT
 	public:
 		ImageLabel (QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags ());

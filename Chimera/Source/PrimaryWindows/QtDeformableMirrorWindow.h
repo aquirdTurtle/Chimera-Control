@@ -15,10 +15,9 @@ namespace Ui {
     class QtDeformableMirrorWindow;
 }
 
-class QtDeformableMirrorWindow : public IChimeraWindowWidget
-{
+class QtDeformableMirrorWindow : public IChimeraWindowWidget {
     Q_OBJECT
-
+		 
     public:
         explicit QtDeformableMirrorWindow (QWidget* parent=NULL);
         ~QtDeformableMirrorWindow ();

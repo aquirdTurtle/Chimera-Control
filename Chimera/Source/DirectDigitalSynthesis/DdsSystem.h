@@ -22,6 +22,7 @@
 #include <qlabel.h>
 #include <qtablewidget.h>
 #include <qpushbutton.h>
+#include <CustomQtControls/AutoNotifyCtrls.h>
 
 class Script;
 class MainWindow;
@@ -40,9 +41,9 @@ class DdsSystem
 		void handleOpenConfig (ConfigStream& file );
 		void handleContextMenu (const QPoint& pos);
 		void initialize(POINT& pos, IChimeraWindowWidget* master, std::string title );
-		void rearrange(UINT width, UINT height, fontMap fonts);
 		void handleRampClick();
 		void deleteRampVariable();
+		void getDataFromTable ();
 		void programNow (std::vector<parameterType>& constants);
 		std::string getSystemInfo ( );
 		std::string getDelim ( );
@@ -53,6 +54,7 @@ class DdsSystem
 		QLabel* ddsHeader;
 		QTableWidget* rampListview;
 		QPushButton* programNowButton;
+		CQCheckBox* controlCheck;
 		bool controlActive = true;
 		std::vector<ddsIndvRampListInfo> currentRamps;
 		DdsCore core;

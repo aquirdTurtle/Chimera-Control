@@ -26,7 +26,10 @@
 #include "IChimeraWindowWidget.h"
 #include <bitset>
 #include "PrimaryWindows/IChimeraWindowWidget.h"
-#include <RealTimeDataAnalysis/AtomCruncherWorker.h>
+
+
+class AnalysisThreadWorker;
+class CruncherThreadWorker;
 
 namespace Ui {
     class QtAndorWindow;
@@ -76,9 +79,9 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void abortCameraRun ();
 		void handleAutoscaleSelection ();
 		void assertOff ();
+		void assertDataFileClosed ();
 		void prepareAtomCruncher (AllExperimentInput& input);
 		void preparePlotter (AllExperimentInput& input);
-		static UINT __stdcall atomCruncherProcedure (void* input);
 		void writeVolts (UINT currentVoltNumber, std::vector<float64> data);
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindowWidget* win);
 		void startAtomCruncher (AllExperimentInput& input);
@@ -168,7 +171,6 @@ class QtAndorWindow : public IChimeraWindowWidget
 
 	public Q_SLOTS:
 		void onCameraProgress (int picNum);
-		void handleNewPlotData (std::vector<std::vector<dataPoint>>, PlottingInfo);
 		LRESULT onCameraFinish (WPARAM wParam, LPARAM lParam);
 		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
 		LRESULT onCameraCalProgress (WPARAM wParam, LPARAM lParam);

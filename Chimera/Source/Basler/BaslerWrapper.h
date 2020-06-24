@@ -9,6 +9,7 @@
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
 #include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <qthread.h>
 
 // wrapper class for modifying for safemode and to standardize error handling.
 class BaslerWrapper : public cameraType
@@ -60,46 +61,4 @@ class BaslerWrapper : public cameraType
 		void setGainMode (std::string mode);
 		void setGain (int gainValue);
 		int getMinGain ();
-};
-
-
-class ImageEventHandler : public Pylon::CImageEventHandler
-{
-	public:
-		ImageEventHandler (IChimeraWindowWidget* parentHandle, BaslerGrabThreadWorker* threadWorker) : Pylon::CImageEventHandler (){
-			parent = parentHandle;
-		}
-
-		virtual void OnImageGrabbed (Pylon::CInstantCamera& camera, const Pylon::CGrabResultPtr& grabResult){
-			try	{
-				// Image grabbed successfully?
-				if (grabResult->GrabSucceeded ()){
-					const uint16_t* pImageBuffer = (uint16_t*)grabResult->GetBuffer ();
-					long width = grabResult->GetWidth ();
-					long vertBinNumber = grabResult->GetHeight ();
-					Matrix<long>* imageMatrix;
-					imageMatrix = new Matrix<long> (vertBinNumber, width,
-						std::vector<long> (pImageBuffer, pImageBuffer + width * vertBinNumber));
-					for (auto& elem : *imageMatrix)	{
-						elem *= long(256.0 / 1024.0);
-					}
-					emit worker->newBaslerImage ();
-					//emit stuff;
-					//parent->PostMessageA (CustomMessages::, grabResult->GetWidth () * grabResult->GetHeight (),
-					//	(LPARAM)imageMatrix);
-				//imageMatrix = new Matrix<long> (vertBinNumber, horBinNumber,
-				//	std::vector<long> (pImageBuffer, pImageBuffer + horBinNumber * vertBinNumber));
-				//	elem *= 256.0 / 1024.0;
-				}
-				else{
-					thrower ("" + str (grabResult->GetErrorCode ()) + " "+ std::string (grabResult->GetErrorDescription ().c_str ()));
-				}
-			}
-			catch (Pylon::RuntimeException&){
-				throwNested ("Error! Failed to handle image grabbing");
-			}
-		}
-	private:
-		IChimeraWindowWidget* parent;
-		BaslerGrabThreadWorker* worker;
 };

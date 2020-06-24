@@ -3,7 +3,6 @@
 #include "Andor/cameraPositions.h"
 #include <vector>
 #include "Control.h"
-#include <qWinWidget.h>
 #include <qlabel>
 #include <qprogressbar.h>
 #include "PrimaryWindows/IChimeraWindowWidget.h"

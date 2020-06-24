@@ -3,6 +3,7 @@
 #include "Agilent/AgilentSettings.h"
 #include <qdesktopwidget.h>
 #include "QtMainWindow.h"
+#include <ExperimentMonitoringAndStatus/ColorBox.h>
 
 QtDeformableMirrorWindow::QtDeformableMirrorWindow (QWidget* parent) : IChimeraWindowWidget (parent), dm (DM_SERIAL, DM_SAFEMODE)
 {

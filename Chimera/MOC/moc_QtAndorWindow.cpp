@@ -135,6 +135,13 @@ void QtAndorWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
                 *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< NormalImage >(); break;
             }
             break;
+        case 2:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 1:
+                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< PlottingInfo >(); break;
+            }
+            break;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);

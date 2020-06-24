@@ -11,8 +11,7 @@
 #include <boost/lexical_cast.hpp>
 #include <ExperimentThread/ExpThreadWorker.h>
 
-AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
-{
+AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode ){
 	/// set some constants...
 	// Both are 0-INDEXED. D16
 	dacTriggerLine = { 3, 15 };
@@ -55,14 +54,10 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode )
 }
 
 
-bool AoSystem::handleArrow ( CWnd* focus, bool up )
-{
-	if ( quickChange->isChecked( ) )
-	{
-		for ( auto& output : outputs )
-		{
-			if ( output.handleArrow ( focus, up ) )
-			{
+bool AoSystem::handleArrow ( CWnd* focus, bool up ){
+	if ( quickChange->isChecked( ) ){
+		for ( auto& output : outputs ){
+			if ( output.handleArrow ( focus, up ) ){
 				return true;
 			}
 		}
@@ -71,8 +66,7 @@ bool AoSystem::handleArrow ( CWnd* focus, bool up )
 }
 
 
-void AoSystem::standardNonExperiemntStartDacsSequence( )
-{
+void AoSystem::standardNonExperiemntStartDacsSequence( ){
 	updateEdits( );
 	organizeDacCommands( 0 );
 	makeFinalDataFormat( 0 );
@@ -80,8 +74,7 @@ void AoSystem::standardNonExperiemntStartDacsSequence( )
 }
 
 
-void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap )
-{
+void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap ){
 	ttls.resetTtlEvents( );
 	resetDacEvents( );
 	handleSetDacsButtonPress( ttls );
@@ -91,14 +84,12 @@ void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap )
 }
 
 
-void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap)
-{
+void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap){
 	resetDacEvents( );
 	ttls.resetTtlEvents( );
 	prepareForce( );
 	ttls.prepareForce( );
-	for ( int dacInc : range( 24 ) )
-	{
+	for ( int dacInc : range( 24 ) ){
 		prepareDacForceChange( dacInc, 0, ttls );
 	}
 	standardNonExperiemntStartDacsSequence( );
@@ -106,19 +97,16 @@ void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap)
 }
 
 
-std::array<AoInfo, 24> AoSystem::getDacInfo( )
-{
+std::array<AoInfo, 24> AoSystem::getDacInfo( ){
 	std::array<AoInfo, 24> info;
-	for ( auto dacNum : range(outputs.size()) )
-	{
+	for ( auto dacNum : range(outputs.size()) ){
 		info[ dacNum ] = outputs[ dacNum ].info;
 	}
 	return info;
 }
 
 
-void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap)
-{
+void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap){
 	ttls.resetTtlEvents( );
 	resetDacEvents( );
 	/// 
@@ -134,13 +122,10 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 }
 
 
-void AoSystem::handleOpenConfig(ConfigStream& openFile)
-{
+void AoSystem::handleOpenConfig(ConfigStream& openFile){
 	UINT dacInc = 0;
-	if ( openFile.ver < Version ( "3.7" ) )
-	{
-		for ( auto i : range ( 24 ) )
-		{
+	if ( openFile.ver < Version ( "3.7" ) ){
+		for ( auto i : range ( 24 ) ){
 			std::string trash;
 			openFile >> trash;
 		}
@@ -149,8 +134,7 @@ void AoSystem::handleOpenConfig(ConfigStream& openFile)
 
 
 void AoSystem::standardExperimentPrep ( UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
-										double currLoadSkipTime )
-{
+										double currLoadSkipTime ){
 	organizeDacCommands (variationInc);
 	setDacTriggerEvents (ttls, variationInc);
 	findLoadSkipSnapshots (currLoadSkipTime, expParams, variationInc);
@@ -158,27 +142,22 @@ void AoSystem::standardExperimentPrep ( UINT variationInc, DoCore& ttls, std::ve
 }
 
 
-void AoSystem::handleSaveConfig(ConfigStream& saveFile)
-{
+void AoSystem::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "DACS\nEND_DACS\n";
 }
 
 
-std::string AoSystem::getDacSequenceMessage( UINT variation )
-{
+std::string AoSystem::getDacSequenceMessage( UINT variation ){
 	std::string message;
-	for ( auto snap : dacSnapshots(variation) )
-	{
+	for ( auto snap : dacSnapshots(variation) ){
 		std::string time = str( snap.time, 12, true );
 		message += time + ":\r\n";
 		int dacCount = 0;
-		for ( auto val : snap.dacValues )
-		{
+		for ( auto val : snap.dacValues ){
 			std::string volt = str( val, true );
 			message += volt + ", ";
 			dacCount++;
-			if ( dacCount % 8 == 0 )
-			{
+			if ( dacCount % 8 == 0 ){
 				message += "\r\n";
 			}
 		}
@@ -191,26 +170,20 @@ std::string AoSystem::getDacSequenceMessage( UINT variation )
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AoSystem::handleEditChange ( UINT dacNumber )
-{
-	if ( dacNumber >= outputs.size ( ) )
-	{
+void AoSystem::handleEditChange ( UINT dacNumber ){
+	if ( dacNumber >= outputs.size ( ) ){
 		thrower ( "attempted to handle dac edit change, but the dac number reported doesn't exist!" );
 	}
 	outputs[ dacNumber ].handleEdit ( roundToDacPrecision );
 }
 
 
-bool AoSystem::isValidDACName(std::string name)
-{
-	for (auto dacInc : range(getNumberOfDacs()) )
-	{
-		if (name == "dac" + str(dacInc))
-		{
+bool AoSystem::isValidDACName(std::string name){
+	for (auto dacInc : range(getNumberOfDacs()) ){
+		if (name == "dac" + str(dacInc)){
 			return true;
 		}
-		else if (getDacIdentifier(name) != -1)
-		{
+		else if (getDacIdentifier(name) != -1){
 			return true;
 		}
 	}
@@ -218,19 +191,12 @@ bool AoSystem::isValidDACName(std::string name)
 }
 
 
-void AoSystem::rearrange(UINT width, UINT height, fontMap fonts)
-{
-}
-
-
-void AoSystem::setDefaultValue(UINT dacNum, double val)
-{
+void AoSystem::setDefaultValue(UINT dacNum, double val){
 	outputs[ dacNum ].info.defaultVal = val;
 }
 
 
-double AoSystem::getDefaultValue(UINT dacNum)
-{
+double AoSystem::getDefaultValue(UINT dacNum){
 	return outputs[dacNum].info.defaultVal;
 }
 

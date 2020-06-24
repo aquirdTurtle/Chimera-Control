@@ -198,7 +198,7 @@ void DoCore::standardNonExperimentStartDoSequence (DoSnapshot initSnap){
 }
 
 void DoCore::initializeDataObjects (UINT variationNum){
-	ttlCommandFormList;
+	ttlCommandFormList = std::vector<DoCommandForm>();
 	ttlCommandList.uniformSizeReset (variationNum);
 	ttlSnapshots.uniformSizeReset (variationNum);
 	loadSkipTtlSnapshots.uniformSizeReset (variationNum);

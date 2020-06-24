@@ -11,6 +11,7 @@
 #include <RealTimeDataAnalysis/AnalysisThreadWorker.h>
 #include <RealTimeDataAnalysis/AtomCruncherWorker.h>
 #include <QThread.h>
+#include <qdebug.h>
 
 QtAndorWindow::QtAndorWindow (QWidget* parent) : IChimeraWindowWidget (parent),
 andorSettingsCtrl (),
@@ -50,6 +51,13 @@ void QtAndorWindow::initializeWidgets (){
 	// end of literal initialization calls
 	pics.setSinglePicture (andorSettingsCtrl.getSettings ().andor.imageSettings);
 	andor.setSettings (andorSettingsCtrl.getSettings ().andor);
+
+	QTimer* timer = new QTimer (this);
+	connect (timer, &QTimer::timeout, [this]() {
+		auto temp = andor.getTemperature ();
+		andorSettingsCtrl.changeTemperatureDisplay (temp); 
+		});
+	timer->start (2000);
 }
 
 void QtAndorWindow::handlePrepareForAcq (void* lparam){
@@ -66,7 +74,7 @@ void QtAndorWindow::handlePlotPop (UINT id){
 
 LRESULT QtAndorWindow::onBaslerFinish (WPARAM wParam, LPARAM lParam){
 	if (!cameraIsRunning ()){
-		dataHandler.closeFile ();
+		dataHandler.normalCloseFile ();
 	}
 	return 0;
 }
@@ -146,15 +154,13 @@ void QtAndorWindow::windowSaveConfig (ConfigStream& saveFile){
 	analysisHandler.handleSaveConfig (saveFile);
 }
 
-void QtAndorWindow::windowOpenConfig (ConfigStream& configFile)
-{
+void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 	AndorRunSettings camSettings;
 	try	{
 		ProfileSystem::stdGetFromConfig (configFile, andor, camSettings);
 		andorSettingsCtrl.setRunSettings (camSettings);
 		andorSettingsCtrl.updateImageDimSettings (camSettings.imageSettings);
 		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
-
 	}
 	catch (Error& err){
 		reportErr ("Failed to get Andor Camera Run settings from file! " + err.trace ());
@@ -244,7 +250,7 @@ void QtAndorWindow::abortCameraRun ()
 		plotThreadAborting = false;
 		// camera is no longer running.
 		try	{
-			dataHandler.closeFile ();
+			dataHandler.normalCloseFile ();
 		}
 		catch (Error& err)	{
 			reportErr (err.trace ());
@@ -320,16 +326,16 @@ LRESULT QtAndorWindow::onCameraCalProgress (WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void QtAndorWindow::onCameraProgress (int picNumReported)
-{
+void QtAndorWindow::onCameraProgress (int picNumReported){
 	currentPictureNum++;
+	//qDebug () << currentPictureNum << picNumReported;
 	UINT picNum = currentPictureNum;
 	if (picNum % 2 == 1){
 		mainThreadStartTimes.push_back (std::chrono::high_resolution_clock::now ());
 	}
 	if (picNumReported == 0){
+		return;
 		// ???
-		//return NULL;
 	}
 	AndorRunSettings curSettings = andor.getAndorRunSettings ();
 	if (picNumReported == -1){
@@ -344,7 +350,6 @@ void QtAndorWindow::onCameraProgress (int picNumReported)
 	}
 	// need to call this before acquireImageData().
 	andor.updatePictureNumber (picNum);
-
 	std::vector<Matrix<long>> rawPicData;
 	try	{
 		rawPicData = andor.acquireImageData (mainWin->getComm ());
@@ -520,7 +525,7 @@ std::mutex& QtAndorWindow::getActivePlotMutexRef (){
 void QtAndorWindow::cleanUpAfterExp (){
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
-	dataHandler.closeFile ();
+	dataHandler.normalCloseFile ();
 }
 
 LRESULT QtAndorWindow::onCameraFinish (WPARAM wParam, LPARAM lParam){
@@ -631,11 +636,7 @@ void QtAndorWindow::passSetTemperaturePress (){
  */
 void QtAndorWindow::OnTimer (UINT_PTR id){
 	// temperature checking
-	if (id == 0) {
-		auto temp = andor.getTemperature ();
-		andorSettingsCtrl.changeTemperatureDisplay (temp);
-	}
-	else if (id == 1){
+	if (id == 1){
 		// auto run calibrations.
 		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ()){
 			// check that it's past 5AM, don't want to interrupt late night progress. 
@@ -658,6 +659,10 @@ void QtAndorWindow::OnTimer (UINT_PTR id){
 			}
 		}
 	}
+}
+
+void QtAndorWindow::assertDataFileClosed () {
+	dataHandler.assertClosed ();
 }
 
 void QtAndorWindow::handlePictureSettings (){
@@ -761,19 +766,7 @@ void QtAndorWindow::prepareAtomCruncher (AllExperimentInput& input){
 	else{
 		input.cruncherInput->rearrangerActive = false;
 	}
-	// locks
-	//input.cruncherInput->imageQueueLock = &imageQueueLock;
-	//input.cruncherInput->plotLock = &plotLock;
-	//input.cruncherInput->rearrangerLock = &rearrangerLock;
-	// what the thread fills.
 	input.cruncherInput->grids = analysisHandler.getGrids ();
-	// reinitialize
-	//plotterPictureQueue.clear ();
-	//plotterAtomQueue.clear ();
-	//input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
-	//input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
-	//rearrangerAtomQueue.clear ();
-	//input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
 	input.cruncherInput->thresholds = andorSettingsCtrl.getSettings ().thresholds;
 	input.cruncherInput->picsPerRep = andorSettingsCtrl.getSettings ().andor.picsPerRepetition;
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
@@ -812,15 +805,12 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input){
 	/// start the plotting thread.
 	plotThreadActive = true;
 	plotThreadAborting = false;
-	//imQueue.clear ();
-	//plotterAtomQueue.clear ();
 	input.masterInput->plotterInput = new realTimePlotterInput (analysisHandler.getPlotTime ());
 	auto& pltInput = input.masterInput->plotterInput;
 	pltInput->plotParentWindow = this;
 	pltInput->cameraSettings = andorSettingsCtrl.getSettings ();
 	pltInput->aborting = &plotThreadAborting;
 	pltInput->active = &plotThreadActive;
-	//pltInput->imQueue = &plotterPictureQueue;
 	pltInput->imageShape = andorSettingsCtrl.getSettings ().andor.imageSettings;
 	pltInput->picsPerVariation = mainWin->getRepNumber () * andorSettingsCtrl.getSettings ().andor.picsPerRepetition;
 	pltInput->variations = auxWin->getTotalVariationNumber ();
@@ -828,10 +818,8 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input){
 	pltInput->alertThreshold = alerts.getAlertThreshold ();
 	pltInput->wantAtomAlerts = alerts.wantsAtomAlerts ();
 	pltInput->comm = mainWin->getComm ();
-	//pltInput->plotLock = &plotLock;
 	pltInput->numberOfRunsToAverage = 5;
 	pltInput->plottingFrequency = analysisHandler.getPlotFreq ();
-	//pltInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput (pltInput);
 
 	// remove old plots that aren't trying to sustain.
@@ -867,17 +855,7 @@ void QtAndorWindow::preparePlotter (AllExperimentInput& input){
 		plotStyle style = plotParams.isHist ? plotStyle::HistPlot : plotStyle::ErrorPlot;
 		while (true){
 			if (mainPlotInc >= 6){
-				// put extra plots in dialogs.
-				// start a PlotDialog dialog
-				/*PlotDialog* plot = new PlotDialog (data, style, mainWin->getPlotPens (),
-					mainWin->getPlotFont (), mainWin->getPlotBrushes (),
-					analysisHandler.getPlotTime (), andorSettingsCtrl.getSettings ().thresholds[0],
-					plotIds,
-					plotParams.name);
-				//plot->Create (IDD_PLOT_DIALOG, this);
-				plot->ShowWindow (SW_SHOW);
-				activeDlgPlots.push_back (plot);*/
-				//pltInput->dataArrays.push_back (data);
+				// TODO: put extra plots in dialogs.
 				usedDlg = true;
 				break;
 			}
@@ -928,7 +906,8 @@ void QtAndorWindow::startPlotterThread (AllExperimentInput& input){
 		QThread* thread = new QThread;
 		analysisThreadWorker->moveToThread (thread);
 		connect (thread, &QThread::started, analysisThreadWorker, &AnalysisThreadWorker::init);
-		connect (thread, &QThread::finished, thread, &AnalysisThreadWorker::deleteLater);
+		connect (thread, &QThread::finished, thread, &QThread::deleteLater);
+		connect (thread, &QThread::finished, analysisThreadWorker, &AnalysisThreadWorker::deleteLater);
 		connect (analysisThreadWorker, &AnalysisThreadWorker::newPlotData, this, 
 			[this](std::vector<std::vector<dataPoint>> data, int plotNum) {mainAnalysisPlots[plotNum]->setData (data); });
 		if (atomCruncherWorker) {
@@ -1065,26 +1044,4 @@ void QtAndorWindow::readImageParameters (){
 
 void QtAndorWindow::fillExpDeviceList (DeviceList& list){
 	list.list.push_back (andor);
-}
-
-void QtAndorWindow::handleNewPlotData (std::vector<std::vector<dataPoint>> newData, PlottingInfo info) {
-	info.getTitle ();
-	mainAnalysisPlots[0]->setData (newData);
-	//void ScopeViewer::updateData (const QVector<double> & xdata, double xmin, double xmax,
-	//	const QVector<double> & ydata, double ymin, double ymax,
-	//	int traceNum) {
-	//	if (safemode) {
-	//		auto* line = data_t[traceNum];
-	//		viewPlot->chart ()->removeSeries (line);
-	//		line->clear ();
-	//		for (auto count : range (xdata.size ())) {
-	//			*line << QPointF (xdata[count], ((ydata[count] - yoffset) * ymult));
-	//		}
-	//		viewPlot->chart ()->addSeries (line);
-	//		viewPlot->chart ()->axisX ()->setMin (xmin);
-	//		viewPlot->chart ()->axisX ()->setMax (xmax);
-	//		viewPlot->chart ()->axisY ()->setMin (ymin);
-	//		viewPlot->chart ()->axisY ()->setMax (ymax);
-	//	}
-	//}
 }

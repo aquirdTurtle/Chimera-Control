@@ -4,6 +4,8 @@
 #include <qobject.h>
 #include <string>
 
+struct baslerSettings;
+
 class ExpThreadWorker : public QObject {
     Q_OBJECT
 
@@ -22,13 +24,13 @@ class ExpThreadWorker : public QObject {
         void debugInfo (QString msg);
         void repUpdate (unsigned int);
         void prepareAndor (void*);
-        void prepareBasler ();
+        void prepareBasler (baslerSettings* settings);
         void plot_Xvals_determined (std::vector<double>);
         void doAoData (const std::vector<std::vector<plotDataVec>>& doData,
                        const std::vector<std::vector<plotDataVec>>& aoData);
-        void normalExperimentFinish ();
-        void errorExperimentFinish ();
-        void mainProcessFinish ();
+        void normalExperimentFinish (QString);
+        void errorExperimentFinish (QString);
+        void mainProcessFinish (); 
     private:
         // add your variables here
         ExperimentThreadInput* inputr;

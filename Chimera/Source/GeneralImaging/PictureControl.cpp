@@ -60,11 +60,11 @@ void PictureControl::updatePlotData ( ){
 	}
 }
 
-
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindowWidget* parent){
+void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindowWidget* parent, int picScaleFactorIn){
+	picScaleFactor = picScaleFactorIn;
 	if ( width < 100 ){
 		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
 									 "controls." );
@@ -489,11 +489,12 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	painter.begin (&img);
 	drawDongles (painter, analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
 	painter.end ();	
-	if (pictureObject->width () > pictureObject->height ())	{
-		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToHeight (pictureObject->height ()));
+	
+	if (img.width () / img.height () > pictureObject->width () / pictureObject->height ())	{
+		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToWidth (pictureObject->width ()));
 	}
 	else {
-		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToWidth (pictureObject->width()));
+		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToHeight (pictureObject->height ()));
 	}
 	// update this with the new picture.
 	setHoverValue ( );

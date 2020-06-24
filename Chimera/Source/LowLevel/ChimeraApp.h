@@ -22,3 +22,10 @@ class ChimeraApp : CWinAppEx
 		HACCEL m_haccel;
 		splashDialog* splash;
 };
+/*
+Q_DECLARE_METATYPE (dataPoint)
+Q_DECLARE_METATYPE (std::vector<dataPoint>)
+Q_DECLARE_METATYPE (std::vector<std::vector<dataPoint>>)
+Q_DECLARE_METATYPE (std::vector<std::vector<plotDataVec>>)
+Q_DECLARE_METATYPE (PlottingInfo)
+*/

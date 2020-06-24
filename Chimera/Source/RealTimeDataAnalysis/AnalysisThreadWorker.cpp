@@ -79,7 +79,7 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 	for (auto gridCount : range (input->grids.size ())) {
 		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		for (auto pixelI : range (groupNum)) {
-			countData[gridCount][pixelI].clear ();
+			//countData[gridCount][pixelI].clear ();
 			atomPresentData[gridCount][pixelI].clear ();
 		}
 	}
@@ -132,7 +132,8 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 		UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (),
 			std::vector<bool> (groupNum, true));
-		DataAnalysisControl::determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
+
+		//DataAnalysisControl::determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
 		// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
 		// organization purposes.
 		if (allPlots[plotI].getPlotType () == "Pixel Count Histograms") {

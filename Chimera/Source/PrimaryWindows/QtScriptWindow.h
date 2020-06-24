@@ -5,26 +5,22 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "ExperimentThread/Communicator.h"
 #include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraWindowWidget.h"
-
+ 
 // a convenient structure for containing one object for each script. For example, the address of each script.
-template <typename type> struct scriptInfo
-{
+template <typename type> struct scriptInfo{
 	type niawg;
 	type intensityAgilent;
 	type master;
 };
 
-
 namespace Ui {
     class QtScriptWindow;
 }
 
-class QtScriptWindow : public IChimeraWindowWidget
-{
+class QtScriptWindow : public IChimeraWindowWidget{
     Q_OBJECT
 
     public:

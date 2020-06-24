@@ -688,19 +688,15 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream)
 }
 
 
-// MESSAGE MAP FUNCTION
-void QtAuxiliaryWindow::SetDacs ()
-{
+void QtAuxiliaryWindow::SetDacs (){
 	// have the dac values change
 	reportStatus ("----------------------\r\nSetting Dacs... ");
-	try
-	{
+	try{
 		mainWin->updateConfigurationSavedStatus (false);
 		aoSys.forceDacs (ttlBoard.getCore (), { 0, ttlBoard.getCurrentStatus () });
 		reportStatus ("Finished Setting Dacs.\r\n");
 	}
-	catch (Error& exception)
-	{
+	catch (Error& exception){
 		errBox (exception.trace ());
 		reportStatus (": " + exception.trace () + "\r\n");
 		reportErr (exception.trace ());
@@ -708,8 +704,7 @@ void QtAuxiliaryWindow::SetDacs ()
 }
 
 
-void QtAuxiliaryWindow::ViewOrChangeTTLNames ()
-{
+void QtAuxiliaryWindow::ViewOrChangeTTLNames (){
 	mainWin->updateConfigurationSavedStatus (false);
 	/*
 	ttlInputStruct input;
@@ -719,8 +714,7 @@ void QtAuxiliaryWindow::ViewOrChangeTTLNames ()
 }
 
 
-void QtAuxiliaryWindow::ViewOrChangeDACNames ()
-{
+void QtAuxiliaryWindow::ViewOrChangeDACNames (){
 	mainWin->updateConfigurationSavedStatus (false);
 	/*aoInputStruct input;
 	input.aoSys = &aoSys;
@@ -728,53 +722,44 @@ void QtAuxiliaryWindow::ViewOrChangeDACNames ()
 	dialog.DoModal ();*/
 }
 
-std::string QtAuxiliaryWindow::getOtherSystemStatusMsg ()
-{
+std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){
 	// controls are done. Report the initialization defaultStatus...
 	std::string msg;
 	msg += "DO System:\n";
-	if (!ttlBoard.getFtFlumeSafemode ())
-	{
+	if (!ttlBoard.getFtFlumeSafemode ()){
 		msg += "\tDO System is active!\n";
 		msg += "\t" + ttlBoard.getDoSystemInfo () + "\n";
 		//ttlBoard.ftdi_disconnect();
 		msg += "\t Bites Written \n";
 
 	}
-	else
-	{
+	else{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 
 	msg += "Analog Out System:\n";
-	if (!ANALOG_OUT_SAFEMODE)
-	{
+	if (!ANALOG_OUT_SAFEMODE){
 		msg += "\tCode System is Active!\n";
 		msg += "\t" + aoSys.getSystemInfo () + "\n";
 	}
-	else
-	{
+	else{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	msg += "Analog In System:\n";
-	if (!ANALOG_IN_SAFEMODE)
-	{
+	if (!ANALOG_IN_SAFEMODE){
 		msg += "\tCode System is Active!\n";
 		msg += "\t" + aiSys.getSystemStatus () + "\n";
 	}
-	else
-	{
+	else{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	msg += "DDS System:\n";
-	if (!DDS_SAFEMODE)
-	{
+	if (!DDS_SAFEMODE){
 		msg += "\tDDS System is Active!\n";
 		msg += "\t" + dds.getSystemInfo () + "\n";
 		msg += "\t" + dds.getSystemInfo ();
 	}
-	else
-	{
+	else{
 		msg += "\tDDS System is disabled! Enable in \"constants.h\"\n";
 	}
 	msg += "Piezo System:\n";
@@ -788,14 +773,12 @@ std::string QtAuxiliaryWindow::getOtherSystemStatusMsg ()
 }
 
 
-std::string QtAuxiliaryWindow::getVisaDeviceStatus ()
-{
+std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 	std::string msg;
 	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
 	msg += "Tektronix 1:\n\t" + topBottomTek.queryIdentity ();
 	msg += "Tektronix 2:\n\t" + eoAxialTek.queryIdentity ();
-	for (auto& agilent : agilents)
-	{
+	for (auto& agilent : agilents){
 		msg += agilent.getCore ().configDelim + ":\n\t" + agilent.getDeviceIdentity ();
 	}
 	return msg;

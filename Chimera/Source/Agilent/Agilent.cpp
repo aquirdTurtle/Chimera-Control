@@ -36,28 +36,23 @@ void Agilent::programAgilentNow (std::vector<parameterType> constants)
 }
 
 
-std::string Agilent::getDeviceIdentity ()
-{
+std::string Agilent::getDeviceIdentity (){
 	return core.getDeviceIdentity ();
 }
 
-std::string Agilent::getConfigDelim ()
-{
+std::string Agilent::getConfigDelim (){
 	return core.configDelim;
 }
 
-bool Agilent::getSavedStatus ()
-{
+bool Agilent::getSavedStatus (){
 	return agilentScript.savedStatus ();
 }
 
-void Agilent::updateSavedStatus (bool isSaved)
-{
+void Agilent::updateSavedStatus (bool isSaved){
 	agilentScript.updateSavedStatus (isSaved);
 }
 
-void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, IChimeraWindowWidget* win, UINT width )
-{
+void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, IChimeraWindowWidget* win, UINT width ){
 	LONG w = LONG( width );
 	core.initialize ();
 	auto deviceInfo = core.getDeviceInfo ();
@@ -112,8 +107,7 @@ void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, I
 			handleModeCombo ();
 			updateSettingsDisplay (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
 		}
-		catch (Error& err)
-		{
+		catch (Error& err){
 			win->reportErr ("Error while handling agilent combo change: " + err.trace ());
 		}
 	} );
@@ -139,39 +133,31 @@ void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, I
 }
 
 
-AgilentCore& Agilent::getCore ()
-{
+AgilentCore& Agilent::getCore (){
 	return core;
 }
 
 
-void Agilent::checkSave( std::string configPath, RunInfo info )
-{
-	if ( currentGuiInfo.channel[currentChannel-1].option == AgilentChannelMode::which::Script )
-	{
+void Agilent::checkSave( std::string configPath, RunInfo info ){
+	if ( currentGuiInfo.channel[currentChannel-1].option == AgilentChannelMode::which::Script ){
 		agilentScript.checkSave( configPath, info );
 	}
 }
 
 
-void Agilent::verifyScriptable ( )
-{
-	if ( currentGuiInfo.channel[ currentChannel-1 ].option != AgilentChannelMode::which::Script )
-	{
+void Agilent::verifyScriptable ( ){
+	if ( currentGuiInfo.channel[ currentChannel-1 ].option != AgilentChannelMode::which::Script ){
 		thrower ( "Agilent is not in scripting mode!" );
 	}
 }
 
-void Agilent::setDefault (UINT chan)
-{
+void Agilent::setDefault (UINT chan){
 	core.setDefault (chan);
 }
 
 
-void Agilent::readGuiSettings(int chan )
-{
-	if (chan != 1 && chan != 2)
-	{
+void Agilent::readGuiSettings(int chan ){
+	if (chan != 1 && chan != 2){
 		thrower ( "Bad argument for agilent channel in Agilent::handleInput(...)!" );
 	}
 	// convert to zero-indexed
@@ -181,8 +167,7 @@ void Agilent::readGuiSettings(int chan )
 	ConfigStream stream;
 	stream << textStr;
 	stream.seekg( 0 );
-	switch (currentGuiInfo.channel[chan].option)
-	{
+	switch (currentGuiInfo.channel[chan].option){
 		case AgilentChannelMode::which::No_Control:
 		case AgilentChannelMode::which::Output_Off:
 			break;
@@ -216,43 +201,36 @@ void Agilent::readGuiSettings(int chan )
 
 
 // overload for handling whichever channel is currently selected.
-void Agilent::readGuiSettings(  )
-{
+void Agilent::readGuiSettings(  ){
 	// true -> 0 + 1 = 1
 	// false -> 1 + 1 = 2
 	readGuiSettings( (!channel1Button->isChecked ()) + 1 );
 }
 
 
-void Agilent::updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo )
-{
+void Agilent::updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo ){
 	updateSettingsDisplay( (!channel1Button->isChecked ()) + 1, configPath, currentRunInfo );
 }
 
 
-void Agilent::updateButtonDisplay( int chan )
-{
+void Agilent::updateButtonDisplay( int chan ){
 	std::string channelText;
 	channelText = chan == 1 ? "Channel 1 - " : "Channel 2 - ";
 	channelText += AgilentChannelMode::toStr ( currentGuiInfo.channel[ chan - 1 ].option );
-	if ( chan == 1 )
-	{
+	if ( chan == 1 ){
 		channel1Button->setText ( cstr(channelText) );
 	}
-	else
-	{
+	else{
 		channel2Button->setText ( cstr( channelText ) );
 	}
 }
 
 
-void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo currentRunInfo)
-{
+void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo currentRunInfo){
 	updateButtonDisplay( chan ); 
 	// convert to zero-indexed.
 	chan -= 1;
-	switch ( currentGuiInfo.channel[chan].option )
-	{
+	switch ( currentGuiInfo.channel[chan].option ){
 		case AgilentChannelMode::which::No_Control:
 			agilentScript.reset ( );
 			agilentScript.setScriptText("");
@@ -285,25 +263,25 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 			agilentScript.setScriptText( currentGuiInfo.channel[chan].square.frequency.expressionStr + " " 
 										 + currentGuiInfo.channel[chan].square.amplitude.expressionStr + " " 
 										 + currentGuiInfo.channel[chan].square.offset.expressionStr );
-			settingCombo->setCurrentIndex ( 4 );
 			calibratedButton->setChecked( currentGuiInfo.channel[chan].square.useCal );
 			agilentScript.setEnabled ( true, false );
+			settingCombo->setCurrentIndex (4);
 			break;
 		case AgilentChannelMode::which::Preloaded:
 			agilentScript.reset ( );
 			agilentScript.setScriptText(currentGuiInfo.channel[chan].preloadedArb.address.expressionStr);
-			settingCombo->setCurrentIndex ( 5 );
 			calibratedButton->setChecked( currentGuiInfo.channel[chan].preloadedArb.useCal );
 			agilentScript.setEnabled ( true, false );
+			settingCombo->setCurrentIndex (5);
 			break;
 		case AgilentChannelMode::which::Script:
-			settingCombo->setCurrentIndex ( 6 );
 			// clear it in case the file fails to open.
 			agilentScript.setScriptText( "" );
 			agilentScript.openParentScript( currentGuiInfo.channel[chan].scriptedArb.fileAddress.expressionStr, configPath,
 											currentRunInfo );
 			calibratedButton->setChecked( currentGuiInfo.channel[chan].scriptedArb.useCal );
 			agilentScript.setEnabled ( true, false );
+			settingCombo->setCurrentIndex (6);
 			break;
 		default:
 			thrower ( "unrecognized agilent setting: " + AgilentChannelMode::toStr(currentGuiInfo.channel[chan].option));
@@ -312,8 +290,7 @@ void Agilent::updateSettingsDisplay(int chan, std::string configPath, RunInfo cu
 }
 
 
-void Agilent::handleChannelPress( int chan, std::string configPath, RunInfo currentRunInfo )
-{
+void Agilent::handleChannelPress( int chan, std::string configPath, RunInfo currentRunInfo ){
 	// convert from channel 1/2 to 0/1 to access the right array entr
 	readGuiSettings( currentChannel );
 	updateSettingsDisplay( chan, configPath, currentRunInfo );
@@ -321,8 +298,7 @@ void Agilent::handleChannelPress( int chan, std::string configPath, RunInfo curr
 }
 
 
-void Agilent::handleModeCombo()
-{
+void Agilent::handleModeCombo(){
 	if (!optionsFormat) {
 		return;
 	}
@@ -369,16 +345,14 @@ void Agilent::handleModeCombo()
 }
 
 
-deviceOutputInfo Agilent::getOutputInfo()
-{
+deviceOutputInfo Agilent::getOutputInfo(){
 	return currentGuiInfo;
 }
 
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
 */
-void Agilent::handleSavingConfig(ConfigStream& saveFile, std::string configPath, RunInfo info)
-{	
+void Agilent::handleSavingConfig(ConfigStream& saveFile, std::string configPath, RunInfo info){	
 	// make sure data is up to date.
 	readGuiSettings (currentChannel);
 	// start outputting.
@@ -407,21 +381,18 @@ void Agilent::handleSavingConfig(ConfigStream& saveFile, std::string configPath,
 	saveFile << "\nEND_" + core.configDelim + "\n";
 }
 
-void Agilent::setOutputSettings (deviceOutputInfo info)
-{
+void Agilent::setOutputSettings (deviceOutputInfo info){
 	currentGuiInfo = info;
 	updateButtonDisplay (1);
 	updateButtonDisplay (2);
 }
 
 
-void Agilent::handleOpenConfig( ConfigStream& file )
-{
+void Agilent::handleOpenConfig( ConfigStream& file ){
 	setOutputSettings (core.getSettingsFromConfig (file));
 }
 
 
-bool Agilent::scriptingModeIsSelected ()
-{
+bool Agilent::scriptingModeIsSelected (){
 	return currentGuiInfo.channel[currentChannel - 1].option == AgilentChannelMode::which::Script;
 }

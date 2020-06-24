@@ -69,7 +69,7 @@ constexpr bool MOT_SCOPE_SAFEMODE = true;
 constexpr auto MOT_SCOPE_ADDRESS = "USB0::0x0699::0x0363::C100939::0::INSTR";
 constexpr bool ANALOG_OUT_SAFEMODE = false;
 constexpr bool ANALOG_IN_SAFEMODE = false;
-constexpr auto PYTHON_HOME = L"C:\\ProgramData\\Anaconda3\\";
+constexpr auto PYTHON_HOME = L"C:\\ProgramData\\Python37\\";
 
 constexpr auto CODE_ROOT = "C:\\Users\\Regal-Lab\\Code\\Chimera-Control";
 const std::string PLOT_FILES_SAVE_LOCATION = str (CODE_ROOT) + "\\Plotting";

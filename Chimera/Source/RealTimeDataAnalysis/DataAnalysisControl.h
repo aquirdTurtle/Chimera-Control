@@ -15,7 +15,6 @@
 #include "CustomMfcControlWrappers/MyListCtrl.h"
 #include <deque>
 #include <map>
-#include"QWinWidget.h"
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qcheckbox.h>
@@ -31,8 +30,7 @@ struct cameraPositions;
 typedef std::vector<std::vector<std::vector<double>>> variationData;
 typedef std::vector<std::vector<double>> avgData;
 
-class DataAnalysisControl
-{
+class DataAnalysisControl{
 	public:
 		DataAnalysisControl( );
 		bool wantsThresholdAnalysis ( );
