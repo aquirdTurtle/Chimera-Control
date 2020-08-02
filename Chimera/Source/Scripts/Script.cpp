@@ -11,6 +11,7 @@
 #include "DigitalOutput/DoSystem.h"
 #include "GeneralObjects/RunInfo.h"
 #include <PrimaryWindows/QtMainWindow.h>
+#include <ExperimentThread/ExpThreadWorker.h>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -112,7 +113,7 @@ std::vector<parameterType> Script::getLocalParams () {
 	auto text = edit->toPlainText ();
 	std::stringstream fileTextStream = std::stringstream (str (text));
 	ScriptStream ss (fileTextStream.str ());
-	auto localVars = ExperimentThreadManager::getLocalParameters (ss);
+	auto localVars = ExpThreadWorker::getLocalParameters (ss);
 	return localVars;
 }
 //
@@ -326,29 +327,25 @@ void Script::checkSave(std::string configPath, RunInfo info){
 
 //
 void Script::renameScript(std::string configPath){
-	if (scriptName == "")
-	{
+	if (scriptName == ""){
 		// ??? don't know why I need this here.
 		return;
 	}
 	std::string newName;
-	newName = str (QInputDialog::getText (edit, "New Script Name", ("Please enter new name for the " + deviceType + " script " + scriptName + ".",
+	newName = str (QInputDialog::getText (edit, "New Script Name", ("Please enter new name for the " + deviceType
+		+ " script " + scriptName + ".",
 		scriptName).c_str ()));
-	if (newName == "")
-	{
+	if (newName == ""){
 		// canceled
 		return;
 	}
 	int result = MoveFile(cstr(configPath + scriptName + extension), cstr(configPath + newName + extension));
-
-	if (result == 0)
-	{
+	if (result == 0){
 		thrower ("Failed to rename file. (A low level bug? this shouldn't happen)");
 	}
 	scriptFullAddress = configPath + scriptName + extension;
 	scriptPath = configPath;
 }
-
 
 //
 void Script::deleteScript(std::string configPath){

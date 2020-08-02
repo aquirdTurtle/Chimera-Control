@@ -4,7 +4,7 @@
 #include "scriptedAgilentWaveform.h"
 #include "Scripts/ScriptStream.h"
 #include "ExperimentThread/ExperimentThreadManager.h"
-
+#include <ExperimentThread/ExpThreadWorker.h>
 
 ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 {
@@ -25,8 +25,7 @@ void ScriptedAgilentWaveform::resetNumberOfTriggers( )
 */
 bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script, 
 														   std::vector<parameterType>& params,
-															std::string& warnings )
-{
+															std::string& warnings ){
 	std::string scope = AGILENT_PARAMETER_SCOPE;
 	segmentInfoInput workingInput;
 	std::string word;
@@ -36,14 +35,11 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	}
 	// Grab the command type (e.g. ramp, const). Looks for newline by default.
 	script >> word;
-	try
-	{
-		if (ExperimentThreadManager::handleVariableDeclaration(word, script, params, scope, warnings))
-		{
+	try	{
+		if (ExpThreadWorker::handleVariableDeclaration(word, script, params, scope, warnings)){
 			return false;
 		}
-		else if ( word == "hold" )
-		{
+		else if ( word == "hold" ){
 			workingInput.ramp.isRamp = false;
 			workingInput.pulse.isPulse = false;
 			workingInput.mod.modulationIsOn = false;
@@ -51,8 +47,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			script >> workingInput.holdVal;
 			workingInput.holdVal.assertValid ( params, scope );
 		}
-		else if ( word == "ramp" )
-		{
+		else if ( word == "ramp" ){
 			// this segment type means ramping.
 			workingInput.ramp.isRamp = true;
 			workingInput.pulse.isPulse = false;
@@ -63,8 +58,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			script >> workingInput.ramp.end;
 			workingInput.ramp.end.assertValid ( params, scope );
 		}
-		else if ( word == "pulse" )
-		{
+		else if ( word == "pulse" ){
 			workingInput.ramp.isRamp = false;
 			workingInput.pulse.isPulse = true;
 			workingInput.mod.modulationIsOn = false;
@@ -78,8 +72,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			script >> workingInput.pulse.tOffset;
 			workingInput.pulse.tOffset.assertValid ( params, scope );
 		}
-		else if ( word == "modpulse" )
-		{
+		else if ( word == "modpulse" ){
 			workingInput.ramp.isRamp = false;
 			workingInput.pulse.isPulse = true;
 			workingInput.mod.modulationIsOn = true;
@@ -98,17 +91,14 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			script >> workingInput.mod.phase;
 			workingInput.mod.phase.assertValid ( params, scope );
 		}
-		else
-		{
-			if ( script.peek ( ) == EOF )
-			{
+		else{
+			if ( script.peek ( ) == EOF ){
 				return true;
 			}
 			thrower ( "Agilent Script command not recognized. The command was \"" + word + "\"" );
 		}
 	}
-	catch ( ChimeraError& )
-	{
+	catch ( ChimeraError& ){
 		throwNested ("Error seen while analyzing scripted agilent waveform." );
 	}
 	script >> workingInput.time;

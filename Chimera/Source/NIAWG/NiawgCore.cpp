@@ -14,6 +14,7 @@
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralObjects/Queues.h"
 #include "LowLevel/externals.h"
+#include <ExperimentThread/ExpThreadWorker.h>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <chrono>
@@ -387,9 +388,9 @@ void NiawgCore::analyzeNiawgScript( NiawgOutput& output, std::string& warnings, 
 	expNiawgStream >> command;
 	std::vector<vectorizedNiawgVals> vectorizedVals;
 	while (expNiawgStream.peek( ) != EOF ){
-		if ( ExperimentThreadManager::handleVariableDeclaration ( command, expNiawgStream, variables, "niawg", warnings ) )
+		if ( ExpThreadWorker::handleVariableDeclaration ( command, expNiawgStream, variables, "niawg", warnings ) )
 		{}
-		else if ( ExperimentThreadManager::handleVectorizedValsDeclaration( command, expNiawgStream, vectorizedVals, warnings ) )
+		else if (ExpThreadWorker::handleVectorizedValsDeclaration( command, expNiawgStream, vectorizedVals, warnings ) )
 		{}
 		else if ( isLogic( command ) ){
 			handleLogic(expNiawgStream, command, output.niawgLanguageScript );
@@ -825,7 +826,7 @@ void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType
 								  std::vector<long>& mixedWaveSizes, std::string& warnings, 
 								  rerngGuiOptions& rerngGuiForm )
 {
-	unsigned totalVaraitions = ExperimentThreadManager::determineVariationNumber (variables);
+	unsigned totalVaraitions = ExpThreadWorker::determineVariationNumber (variables);
 	rerngGuiOptionsFormToFinal( rerngGuiForm, variables, totalVaraitions);
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
@@ -3092,7 +3093,7 @@ std::vector<double> NiawgCore::makeFullRerngWave( rerngScriptInfo& rerngSettings
 
 void NiawgCore::rerngGuiOptionsFormToFinal( rerngGuiOptions& form,
 											std::vector<parameterType>& variables, unsigned variation ){
-	auto variations = ExperimentThreadManager::determineVariationNumber (variables);
+	auto variations = ExpThreadWorker::determineVariationNumber (variables);
 	if (!form.active){
 		return;
 	}
@@ -4565,7 +4566,7 @@ void NiawgCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, experimentActive, Version ("4.12"));	
 	if (experimentActive){
 		expNiawgScript = ProfileSystem::getNiawgScriptAddrFromConfig (stream);
-		ExperimentThreadManager::loadNiawgScript (expNiawgScript, expNiawgStream);
+		ExpThreadWorker::loadNiawgScript (expNiawgScript, expNiawgStream);
 		initForExperiment ();	
 	}
 	niawgMachineScript = std::vector<ViChar>();
