@@ -15,5 +15,5 @@ struct debugInfo
 	bool showTtls = false;
 	bool showDacs = false;
 	bool outputNiawgWavesToText = false;
-	ULONG sleepTime = 0;
+	unsigned long sleepTime = 0;
 };

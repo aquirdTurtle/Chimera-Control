@@ -138,15 +138,6 @@
     <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ExcessDialogs\StartDialog.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ExcessDialogs\splashDialog.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ExcessDialogs\TextPromptDialog.cpp">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
@@ -505,15 +496,6 @@
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
       <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ExcessDialogs\StartDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ExcessDialogs\splashDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ExcessDialogs\TextPromptDialog.h">
-      <Filter>Miscellaneous-Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
       <Filter>Auxiliary Window</Filter>

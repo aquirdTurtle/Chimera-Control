@@ -171,8 +171,8 @@ void PictureControl::setPictureArea( POINT loc, int width, int height ){
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
 
-	ULONG picWidth = ULONG( (sBA.right - sBA.left)*widthPicScale );
-	ULONG picHeight = (sBA.bottom - sBA.top)*heightPicScale;
+	unsigned long picWidth = unsigned long( (sBA.right - sBA.left)*widthPicScale );
+	unsigned long picHeight = (sBA.bottom - sBA.top)*heightPicScale;
 	POINT mid = { (sBA.left + sBA.right) / 2, (sBA.top + sBA.bottom) / 2 };
 	pictureArea.left = mid.x - picWidth / 2;
 	pictureArea.right = mid.x + picWidth / 2;

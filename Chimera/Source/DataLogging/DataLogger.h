@@ -61,7 +61,7 @@ class DataLogger : public IChimeraSystem {
 		// a bunch of overloaded wrapper functions for making the main "log" functions above much cleaner.
 		H5::DataSet writeDataSet (bool data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (unsigned data, std::string name, H5::Group& group);
-		H5::DataSet writeDataSet (ULONGLONG data, std::string name, H5::Group& group);
+		H5::DataSet writeDataSet (unsigned __int64 data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (int data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (double data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (std::vector<double> data, std::string name, H5::Group& group);

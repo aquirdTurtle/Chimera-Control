@@ -386,7 +386,7 @@ void BaslerCameraCore::logSettings (DataLogger& log){
 		H5::Group baslerGroup (log.file.createGroup ("/Basler"));
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
-		hsize_t setDims[] = { ULONGLONG (expRunSettings.totalPictures ()), expRunSettings.dims.width (),
+		hsize_t setDims[] = { unsigned __int64 (expRunSettings.totalPictures ()), expRunSettings.dims.width (),
 							   expRunSettings.dims.height () };
 		hsize_t picDims[] = { 1, expRunSettings.dims.width (), expRunSettings.dims.height () };
 		log.BaslerPicureSetDataSpace = H5::DataSpace (3, setDims);

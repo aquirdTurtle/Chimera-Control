@@ -10,7 +10,7 @@ VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemo
 void VisaFlume::write( std::string message )
 {
 	// not sure what this is for. Perhaps actual number of characters sent, or something like that.
-	ULONG actual;
+	unsigned long actual;
 	if (!deviceSafemode)
 	{
 		errCheck( viWrite( instrument, (unsigned char*)message.c_str(), (ViUInt32)message.size(), &actual ), message );
@@ -21,7 +21,7 @@ void VisaFlume::write( std::string message )
 char VisaFlume::readchar( )
 {
 	unsigned char msg[256];
-	ULONG numRead;
+	unsigned long numRead;
 	errCheck( viRead( instrument, msg, 1, &numRead ) );
 	return msg[0];
 }

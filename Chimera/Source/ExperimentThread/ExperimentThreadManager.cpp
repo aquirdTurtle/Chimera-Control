@@ -240,7 +240,7 @@ void ExperimentThreadManager::analyzeFunction ( std::string function, std::vecto
 	}
 	std::string word;
 	// the following are used for repeat: functionality
-	std::vector<ULONG> totalRepeatNum, currentRepeatNum;
+	std::vector<unsigned long> totalRepeatNum, currentRepeatNum;
 	std::vector<std::streamoff> repeatPos;
 	std::string scope = function;
 	/// get the function arguments.
@@ -980,9 +980,9 @@ void ExperimentThreadManager::calculateAdoVariations ( std::unique_ptr<Experimen
 			input->aoSys.checkTimingsWork (variationInc);
 		}
 		emit input->workerThread->notification (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str(),1);
-		unsigned long long totalTime = 0;
+		unsigned __int64 totalTime = 0;
 		for (auto variationNumber : range (variations))	{
-			totalTime += unsigned long long (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
+			totalTime += unsigned __int64 (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
 		}
 		emit input->workerThread->notification (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str (),1);
 		emit input->workerThread->notification (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str (),1);

@@ -122,15 +122,15 @@ std::pair<DoRows::which, unsigned> NiawgCore::getTrigLines( ){
 }
 
 // this function returns the coordinates of the maximum convolution.
-niawgPair<ULONG> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> target ){
-	Matrix<ULONG> result( atoms.getRows() - target.getRows() + 1, atoms.getCols() - target.getCols() + 1, 0);
-	niawgPair<ULONG> targetCoords;
+niawgPair<unsigned long> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> target ){
+	Matrix<unsigned long> result( atoms.getRows() - target.getRows() + 1, atoms.getCols() - target.getCols() + 1, 0);
+	niawgPair<unsigned long> targetCoords;
 	unsigned bestMatch = 0;
 	for (unsigned startRowInc =0; startRowInc < result.getRows(); startRowInc++ ){
 		for ( auto startColInc : range( result.getCols() ) ){
 			// calcualte product
 			Matrix<bool> subAtoms = atoms.submatrix(startRowInc, target.getRows(), startColInc, target.getCols());
-			std::vector<ULONG> tmp( target.getCols( ) );
+			std::vector<unsigned long> tmp( target.getCols( ) );
 			std::transform( target.begin(), target.end(), subAtoms.begin(), tmp.begin(), 
 							[]( auto& i, auto& j ) {return long( i*j ); } );
 			unsigned rating = std::accumulate( tmp.begin( ), tmp.end( ), 0 );
@@ -756,7 +756,7 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, Scr
 			}
 		}
 		rearrangeWave.rearrange.target = targetTemp;
-		ULONG finLocRow, finLocCol;
+		unsigned long finLocRow, finLocCol;
 		std::string tempStrRow, tempStrCol;
 		script >> tempStrRow;
 		script >> tempStrCol;
@@ -2031,7 +2031,7 @@ void NiawgCore::handleStandardWaveform( NiawgOutput& output, std::string cmd, Sc
 }
 
 
-void NiawgCore::finalizeScript( ULONGLONG repetitions, std::string name, std::string workingUserScripts,
+void NiawgCore::finalizeScript( unsigned __int64 repetitions, std::string name, std::string workingUserScripts,
 							    std::vector<ViChar>& userScriptSubmit, bool repeatForever )
 {
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
@@ -2243,8 +2243,8 @@ void NiawgCore::mixFlashingWaves( waveInfo& wave, double deadTime, double static
 				 " This is not allowed currently." );
 	}
 	long cycles = long( std::floor( wave.core.time / period ) );
-	std::vector<ULONG> sampleNum( wave.flash.flashNumber, 0 );
-	ULONG mixedSample( 0 );
+	std::vector<unsigned long> sampleNum( wave.flash.flashNumber, 0 );
+	unsigned long mixedSample( 0 );
 	/// mix the waves together
 	wave.core.waveVals.resize ( 2 * wave.core.sampleNum ( ) ); //waveformSizeCalc( wave.core.time ) );
 	for ( auto cycleInc : range( cycles ) )
@@ -3149,7 +3149,7 @@ bool NiawgCore::rerngThreadIsActive( ){
 
 
 // calculate (and return) the wave that will take the atoms from the target position to the final position.
-std::vector<double> NiawgCore::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, 
+std::vector<double> NiawgCore::calcFinalPositionMove( niawgPair<unsigned long> targetPos, niawgPair<unsigned long> finalPos, 
 														    double freqSpacing, Matrix<bool> target, 
 														    niawgPair<double> cornerFreqs, double moveTime ){
 	if ( target.getRows() == 0 || target.getCols() == 0 ){
@@ -3370,7 +3370,7 @@ unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
 			}
 			std::vector<simpleMove> simpleMoveSequence;
 			std::vector<complexMove> complexMoveSequence;
-			niawgPair<ULONG> finPos;
+			niawgPair<unsigned long> finPos;
 			niawgPair<std::vector<unsigned>> lazyPositions;
 			try	{
 				if ( input->guiOptions.rMode == rerngMode::mode::Lazy )	{
@@ -3688,7 +3688,7 @@ unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
 	return 0;
 }
 
-Matrix<bool> NiawgCore::calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, unsigned rows, unsigned cols ){
+Matrix<bool> NiawgCore::calculateFinalTarget ( Matrix<bool> target, niawgPair<unsigned long> finalPos, unsigned rows, unsigned cols ){
 	// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
 	Matrix<bool> finTarget ( rows, cols, 0 );
 	for ( auto rowInc : range ( target.getRows ( ) ) ){
@@ -3700,8 +3700,8 @@ Matrix<bool> NiawgCore::calculateFinalTarget ( Matrix<bool> target, niawgPair<UL
 	return finTarget;
 }
 
-void NiawgCore::smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
-											  niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveSequence, 
+void NiawgCore::smartTargettingRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<unsigned long>& finTargetPos, 
+											  niawgPair<unsigned long> finalPos, std::vector<simpleMove> &moveSequence, 
 											  rerngGuiOptions options, bool randomize, 
 											  bool orderMovesByProximityToTarget ){
 	std::vector<simpleMove> moveList;
@@ -3804,7 +3804,7 @@ void NiawgCore::sortByDistanceToTarget ( std::vector<simpleMove> &moveList ){
 				[] ( simpleMove const& a, simpleMove const& b ) { return a.distanceToTarget < b.distanceToTarget; } );
 }
 
-niawgPair<double> NiawgCore::calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos ){
+niawgPair<double> NiawgCore::calculateTargetCOM ( Matrix<bool> target, niawgPair<unsigned long> finalPos ){
 	niawgPair<double> avg = { 0,0 };
 	unsigned totalAtoms = 0;
 	for ( auto p : target )

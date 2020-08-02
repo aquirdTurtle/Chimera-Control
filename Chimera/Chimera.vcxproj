@@ -553,7 +553,6 @@
     <ClInclude Include="Source\Agilent\SegmentEnd.h" />
     <ClInclude Include="Source\Piezo\SerialPiezoFlume.h" />
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
-    <ClInclude Include="Source\ExcessDialogs\StartDialog.h" />
     <ClInclude Include="Source\Andor\CameraCalibration.h" />
     <ClInclude Include="Source\Andor\CameraImageDimensions.h" />
     <ClInclude Include="Source\Andor\cameraPositions.h" />
@@ -622,7 +621,6 @@
     <ClInclude Include="Source\AnalogInput\servoInfo.h" />
     <ClInclude Include="Source\AnalogInput\ServoManager.h" />
     <ClInclude Include="Source\Python\SmsTextingControl.h" />
-    <ClInclude Include="Source\ExcessDialogs\splashDialog.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusControl.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h" />
     <QtMoc Include="Source\Scripts\SyntaxHighlighter.h">
@@ -637,7 +635,6 @@
     </QtMoc>
     <ClInclude Include="Source\Tektronix\TekCore.h" />
     <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
-    <ClInclude Include="Source\ExcessDialogs\TextPromptDialog.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\commonFunctions.h" />
     <ClInclude Include="Source\NIAWG\NiawgCore.h" />
     <ClInclude Include="Source\NIAWG\NiawgWaiter.h" />
@@ -724,7 +721,6 @@
     <ClCompile Include="Source\Microwave\RsgFlume.cpp" />
     <ClCompile Include="Source\Agilent\SegmentEnd.cpp" />
     <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp" />
-    <ClCompile Include="Source\ExcessDialogs\StartDialog.cpp" />
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp" />
     <ClCompile Include="Source\Andor\CameraSettingsControl.cpp" />
@@ -771,13 +767,11 @@
     <ClCompile Include="Source\Agilent\Segment.cpp" />
     <ClCompile Include="Source\AnalogInput\ServoManager.cpp" />
     <ClCompile Include="Source\Python\SmsTextingControl.cpp" />
-    <ClCompile Include="Source\ExcessDialogs\splashDialog.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp" />
     <ClCompile Include="Source\Scripts\SyntaxHighlighter.cpp" />
     <ClCompile Include="Source\Tektronix\TekCore.cpp" />
     <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
-    <ClCompile Include="Source\ExcessDialogs\TextPromptDialog.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgCore.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgWaiter.cpp" />

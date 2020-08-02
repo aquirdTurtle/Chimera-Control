@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "AndorRunSettings.h"
 
-ULONGLONG AndorRunSettings::totalPicsInVariation ( )
+unsigned __int64 AndorRunSettings::totalPicsInVariation ( )
 {
 	return repetitionsPerVariation * picsPerRepetition;
 }

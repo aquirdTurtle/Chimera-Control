@@ -90,7 +90,7 @@ class AoSystem : public IChimeraSystem {
 		unsigned int getNumberSnapshots( unsigned variation );
 		std::string getName( int dacNumber );
 		std::string getNote ( int dacNumber );
-		ULONG getNumberEvents( unsigned variation );
+		unsigned long getNumberEvents( unsigned variation );
 		int getDacIdentifier( std::string name );
 		static int getBasicDacIdentifier (std::string name);
 		double getDacValue( int dacNumber );

@@ -33,7 +33,7 @@ class AnalysisThreadWorker : public QObject {
         std::vector<std::vector<std::vector<long>>> countData;
         std::vector<std::vector<std::vector<int>>> atomPresentData;
         std::vector<std::vector<std::vector<std::vector<long> > > > finalCountData;
-        std::vector<std::vector<std::vector<std::pair<double, ULONG> > > > finalDataNew;
+        std::vector<std::vector<std::vector<std::pair<double, unsigned long> > > > finalDataNew;
         std::vector<std::vector<std::vector<std::vector<double>>>> finalAvgs;
         // Averaged over all pixels (avgAvg is the average of averages over repetitions)
         std::vector<std::vector<std::vector<double>>> avgAvg;
@@ -41,7 +41,7 @@ class AnalysisThreadWorker : public QObject {
         std::vector<std::vector<std::vector<bool> > > newData;
         std::vector<std::vector<std::vector<std::deque<double>>>> finalHistData, finalErrorBars, finalXVals;
         //vector<vector<vector<std::deque<double>>>> finalHistData (allPlots.size ());
-        std::vector<std::vector<std::vector<std::map<int, std::pair<int, ULONG>>>>> histogramData;
+        std::vector<std::vector<std::vector<std::map<int, std::pair<int, unsigned long>>>>> histogramData;
         unsigned noAtomsCounter = 0, atomCounterTotal = 0, plotNumberCount = 0;
         std::vector<PlottingInfo> allPlots;
 };

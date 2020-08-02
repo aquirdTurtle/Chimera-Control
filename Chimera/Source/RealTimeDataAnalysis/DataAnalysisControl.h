@@ -70,7 +70,7 @@ class DataAnalysisControl : public IChimeraSystem {
 		template<class T> using vector = std::vector<T>;
 		// subroutine for handling atom & count plots
 		static std::vector<std::vector<dataPoint>> handlePlotAtoms(
-			PlottingInfo plotInfo, unsigned repNum, vector<vector<std::pair<double, ULONG>> >& finData, 
+			PlottingInfo plotInfo, unsigned repNum, vector<vector<std::pair<double, unsigned long>> >& finData, 
 			std::vector<std::vector<dataPoint>>& dataContainers, 
 			unsigned variationNumber, vector<vector<bool>>& pscSatisfied, 
 			int plotNumberCount, vector<vector<int> > atomPresent, unsigned plottingFrequency, unsigned groupNum, 
@@ -78,7 +78,7 @@ class DataAnalysisControl : public IChimeraSystem {
 		static std::vector<std::vector<dataPoint>> handlePlotHist(
 			PlottingInfo plotInfo, vector<vector<long>> countData,  
 			vector<vector<std::deque<double>>>& finData, vector<vector<bool>>pscSatisfied, 
-			vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
+			vector<vector<std::map<int, std::pair<int, unsigned long>>>>& histData,
 			std::vector<std::vector<dataPoint>>& dataContainers, unsigned groupNum );
 		static void determineWhichPscsSatisfied(
 			PlottingInfo& info, unsigned groupSize, vector<vector<int>> atomPresentData, vector<vector<bool>>& pscSatisfied );

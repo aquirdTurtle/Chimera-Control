@@ -16,7 +16,7 @@ class ScriptedAgilentWaveform
 		ScriptedAgilentWaveform();
 		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script, std::vector<parameterType>& params,
 			std::string& warnings);
-		void writeData( int SegNum, ULONG sampleRate );
+		void writeData( int SegNum, unsigned long sampleRate );
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, unsigned chan );
 		void compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel );
 		std::string returnSequenceString();
@@ -28,9 +28,9 @@ class ScriptedAgilentWaveform
 		void calcMinMax();
 		double getMaxVolt();
 		double getMinVolt();
-		ULONG getSegmentNumber();
+		unsigned long getSegmentNumber();
 		std::vector<std::pair<double, double>> minsAndMaxes;
-		ULONG getNumTrigs( );
+		unsigned long getNumTrigs( );
 		void resetNumberOfTriggers( );
 	private:
 		unsigned numberOfTriggers;

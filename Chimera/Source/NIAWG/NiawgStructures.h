@@ -202,7 +202,7 @@ struct rerngScriptInfoForm
 	// the maixmum number of moves the rearrangement should take.
 	unsigned moveLimit = 0;
 	// the location that the array will be moved to at the end.
-	niawgPair<ULONG> finalPosition = { 0,0 };
+	niawgPair<unsigned long> finalPosition = { 0,0 };
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
 	niawgPair<double> lowestFreqs = { 0,0 };
@@ -218,7 +218,7 @@ struct rerngScriptInfo
 	bool isRearrangement = false;
 	// the target picture
 	Matrix<bool> target = Matrix<bool>( 0, 0 );
-	niawgPair<ULONG> finalPosition = { 0,0 };
+	niawgPair<unsigned long> finalPosition = { 0,0 };
 	// hard-coded currently. Should probably add some control for this.
 	double timePerMove = 60e-6;
 	double flashingFreq = 1e6;

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include <qapplication.h>
-#include <ExcessDialogs/splashDialog.h>
 #include <PrimaryWindows/QtMainWindow.h>
 #include <qsplashscreen.h>
 #include <qscreen.h>

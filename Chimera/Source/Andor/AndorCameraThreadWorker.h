@@ -15,7 +15,9 @@ class AndorCameraThreadWorker : public QObject {
 
     public Q_SLOTS:
         void process ();
-    Q_SIGNALS:
+		
+	Q_SIGNALS:
+		void error (QString, unsigned);
         void notify (QString, unsigned);
         void pictureTaken (int);
         void acquisitionFinished ();
