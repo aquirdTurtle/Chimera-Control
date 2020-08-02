@@ -2,8 +2,8 @@
 #include "stdafx.h"
 #include "WinSerialFlume.h"
 
-WinSerialFlume::WinSerialFlume( bool safemode_option, std::string portAddr ) : safemode(safemode_option ), portAddress(portAddr)
-{
+WinSerialFlume::WinSerialFlume( bool safemode_option, std::string portAddr ) : safemode(safemode_option ), 
+portAddress(portAddr) {
 	open ( portAddress );
 }
 
@@ -13,11 +13,12 @@ void WinSerialFlume::resetConnection (){
 }
 
 void WinSerialFlume::open ( std::string fileAddr ){
-	if ( !safemode )	{
-		serialPortHandle = CreateFile ( fileAddr.c_str ( ), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 
-										NULL );
+	if ( !safemode ) {
+		//serialPortHandle = CreateFile ( fileAddr.c_str ( ), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 
+		//								NULL );
+		serialPortHandle = CreateFile (("\\\\.\\" + fileAddr).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if ( serialPortHandle == INVALID_HANDLE_VALUE ) {
-			thrower ( "Failed to initialize open serial port " + portAddress + "!" );
+			thrower ( "WinSerialFlume Failed to initialize serial port \"" + portAddress + "\"!" );
 		}
 		DCB dcbSettings = { 0 };
 		dcbSettings.DCBlength = sizeof ( dcbSettings );
@@ -28,8 +29,7 @@ void WinSerialFlume::open ( std::string fileAddr ){
 		dcbSettings.StopBits = ONESTOPBIT;
 		dcbSettings.Parity = NOPARITY;
 		auto res = SetCommState ( serialPortHandle, &dcbSettings );
-		if ( res == 0 )
-		{
+		if ( res == 0 )	{
 			thrower ( "Failed to initialize port: Failed to set comm state!" );
 		}
 		COMMTIMEOUTS timeouts = { 0 };
@@ -40,8 +40,7 @@ void WinSerialFlume::open ( std::string fileAddr ){
 		timeouts.WriteTotalTimeoutConstant = 50; 
 		timeouts.WriteTotalTimeoutMultiplier = 10; 
 		res = SetCommTimeouts ( serialPortHandle, &timeouts );
-		if ( res == 0 )
-		{
+		if ( res == 0 )	{
 			thrower ( "Failed to initialize port: Failed to set comm timeouts!" );
 		}
 	}

@@ -7,7 +7,7 @@
 #include <qprogressbar.h>
 
 
-void ExperimentTimer::initialize( POINT& pos, IChimeraWindowWidget* parent )
+void ExperimentTimer::initialize( POINT& pos, IChimeraQtWindow* parent )
 {
 	timeDisplay = new QLabel ("", parent);
 	timeDisplay->setGeometry (pos.x, pos.y, 168, 40);
@@ -23,7 +23,7 @@ void ExperimentTimer::initialize( POINT& pos, IChimeraWindowWidget* parent )
 	overallProgress->setRange (0, 10000);
 }
 
-void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, UINT picsPerRep)
+void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, unsigned picsPerRep)
 {
 	int totalRepetitions = repsPerVariation * numberOfVariations;
 	int minAverageNumber = 10;
@@ -84,10 +84,6 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 		timeDisplay->setText( "FIN!" );
 	}
 }
-
-
-void ExperimentTimer::rearrange( int width, int height, fontMap fonts )
-{}
 
 
 void ExperimentTimer::setTimerDisplay(std::string newText)

@@ -11,20 +11,20 @@
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
 
-void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
+void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent )
 {
 	// introducing things row by row
 	/// Set Picture Options
-	UINT count = 0;
+	unsigned count = 0;
 	auto handleChange = [this, parent]() {
 		try {
 			if (parent->andorWin) {
 				parent->andorWin->handlePictureSettings ();
 			}
 		}
-		catch (Error& err)
+		catch (ChimeraError& err)
 		{
-			parent->reportErr (err.trace());
+			parent->reportErr (err.qtrace());
 		}
 	};
 	/// Picture Numbers
@@ -109,7 +109,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraWindowWidget* paren
 
 std::array<displayTypeOption, 4> PictureSettingsControl::getDisplayTypeOptions( ){
 	std::array<displayTypeOption, 4> options;
-	UINT counter = 0;
+	unsigned counter = 0;
 	for ( auto& combo : displayTypeCombos ){
 		auto sel = combo->currentIndex( );
 		if ( sel < 0 || sel > 4 ){
@@ -196,7 +196,7 @@ std::array<softwareAccumulationOption, 4> PictureSettingsControl::getSoftwareAcc
 		opts[ picInc ].accumAll = softwareAccumulateAll[ picInc ]->isChecked ( );
 		CString numTxt;
 		try{
-			opts[ picInc ].accumNum  = boost::lexical_cast<UINT>( str(softwareAccumulateNum[picInc]->text ()) );
+			opts[ picInc ].accumNum  = boost::lexical_cast<unsigned>( str(softwareAccumulateNum[picInc]->text ()) );
 		}
 		catch ( boost::bad_lexical_cast& ){
 			thrower ( "Failed to convert software accumulation number to an unsigned integer!" );
@@ -222,8 +222,8 @@ void PictureSettingsControl::setPictureControlEnabled (int pic, bool enabled){
 }
 
 
-UINT PictureSettingsControl::getPicsPerRepetition(){
-	UINT which = 0, count=0;
+unsigned PictureSettingsControl::getPicsPerRepetition(){
+	unsigned which = 0, count=0;
 	for ( auto& ctrl : totalNumberChoice ){
 		count++;		
 		which = ctrl->isChecked ( ) ? count : which;
@@ -235,11 +235,11 @@ UINT PictureSettingsControl::getPicsPerRepetition(){
 }
 
 
-void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum ){
+void PictureSettingsControl::setUnofficialPicsPerRep( unsigned picNum ){
 	if ( picNum < 1 || picNum > 4 ){
 		thrower ( "Tried to set bad number of pics per rep: " + str ( picNum ) );
 	}
-	UINT count = 0;
+	unsigned count = 0;
 	for (auto& totalNumRadio : totalNumberChoice){
 		count++;
 		totalNumRadio->setChecked (count == picNum);
@@ -284,17 +284,15 @@ std::vector<float> PictureSettingsControl::getUsedExposureTimes() {
 }
 
 void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresholds){
-	for (UINT thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++){
+	for (unsigned thresholdInc = 0; thresholdInc < newThresholds.size(); thresholdInc++){
 		thresholdEdits[thresholdInc]->setText(newThresholds[thresholdInc].c_str());
 	}
 }
-
 
 std::array<int, 4> PictureSettingsControl::getPictureColors(){
 	updateSettings ( );
 	return settings.colors;
 }
-
 
 void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes ){
 	settings.colors = colorIndexes;
@@ -303,9 +301,8 @@ void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes )
 	}
 }
 
-
 void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times ){
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto ti : times ){
 		exposureEdits[ count++ ]->setText ( cstr ( ti*1e3,5) );
 	}

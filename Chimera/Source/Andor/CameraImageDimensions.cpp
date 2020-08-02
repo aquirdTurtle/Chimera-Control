@@ -12,7 +12,7 @@ ImageDimsControl::ImageDimsControl (std::string whichCam) : camType (whichCam) {
 }
 
 
-void ImageDimsControl::initialize( POINT& pos, IChimeraWindowWidget* parent, int numRows, int width ) {
+void ImageDimsControl::initialize( POINT& pos, IChimeraQtWindow* parent, int numRows, int width ) {
 	auto wi = width * numRows / 6;
 	leftText = new QLabel ("Left", parent);
 	leftText->setGeometry (pos.x, pos.y, wi, 25);
@@ -106,8 +106,7 @@ void ImageDimsControl::handleOpen(ConfigStream& openFile)
 }
 
 
-imageParameters ImageDimsControl::readImageParameters()
-{
+imageParameters ImageDimsControl::readImageParameters(){
 	// in case called before initialized
 	if (!leftEdit)	{
 		return currentImageParameters;
@@ -161,7 +160,7 @@ imageParameters ImageDimsControl::readImageParameters()
 	try	{
 		currentImageParameters.checkConsistency ( camType );
 	}
-	catch ( Error& )
+	catch ( ChimeraError& )
 	{
 		isReady = false;
 		throw;
@@ -176,8 +175,7 @@ imageParameters ImageDimsControl::readImageParameters()
 /*
  * I forget why I needed a second function for this.
  */
-void ImageDimsControl::setImageParametersFromInput( imageParameters param )
-{
+void ImageDimsControl::setImageParametersFromInput( imageParameters param ){
 	// set all of the image parameters
 	currentImageParameters.left = param.left;
 	leftEdit->setText( cstr( currentImageParameters.left ) );
@@ -192,12 +190,10 @@ void ImageDimsControl::setImageParametersFromInput( imageParameters param )
 	currentImageParameters.verticalBinning = param.verticalBinning;
 	vertBinningEdit->setText ( cstr( currentImageParameters.verticalBinning ) );
 	// Check Image parameters
-	try
-	{
+	try{
 		currentImageParameters.checkConsistency(camType);
 	}
-	catch ( Error )
-	{
+	catch ( ChimeraError ){
 		isReady = false;
 		throw;
 	}
@@ -206,256 +202,16 @@ void ImageDimsControl::setImageParametersFromInput( imageParameters param )
 }
 
 
-bool ImageDimsControl::checkReady()
-{
-	if (isReady)
-	{
+bool ImageDimsControl::checkReady(){
+	if (isReady){
 		return true;
 	}
-	else
-	{
+	else{
 		return false;
 	}
 }
-
 
 imageParameters ImageDimsControl::getImageParameters()
 {
 	return currentImageParameters;
 }
-
-
-HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
-{
-	DWORD controlID = GetDlgCtrlID( (HWND)lParam );
-	HDC hdcStatic = (HDC)wParam;
-	imageParameters currentImageParameters = { 0,0,0,0,0,0 };
-	/*
-	if (controlID == topEdit.GetDlgCtrlID())
-	{
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		topEdit.GetWindowTextA( textEdit );
-		int bottom;
-		try
-		{
-			bottom = boost::lexical_cast<int>( str( textEdit ) );
-			if (bottom == currentImageParameters.top)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (topEdit.colorState != 0)
-				{
-					topEdit.colorState = 0;
-					topEdit.RedrawWindow();
-				}
-				return *_myBrushes["Grey Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (topEdit.colorState != 1)
-		{
-			topEdit.colorState = 1;
-			topEdit.RedrawWindow();
-		}
-		return *_myBrushes["Grey Red"];
-	}
-	else if (controlID == bottomEdit.GetDlgCtrlID())
-	{
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		bottomEdit.GetWindowTextA( textEdit );
-		int top;
-		try
-		{
-			top = boost::lexical_cast<int>( str( textEdit ) );
-			if (top == currentImageParameters.bottom)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (bottomEdit.colorState != 0)
-				{
-					bottomEdit.colorState = 0;
-					bottomEdit.RedrawWindow();
-				}
-				return *_myBrushes["Grey Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (bottomEdit.colorState != 1)
-		{
-			bottomEdit.colorState = 1;
-			bottomEdit.RedrawWindow();
-		}
-		return *_myBrushes["Grey Red"];
-	}
-	else if (controlID == vertBinningEdit.GetDlgCtrlID())
-	{
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		vertBinningEdit.GetWindowTextA( textEdit );
-		int verticalBin;
-		try
-		{
-			verticalBin = boost::lexical_cast<int>( str( textEdit ) );
-			if (verticalBin == currentImageParameters.verticalBinning)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (vertBinningEdit.colorState != 0)
-				{
-					vertBinningEdit.colorState = 0;
-					vertBinningEdit.RedrawWindow();
-				}
-				return *_myBrushes["Grey Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (vertBinningEdit.colorState != 1)
-		{
-			vertBinningEdit.colorState = 1;
-			vertBinningEdit.RedrawWindow();
-		}
-		return *_myBrushes["Grey Red"];
-	}
-	else if (controlID == leftEdit.GetDlgCtrlID())
-	{
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		leftEdit.GetWindowTextA( textEdit );
-		int leftSide;
-		try
-		{
-			leftSide = boost::lexical_cast<int>( str( textEdit ) );
-			if (leftSide == currentImageParameters.left)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (leftEdit.colorState != 0)
-				{
-					leftEdit.colorState = 0;
-					leftEdit.RedrawWindow();
-				}
-				return *_myBrushes["Grey Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (leftEdit.colorState != 1)
-		{
-			leftEdit.colorState = 1;
-			leftEdit.RedrawWindow();
-		}
-		return *_myBrushes["Grey Red"];
-	}
-	else if (controlID == rightEdit.GetDlgCtrlID())
-	{
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		rightEdit.GetWindowTextA( textEdit );
-		int rightSide;
-		try
-		{
-			rightSide = boost::lexical_cast<int>( str( textEdit ) );
-			if (rightSide == currentImageParameters.right)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (rightEdit.colorState != 0)
-				{
-					rightEdit.colorState = 0;
-					rightEdit.RedrawWindow();
-				}
-				return *_myBrushes["Grey Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (rightEdit.colorState != 1)
-		{
-			rightEdit.colorState = 1;
-			rightEdit.RedrawWindow();
-		}
-		return *_myBrushes["Grey Red"];
-	}
-	else if (controlID == horBinningEdit.GetDlgCtrlID())
-	{
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		horBinningEdit.GetWindowTextA( textEdit );
-		int horizontalBin;
-		try
-		{
-			horizontalBin = boost::lexical_cast<int>( str( textEdit ) );
-			if (horizontalBin == currentImageParameters.horizontalBinning)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (horBinningEdit.colorState != 0)
-				{
-					horBinningEdit.colorState = 0;
-					horBinningEdit.RedrawWindow();
-				}
-				return *_myBrushes["Grey Green"];
-			}
-		}
-		catch ( boost::bad_lexical_cast&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (horBinningEdit.colorState != 1)
-		{
-			horBinningEdit.colorState = 1;
-			horBinningEdit.RedrawWindow();
-		}
-		return *_myBrushes["Grey Red"];
-	}*/
-	return FALSE;
-}
-
-
-void ImageDimsControl::rearrange( int width, int height, fontMap fonts ) {}
-

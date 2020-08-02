@@ -11,7 +11,7 @@
 #include "Scripts/ScriptStream.h"
 #include "AnalogOutput/DaqMxFlume.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QLabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 #include "afxwin.h"
@@ -23,8 +23,7 @@
  * This is a interface for taking analog input data through an NI card that uses DAQmx. These cards are generally 
  * somewhat flexible, but right now I only use it to readbtn and record voltage values from Analog inputs.
  */
-class AiSystem : public IDeviceCore
-{
+class AiSystem : public IDeviceCore{
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AiSystem& operator=(const AiSystem&) = delete;
@@ -32,15 +31,15 @@ class AiSystem : public IDeviceCore
 
 		AiSystem( );
 		AiSettings getAiSettings ();
+		void handleTimer ();
 		void initDaqmx( );
-		void initialize( POINT& loc, IChimeraWindowWidget* parent );
+		void initialize( POINT& loc, IChimeraQtWindow* parent );
 		void refreshDisplays( );
-		void rearrange( int width, int height, fontMap fonts );
 		void refreshCurrentValues( );
-		std::array<float64, NUMBER_AI_CHANNELS> getSingleSnapArray( UINT n_to_avg );
-		std::vector<float64> getSingleSnap( UINT n_to_avg );
-		double getSingleChannelValue( UINT chan, UINT n_to_avg );
-		void armAquisition( UINT numSnapshots );
+		std::array<float64, NUMBER_AI_CHANNELS> getSingleSnapArray( unsigned n_to_avg );
+		std::vector<float64> getSingleSnap( unsigned n_to_avg );
+		double getSingleChannelValue( unsigned chan, unsigned n_to_avg );
+		void armAquisition( unsigned numSnapshots );
 		void getAquisitionData( );
 		std::vector<float64> getCurrentValues( );
 		bool wantsQueryBetweenVariations( );
@@ -51,7 +50,7 @@ class AiSystem : public IDeviceCore
 		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
 		std::string getDelim () { return configDelim; }
-		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void programVariation (unsigned variation, std::vector<parameterType>& params) {};
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void loadExpSettings (ConfigStream& stream) {};
 

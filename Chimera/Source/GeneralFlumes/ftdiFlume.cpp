@@ -6,7 +6,7 @@
 ftdiFlume::ftdiFlume( bool safemode_option ) : safemode(safemode_option )
 {}
 
-UINT ftdiFlume::getNumDevices( )
+unsigned ftdiFlume::getNumDevices( )
 {
 
 	DWORD numDevs=1;

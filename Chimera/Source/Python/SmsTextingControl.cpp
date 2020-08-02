@@ -8,9 +8,7 @@
 #include <QMenu>
 #include "PrimaryWindows/QtMainWindow.h"
 
-
-void SmsTextingControl::handleContextMenu (const QPoint& pos)
-{
+void SmsTextingControl::handleContextMenu (const QPoint& pos){
 	QTableWidgetItem* item = peopleListView->itemAt (pos);
 	if (!item) { return; }
 	QMenu menu;
@@ -24,9 +22,7 @@ void SmsTextingControl::handleContextMenu (const QPoint& pos)
 	menu.exec (peopleListView->mapToGlobal (pos));
 }
 
-
-void SmsTextingControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
-{
+void SmsTextingControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	title = new QLabel ("TEXTING SERVICES" + PYTHON_SAFEMODE ? " (DISABLED, PYTHON_SAFEMODE=TRUE)" : "", parent);
 	title->setGeometry (pos.x, pos.y, 480, 25);
 	pos.y += 25;
@@ -46,7 +42,7 @@ void SmsTextingControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 			peopleListView->setItem (clRow, clCol, item);
 		}});
 
-	peopleListView->setGeometry (pos.x, pos.y, 480, 205);
+	peopleListView->setGeometry (pos.x, pos.y, 480, 165);
 	peopleListView->setColumnWidth (0, 90);
 	peopleListView->setColumnWidth (1, 95);
 	peopleListView->setColumnWidth (2, 65);
@@ -62,8 +58,7 @@ void SmsTextingControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 	addPerson (me);
 }
 
-void SmsTextingControl::addPerson( personInfo person )
-{
+void SmsTextingControl::addPerson( personInfo person ){
 	int row = peopleListView->rowCount ();
 	peopleListView->insertRow (row);
 	peopleListView->setItem (row, 0, new QTableWidgetItem(person.name.c_str ())); 
@@ -78,59 +73,45 @@ void SmsTextingControl::addPerson( personInfo person )
 	peopleListView->setItem (row, 4, txtNoLoading);
 }
 
-void SmsTextingControl::deletePersonInfo(QTableWidgetItem* item)
-{
+void SmsTextingControl::deletePersonInfo(QTableWidgetItem* item){
 	peopleListView->removeRow (item->row());
 }
 
-void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType)
-{
+void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType){
 	auto peopleToText = getPeopleFromListview ();
-	if (msgType == "Loading")
-	{
-		for (personInfo& person : peopleToText)
-		{
-			if (person.textIfLoadingStops)
-			{
+	if (msgType == "Loading"){
+		for (personInfo& person : peopleToText){
+			if (person.textIfLoadingStops){
 				// send text gives an appropriate error message.
 				pyHandler->sendText( person, message, "Not Loading Atoms", emailAddress, password );
 			}
 		}
 	}
-	if ( msgType == "Mot" )
-	{
-		for ( personInfo& person : peopleToText )
-		{
-			if ( person.textIfLoadingStops )
-			{
+	if ( msgType == "Mot" ){
+		for ( personInfo& person : peopleToText ){
+			if ( person.textIfLoadingStops ){
 				// send text gives an appropriate error message.
 				pyHandler->sendText ( person, message, "Not Loading MOT", emailAddress, password );
 			}
 		}
 	}
-	else if (msgType == "Finished")
-	{
-		for (personInfo& person : peopleToText)
-		{
-			if (person.textWhenComplete)
-			{
+	else if (msgType == "Finished"){
+		for (personInfo& person : peopleToText){
+			if (person.textWhenComplete){
 				// send text gives an appropriate error message.
 				pyHandler->sendText(person, message, "Experiment Finished", emailAddress, password);
 			}
 		}
 	}
-	else
-	{
+	else{
 		thrower ("unrecognized text message type: " + msgType);
 	}
 }
 
 
-std::vector<personInfo> SmsTextingControl::getPeopleFromListview ()
-{
+std::vector<personInfo> SmsTextingControl::getPeopleFromListview (){
 	std::vector<personInfo> people (peopleListView->rowCount ());
-	for (auto personCount : range(people.size()))
-	{
+	for (auto personCount : range(people.size())){
 		auto& person = people[personCount];
 		person.name = str(peopleListView->item (personCount, 0)->text ());
 		person.number = str(peopleListView->item (personCount, 1)->text ());

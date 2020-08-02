@@ -7,7 +7,7 @@
 #include <QChartView>
 #include "QChartView.h"
 #include <QtCharts/QChartView>
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 
 /*
  * This is a wrapper around a PlotCtrl object and a VisaFlume object that facilitates autmatically retrieving data
@@ -18,13 +18,13 @@ class ScopeViewer : public QObject{
 	Q_OBJECT
 
 	public:
-		ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name );
-		void initialize( POINT& topLeftLoc, UINT width, UINT height, IChimeraWindowWidget* parent, 
+		ScopeViewer( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name );
+		void initialize( POINT& topLeftLoc, unsigned width, unsigned height, IChimeraQtWindow* parent, 
 						 std::string title="Scope!");
 		
 		void refreshData( );
 		std::string getScopeInfo( );
-		const UINT numTraces;
+		const unsigned numTraces;
 	private:
 		const std::string usbAddress;
 		const std::string scopeName;

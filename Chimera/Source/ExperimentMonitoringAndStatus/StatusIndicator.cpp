@@ -1,15 +1,9 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "StatusIndicator.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 
-void StatusIndicator::rearrange(int width, int height, fontMap fonts)
-{
-	//status.rearrange( width, height, fonts);
-}
-
-
-void StatusIndicator::initialize(POINT &loc, IChimeraWindowWidget* parent )
+void StatusIndicator::initialize(POINT &loc, IChimeraQtWindow* parent )
 {
 	status = new QLabel ("Passively Outputing Default Waveform", parent);
 	status->setGeometry (loc.x, loc.y, 960, 100);

@@ -238,7 +238,7 @@ std::vector<double> DmProfileCreator::checkVals(std::vector<double> val) {
 	for (auto& voltage : val) {
 		if (voltage >= 1) {
 			val[i] = 1;
-			//thrower("Error: voltage on piston " + str(i) + " is out of range");
+			//thrower("ChimeraError: voltage on piston " + str(i) + " is out of range");
 		}
 		else if(voltage < 0){
 			val[i] = 0;

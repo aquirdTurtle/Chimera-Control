@@ -240,9 +240,6 @@
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ExperimentThread\Communicator.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
@@ -302,7 +299,6 @@
     <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtDeformableMirrorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\IChimeraWindowWidget.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
     <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
     <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
@@ -321,6 +317,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Basler\ImageEventHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Python\NewPythonHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralObjects\IChimeraSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -513,9 +518,6 @@
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ParameterSystem\ParameterSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
@@ -656,9 +658,6 @@
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\StatusIndicator.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ExperimentThread\Communicator.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ConfigurationSystems\NoteSystem.h">
       <Filter>Main Window</Filter>
     </ClInclude>
@@ -732,7 +731,6 @@
     <ClInclude Include="Source\AnalogInput\AiUnits.h" />
     <ClInclude Include="Source\AnalogInput\PhotodetectorCalibration.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigStream.h" />
-    <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
     <ClInclude Include="Source\ExperimentThread\DeviceList.h" />
     <ClInclude Include="MOC\moc_predefs.h" />
@@ -742,6 +740,15 @@
     <ClInclude Include="Source\Agilent\whichAg.h" />
     <ClInclude Include="Source\Scripts\ScriptableDevices.h" />
     <ClInclude Include="Source\Basler\ImageEventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Python\NewPythonHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Piezo\piezoChan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\analysisSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -875,7 +882,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Source\ExperimentThread\ExpThreadWorker.h" />
-    <QtMoc Include="Source\PrimaryWindows\IChimeraWindowWidget.h" />
     <QtMoc Include="Source\PrimaryWindows\QtAndorWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtAuxiliaryWindow.h" />
     <QtMoc Include="Source\PrimaryWindows\QtBaslerWindow.h" />
@@ -897,5 +903,14 @@
       <Filter>Plotting-And-Viewing</Filter>
     </QtMoc>
     <QtMoc Include="Source\Andor\AndorCameraThreadWorker.h" />
+    <QtMoc Include="Source\GeneralObjects\IChimeraSystem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\ParameterSystem\ParameterSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\PrimaryWindows\IChimeraQtWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

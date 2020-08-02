@@ -13,20 +13,20 @@ t += 1000
 call pgcCooling()
 
 % wait for the drop
-t += flyTime
+t += flyTime 
 
 % image
 on: diagMotRf
 off: sideMotRf
 on: repumpRf
-var repump_pow 0.26
+var repump_pow 0.26 
 var repump_freq -0.46
 var imgMotFreq -0.3
-dac: DiagMotPower diagmot__servo_value
+dac: DiagMotPower diagmot__sv
 dac: RepumpPower repump_pow
 dac: MotFreq motImagingDetuning
 dac: RepumpFreq repump_freq
-dac: SideMotPower sidemot__servo_value
+dac: SideMotPower sidemot__sv
 call triggerScout()
 t += 1
 off: diagMotRf

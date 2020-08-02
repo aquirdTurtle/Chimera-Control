@@ -34,12 +34,12 @@ class DdsCore : public IDeviceCore{
 		~DdsCore ( );
 		ddsExpSettings getSettingsFromConfig (ConfigStream& file );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file );
-		void programVariation ( UINT variationNum, std::vector<parameterType>& params);
+		void programVariation ( unsigned variationNum, std::vector<parameterType>& params);
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
-		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation );
-		void generateFullExpInfo ( UINT numVariations );
+		std::vector<ddsRampFinFullInfo> analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, unsigned variation );
+		void generateFullExpInfo ( unsigned numVariations );
 		void assertDdsValuesValid ( std::vector<parameterType>& params );
 		void evaluateDdsInfo ( std::vector<parameterType> params= std::vector<parameterType>());
 		void forceRampsConsistent ( );
@@ -56,7 +56,7 @@ class DdsCore : public IDeviceCore{
 		std::vector<ddsIndvRampListInfo> expRampList;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;
 		ddsConnectionType::type connType;
-		const UINT MSGLENGTH = 7;
+		const unsigned MSGLENGTH = 7;
 		const unsigned char WBWRITE = (unsigned char) 161;
 		const unsigned char WBWRITE_ARRAY = (unsigned char) 2; //Add 2 to WBWRITE
 		const double INTERNAL_CLOCK = ( double ) 500.0; //Internal clock in MHz
@@ -78,7 +78,7 @@ class DdsCore : public IDeviceCore{
 		std::array<UINT8, 4> intTo4Bytes ( int i_ );
 		void writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, std::array<UINT8, 4> data );
 		INT getFTW ( double freq );
-		UINT getATW ( double amp );
+		unsigned getATW ( double amp );
 		UINT16 getRepsFromTime ( double time );
 		INT get32bitATW ( double amp );
 		void channelSelect ( UINT8 device, UINT8 channel );

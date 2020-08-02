@@ -5,7 +5,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralImaging/imageParameters.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
@@ -19,7 +19,7 @@ class ImageDimsControl
 {
 	public:
 		ImageDimsControl(std::string whichCam);
-		void initialize( POINT& pos, IChimeraWindowWidget* parentWindow, int numRows, int width);
+		void initialize( POINT& pos, IChimeraQtWindow* parentWindow, int numRows, int width);
 		imageParameters readImageParameters();
 		void setImageParametersFromInput( imageParameters param );
 		bool checkReady();
@@ -27,8 +27,7 @@ class ImageDimsControl
 		void handleOpen(ConfigStream& openFile );
 		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile );
 		imageParameters getImageParameters();
-		void rearrange( int width, int height, fontMap fonts );
-		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
+		HBRUSH colorEdits( HWND window, unsigned message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
 		const std::string camType;
 	private:
 		QLabel* leftText;

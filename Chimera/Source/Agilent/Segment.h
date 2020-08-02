@@ -11,8 +11,8 @@ class Segment
 		void storeInput( segmentInfoInput input );
 		segmentInfoInput getInput();
 		segmentInfoFinal getFinalSettings();
-		void convertInputToFinal( UINT variation = -1, std::vector<parameterType>& variables = std::vector<parameterType> ( ) );
-		UINT returnDataSize();
+		void convertInputToFinal( unsigned variation = -1, std::vector<parameterType>& variables = std::vector<parameterType> ( ) );
+		unsigned returnDataSize();
 		void assignDataVal( int dataNum, double val );
 		double returnDataVal( long dataNum );
 		void calcData( ULONG sampleRate );

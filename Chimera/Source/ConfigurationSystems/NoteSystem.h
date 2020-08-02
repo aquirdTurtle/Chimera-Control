@@ -7,7 +7,7 @@
 #include "GeneralObjects/commonTypes.h"
 #include <QLabel>
 #include <QTextEdit>
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
  
 class NoteSystem
@@ -16,9 +16,8 @@ class NoteSystem
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile );
 		void setConfigurationNotes(std::string notes);
-		void initialize( POINT& topLeftPos, IChimeraWindowWidget* parent );
+		void initialize( POINT& topLeftPos, IChimeraQtWindow* parent );
 		std::string getConfigurationNotes();
-		void rearrange(int width, int height, fontMap fonts);
 	private:
 		QLabel* header;
 		CQTextEdit* edit;

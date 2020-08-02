@@ -5,7 +5,7 @@
 #include <Mmsystem.h>
 #include <mciapi.h>
 #include "Andor/cameraPositions.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox.h>
 #include <qlineedit.h>
@@ -21,12 +21,11 @@ class AlertSystem
 			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
 		}
 		~AlertSystem() { mciSendString( "close mp3", NULL, 0, NULL ); }
-		void initialize( POINT& positions, IChimeraWindowWidget* parent );
+		void initialize( POINT& positions, IChimeraQtWindow* parent );
 		void alertMainThread( int level );
 		void soundAlert();
-		void rearrange( int width, int height, fontMap fonts );
-		UINT getAlertThreshold();
-		UINT getAlertMessageID();
+		unsigned getAlertThreshold();
+		unsigned getAlertMessageID();
 		void setAlertThreshold();
 		bool wantsAtomAlerts();
 		bool wantsMotAlerts ( );
@@ -45,5 +44,5 @@ class AlertSystem
 		int alertThreshold=-1;
 		bool useAlerts=false;
 		bool autoPause=false;
-		UINT alertMessageID = 0;
+		unsigned alertMessageID = 0;
 };

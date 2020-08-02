@@ -42,7 +42,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	{
 		run ( "import smtplib" );
 	}
-	catch ( Error& err )
+	catch ( ChimeraError& err )
 	{
 		errBox ( err.what ( ) );
 	}
@@ -50,7 +50,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	{
 		run ( "from email.mime.text import MIMEText" );
 	}
-	catch ( Error& err )
+	catch ( ChimeraError& err )
 	{
 		errBox ( err.what ( ) );
 	}
@@ -58,7 +58,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler( )
 	{
 		run ( "sys.path.append('" + PYTHON_CODE_LOCATION + "')" );
 	}
-	catch ( Error& err )
+	catch ( ChimeraError& err )
 	{
 		errBox ( err.what ( ) );
 	}
@@ -107,8 +107,7 @@ void EmbeddedPythonHandler::flush()
 
 
 void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, long accumulations, 
-											 std::vector<coordinate> atomLocations)
-{
+											 std::vector<coordinate> atomLocations){
 	/* I don't use this anymore, but keeping it around in case I want to do anything like this again. */
 	// for full data analysis set.
 	flush();
@@ -162,7 +161,7 @@ void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, l
 	// 1a, 1b, 2a, 2b, etc. formatting.
 	// pythonFunctionArguments, pythonAtomLocationsArray
 	PyObject* pythonAtomLocationsArray = PyTuple_New(atomLocations.size() * 2);
-	for (UINT atomInc = 0; atomInc < atomLocations.size(); atomInc++)
+	for (unsigned atomInc = 0; atomInc < atomLocations.size(); atomInc++)
 	{
 		// order is flipped. Dunno why...
 		// PyTuple immediately steals the reference from PyLong_FromLong, so I don't need to handle any of these. 
@@ -247,7 +246,7 @@ void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 		run ( "mail.login('" + baseEmail + "', '" + password + "')" );
 		run ( "mail.sendmail(email['From'], email['To'], email.as_string())" );
 	}
-	catch ( Error& err )
+	catch ( ChimeraError& err )
 	{
 		errBox ( err.what ( ) );
 	}
@@ -280,6 +279,3 @@ void EmbeddedPythonHandler::run(std::string cmd, bool quiet /*=false*/, bool flu
 		}
 	}
 }
-
-
-

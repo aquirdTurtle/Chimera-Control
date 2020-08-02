@@ -6,7 +6,7 @@
 
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-void PictureStats::initialize( POINT& pos, IChimeraWindowWidget* parent )
+void PictureStats::initialize( POINT& pos, IChimeraQtWindow* parent )
 {
 	LONG size = 315;
 	pictureStatsHeader = new QLabel ("Raw Counts", parent);
@@ -62,7 +62,6 @@ void PictureStats::initialize( POINT& pos, IChimeraWindowWidget* parent )
 	pos.x -= 4./5*size;
 }
 
-void PictureStats::rearrange (int width, int height, fontMap fonts) {}
 
 void PictureStats::reset()
 {
@@ -99,7 +98,7 @@ statPoint PictureStats::getMostRecentStats ( )
 }
 
 
-std::pair<int, int> PictureStats::update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel, 
+std::pair<int, int> PictureStats::update ( Matrix<long> image, unsigned imageNumber, coordinate selectedPixel, 
 										   int currentRepetitionNumber, int totalRepetitionCount ){
 	repetitionIndicator->setText ( cstr ( "Repetition " + str ( currentRepetitionNumber ) + "/"
 												+ str ( totalRepetitionCount ) ) );

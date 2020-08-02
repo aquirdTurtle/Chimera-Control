@@ -2,7 +2,6 @@
 #include "GeneralFlumes/ftdiFlume.h"
 #include "GeneralFlumes/WinSerialFlume.h"
 #include "GeneralFlumes/ftdiStructures.h"
-#include "ExperimentThread/Communicator.h"
 #include "GeneralObjects/ExpWrap.h"
 #include "Plotting/PlotCtrl.h"
 
@@ -20,43 +19,43 @@ class DoCore
 		DoCore (bool ftSafemode, bool serialSafemode);
 		~DoCore ();
 
-		void convertToFinalFtdiFormat (UINT variation);
-		void fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt);
+		void convertToFinalFtdiFormat (unsigned variation);
+		void fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, unsigned offset, unsigned count, ftdiPt pt);
 		void ftdi_connectasync (const char devSerial[]);
 		void ftdi_disconnect ();
-		DWORD ftdi_write (UINT variation, bool loadSkipf);
+		DWORD ftdi_write (unsigned variation, bool loadSkipf);
 		DWORD ftdi_trigger ();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot ();
 		std::string getDoSystemInfo ();
 		void standardNonExperimentStartDoSequence (DoSnapshot initSnap);
 		void restructureCommands ();
 
-		void initializeDataObjects (UINT variationNum);
-		void ttlOn (UINT row, UINT column, timeType time);
-		void ttlOff (UINT row, UINT column, timeType time);
-		void ttlOnDirect (UINT row, UINT column, double timev, UINT variation);
-		void ttlOffDirect (UINT row, UINT column, double timev, UINT variation);
-		void sizeDataStructures (UINT variations);
+		void initializeDataObjects (unsigned variationNum);
+		void ttlOn (unsigned row, unsigned column, timeType time);
+		void ttlOff (unsigned row, unsigned column, timeType time);
+		void ttlOnDirect (unsigned row, unsigned column, double timev, unsigned variation);
+		void ttlOffDirect (unsigned row, unsigned column, double timev, unsigned variation);
+		void sizeDataStructures (unsigned variations);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		std::vector<std::vector<plotDataVec>> getPlotData (UINT variation );
-		std::string getTtlSequenceMessage (UINT variation);
+		std::vector<std::vector<plotDataVec>> getPlotData (unsigned variation );
+		std::string getTtlSequenceMessage (unsigned variation);
 		std::vector<double> getFinalTimes ();
-		UINT countTriggers (std::pair<DoRows::which, UINT> which, UINT variation);
+		unsigned countTriggers (std::pair<DoRows::which, unsigned> which, unsigned variation);
 		DWORD ftdi_ForceOutput (DoRows::which row, int number, int state, std::array<std::array<bool, 16>, 4> status);
 		// returns -1 if not a name.
 		bool isValidTTLName (std::string name);
-		int getNameIdentifier (std::string name, DoRows::which& row, UINT& number);
-		void organizeTtlCommands (UINT variation, DoSnapshot initSnap = { 0,0 });
+		int getNameIdentifier (std::string name, DoRows::which& row, unsigned& number);
+		void organizeTtlCommands (unsigned variation, DoSnapshot initSnap = { 0,0 });
 		bool getFtFlumeSafemode ();
-		ULONG getNumberEvents (UINT variation);
-		double getTotalTime (UINT variation);
-		double getFtdiTotalTime (UINT variation);
+		ULONG getNumberEvents (unsigned variation);
+		double getTotalTime (unsigned variation);
+		double getFtdiTotalTime (unsigned variation);
 		void resetTtlEvents ();
-		void FtdiWaitTillFinished (UINT variation);
+		void FtdiWaitTillFinished (unsigned variation);
 		void wait2 (double time);
 		void prepareForce ();
-		void findLoadSkipSnapshots (double time, std::vector<parameterType>& variables, UINT variation);
-		void convertToFtdiSnaps (UINT variation);
+		void findLoadSkipSnapshots (double time, std::vector<parameterType>& variables, unsigned variation);
+		void convertToFtdiSnaps (unsigned variation);
 		ExpWrap<std::vector<DoSnapshot>> getTtlSnapshots ();
 		ExpWrap<finBufInfo> getFinalFtdiData ();
 		ExpWrap<std::array<ftdiPt, 2048>> getFtdiSnaps ();
@@ -66,13 +65,13 @@ class DoCore
 			std::vector<parameterType>& vars, std::string scope);
 		void setNames (Matrix<std::string> namesIn);
 		Matrix<std::string> getAllNames ();
-		void standardExperimentPrep (UINT variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams);
+		void standardExperimentPrep (unsigned variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams);
 	private:
 		ftdiConnectionOption connectType;
 		ftdiFlume ftFlume;
 		WinSerialFlume winSerial;
 		/// stuff for felix's do
-		const UINT NUMPOINTS = 2048;
+		const unsigned NUMPOINTS = 2048;
 		const unsigned int TIMEOFFS = unsigned int (0x0800);
 		const unsigned int BANKAOFFS = unsigned int (0x1000);
 		const unsigned int BANKBOFFS = unsigned int (0x1800);

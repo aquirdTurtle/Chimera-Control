@@ -4,7 +4,7 @@
 #include <qcheckbox.h>
 #include <qlineedit.h>
 
-void TektronixChannelControl::initialize (POINT loc, IChimeraWindowWidget* parent, std::string channelText, LONG width)
+void TektronixChannelControl::initialize (POINT loc, IChimeraQtWindow* parent, std::string channelText, LONG width)
 {
 	channelLabel = new QLabel (cstr (channelText), parent);
 	channelLabel->setGeometry (loc.x, loc.y, width, 20);
@@ -43,8 +43,7 @@ void TektronixChannelControl::initialize (POINT loc, IChimeraWindowWidget* paren
 }
 
 
-void TektronixChannelControl::handleEnabledStatus ()
-{
+void TektronixChannelControl::handleEnabledStatus (){
 	if (!controlButton->isChecked ()){
 		onOffButton->setEnabled (false);
 		fskButton->setEnabled (false);
@@ -75,8 +74,7 @@ void TektronixChannelControl::handleEnabledStatus ()
 	}
 }
 
-tektronixChannelOutput TektronixChannelControl::getTekChannelSettings ()
-{
+tektronixChannelOutput TektronixChannelControl::getTekChannelSettings (){
 	currentInfo.control = controlButton->isChecked();
 	currentInfo.on = onOffButton->isChecked ();
 	currentInfo.fsk = fskButton->isChecked ();
@@ -86,8 +84,7 @@ tektronixChannelOutput TektronixChannelControl::getTekChannelSettings ()
 	return currentInfo;
 }
 
-void TektronixChannelControl::setSettings (tektronixChannelOutput info)
-{
+void TektronixChannelControl::setSettings (tektronixChannelOutput info){
 	currentInfo = info;
 	controlButton->setChecked (currentInfo.control);
 	onOffButton->setChecked (currentInfo.on);

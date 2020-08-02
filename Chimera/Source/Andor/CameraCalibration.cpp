@@ -3,7 +3,7 @@
 #include "CameraCalibration.h"
 #include <GeneralUtilityFunctions/commonFunctions.h>
 
-void CameraCalibration::initialize( POINT& pos, IChimeraWindowWidget* parent )
+void CameraCalibration::initialize( POINT& pos, IChimeraQtWindow* parent )
 {
 	header = new QLabel ("Camera-Bkgd:", parent);
 	header->setGeometry (pos.x, pos.y, 140, 20);
@@ -29,11 +29,6 @@ void CameraCalibration::setUse(bool option)
 {
 	useButton->setChecked(option);
 }
-
-
-void CameraCalibration::rearrange( int width, int height, fontMap fonts ){
-}
-
 
 bool CameraCalibration::use( )
 {

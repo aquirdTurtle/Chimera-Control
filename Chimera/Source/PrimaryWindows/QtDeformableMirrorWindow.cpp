@@ -5,7 +5,7 @@
 #include "QtMainWindow.h"
 #include <ExperimentMonitoringAndStatus/ColorBox.h>
 
-QtDeformableMirrorWindow::QtDeformableMirrorWindow (QWidget* parent) : IChimeraWindowWidget (parent), dm (DM_SERIAL, DM_SAFEMODE)
+QtDeformableMirrorWindow::QtDeformableMirrorWindow (QWidget* parent) : IChimeraQtWindow (parent), dm (DM_SERIAL, DM_SAFEMODE)
 {
 	statBox = new ColorBox ();
 	setWindowTitle ("Deformable Mirror Window");
@@ -20,7 +20,7 @@ void QtDeformableMirrorWindow::initializeWidgets ()
 {
 	POINT pos = { 0,0 };
 	int id = 1000;
-	UINT ID = IDC_DM_PROGRAMNOW;
+	unsigned ID = IDC_DM_PROGRAMNOW;
 	statBox->initialize (pos, this, 480, mainWin->getDevices ());
 	dm.initialize (pos, this, dm.getActNum (), DM_SERIAL, 65);
 }
@@ -33,12 +33,12 @@ void QtDeformableMirrorWindow::handleNewDmProfile () {
 	try {
 		dm.loadProfile ();
 	}
-	catch (Error& err) {
-		reportErr (err.trace ());
+	catch (ChimeraError& err) {
+		reportErr (err.qtrace ());
 	}
 }
 
-void QtDeformableMirrorWindow::handlePistonChange (UINT id) {
+void QtDeformableMirrorWindow::handlePistonChange (unsigned id) {
 }
 
 void QtDeformableMirrorWindow::handleAddAbberations () {
@@ -46,9 +46,9 @@ void QtDeformableMirrorWindow::handleAddAbberations () {
 	{
 		dm.add_Changes ();
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
-		reportErr (err.trace ());
+		reportErr (err.qtrace ());
 	}
 }
 
@@ -64,7 +64,7 @@ void QtDeformableMirrorWindow::windowOpenConfig (ConfigStream& configFile)
 			dm.openConfig ();
 		}
 	}
-	catch (Error&)
+	catch (ChimeraError&)
 	{
 		throwNested ("Auxiliary Window failed to read parameters from the configuration file.");
 	}

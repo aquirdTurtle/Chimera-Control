@@ -1,27 +1,23 @@
 #pragma once
 
-#include "ConfigurationSystems/Version.h"
-#include "ConfigurationSystems/ConfigStream.h"
 #include "ParameterSystem/ParameterSystemStructures.h"
-#include "ExperimentThread/Communicator.h"
 #include <string>
 #include <vector>
-#include "afxwin.h"
+#include <qobject.h>
 
+class ConfigStream;
 class DataLogger;
+class ExpThreadWorker;
 
-class IDeviceCore
-{
+class IDeviceCore : public QObject{
 	public:
 		// virtual void programNow () = 0;
-		virtual void programVariation (UINT variation, std::vector<parameterType>& params) = 0;
-		virtual void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) = 0;
-		virtual void logSettings (DataLogger& logger)=0;
 		virtual void loadExpSettings (ConfigStream& stream) = 0;
+		virtual void logSettings (DataLogger& logger) = 0;
+		virtual void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) = 0;
+		virtual void programVariation (unsigned variation, std::vector<parameterType>& params) = 0;
 		virtual void normalFinish () = 0;
 		virtual void errorFinish () = 0;
-		// most devices have a function like this, but I want to make the class independent of the data type.
-		// virtual DeviceSettings getSettingsFromConfig (ConfigStream& stream, Version ver) = 0;
 		virtual std::string getDelim()=0;
 		bool experimentActive;
 };

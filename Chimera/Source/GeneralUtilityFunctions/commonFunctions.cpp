@@ -12,7 +12,7 @@
 #include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "PrimaryWindows/QtScriptWindow.h"
 #include "PrimaryWindows/QtBaslerWindow.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include "LowLevel/externals.h"
 #include "ExperimentThread/ExperimentType.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
@@ -22,52 +22,40 @@ namespace commonFunctions
 {
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
-	void handleCommonMessage( int msgID, IChimeraWindowWidget* win )
-	{
+	void handleCommonMessage( int msgID, IChimeraQtWindow* win ){
 		auto* mainWin = win->mainWin; 
 		auto* andorWin = win->andorWin;
 		auto* scriptWin = win->scriptWin;
 		auto* dmWin = win->dmWin;
 		auto* basWin = win->basWin;
 		auto* auxWin = win->auxWin;
-		switch (msgID)
-		{
-			case ID_MACHINE_OPTIMIZATION:
-			{
+		switch (msgID){
+			case ID_MACHINE_OPTIMIZATION:{
 				// this is mostly prepared like F5.
-				if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) )
-				{
+				if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) ){
 					//andorWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
 				AllExperimentInput input;
 				andorWin->redrawPictures ( false );
-				try
-				{
-					mainWin->getComm ( )->sendStatus( "Starting Automatic Optimization...\r\n" );
-					mainWin->getComm ( )->sendTimer ( "Starting..." );
+				try	{
+					mainWin->reportStatus ( "Starting Automatic Optimization...\r\n" );
+					andorWin->setTimerText ( "Starting..." );
 					prepareMasterThread ( msgID, win, input, true, true, true, true, true );
-					andorWin->preparePlotter ( input );
-					andorWin->prepareAtomCruncher ( input );
 					input.masterInput->quiet = true;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo() );
-
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo(), andorWin->getAlignmentVals ());
 					auxWin->updateOptimization ( input );
 					input.masterInput->expType = ExperimentType::MachineOptimization;
-					andorWin->startPlotterThread ( input );
-					andorWin->startAtomCruncher ( input );
 					startExperimentThread ( mainWin, input );
 				}
-				catch ( Error& err )
-				{
-					if ( err.whatBare ( ) == "CANCEL" )
-					{
-						mainWin->getComm ( )->sendStatus ( "Canceled camera initialization.\r\n" );
+				catch ( ChimeraError& err ){
+					if ( err.whatBare ( ) == "CANCEL" )	{
+						mainWin->reportStatus ( "Canceled camera initialization.\r\n" );
 						break;
 					}
-					mainWin->getComm ( )->sendError ( "Exited with Error!\n" + err.trace ( ) );
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
-					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+					mainWin->reportErr ( "Exited with Error!\n" + err.qtrace ( ) );
+					mainWin->reportStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 					andorWin->assertOff ( );
 					break;
 				}
@@ -76,20 +64,19 @@ namespace commonFunctions
 			case ID_RUNMENU_RUNBASLERANDMASTER:
 			{
 				AllExperimentInput input;
-				try
-				{
-					mainWin->getComm ( )->sendTimer ( "Starting..." );
+				try	{
+					andorWin->setTimerText ( "Starting..." );
 					prepareMasterThread ( msgID, win, input, false, true, false, true, false );
 					commonFunctions::getPermissionToStart ( win, false, true, input );
 					input.masterInput->expType = ExperimentType::Normal;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), andorWin->getAlignmentVals (), 
+						"", false);
 					startExperimentThread ( mainWin, input );
 				}
-				catch ( Error& err )
-				{
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n " + err.trace ( ) );
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
-					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+				catch ( ChimeraError& err ){
+					mainWin->reportErr ( "EXITED WITH ERROR!\n " + err.qtrace ( ) );
+					mainWin->reportStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 					andorWin->assertOff ( );
 					break;
 				}
@@ -97,52 +84,37 @@ namespace commonFunctions
 			}
 			case ID_FILE_RUN_EVERYTHING:
 			case ID_ACCELERATOR_F5:
-			case ID_FILE_MY_WRITE_WAVEFORMS:
-			{
-				if ( andorWin->wantsAutoCal( ) && !andorWin->wasJustCalibrated( ) )
-				{
-					//andorWin->PostMessageA( WM_COMMAND, MAKEWPARAM( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
-					return;
-				}
+			case ID_FILE_MY_WRITE_WAVEFORMS:{
 				AllExperimentInput input;
-				try
-				{
-					if ( mainWin->masterIsRunning() )
-					{
+				try{
+					if ( mainWin->masterIsRunning() ){
 						auto response = promptBox ( "The Master system is already running. Would you like to run the "
 													"current configuration when master finishes? This effectively "
 													"auto-presses F5 when complete and skips confirmation.", MB_YESNO );
-						if ( response == IDYES )
-						{
+						if ( response == IDYES ){
 							mainWin->autoF5_AfterFinish = true;
 						}
 						break;
 					}
-					mainWin->getComm ( )->sendTimer ( "Starting..." );
+					andorWin->setTimerText ( "Starting..." );
+					mainWin->autoServo ();
 					prepareMasterThread( msgID, win, input, true, true, true, true, true );
 					input.masterInput->expType = ExperimentType::Normal;
-					if ( !mainWin->autoF5_AfterFinish )
-					{
+					if ( !mainWin->autoF5_AfterFinish )	{
 						commonFunctions::getPermissionToStart ( win, true, true, input );
 					}
 					mainWin->autoF5_AfterFinish = false;
-					andorWin->preparePlotter( input );
-					andorWin->prepareAtomCruncher( input );
-					logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo ());
-					andorWin->startAtomCruncher(input);
-					andorWin->startPlotterThread ( input );
+					logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo (), andorWin->getAlignmentVals ());
 					startExperimentThread( mainWin, input );
 				}
-				catch (Error& err)
-				{
-					if (err.whatBare() == "CANCEL")
-					{
-						mainWin->getComm()->sendStatus("Canceled camera initialization.\r\n");
+				catch (ChimeraError& err){
+					if (err.whatBare() == "CANCEL"){
+						mainWin->reportStatus("Canceled camera initialization.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendError("EXITED WITH ERROR!\n " + err.trace());
-					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
-					mainWin->getComm()->sendTimer("ERROR!");
+					mainWin->reportErr ("EXITED WITH ERROR!\n " + err.qtrace());
+					mainWin->reportStatus ("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					andorWin->setTimerText ("ERROR!");
 					andorWin->assertOff();
 					break;
 				}
@@ -150,11 +122,9 @@ namespace commonFunctions
 			}
 			case WM_CLOSE:
 			case ID_ACCELERATOR_ESC:
-			case ID_FILE_ABORT_GENERATION:
-			{
+			case ID_FILE_ABORT_GENERATION:{
 				std::string status;
 				bool niawgAborted = false, andorAborted = false, masterAborted = false, baslerAborted = false;
-
 				scriptWin->stopRearranger( );
 				andorWin->wakeRearranger( );
 				try	{
@@ -164,15 +134,13 @@ namespace commonFunctions
 						baslerAborted = true;
 					}
 				}
-				catch (Error & err)	{
-					mainWin->getComm ()->sendError ("error while aborting basler! Error Message: " + err.trace ());
+				catch (ChimeraError & err)	{
+					mainWin->reportErr ("error while aborting basler! Error Message: " + err.qtrace ());
 					if (status == "Basler")	{
 					}
-					mainWin->getComm ()->sendStatus ("EXITED WITH ERROR!\r\n");
-					mainWin->getComm ()->sendTimer ("ERROR!");
+					mainWin->reportStatus ("EXITED WITH ERROR!\r\n");
+					andorWin->setTimerText ("ERROR!");
 				}
-
-
 				try{
 					if ( mainWin->expThreadManager.runningStatus( ) ){
 						status = "MASTER";
@@ -182,11 +150,11 @@ namespace commonFunctions
 					andorWin->assertOff( );
 					andorWin->assertDataFileClosed ();
 				}
-				catch ( Error& err ){
-					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " 
-													+ err.trace( ) );
-					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
-					mainWin->getComm( )->sendTimer( "ERROR!" );
+				catch ( ChimeraError& err ){
+					mainWin->reportErr ( "Abort Master thread exited with Error! Error Message: "
+													+ err.qtrace( ) );
+					mainWin->reportStatus ( "Abort Master thread exited with Error!\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 				}
 				try	{
 					if ( andorWin->andor.isRunning( ) )	{
@@ -195,14 +163,13 @@ namespace commonFunctions
 						andorAborted = true;
 					}
 				}
-				catch ( Error& err ){
-					mainWin->getComm( )->sendError( "Andor Camera threw error while aborting! Error: " + err.trace( ) );
-					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
-					mainWin->getComm( )->sendTimer( "ERROR!" );
+				catch ( ChimeraError& err ){
+					mainWin->reportErr ( "Andor Camera threw error while aborting! Error: " + err.qtrace( ) );
+					mainWin->reportStatus ( "Abort camera threw error\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 				}
 				//
 				scriptWin->waitForRearranger( );
-
 				try	{
 					if ( scriptWin->niawgIsRunning() ){
 						status = "NIAWG";
@@ -210,97 +177,84 @@ namespace commonFunctions
 						niawgAborted = true;
 					}
 				}
-				catch ( Error& err ){
-					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.trace( ) );
+				catch ( ChimeraError& err ){
+					mainWin->reportErr ( "Abor NIAWG exited with Error! Error Message: " + err.qtrace( ) );
 					if ( status == "NIAWG" ){ //?
 					}
-					mainWin->getComm( )->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
-					mainWin->getComm( )->sendTimer( "ERROR!" );
+					mainWin->reportStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 				}
 				if (!niawgAborted && !andorAborted && !masterAborted && !baslerAborted){
 					for (auto& dev : mainWin->getDevices ().list) {
 						mainWin->handleColorboxUpdate ("Black", qstr(dev.get ().getDelim ()));
 					}
-					mainWin->getComm ( )->sendError ( "Andor camera, NIAWG, Master, and Basler camera were not running. "
+					mainWin->reportErr ( "Andor camera, NIAWG, Master, and Basler camera were not running. "
 													  "Can't Abort.\r\n" );
 				}
 				break;
 			}
-			case ID_RUNMENU_RUNCAMERA:
-			{
+			case ID_RUNMENU_RUNCAMERA:{
 				AllExperimentInput input;
-				try
-				{
-					mainWin->getComm ( )->sendTimer ( "Starting..." );
+				try	{
+					andorWin->setTimerText ( "Starting..." );
 					commonFunctions::prepareMasterThread ( ID_RUNMENU_RUNCAMERA, win, input, false, false, true, false, true );
 					input.masterInput->expType = ExperimentType::Normal;
-					andorWin->preparePlotter ( input );
-					andorWin->prepareAtomCruncher ( input );
 					commonFunctions::getPermissionToStart ( win, false, false, input );
-					andorWin->startAtomCruncher ( input );
-					andorWin->startPlotterThread ( input );
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
+					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), 
+								  andorWin->getAlignmentVals (), "", false);
 					commonFunctions::startExperimentThread ( mainWin, input );
-					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
+					mainWin->reportStatus ("Camera is Running.\r\n");
 				}
-				catch (Error& exception)
-				{
-					if (exception.whatBare() == "CANCEL")
-					{
-						mainWin->getComm()->sendStatus("Camera is Not Running, User Canceled.\r\n");
+				catch (ChimeraError& exception){
+					if (exception.whatBare() == "CANCEL"){
+						mainWin->reportStatus ("Camera is Not Running, User Canceled.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendError("EXITED WITH ERROR!\n " + exception.trace());
-					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
-					mainWin->getComm()->sendTimer("ERROR!");
+					mainWin->reportErr ("EXITED WITH ERROR!\n " + exception.qtrace());
+					mainWin->reportStatus ("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					andorWin->setTimerText ("ERROR!");
 					andorWin->assertOff();
 				}
 				break;
 			}
-			case ID_RUNMENU_RUNNIAWG:
-			{
+			case ID_RUNMENU_RUNNIAWG:{
 				AllExperimentInput input;
-				try
-				{
+				try	{
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNNIAWG, win, input, true, false, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( win, true, false, input );
-					commonFunctions::logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
+					commonFunctions::logStandard( input, andorWin->getLogger ( ), mainWin->getServoinfo (), 
+												  andorWin->getAlignmentVals (), "", false );
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
-				catch (Error& except)
-				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR!\n " + except.trace());
-					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+				catch (ChimeraError& except){
+					mainWin->reportErr ("EXITED WITH ERROR!\n " + except.qtrace());
+					mainWin->reportStatus ("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 				}
 				break;
 			}
-			case ID_RUNMENU_RUNMASTER:
-			{
+			case ID_RUNMENU_RUNMASTER:{
 				AllExperimentInput input;
-				try
-				{
+				try	{
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, win, input, false, true, false, false, false );
 					input.masterInput->expType = ExperimentType::Normal;
 					commonFunctions::getPermissionToStart( win, false, true, input );
-					commonFunctions::logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), "", false );
+					commonFunctions::logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo (), 
+												   andorWin->getAlignmentVals (), "", false);
 					commonFunctions::startExperimentThread( mainWin, input );
 				}
-				catch (Error& err)
-				{
-					if (err.whatBare() == "Canceled!")
-					{
+				catch (ChimeraError& err){
+					if (err.whatBare() == "Canceled!"){
 						break;
 					}
-					mainWin->getComm()->sendError( "EXITED WITH ERROR!\n " + err.trace() );
-					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
+					mainWin->reportErr ( "EXITED WITH ERROR!\n " + err.qtrace() );
+					mainWin->reportStatus ( "EXITED WITH ERROR!\r\n" );
 				}
 				break;
 			}
-			case ID_RUNMENU_ABORTMASTER:
-			{
+			case ID_RUNMENU_ABORTMASTER:{
 				if ( mainWin->experimentIsPaused( ) ){
-					mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
+					mainWin->reportErr ( "Experiment is paused. Please unpause before aborting.\r\n" );
 					break;
 				}
 				commonFunctions::abortMaster(win);
@@ -308,8 +262,7 @@ namespace commonFunctions
 			}
 			/// File Management 
 			case ID_ACCELERATOR40121:
-			case ID_FILE_SAVEALL:
-			{
+			case ID_FILE_SAVEALL:{
 				try	{
 					scriptWin->saveNiawgScript( );
 					scriptWin->saveIntensityScript( );
@@ -319,26 +272,23 @@ namespace commonFunctions
 					auxWin->updateAgilent(whichAgTy::Flashing );
 					auxWin->updateAgilent(whichAgTy::Microwave );
 					mainWin->profile.saveEntireProfile( win );
-					mainWin->masterConfig.save( mainWin, auxWin, andorWin );
-					
+					mainWin->masterConfig.save( mainWin, auxWin, andorWin );					
 				}
-				catch ( Error& err ){
-					mainWin->getComm( )->sendError( err.trace( ) );
+				catch ( ChimeraError& err ){
+					mainWin->reportErr ( err.qtrace( ) );
 				}
 				break;
 			}
-			case ID_FILE_MY_EXIT:
-			{
+			case ID_FILE_MY_EXIT:{
 				try	{
 					commonFunctions::exitProgram(win);
 				}
-				catch (Error& err){
-					mainWin->getComm()->sendError("ERROR! " + err.trace());
+				catch (ChimeraError& err){
+					mainWin->reportErr ("ERROR! " + err.qtrace());
 				}
 				break;
 			}
-			case ID_RUNMENU_RUNBASLER:
-			{
+			case ID_RUNMENU_RUNBASLER:{
 				// the basler is the only large part of the code which doesn't go through the main experiment thread.
 				// will probably change that at some point.
 				AllExperimentInput input;
@@ -353,95 +303,100 @@ namespace commonFunctions
 				break;*/
 				// TODO: fix this to work with expthread
 			}
-			case ID_RUNMENU_ABORTCAMERA:
-			{
+			case ID_RUNMENU_ABORTCAMERA:{
 				try	{
 					if ( andorWin->andor.isRunning ( ) ){
 						commonFunctions::abortCamera ( win );
 					}
 					else{
-						mainWin->getComm ( )->sendError ( "Camera was not running. Can't Abort.\r\n" );
+						mainWin->reportErr ( "Camera was not running. Can't Abort.\r\n" );
 					}
 					andorWin->assertOff ( );
 				}
-				catch ( Error& except ){
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!\n" + except.trace ( ) );
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
-					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+				catch ( ChimeraError& except ){
+					mainWin->reportErr ( "EXITED WITH ERROR!\n" + except.qtrace ( ) );
+					mainWin->reportStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 				}
 				break;
 			}
-			case ID_RUNMENU_ABORTNIAWG:
-			{
+			case ID_RUNMENU_ABORTNIAWG:{
 				try	{
 					if ( scriptWin->niawgIsRunning() ){
 						commonFunctions::abortNiawg ( win );
 					}
 					else{
-						mainWin->getComm ( )->sendError ( "NIAWG was not running. Can't Abort.\r\n" );
+						mainWin->reportErr ( "NIAWG was not running. Can't Abort.\r\n" );
 					}
 				}
-				catch ( Error& except )	{
-					mainWin->getComm ( )->sendError ( "EXITED WITH ERROR!" + except.trace ( ) );
-					mainWin->getComm ( )->sendStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
-					mainWin->getComm ( )->sendTimer ( "ERROR!" );
+				catch ( ChimeraError& except )	{
+					mainWin->reportErr ( "EXITED WITH ERROR!" + except.qtrace ( ) );
+					mainWin->reportStatus ( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					andorWin->setTimerText ( "ERROR!" );
 				}
 				break;
 			}
-			case ID_ACCELERATOR_F1:
-			{
-				mainWin->autoServo ( 0, 0 );
+			case ID_ACCELERATOR_F1:{
+				mainWin->autoServo ();
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( win );
 				input.masterInput->runList.andor = false;
 				input.masterInput->updatePlotterXVals = false;
 				auxWin->fillMasterThreadInput ( input.masterInput );
 				mainWin->fillMotInput ( input.masterInput );
-				scriptWin->fillMotInput (input.masterInput);
 				input.masterInput->expType = ExperimentType::LoadMot;
 				mainWin->startExperimentThread ( input.masterInput );
 				break;
 			}
-			case ID_ACCELERATOR_F11:
-			{
+			case ID_ACCELERATOR_F11:{
 				// F11 is the set of calibrations.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( win );
 				input.masterInput->quiet = true;
-				try
-				{
+				try	{
 					auxWin->fillMasterThreadInput (input.masterInput);
 					andorWin->fillMasterThreadInput (input.masterInput);
-					scriptWin->fillMasterThreadInput (input.masterInput);
 					auto calNum = andorWin->getDataCalNum();
 					if (calNum == -1) {
 						return;
 					}
-					if (calNum == 0){
-						mainWin->autoServo (0, 0);
-					}
+					mainWin->autoServo ();
 					auto& calInfo = AUTO_CAL_LIST[calNum]; 
-					mainWin->getComm ()->sendStatus (calInfo.infoStr);
+					mainWin->reportStatus (qstr(calInfo.infoStr));
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->runList = calInfo.runList;
 					input.masterInput->expType = ExperimentType::AutoCal;
-					logStandard (input, andorWin->getLogger (), mainWin->getServoinfo (), calInfo.fileName, false);
+					logStandard (input, andorWin->getLogger (), mainWin->getServoinfo (), andorWin->getAlignmentVals (),
+						calInfo.fileName, false);
 					startExperimentThread (mainWin, input);
 				}
-				catch (Error & err)	{
-					errBox ("Failed to start auto calibration experiment: " + err.trace());
+				catch (ChimeraError & err)	{
+					mainWin->reportErr ("Failed to start auto calibration experiment: " + err.qtrace ());
 				}
 				break;
 			}
-			// the rest of these are all one-liners. 
-			
+			// the rest of these are all one-liners. 			
 			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile (win); break; }
 			case ID_PLOTTING_STOPPLOTTER: { andorWin->stopPlotter( ); break; }
 			case ID_FILE_MY_INTENSITY_NEW: { scriptWin->newIntensityScript(); break; }
 			case ID_FILE_MY_INTENSITY_OPEN: { scriptWin->openIntensityScript(win); break; }
 			case ID_FILE_MY_INTENSITY_SAVE: { scriptWin->saveIntensityScript(); break; }
 			case ID_FILE_MY_INTENSITY_SAVEAS: { scriptWin->saveIntensityScriptAs(win); break; }
-			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE: { mainWin->handlePause (); break; }
+			case ID_ACCELERATOR_F2: case ID_RUNMENU_PAUSE: { mainWin->handlePauseToggle (); break; }
+			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration (); break; }
+			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration (); break; }
+			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs (win); break; }
+			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly (win); break; }
+			case ID_MASTERSCRIPT_NEW: { scriptWin->newMasterScript (); break; }
+			case ID_MASTERSCRIPT_SAVE: { scriptWin->saveMasterScript (); break; }
+			case ID_MASTERSCRIPT_SAVEAS: { scriptWin->saveMasterScriptAs (win); break; }
+			case ID_MASTERSCRIPT_OPENSCRIPT: { scriptWin->openMasterScript (win); break; }
+			case ID_MASTERSCRIPT_NEWFUNCTION: { scriptWin->newMasterFunction ();	break; }
+			case ID_MASTERSCRIPT_SAVEFUNCTION: { scriptWin->saveMasterFunction (); break; }
+			case ID_FILE_MY_NIAWG_NEW: { scriptWin->newNiawgScript (); break; }
+			case ID_FILE_MY_NIAWG_OPEN: { scriptWin->openNiawgScript (win); break; }
+			case ID_FILE_MY_NIAWG_SAVE: { scriptWin->saveNiawgScript (); break; }
+			case ID_FILE_MY_NIAWG_SAVEAS: { scriptWin->saveNiawgScriptAs (win); break; }
 			/*
 			case ID_TOP_BOTTOM_NEW_SCRIPT: { auxWin->newAgilentScript( whichAg::TopBottom); break; }
 			case ID_TOP_BOTTOM_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::TopBottom, win); break; }
@@ -459,21 +414,9 @@ namespace commonFunctions
 			case ID_UWAVE_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::Microwave, win ); break; }
 			case ID_UWAVE_SAVE_SCRIPT: { auxWin->saveAgilentScript( whichAg::Microwave ); break; }
 			case ID_UWAVE_SAVE_SCRIPT_AS: { auxWin->saveAgilentScriptAs( whichAg::Microwave, win); break; }
-			case ID_FILE_MY_NIAWG_NEW: { scriptWin->newNiawgScript(); break; }
-			case ID_FILE_MY_NIAWG_OPEN: { scriptWin->openNiawgScript(win); break; }
-			case ID_FILE_MY_NIAWG_SAVE: { scriptWin->saveNiawgScript(); break; }
-			case ID_FILE_MY_NIAWG_SAVEAS: { scriptWin->saveNiawgScriptAs(win); break; }
-			case ID_MASTERSCRIPT_NEW: { scriptWin->newMasterScript(); break; }
-			case ID_MASTERSCRIPT_SAVE: { scriptWin->saveMasterScript(); break; }
-			case ID_MASTERSCRIPT_SAVEAS: { scriptWin->saveMasterScriptAs(win); break; }
-			case ID_MASTERSCRIPT_OPENSCRIPT: { scriptWin->openMasterScript(win); break; }
-			case ID_MASTERSCRIPT_NEWFUNCTION: { scriptWin->newMasterFunction();	break; }
-			case ID_MASTERSCRIPT_SAVEFUNCTION: { scriptWin->saveMasterFunction(); break; }
+
 			case ID_NIAWG_RELOADDEFAULTWAVEFORMS: { commonFunctions::reloadNIAWGDefaults(mainWin, scriptWin); break; }
-			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration(); break; }
-			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration(); break; }
-			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs(win); break; }
-			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly(win); break; }
+
 			case ID_NIAWG_SENDSOFTWARETRIGGER: { scriptWin->sendNiawgSoftwareTrig(); break; }
 			case ID_NIAWG_STREAMWAVEFORM: { scriptWin->streamNiawgWaveform(); break; }
 			case ID_NIAWG_GETNIAWGERROR: { errBox(scriptWin->getNiawgErr()); break; }
@@ -500,7 +443,7 @@ namespace commonFunctions
 		}
 	}
 
-	void calibrateCameraBackground(IChimeraWindowWidget* win){
+	void calibrateCameraBackground(IChimeraQtWindow* win){
 		try {
 			AllExperimentInput input;
 			input.masterInput = new ExperimentThreadInput ( win );
@@ -508,15 +451,14 @@ namespace commonFunctions
 			win->auxWin->fillMasterThreadInput (input.masterInput);
 			win->andorWin->loadCameraCalSettings( input );
 			win->mainWin->loadCameraCalSettings( input.masterInput );
-			win->scriptWin->loadCameraCalSettings (input.masterInput);
 			win->mainWin->startExperimentThread( input.masterInput );
 		}
-		catch ( Error& err ){
+		catch ( ChimeraError& err ){
 			errBox( err.trace( ) );
 		}
 	}
 
-	void prepareMasterThread( int msgID, IChimeraWindowWidget* win, AllExperimentInput& input, bool runNiawg,
+	void prepareMasterThread( int msgID, IChimeraQtWindow* win, AllExperimentInput& input, bool runNiawg,
 							  bool runMaster, bool runAndor, bool runBasler, bool updatePlotXVals )	{
 		if (win->scriptWin->niawgIsRunning()){
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
@@ -539,35 +481,33 @@ namespace commonFunctions
 		win->auxWin->fillMasterThreadInput( input.masterInput );
 		win->mainWin->fillMasterThreadInput( input.masterInput );
 		win->andorWin->fillMasterThreadInput( input.masterInput );
-		win->scriptWin->fillMasterThreadInput( input.masterInput );
 	}
 
-	void startExperimentThread(IChimeraWindowWidget* win, AllExperimentInput& input){
+	void startExperimentThread(IChimeraQtWindow* win, AllExperimentInput& input){
 		win->mainWin->addTimebar( "main" );
 		win->mainWin->addTimebar( "error" );
 		win->mainWin->addTimebar( "debug" );
 		win->mainWin->startExperimentThread( input.masterInput );
 	}
 
-	void abortCamera(IChimeraWindowWidget* win){
+	void abortCamera(IChimeraQtWindow* win){
 		if (!win->andorWin->cameraIsRunning()){
-			win->mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
+			win->mainWin->reportErr ( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
 		std::string errorMessage;
 		// abort acquisition if in progress
 		win->andorWin->abortCameraRun();
-		win->mainWin->getComm()->sendStatus( "Aborted Camera Operation.\r\n" );
+		win->mainWin->reportStatus( "Aborted Camera Operation.\r\n" );
 	}
 
 
-	void abortNiawg(IChimeraWindowWidget* win){
-		Communicator* comm = win->mainWin->getComm();
+	void abortNiawg(IChimeraQtWindow* win){
 		// set reset flag
 		eAbortNiawgFlag = true;
 		if (!win->scriptWin->niawgIsRunning()){
 			std::string msgString = "Passively Outputting Default Waveform.";
-			comm->sendError( "System was not running. Can't Abort.\r\n" );
+			win->mainWin->onErrorMessage( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
 		// wait for reset to occur
@@ -581,31 +521,31 @@ namespace commonFunctions
 		eAbortNiawgFlag = false;
 		// abort the generation on the NIAWG.
 		win->scriptWin->setIntensityDefault();
-		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );
+		win->mainWin->reportStatus ( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );
 		win->scriptWin->restartNiawgDefaults();
 		win->scriptWin->setNiawgRunningState( false );
 	}
 
 
-	void abortMaster( IChimeraWindowWidget* win ){
+	void abortMaster( IChimeraQtWindow* win ){
 		win->mainWin->abortMasterThread();
 		win->auxWin->handleAbort();
 	}
 
 
-	void forceExit (IChimeraWindowWidget* win){
+	void forceExit (IChimeraQtWindow* win){
 		/// Exiting. Close the NIAWG normally.
 		try	{
 			win->scriptWin->stopNiawg ( );
 		}
-		catch ( Error& except ){
+		catch ( ChimeraError& except ){
 			errBox ( "The NIAWG did not exit smoothly: " + except.trace ( ) );
 		}
 		PostQuitMessage ( 1 );
 	}
 
 
-	void exitProgram(IChimeraWindowWidget* win)	{
+	void exitProgram(IChimeraQtWindow* win)	{
 		if (win->scriptWin->niawgIsRunning()){
 			thrower ( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
 					  "can stop normally." );
@@ -647,25 +587,26 @@ namespace commonFunctions
 			scriptWin->setNiawgDefaults();
 			scriptWin->restartNiawgDefaults();
 		}
-		catch (Error&){
+		catch (ChimeraError&){
 			scriptWin->restartNiawgDefaults();
 			throwNested( "failed to reload the niawg default waveforms!" );
 		}
-		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
+		mainWin->reportStatus ( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
 
 
-	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, 
+	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, piezoChan<double> cameraPiezoVals,
 					  std::string specialName, bool needsCal ){
 		logger.initializeDataFiles( specialName, needsCal );
 		logger.logMasterInput( input.masterInput );
 		logger.logServoInfo (servos);
 		logger.logMiscellaneousStart();
-		logger.initializeAiLogging( input.masterInput->numAiMeasurements );		
+		logger.initializeAiLogging( input.masterInput->numAiMeasurements );
+		logger.logAndorPiezos (cameraPiezoVals);
 	}
 
 
-	bool getPermissionToStart( IChimeraWindowWidget* win, bool runNiawg, bool runMaster, AllExperimentInput& input ){
+	bool getPermissionToStart( IChimeraQtWindow* win, bool runNiawg, bool runMaster, AllExperimentInput& input ){
 		std::string startMsg = "Current Settings:\r\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\r\n";
 		startMsg = win->andorWin->getStartMessage( );
 		if ( runNiawg ){

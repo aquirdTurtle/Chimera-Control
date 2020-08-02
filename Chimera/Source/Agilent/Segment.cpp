@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "Segment.h"
 
-void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& variables )
+void Segment::convertInputToFinal( unsigned variation, std::vector<parameterType>& variables )
 {	
 	// first transfer things that can't be varied.
 	finalSettings.continuationType = input.continuationType;
@@ -43,7 +43,7 @@ void Segment::convertInputToFinal( UINT variation, std::vector<parameterType>& v
 	if (finalSettings.continuationType == SegmentEnd::type::repeat)
 	{
 		// in which case you need a number of times to repeat.);
-		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( variables, variation ));
+		finalSettings.repeatNum = unsigned( input.repeatNum.evaluate( variables, variation ));
 	}
 }
 
@@ -198,7 +198,7 @@ void Segment::calcData( ULONG sampleRate )
 }
 
 
-UINT Segment::returnDataSize()
+unsigned Segment::returnDataSize()
 {
 	return dataArray.size();
 }

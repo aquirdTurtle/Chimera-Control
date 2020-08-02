@@ -30,7 +30,7 @@ void MachineOptimizer::handleContextMenu (const QPoint& pos)
 	menu.exec (optParamsListview->mapToGlobal (pos));
 }
 
-void MachineOptimizer::initialize ( POINT& pos, IChimeraWindowWidget* parent )
+void MachineOptimizer::initialize ( POINT& pos, IChimeraQtWindow* parent )
 {
 	header = new QLabel ("AUTO-OPTIMIZATION-CONTROL", parent);
 	header->setGeometry (pos.x, pos.y, 300, 25);
@@ -48,9 +48,9 @@ void MachineOptimizer::initialize ( POINT& pos, IChimeraWindowWidget* parent )
 				reset ();
 				commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, parent);
 			}
-			catch (Error& err) {
+			catch (ChimeraError& err) {
 				// catch any extra errors that handleCommonMessage doesn't explicitly handle.
-				parent->reportErr(err.trace ());
+				parent->reportErr(err.qtrace ());
 			}
 		});
 
@@ -104,9 +104,6 @@ void MachineOptimizer::updateBestResult ( std::string val, std::string err )
 	bestResultVal->setText ( val.c_str ( ) );
 	bestResultErr->setText ( err.c_str ( ) );
 }
-
-void MachineOptimizer::rearrange ( UINT width, UINT height, fontMap fonts ) {}
-
 
 std::vector<std::shared_ptr<optParamSettings>> MachineOptimizer::getOptParams ( )
 {
@@ -192,7 +189,7 @@ void MachineOptimizer::updateParams ( AllExperimentInput& input, dataPoint resul
 
 void MachineOptimizer::updateCurrentValueDisplays ( )
 {
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto& param : optParams )
 	{
 		optParamsListview->setItem (count, 1, new QTableWidgetItem( cstr(param->currentValue) ));
@@ -203,7 +200,7 @@ void MachineOptimizer::updateCurrentValueDisplays ( )
 
 void MachineOptimizer::updateBestValueDisplays ( )
 {
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto& param : optParams )
 	{
 		optParamsListview->setItem ( count, 4, new QTableWidgetItem(cstr ( param->bestResult.x)) );
@@ -245,7 +242,7 @@ void MachineOptimizer::hillClimbingUpdate ( AllExperimentInput& input, dataPoint
 		}
 		else 
 		{
-			UINT bestLoc = 0, resultCount = 0;
+			unsigned bestLoc = 0, resultCount = 0;
 			param->bestResult = param->resultHist.front ( );
 			for ( auto res : param->resultHist )
 			{
@@ -366,7 +363,7 @@ void MachineOptimizer::deleteParam ( )
 		return;
 	}
 	int answer;
-	if ( UINT ( itemIndicator ) < optParams.size ( ) )
+	if ( unsigned ( itemIndicator ) < optParams.size ( ) )
 	{
 		answer = promptBox ( "Delete variable " + optParams[ itemIndicator ]->name + "?", MB_YESNO );
 		if ( answer == IDYES )
@@ -376,7 +373,7 @@ void MachineOptimizer::deleteParam ( )
 		}
 
 	}
-	else if ( UINT ( itemIndicator ) > optParams.size ( ) )
+	else if ( unsigned ( itemIndicator ) > optParams.size ( ) )
 	{
 		answer = promptBox ( "You appear to have found a bug with the listview control... there are too many lines "
 							 "in this control. Clear this line?", MB_YESNO );
@@ -525,7 +522,7 @@ void MachineOptimizer::reset ( )
 void MachineOptimizer::verifyOptInput ( AllExperimentInput& input )
 {
 
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto& info : input.masterInput->plotterInput->plotInfo )
 	{
 		count += info.isActive;
@@ -561,12 +558,12 @@ void MachineOptimizer::verifyOptInput ( AllExperimentInput& input )
 	updateBestResult ( "---", "---" );
 }
     
-UINT MachineOptimizer::getMaxRoundNum ( )
+unsigned MachineOptimizer::getMaxRoundNum ( )
 {
-	UINT res;
+	unsigned res;
 	try
 	{
-		res = boost::lexical_cast<UINT>(str(maxRoundsEdit->text()));
+		res = boost::lexical_cast<unsigned>(str(maxRoundsEdit->text()));
 	}
 	catch (boost::bad_lexical_cast& )
 	{

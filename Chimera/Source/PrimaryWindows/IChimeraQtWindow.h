@@ -18,16 +18,16 @@ class QtDeformableMirrorWindow;
 class QtAndorWindow;
 
 namespace Ui {
-	class IChimeraWindowWidget;
+	class IChimeraQtWindow;
 }
 
-class IChimeraWindowWidget : public QMainWindow
+class IChimeraQtWindow : public QMainWindow
 {
 	Q_OBJECT
 	public:
-		explicit IChimeraWindowWidget (QWidget* parent = NULL);
-		~IChimeraWindowWidget () {};
-		// any chimera window should override these functions in order to 
+		explicit IChimeraQtWindow (QWidget* parent = NULL);
+		~IChimeraQtWindow () {};
+		// any chimera window should override these functions in order to handle
 		virtual void windowOpenConfig (ConfigStream& configFile)=0;
 		virtual void windowSaveConfig (ConfigStream& newFile)=0;
 		// Basically every window has devices which should be programmed on it, 
@@ -38,21 +38,21 @@ class IChimeraWindowWidget : public QMainWindow
 		void initializeMenu ();
 		void loadFriends (QtMainWindow* mainWin_, QtScriptWindow* scriptWin_, QtAuxiliaryWindow* auxWin_,
 						  QtBaslerWindow* basWin_, QtDeformableMirrorWindow* dmWindow_, QtAndorWindow* andorWin_);
-		void reportErr (std::string errStr);
-		void reportStatus (std::string statusStr);
-		
-		std::vector<IChimeraWindowWidget*> winList();
+		void reportErr (QString errStr, unsigned errorLevel=0);
+		void reportStatus (QString statusStr, unsigned notificationLevel=0);
+
+		std::vector<IChimeraQtWindow*> winList();
 		QtMainWindow* mainWin = NULL;
 		QtScriptWindow* scriptWin = NULL;
 		QtAndorWindow* andorWin = NULL;
 		QtAuxiliaryWindow* auxWin = NULL;
 		QtBaslerWindow* basWin = NULL;
 		QtDeformableMirrorWindow* dmWin = NULL;
-		static constexpr UINT numWindows = 6;
+		static constexpr unsigned numWindows = 6;
 		ColorBox* statBox;
 		virtual void changeBoxColor (std::string sysDelim, std::string color);
 	private:
-		Ui::IChimeraWindowWidget* ui;
+		Ui::IChimeraQtWindow* ui;
 	public Q_SLOTS:
 		void configUpdated ();
 };

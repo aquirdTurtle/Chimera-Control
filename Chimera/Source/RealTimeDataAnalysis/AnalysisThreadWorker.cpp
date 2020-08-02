@@ -16,7 +16,7 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 	/// get all the atom data
 	bool thereIsAtLeastOneAtom = false;
 	for (auto gridCount : range (input->grids.size ())) {
-		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
+		unsigned groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		for (auto pixelInc : range (groupNum)) {
 			// look at the most recent image.
 			if (atomPics[gridCount].image[pixelInc]) {
@@ -35,21 +35,22 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 		noAtomsCounter++;
 	}
 	if (noAtomsCounter >= input->alertThreshold && input->wantAtomAlerts) {
-		input->comm->sendNoAtomsAlert ();
+		//input->comm->sendNoAtomsAlert ();
 	}
 	/// check if have enough data to plot
-	if (currentThreadPictureNumber % allPlots[0].getPicNumber () != 0) {
+	auto picNum = atomPics[0].picNum;
+	if (picNum % allPlots[0].getPicNumber () != 0) {
 		// In this case, not enough data to plot a point yet, but I've just analyzed a pic, so remove that pic.
-		currentThreadPictureNumber++;
+		// currentThreadPictureNumber++;
 		// wait for next picture.
 		return;
 	}
-	UINT variationNum = (currentThreadPictureNumber - 1) / (input->picsPerVariation);
+	unsigned variationNum = (picNum - 1) / (input->picsPerVariation);
 	plotNumberCount++;
 	for (auto plotI : range (allPlots.size ())) {
 		/// Check Post-Selection Conditions
-		UINT whichGrid = input->plotInfo[plotI].whichGrid;
-		UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
+		unsigned whichGrid = input->plotInfo[plotI].whichGrid;
+		unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (),
 			std::vector<bool> (groupNum, true));
 		DataAnalysisControl::determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
@@ -57,7 +58,7 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 		// organization purposes.
 		if (allPlots[plotI].getPlotType () == "Atoms") {
 			auto res = DataAnalysisControl::handlePlotAtoms (
-				allPlots[plotI], currentThreadPictureNumber, finalDataNew[plotI], dataContainers[plotI], 
+				allPlots[plotI], picNum, finalDataNew[plotI], dataContainers[plotI],
 				variationNum, satisfiesPsc, plotNumberCount, atomPresentData[whichGrid], input->plottingFrequency,
 				groupNum, input->picsPerVariation);
 			if (res.size () != 0) {
@@ -77,13 +78,12 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 	/// clear data
 	// all pixels being recorded, not pixels in a data set.
 	for (auto gridCount : range (input->grids.size ())) {
-		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
+		unsigned groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		for (auto pixelI : range (groupNum)) {
 			//countData[gridCount][pixelI].clear ();
 			atomPresentData[gridCount][pixelI].clear ();
 		}
 	}
-	currentThreadPictureNumber++;
 }
 
 void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
@@ -97,7 +97,7 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 	tempPixList = pixlist;
 	/// for all pixels... gather count information
 	for (auto gridCount : range (input->grids.size ())) {
-		UINT locIndex = 0;
+		unsigned locIndex = 0;
 		for (auto row : range (input->grids[gridCount].width)) {
 			for (auto column : range (input->grids[gridCount].height)) {
 				countData[gridCount][locIndex].push_back (tempPixList[gridCount].image[locIndex]);
@@ -110,26 +110,26 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 	/// figure out which pixels need any data
 	for (auto plotInc : range(allPlots.size())){
 		for (auto pixelInc : range(allPlots[plotInc].getPixelNumber())){
-			UINT whichGrid = input->plotInfo[plotInc].whichGrid;
-			UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
+			unsigned whichGrid = input->plotInfo[plotInc].whichGrid;
+			unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 			for (auto groupInc : range(groupNum)){
 				bool alreadyExists = false;
 			}
 		}
 	}
 	/// check if have enough data to plot
-	if (currentPixPictureNum % allPlots[0].getPicNumber () != 0) {
+	auto picNum = tempPixList[0].picNum;
+	if (picNum % allPlots[0].getPicNumber () != 0) {
 		// In this case, not enough data to plot a point yet, but I've just analyzed a pic, so remove that pic.
-		currentPixPictureNum++;
 		// wait for next picture.
 		return;
 	}
-	UINT variationNum = (currentPixPictureNum - 1) / (input->picsPerVariation);
+	unsigned variationNum = (picNum - 1) / (input->picsPerVariation);
 	plotNumberCount++;
 	for (auto plotI : range (allPlots.size ())) {
 		/// Check Post-Selection Conditions
-		UINT whichGrid = input->plotInfo[plotI].whichGrid;
-		UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
+		unsigned whichGrid = input->plotInfo[plotI].whichGrid;
+		unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (),
 			std::vector<bool> (groupNum, true));
 
@@ -149,12 +149,11 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 	/// clear data
 	// all pixels being recorded, not pixels in a data set.
 	for (auto gridCount : range (input->grids.size ())) {
-		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
+		unsigned groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		for (auto pixelI : range (groupNum)) {
 			countData[gridCount][pixelI].clear ();
 		}
 	}
-	currentPixPictureNum++;
 }
 
 void AnalysisThreadWorker::init (){
@@ -184,8 +183,8 @@ void AnalysisThreadWorker::init (){
 	/// figure out which pixels need any data
 	for (auto plotInc : range (allPlots.size ())) {
 		for (auto pixelInc : range (allPlots[plotInc].getPixelNumber ())) {
-			UINT whichGrid = input->plotInfo[plotInc].whichGrid;
-			UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
+			unsigned whichGrid = input->plotInfo[plotInc].whichGrid;
+			unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 			for (auto groupInc : range (groupNum)) {
 				bool alreadyExists = false;
 			}
@@ -199,19 +198,13 @@ void AnalysisThreadWorker::init (){
 	/// Initialize Arrays for data. (using std::vector above)
 	// thinking about making these experiment-picture sized and resetting after getting the needed data out of them.
 
-	//vector<vector<long>> countData( groupNum );
-	//vector<vector<int> > atomPresentData( groupNum );
-	// countData[gridNumber][pixel Indicator][picture number indicator] = pixelCount;
-	
 	countData.resize(input->grids.size ());
 	atomPresentData.resize(input->grids.size ());
 	for (auto gridCount : range (input->grids.size ())) {
-		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
+		unsigned groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		countData[gridCount] = std::vector<std::vector<long>> (groupNum);
 		atomPresentData[gridCount] = std::vector<std::vector<int>> (groupNum);
 	}
-	// atomPresentData[pixelIndicator][picture number] = true if atom present, false if atom not present;
-	// finalData[plot][dataset][group][repetitionNumber];
 	finalHistData.resize (allPlots.size ());
 	histogramData.resize (allPlots.size ());
 	finalCountData.resize(allPlots.size ());
@@ -220,26 +213,17 @@ void AnalysisThreadWorker::init (){
 	finalAvgs.resize (allPlots.size ()); 
 	finalErrorBars.resize (allPlots.size ());
 	finalXVals .resize(allPlots.size ());
-	// Averaged over all pixels (avgAvg is the average of averages over repetitions)
-	//std::vector<avgData> avgAvg (allPlots.size ()), avgErrBar (allPlots.size ()), avgXVals (allPlots.size ());
-	// newData[plot][dataSet][group] = true if new data so change some vector sizes.
-	//std::vector<std::vector<std::vector<bool> > > newData (allPlots.size ());
-	//std::vector<std::vector<std::vector<std::deque<double>>>> finalHistData (allPlots.size ());
-	//std::vector<std::vector<std::vector<std::map<int, std::pair<int, ULONG>>>>> histogramData (allPlots.size ());
 	for (auto plotInc : range (allPlots.size ())) {
-		UINT datasetNumber = allPlots[plotInc].getDataSetNumber ();
+		unsigned datasetNumber = allPlots[plotInc].getDataSetNumber ();
 		histogramData[plotInc].resize (datasetNumber);
 		finalCountData[plotInc].resize (datasetNumber);
 		finalDataNew[plotInc].resize (datasetNumber);
 		finalAvgs[plotInc].resize (datasetNumber);
 		finalErrorBars[plotInc].resize (datasetNumber);
 		finalXVals[plotInc].resize (datasetNumber);
-		//avgAvg[plotInc].resize (datasetNumber);
-		//avgErrBar[plotInc].resize (datasetNumber);
-		//avgXVals[plotInc].resize (datasetNumber);
 		for (auto dataSetInc : range (allPlots[plotInc].getDataSetNumber ())) {
-			UINT whichGrid = input->plotInfo[plotInc].whichGrid;
-			UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
+			unsigned whichGrid = input->plotInfo[plotInc].whichGrid;
+			unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 			histogramData[plotInc][dataSetInc].resize (groupNum);
 			finalCountData[plotInc][dataSetInc].resize (groupNum);
 			finalAvgs[plotInc][dataSetInc].resize (groupNum);

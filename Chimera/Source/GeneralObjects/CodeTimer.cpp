@@ -14,7 +14,7 @@ double CodeTimer::getTime ( bool ms )
 	return getTime ( times.size ( ) - 2, ms );
 }
 
-double CodeTimer::getTime( UINT which, bool ms)
+double CodeTimer::getTime( unsigned which, bool ms)
 {
 	if ( ms )
 	{

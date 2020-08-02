@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include <Basler/ImageEventHandler.h>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <PrimaryWindows/QtBaslerWindow.h>
 #include <Basler/BaslerGrabThreadWorker.h>
 #include <qlogging.h>
 #include <qdebug.h>
 
-ImageEventHandler::ImageEventHandler (IChimeraWindowWidget* parentHandle) : Pylon::CImageEventHandler () {
+ImageEventHandler::ImageEventHandler (IChimeraQtWindow* parentHandle) : Pylon::CImageEventHandler () {
 	parent = parentHandle;
 }
 

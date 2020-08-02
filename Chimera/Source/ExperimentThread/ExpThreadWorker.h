@@ -16,11 +16,9 @@ class ExpThreadWorker : public QObject {
     public Q_SLOTS:
         void process ();
     Q_SIGNALS:
-        //void finished ();
-        //void error (QString err);
         void updateBoxColor (QString, QString);
-        void notification (QString msg);
-        void warn (QString msg);
+        void notification (QString msg, unsigned debugLvl=0);
+        void warn (QString msg, unsigned debugLvl=1);
         void debugInfo (QString msg);
         void repUpdate (unsigned int);
         void prepareAndor (void*);
@@ -28,9 +26,12 @@ class ExpThreadWorker : public QObject {
         void plot_Xvals_determined (std::vector<double>);
         void doAoData (const std::vector<std::vector<plotDataVec>>& doData,
                        const std::vector<std::vector<plotDataVec>>& aoData);
-        void normalExperimentFinish (QString);
-        void errorExperimentFinish (QString);
+        void normalExperimentFinish (QString, profileSettings);
+		void calibrationFinish (QString, profileSettings);
+        void errorExperimentFinish (QString, profileSettings);
+
         void mainProcessFinish (); 
+
     private:
         // add your variables here
         ExperimentThreadInput* inputr;

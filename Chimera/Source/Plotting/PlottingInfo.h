@@ -17,7 +17,7 @@ struct analysisGroupLocation
 class PlottingInfo
 {
 	public:
-		PlottingInfo(UINT picNumber=1);
+		PlottingInfo(unsigned picNumber=1);
 		PlottingInfo(std::string fileName);
 		void changeTitle(std::string newTitle);
 		std::string getTitle();
@@ -34,52 +34,52 @@ class PlottingInfo
 		void changeXAxis(std::string newXAxis);
 		std::string getXAxis();
 		
-		void changeLegendText( UINT dataSet, std::string newLegend);
-		std::string getLegendText( UINT dataSet);
+		void changeLegendText( unsigned dataSet, std::string newLegend);
+		std::string getLegendText( unsigned dataSet);
 
 		void addGroup();
 		void removeAnalysisSet();
-		void resetNumberOfAnalysisGroups( UINT groupNumber);
+		void resetNumberOfAnalysisGroups( unsigned groupNumber);
 		void setGroups(std::vector<coordinate> locations);
 		
 		void addPixel();
 		void removePixel();
-		void resetPixelNumber( UINT pixelNumber);
-		UINT getPixelNumber();
-		void setPixelIndex( UINT pixel, UINT group, UINT index);
-		UINT getPixelIndex( UINT pixel, UINT group);
+		void resetPixelNumber( unsigned pixelNumber);
+		unsigned getPixelNumber();
+		void setPixelIndex( unsigned pixel, unsigned group, unsigned index);
+		unsigned getPixelIndex( unsigned pixel, unsigned group);
 
-		void setGroupLocation( UINT pixel, UINT analysisSet, UINT row, UINT collumn);
-		void getPixelLocation( UINT pixel, UINT analysisSet, UINT& row, UINT& collumn);
-		std::vector<std::pair<UINT, UINT>> getAllPixelLocations();
+		void setGroupLocation( unsigned pixel, unsigned analysisSet, unsigned row, unsigned collumn);
+		void getPixelLocation( unsigned pixel, unsigned analysisSet, unsigned& row, unsigned& collumn);
+		std::vector<std::pair<unsigned, unsigned>> getAllPixelLocations();
 
 		void addPicture();
 		void removePicture();
-		void resetPictureNumber( UINT pictureNumber);
-		UINT getPicNumber();
+		void resetPictureNumber( unsigned pictureNumber);
+		unsigned getPicNumber();
 
 		void addDataSet();
 		void removeDataSet();
-		void resetDataSetNumber( UINT dataSetNumber);
+		void resetDataSetNumber( unsigned dataSetNumber);
 
-		void setPostSelCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture, UINT trueConditionValue);
-		UINT getPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture);
+		void setPostSelCondition( unsigned dataSetNumber, unsigned conditionNumber, unsigned pixel, unsigned picture, unsigned trueConditionValue);
+		unsigned getPostSelectionCondition( unsigned dataSetNumber, unsigned conditionNumber, unsigned pixel, unsigned picture);
 		void addPostSelectionCondition();
 		void removePostSelectionCondition();
-		void resetConditionNumber( UINT conditionNumber);
-		UINT getConditionNumber();
+		void resetConditionNumber( unsigned conditionNumber);
+		unsigned getConditionNumber();
 
-		void setResultCondition( UINT dataSetNumber, UINT pixel, UINT picture, UINT trueConditionValue);
-		UINT getResultCondition( UINT dataSetNumber, UINT pixel, UINT picture);
+		void setResultCondition( unsigned dataSetNumber, unsigned pixel, unsigned picture, unsigned trueConditionValue);
+		unsigned getResultCondition( unsigned dataSetNumber, unsigned pixel, unsigned picture);
 
-		void setDataCountsLocation( UINT dataSet, UINT pixel, UINT picture);
-		void getDataCountsLocation( UINT dataSet, UINT& pixel, UINT& picture);
+		void setDataCountsLocation( unsigned dataSet, unsigned pixel, unsigned picture);
+		void getDataCountsLocation( unsigned dataSet, unsigned& pixel, unsigned& picture);
 
-		void setDataSetHistBinWidth( UINT dataSet, UINT width );
-		UINT getDataSetHistBinWidth( UINT dataSet );
+		void setDataSetHistBinWidth( unsigned dataSet, unsigned width );
+		unsigned getDataSetHistBinWidth( unsigned dataSet );
 
-		void setPlotData( UINT dataSet, bool plotData);
-		bool getPlotThisDataValue( UINT dataSet);
+		void setPlotData( unsigned dataSet, bool plotData);
+		bool getPlotThisDataValue( unsigned dataSet);
 
 		std::string getAllSettingsString();
 		void savePlotInfo();
@@ -87,29 +87,29 @@ class PlottingInfo
 		
 		void clear();
 
-		UINT getPixelGroupNumber();
-		UINT getDataSetNumber();
+		unsigned getPixelGroupNumber();
+		unsigned getDataSetNumber();
 
-		UINT getFitOption( UINT dataSet);
-		void setFitOption( UINT dataSet, UINT fitType);
+		unsigned getFitOption( unsigned dataSet);
+		void setFitOption( unsigned dataSet, unsigned fitType);
 
-		UINT whenToFit( UINT dataSet);
-		void setWhenToFit( UINT dataSet, UINT whenToFit);
+		unsigned whenToFit( unsigned dataSet);
+		void setWhenToFit( unsigned dataSet, unsigned whenToFit);
 
 		std::string getPrcSettingsString();
 		std::string getPscSettingsString();
 
-		static UINT getPicNumberFromFile(std::string fileAddress);
+		static unsigned getPicNumberFromFile(std::string fileAddress);
 		static std::string getAllSettingsStringFromFile(std::string fileAddress);
 
-		analysisGroupLocation& groupInfo( UINT pixelNumber, UINT pixelSet );
-		analysisGroupLocation  groupInfo( UINT pixelNumber, UINT pixelSet ) const;
+		analysisGroupLocation& groupInfo( unsigned pixelNumber, unsigned pixelSet );
+		analysisGroupLocation  groupInfo( unsigned pixelNumber, unsigned pixelSet ) const;
 
 	private:
 		// Versions of the plot save file system. 
 		// Version 1.x refers to files that were outputted with no version number
-		const UINT versionMajor = 2;
-		const UINT versionMinor = 1;
+		const unsigned versionMajor = 2;
+		const unsigned versionMinor = 1;
 		std::string title;
 		std::string yLabel;
 		// analysisGroups[pixel #][pixel set]
@@ -119,9 +119,9 @@ class PlottingInfo
 		// arbitrary. Always goes to the same folder.
 		std::string fileName;
 		// grabbed from main code at "OK" Press.
-		UINT numberOfPictures;
-		UINT currentPixelNumber;
-		UINT currentConditionNumber;
+		unsigned numberOfPictures;
+		unsigned currentPixelNumber;
+		unsigned currentConditionNumber;
 		// two options here.
 		std::string xAxis;
 		// three options here.

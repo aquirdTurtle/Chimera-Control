@@ -402,8 +402,8 @@
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
     <ClInclude Include="Source\GeneralObjects\ChimeraStyleSheets.h" />
+    <QtMoc Include="Source\GeneralObjects\IChimeraSystem.h" />
     <ClInclude Include="Source\GeneralObjects\IDeviceCore.h" />
-    <ClInclude Include="Source\GeneralObjects\IDeviceInterface.h" />
     <ClInclude Include="Source\GeneralObjects\RunInfo.h" />
     <ClInclude Include="Source\Agilent\Agilent.h" />
     <ClInclude Include="Source\Agilent\AgilentChannelMode.h" />
@@ -440,6 +440,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
+    <ClInclude Include="Source\Piezo\piezoChan.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtScriptWindow.h -o MOC\moc_QtScriptWindow.cpp</Command>
@@ -491,16 +492,6 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\QtMainWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\QtMainWindow.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
-    <QtMoc Include="Source\PrimaryWindows\IChimeraWindowWidget.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\IChimeraWindowWidget.h -o MOC\moc_IChimeraWindowWidget.cpp</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\IChimeraWindowWidget.h -o MOC\moc_IChimeraWindowWidget.cpp</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC IChimeraWindowWidget.h</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC IChimeraWindowWidget.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MOC\moc_IChimeraWindowWidget.cpp;%(Outputs)</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">MOC\moc_IChimeraWindowWidget.cpp;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\PrimaryWindows\IChimeraWindowWidget.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\PrimaryWindows\IChimeraWindowWidget.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
-    </QtMoc>
     <QtMoc Include="Source\PrimaryWindows\QtAuxiliaryWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtAuxiliaryWindow.h -o MOC\moc_QtAuxiliaryWindow.cpp</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\PrimaryWindows\QtAuxiliaryWindow.h -o MOC\moc_QtAuxiliaryWindow.cpp</Command>
@@ -521,6 +512,9 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\RealTimeDataAnalysis\AnalysisThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\RealTimeDataAnalysis\AnalysisThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
+    <QtMoc Include="Source\PrimaryWindows\IChimeraQtWindow.h" />
+    <ClInclude Include="Source\Python\NewPythonHandler.h" />
+    <ClInclude Include="Source\RealTimeDataAnalysis\analysisSettings.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\atomCruncherInput.h" />
     <QtMoc Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\RealTimeDataAnalysis\AtomCruncherWorker.h -o MOC\moc_AtomCruncherWorker.cpp</Command>
@@ -567,7 +561,6 @@
     <ClInclude Include="Source\GeneralUtilityFunctions\cleanString.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ColorBox.h" />
     <ClInclude Include="Source\GeneralObjects\commonTypes.h" />
-    <ClInclude Include="Source\ExperimentThread\Communicator.h" />
     <ClInclude Include="Source\AnalogOutput\AoStructures.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\debugInfo.h" />
     <ClInclude Include="Source\NIAWG\directions.h" />
@@ -658,7 +651,7 @@
     <ClInclude Include="Source\Plotting\tinyPlotInfo.h" />
     <ClInclude Include="Source\CustomMfcControlWrappers\UintEdit.h" />
     <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h" />
-    <ClInclude Include="Source\ParameterSystem\ParameterSystem.h" />
+    <QtMoc Include="Source\ParameterSystem\ParameterSystem.h" />
     <ClInclude Include="Source\ConfigurationSystems\Version.h" />
     <ClInclude Include="Source\GeneralFlumes\VisaFlume.h" />
     <ClInclude Include="Source\Microwave\WindFreakFlume.h" />
@@ -696,6 +689,7 @@
     <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureStats.cpp" />
     <ClCompile Include="Source\GeneralObjects\ChimeraStyleSheets.cpp" />
+    <ClCompile Include="Source\GeneralObjects\IChimeraSystem.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\my_str.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgSystem.cpp" />
     <ClCompile Include="Source\GeneralObjects\CodeTimer.cpp" />
@@ -708,13 +702,14 @@
     <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
     <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
-    <ClCompile Include="Source\PrimaryWindows\IChimeraWindowWidget.cpp" />
+    <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAndorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtAuxiliaryWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtBaslerWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtDeformableMirrorWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtMainWindow.cpp" />
     <ClCompile Include="Source\PrimaryWindows\QtScriptWindow.cpp" />
+    <ClCompile Include="Source\Python\NewPythonHandler.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\AnalysisThreadWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
@@ -735,7 +730,6 @@
     <ClCompile Include="Source\Andor\CameraSettingsControl.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\cleanString.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ColorBox.cpp" />
-    <ClCompile Include="Source\ExperimentThread\Communicator.cpp" />
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\DoubleEdit.cpp" />
     <ClCompile Include="Source\ParameterSystem\Expression.cpp" />

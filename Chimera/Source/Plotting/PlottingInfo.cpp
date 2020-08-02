@@ -5,7 +5,7 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
-PlottingInfo::PlottingInfo(UINT picNumber)
+PlottingInfo::PlottingInfo(unsigned picNumber)
 {
 	// initialize things.
 	generalPlotType = "Atoms";
@@ -29,7 +29,7 @@ PlottingInfo::PlottingInfo(std::string fileName)
 }
 
 
-analysisGroupLocation& PlottingInfo::groupInfo( UINT pixelNumber, UINT pixelSet )
+analysisGroupLocation& PlottingInfo::groupInfo( unsigned pixelNumber, unsigned pixelSet )
 {
 	if ( pixelNumber > analysisGroups.size( ) )
 	{
@@ -42,7 +42,7 @@ analysisGroupLocation& PlottingInfo::groupInfo( UINT pixelNumber, UINT pixelSet 
 	return analysisGroups[pixelNumber][pixelSet];
 }
 
-analysisGroupLocation  PlottingInfo::groupInfo( UINT pixelNumber, UINT pixelSet ) const
+analysisGroupLocation  PlottingInfo::groupInfo( unsigned pixelNumber, unsigned pixelSet ) const
 {
 	if ( pixelNumber > analysisGroups.size( ) )
 	{
@@ -65,11 +65,11 @@ std::string PlottingInfo::getPrcSettingsString()
 {
 	std::string allConditionsString = "\r\nAll Result Conditions:\r\n=========================\r\n";
 	allConditionsString += "Data Set #, picture #, pixel #:\r\n";
-	for (UINT dataSetInc = 0; dataSetInc < getDataSetNumber(); dataSetInc++)
+	for (unsigned dataSetInc = 0; dataSetInc < getDataSetNumber(); dataSetInc++)
 	{
-		for (UINT pictureInc = 0; pictureInc < getPicNumber(); pictureInc++)
+		for (unsigned pictureInc = 0; pictureInc < getPicNumber(); pictureInc++)
 		{
-			for (UINT pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
+			for (unsigned pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
 			{
 				int currentValue = getResultCondition(dataSetInc, pixelInc, pictureInc);
 				allConditionsString += str( dataSetInc + 1 ) + ", " + str( pictureInc + 1 ) + ", " + str( pixelInc + 1 )
@@ -99,13 +99,13 @@ std::string PlottingInfo::getPscSettingsString()
 {
 	std::string allConditionsString = "\r\nAll Current Post-Selection Conditions:\r\n=========================\r\n";
 	allConditionsString += "condition #, Data Set #, picture #, pixel #:\r\n";
-	for (UINT conditionInc = 0; conditionInc < getConditionNumber(); conditionInc++)
+	for (unsigned conditionInc = 0; conditionInc < getConditionNumber(); conditionInc++)
 	{
-		for (UINT dataSetInc = 0; dataSetInc < getDataSetNumber(); dataSetInc++)
+		for (unsigned dataSetInc = 0; dataSetInc < getDataSetNumber(); dataSetInc++)
 		{
-			for (UINT pictureInc = 0; pictureInc < getPicNumber(); pictureInc++)
+			for (unsigned pictureInc = 0; pictureInc < getPicNumber(); pictureInc++)
 			{
-				for (UINT pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
+				for (unsigned pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
 				{
 					allConditionsString += str( conditionInc + 1 ) + ", " + str( dataSetInc + 1 ) + ", "
 						+ str( pictureInc + 1 ) + ", " + str( pixelInc + 1 ) + " = ";
@@ -158,14 +158,14 @@ void PlottingInfo::changeXAxis(std::string newXAxis)
 
 void PlottingInfo::addGroup()
 {
-	for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+	for (unsigned pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 	{
 		analysisGroups[pixelInc].resize(analysisGroups[pixelInc].size() + 1);
 	}
 }
 
 
-void PlottingInfo::setGroupLocation( UINT pixel, UINT analysisSet, UINT row, UINT column)
+void PlottingInfo::setGroupLocation( unsigned pixel, unsigned analysisSet, unsigned row, unsigned column)
 {
 	groupInfo( pixel, analysisSet ).row = row;
 	groupInfo( pixel, analysisSet ).col = column;
@@ -245,19 +245,19 @@ void PlottingInfo::removePicture()
 }
 
 
-void PlottingInfo::setPostSelCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture,
-											  UINT postSelectionCondition)
+void PlottingInfo::setPostSelCondition( unsigned dataSetNumber, unsigned conditionNumber, unsigned pixel, unsigned picture,
+											  unsigned postSelectionCondition)
 {
 	dataSets[dataSetNumber].setPostSelectionCondition(conditionNumber, pixel, picture, postSelectionCondition);
 }
 
-void PlottingInfo::setResultCondition( UINT dataSetNumber, UINT pixel, UINT picture, UINT positiveResultCondition)
+void PlottingInfo::setResultCondition( unsigned dataSetNumber, unsigned pixel, unsigned picture, unsigned positiveResultCondition)
 {
 	dataSets[dataSetNumber].setResultCondition(pixel, picture, positiveResultCondition);
 }
 
 // stores the info in the row and column arguments
-void PlottingInfo::getPixelLocation( UINT pixel, UINT analysisSet, UINT& row, UINT& column)
+void PlottingInfo::getPixelLocation( unsigned pixel, unsigned analysisSet, unsigned& row, unsigned& column)
 {
 	row = groupInfo(pixel, analysisSet).row;
 	column = groupInfo( pixel, analysisSet ).col;
@@ -268,7 +268,7 @@ void PlottingInfo::removeAnalysisSet()
 	// always at least one pixel...
 
 	// make sure tat there is an analysis set to remove.
-	for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+	for (unsigned pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 	{
 		if (analysisGroups[pixelInc].size() < 2)
 		{
@@ -278,7 +278,7 @@ void PlottingInfo::removeAnalysisSet()
 	}
 }
 
-UINT PlottingInfo::getPicNumberFromFile(std::string fileAddress)
+unsigned PlottingInfo::getPicNumberFromFile(std::string fileAddress)
 {
 	// load the file completely then readbtn the picture number.
 	PlottingInfo temp(fileAddress);
@@ -286,12 +286,12 @@ UINT PlottingInfo::getPicNumberFromFile(std::string fileAddress)
 }
 
 
-UINT PlottingInfo::getResultCondition( UINT dataSetNumber, UINT pixel, UINT picture)
+unsigned PlottingInfo::getResultCondition( unsigned dataSetNumber, unsigned pixel, unsigned picture)
 {
 	return dataSets[dataSetNumber].getPositiveResultCondition(pixel, picture);
 }
 
-UINT PlottingInfo::getPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture)
+unsigned PlottingInfo::getPostSelectionCondition( unsigned dataSetNumber, unsigned conditionNumber, unsigned pixel, unsigned picture)
 {
 	return dataSets[dataSetNumber].getPostSelectionCondition(conditionNumber, pixel, picture);
 }
@@ -327,7 +327,7 @@ std::string PlottingInfo::getXAxis()
 	return xAxis;
 }
 
-void PlottingInfo::setDataCountsLocation( UINT dataSet, UINT pixel, UINT picture)
+void PlottingInfo::setDataCountsLocation( unsigned dataSet, unsigned pixel, unsigned picture)
 {
 	if (dataSet < dataSets.size() && !(dataSet < 0))
 	{
@@ -341,7 +341,7 @@ void PlottingInfo::setDataCountsLocation( UINT dataSet, UINT pixel, UINT picture
 }
 
 
-void PlottingInfo::setPlotData( UINT dataSet, bool plotData)
+void PlottingInfo::setPlotData( unsigned dataSet, bool plotData)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
@@ -352,7 +352,7 @@ void PlottingInfo::setPlotData( UINT dataSet, bool plotData)
 }
 
 
-void PlottingInfo::setDataSetHistBinWidth( UINT dataSet, UINT width )
+void PlottingInfo::setDataSetHistBinWidth( unsigned dataSet, unsigned width )
 {
 	if ( dataSet >= dataSets.size( ) || dataSet < 0 )
 	{
@@ -363,7 +363,7 @@ void PlottingInfo::setDataSetHistBinWidth( UINT dataSet, UINT width )
 }
 
 
-UINT PlottingInfo::getDataSetHistBinWidth( UINT dataSet )
+unsigned PlottingInfo::getDataSetHistBinWidth( unsigned dataSet )
 {
 	if ( dataSet >= dataSets.size( ) || dataSet < 0 )
 	{
@@ -373,7 +373,7 @@ UINT PlottingInfo::getDataSetHistBinWidth( UINT dataSet )
 	return dataSets[dataSet].getHistBinWidth( );
 }
 
-bool PlottingInfo::getPlotThisDataValue( UINT dataSet)
+bool PlottingInfo::getPlotThisDataValue( unsigned dataSet)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
@@ -384,13 +384,13 @@ bool PlottingInfo::getPlotThisDataValue( UINT dataSet)
 }
 
 
-void PlottingInfo::getDataCountsLocation( UINT dataSet, UINT& pixel, UINT& picture)
+void PlottingInfo::getDataCountsLocation( unsigned dataSet, unsigned& pixel, unsigned& picture)
 {
 	dataSets[dataSet].getDataCountsLocation(pixel, picture);
 }
 
 
-void PlottingInfo::changeLegendText( UINT dataSet, std::string newLegend)
+void PlottingInfo::changeLegendText( unsigned dataSet, std::string newLegend)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
@@ -401,7 +401,7 @@ void PlottingInfo::changeLegendText( UINT dataSet, std::string newLegend)
 }
 
 
-std::string PlottingInfo::getLegendText( UINT dataSet)
+std::string PlottingInfo::getLegendText( unsigned dataSet)
 {
 	if (dataSet >= dataSets.size())
 	{
@@ -456,10 +456,10 @@ void PlottingInfo::savePlotInfo()
 	for (auto& dset : dataSets)
 	{
 		message += "DATA_SET_BEGIN\n";
-		for (UINT pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
+		for (unsigned pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
 		{
 			message += "PICTURE_BEGIN\n";
-			for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+			for (unsigned pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 			{
 				message += str(dset.getPositiveResultCondition(pixelInc, pictureInc)) + "\n";
 			}
@@ -469,16 +469,16 @@ void PlottingInfo::savePlotInfo()
 	}
 	message += "POSITIVE_RESULT_END\n";
 	message += "POST_SELECTION_BEGIN\n";
-	for (UINT conditionInc = 0; conditionInc < currentConditionNumber; conditionInc++)
+	for (unsigned conditionInc = 0; conditionInc < currentConditionNumber; conditionInc++)
 	{
 		message += "CONDITION_BEGIN\n";
 		for ( auto& dset : dataSets )
 		{
 			message += "DATA_SET_BEGIN\n";
-			for (UINT pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
+			for (unsigned pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
 			{
 				message += "PICTURE_BEGIN\n";
-				for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+				for (unsigned pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 				{
 					message += str(dset.getPostSelectionCondition(conditionInc, pixelInc, pictureInc)) + "\n";
 				}
@@ -492,7 +492,7 @@ void PlottingInfo::savePlotInfo()
 
 	// legends
 	message += "LEGENDS_BEGIN\n";
-	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (unsigned dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		message += getLegendText(dataSetInc) + "\n";
 	}
@@ -502,9 +502,9 @@ void PlottingInfo::savePlotInfo()
 	message += "PLOT_COUNTS_LOCATIONS_BEGIN\n";
 	if ( getPlotType( ) != "Atoms" )
 	{
-		for ( UINT dataSetInc = 0; dataSetInc < dataSets.size( ); dataSetInc++ )
+		for ( unsigned dataSetInc = 0; dataSetInc < dataSets.size( ); dataSetInc++ )
 		{
-			UINT pixel, picture;
+			unsigned pixel, picture;
 			getDataCountsLocation( dataSetInc, pixel, picture );
 			message += str( pixel ) + " " + str( picture ) + "\n";
 		}
@@ -613,7 +613,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	/// Analys pixels
 	ProfileSystem::checkDelimiterLine(plotStream, "POSITIVE_RESULT_BEGIN" );
-	UINT dataSetCount = 0;
+	unsigned dataSetCount = 0;
 	// data set loop
 	while (!ProfileSystem::checkDelimiterLine(plotStream, "DATA_SET_BEGIN", "POSITIVE_RESULT_END" ) )
 	{
@@ -850,7 +850,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	plotStream.get( );
 	std::string tmpStr;
 	plotStream >> tmpStr;
-	UINT dsetNum = 0;
+	unsigned dsetNum = 0;
 	try
 	{
 		dsetNum = boost::lexical_cast<unsigned long>( tmpStr );
@@ -866,7 +866,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	for ( auto& dset : dataSets )
 	{
 		plotStream >> tmpStr;
-		UINT width;
+		unsigned width;
 		try
 		{
 			width = boost::lexical_cast<unsigned long>( tmpStr );
@@ -881,9 +881,9 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 }
 
 
-void PlottingInfo::resetNumberOfAnalysisGroups( UINT setNumber)
+void PlottingInfo::resetNumberOfAnalysisGroups( unsigned setNumber)
 {
-	for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+	for (unsigned pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 	{
 		analysisGroups[pixelInc].clear();
 		analysisGroups[pixelInc].resize(setNumber);
@@ -891,37 +891,37 @@ void PlottingInfo::resetNumberOfAnalysisGroups( UINT setNumber)
 }
 
 
-void PlottingInfo::resetPixelNumber( UINT pixelNumber)
+void PlottingInfo::resetPixelNumber( unsigned pixelNumber)
 {
 	currentPixelNumber = pixelNumber;
 	analysisGroups.resize(pixelNumber);
-	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (unsigned dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPixelNumber(pixelNumber);
 		dataSets[dataSetInc].resetPictureNumber(numberOfPictures);
 	}
 }
 
-void PlottingInfo::resetPictureNumber( UINT pictureNumber)
+void PlottingInfo::resetPictureNumber( unsigned pictureNumber)
 {
 	numberOfPictures = pictureNumber;
-	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (unsigned dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPictureNumber(pictureNumber);
 	}
 }
 
-void PlottingInfo::resetConditionNumber( UINT conditionNumber)
+void PlottingInfo::resetConditionNumber( unsigned conditionNumber)
 {
 	currentConditionNumber = conditionNumber;
-	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (unsigned dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPostSelectionConditionNumber(conditionNumber);
 	}
 }
 
 
-void PlottingInfo::resetDataSetNumber( UINT dataSetNumber)
+void PlottingInfo::resetDataSetNumber( unsigned dataSetNumber)
 {
 	dataSets.clear();
 	dataSets.resize(dataSetNumber);
@@ -958,23 +958,23 @@ std::string PlottingInfo::getFileName()
 	return fileName;
 }
 
-UINT PlottingInfo::getPixelNumber()
+unsigned PlottingInfo::getPixelNumber()
 {
 	return currentPixelNumber;
 }
 
-UINT PlottingInfo::getPicNumber()
+unsigned PlottingInfo::getPicNumber()
 {
 	return numberOfPictures;
 }
 
-UINT PlottingInfo::getConditionNumber()
+unsigned PlottingInfo::getConditionNumber()
 {
 	return currentConditionNumber;
 }
 
 
-UINT PlottingInfo::getPixelGroupNumber()
+unsigned PlottingInfo::getPixelGroupNumber()
 {
 	if (analysisGroups.size() == 0)
 	{
@@ -984,60 +984,60 @@ UINT PlottingInfo::getPixelGroupNumber()
 }
 
 
-UINT PlottingInfo::getDataSetNumber()
+unsigned PlottingInfo::getDataSetNumber()
 {
 	return dataSets.size();
 }
 
 
-void PlottingInfo::setPixelIndex( UINT pixel, UINT group, UINT index)
+void PlottingInfo::setPixelIndex( unsigned pixel, unsigned group, unsigned index)
 {
 	groupInfo( pixel, group ).pixelIndex = index;
 }
 
 
-UINT PlottingInfo::getPixelIndex( UINT pixel, UINT group)
+unsigned PlottingInfo::getPixelIndex( unsigned pixel, unsigned group)
 {
 	return groupInfo( pixel, group ).pixelIndex;
 }
 
 
-void PlottingInfo::setFitOption( UINT dataSet, UINT fitType)
+void PlottingInfo::setFitOption( unsigned dataSet, unsigned fitType)
 {
 	dataSets[dataSet].setFitType(fitType);
 }
 
 
-void PlottingInfo::setWhenToFit( UINT dataSet, UINT whenToFit)
+void PlottingInfo::setWhenToFit( unsigned dataSet, unsigned whenToFit)
 {
 	dataSets[dataSet].setWhenToFit(whenToFit);
 }
 
 
-UINT PlottingInfo::getFitOption( UINT dataSet)
+unsigned PlottingInfo::getFitOption( unsigned dataSet)
 {
 	return dataSets[dataSet].getFitType();
 }
 
 
-UINT PlottingInfo::whenToFit( UINT dataSet)
+unsigned PlottingInfo::whenToFit( unsigned dataSet)
 {
 	return dataSets[dataSet].getWhenToFit();
 }
 
 
-std::vector<std::pair<UINT, UINT>> PlottingInfo::getAllPixelLocations()
+std::vector<std::pair<unsigned, unsigned>> PlottingInfo::getAllPixelLocations()
 {
-	std::vector<std::pair<UINT, UINT>> allUniqueLocations;
-	for (UINT pixelInc = 0; pixelInc < analysisGroups.size(); pixelInc++)
+	std::vector<std::pair<unsigned, unsigned>> allUniqueLocations;
+	for (unsigned pixelInc = 0; pixelInc < analysisGroups.size(); pixelInc++)
 	{
-		for (UINT groupInc = 0; groupInc < analysisGroups[pixelInc].size(); groupInc++)
+		for (unsigned groupInc = 0; groupInc < analysisGroups[pixelInc].size(); groupInc++)
 		{
-			std::pair<UINT, UINT> tempLocation;
+			std::pair<unsigned, unsigned> tempLocation;
 			tempLocation.first = groupInfo( pixelInc, groupInc ).row;
 			tempLocation.second = groupInfo( pixelInc, groupInc ).col;
 			bool alreadyExists = false;
-			for (UINT uniqueLocationInc = 0; uniqueLocationInc < allUniqueLocations.size(); uniqueLocationInc++)
+			for (unsigned uniqueLocationInc = 0; uniqueLocationInc < allUniqueLocations.size(); uniqueLocationInc++)
 			{
 				if (allUniqueLocations[uniqueLocationInc].first == tempLocation.first 
 					 && allUniqueLocations[uniqueLocationInc].second == tempLocation.second)
@@ -1062,11 +1062,11 @@ void PlottingInfo::setGroups(std::vector<coordinate> locations)
 		thrower ( "ERROR: One of your real-time plots was expecting a multiple of " + str(currentPixelNumber) + " pixels to analyze, but you "
 			     "selected " + str(locations.size()) + " pixels.");
 	}
-	UINT locationInc = 0;
-	for (UINT groupInc = 0; groupInc < locations.size() / currentPixelNumber; groupInc++)
+	unsigned locationInc = 0;
+	for (unsigned groupInc = 0; groupInc < locations.size() / currentPixelNumber; groupInc++)
 	{
 		addGroup();
-		for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+		for (unsigned pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 		{
 			setGroupLocation(pixelInc, groupInc, locations[locationInc].column+1, locations[locationInc].row+1);
 			locationInc++;

@@ -6,7 +6,7 @@
 #include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"
 #include "debugInfo.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -18,11 +18,10 @@ class DebugOptionsControl
 	public:
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile );
-		void initialize( POINT& loc, IChimeraWindowWidget* parent );
-		void handleEvent(UINT id, MainWindow* comm);
+		void initialize( POINT& loc, IChimeraQtWindow* parent );
+		void handleEvent(unsigned id, MainWindow* comm);
 		debugInfo getOptions();
 		void setOptions(debugInfo options);
-		void rearrange(int width, int height, fontMap fonts);
 
 	private:
 

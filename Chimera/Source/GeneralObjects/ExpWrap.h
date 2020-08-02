@@ -10,7 +10,7 @@ template <class type>
 class ExpWrap
 {
 	public:
-		type& operator() ( UINT variationNumber )
+		type& operator() ( unsigned variationNumber )
 		{ 
 			if (variationNumber >= data.size ())
 			{
@@ -19,7 +19,7 @@ class ExpWrap
 			return data[ variationNumber ];
 		};
 
-		type operator() ( UINT variationNumber ) const
+		type operator() ( unsigned variationNumber ) const
 		{
 			if (variationNumber >= data.size ())
 			{
@@ -32,11 +32,11 @@ class ExpWrap
 		{
 			return data.size();
 		}
-		void resizeVariations ( UINT numVariations )
+		void resizeVariations ( unsigned numVariations )
 		{
 			data.resize ( numVariations );
 		}
-		void uniformSizeReset ( UINT numVariations )
+		void uniformSizeReset ( unsigned numVariations )
 		{
 			data.clear ( );
 			data.resize ( numVariations );

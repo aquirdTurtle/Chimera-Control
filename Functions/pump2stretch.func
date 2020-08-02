@@ -1,30 +1,60 @@
-% Master-Script See the "?" for info on commands.
-
-def pump2stretch():
-  dac: probePower 0
-  off: probeRf
-  off: repumpRf
-  var opFreq -0.5
-  var opPulseLength 1
-  var repumpfreqVal -1.5
-  % set to 3G field
-  call setQuantAxis()
-  dac: sigmaopfreq 0
-  daclinspace: motFreq defaultMotFreq opFreq 1 10  
-  dac: repumpfreq repumpfreqVal
-  dac: sigmaoppower sbc_sigma_op__servo_value 
-  %dac: sigmarepumpPower sigma_repump__servo_value
-  dac: sigmarepumpPower 0.3
-  t += 1.01
-  on: sigmaOpRf
-  on: sigmaRepumpRf
-  t += opPulseLength
-  off: sigmaOpRf
-  off: sigmaRepumpRf
-  %call opPulse(opPulseLength)
-  dac: sigmarepumpPower 0
-  dac: sigmaoppower 0
-  var finPumpFreq 0.5
-  daclinspace: motFreq opFreq finPumpFreq 0.2 10  
-  dac: repumpfreq 0
-  t += 0.2
+% Master-Script See the "?" for info on commands.
+
+
+
+def pump2stretch():
+
+  dac: probePower 0
+
+  off: probeRf
+
+  off: repumpRf
+
+  var opFreq -0.5
+
+  var opPulseLength 1
+
+  var repumpfreqVal -1.5
+
+  % set to 3G field
+
+  call setQuantAxis()
+
+  dac: sigmaopfreq 0
+
+  daclinspace: motFreq defaultMotFreq opFreq 1 10  
+
+  dac: repumpfreq repumpfreqVal
+
+  dac: sigmaoppower sbc_sigma_op__sv
+
+  %dac: sigmarepumpPower sigma_repump__sv
+
+  dac: sigmarepumpPower 0.3
+
+  t += 1.01
+
+  on: sigmaOpRf
+
+  on: sigmaRepumpRf
+
+  t += opPulseLength
+
+  off: sigmaOpRf
+
+  off: sigmaRepumpRf
+
+  %call opPulse(opPulseLength)
+
+  dac: sigmarepumpPower 0
+
+  dac: sigmaoppower 0
+
+  var finPumpFreq -0.5
+
+  daclinspace: motFreq opFreq finPumpFreq 0.2 10  
+
+  dac: repumpfreq 0
+
+  t += 0.2
+

@@ -5,10 +5,9 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "ExperimentThread/Communicator.h"
 #include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "IChimeraWindowWidget.h"
+#include "IChimeraQtWindow.h"
 
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
@@ -35,32 +34,29 @@ namespace Ui {
     class QtMainWindow;
 } 
 
-class QtMainWindow : public IChimeraWindowWidget{
+class QtMainWindow : public IChimeraQtWindow{
     Q_OBJECT
 		 
     public:
 		explicit QtMainWindow ();
-        ~QtMainWindow ();
-
+		~QtMainWindow () {};
+		bool expIsRunning ();
+		void autoServo ();
 		void initializeWidgets ();
 		void showHardwareStatus ();
 
 		void fillExpDeviceList (DeviceList& list);
-		// stuff directly called (or 1 simple step removed) by message map.
-		//void onErrorMessage (std::string statusMessage);
 
 		void onDebugMessage (std::string msg);
 		LRESULT onNoAtomsAlertMessage (WPARAM wp, LPARAM lp);
 		LRESULT onNoMotAlertMessage (WPARAM wp, LPARAM lp);
-		LRESULT onFinish (WPARAM wp, LPARAM lp);
 
 		void onMachineOptRoundFin ();
-		void handleThresholdAnalysis ();
-		void onAutoCalFin ();
+		void onAutoCalFin (QString msg, profileSettings finishedConfig);
 		void setStyleSheets ();
 		//
 		void loadCameraCalSettings (ExperimentThreadInput* input);
-		void handlePause ();
+		void handlePauseToggle ();
 		DeviceList getDevices ();
 		// auxiliary functions used by the window.
 		void setNotes (std::string notes);
@@ -70,7 +66,6 @@ class QtMainWindow : public IChimeraWindowWidget{
 		void startExperimentThread (ExperimentThreadInput* input);
 
 		std::string getNotes ();
-		fontMap getFonts ();
 		profileSettings getProfileSettings ();
 		debugInfo getDebuggingOptions ();
 		mainOptions getMainOptions ();
@@ -88,11 +83,10 @@ class QtMainWindow : public IChimeraWindowWidget{
 		void windowSaveConfig (ConfigStream& saveFile);
 		void windowOpenConfig (ConfigStream& configFile);
 		void abortMasterThread ();
-		Communicator* getComm ();
 		std::string getSystemStatusString ();
 		bool masterIsRunning ();
 		RunInfo getRunInfo ();
-		void handleFinish ();
+		void handleFinishText ();
 		unsigned getRepNumber ();
 		void logParams (DataLogger* logger, ExperimentThreadInput* input);
 		bool experimentIsPaused ();
@@ -100,22 +94,23 @@ class QtMainWindow : public IChimeraWindowWidget{
 
 		void OnTimer (UINT_PTR id);
 
-		LRESULT autoServo (WPARAM w, LPARAM l);
 		void runServos ();
 		std::vector<servoInfo> getServoinfo ();
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
 		bool autoF5_AfterFinish = false;
 		EmbeddedPythonHandler& getPython ();
-		Communicator& getCommRef ();
 		unsigned getAutoCalNumber ();
 
+		QThread* getExpThread();
+		ExpThreadWorker* getExpThreadWorker();
+		void pauseExperiment ();
 	public Q_SLOTS:
 		void handleColorboxUpdate (QString color, QString systemDelim);
-		void handleExpNotification (QString txt);
+		void handleNotification (QString txt, unsigned level=0);
 		void onRepProgress (unsigned int repNum);
-		void onErrorMessage (QString errMessage);
-		void onNormalFinish (QString finMsg);
+		void onErrorMessage (QString errMessage, unsigned level=0);
+		void onNormalFinish (QString finMsg, profileSettings finishedProfile );
 		void onFatalError (QString finMsg);
 
     private:
@@ -137,17 +132,13 @@ class QtMainWindow : public IChimeraWindowWidget{
 		StatusIndicator shortStatus;
 		ServoManager servos;
 		// auxiliary members
-		Communicator comm;
 		fontMap mainFonts;
 		ExperimentThreadManager expThreadManager;
 		RunInfo systemRunningInfo;
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;
 		//
-		static BOOL CALLBACK monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
-			_In_ LPRECT lprcMonitor, _In_ LPARAM dwData);
-		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindowWidget* win);
-		UINT autoCalNum = 0;
-
+		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
+		unsigned autoCalNum = 0;
 };
 

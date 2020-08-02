@@ -7,14 +7,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "Scripts/ScriptStream.h"
-
-/* a simple wrapper for parameters for which there is one value for each channel, e.g. a double or an expression.*/
-template <typename type> struct piezoChan
-{
-	type x;
-	type y;
-	type z;
-};
+#include <Piezo/piezoChan.h>
 
 struct piezoSettings
 {
@@ -33,7 +26,7 @@ class PiezoCore : public IDeviceCore
 		void initialize (  );
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
-		void programVariation ( UINT variationNumber, std::vector<parameterType>& params);
+		void programVariation ( unsigned variationNumber, std::vector<parameterType>& params);
 		piezoSettings getSettingsFromConfig (ConfigStream& file );
 		void programAll ( piezoChan<double> vals );
 		double getCurrentXVolt ( );

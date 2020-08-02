@@ -10,7 +10,7 @@ class CodeTimer
 	public:
 		void tick(std::string timeName);
 		std::string getTimingMessage(bool ms = true);
-		double getTime ( UINT which, bool ms=true );
+		double getTime ( unsigned which, bool ms=true );
 		double getTime ( bool ms = true );
 	private:
 		std::vector<std::pair<std::string, chronoTime>> times;

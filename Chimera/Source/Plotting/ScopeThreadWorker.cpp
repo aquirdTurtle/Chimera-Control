@@ -34,7 +34,7 @@ void ScopeThreadWorker::process (){
 			}
 			//input->refreshData ();
 		}
-		catch (Error&) { /* ??? */ }
+		catch (ChimeraError&) { /* ??? */ }
 	}
 }
 

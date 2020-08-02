@@ -19,36 +19,36 @@ class AgilentCore : public IDeviceCore
 		AgilentCore (const agilentSettings& settings);
 		~AgilentCore ();
 		void initialize ();
-		void setAgilent (UINT variation, std::vector<parameterType>& params, deviceOutputInfo runSettings);
+		void setAgilent (unsigned variation, std::vector<parameterType>& params, deviceOutputInfo runSettings);
 		//void setAgilent (deviceOutputInfo runSettings);
-		void prepAgilentSettings (UINT channel);
+		void prepAgilentSettings (unsigned channel);
 		std::string getDelim () { return configDelim; }
 		const std::string configDelim;
 		bool connected ();
-		std::pair<DoRows::which, UINT> getTriggerLine ();
+		std::pair<DoRows::which, unsigned> getTriggerLine ();
 		std::string getDeviceIdentity ();
 		void logSettings (DataLogger& log);
-		void convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, 
+		void convertInputToFinalSettings (unsigned chan, deviceOutputInfo& info,
 										  std::vector<parameterType>& variables = std::vector<parameterType> ());
 		static double convertPowerToSetPoint (double power, bool conversionOption, std::vector<double> calibCoeff);
-		void setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT channel);
-		void setDC (int channel, dcInfo info, UINT variation);
+		void setScriptOutput (unsigned varNum, scriptedArbInfo scriptInfo, unsigned channel);
+		void setDC (int channel, dcInfo info, unsigned variation);
 		void setExistingWaveform (int channel, preloadedArbInfo info);
-		void setSquare (int channel, squareInfo info, UINT variation);
-		void setSine (int channel, sineInfo info, UINT variation);
+		void setSquare (int channel, squareInfo info, unsigned variation);
+		void setSine (int channel, sineInfo info, unsigned variation);
 		void outputOff (int channel);
 		void analyzeAgilentScript (scriptedArbInfo& infoObj, std::vector<parameterType>& vars, std::string& warnings);
 		void setDefault (int channel);
 		std::vector<std::string> getStartupCommands ();
 		void programSetupCommands ();
 		std::string getDeviceInfo ();
-		void handleScriptVariation ( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+		void handleScriptVariation (unsigned variation, scriptedArbInfo& scriptInfo, unsigned channel,
 									 std::vector<parameterType>& params);
 		deviceOutputInfo getSettingsFromConfig (ConfigStream& file);
 		void loadExpSettings (ConfigStream& script);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		void programVariation (UINT variation, std::vector<parameterType>& params);
-		void checkTriggers (UINT variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo);
+		void programVariation (unsigned variation, std::vector<parameterType>& params);
+		void checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo);
 		void normalFinish () {};
 		void errorFinish () {};
 	private:
@@ -58,7 +58,7 @@ class AgilentCore : public IDeviceCore
 		const agilentSettings initSettings;
 		// not that important, just used to check that number of triggers in script matches number in agilent.
 		const DoRows::which triggerRow;
-		const UINT triggerNumber;
+		const unsigned triggerNumber;
 		VisaFlume visaFlume;
 		bool isConnected;
 		std::string deviceInfo;

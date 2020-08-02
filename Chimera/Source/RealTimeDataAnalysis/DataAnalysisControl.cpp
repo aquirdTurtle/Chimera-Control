@@ -7,14 +7,16 @@
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "RealTimeDataAnalysis/PlotDesignerDialog.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
+#include "GeneralUtilityFunctions/range.h"
+#include <PrimaryWindows/QtMainWindow.h>
 #include <numeric>
 #include <boost/tuple/tuple.hpp>
 #include <boost/lexical_cast.hpp>
 #include <map>
-#include "GeneralUtilityFunctions/range.h"
 #include <qheaderview.h>
+#include <qmenu.h>
 
-DataAnalysisControl::DataAnalysisControl () {
+DataAnalysisControl::DataAnalysisControl (IChimeraQtWindow* parent) : IChimeraSystem(parent) {
 	std::vector<std::string> names = ProfileSystem::searchForFiles (PLOT_FILES_SAVE_LOCATION, str ("*.") + PLOTTING_EXTENSION);
 	for (auto name : names) {
 		PlottingInfo totalInfo (PLOT_FILES_SAVE_LOCATION + "\\" + name + "." + PLOTTING_EXTENSION); 
@@ -26,24 +28,74 @@ DataAnalysisControl::DataAnalysisControl () {
 	grids.resize( 1 );
 }
 
-void DataAnalysisControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
-{
+void DataAnalysisControl::handleContextMenu (const QPoint& pos) {
+	QTableWidgetItem* item = plotListview->itemAt (pos);
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* deleteAction = new QAction ("Delete Plot", plotListview);
+	plotListview->connect (deleteAction, &QAction::triggered, [this, item]() {
+		auto answer = QMessageBox::question ( plotListview, qstr ("Delete Plot?"),
+											  qstr("Delete Plot " + allTinyPlots[item->row ()].name + "?"));
+		if (answer == QMessageBox::Yes){
+			int result = DeleteFile (cstr (PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[item->row()].name + "."
+				+ PLOTTING_EXTENSION));
+			if (!result){
+				errBox ("Failed to delete script file! Error code: " + str (GetLastError ()));
+				return;
+			}
+			allTinyPlots.erase (allTinyPlots.begin () + item->row());
+			reloadListView ();
+		}});
+	auto* detailsAction = new QAction ("View Plot Details", plotListview);
+	plotListview->connect (detailsAction, &QAction::triggered, [this, item]() {
+		try {
+			infoBox (PlottingInfo::getAllSettingsStringFromFile (
+				PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[item->row()].name + "." + PLOTTING_EXTENSION));
+		}
+		catch (ChimeraError & err) {
+			errBox (err.trace ());
+		}});
+	menu.addAction (detailsAction);
+	auto* editAction = new QAction ("Edit Plot", plotListview);
+	plotListview->connect (detailsAction, &QAction::triggered, [this, item]() {
+		try {
+			// edit existing plot file using the plot designer.
+			//PlotDesignerDialog dlg (fonts, PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[clRow].name + "."
+			//						  + PLOTTING_EXTENSION);
+			//dlg.DoModal ();
+		}
+		catch (ChimeraError & err) {
+			errBox (err.trace ());
+		}});
+	menu.addAction (editAction);
+
+	auto* newPerson = new QAction ("New Plot", plotListview);
+	plotListview->connect (newPerson, &QAction::triggered, [this]() {
+		});
+	if (item) { menu.addAction (deleteAction); }
+	menu.addAction (newPerson);
+	menu.exec (plotListview->mapToGlobal (pos));
+}
+
+void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	header = new QLabel ("DATA ANALYSIS", parent);
 	header->setGeometry (pos.x, pos.y, 480, 25);
 
-	currentDataSetNumberText = new QLabel ("Data Set #", parent);
-	currentDataSetNumberText->setGeometry (pos.x, pos.y+=25, 350, 50);
+	currentDataSetNumberText = new QLabel ("Data Set #:", parent);
+	currentDataSetNumberText->setGeometry (pos.x, pos.y += 25, 350, 50);
 	currentDataSetNumberDisp = new QLabel ("?", parent);
 	currentDataSetNumberDisp->setGeometry (pos.x + 350, pos.y, 130, 50);
+	currentDataSetNumberDisp->setStyleSheet("QLabel { font: bold 24pt; };");
+
 	gridSelector = new CQComboBox (parent);
-	gridSelector->setGeometry (pos.x, pos.y, 50, 25);
+	gridSelector->setGeometry (pos.x, pos.y += 50, 50, 25);
 	parent->connect (gridSelector, qOverload<int>(&QComboBox::currentIndexChanged), 
 		[this, parent]() {
 			try{
 				handleAtomGridCombo ();
 			}
-			catch (Error& err){
-				parent->reportErr (err.trace ());
+			catch (ChimeraError& err){
+				parent->reportErr (err.qtrace ());
 			}
 		});
 	gridSelector->addItem ("0");
@@ -56,8 +108,8 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 			try{
 				handleDeleteGrid ();
 			}
-			catch (Error& err){
-				parent->reportErr (err.trace ());
+			catch (ChimeraError& err){
+				parent->reportErr (err.qtrace ());
 			}
 		});
 
@@ -71,19 +123,19 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 	gridSpacingText = new QLabel ("Spacing", parent);
 	gridSpacingText->setGeometry (pos.x+200, pos.y, 60, 25);
 
-	gridSpacing = new QLineEdit ("0", parent);
+	gridSpacing = new CQLineEdit ("0", parent);
 	gridSpacing->setGeometry (pos.x + 260, pos.y, 30, 25);
 
 	gridWidthText = new QLabel ("Width", parent);
 	gridWidthText->setGeometry (pos.x + 290, pos.y, 60, 25);
 
-	gridWidth = new QLineEdit ("0", parent);
+	gridWidth = new CQLineEdit ("0", parent);
 	gridWidth->setGeometry (pos.x + 350, pos.y, 30, 25);
 
 	gridHeightText = new QLabel ("Height", parent);
 	gridHeightText->setGeometry (pos.x + 380, pos.y, 60, 25);
 
-	gridHeight = new QLineEdit ("0", parent);
+	gridHeight = new CQLineEdit ("0", parent);
 	gridHeight->setGeometry (pos.x + 440, pos.y, 40, 25);
 	// 
 	displayGridBtn = new CQCheckBox ("Display Grid?", parent);
@@ -103,24 +155,38 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 	plotTimerTxt = new QLabel ("Plot Update Timer (ms):", parent);
 	plotTimerTxt->setGeometry (pos.x, pos.y += 25, 180, 25);
 	
-
 	plotTimerEdit = new CQLineEdit ("5000", parent);
 	plotTimerEdit->setGeometry (pos.x + 180, pos.y, 60, 25);
+	parent->connect (plotTimerEdit, &QLineEdit::textChanged, [this]() {updatePlotTime (); });
+
 	autoThresholdAnalysisButton = new CQCheckBox ("Auto Threshold Analysis", parent);
 	autoThresholdAnalysisButton->setGeometry (pos.x + 240, pos.y, 240, 25);
-	parent->connect (plotTimerEdit, &QLineEdit::textChanged, [this]() {updatePlotTime (); });
 	autoThresholdAnalysisButton->setToolTip ("At the end of an experiment, run some python code which will fit the "
 		"data and determine good thresholds which can be outputted to a file to "
 		"keep the thresholds used by the real-time analysis up-to-date.");
+
+	
+	autoBumpAnalysis = new CQCheckBox ("Auto Bump Analysis", parent);
+	autoBumpAnalysis->setGeometry (pos.x, pos.y += 25, 180, 25);
+	autoBumpAnalysis->setToolTip ("At the end of the experiment, run some python code which will do standard data "
+		"analysis on the resulting data set and fit a bump to it. The bump center value will be written to a file.");
+	doBumpAnalysis = new CQPushButton ("Analyze Now", parent);
+	doBumpAnalysis->setGeometry (pos.x + 180, pos.y, 180, 25);
+	parent->connect (doBumpAnalysis, &QPushButton::released, [parent]() {
+		parent->andorWin->handleBumpAnalysis (parent->mainWin->getProfileSettings());
+		});
+	bumpEditParam = new CQLineEdit (parent);
+	bumpEditParam->setGeometry (pos.x + 360, pos.y, 120, 25);
+
 	/// Initialize the listview
 	plotListview = new QTableWidget (parent);
 	plotListview->setGeometry (pos.x, pos.y+=25, 480, 150);
 	pos.y += 150;
 	QStringList labels;
-	labels << " Name " << " Grid # " << " Details " << " Edit " << " Active ";
+	labels << " Name " << " Grid # " << " Active ";
 	plotListview->setContextMenuPolicy (Qt::CustomContextMenu);
-	/*parent->connect (plotListview, &QTableWidget::customContextMenuRequested,
-		[this](const QPoint& pos) {this->handleContextMenu (pos); });*/
+	parent->connect (plotListview, &QTableWidget::customContextMenuRequested,
+					 [this](const QPoint& pos) { handleContextMenu (pos); });
 	plotListview->setColumnCount (labels.size ());
 	plotListview->setHorizontalHeaderLabels (labels);
 	plotListview->horizontalHeader ()->setFixedHeight (25);
@@ -135,41 +201,18 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraWindowWidget* parent )
 				try {
 					allTinyPlots[row].whichGrid = boost::lexical_cast<unsigned>(cstr (item->text ()));
 				}
-				catch (Error& err) {}
-				//reloadListView ();
+				catch (ChimeraError& err) {}
 			}
 		});
 	parent->connect (plotListview, &QTableWidget::cellDoubleClicked, 
 		[this, parent](int clRow, int clCol) {
 			parent->configUpdated ();
-			if (clCol == 4) {
+			if (clCol == 2) {
 				allTinyPlots[clRow].isActive = !allTinyPlots[clRow].isActive;
 				auto* item = new QTableWidgetItem (allTinyPlots[clRow].isActive ? "YES" : "NO");
 				item->setFlags (item->flags () & ~Qt::ItemIsEditable);
 				plotListview->setItem (clRow, clCol, item);
 			}
-			else if (clCol == 3) {
-				try {
-					// edit existing plot file using the plot designer.
-					//PlotDesignerDialog dlg (fonts, PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[clRow].name + "."
-					//						  + PLOTTING_EXTENSION);
-					//dlg.DoModal ();
-				}
-				catch (Error& err){
-					errBox (err.trace ());
-				}
-			}
-			else if (clCol == 2) {
-				try	{
-					/// view plot settings.
-					infoBox (PlottingInfo::getAllSettingsStringFromFile (
-						PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[clRow].name + "." + PLOTTING_EXTENSION));
-				}
-				catch (Error& err) {
-					errBox (err.trace ());
-				}
-			}
-			//reloadListView ();
 		});
 	reloadListView();
 }
@@ -182,7 +225,6 @@ bool DataAnalysisControl::wantsThresholdAnalysis ( ){
 	return autoThresholdAnalysisButton->isChecked( );
 }
 
-
 void DataAnalysisControl::updatePlotTime ( ){
 	try	{
 		plotTime = boost::lexical_cast<unsigned long>(str(plotTimerEdit->text()));
@@ -192,11 +234,9 @@ void DataAnalysisControl::updatePlotTime ( ){
 	}
 }
 
-
-std::atomic<UINT>& DataAnalysisControl::getPlotTime( ){
+std::atomic<unsigned>& DataAnalysisControl::getPlotTime( ){
 	return plotTime;
 }
-
 
 void DataAnalysisControl::handleDeleteGrid( ){
 	if ( grids.size() == 1 ){
@@ -204,7 +244,7 @@ void DataAnalysisControl::handleDeleteGrid( ){
 	}
 	grids.erase( grids.begin( ) + selectedGrid );
 	gridSelector->clear ();
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto grid : grids ){
 		std::string txt( str( count++ ) );
 		gridSelector->addItem( cstr( txt ) );
@@ -215,7 +255,7 @@ void DataAnalysisControl::handleDeleteGrid( ){
 	loadGridParams( grids[0] );
 }
 
-ULONG DataAnalysisControl::getPlotFreq( ){
+unsigned DataAnalysisControl::getPlotFreq( ){
 	try	{
 		updateFrequency = boost::lexical_cast<long>( str(updateFrequencyEdit->text()) );
 	}
@@ -227,93 +267,138 @@ ULONG DataAnalysisControl::getPlotFreq( ){
 }
 
 
-void DataAnalysisControl::handleOpenConfig( ConfigStream& file )
-{
-	UINT numGrids;
-	if ( file.ver > Version ( "4.0" ) ){
-		bool autoThresholdAnalysisOption;
-		file >> autoThresholdAnalysisOption;
-		autoThresholdAnalysisButton->setChecked ( autoThresholdAnalysisOption );
-	}
-	else{
-		autoThresholdAnalysisButton->setChecked ( 0 );
-	}
-	if (file.ver > Version( "3.0" ) ){
-		file >> numGrids;
-	}
-	else{
-		numGrids = 1;
-	}
-	if ( numGrids <= 0 ){
-		numGrids = 1;
-	}
-	grids.resize( numGrids );
-	for ( auto& grid : grids ){
-		file >> grid.topLeftCorner.row >> grid.topLeftCorner.column >> grid.width >> grid.height >> grid.pixelSpacing;
+void DataAnalysisControl::handleOpenConfig( ConfigStream& file ){
+	analysisSettings settings = getAnalysisSettingsFromFile (file);
+	autoThresholdAnalysisButton->setChecked (settings.autoThresholdAnalysisOption);
+	grids = settings.grids;
+	displayGridBtn->setChecked (settings.displayGridOption);
+	autoBumpAnalysis->setChecked (settings.autoBumpOption);
+	bumpEditParam->setText (qstr (settings.bumpParam));
+	unsigned counter = 0;
+	for (auto& pltInfo : allTinyPlots) {
+		unsigned activeCounter = -1;
+		pltInfo.isActive = false;
+		for (auto activePlt : settings.activePlotNames) {
+			activeCounter++;
+			if (activePlt == pltInfo.name) {
+				pltInfo.isActive = true;
+				pltInfo.whichGrid = settings.whichGrids[activeCounter];
+				break;
+			}
+		}
+		counter++;
 	}
 	// load the grid parameters for that selection.
 	loadGridParams( grids[0] );
 	reloadGridCombo (grids.size ());
 	gridSelector->setCurrentIndex (0);
 	selectedGrid = 0;
-	if (file.ver > Version( "2.7" ) ){
-		ProfileSystem::checkDelimiterLine( file, "BEGIN_ACTIVE_PLOTS" );
-		UINT numPlots = 0;
-		file >> numPlots;
-		file.get( );
-		std::vector<std::string> activePlotNames;
-		std::vector<UINT> whichGrids;
-		for ( auto pltInc : range( numPlots ) ){
-			std::string tmp = file.getline ();
-			activePlotNames.push_back( tmp );
-			if (file.ver > Version( "3.0" ) ){
-				UINT which;
-				file >> which;
-				file.get( );
-				whichGrids.push_back( which );
-			}
-			else{
-				whichGrids.push_back( 0 );
-			}
-		}
-		UINT counter = 0;
-		for ( auto& pltInfo : allTinyPlots ){
-			bool found = false;
-			UINT activeCounter = -1;
-			for ( auto activePlt : activePlotNames ){
-				activeCounter++;
-				if ( activePlt == pltInfo.name ){
-					pltInfo.isActive = true;
-					pltInfo.whichGrid = whichGrids[activeCounter];
-					//plotListview->setItem( "YES", counter, 4 );
-					//plotListview.SetItem( str(pltInfo.whichGrid), counter, 1);
-					found = true;
-					break;
-				}
-			}
-			if ( !found ){
-				pltInfo.isActive = false;
-				//plotListview.SetItem( "NO", counter, 4 );
-			}
-			counter++;
-		}
-		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
-	}
-	if (file.ver >= Version ( "4.7" ) ){
-		bool option;
-		file.get ( );
-		file >> option;
-		displayGridBtn->setChecked ( option );
-	}
 	reloadListView ();
 }
 
+analysisSettings DataAnalysisControl::getAnalysisSettingsFromFile (ConfigStream& file) {
+	analysisSettings settings;
+	unsigned numGrids=1;
+	if (file.ver > Version ("4.0")) {
+		file >> settings.autoThresholdAnalysisOption;
+	}
+	if (file.ver > Version ("3.0")) {
+		file >> numGrids;
+	}
+	if (numGrids <= 0) {
+		numGrids = 1;
+	}
+	settings.grids.resize (numGrids);
+	for (auto& grid : settings.grids) {
+		file >> grid.topLeftCorner.row >> grid.topLeftCorner.column >> grid.width >> grid.height >> grid.pixelSpacing;
+	}
+	// load the grid parameters for that selection.
+	if (file.ver > Version ("2.7")) {
+		ProfileSystem::checkDelimiterLine (file, "BEGIN_ACTIVE_PLOTS");
+		unsigned numPlots = 0;
+		file >> numPlots;
+		file.get ();
+		for (auto pltInc : range (numPlots)) {
+			std::string tmp = file.getline ();
+			settings.activePlotNames.push_back (tmp);
+			if (file.ver > Version ("3.0")) {
+				unsigned which;
+				file >> which;
+				file.get ();
+				settings.whichGrids.push_back (which);
+			}
+			else {
+				settings.whichGrids.push_back (0);
+			}
+		}
+		ProfileSystem::checkDelimiterLine (file, "END_ACTIVE_PLOTS");
+	}
+	if (file.ver >= Version ("4.7")) {
+		file.get ();
+		file >> settings.displayGridOption;
+	}
+	if (file.ver >= Version ("5.4")) {
+		file >> settings.autoBumpOption;
+		file >> settings.bumpParam;
+	}
+	return settings;
+}
+
+std::pair<bool, std::string> DataAnalysisControl::getBumpAnalysisOptions (ConfigStream& file) {
+	if (file.ver < Version ("5.4")) {
+		return { false, "" };
+	}
+	unsigned numGrids;
+	if (file.ver > Version ("4.0")) {
+		bool autoThresholdAnalysisOption;
+		file >> autoThresholdAnalysisOption;
+	}
+	file >> numGrids;
+	if (numGrids <= 0) {
+		numGrids = 1;
+	}
+	for (auto gridN : range(numGrids)) {
+		atomGrid grid;
+		file >> grid.topLeftCorner.row >> grid.topLeftCorner.column >> grid.width >> grid.height >> grid.pixelSpacing;
+	}
+	// load the grid parameters for that selection.
+	ProfileSystem::checkDelimiterLine (file, "BEGIN_ACTIVE_PLOTS");
+	unsigned numPlots = 0;
+	file >> numPlots;
+	file.get ();
+	std::vector<std::string> activePlotNames;
+	std::vector<unsigned> whichGrids;
+	for (auto pltInc : range (numPlots)) {
+		std::string tmp = file.getline ();
+		activePlotNames.push_back (tmp);
+		if (file.ver > Version ("3.0")) {
+			unsigned which;
+			file >> which;
+			file.get ();
+			whichGrids.push_back (which);
+		}
+		else {
+			whichGrids.push_back (0);
+		}
+	}
+	ProfileSystem::checkDelimiterLine (file, "END_ACTIVE_PLOTS");
+	bool option;
+	file.get ();
+	file >> option;
+	// finally get to the good part. 
+	std::string bumpParam = "";
+	bool autoBumpOption = false;
+	file >> autoBumpOption;
+	file >> bumpParam;
+	return { autoBumpOption, bumpParam };
+}
 
 void DataAnalysisControl::handleSaveConfig( ConfigStream& file ){
+	saveGridParams ();
 	file << "DATA_ANALYSIS\n";
 	file << "/*Auto-Threshold Analysis?*/\t" << autoThresholdAnalysisButton->isChecked( );
 	file << "\n/*Number of Analysis Grids: */\t" << grids.size ();
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto grid : grids ){
 		file << "\n/*Grid #" + str (++count) << ":*/ "
 			<< "\n/*Top-Left Corner Row:*/\t\t" << grid.topLeftCorner.row
@@ -323,7 +408,7 @@ void DataAnalysisControl::handleSaveConfig( ConfigStream& file ){
 			<< "\n/*Pixel Spacing:*/\t\t\t\t" << grid.pixelSpacing;
 	}
 	file << "\nBEGIN_ACTIVE_PLOTS\n";
-	UINT activeCount = 0;
+	unsigned activeCount = 0;
 	for ( auto miniPlot : allTinyPlots ){
 		if ( miniPlot.isActive ){
 			activeCount++;
@@ -340,216 +425,15 @@ void DataAnalysisControl::handleSaveConfig( ConfigStream& file ){
 	}
 	file << "\nEND_ACTIVE_PLOTS\n";
 	file << "/*Display Grid?*/ " << displayGridBtn->isChecked ( ) << "\n";
+	file << "/*Auto Bump Analysis?*/ " << autoBumpAnalysis->isChecked () << "\n";
+	auto bumpParamStr = (str (bumpEditParam->text ())=="" ? ConfigStream::emptyStringTxt : str (bumpEditParam->text ()));
+	file << "/*Bump Param?*/ " << bumpParamStr << "\n";
 	file << "END_DATA_ANALYSIS\n"; 
 }
 
 
-unsigned __stdcall DataAnalysisControl::plotterProcedure (void* voidInput){
-	realTimePlotterInput* input = (realTimePlotterInput*)voidInput;
-	//// make vector of plot information classes.
-	//vector<PlottingInfo> allPlots;
-	///// open files
-	//for (auto plotInc : range (input->plotInfo.size ())){
-	//	std::string tempFileName = PLOT_FILES_SAVE_LOCATION + "\\" + input->plotInfo[plotInc].name + "."
-	//		+ PLOTTING_EXTENSION;
-	//	allPlots.push_back (PlottingInfo::PlottingInfo (tempFileName));
-	//	allPlots[plotInc].setGroups (input->analysisLocations);
-	//}
-	//if (allPlots.size () == 0){
-	//	// no plots to run so just quit.
-	//	return 0;
-	//}
-	///// check pictures per experiment
-	//for (auto plotInc : range(allPlots.size())){
-	//	if (allPlots[0].getPicNumber() != allPlots[plotInc].getPicNumber()){
-	//		errBox("ERROR: Number of pictures per experiment don't match between plots. The plotting thread will "
-	//				"close.");
-	//		return 0;
-	//	}
-	//}
-	//int totalNumberOfPixels = 0;
-	//int numberOfLossDataPixels = 0;	
-	///// figure out which pixels need any data
-	//for (auto plotInc : range(allPlots.size())){
-	//	for (auto pixelInc : range(allPlots[plotInc].getPixelNumber())){
-	//		UINT whichGrid = input->plotInfo[plotInc].whichGrid;
-	//		UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
-	//		for (auto groupInc : range(groupNum)){
-	//			bool alreadyExists = false;
-	//		}
-	//	}
-	//}
-	//// 
-	//if (totalNumberOfPixels == 0){
-	//	// no locations selected for analysis; quit.
-	//	// return 0; ??? why is this commented out?
-	//}
-	///// Initialize Arrays for data. (using std::vector above)
-	//// thinking about making these experiment-picture sized and resetting after getting the needed data out of them.
-	//
-	////vector<vector<long>> countData( groupNum );
-	////vector<vector<int> > atomPresentData( groupNum );
-	//// countData[gridNumber][pixel Indicator][picture number indicator] = pixelCount;
-	//vector<vector<vector<long>>> countData( input->grids.size() );	
-	//vector<vector<vector<int>>> atomPresentData( input->grids.size() );
-	//for ( auto gridCount : range(input->grids.size( )) ){
-	//	UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
-	//	countData[gridCount] = vector<vector<long>>( groupNum );
-	//	atomPresentData[gridCount] = vector<vector<int>>( groupNum );
-	//}
-	//// atomPresentData[pixelIndicator][picture number] = true if atom present, false if atom not present;
-	//// finalData[plot][dataset][group][repetitionNumber];
-	//vector<vector<vector<vector<long> > > > finalCountData( allPlots.size( ) );
-	//vector<vector<vector<std::pair<double, ULONG> > > > finalDataNew( allPlots.size( ) );
-	//vector<variationData> finalAvgs( allPlots.size( ) ), finalErrorBars( allPlots.size( ) ), 
-	//	finalXVals( allPlots.size( ) );
-	//// Averaged over all pixels (avgAvg is the average of averages over repetitions)
-	//vector<avgData> avgAvg( allPlots.size( )), avgErrBar( allPlots.size( )), avgXVals( allPlots.size( ));
-	//// newData[plot][dataSet][group] = true if new data so change some vector sizes.
-	//vector<vector<vector<bool> > > newData( allPlots.size( ));
-	//vector<vector<vector<std::deque<double>>>> finalHistData( allPlots.size( ) );
-	//vector<vector<vector<std::map<int, std::pair<int, ULONG>>>>> histogramData( allPlots.size( ));
-	//for (auto plotInc : range(allPlots.size())){
-	//	UINT datasetNumber = allPlots[plotInc].getDataSetNumber( );
-	//	histogramData[plotInc].resize( datasetNumber );
-	//	finalCountData[plotInc].resize( datasetNumber );
-	//	finalDataNew[plotInc].resize( datasetNumber );
-	//	finalAvgs[plotInc].resize( datasetNumber );
-	//	finalErrorBars[plotInc].resize( datasetNumber );
-	//	finalXVals[plotInc].resize( datasetNumber );
-	//	avgAvg[plotInc].resize( datasetNumber );
-	//	avgErrBar[plotInc].resize( datasetNumber );
-	//	avgXVals[plotInc].resize( datasetNumber );
-	//	for (auto dataSetInc : range(allPlots[plotInc].getDataSetNumber())){
-	//		UINT whichGrid = input->plotInfo[plotInc].whichGrid;
-	//		UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
-	//		histogramData[plotInc][dataSetInc].resize( groupNum );
-	//		finalCountData[plotInc][dataSetInc].resize( groupNum );
-	//		finalAvgs[plotInc][dataSetInc].resize( groupNum );
-	//		finalDataNew[plotInc][dataSetInc].resize( groupNum );
-	//		finalErrorBars[plotInc][dataSetInc].resize( groupNum );
-	//		finalXVals[plotInc][dataSetInc].resize( groupNum );
-	//	}
-	//}
-	//UINT noAtomsCounter = 0, atomCounterTotal = 0, currentThreadPictureNumber = 1, plotNumberCount = 0;
-	///// Start loop waiting for plots
-	//while ((*input->active || (input->atomQueue->size() > 0)) && (!*input->aborting)){
-	//	// if no image, continue. 0th element is queue, 2nd element is grid num, always at least 1 grid.
-	//	if (input->atomQueue->size() == 0){
-	//		continue;
-	//	}
-	//	if ( input->needsCounts ){
-	//		// this part of code hasn't been implemented properly in a while, trying to maintain for later fix. 
-	//		// Feb 13th 2018
-	//		PixListQueue tempPixList( input->grids.size( ) );
-	//		std::lock_guard<std::mutex> locker( *input->plotLock );
-	//		if ( input->imQueue->size( ) == 0 ){// strange... spurious wakeups or memory corruption happening here?
-	//			continue;
-	//		}
-	//		tempPixList = input->imQueue->front( );
-	//		if ( tempPixList.size( ) == 0 ){ // strange... spurious wakeups or memory corruption happening here?
-	//			continue;
-	//		}
-	//		/// for all pixels... gather count information
-	//		for ( auto gridCount : range( input->grids.size() ) ){
-	//			UINT locIndex = 0;
-	//			for ( auto row : range( input->grids[gridCount].width ) ){
-	//				for ( auto column : range( input->grids[gridCount].height ) )	{
-	//					countData[gridCount][locIndex].push_back( tempPixList[gridCount].image[locIndex] );
-	//					locIndex++;
-	//				}
-	//			}
-	//		}
-	//	}
-	//	/// get all the atom data
-	//	bool thereIsAtLeastOneAtom = false;
-	//	for ( auto gridCount : range( input->grids.size( ) ) ){
-	//		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
-	//		for ( auto pixelInc : range( groupNum ) ){
-	//			// look at the most recent image.
-	//			if ( input->atomQueue->at( 0 )[gridCount].image[pixelInc] )	{
-	//				thereIsAtLeastOneAtom = true;
-	//				atomPresentData[gridCount][pixelInc].push_back( 1 );
-	//			}
-	//			else{
-	//				atomPresentData[gridCount][pixelInc].push_back( 0 );
-	//			}
-	//		}
-	//	}
-	//	if ( thereIsAtLeastOneAtom ){
-	//		noAtomsCounter = 0;
-	//	}
-	//	else{
-	//		noAtomsCounter++;
-	//	}
-	//	if (noAtomsCounter >= input->alertThreshold && input->wantAtomAlerts ){
-	//		input->comm->sendNoAtomsAlert( );
-	//	}
-	//	/// check if have enough data to plot
-	//	if (currentThreadPictureNumber % allPlots[0].getPicNumber() != 0){
-	//		// In this case, not enough data to plot a point yet, but I've just analyzed a pic, so remove that pic.
-	//		std::lock_guard<std::mutex> locker(*input->plotLock);
-	//		if ( input->needsCounts && input->imQueue->size( ) > 0 ){
-	//			input->imQueue->erase( input->imQueue->begin( ) );
-	//		}
-	//		if ( input->atomQueue->size( ) > 0 ){
-	//			input->atomQueue->erase( input->atomQueue->begin( ) );
-	//		}
-	//		currentThreadPictureNumber++;
-	//		// wait for next picture.
-	//		continue;
-	//	}
-	//	UINT variationNum = (currentThreadPictureNumber-1) / (input->picsPerVariation);
-	//	plotNumberCount++;
-	//	for ( auto plotI : range( allPlots.size( ) ) ){
-	//		/// Check Post-Selection Conditions
-	//		UINT whichGrid = input->plotInfo[plotI].whichGrid;
-	//		UINT groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
-	//		vector<vector<bool> > satisfiesPsc( allPlots[plotI].getDataSetNumber( ), vector<bool>( groupNum, true ) );
-	//		determineWhichPscsSatisfied( allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc );
-	//		// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
-	//		// organization purposes.
-	//		if ( allPlots[plotI].getPlotType( ) == "Atoms" ){
-	//			DataAnalysisControl::handlePlotAtoms( 
-	//				allPlots[plotI], currentThreadPictureNumber, finalDataNew[plotI], /*input->dataArrays[plotI], */
-	//				variationNum, satisfiesPsc, plotNumberCount, atomPresentData[whichGrid], input->plottingFrequency, 
-	//				groupNum, input->picsPerVariation );
-	//		}
-	//		else if ( allPlots[plotI].getPlotType( ) == "Pixel Counts" ){
-	//			// TODO: Reimplement this here.
-	//		}
-	//		else if ( allPlots[plotI].getPlotType( ) == "Pixel Count Histograms" ){
-	//			DataAnalysisControl::handlePlotHist( allPlots[plotI], countData[whichGrid], finalHistData[plotI],
-	//												 satisfiesPsc, histogramData[plotI], /* input->dataArrays[plotI],*/
-	//												 groupNum );
-	//		}
-	//	}
-	//	/// clear data
-	//	// all pixels being recorded, not pixels in a data set.
-	//	for ( auto gridCount : range( input->grids.size( ) ) ){
-	//		UINT groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
-	//		for (auto pixelI : range(groupNum)){
-	//			countData[gridCount][pixelI].clear();
-	//			atomPresentData[gridCount][pixelI].clear();
-	//		}
-	//	}
-	//	// finally, remove the data from the queue.
-	//	std::lock_guard<std::mutex> locker(*input->plotLock);
-	//	if (input->needsCounts){
-	//		// delete the first entry of the Queue which has just been handled.
-	//		if ( input->imQueue->size( ) != 0 ){
-	//			input->imQueue->erase( input->imQueue->begin( ) );
-	//		}
-	//	}
-	//	input->atomQueue->erase(input->atomQueue->begin());
-	//	currentThreadPictureNumber++;
-	//}
-	return 0;
-}
-
-
 void DataAnalysisControl::determineWhichPscsSatisfied( 
-	PlottingInfo& info, UINT groupSize, std::vector<std::vector<int>> atomPresentData, std::vector<std::vector<bool>>& pscSatisfied){
+	PlottingInfo& info, unsigned groupSize, std::vector<std::vector<int>> atomPresentData, std::vector<std::vector<bool>>& pscSatisfied){
 	// There's got to be a better way to iterate through these guys...
 	for ( auto dataSetI : range( info.getDataSetNumber( ) ) ){
 		for ( auto groupI : range( groupSize ) ){
@@ -575,12 +459,12 @@ void DataAnalysisControl::determineWhichPscsSatisfied(
 }
 
 
-std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotAtoms( PlottingInfo plotInfo, UINT pictureNumber,
+std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotAtoms( PlottingInfo plotInfo, unsigned pictureNumber,
 											std::vector<std::vector<std::pair<double, ULONG>> >& finData,
 										    std::vector<std::vector<dataPoint>>& dataContainers,
-										    UINT variationNumber, std::vector<std::vector<bool>>& pscSatisfied,
-										    int plotNumberCount, std::vector<std::vector<int> > atomPresent, UINT plottingFrequency,
-										    UINT groupNum, UINT picsPerVariation ){
+										    unsigned variationNumber, std::vector<std::vector<bool>>& pscSatisfied,
+										    int plotNumberCount, std::vector<std::vector<int> > atomPresent, unsigned plottingFrequency,
+										    unsigned groupNum, unsigned picsPerVariation ){
 	if (pictureNumber % picsPerVariation == plotInfo.getPicNumber()){
 		// first pic of new variation, so need to update x vals.
 		finData = std::vector<std::vector<std::pair<double, ULONG>>>( plotInfo.getDataSetNumber( ),
@@ -624,14 +508,10 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotAtoms( Plotti
 	}
 	/// Calculate averages and standard devations for Data sets AND groups...
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( ))){
-		UINT avgId = dataContainers.size() - dataSetI - 1; 
+		unsigned avgId = dataContainers.size() - dataSetI - 1; 
 		for ( auto groupI : range( groupNum)){
 			// Will be function fo groupI and dataSetI; TBD			
-			UINT dataId = (dataSetI+1) * groupI;
-			// check if first picture of set
-			if ( pictureNumber % plottingFrequency != 0 ){
-				continue;
-			}
+			unsigned dataId = (dataSetI+1) * groupI;
 			// calculate new data points
 			double mean = finData[dataSetI][groupI].first / finData[dataSetI][groupI].second;
 			double error = mean * ( 1 - mean ) / std::sqrt( finData[dataSetI][groupI].second );
@@ -663,7 +543,7 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotHist( Plottin
 										  vector<vector<std::deque<double>>>& finData, vector<vector<bool>> pscSatisfied, 
 										  vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
 										  std::vector<std::vector<dataPoint>>& dataContainers,
-										  UINT groupNum ){
+										  unsigned groupNum ){
 	/// options are fundamentally different for histograms.
 	// load pixel counts
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) ){
@@ -711,9 +591,12 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotHist( Plottin
 				}
 			}
 			// Will be function fo groupI and dataSetI; TBD			
-			UINT dataId = (dataSetI + 1) * groupI;
+			unsigned dataId = (dataSetI + 1) * groupI;
 			// calculate new data points
-			UINT count = 0;
+			unsigned count = 0;
+			if (dataContainers.size () <= dataId) {
+				dataContainers.resize (dataId+1);
+			}
 			dataContainers[dataId].resize( histData[dataSetI][groupI].size( ) );
 			for ( auto& bin : histData[dataSetI][groupI] ) {
 				dataContainers[dataId][count].x = bin.second.first;
@@ -727,23 +610,19 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotHist( Plottin
 }
 
 
-atomGrid DataAnalysisControl::getAtomGrid( UINT which )
-{
+atomGrid DataAnalysisControl::getAtomGrid( unsigned which ){
 	// update the current grid by load stuff from edits before returning.
-	if ( grids[which].topLeftCorner == coordinate( 0, 0 ) )
-	{
+	if ( grids[which].topLeftCorner == coordinate( 0, 0 ) ){
 		// don't try updating, it's not used.
 		return grids[which];
 	}
-	try
-	{
+	try{
 		CString txt;
 		grids[which].pixelSpacing = boost::lexical_cast<long>( str(gridSpacing->text()) );
 		grids[which].width = boost::lexical_cast<long>( str(gridWidth->text()) );
 		grids[which].height = boost::lexical_cast<long>( str(gridHeight->text()) );
 	}
-	catch ( boost::bad_lexical_cast& )
-	{
+	catch ( boost::bad_lexical_cast& ){
 		throwNested ( "ERROR: Grid parameters failed to convert to longs!" );
 	}
 	return grids[which];
@@ -795,10 +674,10 @@ void DataAnalysisControl::handleAtomGridCombo( ){
 	selectedGrid = sel;
 }
 
-void DataAnalysisControl::reloadGridCombo( UINT num ){
+void DataAnalysisControl::reloadGridCombo( unsigned num ){
 	grids.resize( num );
 	gridSelector->clear( );
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto grid : grids ){
 		std::string txt( str( count++ ) );
 		gridSelector->addItem( cstr( txt ) );
@@ -847,7 +726,6 @@ bool DataAnalysisControl::getLocationSettingStatus(){
 	return currentlySettingAnalysisLocations;
 }
 
-
 void DataAnalysisControl::updateDataSetNumberEdit( int number ){
 	if ( number > 0 ){
 		currentDataSetNumberDisp->setText( cstr( number ) );
@@ -855,14 +733,6 @@ void DataAnalysisControl::updateDataSetNumberEdit( int number ){
 	else{
 		currentDataSetNumberDisp->setText ( "None" );
 	}
-}
-
-
-void DataAnalysisControl::analyze( std::string date, long runNumber, long accumulations, 
-								   EmbeddedPythonHandler* pyHandler, Communicator* comm ){
-	// Note: python is initialized in the constructor for the data handler object. 
-	// Get information to send to the python script from inputParam
-	//pyHandler->runDataAnalysis( date, runNumber, accumulations, atomLocations );
 }
 
 bool DataAnalysisControl::buttonClicked(){
@@ -875,7 +745,7 @@ void DataAnalysisControl::setGridCornerLocation(coordinate loc ){
 	grids[0].topLeftCorner = loc;
 }
 
-UINT DataAnalysisControl::getSelectedGridNumber( ){
+unsigned DataAnalysisControl::getSelectedGridNumber( ){
 	return selectedGrid;
 }
 
@@ -890,57 +760,24 @@ std::vector<coordinate> DataAnalysisControl::getAnalysisLocs(){
 void DataAnalysisControl::clearAtomLocations(){
 	atomLocations.clear();
 }
-
+ 
 void DataAnalysisControl::reloadListView(){
 	plotListview->setRowCount (0);
-
 	for (auto item : allTinyPlots){
 		int row = plotListview->rowCount ();
 		plotListview->insertRow (row);
 		plotListview->setItem (row, 0, new QTableWidgetItem (item.name.c_str()));
 		plotListview->setItem (row, 1, new QTableWidgetItem (cstr(item.whichGrid)));
-		auto item1 = new QTableWidgetItem ("");
-		item1->setFlags (item1->flags () & ~Qt::ItemIsEditable);
-		plotListview->setItem (row, 2, item1);
-		auto item2= new QTableWidgetItem ("");
-		item2->setFlags (item2->flags () & ~Qt::ItemIsEditable);
-		plotListview->setItem (row, 3, item2);
 		auto item3 = new QTableWidgetItem (item.isActive ? "YES" : "NO");
 		item3->setFlags (item3->flags () & ~Qt::ItemIsEditable);
-		plotListview->setItem (row, 4, item3);
+		plotListview->setItem (row, 2, item3);
 	}
 }
 
-
-void DataAnalysisControl::handleRClick(){
-	/*
-	// delete...
-	/// get the item and subitem
-	POINT cursorPos;
-	GetCursorPos(&cursorPos);
-	plotListview.ScreenToClient(&cursorPos);
-	int subitemIndicator = plotListview.HitTest(cursorPos);
-	LVHITTESTINFO myItemInfo;
-	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
-	myItemInfo.pt = cursorPos;
-	int itemIndicator = plotListview.SubItemHitTest(&myItemInfo);
-	if (itemIndicator == -1 || itemIndicator == allTinyPlots.size())
-	{
-		// user didn't click in a deletable item.
-		return;
-	}
-	int answer = promptBox( "Delete Plot " + allTinyPlots[itemIndicator].name + "?", MB_YESNO );
-	if (answer == IDYES)
-	{
-		int result = DeleteFile(cstr(PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[itemIndicator].name + "."
-									  + PLOTTING_EXTENSION));
-		if (!result)
-		{
-			errBox("Failed to delete script file! Error code: " + str(GetLastError()));
-			return;
-		}
-		plotListview.DeleteItem(itemIndicator);
-		allTinyPlots.erase(allTinyPlots.begin() + itemIndicator);
-	}*/
+bool DataAnalysisControl::wantsBumpAnalysis () {
+	return autoBumpAnalysis->isChecked ();
 }
 
+QString DataAnalysisControl::getBumpParamName () {
+	return bumpEditParam->text ();
+}

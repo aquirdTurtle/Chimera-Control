@@ -16,4 +16,3 @@ void ProfileIndicator::update(std::string text)
 	indicator->setText(cstr(text));
 }
 
-void ProfileIndicator::rearrange(int width, int height, fontMap fonts){}

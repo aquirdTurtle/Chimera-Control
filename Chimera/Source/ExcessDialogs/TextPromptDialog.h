@@ -24,7 +24,7 @@ class TextPromptDialog : public CDialog
 
 		void catchOk();
 		void catchCancel();
-		HBRUSH OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+		HBRUSH OnCtlColor (CDC* pDC, CWnd* pWnd, unsigned nCtlColor);
 		
 
 	private:	

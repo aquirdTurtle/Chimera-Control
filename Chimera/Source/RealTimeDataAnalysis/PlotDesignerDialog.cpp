@@ -24,7 +24,7 @@ END_MESSAGE_MAP()
 BOOL PlotDesignerDialog::OnInitDialog( )
 {
 	POINT pos = { 0,0 };
-	UINT id = 5000;
+	unsigned id = 5000;
 	plotPropertiesText.Create( "Plot Properties", NORM_HEADER_OPTIONS, { pos.x, pos.y, pos.x + 480, pos.y += 25 },
 							   this, id++ );
 	plotPropertiesText.SetFont( (*dlgFonts)["Heading Font Large"] );
@@ -239,7 +239,7 @@ void PlotDesignerDialog::handleSave()
 	{
 		saveDataSet( false );
 	}
-	catch ( Error& err )
+	catch ( ChimeraError& err )
 	{
 		errBox( err.trace( ) );
 		return;
@@ -251,7 +251,7 @@ void PlotDesignerDialog::handleSave()
 		{
 			currentPlotInfo.savePlotInfo( );
 		}
-		catch ( Error& err )
+		catch ( ChimeraError& err )
 		{
 			errBox( "ERROR while saving plot info: " + err.trace( ) );
 		}
@@ -277,7 +277,7 @@ void PlotDesignerDialog::setFitRadios()
 	{
 		return;
 	}
-	int fitCase = currentPlotInfo.getFitOption( UINT(itemIndex - 1) );
+	int fitCase = currentPlotInfo.getFitOption( unsigned(itemIndex - 1) );
 	gaussianFit.SetCheck( fitCase == GAUSSIAN_FIT );
 	lorentzianFit.SetCheck( fitCase == LORENTZIAN_FIT );
 	decayingSineFit.SetCheck( fitCase == SINE_FIT );
@@ -327,7 +327,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 	{
 		saveDataSet( true );
 	}
-	catch ( Error& err )
+	catch ( ChimeraError& err )
 	{
 		errBox( err.trace( ) );
 		return;
@@ -366,9 +366,9 @@ void PlotDesignerDialog::handleDataSetComboChange()
 		int numberOfItems = dataSetNumCombo.GetCount();
 		try
 		{
-			plotThisDataBox.SetCheck( currentPlotInfo.getPlotThisDataValue( UINT( itemIndex ) ) );
+			plotThisDataBox.SetCheck( currentPlotInfo.getPlotThisDataValue( unsigned( itemIndex ) ) );
 		}
-		catch ( Error& err )
+		catch ( ChimeraError& err )
 		{
 			errBox( err.trace( ) );
 			return;
@@ -380,7 +380,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 		}
 		else
 		{
-			UINT pixel, picture;
+			unsigned pixel, picture;
 			try
 			{
 				currentPlotInfo.getDataCountsLocation( dataSetNumCombo.GetCurSel( ), pixel, picture );
@@ -392,7 +392,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 																		 picture ) == 1 );
 				prcNoAtomBox.SetCheck( 0 );
 			}
-			catch (Error&)
+			catch (ChimeraError&)
 			{
 				prcPicNumCombo.SetCurSel( -1 );
 				prcPixelNumCombo.SetCurSel( -1 );
@@ -401,7 +401,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 				prcAtomBox.SetCheck( 0 );
 				prcNoAtomBox.SetCheck( 0 );
 			}
-			UINT width = currentPlotInfo.getDataSetHistBinWidth( dataSetNumCombo.GetCurSel( ) );
+			unsigned width = currentPlotInfo.getDataSetHistBinWidth( dataSetNumCombo.GetCurSel( ) );
 			binWidthEdit.SetWindowTextA( cstr( width ) );
 		}
 		currentDataSet = dataSetNumCombo.GetCurSel( );
@@ -427,7 +427,7 @@ void PlotDesignerDialog::handlePrcPictureNumberChange()
 		currentPrcPicture = prcPicNumCombo.GetCurSel( );
 		loadPositiveResultSettings();
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
 		errBox( err.trace() );
 	}
@@ -447,7 +447,7 @@ void PlotDesignerDialog::handlePrcPixelNumberChange()
 		currentPrcPixel = prcPixelNumCombo.GetCurSel( );
 		loadPositiveResultSettings();
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
 		errBox( err.trace() );
 	}
@@ -470,7 +470,7 @@ void PlotDesignerDialog::handlePscConditionNumberChange()
 		{
 			pscConditionNumCombo.Clear();
 			currentPscCondition = -1;
-			UINT currentConditionNumber = pscConditionNumCombo.GetCount() - 2;
+			unsigned currentConditionNumber = pscConditionNumCombo.GetCount() - 2;
 			pscConditionNumCombo.ResetContent();
 			// +1 for new condition
 			for (auto num : range( currentConditionNumber + 1 ))
@@ -485,7 +485,7 @@ void PlotDesignerDialog::handlePscConditionNumberChange()
 		{
 			pscConditionNumCombo.Clear();
 			currentPscCondition = -1;
-			UINT currentConditionNumber = pscConditionNumCombo.GetCount() - 2;
+			unsigned currentConditionNumber = pscConditionNumCombo.GetCount() - 2;
 			if (currentConditionNumber == 0)
 			{
 				errBox( "No Condition to remove!" );
@@ -506,7 +506,7 @@ void PlotDesignerDialog::handlePscConditionNumberChange()
 			loadPostSelectionConditions();
 		}
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
 		errBox( err.trace() );
 	}
@@ -526,7 +526,7 @@ void PlotDesignerDialog::handlePscPictureNumberChange()
 		currentPscPicture = pscPicNumCombo.GetCurSel( );
 		loadPostSelectionConditions();
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
 		errBox( err.trace() );
 	}
@@ -546,7 +546,7 @@ void PlotDesignerDialog::handlePscPixelNumberChange()
 		currentPscPixel = pscPixelNumCombo.GetCurSel( );
 		loadPostSelectionConditions();
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
 		errBox( err.trace() );
 	}
@@ -629,7 +629,7 @@ void PlotDesignerDialog::saveDataSet( bool clear )
 		legendEdit.GetWindowText( txt );
 		currentPlotInfo.changeLegendText( currentDataSet, str( txt ) );
 		binWidthEdit.GetWindowTextA( txt );
-		UINT width;
+		unsigned width;
 		try
 		{
 			 width = boost::lexical_cast<double>( str( txt ) );

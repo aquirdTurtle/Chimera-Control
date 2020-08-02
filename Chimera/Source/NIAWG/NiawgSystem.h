@@ -6,20 +6,18 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/myButton.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox.h>
 
-class NiawgSystem
-{
+class NiawgSystem : public IChimeraSystem {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		NiawgSystem& operator=(const NiawgSystem&) = delete;
 		NiawgSystem (const NiawgSystem&) = delete;
-		NiawgSystem (DoRows::which trigRow, UINT trigNumber, bool safemode);
+		NiawgSystem (DoRows::which trigRow, unsigned trigNumber, bool safemode, IChimeraQtWindow* parent);
 
-		void initialize (POINT& loc, IChimeraWindowWidget* qtp);
-		void rearrange (UINT width, UINT height, fontMap fonts);
+		void initialize (POINT& loc, IChimeraQtWindow* qtp);
 		void handleSaveConfig (ConfigStream& saveFile);
 		void handleOpenConfig (ConfigStream& openfile);
 		static bool getSettingsFromConfig (ConfigStream& openfile);

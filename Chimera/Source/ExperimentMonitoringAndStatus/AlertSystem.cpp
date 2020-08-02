@@ -9,7 +9,7 @@
 #include <boost/lexical_cast.hpp>
 
 
-void AlertSystem::initialize( POINT& pos, IChimeraWindowWidget* parent )
+void AlertSystem::initialize( POINT& pos, IChimeraQtWindow* parent )
 {
 	alertMessageID = RegisterWindowMessage( "ID_NOT_LOADING_ATOMS" );
 
@@ -46,7 +46,7 @@ bool AlertSystem::wantsAutoPause( )
 }
 
 
-UINT AlertSystem::getAlertThreshold()
+unsigned AlertSystem::getAlertThreshold()
 {
 	try
 	{
@@ -98,10 +98,9 @@ void AlertSystem::soundAlert()
 }
 
 
-void AlertSystem::rearrange( int width, int height, fontMap fonts){}
 
 
-UINT AlertSystem::getAlertMessageID()
+unsigned AlertSystem::getAlertMessageID()
 {
 	return alertMessageID;
 }

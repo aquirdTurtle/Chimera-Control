@@ -12,6 +12,6 @@ class WindFreakFlume : public WinSerialFlume
 		std::string queryIdentity ();
 		void setPmSettings ();
 		void setFmSettings ();
-		void programSingleSetting (microwaveListEntry setting, UINT varNumber);
-		void programList (std::vector<microwaveListEntry> list, UINT varNum);
+		void programSingleSetting (microwaveListEntry setting, unsigned varNumber);
+		void programList (std::vector<microwaveListEntry> list, unsigned varNum);
 };

@@ -22,7 +22,7 @@ GpibFlume::GpibFlume(short device, bool safemode) : deviceSafemode(safemode), de
 		powerHP = ibdev(5);
 		agilent = ibdev(11);
 	}
-	catch (Error& err)
+	catch (ChimeraError& err)
 	{
 		errBox("GPIB Initialization failed!: " + err.trace());
 	}
@@ -54,7 +54,7 @@ void GpibFlume::send( std::string message, bool checkError )
 			{
 				queryError( );
 			}
-			catch ( Error& err )
+			catch ( ChimeraError& err )
 			{
 				throwNested( "Error during sending GPIB string \"" + message + "\":" + err.whatBare( ) );
 			}

@@ -130,11 +130,6 @@ rerngGuiOptions rerngGuiControl::getParams( )
 	return tempParams;
 }
 
-
-void rerngGuiControl::rearrange( int width, int height, fontMap fonts )
-{
-}
-
 void rerngGuiControl::updateActive ( )
 {
 	auto params = getParams ( );

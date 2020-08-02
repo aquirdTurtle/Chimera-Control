@@ -14,23 +14,23 @@ template <class TYPE>
 class multiDimensionalKey
 {
 	public:
-		multiDimensionalKey( UINT nDimensions=1 );
-		void resize( std::vector<UINT> dimSizes );
-		void setValue( std::vector<UINT> indecies, double value );
+		multiDimensionalKey( unsigned nDimensions=1 );
+		void resize( std::vector<unsigned> dimSizes );
+		void setValue( std::vector<unsigned> indecies, double value );
 		std::vector<TYPE> values;
 	private:
-		const UINT nDims;
-		std::vector<UINT> dimensionSizes;
+		const unsigned nDims;
+		std::vector<unsigned> dimensionSizes;
 };
 
 template <class TYPE> 
-multiDimensionalKey<TYPE>::multiDimensionalKey( UINT nDimensions ) : nDims( nDimensions )
+multiDimensionalKey<TYPE>::multiDimensionalKey( unsigned nDimensions ) : nDims( nDimensions )
 {
 	dimensionSizes.resize( nDims );
 }
 
 template <class TYPE>
-void multiDimensionalKey<TYPE>::resize( std::vector<UINT> allSizes )
+void multiDimensionalKey<TYPE>::resize( std::vector<unsigned> allSizes )
 {
 	if ( nDims == 0 )
 	{
@@ -45,7 +45,7 @@ void multiDimensionalKey<TYPE>::resize( std::vector<UINT> allSizes )
 	dimensionSizes = allSizes;
 	// since the dimensions are varied independently, I need to multiply the individual numbers together not add 
 	// them together to get the total number.
-	UINT totalVariationNumber = 1;
+	unsigned totalVariationNumber = 1;
 	for ( auto dimInc : range( dimensionSizes.size( ) ) )
 	{
 		totalVariationNumber *= dimensionSizes[dimInc];
@@ -56,7 +56,7 @@ void multiDimensionalKey<TYPE>::resize( std::vector<UINT> allSizes )
 
 
 template <class TYPE>
-void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, double value )
+void multiDimensionalKey<TYPE>::setValue( std::vector<unsigned> indecies, double value )
 {
 	if ( indecies.size( ) != nDims )
 	{
@@ -69,7 +69,7 @@ void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, double val
 			thrower ( "Multidimensional-key access-index out of range." );
 		}
 	}
-	UINT overallIndex;
+	unsigned overallIndex;
 	overallIndex = indecies[0];
 	for ( auto dimInc : range( dimensionSizes.size( ) - 1 ) )
 	{

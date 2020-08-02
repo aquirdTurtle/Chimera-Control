@@ -1,7 +1,6 @@
 // created by Mark O. Brown
 #pragma once
 #include "CameraImageDimensions.h"
-#include "ExperimentThread/Communicator.h"
 #include "ATMCD32D.h"
 #include "AndorRunSettings.h"
 #include "AndorFlume.h"
@@ -37,7 +36,7 @@ class AndorCameraCore : public IDeviceCore{
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
 		void armCamera( double& minKineticCycleTime );
-		std::vector<Matrix<long>> acquireImageData(Communicator* comm);
+		std::vector<Matrix<long>> acquireImageData();
 		void setTemperature();
 		void setExposures();
 		void setImageParametersToCamera();
@@ -53,9 +52,9 @@ class AndorCameraCore : public IDeviceCore{
 		void setGainMode();
 		void changeTemperatureSetting(bool temperatureControlOff);
 
-		static UINT __stdcall cameraThread( void* voidPtr );		
+		static unsigned __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
-		void initializeClass(IChimeraWindowWidget* parent, chronoTimes* imageTimes );
+		void initializeClass(IChimeraQtWindow* parent, chronoTimes* imageTimes );
 		void setCalibrating( bool cal );
 		bool isCalibrating( );
 		void abortAcquisition ( );
@@ -68,7 +67,7 @@ class AndorCameraCore : public IDeviceCore{
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void normalFinish ();
 		void errorFinish ();
-		void programVariation (UINT variationInc, std::vector<parameterType>& params);
+		void programVariation (unsigned variationInc, std::vector<parameterType>& params);
 
 	private:
 		void setAccumulationCycleTime ( );
@@ -98,7 +97,7 @@ class AndorCameraCore : public IDeviceCore{
 		std::timed_mutex camThreadMutex;
 		HANDLE plottingMutex;
 		std::vector<Matrix<long> > repImages;
-		UINT cameraThreadID = 0;
+		unsigned cameraThreadID = 0;
 
 		cameraThreadInput threadInput;
 

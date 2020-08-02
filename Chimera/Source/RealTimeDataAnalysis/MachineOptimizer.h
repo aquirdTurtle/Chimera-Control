@@ -10,7 +10,7 @@
 #include <memory>
 #include "DataLogging/DataLogger.h"
 #include <qlabel.h>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlineedit.h>
 #include <qtablewidget.h>
 
@@ -47,7 +47,7 @@ struct optParamSettings
 	double upperLim;
 	// important: this is the index within the MachineOptimizer class member vector of params, not within the original 
 	// parametersystem vector of variables.
-	UINT index = 0;
+	unsigned index = 0;
 	double increment = 0.1;
 	double limitSizeRange ( )
 	{
@@ -68,7 +68,7 @@ struct optDataPoint
 
 struct HillClimbingInfo
 {
-	UINT loops = 0;
+	unsigned loops = 0;
 	std::shared_ptr<optParamSettings> currParam;
 	int scanDir = 0;
 	optDataPoint bestSetting;
@@ -79,10 +79,9 @@ struct HillClimbingInfo
 class MachineOptimizer
 {
 	public:
-		void initialize ( POINT& pos, IChimeraWindowWidget* parent );
+		void initialize ( POINT& pos, IChimeraQtWindow* parent );
 		void reset ( );
 		void verifyOptInput ( AllExperimentInput& input );
-		void rearrange ( UINT width, UINT height, fontMap fonts );
 		void hillClimbingUpdate ( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger);
 		void updateCurrentValueDisplays ( );
 		void handleListViewClick ( );
@@ -90,10 +89,10 @@ class MachineOptimizer
 		void onFinOpt ( );
 		void handleContextMenu (const QPoint& pos);
 		void updateBestResult ( std::string val, std::string err );
-		//void updateBestValueListview ( UINT item, double bestVal );
+		//void updateBestValueListview ( unsigned item, double bestVal );
 		void MachineOptimizer::updateBestValueDisplays ( );
 		std::vector<std::shared_ptr<optParamSettings>> getOptParams ( );
-		UINT getMaxRoundNum ( );
+		unsigned getMaxRoundNum ( );
 		bool isInMiddleOfOptimizing ( );
 		void updateCurrRoundDisplay ( std::string roundtxt );
 	private:
@@ -115,8 +114,8 @@ class MachineOptimizer
 		QTableWidget* optParamsListview;
 		std::array<QPushButton*, 4> algorithmRadios;
 		bool isOptimizing = false;
-		UINT optCount = 0;
-		UINT roundCount = 0;
+		unsigned optCount = 0;
+		unsigned roundCount = 0;
 
 		optimizationSettings currentSettings;
 		std::vector<std::shared_ptr<optParamSettings>> optParams;

@@ -6,19 +6,19 @@
 #include "ConfigurationSystems/ConfigStream.h"
 #include <unordered_map>
 #include <QLabel>
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 
 class Repetitions{
 	public:
-		void initialize(POINT& pos, IChimeraWindowWidget* mainWin );
-		void setRepetitions(UINT number);
+		void initialize(POINT& pos, IChimeraQtWindow* mainWin );
+		void setRepetitions(unsigned number);
 		unsigned int getRepetitionNumber();
-		static UINT getSettingsFromConfig (ConfigStream& openFile );
+		static unsigned getSettingsFromConfig (ConfigStream& openFile );
 		void updateNumber(long repNumber);
 		void handleSaveConfig(ConfigStream& saveFile);
 	private:
-		UINT repetitionNumber;
+		unsigned repetitionNumber;
 		CQLineEdit* repetitionEdit;
 		QLabel* repetitionDisp;
 		QLabel* repetitionText;

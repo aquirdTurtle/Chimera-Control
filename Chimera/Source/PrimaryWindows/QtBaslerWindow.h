@@ -5,15 +5,14 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "ExperimentThread/Communicator.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "IChimeraWindowWidget.h"
+#include "IChimeraQtWindow.h"
 
 #include <atomic>
 #include "GeneralImaging/PictureManager.h"
 #include "GeneralImaging/PictureControl.h"
 #include "Control.h"
-#include "IChimeraWindowWidget.h"
+#include "IChimeraQtWindow.h"
 #include "Basler/BaslerSettingsControl.h"
 
 #include "GeneralImaging/PictureStats.h"
@@ -26,8 +25,7 @@ namespace Ui {
     class QtBaslerWindow;
 }
 
-class QtBaslerWindow : public IChimeraWindowWidget
-{
+class QtBaslerWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
@@ -45,7 +43,7 @@ class QtBaslerWindow : public IChimeraWindowWidget
 		bool baslerCameraIsRunning ();
 		bool baslerCameraIsContinuous ();
 		void handlePrepareRequest (baslerSettings* settings);
-		void pictureRangeEditChange (UINT id);
+		void pictureRangeEditChange (unsigned id);
 		void handleSoftwareTrigger ();
 		void windowOpenConfig (ConfigStream& configFile);
 		void windowSaveConfig (ConfigStream& configFile);
@@ -56,7 +54,7 @@ class QtBaslerWindow : public IChimeraWindowWidget
         Ui::QtBaslerWindow* ui;
 		baslerSettings runSettings;
 		// for the basler window, this is typically only one picture, but I include this here anyways.
-		UINT loadMotConsecutiveFailures = 0;
+		unsigned loadMotConsecutiveFailures = 0;
 		bool motLoaded = false;
 		bool autoScaleBaslerPictureData = true;
 		PictureManager picManager;

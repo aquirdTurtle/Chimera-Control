@@ -11,9 +11,9 @@
 #include "AnalogOutput/DaqMxFlume.h"
 #include "AnalogOutput/AoStructures.h"
 #include "AnalogOutput/AnalogOutput.h"
-
+#include <GeneralObjects/IChimeraSystem.h>
 #include "ConfigurationSystems/Version.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include "Qlabel.h"
 #include <qpushbutton.h>
 #include <qcheckbox.h>
@@ -28,19 +28,16 @@ class MainWindow;
  * multiple copies of the object. This class is based off of the DAC.bas module in the original VB6 code, of course 
  * adapted for this gui in controlling the relevant controls and handling changes more directly.
  */
-class AoSystem
-{
+class AoSystem : public IChimeraSystem {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AoSystem& operator=(const AoSystem&) = delete;
 		AoSystem (const AoSystem&) = delete;
-
-		AoSystem( bool aoSafemode );
+		AoSystem(IChimeraQtWindow* parent, bool aoSafemode );
 
 		// standard functions for gui elements
-		void initialize( POINT& pos, IChimeraWindowWidget* master);
-		void rearrange( UINT width, UINT height, fontMap fonts );
-		void standardExperimentPrep (UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
+		void initialize( POINT& pos, IChimeraQtWindow* master);
+		void standardExperimentPrep (unsigned variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
 									 double currLoadSkipTime);
 		bool eventFilter (QObject* obj, QEvent* event);
 		// configs
@@ -50,64 +47,65 @@ class AoSystem
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);
 		// Setting system settings, mostly non-crucial functionality.
-		void resetDacs (UINT varInc, bool skipOption);
+		void resetDacs (unsigned varInc, bool skipOption);
 		void handleRoundToDac( );
 		void updateEdits( );
-		void setDefaultValue( UINT dacNum, double val );
+		void setDefaultValue( unsigned dacNum, double val );
 		void setName( int dacNumber, std::string name );
 		void setNote ( int dacNumber, std::string note );
 		bool isValidDACName( std::string name );
 		void setMinMax( int dacNumber, double min, double max );
-		std::vector<std::vector<plotDataVec>> getPlotData (UINT variation);
-		void handleEditChange( UINT dacNumber );
+		std::vector<std::vector<plotDataVec>> getPlotData (unsigned variation);
+		void handleEditChange( unsigned dacNumber );
 		// processing to determine how dac's get set
 		void handleSetDacsButtonPress( DoCore& ttls, bool useDefault=false );
 		void setDacCommandForm( AoCommandForm command );
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DoCore& ttls);
-		void setDacTriggerEvents( DoCore& ttls, UINT variation );
+		void setDacTriggerEvents( DoCore& ttls, unsigned variation );
 		void calculateVariations( std::vector<parameterType>& variables, ExpThreadWorker* threadworker);
-		void organizeDacCommands( UINT variation );
+		void organizeDacCommands( unsigned variation );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<parameterType>& vars, 
 									 DoCore& ttls );
-		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation );
+		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, unsigned variation );
 		// formatting data and communicating with the underlying daqmx api for actual communicaition with the cards.
-		void makeFinalDataFormat( UINT variation);
-		void writeDacs( UINT variation, bool loadSkip );
+		void makeFinalDataFormat( unsigned variation);
+		void writeDacs( unsigned variation, bool loadSkip );
 		void startDacs( );
-		void configureClocks( UINT variation, bool loadSkip );
+		void configureClocks( unsigned variation, bool loadSkip );
 		void stopDacs();
 		void resetDacEvents( );
-		void initializeDataObjects( UINT cmdNum );
+		void initializeDataObjects( unsigned cmdNum );
 		void prepareForce( );
 		void standardNonExperiemntStartDacsSequence( );		
-		void setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap);
+		void setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSnapshot initSnap);
 		// checks
-		void checkTimingsWork( UINT variation );
-		void checkValuesAgainstLimits(UINT variation );
+		void checkTimingsWork( unsigned variation );
+		void checkValuesAgainstLimits(unsigned variation );
 		// ask for info
 		std::string getSystemInfo( );
-		std::string getDacSequenceMessage( UINT variation );
+		std::string getDacSequenceMessage( unsigned variation );
 		// getters
-		double getDefaultValue( UINT dacNum );
-		unsigned int getNumberSnapshots( UINT variation );
+		double getDefaultValue( unsigned dacNum );
+		unsigned int getNumberSnapshots( unsigned variation );
 		std::string getName( int dacNumber );
 		std::string getNote ( int dacNumber );
-		ULONG getNumberEvents( UINT variation );
+		ULONG getNumberEvents( unsigned variation );
 		int getDacIdentifier( std::string name );
 		static int getBasicDacIdentifier (std::string name);
-
 		double getDacValue( int dacNumber );
 		unsigned int getNumberOfDacs( );
 		std::pair<double, double> getDacRange( int dacNumber );
+
 		std::array<AoInfo, 24> getDacInfo ( );
 		std::array<double, 24> getFinalSnapshot( );
-		bool handleArrow ( CWnd* focus, bool up );
+
+
 		ExpWrap<std::vector<AoSnapshot>> getSnapshots ( );
 		ExpWrap<std::array<std::vector<double>, 3>> getFinData ( );
 
 	private:
-		void setForceDacEvent (int line, double val, DoCore& ttls, UINT variation);
+		void setForceDacEvent (int line, double val, DoCore& ttls, unsigned variation);
 
 		QLabel* dacTitle;
 		CQPushButton* dacSetButton;

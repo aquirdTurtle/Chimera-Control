@@ -6,8 +6,7 @@
 #include "DataLogging/DataLogger.h"
 #include "TektronixStructures.h"
 
-class TekCore : public IDeviceCore
-{
+class TekCore : public IDeviceCore{
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		TekCore& operator=(const TekCore&) = delete;
@@ -18,7 +17,7 @@ class TekCore : public IDeviceCore
 		std::string queryIdentity ();
 		void calculateVariations (std::vector<parameterType>& parameters, ExpThreadWorker* threadworker);
 		tektronixInfo getSettingsFromConfig (ConfigStream& configFile);
-		void programVariation (UINT variation, std::vector<parameterType>& params);
+		void programVariation (unsigned variation, std::vector<parameterType>& params);
 		const std::string configDelim;
 		std::string getDelim () { return configDelim; }
 		void logSettings (DataLogger& logger);
@@ -26,6 +25,7 @@ class TekCore : public IDeviceCore
 		void normalFinish () {};
 		void errorFinish () {};
 		void calculateVariations (std::vector<parameterType>& parameters);
+		void setSettings (tektronixInfo);
 	private:
 		tektronixInfo experimentInfo;
 		VisaFlume visaFlume;

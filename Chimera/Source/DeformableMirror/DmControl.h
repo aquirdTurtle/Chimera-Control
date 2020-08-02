@@ -5,7 +5,7 @@
 #include "DmCore.h"
 #include "DmProfileCreator.h"
 #include <qcombobox.h>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
@@ -25,7 +25,7 @@ class DmControl
 {
 	public:
 		DmControl(std::string serialNumber, bool safeMode);
-		void initialize( POINT loc, IChimeraWindowWidget* parent, int count, std::string serialNumber, LONG width );
+		void initialize( POINT loc, IChimeraQtWindow* parent, int count, std::string serialNumber, LONG width );
 	    void handleOnPress(int i);
 		void ProgramNow();
 		void setMirror(double *A);
@@ -39,7 +39,7 @@ class DmControl
 		void add_Changes();
 		std::vector<double> getTableValues();
 		void writeCurrentFile(std::string out_file);
-		void initializeTable(POINT& pos, int width, int height, IChimeraWindowWidget* parent);
+		void initializeTable(POINT& pos, int width, int height, IChimeraQtWindow* parent);
 
 		DmCore &getCore();
 		DMOutputForm getExpressionValues();

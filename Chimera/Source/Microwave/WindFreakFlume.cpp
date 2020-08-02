@@ -18,7 +18,7 @@ void WindFreakFlume::setFmSettings (){
 	write ("C0");
 }
 
-void WindFreakFlume::programSingleSetting (microwaveListEntry setting, UINT varNumber){
+void WindFreakFlume::programSingleSetting (microwaveListEntry setting, unsigned varNumber){
 	write ("C0");
 	// lock the pll
 	write ("E1");
@@ -28,7 +28,7 @@ void WindFreakFlume::programSingleSetting (microwaveListEntry setting, UINT varN
 	write ("W" + str (setting.power.getValue (varNumber), 5));
 }
 
-void WindFreakFlume::programList (std::vector<microwaveListEntry> list, UINT varNum){
+void WindFreakFlume::programList (std::vector<microwaveListEntry> list, unsigned varNum){
 	// Settings for RfoutA
 	write ("C0");
 	// lock the pll
@@ -43,7 +43,7 @@ void WindFreakFlume::programList (std::vector<microwaveListEntry> list, UINT var
 	write ("Ld");
 	// sweep continuously
 	write ("c0");
-	UINT count = 0;
+	unsigned count = 0;
 	for (auto entry : list)
 	{
 		auto ln = "L" + str (count);

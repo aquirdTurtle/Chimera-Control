@@ -10,10 +10,11 @@ QLabel {
     font: bold 11pt;
 }
 
-QTextEdit[readOnly="true"], QTextEdit:disabled {
+QTextEdit[readOnly="true"], QTextEdit:disabled, QPlainTextEdit, QPlainTextEdit[readOnly="true"], QPlainTextEdit:disabled {
     background: rgb( 25, 25, 25 );
     color: rgba( 191, 97, 106, 255 );
 }
+
 QTextEdit {
     background: rgb( 40, 40, 40 );
     font: normal 11pt;
@@ -50,7 +51,7 @@ QTableView::item:selected {
 }
 
 QTableView::item:!enabled {
-    background: rgba(20,20,20);
+    background: rgb(20,20,20);
 }
 
 QTableCornerButton::section, QHeaderView::section {
@@ -87,4 +88,80 @@ QToolTip {
     color: white;
 }
 
+QScrollBar:vertical {
+    border: 1px solid rgb(25,25,25,0);
+    background: rgb(25,25,25);
+    width: 15px;
+    margin: 22px 0 22px 0;
+}
 
+QScrollBar::handle:vertical {
+    background: rgb(35,35,35);
+    min-height: 20px;
+}
+
+QScrollBar::add-line:vertical {
+    border: 2px solid grey;
+    background: rgb(35,35,35);
+    height: 20px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    border: 2px solid grey;
+    background: rgb(35,35,35);
+    height: 20px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    border: 2px solid grey;
+    width: 3px;
+    height: 3px;
+    background: black;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    border: 1px solid rgb(25,25,25,0);
+    background: rgb(25,25,25);
+    height: 15px;
+    margin: 0px 20px 0 20px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgb(35,35,35);
+    min-width: 20px;
+}
+
+QScrollBar::add-line:horizontal {
+    border: 2px solid grey;
+    background: rgb(35,35,35);
+    width: 20px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal {
+    border: 2px solid grey;
+    background: rgb(35,35,35);
+    width: 20px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    border: 2px solid grey;
+    width: 3px;
+    height: 3px;
+    background: black;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}

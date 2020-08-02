@@ -14,7 +14,7 @@ struct ddsIndvRampListInfo
 {
 	USHORT index=0;
 
-	UINT channel=0;
+	unsigned channel=0;
 	Expression freq1="100"; // in MHZ
 	Expression freq2="100";
 	Expression amp1="100";  // between 0 and 100
@@ -38,26 +38,26 @@ class ddsBox
 	public:
 		// a wrapper to make a matrix of "type" with the dimensions of the dds box - i.e. one value of "type" for each 
 		// channel of each board.
-		type& operator ()( UINT boardNumber, UINT channelNumber );
-		type operator ()( UINT boardNumber, UINT channelNumber ) const;
+		type& operator ()( unsigned boardNumber, unsigned channelNumber );
+		type operator ()( unsigned boardNumber, unsigned channelNumber ) const;
 
 		std::array<std::array<type, 4>, 2>& getBoards ( );
-		std::array<type, 4>& getBoard ( UINT which );
-		UINT numBoards ( );
-		UINT numChannels ( );
+		std::array<type, 4>& getBoard ( unsigned which );
+		unsigned numBoards ( );
+		unsigned numChannels ( );
 
 	private:
 		std::array<std::array<type, 4>, 2> data;
 };
 
 template<typename type>
-UINT ddsBox<type>::numBoards ( )
+unsigned ddsBox<type>::numBoards ( )
 {
 	return 2;
 }
 
 template<typename type>
-UINT ddsBox<type>::numChannels ( )
+unsigned ddsBox<type>::numChannels ( )
 {
 	return 4;
 }
@@ -65,7 +65,7 @@ UINT ddsBox<type>::numChannels ( )
 
 
 template<typename type>
-type& ddsBox<type>::operator ()( UINT boardNumber, UINT channelNumber )
+type& ddsBox<type>::operator ()( unsigned boardNumber, unsigned channelNumber )
 {
 	if ( boardNumber > 1 )
 	{
@@ -79,7 +79,7 @@ type& ddsBox<type>::operator ()( UINT boardNumber, UINT channelNumber )
 }
 
 template<typename type>
-type ddsBox<type>::operator ()( UINT boardNumber, UINT channelNumber ) const 
+type ddsBox<type>::operator ()( unsigned boardNumber, unsigned channelNumber ) const 
 {
 	if ( boardNumber > 1 )
 	{
@@ -99,7 +99,7 @@ std::array<std::array<type, 4>, 2>& ddsBox<type>::getBoards ( )
 }
 
 template<typename type>
-std::array<type, 4>& ddsBox<type>::getBoard ( UINT which )
+std::array<type, 4>& ddsBox<type>::getBoard ( unsigned which )
 {
 	if ( which > 1 )
 	{

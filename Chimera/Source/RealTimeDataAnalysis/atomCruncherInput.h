@@ -26,8 +26,8 @@ struct atomCruncherInput
 	bool plotterActive;
 	bool plotterNeedsImages;
 	bool rearrangerActive;
-	UINT picsPerRep;
-	UINT atomThresholdForSkip = UINT_MAX;
+	unsigned picsPerRep;
+	unsigned atomThresholdForSkip = UINT_MAX;
 	// outer vector here is for each location in the first grid.
 	std::array<std::vector<int>, 4> thresholds;
 	imageParameters imageDims;

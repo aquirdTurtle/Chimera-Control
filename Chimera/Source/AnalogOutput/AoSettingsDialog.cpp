@@ -13,7 +13,7 @@ END_MESSAGE_MAP()
 
 void AoSettingsDialog::handleOk()
 {
-	for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
+	for (unsigned dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 	{
 		/// MAKE SURE that there are 16 numbers per row.
 		CString text;
@@ -54,7 +54,7 @@ BOOL AoSettingsDialog::OnInitDialog()
 	POINT loc = { 0,0 };
 	RECT r;
 	GetClientRect( &r );
-	UINT columnNumber = 3;
+	unsigned columnNumber = 3;
 	LONG columnSize = (r.right-20*columnNumber) / columnNumber;
 	// for rounding issues.
 	columnSize = columnSize / 4 + columnSize / 8 + columnSize / 8 + columnSize / 2;
@@ -88,7 +88,7 @@ BOOL AoSettingsDialog::OnInitDialog()
 	loc.y += rowHeight + 5;
 	loc.x -= (columnSize +20) * columnNumber;
 
-	for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
+	for (unsigned dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 	{
 		if (dacInc == nameEdits.size() / columnNumber || dacInc == 2 * nameEdits.size() / columnNumber )
 		{

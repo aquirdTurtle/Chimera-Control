@@ -18,8 +18,7 @@ void AndorCameraThreadWorker::process (){
 	if (!lock.owns_lock ()) {
 		errBox ("ERROR: ANDOR IMAGING THREAD FAILED TO LOCK THE RUN MUTEX! IMAGING THREAD CLOSING!");
 	}
-	while (!input->Andor->cameraThreadExitIndicator)
-	{
+	while (!input->Andor->cameraThreadExitIndicator){
 		/*
 		 * wait until unlocked. this happens when data is started.
 		 * the first argument is the lock.  The when the lock is locked, this function just sits and doesn't use cpu,
@@ -35,10 +34,8 @@ void AndorCameraThreadWorker::process (){
 			input->signaler.wait (lock);
 		}
 
-		if (!input->safemode)
-		{
-			try
-			{
+		if (!input->safemode){
+			try	{
 				int status = input->Andor->flume.queryStatus ();
 				if (status == DRV_IDLE && armed) {
 					// get the last picture. acquisition is over so getAcquisitionProgress returns 0.
@@ -56,8 +53,7 @@ void AndorCameraThreadWorker::process (){
 						armed = false;
 					}
 				}
-				else
-				{
+				else{
 					input->Andor->flume.waitForAcquisition ();
 					if (pictureNumber % 2 == 0) {
 						(*input->imageTimes).push_back (std::chrono::high_resolution_clock::now ());
@@ -66,7 +62,7 @@ void AndorCameraThreadWorker::process (){
 					try {
 						input->Andor->flume.getAcquisitionProgress (pictureNumber);
 					}
-					catch (Error& exception) {
+					catch (ChimeraError& exception) {
 						//input->comm->sendError (exception.trace ());
 					}
 					if (input->Andor->isCalibrating ()) {
@@ -78,12 +74,11 @@ void AndorCameraThreadWorker::process (){
 					}
 				}
 			}
-			catch (Error&) {
+			catch (ChimeraError&) {
 				//...? When does this happen? not sure why this is here...
 			}
 		}
-		else // safemode
-		{
+		else { // safemode
 			// simulate an actual wait.
 			Sleep (500);
 			if (pictureNumber % 2 == 0) {
@@ -110,8 +105,7 @@ void AndorCameraThreadWorker::process (){
 					}
 				}
 			}
-			else
-			{
+			else{
 				input->Andor->cameraIsRunning = false;
 				safeModeCount = 0;
 				if (input->Andor->isCalibrating ()) {

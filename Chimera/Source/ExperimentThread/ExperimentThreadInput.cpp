@@ -5,11 +5,11 @@
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "PrimaryWindows/QtBaslerWindow.h"
 #include "PrimaryWindows/QtScriptWindow.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 
-ExperimentThreadInput::ExperimentThreadInput ( IChimeraWindowWidget* win ) :
+ExperimentThreadInput::ExperimentThreadInput ( IChimeraQtWindow* win ) :
 	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ),
-	python (win->mainWin->getPython ( ) ), comm (win->mainWin->getCommRef ( ) ), 
+	python (win->mainWin->getPython ( ) ),  
 	globalControl(win->auxWin->getGlobals() ), logger(win->andorWin->getLogger() )
 {
 	devices = win->mainWin->getDevices ();

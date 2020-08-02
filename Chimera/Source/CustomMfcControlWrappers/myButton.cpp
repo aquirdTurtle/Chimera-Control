@@ -12,7 +12,7 @@ void CleanPush::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	// Get button rect
 	rt = lpDrawItemStruct->rcItem;
 	//Get state of the button
-	UINT state = lpDrawItemStruct->itemState;  
+	unsigned state = lpDrawItemStruct->itemState;  
 	dc.FillSolidRect( rt, _myRGBs[ "Button-Color" ] );
 	CPen pen( PS_SOLID, 0, _myRGBs["Button-Color"]);
 	dc.SelectObject( pen);
@@ -68,7 +68,7 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	// always square on the left side of window. 
 	checkRect.right = checkRect.left + height;
 	txtRect.left = checkRect.right;
-	UINT state = lpDrawItemStruct->itemState;
+	unsigned state = lpDrawItemStruct->itemState;
 	if ( IsWindowEnabled( ) )
 	{
 		dc.FillSolidRect( checkRect, _myRGBs[ "Interactable-Bkgd" ] );

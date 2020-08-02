@@ -1,14 +1,28 @@
-% Master-Script See the "?" for info on commands.
-def TopRamanPulse(pulseTime):
-  on: topRamanrf
-  on: eoramanrf
-  %on: topPulseTrig
-  call send_uw_to_raman_eom()
-  t += pulseTime
-  off: topRamanRf
-  off: eoramanRF
-  off: eoswitch
-  off: eoswitch2
-  %off: topPulseTrig
-
-
+% Master-Script See the "?" for info on commands.
+
+def TopRamanPulse(pulseTime):
+
+  on: topRamanrf
+
+  on: eoramanrf
+
+  %on: topPulseTrig
+
+  call send_uw_to_raman_eom()
+
+  t += pulseTime
+
+  off: topRamanRf
+
+  off: eoramanRF
+
+  off: eoswitch
+
+  off: eoswitch2
+
+  %off: topPulseTrig
+
+
+
+
+

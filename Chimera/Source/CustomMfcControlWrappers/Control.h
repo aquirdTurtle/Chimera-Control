@@ -48,8 +48,6 @@ template <class ControlType> class Control : public ControlType
 		fontTypes fontType = fontTypes::NormalFont;
 		//
 		int colorState = 0;
-		void rearrange( int width, int height, fontMap fonts);
-		void rearrange( int width, int height);
 		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
 	private:
 		int toolTipID;
@@ -64,52 +62,6 @@ Control<ControlType>::Control()
 	// assert that the template class is derived from CWnd. This doesn't actually do anything in run-time. It's also
 	// probably redundant because of all the functionality designed around CWnd in this class, like the below function.
 	ControlType obj;
-}
-
-template <class ControlType>
-void Control<ControlType>::rearrange( int width, int height )
-{
-	if ( !m_hWnd ) // make sure the control has been initialized
-	{
-		return;
-	}
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	// extra heigh added to certain controls based on random things like the trigger mode.
-	// handle simple case.
-	ShowWindow( SW_SHOW );
-	RECT position = { long( widthScale * sPos.left ), long( heightScale * sPos.top ),
-					  long( widthScale * sPos.right ), long( heightScale * sPos.bottom ) };
-	MoveWindow( &position, TRUE );
-}
-
-
-template <class ControlType>
-void Control<ControlType>::rearrange( int width, int height, fontMap fonts)
-{
-	if ( !m_hWnd )
-	{
-		return;
-	}
-	rearrange( width, height );
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	/// Set Fonts
-	std::string fontSize;
-	if (widthScale * heightScale > 2)		 { fontSize = "Max"; }
-	else if (widthScale * heightScale > 0.8) { fontSize = "Large"; }
-	else if (widthScale * heightScale > 0.6) { fontSize = "Med"; }
-	else									 { fontSize = "Small"; }
-	switch (fontType)
-	{
-		case fontTypes::NormalFont: SetFont (fonts["Normal Font " + fontSize]); break;
-		case fontTypes::CodeFont: SetFont (fonts["Code Font " + fontSize]); break;
-		case fontTypes::SmallCodeFont: SetFont (fonts["Small Code Font " + fontSize]); break;
-		case fontTypes::HeadingFont: SetFont (fonts["Heading Font " + fontSize]); break;
-		case fontTypes::LargeFont: SetFont (fonts["Larger Font " + fontSize]); break;
-		case fontTypes::VeryLargeFont: SetFont (fonts["Very Larger Font " + fontSize]); break;
-		case fontTypes::SmallFont: SetFont (fonts["Smaller Font " + fontSize]); break;
-	}
 }
 
 /// template function for the class control system

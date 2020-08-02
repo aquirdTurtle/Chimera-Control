@@ -11,7 +11,7 @@
 #include "Andor/andorPicSettingsGroup.h"
 #include <array>
 #include <vector>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 
@@ -21,7 +21,7 @@ class AndorCameraSettingsControl;
 struct displayTypeOption{
 	bool isDiff = false;
 	// zero-indexed.
-	UINT whichPicForDif = 0;
+	unsigned whichPicForDif = 0;
 };
 
 /*
@@ -36,7 +36,7 @@ class PictureSettingsControl
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor);
-		void initialize( POINT& pos, IChimeraWindowWidget* parent );
+		void initialize( POINT& pos, IChimeraQtWindow* parent );
 		void handleOptionChange( );
 		void setPictureControlEnabled (int pic, bool enabled);
 		void setUnofficialExposures ( std::vector<float> times );
@@ -46,10 +46,10 @@ class PictureSettingsControl
 		std::array<std::vector<int>, 4> getThresholds();
 		std::array<displayTypeOption, 4> getDisplayTypeOptions( );
 		void setThresholds( std::array<std::string, 4> thresholds);
-		UINT getPicsPerRepetition();
+		unsigned getPicsPerRepetition();
 		void updateSettings( );
 		void updateColormaps ( std::array<int, 4> colorsIndexes );
-		void setUnofficialPicsPerRep( UINT picNum);
+		void setUnofficialPicsPerRep( unsigned picNum);
 		std::array<std::string, 4> getThresholdStrings();
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );

@@ -16,28 +16,23 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DoSystem::DoSystem( bool ftSafemode, bool serialSafemode ) : core(ftSafemode, serialSafemode)
-{
+DoSystem::DoSystem( IChimeraQtWindow* parent, bool ftSafemode, bool serialSafemode ) 
+	: core(ftSafemode, serialSafemode), IChimeraSystem(parent){
 	for (auto& out : outputs) { out.set(0); }
 }
+
 DoSystem::~DoSystem() { }
 
-
-void DoSystem::handleSaveConfig(ConfigStream& saveFile)
-{
+void DoSystem::handleSaveConfig(ConfigStream& saveFile){
 	/// ttl settings
 	saveFile << "TTLS\n";
 	// nothing at the moment.
 	saveFile << "END_TTLS\n";
 }
 
-
-void DoSystem::handleOpenConfig(ConfigStream& openFile)
-{
-	if ( openFile.ver < Version ( "3.7" ) )
-	{
-		for ( auto i : range ( 64 ) )
-		{
+void DoSystem::handleOpenConfig(ConfigStream& openFile){
+	if ( openFile.ver < Version ( "3.7" ) ){
+		for ( auto i : range ( 64 ) ){
 			// used to store an initial ttl config in the config file.
 			std::string trash;
 			openFile >> trash;
@@ -46,81 +41,43 @@ void DoSystem::handleOpenConfig(ConfigStream& openFile)
 }
 
 
-void DoSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
-{
-	for ( auto rowInc : range(status.size()) )
-	{
-		for ( auto numInc : range(status[rowInc].size()) )
-		{
+void DoSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status){
+	for ( auto rowInc : range(status.size()) ){
+		for ( auto numInc : range(status[rowInc].size()) ){
 			outputs ( numInc, DoRows::which ( rowInc ) ).set ( status[ rowInc ][ numInc ] );
 		}
 	}
 }
 
-
-Matrix<std::string> DoSystem::getAllNames()
-{
+Matrix<std::string> DoSystem::getAllNames(){
 	return core.getAllNames ();
 }
 
-void DoSystem::rearrange(UINT width, UINT height, fontMap fonts)
-{
-	/*
-	ttlTitle.rearrange( width, height, fonts);
-	ttlHold.rearrange( width, height, fonts);
-	zeroTtls.rearrange( width, height, fonts);
-	for ( auto& out : outputs )
-	{
-		out.rearrange ( width, height, fonts );
-	}
-	for (auto& control : ttlNumberLabels)
-	{
-		control.rearrange( width, height, fonts);
-	}
-	for (auto& control : ttlRowLabels)
-	{
-		control.rearrange( width, height, fonts);
-	}*/
-}
-
-
-void DoSystem::updatePush( DoRows::which row, UINT number )
-{
+void DoSystem::updatePush( DoRows::which row, unsigned number ){
 	outputs ( number, row ).updateStatus ( );
 }
 
-
-void DoSystem::handleInvert()
-{
-	for ( auto& out : outputs )
-	{
+void DoSystem::handleInvert(){
+	for ( auto& out : outputs ){
 		// seems like I need a ! here...
 		out.set (out.getStatus ()); 
 		core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, out.getStatus (), getCurrentStatus ());
 	}
 }
 
-
-void DoSystem::updateDefaultTtl( DoRows::which row, UINT column, bool state)
-{
+void DoSystem::updateDefaultTtl( DoRows::which row, unsigned column, bool state){
 	outputs ( column, row ).defaultStatus = state;
 }
 
-
-bool DoSystem::getDefaultTtl( DoRows::which row, UINT column)
-{
+bool DoSystem::getDefaultTtl( DoRows::which row, unsigned column){
 	return outputs ( column, row ).defaultStatus;
 }
 
-
-std::pair<UINT, UINT> DoSystem::getTtlBoardSize()
-{
+std::pair<unsigned, unsigned> DoSystem::getTtlBoardSize(){
 	return { outputs.numRows, outputs.numColumns };
 }
 
-
-void DoSystem::initialize( POINT& loc, IChimeraWindowWidget* parent )
-{
+void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 	// title
 	ttlTitle = new QLabel ("TTLS", parent);
 	ttlTitle->setGeometry (loc.x, loc.y, 480, 25);
@@ -132,14 +89,13 @@ void DoSystem::initialize( POINT& loc, IChimeraWindowWidget* parent )
 		"ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
 		"change.");
 	parent->connect (ttlHold, &QPushButton::released, [parent, this]() {
-		try
-		{
+		try{
 			parent->configUpdated ();
 			handleHoldPress ();
+			emit notification ("Handling Hold Press.\n", 2);
 		}
-		catch (Error& exception)
-		{
-			parent->reportErr ("TTL Hold Handler Failed: " + exception.trace () + "\r\n");
+		catch (ChimeraError& exception){
+			emit error ("TTL Hold Handler Failed: " + exception.qtrace () + "\n");
 		}
 	});
 	ttlHold->setCheckable (true);
@@ -151,11 +107,11 @@ void DoSystem::initialize( POINT& loc, IChimeraWindowWidget* parent )
 		try	{
 			zeroBoard ();
 			parent->configUpdated();
-			parent->reportStatus ("Zero'd TTLs.\r\n");
+			emit notification ("Zero'd TTLs.\n",2);
 		}
-		catch (Error& exception) {
-			parent->reportStatus ("Failed to Zero TTLs!!!\r\n");
-			parent->reportErr (exception.trace ());
+		catch (ChimeraError& exception) {
+			emit notification ("Failed to Zero TTLs!!!\n",1);
+			emit error(exception.qtrace ());
 		}
 	});
 	loc.y += 20;
@@ -167,29 +123,27 @@ void DoSystem::initialize( POINT& loc, IChimeraWindowWidget* parent )
 	}
 	loc.y += 20;
 	// all row numberLabels
-	for ( auto row : DoRows::allRows )
-	{
+	for ( auto row : DoRows::allRows ) {
 		ttlRowLabels[int (row)] = new QLabel ((DoRows::toStr (row)).c_str(), parent);
 		ttlRowLabels[int (row)]->setGeometry (loc.x, loc.y + int (row) * 28, 32, 28);
 	}
 	// all push buttons
-	UINT runningCount = 0;
+	unsigned runningCount = 0;
 	auto startX = loc.x + 32;
-	for (auto row : DoRows::allRows )
-	{
+	for (auto row : DoRows::allRows ){
 		loc.x = startX;
-		for (UINT number = 0; number < outputs.numColumns; number++)
-		{
+		for (unsigned number = 0; number < outputs.numColumns; number++){
 			auto& out = outputs (number, row);
 			out.initialize ( loc, parent );
 			parent->connect ( out.check, &QCheckBox::stateChanged, [this, &out, parent]() {
 				try {
 					handleTTLPress (out);
+					emit notification ("Handled Ttl " + qstr (DoRows::toStr(out.getPosition ().first)) + ","
+						+ qstr (out.getPosition ().second) + " Press.\n", 2);
 					parent->configUpdated ();
 				}
-				catch (Error& exception)
-				{
-					parent->reportErr ("TTL Press Handler Failed.\n" + exception.trace () + "\r\n");
+				catch (ChimeraError& exception)	{
+					emit error ("TTL Press Handler Failed.\n" + exception.qtrace () + "\n");
 				}
 			});
 			loc.x += 28;
@@ -199,111 +153,82 @@ void DoSystem::initialize( POINT& loc, IChimeraWindowWidget* parent )
 	loc.x = startX - 32;
 }
 
-
-int DoSystem::getNumberOfTTLRows()
-{
+int DoSystem::getNumberOfTTLRows(){
 	return outputs.numRows;
 }
 
-
-int DoSystem::getNumberOfTTLsPerRow()
-{
+int DoSystem::getNumberOfTTLsPerRow(){
 	return outputs.numColumns;
 }
 
-
-void DoSystem::handleTTLPress(DigitalOutput& out)
-{
-	if ( holdStatus == false )
-	{
+void DoSystem::handleTTLPress(DigitalOutput& out){
+	if ( holdStatus == false ){
 		//out.set (!out.getStatus ());
 		out.set (out.check->isChecked ());
 		core.ftdi_ForceOutput(out.getPosition().first, out.getPosition().second, !out.getStatus(), getCurrentStatus ());
 	}
-	else
-	{
+	else{
 		out.setHoldStatus ( !out.holdStatus );
 	}
 }
 
 // this function handles when the hold button is pressed.
-void DoSystem::handleHoldPress()
-{
-	if (holdStatus == true)
-	{
+void DoSystem::handleHoldPress(){
+	if (holdStatus == true){
 		// set all the holds.
 		holdStatus = false;
 		// make changes
-		for ( auto& out : outputs )
-		{
+		for ( auto& out : outputs )	{
 			out.set ( out.holdStatus );
 			core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, out.getStatus (), getCurrentStatus());
 		}
 	}
-	else
-	{
+	else{
 		holdStatus = true;
-		for ( auto& out : outputs )
-		{
+		for ( auto& out : outputs )	{
 			out.setHoldStatus ( out.getStatus ( ) );
 		}
 	}
 }
 
-
-std::array< std::array<bool, 16>, 4 > DoSystem::getCurrentStatus( )
-{
+std::array< std::array<bool, 16>, 4 > DoSystem::getCurrentStatus( ){
 	std::array< std::array<bool, 16>, 4 > currentStatus;
-	for ( auto& out : outputs )
-	{
+	for ( auto& out : outputs ){
 		currentStatus[ int ( out.getPosition ( ).first ) ][ out.getPosition ( ).second ] = out.getStatus();
 	}
 	return currentStatus;
 }
 
-
-void DoSystem::setName( DoRows::which row, UINT number, std::string name)
-{
-	if (name == "")
-	{
+void DoSystem::setName( DoRows::which row, unsigned number, std::string name){
+	if (name == ""){
 		// no empty names allowed.
 		return;
 	}
 	outputs ( number, row ).setName ( name );
 	auto names = core.getAllNames ();
-	names (UINT(row), number) = name;
+	names (unsigned(row), number) = name;
 	core.setNames (names);
 }
 
-
-std::string DoSystem::getName( DoRows::which row, UINT number)
-{
-	return core.getAllNames ()(UINT (row), number);
+std::string DoSystem::getName( DoRows::which row, unsigned number){
+	return core.getAllNames ()(unsigned (row), number);
 }
 
-
-bool DoSystem::getTtlStatus(DoRows::which row, int number)
-{
+bool DoSystem::getTtlStatus(DoRows::which row, int number){
 	return outputs ( number, row ).getStatus ( );
 }
 
-
-allDigitalOutputs& DoSystem::getDigitalOutputs ( )
-{
+allDigitalOutputs& DoSystem::getDigitalOutputs ( ){
 	return outputs;
 }
 
-
-
-std::pair<USHORT, USHORT> DoSystem::calcDoubleShortTime( double time )
-{
+std::pair<USHORT, USHORT> DoSystem::calcDoubleShortTime( double time ){
 	USHORT lowordTime, hiwordTime;
 	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 	// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
 	lowordTime = ULONGLONG( time * 10000 ) % 65535;
 	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
-	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 )
-	{
+	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 ){
 		thrower ( "DIO system was asked to calculate a time that was too long! this is limited by the card." );
 	}
 	return { lowordTime, hiwordTime };
@@ -312,18 +237,14 @@ std::pair<USHORT, USHORT> DoSystem::calcDoubleShortTime( double time )
 std::string DoSystem::getDoSystemInfo () {	return core.getDoSystemInfo (); }
 bool DoSystem::getFtFlumeSafemode () { return core.getFtFlumeSafemode (); }
 
-void DoSystem::zeroBoard( )
-{
-	for ( auto& out : outputs )
-	{
+void DoSystem::zeroBoard( ){
+	for ( auto& out : outputs ){
 		out.set (0); 
 		core.ftdi_ForceOutput (out.getPosition ().first, out.getPosition ().second, 0, getCurrentStatus ());	
 	}
 }
 
-
-DoCore& DoSystem::getCore ()
-{
+DoCore& DoSystem::getCore (){
 	return core;
 }
 

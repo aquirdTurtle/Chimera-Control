@@ -1,30 +1,27 @@
 ﻿#include "stdafx.h"
 #include "PiezoController.h"
+#include <qtimer.h>
 #include <boost/lexical_cast.hpp>
+#include <PrimaryWindows/QtMainWindow.h>
 
-PiezoController::PiezoController (piezoSetupInfo info) : core(info) {}
+PiezoController::PiezoController (IChimeraQtWindow* parent, piezoSetupInfo info) : IChimeraSystem(parent), core(info), expActive(info.expActive) {}
 
-std::string PiezoController::getConfigDelim ( )
-{
+std::string PiezoController::getConfigDelim ( ){
 	return core.configDelim;
 }
  
-PiezoCore& PiezoController::getCore ( )
-{
+PiezoCore& PiezoController::getCore ( ){
 	return core;
 }
 
-void PiezoController::handleProgramNowPress ( )
-{
+void PiezoController::handleProgramNowPress ( ){
 	double xval, yval, zval;
-	try
-	{
+	try	{
 		xval = boost::lexical_cast<double>(str(edits.x->text()));
 		yval = boost::lexical_cast<double>(str (edits.y->text ()));
 		zval = boost::lexical_cast<double>(str (edits.z->text ()));
 	}
-	catch( boost::bad_lexical_cast& )
-	{
+	catch( boost::bad_lexical_cast& ){
 		thrower ( "ERROR: failed to convert one of the edit texts to a double!" );
 	}
 	core.programXNow ( xval );
@@ -33,28 +30,25 @@ void PiezoController::handleProgramNowPress ( )
 	updateCurrentValues ( );
 }
 
-void PiezoController::updateCurrentValues ( )
-{
-	currentVals.x->setText ( cstr ( core.getCurrentXVolt ( ) ) );
-	currentVals.y->setText ( cstr ( core.getCurrentYVolt ( ) ) );
-	currentVals.z->setText ( cstr ( core.getCurrentZVolt ( ) ) );
+void PiezoController::updateCurrentValues ( ){
+	currentVals.x->setText ( qstr ( core.getCurrentXVolt ( ), 9, true) );
+	currentVals.y->setText ( qstr ( core.getCurrentYVolt ( ), 9, true) );
+	currentVals.z->setText ( qstr ( core.getCurrentZVolt ( ), 9, true) );
 }
 
-void PiezoController::handleOpenConfig ( ConfigStream& configFile)
-{
-	if ( configFile.ver > Version ( "4.5" ) )
+void PiezoController::handleOpenConfig (ConfigStream& configFile){
+	if (configFile.ver > Version ("4.5"))
 	{
-		auto configVals = core.getSettingsFromConfig ( configFile );
-		edits.x->setText ( configVals.pztValues.x.expressionStr.c_str ( ) );
-		edits.y->setText ( configVals.pztValues.y.expressionStr.c_str ( ) );
-		edits.z->setText ( configVals.pztValues.z.expressionStr.c_str ( ) );
-		ctrlButton->setChecked( configVals.ctrlPzt);
-		updateCtrl ( );
+		auto configVals = core.getSettingsFromConfig (configFile);
+		edits.x->setText (qstr (configVals.pztValues.x.expressionStr, 9, true));
+		edits.y->setText (qstr (configVals.pztValues.y.expressionStr, 9, true));
+		edits.z->setText (qstr (configVals.pztValues.z.expressionStr, 9, true));
+		ctrlButton->setChecked (configVals.ctrlPzt);
+		updateCtrl ();
 	}
 }
 
-void PiezoController::handleSaveConfig (ConfigStream& configFile )
-{
+void PiezoController::handleSaveConfig (ConfigStream& configFile ){
 	configFile << core.configDelim;
 	configFile << "\n/*X-Value:*/ " << Expression(str(edits.x->text()));
 	configFile << "\n/*Y-Value:*/ " << Expression(str(edits.y->text()));
@@ -63,18 +57,15 @@ void PiezoController::handleSaveConfig (ConfigStream& configFile )
 			   << "\nEND_" + core.configDelim << "\n";
 }
 
-std::string PiezoController::getDeviceInfo ( )
-{
+std::string PiezoController::getDeviceInfo ( ){
 	return core.getDeviceInfo( );
 }
 
-std::string PiezoController::getPiezoDeviceList ( )
-{
+std::string PiezoController::getPiezoDeviceList ( ){
 	return core.getDeviceList ( );
 }
 
-void PiezoController::updateCtrl ( )
-{
+void PiezoController::updateCtrl ( ){
 	auto ctrl = ctrlButton->isChecked ( );
 	core.experimentActive = ctrl;
 	edits.x->setEnabled( ctrl );
@@ -82,34 +73,35 @@ void PiezoController::updateCtrl ( )
 	edits.z->setEnabled ( ctrl );
 }
 
-void PiezoController::rearrange ( UINT width, UINT height, fontMap fonts )
-{}
-
-
-void PiezoController::initialize ( POINT& pos, IChimeraWindowWidget* parent, LONG width, piezoChan<std::string> names )
-{
+void PiezoController::initialize ( POINT& pos, IChimeraQtWindow* parent, LONG width, piezoChan<std::string> names ){
 	core.initialize ( );
 
 	programNowButton = new QPushButton ("Program Pzt Now", parent);
 	programNowButton->setGeometry (pos.x, pos.y, 6 * width / 8, 25);
-	parent->connect (ctrlButton, &QPushButton::released, [this, parent]() {
+	parent->connect (programNowButton, &QPushButton::released, [this, parent]() {
 		try	{
 			handleProgramNowPress ();
+			updateCurrentValues ();
 		}
-		catch (Error& err) {
-			parent->reportErr (err.trace ());
+		catch (ChimeraError& err) {
+			parent->reportErr (err.qtrace ());
 		}
 	});
 	ctrlButton = new QCheckBox ("Ctrl?", parent);
 	ctrlButton->setGeometry (pos.x + 3*width/4, pos.y, width/4, 25);
 	ctrlButton->setChecked (true);
+	if (!expActive) {
+		// never enabled. You should be able to always modify the piezo values in the middle of the experiment safely. 
+		ctrlButton->setEnabled (false);
+		ctrlButton->setText ("(Not Used in Exp)");
+	}
 	parent->connect (ctrlButton, &QCheckBox::stateChanged, [this, parent]() {
 		try	{
 			updateCtrl ();
 			parent->configUpdated ();
 		}
-		catch (Error& err) {
-			parent->reportErr (err.trace ());
+		catch (ChimeraError& err) {
+			parent->reportErr (err.qtrace ());
 		}
 	});
 
@@ -138,4 +130,15 @@ void PiezoController::initialize ( POINT& pos, IChimeraWindowWidget* parent, LON
 	currentVals.z->setGeometry (pos.x + 2 * width / 3, pos.y, width / 3, 20);
 	pos.y += 20;
 	updateCurrentValues ( );
+	QTimer* timer = new QTimer (this);
+	connect (timer, &QTimer::timeout, [this, parent]() {
+		try {
+			if (!parent->mainWin->expIsRunning()){
+				updateCurrentValues ();
+			}
+		}
+		catch(ChimeraError&){}
+		});
+	// could probably make this time a front panel option.
+	timer->start (10000);
 }

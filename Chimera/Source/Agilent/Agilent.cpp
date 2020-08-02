@@ -13,9 +13,10 @@
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
 #include "boost/lexical_cast.hpp"
+#include <qbuttongroup.h>
 
-
-Agilent::Agilent( const agilentSettings& settings ) : core(settings),  initSettings(settings){}
+Agilent::Agilent( const agilentSettings& settings, IChimeraQtWindow* parent ) : IChimeraSystem(parent), core(settings),
+initSettings(settings), agilentScript(parent){}
 
 
 void Agilent::programAgilentNow (std::vector<parameterType> constants)
@@ -35,7 +36,6 @@ void Agilent::programAgilentNow (std::vector<parameterType> constants)
 	core.setAgilent (0, constants, currentGuiInfo);
 }
 
-
 std::string Agilent::getDeviceIdentity (){
 	return core.getDeviceIdentity ();
 }
@@ -52,54 +52,61 @@ void Agilent::updateSavedStatus (bool isSaved){
 	agilentScript.updateSavedStatus (isSaved);
 }
 
-void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, IChimeraWindowWidget* win, UINT width ){
-	LONG w = LONG( width );
+void Agilent::initialize( POINT& loc, std::string headerText, unsigned editHeight, IChimeraQtWindow* win, unsigned width ){
+	LONG wi = LONG( width );
 	core.initialize ();
-	auto deviceInfo = core.getDeviceInfo ();
 	header = new QLabel (cstr (headerText), win);
-	header->setGeometry (loc.x, loc.y, w, 25);
+	header->setGeometry (loc.x, loc.y, wi, 25);
 	loc.y += 25;
-	deviceInfoDisplay = new QLabel (cstr (deviceInfo), win);
-	deviceInfoDisplay->setGeometry (loc.x, loc.y, w, 20);
+	auto deviceInfo = core.getDeviceInfo ();
+	if (deviceInfo.size () > 1) {// deal with trailing newline
+		deviceInfo.erase (deviceInfo.size ()-1, 1);
+	}
+	deviceInfoDisplay = new QLabel (qstr (deviceInfo), win);
+	deviceInfoDisplay->setGeometry (loc.x, loc.y, wi, 20);
+	deviceInfoDisplay->setStyleSheet ("QLabel { font: 8pt }; ");
+	channelButtonsGroup = new QButtonGroup (win);
 
 	channel1Button = new CQRadioButton ("Channel 1 - No Control", win);
-	channel1Button->setGeometry (loc.x, loc.y+=20, w / 2, 20);
+	channel1Button->setGeometry (loc.x, loc.y+=20, wi / 2, 20);
 	channel1Button->setChecked( true );
 	win->connect (channel1Button, &QRadioButton::toggled, [win, this]() {
 		auto channel = (channel2Button->isChecked () ? 2 : 1);
 		handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
 		});
+	channelButtonsGroup->addButton (channel1Button);
 
 	channel2Button = new CQRadioButton ("Channel 2 - No Control", win);
-	channel2Button->setGeometry (loc.x+w/2, loc.y, w / 2, 20);
+	channel2Button->setGeometry (loc.x+wi/2, loc.y, wi / 2, 20);
 	channel2Button->setChecked (false);
 	win->connect (channel2Button, &QRadioButton::toggled, [win, this]() {
 		auto channel = (channel2Button->isChecked () ? 2 : 1);
 		handleChannelPress (channel, win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
 	});
+	channelButtonsGroup->addButton (channel2Button);
 
 	syncedButton = new CQCheckBox ("Synced?", win);
-	syncedButton->setGeometry (loc.x, loc.y+=20, w / 3, 20);
+	syncedButton->setGeometry (loc.x, loc.y+=20, wi / 3, 20);
 
 	calibratedButton = new CQCheckBox ("Use Cal?", win);
-	calibratedButton->setGeometry (loc.x + w / 3, loc.y, w / 3, 20);
+	calibratedButton->setGeometry (loc.x + wi / 3, loc.y, wi / 3, 20);
 	calibratedButton->setChecked( true );
 
 	programNow = new CQPushButton ("Program", win);
-	programNow->setGeometry (loc.x + 2 * w / 3, loc.y, w / 3, 20);
+	programNow->setGeometry (loc.x + 2 * wi / 3, loc.y, wi / 3, 20);
 	win->connect (programNow, &QPushButton::released, [win, this]() {
 		try	{ 
 			checkSave (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ()); 
 			programAgilentNow (win->auxWin->getUsableConstants ()); 
-			win->reportStatus ("Programmed Agilent " + getConfigDelim () + ".\r\n"); 
+			win->reportStatus (qstr("Programmed Agilent " + getConfigDelim () + ".\r\n")); 
 		}
-		catch (Error& err) {
-			win->reportErr ("Error while programming agilent " + getConfigDelim () + ": " + err.trace () + "\r\n");
+		catch (ChimeraError& err) {
+			win->reportErr (qstr("Error while programming agilent " + getConfigDelim () + ": " + err.trace () + "\r\n"));
 		}
 	});
 
 	settingCombo = new CQComboBox (win);
-	settingCombo->setGeometry (loc.x, loc.y += 20, w / 4, 25);
+	settingCombo->setGeometry (loc.x, loc.y += 20, wi / 4, 25);
 	win->connect ( settingCombo, qOverload<int> (&QComboBox::currentIndexChanged), [win, this](int) {
 		try	{
 			checkSave (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
@@ -107,8 +114,8 @@ void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, I
 			handleModeCombo ();
 			updateSettingsDisplay (win->mainWin->getProfileSettings ().configLocation, win->mainWin->getRunInfo ());
 		}
-		catch (Error& err){
-			win->reportErr ("Error while handling agilent combo change: " + err.trace ());
+		catch (ChimeraError& err){
+			win->reportErr (qstr("Error while handling agilent combo change: " + err.trace ()));
 		}
 	} );
 	settingCombo->addItem ("No Control");
@@ -121,7 +128,7 @@ void Agilent::initialize( POINT& loc, std::string headerText, UINT editHeight, I
 	settingCombo->setCurrentIndex (0);
 
 	optionsFormat = new QLabel ("---", win);
-	optionsFormat->setGeometry (loc.x + w / 4, loc.y, 3 * w / 4, 25);
+	optionsFormat->setGeometry (loc.x + wi / 4, loc.y, 3 * wi / 4, 25);
 	loc.y += 25;
 	agilentScript.initialize( width, editHeight, loc, win, "Agilent", "" );
 
@@ -151,7 +158,7 @@ void Agilent::verifyScriptable ( ){
 	}
 }
 
-void Agilent::setDefault (UINT chan){
+void Agilent::setDefault (unsigned chan){
 	core.setDefault (chan);
 }
 

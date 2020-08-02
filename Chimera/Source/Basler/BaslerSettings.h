@@ -47,13 +47,13 @@ struct baslerSettings
 	BaslerAutoExposure::mode exposureMode= BaslerAutoExposure::mode::Off;
 	double exposureTime;
 	BaslerAcquisition::mode acquisitionMode = BaslerAcquisition::mode::Continuous;
-	UINT picsPerRep;
-	UINT repsPerVar;
-	UINT variations;
+	unsigned picsPerRep;
+	unsigned repsPerVar;
+	unsigned variations;
 	BaslerTrigger::mode triggerMode = BaslerTrigger::mode::External;
 	double frameRate;
 	imageParameters dims;
-	UINT totalPictures () { return picsPerRep * repsPerVar * variations; }
+	unsigned totalPictures () { return picsPerRep * repsPerVar * variations; }
 };
 
 

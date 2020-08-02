@@ -6,7 +6,7 @@
 #include "Python/EmbeddedPythonHandler.h"
 #include "GeneralObjects/commonTypes.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QLabel>
 #include <QTableWidget>
 
@@ -21,7 +21,7 @@ struct personInfo{
 
 class SmsTextingControl{
 	public:
-		void initialize( POINT& pos, IChimeraWindowWidget* parent );
+		void initialize( POINT& pos, IChimeraQtWindow* parent );
 		void handleContextMenu (const QPoint& pos);
 		void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
 		void addPerson( personInfo person );

@@ -1,58 +1,118 @@
-% Master-Script See the "?" for info on commands.
-def sbc():
-  % expecting totalramanrf (b3) to be on a while ago in order
-  % to let the servo settle
-  off: probeRf
-  off: repumpRf
-  var opFreq -0.5
-  daclinspace: motFreq defaultMotFreq opFreq 1 10  
-  dac: probePower 0
-  var repumpf -0.5
-  dac: repumpfreq repumpf
-  dac: sigmaoppower sbc_sigma_op__servo_value
-  dac: sigmarepumpPower sigma_repump__servo_value
-  %dac: sigmarepumpPower sbc_sigma_repump
-  dac: topPulseLev top_sbc_sideband__servo_value
-  dac: axPulseLev ax_sbc_raman__servo_value
-  dac: eoPulseLev eo_raman__servo_value
-  t += 1
-  off: uw_mod_switch 
-  var sbc_op_pulsetime 0.015
-  var sbctoppulsetime 0.0125
-  repeat: 40
-    call axialRamanPulse(0.05) 
-    call opPulse(sbc_op_pulsetime)
-    call topRamanPulse(sbctoppulsetime)
-    call opPulse(sbc_op_pulsetime) 
-    call topRamanPulse(sbctoppulsetime)
-    call opPulse(sbc_op_pulsetime) 
-  end
-  var top_raman_sbc2 0.19
-  var ax_raman_sbc2 0.12
-  dac: topPulseLev top_raman_sbc2
-  dac: axPulseLev ax_raman_sbc2
-  var sbc2_topTime 0.025
-  repeat: 5
-    call axialRamanPulse(0.08)
-    call opPulse(sbc_op_pulsetime)
-    call topRamanPulse(sbc2_topTime)
-    call opPulse(sbc_op_pulsetime) 
-    call topRamanPulse(sbc2_topTime)
-    call opPulse(sbc_op_pulsetime) 
-  %end
-  %var afterSbcOpPower 0.05
-  %dac: sigmaoppower afterSbcOpPower
-  var afterSbcOpTime 0.02
-  %call opPulse(afterSbcOpTime) 
-  dac: sigmaoppower 0
-  dac: sigmarepumpPower 0
-  %dac: sigmarepumpPower sbc_sigma_repump
-  dac: topPulseLev 0
-  dac: axPulseLev 0
-  dac: eoPulseLev 0
-  % its important that you wait long enough after the rstrig for the rsg
-  % to actually change its output, which I find takes about 0.15 s 
-  % MOB Sep 11th 2019 
-  pulseon: rsTrig 0.1
-  pulseon: windfreakTrig 1 
-  t += 0.16
+% Master-Script See the "?" for info on commands.
+
+def sbc():
+
+  % expecting totalramanrf (b3) to be on a while ago in order
+
+  % to let the servo settle
+
+  off: probeRf
+
+  off: repumpRf
+
+  var opFreq -0.5
+
+  daclinspace: motFreq defaultMotFreq opFreq 1 10  
+
+  dac: probePower 0
+
+  var repumpf -1
+
+  dac: repumpfreq repumpf
+
+  dac: sigmaoppower sbc_sigma_op__sv
+
+  dac: sigmarepumpPower sigma_repump__sv
+
+  dac: sigmaRepumpFreq 0
+
+  dac: topPulseLev top_sbc_sideband__sv
+
+  dac: dac17 bot_raman_sbc__sv
+
+  dac: axPulseLev ax_sbc_raman__sv
+
+  dac: eoPulseLev eo_raman__sv
+
+  t += 1
+
+  off: uw_mod_switch 
+
+  var sbc_op_pulsetime 0.015
+
+  var sbctoppulsetime 0.0125
+
+  % original times reported in sbc paper were 72.5us and 48us for top/bottom. 
+
+  repeat: 25
+
+    call axialRamanPulse(0.04) 
+
+    call opPulse(0.015)
+
+    call topRamanPulse(0.04)
+
+    call opPulse(0.015) 
+
+    call axialRamanPulse(0.04) 
+
+    call opPulse(0.015)
+
+    call botRamanPulse(0.04)
+
+    call opPulse(0.015) 
+
+  end
+
+  % dac: topPulseLev top_raman_sbc2__sv
+
+  % dac: axPulseLev ax_raman_sbc2__sv
+
+  var sbc2_topTime 0.025
+
+  repeat: 25
+
+    call axialRamanPulse(0.08)
+
+    call opPulse(0.015)
+
+    call topRamanPulse(0.060)
+
+    call opPulse(0.015) 
+
+    call botRamanPulse(0.060)
+
+    call opPulse(0.015) 
+
+  end
+
+  %var afterSbcOpPower 0.05
+
+  %dac: sigmaoppower afterSbcOpPower
+
+  var afterSbcOpTime 0.02
+
+  %call opPulse(afterSbcOpTime) 
+
+  dac: sigmaoppower 0
+
+  dac: sigmarepumpPower 0
+
+  %dac: sigmarepumpPower sbc_sigma_repump
+
+  dac: topPulseLev 0
+
+  dac: axPulseLev 0
+
+  dac: dac17 0
+
+  dac: eoPulseLev 0
+
+  % its important that you wait long enough after the rstrig for the rsg
+
+  % to actually change its output, which I find takes about 0.15 s 
+
+  % MOB Sep 11th 2019 
+
+  t += 0.16
+

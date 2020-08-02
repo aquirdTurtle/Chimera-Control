@@ -27,6 +27,6 @@ class NiawgWaiter
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
 		void startWaitThread( NiawgCore* niawgPtr );
-		void wait( Communicator& comm );
-		void systemAbortCheck( Communicator& comm );
+		void wait(  );
+		void systemAbortCheck(  );
 };

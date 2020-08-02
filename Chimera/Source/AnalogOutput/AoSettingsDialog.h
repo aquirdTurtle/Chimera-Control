@@ -21,7 +21,7 @@ class AoSettingsDialog : public CDialog
 {
 	public:
 		DECLARE_DYNAMIC(AoSettingsDialog);
-		AoSettingsDialog(aoInputStruct* inputPtr, UINT dialogResource) : CDialog(dialogResource)
+		AoSettingsDialog(aoInputStruct* inputPtr, unsigned dialogResource) : CDialog(dialogResource)
 		{
 			input = inputPtr;
 		}

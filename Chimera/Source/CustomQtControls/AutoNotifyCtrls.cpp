@@ -1,73 +1,74 @@
 #include "stdafx.h"
 #include "AutoNotifyCtrls.h"
+#include <QButtonGroup.h>
 ///
-CQLineEdit::CQLineEdit (IChimeraWindowWidget* parent) : QLineEdit (parent){
+CQLineEdit::CQLineEdit (IChimeraQtWindow* parent) : QLineEdit (parent){
 	if (parent != Q_NULLPTR){
-		parent->connect (this, &QLineEdit::textChanged, parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, &QLineEdit::textChanged, parent, &IChimeraQtWindow::configUpdated);
 	}
 }
 
-CQLineEdit::CQLineEdit (const QString& txt, IChimeraWindowWidget* parent) : QLineEdit(txt, parent){
+CQLineEdit::CQLineEdit (const QString& txt, IChimeraQtWindow* parent) : QLineEdit(txt, parent){
 	if (parent != Q_NULLPTR){
-		parent->connect (this, &QLineEdit::textChanged, parent, &IChimeraWindowWidget::configUpdated);
-	}
-}
-
-///
-CQTextEdit::CQTextEdit (IChimeraWindowWidget* parent) : QTextEdit (parent){
-	if (parent != Q_NULLPTR){
-		parent->connect (this, &QTextEdit::textChanged, parent, &IChimeraWindowWidget::configUpdated);
-	}
-}
-
-CQTextEdit::CQTextEdit (const QString& txt, IChimeraWindowWidget* parent) : QTextEdit (txt, parent){
-	if (parent != Q_NULLPTR){
-		parent->connect (this, &QTextEdit::textChanged, parent, &IChimeraWindowWidget::configUpdated);
-	}
-}
-///
-CQCheckBox::CQCheckBox (IChimeraWindowWidget* parent) : QCheckBox (parent){
-	if (parent != Q_NULLPTR){
-		parent->connect (this, &QCheckBox::stateChanged, parent, &IChimeraWindowWidget::configUpdated);
-	}
-}
-
-CQCheckBox::CQCheckBox (const QString& txt, IChimeraWindowWidget* parent) : QCheckBox (txt, parent){
-	if (parent != Q_NULLPTR){
-		parent->connect (this, &QCheckBox::stateChanged, parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, &QLineEdit::textChanged, parent, &IChimeraQtWindow::configUpdated);
 	}
 }
 
 ///
-CQPushButton::CQPushButton (IChimeraWindowWidget* parent) : QPushButton (parent){
+CQTextEdit::CQTextEdit (IChimeraQtWindow* parent) : QTextEdit (parent){
+	if (parent != Q_NULLPTR){
+		parent->connect (this, &QTextEdit::textChanged, parent, &IChimeraQtWindow::configUpdated);
+	}
+}
+
+CQTextEdit::CQTextEdit (const QString& txt, IChimeraQtWindow* parent) : QTextEdit (txt, parent){
+	if (parent != Q_NULLPTR){
+		parent->connect (this, &QTextEdit::textChanged, parent, &IChimeraQtWindow::configUpdated);
+	}
+}
+///
+CQCheckBox::CQCheckBox (IChimeraQtWindow* parent) : QCheckBox (parent){
+	if (parent != Q_NULLPTR){
+		parent->connect (this, &QCheckBox::stateChanged, parent, &IChimeraQtWindow::configUpdated);
+	}
+}
+
+CQCheckBox::CQCheckBox (const QString& txt, IChimeraQtWindow* parent) : QCheckBox (txt, parent){
+	if (parent != Q_NULLPTR){
+		parent->connect (this, &QCheckBox::stateChanged, parent, &IChimeraQtWindow::configUpdated);
+	}
+}
+
+///
+CQPushButton::CQPushButton (IChimeraQtWindow* parent) : QPushButton (parent){
 	if (parent != Q_NULLPTR)
 	{
-		parent->connect (this, &QPushButton::released, parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, &QPushButton::released, parent, &IChimeraQtWindow::configUpdated);
 	}
 }
 
-CQPushButton::CQPushButton (const QString& txt, IChimeraWindowWidget* parent) : QPushButton (txt, parent){
+CQPushButton::CQPushButton (const QString& txt, IChimeraQtWindow* parent) : QPushButton (txt, parent){
 	if (parent != Q_NULLPTR){
-		parent->connect (this, &QPushButton::released, parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, &QPushButton::released, parent, &IChimeraQtWindow::configUpdated);
 	}
 }
 
 ///
-CQComboBox::CQComboBox (IChimeraWindowWidget* parent) : QComboBox(parent){
+CQComboBox::CQComboBox (IChimeraQtWindow* parent) : QComboBox(parent){
 	if (parent != Q_NULLPTR){
-		parent->connect (this, qOverload<int> (&QComboBox::currentIndexChanged), parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, qOverload<int> (&QComboBox::currentIndexChanged), parent, &IChimeraQtWindow::configUpdated);
 	}
 }
 
 
-CQRadioButton::CQRadioButton (IChimeraWindowWidget* parent) : QRadioButton (parent) {
+CQRadioButton::CQRadioButton (IChimeraQtWindow* parent) : QRadioButton (parent) {
 	if (parent != Q_NULLPTR) {
-		parent->connect (this, &QRadioButton::released, parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, &QRadioButton::released, parent, &IChimeraQtWindow::configUpdated);
 	}
 }
 
-CQRadioButton::CQRadioButton (const QString& txt, IChimeraWindowWidget* parent) : QRadioButton (txt, parent) {
+CQRadioButton::CQRadioButton (const QString& txt, IChimeraQtWindow* parent) : QRadioButton (txt, parent) {
 	if (parent != Q_NULLPTR) {
-		parent->connect (this, &QRadioButton::released, parent, &IChimeraWindowWidget::configUpdated);
+		parent->connect (this, &QRadioButton::released, parent, &IChimeraQtWindow::configUpdated);
 	}
 }

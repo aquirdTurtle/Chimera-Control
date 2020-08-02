@@ -20,7 +20,7 @@ AgilentCore::AgilentCore (const agilentSettings& settings) :
 	try{
 		visaFlume.open ();
 	}
-	catch (Error&){
+	catch (ChimeraError&){
 		throwNested ("Error seen while initializing " + agilentName + " Agilent");
 	}
 }
@@ -34,14 +34,14 @@ void AgilentCore::initialize (){
 		deviceInfo = visaFlume.identityQuery ();
 		isConnected = true;
 	}
-	catch (Error&){
+	catch (ChimeraError&){
 		deviceInfo = "Disconnected";
 		isConnected = false;
 	}
 
 }
 
-std::pair<DoRows::which, UINT> AgilentCore::getTriggerLine (){
+std::pair<DoRows::which, unsigned> AgilentCore::getTriggerLine (){
 	return { triggerRow, triggerNumber };
 }
 
@@ -61,7 +61,7 @@ void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<p
 		try	{
 			leaveTest = infoObj.wave.analyzeAgilentScriptCommand (currentSegmentNumber, stream, variables, warnings);
 		}
-		catch (Error&){
+		catch (ChimeraError&){
 			throwNested ("Error seen while analyzing agilent script command for agilent " + this->configDelim);
 		}
 		if (leaveTest < 0){
@@ -82,7 +82,7 @@ std::string AgilentCore::getDeviceIdentity (){
 	try{
 		msg = visaFlume.identityQuery ();
 	}
-	catch (Error & err){
+	catch (ChimeraError & err){
 		msg == err.trace ();
 	}
 	if (msg == ""){
@@ -92,17 +92,17 @@ std::string AgilentCore::getDeviceIdentity (){
 }
 
 
-void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, deviceOutputInfo runSettings){
+void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, deviceOutputInfo runSettings){
 	if (!connected ()){
 		return;
 	}
 	try{
 		visaFlume.write ("OUTPut:SYNC " + str (runSettings.synced));
 	}
-	catch (Error&){
+	catch (ChimeraError&){
 		//errBox ("Failed to set agilent output synced?!");
 	}
-	for (auto chan : range (UINT (2)))
+	for (auto chan : range (unsigned (2)))
 	{
 		auto& channel = runSettings.channel[chan];
 		try
@@ -135,7 +135,7 @@ void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, devi
 						+ AgilentChannelMode::toStr (channel.option));
 			}
 		}
-		catch (Error & err){
+		catch (ChimeraError & err){
 			throwNested ("Error seen while programming agilent output for " + configDelim + " agilent channel "
 				+ str (chan + 1) + ": " + err.whatBare ());
 		}
@@ -144,7 +144,7 @@ void AgilentCore::setAgilent (UINT var, std::vector<parameterType>& params, devi
 
 
 // stuff that only has to be done once.
-void AgilentCore::prepAgilentSettings (UINT channel){
+void AgilentCore::prepAgilentSettings (unsigned channel){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel in prepAgilentSettings!");
 	}
@@ -157,7 +157,7 @@ void AgilentCore::prepAgilentSettings (UINT channel){
 /*
  * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
  */
-void AgilentCore::setScriptOutput (UINT varNum, scriptedArbInfo scriptInfo, UINT chan){
+void AgilentCore::setScriptOutput (unsigned varNum, scriptedArbInfo scriptInfo, unsigned chan){
 	if (scriptInfo.wave.isVaried () || varNum == 0){
 		prepAgilentSettings (chan);
 		// check if effectively dc
@@ -203,7 +203,7 @@ bool AgilentCore::connected (){
 }
 
 
-void AgilentCore::setDC (int channel, dcInfo info, UINT var){
+void AgilentCore::setDC (int channel, dcInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel inside setDC!");
 	}
@@ -234,7 +234,7 @@ void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info){
 
 
 // set the agilent to output a square wave.
-void AgilentCore::setSquare (int channel, squareInfo info, UINT var){
+void AgilentCore::setSquare (int channel, squareInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad Value for Channel in setSquare!");
 	}
@@ -244,7 +244,7 @@ void AgilentCore::setSquare (int channel, squareInfo info, UINT var){
 }
 
 
-void AgilentCore::setSine (int channel, sineInfo info, UINT var){
+void AgilentCore::setSine (int channel, sineInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
 		thrower ("Bad value for channel in setSine");
 	}
@@ -253,8 +253,8 @@ void AgilentCore::setSine (int channel, sineInfo info, UINT var){
 }
 
 
-void AgilentCore::convertInputToFinalSettings (UINT chan, deviceOutputInfo& info, std::vector<parameterType>& params){
-	UINT totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
+void AgilentCore::convertInputToFinalSettings (unsigned chan, deviceOutputInfo& info, std::vector<parameterType>& params){
+	unsigned totalVariations = (params.size () == 0) ? 1 : params.front ().keyValues.size ();
 	channelInfo& channel = info.channel[chan];
 	try
 	{
@@ -312,7 +312,7 @@ double AgilentCore::convertPowerToSetPoint ( double powerInMilliWatts, bool conv
 			thrower ("Wanted agilent calibration but no calibration given to conversion function!");
 		}
 		// build the polynomial calibration.
-		UINT polyPower = 0;
+		unsigned polyPower = 0;
 		for (auto coeff : calibCoeff){
 			setPointInVolts += coeff * std::pow (powerInMilliWatts, polyPower++);
 		}
@@ -335,18 +335,18 @@ void AgilentCore::programSetupCommands (){
 			visaFlume.write (cmd);
 		}
 	}
-	catch (Error&){
+	catch (ChimeraError&){
 		throwNested ("Failed to program setup commands for " + agilentName + " Agilent!");
 	}
 }
 
 
-void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& scriptInfo, UINT channel,
+void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& scriptInfo, unsigned channel,
 										 std::vector<parameterType>& params){
 	prepAgilentSettings (channel);
 	programSetupCommands ();
 	if (scriptInfo.wave.isVaried () || variation == 0){
-		UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber ();
+		unsigned totalSegmentNumber = scriptInfo.wave.getSegmentNumber ();
 		scriptInfo.wave.replaceVarValues (variation, params);
 		// Loop through all segments
 		for (auto segNumInc : range(totalSegmentNumber)){
@@ -354,7 +354,7 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 			try{
 				scriptInfo.wave.writeData (segNumInc, sampleRate);
 			}
-			catch (Error&){
+			catch (ChimeraError&){
 				throwNested ("IntensityWaveform.writeData threw an error! Error occurred in segment #"
 					+ str (totalSegmentNumber));
 			}
@@ -369,7 +369,7 @@ void AgilentCore::handleScriptVariation (UINT variation, scriptedArbInfo& script
 		scriptInfo.wave.normalizeVoltages ();
 		visaFlume.write ("SOURCE" + str (channel) + ":DATA:VOL:CLEAR");
 		prepAgilentSettings (channel);
-		for (UINT segNumInc : range (totalSegmentNumber)){
+		for (unsigned segNumInc : range (totalSegmentNumber)){
 			visaFlume.write (scriptInfo.wave.compileAndReturnDataSendString (segNumInc, variation,
 				totalSegmentNumber, channel));
 			// Save the segment
@@ -393,7 +393,7 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
 	deviceOutputInfo tempSettings;
 	file >> tempSettings.synced;
 	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
-	UINT chanInc = 0;
+	unsigned chanInc = 0;
 	for (auto& channel : tempSettings.channel){
 		ProfileSystem::checkDelimiterLine (file, channelNames[chanInc]);
 		// the extra step in all of the following is to remove the , at the end of each input.
@@ -453,7 +453,7 @@ void AgilentCore::logSettings (DataLogger& log){
 		}
 		
 		H5::Group singleAgilent (agilentsGroup.createGroup (getDelim()));
-		UINT channelCount = 1;
+		unsigned channelCount = 1;
 		log.writeDataSet (getStartupCommands (), "Startup-Commands", singleAgilent);
 		for (auto& channel : expRunSettings.channel){
 			H5::Group channelGroup (singleAgilent.createGroup ("Channel-" + str (channelCount)));
@@ -478,7 +478,7 @@ void AgilentCore::logSettings (DataLogger& log){
 				ExperimentThreadManager::loadAgilentScript (channel.scriptedArb.fileAddress.expressionStr, stream);
 				log.writeDataSet (stream.str (), "Agilent-Script-Script", scriptedArbSettings);
 			}
-			catch (Error&){
+			catch (ChimeraError&){
 				// failed to open, that's probably fine, 
 				log.writeDataSet ("Script Failed to load.", "Agilent-Script-Script", scriptedArbSettings);
 			}
@@ -508,19 +508,19 @@ void AgilentCore::calculateVariations (std::vector<parameterType>& params, ExpTh
 	convertInputToFinalSettings (1, expRunSettings, params);
 }
 
-void AgilentCore::programVariation (UINT variation, std::vector<parameterType>& params){
+void AgilentCore::programVariation (unsigned variation, std::vector<parameterType>& params){
 	setAgilent (variation, params, expRunSettings);
 }
 
-void AgilentCore::checkTriggers (UINT variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo){
+void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo){
 	std::array<bool, 2> agMismatchVec = { false, false };
 	for (auto chan : range (2)){
 		auto& agChan = expRunSettings.channel[chan];
 		if (agChan.option != AgilentChannelMode::which::Script || agMismatchVec[chan]){
 			continue;
 		}
-		UINT actualTrigs = experimentActive ? ttls.countTriggers (getTriggerLine (), variationInc) : 0;
-		UINT agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ();
+		unsigned actualTrigs = experimentActive ? ttls.countTriggers (getTriggerLine (), variationInc) : 0;
+		unsigned agilentExpectedTrigs = agChan.scriptedArb.wave.getNumTrigs ();
 		std::string infoString = "Actual/Expected " + getDelim() + " Triggers: "
 			+ str (actualTrigs) + "/" + str (agilentExpectedTrigs) + ".";
 		if (actualTrigs != agilentExpectedTrigs){

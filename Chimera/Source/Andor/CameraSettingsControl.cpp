@@ -15,7 +15,7 @@ AndorCameraSettingsControl::AndorCameraSettingsControl() : imageDimensionsObj("a
 }
 
 
-void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraWindowWidget* parent){
+void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraQtWindow* parent){
 	header = new QLabel ("CAMERA SETTINGS", parent);
 	header->setGeometry (pos.x, pos.y, 480, 25);
 
@@ -279,7 +279,7 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 }
 
 
-void AndorCameraSettingsControl::setVariationNumber(UINT varNumber){
+void AndorCameraSettingsControl::setVariationNumber(unsigned varNumber){
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.totalVariations = varNumber;
 	if ( andorSettings.totalPicsInExperiment() > INT_MAX){
@@ -288,7 +288,7 @@ void AndorCameraSettingsControl::setVariationNumber(UINT varNumber){
 }
 
 
-void AndorCameraSettingsControl::setRepsPerVariation(UINT repsPerVar){
+void AndorCameraSettingsControl::setRepsPerVariation(unsigned repsPerVar){
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.repetitionsPerVariation = repsPerVar;
 	if ( andorSettings.totalPicsInExperiment() > INT_MAX){
@@ -354,7 +354,7 @@ double AndorCameraSettingsControl::getAccumulationCycleTime( )
 }
 
 
-UINT AndorCameraSettingsControl::getAccumulationNumber( )
+unsigned AndorCameraSettingsControl::getAccumulationNumber( )
 {
 	if (!accumulationNumberEdit){
 		return 0;

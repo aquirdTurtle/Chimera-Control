@@ -15,7 +15,7 @@ class ParameterModel : public QAbstractTableModel
         Qt::ItemFlags flags (const QModelIndex& index) const override;
         bool setData (const QModelIndex& index, const QVariant& value, int role);
         void setParams (std::vector<parameterType> newParams); 
-        std::vector<parameterType> getParams ();
+        std::vector<parameterType>& getParams ();
         ScanRangeInfo getRangeInfo ();
         void setRangeInfo (ScanRangeInfo info);
         const USHORT preRangeColumns = 5;
@@ -28,6 +28,7 @@ class ParameterModel : public QAbstractTableModel
         std::vector<parameterType> parameters;
         ScanRangeInfo rangeInfo;
     signals:
-        void paramsChanged ();
+        //void paramsChanged (std::vector<parameterType>);
+		void paramsChanged ();
         void editCompleted (const QString&);
 };

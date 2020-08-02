@@ -33,7 +33,7 @@ void DdsSystem::handleContextMenu (const QPoint& pos){
 	menu.exec (rampListview->mapToGlobal (pos));
 }
 
-void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::string title ){
+void DdsSystem::initialize ( POINT& pos, IChimeraQtWindow* parent, std::string title ){
 	ddsHeader = new QLabel (cstr (title), parent);
 	ddsHeader->setGeometry (pos.x, pos.y, 480, 25);
 
@@ -43,8 +43,8 @@ void DdsSystem::initialize ( POINT& pos, IChimeraWindowWidget* parent, std::stri
 		try	{
 			programNow (parent->auxWin->getUsableConstants ());
 		}
-		catch (Error& err) {
-			parent->reportErr (err.trace ());
+		catch (ChimeraError& err) {
+			parent->reportErr (err.qtrace ());
 		}
 	});
 	controlCheck = new CQCheckBox ("Control?", parent);
@@ -228,7 +228,7 @@ void DdsSystem::deleteRampVariable ( )
 		return;
 	}
 	int answer;
-	if ( UINT ( itemIndicator ) < currentRamps.size ( ) )
+	if ( unsigned ( itemIndicator ) < currentRamps.size ( ) )
 	{
 		answer = promptBox ( "Delete Ramp # " + str(itemIndicator+1) + "?", MB_YESNO );
 		if ( answer == IDYES )
@@ -249,7 +249,7 @@ void DdsSystem::programNow ( std::vector<parameterType>& constants ){
 		core.generateFullExpInfo ( 1 );
 		core.programVariation ( 0, constants);
 	}
-	catch ( Error& ){
+	catch ( ChimeraError& ){
 		throwNested ( "Error seen while programming DDS system via Program Now Button." );
 	}
 }
@@ -268,6 +268,7 @@ void DdsSystem::handleOpenConfig ( ConfigStream& file ){
 	if ( file.ver >= Version ( "4.5" ) ){
 		auto res = core.getSettingsFromConfig (file);
 		currentRamps = res.ramplist;
+		controlCheck->setChecked (res.control);
 	}
 	redrawListview ( );
 }
@@ -298,8 +299,8 @@ void DdsSystem::getDataFromTable () {
 			currentRamps[rowI].amp2 = str(rampListview->item (rowI, 5)->text ());
 			currentRamps[rowI].rampTime = str(rampListview->item (rowI, 6)->text ());
 		}
-		catch (Error & err) {
-			thrower ("Failed to convert dds table data to ramp structure!");
+		catch (ChimeraError &) {
+			throwNested ("Failed to convert dds table data to ramp structure!");
 		}
 	}
 }

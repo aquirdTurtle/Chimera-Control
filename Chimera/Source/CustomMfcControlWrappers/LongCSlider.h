@@ -3,7 +3,7 @@
 #include "afxwin.h"
 #include "Control.h"
 #include "afxcmn.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
@@ -13,15 +13,14 @@
 
 class LongCSlider{
 	public:
-		void initialize ( POINT& loc, IChimeraWindowWidget* parent, int width, int height, std::string headerText );
-		void rearrange ( int width, int height, fontMap fonts );
+		void initialize ( POINT& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText );
 		void handleSlider( int nPos );
 		void handleEdit();
 		double getValue ( );
 		void setValue (int value, bool updateEdit=true );
 		int getSliderId ( );
 		void reposition ( POINT loc, LONG totalheight );
-		UINT getEditId ( );
+		unsigned getEditId ( );
 		void hide ( int hideornot );
 		QSlider* slider;
 		CQLineEdit* edit;

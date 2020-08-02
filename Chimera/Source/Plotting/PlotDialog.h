@@ -15,32 +15,32 @@ class PlotDialog : public CDialog
 		DECLARE_DYNAMIC( PlotDialog );
 		// the overload options here are for having a dynamic timer (first option) or a static timer (second option).
 		PlotDialog (std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<UINT>& timerTime,
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<unsigned>& timerTime,
 					std::vector<int> thresholds, int pltIds,
 					std::string title="Plot Dialog Plot" );
 		PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-					 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
+					 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, unsigned timerTime,
 					 std::vector<int> thresholds, int pltIds, std::string title);
 		~PlotDialog ( );
 		static bool removeQuery( PlotDialog* plt );
-		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
+		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, unsigned nCtlColor );
 		BOOL OnInitDialog( ) override;
 		void OnCancel( ) override;
 		void PostNcDestroy( ) override;
 		void OnPaint( );
 		void OnTimer( UINT_PTR id );
-		void OnSize( UINT s, int cx, int cy );
+		void OnSize( unsigned s, int cx, int cy );
 		bool wantsSustain( );
 		dataPoint getMainAnalysisResult ( );
-		void handlePopCommand (UINT id);
+		void handlePopCommand (unsigned id);
 	private:
 		DECLARE_MESSAGE_MAP( );
 		const int plotPopId;
 		PlotCtrl plot;
 		CBrush backgroundBrush, plotAreaBrush;
 		// in ms
-		std::atomic<UINT>& dynamicTimerLength;
+		std::atomic<unsigned>& dynamicTimerLength;
 		const bool dynamicTimer;
-		const UINT staticTimer;
+		const unsigned staticTimer;
 };
 

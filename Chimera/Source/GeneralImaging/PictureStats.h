@@ -9,7 +9,7 @@
 #include <string>
 #include <array>
 #include "LowLevel/constants.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 
 // contains experimentally calibrated conversion factors. See the onenote section on the camera
@@ -62,9 +62,8 @@ class PictureStats
 		{
 			displayDataType = RAW_COUNTS;
 		}
-		void initialize( POINT& pos, IChimeraWindowWidget* parent );
-		void rearrange( int width, int height, fontMap fonts );
-		std::pair<int, int> update ( Matrix<long> image, UINT imageNumber, coordinate selectedPixel,
+		void initialize( POINT& pos, IChimeraQtWindow* parent );
+		std::pair<int, int> update ( Matrix<long> image, unsigned imageNumber, coordinate selectedPixel,
 									 int currentRepetitionNumber, int totalRepetitionCount );
 		void reset();
 		void updateType( std::string typeText );

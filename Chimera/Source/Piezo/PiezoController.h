@@ -10,17 +10,18 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <QCheckBox.h>
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <GeneralObjects/IChimeraSystem.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 
-class PiezoController
+class PiezoController : public IChimeraSystem
 {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		PiezoController& operator=(const PiezoController&) = delete;
 		PiezoController (const PiezoController&) = delete;
 
-		PiezoController (piezoSetupInfo info);
-		void initialize ( POINT& pos, IChimeraWindowWidget* parent, LONG width, piezoChan<std::string> names );
+		PiezoController (IChimeraQtWindow* parent, piezoSetupInfo info);
+		void initialize ( POINT& pos, IChimeraQtWindow* parent, LONG width, piezoChan<std::string> names );
 		std::string getDeviceInfo ( );
 		void updateCurrentValues ( );
 		void handleOpenConfig (ConfigStream& configFile);
@@ -29,10 +30,9 @@ class PiezoController
 		void updateCtrl ( );
 		std::string getPiezoDeviceList ( );
 		void handleProgramNowPress ( );
-		void rearrange ( UINT width, UINT height, fontMap fonts);
 		std::string getConfigDelim ( );
-
 	private:
+		bool expActive;
 		PiezoCore core;
 		QPushButton* programNowButton;
 		QCheckBox* ctrlButton;
