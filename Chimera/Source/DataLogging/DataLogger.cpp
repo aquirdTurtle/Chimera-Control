@@ -4,7 +4,6 @@
 #include "LowLevel/externals.h"
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
-#include "ExperimentThread/ExperimentThreadManager.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include <ConfigurationSystems/ProfileSystem.h>
 #include <ExperimentThread/autoCalConfigInfo.h>

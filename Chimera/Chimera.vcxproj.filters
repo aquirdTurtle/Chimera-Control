@@ -256,9 +256,6 @@
     <ClCompile Include="Source\Tektronix\TektronixChannelControl.cpp" />
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
-    <ClCompile Include="Source\ExperimentThread\ExperimentThreadManager.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
@@ -676,9 +673,6 @@
     <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
     <ClInclude Include="Source\Basler\BaslerWrapper.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentThreadInput.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ExperimentThread\ExperimentThreadManager.h">
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />

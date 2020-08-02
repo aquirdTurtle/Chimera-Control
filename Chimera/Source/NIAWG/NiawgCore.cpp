@@ -3,7 +3,6 @@
 
 #include "NIAWG/NiawgCore.h"
 #include "NIAWG/NiawgStructures.h"
-#include "ExperimentThread/ExperimentThreadManager.h"
 #include "NIAWG/NiawgWaiter.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "ExperimentThread/ExperimentThreadInput.h"

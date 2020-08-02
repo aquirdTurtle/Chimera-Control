@@ -7,7 +7,6 @@
 #include "IChimeraQtWindow.h"
 
 #include "LowLevel/constants.h"
-#include "ExperimentThread/ExperimentThreadManager.h" 
 #include "Piezo/PiezoController.h"
 #include "DigitalOutput/DoSystem.h"
 #include "AnalogOutput/AoSystem.h"

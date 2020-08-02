@@ -3,7 +3,6 @@
 #include "Agilent/Agilent.h"
 #include "scriptedAgilentWaveform.h"
 #include "Scripts/ScriptStream.h"
-#include "ExperimentThread/ExperimentThreadManager.h"
 #include <ExperimentThread/ExpThreadWorker.h>
 
 ScriptedAgilentWaveform::ScriptedAgilentWaveform()

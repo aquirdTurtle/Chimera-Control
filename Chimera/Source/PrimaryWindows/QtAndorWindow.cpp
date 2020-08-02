@@ -1157,7 +1157,7 @@ void QtAndorWindow::handleBumpAnalysis (profileSettings finishedProfile) {
 				auxWin->getGlobals ().adjustVariableValue (str (name, 13, false, true), res);
 			}
 			reportStatus ( qstr("Successfully completed auto bump analysis and set variable \"" + name + "\" to value " 
-						   + str (res)));
+						   + str (res) + "\n"));
 		}
 		catch (ChimeraError & err) {
 			reportErr ("Bump Analysis Failed! " + err.qtrace ());
