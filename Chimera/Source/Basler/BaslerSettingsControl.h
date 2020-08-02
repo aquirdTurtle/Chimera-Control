@@ -44,7 +44,7 @@ class BaslerSettingsControl
 		static baslerSettings getSettingsFromConfig (ConfigStream& configFile, Version ver );
 
 	private:
-		ULONG lastTime;
+		unsigned long lastTime;
 		baslerSettings currentSettings;
 		QLabel* statusText;
 		// exposure

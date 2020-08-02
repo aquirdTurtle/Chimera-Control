@@ -84,8 +84,8 @@ void BaslerSettingsControl::redrawMotIndicator ( ){
 
 // assumes called on every 10 pics.
 void BaslerSettingsControl::handleFrameRate(){
-	ULONG currentTime = GetTickCount();
-	ULONG timePerPic = (currentTime - lastTime)/10.0;
+	unsigned long currentTime = GetTickCount();
+	unsigned long timePerPic = (currentTime - lastTime)/10.0;
 	if (timePerPic == 0){
 		// avoid dividing by 0.
 		timePerPic++;

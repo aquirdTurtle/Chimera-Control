@@ -48,7 +48,7 @@ class AndorCameraCore : public IDeviceCore{
 		void onFinish();
 		bool isRunning();
 		void setIsRunningState( bool state );
-		void updatePictureNumber( ULONGLONG newNumber );
+		void updatePictureNumber( unsigned __int64 newNumber );
 		void setGainMode();
 		void changeTemperatureSetting(bool temperatureControlOff);
 
@@ -92,8 +92,8 @@ class AndorCameraCore : public IDeviceCore{
 		bool plotThreadExitIndicator;
 		bool cameraThreadExitIndicator = false;
 
-		ULONGLONG currentPictureNumber;
-		ULONGLONG currentRepetitionNumber;
+		unsigned __int64 currentPictureNumber;
+		unsigned __int64 currentRepetitionNumber;
 		std::timed_mutex camThreadMutex;
 		HANDLE plottingMutex;
 		std::vector<Matrix<long> > repImages;

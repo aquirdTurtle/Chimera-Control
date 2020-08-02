@@ -58,7 +58,7 @@ void DigitalOutput::enable ( bool enabledStatus ){
 
 
 DigitalOutput& allDigitalOutputs::operator()( unsigned num, DoRows::which row ){
-	return core[ ULONG ( row ) * 16L + num ];
+	return core[ unsigned long ( row ) * 16L + num ];
 }
 
 allDigitalOutputs::allDigitalOutputs ( ){

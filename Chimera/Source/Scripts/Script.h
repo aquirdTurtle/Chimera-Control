@@ -74,7 +74,7 @@ class Script : public IChimeraSystem {
 		bool isLocalReference;
 		bool isSaved;
 
-		ULONG editChangeBegin;
-		ULONG editChangeEnd;
+		unsigned long editChangeBegin;
+		unsigned long editChangeEnd;
 		bool syntaxColoringIsCurrent;
 };

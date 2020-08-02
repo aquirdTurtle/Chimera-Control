@@ -441,7 +441,7 @@ void DoCore::convertToFtdiSnaps (unsigned variation)
 	// formatting of these snaps is similar to the word formatting of the viewpoint dio64 card; the ttl on/off 
 	int snapIndex = 0;
 	int val1, val2, fpgaBankCtr;
-	ULONG timeConv = 100000;
+	unsigned long timeConv = 100000;
 	for (auto loadSkip : { false, true })
 	{
 		auto ttlSnaps = loadSkip ? loadSkipTtlSnapshots (variation) : ttlSnapshots (variation);
@@ -616,7 +616,7 @@ double DoCore::getTotalTime (unsigned variation)
 	}
 }
 
-ULONG DoCore::getNumberEvents (unsigned variation)
+unsigned long DoCore::getNumberEvents (unsigned variation)
 {
 	return ttlSnapshots (variation).size ();
 }

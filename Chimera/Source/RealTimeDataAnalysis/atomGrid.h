@@ -7,11 +7,11 @@
 struct atomGrid
 {
 	coordinate topLeftCorner;
-	ULONG pixelSpacing;
+	unsigned long pixelSpacing;
 	// in atoms
-	ULONG width;
-	ULONG height;
-	ULONG numAtoms ( )
+	unsigned long width;
+	unsigned long height;
+	unsigned long numAtoms ( )
 	{
 		return width * height;
 	}

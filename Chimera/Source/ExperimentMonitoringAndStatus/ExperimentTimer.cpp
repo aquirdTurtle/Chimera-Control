@@ -23,7 +23,7 @@ void ExperimentTimer::initialize( POINT& pos, IChimeraQtWindow* parent )
 	overallProgress->setRange (0, 10000);
 }
 
-void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, unsigned picsPerRep)
+void ExperimentTimer::update(unsigned __int64 currentRepNumber, unsigned __int64 repsPerVariation, unsigned __int64 numberOfVariations, unsigned picsPerRep)
 {
 	int totalRepetitions = repsPerVariation * numberOfVariations;
 	int minAverageNumber = 10;

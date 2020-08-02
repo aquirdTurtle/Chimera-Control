@@ -4,7 +4,6 @@
 #include "Scripts/Script.h"
 #include "DigitalOutput/DoSystem.h"
 #include <PrimaryWindows/QtScriptWindow.h>
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "GeneralObjects/multiDimensionalKey.h"
 #include "GeneralUtilityFunctions/cleanString.h"
 #include <ConfigurationSystems/ProfileSystem.h>
@@ -208,7 +207,7 @@ std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream&
 void ParameterSystem::updateVariationNumber( ){
 	// if no parameters, or all are constants, it will stay at 1. else, it will get set to the # of variations
 	// of the first variable that it finds.
-	std::vector<ULONG> dimVariations;
+	std::vector<unsigned long> dimVariations;
 	std::vector<bool> dimsSeen;
 	for ( auto tempParam : paramModel.getParams() )	{
 		if ( !tempParam.constant ){

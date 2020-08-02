@@ -86,10 +86,10 @@ struct simpleMove
 				finRow  == other.finRow  &&
 				finCol  == other.finCol);
 	}
-	ULONG initRow;
-	ULONG initCol;
-	ULONG finRow;
-	ULONG finCol;
+	unsigned long initRow;
+	unsigned long initCol;
+	unsigned long finRow;
+	unsigned long finCol;
 	double distanceToTarget;
 	dir dir( )
 	{

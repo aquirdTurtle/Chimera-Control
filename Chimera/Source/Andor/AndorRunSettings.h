@@ -28,9 +28,9 @@ struct AndorRunSettings
 	std::vector<float> exposureTimes = { 0.026f };
 	//
 	unsigned picsPerRepetition=1;
-	ULONGLONG repetitionsPerVariation=10;
-	ULONGLONG totalVariations = 3;
-	ULONGLONG totalPicsInVariation();
+	unsigned __int64 repetitionsPerVariation=10;
+	unsigned __int64 totalVariations = 3;
+	unsigned __int64 totalPicsInVariation();
 	// this is an int to reflect that the final number that's programmed to the camera is an int
 	int totalPicsInExperiment();
 	int temperatureSetting = 25;

@@ -4,7 +4,6 @@
 #include <fstream>
 
 #include "ConfigurationSystems/ProfileSystem.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "NIAWG/NiawgCore.h"
 #include "Andor/AndorCameraCore.h"
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
@@ -285,8 +284,8 @@ void ProfileSystem::renameConfiguration(){
 	}
 
 	std::string newConfigurationName;
-	TextPromptDialog dialog(&newConfigurationName, "Please enter new configuration name.", currentProfile.configuration);
-	dialog.DoModal();
+	//TextPromptDialog dialog(&newConfigurationName, "Please enter new configuration name.", currentProfile.configuration);
+	//dialog.DoModal();
 
 	if (newConfigurationName == ""){
 		// canceled

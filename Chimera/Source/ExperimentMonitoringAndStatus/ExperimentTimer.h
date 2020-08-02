@@ -11,7 +11,7 @@ class ExperimentTimer
 {
 	public:
 		void initialize( POINT& inputLoc, IChimeraQtWindow* parent );
-		void update( ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, 
+		void update( unsigned __int64 currentRepNumber, unsigned __int64 repsPerVariation, unsigned __int64 numberOfVariations, 
 					 unsigned picsPerRep );
 		void setTimerDisplay( std::string newText );
 	private:

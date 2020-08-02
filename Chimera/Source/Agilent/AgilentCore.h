@@ -53,7 +53,7 @@ class AgilentCore : public IDeviceCore
 		void errorFinish () {};
 	private:
 		deviceOutputInfo expRunSettings;
-		const ULONG sampleRate;
+		const unsigned long sampleRate;
 		const std::string memoryLoc;
 		const agilentSettings initSettings;
 		// not that important, just used to check that number of triggers in script matches number in agilent.

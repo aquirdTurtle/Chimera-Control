@@ -624,7 +624,7 @@ void AoSystem::checkTimingsWork(unsigned variation){
 	}
 }
 
-ULONG AoSystem::getNumberEvents(unsigned variation){
+unsigned long AoSystem::getNumberEvents(unsigned variation){
 	return dacSnapshots(variation).size();
 }
 

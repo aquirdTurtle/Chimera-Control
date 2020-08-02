@@ -40,5 +40,5 @@ template <typename T> int promptBox( T msg, unsigned promptStyle ){
 	return IDOK;
 }
 
-ULONG getNextFileIndex( std::string fileBase, std::string ext );
+unsigned long getNextFileIndex( std::string fileBase, std::string ext );
 

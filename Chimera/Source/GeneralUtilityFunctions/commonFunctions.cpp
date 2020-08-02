@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "NIAWG/NiawgCore.h"
-#include "ExcessDialogs/StartDialog.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
 #include "ExperimentThread/ExperimentThreadInput.h"

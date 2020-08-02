@@ -172,12 +172,12 @@ std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum,
 /*
  *
  */
-void ScriptedAgilentWaveform::writeData( int segNum, ULONG sampleRate )
+void ScriptedAgilentWaveform::writeData( int segNum, unsigned long sampleRate )
 {
 	waveformSegments[segNum].calcData(sampleRate);
 }
 
-ULONG ScriptedAgilentWaveform::getSegmentNumber()
+unsigned long ScriptedAgilentWaveform::getSegmentNumber()
 {
 	return waveformSegments.size();
 }
@@ -293,7 +293,7 @@ void ScriptedAgilentWaveform::replaceVarValues( unsigned variation, std::vector<
 }
 
 
-ULONG ScriptedAgilentWaveform::getNumTrigs( )
+unsigned long ScriptedAgilentWaveform::getNumTrigs( )
 {
 	return numberOfTriggers;
 }

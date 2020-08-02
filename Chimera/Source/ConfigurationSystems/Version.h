@@ -25,9 +25,9 @@ class Version
 				version = boost::lexical_cast<double>( versionStr );
 				auto periodPos = versionStr.find_last_of( '.' );
 				std::string tempStr( versionStr.substr( 0, periodPos ) );
-				versionMajor = boost::lexical_cast<ULONG>( tempStr );
+				versionMajor = boost::lexical_cast<unsigned long>( tempStr );
 				tempStr = versionStr.substr( periodPos + size_t(1), versionStr.size( ) );
-				versionMinor = boost::lexical_cast<ULONG>( tempStr );
+				versionMinor = boost::lexical_cast<unsigned long>( tempStr );
 			}
 			catch ( boost::bad_lexical_cast& )
 			{
@@ -97,6 +97,6 @@ class Version
 				return false;
 			}
 		}
-		ULONG versionMajor;
-		ULONG versionMinor;
+		unsigned long versionMajor;
+		unsigned long versionMinor;
 };

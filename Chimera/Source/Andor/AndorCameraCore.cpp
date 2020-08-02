@@ -109,7 +109,7 @@ void AndorCameraCore::initializeClass(IChimeraQtWindow* parent, chronoTimes* ima
 
 }
 
-void AndorCameraCore::updatePictureNumber( ULONGLONG newNumber ){
+void AndorCameraCore::updatePictureNumber( unsigned __int64 newNumber ){
 	currentPictureNumber = newNumber;
 }
 
@@ -723,7 +723,7 @@ void AndorCameraCore::logSettings (DataLogger& log){
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
 		if (expRunSettings.acquisitionMode == AndorRunModes::mode::Kinetic) {
-			hsize_t setDims[] = { ULONGLONG (expRunSettings.totalPicsInExperiment ()), expRunSettings.imageSettings.width (),
+			hsize_t setDims[] = { unsigned __int64 (expRunSettings.totalPicsInExperiment ()), expRunSettings.imageSettings.width (),
 				expRunSettings.imageSettings.height () };
 			hsize_t picDims[] = { 1, expRunSettings.imageSettings.width (), expRunSettings.imageSettings.height () };
 			log.AndorPicureSetDataSpace = H5::DataSpace (3, setDims);

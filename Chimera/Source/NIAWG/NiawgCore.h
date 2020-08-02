@@ -108,14 +108,14 @@ class NiawgCore : public IDeviceCore
 		bool isOn( );
 		void streamWaveform( );
 		FgenFlume fgenFlume;
-		static void smartTargettingRearrangement ( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
-												   niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
+		static void smartTargettingRearrangement ( Matrix<bool> source, Matrix<bool> target, niawgPair<unsigned long>& finTargetPos,
+												   niawgPair<unsigned long> finalPos, std::vector<simpleMove> &operationsMatrix,
 												   rerngGuiOptions options, bool randomize = true,
 												   bool orderMovesByProximityToTarget = false );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source,
 								   std::vector<complexMove> &flashMoves, rerngGuiOptions options );
-		void finalizeScript ( ULONGLONG repetitions, std::string name, std::string workingUserScripts,
+		void finalizeScript ( unsigned __int64 repetitions, std::string name, std::string workingUserScripts,
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
 		void generateWaveform ( channelWave & waveInfo, long int sampleNum, double time,
@@ -146,7 +146,7 @@ class NiawgCore : public IDeviceCore
 		void rerngGuiOptionsFormToFinal( rerngGuiOptions& form, std::vector<parameterType>& variables, unsigned var );
 
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
-		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, 
+		std::vector<double> calcFinalPositionMove( niawgPair<unsigned long> targetPos, niawgPair<unsigned long> finalPos, 
 												   double freqSpacing, Matrix<bool> target, 
 												   niawgPair<double> cornerFreqs, double moveTime );
 		void streamRerng( );
@@ -161,7 +161,7 @@ class NiawgCore : public IDeviceCore
 		void startRerngThread( atomQueue* atomQueue, waveInfo& wave, 
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 							   std::condition_variable* rerngConditionWatcher, rerngGuiOptions guiInfo, atomGrid grid );
-		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
+		static niawgPair<unsigned long> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWave& wave, bool isDefault, 
 								niawgLibOption::mode libOption = niawgLibOption::defaultMode);
 		void writeFlashing( waveInfo& wave, unsigned variation );
@@ -239,8 +239,8 @@ class NiawgCore : public IDeviceCore
 		static void orderMoves ( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence,
 								 Matrix<bool> sourceMatrix );
 		static void NiawgCore::calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos );
-		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<ULONG> finalPos);
-		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<ULONG> finalPos, unsigned rows, unsigned cols );
+		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<unsigned long> finalPos);
+		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<unsigned long> finalPos, unsigned rows, unsigned cols );
 		static void sortByDistanceToTarget ( std::vector<simpleMove> &moveList );
 
 

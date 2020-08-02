@@ -47,7 +47,7 @@ class DoCore
 		int getNameIdentifier (std::string name, DoRows::which& row, unsigned& number);
 		void organizeTtlCommands (unsigned variation, DoSnapshot initSnap = { 0,0 });
 		bool getFtFlumeSafemode ();
-		ULONG getNumberEvents (unsigned variation);
+		unsigned long getNumberEvents (unsigned variation);
 		double getTotalTime (unsigned variation);
 		double getFtdiTotalTime (unsigned variation);
 		void resetTtlEvents ();

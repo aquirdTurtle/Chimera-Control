@@ -621,7 +621,7 @@ H5::DataSet DataLogger::writeDataSet( bool data, std::string name, H5::Group& gr
 }
 
 
-H5::DataSet DataLogger::writeDataSet( ULONGLONG data, std::string name, H5::Group& group ){
+H5::DataSet DataLogger::writeDataSet( unsigned __int64 data, std::string name, H5::Group& group ){
 	try	{
 		hsize_t rank1[] = { 1 };
 		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_ULLONG, H5::DataSpace( 1, rank1 ) );

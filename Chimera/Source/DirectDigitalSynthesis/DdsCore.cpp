@@ -291,8 +291,8 @@ UINT16 DdsCore::getRepsFromTime ( double time ){
 	// units of time is milliseconds
 	double deltaTime = 8e-3; // 8 usec
 	double maxTime = ( ( std::numeric_limits<UINT16>::max )( ) - 0.5 ) * deltaTime;
-	ULONGLONG repNum = ( time / deltaTime ) + 0.5;
-	ULONGLONG maxTimeLong = ( std::numeric_limits<UINT16>::max )( );
+	unsigned __int64 repNum = ( time / deltaTime ) + 0.5;
+	unsigned __int64 maxTimeLong = ( std::numeric_limits<UINT16>::max )( );
 	// I'm moderately confused as to why I have to also exclude the max time itself here, this should be all 1's in 
 	// binary.
 	if ( repNum >= maxTimeLong ){

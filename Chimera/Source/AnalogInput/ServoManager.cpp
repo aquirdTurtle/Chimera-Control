@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "ServoManager.h"
-#include "ExcessDialogs/TextPromptDialog.h"
 #include "boost/lexical_cast.hpp"
 #include "PhotodetectorCalibration.h"
 #include <QHeaderView>

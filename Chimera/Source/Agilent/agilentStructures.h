@@ -15,23 +15,23 @@ struct agilentSettings
 {
 	bool safemode;
 	std::string address;
-	ULONG sampleRate;
+	unsigned long sampleRate;
 	// "INT" or "USB"
 	std::string memoryLocation;
 	std::string deviceName;
 
 	// button ids.
-	ULONG chan1ButtonId;
-	ULONG chan2ButtonId;
-	ULONG syncButtonId;
-	ULONG agilentComboId;
-	ULONG functionComboId;
-	ULONG editId;
-	ULONG programButtonId;
-	ULONG calibrationButtonId;
+	unsigned long chan1ButtonId;
+	unsigned long chan2ButtonId;
+	unsigned long syncButtonId;
+	unsigned long agilentComboId;
+	unsigned long functionComboId;
+	unsigned long editId;
+	unsigned long programButtonId;
+	unsigned long calibrationButtonId;
 	
 	DoRows::which triggerRow;
-	ULONG triggerNumber;
+	unsigned long triggerNumber;
 	std::string configurationFileDelimiter;
 
 	std::vector<double> calibrationCoeff;

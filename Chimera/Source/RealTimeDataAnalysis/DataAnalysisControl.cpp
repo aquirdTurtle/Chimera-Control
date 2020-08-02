@@ -460,15 +460,15 @@ void DataAnalysisControl::determineWhichPscsSatisfied(
 
 
 std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotAtoms( PlottingInfo plotInfo, unsigned pictureNumber,
-											std::vector<std::vector<std::pair<double, ULONG>> >& finData,
+											std::vector<std::vector<std::pair<double, unsigned long>> >& finData,
 										    std::vector<std::vector<dataPoint>>& dataContainers,
 										    unsigned variationNumber, std::vector<std::vector<bool>>& pscSatisfied,
 										    int plotNumberCount, std::vector<std::vector<int> > atomPresent, unsigned plottingFrequency,
 										    unsigned groupNum, unsigned picsPerVariation ){
 	if (pictureNumber % picsPerVariation == plotInfo.getPicNumber()){
 		// first pic of new variation, so need to update x vals.
-		finData = std::vector<std::vector<std::pair<double, ULONG>>>( plotInfo.getDataSetNumber( ),
-															vector<std::pair<double, ULONG>>( groupNum, { 0,0 } ) );
+		finData = std::vector<std::vector<std::pair<double, unsigned long>>>( plotInfo.getDataSetNumber( ),
+															vector<std::pair<double, unsigned long>>( groupNum, { 0,0 } ) );
 	}
 	/// Check Data Conditions
 	for (auto dataSetI : range(plotInfo.getDataSetNumber())){
@@ -520,7 +520,7 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotAtoms( Plotti
 		}
 		/// calculate averages
 		double avgAvgVal = 0, avgErrsVal = 0;
-		std::pair<double, ULONG> allDataTempNew(0,0);
+		std::pair<double, unsigned long> allDataTempNew(0,0);
 		for ( auto data : finData[dataSetI] ){
 			allDataTempNew.first += data.first;
 			allDataTempNew.second += data.second;
@@ -541,7 +541,7 @@ std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotAtoms( Plotti
 
 std::vector<std::vector<dataPoint>> DataAnalysisControl::handlePlotHist( PlottingInfo plotInfo, vector<vector<long>> countData,
 										  vector<vector<std::deque<double>>>& finData, vector<vector<bool>> pscSatisfied, 
-										  vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
+										  vector<vector<std::map<int, std::pair<int, unsigned long>>>>& histData,
 										  std::vector<std::vector<dataPoint>>& dataContainers,
 										  unsigned groupNum ){
 	/// options are fundamentally different for histograms.

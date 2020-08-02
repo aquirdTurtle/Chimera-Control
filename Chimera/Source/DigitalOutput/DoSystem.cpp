@@ -226,9 +226,9 @@ std::pair<USHORT, USHORT> DoSystem::calcDoubleShortTime( double time ){
 	USHORT lowordTime, hiwordTime;
 	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 	// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
-	lowordTime = ULONGLONG( time * 10000 ) % 65535;
-	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
-	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 ){
+	lowordTime = unsigned __int64( time * 10000 ) % 65535;
+	hiwordTime = unsigned __int64( time * 10000 ) / 65535;
+	if ( unsigned __int64( time * 10000 ) / 65535 > 65535 ){
 		thrower ( "DIO system was asked to calculate a time that was too long! this is limited by the card." );
 	}
 	return { lowordTime, hiwordTime };
