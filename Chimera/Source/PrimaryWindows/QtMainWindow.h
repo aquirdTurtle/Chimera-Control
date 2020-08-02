@@ -131,9 +131,11 @@ class QtMainWindow : public IChimeraQtWindow{
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
 		ServoManager servos;
-		// auxiliary members
-		fontMap mainFonts;
-		ExperimentThreadManager expThreadManager;
+
+		ExpThreadWorker* expWorker;
+		QThread* expThread;
+		std::atomic<bool> experimentIsRunning = false;
+
 		RunInfo systemRunningInfo;
 		EmbeddedPythonHandler python;
 		ScopeViewer masterRepumpScope, motScope;

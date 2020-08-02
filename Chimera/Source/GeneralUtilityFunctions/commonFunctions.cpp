@@ -141,7 +141,7 @@ namespace commonFunctions
 					andorWin->setTimerText ("ERROR!");
 				}
 				try{
-					if ( mainWin->expThreadManager.runningStatus( ) ){
+					if ( mainWin->expIsRunning( ) ){
 						status = "MASTER";
 						commonFunctions::abortMaster( win );
 						masterAborted = true;

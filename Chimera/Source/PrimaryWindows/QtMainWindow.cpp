@@ -11,6 +11,7 @@
 #include <ExperimentThread/autoCalConfigInfo.h>
 #include <GeneralObjects/ChimeraStyleSheets.h>
 #include <Plotting/ScopeThreadWorker.h>
+#include <ExperimentThread/ExpThreadWorker.h>
 #include <QThread.h>
 #include <qapplication.h>
 #include <qwidget.h>
@@ -120,7 +121,7 @@ QtMainWindow::QtMainWindow () :
 	}
 	QTimer* timer = new QTimer (this);
 	connect (timer, &QTimer::timeout, [this]() {
-			if ( !expThreadManager.experimentIsRunning ) {
+			if ( !experimentIsRunning ) {
 				if (!getMainOptions ().delayAutoCal) {
 					handleNotification ("Delaying Auto-Calibration!");
 					return;
@@ -134,7 +135,7 @@ QtMainWindow::QtMainWindow () :
 }
 
 bool QtMainWindow::expIsRunning () {
-	return expThreadManager.experimentIsRunning;
+	return experimentIsRunning;
 }
 
 void QtMainWindow::setStyleSheets (){
@@ -144,7 +145,7 @@ void QtMainWindow::setStyleSheets (){
 }
 
 void QtMainWindow::pauseExperiment () {
-	expThreadManager.pause ();
+	expWorker->pause ();
 }
 
 void QtMainWindow::initializeWidgets (){
@@ -219,7 +220,7 @@ LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp){
 	try	{
 		if (andorWin->wantsAutoPause ()){
 			reportErr ("No MOT and andor win wants auto pause!");
-			expThreadManager.pause ();
+			expWorker->pause ();
 		}
 		time_t t = time (0);
 		struct tm now;
@@ -249,7 +250,7 @@ LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp){
 	try	{
 		if (andorWin->wantsAutoPause ()){
 			reportErr ("No Atoms and andor win wants auto pause!");
-			expThreadManager.pause ();
+			expWorker->pause ();
 		}
 		time_t t = time (0);
 		struct tm now;
@@ -298,13 +299,13 @@ void QtMainWindow::notifyConfigUpdate (){
 }
 
 void QtMainWindow::handlePauseToggle (){
-	if (expThreadManager.runningStatus ()){
+	if (expWorker->runningStatus ()){
 		reportErr ("Pause Toggle!");
-		if (expThreadManager.getIsPaused ()){
-			expThreadManager.unPause ();
+		if (expWorker->getIsPaused ()){
+			expWorker->unPause ();
 		}
 		else{
-			expThreadManager.pause ();
+			expWorker->pause ();
 		}
 	}
 	else{
@@ -372,7 +373,35 @@ std::string QtMainWindow::getSystemStatusString (){
 }
 
 void QtMainWindow::startExperimentThread (ExperimentThreadInput* input){
-	expThreadManager.startExperimentThread (input, this);
+	//expThreadManager.startExperimentThread (input, this);
+	if (!input) {
+		thrower ("Input to start experiment thread was null?!?!? (a Low level bug, this shouldn't happen).");
+	}
+	if (experimentIsRunning) {
+		delete input;
+		thrower ("Experiment is already Running! You can only run one experiment at a time! Please abort before "
+			"running again.");
+	}
+	//input->thisObj = this;
+	expWorker = new ExpThreadWorker (input, experimentIsRunning);
+	expThread = new QThread;
+	expWorker->moveToThread (expThread);
+	connect (expWorker, &ExpThreadWorker::updateBoxColor, this, &QtMainWindow::handleColorboxUpdate);
+	connect (expWorker, &ExpThreadWorker::prepareAndor, andorWin, &QtAndorWindow::handlePrepareForAcq);
+	connect (expWorker, &ExpThreadWorker::prepareBasler, basWin, &QtBaslerWindow::prepareWinForAcq);
+	connect (expWorker, &ExpThreadWorker::notification, this, &QtMainWindow::handleNotification);
+	connect (expWorker, &ExpThreadWorker::warn, this, &QtMainWindow::onErrorMessage);
+	connect (expWorker, &ExpThreadWorker::doAoData, auxWin, &QtAuxiliaryWindow::handleDoAoPlotData);
+	connect (expWorker, &ExpThreadWorker::repUpdate, this, &QtMainWindow::onRepProgress);
+	connect (expWorker, &ExpThreadWorker::mainProcessFinish, expThread, &QThread::quit);
+	connect (expWorker, &ExpThreadWorker::normalExperimentFinish, this, &QtMainWindow::onNormalFinish);
+	connect (expWorker, &ExpThreadWorker::calibrationFinish, this, &QtMainWindow::onAutoCalFin);
+	connect (expWorker, &ExpThreadWorker::errorExperimentFinish, this, &QtMainWindow::onFatalError);
+
+	connect (expThread, &QThread::started, expWorker, &ExpThreadWorker::process);
+	connect (expThread, &QThread::finished, expThread, &QObject::deleteLater);
+	connect (expThread, &QThread::finished, expWorker, &QObject::deleteLater);
+	expThread->start (QThread::TimeCriticalPriority);
 }
 
 void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
@@ -384,7 +413,7 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->runList.andor = false;
 }
 
-bool QtMainWindow::masterIsRunning () { return expThreadManager.runningStatus (); }
+bool QtMainWindow::masterIsRunning () { return experimentIsRunning; }
 RunInfo QtMainWindow::getRunInfo () { return systemRunningInfo; }
 EmbeddedPythonHandler& QtMainWindow::getPython () { return python; }
 profileSettings QtMainWindow::getProfileSettings () { return profile.getProfileSettings (); }
@@ -395,7 +424,7 @@ void QtMainWindow::setDebuggingOptions (debugInfo options) { debugger.setOptions
 mainOptions QtMainWindow::getMainOptions () { return mainOptsCtrl.getOptions (); }
 void QtMainWindow::setShortStatus (std::string text) { shortStatus.setText (text); }
 void QtMainWindow::changeShortStatusColor (std::string color) { shortStatus.setColor (color); }
-bool QtMainWindow::experimentIsPaused () { return expThreadManager.getIsPaused (); }
+bool QtMainWindow::experimentIsPaused () { return expWorker->getIsPaused (); }
 
 void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	input->debugOptions = debugger.getOptions ();
@@ -463,8 +492,8 @@ void QtMainWindow::changeBoxColor (std::string sysDelim, std::string color){
 }
 
 void QtMainWindow::abortMasterThread (){
-	if (expThreadManager.runningStatus ()){
-		expThreadManager.abort ();
+	if (expWorker->runningStatus ()){
+		expWorker->abort ();
 		autoF5_AfterFinish = false;
 	}
 	else { thrower ("Can't abort, experiment was not running.\r\n"); }
@@ -611,9 +640,9 @@ void QtMainWindow::handleNotification (QString txt, unsigned level){
 }
 
 QThread* QtMainWindow::getExpThread () {
-	return expThreadManager.threadObj;
+	return expThread;
 }
 
 ExpThreadWorker* QtMainWindow::getExpThreadWorker () {
-	return expThreadManager.threadWorker;
+	return expWorker;
 }

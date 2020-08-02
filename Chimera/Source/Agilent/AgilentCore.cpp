@@ -52,7 +52,7 @@ std::string AgilentCore::getDeviceInfo (){
 void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<parameterType>& variables, 
 										 std::string& warnings ){
 	ScriptStream stream;
-	ExperimentThreadManager::loadAgilentScript (infoObj.fileAddress.expressionStr, stream);
+	ExpThreadWorker::loadAgilentScript (infoObj.fileAddress.expressionStr, stream);
 	int currentSegmentNumber = 0;
 	infoObj.wave.resetNumberOfTriggers ();
 	// Procedurally readbtn lines into segment objects.
@@ -475,7 +475,7 @@ void AgilentCore::logSettings (DataLogger& log){
 			// TODO: load script file itself
 			ScriptStream stream;
 			try{
-				ExperimentThreadManager::loadAgilentScript (channel.scriptedArb.fileAddress.expressionStr, stream);
+				ExpThreadWorker::loadAgilentScript (channel.scriptedArb.fileAddress.expressionStr, stream);
 				log.writeDataSet (stream.str (), "Agilent-Script-Script", scriptedArbSettings);
 			}
 			catch (ChimeraError&){
@@ -531,7 +531,7 @@ void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadW
 			agMismatchVec[chan] = true;
 		}
 		if (variationInc == 0 && excessInfo){
-			emit threadWorker->debugInfo (cstr(infoString));
+			//emit threadWorker->debugInfo (cstr(infoString));
 		}
 	}
 }
