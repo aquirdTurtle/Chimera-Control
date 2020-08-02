@@ -45,6 +45,9 @@ void StatusControl::initialize (POINT& loc, IChimeraQtWindow* parent, long size,
 }
 
 void StatusControl::addStatusText (std::string text, unsigned level){
+	if (colors.size () == 0) {
+		return;
+	}
 	if (currentLevel >= level) {
 		if (level >= colors.size ()) {
 			addStatusText (text, colors.back ());

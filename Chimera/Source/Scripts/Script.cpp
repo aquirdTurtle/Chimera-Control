@@ -18,7 +18,7 @@
 #include <unordered_map>
 #include "boost/lexical_cast.hpp"
 #include <qcombobox.h>
-#include <QInputDialog>
+#include <QInputDialog.h>
 
 void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* parent,
 	std::string deviceTypeInput, std::string scriptHeader){
@@ -55,6 +55,18 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 	isSaved = true;
 	help = new QLabel ("?", parent);
 	help->setGeometry (loc.x + width - 20, loc.y, 20, 20);
+	if (deviceType == "Master"){
+		help->setToolTip (MASTER_HELP);
+	}
+	else if( deviceType == "NIAWG"){
+		help->setToolTip (SCRIPT_INFO_TEXT);
+	}
+	else if (deviceType == "Agilent"){
+		help->setToolTip (AGILENT_INFO_TEXT);
+	}
+	else{
+		help->setToolTip ("No Help available");
+	}
 	// don't want this for the scripting window, hence the extra check.
 	if (deviceType == "Agilent"){
 		help->setToolTip (AGILENT_INFO_TEXT);
@@ -64,6 +76,14 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 	availableFunctionsCombo.combo->setGeometry (loc.x, loc.y, width, 25);
 	loadFunctions ();
 	availableFunctionsCombo.combo->setCurrentIndex (0);
+	parent->connect (availableFunctionsCombo.combo, qOverload<int> (&QComboBox::currentIndexChanged), [this, parent]() {
+		try {
+			auto addr = ProfileSystem::getMasterAddressFromConfig (parent->mainWin->getProfileSettings ());
+			functionChangeHandler (addr);
+		}
+		catch (ChimeraError & err) {
+			parent->reportErr (err.qtrace ());
+		}});
 	loc.y += 25;
 
 	edit = new CQTextEdit ("", parent);
@@ -77,11 +97,9 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 void Script::functionChangeHandler(std::string configPath){
 	int selection = availableFunctionsCombo.combo->currentIndex( );
 	if ( selection != -1 ){
-		CString text;
-		availableFunctionsCombo.combo->currentText();
-		std::string textStr( text.GetBuffer( ) );
-		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
-		changeView( textStr, true, configPath );
+		std::string text = str (availableFunctionsCombo.combo->currentText ());
+		text = text.substr( 0, text.find_first_of( '(' ) );
+		changeView(text, true, configPath );
 	}
 }
 
@@ -116,56 +134,15 @@ std::vector<parameterType> Script::getLocalParams () {
 	auto localVars = ExpThreadWorker::getLocalParameters (ss);
 	return localVars;
 }
-//
-//void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult ){
-//	/*
-//	TOOLTIPTEXT *pTTT = (TOOLTIPTEXT *)pNMHDR;
-//	unsigned nID = pNMHDR->idFrom;
-//	if (pTTT->uFlags & TTF_IDISHWND)
-//	{
-//		nID = ::GetDlgCtrlID( (HWND)nID );
-//	}
-//
-//	if (nID == help.GetDlgCtrlID())
-//	{
-//		// it's this window.
-//		// note that I don't think this is the hwnd of the help box, but rather the tooltip itself.
-//		::SendMessageA( pNMHDR->hwndFrom, TTM_SETMAXTIPWIDTH, 0, 2500 );
-//		if (deviceType == "Master")
-//		{
-//			pTTT->lpszText = (LPSTR)MASTER_HELP;
-//		}
-//		else if( deviceType == "NIAWG")
-//		{
-//			pTTT->lpszText = (LPSTR)SCRIPT_INFO_TEXT;
-//		}
-//		else if (deviceType == "Agilent")
-//		{
-//			pTTT->lpszText = (LPSTR)AGILENT_INFO_TEXT;
-//		}
-//		else
-//		{
-//			pTTT->lpszText = "No Help available";
-//		}
-//		*pResult = 0;
-//		thrower ( "Worked." );
-//	}*/
-//	// else it's another window, just return and let them try.
-//}
 
-void Script::changeView(std::string viewName, bool isFunction, std::string configPath)
-{
-	if (viewName == "Parent Script")
-	{
-		// load parent
-		loadFile(configPath + scriptName + extension);
+void Script::changeView(std::string viewName, bool isFunction, std::string configPath){
+	if (viewName == "Parent Script"){
+		loadFile(configPath);
 	}
-	else if (isFunction)
-	{
+	else if (isFunction){
 		loadFile(FUNCTIONS_FOLDER_LOCATION + viewName + "." + FUNCTION_EXTENSION);
 	}
-	else
-	{
+	else{
 		// load child
 		loadFile(configPath + viewName);
 	}
@@ -232,7 +209,6 @@ void Script::saveScript(std::string configPath, RunInfo info){
 	scriptPath = configPath;
 	updateSavedStatus(true);
 }
-
 
 //
 void Script::saveScriptAs(std::string location, RunInfo info){
@@ -461,7 +437,8 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 }
 
 /*
-]---	This function only puts the given file on the edit for this class, it doesn't change current settings parameters. It's used bare when just changing the
+]---	This function only puts the given file on the edit for this class, it doesn't change current settings parameters. 
+		It's used bare when just changing the
 ]-		view of the edit, while it's used with some surrounding changes for loading a new parent.
  */
 void Script::loadFile(std::string pathToFile){
@@ -484,7 +461,7 @@ void Script::loadFile(std::string pathToFile){
 
 
 void Script::reset(){
-	if (!availableFunctionsCombo.combo) {
+	if (!availableFunctionsCombo.combo || !edit) {
 		return;
 	}
 	int index = availableFunctionsCombo.combo->findData ("Parent Script");
@@ -612,7 +589,6 @@ void Script::saveAsFunction(){
 	updateSavedStatus( true );
 }
 
-
 void Script::setEnabled ( bool enabled, bool functionsEnabled ){
 	if (!availableFunctionsCombo.combo || !edit ) {
 		return;
@@ -620,7 +596,6 @@ void Script::setEnabled ( bool enabled, bool functionsEnabled ){
 	edit->setReadOnly (!enabled);
 	availableFunctionsCombo.combo->setEnabled( functionsEnabled );
 }
-
 
 void Script::loadFunctions(){
 	availableFunctionsCombo.loadFunctions( );

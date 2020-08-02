@@ -468,7 +468,8 @@ void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, s
 		if (nameToLoad == names[comboInc]){
 			currentInc = comboInc;
 		}
-		combo->addItem (0, cstr (names[comboInc]));
+		combo->insertItem (0, qstr (names[comboInc]));
+		//combo->addItem (0, cstr (names[comboInc]));
 	}
 	// Set initial value
 	combo->setCurrentIndex (currentInc);
