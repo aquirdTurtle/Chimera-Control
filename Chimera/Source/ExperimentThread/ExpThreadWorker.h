@@ -27,13 +27,12 @@ class ExpThreadWorker : public QObject {
 		void loadMasterScript (std::string scriptAddress, ScriptStream& script);
 		static void loadNiawgScript (std::string scriptAddress, ScriptStream& niawgScript);
 		static void loadAgilentScript (std::string scriptAddress, ScriptStream& agilentScript);
-		void checkTriggerNumbers (std::unique_ptr<ExperimentThreadInput>& input,
-			std::vector<parameterType>& expParams);
+		void checkTriggerNumbers (std::vector<parameterType>& expParams);
 		void analyzeMasterScript (DoCore& ttls, AoSystem& aoSys, std::vector<parameterType>& vars,
 			ScriptStream& currentMasterScript, bool expectsLoadSkip,
 			std::string& warnings, timeType& operationTime,
 			timeType& loadSkipTime);
-		void waitForAndorFinish (std::unique_ptr<ExperimentThreadInput>& input);
+		void waitForAndorFinish ();
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread (ExperimentThreadInput* input, IChimeraQtWindow* parent);
 		bool runningStatus ();
@@ -48,43 +47,37 @@ class ExpThreadWorker : public QObject {
 			AoSystem& aoSys, DoCore& ttls, std::string scope,
 			timeType& operationTime);
 		bool handleFunctionCall (std::string word, ScriptStream& stream, std::vector<parameterType>& params,
-			DoCore& ttls, AoSystem& aoSys,
-			std::string& warnings, std::string callingFunction, timeType& operationTime);
+			DoCore& ttls, AoSystem& aoSys, std::string& warnings, std::string callingFunction, timeType& operationTime);
 		static bool handleVariableDeclaration (std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 			std::string scope, std::string& warnings);
 		static bool handleVectorizedValsDeclaration (std::string word, ScriptStream& stream,
 			std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings);
-		unsigned int __stdcall experimentThreadProcedure (void* voidInput);
+		unsigned int __stdcall experimentThreadProcedure ();
 		void analyzeFunctionDefinition (std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static unsigned determineVariationNumber (std::vector<parameterType> vars);
-		void handleDebugPlots (debugInfo debugOptions, ExpThreadWorker* worker, DoCore& ttls, AoSystem& aoSys,
+		void handleDebugPlots (debugInfo debugOptions, DoCore& ttls, AoSystem& aoSys,
 			unsigned variation);
 		double convertToTime (timeType time, std::vector<parameterType> variables, unsigned variation);
-		void calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input, ExpRuntimeData& runtime);
+		void calculateAdoVariations (ExpRuntimeData& runtime);
 		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);
-		void runConsistencyChecks (std::unique_ptr<ExperimentThreadInput>& input, std::vector<parameterType> expParams);
-		void handlePause (std::atomic<bool>& isPaused, std::atomic<bool>& isAborting, ExpThreadWorker* worker);
-		void initVariation (std::unique_ptr<ExperimentThreadInput>& input, unsigned variationInc,
+		void runConsistencyChecks (std::vector<parameterType> expParams);
+		void handlePause (std::atomic<bool>& isPaused, std::atomic<bool>& isAborting);
+		void initVariation (unsigned variationInc,
 			std::vector<parameterType> expParams);
 		void normalFinish (ExperimentType& expType, bool runMaster,
-			std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker,
-			std::unique_ptr<ExperimentThreadInput>& input);
+			std::chrono::time_point<chronoClock> startTime);
 		void errorFinish (std::atomic<bool>& isAborting, ChimeraError& exception,
-			std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker,
-			std::unique_ptr<ExperimentThreadInput>& input);
-		void startRep (std::unique_ptr<ExperimentThreadInput>& input, unsigned repInc, unsigned variationInc, bool skip);
+			std::chrono::time_point<chronoClock> startTime);
+		void startRep (unsigned repInc, unsigned variationInc, bool skip);
 		//std::string abortString;
-		void loadExperimentRuntime (ConfigStream& config, ExpRuntimeData& runtime,
-			std::unique_ptr<ExperimentThreadInput>& input);
+		void loadExperimentRuntime (ConfigStream& config, ExpRuntimeData& runtime);
 
 		/* IDeviceCore functionality wrappers */
-		void deviceLoadExpSettings (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input, ConfigStream& cStream);
-		void deviceProgramVariation (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-			std::vector<parameterType>& expParams, unsigned variationInc);
-		void deviceCalculateVariations (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-			std::vector<parameterType>& expParams);
-		void deviceNormalFinish (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input);
-
+		void deviceLoadExpSettings (IDeviceCore& device, ConfigStream& cStream);
+		void deviceProgramVariation (IDeviceCore& device, std::vector<parameterType>& expParams, unsigned variationInc);
+		void deviceCalculateVariations (IDeviceCore& device, std::vector<parameterType>& expParams);
+		void deviceNormalFinish (IDeviceCore& device);
+		
 		// I've forgotten why there are two of these. 
 		timeType loadSkipTime;
 		std::vector<double> loadSkipTimes;
@@ -93,15 +86,12 @@ class ExpThreadWorker : public QObject {
 		const std::string functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction (std::string function, std::vector<std::string> args, DoCore& ttls, AoSystem& aoSys,
-			std::vector<parameterType>& vars, std::string& warnings,
-			timeType& operationTime, std::string callingScope);
+			std::vector<parameterType>& vars, std::string& warnings, timeType& operationTime, std::string callingScope);
 		timeType operationTime;
 		HANDLE runningThread;
 		std::atomic<bool> isPaused = false;
 		std::atomic<bool> isAborting = false;
 		std::atomic<bool>& experimentIsRunning;
-		QThread* threadObj;
-		//ExpThreadWorker* threadWorker;
     public Q_SLOTS:
         void process ();
     Q_SIGNALS:
@@ -123,6 +113,7 @@ class ExpThreadWorker : public QObject {
 
     private:
         // add your variables here
-        ExperimentThreadInput* inputr;
+		std::unique_ptr< ExperimentThreadInput > input;
+        //ExperimentThreadInput* inputr;
 };
 

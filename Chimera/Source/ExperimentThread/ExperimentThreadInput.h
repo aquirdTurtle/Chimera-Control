@@ -35,12 +35,9 @@
 class MainWindow;
 class DataLogger;
 class IChimeraQtWindow;
-class ExperimentThreadManager;
 class ExpThreadWorker;
 
 struct ExperimentThreadInput{
-	ExpThreadWorker* workerThread;
-
 	ExperimentThreadInput ( IChimeraQtWindow* win );
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
@@ -52,7 +49,6 @@ struct ExperimentThreadInput{
 	DeviceList devices;
 
 	std::vector<parameterType> globalParameters;
-	ExperimentThreadManager* thisObj;
 	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 	ParameterSystem& globalControl;
 

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ExpThreadWorker.h"
 #include <ConfigurationSystems/ProfileSystem.h>
-#include <ExperimentThread/ExperimentThreadManager.h>
 #include <MiscellaneousExperimentOptions/Repetitions.h>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -9,15 +8,14 @@
 
 ExpThreadWorker::ExpThreadWorker (ExperimentThreadInput* input_, std::atomic<bool>& expRunning) 
 	: experimentIsRunning(expRunning){
-	inputr = input_;
+	input = std::unique_ptr< ExperimentThreadInput >((ExperimentThreadInput*)input_);
 }
 
 ExpThreadWorker::~ExpThreadWorker () {
 }
 
 void ExpThreadWorker::process (){
-	inputr->workerThread = this;
-	experimentThreadProcedure((void*)inputr);
+	experimentThreadProcedure();
 	emit mainProcessFinish ();
 }
 
@@ -31,11 +29,10 @@ get by type
  * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
  * @return unsigned int: unused.
  */
-unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure (void* voidInput) {
+unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure () {
 	auto startTime = chronoClock::now ();
-	std::unique_ptr< ExperimentThreadInput > input ((ExperimentThreadInput*)voidInput);
 	experimentIsRunning = true;
-	emit input->workerThread->notification (qstr ("Starting Experiment " + input->profile.configuration + "...\n"));
+	emit notification (qstr ("Starting Experiment " + input->profile.configuration + "...\n"));
 	ExpRuntimeData expRuntime;
 	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
@@ -45,29 +42,29 @@ unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure (void* voidInp
 	isPaused = false;
 	try {
 		for (auto& device : input->devices.list) {
-			emit input->workerThread->updateBoxColor ("Black", device.get ().getDelim ().c_str ());
+			emit updateBoxColor ("Black", device.get ().getDelim ().c_str ());
 		}
-		emit input->workerThread->notification ("Loading Experiment Settings...\n");
+		emit notification ("Loading Experiment Settings...\n");
 		ConfigStream cStream (input->profile.configFilePath (), true);
-		loadExperimentRuntime (cStream, expRuntime, input);
+		loadExperimentRuntime (cStream, expRuntime);
 		if (input->expType != ExperimentType::LoadMot) {
-			emit input->workerThread->notification ("Loading Master Runtime...\n", 1);
+			emit notification ("Loading Master Runtime...\n", 1);
 			input->logger.logMasterRuntime (expRuntime.repetitions, expRuntime.expParams);
 		}
 		for (auto& device : input->devices.list) {
-			deviceLoadExpSettings (device, input, cStream);
+			deviceLoadExpSettings (device, cStream);
 		}
 		/// The Variation Calculation Step.
-		emit input->workerThread->notification ("Calculating All Variation Data...\r\n");
+		emit notification ("Calculating All Variation Data...\r\n");
 		for (auto& device : input->devices.list) {
-			deviceCalculateVariations (device, input, expRuntime.expParams);
+			deviceCalculateVariations (device, expRuntime.expParams);
 		}
-		calculateAdoVariations (input, expRuntime);
-		runConsistencyChecks (input, expRuntime.expParams);
+		calculateAdoVariations (expRuntime);
+		runConsistencyChecks (expRuntime.expParams);
 		if (input->expType != ExperimentType::LoadMot) {
 			for (auto& device : input->devices.list) {
 				if (device.get ().experimentActive) {
-					emit input->workerThread->notification (qstr ("Logging Devce " + device.get ().getDelim ()
+					emit notification (qstr ("Logging Devce " + device.get ().getDelim ()
 						+ " Settings...\n"), 1);
 					device.get ().logSettings (input->logger);
 				}
@@ -75,22 +72,22 @@ unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure (void* voidInp
 		}
 		/// Begin experiment 
 		for (const auto& variationInc : range (determineVariationNumber (expRuntime.expParams))) {
-			initVariation (input, variationInc, expRuntime.expParams);
-			emit input->workerThread->notification ("Programming Devices for Variation...\n");
+			initVariation (variationInc, expRuntime.expParams);
+			emit notification ("Programming Devices for Variation...\n");
 			for (auto& device : input->devices.list) {
-				deviceProgramVariation (device, input, expRuntime.expParams, variationInc);
+				deviceProgramVariation (device, expRuntime.expParams, variationInc);
 			}
-			emit input->workerThread->notification ("Running Experiment.\n");
+			emit notification ("Running Experiment.\n");
 			for (const auto& repInc : range (expRuntime.repetitions)) {
-				handlePause (isPaused, isAborting, input->workerThread);
-				startRep (input, repInc, variationInc, input->skipNext == NULL ? false : input->skipNext->load ());
+				handlePause (isPaused, isAborting);
+				startRep (repInc, variationInc, input->skipNext == NULL ? false : input->skipNext->load ());
 			}
 		}
-		waitForAndorFinish (input);
+		waitForAndorFinish ();
 		for (auto& device : input->devices.list) {
-			deviceNormalFinish (device, input);
+			deviceNormalFinish (device);
 		}
-		normalFinish (input->expType, input->runList.master, startTime, input->workerThread, input);
+		normalFinish (input->expType, input->runList.master, startTime);
 	}
 	catch (ChimeraError & exception) {
 		for (auto& device : input->devices.list) {
@@ -99,7 +96,7 @@ unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure (void* voidInp
 				device.get ().errorFinish ();
 			}
 		}
-		errorFinish (isAborting, exception, startTime, input->workerThread, input);
+		errorFinish (isAborting, exception, startTime);
 	}
 	experimentIsRunning = false;
 	return false;
@@ -195,8 +192,7 @@ void ExpThreadWorker::analyzeMasterScript (DoCore& ttls, AoSystem& aoSys, std::v
 
 
 void ExpThreadWorker::analyzeFunction (std::string function, std::vector<std::string> args, DoCore& ttls,
-	AoSystem& aoSys, std::vector<parameterType>& params,
-	std::string& warnings, timeType& operationTime, std::string callingScope) {
+	AoSystem& aoSys, std::vector<parameterType>& params, std::string& warnings, timeType& operationTime, std::string callingScope) {
 	/// load the file
 	std::fstream functionFile;
 	// check if file address is good.
@@ -326,12 +322,11 @@ double ExpThreadWorker::convertToTime (timeType time, std::vector<parameterType>
 	return variableTime + time.second;
 }
 
-void ExpThreadWorker::handleDebugPlots (debugInfo debugOptions, ExpThreadWorker* worker,
-	DoCore& ttls, AoSystem& aoSys, unsigned variation) {
-	emit worker->doAoData (ttls.getPlotData (variation), aoSys.getPlotData (variation));
-	emit worker->notification (qstr (ttls.getTtlSequenceMessage (variation)), 2);
-	emit worker->notification (qstr (aoSys.getDacSequenceMessage (variation)), 2);
-	emit worker->notification (qstr (debugOptions.message), 2);
+void ExpThreadWorker::handleDebugPlots (debugInfo debugOptions, DoCore& ttls, AoSystem& aoSys, unsigned variation) {
+	emit doAoData (ttls.getPlotData (variation), aoSys.getPlotData (variation));
+	emit notification (qstr (ttls.getTtlSequenceMessage (variation)), 2);
+	emit notification (qstr (aoSys.getDacSequenceMessage (variation)), 2);
+	emit notification (qstr (debugOptions.message), 2);
 }
 
 bool ExpThreadWorker::runningStatus () {
@@ -801,8 +796,7 @@ unsigned ExpThreadWorker::determineVariationNumber (std::vector<parameterType> v
 }
 
 
-void ExpThreadWorker::checkTriggerNumbers (std::unique_ptr<ExperimentThreadInput>& input,
-	std::vector<parameterType>& expParams) {
+void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams) {
 	/// check all trigger numbers between the DO system and the individual subsystems. These should almost always match,
 	/// a mismatch is usually user error in writing the script.
 	bool niawgMismatch = false, rsgMismatch = false;
@@ -819,7 +813,7 @@ void ExpThreadWorker::checkTriggerNumbers (std::unique_ptr<ExperimentThreadInput
 					+ str (variationInc) + "\r\n");
 			}
 			if (variationInc == 0) {
-				emit input->workerThread->notification (qstr (infoString), 2);
+				emit notification (qstr (infoString), 2);
 			}
 		}
 		auto& niawg = input->devices.getSingleDevice<NiawgCore> ();
@@ -830,14 +824,14 @@ void ExpThreadWorker::checkTriggerNumbers (std::unique_ptr<ExperimentThreadInput
 				+ str (niawgExpectedTrigs) + ".";
 			if (actualTrigs != niawgExpectedTrigs)
 			{
-				emit input->workerThread->warn (
+				emit warn (
 					cstr ("WARNING: the NIAWG is not getting triggered by the ttl system the same number"
 						" of times a trigger command appears in the NIAWG script. " + infoString + " First "
 						"instance seen variation " + str (variationInc) + ".\r\n"));
 				niawgMismatch = true;
 			}
 			if (variationInc == 0) {
-				emit input->workerThread->notification (qstr (infoString), 2);
+				emit notification (qstr (infoString), 2);
 			}
 		}
 		/// check RSG
@@ -848,18 +842,18 @@ void ExpThreadWorker::checkTriggerNumbers (std::unique_ptr<ExperimentThreadInput
 			std::string infoString = "Actual/Expected RSG Triggers: " + str (actualTrigs) + "/"
 				+ str (rsgExpectedTrigs) + ".";
 			if (actualTrigs != rsgExpectedTrigs && rsgExpectedTrigs != 0 && rsgExpectedTrigs != 1) {
-				emit input->workerThread->warn (cstr (
+				emit warn (cstr (
 					"WARNING: the RSG is not getting triggered by the ttl system the same number"
 					" of times a trigger command appears in the master script. " + infoString + " First "
 					"instance seen variation " + str (variationInc) + ".\r\n"));
 				rsgMismatch = true;
 			}
 			if (variationInc == 0) {
-				emit input->workerThread->notification (qstr (infoString), 2);
+				emit notification (qstr (infoString), 2);
 			}
 			/// check Agilents
 			for (auto& agilent : input->devices.getDevicesByClass<AgilentCore> ()) {
-				agilent.get ().checkTriggers (variationInc, input->ttls, input->workerThread, input->debugOptions.outputExcessInfo);
+				agilent.get ().checkTriggers (variationInc, input->ttls, this, input->debugOptions.outputExcessInfo);
 			}
 		}
 	}
@@ -910,8 +904,7 @@ bool ExpThreadWorker::handleFunctionCall (std::string word, ScriptStream& stream
 }
 
 
-void ExpThreadWorker::calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input,
-	ExpRuntimeData& runtime) {
+void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 	if (input->runList.master) {
 		auto variations = determineVariationNumber (runtime.expParams);
 		input->aoSys.resetDacEvents ();
@@ -919,16 +912,16 @@ void ExpThreadWorker::calculateAdoVariations (std::unique_ptr<ExperimentThreadIn
 		input->aoSys.initializeDataObjects (0);
 		input->ttls.initializeDataObjects (0);
 		loadSkipTimes = std::vector<double> (variations);
-		emit input->workerThread->notification ("Analyzing Master Script...\n");
+		emit notification ("Analyzing Master Script...\n");
 		std::string warnings;
 		analyzeMasterScript (input->ttls, input->aoSys, runtime.expParams, runtime.masterScript,
 			runtime.mainOpts.atomSkipThreshold != UINT_MAX, warnings, operationTime, loadSkipTime);
-		emit input->workerThread->warn (cstr (warnings));
-		emit input->workerThread->notification ("Calcualting DO system variations...\n", 1);
-		input->ttls.calculateVariations (runtime.expParams, input->workerThread);
-		emit input->workerThread->notification ("Calcualting AO system variations...\n", 1);
-		input->aoSys.calculateVariations (runtime.expParams, input->workerThread);
-		emit input->workerThread->notification ("Running final ado checks...\n");
+		emit warn (cstr (warnings));
+		emit notification ("Calcualting DO system variations...\n", 1);
+		input->ttls.calculateVariations (runtime.expParams, this);
+		emit notification ("Calcualting AO system variations...\n", 1);
+		input->aoSys.calculateVariations (runtime.expParams, this);
+		emit notification ("Running final ado checks...\n");
 		for (auto variationInc : range (variations)) {
 			if (isAborting) { thrower (abortString); }
 			double& currLoadSkipTime = loadSkipTimes[variationInc];
@@ -937,55 +930,52 @@ void ExpThreadWorker::calculateAdoVariations (std::unique_ptr<ExperimentThreadIn
 			input->ttls.standardExperimentPrep (variationInc, currLoadSkipTime, runtime.expParams);
 			input->aoSys.checkTimingsWork (variationInc);
 		}
-		emit input->workerThread->notification (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str (), 1);
+		emit notification (("Programmed time per repetition: " + str (input->ttls.getTotalTime (0)) + "\r\n").c_str (), 1);
 		unsigned __int64 totalTime = 0;
 		for (auto variationNumber : range (variations)) {
 			totalTime += unsigned __int64 (input->ttls.getTotalTime (variationNumber) * runtime.repetitions);
 		}
-		emit input->workerThread->notification (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str (), 1);
-		emit input->workerThread->notification (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str (), 1);
-		emit input->workerThread->notification (("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n").c_str (), 1);
+		emit notification (("Programmed Total Experiment time: " + str (totalTime) + "\r\n").c_str (), 1);
+		emit notification (("Number of TTL Events in experiment: " + str (input->ttls.getNumberEvents (0)) + "\r\n").c_str (), 1);
+		emit notification (("Number of DAC Events in experiment: " + str (input->aoSys.getNumberEvents (0)) + "\r\n").c_str (), 1);
 	}
 }
 
-void ExpThreadWorker::runConsistencyChecks (std::unique_ptr<ExperimentThreadInput>& input,
-	std::vector<parameterType> expParams) {
+void ExpThreadWorker::runConsistencyChecks (std::vector<parameterType> expParams) {
 	if (input->updatePlotterXVals) {
 		// sleep to make sure that this function has been connected to the plotter thread
 		Sleep (1000);
-		emit input->workerThread->plot_Xvals_determined (ParameterSystem::getKeyValues (expParams));
+		emit plot_Xvals_determined (ParameterSystem::getKeyValues (expParams));
 	}
 	input->globalControl.setUsages (expParams);
 	for (auto& var : expParams) {
 		if (!var.constant && !var.active) {
-			emit input->workerThread->warn (cstr ("WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n"));
+			emit warn (cstr ("WARNING: Variable " + var.name + " is varied, but not being used?!?\r\n"));
 		}
 	}
-	checkTriggerNumbers (input, expParams);
+	checkTriggerNumbers (expParams);
 }
 
 
-void ExpThreadWorker::handlePause (std::atomic<bool>& isPaused, std::atomic<bool>& isAborting,
-	ExpThreadWorker* worker) {
+void ExpThreadWorker::handlePause (std::atomic<bool>& isPaused, std::atomic<bool>& isAborting) {
 	if (isAborting) { thrower (abortString); }
 	if (isPaused) {
-		emit worker->notification ("PAUSED\r\n!");
+		emit notification ("PAUSED\r\n!");
 		while (isPaused) {
 			Sleep (100);
 			if (isAborting) { thrower (abortString); }
 		}
-		emit worker->notification ("UN-PAUSED!\r\n");
+		emit notification ("UN-PAUSED!\r\n");
 	}
 }
 
-void ExpThreadWorker::initVariation (std::unique_ptr<ExperimentThreadInput>& input, unsigned variationInc,
-	std::vector<parameterType> expParams) {
+void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameterType> expParams) {
 	auto variations = determineVariationNumber (expParams);
-	emit input->workerThread->notification (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
+	emit notification (("Variation #" + str (variationInc + 1) + "/" + str (variations) + ": ").c_str ());
 	auto& aiSys = input->devices.getSingleDevice<AiSystem> ();
 	if (aiSys.wantsQueryBetweenVariations ()) {
 		// the main gui thread does the whole measurement here. This probably makes less sense now. 
-		emit input->workerThread->notification ("Querying Voltages...\r\n");
+		emit notification ("Querying Voltages...\r\n");
 		//input->comm.sendLogVoltsMessage (variationInc);
 	}
 	if (input->debugOptions.sleepTime != 0) { Sleep (input->debugOptions.sleepTime); }
@@ -995,22 +985,22 @@ void ExpThreadWorker::initVariation (std::unique_ptr<ExperimentThreadInput>& inp
 				thrower ("Variable " + param.name + " varies, but has no values assigned to "
 					"it! (This shouldn't happen, it's a low-level bug...)");
 			}
-			emit input->workerThread->notification ((param.name + ": " + str (param.keyValues[variationInc], 12) + "\r\n").c_str ());
+			emit notification ((param.name + ": " + str (param.keyValues[variationInc], 12) + "\r\n").c_str ());
 		}
 	}
-	waitForAndorFinish (input);
+	waitForAndorFinish ();
 	//input->comm.sendRepProgress (0);
 	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
 	if (input->runList.master) { input->ttls.ftdi_write (variationInc, skipOption); }
-	handleDebugPlots (input->debugOptions, input->workerThread, input->ttls, input->aoSys, variationInc);
+	handleDebugPlots (input->debugOptions, input->ttls, input->aoSys, variationInc);
 }
 
-void ExpThreadWorker::waitForAndorFinish (std::unique_ptr<ExperimentThreadInput>& input) {
+void ExpThreadWorker::waitForAndorFinish () {
 	auto& andorCamera = input->devices.getSingleDevice<AndorCameraCore> ();
 	while (true) {
 		if (andorCamera.queryStatus () == DRV_ACQUIRING) {
 			Sleep (1000);
-			emit input->workerThread->notification ("Waiting for Andor camera to finish acquisition...");
+			emit notification ("Waiting for Andor camera to finish acquisition...");
 			if (isAborting) { thrower (abortString); }
 		}
 		else { break; }
@@ -1018,111 +1008,104 @@ void ExpThreadWorker::waitForAndorFinish (std::unique_ptr<ExperimentThreadInput>
 }
 
 void ExpThreadWorker::errorFinish (std::atomic<bool>& isAborting, ChimeraError& exception,
-	std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker,
-	std::unique_ptr<ExperimentThreadInput>& input) {
+	std::chrono::time_point<chronoClock> startTime) {
 	std::string finMsg;
 	if (isAborting) {
-		emit input->workerThread->updateBoxColor ("Grey", "Other");
+		emit updateBoxColor ("Grey", "Other");
 		finMsg = abortString.c_str ();
 	}
 	else {
-		emit input->workerThread->updateBoxColor ("Red", "Other");
+		emit updateBoxColor ("Red", "Other");
 		finMsg = "Bad Exit!\r\nExited main experiment thread abnormally." + exception.trace ();
 	}
 	isAborting = false;
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
-	emit worker->errorExperimentFinish ((finMsg + "\r\nExperiment took " + str (int (exp_t) / 3600) + " hours, "
-		+ str (int (exp_t) % 3600 / 60) + " minutes, "
-		+ str (int (exp_t) % 60) + " seconds.\r\n").c_str (), input->profile);
+	emit errorExperimentFinish ((finMsg + "\r\nExperiment took " + str (int (exp_t) / 3600) + " hours, "
+		+ str (int (exp_t) % 3600 / 60) + " minutes, "+ str (int (exp_t) % 60) + " seconds.\r\n").c_str (), 
+		input->profile);
 }
 
 void ExpThreadWorker::normalFinish (ExperimentType& expType, bool runMaster,
-	std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker,
-	std::unique_ptr<ExperimentThreadInput>& input) {
+	std::chrono::time_point<chronoClock> startTime) {
 	auto exp_t = std::chrono::duration_cast<std::chrono::seconds>((chronoClock::now () - startTime)).count ();
 	switch (expType) {
 	case ExperimentType::AutoCal:
-		emit worker->calibrationFinish (("\r\nCalibration Finished Normally.\r\nExperiment took "
+		emit calibrationFinish (("\r\nCalibration Finished Normally.\r\nExperiment took "
 			+ str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60)
 			+ " minutes, " + str (int (exp_t) % 60) + " seconds.\r\n").c_str (),
 			input->profile);
 		break;
 	default:
-		emit worker->normalExperimentFinish (("\r\nExperiment Finished Normally.\r\nExperiment took "
+		emit normalExperimentFinish (("\r\nExperiment Finished Normally.\r\nExperiment took "
 			+ str (int (exp_t) / 3600) + " hours, " + str (int (exp_t) % 3600 / 60)
 			+ " minutes, " + str (int (exp_t) % 60) + " seconds.\r\n").c_str (), input->profile);
 	}
 }
 
-void ExpThreadWorker::startRep (std::unique_ptr<ExperimentThreadInput>& input, unsigned repInc, unsigned variationInc,
-	bool skip) {
+void ExpThreadWorker::startRep (unsigned repInc, unsigned variationInc, bool skip) {
 	if (input->runList.master) {
-		emit input->workerThread->notification (qstr ("Starting Repetition #" + qstr (repInc) + "\n"), 2);
-		emit input->workerThread->repUpdate (repInc + 1);
+		emit notification (qstr ("Starting Repetition #" + qstr (repInc) + "\n"), 2);
+		emit repUpdate (repInc + 1);
 		input->aoSys.resetDacs (variationInc, skip);
 		input->ttls.ftdi_trigger ();
 		input->ttls.FtdiWaitTillFinished (variationInc);
 	}
 }
 
-void ExpThreadWorker::deviceLoadExpSettings (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-	ConfigStream& cStream) {
+void ExpThreadWorker::deviceLoadExpSettings (IDeviceCore& device, ConfigStream& cStream) {
 	try {
-		emit input->workerThread->notification ("Loading Settings for device " + qstr (device.getDelim ()) + "...\n", 1);
-		emit input->workerThread->updateBoxColor ("White", device.getDelim ().c_str ());
+		emit notification ("Loading Settings for device " + qstr (device.getDelim ()) + "...\n", 1);
+		emit updateBoxColor ("White", device.getDelim ().c_str ());
 		device.loadExpSettings (cStream);
 	}
 	catch (ChimeraError&) {
-		emit input->workerThread->updateBoxColor ("Red", device.getDelim ().c_str ());
+		emit updateBoxColor ("Red", device.getDelim ().c_str ());
 		throwNested ("Error seen while loading experiment settings for system: " + device.getDelim ());
 	}
 }
 
-void ExpThreadWorker::deviceProgramVariation (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-	std::vector<parameterType>& expParams, unsigned variationInc) {
+void ExpThreadWorker::deviceProgramVariation (IDeviceCore& device, std::vector<parameterType>& expParams, 
+	unsigned variationInc) {
 	if (device.experimentActive) {
 		try {
-			emit input->workerThread->notification (qstr ("Programming Devce " + device.getDelim () + "...\n"), 1);
+			emit notification (qstr ("Programming Devce " + device.getDelim () + "...\n"), 1);
 			device.programVariation (variationInc, expParams);
-			emit input->workerThread->updateBoxColor ("Green", device.getDelim ().c_str ());
+			emit updateBoxColor ("Green", device.getDelim ().c_str ());
 		}
 		catch (ChimeraError&) {
-			emit input->workerThread->updateBoxColor ("Red", device.getDelim ().c_str ());
+			emit updateBoxColor ("Red", device.getDelim ().c_str ());
 			throwNested ("Error seen while programming variation for system: " + device.getDelim ());
 		}
 	}
 }
 
-void ExpThreadWorker::deviceCalculateVariations (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-	std::vector<parameterType>& expParams) {
+void ExpThreadWorker::deviceCalculateVariations (IDeviceCore& device, std::vector<parameterType>& expParams) {
 	if (device.experimentActive) {
 		try {
-			emit input->workerThread->notification (qstr ("Calculating Variations for device " + device.getDelim ()
+			emit notification (qstr ("Calculating Variations for device " + device.getDelim ()
 				+ "...\n"), 1);
-			emit input->workerThread->updateBoxColor ("Yellow", device.getDelim ().c_str ());
-			device.calculateVariations (expParams, input->workerThread);
+			emit updateBoxColor ("Yellow", device.getDelim ().c_str ());
+			device.calculateVariations (expParams, this);
 		}
 		catch (ChimeraError&) {
-			emit input->workerThread->updateBoxColor ("Red", device.getDelim ().c_str ());
+			emit updateBoxColor ("Red", device.getDelim ().c_str ());
 			throwNested ("Error Seen while calculating variations for system: " + device.getDelim ());
 		}
 		if (isAborting) thrower (abortString);
 	}
 }
 
-void ExpThreadWorker::deviceNormalFinish (IDeviceCore& device,
-	std::unique_ptr<ExperimentThreadInput>& input) {
+void ExpThreadWorker::deviceNormalFinish (IDeviceCore& device) {
 	if (device.experimentActive) {
-		emit input->workerThread->updateBoxColor ("Blue", device.getDelim ().c_str ());
+		emit updateBoxColor ("Blue", device.getDelim ().c_str ());
 		device.normalFinish ();
 	}
 	else {
-		emit input->workerThread->updateBoxColor ("Black", device.getDelim ().c_str ());
+		emit updateBoxColor ("Black", device.getDelim ().c_str ());
 	}
 }
 
-void ExpThreadWorker::loadExperimentRuntime (ConfigStream& config, ExpRuntimeData& runtime,
-	std::unique_ptr<ExperimentThreadInput>& input) {
+void ExpThreadWorker::loadExperimentRuntime (ConfigStream& config, ExpRuntimeData& runtime) {
 	runtime.expParams = ParameterSystem::combineParams (
 		ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), input->globalParameters);
 	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());

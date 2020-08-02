@@ -589,7 +589,6 @@
     <ClInclude Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.h" />
     <ClInclude Include="Source\Andor\AndorCameraCore.h" />
     <ClInclude Include="Source\ConfigurationSystems\MasterConfiguration.h" />
-    <ClInclude Include="Source\ExperimentThread\ExperimentThreadManager.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\miscCommonFunctions.h" />
     <ClInclude Include="Source\NIAWG\NiawgStructures.h" />
     <ClInclude Include="Source\Andor\PictureSettingsControl.h" />
@@ -750,7 +749,6 @@
     <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp" />
     <ClCompile Include="Source\Andor\AndorCameraCore.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\MasterConfiguration.cpp" />
-    <ClCompile Include="Source\ExperimentThread\ExperimentThreadManager.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\NoteSystem.cpp" />
     <ClCompile Include="Source\Andor\PictureSettingsControl.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp" />

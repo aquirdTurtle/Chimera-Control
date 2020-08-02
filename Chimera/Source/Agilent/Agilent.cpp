@@ -4,7 +4,6 @@
 #include "Agilent/Agilent.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/ProfileSystem.h"
-#include "ExperimentThread/ExperimentThreadManager.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>

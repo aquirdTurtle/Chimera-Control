@@ -25,7 +25,6 @@
 #include "Plotting/ScopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
-#include "ExperimentThread/ExperimentThreadManager.h"
 #include <string>
 #include <vector>
 #include <future>

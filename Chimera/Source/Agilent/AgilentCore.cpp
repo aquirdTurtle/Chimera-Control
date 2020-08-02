@@ -2,7 +2,6 @@
 #include "AgilentCore.h"
 #include "DigitalOutput/DoCore.h"
 #include "Scripts/ScriptStream.h"
-#include "ExperimentThread/ExperimentThreadManager.h"
 #include <ExperimentThread/ExpThreadWorker.h>
 #include <ConfigurationSystems/ProfileSystem.h>
 
