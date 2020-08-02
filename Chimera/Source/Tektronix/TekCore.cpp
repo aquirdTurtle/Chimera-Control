@@ -64,7 +64,6 @@ void TekCore::calculateVariations (std::vector<parameterType>& parameters, ExpTh
 void TekCore::calculateVariations (std::vector<parameterType>& parameters){
 	if (experimentActive){
 		unsigned variations = (parameters.size() == 0 ? 1 : parameters.front ().keyValues.size ());
-		unsigned sequenceNumber;
 		for (auto& channel : experimentInfo.channels){
 			if (channel.on)	{
 				channel.mainFreq.internalEvaluate (parameters, variations);

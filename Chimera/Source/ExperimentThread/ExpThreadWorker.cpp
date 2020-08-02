@@ -192,7 +192,8 @@ void ExpThreadWorker::analyzeMasterScript (DoCore& ttls, AoSystem& aoSys, std::v
 
 
 void ExpThreadWorker::analyzeFunction (std::string function, std::vector<std::string> args, DoCore& ttls,
-	AoSystem& aoSys, std::vector<parameterType>& params, std::string& warnings, timeType& operationTime, std::string callingScope) {
+	AoSystem& aoSys, std::vector<parameterType>& params, std::string& warnings, timeType& operationTime,
+	std::string callingScope) {
 	/// load the file
 	std::fstream functionFile;
 	// check if file address is good.
