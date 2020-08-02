@@ -8,51 +8,51 @@ class PlotDataSet
 {
 	public:
 		PlotDataSet();
-		void initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber);
+		void initialize(unsigned conditionNumber, unsigned pixelNumber, unsigned pictureNumber);
 		void changeLegendText(std::string newLegendText);
 		std::string getLegendText();
 
 		void addPicture();
 		void removePicture();
-		void resetPictureNumber( UINT pictureNumber);
+		void resetPictureNumber( unsigned pictureNumber);
 
-		void addPixel( UINT pictureNumber);
+		void addPixel( unsigned pictureNumber);
 		void removePixel();
-		void resetPixelNumber(UINT pixelNumber);
+		void resetPixelNumber(unsigned pixelNumber);
 
-		void setResultCondition(UINT picture, UINT pixel, UINT trueConditionValue);
-		int getPositiveResultCondition(UINT pixel, UINT picture);
-		void setDataCountsLocation(UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture);
+		void setResultCondition(unsigned picture, unsigned pixel, unsigned trueConditionValue);
+		int getPositiveResultCondition(unsigned pixel, unsigned picture);
+		void setDataCountsLocation(unsigned maxPixel, unsigned maxPicture, unsigned pixel, unsigned picture);
 		
-		void addPostSelectionCondition(UINT pixelNum, UINT pictureNum);
+		void addPostSelectionCondition(unsigned pixelNum, unsigned pictureNum);
 		void removePostSelectionCondition();
-		void setPostSelectionCondition(UINT conditionNumber, UINT picture, UINT pixel, UINT postSelectionCondition);
-		int getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture);
-		void resetPostSelectionConditionNumber(UINT conditionNumber);
+		void setPostSelectionCondition(unsigned conditionNumber, unsigned picture, unsigned pixel, unsigned postSelectionCondition);
+		int getPostSelectionCondition(unsigned conditionNumber, unsigned pixel, unsigned picture);
+		void resetPostSelectionConditionNumber(unsigned conditionNumber);
 
-		int getDataCountsLocation(UINT& pixel, UINT& picture);
+		int getDataCountsLocation(unsigned& pixel, unsigned& picture);
 		void setPlotThisData(bool plotThisDataInput);
 		bool getPlotThisDataValue();
 
-		void setHistBinWidth( UINT width );
-		UINT getHistBinWidth( );
+		void setHistBinWidth( unsigned width );
+		unsigned getHistBinWidth( );
 
 		void clear();
 		
 		int getFitType();
-		void setFitType(UINT newFitType); 
+		void setFitType(unsigned newFitType); 
 		
 		int getWhenToFit();
-		void setWhenToFit(UINT newWhenToFit);
+		void setWhenToFit(unsigned newWhenToFit);
 
 	private:
-		int prc( UINT pixel, UINT picture ) const;
-		int & prc( UINT pixel, UINT picture );
-		int psc( UINT condition, UINT pixel, UINT picture ) const;
-		int & psc( UINT condition, UINT pixel, UINT picture );
-		UINT getPixelNumber( );
-		UINT getPictureNumber( );
-		UINT getConditionNumber( );
+		int prc( unsigned pixel, unsigned picture ) const;
+		int & prc( unsigned pixel, unsigned picture );
+		int psc( unsigned condition, unsigned pixel, unsigned picture ) const;
+		int & psc( unsigned condition, unsigned pixel, unsigned picture );
+		unsigned getPixelNumber( );
+		unsigned getPictureNumber( );
+		unsigned getConditionNumber( );
 
 		// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 		std::vector<std::vector<int> > resultConditions;
@@ -64,6 +64,6 @@ class PlotDataSet
 		bool plotThisData;
 		int fitType;
 		int whenToFit;
-		UINT histBinWidth=10;
+		unsigned histBinWidth=10;
 };
 

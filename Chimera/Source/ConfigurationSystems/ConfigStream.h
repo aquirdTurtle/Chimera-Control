@@ -7,10 +7,9 @@
 #include <typeinfo>
 
 /* a small wrapper to handle some special things for configuration files, like handling empty strings.*/
-class ConfigStream : public ScriptStream
-{
+class ConfigStream : public ScriptStream{
 	public:
-		ConfigStream () {};
+		ConfigStream ();
 		explicit ConfigStream(std::ifstream& file);
 		explicit ConfigStream (std::string, bool isAddress=false);
 		ConfigStream& operator>>(std::string& outputString);
@@ -26,16 +25,13 @@ private:
 };
 
 template<typename type>
-ConfigStream& ConfigStream::operator>> (type& output)
-{
+ConfigStream& ConfigStream::operator>> (type& output){
 	std::string tempString;
 	ScriptStream::operator>>(tempString);
-	try
-	{
+	try{
 		output = boost::lexical_cast<type>(tempString);
 	}
-	catch (boost::bad_lexical_cast)
-	{
+	catch (boost::bad_lexical_cast){
 		throwNested ("Scriptstream Failed to convert the text\"" + tempString + "\" to the requested type! Requested "
 			"type was \"" + typeid(output).name () + "\".");
 	}

@@ -1,21 +1,44 @@
-% pushout(), but with the repump on. usually used for depth measurements
-def pushout_all():
-  off: sideMotRf
-  % repump on allows the pushout of the F=1 state atoms as well.
-  on: RepumpRF
-  var pushoutfreq 0
-  dac: RepumpPower 0.1
-  daclinspace: motFreq defaultMotFreq pushoutfreq 5 10
-  t += 5.01  
-  var pushouttime 0.3
-  t += (-8)
-  on: probeshutter
-  t += 8
-  dac: probePower 0 %depthMeasurementProbe__servo_value
-  on: probeRf
-  t += pushouttime 
-  off: probeRf
-  off: probeShutter
-  daclinspace: motFreq pushoutfreq -1 5 10
-  t += 5.001
-
+% pushout(), but with the repump on. usually used for depth measurements
+
+def pushout_all():
+
+  off: sideMotRf
+
+  % repump on allows the pushout of the F=1 state atoms as well.
+
+  on: RepumpRF
+
+  var pushoutfreq 0
+
+  dac: RepumpPower 0.1
+
+  daclinspace: motFreq defaultMotFreq pushoutfreq 5 10
+
+  t += 5.01  
+
+  var pushouttime 0.002
+
+  t += (-8)
+
+  on: probeshutter
+
+  t += 8
+
+  %dac: probePower depthMeasurementProbe__servo_value
+
+  dac: probePower 0
+
+  on: probeRf
+
+  t += pushouttime 
+
+  off: probeRf
+
+  off: probeShutter
+
+  daclinspace: motFreq pushoutfreq -1 5 10
+
+  t += 5.001
+
+
+

@@ -17,12 +17,12 @@ class ScriptedAgilentWaveform
 		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script, std::vector<parameterType>& params,
 			std::string& warnings);
 		void writeData( int SegNum, ULONG sampleRate );
-		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, UINT chan );
-		void compileSequenceString( int totalSegNum, int sequenceNum, UINT channel );
+		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, unsigned chan );
+		void compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel );
 		std::string returnSequenceString();
 		bool isVaried();
 		void replaceVarValues();
-		void replaceVarValues( UINT variation, std::vector<parameterType>& variables);
+		void replaceVarValues( unsigned variation, std::vector<parameterType>& variables);
 		void convertPowersToVoltages( bool useCal, std::vector<double> calibCoeff );
 		void normalizeVoltages();
 		void calcMinMax();
@@ -33,7 +33,7 @@ class ScriptedAgilentWaveform
 		ULONG getNumTrigs( );
 		void resetNumberOfTriggers( );
 	private:
-		UINT numberOfTriggers;
+		unsigned numberOfTriggers;
 		std::vector<Segment> waveformSegments;
 		double maxVolt;
 		double minVolt;

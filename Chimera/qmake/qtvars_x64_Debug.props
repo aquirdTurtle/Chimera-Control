@@ -30,7 +30,7 @@
 <QMake_QMAKE_VERSION_>3.1</QMake_QMAKE_VERSION_>
 <QMake_QT_VERSION_>5.15.0</QMake_QT_VERSION_>
 <Qt_INCLUDEPATH_
-      >$(Qt_INCLUDEPATH_);x64\Debug\moc\Source\Andor;x64\Debug\moc\Source\Basler;x64\Debug\moc\Source\ExperimentThread;x64\Debug\moc\Source\GeneralImaging;x64\Debug\moc\Source\ParameterSystem;x64\Debug\moc\Source\Plotting;x64\Debug\moc\Source\PrimaryWindows;x64\Debug\moc\Source\RealTimeDataAnalysis;x64\Debug\moc\Source\Scripts</Qt_INCLUDEPATH_>
+      >$(Qt_INCLUDEPATH_);x64\Debug\moc</Qt_INCLUDEPATH_>
     <QtBkup_QtInstall
       >msvc2019_64</QtBkup_QtInstall>
     <QtBkup_QtModules

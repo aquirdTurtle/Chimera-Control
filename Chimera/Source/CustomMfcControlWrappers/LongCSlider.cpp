@@ -24,11 +24,11 @@ void LongCSlider::hide ( int hideornot ) {
 	slider->setVisible (hideornot);
 }
 
-UINT LongCSlider::getEditId ( ){
+unsigned LongCSlider::getEditId ( ){
 	return NULL;
 }
 
-void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int width, int height, std::string headerText ){
+void LongCSlider::initialize ( POINT& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText ){
 	header = new  QLabel (headerText.c_str (), parent);
 	header->setGeometry (loc.x, loc.y, 25, 20);
 
@@ -40,8 +40,8 @@ void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int wid
 				handleEdit ();
 				parent->configUpdated ();
 			}
-			catch (Error& err) {
-				parent->reportErr (err.trace ());
+			catch (ChimeraError& err) {
+				parent->reportErr (err.qtrace ());
 			} 
 		});
 	edit->setStyleSheet ("Font : 6pt");
@@ -61,8 +61,6 @@ void LongCSlider::initialize ( POINT& loc, IChimeraWindowWidget* parent, int wid
 int LongCSlider::getSliderId ( ){
 	return NULL;
 }
-
-void LongCSlider::rearrange ( int width, int height, fontMap fonts ) {}
 
 double LongCSlider::getValue ( ){
 	return currentValue;

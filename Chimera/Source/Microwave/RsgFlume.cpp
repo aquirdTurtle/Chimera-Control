@@ -10,13 +10,13 @@ std::string RsgFlume::queryIdentity ()
 	return GpibFlume::queryIdentity ();
 }
 
-void RsgFlume::programList (std::vector<microwaveListEntry> list, UINT varNum)
+void RsgFlume::programList (std::vector<microwaveListEntry> list, unsigned varNum)
 {
 	send ("OUTP ON");
 	send ("SOURce:LIST:SEL 'freqList" + str (list.size ()) + "'");
 	std::string freqList = "SOURce:LIST:FREQ " + str (list[0].frequency.getValue (varNum), 13) + " GHz";
 	std::string powerList = "SOURce:LIST:POW " + str (list[0].power.getValue (varNum), 13) + "dBm";
-	for (UINT eventInc = 1; eventInc < list.size (); eventInc++)
+	for (unsigned eventInc = 1; eventInc < list.size (); eventInc++)
 	{
 		freqList += ", " + str (list[eventInc].frequency.getValue (varNum), 13) + " GHz";
 		powerList += ", " + str (list[eventInc].power.getValue (varNum), 13) + "dBm";
@@ -28,7 +28,7 @@ void RsgFlume::programList (std::vector<microwaveListEntry> list, UINT varNum)
 	send ("SOURce:FREQ:MODE LIST");
 }
 
-void RsgFlume::programSingleSetting (microwaveListEntry setting, UINT varNumber)
+void RsgFlume::programSingleSetting (microwaveListEntry setting, unsigned varNumber)
 {
 	send ("OUTPUT OFF");
 	send ("SOURce:FREQuency:MODE CW");

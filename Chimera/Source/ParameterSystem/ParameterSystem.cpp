@@ -18,12 +18,11 @@
 #include <GeneralObjects/ChimeraStyleSheets.h>
 
 
-ParameterSystem::ParameterSystem ( std::string configurationFileDelimiter ) : configDelim ( configurationFileDelimiter ),
-paramModel(configurationFileDelimiter=="GLOBAL_PARAMETERS")
-{ }
+ParameterSystem::ParameterSystem (IChimeraQtWindow* parent, std::string configurationFileDelimiter ) : 
+	IChimeraSystem(parent), configDelim ( configurationFileDelimiter ),
+paramModel(configurationFileDelimiter=="GLOBAL_PARAMETERS"){ }
 
-void ParameterSystem::handleContextMenu (const QPoint& pos)
-{
+void ParameterSystem::handleContextMenu (const QPoint& pos){
 	auto index = parametersView->indexAt (pos);
 	QMenu menu;
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
@@ -73,7 +72,7 @@ void ParameterSystem::handleContextMenu (const QPoint& pos)
 		});
 	for (auto* action : {addRange, rmRange, deleteAction, toggleInclusivity, newParam}){
 		parametersView->connect (action, &QAction::triggered, 
-								 (IChimeraWindowWidget*)parametersView->parentWidget(), &IChimeraWindowWidget::configUpdated);
+								 (IChimeraQtWindow*)parametersView->parentWidget(), &IChimeraQtWindow::configUpdated);
 	}
 
 	if (index.row() < paramModel.getParams().size()) { 
@@ -88,11 +87,10 @@ void ParameterSystem::handleContextMenu (const QPoint& pos)
 	}
 	menu.addAction (newParam);
 	menu.exec (parametersView->mapToGlobal (pos));
+	
 }
 
-
-void ParameterSystem::initialize (POINT& pos, IChimeraWindowWidget* parent, std::string title, ParameterSysType type)
-{
+void ParameterSystem::initialize (POINT& pos, IChimeraQtWindow* parent, std::string title, ParameterSysType type){
 	paramSysType = type;
 
 	parametersHeader = new QLabel (cstr (title), parent);
@@ -105,10 +103,12 @@ void ParameterSystem::initialize (POINT& pos, IChimeraWindowWidget* parent, std:
 	parametersView->horizontalHeader ()->setFixedHeight (25);
 	parametersView->verticalHeader ()->setFixedWidth (40);
 	parametersView->verticalHeader ()->setDefaultSectionSize (22);
-	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::Stretch);
+	parametersView->horizontalHeader ()->setStretchLastSection (true); 
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::Interactive);	
 
 	parametersView->setContextMenuPolicy (Qt::CustomContextMenu);
-	parent->connect (parametersView, &QTableView::doubleClicked, parent, &IChimeraWindowWidget::configUpdated);
+	parent->connect (parametersView, &QTableView::doubleClicked, parent, &IChimeraQtWindow::configUpdated);
 	parent->connect (parametersView, &QTableView::customContextMenuRequested,
 		[this](const QPoint& pos) {handleContextMenu (pos); });
 	parametersView->setShowGrid (true);
@@ -126,36 +126,44 @@ void ParameterSystem::initialize (POINT& pos, IChimeraWindowWidget* parent, std:
 	parametersView->connect (&paramModel, &ParameterModel::paramsChanged, 
 							 parent->scriptWin, &QtScriptWindow::updateVarNames);
 	pos.y += 200;
+	setTableviewColumnSize ();
 }
 
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::handleOpenConfig(ConfigStream& configFile )
-{
+void ParameterSystem::handleOpenConfig(ConfigStream& configFile ){
 	clearParameters( );
-	/// 
 	paramModel.setRangeInfo (getRangeInfoFromFile (configFile));
 	std::vector<parameterType> fileParams;
-	try
-	{
+	try{
 		fileParams = getParametersFromFile( configFile, paramModel.getRangeInfo() );
 	}
-	catch ( Error& )
+	catch ( ChimeraError& )
 	{/*??? Shouldn't I handle something here?*/}
 	paramModel.setParams (fileParams);
 	flattenScanDimensions ( );	
+	setTableviewColumnSize ();
 }
 
+void ParameterSystem::setTableviewColumnSize () {
+	std::vector<int> sizes(parametersView->horizontalHeader ()->count (),0);
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+	for (auto column : range(sizes.size())) {
+		sizes[column] = parametersView->horizontalHeader ()->sectionSize (column);
+	}
+	parametersView->horizontalHeader ()->setSectionResizeMode (QHeaderView::Interactive);
+	for (auto column : range (sizes.size ())) {
+		parametersView->horizontalHeader ()->resizeSection (column, sizes[column]);
+	}
+}
 
-ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile )
-{
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile ){
 	ScanRangeInfo rInfo;
-	UINT numRanges;
-	if ( configFile.ver > Version ( "3.4" ) )
-	{
+	unsigned numRanges;
+	if ( configFile.ver > Version ( "3.4" ) ){
 		ProfileSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
-		UINT numDimensions;
+		unsigned numDimensions;
 		if (configFile.ver > Version ( "4.2" ) ){
 			configFile >> numDimensions;
 		}
@@ -163,58 +171,47 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile )
 			numDimensions = 1;
 		}
 		rInfo.setNumScanDimensions ( numDimensions );
-		for ( auto dim : range( numDimensions ))
-		{
+		for ( auto dim : range( numDimensions )){
 			configFile >> numRanges;
 			rInfo.setNumRanges ( dim, numRanges );
-			for ( auto& range : rInfo.dimensionInfo(dim) )
-			{	
+			for ( auto& range : rInfo.dimensionInfo(dim) ){	
 				configFile >> range.leftInclusive >> range.rightInclusive >> range.variations;
 			}
 		}
 	}
-	else
-	{
+	else{
 		rInfo.reset ( );
 		rInfo.defaultInit ( );
 	}
 	return rInfo;
 }
 
-
-std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream& configFile, ScanRangeInfo rangeInfo )
-{
-	UINT variableNumber;
+std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream& configFile, ScanRangeInfo rangeInfo ){
+	unsigned variableNumber;
 	configFile >> variableNumber;
-	if ( variableNumber > 100 )
-	{
+	if ( variableNumber > 100 ){
 		int answer = promptBox( "variable number retrieved from file appears suspicious. The number is "
 								+ str( variableNumber ) + ". Is this accurate?", MB_YESNO );
-		if ( answer == IDNO )
-		{
+		if ( answer == IDNO ){
 			// don't try to load anything.
 			variableNumber = 0;
 		}
 	}
 	std::vector<parameterType> tempVariables;
-	for ( const UINT varInc : range( variableNumber ) )
-	{
+	for ( const unsigned varInc : range( variableNumber ) ){
 		tempVariables.push_back( loadParameterFromFile( configFile, rangeInfo ) );
 	}
 	return tempVariables;
 }
 
 
-void ParameterSystem::updateVariationNumber( )
-{
+void ParameterSystem::updateVariationNumber( ){
 	// if no parameters, or all are constants, it will stay at 1. else, it will get set to the # of variations
 	// of the first variable that it finds.
 	std::vector<ULONG> dimVariations;
 	std::vector<bool> dimsSeen;
-	for ( auto tempParam : paramModel.getParams() )
-	{
-		if ( !tempParam.constant )
-		{
+	for ( auto tempParam : paramModel.getParams() )	{
+		if ( !tempParam.constant ){
 			if ( dimsSeen.size( ) <= tempParam.scanDimension ){
 				dimVariations.resize( tempParam.scanDimension+1, 0 );
 				dimsSeen.resize( tempParam.scanDimension+1, false );
@@ -238,9 +235,7 @@ void ParameterSystem::updateVariationNumber( )
 	}
 }
 
- 
-double ParameterSystem::getVariableValue ( std::string paramName )
-{
+double ParameterSystem::getVariableValue ( std::string paramName ){
 	if ( paramSysType != ParameterSysType::global )	{
 		thrower ( "adjusting variable values in the code like this is only meant to be used with global variables!" );
 	}
@@ -274,7 +269,6 @@ void ParameterSystem::adjustVariableValue( std::string paramName, double value )
 	}
 }
 
-
 parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, ScanRangeInfo rangeInfo ){
 	parameterType tempParam;
 	std::string paramName, typeText, valueString;
@@ -303,9 +297,8 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Sca
 		tempParam.scanDimension = 0;
 	}
 	
-	if (openFile.ver <= Version ( "3.4" ) )
-	{
-		UINT rangeNumber = 1;
+	if (openFile.ver <= Version ( "3.4" ) ){
+		unsigned rangeNumber = 1;
 		openFile >> rangeNumber;
 		// I think it's unlikely to ever need more than 2 or 3 ranges.
 		if ( rangeNumber < 1 || rangeNumber > 100 )	{
@@ -314,7 +307,7 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Sca
 		}
 		rangeInfo.setNumRanges ( tempParam.scanDimension, rangeNumber );
 	}
-	UINT totalVariations = 0;
+	unsigned totalVariations = 0;
 	for ( auto rangeInc : range( rangeInfo.numRanges(tempParam.scanDimension ) )){
 		double initValue = 0, finValue = 0;
 		unsigned int variations = 0;
@@ -346,9 +339,7 @@ parameterType ParameterSystem::loadParameterFromFile(ConfigStream& openFile, Sca
 	return tempParam;
 }
 
-
-void ParameterSystem::saveParameter(ConfigStream& saveFile, parameterType parameter )
-{
+void ParameterSystem::saveParameter(ConfigStream& saveFile, parameterType parameter ){
 	saveFile << "\n/*Name:*/\t\t\t" << parameter.name 
 		     << "\n/*Scan-Type:*/\t\t" << ( parameter.constant ? "Constant " : "Variable " ) 
 			 << "\n/*Scan-Dimension:*/\t" << parameter.scanDimension;
@@ -360,9 +351,7 @@ void ParameterSystem::saveParameter(ConfigStream& saveFile, parameterType parame
 			 << "\n/*Scope:*/\t\t\t" << parameter.parameterScope << "\n";
 }
 
-
-void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
-{
+void ParameterSystem::handleSaveConfig (ConfigStream& saveFile ){
 	paramModel.checkScanDimensionConsistency ( );
 	paramModel.checkVariationRangeConsistency ( );
 	
@@ -372,7 +361,7 @@ void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 	for ( auto dimNum : range(paramModel.getRangeInfo ().numScanDimensions ( ))){
 		saveFile << "\n/*Dim #" + str (dimNum + 1) + ":*/ ";
 		saveFile << "\n/*Number of Ranges:*/\t" << paramModel.getRangeInfo ().numRanges ( dimNum );
-		UINT count = 0;
+		unsigned count = 0;
 		auto dimInfo = paramModel.getRangeInfo ().dimensionInfo (dimNum);
 		for ( auto range : dimInfo )	{
 			saveFile << "\n/*Range #" + str(++count) + ":*/"
@@ -382,18 +371,16 @@ void ParameterSystem::handleSaveConfig (ConfigStream& saveFile )
 		}
 	}
 	saveFile << "\n/*# Variables: */ \t\t" << getCurrentNumberOfVariables ( ); 
-	for ( UINT varInc : range(getCurrentNumberOfVariables( )))	{
+	for ( unsigned varInc : range(getCurrentNumberOfVariables( )))	{
 		saveFile << "\n/*Variable #" + str (varInc) + "*/";
 		saveParameter(saveFile, getVariableInfo( varInc ));
 	}
 	saveFile << "\nEND_" + configDelim + "\n";
 }
 
-
-void ParameterSystem::flattenScanDimensions ( )
-{
+void ParameterSystem::flattenScanDimensions ( ){
 	while ( true ){
-		UINT maxDim = 0;
+		unsigned maxDim = 0;
 		for ( auto var : paramModel.getParams() ){
 			maxDim = var.scanDimension > maxDim ? var.scanDimension : maxDim;
 		}
@@ -419,7 +406,7 @@ void ParameterSystem::flattenScanDimensions ( )
 }
 
 
-void ParameterSystem::setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive ){
+void ParameterSystem::setRangeInclusivity( unsigned rangeNum, unsigned dimNum, bool isLeft, bool inclusive ){
 	if ( rangeNum >= paramModel.getRangeInfo ().numRanges(0) )	{
 		thrower  ( "tried to set the border inclusivity of a range that does not exist!" );
 	}
@@ -435,14 +422,13 @@ parameterType ParameterSystem::getVariableInfo(int varNumber){
 	return paramModel.getParams ()[varNumber];
 }
 
-UINT ParameterSystem::getCurrentNumberOfVariables(){
+unsigned ParameterSystem::getCurrentNumberOfVariables(){
 	return paramModel.getParams ().size();
 }
 
 // takes as input parameters, but just looks at the name and usage stats. When it finds matches between the parameters,
 // it takes the usage of the input and saves it as the usage of the real inputVar. 
-void ParameterSystem::setUsages(std::vector<parameterType> vars)
-{
+void ParameterSystem::setUsages(std::vector<parameterType> vars){
 	auto params = paramModel.getParams ();
 	for ( auto inputVar : vars ){
 		for ( auto& realVar : params ){
@@ -463,20 +449,14 @@ void ParameterSystem::clearParameters(){
 	paramModel.setParams (params);
 }
 
-
-std::vector<parameterType> ParameterSystem::getAllParams()
-{
+std::vector<parameterType> ParameterSystem::getAllParams(){
 	return paramModel.getParams ();
 }
 
-
-std::vector<parameterType> ParameterSystem::getAllConstants()
-{
+std::vector<parameterType> ParameterSystem::getAllConstants(){
 	std::vector<parameterType> constants;
-	for (UINT varInc = 0; varInc < paramModel.getParams ().size(); varInc++)
-	{
-		if (paramModel.getParams ()[varInc].constant)
-		{
+	for (unsigned varInc = 0; varInc < paramModel.getParams ().size(); varInc++){
+		if (paramModel.getParams ()[varInc].constant){
 			constants.push_back(paramModel.getParams ()[varInc]);
 		}
 	}
@@ -484,22 +464,18 @@ std::vector<parameterType> ParameterSystem::getAllConstants()
 }
 
 // this function returns the compliment of the parameters that "getAllConstants" returns.
-std::vector<parameterType> ParameterSystem::getAllVariables()
-{
+std::vector<parameterType> ParameterSystem::getAllVariables(){
 	// opposite of get constants.
 	std::vector<parameterType> varyingParameters;
-	for (UINT varInc = 0; varInc < paramModel.getParams ().size(); varInc++)
-	{
-		if (!paramModel.getParams ()[varInc].constant)
-		{
+	for (unsigned varInc = 0; varInc < paramModel.getParams ().size(); varInc++){
+		if (!paramModel.getParams ()[varInc].constant){
 			varyingParameters.push_back(paramModel.getParams ()[varInc]);
 		}
 	}
 	return varyingParameters;
 }
 
-void ParameterSystem::addParameter(parameterType variableToAdd)
-{
+void ParameterSystem::addParameter(parameterType variableToAdd){
 	// make name lower case.
 	std::transform(variableToAdd.name.begin(), variableToAdd.name.end(), variableToAdd.name.begin(), ::tolower);
 	if (isdigit(variableToAdd.name[0]))	{
@@ -525,18 +501,14 @@ void ParameterSystem::addParameter(parameterType variableToAdd)
 }
 
 
-ScanRangeInfo ParameterSystem::getRangeInfo ( )
-{
+ScanRangeInfo ParameterSystem::getRangeInfo ( ){
 	return paramModel.getRangeInfo ();
 }
 
 
-std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> params )
-{
-	for ( auto variable : params)
-	{
-		if ( variable.valuesVary )
-		{
+std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> params ){
+	for ( auto variable : params){
+		if ( variable.valuesVary ){
 			return variable.keyValues;
 		}
 	}
@@ -545,43 +517,36 @@ std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> pa
 }
 
 
-std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string configFileName )
-{
+std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string configFileName ){
 	std::ifstream file(configFileName);
-	if (!file.is_open ())
-	{
+	if (!file.is_open ()){
 		thrower ("Failed to open file for config params!");
 	}
 	ConfigStream stream (file);
 	std::vector<parameterType> configParams;
-	try
-	{
+	try{
 		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile (stream);
 		configParams = getParametersFromFile (stream, rInfo );
 		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
-	catch ( Error& )
-	{
+	catch ( ChimeraError& ){
 		throwNested ( "Failed to get configuration parameters from the configuration file!" );
 	}
 	return configParams;
 }
 
 
-ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName )
-{
+ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName ){
 	ConfigStream stream (configFileName, true);
 	ScanRangeInfo rInfo;
-	try
-	{
+	try{
 		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile (stream);
 		auto configVariables = getParametersFromFile (stream, rInfo );
 		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
-	catch ( Error& )
-	{
+	catch ( ChimeraError& ){
 		throwNested ( "Failed to get configuration parameter range info from file!" );
 	}
 	return rInfo;
@@ -589,39 +554,33 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 
 
 void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool randomizeVariationsOption,
-								   ScanRangeInfo inputRangeInfo )
-{
-	for ( auto& variable : parameters )
-	{
+								   ScanRangeInfo inputRangeInfo ){
+	for ( auto& variable : parameters ){
 		variable.keyValues.clear( );
 	}
 	// find the maximum scan dimension.
-	UINT maxDim = 0;
-	for ( auto variable : parameters )
-	{
+	unsigned maxDim = 0;
+	for ( auto variable : parameters ){
 		maxDim = ( variable.scanDimension > maxDim ? variable.scanDimension : maxDim );
 	}
 	// each element of the vector refers to the number of variations of a given range of a given scan dimension of a 
 	// given sequence element. i.e.: variationNums[dimNumber][rangeNumber]
 	std::vector<std::vector<int>> variationNums( std::vector<std::vector<int>>(maxDim+1));
-	std::vector<UINT> totalSeqDimVariationsList ( std::vector<UINT> ( maxDim+1 ) );
+	std::vector<unsigned> totalSeqDimVariationsList ( std::vector<unsigned> ( maxDim+1 ) );
 	// for randomizing...
 	std::vector<int> variableIndexes;
-	for ( auto dimInc : range( maxDim+1 ) )
-	{
+	for ( auto dimInc : range( maxDim+1 ) )	{
 		variationNums[dimInc].resize( parameters.front( ).ranges.size( ) );
-		for ( auto paramInc : range( parameters.size() ) )
-		{
+		for ( auto paramInc : range( parameters.size() ) ){
 			auto& parameter = parameters[paramInc];
 			// find a varying parameter in this scan dimension
-			if ( parameter.scanDimension != dimInc || parameter.constant )
-			{
+			if ( parameter.scanDimension != dimInc || parameter.constant ){
 				continue; 
 			}
 			variableIndexes.push_back( paramInc );
 			if ( variationNums[dimInc].size( ) != parameter.ranges.size( ) ){
 				// if its zero its just the initial size on the initial variable. Else something has gone wrong.
-				if ( variationNums.size( ) != 0 )	{
+				if ( variationNums.size( ) != 0 ){
 					thrower ( "Not all variables seem to have the same number of ranges for their parameters!" );
 				}
 				variationNums[dimInc].resize( parameter.ranges.size( ) );
@@ -639,7 +598,7 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 	// create a key which will be randomized and then used to randomize other things the same way.
 	multiDimensionalKey<int> randomizerMultiKey( maxDim+1 );
 	randomizerMultiKey.resize( totalSeqDimVariationsList );
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto& keyElem : randomizerMultiKey.values ){
 		keyElem = count++;
 	}
@@ -650,8 +609,7 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 	}
 	// initialize this to one so that constants always get at least one value.
 	int totalSize = 1;
-	for (auto variableInc : range (variableIndexes.size ()))
-	{
+	for (auto variableInc : range (variableIndexes.size ())){
 		auto& variable = parameters[variableIndexes[variableInc]];
 		// calculate all values for a given variable
 		multiDimensionalKey<double> tempKey (maxDim + 1), tempKeyRandomized (maxDim + 1);
@@ -667,10 +625,9 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 		{0,1,2} -> {1,1,2} -> {2,1,2}.
 		at which point the while loop will notice that all values turn over at the same time and leave the loop.
 		*/
-		std::vector<UINT> keyValueIndexes (maxDim + 1);
-		while (true)
-		{
-			UINT rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[varDim],
+		std::vector<unsigned> keyValueIndexes (maxDim + 1);
+		while (true){
+			unsigned rangeIndex = 0, varDim = variable.scanDimension, tempShrinkingIndex = keyValueIndexes[varDim],
 				rangeCount = 0, rangeOffset = 0;
 			// calculate which range it is and how many values have already been calculated for the variable 
 			// (i.e. the rangeOffset).
@@ -729,14 +686,13 @@ void ParameterSystem::generateKey( std::vector<parameterType>& parameters, bool 
 	}
 }
 
-
 /*
  * takes global params, config params, and function params, and reorganizes them to form a "parameters" object and a 
  * "constants" objects. The "parameters" object includes everything, parameters and otherwise. the "constants" object 
  * includes only parameters that don't vary. 
  */
 std::vector<parameterType> ParameterSystem::combineParams( std::vector<parameterType>& configParams, 
-																	   std::vector<parameterType>& globalParams )
+														   std::vector<parameterType>& globalParams )
 {
 	std::vector<parameterType> combinedParams;
 	combinedParams = configParams;
@@ -763,6 +719,6 @@ std::vector<parameterType> ParameterSystem::combineParams( std::vector<parameter
 	return combinedParams;
 }
 
-UINT ParameterSystem::getTotalVariationNumber( ){
+unsigned ParameterSystem::getTotalVariationNumber( ){
 	return currentVariations;
 }

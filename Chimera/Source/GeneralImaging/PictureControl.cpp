@@ -5,7 +5,8 @@
 #include <numeric>
 #include <boost/lexical_cast.hpp>
 
-PictureControl::PictureControl ( bool histogramOption ) : histOption( histogramOption ), QWidget (){
+PictureControl::PictureControl ( bool histogramOption, Qt::TransformationMode mode) 
+	: histOption( histogramOption ), QWidget (), transformationMode(mode){
 	active = true;
 	if ( histOption ){
 		horData.resize ( 1 );
@@ -23,7 +24,7 @@ void PictureControl::updatePlotData ( ){
 	}
 	horData[ 0 ]->resize ( mostRecentImage_m.getCols ( ) );
 	vertData[ 0 ]->resize ( mostRecentImage_m.getRows ( ) );
-	UINT count = 0;
+	unsigned count = 0;
 
 	std::vector<long> dataRow;
 	for ( auto& data : *horData[ 0 ] ){
@@ -63,7 +64,7 @@ void PictureControl::updatePlotData ( ){
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT loc, int width, int height, IChimeraWindowWidget* parent, int picScaleFactorIn){
+void PictureControl::initialize( POINT loc, int width, int height, IChimeraQtWindow* parent, int picScaleFactorIn){
 	picScaleFactor = picScaleFactorIn;
 	if ( width < 100 ){
 		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
@@ -126,7 +127,7 @@ bool PictureControl::isActive(){
 }
 
 
-void PictureControl::setSliderPositions(UINT min, UINT max){
+void PictureControl::setSliderPositions(unsigned min, unsigned max){
 	sliderMin.setValue ( min );
 	sliderMax.setValue ( max );
 }
@@ -222,8 +223,8 @@ void PictureControl::setCursorValueLocations( CWnd* parent ){
 coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 {
 	CPoint test;
-	for (UINT colInc = 0; colInc < grid.size(); colInc++){
-		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
+	for (unsigned colInc = 0; colInc < grid.size(); colInc++){
+		for (unsigned rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			RECT relevantRect = grid[colInc][rowInc];
 			// check if inside box
 			if (clickLocation.x <= relevantRect.right && clickLocation.x >= relevantRect.left
@@ -263,7 +264,7 @@ void PictureControl::handleEditChange( int id ){
 }
 
 
-std::pair<UINT, UINT> PictureControl::getSliderLocations(){
+std::pair<unsigned, unsigned> PictureControl::getSliderLocations(){
 	return { sliderMin.getValue (), sliderMax.getValue() };
 }
 
@@ -271,7 +272,7 @@ std::pair<UINT, UINT> PictureControl::getSliderLocations(){
 /*
  * called when the user drags the scroll bar.
  */
-void PictureControl::handleScroll(int id, UINT nPos){
+void PictureControl::handleScroll(int id, unsigned nPos){
 	if ( id == sliderMax.getSliderId ( ) ){
 		sliderMax.handleSlider ( nPos );
 	}
@@ -329,9 +330,9 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	//
 
 	grid.resize(newParameters.width());
-	for (UINT colInc = 0; colInc < grid.size(); colInc++){
+	for (unsigned colInc = 0; colInc < grid.size(); colInc++){
 		grid[colInc].resize(newParameters.height());
-		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
+		for (unsigned rowInc = 0; rowInc < grid[colInc].size(); rowInc++){
 			// for all 4 pictures...
 			grid[colInc][rowInc].left = int(pictureArea.left
 											 + (double)(colInc+1) * (pictureArea.right - pictureArea.left) 
@@ -398,9 +399,9 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
 void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo, 
-	bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
-	std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers)
-{
+								  bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
+								  std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers ){
+
 	mostRecentImage_m = picData;
 	mostRecentPicNum = pictureNumber;
 	mostRecentAnalysisLocs = analysisLocs;
@@ -433,18 +434,15 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 		thrower  ( "Picture data didn't match grid size!" );
 	}
 	
-	//pixmap = new QPixmap (dataWidth, dataHeight);
-	// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
-	if ( pixelsAreaWidth % 4 ){
-		pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
-	}
+	//if ( pixelsAreaWidth % 4 ){
+	//	pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
+	//}
 	float yscale = ( 256.0f ) / (float) colorRange;
 	WORD argbq[ PICTURE_PALETTE_SIZE ];
 	for ( int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++ ){
 		argbq[ paletteIndex ] = (WORD) paletteIndex;
 	}
 	std::vector<uchar> dataArray2 ( dataWidth * dataHeight, 255 );
-	std::vector<QRgb> rgbArray (dataWidth * dataHeight, 255);
 	int iTemp;
 	double dTemp = 1;
 	for (int heightInc = 0; heightInc < dataHeight; heightInc++){
@@ -491,10 +489,10 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	painter.end ();	
 	
 	if (img.width () / img.height () > pictureObject->width () / pictureObject->height ())	{
-		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToWidth (pictureObject->width ()));
+		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToWidth (pictureObject->width (), transformationMode));
 	}
 	else {
-		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToHeight (pictureObject->height ()));
+		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToHeight (pictureObject->height (), transformationMode));
 	}
 	// update this with the new picture.
 	setHoverValue ( );
@@ -554,9 +552,9 @@ void PictureControl::drawGrid(CBrush* brush)
 	easel->SetDCBrushColor(RGB(255, 255, 255));
 
 	// draw rectangles indicating where the pixels are.
-	for (UINT columnInc = 0; columnInc < grid.size(); columnInc++)
+	for (unsigned columnInc = 0; columnInc < grid.size(); columnInc++)
 	{
-		for (UINT rowInc = 0; rowInc < grid[columnInc].size(); rowInc++)
+		for (unsigned rowInc = 0; rowInc < grid[columnInc].size(); rowInc++)
 		{
 			easel->FrameRect(&grid[columnInc][rowInc], brush);
 		}
@@ -578,16 +576,17 @@ void PictureControl::drawCircle(coordinate selectedLocation, QPainter& painter)
 		// don't draw anything if the window isn't active.
 		return;
 	}
-	QRect smallRect(selectedLocation.column * picScaleFactor, selectedLocation.row * picScaleFactor, 
-					picScaleFactor-1, picScaleFactor-1);
+	QRect smallRect( selectedLocation.column * picScaleFactor, selectedLocation.row * picScaleFactor, 
+					 picScaleFactor-1, picScaleFactor-1 );
 	painter.drawEllipse (smallRect);
 }
 
-void PictureControl::drawPicNum( UINT picNum, QPainter& painter ){
+void PictureControl::drawPicNum( unsigned picNum, QPainter& painter ){
 	QFont font = painter.font ();
 	// I think this is the font height in pixels on the pixmap basically. 
 	font.setPointSize (20);
 	painter.setFont (font);
+	painter.setPen (Qt::white);
 	painter.drawText (QPoint ( int(picScaleFactor)/5, picScaleFactor), cstr (picNum));
 }
 
@@ -596,24 +595,25 @@ void PictureControl::drawAnalysisMarkers( std::vector<coordinate> analysisLocs, 
 	if ( !active ){
 		return;
 	}
+	painter.setPen (Qt::white);
 	//std::vector<COLORREF> colors = { RGB( 100, 100, 100 ), RGB( 0, 100, 0 ), RGB( 0, 0, 100), RGB( 100, 0, 0 ) };
-	UINT gridCount = 0;
+	unsigned gridCount = 0;
 	for ( auto atomGrid : gridInfo ){
 		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) ){
 			// atom grid is empty, not to be used.
-			UINT count = 1;
+			unsigned count = 1;
 		}
 		else {
 			// use the atom grid.
-			UINT count = 1;
+			unsigned count = 1;
 			for ( auto columnInc : range( atomGrid.width ) ){
 				for ( auto rowInc : range( atomGrid.height ) ){
-					UINT pixelRow = picScaleFactor*(atomGrid.topLeftCorner.row + rowInc * atomGrid.pixelSpacing);
-					UINT pixelColumn = picScaleFactor * (atomGrid.topLeftCorner.column 
+					unsigned pixelRow = picScaleFactor*(atomGrid.topLeftCorner.row + rowInc * atomGrid.pixelSpacing);
+					unsigned pixelColumn = picScaleFactor * (atomGrid.topLeftCorner.column 
 														 + columnInc * atomGrid.pixelSpacing);
 					QRect rect = QRect (QPoint(pixelColumn, pixelRow), 
 										QPoint (pixelColumn+picScaleFactor-2, pixelRow + picScaleFactor - 2));
-					painter.drawRect (rect);
+					painter.drawRect (rect);					
 					painter.drawText (rect, Qt::AlignCenter, cstr(count++));
 				}
 			}
@@ -623,7 +623,7 @@ void PictureControl::drawAnalysisMarkers( std::vector<coordinate> analysisLocs, 
 }
 
 void PictureControl::drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
-	std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers){
+	std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers){
 	drawPicNum (pictureNumber, painter);
 	if (includingAnalysisMarkers) {
 		drawAnalysisMarkers (  analysisLocs, grids, painter );

@@ -176,7 +176,7 @@ struct flashInfoForm
 
 	Expression flashCycleFreq;
 	Expression deadTime;
-	UINT flashNumber = 0;
+	unsigned flashNumber = 0;
 };;
 
 
@@ -186,7 +186,7 @@ struct flashInfo
 	std::vector<simpleWave> flashWaves;
 	double deadTime = 0;
 	double flashCycleFreq = 0;
-	UINT flashNumber = 0;
+	unsigned flashNumber = 0;
 };;
 
 // rerng = rearrange
@@ -200,7 +200,7 @@ struct rerngScriptInfoForm
 	// the target picture
 	Matrix<bool> target = Matrix<bool>(0,0);
 	// the maixmum number of moves the rearrangement should take.
-	UINT moveLimit = 0;
+	unsigned moveLimit = 0;
 	// the location that the array will be moved to at the end.
 	niawgPair<ULONG> finalPosition = { 0,0 };
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
@@ -223,7 +223,7 @@ struct rerngScriptInfo
 	double timePerMove = 60e-6;
 	double flashingFreq = 1e6;
 	// the maixmum number of moves the rearrangement should take.
-	UINT moveLimit = 0;
+	unsigned moveLimit = 0;
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
 	niawgPair<double> lowestFreqs = { 0,0 };

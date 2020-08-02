@@ -61,7 +61,7 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 	configFile >> tempSettings.accumulationNumber;
 	configFile >> tempSettings.temperatureSetting;
 	if (configFile.ver > Version ("4.7")){
-		UINT numExposures = 0;
+		unsigned numExposures = 0;
 		configFile >> numExposures;
 		tempSettings.exposureTimes.resize (numExposures);
 		for (auto& exp : tempSettings.exposureTimes)
@@ -87,7 +87,7 @@ AndorCameraCore::AndorCameraCore( bool safemode_opt ) : safemode( safemode_opt )
 	flume.setDMAParameters( 1, 0.0001f );
 }
 
-void AndorCameraCore::initializeClass(IChimeraWindowWidget* parent, chronoTimes* imageTimes){
+void AndorCameraCore::initializeClass(IChimeraQtWindow* parent, chronoTimes* imageTimes){
 	threadInput.imageTimes = imageTimes;
 	threadInput.Andor = this;
 	threadInput.expectingAcquisition = false;
@@ -98,7 +98,7 @@ void AndorCameraCore::initializeClass(IChimeraWindowWidget* parent, chronoTimes*
 	QThread* thread = new QThread;
 	worker->moveToThread (thread);
 	parent->mainWin->connect (worker, &AndorCameraThreadWorker::notify,
-							  parent->mainWin, &QtMainWindow::handleExpNotification);
+							  parent->mainWin, &QtMainWindow::handleNotification);
 
 	parent->andorWin->connect (worker, &AndorCameraThreadWorker::pictureTaken,
 							   parent->andorWin, &QtAndorWindow::onCameraProgress);
@@ -207,7 +207,7 @@ unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
 					try{
 						input->Andor->flume.getAcquisitionProgress(pictureNumber);
 					}
-					catch (Error& exception){
+					catch (ChimeraError& exception){
 						input->comm->sendError(exception.trace());
 					}
 					if ( input->Andor->isCalibrating( ) ){
@@ -218,7 +218,7 @@ unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
 					}
 				}
 			}
-			catch (Error&){
+			catch (ChimeraError&){
 				//...? When does this happen? not sure why this is here...
 			}
 		}
@@ -342,15 +342,21 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime ){
  * This function checks for new pictures, if they exist it gets them, and shapes them into the array which holds all of
  * the pictures for a given repetition.
  */
-std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
-{
-	try
-	{
+std::vector<Matrix<long>> AndorCameraCore::acquireImageData (){
+	try	{
 		try	{
 			flume.checkForNewImages ();
 		}
-		catch (Error & err)	{
-			comm->sendError("Error seen while checking for new images: " + err.trace ());
+		catch (ChimeraError& err) {
+			try {
+				flume.andorErrorChecker (flume.queryStatus ());
+			}
+			catch (ChimeraError & err2){
+				throwNested ("Error seen while checking for new images: " + err.trace() 
+					+ ", Camera Status:" + err2.trace() + ", Camera is running bool: " + str(cameraIsRunning));
+			}
+			throwNested ("Error seen while checking for new images: " + err.trace ()
+				+ ", Camera Status: DRV_SUCCESS, Camera is running bool: " + str (cameraIsRunning));
 		}
 		// each image processed from the call from a separate windows message
 		// If there is no data the acquisition must have been aborted
@@ -367,7 +373,7 @@ std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 			try	{
 				flume.getOldestImage(tempImage);
 			}
-			catch (Error &)	{
+			catch (ChimeraError &)	{
 				// let the blank image roll through to keep the image numbers going sensibly.
 				//throwNested ("Error while calling getOldestImage.");
 			}
@@ -377,8 +383,7 @@ std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 					% imSettings.width ()) + 1) * imSettings.height () - imageVecInc / imSettings.width () - 1];
 			}
 		}
-		else
-		{
+		else{
 			for (auto imageVecInc : range (repImages[experimentPictureNumber].size ()))	{
 				std::random_device rd;
 				std::mt19937 e2 (rd ());
@@ -387,7 +392,7 @@ std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 				tempImage.data[imageVecInc] = dist (e2) + 10;
 				if (((imageVecInc / imSettings.width ()) % 2 == 1) && ((imageVecInc % imSettings.width ()) % 2 == 1)){
 					// can have an atom here.
-					if (UINT (rand ()) % 300 > imageVecInc + 50){
+					if (unsigned (rand ()) % 300 > imageVecInc + 50){
 						// use the exposure time and em gain level 
 						tempImage.data[imageVecInc] += runSettings.exposureTimes[experimentPictureNumber] * 1e3 * dist2 (e2);
 						if (runSettings.emGainModeIsOn)
@@ -406,8 +411,7 @@ std::vector<Matrix<long>> AndorCameraCore::acquireImageData (Communicator* comm)
 		}
 		return repImages;
 	}
-	catch (Error &)
-	{
+	catch (ChimeraError &){
 		throwNested ("Error Seen in acquireImageData.");
 	}
 }
@@ -527,18 +531,16 @@ void AndorCameraCore::checkAcquisitionTimings(float& kinetic, float& accumulatio
 	timesArray = new float[exposures.size()];
 	if (!safemode){
 		flume.getAcquisitionTimes(tempExposure, tempAccumTime, tempKineticTime);
-		flume.getAdjustedRingExposureTimes(exposures.size(), timesArray);
+		flume.getAdjustedRingExposureTimes(int(exposures.size()), timesArray);
 	}
 	else {
-		for (UINT exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
-		{
+		for (unsigned exposureInc = 0; exposureInc < exposures.size(); exposureInc++){
 			timesArray[exposureInc] = exposures[exposureInc];
 		}
 	}
 	// Set times
 	if (exposures.size() > 0){
-		for (UINT exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
-		{
+		for (unsigned exposureInc = 0; exposureInc < exposures.size(); exposureInc++){
 			exposures[exposureInc] = timesArray[exposureInc];
 		}
 		delete[] timesArray;
@@ -631,50 +633,53 @@ void AndorCameraCore::changeTemperatureSetting(bool turnTemperatureControlOff)
 	}
 }
 
-AndorTemperatureStatus AndorCameraCore::getTemperature ( )
-{
+AndorTemperatureStatus AndorCameraCore::getTemperature ( ){
 	AndorTemperatureStatus stat;
 	stat.temperatureSetting = getAndorRunSettings().temperatureSetting;
 	try{
-		flume.getTemperature ( stat.temperature );
-		// in this case you expect it to throw.
-		//setTemperature = andorFriend->getAndorRunSettings().temperatureSetting;
-		if ( ANDOR_SAFEMODE ) { thrower ( "SAFEMODE" ); }
-	}
-	catch ( Error& exception ){
+		if (ANDOR_SAFEMODE) { stat.andorRawMsg = "SAFEMODE"; }
+		else {
+			auto msgCode = flume.getTemperature (stat.temperature);
+			stat.andorRawMsg = flume.getErrorMsg (msgCode);
+			// in this case you expect it to throw.
+			//setTemperature = andorFriend->getAndorRunSettings().temperatureSetting;
+		}
 		// if not stable this won't get changed.
-		if (exception.whatBare () != "DRV_ACQUIRING") {
+		if (stat.andorRawMsg != "DRV_ACQUIRING") {
 			mostRecentTemp = stat.temperature;
 		}
-		if ( exception.whatBare ( ) == "DRV_TEMPERATURE_STABILIZED" ){
-			stat.msg = "Temperature has stabilized at " + str ( stat.temperature ) + " (C)\r\n";
+		if (stat.andorRawMsg == "DRV_TEMPERATURE_STABILIZED") {
+			stat.msg = "Temperature has stabilized at " + str (stat.temperature) + " (C)\r\n";
 		}
-		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_NOT_REACHED" ){
-			stat.msg = "Set temperature not yet reached. Current temperature is " + str ( stat.temperature ) + " (C)\r\n";
+		else if (stat.andorRawMsg == "DRV_TEMPERATURE_NOT_REACHED") {
+			stat.msg = "Set temperature not yet reached. Current temperature is " + str (stat.temperature) + " (C)\r\n";
 		}
-		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_NOT_STABILIZED" ){
-			stat.msg = "Temperature of " + str ( stat.temperature ) + " (C) reached but not stable.";
+		else if (stat.andorRawMsg == "DRV_TEMPERATURE_NOT_STABILIZED") {
+			stat.msg = "Temperature of " + str (stat.temperature) + " (C) reached but not stable.";
 		}
-		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_DRIFT" ){
-			stat.msg = "Temperature had stabilized but has since drifted. Temperature: " + str ( stat.temperature );
+		else if (stat.andorRawMsg == "DRV_TEMPERATURE_DRIFT") {
+			stat.msg = "Temperature had stabilized but has since drifted. Temperature: " + str (stat.temperature);
 		}
-		else if ( exception.whatBare ( ) == "DRV_TEMPERATURE_OFF" ){
-			stat.msg = "Temperature control is off. Temperature: " + str ( stat.temperature );
+		else if (stat.andorRawMsg == "DRV_TEMPERATURE_OFF") {
+			stat.msg = "Temperature control is off. Temperature: " + str (stat.temperature);
 		}
-		else if ( exception.whatBare ( ) == "DRV_ACQUIRING" ){
+		else if (stat.andorRawMsg == "DRV_ACQUIRING") {
 			// doesn't change color of temperature control. This way the color of the control represents the state of
 			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
 			// completely stabilize or not.
 			stat.msg = "Camera is Acquiring data. No updates are available. \r\nMost recent temperature: "
 				+ str (mostRecentTemp);
 		}
-		else if ( exception.whatBare ( ) == "SAFEMODE" ){
+		else if (stat.andorRawMsg == "SAFEMODE") {
 			stat.msg = "Device is running in Safemode... No Real Temperature Data is available.";
 		}
-		else{
-			stat.msg = "Unexpected Temperature Code: " + exception.whatBare ( ) + ". Temperature: "
-												   + str (stat.temperature);
+		else {
+			stat.msg = "Unexpected Temperature Message: " + stat.andorRawMsg + ". Temperature: "
+				+ str (stat.temperature);
 		}
+	}
+	catch ( ChimeraError& ){
+		throwNested ("Failed to get temperature from andor?!");
 	}
 	return stat;
 }
@@ -706,10 +711,8 @@ void AndorCameraCore::abortAcquisition ( ){
 	flume.abortAcquisition ( );
 }
 
-void AndorCameraCore::logSettings (DataLogger& log)
-{
-	try
-	{
+void AndorCameraCore::logSettings (DataLogger& log){
+	try	{
 		if (!expRunSettings.on)	{
 			H5::Group andorGroup (log.file.createGroup ("/Andor:Off"));
 			return;
@@ -731,12 +734,21 @@ void AndorCameraCore::logSettings (DataLogger& log)
 		}
 		else{
 			/*
-			hsize_t setDims[] = { 0, settings.imageSettings.width (), settings.imageSettings.height () };
-			hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
-			AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
-			AndorPicDataSpace = H5::DataSpace (3, picDims);
-			AndorPictureDataset = andorGroup.createDataSet ("Pictures: N/A", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
+				hsize_t setDims[] = { 0, settings.imageSettings.width (), settings.imageSettings.height () };
+				hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
+				AndorPicureSetDataSpace = H5::DataSpace (3, setDims);
+				AndorPicDataSpace = H5::DataSpace (3, picDims);
+				AndorPictureDataset = andorGroup.createDataSet ("Pictures: N/A", H5::PredType::NATIVE_LONG, AndorPicureSetDataSpace);
 			*/
+		}
+		if (log.AndorPicureSetDataSpace.getId () == -1) {
+			thrower ("Failed to initialize AndorPicureSetDataSpace???");
+		}
+		if (log.AndorPicDataSpace.getId () == -1) {
+			thrower ("Failed to initialize AndorPicDataSpace???");
+		}
+		if (log.AndorPictureDataset.getId () == -1) {
+			thrower ("Failed to initialize AndorPictureDataset???");
 		}
 		log.writeDataSet (int (expRunSettings.acquisitionMode), "Camera-Mode", andorGroup);
 		log.writeDataSet (expRunSettings.exposureTimes, "Exposure-Times", andorGroup);
@@ -782,7 +794,7 @@ void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, E
 	}
 }
 
-void AndorCameraCore::programVariation (UINT variationInc, std::vector<parameterType>& params){
+void AndorCameraCore::programVariation (unsigned variationInc, std::vector<parameterType>& params){
 	if (experimentActive){
 		double kinTime;
 		armCamera (kinTime);
@@ -797,5 +809,5 @@ void AndorCameraCore::errorFinish ()
 	try	{
 		abortAcquisition ();
 	}
-	catch (Error &) { /*Probably just idle.*/ }
+	catch (ChimeraError &) { /*Probably just idle.*/ }
 }

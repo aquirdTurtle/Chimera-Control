@@ -4,7 +4,7 @@
 #include <sstream>
 
 
-StartDialog::StartDialog( std::string msg, UINT id ) : CDialog::CDialog( id )
+StartDialog::StartDialog( std::string msg, unsigned id ) : CDialog::CDialog( id )
 {
 	startMsg = msg;
 }
@@ -18,11 +18,8 @@ BEGIN_MESSAGE_MAP( StartDialog, CDialog )
 	ON_COMMAND( IDCANCEL, &StartDialog::OnCancel )
 END_MESSAGE_MAP( )
 
-void StartDialog::OnSize(UINT s, int width, int height )
+void StartDialog::OnSize(unsigned s, int width, int height )
 {
-	edit.rearrange( width, height );
-	okBtn.rearrange( width, height );
-	cancelBtn.rearrange( width, height );
 }
 
 void StartDialog::OnOK()
@@ -107,7 +104,7 @@ BOOL StartDialog::OnInitDialog( )
 	return TRUE;
 }
 
-HBRUSH StartDialog::OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+HBRUSH StartDialog::OnCtlColor (CDC* pDC, CWnd* pWnd, unsigned nCtlColor)
 {
 	pDC->SetTextColor (_myRGBs["Text"]);
 	pDC->SetBkColor (_myRGBs["Main-Bkgd"]);

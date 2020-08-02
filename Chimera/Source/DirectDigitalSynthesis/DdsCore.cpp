@@ -16,7 +16,7 @@ DdsCore::~DdsCore ( )
 
 void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 {
-	UINT variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
+	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
 	for (auto& ramp : expRampList)
 	{
 		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
@@ -31,13 +31,13 @@ void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 void DdsCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	evaluateDdsInfo (params);
-	UINT variations = ((params.size ()) == 0) ? 1 : params.front ().keyValues.size ();
+	unsigned variations = ((params.size ()) == 0) ? 1 : params.front ().keyValues.size ();
 	generateFullExpInfo (variations);
 }
 // this probably needs an overload with a default value for the empty parameters case...
 void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 {
-	UINT variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
+	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
 	for ( auto variationNumber : range ( variations ) )
 	{
 		for ( auto& ramp : expRampList)
@@ -53,7 +53,7 @@ void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 }
 
 
-void DdsCore::programVariation ( UINT variationNum, std::vector<parameterType>& params)
+void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterType>& params)
 {
 	clearDdsRampMemory ( );
 	auto& thisExpFullRampList = fullExpInfo ( variationNum );
@@ -92,7 +92,7 @@ void DdsCore::writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex ){
 	}
 }
 
-void DdsCore::generateFullExpInfo (UINT numVariations){
+void DdsCore::generateFullExpInfo (unsigned numVariations){
 	fullExpInfo.resizeVariations (numVariations);
 	for (auto varInc : range (numVariations)){
 		fullExpInfo (varInc) = analyzeRampList (expRampList, varInc);
@@ -103,9 +103,9 @@ void DdsCore::generateFullExpInfo (UINT numVariations){
 converts the list of individual set ramps, as set by the user, to the full ramp list which contains the state
 of each dds at each point in the ramp.
 */
-std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, UINT variation ){
+std::vector<ddsRampFinFullInfo> DdsCore::analyzeRampList ( std::vector<ddsIndvRampListInfo> rampList, unsigned variation ){
 	// always rewrite the full vector
-	UINT maxIndex = 0;
+	unsigned maxIndex = 0;
 	for ( auto& rampL : rampList ){
 		maxIndex = ( ( maxIndex > rampL.index ) ? maxIndex : rampL.index );
 	}
@@ -202,13 +202,13 @@ void DdsCore::disconnect ( ){
 }
 
 std::string DdsCore::getSystemInfo ( ){
-	UINT numDev;
+	unsigned numDev;
 	std::string msg = "";
 	try{
 		numDev = ftFlume.getNumDevices ( );
 		msg += "Number ft devices: " + str ( numDev ) + "\n";
 	}
-	catch ( Error& err ){
+	catch ( ChimeraError& err ){
 		msg += "Failed to Get number ft Devices! Error was: " + err.trace ( );
 	}
 	msg += ftFlume.getDeviceInfoList ( );
@@ -225,12 +225,12 @@ INT DdsCore::getFTW ( double freq ){
 	return (INT) round ( ( freq * pow ( 2, 32 ) ) / ( INTERNAL_CLOCK ) );;
 }
 
-UINT DdsCore::getATW ( double amp ){
+unsigned DdsCore::getATW ( double amp ){
 	// input is a percentage (/100) of the maximum amplitude
 	if ( amp > 100 ){
 		thrower ( "DDS amplitude out of range, should be < 100 %" );
 	}
-	return (UINT) round ( amp * ( pow ( 2, 10 ) - 1 ) / 100.0 );
+	return (unsigned) round ( amp * ( pow ( 2, 10 ) - 1 ) / 100.0 );
 }
 
 INT DdsCore::get32bitATW ( double amp ){
@@ -362,7 +362,7 @@ void DdsCore::writeDDS ( UINT8 DEVICE, UINT16 ADDRESS, UINT8 dat1, UINT8 dat2, U
 
 ddsExpSettings DdsCore::getSettingsFromConfig ( ConfigStream& file ){
 	ddsExpSettings settings;
-	UINT numRamps = 0;
+	unsigned numRamps = 0;
 	if (file.ver < Version ("5.1")) {
 		settings.control = true;
 	}
@@ -384,7 +384,7 @@ ddsExpSettings DdsCore::getSettingsFromConfig ( ConfigStream& file ){
 
 void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file ){
 	file << "/*Ramp List Size:*/ " << list.size ( );
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto& ramp : list )
 	{
 		file << "\n/*Ramp List Element #" + str (++count) + "*/"

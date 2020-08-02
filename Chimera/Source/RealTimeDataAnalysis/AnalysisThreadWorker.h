@@ -16,7 +16,7 @@ class AnalysisThreadWorker : public QObject {
 
     public Q_SLOTS:
         void init ();
-        void handleNewPic (atomQueue); 
+        void handleNewPic (atomQueue atomPics); 
         void handleNewPix (PixListQueue pixlist);
         void setXpts (std::vector<double>);
     Q_SIGNALS:
@@ -42,8 +42,7 @@ class AnalysisThreadWorker : public QObject {
         std::vector<std::vector<std::vector<std::deque<double>>>> finalHistData, finalErrorBars, finalXVals;
         //vector<vector<vector<std::deque<double>>>> finalHistData (allPlots.size ());
         std::vector<std::vector<std::vector<std::map<int, std::pair<int, ULONG>>>>> histogramData;
-        unsigned noAtomsCounter = 0, atomCounterTotal = 0, currentThreadPictureNumber = 1, plotNumberCount = 0;
-        unsigned currentPixPictureNum = 1;
+        unsigned noAtomsCounter = 0, atomCounterTotal = 0, plotNumberCount = 0;
         std::vector<PlottingInfo> allPlots;
 };
 

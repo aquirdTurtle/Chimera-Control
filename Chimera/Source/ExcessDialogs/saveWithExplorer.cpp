@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "saveWithExplorer.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <qfiledialog.h>
 
 /*
@@ -10,7 +10,7 @@
  * extension is the text of the default extension for saving this time.
  * returns the name that was selected. If no name is selected, this returns "".
  */
-std::string saveWithExplorer(IChimeraWindowWidget* owner, std::string extension, profileSettings location)
+std::string saveWithExplorer(IChimeraQtWindow* owner, std::string extension, profileSettings location)
 {
 	return str(QFileDialog::getSaveFileName ( owner, "Save File", location.configLocation.c_str(), 
 													  ("*."+extension).c_str()));

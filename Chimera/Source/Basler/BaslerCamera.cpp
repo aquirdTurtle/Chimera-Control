@@ -55,7 +55,7 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 // Create an instant camera object with the camera device found first. At this point this class is really only meant to 
 // work with a single camera of one type at a time. Not sure what would happen if you had multiple cameras set up at 
 // once.
-BaslerCameraCore::BaslerCameraCore(IChimeraWindowWidget* parent ){
+BaslerCameraCore::BaslerCameraCore(IChimeraQtWindow* parent ){
 	Pylon::PylonInitialize();
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
@@ -218,7 +218,7 @@ baslerSettings BaslerCameraCore::getRunningSettings (){
 
 // I can potentially use this to reopen the camera if e.g. the user disconnects. Don't think this is really implemented
 // yet.
-void BaslerCameraCore::reOpenCamera(IChimeraWindowWidget* parent ){
+void BaslerCameraCore::reOpenCamera(IChimeraQtWindow* parent ){
 	Pylon::CDeviceInfo info;
 	info.SetDeviceClass( cameraType::DeviceClass() );
 	if (!BASLER_SAFEMODE){
@@ -319,7 +319,7 @@ void BaslerCameraCore::triggerThread( void* voidInput ){
 				input->camera->executeSoftwareTrigger();			
 				count++;
 			}
-			catch (Error& err){
+			catch (ChimeraError& err){
 				qDebug () << cstr(err.trace ());
 				// continue... should be stopping grabbing.
 				break;
@@ -355,20 +355,16 @@ int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum,
 		// Negative increments are invalid.
 		throw LOGICAL_ERROR_EXCEPTION( "Unexpected increment %d", inc );
 	}
-	if (minimum > maximum)
-	{
+	if (minimum > maximum){
 		// Minimum must not be bigger than or equal to the maximum.
 		throw LOGICAL_ERROR_EXCEPTION( "minimum bigger than maximum." );
 	}
-
 	if (val < minimum){
 		return minimum;
 	}
-
 	if (val > maximum){
 		return maximum;
 	}
-
 	// Check the increment.
 	if (inc == 1){
 		// Special case: all values are valid.
@@ -428,6 +424,9 @@ void BaslerCameraCore::loadExpSettings (ConfigStream& stream){
 void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	expRunSettings.variations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());
 	if (experimentActive){
+		if (isRunning ()) {
+			disarm();
+		}
 		emit threadworker->prepareBasler (&expRunSettings);
 		//omm.sendPrepareBasler (expRunSettings);
 		setBaslserAcqParameters (expRunSettings);

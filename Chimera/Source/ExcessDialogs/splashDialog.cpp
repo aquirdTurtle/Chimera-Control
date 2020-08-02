@@ -41,7 +41,7 @@ void splashDialog::stretchBmp ()
 	dc.StretchBlt (0, 0, size.cx, size.cy, &dcMemory, 0, 0, 5312, 2988, SRCCOPY);
 }
 
-HBRUSH splashDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
+HBRUSH splashDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, unsigned nCtlColor )
 {
 	switch ( nCtlColor )
 	{

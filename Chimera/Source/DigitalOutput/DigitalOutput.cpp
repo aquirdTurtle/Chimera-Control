@@ -14,7 +14,7 @@ void DigitalOutput::updateStatus ( ){
 }
 
 
-void DigitalOutput::initLoc ( UINT numIn, DoRows::which rowIn ){
+void DigitalOutput::initLoc ( unsigned numIn, DoRows::which rowIn ){
 	row = rowIn;
 	num = numIn;
 }
@@ -31,7 +31,7 @@ bool DigitalOutput::getStatus ( ){
 }
 
 
-std::pair<DoRows::which, UINT> DigitalOutput::getPosition ( ){
+std::pair<DoRows::which, unsigned> DigitalOutput::getPosition ( ){
 	return { row, num };
 }
 
@@ -44,7 +44,7 @@ void DigitalOutput::setHoldStatus ( bool stat ){
 	holdStatus = stat;
 }
 
-void DigitalOutput::initialize ( POINT& pos, IChimeraWindowWidget* parent )
+void DigitalOutput::initialize ( POINT& pos, IChimeraQtWindow* parent )
 {
 	check = new CQCheckBox ("", parent);
 	check->setGeometry ({ QPoint{ long (pos.x), long (pos.y) }, QPoint{ long (pos.x + 28), long (pos.y + 28) } });
@@ -57,7 +57,7 @@ void DigitalOutput::enable ( bool enabledStatus ){
 }
 
 
-DigitalOutput& allDigitalOutputs::operator()( UINT num, DoRows::which row ){
+DigitalOutput& allDigitalOutputs::operator()( unsigned num, DoRows::which row ){
 	return core[ ULONG ( row ) * 16L + num ];
 }
 

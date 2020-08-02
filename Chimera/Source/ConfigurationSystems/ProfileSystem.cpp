@@ -15,32 +15,29 @@
 #include "PrimaryWindows/QtDeformableMirrorWindow.h"
 #include "ExcessDialogs/openWithExplorer.h"
 #include "ExcessDialogs/saveWithExplorer.h"
-
+#include <qdebug.h>
 #include "Commctrl.h"
 
 
-ProfileSystem::ProfileSystem(std::string fileSystemPath)
-{
+ProfileSystem::ProfileSystem(std::string fileSystemPath){
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
 
-
-void ProfileSystem::initialize( POINT& pos, IChimeraWindowWidget* win)
-{
+void ProfileSystem::initialize( POINT& pos, IChimeraQtWindow* win){
 	configDisplay = new QLabel ("No Configuruation Selected!", win);
-	configDisplay->setGeometry (QRect (pos.x, pos.y, 660, 25));
+	configDisplay->setStyleSheet(" QLabel{ font: bold 8pt; }");
+	configDisplay->setGeometry (QRect (pos.x, pos.y, 700, 25));
 	configurationSavedIndicator = new QCheckBox ("Saved?", win);
 	configurationSavedIndicator->setGeometry (QRect (pos.x + 860, pos.y, 100, 25));
 	configurationSavedIndicator->setChecked (true);
 	selectConfigButton = new QPushButton ("Open Config.", win);
-	selectConfigButton->setGeometry (QRect (pos.x + 660, pos.y, 200, 25));
+	selectConfigButton->setGeometry (QRect (pos.x + 700, pos.y, 160, 25));
 	win->connect (selectConfigButton, &QPushButton::released, [this, win]() { handleSelectConfigButton (win); });
 	pos.y += 25;
 	updateConfigurationSavedStatus( true );
 }
 
-
-std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream){	
+std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStream){
 	// open configuration file and grab the niawg script file address from it.
 	initializeAtDelim (configStream, "SCRIPTS");
 	configStream.get ();
@@ -50,21 +47,15 @@ std::string ProfileSystem::getNiawgScriptAddrFromConfig(ConfigStream& configStre
 	return niawgScriptAddresses;
 }
 
-
-void ProfileSystem::saveEntireProfile(IChimeraWindowWidget* win)
-{
+void ProfileSystem::saveEntireProfile(IChimeraQtWindow* win){
 	saveConfigurationOnly( win );
 }
 
-
-void ProfileSystem::checkSaveEntireProfile(IChimeraWindowWidget* win)
-{
+void ProfileSystem::checkSaveEntireProfile(IChimeraQtWindow* win){
 	checkConfigurationSave( "Save Configuration Settings?", win );
 }
 
-
-void ProfileSystem::allSettingsReadyCheck(IChimeraWindowWidget* win)
-{
+void ProfileSystem::allSettingsReadyCheck(IChimeraQtWindow* win){
 	configurationSettingsReadyCheck( win );
 }
 
@@ -77,20 +68,16 @@ configurations. This function is a nice way to get around that - when getline is
 function to get a different version of getline depending on which version the file is. Older versions will use the 
 std::getline version while new versions will use the comment-eating version.
 */
-std::function<void (ScriptStream&, std::string&)> ProfileSystem::getGetlineFunc (Version& ver)
-{
-	if (ver >= Version ("5.0"))
-	{
+std::function<void (ScriptStream&, std::string&)> ProfileSystem::getGetlineFunc (Version& ver){
+	if (ver >= Version ("5.0")){
 		return [](ScriptStream& fid, std::string& expr) {expr = fid.getline (); };
 	}
-	else
-	{
+	else{
 		return [](ScriptStream& fid, std::string& expr) {std::getline (fid, expr); };
 	}
-
 }
-void ProfileSystem::getVersionFromFile( ConfigStream& file )
-{
+
+void ProfileSystem::getVersionFromFile( ConfigStream& file ){
 	file.clear ( );
 	file.seekg ( 0, std::ios::beg );
 	std::string versionStr;
@@ -102,13 +89,12 @@ void ProfileSystem::getVersionFromFile( ConfigStream& file )
 }
 
 
-void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindowWidget* win)
-{
+void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraQtWindow* win){
 	std::ifstream configFileRaw( pathToConfig );
 	// check if opened correctly.
-	if ( !configFileRaw.is_open( ) )
-	{
+	if ( !configFileRaw.is_open( ) ){
 		errBox ( "Opening of Configuration File Failed!" );
+		return;
 	}
 	ConfigStream cStream (configFileRaw);
 	cStream.setCase (false);
@@ -118,70 +104,57 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, IChimeraWindow
 	currentProfile.configuration = pathToConfig.substr( slashPos + 1, extensionPos - slashPos - 1 );
 	currentProfile.configLocation = pathToConfig.substr( 0, slashPos);
 	slashPos = currentProfile.configLocation.find_last_of( '/' );
-	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1,
-																		  currentProfile.configLocation.size( ) );
+	currentProfile.parentFolderName = currentProfile.configLocation.substr( slashPos + 1, 
+																		    currentProfile.configLocation.size( ) );
 	currentProfile.configLocation += "/";
-	configDisplay->setText (cstr (currentProfile.configuration + ": " + pathToConfig));
-	try
-	{
+	std::string dispPath;
+	configDisplay->setText (cstr (currentProfile.configuration));
+	configDisplay->setToolTip (qstr (currentProfile.configuration + ": " + pathToConfig));
+	try	{
 		getVersionFromFile(cStream);
 		win->scriptWin->windowOpenConfig(cStream );
 		win->andorWin->windowOpenConfig(cStream );
 		win->auxWin->windowOpenConfig(cStream );
 		win->mainWin->windowOpenConfig(cStream );
-		if (cStream.ver >= Version ( "3.4" ) )
-		{
+		if (cStream.ver >= Version ( "3.4" ) ){
 			win->basWin->windowOpenConfig (cStream );
 		}
-		if (cStream.ver >= Version ("5.0"))
-		{
+		if (cStream.ver >= Version ("5.0")){
 			//dmWin->windowOpenConfig (cStream);
 		}
 	}
-	catch ( Error& err )
-	{
+	catch ( ChimeraError& err ){
 		errBox( "ERROR: Unhandled error while opening configuration files!\n\n" + err.trace() );
-
-		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}
-	/// finish up
-	//win->auxWin->setVariablesActiveState( true );
-	// actually set this now
-	//win->scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
 	updateConfigurationSavedStatus ( true );
 }
 
 
-void ProfileSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version minVer )
-{
+void ProfileSystem::initializeAtDelim ( ConfigStream& configStream, std::string delimiter, Version minVer ){
 	ProfileSystem::getVersionFromFile ( configStream );
-	if ( configStream.ver < minVer )
-	{
+	if ( configStream.ver < minVer ){
 		thrower ( "Configuration version (" + configStream.ver.str() +  ") less than minimum version (" + minVer.str() + ")" );
 	}
-	try
-	{
+	try{
 		ProfileSystem::jumpToDelimiter (configStream, delimiter );
 	}
-	catch ( Error& )
-	{
+	catch ( ChimeraError& ){
 		throwNested ( "Failed to initialize at a delimiter!" );
 	}
 }
 
 
-void ProfileSystem::jumpToDelimiter ( ConfigStream& configStream, std::string delimiter )
-{
-	while ( !configStream.eof() )
-	{
-		try
-		{
+void ProfileSystem::jumpToDelimiter ( ConfigStream& configStream, std::string delimiter ){
+	while ( !configStream.eof() ){
+		try{
 			checkDelimiterLine (configStream, delimiter );
 			// if reaches this point it was successful. The file should now be pointing to just beyond the delimiter.
 			return;
 		}
-		catch ( Error& )
-		{
+		catch ( ChimeraError& ){
+			if (configStream.peek () == EOF) {
+				break;
+			}
 			// didn't find delimiter, try next input.
 		}
 	}
@@ -189,14 +162,11 @@ void ProfileSystem::jumpToDelimiter ( ConfigStream& configStream, std::string de
 	thrower ( "Failed to jump to a delimiter! Delimiter was: " + delimiter + "." );
 }
 
-
 // small convenience function that I use while opening a file.
-void ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter)
-{
+void ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter){
 	std::string checkStr;
 	openFile >> checkStr;
-	if (checkStr != delimiter)
-	{
+	if (checkStr != delimiter){
 		thrower ("ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"");
 	}
 }
@@ -204,14 +174,11 @@ void ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delim
 
 // version with break condition. If returns true, calling function should break out of the loop which is checking the
 // line.
-bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition )
-{
+bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delimiter, std::string breakCondition ){
 	std::string checkStr;
 	openFile >> checkStr;
-	if ( checkStr != delimiter )
-	{
-		if ( checkStr == breakCondition )
-		{
+	if ( checkStr != delimiter ){
+		if ( checkStr == breakCondition ){
 			return true;
 		}
 		thrower ( "ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"" );
@@ -226,22 +193,19 @@ bool ProfileSystem::checkDelimiterLine(ConfigStream& openFile, std::string delim
 ]- is not a Normal Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns 
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
-void ProfileSystem::saveConfigurationOnly(IChimeraWindowWidget* win)
-{
+void ProfileSystem::saveConfigurationOnly(IChimeraQtWindow* win){
 	std::string configNameToSave = currentProfile.configuration;
 	// check to make sure that this is a name.
-	if (configNameToSave == "")
-	{
+	if (configNameToSave == ""){
 		thrower ( "ERROR: Please select a configuration before saving!" );
 	}
 	// check if file already exists
-	if (!ProfileSystem::fileOrFolderExists(currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION))  
-	{
-		int answer = promptBox("This configuration file appears to not exist in the expected location: " 
-								+ currentProfile.configLocation + configNameToSave 
-								+ "." + CONFIG_EXTENSION + ". Continue by making a new configuration file?", MB_OKCANCEL );
-		if (answer == IDCANCEL)
-		{
+	if (!ProfileSystem::fileOrFolderExists(currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION)){
+		auto answer = QMessageBox::question (win, qstr ("New Config?"),
+			qstr ("This configuration file appears to not exist in the expected location: " 
+				+ currentProfile.configLocation + configNameToSave
+				+ "." + CONFIG_EXTENSION + ". Continue by making a new configuration file?"));
+		if (answer == QMessageBox::No) {
 			return;
 		}
 	}
@@ -260,8 +224,7 @@ void ProfileSystem::saveConfigurationOnly(IChimeraWindowWidget* win)
 	win->mainWin->windowSaveConfig(saveStream);
 	win->basWin->windowSaveConfig (saveStream);
 	std::ofstream configSaveFile (currentProfile.configLocation + configNameToSave + "." + CONFIG_EXTENSION);
-	if (!configSaveFile.is_open ())
-	{
+	if (!configSaveFile.is_open ()){
 		thrower ("Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
 			"everything seems right...");
 	}
@@ -270,36 +233,12 @@ void ProfileSystem::saveConfigurationOnly(IChimeraWindowWidget* win)
 	updateConfigurationSavedStatus(true);
 }
 
-
-CBrush* ProfileSystem::handleColoring ( int id, CDC* pDC )
-{
-	static std::string txt;
-	/*
-	auto id_ = configurationSavedIndicator.GetDlgCtrlID ( );
-	txt += str ( id ) + ", ";
-	if ( id == id_ )
-	{
-		if ( !configurationSavedIndicator.GetCheck ( ) )
-		{
-			pDC->SetTextColor ( _myRGBs[ "White" ] );
-			pDC->SetBkColor ( _myRGBs[ "Red" ] );
-			// SetBkColor ( _myRGBs[ "Red" ] );
-			return _myBrushes[ "Red" ];
-		}
-	}
-	*/
-	return NULL;
-}
-
-
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-void ProfileSystem::saveConfigurationAs(IChimeraWindowWidget* win)
-{
+void ProfileSystem::saveConfigurationAs(IChimeraQtWindow* win){
 	std::string configurationPathToSave = saveWithExplorer (win, CONFIG_EXTENSION, currentProfile);
-	if ( configurationPathToSave == "")
-	{
+	if ( configurationPathToSave == ""){
 		// canceled
 		return;
 	}	
@@ -325,11 +264,11 @@ void ProfileSystem::saveConfigurationAs(IChimeraWindowWidget* win)
 	win->basWin->windowSaveConfig (configSaveStream);
 	// check if file already exists
 	std::ofstream configSaveFile (configurationPathToSave);
-	if (!configSaveFile.is_open ())
-	{
+	if (!configSaveFile.is_open ()){
 		thrower ("Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
 			"everything seems right...");
 	}
+	configSaveFile << configSaveStream.str ();
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
@@ -338,11 +277,9 @@ void ProfileSystem::saveConfigurationAs(IChimeraWindowWidget* win)
 /*
 ]--- This function renames the currently set 
 */
-void ProfileSystem::renameConfiguration()
-{
+void ProfileSystem::renameConfiguration(){
 	// check if configuration has been set yet.
-	if (currentProfile.configuration == "")
-	{
+	if (currentProfile.configuration == "")	{
 		thrower ( "The Configuration has not yet been selected! Please select a configuration or create a new one before "
 					"trying to rename it." );
 	}
@@ -351,8 +288,7 @@ void ProfileSystem::renameConfiguration()
 	TextPromptDialog dialog(&newConfigurationName, "Please enter new configuration name.", currentProfile.configuration);
 	dialog.DoModal();
 
-	if (newConfigurationName == "")
-	{
+	if (newConfigurationName == ""){
 		// canceled
 		return;
 	}
@@ -360,8 +296,7 @@ void ProfileSystem::renameConfiguration()
 		+ CONFIG_EXTENSION;
 	std::string newConfigurationLocation = currentProfile.configLocation + newConfigurationName + "." + CONFIG_EXTENSION;
 	int result = MoveFile(cstr(currentConfigurationLocation), cstr(newConfigurationLocation));
-	if (result == 0)
-	{
+	if (result == 0){
 		thrower ( "Renaming of the configuration file Failed! Ask Mark about bugs" );
 	}
 	currentProfile.configuration = newConfigurationName;
@@ -371,24 +306,21 @@ void ProfileSystem::renameConfiguration()
 /*
 ]--- 
 */
-void ProfileSystem::deleteConfiguration()
-{
+void ProfileSystem::deleteConfiguration(){
 	// check if configuration has been set yet.
-	if (currentProfile.configuration == "")
-	{
+	if (currentProfile.configuration == ""){
 		thrower ( "The Configuration has not yet been selected! Please select a configuration or create a new one before "
 				 "trying to rename it." );
 	}
-	int answer = promptBox("Are you sure you want to delete the current configuration: " 
-								 + currentProfile.configuration, MB_YESNO);
-	if (answer == IDNO)
-	{
+	auto answer = QMessageBox::question ( NULL, qstr ("Delete Config?"),
+		qstr ("Are you sure you want to delete the current configuration: " 
+			+ currentProfile.configuration));
+	if (answer == QMessageBox::No) {
 		return;
 	}
 	std::string currentConfigurationLocation = currentProfile.configLocation + currentProfile.configuration + "." + CONFIG_EXTENSION;
 	int result = DeleteFile(cstr(currentConfigurationLocation));
-	if (result == 0)
-	{
+	if (result == 0){
 		thrower ( "ERROR: Deleteing the configuration file failed!" );
 	}
 	// since the configuration this (may have been) was saved to is gone, no saved version of current code.
@@ -401,10 +333,8 @@ void ProfileSystem::deleteConfiguration()
 /*
 ]--- 
 */
-void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
-{
-	if ( configurationSavedIndicator == NULL )
-	{
+void ProfileSystem::updateConfigurationSavedStatus(bool isSaved){
+	if ( configurationSavedIndicator == NULL ){
 		return;
 	}
 	configurationIsSaved = isSaved;
@@ -412,12 +342,10 @@ void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 }
 
 
-bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindowWidget* win)
-{
+bool ProfileSystem::configurationSettingsReadyCheck(IChimeraQtWindow* win){
 	// prompt for save.
 	if (checkConfigurationSave( "There are unsaved configuration settings. Would you like to save the current "
-								"configuration before starting?", win))
-	{
+								"configuration before starting?", win)){
 		// canceled
 		return true;
 	}
@@ -425,17 +353,14 @@ bool ProfileSystem::configurationSettingsReadyCheck(IChimeraWindowWidget* win)
 }
 
 
-bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindowWidget* win)
-{
-	if (!configurationIsSaved)
-	{
-		int answer = promptBox(prompt, MB_YESNOCANCEL);
-		if (answer == IDYES)
-		{
+bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraQtWindow* win){
+	if (!configurationIsSaved){
+		auto answer = QMessageBox::question (NULL, qstr ("Check Save?"), qstr(prompt), QMessageBox::Yes 
+			| QMessageBox::No | QMessageBox::Cancel );
+		if (answer == QMessageBox::Yes){
 			saveConfigurationOnly( win );
 		}
-		else if (answer == IDCANCEL)
-		{
+		else if (answer == QMessageBox::Cancel){
 			return true;
 		}
 	}
@@ -443,34 +368,29 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraWindowWi
 }
 
 
-void ProfileSystem::handleSelectConfigButton(IChimeraWindowWidget* win)
-{	
-	if ( !configurationIsSaved )
-	{
+void ProfileSystem::handleSelectConfigButton(IChimeraQtWindow* win){	
+	if ( !configurationIsSaved ){
 		if ( checkConfigurationSave( "The current configuration is unsaved. Save current configuration before changing?",
-									 win ) )
-		{
+									 win ) ){
 			// TODO
 			return;
 		}
 	}
 	std::string fileaddress = openWithExplorer( win, CONFIG_EXTENSION );
+	qDebug() << qstr(fileaddress);
 	openConfigFromPath( fileaddress, win);
 }
 
-std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
-{
+std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile){
 	std::ifstream configF(profile.configFilePath());
-	if (!configF.is_open())
-	{
-		thrower ("ERROR: While trying to get the master script address from the config file " + profile.configFilePath ( ) 
+	if (!configF.is_open()){
+		thrower ("While trying to get the master script address from the config file " + profile.configFilePath ( ) 
 				 + ", the config file failed to open!");
 	}
 	ConfigStream stream (configF);
 	std::string line, word, address;
 	getVersionFromFile(stream );
-	if ( stream.ver.versionMajor < 3 )
-	{
+	if ( stream.ver.versionMajor < 3 ){
 		line = stream.getline ();
 	}
 	line = stream.getline (); 
@@ -480,43 +400,30 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 }
 
 
-void ProfileSystem::rearrange(int width, int height, fontMap fonts){}
-
-
-std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSearch, std::string extensions )
-{
+std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSearch, std::string extensions ){
 	// Re-add the entries back in and figure out which one is the current one.
 	std::vector<std::string> names;
 	std::string search_path = locationToSearch + "\\" + extensions;
 	WIN32_FIND_DATA fd;
 	HANDLE hFind;
-	if (extensions == "*")
-	{
+	if (extensions == "*"){
 		hFind = FindFirstFileEx( cstr(search_path), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, NULL, 0 );
 	}
-	else
-	{
+	else{
 		hFind = FindFirstFile( cstr(search_path), &fd );
 	}
-	if (hFind != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
+	if (hFind != INVALID_HANDLE_VALUE){
+		do{
 			// if looking for folders
-			if (extensions == "*")
-			{
-				if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
-				{
-					if (str( fd.cFileName ) != "." && str( fd.cFileName ) != "..")
-					{
+			if (extensions == "*"){
+				if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY){
+					if (str( fd.cFileName ) != "." && str( fd.cFileName ) != ".."){
 						names.push_back( fd.cFileName );
 					}
 				}
 			}
-			else
-			{
-				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
+			else{
+				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
 					names.push_back( fd.cFileName );
 				}
 			}
@@ -525,16 +432,13 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 	}
 
 	// Remove suffix from file names and...
-	for (UINT configListInc = 0; configListInc < names.size(); configListInc++)
-	{
+	for (unsigned configListInc = 0; configListInc < names.size(); configListInc++){
 		if (extensions == "*" || extensions == "*.*" || extensions == str( "*." ) + SEQUENCE_EXTENSION
 			|| extensions == str("*.") + PLOTTING_EXTENSION || extensions == str( "*." ) + CONFIG_EXTENSION 
-			 || extensions == str("*.") + FUNCTION_EXTENSION )
-		{
+			 || extensions == str("*.") + FUNCTION_EXTENSION ){
 			names[configListInc] = names[configListInc].substr( 0, names[configListInc].size() - (extensions.size() - 1) );
 		}
-		else
-		{
+		else{
 			names[configListInc] = names[configListInc].substr( 0, names[configListInc].size() - extensions.size() );
 		}
 	}
@@ -545,8 +449,7 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 
 // I had issues writing an MFC version of this with a Control<CComboBox> argument, so this is still written in Win32.
 void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, std::string extension,
-								 std::string nameToLoad )
-{
+								 std::string nameToLoad ){
 	std::vector<std::string> names;
 	names = searchForFiles( locationToLook, extension );
 	/// Get current selection
@@ -554,8 +457,7 @@ void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, s
 	QString experimentConfigToOpen;
 	std::string currentSelection;
 	int currentInc = -1;
-	if (itemIndex != -1)
-	{
+	if (itemIndex != -1){
 		experimentConfigToOpen = combo->itemText (itemIndex);
 		// Send CB_GETLBTEXT message to get the item.
 		currentSelection = str(experimentConfigToOpen);
@@ -563,10 +465,8 @@ void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, s
 	/// Reset stuffs
 	combo->clear ();
 	// Send list to object
-	for (auto comboInc : range(names.size()))
-	{
-		if (nameToLoad == names[comboInc])
-		{
+	for (auto comboInc : range(names.size())){
+		if (nameToLoad == names[comboInc]){
 			currentInc = comboInc;
 		}
 		combo->addItem (0, cstr (names[comboInc]));
@@ -575,27 +475,20 @@ void ProfileSystem::reloadCombo( QComboBox* combo, std::string locationToLook, s
 	combo->setCurrentIndex (currentInc);
 }
 
-
-bool ProfileSystem::fileOrFolderExists(std::string filePathway)
-{
+bool ProfileSystem::fileOrFolderExists(std::string filePathway){
 	// got this from stack exchange. dunno how it works but it should be fast.
 	struct stat buffer;
 	return (stat(cstr(filePathway), &buffer) == 0);
 }
 
-
-void ProfileSystem::fullyDeleteFolder(std::string folderToDelete)
-{
+void ProfileSystem::fullyDeleteFolder(std::string folderToDelete){
 	// this used to call SHFileOperation. Boost is better. Much better. 
 	uintmax_t filesRemoved = boost::filesystem::remove_all(cstr(folderToDelete));
-	if (filesRemoved == 0)
-	{
+	if (filesRemoved == 0){
 		thrower ("Delete Failed! Ask mark about bugs.");
 	}
 }
 
-
-profileSettings ProfileSystem::getProfileSettings()
-{
+profileSettings ProfileSystem::getProfileSettings(){
 	return currentProfile;
 }

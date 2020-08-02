@@ -18,7 +18,7 @@
 #include <array>
 #include <string>
 #include <unordered_map>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qtablewidget.h>
 #include <qpushbutton.h>
@@ -40,7 +40,7 @@ class DdsSystem
 		void handleSaveConfig (ConfigStream& file );
 		void handleOpenConfig (ConfigStream& file );
 		void handleContextMenu (const QPoint& pos);
-		void initialize(POINT& pos, IChimeraWindowWidget* master, std::string title );
+		void initialize(POINT& pos, IChimeraQtWindow* master, std::string title );
 		void handleRampClick();
 		void deleteRampVariable();
 		void getDataFromTable ();

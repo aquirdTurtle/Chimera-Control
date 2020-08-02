@@ -34,15 +34,14 @@
 
 class MainWindow;
 class DataLogger;
-class IChimeraWindowWidget;
+class IChimeraQtWindow;
 class ExperimentThreadManager;
 class ExpThreadWorker;
 
-struct ExperimentThreadInput
-{
+struct ExperimentThreadInput{
 	ExpThreadWorker* workerThread;
 
-	ExperimentThreadInput ( IChimeraWindowWidget* win );
+	ExperimentThreadInput ( IChimeraQtWindow* win );
 	realTimePlotterInput* plotterInput;
 	EmbeddedPythonHandler& python;
 	profileSettings profile;
@@ -54,15 +53,14 @@ struct ExperimentThreadInput
 
 	std::vector<parameterType> globalParameters;
 	ExperimentThreadManager* thisObj;
-	Communicator& comm;
 	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 	ParameterSystem& globalControl;
 
 	DataLogger& logger;
-	UINT numVariations = 1;
+	unsigned numVariations = 1;
 	bool quiet = false;
 	expSystemRunList runList;
-	UINT numAiMeasurements=0;
+	unsigned numAiMeasurements=0;
 	bool updatePlotterXVals = false;
 	std::atomic<bool>* skipNext = NULL;
 	atomGrid analysisGrid;

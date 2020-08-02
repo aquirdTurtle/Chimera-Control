@@ -12,12 +12,12 @@
 
 class NiawgCore;
 
-// rerng = rearrange
+// rerng is short for rearrange
 struct rerngThreadInput{
-	rerngThreadInput( UINT gridRows, UINT gridCols, Communicator& commInput ) : flashMoves( gridRows, gridCols ), 
-		noFlashMoves(gridRows, gridCols), comm( commInput ) {}
-	UINT sourceRows = 0;
-	UINT sourceCols = 0;
+	rerngThreadInput( unsigned gridRows, unsigned gridCols ) : flashMoves( gridRows, gridCols ), 
+		noFlashMoves(gridRows, gridCols) {}
+	unsigned sourceRows = 0;
+	unsigned sourceCols = 0;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* pictureTimes;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes;
 	std::mutex* rerngLock;
@@ -29,7 +29,6 @@ struct rerngThreadInput{
 	// making an extra copy of the static waveform, which is in general pretty large.
 	waveInfo* rerngWave;
 	NiawgCore* niawg;
-	Communicator& comm;
 	// stuff from the rearrangement input
 	rerngGuiOptions guiOptions;
 	rerngContainer<rerngMove> flashMoves;

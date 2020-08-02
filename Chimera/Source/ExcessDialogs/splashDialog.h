@@ -5,7 +5,7 @@ class splashDialog : public CDialog
 {
 	public:
 	splashDialog( );
-	HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
+	HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, unsigned nCtlColor );
 	BOOL OnInitDialog () override;
 	void stretchBmp ();
 	private:

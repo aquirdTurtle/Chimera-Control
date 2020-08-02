@@ -7,10 +7,10 @@ enum class PiezoType
 	NONE
 };
 
-struct piezoSetupInfo
-{
+struct piezoSetupInfo{
 	PiezoType type;
 	std::string addr;
 	std::string name;
+	bool expActive = true;
 };
 

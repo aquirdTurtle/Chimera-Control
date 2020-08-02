@@ -7,7 +7,7 @@
 struct imageParameters
 {
 	imageParameters ( ) { };
-	imageParameters ( UINT l, UINT  t, UINT  r, UINT  b, UINT  h_bin, UINT  v_bin )
+	imageParameters ( unsigned l, unsigned  t, unsigned  r, unsigned  b, unsigned  h_bin, unsigned  v_bin )
 	{
 		left = l;
 		top = t;
@@ -17,15 +17,15 @@ struct imageParameters
 		verticalBinning = v_bin;
 	}
 	
-	UINT left=1;
-	UINT top = 100; 
-	UINT right=100;
-	UINT bottom=1;
+	unsigned left=1;
+	unsigned top = 100; 
+	unsigned right=100;
+	unsigned bottom=1;
 	
-	UINT horizontalBinning=1;
-	UINT verticalBinning=1;
+	unsigned horizontalBinning=1;
+	unsigned verticalBinning=1;
 
-	UINT horRawPixelNum ( )
+	unsigned horRawPixelNum ( )
 	{
 		if ( left > right )
 		{
@@ -33,7 +33,7 @@ struct imageParameters
 		}
 		return this->right - this->left + 1;
 	}
-	UINT vertRawPixelNum ( )
+	unsigned vertRawPixelNum ( )
 	{
 		if ( bottom > top )
 		{
@@ -43,7 +43,7 @@ struct imageParameters
 	}
 
 	/* in units of # of binned pixels */
-	UINT width ( )
+	unsigned width ( )
 	{ 
 		if ( this->horizontalBinning == 0 )
 		{
@@ -52,7 +52,7 @@ struct imageParameters
 		return horRawPixelNum() / this->horizontalBinning;
 	}
 	/* in units of # of binned pixels */
-	UINT height( )
+	unsigned height( )
 	{
 		if ( this->verticalBinning == 0 )
 		{
@@ -61,7 +61,7 @@ struct imageParameters
 		return vertRawPixelNum() / this->verticalBinning;
 	}
 	/* in units of # of binned pixels */
-	UINT size ( )
+	unsigned size ( )
 	{
 		return this->width ( ) * this->height ( );
 	}

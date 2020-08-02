@@ -3,7 +3,7 @@
 
 namespace CustomMessages
 {
-	const static UINT
+	const static unsigned
 		StatusUpdateMessageID = (WM_APP + 1),
 		ErrorUpdateMessageID = (WM_APP + 2),
 		FatalErrorMessageID = (WM_APP + 3),

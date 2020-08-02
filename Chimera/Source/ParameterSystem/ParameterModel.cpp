@@ -3,8 +3,7 @@
 #include <boost/lexical_cast.hpp>
 
 ParameterModel::ParameterModel (bool isGlobal_, QObject* parent)
-    : QAbstractTableModel (parent), isGlobal(isGlobal_)
-{
+    : QAbstractTableModel (parent), isGlobal(isGlobal_){
     rangeInfo.defaultInit ();
     rangeInfo.setNumScanDimensions (1);
     rangeInfo.setNumRanges (0, 1);
@@ -25,32 +24,51 @@ int ParameterModel::columnCount (const QModelIndex& /*parent*/) const{
     return baseCols;
 }
 
-QVariant ParameterModel::data (const QModelIndex& index, int role) const
-{
+QVariant ParameterModel::data (const QModelIndex& index, int role) const{
     int row = index.row ();
     int col = index.column ();
     auto param = parameters[row];
     try {
         switch (role) {
+		case Qt::FontRole:{
+			if (param.overwritten) {
+				QFont font;
+				font.setBold (true);
+				return QVariant(font);
+			}
+			return QVariant (); // default
+		}
+		case Qt::ForegroundRole: { // text color
+			if (param.overwritten) {
+				return QVariant (QBrush (QColor (255, 0, 0)));
+			}
+			return QVariant (); // default
+		}
+		case Qt::BackgroundRole: { // background color
+			if (param.active) {
+				return QVariant (QBrush (QColor (40,40,80)));
+			}
+			return QVariant (); // default
+		}
         case Qt::EditRole:
             if (!isGlobal && col >= 5) {
                 auto rangeNum = int (col - 5) / 3;
                 std::string lEnd = rangeInfo (param.scanDimension, rangeNum).leftInclusive ? "[" : "(";
                 std::string rEnd = rangeInfo (param.scanDimension, rangeNum).rightInclusive ? "]" : ")";
                 switch ((col - 5) % 3) {
-                case 0:
-                    return QString ((str (param.ranges[rangeNum].initialValue)).c_str ());
-                case 1:
-                    return QString ((str (param.ranges[rangeNum].finalValue)).c_str ());
+					case 0:
+						return qstr (param.ranges[rangeNum].initialValue, 9, true);
+					case 1:
+						return qstr (param.ranges[rangeNum].finalValue, 9, true);
                 }
             } // purposely don't break as this is only different for these two. 
         case Qt::DisplayRole:
             if (isGlobal) {
                 switch (col) {
                 case 0:
-                    return QString (param.name.c_str ());
+                    return qstr(param.name);
                 case 1:
-                    return QString (cstr (param.constantValue));
+                    return qstr (param.constantValue, 9, true);
                 default:
                     return QVariant ();
                 }
@@ -58,15 +76,15 @@ QVariant ParameterModel::data (const QModelIndex& index, int role) const
             else {
                 switch (col) {
                 case 0:
-                    return QString (param.name.c_str ());
+                    return qstr (param.name);
                 case 1:
-                    return QString (param.constant ? "Constant" : "Variable");
+                    return qstr (param.constant ? "Const." : "Var.");
                 case 2:
-                    return QString (cstr (param.scanDimension));
+                    return qstr (param.scanDimension);
                 case 3:
-                    return QString (cstr (param.constantValue));
+                    return param.constant ? qstr (param.constantValue, 9, true) : "---";
                 case 4:
-                    return QString (cstr (param.parameterScope));
+                    return qstr (param.parameterScope);
                 default:
                     if (param.constant) {
                         return QString ("---");
@@ -75,19 +93,19 @@ QVariant ParameterModel::data (const QModelIndex& index, int role) const
                     std::string lEnd = rangeInfo (param.scanDimension, rangeNum).leftInclusive ? "[" : "(";
                     std::string rEnd = rangeInfo (param.scanDimension, rangeNum).rightInclusive ? "]" : ")";
                     switch ((col - 5) % 3) {
-                    case 0:
-                        return QString ((lEnd + str (param.ranges[rangeNum].initialValue)).c_str ());
-                    case 1:
-                        return QString ((str (param.ranges[rangeNum].finalValue) + rEnd).c_str ());
-                    case 2:
-                        return QString (cstr (rangeInfo (param.scanDimension, rangeNum).variations));
+						case 0:
+							return qstr(lEnd + str (param.ranges[rangeNum].initialValue,9,true));
+						case 1:
+							return qstr (str(param.ranges[rangeNum].finalValue, 9, true) + rEnd);
+						case 2:
+							return qstr (rangeInfo (param.scanDimension, rangeNum).variations);
                     }
                     return QVariant ();
                 }
             }
         }
     }
-    catch (Error& err){
+    catch (ChimeraError& err){
         errBox (err.trace ());
     }
     return QVariant ();
@@ -117,10 +135,12 @@ QVariant ParameterModel::headerData (int section, Qt::Orientation orientation, i
 }
 
 Qt::ItemFlags ParameterModel::flags (const QModelIndex& index) const {
-    if (index.column () == 1 && !isGlobal || (index.column() >= preRangeColumns && parameters[index.row()].constant)) {
+    if (index.column () == 1 && !isGlobal || // the "const. / var. option is togglable, not editable.
+		(index.column() >= preRangeColumns && parameters[index.row()].constant) || // variation values for constants
+		index.column() == 3 && !isGlobal && !parameters[index.row()].constant) { // const value for variables
         return QAbstractTableModel::flags (index);
     }
-    return Qt::ItemIsEditable | QAbstractTableModel::flags (index);
+	return Qt::ItemIsEditable | QAbstractTableModel::flags (index);
 };
 
 bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, int role)
@@ -163,14 +183,15 @@ bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, i
                         std::string rEnd = rangeInfo (param.scanDimension, rangeNum).rightInclusive ? "]" : ")";
 
                         switch ((index.column () - 5) % 3) {
-                        case 0:
-                            param.ranges[rangeNum].initialValue = boost::lexical_cast<double>(cstr(value.toString ()));
-                            break;
-                        case 1:
-                            param.ranges[rangeNum].finalValue = boost::lexical_cast<double>(cstr (value.toString ()));
-                            break;
-                        case 2:
-                            rangeInfo (param.scanDimension, rangeNum).variations = boost::lexical_cast<unsigned int>(cstr (value.toString ()));
+							case 0:
+								param.ranges[rangeNum].initialValue = boost::lexical_cast<double>(cstr(value.toString ()));
+								break;
+							case 1:
+								param.ranges[rangeNum].finalValue = boost::lexical_cast<double>(cstr (value.toString ()));
+								break;
+							case 2:
+								rangeInfo (param.scanDimension, rangeNum).variations 
+									= boost::lexical_cast<unsigned int>(cstr (value.toString ()));
                         }
                 }
             }
@@ -191,7 +212,7 @@ void ParameterModel::setParams (std::vector<parameterType> newParams) {
     emit paramsChanged ();
 }
 
-std::vector<parameterType> ParameterModel::getParams () {
+std::vector<parameterType>& ParameterModel::getParams () {
     return parameters;
 }
 
@@ -199,8 +220,7 @@ ScanRangeInfo ParameterModel::getRangeInfo (){
     return rangeInfo;
 }
 
-void ParameterModel::setRangeInfo (ScanRangeInfo info)
-{
+void ParameterModel::setRangeInfo (ScanRangeInfo info){
     beginResetModel ();
     rangeInfo = info;
     endResetModel ();
@@ -215,7 +235,7 @@ void ParameterModel::checkScanDimensionConsistency () {
 }
 
 void ParameterModel::checkVariationRangeConsistency () {
-    UINT dum = 0;
+    unsigned dum = 0;
     for (auto var : parameters) {
         if (var.ranges.size () != rangeInfo.numRanges (var.scanDimension)) {
             if (dum == 0) {
@@ -229,8 +249,7 @@ void ParameterModel::checkVariationRangeConsistency () {
 }
 
 
-void ParameterModel::setVariationRangeNumber (int num, USHORT dimNumber)
-{
+void ParameterModel::setVariationRangeNumber (int num, USHORT dimNumber){
     // -2 for the two +- columns
     int currentVariableRangeNumber = (columnCount () - preRangeColumns) / 3;
     checkScanDimensionConsistency ();
@@ -259,7 +278,7 @@ void ParameterModel::setVariationRangeNumber (int num, USHORT dimNumber)
         while (currentVariableRangeNumber < num) {
             /// add a range.
             rangeInfo.dimensionInfo (dimNumber).push_back (defaultRangeInfo);
-            for (UINT varInc = 0; varInc < parameters.size (); varInc++) {
+            for (unsigned varInc = 0; varInc < parameters.size (); varInc++) {
                 indvParamRangeInfo tempInfo{ 0,0 };
                 parameters[varInc].ranges.push_back (tempInfo);
             }

@@ -15,29 +15,11 @@ BEGIN_MESSAGE_MAP(TtlSettingsDialog, CDialog)
 END_MESSAGE_MAP()
 
 
-void TtlSettingsDialog::OnSize( UINT type, int w, int h )
-{
-	/*
-	for ( auto& label : numberlabels )
-	{
-		label.rearrange( w, h );
-	}
-	for ( auto& row : rowLabels )
-	{
-		row.rearrange( w, h );
-	}
-	for ( auto& row : edits )
-	{
-		for ( auto& edit : row )
-		{
-			edit.rearrange( w, h );
-		}
-	}
-	*/
+void TtlSettingsDialog::OnSize( unsigned type, int w, int h ){
 }
 
 
-TtlSettingsDialog::TtlSettingsDialog(ttlInputStruct* inputPtr, UINT dialogResource) : CDialog(dialogResource)
+TtlSettingsDialog::TtlSettingsDialog(ttlInputStruct* inputPtr, unsigned dialogResource) : CDialog(dialogResource)
 {
 	input = inputPtr;
 }
@@ -54,7 +36,7 @@ BOOL TtlSettingsDialog::OnInitDialog()
 	LONG rowSize = 30;
 	POINT pos = { labelSize, 0};
 
-	for (UINT numberInc = 0; numberInc < edits.front().size(); numberInc++)
+	for (unsigned numberInc = 0; numberInc < edits.front().size(); numberInc++)
 	{
 		numberlabels[numberInc].sPos = { pos.x, pos.y, pos.x += columnWidth, pos.y + rowSize };
 		numberlabels[numberInc].Create( cstr(numberInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_CENTER |
@@ -67,7 +49,7 @@ BOOL TtlSettingsDialog::OnInitDialog()
 		rowLabels[int(row)].sPos = { pos.x, pos.y, pos.x += labelSize, pos.y + rowSize };
 		rowLabels[int(row)].Create(cstr(DoRows::toStr(row)), WS_CHILD | ES_CENTER | WS_VISIBLE , 
 									rowLabels[ int ( row ) ].sPos, this, id++);
-		for (UINT numberInc = 0; numberInc < edits[ int ( row ) ].size(); numberInc++)
+		for (unsigned numberInc = 0; numberInc < edits[ int ( row ) ].size(); numberInc++)
 		{
 			edits[ int ( row ) ][numberInc].sPos = { pos.x, pos.y, pos.x += columnWidth, pos.y + rowSize };
 			edits[ int ( row ) ][numberInc].Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP,
@@ -83,7 +65,7 @@ void TtlSettingsDialog::handleOk()
 {
 	for (auto row : DoRows::allRows )
 	{
-		for (UINT numberInc = 0; numberInc < edits[int(row)].size(); numberInc++)
+		for (unsigned numberInc = 0; numberInc < edits[int(row)].size(); numberInc++)
 		{
 			CString name;
 			edits[ int ( row ) ][numberInc].GetWindowText(name);

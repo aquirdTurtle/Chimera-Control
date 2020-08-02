@@ -13,17 +13,17 @@ template <class type>
 class Matrix
 {
 	public:
-		Matrix( UINT rowsInGrid=0, UINT colsInGrid=0 );
-		Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue );
-		Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D );
-		type operator()( UINT row, UINT col ) const;
-		type & operator()( UINT row, UINT col );
+		Matrix( unsigned rowsInGrid=0, unsigned colsInGrid=0 );
+		Matrix( unsigned rowsInGrid, unsigned colsInGrid, type initValue );
+		Matrix( unsigned rowsInGrid, unsigned colsInGrid, std::vector<type> init1D );
+		type operator()( unsigned row, unsigned col ) const;
+		type & operator()( unsigned row, unsigned col );
 		type operator()( POINT p ) const;
 		type & operator()( POINT p );
-		UINT getRows () const;
-		UINT getCols () const;
+		unsigned getRows () const;
+		unsigned getCols () const;
 		size_t size ( ) const;
-		Matrix<type> submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
+		Matrix<type> submatrix( unsigned rowOffset, unsigned rowSubSpan, unsigned colOffset, unsigned colSubSpan );
 		std::string print( );
 		void updateString( );
 		// typename tells the compiler that std::vector<type>::iterator will be a type.
@@ -33,7 +33,7 @@ class Matrix
 		// was specialized in the standard library, a decision most consider to be a mistake.
 		boost::container::vector<type> data;
 	private:
-		UINT rows, cols;
+		unsigned rows, cols;
 		// the following string is only updated if in debug mode.
 		std::string currMatrix;
 }
@@ -46,7 +46,7 @@ void loadBools( Matrix<type>& matrix, std::vector<bool> init )
 	{
 		thrower ( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
 	}
-	UINT count = 0;
+	unsigned count = 0;
 	for ( auto val : init )
 	{
 		matrix.data[count++] = val;
@@ -63,7 +63,7 @@ void Matrix<type>::updateString( )
 
 
 template <class type>
-Matrix<type> Matrix<type>::submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan )
+Matrix<type> Matrix<type>::submatrix( unsigned rowOffset, unsigned rowSubSpan, unsigned colOffset, unsigned colSubSpan )
 {
 	if ( rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols )
 	{
@@ -86,7 +86,7 @@ template <class type>
 std::string Matrix<type>::print( )
 {
 	std::string printStr;
-	UINT counter = 0;
+	unsigned counter = 0;
 	for ( auto rowInc : range(getRows ( )) )
 	{
 		for ( auto colInc : range(getCols ( )) )
@@ -101,7 +101,7 @@ std::string Matrix<type>::print( )
 
 // the array gets sized only once in the constructor.
 template<class type>
-Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid ) :
+Matrix<type>::Matrix( unsigned rowsInGrid, unsigned colsInGrid ) :
 	rows( rowsInGrid ),
 	cols( colsInGrid ),
 	data( rowsInGrid*colsInGrid )
@@ -109,7 +109,7 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid ) :
 
 
 template<class type>
-Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue ) :
+Matrix<type>::Matrix( unsigned rowsInGrid, unsigned colsInGrid, type initValue ) :
 	rows( rowsInGrid ),
 	cols( colsInGrid ),
 	data( rowsInGrid*colsInGrid, initValue )
@@ -117,7 +117,7 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue ) :
 
 
 template<class type>
-Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D ) :
+Matrix<type>::Matrix( unsigned rowsInGrid, unsigned colsInGrid, std::vector<type> init1D ) :
 	rows( rowsInGrid ),
 	cols( colsInGrid ),
 	data( init1D.begin(), init1D.end() )
@@ -131,14 +131,14 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D
 }
 
 template <class type>
-UINT Matrix<type>::getCols( ) const
+unsigned Matrix<type>::getCols( ) const
 {
 	return cols;
 }
 
 
 template <class type>
-UINT Matrix<type>::getRows( ) const
+unsigned Matrix<type>::getRows( ) const
 {
 	return rows;
 }
@@ -162,8 +162,8 @@ type Matrix<type>::operator()( POINT p ) const
 		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( p.x ) );
 	}
 
-	UINT rowOffset ( p.y * cols );
-	UINT index = rowOffset + p.x;
+	unsigned rowOffset ( p.y * cols );
+	unsigned index = rowOffset + p.x;
 	return data[ index ];
 }
 
@@ -178,13 +178,13 @@ type & Matrix<type>::operator()( POINT p )
 	{
 		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( p.x ) );
 	}
-	UINT rowOffset ( p.y * cols );
-	UINT index = rowOffset + p.x;
+	unsigned rowOffset ( p.y * cols );
+	unsigned index = rowOffset + p.x;
 	return data[ index ];
 }
 
 template<class type>
-type Matrix<type>::operator()( UINT row, UINT col ) const
+type Matrix<type>::operator()( unsigned row, unsigned col ) const
 {
 	if ( row >= rows )
 	{
@@ -194,13 +194,13 @@ type Matrix<type>::operator()( UINT row, UINT col ) const
 	{
 		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( col ) );
 	}
-	UINT rowOffset ( row * cols );
-	UINT index = rowOffset + col;
+	unsigned rowOffset ( row * cols );
+	unsigned index = rowOffset + col;
 	return data[ index ];
 }
 
 template<class type>
-type & Matrix<type>::operator()( UINT row, UINT col )
+type & Matrix<type>::operator()( unsigned row, unsigned col )
 {
 	if ( row >= rows )
 	{
@@ -210,8 +210,8 @@ type & Matrix<type>::operator()( UINT row, UINT col )
 	{
 		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( col ) );
 	}
-	UINT rowOffset ( row * cols );
-	UINT index = rowOffset + col;
+	unsigned rowOffset ( row * cols );
+	unsigned index = rowOffset + col;
 	return data[ index ];
 }
 

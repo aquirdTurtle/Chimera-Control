@@ -8,7 +8,7 @@
 #include "GeneralImaging/PictureControl.h"
 #include "DataLogging/DataLogger.h"
 #include "GeneralObjects/IDeviceCore.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 
 #include <pylon/PylonIncludes.h>
 #include <pylon/PylonGUI.h>
@@ -17,22 +17,20 @@
 
 #include <atomic>
 
-struct triggerThreadInput
-{
+struct triggerThreadInput{
 	double frameRate;
 	BaslerWrapper* camera;
 };
 
 // the object for an actual camera.  doesn't handle gui things itself, just the interface from my code to the camera object.
-class BaslerCameraCore : public IDeviceCore
-{
+class BaslerCameraCore : public IDeviceCore{
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		BaslerCameraCore& operator=(const BaslerCameraCore&) = delete;
 		BaslerCameraCore (const BaslerCameraCore&) = delete;
 
 		// important constructor to initialize camera
-		BaslerCameraCore( IChimeraWindowWidget* parent );
+		BaslerCameraCore( IChimeraQtWindow* parent );
 		~BaslerCameraCore();
 		void logSettings (DataLogger& logger);
 		baslerSettings getSettingsFromConfig (ConfigStream& configFile);
@@ -44,7 +42,7 @@ class BaslerCameraCore : public IDeviceCore
 		static void triggerThread(void* input);
 		void softwareTrigger();
 		POINT getCameraDimensions();
-		void reOpenCamera(IChimeraWindowWidget* parent );
+		void reOpenCamera(IChimeraQtWindow* parent );
 		std::string getCameraInfo();
 		baslerSettings getDefaultSettings();
 		double getCurrentExposure();
@@ -57,7 +55,7 @@ class BaslerCameraCore : public IDeviceCore
 		std::string getDelim () { return configDelim; }
 		void loadExpSettings (ConfigStream& stream);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void programVariation (unsigned variation, std::vector<parameterType>& params) {};
 		void errorFinish () {};
 		void normalFinish () {};
 

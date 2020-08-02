@@ -5,7 +5,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "CustomMfcControlWrappers/Control.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qcheckbox.h>
@@ -22,7 +22,6 @@ class rerngGuiControl
 		static rerngGuiOptions getSettingsFromConfig (ConfigStream& config);
 		void handleOpenConfig( ConfigStream& openFile);
 		void handleSaveConfig( ConfigStream& newFile );
-		void rearrange( int width, int height, fontMap fonts );
 		void updateActive ( );
 		void setEnabled (bool enabled);
 	private:

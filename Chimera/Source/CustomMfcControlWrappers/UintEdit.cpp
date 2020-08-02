@@ -2,13 +2,13 @@
 #include "UintEdit.h"
 #include <boost/lexical_cast.hpp>
 
-UINT UintEdit::getWindowTextAsUINT()
+unsigned UintEdit::getWindowTextAsUINT()
 {
 	CString txt;
 	GetWindowText (txt);
 	try
 	{
-		return boost::lexical_cast<UINT>(str (txt));
+		return boost::lexical_cast<unsigned>(str (txt));
 	}
 	catch (boost::bad_lexical_cast&)
 	{

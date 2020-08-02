@@ -10,7 +10,7 @@
 #include "Andor/AndorCameraCore.h"
 #include "ConfigurationSystems/Version.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox>
 #include <qcombobox.h>
@@ -28,10 +28,10 @@ struct cameraPositions;
 class AndorCameraSettingsControl{
 	public:
 		AndorCameraSettingsControl();
-		void setVariationNumber(UINT varNumber);
-		void setRepsPerVariation(UINT repsPerVar);
+		void setVariationNumber(unsigned varNumber);
+		void setRepsPerVariation(unsigned repsPerVar);
 		void updateRunSettingsFromPicSettings( );
-		void initialize(POINT& pos, IChimeraWindowWidget* parent );
+		void initialize(POINT& pos, IChimeraQtWindow* parent );
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain( bool currentlyOn, int currentEmGainLevel );
@@ -67,7 +67,7 @@ class AndorCameraSettingsControl{
 	private:
 		double getKineticCycleTime( );
 		double getAccumulationCycleTime( );
-		UINT getAccumulationNumber( );
+		unsigned getAccumulationNumber( );
 		imageParameters getImageParameters( );
 		QLabel* header;
 		// Hardware Accumulation Parameters

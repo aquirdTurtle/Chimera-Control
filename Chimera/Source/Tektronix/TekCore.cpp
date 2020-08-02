@@ -4,55 +4,42 @@
 #include "TektronixStructures.h"
 
 TekCore::TekCore (bool safemode, std::string address, std::string configurationFileDelimiter) : 
-	visaFlume (safemode, address), configDelim (configurationFileDelimiter)
-{
-	try
-	{
+	visaFlume (safemode, address), configDelim (configurationFileDelimiter){
+	try{
 		visaFlume.open ();
 	}
-	catch (Error & err)
-	{
+	catch (ChimeraError & err){
 		errBox ("Failed to initialize tektronics visa connection! " + err.trace ());
 	}
 }
 
-TekCore::~TekCore ()
-{
+TekCore::~TekCore (){
 	visaFlume.close ();
 }
 
-void TekCore::programVariation (UINT variation, std::vector<parameterType>& params)
-{
-	if (experimentActive)
-	{
-		if (experimentInfo.channels[0].control || experimentInfo.channels[1].control)
-		{
-			for (auto channelInc : range (experimentInfo.channels.size ()))
-			{
+void TekCore::programVariation (unsigned variation, std::vector<parameterType>& params){
+	if (experimentActive){
+		if (experimentInfo.channels[0].control || experimentInfo.channels[1].control){
+			for (auto channelInc : range (experimentInfo.channels.size ())){
 				auto& channel = experimentInfo.channels[channelInc];
 				auto ch_s = str (channelInc + 1);
-				if (channel.control)
-				{
-					if (channel.on)
-					{
+				if (channel.control){
+					if (channel.on){
 						visaFlume.write ("SOURCE" + ch_s + ":FREQ " + str (channel.mainFreq.getValue (variation)));
 						visaFlume.write ("SOURCE" + ch_s + ":VOLT:UNIT DBM");
 						visaFlume.write ("SOURCE" + ch_s + ":VOLT " + str (channel.power.getValue (variation)));
 						visaFlume.write ("SOURCE" + ch_s + ":VOLT:OFFS 0");
-						if (channel.fsk)
-						{
+						if (channel.fsk){
 							visaFlume.write ("SOURCE" + ch_s + ":FSKey:STATe On");
 							visaFlume.write ("SOURCE" + ch_s + ":FSKey:FREQ " + str (channel.fskFreq.getValue (variation)));
 							visaFlume.write ("SOURCE" + ch_s + ":FSKey:SOURce External");
 						}
-						else
-						{
+						else{
 							visaFlume.write ("SOURCE" + ch_s + ":FSKey:STATe Off");
 						}
 						visaFlume.write ("OUTput" + ch_s + ":STATe ON");
 					}
-					else
-					{
+					else{
 						visaFlume.write ("OUTput" + ch_s + ":STATe OFF");
 					}
 				}
@@ -61,33 +48,25 @@ void TekCore::programVariation (UINT variation, std::vector<parameterType>& para
 	}
 }
 
-std::string TekCore::queryIdentity ()
-{
-	try
-	{
+std::string TekCore::queryIdentity (){
+	try{
 		auto res = visaFlume.identityQuery ();
 		return res;
 	}
-	catch (Error & err)
-	{
+	catch (ChimeraError & err){
 		return err.trace ();
 	}
 }
 
-void TekCore::calculateVariations (std::vector<parameterType>& parameters, ExpThreadWorker* threadworker)
-{
+void TekCore::calculateVariations (std::vector<parameterType>& parameters, ExpThreadWorker* threadworker){
 	calculateVariations (parameters);
 }
-void TekCore::calculateVariations (std::vector<parameterType>& parameters)
-{
-	if (experimentActive)
-	{
-		UINT variations = (parameters.size() == 0 ? 1 : parameters.front ().keyValues.size ());
-		UINT sequenceNumber;
-		for (auto& channel : experimentInfo.channels)
-		{
-			if (channel.on)
-			{
+void TekCore::calculateVariations (std::vector<parameterType>& parameters){
+	if (experimentActive){
+		unsigned variations = (parameters.size() == 0 ? 1 : parameters.front ().keyValues.size ());
+		unsigned sequenceNumber;
+		for (auto& channel : experimentInfo.channels){
+			if (channel.on)	{
 				channel.mainFreq.internalEvaluate (parameters, variations);
 				channel.power.internalEvaluate (parameters, variations);
 				if (channel.fsk) { channel.fskFreq.internalEvaluate (parameters, variations); }
@@ -96,12 +75,10 @@ void TekCore::calculateVariations (std::vector<parameterType>& parameters)
 	}
 }
 
-tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile)
-{
+tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile){
 	auto getlineF = ProfileSystem::getGetlineFunc (configFile.ver);
 	tektronixInfo tekInfo;
-	for (auto chanInc : range (tekInfo.channels.size ()))
-	{
+	for (auto chanInc : range (tekInfo.channels.size ())){
 		ProfileSystem::checkDelimiterLine (configFile, "CHANNEL_" + str (chanInc + 1));
 		auto& channel = tekInfo.channels[chanInc];
 		configFile >> channel.control >> channel.on >> channel.fsk;
@@ -113,25 +90,20 @@ tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile)
 	return tekInfo;
 }
 
-void TekCore::logSettings (DataLogger& log)
-{
-	try
-	{
+void TekCore::logSettings (DataLogger& log){
+	try{
 		H5::Group tektronixGroup;
-		try
-		{
+		try	{
 			tektronixGroup = H5::Group (log.file.createGroup ("/Tektronics"));
 		}
-		catch (H5::Exception err)
-		{
+		catch (H5::Exception err){
 			// probably has just already been created.
 			tektronixGroup = H5::Group (log.file.openGroup ("/Tektronics"));
 		}
 		H5::Group thisTek (tektronixGroup.createGroup (getDelim()));
 		log.writeDataSet (experimentInfo.machineAddress, "Machine-Address", thisTek);
-		UINT channelCount = 1;
-		for (auto& channel : experimentInfo.channels)
-		{
+		unsigned channelCount = 1;
+		for (auto& channel : experimentInfo.channels){
 			H5::Group thisChannel (thisTek.createGroup ("Channel_" + str (channelCount++)));
 			log.writeDataSet (channel.control, "Controlled_Option", thisChannel);
 			log.writeDataSet (channel.on, "Output_On", thisChannel);
@@ -141,15 +113,18 @@ void TekCore::logSettings (DataLogger& log)
 			log.writeDataSet (channel.fskFreq.expressionStr, "FSK_Frequency", thisChannel);
 		}
 	}
-	catch (H5::Exception err)
-	{
+	catch (H5::Exception err){
 		log.logError (err);
 		throwNested ("Failed to write tektronics settings to the HDF5 data file!");
 	}
 }
 
-void TekCore::loadExpSettings (ConfigStream& stream)
-{
+void TekCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, experimentInfo);
 	experimentActive = (experimentInfo.channels[0].control || experimentInfo.channels[1].control);
+}
+
+
+void TekCore::setSettings (tektronixInfo newInfo) {
+	experimentInfo = newInfo;
 }

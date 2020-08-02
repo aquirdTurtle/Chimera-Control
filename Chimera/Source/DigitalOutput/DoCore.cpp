@@ -9,7 +9,7 @@ DoCore::DoCore (bool ftSafemode, bool serialSafemode) : ftFlume (ftSafemode),	wi
 		connectType = ftdiConnectionOption::Async;
 		ftdi_connectasync ("FT2E722BB");
 	}
-	catch (Error & err)
+	catch (ChimeraError &)
 	{
 		throwNested ("Failed to initialize DO Core!?!");
 	}
@@ -63,7 +63,7 @@ DWORD DoCore::ftdi_trigger (){
 /*
 * Takes data from "mem" structure and writes to the dio board.
 */
-DWORD DoCore::ftdi_write (UINT variation, bool loadSkip){
+DWORD DoCore::ftdi_write (unsigned variation, bool loadSkip){
 	if (connectType == ftdiConnectionOption::Serial || connectType == ftdiConnectionOption::Async){
 		auto& buf = loadSkip ? finFtdiBuffers_loadSkip (variation) : finFtdiBuffers (variation);
 		// please note that Serial mode has not been thoroughly tested (by me, MOB at least)!
@@ -99,7 +99,7 @@ DWORD DoCore::ftdi_write (UINT variation, bool loadSkip){
 }
 
 
-void DoCore::fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt){
+void DoCore::fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, unsigned offset, unsigned count, ftdiPt pt){
 	if (offset + 20 >= dataBuffer.size ()){
 		thrower ("tried to write data buffer out of bounds!");
 	}
@@ -130,7 +130,7 @@ void DoCore::fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, UINT of
 }
 
 
-void DoCore::convertToFinalFtdiFormat (UINT variation){
+void DoCore::convertToFinalFtdiFormat (unsigned variation){
 	for (auto loadSkip : { false, true }){
 		// first convert from diosnapshot to ftdi snapshot
 		auto& snaps = loadSkip ? ftdiSnaps_loadSkip (variation) : ftdiSnaps (variation);
@@ -144,7 +144,7 @@ void DoCore::convertToFinalFtdiFormat (UINT variation){
 		buf.bytesToWrite = 0;
 		unsigned int number = 0;
 		while ((number < bufSize) && proceed){
-			UINT offset = DIO_WRITESPERDATAPT * number * DIO_MSGLENGTH;
+			unsigned offset = DIO_WRITESPERDATAPT * number * DIO_MSGLENGTH;
 			fillFtdiDataBuffer (buf.pts, offset, count, snaps[count]);
 			if (snaps[count] == ftdiPt ({ 0,0,0,0,0,0,0,0,0 }) && number != 0){
 				proceed = false;//this is never false since we reach 43008 size?
@@ -173,13 +173,13 @@ std::array< std::array<bool, 16>, 4 > DoCore::getFinalSnapshot (){
 
 
 std::string DoCore::getDoSystemInfo (){
-	UINT numDev;
+	unsigned numDev;
 	std::string msg = "";
 	try{
 		numDev = ftFlume.getNumDevices ();
 		msg += "Number ft devices: " + str (numDev) + "\n";
 	}
-	catch (Error & err){
+	catch (ChimeraError & err){
 		msg += "Failed to Get number ft Devices! Error was: " + err.trace ();
 	}
 	msg += ftFlume.getDeviceInfoList ();
@@ -197,7 +197,7 @@ void DoCore::standardNonExperimentStartDoSequence (DoSnapshot initSnap){
 	FtdiWaitTillFinished (0);
 }
 
-void DoCore::initializeDataObjects (UINT variationNum){
+void DoCore::initializeDataObjects (unsigned variationNum){
 	ttlCommandFormList = std::vector<DoCommandForm>();
 	ttlCommandList.uniformSizeReset (variationNum);
 	ttlSnapshots.uniformSizeReset (variationNum);
@@ -209,17 +209,17 @@ void DoCore::initializeDataObjects (UINT variationNum){
 }
 
 
-void DoCore::ttlOn (UINT row, UINT column, timeType time){
+void DoCore::ttlOn (unsigned row, unsigned column, timeType time){
 	ttlCommandFormList.push_back ({ {row, column}, time, {}, true });
 }
 
 
-void DoCore::ttlOff (UINT row, UINT column, timeType time){
+void DoCore::ttlOff (unsigned row, unsigned column, timeType time){
 	ttlCommandFormList.push_back ({ {row, column}, time, {}, false });
 }
 
 
-void DoCore::ttlOnDirect (UINT row, UINT column, double timev, UINT variation){
+void DoCore::ttlOnDirect (unsigned row, unsigned column, double timev, unsigned variation){
 	DoCommand command;
 	command.line = { row, column };
 	command.time = timev;
@@ -228,7 +228,7 @@ void DoCore::ttlOnDirect (UINT row, UINT column, double timev, UINT variation){
 }
 
 
-void DoCore::ttlOffDirect (UINT row, UINT column, double timev, UINT variation){
+void DoCore::ttlOffDirect (unsigned row, unsigned column, double timev, unsigned variation){
 	DoCommand command;
 	command.line = { row, column };
 	command.time = timev;
@@ -256,7 +256,7 @@ void DoCore::restructureCommands (){
 
 
 
-void DoCore::sizeDataStructures (UINT variations){
+void DoCore::sizeDataStructures (unsigned variations){
 	/// imporantly, this sizes the relevant structures.
 	ttlSnapshots.uniformSizeReset (variations);
 	ttlCommandList.uniformSizeReset (variations);
@@ -272,7 +272,7 @@ void DoCore::sizeDataStructures (UINT variations){
  * Read key values from variables and convert command form to the final commands.
  */
 void DoCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
-	UINT variations = params.size () == 0 ? 1 : params.front ().keyValues.size ();
+	unsigned variations = params.size () == 0 ? 1 : params.front ().keyValues.size ();
 	if (variations == 0){
 		variations = 1;
 	}
@@ -307,7 +307,7 @@ std::vector<double> DoCore::getFinalTimes ()
 }
 
 
-std::vector<std::vector<plotDataVec>> DoCore::getPlotData (UINT variation){
+std::vector<std::vector<plotDataVec>> DoCore::getPlotData (unsigned variation){
 	std::vector<std::vector<plotDataVec>> ttlData(4, std::vector<plotDataVec>(16));
 	std::string message;
 	if (ttlSnapshots.getNumVariations () <= variation) {
@@ -315,7 +315,7 @@ std::vector<std::vector<plotDataVec>> DoCore::getPlotData (UINT variation){
 			"exist in the dio code object!");
 	}
 	// each element of ttlData should be one ttl line.
-	UINT linesPerPlot = 64 / ttlData.size ();
+	unsigned linesPerPlot = 64 / ttlData.size ();
 	for (auto line : range (64)) {
 		auto& data = ttlData[line / linesPerPlot][line % linesPerPlot];
 		data.clear ();
@@ -332,7 +332,7 @@ std::vector<std::vector<plotDataVec>> DoCore::getPlotData (UINT variation){
 }
 
 /// DIO64 Wrapper functions that I actually use
-std::string DoCore::getTtlSequenceMessage (UINT variation)
+std::string DoCore::getTtlSequenceMessage (unsigned variation)
 {
 	std::string message;
 
@@ -376,10 +376,10 @@ std::string DoCore::getTtlSequenceMessage (UINT variation)
 
 // counts the number of triggers on a given line.
 // which.first = row, which.second = number.
-UINT DoCore::countTriggers (std::pair<DoRows::which, UINT> which, UINT variation)
+unsigned DoCore::countTriggers (std::pair<DoRows::which, unsigned> which, unsigned variation)
 {
 	auto& snaps = ttlSnapshots (variation);
-	UINT count = 0;
+	unsigned count = 0;
 	if (snaps.size () == 0)
 	{
 		return 0;
@@ -415,7 +415,7 @@ DWORD DoCore::ftdi_ForceOutput (DoRows::which row, int number, int state, std::a
 }
 
 
-void DoCore::findLoadSkipSnapshots (double time, std::vector<parameterType>& variables, UINT variation)
+void DoCore::findLoadSkipSnapshots (double time, std::vector<parameterType>& variables, unsigned variation)
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = ttlSnapshots (variation);
@@ -436,7 +436,7 @@ void DoCore::findLoadSkipSnapshots (double time, std::vector<parameterType>& var
 }
 
 
-void DoCore::convertToFtdiSnaps (UINT variation)
+void DoCore::convertToFtdiSnaps (unsigned variation)
 {
 	// formatting of these snaps is similar to the word formatting of the viewpoint dio64 card; the ttl on/off 
 	int snapIndex = 0;
@@ -497,7 +497,7 @@ ExpWrap<std::array<ftdiPt, 2048>> DoCore::getFtdiSnaps ()
 }
 
 
-void DoCore::organizeTtlCommands (UINT variation, DoSnapshot initSnap)
+void DoCore::organizeTtlCommands (unsigned variation, DoSnapshot initSnap)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
@@ -551,14 +551,14 @@ void DoCore::organizeTtlCommands (UINT variation, DoSnapshot initSnap)
 	{
 		// make sure to address the correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
-		UINT cmdNum = timeOrganizer[0].second[zeroInc];
-		UINT row = orderedCommandList[cmdNum].line.first;
-		UINT column = orderedCommandList[cmdNum].line.second;
+		unsigned cmdNum = timeOrganizer[0].second[zeroInc];
+		unsigned row = orderedCommandList[cmdNum].line.first;
+		unsigned column = orderedCommandList[cmdNum].line.second;
 		snaps.back ().ttlStatus[row][column] = orderedCommandList[cmdNum].value;
 	}
 	///
 	// already handled the first case.
-	for (UINT commandInc = 1; commandInc < timeOrganizer.size (); commandInc++)
+	for (unsigned commandInc = 1; commandInc < timeOrganizer.size (); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
 		snaps.push_back (snaps.back ());
@@ -566,8 +566,8 @@ void DoCore::organizeTtlCommands (UINT variation, DoSnapshot initSnap)
 		for (auto cmdIndex : timeOrganizer[commandInc].second)
 		{
 			// see description of this command above... update everything that changed at this time.
-			UINT row = orderedCommandList[cmdIndex].line.first;
-			UINT column = orderedCommandList[cmdIndex].line.second;
+			unsigned row = orderedCommandList[cmdIndex].line.first;
+			unsigned column = orderedCommandList[cmdIndex].line.second;
 			snaps.back ().ttlStatus[row][column] = orderedCommandList[cmdIndex].value;
 		}
 	}
@@ -587,7 +587,7 @@ void DoCore::organizeTtlCommands (UINT variation, DoSnapshot initSnap)
 }
 
 
-double DoCore::getFtdiTotalTime (UINT variation)
+double DoCore::getFtdiTotalTime (unsigned variation)
 {
 	double time = -1;
 	bool proceed = true;
@@ -606,7 +606,7 @@ double DoCore::getFtdiTotalTime (UINT variation)
 }
 
 
-double DoCore::getTotalTime (UINT variation)
+double DoCore::getTotalTime (unsigned variation)
 {
 	// ??? there used to be a +1 at the end of this...
 	if (ftdiSnaps (variation).empty ()) { thrower ("nothing in ftdi snaps vector"); }
@@ -616,7 +616,7 @@ double DoCore::getTotalTime (UINT variation)
 	}
 }
 
-ULONG DoCore::getNumberEvents (UINT variation)
+ULONG DoCore::getNumberEvents (unsigned variation)
 {
 	return ttlSnapshots (variation).size ();
 }
@@ -627,21 +627,21 @@ void DoCore::resetTtlEvents () { initializeDataObjects (0); }
 void DoCore::wait2 (double time) { Sleep (time + 10); }
 void DoCore::prepareForce () { initializeDataObjects (1); }
 
-void DoCore::FtdiWaitTillFinished (UINT variation){
+void DoCore::FtdiWaitTillFinished (unsigned variation){
 	auto time = getFtdiTotalTime (variation);
 	wait2 (time);
 }
 
 bool DoCore::isValidTTLName (std::string name){
 	DoRows::which row;
-	UINT number;
+	unsigned number;
 	return getNameIdentifier (name, row, number) != -1;
 }
 
 /*
 Returns a single number which corresponds to the dio control with the name
 */
-int DoCore::getNameIdentifier (std::string name, DoRows::which& row, UINT& number){
+int DoCore::getNameIdentifier (std::string name, DoRows::which& row, unsigned& number){
 	for (auto rowInc : range(names.getRows())){
 		for (auto numberInc : range (names.getCols())){
 			std::string DioName = str (names (rowInc, numberInc), 13, false, true);
@@ -663,7 +663,7 @@ void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::st
 		thrower ("the name " + name + " is not the name of a ttl!");
 	}
 	timeType pulseEndTime = time;
-	UINT collumn;
+	unsigned collumn;
 	DoRows::which row;
 	getNameIdentifier (name, row, collumn);
 	if (command == "on:"){
@@ -676,7 +676,7 @@ void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::st
 		try	{
 			pulseEndTime.second += pulseLength.evaluate ();
 		}
-		catch (Error&){
+		catch (ChimeraError&){
 			pulseLength.assertValid (vars, scope);
 			pulseEndTime.first.push_back (pulseLength);
 		}
@@ -697,7 +697,7 @@ void DoCore::handleTtlScriptCommand (std::string command, timeType time, std::st
 	handleTtlScriptCommand (command, time, name, Expression (), vars, scope);
 }
 
-void DoCore::standardExperimentPrep (UINT variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams){
+void DoCore::standardExperimentPrep (unsigned variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams){
 	organizeTtlCommands (variationInc);
 	findLoadSkipSnapshots (currLoadSkipTime, expParams, variationInc);
 	convertToFtdiSnaps (variationInc);

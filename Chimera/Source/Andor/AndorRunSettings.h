@@ -27,7 +27,7 @@ struct AndorRunSettings
 	int accumulationNumber = 1;
 	std::vector<float> exposureTimes = { 0.026f };
 	//
-	UINT picsPerRepetition=1;
+	unsigned picsPerRepetition=1;
 	ULONGLONG repetitionsPerVariation=10;
 	ULONGLONG totalVariations = 3;
 	ULONGLONG totalPicsInVariation();

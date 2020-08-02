@@ -10,7 +10,7 @@
 #include <string>
 #include "Version.h"
 #include "GeneralObjects/IDeviceCore.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QPushButton>
 #include <QLabel>
 #include <QCheckBox>
@@ -33,22 +33,22 @@ class ProfileSystem{
 	public:
 		ProfileSystem(std::string fileSystemPath);
 
-		void saveEntireProfile(IChimeraWindowWidget* win );
-		void checkSaveEntireProfile(IChimeraWindowWidget* win);
-		void allSettingsReadyCheck(IChimeraWindowWidget* win);
+		void saveEntireProfile(IChimeraQtWindow* win );
+		void checkSaveEntireProfile(IChimeraQtWindow* win);
+		void allSettingsReadyCheck(IChimeraQtWindow* win);
 		static std::function<void (ScriptStream&, std::string&)> getGetlineFunc (Version& ver);
 
-		void saveConfigurationOnly(IChimeraWindowWidget* win);
-		void saveConfigurationAs(IChimeraWindowWidget* win);
+		void saveConfigurationOnly(IChimeraQtWindow* win);
+		void saveConfigurationAs(IChimeraQtWindow* win);
 		void renameConfiguration();
 		void deleteConfiguration();
-		void openConfigFromPath( std::string pathToConfig, IChimeraWindowWidget* win);
+		void openConfigFromPath( std::string pathToConfig, IChimeraQtWindow* win);
 		static void getVersionFromFile( ConfigStream& file );
 		static std::string getNiawgScriptAddrFromConfig(ConfigStream& configStream);
 		static std::string getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
-		bool configurationSettingsReadyCheck(IChimeraWindowWidget* win);
-		bool checkConfigurationSave(std::string prompt, IChimeraWindowWidget* win);
+		bool configurationSettingsReadyCheck(IChimeraQtWindow* win);
+		bool checkConfigurationSave(std::string prompt, IChimeraQtWindow* win);
 		profileSettings getProfileSettings();
 
 		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
@@ -56,9 +56,8 @@ class ProfileSystem{
 								  std::string nameToLoad );
 		bool fileOrFolderExists ( std::string filePathway );
 		void fullyDeleteFolder ( std::string folderToDelete );
-		void initialize( POINT& topLeftPosition, IChimeraWindowWidget* win);
-		void rearrange( int width, int height, fontMap fonts );
-		void handleSelectConfigButton(IChimeraWindowWidget* win);
+		void initialize( POINT& topLeftPosition, IChimeraQtWindow* win);
+		void handleSelectConfigButton(IChimeraQtWindow* win);
 		
 		template <class sysType>
 		static void standardOpenConfig ( ConfigStream& openFile, std::string delim, std::string endDelim, 
@@ -77,7 +76,6 @@ class ProfileSystem{
 		template <class returnType>
 		static returnType stdConfigGetter (ConfigStream& configStream, std::string delim,
 			returnType (*getterFunc)(ConfigStream&), Version minVer=Version("0.0"));
-		CBrush* handleColoring (int id, CDC* pDC);
 	private:
 		profileSettings currentProfile; 
 		std::string FILE_SYSTEM_PATH;
@@ -106,7 +104,10 @@ class ProfileSystem{
 		/// Version 5.0: Revamped reading and writing to the files to use Scriptstream, supporting comments. Includes
 		// a variety of minor formatting changes and a bunch of comments into the file.
 		// Verion 5.1: Added control option for dds system
-		const Version version = Version( "5.1" );
+		// Version 5.2: added 3rd piezo (not actually connected at the time)
+		// Version 5.3: Added Imaging Piezo
+		// Version 5.4: Added Auto Bump Analysis Options
+		const Version version = Version( "5.4" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;
@@ -129,7 +130,7 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 	{
 		ProfileSystem::initializeAtDelim ( configStream, delim, minVer );
 	}
-	catch ( Error& e )
+	catch ( ChimeraError& e )
 	{
 		errBox ( "Failed to initialize config file for " + delim + "!\n\n" + e.trace ( ) );
 		return;
@@ -138,7 +139,7 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 	{
 		this_in->handleOpenConfig( configStream );
 	}
-	catch ( Error& e )
+	catch ( ChimeraError& e )
 	{
 		errBox ( "Failed to gather information from config file for " + delim + "!\n\n" + e.trace ( ) );
 		return;
@@ -147,7 +148,7 @@ static void ProfileSystem::standardOpenConfig ( ConfigStream& configStream, std:
 	{
 		ProfileSystem::checkDelimiterLine ( configStream, endDelim );
 	}
-	catch ( Error& e )
+	catch ( ChimeraError& e )
 	{
 		errBox ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
 				 "control did not initialize properly.\n\n" + e.trace() );
@@ -164,21 +165,21 @@ static returnType ProfileSystem::stdConfigGetter (ConfigStream& configStream, st
 	try{
 		ProfileSystem::initializeAtDelim (configStream, delim, minVer);
 	}
-	catch (Error & e){
+	catch (ChimeraError & e){
 		throwNested ("Failed to initialize config file for " + delim + "!\n\n" + e.trace ());
 		return res;
 	}
 	try{
 		res = (*getterFunc) (configStream);
 	}
-	catch (Error & e){
+	catch (ChimeraError & e){
 		throwNested ("Failed to gather information from config file for " + delim + "!\n\n" + e.trace ());
 		return res;
 	}
 	try{
 		ProfileSystem::checkDelimiterLine (configStream, "END_" + delim);
 	}
-	catch (Error & e){
+	catch (ChimeraError & e){
 		throwNested ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
 					  "control did not initialize properly.\n\n" + e.trace ());
 	}
@@ -192,19 +193,19 @@ static void ProfileSystem::stdGetFromConfig ( ConfigStream& configStream, coreTy
 	try{
 		ProfileSystem::initializeAtDelim (configStream, core.getDelim (), minVer);
 	}
-	catch (Error & e){
+	catch (ChimeraError & e){
 		throwNested ("Failed to initialize config file for " + core.getDelim () + "!\n\n" + e.trace ());
 	}
 	try{
 		settings = core.getSettingsFromConfig (configStream);
 	}
-	catch (Error & e){
+	catch (ChimeraError & e){
 		throwNested ("Failed to gather information from config file for " + core.getDelim() + "!\n\n" + e.trace ());
 	}
 	try{
 		ProfileSystem::checkDelimiterLine (configStream, "END_" + core.getDelim ());
 	}
-	catch (Error & e){
+	catch (ChimeraError & e){
 		throwNested ("End delimiter for the " + core.getDelim () + " control was not found. This might indicate that the "
 					 "control did not initialize properly.\n\n" + e.trace ());
 	}

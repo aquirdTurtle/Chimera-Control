@@ -3,18 +3,14 @@
 #include "expSystemRunList.h"
 #include <string>
 
-
-struct autoCalConfigInfo
-{ 
+struct autoCalConfigInfo { 
 	profileSettings prof; 
 	expSystemRunList runList; 
 	std::string fileName;
 	std::string infoStr;  
 }; 
 
-
-const std::vector<autoCalConfigInfo> AUTO_CAL_LIST
-{
+const std::vector<autoCalConfigInfo> AUTO_CAL_LIST {
 	{
 		/*prof*/ {"11x1_Atom_Loading_And_Imaging", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms"},
 		/*runlist*/ {true, true, false},
@@ -46,16 +42,16 @@ const std::vector<autoCalConfigInfo> AUTO_CAL_LIST
 		/*infostr*/ "Running Grey Molasses Temperature Calibration...\r\n"
 	},
 	{
-		/*prof*/ {"Thermal_Radial_Sideband_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms"},
+		/*prof*/ {"Thermal_Top_Sideband_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms"},
 		/*runlist*/ {true, true, false},
-		/*filename*/ "THERMAL_RADIAL_SIDEBAND_RAMAN_SPECTROSCOPY",
-		/*infostr*/ "Running Thermal Radial Raman Sideband Spectroscopy...\r\n"
+		/*filename*/ "THERMAL_TOP_SIDEBAND_RAMAN_SPECTROSCOPY",
+		/*infostr*/ "Running Thermal Top Raman Sideband Spectroscopy...\r\n"
 	},
 	{
-		/*prof*/ { "3DSBC_Radial_Carrier_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
+		/*prof*/ { "3DSBC_Top_Carrier_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
 		/*runlist*/ { true, true, false },
-		/*filename*/ "3DSBC_RADIAL_CARRIER_RAMAN_SPECTROSCOPY",
-		/*infostr*/ "Running 3DSBC Radial Carrier Raman Spectroscopy...\r\n"
+		/*filename*/ "3DSBC_TOP_CARRIER_RAMAN_SPECTROSCOPY",
+		/*infostr*/ "Running 3DSBC Top Carrier Raman Spectroscopy...\r\n"
 	},
 	{
 		/*prof*/ { "3DSBC_Axial_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
@@ -64,10 +60,10 @@ const std::vector<autoCalConfigInfo> AUTO_CAL_LIST
 		/*infostr*/ "Running 3DSBC Axial Raman Spectroscopy...\r\n"
 	},
 	{
-		/*prof*/ { "3DSBC_Radial_Sideband_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
+		/*prof*/ { "3DSBC_Top_Sideband_Raman_Spectroscopy", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },
 		/*runlist*/ { true, true, false },
-		/*filename*/ "3DSBC_RADIAL_SIDEBAND_RAMAN_SPECTROSCOPY",
-		/*infostr*/ "Running 3DSBC Radial Raman Sideband Spectroscopy...\r\n"
+		/*filename*/ "3DSBC_TOP_SIDEBAND_RAMAN_SPECTROSCOPY",
+		/*infostr*/ "Running 3DSBC Top Raman Sideband Spectroscopy...\r\n"
 	},
 	{
 		/*prof*/ { "Depth_Measurement_Deep", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms" },

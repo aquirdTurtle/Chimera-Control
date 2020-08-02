@@ -21,7 +21,7 @@
 // coding logic, etc.
  
 #define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP 
+//#define MARKS_LAPTOP 
 //#define ANALYSIS_COMPUTER 
 //#define HOME_DESKTOP
 //#define TEST_PC
@@ -31,7 +31,7 @@ using MICROWAVE_FLUME = RsgFlume;
 constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 constexpr auto DM_SERIAL = "25CW012#060";
 constexpr bool DM_SAFEMODE = true;
-constexpr char UW_SYSTEM_ADDRESS[] = "COM7";
+constexpr char UW_SYSTEM_ADDRESS[] = "COM10";
 //constexpr short UW_SYSTEM_ADDRESS = 28;
 constexpr bool UW_SYSTEM_SAFEMODE = false;
 constexpr bool DOFTDI_SAFEMODE = false;
@@ -44,7 +44,7 @@ constexpr bool ANDOR_SAFEMODE = false;
 #ifdef _DEBUG
 constexpr bool PYTHON_SAFEMODE = true;
 #else
-constexpr bool  PYTHON_SAFEMODE = false;
+constexpr bool  PYTHON_SAFEMODE = true;
 #endif
 constexpr bool AUTO_CALIBRATE = true;
 constexpr bool VIEWPOINT_SAFEMODE = true;
@@ -98,6 +98,9 @@ const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\Septemb
 const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
 const piezoSetupInfo PIEZO_1_INFO = { PiezoType::B, "COM5", "PIEZO_CONTROLLER_1" };
 const piezoSetupInfo PIEZO_2_INFO = { PiezoType::B, "COM4", "PIEZO_CONTROLLER_2" };
+const piezoSetupInfo PIEZO_3_INFO = { PiezoType::NONE, "COM8", "PIEZO_CONTROLLER_3" };
+const piezoSetupInfo IMG_PIEZO_INFO = { PiezoType::B, "COM8", "IMAGING_PIEZO" };
+
 const std::string DM_PROFILES_LOCATION = str(CODE_ROOT) + "\\DM-Library";
 const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + "\\flatProfile.txt";
 #endif
@@ -222,7 +225,7 @@ const std::string DM_FLAT_PROFILE = DM_PROFILES_LOCATION + "\\flatProfile.txt";
 #endif
 
 /// File Locations and safemode options
-#ifdef SPECTRE_LAPTOP
+#ifdef MARKS_LAPTOP
 	using MICROWAVE_FLUME = WindFreakFlume;
 	constexpr microwaveDevice MICROWAVE_SYSTEM_DEVICE_TYPE = microwaveDevice::WindFreak;
 	constexpr auto DM_SERIAL = "25CW012#060";
@@ -393,10 +396,10 @@ constexpr auto ATOM_PHOTONS = "Atom Photons";
 
 /// FELIX'S DIO PARAMETERS
 
-const UINT DIO_BUFFERSIZESER = 100;
-const UINT DIO_BUFFERSIZEASYNC = 2048;
-const UINT DIO_MSGLENGTH = 7;
-const UINT DIO_WRITESPERDATAPT = 3;
+const unsigned DIO_BUFFERSIZESER = 100;
+const unsigned DIO_BUFFERSIZEASYNC = 2048;
+const unsigned DIO_MSGLENGTH = 7;
+const unsigned DIO_WRITESPERDATAPT = 3;
 
 /// Agilent Parameters
 constexpr auto AGILENT_DEFAULT_POWER = 10;
@@ -422,7 +425,7 @@ const double TOTAL_POWER = (1.0 / 12.0) - 1e-6; //0.1 - 1e-10;
 
 // Currently bugs with the 5451 for sample rates significantly above this sample rate (320 MS/s). <---- very much T.T T.T T.T
 /// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const UINT NIAWG_SAMPLE_RATE = 320000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const unsigned NIAWG_SAMPLE_RATE = 320000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// This is important. If you don't change the libary file, you will be running waveforms that were compiled with a different sample rate. 
 /// This would probably cause the code to throw weird errors since the number of samples in the file wouldn't match what was needed at the 
@@ -576,12 +579,12 @@ constexpr auto IDC_PIEZO1_PROGRAM_NOW = 14154;
 constexpr auto IDC_PIEZO2_PROGRAM_NOW = 14155;
 constexpr auto IDC_PIEZO1_CTRL = 14156;
 constexpr auto IDC_PIEZO2_CTRL = 14157;
-constexpr UINT IDC_UW_SYSTEM_LISTVIEW = 14158;
-constexpr UINT IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
+constexpr unsigned IDC_UW_SYSTEM_LISTVIEW = 14158;
+constexpr unsigned IDC_UW_SYSTEM_PROGRAM_NOW = 14159;
 constexpr auto IDC_SERVO_UNITS_COMBO = 14160;
-constexpr UINT IDC_UW_SYSTEM_READ = 14161;
-constexpr UINT IDC_UW_SYSTEM_WRITE = 14162;
-constexpr UINT IDC_UW_SYSTEM_QUERY = 14163;
+constexpr unsigned IDC_UW_SYSTEM_READ = 14161;
+constexpr unsigned IDC_UW_SYSTEM_WRITE = 14162;
+constexpr unsigned IDC_UW_SYSTEM_QUERY = 14163;
 // BASLER WIN CONSTS
 constexpr auto IDC_MIN_BASLER_SLIDER_EDIT = 15001;
 constexpr auto IDC_MAX_BASLER_SLIDER_EDIT = 15002;

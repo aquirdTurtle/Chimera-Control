@@ -11,7 +11,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "ParameterSystem/Expression.h"
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QLabel.h>
 #include "QPushButton.h"
 
@@ -25,12 +25,11 @@ class TektronixAfgControl
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
-		void initialize( POINT& loc, IChimeraWindowWidget* parent, std::string headerText, std::string channel1Text,
+		void initialize( POINT& loc, IChimeraQtWindow* parent, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width);
 		std::string queryIdentity();
 		tektronixInfo getTekSettings();
 		void setSettings(tektronixInfo info);
-		void rearrange(int width, int height, fontMap fonts);
 		void handleProgram(std::vector<parameterType> constants);
 		std::string getDelim ();
 		TekCore& getCore ();

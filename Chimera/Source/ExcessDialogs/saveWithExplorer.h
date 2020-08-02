@@ -2,7 +2,7 @@
 #pragma once
 #include <string>
 #include "ConfigurationSystems/profileSettings.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 
-std::string saveWithExplorer(IChimeraWindowWidget* owner, std::string extension, profileSettings location);
+std::string saveWithExplorer(IChimeraQtWindow* owner, std::string extension, profileSettings location);
 

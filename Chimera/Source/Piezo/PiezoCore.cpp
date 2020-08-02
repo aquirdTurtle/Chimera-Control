@@ -17,7 +17,7 @@ void PiezoCore::programAll ( piezoChan<double> vals ){
 	programZNow ( vals.z );
 }
 
-void PiezoCore::programVariation ( UINT variationNumber, std::vector<parameterType>& params){
+void PiezoCore::programVariation ( unsigned variationNumber, std::vector<parameterType>& params){
 	if (experimentActive){
 		programXNow (expSettings.pztValues.x.getValue (variationNumber));
 		programYNow (expSettings.pztValues.y.getValue (variationNumber));
@@ -36,7 +36,7 @@ void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 			expSettings.pztValues.y.internalEvaluate (params, totalVariations);
 			expSettings.pztValues.z.internalEvaluate (params, totalVariations);
 		}
-		catch (Error&){
+		catch (ChimeraError&){
 			throwNested ("Failed to evaluate piezo expression varations!");
 		}
 	}

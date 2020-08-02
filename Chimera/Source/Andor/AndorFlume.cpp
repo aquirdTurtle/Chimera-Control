@@ -1,342 +1,244 @@
 #include "stdafx.h"
 #include "AndorFlume.h"
 
-AndorFlume::AndorFlume ( bool safemode_option ) : safemode( safemode_option )
-{
-
-}
+AndorFlume::AndorFlume ( bool safemode_option ) : safemode( safemode_option ){}
 
 
-void AndorFlume::initialize ( )
-{
+void AndorFlume::initialize ( ){
 	char aBuffer[ 256 ];
 	// Look in current working directory for driver files
 	//... later... not sure what driver files this was referring to.
 	GetCurrentDirectory ( 256, aBuffer );
-	if ( !safemode )
-	{
+	if ( !safemode ){
 		andorErrorChecker ( Initialize ( aBuffer ) );
 	}
 }
 
 
-void AndorFlume::setBaselineClamp ( int clamp )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setBaselineClamp ( int clamp ){
+	if ( !safemode ){
 		andorErrorChecker ( SetBaselineClamp ( clamp ) );
 	}
 }
 
-void AndorFlume::setBaselineOffset ( int offset )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setBaselineOffset ( int offset ){
+	if ( !safemode ){
 		andorErrorChecker ( SetBaselineOffset ( offset ) );
 	}
 }
 
-void AndorFlume::setDMAParameters ( int maxImagesPerDMA, float secondsPerDMA )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setDMAParameters ( int maxImagesPerDMA, float secondsPerDMA ){
+	if ( !safemode ){
 		andorErrorChecker ( SetDMAParameters ( maxImagesPerDMA, secondsPerDMA ) );
 	}
 }
 
 
-void AndorFlume::waitForAcquisition ( )
-{
-	if ( !safemode )
-	{
+void AndorFlume::waitForAcquisition ( ){
+	if ( !safemode ){
 		andorErrorChecker ( WaitForAcquisition ( ) );
 	}
 }
 
-
-void AndorFlume::getTemperature ( int& temp )
-{
-	if ( !safemode )
-	{
-		andorErrorChecker ( GetTemperature ( &temp ) );
+/* Special non-standard handling for this function because I always expect it to return something. I changed this on 
+June 29th 2020 in order to remove a lot of the excess error notifications in the visual studio output window. */
+int AndorFlume::getTemperature ( int& temp ){
+	if ( !safemode ){
+		return GetTemperature (&temp);
+		//andorErrorChecker ( GetTemperature ( &temp ) );
 	}
 }
 
 //
-void AndorFlume::getAdjustedRingExposureTimes ( int size, float* timesArray )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getAdjustedRingExposureTimes ( int size, float* timesArray ){
+	if ( !safemode ){
 		andorErrorChecker ( GetAdjustedRingExposureTimes ( size, timesArray ) );
 	}
 }
 
 
-void AndorFlume::setNumberKinetics ( int number )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setNumberKinetics ( int number ){
+	if ( !safemode ){
 		andorErrorChecker ( SetNumberKinetics ( number ) );
 	}
-
 }
 
 
-void AndorFlume::getTemperatureRange ( int& min, int& max )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getTemperatureRange ( int& min, int& max ){
+	if ( !safemode ){
 		andorErrorChecker ( GetTemperatureRange ( &min, &max ) );
 	}
 }
 
 
-void AndorFlume::temperatureControlOn ( )
-{
-	if ( !safemode )
-	{
+void AndorFlume::temperatureControlOn ( ){
+	if ( !safemode ){
 		andorErrorChecker ( CoolerON ( ) );
 	}
 }
 
-
-void AndorFlume::temperatureControlOff ( )
-{
-	if ( !safemode )
-	{
+void AndorFlume::temperatureControlOff ( ){
+	if ( !safemode ){
 		andorErrorChecker ( CoolerOFF ( ) );
 	}
 }
 
-
-void AndorFlume::setTemperature ( int temp )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setTemperature ( int temp ){
+	if ( !safemode ){
 		andorErrorChecker ( SetTemperature ( temp ) );
 	}
 }
 
-
-void AndorFlume::setADChannel ( int channel )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setADChannel ( int channel ){
+	if ( !safemode ){
 		andorErrorChecker ( SetADChannel ( channel ) );
 	}
 }
 
-
-void AndorFlume::setHSSpeed ( int type, int index )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setHSSpeed ( int type, int index ){
+	if ( !safemode ){
 		andorErrorChecker ( SetHSSpeed ( type, index ) );
 	}
 }
 
 // note that the function used here could be used to get actual information about the number of images, I just only use
 // it to check whether there are any new images or not. Not sure if this is the smartest way to do this.
-void AndorFlume::checkForNewImages ( )
-{
+void AndorFlume::checkForNewImages ( ){
 	long first, last;
-	if ( !safemode )
-	{
+	if ( !safemode ){
 		andorErrorChecker ( GetNumberNewImages ( &first, &last ) );
 	}
 	// don't do anything with the info.
 }
 
-
-void AndorFlume::getOldestImage ( Matrix<long>& dataMatrix )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getOldestImage ( Matrix<long>& dataMatrix ){
+	if ( !safemode ){
 		andorErrorChecker ( GetOldestImage ( dataMatrix.data.data ( ), dataMatrix.data.size ( ) ) );
 	}
 }
 
-
-void AndorFlume::setTriggerMode ( int mode )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setTriggerMode ( int mode ){
+	if ( !safemode ){
 		andorErrorChecker ( SetTriggerMode ( mode ) );
 	}
 }
 
-
-void AndorFlume::setAcquisitionMode ( int mode )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setAcquisitionMode ( int mode ){
+	if ( !safemode ){
 		andorErrorChecker ( SetAcquisitionMode ( mode ) );
 	}
 }
 
-
-void AndorFlume::setReadMode ( int mode )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setReadMode ( int mode ){
+	if ( !safemode ){
 		andorErrorChecker ( SetReadMode ( mode ) );
 	}
 }
 
-
-void AndorFlume::setRingExposureTimes ( int sizeOfTimesArray, float* arrayOfTimes )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setRingExposureTimes ( int sizeOfTimesArray, float* arrayOfTimes ){
+	if ( !safemode ){
 		andorErrorChecker ( SetRingExposureTimes ( sizeOfTimesArray, arrayOfTimes ) );
 	}
 }
 
-
-void AndorFlume::setImage ( int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setImage ( int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder ){
+	if ( !safemode ){
 		andorErrorChecker ( SetImage ( hBin, vBin, lBorder, rBorder, tBorder, bBorder ) );
 	}
 }
 
-
-void AndorFlume::setKineticCycleTime ( float cycleTime )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setKineticCycleTime ( float cycleTime ){
+	if ( !safemode ){
 		andorErrorChecker ( SetKineticCycleTime ( cycleTime ) );
 	}
 }
 
-
-void AndorFlume::setFrameTransferMode ( int mode )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setFrameTransferMode ( int mode ){
+	if ( !safemode ){
 		andorErrorChecker ( SetFrameTransferMode ( mode ) );
 	}
 }
 
-
-void AndorFlume::getAcquisitionTimes ( float& exposure, float& accumulation, float& kinetic )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getAcquisitionTimes ( float& exposure, float& accumulation, float& kinetic ){
+	if ( !safemode ){
 		andorErrorChecker ( GetAcquisitionTimings ( &exposure, &accumulation, &kinetic ) );
 	}
 }
 
-
-int AndorFlume::queryStatus ( )
-{
+int AndorFlume::queryStatus ( ){
 	int status = DRV_IDLE;
-	if ( !safemode )
-	{
+	if ( !safemode ){
 		andorErrorChecker ( GetStatus ( &status ) );
 	}
 	return status;
 }
 
 
-void AndorFlume::startAcquisition ( )
-{
-	if ( !safemode )
-	{
+void AndorFlume::startAcquisition ( ){
+	if ( !safemode ){
 		andorErrorChecker ( StartAcquisition ( ) );
 	}
 }
 
-
-void AndorFlume::abortAcquisition ( )
-{
-	if ( !safemode )
-	{
+void AndorFlume::abortAcquisition ( ){
+	if ( !safemode ){
 		andorErrorChecker ( AbortAcquisition ( ) );
 	}
 }
 
-
-void AndorFlume::setAccumulationCycleTime ( float time )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setAccumulationCycleTime ( float time ){
+	if ( !safemode ){
 		andorErrorChecker ( SetAccumulationCycleTime ( time ) );
 	}
 }
 
-
-void AndorFlume::setAccumulationNumber ( int number )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setAccumulationNumber ( int number ){
+	if ( !safemode ){
 		andorErrorChecker ( SetNumberAccumulations ( number ) );
 	}
 }
 
-
-void AndorFlume::getNumberOfPreAmpGains ( int& number )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getNumberOfPreAmpGains ( int& number ){
+	if ( !safemode ){
 		andorErrorChecker ( GetNumberPreAmpGains ( &number ) );
 	}
 }
 
-
-void AndorFlume::setPreAmpGain ( int index )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setPreAmpGain ( int index ){
+	if ( !safemode ){
 		andorErrorChecker ( SetPreAmpGain ( index ) );
 	}
 }
 
-
-void AndorFlume::getPreAmpGain ( int index, float& gain )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getPreAmpGain ( int index, float& gain ){
+	if ( !safemode ){
 		andorErrorChecker ( GetPreAmpGain ( index, &gain ) );
 	}
 }
 
-
-void AndorFlume::setOutputAmplifier ( int type )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setOutputAmplifier ( int type ){
+	if ( !safemode ){
 		andorErrorChecker ( SetOutputAmplifier ( type ) );
 	}
 }
 
-
-void AndorFlume::setEmGainSettingsAdvanced ( int state )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setEmGainSettingsAdvanced ( int state ){
+	if ( !safemode ){
 		andorErrorChecker ( SetEMAdvanced ( state ) );
 	}
 }
 
-
-void AndorFlume::setEmCcdGain ( int gain )
-{
-	if ( !safemode )
-	{
+void AndorFlume::setEmCcdGain ( int gain ){
+	if ( !safemode ){
 		andorErrorChecker ( SetEMCCDGain ( gain ) );
 	}
 }
 
-
 /*
 * the input here will store how many whole pictures (not accumulations) have been taken.
 */
-void AndorFlume::getAcquisitionProgress ( long& seriesNumber )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getAcquisitionProgress ( long& seriesNumber ){
+	if ( !safemode ){
 		long dummyAccumulationNumber;
 		andorErrorChecker ( GetAcquisitionProgress ( &dummyAccumulationNumber, &seriesNumber ) );
 	}
@@ -345,55 +247,38 @@ void AndorFlume::getAcquisitionProgress ( long& seriesNumber )
 /*
 * overload to get both the acccumulation progress and the whole picture progress.
 */
-void AndorFlume::getAcquisitionProgress ( long& accumulationNumber, long& seriesNumber )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getAcquisitionProgress ( long& accumulationNumber, long& seriesNumber ){
+	if ( !safemode ){
 		andorErrorChecker ( GetAcquisitionProgress ( &accumulationNumber, &seriesNumber ) );
 	}
 }
 
-
-void AndorFlume::getCapabilities ( AndorCapabilities& caps )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getCapabilities ( AndorCapabilities& caps ){
+	if ( !safemode ){
 		andorErrorChecker ( GetCapabilities ( &caps ) );
 	}
 }
 
-void AndorFlume::getSerialNumber ( int& num )
-{
-	if ( !safemode )
-	{
+void AndorFlume::getSerialNumber ( int& num ){
+	if ( !safemode ){
 		andorErrorChecker ( GetCameraSerialNumber ( &num ) );
 	}
 }
 
-std::string AndorFlume::getHeadModel ( )
-{
+std::string AndorFlume::getHeadModel ( ){
 	char nameChars[ 1024 ];
-	if ( !safemode )
-	{
+	if ( !safemode ){
 		andorErrorChecker ( GetHeadModel ( nameChars ) );
 	}
-	else
-	{
+	else{
 		return "safemode";
 	}
 	return str ( nameChars );
 }
 
-
-
-/*
-*
-*/
-void AndorFlume::andorErrorChecker ( int errorCode )
-{
+std::string AndorFlume::getErrorMsg (int errCode) {
 	std::string errorMessage = "uninitialized";
-	switch ( errorCode )
-	{
+	switch (errCode){
 		case 20001: errorMessage = "DRV_ERROR_CODES";					break;
 		case 20002:	errorMessage = "DRV_SUCCESS";						break;
 		case 20003:	errorMessage = "DRV_VXDNOTINSTALLED";				break;
@@ -469,21 +354,24 @@ void AndorFlume::andorErrorChecker ( int errorCode )
 		case 20118:	errorMessage = "DRV_ERROR_UNMDL";					break;
 		case 20119:	errorMessage = "DRV_ERROR_BUFSIZE";					break;
 		case 20121:	errorMessage = "DRV_ERROR_NOHANDLE";				break;
-		case 20130:	errorMessage = "DRV_GATING_NOT_AVAILABLE";			break;	
+		case 20130:	errorMessage = "DRV_GATING_NOT_AVAILABLE";			break;
 
-		case 20131:	errorMessage = "DRV_FPGA_VOLTAGE_ERROR";			break;		
-		case 20990:	errorMessage = "DRV_ERROR_NOCAMERA";				break;	
-		case 20991:	errorMessage = "DRV_NOT_SUPPORTED";					break;	
+		case 20131:	errorMessage = "DRV_FPGA_VOLTAGE_ERROR";			break;
+		case 20990:	errorMessage = "DRV_ERROR_NOCAMERA";				break;
+		case 20991:	errorMessage = "DRV_NOT_SUPPORTED";					break;
 		case 20992:	errorMessage = "DRV_NOT_AVAILABLE";					break;
-		default:
-		{
+		default: {
 			errorMessage = "UNKNOWN ERROR MESSAGE RETURNED FROM CAMERA FUNCTION!";
 			break;
 		}
 	}
+	return errorMessage;
+}
+
+void AndorFlume::andorErrorChecker ( int errorCode ){
+	auto errorMessage = getErrorMsg (errorCode);
 	/// So no throw is considered success.
-	if ( errorMessage != "DRV_SUCCESS" )
-	{
+	if ( errorMessage != "DRV_SUCCESS" ){
 		thrower ( errorMessage );
 	}
 }

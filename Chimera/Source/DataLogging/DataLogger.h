@@ -8,6 +8,7 @@
 #include "AnalogInput/ServoManager.h"
 #include "AnalogInput/servoInfo.h"
 #include "Tektronix/TektronixStructures.h"
+#include <Piezo/piezoChan.h>
 // there's potentially a typedef conflict with a python file which also typedefs ssize_t.
 #define ssize_t h5_ssize_t
 #include "H5Cpp.h"
@@ -21,17 +22,16 @@ struct ExperimentThreadInput;
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
  */
-class DataLogger
-{
+class DataLogger : public IChimeraSystem {
 	public:
-		DataLogger(std::string systemLocation);
+		DataLogger(std::string systemLocation, IChimeraQtWindow* parent);
 		~DataLogger( );
-		void logMasterRuntime ( UINT repNumber, std::vector<parameterType> params );
+		void logMasterRuntime ( unsigned repNumber, std::vector<parameterType> params );
 		void logError ( H5::Exception& err );
 		void initializeDataFiles( std::string specialName="", bool needsCal=true);
 		void writeAndorPic( Matrix<long> image, imageParameters dims );
 		void writeBaslerPic ( Matrix<long> image );
-		void writeVolts ( UINT currentVoltNumber, std::vector<float64> data );
+		void writeVolts ( unsigned currentVoltNumber, std::vector<float64> data );
 		void assertCalibrationFilesExist ();
 		void logServoInfo (std::vector<servoInfo> servos);
 		void logMasterInput( ExperimentThreadInput* input );
@@ -41,25 +41,26 @@ class DataLogger
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DoCore& doSys );
 		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
-		void initializeAiLogging ( UINT numSnapshots );
+		void logAndorPiezos (piezoChan<double> cameraPiezoVals);
+		void initializeAiLogging ( unsigned numSnapshots );
 		int getCalibrationFileIndex ();
 		static void getDataLocation ( std::string base, std::string& todayFolder, std::string& fullPath );
 		void normalCloseFile();
-		void deleteFile(Communicator* comm);
+		void deleteFile();
 		int getDataFileNumber( );
 		void assertClosed ();
-
+		std::string getFullError (H5::Exception& err);
 		void initOptimizationFile ( );
 		void updateOptimizationFile ( std::string appendTxt );
 		void finOptimizationFile ( );
 
-		UINT getNextFileNumber ( );
+		unsigned getNextFileNumber ( );
 		std::string getMostRecentDateString ( );
 		// the core file.
 		H5::H5File file;
 		// a bunch of overloaded wrapper functions for making the main "log" functions above much cleaner.
 		H5::DataSet writeDataSet (bool data, std::string name, H5::Group& group);
-		H5::DataSet writeDataSet (UINT data, std::string name, H5::Group& group);
+		H5::DataSet writeDataSet (unsigned data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (ULONGLONG data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (int data, std::string name, H5::Group& group);
 		H5::DataSet writeDataSet (double data, std::string name, H5::Group& group);
@@ -76,7 +77,8 @@ class DataLogger
 		H5::DataSpace AndorPicDataSpace, BaslerPicDataSpace;
 
 		H5::DataSpace voltsDataSpace, voltsSetDataSpace;
-		UINT currentAndorPicNumber, currentBaslerPicNumber;
+		unsigned currentAndorPicNumber, currentBaslerPicNumber;
+		std::string mr_dayStr, mr_monthStr, mr_yearStr;
 
 	private:
 		std::ofstream optFile;
@@ -86,7 +88,6 @@ class DataLogger
 		std::string todayFolder;
 		int currentDataFileNumber;
 		std::string mostRecentDateString;
-		
 };
 
 

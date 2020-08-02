@@ -7,17 +7,17 @@
 
 // basically just a little nicer than a std::pair
 struct AtomImage{
-	unsigned repNum;
+	unsigned picNum;
 	std::vector<bool> image;
 };
 
 struct NormalImage{
-	unsigned repNum;
+	unsigned picNum;
 	Matrix<long> image;
 };
 
 struct PixList{
-	unsigned repNum;
+	unsigned picNum;
 	std::vector<long> image;
 };
 

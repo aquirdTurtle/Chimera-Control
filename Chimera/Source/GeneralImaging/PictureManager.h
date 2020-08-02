@@ -6,37 +6,38 @@
 #include "ConfigurationSystems/Version.h"
 #include <array>
 #include <fstream>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 
 class PictureManager
 {
 	public:
-		PictureManager ( bool histOption, std::string configurationFileDelim, bool autoscaleDefault );
+		PictureManager ( bool histOption, std::string configurationFileDelim, bool autoscaleDefault,
+			Qt::TransformationMode mode);
 		RECT getPicArea ( );
 		void updatePlotData ( );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
-		void initialize( POINT& loc, CBrush* defaultGridBrush, int manWidth, int manHeight, IChimeraWindowWidget* widget, 
+		void initialize( POINT& loc, CBrush* defaultGridBrush, int manWidth, int manHeight, IChimeraQtWindow* widget, 
 						 int scaleFactor=50);
 		void drawGrids();
-		UINT getNumberActive( );
+		unsigned getNumberActive( );
 		void setParameters( imageParameters parameters );
-		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar);
+		void handleScroll( unsigned nSBCode, unsigned nPos, CScrollBar* scrollbar);
 		void setPalletes(std::array<int, 4> palleteIds);
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		// draw pictures...
-		void drawBitmap (Matrix<long> picData, std::pair<int, int> minMax, UINT whichPicCtrl,
-			std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, UINT pictureNumber,
+		void drawBitmap (Matrix<long> picData, std::pair<int, int> minMax, unsigned whichPicCtrl,
+			std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, unsigned pictureNumber,
 			bool includingAnalysisMarkers);
 		void createPalettes( );
-		void handleEditChange( UINT id );
+		void handleEditChange( unsigned id );
 		void setAlwaysShowGrid(bool showOption);
 		void redrawPictures(coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-							 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber, QPainter& painter);
+							 std::vector<atomGrid> gridInfo, bool forceGrid, unsigned picNumber, QPainter& painter);
 		void setNumberPicturesActive( int numberActive );
 		coordinate getSelLocation();
 		void setSinglePicture( imageParameters imageParams );
-		void setMultiplePictures( imageParameters imageParams, UINT numberActivePics );
+		void setMultiplePictures( imageParameters imageParams, unsigned numberActivePics );
 		void setAutoScalePicturesOption(bool autoScaleOption);
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);

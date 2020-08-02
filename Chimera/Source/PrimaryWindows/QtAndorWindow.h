@@ -5,10 +5,9 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "ExperimentThread/Communicator.h"
 #include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "IChimeraWindowWidget.h"
+#include "IChimeraQtWindow.h"
 
 #include "Andor/CameraSettingsControl.h"
 #include "ExperimentMonitoringAndStatus/ColorBox.h"
@@ -23,10 +22,9 @@
 #include "Andor/cameraPositions.h"
 #include "GeneralObjects/commonTypes.h"
 #include "GeneralObjects/Queues.h"
-#include "IChimeraWindowWidget.h"
+#include <Piezo/PiezoController.h>
+#include <Python/NewPythonHandler.h>
 #include <bitset>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
-
 
 class AnalysisThreadWorker;
 class CruncherThreadWorker;
@@ -35,8 +33,7 @@ namespace Ui {
     class QtAndorWindow;
 }
 
-class QtAndorWindow : public IChimeraWindowWidget
-{
+class QtAndorWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
@@ -45,6 +42,7 @@ class QtAndorWindow : public IChimeraWindowWidget
 
 		void initializeWidgets ();
 
+		void handleBumpAnalysis (profileSettings finishedProfile);
 		void OnTimer (UINT_PTR id);
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger ();
@@ -67,7 +65,7 @@ class QtAndorWindow : public IChimeraWindowWidget
 
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
-
+		void handleNormalFinish (profileSettings finishedProfile);
 		void redrawPictures (bool andGrid);
 		bool getCameraStatus ();
 		void setTimerText (std::string timerText);
@@ -82,8 +80,8 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void assertDataFileClosed ();
 		void prepareAtomCruncher (AllExperimentInput& input);
 		void preparePlotter (AllExperimentInput& input);
-		void writeVolts (UINT currentVoltNumber, std::vector<float64> data);
-		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraWindowWidget* win);
+		void writeVolts (unsigned currentVoltNumber, std::vector<float64> data);
+		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
 		void startAtomCruncher (AllExperimentInput& input);
 		void startPlotterThread (AllExperimentInput& input);
 		bool wantsAutoPause ();
@@ -95,7 +93,7 @@ class QtAndorWindow : public IChimeraWindowWidget
 		bool wasJustCalibrated ();
 		bool wantsAutoCal ();
 		bool wantsNoMotAlert ();
-		UINT getNoMotThreshold ();
+		unsigned getNoMotThreshold ();
 		atomGrid getMainAtomGrid ();
 		std::string getMostRecentDateString ();
 		int getMostRecentFid ();
@@ -106,18 +104,18 @@ class QtAndorWindow : public IChimeraWindowWidget
 		std::atomic<HANDLE>& getPlotThreadHandleRef ();
 		std::mutex& getActivePlotMutexRef ();
 		void cleanUpAfterExp ();
-		void handlePlotPop (UINT id);
+		void handlePlotPop (unsigned id);
 
 		void fillExpDeviceList (DeviceList& list);
 		void handleSetAnalysisPress ();
-
+		piezoChan<double> getAlignmentVals ();
 		CruncherThreadWorker* atomCruncherWorker;
 		AnalysisThreadWorker* analysisThreadWorker;
 	private:
         Ui::QtAndorWindow* ui;
 
 		bool justCalibrated = false;
-		UINT numExcessCounts = 0;
+		unsigned numExcessCounts = 0;
 		AndorCameraCore andor;
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
@@ -127,6 +125,7 @@ class QtAndorWindow : public IChimeraWindowWidget
 		ExperimentTimer timer;
 
 		DataAnalysisControl analysisHandler;
+		NewPythonHandler pythonHandler;
 		DataLogger dataHandler;
 		std::vector<PlotCtrl*> mainAnalysisPlots;
 		coordinate selectedPixel = { 0,0 };
@@ -139,15 +138,7 @@ class QtAndorWindow : public IChimeraWindowWidget
 		bool realTimePic;
 		// plotting stuff;
 		std::atomic<HANDLE> plotThreadHandle;
-		//imageQueue imQueue;
-		//std::mutex imageQueueLock;
 		std::condition_variable rearrangerConditionVariable;
-		// the following two queues and locks aren't directly used by the camera window, but the camera window
-		// distributes them to the threads that do use them.
-
-		//multiGridAtomQueue plotterAtomQueue;
-		//multiGridImageQueue plotterPictureQueue;
-		//atomQueue rearrangerAtomQueue;
 		std::mutex plotLock;
 		std::mutex rearrangerLock;
 
@@ -163,9 +154,11 @@ class QtAndorWindow : public IChimeraWindowWidget
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;
 		std::mutex activePlotMutex;
 		std::vector<PlotDialog*> activeDlgPlots;
-		UINT mostRecentPicNum = 0;
-		UINT currentPictureNum = 0;
+		unsigned mostRecentPicNum = 0;
+		unsigned currentPictureNum = 0;
 		Matrix<long> avgBackground;
+		PiezoController imagingPiezo;
+
 	Q_SIGNALS:
 		void newImage (NormalImage);
 
@@ -173,9 +166,10 @@ class QtAndorWindow : public IChimeraWindowWidget
 		void onCameraProgress (int picNum);
 		LRESULT onCameraFinish (WPARAM wParam, LPARAM lParam);
 		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
-		LRESULT onCameraCalProgress (WPARAM wParam, LPARAM lParam);
 		LRESULT onBaslerFinish (WPARAM wParam, LPARAM lParam);
 		void handlePrepareForAcq (void* lparam);
+		void completePlotterStart ();
+		void completeCruncherStart ();
 
 };
 

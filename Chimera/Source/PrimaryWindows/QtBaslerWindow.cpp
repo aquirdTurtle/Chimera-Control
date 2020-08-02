@@ -11,8 +11,8 @@
 #include <PrimaryWindows/QtDeformableMirrorWindow.h>
 
 
-QtBaslerWindow::QtBaslerWindow (QWidget* parent) : IChimeraWindowWidget (parent), 
-												   picManager (true, "BASLER_PICTURE_MANAGER", true){
+QtBaslerWindow::QtBaslerWindow (QWidget* parent) : IChimeraQtWindow (parent), 
+											picManager (true, "BASLER_PICTURE_MANAGER", true, Qt::FastTransformation){
 	statBox = new ColorBox ();
 	basCamCore = new BaslerCameraCore (this);
 	if (!basCamCore->isInitialized ()){
@@ -28,10 +28,8 @@ void QtBaslerWindow::initializeWidgets (){
 	try{
 		initializeControls ();
 	}
-	catch (Error& err){
-		errBox (err.trace ());
-		//EndDialog (-1);
-		//return FALSE;
+	catch (ChimeraError& err){
+		reportErr (err.qtrace ());
 	}
 }
 
@@ -50,11 +48,9 @@ void QtBaslerWindow::handleBaslerAutoscaleSelection (){
 	picManager.setAutoScalePicturesOption (autoScaleBaslerPictureData);
 }
 
-
 baslerSettings QtBaslerWindow::getCurrentSettings (){
 	return settingsCtrl.getCurrentSettings ();
 }
-
 
 /*
 Load the settings appropriate for the mot size measurement and then start the camera.
@@ -67,7 +63,7 @@ void QtBaslerWindow::startTemporaryAcquisition (baslerSettings settings){
 		tempAcqSettings = settings;
 		picManager.setParameters (settings.dims);
 	}
-	catch (Error&){
+	catch (ChimeraError&){
 		throwNested ("Failed to start temporary acquisition.");
 	}
 }
@@ -77,18 +73,17 @@ void QtBaslerWindow::handleSoftwareTrigger (){
 		basCamCore->softwareTrigger ();
 	}
 	catch (Pylon::TimeoutException&){
-		errBox ("Software trigger timed out!");
+		reportErr ("Software trigger timed out!");
 	}
 }
 
-void QtBaslerWindow::pictureRangeEditChange (UINT id){
+void QtBaslerWindow::pictureRangeEditChange (unsigned id){
 	try{
 		mainWin->updateConfigurationSavedStatus (false);
 		picManager.handleEditChange (id);
-		//picture.handleEditChange( id );
 	}
-	catch (Error& err){
-		errBox ("Error! " + err.trace ());
+	catch (ChimeraError& err){
+		reportErr ("Error! " + err.qtrace ());
 	}
 }
 
@@ -98,8 +93,8 @@ void QtBaslerWindow::handleDisarmPress (){
 		isRunning = false;
 		settingsCtrl.setStatus ("Camera Status: Idle");
 	}
-	catch (Error& err){
-		errBox ("Error! " + err.trace ());
+	catch (ChimeraError& err){
+		reportErr ("Error! " + err.qtrace ());
 		settingsCtrl.setStatus ("Camera Status: ERROR?!?!");
 	}
 }
@@ -136,8 +131,8 @@ void QtBaslerWindow::startDefaultAcquisition (){
 		settingsCtrl.setStatus ("Camera Status: Armed...");
 		isRunning = true;
 	}
-	catch (Error& err){
-		errBox (err.what ());
+	catch (ChimeraError& err){
+		reportErr (err.qtrace ());
 	}
 }
 
@@ -167,7 +162,7 @@ void QtBaslerWindow::handleNewPics (Matrix<long> imageMatrix){
 			runningAutoAcq = false;
 			settingsCtrl.setStatus ("Camera Status: Finished finite acquisition.");
 			// tell the andor window that the basler camera finished so that the data file can be handled appropriately.
-			mainWin->getComm ()->sendBaslerFin ();
+			//mainWin->getComm ()->sendBaslerFin ();
 			if (!andorWin->cameraIsRunning ()){
 				// else it will close when the basler camera finishes.
 				andorWin->getLogger ().normalCloseFile ();
@@ -178,7 +173,7 @@ void QtBaslerWindow::handleNewPics (Matrix<long> imageMatrix){
 			loadMotConsecutiveFailures++;
 			if (andorWin->wantsNoMotAlert ()){
 				if (loadMotConsecutiveFailures > andorWin->getNoMotThreshold ()){
-					mainWin->getComm ()->sendNoMotAlert ();
+					//mainWin->getComm ()->sendNoMotAlert ();
 				}
 			}
 		}
@@ -188,8 +183,8 @@ void QtBaslerWindow::handleNewPics (Matrix<long> imageMatrix){
 		}
 		settingsCtrl.redrawMotIndicator ();
 	}
-	catch (Error& err){
-		errBox (err.trace ());
+	catch (ChimeraError& err){
+		reportErr(err.qtrace ());
 		settingsCtrl.setStatus ("Camera Status: ERROR?!?!?");
 	}
 }
@@ -199,8 +194,8 @@ void QtBaslerWindow::passCameraMode (){
 	try{
 		settingsCtrl.handleCameraMode ();
 	}
-	catch (Error& err){
-		errBox ("Error! " + err.trace ());
+	catch (ChimeraError& err){
+		reportErr ("Error! " + err.qtrace ());
 	}
 }
 
@@ -208,8 +203,8 @@ void QtBaslerWindow::passExposureMode (){
 	try{
 		settingsCtrl.handleExposureMode ();
 	}
-	catch (Error& err){
-		errBox ("Error! " + err.trace ());
+	catch (ChimeraError& err){
+		reportErr ("Error! " + err.qtrace ());
 	}
 }
 
@@ -221,8 +216,8 @@ void QtBaslerWindow::prepareWinForAcq (baslerSettings* settings){
 		runExposureMode = settings->exposureMode;
 		isRunning = true;
 	}
-	catch (Error& err){
-		errBox (err.trace ());
+	catch (ChimeraError& err){
+		reportErr (err.qtrace ());
 	}
 }
 

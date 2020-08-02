@@ -7,9 +7,9 @@
 #include <boost/lexical_cast.hpp>
 #include "PrimaryWindows/QtMainWindow.h"
 
-UINT Repetitions::getSettingsFromConfig (ConfigStream& openFile )
+unsigned Repetitions::getSettingsFromConfig (ConfigStream& openFile )
 {
-	UINT repNum;
+	unsigned repNum;
 	openFile >> repNum;
 	return repNum;
 }
@@ -29,7 +29,7 @@ void Repetitions::updateNumber(long repNumber)
 }
 
 
-void Repetitions::initialize(POINT& pos, IChimeraWindowWidget* parent )
+void Repetitions::initialize(POINT& pos, IChimeraQtWindow* parent )
 {
 	repetitionNumber = 100;
 	// title
@@ -44,7 +44,7 @@ void Repetitions::initialize(POINT& pos, IChimeraWindowWidget* parent )
 }
 
 
-void Repetitions::setRepetitions(UINT number)
+void Repetitions::setRepetitions(unsigned number)
 {
 	repetitionNumber = number;
 	repetitionEdit->setText (cstr (number));
@@ -52,7 +52,7 @@ void Repetitions::setRepetitions(UINT number)
 }
 
 
-UINT Repetitions::getRepetitionNumber()
+unsigned Repetitions::getRepetitionNumber()
 {
 	auto text = repetitionEdit->text ();
 	try

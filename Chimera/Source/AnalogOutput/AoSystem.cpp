@@ -11,7 +11,7 @@
 #include <boost/lexical_cast.hpp>
 #include <ExperimentThread/ExpThreadWorker.h>
 
-AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode ){
+AoSystem::AoSystem(IChimeraQtWindow* parent, bool aoSafemode) : IChimeraSystem(parent), daqmx( aoSafemode ){
 	/// set some constants...
 	// Both are 0-INDEXED. D16
 	dacTriggerLine = { 3, 15 };
@@ -20,8 +20,7 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode ){
 	// in ms.
 	// ?? I thought it was 10 MHz...
 	dacTriggerTime = 0.0005;
-	try
-	{
+	try	{
 		// initialize tasks and chanells on the DACs
 		long output = 0;
 		// Create a task for each board
@@ -45,24 +44,12 @@ AoSystem::AoSystem(bool aoSafemode) : daqmx( aoSafemode ){
 		// new
 	}
 	// I catch here because it's the constructor, and catching elsewhere is weird.
-	catch (Error& exception)
+	catch (ChimeraError& exception)
 	{
 		errBox(exception.trace());
 		// should fail.
 		throw;
 	}
-}
-
-
-bool AoSystem::handleArrow ( CWnd* focus, bool up ){
-	if ( quickChange->isChecked( ) ){
-		for ( auto& output : outputs ){
-			if ( output.handleArrow ( focus, up ) ){
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 
@@ -80,7 +67,7 @@ void AoSystem::forceDacs( DoCore& ttls, DoSnapshot initSnap ){
 	handleSetDacsButtonPress( ttls );
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence(initSnap);
-	
+	emit notification ("Forced Analog Output Values Complete.\n");
 }
 
 
@@ -94,6 +81,7 @@ void AoSystem::zeroDacs( DoCore& ttls, DoSnapshot initSnap){
 	}
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
+	emit notification ("Zero'd Analog Outputs.\n", 2);
 }
 
 
@@ -106,7 +94,7 @@ std::array<AoInfo, 24> AoSystem::getDacInfo( ){
 }
 
 
-void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapshot initSnap){
+void AoSystem::setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSnapshot initSnap){
 	ttls.resetTtlEvents( );
 	resetDacEvents( );
 	/// 
@@ -123,7 +111,7 @@ void AoSystem::setSingleDac( UINT dacNumber, double val, DoCore& ttls, DoSnapsho
 
 
 void AoSystem::handleOpenConfig(ConfigStream& openFile){
-	UINT dacInc = 0;
+	unsigned dacInc = 0;
 	if ( openFile.ver < Version ( "3.7" ) ){
 		for ( auto i : range ( 24 ) ){
 			std::string trash;
@@ -133,7 +121,7 @@ void AoSystem::handleOpenConfig(ConfigStream& openFile){
 }
 
 
-void AoSystem::standardExperimentPrep ( UINT variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
+void AoSystem::standardExperimentPrep ( unsigned variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
 										double currLoadSkipTime ){
 	organizeDacCommands (variationInc);
 	setDacTriggerEvents (ttls, variationInc);
@@ -147,7 +135,7 @@ void AoSystem::handleSaveConfig(ConfigStream& saveFile){
 }
 
 
-std::string AoSystem::getDacSequenceMessage( UINT variation ){
+std::string AoSystem::getDacSequenceMessage( unsigned variation ){
 	std::string message;
 	for ( auto snap : dacSnapshots(variation) ){
 		std::string time = str( snap.time, 12, true );
@@ -170,7 +158,7 @@ std::string AoSystem::getDacSequenceMessage( UINT variation ){
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AoSystem::handleEditChange ( UINT dacNumber ){
+void AoSystem::handleEditChange ( unsigned dacNumber ){
 	if ( dacNumber >= outputs.size ( ) ){
 		thrower ( "attempted to handle dac edit change, but the dac number reported doesn't exist!" );
 	}
@@ -191,18 +179,18 @@ bool AoSystem::isValidDACName(std::string name){
 }
 
 
-void AoSystem::setDefaultValue(UINT dacNum, double val){
+void AoSystem::setDefaultValue(unsigned dacNum, double val){
 	outputs[ dacNum ].info.defaultVal = val;
 }
 
 
-double AoSystem::getDefaultValue(UINT dacNum){
+double AoSystem::getDefaultValue(unsigned dacNum){
 	return outputs[dacNum].info.defaultVal;
 }
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent ){
+void AoSystem::initialize(POINT& pos, IChimeraQtWindow* parent ){
 	// title
 	dacTitle = new QLabel ("DACS", parent);
 	dacTitle->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+480, pos.y += 25} });
@@ -224,7 +212,7 @@ void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent ){
 
 	int collumnInc = 0;
 	
-	UINT dacInc = 0;
+	unsigned dacInc = 0;
 	for ( auto& out : outputs )
 	{
 		if ( dacInc == outputs.size ( ) / 3 || dacInc == 2 * outputs.size ( ) / 3 )
@@ -242,7 +230,7 @@ void AoSystem::initialize(POINT& pos, IChimeraWindowWidget* parent ){
 
 bool AoSystem::eventFilter (QObject* obj, QEvent* event){
 	for (auto& out : outputs) {
-		if (out.eventFilter (obj, event)) {
+		if ( out.eventFilter (obj, event) ) {
 			return true;
 		}
 	}
@@ -268,8 +256,7 @@ void AoSystem::handleRoundToDac( )
  * get the text from every edit and prepare a change. If fails to get text from edit, if useDefalt this will set such
  * dacs to zero.
  */
-void AoSystem::handleSetDacsButtonPress(DoCore& ttls, bool useDefault )
-{
+void AoSystem::handleSetDacsButtonPress(DoCore& ttls, bool useDefault ){
 	dacCommandFormList.clear( );
 	prepareForce( );
 	ttls.prepareForce( );
@@ -296,7 +283,7 @@ void AoSystem::updateEdits( )
 }
 
 
-void AoSystem::organizeDacCommands(UINT variation)
+void AoSystem::organizeDacCommands(unsigned variation)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
@@ -306,7 +293,7 @@ void AoSystem::organizeDacCommands(UINT variation)
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](AoCommand a, AoCommand b){ return a.time < b.time; });
-	for (UINT commandInc : range(tempEvents.size()))
+	for (unsigned commandInc : range(tempEvents.size()))
 	{
 		auto& command = tempEvents[commandInc];
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
@@ -354,7 +341,7 @@ void AoSystem::organizeDacCommands(UINT variation)
 }
 
 
-void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation )
+void AoSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, unsigned variation )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = dacSnapshots(variation);
@@ -405,7 +392,7 @@ void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 }
 
 
-void AoSystem::resetDacs (UINT varInc, bool skipOption)
+void AoSystem::resetDacs (unsigned varInc, bool skipOption)
 {
 	stopDacs ();
 	// it's important to grab the skipoption from input->skipNext only once because in principle
@@ -416,11 +403,11 @@ void AoSystem::resetDacs (UINT varInc, bool skipOption)
 	startDacs ();
 }
 
-std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( UINT var ){
+std::vector<std::vector<plotDataVec>> AoSystem::getPlotData( unsigned var ){
 	std::vector<std::vector<plotDataVec>> dacData(3, std::vector<plotDataVec>(8));
 	std::string message;
 	// each element of dacData should be one ttl line.
-	UINT linesPerPlot = 24 / 3;
+	unsigned linesPerPlot = 24 / 3;
 
 	for ( auto line : range( 24 ) )	{
 		auto& data = dacData[line / linesPerPlot][line % linesPerPlot];
@@ -447,7 +434,7 @@ template<class T> using vec = std::vector<T>;
 void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	CodeTimer sTimer;
 	sTimer.tick ( "Ao-Sys-Interpret-Start" );
-	UINT variations = params.size( ) == 0 ? 1 : params.front( ).keyValues.size( );
+	unsigned variations = params.size( ) == 0 ? 1 : params.front( ).keyValues.size( );
 	if (variations == 0){
 		variations = 1;
 	}
@@ -561,18 +548,20 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 				double rampTime = formList.rampTime.evaluate( params, variationInc );
 				/// many points to be made.
 				double initValue, finalValue;
-				UINT numSteps;
+				unsigned numSteps;
 				initValue = formList.initVal.evaluate( params, variationInc );
 				finalValue = formList.finalVal.evaluate(params, variationInc );
 				numSteps = formList.numSteps.evaluate(params, variationInc );
 				double rampInc = (finalValue - initValue) / numSteps;
-				if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted ){
+				// this warning isn't actually very useful. very rare that actually run into issues with overtaxing ao 
+				// or do systems like this and these circumstances often happen when something is ramped.
+				/*if ( (fabs( rampInc ) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted ){
 					resolutionWarningPosted = true;
 					emit threadworker->warn (cstr ("Warning: numPoints of " + str (numSteps) + " results in a ramp increment of "
 						+ str (rampInc) + " is below the resolution of the aoSys (which is 10/2^16 = "
 						+ str (10.0 / pow (2, 16)) + "). It's likely taxing the system to "
 						"calculate the ramp unnecessarily.\r\n"));
-				}
+				}*/
 				// This might be the first not i++ usage of a for loop I've ever done... XD
 				// calculate the time increment:
 				double timeInc = rampTime / numSteps;
@@ -603,12 +592,12 @@ void AoSystem::calculateVariations( std::vector<parameterType>& params, ExpThrea
 }
 
 
-UINT AoSystem::getNumberSnapshots(UINT variation){
+unsigned AoSystem::getNumberSnapshots(unsigned variation){
 	return dacSnapshots(variation).size();
 }
 
 
-void AoSystem::checkTimingsWork(UINT variation){
+void AoSystem::checkTimingsWork(unsigned variation){
 	std::vector<double> times;
 	// grab all the times.
 	for (auto snapshot : dacSnapshots(variation)){
@@ -635,7 +624,7 @@ void AoSystem::checkTimingsWork(UINT variation){
 	}
 }
 
-ULONG AoSystem::getNumberEvents(UINT variation){
+ULONG AoSystem::getNumberEvents(unsigned variation){
 	return dacSnapshots(variation).size();
 }
 
@@ -652,7 +641,7 @@ void AoSystem::setDacCommandForm( AoCommandForm command){
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void AoSystem::setDacTriggerEvents(DoCore& ttls, UINT variation){
+void AoSystem::setDacTriggerEvents(DoCore& ttls, unsigned variation){
 	for ( auto snapshot : dacSnapshots(variation)){
 		ttls.ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation );
 		ttls.ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation );
@@ -682,7 +671,7 @@ void AoSystem::prepareDacForceChange(int line, double voltage, DoCore& ttls){
 }
 
 
-void AoSystem::checkValuesAgainstLimits(UINT variation){
+void AoSystem::checkValuesAgainstLimits(unsigned variation){
 	for (auto line : range(outputs.size())){
 		for (auto snapshot : dacSnapshots(variation)){
 			if (snapshot.dacValues[line] > outputs[line].info.maxVal || snapshot.dacValues[line] <outputs[ line ].info.minVal )	{
@@ -696,7 +685,7 @@ void AoSystem::checkValuesAgainstLimits(UINT variation){
 }
 
 
-void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, UINT variation ){
+void AoSystem::setForceDacEvent( int line, double val, DoCore& ttls, unsigned variation ){
 	if (val > outputs[ line ].info.maxVal || val < outputs[ line ].info.minVal ){
 		thrower ("Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
 				"value was " + str(val) + ", while the minimum accepted value is " +
@@ -734,7 +723,7 @@ void AoSystem::prepareForce( ){
 }
 
 
-void AoSystem::initializeDataObjects( UINT cmdNum ){
+void AoSystem::initializeDataObjects( unsigned cmdNum ){
 	dacCommandFormList = vec<AoCommandForm>( cmdNum );
 	dacCommandList.uniformSizeReset (  cmdNum );
 	dacSnapshots.uniformSizeReset ( cmdNum );
@@ -756,7 +745,7 @@ void AoSystem::stopDacs(){
 }
 
 
-void AoSystem::configureClocks(UINT variation, bool loadSkip){
+void AoSystem::configureClocks(unsigned variation, bool loadSkip){
 	long sampleNumber;
 	if ( loadSkip ){
 		sampleNumber = loadSkipDacSnapshots(variation).size( );
@@ -773,7 +762,7 @@ void AoSystem::configureClocks(UINT variation, bool loadSkip){
 }
 
 
-void AoSystem::writeDacs(UINT variation, bool loadSkip){
+void AoSystem::writeDacs(unsigned variation, bool loadSkip){
 	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots(variation) : dacSnapshots(variation);
 	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat(variation)
 															 : finalFormatDacData(variation);
@@ -805,7 +794,7 @@ void AoSystem::startDacs(){
 }
 
 
-void AoSystem::makeFinalDataFormat(UINT variation){
+void AoSystem::makeFinalDataFormat(unsigned variation){
 	auto& finalNormal = finalFormatDacData(variation);
 	auto& finalLoadSkip = loadSkipDacFinalFormat(variation);
 	auto& normSnapshots = dacSnapshots(variation);
@@ -907,7 +896,7 @@ std::string AoSystem::getName(int dacNumber){
 }
 
 
-UINT AoSystem::getNumberOfDacs(){
+unsigned AoSystem::getNumberOfDacs(){
 	return outputs.size ( );
 }
 

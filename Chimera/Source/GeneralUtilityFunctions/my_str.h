@@ -15,8 +15,7 @@ template <typename T> QString qstr (T input, const int precision = 13, bool eatZ
 // this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
 template <typename T> std::string str( T input, const int precision = 13, bool eatZeros = false, bool toLower = false,
-									   bool zeroPad = false, bool useScientificNotation=false )
-{
+									   bool zeroPad = false, bool useScientificNotation=false ){
 	std::ostringstream out;
 	if (useScientificNotation) {
 		out << std::scientific;
@@ -26,39 +25,30 @@ template <typename T> std::string str( T input, const int precision = 13, bool e
 	}
 	out << std::setprecision(precision) << input;
 	std::string outStr = out.str();
-	if ( zeroPad )
-	{
-		if ( outStr.find_first_not_of( "-0." ) != std::string::npos || outStr == "0" )
-		{
+	if ( zeroPad ){
+		if ( outStr.find_first_not_of( "-0." ) != std::string::npos || outStr == "0" ){
 			int fpos = int ( outStr.find_first_not_of ( "-0." ) );
-			if ( int(outStr.size ( )) - fpos - precision < 0 )
-			{
-				if ( outStr.find_first_of ( "." ) == std::string::npos )
-				{
+			if ( int(outStr.size ( )) - fpos - precision < 0 ){
+				if ( outStr.find_first_of ( "." ) == std::string::npos ){
 					// was int with no decimal, make float so that can add zeros. 
 					outStr += ".";
-					if ( fpos == -1 )
-					{
+					if ( fpos == -1 ){
 						fpos = int(outStr.size());
 					}
 				}
 				// then needs zeros
-				for ( auto zero : range ( -(int(outStr.size ( )) - fpos - precision) ) )
-				{
+				for ( auto zero : range ( -(int(outStr.size ( )) - fpos - precision) ) ){
 					outStr += "0";
 				}
 			}
 		}
 	}
-	if (eatZeros)
-	{	// this only makes sense if input was a double.
-		if (outStr.find(".") != std::string::npos)
-		{
+	if (eatZeros){	// this only makes sense if input was a double.
+		if (outStr.find(".") != std::string::npos){
 			outStr.erase(outStr.find_last_not_of('0') + 1, std::string::npos);
 		}
 	}
-	if (toLower)
-	{
+	if (toLower){
 		std::transform(outStr.begin(), outStr.end(), outStr.begin(), ::tolower);
 	}
 	return outStr;

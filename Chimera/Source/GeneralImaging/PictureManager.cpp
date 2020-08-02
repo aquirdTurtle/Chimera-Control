@@ -4,8 +4,9 @@
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "Andor/pictureSettingsControl.h"
 
-PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault ) 
-	: pictures{ { histOption, false, false, false } }, configDelim ( configurationFileDelimiter ), 
+PictureManager::PictureManager ( bool histOption, std::string configurationFileDelimiter, bool autoscaleDefault, 
+	Qt::TransformationMode mode)
+	: pictures{ {{histOption, mode}, {false, mode}, {false, mode}, {false, mode} } }, configDelim (configurationFileDelimiter),
 	autoScalePictures (autoscaleDefault ){
 }
 
@@ -15,9 +16,8 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 	}
 }
 
-
-void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, UINT whichPicCtrl,
-	std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, UINT pictureNumber, 
+void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, unsigned whichPicCtrl,
+	std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, unsigned pictureNumber, 
 	bool includingAnalysisMarkers){
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
 	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax,
@@ -37,7 +37,6 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds){
 	}
 }
 
-
 void PictureManager::setAlwaysShowGrid(bool showOption){
 	alwaysShowGrid = showOption;
 	if (alwaysShowGrid){
@@ -56,7 +55,7 @@ coordinate PictureManager::getSelLocation (){
 }
 
 void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-	std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber, QPainter& painter ){
+	std::vector<atomGrid> gridInfo, bool forceGrid, unsigned picNumber, QPainter& painter ){
 	if (!pictures[1].isActive()){
 		pictures[0].redrawImage();
 		if (alwaysShowGrid || forceGrid ){
@@ -72,7 +71,6 @@ void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<co
 	}
 }
 
-
 void PictureManager::setNumberPicturesActive( int numberActive ){
 	int count = 1;
 	for (auto& pic : pictures){
@@ -81,22 +79,20 @@ void PictureManager::setNumberPicturesActive( int numberActive ){
 	}
 }
 
-void PictureManager::handleEditChange( UINT id ){
+void PictureManager::handleEditChange( unsigned id ){
 	for (auto& pic : pictures){
 		pic.handleEditChange( id );
 	}
 }
 
-
 void PictureManager::setAutoScalePicturesOption(bool autoScaleOption){
 	autoScalePictures = autoScaleOption;
 }
 
-
 void PictureManager::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << configDelim + "\n/*Slider Locs (Min/Max):*/\n";
 	for (auto& pic : pictures){
-		std::pair<UINT, UINT> sliderLoc = pic.getSliderLocations();
+		std::pair<unsigned, unsigned> sliderLoc = pic.getSliderLocations();
 		saveFile << str(sliderLoc.first) << " " << sliderLoc.second << "\n";
 	}
 	saveFile << "/*Auto-Scale Pics?*/ " << autoScalePictures;
@@ -105,7 +101,6 @@ void PictureManager::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "\n/*Always Show Grid?*/ " << alwaysShowGrid;
 	saveFile << "\nEND_" + configDelim + "\n";
 }
-
 
 void PictureManager::handleOpenConfig( ConfigStream& configFile ){
 	if ( configFile.ver < Version ( "4.0" ) ){
@@ -117,7 +112,7 @@ void PictureManager::handleOpenConfig( ConfigStream& configFile ){
 		configFile >> maxes[sliderInc];
 	}
 	configFile >> autoScalePictures >> specialGreaterThanMax >> specialLessThanMin >> alwaysShowGrid;
-	UINT count = 0;
+	unsigned count = 0;
 	for (auto& pic : pictures){
 		pic.setSliderPositions(mins[count], maxes[count]);
 		count++;
@@ -125,17 +120,15 @@ void PictureManager::handleOpenConfig( ConfigStream& configFile ){
 	configFile.get();
 }
 
-
 void PictureManager::setSpecialLessThanMin(bool option){
 	specialLessThanMin = option;
 }
-
 
 void PictureManager::setSpecialGreaterThanMax(bool option){
 	specialGreaterThanMax = option;
 }
 
-void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar){
+void PictureManager::handleScroll(unsigned nSBCode, unsigned nPos, CScrollBar* scrollbar){
 	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK){
 		int id = scrollbar->GetDlgCtrlID();
 		for (auto& control : pictures){
@@ -146,7 +139,7 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 }
 
 void PictureManager::setSinglePicture( imageParameters imageParams){
-	for (UINT picNum = 0; picNum < 4; picNum++){
+	for (unsigned picNum = 0; picNum < 4; picNum++){
 		if (picNum < 1){
 			pictures[picNum].setActive(true);
 		}
@@ -162,17 +155,15 @@ void PictureManager::setSinglePicture( imageParameters imageParams){
 	setParameters( imageParams );
 }
 
-
 void PictureManager::resetPictureStorage(){
 	for (auto& pic : pictures){
 		pic.resetStorage();
 	}
 }
 
-
-void PictureManager::setMultiplePictures( imageParameters imageParams, UINT numberActivePics )
+void PictureManager::setMultiplePictures( imageParameters imageParams, unsigned numberActivePics )
 {
-	for (UINT picNum = 0; picNum < 4; picNum++){
+	for (unsigned picNum = 0; picNum < 4; picNum++){
 		if (picNum < numberActivePics){
 			pictures[picNum].setActive(true);
 		}
@@ -209,7 +200,7 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, UINT numb
 }
 
 void PictureManager::initialize( POINT& loc, CBrush* defaultBrush, int manWidth, int manHeight,
-								 IChimeraWindowWidget* widget, int scaleFactor){
+								 IChimeraQtWindow* widget, int scaleFactor){
 	picturesLocation = loc;
 	picturesWidth = manWidth;
 	picturesHeight = manHeight;
@@ -240,8 +231,8 @@ void PictureManager::updatePlotData ( ){
 	}
 }
 
-UINT PictureManager::getNumberActive( ){
-	UINT count = 0;
+unsigned PictureManager::getNumberActive( ){
+	unsigned count = 0;
 	for ( auto& pic : pictures ){
 		if ( pic.isActive( ) ){
 			count++;
@@ -1052,7 +1043,7 @@ void PictureManager::createPalettes( ){
 	};
 	/*
 	UCHAR r, g, b;
-	for ( UINT paletteInc : range ( PICTURE_PALETTE_SIZE ) )
+	for ( unsigned paletteInc : range ( PICTURE_PALETTE_SIZE ) )
 	{
 		// scaling it to make it a bit darker near the bottom.
 		r = UCHAR ( dark_viridis[ paletteInc ][ 0 ] * ( 255.0 - 1 ) * ( 1.0 / 4 + 3.0*paletteInc / ( 4 * 255.0 ) ) );

@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "BaslerWrapper.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <PrimaryWindows/QtBaslerWindow.h>
 #include <Basler/ImageEventHandler.h>
 
 // initialize the camera using the fundamental settings I use for all cameras. 
-void BaslerWrapper::init (IChimeraWindowWidget* parent ){
+void BaslerWrapper::init (IChimeraQtWindow* parent ){
 	if (!BASLER_SAFEMODE){
 		try	{
 			Open ();
@@ -31,7 +31,7 @@ void BaslerWrapper::init (IChimeraWindowWidget* parent ){
  * The rest of the functions in this file are simple wrappers for pylon functinos. They serve several purposes.
  *		- they allow easy handling of errors.
 		- More specifically, they allow me to standardize error handling. All my API wrappers handle errors by throwing
-			an "Error" Object of my own making.
+			an "ChimeraError" Object of my own making.
 			- Pylon's error handling is actually already pretty close to my own error handling, in that it throws
 				a specialized exception. However, I oftentimes here just make it return /my/ specialized exception
 				instead so that I can catch all errors simultaneously in my larger programs.

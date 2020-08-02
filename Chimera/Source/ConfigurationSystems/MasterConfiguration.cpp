@@ -7,17 +7,13 @@
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "PrimaryWindows/QtMainWindow.h"
+#include "PrimaryWindows/QtScriptWindow.h"
 #include <string>
 #include <fstream>
 
+MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}{}
 
-
-MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}
-{}
-
-
-void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin) 
-{
+void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin) {
 	/*
 		information to save:
 		- TTL names
@@ -31,23 +27,20 @@ void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin,
 	// make sure that file exists
 	FILE *file;
 	fopen_s( &file, cstr(configurationFileAddress), "r" );
-	if ( !file )
-	{
+	if ( !file ){
 		errBox( "WARNING: Master Configuration File Not Found! Saving this file should normally mean over-writing the previous one." );
 	}
-	else
-	{
+	else{
 		fclose( file );
 	}
 	// open file
 	std::fstream configFile;
 	configFile.open(cstr(configurationFileAddress), std::ios::out);
-	if (!configFile.is_open())
-	{
+	if (!configFile.is_open()){
 		thrower ( "Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
 				" location " + configurationFileAddress );
 	}
-	std::stringstream configStream;
+	ConfigStream configStream;
 	// output version
 	configStream << "Version " + version.str() + "\n";
 	auxWin->handleMasterConfigSave(configStream);
@@ -57,18 +50,14 @@ void MasterConfiguration::save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin,
 	configFile.close();
 }
 
-
-void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin)
-{
+void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin){
 	// make sure that file exists	
 	FILE *file;
 	fopen_s( &file, cstr(configurationFileAddress), "r" );
-	if ( !file )
-	{
+	if ( !file ){
 		errBox("WARNING: Master Configuration File Not Found! Cannot load Master Configuration File. No Default names for TTLs, DACs, or default values.");
 	}
-	else
-	{
+	else{
 		fclose( file );
 	}
 	ConfigStream configFile (configurationFileAddress, true);
@@ -76,5 +65,6 @@ void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin,
 	auxWin->handleMasterConfigOpen(configFile);
 	mainWin->handleMasterConfigOpen (configFile);
 	camWin->handleMasterConfigOpen(configFile);
+	mainWin->scriptWin->updateDoAoNames ();
 }
 

@@ -18,27 +18,27 @@
 #include <array>
 #include <sstream>
 #include <unordered_map>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qpushbutton.h>
+#include <GeneralObjects/IChimeraSystem.h>
 
 /**/
 class AuxiliaryWindow;
 
-class DoSystem
-{
+class DoSystem : public IChimeraSystem {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		DoSystem& operator=(const DoSystem&) = delete;
 		DoSystem (const DoSystem&) = delete;
 
-		DoSystem ( bool ftSafemode, bool serialSafemode );
+		DoSystem (IChimeraQtWindow* parent, bool ftSafemode, bool serialSafemode );
 		~DoSystem();
 		/// config handling
 		std::string getDoSystemInfo ();
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile);
-		void initialize(POINT& startLocation, IChimeraWindowWidget* master );
+		void initialize(POINT& startLocation, IChimeraQtWindow* master );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
 		void zeroBoard();
@@ -47,21 +47,20 @@ class DoSystem
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 		bool getFtFlumeSafemode ();
 
-		void rearrange(UINT width, UINT height, fontMap fonts);
+		std::pair<unsigned, unsigned> getTtlBoardSize();
 
-		std::pair<UINT, UINT> getTtlBoardSize();
-
-		void setName( DoRows::which row, UINT number, std::string name);
-		std::string getName ( DoRows::which row, UINT number );
+		void setName( DoRows::which row, unsigned number, std::string name);
+		std::string getName ( DoRows::which row, unsigned number );
 		Matrix<std::string> getAllNames ();
 		bool getTtlStatus ( DoRows::which row, int number );
-		void updateDefaultTtl( DoRows::which row, UINT column, bool state);
-		bool getDefaultTtl( DoRows::which row, UINT column);
+		void updateDefaultTtl( DoRows::which row, unsigned column, bool state);
+		bool getDefaultTtl( DoRows::which row, unsigned column);
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
 		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
-		void updatePush( DoRows::which row, UINT col );
+		void updatePush( DoRows::which row, unsigned col );
 		allDigitalOutputs& getDigitalOutputs();
 		DoCore& getCore ();
+
 	private:
 		DoCore core;
 		/// other.

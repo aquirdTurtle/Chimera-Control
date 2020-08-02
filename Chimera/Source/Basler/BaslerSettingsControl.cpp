@@ -11,7 +11,7 @@ BaslerSettingsControl::BaslerSettingsControl ( ) : dims("scout")
 
 
 void BaslerSettingsControl::initialize ( POINT& pos, int picWidth, int picHeight, POINT cameraDims, 
-	IChimeraWindowWidget* win )
+	IChimeraQtWindow* win )
 {
 	int width = 300;
 	lastTime = 0;
@@ -77,23 +77,16 @@ void BaslerSettingsControl::initialize ( POINT& pos, int picWidth, int picHeight
 	handleCameraMode ();
 }
 
-
-void BaslerSettingsControl::rearrange(int width, int height, fontMap fonts) {}
-
-
-void BaslerSettingsControl::redrawMotIndicator ( )
-{ 
+void BaslerSettingsControl::redrawMotIndicator ( ){ 
 	//motLoadedColorbox.RedrawWindow ( );
 }
 
 
 // assumes called on every 10 pics.
-void BaslerSettingsControl::handleFrameRate()
-{
+void BaslerSettingsControl::handleFrameRate(){
 	ULONG currentTime = GetTickCount();
 	ULONG timePerPic = (currentTime - lastTime)/10.0;
-	if (timePerPic == 0)
-	{
+	if (timePerPic == 0){
 		// avoid dividing by 0.
 		timePerPic++;
 	}
@@ -102,47 +95,38 @@ void BaslerSettingsControl::handleFrameRate()
 }
 
 
-double BaslerSettingsControl::getMotThreshold ( )
-{
-	try
-	{
+double BaslerSettingsControl::getMotThreshold ( ){
+	try{
 		return boost::lexical_cast<double>(str(motThresholdEdit->text( )));
 	}
-	catch ( boost::bad_lexical_cast& )
-	{
+	catch ( boost::bad_lexical_cast& ){
 		return 0;
 	}
 }
 
 
-void BaslerSettingsControl::setStatus(std::string status)
-{
+void BaslerSettingsControl::setStatus(std::string status){
 	statusText->setText(status.c_str());
 }
 
 
-void BaslerSettingsControl::updateExposure( double exposure )
-{
+void BaslerSettingsControl::updateExposure( double exposure ){
 	exposureEdit->setText( cstr( exposure,5 ) );
 }
 
 
-void BaslerSettingsControl::handleCameraMode()
-{
+void BaslerSettingsControl::handleCameraMode(){
 	auto text = cameraMode->currentText ();
-	if (text == "Finite-Acquisition")
-	{
+	if (text == "Finite-Acquisition"){
 		repEdit->setEnabled(true);
 	}
-	else
-	{
+	else{
 		repEdit->setEnabled (false);
 	}
 }
 
 
-baslerSettings BaslerSettingsControl::getCurrentSettings()
-{
+baslerSettings BaslerSettingsControl::getCurrentSettings(){
 	loadCurrentSettings ( );
 	return currentSettings;
 }
@@ -151,47 +135,37 @@ baslerSettings BaslerSettingsControl::getCurrentSettings()
 /*
 Updates the internal object with gui settings
 */
-baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
-{
+baslerSettings BaslerSettingsControl::loadCurrentSettings ( ){
 	isReady = false;
 	int selection = exposureModeCombo->currentIndex ( );
-	if ( selection == -1 )
-	{
+	if ( selection == -1 ){
 		thrower  ( "Please select an exposure mode for the basler camera." );
 	}
 	currentSettings.exposureMode = BaslerAutoExposure::fromStr(str(exposureModeCombo->currentText ()));
-	if ( currentSettings.exposureMode == BaslerAutoExposure::mode::Off )
-	{
-		try
-		{
+	if ( currentSettings.exposureMode == BaslerAutoExposure::mode::Off ){
+		try{
 			currentSettings.exposureTime = boost::lexical_cast<double> ( str( exposureEdit->text() ) );
-			if ( currentSettings.exposureTime <= 0 )
-			{
+			if ( currentSettings.exposureTime <= 0 ){
 				thrower  ( "Invalid Basler exposure time!" );
 			}
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			throwNested ( "Error! Please input a valid double for the exposure time." );
 		}
 	}
 	currentSettings.acquisitionMode = BaslerAcquisition::fromStr( str(cameraMode->currentText() ));
-	if ( currentSettings.acquisitionMode == BaslerAcquisition::mode::Finite )
-	{
-		try
-		{
+	if ( currentSettings.acquisitionMode == BaslerAcquisition::mode::Finite ){
+		try{
 			currentSettings.picsPerRep = boost::lexical_cast<int> ( str(repEdit->text()) );
-			if ( currentSettings.picsPerRep == 0 )
-			{
+			if ( currentSettings.picsPerRep == 0 ){
 				thrower  ( "ERROR! Repetition count must be strictly positive." );
 			}
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			throwNested ( "Error! Please input a valid positive integer for the rep count." );
 		}
 	}
-
+	dims.readImageParameters ();
 	currentSettings.dims = dims.getImageParameters ();
 
 	#ifdef USB_CAMERA
@@ -200,17 +174,14 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 	#ifdef FIREWIRE_CAMERA
 		currentSettings.dims.checkConsistency ( "scout" );
 	#endif
-	if (currentSettings.dims.horizontalBinning > 4 || currentSettings.dims.verticalBinning > 4)
-	{
+	if (currentSettings.dims.horizontalBinning > 4 || currentSettings.dims.verticalBinning > 4)	{
 		thrower ( "Binning on a camera cannot exceed 4 pixels per bin!\r\n" );
 	}
 	currentSettings.triggerMode = BaslerTrigger::fromStr( str(triggerCombo->currentText()) );
-	try
-	{
+	try{
 		currentSettings.frameRate = boost::lexical_cast<double>(str(frameRateEdit->text()));
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&){
 		throwNested( std::string("ERROR! Please enter a valid float for the frame rate. ") );
 	}
 	isReady = true;
@@ -219,8 +190,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( )
 
 
 
-void BaslerSettingsControl::handleSavingConfig ( ConfigStream& configFile )
-{ 
+void BaslerSettingsControl::handleSavingConfig ( ConfigStream& configFile ){ 
 	loadCurrentSettings( );
 	configFile  << "BASLER_CAMERA_SETTINGS\n";
 	configFile  << BaslerAcquisition::toStr(currentSettings.acquisitionMode) 
@@ -242,8 +212,7 @@ void BaslerSettingsControl::handleSavingConfig ( ConfigStream& configFile )
 
 
 
-void BaslerSettingsControl::setSettings ( baslerSettings newSettings )
-{
+void BaslerSettingsControl::setSettings ( baslerSettings newSettings ){
 	currentSettings = newSettings;
 	cameraMode->setCurrentIndex (int(currentSettings.acquisitionMode));
 	dims.setImageParametersFromInput (currentSettings.dims);
@@ -256,14 +225,7 @@ void BaslerSettingsControl::setSettings ( baslerSettings newSettings )
 }
 
 
-void BaslerSettingsControl::handleGain()
-{
-	// todo
-}
-
-
-void BaslerSettingsControl::handleExposureMode()
-{
+void BaslerSettingsControl::handleExposureMode(){
 	if (exposureModeCombo->currentText() == "Auto Exposure Off") {
 		exposureEdit->setEnabled(true);
 	}

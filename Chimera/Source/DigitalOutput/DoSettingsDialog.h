@@ -13,11 +13,11 @@ struct ttlInputStruct
 class TtlSettingsDialog : public CDialog
 {
 	public:
-		TtlSettingsDialog(ttlInputStruct* inputPtr, UINT dialogResource);
+		TtlSettingsDialog(ttlInputStruct* inputPtr, unsigned dialogResource);
 		void handleOk();
 		void handleCancel();
 		BOOL OnInitDialog();
-		void OnSize( UINT type, int w, int h );
+		void OnSize( unsigned type, int w, int h );
 	private:
 		DECLARE_MESSAGE_MAP();
 		ttlInputStruct* input;

@@ -33,8 +33,7 @@ template <typename T> void infoBox( T msg )
 	messageBox->setFixedSize (500, 200);
 }
 
-template <typename T> int promptBox( T msg, UINT promptStyle )
-{
+template <typename T> int promptBox( T msg, unsigned promptStyle ){
 	/*
 	return MessageBox( eMainWindowHwnd->GetSafeHwnd(), cstr( msg ), "Prompt", promptStyle | MB_SYSTEMMODAL );
 	*/

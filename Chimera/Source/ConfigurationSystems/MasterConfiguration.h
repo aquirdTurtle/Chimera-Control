@@ -1,9 +1,7 @@
 // created by Mark O. Brown
 #pragma once
-#include "DigitalOutput/DoSystem.h"
 #include "ConfigurationSystems/Version.h"
 #include <string>
-#include <array>
 
 class QtMainWindow;
 class QtAuxiliaryWindow;
@@ -11,8 +9,7 @@ class QtAndorWindow;
 
 // This configuration system is different in style from the other configuration file system. This is designed to do more auto-saving and 
 // auto-load at the beginning of the experiment. There is only supposed to be one such configuration file
-class MasterConfiguration
-{
+class MasterConfiguration{
 	public:
 		MasterConfiguration(std::string address);
 		void save(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin, QtAndorWindow* camWin);

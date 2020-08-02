@@ -4,6 +4,6 @@
 struct softwareAccumulationOption
 {
 	bool accumAll = false;
-	UINT accumNum = 1;
+	unsigned accumNum = 1;
 };
 

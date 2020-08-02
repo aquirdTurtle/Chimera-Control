@@ -34,6 +34,8 @@ void TektronixAfgControl::handleOpenConfig(ConfigStream& configFile ){
 void TektronixAfgControl::handleProgram(std::vector<parameterType> constants){
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
 	getTekSettings();
+	core.setSettings (currentInfo);
+	core.experimentActive = true;
 	core.calculateVariations (constants);
 	core.programVariation( 0, constants );
 }
@@ -47,9 +49,8 @@ TekCore& TektronixAfgControl::getCore (){
 }
 
 
-void TektronixAfgControl::initialize( POINT& loc, IChimeraWindowWidget* parent, std::string headerText, 
-									  std::string channel1Text, std::string channel2Text, LONG width)
-{
+void TektronixAfgControl::initialize( POINT& loc, IChimeraQtWindow* parent, std::string headerText,
+									  std::string channel1Text, std::string channel2Text, LONG width){
 	header = new QLabel (("Tektronixs " + headerText).c_str(), parent);
 	header->setGeometry (loc.x, loc.y, width, 25);
 	loc.y += 25;
@@ -61,8 +62,8 @@ void TektronixAfgControl::initialize( POINT& loc, IChimeraWindowWidget* parent, 
 			handleProgram (parent->auxWin->getUsableConstants ());
 			parent->reportStatus ("Programmed Top/Bottom Tektronix Generator.\r\n");
 		}
-		catch (Error& exception) {
-			parent->reportErr("Error while programing Top/Bottom Tektronix generator: " + exception.trace () + "\r\n");
+		catch (ChimeraError& exception) {
+			parent->reportErr("Error while programing Top/Bottom Tektronix generator: " + exception.qtrace () + "\r\n");
 		}});
 
 	channel1.initialize( { loc.x + width / 3, loc.y }, parent, "Channel 1:" + channel1Text, width / 3 );

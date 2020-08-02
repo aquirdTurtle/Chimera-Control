@@ -7,7 +7,7 @@
 #include "GeneralObjects/SmartDC.h"
 
 PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<UINT>& timerTime, 
+						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::atomic<unsigned>& timerTime, 
 						std::vector<int> thresholds, int pltIds, std::string title ) :
 	plot( 1, styleIn, thresholds, title ), dynamicTimerLength( timerTime ), 
 	dynamicTimer(true), staticTimer(0), plotPopId (pltIds)
@@ -18,10 +18,10 @@ PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn,
 
 
 PlotDialog::PlotDialog ( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
+						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, unsigned timerTime,
 						 std::vector<int> thresholds, int pltIds, std::string title ) :
 	plot ( 1, styleIn, thresholds, title ),
-	dynamicTimerLength ( std::atomic<UINT> ( 0 ) ), dynamicTimer ( false ), staticTimer ( timerTime ), plotPopId (pltIds)
+	dynamicTimerLength ( std::atomic<unsigned> ( 0 ) ), dynamicTimer ( false ), staticTimer ( timerTime ), plotPopId (pltIds)
 {
 	backgroundBrush.CreateSolidBrush ( _myRGBs[ "Main-Bkgd" ] );
 	plotAreaBrush.CreateSolidBrush ( _myRGBs[ "Interactable-Bkgd" ] );
@@ -43,7 +43,7 @@ BEGIN_MESSAGE_MAP( PlotDialog, CDialog )
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
-void PlotDialog::handlePopCommand (UINT id)
+void PlotDialog::handlePopCommand (unsigned id)
 {
 
 }
@@ -88,7 +88,7 @@ void PlotDialog::OnTimer( UINT_PTR id )
 }
 
 
-void PlotDialog::OnSize( UINT s, int cx, int cy)
+void PlotDialog::OnSize( unsigned s, int cx, int cy)
 {
 	CDialog::OnSize( s, cx, cy );
 	OnPaint( );
@@ -107,7 +107,7 @@ void PlotDialog::PostNcDestroy( )
 
 
 
-HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
+HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, unsigned nCtlColor )
 {
 	return backgroundBrush;
 }

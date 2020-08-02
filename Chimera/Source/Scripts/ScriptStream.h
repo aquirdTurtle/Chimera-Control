@@ -12,7 +12,7 @@
 class ScriptStream : public std::stringstream
 {
 	public:
-		explicit ScriptStream::ScriptStream( std::string buf ) : std::stringstream( buf ) {}
+		explicit ScriptStream::ScriptStream (std::string buf);
 		ScriptStream::ScriptStream() : std::stringstream() {}
 		void setCase (bool alwaysLowerCase);
 		/* 
@@ -27,6 +27,8 @@ class ScriptStream : public std::stringstream
 		virtual std::string getline();
 		virtual std::string getline(char delim);
 	private:
+		// just for debugging purposes. 
+		std::string initialContents;
 		void eatComments();
 		bool isNotPartOfName( char test );
 		std::vector<std::pair<std::string, std::string>> replacements;

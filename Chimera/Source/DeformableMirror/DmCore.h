@@ -28,13 +28,13 @@ class DmCore : public IDeviceCore
 		void handleSaveConfig( ConfigStream& newFile, DMOutputForm out );
 		DMOutputForm getSettingsFromConfig(ConfigStream& configFile);
 		static void interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore& DM);
-		void ProgramNow(UINT variation);
+		void ProgramNow(unsigned variation);
 		DMOutputForm getInfo();
 		void setCurrentInfo(DMOutputForm form);
-		void initialCheck(UINT variation, std::string& warnings);
+		void initialCheck(unsigned variation, std::string& warnings);
 		void logSettings (DMOutputForm settings, DataLogger& log);
 		std::string configDelim = "DM";
-		void programVariation (UINT variation, std::vector<parameterType>& params) {};
+		void programVariation (unsigned variation, std::vector<parameterType>& params) {};
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void logSettings (DataLogger& logger) {};
 		void loadExpSettings (ConfigStream& stream) {};

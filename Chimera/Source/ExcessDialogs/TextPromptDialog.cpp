@@ -15,7 +15,7 @@ END_MESSAGE_MAP()
 
 void TextPromptDialog::catchf5( ) { }
 
-HBRUSH TextPromptDialog::OnCtlColor (CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+HBRUSH TextPromptDialog::OnCtlColor (CDC* pDC, CWnd* pWnd, unsigned nCtlColor)
 {
 	switch (nCtlColor)
 	{

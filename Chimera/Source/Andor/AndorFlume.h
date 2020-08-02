@@ -14,7 +14,8 @@ class AndorFlume
 		void setBaselineOffset ( int offset );
 		void setDMAParameters ( int maxImagesPerDMA, float secondsPerDMA );
 		void waitForAcquisition ( );
-		void getTemperature ( int& temp );
+		int getTemperature ( int& temp );
+		std::string getErrorMsg (int errCode);
 		void getAdjustedRingExposureTimes ( int size, float* timesArray );
 		void setNumberKinetics ( int number );
 		void getTemperatureRange ( int& min, int& max );

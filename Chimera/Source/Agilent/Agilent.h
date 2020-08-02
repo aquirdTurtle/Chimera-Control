@@ -12,19 +12,19 @@
 #include <qlabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
 
-class IChimeraWindowWidget;
+class IChimeraQtWindow;
 
 // A class for programming agilent arbitrary waveform generators.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. 
-class Agilent {
+class Agilent : public IChimeraSystem {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		Agilent& operator=(const Agilent&) = delete;
 		Agilent (const Agilent&) = delete;
 
-		Agilent( const agilentSettings & settings );
-		void initialize( POINT& loc, std::string header, UINT editHeight, IChimeraWindowWidget* qtp,
-			UINT width = 480);
+		Agilent( const agilentSettings & settings, IChimeraQtWindow* parent );
+		void initialize( POINT& loc, std::string header, unsigned editHeight, IChimeraQtWindow* qtp,
+			unsigned width = 480);
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string configPath, RunInfo info );
 		void handleChannelPress( int chan, std::string configPath, RunInfo currentRunInfo );
@@ -41,18 +41,18 @@ class Agilent {
 		void updateSettingsDisplay( int chan, std::string configPath, RunInfo currentRunInfo );
 		void updateSettingsDisplay( std::string configPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
-/*		void handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+/*		void handleScriptVariation( unsigned variation, scriptedArbInfo& scriptInfo, unsigned channel, 
 									std::vector<parameterType>& variables );*/
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
-		std::pair<DoRows::which, UINT> getTriggerLine( );
+		std::pair<DoRows::which, unsigned> getTriggerLine( );
 		std::string getConfigDelim ();
 		void programAgilentNow (std::vector<parameterType> constants);
 		
 		void setOutputSettings (deviceOutputInfo info);
 		void verifyScriptable ( );
 		AgilentCore& getCore ();
-		void setDefault (UINT chan);
+		void setDefault (unsigned chan);
 	private:
 		AgilentCore core;
 		minMaxDoublet chan2Range;
@@ -66,6 +66,7 @@ class Agilent {
 		
 		QLabel* header;
 		QLabel* deviceInfoDisplay;
+		QButtonGroup* channelButtonsGroup;
 		CQRadioButton* channel1Button;
 		CQRadioButton* channel2Button;
 		CQCheckBox* syncedButton;

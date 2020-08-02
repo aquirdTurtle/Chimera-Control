@@ -8,7 +8,7 @@
 #include <pylon/PylonGUI.h>
 #include <pylon/usb/BaslerUsbInstantCamera.h>
 #include <pylon/1394/Basler1394InstantCamera.h>
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <qthread.h>
 
 // wrapper class for modifying for safemode and to standardize error handling.
@@ -20,7 +20,7 @@ class BaslerWrapper : public cameraType
 		BaslerWrapper& operator=(const BaslerWrapper&) = delete;
 		BaslerWrapper (const BaslerWrapper&) = delete;
 
-		void init (IChimeraWindowWidget* parent );
+		void init (IChimeraQtWindow* parent );
 
 		int getMinOffsetX ();
 		int getCurrentOffsetX ();

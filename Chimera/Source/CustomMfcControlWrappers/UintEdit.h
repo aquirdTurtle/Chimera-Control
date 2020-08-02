@@ -4,5 +4,5 @@
 class UintEdit : public CEdit
 {
 	public:
-		UINT getWindowTextAsUINT();
+		unsigned getWindowTextAsUINT();
 };

@@ -9,22 +9,19 @@
 #include "Agilent/Agilent.h"
 #include "GeneralObjects/commonTypes.h"
 #include "ExperimentThreadInput.h"
-#include "Communicator.h"
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include <string>
 #include <vector>
 #include <mutex>
 
-struct ExpRuntimeData
-{
-	UINT repetitions = 1;
+struct ExpRuntimeData{
+	unsigned repetitions = 1;
 	mainOptions mainOpts;
 	ScriptStream masterScript;
 	std::vector<parameterType> expParams;
 };
 
-class ExperimentThreadManager
-{
+class ExperimentThreadManager{
 	public:
 		ExperimentThreadManager();
 		void pause();
@@ -40,9 +37,9 @@ class ExperimentThreadManager
 										 ScriptStream& currentMasterScript, bool expectsLoadSkip,
 										 std::string& warnings, timeType& operationTime, 
 										 timeType& loadSkipTime);
-
+		static void waitForAndorFinish (std::unique_ptr<ExperimentThreadInput>& input);
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
-		void startExperimentThread(ExperimentThreadInput* input, IChimeraWindowWidget* parent);
+		void startExperimentThread(ExperimentThreadInput* input, IChimeraQtWindow* parent);
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
@@ -56,28 +53,29 @@ class ExperimentThreadManager
 		static bool handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 										DoCore& ttls, AoSystem& aoSys, 
 										std::string& warnings, std::string callingFunction, timeType& operationTime);
-		static void updatePlotX_vals (std::unique_ptr<ExperimentThreadInput>& input, std::vector<parameterType>& expParams);
 		static bool handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& params,
 											   std::string scope, std::string& warnings );
 		static bool handleVectorizedValsDeclaration ( std::string word, ScriptStream& stream, 
 												std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings );
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
-		static UINT determineVariationNumber(std::vector<parameterType> vars);
+		static unsigned determineVariationNumber(std::vector<parameterType> vars);
 		static void handleDebugPlots( debugInfo debugOptions, ExpThreadWorker* worker, DoCore& ttls, AoSystem& aoSys,
 									  unsigned variation);
-		static double convertToTime( timeType time, std::vector<parameterType> variables, UINT variation );
+		static double convertToTime( timeType time, std::vector<parameterType> variables, unsigned variation );
 		static void calculateAdoVariations (std::unique_ptr<ExperimentThreadInput>& input, ExpRuntimeData& runtime);
 		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);
 		static void runConsistencyChecks (std::unique_ptr<ExperimentThreadInput>& input, std::vector<parameterType> expParams );
-		static void handlePause (Communicator& comm, std::atomic<bool>& isPaused, std::atomic<bool>& isAborting, ExpThreadWorker* worker);
-		static void initVariation ( std::unique_ptr<ExperimentThreadInput>& input, UINT variationInc, 
+		static void handlePause ( std::atomic<bool>& isPaused, std::atomic<bool>& isAborting, ExpThreadWorker* worker);
+		static void initVariation ( std::unique_ptr<ExperimentThreadInput>& input, unsigned variationInc, 
 									std::vector<parameterType> expParams );
-		static void normalFinish ( Communicator& comm, ExperimentType& expType, bool runMaster,
-								   std::chrono::time_point<chronoClock> startTime, AoSystem& aoSys, ExpThreadWorker* worker);
-		static void errorFinish ( Communicator& comm, std::atomic<bool>& isAborting, Error& exception,
-								  std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker);
-		static void startRep (std::unique_ptr<ExperimentThreadInput>& input, UINT repInc, UINT variationInc, bool skip);
+		static void normalFinish ( ExperimentType& expType, bool runMaster,
+								   std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker,
+								   std::unique_ptr<ExperimentThreadInput>& input);
+		static void errorFinish ( std::atomic<bool>& isAborting, ChimeraError& exception,
+								  std::chrono::time_point<chronoClock> startTime, ExpThreadWorker* worker,
+								  std::unique_ptr<ExperimentThreadInput>& input);
+		static void startRep (std::unique_ptr<ExperimentThreadInput>& input, unsigned repInc, unsigned variationInc, bool skip);
 		static std::string abortString; 
 		static void loadExperimentRuntime ( ConfigStream& config, ExpRuntimeData& runtime, 
 											std::unique_ptr<ExperimentThreadInput>& input );
@@ -85,12 +83,11 @@ class ExperimentThreadManager
 		/* IDeviceCore functionality wrappers */
 		static void deviceLoadExpSettings (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input, ConfigStream& cStream);
 		static void deviceProgramVariation ( IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
-									         std::vector<parameterType>& expParams, UINT variationInc);
+									         std::vector<parameterType>& expParams, unsigned variationInc);
 		static void deviceCalculateVariations (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input,
 											   std::vector<parameterType>& expParams);
 		static void deviceNormalFinish (IDeviceCore& device, std::unique_ptr<ExperimentThreadInput>& input);
 		
-	//private:
 		// I've forgotten why there are two of these. 
 		timeType loadSkipTime;
 		std::vector<double> loadSkipTimes;
@@ -106,4 +103,6 @@ class ExperimentThreadManager
 		std::atomic<bool> experimentIsRunning = false;
 		std::atomic<bool> isPaused = false;
 		std::atomic<bool> isAborting = false;
+		QThread* threadObj;
+		ExpThreadWorker* threadWorker;
 };

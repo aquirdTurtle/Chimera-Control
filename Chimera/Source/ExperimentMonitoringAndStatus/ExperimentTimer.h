@@ -5,15 +5,14 @@
 #include "Control.h"
 #include <qlabel>
 #include <qprogressbar.h>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 
 class ExperimentTimer
 {
 	public:
-		void initialize( POINT& inputLoc, IChimeraWindowWidget* parent );
+		void initialize( POINT& inputLoc, IChimeraQtWindow* parent );
 		void update( ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, 
-					 UINT picsPerRep );
-		void rearrange( int width, int height, fontMap fonts );
+					 unsigned picsPerRep );
 		void setTimerDisplay( std::string newText );
 	private:
 		QLabel* timeDisplay;

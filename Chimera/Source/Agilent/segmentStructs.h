@@ -93,7 +93,7 @@ struct segmentInfoFinal
 	rampData ramp;
 	double holdVal = 0;
 	// 
-	UINT repeatNum = 0;
+	unsigned repeatNum = 0;
 	// in ms
 	double time = 0;
 	// values such as repeat, repeat until trigger, no repeat, etc.

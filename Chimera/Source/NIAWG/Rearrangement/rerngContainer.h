@@ -20,33 +20,33 @@ template <class type>
 class rerngContainer
 {
 	public:
-		rerngContainer( UINT rowsInGrid, UINT colsInGrid );
-		rerngContainer( UINT rowsInGrid, UINT colsInGrid, type initValue );
-		type operator()( UINT row, UINT col, dir direction ) const;
-		type & operator()( UINT row, UINT col, dir direction );
+		rerngContainer( unsigned rowsInGrid, unsigned colsInGrid );
+		rerngContainer( unsigned rowsInGrid, unsigned colsInGrid, type initValue );
+		type operator()( unsigned row, unsigned col, dir direction ) const;
+		type & operator()( unsigned row, unsigned col, dir direction );
 		bool hasBeenFilled( );
 		void setFilledFlag( );
-		UINT getRows( );
-		UINT getCols( );
+		unsigned getRows( );
+		unsigned getCols( );
 		// typename tells the compiler that std::vector<type>::iterator will be a type.
 		typename std::vector<type>::iterator begin( ) { return obj.begin( ); }
 		typename std::vector<type>::iterator end( ) { return obj.end( ); }
 	private:
 		std::vector<type> obj;
-		UINT rows, cols;
+		unsigned rows, cols;
 		bool filledFlag=false;
 };
 
 
 // the array gets sized only once in the constructor.
 template<class type> 
-rerngContainer<type>::rerngContainer( UINT rowsInGrid, UINT colsInGrid ) :
+rerngContainer<type>::rerngContainer( unsigned rowsInGrid, unsigned colsInGrid ) :
 	rows( rowsInGrid ),
 	cols( colsInGrid ),
 	obj( rowsInGrid*colsInGrid * 4 )
 {}
 template<class type>
-rerngContainer<type>::rerngContainer( UINT rowsInGrid, UINT colsInGrid, type initValue ) :
+rerngContainer<type>::rerngContainer( unsigned rowsInGrid, unsigned colsInGrid, type initValue ) :
 	rows( rowsInGrid ),
 	cols( colsInGrid ),
 	obj( rowsInGrid*colsInGrid * 4, initValue )
@@ -66,7 +66,7 @@ void rerngContainer<type>::setFilledFlag( )
 }
 
 template<class type> 
-type rerngContainer<type>::operator()( UINT row, UINT col, dir direction ) const
+type rerngContainer<type>::operator()( unsigned row, unsigned col, dir direction ) const
 {
 	if ( row > rows )
 	{
@@ -76,14 +76,14 @@ type rerngContainer<type>::operator()( UINT row, UINT col, dir direction ) const
 	{
 		thrower ( "ERROR: col index out of range during rearrangementMoveContainer access!" );
 	}
-	UINT rowOffset( row * cols * 4 );
-	UINT colOffset( col * 4 );
-	UINT index = rowOffset + colOffset + direction;
+	unsigned rowOffset( row * cols * 4 );
+	unsigned colOffset( col * 4 );
+	unsigned index = rowOffset + colOffset + direction;
 	return obj[index];
 }
 
 template<class type> 
-type & rerngContainer<type>::operator()( UINT row, UINT col, dir direction )
+type & rerngContainer<type>::operator()( unsigned row, unsigned col, dir direction )
 {
 	if ( row >= rows )
 	{
@@ -93,22 +93,22 @@ type & rerngContainer<type>::operator()( UINT row, UINT col, dir direction )
 	{
 		thrower ( "ERROR: col index out of range during rearrangementMoveContainer access!" );
 	}
-	UINT rowOffset( row * cols * 4 );
-	UINT colOffset( col * 4 );
-	UINT index = rowOffset + colOffset + static_cast<int>(direction);
+	unsigned rowOffset( row * cols * 4 );
+	unsigned colOffset( col * 4 );
+	unsigned index = rowOffset + colOffset + static_cast<int>(direction);
 	return obj[index];
 }
 
 
 template <class type>
-UINT rerngContainer<type>::getCols( )
+unsigned rerngContainer<type>::getCols( )
 {
 	return cols;
 }
 
 
 template <class type>
-UINT rerngContainer<type>::getRows( )
+unsigned rerngContainer<type>::getRows( )
 {
 	return rows;
 }

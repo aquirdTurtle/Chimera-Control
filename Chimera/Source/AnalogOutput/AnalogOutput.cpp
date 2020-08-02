@@ -7,7 +7,7 @@
 
 AnalogOutput::AnalogOutput( ){}
 
-void AnalogOutput::initialize ( POINT& pos, IChimeraWindowWidget* parent, int whichDac) {
+void AnalogOutput::initialize ( POINT& pos, IChimeraQtWindow* parent, int whichDac) {
 	label = new QLabel (cstr (whichDac), parent);
 	label->setGeometry (QRect{ QPoint{pos.x, pos.y}, QPoint{pos.x + 20, pos.y + 20} });
 	label->setToolTip ( (info.name + "\n" + info.note).c_str() );
@@ -81,8 +81,7 @@ bool AnalogOutput::eventFilter (QObject* obj, QEvent* event) {
 	return false;
 }
 
-double AnalogOutput::getVal ( bool useDefault )
-{
+double AnalogOutput::getVal ( bool useDefault ){
 	double val;
 	try	{
 		val = boost::lexical_cast<double>( str (edit->text () ) );
@@ -103,7 +102,9 @@ double AnalogOutput::getVal ( bool useDefault )
 void AnalogOutput::updateEdit ( bool roundToDacPrecision ){
 	std::string valStr = roundToDacPrecision ? str ( roundToDacResolution ( info.currVal ), 13, true, false, true )
 		: str ( info.currVal, 5, false, false, true );
+	int pos = edit->cursorPosition ();
 	edit->setText (cstr (valStr));
+	edit->setCursorPosition (pos);
 }
 
 void AnalogOutput::setName ( std::string name ){
@@ -174,7 +175,7 @@ bool AnalogOutput::handleArrow ( CWnd* focus, bool up ){
 		// okay all good if reach here.
 		int cursorPos, end;
 		edit.GetSel ( cursorPos, end );
-		UINT decimalPos = txt.find ( "." );
+		unsigned decimalPos = txt.find ( "." );
 		// if no decimal...
 		if ( decimalPos == std::string::npos )
 		{

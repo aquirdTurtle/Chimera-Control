@@ -12,7 +12,7 @@ PlotDataSet::PlotDataSet()
 	dataCountsLocation[0].resize(1);
 }
 
-int & PlotDataSet::prc( UINT pixel, UINT picture )
+int & PlotDataSet::prc( unsigned pixel, unsigned picture )
 {
 	if ( pixel > resultConditions.size( ) )
 	{
@@ -24,7 +24,7 @@ int & PlotDataSet::prc( UINT pixel, UINT picture )
 	}
 	return resultConditions[pixel][picture];
 }
-int PlotDataSet::prc( UINT pixel, UINT picture ) const
+int PlotDataSet::prc( unsigned pixel, unsigned picture ) const
 {
 	if ( pixel > resultConditions.size( ) )
 	{
@@ -38,7 +38,7 @@ int PlotDataSet::prc( UINT pixel, UINT picture ) const
 }
 
 
-int PlotDataSet::psc( UINT condition, UINT pixel, UINT picture ) const
+int PlotDataSet::psc( unsigned condition, unsigned pixel, unsigned picture ) const
 {
 	if ( condition > postSelectionConditions.size() )
 	{
@@ -54,7 +54,7 @@ int PlotDataSet::psc( UINT condition, UINT pixel, UINT picture ) const
 	}
 	return postSelectionConditions[condition][pixel][picture];
 }
-int & PlotDataSet::psc( UINT condition, UINT pixel, UINT picture )
+int & PlotDataSet::psc( unsigned condition, unsigned pixel, unsigned picture )
 {
 	if ( condition > postSelectionConditions.size( ) )
 	{
@@ -72,12 +72,12 @@ int & PlotDataSet::psc( UINT condition, UINT pixel, UINT picture )
 }
 
 
-UINT PlotDataSet::getPixelNumber( )
+unsigned PlotDataSet::getPixelNumber( )
 {
 	return resultConditions.size( );
 }
 
-UINT PlotDataSet::getPictureNumber( )
+unsigned PlotDataSet::getPictureNumber( )
 {
 	if ( resultConditions.size( ) == 0 )
 	{
@@ -86,25 +86,25 @@ UINT PlotDataSet::getPictureNumber( )
 	return resultConditions[0].size( );
 }
 
-UINT PlotDataSet::getConditionNumber( )
+unsigned PlotDataSet::getConditionNumber( )
 {
 	return postSelectionConditions.size( );
 }
 
-void PlotDataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber)
+void PlotDataSet::initialize(unsigned conditionNumber, unsigned pixelNumber, unsigned pictureNumber)
 {
 	resultConditions.resize(pixelNumber);
 	dataCountsLocation.resize(pixelNumber);
-	for (UINT pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
+	for (unsigned pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(pictureNumber);
 		dataCountsLocation[pixelInc].resize(pictureNumber);
 	}
 	postSelectionConditions.resize(conditionNumber);
-	for (UINT conditionInc = 0; conditionInc < conditionNumber; conditionInc++)
+	for (unsigned conditionInc = 0; conditionInc < conditionNumber; conditionInc++)
 	{
 		postSelectionConditions[conditionInc].resize(pixelNumber);
-		for (UINT pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
+		for (unsigned pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 		{
 			postSelectionConditions[conditionInc][pixelInc].resize(pictureNumber);
 		}
@@ -113,7 +113,7 @@ void PlotDataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictur
 
 
 
-void PlotDataSet::setHistBinWidth( UINT width )
+void PlotDataSet::setHistBinWidth( unsigned width )
 {
 	if ( width < 1 || width > 1e6 )
 	{
@@ -122,7 +122,7 @@ void PlotDataSet::setHistBinWidth( UINT width )
 	histBinWidth = width;
 }
 
-UINT PlotDataSet::getHistBinWidth( )
+unsigned PlotDataSet::getHistBinWidth( )
 {
 	return histBinWidth;
 }
@@ -137,10 +137,10 @@ void PlotDataSet::addPicture()
 {
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
-	UINT currentPixelNum = getPixelNumber( );
+	unsigned currentPixelNum = getPixelNumber( );
 	// this should always be at least one large.
-	UINT currentPictureNum = getPictureNumber( );
-	for (UINT pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
+	unsigned currentPictureNum = getPictureNumber( );
+	for (unsigned pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(currentPictureNum + 1);
 		dataCountsLocation[pixelInc].resize(currentPictureNum + 1);
@@ -152,7 +152,7 @@ void PlotDataSet::addPicture()
 }
 
 // picture number is used to initialize the new pixel to the correct size.
-void PlotDataSet::addPixel( UINT pictureNumber)
+void PlotDataSet::addPixel( unsigned pictureNumber)
 {
 	// get the current pixel number. This should be uniform across thes data structures.
 	int currentPixelNum = getPixelNumber( );
@@ -170,7 +170,7 @@ void PlotDataSet::addPixel( UINT pictureNumber)
 }
 
 
-void PlotDataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondition)
+void PlotDataSet::setResultCondition(unsigned pixel, unsigned picture, unsigned resultCondition)
 {
 	if (resultCondition != -1 && resultCondition != 0 && resultCondition != 1)
 	{
@@ -180,7 +180,7 @@ void PlotDataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondit
 }
 
 
-void PlotDataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture, UINT postSelectionCondition)
+void PlotDataSet::setPostSelectionCondition(unsigned conditionNumber, unsigned pixel, unsigned picture, unsigned postSelectionCondition)
 {
 	psc( conditionNumber, pixel, picture ) = postSelectionCondition;
 }
@@ -189,7 +189,7 @@ void PlotDataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UI
 void PlotDataSet::removePixel()
 {
 	// make sure there is a pixel to remove.
-	UINT currentPixelNum = getPixelNumber( );
+	unsigned currentPixelNum = getPixelNumber( );
 	if (currentPixelNum < 2)
 	{
 		thrower ("ERROR: Something tried to remove the last pixel!");
@@ -207,14 +207,14 @@ void PlotDataSet::removePicture()
 	// make sure there is a picture to remove.
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
-	UINT currentPixelNum = getPixelNumber( );
+	unsigned currentPixelNum = getPixelNumber( );
 	// this should always be at least one large.
-	UINT currentPictureNum = getPictureNumber( );
+	unsigned currentPictureNum = getPictureNumber( );
 	if (currentPictureNum < 2)
 	{
 		thrower ("ERROR: Something tried to remove the last picture!");
 	}
-	for (UINT pixelInc : range(currentPixelNum))
+	for (unsigned pixelInc : range(currentPixelNum))
 	{
 		resultConditions[pixelInc].resize(currentPictureNum - 1);
 		for (auto& condition : postSelectionConditions)
@@ -225,23 +225,23 @@ void PlotDataSet::removePicture()
 }
 
 
-int PlotDataSet::getPositiveResultCondition(UINT pixel, UINT picture)
+int PlotDataSet::getPositiveResultCondition(unsigned pixel, unsigned picture)
 {
 	return prc(pixel, picture);
 }
 
 
-int PlotDataSet::getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture)
+int PlotDataSet::getPostSelectionCondition(unsigned conditionNumber, unsigned pixel, unsigned picture)
 {
 	return psc( conditionNumber, pixel, picture );
 }
 
 
-void PlotDataSet::addPostSelectionCondition( UINT pixelNum, UINT pictureNum )
+void PlotDataSet::addPostSelectionCondition( unsigned pixelNum, unsigned pictureNum )
 {
 	// add condition, pixels, pictures
 	postSelectionConditions.resize( postSelectionConditions.size( ) + 1 );
-	UINT back = postSelectionConditions.size( ) - 1;
+	unsigned back = postSelectionConditions.size( ) - 1;
 	postSelectionConditions[back].resize( pixelNum );
 	for (auto& pixel : postSelectionConditions[back] )
 	{
@@ -260,11 +260,11 @@ void PlotDataSet::removePostSelectionCondition()
 }
 
 
-void PlotDataSet::setDataCountsLocation( UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture)
+void PlotDataSet::setDataCountsLocation( unsigned maxPixel, unsigned maxPicture, unsigned pixel, unsigned picture)
 {
 	dataCountsLocation.clear();
 	dataCountsLocation.resize(maxPixel);
-	for (UINT pixelCount = 0; pixelCount < maxPixel; pixelCount++)
+	for (unsigned pixelCount = 0; pixelCount < maxPixel; pixelCount++)
 	{
 		dataCountsLocation[pixelCount].resize(maxPicture);
 	}
@@ -284,11 +284,11 @@ bool PlotDataSet::getPlotThisDataValue()
 }
 
 
-int PlotDataSet::getDataCountsLocation( UINT& pixel, UINT& picture)
+int PlotDataSet::getDataCountsLocation( unsigned& pixel, unsigned& picture)
 {
-	for (UINT pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
+	for (unsigned pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
 	{
-		for (UINT pictureInc = 0; pictureInc < dataCountsLocation[pixelInc].size(); pictureInc++)
+		for (unsigned pictureInc = 0; pictureInc < dataCountsLocation[pixelInc].size(); pictureInc++)
 		{
 			if (dataCountsLocation[pixelInc][pictureInc] )
 			{
@@ -310,10 +310,10 @@ std::string PlotDataSet::getLegendText()
 }
 
 
-void PlotDataSet::resetPictureNumber( UINT pictureNumber)
+void PlotDataSet::resetPictureNumber( unsigned pictureNumber)
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	for (UINT pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
+	for (unsigned pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
 	{
 		resultConditions[pixelInc].clear();
 		resultConditions[pixelInc].resize(pictureNumber);
@@ -334,15 +334,15 @@ void PlotDataSet::resetPictureNumber( UINT pictureNumber)
 	}
 }
 
-void PlotDataSet::resetPostSelectionConditionNumber( UINT conditionNumber)
+void PlotDataSet::resetPostSelectionConditionNumber( unsigned conditionNumber)
 {
 	postSelectionConditions.clear();
 	postSelectionConditions.resize(conditionNumber);
 }
 
-void PlotDataSet::resetPixelNumber( UINT pixelNumber)
+void PlotDataSet::resetPixelNumber( unsigned pixelNumber)
 {
-	UINT picNum = getPictureNumber( );
+	unsigned picNum = getPictureNumber( );
 	resultConditions.clear();
 	resultConditions.resize(pixelNumber);
 	for (auto& pixel : resultConditions)
@@ -380,11 +380,11 @@ int PlotDataSet::getWhenToFit()
 	return whenToFit;
 }
 
-void PlotDataSet::setFitType( UINT newFitType)
+void PlotDataSet::setFitType( unsigned newFitType)
 {
 	fitType = newFitType;
 }
-void PlotDataSet::setWhenToFit( UINT newWhenToFit)
+void PlotDataSet::setWhenToFit( unsigned newWhenToFit)
 {
 	whenToFit = newWhenToFit;
 }

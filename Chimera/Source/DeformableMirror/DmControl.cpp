@@ -14,7 +14,7 @@ DmControl::DmControl(std::string serialNumber, bool safeMode) : defObject(serial
 	Profile.readZernikeFile(location);
 }
 
-void DmControl::initializeTable(POINT& pos, int width, int height, IChimeraWindowWidget* parent) 
+void DmControl::initializeTable(POINT& pos, int width, int height, IChimeraQtWindow* parent)
 {
 	magLabel = new QLabel ("Mag.", parent);
 	magLabel->setGeometry (pos.x, pos.y, width, height);
@@ -53,7 +53,7 @@ void DmControl::initializeTable(POINT& pos, int width, int height, IChimeraWindo
 	applyCorrections->setGeometry (pos.x, pos.y += height, 2 * width + 90, height);
 }
 
-void DmControl::initialize( POINT loc, IChimeraWindowWidget* win, int count, std::string serialNumber, LONG width ) 
+void DmControl::initialize( POINT loc, IChimeraQtWindow* win, int count, std::string serialNumber, LONG width )
 {
 	programNow = new QPushButton ("Program Now", win);
 	programNow->setGeometry (loc.x, loc.y, 240, 25);
@@ -144,7 +144,7 @@ void DmControl::ProgramNow()
 				values.push_back(s3);
 			}
 		}
-		catch(Error&)
+		catch(ChimeraError&)
 		{
 			values.push_back(0.0);
 		}	

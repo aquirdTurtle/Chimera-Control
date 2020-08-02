@@ -13,10 +13,10 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
+#include <GeneralObjects/IChimeraSystem.h>
 #include <qtablewidget.h>
 #include <qlabel.h>
-
 
 class MainWindow;
 class AuxiliaryWindow;
@@ -25,8 +25,7 @@ class AuxiliaryWindow;
 class AoSystem;
 class DoSystem;
 
-enum class ParameterSysType
-{
+enum class ParameterSysType{
 	global,
 	config
 };
@@ -43,15 +42,17 @@ enum class ParameterSysType
  * - Function Variables
  * That being said, there should only ever be 3 instances of this class active, one for each gui element.
  */
-class ParameterSystem {
+class IChimeraSystem;
+
+class ParameterSystem : IChimeraSystem {
+	Q_OBJECT;
 	public:		
 		// THIS CLASS IS NOT COPYABLE.
 		ParameterSystem& operator=(const ParameterSystem&) = delete;
 		ParameterSystem (const ParameterSystem&) = delete;
-
-		ParameterSystem ( std::string configurationFileDelimiter );
+		ParameterSystem (IChimeraQtWindow* parent, std::string configurationFileDelimiter );
 		void handleContextMenu (const QPoint& pos);
-		void initialize( POINT& pos, IChimeraWindowWidget* master, std::string title, ParameterSysType type );
+		void initialize( POINT& pos, IChimeraQtWindow* master, std::string title, ParameterSysType type );
 		void adjustVariableValue ( std::string paramName, double value );
 		void addParameter( parameterType var );
 		void clearParameters ( );
@@ -61,14 +62,13 @@ class ParameterSystem {
 								  ScanRangeInfo inputRangeInfo );
 		static std::vector<parameterType> combineParams ( std::vector<parameterType>& masterVars, 
 														  std::vector<parameterType>& subVars );
-
 		// getters
 		parameterType getVariableInfo(int varNumber);
 		std::vector<parameterType> getAllConstants();
 		std::vector<parameterType> getAllVariables();
 		std::vector<parameterType> getAllParams();
 		unsigned int getCurrentNumberOfVariables();
-		UINT getTotalVariationNumber ( );
+		unsigned getTotalVariationNumber ( );
 		double getVariableValue ( std::string paramName );
 		static std::vector<double> getKeyValues ( std::vector<parameterType> variables );
 		ScanRangeInfo getRangeInfo ( );
@@ -76,7 +76,7 @@ class ParameterSystem {
 		void setParameterControlActive(bool active);
 		void setUsages(std::vector<parameterType> vars);
 		void updateVariationNumber( );
-		void setRangeInclusivity( UINT rangeNum, UINT dimNum, bool isLeft, bool inclusive);
+		void setRangeInclusivity( unsigned rangeNum, unsigned dimNum, bool isLeft, bool inclusive);
 		// file handling
 		static parameterType loadParameterFromFile (ConfigStream& openFile, ScanRangeInfo inputRangeInfo );
 		static std::vector<parameterType> getParametersFromFile ( ConfigStream& configFile, ScanRangeInfo inputRangeInfo );
@@ -86,23 +86,26 @@ class ParameterSystem {
 		// profile stuff
 		void handleSaveConfig (ConfigStream& saveFile );
 		void handleOpenConfig (ConfigStream& openFile );
-		
 		// public variables
 		const std::string configDelim;
+		void setTableviewColumnSize ();
 
-	private:
+private:
 		QStringList baseLabels;
 		bool controlActive = true;
-		std::vector<CDialog*> childDlgs;
+		//std::vector<CDialog*> childDlgs;
 
 		// name, constant/variable, dim, constantValue, scope
 		QLabel* parametersHeader;
 		//QTableWidget* parametersListview;
 		QTableView* parametersView;
 		// number of variations that the variables will go through.
-		UINT currentVariations;
+		unsigned currentVariations;
 
 		ParameterSysType paramSysType;
 		ParameterModel paramModel;
+
+	Q_SIGNALS:
+		void paramsChanged ();
 };
 

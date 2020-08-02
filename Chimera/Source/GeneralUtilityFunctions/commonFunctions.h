@@ -4,6 +4,7 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExperimentThread/AllExperimentInput.h"
 #include "AnalogInput/servoInfo.h"
+#include <Piezo/piezoChan.h>
 
 class MainWindow;
 class AndorWindow;
@@ -17,20 +18,20 @@ class DataLogger;
 namespace commonFunctions
 {
 	/// Call to direct message to appropriate function in this namespace
-	void handleCommonMessage( int msgID, IChimeraWindowWidget* win);
+	void handleCommonMessage( int msgID, IChimeraQtWindow* win);
 	/// Run Menu
-	void calibrateCameraBackground (IChimeraWindowWidget* win);
-	void prepareMasterThread( int msgID, IChimeraWindowWidget* win, AllExperimentInput& input, bool runNiawg, bool runTtls,
+	void calibrateCameraBackground (IChimeraQtWindow* win);
+	void prepareMasterThread( int msgID, IChimeraQtWindow* win, AllExperimentInput& input, bool runNiawg, bool runTtls,
 							  bool runAndor, bool runBasler, bool startPlotThread );
-	void startExperimentThread (IChimeraWindowWidget* win, AllExperimentInput& input);
-	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, 
+	void startExperimentThread (IChimeraQtWindow* win, AllExperimentInput& input);
+	void logStandard( AllExperimentInput input, DataLogger& logger, std::vector<servoInfo> servos, piezoChan<double> cameraPiezoVals,
 					  std::string specialName="", bool needsCal=false );
-	void abortNiawg(IChimeraWindowWidget* win);
-	void abortCamera(IChimeraWindowWidget* win);
-	void abortMaster(IChimeraWindowWidget* win);
-	void forceExit (IChimeraWindowWidget* win);
-	void exitProgram(IChimeraWindowWidget* win);
-	bool getPermissionToStart(IChimeraWindowWidget* win, bool runNiawg, bool runMaster, AllExperimentInput& input );
+	void abortNiawg(IChimeraQtWindow* win);
+	void abortCamera(IChimeraQtWindow* win);
+	void abortMaster(IChimeraQtWindow* win);
+	void forceExit (IChimeraQtWindow* win);
+	void exitProgram(IChimeraQtWindow* win);
+	bool getPermissionToStart(IChimeraQtWindow* win, bool runNiawg, bool runMaster, AllExperimentInput& input );
 	/// Scripting Menu
 	void reloadNIAWGDefaults( QtMainWindow* mainWin, QtScriptWindow* scriptWin);
 }

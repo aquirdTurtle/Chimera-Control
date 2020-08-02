@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QCheckBox.h>
 #include <QLabel.h>
 #include <QPushButton.h>
@@ -22,19 +22,17 @@
 class AuxiliaryWindow;
 
 /**/
-class MicrowaveSystem
-{
+class MicrowaveSystem{
 	public:
 		MicrowaveSystem();
 		void handleContextMenu (const QPoint& pos);
-		void initialize( POINT& pos, IChimeraWindowWidget* parentWin );
+		void initialize( POINT& pos, IChimeraQtWindow* parentWin );
 		void handleListviewDblClick ();
 		void handleListviewRClick ();
 		std::string getIdentity();
 		MicrowaveCore& getCore ();
 		void handleSaveConfig (ConfigStream& saveFile);
 		void setMicrowaveSettings (microwaveSettings settings);
-		//void programNow (std::vector<parameterType> constants);
 		void programNow (std::vector<parameterType> constants);
 		void handleReadPress ();
 		void handleWritePress ();

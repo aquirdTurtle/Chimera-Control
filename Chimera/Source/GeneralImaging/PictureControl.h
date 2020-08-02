@@ -22,43 +22,44 @@ namespace Ui {
 class PictureControl : public QWidget{
 	Q_OBJECT
 	public:
-		PictureControl ( bool histogramOption );
-		void initialize( POINT loc, int width, int height, IChimeraWindowWidget* widget, int picScaleFactorIn=50);
+		PictureControl ( bool histogramOption, Qt::TransformationMode mode );
+		void initialize( POINT loc, int width, int height, IChimeraQtWindow* widget, int picScaleFactorIn=50);
 		void handleMouse( QMouseEvent* event );
-		void drawPicNum(UINT picNum, QPainter& painter);
+		void drawPicNum(unsigned picNum, QPainter& painter);
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
 		void setSliderControlLocs(POINT pos, int height);
 		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
 						 bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
-			std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers);
-		void setSliderPositions(UINT min, UINT max);
+			std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers);
+		void setSliderPositions(unsigned min, unsigned max);
 		void drawGrid(CBrush* brush);
 		void drawCircle(coordinate selectedLocation, QPainter& painter);
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
 		void drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo,
 								  QPainter& painter);
 		void setCursorValueLocations( CWnd* parent );
-		void handleScroll( int id, UINT nPos );
+		void handleScroll( int id, unsigned nPos );
 		void handleEditChange( int id );
 		void updatePalette(QVector<QRgb> pallete );
 		void redrawImage();
 		void setActive( bool activeState );
 		bool isActive();
-		std::pair<UINT, UINT> getSliderLocations();
+		std::pair<unsigned, unsigned> getSliderLocations();
 		coordinate checkClickLocation( CPoint clickLocation );
 		void resetStorage();
 		void setHoverValue( );
 		void updatePlotData ( );
 		void drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
-						  std::vector<atomGrid> grids, UINT pictureNumber, bool includingAnalysisMarkers=true);
+						  std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers=true);
 		coordinate selectedLocation;
 	private:
+		const Qt::TransformationMode transformationMode;
 		Ui::PictureControl* ui;
 		int picScaleFactor;
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
-		UINT accumNum;
+		unsigned accumNum;
 		int plotIDs = 1000;
 
 		const bool histOption;
@@ -75,7 +76,7 @@ class PictureControl : public QWidget{
 		std::vector<atomGrid> mostRecentGrids;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.
-		UINT maxWidth, maxHeight;
+		unsigned maxWidth, maxHeight;
 		bool active;
 		
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.

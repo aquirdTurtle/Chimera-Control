@@ -9,9 +9,6 @@
 #include <QFile>
 
 
-void NoteSystem::rearrange(int width, int height, fontMap fonts) { } 
-
-
 void NoteSystem::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "CONFIGURATION_NOTES\n";
 	saveFile << getConfigurationNotes();
@@ -43,7 +40,7 @@ void NoteSystem::handleOpenConfig(ConfigStream& openFile){
 }
 
 
-void NoteSystem::initialize(POINT& topLeftPos, IChimeraWindowWidget* win){
+void NoteSystem::initialize(POINT& topLeftPos, IChimeraQtWindow* win){
 	header = new QLabel ("CONFIGURATION NOTES", win);
 	header->setFixedSize (QSize (480, 25));
 	header->move (topLeftPos.x, topLeftPos.y);

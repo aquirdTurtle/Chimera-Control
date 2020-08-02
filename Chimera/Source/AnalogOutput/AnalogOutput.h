@@ -4,14 +4,14 @@
 #include "AoStructures.h"
 #include <CustomQtControls/AutoNotifyCtrls.h>
 #include <qlabel.h>
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 
 
 class AnalogOutput
 {
 	public:
 		AnalogOutput ( );
-		void initialize ( POINT& pos, IChimeraWindowWidget* parent, int whichDac );
+		void initialize ( POINT& pos, IChimeraQtWindow* parent, int whichDac );
 		void handleEdit ( bool roundToDacPrecision=false );
 		void updateEdit ( bool roundToDacPrecision );
 		static double roundToDacResolution ( double num );
@@ -23,7 +23,7 @@ class AnalogOutput
 		void disable ( );
 		bool handleArrow ( CWnd* focus, bool up );
 	private:
-		UINT dacNum;
+		unsigned dacNum;
 		CQLineEdit* edit;
 		QLabel* label;
 };

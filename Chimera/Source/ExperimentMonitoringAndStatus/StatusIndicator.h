@@ -3,17 +3,16 @@
 
 #include "Control.h"
 #include "GeneralObjects/commonTypes.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <qlabel.h>
 
 class StatusIndicator
 {
 	public:
-		void initialize(POINT &loc, IChimeraWindowWidget* parent );
+		void initialize(POINT &loc, IChimeraQtWindow* parent );
 		void setText(std::string text);
 		void setColor(std::string color);
 		CBrush* handleColor(CWnd* window, CDC* pDC );
-		void rearrange(int width, int height, fontMap fonts);
 	private:
 		QLabel* status;
 		std::string currentColor;

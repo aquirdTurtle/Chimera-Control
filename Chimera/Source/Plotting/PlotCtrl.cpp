@@ -27,25 +27,26 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 	view->chart ()->removeAllSeries ();
 	double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
 	if (style == plotStyle::ErrorPlot) {
-		if (newData.size () == 0) {
+		if (newData.size () == 0 || !view->chart ()) {
 			return;
-		}
-		if (!view->chart ()) {
-			return;
-		}		
-		for (auto* line : qtScatterData) {
-			//line->clear ();
 		}
 		qtScatterData.clear ();
 		qtScatterData.resize (newData.size ());
-		for (auto& line : qtScatterData) {
-			line = new QtCharts::QScatterSeries(view->chart ());
-			line->setMarkerSize (8.0);
-			line->setBorderColor (Qt::black);
-		}
+		unsigned lineCount = 0;
 		for (auto traceNum : range (newData.size ())) {
 			auto* line = qtScatterData[traceNum];
 			auto& newLine = newData[traceNum];
+			line = new QtCharts::QScatterSeries (view->chart ());
+			line->setBorderColor (Qt::black);
+			if (lineCount == qtScatterData.size ()-1) {
+				line->setMarkerSize (8.0);
+				line->setColor( QColor (255, 255, 255));
+			}
+			else {
+				auto gcolor = GIST_RAINBOW_RGB[lineCount * GIST_RAINBOW_RGB.size () / qtScatterData.size ()];
+				line->setMarkerSize (6.0);
+				line->setColor (QColor (gcolor[0], gcolor[1], gcolor[2], 100));
+			}
 			for (auto count : range (newLine.size ())) {
 				xmin = newLine[count].x < xmin ? newLine[count].x : xmin;
 				xmax = newLine[count].x > xmax ? newLine[count].x : xmax;
@@ -54,6 +55,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 				*line << QPointF (newLine[count].x, newLine[count].y);
 			}
 			view->chart ()->addSeries (line);
+			lineCount++;
 		}
 	}
 	else if (style == plotStyle::HistPlot) {
@@ -66,14 +68,12 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		qtLineData.clear ();
 		qtLineData.resize (newData.size ());
 		unsigned lineCount=0;
-		for (auto& line : qtLineData) {
-			line = new QtCharts::QLineSeries (view->chart ());
-			auto color = GIST_RAINBOW_RGB[(lineCount++)* GIST_RAINBOW_RGB.size()/qtLineData.size()];
-			line->setColor (QColor (color[0], color[1], color[2]));
-		}
 		for (auto traceNum : range (newData.size ())) {
 			auto* line = qtLineData[traceNum];
 			auto& newLine = newData[traceNum];
+			line = new QtCharts::QLineSeries (view->chart ());
+			auto color = GIST_RAINBOW_RGB[(lineCount++) * GIST_RAINBOW_RGB.size () / qtLineData.size ()];
+			line->setColor (QColor (color[0], color[1], color[2], 150));
 			for (auto count : range (newLine.size ())) {
 				xmin = newLine[count].x < xmin ? newLine[count].x : xmin;
 				xmax = newLine[count].x > xmax ? newLine[count].x : xmax;
@@ -82,6 +82,14 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 				*line << QPointF (newLine[count].x, newLine[count].y);
 			}
 			view->chart ()->addSeries (line);
+		}
+		lineCount = 0;
+		for (auto thresholdNum : range (thresholds.size ())) {
+			QtCharts::QLineSeries* threshLine = new QtCharts::QLineSeries (view->chart ());
+			*threshLine << QPointF (thresholds[thresholdNum], 0) << QPointF (thresholds[thresholdNum], ymax);
+			auto color = GIST_RAINBOW_RGB[(lineCount++) * GIST_RAINBOW_RGB.size () / qtLineData.size ()];
+			threshLine->setColor (QColor (color[0], color[1], color[2], 150));
+			view->chart ()->addSeries (threshLine);
 		}
 	}
 	else {
@@ -96,9 +104,13 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		for (auto& line : qtLineData) {
 			line = new QtCharts::QLineSeries (view->chart ());
 		}
+		unsigned lineCount = 0;
 		for (auto traceNum : range (newData.size ())) {
 			auto* line = qtLineData[traceNum];
 			auto& newLine = newData[traceNum];
+			line = new QtCharts::QLineSeries (view->chart ());
+			auto color = GIST_RAINBOW_RGB[lineCount * GIST_RAINBOW_RGB.size () / qtLineData.size ()];
+			line->setColor (QColor (color[0], color[1], color[2]));
 			for (auto count : range (newLine.size ())) {
 				xmin = newLine[count].x < xmin ? newLine[count].x : xmin;
 				xmax = newLine[count].x > xmax ? newLine[count].x : xmax;
@@ -106,6 +118,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 				ymax = newLine[count].y > ymax ? newLine[count].y : ymax;
 				*line << QPointF (newLine[count].x, newLine[count].y);
 			}
+			lineCount++;
 			view->chart ()->addSeries (line);
 		}
 	}
@@ -161,7 +174,7 @@ void PlotCtrl::resetChart () {
 	}
 }
 
-void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraWindowWidget* parent ){ 
+void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraQtWindow* parent ){ 
 	chart = new QtCharts::QChart ();
 	view = new QtCharts::QChartView (chart, parent);
 	for (auto datanum : range (qtLineData.size ())) {

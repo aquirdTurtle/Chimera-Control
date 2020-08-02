@@ -1,37 +1,31 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "ScopeViewer.h"
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 #include <QLineSeries>
 #include <QGraphicsLayout>
 
-ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, UINT traceNumIn, std::string name ) :
-	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name )
-{
-	try
-	{
+ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name ) :
+	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name ){
+	try{
 		visa.open( );
 		visa.query( "WFMpre:YOFF?\n", yoffset );
 		visa.query( "WFMpre:YMULT?\n", ymult );
 		if (safemode) { ymult = 1.0; }
 		visa.close( );
 	}
-	catch ( Error& err )
-	{
+	catch ( ChimeraError& err ){
 		errBox( "Error detected while initializing " + scopeName + "scope viewer! " + err.trace( ) );
 		initializationFailed = true;
 	}
 }
 
-
-std::string ScopeViewer::getScopeInfo( )
-{
+std::string ScopeViewer::getScopeInfo( ){
 	return visa.identityQuery( );
 }
 
  
-void ScopeViewer::initialize( POINT& pos, UINT width, UINT height, IChimeraWindowWidget* parent, std::string title)
-{
+void ScopeViewer::initialize( POINT& pos, unsigned width, unsigned height, IChimeraQtWindow* parent, std::string title){
 	chart = new QtCharts::QChart ();
 	chart->legend ()->hide ();
 	for (auto datanum : range (numTraces)) {
@@ -81,9 +75,7 @@ void ScopeViewer::updateData(const QVector<double>& xdata, double xmin, double x
 	}
 }
 
-
-void ScopeViewer::refreshData( )
-{
+void ScopeViewer::refreshData( ){
 	if ( safemode )	{
 		Sleep( 50000 );
 		double xminv=DBL_MAX, xmaxv=-DBL_MAX, yminv = DBL_MAX, ymaxv = -DBL_MAX;
@@ -121,19 +113,19 @@ void ScopeViewer::refreshData( )
 		try	{
 			visa.write( "DATa:SOUrce CH" + str( line + 1 ) );
 		}
-		catch ( Error&)	{
+		catch ( ChimeraError&)	{
 			//errBox( err.what( ) );
 		}
 		try	{
 			visa.query( "Curve?\n", data );
 		}
-		catch ( Error& ) {
+		catch ( ChimeraError& ) {
 			continue;
 		}
 		double count = 0;
 		//std::lock_guard<std::mutex> lock( viewPlot->dataMutexes[line] );
 		//scopeData[line]->clear( );
-		UINT dataReadSize = data.size( );
+		unsigned dataReadSize = data.size( );
 		std::string temp( str( dataReadSize ) );
 		for ( auto& c : data.substr(0, data.size() - 1) )
 		{

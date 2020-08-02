@@ -7,7 +7,7 @@
 #include "gdiplus.h"
 #include <QLineSeries>
 
-#include "PrimaryWindows/IChimeraWindowWidget.h"
+#include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qchart.h>
 #include <qchartview.h>
 #include <qlineseries.h>
@@ -52,7 +52,7 @@ class PlotCtrl : public QObject {
 		PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds,
 				  std::string titleIn = "Title!", bool narrowOpt=false, bool plotHistOption=false);
 		~PlotCtrl( );
-		void init( POINT& topLeftLoc, LONG width, LONG height, IChimeraWindowWidget* parent );
+		void init( POINT& topLeftLoc, LONG width, LONG height, IChimeraQtWindow* parent );
 		dataPoint getMainAnalysisResult ( );
 		std::vector<pPlotDataVec> getCurrentData ( );
 		void resetChart ();

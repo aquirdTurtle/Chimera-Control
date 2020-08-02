@@ -13,13 +13,20 @@ std::ostream& operator<<(std::ostream& os, const Expression& expr){
 	return os;
 }
 
+ConfigStream::ConfigStream () {
+	this->precision (std::numeric_limits<double>::max_digits10-1);
+	setCase (false);
+}
+
 ConfigStream::ConfigStream(std::ifstream& file){
+	this->precision (std::numeric_limits<double>::max_digits10-1); 
 	ScriptStream::operator<<(file.rdbuf ());
 	// config streams are case-sensitive.
 	setCase (false);
 };
 
 ConfigStream::ConfigStream (std::string txt, bool isAddr){
+	this->precision (std::numeric_limits<double>::max_digits10-1);
 	if (isAddr){
 		std::ifstream cFile (txt);
 		if (!cFile.is_open ()){

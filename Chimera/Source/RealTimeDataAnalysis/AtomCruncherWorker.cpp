@@ -63,10 +63,10 @@ void CruncherThreadWorker::handleImage (NormalImage image){
 		tempImagePixels[gridInc].image = std::vector<long> (monitoredPixelIndecies[gridInc].size ());
 	}
 	for (auto gridInc : range (input->grids.size ())) {
-		UINT count = 0;
+		unsigned count = 0;
 		{
-			tempImagePixels[gridInc].repNum = image.repNum;
-			tempAtomArray[gridInc].repNum = image.repNum; 
+			tempImagePixels[gridInc].picNum = image.picNum;
+			tempAtomArray[gridInc].picNum = image.picNum;
 			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the 
 			/// load-skip both of which are very time-sensitive.
 			for (auto pixelIndex : monitoredPixelIndecies[gridInc]) {
@@ -92,7 +92,7 @@ void CruncherThreadWorker::handleImage (NormalImage image){
 		if (gridInc == 0) {
 			// if last picture of repetition, check for loadskip condition.
 			if (imageCount % input->picsPerRep == input->picsPerRep - 1) {
-				UINT numAtoms = std::accumulate (tempAtomArray[0].image.begin (), tempAtomArray[0].image.end (), 0);
+				unsigned numAtoms = std::accumulate (tempAtomArray[0].image.begin (), tempAtomArray[0].image.end (), 0);
 				*input->skipNext = (numAtoms >= input->atomThresholdForSkip);
 			}
 		}

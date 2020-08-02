@@ -12,8 +12,8 @@
 // used for pre-writing rearrangement moves...
 struct rerngMove
 {
-	UINT row;
-	UINT col;
+	unsigned row;
+	unsigned col;
 	dir direction;
 	double initFreq = 0;
 	double finFreq = 0;

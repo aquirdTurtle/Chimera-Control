@@ -98,21 +98,13 @@ std::string PiezoFlume::list ( ){
 void PiezoFlume::open (  ){
 	if ( !safemode ){
 		// nBaud and timeout taken from example thorlabs program. Not sure if nBaud is changable without causing probs.
-		//if ( isOpen ( ) )
-		//{
-			//close ( );
-		//}
 		// for some reason seems that the api wants you to use list before opening a com port. fails otherwise.
 		// - MOB Dec 3rd 2019
-		unsigned char buffer[256];
-		memset (buffer, 0, sizeof (buffer));
-		List (buffer);
-		//unsigned char sn[256] = { "COM4" };
-		//deviceHandle = Open( &comPortNumber[ 0 ], 115200, 10 );
+		//unsigned char buffer[512];
+		//memset (buffer, 0, sizeof (buffer));
+		std::vector<unsigned char> buf(512,0);
+		auto numDev = List (buf.data());
 		deviceHandle = Open (comPortNumber.data(), 115200, 10);
-		//int deviceHandle2 = Open (sn, 115200, 10);
-		//errBox (buffer);
-		//errBox (comPortNumber.data ());
 		if ( deviceHandle < 0 )	{
 			thrower ( "ERROR: raw \"Open\" function from the thorlabs piezo driver dll returned an error! Error code: "
 					  + str ( deviceHandle ) + "." );
@@ -206,7 +198,7 @@ std::string PiezoFlume::getID ( ){
 			}
 			return std::string (txt.begin (), txt.end ());
 		}
-		catch (Error & err) {
+		catch (ChimeraError & err) {
 			return err.trace ();
 		}
 	}

@@ -121,8 +121,8 @@ void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out)
 
 void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore &DM)
 {
-	UINT variations;
-	UINT sequenceNumber;
+	unsigned variations;
+	unsigned sequenceNumber;
 	if (variables.size() == 0)
 	{
 		thrower("ERROR: variables empty, no sequence fill!");
@@ -155,7 +155,7 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 	}
 }
 
-void DmCore::ProgramNow(UINT variation) 
+void DmCore::ProgramNow(unsigned variation) 
 {
 	std::string location  = DM_PROFILES_LOCATION + "\\" + currentInfo.base +".txt";
 	profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));
@@ -175,7 +175,7 @@ void DmCore::setCurrentInfo(DMOutputForm form) {
 	currentInfo = form;
 }
 
-void DmCore::initialCheck(UINT variation, std::string& warnings) 
+void DmCore::initialCheck(unsigned variation, std::string& warnings) 
 {
 	std::string location = DM_PROFILES_LOCATION + "\\" + currentInfo.base + ".txt";
 	profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));

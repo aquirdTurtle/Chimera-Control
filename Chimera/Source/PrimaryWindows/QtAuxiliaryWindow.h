@@ -3,9 +3,8 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "ExperimentThread/Communicator.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "IChimeraWindowWidget.h"
+#include "IChimeraQtWindow.h"
 
 #include "LowLevel/constants.h"
 #include "ExperimentThread/ExperimentThreadManager.h" 
@@ -37,7 +36,7 @@ namespace Ui {
     class QtAuxiliaryWindow;
 }
 
-class QtAuxiliaryWindow : public IChimeraWindowWidget{
+class QtAuxiliaryWindow : public IChimeraQtWindow{
     Q_OBJECT
 
     public:
@@ -45,7 +44,7 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget{
         ~QtAuxiliaryWindow ();
 
 		void initializeWidgets ();
-
+		void handleNormalFin ();
 		void updateOptimization (AllExperimentInput& input);
 		std::vector<std::reference_wrapper<PiezoCore> > getPiezoControllers ();
 		LRESULT onLogVoltsMessage (WPARAM wp, LPARAM lp);
@@ -64,32 +63,28 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget{
 
 		void updateAgilent (whichAgTy::agilentNames name);
 		void newAgilentScript (whichAgTy::agilentNames name);
-		void openAgilentScript (whichAgTy::agilentNames name, IChimeraWindowWidget* parent);
+		void openAgilentScript (whichAgTy::agilentNames name, IChimeraQtWindow* parent);
 		void saveAgilentScript (whichAgTy::agilentNames name);
-		void saveAgilentScriptAs (whichAgTy::agilentNames name, IChimeraWindowWidget* parent);
+		void saveAgilentScriptAs (whichAgTy::agilentNames name, IChimeraQtWindow* parent);
 		void fillMasterThreadInput (ExperimentThreadInput* input);
 		void SetDacs ();
-
-		fontMap getFonts ();
 
 		void handleAbort ();
 		void zeroDacs ();
 
-		void invalidateSaved (UINT id);
+		void invalidateSaved (unsigned id);
 		 
 		std::vector<parameterType> getAllParams ();
 
 		void clearVariables ();
-		void addVariable (std::string name, bool constant, double value);
 
-
-		UINT getTotalVariationNumber ();
+		unsigned getTotalVariationNumber ();
 		void windowSaveConfig (ConfigStream& saveFile);
 		void windowOpenConfig (ConfigStream& configFile);
-		std::pair<UINT, UINT> getTtlBoardSize ();
-		UINT getNumberOfDacs ();
+		std::pair<unsigned, unsigned> getTtlBoardSize ();
+		unsigned getNumberOfDacs ();
 		void setVariablesActiveState (bool active);
-		Agilent& whichAgilent (UINT id);
+		Agilent& whichAgilent (unsigned id);
 		DoCore& getTtlCore ();
 		AoSystem& getAoSys ();
 		AiSystem& getAiSys ();
@@ -117,13 +112,13 @@ class QtAuxiliaryWindow : public IChimeraWindowWidget{
 		MachineOptimizer optimizer;
 		ParameterSystem configParameters, globalParameters;
 		DdsSystem dds;
-		PiezoController piezo1, piezo2;
+		PiezoController piezo1, piezo2, piezo3;
 
 		std::vector<PlotCtrl*> aoPlots;
 		std::vector<PlotCtrl*> ttlPlots;
 		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
-		UINT NUM_DAC_PLTS = 3;
-		UINT NUM_TTL_PLTS = 4;
+		unsigned NUM_DAC_PLTS = 3;
+		unsigned NUM_TTL_PLTS = 4;
 
 	public Q_SLOTS:
 		void handleDoAoPlotData (const std::vector<std::vector<plotDataVec>>& doData,

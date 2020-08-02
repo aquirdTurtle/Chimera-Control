@@ -57,7 +57,7 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 {
 	/// find mult do mult
 	// this can be done as just a scan from left to right.
-	for ( UINT count = 0; count < terms.size( ); count++ )
+	for ( unsigned count = 0; count < terms.size( ); count++ )
 	{
 		if ( terms[count] == "*" || terms[count] == "/" )
 		{
@@ -108,7 +108,7 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 void Expression::doAddAndSub( std::vector<std::string>& terms )
 {
 	/// find add do add
-	for ( UINT count = 0; count < terms.size( ); count++ )
+	for ( unsigned count = 0; count < terms.size( ); count++ )
 	{
 		if ( terms[count] == "+" || terms[count] == "-" )
 		{
@@ -182,7 +182,7 @@ double Expression::reduce( std::vector<std::string> terms )
 		std::vector<std::string> rightmostParenthesisTerms;
 		bool leftExists = false;
 		// find rightmost parenthesis
-		UINT count = 0;
+		unsigned count = 0;
 		int leftPos = 0, rightPos = 0;
 		for ( auto& elem : terms )
 		{
@@ -285,7 +285,7 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 	{
 		std::vector<std::string> functionArgUnevaluated;
 		std::string funcName;
-		UINT count = 0;
+		unsigned count = 0;
 		int funcPos = -1;
 		// find the rightmost function.
 		for ( auto& elem : terms )
@@ -391,7 +391,7 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 }
 
 
-void Expression::internalEvaluate ( std::vector<parameterType>& params, UINT totalVariations )
+void Expression::internalEvaluate ( std::vector<parameterType>& params, unsigned totalVariations )
 {
 	values.clear ( );
 	values.resize ( totalVariations );
@@ -402,7 +402,7 @@ void Expression::internalEvaluate ( std::vector<parameterType>& params, UINT tot
 }
 
 
-double Expression::getValue ( UINT variation )
+double Expression::getValue ( unsigned variation )
 {
 	if ( variation >= values.size ( ) )
 	{
@@ -416,7 +416,7 @@ double Expression::getValue ( UINT variation )
 Evaluate takes in an expression, which can be a combination of variables, standard math operations, and standard
 math functions, and evaluates it to a double.
 */
-double Expression::evaluate( std::vector<parameterType>& variables, UINT variation )
+double Expression::evaluate( std::vector<parameterType>& variables, unsigned variation )
 {
 	/*
 	if ( expressionScope == "" )
@@ -439,7 +439,7 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 		}
 		catch ( boost::bad_lexical_cast& ) {	/* These cases might be doomed for failure. If only digits probably
 												   should have evaluated fine. */ }
-		catch ( Error& ) {  }
+		catch ( ChimeraError& ) {  }
 	}
 	// else there was a not-digit in the string, so a lexical_cast shouldn't work, so just skip it. This saves a 
 	// suprisingly significant amount of computational time in evaluating expressions, the expression throw here 
@@ -480,7 +480,7 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 		}
 		catch ( boost::bad_lexical_cast& ) {	/* These cases might be doomed for failure since if only 3 terms
 												I don't think there should be any room for function evaluations.*/ }
-		catch ( Error& ) { /* Same. */ }
+		catch ( ChimeraError& ) { /* Same. */ }
 	}
 	// okay, now have to do the heavy lifting.
 	std::vector<std::string> fullTerms;
@@ -497,23 +497,18 @@ double Expression::evaluate( std::vector<parameterType>& variables, UINT variati
 
 // this function checks whether the string "item" is usable as a double, either by direct reduction to double without
 // variables, or if it is a variable.
-void Expression::assertValid( std::vector<parameterType>& variables, std::string scope )
-{
+void Expression::assertValid( std::vector<parameterType>& variables, std::string scope ){
 	expressionScope = scope;
 	double value;
-	try
-	{
+	try{
 		value = evaluate();
 	}
-	catch ( Error& )
-	{
+	catch ( ChimeraError& ){
 		bool isVariable = false;
-		for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
-		{
+		for ( unsigned varInc = 0; varInc < variables.size( ); varInc++ ){
 			auto& param = variables[varInc];
 			if ( param.name == expressionStr && (param.parameterScope == expressionScope 
-												  || param.parameterScope == GLOBAL_PARAMETER_SCOPE ))
-			{
+												  || param.parameterScope == GLOBAL_PARAMETER_SCOPE )){
 				param.active = true;
 				isVariable = true;
 				if ( !param.constant )
@@ -523,8 +518,7 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				break;
 			}
 		}
-		if ( !isVariable )
-		{
+		if ( !isVariable ){
 			// check if its a usable math expression. I.e. is composed of numbers, variables, or math symbols.
 			bool failed = false;
 			std::vector<std::string> terms = splitString( expressionStr );
@@ -532,33 +526,28 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 			bool nextCanBeOperator = false;
 			bool nextCanBeFunction = true;
 			bool needParenthesis = false;
-			UINT elemnum = 0;
+			unsigned elemnum = 0;
 			bool includes_variable = false;
-			UINT rightParenCount = 0;
-			UINT leftParenCount = 0;
-			for ( auto elem : terms )
-			{
+			unsigned rightParenCount = 0;
+			unsigned leftParenCount = 0;
+			for ( auto elem : terms ){
 				elemnum++;
-				if ( needParenthesis && elem != "(" )
-				{
+				if ( needParenthesis && elem != "(" ){
 					failed = true;
 					break;
 				}
-				if ( (elem == "+" || elem == "-" || elem == "*" || elem == "/") && nextCanBeOperator)
-				{
+				if ( (elem == "+" || elem == "-" || elem == "*" || elem == "/") && nextCanBeOperator){
 					// it's a valid math symbol in a place that works.
 					nextCanBeFunction = true;
 					nextCanBeOperator = false;
 					continue;
 				}
-				if ( elem == "-" && elemnum==1 )
-				{
+				if ( elem == "-" && elemnum==1 ){
 					nextCanBeFunction = true;
 					nextCanBeOperator = false;
 					continue;
 				}
-				if ( elem == "(" )
-				{
+				if ( elem == "(" ){
 					leftParenCount++;
 					nextCanBeFunction = true;
 					nextCanBeOperator = false;
@@ -566,15 +555,13 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 					needParenthesis = false;
 					continue;
 				}
-				if ( elem == ")" )
-				{
+				if ( elem == ")" ){
 					rightParenCount++;
 					nextCanBeOperator = true;
 					continue;
 				}
 				if ( (elem == "sin" || elem == "cos" || elem == "exp" || elem == "ln" || elem == "log10") 
-					 && nextCanBeFunction )
-				{
+					 && nextCanBeFunction ){
 					// it's a supported math function.
 					nextCanBeFunction = false;
 					nextCanBeOperator = false;
@@ -585,16 +572,13 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				{
 					// first just check if any characters in string are alpha
 					bool contains_alpha = false;
-					for ( auto c : elem )
-					{
-						if ( c > 'A' && c < 'z') 
-						{
+					for ( auto c : elem ){
+						if ( c > 'A' && c < 'z') {
 							contains_alpha = true;
 							break;
 						}
 					}
-					if ( !contains_alpha )
-					{
+					if ( !contains_alpha ){
 						value = boost::lexical_cast<double>( elem );
 						nextCanBeFunction = false;
 						nextCanBeOperator = true;
@@ -603,23 +587,19 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				}
 				catch ( boost::bad_lexical_cast& ) {/* term is not a double.*/ }
 				isVariable = false;
-				for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
-				{
+				for ( unsigned varInc = 0; varInc < variables.size( ); varInc++ ){
 					auto& param = variables[varInc];
 					if ( param.name == elem && (param.parameterScope == expressionScope 
-												 || param.parameterScope == GLOBAL_PARAMETER_SCOPE) )
-					{
+												 || param.parameterScope == GLOBAL_PARAMETER_SCOPE) ){
 						param.active = true;
 						isVariable = true;
-						if ( !param.constant )
-						{
+						if ( !param.constant ){
 							expressionVaries = true;
 						}
 						break;
 					}
 				}
-				if ( isVariable )
-				{
+				if ( isVariable ){
 					includes_variable = true;
 					nextCanBeFunction = false;
 					nextCanBeOperator = true;
@@ -630,21 +610,17 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 				failed = true;
 				break;
 			}
-			if ( terms.size( ) == 0 )
-			{
+			if ( terms.size( ) == 0 ){
 				failed = true;
 			}
-			if ( rightParenCount != leftParenCount)
-			{
+			if ( rightParenCount != leftParenCount){
 				failed = true;
 			}
-			if ( !includes_variable )
-			{
+			if ( !includes_variable ){
 				// then it should have evaluated properly and not entered this catch.
 				failed = true;
 			}
-			if ( failed )
-			{
+			if ( failed ){
 				thrower ( "" + expressionStr + " is not a valid expression. It's not a double, a variable, "
 						 "and it wont evaluate as a mathematical expression." );
 			}
@@ -652,8 +628,6 @@ void Expression::assertValid( std::vector<parameterType>& variables, std::string
 	}
 }
 
-
-bool Expression::varies( )
-{
+bool Expression::varies( ){
 	return expressionVaries;
 }

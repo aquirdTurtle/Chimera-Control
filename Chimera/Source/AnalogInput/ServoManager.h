@@ -9,13 +9,12 @@
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/Version.h"
 #include "CustomMfcControlWrappers/MyListCtrl.h"
-#include "ExperimentThread/Communicator.h"
 #include "AiUnits.h"
 #include <QLabel>
 #include <QTableWidget>
 #include <QPushButton>
 #include <CustomQtControls/AutoNotifyCtrls.h>
-#include <PrimaryWindows/IChimeraWindowWidget.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
 /*
 This is a slow digital DC servo system. As far as servos go, it is very primitive, just a Proportional servo with a low
 gain, as this is all that's required for DC servoing. This is not designed to be run during the experiment, it's 
@@ -31,28 +30,27 @@ The servo system interplays between three separate systems in the code.
 */
 
 
-class ServoManager
-{
+class ServoManager : public IChimeraSystem {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		ServoManager& operator=(const ServoManager&) = delete;
 		ServoManager (const ServoManager&) = delete;
-		ServoManager () = default;
+		ServoManager (IChimeraQtWindow* parent);
+		
 		void handleContextMenu (const QPoint& pos);
-		static std::string servoTtlConfigToString (std::vector<std::pair<DoRows::which, UINT> > ttlConfig);
-		static std::string servoDacConfigToString (std::vector<std::pair<UINT, double>> aoConfig);
-		void initialize( POINT& pos, IChimeraWindowWidget* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
+		static std::string servoTtlConfigToString (std::vector<std::pair<DoRows::which, unsigned> > ttlConfig);
+		static std::string servoDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig);
+		void initialize( POINT& pos, IChimeraQtWindow* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
 						 ParameterSystem* globals_in);
-		void handleDraw (NMHDR* pNMHDR, LRESULT* pResult);
-		void setChangeVal (UINT which, double change);
-		void runAll (Communicator& comm);
-		void calibrate( servoInfo& s, UINT which );
+		void setChangeVal (unsigned which, double change);
+		void runAll ();
+		void calibrate( servoInfo& s, unsigned which );
 		bool wantsCalAutoServo( );
 		bool wantsExpAutoServo ();
 		double convertToPower (double volt, servoInfo& si);
 		void handleSaveMasterConfig( std::stringstream& configStream );
 		void handleOpenMasterConfig( ConfigStream& configStream );
-		void setControlDisplay ( UINT which, double value );
+		void setControlDisplay (unsigned which, double value );
 		std::vector<servoInfo> getServoInfo ( );
 		AiUnits::which getUnitsOption ();
 		void refreshListview ();
@@ -63,8 +61,8 @@ class ServoManager
 		CQCheckBox* expAutoServoButton;
 		CQComboBox* unitsCombo;
 		QTableWidget* servoList;
-
-		void setResDisplay (UINT which, double value);
+		const std::string servoSuffix = "__sv";
+		void setResDisplay (unsigned which, double value);
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );
 		servoInfo handleOpenMasterConfigIndvServo ( ConfigStream& configStream );
 		

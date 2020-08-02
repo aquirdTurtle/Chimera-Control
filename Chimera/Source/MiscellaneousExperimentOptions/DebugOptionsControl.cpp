@@ -1,17 +1,15 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "DebugOptionsControl.h"
-#include "ExperimentThread/Communicator.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include <boost/lexical_cast.hpp>
 
-void DebugOptionsControl::initialize( POINT& loc, IChimeraWindowWidget* parent )
-{
+void DebugOptionsControl::initialize( POINT& loc, IChimeraQtWindow* parent ){
 	// Debugging Options Title
 	header = new QLabel ("DEBUGGING OPTIONS", parent);
 	header->setGeometry (loc.x, loc.y, 480, 25);
 	loc.y += 25;
-	UINT count = 0;
+	unsigned count = 0;
 	niawgMachineScript = new QCheckBox ("Show Machine NIAWG Script?", parent);
 	niawgMachineScript->setGeometry (loc.x, loc.y, 240, 20);
 	niawgMachineScript->setChecked( true );
@@ -87,14 +85,7 @@ void DebugOptionsControl::initialize( POINT& loc, IChimeraWindowWidget* parent )
 }
 
 
-void DebugOptionsControl::rearrange(int width, int height, fontMap fonts)
-{
-
-}
-
-
-void DebugOptionsControl::handleSaveConfig(ConfigStream& saveFile)
-{
+void DebugOptionsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "DEBUGGING_OPTIONS"
 			 << "\n/*Output Agilent Script?*/\t\t\t" << currentOptions.outputAgilentScript
 			 << "\n/*Output Excess Info?*/\t\t\t\t" << currentOptions.outputExcessInfo
@@ -140,7 +131,7 @@ void DebugOptionsControl::handleOpenConfig(ConfigStream& openFile )
 }
 
 
-void DebugOptionsControl::handleEvent(UINT id, MainWindow* comm)
+void DebugOptionsControl::handleEvent(unsigned id, MainWindow* comm)
 {
 	/*
 	if (id == niawgMachineScript.GetDlgCtrlID())

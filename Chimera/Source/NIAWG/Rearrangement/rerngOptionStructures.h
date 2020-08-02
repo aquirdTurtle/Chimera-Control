@@ -42,7 +42,7 @@ enum class nonFlashingOption
 
 // the reason to do partial is that I may run into power issues where I don't have enough power in the moving tweezers
 // to spread over more than a certain number of atoms.
-const UINT PARTIAL_PARALLEL_LIMIT = 1;
+const unsigned PARTIAL_PARALLEL_LIMIT = 1;
 enum class parallelMoveOption
 {
 	// no parallel moves

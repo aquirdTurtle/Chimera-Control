@@ -2,14 +2,14 @@
 #include "stdafx.h"
 #include "Scripts/ScriptStream.h"
 #include <algorithm>
-
-ScriptStream& ScriptStream::operator>>(Expression& expr)
-{
+ScriptStream::ScriptStream (std::string buf) : std::stringstream (buf) {
+	initialContents = str ();
+}
+ScriptStream& ScriptStream::operator>>(Expression& expr){
 	return operator>>(expr.expressionStr);
 }
 
-ScriptStream & ScriptStream::operator>>( std::string& outputString )
-{
+ScriptStream & ScriptStream::operator>>( std::string& outputString ){
 	eatComments();
 	// there might be a better way to do this. I'm really just creating a 
 	// stringstream object in order to access the stringstream >> operator
@@ -75,52 +75,42 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 }
 
 
-bool ScriptStream::isNotPartOfName( char test)
-{
+bool ScriptStream::isNotPartOfName( char test){
 	std::vector<char> addendums = { '\t', '\r', '\n', ' ', ')', '(', ',' };
-	for (auto elem : addendums)
-	{
-		if (test == elem)
-		{
+	for (auto elem : addendums){
+		if (test == elem){
 			return true;
 		}
 	}
 	return false;
 }
 
-std::string ScriptStream::getline()
-{
+std::string ScriptStream::getline(){
 	return getline( '\n' );
 }
 
 /*
  * A Wrapper around standard getline that ignores comments before this line.
  */
-std::string ScriptStream::getline(char delim)
-{
+std::string ScriptStream::getline(char delim){
 	eatComments();
 	std::string line;
 	std::getline( *this, line, delim );
-	if (alwaysLowerCase)
-	{
+	if (alwaysLowerCase){
 		std::transform (line.begin (), line.end (), line.begin (), ::tolower);
 	}
 	// look for arg words. This is mostly important for replacements inside function definitions.
-	for (auto arg : replacements)
-	{
+	for (auto arg : replacements){
 		int pos = line.find( arg.first );
 		int start = 0;
-		while (pos != std::string::npos)
-		{
-			if (pos != 0 && !isNotPartOfName( line[pos - 1] ))
-			{
+		while (pos != std::string::npos){
+			if (pos != 0 && !isNotPartOfName( line[pos - 1] )){
 				// then it was a part of the name, don't use this again...
 				start = pos;
 				continue;
 			}
 
-			if ( pos + arg.first.size() > line.size() && !isNotPartOfName(line[pos + arg.first.size()]))
-			{
+			if ( pos + arg.first.size() > line.size() && !isNotPartOfName(line[pos + arg.first.size()])){
 				// then it was a part of the name, don't use this again...
 				start = pos;
 				continue;
@@ -143,20 +133,15 @@ std::string ScriptStream::getline(char delim)
  now I don't think it suits the design.
  */
 void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::string>> args, std::vector<parameterType>& params, 
-									 std::string paramDecoration, std::string replCallScope, std::string funcScope )
-{
+									 std::string paramDecoration, std::string replCallScope, std::string funcScope ){
 	// need to parse each replacement string and decorate parameters to give proper scoping
-	for (auto replNum : range(args.size()))
-	{
+	for (auto replNum : range(args.size())){
 		auto& repl = args[replNum];
 		auto replSplit = Expression::splitString(repl.second);
-		for (auto& replTerm : replSplit)
-		{
-			for (auto& param : params)
-			{
+		for (auto& replTerm : replSplit){
+			for (auto& param : params){
 				if (replTerm == param.name && (param.parameterScope == replCallScope
-					|| param.parameterScope == GLOBAL_PARAMETER_SCOPE))
-				{
+					|| param.parameterScope == GLOBAL_PARAMETER_SCOPE)){
 					param.active = true;
 					// is a variable with the right scope for the replacement. Make a copy of the parameter, 
 					// decorate the name, and change the scope.
@@ -171,8 +156,7 @@ void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::str
 			}
 		}
 		std::string finReplString = "";
-		for (auto replTerm : replSplit)
-		{
+		for (auto replTerm : replSplit){
 			finReplString += replTerm;
 		}
 		args[replNum].second = finReplString;
@@ -181,33 +165,26 @@ void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::str
 }
 
 
-void ScriptStream::clearReplacements()
-{
+void ScriptStream::clearReplacements(){
 	replacements.clear();
 }
 
 
-void ScriptStream::eatComments()
-{
+void ScriptStream::eatComments(){
 	// Grab the first character
 	std::string comment;
 	char currentChar = get();
 	// including the !file.eof() to avoid grabbing the null character at the end. 
 	while ((currentChar == ' ' || currentChar == '\n' || currentChar == '\r' || 
-			currentChar == '\t' || currentChar == '%' || currentChar == ';' || currentChar == '/') && !eof ())
-	{
+			currentChar == '\t' || currentChar == '%' || currentChar == ';' || currentChar == '/') && !eof ()){
 		// remove entire comments from the input
-		if (currentChar == '%')
-		{
+		if (currentChar == '%'){
 			std::getline( *this, comment, '\n' );
 		}
-		if (currentChar == '/' && get() == '*')
-		{
+		if (currentChar == '/' && get() == '*'){
 			// handle open-ended comments.
-	 		while (!eof())
-			{
-				if (currentChar == '*')
-				{
+	 		while (!eof())	{
+				if (currentChar == '*'){
 					currentChar = get ();
 					comment += currentChar;
 					if (currentChar == '/') { break; }
@@ -221,14 +198,11 @@ void ScriptStream::eatComments()
 		currentChar = get();
 	}
 	char next = peek();
-	if (next == EOF)
-	{
-		if (eof())
-		{
+	if (next == EOF){
+		if (eof()){
 			clear();
 			seekg( -1, SEEK_CUR );
-			if (eof())
-			{
+			if (eof()){
 				thrower ( "!" );
 			}
 		}
@@ -236,18 +210,15 @@ void ScriptStream::eatComments()
 	}
 	std::streamoff position = tellg();
 	// when it exits the loop, it will just have moved passed the first non-whitespace character. I want that character. Go back.
-	if (position == 0)
-	{
+	if (position == 0){
 		seekg( 0, std::ios::beg );
 	}
-	else
-	{
+	else{
 		seekg( -1, SEEK_CUR );
 	}
 	lastComment = comment;
 }
 
-void ScriptStream::setCase (bool alwaysLowerCase_)
-{
+void ScriptStream::setCase (bool alwaysLowerCase_){
 	alwaysLowerCase = alwaysLowerCase_;
 }

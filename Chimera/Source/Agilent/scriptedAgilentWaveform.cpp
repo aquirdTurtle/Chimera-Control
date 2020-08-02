@@ -107,7 +107,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 			thrower ( "Agilent Script command not recognized. The command was \"" + word + "\"" );
 		}
 	}
-	catch ( Error& )
+	catch ( ChimeraError& )
 	{
 		throwNested ("Error seen while analyzing scripted agilent waveform." );
 	}
@@ -152,14 +152,14 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
  * varNum: This is the variation number for this segment (matters for naming the segments)
  * totalSegNum: This is the number of segments in the waveform (also matters for naming)
  */
-std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, UINT chan )
+std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, unsigned chan )
 {
 	// must get called after data conversion
 	std::string tempSendString;
 	tempSendString = "SOURce" + str( chan ) + ":DATA:ARB segment" + str( segNum + totalSegNum * varNum ) + ",";
 	// need to handle last one separately so that I can /not/ put a comma after it.
-	UINT numData = waveformSegments[segNum].returnDataSize( ) - 1;
-	for (UINT sendDataInc = 0; sendDataInc < numData; sendDataInc++)
+	unsigned numData = waveformSegments[segNum].returnDataSize( ) - 1;
+	for (unsigned sendDataInc = 0; sendDataInc < numData; sendDataInc++)
 	{
 		tempSendString += str( waveformSegments[segNum].returnDataVal( sendDataInc ) );
 		tempSendString += ", ";
@@ -187,7 +187,7 @@ ULONG ScriptedAgilentWaveform::getSegmentNumber()
 * This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 * as a part of the class.
 */
-void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, UINT channel )
+void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel )
 {
 	std::string tempSequenceString, tempSegmentInfoString;
 	// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
@@ -274,7 +274,7 @@ bool ScriptedAgilentWaveform::isVaried( )
 
 void ScriptedAgilentWaveform::replaceVarValues()
 {
-	for (UINT segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
+	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{
 		waveformSegments[segNumInc].convertInputToFinal();
 	}
@@ -284,9 +284,9 @@ void ScriptedAgilentWaveform::replaceVarValues()
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( UINT variation, std::vector<parameterType>& variables )
+void ScriptedAgilentWaveform::replaceVarValues( unsigned variation, std::vector<parameterType>& variables )
 {
-	for (UINT segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
+	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{
 		waveformSegments[segNumInc].convertInputToFinal( variation, variables );
 	}
@@ -307,10 +307,10 @@ void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<d
 {
 
 	// for each part of the waveform returnDataSize
-	for (UINT segmentInc = 0; segmentInc < waveformSegments.size(); segmentInc++)
+	for (unsigned segmentInc = 0; segmentInc < waveformSegments.size(); segmentInc++)
 	{
 		// for each data point in that part
-		for (UINT dataConvertInc = 0; dataConvertInc < waveformSegments[segmentInc].returnDataSize(); dataConvertInc++)
+		for (unsigned dataConvertInc = 0; dataConvertInc < waveformSegments[segmentInc].returnDataSize(); dataConvertInc++)
 		{
 			// convert the user power, which is entered in mW, to uW. That's the units this calibration was done in.
 			// y is the desired power in microwatts.
@@ -332,9 +332,9 @@ void ScriptedAgilentWaveform::calcMinMax()
 	// NOT DBL_MIN, which is a really small number, not a large negative number. I need a large negative number.
 	maxVolt = -DBL_MAX;
 	minVolt = DBL_MAX;
-	for (UINT minMaxSegInc = 0; minMaxSegInc < waveformSegments.size(); minMaxSegInc++)
+	for (unsigned minMaxSegInc = 0; minMaxSegInc < waveformSegments.size(); minMaxSegInc++)
 	{
-		for (UINT minMaxDataInc = 0; minMaxDataInc < waveformSegments[minMaxSegInc].returnDataSize(); minMaxDataInc++)
+		for (unsigned minMaxDataInc = 0; minMaxDataInc < waveformSegments[minMaxSegInc].returnDataSize(); minMaxDataInc++)
 		{
 			if (waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc ) < minVolt)
 			{
@@ -359,9 +359,9 @@ void ScriptedAgilentWaveform::calcMinMax()
 void ScriptedAgilentWaveform::normalizeVoltages()
 {
 	double scaleFactor = 2.0 / (maxVolt - minVolt);
-	for (UINT normSegInc = 0; normSegInc < waveformSegments.size(); normSegInc++)
+	for (unsigned normSegInc = 0; normSegInc < waveformSegments.size(); normSegInc++)
 	{
-		for (UINT normDataInc = 0; normDataInc < waveformSegments[normSegInc].returnDataSize(); normDataInc++)
+		for (unsigned normDataInc = 0; normDataInc < waveformSegments[normSegInc].returnDataSize(); normDataInc++)
 		{
 			double currVal = waveformSegments[normSegInc].returnDataVal( normDataInc );
 			double normVal = (currVal - minVolt) * scaleFactor - 1;

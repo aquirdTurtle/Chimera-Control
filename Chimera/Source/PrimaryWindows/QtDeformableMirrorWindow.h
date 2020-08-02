@@ -5,17 +5,16 @@
 #include "NIAWG/NiawgSystem.h"
 #include "ConfigurationSystems/ProfileIndicator.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "ExperimentThread/Communicator.h"
 #include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include "IChimeraWindowWidget.h"
+#include "IChimeraQtWindow.h"
 #include "DeformableMirror/DmControl.h"
 
 namespace Ui {
     class QtDeformableMirrorWindow;
 }
 
-class QtDeformableMirrorWindow : public IChimeraWindowWidget {
+class QtDeformableMirrorWindow : public IChimeraQtWindow {
     Q_OBJECT
 		 
     public:
@@ -29,7 +28,7 @@ class QtDeformableMirrorWindow : public IChimeraWindowWidget {
         void fillExpDeviceList (DeviceList& list);
 
         void handleProgramDmNow ();
-        void handlePistonChange (UINT id);
+        void handlePistonChange (unsigned id);
         void handleNewDmProfile ();
         void handleAddAbberations ();
         

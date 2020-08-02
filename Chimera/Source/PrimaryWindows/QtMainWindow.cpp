@@ -21,9 +21,10 @@ QtMainWindow::QtMainWindow () :
 	profile (PROFILES_PATH),
 	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS),
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
-	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"){
+	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
+	servos(this)
+{
 	statBox = new ColorBox ();
-	//programStartTime = startTime;
 	startupTimes.push_back (chronoClock::now ());
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
@@ -41,8 +42,9 @@ QtMainWindow::QtMainWindow () :
 		which = "DmWin";
 		dmWin = new QtDeformableMirrorWindow;
 	}
-	catch (Error& err) {
+	catch (ChimeraError& err) {
 		errBox ("FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace ());
+		return;
 		//forceExit ();
 		//return -1;
 	}
@@ -52,8 +54,6 @@ QtMainWindow::QtMainWindow () :
 	basWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	dmWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
 	startupTimes.push_back (chronoClock::now ());
-	startupTimes.push_back (chronoClock::now ());
-
 
 	for (auto* window : winList ()) {
 		window->initializeWidgets ();
@@ -65,8 +65,7 @@ QtMainWindow::QtMainWindow () :
 	auto screens = qApp->screens ();
 	unsigned winCount = 0;
 	std::vector<unsigned> monitorNum = { 4,3,5,1,2,0 };
-	/*	scriptWin, andorWin, auxWin, basWin, dmWin, mainWin;
-		*/
+	/*	scriptWin, andorWin, auxWin, basWin, dmWin, mainWin; */
 	for (auto* window : winList ()) { 
 		auto screen = qApp->screens ()[monitorNum[winCount++] % numMonitors];
 		window->setWindowState ((windowState () & ~Qt::WindowMinimized) | Qt::WindowActive);
@@ -74,14 +73,12 @@ QtMainWindow::QtMainWindow () :
 		window->show (); 
 		window->move (screen->availableGeometry ().topLeft());
 		window->resize (screen->availableGeometry ().width (), screen->availableGeometry().height());
-
 	}
 	// hide the splash just before the first window requiring input pops up.
-	// appSplash->ShowWindow (SW_HIDE);
 	try	{
 		masterConfig.load (this, auxWin, andorWin);
 	}
-	catch (Error& err){
+	catch (ChimeraError& err){
 		errBox (err.trace ());
 	}
 	setWindowTitle ("Main Window");
@@ -118,12 +115,27 @@ QtMainWindow::QtMainWindow () :
 		initializationString += auxWin->getMicrowaveSystemStatus ();
 		infoBox (initializationString);
 	}
-	catch (Error & err) {
+	catch (ChimeraError & err) {
 		errBox (err.trace ());
 	}
+	QTimer* timer = new QTimer (this);
+	connect (timer, &QTimer::timeout, [this]() {
+			if ( !expThreadManager.experimentIsRunning ) {
+				if (!getMainOptions ().delayAutoCal) {
+					handleNotification ("Delaying Auto-Calibration!");
+					return;
+				}
+				// should auto quit in the handling here if calibration has already been completed for the day. 
+				commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
+			}
+		});
+	// 10 minutes
+	timer->start (360000);
 }
 
-QtMainWindow::~QtMainWindow (){}
+bool QtMainWindow::expIsRunning () {
+	return expThreadManager.experimentIsRunning;
+}
 
 void QtMainWindow::setStyleSheets (){
 	for (auto* window : winList ()) {
@@ -131,16 +143,19 @@ void QtMainWindow::setStyleSheets (){
 	}
 }
 
+void QtMainWindow::pauseExperiment () {
+	expThreadManager.pause ();
+}
+
 void QtMainWindow::initializeWidgets (){
 	/// initialize main window controls.
-	comm.initialize (this);
 	POINT controlLocation = { 0, 25 };
-	mainStatus.initialize (controlLocation, this, 870, "EXPERIMENT STATUS", "#6464FF");
+	mainStatus.initialize (controlLocation, this, 870, "EXPERIMENT STATUS", { "#7474FF","#4848FF","#2222EF" });
 	statBox->initialize (controlLocation, this, 960, getDevices ());
 	shortStatus.initialize (controlLocation, this);
 	controlLocation = { 480, 25 };
-	errorStatus.initialize (controlLocation, this, 420, "ERROR STATUS", "#FF0000");
-	debugStatus.initialize (controlLocation, this, 425, "DEBUG STATUS", "#0d98ba");
+	errorStatus.initialize (controlLocation, this, 420, "ERROR STATUS", { "#FF0000", "#800000"});
+	debugStatus.initialize (controlLocation, this, 425, "DEBUG STATUS", { "#0d98ba" });
 	controlLocation = { 960, 25 };
 	profile.initialize (controlLocation, this);
 	controlLocation = { 960, 50 };
@@ -148,7 +163,7 @@ void QtMainWindow::initializeWidgets (){
 	masterRepumpScope.initialize (controlLocation, 480, 130, this, "Master/Repump");
 	motScope.initialize (controlLocation, 480, 130, this, "MOT");
 	servos.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (),
-		auxWin->getTtlSystem (), &auxWin->getGlobals ());
+						auxWin->getTtlSystem (), &auxWin->getGlobals ());
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize (controlLocation, this);
 	mainOptsCtrl.initialize (controlLocation, this);
@@ -156,54 +171,19 @@ void QtMainWindow::initializeWidgets (){
 	texter.initialize (controlLocation, this);
 }
 
-void QtMainWindow::handleThresholdAnalysis (){
-	auto grid = andorWin->getMainAtomGrid ();
-	auto dateStr = andorWin->getMostRecentDateString ();
-	auto fid = andorWin->getMostRecentFid ();
-	auto ppr = andorWin->getPicsPerRep ();
-	std::string gridString = "[" + str (grid.topLeftCorner.row - 1) + "," + str (grid.topLeftCorner.column - 1) + ","
-		+ str (grid.pixelSpacing) + "," + str (grid.width) + "," + str (grid.height) + "]";
-	try{
-		python.thresholdAnalysis (dateStr, fid, gridString, ppr);
-	}
-	catch (Error& err){
-		comm.sendError ("Threshold Analysis Failed! " + err.trace ());
-	}
-}
+unsigned QtMainWindow::getAutoCalNumber () { return autoCalNum; }
 
-
-LRESULT QtMainWindow::onFinish (WPARAM wp, LPARAM lp){
-	ExperimentType type = static_cast<ExperimentType>(wp);
-	switch (type)
-	{
-	case ExperimentType::Normal:
-		onNormalFinish ("");
-		break;
-	case ExperimentType::LoadMot:
-		break;
-	case ExperimentType::AutoCal:
-		onAutoCalFin ();
-		break;
-	case ExperimentType::MachineOptimization:
-		onMachineOptRoundFin ();
-		break;
-	}
-	return 0;
-} 
- 
-UINT QtMainWindow::getAutoCalNumber () { return autoCalNum; }
-
-void QtMainWindow::onAutoCalFin (){
+void QtMainWindow::onAutoCalFin (QString msg, profileSettings finishedConfig){
 	try	{
 		scriptWin->restartNiawgDefaults ();
 	}
-	catch (Error& except)	{
-		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
-			"following error: " + except.trace ());
-		comm.sendStatus ("ERROR!\r\n");
+	catch (ChimeraError& except)	{
+		reportErr ("The niawg finished normally, but upon restarting the default waveform, threw the "
+						"following error: " + except.qtrace ());
+		reportStatus ("ERROR!\r\n");
 	}
 	scriptWin->setNiawgRunningState (false);
-	andorWin->cleanUpAfterExp ();
+	andorWin->handleNormalFinish (finishedConfig);
 	autoCalNum++;
 	if (autoCalNum >= AUTO_CAL_LIST.size ())	{
 		// then just finished the calibrations.
@@ -217,12 +197,11 @@ void QtMainWindow::onAutoCalFin (){
 
 void QtMainWindow::onMachineOptRoundFin (){
 	// do normal finish
-	onNormalFinish ("");
+	onNormalFinish ("", {});
 	Sleep (1000);
 	// then restart.
 	commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
 }
-
 
 void QtMainWindow::OnTimer (UINT_PTR id) {
 	if (id == 10){
@@ -231,9 +210,7 @@ void QtMainWindow::OnTimer (UINT_PTR id) {
 	}
 }
 
-
-void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input)
-{
+void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
 	input->skipNext = NULL;
 	input->expType = ExperimentType::CameraCal;
 }
@@ -241,11 +218,9 @@ void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input)
 LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp){
 	try	{
 		if (andorWin->wantsAutoPause ()){
+			reportErr ("No MOT and andor win wants auto pause!");
 			expThreadManager.pause ();
-			//checkAllMenus (ID_RUNMENU_PAUSE, MF_CHECKED);
 		}
-		//beepFuture
-		//	= std::async ( std::launch::async, [] { Beep ( 1000, 100 ); } );
 		time_t t = time (0);
 		struct tm now;
 		localtime_s (&now, &t);
@@ -264,21 +239,18 @@ LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp){
 		message += str (now.tm_sec);
 		texter.sendMessage (message, &python, "Mot");
 	}
-	catch (Error& err){
-		comm.sendError (err.what ());
+	catch (ChimeraError& err){
+		reportErr (err.qtrace ());
 	}
 	return 0;
 }
 
-
-LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp)
-{
+LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp){
 	try	{
 		if (andorWin->wantsAutoPause ()){
+			reportErr ("No Atoms and andor win wants auto pause!");
 			expThreadManager.pause ();
-			//checkAllMenus (ID_RUNMENU_PAUSE, MF_CHECKED);
 		}
-		//beepFuture = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
 		time_t t = time (0);
 		struct tm now;
 		localtime_s (&now, &t);
@@ -297,12 +269,11 @@ LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp)
 		message += str (now.tm_sec);
 		texter.sendMessage (message, &python, "Loading");
 	}
-	catch (Error& err){
-		comm.sendError (err.trace ());
+	catch (ChimeraError& err){
+		reportErr (err.qtrace ());
 	}
 	return 0;
 }
-
 
 void QtMainWindow::showHardwareStatus (){
 	try	{
@@ -316,57 +287,30 @@ void QtMainWindow::showHardwareStatus (){
 		initializationString += auxWin->getMicrowaveSystemStatus ();
 		infoBox (initializationString);
 	}
-	catch (Error& err)	{
-		errBox (err.trace ());
+	catch (ChimeraError& err)	{
+		reportErr (err.qtrace ());
 	}
 }
-
 
 // just notifies the profile object that the configuration is no longer saved.
 void QtMainWindow::notifyConfigUpdate (){
 	profile.updateConfigurationSavedStatus (false);
 }
 
-BOOL CALLBACK QtMainWindow::monitorHandlingProc (_In_ HMONITOR hMonitor, _In_ HDC hdcMonitor,
-	_In_ LPRECT lprcMonitor, _In_ LPARAM dwData){
-	static UINT count = 0;
-	std::vector<CDialog*>* windows = reinterpret_cast<std::vector<CDialog*>*>(dwData);
-	if (count == 1)	{
-		// skip the tall monitor.
-		count++;
-		return TRUE;
-	}
-	if (count < 6){
-		if (windows->at (count) != NULL){
-			windows->at (count)->MoveWindow (lprcMonitor);
-		}
-		else{
-			errBox ("Error in monitorHandlingProc! Tried to move \"NULL\" Window to monitor.");
-		}
-	}
-	count++;
-	return TRUE;
-}
-
-
-void QtMainWindow::handlePause (){
+void QtMainWindow::handlePauseToggle (){
 	if (expThreadManager.runningStatus ()){
+		reportErr ("Pause Toggle!");
 		if (expThreadManager.getIsPaused ()){
-			// then it's currently paused, so unpause it.
-			//checkAllMenus (ID_RUNMENU_PAUSE, MF_UNCHECKED);
 			expThreadManager.unPause ();
 		}
 		else{
-			// then not paused so pause it.
-			//checkAllMenus (ID_RUNMENU_PAUSE, MF_CHECKED);
 			expThreadManager.pause ();
 		}
 	}
 	else{
-		comm.sendStatus ("Can't pause, experiment was not running.\r\n");
+		reportStatus ("Can't pause, experiment was not running.\r\n");
 	}
 }
-
 
 void QtMainWindow::onRepProgress (unsigned int repNum){
 	repetitionControl.updateNumber (repNum);
@@ -389,16 +333,12 @@ void QtMainWindow::windowOpenConfig (ConfigStream& configStream){
 			Repetitions::getSettingsFromConfig));
 
 	}
-	catch (Error&){
+	catch (ChimeraError&){
 		throwNested ("Main Window failed to read parameters from the configuration file.");
 	}
 }
 
-
-fontMap QtMainWindow::getFonts () { return mainFonts; }
-
-
-UINT QtMainWindow::getRepNumber () { return repetitionControl.getRepetitionNumber (); }
+unsigned QtMainWindow::getRepNumber () { return repetitionControl.getRepetitionNumber (); }
 
 std::string QtMainWindow::getSystemStatusString (){
 	std::string status;
@@ -408,7 +348,7 @@ std::string QtMainWindow::getSystemStatusString (){
 		try{
 			status += "\t" + motScope.getScopeInfo ();
 		}
-		catch (Error& err){
+		catch (ChimeraError& err){
 			status += "\tFailed to get device info! Error: " + err.trace ();
 		}
 	}
@@ -421,7 +361,7 @@ std::string QtMainWindow::getSystemStatusString (){
 		try	{
 			status += "\t" + masterRepumpScope.getScopeInfo ();
 		}
-		catch (Error& err){
+		catch (ChimeraError& err){
 			status += "\tFailed to get device info! Error: " + err.trace ();
 		}
 	}
@@ -431,11 +371,9 @@ std::string QtMainWindow::getSystemStatusString (){
 	return status;
 }
 
-
 void QtMainWindow::startExperimentThread (ExperimentThreadInput* input){
 	expThreadManager.startExperimentThread (input, this);
 }
-
 
 void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 	input->profile.configuration = "Set MOT Settings";
@@ -448,7 +386,6 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 
 bool QtMainWindow::masterIsRunning () { return expThreadManager.runningStatus (); }
 RunInfo QtMainWindow::getRunInfo () { return systemRunningInfo; }
-Communicator& QtMainWindow::getCommRef () { return comm; }
 EmbeddedPythonHandler& QtMainWindow::getPython () { return python; }
 profileSettings QtMainWindow::getProfileSettings () { return profile.getProfileSettings (); }
 std::string QtMainWindow::getNotes () { return notes.getConfigurationNotes (); }
@@ -459,30 +396,24 @@ mainOptions QtMainWindow::getMainOptions () { return mainOptsCtrl.getOptions ();
 void QtMainWindow::setShortStatus (std::string text) { shortStatus.setText (text); }
 void QtMainWindow::changeShortStatusColor (std::string color) { shortStatus.setColor (color); }
 bool QtMainWindow::experimentIsPaused () { return expThreadManager.getIsPaused (); }
-Communicator* QtMainWindow::getComm () { return &comm; }
-
 
 void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	input->debugOptions = debugger.getOptions ();
 	input->profile = profile.getProfileSettings ();
 }
 
-
 void QtMainWindow::logParams (DataLogger* logger, ExperimentThreadInput* input){
 	logger->logMasterInput (input);
 	logger->logServoInfo (getServoinfo ());
 }
 
-
 void QtMainWindow::checkProfileReady (){
 	//profile.allSettingsReadyCheck( this );
 }
 
-
 void QtMainWindow::checkProfileSave (){
 	//profile.checkSaveEntireProfile( this );
 }
-
 
 void QtMainWindow::updateConfigurationSavedStatus (bool status){
 	profile.updateConfigurationSavedStatus (status);
@@ -527,7 +458,7 @@ void QtMainWindow::addTimebar (std::string whichStatus)
 }
 
 void QtMainWindow::changeBoxColor (std::string sysDelim, std::string color){
-	IChimeraWindowWidget::changeBoxColor (sysDelim, color);
+	IChimeraQtWindow::changeBoxColor (sysDelim, color);
 	changeShortStatusColor (color);
 }
 
@@ -539,13 +470,12 @@ void QtMainWindow::abortMasterThread (){
 	else { thrower ("Can't abort, experiment was not running.\r\n"); }
 }
 
-
-void QtMainWindow::onErrorMessage (QString errMessage){
+void QtMainWindow::onErrorMessage (QString errMessage, unsigned level){
 	if (str(errMessage) != ""){
-		errorStatus.addStatusText (str(errMessage));
+		QApplication::beep ();
+		errorStatus.addStatusText (str(errMessage), level);
 	}
 }
-
 
 void QtMainWindow::onFatalError (QString finMsg){
 	onErrorMessage (finMsg);
@@ -556,44 +486,42 @@ void QtMainWindow::onFatalError (QString finMsg){
 	changeShortStatusColor ("R");
 	try{
 		scriptWin->restartNiawgDefaults ();
-		comm.sendError ("EXITED WITH ERROR!\n");
-		comm.sendStatus ("EXITED WITH ERROR!\nInitialized Default Waveform\r\n");
+		reportErr ("EXITED WITH ERROR!\n");
+		reportStatus ("EXITED WITH ERROR!\nInitialized Default Waveform\r\n");
 	}
-	catch (Error& except){
-		comm.sendError ("EXITED WITH ERROR! " + except.trace ());
-		comm.sendStatus ("EXITED WITH ERROR!\nNIAWG RESTART FAILED!\r\n");
+	catch (ChimeraError& except){
+		reportErr ("EXITED WITH ERROR! " + except.qtrace ());
+		reportStatus ("EXITED WITH ERROR!\nNIAWG RESTART FAILED!\r\n");
 	}
 	scriptWin->setNiawgRunningState (false);
 }
 
-
-void QtMainWindow::onNormalFinish (QString finMsg) { 
-	handleExpNotification (finMsg);
+void QtMainWindow::onNormalFinish (QString finMsg, profileSettings finishedProfile) {
+	handleNotification (finMsg);
 	scriptWin->setIntensityDefault ();
 	setShortStatus ("Passively Outputting Default Waveform");
 	changeShortStatusColor ("B");
 	scriptWin->stopRearranger ();
-	andorWin->wakeRearranger ();
-	andorWin->cleanUpAfterExp ();
-	handleFinish ();
+	andorWin->handleNormalFinish (finishedProfile);
+	handleFinishText ();
+	auxWin->handleNormalFin ();
 	try { scriptWin->restartNiawgDefaults (); }
-	catch (Error& except){
-		comm.sendError ("The niawg finished normally, but upon restarting the default waveform, threw the "
-			"following error: " + except.trace ());
-		comm.sendStatus ("ERROR!\r\n");
+	catch (ChimeraError& except){
+		reportErr ("The niawg finished normally, but upon restarting the default waveform, threw the "
+			"following error: " + except.qtrace ());
+		reportStatus ("ERROR!\r\n");
 	}
 	scriptWin->setNiawgRunningState (false);
 	try { scriptWin->waitForRearranger (); }
-	catch (Error& err) { comm.sendError (err.trace ()); }
-	if (andorWin->wantsThresholdAnalysis ()) { handleThresholdAnalysis (); }
+	catch (ChimeraError& err) { reportErr (err.qtrace ()); }
+
 	if (autoF5_AfterFinish)	{
 		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F5, this);
 		autoF5_AfterFinish = false;
 	}
 }
 
-
-void QtMainWindow::handleFinish (){
+void QtMainWindow::handleFinishText (){
 	time_t t = time (0);
 	struct tm now;
 	localtime_s (&now, &t);
@@ -613,39 +541,35 @@ void QtMainWindow::handleFinish (){
 	try{
 		texter.sendMessage (message, &python, "Finished");
 	}
-	catch (Error& err){
-		comm.sendError (err.trace ());
+	catch (ChimeraError& err){
+		reportErr (err.qtrace ());
 	}
 }
-
 
 void QtMainWindow::onDebugMessage (std::string msg){
 	debugStatus.addStatusText (msg);
 }
 
-// MESSAGE MAP FUNCTION
-LRESULT QtMainWindow::autoServo (WPARAM w, LPARAM l){
+void QtMainWindow::autoServo (){
 	try	{
-		updateConfigurationSavedStatus (false);
-		if (servos.wantsCalAutoServo ()){
+		if (servos.wantsExpAutoServo ()){
+			updateConfigurationSavedStatus (false);
 			runServos ();
 		}
 	}
-	catch (Error& err){
-		comm.sendError ("Auto-Servo Failed.\n" + err.trace ());
+	catch (ChimeraError& err){
+		reportErr ("Auto-Servo Failed.\n" + err.qtrace ());
 	}
-	return TRUE;
 }
 
-// MESSAGE MAP FUNCTION
 void QtMainWindow::runServos (){
 	try{
 		updateConfigurationSavedStatus (false);
-		comm.sendStatus ("Running Servos...\r\n");
-		servos.runAll (comm);
+		reportStatus ("Running Servos...\r\n");
+		servos.runAll ();
 	}
-	catch (Error& err){
-		comm.sendError ("Running Servos failed.\n" + err.trace ());
+	catch (ChimeraError& err){
+		reportErr ("Running Servos failed.\n" + err.qtrace ());
 	}
 }
 
@@ -660,7 +584,6 @@ void QtMainWindow::handleMasterConfigOpen (ConfigStream& configStream){
 void QtMainWindow::handleMasterConfigSave (std::stringstream& configStream){
 	servos.handleSaveMasterConfig (configStream);
 }
-
 
 void QtMainWindow::fillExpDeviceList (DeviceList& list) {}
 
@@ -683,6 +606,14 @@ void QtMainWindow::handleColorboxUpdate (QString color, QString systemDelim){
 	dmWin->changeBoxColor (delimStr, colorstr);
  }
 
-void QtMainWindow::handleExpNotification (QString txt){
-	mainStatus.addStatusText (str(txt));
+void QtMainWindow::handleNotification (QString txt, unsigned level){
+	mainStatus.addStatusText (str(txt), level);
+}
+
+QThread* QtMainWindow::getExpThread () {
+	return expThreadManager.threadObj;
+}
+
+ExpThreadWorker* QtMainWindow::getExpThreadWorker () {
+	return expThreadManager.threadWorker;
 }
