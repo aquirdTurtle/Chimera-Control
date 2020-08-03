@@ -377,9 +377,10 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 			openNiawgScript (niawgName);
 		}
 		catch (ChimeraError& err){
-			int answer = promptBox ("ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
-				+ err.trace () + "\r\nAttempt to find file yourself?", MB_YESNO);
-			if (answer == IDYES){
+			auto answer = QMessageBox::question (this, "Open Failed",
+				"ERROR: Failed to open NIAWG script file: " + qstr(niawgName) + ", with error \r\n"
+				+ err.qtrace () + "\r\nAttempt to find file yourself?");
+			if (answer == QMessageBox::Yes){
 				openNiawgScript (openWithExplorer (NULL, "nScript"));
 			}
 		}
@@ -387,9 +388,9 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 			openMasterScript (masterName);
 		}
 		catch (ChimeraError& err){
-			int answer = promptBox ("ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
-									+ err.trace () + "\r\nAttempt to find file yourself?", MB_YESNO);
-			if (answer == IDYES){
+			auto answer = QMessageBox::question (this, "Open Failed", "ERROR: Failed to open master script file: " 
+				+ qstr(masterName) + ", with error \r\n" + err.qtrace () + "\r\nAttempt to find file yourself?");
+			if (answer == QMessageBox::Yes){
 				openMasterScript (openWithExplorer (NULL, "mScript"));
 			}
 		}

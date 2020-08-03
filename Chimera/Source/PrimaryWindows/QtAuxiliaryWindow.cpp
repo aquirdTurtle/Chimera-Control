@@ -10,6 +10,7 @@
 #include <PrimaryWindows/QtDeformableMirrorWindow.h>
 #include <ExcessDialogs/saveWithExplorer.h>
 #include <ExcessDialogs/openWithExplorer.h>
+#include <ExcessDialogs/doChannelInfoDialog.h>
 
 QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), 
 topBottomTek (TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"),
@@ -644,14 +645,13 @@ void QtAuxiliaryWindow::SetDacs (){
 	}
 }
 
-
 void QtAuxiliaryWindow::ViewOrChangeTTLNames (){
 	mainWin->updateConfigurationSavedStatus (false);
-	/*
 	ttlInputStruct input;
 	input.ttls = &ttlBoard;
-	TtlSettingsDialog dialog (&input, IDD_VIEW_AND_CHANGE_TTL_NAMES);
-	dialog.DoModal ();*/
+	doChannelInfoDialog* dialog = new doChannelInfoDialog (&input);
+	dialog->setStyleSheet (chimeraStyleSheets::stdStyleSheet());
+	dialog->exec ();
 }
 
 

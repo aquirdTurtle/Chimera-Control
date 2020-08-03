@@ -40,9 +40,9 @@ void MachineOptimizer::initialize ( POINT& pos, IChimeraQtWindow* parent )
 	parent->connect (optimizeButton, &QPushButton::released, 
 		[this, parent]() {
 			try	{
-				auto res = promptBox ("Start Machine optimization using the currently selected configuration parameters?",
-									  MB_YESNO );
-				if (res == IDNO) {
+				auto res = QMessageBox::question (parent, "Start Opt.",
+					"Start Machine optimization using the currently selected configuration parameters?");
+				if (res == QMessageBox::No) {
 					return;
 				}
 				reset ();

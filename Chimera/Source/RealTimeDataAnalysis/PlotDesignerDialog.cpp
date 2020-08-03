@@ -198,8 +198,7 @@ void PlotDesignerDialog::handlePixelEditChange()
 }
 
 
-void PlotDesignerDialog::handleSave()
-{
+void PlotDesignerDialog::handleSave(){
 	/// Save Everything
 	// General Parameters: ////////
 	CString text;
@@ -211,53 +210,42 @@ void PlotDesignerDialog::handleSave()
 	currentPlotInfo.changeFileName( str( text ) );
 	int runningAverageCheck = runningAverage.GetCheck();
 	int variationAverageCheck = averageEachVariation.GetCheck();
-	if (variationAverageCheck == BST_CHECKED)
-	{
-		if (runningAverageCheck == BST_CHECKED)
-		{
+	if (variationAverageCheck == BST_CHECKED){
+		if (runningAverageCheck == BST_CHECKED)	{
 			errBox( "Please select only one x-axis option." );
 			return;
 		}
 		currentPlotInfo.changeXAxis( "Variation Average" );
 	}
-	else if (runningAverageCheck == BST_CHECKED)
-	{
-		if (variationAverageCheck == BST_CHECKED)
-		{
+	else if (runningAverageCheck == BST_CHECKED){
+		if (variationAverageCheck == BST_CHECKED){
 			errBox( "Please select only one x-axis option." );
 			return;
 		}
 		currentPlotInfo.changeXAxis( "Running Average" );
 	}
-	else
-	{
+	else{
 		errBox( "Please select an x-axis option." );
 		return;
 	}
 	/// get the (current) analysis pixel locations
-	try
-	{
+	try	{
 		saveDataSet( false );
 	}
-	catch ( ChimeraError& err )
-	{
+	catch ( ChimeraError& err ){
 		errBox( err.trace( ) );
 		return;
 	}
-	int result = promptBox( currentPlotInfo.getAllSettingsString() , MB_OKCANCEL );
-	if (result == IDOK)
-	{
-		try
-		{
+	auto result = QMessageBox::question (nullptr, "All settings", qstr (currentPlotInfo.getAllSettingsString ()));
+	if (result == QMessageBox::Yes)	{
+		try	{
 			currentPlotInfo.savePlotInfo( );
 		}
-		catch ( ChimeraError& err )
-		{
+		catch ( ChimeraError& err )	{
 			errBox( "ERROR while saving plot info: " + err.trace( ) );
 		}
-		result = promptBox( "Close plot creator?", MB_YESNO );
-		if (result == IDYES)
-		{
+		result = QMessageBox::question (nullptr, "Close?", "Close plot creator?");
+		if (result == QMessageBox::Yes){
 			EndDialog( 0 );
 		}
 	}
