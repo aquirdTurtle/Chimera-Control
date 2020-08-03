@@ -271,8 +271,8 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 	}
 	if ( promptMsg != "" ){
 		promptMsg += "?";
-		int result = promptBox( promptMsg, MB_YESNO );
-		if ( result == IDNO ){
+		auto result = QMessageBox::question (nullptr, "Andor Settings", qstr(promptMsg));
+		if ( result == QMessageBox::No ){
 			thrower ( "Aborting camera settings update at EM Gain update!" );
 		}
 	}

@@ -125,9 +125,10 @@ microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile){
 	unsigned numInList = 0;
 	openFile >> numInList;
 	if (numInList > 100){
-		auto res = promptBox ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
-							  " was " + str (numInList) + ". Is this acceptable?", MB_YESNO);
-		if (!res){
+		auto res = QMessageBox::question (nullptr, "Suspicious...",
+			"Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
+			" was " + qstr (numInList) + ". Is this acceptable?");
+		if (res == QMessageBox::No){
 			thrower ("Detected suspiciously large number of microwave settings in microwave list. Number of list entries"
 					 " was " + str (numInList) + ".");
 		}

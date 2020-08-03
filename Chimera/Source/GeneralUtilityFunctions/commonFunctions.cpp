@@ -87,10 +87,11 @@ namespace commonFunctions
 				AllExperimentInput input;
 				try{
 					if ( mainWin->masterIsRunning() ){
-						auto response = promptBox ( "The Master system is already running. Would you like to run the "
-													"current configuration when master finishes? This effectively "
-													"auto-presses F5 when complete and skips confirmation.", MB_YESNO );
-						if ( response == IDYES ){
+						auto response = QMessageBox::question (mainWin, "Auto-F5?",
+							"The Master system is already running. Would you like to run the "
+							"current configuration when master finishes? This effectively "
+							"auto-presses F5 when complete and skips confirmation.");
+						if ( response == QMessageBox::Yes ){
 							mainWin->autoF5_AfterFinish = true;
 						}
 						break;
@@ -562,8 +563,8 @@ namespace commonFunctions
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the NI arbitrary "
 			"waveform generator. The Andor camera temperature control will also stop, causing the Andor camera to "
 			"return to room temperature.";
-		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
-		if (areYouSure == IDOK){
+		auto areYouSure = QMessageBox::question (win, "Exit?", qstr(exitQuestion));
+		if (areYouSure == QMessageBox::Yes){
 			forceExit ( win );
 		}
 	}
@@ -576,10 +577,10 @@ namespace commonFunctions
 			thrower ( "The system is currently running. You cannot reload the default waveforms while the system is "
 					  "running. Please restart the system before attempting to reload default waveforms." );
 		}
-		int choice = promptBox("Reload the default waveforms from (presumably) updated files? Please make sure that "
-								"the updated files are syntactically correct, or else the program will crash.",
-								MB_OKCANCEL );
-		if (choice == IDCANCEL){
+		auto yesno = QMessageBox::question (mainWin, "Reload Niawg Waveforms?",
+			"Reload the default waveforms from (presumably) updated files? Please make sure that "
+			"the updated files are syntactically correct, or else the program will crash.");
+		if (yesno == QMessageBox::No){
 			return;
 		}
 		try{

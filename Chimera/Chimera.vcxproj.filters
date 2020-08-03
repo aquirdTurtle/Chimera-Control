@@ -264,9 +264,6 @@
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DigitalOutput\DoSettingsDialog.cpp">
-      <Filter>DIO</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DigitalOutput\DoSystem.cpp">
       <Filter>DIO</Filter>
     </ClCompile>
@@ -314,6 +311,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\GeneralObjects\IChimeraSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\doChannelInfoDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -688,9 +688,6 @@
     <ClInclude Include="Source\DigitalOutput\DoRows.h">
       <Filter>DIO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DigitalOutput\DoSettingsDialog.h">
-      <Filter>DIO</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DigitalOutput\DoSystem.h">
       <Filter>DIO</Filter>
     </ClInclude>
@@ -886,6 +883,9 @@
       <Filter>Auxiliary Window</Filter>
     </QtMoc>
     <QtMoc Include="Source\PrimaryWindows\IChimeraQtWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\ExcessDialogs\doChannelInfoDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -363,6 +363,7 @@
     <ClInclude Include="Source\DeformableMirror\DmOutputForm.h" />
     <ClInclude Include="Source\DeformableMirror\DmProfileCreator.h" />
     <ClInclude Include="Source\DigitalOutput\DoCore.h" />
+    <QtMoc Include="Source\ExcessDialogs\doChannelInfoDialog.h" />
     <ClInclude Include="Source\ExcessDialogs\openWithExplorer.h" />
     <ClInclude Include="Source\ExperimentThread\AllExperimentInput.h" />
     <ClInclude Include="Source\ExperimentThread\autoCalConfigInfo.h" />
@@ -641,7 +642,6 @@
     <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\LowLevel\targetver.h" />
-    <ClInclude Include="Source\DigitalOutput\DoSettingsDialog.h" />
     <ClInclude Include="Source\DigitalOutput\DoSystem.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\Thrower.h" />
     <ClInclude Include="Source\Plotting\tinyPlotInfo.h" />
@@ -671,6 +671,7 @@
     <ClCompile Include="Source\DeformableMirror\DmFlume.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmProfileCreator.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoCore.cpp" />
+    <ClCompile Include="Source\ExcessDialogs\doChannelInfoDialog.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\AlertSystem.cpp" />
     <ClCompile Include="Source\AnalogOutput\AnalogOutput.cpp" />
     <ClCompile Include="Source\Andor\AndorFlume.cpp" />
@@ -775,7 +776,6 @@
     <ClCompile Include="Source\NIAWG\NiawgWaiter.cpp" />
     <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\miscCommonFunctions.cpp" />
-    <ClCompile Include="Source\DigitalOutput\DoSettingsDialog.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoSystem.cpp" />
     <ClCompile Include="Source\LowLevel\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

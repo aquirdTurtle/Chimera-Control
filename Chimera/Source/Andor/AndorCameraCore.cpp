@@ -437,9 +437,9 @@ void AndorCameraCore::setCameraTriggerMode(){
 void AndorCameraCore::setTemperature(){
 	// Get the current temperature
 	if (runSettings.temperatureSetting < -60 || runSettings.temperatureSetting > 25){
-		int answer = promptBox( "Warning: The selected temperature is outside the \"normal\" temperature range of the "
-								"camera (-60 through 25 C). Proceed anyways?", MB_OKCANCEL );
-		if (answer == IDCANCEL){
+		auto answer = QMessageBox::question(nullptr, "Temperature Warning!", "Warning: The selected temperature is "
+			"outside the \"normal\" temperature range of the camera (-60 through 25 C). Proceed anyways?");
+		if (answer == QMessageBox::No){
 			return;
 		}
 	}

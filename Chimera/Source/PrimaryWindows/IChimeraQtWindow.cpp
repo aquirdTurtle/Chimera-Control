@@ -213,7 +213,11 @@ void IChimeraQtWindow::initializeMenu (){
 	plottingM->addAction ("Stop Plotter_X");
 	auto masterSystemsM = menubar->addMenu ("Master Systems");
 	masterSystemsM->addAction ("Round DAC Values to DAC's Precision_X");
-	masterSystemsM->addAction ("View or Change Individaul TTL Settings_X");
+
+	auto* changeIndvDo = new QAction ("View or Change Individual Digital Output Settings", this);
+	connect (changeIndvDo, &QAction::triggered, [this, cmnMsg]() {auxWin->ViewOrChangeTTLNames(); });
+	masterSystemsM->addAction (changeIndvDo);
+
 	masterSystemsM->addAction ("View or Change Individual DAC Settings_X");
 	auto helpM = menubar->addMenu ("Help");
 	helpM->addAction ("General Information_X");

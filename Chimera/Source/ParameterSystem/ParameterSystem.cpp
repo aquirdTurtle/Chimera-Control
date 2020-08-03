@@ -189,9 +189,10 @@ std::vector<parameterType> ParameterSystem::getParametersFromFile( ConfigStream&
 	unsigned variableNumber;
 	configFile >> variableNumber;
 	if ( variableNumber > 100 ){
-		int answer = promptBox( "variable number retrieved from file appears suspicious. The number is "
-								+ str( variableNumber ) + ". Is this accurate?", MB_YESNO );
-		if ( answer == IDNO ){
+		auto answer = QMessageBox::question (nullptr, "Suspicious Value...",
+			"variable number retrieved from file appears suspicious. The number is "
+			+ qstr (variableNumber) + ". Is this accurate?");
+		if ( answer == QMessageBox::No ){
 			// don't try to load anything.
 			variableNumber = 0;
 		}
