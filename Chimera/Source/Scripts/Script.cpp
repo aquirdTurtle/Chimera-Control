@@ -40,7 +40,6 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 		thrower (": Device input type not recognized during construction of script control.  (A low level bug, "
 			"this shouldn't happen)");
 	}
-	// title
 	if (scriptHeader != "")	{
 		title = new QLabel (cstr (scriptHeader), parent);
 		title->setGeometry (loc.x, loc.y, width, 25);
@@ -88,7 +87,15 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 
 	edit = new CQTextEdit ("", parent);
 	edit->setGeometry (loc.x, loc.y, width, height);
-	edit->setStyleSheet ("font: bold 11pt \"Courier New\"");
+	edit->setAcceptRichText (false);
+	QFont font;
+	font.setFamily ("Courier");
+	font.setStyleHint (QFont::Monospace);
+	font.setFixedPitch (true);
+	font.setPointSize (10);
+	edit->setFont (font);
+	edit->setTabStopDistance (40);
+
 	parent->connect (edit, &QTextEdit::textChanged, [this, parent]() { updateSavedStatus (false); });
 	highlighter = new SyntaxHighlighter (devenum, edit->document ());
 	loc.y += height;

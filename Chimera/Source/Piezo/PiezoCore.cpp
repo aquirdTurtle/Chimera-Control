@@ -17,7 +17,7 @@ void PiezoCore::programAll ( piezoChan<double> vals ){
 	programZNow ( vals.z );
 }
 
-void PiezoCore::programVariation ( unsigned variationNumber, std::vector<parameterType>& params){
+void PiezoCore::programVariation ( unsigned variationNumber, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	if (experimentActive){
 		programXNow (expSettings.pztValues.x.getValue (variationNumber));
 		programYNow (expSettings.pztValues.y.getValue (variationNumber));
@@ -130,7 +130,7 @@ std::string PiezoCore::getDeviceList ( ){
 	return flume.list ( );
 }
 
-void PiezoCore::logSettings (DataLogger& log){
+void PiezoCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 }
 
 void PiezoCore::loadExpSettings (ConfigStream& stream){

@@ -52,7 +52,7 @@ class ExpThreadWorker : public QObject {
 			std::string scope, std::string& warnings);
 		static bool handleVectorizedValsDeclaration (std::string word, ScriptStream& stream,
 			std::vector<vectorizedNiawgVals>& constVecs, std::string& warnings);
-		unsigned int __stdcall experimentThreadProcedure ();
+		void experimentThreadProcedure ();
 		void analyzeFunctionDefinition (std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static unsigned determineVariationNumber (std::vector<parameterType> vars);
 		void handleDebugPlots (debugInfo debugOptions, DoCore& ttls, AoSystem& aoSys,
@@ -98,7 +98,6 @@ class ExpThreadWorker : public QObject {
         void updateBoxColor (QString, QString);
         void notification (QString msg, unsigned debugLvl=0);
         void warn (QString msg, unsigned debugLvl=1);
-        //void debugInfo (QString msg);
         void repUpdate (unsigned int);
         void prepareAndor (void*);
         void prepareBasler (baslerSettings* settings);
@@ -114,6 +113,5 @@ class ExpThreadWorker : public QObject {
     private:
         // add your variables here
 		std::unique_ptr< ExperimentThreadInput > input;
-        //ExperimentThreadInput* inputr;
 };
 

@@ -64,6 +64,7 @@ class AndorCameraSettingsControl{
 
 		const imageParameters fullResolution = { 1,512,1,512,1,1 };
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
+		Qt::TransformationMode getTransformationMode ();
 	private:
 		double getKineticCycleTime( );
 		double getAccumulationCycleTime( );

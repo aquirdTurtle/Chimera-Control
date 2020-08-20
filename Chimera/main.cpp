@@ -3,8 +3,11 @@
 #include <PrimaryWindows/QtMainWindow.h>
 #include <qsplashscreen.h>
 #include <qscreen.h>
+
 int main (int argc, char** argv) {
+
 	QApplication app (argc, argv);
+
 	QPixmap pixmap ("C:\\Users\\Regal-Lab\\Code\\Chimera-Control\\Chimera\\Source\\Shades_Of_Infrared.bmp");
 	QSplashScreen splash (pixmap.scaledToHeight (qApp->screens ()[0]->geometry ().height ()));
 	splash.showFullScreen ();
@@ -15,6 +18,7 @@ int main (int argc, char** argv) {
 			"experiment!\r\n");
 		return -10000;
 	}
+
 	qRegisterMetaType<Matrix<long>> ();
 	qRegisterMetaType<QVector<double>> ();
 	qRegisterMetaType<std::vector<double>> ();

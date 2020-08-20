@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "CustomMfcControlWrappers/functionCombo.h"
+#include "CustomQtControls/functionCombo.h"
 #include "ParameterSystem/ParameterSystemStructures.h"
 #include "Control.h"
 #include "afxwin.h"

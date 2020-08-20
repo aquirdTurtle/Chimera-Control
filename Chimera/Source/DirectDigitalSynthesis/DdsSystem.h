@@ -7,7 +7,7 @@
 #include "ConfigurationSystems/Version.h"
 #include "GeneralFlumes/ftdiFlume.h"
 #include "ParameterSystem/Expression.h"
-#include "CustomMfcControlWrappers/functionCombo.h"
+#include "CustomQtControls/functionCombo.h"
 #include "DirectDigitalSynthesis/DdsSystemStructures.h"
 #include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralObjects/ExpWrap.h"

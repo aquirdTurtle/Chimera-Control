@@ -2,12 +2,12 @@
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include <DataLogging/DataLogger.h>
+#include <ExperimentThread/ExpThreadWorker.h>
 #include "MicrowaveCore.h"
-
 
 MicrowaveCore::MicrowaveCore() : uwFlume(UW_SYSTEM_ADDRESS, UW_SYSTEM_SAFEMODE){}
 
-void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<parameterType>& params){
+void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	if (!experimentActive) { return; }
 	if (!experimentSettings.control || experimentSettings.list.size () == 0)	{
 		// Nothing to program.
@@ -23,8 +23,10 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 		}
 	}
 	catch (ChimeraError&)	{
+		// I don't think this really happens much anymore, have fixed some small bugs in windfreak programming which
+		// were probably causing this. 
+		emit threadworker->warn ("Failed to program windfreak first time! Trying again...");
 		// should probably emit a warning here. 
-		// errBox ("First attempt to program uw system failed! Will try again. Uw system says: " + uwFlume.read ());
 		try	{
 			// something in the windfreak seems to need flushing at this point.
 			try {
@@ -50,9 +52,10 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 			throwNested ("Failed to program Windfreak!");
 		}
 	}
+	emit threadworker->notification ("Windfreak list setting programmed: " + qstr (getCurrentList ()), 1);
 }
 
-void MicrowaveCore::logSettings (DataLogger& log){
+void MicrowaveCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 	try {
 		H5::Group microwaveGroup;
 		try {
@@ -89,11 +92,7 @@ void MicrowaveCore::setPmSettings (){
 }
 
 void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
-	calculateVariations (params);
-}
-
-void MicrowaveCore::calculateVariations (std::vector<parameterType>& params){
-	if (!experimentSettings.control)	{
+	if (!experimentSettings.control) {
 		return;
 	}
 	unsigned variations;
@@ -106,6 +105,9 @@ void MicrowaveCore::calculateVariations (std::vector<parameterType>& params){
 	for (auto freqInc : range(experimentSettings.list.size())){
 		experimentSettings.list[freqInc].frequency.internalEvaluate (params, variations);
 		experimentSettings.list[freqInc].power.internalEvaluate (params, variations);
+	}
+	if (threadworker != NULL) {
+		emit threadworker->notification (qstr ("Microwave List Setting: " + getCurrentList ()), 1);
 	}
 }
 
@@ -147,4 +149,8 @@ microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile){
 void MicrowaveCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, experimentSettings);
 	experimentActive = experimentSettings.control;
+}
+
+std::string MicrowaveCore::getCurrentList () {
+	return uwFlume.getListString ();
 }

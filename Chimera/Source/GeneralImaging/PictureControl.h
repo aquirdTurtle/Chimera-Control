@@ -3,7 +3,7 @@
 #include "GeneralImaging/imageParameters.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "Plotting/PlotCtrl.h"
-#include "CustomMfcControlWrappers/LongCSlider.h"
+#include "CustomQtControls/LongCSlider.h"
 #include "softwareAccumulationOption.h"
 #include <GeneralObjects/Matrix.h>
 #include "QPixmap.h"
@@ -53,8 +53,9 @@ class PictureControl : public QWidget{
 		void drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
 						  std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers=true);
 		coordinate selectedLocation;
+		void setTransformationMode (Qt::TransformationMode);
 	private:
-		const Qt::TransformationMode transformationMode;
+		Qt::TransformationMode transformationMode;
 		Ui::PictureControl* ui;
 		int picScaleFactor;
 		softwareAccumulationOption saOption;

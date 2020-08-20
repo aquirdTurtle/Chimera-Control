@@ -7,12 +7,10 @@ VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemo
 { }
 
 /// 
-void VisaFlume::write( std::string message )
-{
+void VisaFlume::write( std::string message ) {
 	// not sure what this is for. Perhaps actual number of characters sent, or something like that.
 	unsigned long actual;
-	if (!deviceSafemode)
-	{
+	if (!deviceSafemode) {
 		errCheck( viWrite( instrument, (unsigned char*)message.c_str(), (ViUInt32)message.size(), &actual ), message );
 	}
 }
@@ -51,10 +49,8 @@ void VisaFlume::open()
 }
 
 
-void VisaFlume::setAttribute( ViAttr attributeName, ViAttrState value )
-{
-	if (!deviceSafemode)
-	{
+void VisaFlume::setAttribute( ViAttr attributeName, ViAttrState value ){
+	if (!deviceSafemode){
 		errCheck( viSetAttribute( instrument, attributeName, value ) );
 	}
 }
@@ -75,8 +71,7 @@ std::string VisaFlume::identityQuery()
 }
 
 
-char VisaFlume::scan( )
-{
+char VisaFlume::scan( ){
 	ViChar c[256];
 	errCheck(viScanf( instrument, "%5t", c ));
 	return c[0];

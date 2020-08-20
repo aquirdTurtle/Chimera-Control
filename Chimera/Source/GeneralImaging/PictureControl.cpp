@@ -631,5 +631,9 @@ void PictureControl::drawDongles (QPainter& painter, std::vector<coordinate> ana
 	painter.setPen (Qt::red);
 	drawCircle (selectedLocation, painter);
 }
-
+ 
+ 
+void PictureControl::setTransformationMode (Qt::TransformationMode mode) {
+	transformationMode = mode;
+}
 

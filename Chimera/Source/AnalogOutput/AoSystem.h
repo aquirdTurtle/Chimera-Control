@@ -43,10 +43,9 @@ class AoSystem : public IChimeraSystem {
 		// configs
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile);
-		// macros
+
 		void forceDacs( DoCore& ttls, DoSnapshot initSnap);
 		void zeroDacs( DoCore& ttls, DoSnapshot initSnap);
-		// Setting system settings, mostly non-crucial functionality.
 		void resetDacs (unsigned varInc, bool skipOption);
 		void handleRoundToDac( );
 		void updateEdits( );

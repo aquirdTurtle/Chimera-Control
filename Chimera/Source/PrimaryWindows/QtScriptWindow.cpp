@@ -530,7 +530,7 @@ void QtScriptWindow::passNiawgIsOnPress (){
 }
 
 std::string QtScriptWindow::getNiawgErr (){
-	return niawg.core.fgenFlume.getErrorMsg ();
+	return niawg.core.fgenFlume.getErrorMsg (-1);
 }
 
 void QtScriptWindow::passRerngModeComboChange (){

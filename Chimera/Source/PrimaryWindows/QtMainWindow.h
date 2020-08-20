@@ -69,7 +69,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		debugInfo getDebuggingOptions ();
 		mainOptions getMainOptions ();
 
-		void checkProfileReady ();
 		void checkProfileSave ();
 		void updateConfigurationSavedStatus (bool status);
 
@@ -90,8 +89,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		void logParams (DataLogger* logger, ExperimentThreadInput* input);
 		bool experimentIsPaused ();
 		void notifyConfigUpdate ();
-
-		void OnTimer (UINT_PTR id);
 
 		void runServos ();
 		std::vector<servoInfo> getServoinfo ();

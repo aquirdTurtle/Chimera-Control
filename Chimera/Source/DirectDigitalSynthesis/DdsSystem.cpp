@@ -97,7 +97,7 @@ void DdsSystem::programNow ( std::vector<parameterType>& constants ){
 		simpleExp = currentRamps;
 		core.evaluateDdsInfo ( );
 		core.generateFullExpInfo ( 1 );
-		core.programVariation ( 0, constants);
+		core.programVariation ( 0, constants, nullptr);
 	}
 	catch ( ChimeraError& ){
 		throwNested ( "Error seen while programming DDS system via Program Now Button." );

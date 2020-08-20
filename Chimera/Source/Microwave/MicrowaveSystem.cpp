@@ -36,13 +36,13 @@ void MicrowaveSystem::handleContextMenu (const QPoint& pos){
  */
 void MicrowaveSystem::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	header = new QLabel ("MICROWAVE SYSTEM", parent);
-	header->setGeometry (pos.x, pos.y, 480, 25);
+	header->setGeometry (pos.x, pos.y, 240, 25);
 	
 	controlOptionCheck = new QCheckBox ("Control?", parent);
-	controlOptionCheck->setGeometry (pos.x, pos.y += 25, 240, 20);
+	controlOptionCheck->setGeometry (pos.x+240, pos.y, 120, 20);
 
 	programNowPush = new QPushButton ("Program Now", parent);
-	programNowPush->setGeometry (pos.x + 240, pos.y, 240, 20);
+	programNowPush->setGeometry (pos.x + 360, pos.y, 120, 20);
 	parent->connect (programNowPush, &QPushButton::released, [this, parent]() {
 		try	{
 			programNow (parent->auxWin->getUsableConstants ());
@@ -108,8 +108,8 @@ void MicrowaveSystem::programNow(std::vector<parameterType> constants){
 	settings.control = true;
 	settings.list = currentList;
 	std::string warnings;
-	core.calculateVariations (constants);
-	core.programVariation (0, constants);
+	core.calculateVariations (constants, nullptr);
+	core.programVariation (0, constants, nullptr);
 }
 
 

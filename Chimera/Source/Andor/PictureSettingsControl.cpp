@@ -4,15 +4,14 @@
 #include "PictureSettingsControl.h"
 
 #include "Andor/AndorCameraCore.h"
-#include "Andor/CameraSettingsControl.h"
+#include "Andor/AndorCameraSettingsControl.h"
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
 
-void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent )
-{
+void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	// introducing things row by row
 	/// Set Picture Options
 	unsigned count = 0;
@@ -27,9 +26,15 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent )
 			parent->reportErr (err.qtrace());
 		}
 	};
+	transformationModeCombo = new CQComboBox (parent);
+	transformationModeCombo->setGeometry (pos.x, pos.y, 480, 20);
+	transformationModeCombo->addItems ({ "Fast", "Smooth" });
+	parent->connect (transformationModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
+		parent->andorWin, &QtAndorWindow::handleTransformationModeChange);
+
 	/// Picture Numbers
 	pictureLabel = new QLabel ("Picture #:", parent);
-	pictureLabel->setGeometry (pos.x, pos.y, 100, 20);
+	pictureLabel->setGeometry (pos.x, pos.y += 20, 100, 20);
 	for ( auto picInc : range(4) ) {
 		pictureNumbers[picInc] = new QLabel (cstr (picInc + 1), parent);
 		pictureNumbers[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
@@ -67,8 +72,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent )
 	/// colormaps
 	colormapLabel = new QLabel ("Colormap", parent);
 	colormapLabel->setGeometry (pos.x, pos.y += 20,100, 25);
-	for ( auto picInc : range(4) )
-	{
+	for ( auto picInc : range(4) ){
 		colormapCombos[picInc] = new CQComboBox (parent);
 		colormapCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
 		colormapCombos[picInc]->addItems ({ "Dark Viridis","Inferno","Black & White", "Red-Black-Blue" });
@@ -135,7 +139,9 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings(){
 }
 
 void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
-	saveFile << "PICTURE_SETTINGS\n/*Color Options:*/ ";
+	saveFile << "PICTURE_SETTINGS\n";
+	saveFile << "/*Transformation Mode:*/ " << str (transformationModeCombo->currentText ());
+	saveFile << "\n/*Color Options:*/ ";
 	for (auto color : settings.colors){
 		saveFile << color << " ";
 	}
@@ -152,6 +158,13 @@ void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 
 andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (ConfigStream& configFile ){
 	andorPicSettingsGroup fileSettings;
+	if (configFile.ver >= Version ("5.5")) {
+		std::string transformationMode;
+		configFile >> fileSettings.tMode;
+	}
+	else {
+		fileSettings.tMode = "Fast";
+	}
 	if ( configFile.ver <= Version ( "4.7" ) ){
 		int oldPicsPerRepTrash = 0;
 		configFile >> oldPicsPerRepTrash;
@@ -313,6 +326,12 @@ void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSett
 	updateColormaps ( inputSettings.colors );
 	setThresholds ( inputSettings.thresholdStrs );
 	setSoftwareAccumulationOptions ( inputSettings.saOpts );
+	if (inputSettings.tMode == "Fast") {
+		transformationModeCombo->setCurrentIndex (0);
+	}
+	else {
+		transformationModeCombo->setCurrentIndex (1);
+	}
 }
 
 /**/
@@ -359,3 +378,14 @@ void PictureSettingsControl::updateSettings( )
 		settings.colors[colorInc] = colormapCombos[colorInc]->currentIndex();
 	}
 }
+
+
+Qt::TransformationMode PictureSettingsControl::getTransformationMode (){
+	if (transformationModeCombo->currentText () == "Fast") {
+		return Qt::TransformationMode::FastTransformation;
+	}
+	else {
+		return Qt::TransformationMode::SmoothTransformation;
+	}
+}
+

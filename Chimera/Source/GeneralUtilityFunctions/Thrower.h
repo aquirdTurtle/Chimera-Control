@@ -59,12 +59,11 @@ class ChimeraError : public std::runtime_error{
 		std::string loc;
 };
 
-
 // the following gives any throw call file and line information.
 // throw_with_nested makes it possible to chain thrower calls and get a full error stack traceback
 
 // use this if not throwing from inside a catch().
 #define thrower(arg) throw ChimeraError(arg, __FILE__, __LINE__) 
 
-// use this if throwing inside a catch.
+// use this ONLY if throwing inside a catch. If throwing outside a catch the program might crash. 
 #define throwNested(arg) std::throw_with_nested( ChimeraError(arg, __FILE__, __LINE__))

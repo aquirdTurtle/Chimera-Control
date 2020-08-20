@@ -17,7 +17,7 @@ TekCore::~TekCore (){
 	visaFlume.close ();
 }
 
-void TekCore::programVariation (unsigned variation, std::vector<parameterType>& params){
+void TekCore::programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	if (experimentActive){
 		if (experimentInfo.channels[0].control || experimentInfo.channels[1].control){
 			for (auto channelInc : range (experimentInfo.channels.size ())){
@@ -25,6 +25,7 @@ void TekCore::programVariation (unsigned variation, std::vector<parameterType>& 
 				auto ch_s = str (channelInc + 1);
 				if (channel.control){
 					if (channel.on){
+						// SCPI 
 						visaFlume.write ("SOURCE" + ch_s + ":FREQ " + str (channel.mainFreq.getValue (variation)));
 						visaFlume.write ("SOURCE" + ch_s + ":VOLT:UNIT DBM");
 						visaFlume.write ("SOURCE" + ch_s + ":VOLT " + str (channel.power.getValue (variation)));
@@ -61,7 +62,8 @@ std::string TekCore::queryIdentity (){
 void TekCore::calculateVariations (std::vector<parameterType>& parameters, ExpThreadWorker* threadworker){
 	calculateVariations (parameters);
 }
-void TekCore::calculateVariations (std::vector<parameterType>& parameters){
+
+void TekCore::calculateVariations (std::vector<parameterType>& parameters) {
 	if (experimentActive){
 		unsigned variations = (parameters.size() == 0 ? 1 : parameters.front ().keyValues.size ());
 		for (auto& channel : experimentInfo.channels){
@@ -89,7 +91,7 @@ tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile){
 	return tekInfo;
 }
 
-void TekCore::logSettings (DataLogger& log){
+void TekCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 	try{
 		H5::Group tektronixGroup;
 		try	{

@@ -377,7 +377,7 @@ int64_t BaslerCameraCore::Adjust( int64_t val, int64_t minimum, int64_t maximum,
 	}
 }
 
-void BaslerCameraCore::logSettings (DataLogger& log){
+void BaslerCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 	try{
 		if (!experimentActive){
 			H5::Group baslerGroup (log.file.createGroup ("/Basler:Off"));

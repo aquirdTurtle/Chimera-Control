@@ -1370,3 +1370,11 @@ void PictureManager::createPalettes( ){
 	palettes[3] = CreatePalette( (LOGPALETTE *)&Palette );
 	*/
 }
+
+
+void PictureManager::setTransformationMode (Qt::TransformationMode mode) {
+	for (auto& pic : pictures) {
+		pic.setTransformationMode (mode);
+	}
+}
+

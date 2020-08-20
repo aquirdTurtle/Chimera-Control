@@ -50,11 +50,11 @@ class AiSystem : public IDeviceCore{
 		void handleSaveConfig (ConfigStream& file);
 		const std::string configDelim{ "AI-SYSTEM" };
 		std::string getDelim () { return configDelim; }
-		void programVariation (unsigned variation, std::vector<parameterType>& params) {};
+		void programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void loadExpSettings (ConfigStream& stream) {};
 
-		void logSettings (DataLogger& log);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void normalFinish () {};
 		void errorFinish () {};
 	private:

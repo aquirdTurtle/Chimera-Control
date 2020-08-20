@@ -80,6 +80,9 @@ void AiSystem::initialize (POINT& loc, IChimeraQtWindow* parent) {
 		}
 		label = new QLabel (cstr (dacInc), parent);
 		label->setGeometry (loc.x + collumnInc * colSize, loc.y, 20, 20);
+		QFont font = label->font ();
+		font.setUnderline (true);
+		label->setFont (font);
 		loc.y += 20;
 	}
 }
@@ -215,5 +218,5 @@ std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( unsigned n
 	return retData;
 }
 
-void AiSystem::logSettings (DataLogger& log){
+void AiSystem::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 }

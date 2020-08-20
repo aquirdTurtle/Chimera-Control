@@ -130,8 +130,9 @@ void QtAuxiliaryWindow::initializeWidgets (){
 			ttlPlots[ttlPltCount]->init (loc, 480, ttlPlotSize, this);
 		}
 	}
-	catch (ChimeraError&){
-		throwNested ("FATAL ERROR: Failed to initialize Auxiliary window properly!");
+	catch (ChimeraError& err){
+		errBox ("Failed to initialize auxiliary window properly! Trace: " + err.trace ());
+		//throwNested ("FATAL ERROR: Failed to initialize Auxiliary window properly!");
 	}
 }
 

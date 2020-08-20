@@ -49,6 +49,10 @@ void StatusControl::addStatusText (std::string text, unsigned level){
 		return;
 	}
 	if (currentLevel >= level) {
+		for (auto lvl : range (level)) {
+			// visual indication of what level a message is.
+			text = "> " + text;
+		}
 		if (level >= colors.size ()) {
 			addStatusText (text, colors.back ());
 		}

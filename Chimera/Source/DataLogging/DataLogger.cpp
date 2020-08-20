@@ -174,6 +174,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 
  	try	{
 		normalCloseFile ( );
+		assertClosed ();
  		// create the file. H5F_ACC_TRUNC means it will overwrite files with the same name.
 		file = H5::H5File( cstr( dataFilesBaseLocation + finalSaveFolder + finalSaveFileName ), H5F_ACC_TRUNC );
 		fileIsOpen = true;
@@ -447,7 +448,18 @@ void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims){
 	hsize_t slabdim[3] = { 1, dims.width(), dims.height() };
 	try{
 		if (AndorPicureSetDataSpace.getId () == -1) {
-			thrower ("Invalid datapspace ID?");
+			hsize_t dims[3];
+			auto fn = file.getFileName ();
+			try {
+				H5Sget_simple_extent_dims (AndorPicureSetDataSpace.getId (), dims, NULL);
+			}
+			catch (H5::Exception &) {
+				throwNested ("Failed to write andor pic data to HDF5 file! Filename: \"" + fn + "\", currentAndorPicNumber: "
+					+ str (currentAndorPicNumber) + ", FAILED to get dims! Should be valid: " + str(andorDataSetShouldBeValid ));
+			}
+			thrower ("Invalid datapspace ID? Failed to write andor pic data to HDF5 file! Filename: \"" + fn + "\", currentAndorPicNumber: "
+				+ str (currentAndorPicNumber) + ", dims: " + str (dims[0]) + "," + str (dims[1]) + "," + str (dims[2])+
+				"Should be valid : " + str(andorDataSetShouldBeValid ));
 		}
 		AndorPicureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
 		AndorPictureDataset.write( image.data.data(), H5::PredType::NATIVE_LONG, AndorPicDataSpace, AndorPicureSetDataSpace );
@@ -455,18 +467,9 @@ void DataLogger::writeAndorPic( Matrix<long> image, imageParameters dims){
 	catch (H5::Exception& err){
 		auto fullE = getFullError (err);
 		auto fn = file.getFileName ();
-		hsize_t dims[3];
-		try {
-			H5Sget_simple_extent_dims (AndorPicureSetDataSpace.getId (), dims, NULL);
-		}
-		catch (H5::Exception & err2) {
-			throwNested ("Failed to write andor pic data to HDF5 file! Filename: \"" + fn + "\", currentAndorPicNumber: "
-				+ str (currentAndorPicNumber) + ", Error: " + str (err.getDetailMsg ()) + "\n""; Full error:"
-				+ fullE + ", FAILED to get dims! ");
-		}
 		throwNested ( "Failed to write andor pic data to HDF5 file! Filename: \""+ fn + "\", currentAndorPicNumber: " 
 					  + str(currentAndorPicNumber) + ", Error: " + str(err.getDetailMsg()) + "\n""; Full error:" 
-			+ fullE + ", dims: " + str(dims[0]) + "," + str(dims[1]) + "," + str(dims[2]));
+			+ fullE);
 	}
 }
 
@@ -568,7 +571,9 @@ void DataLogger::assertClosed () {
 	voltsDataSpace.close ();
 	voltsDataSet.close ();
 	file.close ();
+	andorDataSetShouldBeValid = false;
 	fileIsOpen = false;
+	emit notification ("Closing HDF5 File and associated structures.\n", 0);
 }
 
 void DataLogger::normalCloseFile(){

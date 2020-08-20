@@ -1,0 +1,69 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var spacing 5
+
+var_v 2 linRamps [ lin lin ]  
+var_v 2 freqs [ 69 81 ]
+var_v 2 finFreqs [ (75-spacing/2) (75+spacing/2) ]  
+var_v 2 amps [ 0.61 0.39 ]
+var_v 2 finAmps [ tunnelbias (1-tunnelbias) ] 
+var_v 2 phases [ 0 0 ]
+var_v 2 contPhases [ -1 -1 ]
+
+repeatTilTrig
+gen2const_v Horizontal
+freqs amps phases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezers
+#
+0.01 0
+endRepeat
+
+gen2AmpRamp_v Horizontal 
+freqs linRamps amps finAmps phases #
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezers
+#
+1 0
+
+gen2FreqRamp_v Horizontal 
+linRamps freqs finFreqs finAmps phases #
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezers
+#
+5 0
+
+repeatTilTrig
+gen2const_v Horizontal
+finFreqs finAmps contPhases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezers
+#
+0.1 0
+endRepeat
+
+gen2FreqRamp_v
+Horizontal 
+linRamps finFreqs freqs finAmps contPhases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezers
+#
+5 0
+
+repeatTilTrig
+gen2const_v Horizontal
+freqs finAmps contPhases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezers
+#
+0.01 0
+endRepeat
+

@@ -26,7 +26,7 @@ class PiezoCore : public IDeviceCore
 		void initialize (  );
 		std::string getDeviceInfo ( );
 		std::string getDeviceList ( );
-		void programVariation ( unsigned variationNumber, std::vector<parameterType>& params);
+		void programVariation ( unsigned variationNumber, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		piezoSettings getSettingsFromConfig (ConfigStream& file );
 		void programAll ( piezoChan<double> vals );
 		double getCurrentXVolt ( );
@@ -38,7 +38,7 @@ class PiezoCore : public IDeviceCore
 		void calculateVariations ( std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		const std::string configDelim;
 		std::string getDelim () { return configDelim; }
-		void logSettings (DataLogger& log);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void loadExpSettings (ConfigStream& stream);
 		void normalFinish () {};
 		void errorFinish () {};

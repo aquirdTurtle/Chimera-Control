@@ -370,7 +370,6 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 		reportErr (qstr (err.trace ()));
 		mainWin->pauseExperiment ();
 	}
-
 	// write the data to the file.
 	if (curSettings.acquisitionMode != AndorRunModes::mode::Video){
 		try	{
@@ -380,12 +379,12 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 									   curSettings.imageSettings);
 		}
 		catch (ChimeraError& err){
-			reportErr (qstr (err.trace ()));
+			reportErr (err.qtrace ());
 			try {
 				mainWin->pauseExperiment ();
 			}
-			catch (ChimeraError & err) {
-				reportErr (qstr (err.trace ()));
+			catch (ChimeraError & err2) {
+				reportErr (err2.qtrace ());
 			}
 		}
 	}
@@ -539,25 +538,26 @@ void QtAndorWindow::armCameraWindow (AndorRunSettings* settings){
 	andorSettingsCtrl.setRepsPerVariation (settings->repetitionsPerVariation);
 	andorSettingsCtrl.setVariationNumber (settings->totalVariations);
 	pics.setSoftwareAccumulationOptions (andorSettingsCtrl.getSoftwareAccumulationOptions ());
+	try {
+		andor.preparationChecks ();
+	}
+	catch (ChimeraError & err) {
+		reportErr (err.qtrace ());
+	}
 	// turn some buttons off.
 	andorSettingsCtrl.cameraIsOn (true);
 	stats.reset ();
 	analysisHandler.updateDataSetNumberEdit (dataHandler.getNextFileNumber () - 1);
 }
 
-
 bool QtAndorWindow::getCameraStatus (){
 	return andor.isRunning ();
 }
-
 
 void QtAndorWindow::stopSound (){
 	alerts.stopSound ();
 }
 
-/*
- *
- */
 void QtAndorWindow::passSetTemperaturePress (){
 	try{
 		if (andor.isRunning ()){
@@ -573,37 +573,6 @@ void QtAndorWindow::passSetTemperaturePress (){
 		reportErr (qstr (err.trace ()));
 	}
 	mainWin->updateConfigurationSavedStatus (false);
-}
-
-
-/*
- *
- */
-void QtAndorWindow::OnTimer (UINT_PTR id){
-	// temperature checking
-	if (id == 1){
-		// auto run calibrations.
-		if (AUTO_CALIBRATE && !mainWin->masterIsRunning ()){
-			// check that it's past 5AM, don't want to interrupt late night progress. 
-			std::time_t time = std::time (0);
-			std::tm now;
-			::localtime_s (&now, &time);
-			if (now.tm_hour > 5){
-				try{
-					dataHandler.assertCalibrationFilesExist ();
-				}
-				catch (ChimeraError&) {
-					// files don't exist, run calibration. 
-					try	{
-						commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
-					}
-					catch (ChimeraError& err){
-						reportErr (qstr ("Failed to automatically start calibrations!" + err.trace ()));
-					}
-				}
-			}
-		}
-	}
 }
 
 void QtAndorWindow::assertDataFileClosed () {
@@ -1163,4 +1132,9 @@ void QtAndorWindow::handleBumpAnalysis (profileSettings finishedProfile) {
 			reportErr ("Bump Analysis Failed! " + err.qtrace ());
 		}
 	}
+}
+
+void QtAndorWindow::handleTransformationModeChange () {
+	auto mode = andorSettingsCtrl.getTransformationMode ();
+	pics.setTransformationMode (mode);
 }

@@ -53,7 +53,7 @@ void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 }
 
 
-void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterType>& params)
+void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	clearDdsRampMemory ( );
 	auto& thisExpFullRampList = fullExpInfo ( variationNum );
@@ -398,7 +398,7 @@ void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, Con
 	}
 }
 
-void DdsCore::logSettings (DataLogger& log){
+void DdsCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 }
 
 void DdsCore::loadExpSettings (ConfigStream& stream){

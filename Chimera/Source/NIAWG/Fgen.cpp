@@ -7,9 +7,11 @@ FgenFlume::FgenFlume( bool safemodeOption ) : safemode(safemodeOption)
 {}
 
 
-std::string FgenFlume::getErrorMsg(){
+std::string FgenFlume::getErrorMsg(ViStatus errCode){
 	if (sessionHandle == 0) {
-		return "NIAWG Session handle was null?!?!";
+		std::vector<ViChar> msg (1024);
+		auto res = niFgen_error_message (VI_NULL, errCode, msg.data ());
+		return "NIAWG Session handle was null?!?! Error message: " + std::string(msg.begin(), msg.end());
 	}
 	ViStatus errorStat;
 	ViChar* errMsg;
@@ -319,8 +321,8 @@ void FgenFlume::configureOutputMode(){
 	}
 }
 
-void FgenFlume::errChecker( int err ){
+void FgenFlume::errChecker( signed long err ){
 	if (err < 0){
-		thrower ( "NIAWG Error: " + getErrorMsg() + "\r\n");
+		thrower ( "NIAWG Error: " + getErrorMsg(err) + "\r\n");
 	}
 }
