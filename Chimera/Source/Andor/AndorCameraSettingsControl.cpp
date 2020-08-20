@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 
-#include "CameraSettingsControl.h"
+#include "AndorCameraSettingsControl.h"
 
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
@@ -554,3 +554,6 @@ std::vector<Matrix<long>> AndorCameraSettingsControl::getImagesToDraw ( const st
 	return imagesToDraw;
 }
 
+Qt::TransformationMode AndorCameraSettingsControl::getTransformationMode (){
+	return picSettingsObj.getTransformationMode();
+}

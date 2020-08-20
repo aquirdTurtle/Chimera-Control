@@ -10,5 +10,6 @@ struct andorPicSettingsGroup{
 	std::array<std::string, 4> thresholdStrs;
 	std::array<std::vector<int>, 4> thresholds;
 	std::array<softwareAccumulationOption, 4> saOpts;
+	std::string tMode;
 };
 

@@ -114,12 +114,6 @@
     <ClCompile Include="Source\CustomMfcControlWrappers\DoubleEdit.cpp">
       <Filter>Custom-Controls</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\CustomMfcControlWrappers\functionCombo.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
@@ -157,9 +151,6 @@
       <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp">
-      <Filter>Andor Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Andor\CameraSettingsControl.cpp">
       <Filter>Andor Window</Filter>
     </ClCompile>
     <ClCompile Include="Source\ConfigurationSystems\ProfileIndicator.cpp">
@@ -316,6 +307,18 @@
     <ClCompile Include="Source\ExcessDialogs\doChannelInfoDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CustomQtControls\functionCombo.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CustomQtControls\LongCSlider.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GeneralFlumes\QtSerialFlume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Andor\AndorCameraSettingsControl.cpp">
+      <Filter>Andor Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -461,14 +464,8 @@
     <ClInclude Include="Source\CustomMfcControlWrappers\DoubleEdit.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\LongCSlider.h">
-      <Filter>Custom-Controls</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Plotting\dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\functionCombo.h">
-      <Filter>Custom-Controls</Filter>
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
@@ -514,9 +511,6 @@
     </ClInclude>
     <ClInclude Include="Source\Andor\cameraPositions.h">
       <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Andor\CameraSettingsControl.h">
-      <Filter>Andor Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h">
       <Filter>General Files</Filter>
@@ -723,6 +717,18 @@
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\analysisSettings.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomQtControls\functionCombo.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomQtControls\LongCSlider.h">
+      <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GeneralFlumes\QtSerialFlume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Andor\AndorCameraSettingsControl.h">
+      <Filter>Andor Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

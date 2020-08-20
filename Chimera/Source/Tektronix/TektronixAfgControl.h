@@ -15,16 +15,30 @@
 #include <QLabel.h>
 #include "QPushButton.h"
 
+// QtWindow (e.g. QtMainWindow, QtAndorWindow)
 
-class TektronixAfgControl
-{
+// IChimeraSystem ("System" class)
+// - responsible for gui stuff
+
+// IDeviceCore ("Core" class)
+// - actual programming
+
+// "Flume" class 
+//	- safemode
+//	- errors
+
+
+// "System class" but doesn't inherit from IChimeraSystem yet
+class TektronixAfgControl {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		TektronixAfgControl& operator=(const TektronixAfgControl&) = delete;
 		TektronixAfgControl (const TektronixAfgControl&) = delete;
 		TektronixAfgControl(bool safemode, std::string address, std::string configurationFileDelimiter);
+
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
+
 		void initialize( POINT& loc, IChimeraQtWindow* parent, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width);
 		std::string queryIdentity();
@@ -36,12 +50,14 @@ class TektronixAfgControl
 	private:
 		QLabel* header;
 		QPushButton* programNow;
+		QPushButton* newButton;
 		QLabel* onOffLabel;
 		QLabel* controlLabel;
 		QLabel* fskLabel;
 		QLabel* mainPowerLabel;
 		QLabel* mainFreqLabel;
 		QLabel* fskFreqLabel;
+
 		TektronixChannelControl channel1;
 		TektronixChannelControl channel2;
 		TekCore core;

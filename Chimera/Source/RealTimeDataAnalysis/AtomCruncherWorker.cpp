@@ -19,8 +19,10 @@ void CruncherThreadWorker::init () {
 		auto& grid = input->grids[gridInc];
 		for (auto columnInc : range (grid.width)) {
 			for (auto rowInc : range (grid.height)) {
-				unsigned long pixelRow = grid.topLeftCorner.row + rowInc * grid.pixelSpacing;
+				unsigned long pixelRowInverted = grid.topLeftCorner.row + rowInc * grid.pixelSpacing;
 				unsigned long pixelColumn = grid.topLeftCorner.column + columnInc * grid.pixelSpacing;
+				unsigned long pixelRow = input->imageDims.height () - pixelRowInverted - 1;
+
 				if (pixelRow >= input->imageDims.height () || pixelColumn >= input->imageDims.width ()) {
 					emit error ("atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
 						"cruncher thread");

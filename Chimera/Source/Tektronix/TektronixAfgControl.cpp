@@ -37,7 +37,7 @@ void TektronixAfgControl::handleProgram(std::vector<parameterType> constants){
 	core.setSettings (currentInfo);
 	core.experimentActive = true;
 	core.calculateVariations (constants);
-	core.programVariation( 0, constants );
+	core.programVariation( 0, constants, nullptr);
 }
 
 std::string TektronixAfgControl::getDelim (){
@@ -49,14 +49,15 @@ TekCore& TektronixAfgControl::getCore (){
 }
 
 
-void TektronixAfgControl::initialize( POINT& loc, IChimeraQtWindow* parent, std::string headerText,
-									  std::string channel1Text, std::string channel2Text, LONG width){
-	header = new QLabel (("Tektronixs " + headerText).c_str(), parent);
+void TektronixAfgControl::initialize (POINT& loc, IChimeraQtWindow* parent, std::string headerText,
+	std::string channel1Text, std::string channel2Text, LONG width) {
+	header = new QLabel (("Tektronix " + headerText).c_str (), parent);
 	header->setGeometry (loc.x, loc.y, width, 25);
 	loc.y += 25;
 
 	programNow = new QPushButton ("Program Now", parent);
-	programNow->setGeometry (loc.x, loc.y, width/3, 20);
+	programNow->setGeometry (loc.x, loc.y, width / 3, 20);
+
 	parent->connect (programNow, &QPushButton::released, [this, parent]() {
 		try	{
 			handleProgram (parent->auxWin->getUsableConstants ());

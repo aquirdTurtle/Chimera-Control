@@ -2,24 +2,22 @@
 #include "stdafx.h"
 #include "ATMCD32D.h"
 #include "Andor/AndorCameraCore.h"
-#include "PrimaryWindows/QtAndorWindow.h"
 #include "Andor/AndorTriggerModes.h"
 #include "Andor/AndorRunMode.h"
 #include "ConfigurationSystems/ProfileSystem.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include <Andor/AndorCameraThreadWorker.h>
+#include <PrimaryWindows/QtMainWindow.h>
+#include <PrimaryWindows/QtAndorWindow.h>
+#include <ExperimentThread/ExpThreadWorker.h>
 #include <qthread.h>
 #include <chrono>
 #include <process.h>
 #include <algorithm>
 #include <numeric>
 #include <random>
-#include <PrimaryWindows/QtMainWindow.h>
-#include <PrimaryWindows/QtAndorWindow.h>
-#include <ExperimentThread/ExpThreadWorker.h>
 
-std::string AndorCameraCore::getSystemInfo()
-{
+std::string AndorCameraCore::getSystemInfo(){
 	std::string info;
 	// can potentially get more info from this.
 	//AndorCapabilities capabilities;
@@ -31,8 +29,7 @@ std::string AndorCameraCore::getSystemInfo()
 	return info;
 }
 
-AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFile)
-{
+AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFile){
 	AndorRunSettings tempSettings; 
 	tempSettings.imageSettings = ProfileSystem::stdConfigGetter ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
 																  ImageDimsControl::getImageDimSettingsFromConfig);
@@ -335,6 +332,28 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime ){
 	// notify the thread that the experiment has started..
 	threadInput.signaler.notify_all();
 	flume.startAcquisition();
+}
+
+void AndorCameraCore::preparationChecks () {
+	try {
+		auto res = flume.checkForNewImages ();
+		// success?!?
+		thrower ("In preparation section, looks like there are already images in the camera???");
+	}
+	catch (ChimeraError & err) {
+		// the expected result is throwing NO_NEW_DATA. 
+		if (err.whatBare () != flume.getErrorMsg (DRV_NO_NEW_DATA)) {
+			try {
+				flume.andorErrorChecker (flume.queryStatus ());
+			}
+			catch (ChimeraError & err2) {
+				throwNested ("Error seen while checking for new images: " + err.trace ()
+					+ ", Camera Status:" + err2.trace () + ", Camera is running bool: " + str (cameraIsRunning));
+			}
+			throwNested ("Error seen while checking for new images: " + err.trace ()
+				+ ", Camera Status: DRV_SUCCESS, Camera is running bool: " + str (cameraIsRunning));
+		}
+	}
 }
 
 
@@ -641,8 +660,6 @@ AndorTemperatureStatus AndorCameraCore::getTemperature ( ){
 		else {
 			auto msgCode = flume.getTemperature (stat.temperature);
 			stat.andorRawMsg = flume.getErrorMsg (msgCode);
-			// in this case you expect it to throw.
-			//setTemperature = andorFriend->getAndorRunSettings().temperatureSetting;
 		}
 		// if not stable this won't get changed.
 		if (stat.andorRawMsg != "DRV_ACQUIRING") {
@@ -711,9 +728,12 @@ void AndorCameraCore::abortAcquisition ( ){
 	flume.abortAcquisition ( );
 }
 
-void AndorCameraCore::logSettings (DataLogger& log){
+void AndorCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 	try	{
-		if (!expRunSettings.on)	{
+		if (!experimentActive)	{
+			if (threadworker != nullptr) {
+				emit threadworker->notification (qstr ("Not logging Andor info!\n"), 0);
+			}
 			H5::Group andorGroup (log.file.createGroup ("/Andor:Off"));
 			return;
 		}
@@ -732,7 +752,7 @@ void AndorCameraCore::logSettings (DataLogger& log){
 																 log.AndorPicureSetDataSpace);
 			log.currentAndorPicNumber = 0;
 		}
-		else{
+		else {
 			/*
 				hsize_t setDims[] = { 0, settings.imageSettings.width (), settings.imageSettings.height () };
 				hsize_t picDims[] = { 1, settings.imageSettings.width (), settings.imageSettings.height () };
@@ -750,11 +770,15 @@ void AndorCameraCore::logSettings (DataLogger& log){
 		if (log.AndorPictureDataset.getId () == -1) {
 			thrower ("Failed to initialize AndorPictureDataset???");
 		}
+		if (threadworker != nullptr) {
+			emit threadworker->notification (qstr("Andor Data Structures Should Be Valid!\n"), 0);
+		}
+		log.andorDataSetShouldBeValid = true;
 		log.writeDataSet (int (expRunSettings.acquisitionMode), "Camera-Mode", andorGroup);
 		log.writeDataSet (expRunSettings.exposureTimes, "Exposure-Times", andorGroup);
 		log.writeDataSet (AndorTriggerMode::toStr (expRunSettings.triggerMode), "Trigger-Mode", andorGroup);
 		log.writeDataSet (expRunSettings.emGainModeIsOn, "EM-Gain-Mode-On", andorGroup);
-		if (expRunSettings.emGainModeIsOn)	{
+		if (expRunSettings.emGainModeIsOn) {
 			log.writeDataSet (expRunSettings.emGainLevel, "EM-Gain-Level", andorGroup);
 		}
 		else{
@@ -774,6 +798,9 @@ void AndorCameraCore::logSettings (DataLogger& log){
 		log.writeDataSet (expRunSettings.totalVariations, "Total-Variation-Number", andorGroup);
 	}
 	catch (H5::Exception err){
+		if (threadworker != nullptr) {
+			emit threadworker->notification (qstr ("Failed to log andor info!!\n"), 0);
+		}
 		log.logError (err);
 		throwNested ("ERROR: Failed to log andor parameters in HDF5 file: " + err.getDetailMsg ());
 	}
@@ -790,11 +817,10 @@ void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, E
 	if (experimentActive){
 		setSettings (expRunSettings);
 		emit threadworker->prepareAndor (&expRunSettings);
-		//comm.sendPrepareAndor (expRunSettings);
 	}
 }
 
-void AndorCameraCore::programVariation (unsigned variationInc, std::vector<parameterType>& params){
+void AndorCameraCore::programVariation (unsigned variationInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	if (experimentActive){
 		double kinTime;
 		armCamera (kinTime);

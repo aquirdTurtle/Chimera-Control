@@ -79,15 +79,14 @@ std::pair<unsigned, unsigned> DoSystem::getTtlBoardSize(){
 
 void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 	// title
-	ttlTitle = new QLabel ("TTLS", parent);
+	ttlTitle = new QLabel ("DIGITAL OUTPUT", parent);
 	ttlTitle->setGeometry (loc.x, loc.y, 480, 25);
 	loc.y += 25;
 	// all number numberLabels
 	ttlHold = new CQPushButton ("Hold Current Values", parent);
 	ttlHold->setGeometry (loc.x, loc.y, 240, 20);
 	ttlHold->setToolTip ("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
-		"ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
-		"change.");
+		"ttls, then press the button again to release it. Upon releasing the button, the TTLs will change.");
 	parent->connect (ttlHold, &QPushButton::released, [parent, this]() {
 		try{
 			parent->configUpdated ();
@@ -100,17 +99,17 @@ void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 	});
 	ttlHold->setCheckable (true);
 
-	zeroTtls = new CQPushButton ("Zero TTLs", parent);
+	zeroTtls = new CQPushButton ("Zero DOs", parent);
 	zeroTtls->setGeometry (loc.x + 240, loc.y, 240, 20);
 	zeroTtls->setToolTip( "Press this button to set all ttls to their zero (false) state." );
 	parent->connect (zeroTtls, &QPushButton::released, [parent, this]() {
 		try	{
 			zeroBoard ();
 			parent->configUpdated();
-			emit notification ("Zero'd TTLs.\n",2);
+			emit notification ("Zero'd DOs.\n",2);
 		}
 		catch (ChimeraError& exception) {
-			emit notification ("Failed to Zero TTLs!!!\n",1);
+			emit notification ("Failed to Zero DOs!!!\n",1);
 			emit error(exception.qtrace ());
 		}
 	});
@@ -138,12 +137,12 @@ void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 			parent->connect ( out.check, &QCheckBox::stateChanged, [this, &out, parent]() {
 				try {
 					handleTTLPress (out);
-					emit notification ("Handled Ttl " + qstr (DoRows::toStr(out.getPosition ().first)) + ","
+					emit notification ("Handled DO " + qstr (DoRows::toStr(out.getPosition ().first)) + ","
 						+ qstr (out.getPosition ().second) + " Press.\n", 2);
 					parent->configUpdated ();
 				}
 				catch (ChimeraError& exception)	{
-					emit error ("TTL Press Handler Failed.\n" + exception.qtrace () + "\n");
+					emit error ("DO Press Handler Failed.\n" + exception.qtrace () + "\n");
 				}
 			});
 			loc.x += 28;

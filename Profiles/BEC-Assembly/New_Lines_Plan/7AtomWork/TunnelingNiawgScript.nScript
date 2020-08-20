@@ -1,19 +1,20 @@
 % Default Y Script
-%%--------------------------------------------------------------%%
-%%--------------------------------------------------------------%%
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
 
 var_v 7 freqs [ 39 51 63 75 87 99 111 ] 
-var_v 7 amps [ 0.17044025475985503   0.16106425168817112   0.13676786564130808   0.11523863606411978   0.13494822824367186   0.11451335234107993   0.1670274112617941   ] 
-var finFreq 73
-var tunnelBias 0.8
+var_v 7 amps [ 0.17457618972466746   0.16274031234130287   0.137125447255544   0.11510028064294608   0.1361116288815846   0.11039189394694078   0.16395424720701413 ] 
+var finFreq 72.5
+var tunnelBias 0.5
+var initExtraFreq 53 % 101 
 var_v 7 phases [ 1.325630117 0.000000000 1.311884828 3.348335934 6.051353821 5.179345038 0.000000000 ] 
-
 repeatTilTrig
 gen7const_v Horizontal
 freqs amps phases # 
 gen1const Vertical
-77	1	0
+77 1	0
+%initExtraFreq	1	0
 # 0.01 0
 endRepeat
 
@@ -22,7 +23,7 @@ gen7const_v Horizontal
 freqs amps phases # 
 gen2const Vertical
 77	0.5	0
-53	0.5	0
+initExtraFreq	0.5	0
 # 0.01 0
 endRepeat
 
@@ -31,16 +32,16 @@ gen7const_v Horizontal
 freqs amps phases # 
 gen2ampRamp Vertical
 77	lin 0.5 (1-tunnelBias)	0
-53	lin 0.5 tunnelBias	0
+initExtraFreq	lin 0.5 tunnelBias	0
 # 1 0
 
 % ramp together
 gen7const_v Horizontal
 freqs amps phases # 
 gen2freqRamp Vertical
-nr 	77 	77	(1-tunnelBias)	0
-lin 	53	finFreq 	tunnelBias	0
-# 1 0
+nr 	77 		77	(1-tunnelBias)	0
+lin 	initExtraFreq	finFreq 	tunnelBias	0
+# 3 0
 
 repeatTilTrig
 gen7const_v Horizontal
@@ -56,8 +57,8 @@ gen7const_v Horizontal
 freqs amps phases #
 gen2freqRamp Vertical
 nr 	77 	77	(1-tunnelBias)	0
-lin 	finFreq	53 	tunnelBias	-1
-# 1 0
+lin 	finFreq	initExtraFreq 	tunnelBias	-1
+# 3 0
 
 % bias back to normal
 %gen7const_v Horizontal
@@ -72,7 +73,7 @@ gen7const_v Horizontal
 freqs amps phases # 
 gen2const Vertical
 77	(1 - tunnelBias)	0
-53	tunnelBias	-1
+initExtraFreq	tunnelBias	0
 # 0.01 0
 endRepeat
 

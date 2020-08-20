@@ -21,8 +21,7 @@ namespace Ui {
 	class IChimeraQtWindow;
 }
 
-class IChimeraQtWindow : public QMainWindow
-{
+class IChimeraQtWindow : public QMainWindow{
 	Q_OBJECT
 	public:
 		explicit IChimeraQtWindow (QWidget* parent = NULL);

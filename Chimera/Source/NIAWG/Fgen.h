@@ -9,7 +9,7 @@ class FgenFlume
 {
 	public:
 		FgenFlume( bool safemodeOption );
-		std::string getErrorMsg();
+		std::string getErrorMsg(ViStatus);
 		/// wrappers around niFgen functions.
 
 		void createWaveform( long size, ViReal64* wave );
@@ -32,7 +32,7 @@ class FgenFlume
 		void abortGeneration();
 		void initiateGeneration();
 		void configureOutputEnabled( int state );
-		void errChecker( int err );
+		void errChecker( signed long err );
 		void sendSoftwareTrigger();
 		void deleteWaveform( ViConstString waveformName );
 		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );

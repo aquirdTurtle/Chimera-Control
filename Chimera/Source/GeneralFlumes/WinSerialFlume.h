@@ -2,8 +2,7 @@
 #pragma once
 
 // don't think I've every really used this.
-class WinSerialFlume
-{
+class WinSerialFlume {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		WinSerialFlume& operator=(const WinSerialFlume&) = delete;
@@ -16,6 +15,7 @@ class WinSerialFlume
 		void resetConnection ();
 		std::string read (  );
 		std::string query ( std::string msg );
+
 	private:
 		const bool safemode;
 		HANDLE serialPortHandle;

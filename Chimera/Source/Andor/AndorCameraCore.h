@@ -20,8 +20,6 @@
 // is based around the andor SDK. I did not writebtn the Andor SDK, this was obtained from andor. I did writebtn everything
 // else in this class.
 
-// This is a "Core"-like class. there's no gui associated with this. 
-
 class AndorCameraCore;
 
 /// the important camera class.
@@ -37,6 +35,7 @@ class AndorCameraCore : public IDeviceCore{
 		void setSettings(AndorRunSettings settingsToSet);
 		void armCamera( double& minKineticCycleTime );
 		std::vector<Matrix<long>> acquireImageData();
+		void preparationChecks ();
 		void setTemperature();
 		void setExposures();
 		void setImageParametersToCamera();
@@ -62,12 +61,12 @@ class AndorCameraCore : public IDeviceCore{
 		AndorTemperatureStatus getTemperature ( );
 		std::string configDelim = "CAMERA_SETTINGS";
 		std::string getDelim () { return configDelim; }
-		void logSettings (DataLogger& log);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void loadExpSettings (ConfigStream& stream);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void normalFinish ();
 		void errorFinish ();
-		void programVariation (unsigned variationInc, std::vector<parameterType>& params);
+		void programVariation (unsigned variationInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 
 	private:
 		void setAccumulationCycleTime ( );
@@ -91,7 +90,7 @@ class AndorCameraCore : public IDeviceCore{
 		// set either of these to true in order to break corresponding threads out of their loops.
 		bool plotThreadExitIndicator;
 		bool cameraThreadExitIndicator = false;
-
+		bool dataSetShouldBeValid = false;
 		unsigned __int64 currentPictureNumber;
 		unsigned __int64 currentRepetitionNumber;
 		std::timed_mutex camThreadMutex;

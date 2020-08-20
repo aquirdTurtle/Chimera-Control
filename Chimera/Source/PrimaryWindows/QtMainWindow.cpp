@@ -19,7 +19,7 @@
 #include <qscreen.h>
 
 QtMainWindow::QtMainWindow () : 
-	profile (PROFILES_PATH),
+	profile (PROFILES_PATH, this),
 	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS),
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
 	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
@@ -46,8 +46,6 @@ QtMainWindow::QtMainWindow () :
 	catch (ChimeraError& err) {
 		errBox ("FATAL ERROR: " + which + " Window constructor failed! Error: " + err.trace ());
 		return;
-		//forceExit ();
-		//return -1;
 	}
 	scriptWin->loadFriends( this, scriptWin, auxWin, basWin, dmWin, andorWin );
 	andorWin->loadFriends (this, scriptWin, auxWin, basWin, dmWin, andorWin);
@@ -121,14 +119,8 @@ QtMainWindow::QtMainWindow () :
 	}
 	QTimer* timer = new QTimer (this);
 	connect (timer, &QTimer::timeout, [this]() {
-			if ( !experimentIsRunning ) {
-				if (!getMainOptions ().delayAutoCal) {
-					handleNotification ("Delaying Auto-Calibration!");
-					return;
-				}
-				// should auto quit in the handling here if calibration has already been completed for the day. 
-				commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
-			}
+		// should auto quit in the handling here if calibration has already been completed for the day. 
+		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
 		});
 	// 10 minutes
 	timer->start (360000);
@@ -202,13 +194,6 @@ void QtMainWindow::onMachineOptRoundFin (){
 	Sleep (1000);
 	// then restart.
 	commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
-}
-
-void QtMainWindow::OnTimer (UINT_PTR id) {
-	if (id == 10){
-		motScope.refreshData ();
-		masterRepumpScope.refreshData ();
-	}
 }
 
 void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
@@ -436,12 +421,8 @@ void QtMainWindow::logParams (DataLogger* logger, ExperimentThreadInput* input){
 	logger->logServoInfo (getServoinfo ());
 }
 
-void QtMainWindow::checkProfileReady (){
-	//profile.allSettingsReadyCheck( this );
-}
-
 void QtMainWindow::checkProfileSave (){
-	//profile.checkSaveEntireProfile( this );
+	profile.checkSaveEntireProfile( this );
 }
 
 void QtMainWindow::updateConfigurationSavedStatus (bool status){

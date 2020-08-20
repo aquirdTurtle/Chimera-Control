@@ -107,6 +107,7 @@ void AoSystem::setSingleDac( unsigned dacNumber, double val, DoCore& ttls, DoSna
 	standardNonExperiemntStartDacsSequence( );
 	ttls.standardNonExperimentStartDoSequence( initSnap );
 	updateEdits( );
+	emit notification ("Set single dac #" + qstr(dacNumber) + " to value " + qstr(val) + "\n", 2);
 }
 
 
@@ -118,8 +119,8 @@ void AoSystem::handleOpenConfig(ConfigStream& openFile){
 			openFile >> trash;
 		}
 	}
+	emit notification ("AO system finished opening config.\n", 2);
 }
-
 
 void AoSystem::standardExperimentPrep ( unsigned variationInc, DoCore& ttls, std::vector<parameterType>& expParams, 
 										double currLoadSkipTime ){
@@ -129,11 +130,9 @@ void AoSystem::standardExperimentPrep ( unsigned variationInc, DoCore& ttls, std
 	makeFinalDataFormat (variationInc);
 }
 
-
 void AoSystem::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "DACS\nEND_DACS\n";
 }
-
 
 std::string AoSystem::getDacSequenceMessage( unsigned variation ){
 	std::string message;
@@ -192,7 +191,7 @@ double AoSystem::getDefaultValue(unsigned dacNum){
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
 void AoSystem::initialize(POINT& pos, IChimeraQtWindow* parent ){
 	// title
-	dacTitle = new QLabel ("DACS", parent);
+	dacTitle = new QLabel ("ANALOG OUTPUT", parent);
 	dacTitle->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+480, pos.y += 25} });
 
 	dacSetButton = new CQPushButton ("Set New DAC Values", parent);
@@ -392,8 +391,7 @@ void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 }
 
 
-void AoSystem::resetDacs (unsigned varInc, bool skipOption)
-{
+void AoSystem::resetDacs (unsigned varInc, bool skipOption){
 	stopDacs ();
 	// it's important to grab the skipoption from input->skipNext only once because in principle
 	// if the cruncher thread was running behind, it could change between writing and configuring the 

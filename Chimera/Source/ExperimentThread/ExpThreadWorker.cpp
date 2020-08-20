@@ -19,31 +19,24 @@ void ExpThreadWorker::process (){
 	emit mainProcessFinish ();
 }
 
-/* deviceList class:
-get by type
-*/
 
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current
  * configuration settings to determine how to program and run the experiment.
- * @param voidInput: This is the only input to the proxcedure. It MUST be a pointer to a ExperimentThreadInput structure.
- * @return unsigned int: unused.
  */
-unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure () {
+void ExpThreadWorker::experimentThreadProcedure () {
 	auto startTime = chronoClock::now ();
 	experimentIsRunning = true;
 	emit notification (qstr ("Starting Experiment " + input->profile.configuration + "...\n"));
 	ExpRuntimeData expRuntime;
 	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
-	// somehow the paused atomic was getting set to true between experiments... very strange, there should be a better 
-	// way of dealing with this rather than just forcing to false at beginning. perhaps a better way of dealing with 
-	// pausing in general involving signals and slots. 
 	isPaused = false;
 	try {
 		for (auto& device : input->devices.list) {
 			emit updateBoxColor ("Black", device.get ().getDelim ().c_str ());
 		}
+		emit updateBoxColor ("Black", "Other");
 		emit notification ("Loading Experiment Settings...\n");
 		ConfigStream cStream (input->profile.configFilePath (), true);
 		loadExperimentRuntime (cStream, expRuntime);
@@ -66,7 +59,7 @@ unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure () {
 				if (device.get ().experimentActive) {
 					emit notification (qstr ("Logging Devce " + device.get ().getDelim ()
 						+ " Settings...\n"), 1);
-					device.get ().logSettings (input->logger);
+					device.get ().logSettings (input->logger, this);
 				}
 			}
 		}
@@ -99,7 +92,6 @@ unsigned int __stdcall ExpThreadWorker::experimentThreadProcedure () {
 		errorFinish (isAborting, exception, startTime);
 	}
 	experimentIsRunning = false;
-	return false;
 }
 
 
@@ -531,7 +523,7 @@ bool ExpThreadWorker::handleVectorizedValsDeclaration (std::string word, ScriptS
 	std::string bracketDelims;
 	stream >> bracketDelims;
 	if (bracketDelims != "[") {
-		thrower ("Expected \"[\" after constant vector size and name.");
+		thrower ("Expected \"[\" after constant vector size and name (make sure it's separated by spaces).");
 	}
 	tmpVec.vals.resize (vecLength_ui);
 	for (auto& val : tmpVec.vals) {
@@ -539,7 +531,7 @@ bool ExpThreadWorker::handleVectorizedValsDeclaration (std::string word, ScriptS
 	}
 	stream >> bracketDelims;
 	if (bracketDelims != "]") {
-		thrower ("Expected \"]\" after constant vector values. Is the vector size right?");
+		thrower ("Expected \"]\" after constant vector values (make sure it's separated by spaces). Is the vector size right?");
 	}
 	constVecs.push_back (tmpVec);
 	return true;
@@ -990,7 +982,6 @@ void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameter
 		}
 	}
 	waitForAndorFinish ();
-	//input->comm.sendRepProgress (0);
 	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
 	if (input->runList.master) { input->ttls.ftdi_write (variationInc, skipOption); }
 	handleDebugPlots (input->debugOptions, input->ttls, input->aoSys, variationInc);
@@ -1070,7 +1061,7 @@ void ExpThreadWorker::deviceProgramVariation (IDeviceCore& device, std::vector<p
 	if (device.experimentActive) {
 		try {
 			emit notification (qstr ("Programming Devce " + device.getDelim () + "...\n"), 1);
-			device.programVariation (variationInc, expParams);
+			device.programVariation (variationInc, expParams, this);
 			emit updateBoxColor ("Green", device.getDelim ().c_str ());
 		}
 		catch (ChimeraError&) {

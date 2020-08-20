@@ -1,38 +1,37 @@
-% free space grey molasses
-def inTrapGreyMolasses():
-  % settings
-  var D1twoToTwopPower -1.8
-  var cooling_time 15
-  var D1SidemotPow 0.27
-
-  % init system
-  off: diagMotRf
-  off: sideMotRf
-  off: repumpRf
-  var rsfreq -0.05
-  var rsPow -5 % 2
-  %rsg: (6.834682 + rsfreq*0.001) rspow 
-  dac: power795 D1twoToTwopPower
-  dac: side795pow D1SidemotPow
-  dac: diag795pow 0.3
-  dac: diagMotPower 0
-  dac: sideMotPower 0
-  
-  call d1greyInTrapPgcFields()
-
-  call send_uw_to_795_eom()
-  on: rf795
-  t += cooling_time 
-  off: rf795
-  off: repumpRf
-  dac: diag795pow 0
-  dac: side795pow 0
-  dac: power795 0.1
-
-  pulseon: rsTrig 0.1
-  pulseon: windfreakTrig 1 
-  pulseon: a15 0.1 
-  t += 1.1
-
-
-
+% free space grey molasses
+def inTrapGreyMolasses():
+  % settings
+  var D1twoToTwopPower -1.8
+  var cooling_time 15
+  var D1SidemotPow 0.27
+
+  % init system
+  off: diagMotRf
+  off: sideMotRf
+  off: repumpRf
+  var rsfreq -0.05
+  var rsPow -5 % 2
+  %rsg: (6.834682 + rsfreq*0.001) rspow 
+  dac: power795 D1twoToTwopPower
+  dac: side795pow D1SidemotPow
+  dac: diag795pow 0.3
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  
+  call d1greyInTrapPgcFields()
+
+  call send_uw_to_795_eom()
+  on: rf795
+  t += cooling_time 
+  off: rf795
+  off: repumpRf
+  dac: diag795pow 0
+  dac: side795pow 0
+  dac: power795 0.1
+
+  pulseon: rsTrig 0.1
+  pulseon: a15 0.1 
+  t += 1.1
+
+
+

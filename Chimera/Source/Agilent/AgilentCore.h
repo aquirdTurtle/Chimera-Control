@@ -27,7 +27,7 @@ class AgilentCore : public IDeviceCore
 		bool connected ();
 		std::pair<DoRows::which, unsigned> getTriggerLine ();
 		std::string getDeviceIdentity ();
-		void logSettings (DataLogger& log);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void convertInputToFinalSettings (unsigned chan, deviceOutputInfo& info,
 										  std::vector<parameterType>& variables = std::vector<parameterType> ());
 		static double convertPowerToSetPoint (double power, bool conversionOption, std::vector<double> calibCoeff);
@@ -47,7 +47,7 @@ class AgilentCore : public IDeviceCore
 		deviceOutputInfo getSettingsFromConfig (ConfigStream& file);
 		void loadExpSettings (ConfigStream& script);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		void programVariation (unsigned variation, std::vector<parameterType>& params);
+		void programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo);
 		void normalFinish () {};
 		void errorFinish () {};

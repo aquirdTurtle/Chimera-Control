@@ -3,7 +3,7 @@
 #include "CameraImageDimensions.h"
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "PrimaryWindows/QtMainWindow.h"
-#include "CameraSettingsControl.h"
+#include "AndorCameraSettingsControl.h"
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <boost/lexical_cast.hpp>
 

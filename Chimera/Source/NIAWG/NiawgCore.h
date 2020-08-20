@@ -124,7 +124,7 @@ class NiawgCore : public IDeviceCore
 		static niawgPair<std::vector<unsigned>> findLazyPosition ( Matrix<bool> source, unsigned targetDim );
 		static int increment ( std::vector<unsigned>& ind, unsigned currentLevel, unsigned maxVal, bool reversed=false );
 
-		void logSettings (DataLogger& log);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void loadExpSettings (ConfigStream& stream);
 		bool outputNiawgMachineScript = false;
 		bool outputNiawgHumanScript = false;
@@ -137,7 +137,7 @@ class NiawgCore : public IDeviceCore
 		std::string debugMsg = "";
 		NiawgOutput expOutput;
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		void programVariation (unsigned varInc, std::vector<parameterType>& params);
+		void programVariation (unsigned varInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void normalFinish ();
 		void errorFinish ();
 	private:

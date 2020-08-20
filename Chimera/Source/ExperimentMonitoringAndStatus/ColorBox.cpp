@@ -10,7 +10,7 @@ void ColorBox::initialize(POINT& pos, IChimeraQtWindow* parent, int length, Devi
 	int itemsPerRow = ceil (float (numCtrls) / numrows);
 	int indvLength = length / itemsPerRow;
 	for (auto devInc : range (numCtrls-1)) {
-		if ((devInc % itemsPerRow) == 0 & devInc != 0) {
+		if (((devInc % itemsPerRow) == 0) && (devInc != 0)) {
 			pos.y += 20;
 		}
 		auto& box = boxes[devInc];

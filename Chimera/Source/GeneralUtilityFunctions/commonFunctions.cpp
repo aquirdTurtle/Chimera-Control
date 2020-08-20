@@ -15,6 +15,7 @@
 #include "LowLevel/externals.h"
 #include "ExperimentThread/ExperimentType.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
+#include <QDateTime.h>
 
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses or hotkeys
 namespace commonFunctions
@@ -349,6 +350,17 @@ namespace commonFunctions
 				break;
 			}
 			case ID_ACCELERATOR_F11:{
+				if (mainWin->experimentIsRunning) {
+					return;
+				}
+				if (mainWin->getMainOptions ().delayAutoCal) {
+					mainWin->handleNotification ("Delaying Auto-Calibration!\n");
+					return;
+				}
+				if (QDateTime::currentDateTime ().time ().hour () < 4) {
+					// This should set up the calibration to run at 4AM. 
+					return;
+				};
 				// F11 is the set of calibrations.
 				AllExperimentInput input;
 				input.masterInput = new ExperimentThreadInput ( win );
@@ -463,7 +475,7 @@ namespace commonFunctions
 		if (win->scriptWin->niawgIsRunning()){
 			thrower ( "NIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
-		win->mainWin->checkProfileReady();
+		win->mainWin->checkProfileSave();
 		win->scriptWin->checkScriptSaves( );
 		// Set the thread structure.
 		input.masterInput = new ExperimentThreadInput ( win );

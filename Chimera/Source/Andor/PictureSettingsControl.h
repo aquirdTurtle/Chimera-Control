@@ -54,6 +54,7 @@ class PictureSettingsControl
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile );
+		Qt::TransformationMode getTransformationMode ();
 	private:
 		// the internal memory of the settings here is somewhat redundant with the gui objects. It'd probably be better
 		// if this didn't exist and all the getters just converted straight from the gui objects, but that's a 
@@ -67,6 +68,7 @@ class PictureSettingsControl
 		QLabel* colormapLabel;
 		QLabel* displayTypeLabel;
 		QLabel* softwareAccumulationLabel;
+		CQComboBox* transformationModeCombo;
 		// 
 		std::array<CQRadioButton*, 4> totalNumberChoice;
 		std::array<QLabel*, 4> pictureNumbers;

@@ -6,7 +6,7 @@
 #include "AnalogOutput/AoStructures.h"
 #include <Scripts/SyntaxHighlighter.h>
 #include <Scripts/ScriptableDevices.h>
-#include "CustomMfcControlWrappers/functionCombo.h"
+#include "CustomQtControls/functionCombo.h"
 #include <GeneralObjects/IChimeraSystem.h>
 #include <string>
 #include <unordered_map>

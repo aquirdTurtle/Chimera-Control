@@ -53,7 +53,7 @@ class DataLogger : public IChimeraSystem {
 		void initOptimizationFile ( );
 		void updateOptimizationFile ( std::string appendTxt );
 		void finOptimizationFile ( );
-
+		bool andorDataSetShouldBeValid = false;
 		unsigned getNextFileNumber ( );
 		std::string getMostRecentDateString ( );
 		// the core file.

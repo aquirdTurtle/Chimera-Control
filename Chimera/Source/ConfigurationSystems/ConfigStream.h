@@ -32,7 +32,7 @@ ConfigStream& ConfigStream::operator>> (type& output){
 		output = boost::lexical_cast<type>(tempString);
 	}
 	catch (boost::bad_lexical_cast){
-		throwNested ("Scriptstream Failed to convert the text\"" + tempString + "\" to the requested type! Requested "
+		throwNested ("Scriptstream Failed to convert the text \"" + tempString + "\" to the requested type! Requested "
 			"type was \"" + typeid(output).name () + "\".");
 	}
 	return *this;

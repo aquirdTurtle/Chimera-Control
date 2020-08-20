@@ -441,7 +441,7 @@ deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
 }
 
 
-void AgilentCore::logSettings (DataLogger& log){
+void AgilentCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 	try	{
 		H5::Group agilentsGroup;
 		try{
@@ -507,7 +507,7 @@ void AgilentCore::calculateVariations (std::vector<parameterType>& params, ExpTh
 	convertInputToFinalSettings (1, expRunSettings, params);
 }
 
-void AgilentCore::programVariation (unsigned variation, std::vector<parameterType>& params){
+void AgilentCore::programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	setAgilent (variation, params, expRunSettings);
 }
 

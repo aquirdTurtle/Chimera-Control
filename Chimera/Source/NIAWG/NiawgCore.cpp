@@ -353,17 +353,13 @@ void NiawgCore::restartDefault()
 }
 
 
-void NiawgCore::programVariations( unsigned variation, std::vector<long>& variedMixedSize, NiawgOutput& output )
-{
+void NiawgCore::programVariations( unsigned variation, std::vector<long>& variedMixedSize, NiawgOutput& output){
 	int mixedWriteCount = 0;
 	// skip defaults so start at 2.
-	for ( unsigned waveInc = 2; waveInc < output.waves.size( ); waveInc++ )
-	{
+	for ( unsigned waveInc = 2; waveInc < output.waves.size( ); waveInc++ )	{
 		std::string variedWaveformName = "Waveform" + str( waveInc );
-		if ( output.waves[waveInc].core.varies )
-		{
-			if ( variation != 0 )
-			{
+		if ( output.waves[waveInc].core.varies ){
+			if ( variation != 0 ){
 				fgenFlume.deleteWaveform( cstr( variedWaveformName ) );
 			}
 			// And writebtn the new one.
@@ -376,8 +372,7 @@ void NiawgCore::programVariations( unsigned variation, std::vector<long>& varied
 }
 
 void NiawgCore::analyzeNiawgScript( NiawgOutput& output, std::string& warnings, rerngGuiOptions rerngGuiInfo, 
-									std::vector<parameterType>& variables )
-{
+									std::vector<parameterType>& variables ){
 	/// Preparation
 	currentScript = expNiawgStream.str( );
 	expNiawgStream.clear();
@@ -435,7 +430,7 @@ void NiawgCore::writeStaticNiawg( NiawgOutput& output, std::vector<parameterType
 		else if ( waveForm.rearrange.isRearrangement ){
 			simpleFormVaries( waveForm.rearrange.staticWave );
 			simpleFormVaries( waveForm.rearrange.fillerWave );
-			// writebtn static rearrangement
+			// write static rearrangement
 			if ( !wave.rearrange.staticWave.varies && !waveForm.rearrange.fillerWave.varies ){
 				rerngScriptInfoFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
@@ -4538,7 +4533,7 @@ bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile)
 	return opt;
 }
 
-void NiawgCore::logSettings (DataLogger& log)
+void NiawgCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker)
 {
 	H5::Group niawgGroup (log.file.createGroup ("/NIAWG"));
 	log.writeDataSet (experimentActive, "Run-NIAWG", niawgGroup);
@@ -4597,7 +4592,7 @@ void NiawgCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 	}
 }
 
-void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& params)
+void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker)
 {
 	std::string TODO_WARNINGS;
 	if (experimentActive)

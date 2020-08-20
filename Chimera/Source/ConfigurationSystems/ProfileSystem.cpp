@@ -17,8 +17,7 @@
 #include <qdebug.h>
 #include "Commctrl.h"
 
-
-ProfileSystem::ProfileSystem(std::string fileSystemPath){
+ProfileSystem::ProfileSystem(std::string fileSystemPath, IChimeraQtWindow* parent) : IChimeraSystem(parent) {
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
 
@@ -31,7 +30,13 @@ void ProfileSystem::initialize( POINT& pos, IChimeraQtWindow* win){
 	configurationSavedIndicator->setChecked (true);
 	selectConfigButton = new QPushButton ("Open Config.", win);
 	selectConfigButton->setGeometry (QRect (pos.x + 700, pos.y, 160, 25));
-	win->connect (selectConfigButton, &QPushButton::released, [this, win]() { handleSelectConfigButton (win); });
+	win->connect (selectConfigButton, &QPushButton::released, [this, win]() {
+		try {
+			handleSelectConfigButton (win);
+		}
+		catch (ChimeraError & err) {
+			emit error (err.qtrace ());
+		}});
 	pos.y += 25;
 	updateConfigurationSavedStatus( true );
 }
@@ -52,10 +57,6 @@ void ProfileSystem::saveEntireProfile(IChimeraQtWindow* win){
 
 void ProfileSystem::checkSaveEntireProfile(IChimeraQtWindow* win){
 	checkConfigurationSave( "Save Configuration Settings?", win );
-}
-
-void ProfileSystem::allSettingsReadyCheck(IChimeraQtWindow* win){
-	configurationSettingsReadyCheck( win );
 }
 
 /*
@@ -366,17 +367,18 @@ bool ProfileSystem::checkConfigurationSave( std::string prompt, IChimeraQtWindow
 	return false;
 }
 
-
 void ProfileSystem::handleSelectConfigButton(IChimeraQtWindow* win){	
-	if ( !configurationIsSaved ){
-		if ( checkConfigurationSave( "The current configuration is unsaved. Save current configuration before changing?",
-									 win ) ){
-			// TODO
+	if ( !configurationIsSaved && currentProfile.configuration != ""){
+		if (checkConfigurationSave ("The current configuration \"" + currentProfile.configuration
+			+ "\" is unsaved. Save current configuration before changing?", win)) {
+			// user canceled. 
 			return;
 		}
 	}
 	std::string fileaddress = openWithExplorer( win, CONFIG_EXTENSION );
-	qDebug() << qstr(fileaddress);
+	if (fileaddress == "") {
+		return; // canceled
+	}
 	openConfigFromPath( fileaddress, win);
 }
 

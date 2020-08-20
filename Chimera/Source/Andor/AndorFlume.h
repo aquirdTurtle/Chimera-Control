@@ -24,7 +24,7 @@ class AndorFlume
 		void setTemperature ( int temp );
 		void setADChannel ( int channel );
 		void setHSSpeed ( int type, int index );
-		void checkForNewImages ( );
+		unsigned checkForNewImages ( );
 		void getOldestImage ( Matrix<long>& dataMatrix );
 		void setTriggerMode ( int mode );
 		void setAcquisitionMode ( int mode );

@@ -72,13 +72,13 @@ void ServoManager::initialize( POINT& pos, IChimeraQtWindow* parent, AiSystem* a
 	expAutoServoButton->setGeometry (pos.x + 380 + 175, pos.y, 175, 20);
 	expAutoServoButton->setToolTip ("Automatically calibrate all servos before doing any experiment?");
 
-	calAutoServoButton = new CQCheckBox ("Cal. Auto-Servo?", parent);
-	calAutoServoButton->setGeometry (pos.x + 380 + 350, pos.y, 175, 20);
-	calAutoServoButton->setToolTip ("Automatically calibrate all servos before doing standard calibration runs?");
+	cancelServo = new QPushButton ("Cancel Servo?", parent);
+	cancelServo->setGeometry (pos.x + 730, pos.y, 150, 20);
+	cancelServo->setToolTip ("Hold this button down to cancel a \"Run All\" servoing.");
+
 	pos.y += 20;
 	servoList = new QTableWidget (parent);
 	QStringList labels;
-	// << " Active? " 
 	labels << "Name" << " Set (V) " << " Ctrl (V) " << " dCtrl (%) " << " Res (V) " << "Ai" << "Ao" << " DO-Config " << " Tolerance "
 		   << " Gain " << " Monitor? " << " AO-Config " << "Avgs";
 	servoList->setContextMenuPolicy (Qt::CustomContextMenu);
@@ -187,7 +187,7 @@ AiUnits::which ServoManager::getUnitsOption(){
 }
 
 void ServoManager::handleSaveMasterConfig( std::stringstream& configStream ){
-	configStream << calAutoServoButton->isChecked () << "\n" << expAutoServoButton->isChecked() << "\n"
+	configStream << 0 << "\n" << expAutoServoButton->isChecked() << "\n"
 		<< AiUnits::toStr(getUnitsOption()) << "\n" << servos.size ( ) << "\n";
 	for ( auto& servo : servos ){
 		handleSaveMasterConfigIndvServo ( configStream, servo );
@@ -205,7 +205,6 @@ void ServoManager::handleOpenMasterConfig( ConfigStream& configStream ){
 	}
 	bool calAutoServo, expAutoServo;
 	configStream >> calAutoServo;
-	calAutoServoButton->setChecked( calAutoServo );
 	if (configStream.ver >= Version ("2.9")){
 		configStream >> expAutoServo;
 		expAutoServoButton->setChecked (expAutoServo);
@@ -347,9 +346,6 @@ void ServoManager::handleSaveMasterConfigIndvServo ( std::stringstream& configSt
 	configStream << servo.tolerance << " " << servo.gain << " " << servo.monitorOnly << " " << servo.avgNum << "\n";
 }
 
-bool ServoManager::wantsCalAutoServo( ){
-	return calAutoServoButton->isChecked( );
-}
 
 bool ServoManager::wantsExpAutoServo (){
 	return expAutoServoButton->isChecked ();
@@ -360,6 +356,9 @@ void ServoManager::runAll() {
 	unsigned count = 0;
 	// made this asynchronous to facilitate updating gui while 
 	for ( auto& servo : servos ){
+		if (cancelServo->isDown ()) {
+			break;
+		}
 		auto origColor = servoList->item (count, 0)->background ();
 		servoList->item (count, 0)->setBackground (Qt::red);
 		try{
@@ -414,7 +413,7 @@ void ServoManager::calibrate( servoInfo& s, unsigned which ){
 		outputs(ttl.second, ttl.first).set (1);
 		ttls->getCore ().ftdi_ForceOutput (ttl.first, ttl.second, 1, ttls->getCurrentStatus());
 	}
-	Sleep (20); // give some time for the lasers to settle..
+	Sleep (200); // give some time for the lasers to settle..
 	unsigned attemptLimit = 100;
 	unsigned count = 0;
 	unsigned aiNum = s.aiInChan;
@@ -435,15 +434,21 @@ void ServoManager::calibrate( servoInfo& s, unsigned which ){
 	// start the dac where it was last.
 	auto oldVal = s.controlValue;
 	ao->setSingleDac (aoNum, s.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
+	unsigned requiredConsecutiveMatches = 3;
+	unsigned numConsecutiveMatches = 0;
 	while ( count++ < attemptLimit ){
 		double avgVal = ai->getSingleChannelValue(aiNum, s.avgNum);
 		s.mostRecentResult = avgVal;
 		double percentDif = (sp - avgVal) / fabs(sp);
 		if ( fabs(percentDif)  < s.tolerance ){
-			// found a good value.
-			break;
+			numConsecutiveMatches++;
+			if (numConsecutiveMatches >= requiredConsecutiveMatches) {
+				// found a good value.
+				break;
+			}
 		}
 		else{
+			numConsecutiveMatches = 0;
 			// modify dac value.
 			s.controlValue = ao->getDacValue( aoNum );
 			double diff = s.gain * percentDif > 0.05 ? 0.05 : s.gain * percentDif;

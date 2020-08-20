@@ -9,7 +9,7 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraQtWindow.h"
 
-#include "Andor/CameraSettingsControl.h"
+#include "Andor/AndorCameraSettingsControl.h"
 #include "ExperimentMonitoringAndStatus/ColorBox.h"
 #include "GeneralImaging/PictureStats.h"
 #include "GeneralImaging/PictureManager.h"
@@ -43,7 +43,6 @@ class QtAndorWindow : public IChimeraQtWindow{
 		void initializeWidgets ();
 
 		void handleBumpAnalysis (profileSettings finishedProfile);
-		void OnTimer (UINT_PTR id);
 		/// directly called by the message map or 1 simple step removed.
 		void wakeRearranger ();
 		void handleSpecialGreaterThanMaxSelection ();
@@ -111,6 +110,7 @@ class QtAndorWindow : public IChimeraQtWindow{
 		piezoChan<double> getAlignmentVals ();
 		CruncherThreadWorker* atomCruncherWorker;
 		AnalysisThreadWorker* analysisThreadWorker;
+		void handleTransformationModeChange ();
 	private:
         Ui::QtAndorWindow* ui;
 

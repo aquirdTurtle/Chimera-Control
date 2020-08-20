@@ -194,7 +194,6 @@ void DmCore::initialCheck(unsigned variation, std::string& warnings)
 	}
 }
 
-void DmCore::logSettings (DMOutputForm settings, DataLogger& log)
-{
+void DmCore::logSettings (DMOutputForm settings, DataLogger& log){
 
 }

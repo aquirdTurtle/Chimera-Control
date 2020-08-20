@@ -1,0 +1,23 @@
+% Default Y Script
+%%--------------------------------------------------------------%%
+%%--------------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var_v 2 freqs [ 69 81 ]
+var_v 2 amps [ 0.61 0.39 ]
+var_v 2 phases [ 0 0 ]
+
+repeatForever
+gen2const_v
+Horizontal
+freqs amps phases   
+# 
+gen2const
+Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezer
+#
+0.01 0
+endRepeat
+
+ 

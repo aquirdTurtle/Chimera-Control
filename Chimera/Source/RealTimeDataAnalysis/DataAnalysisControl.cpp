@@ -201,7 +201,7 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 				try {
 					allTinyPlots[row].whichGrid = boost::lexical_cast<unsigned>(cstr (item->text ()));
 				}
-				catch (ChimeraError& err) {}
+				catch (ChimeraError&) {}
 			}
 		});
 	parent->connect (plotListview, &QTableWidget::cellDoubleClicked, 

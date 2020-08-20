@@ -45,7 +45,6 @@ class ServoManager : public IChimeraSystem {
 		void setChangeVal (unsigned which, double change);
 		void runAll ();
 		void calibrate( servoInfo& s, unsigned which );
-		bool wantsCalAutoServo( );
 		bool wantsExpAutoServo ();
 		double convertToPower (double volt, servoInfo& si);
 		void handleSaveMasterConfig( std::stringstream& configStream );
@@ -57,10 +56,10 @@ class ServoManager : public IChimeraSystem {
 	private:
 		QLabel* servosHeader;
 		CQPushButton* servoButton;
-		CQCheckBox* calAutoServoButton;
 		CQCheckBox* expAutoServoButton;
 		CQComboBox* unitsCombo;
 		QTableWidget* servoList;
+		QPushButton* cancelServo;
 		const std::string servoSuffix = "__sv";
 		void setResDisplay (unsigned which, double value);
 		void handleSaveMasterConfigIndvServo ( std::stringstream& configStream, servoInfo& servo );

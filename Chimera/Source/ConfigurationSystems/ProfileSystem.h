@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QComboBox.h>
+#include <GeneralObjects/IChimeraSystem.h>
 
 class MainWindow;
 class ScriptingWindow;
@@ -29,13 +30,12 @@ class DeformableMirrorWindow;
 	that can be checked to determine if the user should be prompted to save at a given point, and all of the functions 
 	for saving, renaming, deleting, and creating new levels within the code. 
 */
-class ProfileSystem{
+class ProfileSystem : public IChimeraSystem {
 	public:
-		ProfileSystem(std::string fileSystemPath);
+		ProfileSystem(std::string fileSystemPath, IChimeraQtWindow* parent);
 
 		void saveEntireProfile(IChimeraQtWindow* win );
 		void checkSaveEntireProfile(IChimeraQtWindow* win);
-		void allSettingsReadyCheck(IChimeraQtWindow* win);
 		static std::function<void (ScriptStream&, std::string&)> getGetlineFunc (Version& ver);
 
 		void saveConfigurationOnly(IChimeraQtWindow* win);
@@ -107,7 +107,8 @@ class ProfileSystem{
 		// Version 5.2: added 3rd piezo (not actually connected at the time)
 		// Version 5.3: Added Imaging Piezo
 		// Version 5.4: Added Auto Bump Analysis Options
-		const Version version = Version( "5.4" );
+		// Version 5.5: Added Andor transformation Mode Option
+		const Version version = Version( "5.5" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;

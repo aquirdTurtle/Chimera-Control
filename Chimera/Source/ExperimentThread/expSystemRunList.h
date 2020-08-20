@@ -1,7 +1,6 @@
 #pragma once
 
-struct expSystemRunList
-{
+struct expSystemRunList{
 	bool master = true;
 	bool andor = true;
 	bool basler = true;

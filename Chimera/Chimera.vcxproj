@@ -400,6 +400,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\GeneralImaging\ImageLabel.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\GeneralImaging\ImageLabel.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
+    <ClInclude Include="Source\GeneralFlumes\QtSerialFlume.h" />
     <ClInclude Include="Source\GeneralImaging\PictureManager.h" />
     <ClInclude Include="Source\GeneralImaging\PictureStats.h" />
     <ClInclude Include="Source\GeneralObjects\ChimeraStyleSheets.h" />
@@ -540,7 +541,7 @@
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h" />
     <ClInclude Include="Source\DigitalOutput\DoRows.h" />
     <ClInclude Include="Source\GeneralObjects\ExpWrap.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\LongCSlider.h" />
+    <ClInclude Include="Source\CustomQtControls\LongCSlider.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h" />
     <ClInclude Include="Source\Microwave\microwaveSettings.h" />
     <ClInclude Include="Source\CustomMfcControlWrappers\MyListCtrl.h" />
@@ -557,7 +558,7 @@
     <ClInclude Include="Source\Andor\CameraCalibration.h" />
     <ClInclude Include="Source\Andor\CameraImageDimensions.h" />
     <ClInclude Include="Source\Andor\cameraPositions.h" />
-    <ClInclude Include="Source\Andor\CameraSettingsControl.h" />
+    <ClInclude Include="Source\Andor\AndorCameraSettingsControl.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\cleanString.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ColorBox.h" />
     <ClInclude Include="Source\GeneralObjects\commonTypes.h" />
@@ -568,7 +569,7 @@
     <ClInclude Include="Source\ParameterSystem\Expression.h" />
     <ClInclude Include="FTDI\ftd2xx.h" />
     <ClInclude Include="Source\GeneralFlumes\ftdiFlume.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\functionCombo.h" />
+    <ClInclude Include="Source\CustomQtControls\functionCombo.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentThreadInput.h" />
     <ClInclude Include="Source\GeneralObjects\Matrix.h" />
     <ClInclude Include="Source\GeneralImaging\memdc.h" />
@@ -681,6 +682,7 @@
     <ClCompile Include="Source\Basler\BaslerSettings.cpp" />
     <ClCompile Include="Source\Basler\BaslerSettingsControl.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExpThreadWorker.cpp" />
+    <ClCompile Include="Source\GeneralFlumes\QtSerialFlume.cpp" />
     <ClCompile Include="Source\GeneralImaging\ImageLabel.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureControl.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
@@ -696,7 +698,7 @@
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystemStructures.cpp" />
     <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
-    <ClCompile Include="Source\CustomMfcControlWrappers\LongCSlider.cpp" />
+    <ClCompile Include="Source\CustomQtControls\LongCSlider.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
     <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp" />
@@ -723,14 +725,14 @@
     <ClCompile Include="Source\Piezo\SerialPiezoFlume.cpp" />
     <ClCompile Include="Source\Andor\CameraCalibration.cpp" />
     <ClCompile Include="Source\Andor\CameraImageDimensions.cpp" />
-    <ClCompile Include="Source\Andor\CameraSettingsControl.cpp" />
+    <ClCompile Include="Source\Andor\AndorCameraSettingsControl.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\cleanString.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ColorBox.cpp" />
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\DoubleEdit.cpp" />
     <ClCompile Include="Source\ParameterSystem\Expression.cpp" />
     <ClCompile Include="Source\GeneralFlumes\ftdiFlume.cpp" />
-    <ClCompile Include="Source\CustomMfcControlWrappers\functionCombo.cpp" />
+    <ClCompile Include="Source\CustomQtControls\functionCombo.cpp" />
     <ClCompile Include="Source\CustomMfcControlWrappers\myButton.cpp" />
     <ClCompile Include="Source\ExcessDialogs\openWithExplorer.cpp" />
     <ClCompile Include="Source\Plotting\ScopeViewer.cpp" />

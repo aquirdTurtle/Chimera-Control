@@ -34,7 +34,7 @@ class DdsCore : public IDeviceCore{
 		~DdsCore ( );
 		ddsExpSettings getSettingsFromConfig (ConfigStream& file );
 		void writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, ConfigStream& file );
-		void programVariation ( unsigned variationNum, std::vector<parameterType>& params);
+		void programVariation ( unsigned variationNum, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void connectasync ( );
 		void disconnect ( );
 		void writeOneRamp ( ddsRampFinFullInfo boxRamp, UINT8 rampIndex );
@@ -48,7 +48,7 @@ class DdsCore : public IDeviceCore{
 		void clearDdsRampMemory ( );
 		const std::string configDelim = "DDS_SYSTEM";
 		std::string getDelim () { return configDelim; }
-		void logSettings (DataLogger& log);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void loadExpSettings (ConfigStream& stream);
 		void normalFinish () {};
 		void errorFinish () {};

@@ -32,7 +32,7 @@ class BaslerCameraCore : public IDeviceCore{
 		// important constructor to initialize camera
 		BaslerCameraCore( IChimeraQtWindow* parent );
 		~BaslerCameraCore();
-		void logSettings (DataLogger& logger);
+		void logSettings (DataLogger& logger, ExpThreadWorker* threadworker);
 		baslerSettings getSettingsFromConfig (ConfigStream& configFile);
 		bool isRunning ( );
 		void setBaslserAcqParameters( baslerSettings settings );
@@ -55,7 +55,7 @@ class BaslerCameraCore : public IDeviceCore{
 		std::string getDelim () { return configDelim; }
 		void loadExpSettings (ConfigStream& stream);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		void programVariation (unsigned variation, std::vector<parameterType>& params) {};
+		void programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker) {};
 		void errorFinish () {};
 		void normalFinish () {};
 

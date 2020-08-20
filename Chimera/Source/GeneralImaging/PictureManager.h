@@ -43,6 +43,7 @@ class PictureManager
 		void setSpecialGreaterThanMax(bool option);
 		void resetPictureStorage();
 		const std::string configDelim;
+		void setTransformationMode (Qt::TransformationMode mode);
 	private:
 		std::array<PictureControl, 4> pictures;
 		std::array<QVector<QRgb>,4> palettes;
