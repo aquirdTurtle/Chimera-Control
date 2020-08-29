@@ -42,7 +42,6 @@ class AndorCameraSettingsControl{
 		void changeTemperatureDisplay( AndorTemperatureStatus stat );
 		void checkIfReady();
 		void cameraIsOn( bool state );
-		void handleModeChange( );
 		void updateCameraMode( );
 		AndorCameraSettings getSettings();
 		AndorCameraSettings getCalibrationSettings( );
@@ -71,6 +70,7 @@ class AndorCameraSettingsControl{
 		unsigned getAccumulationNumber( );
 		imageParameters getImageParameters( );
 		QLabel* header;
+		CQCheckBox* controlAndorCameraCheck;
 		// Hardware Accumulation Parameters
 		QLabel* accumulationCycleTimeLabel;
 		CQLineEdit* accumulationCycleTimeEdit;

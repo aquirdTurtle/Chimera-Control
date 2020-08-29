@@ -7,9 +7,7 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
 
 	HighlightingRule rule;
 	addRules ({ "[\\+\\=\\(\\)\\*\\-\\/]" }, QColor (42, 161, 152), true, false);
-
-
-
+	   
     multiLineCommentFormat.setForeground (QColor(23, 84, 81));
 
 	QTextCharFormat numberFormat;
@@ -54,7 +52,7 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
 				  QColor (38, 139, 210), true, true);
 		addRules ({"lin", "nr", "tanh"}, QColor(133, 153, 0), true, true);
 		addRules ({ "\\{","\\}","\\[","\\]" }, QColor(42, 161, 152),true,false);
-		addRules ({ "var_v" }, QColor (42, 161, 152), true, false);
+		addRules ({ "var_v", "var" }, QColor (42, 161, 152), true, false);
 		addRules ({ "#" }, QColor (100, 100, 100), true, false);
 	}
 	else if (device == ScriptableDevice::Agilent) {

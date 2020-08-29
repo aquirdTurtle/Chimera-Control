@@ -11,6 +11,7 @@
 struct AndorRunSettings{
 	//bool on;
 	imageParameters imageSettings;
+	bool controlCamera = true;
 	//
 	bool emGainModeIsOn = false;
 	int emGainLevel = 0;

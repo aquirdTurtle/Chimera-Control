@@ -34,6 +34,12 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 	tempSettings.imageSettings = ProfileSystem::stdConfigGetter ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
 																  ImageDimsControl::getImageDimSettingsFromConfig);
 	ProfileSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS");
+	if (configFile.ver >= Version ("5.6")) {
+		configFile >> tempSettings.controlCamera;
+	}
+	else {
+		tempSettings.controlCamera = true;
+	}
 	configFile.get ();
 	std::string txt = configFile.getline ();
 	tempSettings.triggerMode = AndorTriggerMode::fromStr (txt);
@@ -810,6 +816,7 @@ void AndorCameraCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings);
 	expRunSettings.repetitionsPerVariation = ProfileSystem::stdConfigGetter (stream, "REPETITIONS", 
 																			 Repetitions::getSettingsFromConfig);
+	experimentActive = expRunSettings.controlCamera;
 }
 
 void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
@@ -830,8 +837,7 @@ void AndorCameraCore::programVariation (unsigned variationInc, std::vector<param
 void AndorCameraCore::normalFinish (){
 }
 
-void AndorCameraCore::errorFinish ()
-{
+void AndorCameraCore::errorFinish (){
 	try	{
 		abortAcquisition ();
 	}

@@ -487,8 +487,8 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	painter.begin (&img);
 	drawDongles (painter, analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
 	painter.end ();	
-	
-	if (img.width () / img.height () > pictureObject->width () / pictureObject->height ())	{
+	// seems like this doesn't *quite* work for some reason, hence the extra number here to adjust
+	if (img.width () / img.height () > (pictureObject->width () / pictureObject->height ())-0.1)	{
 		pictureObject->setPixmap (QPixmap::fromImage (img).scaledToWidth (pictureObject->width (), transformationMode));
 	}
 	else {
@@ -531,42 +531,33 @@ void PictureControl::handleMouse (QMouseEvent* event){
  * draw the grid which outlines where each pixel is.  Especially needs to be done when selecting pixels and no picture
  * is displayed. 
  */
-void PictureControl::drawGrid(CBrush* brush)
-{
-	/*
-	if (!active)
-	{
+void PictureControl::drawGrid(QPainter& painter){
+	if (!active){
 		return;
 	}
-
-	if (grid.size() != 0)
-	{
-		// hard set to 5000. Could easily change this to be able to see finer grids.
-		// Tested before and 5000 seems reasonable.
-		if (grid.size() * grid.front().size() > 5000)
-		{
+	if (grid.size() != 0){
+		// hard set to 5000. Could easily change this to be able to see finer grids. Tested before and 5000 seems 
+		// reasonable.
+		if (grid.size() * grid.front().size() > 5000){
 			return;
 		}
 	}
-	easel->SelectObject(GetStockObject(DC_BRUSH));
-	easel->SetDCBrushColor(RGB(255, 255, 255));
-
 	// draw rectangles indicating where the pixels are.
-	for (unsigned columnInc = 0; columnInc < grid.size(); columnInc++)
-	{
-		for (unsigned rowInc = 0; rowInc < grid[columnInc].size(); rowInc++)
-		{
-			easel->FrameRect(&grid[columnInc][rowInc], brush);
+	for (unsigned columnInc = 0; columnInc < grid.size(); columnInc++){
+		for (unsigned rowInc = 0; rowInc < grid[columnInc].size(); rowInc++){
+			unsigned pixelRow = picScaleFactor * grid[columnInc][rowInc].top;
+			unsigned pixelColumn = picScaleFactor * grid[columnInc][rowInc].left;
+			QRect rect = QRect (QPoint (pixelColumn, pixelRow),
+						 QPoint (pixelColumn + picScaleFactor - 2, pixelRow + picScaleFactor - 2));
+			painter.drawRect (rect);
 		}
-	}*/
+	}
 }
-
 
 /*
  * draws the circle which denotes the selected pixel that the user wants to know the counts for. 
  */
-void PictureControl::drawCircle(coordinate selectedLocation, QPainter& painter)
-{
+void PictureControl::drawCircle(coordinate selectedLocation, QPainter& painter){
 	if (grid.size() == 0){
 		// this hasn't been set yet, presumably this got called by the camera window as the camera window
 		// was drawing itself before the control was initialized.

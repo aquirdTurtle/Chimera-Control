@@ -108,7 +108,8 @@ class ProfileSystem : public IChimeraSystem {
 		// Version 5.3: Added Imaging Piezo
 		// Version 5.4: Added Auto Bump Analysis Options
 		// Version 5.5: Added Andor transformation Mode Option
-		const Version version = Version( "5.5" );
+		// Version 5.6: Added Andor Control option
+		const Version version = Version( "5.6" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;

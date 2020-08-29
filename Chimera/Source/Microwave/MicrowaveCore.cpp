@@ -33,14 +33,6 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 				uwFlume.query ("?");
 			}
 			catch (ChimeraError & ) {}
-			try {
-				uwFlume.query ("?");
-			}
-			catch (ChimeraError & ) {}
-			try {
-				uwFlume.query ("?");
-			}
-			catch (ChimeraError & ) {}
 			if (experimentSettings.list.size () == 1) {
 				uwFlume.programSingleSetting (experimentSettings.list[0], variationNumber);
 			}
@@ -52,7 +44,7 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 			throwNested ("Failed to program Windfreak!");
 		}
 	}
-	emit threadworker->notification ("Windfreak list setting programmed: " + qstr (getCurrentList ()), 1);
+	emit threadworker->notification ("Windfreak list setting programmed: " + qstr (getCurrentList ()), 2);
 }
 
 void MicrowaveCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){

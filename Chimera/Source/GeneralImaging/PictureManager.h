@@ -19,7 +19,7 @@ class PictureManager
 		void handleOpenConfig(ConfigStream& configFile);
 		void initialize( POINT& loc, CBrush* defaultGridBrush, int manWidth, int manHeight, IChimeraQtWindow* widget, 
 						 int scaleFactor=50);
-		void drawGrids();
+		void drawGrids(QPainter& painter);
 		unsigned getNumberActive( );
 		void setParameters( imageParameters parameters );
 		void handleScroll( unsigned nSBCode, unsigned nPos, CScrollBar* scrollbar);
@@ -27,11 +27,11 @@ class PictureManager
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		// draw pictures...
 		void drawBitmap (Matrix<long> picData, std::pair<int, int> minMax, unsigned whichPicCtrl,
-			std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, unsigned pictureNumber,
-			bool includingAnalysisMarkers);
+						 std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, unsigned pictureNumber,
+						 bool includingAnalysisMarkers, QPainter& painter);
 		void createPalettes( );
 		void handleEditChange( unsigned id );
-		void setAlwaysShowGrid(bool showOption);
+		void setAlwaysShowGrid(bool showOption, QPainter& painter);
 		void redrawPictures(coordinate selectedLocation, std::vector<coordinate> analysisLocs,
 							 std::vector<atomGrid> gridInfo, bool forceGrid, unsigned picNumber, QPainter& painter);
 		void setNumberPicturesActive( int numberActive );

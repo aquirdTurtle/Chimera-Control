@@ -18,6 +18,10 @@ AndorCameraSettingsControl::AndorCameraSettingsControl() : imageDimensionsObj("a
 void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraQtWindow* parent){
 	header = new QLabel ("CAMERA SETTINGS", parent);
 	header->setGeometry (pos.x, pos.y, 480, 25);
+	
+	controlAndorCameraCheck = new CQCheckBox ("Control Andor Camera?", parent);
+	controlAndorCameraCheck->setGeometry (pos.x, pos.y += 25, 480, 25);
+	controlAndorCameraCheck->setChecked (true);
 
 	cameraModeCombo = new CQComboBox (parent);
 	cameraModeCombo->addItem ("Kinetic-Series-Mode");
@@ -122,7 +126,7 @@ void AndorCameraSettingsControl::cameraIsOn(bool state){
 
 void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings){
 	// try to set this time.
-	inputSettings.triggerMode;
+	controlAndorCameraCheck->setChecked (inputSettings.controlCamera);
 	picSettingsObj.setUnofficialExposures ( inputSettings.exposureTimes );
 	picSettingsObj.setUnofficialPicsPerRep ( inputSettings.picsPerRepetition );
 	///
@@ -175,9 +179,9 @@ void AndorCameraSettingsControl::updateTriggerMode( ){
 	settings.andor.triggerMode = AndorTriggerMode::fromStr(str(triggerCombo->currentText ()));
 }
 
-
 void AndorCameraSettingsControl::updateSettings(){
 	// update all settings with current values from controls
+	settings.andor.controlCamera =		controlAndorCameraCheck->isChecked ();
 	settings.andor.exposureTimes =		picSettingsObj.getUsedExposureTimes( );
 	settings.thresholds =				picSettingsObj.getThresholds( );
 	settings.palleteNumbers =			picSettingsObj.getPictureColors( );
@@ -192,17 +196,14 @@ void AndorCameraSettingsControl::updateSettings(){
 	updateTriggerMode( );
 }
 
-
 std::array<softwareAccumulationOption, 4> AndorCameraSettingsControl::getSoftwareAccumulationOptions ( ){
 	return picSettingsObj.getSoftwareAccumulationOptions();
 }
-
 
 AndorCameraSettings AndorCameraSettingsControl::getSettings(){
 	updateSettings( );
 	return settings;
 }
-
 
 AndorCameraSettings AndorCameraSettingsControl::getCalibrationSettings( ){
 	AndorCameraSettings calSettings;
@@ -278,7 +279,6 @@ void AndorCameraSettingsControl::setEmGain( bool emGainCurrentlyOn, int currentE
 	}
 }
 
-
 void AndorCameraSettingsControl::setVariationNumber(unsigned varNumber){
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.totalVariations = varNumber;
@@ -287,7 +287,6 @@ void AndorCameraSettingsControl::setVariationNumber(unsigned varNumber){
 	}
 }
 
-
 void AndorCameraSettingsControl::setRepsPerVariation(unsigned repsPerVar){
 	AndorRunSettings& andorSettings = settings.andor;
 	andorSettings.repetitionsPerVariation = repsPerVar;
@@ -295,7 +294,6 @@ void AndorCameraSettingsControl::setRepsPerVariation(unsigned repsPerVar){
 		thrower ( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
 }
-
 
 void AndorCameraSettingsControl::changeTemperatureDisplay( AndorTemperatureStatus stat ){
 	temperatureDisplay->setText ( cstr ( stat.temperatureSetting ) );
@@ -335,8 +333,7 @@ double AndorCameraSettingsControl::getKineticCycleTime( ){
 }
 
 
-double AndorCameraSettingsControl::getAccumulationCycleTime( )
-{
+double AndorCameraSettingsControl::getAccumulationCycleTime( ){
 	CString text;
 	if (!accumulationCycleTimeEdit){
 		return 0;
@@ -354,8 +351,7 @@ double AndorCameraSettingsControl::getAccumulationCycleTime( )
 }
 
 
-unsigned AndorCameraSettingsControl::getAccumulationNumber( )
-{
+unsigned AndorCameraSettingsControl::getAccumulationNumber( ){
 	if (!accumulationNumberEdit){
 		return 0;
 	}
@@ -388,6 +384,7 @@ andorPicSettingsGroup AndorCameraSettingsControl::getPictureSettingsFromConfig (
 void AndorCameraSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	updateSettings ( ); 
 	saveFile << "CAMERA_SETTINGS\n";
+	saveFile << "/*Control Andor:*/\t\t\t" << settings.andor.controlCamera << "\n";
 	saveFile << "/*Trigger Mode:*/\t\t\t" << AndorTriggerMode::toStr(settings.andor.triggerMode) << "\n";
 	saveFile << "/*EM-Gain Is On:*/\t\t\t" << settings.andor.emGainModeIsOn << "\n";
 	saveFile << "/*EM-Gain Level:*/\t\t\t" << settings.andor.emGainLevel << "\n";
@@ -524,28 +521,21 @@ void AndorCameraSettingsControl::handleOpenMasterConfig ( ConfigStream& configSt
 }
 
 
-std::vector<Matrix<long>> AndorCameraSettingsControl::getImagesToDraw ( const std::vector<Matrix<long>>& rawData )
-{
+std::vector<Matrix<long>> AndorCameraSettingsControl::getImagesToDraw ( const std::vector<Matrix<long>>& rawData ){
 	std::vector<Matrix<long>> imagesToDraw ( rawData.size ( ) );
 	auto options = picSettingsObj.getDisplayTypeOptions ( );
-	for ( auto picNum : range ( rawData.size ( ) ) )
-	{
-		if ( !options[ picNum ].isDiff )
-		{
+	for ( auto picNum : range ( rawData.size ( ) ) ){
+		if ( !options[ picNum ].isDiff ){
 			imagesToDraw[ picNum ] = rawData[ picNum ];
 		}
-		else
-		{
+		else{
 			// the whichPic variable is 1-indexed.
-			if ( options[ picNum ].whichPicForDif >= rawData.size ( ) )
-			{
+			if ( options[ picNum ].whichPicForDif >= rawData.size ( ) ){
 				imagesToDraw[ picNum ] = rawData[ picNum ];
 			}
-			else
-			{
+			else{
 				imagesToDraw[ picNum ] = Matrix<long>(rawData[picNum].getRows(), rawData[picNum].getCols(), 0);
-				for ( auto i : range ( rawData[ picNum ].size ( ) ) )
-				{
+				for ( auto i : range ( rawData[ picNum ].size ( ) ) ){
 					imagesToDraw[ picNum ].data[ i ] = rawData[ picNum ].data[ i ] - rawData[ options[ picNum ].whichPicForDif - 1 ].data[ i ];
 				}
 			}
