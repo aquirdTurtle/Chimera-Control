@@ -277,6 +277,7 @@ bool QtAndorWindow::cameraIsRunning (){
 
 void QtAndorWindow::onCameraProgress (int picNumReported){
 	currentPictureNum++;
+	//qDebug () << currentPictureNum << picNumReported;
 	unsigned picNum = currentPictureNum;
 	if (picNum % 2 == 1){
 		mainThreadStartTimes.push_back (std::chrono::high_resolution_clock::now ());
@@ -407,9 +408,11 @@ void QtAndorWindow::wakeRearranger (){
 void QtAndorWindow::handleSpecialLessThanMinSelection (){
 	if (specialLessThanMin)	{
 		specialLessThanMin = false;
+		//mainWin->checkAllMenus (ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED);
 	}
 	else{
 		specialLessThanMin = true;
+		//mainWin->checkAllMenus (ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED);
 	}
 	pics.setSpecialLessThanMin (specialLessThanMin);
 }

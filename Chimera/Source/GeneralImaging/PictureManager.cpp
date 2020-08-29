@@ -18,12 +18,12 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 
 void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, unsigned whichPicCtrl,
 	std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, unsigned pictureNumber, 
-	bool includingAnalysisMarkers){
+	bool includingAnalysisMarkers, QPainter& painter){
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
 	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax,
 		analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
 	if (alwaysShowGrid)	{
-		pictures[whichPicCtrl].drawGrid (gridBrush);
+		pictures[whichPicCtrl].drawGrid (painter);
 	}
 }
 
@@ -37,15 +37,15 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds){
 	}
 }
 
-void PictureManager::setAlwaysShowGrid(bool showOption){
+void PictureManager::setAlwaysShowGrid(bool showOption, QPainter& painter){
 	alwaysShowGrid = showOption;
 	if (alwaysShowGrid){
 		if (!pictures[1].isActive()){
-			pictures[0].drawGrid( gridBrush);
+			pictures[0].drawGrid( painter );
 			return;
 		}
 		for (auto& pic : pictures){
-			pic.drawGrid( gridBrush);
+			pic.drawGrid( painter );
 		}
 	}
 }
@@ -59,14 +59,14 @@ void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<co
 	if (!pictures[1].isActive()){
 		pictures[0].redrawImage();
 		if (alwaysShowGrid || forceGrid ){
-			pictures[0].drawGrid(gridBrush);
+			pictures[0].drawGrid(painter);
 		}
 		return;
 	}
 	for (auto& pic : pictures){
 		pic.redrawImage();
 		if (alwaysShowGrid || forceGrid ){
-			pic.drawGrid(gridBrush);
+			pic.drawGrid(painter);
 		}
 	}
 }
@@ -241,9 +241,9 @@ unsigned PictureManager::getNumberActive( ){
 	return count;
 }
 
-void PictureManager::drawGrids(){
+void PictureManager::drawGrids(QPainter& painter){
 	for (auto& picture : pictures){
-		picture.drawGrid(gridBrush );
+		picture.drawGrid( painter );
 	}
 }
 

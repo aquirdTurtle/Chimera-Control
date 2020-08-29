@@ -197,7 +197,8 @@ void NiawgCore::handleStartingRerng( ExperimentThreadInput* input){
 	if (expRerngOptions.active && !foundRearrangement ){
 		thrower ( "system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 	}
-	else if ( !expRerngOptions.active && foundRearrangement )	{
+	else if ( !expRerngOptions.active && foundRearrangement )
+	{
 		thrower ( "System was not primed for rearranging atoms, but a rearrangement waveform was found!" );
 	}
 }
@@ -3795,9 +3796,12 @@ void NiawgCore::sortByDistanceToTarget ( std::vector<simpleMove> &moveList ){
 niawgPair<double> NiawgCore::calculateTargetCOM ( Matrix<bool> target, niawgPair<unsigned long> finalPos ){
 	niawgPair<double> avg = { 0,0 };
 	unsigned totalAtoms = 0;
-	for ( auto p : target ){
-		for ( auto rowInc : range ( target.getRows ( ) ) ){
-			for ( auto colInc : range ( target.getCols ( ) ) ){
+	for ( auto p : target )
+	{
+		for ( auto rowInc : range ( target.getRows ( ) ) )
+		{
+			for ( auto colInc : range ( target.getCols ( ) ) )
+			{
 				auto pix = int(target ( rowInc, colInc ));
 				avg[ Axes::Vertical ] += rowInc * pix;
 				avg[ Axes::Horizontal ] += colInc * pix;
@@ -3816,20 +3820,25 @@ niawgPair<double> NiawgCore::calculateTargetCOM ( Matrix<bool> target, niawgPair
 /// everything below here is primarily Kai-Niklas Schymik's work, with minor modifications. Some modifications are
 /// minor to improve style consistency with my code, some are renaming params so that I can make sense of what's 
 /// going on. I also had to change it to make it compatible with non-square input.
-int NiawgCore::sign( int x ){
-	if (x > 0){
+int NiawgCore::sign( int x )
+{
+	if (x > 0)
+	{
 		return 1;
 	}
-	else if (x < 0){
+	else if (x < 0)
+	{
 		return -1;
 	}
-	else{
+	else
+	{
 		return 0;
 	}
 }
 
 
-double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &sourceMates, std::vector<int> &targetMates ){
+double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &sourceMates, std::vector<int> &targetMates )
+{
 	/// 
 	unsigned numSources = cost.getRows( );
 	unsigned numTargets = cost.getCols( );
@@ -3841,16 +3850,20 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 	// v is more complicated.
 	std::vector<double> v( numTargets );
 	// 
-	for (int sourceInc = 0; sourceInc < numSources; sourceInc++){
+	for (int sourceInc = 0; sourceInc < numSources; sourceInc++)
+	{
 		u[sourceInc] = cost(sourceInc,0);
-		for (int targetInc = 1; targetInc < numTargets; targetInc++){
+		for (int targetInc = 1; targetInc < numTargets; targetInc++)
+		{
 			u[sourceInc] = min( u[sourceInc], cost(sourceInc, targetInc) );
 		}
 	}
 
-	for (int targetInc = 0; targetInc < numTargets; targetInc++){
+	for (int targetInc = 0; targetInc < numTargets; targetInc++)
+	{
 		v[targetInc] = cost(0,targetInc) - u[0];
-		for (int sourceInc = 1; sourceInc < numSources; sourceInc++){
+		for (int sourceInc = 1; sourceInc < numSources; sourceInc++)
+		{
 			v[targetInc] = min( v[targetInc], cost(sourceInc,targetInc) - u[sourceInc] );
 		}
 	}
@@ -3861,13 +3874,17 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 	targetMates = std::vector<int>( numTargets, -1 );
 	int numberMated = 0;
 
-	for (int sourceInc = 0; sourceInc < numSources; sourceInc++){
-		for (int targetInc = 0; targetInc < numTargets; targetInc++){
-			if (targetMates[targetInc] != -1){
+	for (int sourceInc = 0; sourceInc < numSources; sourceInc++)
+	{
+		for (int targetInc = 0; targetInc < numTargets; targetInc++)
+		{
+			if (targetMates[targetInc] != -1)
+			{
 				// already matched.
 				continue;
 			}
-			if (fabs( cost(sourceInc,targetInc) - u[sourceInc] - v[targetInc] ) < 1e-10){
+			if (fabs( cost(sourceInc,targetInc) - u[sourceInc] - v[targetInc] ) < 1e-10)
+			{
 				sourceMates[sourceInc] = targetInc;
 				targetMates[targetInc] = sourceInc;
 				numberMated++;
@@ -3881,13 +3898,16 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 	std::vector<bool> seen( numTargets, false);
 
 	// repeat until primal solution is feasible
-	while (numberMated < numSources){
+	while (numberMated < numSources)
+	{
 		// find an unmatched left node
 		int currentUnmatchedSource = 0;
 		// I think there must be at least one because numberMated < rows.
-		while (sourceMates[currentUnmatchedSource] != -1){
+		while (sourceMates[currentUnmatchedSource] != -1)
+		{
 			currentUnmatchedSource++;
-			if ( currentUnmatchedSource >= sourceMates.size( ) ){
+			if ( currentUnmatchedSource >= sourceMates.size( ) )
+			{
 				thrower ( "rearrangement Error! all mateColumn are matched but numberMated < rows!  "
 						 "(A low level bug, this shouldn't happen)" );
 			}
@@ -3896,40 +3916,49 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 		// initialize Dijkstra ...?
 		fill( dad.begin(), dad.end(), -1 );
 		fill( seen.begin(), seen.end(), false );
-		for (auto targetInc : range(numTargets)){
+		for (auto targetInc : range(numTargets))
+		{
 			dist[targetInc] = cost(currentUnmatchedSource,targetInc) - u[currentUnmatchedSource] - v[targetInc];
 		}
 
 		int closestTarget = 0;
-		while (true){
+		while (true)
+		{
 			// find closest target
 			closestTarget = -1;
-			for (int targetInc = 0; targetInc < numTargets; targetInc++){
-				if (seen[targetInc]){
+			for (int targetInc = 0; targetInc < numTargets; targetInc++)
+			{
+				if (seen[targetInc])
+				{
 					continue;
 				}
-				if (closestTarget == -1 || dist[targetInc] < dist[closestTarget]){
+				if (closestTarget == -1 || dist[targetInc] < dist[closestTarget])
+				{
 					closestTarget = targetInc;
 				}
 			}
 			seen[closestTarget] = true;
 
 			// termination condition
-			if (targetMates[closestTarget] == -1){
+			if (targetMates[closestTarget] == -1)
+			{
 				break;
 			}
 
 			// relax neighbors
 			const int closestTargetMate = targetMates[closestTarget];
 
-			for (int targetInc = 0; targetInc < numTargets; targetInc++){
-				if (seen[targetInc]){
+			for (int targetInc = 0; targetInc < numTargets; targetInc++)
+			{
+				if (seen[targetInc])
+				{
 					continue;
 				}
 
 				const double new_dist = dist[closestTarget] + cost( closestTargetMate,targetInc)
 					- u[closestTargetMate] - v[targetInc];
-				if (dist[targetInc] > new_dist){
+				if (dist[targetInc] > new_dist)
+				{
 					dist[targetInc] = new_dist;
 					dad[targetInc] = closestTarget;
 				}
@@ -3937,8 +3966,10 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 		}
 
 		// update dual params
-		for (auto targetInc : range(numTargets)){
-			if (targetInc == closestTarget || !seen[targetInc]){
+		for (auto targetInc : range(numTargets))
+		{
+			if (targetInc == closestTarget || !seen[targetInc])
+			{
 				continue;
 			}
 
@@ -3949,7 +3980,8 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 
 		u[currentUnmatchedSource] += dist[closestTarget];
 		// augment along path
-		while (dad[closestTarget] >= 0){
+		while (dad[closestTarget] >= 0)
+		{
 			const int d = dad[closestTarget];
 			targetMates[closestTarget] = targetMates[d];
 			sourceMates[targetMates[closestTarget]] = closestTarget;
@@ -3961,7 +3993,8 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 	}
 
 	double value = 0;
-	for (auto sourceInc : range(numSources)){
+	for (auto sourceInc : range(numSources))
+	{
 		value += cost(sourceInc, sourceMates[sourceInc]);
 	}
 	return value;
@@ -3972,7 +4005,8 @@ double NiawgCore::minCostMatching( Matrix<double> cost, std::vector<int> &source
 	This should be done before orderMoves The default algorithm will make the moves in an order that tends to fill a 
 	certain corner of the pattern first.
 */
-void NiawgCore::randomizeMoves(std::vector<simpleMove>& operationsList){
+void NiawgCore::randomizeMoves(std::vector<simpleMove>& operationsList)
+{
 	std::default_random_engine rng(std::chrono::system_clock::now().time_since_epoch().count());
 	std::shuffle(std::begin(operationsList), std::end(operationsList), rng);
 }
@@ -3984,21 +4018,25 @@ void NiawgCore::randomizeMoves(std::vector<simpleMove>& operationsList){
 	this part was written by Mark O Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
 */
 void NiawgCore::orderMoves( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence, 
-						    Matrix<bool> sourceMatrix ){
+						    Matrix<bool> sourceMatrix )
+{
 
 	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can
 	// avoid making atoms overlap.
 	Matrix<bool> systemState = sourceMatrix;
 	unsigned moveNum = 0;
-	while (operationsList.size() != 0){
-		if (moveNum >= operationsList.size()){
+	while (operationsList.size() != 0)
+	{
+		if (moveNum >= operationsList.size())
+		{
 			// it's reached the end, reset this.
 			moveNum = 0;
 		}
 		// make sure that the initial location IS populated and the final location ISN'T.
 		bool initIsOpen = systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) == false;
 		bool finIsOccupied = systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) == true;
-		if (initIsOpen || finIsOccupied){
+		if (initIsOpen || finIsOccupied)
+		{
 			moveNum++;
 			continue;
 		}
@@ -4016,25 +4054,31 @@ void NiawgCore::orderMoves( std::vector<simpleMove> operationsList, std::vector<
 
 
 double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
-									   std::vector<simpleMove>& moveList, bool randomize ){
+									   std::vector<simpleMove>& moveList, bool randomize )
+{
 	// I am sure this might be also included directly after evaluating the image, but for safety I also included it 
 	// here.
 	int numberTargets = 0;
 	int numberSources = 0;
 	std::string sourceStr = sourceMatrix.print( );
 	std::string targStr = targetMatrix.print( );
-	for (unsigned rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++){
-		for (unsigned colInc = 0; colInc < sourceMatrix.getCols(); colInc++){
-			if (targetMatrix(rowInc, colInc)){
+	for (unsigned rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++)
+	{
+		for (unsigned colInc = 0; colInc < sourceMatrix.getCols(); colInc++)
+		{
+			if (targetMatrix(rowInc, colInc))
+			{
 				numberTargets++;
 			}
-			if ( sourceMatrix( rowInc, colInc )){
+			if ( sourceMatrix( rowInc, colInc ))
+			{
 				numberSources++;
 			}
 		}
 	}
 	// Throw, if  less atoms than targets!
-	if (numberSources < numberTargets){
+	if (numberSources < numberTargets)
+	{
 		thrower ( "Less atoms than targets!\nN source: " + str( numberSources ) + ", N target: " + str( numberTargets ) );
 	}
 
@@ -4049,14 +4093,18 @@ double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & tar
 	int sourceCounter = 0;
 	int targetCounter = 0;
 
-	for (unsigned rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++){
-		for (unsigned columnInc = 0; columnInc < sourceMatrix.getCols(); columnInc++){
-			if (sourceMatrix(rowInc, columnInc) == 1){
+	for (unsigned rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++)
+	{
+		for (unsigned columnInc = 0; columnInc < sourceMatrix.getCols(); columnInc++)
+		{
+			if (sourceMatrix(rowInc, columnInc) == 1)
+			{
 				sourceCoordinates[sourceCounter][0] = rowInc;
 				sourceCoordinates[sourceCounter][1] = columnInc;
 				sourceCounter++;
 			}
-			if (targetMatrix( rowInc, columnInc ) == 1){
+			if (targetMatrix( rowInc, columnInc ) == 1)
+			{
 				targetCoordinates[targetCounter][0] = rowInc;
 				targetCoordinates[targetCounter][1] = columnInc;
 				targetCounter++;
@@ -4065,8 +4113,10 @@ double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & tar
 	}
 
 	// Now compute the pathlengths
-	for (int sourceInc = 0; sourceInc < numberSources; sourceInc++){
-		for (int targetInc = 0; targetInc < numberTargets; targetInc++){
+	for (int sourceInc = 0; sourceInc < numberSources; sourceInc++)
+	{
+		for (int targetInc = 0; targetInc < numberTargets; targetInc++)
+		{
 			costMatrix(sourceInc, targetInc) = abs( sourceCoordinates[sourceInc][0] - targetCoordinates[targetInc][0] )
 						+ abs( sourceCoordinates[sourceInc][1] - targetCoordinates[targetInc][1] );
 		}
@@ -4088,7 +4138,8 @@ double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & tar
 	std::vector<std::vector<int> > matching( numberTargets, std::vector<int>( 4, 0 ) );
 	
 	// matching matrix, numberTargets x 4, Source and Target indice in each row
-	for (int targetInc = 0; targetInc < numberTargets; targetInc++){
+	for (int targetInc = 0; targetInc < numberTargets; targetInc++)
+	{
 		matching[targetInc][0] = sourceCoordinates[right[targetInc]][0];
 		matching[targetInc][1] = sourceCoordinates[right[targetInc]][1];
 		matching[targetInc][2] = targetCoordinates[targetInc][0];
@@ -4099,12 +4150,14 @@ double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & tar
 	int counter = 0;
 
 	// Setting up the moveSequence (only elementary steps) from the matching matrix (source - target)
-	for (int targetInc = 0; targetInc < numberTargets; targetInc++){
+	for (int targetInc = 0; targetInc < numberTargets; targetInc++)
+	{
 		step_x = matching[targetInc][2] - matching[targetInc][0];
 		step_y = matching[targetInc][3] - matching[targetInc][1];
 		init_x = matching[targetInc][0];
 		init_y = matching[targetInc][1];
-		for (int xStepInc = 0; xStepInc < abs( step_x ); xStepInc++){
+		for (int xStepInc = 0; xStepInc < abs( step_x ); xStepInc++)
+		{
 			moveList[counter].initRow = init_x;
 			moveList[counter].initCol = init_y;
 			moveList[counter].finRow = init_x + sign( step_x );
@@ -4112,7 +4165,8 @@ double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & tar
 			init_x = init_x + sign( step_x );
 			counter++;
 		}
-		for (int yStepInc = 0; yStepInc < abs( step_y ); yStepInc++){
+		for (int yStepInc = 0; yStepInc < abs( step_y ); yStepInc++)
+		{
 			moveList[counter].initRow = init_x;
 			moveList[counter].initCol = init_y;
 			moveList[counter].finRow = init_x;
@@ -4125,13 +4179,16 @@ double NiawgCore::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & tar
 } 
 
 
-void NiawgCore::writeToFile( std::vector<double> waveVals ){
+void NiawgCore::writeToFile( std::vector<double> waveVals )
+{
 	static unsigned writeToStaticNumber = 0;
 	std::ofstream file( DEBUG_OUTPUT_LOCATION + "Wave_" + str( writeToStaticNumber++ ) + ".txt" );
-	if ( !file.is_open( ) ){
+	if ( !file.is_open( ) )
+	{
 		thrower ( "Niawg wave file failed to open!" );
 	}
-	for ( auto val : waveVals ){
+	for ( auto val : waveVals )
+	{
 		file << val << " ";
 	}
 	file.close( );
@@ -4140,12 +4197,16 @@ void NiawgCore::writeToFile( std::vector<double> waveVals ){
 
 // for debugging / visualization purposes. note that the returned vector will be one longer than the number of moves
 // because it includes the original image.
-std::vector<std::string> NiawgCore::evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves ){
+std::vector<std::string> NiawgCore::evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves )
+{
 	std::vector<std::string> images;
 	images.push_back( source.print( ) );
-	for ( auto move : flashMoves ){
-		for ( auto loc : move.locationsToMove ){
-			if ( !source( loc.row, loc.column) ){
+	for ( auto move : flashMoves )
+	{
+		for ( auto loc : move.locationsToMove )
+		{
+			if ( !source( loc.row, loc.column) )
+			{
 				throw;
 			}
 			// potentially could move a blank...
@@ -4164,7 +4225,8 @@ std::vector<std::string> NiawgCore::evolveSource( Matrix<bool> source, std::vect
 	Handles parallelizing moves and determining if flashing is necessary for moves or not. The parallelizing part of this is very tricky.
 */
 void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> origSource, 
-							   std::vector<complexMove> &flashMoves, rerngGuiOptions options ){
+							   std::vector<complexMove> &flashMoves, rerngGuiOptions options )
+{
 	Matrix<bool> runningSource = origSource;
 	// convert all single moves into complex moves.
 	// procedure for combining at the moment (not really optimal...):
@@ -4177,7 +4239,8 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 	  Check if move can be made without flashing.
 	 */
 	unsigned initMoveNum = 0;
-	while ( singleMoves.size( ) != 0 ){
+	while ( singleMoves.size( ) != 0 )
+	{
 		/*
 		A word on notation: pi configuration parallel moves means that the moves share the same moving index.
 		inline (sometimes denoted - -) configuration parallel moves means that the moves share the same static index.
@@ -4194,7 +4257,8 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 		std::vector<simpleMove> pi_moveList;
 		std::vector<int> inline_moveIndexes;
 		std::vector<simpleMove> inline_moveList;
-		if ( initMoveNum >= singleMoves.size( ) ){
+		if ( initMoveNum >= singleMoves.size( ) )
+		{
 			initMoveNum = 0;
 		}
 		auto baseMove = singleMoves[int(initMoveNum)];
@@ -4207,30 +4271,38 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 		pi_moveList.push_back( baseMove );
 		inline_moveList.push_back( baseMove );
 		// grab all moves that match the initial row(column) and the final row(column).
-		for ( auto moveInc : range( singleMoves.size( ) ) ){
-			if ( moveInc == initMoveNum ){
+		for ( auto moveInc : range( singleMoves.size( ) ) )
+		{
+			if ( moveInc == initMoveNum )
+			{
 				continue;
 			}
 			if ( (options.parallel == parallelMoveOption::partial && pi_moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
-					|| (options.parallel == parallelMoveOption::none && pi_moveList.size( ) == 1) ){
+					|| (options.parallel == parallelMoveOption::none && pi_moveList.size( ) == 1) )
+			{
 				// already have all the moves we want for combining.
 				break;
 			}
 			simpleMove testMove = singleMoves[moveInc];
-			if ( testMove.dir( ) == moveDir ) {
-				if ( testMove.movingIndex( ) == baseMoveIndex ) {
+			if ( testMove.dir( ) == moveDir )
+			{
+				if ( testMove.movingIndex( ) == baseMoveIndex )
+				{
 					// the move is compatible with being parallelized.
 					// avoid repeats by checking if singleMoves is in pi_moveList first
-					if ( std::find( pi_moveList.begin( ), pi_moveList.end( ), testMove ) == pi_moveList.end( ) ) {
+					if ( std::find( pi_moveList.begin( ), pi_moveList.end( ), testMove ) == pi_moveList.end( ) )
+					{
 						pi_moveIndexes.push_back( moveInc );
 						pi_moveList.push_back( testMove );
 					}
 				}
-				if ( testMove.staticIndex( ) == baseStaticIndex ) {
+				if ( testMove.staticIndex( ) == baseStaticIndex )
+				{
 					// the move is compatible with being parallelized.
 					// avoid repeats by checking if singleMoves is in pi_moveList first
 					if ( std::find( inline_moveList.begin( ), inline_moveList.end( ), testMove ) 
-						 == inline_moveList.end( ) ) {
+						 == inline_moveList.end( ) )
+					{
 						inline_moveIndexes.push_back( moveInc );
 						inline_moveList.push_back( testMove );
 					}
@@ -4238,12 +4310,16 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 			}
 		}
 
+
+
 		// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
 		// atom at the final position
-		for ( unsigned k = pi_moveIndexes.size( ); k-- > 0; ) {
+		for ( unsigned k = pi_moveIndexes.size( ); k-- > 0; )
+		{
 			auto& move = singleMoves[pi_moveIndexes[k]];
 			// check that initial spot has atom & final spot is free
-			if ( !(runningSource( move.initRow, move.initCol ) && !runningSource( move.finRow, move.finCol )) )	{
+			if ( !(runningSource( move.initRow, move.initCol ) && !runningSource( move.finRow, move.finCol )) )
+			{
 				// can't move this one, remove from list.
 				pi_moveIndexes.erase( pi_moveIndexes.begin( ) + k );
 				pi_moveList.erase( pi_moveList.begin( ) + k );
@@ -4254,39 +4330,49 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 		// site.
 		// first index here is location, second is whether cleared (+1), blocked (-1), or unknown (0)
 		std::vector<std::pair<unsigned, int>> potentialMoveLocations;
-		for ( auto move : inline_moveList ) {
+		for ( auto move : inline_moveList )
+		{
 			potentialMoveLocations.push_back( { move.movingIndex( ), 0 } );
 		}
 
 		// loop on the following rules until move list reaches static-ness.
 		bool changed = true;
-		while ( changed ) {
+		while ( changed )
+		{
 			changed = false;
-			for ( unsigned k = potentialMoveLocations.size( ); k-- > 0; ) {
+			for ( unsigned k = potentialMoveLocations.size( ); k-- > 0; )
+			{
 				// first case here is just a result of keeping potential MoveKocations the same size for proper 
 				// indexing. Second occurs if location's fate has already been decided.
-				if ( k > inline_moveIndexes.size( ) || potentialMoveLocations[k].second != 0) {
+				if ( k > inline_moveIndexes.size( ) || potentialMoveLocations[k].second != 0)
+				{
 					continue;
 				}
 				auto& move = singleMoves[inline_moveIndexes[k]];
 				// check that initial spot has atom & final spot is free
-				if ( runningSource( move.initRow, move.initCol ) ) {
-					if ( !runningSource( move.finRow, move.finCol ) ) {
+				if ( runningSource( move.initRow, move.initCol ) )
+				{
+					if ( !runningSource( move.finRow, move.finCol ) )
+					{
 						potentialMoveLocations[k].second = 1;
 						changed = true;
 					}
 					else
 					{
-						for ( auto potentialLoc : potentialMoveLocations ) {
-							if ( potentialLoc.second == 1 ) {
+						for ( auto potentialLoc : potentialMoveLocations )
+						{
+							if ( potentialLoc.second == 1 )
+							{
 								potentialMoveLocations[k].second = 1;
 								// then blockage is moving out of the way. good.
 								changed = true;
 							}
-							else if ( potentialLoc.second == 0 ) {
+							else if ( potentialLoc.second == 0 )
+							{
 								// unknown, might still be moved. Don't do anything.
 							}
-							else {
+							else
+							{
 								// will not be moved.
 								potentialMoveLocations[k].second = -1;
 								inline_moveIndexes.erase( inline_moveIndexes.begin( ) + k );
@@ -4297,7 +4383,8 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 						}
 					}
 				}
-				else {
+				else
+				{
 					potentialMoveLocations[k].second = -1;
 					inline_moveIndexes.erase( inline_moveIndexes.begin( ) + k );
 					inline_moveList.erase( inline_moveList.begin( ) + k );
@@ -4308,8 +4395,10 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 		// take the better result.
 		auto moveIndexes = (inline_moveList.size( ) > pi_moveList.size( )) ? inline_moveIndexes : pi_moveIndexes ;
 		// auto moveIndexes = pi_moveIndexes;
-		if ( moveIndexes.size( ) == 0 )	{
-			if ( singleMoves.size( ) == 1 )	{
+		if ( moveIndexes.size( ) == 0 )
+		{
+			if ( singleMoves.size( ) == 1 )
+			{
 				thrower ( "somehow the last single move can't be made..." );
 			}
 			// couldn't move any atoms. try a different starting point.
@@ -4321,7 +4410,8 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 		flashMoves.back( ).isInlineParallel = (inline_moveList.size( ) > pi_moveList.size( ));
 		/// create complex move objs
 		Matrix<bool> tmpSource = runningSource;
-		for ( auto indexNumber : range( moveIndexes.size( ) ) )	{
+		for ( auto indexNumber : range( moveIndexes.size( ) ) )
+		{
 			// offset from moveIndexes is the # of moves already erased.
 			unsigned moveIndex = moveIndexes[indexNumber] - indexNumber;
 			auto& move = singleMoves[moveIndex];
@@ -4335,10 +4425,12 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 			singleMoves.erase( singleMoves.begin( ) + moveIndex );
 		}
 		/// Handle Smart-Flashing
-		if ( options.noFlashOption != nonFlashingOption::none )	{
+		if ( options.noFlashOption != nonFlashingOption::none )
+		{
 			flashMoves.back( ).needsFlash = false;
 			// loop through all locations in the row / collumn
-			for ( auto location : range( altSize ) ){
+			for ( auto location : range( altSize ) )
+			{
 				unsigned initRow, initCol, finRow, finCol;
 				bool isRow = (moveDir == dir::up || moveDir == dir::down);
 				initRow = isRow ? baseMoveIndex : location;
@@ -4347,20 +4439,24 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 				if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).locationsToMove.begin( ),
 													   				 flashMoves.back( ).locationsToMove.end( ), 
 																	 int_coordinate({ int(initRow), int(initCol) }) )
-					 == flashMoves.back( ).locationsToMove.end( ) )	{
+					 == flashMoves.back( ).locationsToMove.end( ) )
+				{
 					flashMoves.back( ).needsFlash = true;
 				}
 				// also check the final location.
-				if ( options.noFlashOption == nonFlashingOption::cautious )	{
+				if ( options.noFlashOption == nonFlashingOption::cautious )
+				{
 					finRow = initRow + isRow * (baseMove.dirInt( ));
 					finCol = initCol + (!isRow) * (baseMove.dirInt( ));
-					if ( runningSource( finRow, finCol ) )	{
+					if ( runningSource( finRow, finCol ) )
+					{
 						flashMoves.back( ).needsFlash = true;
 					}
 				}
 			}
 		}
-		else {
+		else
+		{
 			flashMoves.back( ).needsFlash = true;
 		}
 		runningSource = tmpSource;
@@ -4375,29 +4471,39 @@ void NiawgCore::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool>
 // Is overestimating the most if you have a very small target in a big lattice.
 // If you wanted to scale it down, one idea might be to scale getMaxMoves with the filling fraction!
 // Also: Not super fast because of nested for loops
-unsigned NiawgCore::getMaxMoves( Matrix<bool> targetmatrix ){
+unsigned NiawgCore::getMaxMoves( Matrix<bool> targetmatrix )
+{
 	int targetNumber = 0;
-	for (auto elem : targetmatrix){
-		if (elem == 1){
+	for (auto elem : targetmatrix)
+	{
+		if (elem == 1)
+		{
 			targetNumber++;
 		}
 	}
 	std::vector<std::vector<unsigned> >targetIndice( targetNumber, std::vector<unsigned>( 2, 0 ) );
 	unsigned targetcounter = 0;
-	for (auto rowInc : range(targetmatrix.getRows())){
-		for (auto colInc : range(targetmatrix.getCols())){
-			if (targetmatrix(rowInc, colInc) == 1){
+	for (auto rowInc : range(targetmatrix.getRows()))
+	{
+		for (auto colInc : range(targetmatrix.getCols()))
+		{
+			if (targetmatrix(rowInc, colInc) == 1)
+			{
 				targetIndice[targetcounter] = { rowInc, colInc }; 
 				targetcounter++;
 			}
 		}
 	}
 	unsigned maxlength = 0, sumlength = 0, length = 0;
-	for (auto k : range(targetcounter))	{
-		for (auto i : range( targetmatrix.getRows())){
-			for (auto j : range( targetmatrix.getCols() ) )	{
+	for (auto k : range(targetcounter))
+	{
+		for (auto i : range( targetmatrix.getRows()))
+		{
+			for (auto j : range( targetmatrix.getCols() ) )
+			{
 				length = abs( int(i - targetIndice[k][0]) ) + abs( int(j - targetIndice[k][1]) );
-				if (length > maxlength)	{
+				if (length > maxlength)
+				{
 					maxlength = length;
 				}
 			}
@@ -4407,7 +4513,8 @@ unsigned NiawgCore::getMaxMoves( Matrix<bool> targetmatrix ){
 	return sumlength;
 }
 
-bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile){
+bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile)
+{
 	if (openfile.ver < Version ("4.12")) { return true; }
 	bool opt;
 	if (openfile.ver >= Version ("5.0")) {
@@ -4420,17 +4527,20 @@ bool NiawgCore::getSettingsFromConfig (ConfigStream& openfile){
 	return opt;
 }
 
-void NiawgCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
+void NiawgCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker)
+{
 	H5::Group niawgGroup (log.file.createGroup ("/NIAWG"));
 	log.writeDataSet (experimentActive, "Run-NIAWG", niawgGroup);
-	if (experimentActive){
+	if (experimentActive)
+	{
 		unsigned seqInc = 0;
 		log.writeDataSet (expNiawgStream.str (), "Seq. " + str (seqInc + 1) + " NIAWG-Script", niawgGroup);
 		seqInc++;
 		log.writeDataSet (NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup);
 		log.writeDataSet (NIAWG_GAIN, "NIAWG-Gain", niawgGroup);
 	}
-	else{
+	else
+	{
 		log.writeDataSet ("", "NA:NIAWG-Script", niawgGroup);
 		log.writeDataSet (-1, "NA:NIAWG-Sample-Rate", niawgGroup);
 		log.writeDataSet (-1, "NA:NIAWG-Gain", niawgGroup);
@@ -4476,11 +4586,14 @@ void NiawgCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 	}
 }
 
-void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
+void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker)
+{
 	std::string TODO_WARNINGS;
-	if (experimentActive){
+	if (experimentActive)
+	{
 		programNiawg (TODO_WARNINGS, varInc, expRerngOptions, params);
-		if (expRerngOptions.active)	{
+		if (expRerngOptions.active)
+		{
 			turnOffRerng ();
 			//input->conditionVariableForRerng->notify_all ();
 			waitForRerng (false);

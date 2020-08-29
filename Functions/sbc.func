@@ -19,7 +19,8 @@ def sbc():
   t += 1
   off: uw_mod_switch 
   var sbc_op_pulsetime 0.015
-  var sbctoppulsetime 0.0125
+  var sbctoppulsetime 0.04 
+  var sbctoppulsetime2 0.06
   % original times reported in sbc paper were 72.5us and 48us for top/bottom. 
   repeat: 25
     call axialRamanPulse(0.04) 
@@ -37,9 +38,9 @@ def sbc():
   repeat: 25
     call axialRamanPulse(0.08)
     call opPulse(0.015)
-    call topRamanPulse(0.060)
+    call topRamanPulse(0.06)
     call opPulse(0.015) 
-    call botRamanPulse(0.060)
+    call botRamanPulse(0.06)
     call opPulse(0.015) 
   end
   %var afterSbcOpPower 0.05

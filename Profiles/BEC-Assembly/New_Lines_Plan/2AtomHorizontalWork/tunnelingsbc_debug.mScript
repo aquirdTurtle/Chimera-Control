@@ -35,10 +35,12 @@ call pump2stretch()
 call sbc()
 pulseon: windfreakTrig 0.05
 t += 1
+pulseon: tweezerIntensityTrig 0.1
 pulseon: niawgtrig 0.1
 t += 7
+pulseon: tweezerIntensityTrig 0.1
 pulseon: niawgTrig 0.1
-
+t += 7
 var specPulseTime 0.016 % 0.022
 on: a15
 dac: eoPulseLev eo_raman__sv
@@ -61,6 +63,7 @@ t += 1
 pulseon: rsTrig 0.1
 call pgcAtomFlashingImage()
 pulseon: tweezerIntensityTrig 0.1
+pulseon: niawgTrig 0.1
 t += 1
 off: tweezerRf
 off: windfreakTrig

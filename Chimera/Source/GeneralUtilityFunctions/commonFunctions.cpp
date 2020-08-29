@@ -99,6 +99,8 @@ namespace commonFunctions
 					}
 					andorWin->setTimerText ( "Starting..." );
 					mainWin->autoServo ();
+					// automatically save; this is important to handle changes like the auto servo and auto carrier
+					commonFunctions::handleCommonMessage (ID_FILE_SAVEALL, win);
 					prepareMasterThread( msgID, win, input, true, true, true, true, true );
 					input.masterInput->expType = ExperimentType::Normal;
 					if ( !mainWin->autoF5_AfterFinish )	{
@@ -373,7 +375,9 @@ namespace commonFunctions
 						return;
 					}
 					mainWin->autoServo ();
-					auto& calInfo = AUTO_CAL_LIST[calNum]; 
+					// automatically save; this is important to handle changes like the auto servo and auto carrier
+					commonFunctions::handleCommonMessage (ID_FILE_SAVEALL, win);
+					auto& calInfo = AUTO_CAL_LIST[calNum];
 					mainWin->reportStatus (qstr(calInfo.infoStr));
 					input.masterInput->profile = calInfo.prof;
 					input.masterInput->runList = calInfo.runList;

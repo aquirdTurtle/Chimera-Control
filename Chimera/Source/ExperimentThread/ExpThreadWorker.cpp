@@ -29,7 +29,7 @@ void ExpThreadWorker::experimentThreadProcedure () {
 	experimentIsRunning = true;
 	emit notification (qstr ("Starting Experiment " + input->profile.configuration + "...\n"));
 	ExpRuntimeData expRuntime;
-	input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
+	//input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
 	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
 	isPaused = false;
 	try {
