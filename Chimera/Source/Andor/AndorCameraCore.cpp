@@ -816,6 +816,8 @@ void AndorCameraCore::loadExpSettings (ConfigStream& stream){
 	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings);
 	expRunSettings.repetitionsPerVariation = ProfileSystem::stdConfigGetter (stream, "REPETITIONS", 
 																			 Repetitions::getSettingsFromConfig);
+	expAnalysisSettings = ProfileSystem::stdConfigGetter (stream, "DATA_ANALYSIS", 
+														  DataAnalysisControl::getAnalysisSettingsFromFile); 
 	experimentActive = expRunSettings.controlCamera;
 }
 
@@ -823,7 +825,7 @@ void AndorCameraCore::calculateVariations (std::vector<parameterType>& params, E
 	expRunSettings.totalVariations = (params.size () == 0 ? 1 : params.front ().keyValues.size ());;
 	if (experimentActive){
 		setSettings (expRunSettings);
-		emit threadworker->prepareAndor (&expRunSettings);
+		emit threadworker->prepareAndor (&expRunSettings, expAnalysisSettings);
 	}
 }
 

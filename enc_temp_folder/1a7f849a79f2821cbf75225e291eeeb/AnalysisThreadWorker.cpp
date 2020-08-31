@@ -53,11 +53,11 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 		unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
 		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (),
 			std::vector<bool> (groupNum, true));
-		determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
+		DataAnalysisControl::determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
 		// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
 		// organization purposes.
 		if (allPlots[plotI].getPlotType () == "Atoms") {
-			auto res = handlePlotAtoms (
+			auto res = DataAnalysisControl::handlePlotAtoms (
 				allPlots[plotI], picNum, finalDataNew[plotI], dataContainers[plotI],
 				variationNum, satisfiesPsc, plotNumberCount, atomPresentData[whichGrid], input->plottingFrequency,
 				groupNum, input->picsPerVariation);
@@ -139,8 +139,8 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 		if (allPlots[plotI].getPlotType () == "Pixel Count Histograms") {
 			// This is done in the different slot. Should review this chunck of code to make this more efficient and 
 			// not do anything 
-			auto res = handlePlotHist (allPlots[plotI], countData[whichGrid], finalHistData[plotI],
-									   satisfiesPsc, histogramData[plotI], dataContainers[plotI], groupNum);
+			auto res = DataAnalysisControl::handlePlotHist (allPlots[plotI], countData[whichGrid], finalHistData[plotI],
+												 satisfiesPsc, histogramData[plotI], dataContainers[plotI], groupNum);
 			if (res.size () != 0) {
 				emit newPlotData (res, plotI);
 			}
@@ -246,181 +246,4 @@ void AnalysisThreadWorker::setXpts (std::vector<double> newXpts) {
 		}
 	}
 	xvals = newXpts;
-}
-
-
-std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotAtoms (PlottingInfo plotInfo, unsigned pictureNumber,
-	std::vector<std::vector<std::pair<double, unsigned long>> >& finData,
-	std::vector<std::vector<dataPoint>>& dataContainers,
-	unsigned variationNumber, std::vector<std::vector<bool>>& pscSatisfied,
-	int plotNumberCount, std::vector<std::vector<int> > atomPresent, unsigned plottingFrequency,
-	unsigned groupNum, unsigned picsPerVariation) {
-	if (pictureNumber % picsPerVariation == plotInfo.getPicNumber ()) {
-		// first pic of new variation, so need to update x vals.
-		finData = std::vector<std::vector<std::pair<double, unsigned long>>> (plotInfo.getDataSetNumber (),
-			std::vector<std::pair<double, unsigned long>> (groupNum, { 0,0 }));
-	}
-	/// Check Data Conditions
-	for (auto dataSetI : range (plotInfo.getDataSetNumber ())) {
-		for (auto groupI : range (groupNum)) {
-			if (pscSatisfied[dataSetI][groupI] == false) {
-				// no new data.
-				continue;
-			}
-			bool dataVal = true;
-			for (auto pixelI : range (plotInfo.getPixelNumber ())) {
-				for (auto picI : range (plotInfo.getPicNumber ())) {
-					// check if there is a condition at all
-					int truthCondition = plotInfo.getResultCondition (dataSetI, pixelI, picI);
-					if (truthCondition == 0) {
-						continue;
-					}
-					int pixel = groupI;
-					if (truthCondition == 1 && atomPresent[pixel][picI] != 1) {
-						dataVal = false;
-					}
-					// ?? This won't happen... see above continue...
-					else if (truthCondition == 0 && atomPresent[groupI][picI] != 0) {
-						dataVal = false;
-					}
-				}
-			}
-			finData[dataSetI][groupI].first += dataVal;
-			finData[dataSetI][groupI].second++;
-		}
-	}
-	// Core data structures have been updated. return if not time for a plot update yet.
-	if (plotNumberCount % plottingFrequency != 0) {
-		return {};
-	}
-	if (dataContainers.size () == 0) {
-		return {};
-	}
-	/// Calculate averages and standard devations for Data sets AND groups...
-	for (auto dataSetI : range (plotInfo.getDataSetNumber ())) {
-		unsigned avgId = dataContainers.size () - dataSetI - 1;
-		for (auto groupI : range (groupNum)) {
-			// Will be function fo groupI and dataSetI; TBD			
-			unsigned dataId = (dataSetI + 1) * groupI;
-			// calculate new data points
-			double mean = finData[dataSetI][groupI].first / finData[dataSetI][groupI].second;
-			double error = mean * (1 - mean) / std::sqrt (finData[dataSetI][groupI].second);
-			dataContainers[dataId][variationNumber].y = mean;
-			dataContainers[dataId][variationNumber].err = error;
-		}
-		/// calculate averages
-		double avgAvgVal = 0, avgErrsVal = 0;
-		std::pair<double, unsigned long> allDataTempNew (0, 0);
-		for (auto data : finData[dataSetI]) {
-			allDataTempNew.first += data.first;
-			allDataTempNew.second += data.second;
-		}
-		if (allDataTempNew.second == 0) {
-			dataContainers[avgId][variationNumber].y = 0;
-			dataContainers[avgId][variationNumber].err = 0;
-		}
-		else {
-			double mean = allDataTempNew.first / allDataTempNew.second;
-			double error = mean * (1 - mean) / std::sqrt (allDataTempNew.second);
-			dataContainers[avgId][variationNumber].y = mean;
-			dataContainers[avgId][variationNumber].err = error;
-		}
-	}
-	return dataContainers;
-}
-
-std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotHist (PlottingInfo plotInfo, std::vector<std::vector<long>> countData,
-	std::vector<std::vector<std::deque<double>>>& finData, std::vector<std::vector<bool>> pscSatisfied,
-	std::vector<std::vector<std::map<int, std::pair<int, unsigned long>>>>& histData,
-	std::vector<std::vector<dataPoint>>& dataContainers,
-	unsigned groupNum) {
-	/// options are fundamentally different for histograms.
-	// load pixel counts
-	for (auto dataSetI : range (plotInfo.getDataSetNumber ())) {
-		for (auto groupI : range (groupNum)) {
-			if (pscSatisfied[dataSetI][groupI] == false) {
-				// no new data.
-				continue;
-			}
-			double binWidth = plotInfo.getDataSetHistBinWidth (dataSetI);
-			for (auto pixelI : range (plotInfo.getPixelNumber ())) {
-				for (auto picI : range (plotInfo.getPicNumber ())) {
-					// check if there is a condition at all
-					if (plotInfo.getResultCondition (dataSetI, pixelI, picI)) {
-						int index = -int (plotInfo.getPicNumber ()) + int (picI);
-						if (int (countData[groupI].size ()) + index < 0) {
-							return {}; // not enough pictures yet
-						}
-						int binNum = std::round (double (countData[groupI][countData[groupI].size () + index]) / binWidth);
-						if (histData[dataSetI][groupI].find (binNum) == histData[dataSetI][groupI].end ()) {
-							// if bin doesn't exist
-							histData[dataSetI][groupI][binNum] = { binNum * binWidth, 1 };
-						}
-						else {
-							histData[dataSetI][groupI][binNum].second++;
-						}
-					}
-				}
-			}
-			// find the range of bins
-			int min_bin = INT_MAX, max_bin = -INT_MAX;
-			for (auto p : histData[dataSetI][groupI]) {
-				if (p.first < min_bin) {
-					min_bin = p.first;
-				}
-				if (p.first > max_bin) {
-					max_bin = p.first;
-				}
-			}
-			/// check for empty data points and fill them with zeros.
-			for (auto bin_i : range (max_bin - min_bin)) {
-				auto binNum = bin_i + min_bin;
-				if (histData[dataSetI][groupI].find (binNum) == histData[dataSetI][groupI].end ()) {
-					// if bin doesn't exist
-					histData[dataSetI][groupI][binNum] = { binNum * binWidth, 0 };
-				}
-			}
-			// Will be function fo groupI and dataSetI; TBD			
-			unsigned dataId = (dataSetI + 1) * groupI;
-			// calculate new data points
-			unsigned count = 0;
-			if (dataContainers.size () <= dataId) {
-				dataContainers.resize (dataId + 1);
-			}
-			dataContainers[dataId].resize (histData[dataSetI][groupI].size ());
-			for (auto& bin : histData[dataSetI][groupI]) {
-				dataContainers[dataId][count].x = bin.second.first;
-				dataContainers[dataId][count].y = bin.second.second;
-				dataContainers[dataId][count].err = 0;
-				count++;
-			}
-		}
-	}
-	return dataContainers;
-}
-
-void AnalysisThreadWorker::determineWhichPscsSatisfied (
-	PlottingInfo& info, unsigned groupSize, std::vector<std::vector<int>> atomPresentData, std::vector<std::vector<bool>>& pscSatisfied) {
-	// There's got to be a better way to iterate through these guys...
-	for (auto dataSetI : range (info.getDataSetNumber ())) {
-		for (auto groupI : range (groupSize)) {
-			for (auto conditionI : range (info.getConditionNumber ())) {
-				for (auto pixelI : range (info.getPixelNumber ())) {
-					for (auto picI : range (info.getPicNumber ())) {
-						// test if condition exists
-						int condition = info.getPostSelectionCondition (dataSetI, conditionI, pixelI, picI);
-						if (condition == 0) {
-							continue;
-						}
-						if (condition == 1 && atomPresentData[groupI][picI] != 1) {
-							pscSatisfied[dataSetI][groupI] = false;
-						}
-						else if (condition == -1 && atomPresentData[groupI][picI] != 0) {
-							pscSatisfied[dataSetI][groupI] = false;
-						}
-					}
-				}
-			}
-		}
-	}
 }

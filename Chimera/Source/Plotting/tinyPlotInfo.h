@@ -9,5 +9,6 @@ struct tinyPlotInfo{
 	std::string name;
 	bool isHist=false;
 	unsigned whichGrid=0;
+	unsigned numPics=1;
 };
 

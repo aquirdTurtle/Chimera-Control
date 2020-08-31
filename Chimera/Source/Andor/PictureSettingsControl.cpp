@@ -21,8 +21,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 				parent->andorWin->handlePictureSettings ();
 			}
 		}
-		catch (ChimeraError& err)
-		{
+		catch (ChimeraError& err){
 			parent->reportErr (err.qtrace());
 		}
 	};
@@ -66,8 +65,7 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 		thresholdEdits[picInc] = new CQLineEdit ("100", parent);
 		thresholdEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
 		parent->connect (thresholdEdits[picInc], &QLineEdit::textChanged, handleChange);
-
-		settings.thresholds[ picInc ] = { 100 };
+		currentPicSettings.thresholds[ picInc ] = { 100 };
 	}
 	/// colormaps
 	colormapLabel = new QLabel ("Colormap", parent);
@@ -76,10 +74,10 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 		colormapCombos[picInc] = new CQComboBox (parent);
 		colormapCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
 		colormapCombos[picInc]->addItems ({ "Dark Viridis","Inferno","Black & White", "Red-Black-Blue" });
-		parent->connect (colormapCombos[picInc], qOverload<int>(&QComboBox::currentIndexChanged), handleChange);
+		parent->connect (colormapCombos[picInc], qOverload<int>(&QComboBox::activated), handleChange);
 
 		colormapCombos[picInc]->setCurrentIndex( 0 );
-		settings.colors[picInc] = 0;
+		currentPicSettings.colors[picInc] = 0;
 	}
 	/// display types
 	displayTypeLabel = new QLabel ("Display-Type:", parent);
@@ -88,9 +86,9 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 		displayTypeCombos[picInc] = new CQComboBox (parent);
 		displayTypeCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
 		displayTypeCombos[picInc]->addItems ({"Normal","Dif: 1", "Dif: 2", "Dif: 3", "Dif: 4"});
-		parent->connect (displayTypeCombos[picInc], qOverload<int> (&QComboBox::currentIndexChanged), handleChange);
+		parent->connect (displayTypeCombos[picInc], qOverload<int> (&QComboBox::activated), handleChange);
 		displayTypeCombos[ picInc ]->setCurrentIndex ( 0 );
-		settings.colors[ picInc ] = 0;
+		currentPicSettings.colors[ picInc ] = 0;
 	}
 	/// software accumulation mode
 	softwareAccumulationLabel = new QLabel ("Software Accum:", parent);
@@ -131,7 +129,7 @@ std::array<std::string, 4> PictureSettingsControl::getThresholdStrings(){
 	std::array<std::string, 4> res;
 	// grab the thresholds
 	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ ){
-		auto& picThresholds = settings.thresholds[ thresholdInc ];
+		auto& picThresholds = currentPicSettings.thresholds[ thresholdInc ];
 		picThresholds.resize ( 1 );
 		res[ thresholdInc ] = str(thresholdEdits[thresholdInc]->text ());
 	}
@@ -142,7 +140,7 @@ void PictureSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "PICTURE_SETTINGS\n";
 	saveFile << "/*Transformation Mode:*/ " << str (transformationModeCombo->currentText ());
 	saveFile << "\n/*Color Options:*/ ";
-	for (auto color : settings.colors){
+	for (auto color : currentPicSettings.colors){
 		saveFile << color << " ";
 	}
 	saveFile << "\n/*Threshold Settings:*/ ";
@@ -252,11 +250,12 @@ void PictureSettingsControl::setUnofficialPicsPerRep( unsigned picNum ){
 	if ( picNum < 1 || picNum > 4 ){
 		thrower ( "Tried to set bad number of pics per rep: " + str ( picNum ) );
 	}
+	unofficialPicsPerRep = picNum;
 	unsigned count = 0;
 	for (auto& totalNumRadio : totalNumberChoice){
 		count++;
-		totalNumRadio->setChecked (count == picNum);
-		setPictureControlEnabled (count-1, count <= picNum);
+		totalNumRadio->setChecked (count == unofficialPicsPerRep);
+		setPictureControlEnabled (count-1, count <= unofficialPicsPerRep);
 	}
 }
 
@@ -304,13 +303,13 @@ void PictureSettingsControl::setThresholds( std::array<std::string, 4> newThresh
 
 std::array<int, 4> PictureSettingsControl::getPictureColors(){
 	updateSettings ( );
-	return settings.colors;
+	return currentPicSettings.colors;
 }
 
 void PictureSettingsControl::updateColormaps ( std::array<int, 4> colorIndexes ){
-	settings.colors = colorIndexes;
+	currentPicSettings.colors = colorIndexes;
 	for ( auto picInc : range(4) ){
-		colormapCombos[ picInc ]->setCurrentIndex ( settings.colors[ picInc ] );
+		colormapCombos[ picInc ]->setCurrentIndex ( currentPicSettings.colors[ picInc ] );
 	}
 }
 
@@ -320,7 +319,6 @@ void PictureSettingsControl::setUnofficialExposures ( std::vector<float> times )
 		exposureEdits[ count++ ]->setText ( cstr ( ti*1e3,5) );
 	}
 }
-
 
 void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSettings ) {
 	updateColormaps ( inputSettings.colors );
@@ -334,21 +332,18 @@ void PictureSettingsControl::updateAllSettings ( andorPicSettingsGroup inputSett
 	}
 }
 
-/**/
-std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds ( )
-{
+std::array<std::vector<int>, 4> PictureSettingsControl::getThresholds ( ){
 	updateSettings ( );
-	return settings.thresholds;
+	return currentPicSettings.thresholds;
 }
 
-void PictureSettingsControl::updateSettings( )
-{
+void PictureSettingsControl::updateSettings( ){
 	// grab the thresholds
 	for (auto thresholdInc : range(4) ){
 		if (!thresholdEdits[thresholdInc]) {
 			return;
 		}
-		auto& picThresholds = settings.thresholds[ thresholdInc ];
+		auto& picThresholds = currentPicSettings.thresholds[ thresholdInc ];
 		picThresholds.resize ( 1 );
 		int threshold;
 		
@@ -375,10 +370,9 @@ void PictureSettingsControl::updateSettings( )
 		}
 	}
 	for (auto colorInc : range (4)) {
-		settings.colors[colorInc] = colormapCombos[colorInc]->currentIndex();
+		currentPicSettings.colors[colorInc] = colormapCombos[colorInc]->currentIndex();
 	}
 }
-
 
 Qt::TransformationMode PictureSettingsControl::getTransformationMode (){
 	if (transformationModeCombo->currentText () == "Fast") {
@@ -389,3 +383,22 @@ Qt::TransformationMode PictureSettingsControl::getTransformationMode (){
 	}
 }
 
+void PictureSettingsControl::setEnabledStatus (bool viewRunningSettings) {
+	if (viewRunningSettings) {
+		for (auto num : range (4)) {
+			totalNumberChoice[num]->setEnabled (false);
+			exposureEdits[num]->setEnabled (false);
+			thresholdEdits[num]->setEnabled (false);
+			colormapCombos[num]->setEnabled (false);
+			displayTypeCombos[num]->setEnabled (false);
+			softwareAccumulateAll[num]->setEnabled (false);
+			softwareAccumulateNum[num]->setEnabled (false);
+		}
+	}
+	else {
+		for (auto num : range (4)) {
+			totalNumberChoice[num]->setEnabled (true);
+		}
+		setUnofficialPicsPerRep (unofficialPicsPerRep);
+	}
+}

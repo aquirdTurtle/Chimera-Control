@@ -165,8 +165,8 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( ){
 			throwNested ( "Error! Please input a valid positive integer for the rep count." );
 		}
 	}
-	dims.readImageParameters ();
-	currentSettings.dims = dims.getImageParameters ();
+	
+	currentSettings.dims = dims.readImageParameters ();
 
 	#ifdef USB_CAMERA
 		currentSettings.dims.checkConsistency ( "ace" );

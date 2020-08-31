@@ -30,14 +30,13 @@ class PictureControl : public QWidget{
 		void setPictureArea( POINT loc, int width, int height );
 		void setSliderControlLocs(POINT pos, int height);
 		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
-						 bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
-			std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers);
+						 bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber, 
+						 bool includingAnalysisMarkers);
 		void setSliderPositions(unsigned min, unsigned max);
 		void drawGrid(QPainter& painter);
 		void drawCircle(coordinate selectedLocation, QPainter& painter);
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
-		void drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo,
-								  QPainter& painter);
+		void drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter);
 		void setCursorValueLocations( CWnd* parent );
 		void handleScroll( int id, unsigned nPos );
 		void handleEditChange( int id );
@@ -50,8 +49,8 @@ class PictureControl : public QWidget{
 		void resetStorage();
 		void setHoverValue( );
 		void updatePlotData ( );
-		void drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
-						  std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers=true);
+		void drawDongles (QPainter& painter, std::vector<atomGrid> grids, unsigned pictureNumber, 
+			bool includingAnalysisMarkers=true);
 		coordinate selectedLocation;
 		void setTransformationMode (Qt::TransformationMode);
 	private:

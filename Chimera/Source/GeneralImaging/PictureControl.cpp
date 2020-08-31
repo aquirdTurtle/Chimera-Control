@@ -381,7 +381,7 @@ void PictureControl::setActive( bool activeState )
 void PictureControl::redrawImage(){
 	if ( active && mostRecentImage_m.size ( ) != 0 ){
 		drawBitmap (mostRecentImage_m, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
-			mostRecentSpecialMaxSetting, mostRecentAnalysisLocs, mostRecentGrids, mostRecentPicNum, true);
+			mostRecentSpecialMaxSetting, mostRecentGrids, mostRecentPicNum, true);
 	}
 }
 
@@ -399,12 +399,11 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
   Version of this from the Basler camera control Code. I will consolidate these shortly.
 */
 void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo, 
-								  bool specialMin, bool specialMax, std::vector<coordinate> analysisLocs,
-								  std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers ){
+								  bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber,
+								  bool includingAnalysisMarkers ){
 
 	mostRecentImage_m = picData;
 	mostRecentPicNum = pictureNumber;
-	mostRecentAnalysisLocs = analysisLocs;
 	mostRecentGrids = grids;
 
 	auto minColor = sliderMin.getValue ( );
@@ -485,7 +484,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	img = img.convertToFormat (QImage::Format_RGB888);
 	QPainter painter;
 	painter.begin (&img);
-	drawDongles (painter, analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
+	drawDongles (painter, grids, pictureNumber, includingAnalysisMarkers);
 	painter.end ();	
 	// seems like this doesn't *quite* work for some reason, hence the extra number here to adjust
 	if (img.width () / img.height () > (pictureObject->width () / pictureObject->height ())-0.1)	{
@@ -581,8 +580,7 @@ void PictureControl::drawPicNum( unsigned picNum, QPainter& painter ){
 	painter.drawText (QPoint ( int(picScaleFactor)/5, picScaleFactor), cstr (picNum));
 }
 
-void PictureControl::drawAnalysisMarkers( std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo,
-										  QPainter& painter ){
+void PictureControl::drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter ){
 	if ( !active ){
 		return;
 	}
@@ -613,11 +611,11 @@ void PictureControl::drawAnalysisMarkers( std::vector<coordinate> analysisLocs, 
 	}
 }
 
-void PictureControl::drawDongles (QPainter& painter, std::vector<coordinate> analysisLocs,
-	std::vector<atomGrid> grids, unsigned pictureNumber, bool includingAnalysisMarkers){
+void PictureControl::drawDongles (QPainter& painter, std::vector<atomGrid> grids, unsigned pictureNumber, 
+	bool includingAnalysisMarkers){
 	drawPicNum (pictureNumber, painter);
 	if (includingAnalysisMarkers) {
-		drawAnalysisMarkers (  analysisLocs, grids, painter );
+		drawAnalysisMarkers (  grids, painter );
 	}
 	painter.setPen (Qt::red);
 	drawCircle (selectedLocation, painter);

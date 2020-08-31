@@ -17,11 +17,10 @@ struct realTimePlotterInput{
 	realTimePlotterInput ( std::atomic<unsigned>& pltTime ) : plotTime ( pltTime ) { }
 	AnalysisThreadWorker* worker;
 	std::atomic<unsigned>& plotTime;
-	AndorCameraSettings cameraSettings;
+	//AndorCameraSettings cameraSettings;
 	IChimeraQtWindow* plotParentWindow;
 
 	std::vector<tinyPlotInfo> plotInfo;
-	std::vector<coordinate> analysisLocations;
 	std::vector<atomGrid> grids;
 	// This gets set to false, e.g. when the experiment ends, but doesn't tell the plotter to immediately stop, the 
 	// plotter can finish it's work if it's backed up on images.

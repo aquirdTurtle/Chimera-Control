@@ -142,8 +142,7 @@ void QtBaslerWindow::handleNewPics (Matrix<long> imageMatrix){
 		//auto runSettings = basCamCore->getRunningSettings ();
 		auto minMax = stats.update (imageMatrix, 0, { 0,0 }, currentRepNumber, runSettings.totalPictures ());
 		QPainter painter (this);
-		picManager.drawBitmap (imageMatrix, minMax, 0, std::vector<coordinate> (), std::vector<atomGrid> (), 0, false, 
-							   painter);
+		picManager.drawBitmap (imageMatrix, minMax, 0, std::vector<atomGrid> (), 0, false, painter);
 		picManager.updatePlotData ();
 		//picManager.drawDongles ({ 0,0 }, std::vector<coordinate> (), std::vector<atomGrid> (), 0);
 		if (runExposureMode == BaslerAutoExposure::mode::Continuous){

@@ -138,7 +138,7 @@ void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 				try {
 					handleTTLPress (out);
 					emit notification ("Handled DO " + qstr (DoRows::toStr(out.getPosition ().first)) + ","
-						+ qstr (out.getPosition ().second) + " Press.\n", 2);
+						+ qstr (out.getPosition ().second) + " State Change.\n", 2);
 					parent->configUpdated ();
 				}
 				catch (ChimeraError& exception)	{

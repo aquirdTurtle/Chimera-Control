@@ -11,6 +11,7 @@ t += 1
 call turnonmot()
 t += loadMotTime
 call triggerScout()
+t += 5
 call D1GreyLambdaLoading()
 pulseon: windfreakTrig 0.05
 t += 20

@@ -15,3 +15,4 @@ struct analysisSettings {
 	std::vector<unsigned> whichGrids;
 };
 
+Q_DECLARE_METATYPE (analysisSettings)

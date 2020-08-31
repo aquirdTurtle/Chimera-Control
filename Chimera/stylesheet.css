@@ -32,7 +32,7 @@ QLineEdit:disabled, QCheckBox:disabled, QComboBox:disabled, QRadioButton:disable
 }
 
 
-QChartView, QComboBox, QRadioButton, QCheckBox, QPushButton {
+QChartView, QComboBox, QRadioButton, QCheckBox, QPushButton, QListView {
     background: rgb( 40, 40, 40 );
     color: rgba( 191, 97, 106, 255 );
     font: bold 11pt;

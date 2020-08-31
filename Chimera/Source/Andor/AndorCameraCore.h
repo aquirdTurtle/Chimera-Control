@@ -1,17 +1,19 @@
 // created by Mark O. Brown
 #pragma once
 #include "CameraImageDimensions.h"
-#include "ATMCD32D.h"
+
 #include "AndorRunSettings.h"
 #include "AndorFlume.h"
 #include "GeneralObjects/Matrix.h"
 #include "GeneralObjects/IDeviceCore.h"
 #include "AndorTemperatureStatus.h"
+#include <RealTimeDataAnalysis/analysisSettings.h>
+#include <Andor/cameraThreadInput.h>
+#include "ATMCD32D.h"
 #include <string>
 #include <process.h>
 #include <mutex>
 #include <condition_variable>
-#include <Andor/cameraThreadInput.h>
 /// /////////////////////////////////////////////////////
 ///			The Andor Class
 /// /////////////////////////////////////////////////////
@@ -69,6 +71,7 @@ class AndorCameraCore : public IDeviceCore{
 		void programVariation (unsigned variationInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 
 	private:
+		
 		void setAccumulationCycleTime ( );
 		void setAcquisitionMode ( );
 		void setFrameTransferMode ( );
@@ -82,6 +85,7 @@ class AndorCameraCore : public IDeviceCore{
 		// If the experiment is running, these settings hold the options that the experiment is using.
 		AndorRunSettings runSettings;
 		AndorRunSettings expRunSettings;
+		analysisSettings expAnalysisSettings;
 
 		AndorFlume flume;
 		const bool safemode;

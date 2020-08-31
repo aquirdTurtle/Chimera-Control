@@ -43,7 +43,7 @@ class AndorCameraSettingsControl{
 		void checkIfReady();
 		void cameraIsOn( bool state );
 		void updateCameraMode( );
-		AndorCameraSettings getSettings();
+		AndorCameraSettings getConfigSettings();
 		AndorCameraSettings getCalibrationSettings( );
 		bool getAutoCal( );
 		bool getUseCal( );
@@ -51,25 +51,27 @@ class AndorCameraSettingsControl{
 		void setRunSettings(AndorRunSettings inputSettings);
 		void updateImageDimSettings ( imageParameters settings );
 		void updatePicSettings ( andorPicSettingsGroup settings );
-
+		void updateDisplays ();
 		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile);
-
 		void handleSaveConfig(ConfigStream& configFile);
-
 		void handelSaveMasterConfig(std::stringstream& configFile);
 		void handleOpenMasterConfig(ConfigStream& configFile, QtAndorWindow* camWin);
-
 		std::vector<Matrix<long>> getImagesToDraw( const std::vector<Matrix<long>>& rawData  );
-
 		const imageParameters fullResolution = { 1,512,1,512,1,1 };
 		std::array<softwareAccumulationOption, 4> getSoftwareAccumulationOptions ( );
 		Qt::TransformationMode getTransformationMode ();
+		void setConfigSettings (AndorRunSettings inputSettings);
+		AndorRunSettings getRunningSettings ();
 	private:
+		AndorRunSettings currentlyRunningSettings;
+
+		bool currentlyUneditable = false;
 		double getKineticCycleTime( );
 		double getAccumulationCycleTime( );
 		unsigned getAccumulationNumber( );
-		imageParameters getImageParameters( );
+		imageParameters readImageParameters( );
 		QLabel* header;
+		QCheckBox* viewRunningSettings;
 		CQCheckBox* controlAndorCameraCheck;
 		// Hardware Accumulation Parameters
 		QLabel* accumulationCycleTimeLabel;
@@ -102,6 +104,6 @@ class AndorCameraSettingsControl{
 		CameraCalibration calControl;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.
-		AndorCameraSettings settings;
+		AndorCameraSettings configSettings;
 };
 

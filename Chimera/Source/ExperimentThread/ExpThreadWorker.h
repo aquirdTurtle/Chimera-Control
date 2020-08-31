@@ -99,7 +99,7 @@ class ExpThreadWorker : public QObject {
         void notification (QString msg, unsigned debugLvl=0);
         void warn (QString msg, unsigned debugLvl=1);
         void repUpdate (unsigned int);
-        void prepareAndor (void*);
+        void prepareAndor (void*, analysisSettings);
         void prepareBasler (baslerSettings* settings);
         void plot_Xvals_determined (std::vector<double>);
         void doAoData (const std::vector<std::vector<plotDataVec>>& doData,

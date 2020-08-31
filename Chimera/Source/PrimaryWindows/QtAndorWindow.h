@@ -78,11 +78,8 @@ class QtAndorWindow : public IChimeraQtWindow{
 		void assertOff ();
 		void assertDataFileClosed ();
 		void prepareAtomCruncher (AllExperimentInput& input);
-		void preparePlotter (AllExperimentInput& input);
 		void writeVolts (unsigned currentVoltNumber, std::vector<float64> data);
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
-		void startAtomCruncher (AllExperimentInput& input);
-		void startPlotterThread (AllExperimentInput& input);
 		bool wantsAutoPause ();
 		std::atomic<bool>* getSkipNextAtomic ();
 		void stopPlotter ();
@@ -99,9 +96,6 @@ class QtAndorWindow : public IChimeraQtWindow{
 		int getPicsPerRep ();
 		bool wantsThresholdAnalysis ();
 		AndorCameraCore& getCamera ();
-		std::atomic<bool>& getPlotThreadActiveRef ();
-		std::atomic<HANDLE>& getPlotThreadHandleRef ();
-		std::mutex& getActivePlotMutexRef ();
 		void cleanUpAfterExp ();
 		void handlePlotPop (unsigned id);
 
@@ -164,10 +158,8 @@ class QtAndorWindow : public IChimeraQtWindow{
 
 	public Q_SLOTS:
 		void onCameraProgress (int picNum);
-		LRESULT onCameraFinish (WPARAM wParam, LPARAM lParam);
 		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
-		LRESULT onBaslerFinish (WPARAM wParam, LPARAM lParam);
-		void handlePrepareForAcq (void* lparam);
+		void handlePrepareForAcq (void* lparam, analysisSettings aSettings);
 		void completePlotterStart ();
 		void completeCruncherStart ();
 
