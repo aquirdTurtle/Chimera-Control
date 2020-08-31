@@ -23,9 +23,6 @@ class EmbeddedPythonHandler
 	public:
 		// constructor is important.
 		EmbeddedPythonHandler::EmbeddedPythonHandler();
-		// for full data analysis set.
-		void runDataAnalysis( std::string date, long runNumber, long accumulations, 
-							  std::vector<coordinate> atomLocations );
 		// for texting.
 		void sendText( personInfo person, std::string msg, std::string subject, std::string baseEmail,
 					   std::string password );

@@ -17,11 +17,11 @@ void PictureManager::setSoftwareAccumulationOptions ( std::array<softwareAccumul
 }
 
 void PictureManager::drawBitmap (Matrix<long> picData, std::pair<int,int> minMax, unsigned whichPicCtrl,
-	std::vector<coordinate> analysisLocs, std::vector<atomGrid> grids, unsigned pictureNumber, 
+	std::vector<atomGrid> grids, unsigned pictureNumber, 
 	bool includingAnalysisMarkers, QPainter& painter){
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple ( autoScalePictures, minMax.first, minMax.second );
 	pictures[whichPicCtrl].drawBitmap (picData, autoScaleInfo, specialLessThanMin, specialGreaterThanMax,
-		analysisLocs, grids, pictureNumber, includingAnalysisMarkers);
+									   grids, pictureNumber, includingAnalysisMarkers);
 	if (alwaysShowGrid)	{
 		pictures[whichPicCtrl].drawGrid (painter);
 	}
@@ -54,8 +54,7 @@ coordinate PictureManager::getSelLocation (){
 	return pictures[0].selectedLocation;
 }
 
-void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-	std::vector<atomGrid> gridInfo, bool forceGrid, unsigned picNumber, QPainter& painter ){
+void PictureManager::redrawPictures( coordinate selectedLocation, std::vector<atomGrid> gridInfo, bool forceGrid, unsigned picNumber, QPainter& painter ){
 	if (!pictures[1].isActive()){
 		pictures[0].redrawImage();
 		if (alwaysShowGrid || forceGrid ){

@@ -29,6 +29,7 @@ int main (int argc, char** argv) {
 	qRegisterMetaType<PlottingInfo> ();
 	qRegisterMetaType<PixListQueue> ();
 	qRegisterMetaType<profileSettings> ();
+	qRegisterMetaType<analysisSettings> ();
 
 	QtMainWindow* mainWinQt = new QtMainWindow ();
 	mainWinQt->show ();

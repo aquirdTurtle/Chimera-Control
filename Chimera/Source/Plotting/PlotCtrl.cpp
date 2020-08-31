@@ -95,7 +95,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			view->chart ()->addSeries (threshLine);
 		}
 	}
-	else {
+	else { // line plot...
 		if (newData.size () == 0) {
 			return;
 		}

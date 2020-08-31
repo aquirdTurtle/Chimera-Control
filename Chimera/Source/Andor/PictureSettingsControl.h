@@ -28,8 +28,7 @@ struct displayTypeOption{
  * This class handles all of the gui objects for assigning camera settings. It works closely with the Andor class
  * because it eventually needs to communicate all of these settings to the Andor class.
  */
-class PictureSettingsControl
-{
+class PictureSettingsControl {
 	public:
 		// must have parent. Enforced partially because both are singletons.
 		// PictureSettingsControl( )
@@ -55,11 +54,13 @@ class PictureSettingsControl
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		static andorPicSettingsGroup getPictureSettingsFromConfig (ConfigStream& configFile );
 		Qt::TransformationMode getTransformationMode ();
+		void setEnabledStatus (bool viewRunningSettings);
 	private:
 		// the internal memory of the settings here is somewhat redundant with the gui objects. It'd probably be better
 		// if this didn't exist and all the getters just converted straight from the gui objects, but that's a 
 		// refactoring for another time.
-		andorPicSettingsGroup settings;
+		andorPicSettingsGroup currentPicSettings;
+		unsigned unofficialPicsPerRep=1;
 		/// Grid of PictureOptions
 		QLabel* totalPicNumberLabel;
 		QLabel* pictureLabel;

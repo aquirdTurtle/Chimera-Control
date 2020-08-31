@@ -11,7 +11,6 @@ ImageDimsControl::ImageDimsControl (std::string whichCam) : camType (whichCam) {
 	isReady = false;
 }
 
-
 void ImageDimsControl::initialize( POINT& pos, IChimeraQtWindow* parent, int numRows, int width ) {
 	auto wi = width * numRows / 6;
 	leftText = new QLabel ("Left", parent);
@@ -65,29 +64,28 @@ void ImageDimsControl::initialize( POINT& pos, IChimeraQtWindow* parent, int num
 
 	vertBinningEdit = new CQLineEdit ("1", parent);
 	vertBinningEdit->setGeometry (pos.x + 2* wi, pos.y, wi, 25);
-	if (numRows == 1)
-	{
+	if (numRows == 1){
 		pos.x -= width / 2;
 	}
 	pos.y += 25;
 }
 
-
-void ImageDimsControl::handleSave(ConfigStream& saveFile )
-{
+void ImageDimsControl::saveParams (ConfigStream& saveFile, imageParameters params) {
 	saveFile << "\nCAMERA_IMAGE_DIMENSIONS"
-			 << "\n/*Left:*/ " << currentImageParameters.left
-			 << "\n/*Right:*/ " << currentImageParameters.right
-			 << "\n/*H-Bin:*/ " << currentImageParameters.horizontalBinning
-			 << "\n/*Bottom:*/ " << currentImageParameters.bottom
-			 << "\n/*Top:*/ " << currentImageParameters.top
-			 << "\n/*V-Bin:*/ " << currentImageParameters.verticalBinning
+			 << "\n/*Left:*/ " << params.left
+			 << "\n/*Right:*/ " << params.right
+			 << "\n/*H-Bin:*/ " << params.horizontalBinning
+			 << "\n/*Bottom:*/ " << params.bottom
+			 << "\n/*Top:*/ " << params.top
+			 << "\n/*V-Bin:*/ " << params.verticalBinning
 			 << "\nEND_CAMERA_IMAGE_DIMENSIONS\n";
 }
 
+void ImageDimsControl::handleSave(ConfigStream& saveFile ){
+	saveParams (saveFile, readImageParameters());
+}
 
-imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& configFile)
-{
+imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& configFile){
 	imageParameters params;
 	configFile >> params.left;
 	configFile >> params.right;
@@ -98,8 +96,7 @@ imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& c
 	return params;
 }
 
-void ImageDimsControl::handleOpen(ConfigStream& openFile)
-{
+void ImageDimsControl::handleOpen(ConfigStream& openFile){
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params = getImageDimSettingsFromConfig ( openFile );
 	setImageParametersFromInput( params );
@@ -108,19 +105,20 @@ void ImageDimsControl::handleOpen(ConfigStream& openFile)
 
 imageParameters ImageDimsControl::readImageParameters(){
 	// in case called before initialized
+	imageParameters params;
 	if (!leftEdit)	{
-		return currentImageParameters;
+		return params;
 	}
 	// set all of the image parameters
 	try	{
-		currentImageParameters.left = boost::lexical_cast<int>( str(leftEdit->text ()) );
+		params.left = boost::lexical_cast<int>( str(leftEdit->text ()) );
 	}
 	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Left border argument not an integer!\r\n" );
 	}
 	try	{
-		currentImageParameters.right = boost::lexical_cast<int>( str(rightEdit->text()) );
+		params.right = boost::lexical_cast<int>( str(rightEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
@@ -128,7 +126,7 @@ imageParameters ImageDimsControl::readImageParameters(){
 	}
 	//
 	try	{
-		currentImageParameters.bottom = boost::lexical_cast<int>( str(bottomEdit->text()) );
+		params.bottom = boost::lexical_cast<int>( str(bottomEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
@@ -136,21 +134,21 @@ imageParameters ImageDimsControl::readImageParameters(){
 	}
 	//
 	try	{
-		currentImageParameters.top = boost::lexical_cast<int>( str(topEdit->text()) );
+		params.top = boost::lexical_cast<int>( str(topEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Bottom border argument not an integer!\r\n" );
 	}
 	try	{
-		currentImageParameters.horizontalBinning = boost::lexical_cast<int>( str(horBinningEdit->text()) );
+		params.horizontalBinning = boost::lexical_cast<int>( str(horBinningEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
 		throwNested ( "Horizontal binning argument not an integer!\r\n" );
 	}
 	try	{
-		currentImageParameters.verticalBinning = boost::lexical_cast<int>( str(vertBinningEdit->text()) );
+		params.verticalBinning = boost::lexical_cast<int>( str(vertBinningEdit->text()) );
 	}
 	catch ( boost::bad_lexical_cast&) {
 		isReady = false;
@@ -158,7 +156,7 @@ imageParameters ImageDimsControl::readImageParameters(){
 	}
 	// Check Image parameters
 	try	{
-		currentImageParameters.checkConsistency ( camType );
+		params.checkConsistency ( camType );
 	}
 	catch ( ChimeraError& )
 	{
@@ -168,7 +166,7 @@ imageParameters ImageDimsControl::readImageParameters(){
 
 	// made it through successfully.
 	isReady = true;
-	return currentImageParameters;
+	return params;
 }
 
 
@@ -177,21 +175,15 @@ imageParameters ImageDimsControl::readImageParameters(){
  */
 void ImageDimsControl::setImageParametersFromInput( imageParameters param ){
 	// set all of the image parameters
-	currentImageParameters.left = param.left;
-	leftEdit->setText( cstr( currentImageParameters.left ) );
-	currentImageParameters.right = param.right;
-	rightEdit->setText ( cstr( currentImageParameters.right ) );
-	currentImageParameters.bottom = param.bottom;
-	bottomEdit->setText ( cstr( currentImageParameters.bottom ) );
-	currentImageParameters.top = param.top;
-	topEdit->setText ( cstr( currentImageParameters.top ) );
-	currentImageParameters.horizontalBinning = param.horizontalBinning;
-	horBinningEdit->setText ( cstr( currentImageParameters.horizontalBinning ) );
-	currentImageParameters.verticalBinning = param.verticalBinning;
-	vertBinningEdit->setText ( cstr( currentImageParameters.verticalBinning ) );
+	leftEdit->setText( qstr(param.left ) );
+	rightEdit->setText (qstr (param.right ) );
+	bottomEdit->setText (qstr (param.bottom ) );
+	topEdit->setText (qstr (param.top ) );
+	horBinningEdit->setText (qstr (param.horizontalBinning ) );
+	vertBinningEdit->setText (qstr (param.verticalBinning ) );
 	// Check Image parameters
 	try{
-		currentImageParameters.checkConsistency(camType);
+		param.checkConsistency(camType);
 	}
 	catch ( ChimeraError ){
 		isReady = false;
@@ -211,7 +203,11 @@ bool ImageDimsControl::checkReady(){
 	}
 }
 
-imageParameters ImageDimsControl::getImageParameters()
-{
-	return currentImageParameters;
+void ImageDimsControl::updateEnabledStatus (bool viewRunning) {
+	leftEdit->setEnabled(!viewRunning);
+	rightEdit->setEnabled (!viewRunning);
+	horBinningEdit->setEnabled (!viewRunning);
+	bottomEdit->setEnabled (!viewRunning);
+	topEdit->setEnabled (!viewRunning);
+	vertBinningEdit->setEnabled (!viewRunning);
 }

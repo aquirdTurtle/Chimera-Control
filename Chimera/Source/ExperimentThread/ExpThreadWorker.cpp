@@ -935,11 +935,11 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 }
 
 void ExpThreadWorker::runConsistencyChecks (std::vector<parameterType> expParams) {
-	if (input->updatePlotterXVals) {
-		// sleep to make sure that this function has been connected to the plotter thread
-		Sleep (1000);
-		emit plot_Xvals_determined (ParameterSystem::getKeyValues (expParams));
-	}
+	//if (input->updatePlotterXVals) {
+	// sleep to make sure that this function has been connected to the plotter thread
+	Sleep (1000);
+	emit plot_Xvals_determined (ParameterSystem::getKeyValues (expParams));
+	//}
 	input->globalControl.setUsages (expParams);
 	for (auto& var : expParams) {
 		if (!var.constant && !var.active) {

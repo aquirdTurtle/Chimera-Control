@@ -15,8 +15,7 @@ class AndorWindow;
 class MainWindow;
 
 
-class ImageDimsControl
-{
+class ImageDimsControl{
 	public:
 		ImageDimsControl(std::string whichCam);
 		void initialize( POINT& pos, IChimeraQtWindow* parentWindow, int numRows, int width);
@@ -26,9 +25,9 @@ class ImageDimsControl
 		void handleSave(ConfigStream& saveFile );
 		void handleOpen(ConfigStream& openFile );
 		static imageParameters getImageDimSettingsFromConfig (ConfigStream& configFile );
-		imageParameters getImageParameters();
-		HBRUSH colorEdits( HWND window, unsigned message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
 		const std::string camType;
+		void updateEnabledStatus (bool viewRunning);
+		void saveParams (ConfigStream& saveFile, imageParameters params);
 	private:
 		QLabel* leftText;
 		QLabel* rightText;

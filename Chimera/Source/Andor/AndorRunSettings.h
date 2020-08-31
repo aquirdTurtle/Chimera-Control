@@ -9,7 +9,6 @@
 // this structure contains all of the main options which are necessary to set when starting a camera acquisition. All
 // of these settings should be possibly modified by the user of the UI.
 struct AndorRunSettings{
-	//bool on;
 	imageParameters imageSettings;
 	bool controlCamera = true;
 	//
@@ -42,8 +41,7 @@ struct AndorRunSettings{
 	- Also some auxiliary settings which are never directly programmed to the camera, but are key for the way the 
 	camera is used in the code.
 */
-struct AndorCameraSettings
-{
+struct AndorCameraSettings{
 	AndorRunSettings andor;
 	// not directly programmed to camera
 	std::array<std::vector<int>, 4> thresholds;
