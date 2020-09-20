@@ -9,19 +9,17 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraQtWindow.h"
 
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "ExperimentMonitoringAndStatus/StatusControl.h"
 #include "ExperimentMonitoringAndStatus/StatusIndicator.h"
 #include "Python/SmsTextingControl.h"
-#include "Python/EmbeddedPythonHandler.h"
 #include "ConfigurationSystems/MasterConfiguration.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include "DataLogging/DataLogger.h"
 #include "ConfigurationSystems/NoteSystem.h"
 #include "ConfigurationSystems/profileSettings.h"
-#include "Plotting/PlotDialog.h"
 #include "Plotting/ScopeViewer.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "CustomMessages.h"
@@ -46,7 +44,6 @@ class QtMainWindow : public IChimeraQtWindow{
 
 		void fillExpDeviceList (DeviceList& list);
 
-		void onDebugMessage (std::string msg);
 		LRESULT onNoAtomsAlertMessage (WPARAM wp, LPARAM lp);
 		LRESULT onNoMotAlertMessage (WPARAM wp, LPARAM lp);
 
@@ -73,7 +70,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		void updateConfigurationSavedStatus (bool status);
 
 		void setDebuggingOptions (debugInfo options);
-		void updateStatusText (std::string whichStatus, std::string text);
 		void addTimebar (std::string whichStatus);
 		void setShortStatus (std::string text);
 		void changeShortStatusColor (std::string color);
@@ -95,7 +91,6 @@ class QtMainWindow : public IChimeraQtWindow{
 		void handleMasterConfigSave (std::stringstream& configStream);
 		void handleMasterConfigOpen (ConfigStream& configStream);
 		bool autoF5_AfterFinish = false;
-		EmbeddedPythonHandler& getPython ();
 		unsigned getAutoCalNumber ();
 
 		QThread* getExpThread();
@@ -115,14 +110,13 @@ class QtMainWindow : public IChimeraQtWindow{
 		chronoTimes startupTimes;
 		chronoTime* programStartTime;
 		// members that have gui elements
-		ProfileSystem profile;
+		ConfigSystem profile;
 		MasterConfiguration masterConfig;
 		NoteSystem notes;
 		DebugOptionsControl debugger;
 		Repetitions repetitionControl;
 		MainOptionsControl mainOptsCtrl;
 		StatusControl mainStatus;
-		StatusControl debugStatus;
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
@@ -133,8 +127,7 @@ class QtMainWindow : public IChimeraQtWindow{
 		std::atomic<bool> experimentIsRunning = false;
 
 		RunInfo systemRunningInfo;
-		EmbeddedPythonHandler python;
-		ScopeViewer masterRepumpScope, motScope;
+		ScopeViewer masterRepumpScope, motScope, expScope;
 		//
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
 		unsigned autoCalNum = 0;

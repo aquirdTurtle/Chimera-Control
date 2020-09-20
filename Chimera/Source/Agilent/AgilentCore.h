@@ -9,8 +9,7 @@
 
 class DoCore;
 
-class AgilentCore : public IDeviceCore
-{
+class AgilentCore : public IDeviceCore {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AgilentCore& operator=(const AgilentCore&) = delete;
@@ -52,6 +51,8 @@ class AgilentCore : public IDeviceCore
 		void normalFinish () {};
 		void errorFinish () {};
 	private:
+		const int AGILENT_DEFAULT_POWER = 10;
+
 		deviceOutputInfo expRunSettings;
 		const unsigned long sampleRate;
 		const std::string memoryLoc;

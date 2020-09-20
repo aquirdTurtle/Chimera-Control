@@ -209,7 +209,7 @@ double AiSystem::getSingleChannelValue( unsigned chan, unsigned n_to_avg ){
 }
 
 
-std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( unsigned n_to_avg ){
+std::array<float64, AiSystem::NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( unsigned n_to_avg ){
 	std::vector<float64> data = getSingleSnap( n_to_avg );
 	std::array<float64, NUMBER_AI_CHANNELS> retData;
 	for ( auto dataInc : range( NUMBER_AI_CHANNELS ) ){

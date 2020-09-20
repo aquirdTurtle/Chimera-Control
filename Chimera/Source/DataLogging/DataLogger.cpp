@@ -5,7 +5,7 @@
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
-#include <ConfigurationSystems/ProfileSystem.h>
+#include <ConfigurationSystems/ConfigSystem.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
 
 DataLogger::DataLogger(std::string systemLocation, IChimeraQtWindow* parent) : IChimeraSystem(parent){
@@ -382,13 +382,13 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input ){
 		H5::Group runParametersGroup( file.createGroup( "/Master-Input" ) );
 		writeDataSet( input->runList.master, "Run-Master", runParametersGroup );
 		if ( input->runList.master)	{
-			std::ifstream masterScript( ProfileSystem::getMasterAddressFromConfig( input->profile ) );
+			std::ifstream masterScript( ConfigSystem::getMasterAddressFromConfig( input->profile ) );
 			if ( !masterScript.is_open( ) )	{
 				thrower ( "ERROR: Failed to load master script for data logger!" );
 			}
 			std::string scriptBuf( str( masterScript.rdbuf( ) ) );
 			writeDataSet( scriptBuf, "Master-Script", runParametersGroup);
-			writeDataSet( ProfileSystem::getMasterAddressFromConfig(input->profile), "Master-Script-File-Address", 
+			writeDataSet( ConfigSystem::getMasterAddressFromConfig(input->profile), "Master-Script-File-Address", 
 						  runParametersGroup );
 		}
 		else{
@@ -479,8 +479,8 @@ void DataLogger::initializeAiLogging( unsigned numSnapshots ){
 	// list of commands?
 	if ( numSnapshots != 0 ){
 		H5::Group aioGroup ( file.createGroup ( "/AI" ) );
-		hsize_t setDims[] = { numSnapshots, NUMBER_AI_CHANNELS };
-		hsize_t singleMeasurementDims[] = { 1, NUMBER_AI_CHANNELS };
+		hsize_t setDims[] = { numSnapshots, AiSystem::NUMBER_AI_CHANNELS };
+		hsize_t singleMeasurementDims[] = { 1, AiSystem::NUMBER_AI_CHANNELS };
 		voltsSetDataSpace = H5::DataSpace( 2, setDims );
 		voltsDataSpace = H5::DataSpace( 2, singleMeasurementDims );
 		voltsDataSet = aioGroup.createDataSet( "Voltage-Measurements", H5::PredType::NATIVE_DOUBLE, voltsSetDataSpace );

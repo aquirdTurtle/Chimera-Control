@@ -1,10 +1,8 @@
 ﻿#pragma once
 #include "PiezoCore.h"
 #include "Control.h"
-#include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "ConfigurationSystems/Version.h"
 #include <fstream>
-#include "CustomMfcControlWrappers/myButton.h"
 #include "Piezo/PiezoType.h"
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -13,8 +11,7 @@
 #include <GeneralObjects/IChimeraSystem.h>
 #include <PrimaryWindows/IChimeraQtWindow.h>
 
-class PiezoController : public IChimeraSystem
-{
+class PiezoController : public IChimeraSystem {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		PiezoController& operator=(const PiezoController&) = delete;
@@ -33,6 +30,7 @@ class PiezoController : public IChimeraSystem
 		std::string getConfigDelim ( );
 	private:
 		bool expActive;
+		const bool isReflective;
 		PiezoCore core;
 		QPushButton* programNowButton;
 		QCheckBox* ctrlButton;

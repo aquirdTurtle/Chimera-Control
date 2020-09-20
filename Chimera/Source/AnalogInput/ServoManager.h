@@ -1,14 +1,11 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "servoInfo.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "AnalogInput/AiSystem.h"
 #include "AnalogOutput/AoSystem.h"
 #include "DigitalOutput/DoSystem.h"
-#include "CustomMfcControlWrappers/DoubleEdit.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "ConfigurationSystems/Version.h"
-#include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "AiUnits.h"
 #include <QLabel>
 #include <QTableWidget>

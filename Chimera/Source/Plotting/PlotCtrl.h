@@ -1,6 +1,5 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "CustomMfcControlWrappers/myButton.h"
 
 #include "Plotting/dataPoint.h"
 #include "GeneralImaging/memdc.h"
@@ -54,13 +53,11 @@ class PlotCtrl : public QObject {
 		~PlotCtrl( );
 		void init( POINT& topLeftLoc, LONG width, LONG height, IChimeraQtWindow* parent );
 		dataPoint getMainAnalysisResult ( );
-		std::vector<pPlotDataVec> getCurrentData ( );
 		void resetChart ();
-		std::vector<std::mutex> dataMutexes;
 		void setStyle (plotStyle newStyle);
 		void setTitle (std::string newTitle);
 		void setThresholds (std::vector<int> newThresholds);
-		void refreshData ();
+		void handleContextMenu (const QPoint& pos);
 
 	private:
 		const bool narrow;
@@ -71,7 +68,6 @@ class PlotCtrl : public QObject {
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.
 		std::string title;
-		//std::vector<pPlotDataVec> data;
 		std::vector<QtCharts::QLineSeries*> qtLineData;
 		std::vector<QtCharts::QScatterSeries*> qtScatterData;
 

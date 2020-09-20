@@ -1,7 +1,5 @@
 #pragma once
 #include "TektronixStructures.h"
-#include "afxwin.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox.h>

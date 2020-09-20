@@ -3,9 +3,7 @@
 #include "Control.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "ExperimentThread/AllExperimentInput.h"
-#include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "Plotting/dataPoint.h"
-#include "CustomMfcControlWrappers/DoubleEdit.h"
 #include <array>
 #include <memory>
 #include "DataLogging/DataLogger.h"

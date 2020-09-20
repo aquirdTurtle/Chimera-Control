@@ -2,11 +2,8 @@
 #pragma once
 
 #include "GeneralFlumes/GpibFlume.h"
-#include "CustomMfcControlWrappers/MyListCtrl.h"
-#include "CustomMfcControlWrappers/Control.h"
 #include "Microwave/MicrowaveCore.h"
 #include "Microwave/MicrowaveSettings.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include <vector>

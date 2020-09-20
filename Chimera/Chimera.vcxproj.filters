@@ -22,9 +22,6 @@
     <ClCompile Include="Source\Andor\AndorTriggerModes.cpp">
       <Filter>Andor Window\Structures</Filter>
     </ClCompile>
-    <ClCompile Include="Source\AnalogOutput\AoSettingsDialog.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AnalogOutput\AoSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
     </ClCompile>
     <ClCompile Include="Source\NIAWG\NiawgStructures.cpp">
       <Filter>National-Instruments</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\NIAWG\NiawgWaiter.cpp">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClCompile>
     <ClCompile Include="Source\Piezo\PiezoController.cpp">
       <Filter>PiezoControllers</Filter>
@@ -87,9 +81,6 @@
     <ClCompile Include="Source\Plotting\PlotDataSet.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Plotting\PlotDialog.cpp">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Plotting\PlottingInfo.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
@@ -111,23 +102,11 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\DataAnalysisControl.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CustomMfcControlWrappers\DoubleEdit.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.cpp">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CustomMfcControlWrappers\myButton.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Microwave\RsgFlume.cpp">
       <Filter>MicrowaveSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\CustomMfcControlWrappers\UintEdit.cpp">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp">
       <Filter>Auxiliary Window</Filter>
@@ -156,9 +135,6 @@
     <ClCompile Include="Source\ConfigurationSystems\ProfileIndicator.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ConfigurationSystems\ProfileSystem.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ParameterSystem\Expression.cpp">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClCompile>
@@ -173,9 +149,6 @@
     </ClCompile>
     <ClCompile Include="Source\Python\SmsTextingControl.cpp">
       <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Python\EmbeddedPythonHandler.cpp">
-      <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\GeneralImaging\PictureControl.cpp" />
     <ClCompile Include="Source\GeneralImaging\PictureManager.cpp" />
@@ -310,14 +283,20 @@
     <ClCompile Include="Source\CustomQtControls\functionCombo.cpp">
       <Filter>Custom-Controls</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CustomQtControls\LongCSlider.cpp">
-      <Filter>Custom-Controls</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralFlumes\QtSerialFlume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Andor\AndorCameraSettingsControl.cpp">
       <Filter>Andor Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigurationSystems\ConfigSystem.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CustomQtControls\LongQSlider.cpp">
+      <Filter>Custom-Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ExcessDialogs\AoSettingsDialog.cpp">
+      <Filter>Auxiliary Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,9 +337,6 @@
     <ClInclude Include="Source\Andor\AndorTriggerModes.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AnalogOutput\AoSettingsDialog.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\AnalogOutput\AoStructures.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
@@ -387,9 +363,6 @@
     </ClInclude>
     <ClInclude Include="Source\NIAWG\NiawgStructures.h">
       <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NIAWG\NiawgWaiter.h">
-      <Filter>Main Window\NIAWG-And-Rearranging</Filter>
     </ClInclude>
     <ClInclude Include="Source\Piezo\CmdLibrary.h">
       <Filter>PiezoControllers</Filter>
@@ -430,9 +403,6 @@
     <ClInclude Include="Source\Plotting\PlotDataSet.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Plotting\PlotDialog.h">
-      <Filter>Plotting-And-Viewing</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Plotting\PlottingInfo.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
@@ -461,32 +431,17 @@
     <ClInclude Include="Source\RealTimeDataAnalysis\DataAnalysisControl.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\DoubleEdit.h">
-      <Filter>Custom-Controls</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Plotting\dataPoint.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
     <ClInclude Include="Source\RealTimeDataAnalysis\PlotDesignerDialog.h">
       <Filter>Andor Window\Real-Time-Analysis</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\myButton.h">
-      <Filter>Custom-Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\MyListCtrl.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Piezo\PiezoType.h">
       <Filter>PiezoControllers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Microwave\RsgFlume.h">
       <Filter>MicrowaveSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\Control.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CustomMfcControlWrappers\UintEdit.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\GpibFlume.h">
       <Filter>Auxiliary Window</Filter>
@@ -518,9 +473,6 @@
     <ClInclude Include="Source\ConfigurationSystems\profileSettings.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ConfigurationSystems\ProfileSystem.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ConfigurationSystems\Version.h">
       <Filter>Misc-Small-Funcs-And-Classes</Filter>
     </ClInclude>
@@ -541,9 +493,6 @@
     </ClInclude>
     <ClInclude Include="Source\Python\SmsTextingControl.h">
       <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Python\EmbeddedPythonHandler.h">
-      <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\GeneralImaging\imageParameters.h">
       <Filter>Andor Window\Structures</Filter>
@@ -721,14 +670,20 @@
     <ClInclude Include="Source\CustomQtControls\functionCombo.h">
       <Filter>Custom-Controls</Filter>
     </ClInclude>
-    <ClInclude Include="Source\CustomQtControls\LongCSlider.h">
-      <Filter>Custom-Controls</Filter>
-    </ClInclude>
     <ClInclude Include="Source\GeneralFlumes\QtSerialFlume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Andor\AndorCameraSettingsControl.h">
       <Filter>Andor Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ConfigurationSystems\ConfigSystem.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\NiawgConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CustomQtControls\LongQSlider.h">
+      <Filter>Custom-Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -893,6 +848,9 @@
     </QtMoc>
     <QtMoc Include="Source\ExcessDialogs\doChannelInfoDialog.h">
       <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\ExcessDialogs\AoSettingsDialog.h">
+      <Filter>Auxiliary Window</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

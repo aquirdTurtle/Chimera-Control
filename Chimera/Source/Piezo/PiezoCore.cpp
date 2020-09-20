@@ -2,7 +2,7 @@
 #include "Piezo/PiezoCore.h"
 #include "Piezo/PiezoType.h"
 #include "ConfigurationSystems/Version.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 
 PiezoCore::PiezoCore (piezoSetupInfo info) :
 	controllerType ( info.type),
@@ -44,7 +44,7 @@ void PiezoCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 
 piezoSettings PiezoCore::getSettingsFromConfig ( ConfigStream& file ){
 	piezoSettings tempSettings;
-	auto getlineF = ProfileSystem::getGetlineFunc (file.ver);
+	auto getlineF = ConfigSystem::getGetlineFunc (file.ver);
 	file.get ( );
 	getlineF ( file, tempSettings.pztValues.x.expressionStr );
 	getlineF ( file, tempSettings.pztValues.y.expressionStr);
@@ -134,7 +134,7 @@ void PiezoCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 }
 
 void PiezoCore::loadExpSettings (ConfigStream& stream){
-	ProfileSystem::stdGetFromConfig (stream, *this, expSettings);
+	ConfigSystem::stdGetFromConfig (stream, *this, expSettings);
 	experimentActive = expSettings.ctrlPzt;
 }
 

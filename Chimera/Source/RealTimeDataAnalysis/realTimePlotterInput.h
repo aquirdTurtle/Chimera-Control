@@ -15,7 +15,7 @@ class AnalysisThreadWorker;
 
 struct realTimePlotterInput{
 	realTimePlotterInput ( std::atomic<unsigned>& pltTime ) : plotTime ( pltTime ) { }
-	AnalysisThreadWorker* worker;
+	//AnalysisThreadWorker* worker;
 	std::atomic<unsigned>& plotTime;
 	//AndorCameraSettings cameraSettings;
 	IChimeraQtWindow* plotParentWindow;

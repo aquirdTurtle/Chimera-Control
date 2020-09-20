@@ -1,11 +1,8 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "CustomMfcControlWrappers/Control.h"
 #include "ConfigurationSystems/Version.h"
 #include "Andor/cameraPositions.h"
-#include "CustomMfcControlWrappers/DoubleEdit.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "Andor/andorPicSettingsGroup.h"

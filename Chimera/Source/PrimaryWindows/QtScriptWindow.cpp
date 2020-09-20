@@ -109,46 +109,6 @@ void QtScriptWindow::handleIntensityCombo (){
 	intensityAgilent.updateSettingsDisplay (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 }
 
-
-void QtScriptWindow::handleIntensityButtons (unsigned id){
-	id -= IDC_INTENSITY_CHANNEL1_BUTTON;
-	if (id % 7 == 0){
-		// channel 1
-		intensityAgilent.handleChannelPress (1, mainWin->getProfileSettings ().configLocation,
-			mainWin->getRunInfo ());
-	}
-	else if (id % 7 == 1){
-		// channel 2
-		intensityAgilent.handleChannelPress (2, mainWin->getProfileSettings ().configLocation,
-			mainWin->getRunInfo ());
-	}
-	else if (id % 7 == 3){
-		// TODO:
-		// handle sync 
-		//agilent->handleSync();
-	}
-	else if (id % 7 == 6){
-		try{
-			intensityAgilent.checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-			intensityAgilent.programAgilentNow (auxWin->getUsableConstants ());
-			reportStatus (qstr("Programmed Agilent " + intensityAgilent.getConfigDelim () + ".\r\n"));
-		}
-		catch (ChimeraError& err){
-			reportErr (qstr("Error while programming agilent " + intensityAgilent.getConfigDelim () + ": " + err.trace ()
-				+ "\r\n"));
-		}
-	}
-	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
-}
-
-void QtScriptWindow::handleNiawgScriptComboChange (){
-	//horizontalNiawgScript.childComboChangeHandler();
-}
-
-void QtScriptWindow::handleAgilentScriptComboChange (){
-	//intensityAgilent.agilentScript.childComboChangeHandler( mainWindowFriend, auxWindowFriend);
-}
-
 void QtScriptWindow::checkScriptSaves (){
 	niawg.niawgScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
 	intensityAgilent.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
@@ -352,7 +312,7 @@ void QtScriptWindow::openIntensityScript (std::string name){
 
 void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 	try{
-		ProfileSystem::initializeAtDelim (configFile, "SCRIPTS");
+		ConfigSystem::initializeAtDelim (configFile, "SCRIPTS");
 	}
 	catch (ChimeraError&){
 		errBox ("Failed to initialize configuration file at scripting window entry point \"SCRIPTS\".");
@@ -360,7 +320,7 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 	}
 	try{
 		configFile.get ();
-		auto getlineFunc = ProfileSystem::getGetlineFunc (configFile.ver);
+		auto getlineFunc = ConfigSystem::getGetlineFunc (configFile.ver);
 		std::string niawgName, masterName;
 		if (configFile.ver.versionMajor < 3){
 			std::string extraNiawgName;
@@ -368,9 +328,9 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 		}
 		getlineFunc (configFile, niawgName);
 		getlineFunc (configFile, masterName);
-		ProfileSystem::checkDelimiterLine (configFile, "END_SCRIPTS");
+		ConfigSystem::checkDelimiterLine (configFile, "END_SCRIPTS");
 		deviceOutputInfo info;
-		ProfileSystem::stdGetFromConfig (configFile, intensityAgilent.getCore (), info, Version ("4.0"));
+		ConfigSystem::stdGetFromConfig (configFile, intensityAgilent.getCore (), info, Version ("4.0"));
 		intensityAgilent.setOutputSettings (info);
 		intensityAgilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		try{

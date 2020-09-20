@@ -9,7 +9,6 @@
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "Agilent/AgilentCore.h"
 #include "NIAWG/NiawgCore.h"
-#include "Python/EmbeddedPythonHandler.h"
 #include "Tektronix/TekCore.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
 #include "Piezo/PiezoCore.h"
@@ -22,7 +21,6 @@
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
 #include "Basler/BaslerCamera.h"
 #include "Basler/baslerSettings.h"
-#include "Plotting/PlotDialog.h"
 #include "ExperimentType.h"
 #include "DeviceList.h"
 #include "DirectDigitalSynthesis/DdsCore.h"
@@ -40,7 +38,6 @@ class ExpThreadWorker;
 struct ExperimentThreadInput{
 	ExperimentThreadInput ( IChimeraQtWindow* win );
 	realTimePlotterInput* plotterInput;
-	EmbeddedPythonHandler& python;
 	profileSettings profile;
 
 	DoCore& ttls;

@@ -11,6 +11,7 @@
 #include <ExcessDialogs/saveWithExplorer.h>
 #include <ExcessDialogs/openWithExplorer.h>
 #include <ExcessDialogs/doChannelInfoDialog.h>
+#include <ExcessDialogs/AoSettingsDialog.h>
 
 QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), 
 topBottomTek (TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"),
@@ -46,7 +47,6 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		statBox->initialize (loc, this, 480, mainWin->getDevices (), 2);
 		ttlBoard.initialize (loc, this);
 		aoSys.initialize (loc, this);
-		connect (&aoSys, &IChimeraSystem::notification, mainWin, &QtMainWindow::handleNotification);
 		aiSys.initialize (loc, this);
 		topBottomTek.initialize (loc, this, "Top-Bottom-Tek", "Top", "Bottom", 480);
 		eoAxialTek.initialize (loc, this, "EO / Axial", "EO", "Axial", 480);
@@ -76,8 +76,8 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		// initialize data structures.
 		for (auto& dacPlotData : dacData){
 			dacPlotData = std::vector<pPlotDataVec> (linesPerDacPlot);
-			for (auto& d : dacPlotData){
-				d = pPlotDataVec (new plotDataVec (100, { 0,0,0 }));
+			for (auto& data : dacPlotData){
+				data = pPlotDataVec (new plotDataVec (100, { 0,0,0 }));
 			}
 		}
 		// initialize plot controls.
@@ -157,10 +157,6 @@ std::vector<parameterType> QtAuxiliaryWindow::getUsableConstants (){
 	constantRange.defaultInit ();
 	ParameterSystem::generateKey (params, false, constantRange);
 	return params;
-}
-
-void QtAuxiliaryWindow::invalidateSaved (unsigned id){
-	mainWin->updateConfigurationSavedStatus (false);
 }
 
 void QtAuxiliaryWindow::updateOptimization (AllExperimentInput& input){
@@ -273,32 +269,6 @@ void QtAuxiliaryWindow::saveAgilentScriptAs (whichAgTy::agilentNames name, IChim
 	}
 }
 
-
-Agilent& QtAuxiliaryWindow::whichAgilent (unsigned id)
-{
-	if (id >= IDC_TOP_BOTTOM_CHANNEL1_BUTTON && id <= IDC_TOP_BOTTOM_PROGRAM
-		|| id == IDC_TOP_BOTTOM_CALIBRATION_BUTTON)
-	{
-		return agilents[whichAgTy::TopBottom];
-	}
-	else if (id >= IDC_AXIAL_CHANNEL1_BUTTON && id <= IDC_AXIAL_PROGRAM
-		|| id == IDC_AXIAL_CALIBRATION_BUTTON)
-	{
-		return agilents[whichAgTy::Axial];
-	}
-	else if (id >= IDC_FLASHING_CHANNEL1_BUTTON && id <= IDC_FLASHING_PROGRAM
-		|| id == IDC_FLASHING_CALIBRATION_BUTTON)
-	{
-		return agilents[whichAgTy::Flashing];
-	}
-	else if (id >= IDC_UWAVE_CHANNEL1_BUTTON && id <= IDC_UWAVE_PROGRAM
-		|| id == IDC_UWAVE_CALIBRATION_BUTTON)
-	{
-		return agilents[whichAgTy::Microwave];
-	}
-	thrower ("id seen in \"whichAgilent\" handler does not belong to any agilent!");
-}
-
 ParameterSystem& QtAuxiliaryWindow::getGlobals (){
 	return globalParameters;
 }
@@ -336,35 +306,35 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 
 void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 	try{
-		ProfileSystem::standardOpenConfig (configFile, configParameters.configDelim, &configParameters, Version ("4.0"));
-		ProfileSystem::standardOpenConfig (configFile, "TTLS", &ttlBoard);
-		ProfileSystem::standardOpenConfig (configFile, "DACS", &aoSys);
+		ConfigSystem::standardOpenConfig (configFile, configParameters.configDelim, &configParameters, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, "TTLS", &ttlBoard);
+		ConfigSystem::standardOpenConfig (configFile, "DACS", &aoSys);
 		aoSys.updateEdits ();
 		for (auto& agilent : agilents){
 			deviceOutputInfo info;
-			ProfileSystem::stdGetFromConfig (configFile, agilent.getCore (), info, Version ("4.0"));
+			ConfigSystem::stdGetFromConfig (configFile, agilent.getCore (), info, Version ("4.0"));
 			agilent.setOutputSettings (info);
 			agilent.updateSettingsDisplay (1, mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		}
 		tektronixInfo info;
-		ProfileSystem::stdGetFromConfig (configFile, topBottomTek.getCore (), info);
+		ConfigSystem::stdGetFromConfig (configFile, topBottomTek.getCore (), info);
 		topBottomTek.setSettings (info);
-		ProfileSystem::stdGetFromConfig (configFile, eoAxialTek.getCore (), info);
+		ConfigSystem::stdGetFromConfig (configFile, eoAxialTek.getCore (), info);
 		eoAxialTek.setSettings (info);
 
-		ProfileSystem::standardOpenConfig (configFile, topBottomTek.getDelim (), &topBottomTek, Version ("4.0"));
-		ProfileSystem::standardOpenConfig (configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, topBottomTek.getDelim (), &topBottomTek, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, eoAxialTek.getDelim (), &eoAxialTek, Version ("4.0"));
 		if (configFile.ver >= Version ("4.5")) {
-			ProfileSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
+			ConfigSystem::standardOpenConfig (configFile, dds.getDelim (), &dds, Version ("4.5"));
 		}
-		ProfileSystem::standardOpenConfig (configFile, piezo1.getConfigDelim (), &piezo1, Version ("4.6"));
-		ProfileSystem::standardOpenConfig (configFile, piezo2.getConfigDelim (), &piezo2, Version ("4.6"));
-		ProfileSystem::standardOpenConfig (configFile, piezo3.getConfigDelim (), &piezo3, Version ("5.2"));
+		ConfigSystem::standardOpenConfig (configFile, piezo1.getConfigDelim (), &piezo1, Version ("4.6"));
+		ConfigSystem::standardOpenConfig (configFile, piezo2.getConfigDelim (), &piezo2, Version ("4.6"));
+		ConfigSystem::standardOpenConfig (configFile, piezo3.getConfigDelim (), &piezo3, Version ("5.2"));
 		AiSettings settings;
-		ProfileSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
+		ConfigSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
 		aiSys.setAiSettings (settings);
 		microwaveSettings uwsettings;
-		ProfileSystem::stdGetFromConfig (configFile, RohdeSchwarzGenerator.getCore (), uwsettings, Version ("4.10"));
+		ConfigSystem::stdGetFromConfig (configFile, RohdeSchwarzGenerator.getCore (), uwsettings, Version ("4.10"));
 		RohdeSchwarzGenerator.setMicrowaveSettings (uwsettings);
 	}
 	catch (ChimeraError&){
@@ -454,27 +424,24 @@ DoCore& QtAuxiliaryWindow::getTtlCore (){
 }
 
 void QtAuxiliaryWindow::fillMasterThreadInput (ExperimentThreadInput* input){
-	try
-	{
+	try	{
 		input->dacData = dacData;
 		input->ttlData = ttlData;
 		input->globalParameters = globalParameters.getAllParams ();
-		if (aiSys.wantsQueryBetweenVariations ())
-		{
+		if (aiSys.wantsQueryBetweenVariations ()) {
 			input->numAiMeasurements = configParameters.getTotalVariationNumber ();
 		}
 	}
-	catch (ChimeraError&)
-	{
+	catch (ChimeraError&) {
 		throwNested ("Auxiliary window failed to fill master thread input.");
 	}
 }
 
-AoSystem& QtAuxiliaryWindow::getAoSys (){
+AoSystem& QtAuxiliaryWindow::getAoSys () {
 	return aoSys;
 }
 
-AiSystem& QtAuxiliaryWindow::getAiSys (){
+AiSystem& QtAuxiliaryWindow::getAiSys () {
 	return aiSys;
 }
 
@@ -561,7 +528,6 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 	for (unsigned dacInc : range (aoSys.getNumberOfDacs ())){
 		std::string name, defaultValueString, minString, maxString;
 		double defaultValue, min, max;
-
 		configStream >> name;
 		if (configStream.ver >= Version ("1.2")){
 			std::string trash;
@@ -630,7 +596,6 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 	}
 }
 
-
 void QtAuxiliaryWindow::SetDacs (){
 	// have the dac values change
 	reportStatus ("----------------------\r\nSetting Dacs... ");
@@ -658,10 +623,11 @@ void QtAuxiliaryWindow::ViewOrChangeTTLNames (){
 
 void QtAuxiliaryWindow::ViewOrChangeDACNames (){
 	mainWin->updateConfigurationSavedStatus (false);
-	/*aoInputStruct input;
+	aoInputStruct input;
 	input.aoSys = &aoSys;
-	AoSettingsDialog dialog (&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
-	dialog.DoModal ();*/
+	AoSettingsDialog* dialog = new AoSettingsDialog (&input);
+	dialog->setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	dialog->exec ();
 }
 
 std::string QtAuxiliaryWindow::getOtherSystemStatusMsg (){

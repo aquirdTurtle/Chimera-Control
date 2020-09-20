@@ -3,7 +3,7 @@
 #include "DigitalOutput/DoCore.h"
 #include "Scripts/ScriptStream.h"
 #include <ExperimentThread/ExpThreadWorker.h>
-#include <ConfigurationSystems/ProfileSystem.h>
+#include <ConfigurationSystems/ConfigSystem.h>
 
 AgilentCore::AgilentCore (const agilentSettings& settings) : 
 	visaFlume (settings.safemode, settings.address),
@@ -19,8 +19,8 @@ AgilentCore::AgilentCore (const agilentSettings& settings) :
 	try{
 		visaFlume.open ();
 	}
-	catch (ChimeraError&){
-		throwNested ("Error seen while initializing " + agilentName + " Agilent");
+	catch (ChimeraError& err){
+		errBox("Error seen while opening connection to " + agilentName + " Agilent:" + err.trace());
 	}
 }
 
@@ -75,7 +75,6 @@ void AgilentCore::analyzeAgilentScript ( scriptedArbInfo& infoObj, std::vector<p
 	}
 }
 
-
 std::string AgilentCore::getDeviceIdentity (){
 	std::string msg;
 	try{
@@ -101,13 +100,10 @@ void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, 
 	catch (ChimeraError&){
 		//errBox ("Failed to set agilent output synced?!");
 	}
-	for (auto chan : range (unsigned (2)))
-	{
+	for (auto chan : range (unsigned (2)))	{
 		auto& channel = runSettings.channel[chan];
-		try
-		{
-			switch (channel.option)
-			{
+		try{
+			switch (channel.option){
 				case AgilentChannelMode::which::No_Control:
 					break;
 				case AgilentChannelMode::which::Output_Off:
@@ -388,13 +384,13 @@ void AgilentCore::handleScriptVariation (unsigned variation, scriptedArbInfo& sc
 }
 
 deviceOutputInfo AgilentCore::getSettingsFromConfig (ConfigStream& file){
-	auto readFunc = ProfileSystem::getGetlineFunc (file.ver);
+	auto readFunc = ConfigSystem::getGetlineFunc (file.ver);
 	deviceOutputInfo tempSettings;
 	file >> tempSettings.synced;
 	std::array<std::string, 2> channelNames = { "CHANNEL_1", "CHANNEL_2" };
 	unsigned chanInc = 0;
 	for (auto& channel : tempSettings.channel){
-		ProfileSystem::checkDelimiterLine (file, channelNames[chanInc]);
+		ConfigSystem::checkDelimiterLine (file, channelNames[chanInc]);
 		// the extra step in all of the following is to remove the , at the end of each input.
 		std::string input;
 		file >> input;
@@ -491,7 +487,7 @@ void AgilentCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 }
 
 void AgilentCore::loadExpSettings (ConfigStream& script){
-	ProfileSystem::stdGetFromConfig (script, *this, expRunSettings);
+	ConfigSystem::stdGetFromConfig (script, *this, expRunSettings);
 	experimentActive = (expRunSettings.channel[0].option != AgilentChannelMode::which::No_Control
 						|| expRunSettings.channel[1].option != AgilentChannelMode::which::No_Control);
 }

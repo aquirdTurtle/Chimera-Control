@@ -59,7 +59,6 @@ class Script : public IChimeraSystem {
 		SyntaxHighlighter* highlighter;
 
 	private:
-		CWnd syntaxTimer;
 		CQTextEdit* edit;
 		QLabel* title;
 		CQCheckBox*  savedIndicator;

@@ -1,7 +1,7 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "DaqMxFlume.h"
-
+#include <AnalogInput/AiSystem.h>
 
 DaqMxFlume::DaqMxFlume( bool safemodeOption ) : safemode ( safemodeOption )
 {
@@ -62,7 +62,7 @@ void DaqMxFlume::readAnalogF64( TaskHandle taskHandle, std::vector<float64> &rea
 	{
 		// 3rd argument = timeout of 10s, pretty arbitrary. 10s is prety long actually.
 		// *16 in the size because number of 
-		int result = DAQmxReadAnalogF64( taskHandle, readData.size() / NUMBER_AI_CHANNELS, 10.0,
+		int result = DAQmxReadAnalogF64( taskHandle, readData.size() / AiSystem::NUMBER_AI_CHANNELS, 10.0,
 										 DAQmx_Val_GroupByChannel, readData.data(), 
 										 readData.size(), &sampsPerChanRead, NULL);
 		if ( result )

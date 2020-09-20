@@ -2,7 +2,6 @@
 #pragma once
 
 #include "LowLevel/resource.h"
-#include "CustomMfcControlWrappers/Control.h"
 
 #include "Plotting/PlottingInfo.h"
 
@@ -53,7 +52,7 @@ class PlotDesignerDialog : public CDialog
 		const unsigned picNumber;
 		int currentDataSet, currentPrcPicture, currentPrcPixel, currentPscCondition, currentPscPicture, currentPscPixel;
 		PlottingInfo currentPlotInfo;
-
+		/*
 		/// Lots of controls on this guy
 		Control<CStatic> plotPropertiesText;
 
@@ -120,5 +119,5 @@ class PlotDesignerDialog : public CDialog
 
 		Control<CButton> saveButton;
 		Control<CButton> cancelButton;
-
+		*/
 };

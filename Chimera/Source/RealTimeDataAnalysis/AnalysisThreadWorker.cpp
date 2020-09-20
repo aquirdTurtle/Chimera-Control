@@ -46,7 +46,7 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 		return;
 	}
 	unsigned variationNum = (picNum - 1) / (input->picsPerVariation);
-	plotNumberCount++;
+	picNumberCount++;
 	for (auto plotI : range (allPlots.size ())) {
 		/// Check Post-Selection Conditions
 		unsigned whichGrid = input->plotInfo[plotI].whichGrid;
@@ -54,25 +54,13 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (),
 			std::vector<bool> (groupNum, true));
 		determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
-		// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
-		// organization purposes.
 		if (allPlots[plotI].getPlotType () == "Atoms") {
 			auto res = handlePlotAtoms (
 				allPlots[plotI], picNum, finalDataNew[plotI], dataContainers[plotI],
-				variationNum, satisfiesPsc, plotNumberCount, atomPresentData[whichGrid], input->plottingFrequency,
-				groupNum, input->picsPerVariation);
+				variationNum, satisfiesPsc, picNumberCount, atomPresentData[whichGrid], groupNum);
 			if (res.size () != 0) {
 				emit newPlotData (res, plotI);
 			}
-		}
-		else if (allPlots[plotI].getPlotType () == "Pixel Counts") {
-			// TODO: Reimplement this here.
-		}
-		else if (allPlots[plotI].getPlotType () == "Pixel Count Histograms") {
-			// This is done in the different slot. Should review this chunck of code to make this more efficient and 
-			// not do anything 
-			//DataAnalysisControl::handlePlotHist (allPlots[plotI], countData[whichGrid], finalHistData[plotI],
-			//	satisfiesPsc, histogramData[plotI], dataContainers[plotI], groupNum);
 		}
 	}
 	/// clear data
@@ -80,7 +68,6 @@ void AnalysisThreadWorker::handleNewPic (atomQueue atomPics) {
 	for (auto gridCount : range (input->grids.size ())) {
 		unsigned groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		for (auto pixelI : range (groupNum)) {
-			//countData[gridCount][pixelI].clear ();
 			atomPresentData[gridCount][pixelI].clear ();
 		}
 	}
@@ -105,7 +92,6 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 			}
 		}
 	}
-	int totalNumberOfPixels = 0;
 	int numberOfLossDataPixels = 0;	
 	/// figure out which pixels need any data
 	for (auto plotInc : range(allPlots.size())){
@@ -125,29 +111,25 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 		return;
 	}
 	unsigned variationNum = (picNum - 1) / (input->picsPerVariation);
-	plotNumberCount++;
+	picNumberCount++;
 	for (auto plotI : range (allPlots.size ())) {
 		/// Check Post-Selection Conditions
 		unsigned whichGrid = input->plotInfo[plotI].whichGrid;
 		unsigned groupNum = input->grids[whichGrid].height * input->grids[whichGrid].width;
-		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (),
+		std::vector<std::vector<bool> > satisfiesPsc (allPlots[plotI].getDataSetNumber (), 
 			std::vector<bool> (groupNum, true));
-
-		//DataAnalysisControl::determineWhichPscsSatisfied (allPlots[plotI], groupNum, atomPresentData[whichGrid], satisfiesPsc);
-		// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
-		// organization purposes.
 		if (allPlots[plotI].getPlotType () == "Pixel Count Histograms") {
 			// This is done in the different slot. Should review this chunck of code to make this more efficient and 
 			// not do anything 
 			auto res = handlePlotHist (allPlots[plotI], countData[whichGrid], finalHistData[plotI],
-									   satisfiesPsc, histogramData[plotI], dataContainers[plotI], groupNum);
+									   satisfiesPsc, histogramData[plotI], dataContainers[plotI], groupNum, 
+										picNumberCount);
 			if (res.size () != 0) {
 				emit newPlotData (res, plotI);
 			}
 		}
 	}
-	/// clear data
-	// all pixels being recorded, not pixels in a data set.
+	/// clear data: all pixels being recorded, not pixels in a data set.
 	for (auto gridCount : range (input->grids.size ())) {
 		unsigned groupNum = input->grids[gridCount].height * input->grids[gridCount].width;
 		for (auto pixelI : range (groupNum)) {
@@ -157,9 +139,7 @@ void AnalysisThreadWorker::handleNewPix (PixListQueue pixlist) {
 }
 
 void AnalysisThreadWorker::init (){
-	input->worker = this;
 	// make vector of plot information classes.
-	/// open files
 	for (auto plotInc : range (input->plotInfo.size ())) {
 		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + "\\" + input->plotInfo[plotInc].name + "."
 			+ PLOTTING_EXTENSION;
@@ -173,12 +153,12 @@ void AnalysisThreadWorker::init (){
 	/// check pictures per experiment
 	for (auto plotInc : range (allPlots.size ())) {
 		if (allPlots[0].getPicNumber () != allPlots[plotInc].getPicNumber ()) {
-			//errBox ("ERROR: Number of pictures per experiment don't match between plots. The plotting thread will "
+			// I think I removed this because this subthread can't create gui objects. 
+			// errBox ("ERROR: Number of pictures per experiment don't match between plots. The plotting thread will "
 			//	"close.");
 			return;
 		}
 	}
-	int totalNumberOfPixels = 0;
 	int numberOfLossDataPixels = 0;
 	/// figure out which pixels need any data
 	for (auto plotInc : range (allPlots.size ())) {
@@ -190,14 +170,7 @@ void AnalysisThreadWorker::init (){
 			}
 		}
 	}
-	// 
-	if (totalNumberOfPixels == 0) {
-		// no locations selected for analysis; quit.
-		// return 0; ??? why is this commented out?
-	}
-	/// Initialize Arrays for data. (using std::vector above)
-	// thinking about making these experiment-picture sized and resetting after getting the needed data out of them.
-
+	/// Initialize Arrays for data. 
 	countData.resize(input->grids.size ());
 	atomPresentData.resize(input->grids.size ());
 	for (auto gridCount : range (input->grids.size ())) {
@@ -237,7 +210,8 @@ void AnalysisThreadWorker::init (){
 void AnalysisThreadWorker::setXpts (std::vector<double> newXpts) {
 	for (auto plotInc : range(dataContainers.size())) {
 		auto& plotInfo = allPlots[plotInc];
-		dataContainers[plotInc].resize (input->grids[0].numAtoms());
+		// +1 for avg
+		dataContainers[plotInc].resize (input->grids[0].numAtoms()+1);
 		for (auto& dset : dataContainers[plotInc]) {
 			dset.resize (newXpts.size ());
 			for (auto dpNum : range(dset.size())) {
@@ -253,9 +227,9 @@ std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotAtoms (Plott
 	std::vector<std::vector<std::pair<double, unsigned long>> >& finData,
 	std::vector<std::vector<dataPoint>>& dataContainers,
 	unsigned variationNumber, std::vector<std::vector<bool>>& pscSatisfied,
-	int plotNumberCount, std::vector<std::vector<int> > atomPresent, unsigned plottingFrequency,
-	unsigned groupNum, unsigned picsPerVariation) {
-	if (pictureNumber % picsPerVariation == plotInfo.getPicNumber ()) {
+	int plotNumberCount, std::vector<std::vector<int> > atomPresent, unsigned groupNum) {
+
+	if (pictureNumber % input->picsPerVariation == plotInfo.getPicNumber ()) {
 		// first pic of new variation, so need to update x vals.
 		finData = std::vector<std::vector<std::pair<double, unsigned long>>> (plotInfo.getDataSetNumber (),
 			std::vector<std::pair<double, unsigned long>> (groupNum, { 0,0 }));
@@ -290,7 +264,7 @@ std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotAtoms (Plott
 		}
 	}
 	// Core data structures have been updated. return if not time for a plot update yet.
-	if (plotNumberCount % plottingFrequency != 0) {
+	if (plotNumberCount % input->plottingFrequency != 0) {
 		return {};
 	}
 	if (dataContainers.size () == 0) {
@@ -309,7 +283,6 @@ std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotAtoms (Plott
 			dataContainers[dataId][variationNumber].err = error;
 		}
 		/// calculate averages
-		double avgAvgVal = 0, avgErrsVal = 0;
 		std::pair<double, unsigned long> allDataTempNew (0, 0);
 		for (auto data : finData[dataSetI]) {
 			allDataTempNew.first += data.first;
@@ -332,8 +305,7 @@ std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotAtoms (Plott
 std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotHist (PlottingInfo plotInfo, std::vector<std::vector<long>> countData,
 	std::vector<std::vector<std::deque<double>>>& finData, std::vector<std::vector<bool>> pscSatisfied,
 	std::vector<std::vector<std::map<int, std::pair<int, unsigned long>>>>& histData,
-	std::vector<std::vector<dataPoint>>& dataContainers,
-	unsigned groupNum) {
+	std::vector<std::vector<dataPoint>>& dataContainers, unsigned groupNum, int pltNumberCount) {
 	/// options are fundamentally different for histograms.
 	// load pixel counts
 	for (auto dataSetI : range (plotInfo.getDataSetNumber ())) {
@@ -396,11 +368,15 @@ std::vector<std::vector<dataPoint>> AnalysisThreadWorker::handlePlotHist (Plotti
 			}
 		}
 	}
+	// Core data structures have been updated. return if not time for a plot update yet.
+	if (pltNumberCount % input->plottingFrequency != 0) {
+		return {};
+	}
 	return dataContainers;
 }
 
-void AnalysisThreadWorker::determineWhichPscsSatisfied (
-	PlottingInfo& info, unsigned groupSize, std::vector<std::vector<int>> atomPresentData, std::vector<std::vector<bool>>& pscSatisfied) {
+void AnalysisThreadWorker::determineWhichPscsSatisfied ( PlottingInfo& info, unsigned groupSize, 
+	std::vector<std::vector<int>> atomPresentData, 	std::vector<std::vector<bool>>& pscSatisfied) {
 	// There's got to be a better way to iterate through these guys...
 	for (auto dataSetI : range (info.getDataSetNumber ())) {
 		for (auto groupI : range (groupSize)) {

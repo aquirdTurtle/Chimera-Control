@@ -6,7 +6,7 @@
 #include "Andor/AndorCameraCore.h"
 #include "Andor/AndorCameraSettingsControl.h"
 #include "PrimaryWindows/QtAndorWindow.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
@@ -188,10 +188,10 @@ andorPicSettingsGroup PictureSettingsControl::getPictureSettingsFromConfig (Conf
 }
 
 void PictureSettingsControl::handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor){
-	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
+	ConfigSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
 	auto settings = getPictureSettingsFromConfig ( openFile );
 	updateAllSettings ( settings );
-	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
+	ConfigSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }
 
 void PictureSettingsControl::setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts ){

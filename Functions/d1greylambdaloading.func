@@ -3,12 +3,7 @@
 def D1greyLambdaloading():
   % settings
   var D1_2_to_2p_Power -1.5  %-2
-  var cooling_time 200
-  var rsfreq -0.035 %-0.05
-  var rspow -3.5 % 3.5 %2
-  % init system 
   dac: power795 D1_2_to_2p_Power
-  %rsg: (6.834682 + rsfreq*0.001) rspow
   t += 4.01
   off: diagMotRf
   off: sideMotRf
@@ -22,13 +17,12 @@ def D1greyLambdaloading():
 
   call send_uw_to_795_eom()
   on: rf795
-  t += cooling_time 
+  t += lgm_cooling_time 
   off: rf795
   off: repumpRf
   dac: power795 0.1
   dac: diag795pow 0
   dac: side795pow 0
-  pulseon: rstrig 0.01
   pulseon: a15 0.1
   t += 4.01
 

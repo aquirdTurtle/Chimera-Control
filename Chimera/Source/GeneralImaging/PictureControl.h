@@ -3,7 +3,7 @@
 #include "GeneralImaging/imageParameters.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
 #include "Plotting/PlotCtrl.h"
-#include "CustomQtControls/LongCSlider.h"
+#include "CustomQtControls/LongQSlider.h"
 #include "softwareAccumulationOption.h"
 #include <GeneralObjects/Matrix.h>
 #include "QPixmap.h"
@@ -94,8 +94,8 @@ class PictureControl : public QWidget{
 		ImageLabel* pictureObject;
 		QPixmap* pixmap;
 
-		LongCSlider sliderMax;
-		LongCSlider sliderMin;
+		LongQSlider sliderMax;
+		LongQSlider sliderMin;
 
 		//Control<CPushButton> myButton;
 		QLabel* coordinatesText;

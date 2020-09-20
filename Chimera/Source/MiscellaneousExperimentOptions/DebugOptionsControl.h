@@ -1,7 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-#include "Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "GeneralObjects/commonTypes.h"

@@ -3,7 +3,7 @@
 
 #include "Agilent/Agilent.h"
 #include "ParameterSystem/ParameterSystem.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
@@ -18,16 +18,13 @@ Agilent::Agilent( const agilentSettings& settings, IChimeraQtWindow* parent ) : 
 initSettings(settings), agilentScript(parent){}
 
 
-void Agilent::programAgilentNow (std::vector<parameterType> constants)
-{
+void Agilent::programAgilentNow (std::vector<parameterType> constants){
 	readGuiSettings ();
 	std::string warnings_;
-	if (currentGuiInfo.channel[0].scriptedArb.fileAddress.expressionStr != "")
-	{
+	if (currentGuiInfo.channel[0].scriptedArb.fileAddress.expressionStr != ""){
 		core.analyzeAgilentScript (currentGuiInfo.channel[0].scriptedArb, constants, warnings_);
 	}
-	if (currentGuiInfo.channel[1].scriptedArb.fileAddress.expressionStr != "")
-	{
+	if (currentGuiInfo.channel[1].scriptedArb.fileAddress.expressionStr != ""){
 		core.analyzeAgilentScript (currentGuiInfo.channel[1].scriptedArb, constants, warnings_);
 	}
 	core.convertInputToFinalSettings (0, currentGuiInfo, constants);
@@ -134,8 +131,12 @@ void Agilent::initialize( POINT& loc, std::string headerText, unsigned editHeigh
 	currentGuiInfo.channel[0].option = AgilentChannelMode::which::No_Control;
 	currentGuiInfo.channel[1].option = AgilentChannelMode::which::No_Control;
 	agilentScript.setEnabled ( false, false );
-
-	core.programSetupCommands ( );
+	try {
+		core.programSetupCommands ();
+	}
+	catch (ChimeraError & error) {
+		errBox ("Failed to program agilent " + getConfigDelim () + " initial settings: " + error.trace ());
+	}
 }
 
 
@@ -310,8 +311,7 @@ void Agilent::handleModeCombo(){
 	}
 	int selection = settingCombo->currentIndex();
 	int selectedChannel = int( !channel1Button->isChecked() );
-	switch (selection)
-	{
+	switch (selection) {
 		case 0:
 			optionsFormat->setText( "---" );
 			currentGuiInfo.channel[selectedChannel].option = AgilentChannelMode::which::No_Control;
@@ -365,8 +365,7 @@ void Agilent::handleSavingConfig(ConfigStream& saveFile, std::string configPath,
 	saveFile << core.configDelim+"\n";
 	saveFile << "/*Synced Option:*/ " << str (currentGuiInfo.synced);
 	std::vector<std::string> channelStrings = { "\nCHANNEL_1", "\nCHANNEL_2" };
-	for (auto chanInc : range (2))
-	{
+	for (auto chanInc : range (2)){
 		auto& channel = currentGuiInfo.channel[chanInc];
 		saveFile << channelStrings[chanInc];
 		saveFile << "\n/*Channel Mode:*/\t\t\t\t" << AgilentChannelMode::toStr (channel.option);

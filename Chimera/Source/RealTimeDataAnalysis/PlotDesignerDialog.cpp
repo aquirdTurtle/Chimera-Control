@@ -1,5 +1,7 @@
+
 // created by Mark O. Brown
 #include "stdafx.h"
+/*
 #include "PlotDesignerDialog.h"
 #include <boost/lexical_cast.hpp>
 
@@ -691,3 +693,4 @@ void PlotDesignerDialog::enableAndDisable()
 	prcNoAtomBox.EnableWindow( dataSetSel && prcPictureNumSel && prcPixelNumSel ); // && currentPlotInfo.getPlotType( ) == "Atoms" );
 	binWidthEdit.EnableWindow( currentPlotInfo.getPlotType( ) == "Pixel Count Histograms" );
 }
+*/

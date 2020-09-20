@@ -1,7 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-#include "CustomMfcControlWrappers/myButton.h"
-#include "CustomMfcControlWrappers/Control.h"
 #include <Mmsystem.h>
 #include <mciapi.h>
 #include "Andor/cameraPositions.h"

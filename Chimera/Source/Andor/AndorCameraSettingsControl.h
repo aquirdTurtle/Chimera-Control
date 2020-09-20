@@ -1,8 +1,6 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "CustomMfcControlWrappers/Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "ConfigurationSystems/Version.h"
 #include "PictureSettingsControl.h"
 #include "CameraImageDimensions.h"

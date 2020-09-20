@@ -1,0 +1,14 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+
+var_v 3 freqs [ 69 81 93 ] 
+var_v 3 amps [ 0.61 0.39 0.5 ] 
+var_v 3 phases [ 0 0 0 ] 
+
+repeatForever
+gen3const_v Horizontal freqs amps phases #  
+gen1const Vertical 75	1 	0 #
+0.01 0
+endRepeat
+

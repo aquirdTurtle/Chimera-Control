@@ -1,0 +1,54 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+% I think this should be basically the same as a tunneling script
+var spacing 4
+
+var_v 2 linRamps [ lin lin ]  
+var_v 2 freqs [ 69 81 ]
+var_v 2 finFreqs [ (75-spacing/2) (75+spacing/2) ]  
+var_v 2 amps [ 0.61 0.39 ]
+var_v 2 finAmps [ 0.55 0.45 ] 
+var_v 2 phases [ 0 0 ]
+
+repeatTilTrig
+gen2const_v Horizontal
+freqs amps phases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezer
+#
+0.01 0
+endRepeat
+
+gen2Freq&AmpRamp_v
+Horizontal 
+linRamps freqs finFreqs linRamps amps finAmps phases #
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezer
+#
+1 0
+
+repeatTilTrig
+gen2const_v Horizontal
+finFreqs finAmps phases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezer
+#
+0.1 0
+endRepeat
+
+gen2Freq&AmpRamp_v
+Horizontal 
+linRamps finFreqs freqs linRamps finAmps amps phases # 
+gen2const Vertical
+75	0.225 	0
+99 	0.5		0 % the dump tweezer
+#
+1 0
+
+
+
+

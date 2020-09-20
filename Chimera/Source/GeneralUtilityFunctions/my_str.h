@@ -75,18 +75,6 @@ template <typename T> std::wstring w_str( T input, const int precision = 13, boo
 	}
 	return outStr;
 }
-
-/// Usage note
-// the cstr is returning a pointer to an object being created in the macro. That object never gets assigned to anything,
-// so after line calling cstr finishes, that object gets destroyed, and the pointer points to nothing. Therefore,
-// cstr can not be used if the pointer created is not immediately used to instantiate another object. For example:
-//		MessageBox( eMainWindowHwnd, cstr( msg ), "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
-// works because MessageBox immediately makes a copy of the msg based on it's pointer.
-//		const char * tempStr = cstr(msg);
-//		MessageBox( eMainWindowHwnd, tempStr, "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
-// doesn't work because by the time MessageBox is called, the string cstr created has been destroyed and tempStr 
-// points to nothing.
-
 // overloaded defines are tricky in c++. This is effectively just an overloaded define for 
 //#define cstr(input) str(input).c_str()
 //#define cstr(input, precision) str(input, precision).c_str()

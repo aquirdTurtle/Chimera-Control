@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "NiawgSystem.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 
 NiawgSystem::NiawgSystem (DoRows::which trigRow, unsigned trigNumber, bool safemode, IChimeraQtWindow* parent) : 
 	IChimeraSystem(parent), niawgScript (parent), core (trigRow, trigNumber, safemode)
@@ -36,7 +36,7 @@ void NiawgSystem::handleSaveConfig (ConfigStream& saveFile){
 
 void NiawgSystem::handleOpenConfig (ConfigStream& openfile){
 	bool controlOpt;
-	ProfileSystem::stdGetFromConfig (openfile, core, controlOpt, Version ("4.12"));
+	ConfigSystem::stdGetFromConfig (openfile, core, controlOpt, Version ("4.12"));
 	controlNiawg->setChecked ( controlOpt );
-	ProfileSystem::standardOpenConfig (openfile, "REARRANGEMENT_INFORMATION", &rearrangeCtrl);
+	ConfigSystem::standardOpenConfig (openfile, "REARRANGEMENT_INFORMATION", &rearrangeCtrl);
 }

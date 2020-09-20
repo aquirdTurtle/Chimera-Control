@@ -6,7 +6,7 @@
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include "GeneralUtilityFunctions/cleanString.h"
 #include "ParameterSystem/ParameterSystem.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "DigitalOutput/DoSystem.h"
 #include "GeneralObjects/RunInfo.h"
@@ -75,9 +75,9 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 	availableFunctionsCombo.combo->setGeometry (loc.x, loc.y, width, 25);
 	loadFunctions ();
 	availableFunctionsCombo.combo->setCurrentIndex (0);
-	parent->connect (availableFunctionsCombo.combo, qOverload<int> (&QComboBox::currentIndexChanged), [this, parent]() {
+	parent->connect (availableFunctionsCombo.combo, qOverload<int> (&QComboBox::activated), [this, parent]() {
 		try {
-			auto addr = ProfileSystem::getMasterAddressFromConfig (parent->mainWin->getProfileSettings ());
+			auto addr = ConfigSystem::getMasterAddressFromConfig (parent->mainWin->getProfileSettings ());
 			functionChangeHandler (addr);
 		}
 		catch (ChimeraError & err) {
@@ -215,6 +215,7 @@ void Script::saveScript(std::string configPath, RunInfo info){
 	scriptFullAddress = configPath + scriptName + extension;
 	scriptPath = configPath;
 	updateSavedStatus(true);
+	emit notification ("Finished saving script.\n", 0);
 }
 
 //
@@ -246,6 +247,7 @@ void Script::saveScriptAs(std::string location, RunInfo info){
 	scriptFullAddress = location;
 	updateScriptNameText(location);
 	updateSavedStatus(true);
+	emit notification ("Finished saving script.\n", 0);
 }
 
 //
@@ -437,7 +439,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 		}
 	}
 	updateScriptNameText( configPath );
-	int index = availableFunctionsCombo.combo->findData ("Parent Script");
+	int index = availableFunctionsCombo.combo->findText ("Parent Script");
 	if (index != -1) { // -1 for not found
 		availableFunctionsCombo.combo->setCurrentIndex (index);
 	}
@@ -464,6 +466,7 @@ void Script::loadFile(std::string pathToFile){
 	// put the default into the new control.
 	edit->setText(cstr(fileText));
 	openFile.close();
+	emit notification (qstr("Finished loading " + deviceType + " file\n"),1);
 }
 
 
@@ -471,7 +474,7 @@ void Script::reset(){
 	if (!availableFunctionsCombo.combo || !edit) {
 		return;
 	}
-	int index = availableFunctionsCombo.combo->findData ("Parent Script");
+	int index = availableFunctionsCombo.combo->findText ("Parent Script");
 	if (index != -1) { // -1 for not found
 		availableFunctionsCombo.combo->setCurrentIndex (index);
 	}
@@ -589,11 +592,12 @@ void Script::saveAsFunction(){
 	functionFile.close();
 	// refresh this.
 	loadFunctions();
-	int index = availableFunctionsCombo.combo->findData (cstr (functionName));
+	int index = availableFunctionsCombo.combo->findText (cstr (functionName));
 	if (index != -1) { // -1 for not found
 		availableFunctionsCombo.combo->setCurrentIndex (index);
 	}
 	updateSavedStatus( true );
+	emit notification ("Finished saving script as a function.\n",0);
 }
 
 void Script::setEnabled ( bool enabled, bool functionsEnabled ){

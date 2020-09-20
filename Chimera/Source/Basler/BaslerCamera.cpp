@@ -5,7 +5,7 @@
 #include "BaslerWrapper.h"
 
 #include "GeneralImaging/PictureControl.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include <ExperimentThread/ExpThreadWorker.h>
 
@@ -416,8 +416,8 @@ void BaslerCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadwork
 }
 
 void BaslerCameraCore::loadExpSettings (ConfigStream& stream){
-	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings, Version ("4.0"));
-	expRunSettings.repsPerVar = ProfileSystem::stdConfigGetter ( stream, "REPETITIONS", 
+	ConfigSystem::stdGetFromConfig (stream, *this, expRunSettings, Version ("4.0"));
+	expRunSettings.repsPerVar = ConfigSystem::stdConfigGetter ( stream, "REPETITIONS", 
 																 Repetitions::getSettingsFromConfig);
 }
 

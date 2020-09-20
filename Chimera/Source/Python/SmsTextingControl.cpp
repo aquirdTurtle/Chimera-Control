@@ -77,6 +77,7 @@ void SmsTextingControl::deletePersonInfo(QTableWidgetItem* item){
 	peopleListView->removeRow (item->row());
 }
 
+/*
 void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType){
 	auto peopleToText = getPeopleFromListview ();
 	if (msgType == "Loading"){
@@ -106,7 +107,7 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 	else{
 		thrower ("unrecognized text message type: " + msgType);
 	}
-}
+}*/
 
 
 std::vector<personInfo> SmsTextingControl::getPeopleFromListview (){

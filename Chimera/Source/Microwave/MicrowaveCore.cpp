@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ConfigurationSystems/Version.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include <DataLogging/DataLogger.h>
 #include <ExperimentThread/ExpThreadWorker.h>
 #include "MicrowaveCore.h"
@@ -114,7 +114,7 @@ unsigned MicrowaveCore::getNumTriggers (microwaveSettings settings){
 
 microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile){
 	microwaveSettings settings;
-	auto getlineF = ProfileSystem::getGetlineFunc (openFile.ver);
+	auto getlineF = ConfigSystem::getGetlineFunc (openFile.ver);
 	openFile >> settings.control;
 	unsigned numInList = 0;
 	openFile >> numInList;
@@ -139,7 +139,7 @@ microwaveSettings MicrowaveCore::getSettingsFromConfig (ConfigStream& openFile){
 }
 
 void MicrowaveCore::loadExpSettings (ConfigStream& stream){
-	ProfileSystem::stdGetFromConfig (stream, *this, experimentSettings);
+	ConfigSystem::stdGetFromConfig (stream, *this, experimentSettings);
 	experimentActive = experimentSettings.control;
 }
 

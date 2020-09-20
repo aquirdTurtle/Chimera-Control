@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ExpThreadWorker.h"
-#include <ConfigurationSystems/ProfileSystem.h>
+#include <ConfigurationSystems/ConfigSystem.h>
 #include <MiscellaneousExperimentOptions/Repetitions.h>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
@@ -516,9 +516,9 @@ bool ExpThreadWorker::handleVectorizedValsDeclaration (std::string word, ScriptS
 	catch (boost::bad_lexical_cast) {
 		thrower ("Failed to convert constant vector length to an unsigned int!");
 	}
-	if (vecLength_ui == 0 || vecLength_ui > MAX_NIAWG_SIGNALS) {
+	if (vecLength_ui == 0 || vecLength_ui > NiawgConstants::MAX_NIAWG_SIGNALS) {
 		thrower ("Invalid constant vector length: " + str (vecLength_ui) + ", must be greater than 0 and less than "
-			+ str (MAX_NIAWG_SIGNALS));
+			+ str (NiawgConstants::MAX_NIAWG_SIGNALS));
 	}
 	std::string bracketDelims;
 	stream >> bracketDelims;
@@ -861,7 +861,7 @@ bool ExpThreadWorker::handleFunctionCall (std::string word, ScriptStream& stream
 	// calling a user-defined function. Get the name and the arguments to pass to the function handler.
 	std::string functionCall, functionName, functionArgs;
 	functionCall = stream.getline ('\n');
-	boost::erase_all (functionCall, "\r");
+	//boost::erase_all (functionCall, "\r");
 	int pos = functionCall.find_first_of ("(") + 1;
 	int finalpos = functionCall.find_last_of (")");
 	functionName = functionCall.substr (0, pos - 1);
@@ -935,11 +935,8 @@ void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 }
 
 void ExpThreadWorker::runConsistencyChecks (std::vector<parameterType> expParams) {
-	//if (input->updatePlotterXVals) {
-	// sleep to make sure that this function has been connected to the plotter thread
 	Sleep (1000);
 	emit plot_Xvals_determined (ParameterSystem::getKeyValues (expParams));
-	//}
 	input->globalControl.setUsages (expParams);
 	for (auto& var : expParams) {
 		if (!var.constant && !var.active) {
@@ -1101,8 +1098,8 @@ void ExpThreadWorker::loadExperimentRuntime (ConfigStream& config, ExpRuntimeDat
 	runtime.expParams = ParameterSystem::combineParams (
 		ParameterSystem::getConfigParamsFromFile (input->profile.configFilePath ()), input->globalParameters);
 	ScanRangeInfo varRangeInfo = ParameterSystem::getRangeInfoFromFile (input->profile.configFilePath ());
-	loadMasterScript (ProfileSystem::getMasterAddressFromConfig (input->profile), runtime.masterScript);
-	runtime.mainOpts = ProfileSystem::stdConfigGetter (config, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig);
-	runtime.repetitions = ProfileSystem::stdConfigGetter (config, "REPETITIONS", Repetitions::getSettingsFromConfig);
+	loadMasterScript (ConfigSystem::getMasterAddressFromConfig (input->profile), runtime.masterScript);
+	runtime.mainOpts = ConfigSystem::stdConfigGetter (config, "MAIN_OPTIONS", MainOptionsControl::getSettingsFromConfig);
+	runtime.repetitions = ConfigSystem::stdConfigGetter (config, "REPETITIONS", Repetitions::getSettingsFromConfig);
 	ParameterSystem::generateKey (runtime.expParams, runtime.mainOpts.randomizeVariations, varRangeInfo);
 }

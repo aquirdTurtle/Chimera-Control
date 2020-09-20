@@ -71,8 +71,7 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		void handleAbort ();
 		void zeroDacs ();
 
-		void invalidateSaved (unsigned id);
-		 
+	 
 		std::vector<parameterType> getAllParams ();
 
 		void clearVariables ();
@@ -83,7 +82,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		std::pair<unsigned, unsigned> getTtlBoardSize ();
 		unsigned getNumberOfDacs ();
 		void setVariablesActiveState (bool active);
-		Agilent& whichAgilent (unsigned id);
 		DoCore& getTtlCore ();
 		AoSystem& getAoSys ();
 		AiSystem& getAiSys ();

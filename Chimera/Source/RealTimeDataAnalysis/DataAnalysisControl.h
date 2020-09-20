@@ -1,9 +1,7 @@
 // created by Mark O. Brown
 #pragma once
 
-#include "Plotting/PlotDialog.h"
 #include "Plotting/PlottingInfo.h"
-#include "Python/EmbeddedPythonHandler.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "atomGrid.h"
@@ -43,9 +41,7 @@ class DataAnalysisControl : public IChimeraSystem {
 		static std::pair<bool, std::string> getBumpAnalysisOptions (ConfigStream& file);
 		void updateDataSetNumberEdit( int number );
 		
-		void setGridCornerLocation (coordinate loc);
 		void reloadListView();
-		bool buttonClicked( );
 		void handleAtomGridCombo( );
 		void reloadGridCombo( unsigned num );
 		void fillPlotThreadInput( realTimePlotterInput* input );
@@ -56,10 +52,8 @@ class DataAnalysisControl : public IChimeraSystem {
 		void updatePlotTime ( );
 		std::atomic<unsigned>& getPlotTime( );
 
-
 		void handleContextMenu (const QPoint& pos);
 
-		bool getLocationSettingStatus ();
 		unsigned getPlotFreq ();
 		std::vector<std::string> getActivePlotList ();
 
@@ -85,13 +79,15 @@ class DataAnalysisControl : public IChimeraSystem {
 		std::vector<tinyPlotInfo> allTinyPlots;
 		
 		// other data analysis
-		bool currentlySettingGridCorner;
-		bool currentlySettingAnalysisLocations;
 		QLabel* currentDataSetNumberText;
 		QLabel* currentDataSetNumberDisp;
 
 		CQComboBox* gridSelector;
-		CQPushButton* setGridCorner;
+
+		QLabel* tlRowLabel;
+		CQLineEdit* tlRowEdit;
+		QLabel* tlColLabel;
+		CQLineEdit* tlColEdit;
 		QLabel* gridSpacingText;
 		CQLineEdit* gridSpacing;
 		QLabel* gridWidthText;

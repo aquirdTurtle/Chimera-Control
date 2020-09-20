@@ -147,7 +147,6 @@ class QtAndorWindow : public IChimeraQtWindow{
 		std::vector<double> plotterKey;
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;
 		std::mutex activePlotMutex;
-		std::vector<PlotDialog*> activeDlgPlots;
 		unsigned mostRecentPicNum = 0;
 		unsigned currentPictureNum = 0;
 		Matrix<long> avgBackground;

@@ -218,7 +218,10 @@ void IChimeraQtWindow::initializeMenu (){
 	connect (changeIndvDo, &QAction::triggered, [this, cmnMsg]() {auxWin->ViewOrChangeTTLNames(); });
 	masterSystemsM->addAction (changeIndvDo);
 
-	masterSystemsM->addAction ("View or Change Individual DAC Settings_X");
+	auto* changeIndvAo = new QAction ("View or Change Individual Analog Output Settings", this);
+	connect (changeIndvAo, &QAction::triggered, [this, cmnMsg]() {auxWin->ViewOrChangeDACNames (); });
+	masterSystemsM->addAction (changeIndvAo);
+
 	auto helpM = menubar->addMenu ("Help");
 	helpM->addAction ("General Information_X");
 	helpM->addAction ("About_X");

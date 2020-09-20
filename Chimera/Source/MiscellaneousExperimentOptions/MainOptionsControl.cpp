@@ -2,9 +2,10 @@
 
 #include "stdafx.h"
 #include "MainOptionsControl.h"
-#include "ConfigurationSystems/ProfileSystem.h"
-#include <boost/lexical_cast.hpp>
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "PrimaryWindows/QtMainWindow.h"
+#include <boost/lexical_cast.hpp>
+#include <qdebug.h>
 
 void MainOptionsControl::initialize( POINT& loc, IChimeraQtWindow* parent ){
 	header = new QLabel ("MAIN OPTIONS", parent);

@@ -72,9 +72,6 @@ class QtScriptWindow : public IChimeraQtWindow{
 
 		void updateConfigurationSavedStatus (bool status);
 
-		void handleIntensityButtons (unsigned id);
-		void handleNiawgScriptComboChange ();
-		void handleAgilentScriptComboChange ();
 		void handleMasterFunctionChange ();
 		void handleIntensityCombo ();
 

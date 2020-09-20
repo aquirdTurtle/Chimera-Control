@@ -3,7 +3,7 @@
 #include "NiawgStructures.h"
 
 const std::array<niawgWavePower::mode, 4> niawgWavePower::allModes = { mode::constant, mode::capped, mode::unrestricted};
-const niawgWavePower::mode niawgWavePower::defaultMode = CONST_POWER_OUTPUT ? niawgWavePower::mode::constant : niawgWavePower::mode::unrestricted;
+const niawgWavePower::mode niawgWavePower::defaultMode = niawgWavePower::mode::constant;
 
 std::string niawgWavePower::toStr ( niawgWavePower::mode m )
 {

@@ -61,7 +61,7 @@ void MasterConfiguration::load(QtMainWindow* mainWin, QtAuxiliaryWindow* auxWin,
 		fclose( file );
 	}
 	ConfigStream configFile (configurationFileAddress, true);
-	ProfileSystem::getVersionFromFile (configFile);
+	ConfigSystem::getVersionFromFile (configFile);
 	auxWin->handleMasterConfigOpen(configFile);
 	mainWin->handleMasterConfigOpen (configFile);
 	camWin->handleMasterConfigOpen(configFile);

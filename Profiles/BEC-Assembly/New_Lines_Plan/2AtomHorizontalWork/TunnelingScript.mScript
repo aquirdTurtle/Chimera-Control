@@ -34,15 +34,16 @@ t += 1
 call pump2stretch() 
 call sbc()
 pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+pulseon: niawgTrig 0.1 % all the tunneling ramps.
 off: axialRamanShutter  
 off: axialRamanShutter2  
-t += 3
-pulseon: niawgTrig 0.1 % all the tunneling ramps.
 t += 1
 t += 5
+pulseon: tweezerIntensityTrig 0.1 % to tunneling depth
+t += 3
 pulseon: aceTrig 0.01 
-var tunnelTime 3
-t += tunnelTime 
+var tunnelTime 3 
+t += tunnelTime  
 pulseon: niawgTrig 0.1 % separate tweezers
 t += 5
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth

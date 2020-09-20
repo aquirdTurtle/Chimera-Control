@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <Scripts/SyntaxHighlighter.h>
+#include <NIAWG/NiawgConstants.h>
 
 SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* parent) : 
 	QSyntaxHighlighter (parent), 
@@ -37,7 +38,7 @@ SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* pa
 	}
 	else if (device == ScriptableDevice::NIAWG) {
 		QVector<QString> niawgCommands = { "flash", "rearrange", "horizontal", "vertical" };
-		for (auto num : range (MAX_NIAWG_SIGNALS)) {
+		for (auto num : range (NiawgConstants::MAX_NIAWG_SIGNALS)) {
 			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "const"));
 			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "ampramp"));
 			niawgCommands.push_back (cstr ("gen" + str (num + 1) + "freqramp"));

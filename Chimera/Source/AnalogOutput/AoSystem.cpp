@@ -212,10 +212,8 @@ void AoSystem::initialize(POINT& pos, IChimeraQtWindow* parent ){
 	int collumnInc = 0;
 	
 	unsigned dacInc = 0;
-	for ( auto& out : outputs )
-	{
-		if ( dacInc == outputs.size ( ) / 3 || dacInc == 2 * outputs.size ( ) / 3 )
-		{
+	for ( auto& out : outputs )	{
+		if ( dacInc == outputs.size ( ) / 3 || dacInc == 2 * outputs.size ( ) / 3 )	{
 			collumnInc++;
 			// go to second or third collumn
 			pos.y -= 20 * outputs.size ( ) / 3;

@@ -18,6 +18,7 @@
 #include "Rearrangement/rerngMoveStructures.h"
 #include "Rearrangement/rerngThreadInput.h"
 #include <GeneralObjects/commonTypes.h>
+#include "NiawgConstants.h"
 
 #include "Fgen.h"
 
@@ -34,14 +35,11 @@
 
 struct ExperimentThreadInput;
 struct seqInfo;
-class NiawgWaiter;
-
 /** 
   * One of the biggest & most complicated classes in the code.
   * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
   */
-class NiawgCore : public IDeviceCore
-{
+class NiawgCore : public IDeviceCore {
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		NiawgCore& operator=(const NiawgCore&) = delete;
@@ -93,6 +91,7 @@ class NiawgCore : public IDeviceCore
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		// programming the device
 		void restartDefault();
+		std::string getOutputSummary (const NiawgOutput& output);
 		void turnOffRerng( );
 		void waitForRerng( bool andClearWvfm );
 		void programVariations( unsigned variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
@@ -119,13 +118,11 @@ class NiawgCore : public IDeviceCore
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
 		void generateWaveform ( channelWave & waveInfo, long int sampleNum, double time,
-									   std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+									   std::array<std::vector<std::string>, NiawgConstants::MAX_NIAWG_SIGNALS * 4>& waveLibrary,
 									   niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		static niawgPair<std::vector<unsigned>> findLazyPosition ( Matrix<bool> source, unsigned targetDim );
 		static int increment ( std::vector<unsigned>& ind, unsigned currentLevel, unsigned maxVal, bool reversed=false );
 
-		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
-		void loadExpSettings (ConfigStream& stream);
 		bool outputNiawgMachineScript = false;
 		bool outputNiawgHumanScript = false;
 		bool outputWriteTimes = false;
@@ -138,9 +135,46 @@ class NiawgCore : public IDeviceCore
 		NiawgOutput expOutput;
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void programVariation (unsigned varInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
+		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
+		void loadExpSettings (ConfigStream& stream);
 		void normalFinish ();
 		void errorFinish ();
+
 	private:
+
+		/// a couple points taken on Friday, Sep 11th 2020
+		/// 1.64: ~71 mW
+		/// 0.82: ~9 mW
+		/// 0.123 ~31 mW
+		/// ORIGINAL NIAWG GAIN: 1.64
+		// NEW GAIN: 1.23f
+		const float NIAWG_GAIN = 1.23f;
+		// We calibrated this. // NIAWG_GAIN = 1.64.
+		//constexpr float NIAWG_GAIN = float(1.64);
+		// NIAWG_GAIN = 1.64.
+		
+		// This is the minimum time (in seconds) that a correction waveform will be allowed to have. Without this, the algorithm might decide that the 1/2 of a period 
+		// of a waveform might be enough, even though this would probably be far below the amount of time an individual waveform is allowed to have according to the 
+		// NIAWG (the NIAWG has a minimum waveform size).
+		// Initial Value: 0.00000025 (250 ns)
+		const double MIN_CORRECTION_WAVEFORM_TIME = 0.00000025;
+		// this is a time in seconds.
+		const double MAX_CORRECTION_WAVEFORM_TIME = 0.001;
+		// this is a phase in radians.
+		const double CORRECTION_WAVEFORM_GOAL = 0.001;
+		// this is a phase in radians.
+		const double CORRECTION_WAVEFORM_ERROR_THRESHOLD = 0.5;
+		// in hertz
+		const double NIAWG_FILTER_FREQENCY = 80000000;
+
+		const unsigned NUMBER_OF_LIBRARY_FILES = NiawgConstants::MAX_NIAWG_SIGNALS * 4;
+
+		/// September 15th, 2017: Changed value from 0.2 to 0.1 in preparation of doing 10 traps, also attempting to lower
+		/// going to aom for debugging purposes on the Rearrangement algorithms.
+		/// April 26th, 2018" Changed from 0.1 to 1/12 to do 12 traps. 
+		/// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		const double TOTAL_POWER = (1.0 / 12.0) - 1e-6; //0.1 - 1e-10;
+
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		static void writeToFile( std::vector<double> waveVals );
 		void rerngGuiOptionsFormToFinal( rerngGuiOptions& form, std::vector<parameterType>& variables, unsigned var );
@@ -193,7 +227,7 @@ class NiawgCore : public IDeviceCore
 		bool on;
 		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been 
 		// already created.
-		std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary;
+		std::array<std::vector<std::string>, NiawgConstants::MAX_NIAWG_SIGNALS * 4> waveLibrary;
 		//
 		ViInt32 streamWaveHandle;
 		std::string streamWaveName = "streamedWaveform";
@@ -238,7 +272,7 @@ class NiawgCore : public IDeviceCore
 		static void randomizeMoves(std::vector<simpleMove>& operationsList);
 		static void orderMoves ( std::vector<simpleMove> operationsList, std::vector<simpleMove>& moveSequence,
 								 Matrix<bool> sourceMatrix );
-		static void NiawgCore::calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos );
+		static void calculateMoveDistancesToTarget ( std::vector<simpleMove> &moveList, niawgPair<double> comPos );
 		static niawgPair<double> calculateTargetCOM ( Matrix<bool> target, niawgPair<unsigned long> finalPos);
 		static Matrix<bool> calculateFinalTarget ( Matrix<bool> target, niawgPair<unsigned long> finalPos, unsigned rows, unsigned cols );
 		static void sortByDistanceToTarget ( std::vector<simpleMove> &moveList );
@@ -250,6 +284,19 @@ class NiawgCore : public IDeviceCore
 
 		std::string expNiawgScript;
 		ScriptStream expNiawgStream;
+
+		//extern std::vector<std::string> WAVEFORM_NAME_FILES;
+		//extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;
+		/*/// some globals for niawg stuff, only for niawg stuff so I keep it here because...?
+extern const std::array<int, 2> AXES;
+// the following is used to receive the index of whatever axis is not your current axis.
+extern const std::array<int, 2> ALT_AXES;
+extern const std::array<std::string, 2> AXES_NAMES;
+extern const niawgPair<std::string> ORIENTATION;
+*/
+		std::vector<std::string> WAVEFORM_NAME_FILES = std::vector<std::string> (4 * NiawgConstants::MAX_NIAWG_SIGNALS);
+		std::vector<std::string> WAVEFORM_TYPE_FOLDERS = std::vector<std::string> (4 * NiawgConstants::MAX_NIAWG_SIGNALS);
+
 };
 
 

@@ -8,17 +8,14 @@
 #include <fstream>
 #include "PrimaryWindows/IChimeraQtWindow.h"
 
-class PictureManager
-{
+class PictureManager {
 	public:
 		PictureManager ( bool histOption, std::string configurationFileDelim, bool autoscaleDefault,
 			Qt::TransformationMode mode);
-		RECT getPicArea ( );
 		void updatePlotData ( );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
-		void initialize( POINT& loc, CBrush* defaultGridBrush, int manWidth, int manHeight, IChimeraQtWindow* widget, 
-						 int scaleFactor=50);
+		void initialize( POINT& loc, int manWidth, int manHeight, IChimeraQtWindow* widget, int scaleFactor=50);
 		void drawGrids(QPainter& painter);
 		unsigned getNumberActive( );
 		void setParameters( imageParameters parameters );
@@ -47,7 +44,6 @@ class PictureManager
 		std::array<PictureControl, 4> pictures;
 		std::array<QVector<QRgb>,4> palettes;
 		QVector<QRgb> inferno, greys;
-		CBrush* gridBrush;
 		POINT picturesLocation;
 		int picturesWidth;
 		int picturesHeight;

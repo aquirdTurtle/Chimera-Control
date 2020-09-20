@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "TekCore.h"
 #include "TektronixStructures.h"
 
@@ -77,10 +77,10 @@ void TekCore::calculateVariations (std::vector<parameterType>& parameters) {
 }
 
 tektronixInfo TekCore::getSettingsFromConfig (ConfigStream& configFile){
-	auto getlineF = ProfileSystem::getGetlineFunc (configFile.ver);
+	auto getlineF = ConfigSystem::getGetlineFunc (configFile.ver);
 	tektronixInfo tekInfo;
 	for (auto chanInc : range (tekInfo.channels.size ())){
-		ProfileSystem::checkDelimiterLine (configFile, "CHANNEL_" + str (chanInc + 1));
+		ConfigSystem::checkDelimiterLine (configFile, "CHANNEL_" + str (chanInc + 1));
 		auto& channel = tekInfo.channels[chanInc];
 		configFile >> channel.control >> channel.on >> channel.fsk;
 		configFile.get ();
@@ -121,7 +121,7 @@ void TekCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 }
 
 void TekCore::loadExpSettings (ConfigStream& stream){
-	ProfileSystem::stdGetFromConfig (stream, *this, experimentInfo);
+	ConfigSystem::stdGetFromConfig (stream, *this, experimentInfo);
 	experimentActive = (experimentInfo.channels[0].control || experimentInfo.channels[1].control);
 }
 

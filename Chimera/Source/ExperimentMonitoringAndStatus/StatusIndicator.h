@@ -6,13 +6,11 @@
 #include <PrimaryWindows/IChimeraQtWindow.h>
 #include <qlabel.h>
 
-class StatusIndicator
-{
+class StatusIndicator{
 	public:
 		void initialize(POINT &loc, IChimeraQtWindow* parent );
 		void setText(std::string text);
 		void setColor(std::string color);
-		CBrush* handleColor(CWnd* window, CDC* pDC );
 	private:
 		QLabel* status;
 		std::string currentColor;

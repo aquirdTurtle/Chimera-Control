@@ -3,9 +3,7 @@
 
 #include <string>
 #include "Control.h"
-#include "Python/EmbeddedPythonHandler.h"
 #include "GeneralObjects/commonTypes.h"
-#include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QLabel>
 #include <QTableWidget>
@@ -23,7 +21,7 @@ class SmsTextingControl{
 	public:
 		void initialize( POINT& pos, IChimeraQtWindow* parent );
 		void handleContextMenu (const QPoint& pos);
-		void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
+		//void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
 		void addPerson( personInfo person );
 		void deletePersonInfo(QTableWidgetItem* item);
 	private:

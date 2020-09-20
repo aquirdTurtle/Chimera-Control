@@ -5,7 +5,6 @@
 #include "Rearrangement/rerngGuiControl.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox.h>

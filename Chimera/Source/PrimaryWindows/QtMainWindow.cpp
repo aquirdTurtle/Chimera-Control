@@ -23,8 +23,8 @@ QtMainWindow::QtMainWindow () :
 	masterConfig (MASTER_CONFIGURATION_FILE_ADDRESS),
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
 	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
-	servos(this)
-{
+	expScope(EXPERIMENT_SCOPE_ADDRESS, EXPERIMENT_SCOPE_SAFEMODE, 4, "Experiment Scope"),
+	servos(this){
 	statBox = new ColorBox ();
 	startupTimes.push_back (chronoClock::now ());
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
@@ -84,11 +84,14 @@ QtMainWindow::QtMainWindow () :
 
 	QThread* motThread = new QThread;
 	QThread* masterRepumpThread = new QThread;
+	QThread* expScopeThread = new QThread;
 	ScopeThreadWorker* motWorker = new ScopeThreadWorker (&motScope);
 	ScopeThreadWorker* masterRepumpWorker = new ScopeThreadWorker (&masterRepumpScope);
+	ScopeThreadWorker* expScopeWorker = new ScopeThreadWorker (&expScope);
 
 	motWorker->moveToThread (motThread);
 	masterRepumpWorker->moveToThread (masterRepumpThread);
+	expScopeWorker->moveToThread (expScopeThread);
 
 	connect (motThread, SIGNAL (started ()), motWorker, SLOT (process ()));
 	connect (motWorker, &ScopeThreadWorker::newData, &motScope, &ScopeViewer::updateData);
@@ -99,6 +102,11 @@ QtMainWindow::QtMainWindow () :
 	connect (masterRepumpWorker, &ScopeThreadWorker::newData, &masterRepumpScope, &ScopeViewer::updateData);
 	connect (masterRepumpThread, SIGNAL (finished ()), masterRepumpThread, SLOT (deleteLater ()));
 	masterRepumpThread->start ();
+
+	connect (expScopeThread, SIGNAL (started ()), expScopeWorker, SLOT (process ()));
+	connect (expScopeWorker, &ScopeThreadWorker::newData, &expScope, &ScopeViewer::updateData);
+	connect (expScopeThread, SIGNAL (finished ()), expScopeThread, SLOT (deleteLater ()));
+	expScopeThread->start ();
 
 	updateConfigurationSavedStatus (true);
 
@@ -147,14 +155,14 @@ void QtMainWindow::initializeWidgets (){
 	statBox->initialize (controlLocation, this, 960, getDevices ());
 	shortStatus.initialize (controlLocation, this);
 	controlLocation = { 480, 25 };
-	errorStatus.initialize (controlLocation, this, 420, "ERROR STATUS", { "#FF0000", "#800000"});
-	debugStatus.initialize (controlLocation, this, 425, "DEBUG STATUS", { "#0d98ba" });
+	errorStatus.initialize (controlLocation, this, 870, "ERROR STATUS", { "#FF0000", "#800000"});
 	controlLocation = { 960, 25 };
 	profile.initialize (controlLocation, this);
 	controlLocation = { 960, 50 };
 	notes.initialize (controlLocation, this);
 	masterRepumpScope.initialize (controlLocation, 480, 130, this, "Master/Repump");
 	motScope.initialize (controlLocation, 480, 130, this, "MOT");
+	expScope.initialize (controlLocation, 480, 130, this, "Experiment");
 	servos.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (),
 						auxWin->getTtlSystem (), &auxWin->getGlobals ());
 	controlLocation = { 1440, 50 };
@@ -223,7 +231,7 @@ LRESULT QtMainWindow::onNoMotAlertMessage (WPARAM wp, LPARAM lp){
 			message += "0";
 		}
 		message += str (now.tm_sec);
-		texter.sendMessage (message, &python, "Mot");
+		//texter.sendMessage (message, &python, "Mot");
 	}
 	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
@@ -253,7 +261,7 @@ LRESULT QtMainWindow::onNoAtomsAlertMessage (WPARAM wp, LPARAM lp){
 			message += "0";
 		}
 		message += str (now.tm_sec);
-		texter.sendMessage (message, &python, "Loading");
+		//texter.sendMessage (message, &python, "Loading");
 	}
 	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
@@ -311,11 +319,11 @@ void QtMainWindow::windowSaveConfig (ConfigStream& saveFile){
 
 void QtMainWindow::windowOpenConfig (ConfigStream& configStream){
 	try	{
-		ProfileSystem::standardOpenConfig (configStream, "CONFIGURATION_NOTES", &notes);
-		mainOptsCtrl.setOptions (ProfileSystem::stdConfigGetter (configStream, "MAIN_OPTIONS",
+		ConfigSystem::standardOpenConfig (configStream, "CONFIGURATION_NOTES", &notes);
+		mainOptsCtrl.setOptions (ConfigSystem::stdConfigGetter (configStream, "MAIN_OPTIONS",
 			MainOptionsControl::getSettingsFromConfig));
-		ProfileSystem::standardOpenConfig (configStream, "DEBUGGING_OPTIONS", &debugger);
-		repetitionControl.setRepetitions (ProfileSystem::stdConfigGetter (configStream, "REPETITIONS",
+		ConfigSystem::standardOpenConfig (configStream, "DEBUGGING_OPTIONS", &debugger);
+		repetitionControl.setRepetitions (ConfigSystem::stdConfigGetter (configStream, "REPETITIONS",
 			Repetitions::getSettingsFromConfig));
 
 	}
@@ -400,7 +408,6 @@ void QtMainWindow::fillMotInput (ExperimentThreadInput* input){
 
 bool QtMainWindow::masterIsRunning () { return experimentIsRunning; }
 RunInfo QtMainWindow::getRunInfo () { return systemRunningInfo; }
-EmbeddedPythonHandler& QtMainWindow::getPython () { return python; }
 profileSettings QtMainWindow::getProfileSettings () { return profile.getProfileSettings (); }
 std::string QtMainWindow::getNotes () { return notes.getConfigurationNotes (); }
 void QtMainWindow::setNotes (std::string newNotes) { notes.setConfigurationNotes (newNotes); }
@@ -429,33 +436,11 @@ void QtMainWindow::updateConfigurationSavedStatus (bool status){
 	profile.updateConfigurationSavedStatus (status);
 }
 
-
-void QtMainWindow::updateStatusText (std::string whichStatus, std::string text){
-	std::transform (whichStatus.begin (), whichStatus.end (), whichStatus.begin (), ::tolower);
-	if (whichStatus == "error")	{
-		errorStatus.addStatusText (text);
-	}
-	else if (whichStatus == "debug")	{
-		debugStatus.addStatusText (text);
-	}
-	else if (whichStatus == "main")	{
-		mainStatus.addStatusText (text);
-	}
-	else{
-		thrower ("Main Window's updateStatusText function recieved a bad argument for which status"
-			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus);
-	}
-}
-
-
 void QtMainWindow::addTimebar (std::string whichStatus)
 {
 	std::transform (whichStatus.begin (), whichStatus.end (), whichStatus.begin (), ::tolower);
 	if (whichStatus == "error")	{
 		errorStatus.appendTimebar ();
-	}
-	else if (whichStatus == "debug"){
-		debugStatus.appendTimebar ();
 	}
 	else if (whichStatus == "main")	{
 		mainStatus.appendTimebar ();
@@ -549,15 +534,11 @@ void QtMainWindow::handleFinishText (){
 	}
 	message += str (now.tm_sec);
 	try{
-		texter.sendMessage (message, &python, "Finished");
+		//texter.sendMessage (message, &python, "Finished");
 	}
 	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
 	}
-}
-
-void QtMainWindow::onDebugMessage (std::string msg){
-	debugStatus.addStatusText (msg);
 }
 
 void QtMainWindow::autoServo (){

@@ -28,7 +28,6 @@ class ParameterModel : public QAbstractTableModel
         std::vector<parameterType> parameters;
         ScanRangeInfo rangeInfo;
     signals:
-        //void paramsChanged (std::vector<parameterType>);
 		void paramsChanged ();
         void editCompleted (const QString&);
 };

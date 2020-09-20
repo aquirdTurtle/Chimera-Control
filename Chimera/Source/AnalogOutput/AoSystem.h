@@ -4,8 +4,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "CustomMfcControlWrappers/Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "ParameterSystem/ParameterSystem.h"
 #include "DigitalOutput/DoCore.h"
 #include "AnalogOutput/DaqMxFlume.h"

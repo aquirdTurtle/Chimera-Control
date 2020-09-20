@@ -67,6 +67,11 @@ class DoCore
 		Matrix<std::string> getAllNames ();
 		void standardExperimentPrep (unsigned variationInc, double currLoadSkipTime, std::vector<parameterType>& expParams);
 	private:
+		const unsigned DIO_BUFFERSIZESER = 100;
+		const unsigned DIO_BUFFERSIZEASYNC = 2048;
+		const unsigned DIO_MSGLENGTH = 7;
+		const unsigned DIO_WRITESPERDATAPT = 3;
+
 		ftdiConnectionOption connectType;
 		ftdiFlume ftFlume;
 		WinSerialFlume winSerial;
