@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "Tektronix/TektronixAfgControl.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "GeneralUtilityFunctions/range.h"
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtAuxiliaryWindow.h>
@@ -12,8 +12,7 @@ TektronixAfgControl::TektronixAfgControl(bool safemode, std::string address, std
 void TektronixAfgControl::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << core.configDelim;
 	tektronixInfo tekInfo = getTekSettings ();
-	for (auto chanInc : range (tekInfo.channels.size ()))
-	{
+	for (auto chanInc : range (tekInfo.channels.size ())){
 		auto& channel = tekInfo.channels[chanInc];
 		saveFile << "\nCHANNEL_" + str(chanInc+1);
 		saveFile << "\n/*Control?*/\t"<< channel.control 

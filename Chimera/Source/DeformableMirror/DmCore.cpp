@@ -1,27 +1,24 @@
 #include "stdafx.h"
 #include "DmCore.h"
 #include "ParameterSystem/Expression.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "DmProfileCreator.h"
 #include "DmOutputForm.h"
 #include <iostream>
 
-DmCore::DmCore(std::string Number, bool safemodeOption) : DM(safemodeOption), profile() 
-{
+DmCore::DmCore(std::string Number, bool safemodeOption) : DM(safemodeOption), profile() {
 	serial = Number;
 	boolOfSerial = true;
 	valueArray = std::vector<double>(DM.getActuatorCount(), 0.0);
 }
 
 
-void DmCore::setSerial(std::string Number) 
-{
+void DmCore::setSerial(std::string Number) {
 	serial = Number;
 	boolOfSerial = true;
 }
 
-std::string DmCore::getDeviceInfo() 
-{
+std::string DmCore::getDeviceInfo() {
 	if (!boolOfSerial) {
 		thrower("No Device");
 	}
@@ -39,57 +36,47 @@ void DmCore::initialize() {
 	}
 }
 
-void DmCore::setMap() 
-{
+void DmCore::setMap() {
 	DM.LoadMap(map_lut.data());
 }
 
-void DmCore::pokePiston(unsigned int piston, double value) 
-{
+void DmCore::pokePiston(unsigned int piston, double value) {
 	DM.setSingle(piston, value);
 }
-void DmCore::zeroPistons() 
-{
+
+void DmCore::zeroPistons() {
 	DM.reset();
 }
 
-void DmCore::readDMArray(std::vector<double> &testArray) 
-{
+void DmCore::readDMArray(std::vector<double> &testArray) {
 	DM.getArray(testArray.data(), DM.getActuatorCount());
 }
 
-void DmCore::testMirror() 
-{
-	for (auto& val : valueArray)
-	{
+void DmCore::testMirror() {
+	for (auto& val : valueArray) {
 		val = 0.5;
 	}
-	//initialize();
 	setMap();
 	std::vector<double> testArray = std::vector<double>(DM.getActuatorCount(), 0.0);
 	DM.setArray(valueArray.data(), map_lut.data());
 	readDMArray(testArray);
 }
 
-void DmCore::loadArray(double *A)
-{
+void DmCore::loadArray(double *A){
 	setMap();
 	DM.setArray(A, map_lut.data());
 }
 
-int DmCore::getActCount() 
-{
+int DmCore::getActCount() {
 	return DM.getActuatorCount();
 }
 
-std::vector<double> DmCore::getActuatorValues() 
-{
+std::vector<double> DmCore::getActuatorValues() {
 	readDMArray(valueArray);
 	return valueArray;
 }
 
-DMOutputForm DmCore::getSettingsFromConfig(ConfigStream& configFile) 
-{
+DMOutputForm DmCore::getSettingsFromConfig(ConfigStream& configFile) {
 	DMOutputForm Info;
 	Info.coma.expressionStr = configFile.getline();
 	Info.comaAng.expressionStr = configFile.getline ();
@@ -103,8 +90,7 @@ DMOutputForm DmCore::getSettingsFromConfig(ConfigStream& configFile)
 }
 
 
-void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out) 
-{
+void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out) {
 	currentInfo = out;
 	//add the new line for the delimeter
 	saveFile << getDelim() + "\n";
@@ -119,25 +105,20 @@ void DmCore::handleSaveConfig(ConfigStream& saveFile, DMOutputForm out)
 	saveFile << "END_" + getDelim () + "\n";
 }
 
-void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore &DM)
-{
+void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, DmCore &DM){
 	unsigned variations;
 	unsigned sequenceNumber;
-	if (variables.size() == 0)
-	{
+	if (variables.size() == 0)	{
 		thrower("ERROR: variables empty, no sequence fill!");
 	}
-	else if (variables.front().size() == 0)
-	{
+	else if (variables.front().size() == 0)	{
 		variations = 1;
 	}
-	else
-	{
+	else {
 		variations = variables.front().front().keyValues.size();
 	}
 	sequenceNumber = variables.size();
-	for (auto seqInc : range(sequenceNumber))
-	{
+	for (auto seqInc : range(sequenceNumber)) {
  		DM.currentInfo.coma.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 		DM.currentInfo.comaAng.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
 		DM.currentInfo.astig.assertValid(variables[seqInc], GLOBAL_PARAMETER_SCOPE);
@@ -155,8 +136,7 @@ void DmCore::interpretKey(std::vector<std::vector<parameterType>>& variables, Dm
 	}
 }
 
-void DmCore::ProgramNow(unsigned variation) 
-{
+void DmCore::ProgramNow(unsigned variation) {
 	std::string location  = DM_PROFILES_LOCATION + "\\" + currentInfo.base +".txt";
 	profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));
 	profile.addAstigmatism(currentInfo.astig.getValue(variation), currentInfo.astigAng.getValue(variation));
@@ -175,8 +155,7 @@ void DmCore::setCurrentInfo(DMOutputForm form) {
 	currentInfo = form;
 }
 
-void DmCore::initialCheck(unsigned variation, std::string& warnings) 
-{
+void DmCore::initialCheck(unsigned variation, std::string& warnings) {
 	std::string location = DM_PROFILES_LOCATION + "\\" + currentInfo.base + ".txt";
 	profile.addComa(currentInfo.coma.getValue(variation), currentInfo.comaAng.getValue(variation));
 	profile.addAstigmatism(currentInfo.astig.getValue(variation), currentInfo.astigAng.getValue(variation));
@@ -184,16 +163,14 @@ void DmCore::initialCheck(unsigned variation, std::string& warnings)
 	profile.addSpherical(currentInfo.spherical.getValue(variation));
 	profile.readZernikeFile(location);
 	std::vector<double> temp = profile.createZernikeArray(profile.getCurrAmps(), currentInfo.base, true);
-	for (auto& element : temp) 
-	{
-		if (element < 0 || element > 1) 
-		{
+	for (auto& element : temp) 	{
+		if (element < 0 || element > 1) {
 			warnings += "Caution, variation " + str(variation) + " will cause one or more pistons in the DM to rail.";
 			break;
 		}
 	}
 }
 
-void DmCore::logSettings (DMOutputForm settings, DataLogger& log){
+void DmCore::logSettings (DMOutputForm settings, DataLogger& log) {
 
 }

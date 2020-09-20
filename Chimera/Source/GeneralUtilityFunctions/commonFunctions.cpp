@@ -33,7 +33,6 @@ namespace commonFunctions
 			case ID_MACHINE_OPTIMIZATION:{
 				// this is mostly prepared like F5.
 				if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) ){
-					//andorWin->PostMessageA ( WM_COMMAND, MAKEWPARAM ( IDC_CAMERA_CALIBRATION_BUTTON, 0 ) );
 					return;
 				}
 				AllExperimentInput input;
@@ -274,7 +273,7 @@ namespace commonFunctions
 					auxWin->updateAgilent(whichAgTy::Axial );
 					auxWin->updateAgilent(whichAgTy::Flashing );
 					auxWin->updateAgilent(whichAgTy::Microwave );
-					mainWin->profile.saveEntireProfile( win );
+					mainWin->profile.saveConfiguration ( win );
 					mainWin->masterConfig.save( mainWin, auxWin, andorWin );					
 				}
 				catch ( ChimeraError& err ){
@@ -392,7 +391,7 @@ namespace commonFunctions
 				break;
 			}
 			// the rest of these are all one-liners. 			
-			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveEntireProfile (win); break; }
+			case ID_PROFILE_SAVE_PROFILE: { mainWin->profile.saveConfiguration (win); break; }
 			case ID_PLOTTING_STOPPLOTTER: { andorWin->stopPlotter( ); break; }
 			case ID_FILE_MY_INTENSITY_NEW: { scriptWin->newIntensityScript(); break; }
 			case ID_FILE_MY_INTENSITY_OPEN: { scriptWin->openIntensityScript(win); break; }
@@ -402,7 +401,7 @@ namespace commonFunctions
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION: { mainWin->profile.renameConfiguration (); break; }
 			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION: { mainWin->profile.deleteConfiguration (); break; }
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS: { mainWin->profile.saveConfigurationAs (win); break; }
-			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfigurationOnly (win); break; }
+			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS: { mainWin->profile.saveConfiguration (win); break; }
 			case ID_MASTERSCRIPT_NEW: { scriptWin->newMasterScript (); break; }
 			case ID_MASTERSCRIPT_SAVE: { scriptWin->saveMasterScript (); break; }
 			case ID_MASTERSCRIPT_SAVEAS: { scriptWin->saveMasterScriptAs (win); break; }
@@ -451,7 +450,6 @@ namespace commonFunctions
 			case ID_MASTER_VIEWORCHANGEINDIVIDUALDACSETTINGS: { auxWin->ViewOrChangeDACNames(); break; }
 			case ID_MASTER_VIEWORCHANGETTLNAMES: { auxWin->ViewOrChangeTTLNames(); break; }
 			case ID_HELP_HARDWARESTATUS: { mainWin->showHardwareStatus ( ); break; }
-			case ID_FORCE_EXIT:	{ forceExit ( win ); break; }
 			*/
 			default:
 				errBox("Common message passed but not handled! The feature you're trying to use"\
@@ -502,7 +500,6 @@ namespace commonFunctions
 	void startExperimentThread(IChimeraQtWindow* win, AllExperimentInput& input){
 		win->mainWin->addTimebar( "main" );
 		win->mainWin->addTimebar( "error" );
-		win->mainWin->addTimebar( "debug" );
 		win->mainWin->startExperimentThread( input.masterInput );
 	}
 

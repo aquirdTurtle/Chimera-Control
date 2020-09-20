@@ -97,7 +97,7 @@ imageParameters ImageDimsControl::getImageDimSettingsFromConfig (ConfigStream& c
 }
 
 void ImageDimsControl::handleOpen(ConfigStream& openFile){
-	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
+	ConfigSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params = getImageDimSettingsFromConfig ( openFile );
 	setImageParametersFromInput( params );
 }

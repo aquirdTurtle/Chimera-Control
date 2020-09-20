@@ -4,7 +4,7 @@
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Control.h"
 #include "PrimaryWindows/QtAndorWindow.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "RealTimeDataAnalysis/PlotDesignerDialog.h"
 #include "RealTimeDataAnalysis/realTimePlotterInput.h"
 #include "GeneralUtilityFunctions/range.h"
@@ -17,7 +17,7 @@
 #include <qmenu.h>
 
 DataAnalysisControl::DataAnalysisControl (IChimeraQtWindow* parent) : IChimeraSystem(parent) {
-	std::vector<std::string> names = ProfileSystem::searchForFiles (PLOT_FILES_SAVE_LOCATION, str ("*.") + PLOTTING_EXTENSION);
+	std::vector<std::string> names = ConfigSystem::searchForFiles (PLOT_FILES_SAVE_LOCATION, str ("*.") + PLOTTING_EXTENSION);
 	for (auto name : names) {
 		PlottingInfo totalInfo (PLOT_FILES_SAVE_LOCATION + "\\" + name + "." + PLOTTING_EXTENSION); 
 		tinyPlotInfo info;
@@ -48,8 +48,8 @@ void DataAnalysisControl::handleContextMenu (const QPoint& pos) {
 		auto answer = QMessageBox::question ( plotListview, qstr ("Delete Plot?"),
 											  qstr("Delete Plot " + selectedInfo.name + "?"));
 		if (answer == QMessageBox::Yes){
-			int result = DeleteFile (cstr (PLOT_FILES_SAVE_LOCATION + "\\" + selectedInfo.name + "."
-				+ PLOTTING_EXTENSION));
+			int result = DeleteFile (cstr (PLOT_FILES_SAVE_LOCATION + "\\" + selectedInfo.name + "." 
+										   + PLOTTING_EXTENSION ));
 			if (!result){
 				errBox ("Failed to delete script file! Error code: " + str (GetLastError ()));
 				return;
@@ -133,34 +133,35 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 				parent->reportErr (err.qtrace ());
 			}
 		});
-
-	setGridCorner = new CQPushButton ("Set Grid T.L.", parent);
-	setGridCorner->setGeometry (pos.x + 100, pos.y, 100, 25);
-	parent->connect (setGridCorner, &QPushButton::released, 
-		[parent]() {
-			parent->andorWin->handleSetAnalysisPress ();
-		});
+	tlRowLabel = new QLabel("T.L. Row:", parent);
+	tlRowLabel->setGeometry (pos.x + 100, pos.y, 50, 25);
+	tlRowEdit = new CQLineEdit("0", parent);
+	tlRowEdit->setGeometry (pos.x + 150, pos.y, 50, 25);
+	tlColLabel = new QLabel ("T.L. Col:", parent);
+	tlColLabel->setGeometry (pos.x + 200, pos.y, 50, 25);
+	tlColEdit = new CQLineEdit ("0", parent);
+	tlColEdit->setGeometry (pos.x + 250, pos.y, 50, 25);
 
 	gridSpacingText = new QLabel ("Spacing", parent);
-	gridSpacingText->setGeometry (pos.x+200, pos.y, 60, 25);
+	gridSpacingText->setGeometry (pos.x+300, pos.y, 60, 25);
 
 	gridSpacing = new CQLineEdit ("0", parent);
-	gridSpacing->setGeometry (pos.x + 260, pos.y, 30, 25);
+	gridSpacing->setGeometry (pos.x + 360, pos.y, 30, 25);
 
 	gridWidthText = new QLabel ("Width", parent);
-	gridWidthText->setGeometry (pos.x + 290, pos.y, 60, 25);
+	gridWidthText->setGeometry (pos.x + 390, pos.y, 60, 25);
 
 	gridWidth = new CQLineEdit ("0", parent);
-	gridWidth->setGeometry (pos.x + 350, pos.y, 30, 25);
+	gridWidth->setGeometry (pos.x + 450, pos.y, 30, 25);
 
 	gridHeightText = new QLabel ("Height", parent);
-	gridHeightText->setGeometry (pos.x + 380, pos.y, 60, 25);
+	gridHeightText->setGeometry (pos.x, pos.y+=25, 80, 25);
 
 	gridHeight = new CQLineEdit ("0", parent);
-	gridHeight->setGeometry (pos.x + 440, pos.y, 40, 25);
+	gridHeight->setGeometry (pos.x + 120, pos.y, 40, 25);
 	// 
 	displayGridBtn = new CQCheckBox ("Display Grid?", parent);
-	displayGridBtn->setGeometry (pos.x, pos.y += 25, 240, 25);
+	displayGridBtn->setGeometry (pos.x+120, pos.y, 120, 25);
 
 	/// PLOTTING FREQUENCY CONTROLS
 	updateFrequencyLabel1 = new QLabel ("Update plots every", parent);
@@ -178,7 +179,7 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	
 	plotTimerEdit = new CQLineEdit ("5000", parent);
 	plotTimerEdit->setGeometry (pos.x + 180, pos.y, 60, 25);
-	parent->connect (plotTimerEdit, &QLineEdit::textChanged, [this]() {updatePlotTime (); });
+	parent->connect (plotTimerEdit, &QLineEdit::textChanged, [this]() { updatePlotTime (); });
 
 	autoThresholdAnalysisButton = new CQCheckBox ("Auto Threshold Analysis", parent);
 	autoThresholdAnalysisButton->setGeometry (pos.x + 240, pos.y, 240, 25);
@@ -220,7 +221,7 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 			if (col == 1) {
 				auto* item = plotListview->item (row, col);
 				try {
-					allTinyPlots[row].whichGrid = boost::lexical_cast<unsigned>(cstr (item->text ()));
+					allTinyPlots[row].whichGrid = boost::lexical_cast<unsigned>( cstr (item->text ()));
 				}
 				catch (ChimeraError&) {}
 			}
@@ -229,10 +230,19 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 		[this, parent](int clRow, int clCol) {
 			parent->configUpdated ();
 			if (clCol == 2) {
-				allTinyPlots[clRow].isActive = !allTinyPlots[clRow].isActive;
-				auto* item = new QTableWidgetItem (allTinyPlots[clRow].isActive ? "YES" : "NO");
-				item->setFlags (item->flags () & ~Qt::ItemIsEditable);
-				plotListview->setItem (clRow, clCol, item);
+				auto* item = plotListview->item (clRow, 0);
+				unsigned counter = 0;
+				for (auto& pltInfo : allTinyPlots) {
+					if (pltInfo.name == str(item->text ())) {
+						break;
+					}
+					counter++;
+				}
+				tinyPlotInfo& info = allTinyPlots[counter];
+				info.isActive = !info.isActive;
+				auto* newItem = new QTableWidgetItem (info.isActive ? "YES" : "NO");
+				newItem->setFlags (newItem->flags () & ~Qt::ItemIsEditable);
+				plotListview->setItem (clRow, clCol, newItem);
 			}
 		});
 	reloadListView();
@@ -332,7 +342,7 @@ analysisSettings DataAnalysisControl::getAnalysisSettingsFromFile (ConfigStream&
 	}
 	// load the grid parameters for that selection.
 	if (file.ver > Version ("2.7")) {
-		ProfileSystem::checkDelimiterLine (file, "BEGIN_ACTIVE_PLOTS");
+		ConfigSystem::checkDelimiterLine (file, "BEGIN_ACTIVE_PLOTS");
 		unsigned numPlots = 0;
 		file >> numPlots;
 		file.get ();
@@ -349,7 +359,7 @@ analysisSettings DataAnalysisControl::getAnalysisSettingsFromFile (ConfigStream&
 				settings.whichGrids.push_back (0);
 			}
 		}
-		ProfileSystem::checkDelimiterLine (file, "END_ACTIVE_PLOTS");
+		ConfigSystem::checkDelimiterLine (file, "END_ACTIVE_PLOTS");
 	}
 	if (file.ver >= Version ("4.7")) {
 		file.get ();
@@ -471,6 +481,8 @@ void DataAnalysisControl::loadGridParams( atomGrid grid ){
 	if (!gridSpacing || !gridHeight || !gridWidth) {
 		return;
 	}
+	tlColEdit->setText (qstr (grid.topLeftCorner.column));
+	tlRowEdit->setText (qstr (grid.topLeftCorner.row));
 	std::string txt = str( grid.pixelSpacing );
 	gridSpacing->setText(cstr(txt));
 	txt = str( grid.width );
@@ -483,8 +495,11 @@ void DataAnalysisControl::saveGridParams( ){
 	if (!gridSpacing || !gridHeight || !gridWidth) {
 		return;
 	}
-	CString txt;
+	unsigned row = 0, col = 0;
 	try{
+		row = boost::lexical_cast<unsigned> (str (tlRowEdit->text ()));
+		col = boost::lexical_cast<unsigned> (str (tlColEdit->text ()));
+		currentSettings.grids[0].topLeftCorner = { row, col };
 		currentSettings.grids[0].pixelSpacing = boost::lexical_cast<long>( str(gridSpacing->text()) );
 		currentSettings.grids[0].height = boost::lexical_cast<long>( str( gridHeight->text() ) );
 		currentSettings.grids[0].width = boost::lexical_cast<long>( str( gridWidth->text()) );
@@ -504,10 +519,6 @@ std::vector<std::string> DataAnalysisControl::getActivePlotList(){
 	return list;
 }
 
-bool DataAnalysisControl::getLocationSettingStatus(){
-	return currentlySettingAnalysisLocations;
-}
-
 void DataAnalysisControl::updateDataSetNumberEdit( int number ){
 	if ( number > 0 ){
 		currentDataSetNumberDisp->setText( cstr( number ) );
@@ -516,20 +527,6 @@ void DataAnalysisControl::updateDataSetNumberEdit( int number ){
 		currentDataSetNumberDisp->setText ( "None" );
 	}
 }
-
-bool DataAnalysisControl::buttonClicked(){
-	return (setGridCorner->isChecked());
-}
-
-void DataAnalysisControl::setGridCornerLocation(coordinate loc ){
-	// else press it.
-	currentSettings.grids[0].topLeftCorner = loc;
-}
-
-/*
-atomGrid DataAnalysisControl::getCurrentGrid( ){
-	return getAtomGrid( 0 );
-}*/
 
 void DataAnalysisControl::reloadListView(){
 	plotListview->setRowCount (0);

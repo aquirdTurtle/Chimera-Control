@@ -15,20 +15,16 @@ void VisaFlume::write( std::string message ) {
 	}
 }
 
-
-char VisaFlume::readchar( )
-{
-	unsigned char msg[256];
+char VisaFlume::readchar( ){
+	unsigned char msg[1024];
 	unsigned long numRead;
 	errCheck( viRead( instrument, msg, 1, &numRead ) );
 	return msg[0];
 }
 
 
-void VisaFlume::close()
-{
-	if (!deviceSafemode)
-	{
+void VisaFlume::close(){
+	if (!deviceSafemode){
 		errCheck( viClose( defaultResourceManager ) );
 	}
 }
@@ -45,6 +41,7 @@ void VisaFlume::open()
 	{
 		errCheck( viOpenDefaultRM( &defaultResourceManager ) );
 		errCheck( viOpen( defaultResourceManager, (char *)cstr( usbAddress ), VI_NULL, VI_NULL, &instrument ) );
+		errCheck ( viClear (instrument) );
 	}
 }
 
@@ -58,10 +55,10 @@ void VisaFlume::setAttribute( ViAttr attributeName, ViAttrState value ){
 
 std::string VisaFlume::identityQuery()
 {
-	char buf[256] = { 0 };
+	char buf[1024] = { 0 };
 	if (!deviceSafemode)
 	{
-		errCheck( viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf ) );
+		errCheck( viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf ), "*IDN?\n" );
 	}
 	else
 	{
@@ -72,7 +69,7 @@ std::string VisaFlume::identityQuery()
 
 
 char VisaFlume::scan( ){
-	ViChar c[256];
+	ViChar c[1024];
 	errCheck(viScanf( instrument, "%5t", c ));
 	return c[0];
 }
@@ -88,7 +85,7 @@ void VisaFlume::query( std::string msg, long& data )
 {
 	if ( !deviceSafemode )
 	{
-		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%ld", &data ) );
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%ld", &data ), msg );
 	}
 	else
 	{
@@ -101,7 +98,7 @@ void VisaFlume::query( std::string msg )
 	ViChar data[5000];
 	if ( !deviceSafemode )
 	{
-		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%5000t", data ) );
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%5000t", data ), msg );
 	}
 	else
 	{
@@ -111,12 +108,11 @@ void VisaFlume::query( std::string msg )
 
 void VisaFlume::query( std::string msg, float& data )
 {
-	if ( !deviceSafemode )
-	{
-		errCheck( viQueryf( instrument, (ViString)msg.c_str(), "%f", &data ) );
+	if ( !deviceSafemode ){
+		errCheck ( viClear(instrument), msg);
+		errCheck ( viQueryf( instrument, (ViString)msg.c_str(), "%f", &data ), msg );
 	}
-	else
-	{
+	else{
 		return;
 	}
 }
@@ -128,7 +124,7 @@ void VisaFlume::query( std::string msg, std::string& data )
 	ViInt32 totalPoints = 10000;
 	if ( !deviceSafemode )
 	{
-		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%#b", &totalPoints, datac ));
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%#b", &totalPoints, datac ), msg);
 		//errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%100000T", datac ) );
 	}
 	else
@@ -140,15 +136,12 @@ void VisaFlume::query( std::string msg, std::string& data )
 
 
 
-void VisaFlume::errQuery( std::string& errMsg, long& errCode )
-{
-	char buf[256] = { 0 };
-	if (!deviceSafemode)
-	{
+void VisaFlume::errQuery( std::string& errMsg, long& errCode ){
+	char buf[1024*8] = { 0 };
+	if (!deviceSafemode){
 		viQueryf( instrument, (ViString)"SYST:ERR?\n", "%ld,%t", &errCode, buf );
 	}
-	else
-	{
+	else{
 		return;
 	}
 	errMsg = str( buf );
@@ -157,16 +150,13 @@ void VisaFlume::errQuery( std::string& errMsg, long& errCode )
 /*
 * This function checks if the agilent throws an error or if there is an error communicating with the agilent.
 */
-void VisaFlume::errCheck( long status )
-{
+void VisaFlume::errCheck( long status ){
 	errCheck( status, "" );
 }
 
 
-std::string VisaFlume::openErrMsg ( long status )
-{
-	switch ( status )
-	{
+std::string VisaFlume::openErrMsg ( long status ){
+	switch ( status ){
 		case VI_SUCCESS:
 			return "VI_SUCCESS: Session opened successfully.";
 		case VI_SUCCESS_DEV_NPRESENT:
@@ -212,17 +202,13 @@ std::string VisaFlume::openErrMsg ( long status )
 }
 
 
-void VisaFlume::errCheck( long status, std::string msg )
-{
-
+void VisaFlume::errCheck( long status, std::string msg ){
 	long errorCode = 0;
 	// Check comm status
-	if (status < 0)
-	{
+	if (status < 0){
 		std::string throwerMsg = "VisaFlume Communication error! (Is the device connected?) Error Code: " 
 			+ str( status ) + ": " + openErrMsg(status) + "\r\n";
-		if ( msg != "" )
-		{
+		if ( msg != "" ){
 			// Error detected.
 			throwerMsg += "Error seen while writing the following message: " + msg + "\r\n";
 		}
@@ -232,11 +218,9 @@ void VisaFlume::errCheck( long status, std::string msg )
 	// Query the agilent for errors.
 	std::string errMessage;
 	errQuery( errMessage, errorCode );
-	if (errorCode != 0)
-	{
+	if (errorCode != 0){
 		std::string throwerMsg = "Visa returned error message: " + str( errorCode ) + ":" + errMessage;
-		if ( msg != "" )
-		{
+		if ( msg != "" ){
 			// Error detected.
 			throwerMsg += "Error seen while writing the following message: " + msg + "\r\n";
 		}
@@ -245,12 +229,8 @@ void VisaFlume::errCheck( long status, std::string msg )
 	}
 }
 
-
-
-void VisaFlume::printf( std::string msg )
-{
-	if (!deviceSafemode)
-	{
+void VisaFlume::printf( std::string msg ){
+	if (!deviceSafemode){
 		errCheck( viPrintf( instrument, (ViString)cstr( msg ) ) );
 	}
 }

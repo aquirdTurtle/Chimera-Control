@@ -6,7 +6,7 @@
 #include <PrimaryWindows/QtScriptWindow.h>
 #include "GeneralObjects/multiDimensionalKey.h"
 #include "GeneralUtilityFunctions/cleanString.h"
-#include <ConfigurationSystems/ProfileSystem.h>
+#include <ConfigurationSystems/ConfigSystem.h>
 #include <QHeaderView.h>
 #include <iomanip>
 #include <unordered_map>
@@ -85,8 +85,7 @@ void ParameterSystem::handleContextMenu (const QPoint& pos){
 		}
 	}
 	menu.addAction (newParam);
-	menu.exec (parametersView->mapToGlobal (pos));
-	
+	menu.exec (parametersView->mapToGlobal (pos));	
 }
 
 void ParameterSystem::initialize (POINT& pos, IChimeraQtWindow* parent, std::string title, ParameterSysType type){
@@ -161,7 +160,7 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile (ConfigStream& configFile ){
 	ScanRangeInfo rInfo;
 	unsigned numRanges;
 	if ( configFile.ver > Version ( "3.4" ) ){
-		ProfileSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
+		ConfigSystem::checkDelimiterLine ( configFile, "RANGE-INFO" );
 		unsigned numDimensions;
 		if (configFile.ver > Version ( "4.2" ) ){
 			configFile >> numDimensions;
@@ -525,10 +524,10 @@ std::vector<parameterType> ParameterSystem::getConfigParamsFromFile( std::string
 	ConfigStream stream (file);
 	std::vector<parameterType> configParams;
 	try{
-		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
+		ConfigSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
 		auto rInfo = getRangeInfoFromFile (stream);
 		configParams = getParametersFromFile (stream, rInfo );
-		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
+		ConfigSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( ChimeraError& ){
 		throwNested ( "Failed to get configuration parameters from the configuration file!" );
@@ -541,10 +540,10 @@ ScanRangeInfo ParameterSystem::getRangeInfoFromFile ( std::string configFileName
 	ConfigStream stream (configFileName, true);
 	ScanRangeInfo rInfo;
 	try{
-		ProfileSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
+		ConfigSystem::initializeAtDelim (stream, "CONFIG_PARAMETERS", Version ( "4.0" ) );
 		rInfo = getRangeInfoFromFile (stream);
 		auto configVariables = getParametersFromFile (stream, rInfo );
-		ProfileSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
+		ConfigSystem::checkDelimiterLine (stream, "END_CONFIG_PARAMETERS" );
 	}
 	catch ( ChimeraError& ){
 		throwNested ( "Failed to get configuration parameter range info from file!" );

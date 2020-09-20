@@ -98,7 +98,6 @@ DWORD DoCore::ftdi_write (unsigned variation, bool loadSkip){
 	return 0;
 }
 
-
 void DoCore::fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, unsigned offset, unsigned count, ftdiPt pt){
 	if (offset + 20 >= dataBuffer.size ()){
 		thrower ("tried to write data buffer out of bounds!");
@@ -128,7 +127,6 @@ void DoCore::fillFtdiDataBuffer (std::vector<unsigned char>& dataBuffer, unsigne
 	dataBuffer[offset + 19] = pt.pts[6];
 	dataBuffer[offset + 20] = pt.pts[7];
 }
-
 
 void DoCore::convertToFinalFtdiFormat (unsigned variation){
 	for (auto loadSkip : { false, true }){

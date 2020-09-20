@@ -2,10 +2,8 @@
 #pragma once
 
 #include "ConfigurationSystems/Version.h"
-#include "Control.h"
 #include "GeneralObjects/commonTypes.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include <QLabel>
 #include <QLineEdit>
 #include <QCheckBox>

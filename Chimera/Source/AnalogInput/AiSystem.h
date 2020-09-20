@@ -1,12 +1,8 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "LowLevel/constants.h"
 #include "AnalogInput/AiSettings.h"
 #include "GeneralObjects/IDeviceCore.h"
-#include "CustomMfcControlWrappers/DoubleEdit.h"
-#include "CustomMfcControlWrappers/UintEdit.h"
 #include "ConfigurationSystems/Version.h"
 #include "Scripts/ScriptStream.h"
 #include "AnalogOutput/DaqMxFlume.h"
@@ -14,7 +10,7 @@
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <QLabel.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
-#include "afxwin.h"
+
 #include "nidaqmx2.h"
 #include <array>
 
@@ -25,6 +21,8 @@
  */
 class AiSystem : public IDeviceCore{
 	public:
+		static constexpr auto NUMBER_AI_CHANNELS = 8;
+
 		// THIS CLASS IS NOT COPYABLE.
 		AiSystem& operator=(const AiSystem&) = delete;
 		AiSystem (const AiSystem&) = delete;

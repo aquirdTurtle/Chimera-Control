@@ -249,7 +249,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <ShowIncludes>false</ShowIncludes>
+      <ShowIncludes>true</ShowIncludes>
       <UseFullPaths>false</UseFullPaths>
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
@@ -421,6 +421,7 @@
     <ClInclude Include="Source\Andor\AndorTemperatureStatus.h" />
     <ClInclude Include="Source\Andor\AndorTriggerModes.h" />
     <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
+    <ClInclude Include="Source\NIAWG\NiawgConstants.h" />
     <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
     <QtMoc Include="Source\ParameterSystem\ParameterModel.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe  -D_UNICODE -DWIN32 -DWIN64 -D_AFXDLL -DWINVER=_WIN32_WINNT_MAXVER -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --compiler-flavor=msvc -ID:$(QTDIR)/mkspecs/win32-msvc -IC:\Users\Regal-Lab\Code\Chimera-Control\Chimera -ID:$(QTDIR)/include -ID:$(QTDIR)/include/QtWidgets -ID:$(QTDIR)/include/QtGui/5.9.9 -ID:$(QTDIR)/include/QtGui/5.9.9/QtGui -ID:$(QTDIR)/include/QtGui -ID:$(QTDIR)/include/QtANGLE -ID:R(QTDIR)/include/QtCore/5.9.9 -ID:$(QTDIR)/include/QtCore/5.9.9/QtCore -ID:$(QTDIR)/include/QtCore .\Source\ParameterSystem\ParameterModel.h -o MOC\moc_ParameterModel.cpp</Command>
@@ -541,10 +542,9 @@
     <ClInclude Include="Source\DigitalOutput\DigitalOutput.h" />
     <ClInclude Include="Source\DigitalOutput\DoRows.h" />
     <ClInclude Include="Source\GeneralObjects\ExpWrap.h" />
-    <ClInclude Include="Source\CustomQtControls\LongCSlider.h" />
+    <ClInclude Include="Source\CustomQtControls\LongQSlider.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h" />
     <ClInclude Include="Source\Microwave\microwaveSettings.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\MyListCtrl.h" />
     <ClInclude Include="Source\Piezo\PiezoController.h" />
     <ClInclude Include="Source\Piezo\PiezoCore.h" />
     <ClInclude Include="Source\Piezo\PiezoFlume.h" />
@@ -565,7 +565,6 @@
     <ClInclude Include="Source\AnalogOutput\AoStructures.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\debugInfo.h" />
     <ClInclude Include="Source\NIAWG\directions.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\DoubleEdit.h" />
     <ClInclude Include="Source\ParameterSystem\Expression.h" />
     <ClInclude Include="FTDI\ftd2xx.h" />
     <ClInclude Include="Source\GeneralFlumes\ftdiFlume.h" />
@@ -574,15 +573,12 @@
     <ClInclude Include="Source\GeneralObjects\Matrix.h" />
     <ClInclude Include="Source\GeneralImaging\memdc.h" />
     <ClInclude Include="Source\GeneralObjects\multiDimensionalKey.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\myButton.h" />
-    <ClInclude Include="Source\Plotting\PlotDialog.h" />
     <ClInclude Include="Source\ConfigurationSystems\profileSettings.h" />
-    <ClInclude Include="Source\ConfigurationSystems\ProfileSystem.h" />
-    <ClInclude Include="Source\AnalogOutput\AoSettingsDialog.h" />
+    <ClInclude Include="Source\ConfigurationSystems\ConfigSystem.h" />
+    <QtMoc Include="Source\ExcessDialogs\AoSettingsDialog.h" />
     <ClInclude Include="Source\AnalogOutput\AoSystem.h" />
     <ClInclude Include="Source\DataLogging\DataLogger.h" />
     <ClInclude Include="Source\Plotting\PlotDataSet.h" />
-    <ClInclude Include="Source\Python\EmbeddedPythonHandler.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.h" />
     <ClInclude Include="Source\NIAWG\Fgen.h" />
     <ClInclude Include="Source\GeneralFlumes\GpibFlume.h" />
@@ -599,7 +595,6 @@
     <ClInclude Include="Source\Plotting\PlottingInfo.h" />
     <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h" />
     <ClInclude Include="Source\LowLevel\constants.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\Control.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.h" />
     <ClInclude Include="Source\LowLevel\externals.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\range.h" />
@@ -638,7 +633,6 @@
     <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\commonFunctions.h" />
     <ClInclude Include="Source\NIAWG\NiawgCore.h" />
-    <ClInclude Include="Source\NIAWG\NiawgWaiter.h" />
     <ClInclude Include="Source\LowLevel\resource.h" />
     <ClInclude Include="Source\ExcessDialogs\saveWithExplorer.h" />
     <ClInclude Include="Source\stdafx.h" />
@@ -646,7 +640,6 @@
     <ClInclude Include="Source\DigitalOutput\DoSystem.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\Thrower.h" />
     <ClInclude Include="Source\Plotting\tinyPlotInfo.h" />
-    <ClInclude Include="Source\CustomMfcControlWrappers\UintEdit.h" />
     <ClInclude Include="Source\ParameterSystem\ParameterSystemStructures.h" />
     <QtMoc Include="Source\ParameterSystem\ParameterSystem.h" />
     <ClInclude Include="Source\ConfigurationSystems\Version.h" />
@@ -698,7 +691,7 @@
     <ClCompile Include="Source\DirectDigitalSynthesis\DdsSystemStructures.cpp" />
     <ClCompile Include="Source\DigitalOutput\DigitalOutput.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoRows.cpp" />
-    <ClCompile Include="Source\CustomQtControls\LongCSlider.cpp" />
+    <ClCompile Include="Source\CustomQtControls\LongQSlider.cpp" />
     <ClCompile Include="Source\ParameterSystem\ParameterModel.cpp" />
     <ClCompile Include="Source\Plotting\ScopeThreadWorker.cpp" />
     <ClCompile Include="Source\PrimaryWindows\IChimeraQtWindow.cpp" />
@@ -713,7 +706,6 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\AtomCruncherWorker.cpp" />
     <ClCompile Include="Source\RealTimeDataAnalysis\MachineOptimizer.cpp" />
     <ClCompile Include="Source\ExperimentThread\ExperimentThreadInput.cpp" />
-    <ClCompile Include="Source\CustomMfcControlWrappers\MyListCtrl.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgStructures.cpp" />
     <ClCompile Include="Source\Piezo\PiezoController.cpp" />
     <ClCompile Include="Source\Piezo\PiezoCore.cpp" />
@@ -729,22 +721,18 @@
     <ClCompile Include="Source\GeneralUtilityFunctions\cleanString.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ColorBox.cpp" />
     <ClCompile Include="Source\AnalogOutput\DaqMxFlume.cpp" />
-    <ClCompile Include="Source\CustomMfcControlWrappers\DoubleEdit.cpp" />
     <ClCompile Include="Source\ParameterSystem\Expression.cpp" />
     <ClCompile Include="Source\GeneralFlumes\ftdiFlume.cpp" />
     <ClCompile Include="Source\CustomQtControls\functionCombo.cpp" />
-    <ClCompile Include="Source\CustomMfcControlWrappers\myButton.cpp" />
     <ClCompile Include="Source\ExcessDialogs\openWithExplorer.cpp" />
     <ClCompile Include="Source\Plotting\ScopeViewer.cpp" />
     <ClCompile Include="Source\Plotting\PlotCtrl.cpp" />
-    <ClCompile Include="Source\Plotting\PlotDialog.cpp" />
-    <ClCompile Include="Source\ConfigurationSystems\ProfileSystem.cpp" />
-    <ClCompile Include="Source\AnalogOutput\AoSettingsDialog.cpp" />
+    <ClCompile Include="Source\ConfigurationSystems\ConfigSystem.cpp" />
+    <ClCompile Include="Source\ExcessDialogs\AoSettingsDialog.cpp" />
     <ClCompile Include="Source\AnalogOutput\AoSystem.cpp" />
     <ClCompile Include="Source\DataLogging\DataLogger.cpp" />
     <ClCompile Include="Source\Plotting\PlotDataSet.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.cpp" />
-    <ClCompile Include="Source\Python\EmbeddedPythonHandler.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.cpp" />
     <ClCompile Include="Source\LowLevel\externals.cpp" />
     <ClCompile Include="Source\NIAWG\Fgen.cpp" />
@@ -775,7 +763,6 @@
     <ClCompile Include="Source\Tektronix\TektronixAfgControl.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp" />
     <ClCompile Include="Source\NIAWG\NiawgCore.cpp" />
-    <ClCompile Include="Source\NIAWG\NiawgWaiter.cpp" />
     <ClCompile Include="Source\ExcessDialogs\saveWithExplorer.cpp" />
     <ClCompile Include="Source\GeneralUtilityFunctions\miscCommonFunctions.cpp" />
     <ClCompile Include="Source\DigitalOutput\DoSystem.cpp" />
@@ -788,7 +775,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\ParameterSystem\ParameterSystem.cpp" />
-    <ClCompile Include="Source\CustomMfcControlWrappers\UintEdit.cpp" />
     <ClCompile Include="Source\GeneralFlumes\VisaFlume.cpp" />
     <ClCompile Include="Source\Microwave\WindFreakFlume.cpp" />
     <ClCompile Include="Source\GeneralFlumes\WinSerialFlume.cpp" />

@@ -5,14 +5,12 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include <algorithm>
 #include <memory>
-#include "afxwin.h"
 #include <boost/lexical_cast.hpp>
 #include <qheaderview.h>
 #include <qmenu.h>
 #include <PrimaryWindows/QtMainWindow.h>
 
-void MachineOptimizer::handleContextMenu (const QPoint& pos)
-{
+void MachineOptimizer::handleContextMenu (const QPoint& pos){
 	QTableWidgetItem* item = optParamsListview->itemAt (pos);
 	QMenu menu;
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());

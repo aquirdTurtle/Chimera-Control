@@ -2,18 +2,13 @@
 #include "DdsCore.h"
 
 #include "ParameterSystem/ParameterSystemStructures.h"
-#include "CustomMfcControlWrappers/Control.h"
-#include "CustomMfcControlWrappers/MyListCtrl.h"
 #include "ConfigurationSystems/Version.h"
 #include "GeneralFlumes/ftdiFlume.h"
 #include "ParameterSystem/Expression.h"
 #include "CustomQtControls/functionCombo.h"
 #include "DirectDigitalSynthesis/DdsSystemStructures.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralObjects/ExpWrap.h"
 #include "ftd2xx.h"
-#include "afxwin.h"
-#include "afxcview.h"
 #include <vector>
 #include <array>
 #include <string>
@@ -28,8 +23,7 @@ class Script;
 class MainWindow;
 class AuxiliaryWindow;
 
-class DdsSystem
-{
+class DdsSystem{	
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		DdsSystem& operator=(const DdsSystem&) = delete;

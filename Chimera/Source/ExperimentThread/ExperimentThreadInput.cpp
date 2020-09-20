@@ -9,7 +9,6 @@
 
 ExperimentThreadInput::ExperimentThreadInput ( IChimeraQtWindow* win ) :
 	ttls ( win->auxWin->getTtlCore ( ) ), aoSys ( win->auxWin->getAoSys ( ) ),
-	python (win->mainWin->getPython ( ) ),  
 	globalControl(win->auxWin->getGlobals() ), logger(win->andorWin->getLogger() )
 {
 	devices = win->mainWin->getDevices ();

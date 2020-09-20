@@ -45,14 +45,13 @@ void QtAndorWindow::initializeWidgets (){
 	position = { 480, 25 };
 	stats.initialize (position, this);
 	for (auto pltInc : range (6)){
-		std::vector<pPlotDataVec> nodata (0);
 		mainAnalysisPlots.push_back (new PlotCtrl (1, plotStyle::ErrorPlot, { 0,0,0,0 }, "INACTIVE", false, false));
 		mainAnalysisPlots.back ()->init (position, 315, 130, this);
 	}
 	position = { 797, 25 };
 	timer.initialize (position, this);
 	position = { 797, 65 };
-	pics.initialize (position, _myBrushes["Dark Green"], 530 * 2, 460 * 2 + 5, this);
+	pics.initialize (position, 530 * 2, 460 * 2 + 5, this);
 	// end of literal initialization calls
 	pics.setSinglePicture (andorSettingsCtrl.getConfigSettings ().andor.imageSettings);
 	andor.setSettings (andorSettingsCtrl.getConfigSettings ().andor);
@@ -67,13 +66,17 @@ void QtAndorWindow::initializeWidgets (){
 }
 
 void QtAndorWindow::handlePrepareForAcq (void* lparam, analysisSettings aSettings){
-	reportStatus ("Preparing Andor Window for Acquisition...\n");
-	AndorRunSettings* settings = (AndorRunSettings*)lparam;
-	analysisHandler.setRunningSettings (aSettings);
-	armCameraWindow (settings);
-
-	completeCruncherStart ();
-	completePlotterStart ();
+	try {
+		reportStatus ("Preparing Andor Window for Acquisition...\n");
+		AndorRunSettings* settings = (AndorRunSettings*)lparam;
+		analysisHandler.setRunningSettings (aSettings);
+		armCameraWindow (settings);
+		completeCruncherStart ();
+		completePlotterStart ();
+	}
+	catch (ChimeraError & err) {
+		reportErr (qstr (err.trace ()));
+	}
 }
 
 void QtAndorWindow::handlePlotPop (unsigned id){
@@ -155,7 +158,7 @@ void QtAndorWindow::windowSaveConfig (ConfigStream& saveFile){
 void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 	AndorRunSettings camSettings;
 	try	{
-		ProfileSystem::stdGetFromConfig (configFile, andor, camSettings);
+		ConfigSystem::stdGetFromConfig (configFile, andor, camSettings);
 		andorSettingsCtrl.setConfigSettings (camSettings);
 		andorSettingsCtrl.updateImageDimSettings (camSettings.imageSettings);
 		andorSettingsCtrl.updateRunSettingsFromPicSettings ();
@@ -164,7 +167,7 @@ void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 		reportErr (qstr("Failed to get Andor Camera Run settings from file! " + err.trace ()));
 	}
 	try	{
-		auto picSettings = ProfileSystem::stdConfigGetter (configFile, "PICTURE_SETTINGS",
+		auto picSettings = ConfigSystem::stdConfigGetter (configFile, "PICTURE_SETTINGS",
 			AndorCameraSettingsControl::getPictureSettingsFromConfig);
 		andorSettingsCtrl.updatePicSettings (picSettings);
 	}
@@ -172,13 +175,13 @@ void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 		reportErr (qstr ("Failed to get Andor Camera Picture settings from file! " + err.trace ()));
 	}
 	try	{
-		ProfileSystem::standardOpenConfig (configFile, pics.configDelim, &pics, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, pics.configDelim, &pics, Version ("4.0"));
 	}
 	catch (ChimeraError&)	{
 		reportErr ("Failed to load picture settings from config!");
 	}
 	try	{
-		ProfileSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler, Version ("4.0"));
+		ConfigSystem::standardOpenConfig (configFile, "DATA_ANALYSIS", &analysisHandler, Version ("4.0"));
 	}
 	catch (ChimeraError&){
 		reportErr ("Failed to load Data Analysis settings from config!");
@@ -191,7 +194,7 @@ void QtAndorWindow::windowOpenConfig (ConfigStream& configFile){
 	catch (ChimeraError& e){
 		reportErr (qstr ("Andor Camera Window failed to read parameters from the configuration file.\n\n" + e.trace ()));
 	}
-	ProfileSystem::standardOpenConfig (configFile, imagingPiezo.getConfigDelim (), &imagingPiezo, Version ("5.3"));
+	ConfigSystem::standardOpenConfig (configFile, imagingPiezo.getConfigDelim (), &imagingPiezo, Version ("5.3"));
 	analysisHandler.updateUnofficialPicsPerRep (andorSettingsCtrl.getConfigSettings ().andor.picsPerRepetition);
 }
 
@@ -383,7 +386,6 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 }
 
 void QtAndorWindow::handleSetAnalysisPress (){
-	analysisHandler.setGridCornerLocation (pics.getSelLocation ());
 	analysisHandler.saveGridParams ();
 }
 
@@ -557,9 +559,6 @@ void QtAndorWindow::checkCameraIdle (){
 	if (andor.isRunning ()){
 		thrower ("Camera is already running! Please Abort to restart.\r\n");
 	}
-	if (analysisHandler.getLocationSettingStatus ()){
-		thrower ("Please finish selecting analysis points before starting the camera!\r\n");
-	}
 	// make sure it's idle.
 	try{
 		andor.queryStatus ();
@@ -685,18 +684,21 @@ void QtAndorWindow::completePlotterStart () {
 	pltInput->plotParentWindow = this;
 	pltInput->aborting = &plotThreadAborting;
 	pltInput->active = &plotThreadActive;
-	pltInput->imageShape = andorSettingsCtrl.getRunningSettings ().imageSettings;
-	pltInput->picsPerVariation = mainWin->getRepNumber () * andorSettingsCtrl.getRunningSettings ().picsPerRepetition;
-	pltInput->variations = auxWin->getTotalVariationNumber ();
-	pltInput->picsPerRep = andorSettingsCtrl.getRunningSettings ().picsPerRepetition;
+
+	
+	auto camSettings = andorSettingsCtrl.getRunningSettings ();
+	pltInput->variations = camSettings.totalVariations;
+	pltInput->picsPerVariation = camSettings.totalPicsInVariation();
+
+	pltInput->imageShape = camSettings.imageSettings;
+	pltInput->picsPerRep = camSettings.picsPerRepetition;
+	
 	pltInput->alertThreshold = alerts.getAlertThreshold ();
 	pltInput->wantAtomAlerts = alerts.wantsAtomAlerts ();
 	pltInput->numberOfRunsToAverage = 5;
 	pltInput->plottingFrequency = analysisHandler.getPlotFreq ();
 	analysisHandler.fillPlotThreadInput (pltInput);
 	// remove old plots that aren't trying to sustain.
-	activeDlgPlots.erase ( std::remove_if (activeDlgPlots.begin (), activeDlgPlots.end (), PlotDialog::removeQuery),
-						   activeDlgPlots.end ());
 	unsigned mainPlotInc = 0;
 	for (auto plotParams : pltInput->plotInfo) {
 		// Create vector of data to be shared between plotter and data analysis handler. 
@@ -790,11 +792,9 @@ std::string QtAndorWindow::getStartMessage (){
 		PlottingInfo tempInfoCheck (PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
 		if (tempInfoCheck.getPicNumber () != andrSttngs.picsPerRepetition){
 			thrower (": one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
-				"selected number of pictures per experiment. Please revise either the current setting or the plot"
-				" file.");
+					 "selected number of pictures per experiment. (" + str(andrSttngs.picsPerRepetition) 
+					 + ") Please revise either the current setting or the plot file.");
 		}
-		tempInfoCheck.setGroups (std::vector<coordinate>());
-		std::vector<std::pair<unsigned, unsigned>> plotLocations = tempInfoCheck.getAllPixelLocations ();
 	}
 	std::string dialogMsg;
 	dialogMsg = "Camera Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
@@ -917,8 +917,8 @@ void QtAndorWindow::handleBumpAnalysis (profileSettings finishedProfile) {
 	ConfigStream cStream (configFileRaw);
 	cStream.setCase (false);
 	configFileRaw.close ();
-	ProfileSystem::getVersionFromFile (cStream);
-	ProfileSystem::jumpToDelimiter (cStream, "DATA_ANALYSIS");
+	ConfigSystem::getVersionFromFile (cStream);
+	ConfigSystem::jumpToDelimiter (cStream, "DATA_ANALYSIS");
 	auto settings = analysisHandler.getAnalysisSettingsFromFile (cStream);
 	// get the options from the config file, not from the current config settings. this is important especially for 
 	// handling this in the calibration. 

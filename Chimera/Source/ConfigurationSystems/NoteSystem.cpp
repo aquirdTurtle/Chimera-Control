@@ -1,20 +1,18 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-#include <string>
 #include "NoteSystem.h"
 #include "LowLevel/constants.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include <PrimaryWindows/QtMainWindow.h>
 #include <QBoxLayout>
 #include <QFile>
-
+#include <string>
 
 void NoteSystem::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "CONFIGURATION_NOTES\n";
 	saveFile << getConfigurationNotes();
 	saveFile << "\nEND_CONFIGURATION_NOTES\n";
 }
-
 
 void NoteSystem::handleOpenConfig(ConfigStream& openFile){
 	std::string notes;
@@ -34,21 +32,19 @@ void NoteSystem::handleOpenConfig(ConfigStream& openFile){
 	else{
 		setConfigurationNotes("");
 	}
-	// for consistency with other open functions, the end delimiter will be readbtn outside this function, so go back one 
-	// line
+	// for consistency with other open functions, the end delimiter will be readbtn outside this function, so go back 
+	// one line
 	openFile.seekg ( pos );
 }
 
-
 void NoteSystem::initialize(POINT& topLeftPos, IChimeraQtWindow* win){
+	unsigned noteSize = 80;
+	auto & px = topLeftPos.x, & py = topLeftPos.y;
 	header = new QLabel ("CONFIGURATION NOTES", win);
-	header->setFixedSize (QSize (480, 25));
-	header->move (topLeftPos.x, topLeftPos.y);
-	topLeftPos.y += 25;
+	header->setGeometry (px, py, 480, 25);
 	edit = new CQTextEdit (win);
-	edit->setFixedSize (480, 195);
-	edit->move (topLeftPos.x, topLeftPos.y);
-	topLeftPos.y += 195;
+	edit->setGeometry (px, py += 25, 480, noteSize);
+	py += noteSize;
 }
 
 void NoteSystem::setConfigurationNotes(std::string notes){
@@ -59,3 +55,4 @@ std::string NoteSystem::getConfigurationNotes(){
 	std::string text = str(edit->toPlainText());
 	return text;
 }
+

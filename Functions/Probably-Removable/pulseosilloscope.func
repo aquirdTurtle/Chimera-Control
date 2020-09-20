@@ -1,4 +1,0 @@
-% Master-Script See the "?" for info on commands.
-def pulseOsilloscope( pulseLength ): 
-  % insert commands here...
-	pulseon: A15 pulseLength

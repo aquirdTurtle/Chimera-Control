@@ -10,8 +10,7 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 
-struct DmInfo
-{
+struct DmInfo{
 	// add any other settings for the whole machine here. 
 	std::string serialNumber;
 	int ActuatorCount;
@@ -21,9 +20,10 @@ struct pistonInfo {
 	int Value;
 };
 
-class DmControl
-{
+class DmControl{
 	public:
+		static constexpr unsigned numAbberations = 8;
+
 		DmControl(std::string serialNumber, bool safeMode);
 		void initialize( POINT loc, IChimeraQtWindow* parent, int count, std::string serialNumber, LONG width );
 	    void handleOnPress(int i);
@@ -46,12 +46,14 @@ class DmControl
 		void openConfig();
 		void setCoreInfo(DMOutputForm form);
 		void refreshAbberationDisplays ();
+
 	private:		
 		DmInfo theDMInfo;
 		DmCore defObject;
 		DmProfileCreator Profile;
 		DMOutputForm currentValues;
-		std::vector<QLineEdit*> piston;
+		std::vector<QLineEdit*> actuatorEdits;
+
 		QLineEdit* comaMag;
 		QLineEdit* trefoilMag;
 		QLineEdit* astigMag;
@@ -69,6 +71,6 @@ class DmControl
 		QLabel* comaLabel;
 		QPushButton* programNow;
 		QComboBox* profileSelector;
-		std::vector<double> temp;
+		std::vector<double> tempValueArray;
 		std::vector<double> writeArray;
 };

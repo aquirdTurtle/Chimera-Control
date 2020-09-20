@@ -7,7 +7,6 @@
 #include "GeneralImaging/imageParameters.h"
 #include "Basler/BaslerSettings.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include "CustomMfcControlWrappers/DoubleEdit.h"
 #include <string>
 #include <fstream>
 #include "PrimaryWindows/IChimeraQtWindow.h"

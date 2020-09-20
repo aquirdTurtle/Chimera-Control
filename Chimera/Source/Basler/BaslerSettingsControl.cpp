@@ -3,7 +3,7 @@
 #include "BaslerSettingsControl.h"
 #include "ConfigurationSystems/Version.h"
 #include "LowLevel/constants.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include <boost/lexical_cast.hpp>
 
 BaslerSettingsControl::BaslerSettingsControl ( ) : dims("scout")

@@ -5,7 +5,7 @@
 
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "GeneralUtilityFunctions/miscCommonFunctions.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 
 #include <boost/lexical_cast.hpp>
 

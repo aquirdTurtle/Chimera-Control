@@ -1,7 +1,6 @@
 ﻿// created by Mark O. Brown
 #pragma once
 #include "Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qlineedit.h>

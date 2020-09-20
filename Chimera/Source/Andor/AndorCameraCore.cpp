@@ -4,7 +4,7 @@
 #include "Andor/AndorCameraCore.h"
 #include "Andor/AndorTriggerModes.h"
 #include "Andor/AndorRunMode.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
 #include <Andor/AndorCameraThreadWorker.h>
 #include <PrimaryWindows/QtMainWindow.h>
@@ -31,9 +31,9 @@ std::string AndorCameraCore::getSystemInfo(){
 
 AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFile){
 	AndorRunSettings tempSettings; 
-	tempSettings.imageSettings = ProfileSystem::stdConfigGetter ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
+	tempSettings.imageSettings = ConfigSystem::stdConfigGetter ( configFile, "CAMERA_IMAGE_DIMENSIONS", 
 																  ImageDimsControl::getImageDimSettingsFromConfig);
-	ProfileSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS");
+	ConfigSystem::initializeAtDelim (configFile, "CAMERA_SETTINGS");
 	if (configFile.ver >= Version ("5.6")) {
 		configFile >> tempSettings.controlCamera;
 	}
@@ -776,9 +776,6 @@ void AndorCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadworke
 		if (log.AndorPictureDataset.getId () == -1) {
 			thrower ("Failed to initialize AndorPictureDataset???");
 		}
-		if (threadworker != nullptr) {
-			emit threadworker->notification (qstr("Andor Data Structures Should Be Valid!\n"), 0);
-		}
 		log.andorDataSetShouldBeValid = true;
 		log.writeDataSet (int (expRunSettings.acquisitionMode), "Camera-Mode", andorGroup);
 		log.writeDataSet (expRunSettings.exposureTimes, "Exposure-Times", andorGroup);
@@ -813,10 +810,10 @@ void AndorCameraCore::logSettings (DataLogger& log, ExpThreadWorker* threadworke
 }
 
 void AndorCameraCore::loadExpSettings (ConfigStream& stream){
-	ProfileSystem::stdGetFromConfig (stream, *this, expRunSettings);
-	expRunSettings.repetitionsPerVariation = ProfileSystem::stdConfigGetter (stream, "REPETITIONS", 
+	ConfigSystem::stdGetFromConfig (stream, *this, expRunSettings);
+	expRunSettings.repetitionsPerVariation = ConfigSystem::stdConfigGetter (stream, "REPETITIONS", 
 																			 Repetitions::getSettingsFromConfig);
-	expAnalysisSettings = ProfileSystem::stdConfigGetter (stream, "DATA_ANALYSIS", 
+	expAnalysisSettings = ConfigSystem::stdConfigGetter (stream, "DATA_ANALYSIS", 
 														  DataAnalysisControl::getAnalysisSettingsFromFile); 
 	experimentActive = expRunSettings.controlCamera;
 }

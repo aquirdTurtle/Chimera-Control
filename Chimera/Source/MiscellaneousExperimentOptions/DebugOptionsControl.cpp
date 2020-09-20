@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "DebugOptionsControl.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include <boost/lexical_cast.hpp>
 
 void DebugOptionsControl::initialize( POINT& loc, IChimeraQtWindow* parent ){

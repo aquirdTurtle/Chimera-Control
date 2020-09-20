@@ -1,6 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-#include "CustomMfcControlWrappers/myButton.h"
 #include "Control.h"
 #include <QLabel>
 #include <QTextEdit>

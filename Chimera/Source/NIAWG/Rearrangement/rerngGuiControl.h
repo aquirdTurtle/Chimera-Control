@@ -1,10 +1,8 @@
 ﻿// created by Mark O. Brown
 #pragma once
-#include "CustomMfcControlWrappers/myButton.h"
 #include "NIAWG/Rearrangement/rerngOptionStructures.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"
-#include "CustomMfcControlWrappers/Control.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qlineedit.h>

@@ -9,8 +9,7 @@
 
 class DmProfileCreator;
 
-class DmCore : public IDeviceCore
-{
+class DmCore : public IDeviceCore{
 	public:
 	    DmCore(std::string Number, bool safemodeOption);
 		std::string getDeviceInfo();
@@ -47,6 +46,5 @@ class DmCore : public IDeviceCore
 		std::vector<double> valueArray;
 		std::string serial;
 		bool boolOfSerial;
-		//std::vector<DM_Info> currentDMNums; //vector of outputs
 		DMOutputForm currentInfo;
 };

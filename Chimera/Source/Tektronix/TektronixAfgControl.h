@@ -5,8 +5,6 @@
 #include "TektronixStructures.h"
 #include "TektronixChannelControl.h"
 
-#include "CustomMfcControlWrappers/Control.h"
-#include "CustomMfcControlWrappers/myButton.h"
 #include "GeneralFlumes/VisaFlume.h"
 #include "ConfigurationSystems/Version.h"
 #include "ConfigurationSystems/ConfigStream.h"

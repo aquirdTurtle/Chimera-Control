@@ -1,0 +1,78 @@
+%%---------------------------------------------------------%%
+%%---------------------------------------------------------%%
+% LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
+var centerfreq 75
+var centerTunnelFreq 75
+var loadspacing 12 
+var spacing 10 % 4.6  
+%var tunnelbias 0.3638 
+var loaddumpbias 0.45 
+var dumpb 0.05 %0.045 
+var dumpf 99
+var vertf 75
+
+var_v 3 linRamps [ lin lin lin ]  
+var_v 3 edgeramps [ lin nr lin ]  
+var_v 3 freqs [ (centerfreq-loadspacing) centerfreq (centerfreq+loadspacing) ] 
+var_v 3 finFreqs [ (centerTunnelFreq-spacing) centerTunnelFreq (centerTunnelFreq+spacing) ] 
+var lbias 0.3064018574839956
+var rbias 0.33857075949584625
+var_v 3 amps [ 0.3064018574839956   0.35502738302015807   0.33857075949584625 ] 
+% depth optimization suggests tunnelBias should be around
+% 0.3638 
+%var_v 3 finAmps [ 0.3750197774489476 tunnelbias %0.26118516547069426 ] 
+var centerBias 0.355
+var_v 3 finAmps [ 0.38 centerBias rbias ] 
+var_v 3 phases [ 0.1914716667 1.357545847 0 ]   
+var_v 3 cphases [ -1 -1 -1 ]   
+
+repeatTilTrig 
+gen3const_v Horizontal
+freqs amps phases #  
+gen2const Vertical
+vertf	loaddumpbias		0
+dumpf 	(1-loaddumpbias)	0 #
+0.1 0
+endRepeat
+
+
+gen3AmpRamp_v Horizontal 
+freqs linRamps amps finAmps phases # 
+gen2AmpRamp Vertical
+vertf	lin loaddumpbias 		dumpb		0 
+dumpf	lin (1-loaddumpbias) 	(1-dumpb)	0 #
+2 0
+
+gen3FreqRamp_v Horizontal 
+edgeramps freqs finFreqs finAmps phases # 
+gen2const Vertical 
+vertf	dumpb		0 
+dumpf 	(1-dumpb)	0 #
+1 0
+
+repeatTilTrig
+gen3const_v Horizontal
+finFreqs finAmps cphases #  
+gen2const Vertical
+vertf	dumpb 		0
+dumpf 	(1-dumpb)	0 #
+0.1 0
+endRepeat
+
+gen3FreqRamp_v Horizontal 
+edgeramps finFreqs freqs finAmps cphases #  
+gen2ampRamp Vertical
+vertf	lin		dumpb 		(loaddumpbias-0.1*dumpb) 0
+dumpf 	lin 	(1-dumpb)	(1-loaddumpbias+0.1*dumpb)	0 #
+1 0
+
+repeatTilTrig
+gen3const_v Horizontal
+freqs finAmps phases #  
+gen2const Vertical
+vertf	(loaddumpbias-0.1*dumpb) 0
+dumpf 	(1-loaddumpbias+0.1*dumpb)	0 #
+0.1 0
+endRepeat
+
+

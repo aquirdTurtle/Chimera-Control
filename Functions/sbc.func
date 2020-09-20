@@ -21,7 +21,8 @@ def sbc():
   var sbc_op_pulsetime 0.015
   var sbctoppulsetime 0.04 
   var sbctoppulsetime2 0.06
-  % original times reported in sbc paper were 72.5us and 48us for top/bottom. 
+  % original times reported in sbc paper were 72.5us 
+  % and 48us for top/bottom. 
   repeat: 25
     call axialRamanPulse(0.04) 
     call opPulse(0.015)
@@ -54,7 +55,9 @@ def sbc():
   dac: axPulseLev 0
   dac: dac17 0
   dac: eoPulseLev 0
-  % its important that you wait long enough after the rstrig for the rsg
-  % to actually change its output, which I find takes about 0.15 s 
+  % its important that you wait long enough after the 
+  % rstrig for the rsg
+  % to actually change its output, which I find takes 
+  % about 0.15 s 
   % MOB Sep 11th 2019 
   t += 0.16

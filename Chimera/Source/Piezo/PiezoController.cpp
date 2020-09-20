@@ -4,7 +4,8 @@
 #include <boost/lexical_cast.hpp>
 #include <PrimaryWindows/QtMainWindow.h>
 
-PiezoController::PiezoController (IChimeraQtWindow* parent, piezoSetupInfo info) : IChimeraSystem(parent), core(info), expActive(info.expActive) {}
+PiezoController::PiezoController (IChimeraQtWindow* parent, piezoSetupInfo info) : IChimeraSystem(parent), core(info), 
+expActive(info.expActive), isReflective(info.editReflective) {}
 
 std::string PiezoController::getConfigDelim ( ){
 	return core.configDelim;
@@ -34,11 +35,15 @@ void PiezoController::updateCurrentValues ( ){
 	currentVals.x->setText ( qstr ( core.getCurrentXVolt ( ), 9, true) );
 	currentVals.y->setText ( qstr ( core.getCurrentYVolt ( ), 9, true) );
 	currentVals.z->setText ( qstr ( core.getCurrentZVolt ( ), 9, true) );
+	if (isReflective) {
+		edits.x->setText (qstr (core.getCurrentXVolt (), 9, true));
+		edits.y->setText (qstr (core.getCurrentYVolt (), 9, true));
+		edits.z->setText (qstr (core.getCurrentZVolt (), 9, true));
+	}
 }
 
 void PiezoController::handleOpenConfig (ConfigStream& configFile){
-	if (configFile.ver > Version ("4.5"))
-	{
+	if (configFile.ver > Version ("4.5")) {
 		auto configVals = core.getSettingsFromConfig (configFile);
 		edits.x->setText (qstr (configVals.pztValues.x.expressionStr, 9, true));
 		edits.y->setText (qstr (configVals.pztValues.y.expressionStr, 9, true));

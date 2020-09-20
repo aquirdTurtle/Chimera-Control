@@ -2,8 +2,7 @@
 #include <vector>
 #include <string>
 
-class DmProfileCreator 
-{
+class DmProfileCreator{
 	public:
 		DmProfileCreator::DmProfileCreator();
 		double getKnoll(int n, int m);

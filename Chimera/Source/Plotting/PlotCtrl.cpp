@@ -1,10 +1,10 @@
 ﻿// created by Mark O. Brown
 #include "stdafx.h"
 #include "PlotCtrl.h"
-#include "PlotDialog.h"
 #include <numeric>
 #include <qgraphicslayout.h>
-
+#include <qdebug.h>
+#include <qmenu.h>
 PlotCtrl::PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds_in,
 					std::string titleIn, bool narrowOpt, bool plotHistOption ) :
 	qtLineData( numTraces ), style( inStyle ), narrow(narrowOpt ), title(titleIn){
@@ -13,14 +13,22 @@ PlotCtrl::PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thre
 PlotCtrl::~PlotCtrl ( ){
 }
 
+void PlotCtrl::handleContextMenu (const QPoint& pos) {
+	QMenu menu;
+	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
+	auto* clear = new QAction ("Clear Plot", view);
+	view->connect (clear, &QAction::triggered,
+		[this]() {
+			view->chart ()->removeAllSeries ();
+		});
+	menu.addAction (clear);
+	menu.exec (view->mapToGlobal (pos));
+}
+
 dataPoint PlotCtrl::getMainAnalysisResult ( ){
 	// get the average data. If not only a single data point, as this is currently ment to be used, then I'm not 
 	// positive what value this is grabbing... maybe the last point of the average?
 	return dataPoint();
-}
-
-std::vector<pPlotDataVec> PlotCtrl::getCurrentData ( ){
-	return std::vector<pPlotDataVec>();
 }
 
 void PlotCtrl::setData (std::vector<plotDataVec> newData){
@@ -56,6 +64,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			}
 			view->chart ()->addSeries (line);
 			lineCount++;
+			view->chart()->legend ()->setVisible (true);
 		}
 	}
 	else if (style == plotStyle::HistPlot) {
@@ -94,8 +103,9 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 			threshLine->setColor (QColor (color[0], color[1], color[2], 150));
 			view->chart ()->addSeries (threshLine);
 		}
+		view->chart ()->legend ()->setVisible (true);
 	}
-	else { // line plot...
+	else { // line plot... e.g. for dio and ao data
 		if (newData.size () == 0) {
 			return;
 		}
@@ -111,12 +121,14 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		for (auto traceNum : range (newData.size ())) {
 			auto* line = qtLineData[traceNum];
 			auto& newLine = newData[traceNum];
-			if (newLine.size () > 100) {
-				continue; // something very wrong...
-			}
 			line = new QtCharts::QLineSeries (view->chart ());
 			auto color = GIST_RAINBOW_RGB[lineCount * GIST_RAINBOW_RGB.size () / qtLineData.size ()];
-			line->setColor (QColor (color[0], color[1], color[2]));
+			QPen pen = line->pen ();
+			pen.setWidth (1);
+			pen.setBrush (QColor (color[0], color[1], color[2], 50)); // or just pen.setColor("red");
+			line->setPen (pen);
+			//line->setColor ();
+			
 			for (auto count : range (newLine.size ())) {
 				xmin = newLine[count].x < xmin ? newLine[count].x : xmin;
 				xmax = newLine[count].x > xmax ? newLine[count].x : xmax;
@@ -164,7 +176,7 @@ void PlotCtrl::setStyle (plotStyle newStyle){
 }
 
 void PlotCtrl::resetChart () {
-	view->chart ()->legend ()->hide ();
+	qDebug () << "view chart:" << view->chart ();
 	view->chart ()->legend ()->hide ();
 	view->chart ()->createDefaultAxes ();
 	view->chart ()->setTitle (title.c_str ());
@@ -183,6 +195,10 @@ void PlotCtrl::resetChart () {
 void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraQtWindow* parent ){ 
 	chart = new QtCharts::QChart ();
 	view = new QtCharts::QChartView (chart, parent);
+	view->setContextMenuPolicy (Qt::CustomContextMenu);
+	parent->connect (view, &QtCharts::QChartView::customContextMenuRequested,
+		[this](const QPoint& pos) { handleContextMenu (pos); });
+
 	for (auto datanum : range (qtLineData.size ())) {
 		qtLineData[datanum] = new QtCharts::QLineSeries (view->chart ());
 		view->chart()->addSeries (qtLineData[datanum]);

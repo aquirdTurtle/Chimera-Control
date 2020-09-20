@@ -10,8 +10,8 @@ void ScopeThreadWorker::process (){
 	// this thread continuously requests new info from the scopes. The input is just a pointer to the scope object.
 	while (true){
 		try { 
-			Sleep (5000);
-			if (true /*safemode*/){
+			if (input->safemode){
+				Sleep (5000);
 				for (auto traceNum : range (input->numTraces)) {
 					unsigned numPts = 500;
 					QVector<double> xData(numPts);
@@ -30,11 +30,30 @@ void ScopeThreadWorker::process (){
 				}
 			}
 			else {
-				// get data from scope...
+				for (auto lineNum : range(input->numTraces)) {
+					auto data = input->getCurrentTraces (lineNum);
+					if (data.size () == 0) {
+						emit notify ("Get current trace data failed?!");
+						continue;
+					}
+					QVector<qreal> xdata;
+					auto ymin = DBL_MAX, ymax = -DBL_MAX;
+					for (auto pt : range (data.size ())) {
+						xdata.push_back (pt);
+						if (data[pt] < ymin) {
+							ymin = data[pt];
+						}
+						if (data[pt] > ymax) {
+							ymax = data[pt];
+						}
+					}
+					emit newData (xdata, 0, data.size () - 1, data, ymin, ymax, lineNum);
+				}
 			}
-			//input->refreshData ();
 		}
-		catch (ChimeraError&) { /* ??? */ }
+		catch (ChimeraError& error) { 
+			emit notify (error.qtrace ());
+		}
 	}
 }
 

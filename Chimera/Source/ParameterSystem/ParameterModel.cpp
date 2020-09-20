@@ -50,11 +50,9 @@ QVariant ParameterModel::data (const QModelIndex& index, int role) const{
 			}
 			return QVariant (); // default
 		}
-        case Qt::EditRole:
+        case Qt::EditRole: 
             if (!isGlobal && col >= 5) {
                 auto rangeNum = int (col - 5) / 3;
-                std::string lEnd = rangeInfo (param.scanDimension, rangeNum).leftInclusive ? "[" : "(";
-                std::string rEnd = rangeInfo (param.scanDimension, rangeNum).rightInclusive ? "]" : ")";
                 switch ((col - 5) % 3) {
 					case 0:
 						return qstr (param.ranges[rangeNum].initialValue, 9, true);
@@ -143,15 +141,14 @@ Qt::ItemFlags ParameterModel::flags (const QModelIndex& index) const {
 	return Qt::ItemIsEditable | QAbstractTableModel::flags (index);
 };
 
-bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, int role)
-{
+bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, int role){
     if (role == Qt::EditRole) {
         try {
             auto& param = parameters[index.row ()];
             if (isGlobal) {
                 switch (index.column ()) {
-                    case 0:
-                        param.name = str (value.toString ());
+                    case 0: // always convert name and scope to lowercase.
+                        param.name = str (value.toString (), 13, false, true);
                         break;
                     case 1:
                         param.constantValue = boost::lexical_cast<double>(cstr (value.toString ()));
@@ -160,10 +157,10 @@ bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, i
             }
             else {
                 switch (index.column ()) {
-                    case 0:
-                        param.name = str (value.toString ());
+                    case 0: // always convert name and scope to lowercase.
+                        param.name = str (value.toString (), 13, false, true);
                         break;
-                    case 1: // constantValue
+                    case 1: // constant vs. variable toggle
                         break;
                     case 2:
                         param.scanDimension = boost::lexical_cast<int> (cstr(value.toString ())); 
@@ -174,8 +171,8 @@ bool ParameterModel::setData (const QModelIndex& index, const QVariant& value, i
                     case 3: 
                         param.constantValue = boost::lexical_cast<double> (cstr(value.toString ()));
                         break;
-                    case 4:
-                        param.parameterScope = str (value.toString ());
+                    case 4:// always convert name and scope to lowercase.
+                        param.parameterScope = str (value.toString (), 13, false, true);
                         break;
                     default:
                         auto rangeNum = int (index.column() - 5) / 3;
@@ -235,13 +232,13 @@ void ParameterModel::checkScanDimensionConsistency () {
 }
 
 void ParameterModel::checkVariationRangeConsistency () {
-    unsigned dum = 0;
+	bool flag = true;
     for (auto var : parameters) {
         if (var.ranges.size () != rangeInfo.numRanges (var.scanDimension)) {
-            if (dum == 0) {
+            if (flag) {
                 errBox ("The number of variation ranges of a parameter, " + var.name + ", (and perhaps others) did "
                     "not match the official number. The code will force the parameter to match the official number.");
-                dum++; // only dislpay the error message once.
+				flag = false; // only dislpay the error message once.
             }
             var.ranges.resize (rangeInfo.numRanges (var.scanDimension));
         }

@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "ConfigurationSystems/ProfileSystem.h"
+#include "ConfigurationSystems/ConfigSystem.h"
 #include "DdsCore.h"
 
 DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
@@ -403,7 +403,7 @@ void DdsCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
 
 void DdsCore::loadExpSettings (ConfigStream& stream){
 	ddsExpSettings settings;
-	ProfileSystem::stdGetFromConfig (stream, *this, settings);
+	ConfigSystem::stdGetFromConfig (stream, *this, settings);
 	expRampList = settings.ramplist;
 	experimentActive = settings.control;
 }

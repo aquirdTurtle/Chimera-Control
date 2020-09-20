@@ -12,7 +12,7 @@ struct autoCalConfigInfo {
 
 const std::vector<autoCalConfigInfo> AUTO_CAL_LIST {
 	{
-		/*prof*/ {"11x1_Atom_Loading_And_Imaging", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms"},
+		/*prof*/ {"7x1_Atom_Loading_And_Imaging", "Atoms", PROFILES_PATH + "Hotkey Experiments\\Atoms"},
 		/*runlist*/ {true, true, false},
 		/*filename*/ "BASIC_SINGLE_ATOMS",
 		/*infostr*/ "Running Basic Single Atom Loading and Imaging Test...\r\n"

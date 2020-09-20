@@ -401,7 +401,6 @@ void PictureControl::setSoftwareAccumulationOption ( softwareAccumulationOption 
 void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, int, int> autoScaleInfo, 
 								  bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber,
 								  bool includingAnalysisMarkers ){
-
 	mostRecentImage_m = picData;
 	mostRecentPicNum = pictureNumber;
 	mostRecentGrids = grids;
@@ -433,14 +432,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 		thrower  ( "Picture data didn't match grid size!" );
 	}
 	
-	//if ( pixelsAreaWidth % 4 ){
-	//	pixelsAreaWidth += ( 4 - pixelsAreaWidth % 4 );
-	//}
 	float yscale = ( 256.0f ) / (float) colorRange;
-	WORD argbq[ PICTURE_PALETTE_SIZE ];
-	for ( int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++ ){
-		argbq[ paletteIndex ] = (WORD) paletteIndex;
-	}
 	std::vector<uchar> dataArray2 ( dataWidth * dataHeight, 255 );
 	int iTemp;
 	double dTemp = 1;
@@ -467,7 +459,6 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	QImage img (sf * dataWidth, sf * dataHeight, QImage::Format_Indexed8);
 	img.setColorTable (imagePalette);
 	img.fill (0);
-	auto ct = 0;
 	for (auto rowInc : range(dataHeight)){
 		std::vector<uchar> singleRow (sf * dataWidth);
 		for (auto val : range (dataWidth)){

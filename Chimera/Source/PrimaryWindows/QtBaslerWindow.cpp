@@ -234,9 +234,9 @@ bool QtBaslerWindow::baslerCameraIsContinuous (){
 }
 
 void QtBaslerWindow::windowOpenConfig (ConfigStream& configFile){
-	ProfileSystem::standardOpenConfig (configFile, picManager.configDelim, &picManager, Version ("4.0"));
+	ConfigSystem::standardOpenConfig (configFile, picManager.configDelim, &picManager, Version ("4.0"));
 	baslerSettings settings;
-	ProfileSystem::stdGetFromConfig (configFile, *basCamCore, settings, Version ("4.0"));
+	ConfigSystem::stdGetFromConfig (configFile, *basCamCore, settings, Version ("4.0"));
 	settingsCtrl.setSettings (settings);
 }
 
@@ -257,8 +257,7 @@ void QtBaslerWindow::initializeControls (){
 	// scale to fill the window (approximately).
 	dims.x *= 1.55;
 	dims.y *= 1.55;
-	picManager.initialize (pos, _myBrushes["Red"], dims.x + pos.x + 115, dims.y + pos.y,
-							this, 1);
+	picManager.initialize (pos, dims.x + pos.x + 115, dims.y + pos.y, this, 1);
 	picManager.setSinglePicture (settingsCtrl.getCurrentSettings ().dims);
 	picManager.setPalletes ({ 1,1,1,1 });
 }

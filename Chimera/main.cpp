@@ -12,13 +12,6 @@ int main (int argc, char** argv) {
 	QSplashScreen splash (pixmap.scaledToHeight (qApp->screens ()[0]->geometry ().height ()));
 	splash.showFullScreen ();
 
-	initMyColors ();
-	if (NIAWG_GAIN > MAX_GAIN) {
-		errBox ("FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the "
-			"experiment!\r\n");
-		return -10000;
-	}
-
 	qRegisterMetaType<Matrix<long>> ();
 	qRegisterMetaType<QVector<double>> ();
 	qRegisterMetaType<std::vector<double>> ();

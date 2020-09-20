@@ -7,11 +7,9 @@
 #include <array>
 
 class DoSystem;
-class IChimeraQtWindow;
 
 struct ttlInputStruct{
 	DoSystem* ttls;
-	IChimeraQtWindow* masterWin;
 };
 
 class doChannelInfoDialog : public QDialog{
