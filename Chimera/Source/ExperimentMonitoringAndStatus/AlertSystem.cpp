@@ -9,34 +9,34 @@
 #include <boost/lexical_cast.hpp>
 
 
-void AlertSystem::initialize( POINT& pos, IChimeraQtWindow* parent )
-{
+void AlertSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	alertMessageID = RegisterWindowMessage( "ID_NOT_LOADING_ATOMS" );
 
 	title = new QLabel ("ALERT SYSTEM", parent);
-	title->setGeometry (pos.x, pos.y, 480, 25);
+	title->setGeometry (px, py, 480, 25);
 	
 	atomsAlertActiveCheckBox = new QCheckBox ("If No Atoms?", parent);
-	atomsAlertActiveCheckBox->setGeometry (pos.x, pos.y+=25, 120, 20);
+	atomsAlertActiveCheckBox->setGeometry (px, py+=25, 120, 20);
 	atomsAlertActiveCheckBox->setChecked( false );
 	
 	motAlertActiveCheckBox = new QCheckBox ("If No MOT?", parent);
-	motAlertActiveCheckBox->setGeometry (pos.x + 120, pos.y, 120, 20);
+	motAlertActiveCheckBox->setGeometry (px + 120, py, 120, 20);
 	motAlertActiveCheckBox->setChecked ( true );
 	
 	alertThresholdText = new QLabel ("Alert Threshold:", parent);
-	alertThresholdText->setGeometry (pos.x + 240, pos.y, 120, 20);
+	alertThresholdText->setGeometry (px + 240, py, 120, 20);
 	
 	alertThresholdEdit = new QLineEdit ("10", parent);
-	alertThresholdEdit->setGeometry (pos.x + 360, pos.y, 120, 20);
+	alertThresholdEdit->setGeometry (px + 360, py, 120, 20);
 
 	autoPauseAtAlert = new QCheckBox ("Automatically Pause on Alert?", parent);
-	autoPauseAtAlert->setGeometry (pos.x, pos.y += 20, 240, 20);
+	autoPauseAtAlert->setGeometry (px, py += 20, 240, 20);
 	autoPauseAtAlert->setChecked ( true );
 	/// Sound checkbox
 	soundAtFinishCheck = new QCheckBox ("Play Sound at Finish?", parent);
-	soundAtFinishCheck->setGeometry (pos.x + 240, pos.y, 240, 20);
-	pos.y += 20;
+	soundAtFinishCheck->setGeometry (px + 240, py, 240, 20);
+	py += 20;
 }
 
 

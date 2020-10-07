@@ -10,7 +10,6 @@
 #include <vector>
 #include <array>
 
-
 struct niawgWavePower{
 	enum class mode	{
 		// power is held constant.
@@ -25,7 +24,6 @@ struct niawgWavePower{
 	static mode fromStr ( std::string txt );
 	static const mode defaultMode;
 };
-
 
 struct niawgLibOption{
 	enum class mode	{
@@ -134,7 +132,6 @@ struct simpleWaveForm{
 };;
 
 class NiawgCore;
-
 
 namespace NiawgConstants {
 	// There are cCurrently bugs with the 5451 for sample rates significantly above this sample rate (320 MS/s). 

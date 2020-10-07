@@ -246,18 +246,18 @@ void QtBaslerWindow::windowSaveConfig (ConfigStream& configFile){
 }
 
 void QtBaslerWindow::initializeControls (){
-	POINT pos = { 0,25 };
-	POINT dims = basCamCore->getCameraDimensions ();
+	QPoint pos = { 0,25 };
+	QPoint dims = basCamCore->getCameraDimensions ();
 	statBox->initialize (pos, this, 300, mainWin->getDevices ());
-	settingsCtrl.initialize (pos, dims.x, dims.y, dims, this);
+	settingsCtrl.initialize (pos, dims.x(), dims.y(), dims, this);
 	settingsCtrl.setSettings (basCamCore->getDefaultSettings ());
 	stats.initialize (pos, this);
 
 	pos = { 365, 25 };
 	// scale to fill the window (approximately).
-	dims.x *= 1.55;
-	dims.y *= 1.55;
-	picManager.initialize (pos, dims.x + pos.x + 115, dims.y + pos.y, this, 1);
+	dims.rx() *= 1.55;
+	dims.ry() *= 1.55;
+	picManager.initialize (pos, dims.x() + pos.x() + 115, dims.y() + pos.y(), this, 1);
 	picManager.setSinglePicture (settingsCtrl.getCurrentSettings ().dims);
 	picManager.setPalletes ({ 1,1,1,1 });
 }

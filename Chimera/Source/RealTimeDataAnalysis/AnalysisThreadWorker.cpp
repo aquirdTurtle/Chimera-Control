@@ -142,7 +142,7 @@ void AnalysisThreadWorker::init (){
 	// make vector of plot information classes.
 	for (auto plotInc : range (input->plotInfo.size ())) {
 		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + "\\" + input->plotInfo[plotInc].name + "."
-			+ PLOTTING_EXTENSION;
+			+ DataAnalysisControl::PLOTTING_EXTENSION;
 		allPlots.push_back (PlottingInfo::PlottingInfo (tempFileName));
 		allPlots[plotInc].setGroups (std::vector<coordinate>());
 	}

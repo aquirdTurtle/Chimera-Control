@@ -3,19 +3,19 @@
 #include "CameraCalibration.h"
 #include <GeneralUtilityFunctions/commonFunctions.h>
 
-void CameraCalibration::initialize( POINT& pos, IChimeraQtWindow* parent )
-{
+void CameraCalibration::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	header = new QLabel ("Camera-Bkgd:", parent);
-	header->setGeometry (pos.x, pos.y, 140, 20);
+	header->setGeometry (px, py, 140, 20);
 	calButton = new QPushButton ("Calibrate", parent);
-	calButton->setGeometry (pos.x+140, pos.y, 100, 20);
+	calButton->setGeometry (px+140, py, 100, 20);
 	parent->connect (calButton, &QPushButton::released, [parent]() {
 		commonFunctions::calibrateCameraBackground (parent); });
 
 	autoCalButton = new QCheckBox ("Auto-Cal", parent);
-	autoCalButton->setGeometry (pos.x+240, pos.y, 120, 20);
+	autoCalButton->setGeometry (px+240, py, 120, 20);
 	useButton = new QCheckBox ("Use-Cal", parent);
-	useButton->setGeometry (pos.x + 360, pos.y, 120, 20);
+	useButton->setGeometry (px + 360, py, 120, 20);
 }
 
 

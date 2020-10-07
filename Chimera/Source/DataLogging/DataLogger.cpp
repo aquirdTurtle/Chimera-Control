@@ -1,12 +1,12 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "DataLogger.h"
-#include "LowLevel/externals.h"
 #include "RealTimeDataAnalysis/DataAnalysisControl.h"
 #include "Andor/CameraImageDimensions.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <ExperimentThread/autoCalConfigInfo.h>
+#include <Scripts/Script.h>
 
 DataLogger::DataLogger(std::string systemLocation, IChimeraQtWindow* parent) : IChimeraSystem(parent){
 	// initialize this to false.
@@ -189,7 +189,7 @@ void DataLogger::initializeDataFiles( std::string specialName, bool checkForCali
 }
 
 
-void DataLogger::logPlotData ( std::string name, std::vector<pPlotDataVec> data ){
+void DataLogger::logPlotData ( std::string name ){
 }
 
 
@@ -259,7 +259,7 @@ void DataLogger::logFunctions( H5::Group& group ){
 	try{
 		// Re-add the entries back in and figure out which one is the current one.
 		std::vector<std::string> names;
-		std::string search_path = FUNCTIONS_FOLDER_LOCATION + "\\" + "*." + FUNCTION_EXTENSION;
+		std::string search_path = FUNCTIONS_FOLDER_LOCATION + "\\" + "*." + Script::FUNCTION_EXTENSION;
 		WIN32_FIND_DATA fd;
 		HANDLE hFind;
 		hFind = FindFirstFile( cstr( search_path ), &fd );

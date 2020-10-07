@@ -37,7 +37,7 @@ class TektronixAfgControl {
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
 
-		void initialize( POINT& loc, IChimeraQtWindow* parent, std::string headerText, std::string channel1Text,
+		void initialize( QPoint& loc, IChimeraQtWindow* parent, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width);
 		std::string queryIdentity();
 		tektronixInfo getTekSettings();

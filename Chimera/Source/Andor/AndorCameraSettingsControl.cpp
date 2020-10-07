@@ -15,15 +15,16 @@ AndorCameraSettingsControl::AndorCameraSettingsControl() : imageDimensionsObj("a
 }
 
 
-void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraQtWindow* parent){
+void AndorCameraSettingsControl::initialize (QPoint& pos, IChimeraQtWindow* parent){
+	auto& px = pos.rx (), & py = pos.ry ();
 	header = new QLabel ("CAMERA SETTINGS", parent);
-	header->setGeometry (pos.x, pos.y, 480, 25);
+	header->setGeometry (px, py, 480, 25);
 	
 	controlAndorCameraCheck = new CQCheckBox ("Control Andor Camera?", parent);
-	controlAndorCameraCheck->setGeometry (pos.x, pos.y += 25, 240, 25);
+	controlAndorCameraCheck->setGeometry (px, py += 25, 240, 25);
 	controlAndorCameraCheck->setChecked (true);
 	viewRunningSettings = new QCheckBox ("View Running Settings?", parent);
-	viewRunningSettings->setGeometry (pos.x+240, pos.y, 240, 25);
+	viewRunningSettings->setGeometry (px+240, py, 240, 25);
 	parent->connect (viewRunningSettings, &QCheckBox::stateChanged, [this]() {
 		if (viewRunningSettings->isChecked ()) {
 			// just changed to checked, so the settings should indicate the config settings still. 
@@ -43,7 +44,7 @@ void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraQtWindow* paren
 	cameraModeCombo->addItem ("Kinetic-Series-Mode");
 	cameraModeCombo->addItem ("Accumulation-Mode");
 	cameraModeCombo->addItem ("Video-Mode");
-	cameraModeCombo->setGeometry (pos.x, pos.y += 25, 240, 25);
+	cameraModeCombo->setGeometry (px, py += 25, 240, 25);
 
 	cameraModeCombo->setCurrentIndex (0);
 	parent->connect (cameraModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
@@ -55,7 +56,7 @@ void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraQtWindow* paren
 		});
 	configSettings.andor.acquisitionMode = AndorRunModes::mode::Kinetic;
 	triggerCombo = new CQComboBox (parent);
-	triggerCombo->setGeometry (pos.x + 240, pos.y, 240, 25);
+	triggerCombo->setGeometry (px + 240, py, 240, 25);
 	triggerCombo->addItems ({ "Internal-Trigger", "External-Trigger","Start-On-Trigger" });
 	triggerCombo->setCurrentIndex (0);
 	parent->connect (triggerCombo, qOverload<int> (&QComboBox::activated), 
@@ -67,68 +68,68 @@ void AndorCameraSettingsControl::initialize (POINT& pos, IChimeraQtWindow* paren
 		});
 	configSettings.andor.triggerMode = AndorTriggerMode::mode::External;
 	emGainBtn = new CQPushButton ("Set EM Gain (-1=OFF)", parent);
-	emGainBtn->setGeometry (pos.x, pos.y += 25, 160, 20);
+	emGainBtn->setGeometry (px, py += 25, 160, 20);
 	parent->connect (emGainBtn, &QPushButton::released, [parent]() {
 			parent->andorWin->handleEmGainChange ();
 		});
 	emGainEdit = new CQLineEdit ("-1", parent);
-	emGainEdit->setGeometry (pos.x + 160, pos.y, 160, 20);
+	emGainEdit->setGeometry (px + 160, py, 160, 20);
 	emGainEdit->setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 						   " mode off. The program will immediately change the state of the camera after changing this"
 						   " edit." );
 	//
 	emGainDisplay = new QLabel ("OFF", parent);
-	emGainDisplay->setGeometry (pos.x + 320, pos.y, 160, 20);
+	emGainDisplay->setGeometry (px + 320, py, 160, 20);
 	// initialize settings.
 	configSettings.andor.emGainLevel = 0;
 	configSettings.andor.emGainModeIsOn = false;
 	setTemperatureButton = new CQPushButton ("Set Camera Temperature (C)", parent);
-	setTemperatureButton->setGeometry (pos.x, pos.y+=20, 270, 25);
+	setTemperatureButton->setGeometry (px, py+=20, 270, 25);
 	parent->connect (setTemperatureButton, &QPushButton::released, 
 		[parent]() {
 			parent->andorWin->passSetTemperaturePress ();
 		});
 
 	temperatureEdit = new CQLineEdit ("0", parent);
-	temperatureEdit->setGeometry (pos.x + 270, pos.y, 80, 25);
+	temperatureEdit->setGeometry (px + 270, py, 80, 25);
 
 	temperatureDisplay = new QLabel ("", parent);
-	temperatureDisplay->setGeometry (pos.x + 350, pos.y, 80, 25);
+	temperatureDisplay->setGeometry (px + 350, py, 80, 25);
 	temperatureOffButton = new CQPushButton("OFF", parent);
-	temperatureOffButton->setGeometry (pos.x + 430, pos.y, 50, 25);
+	temperatureOffButton->setGeometry (px + 430, py, 50, 25);
 	temperatureMsg = new QLabel ("Temperature control is disabled",parent);
-	temperatureMsg->setGeometry (pos.x, pos.y+=25, 480, 50);
-	pos.y += 50;
+	temperatureMsg->setGeometry (px, py+=25, 480, 50);
+	py += 50;
 	//
 	picSettingsObj.initialize( pos, parent );
 	imageDimensionsObj.initialize( pos, parent, 1, 480 );
 
 	// Accumulation Time
 	accumulationCycleTimeLabel = new QLabel ("Accumulation Cycle Time", parent);
-	accumulationCycleTimeLabel->setGeometry (pos.x, pos.y, 240, 25);
+	accumulationCycleTimeLabel->setGeometry (px, py, 240, 25);
 
 	accumulationCycleTimeEdit = new CQLineEdit ("0.1", parent);
-	accumulationCycleTimeEdit->setGeometry (pos.x + 240, pos.y, 240, 25);
+	accumulationCycleTimeEdit->setGeometry (px + 240, py, 240, 25);
 
 	// Accumulation Number
 	accumulationNumberLabel = new QLabel ("Accumulation #", parent);
-	accumulationNumberLabel->setGeometry (pos.x, pos.y+=25, 240, 25);
+	accumulationNumberLabel->setGeometry (px, py+=25, 240, 25);
 	accumulationNumberEdit = new CQLineEdit ("1", parent);
-	accumulationNumberEdit->setGeometry (pos.x + 240, pos.y, 240, 25);
+	accumulationNumberEdit->setGeometry (px + 240, py, 240, 25);
 
 	// minimum kinetic cycle time (determined by camera)
 	minKineticCycleTimeLabel = new QLabel ("Minimum Kinetic Cycle Time (s)", parent);
-	minKineticCycleTimeLabel->setGeometry (pos.x, pos.y+=25, 240, 25);
+	minKineticCycleTimeLabel->setGeometry (px, py+=25, 240, 25);
 	minKineticCycleTimeDisp = new QLabel ("---", parent);
-	minKineticCycleTimeDisp->setGeometry (pos.x + 240, pos.y, 240, 25);
+	minKineticCycleTimeDisp->setGeometry (px + 240, py, 240, 25);
 
 	/// Kinetic Cycle Time
 	kineticCycleTimeLabel = new QLabel ("Kinetic Cycle Time (s)", parent);
-	kineticCycleTimeLabel->setGeometry (pos.x, pos.y+=25, 240, 25);
+	kineticCycleTimeLabel->setGeometry (px, py+=25, 240, 25);
 
 	kineticCycleTimeEdit = new CQLineEdit ("0.1", parent);
-	kineticCycleTimeEdit->setGeometry (pos.x+240, pos.y, 240, 25);
-	pos.y += 25;
+	kineticCycleTimeEdit->setGeometry (px+240, py, 240, 25);
+	py += 25;
 	//
 	calControl.initialize( pos, parent );
 	updateWindowEnabledStatus ();

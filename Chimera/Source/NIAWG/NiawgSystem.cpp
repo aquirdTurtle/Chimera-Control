@@ -6,14 +6,15 @@ NiawgSystem::NiawgSystem (DoRows::which trigRow, unsigned trigNumber, bool safem
 	IChimeraSystem(parent), niawgScript (parent), core (trigRow, trigNumber, safemode)
 {};
 
-void NiawgSystem::initialize (POINT& loc, IChimeraQtWindow* parent){
+void NiawgSystem::initialize (QPoint& loc, IChimeraQtWindow* parent){
+	auto& px = loc.rx (), & py = loc.ry ();
 	niawgHeader = new QLabel ("NIAWG SYSTEM", parent);
-	niawgHeader->setGeometry (loc.x, loc.y, 640, 30);
+	niawgHeader->setGeometry (px, py, 640, 30);
 
 	controlNiawg = new QCheckBox ("Control System", parent);
-	controlNiawg->setGeometry (loc.x, loc.y += 30, 640, 25);
+	controlNiawg->setGeometry (px, py += 30, 640, 25);
 	parent->connect (controlNiawg, &QCheckBox::stateChanged, [this]() {updateWindowEnabled (); });
-	loc.y += 25;
+	py += 25;
 
 	rearrangeCtrl.initialize (loc, parent);
 	niawgScript.initialize ( 640, 660, loc, parent, "NIAWG", "NIAWG Script" );

@@ -2,7 +2,6 @@
 #pragma once
 
 #include "ConfigurationSystems/Version.h"
-#include "Andor/cameraPositions.h"
 #include "GeneralImaging/softwareAccumulationOption.h"
 #include "ConfigurationSystems/ConfigStream.h"
 #include "Andor/andorPicSettingsGroup.h"
@@ -32,7 +31,7 @@ class PictureSettingsControl {
 		void updateAllSettings ( andorPicSettingsGroup inputSettings );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile, AndorCameraCore* andor);
-		void initialize( POINT& pos, IChimeraQtWindow* parent );
+		void initialize( QPoint& pos, IChimeraQtWindow* parent );
 		void handleOptionChange( );
 		void setPictureControlEnabled (int pic, bool enabled);
 		void setUnofficialExposures ( std::vector<float> times );

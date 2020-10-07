@@ -20,7 +20,7 @@ class ScopeViewer : public QObject{
 	public:
 		ScopeViewer( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name );
 		~ScopeViewer ();
-		void initialize( POINT& topLeftLoc, unsigned width, unsigned height, IChimeraQtWindow* parent, 
+		void initialize( QPoint& topLeftLoc, unsigned width, unsigned height, IChimeraQtWindow* parent, 
 						 std::string title="Scope!");
 		
 		QVector<double> getCurrentTraces (unsigned whichLine);
@@ -34,11 +34,10 @@ class ScopeViewer : public QObject{
 
 		float yoffset, ymult;
 		VisaFlume visa;
-		//QtCharts::QChartView* viewPlot;
 		PlotCtrl viewPlot;
 		std::vector<plotDataVec> data_pdv;
 		std::vector<QtCharts::QLineSeries*> data_t;
-		//QtCharts::QChart* chart;
+		QPushButton* updateDataBtn;
 	public Q_SLOTS:
 		void updateData (const QVector<double>& xdata, double xmin, double xmax, 
 						 const QVector<double>& ydata, double ymin, double ymax, 

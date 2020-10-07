@@ -37,7 +37,7 @@ class ServoManager : public IChimeraSystem {
 		void handleContextMenu (const QPoint& pos);
 		static std::string servoTtlConfigToString (std::vector<std::pair<DoRows::which, unsigned> > ttlConfig);
 		static std::string servoDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig);
-		void initialize( POINT& pos, IChimeraQtWindow* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
+		void initialize( QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
 						 ParameterSystem* globals_in);
 		void setChangeVal (unsigned which, double change);
 		void runAll ();

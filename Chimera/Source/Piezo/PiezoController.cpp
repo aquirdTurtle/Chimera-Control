@@ -78,11 +78,12 @@ void PiezoController::updateCtrl ( ){
 	edits.z->setEnabled ( ctrl );
 }
 
-void PiezoController::initialize ( POINT& pos, IChimeraQtWindow* parent, LONG width, piezoChan<std::string> names ){
+void PiezoController::initialize ( QPoint& pos, IChimeraQtWindow* parent, LONG width, piezoChan<std::string> names ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	core.initialize ( );
 
 	programNowButton = new QPushButton ("Program Pzt Now", parent);
-	programNowButton->setGeometry (pos.x, pos.y, 6 * width / 8, 25);
+	programNowButton->setGeometry (px, py, 6 * width / 8, 25);
 	parent->connect (programNowButton, &QPushButton::released, [this, parent]() {
 		try	{
 			handleProgramNowPress ();
@@ -93,7 +94,7 @@ void PiezoController::initialize ( POINT& pos, IChimeraQtWindow* parent, LONG wi
 		}
 	});
 	ctrlButton = new QCheckBox ("Ctrl?", parent);
-	ctrlButton->setGeometry (pos.x + 3*width/4, pos.y, width/4, 25);
+	ctrlButton->setGeometry (px + 3*width/4, py, width/4, 25);
 	ctrlButton->setChecked (true);
 	if (!expActive) {
 		// never enabled. You should be able to always modify the piezo values in the middle of the experiment safely. 
@@ -111,29 +112,29 @@ void PiezoController::initialize ( POINT& pos, IChimeraQtWindow* parent, LONG wi
 	});
 
 	labels.x = new QLabel (names.x.c_str (), parent);
-	labels.x->setGeometry (pos.x, pos.y += 25, width / 3, 20);
+	labels.x->setGeometry (px, py += 25, width / 3, 20);
 	labels.y = new QLabel (names.y.c_str (), parent);
-	labels.y->setGeometry (pos.x + width/3, pos.y, width / 3, 20);
+	labels.y->setGeometry (px + width/3, py, width / 3, 20);
 	labels.z = new QLabel (names.z.c_str (), parent);
-	labels.z->setGeometry (pos.x+ 2*width / 3, pos.y, width / 3, 20);
+	labels.z->setGeometry (px+ 2*width / 3, py, width / 3, 20);
 
 	edits.x = new QLineEdit (parent);
-	edits.x->setGeometry (pos.x, pos.y += 20, width / 3, 20);
+	edits.x->setGeometry (px, py += 20, width / 3, 20);
 	parent->connect (edits.x, &QLineEdit::textChanged, [parent]() { parent->configUpdated (); });
 	edits.y = new QLineEdit (parent);
-	edits.y->setGeometry (pos.x + width / 3, pos.y, width / 3, 20);
+	edits.y->setGeometry (px + width / 3, py, width / 3, 20);
 	parent->connect (edits.y, &QLineEdit::textChanged, [parent]() { parent->configUpdated (); });
 	edits.z = new QLineEdit (parent);
-	edits.z->setGeometry (pos.x + 2 * width / 3, pos.y, width / 3, 20);
+	edits.z->setGeometry (px + 2 * width / 3, py, width / 3, 20);
 	parent->connect (edits.z, &QLineEdit::textChanged, [parent]() { parent->configUpdated (); });
 
 	currentVals.x = new QLabel (parent);
-	currentVals.x->setGeometry (pos.x, pos.y += 20, width / 3, 20);
+	currentVals.x->setGeometry (px, py += 20, width / 3, 20);
 	currentVals.y = new QLabel (parent);
-	currentVals.y->setGeometry (pos.x + width / 3, pos.y, width / 3, 20);
+	currentVals.y->setGeometry (px + width / 3, py, width / 3, 20);
 	currentVals.z = new QLabel (parent);
-	currentVals.z->setGeometry (pos.x + 2 * width / 3, pos.y, width / 3, 20);
-	pos.y += 20;
+	currentVals.z->setGeometry (px + 2 * width / 3, py, width / 3, 20);
+	py += 20;
 	updateCurrentValues ( );
 	QTimer* timer = new QTimer (this);
 	connect (timer, &QTimer::timeout, [this, parent]() {

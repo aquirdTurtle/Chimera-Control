@@ -18,6 +18,8 @@ class ExpThreadWorker : public QObject {
     Q_OBJECT
 
     public:
+		static constexpr auto OSCILLOSCOPE_TRIGGER = "C11";
+
         ExpThreadWorker (ExperimentThreadInput* input_, std::atomic<bool>& expRunning);
         ~ExpThreadWorker ();
 		void pause ();

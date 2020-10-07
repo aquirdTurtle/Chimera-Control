@@ -3,15 +3,16 @@
 #include "LongQSlider.h"
 #include "boost/lexical_cast.hpp"
 
-void LongQSlider::reposition (POINT loc, LONG totalHeight){
+void LongQSlider::reposition (QPoint loc, LONG totalHeight){
 	if (!header || !edit || !slider){
 		return;
 	}
-	header->setGeometry (loc.x, loc.y, 25, 20);
+	auto& px = loc.rx (), & py = loc.ry ();
+	header->setGeometry (px, py, 25, 20);
 	header->raise ();
-	edit->setGeometry (loc.x, loc.y + 20, 25, 20);
+	edit->setGeometry (px, py + 20, 25, 20);
 	edit->raise ();
-	slider->setGeometry (loc.x, loc.y + 40, 25, totalHeight - 40);
+	slider->setGeometry (px, py + 40, 25, totalHeight - 40);
 	slider->raise ();
 }
 
@@ -28,12 +29,13 @@ unsigned LongQSlider::getEditId ( ){
 	return NULL;
 }
 
-void LongQSlider::initialize ( POINT& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText ){
+void LongQSlider::initialize ( QPoint& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText ){
+	auto& px = loc.rx (), & py = loc.ry ();
 	header = new  QLabel (headerText.c_str (), parent);
-	header->setGeometry (loc.x, loc.y, 25, 20);
+	header->setGeometry (px, py, 25, 20);
 
 	edit = new CQLineEdit (parent);
-	edit->setGeometry (loc.x, loc.y+20, 25, 20);
+	edit->setGeometry (px, py+20, 25, 20);
 	parent->connect (edit, &QLineEdit::textChanged, 
 		[this, parent]() {
 			try {
@@ -49,7 +51,7 @@ void LongQSlider::initialize ( POINT& loc, IChimeraQtWindow* parent, int width, 
 		thrower ( "ERROR: Must initialize LongQSLider with a height greater than 40 to have room for edit and header controls!" );
 	}
 	slider = new QSlider (parent);
-	slider->setGeometry (loc.x, loc.y + 40, 25, height - 40);
+	slider->setGeometry (px, py + 40, 25, height - 40);
 	slider->setRange ( minVal, maxVal );
 	slider->setSingleStep (1);
 	parent->connect (slider, &QSlider::valueChanged, [this, parent](int value) {

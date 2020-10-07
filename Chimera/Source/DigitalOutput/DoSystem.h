@@ -36,7 +36,7 @@ class DoSystem : public IChimeraSystem {
 		std::string getDoSystemInfo ();
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& openFile);
-		void initialize(POINT& startLocation, IChimeraQtWindow* master );
+		void initialize(QPoint& startLocation, IChimeraQtWindow* master );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
 		void zeroBoard();

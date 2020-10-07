@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <Scripts/SyntaxHighlighter.h>
-#include <NIAWG/NiawgConstants.h>
+#include <NIAWG/NiawgStructures.h>
+#include <GeneralUtilityFunctions/my_str.h>
 
 SyntaxHighlighter::SyntaxHighlighter (ScriptableDevice device, QTextDocument* parent) : 
 	QSyntaxHighlighter (parent), 

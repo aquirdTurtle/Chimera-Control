@@ -4,41 +4,41 @@
 #include <qcheckbox.h>
 #include <qlineedit.h>
 
-void TektronixChannelControl::initialize (POINT loc, IChimeraQtWindow* parent, std::string channelText, LONG width)
-{
+void TektronixChannelControl::initialize (QPoint loc, IChimeraQtWindow* parent, std::string channelText, LONG width){
+	auto& px = loc.rx (), & py = loc.ry ();
 	channelLabel = new QLabel (cstr (channelText), parent);
-	channelLabel->setGeometry (loc.x, loc.y, width, 20);
+	channelLabel->setGeometry (px, py, width, 20);
 	
 	controlButton = new CQCheckBox ("", parent);
-	controlButton->setGeometry (loc.x, loc.y+=20, width, 20);
+	controlButton->setGeometry (px, py+=20, width, 20);
 	parent->connect (controlButton, &QCheckBox::stateChanged, [parent]() {parent->configUpdated (); });
 	parent->connect (controlButton, &QCheckBox::stateChanged, [this]() {handleEnabledStatus (); });
 
 	onOffButton = new CQCheckBox ("", parent);
-	onOffButton->setGeometry (loc.x, loc.y += 20, width, 20);
+	onOffButton->setGeometry (px, py += 20, width, 20);
 	parent->connect (onOffButton, &QCheckBox::stateChanged, [parent]() {parent->configUpdated (); });
 	parent->connect (onOffButton, &QCheckBox::stateChanged, [this]() {handleEnabledStatus (); });
 
 	fskButton = new CQCheckBox ("", parent);
-	fskButton->setGeometry (loc.x, loc.y += 20, width, 20);
+	fskButton->setGeometry (px, py += 20, width, 20);
 	parent->connect (fskButton, &QCheckBox::stateChanged, [parent]() {parent->configUpdated (); });
 	parent->connect (fskButton, &QCheckBox::stateChanged, [this]() {handleEnabledStatus (); });
 
 	power = new CQLineEdit ("", parent);
-	power->setGeometry (loc.x, loc.y += 20, width, 20);
+	power->setGeometry (px, py += 20, width, 20);
 	parent->connect (power, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	power->setEnabled (false);
 
 	mainFreq = new CQLineEdit ("", parent);
-	mainFreq->setGeometry (loc.x, loc.y += 20, width, 20);
+	mainFreq->setGeometry (px, py += 20, width, 20);
 	parent->connect (mainFreq, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	mainFreq->setEnabled (false);
 
 	fskFreq = new CQLineEdit ("", parent);
-	fskFreq->setGeometry (loc.x, loc.y += 20, width, 20);
+	fskFreq->setGeometry (px, py += 20, width, 20);
 	parent->connect (fskFreq, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	fskFreq->setEnabled (false);
-	loc.y += 20;
+	py += 20;
 	handleEnabledStatus ();
 }
 

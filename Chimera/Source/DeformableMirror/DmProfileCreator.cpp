@@ -144,9 +144,9 @@ double DmProfileCreator::zernike(int n, int m, double x, double y) {
 	return zernikePolar(n, m, r, phi);
 }
 
-double DmProfileCreator::zernikeFit(POINT X, std::vector<double> param) {
-	double x = X.x;
-	double y = X.y;
+double DmProfileCreator::zernikeFit(QPoint X, std::vector<double> param) {
+	double x = X.x();
+	double y = X.y();
 	int n = 0;
 	int m = 0;
 	fromNoll(0, n, m);

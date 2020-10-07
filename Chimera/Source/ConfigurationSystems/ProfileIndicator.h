@@ -7,7 +7,7 @@
 
 class ProfileIndicator {
 	public:
-		void initialize(POINT position, QWidget* parent );
+		void initialize(QPoint position, QWidget* parent );
 		void update(std::string text);
 	private:
 		QLabel* header;

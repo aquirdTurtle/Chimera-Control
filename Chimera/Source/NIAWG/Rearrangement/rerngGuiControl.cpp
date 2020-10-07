@@ -4,58 +4,58 @@
 #include "ConfigurationSystems/ConfigSystem.h"
 #include <boost/lexical_cast.hpp>
 
-void rerngGuiControl::initialize (POINT& loc, QWidget* parent )
-{
+void rerngGuiControl::initialize (QPoint& loc, QWidget* parent ){
+	auto& px = loc.rx (), & py = loc.ry ();
 	header = new QLabel ("REARRANGEMENT OPTIONS", parent);
-	header->setGeometry (loc.x, loc.y, 640, 25);
+	header->setGeometry (px, py, 640, 25);
 	experimentIncludesRerng = new QCheckBox ("Experiment Has Rerng?", parent);
-	experimentIncludesRerng->setGeometry (loc.x, loc.y += 25, 320, 25);
+	experimentIncludesRerng->setGeometry (px, py += 25, 320, 25);
 	parent->connect (experimentIncludesRerng, &QCheckBox::stateChanged, [this]() {updateActive (); });
 
 	flashingRateText = new QLabel ("Flashing Rate (MHz)", parent);
-	flashingRateText->setGeometry (loc.x, loc.y+=25, 200, 25);
+	flashingRateText->setGeometry (px, py+=25, 200, 25);
 	flashingRateEdit = new QLineEdit ("1", parent);
-	flashingRateEdit->setGeometry (loc.x + 200, loc.y, 120, 25);
+	flashingRateEdit->setGeometry (px + 200, py, 120, 25);
 
 	moveSpeedText = new QLabel ("Move Speed (ms)", parent);
-	moveSpeedText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	moveSpeedText->setGeometry (px, py += 25, 200, 25);
 	moveSpeedEdit = new QLineEdit ("0.06", parent);
-	moveSpeedEdit->setGeometry (loc.x+200, loc.y, 120, 25);
+	moveSpeedEdit->setGeometry (px+200, py, 120, 25);
 
-	loc.y -= 75;
-	loc.x += 320;
+	py -= 75;
+	px += 320;
 	movingBiasText = new QLabel ("Moving Tweezer Bias (/1)", parent);
-	movingBiasText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	movingBiasText->setGeometry (px, py += 25, 200, 25);
 	movingBiasEdit = new QLineEdit ("0.3", parent);
-	movingBiasEdit->setGeometry (loc.x+200, loc.y, 120, 25);
+	movingBiasEdit->setGeometry (px+200, py, 120, 25);
 
 	deadTimeText = new QLabel ("Dead Time (ns)", parent);
-	deadTimeText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	deadTimeText->setGeometry (px, py += 25, 200, 25);
 	deadTimeEdit = new QLineEdit ("0", parent);
-	deadTimeEdit->setGeometry (loc.x+200, loc.y, 120, 25);
+	deadTimeEdit->setGeometry (px+200, py, 120, 25);
 
 	staticMovingRatioText = new QLabel ("Static/Moving Ratio", parent);
-	staticMovingRatioText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	staticMovingRatioText->setGeometry (px, py += 25, 200, 25);
 	staticMovingRatioEdit = new QLineEdit ("1", parent);
-	staticMovingRatioEdit->setGeometry (loc.x+200, loc.y, 120, 25);
-	loc.x -= 320;
+	staticMovingRatioEdit->setGeometry (px+200, py, 120, 25);
+	px -= 320;
 	outputRearrangeEvents = new QCheckBox ("Output Event Info?", parent);
-	outputRearrangeEvents->setGeometry (loc.x, loc.y+=25, 320, 25);
+	outputRearrangeEvents->setGeometry (px, py+=25, 320, 25);
 	outputIndividualEvents = new QCheckBox ("Output Individual Event Info?", parent);
-	outputIndividualEvents->setGeometry (loc.x, loc.y+=25, 320, 25);
-	loc.y -= 50;
+	outputIndividualEvents->setGeometry (px, py+=25, 320, 25);
+	py -= 50;
 	preprogramMoves = new QCheckBox ("Preprogram Moves?", parent);
-	preprogramMoves->setGeometry (loc.x + 320, loc.y+=25, 320, 25);
+	preprogramMoves->setGeometry (px + 320, py+=25, 320, 25);
 	useCalibration = new QCheckBox ("Use Calibration?", parent);
-	useCalibration->setGeometry (loc.x + 320, loc.y += 25, 320, 25);
+	useCalibration->setGeometry (px + 320, py += 25, 320, 25);
 
 	finalMoveTimeText = new QLabel ("Final-Move-Time (ms): ", parent);
-	finalMoveTimeText->setGeometry (loc.x, loc.y += 25, 200, 25);
+	finalMoveTimeText->setGeometry (px, py += 25, 200, 25);
 	finalMoveTimeEdit = new QLineEdit ("1", parent);
-	finalMoveTimeEdit->setGeometry (loc.x+200, loc.y, 120, 25);
+	finalMoveTimeEdit->setGeometry (px+200, py, 120, 25);
 
 	rerngModeCombo = new QComboBox (parent);
-	rerngModeCombo->setGeometry (loc.x, loc.y += 25, 320, 25);
+	rerngModeCombo->setGeometry (px, py += 25, 320, 25);
 	for ( auto m : rerngMode::allModes )
 	{
 		rerngModeCombo->addItem (rerngMode::toStr (m).c_str ());
@@ -63,10 +63,10 @@ void rerngGuiControl::initialize (POINT& loc, QWidget* parent )
 	rerngModeCombo->setCurrentIndex (0);
 
 	fastMoveTime = new QLabel ("Fast-Move (us):", parent);
-	fastMoveTime->setGeometry (loc.x+320, loc.y, 200, 25);
+	fastMoveTime->setGeometry (px+320, py, 200, 25);
 	fastMoveTimeEdit = new QLineEdit ("2", parent);
-	fastMoveTimeEdit->setGeometry (loc.x+520, loc.y, 120, 25);
-	loc.y += 25;
+	fastMoveTimeEdit->setGeometry (px+520, py, 120, 25);
+	py += 25;
 
 	//updateActive ( );
 }

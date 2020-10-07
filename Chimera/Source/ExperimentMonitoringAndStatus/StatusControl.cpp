@@ -3,8 +3,9 @@
 #include "StatusControl.h"
 #include <PrimaryWindows/IChimeraQtWindow.h>
 
-void StatusControl::initialize (POINT& loc, IChimeraQtWindow* parent, long size,
+void StatusControl::initialize (QPoint& loc, IChimeraQtWindow* parent, long size,
 	std::string headerText, std::vector<std::string> textColors) {
+	int& px = loc.rx (), & py = loc.ry ();
 	if (textColors.size () == 0) {
 		thrower ("Need to set a nonzero number of colors for status control!");
 	}
@@ -12,13 +13,13 @@ void StatusControl::initialize (POINT& loc, IChimeraQtWindow* parent, long size,
 	//defaultColor = textColor;
 	header = new QLabel (headerText.c_str (), parent);
 	header->setFixedSize (230, 25);
-	header->move (loc.x, loc.y);
+	header->move (px, py);
 
 	debugLevelLabel = new QLabel ("Debug Level", parent);
-	debugLevelLabel->setGeometry (loc.x + 230, loc.y, 100, 25);
+	debugLevelLabel->setGeometry (px + 230, py, 100, 25);
 
 	debugLevelEdit = new CQLineEdit (parent);
-	debugLevelEdit->setGeometry (loc.x + 330, loc.y, 50, 25);
+	debugLevelEdit->setGeometry (px + 330, py, 50, 25);
 	debugLevelEdit->setText ("-1");
 	parent->connect (debugLevelEdit, &QLineEdit::textChanged, [this]() {
 		try {
@@ -33,14 +34,14 @@ void StatusControl::initialize (POINT& loc, IChimeraQtWindow* parent, long size,
 	clearBtn = new QPushButton (parent);
 	clearBtn->setText ("Clear");
 	clearBtn->setFixedSize (100, 25);
-	clearBtn->move (loc.x + 380, loc.y);
-	loc.y += 25;
+	clearBtn->move (px + 380, py);
+	py += 25;
 	edit = new QPlainTextEdit (parent);
-	edit->move (loc.x, loc.y);
+	edit->move (px, py);
 	edit->setFixedSize (480, size);
 	edit->setReadOnly (true);
 	edit->setStyleSheet ("QPlainTextEdit { color: " + qstr (textColors[0]) + "; }");
-	loc.y += size;
+	py += size;
 	parent->connect (clearBtn, &QPushButton::released, [this]() {clear (); });
 }
 

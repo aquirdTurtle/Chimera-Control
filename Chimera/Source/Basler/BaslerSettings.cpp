@@ -2,11 +2,8 @@
 #include "stdafx.h"
 #include "BaslerSettings.h"
 
-
-std::string BaslerAutoExposure::toStr( BaslerAutoExposure::mode m )
-{
-	switch ( m )
-	{
+std::string BaslerAutoExposure::toStr( BaslerAutoExposure::mode m ){
+	switch ( m ){
 		case mode::Continuous:
 			return "Auto-Exposure-Continous";
 		case mode::Once:
@@ -18,13 +15,9 @@ std::string BaslerAutoExposure::toStr( BaslerAutoExposure::mode m )
 	}
 }
 
-
-BaslerAutoExposure::mode BaslerAutoExposure::fromStr ( std::string txt )
-{
-	for ( auto m : { mode::Continuous, mode::Once, mode::Off } )
-	{
-		if ( txt == toStr ( m ) )
-		{
+BaslerAutoExposure::mode BaslerAutoExposure::fromStr ( std::string txt ){
+	for ( auto m : { mode::Continuous, mode::Once, mode::Off } )	{
+		if ( txt == toStr ( m ) ){
 			return m;
 		}
 	}
@@ -33,11 +26,8 @@ BaslerAutoExposure::mode BaslerAutoExposure::fromStr ( std::string txt )
 }
 
 
-std::string BaslerTrigger::toStr( BaslerTrigger::mode m )
-{
-	
-	switch ( m )
-	{
+std::string BaslerTrigger::toStr( BaslerTrigger::mode m ){	
+	switch ( m ){
 		case mode::External:
 			return "External-Trigger";
 		case mode::AutomaticSoftware:
@@ -50,8 +40,7 @@ std::string BaslerTrigger::toStr( BaslerTrigger::mode m )
 }
 
 
-BaslerTrigger::mode BaslerTrigger::fromStr ( std::string txt )
-{
+BaslerTrigger::mode BaslerTrigger::fromStr ( std::string txt ){
 	for ( auto m : { mode::External, mode::ManualSoftware, mode::AutomaticSoftware } ){
 		if ( txt == toStr ( m ) ){
 			return m;
@@ -62,10 +51,7 @@ BaslerTrigger::mode BaslerTrigger::fromStr ( std::string txt )
 	return BaslerTrigger::mode::External;
 }
 
-
-
-BaslerAcquisition::mode BaslerAcquisition::fromStr ( std::string txt )
-{
+BaslerAcquisition::mode BaslerAcquisition::fromStr ( std::string txt ){
 	for ( auto m : { mode::Continuous, mode::Finite } )	{
 		if ( txt == toStr ( m ) ) {
 			return m;
@@ -75,12 +61,8 @@ BaslerAcquisition::mode BaslerAcquisition::fromStr ( std::string txt )
 	return BaslerAcquisition::mode::Finite;
 }
 
-
-
-std::string BaslerAcquisition::toStr ( BaslerAcquisition::mode m )
-{
-	switch ( m )
-	{
+std::string BaslerAcquisition::toStr ( BaslerAcquisition::mode m ){
+	switch ( m ){
 		case mode::Finite:
 			return "Finite-Acquisition";
 		case mode::Continuous:

@@ -42,7 +42,7 @@ bool QtAuxiliaryWindow::eventFilter (QObject* obj, QEvent* event){
 }
 
 void QtAuxiliaryWindow::initializeWidgets (){
-	POINT loc{ 0, 25 };
+	QPoint loc{ 0, 25 };
 	try{
 		statBox->initialize (loc, this, 480, mainWin->getDevices (), 2);
 		ttlBoard.initialize (loc, this);
@@ -51,35 +51,27 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		topBottomTek.initialize (loc, this, "Top-Bottom-Tek", "Top", "Bottom", 480);
 		eoAxialTek.initialize (loc, this, "EO / Axial", "EO", "Axial", 480);
 		RohdeSchwarzGenerator.initialize (loc, this);
-		loc = POINT{ 480, 25 };
+		loc = QPoint{ 480, 25 };
 
 		agilents[whichAgTy::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
 		agilents[whichAgTy::Axial].initialize (loc, "Microwave-Axial-Agilent", 100, this);
 		agilents[whichAgTy::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
 		agilents[whichAgTy::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
-		loc = POINT{ 1440, 25 };
+		loc = QPoint{ 1440, 25 };
 		globalParameters.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global);
 		configParameters.initialize (loc, this, "CONFIGURATION PARAMETERS", ParameterSysType::config);
 		dds.initialize (loc, this, "DDS SYSTEM");
 		piezo1.initialize (loc, this, 240, { "Top-x", "Top-y", "Axial-y" });
-		loc.x += 240;
-		loc.y -= 85;
+		loc.rx() += 240;
+		loc.ry() -= 85;
 		piezo2.initialize (loc, this, 240, { "EO-x", "EO-y", "Axial-x" });
 		configParameters.setParameterControlActive (false);
-		loc.x -= 240;
+		loc.rx() -= 240;
 		piezo3.initialize (loc, this, 240, { "Bot-x", "Bot-y", "---" });
 		optimizer.initialize (loc, this);
-		loc = POINT{ 960, 25 };
+
+		loc = QPoint{ 960, 25 };
 		aoPlots.resize (NUM_DAC_PLTS);
-		dacData.resize (NUM_DAC_PLTS);
-		unsigned linesPerDacPlot = 24 / dacData.size ();
-		// initialize data structures.
-		for (auto& dacPlotData : dacData){
-			dacPlotData = std::vector<pPlotDataVec> (linesPerDacPlot);
-			for (auto& data : dacPlotData){
-				data = pPlotDataVec (new plotDataVec (100, { 0,0,0 }));
-			}
-		}
 		// initialize plot controls.
 		unsigned dacPlotSize = 500 / NUM_DAC_PLTS;
 		for (auto dacPltCount : range (aoPlots.size ())){
@@ -100,14 +92,6 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		}
 		// ttl plots are similar to aoSys.
 		ttlPlots.resize (NUM_TTL_PLTS);
-		ttlData.resize (NUM_TTL_PLTS);
-		unsigned linesPerTtlPlot = 64 / ttlData.size ();
-		for (auto& ttlPlotData : ttlData){
-			ttlPlotData = std::vector<pPlotDataVec> (linesPerTtlPlot);
-			for (auto& d : ttlPlotData){
-				d = pPlotDataVec (new plotDataVec (100, { 0,0,0 }));
-			}
-		}
 		unsigned ttlPlotSize = 500 / NUM_TTL_PLTS;
 		for (auto ttlPltCount : range (ttlPlots.size ())){
 			// currently assuming 4 ttl plots...
@@ -194,21 +178,18 @@ void QtAuxiliaryWindow::newAgilentScript (whichAgTy::agilentNames name){
 	}
 }
 
-void QtAuxiliaryWindow::openAgilentScript (whichAgTy::agilentNames name, IChimeraQtWindow* parent)
-{
-	try
-	{
+void QtAuxiliaryWindow::openAgilentScript (whichAgTy::agilentNames name, IChimeraQtWindow* parent){
+	try{
 		agilents[name].verifyScriptable ();
 		mainWin->updateConfigurationSavedStatus (false);
 		agilents[name].agilentScript.checkSave (mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
-		std::string openFileName = openWithExplorer (parent, AGILENT_SCRIPT_EXTENSION);
+		std::string openFileName = openWithExplorer (parent, Script::AGILENT_SCRIPT_EXTENSION);
 		agilents[name].agilentScript.openParentScript (openFileName,
 			mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
 		agilents[name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
 	}
-	catch (ChimeraError& err)
-	{
+	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
 	}
 }
@@ -425,8 +406,6 @@ DoCore& QtAuxiliaryWindow::getTtlCore (){
 
 void QtAuxiliaryWindow::fillMasterThreadInput (ExperimentThreadInput* input){
 	try	{
-		input->dacData = dacData;
-		input->ttlData = ttlData;
 		input->globalParameters = globalParameters.getAllParams ();
 		if (aiSys.wantsQueryBetweenVariations ()) {
 			input->numAiMeasurements = configParameters.getTotalVariationNumber ();

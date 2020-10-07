@@ -94,9 +94,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 
     private:
         Ui::QtAuxiliaryWindow* ui;
-
-		int plotIds = 17002;
-		
 		std::string title;
 		/// control system classes
 		MicrowaveSystem RohdeSchwarzGenerator;
@@ -113,7 +110,6 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 
 		std::vector<PlotCtrl*> aoPlots;
 		std::vector<PlotCtrl*> ttlPlots;
-		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
 		unsigned NUM_DAC_PLTS = 3;
 		unsigned NUM_TTL_PLTS = 4;
 

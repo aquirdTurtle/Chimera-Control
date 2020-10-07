@@ -17,13 +17,6 @@
 #include <QComboBox.h>
 #include <GeneralObjects/IChimeraSystem.h>
 
-class MainWindow;
-class ScriptingWindow;
-class AuxiliaryWindow;
-class AndorWindow;
-class BaslerWindow;
-class DeformableMirrorWindow;
-
 /*
     This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the 
 	settings in the code (strange word choice I	know). It consists of the relevant controls, some saved indicators 
@@ -32,6 +25,8 @@ class DeformableMirrorWindow;
 */
 class ConfigSystem : public IChimeraSystem {
 	public:
+		static constexpr auto CONFIG_EXTENSION = "Config";
+
 		ConfigSystem(std::string fileSystemPath, IChimeraQtWindow* parent);
 
 		void checkSaveEntireProfile(IChimeraQtWindow* win);
@@ -54,7 +49,7 @@ class ConfigSystem : public IChimeraSystem {
 		static void reloadCombo (QComboBox* combo, std::string locationToLook, std::string extension,
 								  std::string nameToLoad );
 		bool fileOrFolderExists ( std::string filePathway );
-		void initialize( POINT& topLeftPosition, IChimeraQtWindow* win);
+		void initialize( QPoint& topLeftPosition, IChimeraQtWindow* win);
 		void handleSelectConfigButton(IChimeraQtWindow* win);
 		
 		template <class sysType>
@@ -107,7 +102,8 @@ class ConfigSystem : public IChimeraSystem {
 		// Version 5.4: Added Auto Bump Analysis Options
 		// Version 5.5: Added Andor transformation Mode Option
 		// Version 5.6: Added Andor Control option
-		const Version version = Version( "5.6" );
+		// Version 5.7: Added Basler Control Option
+		const Version version = Version( "5.7" );
 
 		QCheckBox* configurationSavedIndicator;
 		QPushButton* selectConfigButton;
@@ -115,41 +111,33 @@ class ConfigSystem : public IChimeraSystem {
 };
 
 template <class sysType>
-static void ConfigSystem::standardOpenConfig (ConfigStream& openFile, std::string delim, sysType* this_in, Version minVer )
-{
+static void ConfigSystem::standardOpenConfig (ConfigStream& openFile, std::string delim, sysType* this_in, Version minVer ){
 	ConfigSystem::standardOpenConfig ( openFile, delim, "END_" + delim, this_in, minVer );
 }
 
 template <class sysType>
 static void ConfigSystem::standardOpenConfig ( ConfigStream& configStream, std::string delim, std::string endDelim, 
-												sysType* this_in, Version minVer )
-{
+												sysType* this_in, Version minVer ){
 	// sysType must have a member function of the form
 	// void ( *sysType::openFunction )( ConfigStream& f )
-	try
-	{
+	try	{
 		ConfigSystem::initializeAtDelim ( configStream, delim, minVer );
 	}
-	catch ( ChimeraError& e )
-	{
+	catch ( ChimeraError& e ){
 		errBox ( "Failed to initialize config file for " + delim + "!\n\n" + e.trace ( ) );
 		return;
 	}
-	try
-	{
+	try{
 		this_in->handleOpenConfig( configStream );
 	}
-	catch ( ChimeraError& e )
-	{
+	catch ( ChimeraError& e ){
 		errBox ( "Failed to gather information from config file for " + delim + "!\n\n" + e.trace ( ) );
 		return;
 	}
-	try
-	{
+	try{
 		ConfigSystem::checkDelimiterLine ( configStream, endDelim );
 	}
-	catch ( ChimeraError& e )
-	{
+	catch ( ChimeraError& e ){
 		errBox ( "End delimiter for the " + delim + " control was not found. This might indicate that the "
 				 "control did not initialize properly.\n\n" + e.trace() );
 	}

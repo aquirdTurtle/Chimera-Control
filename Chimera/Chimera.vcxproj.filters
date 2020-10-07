@@ -165,9 +165,6 @@
     <ClCompile Include="Source\LowLevel\stdafx.cpp">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClCompile>
-    <ClCompile Include="Source\LowLevel\externals.cpp">
-      <Filter>Constants, Externals, Etc.</Filter>
-    </ClCompile>
     <ClCompile Include="Source\GeneralUtilityFunctions\commonFunctions.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
@@ -297,6 +294,9 @@
     </ClCompile>
     <ClCompile Include="Source\ExcessDialogs\AoSettingsDialog.cpp">
       <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ConfigurationSystems\profileSettings.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -464,9 +464,6 @@
     <ClInclude Include="Source\Andor\CameraImageDimensions.h">
       <Filter>Andor Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Andor\cameraPositions.h">
-      <Filter>Andor Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h">
       <Filter>General Files</Filter>
     </ClInclude>
@@ -518,9 +515,6 @@
     <ClInclude Include="Source\RealTimeDataAnalysis\MachineOptimizer.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GeneralImaging\memdc.h">
-      <Filter>Misc-Small-Funcs-And-Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Plotting\tinyPlotInfo.h">
       <Filter>Andor Window\Structures</Filter>
     </ClInclude>
@@ -528,9 +522,6 @@
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
     <ClInclude Include="Source\LowLevel\constants.h">
-      <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\LowLevel\externals.h">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
     <ClInclude Include="Source\LowLevel\resource.h">
@@ -610,7 +601,6 @@
     <ClInclude Include="Source\MiscellaneousExperimentOptions\Repetitions.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
     <ClInclude Include="Source\Tektronix\TektronixStructures.h" />
     <ClInclude Include="Source\Tektronix\TektronixAfgControl.h" />
     <ClInclude Include="Source\Tektronix\TektronixChannelControl.h" />
@@ -698,8 +688,6 @@
     </Image>
     <Image Include="Source\LowLevel\Atom.ico" />
     <Image Include="Source\LowLevel\JILA.bmp" />
-    <Image Include="Source\LowLevel\bitmap2.bmp" />
-    <Image Include="Source\LowLevel\bitmap3.bmp" />
     <Image Include="Source\Shades_Of_Infrared.bmp" />
     <Image Include="Source\LowLevel\Shades_Of_Infrared.bmp" />
   </ItemGroup>

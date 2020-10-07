@@ -25,7 +25,7 @@ END_MESSAGE_MAP()
 
 BOOL PlotDesignerDialog::OnInitDialog( )
 {
-	POINT pos = { 0,0 };
+	QPoint pos = { 0,0 };
 	unsigned id = 5000;
 	plotPropertiesText.Create( "Plot Properties", NORM_HEADER_OPTIONS, { pos.x, pos.y, pos.x + 480, pos.y += 25 },
 							   this, id++ );

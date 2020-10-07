@@ -7,35 +7,36 @@
 #include <boost/lexical_cast.hpp>
 #include <qdebug.h>
 
-void MainOptionsControl::initialize( POINT& loc, IChimeraQtWindow* parent ){
+void MainOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
+	auto& px = loc.rx (), & py = loc.ry ();
 	header = new QLabel ("MAIN OPTIONS", parent);
-	header->setGeometry (QRect (loc.x, loc.y, 480, 20));
-	loc.y += 20;
+	header->setGeometry (QRect (px, py, 480, 20));
+	py += 20;
 	
 	randomizeRepsButton = new QCheckBox ("Randomize Repetitions?", parent);
-	randomizeRepsButton->setGeometry (QRect (loc.x, loc.y, 480, 20));
+	randomizeRepsButton->setGeometry (QRect (px, py, 480, 20));
 	randomizeRepsButton->setEnabled (false);
 	auto configUpdate = [parent]() {parent->configUpdated (); };
 	parent->connect (randomizeRepsButton, &QCheckBox::stateChanged, configUpdate);
-	loc.y += 20;
+	py += 20;
 
 	randomizeVariationsButton = new QCheckBox ("Randomize Variations?", parent);
-	randomizeVariationsButton->setGeometry (QRect (loc.x, loc.y, 480, 20));
+	randomizeVariationsButton->setGeometry (QRect (px, py, 480, 20));
 	parent->connect (randomizeVariationsButton, &QCheckBox::stateChanged, configUpdate);
-	loc.y += 20;
+	py += 20;
 
 	delayAutoCal = new QCheckBox ("Delay Auto-Calibration", parent);
-	delayAutoCal->setGeometry (loc.x, loc.y, 480, 20);
+	delayAutoCal->setGeometry (px, py, 480, 20);
 	delayAutoCal->setChecked (false);
-	loc.y += 20;
+	py += 20;
 
 	atomThresholdForSkipText = new QLabel ("Atom Threshold for Load Skip:", parent);
-	atomThresholdForSkipText->setGeometry (loc.x, loc.y, 240, 25);
+	atomThresholdForSkipText->setGeometry (px, py, 240, 25);
 	atomThresholdForSkipEdit = new QLineEdit ("-1", parent);
-	atomThresholdForSkipEdit->setGeometry (loc.x+240, loc.y, 240, 25);
+	atomThresholdForSkipEdit->setGeometry (px+240, py, 240, 25);
 	parent->connect (atomThresholdForSkipEdit, &QLineEdit::textChanged, configUpdate);
 
-	loc.y += 25;
+	py += 25;
 	currentOptions.randomizeReps = false;
 	currentOptions.randomizeVariations = true;
 }

@@ -23,7 +23,7 @@ class MainOptionsControl{
 		void handleSaveConfig(ConfigStream& saveFile);
 		static mainOptions getSettingsFromConfig(ConfigStream& openFile );
 		void setOptions ( mainOptions opts );
-		void initialize(POINT& loc, IChimeraQtWindow* parent );
+		void initialize(QPoint& loc, IChimeraQtWindow* parent );
 		mainOptions getOptions();
 
 	private:

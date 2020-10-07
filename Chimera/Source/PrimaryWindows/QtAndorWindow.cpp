@@ -35,7 +35,7 @@ int QtAndorWindow::getDataCalNum () {
 
 void QtAndorWindow::initializeWidgets (){
 	andor.initializeClass (this, &imageTimes);
-	POINT position = { 0,25 };
+	QPoint position = { 0,25 };
 	statBox->initialize (position, this, 480, mainWin->getDevices (), 2);
 	alerts.alertMainThread (0);
 	alerts.initialize (position, this);
@@ -701,31 +701,8 @@ void QtAndorWindow::completePlotterStart () {
 	// remove old plots that aren't trying to sustain.
 	unsigned mainPlotInc = 0;
 	for (auto plotParams : pltInput->plotInfo) {
-		// Create vector of data to be shared between plotter and data analysis handler. 
-		std::vector<pPlotDataVec> data;
-		// assume 1 data set...
-		unsigned numDataSets = 1;
-		// +1 for average line
-		unsigned numLines = numDataSets * (pltInput->grids[plotParams.whichGrid].height
-			* pltInput->grids[plotParams.whichGrid].width + 1);
-		data.resize (numLines);
-		for (auto& line : data) {
-			line = pPlotDataVec (new plotDataVec (1, { 0, -1, 0 }));
-			line->resize (1);
-			// initialize x axis for all data sets.
-			unsigned count = 0;
-		}
-		bool usedDlg = false;
 		plotStyle style = plotParams.isHist ? plotStyle::HistPlot : plotStyle::ErrorPlot;
-		while (true) {
-			if (mainPlotInc >= 6) {
-				// TODO: put extra plots in dialogs.
-				usedDlg = true;
-				break;
-			}
-			break;
-		}
-		if (!usedDlg && mainPlotInc < 6) {
+		if (mainPlotInc < 6) {
 			mainAnalysisPlots[mainPlotInc]->setStyle (style);
 			mainAnalysisPlots[mainPlotInc]->setThresholds (andorSettingsCtrl.getConfigSettings ().thresholds[0]);
 			mainAnalysisPlots[mainPlotInc]->setTitle (plotParams.name);

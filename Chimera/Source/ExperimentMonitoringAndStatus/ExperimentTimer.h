@@ -1,6 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-#include "Andor/cameraPositions.h"
 #include <vector>
 #include "Control.h"
 #include <qlabel>
@@ -10,7 +9,7 @@
 class ExperimentTimer
 {
 	public:
-		void initialize( POINT& inputLoc, IChimeraQtWindow* parent );
+		void initialize( QPoint& inputLoc, IChimeraQtWindow* parent );
 		void update( unsigned __int64 currentRepNumber, unsigned __int64 repsPerVariation, unsigned __int64 numberOfVariations, 
 					 unsigned picsPerRep );
 		void setTimerDisplay( std::string newText );

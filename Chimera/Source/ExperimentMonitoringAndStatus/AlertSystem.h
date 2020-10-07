@@ -2,7 +2,6 @@
 #pragma once
 #include <Mmsystem.h>
 #include <mciapi.h>
-#include "Andor/cameraPositions.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
 #include <qlabel.h>
 #include <qcheckbox.h>
@@ -19,7 +18,7 @@ class AlertSystem
 			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
 		}
 		~AlertSystem() { mciSendString( "close mp3", NULL, 0, NULL ); }
-		void initialize( POINT& positions, IChimeraQtWindow* parent );
+		void initialize( QPoint& positions, IChimeraQtWindow* parent );
 		void alertMainThread( int level );
 		void soundAlert();
 		unsigned getAlertThreshold();

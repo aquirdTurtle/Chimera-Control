@@ -18,7 +18,7 @@ class MainWindow;
 class ImageDimsControl{
 	public:
 		ImageDimsControl(std::string whichCam);
-		void initialize( POINT& pos, IChimeraQtWindow* parentWindow, int numRows, int width);
+		void initialize( QPoint& pos, IChimeraQtWindow* parentWindow, int numRows, int width);
 		imageParameters readImageParameters();
 		void setImageParametersFromInput( imageParameters param );
 		bool checkReady();

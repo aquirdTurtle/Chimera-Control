@@ -81,33 +81,6 @@ QtMainWindow::QtMainWindow () :
 		errBox (err.trace ());
 	}
 	setWindowTitle ("Main Window");
-
-	QThread* motThread = new QThread;
-	QThread* masterRepumpThread = new QThread;
-	QThread* expScopeThread = new QThread;
-	ScopeThreadWorker* motWorker = new ScopeThreadWorker (&motScope);
-	ScopeThreadWorker* masterRepumpWorker = new ScopeThreadWorker (&masterRepumpScope);
-	ScopeThreadWorker* expScopeWorker = new ScopeThreadWorker (&expScope);
-
-	motWorker->moveToThread (motThread);
-	masterRepumpWorker->moveToThread (masterRepumpThread);
-	expScopeWorker->moveToThread (expScopeThread);
-
-	connect (motThread, SIGNAL (started ()), motWorker, SLOT (process ()));
-	connect (motWorker, &ScopeThreadWorker::newData, &motScope, &ScopeViewer::updateData);
-	connect (motThread, SIGNAL (finished ()), motThread, SLOT (deleteLater ()));
-	motThread->start ();
-
-	connect (masterRepumpThread, SIGNAL (started ()), masterRepumpWorker, SLOT (process ()));
-	connect (masterRepumpWorker, &ScopeThreadWorker::newData, &masterRepumpScope, &ScopeViewer::updateData);
-	connect (masterRepumpThread, SIGNAL (finished ()), masterRepumpThread, SLOT (deleteLater ()));
-	masterRepumpThread->start ();
-
-	connect (expScopeThread, SIGNAL (started ()), expScopeWorker, SLOT (process ()));
-	connect (expScopeWorker, &ScopeThreadWorker::newData, &expScope, &ScopeViewer::updateData);
-	connect (expScopeThread, SIGNAL (finished ()), expScopeThread, SLOT (deleteLater ()));
-	expScopeThread->start ();
-
 	updateConfigurationSavedStatus (true);
 
 	/// summarize system status.
@@ -130,7 +103,7 @@ QtMainWindow::QtMainWindow () :
 		// should auto quit in the handling here if calibration has already been completed for the day. 
 		commonFunctions::handleCommonMessage (ID_ACCELERATOR_F11, this);
 		});
-	// 10 minutes
+	// 6 minutes
 	timer->start (360000);
 }
 
@@ -150,7 +123,7 @@ void QtMainWindow::pauseExperiment () {
 
 void QtMainWindow::initializeWidgets (){
 	/// initialize main window controls.
-	POINT controlLocation = { 0, 25 };
+	QPoint controlLocation = { 0, 25 };
 	mainStatus.initialize (controlLocation, this, 870, "EXPERIMENT STATUS", { "#7474FF","#4848FF","#2222EF" });
 	statBox->initialize (controlLocation, this, 960, getDevices ());
 	shortStatus.initialize (controlLocation, this);
@@ -201,7 +174,7 @@ void QtMainWindow::onMachineOptRoundFin (){
 	onNormalFinish ("", {});
 	Sleep (1000);
 	// then restart.
-	commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
+	//commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, this);
 }
 
 void QtMainWindow::loadCameraCalSettings (ExperimentThreadInput* input){
@@ -436,8 +409,7 @@ void QtMainWindow::updateConfigurationSavedStatus (bool status){
 	profile.updateConfigurationSavedStatus (status);
 }
 
-void QtMainWindow::addTimebar (std::string whichStatus)
-{
+void QtMainWindow::addTimebar (std::string whichStatus){
 	std::transform (whichStatus.begin (), whichStatus.end (), whichStatus.begin (), ::tolower);
 	if (whichStatus == "error")	{
 		errorStatus.appendTimebar ();

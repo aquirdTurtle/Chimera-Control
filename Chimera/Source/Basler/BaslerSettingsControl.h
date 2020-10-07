@@ -17,11 +17,10 @@
 #include <qlineedit.h>
 #include <qcombobox.h>
 
-class BaslerSettingsControl
-{
+class BaslerSettingsControl{
 	public:
 		BaslerSettingsControl ( );
-		void initialize( POINT& pos, int picWidth, int picHeight, POINT cameraDims, IChimeraQtWindow* qtp );
+		void initialize( QPoint& pos, int picWidth, int picHeight, QPoint cameraDims, IChimeraQtWindow* qtp );
 		void redrawMotIndicator ( );
 		void handleGain();
 		void setStatus(std::string status);
@@ -46,6 +45,8 @@ class BaslerSettingsControl
 		unsigned long lastTime;
 		baslerSettings currentSettings;
 		QLabel* statusText;
+		//
+		CQCheckBox* baslerExpActiveCheck;
 		// exposure
 		QLabel* exposureText;
 		QComboBox* exposureModeCombo;

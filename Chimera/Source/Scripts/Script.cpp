@@ -20,8 +20,9 @@
 #include <qcombobox.h>
 #include <QInputDialog.h>
 
-void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* parent,
+void Script::initialize (int width, int height, QPoint& loc, IChimeraQtWindow* parent,
 	std::string deviceTypeInput, std::string scriptHeader){
+	auto& px = loc.rx (), & py = loc.ry ();
 	deviceType = deviceTypeInput;
 	ScriptableDevice devenum;
 	if (deviceTypeInput == "NIAWG") {
@@ -42,37 +43,105 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 	}
 	if (scriptHeader != "")	{
 		title = new QLabel (cstr (scriptHeader), parent);
-		title->setGeometry (loc.x, loc.y, width, 25);
-		loc.y += 25;
+		title->setGeometry (px, py, width, 25);
+		py += 25;
 	}
 	savedIndicator = new CQCheckBox ("Saved?", parent);
-	savedIndicator->setGeometry (loc.x, loc.y, 80, 20);
+	savedIndicator->setGeometry (px, py, 80, 20);
 	savedIndicator->setChecked (true);
 	savedIndicator->setEnabled (false);
 	fileNameText = new QLabel ("", parent);
-	fileNameText->setGeometry (loc.x + 80, loc.y, width - 100, 20);
+	fileNameText->setGeometry (px + 80, py, width - 100, 20);
 	isSaved = true;
 	help = new QLabel ("?", parent);
-	help->setGeometry (loc.x + width - 20, loc.y, 20, 20);
+	help->setGeometry (px + width - 20, py, 20, 20);
 	if (deviceType == "Master"){
-		help->setToolTip (MASTER_HELP);
+		help->setToolTip ("This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
+							"Acceptable Commands:\n"
+							"-      t++\n"
+							"-      t+= [number] (space between = and number required)\n"
+							"-      t= [number] (space between = and number required)\n"
+							"-      on: [ttlName]\n"
+							"-      off: [ttlName]\n"
+							"-      pulseon: [ttlName] [pulseLength]\n"
+							"-      pulseoff: [ttlName] [pulseLength]\n"
+							"-      dac: [dacName] [voltage]\n"
+							"-      dacarange: [dacName] [initValue] [finalValue] [rampTime] [rampInc]\n"
+							"-      daclinspace: [dacName] [initValue] [finalValue] [rampTime] [numberOfSteps]\n"
+							"-      def [functionName]([functionArguments]):\n"
+							"-      call [functionName(argument1, argument2, etc...)]\n"
+							"-      repeat: [numberOfTimesToRepeat]\n"
+							"-           %Commands...\n"
+
+							"-      end % (of repeat)\n"
+							"-      callcppcode\n"
+							"-      % marks a line as a comment. %% does the same and gives you a different color.\n"
+							"-      extra white-space is generally fine and doesn't screw up analysis of the script. Format as you like.\n"
+							"-      Simple Math (+-/*) is supported in the scripts as well. To insert a mathematical expresion, just \n"
+							"-      add parenthesis () around the full expression");
 	}
 	else if( deviceType == "NIAWG"){
-		help->setToolTip (SCRIPT_INFO_TEXT);
+		help->setToolTip (">>> This is a script for programming the NI AWG 5451. <<<\n"
+							"- the input format is referenced below using angled brackets <...>. Place the input on\n"
+							" the line below the command in the format specified.\n"
+							"- The ramping type options are currently \"lin\", \"tanh\" and \"nr\".\n"
+							"- The associated c++ code has been designed to be flexible when it comes to trailing white spaces at the ends of\n"
+							" lines and in between commands, so use whatever such formatting pleases your eyes.\n"
+							"Accepted Commands:\n"
+							"(a)Wait Commands\n"
+							"\"waitTilTrig\"\n"
+							"\"waitSet# <# of samples to wait>\"\n"
+							"(b)Repeat Commands\n"
+							"\"repeatSet# <# of times to repeat>\"\n"
+							"\"repeatTilTrig\"\n"
+							"\"repeatForever\"\n"
+							"\"endRepeat\"\n"
+							"(c)Logic Commands\n"
+							"\"ifTrig\"\n"
+							"\"else\"\n"
+							"\"endIf\"\n"
+							"(d)Constant Waveforms\n"
+							"\"gen2const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
+							"(e)Amplitude Ramps\n"
+							"\"gen2ampramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
+							"(f)frequency Ramps\n"
+							"\"gen2freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
+							"Etc.\n"
+							"(g)Amplitude and Frequency Ramps\n"
+							"\"gen2freq&ampramp <freq1 ramp type> <init freq1> <fin freq1> <amp ramp1 type> <init ramp1> <fin ramp1> <phase1 (rad)>;...\n"
+							"...<similar for 2nd>; <time> <t manage>\"\n"
+							"(j)Create marker event after last waveform\n"
+							"\"markerEvent <samples after previous waveform to wait>\"\n");
 	}
 	else if (deviceType == "Agilent"){
-		help->setToolTip (AGILENT_INFO_TEXT);
+		help->setToolTip (">>> Scripted Agilent Waveform Help <<<\n"
+						"Accepted Commands (syntax for command is encased in <>)\n"
+						"- hold <val> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+						"- ramp <type> <initVal> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+						"- pulse <pulse type> <vOffset> <amp> <pulse-width> <time-offset (ms)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+						"- modPulse <pulse-type> <vOffset> <amp> <pulse-width> <t-offset (ms)> <mod-Freq(MHz)> <mod-Phase(Rad)> <time(ms)> <Continuation Type> <Repeat #>\n"
+						"The continuation type determines what the agilent does when it reaches the end of the <time> \n"
+						"argument. Accepted Values for the continuation type are:\n"
+						"- repeat <requires repeat #>\n"
+						"- repeatUntilTrig\n"
+						"- once\n"
+						"- repeatForever\n"
+						"- onceWaitTrig\n"
+						"Accepted ramp types are:\n"
+						"- nr (no ramp)\n"
+						"- lin\n"
+						"- tanh\n"
+						"Accepted pulse types are:\n"
+						"- sech, ~ sech(time/width)\n"
+						"- gaussian, width = gaussian sigma\n"
+						"- lorentzian, width = FWHM (curve is normalized)\n");
 	}
 	else{
 		help->setToolTip ("No Help available");
 	}
-	// don't want this for the scripting window, hence the extra check.
-	if (deviceType == "Agilent"){
-		help->setToolTip (AGILENT_INFO_TEXT);
-	}
-	loc.y += 20;
+	py += 20;
 	availableFunctionsCombo.combo = new CQComboBox (parent);
-	availableFunctionsCombo.combo->setGeometry (loc.x, loc.y, width, 25);
+	availableFunctionsCombo.combo->setGeometry (px, py, width, 25);
 	loadFunctions ();
 	availableFunctionsCombo.combo->setCurrentIndex (0);
 	parent->connect (availableFunctionsCombo.combo, qOverload<int> (&QComboBox::activated), [this, parent]() {
@@ -83,10 +152,10 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 		catch (ChimeraError & err) {
 			parent->reportErr (err.qtrace ());
 		}});
-	loc.y += 25;
+	py += 25;
 
 	edit = new CQTextEdit ("", parent);
-	edit->setGeometry (loc.x, loc.y, width, height);
+	edit->setGeometry (px, py, width, height);
 	edit->setAcceptRichText (false);
 	QFont font;
 	font.setFamily ("Courier");
@@ -98,7 +167,7 @@ void Script::initialize (int width, int height, POINT& loc, IChimeraQtWindow* pa
 
 	parent->connect (edit, &QTextEdit::textChanged, [this, parent]() { updateSavedStatus (false); });
 	highlighter = new SyntaxHighlighter (devenum, edit->document ());
-	loc.y += height;
+	py += height;
 }
 
 void Script::functionChangeHandler(std::string configPath){

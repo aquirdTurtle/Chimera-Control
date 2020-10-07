@@ -4,84 +4,85 @@
 #include "ConfigurationSystems/ConfigSystem.h"
 #include <boost/lexical_cast.hpp>
 
-void DebugOptionsControl::initialize( POINT& loc, IChimeraQtWindow* parent ){
+void DebugOptionsControl::initialize( QPoint& loc, IChimeraQtWindow* parent ){
+	auto& px = loc.rx (), & py = loc.ry ();
 	// Debugging Options Title
 	header = new QLabel ("DEBUGGING OPTIONS", parent);
-	header->setGeometry (loc.x, loc.y, 480, 25);
-	loc.y += 25;
+	header->setGeometry (px, py, 480, 25);
+	py += 25;
 	unsigned count = 0;
 	niawgMachineScript = new QCheckBox ("Show Machine NIAWG Script?", parent);
-	niawgMachineScript->setGeometry (loc.x, loc.y, 240, 20);
+	niawgMachineScript->setGeometry (px, py, 240, 20);
 	niawgMachineScript->setChecked( true );
 	auto configUpdate = [parent]() {parent->configUpdated (); };
 	parent->connect (niawgMachineScript, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputNiawgMachineScript = true;
-	loc.y += 20;
+	py += 20;
 	outputAgilentScript = new QCheckBox ("Show Agilent Script?", parent);
-	outputAgilentScript->setGeometry (loc.x, loc.y, 240, 20);
+	outputAgilentScript->setGeometry (px, py, 240, 20);
 	outputAgilentScript->setChecked( true );
 	parent->connect (outputAgilentScript, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputAgilentScript = true;
-	loc.y += 20;
+	py += 20;
 	///
 	niawgScript = new QCheckBox ("Show Human NIAWG Script", parent);
 	niawgScript->setChecked( true );
-	niawgScript->setGeometry (loc.x, loc.y, 240, 20);
+	niawgScript->setGeometry (px, py, 240, 20);
 	parent->connect (niawgScript, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputNiawgHumanScript = true;
-	loc.y += 20;
+	py += 20;
 	///
 	readProgress = new QCheckBox ("Show Wvfm Read Progress?", parent);
-	readProgress->setGeometry (loc.x, loc.y, 240, 20);
+	readProgress->setGeometry (px, py, 240, 20);
 	readProgress->setChecked( true );
 	parent->connect (readProgress, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.showReadProgress = true;
-	loc.y += 20;
+	py += 20;
 	///
 	writeProgress = new QCheckBox ("Show Wvfm Write Progress", parent);
-	writeProgress->setGeometry (loc.x, loc.y, 240, 20);
+	writeProgress->setGeometry (px, py, 240, 20);
 	writeProgress->setChecked( true );
 	parent->connect (writeProgress, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.showWriteProgress = true;
-	loc.y += -80;
+	py += -80;
 	///
 	correctionTimes = new QCheckBox ("Show Phase Correction Wvfm Times?", parent);
-	correctionTimes->setGeometry (loc.x+240, loc.y, 240, 20);
+	correctionTimes->setGeometry (px+240, py, 240, 20);
 	correctionTimes->setChecked( true );
 	parent->connect (correctionTimes, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.showCorrectionTimes = true;
-	loc.y += 20;
+	py += 20;
 	///
 	excessInfo = new QCheckBox ("Show Excess Run Info?", parent);
-	excessInfo->setGeometry (loc.x + 240, loc.y, 240, 20);
+	excessInfo->setGeometry (px + 240, py, 240, 20);
 	excessInfo->setChecked( true );
 	parent->connect (excessInfo, &QCheckBox::stateChanged, configUpdate);
 	currentOptions.outputExcessInfo = true;
-	loc.y += 20;
+	py += 20;
 
 	outputNiawgWavesToText = new QCheckBox ("Output Niawg Wvfms to .txt?", parent);
-	outputNiawgWavesToText->setGeometry (loc.x + 240, loc.y, 240, 20);
+	outputNiawgWavesToText->setGeometry (px + 240, py, 240, 20);
 	parent->connect (outputNiawgWavesToText, &QCheckBox::stateChanged, configUpdate);
 
-	loc.y += 20;
+	py += 20;
 	showTtlsButton = new QCheckBox ("Show All TTL Events?", parent);
-	showTtlsButton->setGeometry (loc.x + 240, loc.y, 240, 20);
+	showTtlsButton->setGeometry (px + 240, py, 240, 20);
 	parent->connect (showTtlsButton, &QCheckBox::stateChanged, configUpdate);
 
-	loc.y += 20;
+	py += 20;
 	showDacsButton = new QCheckBox ("Show all DAC Events?", parent);
-	showDacsButton->setGeometry (loc.x + 240, loc.y, 240, 20);
+	showDacsButton->setGeometry (px + 240, py, 240, 20);
 	parent->connect (showDacsButton, &QCheckBox::stateChanged, configUpdate);
 
-	loc.y += 20;
+	py += 20;
 	pauseText = new QLabel ("Pause Btwn Variations (ms):", parent);
-	pauseText->setGeometry (loc.x, loc.y, 280, 20);
+	pauseText->setGeometry (px, py, 280, 20);
 
 	pauseEdit = new QLineEdit ("0", parent);
-	pauseEdit->setGeometry (loc.x + 280, loc.y, 200, 20);
+	pauseEdit->setGeometry (px + 280, py, 200, 20);
 	parent->connect (pauseEdit, &QLineEdit::textChanged, configUpdate);
 
-	loc.y += 20;
+	py += 20;
 }
 
 

@@ -12,7 +12,7 @@
 class StatusControl
 {
 	public:
-		void initialize(POINT &topLeftCorner, IChimeraQtWindow* parent, long size, std::string headerText, 
+		void initialize(QPoint& loc, IChimeraQtWindow* parent, long size, std::string headerText,
 			std::vector<std::string> textColors);
 		void addStatusText(std::string text, unsigned level = 0);
 		void addStatusText (std::string text, std::string color);

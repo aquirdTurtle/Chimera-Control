@@ -20,6 +20,12 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 		thrower ("Basler settings requires version 4.0+ Configuration files");
 	}
 	baslerSettings newSettings;
+	if (configFile.ver > Version ("5.6")) {
+		configFile >> newSettings.expActive;
+	}
+	else {
+		newSettings.expActive = true;
+	}
 	std::string txt;
 
 	configFile >> txt;
@@ -111,12 +117,12 @@ std::string BaslerCameraCore::getCameraInfo(){
 // Can change this for nicer defaults.
 baslerSettings BaslerCameraCore::getDefaultSettings(){
 	baslerSettings defaultSettings;
-	POINT dim = getCameraDimensions();
+	QPoint dim = getCameraDimensions();
 	defaultSettings.picsPerRep = 1;
 	defaultSettings.dims.left = 1;
-	defaultSettings.dims.right = dim.x; 
+	defaultSettings.dims.right = dim.x(); 
 	defaultSettings.dims.horizontalBinning = 4;
-	defaultSettings.dims.top = dim.y;
+	defaultSettings.dims.top = dim.y();
 	defaultSettings.dims.bottom = 1;
 	defaultSettings.dims.verticalBinning = 4;
 	defaultSettings.exposureMode = BaslerAutoExposure::mode::Off;
@@ -134,16 +140,16 @@ void BaslerCameraCore::setDefaultParameters(){
 // general function you should use for setting camera settings based on the input.
 void BaslerCameraCore::setBaslserAcqParameters (baslerSettings settings) {
 	/// Set the AOI:
-
 	/*
-		there is never a problem making things smaller. the danger is over-reaching the maximum whose bounds change dynamically.
-		the basler API is very picky about the order of these things. Ways for this to crash:
+		there is never a problem making things smaller. the annoying problem is over-reaching the maximum whose 
+		bounds change dynamically, where the basler api would then throw an error, even if you were about to change 
+		another parameter to make it work out in the end. The basler API is very picky about the order of these things. 
+		Ways for this to crash:
 		- Setting offset large (before making width smaller) pushes the right border past max width
 		- setting width large (before making offset smaller) pushes right border past max width
 		- setting the binning large (before changing the width)
 	*/
-
-	// start from a safe place.
+	// So, start from a safe place.
 	camera->setOffsetX (0);
 	camera->setWidth (16);
 	camera->setHorBin (1);
@@ -233,17 +239,17 @@ void BaslerCameraCore::reOpenCamera(IChimeraQtWindow* parent ){
 // get the dimensions of the camera. This is tricky because while I can get info about each parameter easily through
 // pylon, several of the parameters, such as the width, are context-sensitive and return the max values as possible 
 // given other camera settings at the moment (e.g. the binning).
-POINT BaslerCameraCore::getCameraDimensions(){
+QPoint BaslerCameraCore::getCameraDimensions(){
 	if (BASLER_SAFEMODE){
 		return { 672, 512 };
 	}
-	POINT dim;
+	QPoint dim;
 	// record the original offsets and bins.
-	POINT offsets, bins;
-	offsets.x = camera->OffsetX.GetValue();
-	offsets.y = camera->OffsetY.GetValue();
-	bins.x = camera->BinningHorizontal.GetValue();
-	bins.y = camera->BinningVertical.GetValue();
+	QPoint offsets, bins;
+	offsets.rx() = camera->OffsetX.GetValue();
+	offsets.ry() = camera->OffsetY.GetValue();
+	bins.rx() = camera->BinningHorizontal.GetValue();
+	bins.ry() = camera->BinningVertical.GetValue();
 	
 	// TODO:
 	// change to my apif
@@ -252,13 +258,13 @@ POINT BaslerCameraCore::getCameraDimensions(){
 	camera->OffsetX.SetValue( camera->OffsetX.GetMin() );
 	camera->OffsetY.SetValue( camera->OffsetY.GetMin() );
 
-	dim.x = camera->Width.GetMax() - 1;
-	dim.y = camera->Height.GetMax() - 1;
+	dim.rx() = camera->Width.GetMax() - 1;
+	dim.ry() = camera->Height.GetMax() - 1;
 
-	camera->OffsetX.SetValue( offsets.x );
-	camera->OffsetY.SetValue( offsets.y );
-	camera->BinningHorizontal.SetValue( bins.x );
-	camera->BinningVertical.SetValue( bins.y );
+	camera->OffsetX.SetValue( offsets.x() );
+	camera->OffsetY.SetValue( offsets.y() );
+	camera->BinningHorizontal.SetValue( bins.x() );
+	camera->BinningVertical.SetValue( bins.y() );
 
 	return dim;
 }
@@ -279,15 +285,9 @@ void BaslerCameraCore::armCamera( ){
 	input->frameRate = runSettings.frameRate;
 	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
 	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
-		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
+		_beginthread( triggerThread, NULL, input );
 	}
 }
-
-
-HANDLE BaslerCameraCore::getCameraThreadObj ( ){
-	return cameraTrigThread;
-}
-
 
 // 
 double BaslerCameraCore::getCurrentExposure(){
@@ -428,7 +428,6 @@ void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, 
 			disarm();
 		}
 		emit threadworker->prepareBasler (&expRunSettings);
-		//omm.sendPrepareBasler (expRunSettings);
 		setBaslserAcqParameters (expRunSettings);
 		armCamera ();
 	}

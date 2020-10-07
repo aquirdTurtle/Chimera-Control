@@ -8,7 +8,7 @@
 class DigitalOutput
 {
 	public:
-		void initialize ( POINT& pos, IChimeraQtWindow* parent );
+		void initialize ( QPoint& pos, IChimeraQtWindow* parent );
 		void initLoc ( unsigned num, DoRows::which row);
 		
 		void enable ( bool enabledStatus );

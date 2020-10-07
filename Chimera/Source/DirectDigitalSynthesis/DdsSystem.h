@@ -34,7 +34,7 @@ class DdsSystem{
 		void handleSaveConfig (ConfigStream& file );
 		void handleOpenConfig (ConfigStream& file );
 		void handleContextMenu (const QPoint& pos);
-		void initialize(POINT& pos, IChimeraQtWindow* master, std::string title );
+		void initialize(QPoint& pos, IChimeraQtWindow* master, std::string title );
 		void handleRampClick();
 		void deleteRampVariable();
 		void getDataFromTable ();

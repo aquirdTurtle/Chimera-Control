@@ -16,7 +16,7 @@ class rerngGuiControl
 	public:
 		rerngGuiOptions getParams( );
 		void setParams( rerngGuiOptions params );
-		void initialize( POINT& loc, QWidget* parent );
+		void initialize( QPoint& loc, QWidget* parent );
 		static rerngGuiOptions getSettingsFromConfig (ConfigStream& config);
 		void handleOpenConfig( ConfigStream& openFile);
 		void handleSaveConfig( ConfigStream& newFile );

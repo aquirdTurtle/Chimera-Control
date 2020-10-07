@@ -98,18 +98,20 @@ void DataAnalysisControl::handleContextMenu (const QPoint& pos) {
 	menu.exec (plotListview->mapToGlobal (pos));
 }
 
-void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
+void DataAnalysisControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
+
 	header = new QLabel ("DATA ANALYSIS", parent);
-	header->setGeometry (pos.x, pos.y, 480, 25);
+	header->setGeometry (px, py, 480, 25);
 
 	currentDataSetNumberText = new QLabel ("Data Set #:", parent);
-	currentDataSetNumberText->setGeometry (pos.x, pos.y += 25, 350, 50);
+	currentDataSetNumberText->setGeometry (px, py += 25, 350, 50);
 	currentDataSetNumberDisp = new QLabel ("?", parent);
-	currentDataSetNumberDisp->setGeometry (pos.x + 350, pos.y, 130, 50);
+	currentDataSetNumberDisp->setGeometry (px + 350, py, 130, 50);
 	currentDataSetNumberDisp->setStyleSheet("QLabel { font: bold 24pt; };");
 
 	gridSelector = new CQComboBox (parent);
-	gridSelector->setGeometry (pos.x, pos.y += 50, 50, 25);
+	gridSelector->setGeometry (px, py += 50, 50, 25);
 	parent->connect (gridSelector, qOverload<int>(&QComboBox::currentIndexChanged), 
 		[this, parent]() {
 			try{
@@ -124,7 +126,7 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	gridSelector->setCurrentIndex( 0 );	
 
 	deleteGrid = new CQPushButton ("Del", parent);
-	deleteGrid->setGeometry (pos.x + 50, pos.y, 50, 25);
+	deleteGrid->setGeometry (px + 50, py, 50, 25);
 	parent->connect (deleteGrid, &QPushButton::released, [this, parent]() {
 			try{
 				handleDeleteGrid ();
@@ -134,76 +136,76 @@ void DataAnalysisControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 			}
 		});
 	tlRowLabel = new QLabel("T.L. Row:", parent);
-	tlRowLabel->setGeometry (pos.x + 100, pos.y, 50, 25);
+	tlRowLabel->setGeometry (px + 100, py, 50, 25);
 	tlRowEdit = new CQLineEdit("0", parent);
-	tlRowEdit->setGeometry (pos.x + 150, pos.y, 50, 25);
+	tlRowEdit->setGeometry (px + 150, py, 50, 25);
 	tlColLabel = new QLabel ("T.L. Col:", parent);
-	tlColLabel->setGeometry (pos.x + 200, pos.y, 50, 25);
+	tlColLabel->setGeometry (px + 200, py, 50, 25);
 	tlColEdit = new CQLineEdit ("0", parent);
-	tlColEdit->setGeometry (pos.x + 250, pos.y, 50, 25);
+	tlColEdit->setGeometry (px + 250, py, 50, 25);
 
 	gridSpacingText = new QLabel ("Spacing", parent);
-	gridSpacingText->setGeometry (pos.x+300, pos.y, 60, 25);
+	gridSpacingText->setGeometry (px+300, py, 60, 25);
 
 	gridSpacing = new CQLineEdit ("0", parent);
-	gridSpacing->setGeometry (pos.x + 360, pos.y, 30, 25);
+	gridSpacing->setGeometry (px + 360, py, 30, 25);
 
 	gridWidthText = new QLabel ("Width", parent);
-	gridWidthText->setGeometry (pos.x + 390, pos.y, 60, 25);
+	gridWidthText->setGeometry (px + 390, py, 60, 25);
 
 	gridWidth = new CQLineEdit ("0", parent);
-	gridWidth->setGeometry (pos.x + 450, pos.y, 30, 25);
+	gridWidth->setGeometry (px + 450, py, 30, 25);
 
 	gridHeightText = new QLabel ("Height", parent);
-	gridHeightText->setGeometry (pos.x, pos.y+=25, 80, 25);
+	gridHeightText->setGeometry (px, py+=25, 80, 25);
 
 	gridHeight = new CQLineEdit ("0", parent);
-	gridHeight->setGeometry (pos.x + 120, pos.y, 40, 25);
+	gridHeight->setGeometry (px + 120, py, 40, 25);
 	// 
 	displayGridBtn = new CQCheckBox ("Display Grid?", parent);
-	displayGridBtn->setGeometry (pos.x+120, pos.y, 120, 25);
+	displayGridBtn->setGeometry (px+120, py, 120, 25);
 
 	/// PLOTTING FREQUENCY CONTROLS
 	updateFrequencyLabel1 = new QLabel ("Update plots every", parent);
-	updateFrequencyLabel1->setGeometry (pos.x + 240, pos.y, 140, 25);
+	updateFrequencyLabel1->setGeometry (px + 240, py, 140, 25);
 
 	updateFrequencyEdit = new CQLineEdit ("5", parent);
-	updateFrequencyEdit->setGeometry (pos.x + 390, pos.y, 30, 25);
+	updateFrequencyEdit->setGeometry (px + 390, py, 30, 25);
 	updateFrequency = 5;
 	
 	updateFrequencyLabel2 = new QLabel (") reps.", parent);
-	updateFrequencyLabel2->setGeometry (pos.x + 420, pos.y, 60, 25);
+	updateFrequencyLabel2->setGeometry (px + 420, py, 60, 25);
 
 	plotTimerTxt = new QLabel ("Plot Update Timer (ms):", parent);
-	plotTimerTxt->setGeometry (pos.x, pos.y += 25, 180, 25);
+	plotTimerTxt->setGeometry (px, py += 25, 180, 25);
 	
 	plotTimerEdit = new CQLineEdit ("5000", parent);
-	plotTimerEdit->setGeometry (pos.x + 180, pos.y, 60, 25);
+	plotTimerEdit->setGeometry (px + 180, py, 60, 25);
 	parent->connect (plotTimerEdit, &QLineEdit::textChanged, [this]() { updatePlotTime (); });
 
 	autoThresholdAnalysisButton = new CQCheckBox ("Auto Threshold Analysis", parent);
-	autoThresholdAnalysisButton->setGeometry (pos.x + 240, pos.y, 240, 25);
+	autoThresholdAnalysisButton->setGeometry (px + 240, py, 240, 25);
 	autoThresholdAnalysisButton->setToolTip ("At the end of an experiment, run some python code which will fit the "
 		"data and determine good thresholds which can be outputted to a file to "
 		"keep the thresholds used by the real-time analysis up-to-date.");
 
 	
 	autoBumpAnalysis = new CQCheckBox ("Auto Bump Analysis", parent);
-	autoBumpAnalysis->setGeometry (pos.x, pos.y += 25, 180, 25);
+	autoBumpAnalysis->setGeometry (px, py += 25, 180, 25);
 	autoBumpAnalysis->setToolTip ("At the end of the experiment, run some python code which will do standard data "
 		"analysis on the resulting data set and fit a bump to it. The bump center value will be written to a file.");
 	doBumpAnalysis = new CQPushButton ("Analyze Now", parent);
-	doBumpAnalysis->setGeometry (pos.x + 180, pos.y, 180, 25);
+	doBumpAnalysis->setGeometry (px + 180, py, 180, 25);
 	parent->connect (doBumpAnalysis, &QPushButton::released, [parent]() {
 		parent->andorWin->handleBumpAnalysis (parent->mainWin->getProfileSettings());
 		});
 	bumpEditParam = new CQLineEdit (parent);
-	bumpEditParam->setGeometry (pos.x + 360, pos.y, 120, 25);
+	bumpEditParam->setGeometry (px + 360, py, 120, 25);
 
 	/// Initialize the listview
 	plotListview = new QTableWidget (parent);
-	plotListview->setGeometry (pos.x, pos.y+=25, 480, 150);
-	pos.y += 150;
+	plotListview->setGeometry (px, py+=25, 480, 150);
+	py += 150;
 	QStringList labels;
 	labels << " Name " << " Grid # " << " Active ";
 	plotListview->setContextMenuPolicy (Qt::CustomContextMenu);

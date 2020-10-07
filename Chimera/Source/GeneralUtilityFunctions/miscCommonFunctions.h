@@ -1,7 +1,5 @@
 // created by Mark O. Brown
 #pragma once
-#include "LowLevel/externals.h"
-#include "afxwin.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -10,10 +8,10 @@
 #include <algorithm>
 #include "QMessageBox.h"
 #include <GeneralObjects/ChimeraStyleSheets.h>
+#include <GeneralUtilityFunctions/my_str.h>
 
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
-template <typename T> void errBox( T msg )
-{
+template <typename T> void errBox( T msg ){
 	QMessageBox* messageBox = new QMessageBox();
 	messageBox->setStyleSheet ("QDialog {background-color: red;}"
 		"QPushButton {background-color: blue;}");
@@ -21,7 +19,6 @@ template <typename T> void errBox( T msg )
 	messageBox->critical (0, "Error", cstr(msg));
 	messageBox->setFixedSize (500, 200);
 }
-
 
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void infoBox( T msg ){

@@ -5,6 +5,7 @@
 #include <qgraphicslayout.h>
 #include <qdebug.h>
 #include <qmenu.h>
+
 PlotCtrl::PlotCtrl( unsigned numTraces, plotStyle inStyle, std::vector<int> thresholds_in,
 					std::string titleIn, bool narrowOpt, bool plotHistOption ) :
 	qtLineData( numTraces ), style( inStyle ), narrow(narrowOpt ), title(titleIn){
@@ -176,7 +177,6 @@ void PlotCtrl::setStyle (plotStyle newStyle){
 }
 
 void PlotCtrl::resetChart () {
-	qDebug () << "view chart:" << view->chart ();
 	view->chart ()->legend ()->hide ();
 	view->chart ()->createDefaultAxes ();
 	view->chart ()->setTitle (title.c_str ());
@@ -192,7 +192,8 @@ void PlotCtrl::resetChart () {
 	}
 }
 
-void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraQtWindow* parent ){ 
+void PlotCtrl::init( QPoint& pos, LONG width, LONG height, IChimeraQtWindow* parent ){ 
+	auto& px = pos.rx (), &py = pos.ry ();
 	chart = new QtCharts::QChart ();
 	view = new QtCharts::QChartView (chart, parent);
 	view->setContextMenuPolicy (Qt::CustomContextMenu);
@@ -205,6 +206,6 @@ void PlotCtrl::init( POINT& pos, LONG width, LONG height, IChimeraQtWindow* pare
 	}
 	resetChart ();
 	view->setRenderHint (QPainter::Antialiasing);
-	view->setGeometry (pos.x, pos.y, width, height);
-	pos.y += height;
+	view->setGeometry (px, py, width, height);
+	py += height;
 }

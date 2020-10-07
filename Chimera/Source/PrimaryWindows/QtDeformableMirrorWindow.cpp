@@ -15,7 +15,7 @@ QtDeformableMirrorWindow::~QtDeformableMirrorWindow (){
 }
 
 void QtDeformableMirrorWindow::initializeWidgets (){
-	POINT pos = { 0,0 };
+	QPoint pos = { 0,0 };
 	statBox->initialize (pos, this, 480, mainWin->getDevices ());
 	dm.initialize (pos, this, dm.getActNum (), DM_SERIAL, 65);
 }

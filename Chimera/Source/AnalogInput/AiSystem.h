@@ -31,7 +31,7 @@ class AiSystem : public IDeviceCore{
 		AiSettings getAiSettings ();
 		void handleTimer ();
 		void initDaqmx( );
-		void initialize( POINT& loc, IChimeraQtWindow* parent );
+		void initialize( QPoint& loc, IChimeraQtWindow* parent );
 		void refreshDisplays( );
 		void refreshCurrentValues( );
 		std::array<float64, NUMBER_AI_CHANNELS> getSingleSnapArray( unsigned n_to_avg );

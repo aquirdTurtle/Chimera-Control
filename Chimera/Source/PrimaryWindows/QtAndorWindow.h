@@ -19,7 +19,6 @@
 #include "DataLogging/DataLogger.h"
 #include "GeneralUtilityFunctions/commonFunctions.h"
 #include "RealTimeDataAnalysis/atomCruncherInput.h"
-#include "Andor/cameraPositions.h"
 #include "GeneralObjects/commonTypes.h"
 #include "GeneralObjects/Queues.h"
 #include <Piezo/PiezoController.h>
@@ -113,7 +112,6 @@ class QtAndorWindow : public IChimeraQtWindow{
 		AndorCameraCore andor;
 		AndorCameraSettingsControl andorSettingsCtrl;
 		PictureManager pics;
-		int plotIds = 17009;
 		PictureStats stats;
 		AlertSystem alerts;
 		ExperimentTimer timer;

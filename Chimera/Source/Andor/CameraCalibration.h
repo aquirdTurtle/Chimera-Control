@@ -12,7 +12,7 @@ Home of gui options for the camera calibration.
 class CameraCalibration
 {
 	public:
-		void initialize( POINT& pos, IChimeraQtWindow* parent );
+		void initialize( QPoint& pos, IChimeraQtWindow* parent );
 		bool autoCal( );
 		bool use( );
 		void setAutoCal(bool option);

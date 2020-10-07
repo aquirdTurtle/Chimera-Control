@@ -34,7 +34,7 @@ class AoSystem : public IChimeraSystem {
 		AoSystem(IChimeraQtWindow* parent, bool aoSafemode );
 
 		// standard functions for gui elements
-		void initialize( POINT& pos, IChimeraQtWindow* master);
+		void initialize( QPoint& pos, IChimeraQtWindow* master);
 		void standardExperimentPrep (unsigned variationInc, DoCore& ttls, std::vector<parameterType>& expParams,
 									 double currLoadSkipTime);
 		bool eventFilter (QObject* obj, QEvent* event);

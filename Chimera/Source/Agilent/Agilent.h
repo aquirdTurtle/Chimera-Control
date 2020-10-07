@@ -23,7 +23,7 @@ class Agilent : public IChimeraSystem {
 		Agilent (const Agilent&) = delete;
 
 		Agilent( const agilentSettings & settings, IChimeraQtWindow* parent );
-		void initialize( POINT& loc, std::string header, unsigned editHeight, IChimeraQtWindow* qtp,
+		void initialize( QPoint& loc, std::string header, unsigned editHeight, IChimeraQtWindow* qtp,
 			unsigned width = 480);
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string configPath, RunInfo info );

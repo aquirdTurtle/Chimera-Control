@@ -1,7 +1,7 @@
 // created by Mark O. Brown
 #include "stdafx.h"
 #include "VisaFlume.h"
-
+#include <qdebug.h>
 
 VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemode), usbAddress(address)
 { }
@@ -35,10 +35,8 @@ void VisaFlume::close(){
 // to that resource.  Subsequent calls to this function return unique sessions to the same Default Resource Manager 
 // resource. When a Resource Manager session is passed to viClose(), not only is that session closed, but also all 
 // find lists and device sessions( which that Resource Manager session was used to create ) are closed.
-void VisaFlume::open()
-{
-	if (!deviceSafemode)
-	{
+void VisaFlume::open(){
+	if (!deviceSafemode){
 		errCheck( viOpenDefaultRM( &defaultResourceManager ) );
 		errCheck( viOpen( defaultResourceManager, (char *)cstr( usbAddress ), VI_NULL, VI_NULL, &instrument ) );
 		errCheck ( viClear (instrument) );
@@ -53,20 +51,16 @@ void VisaFlume::setAttribute( ViAttr attributeName, ViAttrState value ){
 }
 
 
-std::string VisaFlume::identityQuery()
-{
+std::string VisaFlume::identityQuery(){
 	char buf[1024] = { 0 };
-	if (!deviceSafemode)
-	{
-		errCheck( viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf ), "*IDN?\n" );
+	if (!deviceSafemode){
+		errCheck( viQueryf( instrument, (ViString)"*IDN?\n", "%1024t", buf ), "*IDN?\n" );
 	}
-	else
-	{
+	else{
 		return "Device is in Safemode. Change this in the constants.h file.";
 	}
 	return buf;
 }
-
 
 char VisaFlume::scan( ){
 	ViChar c[1024];
@@ -75,75 +69,61 @@ char VisaFlume::scan( ){
 }
 
 
-void VisaFlume::flush( )
-{
+void VisaFlume::flush( ){
 	errCheck(viFlush( instrument, VI_WRITE_BUF | VI_READ_BUF_DISCARD ));
 }
 
-
-void VisaFlume::query( std::string msg, long& data )
-{
-	if ( !deviceSafemode )
-	{
-		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%ld", &data ), msg );
-	}
-	else
-	{
-		return;
-	}
-}
-
-void VisaFlume::query( std::string msg )
-{
-	ViChar data[5000];
-	if ( !deviceSafemode )
-	{
-		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%5000t", data ), msg );
-	}
-	else
-	{
-		return;
-	}
-}
-
-void VisaFlume::query( std::string msg, float& data )
-{
+void VisaFlume::query( std::string msg, long& data ){
 	if ( !deviceSafemode ){
-		errCheck ( viClear(instrument), msg);
-		errCheck ( viQueryf( instrument, (ViString)msg.c_str(), "%f", &data ), msg );
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%ld", &data ), msg );
 	}
 	else{
 		return;
 	}
 }
 
+void VisaFlume::query( std::string msg ){
+	ViChar data[5000];
+	if ( !deviceSafemode ){
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%5000t", data ), msg );
+	}
+	else {
+		return;
+	}
+}
 
-void VisaFlume::query( std::string msg, std::string& data )
-{
+void VisaFlume::query( std::string msg, float& data ){
+	if ( !deviceSafemode ){
+		errCheck ( viQueryf( instrument, (ViString)msg.c_str(), "%f", &data ), msg );
+		//errCheck (viClear (instrument), msg);
+	}
+	else{
+		return;
+	}
+}
+
+void VisaFlume::query( std::string msg, std::string& data ){
 	char datac[10000];
 	ViInt32 totalPoints = 10000;
-	if ( !deviceSafemode )
-	{
+	if ( !deviceSafemode ){
 		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%#b", &totalPoints, datac ), msg);
 		//errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%100000T", datac ) );
 	}
-	else
-	{
+	else {
 		return;
 	}
 	data = std::string( datac, totalPoints );
 }
 
-
-
 void VisaFlume::errQuery( std::string& errMsg, long& errCode ){
-	char buf[1024*8] = { 0 };
+	char buf[1024] = { 0 };
 	if (!deviceSafemode){
-		viQueryf( instrument, (ViString)"SYST:ERR?\n", "%ld,%t", &errCode, buf );
+		viQueryf( instrument, (ViString)"SYST:ERR?\n", "%1024t", buf );
 	}
 	else{
 		return;
 	}
+	qDebug () << "Visa Error Msg: " << buf;
 	errMsg = str( buf );
 }
 
@@ -153,7 +133,6 @@ void VisaFlume::errQuery( std::string& errMsg, long& errCode ){
 void VisaFlume::errCheck( long status ){
 	errCheck( status, "" );
 }
-
 
 std::string VisaFlume::openErrMsg ( long status ){
 	switch ( status ){
@@ -200,7 +179,6 @@ std::string VisaFlume::openErrMsg ( long status ){
 			return "Error Code Not found???";
 	}
 }
-
 
 void VisaFlume::errCheck( long status, std::string msg ){
 	long errorCode = 0;

@@ -50,33 +50,34 @@ void ServoManager::handleContextMenu (const QPoint& pos){
 	menu.exec (servoList->mapToGlobal (pos));
 }
 
-void ServoManager::initialize( POINT& pos, IChimeraQtWindow* parent, AiSystem* ai_in, AoSystem* ao_in, DoSystem* ttls_in, 
-							   ParameterSystem* globals_in){
+void ServoManager::initialize( QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai_in, AoSystem* ao_in, 
+							   DoSystem* ttls_in, ParameterSystem* globals_in){
+	auto& px = pos.rx (), & py = pos.ry ();
 	servosHeader = new QLabel ("SERVO MANAGER", parent);
-	servosHeader->setGeometry (pos.x, pos.y, 280, 20);
+	servosHeader->setGeometry (px, py, 280, 20);
 	servoButton = new CQPushButton ("Servo All", parent);
-	servoButton->setGeometry (pos.x + 280, pos.y, 175, 20);
+	servoButton->setGeometry (px + 280, py, 175, 20);
 	servoButton->setToolTip ("Force the servo to calibrate.");
 	parent->connect (servoButton, &QPushButton::released, [this, parent]() {
 		if (!parent->mainWin->expIsRunning ()) {
 			runAll ();
 		}});
 	unitsCombo = new CQComboBox (parent);
-	unitsCombo->setGeometry (pos.x + 280 + 175, pos.y, 100, 20);
+	unitsCombo->setGeometry (px + 280 + 175, py, 100, 20);
 	for (auto unitsOpt : AiUnits::allOpts) {
 		unitsCombo->addItem (AiUnits::toStr (unitsOpt).c_str ());
 	}
 	parent->connect (unitsCombo, qOverload<int> (&QComboBox::currentIndexChanged), [this](int) {refreshListview (); });
 
 	expAutoServoButton = new CQCheckBox ("Exp. Auto-Servo?", parent);
-	expAutoServoButton->setGeometry (pos.x + 380 + 175, pos.y, 175, 20);
+	expAutoServoButton->setGeometry (px + 380 + 175, py, 175, 20);
 	expAutoServoButton->setToolTip ("Automatically calibrate all servos before doing any experiment?");
 
 	cancelServo = new QPushButton ("Cancel Servo?", parent);
-	cancelServo->setGeometry (pos.x + 730, pos.y, 150, 20);
+	cancelServo->setGeometry (px + 730, py, 150, 20);
 	cancelServo->setToolTip ("Hold this button down to cancel a \"Run All\" servoing.");
 
-	pos.y += 20;
+	py += 20;
 	servoList = new QTableWidget (parent);
 	QStringList labels;
 	labels << "Name" << " Set (V) " << " Ctrl (V) " << " dCtrl (%) " << " Res (V) " << "Ai" << "Ao" << " DO-Config " << " Tolerance "
@@ -87,7 +88,7 @@ void ServoManager::initialize( POINT& pos, IChimeraQtWindow* parent, AiSystem* a
 	servoList->setColumnCount (labels.size());
 	servoList->setHorizontalHeaderLabels (labels);
 	servoList->horizontalHeader ()->setFixedHeight (25);
-	servoList->setGeometry (pos.x, pos.y, 960, 450);
+	servoList->setGeometry (px, py, 960, 450);
 	servoList->setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
 						   "Set-Point: The servo\'s set point, in volts.\n"

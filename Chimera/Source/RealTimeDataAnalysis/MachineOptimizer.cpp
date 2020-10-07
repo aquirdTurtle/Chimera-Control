@@ -28,13 +28,13 @@ void MachineOptimizer::handleContextMenu (const QPoint& pos){
 	menu.exec (optParamsListview->mapToGlobal (pos));
 }
 
-void MachineOptimizer::initialize ( POINT& pos, IChimeraQtWindow* parent )
-{
+void MachineOptimizer::initialize ( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.rx ();
 	header = new QLabel ("AUTO-OPTIMIZATION-CONTROL", parent);
-	header->setGeometry (pos.x, pos.y, 300, 25);
+	header->setGeometry (px, py, 300, 25);
 
 	optimizeButton = new QPushButton ("Optimize", parent);
-	optimizeButton->setGeometry (pos.x + 300, pos.y, 180, 25);
+	optimizeButton->setGeometry (px + 300, py, 180, 25);
 	parent->connect (optimizeButton, &QPushButton::released, 
 		[this, parent]() {
 			try	{
@@ -44,7 +44,7 @@ void MachineOptimizer::initialize ( POINT& pos, IChimeraQtWindow* parent )
 					return;
 				}
 				reset ();
-				commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, parent);
+				//commonFunctions::handleCommonMessage (ID_MACHINE_OPTIMIZATION, parent);
 			}
 			catch (ChimeraError& err) {
 				// catch any extra errors that handleCommonMessage doesn't explicitly handle.
@@ -53,28 +53,28 @@ void MachineOptimizer::initialize ( POINT& pos, IChimeraQtWindow* parent )
 		});
 
 	maxRoundsTxt = new QLabel ("Max Rounds:", parent);
-	maxRoundsTxt->setGeometry (pos.x, pos.y += 25, 120, 25);
+	maxRoundsTxt->setGeometry (px, py += 25, 120, 25);
 
 	maxRoundsEdit = new QLineEdit ("", parent);
-	maxRoundsEdit->setGeometry (pos.x + 120, pos.y, 120, 25);
+	maxRoundsEdit->setGeometry (px + 120, py, 120, 25);
 
 	currRoundTxt = new QLabel ("Current Round:", parent);
-	currRoundTxt->setGeometry (pos.x+240, pos.y, 160, 25);
+	currRoundTxt->setGeometry (px+240, py, 160, 25);
 
 	currRoundDisp = new QLabel ("", parent);
-	currRoundDisp->setGeometry (pos.x + 400, pos.y, 80, 25);
+	currRoundDisp->setGeometry (px + 400, py, 80, 25);
 
 	bestResultTxt = new QLabel ("Best Result:", parent);
-	bestResultTxt->setGeometry (pos.x, pos.y+=25, 180, 25);
+	bestResultTxt->setGeometry (px, py+=25, 180, 25);
 	bestResultVal = new QLabel ("---", parent);
-	bestResultVal->setGeometry (pos.x + 180, pos.y, 150, 25);
+	bestResultVal->setGeometry (px + 180, py, 150, 25);
 	bestResultErr = new QLabel ("---", parent);
-	bestResultErr->setGeometry (pos.x + 330, pos.y, 150, 25);
+	bestResultErr->setGeometry (px + 330, py, 150, 25);
 	optParamsHeader = new QLabel ("Optimization Parameters:", parent);
-	optParamsHeader->setGeometry (pos.x, pos.y+=25, 480, 25);
+	optParamsHeader->setGeometry (px, py+=25, 480, 25);
 	optParamsListview = new QTableWidget (parent);
-	optParamsListview->setGeometry (pos.x, pos.y += 25, 480, 100);
-	pos.y += 160;
+	optParamsListview->setGeometry (px, py += 25, 480, 100);
+	py += 160;
 	optParamsListview->horizontalHeader ()->setFixedHeight (30);
 	optParamsListview->verticalHeader ()->setFixedWidth (40);
 	optParamsListview->verticalHeader ()->setDefaultSectionSize (22);
@@ -343,11 +343,10 @@ void MachineOptimizer::onFinOpt ( )
 }
 
 
-void MachineOptimizer::deleteParam ( )
-{
+void MachineOptimizer::deleteParam ( ){
 	/*
 	/// get the item and subitem
-	POINT cursorPos;
+	QPoint cursorPos;
 	GetCursorPos ( &cursorPos );
 	optParamsListview.ScreenToClient ( &cursorPos );
 	int subitemIndicator = optParamsListview.HitTest ( cursorPos );

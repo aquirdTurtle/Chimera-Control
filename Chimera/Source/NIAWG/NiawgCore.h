@@ -141,14 +141,15 @@ class NiawgCore : public IDeviceCore {
 		void errorFinish ();
 
 	private:
-
-		/// a couple points taken on Friday, Sep 11th 2020
+		/// a couple points taken on Friday, Sep 11th 2020, fairly low power coming from the Ti-Saph at the moment.
 		/// 1.64: ~71 mW
 		/// 0.82: ~9 mW
 		/// 0.123 ~31 mW
 		/// ORIGINAL NIAWG GAIN: 1.64
+		const float NIAWG_GAIN = 1.64f;
 		// NEW GAIN: 1.23f
-		const float NIAWG_GAIN = 1.23f;
+		// const float NIAWG_GAIN = 1.23f;
+
 		// We calibrated this. // NIAWG_GAIN = 1.64.
 		//constexpr float NIAWG_GAIN = float(1.64);
 		// NIAWG_GAIN = 1.64.
@@ -166,13 +167,15 @@ class NiawgCore : public IDeviceCore {
 		const double CORRECTION_WAVEFORM_ERROR_THRESHOLD = 0.5;
 		// in hertz
 		const double NIAWG_FILTER_FREQENCY = 80000000;
-
 		const unsigned NUMBER_OF_LIBRARY_FILES = NiawgConstants::MAX_NIAWG_SIGNALS * 4;
-
 		/// September 15th, 2017: Changed value from 0.2 to 0.1 in preparation of doing 10 traps, also attempting to lower
 		/// going to aom for debugging purposes on the Rearrangement algorithms.
 		/// April 26th, 2018" Changed from 0.1 to 1/12 to do 12 traps. 
+		// if doing less than 12 traps, effectively this results in the niawg's dac being underutilized. Generally this 
+		// is fine. 
 		/// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// this was picked because this is the maximum power that can be outputted with 12 signals 
+		// given the voltage restrictions.
 		const double TOTAL_POWER = (1.0 / 12.0) - 1e-6; //0.1 - 1e-10;
 
 		void preWriteRerngWaveforms( rerngThreadInput* input );
