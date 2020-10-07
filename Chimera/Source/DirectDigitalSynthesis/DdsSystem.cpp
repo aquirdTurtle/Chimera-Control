@@ -33,12 +33,13 @@ void DdsSystem::handleContextMenu (const QPoint& pos){
 	menu.exec (rampListview->mapToGlobal (pos));
 }
 
-void DdsSystem::initialize ( POINT& pos, IChimeraQtWindow* parent, std::string title ){
+void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string title ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	ddsHeader = new QLabel (cstr (title), parent);
-	ddsHeader->setGeometry (pos.x, pos.y, 480, 25);
+	ddsHeader->setGeometry (px, py, 480, 25);
 
 	programNowButton = new QPushButton ("Program Now", parent);
-	programNowButton->setGeometry (pos.x, pos.y + 25, 360, 25);
+	programNowButton->setGeometry (px, py + 25, 360, 25);
 	parent->connect (programNowButton, &QPushButton::released, [this, parent]() {
 		try	{
 			programNow (parent->auxWin->getUsableConstants ());
@@ -48,11 +49,11 @@ void DdsSystem::initialize ( POINT& pos, IChimeraQtWindow* parent, std::string t
 		}
 	});
 	controlCheck = new CQCheckBox ("Control?", parent);
-	controlCheck->setGeometry (pos.x + 360, pos.y += 25, 120, 25);
+	controlCheck->setGeometry (px + 360, py += 25, 120, 25);
 
 	rampListview = new QTableWidget (parent);
-	rampListview->setGeometry (pos.x, pos.y+= 25, 480, 160);
-	pos.y += 160;
+	rampListview->setGeometry (px, py+= 25, 480, 160);
+	py += 160;
 	rampListview->horizontalHeader ()->setFixedHeight (30);
 	rampListview->setColumnWidth (0, 60);
 	rampListview->setColumnWidth (1, 60);

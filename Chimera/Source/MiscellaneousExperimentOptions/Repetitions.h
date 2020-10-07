@@ -11,7 +11,7 @@
 
 class Repetitions{
 	public:
-		void initialize(POINT& pos, IChimeraQtWindow* mainWin );
+		void initialize(QPoint& pos, IChimeraQtWindow* mainWin );
 		void setRepetitions(unsigned number);
 		unsigned int getRepetitionNumber();
 		static unsigned getSettingsFromConfig (ConfigStream& openFile );

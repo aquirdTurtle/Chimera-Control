@@ -39,7 +39,7 @@ void QtScriptWindow::initializeWidgets (){
 		errBox ("Failed to start niawg default waveforms! Niawg gave the following error message: "
 				+ exception.trace ());
 	}
-	POINT startLocation = { 0, 50 };
+	QPoint startLocation = { 0, 50 };
 	niawg.initialize (startLocation, this);
 	niawg.niawgScript.setEnabled (true, false);
 	startLocation = { 640, 50 };
@@ -206,7 +206,7 @@ void QtScriptWindow::openIntensityScript (IChimeraQtWindow* parent){
 	try{
 		intensityAgilent.verifyScriptable ();
 		intensityAgilent.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
-		std::string intensityOpenName = openWithExplorer (parent, AGILENT_SCRIPT_EXTENSION);
+		std::string intensityOpenName = openWithExplorer (parent, Script::AGILENT_SCRIPT_EXTENSION);
 		intensityAgilent.agilentScript.openParentScript ( intensityOpenName, getProfile ().configLocation,
 														  mainWin->getRunInfo () );
 		updateConfigurationSavedStatus (false);
@@ -268,7 +268,7 @@ void QtScriptWindow::newNiawgScript (){
 void QtScriptWindow::openNiawgScript (IChimeraQtWindow* parent){
 	try{
 		niawg.niawgScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
-		std::string horizontalOpenName = openWithExplorer (parent, NIAWG_SCRIPT_EXTENSION);
+		std::string horizontalOpenName = openWithExplorer (parent, Script::NIAWG_SCRIPT_EXTENSION);
 		niawg.niawgScript.openParentScript (horizontalOpenName, getProfile ().configLocation, mainWin->getRunInfo ());
 		updateConfigurationSavedStatus (false);
 		niawg.niawgScript.updateScriptNameText (getProfile ().configLocation);
@@ -373,7 +373,7 @@ void QtScriptWindow::newMasterScript (){
 void QtScriptWindow::openMasterScript (IChimeraQtWindow* parent){
 	try	{
 		masterScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
-		std::string openName = openWithExplorer (parent, MASTER_SCRIPT_EXTENSION);
+		std::string openName = openWithExplorer (parent, Script::MASTER_SCRIPT_EXTENSION);
 		masterScript.openParentScript (openName, getProfile ().configLocation, mainWin->getRunInfo ());
 		updateConfigurationSavedStatus (false);
 		masterScript.updateScriptNameText (getProfile ().configLocation);

@@ -8,7 +8,7 @@
 
 class StatusIndicator{
 	public:
-		void initialize(POINT &loc, IChimeraQtWindow* parent );
+		void initialize(QPoint &loc, IChimeraQtWindow* parent );
 		void setText(std::string text);
 		void setColor(std::string color);
 	private:

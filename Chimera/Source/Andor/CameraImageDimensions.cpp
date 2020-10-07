@@ -11,63 +11,64 @@ ImageDimsControl::ImageDimsControl (std::string whichCam) : camType (whichCam) {
 	isReady = false;
 }
 
-void ImageDimsControl::initialize( POINT& pos, IChimeraQtWindow* parent, int numRows, int width ) {
+void ImageDimsControl::initialize( QPoint& pos, IChimeraQtWindow* parent, int numRows, int width ) {
+	auto& px = pos.rx (), & py = pos.ry ();
 	auto wi = width * numRows / 6;
 	leftText = new QLabel ("Left", parent);
-	leftText->setGeometry (pos.x, pos.y, wi, 25);
+	leftText->setGeometry (px, py, wi, 25);
 
 	rightText = new QLabel ("Right (/512)", parent);
-	rightText->setGeometry (pos.x+ wi, pos.y, wi, 25);
+	rightText->setGeometry (px+ wi, py, wi, 25);
 
 	horBinningText = new QLabel ("H. Bin", parent);
-	horBinningText->setGeometry (pos.x + 2 * wi, pos.y, wi, 25);
+	horBinningText->setGeometry (px + 2 * wi, py, wi, 25);
 	if (numRows == 1) {
-		pos.x += width/2;
+		px += width/2;
 	}
 	else {
-		pos.y += 50;
+		py += 50;
 	}
 	bottomLabel = new QLabel ("Bottom (/512)", parent);
-	bottomLabel->setGeometry (pos.x, pos.y, wi, 25);
+	bottomLabel->setGeometry (px, py, wi, 25);
 
 	topLabel = new QLabel ("Top", parent);
-	topLabel->setGeometry (pos.x + wi, pos.y, wi, 25);
+	topLabel->setGeometry (px + wi, py, wi, 25);
 
 	vertBinningText = new QLabel ("V. Bin", parent);
-	vertBinningText->setGeometry (pos.x + 2*wi, pos.y, wi, 25);
+	vertBinningText->setGeometry (px + 2*wi, py, wi, 25);
 	
 	if (numRows == 1) {
-		pos.x -= width / 2;
+		px -= width / 2;
 	}
 	else {
-		pos.y -= 50;
+		py -= 50;
 	}
 	leftEdit = new CQLineEdit ("1", parent);
-	leftEdit->setGeometry (pos.x, pos.y+=25, wi, 25);
+	leftEdit->setGeometry (px, py+=25, wi, 25);
 
 	rightEdit = new CQLineEdit ("5", parent);
-	rightEdit->setGeometry (pos.x + wi, pos.y, wi, 25);
+	rightEdit->setGeometry (px + wi, py, wi, 25);
 
 	horBinningEdit = new CQLineEdit ("1", parent);
-	horBinningEdit->setGeometry (pos.x + 2* wi, pos.y, wi, 25);
+	horBinningEdit->setGeometry (px + 2* wi, py, wi, 25);
 	if (numRows == 1) {
-		pos.x += width / 2;
+		px += width / 2;
 	}
 	else {
-		pos.y += 50;
+		py += 50;
 	}
 	bottomEdit = new CQLineEdit ("1", parent);
-	bottomEdit->setGeometry (pos.x, pos.y, wi, 25);
+	bottomEdit->setGeometry (px, py, wi, 25);
 
 	topEdit = new CQLineEdit ("5", parent);
-	topEdit->setGeometry (pos.x + wi, pos.y, wi, 25);
+	topEdit->setGeometry (px + wi, py, wi, 25);
 
 	vertBinningEdit = new CQLineEdit ("1", parent);
-	vertBinningEdit->setGeometry (pos.x + 2* wi, pos.y, wi, 25);
+	vertBinningEdit->setGeometry (px + 2* wi, py, wi, 25);
 	if (numRows == 1){
-		pos.x -= width / 2;
+		px -= width / 2;
 	}
-	pos.y += 25;
+	py += 25;
 }
 
 void ImageDimsControl::saveParams (ConfigStream& saveFile, imageParameters params) {

@@ -16,7 +16,7 @@ class NiawgSystem : public IChimeraSystem {
 		NiawgSystem (const NiawgSystem&) = delete;
 		NiawgSystem (DoRows::which trigRow, unsigned trigNumber, bool safemode, IChimeraQtWindow* parent);
 
-		void initialize (POINT& loc, IChimeraQtWindow* qtp);
+		void initialize (QPoint& loc, IChimeraQtWindow* qtp);
 		void handleSaveConfig (ConfigStream& saveFile);
 		void handleOpenConfig (ConfigStream& openfile);
 		static bool getSettingsFromConfig (ConfigStream& openfile);

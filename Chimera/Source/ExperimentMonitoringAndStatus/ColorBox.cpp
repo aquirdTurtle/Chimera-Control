@@ -4,31 +4,32 @@
 #include <tuple>
 #include <PrimaryWindows/IChimeraQtWindow.h>
 
-void ColorBox::initialize(POINT& pos, IChimeraQtWindow* parent, int length, DeviceList devices, unsigned numrows) {
+void ColorBox::initialize(QPoint& pos, IChimeraQtWindow* parent, int length, DeviceList devices, unsigned numrows) {
+	int& px = pos.rx (), & py = pos.ry ();
 	auto numCtrls = devices.list.size ()+1;
 	boxes.resize (numCtrls);
 	int itemsPerRow = ceil (float (numCtrls) / numrows);
 	int indvLength = length / itemsPerRow;
 	for (auto devInc : range (numCtrls-1)) {
 		if (((devInc % itemsPerRow) == 0) && (devInc != 0)) {
-			pos.y += 20;
+			py += 20;
 		}
 		auto& box = boxes[devInc];
 		auto& dev = devices.list[devInc].get ();
 		box.delim = dev.getDelim ();
 		box.ctrl = new QLabel (box.delim.substr(0,5).c_str(), parent);
 		box.ctrl->setToolTip (box.delim.c_str ());
-		box.ctrl->setGeometry (pos.x + (devInc % itemsPerRow) * indvLength, pos.y, indvLength, 20);
+		box.ctrl->setGeometry (px + (devInc % itemsPerRow) * indvLength, py, indvLength, 20);
 		box.ctrl->setStyleSheet ("QLabel { font: 8pt; }");
 	}
 	auto& box = boxes.back();
 	box.delim = "Other";
 	box.ctrl = new QLabel (qstr(box.delim), parent);
 	box.ctrl->setToolTip (box.delim.c_str ());
-	box.ctrl->setGeometry (pos.x + ((numCtrls - 1)%itemsPerRow) * indvLength, pos.y, indvLength, 20);
+	box.ctrl->setGeometry (px + ((numCtrls - 1)%itemsPerRow) * indvLength, py, indvLength, 20);
 	box.ctrl->setStyleSheet ("QLabel { font: 8pt; }");
 
-	pos.y += 20;
+	py += 20;
 	initialized = true;
 }
 

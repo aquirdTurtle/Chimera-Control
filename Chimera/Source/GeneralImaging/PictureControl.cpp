@@ -10,9 +10,7 @@ PictureControl::PictureControl ( bool histogramOption, Qt::TransformationMode mo
 	active = true;
 	if ( histOption ){
 		horData.resize ( 1 );
-		horData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
 		vertData.resize ( 1 );
-		vertData[ 0 ] = pPlotDataVec ( new plotDataVec ( 100, { 0, -1, 0 } ) );
 		updatePlotData ( );
 	}
 	repaint ();
@@ -22,12 +20,12 @@ void PictureControl::updatePlotData ( ){
 	if ( !histOption ){
 		return;
 	}
-	horData[ 0 ]->resize ( mostRecentImage_m.getCols ( ) );
-	vertData[ 0 ]->resize ( mostRecentImage_m.getRows ( ) );
+	horData[ 0 ].resize ( mostRecentImage_m.getCols ( ) );
+	vertData[ 0 ].resize ( mostRecentImage_m.getRows ( ) );
 	unsigned count = 0;
 
 	std::vector<long> dataRow;
-	for ( auto& data : *horData[ 0 ] ){
+	for ( auto& data : horData[ 0 ] ){
 		data.x = count;
 		// integrate the column
 		double p = 0.0;
@@ -39,12 +37,12 @@ void PictureControl::updatePlotData ( ){
 	}
 	count = 0;
 	auto avg = std::accumulate ( dataRow.begin ( ), dataRow.end ( ), 0.0 ) / dataRow.size ( );
-	for ( auto& data : *horData[ 0 ] ){
+	for ( auto& data : horData[ 0 ] ){
 		data.y = dataRow[ count++ ] - avg;
 	}
 	count = 0;
 	std::vector<long> dataCol;
-	for ( auto& data : *vertData[ 0 ] ){
+	for ( auto& data : vertData[ 0 ] ){
 		data.x = count;
 		// integrate the row
 		double p = 0.0;
@@ -56,7 +54,7 @@ void PictureControl::updatePlotData ( ){
 	}
 	count = 0;
 	auto avgCol = std::accumulate ( dataCol.begin ( ), dataCol.end ( ), 0.0 ) / dataCol.size ( );
-	for ( auto& data : *vertData[ 0 ] ){
+	for ( auto& data : vertData[ 0 ] ){
 		data.y = dataCol[ count++ ] - avgCol;
 	}
 }
@@ -64,7 +62,7 @@ void PictureControl::updatePlotData ( ){
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT loc, int width, int height, IChimeraQtWindow* parent, int picScaleFactorIn){
+void PictureControl::initialize( QPoint loc, int width, int height, IChimeraQtWindow* parent, int picScaleFactorIn){
 	picScaleFactor = picScaleFactorIn;
 	if ( width < 100 ){
 		thrower ( "Pictures must be greater than 100 in width because this is the size of the max/min"
@@ -74,21 +72,22 @@ void PictureControl::initialize( POINT loc, int width, int height, IChimeraQtWin
 		thrower ( "Pictures must be greater than 100 in height because this is the minimum height "
 									 "of the max/min controls." );
 	}
+	auto& px = loc.rx (), & py = loc.ry ();
 	maxWidth = width;
 	maxHeight = height;
 	if ( histOption ){
-		POINT pt{ 300,0 };
+		QPoint pt{ 300,0 };
 		vertGraph = new PlotCtrl ( 1, plotStyle::VertHist, std::vector<int>(), "", true );
 		vertGraph->init (pt, 65, 860, parent );
-		loc.x += 65;
+		px += 65;
 	}
 	if ( histOption ){
 		horGraph = new PlotCtrl ( 1, plotStyle::HistPlot, std::vector<int> ( ), "", true );
-		POINT pt{ 365, LONG (860) };
+		QPoint pt{ 365, LONG (860) };
 		horGraph->init ( pt, 1565 - 50, 65, parent );
 	}
 	pictureObject = new ImageLabel (parent);
-	pictureObject->setGeometry (loc.x, loc.y, width, height);
+	pictureObject->setGeometry (px, py, width, height);
 	parent->connect (pictureObject, &ImageLabel::mouseReleased, [this](QMouseEvent* event) {handleMouse (event); });
 	setPictureArea (loc, maxWidth, maxHeight);
 
@@ -97,27 +96,27 @@ void PictureControl::initialize( POINT loc, int width, int height, IChimeraQtWin
 		pt = rand () % 255;
 	}
 	
-	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
+	px += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	sliderMin.initialize(loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MIN" );
 	sliderMin.setValue ( 0 );
 	parent->connect (sliderMin.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
-	loc.x += 25;
+	px += 25;
 	sliderMax.initialize ( loc, parent, 50, unscaledBackgroundArea.bottom - unscaledBackgroundArea.top, "MAX" );
 	sliderMax.setValue ( 300 );
 	parent->connect (sliderMax.slider, &QSlider::valueChanged, [this]() {redrawImage (); });
 	// reset this.
-	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
+	px -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	
-	loc.y += height - 25;
+	py += height - 25;
 	coordinatesText = new QLabel ("Coordinates:", parent);
-	coordinatesText->setGeometry (loc.x, loc.y, 100, 20);
+	coordinatesText->setGeometry (px, py, 100, 20);
 	coordinatesDisp = new QLabel ("", parent);
-	coordinatesDisp->setGeometry (loc.x+100, loc.y, 100, 20);
+	coordinatesDisp->setGeometry (px+100, py, 100, 20);
 	valueText = new QLabel ("Value", parent);
-	valueText->setGeometry (loc.x + 200, loc.y, 100, 20);
+	valueText->setGeometry (px + 200, py, 100, 20);
 	valueDisp = new QLabel ("", parent);
-	valueDisp->setGeometry (loc.x + 300, loc.y, 100, 20);
-	loc.y += 25;
+	valueDisp->setGeometry (px + 300, py, 100, 20);
+	py += 25;
 }
 
 
@@ -136,10 +135,11 @@ void PictureControl::setSliderPositions(unsigned min, unsigned max){
  * Used during initialization & when used when transitioning between 1 and >1 pictures per repetition. 
  * Sets the unscaled background area and the scaled area.
  */
-void PictureControl::setPictureArea( POINT loc, int width, int height ){
+void PictureControl::setPictureArea( QPoint loc, int width, int height ){
 	// this is important for the control to know where it should draw controls.
 	auto& sBA = scaledBackgroundArea;
-	unscaledBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height };
+	auto& px = loc.rx (), & py = loc.ry ();
+	unscaledBackgroundArea = { px, py, px + width, py + height };
 	// reserve some area for the texts.
 	unscaledBackgroundArea.right -= 100;
 	sBA = unscaledBackgroundArea;
@@ -173,14 +173,14 @@ void PictureControl::setPictureArea( POINT loc, int width, int height ){
 
 	unsigned long picWidth = unsigned long( (sBA.right - sBA.left)*widthPicScale );
 	unsigned long picHeight = (sBA.bottom - sBA.top)*heightPicScale;
-	POINT mid = { (sBA.left + sBA.right) / 2, (sBA.top + sBA.bottom) / 2 };
-	pictureArea.left = mid.x - picWidth / 2;
-	pictureArea.right = mid.x + picWidth / 2;
-	pictureArea.top = mid.y - picHeight / 2;
-	pictureArea.bottom = mid.y + picHeight / 2;
+	QPoint mid = { (sBA.left + sBA.right) / 2, (sBA.top + sBA.bottom) / 2 };
+	pictureArea.left = mid.x() - picWidth / 2;
+	pictureArea.right = mid.x() + picWidth / 2;
+	pictureArea.top = mid.y() - picHeight / 2;
+	pictureArea.bottom = mid.y() + picHeight / 2;
 	
 	if (pictureObject){
-		pictureObject->setGeometry (loc.x, loc.y, width, height);
+		pictureObject->setGeometry (px, py, width, height);
 		pictureObject->raise ();
 	}
 }
@@ -189,9 +189,9 @@ void PictureControl::setPictureArea( POINT loc, int width, int height ){
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make 
  * sure to change the background size before using this.
  * ********/
-void PictureControl::setSliderControlLocs (POINT pos, int height){
+void PictureControl::setSliderControlLocs (QPoint pos, int height){
 	sliderMin.reposition ( pos, height);
-	pos.x += 25;
+	pos.rx() += 25;
 	sliderMax.reposition ( pos, height );
 }
 
@@ -210,11 +210,12 @@ void PictureControl::setCursorValueLocations( CWnd* parent ){
 	double heightScale = height / 997.0;
 	widthScale = 1;
 	heightScale = 1;
-	POINT loc = { long( unscaledBackgroundArea.left * widthScale ), long( unscaledBackgroundArea.bottom * heightScale ) };
-	coordinatesText->setGeometry (loc.x, loc.y, 100, 25);
-	coordinatesDisp->setGeometry (loc.x+100, loc.y, 100, 25);
-	valueText->setGeometry (loc.x+200, loc.y, 100, 25);
-	valueDisp->setGeometry (loc.x+300, loc.y, 100, 25);
+	QPoint loc = { long( unscaledBackgroundArea.left * widthScale ), long( unscaledBackgroundArea.bottom * heightScale ) };
+	auto& px = loc.rx (), & py = loc.ry ();
+	coordinatesText->setGeometry (px, py, 100, 25);
+	coordinatesDisp->setGeometry (px+100, py, 100, 25);
+	valueText->setGeometry (px+200, py, 100, 25);
+	valueDisp->setGeometry (px+300, py, 100, 25);
 }
 
 /*
@@ -269,25 +270,14 @@ std::pair<unsigned, unsigned> PictureControl::getSliderLocations(){
 }
 
 
-/*
- * called when the user drags the scroll bar.
- */
-void PictureControl::handleScroll(int id, unsigned nPos){
-	if ( id == sliderMax.getSliderId ( ) ){
-		sliderMax.handleSlider ( nPos );
-	}
-	if ( id == sliderMin.getSliderId ( ) ){
-		sliderMin.handleSlider ( nPos );
-	}
-}
+
 
 
 /*
  * Recalculate the grid of pixels, which needs to be done e.g. when changing number of pictures or re-sizing the 
  * picture. Does not draw the grid.
  */
-void PictureControl::recalculateGrid(imageParameters newParameters)
-{
+void PictureControl::recalculateGrid(imageParameters newParameters){
 	// not strictly necessary.
 	grid.clear();
 	// find the maximum dimension.
@@ -318,15 +308,14 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 		widthPicScale = w_to_h_ratio / (sba_w / sba_h);
 	}
 
-
 	long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
 	long height = long((scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale);
-	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
+	QPoint mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
 				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
-	pictureArea.left = mid.x - width / 2;
-	pictureArea.right = mid.x + width / 2;
-	pictureArea.top = mid.y - height / 2;
-	pictureArea.bottom = mid.y + height / 2;
+	pictureArea.left = mid.x() - width / 2;
+	pictureArea.right = mid.x() + width / 2;
+	pictureArea.top = mid.y() - height / 2;
+	pictureArea.bottom = mid.y() + height / 2;
 	//
 
 	grid.resize(newParameters.width());
@@ -436,6 +425,7 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 	std::vector<uchar> dataArray2 ( dataWidth * dataHeight, 255 );
 	int iTemp;
 	double dTemp = 1;
+	const int picPaletteSize = 256;
 	for (int heightInc = 0; heightInc < dataHeight; heightInc++){
 		for (int widthInc = 0; widthInc < dataWidth; widthInc++){
 			dTemp = ceil (yscale * double(picData (heightInc, widthInc) - minColor));
@@ -443,9 +433,9 @@ void PictureControl::drawBitmap ( const Matrix<long>& picData, std::tuple<bool, 
 				// raise value to zero which is the floor of values this parameter can take.
 				iTemp = 1;
 			}
-			else if (dTemp >= PICTURE_PALETTE_SIZE - 1)	{
+			else if (dTemp >= picPaletteSize - 1)	{
 				// round to maximum value.
-				iTemp = PICTURE_PALETTE_SIZE - 2;
+				iTemp = picPaletteSize - 2;
 			}
 			else{
 				// no rounding or flooring to min or max needed.
@@ -502,7 +492,7 @@ void PictureControl::handleMouse (QMouseEvent* event){
 	unsigned colCount = 0;
 	for ( auto col : grid ){
 		for ( auto box : col ){
-			if (loc.x() < box.right && loc.x() > box.left && loc.y() > box.top && loc.y() < box.bottom ) {
+			if (loc.x() < box.right && loc.x () > box.left && loc.y() > box.top && loc.y () < box.bottom ) {
 				coordinatesDisp->setText( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
 				selectedLocation = { rowCount, colCount };
 				if ( mostRecentImage_m.size( ) != 0 && grid.size( ) != 0 ){

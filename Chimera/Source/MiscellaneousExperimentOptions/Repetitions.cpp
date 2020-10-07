@@ -7,60 +7,49 @@
 #include <boost/lexical_cast.hpp>
 #include "PrimaryWindows/QtMainWindow.h"
 
-unsigned Repetitions::getSettingsFromConfig (ConfigStream& openFile )
-{
+unsigned Repetitions::getSettingsFromConfig (ConfigStream& openFile ){
 	unsigned repNum;
 	openFile >> repNum;
 	return repNum;
 }
 
-
-
-void Repetitions::handleSaveConfig(ConfigStream& saveFile)
-{
+void Repetitions::handleSaveConfig(ConfigStream& saveFile){
 	saveFile << "REPETITIONS\n";
 	saveFile << "/*Reps:*/" << getRepetitionNumber ();
 	saveFile << "\nEND_REPETITIONS\n";
 }
 
-void Repetitions::updateNumber(long repNumber)
-{
+void Repetitions::updateNumber(long repNumber){
 	repetitionDisp->setText (cstr (repNumber));
 }
 
 
-void Repetitions::initialize(POINT& pos, IChimeraQtWindow* parent )
-{
+void Repetitions::initialize(QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	repetitionNumber = 100;
 	// title
 	repetitionText = new QLabel ("Repetition #", parent);
-	repetitionText->setGeometry (QRect (pos.x, pos.y, 180, 20));
+	repetitionText->setGeometry (QRect (px, py, 180, 20));
 	repetitionEdit = new CQLineEdit (cstr (repetitionNumber), parent);
-	repetitionEdit->setGeometry (QRect (pos.x + 180, pos.y, 150, 20));
+	repetitionEdit->setGeometry (QRect (px + 180, py, 150, 20));
 	parent->connect (repetitionEdit, &QLineEdit::textChanged, [parent]() {parent->configUpdated (); });
 	repetitionDisp = new QLabel ("-", parent);
-	repetitionDisp->setGeometry (QRect (pos.x + 330, pos.y, 150, 20));
-	pos.y += 20;
+	repetitionDisp->setGeometry (QRect (px + 330, py, 150, 20));
+	py += 20;
 }
 
-
-void Repetitions::setRepetitions(unsigned number)
-{
+void Repetitions::setRepetitions(unsigned number){
 	repetitionNumber = number;
 	repetitionEdit->setText (cstr (number));
 	repetitionDisp->setText("---");
 }
 
-
-unsigned Repetitions::getRepetitionNumber()
-{
+unsigned Repetitions::getRepetitionNumber(){
 	auto text = repetitionEdit->text ();
-	try
-	{
+	try	{
 		repetitionNumber = boost::lexical_cast<int>(str(text));
 	}
-	catch ( boost::bad_lexical_cast&)
-	{
+	catch ( boost::bad_lexical_cast&){
 		throwNested ("Failed to convert repetition number text to an integer!");
 	}
 	return repetitionNumber;

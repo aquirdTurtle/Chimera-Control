@@ -3,6 +3,7 @@
 #include "GeneralFlumes/WinSerialFlume.h"
 #include "GeneralFlumes/ftdiStructures.h"
 #include "GeneralObjects/ExpWrap.h"
+#include <GeneralObjects/Matrix.h>
 #include "Plotting/PlotCtrl.h"
 
 #include "DoStructures.h"

@@ -48,14 +48,15 @@ TekCore& TektronixAfgControl::getCore (){
 }
 
 
-void TektronixAfgControl::initialize (POINT& loc, IChimeraQtWindow* parent, std::string headerText,
+void TektronixAfgControl::initialize (QPoint& loc, IChimeraQtWindow* parent, std::string headerText,
 	std::string channel1Text, std::string channel2Text, LONG width) {
+	auto& px = loc.rx (), & py = loc.ry ();
 	header = new QLabel (("Tektronix " + headerText).c_str (), parent);
-	header->setGeometry (loc.x, loc.y, width, 25);
-	loc.y += 25;
+	header->setGeometry (px, py, width, 25);
+	py += 25;
 
 	programNow = new QPushButton ("Program Now", parent);
-	programNow->setGeometry (loc.x, loc.y, width / 3, 20);
+	programNow->setGeometry (px, py, width / 3, 20);
 
 	parent->connect (programNow, &QPushButton::released, [this, parent]() {
 		try	{
@@ -66,27 +67,27 @@ void TektronixAfgControl::initialize (POINT& loc, IChimeraQtWindow* parent, std:
 			parent->reportErr("Error while programing Top/Bottom Tektronix generator: " + exception.qtrace () + "\r\n");
 		}});
 
-	channel1.initialize( { loc.x + width / 3, loc.y }, parent, "Channel 1:" + channel1Text, width / 3 );
-	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, "Channel 2:" + channel2Text, width / 3 );
+	channel1.initialize( { px + width / 3, py }, parent, "Channel 1:" + channel1Text, width / 3 );
+	channel2.initialize( { px + 2 * width / 3, py }, parent, "Channel 2:" + channel2Text, width / 3 );
 
 	controlLabel = new QLabel ("Control:", parent);
-	controlLabel->setGeometry (loc.x, loc.y+=20, width / 3, 20);
+	controlLabel->setGeometry (px, py+=20, width / 3, 20);
 
 	onOffLabel = new QLabel ("On:", parent);
-	onOffLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+	onOffLabel->setGeometry (px, py += 20, width / 3, 20);
 
 	fskLabel = new QLabel ("FSK:", parent);
-	fskLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+	fskLabel->setGeometry (px, py += 20, width / 3, 20);
 
 	mainPowerLabel = new QLabel ("Power:", parent);
-	mainPowerLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+	mainPowerLabel->setGeometry (px, py += 20, width / 3, 20);
 
 	mainFreqLabel = new QLabel ("Main Freq:", parent);
-	mainFreqLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
+	mainFreqLabel->setGeometry (px, py += 20, width / 3, 20);
 
 	fskFreqLabel = new QLabel ("FSK Freq:", parent);
-	fskFreqLabel->setGeometry (loc.x, loc.y += 20, width / 3, 20);
-	loc.y += 20;
+	fskFreqLabel->setGeometry (px, py += 20, width / 3, 20);
+	py += 20;
 }
 
 

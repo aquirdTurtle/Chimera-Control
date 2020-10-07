@@ -23,12 +23,12 @@ class PictureControl : public QWidget{
 	Q_OBJECT
 	public:
 		PictureControl ( bool histogramOption, Qt::TransformationMode mode );
-		void initialize( POINT loc, int width, int height, IChimeraQtWindow* widget, int picScaleFactorIn=50);
+		void initialize( QPoint loc, int width, int height, IChimeraQtWindow* widget, int picScaleFactorIn=50);
 		void handleMouse( QMouseEvent* event );
 		void drawPicNum(unsigned picNum, QPainter& painter);
 		void recalculateGrid( imageParameters newParameters );
-		void setPictureArea( POINT loc, int width, int height );
-		void setSliderControlLocs(POINT pos, int height);
+		void setPictureArea( QPoint loc, int width, int height );
+		void setSliderControlLocs(QPoint pos, int height);
 		void drawBitmap (const Matrix<long>& picData, std::tuple<bool, int, int> autoscaleInfo, 
 						 bool specialMin, bool specialMax, std::vector<atomGrid> grids, unsigned pictureNumber, 
 						 bool includingAnalysisMarkers);
@@ -38,7 +38,6 @@ class PictureControl : public QWidget{
 		void setSoftwareAccumulationOption ( softwareAccumulationOption opt );
 		void drawAnalysisMarkers( std::vector<atomGrid> gridInfo, QPainter& painter);
 		void setCursorValueLocations( CWnd* parent );
-		void handleScroll( int id, unsigned nPos );
 		void handleEditChange( int id );
 		void updatePalette(QVector<QRgb> pallete );
 		void redrawImage();
@@ -60,10 +59,8 @@ class PictureControl : public QWidget{
 		softwareAccumulationOption saOption;
 		std::vector<double> accumPicData;
 		unsigned accumNum;
-		int plotIDs = 1000;
-
 		const bool histOption;
-		std::vector<pPlotDataVec> horData, vertData;
+		std::vector<plotDataVec> horData, vertData;
 		PlotCtrl* horGraph;
 		PlotCtrl* vertGraph;
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;

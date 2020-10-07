@@ -1,11 +1,11 @@
 %%---------------------------------------------------------%%
 %%---------------------------------------------------------%%
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
-var spacing 4.8
+var spacing 5.2
 var tunnelbias 0.58
 var ldumpBias 0.5 
 var dumpBias 0.025 
-var tone3b 0.0
+var tone3b 0.5
 
 var_v 3 linRamps [ lin lin lin ]   
 var_v 3 freqs [ 69 81 93 ] 

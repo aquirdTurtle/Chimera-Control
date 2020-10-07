@@ -11,7 +11,8 @@
 #include "Commctrl.h"
 #include <boost/lexical_cast.hpp>
 
-void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
+void PictureSettingsControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), &py = pos.ry ();
 	// introducing things row by row
 	/// Set Picture Options
 	unsigned count = 0;
@@ -26,53 +27,53 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 		}
 	};
 	transformationModeCombo = new CQComboBox (parent);
-	transformationModeCombo->setGeometry (pos.x, pos.y, 480, 20);
+	transformationModeCombo->setGeometry (px, py, 480, 20);
 	transformationModeCombo->addItems ({ "Fast", "Smooth" });
 	parent->connect (transformationModeCombo, qOverload<int> (&QComboBox::currentIndexChanged), 
 		parent->andorWin, &QtAndorWindow::handleTransformationModeChange);
 
 	/// Picture Numbers
 	pictureLabel = new QLabel ("Picture #:", parent);
-	pictureLabel->setGeometry (pos.x, pos.y += 20, 100, 20);
+	pictureLabel->setGeometry (px, py += 20, 100, 20);
 	for ( auto picInc : range(4) ) {
 		pictureNumbers[picInc] = new QLabel (cstr (picInc + 1), parent);
-		pictureNumbers[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		pictureNumbers[picInc]->setGeometry (px + 100 + 95 * picInc, py, 95, 20);
 	}
-	pos.y += 20;
+	py += 20;
 	/// Total picture number
 	totalPicNumberLabel = new QLabel ("Total Picture #", parent);
-	totalPicNumberLabel->setGeometry (pos.x, pos.y, 100, 20);
+	totalPicNumberLabel->setGeometry (px, py, 100, 20);
 	for (auto picInc : range (4)) {
 		totalNumberChoice[picInc] = new CQRadioButton ("", parent);
-		totalNumberChoice[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		totalNumberChoice[picInc]->setGeometry (px + 100 + 95 * picInc, py, 95, 20);
 		totalNumberChoice[picInc]->setChecked (picInc == 0);
 		parent->connect (totalNumberChoice[picInc], &QRadioButton::toggled, handleChange);
 	}
 	/// Exposure Times
 	exposureLabel = new QLabel ("Exposure (ms):", parent);
-	exposureLabel->setGeometry (pos.x, pos.y+=20, 100, 20);
+	exposureLabel->setGeometry (px, py+=20, 100, 20);
 	for ( auto picInc : range(4) ) {
 		exposureEdits[picInc] = new CQLineEdit (parent);
-		exposureEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		exposureEdits[picInc]->setGeometry (px + 100 + 95 * picInc, py, 95, 20);
 		parent->connect (exposureEdits[picInc], &QLineEdit::textChanged, handleChange);
 	}
 	setUnofficialExposures ( std::vector<float> ( 4, 10 / 1000.0f ) );
 
 	/// Thresholds
 	thresholdLabel = new QLabel ("Threshold (cts)", parent);
-	thresholdLabel->setGeometry (pos.x, pos.y += 20, 100, 20);
+	thresholdLabel->setGeometry (px, py += 20, 100, 20);
 	for ( auto picInc : range(4) ) {
 		thresholdEdits[picInc] = new CQLineEdit ("100", parent);
-		thresholdEdits[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 20);
+		thresholdEdits[picInc]->setGeometry (px + 100 + 95 * picInc, py, 95, 20);
 		parent->connect (thresholdEdits[picInc], &QLineEdit::textChanged, handleChange);
 		currentPicSettings.thresholds[ picInc ] = { 100 };
 	}
 	/// colormaps
 	colormapLabel = new QLabel ("Colormap", parent);
-	colormapLabel->setGeometry (pos.x, pos.y += 20,100, 25);
+	colormapLabel->setGeometry (px, py += 20,100, 25);
 	for ( auto picInc : range(4) ){
 		colormapCombos[picInc] = new CQComboBox (parent);
-		colormapCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
+		colormapCombos[picInc]->setGeometry (px + 100 + 95 * picInc, py, 95, 25);
 		colormapCombos[picInc]->addItems ({ "Dark Viridis","Inferno","Black & White", "Red-Black-Blue" });
 		parent->connect (colormapCombos[picInc], qOverload<int>(&QComboBox::activated), handleChange);
 
@@ -81,10 +82,10 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	}
 	/// display types
 	displayTypeLabel = new QLabel ("Display-Type:", parent);
-	displayTypeLabel->setGeometry (pos.x, pos.y += 25, 100, 25);
+	displayTypeLabel->setGeometry (px, py += 25, 100, 25);
 	for ( auto picInc : range ( 4 ) ) {
 		displayTypeCombos[picInc] = new CQComboBox (parent);
-		displayTypeCombos[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 95, 25);
+		displayTypeCombos[picInc]->setGeometry (px + 100 + 95 * picInc, py, 95, 25);
 		displayTypeCombos[picInc]->addItems ({"Normal","Dif: 1", "Dif: 2", "Dif: 3", "Dif: 4"});
 		parent->connect (displayTypeCombos[picInc], qOverload<int> (&QComboBox::activated), handleChange);
 		displayTypeCombos[ picInc ]->setCurrentIndex ( 0 );
@@ -92,15 +93,15 @@ void PictureSettingsControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	}
 	/// software accumulation mode
 	softwareAccumulationLabel = new QLabel ("Software Accum:", parent);
-	softwareAccumulationLabel->setGeometry (pos.x, pos.y += 25, 100, 20);
+	softwareAccumulationLabel->setGeometry (px, py += 25, 100, 20);
 	for ( auto picInc : range ( 4 ) ) {
 		softwareAccumulateAll[picInc] = new CQCheckBox("All?", parent);
-		softwareAccumulateAll[picInc]->setGeometry (pos.x + 100 + 95 * picInc, pos.y, 65, 20);
+		softwareAccumulateAll[picInc]->setGeometry (px + 100 + 95 * picInc, py, 65, 20);
 		softwareAccumulateAll[ picInc ]->setChecked( 0 );
 		parent->connect (softwareAccumulateAll[picInc], &QCheckBox::stateChanged, handleChange);
 
 		softwareAccumulateNum[picInc] = new CQLineEdit ("1", parent);
-		softwareAccumulateNum[picInc]->setGeometry (pos.x + 165 + 95 * picInc, pos.y, 30, 20);
+		softwareAccumulateNum[picInc]->setGeometry (px + 165 + 95 * picInc, py, 30, 20);
 		parent->connect (softwareAccumulateNum[picInc], &QLineEdit::textChanged, handleChange);
 	}
 	setPictureControlEnabled (0, true);

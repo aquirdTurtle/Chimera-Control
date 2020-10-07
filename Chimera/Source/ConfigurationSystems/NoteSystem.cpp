@@ -37,9 +37,9 @@ void NoteSystem::handleOpenConfig(ConfigStream& openFile){
 	openFile.seekg ( pos );
 }
 
-void NoteSystem::initialize(POINT& topLeftPos, IChimeraQtWindow* win){
+void NoteSystem::initialize(QPoint& topLeftPos, IChimeraQtWindow* win){
 	unsigned noteSize = 80;
-	auto & px = topLeftPos.x, & py = topLeftPos.y;
+	auto & px = topLeftPos.rx(), & py = topLeftPos.ry();
 	header = new QLabel ("CONFIGURATION NOTES", win);
 	header->setGeometry (px, py, 480, 25);
 	edit = new CQTextEdit (win);

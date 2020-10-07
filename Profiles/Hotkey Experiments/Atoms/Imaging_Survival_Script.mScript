@@ -14,16 +14,16 @@ t += 2
 % call pgcloading()
 call D1GreyLambdaLoading()
 t += 2
-%pulseon: tweezerIntensityTrig 0.1
-t += 1
+pulseon: tweezerIntensityTrig 0.1
+t += 2
 call pgcAtomFlashingImage()
 t += 10
-call intrappgc()
+%call intrappgc()
 %call inTrapGreyMolasses()
-t += 80
+t += 20
 call pgcAtomFlashingImage()
 t += 1
-%pulseon: tweezerIntensityTrig 0.1
+pulseon: tweezerIntensityTrig 0.1
 t += 1
   
 

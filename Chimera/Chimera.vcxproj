@@ -420,7 +420,6 @@
     <ClInclude Include="Source\Andor\AndorRunSettings.h" />
     <ClInclude Include="Source\Andor\AndorTemperatureStatus.h" />
     <ClInclude Include="Source\Andor\AndorTriggerModes.h" />
-    <ClInclude Include="Source\GeneralObjects\SmartDC.h" />
     <ClInclude Include="Source\NIAWG\NiawgConstants.h" />
     <ClInclude Include="Source\NIAWG\NiawgSystem.h" />
     <QtMoc Include="Source\ParameterSystem\ParameterModel.h">
@@ -557,7 +556,6 @@
     <ClInclude Include="Source\GeneralImaging\softwareAccumulationOption.h" />
     <ClInclude Include="Source\Andor\CameraCalibration.h" />
     <ClInclude Include="Source\Andor\CameraImageDimensions.h" />
-    <ClInclude Include="Source\Andor\cameraPositions.h" />
     <ClInclude Include="Source\Andor\AndorCameraSettingsControl.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\cleanString.h" />
     <ClInclude Include="Source\ExperimentMonitoringAndStatus\ColorBox.h" />
@@ -571,7 +569,6 @@
     <ClInclude Include="Source\CustomQtControls\functionCombo.h" />
     <ClInclude Include="Source\ExperimentThread\ExperimentThreadInput.h" />
     <ClInclude Include="Source\GeneralObjects\Matrix.h" />
-    <ClInclude Include="Source\GeneralImaging\memdc.h" />
     <ClInclude Include="Source\GeneralObjects\multiDimensionalKey.h" />
     <ClInclude Include="Source\ConfigurationSystems\profileSettings.h" />
     <ClInclude Include="Source\ConfigurationSystems\ConfigSystem.h" />
@@ -596,7 +593,6 @@
     <ClInclude Include="Source\ConfigurationSystems\ProfileIndicator.h" />
     <ClInclude Include="Source\LowLevel\constants.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.h" />
-    <ClInclude Include="Source\LowLevel\externals.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\range.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\realTimePlotterInput.h" />
     <ClInclude Include="Source\NIAWG\Rearrangement\rerngContainer.h" />
@@ -659,6 +655,7 @@
     <ClCompile Include="Source\Basler\BaslerWrapper.cpp" />
     <ClCompile Include="Source\Basler\ImageEventHandler.cpp" />
     <ClCompile Include="Source\ConfigurationSystems\ConfigStream.cpp" />
+    <ClCompile Include="Source\ConfigurationSystems\profileSettings.cpp" />
     <ClCompile Include="Source\CustomQtControls\AutoNotifyCtrls.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmControl.cpp" />
     <ClCompile Include="Source\DeformableMirror\DmCore.cpp" />
@@ -734,7 +731,6 @@
     <ClCompile Include="Source\Plotting\PlotDataSet.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.cpp" />
     <ClCompile Include="Source\ExperimentMonitoringAndStatus\ExperimentTimer.cpp" />
-    <ClCompile Include="Source\LowLevel\externals.cpp" />
     <ClCompile Include="Source\NIAWG\Fgen.cpp" />
     <ClCompile Include="Source\GeneralFlumes\GpibFlume.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\MainOptionsControl.cpp" />
@@ -785,8 +781,6 @@
     <Image Include="icon1.ico" />
     <Image Include="Icon2.ico" />
     <Image Include="Source\LowLevel\Atom.ico" />
-    <Image Include="Source\LowLevel\bitmap2.bmp" />
-    <Image Include="Source\LowLevel\bitmap3.bmp" />
     <Image Include="Source\LowLevel\JILA.bmp" />
     <Image Include="Source\LowLevel\Shades_Of_Infrared.bmp" />
     <Image Include="Source\Shades_Of_Infrared.bmp" />

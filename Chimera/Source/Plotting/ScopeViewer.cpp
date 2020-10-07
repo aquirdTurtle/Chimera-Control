@@ -4,6 +4,9 @@
 #include <PrimaryWindows/IChimeraQtWindow.h>
 #include <QLineSeries>
 #include <QGraphicsLayout>
+#include <qthread.h>
+#include <Plotting/ScopeThreadWorker.h>
+#include <qpushbutton.h>
 
 ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned traceNumIn, std::string name ) :
 	visa ( safemode, usbAddress ), numTraces ( traceNumIn ), safemode ( safemode ), scopeName ( name ), viewPlot(traceNumIn,
@@ -22,9 +25,10 @@ ScopeViewer::ScopeViewer ( std::string usbAddress, bool safemode, unsigned trace
 			+ ". " + err.trace() + ". Try again?"), QMessageBox::Yes | QMessageBox::No);
 		while (answer == QMessageBox::Yes) {
 			try {
-				visa.open ();
+				//visa.open ();
 				visa.query ("WFMpre:YOFF?\n", yoffset);
 				visa.query ("WFMpre:YMULT?\n", ymult);
+				//visa.close ();
 				break;
 			}
 			catch (ChimeraError & err) {
@@ -41,10 +45,14 @@ ScopeViewer::~ScopeViewer () {
 }
 
 std::string ScopeViewer::getScopeInfo( ){
-	return visa.identityQuery( );
+	return "";
+	visa.open();
+	auto msg = visa.identityQuery ();
+	visa.close ();
+	return msg;
 }
  
-void ScopeViewer::initialize( POINT& pos, unsigned width, unsigned height, IChimeraQtWindow* parent, std::string title){
+void ScopeViewer::initialize( QPoint& pos, unsigned width, unsigned height, IChimeraQtWindow* parent, std::string title){
 	if ( safemode )	{
 		title += " (SAFEMODE)";
 	}
@@ -52,13 +60,22 @@ void ScopeViewer::initialize( POINT& pos, unsigned width, unsigned height, IChim
 		title += " (Initialization Failed)";
 	}
 	viewPlot.init (pos, width, height, parent);
+	updateDataBtn = new QPushButton ("Update Data", parent);
+	updateDataBtn->setGeometry (pos.x (), pos.y (), width, 20);
+	pos.ry () += 20;
+	// start the thread which monitors the scope data.
+	QThread* workerThread = new QThread;
+	ScopeThreadWorker* worker = new ScopeThreadWorker (this);
+	worker->moveToThread (workerThread);
+	connect (workerThread, SIGNAL (started ()), worker, SLOT (process ()));
+	connect (worker, &ScopeThreadWorker::newData, this, &ScopeViewer::updateData);
+	connect (workerThread, SIGNAL (finished ()), workerThread, SLOT (deleteLater ()));
+	workerThread->start ();
 }
 
 void ScopeViewer::updateData(const QVector<double>& xdata, double xmin, double xmax, 
 							 const QVector<double>& ydata, double ymin, double ymax, 
 							 int traceNum){
-	//auto* line = data_t[traceNum];
-	
 	auto& line = data_pdv[traceNum];
 	line.resize (xdata.size ());
 	for (auto count : range (xdata.size())) {
@@ -75,15 +92,12 @@ QVector<double> ScopeViewer::getCurrentTraces(unsigned whichNum){
 	}
 	std::string dataStr;
 	try	{
+		//visa.open ();
 		visa.write( "DATa:SOUrce CH" + str( whichNum + 1 ) );
+		visa.query ("Curve?\n", dataStr);
+		//visa.close ();
 	}
-	catch ( ChimeraError&)	{
-		return newData;
-	}
-	try	{
-		visa.query( "Curve?\n", dataStr);
-	}
-	catch ( ChimeraError& ) {
+	catch ( ChimeraError&){
 		return newData;
 	}
 	double count = 0;

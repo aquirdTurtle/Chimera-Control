@@ -6,6 +6,7 @@
 #include "GeneralUtilityFunctions/range.h"
 #include "GeneralUtilityFunctions/my_str.h"
 #include <qmetatype.h>
+#include <qpoint.h>
 
 // a wrapper around a 1D matrix that allows for 2D (row/collum) access styles. Mostly used to represent images.
 template <class type>
@@ -16,8 +17,8 @@ class Matrix {
 		Matrix( unsigned rowsInGrid, unsigned colsInGrid, std::vector<type> init1D );
 		type operator()( unsigned row, unsigned col ) const;
 		type & operator()( unsigned row, unsigned col );
-		type operator()( POINT p ) const;
-		type & operator()( POINT p );
+		type operator()( QPoint p ) const;
+		type & operator()( QPoint p );
 		unsigned getRows () const;
 		unsigned getCols () const;
 		size_t size ( ) const;
@@ -134,29 +135,29 @@ size_t Matrix<type>::size ( ) const{
 
 
 template<class type>
-type Matrix<type>::operator()( POINT p ) const{
-	if ( p.y >= rows ){
-		thrower ( "ERROR: row index out of range during Matrix access! row was " + str ( p.y ) );
+type Matrix<type>::operator()( QPoint p ) const{
+	if ( p.y () >= rows ){
+		thrower ( "ERROR: row index out of range during Matrix access! row was " + str ( p.y ()) );
 	}
-	if ( p.x >= cols ){
-		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( p.x ) );
+	if ( p.x () >= cols ){
+		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( p.x ()) );
 	}
 
-	unsigned rowOffset ( p.y * cols );
-	unsigned index = rowOffset + p.x;
+	unsigned rowOffset ( p.y () * cols );
+	unsigned index = rowOffset + p.x ();
 	return data[ index ];
 }
 
 template<class type>
-type & Matrix<type>::operator()( POINT p ){
-	if ( p.y >= rows ){
-		thrower ( "ERROR: row index out of range during Matrix access! row was " + str ( p.y ) );
+type & Matrix<type>::operator()( QPoint p ){
+	if ( p.y() >= rows ){
+		thrower ( "ERROR: row index out of range during Matrix access! row was " + str ( p.y() ) );
 	}
-	if ( p.x >= cols ){
-		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( p.x ) );
+	if ( p.x() >= cols ){
+		thrower ( "ERROR: col index out of range during Matrix access! col was " + str ( p.x ()) );
 	}
-	unsigned rowOffset ( p.y * cols );
-	unsigned index = rowOffset + p.x;
+	unsigned rowOffset ( p.y () * cols );
+	unsigned index = rowOffset + p.x ();
 	return data[ index ];
 }
 

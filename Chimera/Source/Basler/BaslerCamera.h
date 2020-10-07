@@ -41,7 +41,7 @@ class BaslerCameraCore : public IDeviceCore{
 		void disarm();
 		static void triggerThread(void* input);
 		void softwareTrigger();
-		POINT getCameraDimensions();
+		QPoint getCameraDimensions();
 		void reOpenCamera(IChimeraQtWindow* parent );
 		std::string getCameraInfo();
 		baslerSettings getDefaultSettings();
@@ -49,7 +49,6 @@ class BaslerCameraCore : public IDeviceCore{
 		unsigned int getPicsPerRep ();
 		bool isContinuous();
 		bool isInitialized();
-		HANDLE getCameraThreadObj ( );
 		baslerSettings getRunningSettings ();
 		std::string configDelim = "BASLER_CAMERA_SETTINGS";
 		std::string getDelim () { return configDelim; }

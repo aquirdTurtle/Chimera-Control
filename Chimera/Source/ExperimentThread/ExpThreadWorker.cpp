@@ -2,6 +2,7 @@
 #include "ExpThreadWorker.h"
 #include <ConfigurationSystems/ConfigSystem.h>
 #include <MiscellaneousExperimentOptions/Repetitions.h>
+#include <Scripts/Script.h>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -29,14 +30,13 @@ void ExpThreadWorker::experimentThreadProcedure () {
 	experimentIsRunning = true;
 	emit notification (qstr ("Starting Experiment " + input->profile.configuration + "...\n"));
 	ExpRuntimeData expRuntime;
-	//input->devices.getSingleDevice<AndorCameraCore> ().experimentActive = input->runList.andor;
-	input->devices.getSingleDevice<BaslerCameraCore> ().experimentActive = input->runList.basler;
 	isPaused = false;
 	try {
 		for (auto& device : input->devices.list) {
 			emit updateBoxColor ("Black", device.get ().getDelim ().c_str ());
 		}
 		emit updateBoxColor ("Black", "Other");
+
 		emit notification ("Loading Experiment Settings...\n");
 		ConfigStream cStream (input->profile.configFilePath (), true);
 		loadExperimentRuntime (cStream, expRuntime);
@@ -190,16 +190,16 @@ void ExpThreadWorker::analyzeFunction (std::string function, std::vector<std::st
 	std::fstream functionFile;
 	// check if file address is good.
 	FILE* file;
-	fopen_s (&file, cstr (FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION), "r");
+	fopen_s (&file, cstr (FUNCTIONS_FOLDER_LOCATION + function + "." + Script::FUNCTION_EXTENSION), "r");
 	if (!file) {
 		thrower ("Function " + function + " does not exist! The master script tried to open this function, it"
 			" tried and failed to open the location " + FUNCTIONS_FOLDER_LOCATION + function + "."
-			+ FUNCTION_EXTENSION + ".");
+			+ Script::FUNCTION_EXTENSION + ".");
 	}
 	else {
 		fclose (file);
 	}
-	functionFile.open (FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION, std::ios::in);
+	functionFile.open (FUNCTIONS_FOLDER_LOCATION + function + "." + Script::FUNCTION_EXTENSION, std::ios::in);
 	// check opened correctly
 	if (!functionFile.is_open ()) {
 		thrower ("Function file " + function + "File passed test making sure the file exists, but it still "
@@ -390,7 +390,6 @@ void ExpThreadWorker::loadNiawgScript (std::string scriptAddress, ScriptStream& 
 	scriptFile.close ();
 }
 
-
 void ExpThreadWorker::loadMasterScript (std::string scriptAddress, ScriptStream& currentMasterScript) {
 	std::ifstream scriptFile;
 	// check if file address is good.
@@ -427,7 +426,7 @@ void ExpThreadWorker::loadMasterScript (std::string scriptAddress, ScriptStream&
 
 // makes sure formatting is correct, returns the arguments and the function name from reading the firs real line of a function file.
 void ExpThreadWorker::analyzeFunctionDefinition (std::string defLine, std::string& functionName,
-	std::vector<std::string>& args) {
+												 std::vector<std::string>& args) {
 	args.clear ();
 	ScriptStream defStream (defLine);
 	std::string word;
@@ -473,18 +472,15 @@ void ExpThreadWorker::analyzeFunctionDefinition (std::string defLine, std::strin
 		// clean up any spaces on beginning and end.
 		int lastChar = tempArg.find_last_not_of (" \t");
 		int lastSpace = tempArg.find_last_of (" \t");
-		if (lastSpace > lastChar)
-		{
+		if (lastSpace > lastChar){
 			tempArg = tempArg.substr (0, lastChar + 1);
 		}
 		// now it should be clean. Check if there are spaces in the middle.
-		if (tempArg.find_first_of (" \t") != std::string::npos)
-		{
+		if (tempArg.find_first_of (" \t") != std::string::npos){
 			thrower ("bad argument list in function. It looks like there might have been a space or tab inside "
 				"the function argument? (A low level bug, this shouldn't happen.)");
 		}
-		if (tempArg == "")
-		{
+		if (tempArg == ""){
 			thrower ("bad argument list in function. It looks like there might have been a stray \",\"?");
 		}
 		args.push_back (tempArg);
@@ -896,7 +892,6 @@ bool ExpThreadWorker::handleFunctionCall (std::string word, ScriptStream& stream
 	return true;
 }
 
-
 void ExpThreadWorker::calculateAdoVariations (ExpRuntimeData& runtime) {
 	if (input->runList.master) {
 		auto variations = determineVariationNumber (runtime.expParams);
@@ -945,7 +940,6 @@ void ExpThreadWorker::runConsistencyChecks (std::vector<parameterType> expParams
 	}
 	checkTriggerNumbers (expParams);
 }
-
 
 void ExpThreadWorker::handlePause (std::atomic<bool>& isPaused, std::atomic<bool>& isAborting) {
 	if (isAborting) { thrower (abortString); }

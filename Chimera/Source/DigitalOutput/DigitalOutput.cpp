@@ -44,11 +44,9 @@ void DigitalOutput::setHoldStatus ( bool stat ){
 	holdStatus = stat;
 }
 
-void DigitalOutput::initialize ( POINT& pos, IChimeraQtWindow* parent )
-{
+void DigitalOutput::initialize ( QPoint& pos, IChimeraQtWindow* parent ){
 	check = new CQCheckBox ("", parent);
-	check->setGeometry ({ QPoint{ long (pos.x), long (pos.y) }, QPoint{ long (pos.x + 28), long (pos.y + 28) } });
-	//check->setStyleSheet ("QCheckBox::indicator{ width: 140px; height: 140px;}");
+	check->setGeometry ({ QPoint{ long (pos.x()), long (pos.y()) }, QPoint{ long (pos.x() + 28), long (pos.y() + 28) } });
 }
 
 

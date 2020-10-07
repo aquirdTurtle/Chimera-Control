@@ -77,14 +77,15 @@ std::pair<unsigned, unsigned> DoSystem::getTtlBoardSize(){
 	return { outputs.numRows, outputs.numColumns };
 }
 
-void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
+void DoSystem::initialize( QPoint& loc, IChimeraQtWindow* parent ){
+	auto& px = loc.rx (), & py = loc.ry ();
 	// title
 	ttlTitle = new QLabel ("DIGITAL OUTPUT", parent);
-	ttlTitle->setGeometry (loc.x, loc.y, 480, 25);
-	loc.y += 25;
+	ttlTitle->setGeometry (px, py, 480, 25);
+	py += 25;
 	// all number numberLabels
 	ttlHold = new CQPushButton ("Hold Current Values", parent);
-	ttlHold->setGeometry (loc.x, loc.y, 240, 20);
+	ttlHold->setGeometry (px, py, 240, 20);
 	ttlHold->setToolTip ("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
 		"ttls, then press the button again to release it. Upon releasing the button, the TTLs will change.");
 	parent->connect (ttlHold, &QPushButton::released, [parent, this]() {
@@ -100,7 +101,7 @@ void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 	ttlHold->setCheckable (true);
 
 	zeroTtls = new CQPushButton ("Zero DOs", parent);
-	zeroTtls->setGeometry (loc.x + 240, loc.y, 240, 20);
+	zeroTtls->setGeometry (px + 240, py, 240, 20);
 	zeroTtls->setToolTip( "Press this button to set all ttls to their zero (false) state." );
 	parent->connect (zeroTtls, &QPushButton::released, [parent, this]() {
 		try	{
@@ -113,24 +114,24 @@ void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 			emit error(exception.qtrace ());
 		}
 	});
-	loc.y += 20;
+	py += 20;
 
 	for (long ttlNumberInc : range (ttlNumberLabels.size ())) {
 		ttlNumberLabels[ttlNumberInc] = new QLabel (cstr (ttlNumberInc), parent);
-		ttlNumberLabels[ttlNumberInc]->setGeometry ({ QPoint (loc.x + 32 + ttlNumberInc * 28, loc.y),
-													  QPoint (loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20) });
+		ttlNumberLabels[ttlNumberInc]->setGeometry ({ QPoint (px + 32 + ttlNumberInc * 28, py),
+													  QPoint (px + 32 + (ttlNumberInc + 1) * 28, py + 20) });
 	}
-	loc.y += 20;
+	py += 20;
 	// all row numberLabels
 	for ( auto row : DoRows::allRows ) {
 		ttlRowLabels[int (row)] = new QLabel ((DoRows::toStr (row)).c_str(), parent);
-		ttlRowLabels[int (row)]->setGeometry (loc.x, loc.y + int (row) * 28, 32, 28);
+		ttlRowLabels[int (row)]->setGeometry (px, py + int (row) * 28, 32, 28);
 	}
 	// all push buttons
 	unsigned runningCount = 0;
-	auto startX = loc.x + 32;
+	auto startX = px + 32;
 	for (auto row : DoRows::allRows ){
-		loc.x = startX;
+		px = startX;
 		for (unsigned number = 0; number < outputs.numColumns; number++){
 			auto& out = outputs (number, row);
 			out.initialize ( loc, parent );
@@ -145,11 +146,11 @@ void DoSystem::initialize( POINT& loc, IChimeraQtWindow* parent ){
 					emit error ("DO Press Handler Failed.\n" + exception.qtrace () + "\n");
 				}
 			});
-			loc.x += 28;
+			px += 28;
 		}
-		loc.y += 28;
+		py += 28;
 	}
-	loc.x = startX - 32;
+	px = startX - 32;
 }
 
 int DoSystem::getNumberOfTTLRows(){

@@ -34,15 +34,16 @@ void MicrowaveSystem::handleContextMenu (const QPoint& pos){
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void MicrowaveSystem::initialize( POINT& pos, IChimeraQtWindow* parent ){
+void MicrowaveSystem::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	header = new QLabel ("MICROWAVE SYSTEM", parent);
-	header->setGeometry (pos.x, pos.y, 240, 25);
+	header->setGeometry (px, py, 240, 25);
 	
 	controlOptionCheck = new QCheckBox ("Control?", parent);
-	controlOptionCheck->setGeometry (pos.x+240, pos.y, 120, 20);
+	controlOptionCheck->setGeometry (px+240, py, 120, 20);
 
 	programNowPush = new QPushButton ("Program Now", parent);
-	programNowPush->setGeometry (pos.x + 360, pos.y, 120, 20);
+	programNowPush->setGeometry (px + 360, py, 120, 20);
 	parent->connect (programNowPush, &QPushButton::released, [this, parent]() {
 		try	{
 			programNow (parent->auxWin->getUsableConstants ());
@@ -53,7 +54,7 @@ void MicrowaveSystem::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	});
 
 	uwListListview = new QTableWidget (parent);
-	uwListListview->setGeometry (pos.x, pos.y += 20, 480, 100);
+	uwListListview->setGeometry (px, py += 20, 480, 100);
 	uwListListview->setColumnCount (3);
 	QStringList labels;
 	labels << "#" << "Frequency (GHz)" << "Power (dBm)";
@@ -64,7 +65,7 @@ void MicrowaveSystem::initialize( POINT& pos, IChimeraQtWindow* parent ){
 	uwListListview->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (uwListListview, &QTableWidget::customContextMenuRequested,
 		[this](const QPoint& pos) {this->handleContextMenu (pos); });
-	uwListListview->setGeometry (pos.x, pos.y, 480, 120);
+	uwListListview->setGeometry (px, py, 480, 120);
 	uwListListview->setColumnWidth (0, 40);
 	uwListListview->setColumnWidth (1, 240);
 	uwListListview->setColumnWidth (2, 140);
@@ -87,7 +88,7 @@ void MicrowaveSystem::initialize( POINT& pos, IChimeraQtWindow* parent ){
 			}
 		});
 	refreshListview ();
-	pos.y += 100;
+	py += 100;
 }
 
 void MicrowaveSystem::handleReadPress (){

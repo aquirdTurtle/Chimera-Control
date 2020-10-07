@@ -4,6 +4,7 @@
 #include "ConfigurationSystems/ConfigSystem.h"
 #include "NIAWG/NiawgCore.h"
 #include "Andor/AndorCameraCore.h"
+#include <RealTimeDataAnalysis/DataAnalysisControl.h>
 #include "PrimaryWindows/QtAuxiliaryWindow.h"
 #include "PrimaryWindows/QtAndorWindow.h"
 #include "PrimaryWindows/QtScriptWindow.h"
@@ -19,15 +20,16 @@ ConfigSystem::ConfigSystem(std::string fileSystemPath, IChimeraQtWindow* parent)
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
 
-void ConfigSystem::initialize( POINT& pos, IChimeraQtWindow* win){
+void ConfigSystem::initialize( QPoint& pos, IChimeraQtWindow* win){
+	auto& px=pos.rx(), & py = pos.ry ();
 	configDisplay = new QLabel ("No Configuruation Selected!", win);
 	configDisplay->setStyleSheet(" QLabel{ font: bold 8pt; }");
-	configDisplay->setGeometry (QRect (pos.x, pos.y, 700, 25));
+	configDisplay->setGeometry (QRect (px, py, 700, 25));
 	configurationSavedIndicator = new QCheckBox ("Saved?", win);
-	configurationSavedIndicator->setGeometry (QRect (pos.x + 860, pos.y, 100, 25));
+	configurationSavedIndicator->setGeometry (QRect (px + 860, py, 100, 25));
 	configurationSavedIndicator->setChecked (true);
 	selectConfigButton = new QPushButton ("Open Config.", win);
-	selectConfigButton->setGeometry (QRect (pos.x + 700, pos.y, 160, 25));
+	selectConfigButton->setGeometry (QRect (px + 700, py, 160, 25));
 	win->connect (selectConfigButton, &QPushButton::released, [this, win]() {
 		try {
 			handleSelectConfigButton (win);
@@ -35,7 +37,7 @@ void ConfigSystem::initialize( POINT& pos, IChimeraQtWindow* win){
 		catch (ChimeraError & err) {
 			emit error (err.qtrace ());
 		}});
-	pos.y += 25;
+	py += 25;
 	updateConfigurationSavedStatus( true );
 }
 
@@ -418,9 +420,8 @@ std::vector<std::string> ConfigSystem::searchForFiles( std::string locationToSea
 
 	// Remove suffix from file names and...
 	for (unsigned configListInc = 0; configListInc < names.size(); configListInc++){
-		if (extensions == "*" || extensions == "*.*" || extensions == str( "*." ) + SEQUENCE_EXTENSION
-			|| extensions == str("*.") + PLOTTING_EXTENSION || extensions == str( "*." ) + CONFIG_EXTENSION 
-			 || extensions == str("*.") + FUNCTION_EXTENSION ){
+		if (extensions == "*" || extensions == "*.*" || extensions == str("*.") + DataAnalysisControl::PLOTTING_EXTENSION 
+			|| extensions == str( "*." ) + CONFIG_EXTENSION || extensions == str("*.") + Script::FUNCTION_EXTENSION ){
 			names[configListInc] = names[configListInc].substr( 0, names[configListInc].size() - (extensions.size() - 1) );
 		}
 		else{

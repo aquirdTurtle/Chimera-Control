@@ -10,13 +10,13 @@
 
 class LongQSlider{
 	public:
-		void initialize ( POINT& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText );
+		void initialize ( QPoint& loc, IChimeraQtWindow* parent, int width, int height, std::string headerText );
 		void handleSlider( int nPos );
 		void handleEdit();
 		double getValue ( );
 		void setValue (int value, bool updateEdit=true );
 		int getSliderId ( );
-		void reposition ( POINT loc, LONG totalheight );
+		void reposition ( QPoint loc, LONG totalheight );
 		unsigned getEditId ( );
 		void hide ( int hideornot );
 		QSlider* slider;

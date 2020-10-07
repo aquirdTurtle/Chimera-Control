@@ -25,7 +25,7 @@ class DmControl{
 		static constexpr unsigned numAbberations = 8;
 
 		DmControl(std::string serialNumber, bool safeMode);
-		void initialize( POINT loc, IChimeraQtWindow* parent, int count, std::string serialNumber, LONG width );
+		void initialize( QPoint loc, IChimeraQtWindow* parent, int count, std::string serialNumber, LONG width );
 	    void handleOnPress(int i);
 		void ProgramNow();
 		void setMirror(double *A);
@@ -39,7 +39,7 @@ class DmControl{
 		void add_Changes();
 		std::vector<double> getTableValues();
 		void writeCurrentFile(std::string out_file);
-		void initializeTable(POINT& pos, int width, int height, IChimeraQtWindow* parent);
+		void initializeTable(QPoint& pos, int width, int height, IChimeraQtWindow* parent);
 
 		DmCore &getCore();
 		DMOutputForm getExpressionValues();
@@ -54,6 +54,8 @@ class DmControl{
 		DMOutputForm currentValues;
 		std::vector<QLineEdit*> actuatorEdits;
 
+		std::array<std::array<double, 3>, 256> infernoMap;
+		//double infernoMap[256][3];
 		QLineEdit* comaMag;
 		QLineEdit* trefoilMag;
 		QLineEdit* astigMag;

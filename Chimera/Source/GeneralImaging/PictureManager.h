@@ -2,7 +2,6 @@
 #pragma once
 #include "PictureControl.h"
 #include "RealTimeDataAnalysis/atomGrid.h"
-#include "GeneralObjects/SmartDC.h"
 #include "ConfigurationSystems/Version.h"
 #include <array>
 #include <fstream>
@@ -15,11 +14,10 @@ class PictureManager {
 		void updatePlotData ( );
 		void handleSaveConfig(ConfigStream& saveFile);
 		void handleOpenConfig(ConfigStream& configFile);
-		void initialize( POINT& loc, int manWidth, int manHeight, IChimeraQtWindow* widget, int scaleFactor=50);
+		void initialize( QPoint& loc, int manWidth, int manHeight, IChimeraQtWindow* widget, int scaleFactor=50);
 		void drawGrids(QPainter& painter);
 		unsigned getNumberActive( );
 		void setParameters( imageParameters parameters );
-		void handleScroll( unsigned nSBCode, unsigned nPos, CScrollBar* scrollbar);
 		void setPalletes(std::array<int, 4> palleteIds);
 		void setSoftwareAccumulationOptions ( std::array<softwareAccumulationOption, 4> opts );
 		// draw pictures...
@@ -29,7 +27,8 @@ class PictureManager {
 		void createPalettes( );
 		void handleEditChange( unsigned id );
 		void setAlwaysShowGrid(bool showOption, QPainter& painter);
-		void redrawPictures(coordinate selectedLocation, std::vector<atomGrid> gridInfo, bool forceGrid, unsigned picNumber, QPainter& painter);
+		void redrawPictures(coordinate selectedLocation, std::vector<atomGrid> gridInfo, bool forceGrid, 
+			unsigned picNumber, QPainter& painter);
 		void setNumberPicturesActive( int numberActive );
 		coordinate getSelLocation();
 		void setSinglePicture( imageParameters imageParams );
@@ -44,7 +43,7 @@ class PictureManager {
 		std::array<PictureControl, 4> pictures;
 		std::array<QVector<QRgb>,4> palettes;
 		QVector<QRgb> inferno, greys;
-		POINT picturesLocation;
+		QPoint picturesLocation;
 		int picturesWidth;
 		int picturesHeight;
 		bool autoScalePictures;

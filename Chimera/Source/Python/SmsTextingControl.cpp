@@ -22,10 +22,11 @@ void SmsTextingControl::handleContextMenu (const QPoint& pos){
 	menu.exec (peopleListView->mapToGlobal (pos));
 }
 
-void SmsTextingControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
+void SmsTextingControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), py = pos.ry ();
 	title = new QLabel ("TEXTING SERVICES" + PYTHON_SAFEMODE ? " (DISABLED, PYTHON_SAFEMODE=TRUE)" : "", parent);
-	title->setGeometry (pos.x, pos.y, 480, 25);
-	pos.y += 25;
+	title->setGeometry (px, py, 480, 25);
+	py += 25;
 	peopleListView = new QTableWidget (0, 5, parent);
 	QStringList labels;
 	labels << "Person" << "Phone #" << "Carrier" << "@ Finish?" << "If No Loading?";
@@ -42,7 +43,7 @@ void SmsTextingControl::initialize( POINT& pos, IChimeraQtWindow* parent ){
 			peopleListView->setItem (clRow, clCol, item);
 		}});
 
-	peopleListView->setGeometry (pos.x, pos.y, 480, 165);
+	peopleListView->setGeometry (px, py, 480, 165);
 	peopleListView->setColumnWidth (0, 90);
 	peopleListView->setColumnWidth (1, 95);
 	peopleListView->setColumnWidth (2, 65);

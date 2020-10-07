@@ -8,16 +8,15 @@
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraQtWindow.h"
 
-#include <atomic>
 #include "GeneralImaging/PictureManager.h"
 #include "GeneralImaging/PictureControl.h"
-#include "Control.h"
 #include "IChimeraQtWindow.h"
 #include "Basler/BaslerSettingsControl.h"
 
 #include "GeneralImaging/PictureStats.h"
 #include "GeneralObjects/commonTypes.h"
 #include "Plotting/PlotCtrl.h"
+#include <atomic>
 
 class BaslerCameraCore;
 
@@ -65,13 +64,9 @@ class QtBaslerWindow : public IChimeraQtWindow{
 		bool runningAutoAcq;
 		unsigned int currentRepNumber;
 		BaslerAutoExposure::mode runExposureMode;
-		std::vector<std::vector<long>> images;
 		bool isRunning;
 		PlotCtrl* horGraph, * vertGraph;
-		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
-		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		coordinate selectedPixel = { 0,0 };
-		HICON m_hIcon;
 	public Q_SLOTS:
 		void handleNewPics (Matrix<long> imageMatrix);
 };

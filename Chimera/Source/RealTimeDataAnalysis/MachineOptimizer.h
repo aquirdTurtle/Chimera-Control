@@ -77,7 +77,7 @@ struct HillClimbingInfo
 class MachineOptimizer
 {
 	public:
-		void initialize ( POINT& pos, IChimeraQtWindow* parent );
+		void initialize ( QPoint& pos, IChimeraQtWindow* parent );
 		void reset ( );
 		void verifyOptInput ( AllExperimentInput& input );
 		void hillClimbingUpdate ( AllExperimentInput& input, dataPoint resultValue, DataLogger& logger);

@@ -11,7 +11,7 @@ class AnalogOutput
 {
 	public:
 		AnalogOutput ( );
-		void initialize ( POINT& pos, IChimeraQtWindow* parent, int whichDac );
+		void initialize ( QPoint& pos, IChimeraQtWindow* parent, int whichDac );
 		void handleEdit ( bool roundToDacPrecision=false );
 		void updateEdit ( bool roundToDacPrecision );
 		static double roundToDacResolution ( double num );

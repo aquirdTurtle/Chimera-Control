@@ -58,9 +58,6 @@ struct ExperimentThreadInput{
 	std::atomic<bool>* skipNext = NULL;
 	atomGrid analysisGrid;
 	ExperimentType expType = ExperimentType::Normal;
-	// outermost vector is for each dac or ttl plot. next level is for each line.
-	std::vector<std::vector<pPlotDataVec>> ttlData;
-	std::vector<std::vector<pPlotDataVec>> dacData;
 	// only for rearrangement.
 	std::mutex* rearrangerLock;
 	atomQueue* atomQueueForRearrangement;

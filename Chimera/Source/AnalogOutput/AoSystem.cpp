@@ -187,25 +187,25 @@ double AoSystem::getDefaultValue(unsigned dacNum){
 	return outputs[dacNum].info.defaultVal;
 }
 
-
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, IChimeraQtWindow* parent ){
+void AoSystem::initialize(QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	// title
 	dacTitle = new QLabel ("ANALOG OUTPUT", parent);
-	dacTitle->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+480, pos.y += 25} });
+	dacTitle->setGeometry ({ QPoint{px, py},QPoint{px+480, py += 25} });
 
 	dacSetButton = new CQPushButton ("Set New DAC Values", parent);
-	dacSetButton->setGeometry ({ QPoint{pos.x, pos.y},QPoint{pos.x+160, pos.y+25} });
+	dacSetButton->setGeometry ({ QPoint{px, py},QPoint{px+160, py+25} });
 	dacSetButton->setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
 							 " edits below.");
 	parent->connect (dacSetButton, &QPushButton::released, [parent]() {parent->auxWin->SetDacs (); });
 	zeroDacsButton = new CQPushButton ("Zero DACs", parent);
-	zeroDacsButton->setGeometry ({ QPoint{pos.x+160, pos.y},QPoint{pos.x+320, pos.y+25} });
+	zeroDacsButton->setGeometry ({ QPoint{px+160, py},QPoint{px+320, py+25} });
 	zeroDacsButton->setToolTip( "Press this button to set all dac values to zero." );
 	parent->connect (zeroDacsButton, &QPushButton::released, [parent]() { parent->auxWin->zeroDacs(); });
 	// 
 	quickChange = new CQCheckBox ("Quick-Change", parent);
-	quickChange->setGeometry ({ QPoint{pos.x + 320, pos.y},QPoint{pos.x + 480, pos.y += 25} });
+	quickChange->setGeometry ({ QPoint{px + 320, py},QPoint{px + 480, py += 25} });
 	quickChange->setToolTip ( "With this checked, you can quickly change a DAC's value by using the arrow keys while "
 							 "having the cursor before the desired digit selected in the DAC's edit.");
 
@@ -216,13 +216,13 @@ void AoSystem::initialize(POINT& pos, IChimeraQtWindow* parent ){
 		if ( dacInc == outputs.size ( ) / 3 || dacInc == 2 * outputs.size ( ) / 3 )	{
 			collumnInc++;
 			// go to second or third collumn
-			pos.y -= 20 * outputs.size ( ) / 3;
-			pos.x += 160;
+			py -= 20 * outputs.size ( ) / 3;
+			px += 160;
 		}
 		out.initialize ( pos, parent, dacInc );
 		dacInc++;
 	}
-	pos.x -= 320;
+	px -= 320;
 }
 
 bool AoSystem::eventFilter (QObject* obj, QEvent* event){

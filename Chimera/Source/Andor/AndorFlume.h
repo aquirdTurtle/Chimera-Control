@@ -1,8 +1,8 @@
 #pragma once
 #include "ATMCD32D.h"
+#include <GeneralObjects/Matrix.h>
 
-class AndorFlume
-{
+class AndorFlume{
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		AndorFlume& operator=(const AndorFlume&) = delete;

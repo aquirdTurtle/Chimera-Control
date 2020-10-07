@@ -16,7 +16,6 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include "afxwin.h"
 
 struct ExperimentThreadInput;
 /*
@@ -40,7 +39,7 @@ class DataLogger : public IChimeraSystem {
 		void logFunctions( H5::Group& group );
 		void logAoSystemSettings ( AoSystem& aoSys);
 		void logDoSystemSettings ( DoCore& doSys );
-		void logPlotData ( std::string name, std::vector<pPlotDataVec> data );
+		void logPlotData ( std::string name );
 		void logAndorPiezos (piezoChan<double> cameraPiezoVals);
 		void initializeAiLogging ( unsigned numSnapshots );
 		int getCalibrationFileIndex ();

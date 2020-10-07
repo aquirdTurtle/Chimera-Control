@@ -19,7 +19,7 @@ struct personInfo{
 
 class SmsTextingControl{
 	public:
-		void initialize( POINT& pos, IChimeraQtWindow* parent );
+		void initialize( QPoint& pos, IChimeraQtWindow* parent );
 		void handleContextMenu (const QPoint& pos);
 		//void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
 		void addPerson( personInfo person );

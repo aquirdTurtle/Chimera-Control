@@ -127,15 +127,7 @@ void PictureManager::setSpecialGreaterThanMax(bool option){
 	specialGreaterThanMax = option;
 }
 
-void PictureManager::handleScroll(unsigned nSBCode, unsigned nPos, CScrollBar* scrollbar){
-	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK){
-		int id = scrollbar->GetDlgCtrlID();
-		for (auto& control : pictures){
-			control.handleScroll ( id, nPos );
-			control.redrawImage ();
-		}
-	}
-}
+
 
 void PictureManager::setSinglePicture( imageParameters imageParams){
 	for (unsigned picNum = 0; picNum < 4; picNum++){
@@ -148,7 +140,7 @@ void PictureManager::setSinglePicture( imageParameters imageParams){
 	}
 	pictures.front( ).setPictureArea( picturesLocation, picturesWidth, picturesHeight);
 	auto sliderLoc = picturesLocation;
-	sliderLoc.x += picturesWidth;
+	sliderLoc.rx() += picturesWidth;
 	pictures.front( ).setSliderControlLocs(sliderLoc, picturesHeight);
 	//pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );
@@ -170,26 +162,27 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, unsigned 
 		}
 	}
 
-	POINT loc = picturesLocation;
+	QPoint loc = picturesLocation;
+	auto& px = loc.rx (), & py = loc.ry ();
 	// Square: width = 550, height = 440
 	auto picWidth = 950;
 	auto picHeight = 220;
 	//int picWidth = 550;
 	//int picHeight = 420;
 	pictures[0].setPictureArea( loc, picWidth, picHeight );
-	pictures[0].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
-	//loc.x += 550;
-	loc.y += picHeight + 25;
+	pictures[0].setSliderControlLocs ({ px + picWidth,py }, picHeight);
+	//px += 550;
+	py += picHeight + 25;
 	pictures[1].setPictureArea( loc, picWidth, picHeight );
-	pictures[1].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
-	//loc.x -= 550;
-	loc.y += picHeight + 25;
+	pictures[1].setSliderControlLocs ({ px + picWidth,py }, picHeight);
+	//px -= 550;
+	py += picHeight + 25;
 	pictures[2].setPictureArea( loc, picWidth, picHeight );
-	pictures[2].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
-	//loc.x += 550;
-	loc.y += picHeight + 25;
+	pictures[2].setSliderControlLocs ({ px + picWidth,py }, picHeight);
+	//px += 550;
+	py += picHeight + 25;
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
-	pictures[3].setSliderControlLocs ({ loc.x + picWidth,loc.y }, picHeight);
+	pictures[3].setSliderControlLocs ({ px + picWidth,py }, picHeight);
 	setParameters( imageParams );
 	for ( auto& pic : pictures ){
 		//pic.setCursorValueLocations( parent );
@@ -197,7 +190,8 @@ void PictureManager::setMultiplePictures( imageParameters imageParams, unsigned 
 	setPalletes ({ 0,0,0,0 });
 }
 
-void PictureManager::initialize( POINT& loc, int manWidth, int manHeight, IChimeraQtWindow* widget, int scaleFactor){
+void PictureManager::initialize( QPoint& loc, int manWidth, int manHeight, IChimeraQtWindow* widget, int scaleFactor){
+	auto& px = loc.rx (), & py = loc.ry ();
 	picturesLocation = loc;
 	picturesWidth = manWidth;
 	picturesHeight = manHeight;
@@ -205,13 +199,13 @@ void PictureManager::initialize( POINT& loc, int manWidth, int manHeight, IChime
 	auto width = 1200;
 	auto height = 220;
 	pictures[0].initialize( loc, width, height, widget, scaleFactor);
-	loc.y += height;
+	py += height;
 	pictures[1].initialize( loc, width, height, widget, scaleFactor);
-	loc.y += height;
+	py += height;
 	pictures[2].initialize( loc, width, height, widget, scaleFactor);
-	loc.y += height;
+	py += height;
 	pictures[3].initialize( loc, width, height, widget, scaleFactor);
-	loc.y += height;
+	py += height;
 	createPalettes ();
 	for (auto& pic : pictures){
 		pic.updatePalette( inferno );

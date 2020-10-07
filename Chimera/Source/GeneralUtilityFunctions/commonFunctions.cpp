@@ -12,7 +12,6 @@
 #include "PrimaryWindows/QtScriptWindow.h"
 #include "PrimaryWindows/QtBaslerWindow.h"
 #include "PrimaryWindows/IChimeraQtWindow.h"
-#include "LowLevel/externals.h"
 #include "ExperimentThread/ExperimentType.h"
 #include "ExperimentThread/autoCalConfigInfo.h"
 #include <QDateTime.h>
@@ -30,36 +29,36 @@ namespace commonFunctions
 		auto* basWin = win->basWin;
 		auto* auxWin = win->auxWin;
 		switch (msgID){
-			case ID_MACHINE_OPTIMIZATION:{
-				// this is mostly prepared like F5.
-				if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) ){
-					return;
-				}
-				AllExperimentInput input;
-				andorWin->redrawPictures ( false );
-				try	{
-					mainWin->reportStatus ( "Starting Automatic Optimization...\r\n" );
-					andorWin->setTimerText ( "Starting..." );
-					prepareMasterThread ( msgID, win, input, true, true, true, true, true );
-					input.masterInput->quiet = true;
-					logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo(), andorWin->getAlignmentVals ());
-					auxWin->updateOptimization ( input );
-					input.masterInput->expType = ExperimentType::MachineOptimization;
-					startExperimentThread ( mainWin, input );
-				}
-				catch ( ChimeraError& err ){
-					if ( err.whatBare ( ) == "CANCEL" )	{
-						mainWin->reportStatus ( "Canceled camera initialization.\r\n" );
-						break;
-					}
-					mainWin->reportErr ( "Exited with Error!\n" + err.qtrace ( ) );
-					mainWin->reportStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
-					andorWin->setTimerText ( "ERROR!" );
-					andorWin->assertOff ( );
-					break;
-				}
-				break;
-			}
+			//case ID_MACHINE_OPTIMIZATION:{
+			//	// this is mostly prepared like F5.
+			//	if ( andorWin->wantsAutoCal ( ) && !andorWin->wasJustCalibrated ( ) ){
+			//		return;
+			//	}
+			//	AllExperimentInput input;
+			//	andorWin->redrawPictures ( false );
+			//	try	{
+			//		mainWin->reportStatus ( "Starting Automatic Optimization...\r\n" );
+			//		andorWin->setTimerText ( "Starting..." );
+			//		prepareMasterThread ( msgID, win, input, true, true, true, true, true );
+			//		input.masterInput->quiet = true;
+			//		logStandard ( input, andorWin->getLogger ( ), mainWin->getServoinfo(), andorWin->getAlignmentVals ());
+			//		auxWin->updateOptimization ( input );
+			//		input.masterInput->expType = ExperimentType::MachineOptimization;
+			//		startExperimentThread ( mainWin, input );
+			//	}
+			//	catch ( ChimeraError& err ){
+			//		if ( err.whatBare ( ) == "CANCEL" )	{
+			//			mainWin->reportStatus ( "Canceled camera initialization.\r\n" );
+			//			break;
+			//		}
+			//		mainWin->reportErr ( "Exited with Error!\n" + err.qtrace ( ) );
+			//		mainWin->reportStatus ( "EXITED WITH ERROR!\nInitialized Default Waveform\r\n" );
+			//		andorWin->setTimerText ( "ERROR!" );
+			//		andorWin->assertOff ( );
+			//		break;
+			//	}
+			//	break;
+			//}
 			case ID_RUNMENU_RUNBASLERANDMASTER:
 			{
 				AllExperimentInput input;
@@ -122,7 +121,6 @@ namespace commonFunctions
 				}
 				break;
 			}
-			case WM_CLOSE:
 			case ID_ACCELERATOR_ESC:
 			case ID_FILE_ABORT_GENERATION:{
 				std::string status;
@@ -517,21 +515,11 @@ namespace commonFunctions
 
 	void abortNiawg(IChimeraQtWindow* win){
 		// set reset flag
-		eAbortNiawgFlag = true;
 		if (!win->scriptWin->niawgIsRunning()){
 			std::string msgString = "Passively Outputting Default Waveform.";
 			win->mainWin->onErrorMessage( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
-		// wait for reset to occur
-		int result = 1;
-		result = WaitForSingleObject( eNIAWGWaitThreadHandle, 0 );
-		if (result == WAIT_TIMEOUT)	{
-			// try again. Hopefully gives the main thread to handle other messages first if this happens.
-			//win->mainWin->PostMessageA( WM_COMMAND, MAKEWPARAM( ID_FILE_ABORT_GENERATION, 0 ) );
-			return;
-		}
-		eAbortNiawgFlag = false;
 		// abort the generation on the NIAWG.
 		win->scriptWin->setIntensityDefault();
 		win->mainWin->reportStatus ( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );

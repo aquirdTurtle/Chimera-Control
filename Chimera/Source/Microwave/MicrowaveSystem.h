@@ -23,7 +23,7 @@ class MicrowaveSystem{
 	public:
 		MicrowaveSystem();
 		void handleContextMenu (const QPoint& pos);
-		void initialize( POINT& pos, IChimeraQtWindow* parentWin );
+		void initialize( QPoint& pos, IChimeraQtWindow* parentWin );
 		void handleListviewDblClick ();
 		void handleListviewRClick ();
 		std::string getIdentity();

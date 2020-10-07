@@ -7,19 +7,19 @@
 #include <qprogressbar.h>
 
 
-void ExperimentTimer::initialize( POINT& pos, IChimeraQtWindow* parent )
-{
+void ExperimentTimer::initialize( QPoint& pos, IChimeraQtWindow* parent ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	timeDisplay = new QLabel ("", parent);
-	timeDisplay->setGeometry (pos.x, pos.y, 168, 40);
+	timeDisplay->setGeometry (px, py, 168, 40);
 	/// PROGRESS BARS
 	// subseries progress bar
 	LONG timerWidth = 550 * 2;
 	variationProgress = new QProgressBar (parent);
-	variationProgress->setGeometry (pos.x + 168, pos.y, timerWidth - 168,15);
+	variationProgress->setGeometry (px + 168, py, timerWidth - 168,15);
 	variationProgress->setRange (0, 10000);
 	// series progress bar display
 	overallProgress = new QProgressBar (parent);
-	overallProgress->setGeometry (pos.x + 168, pos.y+15, timerWidth - 168, 25);
+	overallProgress->setGeometry (px + 168, py+15, timerWidth - 168, 25);
 	overallProgress->setRange (0, 10000);
 }
 

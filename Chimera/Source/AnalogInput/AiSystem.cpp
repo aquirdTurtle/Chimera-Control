@@ -29,61 +29,62 @@ void AiSystem::refreshDisplays( ){
 }
 
 
-void AiSystem::initialize (POINT& loc, IChimeraQtWindow* parent) {
+void AiSystem::initialize (QPoint& loc, IChimeraQtWindow* parent) {
+	auto& px = loc.rx (), & py = loc.ry ();
 	initDaqmx ();
 	title = new QLabel ("ANALOG-INPUT", parent);
-	title->setGeometry ({ QPoint{loc.x, loc.y}, QPoint{loc.x + 480, loc.y += 25} });
+	title->setGeometry ({ QPoint{px, py}, QPoint{px + 480, py += 25} });
 
 	getValuesButton = new CQPushButton ("Get Values", parent);
-	getValuesButton->setGeometry (loc.x, loc.y, 160, 25);
+	getValuesButton->setGeometry (px, py, 160, 25);
 	parent->connect (getValuesButton, &QPushButton::released, [this]() { refreshCurrentValues (); refreshDisplays (); });
-	loc.x += 160;
+	px += 160;
 	continuousQueryCheck = new CQCheckBox ("Qry Cont.", parent);
-	continuousQueryCheck->setGeometry (loc.x, loc.y, 160, 25);
-	loc.x += 160;
+	continuousQueryCheck->setGeometry (px, py, 160, 25);
+	px += 160;
 	queryBetweenVariations = new CQCheckBox ("Qry Btwn Vars", parent);
-	queryBetweenVariations->setGeometry (loc.x, loc.y, 160, 25);
-	loc.y += 25;
-	loc.x -= 320; 
+	queryBetweenVariations->setGeometry (px, py, 160, 25);
+	py += 25;
+	px -= 320; 
 	continuousIntervalLabel = new QLabel ("Cont. Interval:", parent);
-	continuousIntervalLabel->setGeometry (loc.x, loc.y, 160, 20);
+	continuousIntervalLabel->setGeometry (px, py, 160, 20);
 	continuousInterval = new CQLineEdit (qstr (AiSettings ().continuousModeInterval), parent);
-	continuousInterval->setGeometry (loc.x + 160, loc.y, 80, 20);
+	continuousInterval->setGeometry (px + 160, py, 80, 20);
 	QTimer::singleShot (1000, this, &AiSystem::handleTimer);
 	avgNumberLabel = new QLabel ("# To Avg:", parent);
-	avgNumberLabel->setGeometry (loc.x + 240, loc.y, 160, 20);
+	avgNumberLabel->setGeometry (px + 240, py, 160, 20);
 
 	avgNumberEdit = new CQLineEdit (qstr (AiSettings ().numberMeasurementsToAverage), parent);
-	avgNumberEdit->setGeometry (loc.x + 400, loc.y, 80, 20);
-	loc.y += 20;
+	avgNumberEdit->setGeometry (px + 400, py, 80, 20);
+	py += 20;
 	// there's a single label first, hence the +1.
 	long dacInc = 0, collumnInc = 0, numCols=4;
 	LONG colSize = LONG(480 / numCols);
 	for ( auto& disp : voltDisplays ){
 		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols ){	// then next column. 
 			collumnInc++;
-			loc.y -= 20 * NUMBER_AI_CHANNELS / numCols;
+			py -= 20 * NUMBER_AI_CHANNELS / numCols;
 		}
 		disp = new QLabel ("0", parent);
-		disp->setGeometry (loc.x + 20 + collumnInc * colSize, loc.y, colSize-20, 20);
-		loc.y += 20;
+		disp->setGeometry (px + 20 + collumnInc * colSize, py, colSize-20, 20);
+		py += 20;
 		dacInc++;
 	}
 	collumnInc = 0;
-	loc.y -= LONG (20 * voltDisplays.size( ) / numCols);
+	py -= LONG (20 * voltDisplays.size( ) / numCols);
 
 	for ( auto dacInc : range( NUMBER_AI_CHANNELS ) ){
 		auto& label = dacLabels[dacInc];
 		if ( dacInc == (collumnInc + 1) * NUMBER_AI_CHANNELS / numCols)	{	// then next column
 			collumnInc++;
-			loc.y -= 20 * NUMBER_AI_CHANNELS / numCols;
+			py -= 20 * NUMBER_AI_CHANNELS / numCols;
 		}
 		label = new QLabel (cstr (dacInc), parent);
-		label->setGeometry (loc.x + collumnInc * colSize, loc.y, 20, 20);
+		label->setGeometry (px + collumnInc * colSize, py, 20, 20);
 		QFont font = label->font ();
 		font.setUnderline (true);
 		label->setFont (font);
-		loc.y += 20;
+		py += 20;
 	}
 }
 

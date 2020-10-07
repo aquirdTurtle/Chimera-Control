@@ -30,6 +30,7 @@ void ScopeThreadWorker::process (){
 				}
 			}
 			else {
+				Sleep (30000);
 				for (auto lineNum : range(input->numTraces)) {
 					auto data = input->getCurrentTraces (lineNum);
 					if (data.size () == 0) {

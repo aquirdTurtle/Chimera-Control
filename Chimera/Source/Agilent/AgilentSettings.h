@@ -68,11 +68,11 @@ DoRows::which::A, 0,
 "SOURCE1:PHASE:SYNCHRONIZE", "SOURCE2:PHASE:SYNCHRONIZE" }
 }; 
 
-// RATE WAS 5E5!
 const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
 													5e5, "USB", "Intensity",
 													DoRows::which::B, 6,
-													"INTENSITY_AGILENT_AWG", {-0.00071625, -0.17698902}, //{0.01124213, -0.15181633}, //{1.71223989e-3, -0.18720763}, //{ 0.00102751, -0.02149967 },
+													"INTENSITY_AGILENT_AWG", { 0.00037532, -0.2343111 }, 
+	// Old Calibrations: //{-0.00071625, -0.17698902}, //{0.01124213, -0.15181633}, //{1.71223989e-3, -0.18720763}, //{ 0.00102751, -0.02149967 },
 													{ "Trigger:Source external", "Trigger:Slope Positive", 
 													  "output1:load INF", "output2:load INF",
 													  "SOURCE1:FUNC:ARB:FILTER Normal", "SOURCE2:FUNC:ARB:FILTER Normal" }

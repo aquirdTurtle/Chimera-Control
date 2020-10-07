@@ -30,9 +30,11 @@ typedef std::vector<std::vector<double>> avgData;
 
 class DataAnalysisControl : public IChimeraSystem {
 	public:
+		static constexpr auto PLOTTING_EXTENSION = "plot";
+
 		DataAnalysisControl(IChimeraQtWindow* parent );
 
-		void initialize( POINT& pos, IChimeraQtWindow* parent );
+		void initialize( QPoint& pos, IChimeraQtWindow* parent );
 		void handleOpenConfig(ConfigStream& file );
 		static analysisSettings getAnalysisSettingsFromFile (ConfigStream& file);
 		void setAnalysisSettings (analysisSettings settings);

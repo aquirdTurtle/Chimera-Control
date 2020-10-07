@@ -224,7 +224,7 @@ axpulselev
 0
 _
 53
-loadmottime 300
+loadmottime 75
 andorimagetime 15
 imagingpower 0.3
 fieldtheta 1.5708
@@ -233,44 +233,44 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__sv 0.08452225796614697
-diagmot__sv 0.2398402818783108
+sidemot__sv 0.07965535321170679
+diagmot__sv 0.2395223722987126
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__sv 0.1007340785837304
-sidemot_imaging__sv 0.2173821029973007
+sidemot_intrappgc__sv 0.0955031191767777
+sidemot_imaging__sv 0.2066460351442845
 motimagingdetuning -0.32
 d1loadingfreq 113
 intraplgmcoolingfreq 103
-sidemot_d1__sv 0.4558268035154751
-diagmot_imaging__sv 0.09591251819231504
+sidemot_d1__sv 1
+diagmot_imaging__sv 0.09538672096282215
 diag_d1_load__sv -2.172838554955969
-repump_load__sv 0.1770880845621983
-repump_imaging__sv 0.1772997816796255
-sigma_repump__sv 0.06861165756469127
+repump_load__sv 0.1913764293721883
+repump_imaging__sv 0.1916842948378691
+sigma_repump__sv 0.07049498946578261
 sigma_op__sv 0.199655
-pushout_probe__sv 0.3139823569852119
+pushout_probe__sv 0.3252692807657991
 top_raman__sv 0.0758206
-top_raman_carrier__sv 0.09858977768986893
-eo_raman__sv 0.1027740436019166
-ax_raman_spec__sv 0.02422219870673133
-top_raman_sideband_spec__sv 0.08180261201838215
-top_sbc_sideband_spec__sv 0.2244213811573778
-sbc_sigma_op__sv 0.05923779533281872
+top_raman_carrier__sv 0.1006507040982513
+eo_raman__sv 0.1032203895844627
+ax_raman_spec__sv 0.02467352443511184
+top_raman_sideband_spec__sv 0.08329519636505033
+top_sbc_sideband_spec__sv 0.2340429628356229
+sbc_sigma_op__sv 0.05476497106943412
 axramanoffset 108900
 intraplgmrepumpfreq 0.066
 intraplgmrepumppower 0
-depthmeasurementprobe__sv 0.04621549791680059
+depthmeasurementprobe__sv 0.05012179611884884
 pzttop_x 105
 pzttop_y 50
 pztax_x 60.39
 pztax_y 98.70999999999999
 pzteo_y 30
 pzteo_x 60
-ax_sbc_raman__sv 0.04286409739824807
-top_sbc_sideband__sv 0.1007345543545621
+ax_sbc_raman__sv 0.04371841065464315
+top_sbc_sideband__sv 0.1029729835670071
 sbc_cooling_mod 137
-radial_carrier_freq 6.830956364430822
+radial_carrier_freq 6.830946608440278
 axtekpower -3
 eotekpower -3
 ax_raman_sbc2__sv 0.0727281220058308
@@ -301,5 +301,5 @@ sbc_sigma_op 5 13 1 0.41 1 a 4 0 0.02 0.01 0 200
 depthmeasurementprobe 5 19 1 0.11 2 d 12 d 13 0 0.01 0.01 0 100
 top_sbc_sideband 2 16 1 1.3 2 a 10 b 3 0 0.02 0.02 0 100
 ax_sbc_raman 3 23 1 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
-231 299 3 229 243 3
+253 285 3 231 245 3
 0 0

@@ -29,7 +29,7 @@ class AndorCameraSettingsControl{
 		void setVariationNumber(unsigned varNumber);
 		void setRepsPerVariation(unsigned repsPerVar);
 		void updateRunSettingsFromPicSettings( );
-		void initialize(POINT& pos, IChimeraQtWindow* parent );
+		void initialize(QPoint& pos, IChimeraQtWindow* parent );
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain( bool currentlyOn, int currentEmGainLevel );

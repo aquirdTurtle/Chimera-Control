@@ -15,7 +15,7 @@ class DmProfileCreator{
 		double normalization(int n, int m);
 		double zernikePolar(int n, int m, double r, double theta);
 		double zernike(int n, int m, double x, double y);
-		double zernikeFit(POINT X, std::vector<double> param);
+		double zernikeFit(QPoint X, std::vector<double> param);
 		void myDmLookup(double& x_coordinate, double& y_coordinate, int pixNum, double factor);
 		void readZernikeFile(std::string file);
 		void writeZernikeFile(std::string out_file);

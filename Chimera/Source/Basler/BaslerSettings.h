@@ -3,10 +3,8 @@
 #include <string>
 #include "GeneralImaging/imageParameters.h"
 
-struct BaslerAutoExposure
-{
-	enum class mode
-	{
+struct BaslerAutoExposure{
+	enum class mode{
 		Continuous,
 		Off,
 		Once
@@ -16,10 +14,8 @@ struct BaslerAutoExposure
 };
 
 
-struct BaslerTrigger
-{
-	enum class mode
-	{
+struct BaslerTrigger{
+	enum class mode	{
 		External,
 		AutomaticSoftware,
 		ManualSoftware
@@ -28,10 +24,8 @@ struct BaslerTrigger
 	static mode fromStr ( std::string txt );
 };
 
-struct BaslerAcquisition
-{
-	enum class mode
-	{
+struct BaslerAcquisition{
+	enum class mode	{
 		Finite,
 		Continuous
 	};
@@ -40,9 +34,9 @@ struct BaslerAcquisition
 };
 
 
-struct baslerSettings
-{
+struct baslerSettings {
 	bool on;
+	bool expActive;
 	unsigned int rawGain;
 	BaslerAutoExposure::mode exposureMode= BaslerAutoExposure::mode::Off;
 	double exposureTime;

@@ -10,20 +10,23 @@ BaslerSettingsControl::BaslerSettingsControl ( ) : dims("scout")
 {}
 
 
-void BaslerSettingsControl::initialize ( POINT& pos, int picWidth, int picHeight, POINT cameraDims, 
-	IChimeraQtWindow* win )
-{
+void BaslerSettingsControl::initialize ( QPoint& pos, int picWidth, int picHeight, QPoint cameraDims, 
+	IChimeraQtWindow* win ){
+	auto& px = pos.rx (), & py = pos.ry ();
 	int width = 300;
 	lastTime = 0;
 	statusText = new QLabel ("Camera Status: IDLE", win);
-	statusText->setGeometry (pos.x, pos.y, width, 50);
+	statusText->setGeometry (px, py, width, 50);
+	baslerExpActiveCheck = new CQCheckBox ("Basler System Active?", win);
+	baslerExpActiveCheck->setGeometry (px, py, width, 25);
+	baslerExpActiveCheck->setChecked (true);
 	////
 	repText = new QLabel ("Pics Per Rep:", win);
-	repText->setGeometry (pos.x, pos.y+=50, 200, 25);
+	repText->setGeometry (px, py+=50, 200, 25);
 	repEdit = new QLineEdit ("100", win);
-	repEdit->setGeometry (pos.x + 200, pos.y, 100, 25);
+	repEdit->setGeometry (px + 200, py, 100, 25);
 	cameraMode = new QComboBox (win);
-	cameraMode->setGeometry (pos.x, pos.y+=25, 300, 25);
+	cameraMode->setGeometry (px, py+=25, 300, 25);
 	cameraMode->addItems ({ "Finite-Acquisition","Continuous-Acquisition" });
 	cameraMode->setCurrentIndex (0);
 	repEdit->setEnabled ( false );
@@ -36,44 +39,44 @@ void BaslerSettingsControl::initialize ( POINT& pos, int picWidth, int picHeight
 	exposureTimeText = "Raw Time (# X 20 = us):";
 	#endif
 	exposureText = new QLabel (exposureTimeText.c_str(), win);
-	exposureText->setGeometry (pos.x, pos.y+=25, 200, 25);
+	exposureText->setGeometry (px, py+=25, 200, 25);
 
 	exposureEdit = new QLineEdit ("1000", win);
-	exposureEdit->setGeometry (pos.x + 200, pos.y, 100, 25);
+	exposureEdit->setGeometry (px + 200, py, 100, 25);
 	exposureModeCombo = new QComboBox (win);
-	exposureModeCombo->setGeometry (pos.x, pos.y += 25, 300, 25);
+	exposureModeCombo->setGeometry (px, py += 25, 300, 25);
 	exposureModeCombo->addItems ({ "Auto-Exposure-Continuous","Auto-Exposure-Off","Auto-Exposure-Once" });
 	exposureModeCombo->setCurrentIndex (0);
 
 	dims.initialize (pos, win, 2, 300);
 	triggerCombo = new QComboBox (win);
-	triggerCombo->setGeometry (pos.x, pos.y, 300, 25);
+	triggerCombo->setGeometry (px, py, 300, 25);
 	triggerCombo->addItems ({ "External-Trigger","Automatic-Software-Trigger","Manual-Software-Trigger" });
 	triggerCombo->setCurrentIndex (0);
 	frameRateText = new QLabel ("Frame Rate (pics/s)", win);
-	frameRateText->setGeometry (pos.x, pos.y += 25, 150, 25);
+	frameRateText->setGeometry (px, py += 25, 150, 25);
 	frameRateEdit = new QLineEdit ("0.25", win);
-	frameRateEdit->setGeometry (pos.x + 150, pos.y, 75, 25);
+	frameRateEdit->setGeometry (px + 150, py, 75, 25);
 	realFrameRate = new QLabel ("", win);
-	realFrameRate->setGeometry (pos.x + 225, pos.y, 75, 25);
+	realFrameRate->setGeometry (px + 225, py, 75, 25);
 	gainCombo = new QComboBox (win);
-	gainCombo->setGeometry (pos.x, pos.y += 25, 300, 25);
+	gainCombo->setGeometry (px, py += 25, 300, 25);
 	gainCombo->addItems ({ "Auto-Gain-Continuous","Auto-Gain-Once","Auto-Gain-Off" });
 	gainCombo->setCurrentIndex( 0 );
 	gainText = new QLabel ("Raw G ain (260-?)", win);
-	gainText->setGeometry (pos.x, pos.y += 25, 150, 25);
+	gainText->setGeometry (px, py += 25, 150, 25);
 	gainEdit = new QLineEdit ("260", win);
-	gainEdit->setGeometry (pos.x + 150, pos.y, 150, 25);
+	gainEdit->setGeometry (px + 150, py, 150, 25);
 	realGainText = new QLabel ("Real Gain:", win);
-	realGainText->setGeometry (pos.x, pos.y += 25, pos.x + 150, 25);
+	realGainText->setGeometry (px, py += 25, px + 150, 25);
 	realGainStatus = new QLabel ("", win);
-	realGainStatus->setGeometry (pos.x+150, pos.y, 150, 25);
+	realGainStatus->setGeometry (px+150, py, 150, 25);
 	motThreshold = new QLabel ("Mot-Threshold", win);
-	motThreshold->setGeometry (pos.x, pos.y += 25, 150, 25);
+	motThreshold->setGeometry (px, py += 25, 150, 25);
 	motThresholdEdit = new QLineEdit ("0", win);
-	motThresholdEdit->setGeometry (pos.x + 150, pos.y, 125, 25);
+	motThresholdEdit->setGeometry (px + 150, py, 125, 25);
 	motLoadedColorbox = new QLabel ("", win);
-	motLoadedColorbox->setGeometry (pos.x + 275, pos.y, 25, 25);
+	motLoadedColorbox->setGeometry (px + 275, py, 25, 25);
 	handleCameraMode ();
 }
 
@@ -141,6 +144,7 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( ){
 	if ( selection == -1 ){
 		thrower  ( "Please select an exposure mode for the basler camera." );
 	}
+	currentSettings.expActive = baslerExpActiveCheck->isChecked ();
 	currentSettings.exposureMode = BaslerAutoExposure::fromStr(str(exposureModeCombo->currentText ()));
 	if ( currentSettings.exposureMode == BaslerAutoExposure::mode::Off ){
 		try{
@@ -193,7 +197,8 @@ baslerSettings BaslerSettingsControl::loadCurrentSettings ( ){
 void BaslerSettingsControl::handleSavingConfig ( ConfigStream& configFile ){ 
 	loadCurrentSettings( );
 	configFile  << "BASLER_CAMERA_SETTINGS\n";
-	configFile  << BaslerAcquisition::toStr(currentSettings.acquisitionMode) 
+	configFile  << "/*Basler System Active:*/ " << currentSettings.expActive << "\n"
+				<< BaslerAcquisition::toStr(currentSettings.acquisitionMode) 
 				<< "\n/*Left:*/ " << currentSettings.dims.left 
 				<< "\n/*Top:*/ " << currentSettings.dims.top 
 				<< "\n/*Right:*/ " << currentSettings.dims.right 
@@ -209,8 +214,6 @@ void BaslerSettingsControl::handleSavingConfig ( ConfigStream& configFile ){
 				<< "\n";
 	configFile << "END_BASLER_CAMERA_SETTINGS\n";
 }
-
-
 
 void BaslerSettingsControl::setSettings ( baslerSettings newSettings ){
 	currentSettings = newSettings;
