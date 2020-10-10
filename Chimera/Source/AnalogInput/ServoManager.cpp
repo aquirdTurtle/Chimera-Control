@@ -356,21 +356,32 @@ void ServoManager::runAll() {
 	emit notification ("Running All Servos.\n");
 	unsigned count = 0;
 	// made this asynchronous to facilitate updating gui while 
-	for ( auto& servo : servos ){
+	for (auto& servo : servos) {
 		if (cancelServo->isDown ()) {
 			break;
 		}
-		auto origColor = servoList->item (count, 0)->background ();
-		servoList->item (count, 0)->setBackground (Qt::red);
+		//servoList->item (count, 0)
+
+		//QTableView::item{
+		//	border: 1px solid white;
+		//	background - color : none;
+		//}
+		//servoList->item (count, 0)->style
+		std::vector<QBrush> origColors;
+		for (auto col : range(servoList->columnCount ())) {
+			origColors.push_back (servoList->item (count, col)->background ());
+			servoList->item (count, col)->setBackground (QColor(20,0,0));
+		}
 		try{
 			ServoManager::calibrate (servo, count);
 		}
 		catch (ChimeraError & e) {
 			emit error (qstr(e.trace ()));
-			//comm.sendError (e.trace ());
 			// but continue to try the other ones. 
 		}
-		servoList->item (count, 0)->setBackground(origColor);
+		for (auto col : range (servoList->columnCount ())) {
+			servoList->item (count, col)->setBackground (origColors[col]);
+		}
 		count++;
 	}
 	refreshListview ();
@@ -396,19 +407,19 @@ double ServoManager::convertToPower (double volt, servoInfo& si){
 	return power;
 } 
 
-void ServoManager::calibrate( servoInfo& s, unsigned which ){
-	if ( !s.active ){
+void ServoManager::calibrate( servoInfo& sv, unsigned which ){
+	if ( !sv.active ){
 		return;
 	}
-	emit notification (qstr("Running Servo "+s.servoName+".\n"),1);
-	double sp = s.setPoint;
-	s.currentlyServoing = true;
+	emit notification (qstr("Running Servo "+ sv.servoName+".\n"),1);
+	double sp = sv.setPoint;
+	sv.currentlyServoing = true;
 	ttls->zeroBoard ( );
 	ao->zeroDacs (ttls->getCore (), { 0, ttls->getCurrentStatus () });
-	for (auto dac : s.aoConfig){
+	for (auto dac : sv.aoConfig){
 		ao->setSingleDac (dac.first, dac.second, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 	}
-	for ( auto ttl : s.ttlConfig ){
+	for ( auto ttl : sv.ttlConfig ){
 		auto& outputs = ttls->getDigitalOutputs ();
 		outputs (ttl.second, ttl.first).check->setChecked (true);
 		outputs(ttl.second, ttl.first).set (1);
@@ -417,31 +428,31 @@ void ServoManager::calibrate( servoInfo& s, unsigned which ){
 	Sleep (200); // give some time for the lasers to settle..
 	unsigned attemptLimit = 100;
 	unsigned count = 0;
-	unsigned aiNum = s.aiInChan;
-	unsigned aoNum = s.aoControlChannel;
-	if ( s.monitorOnly ){	// handle "servos" which are only monitoring values, not trying to change them. 
-		double avgVal = ai->getSingleChannelValue ( aiNum, s.avgNum );
-		s.mostRecentResult = avgVal;
+	unsigned aiNum = sv.aiInChan;
+	unsigned aoNum = sv.aoControlChannel;
+	if (sv.monitorOnly ){	// handle "servos" which are only monitoring values, not trying to change them. 
+		double avgVal = ai->getSingleChannelValue ( aiNum, sv.avgNum );
+		sv.mostRecentResult = avgVal;
 		double percentDif = ( sp - avgVal) / sp;
-		if ( fabs ( percentDif )  < s.tolerance ) { /* Value looks good, nothing to report. */ }
+		if ( fabs ( percentDif )  < sv.tolerance ) { /* Value looks good, nothing to report. */ }
 		else{
-			errBox ( s.servoName + " Monitor: Value has drifted out of tolerance!" );
+			errBox (sv.servoName + " Monitor: Value has drifted out of tolerance!" );
 		}
 		// And the rest of the function is handling the servo part. 
-		s.currentlyServoing = false;
+		sv.currentlyServoing = false;
 		return;
 	}
-	s.controlValue = globals->getVariableValue (str (s.servoName + servoSuffix, 13, false, true));
+	sv.controlValue = globals->getVariableValue (str (sv.servoName + servoSuffix, 13, false, true));
 	// start the dac where it was last.
-	auto oldVal = s.controlValue;
-	ao->setSingleDac (aoNum, s.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
+	auto oldVal = sv.controlValue;
+	ao->setSingleDac (aoNum, sv.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 	unsigned requiredConsecutiveMatches = 3;
 	unsigned numConsecutiveMatches = 0;
 	while ( count++ < attemptLimit ){
-		double avgVal = ai->getSingleChannelValue(aiNum, s.avgNum);
-		s.mostRecentResult = avgVal;
+		double avgVal = ai->getSingleChannelValue(aiNum, sv.avgNum);
+		sv.mostRecentResult = avgVal;
 		double percentDif = (sp - avgVal) / fabs(sp);
-		if ( fabs(percentDif)  < s.tolerance ){
+		if ( fabs(percentDif)  < sv.tolerance ){
 			numConsecutiveMatches++;
 			if (numConsecutiveMatches >= requiredConsecutiveMatches) {
 				// found a good value.
@@ -451,20 +462,20 @@ void ServoManager::calibrate( servoInfo& s, unsigned which ){
 		else{
 			numConsecutiveMatches = 0;
 			// modify dac value.
-			s.controlValue = ao->getDacValue( aoNum );
-			double diff = s.gain * percentDif > 0.05 ? 0.05 : s.gain * percentDif;
-			s.controlValue += diff;
+			sv.controlValue = ao->getDacValue( aoNum );
+			double diff = sv.gain * percentDif > 0.05 ? 0.05 : sv.gain * percentDif;
+			sv.controlValue += diff;
 			try{
-				ao->setSingleDac( aoNum, s.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
+				ao->setSingleDac( aoNum, sv.controlValue, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 			}
 			catch ( ChimeraError& ){
 				// happens if servo value gives result out of range of dacs.
 				auto r = ao->getDacRange ( aoNum );
 				try	{
-					if ( s.controlValue < r.first ){
+					if ( sv.controlValue < r.first ){
 						ao->setSingleDac ( aoNum, r.first, ttls->getCore (), { 0, ttls->getCurrentStatus () });
 					}
-					else if ( s.controlValue > r.second ){
+					else if ( sv.controlValue > r.second ){
 						ao->setSingleDac ( aoNum, r.second, ttls->getCore(), { 0, ttls->getCurrentStatus () });
 					}
 				}
@@ -477,27 +488,27 @@ void ServoManager::calibrate( servoInfo& s, unsigned which ){
 			// There's a little break built in here in order to let the laser power settle a little. 
 			// Not sure how necessary this is.
 			Sleep( 20 );
-			s.changeInCtrl = (s.controlValue - oldVal) / oldVal;
+			sv.changeInCtrl = (sv.controlValue - oldVal) / oldVal;
 			setControlDisplay ( which, ao->getDacValue( aoNum ) );
-			setResDisplay (which, convertToPower(s.mostRecentResult, s));
-			setChangeVal (which, convertToPower(s.changeInCtrl, s));
+			setResDisplay (which, convertToPower(sv.mostRecentResult, sv));
+			setChangeVal (which, convertToPower(sv.changeInCtrl, sv));
 			qApp->processEvents ();
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
-	s.changeInCtrl = (s.controlValue - oldVal) / oldVal; 
+	sv.changeInCtrl = (sv.controlValue - oldVal) / oldVal; 
 	setControlDisplay ( which, dacVal );
-	setResDisplay (which, convertToPower(s.mostRecentResult,s));
-	setChangeVal (which, convertToPower(s.changeInCtrl,s));
+	setResDisplay (which, convertToPower(sv.mostRecentResult,sv));
+	setChangeVal (which, convertToPower(sv.changeInCtrl,sv));
 	
-	s.servoed = (count < attemptLimit);
-	s.currentlyServoing = false;
-	if ( !s.servoed ){
-		thrower( "" + s.servoName + " servo failed to servo!" );
+	sv.servoed = (count < attemptLimit);
+	sv.currentlyServoing = false;
+	if ( !sv.servoed ){
+		thrower( "" + sv.servoName + " servo failed to servo!" );
 		// and don't adjust the variable value with what is probably a bad value. 
 	}
 	else{
-		globals->adjustVariableValue( str(s.servoName + servoSuffix, 13, false, true), dacVal );
+		globals->adjustVariableValue( str(sv.servoName + servoSuffix, 13, false, true), dacVal );
 	}
 	servoList->repaint ();
 }

@@ -45,7 +45,7 @@ pulseon: aceTrig 0.01
 var tunnelTime 3
 t += tunnelTime 
 pulseon: niawgTrig 0.1 % separate tweezers
-t += 1
+t += 2
 pulseon: tweezerIntensityTrig 0.1 % to imaging depth
 t += 3
 call pgcAtomFlashingImage()

@@ -419,6 +419,7 @@ void BaslerCameraCore::loadExpSettings (ConfigStream& stream){
 	ConfigSystem::stdGetFromConfig (stream, *this, expRunSettings, Version ("4.0"));
 	expRunSettings.repsPerVar = ConfigSystem::stdConfigGetter ( stream, "REPETITIONS", 
 																 Repetitions::getSettingsFromConfig);
+	experimentActive = expRunSettings.expActive;
 }
 
 void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){

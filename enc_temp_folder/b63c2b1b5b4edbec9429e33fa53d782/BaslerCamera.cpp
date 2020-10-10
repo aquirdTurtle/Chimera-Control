@@ -20,6 +20,12 @@ baslerSettings BaslerCameraCore::getSettingsFromConfig (ConfigStream& configFile
 		thrower ("Basler settings requires version 4.0+ Configuration files");
 	}
 	baslerSettings newSettings;
+	if (configFile.ver > Version ("5.6")) {
+		configFile >> newSettings.expActive;
+	}
+	else {
+		newSettings.expActive = true;
+	}
 	std::string txt;
 
 	configFile >> txt;
@@ -134,16 +140,16 @@ void BaslerCameraCore::setDefaultParameters(){
 // general function you should use for setting camera settings based on the input.
 void BaslerCameraCore::setBaslserAcqParameters (baslerSettings settings) {
 	/// Set the AOI:
-
 	/*
-		there is never a problem making things smaller. the danger is over-reaching the maximum whose bounds change dynamically.
-		the basler API is very picky about the order of these things. Ways for this to crash:
+		there is never a problem making things smaller. the annoying problem is over-reaching the maximum whose 
+		bounds change dynamically, where the basler api would then throw an error, even if you were about to change 
+		another parameter to make it work out in the end. The basler API is very picky about the order of these things. 
+		Ways for this to crash:
 		- Setting offset large (before making width smaller) pushes the right border past max width
 		- setting width large (before making offset smaller) pushes right border past max width
 		- setting the binning large (before changing the width)
 	*/
-
-	// start from a safe place.
+	// So, start from a safe place.
 	camera->setOffsetX (0);
 	camera->setWidth (16);
 	camera->setHorBin (1);
@@ -279,15 +285,9 @@ void BaslerCameraCore::armCamera( ){
 	input->frameRate = runSettings.frameRate;
 	camera->startGrabbing ( runSettings.totalPictures(), grabStrat );
 	if ( runSettings.triggerMode == BaslerTrigger::mode::AutomaticSoftware ){
-		cameraTrigThread = (HANDLE)_beginthread( triggerThread, NULL, input );
+		_beginthread( triggerThread, NULL, input );
 	}
 }
-
-
-HANDLE BaslerCameraCore::getCameraThreadObj ( ){
-	return cameraTrigThread;
-}
-
 
 // 
 double BaslerCameraCore::getCurrentExposure(){
@@ -428,7 +428,6 @@ void BaslerCameraCore::calculateVariations (std::vector<parameterType>& params, 
 			disarm();
 		}
 		emit threadworker->prepareBasler (&expRunSettings);
-		//omm.sendPrepareBasler (expRunSettings);
 		setBaslserAcqParameters (expRunSettings);
 		armCamera ();
 	}
