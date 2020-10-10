@@ -18,11 +18,11 @@ void BaslerSettingsControl::initialize ( QPoint& pos, int picWidth, int picHeigh
 	statusText = new QLabel ("Camera Status: IDLE", win);
 	statusText->setGeometry (px, py, width, 50);
 	baslerExpActiveCheck = new CQCheckBox ("Basler System Active?", win);
-	baslerExpActiveCheck->setGeometry (px, py, width, 25);
+	baslerExpActiveCheck->setGeometry (px, py += 50, width, 25);
 	baslerExpActiveCheck->setChecked (true);
 	////
 	repText = new QLabel ("Pics Per Rep:", win);
-	repText->setGeometry (px, py+=50, 200, 25);
+	repText->setGeometry (px, py+=25, 200, 25);
 	repEdit = new QLineEdit ("100", win);
 	repEdit->setGeometry (px + 200, py, 100, 25);
 	cameraMode = new QComboBox (win);
