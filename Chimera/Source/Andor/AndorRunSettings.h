@@ -9,6 +9,9 @@
 // this structure contains all of the main options which are necessary to set when starting a camera acquisition. All
 // of these settings should be possibly modified by the user of the UI.
 struct AndorRunSettings{
+	unsigned horShiftSpeedSetting = 0;
+	unsigned vertShiftSpeedSetting = 0;
+
 	imageParameters imageSettings;
 	bool controlCamera = true;
 	//
@@ -34,7 +37,6 @@ struct AndorRunSettings{
 	int totalPicsInExperiment();
 	int temperatureSetting = 25;
 };
-
 
 /*
 	- Includes AndorRunSettings, which are the settings that the camera itself cares about.

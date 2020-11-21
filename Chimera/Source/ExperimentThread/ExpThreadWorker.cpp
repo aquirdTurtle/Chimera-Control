@@ -983,7 +983,7 @@ void ExpThreadWorker::waitForAndorFinish () {
 	while (true) {
 		if (andorCamera.queryStatus () == DRV_ACQUIRING) {
 			Sleep (1000);
-			emit notification ("Waiting for Andor camera to finish acquisition...");
+			emit notification ("Waiting for Andor camera to finish acquisition...\n");
 			if (isAborting) { thrower (abortString); }
 		}
 		else { break; }

@@ -10,6 +10,15 @@ class AndorFlume{
 
 		AndorFlume ( bool safemode_option );
 		void initialize ( );
+		void setVSSpeed (int index);
+		unsigned getNumberVSSpeeds ();
+		float getVSSpeed (int index);
+
+		void setHSSpeed (int type, int index);
+		unsigned getNumberHSSpeeds ();
+		float getHSSpeed (int channel, int type, int index);
+
+
 		void setBaselineClamp ( int clamp );
 		void setBaselineOffset ( int offset );
 		void setDMAParameters ( int maxImagesPerDMA, float secondsPerDMA );
@@ -23,7 +32,6 @@ class AndorFlume{
 		void temperatureControlOff ( );
 		void setTemperature ( int temp );
 		void setADChannel ( int channel );
-		void setHSSpeed ( int type, int index );
 		unsigned checkForNewImages ( );
 		void getOldestImage ( Matrix<long>& dataMatrix );
 		void setTriggerMode ( int mode );

@@ -40,7 +40,7 @@ void QtAndorWindow::initializeWidgets (){
 	alerts.alertMainThread (0);
 	alerts.initialize (position, this);
 	analysisHandler.initialize (position, this);
-	andorSettingsCtrl.initialize (position, this);
+	andorSettingsCtrl.initialize (position, this, andor.getVertShiftSpeeds(), andor.getHorShiftSpeeds());
 	imagingPiezo.initialize (position, this, 480, { "Horizontal Pzt.", "Disconnected", "Vertical Pzt." });
 	position = { 480, 25 };
 	stats.initialize (position, this);
@@ -56,7 +56,6 @@ void QtAndorWindow::initializeWidgets (){
 	pics.setSinglePicture (andorSettingsCtrl.getConfigSettings ().andor.imageSettings);
 	andor.setSettings (andorSettingsCtrl.getConfigSettings ().andor);
 
-
 	QTimer* timer = new QTimer (this);
 	connect (timer, &QTimer::timeout, [this]() {
 		auto temp = andor.getTemperature ();
@@ -65,7 +64,17 @@ void QtAndorWindow::initializeWidgets (){
 	timer->start (2000);
 }
 
-void QtAndorWindow::handlePrepareForAcq (void* lparam, analysisSettings aSettings){
+void QtAndorWindow::manualArmCamera () {
+	try {
+		double time;
+		andor.armCamera (time);
+	}
+	catch (ChimeraError & err) {
+		reportErr (qstr (err.trace ()));
+	}
+}
+
+void QtAndorWindow::handlePrepareForAcq (AndorRunSettings* lparam, analysisSettings aSettings){
 	try {
 		reportStatus ("Preparing Andor Window for Acquisition...\n");
 		AndorRunSettings* settings = (AndorRunSettings*)lparam;
@@ -362,15 +371,20 @@ void QtAndorWindow::onCameraProgress (int picNumReported){
 	}
 	catch (ChimeraError& err){
 		reportErr (qstr (err.trace ()));
-		mainWin->pauseExperiment ();
+		try {
+			mainWin->pauseExperiment ();
+		}
+		catch (ChimeraError & err) {
+			reportErr (qstr (err.trace ()));
+		}
 	}
 	// write the data to the file.
 	if (curSettings.acquisitionMode != AndorRunModes::mode::Video){
 		try	{
 			// important! write the original raw data, not the pic-to-draw, which can be a difference pic, or the calibrated
 			// pictures, which can have the background subtracted.
-			dataHandler.writeAndorPic (rawPicData[(picNum - 1) % curSettings.picsPerRepetition],
-									   curSettings.imageSettings);
+			dataHandler.writeAndorPic ( rawPicData[(picNum - 1) % curSettings.picsPerRepetition],
+									    curSettings.imageSettings );
 		}
 		catch (ChimeraError& err){
 			reportErr (err.qtrace ());

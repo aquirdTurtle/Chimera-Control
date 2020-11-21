@@ -337,15 +337,20 @@ namespace commonFunctions
 				break;
 			}
 			case ID_ACCELERATOR_F1:{
-				mainWin->autoServo ();
-				AllExperimentInput input;
-				input.masterInput = new ExperimentThreadInput ( win );
-				input.masterInput->runList.andor = false;
-				input.masterInput->updatePlotterXVals = false;
-				auxWin->fillMasterThreadInput ( input.masterInput );
-				mainWin->fillMotInput ( input.masterInput );
-				input.masterInput->expType = ExperimentType::LoadMot;
-				mainWin->startExperimentThread ( input.masterInput );
+				try {
+					mainWin->autoServo ();
+					AllExperimentInput input;
+					input.masterInput = new ExperimentThreadInput (win);
+					input.masterInput->runList.andor = false;
+					input.masterInput->updatePlotterXVals = false;
+					auxWin->fillMasterThreadInput (input.masterInput);
+					mainWin->fillMotInput (input.masterInput);
+					input.masterInput->expType = ExperimentType::LoadMot;
+					mainWin->startExperimentThread (input.masterInput);
+				}
+				catch (ChimeraError & err) {
+					mainWin->reportErr (err.qtrace ());
+				}
 				break;
 			}
 			case ID_ACCELERATOR_F11:{
@@ -484,11 +489,7 @@ namespace commonFunctions
 		input.masterInput->skipNext = win->andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = win->auxWin->getTotalVariationNumber ( );
 		input.masterInput->debugOptions = win->mainWin->getDebuggingOptions();
-		input.masterInput->profile = win->mainWin->getProfileSettings ();;
-		if (runNiawg){
-			auto addresses = win->scriptWin->getScriptAddresses();
-			win->scriptWin->setNiawgRunningState( true );
-		}
+		input.masterInput->profile = win->mainWin->getProfileSettings ();
 		// Start the programming thread. order is important.
 		win->auxWin->fillMasterThreadInput( input.masterInput );
 		win->mainWin->fillMasterThreadInput( input.masterInput );

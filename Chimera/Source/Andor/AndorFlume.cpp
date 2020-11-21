@@ -101,6 +101,45 @@ void AndorFlume::setHSSpeed ( int type, int index ){
 	}
 }
 
+unsigned AndorFlume::getNumberVSSpeeds () {
+	int num = 0;
+	if (!safemode) {
+		andorErrorChecker (GetNumberVSSpeeds (&num));
+	}
+	return num;
+}
+
+
+unsigned AndorFlume::getNumberHSSpeeds () {
+	int num = 0;
+	if (!safemode) {
+		andorErrorChecker (GetNumberHSSpeeds (1,0,&num));
+	}
+	return num;
+}
+
+void AndorFlume::setVSSpeed (int index) {
+	if (!safemode) {
+		andorErrorChecker (SetVSSpeed (index));
+	}
+}
+
+float AndorFlume::getVSSpeed (int index) {
+	float speedVal=0;
+	if (!safemode) {
+		andorErrorChecker (GetVSSpeed (index, &speedVal));
+	}
+	return speedVal;
+}
+
+float AndorFlume::getHSSpeed (int channel, int type, int index) {
+	float speedVal = 0;
+	if (!safemode) {
+		andorErrorChecker (GetHSSpeed (channel, type, index, &speedVal));
+	}
+	return speedVal;
+}
+
 // note that the function used here could be used to get actual information about the number of images, I just only use
 // it to check whether there are any new images or not. Not sure if this is the smartest way to do this.
 unsigned AndorFlume::checkForNewImages ( ){

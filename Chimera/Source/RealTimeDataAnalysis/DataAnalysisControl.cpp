@@ -204,8 +204,8 @@ void DataAnalysisControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 
 	/// Initialize the listview
 	plotListview = new QTableWidget (parent);
-	plotListview->setGeometry (px, py+=25, 480, 150);
-	py += 150;
+	plotListview->setGeometry (px, py+=25, 480, 120);
+	py += 120;
 	QStringList labels;
 	labels << " Name " << " Grid # " << " Active ";
 	plotListview->setContextMenuPolicy (Qt::CustomContextMenu);

@@ -5,8 +5,7 @@
 #include <string>
 
 
-struct rampFormat
-{
+struct rampFormat{
 	bool isRamp = false;
 	std::string type;
 	Expression start;
@@ -14,8 +13,7 @@ struct rampFormat
 };
 
 
-struct rampData
-{
+struct rampData{
 	bool isRamp = false;
 	std::string type;
 	double start = 0;
@@ -24,8 +22,7 @@ struct rampData
 
 
 // short for modulation
-struct modFormat
-{
+struct modFormat{
 	bool modulationIsOn = false;
 	// in MHz
 	Expression frequency;
@@ -34,8 +31,7 @@ struct modFormat
 };
 
 
-struct modData
-{
+struct modData{
 	bool modulationIsOn = false;
 	// in MHz
 	double frequency = 0;
@@ -44,8 +40,7 @@ struct modData
 };
 
 
-struct pulseFormat
-{
+struct pulseFormat {
 	// as of October 6th, can be "sech", "gaussian", or "lorentzian"
 	bool isPulse;
 	std::string type;
@@ -57,8 +52,7 @@ struct pulseFormat
 
 };
 
-struct pulseData
-{
+struct pulseData {
 	bool isPulse;
 	// as of October 6th, can be "sech", "gaussian", or "lorentzian"
 	std::string type;
@@ -70,8 +64,7 @@ struct pulseData
 };
 
 
-struct segmentInfoInput
-{
+struct segmentInfoInput {
 	pulseFormat pulse;
 	modFormat mod;
 	rampFormat ramp;
@@ -86,8 +79,7 @@ struct segmentInfoInput
 
 
 
-struct segmentInfoFinal
-{
+struct segmentInfoFinal{
 	pulseData pulse;
 	modData mod;
 	rampData ramp;

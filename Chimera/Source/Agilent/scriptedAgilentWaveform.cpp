@@ -28,8 +28,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	std::string scope = AGILENT_PARAMETER_SCOPE;
 	segmentInfoInput workingInput;
 	std::string word;
-	if (script.peek() == EOF)
-	{
+	if (script.peek() == EOF)	{
 		return true;
 	}
 	// Grab the command type (e.g. ramp, const). Looks for newline by default.
@@ -105,20 +104,17 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 
 	std::string tempContinuationType;
 	script >> tempContinuationType;
-	if (tempContinuationType == "repeat")
-	{
+	if (tempContinuationType == "repeat"){
 		// There is an extra input in this case.
 		script >> workingInput.repeatNum;
 		workingInput.repeatNum.assertValid( params, scope );
 	}
-	else
-	{
+	else{
 		workingInput.repeatNum.expressionStr = "0";
 	}
 	std::string delimiter;
 	script >> delimiter;
-	if (delimiter != "#")
-	{
+	if (delimiter != "#"){
 		// input number mismatch.
 		thrower ( "The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
 				 + ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'. "
@@ -141,8 +137,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
  * varNum: This is the variation number for this segment (matters for naming the segments)
  * totalSegNum: This is the number of segments in the waveform (also matters for naming)
  */
-std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, unsigned chan )
-{
+std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, unsigned chan ){
 	// must get called after data conversion
 	std::string tempSendString;
 	tempSendString = "SOURce" + str( chan ) + ":DATA:ARB segment" + str( segNum + totalSegNum * varNum ) + ",";
@@ -161,13 +156,11 @@ std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum,
 /*
  *
  */
-void ScriptedAgilentWaveform::writeData( int segNum, unsigned long sampleRate )
-{
+void ScriptedAgilentWaveform::writeData( int segNum, unsigned long sampleRate ){
 	waveformSegments[segNum].calcData(sampleRate);
 }
 
-unsigned long ScriptedAgilentWaveform::getSegmentNumber()
-{
+unsigned long ScriptedAgilentWaveform::getSegmentNumber(){
 	return waveformSegments.size();
 }
 
@@ -176,8 +169,7 @@ unsigned long ScriptedAgilentWaveform::getSegmentNumber()
 * This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 * as a part of the class.
 */
-void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel )
-{
+void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, unsigned channel ){
 	std::string tempSequenceString, tempSegmentInfoString;
 	// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
 	// <play control2>, <marker mode2>, <marker point2>, and so on.
@@ -205,8 +197,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
  * This function just returns the sequence string. It should already have been compiled using compileSequenceString 
  * when this is called.
  */
-std::string ScriptedAgilentWaveform::returnSequenceString( )
-{
+std::string ScriptedAgilentWaveform::returnSequenceString( ){
 	return totalSequence;
 }
 
@@ -215,44 +206,32 @@ std::string ScriptedAgilentWaveform::returnSequenceString( )
  * This function returns the truth of whether this sequence is being varied or not. This gets determined during the 
  * reading process.
  */
-bool ScriptedAgilentWaveform::isVaried( )
-{
-	for ( auto& seg : waveformSegments )
-	{
+bool ScriptedAgilentWaveform::isVaried( ){
+	for ( auto& seg : waveformSegments ){
 		auto& input = seg.getInput( );
-		if ( input.time.varies( ) )
-		{
+		if ( input.time.varies( ) ){
 			return true;
 		}
-		if ( input.repeatNum.varies( ) )
-		{
+		if ( input.repeatNum.varies( ) ){
 			return true;
 		}
-		if ( input.ramp.isRamp )
-		{
-			if ( input.ramp.start.varies( ) || input.ramp.end.varies( ) )
-			{
+		if ( input.ramp.isRamp ){
+			if ( input.ramp.start.varies( ) || input.ramp.end.varies( ) ){
 				return true;
 			}
 		}
-		else if ( input.pulse.isPulse )
-		{
-			if ( input.pulse.amplitude.varies( ) || input.pulse.vOffset.varies( ) || input.pulse.width.varies( ) )
-			{
+		else if ( input.pulse.isPulse ){
+			if ( input.pulse.amplitude.varies( ) || input.pulse.vOffset.varies( ) || input.pulse.width.varies( ) ){
 				return true;
 			}
-			if ( input.mod.modulationIsOn )
-			{
-				if ( input.mod.frequency.varies( ) || input.mod.phase.varies( ) )
-				{
+			if ( input.mod.modulationIsOn ){
+				if ( input.mod.frequency.varies( ) || input.mod.phase.varies( ) ){
 					return true;
 				}
 			}
 		}
-		else
-		{
-			if ( input.holdVal.varies( ) )
-			{
+		else{
+			if ( input.holdVal.varies( ) ){
 				return true;
 			}
 		}
@@ -261,10 +240,8 @@ bool ScriptedAgilentWaveform::isVaried( )
 }
 
 
-void ScriptedAgilentWaveform::replaceVarValues()
-{
-	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
-	{
+void ScriptedAgilentWaveform::replaceVarValues(){
+	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++){
 		waveformSegments[segNumInc].convertInputToFinal();
 	}
 }
@@ -273,17 +250,14 @@ void ScriptedAgilentWaveform::replaceVarValues()
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( unsigned variation, std::vector<parameterType>& variables )
-{
-	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
-	{
+void ScriptedAgilentWaveform::replaceVarValues( unsigned variation, std::vector<parameterType>& variables ){
+	for (unsigned segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++){
 		waveformSegments[segNumInc].convertInputToFinal( variation, variables );
 	}
 }
 
 
-unsigned long ScriptedAgilentWaveform::getNumTrigs( )
-{
+unsigned long ScriptedAgilentWaveform::getNumTrigs( ){
 	return numberOfTriggers;
 }
 
@@ -292,15 +266,11 @@ unsigned long ScriptedAgilentWaveform::getNumTrigs( )
  * that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the
  * data string.
  */
-void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<double> calibCoeff)
-{
-
+void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<double> calibCoeff){
 	// for each part of the waveform returnDataSize
-	for (unsigned segmentInc = 0; segmentInc < waveformSegments.size(); segmentInc++)
-	{
+	for (unsigned segmentInc = 0; segmentInc < waveformSegments.size(); segmentInc++){
 		// for each data point in that part
-		for (unsigned dataConvertInc = 0; dataConvertInc < waveformSegments[segmentInc].returnDataSize(); dataConvertInc++)
-		{
+		for (unsigned dataConvertInc = 0; dataConvertInc < waveformSegments[segmentInc].returnDataSize(); dataConvertInc++)	{
 			// convert the user power, which is entered in mW, to uW. That's the units this calibration was done in.
 			// y is the desired power in microwatts.
 			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
@@ -316,21 +286,16 @@ void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal, std::vector<d
 /*
 * This wavefunction loops through all the data values and figures out which ones are min and max.
 */
-void ScriptedAgilentWaveform::calcMinMax()
-{
+void ScriptedAgilentWaveform::calcMinMax(){
 	// NOT DBL_MIN, which is a really small number, not a large negative number. I need a large negative number.
 	maxVolt = -DBL_MAX;
 	minVolt = DBL_MAX;
-	for (unsigned minMaxSegInc = 0; minMaxSegInc < waveformSegments.size(); minMaxSegInc++)
-	{
-		for (unsigned minMaxDataInc = 0; minMaxDataInc < waveformSegments[minMaxSegInc].returnDataSize(); minMaxDataInc++)
-		{
-			if (waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc ) < minVolt)
-			{
+	for (unsigned minMaxSegInc = 0; minMaxSegInc < waveformSegments.size(); minMaxSegInc++)	{
+		for (unsigned minMaxDataInc = 0; minMaxDataInc < waveformSegments[minMaxSegInc].returnDataSize(); minMaxDataInc++){
+			if (waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc ) < minVolt){
 				minVolt = waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc );
 			}
-			if (waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc ) > maxVolt)
-			{
+			if (waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc ) > maxVolt){
 				maxVolt = waveformSegments[minMaxSegInc].returnDataVal( minMaxDataInc );
 			}
 		}
@@ -345,13 +310,10 @@ void ScriptedAgilentWaveform::calcMinMax()
 * This function normalizes all of the data points to lie within the -1 to 1 range that I need to send to the agilent. The actual values outputted
 * by the agilent are determined jointly by these values and the output range. you therefore need to use calcMinMax before this function.
 */
-void ScriptedAgilentWaveform::normalizeVoltages()
-{
+void ScriptedAgilentWaveform::normalizeVoltages(){
 	double scaleFactor = 2.0 / (maxVolt - minVolt);
-	for (unsigned normSegInc = 0; normSegInc < waveformSegments.size(); normSegInc++)
-	{
-		for (unsigned normDataInc = 0; normDataInc < waveformSegments[normSegInc].returnDataSize(); normDataInc++)
-		{
+	for (unsigned normSegInc = 0; normSegInc < waveformSegments.size(); normSegInc++){
+		for (unsigned normDataInc = 0; normDataInc < waveformSegments[normSegInc].returnDataSize(); normDataInc++){
 			double currVal = waveformSegments[normSegInc].returnDataVal( normDataInc );
 			double normVal = (currVal - minVolt) * scaleFactor - 1;
 			waveformSegments[normSegInc].assignDataVal( normDataInc, normVal );
@@ -363,17 +325,14 @@ void ScriptedAgilentWaveform::normalizeVoltages()
 /**
  * Returns the maximum voltage level currently in data structures.
  */
-double ScriptedAgilentWaveform::getMaxVolt()
-{
+double ScriptedAgilentWaveform::getMaxVolt(){
 	return maxVolt;
 }
-
 
 /**
  * Returns the minimum voltage level currently in data structures.
  */
-double ScriptedAgilentWaveform::getMinVolt()
-{
+double ScriptedAgilentWaveform::getMinVolt(){
 	return minVolt;
 }
 

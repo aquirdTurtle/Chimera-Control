@@ -96,7 +96,7 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
         Ui::QtAuxiliaryWindow* ui;
 		std::string title;
 		/// control system classes
-		MicrowaveSystem RohdeSchwarzGenerator;
+		MicrowaveSystem uwSys;
 		std::array<Agilent, 4> agilents;
 		DoSystem ttlBoard;
 		AoSystem aoSys;

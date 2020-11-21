@@ -2,23 +2,19 @@
 #include "ConfigurationSystems/ConfigSystem.h"
 #include "DdsCore.h"
 
-DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode )
-{
+DdsCore::DdsCore ( bool safemode ) : ftFlume ( safemode ){
 	connectasync ( );
 	lockPLLs ( );
 }
 
-DdsCore::~DdsCore ( )
-{
+DdsCore::~DdsCore ( ){
 	disconnect ( );
 }
 
 
-void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
-{
+void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params ){
 	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
-	for (auto& ramp : expRampList)
-	{
+	for (auto& ramp : expRampList)	{
 		ramp.rampTime.assertValid (params, GLOBAL_PARAMETER_SCOPE);
 		ramp.freq1.assertValid (params, GLOBAL_PARAMETER_SCOPE);
 		ramp.freq2.assertValid (params, GLOBAL_PARAMETER_SCOPE);
@@ -28,20 +24,17 @@ void DdsCore::assertDdsValuesValid ( std::vector<parameterType>& params )
 	}
 }
 
-void DdsCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker)
-{
+void DdsCore::calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	evaluateDdsInfo (params);
 	unsigned variations = ((params.size ()) == 0) ? 1 : params.front ().keyValues.size ();
 	generateFullExpInfo (variations);
 }
+
 // this probably needs an overload with a default value for the empty parameters case...
-void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
-{
+void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params ){
 	unsigned variations = ( ( params.size ( ) ) == 0 ) ? 1 : params.front ( ).keyValues.size ( );
-	for ( auto variationNumber : range ( variations ) )
-	{
-		for ( auto& ramp : expRampList)
-		{
+	for ( auto variationNumber : range ( variations ) )	{
+		for ( auto& ramp : expRampList)	{
 			ramp.rampTime.internalEvaluate (params, variations );
 			ramp.freq1.internalEvaluate (params, variations );
 			ramp.freq2.internalEvaluate (params, variations );
@@ -52,28 +45,23 @@ void DdsCore::evaluateDdsInfo ( std::vector<parameterType> params )
 	}
 }
 
-
-void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterType>& params, ExpThreadWorker* threadworker)
-{
+void DdsCore::programVariation ( unsigned variationNum, std::vector<parameterType>& params, 
+								 ExpThreadWorker* threadworker){
 	clearDdsRampMemory ( );
 	auto& thisExpFullRampList = fullExpInfo ( variationNum );
-	if ( thisExpFullRampList.size ( ) == 0 )
-	{
+	if ( thisExpFullRampList.size ( ) == 0 ){
 		return;
 	}
 	lockPLLs ( );
 	writeAmpMultiplier ( 0 );
 	writeAmpMultiplier ( 1 );
-	for ( auto boardNum : range ( thisExpFullRampList.front ( ).rampParams.numBoards ( ) ) )
-	{
-		for ( auto channelNum : range ( thisExpFullRampList.front ( ).rampParams.numChannels ( ) ) )
-		{
+	for ( auto boardNum : range ( thisExpFullRampList.front ( ).rampParams.numBoards ( ) ) ){
+		for ( auto channelNum : range ( thisExpFullRampList.front ( ).rampParams.numChannels ( ) ) ){
 			writeResetFreq ( boardNum, channelNum, thisExpFullRampList.front ( ).rampParams ( boardNum, channelNum ).freq1 );
 			writeResetAmp ( boardNum, channelNum, thisExpFullRampList.front ( ).rampParams ( boardNum, channelNum ).amp1 );
 		}
 	}
-	for ( auto rampIndex : range ( thisExpFullRampList.size ( ) ) )
-	{
+	for ( auto rampIndex : range ( thisExpFullRampList.size ( ) ) ){
 		writeOneRamp ( thisExpFullRampList[ rampIndex ], rampIndex );
 	}
 	longUpdate ( );
@@ -399,6 +387,10 @@ void DdsCore::writeRampListToConfig ( std::vector<ddsIndvRampListInfo> list, Con
 }
 
 void DdsCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
+}
+
+void DdsCore::manualLoadExpRampList (std::vector< ddsIndvRampListInfo> ramplist) {
+	expRampList = ramplist;
 }
 
 void DdsCore::loadExpSettings (ConfigStream& stream){

@@ -4,7 +4,7 @@
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
 
 var_v 2 freqs [ 69 81 ]
-var_v 2 amps [ 0.61 0.39 ]
+var_v 2 amps [ 0.5143841416947187 0.4856158583052814 ]
 var_v 2 phases [ 0 0 ]
 
 repeatForever

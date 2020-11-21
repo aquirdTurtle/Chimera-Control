@@ -359,7 +359,8 @@ void DataLogger::logError ( H5::Exception& err ){
 
 
 /*
-This function is for logging things that are readbtn from the configuration file and otherwise obtained inside the main experiment thread.
+This function is for logging things that are readbtn from the configuration file and otherwise obtained inside the 
+main experiment thread, but not associated with a particular device. Not much should be logged here. 
 */
 void DataLogger::logMasterRuntime ( unsigned repNumber,  std::vector<parameterType> allParams){
 	try{
@@ -380,6 +381,7 @@ void DataLogger::logMasterInput( ExperimentThreadInput* input ){
 			return;
 		}
 		H5::Group runParametersGroup( file.createGroup( "/Master-Input" ) );
+		writeDataSet (input->profile.configuration, "Configuration", runParametersGroup);
 		writeDataSet( input->runList.master, "Run-Master", runParametersGroup );
 		if ( input->runList.master)	{
 			std::ifstream masterScript( ConfigSystem::getMasterAddressFromConfig( input->profile ) );

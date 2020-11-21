@@ -1,0 +1,25 @@
+var loadingDepth 11 % 13.4 
+var imagingDepth 12.25
+var intraplgmdepth 20.4
+var moveDepth 2 %10 
+var ramanDepth 19  
+var dumpDepth 0
+var tunnelingDepth 0.2
+
+hold loadingDepth 1 onceWaitTrig #   
+ramp lin loadingDepth imagingDepth 1 onceWaitTrig # 
+ramp lin imagingDepth intrapLGMDepth 1 onceWaitTrig #
+ramp lin intrapLGMDepth ramanDepth 1 onceWaitTrig #
+
+ramp tanh ramanDepth dumpDepth 1 once #   
+ramp tanh dumpDepth moveDepth 1 onceWaitTrig #   
+
+ramp tanh moveDepth tunnelingDepth rampTime once #   
+ramp tanh tunnelingDepth moveDepth rampTime onceWaitTrig #   
+ramp tanh moveDepth imagingDepth 1 onceWaitTrig #   
+ramp lin imagingDepth loadingDepth 1 once # 
+  
+  
+ 
+
+ 

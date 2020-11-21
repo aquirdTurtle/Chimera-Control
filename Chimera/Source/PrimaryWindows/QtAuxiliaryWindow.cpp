@@ -13,14 +13,14 @@
 #include <ExcessDialogs/doChannelInfoDialog.h>
 #include <ExcessDialogs/AoSettingsDialog.h>
 
-QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), 
+QtAuxiliaryWindow::QtAuxiliaryWindow (QWidget* parent) : IChimeraQtWindow (parent), uwSys(this),
 topBottomTek (TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS, "TOP_BOTTOM_TEKTRONICS_AFG"),
 eoAxialTek (EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS, "EO_AXIAL_TEKTRONICS_AFG"),
 agilents{ Agilent{TOP_BOTTOM_AGILENT_SETTINGS,this}, Agilent{AXIAL_AGILENT_SETTINGS,this},
 Agilent{FLASHING_AGILENT_SETTINGS,this}, Agilent{UWAVE_AGILENT_SETTINGS,this} },
 	ttlBoard (this, DOFTDI_SAFEMODE, true),
 	aoSys (this, ANALOG_OUT_SAFEMODE), configParameters (this, "CONFIG_PARAMETERS"),
-	globalParameters (this, "GLOBAL_PARAMETERS"), dds (DDS_SAFEMODE),
+	globalParameters (this, "GLOBAL_PARAMETERS"), dds (this, DDS_SAFEMODE),
 	piezo1 (this, PIEZO_1_INFO), piezo2 (this, PIEZO_2_INFO), piezo3(this, PIEZO_3_INFO){	
 	statBox = new ColorBox ();
 	setWindowTitle ("Auxiliary Window");
@@ -50,7 +50,7 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		aiSys.initialize (loc, this);
 		topBottomTek.initialize (loc, this, "Top-Bottom-Tek", "Top", "Bottom", 480);
 		eoAxialTek.initialize (loc, this, "EO / Axial", "EO", "Axial", 480);
-		RohdeSchwarzGenerator.initialize (loc, this);
+		uwSys.initialize (loc, this);
 		loc = QPoint{ 480, 25 };
 
 		agilents[whichAgTy::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
@@ -282,7 +282,7 @@ void QtAuxiliaryWindow::windowSaveConfig (ConfigStream& saveFile){
 	piezo2.handleSaveConfig (saveFile);
 	piezo3.handleSaveConfig (saveFile);
 	aiSys.handleSaveConfig (saveFile);
-	RohdeSchwarzGenerator.handleSaveConfig (saveFile);
+	uwSys.handleSaveConfig (saveFile);
 }
 
 void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
@@ -315,8 +315,8 @@ void QtAuxiliaryWindow::windowOpenConfig (ConfigStream& configFile){
 		ConfigSystem::stdGetFromConfig (configFile, aiSys, settings, Version ("4.9"));
 		aiSys.setAiSettings (settings);
 		microwaveSettings uwsettings;
-		ConfigSystem::stdGetFromConfig (configFile, RohdeSchwarzGenerator.getCore (), uwsettings, Version ("4.10"));
-		RohdeSchwarzGenerator.setMicrowaveSettings (uwsettings);
+		ConfigSystem::stdGetFromConfig (configFile, uwSys.getCore (), uwsettings, Version ("4.10"));
+		uwSys.setMicrowaveSettings (uwsettings);
 	}
 	catch (ChimeraError&){
 		throwNested ("Auxiliary Window failed to read parameters from the configuration file.");
@@ -534,8 +534,8 @@ void QtAuxiliaryWindow::handleMasterConfigOpen (ConfigStream& configStream){
 		}
 		std::string noteString = "";
 		if (configStream.ver >= Version ("2.3")){
-			std::string trash;
-			configStream >> noteString;
+			noteString = configStream.getline ();
+			//configStream >> noteString;
 		}
 		aoSys.setName (dacInc, name);
 		aoSys.setNote (dacInc, noteString);
@@ -679,7 +679,7 @@ std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
 	msg += "Microwave System:\n";
 	if (!(MICROWAVE_SYSTEM_DEVICE_TYPE == microwaveDevice::NONE)){
 		msg += "\tCode System is Active!\n";
-		msg += "\t" + RohdeSchwarzGenerator.getIdentity ();
+		msg += "\t" + uwSys.getIdentity ();
 	}
 	else{
 		msg += "\tCode System is disabled! Enable in \"constants.h\"";
@@ -690,7 +690,7 @@ std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
 void QtAuxiliaryWindow::fillExpDeviceList (DeviceList& list){
 	list.list.push_back (topBottomTek.getCore ());
 	list.list.push_back (eoAxialTek.getCore ());
-	list.list.push_back (RohdeSchwarzGenerator.getCore ());
+	list.list.push_back (uwSys.getCore ());
 	for (auto& ag : agilents){
 		list.list.push_back (ag.getCore ());
 	}

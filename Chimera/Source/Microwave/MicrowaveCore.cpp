@@ -25,7 +25,9 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 	catch (ChimeraError&)	{
 		// I don't think this really happens much anymore, have fixed some small bugs in windfreak programming which
 		// were probably causing this. 
-		emit threadworker->warn ("Failed to program windfreak first time! Trying again...");
+		if (threadworker != nullptr) {
+			emit threadworker->warn ("Failed to program windfreak first time! Trying again...");
+		}
 		// should probably emit a warning here. 
 		try	{
 			// something in the windfreak seems to need flushing at this point.
@@ -44,7 +46,9 @@ void MicrowaveCore::programVariation (unsigned variationNumber, std::vector<para
 			throwNested ("Failed to program Windfreak!");
 		}
 	}
-	emit threadworker->notification ("Windfreak list setting programmed: " + qstr (getCurrentList ()), 2);
+	if (threadworker != nullptr) {
+		emit threadworker->notification ("Windfreak list setting programmed: " + qstr (getCurrentList ()), 2);
+	}
 }
 
 void MicrowaveCore::logSettings (DataLogger& log, ExpThreadWorker* threadworker){
@@ -98,7 +102,7 @@ void MicrowaveCore::calculateVariations (std::vector<parameterType>& params, Exp
 		experimentSettings.list[freqInc].frequency.internalEvaluate (params, variations);
 		experimentSettings.list[freqInc].power.internalEvaluate (params, variations);
 	}
-	if (threadworker != NULL) {
+	if (threadworker != nullptr) {
 		emit threadworker->notification (qstr ("Microwave List Setting: " + getCurrentList ()), 1);
 	}
 }

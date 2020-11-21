@@ -9,7 +9,7 @@
 #include "PrimaryWindows/QtMainWindow.h"
 #include <QTableWidget.h>
 
-MicrowaveSystem::MicrowaveSystem() {}
+MicrowaveSystem::MicrowaveSystem(IChimeraQtWindow* parent) : IChimeraSystem(parent) {}
 
 std::string MicrowaveSystem::getIdentity(){ 
 	return core.queryIdentity();
@@ -104,13 +104,15 @@ void MicrowaveSystem::handleWritePress (){
 
 
 void MicrowaveSystem::programNow(std::vector<parameterType> constants){
-	microwaveSettings settings;
 	// ignore the check if the user literally presses program now.
-	settings.control = true;
-	settings.list = currentList;
+	core.experimentSettings.control = true;
+	core.experimentSettings.list = currentList;
+	core.experimentActive = true;
 	std::string warnings;
+
 	core.calculateVariations (constants, nullptr);
 	core.programVariation (0, constants, nullptr);
+	emit notification ("Finished programming microwave system!\n");
 }
 
 
