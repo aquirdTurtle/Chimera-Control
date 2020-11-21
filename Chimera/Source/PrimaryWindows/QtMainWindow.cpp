@@ -24,7 +24,7 @@ QtMainWindow::QtMainWindow () :
 	masterRepumpScope (MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4, "D2 F=1 & Master Lasers Scope"),
 	motScope (MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2, "D2 F=2 Laser Scope"),
 	expScope(EXPERIMENT_SCOPE_ADDRESS, EXPERIMENT_SCOPE_SAFEMODE, 4, "Experiment Scope"),
-	servos(this){
+	servos(this), calManager(this){
 	statBox = new ColorBox ();
 	startupTimes.push_back (chronoClock::now ());
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
@@ -87,12 +87,12 @@ QtMainWindow::QtMainWindow () :
 	try {
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
 		std::string initializationString;
-		//initializationString += getSystemStatusString ();
-		//initializationString += auxWin->getOtherSystemStatusMsg ();
+		initializationString += getSystemStatusString ();
+		initializationString += auxWin->getOtherSystemStatusMsg ();
 		initializationString += andorWin->getSystemStatusString ();
-		//initializationString += auxWin->getVisaDeviceStatus ();
-		//initializationString += scriptWin->getSystemStatusString ();
-		//initializationString += auxWin->getMicrowaveSystemStatus ();
+		initializationString += auxWin->getVisaDeviceStatus ();
+		initializationString += scriptWin->getSystemStatusString ();
+		initializationString += auxWin->getMicrowaveSystemStatus ();
 		infoBox (initializationString);
 	}
 	catch (ChimeraError & err) {
@@ -138,6 +138,8 @@ void QtMainWindow::initializeWidgets (){
 	masterRepumpScope.initialize (controlLocation, 480, 130, this, "Master/Repump");
 	motScope.initialize (controlLocation, 480, 130, this, "MOT");
 	expScope.initialize (controlLocation, 480, 130, this, "Experiment");
+	calManager.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (), auxWin->getTtlSystem (),
+		auxWin->getAgilents()); 
 	servos.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (),
 						auxWin->getTtlSystem (), &auxWin->getGlobals ());
 	controlLocation = { 1440, 50 };
@@ -145,6 +147,7 @@ void QtMainWindow::initializeWidgets (){
 	mainOptsCtrl.initialize (controlLocation, this);
 	debugger.initialize (controlLocation, this);
 	texter.initialize (controlLocation, this);
+
 }
 
 unsigned QtMainWindow::getAutoCalNumber () { return autoCalNum; }
@@ -544,10 +547,12 @@ std::vector<servoInfo> QtMainWindow::getServoinfo (){
 
 void QtMainWindow::handleMasterConfigOpen (ConfigStream& configStream){
 	servos.handleOpenMasterConfig (configStream);
+	calManager.handleOpenMasterConfig (configStream);
 }
 
 void QtMainWindow::handleMasterConfigSave (std::stringstream& configStream){
 	servos.handleSaveMasterConfig (configStream);
+	calManager.handleSaveMasterConfig (configStream);
 }
 
 void QtMainWindow::fillExpDeviceList (DeviceList& list) {}

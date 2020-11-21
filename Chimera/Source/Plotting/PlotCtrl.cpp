@@ -35,7 +35,7 @@ dataPoint PlotCtrl::getMainAnalysisResult ( ){
 void PlotCtrl::setData (std::vector<plotDataVec> newData){
 	view->chart ()->removeAllSeries ();
 	double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
-	if (style == plotStyle::ErrorPlot) {
+	if (style == plotStyle::BinomialDataPlot || style == plotStyle::GeneralErrorPlot) {
 		if (newData.size () == 0 || !view->chart ()) {
 			return;
 		}
@@ -151,7 +151,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 	else {
 		view->chart ()->axes (Qt::Horizontal)[0]->setRange (xmin - (xmax - xmin) / 20, xmax + (xmax - xmin) / 20);
 	}
-	if (style == plotStyle::ErrorPlot) {
+	if (style == plotStyle::BinomialDataPlot) {
 		view->chart ()->axes (Qt::Vertical)[0]->setRange (0, 1);
 	}
 	else {

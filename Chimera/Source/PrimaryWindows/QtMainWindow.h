@@ -8,7 +8,8 @@
 #include "Agilent/Agilent.h"
 #include "ExperimentThread/ExperimentThreadInput.h"
 #include "IChimeraQtWindow.h"
-
+#include <AnalogInput/CalibrationManager.h>
+#include <AnalogInput/ServoManager.h>
 #include "ConfigurationSystems/ConfigSystem.h"
 #include "MiscellaneousExperimentOptions/DebugOptionsControl.h"
 #include "MiscellaneousExperimentOptions/MainOptionsControl.h"
@@ -121,6 +122,7 @@ class QtMainWindow : public IChimeraQtWindow{
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
 		ServoManager servos;
+		CalibrationManager calManager;
 
 		ExpThreadWorker* expWorker;
 		QThread* expThread;
@@ -131,5 +133,7 @@ class QtMainWindow : public IChimeraQtWindow{
 		//
 		friend void commonFunctions::handleCommonMessage (int msgID, IChimeraQtWindow* win);
 		unsigned autoCalNum = 0;
+
+		
 };
 

@@ -114,7 +114,10 @@ void IChimeraQtWindow::initializeMenu (){
 	/// PROFILE
 	auto profileM = menubar->addMenu ("Profil&e");
 	auto mc_p_m = profileM->addMenu ("Master Configuration");
-	mc_p_m->addAction ("Save Master Configuration_X");
+	auto* saveMasterConfig = new QAction ("Save Master Configuration", this);
+	connect (saveMasterConfig, &QAction::triggered, [this, cmnMsg]() {cmnMsg (ID_MASTERCONFIG_SAVEMASTERCONFIGURATION, this); });
+	mc_p_m->addAction (saveMasterConfig);
+
 	mc_p_m->addAction ("Re-Load Master Configuration_X");
 	auto conf_p_m = profileM->addMenu ("Con&figuration");
 

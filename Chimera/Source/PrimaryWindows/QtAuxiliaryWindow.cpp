@@ -53,10 +53,10 @@ void QtAuxiliaryWindow::initializeWidgets (){
 		uwSys.initialize (loc, this);
 		loc = QPoint{ 480, 25 };
 
-		agilents[whichAgTy::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
-		agilents[whichAgTy::Axial].initialize (loc, "Microwave-Axial-Agilent", 100, this);
-		agilents[whichAgTy::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
-		agilents[whichAgTy::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
+		agilents[(int)AgilentEnum::name::TopBottom].initialize (loc, "Top-Bottom-Agilent", 100, this);
+		agilents[(int)AgilentEnum::name::Axial].initialize (loc, "Microwave-Axial-Agilent", 100, this);
+		agilents[(int)AgilentEnum::name::Flashing].initialize (loc, "Flashing-Agilent", 100, this);
+		agilents[(int)AgilentEnum::name::Microwave].initialize (loc, "Microwave-Agilent", 100, this);
 		loc = QPoint{ 1440, 25 };
 		globalParameters.initialize (loc, this, "GLOBAL PARAMETERS", ParameterSysType::global);
 		configParameters.initialize (loc, this, "CONFIGURATION PARAMETERS", ParameterSysType::config);
@@ -165,29 +165,29 @@ LRESULT QtAuxiliaryWindow::onLogVoltsMessage (WPARAM wp, LPARAM lp){
 }
 
 
-void QtAuxiliaryWindow::newAgilentScript (whichAgTy::agilentNames name){
+void QtAuxiliaryWindow::newAgilentScript (AgilentEnum::name name){
 	try{
-		agilents[name].verifyScriptable ();
+		agilents[(int)name].verifyScriptable ();
 		mainWin->updateConfigurationSavedStatus (false);
-		agilents[name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		agilents[name].agilentScript.newScript ();
-		agilents[name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
+		agilents[(int)name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+		agilents[(int)name].agilentScript.newScript ();
+		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
 	}
 	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
 	}
 }
 
-void QtAuxiliaryWindow::openAgilentScript (whichAgTy::agilentNames name, IChimeraQtWindow* parent){
+void QtAuxiliaryWindow::openAgilentScript (AgilentEnum::name name, IChimeraQtWindow* parent){
 	try{
-		agilents[name].verifyScriptable ();
+		agilents[(int)name].verifyScriptable ();
 		mainWin->updateConfigurationSavedStatus (false);
-		agilents[name].agilentScript.checkSave (mainWin->getProfileSettings ().configLocation,
+		agilents[(int)name].agilentScript.checkSave (mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
 		std::string openFileName = openWithExplorer (parent, Script::AGILENT_SCRIPT_EXTENSION);
-		agilents[name].agilentScript.openParentScript (openFileName,
+		agilents[(int)name].agilentScript.openParentScript (openFileName,
 			mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		agilents[name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
+		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
 	}
 	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
@@ -195,57 +195,47 @@ void QtAuxiliaryWindow::openAgilentScript (whichAgTy::agilentNames name, IChimer
 }
 
 
-void QtAuxiliaryWindow::updateAgilent (whichAgTy::agilentNames name)
-{
-	try
-	{
+void QtAuxiliaryWindow::updateAgilent (AgilentEnum::name name){
+	try	{
 		mainWin->updateConfigurationSavedStatus (false);
-		agilents[name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
-		agilents[name].readGuiSettings ();
+		agilents[(int)name].checkSave (mainWin->getProfileSettings ().configLocation, mainWin->getRunInfo ());
+		agilents[(int)name].readGuiSettings ();
 	}
-	catch (ChimeraError&)
-	{
+	catch (ChimeraError&){
 		throwNested ("Failed to update agilent.");
 	}
 }
 
 
-void QtAuxiliaryWindow::saveAgilentScript (whichAgTy::agilentNames name)
-{
-	try
-	{
-		agilents[name].verifyScriptable ();
+void QtAuxiliaryWindow::saveAgilentScript (AgilentEnum::name name){
+	try	{
+		agilents[(int)name].verifyScriptable ();
 		mainWin->updateConfigurationSavedStatus (false);
-		agilents[name].agilentScript.saveScript (mainWin->getProfileSettings ().configLocation,
+		agilents[(int)name].agilentScript.saveScript (mainWin->getProfileSettings ().configLocation,
 			mainWin->getRunInfo ());
-		agilents[name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
+		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
 	}
-	catch (ChimeraError& err)
-	{
+	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
 	}
 }
 
 
-void QtAuxiliaryWindow::saveAgilentScriptAs (whichAgTy::agilentNames name, IChimeraQtWindow* parent)
-{
-	try
-	{
-		agilents[name].verifyScriptable ();
+void QtAuxiliaryWindow::saveAgilentScriptAs (AgilentEnum::name name, IChimeraQtWindow* parent){
+	try	{
+		agilents[(int)name].verifyScriptable ();
 		mainWin->updateConfigurationSavedStatus (false);
-		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension ();
-		if (extensionNoPeriod.size () == 0)
-		{
+		std::string extensionNoPeriod = agilents[(int)name].agilentScript.getExtension ();
+		if (extensionNoPeriod.size () == 0)	{
 			return;
 		}
 		extensionNoPeriod = extensionNoPeriod.substr (1, extensionNoPeriod.size ());
 		std::string newScriptAddress = saveWithExplorer ( parent, extensionNoPeriod,
 														  mainWin->getProfileSettings () );
-		agilents[name].agilentScript.saveScriptAs (newScriptAddress, mainWin->getRunInfo ());
-		agilents[name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
+		agilents[(int)name].agilentScript.saveScriptAs (newScriptAddress, mainWin->getRunInfo ());
+		agilents[(int)name].agilentScript.updateScriptNameText (mainWin->getProfileSettings ().configLocation);
 	}
-	catch (ChimeraError& err)
-	{
+	catch (ChimeraError& err){
 		reportErr (err.qtrace ());
 	}
 }
@@ -350,22 +340,6 @@ void QtAuxiliaryWindow::clearVariables (){
 	mainWin->updateConfigurationSavedStatus (false);
 	configParameters.clearParameters ();
 }
-
-/*
-void QtAuxiliaryWindow::addVariable (std::string name, bool constant, double value){
-	parameterType var;
-	var.name = name;
-	var.constant = constant;
-	var.constantValue = value;
-	var.ranges.push_back ({ value, value + 1 });
-	try{
-		mainWin->updateConfigurationSavedStatus (false);
-		configParameters.addParameter (var);
-	}
-	catch (ChimeraError&){
-		throwNested ("Failed to Add a variable.");
-	}
-}*/
 
 void QtAuxiliaryWindow::passRoundToDac (){
 	mainWin->updateConfigurationSavedStatus (false);
@@ -675,7 +649,6 @@ std::string QtAuxiliaryWindow::getVisaDeviceStatus (){
 
 std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
 	std::string msg;
-	//msg += "----------------------------------------------------------------------------------- GPIB Devices:\n";
 	msg += "Microwave System:\n";
 	if (!(MICROWAVE_SYSTEM_DEVICE_TYPE == microwaveDevice::NONE)){
 		msg += "\tCode System is Active!\n";
@@ -685,6 +658,14 @@ std::string QtAuxiliaryWindow::getMicrowaveSystemStatus (){
 		msg += "\tCode System is disabled! Enable in \"constants.h\"";
 	}
 	return msg;
+}
+
+std::vector<std::reference_wrapper<AgilentCore>> QtAuxiliaryWindow::getAgilents () {
+	std::vector<std::reference_wrapper<AgilentCore>> ags;
+	for (auto& ag : agilents) {
+		ags.push_back (ag.getCore ());
+	}
+	return ags;
 }
 
 void QtAuxiliaryWindow::fillExpDeviceList (DeviceList& list){

@@ -21,7 +21,8 @@ enum class plotStyle{
 	TtlPlot,
 	DacPlot,
 	// uses circs and error bars to represent data and errors
-	ErrorPlot,
+	BinomialDataPlot,
+	GeneralErrorPlot,
 	// uses bars for histograms
 	HistPlot,
 	VertHist,

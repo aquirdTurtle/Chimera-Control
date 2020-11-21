@@ -141,7 +141,7 @@ void AgilentCore::setAgilent (unsigned var, std::vector<parameterType>& params, 
 // stuff that only has to be done once.
 void AgilentCore::prepAgilentSettings (unsigned channel){
 	if (channel != 1 && channel != 2){
-		thrower ("Bad value for channel in prepAgilentSettings!");
+		thrower ("Bad value for channel in prepAgilentSettings! Channel shoulde be 1 or 2.");
 	}
 	// Set timout, sample rate, filter parameters, trigger settings.
 	visaFlume.setAttribute (VI_ATTR_TMO_VALUE, 40000);
@@ -186,7 +186,7 @@ void AgilentCore::setScriptOutput (unsigned varNum, scriptedArbInfo scriptInfo, 
 
 void AgilentCore::outputOff (int channel){
 	if (channel != 1 && channel != 2){
-		thrower ("bad value for channel inside outputOff!");
+		thrower ("bad value for channel inside outputOff! Channel shoulde be 1 or 2.");
 	}
 	channel++;
 	visaFlume.write ("OUTPUT" + str (channel) + " OFF");
@@ -200,7 +200,7 @@ bool AgilentCore::connected (){
 
 void AgilentCore::setDC (int channel, dcInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
-		thrower ("Bad value for channel inside setDC!");
+		thrower ("Bad value for channel inside setDC! Channel shoulde be 1 or 2.");
 	}
 	visaFlume.write ("SOURce" + str (channel) + ":APPLy:DC DEF, DEF, "
 		+ str (convertPowerToSetPoint (info.dcLevel.getValue(var), info.useCal, calibrationCoefficients)) + " V");
@@ -209,7 +209,7 @@ void AgilentCore::setDC (int channel, dcInfo info, unsigned var){
 
 void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info){
 	if (channel != 1 && channel != 2){
-		thrower ("Bad value for channel in setExistingWaveform!");
+		thrower ("Bad value for channel in setExistingWaveform! Channel shoulde be 1 or 2.");
 	}
 	auto sStr = "SOURCE" + str (channel);
 	visaFlume.write (sStr + ":DATA:VOL:CLEAR");
@@ -231,7 +231,7 @@ void AgilentCore::setExistingWaveform (int channel, preloadedArbInfo info){
 // set the agilent to output a square wave.
 void AgilentCore::setSquare (int channel, squareInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
-		thrower ("Bad Value for Channel in setSquare!");
+		thrower ("Bad Value for Channel in setSquare! Channel shoulde be 1 or 2.");
 	}
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SQUARE " + str (info.frequency.getValue(var)) + " KHZ, "
 		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrationCoefficients)) + " VPP, "
@@ -241,7 +241,7 @@ void AgilentCore::setSquare (int channel, squareInfo info, unsigned var){
 
 void AgilentCore::setSine (int channel, sineInfo info, unsigned var){
 	if (channel != 1 && channel != 2){
-		thrower ("Bad value for channel in setSine");
+		thrower ("Bad value for channel in setSine! Channel shoulde be 1 or 2.");
 	}
 	visaFlume.write ("SOURCE" + str (channel) + ":APPLY:SINUSOID " + str (info.frequency.getValue(var)) + " KHZ, "
 		+ str (convertPowerToSetPoint (info.amplitude.getValue(var), info.useCal, calibrationCoefficients)) + " VPP");
