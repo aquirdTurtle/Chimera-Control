@@ -43,7 +43,7 @@ void SmsTextingControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 			peopleListView->setItem (clRow, clCol, item);
 		}});
 
-	peopleListView->setGeometry (px, py, 480, 50);
+	peopleListView->setGeometry (px, py, 480, 45);
 	peopleListView->setColumnWidth (0, 90);
 	peopleListView->setColumnWidth (1, 95);
 	peopleListView->setColumnWidth (2, 65);

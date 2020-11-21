@@ -23,16 +23,6 @@ class DebugOptionsControl {
 	private:
 
 		QLabel* header;
-		QCheckBox* readProgress;
-		QCheckBox* writeProgress;
-		QCheckBox* correctionTimes;
-		QCheckBox* niawgScript;
-		QCheckBox* outputAgilentScript;
-		QCheckBox* niawgMachineScript;
-		QCheckBox* excessInfo;
-		QCheckBox* showTtlsButton;
-		QCheckBox* showDacsButton;
-		QCheckBox* outputNiawgWavesToText;
 		QLabel* pauseText;
 		QLineEdit* pauseEdit;
 

@@ -47,10 +47,10 @@ AoSettingsDialog::AoSettingsDialog (aoInputStruct* inputPtr) {
 		nameEdits[dacInc] = new QLineEdit (qstr (input->aoSys->getName (dacInc)), this);
 		nameEdits[dacInc]->setGeometry (px += numWidth, py, colWidth / 4, rowHeight);
 
-		minValEdits[dacInc] = new QLineEdit (qstr (input->aoSys->getDacRange (dacInc).first,6), this);
+		minValEdits[dacInc] = new QLineEdit (qstr (input->aoSys->getDacRange (dacInc).first,4), this);
 		minValEdits[dacInc]->setGeometry (px += colWidth / 4, py, colWidth / 8, rowHeight);
 
-		maxValEdits[dacInc] = new QLineEdit (qstr (input->aoSys->getDacRange (dacInc).second,6), this);
+		maxValEdits[dacInc] = new QLineEdit (qstr (input->aoSys->getDacRange (dacInc).second,4), this);
 		maxValEdits[dacInc]->setGeometry (px += colWidth / 8, py, colWidth / 8, rowHeight);
 
 		noteEdits[dacInc] = new QLineEdit (qstr (input->aoSys->getNote (dacInc)), this);
