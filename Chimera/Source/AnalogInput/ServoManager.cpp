@@ -88,7 +88,7 @@ void ServoManager::initialize( QPoint& pos, IChimeraQtWindow* parent, AiSystem* 
 	servoList->setColumnCount (labels.size());
 	servoList->setHorizontalHeaderLabels (labels);
 	servoList->horizontalHeader ()->setFixedHeight (25);
-	servoList->setGeometry (px, py, 960, 450);
+	servoList->setGeometry (px, py, 960, 400);
 	servoList->setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
 						   "Set-Point: The servo\'s set point, in volts.\n"
@@ -146,6 +146,14 @@ void ServoManager::initialize( QPoint& pos, IChimeraQtWindow* parent, AiSystem* 
 							errBox ("Error In trying to set the servo ttl config!");
 						}
 					}
+					break;
+				}
+				case 8: {
+					servos[row].tolerance = boost::lexical_cast<double>(str (qtxt));
+					break;
+				}
+				case 9: {
+					servos[row].gain = boost::lexical_cast<double>(str (qtxt));
 					break;
 				}
 				case 11: {
@@ -370,7 +378,7 @@ void ServoManager::runAll() {
 		std::vector<QBrush> origColors;
 		for (auto col : range(servoList->columnCount ())) {
 			origColors.push_back (servoList->item (count, col)->background ());
-			servoList->item (count, col)->setBackground (QColor(20,0,0));
+			servoList->item (count, col)->setBackground (QColor(0,0,50));
 		}
 		try{
 			ServoManager::calibrate (servo, count);

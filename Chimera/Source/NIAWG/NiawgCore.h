@@ -47,7 +47,7 @@ class NiawgCore : public IDeviceCore {
 
 		NiawgCore( DoRows::which trigRow, unsigned trigNumber, bool safemode );
 		void initialize();
-		void cleanupNiawg(  );
+		void cleanupNiawg( std::string scriptName="experimentScript" );
 		void initForExperiment ( );
 		bool rerngThreadIsActive();
 		std::string getCurrentScript();
@@ -86,18 +86,19 @@ class NiawgCore : public IDeviceCore {
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<parameterType>& variables, simpleWaveForm& wave,
 						   std::vector<vectorizedNiawgVals>& vectorizedVals );
-		void setDefaultWaveforms( );
 		//static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		// programming the device
 		void restartDefault();
+		void setDefaultWaveformScript ();
+		void setDefaultWaveforms ();
 		std::string getOutputSummary (const NiawgOutput& output);
 		void turnOffRerng( );
 		void waitForRerng( bool andClearWvfm );
 		void programVariations( unsigned variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
 		void programNiawg( std::string& warnings, unsigned variation, rerngGuiOptions& rerngGuiForm, 
-						   std::vector<parameterType>& expParams );
-		void setDefaultWaveformScript( );
+						   std::vector<parameterType>& expParams, NiawgOutput& output);
+
 		void turnOff();
 		void turnOn();
 		// Other
@@ -118,8 +119,8 @@ class NiawgCore : public IDeviceCore {
 							  std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 
 		void generateWaveform ( channelWave & waveInfo, long int sampleNum, double time,
-									   std::array<std::vector<std::string>, NiawgConstants::MAX_NIAWG_SIGNALS * 4>& waveLibrary,
-									   niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
+								std::array<std::vector<std::string>, NiawgConstants::MAX_NIAWG_SIGNALS * 4>& waveLibrary,
+								niawgWaveCalcOptions calcOpts = niawgWaveCalcOptions ( ) );
 		static niawgPair<std::vector<unsigned>> findLazyPosition ( Matrix<bool> source, unsigned targetDim );
 		static int increment ( std::vector<unsigned>& ind, unsigned currentLevel, unsigned maxVal, bool reversed=false );
 
@@ -146,7 +147,9 @@ class NiawgCore : public IDeviceCore {
 		/// 0.82: ~9 mW
 		/// 0.123 ~31 mW
 		/// ORIGINAL NIAWG GAIN: 1.64
-		const float NIAWG_GAIN = 1.64f;
+		//const float NIAWG_GAIN = 1.64f;
+		// new setting after removing power limiting circuit
+		const float NIAWG_GAIN = 1.36f;
 		// NEW GAIN: 1.23f
 		// const float NIAWG_GAIN = 1.23f;
 
@@ -226,8 +229,8 @@ class NiawgCore : public IDeviceCore {
  		const ViRsrc NI_5451_LOCATION = "Dev1";
  		niawgPair<std::string> currentScripts;
 		std::string currentScript;
-		bool runningState;
-		bool on;
+		bool runningState=false;
+		bool on=false;
 		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been 
 		// already created.
 		std::array<std::vector<std::string>, NiawgConstants::MAX_NIAWG_SIGNALS * 4> waveLibrary;

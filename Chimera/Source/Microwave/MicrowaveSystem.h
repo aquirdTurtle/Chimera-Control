@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include "PrimaryWindows/IChimeraQtWindow.h"
+#include <GeneralObjects/IChimeraSystem.h>
 #include <QCheckBox.h>
 #include <QLabel.h>
 #include <QPushButton.h>
@@ -19,9 +20,9 @@
 class AuxiliaryWindow;
 
 /**/
-class MicrowaveSystem{
+class MicrowaveSystem : public IChimeraSystem{
 	public:
-		MicrowaveSystem();
+		MicrowaveSystem(IChimeraQtWindow* parent);
 		void handleContextMenu (const QPoint& pos);
 		void initialize( QPoint& pos, IChimeraQtWindow* parentWin );
 		void handleListviewDblClick ();

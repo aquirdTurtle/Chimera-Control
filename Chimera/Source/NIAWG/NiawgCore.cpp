@@ -1,6 +1,6 @@
 // created by Mark O. Brown
 #include "stdafx.h"
-
+#include <qdebug.h>
 #include "NIAWG/NiawgCore.h"
 #include "NIAWG/NiawgStructures.h"
 #include "MiscellaneousExperimentOptions/Repetitions.h"
@@ -70,7 +70,7 @@ void NiawgCore::initialize( ){
 	/// Initialize the waveform generator via FGEN.
 	// initializes the session handle.
 	fgenFlume.init( NI_5451_LOCATION, VI_TRUE, VI_TRUE );
-	// tells the niaw where I'm outputting.
+	// tells the niawg where I'm outputting.
 	fgenFlume.configureChannels( );
 	// Set output mode of the device to scripting mode (defined in constants.h)
 	fgenFlume.configureOutputMode( );
@@ -141,20 +141,21 @@ niawgPair<unsigned long> NiawgCore::convolve( Matrix<bool> atoms, Matrix<bool> t
 
 
 void NiawgCore::programNiawg( std::string& warnings, unsigned variation, rerngGuiOptions& rerngGuiForm,
-							  std::vector<parameterType>& expParams ){
+							  std::vector<parameterType>& expParams, NiawgOutput& output){
 	std::vector<long> variedMixedSize;
-	handleVariations( expOutput, expParams, variation, variedMixedSize, warnings, rerngGuiForm );
+	handleVariations(output, expParams, variation, variedMixedSize, warnings, rerngGuiForm );
 	// Restart Waveform
 	turnOff( );
-	programVariations( variation, variedMixedSize, expOutput );
+	programVariations( variation, variedMixedSize, output);
 	fgenFlume.writeScript( niawgMachineScript );
-	fgenFlume.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
+	auto scriptName = (output.isDefault ? "DefaultNiawgScript" : "experimentScript");
+	fgenFlume.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, scriptName);
 	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
 	// initial waveform until the master sends it a trigger.
 	turnOn( );
-	for (unsigned waveInc = 2; waveInc < expOutput.waves.size( ); waveInc++ )	{
-		expOutput.waves[waveInc].core.waveVals.clear( );
-		expOutput.waves[waveInc].core.waveVals.shrink_to_fit( );
+	for (unsigned waveInc = 2; waveInc < output.waves.size( ); waveInc++ )	{
+		output.waves[waveInc].core.waveVals.clear( );
+		output.waves[waveInc].core.waveVals.shrink_to_fit( );
 	}
 	variedMixedSize.clear( );
 }
@@ -201,71 +202,69 @@ void NiawgCore::handleStartingRerng( ExperimentThreadInput* input){
 }
 
 
-bool NiawgCore::niawgIsRunning()
-{
+bool NiawgCore::niawgIsRunning(){
 	return runningState;
 }
 
 
-void NiawgCore::setRunningState( bool newRunningState )
-{
+void NiawgCore::setRunningState( bool newRunningState ){
 	runningState = newRunningState;
 }
 
 
-std::string NiawgCore::getCurrentScript()
-{
+std::string NiawgCore::getCurrentScript(){
 	return fgenFlume.getCurrentScript();
 }
 
 
-void NiawgCore::setDefaultWaveforms( )
-{
+void NiawgCore::setDefaultWaveforms( ){
 	defaultScript.clear();
 	defaultScript.shrink_to_fit();
 	defaultMixedWaveform.clear();
 	defaultMixedWaveform.shrink_to_fit();
 	std::fstream configFile( str( DEFAULT_SCRIPT_FOLDER_PATH ) + "DEFAULT_SCRIPT.nScript" );
 	// check errors
-	if ( !configFile.is_open( ) )
-	{
+	if ( !configFile.is_open( ) ){
 		thrower ( "FATAL ERROR: Couldn't open default niawg file!" );
 	}
-	NiawgOutput output;
-	output.isDefault = true;
+	expOutput = NiawgOutput ();
+	//NiawgOutput output;
+	expOutput.isDefault = true;
 	///	Load Default Waveforms
 	std::string warnings;
-	try
-	{
+	try{
 		expNiawgStream.clear ();
+		expNiawgStream.str ("");
 		expNiawgStream << configFile.rdbuf( );
+		qDebug () << qstr(expNiawgStream.str ());
 		rerngGuiOptions rInfoDummy;
 		rInfoDummy.moveSpeed.expressionStr = str(0.00006);
-		analyzeNiawgScript (output, warnings, rInfoDummy, std::vector<parameterType> ()); 
-		writeStaticNiawg( output, std::vector<parameterType>( ) );
-		output.niawgLanguageScript.insert ( 0, "script DefaultConfigScript\n" );
-		output.niawgLanguageScript += "end Script";
+		analyzeNiawgScript (expOutput, warnings, rInfoDummy, std::vector<parameterType> ());
+		finalizeScript ( expRepetitions, "DefaultNiawgScript", expOutput.niawgLanguageScript,
+						 niawgMachineScript, !outputVaries (expOutput) );
+		writeStaticNiawg(expOutput, std::vector<parameterType>( ) );
+		expOutput.niawgLanguageScript.insert ( 0, "script DefaultNiawgScript\n" );
+		expOutput.niawgLanguageScript += "end Script";
 		// Convert script string to ViConstString. +1 for a null character on the end.
-		defaultScript = std::vector<ViChar>( output.niawgLanguageScript.begin( ), output.niawgLanguageScript.end( ) );
+		defaultScript = niawgMachineScript;
+		//defaultScript = std::vector<ViChar>(expOutput.niawgLanguageScript.begin( ), expOutput.niawgLanguageScript.end( ) );
+		programNiawg (warnings, 0, expRerngOptions, std::vector<parameterType> (), expOutput);
 	}
-	catch (ChimeraError&)
-	{
+	catch (ChimeraError&){
 		throwNested( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed.");
 	}
 	// check for warnings.
-	if (warnings != "")
-	{
+	if (warnings != ""){
 		errBox( "Warnings detected during initial default waveform script analysis: " + warnings );
 	}
-	if (debugMsg != "")
-	{
+	if (debugMsg != ""){
 		errBox( "Debug messages detected during initial default waveform script analysis: " + debugMsg );
 	}
 }
 
 
 // this is to be run at the end of the experiment procedure.
-void NiawgCore::cleanupNiawg( ){
+void NiawgCore::cleanupNiawg( std::string scriptName){
 	try{
 		turnOff( );
 	}
@@ -278,7 +277,7 @@ void NiawgCore::cleanupNiawg( ){
 			fgenFlume.deleteWaveform( cstr(expOutput.waves[waveformInc].core.name ) );
 		}
 	}
-	fgenFlume.deleteScript( "experimentScript" );
+	fgenFlume.deleteScript(scriptName.c_str());
 	for ( auto& wave : expOutput.waves ){
 		wave.core.waveVals.clear( );
 		wave.core.waveVals.shrink_to_fit( );
@@ -320,6 +319,7 @@ void NiawgCore::restartDefault(){
 		turnOn();
 	}
 	catch (ChimeraError& except){
+
 		throwNested( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
 				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.trace() );
 	}
@@ -453,7 +453,7 @@ void NiawgCore::simpleFormVaries(simpleWaveForm& wave ){
 	for ( auto& chan : wave.chan ){
 		for ( auto& signal : chan.waveSigs ){
 			if ( signal.freqInit.varies( ) || signal.freqFin.varies( ) || signal.initPower.varies( ) 
-				 || signal.finPower.varies( ) || signal.initPhase.varies( ) ){
+				 || signal.finPower.varies( ) || signal.initPhase.varies( ) || signal.initPhase.expressionStr == "-1" ){
 				wave.varies = true;
 				return;
 			}
@@ -727,19 +727,16 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, Scr
 		std::string tempStrRow, tempStrCol;
 		script >> tempStrRow;
 		script >> tempStrCol;
-		try
-		{
+		try{
 			finLocRow = boost::lexical_cast<unsigned long>( tempStrRow );
 			finLocCol = boost::lexical_cast<unsigned long>( tempStrCol );
 		}
-		catch ( boost::bad_lexical_cast& )
-		{
+		catch ( boost::bad_lexical_cast& ){
 			throwNested( "final rearranging location row or column failed to convert to unsigned long in niawg script!" );
 		}
 		rearrangeWave.rearrange.finalPosition = { finLocRow, finLocCol };
 		script >> bracket;
-		if ( bracket != "}" )
-		{
+		if ( bracket != "}" ){
 			thrower ( "Expected \"}\" but found \"" + bracket + "\" in niawg File during flashing waveform read." );
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
@@ -747,33 +744,27 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, Scr
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of s.
 		double lazyModeTime = 0.4e-3;
-		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
-		{
+		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy ){
 			// convert to ms
 			rearrangeWave.rearrange.fillerWave.time = str( lazyModeTime*1e3 );
 		}
-		else
-		{
+		else{
 			rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
 															 * rearrangeWave.rearrange.timePerMove.evaluate( variables, 0 ) * 1e-3
 															 + 2 * rerngGuiInfo.finalMoveTime.evaluate( variables, 0 ) * 1e-3) * 1e3 );
 		}
-		for ( auto ax : NiawgConstants::AXES )
-		{
-			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].waveSigs )
-			{
+		for ( auto ax : NiawgConstants::AXES ){
+			for ( auto sig : rearrangeWave.rearrange.fillerWave.chan[ax].waveSigs ){
 				rearrangeWave.rearrange.staticBiases[ax].push_back( sig.initPower.evaluate( variables, 0 ) );
 				rearrangeWave.rearrange.staticPhases[ax].push_back( sig.initPhase.evaluate( variables, 0 ) );
 			}
 		}
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = 0;
-		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy )
-		{
+		if ( rerngGuiInfo.rMode == rerngMode::mode::Lazy ){
 			samples =long( std::round(lazyModeTime * NiawgConstants::NIAWG_SAMPLE_RATE));
 		}
-		else
-		{
+		else{
 			samples = long ( ( output.waveFormInfo.back ( ).rearrange.moveLimit 
 							   * output.waveFormInfo.back ( ).rearrange.timePerMove.evaluate ( variables, 0 ) * 1e-3 
 							   + 2 * rerngGuiInfo.finalMoveTime.evaluate ( variables, 0 ) * 1e-3 ) * NiawgConstants::NIAWG_SAMPLE_RATE );
@@ -790,38 +781,29 @@ void NiawgCore::handleSpecialWaveform( NiawgOutput& output, std::string cmd, Scr
 
 void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType>& variables, unsigned variation, 
 								  std::vector<long>& mixedWaveSizes, std::string& warnings, 
-								  rerngGuiOptions& rerngGuiForm )
-{
+								  rerngGuiOptions& rerngGuiForm ){
 	unsigned totalVaraitions = ExpThreadWorker::determineVariationNumber (variables);
 	rerngGuiOptionsFormToFinal( rerngGuiForm, variables, totalVaraitions);
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think. 
-	for ( auto waveInc : range( output.waveFormInfo.size( ) ) )
-	{
+	for ( auto waveInc : range( output.waveFormInfo.size( ) ) ){
 		waveInfo& wave = output.waves[waveInc];
 		waveInfoForm& waveForm = output.waveFormInfo[waveInc];
-
-		if ( waveForm.core.varies )
-		{
-			if ( waveForm.flash.isFlashing )
-			{
+		if ( waveForm.core.varies ){
+			if ( waveForm.flash.isFlashing ){
 				flashFormToOutput( waveForm, wave, variables, variation );
 				writeFlashing( wave, variation );
 			}
-			else if ( waveForm.rearrange.isRearrangement )
-			{
+			else if ( waveForm.rearrange.isRearrangement ){
 				rerngScriptInfoFormToOutput( waveForm, wave, variables, variation );
 			}
-			else
-			{
+			else{
 				simpleFormToOutput( waveForm.core, wave.core, variables, variation );
-				if ( variation != 0 )
-				{
+				if ( variation != 0 ){
 					fgenFlume.deleteWaveform( cstr( wave.core.name ) );
 				}
-				if (waveInc != 0)
-				{
+				if (waveInc != 0){
 					auto& prevWave = output.waves[waveInc - 1];
 					handleMinus1Phase(wave.core, prevWave.core);
 				}
@@ -837,33 +819,26 @@ void NiawgCore::handleVariations( NiawgOutput& output, std::vector<parameterType
 }
 
 
-void NiawgCore::loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo )
-{
+void NiawgCore::loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo ){
 	// Check against every possible generate input type. 
 	wvInfo.initType = -1;
-	for ( auto number : range(NiawgConstants::MAX_NIAWG_SIGNALS ) )
-	{
+	for ( auto number : range(NiawgConstants::MAX_NIAWG_SIGNALS ) ){
 		number += 1;
 		auto num_s = str ( number );
-		if ( inputType == "gen" + num_s + "const" || inputType == "gen" + num_s + "const_v" )
-		{
+		if ( inputType == "gen" + num_s + "const" || inputType == "gen" + num_s + "const_v" ){
 			wvInfo.initType = number;
 		}
-		else if ( inputType == "gen" + num_s + "ampramp" || inputType == "gen" + num_s + "ampramp_v" )
-		{
+		else if ( inputType == "gen" + num_s + "ampramp" || inputType == "gen" + num_s + "ampramp_v" ){
 			wvInfo.initType = number + NiawgConstants::MAX_NIAWG_SIGNALS;
 		}
-		else if ( inputType == "gen" + num_s + "freqramp" || inputType == "gen" + num_s + "freqramp_v" )
-		{
+		else if ( inputType == "gen" + num_s + "freqramp" || inputType == "gen" + num_s + "freqramp_v" ){
 			wvInfo.initType = number + 2 * NiawgConstants::MAX_NIAWG_SIGNALS;
 		}
-		else if ( inputType == "gen" + num_s + "freq&ampramp" || inputType == "gen" + num_s + "freq&ampramp_v" )
-		{
+		else if ( inputType == "gen" + num_s + "freq&ampramp" || inputType == "gen" + num_s + "freq&ampramp_v" ){
 			wvInfo.initType = number + 3 * NiawgConstants::MAX_NIAWG_SIGNALS;
 		}
 	}
-	if ( wvInfo.initType == -1 )
-	{
+	if ( wvInfo.initType == -1 ){
 		thrower ( "waveform input type not found while loading standard input type?!?!? "
 				 " (A low level bug, this shouldn't happen, this should have been caught earlier in the code.)\r\n" );
 	}
@@ -1968,7 +1943,7 @@ void NiawgCore::finalizeStandardWave( simpleWave& wave, niawgWaveCalcOptions cal
 
 // which should be Horizontal or Vertical.
 void NiawgCore::setDefaultWaveformScript( ){
-	fgenFlume.setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, cstr("DefaultConfigScript"));
+	fgenFlume.setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, cstr("DefaultNiawgScript"));
 }
 
 
@@ -2334,26 +2309,21 @@ double NiawgCore::calculateCorrectionTime( channelWave& wvData1, channelWave& wv
  * @param finPos is the final frequency or amplitude of the waveform.
  * @param type is the type of ramp being executed, as specified by the reader.
  */
-double NiawgCore::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
-{
+double NiawgCore::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType ){
 	// for linear ramps
-	if ( rampType == "lin" )
-	{
+	if ( rampType == "lin" ){
 		return iteration * (finPos - initPos) / size;
 	}
 	// for no ramp
-	else if ( rampType == "nr" )
-	{
+	else if ( rampType == "nr" ){
 		return 0;
 	}
 	// for hyperbolic tangent ramps
-	else if ( rampType == "tanh" )
-	{
+	else if ( rampType == "tanh" ){
 		return (finPos - initPos) * (tanh( -4 + 8 * (double)iteration / size ) + 1) / 2;
 	}
 	// error message. I've already checked (outside this function) whether the ramp-type is a filename.
-	else
-	{
+	else{
 		std::string errMsg = "ramp type " + rampType + " is unrecognized. If this is a file name, make sure the file exists and is in the project folder.\r\n";
 		errBox( errMsg );
 		return 0;
@@ -2463,8 +2433,7 @@ void NiawgCore::preWriteRerngWaveforms( rerngThreadInput* input )
 	Has not been updated with the off-grid dump functionality.
 */
 std::vector<double> NiawgCore::makeFastRerngWave( rerngScriptInfo& rerngSettings, unsigned sourceRows, unsigned sourceCols,
-												  complexMove moveInfo, rerngGuiOptions options, double moveBias )
-{
+												  complexMove moveInfo, rerngGuiOptions options, double moveBias ){
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
 	bool upOrDown = (moveInfo.moveDir == dir::down || moveInfo.moveDir == dir::up);
@@ -3249,8 +3218,7 @@ unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
 							vals = input->noFlashMoves ( row, col, move.moveDir ).waveVals;
 						}
 					}
-					else
-					{
+					else{
 						double bias = input->guiOptions.useCalibration ?
 							calBias ( row, col, move.moveDir ) : input->guiOptions.moveBias.getValue (0);
 						if ( move.needsFlash ){
@@ -3263,8 +3231,7 @@ unsigned __stdcall NiawgCore::rerngThreadProcedure( void* voidInput ){
 							vals = input->niawg->makeFastRerngWave ( info, input->sourceRows, input->sourceCols, move,
 																	 input->guiOptions, bias );
 						}
-						else
-						{
+						else{
 							vals = input->niawg->makeFullRerngWave ( info, input->guiOptions.staticMovingRatio.getValue (0), bias,
 																	 input->guiOptions.deadTime.getValue (0), input->sourceRows,
 																	 input->sourceCols, move );
@@ -4193,7 +4160,7 @@ void NiawgCore::calculateVariations (std::vector<parameterType>& params, ExpThre
 void NiawgCore::programVariation (unsigned varInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker){
 	std::string niawgWarnings;
 	if (experimentActive){
-		programNiawg (niawgWarnings, varInc, expRerngOptions, params);
+		programNiawg (niawgWarnings, varInc, expRerngOptions, params, expOutput);
 		emit threadworker->warn (qstr (niawgWarnings), 1);
 		if (expRerngOptions.active)	{
 			turnOffRerng ();

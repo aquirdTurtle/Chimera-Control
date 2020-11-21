@@ -249,7 +249,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
       <UseFullPaths>false</UseFullPaths>
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
@@ -442,6 +442,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release2|x64'">.\Source\Plotting\ScopeThreadWorker.h;$(QTDIR)\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
     </QtMoc>
+    <ClInclude Include="Source\NIAWG\rampInfo.h" />
     <ClInclude Include="Source\Piezo\piezoChan.h" />
     <ClInclude Include="Source\PrimaryWindows\CustomMessages.h" />
     <QtMoc Include="Source\PrimaryWindows\QtScriptWindow.h">
@@ -594,6 +595,7 @@
     <ClInclude Include="Source\LowLevel\constants.h" />
     <ClInclude Include="Source\MiscellaneousExperimentOptions\DebugOptionsControl.h" />
     <ClInclude Include="Source\GeneralUtilityFunctions\range.h" />
+    <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h" />
     <ClInclude Include="Source\RealTimeDataAnalysis\realTimePlotterInput.h" />
     <ClInclude Include="Source\NIAWG\Rearrangement\rerngContainer.h" />
     <ClInclude Include="Source\NIAWG\Rearrangement\rerngMoveStructures.h" />
@@ -746,6 +748,7 @@
     <ClCompile Include="Source\NIAWG\Rearrangement\rerngGuiControl.cpp" />
     <ClCompile Include="Source\MiscellaneousExperimentOptions\Repetitions.cpp" />
     <ClCompile Include="Source\Microwave\MicrowaveSystem.cpp" />
+    <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp" />
     <ClCompile Include="Source\Scripts\Script.cpp" />
     <ClCompile Include="Source\Agilent\scriptedAgilentWaveform.cpp" />
     <ClCompile Include="Source\Scripts\ScriptStream.cpp" />

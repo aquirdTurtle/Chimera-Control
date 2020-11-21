@@ -10,6 +10,7 @@
 #include <PrimaryWindows/QtMainWindow.h>
 #include <PrimaryWindows/QtAndorWindow.h>
 #include <ExperimentThread/ExpThreadWorker.h>
+#include <qdebug.h>
 #include <qthread.h>
 #include <chrono>
 #include <process.h>
@@ -73,13 +74,21 @@ AndorRunSettings AndorCameraCore::getSettingsFromConfig (ConfigStream& configFil
 		}
 		configFile >> tempSettings.picsPerRepetition;
 	}
-	else{
+	else { 
 		tempSettings.picsPerRepetition = 1;
 		tempSettings.exposureTimes.clear ();
 		tempSettings.exposureTimes.push_back (1e-3);
-	}
+	} 
+	if (configFile.ver >= Version ("5.8")) {
+		configFile >> tempSettings.horShiftSpeedSetting;
+		configFile >> tempSettings.vertShiftSpeedSetting;
+	} 
+	else { 
+		tempSettings.horShiftSpeedSetting = 0;
+		tempSettings.vertShiftSpeedSetting = 0;
+	} 
 	return tempSettings;
-}
+} 
 
 
 AndorCameraCore::AndorCameraCore( bool safemode_opt ) : safemode( safemode_opt ), flume( safemode_opt ){
@@ -124,7 +133,6 @@ void AndorCameraCore::pauseThread(){
 	threadInput.expectingAcquisition = false;
 }
 
-
 /*
  * this should get called when the camera finishes running. right now this is very simple.
  */
@@ -133,142 +141,13 @@ void AndorCameraCore::onFinish(){
 	cameraIsRunning = false;
 }
 
-
 void AndorCameraCore::setCalibrating( bool cal ){
 	calInProgress = cal;
 }
 
-
 bool AndorCameraCore::isCalibrating( ){
 	return calInProgress;
 }
-
-/*
- * this thread watches the camera for pictuers and when it sees a picture lets the main thread know via a message. 
- * it gets initialized at the start of the program and is basically always running.
- */
-unsigned __stdcall AndorCameraCore::cameraThread( void* voidPtr )
-{
-	/*
-	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
-	//... I'm not sure what this lock is doing here... why not inside while loop?
-	int safeModeCount = 0;
-	long pictureNumber = 0;
-	bool armed = false;		
-	std::unique_lock<std::timed_mutex> lock (*input->runMutex, std::chrono::milliseconds(1000));
-	if (!lock.owns_lock ())	{
-		errBox ("ERROR: ANDOR IMAGING THREAD FAILED TO LOCK THE RUN MUTEX! IMAGING THREAD CLOSING!");
-		return -1;
-	}
-
-	while ( !input->Andor->cameraThreadExitIndicator )
-	{
-		/* 
-		 * wait until unlocked. this happens when data is started.
-		 * the first argument is the lock.  The when the lock is locked, this function just sits and doesn't use cpu, 
-		 * unlike a while(gGlobalCheck){} loop that waits for gGlobalCheck to be set. The second argument here is a 
-		 * lambda, more or less a quick inline function that doesn't in this case have a name. This handles something
-		 * called spurious wakeups, which are weird and appear to relate to some optimization things from the quick
-		 * search I did. Regardless, I don't fully understand why spurious wakeups occur, but this protects against
-		 * them.
-		 *//*
-		// Also, anytime this gets locked, the count should be reset.
-		//input->signaler.wait( lock, [input]() { return input->expectingAcquisition; } );
-		while (!input->expectingAcquisition) {
-			input->signaler.wait (lock);
-		}
-		
-		if ( !input->safemode )
-		{
-			try
-			{
-				int status = input->Andor->flume.queryStatus();
-				if (status == DRV_IDLE && armed){
-					// get the last picture. acquisition is over so getAcquisitionProgress returns 0.
-					if ( input->Andor->isCalibrating( ) ){
-						input->comm->sendCameraCalProgress( -1 );
-						// signal the end to the main thread.
-						input->comm->sendCameraCalFin( );
-						armed = false;
-					}
-					else{
-						//input->comm->sendCameraProgress( -1 );
-						// signal the end to the main thread.
-						input->comm->sendCameraFin( );
-						// make sure the thread waits when it hits the condition variable.
-						input->expectingAcquisition = false;
-						armed = false;
-					}
-				}
-				else
-				{
-					input->Andor->flume.waitForAcquisition();
-					if ( pictureNumber % 2 == 0 ){
-						(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
-					}
-					armed = true;
-					try{
-						input->Andor->flume.getAcquisitionProgress(pictureNumber);
-					}
-					catch (ChimeraError& exception){
-						input->comm->sendError(exception.trace());
-					}
-					if ( input->Andor->isCalibrating( ) ){
-						input->comm->sendCameraCalProgress( pictureNumber );
-					}
-					else{
-						input->comm->sendCameraProgress( pictureNumber );
-					}
-				}
-			}
-			catch (ChimeraError&){
-				//...? When does this happen? not sure why this is here...
-			}
-		}
-		else // safemode
-		{
-			// simulate an actual wait.
-			Sleep( 500 );
-			if ( pictureNumber % 2 == 0 ){
-				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
-			}
-			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment()){
-				if ( input->Andor->runSettings.acquisitionMode == AndorRunModes::mode::Kinetic)	{
-					safeModeCount++;
-					if ( input->Andor->isCalibrating( ) ){
-						input->comm->sendCameraCalProgress( safeModeCount );
-					}
-					else{
-						input->comm->sendCameraProgress( safeModeCount );
-					}
-				}
-				else{
-					if ( input->Andor->isCalibrating( ) ){
-						input->comm->sendCameraCalProgress( 1 );
-					}
-					else{
-						input->comm->sendCameraProgress( 1 );
-					}
-				}
-			}
-			else
-			{
-				input->Andor->cameraIsRunning = false;
-				safeModeCount = 0;
-				if ( input->Andor->isCalibrating( ) ){
-					input->comm->sendCameraCalFin( );
-				}
-				else{
-					input->comm->sendCameraFin( );
-				}
-				input->expectingAcquisition = false;
-			}
-		}
-	}
-	*/
-	return 0;
-}
-
 
 /*
  * Get whatever settings the camera is currently using in it's operation, assuming it's operating.
@@ -285,19 +164,41 @@ void AndorCameraCore::setAcquisitionMode(){
 	flume.setAcquisitionMode(int(runSettings.acquisitionMode));
 }
 
+std::vector<std::string> AndorCameraCore::getVertShiftSpeeds () {
+	auto numSpeeds = flume.getNumberVSSpeeds ();
+	std::vector<std::string> speeds (numSpeeds);
+	for (auto speedNum : range(numSpeeds)) {
+		speeds[speedNum] = str(flume.getVSSpeed (speedNum),2);
+	}
+	return speeds;
+}
+
+std::vector<std::string> AndorCameraCore::getHorShiftSpeeds () {
+	auto numSpeeds = flume.getNumberHSSpeeds ();
+	std::vector<std::string> speeds (numSpeeds);
+	for (auto speedNum : range (numSpeeds)) {
+		speeds[speedNum] = str(flume.getHSSpeed (1,0,speedNum),2);
+	}
+	return speeds;
+}
+
 /* 
-	* Large function which initializes a given camera image run.
-	*/
+ * Large function which initializes a given camera image run.
+ */
 void AndorCameraCore::armCamera( double& minKineticCycleTime ){
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
 	flume.setADChannel(1);
 	if (runSettings.emGainModeIsOn)	{
-		flume.setHSSpeed(0, 0);
+		flume.setHSSpeed(0, runSettings.horShiftSpeedSetting);
+		qDebug () << "Horizontal Shift Speed: " << flume.getHSSpeed (1, 0, runSettings.horShiftSpeedSetting);
 	}
-	else{
-		flume.setHSSpeed(1, 0);
+	else {
+		flume.setHSSpeed(1, runSettings.horShiftSpeedSetting);
+		qDebug () << "Horizontal Shift Speed: " << flume.getHSSpeed (1, 1, runSettings.horShiftSpeedSetting);
 	}
+	flume.setVSSpeed (runSettings.vertShiftSpeedSetting);
+	qDebug () << "Vertical Shift Speed: " << flume.getVSSpeed (runSettings.vertShiftSpeedSetting);
 	setAcquisitionMode();
 	setReadMode();
 	setExposures();
@@ -313,7 +214,7 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime ){
 		// set this to 1.
 		setNumberAccumulations(true);
 		setFrameTransferMode ( );
-	}	
+	}
 	else if (runSettings.acquisitionMode == AndorRunModes::mode::Accumulate){
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
@@ -337,6 +238,7 @@ void AndorCameraCore::armCamera( double& minKineticCycleTime ){
 	threadInput.expectingAcquisition = true;
 	// notify the thread that the experiment has started..
 	threadInput.signaler.notify_all();
+	qDebug () << "Vertical Shift Speed: " << flume.getVSSpeed (runSettings.vertShiftSpeedSetting);
 	flume.startAcquisition();
 }
 
@@ -489,9 +391,14 @@ void AndorCameraCore::setExposures(){
 
 
 void AndorCameraCore::setImageParametersToCamera(){
-	flume.setImage( runSettings.imageSettings.verticalBinning, runSettings.imageSettings.horizontalBinning,
-				    runSettings.imageSettings.bottom, runSettings.imageSettings.top, 
-				    runSettings.imageSettings.left, runSettings.imageSettings.right );
+	auto& im = runSettings.imageSettings;
+	if (((im.bottom - im.top + 1) % im.verticalBinning) != 0) {
+		qDebug() << "(bottom - top + 1) % vertical binning must be 0!";
+	}
+	if (((im.right - im.left + 1) % im.horizontalBinning) != 0) {
+		qDebug () << "(right - left + 1) % horizontal binning must be 0!";
+	}
+	flume.setImage( im.verticalBinning, im.horizontalBinning, im.bottom, im.top,  im.left, im.right );
 }
 
 
@@ -574,16 +481,11 @@ void AndorCameraCore::checkAcquisitionTimings(float& kinetic, float& accumulatio
 	kinetic = tempKineticTime;
 }
 
-/*
- (
- */
 void AndorCameraCore::setAccumulationCycleTime(){
 	flume.setAccumulationCycleTime(runSettings.accumulationTime);
 }
 
-
-void AndorCameraCore::setNumberAccumulations(bool isKinetic)
-{
+void AndorCameraCore::setNumberAccumulations(bool isKinetic){
 	std::string errMsg;
 	if (isKinetic){
 		// right now, kinetic series mode always has one accumulation. could add this feature later if desired to do 
@@ -599,8 +501,7 @@ void AndorCameraCore::setNumberAccumulations(bool isKinetic)
 }
 
 
-void AndorCameraCore::setGainMode()
-{
+void AndorCameraCore::setGainMode(){
 	if (!runSettings.emGainModeIsOn){
 		// Set Gain
 		int numGain;
@@ -626,8 +527,7 @@ void AndorCameraCore::setGainMode()
 }
 
 
-void AndorCameraCore::changeTemperatureSetting(bool turnTemperatureControlOff)
-{
+void AndorCameraCore::changeTemperatureSetting(bool turnTemperatureControlOff){
 	char aBuffer[256];
 	int minimumAllowedTemp, maximumAllowedTemp;
 	// the default, in case the program is in safemode.

@@ -4,14 +4,18 @@ def sbc():
   % to let the servo settle
   off: probeRf
   off: repumpRf
-  var opFreq -0.5
-  daclinspace: motFreq defaultMotFreq opFreq 1 10  
   dac: probePower 0
-  var repumpf -1
+
+  var repumpf -0.8
+  var opfreq -0.5
+  daclinspace: motFreq defaultMotFreq opFreq 1 10  
   dac: repumpfreq repumpf
+  t += 5  
+  
   dac: sigmaoppower sbc_sigma_op__sv
   dac: sigmarepumpPower sigma_repump__sv
   dac: sigmaRepumpFreq 0
+
   dac: topPulseLev top_sbc_sideband__sv
   dac: dac17 bot_raman_sbc__sv
   dac: axPulseLev ax_sbc_raman__sv
@@ -33,9 +37,8 @@ def sbc():
     call botRamanPulse(0.04)
     call opPulse(0.015) 
   end
-  % dac: topPulseLev top_raman_sbc2__sv
-  % dac: axPulseLev ax_raman_sbc2__sv
-  var sbc2_topTime 0.025
+  %dac: topPulseLev top_raman_sbc2__sv
+  %dac: axPulseLev ax_raman_sbc2__sv
   repeat: 25
     call axialRamanPulse(0.08)
     call opPulse(0.015)
@@ -47,7 +50,7 @@ def sbc():
   %var afterSbcOpPower 0.05
   %dac: sigmaoppower afterSbcOpPower
   var afterSbcOpTime 0.02
-  %call opPulse(afterSbcOpTime) 
+  call opPulse(afterSbcOpTime) 
   dac: sigmaoppower 0
   dac: sigmarepumpPower 0
   %dac: sigmarepumpPower sbc_sigma_repump

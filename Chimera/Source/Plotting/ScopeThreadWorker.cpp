@@ -11,7 +11,7 @@ void ScopeThreadWorker::process (){
 	while (true){
 		try { 
 			if (input->safemode){
-				Sleep (5000);
+				Sleep (500000);
 				for (auto traceNum : range (input->numTraces)) {
 					unsigned numPts = 500;
 					QVector<double> xData(numPts);

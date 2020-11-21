@@ -208,13 +208,13 @@ probepower
 0
 _
 motfreq
--10 - 1
+-5 - 1
 0
-_
+~22 MHz/Volt (2018)
 repumpfreq
 -3.5 - 3.5
 0
-_
+~23 MHz/Volt (2018)
 sidemotpower
 -0.1 - 0.5
 0
@@ -224,7 +224,7 @@ axpulselev
 0
 _
 53
-loadmottime 150
+loadmottime 125
 andorimagetime 15
 imagingpower 0.3
 fieldtheta 1.5708
@@ -233,50 +233,50 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__sv 0.08090177507255626
-diagmot__sv 0.2351241083863521
+sidemot__sv 0.07415331751668253
+diagmot__sv 0.2439864487590718
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__sv 0.09647583425843538
-sidemot_imaging__sv 0.2083484381620997
+sidemot_intrappgc__sv 0.0891257020301947
+sidemot_imaging__sv 0.1923138044234223
 motimagingdetuning -0.32
-d1loadingfreq 113
+d1loadingfreq 112
 intraplgmcoolingfreq 103
-sidemot_d1__sv 1
-diagmot_imaging__sv 0.09366922019245348
-diag_d1_load__sv -2.172838554955969
-repump_load__sv 0.1828823619962384
-repump_imaging__sv 0.1832182158332657
-sigma_repump__sv 0.07041756765679434
+sidemot_d1__sv 0.1757484143427714
+diagmot_imaging__sv 0.09661501839478062
+diag_d1_load__sv -0.730890760901981
+repump_load__sv 0.1167579154803438
+repump_imaging__sv 0.1168622577103175
+sigma_repump__sv 0.06906504325116353
 sigma_op__sv 0.199655
-pushout_probe__sv 0.3201163640118562
+pushout_probe__sv 0.3004791349821387
 top_raman__sv 0.0758206
-top_raman_carrier__sv 0.1022022793612865
-eo_raman__sv 0.09807278095642931
-ax_raman_spec__sv 0.02436857895183459
-top_raman_sideband_spec__sv 0.08439244220769769
-top_sbc_sideband_spec__sv 0.2400110353954846
-sbc_sigma_op__sv 0.05511517938188735
+top_raman_carrier__sv 0.09435238883238745
+eo_raman__sv 0.1062772443637025
+ax_raman_spec__sv 0.02318754216101684
+top_raman_sideband_spec__sv 0.07815115159767412
+top_sbc_sideband_spec__sv 0.2113730589131441
+sbc_sigma_op__sv 0.05227785219393906
 axramanoffset 108900
 intraplgmrepumpfreq 0.066
 intraplgmrepumppower 0
-depthmeasurementprobe__sv 0.04826732986299097
+depthmeasurementprobe__sv 0.04406366592949313
 pzttop_x 105
 pzttop_y 50
 pztax_x 60.39
 pztax_y 98.70999999999999
 pzteo_y 30
 pzteo_x 60
-ax_sbc_raman__sv 0.0434194412904246
-top_sbc_sideband__sv 0.103996654804188
-sbc_cooling_mod 137
-radial_carrier_freq 6.830946608440278
+ax_sbc_raman__sv 0.03992079736199364
+top_sbc_sideband__sv 0.08939619568964205
+sbc_cooling_mod 140
+radial_carrier_freq 6.830939464171448
 axtekpower -3
 eotekpower -3
 ax_raman_sbc2__sv 0.0727281220058308
 top_raman_sbc2__sv 0.2174677798101335
 bot_raman_sbc__sv 0.088999594
-lgm_cooling_time 50
+lgm_cooling_time 150
 0
 1
 pdVolts
@@ -286,20 +286,20 @@ DiagMot 7 9 1 4.6 2 a 0 c 8 0 0.01 0.03 0 100
 sidemot_intrappgc 6 22 1 2.57 2 a 5 b 8 0 0.01 0.02 0 100
 sidemot_imaging 6 22 1 10 2 a 5 b 8 0 0.01 0.04 0 100
 sidemot_d1 6 8 1 1.4 2 b 10 c 10 2 18 -2 10 0.3 0.01 0.03 0 100
-diag_d1_load 7 18 0 0.6 2 b 10 c 10 1 10 0.3 0.01 -0.1 0 100
+diag_d1_load 7 18 1 0.6 2 b 10 c 10 1 10 0.3 0.01 -0.2 0 100
 repump_load 7 11 1 0.2 2 a 1 b 7 1 11 0.15 0.01 0.02 0 100
 diagmot_imaging 7 9 1 0.86 2 a 0 c 8 0 0.01 0.02 0 100
 repump_imaging 7 11 1 0.2 2 a 1 b 7 0 0.01 0.02 0 100
 sigma_repump 5 15 1 -0.006 1 a 3 0 0.01 0.02 0 100
 pushout_probe 5 19 1 1.2 2 d 12 d 13 0 0.02 0.02 0 100
-top_raman_carrier 2 16 1 1.252 2 a 10 b 3 0 0.01 0.02 0 100
+top_raman_carrier 2 16 0 1.252 2 a 10 b 3 0 0.01 0.02 0 100
 eo_raman 1 7 1 0.255 2 a 8 b 3 0 0.01 0.05 0 100
-ax_raman_spec 3 23 1 0.126 4 a 11 b 12 c 12 b 3 0 0.01 0.02 0 100
-top_raman_sideband_spec 2 16 1 0.8408 2 a 10 b 3 0 0.01 0.02 0 100
-top_sbc_sideband_spec 2 16 1 5.939 2 a 10 b 3 0 0.01 0.1 0 100
+ax_raman_spec 3 23 0 0.126 4 a 11 b 12 c 12 b 3 0 0.01 0.001 0 100
+top_raman_sideband_spec 2 16 0 0.8408 2 a 10 b 3 0 0.01 0.02 0 100
+top_sbc_sideband_spec 2 16 0 5.939 2 a 10 b 3 0 0.01 0.1 0 100
 sbc_sigma_op 5 13 1 0.41 1 a 4 0 0.02 0.01 0 200
 depthmeasurementprobe 5 19 1 0.11 2 d 12 d 13 0 0.01 0.01 0 100
-top_sbc_sideband 2 16 1 1.3 2 a 10 b 3 0 0.02 0.02 0 100
-ax_sbc_raman 3 23 1 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
-231 299 3 229 243 3
+top_sbc_sideband 2 16 0 1.11 2 a 10 b 3 0 0.02 0.02 0 100
+ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
+253 285 3 224 238 3
 0 0

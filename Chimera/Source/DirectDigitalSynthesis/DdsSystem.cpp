@@ -9,7 +9,7 @@
 #include <qmenu.h>
 #include <PrimaryWindows/QtMainWindow.h>
 
-DdsSystem::DdsSystem ( bool ftSafemode ) : core( ftSafemode ) { }
+DdsSystem::DdsSystem (IChimeraQtWindow* parent, bool ftSafemode) : core( ftSafemode ), IChimeraSystem (parent) { }
 
 void DdsSystem::handleContextMenu (const QPoint& pos){
 	QTableWidgetItem* item = rampListview->itemAt (pos);
@@ -17,14 +17,14 @@ void DdsSystem::handleContextMenu (const QPoint& pos){
 	menu.setStyleSheet (chimeraStyleSheets::stdStyleSheet ());
 	auto* deleteAction = new QAction ("Delete This Item", rampListview);
 	rampListview->connect (deleteAction, &QAction::triggered, [this, item]() {
-		getDataFromTable ();
+		refreshCurrentRamps ();
 		currentRamps.erase(currentRamps.begin()+item->row());
 		redrawListview ();
 		});
 	auto* newPerson = new QAction ("New Item", rampListview);
 	rampListview->connect (newPerson, &QAction::triggered,
 		[this]() {
-			getDataFromTable ();
+			refreshCurrentRamps ();
 			currentRamps.push_back (ddsIndvRampListInfo ());
 			redrawListview ();
 		});
@@ -77,8 +77,7 @@ void DdsSystem::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::string 
 
 void DdsSystem::redrawListview ( ){
 	rampListview->setRowCount (0);
-	for (auto rampInc : range (currentRamps.size ()))
-	{
+	for (auto rampInc : range (currentRamps.size ()))	{
 		rampListview->insertRow (rampListview->rowCount ());
 		auto rowN = rampListview->rowCount ()-1;
 		auto& ramp = currentRamps[rampInc];
@@ -94,11 +93,12 @@ void DdsSystem::redrawListview ( ){
 
 void DdsSystem::programNow ( std::vector<parameterType>& constants ){
 	try{
-		std::vector<ddsIndvRampListInfo> simpleExp;
-		simpleExp = currentRamps;
-		core.evaluateDdsInfo ( );
+		refreshCurrentRamps ();
+		core.manualLoadExpRampList (currentRamps);
+		core.evaluateDdsInfo ( constants );
 		core.generateFullExpInfo ( 1 );
 		core.programVariation ( 0, constants, nullptr);
+		emit notification ("Finished Programming DDS System!\n", 0);
 	}
 	catch ( ChimeraError& ){
 		throwNested ( "Error seen while programming DDS system via Program Now Button." );
@@ -107,7 +107,7 @@ void DdsSystem::programNow ( std::vector<parameterType>& constants ){
 
 
 void DdsSystem::handleSaveConfig (ConfigStream& file ){
-	getDataFromTable ();
+	refreshCurrentRamps ();
 	file << getDelim() << "\n";
 	file << "/*Control?*/ " << controlCheck->isChecked () << "\n";
 	core.writeRampListToConfig ( currentRamps, file );
@@ -138,7 +138,7 @@ DdsCore& DdsSystem::getCore ( ){
 	return core;
 }
 
-void DdsSystem::getDataFromTable () {
+void DdsSystem::refreshCurrentRamps () {
 	currentRamps.resize (rampListview->rowCount ());
 	for (auto rowI : range(rampListview->rowCount ())) {
 		try {

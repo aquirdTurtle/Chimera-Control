@@ -87,12 +87,12 @@ QtMainWindow::QtMainWindow () :
 	try {
 		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
 		std::string initializationString;
-		initializationString += getSystemStatusString ();
-		initializationString += auxWin->getOtherSystemStatusMsg ();
+		//initializationString += getSystemStatusString ();
+		//initializationString += auxWin->getOtherSystemStatusMsg ();
 		initializationString += andorWin->getSystemStatusString ();
-		initializationString += auxWin->getVisaDeviceStatus ();
-		initializationString += scriptWin->getSystemStatusString ();
-		initializationString += auxWin->getMicrowaveSystemStatus ();
+		//initializationString += auxWin->getVisaDeviceStatus ();
+		//initializationString += scriptWin->getSystemStatusString ();
+		//initializationString += auxWin->getMicrowaveSystemStatus ();
 		infoBox (initializationString);
 	}
 	catch (ChimeraError & err) {
@@ -118,7 +118,9 @@ void QtMainWindow::setStyleSheets (){
 }
 
 void QtMainWindow::pauseExperiment () {
-	expWorker->pause ();
+	if (expWorker != NULL) {
+		expWorker->pause ();
+	}
 }
 
 void QtMainWindow::initializeWidgets (){

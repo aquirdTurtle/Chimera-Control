@@ -7,7 +7,7 @@
 
 struct analysisSettings {
 	bool autoThresholdAnalysisOption = false;
-	bool displayGridOption;
+	bool displayGridOption=false;
 	std::vector<atomGrid> grids;
 	std::string bumpParam = "";
 	bool autoBumpOption = false;

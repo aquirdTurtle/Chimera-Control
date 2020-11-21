@@ -18,33 +18,28 @@
 #include <qtablewidget.h>
 #include <qpushbutton.h>
 #include <CustomQtControls/AutoNotifyCtrls.h>
+#include <PrimaryWindows/IChimeraQtWindow.h>
+#include <GeneralObjects/IChimeraSystem.h>
 
-class Script;
-class MainWindow;
-class AuxiliaryWindow;
-
-class DdsSystem{	
+class DdsSystem : public IChimeraSystem{	
 	public:
 		// THIS CLASS IS NOT COPYABLE.
 		DdsSystem& operator=(const DdsSystem&) = delete;
 		DdsSystem (const DdsSystem&) = delete;
 
-		DdsSystem(bool ftSafemode);
+		DdsSystem(IChimeraQtWindow* parent, bool ftSafemode);
 		void redrawListview ( );
 		void handleSaveConfig (ConfigStream& file );
 		void handleOpenConfig (ConfigStream& file );
 		void handleContextMenu (const QPoint& pos);
 		void initialize(QPoint& pos, IChimeraQtWindow* master, std::string title );
-		void handleRampClick();
-		void deleteRampVariable();
-		void getDataFromTable ();
+		void refreshCurrentRamps ();
 		void programNow (std::vector<parameterType>& constants);
 		std::string getSystemInfo ( );
 		std::string getDelim ( );
 		DdsCore& getCore ( );
 		
 	private:
-		
 		QLabel* ddsHeader;
 		QTableWidget* rampListview;
 		QPushButton* programNowButton;

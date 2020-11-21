@@ -29,20 +29,15 @@
 %%--------------------------------------------------------------%%
 %%--------------------------------------------------------------%%
 
-repeatForever
-
-gen1Const
-VERTICAL
-%%%%%	 freq			amp		phase
-	     75	1 0
-		 #
-gen1Const
-HORIZONTAL
-%%%%%		freq			amp		phase
-		75 1 0
-		#
-%%%%%	 time	p.m.	delim
-	     0.1	0	 
-endRepeat
+gen1Const VERTICAL
+%	freq	amp		phase
+	75	1 0
+	#
+gen1Const HORIZONTAL
+%	freq	amp		phase
+	75 1 0
+	#
+%	time	p.m.	delim
+	0.1	0	 
 
 %%--------------------------------------------------------------%%

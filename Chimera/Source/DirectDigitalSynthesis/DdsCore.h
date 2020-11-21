@@ -46,12 +46,14 @@ class DdsCore : public IDeviceCore{
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		std::string getSystemInfo ( );
 		void clearDdsRampMemory ( );
+		void manualLoadExpRampList (std::vector< ddsIndvRampListInfo> ramplist);
 		const std::string configDelim = "DDS_SYSTEM";
 		std::string getDelim () { return configDelim; }
 		void logSettings (DataLogger& log, ExpThreadWorker* threadworker);
 		void loadExpSettings (ConfigStream& stream);
 		void normalFinish () {};
 		void errorFinish () {};
+		
 	private:
 		std::vector<ddsIndvRampListInfo> expRampList;
 		ExpWrap<std::vector<ddsRampFinFullInfo>> fullExpInfo;

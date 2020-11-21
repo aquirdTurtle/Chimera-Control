@@ -12,7 +12,8 @@ def pgcAtomFlashingImage():
   dac: diagMotPower 0
   % var image_detuning -1.5
   % var motPower 0.25
-  var image_detuning -2 % -2.2 %-1.5
+  % changed to -2.2 on 11/11/2020
+  var image_detuning -2.4 %-2 % -2.2 %-1.5
   dacLinSpace: MotFreq defaultMotFreq image_detuning 5 10
   call zeroFields()
   t += 5

@@ -1,11 +1,12 @@
 %%---------------------------------------------------------%%
 %%---------------------------------------------------------%%
 % LOW FREQUENCY MEANS LOWER/LEFT ON SCREEN
-var ldumpBias 0.5 
+var ldumpBias 0.71
 
 var_v 3 linRamps [ lin lin lin ]   
 var_v 3 freqs [ 69 81 93 ] 
-var_v 3 amps [ 0.3875073543431289   0.27688038948657784   0.33561225617029333 ]
+var_v 3 amps [ 0.32535200534491365   0.35090144329932144   0.3237465513557648   ]
+
 
 %var_v 3 finAmps [ tunnelBias (1-tunnelBias) tone3b ]  
 var_v 3 phases [ 0 0 0 ] 
@@ -14,10 +15,8 @@ repeatForever
 gen3const_v Horizontal
 freqs amps phases #  
 gen2const Vertical
-75	(1-ldumpBias) 	0
-99 	ldumpBias		0 % the dump tweezer
+81		(1-ldumpBias) 	0
+117 	ldumpBias		0 % the dump tweezer
 #
 0.01 0
 endRepeat
-
-

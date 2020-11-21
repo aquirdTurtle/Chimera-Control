@@ -7,16 +7,12 @@
 #include <Piezo/piezoChan.h>
 
 class MainWindow;
-class AndorWindow;
-class AuxiliaryWindow;
-class DeformableMirrorWindow;
 class ScriptingWindow;
 class BaslerWindow;
-class IChimeraWindow;
+class IChimeraQtWindow;
 class DataLogger;
 
-namespace commonFunctions
-{
+namespace commonFunctions{
 	/// Call to direct message to appropriate function in this namespace
 	void handleCommonMessage( int msgID, IChimeraQtWindow* win);
 	/// Run Menu

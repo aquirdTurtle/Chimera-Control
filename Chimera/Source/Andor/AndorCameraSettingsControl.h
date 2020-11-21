@@ -29,7 +29,8 @@ class AndorCameraSettingsControl{
 		void setVariationNumber(unsigned varNumber);
 		void setRepsPerVariation(unsigned repsPerVar);
 		void updateRunSettingsFromPicSettings( );
-		void initialize(QPoint& pos, IChimeraQtWindow* parent );
+		void initialize( QPoint& pos, IChimeraQtWindow* parent, std::vector<std::string> vertSpeeds, 
+						 std::vector<std::string> horSpeeds );
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
 		void setEmGain( bool currentlyOn, int currentEmGainLevel );
@@ -60,15 +61,18 @@ class AndorCameraSettingsControl{
 		Qt::TransformationMode getTransformationMode ();
 		void setConfigSettings (AndorRunSettings inputSettings);
 		AndorRunSettings getRunningSettings ();
+		unsigned getHsSpeed ();
+		unsigned getVsSpeed ();
 	private:
-		AndorRunSettings currentlyRunningSettings;
 
+		AndorRunSettings currentlyRunningSettings;
 		bool currentlyUneditable = false;
 		double getKineticCycleTime( );
 		double getAccumulationCycleTime( );
 		unsigned getAccumulationNumber( );
 		imageParameters readImageParameters( );
 		QLabel* header;
+		QPushButton* programNow;
 		QCheckBox* viewRunningSettings;
 		CQCheckBox* controlAndorCameraCheck;
 		// Hardware Accumulation Parameters
@@ -78,6 +82,10 @@ class AndorCameraSettingsControl{
 		CQLineEdit* accumulationNumberEdit;
 		// 
 		CQComboBox* cameraModeCombo;
+
+		CQComboBox* verticalShiftSpeedCombo;
+		CQComboBox* horizontalShiftSpeedCombo;
+
 		QLabel* emGainLabel;
 		CQLineEdit* emGainEdit;
 		CQPushButton* emGainBtn;

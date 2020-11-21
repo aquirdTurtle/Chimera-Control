@@ -19,6 +19,7 @@ off: sideMotRf
 off: repumpRf
 off: shutter795
 % wait for the drop
+%t += 0.01
 t += flytime
 % image
 on: diagMotRf

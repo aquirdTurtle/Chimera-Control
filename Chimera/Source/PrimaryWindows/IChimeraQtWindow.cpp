@@ -194,7 +194,13 @@ void IChimeraQtWindow::initializeMenu (){
 	intM->addAction (saveasInt);
 
 	auto niawgM = menubar->addMenu ("NIAWG");
-	niawgM->addAction ("Reload Default Waveforms_X");
+	//niawgM->addAction ("Reload Default Waveforms");
+	auto* reloadDefaultNiawg = new QAction ("Reload Default Waveforms", this);
+	connect (reloadDefaultNiawg, &QAction::triggered, [this]() {this->scriptWin->restartNiawgDefaults (); });
+	niawgM->addAction (reloadDefaultNiawg);
+
+
+
 	niawgM->addAction ("Send Software Trigger_X");
 	niawgM->addAction ("Stream Waveform_X");
 	niawgM->addAction ("Get NIWAG Error_X");

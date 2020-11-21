@@ -104,6 +104,8 @@ class QtAndorWindow : public IChimeraQtWindow{
 		CruncherThreadWorker* atomCruncherWorker;
 		AnalysisThreadWorker* analysisThreadWorker;
 		void handleTransformationModeChange ();
+		void manualArmCamera ();
+
 	private:
         Ui::QtAndorWindow* ui;
 
@@ -149,14 +151,13 @@ class QtAndorWindow : public IChimeraQtWindow{
 		unsigned currentPictureNum = 0;
 		Matrix<long> avgBackground;
 		PiezoController imagingPiezo;
-
 	Q_SIGNALS:
 		void newImage (NormalImage);
 
 	public Q_SLOTS:
 		void onCameraProgress (int picNum);
 		LRESULT onCameraCalFinish (WPARAM wParam, LPARAM lParam);
-		void handlePrepareForAcq (void* lparam, analysisSettings aSettings);
+		void handlePrepareForAcq (AndorRunSettings* lparam, analysisSettings aSettings);
 		void completePlotterStart ();
 		void completeCruncherStart ();
 

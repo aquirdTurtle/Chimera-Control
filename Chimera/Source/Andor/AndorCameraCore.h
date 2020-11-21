@@ -53,7 +53,7 @@ class AndorCameraCore : public IDeviceCore{
 		void setGainMode();
 		void changeTemperatureSetting(bool temperatureControlOff);
 
-		static unsigned __stdcall cameraThread( void* voidPtr );		
+		//static unsigned __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
 		void initializeClass(IChimeraQtWindow* parent, chronoTimes* imageTimes );
 		void setCalibrating( bool cal );
@@ -69,7 +69,8 @@ class AndorCameraCore : public IDeviceCore{
 		void normalFinish ();
 		void errorFinish ();
 		void programVariation (unsigned variationInc, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-
+		std::vector<std::string> getVertShiftSpeeds ();
+		std::vector<std::string> getHorShiftSpeeds ();
 	private:
 		
 		void setAccumulationCycleTime ( );

@@ -315,7 +315,7 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 		ConfigSystem::initializeAtDelim (configFile, "SCRIPTS");
 	}
 	catch (ChimeraError&){
-		errBox ("Failed to initialize configuration file at scripting window entry point \"SCRIPTS\".");
+		reportErr ("Failed to initialize configuration file at scripting window entry point \"SCRIPTS\".");
 		return;
 	}
 	try{
@@ -358,16 +358,21 @@ void QtScriptWindow::windowOpenConfig (ConfigStream& configFile){
 		niawg.handleOpenConfig (configFile);
 		niawg.updateWindowEnabled ();
 	}
-	catch (ChimeraError& e)	{
-		errBox ("Scripting Window failed to read parameters from the configuration file.\n\n" + e.trace ());
+	catch (ChimeraError& err)	{
+		reportErr ("Scripting Window failed to read parameters from the configuration file.\n\n" + err.qtrace ());
 	}
 }
 
 void QtScriptWindow::newMasterScript (){
-	masterScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
-	masterScript.newScript ();
-	updateConfigurationSavedStatus (false);
-	masterScript.updateScriptNameText (getProfile ().configLocation);
+	try {
+		masterScript.checkSave (getProfile ().configLocation, mainWin->getRunInfo ());
+		masterScript.newScript ();
+		updateConfigurationSavedStatus (false);
+		masterScript.updateScriptNameText (getProfile ().configLocation);
+	}
+	catch (ChimeraError & err) {
+		reportErr (err.qtrace ());
+	}
 }
 
 void QtScriptWindow::openMasterScript (IChimeraQtWindow* parent){
@@ -471,7 +476,14 @@ void QtScriptWindow::setNiawgRunningState (bool newRunningState){
 }
 
 bool QtScriptWindow::niawgIsRunning () { return niawg.core.niawgIsRunning (); }
-void QtScriptWindow::setNiawgDefaults () { niawg.core.setDefaultWaveforms (); }
+void QtScriptWindow::setNiawgDefaults () { 
+	try {
+		niawg.core.setDefaultWaveforms ();
+	}
+	catch (ChimeraError & err) {
+		reportErr (err.qtrace ());
+	}
+}
 void QtScriptWindow::restartNiawgDefaults () { niawg.core.restartDefault (); }
 NiawgCore& QtScriptWindow::getNiawg () { return niawg.core; }
 void QtScriptWindow::stopRearranger () { niawg.core.turnOffRerng (); }

@@ -298,6 +298,9 @@
     <ClCompile Include="Source\ConfigurationSystems\profileSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -674,6 +677,12 @@
     </ClInclude>
     <ClInclude Include="Source\CustomQtControls\LongQSlider.h">
       <Filter>Custom-Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NIAWG\rampInfo.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

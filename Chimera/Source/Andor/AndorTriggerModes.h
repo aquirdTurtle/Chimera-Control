@@ -4,11 +4,8 @@
 #include <string>
 #include <array>
 
-struct AndorTriggerMode
-{
-	
-	enum class mode
-	{
+struct AndorTriggerMode{	
+	enum class mode	{
 		External,
 		Internal,
 		StartOnTrigger

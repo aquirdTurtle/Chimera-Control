@@ -9,17 +9,22 @@
 
 #include <boost/lexical_cast.hpp>
 
-
 AndorCameraSettingsControl::AndorCameraSettingsControl() : imageDimensionsObj("andor"){
 	AndorRunSettings& andorSettings = configSettings.andor;
 }
 
-
-void AndorCameraSettingsControl::initialize (QPoint& pos, IChimeraQtWindow* parent){
+void AndorCameraSettingsControl::initialize ( QPoint& pos, IChimeraQtWindow* parent, std::vector<std::string> vertSpeeds,
+											  std::vector<std::string> horSpeeds ){
 	auto& px = pos.rx (), & py = pos.ry ();
 	header = new QLabel ("CAMERA SETTINGS", parent);
 	header->setGeometry (px, py, 480, 25);
-	
+	programNow = new QPushButton ("Program Now", parent);
+	programNow->setGeometry (px, py+=25, 480, 25);
+	parent->connect (programNow, &QPushButton::released, parent->andorWin, [parent, this]() {
+			auto settings = getConfigSettings ().andor;
+			parent->andorWin->handlePrepareForAcq (&settings, analysisSettings());
+			parent->andorWin->manualArmCamera ();
+		});
 	controlAndorCameraCheck = new CQCheckBox ("Control Andor Camera?", parent);
 	controlAndorCameraCheck->setGeometry (px, py += 25, 240, 25);
 	controlAndorCameraCheck->setChecked (true);
@@ -67,6 +72,23 @@ void AndorCameraSettingsControl::initialize (QPoint& pos, IChimeraQtWindow* pare
 			}
 		});
 	configSettings.andor.triggerMode = AndorTriggerMode::mode::External;
+
+	verticalShiftSpeedCombo = new CQComboBox (parent);
+	verticalShiftSpeedCombo->setGeometry (px, py += 25, 240, 25);
+	for (auto speed : vertSpeeds){ 
+		verticalShiftSpeedCombo->addItem ("VS: " + qstr(speed));
+	}
+	verticalShiftSpeedCombo->setCurrentIndex (1);
+	configSettings.andor.vertShiftSpeedSetting = 0;
+
+	horizontalShiftSpeedCombo = new CQComboBox (parent);
+	horizontalShiftSpeedCombo->setGeometry (px+240, py, 240, 25);
+	for (auto speed : horSpeeds){
+		horizontalShiftSpeedCombo->addItem ("HS: " + qstr (speed));
+	}
+	horizontalShiftSpeedCombo->setCurrentIndex (0);
+	configSettings.andor.horShiftSpeedSetting = 0;
+
 	emGainBtn = new CQPushButton ("Set EM Gain (-1=OFF)", parent);
 	emGainBtn->setGeometry (px, py += 25, 160, 20);
 	parent->connect (emGainBtn, &QPushButton::released, [parent]() {
@@ -89,7 +111,6 @@ void AndorCameraSettingsControl::initialize (QPoint& pos, IChimeraQtWindow* pare
 		[parent]() {
 			parent->andorWin->passSetTemperaturePress ();
 		});
-
 	temperatureEdit = new CQLineEdit ("0", parent);
 	temperatureEdit->setGeometry (px + 270, py, 80, 25);
 
@@ -184,14 +205,12 @@ void AndorCameraSettingsControl::setRunSettings(AndorRunSettings inputSettings){
 
 
 void AndorCameraSettingsControl::handleSetTemperaturePress(){
-	int temp;
 	try{
-		temp = boost::lexical_cast<int>(str(temperatureEdit->text ()));
+		configSettings.andor.temperatureSetting = boost::lexical_cast<int>(str(temperatureEdit->text ()));
 	}
 	catch ( boost::bad_lexical_cast&){
 		throwNested("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
-	configSettings.andor.temperatureSetting = temp;
 }
 
 void AndorCameraSettingsControl::updateTriggerMode( ){
@@ -203,6 +222,14 @@ void AndorCameraSettingsControl::updateTriggerMode( ){
 		return;
 	}
 	configSettings.andor.triggerMode = AndorTriggerMode::fromStr(str(triggerCombo->currentText ()));
+}
+
+unsigned AndorCameraSettingsControl::getHsSpeed () {
+	return horizontalShiftSpeedCombo->currentIndex ();
+}
+
+unsigned AndorCameraSettingsControl::getVsSpeed () {
+	return verticalShiftSpeedCombo->currentIndex ();
 }
 
 void AndorCameraSettingsControl::updateSettings(){
@@ -223,6 +250,9 @@ void AndorCameraSettingsControl::updateSettings(){
 
 	updateCameraMode( );
 	updateTriggerMode( );
+
+	configSettings.andor.horShiftSpeedSetting = getHsSpeed ();
+	configSettings.andor.vertShiftSpeedSetting = getVsSpeed ();
 }
 
 std::array<softwareAccumulationOption, 4> AndorCameraSettingsControl::getSoftwareAccumulationOptions ( ){
@@ -421,8 +451,10 @@ void AndorCameraSettingsControl::handleSaveConfig(ConfigStream& saveFile){
 	for ( auto exposure : configSettings.andor.exposureTimes ){
 		saveFile << exposure << " ";
 	}
-	saveFile << "\n/*Andor Pics Per Rep:*/\t\t" << configSettings.andor.picsPerRepetition << "\n";
-	saveFile << "END_CAMERA_SETTINGS\n";
+	saveFile << "\n/*Andor Pics Per Rep:*/\t\t" << configSettings.andor.picsPerRepetition;
+	saveFile << "\n/*Horizontal Shift Speed*/\t" << configSettings.andor.horShiftSpeedSetting;
+	saveFile << "\n/*Vertical Shift Speed*/\t" << configSettings.andor.vertShiftSpeedSetting;
+	saveFile << "\nEND_CAMERA_SETTINGS\n";
 	picSettingsObj.handleSaveConfig(saveFile);
 	imageDimensionsObj.handleSave (saveFile);
 }
