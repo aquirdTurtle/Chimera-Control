@@ -1,4 +1,4 @@
-Version 2.9
+Version 2.11
 diagmotrf
 0
 repumprf
@@ -301,5 +301,106 @@ sbc_sigma_op 5 13 1 0.41 1 a 4 0 0.02 0.01 0 200
 depthmeasurementprobe 5 19 1 0.11 2 d 12 d 13 0 0.01 0.01 0 100
 top_sbc_sideband 2 16 0 1.11 2 a 10 b 3 0 0.02 0.02 0 100
 ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
-253 285 3 224 238 3
+
+/*CALIBRATION_MANAGER*/
+/*Auto Cal Checked: */ 0
+/*Calibration Number: */ 7
+/*Calibration Name: */ sidemot
+/*Analog Input Chanel: */ 6
+/*Analog Output Control Chanel: */ 22
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ a 5 b 8 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ diagmot
+/*Analog Input Chanel: */ 7
+/*Analog Output Control Chanel: */ 9
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ a 0 c 8 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ repump
+/*Analog Input Chanel: */ 7
+/*Analog Output Control Chanel: */ 11
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ a 1 b 7 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ probe
+/*Analog Input Chanel: */ 5
+/*Analog Output Control Chanel: */ 19
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ d 12 d 13 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ sigma_op
+/*Analog Input Chanel: */ 5
+/*Analog Output Control Chanel: */ 13
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 1
+/*ttl config: */ a 4 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ sigma_repump
+/*Analog Input Chanel: */ 5
+/*Analog Output Control Chanel: */ 15
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.36 0.37 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 1
+/*ttl config: */ a 3 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */0
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ top_raman
+/*Analog Input Chanel: */ 2
+/*Analog Output Control Chanel: */ 0
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ a 10 b 3 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */1
+/*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+231 299 3 229 243 3
 0 0

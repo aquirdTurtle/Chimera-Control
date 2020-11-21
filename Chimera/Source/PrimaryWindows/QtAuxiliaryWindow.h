@@ -60,11 +60,11 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		std::string getVisaDeviceStatus ();
 		std::string getMicrowaveSystemStatus ();
 
-		void updateAgilent (whichAgTy::agilentNames name);
-		void newAgilentScript (whichAgTy::agilentNames name);
-		void openAgilentScript (whichAgTy::agilentNames name, IChimeraQtWindow* parent);
-		void saveAgilentScript (whichAgTy::agilentNames name);
-		void saveAgilentScriptAs (whichAgTy::agilentNames name, IChimeraQtWindow* parent);
+		void updateAgilent (AgilentEnum::name name);
+		void newAgilentScript (AgilentEnum::name name);
+		void openAgilentScript (AgilentEnum::name name, IChimeraQtWindow* parent);
+		void saveAgilentScript (AgilentEnum::name name);
+		void saveAgilentScriptAs (AgilentEnum::name name, IChimeraQtWindow* parent);
 		void fillMasterThreadInput (ExperimentThreadInput* input);
 		void SetDacs ();
 
@@ -88,6 +88,8 @@ class QtAuxiliaryWindow : public IChimeraQtWindow{
 		ParameterSystem& getGlobals ();
 		std::vector<parameterType> getUsableConstants ();
 		void fillExpDeviceList (DeviceList& list);
+
+		std::vector<std::reference_wrapper<AgilentCore>> getAgilents ();
 
 	protected:
 		bool eventFilter (QObject* obj, QEvent* event);

@@ -45,7 +45,7 @@ void QtAndorWindow::initializeWidgets (){
 	position = { 480, 25 };
 	stats.initialize (position, this);
 	for (auto pltInc : range (6)){
-		mainAnalysisPlots.push_back (new PlotCtrl (1, plotStyle::ErrorPlot, { 0,0,0,0 }, "INACTIVE", false, false));
+		mainAnalysisPlots.push_back (new PlotCtrl (1, plotStyle::BinomialDataPlot, { 0,0,0,0 }, "INACTIVE", false, false));
 		mainAnalysisPlots.back ()->init (position, 315, 130, this);
 	}
 	position = { 797, 25 };
@@ -715,7 +715,7 @@ void QtAndorWindow::completePlotterStart () {
 	// remove old plots that aren't trying to sustain.
 	unsigned mainPlotInc = 0;
 	for (auto plotParams : pltInput->plotInfo) {
-		plotStyle style = plotParams.isHist ? plotStyle::HistPlot : plotStyle::ErrorPlot;
+		plotStyle style = plotParams.isHist ? plotStyle::HistPlot : plotStyle::BinomialDataPlot;
 		if (mainPlotInc < 6) {
 			mainAnalysisPlots[mainPlotInc]->setStyle (style);
 			mainAnalysisPlots[mainPlotInc]->setThresholds (andorSettingsCtrl.getConfigSettings ().thresholds[0]);

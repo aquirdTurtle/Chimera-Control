@@ -2,9 +2,7 @@
 #pragma once
 #include "DigitalOutput/DoRows.h"
 
-
-struct servoInfo
-{
+struct servoInfo{
 	// in this case the system doesn't try to feed back, it just checks the value. generally should coincide with a 
 	// larger tolerance. 
 	bool monitorOnly = false;

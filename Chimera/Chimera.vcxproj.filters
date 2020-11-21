@@ -301,6 +301,12 @@
     <ClCompile Include="Source\RealTimeDataAnalysis\QtPlotDesignerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AnalogInput\CalibrationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Agilent\whichAg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="longnam.h">
@@ -682,6 +688,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\NIAWG\rampInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogInput\CalibrationManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AnalogInput\calInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

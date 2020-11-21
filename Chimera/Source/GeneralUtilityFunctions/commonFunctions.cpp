@@ -267,10 +267,10 @@ namespace commonFunctions
 					scriptWin->saveNiawgScript( );
 					scriptWin->saveIntensityScript( );
 					scriptWin->saveMasterScript( );
-					auxWin->updateAgilent(whichAgTy::TopBottom );
-					auxWin->updateAgilent(whichAgTy::Axial );
-					auxWin->updateAgilent(whichAgTy::Flashing );
-					auxWin->updateAgilent(whichAgTy::Microwave );
+					auxWin->updateAgilent(AgilentEnum::name::TopBottom );
+					auxWin->updateAgilent(AgilentEnum::name::Axial );
+					auxWin->updateAgilent(AgilentEnum::name::Flashing );
+					auxWin->updateAgilent(AgilentEnum::name::Microwave );
 					mainWin->profile.saveConfiguration ( win );
 					mainWin->masterConfig.save( mainWin, auxWin, andorWin );					
 				}
@@ -415,6 +415,7 @@ namespace commonFunctions
 			case ID_FILE_MY_NIAWG_OPEN: { scriptWin->openNiawgScript (win); break; }
 			case ID_FILE_MY_NIAWG_SAVE: { scriptWin->saveNiawgScript (); break; }
 			case ID_FILE_MY_NIAWG_SAVEAS: { scriptWin->saveNiawgScriptAs (win); break; }
+			case ID_MASTERCONFIG_SAVEMASTERCONFIGURATION: { mainWin->masterConfig.save (mainWin, auxWin, andorWin); break; }
 			/*
 			case ID_TOP_BOTTOM_NEW_SCRIPT: { auxWin->newAgilentScript( whichAg::TopBottom); break; }
 			case ID_TOP_BOTTOM_OPEN_SCRIPT: { auxWin->openAgilentScript( whichAg::TopBottom, win); break; }
@@ -448,7 +449,7 @@ namespace commonFunctions
 			case ID_DATATYPE_PHOTONS_SCATTERED: { andorWin->setDataType( ATOM_PHOTONS ); break; }
 			case ID_DATATYPE_RAW_COUNTS: { andorWin->setDataType( RAW_COUNTS ); break; }
 			case ID_RUNMENU_ABORTBASLER: { basWin->handleDisarmPress ( ); break; }
-			case ID_MASTERCONFIG_SAVEMASTERCONFIGURATION: { mainWin->masterConfig.save(mainWin, auxWin, andorWin); break; }
+			
 			case ID_MASTERCONFIGURATION_RELOAD_MASTER_CONFIG: { mainWin->masterConfig.load(mainWin, auxWin, andorWin); break; }
 			case ID_MASTER_VIEWORCHANGEINDIVIDUALDACSETTINGS: { auxWin->ViewOrChangeDACNames(); break; }
 			case ID_MASTER_VIEWORCHANGETTLNAMES: { auxWin->ViewOrChangeTTLNames(); break; }

@@ -23,7 +23,7 @@ void SmsTextingControl::handleContextMenu (const QPoint& pos){
 }
 
 void SmsTextingControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
-	auto& px = pos.rx (), py = pos.ry ();
+	auto& px = pos.rx (), & py = pos.ry ();
 	title = new QLabel ("TEXTING SERVICES" + PYTHON_SAFEMODE ? " (DISABLED, PYTHON_SAFEMODE=TRUE)" : "", parent);
 	title->setGeometry (px, py, 480, 25);
 	py += 25;
@@ -44,6 +44,7 @@ void SmsTextingControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 		}});
 
 	peopleListView->setGeometry (px, py, 480, 50);
+	py += 50;
 	peopleListView->setColumnWidth (0, 90);
 	peopleListView->setColumnWidth (1, 95);
 	peopleListView->setColumnWidth (2, 65);
@@ -52,8 +53,8 @@ void SmsTextingControl::initialize( QPoint& pos, IChimeraQtWindow* parent ){
 	peopleListView->setShowGrid (true);
 	personInfo me;
 	me.name = "Mark Brown";
-	me.number = "7032544981";
-	me.provider = "verizon";
+	me.number = "7206797962";
+	me.provider = "googlefi";
 	me.textIfLoadingStops = false;
 	me.textWhenComplete = false;
 	addPerson (me);

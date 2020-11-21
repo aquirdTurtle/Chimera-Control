@@ -10,7 +10,6 @@
 #include <qapplication.h>
 
 ServoManager::ServoManager (IChimeraQtWindow* parent) : IChimeraSystem(parent) {
-
 }
 
 void ServoManager::handleContextMenu (const QPoint& pos){
@@ -88,7 +87,7 @@ void ServoManager::initialize( QPoint& pos, IChimeraQtWindow* parent, AiSystem* 
 	servoList->setColumnCount (labels.size());
 	servoList->setHorizontalHeaderLabels (labels);
 	servoList->horizontalHeader ()->setFixedHeight (25);
-	servoList->setGeometry (px, py, 960, 400);
+	servoList->setGeometry (px, py, 960, 150);
 	servoList->setToolTip ( "Name: The name of the servo, gets incorperated into the name of the servo_variable.\n"
 						   "Active: Whether the servo will calibrate when you auto-servoing or after servo-once\n"
 						   "Set-Point: The servo\'s set point, in volts.\n"
@@ -180,7 +179,6 @@ void ServoManager::initialize( QPoint& pos, IChimeraQtWindow* parent, AiSystem* 
 			}
 		}
 	);
-
 	ai = ai_in;
 	ao = ao_in;
 	ttls = ttls_in;
@@ -501,6 +499,7 @@ void ServoManager::calibrate( servoInfo& sv, unsigned which ){
 			setResDisplay (which, convertToPower(sv.mostRecentResult, sv));
 			setChangeVal (which, convertToPower(sv.changeInCtrl, sv));
 			qApp->processEvents ();
+
 		}
 	}
 	auto dacVal = ao->getDacValue ( aoNum );
