@@ -20,7 +20,6 @@ void ExpThreadWorker::process (){
 	emit mainProcessFinish ();
 }
 
-
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current
  * configuration settings to determine how to program and run the experiment.
@@ -32,11 +31,10 @@ void ExpThreadWorker::experimentThreadProcedure () {
 	ExpRuntimeData expRuntime;
 	isPaused = false;
 	try {
-		for (auto& device : input->devices.list) {
-			emit updateBoxColor ("Black", device.get ().getDelim ().c_str ());
-		}
+	 	for (auto& device : input->devices.list) {
+	 		emit updateBoxColor ("Black", device.get ().getDelim ().c_str ());
+	 	}
 		emit updateBoxColor ("Black", "Other");
-
 		emit notification ("Loading Experiment Settings...\n");
 		ConfigStream cStream (input->profile.configFilePath (), true);
 		loadExperimentRuntime (cStream, expRuntime);
@@ -315,11 +313,10 @@ double ExpThreadWorker::convertToTime (timeType time, std::vector<parameterType>
 	return variableTime + time.second;
 }
 
-void ExpThreadWorker::handleDebugPlots (debugInfo debugOptions, DoCore& ttls, AoSystem& aoSys, unsigned variation) {
+void ExpThreadWorker::handleDebugPlots (DoCore& ttls, AoSystem& aoSys, unsigned variation) {
 	emit doAoData (ttls.getPlotData (variation), aoSys.getPlotData (variation));
 	emit notification (qstr (ttls.getTtlSequenceMessage (variation)), 2);
 	emit notification (qstr (aoSys.getDacSequenceMessage (variation)), 2);
-	emit notification (qstr (debugOptions.message), 2);
 }
 
 bool ExpThreadWorker::runningStatus () {
@@ -842,7 +839,7 @@ void ExpThreadWorker::checkTriggerNumbers (std::vector<parameterType>& expParams
 			}
 			/// check Agilents
 			for (auto& agilent : input->devices.getDevicesByClass<AgilentCore> ()) {
-				agilent.get ().checkTriggers (variationInc, input->ttls, this, input->debugOptions.outputExcessInfo);
+				agilent.get ().checkTriggers (variationInc, input->ttls, this);
 			}
 		}
 	}
@@ -962,7 +959,7 @@ void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameter
 		emit notification ("Querying Voltages...\r\n");
 		//input->comm.sendLogVoltsMessage (variationInc);
 	}
-	if (input->debugOptions.sleepTime != 0) { Sleep (input->debugOptions.sleepTime); }
+	if (input->sleepTime != 0) { Sleep (input->sleepTime); }
 	for (auto param : expParams) {
 		if (param.valuesVary) {
 			if (param.keyValues.size () == 0) {
@@ -975,7 +972,7 @@ void ExpThreadWorker::initVariation (unsigned variationInc,std::vector<parameter
 	waitForAndorFinish ();
 	bool skipOption = input->skipNext == NULL ? false : input->skipNext->load ();
 	if (input->runList.master) { input->ttls.ftdi_write (variationInc, skipOption); }
-	handleDebugPlots (input->debugOptions, input->ttls, input->aoSys, variationInc);
+	handleDebugPlots ( input->ttls, input->aoSys, variationInc );
 }
 
 void ExpThreadWorker::waitForAndorFinish () {

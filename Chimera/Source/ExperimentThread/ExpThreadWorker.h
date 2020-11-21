@@ -57,8 +57,7 @@ class ExpThreadWorker : public QObject {
 		void experimentThreadProcedure ();
 		void analyzeFunctionDefinition (std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static unsigned determineVariationNumber (std::vector<parameterType> vars);
-		void handleDebugPlots (debugInfo debugOptions, DoCore& ttls, AoSystem& aoSys,
-			unsigned variation);
+		void handleDebugPlots (DoCore& ttls, AoSystem& aoSys, unsigned variation);
 		double convertToTime (timeType time, std::vector<parameterType> variables, unsigned variation);
 		void calculateAdoVariations (ExpRuntimeData& runtime);
 		static std::vector<parameterType> getLocalParameters (ScriptStream& stream);

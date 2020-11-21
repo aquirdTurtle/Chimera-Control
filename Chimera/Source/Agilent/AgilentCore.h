@@ -47,7 +47,7 @@ class AgilentCore : public IDeviceCore {
 		void loadExpSettings (ConfigStream& script);
 		void calculateVariations (std::vector<parameterType>& params, ExpThreadWorker* threadworker);
 		void programVariation (unsigned variation, std::vector<parameterType>& params, ExpThreadWorker* threadworker);
-		void checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo);
+		void checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker);
 		void normalFinish () {};
 		void errorFinish () {};
 	private:

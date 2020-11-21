@@ -46,7 +46,8 @@ struct ExperimentThreadInput{
 	DeviceList devices;
 
 	std::vector<parameterType> globalParameters;
-	debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
+	//debugInfo debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
+	unsigned sleepTime = 0;
 	ParameterSystem& globalControl;
 
 	DataLogger& logger;

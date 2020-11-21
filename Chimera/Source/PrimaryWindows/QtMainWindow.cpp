@@ -394,7 +394,7 @@ void QtMainWindow::changeShortStatusColor (std::string color) { shortStatus.setC
 bool QtMainWindow::experimentIsPaused () { return expWorker->getIsPaused (); }
 
 void QtMainWindow::fillMasterThreadInput (ExperimentThreadInput* input){
-	input->debugOptions = debugger.getOptions ();
+	input->sleepTime = debugger.getOptions ().sleepTime;
 	input->profile = profile.getProfileSettings ();
 }
 

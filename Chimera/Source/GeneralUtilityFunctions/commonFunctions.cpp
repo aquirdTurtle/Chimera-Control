@@ -488,7 +488,7 @@ namespace commonFunctions
 		input.masterInput->updatePlotterXVals = updatePlotXVals;
 		input.masterInput->skipNext = win->andorWin->getSkipNextAtomic( );
 		input.masterInput->numVariations = win->auxWin->getTotalVariationNumber ( );
-		input.masterInput->debugOptions = win->mainWin->getDebuggingOptions();
+		input.masterInput->sleepTime = win->mainWin->getDebuggingOptions ().sleepTime;
 		input.masterInput->profile = win->mainWin->getProfileSettings ();
 		// Start the programming thread. order is important.
 		win->auxWin->fillMasterThreadInput( input.masterInput );

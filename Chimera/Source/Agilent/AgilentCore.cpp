@@ -507,7 +507,7 @@ void AgilentCore::programVariation (unsigned variation, std::vector<parameterTyp
 	setAgilent (variation, params, expRunSettings);
 }
 
-void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker, bool excessInfo){
+void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadWorker* threadWorker){
 	std::array<bool, 2> agMismatchVec = { false, false };
 	for (auto chan : range (2)){
 		auto& agChan = expRunSettings.channel[chan];
@@ -524,9 +524,6 @@ void AgilentCore::checkTriggers (unsigned variationInc, DoCore& ttls, ExpThreadW
 				"number of times a trigger command appears in the agilent channel " + str (chan + 1) + " script. "
 				+ infoString + " First seen in variation #" + str (variationInc) + ".\r\n"));
 			agMismatchVec[chan] = true;
-		}
-		if (variationInc == 0 && excessInfo){
-			//emit threadWorker->debugInfo (cstr(infoString));
 		}
 	}
 }
