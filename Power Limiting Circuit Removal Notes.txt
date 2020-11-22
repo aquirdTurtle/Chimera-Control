@@ -1,0 +1,12 @@
+PLC = Power Limiting Circuit
+
+With PLC:
+Vertical = -4.3
+HOR: -3.8
+
+WO PLC:
+HOR = -2.26
+
+with mod gain 
+Vert: -4.2
+HOR = -3.83

@@ -10,4 +10,5 @@ class NewPythonHandler {
 		void runDataAnalysis (std::string date, long runNumber, long accumulations,
 							  std::vector<coordinate> atomLocations);
 		double runCarrierAnalysis (std::string date, long runNumber, atomGrid gridInfo, QWidget* parent);
+		std::vector<double> runCalibrationFits (QWidget* parent);
 };

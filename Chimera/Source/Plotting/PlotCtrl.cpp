@@ -35,7 +35,46 @@ dataPoint PlotCtrl::getMainAnalysisResult ( ){
 void PlotCtrl::setData (std::vector<plotDataVec> newData){
 	view->chart ()->removeAllSeries ();
 	double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
-	if (style == plotStyle::BinomialDataPlot || style == plotStyle::GeneralErrorPlot) {
+	if (style == plotStyle::GeneralErrorPlot) {
+		// need to rename...
+		if (newData.size () != 2 || !view->chart ()) {
+			// should always have the calibration data and fit.
+			return;
+		}
+		// first data set is scatter
+		auto& newLineData = newData[0];
+		calibrationData = new QtCharts::QScatterSeries (view->chart ());
+		calibrationData->setBorderColor (Qt::black);
+		calibrationData->setMarkerSize (8.0);
+		calibrationData->setColor (QColor (255, 255, 255));
+		for (auto count : range (newLineData.size ())) {
+			xmin = newLineData[count].x < xmin ? newLineData[count].x : xmin;
+			xmax = newLineData[count].x > xmax ? newLineData[count].x : xmax;
+			ymin = newLineData[count].y < ymin ? newLineData[count].y : ymin;
+			ymax = newLineData[count].y > ymax ? newLineData[count].y : ymax;
+			*calibrationData << QPointF (newLineData[count].x, newLineData[count].y);
+		}
+		view->chart ()->addSeries (calibrationData);
+		//view->chart ()->legend ()->setVisible (true);
+		// second line
+		auto& newLineData2 = newData[1];
+		fitData = new QtCharts::QLineSeries (view->chart ());
+		auto color = GIST_RAINBOW_RGB[1 * GIST_RAINBOW_RGB.size () / 2];
+		QPen pen = fitData->pen ();
+		pen.setWidth (2);
+		pen.setColor ("red");
+		//pen.setBrush (QColor (color[0], color[1], color[2], 50)); // or just pen.setColor("red");
+		fitData->setPen (pen);
+		for (auto count : range (newLineData2.size ())) {
+			xmin = newLineData2[count].x < xmin ? newLineData2[count].x : xmin;
+			xmax = newLineData2[count].x > xmax ? newLineData2[count].x : xmax;
+			ymin = newLineData2[count].y < ymin ? newLineData2[count].y : ymin;
+			ymax = newLineData2[count].y > ymax ? newLineData2[count].y : ymax;
+			*fitData << QPointF (newLineData2[count].x, newLineData2[count].y);
+		}
+		view->chart ()->addSeries (fitData);
+	}
+	else if (style == plotStyle::BinomialDataPlot) {
 		if (newData.size () == 0 || !view->chart ()) {
 			return;
 		}
@@ -107,10 +146,7 @@ void PlotCtrl::setData (std::vector<plotDataVec> newData){
 		view->chart ()->legend ()->setVisible (true);
 	}
 	else { // line plot... e.g. for dio and ao data
-		if (newData.size () == 0) {
-			return;
-		}
-		if (!view->chart ()) {
+		if (newData.size () == 0 || !view->chart ()) {
 			return;
 		}
 		qtLineData.clear ();

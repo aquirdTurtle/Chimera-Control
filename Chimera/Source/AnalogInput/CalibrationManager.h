@@ -10,10 +10,12 @@
 #include <CustomQtControls/AutoNotifyCtrls.h>
 #include <PrimaryWindows/IChimeraQtWindow.h>
 #include <Agilent/AgilentCore.h>
+#include <Python/NewPythonHandler.h>
 #include <type_traits>
 #include <QLabel>
 #include <QTableWidget>
 #include <QPushButton>
+
 
 
 class CalibrationManager : public IChimeraSystem {
@@ -27,7 +29,7 @@ public:
 	static std::string calTtlConfigToString (std::vector<std::pair<DoRows::which, unsigned> > ttlConfig);
 	static std::string calDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig);
 	void initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai, AoSystem* ao, DoSystem* ttls_in,
-		std::vector<std::reference_wrapper<AgilentCore>> agilentsIn);
+		std::vector<std::reference_wrapper<AgilentCore>> agilentsIn, NewPythonHandler* python_in);
 	//void setChangeVal (unsigned which, double change);
 	void runAll ();
 	void calibrate (calInfo& cal, unsigned which);
@@ -42,7 +44,6 @@ private:
 	QLabel* calsHeader;
 	CQPushButton* calibrateAllButton;
 	CQCheckBox* expAutoCalButton;
-	//CQComboBox* unitsCombo;
 	QTableWidget* calibrationTable;
 	QPushButton* cancelCalButton;
 	PlotCtrl calibrationViewer;
@@ -55,7 +56,7 @@ private:
 	AoSystem* ao;
 	DoSystem* ttls;
 	std::vector<std::reference_wrapper<AgilentCore>> agilents;
-	//ParameterSystem* globals;
+	NewPythonHandler* pythonHandler;
 };
 
 

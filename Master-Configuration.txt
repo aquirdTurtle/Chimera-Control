@@ -233,34 +233,34 @@ imagingrepumppower 0.2
 intrappgccoolingtime 10
 field 3
 defaultmotfreq -1.5
-sidemot__sv 0.07415331751668253
-diagmot__sv 0.2439864487590718
+sidemot__sv 0.07682153462698832
+diagmot__sv 0.2503092617784863
 default795freq 0
 d1__servo_value 0.3
-sidemot_intrappgc__sv 0.0891257020301947
-sidemot_imaging__sv 0.1923138044234223
+sidemot_intrappgc__sv 0.09178535126432365
+sidemot_imaging__sv 0.1976275618951943
 motimagingdetuning -0.32
 d1loadingfreq 112
 intraplgmcoolingfreq 103
-sidemot_d1__sv 0.1757484143427714
-diagmot_imaging__sv 0.09661501839478062
+sidemot_d1__sv 0.1620899749159183
+diagmot_imaging__sv 0.09904898070018758
 diag_d1_load__sv -0.730890760901981
-repump_load__sv 0.1167579154803438
-repump_imaging__sv 0.1168622577103175
-sigma_repump__sv 0.06906504325116353
+repump_load__sv 0.1165046802285882
+repump_imaging__sv 0.1166229423444976
+sigma_repump__sv 0.06932561887208519
 sigma_op__sv 0.199655
-pushout_probe__sv 0.3004791349821387
+pushout_probe__sv 0.3284031392742
 top_raman__sv 0.0758206
 top_raman_carrier__sv 0.09435238883238745
-eo_raman__sv 0.1062772443637025
+eo_raman__sv 0.1091328275059889
 ax_raman_spec__sv 0.02318754216101684
 top_raman_sideband_spec__sv 0.07815115159767412
 top_sbc_sideband_spec__sv 0.2113730589131441
-sbc_sigma_op__sv 0.05227785219393906
+sbc_sigma_op__sv 0.05452219460508894
 axramanoffset 108900
 intraplgmrepumpfreq 0.066
 intraplgmrepumppower 0
-depthmeasurementprobe__sv 0.04406366592949313
+depthmeasurementprobe__sv 0.05063030332735165
 pzttop_x 105
 pzttop_y 50
 pztax_x 60.39
@@ -304,7 +304,7 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 
 /*CALIBRATION_MANAGER*/
 /*Auto Cal Checked: */ 0
-/*Calibration Number: */ 7
+/*Calibration Number: */ 9
 /*Calibration Name: */ sidemot
 /*Analog Input Chanel: */ 6
 /*Analog Output Control Chanel: */ 22
@@ -392,7 +392,7 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Calibration Name: */ top_raman
 /*Analog Input Chanel: */ 2
 /*Analog Output Control Chanel: */ 0
-/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 
 /*Calibration Active: */ 1
 /*TTL Config Size: */ 2
 /*ttl config: */ a 10 b 3 
@@ -401,6 +401,34 @@ ax_sbc_raman 3 23 0 0.448 4 a 11 b 12 c 12 b 3 0 0.02 0.02 0 100
 /*Data Point Average Number: */ 100
 /*Use Agilent: */1
 /*Which Agilent: */TopBottom
+/*Which Agilent Channel: */1
+
+/*Calibration Name: */ axail_raman
+/*Analog Input Chanel: */ 3
+/*Analog Output Control Chanel: */ 0
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 4
+/*ttl config: */ a 11 b 12 c 12 b 3 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */1
+/*Which Agilent: */Axial
+/*Which Agilent Channel: */2
+
+/*Calibration Name: */ bot_raman
+/*Analog Input Chanel: */ 0
+/*Analog Output Control Chanel: */ 0
+/*Control Values: */ 0. 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.2 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 
+/*Calibration Active: */ 1
+/*TTL Config Size: */ 2
+/*ttl config: */ a 2 b 3 
+/*Analog Output Config Size: */ 0
+/*Analog Output Config: */ 
+/*Data Point Average Number: */ 100
+/*Use Agilent: */1
+/*Which Agilent: */Axial
 /*Which Agilent Channel: */1
 231 299 3 229 243 3
 0 0

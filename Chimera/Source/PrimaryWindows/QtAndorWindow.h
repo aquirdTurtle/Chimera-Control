@@ -105,6 +105,7 @@ class QtAndorWindow : public IChimeraQtWindow{
 		AnalysisThreadWorker* analysisThreadWorker;
 		void handleTransformationModeChange ();
 		void manualArmCamera ();
+		NewPythonHandler* getPython ();
 
 	private:
         Ui::QtAndorWindow* ui;
