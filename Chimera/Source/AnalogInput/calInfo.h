@@ -20,5 +20,5 @@ struct calInfo {
 	std::vector<std::pair<unsigned, double>> aoConfig;
 	bool currentlyCalibrating = false;
 	unsigned int avgNum = 100;
-
+	std::vector<double> calibrationCoefficients;
 };

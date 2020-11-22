@@ -69,6 +69,9 @@ class PlotCtrl : public QObject {
 		std::vector<QtCharts::QLineSeries*> qtLineData;
 		std::vector<QtCharts::QScatterSeries*> qtScatterData;
 
+		QtCharts::QLineSeries* fitData;
+		QtCharts::QScatterSeries* calibrationData;
+
 		// a colormap that I use for plot stuffs.
 		const std::vector<std::array<int, 3>> GIST_RAINBOW_RGB{ { 255 , 0 , 40 },
 								{ 255 , 0 , 35 },

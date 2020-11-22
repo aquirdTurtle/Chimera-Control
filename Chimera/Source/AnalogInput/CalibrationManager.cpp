@@ -69,11 +69,12 @@ void CalibrationManager::handleContextMenu (const QPoint& pos) {
 }
 
 void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSystem* ai_in, AoSystem* ao_in,
-									 DoSystem* ttls_in, std::vector<std::reference_wrapper<AgilentCore>> agilents_in) {
+									 DoSystem* ttls_in, std::vector<std::reference_wrapper<AgilentCore>> agilents_in,
+									 NewPythonHandler* python_in) {
 	auto& px = pos.rx (), & py = pos.ry ();
 	px += 480;
-	py -= 200;
-	calibrationViewer.init (pos, 480, 200, parent);
+	py -= 300;
+	calibrationViewer.init (pos, 480, 300, parent);
 	px += -480;
 	calsHeader = new QLabel ("CALIBRATION MANAGER", parent);
 	calsHeader->setGeometry (px, py, 280, 20);
@@ -96,7 +97,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 	calibrationTable = new QTableWidget (parent);
 	QStringList labels;
 	labels << " Name " << " Ctrl Pts (V) " << " Res (V) " << " Ai " << " Ao " << "Agilent" << "Ag. Channel" 
-		<< " DO-Config " << " AO-Config " << " Avgs ";
+		<< " DO-Config " << " AO-Config " << " Avgs " << "Calibration";
 	calibrationTable->setContextMenuPolicy (Qt::CustomContextMenu);
 	parent->connect (calibrationTable, &QTableWidget::customContextMenuRequested,
 		[this](const QPoint& pos) {handleContextMenu (pos); });
@@ -247,6 +248,7 @@ void CalibrationManager::initialize (QPoint& pos, IChimeraQtWindow* parent, AiSy
 	ao = ao_in;
 	agilents = agilents_in;
 	ttls = ttls_in;
+	pythonHandler = python_in;
 }
 
 std::vector<calInfo> CalibrationManager::getCalibrationInfo (){
@@ -393,6 +395,9 @@ void CalibrationManager::addCalToListview (calInfo& cal) {
 	setItemExtra (8);
 	calibrationTable->setItem (row, 9, new QTableWidgetItem (qstr (cal.avgNum, precision)));
 	setItemExtra (9);
+	calibrationTable->setItem (row, 10, new QTableWidgetItem (qstr(dblVecToString(cal.calibrationCoefficients))));
+	setItemExtra (10);
+	calibrationTable->item (row, 10)->setFlags (calibrationTable->item (row, 10)->flags () ^ Qt::ItemIsEnabled);
 }
 
 std::string CalibrationManager::calDacConfigToString (std::vector<std::pair<unsigned, double>> aoConfig) {
@@ -449,7 +454,6 @@ void CalibrationManager::runAll () {
 		}
 		count++;
 		qApp->processEvents ();
-		qApp->processEvents ();
 	}
 	refreshListview ();
 	ttls->zeroBoard ();
@@ -493,6 +497,16 @@ void CalibrationManager::calibrate (calInfo& cal, unsigned which) {
 		cal.resultValues.push_back (ai->getSingleChannelValue (aiNum, cal.avgNum));
 	}
 	cal.currentlyCalibrating = false;
+	std::ofstream file ("C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationValuesFile.txt");
+	if (!file.is_open ()) {
+		errBox ("Failed to Write Calibration Results!");
+	}
+	for (auto num : range (cal.resultValues.size())) {
+		file << cal.controlPoints[num] << " " << cal.resultValues[num] << "\n";
+	}
+	file.close ();
+	cal.calibrationCoefficients = pythonHandler->runCalibrationFits (this->parent);
+
 	calibrationTable->repaint ();
 	cal.calibrated = true;
 	updateCalibrationView (cal);
@@ -500,17 +514,39 @@ void CalibrationManager::calibrate (calInfo& cal, unsigned which) {
 
 void CalibrationManager::updateCalibrationView (calInfo& cal) {
 	std::vector<plotDataVec> plotData;
-	plotData.resize (1);
+	plotData.resize (2);
 	if (cal.resultValues.size () != cal.controlPoints.size ()) {
 		return;
 	}
+	auto maxy = -DBL_MAX;
+	auto miny = DBL_MAX;
 	for (auto num : range (cal.controlPoints.size ())) {
 		dataPoint dp;
 		dp.x = cal.controlPoints[num];
 		dp.y = cal.resultValues[num];
 		plotData[0].push_back (dp);
+		miny = (dp.y < miny ? dp.y : miny);
+		maxy = (dp.y > maxy ? dp.y : maxy);
+	}
+	// create fit data. the input to the fit function should be the voltage wanted, and the function should return the
+	// control value which gives that voltage, so this is reversed from the control configuration, where you give
+	// a control and get a result. 
+	int numfitpts = 30;
+	plotData[1].resize (numfitpts);
+	auto inc = ( maxy - miny ) / (numfitpts-1);
+	plotData[1][0].y = miny;
+	for (auto ynum : range (plotData[1].size ()-1)) {
+		plotData[1][ynum + 1].y = plotData[1][ynum].y + inc;
+	}
+	for (auto& dp : plotData[1]) {
+		dp.x = 0;
+		for (auto coefnum : range(cal.calibrationCoefficients.size())) {
+			dp.x += cal.calibrationCoefficients[coefnum] * std::pow (dp.y, coefnum);
+		}
 	}
 	calibrationViewer.resetChart ();
 	calibrationViewer.setTitle ("Calibration View: " + cal.calibrationName);
 	calibrationViewer.setData (plotData);
 }
+
+

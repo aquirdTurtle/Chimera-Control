@@ -139,7 +139,7 @@ void QtMainWindow::initializeWidgets (){
 	motScope.initialize (controlLocation, 480, 130, this, "MOT");
 	expScope.initialize (controlLocation, 480, 130, this, "Experiment");
 	calManager.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (), auxWin->getTtlSystem (),
-		auxWin->getAgilents()); 
+		auxWin->getAgilents(), andorWin->getPython()); 
 	servos.initialize (controlLocation, this, &auxWin->getAiSys (), &auxWin->getAoSys (),
 						auxWin->getTtlSystem (), &auxWin->getGlobals ());
 	controlLocation = { 1440, 50 };

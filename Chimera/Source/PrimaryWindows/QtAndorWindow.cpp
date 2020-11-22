@@ -934,6 +934,10 @@ void QtAndorWindow::handleBumpAnalysis (profileSettings finishedProfile) {
 	}
 }
 
+NewPythonHandler* QtAndorWindow::getPython() {
+	return &pythonHandler;
+}
+
 void QtAndorWindow::handleTransformationModeChange () {
 	auto mode = andorSettingsCtrl.getTransformationMode ();
 	pics.setTransformationMode (mode);

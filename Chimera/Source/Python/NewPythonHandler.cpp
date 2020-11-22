@@ -18,12 +18,8 @@ void NewPythonHandler::runDataAnalysis (std::string date, long runNumber, long a
 }
 
 double NewPythonHandler::runCarrierAnalysis (std::string date, long runNumber, atomGrid gridInfo, QWidget* parent) {
-	QString path = "C:/Users/Regal-Lab/Code/Data-Analysis-Code/CarrierAnalysis.py";
-	QString command ("python");// C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CarrierAnalysis.py");
-		//+ qstr (date) + " " + qstr (runNumber) + " " + "[" + qstr (gridInfo.topLeftCorner.row) + "," + qstr (gridInfo.topLeftCorner.column) + ","
-		//+ qstr (gridInfo.pixelSpacing) + "," + qstr (gridInfo.width) + "," + qstr (gridInfo.height) + "]");
+	QString command ("python");
 	auto params = QStringList ();
-	qDebug () << command;
 	params << "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CarrierAnalysis.py";
 	params << qstr(date);
 	params << qstr(runNumber);
@@ -36,13 +32,34 @@ double NewPythonHandler::runCarrierAnalysis (std::string date, long runNumber, a
 	process->waitForReadyRead ();
 	QByteArray out = process->readAllStandardOutput ();
 	QByteArray oute = process->readAllStandardError ();
-	qDebug () << out;
-	qDebug () << oute;
 	process->close ();
-
 	std::string filename = "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CarrierResultFile.txt";
 	double resval;
 	std::ifstream stdfile (filename);
 	stdfile >> resval;
 	return resval;
+}
+
+std::vector<double> NewPythonHandler::runCalibrationFits (QWidget* parent) {
+	QString command ("python");
+	auto params = QStringList ();
+	params << "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationAnalysis.py";
+
+	QProcess* process = new QProcess (parent);
+	process->start (command, params);
+	process->waitForFinished ();
+	process->waitForReadyRead ();
+	QByteArray out = process->readAllStandardOutput ();
+	QByteArray oute = process->readAllStandardError ();
+	process->close ();
+	qDebug () << out << oute;
+	std::string resname = "C:\\Users\\Regal-Lab\\Code\\Data-Analysis-Code\\CalibrationResultFile.txt";
+	double resval;
+	std::ifstream stdfile (resname);
+	// the coefficients of the polynomial fit I'm using.
+	std::vector<double> calibrationCoef;
+	while (stdfile >> resval) {
+		calibrationCoef.push_back (resval);
+	};
+	return calibrationCoef;
 }
